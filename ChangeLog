@@ -13,6 +13,8 @@
 ngIRCd 0.5.x (CVS)
 
   - Besseres Logging von Prefix-Fehlern.
+  - angenommene Sockets werden nun korrekt auf "non-blocking" konfiguriert,
+    beim Senden und Empfangen werden Blockierungen besser abgefangen.
 
 ngIRCd 0.5.3, 08.11.2002
 
@@ -302,4 +304,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.87.2.13 2002/11/20 11:15:33 alex Exp $
+$Id: ChangeLog,v 1.87.2.14 2002/11/20 15:53:32 alex Exp $

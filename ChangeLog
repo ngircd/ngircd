@@ -10,7 +10,7 @@
                                -- ChangeLog --
 
 
-ngircd 0.8.x (CVS)
+ngircd 0.8.2 (2005-01-26)
 
   - Added doc/SSL.txt to distribution.
   - Fixed a buffer overflow that could cause the daemon to crash. Bug found
@@ -554,4 +554,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.233.2.16 2005/01/26 21:47:47 alex Exp $
+$Id: ChangeLog,v 1.233.2.17 2005/01/26 22:05:26 alex Exp $

@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.66 2002/02/23 21:39:48 alex Exp $
+ * $Id: irc.c,v 1.67 2002/02/25 13:21:25 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.67  2002/02/25 13:21:25  alex
+ * - WHOIS wird nicht mehr automatisch an den "Original-Server" weiterge-
+ *   leitet: war eh nicht RFC-konform und machte Probleme mit Clients.
+ *
  * Revision 1.66  2002/02/23 21:39:48  alex
  * - IRC-Befehl KILL sowie Kills bei Nick Collsisions implementiert.
  *
@@ -1722,17 +1726,11 @@ GLOBAL BOOLEAN IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 		if( ! target ) return IRC_WriteStrClient( from, ERR_NOSUCHSERVER_MSG, Client_ID( from ), Req->argv[1] );
 		ptr = Req->argv[1];
 	}
-#ifndef STRICT_RFC
-	else if( Client_Conn( c ) == NONE )
-	{
-		/* Client ist nicht von uns. Ziel-Server suchen */
-		target = c;
-		ptr = Req->argv[0];
-	}
-#endif
-	else target = NULL;
+	else target = Client_ThisServer( );
+
+	assert( target != NULL );
 	
-	if( target && ( Client_NextHop( target ) != Client_ThisServer( )) && ( Client_Type( Client_NextHop( target )) == CLIENT_SERVER )) return IRC_WriteStrClientPrefix( target, from, "WHOIS %s :%s", Req->argv[0], ptr );
+	if(( Client_NextHop( target ) != Client_ThisServer( )) && ( Client_Type( Client_NextHop( target )) == CLIENT_SERVER )) return IRC_WriteStrClientPrefix( target, from, "WHOIS %s :%s", Req->argv[0], ptr );
 	
 	/* Nick, User und Name */
 	if( ! IRC_WriteStrClient( from, RPL_WHOISUSER_MSG, Client_ID( from ), Client_ID( c ), Client_User( c ), Client_Hostname( c ), Client_Info( c ))) return DISCONNECTED;

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: channel.c,v 1.24 2002/05/30 16:52:21 alex Exp $
+ * $Id: channel.c,v 1.25 2002/06/01 14:35:39 alex Exp $
  *
  * channel.c: Management der Channels
  */
@@ -42,6 +42,11 @@
 #include "exp.h"
 
 
+#define REMOVE_PART 0
+#define REMOVE_QUIT 1
+#define REMOVE_KICK 2
+
+
 LOCAL CHANNEL *My_Channels;
 LOCAL CL2CHAN *My_Cl2Chan;
 
@@ -49,7 +54,7 @@ LOCAL CL2CHAN *My_Cl2Chan;
 LOCAL CHANNEL *New_Chan PARAMS(( CHAR *Name ));
 LOCAL CL2CHAN *Get_Cl2Chan PARAMS(( CHANNEL *Chan, CLIENT *Client ));
 LOCAL CL2CHAN *Add_Client PARAMS(( CHANNEL *Chan, CLIENT *Client ));
-LOCAL BOOLEAN Remove_Client PARAMS(( CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, CHAR *Reason, BOOLEAN ServerPART ));
+LOCAL BOOLEAN Remove_Client PARAMS(( INT Type, CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, CHAR *Reason, BOOLEAN InformServer ));
 LOCAL CL2CHAN *Get_First_Cl2Chan PARAMS(( CLIENT *Client, CHANNEL *Chan ));
 LOCAL CL2CHAN *Get_Next_Cl2Chan PARAMS(( CL2CHAN *Start, CLIENT *Client, CHANNEL *Chan ));
 LOCAL BOOLEAN Delete_Channel PARAMS(( CHANNEL *Chan ));
@@ -168,6 +173,7 @@ Channel_Part( CLIENT *Client, CLIENT *Origin, CHAR *Name, CHAR *Reason )
 
 	assert( Client != NULL );
 	assert( Name != NULL );
+	assert( Reason != NULL );
 
 	/* Channel suchen */
 	chan = Channel_Search( Name );
@@ -178,26 +184,70 @@ Channel_Part( CLIENT *Client, CLIENT *Origin, CHAR *Name, CHAR *Reason )
 	}
 
 	/* User aus Channel entfernen */
-	if( ! Remove_Client( chan, Client, Origin, Reason, TRUE )) return FALSE;
+	if( ! Remove_Client( REMOVE_PART, chan, Client, Origin, Reason, TRUE )) return FALSE;
 	else return TRUE;
 } /* Channel_Part */
 
 
 GLOBAL VOID
-Channel_RemoveClient( CLIENT *Client, CHAR *Reason )
+Channel_Kick( CLIENT *Client, CLIENT *Origin, CHAR *Name, CHAR *Reason )
+{
+	CHANNEL *chan;
+
+	assert( Client != NULL );
+	assert( Origin != NULL );
+	assert( Name != NULL );
+	assert( Reason != NULL );
+
+	/* Channel suchen */
+	chan = Channel_Search( Name );
+	if( ! chan )
+	{
+		IRC_WriteStrClient( Origin, ERR_NOSUCHCHANNEL_MSG, Client_ID( Origin ), Name );
+		return;
+	}
+
+	/* Ist der User Mitglied in dem Channel? */
+	if( ! Channel_IsMemberOf( chan, Origin ))
+	{
+		IRC_WriteStrClient( Origin, ERR_NOTONCHANNEL_MSG, Client_ID( Origin ), Name );
+		return;
+	}
+
+	/* Ist der User Channel-Operator? */
+	if( ! strchr( Channel_UserModes( chan, Origin ), 'o' ))
+	{
+		IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Name);
+		return;
+	}
+
+	/* Ist der Ziel-User Mitglied im Channel? */
+	if( ! Channel_IsMemberOf( chan, Client ))
+	{
+		IRC_WriteStrClient( Origin, ERR_USERNOTINCHANNEL_MSG, Client_ID( Origin ), Client_ID( Client ), Name );
+		return;
+	}
+
+	Remove_Client( REMOVE_KICK, chan, Client, Origin, Reason, TRUE );
+} /* Channel_Kick */
+
+
+GLOBAL VOID
+Channel_Quit( CLIENT *Client, CHAR *Reason )
 {
 	CHANNEL *c, *next_c;
 
 	assert( Client != NULL );
+	assert( Reason != NULL );
 
 	c = My_Channels;
 	while( c )
 	{
 		next_c = c->next;
-		Remove_Client( c, Client, Client_ThisServer( ), Reason, FALSE );
+		Remove_Client( REMOVE_QUIT, c, Client, Client_ThisServer( ), Reason, FALSE );
 		c = next_c;
 	}
-} /* Channel_RemoveClient */
+} /* Channel_Quit */
 
 
 GLOBAL INT
@@ -624,7 +674,7 @@ Add_Client( CHANNEL *Chan, CLIENT *Client )
 
 
 LOCAL BOOLEAN
-Remove_Client( CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, CHAR *Reason, BOOLEAN ServerPART )
+Remove_Client( INT Type, CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, CHAR *Reason, BOOLEAN InformServer )
 {
 	CL2CHAN *cl2chan, *last_cl2chan;
 	CHANNEL *c;
@@ -652,11 +702,25 @@ Remove_Client( CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, CHAR *Reason, BOOL
 	else My_Cl2Chan = cl2chan->next;
 	free( cl2chan );
 
-	if( ServerPART ) IRC_WriteStrServersPrefix( Origin, Client, "PART %s :%s", c->name, Reason );
-	IRC_WriteStrChannelPrefix( Origin, c, Client, FALSE, "PART %s :%s", c->name, Reason );
-	if(( Client_Conn( Origin ) > NONE ) && ( Client_Type( Origin ) == CLIENT_USER )) IRC_WriteStrClientPrefix( Origin, Client, "PART %s :%s", c->name, Reason );
-
-	Log( LOG_DEBUG, "User \"%s\" left channel \"%s\" (%s).", Client_Mask( Client ), c->name, Reason );
+	switch( Type )
+	{
+		case REMOVE_QUIT:
+			assert( InformServer == FALSE );
+			IRC_WriteStrChannelPrefix( Origin, c, Origin, FALSE, "QUIT :%s", Reason );
+			Log( LOG_DEBUG, "User \"%s\" left channel \"%s\" (%s).", Client_Mask( Client ), c->name, Reason );
+			break;
+		case REMOVE_KICK:
+			if( InformServer ) IRC_WriteStrServersPrefix( Client_NextHop( Origin ), Origin, "KICK %s %s :%s", c->name, Client_ID( Client ), Reason );
+			IRC_WriteStrChannelPrefix( Client, c, Origin, FALSE, "KICK %s %s :%s", c->name, Client_ID( Client ), Reason );
+			if(( Client_Conn( Client ) > NONE ) && ( Client_Type( Client ) == CLIENT_USER )) IRC_WriteStrClientPrefix( Client, Origin, "KICK %s %s :%s", c->name, Client_ID( Client ), Reason );
+			Log( LOG_DEBUG, "User \"%s\" has been kicked of \"%s\" by \"%s\": %s.", Client_Mask( Client ), c->name, Client_ID( Origin ), Reason );
+			break;
+		default:
+			if( InformServer ) IRC_WriteStrServersPrefix( Origin, Client, "PART %s :%s", c->name, Reason );
+			IRC_WriteStrChannelPrefix( Origin, c, Client, FALSE, "PART %s :%s", c->name, Reason );
+			if(( Client_Conn( Origin ) > NONE ) && ( Client_Type( Origin ) == CLIENT_USER )) IRC_WriteStrClientPrefix( Origin, Client, "PART %s :%s", c->name, Reason );
+			Log( LOG_DEBUG, "User \"%s\" left channel \"%s\" (%s).", Client_Mask( Client ), c->name, Reason );
+	}
 
 	/* Wenn Channel nun leer und nicht pre-defined: loeschen */
 	if( ! strchr( Channel_Modes( Chan ), 'P' ))

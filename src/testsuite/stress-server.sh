@@ -9,7 +9,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: stress-server.sh,v 1.12 2004/09/04 16:14:47 alex Exp $
+# $Id: stress-server.sh,v 1.13 2004/09/04 18:20:16 alex Exp $
 #
 
 # detect source directory
@@ -17,7 +17,7 @@
 
 # parse command line
 [ "$1" -gt 0 ] 2> /dev/null && CLIENTS="$1" || CLIENTS=5
-[ "$2" -gt 0 ] 2> /dev/null && MAX="$2" || MAX=5
+[ "$2" -gt 0 ] 2> /dev/null && MAX="$2" || MAX=-1
 
 # get our name
 name=`basename $0`
@@ -47,20 +47,14 @@ while [ ${no} -lt $CLIENTS ]; do
   no=`expr ${no} + 1`
 done
 
-PS_FLAGS="-f"
-ps $PS_FLAGS >/dev/null 2>&1
-[ $? -ne 0 ] && PS_FLAGS="a"
-
 no=0
 while [ ${no} -lt $CLIENTS ]; do
   expect tests/${no}.e > logs/stress-${no}.log 2> /dev/null &
+
   no=`expr ${no} + 1`
+  echo "      started client $no/$CLIENTS."
 
-  count=`ps $PS_FLAGS | grep "expect " | wc -l`
-  count=`expr $count - 1`
-  echo "      started client $no/$CLIENTS ($count test scripts running)."
-
-  $srcdir/wait-tests.sh $MAX
+  [ $MAX -gt 0 ] && $srcdir/wait-tests.sh $MAX
 done
 
 echo -n "      waiting for clients to complete: ."

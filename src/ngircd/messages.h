@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: messages.h,v 1.63 2003/01/13 18:56:30 alex Exp $
+ * $Id: messages.h,v 1.64 2003/03/19 21:16:16 alex Exp $
  *
  * IRC numerics (Header)
  */
@@ -25,7 +25,8 @@
 #define RPL_ISUPPORT_MSG		"005 %s NICKLEN=%d TOPICLEN=%d AWAYLEN=%d MAXCHANNELS=%d :are supported on this server"
 
 #define RPL_TRACELINK_MSG		"200 %s Link %s-%s %s %s V%s %ld %d %d"
-#define RPL_TRACESERVER_MSG		"206 %s Serv 1 0S 0C %s %s :V%s"
+#define RPL_TRACEOPERATOR_MSG		"204 %s Oper 2 :%s"
+#define RPL_TRACESERVER_MSG		"206 %s Serv 1 0S 0C %s *!*@%s :V%s"
 #define RPL_STATSLINKINFO_MSG		"211 %s %s %d %ld %ld %ld %ld :%ld"
 #define RPL_STATSCOMMANDS_MSG		"212 %s %s %ld %ld %ld"
 #define RPL_ENDOFSTATS_MSG		"219 %s %c :End of STATS report"

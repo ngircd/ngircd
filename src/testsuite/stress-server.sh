@@ -1,12 +1,9 @@
 #!/bin/sh
 # ngIRCd Test Suite
-# $Id: stress-server.sh,v 1.3 2002/09/13 06:11:19 alex Exp $
+# $Id: stress-server.sh,v 1.4 2002/09/16 09:54:17 alex Exp $
 
-if [ `uname` = "Darwin" ]; then
-  CLIENTS=20
-else
-  CLIENTS=50
-fi
+if [ `uname` = "Darwin" -o `uname` = "IRIX" -o `uname` = "IRIX64" ]; then CLIENTS=5
+else CLIENTS=50; fi
 
 name=`basename $0`
 test=`echo ${name} | cut -d '.' -f 1`

@@ -1,12 +1,12 @@
 #!/bin/sh
 #
 # Debian post-installation script
-# $Id: ngircd.postinst,v 1.1.2.2 2003/07/12 18:48:17 alex Exp $
+# $Id: ngircd.postinst,v 1.1.2.3 2003/07/12 22:57:00 alex Exp $
 #
 
 if [ -f /etc/ngircd/ngircd.conf ]; then
-	# validate permissions of configuration file
-	chmod o-a /etc/ngircd/ngircd.conf
+	# make sure that configuration file is not world readable
+	chmod o= /etc/ngircd/ngircd.conf
 fi
 
 if [ -x "/etc/init.d/ngircd" ]; then

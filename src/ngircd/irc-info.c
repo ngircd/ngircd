@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-info.c,v 1.7 2002/12/18 13:07:46 alex Exp $";
+static char UNUSED id[] = "$Id: irc-info.c,v 1.8 2002/12/18 13:55:41 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -332,6 +332,7 @@ IRC_STATS( CLIENT *Client, REQUEST *Req )
 	CLIENT *from, *target, *cl;
 	CONN_ID con;
 	CHAR query;
+	COMMAND *cmd;
 
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -387,6 +388,15 @@ IRC_STATS( CLIENT *Client, REQUEST *Req )
 			break;
 		case 'm':	/* IRC-Befehle */
 		case 'M':
+			cmd = Parse_GetCommandStruct( );
+			while( cmd->name )
+			{
+				if( cmd->lcount > 0 || cmd->rcount > 0 )
+				{
+					if( ! IRC_WriteStrClient( from, RPL_STATSCOMMANDS_MSG, Client_ID( from ), cmd->name, cmd->lcount, cmd->bytes, cmd->rcount )) return DISCONNECTED;
+				}
+				cmd++;
+			}
 			break;
 	}
 

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: channel.h,v 1.14 2002/03/12 14:37:52 alex Exp $
+ * $Id: channel.h,v 1.15 2002/03/25 16:55:14 alex Exp $
  *
  * channel.h: Management der Channels (Header)
  */
@@ -29,6 +29,7 @@ typedef struct _CHANNEL
 {
 	struct _CHANNEL *next;
 	CHAR name[CHANNEL_NAME_LEN];	/* Name des Channel */
+	UINT32 hash;			/* Hash ueber (kleingeschrieben) Namen */
 	CHAR modes[CHANNEL_MODE_LEN];	/* Channel-Modes */
 	CHAR topic[CHANNEL_TOPIC_LEN];	/* Topic des Channels */
 } CHANNEL;
@@ -88,6 +89,8 @@ GLOBAL BOOLEAN Channel_UserModeDel( CHANNEL *Chan, CLIENT *Client, CHAR Mode );
 GLOBAL CHAR *Channel_UserModes( CHANNEL *Chan, CLIENT *Client );
 
 GLOBAL BOOLEAN Channel_IsMemberOf( CHANNEL *Chan, CLIENT *Client );
+
+GLOBAL BOOLEAN Channel_Write( CHANNEL *Chan, CLIENT *From, CLIENT *Client, CHAR *Text );
 
 
 #endif

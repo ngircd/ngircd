@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.h,v 1.22 2002/11/22 17:58:19 alex Exp $
+ * $Id: conn.h,v 1.23 2002/11/26 23:06:51 alex Exp $
  *
  * conn.h: Verwaltung aller Netz-Verbindungen ("connections") (Header)
  */
@@ -19,7 +19,12 @@
 #define __conn_h__
 
 
-#include <time.h>
+#include <time.h>			/* wg. time_t, s.u. */
+
+
+#ifdef USE_ZLIB
+#define CONN_ZIP 4			/* Kompression mit zlib */
+#endif
 
 
 typedef INT CONN_ID;
@@ -55,6 +60,14 @@ GLOBAL VOID Conn_SetServer PARAMS(( CONN_ID Idx, INT ConfServer ));
 
 GLOBAL CONN_ID Conn_First PARAMS(( VOID ));
 GLOBAL CONN_ID Conn_Next PARAMS(( CONN_ID Idx ));
+
+GLOBAL VOID Conn_SetOption PARAMS(( CONN_ID Idx, INT Option ));
+GLOBAL VOID Conn_UnsetOption PARAMS(( CONN_ID Idx, INT Option ));
+GLOBAL INT Conn_Options PARAMS(( CONN_ID Idx ));
+
+#ifdef USE_ZLIB
+GLOBAL BOOLEAN Conn_InitZip PARAMS(( CONN_ID Idx ));
+#endif
 
 
 GLOBAL INT Conn_MaxFD;

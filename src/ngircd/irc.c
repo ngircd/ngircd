@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.104 2002/11/30 17:39:56 alex Exp $
+ * $Id: irc.c,v 1.105 2002/12/06 17:02:39 alex Exp $
  *
  * irc.c: IRC-Befehle
  */
@@ -51,32 +51,41 @@ GLOBAL BOOLEAN
 IRC_KILL( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *prefix, *c;
+	CHAR reason[COMMAND_LEN];
 
 	assert( Client != NULL );
 	assert( Req != NULL );
 
+	/* is the user an IRC operator? */
+	if(( Client_Type( Client ) != CLIENT_SERVER ) && ( ! Client_OperByMe( Client ))) return IRC_WriteStrClient( Client, ERR_NOPRIVILEGES_MSG, Client_ID( Client ));
+
 	/* Falsche Anzahl Parameter? */
 	if(( Req->argc != 2 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
-	prefix = Client_Search( Req->prefix );
+	if( Req->prefix ) prefix = Client_Search( Req->prefix );
+	else prefix = Client;
 	if( ! prefix )
 	{
 		Log( LOG_WARNING, "Got KILL with invalid prefix: \"%s\"!", Req->prefix );
 		prefix = Client_ThisServer( );
 	}
 
-	Log( LOG_NOTICE, "Got KILL command from \"%s\" for \"%s\": %s", Client_Mask( prefix ), Req->argv[0], Req->argv[1] );
+	Log( LOG_NOTICE|LOG_snotice, "Got KILL command from \"%s\" for \"%s\": %s", Client_Mask( prefix ), Req->argv[0], Req->argv[1] );
+
+	/* build reason string */
+	if( Client_Type( Client ) == CLIENT_USER ) sprintf( reason, "KILLed by %s: %s", Client_ID( Client ), Req->argv[1] );
+	else strcpy( reason, Req->argv[1] );
 
 	/* andere Server benachrichtigen */
-	IRC_WriteStrServersPrefix( Client, prefix, "KILL %s :%s", Req->argv[0], Req->argv[1] );
+	IRC_WriteStrServersPrefix( Client, prefix, "KILL %s :%s", Req->argv[0], reason );
 
 	/* haben wir selber einen solchen Client? */
 	c = Client_Search( Req->argv[0] );
 	if( c )
 	{
 		/* Ja, wir haben einen solchen Client */
-		if( Client_Conn( c ) != NONE ) Conn_Close( Client_Conn( c ), NULL, Req->argv[1], TRUE );
-		else Client_Destroy( c, NULL, Req->argv[1], TRUE );
+		if( Client_Conn( c ) != NONE ) Conn_Close( Client_Conn( c ), NULL, reason, TRUE );
+		else Client_Destroy( c, NULL, reason, TRUE );
 	}
 	else Log( LOG_NOTICE, "Client with nick \"%s\" is unknown here.", Req->argv[0] );
 

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: parse.c,v 1.49 2002/11/30 17:39:56 alex Exp $
+ * $Id: parse.c,v 1.50 2002/12/06 17:02:39 alex Exp $
  *
  * parse.c: Parsen der Client-Anfragen
  */
@@ -69,7 +69,7 @@ COMMAND My_Commands[] =
 	{ "ISON", IRC_ISON, CLIENT_USER, 0 },
 	{ "JOIN", IRC_JOIN, CLIENT_USER|CLIENT_SERVER, 0 },
 	{ "KICK", IRC_KICK, CLIENT_USER|CLIENT_SERVER, 0 },
-	{ "KILL", IRC_KILL, CLIENT_SERVER, 0 },
+	{ "KILL", IRC_KILL, CLIENT_USER|CLIENT_SERVER, 0 },
 	{ "LINKS", IRC_LINKS, CLIENT_USER|CLIENT_SERVER, 0 },
 	{ "LIST", IRC_LIST, CLIENT_USER|CLIENT_SERVER, 0 },
 	{ "LUSERS", IRC_LUSERS, CLIENT_USER|CLIENT_SERVER, 0 },

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.39 2002/03/29 22:56:40 alex Exp $
+ * $Id: ngircd.c,v 1.40 2002/03/29 23:34:18 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  */
@@ -249,20 +249,22 @@ GLOBAL int main( int argc, const char *argv[] )
 
 		/* Wenn als root ausgefuehrt und eine andere UID
 		 * konfiguriert ist, jetzt zu dieser wechseln */
-		if( getuid( ) != 0 )
+		if( getuid( ) == 0 )
 		{
-			if( Conf_GID > 0 )
+			if( Conf_GID != 0 )
 			{
 				/* Neue Group-ID setzen */
 				if( setgid( Conf_GID ) != 0 ) Log( LOG_ERR, "Can't change Group-ID to %u: %s", Conf_GID, strerror( errno ));
 			}
-			if( Conf_UID > 0 )
+			if( Conf_UID != 0 )
 			{
 				/* Neue User-ID setzen */
-				if( setgid( Conf_UID ) != 0 ) Log( LOG_ERR, "Can't change User-ID to %u: %s", Conf_UID, strerror( errno ));
+				if( setuid( Conf_UID ) != 0 ) Log( LOG_ERR, "Can't change User-ID to %u: %s", Conf_UID, strerror( errno ));
 			}
 		}
 		Log( LOG_INFO, "Running as user %ld, group %ld.", (INT32)getuid( ), (INT32)getgid( ));
+
+		Log_InitErrorfile( );
 
 		/* Signal-Handler initialisieren */
 		Initialize_Signal_Handler( );

@@ -50,6 +50,9 @@ ngIRCd CVS-HEAD
   - Channel-Mode "P" ("persistent") kann nur noch von IRC-Operatoren gesetzt
     werden. Grund: User koennen den Server sonst leicht "Channel-Flooden".
   - RPL_UMODEIS hat Code 221, nicht 211 ... *argl*
+  - select() in Try_Write() hat falschen (keinen!) Timeout verwendet;
+    die "Zeit-Aufloesung" des Servers sind zudem nun 2 Sekunden (TIME_RES).
+    Insgesamt sollte die Reaktionszeit des Server nun besser sein.
 
 ngIRCd 0.5.3, 08.11.2002
 
@@ -338,4 +341,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.127 2002/11/22 23:30:36 alex Exp $
+$Id: ChangeLog,v 1.128 2002/11/23 16:19:38 alex Exp $

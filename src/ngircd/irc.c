@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.31 2002/01/07 15:39:46 alex Exp $
+ * $Id: irc.c,v 1.32 2002/01/07 16:02:36 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.32  2002/01/07 16:02:36  alex
+ * - Loglevel von Remote-Mode-Aenderungen angepasst (nun Debug).
+ * - Im Debug-Mode werden nun auch PING's protokolliert.
+ *
  * Revision 1.31  2002/01/07 15:39:46  alex
  * - Server nimmt nun Server-Links an: PASS und SERVER entsprechend angepasst.
  * - MODE und NICK melden nun die Aenderungen an andere Server.
@@ -484,7 +488,7 @@ GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req )
 		else if( Client_Type( Client ) == CLIENT_SERVER )
 		{
 			/* Nick-Aenderung: allen mitteilen! */
-			Log( LOG_INFO, "User \"%s\" changed nick: \"%s\" -> \"%s\".", Client_Mask( target ), Client_ID( target ), Req->argv[0] );
+			Log( LOG_DEBUG, "User \"%s\" changed nick: \"%s\" -> \"%s\".", Client_Mask( target ), Client_ID( target ), Req->argv[0] );
 			IRC_WriteStrServersPrefix( Client, Client, "NICK :%s", Req->argv[0] );
 		}
 	
@@ -671,6 +675,7 @@ GLOBAL BOOLEAN IRC_PING( CLIENT *Client, REQUEST *Req )
 	if( Req->argc < 1 ) return IRC_WriteStrClient( Client, ERR_NOORIGIN_MSG, Client_ID( Client ));
 	if( Req->argc > 1 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
+	Log( LOG_DEBUG, "Connection %d: Got PING, sending PONG ...", Client_Conn( Client ));
 	return IRC_WriteStrClient( Client, "PONG %s :%s", Client_ID( Client_ThisServer( )), Client_ID( Client ));
 } /* IRC_PING */
 
@@ -915,6 +920,7 @@ GLOBAL BOOLEAN IRC_OPER( CLIENT *Client, REQUEST *Req )
 		/* noch kein o-Mode gesetzt */
 		Client_ModeAdd( Client, 'o' );
 		if( ! IRC_WriteStrRelated( Client, "MODE %s :+o", Client_ID( Client ))) return DISCONNECTED;
+		IRC_WriteStrServersPrefix( NULL, Client, "MODE %s :+o", Client_ID( Client ));
 	}
 
 	if( ! Client_OperByMe( Client )) Log( LOG_NOTICE, "Got valid OPER from \"%s\", user is an IRC operator now.", Client_Mask( Client ));

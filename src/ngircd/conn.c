@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.85 2002/10/22 23:25:29 alex Exp $
+ * $Id: conn.c,v 1.86 2002/11/02 23:00:45 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -76,6 +76,7 @@ typedef struct _Connection
 	time_t lastprivmsg;		/* Letzte PRIVMSG */
 	time_t delaytime;		/* Nicht beachten bis ("penalty") */
 	LONG bytes_in, bytes_out;	/* Counter fuer Statistik */
+	BOOLEAN flagged;		/* Channel ist "markiert" (vgl. "irc-write"-Modul) */
 } CONNECTION;
 
 
@@ -88,7 +89,7 @@ LOCAL BOOLEAN Try_Write PARAMS(( CONN_ID Idx ));
 LOCAL VOID Handle_Buffer PARAMS(( CONN_ID Idx ));
 LOCAL VOID Check_Connections PARAMS(( VOID ));
 LOCAL VOID Check_Servers PARAMS(( VOID ));
-LOCAL VOID Init_Conn_Struct PARAMS(( INT Idx ));
+LOCAL VOID Init_Conn_Struct PARAMS(( LONG Idx ));
 LOCAL BOOLEAN Init_Socket PARAMS(( INT Sock ));
 LOCAL VOID New_Server PARAMS(( INT Server, CONN_ID Idx ));
 LOCAL VOID Read_Resolver_Result PARAMS(( INT r_fd ));
@@ -98,7 +99,8 @@ LOCAL fd_set My_Listeners;
 LOCAL fd_set My_Sockets;
 LOCAL fd_set My_Connects;
 
-LOCAL CONNECTION My_Connections[MAX_CONNECTIONS];
+LOCAL CONNECTION *My_Connections;
+LOCAL LONG Pool_Size;
 
 
 GLOBAL VOID
@@ -108,15 +110,32 @@ Conn_Init( VOID )
 
 	CONN_ID i;
 
+	/* Speicher fuer Verbindungs-Pool anfordern */
+	Pool_Size = CONNECTION_POOL;
+	if( Conf_MaxConnections > 0 )
+	{
+		/* konfiguriertes Limit beachten */
+		if( Pool_Size > Conf_MaxConnections ) Pool_Size = Conf_MaxConnections;
+	}
+	My_Connections = malloc( sizeof( CONNECTION ) * Pool_Size );
+	if( ! My_Connections )
+	{
+		/* Speicher konnte nicht alloziert werden! */
+		Log( LOG_EMERG, "Can't allocate memory! [Conn_Init]" );
+		exit( 1 );
+	}
+	Log( LOG_DEBUG, "Allocted connection pool for %ld items.", Pool_Size );
+
 	/* zu Beginn haben wir keine Verbindungen */
 	FD_ZERO( &My_Listeners );
 	FD_ZERO( &My_Sockets );
 	FD_ZERO( &My_Connects );
 
+	/* Groesster File-Descriptor fuer select() */
 	Conn_MaxFD = 0;
 
 	/* Connection-Struktur initialisieren */
-	for( i = 0; i < MAX_CONNECTIONS; i++ ) Init_Conn_Struct( i );
+	for( i = 0; i < Pool_Size; i++ ) Init_Conn_Struct( i );
 } /* Conn_Init */
 
 
@@ -135,7 +154,7 @@ Conn_Exit( VOID )
 	{
 		if( FD_ISSET( i, &My_Sockets ))
 		{
-			for( idx = 0; idx < MAX_CONNECTIONS; idx++ )
+			for( idx = 0; idx < Pool_Size; idx++ )
 			{
 				if( My_Connections[idx].sock == i ) break;
 			}
@@ -149,7 +168,7 @@ Conn_Exit( VOID )
 				close( i );
 				Log( LOG_DEBUG, "Connection %d closed during creation (socket %d).", idx, i );
 			}
-			else if( idx < MAX_CONNECTIONS )
+			else if( idx < Pool_Size )
 			{
 				if( NGIRCd_Restart ) Conn_Close( idx, NULL, "Server going down (restarting)", TRUE );
 				else Conn_Close( idx, NULL, "Server going down", TRUE );
@@ -161,6 +180,10 @@ Conn_Exit( VOID )
 			}
 		}
 	}
+	
+	free( My_Connections );
+	My_Connections = NULL;
+	Pool_Size = 0;
 } /* Conn_Exit */
 
 
@@ -236,7 +259,7 @@ Conn_Handler( VOID )
 	fd_set read_sockets, write_sockets;
 	struct timeval tv;
 	time_t start, t;
-	INT i, idx;
+	LONG i, idx;
 
 	start = time( NULL );
 	while(( ! NGIRCd_Quit ) && ( ! NGIRCd_Restart ))
@@ -246,7 +269,7 @@ Conn_Handler( VOID )
 		Check_Connections( );
 
 		/* noch volle Lese-Buffer suchen */
-		for( i = 0; i < MAX_CONNECTIONS; i++ )
+		for( i = 0; i < Pool_Size; i++ )
 		{
 			if(( My_Connections[i].sock > NONE ) && ( My_Connections[i].rdatalen > 0 ))
 			{
@@ -257,7 +280,7 @@ Conn_Handler( VOID )
 
 		/* noch volle Schreib-Puffer suchen */
 		FD_ZERO( &write_sockets );
-		for( i = 0; i < MAX_CONNECTIONS; i++ )
+		for( i = 0; i < Pool_Size; i++ )
 		{
 			if(( My_Connections[i].sock > NONE ) && ( My_Connections[i].wdatalen > 0 ))
 			{
@@ -266,7 +289,7 @@ Conn_Handler( VOID )
 			}
 		}
 		/* Sockets mit im Aufbau befindlichen ausgehenden Verbindungen suchen */
-		for( i = 0; i < MAX_CONNECTIONS; i++ )
+		for( i = 0; i < Pool_Size; i++ )
 		{
 			if(( My_Connections[i].sock > NONE ) && ( FD_ISSET( My_Connections[i].sock, &My_Connects ))) FD_SET( My_Connections[i].sock, &write_sockets );
 		}
@@ -274,7 +297,7 @@ Conn_Handler( VOID )
 		/* von welchen Sockets koennte gelesen werden? */
 		t = time( NULL );
 		read_sockets = My_Sockets;
-		for( i = 0; i < MAX_CONNECTIONS; i++ )
+		for( i = 0; i < Pool_Size; i++ )
 		{
 			if(( My_Connections[i].sock > NONE ) && ( My_Connections[i].host[0] == '\0' ))
 			{
@@ -566,9 +589,74 @@ Conn_SetPenalty( CONN_ID Idx, time_t Seconds )
 GLOBAL VOID
 Conn_ResetPenalty( CONN_ID Idx )
 {
-	assert( Idx >= 0 );
+	assert( Idx >= NONE );
 	My_Connections[Idx].delaytime = 0;
 } /* Conn_ResetPenalty */
+
+
+GLOBAL VOID
+Conn_ClearFlags( VOID )
+{
+	/* Alle Connection auf "nicht-markiert" setzen */
+
+	LONG i;
+
+	for( i = 0; i < Pool_Size; i++ ) My_Connections[i].flagged = FALSE;
+} /* Conn_ClearFlags */
+
+
+GLOBAL BOOLEAN
+Conn_Flag( CONN_ID Idx )
+{
+	/* Ist eine Connection markiert (TRUE) oder nicht? */
+
+	assert( Idx >= NONE );
+	return My_Connections[Idx].flagged;
+} /* Conn_Flag */
+
+
+GLOBAL VOID
+Conn_SetFlag( CONN_ID Idx )
+{
+	/* Connection markieren */
+
+	assert( Idx >= NONE );
+	My_Connections[Idx].flagged = TRUE;
+} /* Conn_SetFlag */
+
+
+GLOBAL CONN_ID
+Conn_First( VOID )
+{
+	/* Connection-Struktur der ersten Verbindung liefern;
+	 * Ist keine Verbindung vorhanden, wird NONE geliefert. */
+
+	LONG i;
+	
+	for( i = 0; i < Pool_Size; i++ )
+	{
+		if( My_Connections[i].sock != NONE ) return i;
+	}
+	return NONE;
+} /* Conn_First */
+
+
+GLOBAL CONN_ID
+Conn_Next( CONN_ID Idx )
+{
+	/* Naechste Verbindungs-Struktur liefern; existiert keine
+	 * weitere, so wird NONE geliefert. */
+
+	LONG i = NONE;
+
+	assert( Idx >= NONE );
+	
+	for( i = Idx + 1; i < Pool_Size; i++ )
+	{
+		if( My_Connections[i].sock != NONE ) return i;
+	}
+	return NONE;
+} /* Conn_Next */
 
 
 LOCAL BOOLEAN
@@ -716,6 +804,8 @@ New_Connection( INT Sock )
 	RES_STAT *s;
 	CONN_ID idx;
 	CLIENT *c;
+	POINTER *ptr;
+	LONG new_size;
 
 	assert( Sock >= 0 );
 
@@ -728,12 +818,52 @@ New_Connection( INT Sock )
 	}
 
 	/* Freie Connection-Struktur suchen */
-	for( idx = 0; idx < MAX_CONNECTIONS; idx++ ) if( My_Connections[idx].sock == NONE ) break;
-	if( idx >= MAX_CONNECTIONS )
+	for( idx = 0; idx < Pool_Size; idx++ ) if( My_Connections[idx].sock == NONE ) break;
+	if( idx >= Pool_Size )
 	{
-		Log( LOG_ALERT, "Can't accept connection: limit reached (%d)!", MAX_CONNECTIONS );
-		close( new_sock );
-		return;
+		new_size = Pool_Size + CONNECTION_POOL;
+		
+		/* Im bisherigen Pool wurde keine freie Connection-Struktur mehr gefunden.
+		 * Wenn erlaubt und moeglich muss nun der Pool vergroessert werden: */
+		
+		if( Conf_MaxConnections > 0 )
+		{
+			/* Es ist ein Limit konfiguriert */
+			if( Pool_Size >= Conf_MaxConnections )
+			{
+				/* Mehr Verbindungen duerfen wir leider nicht mehr annehmen ... */
+				Log( LOG_ALERT, "Can't accept connection: limit (%d) reached!", Pool_Size );
+				close( new_sock );
+				return;
+			}
+			if( new_size > Conf_MaxConnections ) new_size = Conf_MaxConnections;
+		}
+		
+		/* zunaechst realloc() versuchen; wenn das scheitert, malloc() versuchen
+		 * und Daten ggf. "haendisch" umkopieren. (Haesslich! Eine wirklich
+		 * dynamische Verwaltung waere wohl _deutlich_ besser ...) */
+		ptr = realloc( My_Connections, sizeof( CONNECTION ) * new_size );
+		if( ! ptr )
+		{
+			/* realloc() ist fehlgeschlagen. Nun malloc() probieren: */
+			ptr = malloc( sizeof( CONNECTION ) * new_size );
+			if( ! ptr )
+			{
+				/* Offenbar steht kein weiterer Sepeicher zur Verfuegung :-( */
+				Log( LOG_EMERG, "Can't allocate memory! [New_Connection]" );
+				close( new_sock );
+				return;
+			}
+			
+			/* Struktur umkopieren ... */
+			memcpy( ptr, My_Connections, sizeof( CONNECTION ) * Pool_Size );
+			
+			Log( LOG_DEBUG, "Allocated new connection pool for %ld items. [malloc()/memcpy()]", new_size );
+		}
+		else Log( LOG_DEBUG, "Allocated new connection pool for %ld items. [realloc()]", new_size );
+		
+		My_Connections = ptr;
+		Pool_Size = new_size;
 	}
 
 	/* Client-Struktur initialisieren */
@@ -785,9 +915,9 @@ Socket2Index( INT Sock )
 
 	assert( Sock >= 0 );
 
-	for( idx = 0; idx < MAX_CONNECTIONS; idx++ ) if( My_Connections[idx].sock == Sock ) break;
+	for( idx = 0; idx < Pool_Size; idx++ ) if( My_Connections[idx].sock == Sock ) break;
 
-	if( idx >= MAX_CONNECTIONS )
+	if( idx >= Pool_Size )
 	{
 		/* die Connection wurde vermutlich (wegen eines
 		 * Fehlers) bereits wieder abgebaut ... */
@@ -916,9 +1046,9 @@ Check_Connections( VOID )
 	 * auch das nicht "hilft", Client disconnectieren. */
 
 	CLIENT *c;
-	INT i;
+	LONG i;
 
-	for( i = 0; i < MAX_CONNECTIONS; i++ )
+	for( i = 0; i < Pool_Size; i++ )
 	{
 		if( My_Connections[i].sock == NONE ) continue;
 
@@ -964,8 +1094,9 @@ Check_Servers( VOID )
 	/* Pruefen, ob Server-Verbindungen aufgebaut werden
 	 * muessen bzw. koennen */
 
-	INT idx, i, n;
 	RES_STAT *s;
+	LONG idx, n;
+	INT i;
 
 	/* Wenn "Passive-Mode" aktiv: nicht verbinden */
 	if( NGIRCd_Passive ) return;
@@ -976,7 +1107,7 @@ Check_Servers( VOID )
 		if(( ! Conf_Server[i].host[0] ) || ( ! Conf_Server[i].port > 0 )) continue;
 
 		/* Haben wir schon eine Verbindung? */
-		for( n = 0; n < MAX_CONNECTIONS; n++ )
+		for( n = 0; n < Pool_Size; n++ )
 		{
 			if( My_Connections[n].sock == NONE ) continue;
 			
@@ -996,7 +1127,7 @@ Check_Servers( VOID )
 				if( Conf_Server[My_Connections[n].our_server].group == Conf_Server[i].group ) break;
 			}
 		}
-		if( n < MAX_CONNECTIONS ) continue;
+		if( n < Pool_Size ) continue;
 
 		/* Wann war der letzte Connect-Versuch? */
 		if( Conf_Server[i].lasttry > time( NULL ) - Conf_ConnectRetry ) continue;
@@ -1005,10 +1136,10 @@ Check_Servers( VOID )
 		Conf_Server[i].lasttry = time( NULL );
 
 		/* Freie Connection-Struktur suschen */
-		for( idx = 0; idx < MAX_CONNECTIONS; idx++ ) if( My_Connections[idx].sock == NONE ) break;
-		if( idx >= MAX_CONNECTIONS )
+		for( idx = 0; idx < Pool_Size; idx++ ) if( My_Connections[idx].sock == NONE ) break;
+		if( idx >= Pool_Size )
 		{
-			Log( LOG_ALERT, "Can't establist server connection: connection limit reached (%d)!", MAX_CONNECTIONS );
+			Log( LOG_ALERT, "Can't establist server connection: connection limit reached (%d)!", Pool_Size );
 			return;
 		}
 		Log( LOG_DEBUG, "Preparing connection %d for \"%s\" ...", idx, Conf_Server[i].host );
@@ -1125,7 +1256,7 @@ New_Server( INT Server, CONN_ID Idx )
 
 
 LOCAL VOID
-Init_Conn_Struct( INT Idx )
+Init_Conn_Struct( LONG Idx )
 {
 	/* Connection-Struktur initialisieren */
 
@@ -1143,6 +1274,7 @@ Init_Conn_Struct( INT Idx )
 	My_Connections[Idx].delaytime = 0;
 	My_Connections[Idx].bytes_in = 0;
 	My_Connections[Idx].bytes_out = 0;
+	My_Connections[Idx].flagged = FALSE;
 } /* Init_Conn_Struct */
 
 
@@ -1195,11 +1327,11 @@ Read_Resolver_Result( INT r_fd )
 	result[len] = '\0';
 
 	/* zugehoerige Connection suchen */
-	for( i = 0; i < MAX_CONNECTIONS; i++ )
+	for( i = 0; i < Pool_Size; i++ )
 	{
 		if(( My_Connections[i].sock != NONE ) && ( My_Connections[i].res_stat ) && ( My_Connections[i].res_stat->pipe[0] == r_fd )) break;
 	}
-	if( i >= MAX_CONNECTIONS )
+	if( i >= Pool_Size )
 	{
 		/* Opsa! Keine passende Connection gefunden!? Vermutlich
 		 * wurde sie schon wieder geschlossen. */

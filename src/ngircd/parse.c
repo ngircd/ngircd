@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: parse.c,v 1.19 2002/01/09 01:08:42 alex Exp $
+ * $Id: parse.c,v 1.20 2002/01/11 23:50:55 alex Exp $
  *
  * parse.c: Parsen der Client-Anfragen
  *
  * $Log: parse.c,v $
+ * Revision 1.20  2002/01/11 23:50:55  alex
+ * - LINKS implementiert, LUSERS begonnen.
+ *
  * Revision 1.19  2002/01/09 01:08:42  alex
  * - Parses handhabt Leerzeichen zw. Parametern nun etwas "lockerer".
  *
@@ -353,6 +356,8 @@ LOCAL BOOLEAN Handle_Request( CONN_ID Idx, REQUEST *Req )
 	else if( strcasecmp( Req->command, "DIE" ) == 0 ) return IRC_DIE( client, Req );
 	else if( strcasecmp( Req->command, "RESTART" ) == 0 ) return IRC_RESTART( client, Req );
 	else if( strcasecmp( Req->command, "ERROR" ) == 0 ) return IRC_ERROR( client, Req );
+	else if( strcasecmp( Req->command, "LUSERS" ) == 0 ) return IRC_LUSERS( client, Req );
+	else if( strcasecmp( Req->command, "LINKS" ) == 0 ) return IRC_LINKS( client, Req );
 	
 	/* Unbekannter Befehl */
 	if( Client_Type( client ) != CLIENT_SERVER ) IRC_WriteStrClient( client, ERR_UNKNOWNCOMMAND_MSG, Client_ID( client ), Req->command );

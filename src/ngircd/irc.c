@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.35 2002/01/09 21:30:45 alex Exp $
+ * $Id: irc.c,v 1.36 2002/01/11 23:50:55 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.36  2002/01/11 23:50:55  alex
+ * - LINKS implementiert, LUSERS begonnen.
+ *
  * Revision 1.35  2002/01/09 21:30:45  alex
  * - WHOIS wurde faelschlicherweise an User geforwarded statt vom Server beantwortet.
  *
@@ -773,7 +776,8 @@ GLOBAL BOOLEAN IRC_PRIVMSG( CLIENT *Client, REQUEST *Req )
 
 	if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_GetFromID( Req->prefix );
 	else from = Client;
-	
+	if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
+
 	to = Client_Search( Req->argv[0] );
 	if( to )
 	{
@@ -799,6 +803,7 @@ GLOBAL BOOLEAN IRC_NOTICE( CLIENT *Client, REQUEST *Req )
 
 	if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_GetFromID( Req->prefix );
 	else from = Client;
+	if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
 
 	to = Client_Search( Req->argv[0] );
 	if( to )
@@ -1209,6 +1214,69 @@ GLOBAL BOOLEAN IRC_ERROR( CLIENT *Client, REQUEST *Req )
 
 	return CONNECTED;
 } /* IRC_ERROR */
+
+
+GLOBAL BOOLEAN IRC_LUSERS( CLIENT *Client, REQUEST *Req )
+{
+	assert( Client != NULL );
+	assert( Req != NULL );
+
+	if( Client_Type( Client ) != CLIENT_USER ) return IRC_WriteStrClient( Client, ERR_NOTREGISTERED_MSG, Client_ID( Client ));
+
+	/* Falsche Anzahl Parameter? */
+	if(( Req->argc > 2 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	
+	return CONNECTED;
+} /* IRC_LUSERS */
+
+
+GLOBAL BOOLEAN IRC_LINKS( CLIENT *Client, REQUEST *Req )
+{
+	CLIENT *target, *from, *c;
+	CHAR *mask;
+	
+	assert( Client != NULL );
+	assert( Req != NULL );
+
+	if(( Client_Type( Client ) != CLIENT_USER ) && ( Client_Type( Client ) != CLIENT_SERVER )) return IRC_WriteStrClient( Client, ERR_NOTREGISTERED_MSG, Client_ID( Client ));
+
+	/* Falsche Anzahl Parameter? */
+	if(( Req->argc > 2 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+
+	/* Server-Mask ermitteln */
+	if( Req->argc > 0 ) mask = Req->argv[Req->argc - 1];
+	else mask = "*";
+
+	/* Absender ermitteln */
+	if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_GetFromID( Req->prefix );
+	else from = Client;
+	if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
+	
+	/* An anderen Server forwarden? */
+	if( Req->argc == 2 )
+	{
+		target = Client_GetFromID( Req->argv[0] );
+		if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->argv[0] );
+		else if( target != Client_ThisServer( )) return IRC_WriteStrClientPrefix( target, from, "LINKS %s %s", Req->argv[0], Req->argv[1] );
+	}
+
+	/* Wer ist der Absender? */
+	if( Client_Type( Client ) == CLIENT_SERVER ) target = Client_GetFromID( Req->prefix );
+	else target = Client;
+	if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
+	
+	c = Client_First( );
+	while( c )
+	{
+		if( Client_Type( c ) == CLIENT_SERVER )
+		{
+			if( ! IRC_WriteStrClient( target, RPL_LINKS_MSG, Client_ID( target ), Client_ID( c ), Client_ID( Client_Introducer( c )), Client_Hops( c ), Client_Info( c ))) return DISCONNECTED;
+		}
+		c = Client_Next( c );
+	}
+	
+	return IRC_WriteStrClient( target, RPL_ENDOFLINKS_MSG, Client_ID( target ), mask );
+} /* IRC_LINKS */
 
 
 LOCAL BOOLEAN Hello_User( CLIENT *Client )

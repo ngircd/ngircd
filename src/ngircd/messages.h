@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: messages.h,v 1.17 2002/01/05 23:23:44 alex Exp $
+ * $Id: messages.h,v 1.18 2002/01/11 23:50:55 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: messages.h,v $
+ * Revision 1.18  2002/01/11 23:50:55  alex
+ * - LINKS implementiert, LUSERS begonnen.
+ *
  * Revision 1.17  2002/01/05 23:23:44  alex
  * - neue Nachricht ERR_NOSUCHSERVER_MSG definiert.
  *
@@ -89,6 +92,21 @@
 #define RPL_MYINFO			"004"
 #define RPL_MYINFO_MSG			RPL_MYINFO" %s %s ngircd-"VERSION" ior +"
 
+#define RPL_LUSERCLIENT			"251"
+#define RPL_LUSERCLIENT_MSG		RPL_LUSERCLIENT" %s :There are %d users and %d services on %d servers"
+
+#define RPL_LUSEROP			"252"
+#define RPL_LUSEROP_MSG			RPL_LUSEROP" %s %d :operator(s) online"
+
+#define RPL_LUSERUNKNOWN		"253"
+#define	RPL_LUSERUNKNOWN_MSG		RPL_LUSERUNKNOWN" %s %d :unknown connection(s)"
+
+#define RPL_LUSERCHANNELS		"254"
+#define RPL_LUSERCHANNELS_MSG		RPL_LUSERCHANNELS_MSG" %s %d :channels formed"
+
+#define RPL_LUSERME			"255"
+#define	RPL_LUSERME_MSG			RPL_LUSERME" %s :I have %d clients and %d servers"
+
 #define RPL_MOTDSTART			"375"
 #define RPL_MOTDSTART_MSG		RPL_MOTDSTART" %s :- %s message of the day"
 
@@ -127,6 +145,12 @@
 
 #define RPL_NAMREPLY			"353"
 #define RPL_NAMREPLY_MSG		RPL_NAMREPLY" %s %s %s :%s"
+
+#define RPL_LINKS			"364"
+#define RPL_LINKS_MSG			RPL_LINKS" %s %s %s :%d %s"
+
+#define RPL_ENDOFLINKS			"365"
+#define RPL_ENDOFLINKS_MSG		RPL_ENDOFLINKS" %s %s :End of LINKS list"
 
 #define RPL_ENDOFNAMES			"366"
 #define RPL_ENDOFNAMES_MSG		RPL_ENDOFNAMES" %s %s :End of NAMES list"

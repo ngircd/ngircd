@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.h,v 1.16 2002/01/05 19:15:03 alex Exp $
+ * $Id: irc.h,v 1.17 2002/01/11 23:50:55 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: irc.h,v $
+ * Revision 1.17  2002/01/11 23:50:55  alex
+ * - LINKS implementiert, LUSERS begonnen.
+ *
  * Revision 1.16  2002/01/05 19:15:03  alex
  * - Fehlerpruefung bei select() in der "Hauptschleife" korrigiert.
  *
@@ -94,6 +97,8 @@ GLOBAL BOOLEAN IRC_QUIT( CLIENT *Client, REQUEST *Req );
 GLOBAL BOOLEAN IRC_SQUIT( CLIENT *Client, REQUEST *Req );
 
 GLOBAL BOOLEAN IRC_MOTD( CLIENT *Client, REQUEST *Req );
+GLOBAL BOOLEAN IRC_LUSERS( CLIENT *Client, REQUEST *Req );
+GLOBAL BOOLEAN IRC_LINKS( CLIENT *Client, REQUEST *Req );
 
 GLOBAL BOOLEAN IRC_PRIVMSG( CLIENT *Client, REQUEST *Req );
 GLOBAL BOOLEAN IRC_NOTICE( CLIENT *Client, REQUEST *Req );

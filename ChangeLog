@@ -42,6 +42,7 @@ ngIRCd CVS-HEAD
   - Fixed up and enhanced CHANINFO command: channel keys and user limits
     are syncronized between servers now, too.
   - Enhanced killing of users caused by a nickname collision.
+  - MODE returns the key and user limit for channel members correctly now.
 
 
 Older changes (sorry, only available in german language):
@@ -405,4 +406,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.167 2003/01/08 22:29:14 alex Exp $
+$Id: ChangeLog,v 1.168 2003/01/08 23:00:51 alex Exp $

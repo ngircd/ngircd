@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: portab.h,v 1.18 2005/03/19 18:43:50 fw Exp $
+ * $Id: portab.h,v 1.19 2005/03/30 16:37:02 alex Exp $
  *
  * Portability functions and declarations (header for libngbportab).
  */
@@ -19,6 +19,10 @@
 
 
 #include "config.h"
+
+#ifndef DEBUG
+# define NDEBUG
+#endif
 
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>

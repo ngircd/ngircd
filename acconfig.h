@@ -9,9 +9,12 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: acconfig.h,v 1.2 2001/12/21 23:54:15 alex Exp $
+ * $Id: acconfig.h,v 1.3 2001/12/25 22:01:47 alex Exp $
  *
  * $Log: acconfig.h,v $
+ * Revision 1.3  2001/12/25 22:01:47  alex
+ * - neue configure-Option "--enable-sniffer".
+ *
  * Revision 1.2  2001/12/21 23:54:15  alex
  * - zusaetzliche Debug-Ausgaben koennen eingeschaltet werden.
  *
@@ -23,6 +26,8 @@
 #undef HAVE_socklen_t
 
 #undef DEBUG
+
+#undef SNIFFER
 
 
 /* -eof- */

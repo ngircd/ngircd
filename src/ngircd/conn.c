@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.55 2002/03/13 00:15:55 alex Exp $
+ * $Id: conn.c,v 1.56 2002/03/14 13:42:33 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -332,6 +332,10 @@ GLOBAL BOOLEAN Conn_WriteStr( CONN_ID Idx, CHAR *Format, ... )
 	BOOLEAN ok;
 	va_list ap;
 
+	assert( Idx >= 0 );
+	assert( My_Connections[Idx].sock > NONE );
+	assert( Format != NULL );
+	
 	va_start( ap, Format );
 	if( vsnprintf( buffer, COMMAND_LEN - 2, Format, ap ) == COMMAND_LEN - 2 )
 	{

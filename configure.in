@@ -9,7 +9,7 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: configure.in,v 1.48 2002/05/22 09:09:05 alex Exp $
+# $Id: configure.in,v 1.49 2002/05/22 09:34:17 alex Exp $
 #
 
 # -- Initialisierung --
@@ -35,8 +35,6 @@ AH_TEMPLATE([TARGET_CPU], [Target CPU name])
 # -- C Compiler --
 
 AC_PROG_CC
-AC_LANG_C
-AM_C_PROTOTYPES
 
 # -- Hilfsprogramme --
 
@@ -46,15 +44,24 @@ AC_PROG_LN_S
 AC_PROG_MAKE_SET
 AC_PROG_RANLIB
 
+# -- Compiler Features --
+
+AC_LANG_C
+
+AM_C_PROTOTYPES
+AC_C_CONST
+
 # -- Header --
 
 AC_HEADER_STDC
 
 AC_HEADER_TIME
 
+AC_HEADER_SYS_WAIT
+
 AC_CHECK_HEADERS([ \
-	ctype.h errno.h fcntl.h netdb.h netinet/in.h regex.h stdlib.h string.h \
-	sys/socket.h sys/time.h sys/wait.h unistd.h \
+	ctype.h errno.h fcntl.h malloc.h netdb.h netinet/in.h regex.h \
+	stdint.h stdlib.h string.h strings.h sys/socket.h sys/time.h unistd.h \
 	],,AC_MSG_ERROR([required C header missing!]))
 
 AC_CHECK_HEADERS(arpa/inet.h)
@@ -74,6 +81,10 @@ AC_TRY_COMPILE([
 	AC_MSG_RESULT(no)
 ])
 
+AC_TYPE_SIGNAL
+
+AC_TYPE_SIZE_T
+
 # -- Libraries --
 
 AC_CHECK_LIB(UTIL,memmove)
@@ -84,10 +95,14 @@ AC_CHECK_LIB(nsl,gethostent)
 
 AC_FUNC_MALLOC
 
+AC_FUNC_FORK
+
+AC_FUNC_STRFTIME
+
 AC_CHECK_FUNCS([ \
 	bind gethostbyaddr gethostbyname gethostname inet_ntoa memmove \
-	memset regcomp select setsockopt socket strcasecmp strchr strerror \
-	strftime strstr waitpid \
+	memset regcomp select setsockopt socket strcasecmp strchr \
+	strerror strstr waitpid \
 	],,AC_MSG_ERROR([required function missing!]))
 
 AC_CHECK_FUNCS(inet_aton sigaction snprintf vsnprintf)

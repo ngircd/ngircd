@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-info.c,v 1.8 2002/12/18 13:55:41 alex Exp $";
+static char UNUSED id[] = "$Id: irc-info.c,v 1.9 2002/12/22 23:30:33 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -710,29 +710,36 @@ IRC_Send_LUSERS( CLIENT *Client )
 
 	assert( Client != NULL );
 
-	/* Users, Services und Serevr im Netz */
+	/* Users, services and serevers in the network */
 	if( ! IRC_WriteStrClient( Client, RPL_LUSERCLIENT_MSG, Client_ID( Client ), Client_UserCount( ), Client_ServiceCount( ), Client_ServerCount( ))) return DISCONNECTED;
 
-	/* IRC-Operatoren im Netz */
+	/* Number of IRC operators */
 	cnt = Client_OperCount( );
 	if( cnt > 0 )
 	{
 		if( ! IRC_WriteStrClient( Client, RPL_LUSEROP_MSG, Client_ID( Client ), cnt )) return DISCONNECTED;
 	}
 
-	/* Unbekannt Verbindungen */
+	/* Unknown connections */
 	cnt = Client_UnknownCount( );
 	if( cnt > 0 )
 	{
 		if( ! IRC_WriteStrClient( Client, RPL_LUSERUNKNOWN_MSG, Client_ID( Client ), cnt )) return DISCONNECTED;
 	}
 
-	/* Channels im Netz */
+	/* Number of created channels */
 	if( ! IRC_WriteStrClient( Client, RPL_LUSERCHANNELS_MSG, Client_ID( Client ), Channel_Count( ))) return DISCONNECTED;
 
-	/* Channels im Netz */
+	/* Number of local users, services and servers */
 	if( ! IRC_WriteStrClient( Client, RPL_LUSERME_MSG, Client_ID( Client ), Client_MyUserCount( ), Client_MyServiceCount( ), Client_MyServerCount( ))) return DISCONNECTED;
 
+#ifndef STRICT_RFC
+	/* Maximum number of local users */
+	if( ! IRC_WriteStrClient( Client, RPL_LOCALUSERS_MSG, Client_ID( Client ), Client_MyUserCount( ), Client_MyMaxUserCount( ))) return DISCONNECTED;
+	/* Maximum number of users in the network */
+	if( ! IRC_WriteStrClient( Client, RPL_NETUSERS_MSG, Client_ID( Client ), Client_UserCount( ), Client_MaxUserCount( ))) return DISCONNECTED;
+#endif
+	
 	return CONNECTED;
 } /* IRC_Send_LUSERS */
 

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: log.c,v 1.6 2001/12/25 19:20:39 alex Exp $
+ * $Id: log.c,v 1.7 2001/12/25 22:04:26 alex Exp $
  *
  * log.c: Logging-Funktionen
  *
  * $Log: log.c,v $
+ * Revision 1.7  2001/12/25 22:04:26  alex
+ * - Aenderungen an den Debug- und Logging-Funktionen.
+ *
  * Revision 1.6  2001/12/25 19:20:39  alex
  * - es wird nun die Facility LOG_LOCAL5 zum Loggen verwendet.
  *
@@ -70,6 +73,10 @@ GLOBAL VOID Log( CONST INT Level, CONST CHAR *Format, ... )
 
 	CHAR msg[MAX_LOG_MSG_LEN];
 	va_list ap;
+
+#ifndef DEBUG
+	if( Level == LOG_DEBUG ) return;
+#endif
 
 	assert( Format != NULL );
 

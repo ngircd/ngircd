@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.4 2001/12/25 19:21:26 alex Exp $
+ * $Id: client.c,v 1.5 2001/12/25 22:04:26 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,9 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.5  2001/12/25 22:04:26  alex
+ * - Aenderungen an den Debug- und Logging-Funktionen.
+ *
  * Revision 1.4  2001/12/25 19:21:26  alex
  * - Client-Typ ("Status") besser unterteilt, My_Clients ist zudem nun global.
  *
@@ -93,7 +96,7 @@ GLOBAL VOID Client_Exit( VOID )
 		free( c );
 		c = next;
 	}
-	if( cnt ) Log( LOG_DEBUG, "Freed %d client structure%s.", cnt, cnt == 1 ? "" : "s" );
+	if( cnt ) Log( LOG_INFO, "Freed %d client structure%s.", cnt, cnt == 1 ? "" : "s" );
 } /* Client Exit */
 
 

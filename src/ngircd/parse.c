@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: parse.c,v 1.3 2001/12/25 19:18:36 alex Exp $
+ * $Id: parse.c,v 1.4 2001/12/25 22:04:26 alex Exp $
  *
  * parse.c: Parsen der Client-Anfragen
  *
  * $Log: parse.c,v $
+ * Revision 1.4  2001/12/25 22:04:26  alex
+ * - Aenderungen an den Debug- und Logging-Funktionen.
+ *
  * Revision 1.3  2001/12/25 19:18:36  alex
  * - Gross- und Kleinschreibung der IRC-Befehle wird ignoriert.
  * - bessere Debug-Ausgaben.
@@ -79,7 +82,7 @@ GLOBAL BOOLEAN Parse_Request( CONN_ID Idx, CHAR *Request )
 	assert( Idx >= 0 );
 	assert( Request != NULL );
 
-#ifdef DEBUG
+#ifdef SNIFFER
 	Log( LOG_DEBUG, " <- connection %d: '%s'.", Idx, Request );
 #endif
 	
@@ -205,25 +208,24 @@ LOCAL BOOLEAN Handle_Request( CONN_ID Idx, REQUEST *Req )
 	assert( Req != NULL );
 	assert( Req->command != NULL );
 
-#ifdef DEBUG
+#ifdef SNIFFER
 	Log( LOG_DEBUG, "    connection %d: '%s', %d %s,%s prefix.", Idx, Req->command, Req->argc, Req->argc == 1 ? "parameter" : "parameters", Req->prefix ? "" : " no" );
 #endif
-
+	
 	client = Client_GetFromConn( Idx );
 	assert( client != NULL );
 
 	if( strcasecmp( Req->command, "PASS" ) == 0 ) return IRC_PASS( client, Req );
 	else if( strcasecmp( Req->command, "NICK" ) == 0 ) return IRC_NICK( client, Req );
 	else if( strcasecmp( Req->command, "USER" ) == 0 ) return IRC_USER( client, Req );
+	else if( strcasecmp( Req->command, "QUIT" ) == 0 ) return IRC_QUIT( client, Req );
 	else if( strcasecmp( Req->command, "MOTD" ) == 0 ) return IRC_MOTD( client, Req );
 
 	/* Unbekannter Befehl */
 	Conn_WriteStr( Idx, ERR_UNKNOWNCOMMAND_MSG, Req->command );
 
-#ifndef DEBUG
 	Log( LOG_DEBUG, "Connection %d: Unknown command '%s', %d %s,%s prefix.", Idx, Req->command, Req->argc, Req->argc == 1 ? "parameter" : "parameters", Req->prefix ? "" : " no" );
-#endif
-
+	
 	return TRUE;
 } /* Handle_Request */
 

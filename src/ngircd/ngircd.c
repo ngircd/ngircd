@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.79 2003/12/27 13:09:24 alex Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.80 2003/12/29 14:53:26 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -183,6 +183,11 @@ main( int argc, const char *argv[] )
 					ok = TRUE;
 				}
 #endif
+				if( argv[i][n] == 't' )
+				{
+					configtest = TRUE;
+					ok = TRUE;
+				}
 
 				if( ! ok )
 				{
@@ -552,7 +557,7 @@ Show_Help( VOID )
 #ifdef SNIFFER
 	puts( "  -s, --sniffer      enable network sniffer and display all IRC traffic" );
 #endif
-	puts( "      --configtest   read, validate and display configuration; then exit" );
+	puts( "  -t, --configtest   read, validate and display configuration; then exit" );
  	puts( "      --version      output version information and exit" );
 	puts( "      --help         display this help and exit" );
 } /* Show_Help */

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.64 2004/05/07 11:19:21 alex Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.65 2004/09/24 18:00:40 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -107,8 +107,8 @@ Conf_Test( VOID )
 	else puts( "Ok, dump of your server configuration follows:\n" );
 
 	puts( "[GLOBAL]" );
-	printf( "  ServerName = %s\n", Conf_ServerName );
-	printf( "  ServerInfo = %s\n", Conf_ServerInfo );
+	printf( "  Name = %s\n", Conf_ServerName );
+	printf( "  Info = %s\n", Conf_ServerInfo );
 	printf( "  Password = %s\n", Conf_ServerPwd );
 	printf( "  AdminInfo1 = %s\n", Conf_ServerAdmin1 );
 	printf( "  AdminInfo2 = %s\n", Conf_ServerAdmin2 );

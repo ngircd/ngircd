@@ -12,6 +12,7 @@
 
 ngIRCd CVSHEAD
 
+  - Fixed wrong variable names in output of "ngircd --configtest".
   - Debian: Fxied the name of the "default file" in the init script for
     ngircd-full packages. And do the test if the binary is executable after
     reading this file.
@@ -542,4 +543,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.241 2004/09/06 00:35:52 alex Exp $
+$Id: ChangeLog,v 1.242 2004/09/24 18:00:40 alex Exp $

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: channel.c,v 1.19 2002/03/12 14:37:52 alex Exp $
+ * $Id: channel.c,v 1.20 2002/03/25 16:54:26 alex Exp $
  *
  * channel.c: Management der Channels
  */
@@ -26,6 +26,7 @@
 #include <string.h>
 
 #include "client.h"
+#include "hash.h"
 #include "irc-write.h"
 #include "log.h"
 #include "messages.h"
@@ -202,12 +203,19 @@ GLOBAL CHANNEL *Channel_Search( CHAR *Name )
 	/* Channel-Struktur suchen */
 	
 	CHANNEL *c;
+	UINT32 search_hash;
 
 	assert( Name != NULL );
+
+	search_hash = Hash( Name );
 	c = My_Channels;
 	while( c )
 	{
-		if( strcasecmp( Name, c->name ) == 0 ) return c;
+		if( search_hash == c->hash )
+		{
+			/* lt. Hash-Wert: Treffer! */
+			if( strcasecmp( Name, c->name ) == 0 ) return c;
+		}
 		c = c->next;
 	}
 	return NULL;
@@ -426,10 +434,37 @@ GLOBAL VOID Channel_SetTopic( CHANNEL *Chan, CHAR *Topic )
 } /* Channel_SetTopic */
 
 
+GLOBAL BOOLEAN Channel_Write( CHANNEL *Chan, CLIENT *From, CLIENT *Client, CHAR *Text )
+{
+	BOOLEAN is_member, has_voice, is_op, ok;
+
+	/* Okay, Ziel ist ein Channel */
+	is_member = has_voice = is_op = FALSE;
+	if( Channel_IsMemberOf( Chan, From ))
+	{
+		is_member = TRUE;
+		if( strchr( Channel_UserModes( Chan, From ), 'v' )) has_voice = TRUE;
+		if( strchr( Channel_UserModes( Chan, From ), 'o' )) is_op = TRUE;
+	}
+
+	/* pruefen, ob Client in Channel schreiben darf */
+	ok = TRUE;
+	if( strchr( Channel_Modes( Chan ), 'n' ) && ( ! is_member )) ok = FALSE;
+	if( strchr( Channel_Modes( Chan ), 'm' ) && ( ! is_op ) && ( ! has_voice )) ok = FALSE;
+
+	if( ! ok ) return IRC_WriteStrClient( From, ERR_CANNOTSENDTOCHAN_MSG, Client_ID( From ), Channel_Name( Chan ));
+
+	/* Text senden */
+	if( Client_Conn( From ) > NONE ) Conn_UpdateIdle( Client_Conn( From ));
+	return IRC_WriteStrChannelPrefix( Client, Chan, From, TRUE, "PRIVMSG %s :%s", Channel_Name( Chan ), Text );
+} /* Channel_Write */
+
+
+
 LOCAL CHANNEL *New_Chan( CHAR *Name )
 {
 	/* Neue Channel-Struktur anlegen */
-	
+
 	CHANNEL *c;
 
 	assert( Name != NULL );
@@ -445,6 +480,7 @@ LOCAL CHANNEL *New_Chan( CHAR *Name )
 	c->name[CHANNEL_NAME_LEN - 1] = '\0';
 	strcpy( c->modes, "" );
 	strcpy( c->topic, "" );
+	c->hash = Hash( c->name );
 
 	Log( LOG_DEBUG, "Created new channel structure for \"%s\".", Name );
 	

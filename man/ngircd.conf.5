@@ -1,5 +1,5 @@
 .\"
-.\" $Id: ngircd.conf.5,v 1.11 2003/09/11 12:05:28 alex Exp $
+.\" $Id: ngircd.conf.5,v 1.12 2003/11/05 21:41:02 alex Exp $
 .\"
 .TH ngircd.conf 5 "Mai 2003" ngircd "ngIRCd Manual"
 .SH NAME
@@ -117,6 +117,11 @@ not(!) channel-operators? Default: no.
 \fBMaxConnections\fR
 Maximum number of simultaneous connection the server is allowed to accept
 (<=0: unlimited). Default: -1.
+.TP
+\fBMaxConnectionsIP\fR
+Maximum number of simultaneous connections from a single IP address that
+the server will accept (<=0: unlimited). This configuration options lowers
+the risk of denial of service attacks (DoS). Default: 5.
 .TP
 \fBMaxJoins\fR
 Maximum number of channels a user can be member of (<=0: no limit).

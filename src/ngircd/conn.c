@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.125 2003/09/11 12:05:28 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.126 2003/11/05 21:41:02 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -87,6 +87,7 @@ LOCAL BOOLEAN Init_Socket PARAMS(( INT Sock ));
 LOCAL VOID New_Server PARAMS(( INT Server, CONN_ID Idx ));
 LOCAL VOID Read_Resolver_Result PARAMS(( INT r_fd ));
 LOCAL VOID Simple_Message PARAMS(( INT Sock, CHAR *Msg ));
+LOCAL INT Count_Connections PARAMS(( struct sockaddr_in addr ));
 
 LOCAL fd_set My_Listeners;
 LOCAL fd_set My_Sockets;
@@ -904,7 +905,7 @@ New_Connection( INT Sock )
 	CONN_ID idx;
 	CLIENT *c;
 	POINTER *ptr;
-	LONG new_size;
+	LONG new_size, cnt;
 
 	assert( Sock > NONE );
 
@@ -932,6 +933,17 @@ New_Connection( INT Sock )
 
 	/* Socket initialisieren */
 	Init_Socket( new_sock );
+	
+	/* Check IP-based connection limit */
+	cnt = Count_Connections( new_addr );
+	if(( Conf_MaxConnectionsIP > 0 ) && ( cnt >= Conf_MaxConnectionsIP ))
+	{
+		/* Access denied, too many connections from this IP! */
+		Log( LOG_ERR, "Refused connection from %s: too may connections (%ld) from this IP!", inet_ntoa( new_addr.sin_addr ), cnt);
+		Simple_Message( new_sock, "ERROR :Connection refused, too many connections from your IP!" );
+		close( new_sock );
+		return;
+	}
 
 	/* Freie Connection-Struktur suchen */
 	for( idx = 0; idx < Pool_Size; idx++ ) if( My_Connections[idx].sock == NONE ) break;
@@ -1597,6 +1609,20 @@ Simple_Message( INT Sock, CHAR *Msg )
 	(VOID)send( Sock, Msg, strlen( Msg ), 0 );
 	(VOID)send( Sock, "\r\n", 2, 0 );
 } /* Simple_Error */
+
+
+LOCAL INT
+Count_Connections( struct sockaddr_in addr_in )
+{
+	INT i, cnt;
+	
+	cnt = 0;
+	for( i = 0; i < Pool_Size; i++ )
+	{
+		if(( My_Connections[i].sock > NONE ) && ( My_Connections[i].addr.sin_addr.s_addr == addr_in.sin_addr.s_addr )) cnt++;
+	}
+	return cnt;
+} /* Count_Connections */
 
 
 /* -eof- */

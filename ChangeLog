@@ -12,6 +12,10 @@
 
 ngIRCd CVS-HEAD
 
+  - New configuration variable "MaxConnectionsIP" to limit the number of
+    simultaneous connections from a single IP that the server will accept.
+    This configuration options lowers the risk of denial of service attacks
+    (DoS), the default is 5 connections per client IP.
   - Fixed build problems under Mac OS X 10.3.
   - Use "-pipe" when compiling with gcc, speeds things up a little :-)
   - Added new configuration variable "Listen" to bind all listening
@@ -468,4 +472,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.213 2003/11/04 00:41:06 alex Exp $
+$Id: ChangeLog,v 1.214 2003/11/05 21:41:01 alex Exp $

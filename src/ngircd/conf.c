@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.60 2003/09/11 12:05:28 alex Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.61 2003/11/05 21:41:02 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -133,6 +133,8 @@ Conf_Test( VOID )
 	printf( "  OperCanUseMode = %s\n", Conf_OperCanMode == TRUE ? "yes" : "no" );
 	if( Conf_MaxConnections > 0 ) printf( "  MaxConnections = %ld\n", Conf_MaxConnections );
 	else printf( "  MaxConnections = -1\n" );
+	if( Conf_MaxConnectionsIP > 0 ) printf( "  MaxConnectionsIP = %d\n", Conf_MaxConnectionsIP );
+	else printf( "  MaxConnectionsIP = -1\n" );
 	if( Conf_MaxJoins > 0 ) printf( "  MaxJoins = %d\n", Conf_MaxJoins );
 	else printf( "  MaxJoins = -1\n" );
 	puts( "" );
@@ -356,6 +358,7 @@ Set_Defaults( BOOLEAN InitServers )
 	Conf_OperCanMode = FALSE;
 	
 	Conf_MaxConnections = -1;
+	Conf_MaxConnectionsIP = 5;
 	Conf_MaxJoins = 10;
 
 	/* Initialize server configuration structures */
@@ -691,6 +694,16 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 		Conf_MaxConnections = atol( Arg );
 		return;
 	}
+	if( strcasecmp( Var, "MaxConnectionsIP" ) == 0 )
+	{
+		/* Maximum number of simoultanous connections from one IP. Values <= 0 are equal to "no limit". */
+#ifdef HAVE_ISDIGIT
+		if( ! isdigit( *Arg )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"MaxConnectionsIP\" is not a number!", NGIRCd_ConfFile, Line );
+		else
+#endif
+		Conf_MaxConnectionsIP = atoi( Arg );
+		return;
+	}
 	if( strcasecmp( Var, "MaxJoins" ) == 0 )
 	{
 		/* Maximum number of channels a user can join. Values <= 0 are equal to "no limit". */
@@ -707,8 +720,8 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 		if( strlcpy( Conf_ListenAddress, Arg, sizeof( Conf_ListenAddress )) >= sizeof( Conf_ListenAddress ))
 		{
 			Config_Error( LOG_WARNING, "%s, line %d: Value of \"Listen\" too long!", NGIRCd_ConfFile, Line );
-			return;
 		}
+		return;
 	}
 
 	Config_Error( LOG_ERR, "%s, line %d (section \"Global\"): Unknown variable \"%s\"!", NGIRCd_ConfFile, Line, Var );

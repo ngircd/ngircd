@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conf.h,v 1.27 2003/09/11 12:05:28 alex Exp $
+ * $Id: conf.h,v 1.28 2003/11/05 21:41:02 alex Exp $
  *
  * Configuration management (header)
  */
@@ -109,6 +109,9 @@ GLOBAL LONG Conf_MaxConnections;
 
 /* Maximum number of channels a user can join */
 GLOBAL INT Conf_MaxJoins;
+
+/* Maximum number of connections per IP address */
+GLOBAL INT Conf_MaxConnectionsIP;
 
 
 GLOBAL VOID Conf_Init PARAMS((VOID ));

@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.134.2.3 2004/12/25 00:00:42 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.134.2.4 2005/01/19 23:35:42 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -525,7 +525,7 @@ va_dcl
 #else
 	va_start( ap );
 #endif
-	if( vsnprintf( buffer, COMMAND_LEN - 2, Format, ap ) == COMMAND_LEN - 2 )
+	if( vsnprintf( buffer, COMMAND_LEN - 2, Format, ap ) >= COMMAND_LEN - 2 )
 	{
 		Log( LOG_CRIT, "Text too long to send (connection %d)!", Idx );
 		Conn_Close( Idx, "Text too long to send!", NULL, FALSE );

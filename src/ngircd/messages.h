@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: messages.h,v 1.27 2002/02/13 17:45:57 alex Exp $
+ * $Id: messages.h,v 1.28 2002/02/13 23:04:50 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: messages.h,v $
+ * Revision 1.28  2002/02/13 23:04:50  alex
+ * - RPL_MYINFO_MSG korrigiert.
+ *
  * Revision 1.27  2002/02/13 17:45:57  alex
  * - unterstuetzte User- und Channel-Modes stehen nun in Konstanten.
  *
@@ -117,7 +120,7 @@
 #define RPL_CREATED_MSG			RPL_CREATED" %s :This server was started %s"
 
 #define RPL_MYINFO			"004"
-#define RPL_MYINFO_MSG			RPL_MYINFO" %s %s ngircd-"VERSION" "USERMODES" "CHANMODES
+#define RPL_MYINFO_MSG			RPL_MYINFO" %s :%s ngircd-"VERSION" "USERMODES" "CHANMODES
 
 #define RPL_LUSERCLIENT			"251"
 #define RPL_LUSERCLIENT_MSG		RPL_LUSERCLIENT" %s :There are %d users and %d services on %d servers"
@@ -190,6 +193,7 @@
 
 #define RPL_ENDOFNAMES			"366"
 #define RPL_ENDOFNAMES_MSG		RPL_ENDOFNAMES" %s %s :End of NAMES list"
+
 
 #define RPL_YOUREOPER			"381"
 #define RPL_YOUREOPER_MSG		RPL_YOUREOPER" %s :You are now an IRC Operator"

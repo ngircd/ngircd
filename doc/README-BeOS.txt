@@ -32,5 +32,16 @@ Also: wenn es jemand implementieren will ... ;-))
 
 Vielleicht mache ich es auch irgendwann mal selber. Mal sehen.
 
+2002-05-19:
+Ich habe gerade damit ein wenig gespielt und den Source hier so geaendert,
+dass unter BeOS keine Resolver-Subprozesse mehr erzeugt werden, sondern mit
+den "rohen" IP-Adressen gearbeitet wird. Das funktioniert so weit auch,
+allerdings verschluckt sich BeOS nun bei anderen Funktionen, so zum Beispiel
+bei close(), wenn ein Socket eines Clients geschlossen werden soll!?
+Sehr komisch.
+Wer Interesse daran hat, das weiter zu verfolgen, der moege sich bitte mit
+mir in Verbindung setzen (alex@barton.de), ich maile gerne meine Patches zu.
+Fuer eine Aenderung im CVS ist es aber meiner Meinung nach noch zu frueh ...
+
 -- 
-$Id: README-BeOS.txt,v 1.2 2002/05/19 13:05:22 alex Exp $
+$Id: README-BeOS.txt,v 1.3 2002/05/19 13:10:26 alex Exp $

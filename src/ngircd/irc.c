@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.78 2002/02/27 18:23:45 alex Exp $
+ * $Id: irc.c,v 1.79 2002/02/27 18:57:21 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.79  2002/02/27 18:57:21  alex
+ * - PRIVMSG zeugt nun bei Texten an User an, wenn diese "away" sind.
+ *
  * Revision 1.78  2002/02/27 18:23:45  alex
  * - IRC-Befehl "AWAY" implementert.
  *
@@ -1231,6 +1234,13 @@ GLOBAL BOOLEAN IRC_PRIVMSG( CLIENT *Client, REQUEST *Req )
 	if( cl )
 	{
 		/* Okay, Ziel ist ein User */
+		if(( Client_Type( Client ) != CLIENT_SERVER ) && ( strchr( Client_Modes( cl ), 'a' )))
+		{
+			/* Ziel-User ist AWAY: Meldung verschicken */
+			if( ! IRC_WriteStrClient( from, RPL_AWAY_MSG, Client_ID( from ), Client_ID( cl ), Client_Away( cl ))) return DISCONNECTED;
+		}
+
+		/* Text senden */
 		if( Client_Conn( from ) > NONE ) Conn_UpdateIdle( Client_Conn( from ));
 		return IRC_WriteStrClientPrefix( cl, from, "PRIVMSG %s :%s", Client_ID( cl ), Req->argv[1] );
 	}

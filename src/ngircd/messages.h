@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: messages.h,v 1.37 2002/03/12 22:08:24 alex Exp $
+ * $Id: messages.h,v 1.37.2.1 2002/04/29 14:11:23 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  */
@@ -94,6 +94,12 @@
 
 #define RPL_WHOISCHANNELS		"319"
 #define RPL_WHOISCHANNELS_MSG		RPL_WHOISCHANNELS" %s %s :"
+
+#define RPL_LIST			"322"
+#define RPL_LIST_MSG			RPL_LIST" %s %s %d :%s"
+
+#define RPL_LISTEND			"323"
+#define RPL_LISTEND_MSG			RPL_LISTEND" %s :End of LIST"
 
 #define RPL_CHANNELMODEIS		"324"
 #define RPL_CHANNELMODEIS_MSG		RPL_CHANNELMODEIS" %s %s +%s"

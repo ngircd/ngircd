@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.h,v 1.24 2002/02/23 21:39:48 alex Exp $
+ * $Id: irc.h,v 1.25 2002/02/27 18:23:46 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: irc.h,v $
+ * Revision 1.25  2002/02/27 18:23:46  alex
+ * - IRC-Befehl "AWAY" implementert.
+ *
  * Revision 1.24  2002/02/23 21:39:48  alex
  * - IRC-Befehl KILL sowie Kills bei Nick Collsisions implementiert.
  *
@@ -134,6 +137,7 @@ GLOBAL BOOLEAN IRC_PRIVMSG( CLIENT *Client, REQUEST *Req );
 GLOBAL BOOLEAN IRC_NOTICE( CLIENT *Client, REQUEST *Req );
 
 GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req );
+GLOBAL BOOLEAN IRC_AWAY( CLIENT *Client, REQUEST *Req );
 
 GLOBAL BOOLEAN IRC_NAMES( CLIENT *Client, REQUEST *Req );
 GLOBAL BOOLEAN IRC_ISON( CLIENT *Client, REQUEST *Req );

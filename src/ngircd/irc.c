@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.77 2002/02/27 17:05:41 alex Exp $
+ * $Id: irc.c,v 1.78 2002/02/27 18:23:45 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.78  2002/02/27 18:23:45  alex
+ * - IRC-Befehl "AWAY" implementert.
+ *
  * Revision 1.77  2002/02/27 17:05:41  alex
  * - PRIVMSG beachtet nun die Channel-Modes "n" und "m".
  *
@@ -1382,6 +1385,14 @@ GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req )
 			/* Befehl kommt von einem Server, daher
 			 * trauen wir ihm "unbesehen" ... */
 			x[0] = *mode_ptr;
+
+			if(( cl ) && ( x[0] == 'a' ))
+			{
+				/* away */
+				if( set ) Client_SetAway( cl, "Away" );
+				else Client_SetAway( cl, NULL );
+			}
+			
 		}
 		else
 		{
@@ -1467,7 +1478,7 @@ GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req )
 							x[0] = 'p';
 							break;
 						case 'q':
-							/* Quite */
+							/* Quiet */
 							x[0] = 'q';
 							break;
 						case 's':
@@ -1603,6 +1614,33 @@ GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req )
 
 	return ok;
 } /* IRC_MODE */
+
+
+GLOBAL BOOLEAN IRC_AWAY( CLIENT *Client, REQUEST *Req )
+{
+	assert( Client != NULL );
+	assert( Req != NULL );
+
+	if( Client_Type( Client ) != CLIENT_USER ) return IRC_WriteStrClient( Client, ERR_NOTREGISTERED_MSG, Client_ID( Client ));
+
+	/* Falsche Anzahl Parameter? */
+	if( Req->argc > 1 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+
+	if(( Req->argc == 1 ) && (Req->argv[0][0] ))
+	{
+		/* AWAY setzen */
+		Client_SetAway( Client, Req->argv[0] );
+		IRC_WriteStrServersPrefix( Client, Client, "MODE %s :+a", Client_ID( Client ));
+		return IRC_WriteStrClient( Client, RPL_NOWAWAY_MSG, Client_ID( Client ));
+	}
+	else
+	{
+		/* AWAY loeschen */
+		Client_SetAway( Client, NULL );
+		IRC_WriteStrServersPrefix( Client, Client, "MODE %s :-a", Client_ID( Client ));
+		return IRC_WriteStrClient( Client, RPL_UNAWAY_MSG, Client_ID( Client ));
+	}
+} /* IRC_AWAY */
 
 
 GLOBAL BOOLEAN IRC_OPER( CLIENT *Client, REQUEST *Req )
@@ -1903,6 +1941,12 @@ GLOBAL BOOLEAN IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 	if( Client_Conn( c ) > NONE )
 	{
 		if( ! IRC_WriteStrClient( from, RPL_WHOISIDLE_MSG, Client_ID( from ), Client_ID( c ), Conn_GetIdle( Client_Conn ( c )))) return DISCONNECTED;
+	}
+
+	/* Away? */
+	if( Client_HasMode( c, 'a' ))
+	{
+		if( ! IRC_WriteStrClient( from, RPL_AWAY_MSG, Client_ID( from ), Client_ID( c ), Client_Away( c ))) return DISCONNECTED;
 	}
 
 	/* End of Whois */

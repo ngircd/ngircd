@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: client.c,v 1.65 2002/12/12 12:24:18 alex Exp $";
+static char UNUSED id[] = "$Id: client.c,v 1.66 2002/12/19 04:33:27 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -97,7 +97,7 @@ Client_Exit( VOID )
 	CLIENT *c, *next;
 	INT cnt;
 
-	if( NGIRCd_Restart ) Client_Destroy( This_Server, "Server going down (restarting).", NULL, FALSE );
+	if( NGIRCd_SignalRestart ) Client_Destroy( This_Server, "Server going down (restarting).", NULL, FALSE );
 	else Client_Destroy( This_Server, "Server going down.", NULL, FALSE );
 	
 	cnt = 0;
@@ -256,7 +256,7 @@ Client_Destroy( CLIENT *Client, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN SendQuit )
 				}
 
 				/* andere Server informieren */
-				if( ! NGIRCd_Quit )
+				if( ! NGIRCd_SignalQuit )
 				{
 					if( FwdMsg ) IRC_WriteStrServersPrefix( Client_NextHop( c ), c, "SQUIT %s :%s", c->id, FwdMsg );
 					else IRC_WriteStrServersPrefix( Client_NextHop( c ), c, "SQUIT %s :", c->id );

@@ -7,11 +7,14 @@
  * herausgegeben, weitergeben und/oder modifizieren, entweder unter Version 2
  * der Lizenz oder (wenn Sie es wuenschen) jeder spaeteren Version.
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
- * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
+ * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: acconfig.h,v 1.5 2001/12/29 03:04:35 alex Exp $
+ * $Id: acconfig.h,v 1.6 2001/12/31 02:21:00 alex Exp $
  *
  * $Log: acconfig.h,v $
+ * Revision 1.6  2001/12/31 02:21:00  alex
+ * - "doc"-Unterverzeichnis aufgenommen.
+ *
  * Revision 1.5  2001/12/29 03:04:35  alex
  * - neue configure-Option "--enable-strict-rfc", #define STRICT_RFC.
  *

@@ -4,18 +4,18 @@
 		activeBuildStyle = 014CEA520018CE5811CA2923;
 		activeTarget = 08FB779FFE84155DC02AAC07;
 		addToTargets = (
-			08FB779FFE84155DC02AAC07,
 		);
 		perUserDictionary = {
 			PBXWorkspaceConfiguration = {
-				ContentSize = "{997, 615}";
+				ContentSize = "{1094, 769}";
 				LeftSlideOut = {
 					ActiveTab = 0;
-					Frame = "{{0, 23}, {997, 592}}";
+					Frame = "{{0, 23}, {1094, 746}}";
 					Split0 = {
-						Frame = "{{240, 0}, {757, 592}}";
+						ActiveTab = 3;
+						Frame = "{{240, 0}, {854, 746}}";
 						Split0 = {
-							Frame = "{{0, 24}, {757, 568}}";
+							Frame = "{{0, 321}, {854, 425}}";
 						};
 						SplitCount = 1;
 						Tab0 = {
@@ -44,25 +44,25 @@
 							LauncherConfigVersion = 4;
 						};
 						Tab1 = {
-							Frame = "{{0, 0}, {706, 208}}";
+							Frame = "{{0, 0}, {854, 208}}";
 							LauncherConfigVersion = 3;
 							Runner = {
-								Frame = "{{0, 0}, {706, 208}}";
+								Frame = "{{0, 0}, {854, 208}}";
 							};
 						};
 						Tab2 = {
-							BuildMessageFrame = "{{0, 0}, {759, 109}}";
-							BuildTranscriptFrame = "{{0, 118}, {759, 99}}";
-							Frame = "{{0, 0}, {757, 215}}";
+							BuildMessageFrame = "{{0, 0}, {856, 109}}";
+							BuildTranscriptFrame = "{{0, 118}, {856, 99}}";
+							Frame = "{{0, 0}, {854, 215}}";
 						};
 						Tab3 = {
-							Frame = "{{0, 0}, {757, 295}}";
+							Frame = "{{0, 0}, {854, 297}}";
 						};
 						TabCount = 4;
 					};
 					SplitCount = 1;
 					Tab0 = {
-						Frame = "{{0, 0}, {216, 592}}";
+						Frame = "{{0, 0}, {216, 746}}";
 					};
 					Tab1 = {
 						ClassesFrame = "{{0, 0}, {202, 56}}";
@@ -88,7 +88,7 @@
 					};
 					TabCount = 5;
 				};
-				WindowLocation = "{12, 60}";
+				WindowLocation = "{19, 153}";
 			};
 		};
 		wantsIndex = 1;
@@ -100,6 +100,21 @@
 			macosx = (
 				F52162D701C7BAA2012300F4,
 			);
+		};
+	};
+	F51D17FC01C8F5B701E11C2E = {
+		uiCtxt = {
+			sepNavWindowFrame = "{{61, 453}, {750, 502}}";
+		};
+	};
+	F51D17FD01C8F5B701E11C2E = {
+		uiCtxt = {
+			sepNavWindowFrame = "{{62, 103}, {750, 502}}";
+		};
+	};
+	F51D180101C8FDD001E11C2E = {
+		uiCtxt = {
+			sepNavWindowFrame = "{{84, 432}, {750, 502}}";
 		};
 	};
 	F52162BA01C7B904012300F4 = {
@@ -150,6 +165,21 @@
 	F52162DB01C7BCDC012300F4 = {
 		uiCtxt = {
 			sepNavWindowFrame = "{{98, 76}, {750, 502}}";
+		};
+	};
+	F52162E301C7C77B012300F4 = {
+		uiCtxt = {
+			sepNavWindowFrame = "{{150, 101}, {744, 695}}";
+		};
+	};
+	F576ABFB01D5E77301A85B03 = {
+		uiCtxt = {
+			sepNavWindowFrame = "{{107, 411}, {750, 502}}";
+		};
+	};
+	F576ABFE01D61D7401A85B03 = {
+		uiCtxt = {
+			sepNavWindowFrame = "{{330, 424}, {838, 508}}";
 		};
 	};
 }

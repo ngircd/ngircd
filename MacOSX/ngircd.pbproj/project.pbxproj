@@ -64,6 +64,7 @@
 		08FB7794FE84155DC02AAC07 = {
 			children = (
 				1AB674ADFE9D54B511CA2CBB,
+				F51F791401DFD0DE01D13771,
 				F52162B301C7B904012300F4,
 				F52162C201C7B904012300F4,
 				F52162C301C7B904012300F4,
@@ -125,6 +126,7 @@
 				F51D180501C8FDD001E11C2E,
 				F576ABFC01D5E77301A85B03,
 				F576ABFF01D61D7401A85B03,
+				F51F791301DFC95301D13771,
 			);
 			isa = PBXHeadersBuildPhase;
 			name = Headers;
@@ -259,6 +261,44 @@
 			settings = {
 			};
 		};
+		F51F791201DFC95301D13771 = {
+			isa = PBXFileReference;
+			name = defines.h;
+			path = ../src/ngircd/defines.h;
+			refType = 2;
+		};
+		F51F791301DFC95301D13771 = {
+			fileRef = F51F791201DFC95301D13771;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F51F791401DFD0DE01D13771 = {
+			children = (
+				F51F791501DFD0DE01D13771,
+				F51F791601DFD0DE01D13771,
+				F51F791701DFD0DE01D13771,
+			);
+			isa = PBXGroup;
+			name = doc;
+			path = /Users/alex/Develop/ngircd/doc;
+			refType = 0;
+		};
+		F51F791501DFD0DE01D13771 = {
+			isa = PBXFileReference;
+			path = CVS.txt;
+			refType = 4;
+		};
+		F51F791601DFD0DE01D13771 = {
+			isa = PBXFileReference;
+			path = RFC.txt;
+			refType = 4;
+		};
+		F51F791701DFD0DE01D13771 = {
+			isa = PBXFileReference;
+			path = "sample-ngircd.conf";
+			refType = 4;
+		};
 		F52162B301C7B904012300F4 = {
 			children = (
 				F52162B801C7B904012300F4,
@@ -297,6 +337,7 @@
 				F576ABFB01D5E77301A85B03,
 				F52162C001C7B904012300F4,
 				F52162C101C7B904012300F4,
+				F51F791201DFC95301D13771,
 				F576ABFE01D61D7401A85B03,
 			);
 			isa = PBXGroup;

@@ -7,11 +7,14 @@
 # herausgegeben, weitergeben und/oder modifizieren, entweder unter Version 2
 # der Lizenz oder (wenn Sie es wuenschen) jeder spaeteren Version.
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
-# der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
+# der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: configure.in,v 1.11 2001/12/29 03:04:06 alex Exp $
+# $Id: configure.in,v 1.12 2001/12/31 02:21:00 alex Exp $
 #
 # $Log: configure.in,v $
+# Revision 1.12  2001/12/31 02:21:00  alex
+# - "doc"-Unterverzeichnis aufgenommen.
+#
 # Revision 1.11  2001/12/29 03:04:06  alex
 # - neue configure-Option "--enable-strict-rfc".
 #
@@ -174,6 +177,6 @@ AC_ARG_ENABLE(sniffer,
 
 # -- Ausgabe --
 
-AC_OUTPUT([Makefile MacOSX/Makefile src/Makefile src/ngircd/Makefile])
+AC_OUTPUT([Makefile doc/Makefile MacOSX/Makefile src/Makefile src/ngircd/Makefile])
 
 # -eof-

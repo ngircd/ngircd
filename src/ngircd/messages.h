@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: messages.h,v 1.60 2002/12/22 23:32:05 alex Exp $
+ * $Id: messages.h,v 1.61 2002/12/27 13:15:16 alex Exp $
  *
  * IRC numerics (Header)
  */
@@ -104,6 +104,7 @@
 #define ERR_BADCHANNELKEY_MSG		"475 %s %s :Cannot join channel (+k)"
 #define ERR_NOPRIVILEGES_MSG		"481 %s :Permission denied"
 #define ERR_CHANOPRIVSNEEDED_MSG	"482 %s %s :You are not channel operator"
+#define ERR_CANTKILLSERVER_MSG		"483 %s :You can't kill a server!"
 #define ERR_RESTRICTED_MSG		"484 %s :Your connection is restricted"
 #define ERR_NOOPERHOST_MSG		"491 %s :Not configured for your host"
 

@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.138 2004/10/04 23:09:04 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.139 2004/10/04 23:23:41 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -1133,8 +1133,8 @@ Read_Request( CONN_ID Idx )
 #endif
 	{
 		/* Der Lesepuffer ist voll */
-		Log( LOG_ERR, "Read buffer overflow (connection %d): %d bytes!", Idx, My_Connections[Idx].rdatalen );
-		Conn_Close( Idx, "Read buffer overflow!", NULL, FALSE );
+		Log( LOG_ERR, "Receive buffer overflow (connection %d): %d bytes!", Idx, My_Connections[Idx].rdatalen );
+		Conn_Close( Idx, "Receive buffer overflow!", NULL, FALSE );
 		return;
 	}
 
@@ -1276,7 +1276,7 @@ Handle_Buffer( CONN_ID Idx )
 					if( My_Connections[Idx].rdatalen > ZREADBUFFER_LEN )
 					{
 						/* Hupsa! Soviel Platz haben wir aber gar nicht! */
-						Log( LOG_ALERT, "Can't move read buffer: No space left in unzip buffer (need %d bytes)!", My_Connections[Idx].rdatalen );
+						Log( LOG_ALERT, "Can't move receive buffer: No space left in unzip buffer (need %d bytes)!", My_Connections[Idx].rdatalen );
 						return FALSE;
 					}
 					memcpy( My_Connections[Idx].zip.rbuf, My_Connections[Idx].rbuf, My_Connections[Idx].rdatalen );

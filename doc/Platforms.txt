@@ -26,20 +26,24 @@ list can be updated. Thanks for your help!
                                                                     | | | |
 Platform                    Compiler     ngIRCd     Date     Tester C M T R See
 --------------------------- ------------ ---------- -------- ------ - - - - ---
+hppa/unknown/openbsd3.5     gcc 2.95.3   CVSHEAD    04-05-25 alex   Y Y Y Y
+hppa1.1/unknown/linux-gnu   gcc 3.3.3    0.8.0      04-05-30 alex   Y Y Y Y
 i386/pc/solaris2.9          gcc 3.2.2    CVSHEAD    04-02-24 alex   Y Y Y Y
-i386/unknown/freebsd5.0     gcc 3.2.1    0.7.0      03-05-15 alex   Y Y Y Y
-i386/unknown/gnu0.3         gcc 3.2.3    CVSHEAD    03-05-05 alex   Y Y n Y
+i386/unknown/freebsd5.2.1   gcc 3.3.3    0.8.0      04-05-30 alex   Y Y Y Y
+i386/unknown/gnu0.3         gcc 3.3.3    0.8.0      04-05-30 alex   Y Y n Y
 i386/unknown/netbsdelf1.6.1 gcc 2.95.3   CVSHEAD    04-02-24 alex   Y Y Y Y
-i686/pc/cygwin              gcc 3.2      0.7.x-CVS  03-04-24 alex   Y Y n Y
-i686/pc/linux-gnu           gcc 2.95     0.7.0      03-05-15 alex   Y Y Y Y (1)
-i686/pc/linux-gnu           gcc 3.3.3    CVSHEAD    04-02-22 alex   Y Y Y Y (1)
+i686/pc/cygwin              gcc 3.3.1    0.8.0      04-05-30 alex   Y Y n Y
+i686/pc/linux-gnu           gcc 2.95.4   0.8.0      04-05-30 alex   Y Y Y Y (1)
+i686/pc/linux-gnu           gcc 3.3.3    0.8.0      04-05-30 alex   Y Y Y Y (1)
 m68k/apple/aux3.1.1         Orig. A/UX   0.7.x-CVS  03-04-22 alex   Y Y Y Y (2)
 m68k/hp/hp-ux9.10           Orig. HPUX   0.7.x-CVS  03-04-30 goetz  Y Y Y Y
 m88k/dg/dgux5.4R3.10        gcc 2.5.8    CVSHEAD    04-03-15 alex   Y Y ? ?
 powerpc/apple/darwin6.5     gcc 3.1      0.7.x-CVS  03-04-23 alex   Y Y Y Y
-powerpc/apple/darwin7.2.0   gcc 3.3      CVSHEAD    04-02-22 alex   Y Y Y Y
+powerpc/apple/darwin7.4.0   gcc 3.3      0.8.0      04-05-30 alex   Y Y Y Y
+powerpc/unknown/linux-gnu   gcc 3.3.3    0.8.0      04-05-30 alex   Y Y Y Y
 sparc/sun/solaris2.6        gcc 2.95.3   0.7.x-CVS  03-04-22 alex   Y Y Y Y
-sparc/sun/solaris2.7        gcc 3.3      CVSHEAD    04-02-24 alex   Y Y Y Y
+sparc/sun/solaris2.7        gcc 3.3      0.8.0      04-05-30 alex   Y Y Y Y
+sparc/unkn./netbsdelf1.6.1  gcc 2.95.3   0.8.0      04-05-30 alex   Y Y Y Y
 
 
 Notes
@@ -56,4 +60,4 @@ Notes
 			
 
 -- 
-$Id: Platforms.txt,v 1.11 2004/04/05 11:11:05 alex Exp $
+$Id: Platforms.txt,v 1.11.2.1 2004/11/09 10:58:01 alex Exp $

@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.46 2002/01/28 01:45:43 alex Exp $
+ * $Id: irc.c,v 1.47 2002/01/28 13:05:48 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.47  2002/01/28 13:05:48  alex
+ * - nach einem JOIN wird die Liste der Mitglieder an den Client geschickt.
+ * - MODE fuer Channels wird nun komplett ignoriert (keine Fehlermeldung mehr).
+ *
  * Revision 1.46  2002/01/28 01:45:43  alex
  * - SERVER-Meldungen an neue Server sind nun in der richtigen Reihenfolge.
  *
@@ -212,6 +216,8 @@ LOCAL BOOLEAN Hello_User( CLIENT *Client );
 LOCAL BOOLEAN Show_MOTD( CLIENT *Client );
 
 LOCAL VOID Kill_Nick( CHAR *Nick );
+
+LOCAL BOOLEAN Send_NAMES( CLIENT *Client, CHANNEL *Chan );
 
 
 GLOBAL VOID IRC_Init( VOID )
@@ -1003,6 +1009,7 @@ GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req )
 	CHAR x[2], new_modes[CLIENT_MODE_LEN], *ptr;
 	BOOLEAN set, ok;
 	CLIENT *target;
+	CHANNEL *chan;
 	
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -1010,11 +1017,27 @@ GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req )
 	if(( Client_Type( Client ) != CLIENT_USER ) && ( Client_Type( Client ) != CLIENT_SERVER )) return IRC_WriteStrClient( Client, ERR_NOTREGISTERED_MSG, Client_ID( Client ));
 
 	/* Falsche Anzahl Parameter? */
-	if(( Req->argc > 2 ) || ( Req->argc < 1 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	if( Req->argc < 1 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
-	/* "Ziel-Client" suchen */
+	/* "Ziel-Client" bzw. Channel suchen */
+	chan = NULL;
 	target = Client_Search( Req->argv[0] );
+	if( ! target )
+	{
+		chan = Channel_Search( Req->argv[0] );
+	}
 
+	/* Falsche Anzahl Parameter? */
+	if( target && ( Req->argc > 2 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	if( chan && ( Req->argc > 3 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+
+	if( chan )
+	{
+		/* Channel Modes kennen wir noch nicht ... */
+		Log( LOG_DEBUG, "MODE for channel \"%s\" ignored ...", Channel_Name( chan ));
+		return CONNECTED;
+	}
+	
 	/* Wer ist der Anfragende? */
 	if( Client_Type( Client ) == CLIENT_USER )
 	{
@@ -1553,6 +1576,8 @@ GLOBAL BOOLEAN IRC_JOIN( CLIENT *Client, REQUEST *Req )
 			IRC_WriteStrClientPrefix( Client, target, "JOIN :%s", chan );
 			/* Topic an Client schicken */
 			IRC_WriteStrClient( Client, RPL_TOPIC_MSG, Client_ID( Client ), chan, "What a wonderful channel!" );
+			/* Mitglieder an Client Melden */
+			Send_NAMES( Client, Channel_Search( chan ));
 		}
 		
 		/* naechsten Namen ermitteln */
@@ -1667,6 +1692,50 @@ LOCAL VOID Kill_Nick( CHAR *Nick )
 	/* FIXME */
 	Log( LOG_ALERT, "[Kill_Nick() not implemented - OOOPS!]" );
 } /* Kill_Nick */
+
+
+LOCAL BOOLEAN Send_NAMES( CLIENT *Client, CHANNEL *Chan )
+{
+	CHAR str[LINE_LEN + 1];
+	CL2CHAN *cl2chan;
+	CLIENT *c;
+	
+	assert( Client != NULL );
+	assert( Chan != NULL );
+
+	/* Alle Mitglieder suchen */
+	sprintf( str, RPL_NAMREPLY_MSG, Client_ID( Client ), "=", Channel_Name( Chan ));
+	cl2chan = Channel_FirstMember( Chan );
+	while( cl2chan )
+	{
+		/* Client ermitteln */
+		c = Channel_GetClient( cl2chan );
+
+		/* Nick anhaengen */
+		if( str[strlen( str ) - 1] != ':' ) strcat( str, " " );
+		strcat( str, Client_ID( Channel_GetClient( cl2chan )));
+
+		if( strlen( str ) > ( LINE_LEN - CLIENT_NICK_LEN - 4 ))
+		{
+			/* Zeile wird zu lang: senden! */
+			if( ! IRC_WriteStrClient( Client, str )) return DISCONNECTED;
+			sprintf( str, RPL_NAMREPLY_MSG, Client_ID( Client ), "=", Channel_Name( Chan ));
+		}
+
+		/* naechstes Mitglied suchen */
+		cl2chan = Channel_NextMember( Chan, cl2chan );
+	}
+	if( str[strlen( str ) - 1] != ':')
+	{
+		/* Es sind noch Daten da, die gesendet werden muessen */
+		if( ! IRC_WriteStrClient( Client, str )) return DISCONNECTED;
+	}
+
+	/* Ende anzeigen */
+	IRC_WriteStrClient( Client, RPL_ENDOFNAMES_MSG, Client_ID( Client ), Channel_Name( Chan ));
+	
+	return CONNECTED;
+} /* Send_NAMES */
 
 
 /* -eof- */

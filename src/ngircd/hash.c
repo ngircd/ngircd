@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: hash.c,v 1.6 2002/12/12 12:24:18 alex Exp $";
+static char UNUSED id[] = "$Id: hash.c,v 1.7 2002/12/25 13:22:43 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -87,7 +87,7 @@ jenkins_hash( register UINT8 *k, register UINT32 length, register UINT32 initval
 
 	/* Set up the internal state */
 	len = length;
-	a = b = 0x9e3779b9;	/* the golden ratio; an arbitrary value */
+	a = b = 0x9e3779b9u;	/* the golden ratio; an arbitrary value */
 	c = initval;		/* the previous hash value */
 
 	/* handle most of the key */
@@ -102,7 +102,7 @@ jenkins_hash( register UINT8 *k, register UINT32 length, register UINT32 initval
 
 	/* handle the last 11 bytes */
 	c += length;
-	switch(len)		/* all the case statements fall through */
+	switch( (INT)len )	/* all the case statements fall through */
 	{
 		case 11: c+=((UINT32)k[10]<<24);
 		case 10: c+=((UINT32)k[9]<<16);

@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: channel.c,v 1.38 2002/12/16 23:05:24 alex Exp $";
+static char UNUSED id[] = "$Id: channel.c,v 1.39 2002/12/25 13:22:43 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -468,7 +468,7 @@ Channel_IsValidName( CHAR *Name )
 	if(( Name[0] != '#' ) || ( strlen( Name ) >= CHANNEL_NAME_LEN )) return FALSE;
 
 	ptr = Name;
-	strcpy( badchars, " ,:\x07" );
+	strcpy( badchars, " ,:\007" );
 	while( *ptr )
 	{
 		if( strchr( badchars, *ptr )) return FALSE;

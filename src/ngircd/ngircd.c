@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.42 2002/04/01 17:05:48 alex Exp $
+ * $Id: ngircd.c,v 1.43 2002/04/04 13:03:55 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  */
@@ -21,6 +21,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <signal.h>
 #include <string.h>
 #include <unistd.h>

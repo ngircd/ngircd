@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: log.c,v 1.11 2001/12/29 03:08:49 alex Exp $
+ * $Id: log.c,v 1.12 2001/12/29 20:16:31 alex Exp $
  *
  * log.c: Logging-Funktionen
  *
  * $Log: log.c,v $
+ * Revision 1.12  2001/12/29 20:16:31  alex
+ * - Log-Funktionen fuer Resolver-Sub-Prozess implementiert.
+ *
  * Revision 1.11  2001/12/29 03:08:49  alex
  * - neue configure-Option "--enable-strict-rfc".
  *
@@ -119,11 +122,11 @@ GLOBAL VOID Log( CONST INT Level, CONST CHAR *Format, ... )
 	CHAR msg[MAX_LOG_MSG_LEN];
 	va_list ap;
 
+	assert( Format != NULL );
+
 #ifndef DEBUG
 	if( Level == LOG_DEBUG ) return;
 #endif
-
-	assert( Format != NULL );
 
 	/* String mit variablen Argumenten zusammenbauen ... */
 	va_start( ap, Format );
@@ -138,6 +141,51 @@ GLOBAL VOID Log( CONST INT Level, CONST CHAR *Format, ... )
 
 	va_end( ap );
 } /* Log */
+
+
+GLOBAL VOID Log_Init_Resolver( VOID )
+{
+#ifdef USE_SYSLOG
+	openlog( PACKAGE, LOG_CONS|LOG_PID, LOG_LOCAL5 );
+#endif
+} /* Log_Init_Resolver */
+
+
+GLOBAL VOID Log_Exit_Resolver( VOID )
+{
+#ifdef USE_SYSLOG
+	closelog( );
+#endif
+} /* Log_Exit_Resolver */
+
+
+GLOBAL VOID Log_Resolver( CONST INT Level, CONST CHAR *Format, ... )
+{
+	/* Eintrag des Resolver in Logfile(s) schreiben */
+
+	CHAR msg[MAX_LOG_MSG_LEN];
+	va_list ap;
+
+	assert( Format != NULL );
+
+#ifndef USE_SYSLOG
+	return;
+#endif
+
+#ifndef DEBUG
+	if( Level == LOG_DEBUG ) return;
+#endif
+
+	/* String mit variablen Argumenten zusammenbauen ... */
+	va_start( ap, Format );
+	vsnprintf( msg, MAX_LOG_MSG_LEN - 1, Format, ap );
+	msg[MAX_LOG_MSG_LEN - 1] = '\0';
+
+	/* ... und ausgeben */
+	syslog( Level, msg );
+
+	va_end( ap );
+} /* Log_Resolver */
 
 
 /* -eof- */

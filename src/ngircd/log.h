@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: log.h,v 1.4 2001/12/27 01:44:49 alex Exp $
+ * $Id: log.h,v 1.5 2001/12/29 20:16:31 alex Exp $
  *
  * log.h: Logging-Funktionen (Header)
  *
  * $Log: log.h,v $
+ * Revision 1.5  2001/12/29 20:16:31  alex
+ * - Log-Funktionen fuer Resolver-Sub-Prozess implementiert.
+ *
  * Revision 1.4  2001/12/27 01:44:49  alex
  * - die Verwendung von syslog kann nun abgeschaltet werden.
  *
@@ -50,6 +53,11 @@ GLOBAL VOID Log_Init( VOID );
 GLOBAL VOID Log_Exit( VOID );
 
 GLOBAL VOID Log( CONST INT Level, CONST CHAR *Format, ... );
+
+GLOBAL VOID Log_Init_Resolver( VOID );
+GLOBAL VOID Log_Exit_Resolver( VOID );
+
+GLOBAL VOID Log_Resolver( CONST INT Level, CONST CHAR *Format, ... );
 
 
 #endif

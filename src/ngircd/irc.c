@@ -9,13 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.18 2002/01/02 02:44:36 alex Exp $
+ * $Id: irc.c,v 1.19 2002/01/02 02:51:39 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
- * Revision 1.18  2002/01/02 02:44:36  alex
- * - neue Defines fuer max. Anzahl Server und Operatoren.
+ * Revision 1.19  2002/01/02 02:51:39  alex
+ * - Copyright-Texte angepasst.
+ * - neuer Befehl "ERROR".
  *
  * Revision 1.17  2001/12/31 15:33:13  alex
  * - neuer Befehl NAMES, kleinere Bugfixes.

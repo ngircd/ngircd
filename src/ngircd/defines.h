@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: defines.h,v 1.42 2003/02/23 12:03:39 alex Exp $
+ * $Id: defines.h,v 1.43 2003/11/05 23:24:48 alex Exp $
  *
  * Global defines of ngIRCd.
  */
@@ -18,8 +18,6 @@
 
 
 #define NONE -1
-
-#define TIME_RES 2			/* Zeit-Aufloesung des Servers in Sekunden */
 
 #define FNAME_LEN 256			/* max. Laenge eines Dateinamen */
 

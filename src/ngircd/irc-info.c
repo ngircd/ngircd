@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-info.c,v 1.17 2003/06/06 20:46:11 alex Exp $";
+static char UNUSED id[] = "$Id: irc-info.c,v 1.18 2003/11/05 23:24:48 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -77,6 +77,7 @@ IRC_ADMIN(CLIENT *Client, REQUEST *Req )
 	if( ! IRC_WriteStrClient( Client, RPL_ADMINLOC2_MSG, Client_ID( prefix ), Conf_ServerAdmin2 )) return DISCONNECTED;
 	if( ! IRC_WriteStrClient( Client, RPL_ADMINEMAIL_MSG, Client_ID( prefix ), Conf_ServerAdminMail )) return DISCONNECTED;
 
+	IRC_SetPenalty( Client, 1 );
 	return CONNECTED;
 } /* IRC_ADMIN */
 
@@ -161,7 +162,8 @@ IRC_LINKS( CLIENT *Client, REQUEST *Req )
 		}
 		c = Client_Next( c );
 	}
-
+	
+	IRC_SetPenalty( target, 1 );
 	return IRC_WriteStrClient( target, RPL_ENDOFLINKS_MSG, Client_ID( target ), mask );
 } /* IRC_LINKS */
 
@@ -197,6 +199,7 @@ IRC_LUSERS( CLIENT *Client, REQUEST *Req )
 
 	IRC_Send_LUSERS( target );
 
+	IRC_SetPenalty( target, 1 );
 	return CONNECTED;
 } /* IRC_LUSERS */
 
@@ -230,6 +233,7 @@ IRC_MOTD( CLIENT *Client, REQUEST *Req )
 		}
 	}
 
+	IRC_SetPenalty( from, 3 );
 	return IRC_Show_MOTD( from );
 } /* IRC_MOTD */
 
@@ -324,6 +328,7 @@ IRC_NAMES( CLIENT *Client, REQUEST *Req )
 		if( ! IRC_WriteStrClient( from, "%s", rpl )) return DISCONNECTED;
 	}
 
+	IRC_SetPenalty( from, 1 );
 	return IRC_WriteStrClient( from, RPL_ENDOFNAMES_MSG, Client_ID( from ), "*" );
 } /* IRC_NAMES */
 
@@ -402,6 +407,7 @@ IRC_STATS( CLIENT *Client, REQUEST *Req )
 			break;
 	}
 
+	IRC_SetPenalty( from, 2 );
 	return IRC_WriteStrClient( from, RPL_ENDOFSTATS_MSG, Client_ID( from ), query );
 } /* IRC_STATS */
 
@@ -517,6 +523,7 @@ IRC_VERSION( CLIENT *Client, REQUEST *Req )
 	}
 
 	/* mit Versionsinfo antworten */
+	IRC_SetPenalty( Client, 1 );
 #ifdef CVSDATE
 	strlcpy( ver, CVSDATE, sizeof( ver ));
 	strncpy( ver + 4, ver + 5, 2 );

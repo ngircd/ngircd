@@ -12,6 +12,9 @@
 
 ngIRCd CVS-HEAD
 
+  - Fixed and enhanced the "penalty handling" of the server: commands that
+    require more resources block the client for a short time.
+  - Changed the internal time resolution to one second.
   - New configuration variable "MaxConnectionsIP" to limit the number of
     simultaneous connections from a single IP that the server will accept.
     This configuration options lowers the risk of denial of service attacks
@@ -472,4 +475,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.214 2003/11/05 21:41:01 alex Exp $
+$Id: ChangeLog,v 1.215 2003/11/05 23:24:48 alex Exp $

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: messages.h,v 1.25 2002/02/11 15:48:39 alex Exp $
+ * $Id: messages.h,v 1.26 2002/02/11 23:33:12 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: messages.h,v $
+ * Revision 1.26  2002/02/11 23:33:12  alex
+ * - neue Message ERR_CHANOPRIVSNEEDED_MSG definiert.
+ *
  * Revision 1.25  2002/02/11 15:48:39  alex
  * - neue Nachricht RPL_CHANNELMODEIS definiert.
  *
@@ -234,6 +237,9 @@
 
 #define ERR_NOPRIVILEGES		"481"
 #define ERR_NOPRIVILEGES_MSG		ERR_NOPRIVILEGES" %s :Permission denied"
+
+#define ERR_CHANOPRIVSNEEDED		"482"
+#define ERR_CHANOPRIVSNEEDED_MSG	ERR_CHANOPRIVSNEEDED" %s %s :You are not channel operator"
 
 #define ERR_RESTRICTED			"484"
 #define ERR_RESTRICTED_MSG		ERR_RESTRICTED" %s :Your connection is restricted"

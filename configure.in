@@ -9,7 +9,7 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: configure.in,v 1.44 2002/04/24 13:33:56 alex Exp $
+# $Id: configure.in,v 1.45 2002/05/09 10:17:05 alex Exp $
 #
 
 # -- Initialisierung --
@@ -176,6 +176,7 @@ CFLAGS="$CFLAGS -DSYSCONFDIR='\"\$(sysconfdir)\"'"
 AC_OUTPUT([ \
 	Makefile \
 	doc/Makefile \
+	doc/en/Makefile \
 	MacOSX/Makefile \
 	MacOSX/ngircd.pbproj/Makefile \
 	src/Makefile \

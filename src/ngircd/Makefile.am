@@ -9,7 +9,7 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: Makefile.am,v 1.31 2002/12/12 12:36:41 alex Exp $
+# $Id: Makefile.am,v 1.31.2.1 2003/01/04 10:58:15 alex Exp $
 #
 
 AUTOMAKE_OPTIONS = ../portab/ansi2knr
@@ -65,7 +65,8 @@ ngircd.c: cvs-date cvs-version.h
 cvs-date:
 	grep VERSION ../config.h | grep "CVS" \
 	 && echo "#define CVSDATE \"$$( grep "\$$Id" $(srcdir)/*.c \
-	    | awk "{ print \$$9 }" | sort | tail -n 1 )\"" > cvs-version.new \
+	    | $(AWK) "{ print \$$9 }" | sort | tail -1 \
+	    | sed -e "s/\//-/g" )\"" > cvs-version.new \
 	 || echo "" > cvs-version.new
 	diff cvs-version.h cvs-version.new || cp cvs-version.new cvs-version.h
 

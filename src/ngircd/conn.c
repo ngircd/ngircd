@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.12 2001/12/26 03:20:53 alex Exp $
+ * $Id: conn.c,v 1.13 2001/12/26 03:36:57 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
+ * Revision 1.13  2001/12/26 03:36:57  alex
+ * - Verbindungen mit Lesefehlern werden nun korrekt terminiert.
+ *
  * Revision 1.12  2001/12/26 03:20:53  alex
  * - PING/PONG-Timeout implementiert.
  *
@@ -75,6 +78,7 @@
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <sys/types.h>
+#include <time.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
@@ -570,7 +574,7 @@ LOCAL VOID Read_Request( CONN_ID Idx )
 	{
 		/* Fehler beim Lesen */
 		Log( LOG_ALERT, "Read error on connection %d: %s!", Idx, strerror( errno ));
-		Conn_Close( Idx, "Read error!" );
+		Conn_Close( Idx, NULL );
 		return;
 	}
 

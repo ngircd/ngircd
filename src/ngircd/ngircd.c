@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.55 2002/10/03 21:49:59 alex Exp $
+ * $Id: ngircd.c,v 1.56 2002/10/07 21:16:13 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  */
@@ -35,6 +35,7 @@
 #include "client.h"
 #include "channel.h"
 #include "conf.h"
+#include "cvs-version.h"
 #include "defines.h"
 #include "lists.h"
 #include "log.h"
@@ -319,8 +320,12 @@ GLOBAL CHAR *
 NGIRCd_Version( VOID )
 {
 	STATIC CHAR version[126];
-
+	
+#ifdef CVSDATE
+	sprintf( version, "%s %s(%s)-%s", PACKAGE, VERSION, CVSDATE, NGIRCd_VersionAddition( ));
+#else
 	sprintf( version, "%s %s-%s", PACKAGE, VERSION, NGIRCd_VersionAddition( ));
+#endif
 	return version;
 } /* NGIRCd_Version */
 

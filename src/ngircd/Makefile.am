@@ -9,7 +9,7 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: Makefile.am,v 1.27 2002/09/07 18:06:29 alex Exp $
+# $Id: Makefile.am,v 1.28 2002/10/07 21:16:13 alex Exp $
 #
 
 AUTOMAKE_OPTIONS = ../portab/ansi2knr
@@ -34,7 +34,7 @@ noinst_HEADERS = ngircd.h channel.h client.h conf.h conn.h hash.h irc.h \
 	messages.h defines.h
 
 clean-local:
-	rm -f check-version check-help lint.out
+	rm -f check-version check-help lint.out cvs-version.*
 
 maintainer-clean-local:
 	rm -f Makefile Makefile.in
@@ -59,6 +59,15 @@ lint:
 	  echo; cat lint.out; echo; \
 	 fi; \
 	done;
+
+ngircd.c: cvs-date cvs-version.h
+
+cvs-date:
+	grep VERSION $(srcdir)/../config.h | grep "CVS" \
+	 && echo "#define CVSDATE \"$$( grep "\$$Id" *.c *.h | awk "{ print \$$6 }" | sort | tail -n 1 )\"" > $(srcdir)/cvs-version.new \
+	 || echo "" > $(srcdir)/cvs-version.new
+	diff $(srcdir)/cvs-version.h $(srcdir)/cvs-version.new \
+	 || cp $(srcdir)/cvs-version.new $(srcdir)/cvs-version.h
 
 TESTS = check-version check-help
 

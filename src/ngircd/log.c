@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: log.c,v 1.31 2002/03/30 13:37:12 alex Exp $
+ * $Id: log.c,v 1.32 2002/03/31 16:46:15 alex Exp $
  *
  * log.c: Logging-Funktionen
  */
@@ -91,18 +91,24 @@ GLOBAL VOID Log_InitErrorfile( VOID )
 	/* "Error-Log" initialisieren: stderr in Datei umlenken. Dort
 	 * landen z.B. alle Ausgaben von assert()-Aufrufen. */
 
-	fflush( stderr );
+	/* Dateiname zusammen bauen */
 	sprintf( Error_File, ERROR_DIR"/"PACKAGE"-%ld.err", (INT32)getpid( ));
+
+	/* stderr umlenken */
+	fflush( stderr );
 	if( ! freopen( Error_File, "w", stderr ))
 	{
 		Log( LOG_ERR, "Can't reopen stderr (\"%s\"): %s", Error_File, strerror( errno ));
 		return;
 	}
 
+	/* Einige Infos in das Error-File schreiben */
 	fputs( ctime( &NGIRCd_Start ), stderr );
 	fprintf( stderr, "%s started.\n", NGIRCd_Version( ));
 	fprintf( stderr, "Activating: %s\n\n", Init_Txt[0] ? Init_Txt : "-" );
 	fflush( stderr );
+
+	Log( LOG_DEBUG, "Redirected stderr to \"%s\".", Error_File );
 } /* Log_InitErrfile */
 
 

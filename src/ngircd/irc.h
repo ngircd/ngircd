@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.h,v 1.10 2001/12/31 02:18:51 alex Exp $
+ * $Id: irc.h,v 1.11 2001/12/31 15:33:13 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: irc.h,v $
+ * Revision 1.11  2001/12/31 15:33:13  alex
+ * - neuer Befehl NAMES, kleinere Bugfixes.
+ * - Bug bei PING behoben: war zu restriktiv implementiert :-)
+ *
  * Revision 1.10  2001/12/31 02:18:51  alex
  * - viele neue Befehle (WHOIS, ISON, OPER, DIE, RESTART),
  * - neuen Header "defines.h" mit (fast) allen Konstanten.
@@ -77,6 +81,7 @@ GLOBAL BOOLEAN IRC_NOTICE( CLIENT *Client, REQUEST *Req );
 
 GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req );
 
+GLOBAL BOOLEAN IRC_NAMES( CLIENT *Client, REQUEST *Req );
 GLOBAL BOOLEAN IRC_ISON( CLIENT *Client, REQUEST *Req );
 GLOBAL BOOLEAN IRC_WHOIS( CLIENT *Client, REQUEST *Req );
 GLOBAL BOOLEAN IRC_USERHOST( CLIENT *Client, REQUEST *Req );

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.14 2001/12/31 02:18:51 alex Exp $
+ * $Id: client.c,v 1.15 2001/12/31 15:33:13 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,10 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.15  2001/12/31 15:33:13  alex
+ * - neuer Befehl NAMES, kleinere Bugfixes.
+ * - Bug bei PING behoben: war zu restriktiv implementiert :-)
+ *
  * Revision 1.14  2001/12/31 02:18:51  alex
  * - viele neue Befehle (WHOIS, ISON, OPER, DIE, RESTART),
  * - neuen Header "defines.h" mit (fast) allen Konstanten.
@@ -318,6 +322,24 @@ GLOBAL CLIENT *Client_Search( CHAR *ID )
 	
 	return NULL;
 } /* Client_Search */
+
+
+GLOBAL CLIENT *Client_First( VOID )
+{
+	/* Ersten Client liefern. */
+
+	return My_Clients;
+} /* Client_First */
+
+
+GLOBAL CLIENT *Client_Next( CLIENT *c )
+{
+	/* Naechsten Client liefern. Existiert keiner,
+	 * so wird NULL geliefert. */
+
+	assert( c != NULL );
+	return c->next;
+} /* Client_Next */
 
 
 LOCAL CLIENT *New_Client_Struct( VOID )

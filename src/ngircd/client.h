@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.h,v 1.10 2001/12/31 02:18:51 alex Exp $
+ * $Id: client.h,v 1.11 2001/12/31 15:33:13 alex Exp $
  *
  * client.h: Konfiguration des ngircd (Header)
  *
  * $Log: client.h,v $
+ * Revision 1.11  2001/12/31 15:33:13  alex
+ * - neuer Befehl NAMES, kleinere Bugfixes.
+ * - Bug bei PING behoben: war zu restriktiv implementiert :-)
+ *
  * Revision 1.10  2001/12/31 02:18:51  alex
  * - viele neue Befehle (WHOIS, ISON, OPER, DIE, RESTART),
  * - neuen Header "defines.h" mit (fast) allen Konstanten.
@@ -101,6 +105,8 @@ GLOBAL CHAR *Client_Nick( CLIENT *Client );
 GLOBAL BOOLEAN Client_CheckNick( CLIENT *Client, CHAR *Nick );
 GLOBAL CHAR *Client_GetID( CLIENT *Client );
 GLOBAL CLIENT *Client_Search( CHAR *ID );
+GLOBAL CLIENT *Client_First( VOID );
+GLOBAL CLIENT *Client_Next( CLIENT *c );
 
 
 #endif

@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.16 2001/12/31 02:18:51 alex Exp $
+ * $Id: irc.c,v 1.17 2001/12/31 15:33:13 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.17  2001/12/31 15:33:13  alex
+ * - neuer Befehl NAMES, kleinere Bugfixes.
+ * - Bug bei PING behoben: war zu restriktiv implementiert :-)
+ *
  * Revision 1.16  2001/12/31 02:18:51  alex
  * - viele neue Befehle (WHOIS, ISON, OPER, DIE, RESTART),
  * - neuen Header "defines.h" mit (fast) allen Konstanten.
@@ -276,8 +280,6 @@ GLOBAL BOOLEAN IRC_QUIT( CLIENT *Client, REQUEST *Req )
 
 GLOBAL BOOLEAN IRC_PING( CLIENT *Client, REQUEST *Req )
 {
-	CLIENT *to;
-	
 	assert( Client != NULL );
 	assert( Req != NULL );
 
@@ -287,10 +289,7 @@ GLOBAL BOOLEAN IRC_PING( CLIENT *Client, REQUEST *Req )
 	if( Req->argc < 1 ) return IRC_WriteStrClient( Client, This_Server, ERR_NOORIGIN_MSG, Client_Nick( Client ));
 	if( Req->argc > 1 ) return IRC_WriteStrClient( Client, This_Server, ERR_NEEDMOREPARAMS_MSG, Client_Nick( Client ), Req->command );
 
-	to = Client_Search( Req->argv[0] );
-	
-	if( to ) return IRC_WriteStrClient( Client, This_Server, "PONG :%s", Client_Nick( Client ));
-	else return IRC_WriteStrClient( Client, This_Server, ERR_NOSUCHNICK_MSG, Client_Nick( Client ), Req->argv[0] );
+	return IRC_WriteStrClient( Client, This_Server, "PONG %s :%s", Client_Nick( This_Server), Client_Nick( Client ));
 } /* IRC_PING */
 
 
@@ -543,6 +542,51 @@ GLOBAL BOOLEAN IRC_RESTART( CLIENT *Client, REQUEST *Req )
 	NGIRCd_Restart = TRUE;
 	return CONNECTED;
 } /* IRC_RESTART */
+
+
+GLOBAL BOOLEAN IRC_NAMES( CLIENT *Client, REQUEST *Req )
+{
+	CHAR rpl[COMMAND_LEN];
+	CLIENT *c;
+	
+	assert( Client != NULL );
+	assert( Req != NULL );
+
+	if( ! Check_Valid_User( Client )) return CONNECTED;
+
+	/* Falsche Anzahl Parameter? */
+	if( Req->argc != 0 ) return IRC_WriteStrClient( Client, This_Server, ERR_NEEDMOREPARAMS_MSG, Client_Nick( Client ), Req->command );
+
+	/* Noch alle User ausgeben, die in keinem Channel sind */
+	rpl[0] = '\0';
+	c = Client_First( );
+	while( c )
+	{
+		if( c->type == CLIENT_USER )
+		{
+			/* Okay, das ist ein User */
+			strcat( rpl, Client_Nick( c ));
+			strcat( rpl, " " );
+		}
+
+		/* Antwort zu lang? Splitten. */
+		if( strlen( rpl ) > 480 )
+		{
+			if( rpl[strlen( rpl ) - 1] == ' ' ) rpl[strlen( rpl ) - 1] = '\0';
+			if( ! IRC_WriteStrClient( Client, This_Server, RPL_NAMREPLY_MSG, Client_Nick( Client ), "*", "*", rpl )) return DISCONNECTED;
+			rpl[0] = '\0';
+		}
+		
+		c = Client_Next( c );
+	}
+	if( rpl[0] )
+	{
+		/* es wurden User gefunden */
+		if( rpl[strlen( rpl ) - 1] == ' ' ) rpl[strlen( rpl ) - 1] = '\0';
+		if( ! IRC_WriteStrClient( Client, This_Server, RPL_NAMREPLY_MSG, Client_Nick( Client ), "*", "*", rpl )) return DISCONNECTED;
+	}
+	return IRC_WriteStrClient( Client, This_Server, RPL_ENDOFNAMES_MSG, Client_Nick( Client ), "*" );
+} /* IRC_NAMES */
 
 
 GLOBAL BOOLEAN IRC_ISON( CLIENT *Client, REQUEST *Req )

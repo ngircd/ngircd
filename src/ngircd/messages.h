@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: messages.h,v 1.12 2001/12/31 02:18:51 alex Exp $
+ * $Id: messages.h,v 1.13 2001/12/31 15:33:13 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: messages.h,v $
+ * Revision 1.13  2001/12/31 15:33:13  alex
+ * - neuer Befehl NAMES, kleinere Bugfixes.
+ * - Bug bei PING behoben: war zu restriktiv implementiert :-)
+ *
  * Revision 1.12  2001/12/31 02:18:51  alex
  * - viele neue Befehle (WHOIS, ISON, OPER, DIE, RESTART),
  * - neuen Header "defines.h" mit (fast) allen Konstanten.
@@ -108,6 +112,12 @@
 
 #define RPL_WHOISCHANNELS		"319"
 #define RPL_WHOISCHANNELS_MSG		RPL_WHOISCHANNELS" %s :"
+
+#define RPL_NAMREPLY			"353"
+#define RPL_NAMREPLY_MSG		RPL_NAMREPLY" %s %s %s :%s"
+
+#define RPL_ENDOFNAMES			"366"
+#define RPL_ENDOFNAMES_MSG		RPL_ENDOFNAMES" %s %s :End of NAMES list"
 
 #define RPL_YOUREOPER			"381"
 #define RPL_YOUREOPER_MSG		RPL_YOUREOPER" %s :You are now an IRC Operator"

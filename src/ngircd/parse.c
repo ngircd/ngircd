@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: parse.c,v 1.9 2001/12/31 02:18:51 alex Exp $
+ * $Id: parse.c,v 1.10 2001/12/31 15:33:13 alex Exp $
  *
  * parse.c: Parsen der Client-Anfragen
  *
  * $Log: parse.c,v $
+ * Revision 1.10  2001/12/31 15:33:13  alex
+ * - neuer Befehl NAMES, kleinere Bugfixes.
+ * - Bug bei PING behoben: war zu restriktiv implementiert :-)
+ *
  * Revision 1.9  2001/12/31 02:18:51  alex
  * - viele neue Befehle (WHOIS, ISON, OPER, DIE, RESTART),
  * - neuen Header "defines.h" mit (fast) allen Konstanten.
@@ -244,6 +248,7 @@ LOCAL BOOLEAN Handle_Request( CONN_ID Idx, REQUEST *Req )
 	else if( strcasecmp( Req->command, "PRIVMSG" ) == 0 ) return IRC_PRIVMSG( client, Req );
 	else if( strcasecmp( Req->command, "NOTICE" ) == 0 ) return IRC_NOTICE( client, Req );
 	else if( strcasecmp( Req->command, "MODE" ) == 0 ) return IRC_MODE( client, Req );
+	else if( strcasecmp( Req->command, "NAMES" ) == 0 ) return IRC_NAMES( client, Req );
 	else if( strcasecmp( Req->command, "ISON" ) == 0 ) return IRC_ISON( client, Req );
 	else if( strcasecmp( Req->command, "WHOIS" ) == 0 ) return IRC_WHOIS( client, Req );
 	else if( strcasecmp( Req->command, "USERHOST" ) == 0 ) return IRC_USERHOST( client, Req );

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: parse.c,v 1.56 2002/12/31 16:11:24 alex Exp $";
+static char UNUSED id[] = "$Id: parse.c,v 1.57 2003/01/12 22:18:46 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -164,7 +164,7 @@ Parse_Request( CONN_ID Idx, CHAR *Request )
 		*ptr = '\0';
 #ifndef STRICT_RFC
 		/* multiple Leerzeichen als Trenner vor
-		*Parametertrennern ignorieren */
+		 * Parametern ignorieren */
 		while( *(ptr + 1) == ' ' ) ptr++;
 #endif
 	}
@@ -327,40 +327,44 @@ Handle_Request( CONN_ID Idx, REQUEST *Req )
 	client = Client_GetFromConn( Idx );
 	assert( client != NULL );
 
-	/* Statuscode, der geforwarded werden muss? */
-	if(( strlen( Req->command ) == 3 ) && ( atoi( Req->command ) > 100 ))
+	/* Statuscode? */
+	if(( Client_Type( client ) == CLIENT_SERVER ) && ( strlen( Req->command ) == 3 ) && ( atoi( Req->command ) > 100 ))
 	{
-		/* Befehl ist ein Statuscode */
+		/* Command is a status code from an other server */
 
-		/* Zielserver ermitteln */
-		if(( Client_Type( client ) == CLIENT_SERVER ) && ( Req->argc > 0 )) target = Client_Search( Req->argv[0] );
+		/* Determine target */
+		if( Req->argc > 0 ) target = Client_Search( Req->argv[0] );
 		else target = NULL;
 		if( ! target )
 		{
+			/* Status code without target!? */
 			if( Req->argc > 0 ) Log( LOG_WARNING, "Unknown target for status code %s: \"%s\"", Req->command, Req->argv[0] );
 			else Log( LOG_WARNING, "Unknown target for status code %s!", Req->command );
 			return TRUE;
 		}
 		if( target == Client_ThisServer( ))
 		{
+			/* This server is the target, ignore it */
 			Log( LOG_DEBUG, "Ignored status code %s from \"%s\".", Req->command, Client_ID( client ));
 			return TRUE;
 		}
 
-		/* Quell-Client ermitteln */
+		/* Determine source */
 		if( ! Req->prefix[0] )
 		{
-			Log( LOG_WARNING, "Got status code without prefix!?" );
+			/* Oops, no prefix!? */
+			Log( LOG_WARNING, "Got status code %s from \"%s\" without prefix!?", Req->command, Client_ID( client ));
 			return TRUE;
 		}
 		else prefix = Client_Search( Req->prefix );
 		if( ! prefix )
 		{
-			Log( LOG_WARNING, "Got status code from unknown source: \"%s\"", Req->prefix );
+			/* Oops, unknown prefix!? */
+			Log( LOG_WARNING, "Got status code %s from unknown source: \"%s\"", Req->command, Req->prefix );
 			return TRUE;
 		}
 
-		/* Statuscode weiterleiten */
+		/* Forward status code */
 		strlcpy( str, Req->command, sizeof( str ));
 		for( i = 0; i < Req->argc; i++ )
 		{

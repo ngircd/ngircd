@@ -10,7 +10,7 @@
                                   -- NEWS --
 
 
-ngIRCd CVS-HEAD
+ngIRCd 0.7.0-pre1
 
   - New command CONNECT to enable and add server links. The syntax is not
     RFC-compatible: use "CONNECT <name> <port>" to enable and connect an
@@ -161,4 +161,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.53 2003/04/20 23:14:28 alex Exp $
+$Id: NEWS,v 1.53.2.1 2003/04/21 22:49:45 alex Exp $

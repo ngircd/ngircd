@@ -9,9 +9,12 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: Makefile.am,v 1.11 2002/02/21 17:25:16 alex Exp $
+# $Id: Makefile.am,v 1.12 2002/02/21 18:47:49 alex Exp $
 #
 # $Log: Makefile.am,v $
+# Revision 1.12  2002/02/21 18:47:49  alex
+# - die Rechte der check-Scripts wurde nicht gesetzt.
+#
 # Revision 1.11  2002/02/21 17:25:16  alex
 # - "check"-Target für "make check" und "make distcheck" begonnen ...
 #
@@ -65,10 +68,12 @@ maintainer-clean-local:
 check-version: Makefile
 	echo "#!/bin/sh" > check-version
 	echo "./ngircd --version | grep version > /dev/null 2>&1" >> check-version
+	chmod 755 check-version
 
 check-help: Makefile
 	echo "#!/bin/sh" > check-help
 	echo "./ngircd --help | grep help > /dev/null 2>&1" >> check-help
+	chmod 755 check-help
 
 TESTS = check-version check-help
 

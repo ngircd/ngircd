@@ -1,6 +1,6 @@
 #
 # ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
+# Copyright (c)2001-2003 by Alexander Barton (alex@barton.de)
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -8,7 +8,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: Makefile.am,v 1.36 2003/01/13 12:20:16 alex Exp $
+# $Id: Makefile.am,v 1.37 2003/02/23 12:02:26 alex Exp $
 #
 
 AUTOMAKE_OPTIONS = ../portab/ansi2knr
@@ -21,7 +21,8 @@ sbin_PROGRAMS = ngircd
 
 ngircd_SOURCES = ngircd.c channel.c client.c conf.c conn.c conn-zip.c conn-func.c \
 	hash.c irc.c irc-channel.c irc-info.c irc-login.c irc-mode.c irc-op.c \
-	irc-oper.c irc-server.c irc-write.c lists.c log.c match.c parse.c resolve.c
+	irc-oper.c irc-server.c irc-write.c lists.c log.c match.c parse.c \
+	rendezvous.c resolve.c
 
 ngircd_LDFLAGS = -L../portab -L../tool
 
@@ -29,7 +30,8 @@ ngircd_LDADD = -lngportab -lngtool
 
 noinst_HEADERS = ngircd.h channel.h client.h conf.h conn.h conn-zip.h conn-func.h \
 	hash.h irc.h irc-channel.h irc-info.h irc-login.h irc-mode.h irc-op.h \
-	irc-oper.h irc-server.h irc-write.h lists.h log.h match.h parse.h resolve.h \
+	irc-oper.h irc-server.h irc-write.h lists.h log.h match.h parse.h \
+	rendezvous.h resolve.h \
 	messages.h defines.h
 
 clean-local:

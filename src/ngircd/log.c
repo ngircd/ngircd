@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: log.c,v 1.5 2001/12/15 00:07:56 alex Exp $
+ * $Id: log.c,v 1.6 2001/12/25 19:20:39 alex Exp $
  *
  * log.c: Logging-Funktionen
  *
  * $Log: log.c,v $
+ * Revision 1.6  2001/12/25 19:20:39  alex
+ * - es wird nun die Facility LOG_LOCAL5 zum Loggen verwendet.
+ *
  * Revision 1.5  2001/12/15 00:07:56  alex
  * - Log-Level der Start- und Stop-Meldungen angehoben.
  *
@@ -49,7 +52,7 @@
 
 GLOBAL VOID Log_Init( VOID )
 {
-	openlog( PACKAGE, LOG_CONS|LOG_PID, LOG_DAEMON );
+	openlog( PACKAGE, LOG_CONS|LOG_PID, LOG_LOCAL5 );
 	Log( LOG_NOTICE, PACKAGE" version "VERSION" started.");
 } /* Log_Init */
 

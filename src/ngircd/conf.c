@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.55 2003/03/31 15:54:21 alex Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.56 2003/04/20 23:09:43 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -412,7 +412,7 @@ Read_Config( VOID )
 			{
 				/* Mark server as "once" */
 				Conf_Server[i].flags |= CONF_SFLAG_ONCE;
-				Log( LOG_DEBUG, "Market server %d as \"once\"", i );
+				Log( LOG_DEBUG, "Marked server %d as \"once\"", i );
 			}
 		}
 	}

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: log.c,v 1.27 2002/03/29 20:59:22 alex Exp $
+ * $Id: log.c,v 1.28 2002/03/29 22:55:42 alex Exp $
  *
  * log.c: Logging-Funktionen
  */
@@ -48,6 +48,7 @@ LOCAL VOID Wall_ServerNotice( CHAR *Msg );
 GLOBAL VOID Log_Init( VOID )
 {
 	CHAR txt[127];
+	time_t t;
 
 #ifdef USE_SYSLOG
 	/* Syslog initialisieren */
@@ -85,28 +86,27 @@ GLOBAL VOID Log_Init( VOID )
 #endif
 	if( txt[0] ) Log( LOG_INFO, "Activating: %s.", txt );
 
-	/* stderr in Datei umlenken */
-	sprintf( Error_File, ERROR_DIR"/"PACKAGE"-%ld.err", (INT32)getpid( ));
+	/* "Error-Log" initialisieren: stderr in Datei umlenken. Dort
+	 * landen z.B. alle Ausgaben von assert()-Aufrufen. */
 	fflush( stderr );
-	if( ! freopen( Error_File, "a+", stderr )) Log( LOG_ERR, "Can't reopen stderr (\"%s\"): %s", Error_File, strerror( errno ));
+	sprintf( Error_File, ERROR_DIR"/"PACKAGE"-%ld.err", (INT32)getpid( ));
+	if( ! freopen( Error_File, "w", stderr ))
+	{
+		Log( LOG_ERR, "Can't reopen stderr (\"%s\"): %s", Error_File, strerror( errno ));
+		return;
+	}
 
-	fprintf( stderr, "\n--- %s ---\n\n", NGIRCd_StartStr );
-	fprintf( stderr, "%s started.\npid=%ld, ppid=%ld, uid=%ld, gid=%ld [euid=%ld, egid=%ld].\nActivating: %s\n\n", NGIRCd_Version( ), (INT32)getpid( ), (INT32)getppid( ), (INT32)getuid( ), (INT32)getgid( ), (INT32)geteuid( ), (INT32)getegid( ), txt[0] ? txt : "-" );
+	fputs( ctime( &t ), stderr );
+	fprintf( stderr, "%s started.\n", NGIRCd_Version( ));
+	fprintf( stderr, "Activating: %s\n\n", txt[0] ? txt : "-" );
 	fflush( stderr );
 } /* Log_Init */
 
 
 GLOBAL VOID Log_Exit( VOID )
 {
-	time_t t;
-	
 	/* Good Bye! */
 	Log( LOG_NOTICE, PACKAGE" done.");
-
-	t = time( NULL );
-	fputs( ctime( &t ), stderr );
-	fprintf( stderr, PACKAGE" done (pid=%ld).\n", (INT32)getpid( ));
-	fflush( stderr );
 
 	/* Error-File (stderr) loeschen */
 	if( unlink( Error_File ) != 0 ) Log( LOG_ERR, "Can't delete \"%s\": %s", Error_File, strerror( errno ));
@@ -125,11 +125,8 @@ GLOBAL VOID Log( INT Level, CONST CHAR *Format, ... )
 	CHAR msg[MAX_LOG_MSG_LEN];
 	BOOLEAN snotice;
 	va_list ap;
-	time_t t;
 
 	assert( Format != NULL );
-
-	snotice = FALSE;
 
 	if( Level & LOG_snotice )
 	{
@@ -137,6 +134,7 @@ GLOBAL VOID Log( INT Level, CONST CHAR *Format, ... )
 		snotice = TRUE;
 		Level &= ~LOG_snotice;
 	}
+	else snotice = FALSE;
 
 #ifdef DEBUG
 	if(( Level == LOG_DEBUG ) && ( ! NGIRCd_Debug )) return;
@@ -148,14 +146,6 @@ GLOBAL VOID Log( INT Level, CONST CHAR *Format, ... )
 	va_start( ap, Format );
 	vsnprintf( msg, MAX_LOG_MSG_LEN, Format, ap );
 	va_end( ap );
-
-	/* In Error-File schreiben */
-	if( Level <= LOG_ERR )
-	{
-		t = time( NULL );
-		fputs( ctime( &t ), stderr );
-		fprintf( stderr, "[%d] %s\n\n", Level, msg );
-	}
 
 	/* Konsole */
 	if( NGIRCd_NoDaemon ) printf( "[%d] %s\n", Level, msg );
@@ -219,10 +209,12 @@ GLOBAL VOID Log_Resolver( CONST INT Level, CONST CHAR *Format, ... )
 
 LOCAL VOID Wall_ServerNotice( CHAR *Msg )
 {
+	/* Server-Notice an entsprechende User verschicken */
+
 	CLIENT *c;
 
 	assert( Msg != NULL );
-	
+
 	c = Client_First( );
 	while( c )
 	{

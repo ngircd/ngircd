@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.11 2001/12/29 03:10:47 alex Exp $
+ * $Id: client.c,v 1.12 2001/12/29 20:18:18 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,9 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.12  2001/12/29 20:18:18  alex
+ * - neue Funktion Client_SetHostname().
+ *
  * Revision 1.11  2001/12/29 03:10:47  alex
  * - Client-Modes implementiert; Loglevel mal wieder angepasst.
  *
@@ -146,11 +149,10 @@ GLOBAL CLIENT *Client_NewLocal( CONN_ID Idx, CHAR *Hostname )
 	client = New_Client_Struct( );
 	if( ! client ) return NULL;
 
-	/* Initgialisieren */
+	/* Initialisieren */
 	client->conn_id = Idx;
 	client->introducer = This_Server;
-	strncpy( client->host, Hostname, CLIENT_HOST_LEN );
-	client->host[CLIENT_HOST_LEN] = '\0';
+	Client_SetHostname( client, Hostname );
 
 	/* Verketten */
 	client->next = My_Clients;
@@ -186,6 +188,16 @@ GLOBAL VOID Client_Destroy( CLIENT *Client )
 		c = c->next;
 	}
 } /* Client_Destroy */
+
+
+GLOBAL VOID Client_SetHostname( CLIENT *Client, CHAR *Hostname )
+{
+	/* Hostname eines Clients setzen */
+	
+	assert( Client != NULL );
+	strncpy( Client->host, Hostname, CLIENT_HOST_LEN );
+	Client->host[CLIENT_HOST_LEN] = '\0';
+} /* Client_SetHostname */
 
 
 GLOBAL CLIENT *Client_GetFromConn( CONN_ID Idx )

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.h,v 1.8 2001/12/29 03:10:47 alex Exp $
+ * $Id: client.h,v 1.9 2001/12/29 20:18:18 alex Exp $
  *
  * client.h: Konfiguration des ngircd (Header)
  *
  * $Log: client.h,v $
+ * Revision 1.9  2001/12/29 20:18:18  alex
+ * - neue Funktion Client_SetHostname().
+ *
  * Revision 1.8  2001/12/29 03:10:47  alex
  * - Client-Modes implementiert; Loglevel mal wieder angepasst.
  *
@@ -95,6 +98,7 @@ GLOBAL VOID Client_Exit( VOID );
 
 GLOBAL CLIENT *Client_NewLocal( CONN_ID Idx, CHAR *Hostname );
 GLOBAL VOID Client_Destroy( CLIENT *Client );
+GLOBAL VOID Client_SetHostname( CLIENT *Client, CHAR *Hostname );
 GLOBAL CLIENT *Client_GetFromConn( CONN_ID Idx );
 GLOBAL CHAR *Client_Name( CLIENT *Client );
 GLOBAL BOOLEAN Client_CheckNick( CLIENT *Client, CHAR *Nick );

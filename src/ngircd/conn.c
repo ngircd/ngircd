@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.49 2002/03/10 18:47:02 alex Exp $
+ * $Id: conn.c,v 1.50 2002/03/11 00:04:48 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
+ * Revision 1.50  2002/03/11 00:04:48  alex
+ * - ein sofortiger Re-Connect wird nur dann versucht, wenn die Vernindung
+ *   "lange genug" bereits bestanden hatte.
+ *
  * Revision 1.49  2002/03/10 18:47:02  alex
  * *** empty log message ***
  *
@@ -422,7 +426,7 @@ GLOBAL VOID Conn_Handler( INT Timeout )
 				Handle_Buffer( i );
 			}
 		}
-		
+
 		/* noch volle Schreib-Puffer suchen */
 		FD_ZERO( &write_sockets );
 		for( i = 0; i < MAX_CONNECTIONS; i++ )
@@ -566,7 +570,7 @@ GLOBAL VOID Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformC
 	 * Sub-Prozessen offene Pipes werden geschlossen. */
 
 	CLIENT *c;
-	
+
 	assert( Idx >= 0 );
 	assert( My_Connections[Idx].sock > NONE );
 
@@ -600,8 +604,12 @@ GLOBAL VOID Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformC
 
 	/* Bei Server-Verbindungen lasttry-Zeitpunkt so setzen, dass
 	 * der naechste Verbindungsversuch in RECONNECT_DELAY Sekunden
-	 * gestartet wird */
-	if( My_Connections[Idx].our_server >= 0 ) Conf_Server[My_Connections[Idx].our_server].lasttry = time( NULL ) - Conf_ConnectRetry + RECONNECT_DELAY;
+	 * gestartet wird. */
+	if(( My_Connections[Idx].our_server >= 0 ) && ( Conf_Server[My_Connections[Idx].our_server].lasttry <  time( NULL )))
+	{
+		/* Okay, die Verbindung stand schon "genuegend lange" */
+		Conf_Server[My_Connections[Idx].our_server].lasttry = time( NULL ) - Conf_ConnectRetry + RECONNECT_DELAY;
+	}
 
 	FD_CLR( My_Connections[Idx].sock, &My_Sockets );
 	FD_CLR( My_Connections[Idx].sock, &My_Connects );
@@ -675,7 +683,7 @@ LOCAL VOID Handle_Read( INT Sock )
 	CONN_ID idx;
 
 	assert( Sock >= 0 );
-	
+
 	if( FD_ISSET( Sock, &My_Listeners ))
 	{
 		/* es ist einer unserer Listener-Sockets: es soll
@@ -775,7 +783,7 @@ LOCAL VOID New_Connection( INT Sock )
 	INT new_sock, new_sock_len;
 	RES_STAT *s;
 	CONN_ID idx;
-	
+
 	assert( Sock >= 0 );
 
 	new_sock_len = sizeof( new_addr );
@@ -898,7 +906,7 @@ LOCAL VOID Handle_Buffer( CONN_ID Idx )
 
 	CHAR *ptr, *ptr1, *ptr2;
 	INT len, delta;
-	
+
 	/* Eine komplette Anfrage muss mit CR+LF enden, vgl.
 	 * RFC 2812. Haben wir eine? */
 	ptr = strstr( My_Connections[Idx].rbuf, "\r\n" );
@@ -917,7 +925,7 @@ LOCAL VOID Handle_Buffer( CONN_ID Idx )
 		else if( ptr2 ) ptr = ptr2;
 	}
 #endif
-	
+
 	if( ptr )
 	{
 		/* Ende der Anfrage wurde gefunden */
@@ -932,7 +940,7 @@ LOCAL VOID Handle_Buffer( CONN_ID Idx )
 			Conn_Close( Idx, NULL, "Request too long", TRUE );
 			return;
 		}
-		
+
 		if( len > delta )
 		{
 			/* Es wurde ein Request gelesen */
@@ -1005,12 +1013,12 @@ LOCAL VOID Check_Servers( VOID )
 
 	/* Wenn "Passive-Mode" aktiv: nicht verbinden */
 	if( NGIRCd_Passive ) return;
-	
+
 	for( i = 0; i < Conf_Server_Count; i++ )
 	{
 		/* Ist ein Hostname und Port definiert? */
 		if(( ! Conf_Server[i].host[0] ) || ( ! Conf_Server[i].port > 0 )) continue;
-		
+
 		/* Haben wir schon eine Verbindung? */
 		for( n = 0; n < MAX_CONNECTIONS; n++ )
 		{
@@ -1031,7 +1039,7 @@ LOCAL VOID Check_Servers( VOID )
 			}
 		}
 		if( n < MAX_CONNECTIONS ) continue;
-		
+
 		/* Wann war der letzte Connect-Versuch? */
 		if( Conf_Server[i].lasttry > time( NULL ) - Conf_ConnectRetry ) continue;
 
@@ -1051,7 +1059,7 @@ LOCAL VOID Check_Servers( VOID )
 		Init_Conn_Struct( idx );
 		My_Connections[idx].sock = SERVER_WAIT;
 		My_Connections[idx].our_server = i;
-		
+
 		/* Hostnamen in IP aufloesen */
 		s = ResolveName( Conf_Server[i].host );
 		if( s )
@@ -1088,7 +1096,7 @@ LOCAL VOID New_Server( INT Server, CONN_ID Idx )
 		Log( LOG_ERR, "Can't connect to \"%s\" (connection %d): ip address unknown!", Conf_Server[Server].host, Idx );
 		return;
 	}
-	
+
 	Log( LOG_INFO, "Establishing connection to \"%s\", %s, port %d (connection %d) ... ", Conf_Server[Server].host, Conf_Server[Server].ip, Conf_Server[Server].port, Idx );
 
 	if( inet_aton( Conf_Server[Server].ip, &inaddr ) == 0 )
@@ -1117,7 +1125,7 @@ LOCAL VOID New_Server( INT Server, CONN_ID Idx )
 	connect( new_sock, (struct sockaddr *)&new_addr, sizeof( new_addr ));
 	if( errno != EINPROGRESS )
 	{
-		
+
 		close( new_sock );
 		Init_Conn_Struct( Idx );
 		Log( LOG_CRIT, "Can't connect socket: %s!", strerror( errno ));

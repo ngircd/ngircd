@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc.c,v 1.115 2003/01/08 22:07:34 alex Exp $";
+static char UNUSED id[] = "$Id: irc.c,v 1.116 2003/01/08 22:27:13 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -71,7 +71,7 @@ IRC_KILL( CLIENT *Client, REQUEST *Req )
 		prefix = Client_ThisServer( );
 	}
 
-	Log( LOG_NOTICE|LOG_snotice, "Got KILL command from \"%s\" for \"%s\": %s", Client_Mask( prefix ), Req->argv[0], Req->argv[1] );
+	if( Client != Client_ThisServer( )) Log( LOG_NOTICE|LOG_snotice, "Got KILL command from \"%s\" for \"%s\": %s", Client_Mask( prefix ), Req->argv[0], Req->argv[1] );
 
 	/* Build reason string */
 	if( Client_Type( Client ) == CLIENT_USER ) snprintf( reason, sizeof( reason ), "KILLed by %s: %s", Client_ID( Client ), Req->argv[1] );
@@ -101,7 +101,7 @@ IRC_KILL( CLIENT *Client, REQUEST *Req )
 	else Log( LOG_NOTICE, "Client with nick \"%s\" is unknown here.", Req->argv[0] );
 
 	/* Are we still connected or were we killed, too? */
-	if( Client_GetFromConn( my_conn )) return CONNECTED;
+	if(( my_conn > NONE ) && ( Client_GetFromConn( my_conn ))) return CONNECTED;
 	else return DISCONNECTED;
 } /* IRC_KILL */
 

@@ -1,7 +1,7 @@
 .\"
-.\" $Id: ngircd.8,v 1.5 2002/11/18 18:49:34 alex Exp $
+.\" $Id: ngircd.8,v 1.6 2003/03/09 23:08:24 alex Exp $
 .\"
-.TH ngircd 8 "September 2002" ngircd "ngIRCd Manual"
+.TH ngircd 8 "March 2003" ngircd "ngIRCd Manual"
 .SH NAME
 ngircd \- the next generation IRC daemon
 .SH SYNOPSIS
@@ -10,31 +10,57 @@ ngircd \- the next generation IRC daemon
 .B ]
 .SH DESCRIPTION
 .B ngircd
-is a portable IRC daemon written from scratch. It is easy to configure,
-supports server links (even with original ircds) and runs on hosts with
-changing IP addresses (such as dial-in networks). Currently supported
-platforms (tested versions) are: AIX (3.2.5), A/UX (3.0.1), FreeBSD
-(4.5), HP-UX (10.20), IRIX (6.5), Linux (2.x), Mac OS X (10.x), NetBSD
-(1.5.2/i386, 1.5.3/m68k), Solaris (2.5.1, 2.6), and Windows with Cygwin.
+is a free open source daemon for the Internet Relay Chat (IRC),
+developed under the GNU General Public License (GPL).
+
+It's written from scratch and is not based upon the original IRCd like
+many others. It is easy to configure, supports server links (even with
+original ircd's) and runs on hosts with changing IP addresses (such as
+dial-in networks).
+
+Currently supported platforms (tested versions) are: AIX (3.2.5 with IBM XL
+C Compiler), A/UX (3.x, Apple pre-ANSI C Compiler and GNU C), FreeBSD
+(4.5/i386, GNU C), HP-UX (10.20, GNU C), IRIX (6.5, SGI MIPSpro C 7.30),
+Linux (2.2.x/i386, 2.4.x/i386 and 2.4.x/hppa, GNU C), Mac OS X (10.x, GNU C),
+NetBSD (1.5.2/i386 and 1.5.3/m68k, GNU C), Solaris (2.5.1 and 2.6, GNU C),
+and Windows with Cygwin (GNU C).
+
+As ngIRCd relies on UNIX standards and uses GNU automake and GNU autoconf
+there are good chances that it also supports other UNIX-based operating
+systems.
+
 .SH OPTIONS
+The default behaviour of
+.B ngircd
+is to read its standard configuration file (see below), to detach from the
+controlling terminal and to wait for clients.
+
+You can use these options to modify this default:
 .IP --configtest
-read, validate and display configuration; then exit.
+Read, validate and display the configuration; then exit.
 .IP "-f file, --config file"
-use
+Use
 .I file
 as configuration file.
 .IP "-n, --nodaemon"
-don't fork and don't detach from controlling terminal.
+Don't fork a child and don't detach from controlling terminal.
+All log messages go to the console.
 .IP "-p, --passive"
-disable automatic connections to other servers.
+Disable automatic connections to other servers. You can use the IRC command
+CONNECT later on as IRC Operator to link this ngIRCd to other servers.
 .IP --version
-output version information and exit.
+Output version information and exit.
 .IP --help
-display brief help text and exit.
+Display a brief help text and exit.
 .SH FILES
 .I /usr/local/etc/ngircd.conf
 .RS
 The system wide default configuration file.
+.RE
+.I /usr/local/etc/ngircd.motd
+.RS
+Default "message of the day" (MOTD).
+.RE
 .SH AUTHOR
 Alexander Barton,
 .UR mailto:alex@barton.de

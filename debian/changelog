@@ -1,3 +1,16 @@
+ngircd (0.7.0-0.7ab) unstable; urgency=low
+
+  * Fixed up post installation script (added interpreter, fixed chmod call).
+
+ -- Alexander Barton <alex@Arthur.Ath.CX>  Sun, 13 Jul 2003 00:52:38 +0200
+
+ngircd (0.7.0-0.6ab) unstable; urgency=low
+
+  * Added /etc/default/ngircd.
+  * Included own post installation script.
+
+ -- Alexander Barton <alex@Arthur.Ath.CX>  Sat, 12 Jul 2003 20:31:09 +0200
+
 ngircd (0.7.0-0.5ab) unstable; urgency=low
 
   * Enhanced init script.

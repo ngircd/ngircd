@@ -1,0 +1,22 @@
+#!/bin/sh
+#
+# Debian post-installation script
+# $Id: ngircd.postinst,v 1.2 2003/07/12 23:27:37 alex Exp $
+#
+
+if [ -f /etc/ngircd/ngircd.conf ]; then
+	# make sure that configuration file is not world readable
+	chmod o= /etc/ngircd/ngircd.conf
+fi
+
+if [ -x "/etc/init.d/ngircd" ]; then
+	# setup init scripts and startup ngircd
+	update-rc.d ngircd defaults >/dev/null
+	if [ -x /usr/sbin/invoke-rc.d ]; then
+		invoke-rc.d ngircd start
+	else
+		/etc/init.d/ngircd start
+	fi
+fi
+
+# -eof-

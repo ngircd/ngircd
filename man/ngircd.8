@@ -1,5 +1,5 @@
 .\"
-.\" $Id: ngircd.8,v 1.7 2003/03/10 00:37:52 alex Exp $
+.\" $Id: ngircd.8,v 1.8 2003/03/10 00:58:06 alex Exp $
 .\"
 .TH ngircd 8 "March 2003" ngircd "ngIRCd Manual"
 .SH NAME
@@ -12,45 +12,50 @@ ngircd \- the next generation IRC daemon
 .BR ngircd
 is a free open source daemon for the Internet Relay Chat (IRC),
 developed under the GNU General Public License (GPL).
-
+.PP
 It's written from scratch and is not based upon the original IRCd like
 many others. It is easy to configure, supports server links (even with
 original ircd's) and runs on hosts with changing IP addresses (such as
 dial-in networks).
-
+.PP
 Currently supported platforms (tested versions) are: AIX (3.2.5 with IBM XL
 C Compiler), A/UX (3.x, Apple pre-ANSI C Compiler and GNU C), FreeBSD
 (4.5/i386, GNU C), HP-UX (10.20, GNU C), IRIX (6.5, SGI MIPSpro C 7.30),
 Linux (2.2.x/i386, 2.4.x/i386 and 2.4.x/hppa, GNU C), Mac OS X (10.x, GNU C),
 NetBSD (1.5.2/i386 and 1.5.3/m68k, GNU C), Solaris (2.5.1 and 2.6, GNU C),
 and Windows with Cygwin (GNU C).
-
+.PP
 As ngIRCd relies on UNIX standards and uses GNU automake and GNU autoconf
 there are good chances that it also supports other UNIX-based operating
 systems.
-
 .SH OPTIONS
 The default behaviour of
 .BR ngircd
 is to read its standard configuration file (see below), to detach from the
 controlling terminal and to wait for clients.
-
+.PP
 You can use these options to modify this default:
-.IP --configtest
+.TP
+\fB\-\-configtest\fR
 Read, validate and display the configuration; then exit.
-.IP "-f file, --config file"
+.TP
+\fB\-f\fR \fIfile\fR, \fB\-\-config\fR \fIfile\fR
 Use
 .I file
 as configuration file.
-.IP "-n, --nodaemon"
+.TP
+\fB\-n\fR, \fB\-\-nodaemon\fR
 Don't fork a child and don't detach from controlling terminal.
 All log messages go to the console.
-.IP "-p, --passive"
+.TP
+\fB\-p\fR, \fB\-\-passive\fR
 Disable automatic connections to other servers. You can use the IRC command
 CONNECT later on as IRC Operator to link this ngIRCd to other servers.
-.IP --version
+.TP
+\fB\-\-version\fR
 Output version information and exit.
-.IP --help
+.TP
+\fB\-\-help\fR
 Display a brief help text and exit.
 .SH FILES
 .I /usr/local/etc/ngircd.conf

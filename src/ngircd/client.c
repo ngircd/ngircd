@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.37 2002/02/17 19:02:49 alex Exp $
+ * $Id: client.c,v 1.38 2002/02/27 14:47:53 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,9 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.38  2002/02/27 14:47:53  alex
+ * - Logging beim Abmelden von Clients (erneut) geaendert: nun ist's aber gut ;-)
+ *
  * Revision 1.37  2002/02/17 19:02:49  alex
  * - Client_CheckNick() und Client_CheckID() lieferten u.U. falsche Ergebnisse.
  *
@@ -345,7 +348,11 @@ GLOBAL VOID Client_Destroy( CLIENT *Client, CHAR *LogMsg, CHAR *FwdMsg )
 			}
 			else if( c->type == CLIENT_SERVER )
 			{
-				if( c != This_Server ) Log( LOG_NOTICE, "Server \"%s\" unregistered: %s", c->id, txt );
+				if( c != This_Server )
+				{
+					if( c->conn_id != NONE ) Log( LOG_NOTICE, "Server \"%s\" unregistered (connection %d): %s", c->id, c->conn_id, txt );
+					else Log( LOG_NOTICE, "Server \"%s\" unregistered: %s", c->id, txt );
+				}
 
 				/* andere Server informieren */
 				if( ! NGIRCd_Quit )
@@ -354,7 +361,19 @@ GLOBAL VOID Client_Destroy( CLIENT *Client, CHAR *LogMsg, CHAR *FwdMsg )
 					else IRC_WriteStrServersPrefix( Client_NextHop( c ), c, "SQUIT %s :", c->id );
 				}
 			}
-			else Log( LOG_NOTICE, "Unknown client \"%s\" unregistered: %s", c->id, txt );
+			else
+			{
+				if( c->conn_id != NONE )
+				{
+					if( c->id[0] ) Log( LOG_NOTICE, "Client \"%s\" unregistered (connection %d): %s", c->id, c->conn_id, txt );
+					else Log( LOG_NOTICE, "Client unregistered (connection %d): %s", c->conn_id, txt );
+				}
+				else
+				{
+					if( c->id[0] ) Log( LOG_WARNING, "Unregistered unknown client \"%s\": %s", c->id, txt );
+					else Log( LOG_WARNING, "Unregistered unknown client: %s", c->id, txt );
+				}
+			}
 
 			free( c );
 			break;

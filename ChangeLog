@@ -53,8 +53,11 @@ ngIRCd CVS-HEAD
   - Konfigurationsvariablen werden besser validiert: Laengen, Zahlen, ...
   - neuen Befehl STATS begonnen: bisher unterstuetzt wird "l".
   - bei ISON und USERHOST fehlte im Ergebnis-String der korrekte Absender.
-  - IRC Operatoren koennen nun mit KILLUser toeten. Achtung: ein Grund muss
+  - IRC Operatoren koennen nun mit KILL User toeten. Achtung: ein Grund muss
     zwingend als zweiter Parameter angegeben werden!
+  - neue Konfigurations-Variablen: MaxJoins und MaxPChannels. Hiermit kann
+    die maximale Zahl der Channel, in denen ein einzelner User Mitglied sein
+    kann und die maximale Zahl persistenter Channel im Netz begrent werden.
 
 ngIRCd 0.5.4, 24.11.2002
 
@@ -358,4 +361,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.141 2002/12/06 17:03:46 alex Exp $
+$Id: ChangeLog,v 1.142 2002/12/14 13:19:39 alex Exp $

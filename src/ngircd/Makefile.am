@@ -9,10 +9,12 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: Makefile.am,v 1.17 2002/03/14 15:31:22 alex Exp $
+# $Id: Makefile.am,v 1.18 2002/03/25 19:38:16 alex Exp $
 #
 
 AM_CFLAGS = -I$(srcdir)/../portab
+
+LINTARGS = -weak -warnunixlib +unixlib -booltype BOOLEAN
 
 sbin_PROGRAMS = ngircd
 
@@ -26,7 +28,7 @@ noinst_HEADERS = ngircd.h channel.h client.h conf.h conn.h hash.h irc.h \
 	messages.h defines.h
 
 clean-local:
-	rm -f check-version check-help
+	rm -f check-version check-help lint.out
 
 maintainer-clean-local:
 	rm -f Makefile Makefile.in
@@ -40,6 +42,17 @@ check-help: Makefile
 	echo "#!/bin/sh" > check-help
 	echo "./ngircd --help | grep help > /dev/null 2>&1" >> check-help
 	chmod 755 check-help
+
+lint:
+	rm -f lint.out
+	for f in *.c; do \
+	 echo "checking $$f ..."; \
+	 splint $$f $(LINTARGS) -I./.. $(AM_CFLAGS) > lint.out 2>&1; \
+	 grep "no warnings" lint.out > /dev/null 2>&1; \
+	 if [ $$? -ne 0 ]; then \
+	  echo; cat lint.out; echo; \
+	 fi; \
+	done;
 
 install-data-hook:
 	$(mkinstalldirs) $(DESTDIR)$(localstatedir)

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.h,v 1.2 2001/12/13 01:33:32 alex Exp $
+ * $Id: conn.h,v 1.3 2001/12/14 08:15:45 alex Exp $
  *
  * conn.h: Verwaltung aller Netz-Verbindungen ("connections") (Header)
  *
  * $Log: conn.h,v $
+ * Revision 1.3  2001/12/14 08:15:45  alex
+ * - CONN_ID wird definiert.
+ *
  * Revision 1.2  2001/12/13 01:33:32  alex
  * - Conn_Handler() unterstuetzt nun einen Timeout (in Sekunden).
  *
@@ -25,6 +28,9 @@
 
 #ifndef __conn_h__
 #define __conn_h__
+
+
+typedef INT CONN_ID;
 
 
 GLOBAL VOID Conn_Init( VOID );

@@ -66,9 +66,10 @@
 		08FB7794FE84155DC02AAC07 = {
 			children = (
 				1AB674ADFE9D54B511CA2CBB,
+				F56D8B9E01E0BFA00155ADA7,
+				F5D3536103892A8A01A85B04,
 				F51F791401DFD0DE01D13771,
 				F520AF150335F1B801A85B04,
-				F56D8B9E01E0BFA00155ADA7,
 				F52162B301C7B904012300F4,
 				F52162C301C7B904012300F4,
 				F52162C401C7B904012300F4,
@@ -1140,11 +1141,39 @@
 			settings = {
 			};
 		};
+		F5D3536103892A8A01A85B04 = {
+			children = (
+				F5D3536203892AD201A85B04,
+				F5D3536303892AD201A85B04,
+			);
+			isa = PBXGroup;
+			name = contrib;
+			refType = 4;
+		};
+		F5D3536203892AD201A85B04 = {
+			isa = PBXFileReference;
+			name = Makefile.am;
+			path = /Users/alex/Develop/ngircd/contrib/Makefile.am;
+			refType = 0;
+		};
+		F5D3536303892AD201A85B04 = {
+			isa = PBXFileReference;
+			name = ngircd.spec;
+			path = /Users/alex/Develop/ngircd/contrib/ngircd.spec;
+			refType = 0;
+		};
+		F5D3536403892AFE01A85B04 = {
+			isa = PBXFileReference;
+			name = "sample-ngircd.conf";
+			path = "en/sample-ngircd.conf";
+			refType = 4;
+		};
 		F5E9447B02C9EE0E01A85B04 = {
 			children = (
 				F5E9448002C9EE4901A85B04,
 				F5E9448202C9EE4901A85B04,
 				F5E9448102C9EE4901A85B04,
+				F5D3536403892AFE01A85B04,
 			);
 			isa = PBXGroup;
 			name = en;

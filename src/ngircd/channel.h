@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: channel.h,v 1.16 2002/03/25 19:11:01 alex Exp $
+ * $Id: channel.h,v 1.17 2002/04/23 19:51:31 alex Exp $
  *
  * channel.h: Management der Channels (Header)
  */
@@ -59,6 +59,7 @@ GLOBAL BOOLEAN Channel_Part( CLIENT *Client, CLIENT *Origin, CHAR *Name, CHAR *R
 GLOBAL VOID Channel_RemoveClient( CLIENT *Client, CHAR *Reason );
 
 GLOBAL INT Channel_Count( VOID );
+GLOBAL INT Channel_MemberCount( CHANNEL *Chan );
 
 GLOBAL CHAR *Channel_Name( CHANNEL *Chan );
 GLOBAL CHAR *Channel_Modes( CHANNEL *Chan );

@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2004 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2004 Alexander Barton <alex@barton.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.131 2004/02/03 20:28:30 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.132 2004/02/28 02:01:01 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -614,6 +614,7 @@ Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient )
 	 * sub-processes are closed down. */
 
 	CLIENT *c;
+	CHAR *txt;
 	DOUBLE in_k, out_k;
 #ifdef ZLIB
 	DOUBLE in_z_k, out_z_k;
@@ -633,6 +634,12 @@ Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient )
 
 	/* Mark link as "closing" */
 	My_Connections[Idx].options |= CONN_ISCLOSING;
+		
+	if( LogMsg ) txt = LogMsg;
+	else txt = FwdMsg;
+	if( ! txt ) txt = "Reason unknown";
+
+	Log( LOG_INFO, "Shutting down connection %d (%s) with %s:%d ...", Idx, LogMsg ? LogMsg : FwdMsg, My_Connections[Idx].host, ntohs( My_Connections[Idx].addr.sin_port ));
 
 	/* Search client, if any */
 	c = Client_GetFromConn( Idx );
@@ -651,7 +658,6 @@ Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient )
 		/* Send ERROR to client (see RFC!) */
 		if( FwdMsg ) Conn_WriteStr( Idx, "ERROR :%s", FwdMsg );
 		else Conn_WriteStr( Idx, "ERROR :Closing connection." );
-		if( My_Connections[Idx].sock == NONE ) return;
 	}
 
 	/* Try to write out the write buffer */
@@ -872,11 +878,9 @@ Handle_Write( CONN_ID Idx )
 
 			return FALSE;
 		}
-#ifdef DEBUG
-		Log( LOG_DEBUG, "Connection %d with \"%s:%d\" established, now sendig PASS and SERVER ...", Idx, My_Connections[Idx].host, Conf_Server[Conf_GetServer( Idx )].port );
-#endif
+		Log( LOG_INFO, "Connection %d with \"%s:%d\" established. Now logging in ...", Idx, My_Connections[Idx].host, Conf_Server[Conf_GetServer( Idx )].port );
 
-		/* PASS und SERVER verschicken */
+		/* Send PASS and SERVER command to peer */
 		Conn_WriteStr( Idx, "PASS %s %s", Conf_Server[Conf_GetServer( Idx )].pwd_out, NGIRCd_ProtoID );
 		return Conn_WriteStr( Idx, "SERVER %s :%s", Conf_ServerName, Conf_ServerInfo );
 	}
@@ -1643,12 +1647,25 @@ Read_Resolver_Result( INT r_fd )
 
 	if( My_Connections[i].sock > NONE )
 	{
+		/* Incoming connection */
 #ifdef IDENTAUTH
 		CHAR *ident;
 #endif
-		/* Incoming connection: set hostname */
+
+		/* Search client ... */
 		c = Client_GetFromConn( i );
 		assert( c != NULL );
+
+		/* Only update client information of unregistered clients */
+		if( Client_Type( c ) != CLIENT_UNKNOWN )
+		{
+#ifdef DEBUG
+			Log( LOG_DEBUG, "Resolver: discarding result for already registered connection %d.", i );
+#endif
+			return;
+		}		
+
+		/* Set hostname */
 		strlcpy( My_Connections[i].host, result, sizeof( My_Connections[i].host ));
 		Client_SetHostname( c, result );
 
@@ -1656,21 +1673,21 @@ Read_Resolver_Result( INT r_fd )
 		ident = strchr( result, 0 );
 		ident++;
 
-		/* Do we have a result of the IDENT lookup? */
+		/* Do we have a result of the IDENT lookup? If so, set it as the user name */
 		if( *ident )
 		{
-			Log( LOG_INFO, "IDENT lookup on connection %ld: \"%s\".", i, ident );
+			Log( LOG_INFO, "IDENT lookup for connection %ld: \"%s\".", i, ident );
 			Client_SetUser( c, ident, TRUE );
 		}
-		else Log( LOG_INFO, "IDENT lookup on connection %ld: no result.", i );
+		else Log( LOG_INFO, "IDENT lookup for connection %ld: no result.", i );
 #endif
 	}
 	else
 	{
 		/* Outgoing connection (server link!): set IP address */
 		n = Conf_GetServer( i );
-		if( n > NONE ) strlcpy( Conf_Server[n].ip, result, sizeof( Conf_Server[n].ip ));
-		else Log( LOG_ERR, "Got resolver result for non-configured server!?" );
+		assert( n > NONE );
+		strlcpy( Conf_Server[n].ip, result, sizeof( Conf_Server[n].ip ));
 	}
 
 	/* Reset penalty time */

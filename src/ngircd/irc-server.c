@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-server.c,v 1.30 2002/12/30 16:07:50 alex Exp $";
+static char UNUSED id[] = "$Id: irc-server.c,v 1.31 2003/01/08 22:04:43 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -41,7 +41,7 @@ static char UNUSED id[] = "$Id: irc-server.c,v 1.30 2002/12/30 16:07:50 alex Exp
 GLOBAL BOOLEAN
 IRC_SERVER( CLIENT *Client, REQUEST *Req )
 {
-	CHAR str[LINE_LEN], *ptr;
+	CHAR str[LINE_LEN], *ptr, *modes, *topic;
 	CLIENT *from, *c, *cl;
 	CL2CHAN *cl2chan;
 	INT max_hops, i;
@@ -179,11 +179,31 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 		while( chan )
 		{
 #ifdef IRCPLUS
-			/* Wenn unterstuetzt, CHANINFO senden */
+			/* Send CHANINFO if the peer supports it */
 			if( strchr( Client_Flags( Client ), 'C' ))
 			{
-				/* CHANINFO senden */
-				if( ! IRC_WriteStrClient( Client, "CHANINFO %s +%s :%s", Channel_Name( chan ), Channel_Modes( chan ), Channel_Topic( chan ))) return DISCONNECTED;
+				modes = Channel_Modes( chan );
+				topic = Channel_Topic( chan );
+
+				if( *modes || *topic )
+				{
+					/* send CHANINFO */
+					if(( ! strchr( Channel_Modes( chan ), 'k' )) && ( ! strchr( Channel_Modes( chan ), 'l' )) && ( ! *topic ))
+					{
+						/* "CHANINFO <chan> +<modes>" */
+						if( ! IRC_WriteStrClient( Client, "CHANINFO %s +%s", Channel_Name( chan ), modes )) return DISCONNECTED;
+					}
+					else if(( ! strchr( Channel_Modes( chan ), 'k' )) && ( ! strchr( Channel_Modes( chan ), 'l' )))
+					{
+						/* "CHANINFO <chan> +<modes> :<topic>" */
+						if( ! IRC_WriteStrClient( Client, "CHANINFO %s +%s :%s", Channel_Name( chan ), modes, topic )) return DISCONNECTED;
+					}
+					else
+					{
+						/* "CHANINFO <chan> +<modes> <key> <limit> :<topic>" */
+						if( ! IRC_WriteStrClient( Client, "CHANINFO %s +%s %s %ld :%s", Channel_Name( chan ), modes, strchr( Channel_Modes( chan ), 'k' ) ? Channel_Key( chan ) : "*", strchr( Channel_Modes( chan ), 'l' ) ? Channel_MaxUsers( chan ) : 0L, topic )) return DISCONNECTED;
+					}
+				}
 			}
 #endif
 

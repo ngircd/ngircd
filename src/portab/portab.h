@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: portab.h,v 1.2 2002/03/12 15:19:12 alex Exp $
+ * $Id: portab.h,v 1.3 2002/03/25 19:13:19 alex Exp $
  *
  * portab.h: "Portabilitaets-Definitionen"
  */
@@ -61,6 +61,14 @@ typedef UINT8 BOOLEAN;
 
 #undef GLOBAL
 #define GLOBAL
+
+
+/* SPLint */
+
+
+#ifdef S_SPLINT_S
+#include "splint.h"
+#endif
 
 
 /* configure-Optionen */

@@ -19,3 +19,7 @@ noch nicht, also frage einfach Alex direkt (siehe AUTHORS-Text), wenn du
 daran interessiert bist, Zugriff auf den Quellcode via CVS zu bekommen!
 
 [ ... more to come ... ]
+
+
+-- 
+$Id: CVS.txt,v 1.4 2002/01/23 18:20:04 alex Exp $

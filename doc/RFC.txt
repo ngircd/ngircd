@@ -27,3 +27,6 @@ Das IRC-Protokoll ist in diesen RFC's (Request For Comments) dokumentiert:
   2813	Kalt, C., "Internet Relay Chat: Server Protocol",
 	April 2000, [IRC-SERVER].
 
+
+-- 
+$Id: RFC.txt,v 1.4 2002/01/23 18:20:04 alex Exp $

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: defines.h,v 1.35 2002/11/02 22:57:41 alex Exp $
+ * $Id: defines.h,v 1.36 2002/11/23 16:08:18 alex Exp $
  *
  * defines.h: (globale) Konstanten
  */
@@ -19,6 +19,8 @@
 
 
 #define NONE -1
+
+#define TIME_RES 2			/* Zeit-Aufloesung des Servers in Sekunden */
 
 #define FNAME_LEN 256			/* max. Laenge eines Dateinamen */
 

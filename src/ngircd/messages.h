@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: messages.h,v 1.15 2002/01/02 02:42:58 alex Exp $
+ * $Id: messages.h,v 1.16 2002/01/03 02:24:21 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: messages.h,v $
+ * Revision 1.16  2002/01/03 02:24:21  alex
+ * - neue Message ERR_NOTREGISTEREDSERVER_MSG.
+ *
  * Revision 1.15  2002/01/02 02:42:58  alex
  * - Copyright-Texte aktualisiert.
  *
@@ -164,6 +167,7 @@
 
 #define ERR_NOTREGISTERED		"451"
 #define ERR_NOTREGISTERED_MSG		ERR_NOTREGISTERED" %s :Connection not registered"
+#define ERR_NOTREGISTEREDSERVER_MSG	ERR_NOTREGISTERED" %s :Connection not registered as server link"
 
 #define ERR_NOPRIVILEGES		"481"
 #define ERR_NOPRIVILEGES_MSG		ERR_NOPRIVILEGES" %s :Permission denied"

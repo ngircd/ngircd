@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.45 2002/03/02 02:44:01 alex Exp $
+ * $Id: conn.c,v 1.46 2002/03/02 03:32:08 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
+ * Revision 1.46  2002/03/02 03:32:08  alex
+ * - Aenderung des Idle-Verhalten revidiert: das war ein Schnellschuss :-/
+ *
  * Revision 1.45  2002/03/02 02:44:01  alex
  * - Timeouts ausgehender Verbindungen werden besser erkannt (z.B. unter Cygwin).
  * - Idle-Time der Hauptschleife [Conn_Handle()] erhoeht: weniger Last.
@@ -398,8 +401,8 @@ GLOBAL VOID Conn_Handler( INT Timeout )
 		Check_Connections( );
 
 		/* Timeout initialisieren */
-		tv.tv_sec = 2;
-		tv.tv_usec = 0;
+		tv.tv_sec = 0;
+		tv.tv_usec = 50000;
 
 		/* noch volle Lese-Buffer suchen */
 		for( i = 0; i < MAX_CONNECTIONS; i++ )

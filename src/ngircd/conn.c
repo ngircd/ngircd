@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.6 2001/12/15 00:11:55 alex Exp $
+ * $Id: conn.c,v 1.7 2001/12/21 22:24:25 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
+ * Revision 1.7  2001/12/21 22:24:25  alex
+ * - kleinere Aenderungen an den Log-Meldungen,
+ * - Parse_Request() wird aufgerufen.
+ *
  * Revision 1.6  2001/12/15 00:11:55  alex
  * - Lese- und Schreib-Puffer implementiert.
  * - einige neue (Unter-)Funktionen eingefuehrt.
@@ -62,6 +66,7 @@
 
 #include "ngircd.h"
 #include "log.h"
+#include "parse.h"
 #include "tool.h"
 
 #include <exp.h>
@@ -137,7 +142,7 @@ GLOBAL VOID Conn_Exit( VOID )
 			else if( FD_ISSET( i, &My_Listener ))
 			{
 				close( i );
-				Log( LOG_INFO, "Closed listening socket %d.", i );
+				Log( LOG_INFO, "Listening socket %d closed.", i );
 			}
 			else
 			{
@@ -473,7 +478,7 @@ LOCAL VOID Close_Connection( CONN_ID Idx, CHAR *Msg )
 	}
 	else
 	{
-		Log( LOG_NOTICE, "Closed connection %d with %s:%d.", Idx, inet_ntoa( My_Connections[Idx].addr.sin_addr ), ntohs( My_Connections[Idx].addr.sin_port ));
+		Log( LOG_NOTICE, "Connection %d with %s:%d closed.", Idx, inet_ntoa( My_Connections[Idx].addr.sin_addr ), ntohs( My_Connections[Idx].addr.sin_port ));
 	}
 
 	FD_CLR( My_Connections[Idx].sock, &My_Sockets );
@@ -498,6 +503,7 @@ LOCAL VOID Read_Request( CONN_ID Idx )
 	if( len == 0 )
 	{
 		/* Socket wurde geschlossen */
+		Log( LOG_INFO, "%s:%d is closing the connection ...", inet_ntoa( My_Connections[Idx].addr.sin_addr ), ntohs( My_Connections[Idx].addr.sin_port));
 		Close_Connection( Idx, NULL );
 		return;
 	}
@@ -534,7 +540,8 @@ LOCAL VOID Read_Request( CONN_ID Idx )
 		len = ( ptr - My_Connections[Idx].rbuf ) + 2;
 		if( len > 2 )
 		{
-			printf( " in: '%s'\n", My_Connections[Idx].rbuf );
+			/* Es wurde ein Request gelesen */
+			if( ! Parse_Request( Idx, My_Connections[Idx].rbuf )) return;
 		}
 		else Log( LOG_DEBUG, "Got null-request (connection %d).", Idx );
 

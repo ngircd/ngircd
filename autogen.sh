@@ -9,7 +9,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: autogen.sh,v 1.11 2004/03/19 11:47:51 alex Exp $
+# $Id: autogen.sh,v 1.12 2004/04/05 12:02:21 alex Exp $
 #
 
 #
@@ -31,11 +31,14 @@
 #
 # You can tweak the behaviour using these environment variables:
 #
-# - ALICA=<cmd>, AUTOHEADER=<cmd>, AUTOMAKE=<cmd>, AUTOCONF=<cmd>
+# - ACLOCAL=<cmd>, AUTOHEADER=<cmd>, AUTOMAKE=<cmd>, AUTOCONF=<cmd>
 #   Name and optionally path to the particular tool.
 # - PREFIX=<path>
 #   Search the GNU autoconf and GNU automake tools in <path> first. If the
 #   generated ./configure script will be called, pass "--prefix=<path>" to it.
+# - EXIST=<tool>
+#   Use <tool> to test for aclocal, autoheader etc. pp. ...
+#   When not specified, either "type" or "which" is used.
 # - VERBOSE=1
 #   Output the detected names of the GNU automake and GNU autoconf tools.
 # - GO=1
@@ -63,13 +66,10 @@ Search()
 	major="$2"
 	minor=99
 
-	which /bin/ls >/dev/null 2>&1
-	[ $? -eq 0 ] && exists="which" || exists="type"
-
 	[ -n "$PREFIX" ] && searchlist="${PREFIX}/$1 ${PREFIX}/bin/$1 $searchlist"
 
 	for name in $searchlist; do
-		$exists "${name}" >/dev/null 2>&1
+		$EXIST "${name}" >/dev/null 2>&1
 		if [ $? -eq 0 ]; then
 			echo "${name}"
 			return 0
@@ -78,12 +78,12 @@ Search()
 
 	while [ $minor -ge 0 ]; do
 		for name in $searchlist; do
-			$exists "${name}${major}${minor}" >/dev/null 2>&1
+			$EXIST "${name}${major}${minor}" >/dev/null 2>&1
 			if [ $? -eq 0 ]; then
 				echo "${name}${major}${minor}"
 				return 0
 			fi
-			$exists "${name}-${major}.${minor}" >/dev/null 2>&1
+			$EXIST "${name}-${major}.${minor}" >/dev/null 2>&1
 			if [ $? -eq 0 ]; then
 				echo "${name}-${major}.${minor}" >/dev/null 2>&1
 				return 0
@@ -104,6 +104,25 @@ Notfound()
 # Reset locale settings to suppress warning messages of Perl
 unset LC_ALL
 unset LANG
+
+# Which command should be used to detect the automake/autoconf tools?
+[ -z "$EXIST" ] && existlist="type which" || existlist="$EXIST"
+EXIST=""
+for t in $existlist; do
+	$t /bin/ls >/dev/null 2>&1
+	if [ $? -eq 0 ]; then
+		rm -f /tmp/test.$$
+		$t /tmp/test.$$ >/dev/null 2>&1
+		[ $? -ne 0 ] && EXIST="$t"
+	fi
+	[ -n "$EXIST" ] && break
+done
+if [ -z "$EXIST" ]; then
+	echo "Didn't detect a working command to test for the autoconf/automake tools!"
+	echo "Searchlist: $existlist"
+	exit 1
+fi
+[ "$VERBOSE" = "1" ] && echo "Using \"$EXIST\" to test for tools."
 
 # We want to use GNU automake 1.7, if available (WANT_AUTOMAKE is used by
 # the wrapper scripts of Gentoo Linux):
@@ -127,7 +146,7 @@ echo "Searching tools ..."
 [ -z "$GO" -a $# -gt 0 ] && GO=1
 
 # Verify that all tools have been found
-[ -z "$AUTOCONF" ] && Notfounf autoconf
+[ -z "$AUTOCONF" ] && Notfound autoconf
 [ -z "$AUTOHEADER" ] && Notfound autoheader
 [ -z "$AUTOMAKE" ] && Notfound automake
 [ -z "$AUTOCONF" ] && Notfound autoconf

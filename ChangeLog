@@ -12,7 +12,7 @@
 
 ngIRCd CVS-HEAD
 
-  - beim Schlie§en einer Verbindung zeigt der Server nun vor dem ERROR
+  - beim Schliessen einer Verbindung zeigt der Server nun vor dem ERROR
     noch eine Statistik ueber die empfangene und gesendete Datenmenge an.
   - Clients werden beim Connect mit NOTICEs ueber den Status der Resolver-
     Subprozesse informiert.
@@ -23,6 +23,7 @@ ngIRCd CVS-HEAD
   - ein "schneller Server-Reconnect" wird nur noch dann versucht, wenn die
     Verbindung zuvor ordentlich (="lange genug") in Ordnung war; somit also
     nicht meht, wenn der Peer-Server gleich beim Connect ein ERROR liefert.
+    Das vermeidet "Connect-Orgien".
   - einige Datentypen aufgeraumt: z.B. sind viele INT32s nun LONGs. Das ist
     auf Platformen mit 8-Byte-Integern kompatibler.
 
@@ -301,4 +302,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.105 2002/10/09 17:10:15 alex Exp $
+$Id: ChangeLog,v 1.106 2002/10/09 21:17:50 alex Exp $

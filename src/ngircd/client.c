@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.30 2002/01/18 15:32:01 alex Exp $
+ * $Id: client.c,v 1.31 2002/01/21 00:08:50 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,9 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.31  2002/01/21 00:08:50  alex
+ * - wird ein Client entfernt, so wird er auch aus allen Channels geloescht.
+ *
  * Revision 1.30  2002/01/18 15:32:01  alex
  * - bei Client_SetModes() wurde das NULL-Byte falsch gesetzt. Opsa.
  *
@@ -319,6 +322,7 @@ GLOBAL VOID Client_Destroy( CLIENT *Client, CHAR *LogMsg, CHAR *FwdMsg )
 					if( FwdMsg ) IRC_WriteStrServersPrefix( Client_NextHop( c ), c, "QUIT :%s", FwdMsg );
 					else IRC_WriteStrServersPrefix( Client_NextHop( c ), c, "QUIT :" );
 				}
+				Channel_RemoveClient( c, FwdMsg ? FwdMsg : c->id );
 			}
 			else if( c->type == CLIENT_SERVER )
 			{
@@ -879,7 +883,6 @@ LOCAL CLIENT *New_Client_Struct( VOID )
 	/* Neue CLIENT-Struktur pre-initialisieren */
 	
 	CLIENT *c;
-	INT i;
 	
 	c = malloc( sizeof( CLIENT ));
 	if( ! c )
@@ -897,7 +900,6 @@ LOCAL CLIENT *New_Client_Struct( VOID )
 	strcpy( c->host, "" );
 	strcpy( c->user, "" );
 	strcpy( c->info, "" );
-	for( i = 0; i < MAX_CHANNELS; c->channels[i++] = NULL );
 	strcpy( c->modes, "" );
 	c->oper_by_me = FALSE;
 	c->hops = -1;

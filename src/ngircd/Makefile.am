@@ -9,7 +9,7 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: Makefile.am,v 1.25 2002/06/26 15:44:47 alex Exp $
+# $Id: Makefile.am,v 1.26 2002/07/22 13:23:28 alex Exp $
 #
 
 AUTOMAKE_OPTIONS = ../portab/ansi2knr
@@ -53,7 +53,7 @@ lint:
 	rm -f lint.out
 	for f in *.c; do \
 	 echo "checking $$f ..."; \
-	 splint $$f $(LINTARGS) -I./.. $(AM_CFLAGS) > lint.out 2>&1; \
+	 splint $$f $(LINTARGS) -I./.. -I./../portab $(AM_CFLAGS) > lint.out 2>&1; \
 	 grep "no warnings" lint.out > /dev/null 2>&1; \
 	 if [ $$? -ne 0 ]; then \
 	  echo; cat lint.out; echo; \

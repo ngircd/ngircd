@@ -9,9 +9,9 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: vsnprintf.c,v 1.1 2002/05/19 01:17:40 alex Exp $
+ * $Id: vsnprintf.c,v 1.2 2002/05/19 10:44:52 alex Exp $
  *
- * vsnprintf.c: vsnprintf()-Ersatz
+ * vsnprintf.c: u.a. Ersatz fuer vsnprintf()
  */
 
 
@@ -45,33 +45,36 @@
  *  from the normal C string format, at least as far as I can tell from
  *  the Solaris 2.5 printf(3S) man page.
  *
- *  Brandon Long <blong@fiction.net> 10/22/97 for mutt 0.87.1
- *    Ok, added some minimal floating point support, which means this
- *    probably requires libm on most operating systems. Don't yet
- *    support the exponent (e,E) and sigfig (g,G). Also, fmtint()
- *    was pretty badly broken, it just wasn't being exercised in ways
- *    which showed it, so that's been fixed. Also, formated the code
- *    to mutt conventions, and removed dead code left over from the
- *    original. Also, there is now a builtin-test, just compile with:
- *	gcc -DTEST_SNPRINTF -o snprintf snprintf.c -lm
- *    and run snprintf for results.
+ * Brandon Long <blong@fiction.net> 10/22/97 for mutt 0.87.1
+ *  Ok, added some minimal floating point support, which means this
+ *  probably requires libm on most operating systems. Don't yet
+ *  support the exponent (e,E) and sigfig (g,G). Also, fmtint()
+ *  was pretty badly broken, it just wasn't being exercised in ways
+ *  which showed it, so that's been fixed. Also, formated the code
+ *  to mutt conventions, and removed dead code left over from the
+ *  original. Also, there is now a builtin-test, just compile with:
+ *    gcc -DTEST_SNPRINTF -o snprintf snprintf.c -lm
+ *  and run snprintf for results.
  * 
- *  Thomas Roessler <roessler@guug.de> 01/27/98 for mutt 0.89i
- *    The PGP code was using unsigned hexadecimal formats. 
- *    Unfortunately, unsigned formats simply didn't work.
+ * Thomas Roessler <roessler@guug.de> 01/27/98 for mutt 0.89i
+ *  The PGP code was using unsigned hexadecimal formats. 
+ *  Unfortunately, unsigned formats simply didn't work.
  *
- *  Michael Elkins <me@cs.hmc.edu> 03/05/98 for mutt 0.90.8
- *    The original code assumed that both snprintf() and vsnprintf() were
- *    missing. Some systems only have snprintf() but not vsnprintf(), so
- *    the code is now broken down under HAVE_SNPRINTF and HAVE_VSNPRINTF.
+ * Michael Elkins <me@cs.hmc.edu> 03/05/98 for mutt 0.90.8
+ *  The original code assumed that both snprintf() and vsnprintf() were
+ *  missing. Some systems only have snprintf() but not vsnprintf(), so
+ *  the code is now broken down under HAVE_SNPRINTF and HAVE_VSNPRINTF.
  *
- *  Andrew Tridgell (tridge@samba.org) Oct 1998
- *    fixed handling of %.0f
- *    added test for HAVE_LONG_DOUBLE
+ * Andrew Tridgell <tridge@samba.org>, October 1998
+ *  fixed handling of %.0f
+ *  added test for HAVE_LONG_DOUBLE
  *
  * tridge@samba.org, idra@samba.org, April 2001
- *    got rid of fcvt code (twas buggy and made testing harder)
- *    added C99 semantics
+ *  got rid of fcvt code (twas buggy and made testing harder)
+ *  added C99 semantics
+ *
+ * Alexander Barton, <alex@barton.de>, 2002-05-19
+ *  removed [v]asprintf() and C99 tests: not needed by ngIRCd.
  */
 
 
@@ -90,11 +93,12 @@
 #include <stdlib.h>
 #endif
 
-#if defined(HAVE_SNPRINTF) && defined(HAVE_VSNPRINTF) && defined(HAVE_C99_VSNPRINTF)
+
+#if defined(HAVE_SNPRINTF) && defined(HAVE_VSNPRINTF)
 /* only include stdio.h if we are not re-defining snprintf or vsnprintf */
 #include <stdio.h>
- /* make the compiler happy with an empty file */
- void dummy_snprintf(void) {} 
+/* make the compiler happy with an empty file */
+void dummy_snprintf(void) {} 
 #else
 
 #ifdef HAVE_LONG_DOUBLE
@@ -643,7 +647,7 @@ static void fmtfp (char *buffer, size_t *currlen, size_t maxlen,
 #endif
 
 #if 0
-	 if (max == 0) ufvalue += 0.5; /* if max = 0 we must round */
+	if (max == 0) ufvalue += 0.5; /* if max = 0 we must round */
 #endif
 
 	/* 
@@ -763,15 +767,15 @@ static void dopr_outch(char *buffer, size_t *currlen, size_t maxlen, char c)
 	(*currlen)++;
 }
 
-#if !defined(HAVE_VSNPRINTF) || !defined(HAVE_C99_VSNPRINTF)
- int vsnprintf (char *str, size_t count, const char *fmt, va_list args)
+#if !defined(HAVE_VSNPRINTF)
+int vsnprintf (char *str, size_t count, const char *fmt, va_list args)
 {
 	return dopr(str, count, fmt, args);
 }
 #endif
 
-#if !defined(HAVE_SNPRINTF) || !defined(HAVE_C99_VSNPRINTF)
- int snprintf(char *str,size_t count,const char *fmt,...)
+#if !defined(HAVE_SNPRINTF)
+int snprintf(char *str,size_t count,const char *fmt,...)
 {
 	size_t ret;
 	va_list ap;
@@ -783,38 +787,8 @@ static void dopr_outch(char *buffer, size_t *currlen, size_t maxlen, char c)
 }
 #endif
 
-#endif 
-
-#ifndef HAVE_VASPRINTF
- int vasprintf(char **ptr, const char *format, va_list ap)
-{
-	int ret;
-	
-	ret = vsnprintf(NULL, 0, format, ap);
-	if (ret <= 0) return ret;
-
-	(*ptr) = (char *)malloc(ret+1);
-	if (!*ptr) return -1;
-	ret = vsnprintf(*ptr, ret+1, format, ap);
-
-	return ret;
-}
 #endif
 
-
-#ifndef HAVE_ASPRINTF
- int asprintf(char **ptr, const char *format, ...)
-{
-	va_list ap;
-	int ret;
-	
-	va_start(ap, format);
-	ret = vasprintf(ptr, format, ap);
-	va_end(ap);
-
-	return ret;
-}
-#endif
 
 #ifdef TEST_SNPRINTF
 int sprintf(char *str,const char *fmt,...);

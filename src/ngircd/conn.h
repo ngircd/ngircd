@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conn.h,v 1.25 2002/12/12 12:23:43 alex Exp $
+ * $Id: conn.h,v 1.26 2002/12/18 13:50:22 alex Exp $
  *
  * Connection management (header)
  */
@@ -76,6 +76,9 @@ GLOBAL BOOLEAN Conn_InitZip PARAMS(( CONN_ID Idx ));
 GLOBAL LONG Conn_SendBytesZip PARAMS(( CONN_ID Idx ));
 GLOBAL LONG Conn_RecvBytesZip PARAMS(( CONN_ID Idx ));
 #endif
+
+GLOBAL VOID Conn_ResetWCounter PARAMS(( VOID ));
+GLOBAL LONG Conn_WCounter PARAMS(( VOID ));
 
 
 GLOBAL INT Conn_MaxFD;

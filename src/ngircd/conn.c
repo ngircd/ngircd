@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.105 2002/12/17 11:46:54 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.106 2002/12/18 13:50:22 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -129,7 +129,7 @@ LOCAL fd_set My_Sockets;
 LOCAL fd_set My_Connects;
 
 LOCAL CONNECTION *My_Connections;
-LOCAL LONG Pool_Size;
+LOCAL LONG Pool_Size, WCounter;
 
 
 GLOBAL VOID
@@ -165,6 +165,9 @@ Conn_Init( VOID )
 
 	/* Connection-Struktur initialisieren */
 	for( i = 0; i < Pool_Size; i++ ) Init_Conn_Struct( i );
+
+	/* Global write counter */
+	WCounter = 0;
 } /* Conn_Init */
 
 
@@ -547,6 +550,9 @@ Conn_Write( CONN_ID Idx, CHAR *Data, INT Len )
 		My_Connections[Idx].wdatalen += Len;
 		My_Connections[Idx].bytes_out += Len;
 	}
+
+	/* Adjust global write counter */
+	WCounter += Len;
 
 	return TRUE;
 } /* Conn_Write */
@@ -965,6 +971,20 @@ Conn_RecvBytes( CONN_ID Idx )
 	assert( Idx > NONE );
 	return My_Connections[Idx].bytes_in;
 } /* Conn_RecvBytes */
+
+
+GLOBAL VOID
+Conn_ResetWCounter( VOID )
+{
+	WCounter = 0;
+} /* Conn_ResetWCounter */
+
+
+GLOBAL LONG
+Conn_WCounter( VOID )
+{
+	return WCounter;
+} /* Conn_WCounter */
 
 
 LOCAL BOOLEAN

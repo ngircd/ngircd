@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: vsnprintf.c,v 1.4 2002/12/12 11:37:11 alex Exp $";
+static char UNUSED id[] = "$Id: vsnprintf.c,v 1.5 2003/04/21 10:53:38 alex Exp $";
 
 #include "imp.h"
 
@@ -98,6 +98,7 @@ static char UNUSED id[] = "$Id: vsnprintf.c,v 1.4 2002/12/12 11:37:11 alex Exp $
 /* only include stdio.h if we are not re-defining snprintf or vsnprintf */
 #include <stdio.h>
 /* make the compiler happy with an empty file */
+void dummy_snprintf PARAMS(( void ));
 void dummy_snprintf PARAMS(( void )) { }
 #else
 

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-info.c,v 1.1 2002/11/30 17:39:56 alex Exp $
+ * $Id: irc-info.c,v 1.2 2002/11/30 18:10:01 alex Exp $
  *
  * irc-info.c: IRC-Info-Befehle
  */
@@ -347,8 +347,8 @@ IRC_STATS( CLIENT *Client, REQUEST *Req )
 	if( Req->argc == 2 )
 	{
 		/* an anderen Server forwarden */
-		target = Client_Search( Req->argv[0] );
-		if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->argv[0] );
+		target = Client_Search( Req->argv[1] );
+		if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->argv[1] );
 
 		if( target != Client_ThisServer( ))
 		{

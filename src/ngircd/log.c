@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: log.c,v 1.17 2002/01/11 14:45:37 alex Exp $
+ * $Id: log.c,v 1.18 2002/02/19 20:07:13 alex Exp $
  *
  * log.c: Logging-Funktionen
  *
  * $Log: log.c,v $
+ * Revision 1.18  2002/02/19 20:07:13  alex
+ * - direkt nach dem Start werden die aktiven "Modes" ins Log geschrieben.
+ *
  * Revision 1.17  2002/01/11 14:45:37  alex
  * - Anpassungen an neue Kommandozeilen-Optionen "--debug" und "--nodaemon".
  *
@@ -94,17 +97,53 @@
 
 GLOBAL VOID Log_Init( VOID )
 {
+	CHAR txt[127];
+
 #ifdef USE_SYSLOG
+	/* Syslog initialisieren */
 	openlog( PACKAGE, LOG_CONS|LOG_PID, LOG_LOCAL5 );
 #endif
+
+	/* Hello World! */
 	Log( LOG_NOTICE, "%s started.", NGIRCd_Version( ));
+
+	/* Informationen uebern den "Operation Mode" */
+	strcpy( txt, "" );
+#ifdef DEBUG
+	if( NGIRCd_Debug )
+	{
+		if( txt[0] ) strcat( txt, ", " );
+		strcat( txt, "debug-mode" );
+	}
+#endif
+	if( NGIRCd_NoDaemon )
+	{
+		if( txt[0] ) strcat( txt, ", " );
+		strcat( txt, "no-daemon-mode" );
+	}
+	if( NGIRCd_Passive )
+	{
+		if( txt[0] ) strcat( txt, ", " );
+		strcat( txt, "passive-mode" );
+	}
+#ifdef SNIFFER
+	if( NGIRCd_Sniffer )
+	{
+		if( txt[0] ) strcat( txt, ", " );
+		strcat( txt, "network sniffer" );
+	}
+#endif
+	if( txt[0] ) Log( LOG_INFO, "Activating: %s.", txt );
 } /* Log_Init */
 
 
 GLOBAL VOID Log_Exit( VOID )
 {
+	/* Good Bye! */
 	Log( LOG_NOTICE, PACKAGE" done.");
+	
 #ifdef USE_SYSLOG
+	/* syslog abmelden */
 	closelog( );
 #endif
 } /* Log_Exit */

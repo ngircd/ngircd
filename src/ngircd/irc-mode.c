@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-mode.c,v 1.34 2004/04/09 21:41:52 alex Exp $";
+static char UNUSED id[] = "$Id: irc-mode.c,v 1.35 2004/04/25 15:42:05 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -635,6 +635,7 @@ LOCAL BOOLEAN
 Add_Invite( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, CHAR *Pattern )
 {
 	CHAR *mask;
+	BOOLEAN already;
 
 	assert( Client != NULL );
 	assert( Channel != NULL );
@@ -642,7 +643,11 @@ Add_Invite( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, CHAR *Pattern )
 
 	mask = Lists_MakeMask( Pattern );
 
+	already = Lists_IsInviteEntry( mask, Channel );
+	
 	if( ! Lists_AddInvited( mask, Channel, FALSE )) return CONNECTED;
+	
+	if(( Client_Type( Prefix ) == CLIENT_SERVER ) && ( already == TRUE )) return CONNECTED;
 
 	return Send_ListChange( "+I", Prefix, Client, Channel, mask );
 } /* Add_Invite */
@@ -652,6 +657,7 @@ LOCAL BOOLEAN
 Add_Ban( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, CHAR *Pattern )
 {
 	CHAR *mask;
+	BOOLEAN already;
 
 	assert( Client != NULL );
 	assert( Channel != NULL );
@@ -659,7 +665,11 @@ Add_Ban( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, CHAR *Pattern )
 
 	mask = Lists_MakeMask( Pattern );
 
+	already = Lists_IsBanEntry( mask, Channel );
+
 	if( ! Lists_AddBanned( mask, Channel )) return CONNECTED;
+
+	if(( Client_Type( Prefix ) == CLIENT_SERVER ) && ( already == TRUE )) return CONNECTED;
 
 	return Send_ListChange( "+b", Prefix, Client, Channel, mask );
 } /* Add_Ban */

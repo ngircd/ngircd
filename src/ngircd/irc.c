@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.37 2002/01/16 22:10:18 alex Exp $
+ * $Id: irc.c,v 1.38 2002/01/18 15:31:32 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.38  2002/01/18 15:31:32  alex
+ * - die User-Modes bei einem NICK von einem Server wurden falsch uebernommen.
+ *
  * Revision 1.37  2002/01/16 22:10:18  alex
  * - IRC_LUSERS() implementiert.
  *
@@ -481,6 +484,7 @@ GLOBAL BOOLEAN IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *intr_c, *target, *c;
+	CHAR *modes;
 
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -580,7 +584,7 @@ GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req )
 		}
 
 		/* Neue Client-Struktur anlegen */
-		c = Client_NewRemoteUser( intr_c, Req->argv[0], atoi( Req->argv[1] ), Req->argv[2], Req->argv[3], atoi( Req->argv[4] ), Req->argv[5], Req->argv[6], TRUE );
+		c = Client_NewRemoteUser( intr_c, Req->argv[0], atoi( Req->argv[1] ), Req->argv[2], Req->argv[3], atoi( Req->argv[4] ), Req->argv[5] + 1, Req->argv[6], TRUE );
 		if( ! c )
 		{
 			/* Eine neue Client-Struktur konnte nicht angelegt werden.
@@ -591,7 +595,9 @@ GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req )
 			return CONNECTED;
 		}
 
-		Log( LOG_DEBUG, "User \"%s\" registered (via %s, on %s, %d hop%s).", Client_Mask( c ), Client_ID( Client ), Client_ID( intr_c ), Client_Hops( c ), Client_Hops( c ) > 1 ? "s": "" );
+		modes = Client_Modes( c );
+		if( *modes ) Log( LOG_DEBUG, "User \"%s\" (+%s) registered (via %s, on %s, %d hop%s).", Client_Mask( c ), modes, Client_ID( Client ), Client_ID( intr_c ), Client_Hops( c ), Client_Hops( c ) > 1 ? "s": "" );
+		else Log( LOG_DEBUG, "User \"%s\" registered (via %s, on %s, %d hop%s).", Client_Mask( c ), Client_ID( Client ), Client_ID( intr_c ), Client_Hops( c ), Client_Hops( c ) > 1 ? "s": "" );
 
 		/* Andere Server, ausser dem Introducer, informieren */
 		IRC_WriteStrServersPrefix( Client, Client, "NICK %s %d %s %s %d %s :%s", Req->argv[0], atoi( Req->argv[1] ) + 1, Req->argv[2], Req->argv[3], Client_MyToken( intr_c ), Req->argv[5], Req->argv[6] );

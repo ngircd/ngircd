@@ -16,6 +16,9 @@ ngIRCd 0.0.4, ??.??.????
     wurden falsch uebernommen. Zudem wurden die Modes falsch gekuerzt.
   - Server-Verbindungen werden nun nach dem Start erst nach einer kurzen
     Pause aufgebaut (zur Zeit drei Sekunden).
+  - Hilfetext korrigiert: --help und --version waren vertauscht, die
+    Option --sniffer wurde gar nicht erwaehnt.
+  - Begonnen, Channels einzubauen.
 
 ngIRCd 0.0.3, 16.01.2002
 
@@ -63,4 +66,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.10 2002/01/18 15:51:44 alex Exp $
+$Id: ChangeLog,v 1.11 2002/01/21 00:00:54 alex Exp $

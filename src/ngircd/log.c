@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: log.c,v 1.28 2002/03/29 22:55:42 alex Exp $
+ * $Id: log.c,v 1.29 2002/03/29 23:33:42 alex Exp $
  *
  * log.c: Logging-Funktionen
  */
@@ -40,6 +40,7 @@
 
 
 LOCAL CHAR Error_File[FNAME_LEN];
+LOCAL CHAR Init_Txt[127];
 
 
 LOCAL VOID Wall_ServerNotice( CHAR *Msg );
@@ -47,9 +48,6 @@ LOCAL VOID Wall_ServerNotice( CHAR *Msg );
 
 GLOBAL VOID Log_Init( VOID )
 {
-	CHAR txt[127];
-	time_t t;
-
 #ifdef USE_SYSLOG
 	/* Syslog initialisieren */
 	openlog( PACKAGE, LOG_CONS|LOG_PID, LOG_LOCAL5 );
@@ -59,35 +57,42 @@ GLOBAL VOID Log_Init( VOID )
 	Log( LOG_NOTICE, "%s started.", NGIRCd_Version( ));
 	  
 	/* Informationen uebern den "Operation Mode" */
-	strcpy( txt, "" );
+	strcpy( Init_Txt, "" );
 #ifdef DEBUG
 	if( NGIRCd_Debug )
 	{
-		if( txt[0] ) strcat( txt, ", " );
-		strcat( txt, "debug-mode" );
+		if( Init_Txt[0] ) strcat( Init_Txt, ", " );
+		strcat( Init_Txt, "debug-mode" );
 	}
 #endif
 	if( NGIRCd_NoDaemon )
 	{
-		if( txt[0] ) strcat( txt, ", " );
-		strcat( txt, "no-daemon-mode" );
+		if( Init_Txt[0] ) strcat( Init_Txt, ", " );
+		strcat( Init_Txt, "no-daemon-mode" );
 	}
 	if( NGIRCd_Passive )
 	{
-		if( txt[0] ) strcat( txt, ", " );
-		strcat( txt, "passive-mode" );
+		if( Init_Txt[0] ) strcat( Init_Txt, ", " );
+		strcat( Init_Txt, "passive-mode" );
 	}
 #ifdef SNIFFER
 	if( NGIRCd_Sniffer )
 	{
-		if( txt[0] ) strcat( txt, ", " );
-		strcat( txt, "network sniffer" );
+		if( Init_Txt[0] ) strcat( Init_Txt, ", " );
+		strcat( Init_Txt, "network sniffer" );
 	}
 #endif
-	if( txt[0] ) Log( LOG_INFO, "Activating: %s.", txt );
+	if( Init_Txt[0] ) Log( LOG_INFO, "Activating: %s.", Init_Txt );
+} /* Log_Init */
 
+
+GLOBAL VOID Log_InitErrorfile( VOID )
+{
 	/* "Error-Log" initialisieren: stderr in Datei umlenken. Dort
 	 * landen z.B. alle Ausgaben von assert()-Aufrufen. */
+
+	time_t t;
+
 	fflush( stderr );
 	sprintf( Error_File, ERROR_DIR"/"PACKAGE"-%ld.err", (INT32)getpid( ));
 	if( ! freopen( Error_File, "w", stderr ))
@@ -98,9 +103,9 @@ GLOBAL VOID Log_Init( VOID )
 
 	fputs( ctime( &t ), stderr );
 	fprintf( stderr, "%s started.\n", NGIRCd_Version( ));
-	fprintf( stderr, "Activating: %s\n\n", txt[0] ? txt : "-" );
+	fprintf( stderr, "Activating: %s\n\n", Init_Txt[0] ? Init_Txt : "-" );
 	fflush( stderr );
-} /* Log_Init */
+} /* Log_InitErrfile */
 
 
 GLOBAL VOID Log_Exit( VOID )

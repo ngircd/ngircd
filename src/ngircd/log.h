@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: log.h,v 1.10 2002/03/27 20:53:31 alex Exp $
+ * $Id: log.h,v 1.11 2002/03/29 23:33:42 alex Exp $
  *
  * log.h: Logging-Funktionen (Header)
  */
@@ -39,6 +39,7 @@
 GLOBAL VOID Log_Init( VOID );
 GLOBAL VOID Log_Exit( VOID );
 
+GLOBAL VOID Log_InitErrorfile( VOID );
 GLOBAL VOID Log( INT Level, CONST CHAR *Format, ... );
 
 GLOBAL VOID Log_Init_Resolver( VOID );

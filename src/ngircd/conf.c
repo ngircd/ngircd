@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.44 2002/12/14 13:36:19 alex Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.45 2002/12/18 02:47:12 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -27,6 +27,7 @@ static char UNUSED id[] = "$Id: conf.c,v 1.44 2002/12/14 13:36:19 alex Exp $";
 #include <pwd.h>
 #include <grp.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 #ifdef HAVE_CTYPE_H
 # include <ctype.h>
@@ -49,7 +50,7 @@ LOCAL BOOLEAN Use_Log = TRUE;
 
 LOCAL VOID Set_Defaults PARAMS(( VOID ));
 LOCAL VOID Read_Config PARAMS(( VOID ));
-LOCAL VOID Validate_Config PARAMS(( VOID ));
+LOCAL VOID Validate_Config PARAMS(( BOOLEAN TestOnly ));
 
 LOCAL VOID Handle_GLOBAL PARAMS(( INT Line, CHAR *Var, CHAR *Arg ));
 LOCAL VOID Handle_OPERATOR PARAMS(( INT Line, CHAR *Var, CHAR *Arg ));
@@ -64,7 +65,7 @@ Conf_Init( VOID )
 {
 	Set_Defaults( );
 	Read_Config( );
-	Validate_Config( );
+	Validate_Config( FALSE );
 } /* Config_Init */
 
 
@@ -81,6 +82,7 @@ Conf_Test( VOID )
 	Set_Defaults( );
 
 	Read_Config( );
+	Validate_Config( TRUE );
 
 	/* If stdin is a valid tty wait for a key: */
 	if( isatty( fileno( stdout )))
@@ -626,16 +628,21 @@ Handle_CHANNEL( INT Line, CHAR *Var, CHAR *Arg )
 
 
 LOCAL VOID
-Validate_Config( VOID )
+Validate_Config( BOOLEAN Configtest )
 {
 	/* Validate configuration settings. */
+	
+	INT i;
 	
 	if( ! Conf_ServerName[0] )
 	{
 		/* No server name configured! */
 		Config_Error( LOG_ALERT, "No server name configured in \"%s\" ('ServerName')!", NGIRCd_ConfFile );
-		Config_Error( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE );
-		exit( 1 );
+		if( ! Configtest )
+		{
+			Config_Error( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE );
+			exit( 1 );
+		}
 	}
 
 #ifdef STRICT_RFC
@@ -643,16 +650,28 @@ Validate_Config( VOID )
 	{
 		/* No administrative contact configured! */
 		Config_Error( LOG_ALERT, "No administrator email address configured in \"%s\" ('AdminEMail')!", NGIRCd_ConfFile );
-		Config_Error( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE );
-		exit( 1 );
+		if( ! Configtest )
+		{
+			Config_Error( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE );
+			exit( 1 );
+		}
 	}
 #endif
 
 	if( ! Conf_ServerAdmin1[0] && ! Conf_ServerAdmin2[0] && ! Conf_ServerAdminMail[0] )
 	{
 		/* No administrative information configured! */
-		Log( LOG_WARNING, "No administrative information configured but required by RFC!" );
+		Config_Error( LOG_WARNING, "No administrative information configured but required by RFC!" );
 	}
+#ifdef FD_SETSIZE	
+	if( Conf_MaxConnections > (LONG)FD_SETSIZE )
+	{
+		Conf_MaxConnections = (LONG)FD_SETSIZE;
+		Config_Error( LOG_ERR, "Setting MaxConnections to %ld, select() can't handle more file descriptors!", Conf_MaxConnections );
+	}
+#else
+	Config_Error( LOG_WARN, "Don't know how many file descriptors select() can handle on this system, don't set MaxConnections too high!" );
+#endif
 } /* Validate_Config */
 
 

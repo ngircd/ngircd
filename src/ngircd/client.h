@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.h,v 1.12 2002/01/02 02:42:58 alex Exp $
+ * $Id: client.h,v 1.13 2002/01/03 02:28:06 alex Exp $
  *
  * client.h: Konfiguration des ngircd (Header)
  *
  * $Log: client.h,v $
+ * Revision 1.13  2002/01/03 02:28:06  alex
+ * - neue Funktion Client_CheckID(), diverse Aenderungen fuer Server-Links.
+ *
  * Revision 1.12  2002/01/02 02:42:58  alex
  * - Copyright-Texte aktualisiert.
  *
@@ -70,6 +73,8 @@ typedef enum
 	CLIENT_GOTNICK,			/* Client hat NICK gesendet */
 	CLIENT_GOTUSER,			/* Client hat USER gesendet */
 	CLIENT_USER,			/* Client ist ein Benutzer (USER wurde gesendet) */
+	CLIENT_UNKNOWNSERVER,		/* unregistrierte Server-Verbindung */
+	CLIENT_GOTPASSSERVER,		/* Client hat PASS nach "Server-Art" gesendet */
 	CLIENT_SERVER,			/* Client ist ein Server */
 	CLIENT_SERVICE			/* Client ist ein Service */
 } CLIENT_TYPE;
@@ -101,12 +106,18 @@ GLOBAL VOID Client_Exit( VOID );
 
 GLOBAL CLIENT *Client_NewLocal( CONN_ID Idx, CHAR *Hostname );
 GLOBAL VOID Client_Destroy( CLIENT *Client );
+
 GLOBAL VOID Client_SetHostname( CLIENT *Client, CHAR *Hostname );
+
 GLOBAL CLIENT *Client_GetFromConn( CONN_ID Idx );
 GLOBAL CLIENT *Client_GetFromNick( CHAR *Nick );
+
 GLOBAL CHAR *Client_Nick( CLIENT *Client );
-GLOBAL BOOLEAN Client_CheckNick( CLIENT *Client, CHAR *Nick );
 GLOBAL CHAR *Client_GetID( CLIENT *Client );
+
+GLOBAL BOOLEAN Client_CheckNick( CLIENT *Client, CHAR *Nick );
+GLOBAL BOOLEAN Client_CheckID( CLIENT *Client, CHAR *ID );
+
 GLOBAL CLIENT *Client_Search( CHAR *ID );
 GLOBAL CLIENT *Client_First( VOID );
 GLOBAL CLIENT *Client_Next( CLIENT *c );

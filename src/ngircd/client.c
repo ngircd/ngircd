@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.17 2002/01/02 02:42:58 alex Exp $
+ * $Id: client.c,v 1.18 2002/01/03 02:28:06 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,9 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.18  2002/01/03 02:28:06  alex
+ * - neue Funktion Client_CheckID(), diverse Aenderungen fuer Server-Links.
+ *
  * Revision 1.17  2002/01/02 02:42:58  alex
  * - Copyright-Texte aktualisiert.
  *
@@ -296,6 +299,39 @@ GLOBAL BOOLEAN Client_CheckNick( CLIENT *Client, CHAR *Nick )
 
 	return TRUE;
 } /* Client_CheckNick */
+
+
+GLOBAL BOOLEAN Client_CheckID( CLIENT *Client, CHAR *ID )
+{
+	/* Nick ueberpruefen */
+
+	CHAR str[COMMAND_LEN];
+	CLIENT *c;
+
+	assert( Client != NULL );
+	assert( Client->conn_id > NONE );
+	assert( ID != NULL );
+
+	/* Nick zu lang? */
+	if( strlen( ID ) > CLIENT_ID_LEN ) return IRC_WriteStrClient( Client, This_Server, ERR_ERRONEUSNICKNAME_MSG, Client_Nick( Client ), ID );
+
+	/* ID bereits vergeben? */
+	c = My_Clients;
+	while( c )
+	{
+		if( strcasecmp( c->nick, ID ) == 0 )
+		{
+			/* die Server-ID gibt es bereits */
+			sprintf( str, "ID \"%s\" already registered!", ID );
+			Log( LOG_ALERT, "%s (detected on connection %d)", str, Client->conn_id );
+			Conn_Close( Client->conn_id, str );
+			return FALSE;
+		}
+		c = c->next;
+	}
+
+	return TRUE;
+} /* Client_CheckID */
 
 
 GLOBAL CHAR *Client_GetID( CLIENT *Client )

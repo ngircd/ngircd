@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.86 2002/11/02 23:00:45 alex Exp $
+ * $Id: conn.c,v 1.87 2002/11/04 12:31:27 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -76,7 +76,7 @@ typedef struct _Connection
 	time_t lastprivmsg;		/* Letzte PRIVMSG */
 	time_t delaytime;		/* Nicht beachten bis ("penalty") */
 	LONG bytes_in, bytes_out;	/* Counter fuer Statistik */
-	BOOLEAN flagged;		/* Channel ist "markiert" (vgl. "irc-write"-Modul) */
+	INT flag;			/* Channel-Flag (vgl. "irc-write"-Modul) */
 } CONNECTION;
 
 
@@ -601,27 +601,27 @@ Conn_ClearFlags( VOID )
 
 	LONG i;
 
-	for( i = 0; i < Pool_Size; i++ ) My_Connections[i].flagged = FALSE;
+	for( i = 0; i < Pool_Size; i++ ) My_Connections[i].flag = 0;
 } /* Conn_ClearFlags */
 
 
-GLOBAL BOOLEAN
+GLOBAL INT
 Conn_Flag( CONN_ID Idx )
 {
 	/* Ist eine Connection markiert (TRUE) oder nicht? */
 
 	assert( Idx >= NONE );
-	return My_Connections[Idx].flagged;
+	return My_Connections[Idx].flag;
 } /* Conn_Flag */
 
 
 GLOBAL VOID
-Conn_SetFlag( CONN_ID Idx )
+Conn_SetFlag( CONN_ID Idx, INT Flag )
 {
 	/* Connection markieren */
 
 	assert( Idx >= NONE );
-	My_Connections[Idx].flagged = TRUE;
+	My_Connections[Idx].flag = Flag;
 } /* Conn_SetFlag */
 
 
@@ -1274,7 +1274,7 @@ Init_Conn_Struct( LONG Idx )
 	My_Connections[Idx].delaytime = 0;
 	My_Connections[Idx].bytes_in = 0;
 	My_Connections[Idx].bytes_out = 0;
-	My_Connections[Idx].flagged = FALSE;
+	My_Connections[Idx].flag = 0;
 } /* Init_Conn_Struct */
 
 

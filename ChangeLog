@@ -54,7 +54,9 @@ ngIRCd CVS-HEAD
     Die unterstuetzten Flags sind in doc/Protocol.txt beschrieben.
   - mit dem neuen Befehl CHANINFO syncronisieren Server, die das IRC+-
     Protokoll unterstuetzen, Channel-Modes und Topics.
-
+  - neue Option "--disable-ircplus" fuer das configure-Script, um das
+    IRC+-Protokoll abzuschalten (per Default ist es aktiviert).
+  
 ngIRCd 0.4.3, 11.06.2002
 
   - Bei PRIVMSG und NOTICE hat der ngIRCd nicht ueberpruft, ob das Ziel
@@ -243,4 +245,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.83 2002/09/03 23:59:37 alex Exp $
+$Id: ChangeLog,v 1.84 2002/09/07 18:01:40 alex Exp $

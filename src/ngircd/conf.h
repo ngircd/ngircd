@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.h,v 1.14 2002/03/27 16:39:22 alex Exp $
+ * $Id: conf.h,v 1.15 2002/03/29 22:53:59 alex Exp $
  *
  * conf.h: Konfiguration des ngircd (Header)
  */
@@ -56,8 +56,12 @@ GLOBAL CHAR Conf_ServerPwd[CLIENT_PASS_LEN];
 GLOBAL CHAR Conf_MotdFile[FNAME_LEN];
 
 /* Ports, auf denen der Server Verbindungen entgegen nimmt */
-GLOBAL INT Conf_ListenPorts[MAX_LISTEN_PORTS];
+GLOBAL UINT Conf_ListenPorts[MAX_LISTEN_PORTS];
 GLOBAL INT Conf_ListenPorts_Count;
+
+/* User- und Group-ID, zu denen der Daemon wechseln soll */
+GLOBAL UINT Conf_UID;
+GLOBAL UINT Conf_GID;
 
 /* Timeouts fuer PING und PONG */
 GLOBAL INT Conf_PingTimeout;

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.h,v 1.1 2001/12/12 17:18:20 alex Exp $
+ * $Id: conf.h,v 1.2 2001/12/26 03:19:57 alex Exp $
  *
  * conf.h: Konfiguration des ngircd (Header)
  *
  * $Log: conf.h,v $
+ * Revision 1.2  2001/12/26 03:19:57  alex
+ * - erste Konfigurations-Variablen definiert: PING/PONG-Timeout.
+ *
  * Revision 1.1  2001/12/12 17:18:20  alex
  * - Modul fuer Server-Konfiguration begonnen.
  *
@@ -22,6 +25,10 @@
 
 #ifndef __conf_h__
 #define __conf_h__
+
+
+GLOBAL INT Conf_PING_Timeout;
+GLOBAL INT Conf_PONG_Timeout;
 
 
 GLOBAL VOID Conf_Init( VOID );

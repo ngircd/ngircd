@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: defines.h,v 1.6 2002/01/21 00:03:16 alex Exp $
+ * $Id: defines.h,v 1.7 2002/01/22 17:15:39 alex Exp $
  *
  * defines.h: (globale) Konstanten
  *
  * $Log: defines.h,v $
+ * Revision 1.7  2002/01/22 17:15:39  alex
+ * - die Fehlermeldung "interrupted system call" sollte nicht mehr auftreten.
+ *
  * Revision 1.6  2002/01/21 00:03:16  alex
  * - neue Konstante CHANNEL_MODE_LEN.
  *
@@ -77,7 +80,7 @@
 
 #define PASSSERVERADD PROTOVER""PROTOSUFFIX" IRC|"PACKAGE"-"VERSION" P"
 
-#define STARTUP_DELAY 3			/* Erst n Sek. nach Start zu anderen Servern verbinden */
+#define STARTUP_DELAY 1			/* Erst n Sek. nach Start zu anderen Servern verbinden */
 
 #endif
 

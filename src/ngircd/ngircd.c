@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.21 2002/01/21 00:02:11 alex Exp $
+ * $Id: ngircd.c,v 1.22 2002/01/22 17:15:39 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  *
  * $Log: ngircd.c,v $
+ * Revision 1.22  2002/01/22 17:15:39  alex
+ * - die Fehlermeldung "interrupted system call" sollte nicht mehr auftreten.
+ *
  * Revision 1.21  2002/01/21 00:02:11  alex
  * - Hilfetexte korrigiert und ergaenzt (Sniffer).
  *
@@ -331,9 +334,10 @@ LOCAL VOID Initialize_Signal_Handler( VOID )
 
 	/* Signal-Struktur initialisieren */
 	memset( &saction, 0, sizeof( saction ));
+	saction.sa_handler = Signal_Handler;
+	saction.sa_flags = SA_RESTART;
 
 	/* Signal-Handler einhaengen */
-	saction.sa_handler = Signal_Handler;
 	sigaction( SIGINT, &saction, NULL );
 	sigaction( SIGQUIT, &saction, NULL );
 	sigaction( SIGTERM, &saction, NULL);

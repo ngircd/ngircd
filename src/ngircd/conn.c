@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.72.2.5 2002/11/20 15:52:40 alex Exp $
+ * $Id: conn.c,v 1.72.2.6 2002/11/23 16:20:48 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -302,8 +302,7 @@ Conn_Handler( VOID )
 		}
 
 		/* Timeout initialisieren */
-		tv.tv_sec = 1;
-		tv.tv_usec = 0;
+		tv.tv_sec = TIME_RES; tv.tv_usec = 0;
 		
 		/* Auf Aktivitaet warten */
 		i = select( Conn_MaxFD + 1, &read_sockets, &write_sockets, NULL, &tv );
@@ -561,14 +560,18 @@ Try_Write( CONN_ID Idx )
 	 * Socket zu schreiben. */
 
 	fd_set write_socket;
+	struct timeval tv;
 
 	assert( Idx >= 0 );
 	assert( My_Connections[Idx].sock > NONE );
 	assert( My_Connections[Idx].wdatalen > 0 );
 
+	/* Timeout initialisieren: 0 Sekunden, also nicht blockieren */
+	tv.tv_sec = 0; tv.tv_usec = 0;
+
 	FD_ZERO( &write_socket );
 	FD_SET( My_Connections[Idx].sock, &write_socket );
-	if( select( My_Connections[Idx].sock + 1, NULL, &write_socket, NULL, 0 ) == -1 )
+	if( select( My_Connections[Idx].sock + 1, NULL, &write_socket, NULL, &tv ) == -1 )
 	{
 		/* Fehler! */
 		if( errno != EINTR )

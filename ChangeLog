@@ -12,6 +12,7 @@
 
 ngircd 0.8-CVS
 
+  - Autoconf: Updated config.guess and config.sub
   - Added some more debug code ...
   - Fixed wrong variable names in output of "ngircd --configtest".
   - Debian: Fxied the name of the "default file" in the init script for
@@ -539,4 +540,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.233.2.9 2004/12/25 00:00:42 alex Exp $
+$Id: ChangeLog,v 1.233.2.10 2004/12/25 00:11:42 alex Exp $

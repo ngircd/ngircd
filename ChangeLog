@@ -31,24 +31,27 @@ ngIRCd CVS-HEAD
     ausgehende Verbindung zu diesem auufzubauen. Dadurch kann nun auf beiden
     Servern in der Konfiguration ein Port fuer den Connect konfiguriert
     werden (beide Server versuchen sich dann gegenseitig zu connectieren).
-  - in den Konfigurationsvariablen ServerUID und ServerGID kann nun nicht
-    nur die numerische ID, sondern auch der Name des Users bzw. der Gruppe
-    verwendet werden. Beim Start des Daemons wird nun beides angezeigt.
-  - Fehler-Handling von connect() gefixed: der Server kann sich nun auch   
-    unter A/UX wieder zu anderen verbinden.
   - Test-Suite und Dokumentation an A/UX angepasst.
   - unter HP-UX definiert das configure-Script nun _XOPEN_SOURCE_EXTENDED.
   - Server identifizieren sich nun mit asyncronen Passwoertern, d.h. das
     Passwort, welches A an B schickt, kann ein anderes sein als das, welches
     B als Antwort an A sendet. In der Konfig.-Datei, Abschnitt "Server",
     wurde "Password" dazu durch "MyPassword" und "PeerPassword" ersetzt.
-  - Besseres Logging von Prefix-Fehlern.
-  - angenommene Sockets werden nun korrekt auf "non-blocking" konfiguriert,
-    beim Senden und Empfangen werden Blockierungen besser abgefangen.
   - Der Server kann nun zur Laufzeit die Konfiguration neu einlesen: dies
     macht er nach dem Befehl REHASH oder wenn ein HUP-Signal empfangen wird.
   - Channel-Mode "P" ("persistent") kann nur noch von IRC-Operatoren gesetzt
     werden. Grund: User koennen den Server sonst leicht "Channel-Flooden".
+
+ngIRCd 0.5.4, 24.11.2002
+
+  - Fehler-Handling von connect() gefixed: der Server kann sich nun auch   
+    unter A/UX wieder zu anderen verbinden.
+  - in den Konfigurationsvariablen ServerUID und ServerGID kann nun nicht
+    nur die numerische ID, sondern auch der Name des Users bzw. der Gruppe
+    verwendet werden. Beim Start des Daemons wird nun beides angezeigt.
+  - Besseres Logging von Prefix-Fehlern.
+  - angenommene Sockets werden nun korrekt auf "non-blocking" konfiguriert,
+    beim Senden und Empfangen werden Blockierungen besser abgefangen.
   - RPL_UMODEIS hat Code 221, nicht 211 ... *argl*
   - select() in Try_Write() hat falschen (keinen!) Timeout verwendet;
     die "Zeit-Aufloesung" des Servers sind zudem nun 2 Sekunden (TIME_RES).
@@ -341,4 +344,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.128 2002/11/23 16:19:38 alex Exp $
+$Id: ChangeLog,v 1.129 2002/11/24 16:14:54 alex Exp $

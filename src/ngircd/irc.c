@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.45 2002/01/28 01:18:14 alex Exp $
+ * $Id: irc.c,v 1.46 2002/01/28 01:45:43 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.46  2002/01/28 01:45:43  alex
+ * - SERVER-Meldungen an neue Server sind nun in der richtigen Reihenfolge.
+ *
  * Revision 1.45  2002/01/28 01:18:14  alex
  * - connectierenden Servern werden Channels nun mit NJOIN bekannt gemacht.
  *
@@ -421,7 +424,7 @@ GLOBAL BOOLEAN IRC_SERVER( CLIENT *Client, REQUEST *Req )
 	CLIENT *from, *c;
 	CHANNEL *chan;
 	CL2CHAN *cl2chan;
-	INT i;
+	INT max_hops, i;
 	
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -483,24 +486,36 @@ GLOBAL BOOLEAN IRC_SERVER( CLIENT *Client, REQUEST *Req )
 
 		Client_SetType( Client, CLIENT_SERVER );
 
-		/* Alle bisherigen Server dem neuen Server bekannt machen,
-		 * die bisherigen Server ueber den neuen informierenn */
+		/* maximalen Hop Count ermitteln */
+		max_hops = 0;
 		c = Client_First( );
 		while( c )
 		{
-			if(( Client_Type( c ) == CLIENT_SERVER ) && ( c != Client ) && ( c != Client_ThisServer( )))
-			{
-				if( Client_Conn( c ) > NONE )
-				{
-					/* Dem gefundenen Server gleich den neuen
-					 * Server bekannt machen */
-					if( ! IRC_WriteStrClient( c, "SERVER %s %d %d :%s", Client_ID( Client ), Client_Hops( Client ) + 1, Client_MyToken( Client ), Client_Info( Client ))) return DISCONNECTED;
-				}
-				
-				/* Den neuen Server ueber den alten informieren */
-				if( ! IRC_WriteStrClientPrefix( Client, Client_Introducer( c ), "SERVER %s %d %d :%s", Client_ID( c ), Client_Hops( c ) + 1, Client_MyToken( c ), Client_Info( c ))) return DISCONNECTED;
-			}
+			if( Client_Hops( c ) > max_hops ) max_hops = Client_Hops( c );
 			c = Client_Next( c );
+		}
+		
+		/* Alle bisherigen Server dem neuen Server bekannt machen,
+		 * die bisherigen Server ueber den neuen informierenn */
+		for( i = 0; i < ( max_hops + 1 ); i++ )
+		{
+			c = Client_First( );
+			while( c )
+			{
+				if(( Client_Type( c ) == CLIENT_SERVER ) && ( c != Client ) && ( c != Client_ThisServer( )) && ( Client_Hops( c ) == i ))
+				{
+					if( Client_Conn( c ) > NONE )
+					{
+						/* Dem gefundenen Server gleich den neuen
+						* Server bekannt machen */
+						if( ! IRC_WriteStrClient( c, "SERVER %s %d %d :%s", Client_ID( Client ), Client_Hops( Client ) + 1, Client_MyToken( Client ), Client_Info( Client ))) return DISCONNECTED;
+					}
+					
+					/* Den neuen Server ueber den alten informieren */
+					if( ! IRC_WriteStrClientPrefix( Client, Client_Hops( c ) == 1 ? Client_ThisServer( ) : Client_Introducer( c ), "SERVER %s %d %d :%s", Client_ID( c ), Client_Hops( c ) + 1, Client_MyToken( c ), Client_Info( c ))) return DISCONNECTED;
+				}
+				c = Client_Next( c );
+			}
 		}
 
 		/* alle User dem neuen Server bekannt machen */

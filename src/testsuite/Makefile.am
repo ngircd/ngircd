@@ -9,7 +9,7 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: Makefile.am,v 1.3.2.1 2002/09/20 15:18:56 alex Exp $
+# $Id: Makefile.am,v 1.3.2.2 2002/09/20 15:39:55 alex Exp $
 #
 
 AUTOMAKE_OPTIONS = ../portab/ansi2knr
@@ -34,6 +34,7 @@ check_SCRIPTS = ngircd-TEST-Binary tests.sh
 
 ngircd-TEST-Binary:
 	cp ../ngircd/ngircd ngircd-TEST
+	[ -f getpid.sh ] || ln -s $(srcdir)/getpid.sh .
 
 connect-test: tests.sh
 	ln -s $(srcdir)/tests.sh connect-test

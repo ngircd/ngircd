@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.45 2002/03/10 17:15:20 alex Exp $
+ * $Id: client.c,v 1.46 2002/03/10 22:03:20 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,9 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.46  2002/03/10 22:03:20  alex
+ * - Netz-Splits werden nun als soche ausgegeben.
+ *
  * Revision 1.45  2002/03/10 17:15:20  alex
  * - der Bindestrich ("-") ist nun auch in Nicknames erlaubt.
  *
@@ -324,7 +327,7 @@ GLOBAL VOID Client_Destroy( CLIENT *Client, CHAR *LogMsg, CHAR *FwdMsg )
 	/* Client entfernen. */
 	
 	CLIENT *last, *c;
-	CHAR *txt;
+	CHAR msg[LINE_LEN], *txt;
 
 	assert( Client != NULL );
 
@@ -332,19 +335,28 @@ GLOBAL VOID Client_Destroy( CLIENT *Client, CHAR *LogMsg, CHAR *FwdMsg )
 	else txt = FwdMsg;
 	if( ! txt ) txt = "Reason unknown.";
 
+	if( Client->type == CLIENT_SERVER )
+	{
+		/* Netz-Split-Nachricht vorbereiten */
+		sprintf( msg, "%s | %s", Client_ID( Client ), Client_ID( Client_TopServer( Client ) ? Client_TopServer( Client ) : Client_ThisServer( )));
+	}
+
 	last = NULL;
 	c = My_Clients;
 	while( c )
 	{
 		if(( Client->type == CLIENT_SERVER ) && ( c->introducer == Client ) && ( c != Client ))
 		{
-			Client_Destroy( c, LogMsg, FwdMsg );
+			/* der Client, der geloescht wird ist ein Server. Der Client, den wir gerade
+			 * pruefen, ist ein Child von diesem und muss daher auch entfernt werden */
+			Client_Destroy( c, NULL, msg);
 			last = NULL;
 			c = My_Clients;
 			continue;
 		}
 		if( c == Client )
 		{
+			/* Wir haben den Client gefunden: entfernen */
 			if( last ) last->next = c->next;
 			else My_Clients = c->next;
 

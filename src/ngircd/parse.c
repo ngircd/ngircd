@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: parse.c,v 1.33 2002/05/27 13:09:27 alex Exp $
+ * $Id: parse.c,v 1.34 2002/07/26 21:12:24 alex Exp $
  *
  * parse.c: Parsen der Client-Anfragen
  */
@@ -50,11 +50,9 @@
 
 LOCAL VOID Init_Request PARAMS(( REQUEST *Req ));
 
-LOCAL BOOLEAN Parse_Error PARAMS(( CONN_ID Idx, CHAR *Error ));
-
-LOCAL BOOLEAN Validate_Prefix PARAMS(( REQUEST *Req ));
-LOCAL BOOLEAN Validate_Command PARAMS(( REQUEST *Req ));
-LOCAL BOOLEAN Validate_Args PARAMS(( REQUEST *Req ));
+LOCAL BOOLEAN Validate_Prefix PARAMS(( CONN_ID Idx, REQUEST *Req, BOOLEAN *Closed ));
+LOCAL BOOLEAN Validate_Command PARAMS(( CONN_ID Idx, REQUEST *Req, BOOLEAN *Closed ));
+LOCAL BOOLEAN Validate_Args PARAMS(( CONN_ID Idx, REQUEST *Req, BOOLEAN *Closed ));
 
 LOCAL BOOLEAN Handle_Request PARAMS(( CONN_ID Idx, REQUEST *Req ));
 
@@ -68,6 +66,7 @@ Parse_Request( CONN_ID Idx, CHAR *Request )
 
 	REQUEST req;
 	CHAR *start, *ptr;
+	BOOLEAN closed;
 
 	assert( Idx >= 0 );
 	assert( Request != NULL );
@@ -75,7 +74,7 @@ Parse_Request( CONN_ID Idx, CHAR *Request )
 #ifdef SNIFFER
 	if( NGIRCd_Sniffer ) Log( LOG_DEBUG, " <- connection %d: '%s'.", Idx, Request );
 #endif
-	
+
 	Init_Request( &req );
 
 	/* Fuehrendes und folgendes "Geraffel" verwerfen */
@@ -87,7 +86,11 @@ Parse_Request( CONN_ID Idx, CHAR *Request )
 		/* Prefix vorhanden */
 		req.prefix = Request + 1;
 		ptr = strchr( Request, ' ' );
-		if( ! ptr ) return Parse_Error( Idx, "Prefix without command!?" );
+		if( ! ptr )
+		{
+			Log( LOG_DEBUG, "Connection %d: Parse error: prefix without command!?", Idx );
+			return Conn_WriteStr( Idx, "ERROR :Prefix without command!?" );
+		}
 		*ptr = '\0';
 #ifndef STRICT_RFC
 		/* multiple Leerzeichen als Trenner zwischen
@@ -98,7 +101,7 @@ Parse_Request( CONN_ID Idx, CHAR *Request )
 	}
 	else start = Request;
 
-	if( ! Validate_Prefix( &req )) return Parse_Error( Idx, "Invalid prefix");
+	if( ! Validate_Prefix( Idx, &req, &closed )) return ! closed;
 
 	/* Befehl */
 	ptr = strchr( start, ' ' );
@@ -113,7 +116,7 @@ Parse_Request( CONN_ID Idx, CHAR *Request )
 	}
 	req.command = start;
 
-	if( ! Validate_Command( &req )) return Parse_Error( Idx, "Invalid command" );
+	if( ! Validate_Command( Idx, &req, &closed )) return ! closed;
 
 	/* Argumente, Parameter */
 	if( ptr )
@@ -142,18 +145,18 @@ Parse_Request( CONN_ID Idx, CHAR *Request )
 #endif
 				}
 			}
-			
+
 			req.argc++;
 
 			if( start[0] == ':' ) break;
 			if( req.argc > 14 ) break;
-			
+
 			if( ptr ) start = ptr + 1;
 			else start = NULL;
 		}
 	}
-	
-	if( ! Validate_Args( &req )) return Parse_Error( Idx, "Invalid argument(s)" );
+
+	if( ! Validate_Args( Idx, &req, &closed )) return ! closed;
 
 	return Handle_Request( Idx, &req );
 } /* Parse_Request */
@@ -165,7 +168,7 @@ Init_Request( REQUEST *Req )
 	/* Neue Request-Struktur initialisieren */
 
 	INT i;
-	
+
 	assert( Req != NULL );
 
 	Req->prefix = NULL;
@@ -176,40 +179,63 @@ Init_Request( REQUEST *Req )
 
 
 LOCAL BOOLEAN
-Parse_Error( CONN_ID Idx, CHAR *Error )
+Validate_Prefix( CONN_ID Idx, REQUEST *Req, BOOLEAN *Closed )
 {
-	/* Fehler beim Parsen. Fehlermeldung an den Client schicken.
-	 * TRUE: Connection wurde durch diese Funktion nicht geschlossen,
-	 * FALSE: Connection wurde terminiert. */
-	
+	CLIENT *c;
+
 	assert( Idx >= 0 );
-	assert( Error != NULL );
-
-	Log( LOG_DEBUG, "Connection %d: Parse error: %s", Idx, Error );
-	return Conn_WriteStr( Idx, "ERROR :Parse error: %s", Error );
-} /* Parse_Error */
-
-
-LOCAL BOOLEAN
-Validate_Prefix( REQUEST *Req )
-{
 	assert( Req != NULL );
+
+	*Closed = FALSE;
+	
+	/* ist ueberhaupt ein Prefix vorhanden? */
+	if( ! Req->prefix ) return TRUE;
+
+	/* pruefen, ob der im Prefix angegebene Client bekannt ist */
+	c = Client_Search( Req->prefix );
+	if( ! c )
+	{
+		/* im Prefix angegebener Client ist nicht bekannt */
+		Log( LOG_ERR, "Invalid prefix, client not known (connection %d)!?", Idx );
+		if( ! Conn_WriteStr( Idx, "ERROR :Invalid prefix, client not known!?" )) *Closed = TRUE;
+		return FALSE;
+	}
+	
+	/* pruefen, ob der Client mit dem angegebenen Prefix in Richtung
+	 * des Senders liegt, d.h. sicherstellen, dass das Prefix nicht
+	 * gefaelscht ist */
+	if( Client_NextHop( c ) != Client_GetFromConn( Idx ))
+	{
+		/* das angegebene Prefix ist aus dieser Richtung, also
+		 * aus der gegebenen Connection, ungueltig! */
+		Log( LOG_ERR, "Spoofed prefix \"%s\" from \"%s\" (connection %d)!", Req->prefix, Client_Mask( Client_GetFromConn( Idx )), Idx );
+		Conn_Close( Idx, NULL, "Spoofed prefix", TRUE );
+		*Closed = TRUE;
+		return FALSE;
+	}
+
 	return TRUE;
 } /* Validate_Prefix */
 
 
 LOCAL BOOLEAN
-Validate_Command( REQUEST *Req )
+Validate_Command( CONN_ID Idx, REQUEST *Req, BOOLEAN *Closed )
 {
+	assert( Idx >= 0 );
 	assert( Req != NULL );
+	*Closed = FALSE;
+
 	return TRUE;
 } /* Validate_Comman */
 
 
 LOCAL BOOLEAN
-Validate_Args( REQUEST *Req )
+Validate_Args( CONN_ID Idx, REQUEST *Req, BOOLEAN *Closed )
 {
+	assert( Idx >= 0 );
 	assert( Req != NULL );
+	*Closed = FALSE;
+
 	return TRUE;
 } /* Validate_Args */
 
@@ -309,7 +335,7 @@ Handle_Request( CONN_ID Idx, REQUEST *Req )
 	else if( strcasecmp( Req->command, "INVITE" ) == 0 ) return IRC_INVITE( client, Req );
 	else if( strcasecmp( Req->command, "KICK" ) == 0 ) return IRC_KICK( client, Req );
 	else if( strcasecmp( Req->command, "BAN" ) == 0 ) return IRC_BAN( client, Req );
-	
+
 	/* Unbekannter Befehl */
 	if( Client_Type( client ) != CLIENT_SERVER ) IRC_WriteStrClient( client, ERR_UNKNOWNCOMMAND_MSG, Client_ID( client ), Req->command );
 	Log( LOG_DEBUG, "Connection %d: Unknown command \"%s\", %d %s,%s prefix.", Client_Conn( client ), Req->command, Req->argc, Req->argc == 1 ? "parameter" : "parameters", Req->prefix ? "" : " no" );

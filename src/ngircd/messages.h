@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: messages.h,v 1.49 2002/10/11 02:16:14 alex Exp $
+ * $Id: messages.h,v 1.50 2002/10/11 02:32:09 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  */
@@ -20,7 +20,7 @@
 
 
 #define RPL_WELCOME_MSG			"001 %s :Welcome to the Internet Relay Network %s"
-#define RPL_YOURHOST_MSG		"002 %s :Your host is %s, running version ngircd %s-%s/%s/%s"
+#define RPL_YOURHOST_MSG		"002 %s :Your host is %s, running version ngircd-%s (%s/%s/%s)"
 #define RPL_CREATED_MSG			"003 %s :This server has been started %s"
 #define RPL_MYINFO_MSG			"004 %s %s ngircd-%s %s %s"
 #define RPL_UMODEIS_MSG			"211 %s +%s"

@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2003 by Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: defines.h,v 1.41 2002/12/26 13:17:56 alex Exp $
+ * $Id: defines.h,v 1.42 2003/02/23 12:03:39 alex Exp $
  *
  * Global defines of ngIRCd.
  */
@@ -93,6 +93,10 @@
 #define TOKEN_OUTBOUND -2		/* Kennzeichnung fuer ausgehende Server-Links im Aufbau */
 
 #define NOTICE_TXTPREFIX ""		/* Kennzeichnung fuer Server-NOTICEs an User */
+
+#ifdef RENDEZVOUS
+#define RENDEZVOUS_TYPE "_ircu._tcp."	/* Service type to register with Rendezvous */
+#endif
 
 
 #endif

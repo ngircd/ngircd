@@ -4,6 +4,7 @@
 		activeBuildStyle = 014CEA520018CE5811CA2923;
 		activeTarget = 08FB779FFE84155DC02AAC07;
 		addToTargets = (
+			08FB779FFE84155DC02AAC07,
 		);
 		perUserDictionary = {
 			PBXWorkspaceConfiguration = {

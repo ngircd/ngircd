@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.c,v 1.10 2002/01/03 02:27:20 alex Exp $
+ * $Id: conf.c,v 1.11 2002/01/05 16:51:49 alex Exp $
  *
  * conf.h: Konfiguration des ngircd
  *
  * $Log: conf.c,v $
+ * Revision 1.11  2002/01/05 16:51:49  alex
+ * - Bug bei Remote-Server-Namen entfernt: diese wurden falsch gekuerzt.
+ *
  * Revision 1.10  2002/01/03 02:27:20  alex
  * - das Server-Passwort kann nun konfiguriert werden.
  *
@@ -323,8 +326,8 @@ GLOBAL VOID Handle_SERVER( INT Line, CHAR *Var, CHAR *Arg )
 	if( strcasecmp( Var, "Name" ) == 0 )
 	{
 		/* Name des Servers ("Nick") */
-		strncpy( Conf_Server[Conf_Server_Count - 1].name, Arg, CLIENT_PASS_LEN );
-		Conf_Server[Conf_Server_Count - 1].name[CLIENT_PASS_LEN - 1] = '\0';
+		strncpy( Conf_Server[Conf_Server_Count - 1].name, Arg, CLIENT_ID_LEN );
+		Conf_Server[Conf_Server_Count - 1].name[CLIENT_ID_LEN - 1] = '\0';
 		return;
 	}
 	if( strcasecmp( Var, "Password" ) == 0 )

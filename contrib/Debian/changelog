@@ -1,3 +1,11 @@
+ngircd (0.7.7+HEAD-0ab5) unstable; urgency=low
+
+  * Updates from CVS HEAD branch, most notably: "INVITE- and BAN-lists
+    become synchronized between IRC+ servers when establishing new
+    connections, if the peer supports this as well."
+
+ -- Alexander Barton <alex@Arthur.Ath.CX>  Mon, 26 Apr 2004 01:53:15 +0200
+
 ngircd (0.7.7+HEAD-0ab4) unstable; urgency=low
 
   * This version includes fixes for INVITE command and the handling of the

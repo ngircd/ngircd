@@ -9,14 +9,16 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: log.c,v 1.1 2001/12/11 21:53:04 alex Exp $
+ * $Id: log.c,v 1.2 2001/12/12 17:19:12 alex Exp $
  *
  * log.c: Logging-Funktionen
  *
  * $Log: log.c,v $
- * Revision 1.1  2001/12/11 21:53:04  alex
- * Initial revision
+ * Revision 1.2  2001/12/12 17:19:12  alex
+ * - in Log-Meldungen wird nun auch der Level der Meldung ausgegeben.
  *
+ * Revision 1.1.1.1  2001/12/11 21:53:04  alex
+ * - Imported sources to CVS.
  */
 
 
@@ -61,7 +63,7 @@ GLOBAL VOID Log( CONST INT Level, CONST CHAR *Format, ... )
 	vsnprintf( msg, MAX_LOG_MSG_LEN - 1, Format, ap );
 
 	/* ... und ausgeben */
-	printf( "%s\n", msg );
+	printf( "[%d] %s\n", Level, msg );
 
 	va_end( ap );
 } /* Log */

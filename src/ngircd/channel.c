@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: channel.c,v 1.9 2002/01/27 22:47:11 alex Exp $
+ * $Id: channel.c,v 1.10 2002/01/28 01:16:15 alex Exp $
  *
  * channel.c: Management der Channels
  *
  * $Log: channel.c,v $
+ * Revision 1.10  2002/01/28 01:16:15  alex
+ * - neue Funktionen Channel_Name(), Channel_First() und Channel_Next().
+ *
  * Revision 1.9  2002/01/27 22:47:11  alex
  * - PART wird nicht mehr an den Server verschickt, von dem es empfangen wurde.
  *
@@ -200,6 +203,26 @@ GLOBAL INT Channel_Count( VOID )
 	}
 	return count;
 } /* Channel_Count */
+
+
+GLOBAL CHAR *Channel_Name( CHANNEL *Chan )
+{
+	assert( Chan != NULL );
+	return Chan->name;
+} /* Channel_Name */
+
+
+GLOBAL CHANNEL *Channel_First( VOID )
+{
+	return My_Channels;
+} /* Channel_First */
+
+
+GLOBAL CHANNEL *Channel_Next( CHANNEL *Chan )
+{
+	assert( Chan != NULL );
+	return Chan->next;
+} /* Channel_Next */
 
 
 GLOBAL CHANNEL *Channel_Search( CHAR *Name )

@@ -9,7 +9,7 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: Makefile.am,v 1.18 2002/03/25 19:38:16 alex Exp $
+# $Id: Makefile.am,v 1.19 2002/03/29 22:52:12 alex Exp $
 #
 
 AM_CFLAGS = -I$(srcdir)/../portab
@@ -53,9 +53,6 @@ lint:
 	  echo; cat lint.out; echo; \
 	 fi; \
 	done;
-
-install-data-hook:
-	$(mkinstalldirs) $(DESTDIR)$(localstatedir)
 
 TESTS = check-version check-help
 

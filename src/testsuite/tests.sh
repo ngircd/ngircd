@@ -1,6 +1,9 @@
 #!/bin/sh
 # ngIRCd Test Suite
-# $Id: tests.sh,v 1.4 2003/08/22 11:31:18 alex Exp $
+# $Id: tests.sh,v 1.5 2004/09/04 14:22:38 alex Exp $
+
+# detect source directory
+[ -z "$srcdir" ] && srcdir=`dirname $0`
 
 name=`basename $0`
 test=`echo ${name} | cut -d '.' -f 1`

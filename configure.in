@@ -9,7 +9,7 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: configure.in,v 1.47 2002/05/19 10:42:15 alex Exp $
+# $Id: configure.in,v 1.48 2002/05/22 09:09:05 alex Exp $
 #
 
 # -- Initialisierung --
@@ -36,6 +36,7 @@ AH_TEMPLATE([TARGET_CPU], [Target CPU name])
 
 AC_PROG_CC
 AC_LANG_C
+AM_C_PROTOTYPES
 
 # -- Hilfsprogramme --
 

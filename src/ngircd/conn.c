@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.92 2002/11/22 16:35:19 alex Exp $
+ * $Id: conn.c,v 1.93 2002/11/22 17:58:19 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -185,6 +185,43 @@ Conn_Exit( VOID )
 	My_Connections = NULL;
 	Pool_Size = 0;
 } /* Conn_Exit */
+
+
+GLOBAL INT
+Conn_InitListeners( VOID )
+{
+	/* Ports, auf denen der Server Verbindungen entgegennehmen
+	* soll, initialisieren */
+
+	INT created, i;
+
+	created = 0;
+	for( i = 0; i < Conf_ListenPorts_Count; i++ )
+	{
+		if( Conn_NewListener( Conf_ListenPorts[i] )) created++;
+		else Log( LOG_ERR, "Can't listen on port %u!", Conf_ListenPorts[i] );
+	}
+	return created;
+} /* Conn_InitListeners */
+
+
+GLOBAL VOID
+Conn_ExitListeners( VOID )
+{
+	/* Alle "Listen-Sockets" schliessen */
+
+	INT i;
+
+	Log( LOG_INFO, "Shutting down all listening sockets ..." );
+	for( i = 0; i < Conn_MaxFD + 1; i++ )
+	{
+		if( FD_ISSET( i, &My_Sockets ) && FD_ISSET( i, &My_Listeners ))
+		{
+			close( i );
+			Log( LOG_DEBUG, "Listening socket %d closed.", i );
+		}
+	}
+} /* Conn_ExitListeners */
 
 
 GLOBAL BOOLEAN

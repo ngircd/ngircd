@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.h,v 1.21 2002/11/05 14:18:13 alex Exp $
+ * $Id: conn.h,v 1.22 2002/11/22 17:58:19 alex Exp $
  *
  * conn.h: Verwaltung aller Netz-Verbindungen ("connections") (Header)
  */
@@ -27,6 +27,9 @@ typedef INT CONN_ID;
 
 GLOBAL VOID Conn_Init PARAMS((VOID ));
 GLOBAL VOID Conn_Exit PARAMS(( VOID ));
+
+GLOBAL INT Conn_InitListeners PARAMS(( VOID ));
+GLOBAL VOID Conn_ExitListeners PARAMS(( VOID ));
 
 GLOBAL BOOLEAN Conn_NewListener PARAMS(( CONST UINT Port ));
 

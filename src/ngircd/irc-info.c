@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-info.c,v 1.3 2002/12/02 13:20:02 alex Exp $
+ * $Id: irc-info.c,v 1.4 2002/12/02 13:45:51 alex Exp $
  *
  * irc-info.c: IRC-Info-Befehle
  */
@@ -113,7 +113,7 @@ IRC_ISON( CLIENT *Client, REQUEST *Req )
 	}
 	if( rpl[strlen( rpl ) - 1] == ' ' ) rpl[strlen( rpl ) - 1] = '\0';
 
-	return IRC_WriteStrClient( Client, "%s", rpl, Client_ID( Client ) );
+	return IRC_WriteStrClient( Client, rpl, Client_ID( Client ) );
 } /* IRC_ISON */
 
 
@@ -467,7 +467,7 @@ IRC_USERHOST( CLIENT *Client, REQUEST *Req )
 	}
 	if( rpl[strlen( rpl ) - 1] == ' ' ) rpl[strlen( rpl ) - 1] = '\0';
 
-	return IRC_WriteStrClient( Client, "%s", rpl, Client_ID( Client ) );
+	return IRC_WriteStrClient( Client, rpl, Client_ID( Client ) );
 } /* IRC_USERHOST */
 
 

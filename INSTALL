@@ -81,8 +81,8 @@ Folgende Dateien werden installiert:
 - /usr/local/etc/ngircd.conf: Beispiel-Konfiguration, wenn nicht vorhanden
 
 
-III. Nuetzliche make-Targets
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+II. Nuetzliche make-Targets
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Die vom configure-Script erzeugten Makefile's enthalten immer die folgenden
 nuetzlichen Targets:
@@ -98,8 +98,8 @@ nuetzlichen Targets:
 
 
 
-IV. Konfigurationsdatei ngircd.conf
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+III. Konfigurationsdatei ngircd.conf
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In der Konfigurationsdatei werden Kommentare durch "#" oder durch ";"
 eingeleitet. Dieses dient nur der besseren Lesbarkeit.
@@ -117,8 +117,8 @@ Die Bedeutung der einzelnen Variablen ist in der Beispiel-Konfiguration
 Konfigurationsdatei vorhanden ist.
 
 
-V. Kommandozeilen-Optionen
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+IV. Kommandozeilen-Optionen
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Folgende Parameter koennen dem ngIRCd u.a. uebergeben werden:
 
@@ -145,4 +145,4 @@ Server nach der Ausgabe wieder.
 
 
 -- 
-$Id: INSTALL,v 1.6 2002/05/08 15:44:43 alex Exp $
+$Id: INSTALL,v 1.7 2002/05/20 12:02:58 alex Exp $

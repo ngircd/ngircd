@@ -28,7 +28,7 @@ II. Status
 At present, the ngIRCd is under active development, some features are not
 implemented, some only partly.
 
-Till tody (more or less complete) implemented IRC-commands:
+Till today (more or less complete) implemented IRC-commands:
 
 AWAY, DIE, ERROR, ISON, JOIN, KILL, LINKS, LIST, LUSERS, MODE, MOTD, NAMES,
 NICK, NOTICE, NJOIN, OPER, PART, PASS, PING, PONG, PRIVMSG, QUIT, RESTART,
@@ -97,4 +97,4 @@ to post a mail to: <alex@barton.de> or <alex@arthur.ath.cx>
 
 
 -- 
-$Id: README,v 1.4 2002/05/19 14:55:47 alex Exp $
+$Id: README,v 1.5 2002/05/20 12:02:58 alex Exp $

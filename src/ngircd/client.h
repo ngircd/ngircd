@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.h,v 1.13 2002/01/03 02:28:06 alex Exp $
+ * $Id: client.h,v 1.14 2002/01/04 01:21:22 alex Exp $
  *
  * client.h: Konfiguration des ngircd (Header)
  *
  * $Log: client.h,v $
+ * Revision 1.14  2002/01/04 01:21:22  alex
+ * - Client-Strukturen koennen von anderen Modulen nun nur noch ueber die
+ *   enstprechenden (zum Teil neuen) Funktionen angesprochen werden.
+ *
  * Revision 1.13  2002/01/03 02:28:06  alex
  * - neue Funktion Client_CheckID(), diverse Aenderungen fuer Server-Links.
  *
@@ -80,48 +84,81 @@ typedef enum
 } CLIENT_TYPE;
 
 
+#ifdef __client_c__
 typedef struct _CLIENT
 {
+	CHAR id[CLIENT_ID_LEN];		/* Nick (User) bzw. ID (Server) */
 	POINTER *next;			/* Zeiger auf naechste Client-Struktur */
 	CLIENT_TYPE type;		/* Typ des Client, vgl. CLIENT_TYPE */
 	CONN_ID conn_id;		/* ID der Connection (wenn lokal) bzw. NONE (remote) */
 	struct _CLIENT *introducer;	/* ID des Servers, der die Verbindung hat */
-	CHAR nick[CLIENT_ID_LEN];	/* Nick (bzw. Server-ID, daher auch IDLEN!) */
-	CHAR pass[CLIENT_PASS_LEN];	/* Passwort, welches der Client angegeben hat */
+	CHAR pwd[CLIENT_PASS_LEN];	/* Passwort, welches der Client angegeben hat */
 	CHAR host[CLIENT_HOST_LEN];	/* Hostname des Client */
 	CHAR user[CLIENT_USER_LEN];	/* Benutzername ("Login") */
-	CHAR name[CLIENT_NAME_LEN];	/* Langer Benutzername */
-	CHAR info[CLIENT_INFO_LEN];	/* Infotext (Server) */
-	CHANNEL *channels[MAX_CHANNELS];/* IDs der Channel, bzw. NULL */
+	CHAR info[CLIENT_INFO_LEN];	/* Langer Benutzername (User) bzw. Infotext (Server) */
+	CHANNEL *channels[MAX_CHANNELS];/* Channel, in denen der Client Mitglied ist */
 	CHAR modes[CLIENT_MODE_LEN];	/* Client Modes */
-	BOOLEAN oper_by_me;		/* Operator-Status durch diesen Server? */
+	INT hops, token;		/* "Hops" und "Token" (-> SERVER-Befehl) */
+	BOOLEAN oper_by_me;		/* IRC-Operator-Status durch diesen Server? */
 } CLIENT;
-
-
-GLOBAL CLIENT *This_Server;
+#else
+typedef POINTER CLIENT;
+#endif
 
 
 GLOBAL VOID Client_Init( VOID );
 GLOBAL VOID Client_Exit( VOID );
 
-GLOBAL CLIENT *Client_NewLocal( CONN_ID Idx, CHAR *Hostname );
+GLOBAL CLIENT *Client_NewLocal( CONN_ID Idx, CHAR *Hostname, INT Type );
+GLOBAL CLIENT *Client_NewRemoteServer( CLIENT *Introducer, CHAR *Hostname, INT Hops, INT Token, CHAR *Info );
+GLOBAL CLIENT *Client_NewRemoteUser( CLIENT *Introducer, CHAR *Nick, INT Hops, CHAR *User, CHAR *Hostname, INT Token, CHAR *Modes, CHAR *Info );
+GLOBAL CLIENT *Client_New( CONN_ID Idx, CLIENT *Introducer, INT Type, CHAR *ID, CHAR *User, CHAR *Hostname, CHAR *Info, INT Hops, INT Token, CHAR *Modes );
+
 GLOBAL VOID Client_Destroy( CLIENT *Client );
 
-GLOBAL VOID Client_SetHostname( CLIENT *Client, CHAR *Hostname );
+GLOBAL CLIENT *Client_ThisServer( VOID );
 
 GLOBAL CLIENT *Client_GetFromConn( CONN_ID Idx );
-GLOBAL CLIENT *Client_GetFromNick( CHAR *Nick );
-
-GLOBAL CHAR *Client_Nick( CLIENT *Client );
-GLOBAL CHAR *Client_GetID( CLIENT *Client );
-
-GLOBAL BOOLEAN Client_CheckNick( CLIENT *Client, CHAR *Nick );
-GLOBAL BOOLEAN Client_CheckID( CLIENT *Client, CHAR *ID );
+GLOBAL CLIENT *Client_GetFromID( CHAR *Nick );
+GLOBAL CLIENT *Client_GetFromToken( CLIENT *Client, INT Token );
 
 GLOBAL CLIENT *Client_Search( CHAR *ID );
 GLOBAL CLIENT *Client_First( VOID );
 GLOBAL CLIENT *Client_Next( CLIENT *c );
 
+GLOBAL INT Client_Type( CLIENT *Client );
+GLOBAL CONN_ID Client_Conn( CLIENT *Client );
+GLOBAL CHAR *Client_ID( CLIENT *Client );
+GLOBAL CHAR *Client_Mask( CLIENT *Client );
+GLOBAL CHAR *Client_Info( CLIENT *Client );
+GLOBAL CHAR *Client_User( CLIENT *Client );
+GLOBAL CHAR *Client_Hostname( CLIENT *Client );
+GLOBAL CHAR *Client_Password( CLIENT *Client );
+GLOBAL CHAR *Client_Modes( CLIENT *Client );
+GLOBAL CLIENT *Client_Introducer( CLIENT *Client );
+GLOBAL BOOLEAN Client_OperByMe( CLIENT *Client );
+GLOBAL INT Client_Hops( CLIENT *Client );
+GLOBAL INT Client_Token( CLIENT *Client );
+
+GLOBAL BOOLEAN Client_HasMode( CLIENT *Client, CHAR Mode );
+
+GLOBAL VOID Client_SetHostname( CLIENT *Client, CHAR *Hostname );
+GLOBAL VOID Client_SetID( CLIENT *Client, CHAR *Nick );
+GLOBAL VOID Client_SetUser( CLIENT *Client, CHAR *User );
+GLOBAL VOID Client_SetInfo( CLIENT *Client, CHAR *Info );
+GLOBAL VOID Client_SetPassword( CLIENT *Client, CHAR *Pwd );
+GLOBAL VOID Client_SetType( CLIENT *Client, INT Type );
+GLOBAL VOID Client_SetHops( CLIENT *Client, INT Hops );
+GLOBAL VOID Client_SetToken( CLIENT *Client, INT Token );
+GLOBAL VOID Client_SetOperByMe( CLIENT *Client, BOOLEAN OperByMe );
+GLOBAL VOID Client_SetModes( CLIENT *Client, CHAR *Modes );
+GLOBAL VOID Client_SetIntroducer( CLIENT *Client, CLIENT *Introducer );
+
+GLOBAL BOOLEAN Client_ModeAdd( CLIENT *Client, CHAR Mode );
+GLOBAL BOOLEAN Client_ModeDel( CLIENT *Client, CHAR Mode );
+
+GLOBAL BOOLEAN Client_CheckNick( CLIENT *Client, CHAR *Nick );
+GLOBAL BOOLEAN Client_CheckID( CLIENT *Client, CHAR *ID );
 
 #endif
 

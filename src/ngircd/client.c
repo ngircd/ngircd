@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.18 2002/01/03 02:28:06 alex Exp $
+ * $Id: client.c,v 1.19 2002/01/04 01:21:22 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,10 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.19  2002/01/04 01:21:22  alex
+ * - Client-Strukturen koennen von anderen Modulen nun nur noch ueber die
+ *   enstprechenden (zum Teil neuen) Funktionen angesprochen werden.
+ *
  * Revision 1.18  2002/01/03 02:28:06  alex
  * - neue Funktion Client_CheckID(), diverse Aenderungen fuer Server-Links.
  *
@@ -81,6 +85,9 @@
  */
 
 
+#define __client_c__
+
+
 #include <portab.h>
 #include "global.h"
 
@@ -106,7 +113,7 @@
 #include <exp.h>
 
 
-LOCAL CLIENT *My_Clients;
+LOCAL CLIENT *This_Server, *My_Clients;
 LOCAL CHAR GetID_Buffer[CLIENT_ID_LEN];
 
 
@@ -135,7 +142,7 @@ GLOBAL VOID Client_Init( VOID )
 	h = gethostbyname( This_Server->host );
 	if( h ) strcpy( This_Server->host, h->h_name );
 
-	strcpy( This_Server->nick, Conf_ServerName );
+	strcpy( This_Server->id, Conf_ServerName );
 	strcpy( This_Server->info, Conf_ServerInfo );
 
 	My_Clients = This_Server;
@@ -162,29 +169,62 @@ GLOBAL VOID Client_Exit( VOID )
 } /* Client Exit */
 
 
-GLOBAL CLIENT *Client_NewLocal( CONN_ID Idx, CHAR *Hostname )
+GLOBAL CLIENT *Client_ThisServer( VOID )
 {
-	/* Neuen lokalen Client erzeugen. */
-	
+	return This_Server;
+} /* Client_ThisServer */
+
+
+GLOBAL CLIENT *Client_NewLocal( CONN_ID Idx, CHAR *Hostname, INT Type )
+{
+	/* Neuen lokalen Client erzeugen: Wrapper-Funktion fuer Client_New(). */
+	return Client_New( Idx, This_Server, Type, NULL, NULL, Hostname, NULL, 0, 0, NULL );
+} /* Client_NewLocal */
+
+
+GLOBAL CLIENT *Client_NewRemoteServer( CLIENT *Introducer, CHAR *Hostname, INT Hops, INT Token, CHAR *Info )
+{
+	/* Neuen Remote-Client erzeugen: Wrapper-Funktion fuer Client_New (). */
+	return Client_New( NONE, Introducer, CLIENT_SERVER, Hostname, NULL, Hostname, Info, Hops, Token, NULL );
+} /* Client_NewRemoteServer */
+
+
+GLOBAL CLIENT *Client_NewRemoteUser( CLIENT *Introducer, CHAR *Nick, INT Hops, CHAR *User, CHAR *Hostname, INT Token, CHAR *Modes, CHAR *Info )
+{
+	/* Neuen Remote-Client erzeugen: Wrapper-Funktion fuer Client_New (). */
+	return Client_New( NONE, Introducer, CLIENT_USER, Nick, User, Hostname, Info, Hops, Token, NULL );
+} /* Client_NewRemoteUser */
+
+
+GLOBAL CLIENT *Client_New( CONN_ID Idx, CLIENT *Introducer, INT Type, CHAR *ID, CHAR *User, CHAR *Hostname, CHAR *Info, INT Hops, INT Token, CHAR *Modes )
+{
 	CLIENT *client;
 
-	assert( Idx >= 0 );
+	assert( Idx >= NONE );
+	assert( Introducer != NULL );
 	assert( Hostname != NULL );
-	
+
 	client = New_Client_Struct( );
 	if( ! client ) return NULL;
 
 	/* Initialisieren */
 	client->conn_id = Idx;
-	client->introducer = This_Server;
-	Client_SetHostname( client, Hostname );
+	client->introducer = Introducer;
+	client->type = Type;
+	if( ID ) Client_SetID( client, ID );
+	if( User ) Client_SetUser( client, User );
+	if( Hostname ) Client_SetHostname( client, Hostname );
+	if( Info ) Client_SetInfo( client, Info );
+	client->hops = Hops;
+	client->token = Token;
+	if( Modes ) Client_SetModes( client, Modes );
 
 	/* Verketten */
 	client->next = My_Clients;
 	My_Clients = client;
-	
+
 	return client;
-} /* Client_NewLocal */
+} /* Client_New */
 
 
 GLOBAL VOID Client_Destroy( CLIENT *Client )
@@ -204,7 +244,7 @@ GLOBAL VOID Client_Destroy( CLIENT *Client )
 			if( last ) last->next = c->next;
 			else My_Clients = c->next;
 
-			if( c->type == CLIENT_USER ) Log( LOG_NOTICE, "User \"%s!%s@%s\" (%s) exited (connection %d).", c->nick, c->user, c->host, c->name, c->conn_id );
+			if( c->type == CLIENT_USER ) Log( LOG_NOTICE, "User \"%s!%s@%s\" exited (connection %d).", c->id, c->user, c->host, c->conn_id );
 
 			free( c );
 			break;
@@ -223,6 +263,137 @@ GLOBAL VOID Client_SetHostname( CLIENT *Client, CHAR *Hostname )
 	strncpy( Client->host, Hostname, CLIENT_HOST_LEN );
 	Client->host[CLIENT_HOST_LEN - 1] = '\0';
 } /* Client_SetHostname */
+
+
+GLOBAL VOID Client_SetID( CLIENT *Client, CHAR *ID )
+{
+	/* Hostname eines Clients setzen */
+
+	assert( Client != NULL );
+	strncpy( Client->id, ID, CLIENT_ID_LEN );
+	Client->id[CLIENT_ID_LEN - 1] = '\0';
+} /* Client_SetID */
+
+
+GLOBAL VOID Client_SetUser( CLIENT *Client, CHAR *User )
+{
+	/* Username eines Clients setzen */
+
+	assert( Client != NULL );
+	strncpy( Client->user, User, CLIENT_USER_LEN );
+	Client->user[CLIENT_USER_LEN - 1] = '\0';
+} /* Client_SetUser */
+
+
+GLOBAL VOID Client_SetInfo( CLIENT *Client, CHAR *Info )
+{
+	/* Hostname eines Clients setzen */
+
+	assert( Client != NULL );
+	strncpy( Client->info, Info, CLIENT_INFO_LEN );
+	Client->info[CLIENT_INFO_LEN - 1] = '\0';
+} /* Client_SetInfo */
+
+
+GLOBAL VOID Client_SetModes( CLIENT *Client, CHAR *Modes )
+{
+	/* Hostname eines Clients setzen */
+
+	assert( Client != NULL );
+	strncpy( Client->modes, Modes, CLIENT_MODE_LEN );
+	Client->info[CLIENT_MODE_LEN - 1] = '\0';
+} /* Client_SetModes */
+
+
+GLOBAL VOID Client_SetPassword( CLIENT *Client, CHAR *Pwd )
+{
+	/* Von einem Client geliefertes Passwort */
+
+	assert( Client != NULL );
+	strncpy( Client->pwd, Pwd, CLIENT_PASS_LEN );
+	Client->pwd[CLIENT_PASS_LEN - 1] = '\0';
+} /* Client_SetPassword */
+
+
+GLOBAL VOID Client_SetType( CLIENT *Client, INT Type )
+{
+	assert( Client != NULL );
+	Client->type = Type;
+} /* Client_SetType */
+
+
+GLOBAL VOID Client_SetHops( CLIENT *Client, INT Hops )
+{
+	assert( Client != NULL );
+	Client->hops = Hops;
+} /* Client_SetHops */
+
+
+GLOBAL VOID Client_SetToken( CLIENT *Client, INT Token )
+{
+	assert( Client != NULL );
+	Client->token = Token;
+} /* Client_SetToken */
+
+
+GLOBAL VOID Client_SetIntroducer( CLIENT *Client, CLIENT *Introducer )
+{
+	assert( Client != NULL );
+	Client->introducer = Introducer;
+} /* Client_SetIntroducer */
+
+
+GLOBAL VOID Client_SetOperByMe( CLIENT *Client, BOOLEAN OperByMe )
+{
+	assert( Client != NULL );
+	Client->oper_by_me = OperByMe;
+} /* Client_SetOperByMe */
+
+
+GLOBAL BOOLEAN Client_ModeAdd( CLIENT *Client, CHAR Mode )
+{
+	/* Mode soll gesetzt werden. TRUE wird geliefert, wenn der
+	 * Mode neu gesetzt wurde, FALSE, wenn der Client den Mode
+	 * bereits hatte. */
+
+	CHAR x[2];
+	
+	assert( Client != NULL );
+
+	x[0] = Mode; x[1] = '\0';
+	if( ! strchr( Client->modes, x[0] ))
+	{
+		/* Client hat den Mode noch nicht -> setzen */
+		strcat( Client->modes, x );
+		return TRUE;
+	}
+	else return FALSE;
+} /* Client_ModeAdd */
+
+
+GLOBAL BOOLEAN Client_ModeDel( CLIENT *Client, CHAR Mode )
+{
+	/* Mode soll geloescht werden. TRUE wird geliefert, wenn der
+	* Mode entfernt wurde, FALSE, wenn der Client den Mode
+	* ueberhaupt nicht hatte. */
+
+	CHAR x[2], *p;
+
+	assert( Client != NULL );
+
+	x[0] = Mode; x[1] = '\0';
+
+	p = strchr( Client->modes, x[0] );
+	if( ! p ) return FALSE;
+
+	/* Client hat den Mode -> loeschen */
+	while( *p )
+	{
+		*p = *(p + 1);
+		p++;
+	}
+	return TRUE;
+} /* Client_ModeDel */
 
 
 GLOBAL CLIENT *Client_GetFromConn( CONN_ID Idx )
@@ -244,7 +415,7 @@ GLOBAL CLIENT *Client_GetFromConn( CONN_ID Idx )
 } /* Client_GetFromConn */
 
 
-GLOBAL CLIENT *Client_GetFromNick( CHAR *Nick )
+GLOBAL CLIENT *Client_GetFromID( CHAR *Nick )
 {
 	/* Client-Struktur, die den entsprechenden Nick hat,
 	* liefern. Wird keine gefunden, so wird NULL geliefert. */
@@ -256,20 +427,140 @@ GLOBAL CLIENT *Client_GetFromNick( CHAR *Nick )
 	c = My_Clients;
 	while( c )
 	{
-		if( strcasecmp( c->nick, Nick ) == 0 ) return c;
+		if( strcasecmp( c->id, Nick ) == 0 ) return c;
 		c = c->next;
 	}
 	return NULL;
-} /* Client_GetFromNick */
+} /* Client_GetFromID */
 
 
-GLOBAL CHAR *Client_Nick( CLIENT *Client )
+GLOBAL CLIENT *Client_GetFromToken( CLIENT *Client, INT Token )
+{
+	/* Client-Struktur, die den entsprechenden Introducer (=Client)
+	 * und das gegebene Token hat, liefern. Wird keine gefunden,
+	 * so wird NULL geliefert. */
+
+	CLIENT *c;
+
+	assert( Client != NULL );
+	assert( Token > 0 );
+
+	c = My_Clients;
+	while( c )
+	{
+		if(( c->type == CLIENT_SERVER ) && ( c->introducer == Client ) && ( c->token == Token )) return c;
+		c = c->next;
+	}
+	return NULL;
+} /* Client_GetFromToken */
+
+
+GLOBAL INT Client_Type( CLIENT *Client )
+{
+	assert( Client != NULL );
+	return Client->type;
+} /* Client_Type */
+
+
+GLOBAL CONN_ID Client_Conn( CLIENT *Client )
+{
+	assert( Client != NULL );
+	return Client->conn_id;
+} /* Client_Conn */
+
+
+GLOBAL CHAR *Client_ID( CLIENT *Client )
 {
 	assert( Client != NULL );
 
-	if( Client->nick[0] ) return Client->nick;
+	if( Client->id[0] ) return Client->id;
 	else return "*";
-} /* Client_Name */
+} /* Client_ID */
+
+
+GLOBAL CHAR *Client_Info( CLIENT *Client )
+{
+	assert( Client != NULL );
+	return Client->info;
+} /* Client_Info */
+
+
+GLOBAL CHAR *Client_User( CLIENT *Client )
+{
+	assert( Client != NULL );
+	if( Client->user ) return Client->user;
+	else return "~";
+} /* Client_User */
+
+
+GLOBAL CHAR *Client_Hostname( CLIENT *Client )
+{
+	assert( Client != NULL );
+	return Client->host;
+} /* Client_Hostname */
+
+
+GLOBAL CHAR *Client_Password( CLIENT *Client )
+{
+	assert( Client != NULL );
+	return Client->pwd;
+} /* Client_Password */
+
+
+GLOBAL CHAR *Client_Modes( CLIENT *Client )
+{
+	assert( Client != NULL );
+	return Client->modes;
+} /* Client_Modes */
+
+
+GLOBAL BOOLEAN Client_OperByMe( CLIENT *Client )
+{
+	assert( Client != NULL );
+	return Client->oper_by_me;
+} /* Client_OperByMe */
+
+
+GLOBAL INT Client_Hops( CLIENT *Client )
+{
+	assert( Client != NULL );
+	return Client->hops;
+} /* Client_Hops */
+
+
+GLOBAL INT Client_Token( CLIENT *Client )
+{
+	assert( Client != NULL );
+	return Client->token;
+} /* Client_Token */
+
+
+GLOBAL CHAR *Client_Mask( CLIENT *Client )
+{
+	/* Client-"ID" liefern, wie sie z.B. fuer
+	 * Prefixe benoetigt wird. */
+
+	assert( Client != NULL );
+	
+	if( Client->type == CLIENT_SERVER ) return Client->id;
+
+	sprintf( GetID_Buffer, "%s!%s@%s", Client->id, Client->user, Client->host );
+	return GetID_Buffer;
+} /* Client_Mask */
+
+
+GLOBAL CLIENT *Client_Introducer( CLIENT *Client )
+{
+	assert( Client != NULL );
+	return Client->introducer;
+} /* Client_Introducer */
+
+
+GLOBAL BOOLEAN Client_HasMode( CLIENT *Client, CHAR Mode )
+{
+	assert( Client != NULL );
+	return strchr( Client->modes, Mode ) != NULL;
+} /* Client_HasMode */
 
 
 GLOBAL BOOLEAN Client_CheckNick( CLIENT *Client, CHAR *Nick )
@@ -282,16 +573,16 @@ GLOBAL BOOLEAN Client_CheckNick( CLIENT *Client, CHAR *Nick )
 	assert( Nick != NULL );
 	
 	/* Nick zu lang? */
-	if( strlen( Nick ) > CLIENT_NICK_LEN ) return IRC_WriteStrClient( Client, This_Server, ERR_ERRONEUSNICKNAME_MSG, Client_Nick( Client ), Nick );
+	if( strlen( Nick ) > CLIENT_NICK_LEN ) return IRC_WriteStrClient( Client, This_Server, ERR_ERRONEUSNICKNAME_MSG, Client_ID( Client ), Nick );
 
 	/* Nick bereits vergeben? */
 	c = My_Clients;
 	while( c )
 	{
-		if( strcasecmp( c->nick, Nick ) == 0 )
+		if( strcasecmp( c->id, Nick ) == 0 )
 		{
 			/* den Nick gibt es bereits */
-			IRC_WriteStrClient( Client, This_Server, ERR_NICKNAMEINUSE_MSG, Client_Nick( Client ), Nick );
+			IRC_WriteStrClient( Client, This_Server, ERR_NICKNAMEINUSE_MSG, Client_ID( Client ), Nick );
 			return FALSE;
 		}
 		c = c->next;
@@ -313,17 +604,17 @@ GLOBAL BOOLEAN Client_CheckID( CLIENT *Client, CHAR *ID )
 	assert( ID != NULL );
 
 	/* Nick zu lang? */
-	if( strlen( ID ) > CLIENT_ID_LEN ) return IRC_WriteStrClient( Client, This_Server, ERR_ERRONEUSNICKNAME_MSG, Client_Nick( Client ), ID );
+	if( strlen( ID ) > CLIENT_ID_LEN ) return IRC_WriteStrClient( Client, This_Server, ERR_ERRONEUSNICKNAME_MSG, Client_ID( Client ), ID );
 
 	/* ID bereits vergeben? */
 	c = My_Clients;
 	while( c )
 	{
-		if( strcasecmp( c->nick, ID ) == 0 )
+		if( strcasecmp( c->id, ID ) == 0 )
 		{
 			/* die Server-ID gibt es bereits */
 			sprintf( str, "ID \"%s\" already registered!", ID );
-			Log( LOG_ALERT, "%s (detected on connection %d)", str, Client->conn_id );
+			Log( LOG_ALERT, "%s (on connection %d)", str, Client->conn_id );
 			Conn_Close( Client->conn_id, str );
 			return FALSE;
 		}
@@ -332,20 +623,6 @@ GLOBAL BOOLEAN Client_CheckID( CLIENT *Client, CHAR *ID )
 
 	return TRUE;
 } /* Client_CheckID */
-
-
-GLOBAL CHAR *Client_GetID( CLIENT *Client )
-{
-	/* Client-"ID" liefern, wie sie z.B. fuer
-	 * Prefixe benoetigt wird. */
-
-	assert( Client != NULL );
-	
-	if( Client->type == CLIENT_SERVER ) return Client->nick;
-
-	sprintf( GetID_Buffer, "%s!%s@%s", Client->nick, Client->user, Client->host );
-	return GetID_Buffer;
-} /* Client_GetID */
 
 
 GLOBAL CLIENT *Client_Search( CHAR *ID )
@@ -359,7 +636,7 @@ GLOBAL CLIENT *Client_Search( CHAR *ID )
 	c = My_Clients;
 	while( c )
 	{
-		if( strcasecmp( c->nick, ID ) == 0 ) return c;
+		if( strcasecmp( c->id, ID ) == 0 ) return c;
 		c = c->next;
 	}
 	
@@ -403,15 +680,16 @@ LOCAL CLIENT *New_Client_Struct( VOID )
 	c->type = CLIENT_UNKNOWN;
 	c->conn_id = NONE;
 	c->introducer = NULL;
-	strcpy( c->nick, "" );
-	strcpy( c->pass, "" );
+	strcpy( c->id, "" );
+	strcpy( c->pwd, "" );
 	strcpy( c->host, "" );
 	strcpy( c->user, "" );
-	strcpy( c->name, "" );
 	strcpy( c->info, "" );
 	for( i = 0; i < MAX_CHANNELS; c->channels[i++] = NULL );
 	strcpy( c->modes, "" );
 	c->oper_by_me = FALSE;
+	c->hops = -1;
+	c->token = -1;
 
 	return c;
 } /* New_Client */

@@ -9,14 +9,16 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-mode.c,v 1.1 2002/02/27 23:26:21 alex Exp $
+ * $Id: irc-mode.c,v 1.2 2002/03/04 01:06:24 alex Exp $
  *
  * irc-mode.c: IRC-Befehle zur Mode-Aenderung (MODE, AWAY, ...)
  *
  * $Log: irc-mode.c,v $
+ * Revision 1.2  2002/03/04 01:06:24  alex
+ * - der AWAY-Mode wurde nicht ueber mehrere Server-Links weitergegeben.
+ *
  * Revision 1.1  2002/02/27 23:26:21  alex
  * - Modul aus irc.c bzw. irc.h ausgegliedert.
- *
  */
 
 
@@ -132,14 +134,6 @@ GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req )
 			/* Befehl kommt von einem Server, daher
 			 * trauen wir ihm "unbesehen" ... */
 			x[0] = *mode_ptr;
-
-			if(( cl ) && ( x[0] == 'a' ))
-			{
-				/* away */
-				if( set ) Client_SetAway( cl, "Away" );
-				else Client_SetAway( cl, NULL );
-			}
-			
 		}
 		else
 		{
@@ -257,11 +251,20 @@ GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req )
 			{
 				/* Mode setzen. Wenn der Client ihn noch nicht hatte: merken */
 				if( Client_ModeAdd( cl, x[0] )) strcat( the_modes, x );
+				
 			}
 			else
 			{
 				/* Modes geloescht. Wenn der Client ihn hatte: merken */
 				if( Client_ModeDel( cl, x[0] )) strcat( the_modes, x );
+			}
+
+			/* "nachbearbeiten" */
+			if( x[0] == 'a' )
+			{
+				/* away */
+				if( set ) Client_SetAway( cl, DEFAULT_AWAY_MSG );
+				else Client_SetAway( cl, NULL );
 			}
 		}
 		if( chan )

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.15 2001/12/31 15:33:13 alex Exp $
+ * $Id: client.c,v 1.16 2002/01/01 18:25:44 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,9 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.16  2002/01/01 18:25:44  alex
+ * - #include's fuer stdlib.h ergaenzt.
+ *
  * Revision 1.15  2001/12/31 15:33:13  alex
  * - neuer Befehl NAMES, kleinere Bugfixes.
  * - Bug bei PING behoben: war zu restriktiv implementiert :-)
@@ -79,6 +82,7 @@
 #include <assert.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <netdb.h>
 

@@ -8,7 +8,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: configure.in,v 1.95 2003/10/19 23:03:34 alex Exp $
+# $Id: configure.in,v 1.96 2003/11/04 00:41:07 alex Exp $
 #
 
 # -- Initialisierung --
@@ -271,7 +271,7 @@ if test "$GCC" = "yes"; then
 	ansi=" -ansi"
 	pedantic=" -pedantic"
 
-	$CC --version | grep 20020420 > /dev/null 2>&1
+	$CC --version | grep 20020420 >/dev/null 2>&1
 	if test $? -eq 0; then
 		# Mac OS X (and Darwin?) ship with a slightly broken
 		# prerelease of GCC 3.1 which don't like -pedantic:
@@ -279,7 +279,16 @@ if test "$GCC" = "yes"; then
 		pedantic=""
 	fi
 
-	uname | grep "CYGWIN" > /dev/null 2>&1
+	$CC --version | grep 20030304 >/dev/null 2>&1
+	if test $? -eq 0; then
+		# Mac OS X 10.3 (and Darwin 7.0?) have a strange gcc (or
+		# system header files?) which produces lots of errors when
+		# using -ansi; so we don't =:-)
+		AC_MSG_RESULT([detected broken GNU C compiler, disabling "-ansi"])
+		ansi=""
+	fi
+
+	uname | grep "CYGWIN" >/dev/null 2>&1
 	if test $? -eq 0; then
 		# The include files of Cygwin don't like -ansi,
 		# so we disable it:

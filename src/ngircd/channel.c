@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: channel.c,v 1.37 2002/12/14 13:21:56 alex Exp $";
+static char UNUSED id[] = "$Id: channel.c,v 1.38 2002/12/16 23:05:24 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -350,6 +350,22 @@ Channel_Modes( CHANNEL *Chan )
 } /* Channel_Modes */
 
 
+GLOBAL CHAR *
+Channel_Key( CHANNEL *Chan )
+{
+	assert( Chan != NULL );
+	return Chan->key;
+} /* Channel_Key */
+
+
+GLOBAL LONG
+Channel_MaxUsers( CHANNEL *Chan )
+{
+	assert( Chan != NULL );
+	return Chan->maxusers;
+} /* Channel_MaxUsers */
+
+
 GLOBAL CHANNEL *
 Channel_First( VOID )
 {
@@ -629,6 +645,27 @@ Channel_SetModes( CHANNEL *Chan, CHAR *Modes )
 } /* Channel_SetModes */
 
 
+GLOBAL VOID
+Channel_SetKey( CHANNEL *Chan, CHAR *Key )
+{
+	assert( Chan != NULL );
+	assert( Key != NULL );
+
+	strncpy( Chan->key, Key, CLIENT_PASS_LEN - 1 );
+	Chan->key[CLIENT_PASS_LEN - 1] = '\0';
+	Log( LOG_DEBUG, "Channel %s: Key is now \"%s\".", Chan->name, Chan->key );
+} /* Channel_SetKey */
+
+
+GLOBAL VOID
+Channel_SetMaxUsers( CHANNEL *Chan, LONG Count )
+{
+	assert( Chan != NULL );
+
+	Chan->maxusers = Count;
+	Log( LOG_DEBUG, "Channel %s: Member limit is now %ld.", Chan->name, Chan->maxusers );
+} /* Channel_SetMaxUsers */
+
 
 GLOBAL BOOLEAN
 Channel_Write( CHANNEL *Chan, CLIENT *From, CLIENT *Client, CHAR *Text )
@@ -678,6 +715,8 @@ Channel_Create( CHAR *Name )
 	strcpy( c->modes, "" );
 	strcpy( c->topic, "" );
 	c->hash = Hash( c->name );
+	strcpy( c->key, "" );
+	c->maxusers = 0;
 
 	/* Verketten */
 	c->next = My_Channels;

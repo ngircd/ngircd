@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: channel.c,v 1.26 2002/06/01 15:55:17 alex Exp $
+ * $Id: channel.c,v 1.27 2002/06/02 17:13:07 alex Exp $
  *
  * channel.c: Management der Channels
  */
@@ -63,14 +63,20 @@ LOCAL BOOLEAN Delete_Channel PARAMS(( CHANNEL *Chan ));
 GLOBAL VOID
 Channel_Init( VOID )
 {
+	My_Channels = NULL;
+	My_Cl2Chan = NULL;
+} /* Channel_Init */
+
+
+GLOBAL VOID
+Channel_InitPredefined( VOID )
+{
+	/* Vordefinierte persistente Channels erzeugen */
+
 	CHANNEL *chan;
 	CHAR *c;
 	INT i;
 	
-	My_Channels = NULL;
-	My_Cl2Chan = NULL;
-
-	/* Vordefinierte persistente Channels erzeugen */
 	for( i = 0; i < Conf_Channel_Count; i++ )
 	{
 		/* Ist ein Name konfiguriert? */
@@ -98,7 +104,7 @@ Channel_Init( VOID )
 		}
 		else Log( LOG_ERR, "Can't create pre-defined channel \"%s\"!", Conf_Channel[i].name );
 	}
-} /* Channel_Init */
+} /* Channel_InitPredefined */
 
 
 GLOBAL VOID

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: channel.h,v 1.19 2002/06/01 14:36:05 alex Exp $
+ * $Id: channel.h,v 1.20 2002/06/02 17:13:07 alex Exp $
  *
  * channel.h: Management der Channels (Header)
  */
@@ -49,6 +49,7 @@ typedef POINTER CL2CHAN;
 
 
 GLOBAL VOID Channel_Init PARAMS((VOID ));
+GLOBAL VOID Channel_InitPredefined PARAMS(( VOID ));
 GLOBAL VOID Channel_Exit PARAMS((VOID ));
 
 GLOBAL BOOLEAN Channel_Join PARAMS((CLIENT *Client, CHAR *Name ));

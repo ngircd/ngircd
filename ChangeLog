@@ -32,6 +32,8 @@ ngIRCd CVS-HEAD
   - RPL_YOURHOST_MSG ist nun ircII- und RFC-kompatibel ;-)
   - Segfault unter hoher Netzaktivitaet behoben: in Conn_Close() wird die
     Connection-Struktur nun frueher als "ungueltig" markiert.
+  - Connection-Strukturen werden nun "pool-weise" verwaltet; der Pool wird
+    bei Bedarf bis zu einem konfigurierten Limit vergroessert.
 
 ngIRCd 0.5.2, 04.10.2002
 
@@ -306,4 +308,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.109 2002/10/14 22:53:41 alex Exp $
+$Id: ChangeLog,v 1.110 2002/11/02 23:01:27 alex Exp $

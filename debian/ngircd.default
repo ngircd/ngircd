@@ -1,0 +1,12 @@
+#
+# Defaults for ngIRCd start and stop script
+#
+# $Id: ngircd.default,v 1.1.2.1 2003/07/12 18:23:24 alex Exp $
+#
+
+# Parameters to pass to the ngircd daemon on startup, see ngircd(8) for
+# possible options (default: empty).
+
+PARAMS=""
+
+# -eof-

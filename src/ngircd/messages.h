@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: messages.h,v 1.53 2002/11/22 23:08:04 alex Exp $
+ * $Id: messages.h,v 1.54 2002/11/24 18:45:31 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  */
@@ -71,6 +71,7 @@
 #define RPL_MOTDSTART_MSG		"375 %s :- %s message of the day"
 #define RPL_ENDOFMOTD_MSG		"376 %s :End of MOTD command"
 #define RPL_YOUREOPER_MSG		"381 %s :You are now an IRC Operator"
+#define RPL_TIME_MSG			"391 %s %s :%s"
 
 #define ERR_NOSUCHNICK_MSG		"401 %s %s :No such nick or channel name"
 #define ERR_NOSUCHSERVER_MSG		"402 %s %s :No such server"

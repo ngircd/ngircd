@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.59 2002/06/10 21:09:39 alex Exp $
+ * $Id: client.c,v 1.60 2002/09/03 18:54:31 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -353,7 +353,7 @@ Client_SetInfo( CLIENT *Client, CHAR *Info )
 GLOBAL VOID
 Client_SetModes( CLIENT *Client, CHAR *Modes )
 {
-	/* Hostname eines Clients setzen */
+	/* Modes eines Clients setzen */
 
 	assert( Client != NULL );
 	assert( Modes != NULL );
@@ -361,6 +361,19 @@ Client_SetModes( CLIENT *Client, CHAR *Modes )
 	strncpy( Client->modes, Modes, CLIENT_MODE_LEN - 1 );
 	Client->modes[CLIENT_MODE_LEN - 1] = '\0';
 } /* Client_SetModes */
+
+
+GLOBAL VOID
+Client_SetFlags( CLIENT *Client, CHAR *Flags )
+{
+	/* Flags eines Clients setzen */
+
+	assert( Client != NULL );
+	assert( Flags != NULL );
+
+	strncpy( Client->flags, Flags, CLIENT_FLAGS_LEN - 1 );
+	Client->modes[CLIENT_FLAGS_LEN - 1] = '\0';
+} /* Client_SetFlags */
 
 
 GLOBAL VOID
@@ -635,6 +648,14 @@ Client_Modes( CLIENT *Client )
 	assert( Client != NULL );
 	return Client->modes;
 } /* Client_Modes */
+
+
+GLOBAL CHAR *
+Client_Flags( CLIENT *Client )
+{
+	assert( Client != NULL );
+	return Client->flags;
+} /* Client_Flags */
 
 
 GLOBAL BOOLEAN
@@ -994,6 +1015,7 @@ New_Client_Struct( VOID )
 	c->token = -1;
 	c->mytoken = -1;
 	strcpy( c->away, "" );
+	strcpy( c->flags, "" );
 
 	return c;
 } /* New_Client */

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.20 2001/12/29 22:09:43 alex Exp $
+ * $Id: conn.c,v 1.21 2001/12/29 22:33:36 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
+ * Revision 1.21  2001/12/29 22:33:36  alex
+ * - bessere Dokumentation des Modules bzw. der Funktionen.
+ *
  * Revision 1.20  2001/12/29 22:09:43  alex
  * - kleinere Aenderungen ("clean-ups") bei Logging (Resolver).
  *
@@ -178,6 +181,8 @@ LOCAL CONNECTION My_Connections[MAX_CONNECTIONS];
 
 GLOBAL VOID Conn_Init( VOID )
 {
+	/* Modul initialisieren: statische Strukturen "ausnullen". */
+
 	CONN_ID i;
 
 	/* zu Beginn haben wir keine Verbindungen */
@@ -194,6 +199,9 @@ GLOBAL VOID Conn_Init( VOID )
 
 GLOBAL VOID Conn_Exit( VOID )
 {
+	/* Modul abmelden: alle noch offenen Connections
+	 * schliessen und freigeben. */
+
 	CONN_ID idx;
 	INT i;
 
@@ -224,8 +232,9 @@ GLOBAL VOID Conn_Exit( VOID )
 
 GLOBAL BOOLEAN Conn_NewListener( CONST INT Port )
 {
-	/* Neuen Listen-Socket erzeugen: der Server wartet dann
-	 * auf dem angegebenen Port auf Verbindungen. */
+	/* Neuen Listen-Socket erzeugen: der Server wartet dann auf
+	 * dem angegebenen Port auf Verbindungen. Kann der Listen-
+	 * Socket nicht erteugt werden, so wird NULL geliefert.*/
 
 	struct sockaddr_in addr;
 	INT sock, on = 1;
@@ -287,6 +296,16 @@ GLOBAL BOOLEAN Conn_NewListener( CONST INT Port )
 
 GLOBAL VOID Conn_Handler( INT Timeout )
 {
+	/* Aktive Verbindungen ueberwachen. Mindestens alle "Timeout"
+	 * Sekunden wird die Funktion verlassen. Folgende Aktionen
+	 * werden durchgefuehrt:
+	 *  - neue Verbindungen annehmen,
+	 *  - geschlossene Verbindungen loeschen,
+	 *  - volle Schreibpuffer versuchen zu schreiben,
+	 *  - volle Lesepuffer versuchen zu verarbeiten,
+	 *  - Antworten von Resolver Sub-Prozessen annehmen.
+	 */
+
 	fd_set read_sockets, write_sockets;
 	struct timeval tv;
 	time_t start;
@@ -435,7 +454,8 @@ GLOBAL BOOLEAN Conn_Write( CONN_ID Idx, CHAR *Data, INT Len )
 
 GLOBAL VOID Conn_Close( CONN_ID Idx, CHAR *Msg )
 {
-	/* Verbindung schliessen */
+	/* Verbindung schliessen. Evtl. noch von Resolver
+	 * Sub-Prozessen offene Pipes werden geschlossen. */
 
 	assert( Idx >= 0 );
 	assert( My_Connections[Idx].sock >= 0 );
@@ -499,7 +519,10 @@ LOCAL BOOLEAN Try_Write( CONN_ID Idx )
 
 LOCAL VOID Handle_Read( INT Sock )
 {
-	/* Aktivitaet auf einem Socket verarbeiten */
+	/* Aktivitaet auf einem Socket verarbeiten:
+	 *  - neue Clients annehmen,
+	 *  - Daten von Clients verarbeiten,
+	 *  - Resolver-Rueckmeldungen annehmen. */
 
 	CONN_ID idx;
 
@@ -687,6 +710,8 @@ LOCAL VOID Read_Request( CONN_ID Idx )
 
 LOCAL VOID Handle_Buffer( CONN_ID Idx )
 {
+	/* Daten im Lese-Puffer einer Verbindung verarbeiten. */
+
 	CHAR *ptr, *ptr1, *ptr2;
 	INT len, delta;
 	
@@ -727,7 +752,9 @@ LOCAL VOID Handle_Buffer( CONN_ID Idx )
 
 LOCAL VOID Check_Connections( VOID )
 {
-	/* Pruefen, ob Verbindungen noch "alive" sind */
+	/* Pruefen, ob Verbindungen noch "alive" sind. Ist dies
+	 * nicht der Fall, zunaechst PING-PONG spielen und, wenn
+	 * auch das nicht "hilft", Client disconnectieren. */
 
 	INT i;
 
@@ -782,6 +809,7 @@ LOCAL RES_STAT *Resolve( struct sockaddr_in *Addr )
 	RES_STAT *s;
 	INT pid;
 
+	/* Speicher anfordern */
 	s = malloc( sizeof( RES_STAT ));
 	if( ! s )
 	{
@@ -789,6 +817,7 @@ LOCAL RES_STAT *Resolve( struct sockaddr_in *Addr )
 		return NULL;
 	}
 
+	/* Pipe fuer Antwort initialisieren */
 	if( pipe( s->pipe ) != 0 )
 	{
 		free( s );
@@ -796,11 +825,12 @@ LOCAL RES_STAT *Resolve( struct sockaddr_in *Addr )
 		return NULL;
 	}
 
+	/* Sub-Prozess erzeugen */
 	pid = fork( );
 	if( pid > 0 )
 	{
 		/* Haupt-Prozess */
-		Log( LOG_DEBUG, "Resolver process for %s created (PID %d).", inet_ntoa( Addr->sin_addr ), pid );
+		Log( LOG_DEBUG, "Resolver for %s created (PID %d).", inet_ntoa( Addr->sin_addr ), pid );
 		FD_SET( s->pipe[0], &My_Resolvers );
 		if( s->pipe[0] > My_Max_Fd ) My_Max_Fd = s->pipe[0];
 		s->pid = pid;
@@ -844,9 +874,9 @@ LOCAL VOID Read_Resolver_Result( INT r_fd )
 		return;
 	}
 
+	/* zugehoerige Connection suchen */
 	for( i = 0; i < MAX_CONNECTIONS; i++ )
 	{
-		/* zugehoerige Connection suchen */
 		if(( My_Connections[i].sock >= 0 ) && ( My_Connections[i].res_stat ) && ( My_Connections[i].res_stat->pipe[0] == r_fd )) break;
 	}
 

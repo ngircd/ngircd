@@ -9,9 +9,12 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: acconfig.h,v 1.3 2001/12/25 22:01:47 alex Exp $
+ * $Id: acconfig.h,v 1.4 2001/12/27 01:44:49 alex Exp $
  *
  * $Log: acconfig.h,v $
+ * Revision 1.4  2001/12/27 01:44:49  alex
+ * - die Verwendung von syslog kann nun abgeschaltet werden.
+ *
  * Revision 1.3  2001/12/25 22:01:47  alex
  * - neue configure-Option "--enable-sniffer".
  *
@@ -28,6 +31,8 @@
 #undef DEBUG
 
 #undef SNIFFER
+
+#undef USE_SYSLOG
 
 
 /* -eof- */

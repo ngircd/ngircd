@@ -9,9 +9,12 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: configure.in,v 1.7 2001/12/27 00:37:07 alex Exp $
+# $Id: configure.in,v 1.8 2001/12/27 01:44:49 alex Exp $
 #
 # $Log: configure.in,v $
+# Revision 1.8  2001/12/27 01:44:49  alex
+# - die Verwendung von syslog kann nun abgeschaltet werden.
+#
 # Revision 1.7  2001/12/27 00:37:07  alex
 # - Erkennung der "portab header" geaendert, CFLAGS werden nun anders gesetzt.
 #
@@ -52,12 +55,17 @@ AC_LANG_C
 
 # -- Hilfsprogramme --
 
+AC_PROG_AWK
+AC_PROG_INSTALL
+AC_PROG_LN_S
 AC_PROG_MAKE_SET
 AC_PROG_RANLIB
 
 # -- Header --
 
 AC_HEADER_STDC
+
+AC_HEADER_TIME
 
 AC_CHECK_HEADER(portab.h,[
 	AC_CHECK_HEADER(imp.h,,AC_MSG_ERROR([Alex \"portability headers\" (portab.h an friends) not found!]))
@@ -69,9 +77,10 @@ AC_CHECK_HEADER(portab.h,[
 	CFLAGS="$CFLAGS -I/usr/local/include"
 ])
 
-AC_CHECK_HEADERS([netinet/in.h sys/socket.h],,[required C headers missing!])
-
-AC_CHECK_HEADERS([stdint.h])
+AC_CHECK_HEADERS([ \
+	arpa/inet.h errno.h fcntl.h netinet/in.h stdint.h string.h \
+	sys/socket.h sys/time.h unistd.h \
+	],,[required C header missing!])
 
 # -- Datentypen --
 
@@ -90,11 +99,28 @@ AC_TRY_COMPILE([
 
 # -- Funktionen --
 
-AC_CHECK_FUNCS([socket],,[required functions missing!])
+AC_FUNC_MALLOC
+
+AC_CHECK_FUNCS([ \
+	gethostname inet_ntoa memmove memset select \
+	socket strcasecmp strchr strerror strstr \
+	],,[required function missing!])
 
 # -- Libraries --
 
 # -- Konfigurationsoptionen --
+
+AC_ARG_ENABLE(syslog,
+	[  --disable-syslog        disable syslog (autodetected by default)],
+	[	if test "$enableval" = "yes"; then
+			AC_CHECK_HEADER(syslog.h,AC_DEFINE(USE_SYSLOG, 1),AC_MSG_ERROR([Can't enable syslog: syslog.h not found!]))
+		else
+			AC_MSG_RESULT([disabling syslog])
+		fi
+	],
+	[	AC_CHECK_HEADER(syslog.h,AC_DEFINE(USE_SYSLOG, 1))
+	]
+)
 
 AC_ARG_ENABLE(debug,
 	[  --enable-debug          show additional debug output],

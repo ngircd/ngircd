@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: log.h,v 1.3 2001/12/12 23:31:24 alex Exp $
+ * $Id: log.h,v 1.4 2001/12/27 01:44:49 alex Exp $
  *
  * log.h: Logging-Funktionen (Header)
  *
  * $Log: log.h,v $
+ * Revision 1.4  2001/12/27 01:44:49  alex
+ * - die Verwendung von syslog kann nun abgeschaltet werden.
+ *
  * Revision 1.3  2001/12/12 23:31:24  alex
  * - Zum Loggen wird nun auch syslog verwendet.
  *
@@ -29,7 +32,18 @@
 #define __log_h__
 
 
-#include <syslog.h>
+#ifdef USE_SYSLOG
+#	include <syslog.h>
+#else
+#	define LOG_EMERG 0
+#	define LOG_ALERT 1
+#	define LOG_CRIT 2
+#	define LOG_ERR 3
+#	define LOG_WARNING 4
+#	define LOG_NOTICE 5
+#	define LOG_INFO 6
+#	define LOG_DEBUG 7
+#endif
 
 
 GLOBAL VOID Log_Init( VOID );

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: log.c,v 1.9 2001/12/26 03:22:16 alex Exp $
+ * $Id: log.c,v 1.10 2001/12/27 01:44:49 alex Exp $
  *
  * log.c: Logging-Funktionen
  *
  * $Log: log.c,v $
+ * Revision 1.10  2001/12/27 01:44:49  alex
+ * - die Verwendung von syslog kann nun abgeschaltet werden.
+ *
  * Revision 1.9  2001/12/26 03:22:16  alex
  * - string.h wird nun includiert.
  *
@@ -54,7 +57,10 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
+
+#ifdef USE_SYSLOG
 #include <syslog.h>
+#endif
 
 #include <exp.h>
 #include "log.h"
@@ -66,6 +72,11 @@ GLOBAL VOID Log_Init( VOID )
 
 	strcpy( txt, "" );
 
+#ifdef USE_SYSLOG
+	if( txt[0] ) strcat( txt, "+" );
+	else strcat( txt, "-" );
+	strcat( txt, "SYSLOG" );
+#endif
 #ifdef DEBUG
 	if( txt[0] ) strcat( txt, "+" );
 	else strcat( txt, "-" );
@@ -77,7 +88,9 @@ GLOBAL VOID Log_Init( VOID )
 	strcat( txt, "SNIFFER" );
 #endif
 
+#ifdef USE_SYSLOG
 	openlog( PACKAGE, LOG_CONS|LOG_PID, LOG_LOCAL5 );
+#endif
 	Log( LOG_NOTICE, PACKAGE" version "VERSION"%s started.", txt );
 } /* Log_Init */
 
@@ -85,7 +98,9 @@ GLOBAL VOID Log_Init( VOID )
 GLOBAL VOID Log_Exit( VOID )
 {
 	Log( LOG_NOTICE, PACKAGE" done.");
+#ifdef USE_SYSLOG
 	closelog( );
+#endif
 } /* Log_Exit */
 
 
@@ -109,7 +124,9 @@ GLOBAL VOID Log( CONST INT Level, CONST CHAR *Format, ... )
 
 	/* ... und ausgeben */
 	printf( "[%d] %s\n", Level, msg );
+#ifdef USE_SYSLOG
 	syslog( Level, msg );
+#endif
 
 	va_end( ap );
 } /* Log */

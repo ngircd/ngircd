@@ -1,6 +1,7 @@
+
                      ngIRCd - Next Generation IRC Server
 
-                      (c)2001,2002 by Alexander Barton,
+                      (c)2001-2003 by Alexander Barton,
                     alex@barton.de, http://www.barton.de/
 
                ngIRCd is free software and published under the
@@ -21,7 +22,6 @@ generation IRC daemon", it's written from scratch and not deduced from the
 "grandfather of IRC daemons", the daemon of the IRCNet.
 
 
-
 II. Status
 ~~~~~~~~~~~
 
@@ -30,18 +30,18 @@ implemented, some only partly.
 
 Till today (more or less complete) implemented IRC-commands:
 
-ADMIN, AWAY, CHANINFO, CONNECT, DIE, ERROR, INVITE, ISON, JOIN, KICK, KILL,
-LINKS, LIST, LUSERS, MODE, MOTD, NAMES, NICK, NJOIN, NOTICE, OPER, PART,
-PASS, PING, PONG, PRIVMSG, QUIT, RESTART, SERVER, SQUIT, TIME, TOPIC,
-USERHOST, USER, VERSION, WHO, WHOIS.
+ADMIN, AWAY, CHANINFO, CONNECT, DIE, DISCONNECT, ERROR, HELP, INVITE, ISON,
+JOIN, KICK, KILL, LINKS, LIST, LUSERS, MODE, MOTD, NAMES, NICK, NJOIN,
+NOTICE, OPER, PART, PASS, PING, PONG, PRIVMSG, QUIT, REHASH, RESTART, SERVER,
+SQUIT, STATS, TIME, TOPIC, TRACE, USER, USERHOST, VERSION, WHO, WHOIS.
 
 
 III. Features (or: why use ngIRCd?)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- no problems with servers which have dynamic ip-adresses
+- no problems with servers which have dynamic IP addresses
 - simple, easy understandable configuration file,
-- freely published C-Sourcecode,
+- freely published open-source C sourcecode,
 - ngIRCd will be developed on in the future.
 - supported platforms (tested versions): AIX (3.2.5), A/UX (3.0.1), FreeBSD
   (4.5), HP-UX (10.20), IRIX (6.5), Linux (2.x), Mac OS X (10.x), NetBSD
@@ -51,8 +51,8 @@ III. Features (or: why use ngIRCd?)
 IV. Documentation
 ~~~~~~~~~~~~~~~~~
 
-More documentation can be found in the "doc/" directory (in english). Please
-have a look at "doc/de/" if you are looking for german documentation.
+More documentation can be found in the "doc/" directory and the homepage of
+the ngIRCd: <http://arthur.ath.cx/~alex/ngircd/>.
 
 
 V. Download
@@ -62,7 +62,7 @@ The homepage of the ngIRCd is: <http://arthur.ath.cx/~alex/ngircd>; you
 will find the newest information about the ngIRCd and the most recent
 ("stable") releases there.
 
-If you are interested in the newest developper-versions (which are not
+If you are interested in the latest development versions (which are not
 always stable), then please read the section "CVS" on the homepage and
 the file "doc/CVS.txt" which describes the use of CVS, the "Concurrent
 Versioning System".
@@ -76,11 +76,11 @@ them at the following URL:
 
 <http://arthur.ath.cx/~alex/ngircd/#bugs>
 
-There you can read about kown bugs, too.
+There you can read about kown bugs and limitations, too.
 
-If you have critics, patches or something else, please feel yourself free
-to post a mail to: <alex@barton.de> or <alex@arthur.ath.cx>
+If you have critics, patches or something else, please feel free to post a
+mail to: <alex@barton.de> or <alex@arthur.ath.cx>
 
 
 -- 
-$Id: README,v 1.15 2003/01/04 13:12:39 alex Exp $
+$Id: README,v 1.16 2003/03/04 14:12:30 alex Exp $

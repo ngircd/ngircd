@@ -1,13 +1,13 @@
 
                      ngIRCd - Next Generation IRC Server
 
-                      (c)2001,2002 by Alexander Barton,
+                      (c)2001-2003 by Alexander Barton,
                     alex@barton.de, http://www.barton.de/
 
-                  ngIRCd ist freie Software und steht unter
-                       der GNU General Public License.
+               ngIRCd is free software and published under the
+                   terms of the GNU General Public License.
 
-                           -- NEWS / Neuigkeiten --
+                                  -- NEWS --
 
 
 ngIRCd CVS-HEAD
@@ -17,6 +17,8 @@ ngIRCd CVS-HEAD
     configured server and "CONNECT <name> <port> <host> <mypwd> <peerpwd>"
     to add a new server (ngIRCd tries to connect new servers only once!).
   - Added DISCONNECT command ("DISCONNECT <name>") to disable servers.
+  - New command TRACE (you can trace only servers at the moment).
+  - New command HELP that lists all understood commands.
   - ngIRCd can register itself with Rendezvous: to enable support pass the
     new switch "--enable-rendezvous" to configure.
 
@@ -152,4 +154,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.50 2003/02/23 12:02:39 alex Exp $
+$Id: NEWS,v 1.51 2003/03/04 14:12:30 alex Exp $

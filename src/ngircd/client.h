@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.h,v 1.21 2002/01/29 00:14:49 alex Exp $
+ * $Id: client.h,v 1.22 2002/02/06 16:49:56 alex Exp $
  *
  * client.h: Konfiguration des ngircd (Header)
  *
  * $Log: client.h,v $
+ * Revision 1.22  2002/02/06 16:49:56  alex
+ * - neue Funktion Client_IsValidNick().
+ *
  * Revision 1.21  2002/01/29 00:14:49  alex
  * - neue Funktion Client_TopServer(), Client_NewXXX() angepasst.
  *
@@ -193,6 +196,8 @@ GLOBAL INT Client_UnknownCount( VOID );
 GLOBAL INT Client_MyUserCount( VOID );
 GLOBAL INT Client_MyServiceCount( VOID );
 GLOBAL INT Client_MyServerCount( VOID );
+
+GLOBAL BOOLEAN Client_IsValidNick( CHAR *Nick );
 
 
 #endif

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: messages.h,v 1.46.2.1 2002/10/03 16:13:38 alex Exp $
+ * $Id: messages.h,v 1.46.2.2 2002/11/04 19:18:39 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  */
@@ -20,15 +20,15 @@
 
 
 #define RPL_WELCOME_MSG			"001 %s :Welcome to the Internet Relay Network %s"
-#define RPL_YOURHOST_MSG		"002 %s :Your host is %s, running ngircd %s-%s/%s/%s"
+#define RPL_YOURHOST_MSG		"002 %s :Your host is %s, running version ngircd-%s (%s/%s/%s)"
 #define RPL_CREATED_MSG			"003 %s :This server has been started %s"
 #define RPL_MYINFO_MSG			"004 %s %s ngircd-%s %s %s"
 #define RPL_UMODEIS_MSG			"211 %s +%s"
-#define RPL_LUSERCLIENT_MSG		"251 %s :There are %d users and %d services on %d servers"
-#define RPL_LUSEROP_MSG			"252 %s %d :operator(s) online"
-#define	RPL_LUSERUNKNOWN_MSG		"253 %s %d :unknown connection(s)"
-#define RPL_LUSERCHANNELS_MSG		"254 %s %d :channels formed"
-#define	RPL_LUSERME_MSG			"255 %s :I have %d users, %d services and %d servers"
+#define RPL_LUSERCLIENT_MSG		"251 %s :There are %ld users and %ld services on %ld servers"
+#define RPL_LUSEROP_MSG			"252 %s %ld :operator(s) online"
+#define	RPL_LUSERUNKNOWN_MSG		"253 %s %ld :unknown connection(s)"
+#define RPL_LUSERCHANNELS_MSG		"254 %s %ld :channels formed"
+#define	RPL_LUSERME_MSG			"255 %s :I have %ld users, %ld services and %ld servers"
 #define RPL_ADMINME_MSG			"256 %s %s :Administrative info"
 #define RPL_ADMINLOC1_MSG		"257 %s :%s"
 #define RPL_ADMINLOC2_MSG		"258 %s :%s"
@@ -46,7 +46,7 @@
 #define RPL_WHOISIDLE_MSG		"317 %s %s %ld :seconds idle"
 #define RPL_ENDOFWHOIS_MSG		"318 %s %s :End of WHOIS list"
 #define RPL_WHOISCHANNELS_MSG		"319 %s %s :"
-#define RPL_LIST_MSG			"322 %s %s %d :%s"
+#define RPL_LIST_MSG			"322 %s %s %ld :%s"
 #define RPL_LISTEND_MSG			"323 %s :End of LIST"
 #define RPL_CHANNELMODEIS_MSG		"324 %s %s +%s"
 #define RPL_NOTOPIC_MSG			"331 %s %s :No topic is set"

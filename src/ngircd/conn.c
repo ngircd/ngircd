@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.72.2.3 2002/10/04 13:12:46 alex Exp $
+ * $Id: conn.c,v 1.72.2.4 2002/11/04 19:18:39 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -235,7 +235,7 @@ Conn_Handler( VOID )
 	fd_set read_sockets, write_sockets;
 	struct timeval tv;
 	time_t start, t;
-	INT i;
+	INT i, idx;
 
 	start = time( NULL );
 	while(( ! NGIRCd_Quit ) && ( ! NGIRCd_Restart ))
@@ -317,7 +317,7 @@ Conn_Handler( VOID )
 			/* Fehler (z.B. Interrupt) */
 			if( errno != EINTR )
 			{
-				Log( LOG_EMERG, "select(): %s!", strerror( errno ));
+				Log( LOG_EMERG, "Conn_Handler(): select(): %s!", strerror( errno ));
 				Log( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE );
 				exit( 1 );
 			}
@@ -327,7 +327,18 @@ Conn_Handler( VOID )
 		/* Koennen Daten geschrieben werden? */
 		for( i = 0; i < Conn_MaxFD + 1; i++ )
 		{
-			if( FD_ISSET( i, &write_sockets )) Handle_Write( Socket2Index( i ));
+			if( ! FD_ISSET( i, &write_sockets )) continue;
+
+			/* Es kann geschrieben werden ... */
+			idx = Socket2Index( i );
+			if( idx == NONE ) continue;
+			
+			if( ! Handle_Write( idx ))
+			{
+				/* Fehler beim Schreiben! Diesen Socket nun
+				 * auch aus dem Read-Set entfernen: */
+				FD_CLR( i, &read_sockets );
+			}
 		}
 
 		/* Daten zum Lesen vorhanden? */
@@ -456,12 +467,17 @@ Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient )
 
 	if( close( My_Connections[Idx].sock ) != 0 )
 	{
-		Log( LOG_ERR, "Error closing connection %d with %s:%d - %s!", Idx, inet_ntoa( My_Connections[Idx].addr.sin_addr ), ntohs( My_Connections[Idx].addr.sin_port), strerror( errno ));
+		Log( LOG_ERR, "Error closing connection %d (socket %d) with %s:%d - %s!", Idx, My_Connections[Idx].sock, inet_ntoa( My_Connections[Idx].addr.sin_addr ), ntohs( My_Connections[Idx].addr.sin_port), strerror( errno ));
 	}
 	else
 	{
-		Log( LOG_INFO, "Connection %d with %s:%d closed.", Idx, inet_ntoa( My_Connections[Idx].addr.sin_addr ), ntohs( My_Connections[Idx].addr.sin_port ));
+		Log( LOG_INFO, "Connection %d (socket %d) with %s:%d closed.", Idx, My_Connections[Idx].sock, inet_ntoa( My_Connections[Idx].addr.sin_addr ), ntohs( My_Connections[Idx].addr.sin_port ));
 	}
+	
+	/* Socket als "ungueltig" markieren */
+	FD_CLR( My_Connections[Idx].sock, &My_Sockets );
+	FD_CLR( My_Connections[Idx].sock, &My_Connects );
+	My_Connections[Idx].sock = NONE;
 
 	c = Client_GetFromConn( Idx );
 	if( c ) Client_Destroy( c, LogMsg, FwdMsg, TRUE );
@@ -475,18 +491,18 @@ Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient )
 		free( My_Connections[Idx].res_stat );
 	}
 
-	/* Bei Server-Verbindungen lasttry-Zeitpunkt so setzen, dass
-	 * der naechste Verbindungsversuch in RECONNECT_DELAY Sekunden
-	 * gestartet wird. */
-	if(( My_Connections[Idx].our_server >= 0 ) && ( Conf_Server[My_Connections[Idx].our_server].lasttry <  time( NULL )))
+	/* Startzeit des naechsten Connect-Versuchs modifizieren? */
+	if(( My_Connections[Idx].our_server >= 0 ) && ( Conf_Server[My_Connections[Idx].our_server].lasttry <  time( NULL ) - Conf_ConnectRetry ))
 	{
-		/* Okay, die Verbindung stand schon "genuegend lange" */
+		/* Okay, die Verbindung stand schon "genuegend lange":
+		 * lasttry-Zeitpunkt so setzen, dass der naechste
+		 * Verbindungsversuch in RECONNECT_DELAY Sekunden
+		 * gestartet wird. */
 		Conf_Server[My_Connections[Idx].our_server].lasttry = time( NULL ) - Conf_ConnectRetry + RECONNECT_DELAY;
 	}
 
-	FD_CLR( My_Connections[Idx].sock, &My_Sockets );
-	FD_CLR( My_Connections[Idx].sock, &My_Connects );
-	My_Connections[Idx].sock = NONE;
+	/* Connection-Struktur loeschen (=freigeben) */
+	Init_Conn_Struct( Idx );
 } /* Conn_Close */
 
 
@@ -557,7 +573,7 @@ Try_Write( CONN_ID Idx )
 		/* Fehler! */
 		if( errno != EINTR )
 		{
-			Log( LOG_ALERT, "select() failed: %s!", strerror( errno ));
+			Log( LOG_ALERT, "Try_Write(): select() failed: %s (con=%d, sock=%d)!", strerror( errno ), Idx, My_Connections[Idx].sock );
 			Conn_Close( Idx, "Server error!", NULL, FALSE );
 			return FALSE;
 		}
@@ -598,7 +614,7 @@ Handle_Read( INT Sock )
 		/* Ein Client Socket: entweder ein User oder Server */
 
 		idx = Socket2Index( Sock );
-		Read_Request( idx );
+		if( idx > NONE ) Read_Request( idx );
 	}
 } /* Handle_Read */
 
@@ -610,7 +626,7 @@ Handle_Write( CONN_ID Idx )
 
 	INT len, res, err;
 
-	assert( Idx >= 0 );
+	assert( Idx > NONE );
 	assert( My_Connections[Idx].sock > NONE );
 
 	if( FD_ISSET( My_Connections[Idx].sock, &My_Connects ))
@@ -646,9 +662,7 @@ Handle_Write( CONN_ID Idx )
 
 		/* PASS und SERVER verschicken */
 		Conn_WriteStr( Idx, "PASS %s %s", Conf_Server[My_Connections[Idx].our_server].pwd, NGIRCd_ProtoID );
-		Conn_WriteStr( Idx, "SERVER %s :%s", Conf_ServerName, Conf_ServerInfo );
-
-		return TRUE;
+		return Conn_WriteStr( Idx, "SERVER %s :%s", Conf_ServerName, Conf_ServerInfo );
 	}
 
 	assert( My_Connections[Idx].wdatalen > 0 );
@@ -658,8 +672,8 @@ Handle_Write( CONN_ID Idx )
 	if( len < 0 )
 	{
 		/* Oops, ein Fehler! */
-		Log( LOG_ERR, "Write error (buffer) on connection %d: %s!", Idx, strerror( errno ));
-		Conn_Close( Idx, "Write error (buffer)!", NULL, FALSE );
+		Log( LOG_ERR, "Write error on connection %d (socket %d): %s!", Idx, My_Connections[Idx].sock, strerror( errno ));
+		Conn_Close( Idx, "Write error!", NULL, FALSE );
 		return FALSE;
 	}
 
@@ -693,7 +707,7 @@ New_Connection( INT Sock )
 		return;
 	}
 
-	/* Freie Connection-Struktur suschen */
+	/* Freie Connection-Struktur suchen */
 	for( idx = 0; idx < MAX_CONNECTIONS; idx++ ) if( My_Connections[idx].sock == NONE ) break;
 	if( idx >= MAX_CONNECTIONS )
 	{
@@ -752,8 +766,14 @@ Socket2Index( INT Sock )
 
 	for( idx = 0; idx < MAX_CONNECTIONS; idx++ ) if( My_Connections[idx].sock == Sock ) break;
 
-	assert( idx < MAX_CONNECTIONS );
-	return idx;
+	if( idx >= MAX_CONNECTIONS )
+	{
+		/* die Connection wurde vermutlich (wegen eines
+		 * Fehlers) bereits wieder abgebaut ... */
+		Log( LOG_DEBUG, "Socket2Index: can't get connection for socket %d!", Sock );
+		return NONE;
+	}
+	else return idx;
 } /* Socket2Index */
 
 
@@ -789,7 +809,7 @@ Read_Request( CONN_ID Idx )
 	if( len < 0 )
 	{
 		/* Fehler beim Lesen */
-		Log( LOG_ERR, "Read error on connection %d: %s!", Idx, strerror( errno ));
+		Log( LOG_ERR, "Read error on connection %d (socket %d): %s!", Idx, My_Connections[Idx].sock, strerror( errno ));
 		Conn_Close( Idx, "Read error!", "Client closed connection", FALSE );
 		return;
 	}
@@ -811,7 +831,10 @@ Handle_Buffer( CONN_ID Idx )
 {
 	/* Daten im Lese-Puffer einer Verbindung verarbeiten. */
 
-	CHAR *ptr, *ptr1, *ptr2;
+#ifndef STRICT_RFC
+	CHAR *ptr1, *ptr2;
+#endif
+	CHAR *ptr;
 	INT len, delta;
 
 	/* Eine komplette Anfrage muss mit CR+LF enden, vgl.
@@ -1072,6 +1095,8 @@ New_Server( INT Server, CONN_ID Idx )
 	FD_SET( new_sock, &My_Sockets );
 	FD_SET( new_sock, &My_Connects );
 	if( new_sock > Conn_MaxFD ) Conn_MaxFD = new_sock;
+	
+	Log( LOG_DEBUG, "Registered new connection %d on socket %d.", Idx, My_Connections[Idx].sock );
 } /* New_Server */
 
 
@@ -1151,7 +1176,7 @@ Read_Resolver_Result( INT r_fd )
 	if( i >= MAX_CONNECTIONS )
 	{
 		/* Opsa! Keine passende Connection gefunden!? Vermutlich
-		* wurde sie schon wieder geschlossen. */
+		 * wurde sie schon wieder geschlossen. */
 		close( r_fd );
 		Log( LOG_DEBUG, "Resolver: Got result for unknown connection!?" );
 		return;

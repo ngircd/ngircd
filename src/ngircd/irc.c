@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.95.2.2 2002/10/04 13:12:46 alex Exp $
+ * $Id: irc.c,v 1.95.2.3 2002/11/04 19:18:39 alex Exp $
  *
  * irc.c: IRC-Befehle
  */
@@ -109,7 +109,7 @@ IRC_NOTICE( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	if(( Client_Type( Client ) != CLIENT_USER ) && ( Client_Type( Client ) != CLIENT_SERVER )) return IRC_WriteStrClient( Client, ERR_NOTREGISTERED_MSG, Client_ID( Client ));
+	if(( Client_Type( Client ) != CLIENT_USER ) && ( Client_Type( Client ) != CLIENT_SERVER )) return CONNECTED;
 
 	/* Falsche Anzahl Parameter? */
 	if( Req->argc != 2 ) return CONNECTED;
@@ -834,7 +834,7 @@ IRC_Send_WHO( CLIENT *Client, CHANNEL *Chan, BOOLEAN OnlyOps )
 GLOBAL BOOLEAN
 IRC_Send_LUSERS( CLIENT *Client )
 {
-	INT cnt;
+	LONG cnt;
 
 	assert( Client != NULL );
 

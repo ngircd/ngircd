@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.54.2.2 2002/10/04 13:12:46 alex Exp $
+ * $Id: ngircd.c,v 1.54.2.3 2002/11/04 19:18:39 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  */
@@ -58,7 +58,7 @@ GLOBAL int
 main( int argc, const char *argv[] )
 {
 	BOOLEAN ok, configtest = FALSE;
-	INT32 pid, n;
+	LONG pid, n;
 	INT i;
 
 	umask( 0077 );
@@ -140,7 +140,7 @@ main( int argc, const char *argv[] )
 		{
 			/* Kurze Option */
 			
-			for( n = 1; n < (INT32)strlen( argv[i] ); n++ )
+			for( n = 1; n < (LONG)strlen( argv[i] ); n++ )
 			{
 				ok = FALSE;
 #ifdef DEBUG
@@ -159,7 +159,7 @@ main( int argc, const char *argv[] )
 						NGIRCd_ConfFile[FNAME_LEN - 1] = '\0';
 
 						/* zum uebernaechsten Parameter */
-						i++; n = (INT32)strlen( argv[i] );
+						i++; n = (LONG)strlen( argv[i] );
 						ok = TRUE;
 					}
 				}
@@ -227,7 +227,7 @@ main( int argc, const char *argv[] )
 		if( ! NGIRCd_NoDaemon )
 		{
 			/* Daemon im Hintergrund erzeugen */
-			pid = (INT32)fork( );
+			pid = (LONG)fork( );
 			if( pid > 0 )
 			{
 				/* "alter" Prozess */
@@ -275,7 +275,7 @@ main( int argc, const char *argv[] )
 				if( setuid( Conf_UID ) != 0 ) Log( LOG_ERR, "Can't change User-ID to %u: %s", Conf_UID, strerror( errno ));
 			}
 		}
-		Log( LOG_INFO, "Running as user %ld, group %ld, with PID %ld.", (INT32)getuid( ), (INT32)getgid( ), (INT32)getpid( ));
+		Log( LOG_INFO, "Running as user %ld, group %ld, with PID %ld.", (LONG)getuid( ), (LONG)getgid( ), (LONG)getpid( ));
 
 		Log_InitErrorfile( );
 

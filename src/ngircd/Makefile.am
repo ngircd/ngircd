@@ -9,9 +9,12 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: Makefile.am,v 1.12 2002/02/21 18:47:49 alex Exp $
+# $Id: Makefile.am,v 1.13 2002/02/27 23:22:09 alex Exp $
 #
 # $Log: Makefile.am,v $
+# Revision 1.13  2002/02/27 23:22:09  alex
+# - einige Header umgestellt, neue Source-Dateien irc-xxx.c
+#
 # Revision 1.12  2002/02/21 18:47:49  alex
 # - die Rechte der check-Scripts wurde nicht gesetzt.
 #
@@ -53,11 +56,12 @@
 
 sbin_PROGRAMS = ngircd
 
-ngircd_SOURCES = ngircd.c channel.c client.c conf.c conn.c irc.c log.c \
-	parse.c tool.c
+ngircd_SOURCES = ngircd.c channel.c client.c conf.c conn.c irc.c \
+	irc-login.c irc-mode.c irc-write.c log.c parse.c tool.c
 
-noinst_HEADERS = ngircd.h channel.h client.h conf.h conn.h irc.h log.h \
-	parse.h tool.h global.h messages.h defines.h
+noinst_HEADERS = ngircd.h channel.h client.h conf.h conn.h irc.h \
+	irc-login.h irc-mode.h irc-write.h log.h parse.h tool.h \
+	global.h messages.h defines.h
 
 clean-local:
 	rm -f check-version check-help

@@ -128,6 +128,9 @@
 				F576ABFC01D5E77301A85B03,
 				F576ABFF01D61D7401A85B03,
 				F51F791301DFC95301D13771,
+				F51DBB15022D95E801A85B04,
+				F51DBB19022D995501A85B04,
+				F51DBB1D022D9D8F01A85B04,
 			);
 			isa = PBXHeadersBuildPhase;
 			name = Headers;
@@ -144,6 +147,9 @@
 				F51D180701C8FDD001E11C2E,
 				F576ABFD01D5E77301A85B03,
 				F5263AEE01E263D201CE8F8F,
+				F51DBB16022D95E801A85B04,
+				F51DBB1A022D995501A85B04,
+				F51DBB1E022D9D8F01A85B04,
 			);
 			isa = PBXSourcesBuildPhase;
 			name = Sources;
@@ -256,6 +262,72 @@
 			settings = {
 			};
 		};
+		F51DBB13022D95E801A85B04 = {
+			isa = PBXFileReference;
+			path = "irc-write.c";
+			refType = 4;
+		};
+		F51DBB14022D95E801A85B04 = {
+			isa = PBXFileReference;
+			path = "irc-write.h";
+			refType = 4;
+		};
+		F51DBB15022D95E801A85B04 = {
+			fileRef = F51DBB14022D95E801A85B04;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F51DBB16022D95E801A85B04 = {
+			fileRef = F51DBB13022D95E801A85B04;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F51DBB17022D995501A85B04 = {
+			isa = PBXFileReference;
+			path = "irc-mode.c";
+			refType = 4;
+		};
+		F51DBB18022D995501A85B04 = {
+			isa = PBXFileReference;
+			path = "irc-mode.h";
+			refType = 4;
+		};
+		F51DBB19022D995501A85B04 = {
+			fileRef = F51DBB18022D995501A85B04;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F51DBB1A022D995501A85B04 = {
+			fileRef = F51DBB17022D995501A85B04;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F51DBB1B022D9D8F01A85B04 = {
+			isa = PBXFileReference;
+			path = "irc-login.c";
+			refType = 4;
+		};
+		F51DBB1C022D9D8F01A85B04 = {
+			isa = PBXFileReference;
+			path = "irc-login.h";
+			refType = 4;
+		};
+		F51DBB1D022D9D8F01A85B04 = {
+			fileRef = F51DBB1C022D9D8F01A85B04;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F51DBB1E022D9D8F01A85B04 = {
+			fileRef = F51DBB1B022D9D8F01A85B04;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
 		F51F791201DFC95301D13771 = {
 			isa = PBXFileReference;
 			name = defines.h;
@@ -327,6 +399,12 @@
 				F52162DB01C7BCDC012300F4,
 				F51D180201C8FDD001E11C2E,
 				F51D180301C8FDD001E11C2E,
+				F51DBB1B022D9D8F01A85B04,
+				F51DBB1C022D9D8F01A85B04,
+				F51DBB17022D995501A85B04,
+				F51DBB18022D995501A85B04,
+				F51DBB13022D95E801A85B04,
+				F51DBB14022D95E801A85B04,
 				F52162BB01C7B904012300F4,
 				F52162BC01C7B904012300F4,
 				F576ABFA01D5E77301A85B03,

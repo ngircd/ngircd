@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.15 2001/12/27 16:35:04 alex Exp $
+ * $Id: conn.c,v 1.16 2001/12/27 19:32:44 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
+ * Revision 1.16  2001/12/27 19:32:44  alex
+ * - bei "Null-Requests" wird nichts mehr geloggt. Uberfluessig, da normal.
+ *
  * Revision 1.15  2001/12/27 16:35:04  alex
  * - vergessene Variable bei Ping-Timeout-Logmeldung ergaenzt. Opsa.
  *
@@ -638,7 +641,6 @@ LOCAL VOID Handle_Buffer( CONN_ID Idx )
 			/* Es wurde ein Request gelesen */
 			if( ! Parse_Request( Idx, My_Connections[Idx].rbuf )) return;
 		}
-		else Log( LOG_DEBUG, "Got null-request (connection %d).", Idx );
 
 		/* Puffer anpassen */
 		My_Connections[Idx].rdatalen -= len;

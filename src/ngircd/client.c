@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.5 2001/12/25 22:04:26 alex Exp $
+ * $Id: client.c,v 1.6 2001/12/26 03:19:16 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,9 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.6  2001/12/26 03:19:16  alex
+ * - neue Funktion Client_Name().
+ *
  * Revision 1.5  2001/12/25 22:04:26  alex
  * - Aenderungen an den Debug- und Logging-Funktionen.
  *
@@ -168,6 +171,15 @@ GLOBAL CLIENT *Client_GetFromConn( CONN_ID Idx )
 	}
 	return NULL;
 } /* Client_GetFromConn */
+
+
+GLOBAL CHAR *Client_Name( CLIENT *Client )
+{
+	assert( Client != NULL );
+
+	if( Client->nick[0] ) return Client->nick;
+	else return "*";
+} /* Client_Name */
 
 
 LOCAL CLIENT *New_Client_Struct( VOID )

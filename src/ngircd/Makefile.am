@@ -8,7 +8,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: Makefile.am,v 1.41 2003/09/09 13:24:41 alex Exp $
+# $Id: Makefile.am,v 1.42 2003/12/04 14:05:16 alex Exp $
 #
 
 AUTOMAKE_OPTIONS = ../portab/ansi2knr
@@ -62,6 +62,10 @@ lint:
 	done;
 
 ngircd.c: cvs-version.h
+
+irc-login.c: cvs-version.h
+
+irc-info.c: cvs-version.h
 
 cvs-version.h: cvs-date
 

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: log.c,v 1.25 2002/03/27 20:53:30 alex Exp $
+ * $Id: log.c,v 1.26 2002/03/27 21:03:09 alex Exp $
  *
  * log.c: Logging-Funktionen
  */
@@ -219,7 +219,7 @@ LOCAL VOID Wall_ServerNotice( CHAR *Msg )
 	c = Client_First( );
 	while( c )
 	{
-		if(( Client_Conn( c ) > NONE ) && ( Client_HasMode( c, 's' ))) IRC_WriteStrClient( c, "NOTICE :%s", Msg );
+		if(( Client_Conn( c ) > NONE ) && ( Client_HasMode( c, 's' ))) IRC_WriteStrClient( c, "NOTICE %s :%s", Client_ThisServer( ), Msg );
 		c = Client_Next( c );
 	}
 } /* Wall_ServerNotice */

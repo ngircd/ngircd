@@ -1,11 +1,7 @@
 #!/bin/sh
 #
-# $Id: autogen.sh,v 1.3 2002/03/12 14:37:51 alex Exp $
+# $Id: autogen.sh,v 1.4 2003/01/11 15:35:47 alex Exp $
 #
-
-if [ -f configure ]; then
-	echo "autogen.sh: configure-Skript existiert bereits ..."
-fi
 
 aclocal && \
  autoheader && \

@@ -1,3 +1,10 @@
+ngircd (0.7.6-0ab1) unstable; urgency=medium
+
+  * New upstream version.
+  * Changed version numvering scheme of debian package.
+
+ -- Alexander Barton <alex@Arthur.Ath.CX>  Fri,  5 Dec 2003 14:26:41 +0100
+
 ngircd (0.7.5-0.2ab) unstable; urgency=low
 
   * Updated RPM and Debian package description and configuration.

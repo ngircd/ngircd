@@ -10,6 +10,13 @@
                                -- ChangeLog --
 
 
+ngIRCd 0.7.6 (2003-12-05)
+
+  - Fixed abort() ("server crash") when INVITE'ing users to nonexistent
+    channels. Bug found by <hiddenx@wp.pl>.
+  - Extended version numbering of CVS versions (added date).
+  - Enhanced/fixed doc/Protocol.txt;
+
 ngIRCd 0.7.5 (2003-11-07)
 
   - Fixed ban behavior: users which are banned from a channel can't no
@@ -477,4 +484,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.217 2003/11/07 21:32:15 alex Exp $
+$Id: ChangeLog,v 1.218 2003/12/05 13:40:44 alex Exp $

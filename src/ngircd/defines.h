@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: defines.h,v 1.34 2002/10/09 13:15:45 alex Exp $
+ * $Id: defines.h,v 1.35 2002/11/02 22:57:41 alex Exp $
  *
  * defines.h: (globale) Konstanten
  */
@@ -34,7 +34,7 @@
 
 #define MAX_DEFCHANNELS 16		/* max. Anzahl vorkonfigurierbarerr Channels */
 
-#define MAX_CONNECTIONS 100		/* max. Anzahl von Verbindungen an diesem Server */
+#define CONNECTION_POOL 100		/* Anzahl Verbindungs-Strukturen, die blockweise alloziert werden */
 
 #define CLIENT_ID_LEN 64		/* max. ID-Laenge; vgl. RFC 2812, 1.1 und 1.2.1 */
 #define CLIENT_NICK_LEN 10		/* max. Nick-Laenge; vgl. RFC 2812, 1.2.1 */

@@ -10,7 +10,7 @@
                         -- ChangeLog / Aenderungen --
 
 
-ngIRCd 0.2.x, xx.02.2002
+ngIRCd 0.2.1, 17.02.2002
 
   - NICK korrigiert: es werden nun auch alle "betroffenen" User informiert.
   - configure-Script erweitert, u.a. bessere Anpassung an BeOS: dort wird
@@ -103,4 +103,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.20 2002/02/17 19:08:19 alex Exp $
+$Id: ChangeLog,v 1.21 2002/02/17 21:59:56 alex Exp $

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: messages.h,v 1.16 2002/01/03 02:24:21 alex Exp $
+ * $Id: messages.h,v 1.17 2002/01/05 23:23:44 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: messages.h,v $
+ * Revision 1.17  2002/01/05 23:23:44  alex
+ * - neue Nachricht ERR_NOSUCHSERVER_MSG definiert.
+ *
  * Revision 1.16  2002/01/03 02:24:21  alex
  * - neue Message ERR_NOTREGISTEREDSERVER_MSG.
  *
@@ -134,6 +137,9 @@
 
 #define ERR_NOSUCHNICK			"401"
 #define ERR_NOSUCHNICK_MSG		ERR_NOSUCHNICK" %s %s :No such nick or channel name"
+
+#define ERR_NOSUCHSERVER		"402"
+#define ERR_NOSUCHSERVER_MSG		ERR_NOSUCHSERVER" %s %s :No such server"
 
 #define ERR_NOORIGIN			"409"
 #define ERR_NOORIGIN_MSG		ERR_NOORIGIN" %s :No origin specified"

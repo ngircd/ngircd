@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: log.h,v 1.2 2001/12/12 17:19:29 alex Exp $
+ * $Id: log.h,v 1.3 2001/12/12 23:31:24 alex Exp $
  *
  * log.h: Logging-Funktionen (Header)
  *
  * $Log: log.h,v $
+ * Revision 1.3  2001/12/12 23:31:24  alex
+ * - Zum Loggen wird nun auch syslog verwendet.
+ *
  * Revision 1.2  2001/12/12 17:19:29  alex
  * - LOG_ERR heisst nun LOG_ERROR.
  *
@@ -26,11 +29,7 @@
 #define __log_h__
 
 
-#define LOG_DEBUG 4
-#define LOG_INFO 3
-#define LOG_WARN 2
-#define LOG_ERROR 1
-#define LOG_FATAL 0
+#include <syslog.h>
 
 
 GLOBAL VOID Log_Init( VOID );

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: log.c,v 1.2 2001/12/12 17:19:12 alex Exp $
+ * $Id: log.c,v 1.3 2001/12/12 23:31:24 alex Exp $
  *
  * log.c: Logging-Funktionen
  *
  * $Log: log.c,v $
+ * Revision 1.3  2001/12/12 23:31:24  alex
+ * - Zum Loggen wird nun auch syslog verwendet.
+ *
  * Revision 1.2  2001/12/12 17:19:12  alex
  * - in Log-Meldungen wird nun auch der Level der Meldung ausgegeben.
  *
@@ -32,6 +35,7 @@
 #include <assert.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <syslog.h>
 
 #include <exp.h>
 #include "log.h"
@@ -39,13 +43,15 @@
 
 GLOBAL VOID Log_Init( VOID )
 {
-	Log( LOG_DEBUG, PACKAGE" version "VERSION" started.");
+	openlog( PACKAGE, LOG_CONS|LOG_PID, LOG_DAEMON );
+	Log( LOG_INFO, PACKAGE" version "VERSION" started.");
 } /* Log_Init */
 
 
 GLOBAL VOID Log_Exit( VOID )
 {
-	Log( LOG_DEBUG, PACKAGE" done.");
+	Log( LOG_INFO, PACKAGE" done.");
+	closelog( );
 } /* Log_Exit */
 
 
@@ -61,9 +67,11 @@ GLOBAL VOID Log( CONST INT Level, CONST CHAR *Format, ... )
 	/* String mit variablen Argumenten zusammenbauen ... */
 	va_start( ap, Format );
 	vsnprintf( msg, MAX_LOG_MSG_LEN - 1, Format, ap );
+	msg[MAX_LOG_MSG_LEN] = '\0';
 
 	/* ... und ausgeben */
 	printf( "[%d] %s\n", Level, msg );
+	syslog( Level, msg );
 
 	va_end( ap );
 } /* Log */

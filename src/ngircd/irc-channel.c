@@ -14,10 +14,12 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-channel.c,v 1.24 2003/01/08 17:45:15 alex Exp $";
+static char UNUSED id[] = "$Id: irc-channel.c,v 1.25 2003/01/08 22:04:05 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 
 #include "defines.h"
@@ -362,21 +364,27 @@ IRC_LIST( CLIENT *Client, REQUEST *Req )
 GLOBAL BOOLEAN
 IRC_CHANINFO( CLIENT *Client, REQUEST *Req )
 {
+	CHAR modes_add[COMMAND_LEN], l[16], *ptr;
 	CLIENT *from;
 	CHANNEL *chan;
-	CHAR *ptr;
+	INT arg_topic;
 
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	/* Falsche Anzahl Parameter? */
-	if(( Req->argc < 1 ) || ( Req->argc > 3 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	/* Bad number of parameters? */
+	if(( Req->argc < 2 ) || ( Req->argc == 4 ) || ( Req->argc > 5 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
-	/* From-Server suchen */
+	/* Compatibility kludge */
+	if( Req->argc == 5 ) arg_topic = 4;
+	else if( Req->argc == 3 ) arg_topic = 2;
+	else arg_topic = -1;
+
+	/* Search origin */
 	from = Client_Search( Req->prefix );
 	if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
 
-	/* Channel suchen bzw. erzeugen */
+	/* Search or create channel */
 	chan = Channel_Search( Req->argv[0] );
 	if( ! chan ) chan = Channel_Create( Req->argv[0] );
 	if( ! chan ) return CONNECTED;
@@ -388,29 +396,59 @@ IRC_CHANINFO( CLIENT *Client, REQUEST *Req )
 		{
 			/* OK, this channel doesn't have modes jet, set the received ones: */
 			Channel_SetModes( chan, &Req->argv[1][1] );
-			IRC_WriteStrChannelPrefix( Client, chan, from, FALSE, "MODE %s +%s", Req->argv[0], &Req->argv[1][1] );
 
-			/* Delete modes which we never want to inherit */
-			Channel_ModeDel( chan, 'l' );
-			Channel_ModeDel( chan, 'k' );
+			if( Req->argc == 5 )
+			{
+				if( strchr( Channel_Modes( chan ), 'k' )) Channel_SetKey( chan, Req->argv[2] );
+				if( strchr( Channel_Modes( chan ), 'l' )) Channel_SetMaxUsers( chan, atol( Req->argv[3] ));
+			}
+			else
+			{
+				/* Delete modes which we never want to inherit */
+				Channel_ModeDel( chan, 'l' );
+				Channel_ModeDel( chan, 'k' );
+			}
+
+			strcpy( modes_add, "" );
+			ptr = Channel_Modes( chan );
+			while( *ptr )
+			{
+				if( *ptr == 'l' )
+				{
+					snprintf( l, sizeof( l ), " %ld", Channel_MaxUsers( chan ));
+					strlcat( modes_add, l, sizeof( modes_add ));
+				}
+				if( *ptr == 'k' )
+				{
+					strlcat( modes_add, " ", sizeof( modes_add ));
+					strlcat( modes_add, Channel_Key( chan ), sizeof( modes_add ));
+				}
+	     			ptr++;
+			}
+			
+			/* Inform members of this channel */
+			IRC_WriteStrChannelPrefix( Client, chan, from, FALSE, "MODE %s +%s%s", Req->argv[0], Channel_Modes( chan ), modes_add );
 		}
 	}
-	else Log( LOG_WARNING, "CHANNELINFO: invalid MODE format ignored!" );
+	else Log( LOG_WARNING, "CHANINFO: invalid MODE format ignored!" );
 
-	if( Req->argc == 3 )
+	if( arg_topic > 0 )
 	{
-		/* Es wurde auch ein Topic mit uebermittelt */
+		/* We got a topic */
 		ptr = Channel_Topic( chan );
-		if( ! *ptr )
+		if(( ! *ptr ) && ( Req->argv[arg_topic][0] ))
 		{
-			/* OK, es ist bisher kein Topic gesetzt */
-			Channel_SetTopic( chan, Req->argv[2] );
-			IRC_WriteStrChannelPrefix( Client, chan, from, FALSE, "TOPIC %s :%s", Req->argv[0], Req->argv[2] );
+			/* OK, there is no topic jet */
+			Channel_SetTopic( chan, Req->argv[arg_topic] );
+			IRC_WriteStrChannelPrefix( Client, chan, from, FALSE, "TOPIC %s :%s", Req->argv[0], Channel_Topic( chan ));
 		}
 	}
 
-	/* an andere Server forwarden */
-	IRC_WriteStrServersPrefixFlag( Client, from, 'C', "CHANINFO %s %s :%s", Req->argv[0], Req->argv[1], Req->argv[2] );
+	/* Forward CHANINFO to other serevrs */
+	if( Req->argc == 5 ) IRC_WriteStrServersPrefixFlag( Client, from, 'C', "CHANINFO %s %s %s %s :%s", Req->argv[0], Req->argv[1], Req->argv[2], Req->argv[3], Req->argv[4] );
+	else if( Req->argc == 3 ) IRC_WriteStrServersPrefixFlag( Client, from, 'C', "CHANINFO %s %s :%s", Req->argv[0], Req->argv[1], Req->argv[2] );
+	else IRC_WriteStrServersPrefixFlag( Client, from, 'C', "CHANINFO %s %s", Req->argv[0], Req->argv[1] );
+
 	return CONNECTED;
 } /* IRC_CHANINFO */
 

@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: channel.c,v 1.5 2002/01/21 00:12:29 alex Exp $
+ * $Id: channel.c,v 1.6 2002/01/26 18:41:55 alex Exp $
  *
  * channel.c: Management der Channels
  *
  * $Log: channel.c,v $
+ * Revision 1.6  2002/01/26 18:41:55  alex
+ * - CHANNEL- und CL2CHAN-Strukturen in Header verlegt,
+ * - einige neue Funktionen (Channel_GetChannel(), Channel_FirstMember(), ...)
+ *
  * Revision 1.5  2002/01/21 00:12:29  alex
  * - begonnen, Channels zu implementieren :-)
  *
@@ -33,6 +37,9 @@
  */
 
 
+#define __channel_c__
+
+
 #include <portab.h>
 #include "global.h"
 
@@ -50,28 +57,10 @@
 #include "channel.h"
 
 
-typedef struct _CHANNEL
-{
-	struct _CHANNEL *next;
-	CHAR name[CHANNEL_NAME_LEN];	/* Name des Channel */
-	CHAR modes[CHANNEL_MODE_LEN];	/* Channel-Modes */
-} CHANNEL;
-
-
-typedef struct _CLIENT2CHAN
-{
-	struct _CLIENT2CHAN *next;
-	CLIENT *client;
-	CHANNEL *channel;
-	CHAR modes[CHANNEL_MODE_LEN];	/* User-Modes in dem Channel */
-} CL2CHAN;
-
-
 LOCAL CHANNEL *My_Channels;
 LOCAL CL2CHAN *My_Cl2Chan;
 
 
-LOCAL CHANNEL *Get_Chan( CHAR *Name );
 LOCAL CHANNEL *New_Chan( CHAR *Name );
 LOCAL CL2CHAN *Get_Cl2Chan( CHANNEL *Chan, CLIENT *Client );
 LOCAL CL2CHAN *Add_Client( CHANNEL *Chan, CLIENT *Client );
@@ -128,7 +117,7 @@ GLOBAL BOOLEAN Channel_Join( CLIENT *Client, CHAR *Name )
 	}
 
 	/* Channel suchen */
-	chan = Get_Chan( Name );
+	chan = Channel_Search( Name );
 	if( chan )
 	{
 		/* Ist der Client bereits Mitglied? */
@@ -159,7 +148,7 @@ GLOBAL BOOLEAN Channel_Part( CLIENT *Client, CLIENT *Origin, CHAR *Name, CHAR *R
 	assert( Name != NULL );
 
 	/* Channel suchen */
-	chan = Get_Chan( Name );
+	chan = Channel_Search( Name );
 	if(( ! chan ) || ( ! Get_Cl2Chan( chan, Client )))
 	{
 		IRC_WriteStrClient( Client, ERR_NOSUCHCHANNEL_MSG, Client_ID( Client ), Name );
@@ -204,7 +193,7 @@ GLOBAL INT Channel_Count( VOID )
 } /* Channel_Count */
 
 
-LOCAL CHANNEL *Get_Chan( CHAR *Name )
+GLOBAL CHANNEL *Channel_Search( CHAR *Name )
 {
 	/* Channel-Struktur suchen */
 	
@@ -218,7 +207,36 @@ LOCAL CHANNEL *Get_Chan( CHAR *Name )
 		c = c->next;
 	}
 	return NULL;
-} /* Get_Chan */
+} /* Channel_Search */
+
+
+GLOBAL CL2CHAN *Channel_FirstMember( CHANNEL *Chan )
+{
+	assert( Chan != NULL );
+	return Get_First_Cl2Chan( NULL, Chan );
+} /* Channel_IsMember */
+
+
+GLOBAL CL2CHAN *Channel_NextMember( CHANNEL *Chan, CL2CHAN *Cl2Chan )
+{
+	assert( Chan != NULL );
+	assert( Cl2Chan != NULL );
+	return Get_Next_Cl2Chan( Cl2Chan->next, NULL, Chan );
+} /* Channel_NextMember */
+
+
+GLOBAL CLIENT *Channel_GetClient( CL2CHAN *Cl2Chan )
+{
+	assert( Cl2Chan != NULL );
+	return Cl2Chan->client;
+} /* Channel_GetClient */
+
+
+GLOBAL CHANNEL *Channel_GetChannel( CL2CHAN *Cl2Chan )
+{
+	assert( Cl2Chan != NULL );
+	return Cl2Chan->channel;
+} /* Channel_GetChannel */
 
 
 LOCAL CHANNEL *New_Chan( CHAR *Name )
@@ -315,8 +333,9 @@ LOCAL BOOLEAN Remove_Client( CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, CHAR
 	else My_Cl2Chan = cl2chan->next;
 	free( cl2chan );
 
+	if( Client_Conn( Origin ) > NONE ) IRC_WriteStrClientPrefix( Origin, Client, "PART %s :%s", c->name, Reason );
 	IRC_WriteStrServersPrefix( Origin, Client, "PART %s :%s", c->name, Reason );
-	IRC_WriteStrRelatedChannelPrefix( Origin, c->name, Client, "PART %s :%s", c->name, Reason );
+	IRC_WriteStrChannelPrefix( Origin, c, Client, "PART %s :%s", c->name, Reason );
 
 	Log( LOG_DEBUG, "User \"%s\" left channel \"%s\" (%s).", Client_Mask( Client ), c->name, Reason );
 

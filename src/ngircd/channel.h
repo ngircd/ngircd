@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: channel.h,v 1.6 2002/01/21 00:11:59 alex Exp $
+ * $Id: channel.h,v 1.7 2002/01/26 18:41:55 alex Exp $
  *
  * channel.h: Management der Channels (Header)
  *
  * $Log: channel.h,v $
+ * Revision 1.7  2002/01/26 18:41:55  alex
+ * - CHANNEL- und CL2CHAN-Strukturen in Header verlegt,
+ * - einige neue Funktionen (Channel_GetChannel(), Channel_FirstMember(), ...)
+ *
  * Revision 1.6  2002/01/21 00:11:59  alex
  * - Definition der CHANNEL-Struktur aus Header entfernt,
  * - neue Funktionen Channel_Join(), Channel_Part() und Channel_RemoveClient().
@@ -43,6 +47,31 @@
 #include "client.h"
 
 
+#ifdef __channel_c__
+
+typedef struct _CHANNEL
+{
+	struct _CHANNEL *next;
+	CHAR name[CHANNEL_NAME_LEN];	/* Name des Channel */
+	CHAR modes[CHANNEL_MODE_LEN];	/* Channel-Modes */
+} CHANNEL;
+
+typedef struct _CLIENT2CHAN
+{
+	struct _CLIENT2CHAN *next;
+	CLIENT *client;
+	CHANNEL *channel;
+	CHAR modes[CHANNEL_MODE_LEN];	/* User-Modes in dem Channel */
+} CL2CHAN;
+
+#else
+
+typedef POINTER CHANNEL;
+typedef POINTER CL2CHAN;
+
+#endif
+
+
 GLOBAL VOID Channel_Init( VOID );
 GLOBAL VOID Channel_Exit( VOID );
 
@@ -52,6 +81,14 @@ GLOBAL BOOLEAN Channel_Part( CLIENT *Client, CLIENT *Origin, CHAR *Name, CHAR *R
 GLOBAL VOID Channel_RemoveClient( CLIENT *Client, CHAR *Reason );
 
 GLOBAL INT Channel_Count( VOID );
+
+GLOBAL CHANNEL *Channel_Search( CHAR *Name );
+
+GLOBAL CL2CHAN *Channel_FirstMember( CHANNEL *Chan );
+GLOBAL CL2CHAN *Channel_NextMember( CHANNEL *Chan, CL2CHAN *Cl2Chan );
+
+GLOBAL CLIENT *Channel_GetClient( CL2CHAN *Cl2Chan );
+GLOBAL CHANNEL *Channel_GetChannel( CL2CHAN *Cl2Chan );
 
 
 #endif

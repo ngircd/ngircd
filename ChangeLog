@@ -22,6 +22,7 @@ ngIRCd 0.x.x, xx.xx.2002
     nommen, von anderen Servern werden auch unbekannte Modes uebernommen.
   - Benutzer von connectierenden Servern wurden nicht in den Channels ange-
     kuendigt, es wurden nur die internen Strukturen angepasst.
+  - Nach dem Connect eines Users werden LUSERS-Informationen angezeigt.
 
 ngIRCd 0.1.0, 29.01.2002
 
@@ -94,4 +95,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.15 2002/02/13 17:52:37 alex Exp $
+$Id: ChangeLog,v 1.16 2002/02/13 23:06:07 alex Exp $

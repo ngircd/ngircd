@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: portab.h,v 1.7 2002/06/26 15:43:38 alex Exp $
+ * $Id: portab.h,v 1.8 2002/10/09 16:53:30 alex Exp $
  *
  * portab.h: "Portabilitaets-Definitionen"
  */
@@ -56,6 +56,9 @@ typedef void POINTER;
 
 typedef signed int INT;
 typedef unsigned int UINT;
+typedef signed long LONG;
+typedef unsigned long ULONG;
+
 typedef signed char INT8;
 typedef unsigned char UINT8;
 typedef signed short INT16;
@@ -63,6 +66,7 @@ typedef unsigned short UINT16;
 typedef signed long INT32;
 typedef unsigned long UINT32;
 
+typedef double DOUBLE;
 typedef float FLOAT;
 
 typedef char CHAR;

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-channel.c,v 1.21.2.4 2003/01/08 20:32:17 alex Exp $";
+static char UNUSED id[] = "$Id: irc-channel.c,v 1.21.2.5 2003/01/08 23:09:34 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -371,11 +371,11 @@ IRC_CHANINFO( CLIENT *Client, REQUEST *Req )
 	assert( Req != NULL );
 
 	/* Bad number of parameters? */
-	if(( Req->argc < 1 ) || ( Req->argc > 5 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	if(( Req->argc < 2 ) || ( Req->argc == 4 ) || ( Req->argc > 5 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
 	/* Compatibility kludge */
-	if( Req->argc == 5 ) arg_topic = 5;
-	else if( Req->argc == 3 ) arg_topic = 3;
+	if( Req->argc == 5 ) arg_topic = 4;
+	else if( Req->argc == 3 ) arg_topic = 2;
 	else arg_topic = -1;
 
 	/* Search origin */
@@ -409,7 +409,7 @@ IRC_CHANINFO( CLIENT *Client, REQUEST *Req )
 	{
 		/* We got a topic */
 		ptr = Channel_Topic( chan );
-		if( ! *ptr )
+		if(( ! *ptr ) && ( Req->argv[arg_topic][0] ))
 		{
 			/* OK, there is no topic jet */
 			Channel_SetTopic( chan, Req->argv[arg_topic] );

@@ -8,7 +8,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: configure.in,v 1.84 2003/03/19 17:27:05 alex Exp $
+# $Id: configure.in,v 1.85 2003/03/26 22:43:58 alex Exp $
 #
 
 # -- Initialisierung --
@@ -17,7 +17,7 @@ AC_PREREQ(2.50)
 AC_INIT(ngircd, CVSHEAD)
 AC_CONFIG_SRCDIR(src/ngircd/ngircd.c)
 AC_CANONICAL_TARGET
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE(1.6)
 AM_CONFIG_HEADER(src/config.h)
 
 # -- Templates fuer config.h --

@@ -101,7 +101,7 @@
 				LIBRARY_SEARCH_PATHS = "";
 				OPTIMIZATION_CFLAGS = "-O2";
 				OTHER_CFLAGS = "-DSYSCONFDIR=\\\\\\\"/usr/local/etc\\\\\\\"";
-				OTHER_LDFLAGS = "-lz";
+				OTHER_LDFLAGS = "-lz -lwrap";
 				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = ngircd;
 				REZ_EXECUTABLE = YES;
@@ -149,6 +149,7 @@
 				FA42C8B003C0A01400A85B04,
 				FA42C8B403C0B30700A85B04,
 				FA550F2E03D59C8D00A85B04,
+				FAC51A0F042905AF00214FB8,
 			);
 			isa = PBXHeadersBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -181,6 +182,7 @@
 				FA42C8AE03C0A00B00A85B04,
 				FA42C8B203C0B2F300A85B04,
 				FA550F2D03D59C8C00A85B04,
+				FAC51A0E042905AF00214FB8,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -681,6 +683,8 @@
 				F5E9448302C9F49D01A85B04,
 				F576ABFA01D5E77301A85B03,
 				F576ABFB01D5E77301A85B03,
+				FAC51A0C042905AF00214FB8,
+				FAC51A0D042905AF00214FB8,
 				F5BEF13102A12AFE01A85B03,
 				F5BEF13202A12AFE01A85B03,
 				F51F791201DFC95301D13771,
@@ -1660,6 +1664,32 @@
 		};
 		FAC0384003BB335400A85B04 = {
 			fileRef = FAC0383E03BB335400A85B04;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		FAC51A0C042905AF00214FB8 = {
+			fileEncoding = 5;
+			isa = PBXFileReference;
+			name = rendezvous.c;
+			path = ../src/ngircd/rendezvous.c;
+			refType = 2;
+		};
+		FAC51A0D042905AF00214FB8 = {
+			fileEncoding = 5;
+			isa = PBXFileReference;
+			name = rendezvous.h;
+			path = ../src/ngircd/rendezvous.h;
+			refType = 2;
+		};
+		FAC51A0E042905AF00214FB8 = {
+			fileRef = FAC51A0C042905AF00214FB8;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		FAC51A0F042905AF00214FB8 = {
+			fileRef = FAC51A0D042905AF00214FB8;
 			isa = PBXBuildFile;
 			settings = {
 			};

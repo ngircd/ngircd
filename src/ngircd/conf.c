@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.c,v 1.18 2002/03/12 14:37:52 alex Exp $
+ * $Id: conf.c,v 1.19 2002/03/25 16:14:15 alex Exp $
  *
  * conf.h: Konfiguration des ngircd
  */
@@ -58,7 +58,7 @@ GLOBAL VOID Conf_Init( VOID )
 	Conf_ListenPorts_Count = 0;
 	
 	Conf_PingTimeout = 120;
-	Conf_PongTimeout = 10;
+	Conf_PongTimeout = 20;
 
 	Conf_ConnectRetry = 60;
 

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-mode.c,v 1.24.2.4 2003/01/17 19:08:57 alex Exp $";
+static char UNUSED id[] = "$Id: irc-mode.c,v 1.24.2.5 2003/01/21 21:05:19 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -506,6 +506,13 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 
 		/* Is there a valid mode change? */
 		if( ! x[0] ) continue;
+
+		/* Validate target client */
+		if( client && ( ! Channel_IsMemberOf( Channel, client )))
+		{
+			if( ! IRC_WriteStrClient( Origin, ERR_USERNOTINCHANNEL_MSG, Client_ID( Origin ), Client_ID( client ), Channel_Name( Channel ))) break;
+			continue;
+		}
 
 		if( set )
 		{

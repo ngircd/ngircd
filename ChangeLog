@@ -12,6 +12,9 @@
 
 ngIRCd CVSHEAD
 
+  - The info text ("real name") of users is set to "-" if none has been
+    specified using the USER command (e. g. "USER user * * :"). Reason:
+    the original ircd doesn't like empty ones and would KILL such users.
   - Fixed (optional) TCP Wrapper test which was broken and could result in
     false results. Thanks to Fuminori Tanizaki <tany@mcnet.ad.jp>!
   - The type of service (TOS) of all sockets is set to "interactive" now.
@@ -495,4 +498,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.224 2004/02/03 20:28:30 alex Exp $
+$Id: ChangeLog,v 1.225 2004/02/04 19:56:04 alex Exp $

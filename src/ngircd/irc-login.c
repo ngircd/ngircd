@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-login.c,v 1.38 2004/01/17 03:17:49 alex Exp $";
+static char UNUSED id[] = "$Id: irc-login.c,v 1.39 2004/02/04 19:56:05 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -299,15 +299,21 @@ IRC_USER( CLIENT *Client, REQUEST *Req )
 	if( Client_Type( Client ) == CLIENT_GOTNICK || Client_Type( Client ) == CLIENT_GOTPASS )
 #endif
 	{
-		/* Falsche Anzahl Parameter? */
+		/* Wrong number of parameters? */
 		if( Req->argc != 4 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
+		/* User name */
 #ifdef IDENTAUTH
 		ptr = Client_User( Client );
-		if( ! ptr || ! *ptr || *ptr == '~' )
-#endif
+		if( ! ptr || ! *ptr || *ptr == '~' ) Client_SetUser( Client, Req->argv[0], FALSE );
+#else
 		Client_SetUser( Client, Req->argv[0], FALSE );
-		Client_SetInfo( Client, Req->argv[3] );
+#endif
+
+		/* "Real name" or user info text: Don't set it to the empty string, the original ircd
+		 * can't deal with such "real names" (e. g. "USER user * * :") ... */
+		if( *Req->argv[3] ) Client_SetInfo( Client, Req->argv[3] );
+		else Client_SetInfo( Client, "-" );
 
 		Log( LOG_DEBUG, "Connection %d: got valid USER command ...", Client_Conn( Client ));
 		if( Client_Type( Client ) == CLIENT_GOTNICK ) return Hello_User( Client );

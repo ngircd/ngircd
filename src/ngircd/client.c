@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.58 2002/06/02 23:16:42 alex Exp $
+ * $Id: client.c,v 1.59 2002/06/10 21:09:39 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -973,7 +973,7 @@ New_Client_Struct( VOID )
 	c = malloc( sizeof( CLIENT ));
 	if( ! c )
 	{
-		Log( LOG_EMERG, "Can't allocate memory!" );
+		Log( LOG_EMERG, "Can't allocate memory! [New_Client_Struct]" );
 		return NULL;
 	}
 

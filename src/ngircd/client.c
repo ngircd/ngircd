@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.2 2001/12/23 22:04:37 alex Exp $
+ * $Id: client.c,v 1.3 2001/12/24 01:31:14 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,9 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.3  2001/12/24 01:31:14  alex
+ * - einige assert()'s eingestraeut.
+ *
  * Revision 1.2  2001/12/23 22:04:37  alex
  * - einige neue Funktionen,
  * - CLIENT-Struktur erweitert.
@@ -100,6 +103,9 @@ GLOBAL CLIENT *Client_New_Local( CONN_ID Idx, CHAR *Hostname )
 	
 	CLIENT *client;
 
+	assert( Idx >= 0 );
+	assert( Hostname != NULL );
+	
 	client = New_Client_Struct( );
 	if( ! client ) return NULL;
 
@@ -123,6 +129,8 @@ GLOBAL VOID Client_Destroy( CLIENT *Client )
 	
 	CLIENT *last, *c;
 
+	assert( Client != NULL );
+	
 	last = NULL;
 	c = My_Clients;
 	while( c )
@@ -147,6 +155,8 @@ GLOBAL CLIENT *Client_GetFromConn( CONN_ID Idx )
 
 	CLIENT *c;
 
+	assert( Idx >= 0 );
+	
 	c = My_Clients;
 	while( c )
 	{

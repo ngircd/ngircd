@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-channel.c,v 1.6 2002/05/27 13:09:26 alex Exp $
+ * $Id: irc-channel.c,v 1.7 2002/06/01 14:37:28 alex Exp $
  *
  * irc-channel.c: IRC-Channel-Befehle
  */
@@ -224,7 +224,7 @@ IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 
 	/* Welcher Channel? */
 	chan = Channel_Search( Req->argv[0] );
-	if( ! chan ) return IRC_WriteStrClient( from, ERR_NOTONCHANNEL_MSG, Client_ID( from ), Req->argv[0] );
+	if( ! chan ) return IRC_WriteStrClient( from, ERR_NOSUCHCHANNEL_MSG, Client_ID( from ), Req->argv[0] );
 
 	/* Ist der User Mitglied in dem Channel? */
 	if( ! Channel_IsMemberOf( chan, from )) return IRC_WriteStrClient( from, ERR_NOTONCHANNEL_MSG, Client_ID( from ), Req->argv[0] );

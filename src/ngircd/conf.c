@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.c,v 1.30 2002/09/19 10:19:12 alex Exp $
+ * $Id: conf.c,v 1.31 2002/10/03 21:49:59 alex Exp $
  *
  * conf.h: Konfiguration des ngircd
  */
@@ -67,7 +67,7 @@ Conf_Test( VOID )
 {
 	/* Konfiguration einlesen, ueberpruefen und ausgeben. */
 
-	UINT i;
+	INT i;
 
 	Use_Log = FALSE;
 	Set_Defaults( );

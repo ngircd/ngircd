@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.54 2002/09/07 17:57:17 alex Exp $
+ * $Id: ngircd.c,v 1.55 2002/10/03 21:49:59 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  */
@@ -159,7 +159,7 @@ main( int argc, const char *argv[] )
 						NGIRCd_ConfFile[FNAME_LEN - 1] = '\0';
 
 						/* zum uebernaechsten Parameter */
-						i++; n = strlen( argv[i] );
+						i++; n = (INT32)strlen( argv[i] );
 						ok = TRUE;
 					}
 				}
@@ -451,7 +451,7 @@ Initialize_Listen_Ports( VOID )
 	/* Ports, auf denen der Server Verbindungen entgegennehmen
 	 * soll, initialisieren */
 	
-	UINT created, i;
+	INT created, i;
 
 	created = 0;
 	for( i = 0; i < Conf_ListenPorts_Count; i++ )

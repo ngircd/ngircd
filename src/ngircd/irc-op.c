@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-op.c,v 1.4 2002/06/09 13:17:29 alex Exp $
+ * $Id: irc-op.c,v 1.5 2002/06/11 13:59:07 alex Exp $
  *
  * irc-op.c: Befehle zur Channel-Verwaltung
  */
@@ -101,7 +101,7 @@ IRC_INVITE( CLIENT *Client, REQUEST *Req )
 	
 	/* User suchen */
 	target = Client_Search( Req->argv[0] );
-	if( ! target ) return IRC_WriteStrClient( from, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->argv[0] );
+	if(( ! target ) || ( Client_Type( target ) != CLIENT_USER )) return IRC_WriteStrClient( from, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->argv[0] );
 
 	chan = Channel_Search( Req->argv[1] );
 

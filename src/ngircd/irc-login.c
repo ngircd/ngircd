@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-login.c,v 1.32 2003/01/02 17:55:28 alex Exp $";
+static char UNUSED id[] = "$Id: irc-login.c,v 1.33 2003/01/08 22:28:12 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -31,6 +31,7 @@ static char UNUSED id[] = "$Id: irc-login.c,v 1.32 2003/01/02 17:55:28 alex Exp 
 #include "log.h"
 #include "messages.h"
 #include "parse.h"
+#include "irc.h"
 #include "irc-info.h"
 #include "irc-write.h"
 
@@ -463,19 +464,18 @@ Hello_User( CLIENT *Client )
 LOCAL VOID
 Kill_Nick( CHAR *Nick, CHAR *Reason )
 {
-	CLIENT *c;
+	REQUEST r;
 
 	assert( Nick != NULL );
 	assert( Reason != NULL );
 
+	r.prefix = Client_ThisServer( );
+	r.argv[0] = Nick;
+	r.argv[1] = Reason;
+	r.argc = 2;
+
 	Log( LOG_ERR, "User(s) with nick \"%s\" will be disconnected: %s", Nick, Reason );
-
-	/* andere Server benachrichtigen */
-	IRC_WriteStrServers( NULL, "KILL %s :%s", Nick, Reason );
-
-	/* Ggf. einen eigenen Client toeten */
-	c = Client_Search( Nick );
-	if( c && ( Client_Conn( c ) != NONE )) Conn_Close( Client_Conn( c ), NULL, Reason, TRUE );
+	IRC_KILL( Client_ThisServer( ), &r );
 } /* Kill_Nick */
 
 

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.45 2002/12/18 02:47:12 alex Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.46 2002/12/18 02:52:51 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -664,7 +664,7 @@ Validate_Config( BOOLEAN Configtest )
 		Config_Error( LOG_WARNING, "No administrative information configured but required by RFC!" );
 	}
 #ifdef FD_SETSIZE	
-	if( Conf_MaxConnections > (LONG)FD_SETSIZE )
+	if(( Conf_MaxConnections > (LONG)FD_SETSIZE ) || ( Conf_MaxConnections < 1 ))
 	{
 		Conf_MaxConnections = (LONG)FD_SETSIZE;
 		Config_Error( LOG_ERR, "Setting MaxConnections to %ld, select() can't handle more file descriptors!", Conf_MaxConnections );

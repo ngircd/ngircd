@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.12 2001/12/29 03:07:36 alex Exp $
+ * $Id: ngircd.c,v 1.13 2001/12/30 11:42:00 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  *
  * $Log: ngircd.c,v $
+ * Revision 1.13  2001/12/30 11:42:00  alex
+ * - der Server meldet nun eine ordentliche "Start-Zeit".
+ *
  * Revision 1.12  2001/12/29 03:07:36  alex
  * - einige Loglevel geaendert.
  *
@@ -68,6 +71,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <signal.h>
+#include <time.h>
 
 #include "channel.h"
 #include "client.h"
@@ -91,6 +95,8 @@ GLOBAL INT main( INT argc, CONST CHAR *argv[] )
 	portab_check_types( );
 
 	/* Globale Variablen initialisieren */
+	NGIRCd_Start = time( NULL );
+	strftime( NGIRCd_StartStr, 64, "%a %b %d %Y at %H:%M:%S (%Z)", localtime( &NGIRCd_Start ));
 	NGIRCd_Quit = FALSE;
 
 	/* Module initialisieren */

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.13 2001/12/29 03:10:06 alex Exp $
+ * $Id: irc.c,v 1.14 2001/12/30 11:42:00 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.14  2001/12/30 11:42:00  alex
+ * - der Server meldet nun eine ordentliche "Start-Zeit".
+ *
  * Revision 1.13  2001/12/29 03:10:06  alex
  * - Neue Funktion IRC_MODE() implementiert, div. Aenderungen.
  * - neue configure-Optione "--enable-strict-rfc".
@@ -70,6 +73,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "ngircd.h"
 #include "client.h"
 #include "conf.h"
 #include "log.h"
@@ -477,7 +481,7 @@ LOCAL BOOLEAN Hello_User( CLIENT *Client )
 
 	IRC_WriteStrClient( Client, This_Server, RPL_WELCOME_MSG, Client->nick, Client_GetID( Client ));
 	IRC_WriteStrClient( Client, This_Server, RPL_YOURHOST_MSG, Client->nick, This_Server->host );
-	IRC_WriteStrClient( Client, This_Server, RPL_CREATED_MSG, Client->nick );
+	IRC_WriteStrClient( Client, This_Server, RPL_CREATED_MSG, Client->nick, NGIRCd_StartStr );
 	IRC_WriteStrClient( Client, This_Server, RPL_MYINFO_MSG, Client->nick, This_Server->host );
 
 	Client->type = CLIENT_USER;

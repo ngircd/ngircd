@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: messages.h,v 1.9 2001/12/29 03:06:56 alex Exp $
+ * $Id: messages.h,v 1.10 2001/12/30 11:42:00 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: messages.h,v $
+ * Revision 1.10  2001/12/30 11:42:00  alex
+ * - der Server meldet nun eine ordentliche "Start-Zeit".
+ *
  * Revision 1.9  2001/12/29 03:06:56  alex
  * - Texte ergaenzt, einige Bugs behoben (Leerzeichen falsch gesetzt, z.B.)
  *
@@ -57,7 +60,7 @@
 #define RPL_YOURHOST_MSG		RPL_YOURHOST" %s :Your host is %s, running ngircd "VERSION"-"P_OSNAME"/"P_ARCHNAME
 
 #define RPL_CREATED			"003"
-#define RPL_CREATED_MSG			RPL_CREATED" %s :This server was created once upon a time ... ;-)"
+#define RPL_CREATED_MSG			RPL_CREATED" %s :This server was started %s"
 
 #define RPL_MYINFO			"004"
 #define RPL_MYINFO_MSG			RPL_MYINFO" %s %s ngircd-"VERSION" + +"

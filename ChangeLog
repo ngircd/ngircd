@@ -12,15 +12,17 @@
 
 ngIRCd CVSHEAD
 
-ngircd 0.8.0-pre2 (2004-05-16)
+ngIRCd 0.8.0
 
+  - Fixed wrong buffer size calculation for results of the resolver.
+
+  ngircd 0.8.0-pre2 (2004-05-16)
   - Enhanced logging to console when running in "no-detached mode": added
     PID and log messages of resolver sub-processes.
   - Fixed host name lookups when using IDENT user lookups.
   - "make clean" and "make maintainer-clean" remove more files now.
 
-ngIRCd 0.8.0-pre1 (2004-05-07)
-
+  ngIRCd 0.8.0-pre1 (2004-05-07)
   - Two new configuration options: "ChrootDir" and "MotdPhrase", thanks to
     Benjamin Pineau <ben@zouh.org>. Now you can force the daemon to change
     its root and working directory to something "safe". MotdPhrase is used
@@ -530,4 +532,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.236 2004/05/15 23:56:43 alex Exp $
+$Id: ChangeLog,v 1.237 2004/05/30 16:29:05 alex Exp $

@@ -271,6 +271,14 @@
 //FA2
 //FA3
 //FA4
+		FAC0DF4A05F25A150024C8CE = {
+			fileEncoding = 5;
+			isa = PBXFileReference;
+			lastKnownFileType = text;
+			path = Makefile.am;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
 		FADE2AA505F149580081A16E = {
 			children = (
 				FADE2ACB05F149EA0081A16E,
@@ -503,6 +511,7 @@
 		};
 		FADE2AD205F149FD0081A16E = {
 			children = (
+				FAC0DF4A05F25A150024C8CE,
 			);
 			isa = PBXGroup;
 			name = "Mac OS X";

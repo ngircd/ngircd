@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: tool.c,v 1.4 2001/12/31 02:18:51 alex Exp $
+ * $Id: tool.c,v 1.5 2001/12/31 02:44:36 alex Exp $
  *
  * tool.c: Hilfsfunktionen, ggf. Platformabhaengig
  *
  * $Log: tool.c,v $
+ * Revision 1.5  2001/12/31 02:44:36  alex
+ * - ngt_TrimStr() hatte noch einen boesen Bug: evtl. wurde ueber den Start
+ *   des Strings nach vorne(!) hinaus gelesen. Hopsa!
+ *
  * Revision 1.4  2001/12/31 02:18:51  alex
  * - viele neue Befehle (WHOIS, ISON, OPER, DIE, RESTART),
  * - neuen Header "defines.h" mit (fast) allen Konstanten.
@@ -59,7 +63,7 @@ GLOBAL VOID ngt_TrimStr( CHAR *String )
 	
 	/* Zeichen am Ende pruefen ... */
 	ptr = strchr( start, '\0' ) - 1;
-	while(( *ptr == ' ' ) || ( *ptr == 9 ) || ( *ptr == 10 ) || ( *ptr == 13 )) ptr--;
+	while((( *ptr == ' ' ) || ( *ptr == 9 ) || ( *ptr == 10 ) || ( *ptr == 13 )) && ptr >= start ) ptr--;
 	*(++ptr) = '\0';
 
 	memmove( String, start, strlen( start ) + 1 );

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: portabtest.c,v 1.10 2002/12/26 13:19:36 alex Exp $";
+static char UNUSED id[] = "$Id: portabtest.c,v 1.11 2003/01/04 10:40:01 alex Exp $";
 
 #include "imp.h"
 #include <stdarg.h>
@@ -41,11 +41,13 @@ main( VOID )
 	if( sizeof( INT32 ) != 4 ) Panic( "INT32", 1 );
 	if( sizeof( UINT32 ) != 4 ) Panic( "UINT32", 1 );
 
+#ifdef PROTOTYPES
 	/* check functions */
 	if( ! snprintf ) Panic( "snprintf", 2 );
 	if( ! vsnprintf ) Panic( "vsnprintf", 2 );
 	if( ! strlcpy ) Panic( "strlcpy", 2 );
 	if( ! strlcat ) Panic( "strlcat", 2 );
+#endif
 	
 	/* ok, no error */
 	return 0;

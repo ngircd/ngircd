@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.11 2001/12/26 14:45:37 alex Exp $
+ * $Id: ngircd.c,v 1.12 2001/12/29 03:07:36 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  *
  * $Log: ngircd.c,v $
+ * Revision 1.12  2001/12/29 03:07:36  alex
+ * - einige Loglevel geaendert.
+ *
  * Revision 1.11  2001/12/26 14:45:37  alex
  * - "Code Cleanups".
  *
@@ -158,7 +161,7 @@ LOCAL VOID Signal_Handler( INT Signal )
 		case SIGINT:
 		case SIGQUIT:
 			/* wir soll(t)en uns wohl beenden ... */
-			Log( LOG_NOTICE, "Got signal %d, terminating now ...", Signal );
+			Log( LOG_WARNING, "Got signal %d, terminating now ...", Signal );
 			NGIRCd_Quit = TRUE;
 			break;
 		default:

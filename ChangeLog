@@ -35,6 +35,8 @@ ngIRCd 0.2.x, xx.xx.2002
     bestimmten Befehlen (PRIVMSG) ansonsten evtl. Probleme ...
   - NAMES korrigiert und vollstaendig implementiert.
   - SQUIT wird auf jeden Fall geforwarded, zudem besseres Logging.
+  - Ist ein Nick bei der User-Registrierung bereits belegt, nimmt der
+    Server nun korrekt weitere NICK-Befehle an und verwendet diese.
 
 ngIRCd 0.2.1, 17.02.2002
 
@@ -129,4 +131,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.32 2002/02/27 03:08:38 alex Exp $
+$Id: ChangeLog,v 1.33 2002/02/27 16:05:31 alex Exp $

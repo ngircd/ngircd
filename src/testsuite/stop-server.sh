@@ -1,10 +1,10 @@
 #!/bin/sh
 # ngIRCd Test Suite
-# $Id: stop-server.sh,v 1.2 2002/09/12 02:27:47 alex Exp $
+# $Id: stop-server.sh,v 1.3 2002/09/13 06:04:49 alex Exp $
 
 echo "      stopping server ..."
 
-ps a > procs.tmp
+ps ax > procs.tmp
 pid=`cat procs.tmp | grep ngircd-TEST | awk "{ print \\\$1 }"`
 kill $pid > /dev/null 2>&1
 

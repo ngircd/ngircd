@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.8 2001/12/27 16:54:51 alex Exp $
+ * $Id: client.c,v 1.9 2001/12/27 17:15:29 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,9 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.9  2001/12/27 17:15:29  alex
+ * - der eigene Hostname wird nun komplet (als FQDN) ermittelt.
+ *
  * Revision 1.8  2001/12/27 16:54:51  alex
  * - neue Funktion Client_GetID(), liefert die "Client ID".
  *
@@ -56,6 +59,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
+#include <netdb.h>
 
 #include <exp.h>
 #include "client.h"
@@ -79,6 +83,8 @@ LOCAL CLIENT *New_Client_Struct( VOID );
 
 GLOBAL VOID Client_Init( VOID )
 {
+	struct hostent *h;
+	
 	This_Server = New_Client_Struct( );
 	if( ! This_Server )
 	{
@@ -91,7 +97,11 @@ GLOBAL VOID Client_Init( VOID )
 	This_Server->type = CLIENT_SERVER;
 	This_Server->conn_id = NONE;
 	This_Server->introducer = This_Server;
+
 	gethostname( This_Server->host, CLIENT_HOST_LEN );
+	h = gethostbyname( This_Server->host );
+	if( h ) strcpy( This_Server->host, h->h_name );
+
 	strcpy( This_Server->nick, This_Server->host );
 
 	My_Clients = This_Server;

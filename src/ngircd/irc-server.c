@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-server.c,v 1.28 2002/12/26 17:14:48 alex Exp $";
+static char UNUSED id[] = "$Id: irc-server.c,v 1.29 2002/12/30 00:01:45 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -23,8 +23,8 @@ static char UNUSED id[] = "$Id: irc-server.c,v 1.28 2002/12/26 17:14:48 alex Exp
 #include <string.h>
 
 #include "resolve.h"
-#include "conf.h"
 #include "conn.h"
+#include "conf.h"
 #include "client.h"
 #include "channel.h"
 #include "irc-write.h"
@@ -63,8 +63,8 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 		if(( Req->argc != 2 ) && ( Req->argc != 3 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
 		/* Ist dieser Server bei uns konfiguriert? */
-		for( i = 0; i < Conf_Server_Count; i++ ) if( strcasecmp( Req->argv[0], Conf_Server[i].name ) == 0 ) break;
-		if( i >= Conf_Server_Count )
+		for( i = 0; i < MAX_SERVERS; i++ ) if( strcasecmp( Req->argv[0], Conf_Server[i].name ) == 0 ) break;
+		if( i >= MAX_SERVERS )
 		{
 			/* Server ist nicht konfiguriert! */
 			Log( LOG_ERR, "Connection %d: Server \"%s\" not configured here!", Client_Conn( Client ), Req->argv[0] );
@@ -114,7 +114,7 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 		Log( LOG_NOTICE|LOG_snotice, "Server \"%s\" registered (connection %d, 1 hop - direct link).", Client_ID( Client ), con );
 
 		Client_SetType( Client, CLIENT_SERVER );
-		Conn_SetServer( con, i );
+		Conf_SetServer( i, con );
 
 #ifdef USE_ZLIB
 		/* Kompression initialisieren, wenn erforderlich */

@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conn.h,v 1.26 2002/12/18 13:50:22 alex Exp $
+ * $Id: conn.h,v 1.27 2002/12/30 00:01:45 alex Exp $
  *
  * Connection management (header)
  */
@@ -61,8 +61,6 @@ GLOBAL VOID Conn_ResetPenalty PARAMS(( CONN_ID Idx ));
 GLOBAL VOID Conn_ClearFlags PARAMS(( VOID ));
 GLOBAL INT Conn_Flag PARAMS(( CONN_ID Idx ));
 GLOBAL VOID Conn_SetFlag PARAMS(( CONN_ID Idx, INT Flag ));
-
-GLOBAL VOID Conn_SetServer PARAMS(( CONN_ID Idx, INT ConfServer ));
 
 GLOBAL CONN_ID Conn_First PARAMS(( VOID ));
 GLOBAL CONN_ID Conn_Next PARAMS(( CONN_ID Idx ));

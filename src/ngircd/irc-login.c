@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-login.c,v 1.28 2002/12/22 23:31:21 alex Exp $";
+static char UNUSED id[] = "$Id: irc-login.c,v 1.29 2002/12/30 00:01:45 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -24,8 +24,8 @@ static char UNUSED id[] = "$Id: irc-login.c,v 1.28 2002/12/22 23:31:21 alex Exp 
 
 #include "ngircd.h"
 #include "resolve.h"
-#include "conf.h"
 #include "conn.h"
+#include "conf.h"
 #include "client.h"
 #include "channel.h"
 #include "log.h"

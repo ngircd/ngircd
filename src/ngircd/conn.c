@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.110 2002/12/27 13:20:13 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.111 2002/12/30 00:01:45 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -66,39 +66,38 @@ static char UNUSED id[] = "$Id: conn.c,v 1.110 2002/12/27 13:20:13 alex Exp $";
 #ifdef USE_ZLIB
 typedef struct _ZipData
 {
-	z_stream in;			/* "Handle" fuer Input-Stream */
-	z_stream out;			/* "Handle" fuer Output-Stream */
-	CHAR rbuf[READBUFFER_LEN];	/* Lesepuffer */
-	INT rdatalen;			/* Laenge der Daten im Lesepuffer (komprimiert) */
-	CHAR wbuf[WRITEBUFFER_LEN];	/* Schreibpuffer */
-	INT wdatalen;			/* Laenge der Daten im Schreibpuffer (unkomprimiert) */
-	LONG bytes_in, bytes_out;	/* Counter fuer Statistik (unkomprimiert!) */
+	z_stream in;			/* "Handle" for input stream */
+	z_stream out;			/* "Handle" for output stream */
+	CHAR rbuf[READBUFFER_LEN];	/* Read buffer */
+	INT rdatalen;			/* Length of data in read buffer (compressed) */
+	CHAR wbuf[WRITEBUFFER_LEN];	/* Write buffer */
+	INT wdatalen;			/* Length of data in write buffer (uncompressed) */
+	LONG bytes_in, bytes_out;	/* Counter for statistics (uncompressed!) */
 } ZIPDATA;
 #endif
 
 
 typedef struct _Connection
 {
-	INT sock;			/* Socket Handle */
-	struct sockaddr_in addr;	/* Adresse des Client */
-	RES_STAT *res_stat;		/* "Resolver-Status", s.o. */
+	INT sock;			/* Socket handle */
+	struct sockaddr_in addr;	/* Client address */
+	RES_STAT *res_stat;		/* Status of resolver process, if any */
 	CHAR host[HOST_LEN];		/* Hostname */
-	CHAR rbuf[READBUFFER_LEN];	/* Lesepuffer */
-	INT rdatalen;			/* Laenge der Daten im Lesepuffer */
-	CHAR wbuf[WRITEBUFFER_LEN];	/* Schreibpuffer */
-	INT wdatalen;			/* Laenge der Daten im Schreibpuffer */
-	INT our_server;			/* wenn von uns zu connectender Server: ID */
-	time_t starttime;		/* Startzeit des Links */
-	time_t lastdata;		/* Letzte Aktivitaet */
-	time_t lastping;		/* Letzter PING */
-	time_t lastprivmsg;		/* Letzte PRIVMSG */
-	time_t delaytime;		/* Nicht beachten bis ("penalty") */
-	LONG bytes_in, bytes_out;	/* Empfangene uns gesendete Bytes */
-	LONG msg_in, msg_out;		/* Empfangene uns gesendete Nachtichten */
-	INT flag;			/* "Markierungs-Flag" (vgl. "irc-write"-Modul) */
-	INT options;			/* Link-Optionen */
+	CHAR rbuf[READBUFFER_LEN];	/* Read buffer */
+	INT rdatalen;			/* Length of data in read buffer */
+	CHAR wbuf[WRITEBUFFER_LEN];	/* Write buffer */
+	INT wdatalen;			/* Length of data in write buffer */
+	time_t starttime;		/* Start time of link */
+	time_t lastdata;		/* Last activity */
+	time_t lastping;		/* Last PING */
+	time_t lastprivmsg;		/* Last PRIVMSG */
+	time_t delaytime;		/* Ignore link ("penalty") */
+	LONG bytes_in, bytes_out;	/* Received and sent bytes */
+	LONG msg_in, msg_out;		/* Received and sent IRC messages */
+	INT flag;			/* Flag (see "irc-write" module) */
+	INT options;			/* Link options */
 #ifdef USE_ZLIB
-	ZIPDATA zip;			/* Kompressionsinformationen */
+	ZIPDATA zip;			/* Compression information */
 #endif
 } CONNECTION;
 
@@ -649,14 +648,7 @@ Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient )
 	}
 
 	/* Servers: Modify time of next connect attempt? */
-	if(( My_Connections[Idx].our_server > NONE ) && ( Conf_Server[My_Connections[Idx].our_server].lasttry <  time( NULL ) - Conf_ConnectRetry ))
-	{
-		/* Okay, die Verbindung stand schon "genuegend lange":
-		 * lasttry-Zeitpunkt so setzen, dass der naechste
-		 * Verbindungsversuch in RECONNECT_DELAY Sekunden
-		 * gestartet wird. */
-		Conf_Server[My_Connections[Idx].our_server].lasttry = time( NULL ) - Conf_ConnectRetry + RECONNECT_DELAY;
-	}
+	Conf_UnsetServer( Idx );
 
 #ifdef USE_ZLIB
 	/* Clean up zlib, if link was compressed */
@@ -791,19 +783,6 @@ Conn_Next( CONN_ID Idx )
 	}
 	return NONE;
 } /* Conn_Next */
-
-
-GLOBAL VOID
-Conn_SetServer( CONN_ID Idx, INT ConfServer )
-{
-	/* Connection als Server markieren: Index des konfigurierten
-	 * Servers speichern. Verbindung muss bereits bestehen! */
-	
-	assert( Idx > NONE );
-	assert( My_Connections[Idx].sock > NONE );
-	
-	My_Connections[Idx].our_server = ConfServer;
-} /* Conn_SetServer */
 
 
 GLOBAL VOID
@@ -1104,7 +1083,7 @@ Handle_Write( CONN_ID Idx )
 		{
 			/* Fehler! */
 			if( res != 0 ) Log( LOG_CRIT, "getsockopt (connection %d): %s!", Idx, strerror( errno ));
-			else Log( LOG_CRIT, "Can't connect socket to \"%s:%d\" (connection %d): %s!", My_Connections[Idx].host, Conf_Server[My_Connections[Idx].our_server].port, Idx, strerror( err ));
+			else Log( LOG_CRIT, "Can't connect socket to \"%s:%d\" (connection %d): %s!", My_Connections[Idx].host, Conf_Server[Conf_GetServer( Idx )].port, Idx, strerror( err ));
 
 			/* Socket etc. pp. aufraeumen */
 			FD_CLR( My_Connections[Idx].sock, &My_Sockets );
@@ -1112,14 +1091,15 @@ Handle_Write( CONN_ID Idx )
 			Init_Conn_Struct( Idx );
 
 			/* Bei Server-Verbindungen lasttry-Zeitpunkt auf "jetzt" setzen */
-			Conf_Server[My_Connections[Idx].our_server].lasttry = time( NULL );
+			Conf_Server[Conf_GetServer( Idx )].lasttry = time( NULL );
+			Conf_UnsetServer( Idx );
 
 			return FALSE;
 		}
-		Log( LOG_DEBUG, "Connection %d with \"%s:%d\" established, now sendig PASS and SERVER ...", Idx, My_Connections[Idx].host, Conf_Server[My_Connections[Idx].our_server].port );
+		Log( LOG_DEBUG, "Connection %d with \"%s:%d\" established, now sendig PASS and SERVER ...", Idx, My_Connections[Idx].host, Conf_Server[Conf_GetServer( Idx )].port );
 
 		/* PASS und SERVER verschicken */
-		Conn_WriteStr( Idx, "PASS %s %s", Conf_Server[My_Connections[Idx].our_server].pwd_out, NGIRCd_ProtoID );
+		Conn_WriteStr( Idx, "PASS %s %s", Conf_Server[Conf_GetServer( Idx )].pwd_out, NGIRCd_ProtoID );
 		return Conn_WriteStr( Idx, "SERVER %s :%s", Conf_ServerName, Conf_ServerInfo );
 	}
 
@@ -1534,51 +1514,48 @@ Check_Connections( VOID )
 LOCAL VOID
 Check_Servers( VOID )
 {
-	/* Pruefen, ob Server-Verbindungen aufgebaut werden
-	 * muessen bzw. koennen */
+	/* Check if we can establish further server links */
 
 	RES_STAT *s;
-	LONG idx, n;
-	INT i;
+	CONN_ID idx;
+	INT i, n;
 
-	/* Wenn "Passive-Mode" aktiv: nicht verbinden */
+	/* Don't connect in "passive mode" */
 	if( NGIRCd_Passive ) return;
 
-	for( i = 0; i < Conf_Server_Count; i++ )
+	/* Serach all connections, are there results from the resolver? */
+	for( idx = 0; idx < Pool_Size; idx++ )
 	{
-		/* Ist ein Hostname und Port definiert? */
-		if(( ! Conf_Server[i].host[0] ) || ( ! Conf_Server[i].port > 0 )) continue;
+		if( My_Connections[idx].sock != SERVER_WAIT ) continue;
 
-		/* Haben wir schon eine Verbindung? */
-		for( n = 0; n < Pool_Size; n++ )
+		/* IP resolved? */
+		if( My_Connections[idx].res_stat == NULL ) New_Server( Conf_GetServer( idx ), idx );
+	}
+
+	/* Check all configured servers */
+	for( i = 0; i < MAX_SERVERS; i++ )
+	{
+		/* Valid outgoing server which isn't already connected? */
+		if(( ! Conf_Server[i].host[0] ) || ( ! Conf_Server[i].port > 0 ) || ( Conf_Server[i].conn_id > NONE )) continue;
+
+		/* Is there already a connection in this group? */
+		if( Conf_Server[i].group > NONE )
 		{
-			if( My_Connections[n].sock == NONE ) continue;
-			
-			/* Verbindung zu diesem Server? */
-			if( My_Connections[n].our_server == i )
+			for( n = 0; n < MAX_SERVERS; n++ )
 			{
-				/* Komplett aufgebaute Verbindung? */
-				if( My_Connections[n].sock > NONE ) break;
-
-				/* IP schon aufgeloest? */
-				if( My_Connections[n].res_stat == NULL ) New_Server( i, n );
+				if( n == i ) continue;
+				if(( Conf_Server[n].conn_id > NONE ) && ( Conf_Server[n].group == Conf_Server[i].group )) break;
 			}
-
-			/* Verbindung in dieser Server-Gruppe? */
-			if(( My_Connections[n].our_server != NONE ) && ( Conf_Server[i].group != NONE ))
-			{
-				if( Conf_Server[My_Connections[n].our_server].group == Conf_Server[i].group ) break;
-			}
+			if( n < MAX_SERVERS ) continue;
 		}
-		if( n < Pool_Size ) continue;
 
-		/* Wann war der letzte Connect-Versuch? */
+		/* Check last connect attempt? */
 		if( Conf_Server[i].lasttry > time( NULL ) - Conf_ConnectRetry ) continue;
 
-		/* Okay, Verbindungsaufbau versuchen */
+		/* Okay, try to connect now */
 		Conf_Server[i].lasttry = time( NULL );
 
-		/* Freie Connection-Struktur suschen */
+		/* Search free connection structure */
 		for( idx = 0; idx < Pool_Size; idx++ ) if( My_Connections[idx].sock == NONE ) break;
 		if( idx >= Pool_Size )
 		{
@@ -1590,11 +1567,10 @@ Check_Servers( VOID )
 		/* Verbindungs-Struktur initialisieren */
 		Init_Conn_Struct( idx );
 		My_Connections[idx].sock = SERVER_WAIT;
-		My_Connections[idx].our_server = i;
+		Conf_Server[i].conn_id = idx;
 
-		/* Hostnamen in IP aufloesen (Default bzw. im Fehlerfall: versuchen, den
-		 * konfigurierten Text direkt als IP-Adresse zu verwenden ... */
-		strlcpy( Conf_Server[My_Connections[idx].our_server].ip, Conf_Server[i].host, sizeof( Conf_Server[My_Connections[idx].our_server].ip ));
+		/* Resolve Hostname. If this fails, try to use it as an IP address */
+		strlcpy( Conf_Server[i].ip, Conf_Server[i].host, sizeof( Conf_Server[i].ip ));
 		strlcpy( My_Connections[idx].host, Conf_Server[i].host, sizeof( My_Connections[idx].host ));
 		s = Resolve_Name( Conf_Server[i].host );
 		if( s )
@@ -1706,7 +1682,6 @@ Init_Conn_Struct( LONG Idx )
 	My_Connections[Idx].rdatalen = 0;
 	My_Connections[Idx].wbuf[0] = '\0';
 	My_Connections[Idx].wdatalen = 0;
-	My_Connections[Idx].our_server = NONE;
 	My_Connections[Idx].starttime = time( NULL );
 	My_Connections[Idx].lastdata = time( NULL );
 	My_Connections[Idx].lastping = 0;
@@ -1763,7 +1738,7 @@ Read_Resolver_Result( INT r_fd )
 
 	CHAR result[HOST_LEN];
 	CLIENT *c;
-	INT len, i;
+	INT len, i, n;
 
 	FD_CLR( r_fd, &Resolver_FDs );
 
@@ -1811,8 +1786,9 @@ Read_Resolver_Result( INT r_fd )
 	else
 	{
 		/* Ausgehende Verbindung (=Server): IP setzen */
-		assert( My_Connections[i].our_server > NONE );
-		strlcpy( Conf_Server[My_Connections[i].our_server].ip, result, sizeof( Conf_Server[My_Connections[i].our_server].ip ));
+		n = Conf_GetServer( i );
+		if( n > NONE ) strlcpy( Conf_Server[n].ip, result, sizeof( Conf_Server[n].ip ));
+		else Log( LOG_ERR, "Got resolver result for non-configured server!?" );
 	}
 
 	/* Penalty-Zeit zurueck setzen */

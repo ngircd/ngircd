@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.51 2002/12/26 17:04:54 alex Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.52 2002/12/30 00:01:45 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -46,9 +46,11 @@ static char UNUSED id[] = "$Id: conf.c,v 1.51 2002/12/26 17:04:54 alex Exp $";
 
 
 LOCAL BOOLEAN Use_Log = TRUE;
+LOCAL CONF_SERVER New_Server;
+LOCAL INT New_Server_Idx;
 
 
-LOCAL VOID Set_Defaults PARAMS(( VOID ));
+LOCAL VOID Set_Defaults PARAMS(( BOOLEAN InitServers ));
 LOCAL VOID Read_Config PARAMS(( VOID ));
 LOCAL VOID Validate_Config PARAMS(( BOOLEAN TestOnly ));
 
@@ -59,14 +61,25 @@ LOCAL VOID Handle_CHANNEL PARAMS(( INT Line, CHAR *Var, CHAR *Arg ));
 
 LOCAL VOID Config_Error PARAMS(( CONST INT Level, CONST CHAR *Format, ... ));
 
+LOCAL VOID Init_Server_Struct PARAMS(( CONF_SERVER *Server ));
+
 
 GLOBAL VOID
 Conf_Init( VOID )
 {
-	Set_Defaults( );
+	Set_Defaults( TRUE );
 	Read_Config( );
 	Validate_Config( FALSE );
 } /* Config_Init */
+
+
+GLOBAL VOID
+Conf_Rehash( VOID )
+{
+	Set_Defaults( FALSE );
+	Read_Config( );
+	Validate_Config( FALSE );
+} /* Config_Rehash */
 
 
 GLOBAL INT
@@ -79,7 +92,7 @@ Conf_Test( VOID )
 	INT i;
 
 	Use_Log = FALSE;
-	Set_Defaults( );
+	Set_Defaults( TRUE );
 
 	Read_Config( );
 	Validate_Config( TRUE );
@@ -134,7 +147,7 @@ Conf_Test( VOID )
 		puts( "" );
 	}
 
-	for( i = 0; i < Conf_Server_Count; i++ )
+	for( i = 0; i < MAX_SERVERS; i++ )
 	{
 		if( ! Conf_Server[i].name[0] ) continue;
 		
@@ -165,10 +178,78 @@ Conf_Test( VOID )
 } /* Conf_Test */
 
 
+GLOBAL VOID
+Conf_UnsetServer( CONN_ID Idx )
+{
+	/* Set next time for next connection attempt, if this is a server
+	 * link that is (still) configured here. If the server is set as
+	 * "once", delete it from our configuration.
+	 * Non-Server-Connections will be silently ignored. */
+
+	INT i;
+
+	/* Check all our configured servers */
+	for( i = 0; i < MAX_SERVERS; i++ )
+	{
+		if( Conf_Server[i].conn_id != Idx ) continue;
+
+		/* Gotcha! Mark server configuration as "unused": */
+		Conf_Server[i].conn_id = NONE;
+
+		if( Conf_Server[i].once )
+		{
+			/* Delete configuration here */
+			Init_Server_Struct( &Conf_Server[i] );
+		}
+		else
+		{
+			/* Set time for next connect attempt */
+			if( Conf_Server[i].lasttry <  time( NULL ) - Conf_ConnectRetry )
+			{
+				/* Okay, the connection was established "long enough": */
+				Conf_Server[i].lasttry = time( NULL ) - Conf_ConnectRetry + RECONNECT_DELAY;
+			}
+		}
+		break;
+	}
+} /* Conf_UnsetServer */
+
+
+GLOBAL VOID
+Conf_SetServer( INT ConfServer, CONN_ID Idx )
+{
+	/* Set connection for specified configured server */
+
+	assert( ConfServer > NONE );
+	assert( Idx > NONE );
+
+	Conf_Server[ConfServer].conn_id = Idx;
+} /* Conf_SetServer */
+
+
+GLOBAL INT
+Conf_GetServer( CONN_ID Idx )
+{
+	/* Get index of server in configuration structure */
+
+	INT i;
+
+	assert( Idx > NONE );
+
+	for( i = 0; i < MAX_SERVERS; i++ )
+	{
+		if( Conf_Server[i].conn_id == Idx ) return i;
+	}
+	return NONE;
+} /* Conf_GetServer */
+
+
 LOCAL VOID
-Set_Defaults( VOID )
+Set_Defaults( BOOLEAN InitServers )
 {
 	/* Initialize configuration variables with default values. */
+
+	INT i;
 
 	strcpy( Conf_ServerName, "" );
 	sprintf( Conf_ServerInfo, "%s %s", PACKAGE, VERSION );
@@ -191,13 +272,15 @@ Set_Defaults( VOID )
 	Conf_ConnectRetry = 60;
 
 	Conf_Oper_Count = 0;
-	Conf_Server_Count = 0;
 	Conf_Channel_Count = 0;
 
 	Conf_OperCanMode = FALSE;
 	
 	Conf_MaxConnections = -1;
 	Conf_MaxJoins = 10;
+
+	/* Initialize server configuration structures */
+	if( InitServers ) for( i = 0; i < MAX_SERVERS; Init_Server_Struct( &Conf_Server[i++] ));
 } /* Set_Defaults */
 
 
@@ -207,9 +290,10 @@ Read_Config( VOID )
 	/* Read configuration file. */
 
 	CHAR section[LINE_LEN], str[LINE_LEN], *var, *arg, *ptr;
-	INT line;
+	INT line, i;
 	FILE *fd;
 
+	/* Open configuration file */
 	fd = fopen( NGIRCd_ConfFile, "r" );
 	if( ! fd )
 	{
@@ -221,8 +305,22 @@ Read_Config( VOID )
 
 	Config_Error( LOG_INFO, "Reading configuration from \"%s\" ...", NGIRCd_ConfFile );
 
+	/* Clean up server configuration structure: mark all already
+	 * configured servers as "once" so that they are deleted
+	 * after the next disconnect and delete all unused servers. */
+	for( i = 0; i < MAX_SERVERS; i++ )
+	{
+		if( Conf_Server[i].conn_id == NONE ) Init_Server_Struct( &Conf_Server[i] );
+		else Conf_Server[i].once = TRUE;
+	}
+
+	/* Initialize variables */
 	line = 0;
 	strcpy( section, "" );
+	Init_Server_Struct( &New_Server );
+	New_Server_Idx = NONE;
+
+	/* Read configuration file */
 	while( TRUE )
 	{
 		if( ! fgets( str, LINE_LEN, fd )) break;
@@ -251,21 +349,30 @@ Read_Config( VOID )
 			}
 			if( strcasecmp( section, "[SERVER]" ) == 0 )
 			{
-				if( Conf_Server_Count + 1 > MAX_SERVERS ) Config_Error( LOG_ERR, "Too many servers configured." );
-				else
+				/* Check if there is already a server to add */
+				if( New_Server.name[0] )
 				{
-					/* Initialize new server structure */
-					strcpy( Conf_Server[Conf_Server_Count].host, "" );
-					strcpy( Conf_Server[Conf_Server_Count].ip, "" );
-					strcpy( Conf_Server[Conf_Server_Count].name, "" );
-					strcpy( Conf_Server[Conf_Server_Count].pwd_in, "" );
-					strcpy( Conf_Server[Conf_Server_Count].pwd_out, "" );
-					Conf_Server[Conf_Server_Count].port = 0;
-					Conf_Server[Conf_Server_Count].group = -1;
-					Conf_Server[Conf_Server_Count].lasttry = time( NULL ) - Conf_ConnectRetry + STARTUP_DELAY;
-					Conf_Server[Conf_Server_Count].res_stat = NULL;
-					Conf_Server_Count++;
+					/* Copy data to "real" server structure */
+					assert( New_Server_Idx > NONE );
+					Conf_Server[New_Server_Idx] = New_Server;
 				}
+
+				/* Re-init structure for new server */
+				Init_Server_Struct( &New_Server );
+
+				/* Search unused item in server configuration structure */
+				for( i = 0; i < MAX_SERVERS; i++ )
+				{
+					/* Is this item used? */
+					if( ! Conf_Server[i].name[0] ) break;
+				}
+				if( i >= MAX_SERVERS )
+				{
+					/* Oops, no free item found! */
+					Config_Error( LOG_ERR, "Too many servers configured." );
+					New_Server_Idx = NONE;
+				}
+				else New_Server_Idx = i;
 				continue;
 			}
 			if( strcasecmp( section, "[CHANNEL]" ) == 0 )
@@ -303,8 +410,17 @@ Read_Config( VOID )
 		else if( strcasecmp( section, "[CHANNEL]" ) == 0 ) Handle_CHANNEL( line, var, arg );
 		else Config_Error( LOG_ERR, "%s, line %d: Variable \"%s\" outside section!", NGIRCd_ConfFile, line, var );
 	}
-	
+
+	/* Close configuration file */
 	fclose( fd );
+
+	/* Check if there is still a server to add */
+	if( New_Server.name[0] )
+	{
+		/* Copy data to "real" server structure */
+		assert( New_Server_Idx > NONE );
+		Conf_Server[New_Server_Idx] = New_Server;
+	}
 	
 	/* If there are no ports configured use the default: 6667 */
 	if( Conf_ListenPorts_Count < 1 )
@@ -519,35 +635,38 @@ Handle_SERVER( INT Line, CHAR *Var, CHAR *Arg )
 	assert( Var != NULL );
 	assert( Arg != NULL );
 
+	/* Ignore server block if no space is left in server configuration structure */
+	if( New_Server_Idx <= NONE ) return;
+
 	if( strcasecmp( Var, "Host" ) == 0 )
 	{
 		/* Hostname of the server */
-		if( strlcpy( Conf_Server[Conf_Server_Count - 1].host, Arg, sizeof( Conf_Server[Conf_Server_Count - 1].host )) >= sizeof( Conf_Server[Conf_Server_Count - 1].host )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Host\" too long!", NGIRCd_ConfFile, Line );
+		if( strlcpy( New_Server.host, Arg, sizeof( New_Server.host )) >= sizeof( New_Server.host )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Host\" too long!", NGIRCd_ConfFile, Line );
 		return;
 	}
 	if( strcasecmp( Var, "Name" ) == 0 )
 	{
 		/* Name of the server ("Nick"/"ID") */
-		if( strlcpy( Conf_Server[Conf_Server_Count - 1].name, Arg, sizeof( Conf_Server[Conf_Server_Count - 1].name )) >= sizeof( Conf_Server[Conf_Server_Count - 1].name )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Name\" too long!", NGIRCd_ConfFile, Line );
+		if( strlcpy( New_Server.name, Arg, sizeof( New_Server.name )) >= sizeof( New_Server.name )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Name\" too long!", NGIRCd_ConfFile, Line );
 		return;
 	}
 	if( strcasecmp( Var, "MyPassword" ) == 0 )
 	{
 		/* Password of this server which is sent to the peer */
-		if( strlcpy( Conf_Server[Conf_Server_Count - 1].pwd_in, Arg, sizeof( Conf_Server[Conf_Server_Count - 1].pwd_in )) >= sizeof( Conf_Server[Conf_Server_Count - 1].pwd_in )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"MyPassword\" too long!", NGIRCd_ConfFile, Line );
+		if( strlcpy( New_Server.pwd_in, Arg, sizeof( New_Server.pwd_in )) >= sizeof( New_Server.pwd_in )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"MyPassword\" too long!", NGIRCd_ConfFile, Line );
 		return;
 	}
 	if( strcasecmp( Var, "PeerPassword" ) == 0 )
 	{
 		/* Passwort of the peer which must be received */
-		if( strlcpy( Conf_Server[Conf_Server_Count - 1].pwd_out, Arg, sizeof( Conf_Server[Conf_Server_Count - 1].pwd_out )) >= sizeof( Conf_Server[Conf_Server_Count - 1].pwd_out )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"PeerPassword\" too long!", NGIRCd_ConfFile, Line );
+		if( strlcpy( New_Server.pwd_out, Arg, sizeof( New_Server.pwd_out )) >= sizeof( New_Server.pwd_out )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"PeerPassword\" too long!", NGIRCd_ConfFile, Line );
 		return;
 	}
 	if( strcasecmp( Var, "Port" ) == 0 )
 	{
 		/* Port to which this server should connect */
 		port = atol( Arg );
-		if( port > 0 && port < 0xFFFF ) Conf_Server[Conf_Server_Count - 1].port = (INT)port;
+		if( port > 0 && port < 0xFFFF ) New_Server.port = (INT)port;
 		else Config_Error( LOG_ERR, "%s, line %d (section \"Server\"): Illegal port number %ld!", NGIRCd_ConfFile, Line, port );
 		return;
 	}
@@ -558,7 +677,7 @@ Handle_SERVER( INT Line, CHAR *Var, CHAR *Arg )
 		if( ! isdigit( *Arg )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Group\" is not a number!", NGIRCd_ConfFile, Line );
 		else
 #endif
-		Conf_Server[Conf_Server_Count - 1].group = atoi( Arg );
+		New_Server.group = atoi( Arg );
 		return;
 	}
 	
@@ -600,7 +719,11 @@ LOCAL VOID
 Validate_Config( BOOLEAN Configtest )
 {
 	/* Validate configuration settings. */
-	
+
+#ifdef DEBUG
+	INT i, servers, servers_once;
+#endif
+
 	if( ! Conf_ServerName[0] )
 	{
 		/* No server name configured! */
@@ -639,6 +762,19 @@ Validate_Config( BOOLEAN Configtest )
 #else
 	Config_Error( LOG_WARN, "Don't know how many file descriptors select() can handle on this system, don't set MaxConnections too high!" );
 #endif
+
+#ifdef DEBUG
+	servers = servers_once = 0;
+	for( i = 0; i < MAX_SERVERS; i++ )
+	{
+		if( Conf_Server[i].name[0] )
+		{
+			servers++;
+			if( Conf_Server[i].once ) servers_once++;
+		}
+	}
+	Log( LOG_DEBUG, "Configuration: Operators=%d, Servers=%d[%d], Channels=%d", Conf_Oper_Count, servers, servers_once, Conf_Channel_Count );
+#endif
 } /* Validate_Config */
 
 
@@ -672,6 +808,27 @@ va_dcl
 	if( Use_Log ) Log( Level, "%s", msg );
 	else puts( msg );
 } /* Config_Error */
+
+
+LOCAL VOID
+Init_Server_Struct( CONF_SERVER *Server )
+{
+	/* Initialize server configuration structur to default values */
+
+	assert( Server != NULL );
+
+	strcpy( Server->host, "" );
+	strcpy( Server->ip, "" );
+	strcpy( Server->name, "" );
+	strcpy( Server->pwd_in, "" );
+	strcpy( Server->pwd_out, "" );
+	Server->port = 0;
+	Server->group = NONE;
+	Server->lasttry = time( NULL ) - Conf_ConnectRetry + STARTUP_DELAY;
+	Server->res_stat = NULL;
+	Server->once = FALSE;
+	Server->conn_id = NONE;
+} /* Init_Server_Struct */
 
 
 /* -eof- */

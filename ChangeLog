@@ -24,6 +24,8 @@ ngIRCd CVS-HEAD
   - If the server can't close a socket, it panics now. This is an error that
     can't occure during normal operation so there is something broken.
   - The order of log messages during disconnects is more "natural" now ;-)
+  - Cleaned up handling of server configuration structures: modifying and
+    removing servers during runtime works more reliable now.
 
 
 Older changes (sorry, only available in german language):
@@ -387,4 +389,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.156 2002/12/27 13:24:55 alex Exp $
+$Id: ChangeLog,v 1.157 2002/12/30 00:01:42 alex Exp $

@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conf.h,v 1.24 2002/12/14 13:36:19 alex Exp $
+ * $Id: conf.h,v 1.25 2002/12/30 00:01:45 alex Exp $
  *
  * Configuration management (header)
  */
@@ -39,6 +39,8 @@ typedef struct _Conf_Server
 	INT group;			/* Group of server */
 	time_t lasttry;			/* Last connect attempt */
 	RES_STAT *res_stat;		/* Status of the resolver */
+	BOOLEAN once;			/* This server is valid only once */
+	CONN_ID conn_id;		/* ID of server connection or NONE */
 } CONF_SERVER;
 
 typedef struct _Conf_Channel
@@ -87,7 +89,6 @@ GLOBAL INT Conf_Oper_Count;
 
 /* Servers */
 GLOBAL CONF_SERVER Conf_Server[MAX_SERVERS];
-GLOBAL INT Conf_Server_Count;
 
 /* Pre-defined channels */
 GLOBAL CONF_CHANNEL Conf_Channel[MAX_DEFCHANNELS];
@@ -104,7 +105,12 @@ GLOBAL INT Conf_MaxJoins;
 
 
 GLOBAL VOID Conf_Init PARAMS((VOID ));
+GLOBAL VOID Conf_Rehash PARAMS((VOID ));
 GLOBAL INT Conf_Test PARAMS((VOID ));
+
+GLOBAL VOID Conf_UnsetServer PARAMS(( CONN_ID Idx ));
+GLOBAL VOID Conf_SetServer PARAMS(( INT ConfServer, CONN_ID Idx ));
+GLOBAL INT Conf_GetServer PARAMS(( CONN_ID Idx ));
 
 
 #endif

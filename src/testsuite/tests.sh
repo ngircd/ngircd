@@ -1,6 +1,6 @@
 #!/bin/sh
 # ngIRCd Test Suite
-# $Id: tests.sh,v 1.4.2.1 2004/09/04 20:49:36 alex Exp $
+# $Id: tests.sh,v 1.4.2.2 2004/09/06 22:07:26 alex Exp $
 
 # detect source directory
 [ -z "$srcdir" ] && srcdir=`dirname $0`
@@ -14,6 +14,9 @@ if [ ! -r "$test" ]; then
   exit 1
 fi
 
+# read in functions
+. ${srcdir}/functions.inc
+
 type expect > /dev/null 2>&1
 if [ $? -ne 0 ]; then
   echo "      ${name}: \"expect\" not found.";  exit 77
@@ -23,7 +26,7 @@ if [ $? -ne 0 ]; then
   echo "      ${name}: \"telnet\" not found.";  exit 77
 fi
 
-echo -n "      running ${test} ..."
+echo_n "      running ${test} ..."
 expect ${srcdir}/${test}.e > logs/${test}.log 2>&1; r=$?
 [ $r -eq 0 ] && echo " ok." || echo " failure!"
 

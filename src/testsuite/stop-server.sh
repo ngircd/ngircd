@@ -1,10 +1,13 @@
 #!/bin/sh
 # ngIRCd Test Suite
-# $Id: stop-server.sh,v 1.10.2.2 2004/09/06 20:30:43 alex Exp $
+# $Id: stop-server.sh,v 1.10.2.3 2004/09/06 22:07:26 alex Exp $
 
 [ -z "$srcdir" ] && srcdir=`dirname $0`
 
-echo -n "      stopping server ..."
+# read in functions
+. ${srcdir}/functions.inc
+
+echo_n "      stopping server ..."
 
 # stop test-server ...
 pid=`./getpid.sh T-ngircd`

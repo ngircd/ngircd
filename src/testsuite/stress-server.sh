@@ -9,7 +9,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: stress-server.sh,v 1.8.2.1 2004/09/04 20:49:36 alex Exp $
+# $Id: stress-server.sh,v 1.8.2.2 2004/09/06 22:07:26 alex Exp $
 #
 
 # detect source directory
@@ -38,6 +38,9 @@ fi
 # hello world! :-)
 echo "      stressing server with $CLIENTS clients (be patient!):"
 
+# read in functions
+. ${srcdir}/functions.inc
+
 # create scripts for expect(1)
 no=0
 while [ ${no} -lt $CLIENTS ]; do
@@ -57,7 +60,7 @@ while [ ${no} -lt $CLIENTS ]; do
   [ $MAX -gt 0 ] && $srcdir/wait-tests.sh $MAX
 done
 
-echo -n "      waiting for clients to complete: ."
+echo_n "      waiting for clients to complete: ."
 touch logs/check-idle.log
 while true; do
   expect ${srcdir}/check-idle.e >> logs/check-idle.log; res=$?
@@ -66,7 +69,7 @@ while true; do
 
   # there are still clients connected. Wait ...
   sleep 3
-  echo -n "."
+  echo_n "."
 done
 
 [ $res -eq 0 ] && echo " ok." || echo " failure!"

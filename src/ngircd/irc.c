@@ -9,11 +9,16 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.29 2002/01/05 23:24:54 alex Exp $
+ * $Id: irc.c,v 1.30 2002/01/06 15:21:29 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.30  2002/01/06 15:21:29  alex
+ * - Loglevel und Meldungen nochmals ueberarbeitet.
+ * - QUIT und SQUIT forwarden nun den Grund der Trennung,
+ * - WHOIS wird nun immer an den "Original-Server" weitergeleitet.
+ *
  * Revision 1.29  2002/01/05 23:24:54  alex
  * - WHOIS erweitert: Anfragen koennen an andere Server weitergeleitet werden.
  * - Vorbereitungen fuer Ident-Abfragen bei neuen Client-Strukturen.
@@ -325,15 +330,15 @@ GLOBAL BOOLEAN IRC_SERVER( CLIENT *Client, REQUEST *Req )
 		if( i >= Conf_Server_Count )
 		{
 			/* Server ist nicht konfiguriert! */
-			Log( LOG_ALERT, "Connection %d: Server \"%s\" not configured here!", Client_Conn( Client ), Req->argv[0] );
-			Conn_Close( Client_Conn( Client ), "Server not configured here!" );
+			Log( LOG_ERR, "Connection %d: Server \"%s\" not configured here!", Client_Conn( Client ), Req->argv[0] );
+			Conn_Close( Client_Conn( Client ), NULL, "Server not configured here", TRUE );
 			return DISCONNECTED;
 		}
 		if( strcmp( Client_Password( Client ), Conf_Server[i].pwd ) != 0 )
 		{
 			/* Falsches Passwort */
-			Log( LOG_ALERT, "Connection %d: Bad password for server \"%s\"!", Client_Conn( Client ), Req->argv[0] );
-			Conn_Close( Client_Conn( Client ), "Bad password!" );
+			Log( LOG_ERR, "Connection %d: Bad password for server \"%s\"!", Client_Conn( Client ), Req->argv[0] );
+			Conn_Close( Client_Conn( Client ), NULL, "Bad password", TRUE );
 			return DISCONNECTED;
 		}
 		
@@ -370,8 +375,8 @@ GLOBAL BOOLEAN IRC_SERVER( CLIENT *Client, REQUEST *Req )
 		if( ! c )
 		{
 			/* Neue Client-Struktur konnte nicht angelegt werden */
-			Log( LOG_ALERT, "Can't allocate client structure for server! (on connection %d)", Client_Conn( Client ));
-			Conn_Close( Client_Conn( Client ), "Can't allocate client structure for remote server!" );
+			Log( LOG_ALERT, "Can't create client structure for server! (on connection %d)", Client_Conn( Client ));
+			Conn_Close( Client_Conn( Client ), NULL, "Can't allocate client structure for remote server", TRUE );
 			return DISCONNECTED;
 		}
 
@@ -467,7 +472,7 @@ GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req )
 			/* Der neue Nick ist auf diesem Server bereits registriert:
 			 * sowohl der neue, als auch der alte Client muessen nun
 			 * disconnectiert werden. */
-			Log( LOG_ALERT, "Server %s introduces already registered nick %s!", Client_ID( Client ), Req->argv[0] );
+			Log( LOG_ERR, "Server %s introduces already registered nick %s!", Client_ID( Client ), Req->argv[0] );
 			Kill_Nick( Req->argv[0] );
 			return CONNECTED;
 		}
@@ -476,7 +481,7 @@ GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req )
 		intr_c = Client_GetFromToken( Client, atoi( Req->argv[4] ));
 		if( ! intr_c )
 		{
-			Log( LOG_ALERT, "Server %s introduces nick %s with unknown host server!?", Client_ID( Client ), Req->argv[0] );
+			Log( LOG_ERR, "Server %s introduces nick %s with unknown host server!?", Client_ID( Client ), Req->argv[0] );
 			Kill_Nick( Req->argv[0] );
 			return CONNECTED;
 		}
@@ -488,7 +493,7 @@ GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req )
 			/* Eine neue Client-Struktur konnte nicht angelegt werden.
 			 * Der Client muss disconnectiert werden, damit der Netz-
 			 * status konsistent bleibt. */
-			Log( LOG_ALERT, "Can't allocate client structure! (on connection %d)", Client_Conn( Client ));
+			Log( LOG_ALERT, "Can't create client structure! (on connection %d)", Client_Conn( Client ));
 			Kill_Nick( Req->argv[0] );
 			return CONNECTED;
 		}
@@ -545,7 +550,9 @@ GLOBAL BOOLEAN IRC_QUIT( CLIENT *Client, REQUEST *Req )
 		/* Falsche Anzahl Parameter? */
 		if( Req->argc > 1 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
-		Conn_Close( Client_Conn( Client ), "Client wants to quit." );
+		if( Req->argc == 0 ) Conn_Close( Client_Conn( Client ), "Got QUIT command.", NULL, TRUE );
+		else Conn_Close( Client_Conn( Client ), "Got QUIT command.", Req->argv[0], TRUE );
+		
 		return DISCONNECTED;
 	}
 	else if ( Client_Type( Client ) == CLIENT_SERVER )
@@ -556,8 +563,15 @@ GLOBAL BOOLEAN IRC_QUIT( CLIENT *Client, REQUEST *Req )
 		if( Req->argc > 1 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
 		target = Client_Search( Req->prefix );
-		if( ! target ) Log( LOG_ALERT, "Got QUIT from %s for unknown server!?", Client_ID( Client ));
-		else Client_Destroy( target );
+		if( ! target )
+		{
+			Log( LOG_ERR, "Got QUIT from %s for unknown server!?", Client_ID( Client ));
+			return CONNECTED;
+		}
+
+		if( Req->argc == 0 ) Client_Destroy( target, "Got QUIT command.", NULL );
+		else Client_Destroy( target, "Got QUIT command.", Req->argv[0] );
+
 		return CONNECTED;
 	}
 	else return IRC_WriteStrClient( Client, ERR_NOTREGISTERED_MSG, Client_ID( Client ));
@@ -580,24 +594,25 @@ GLOBAL BOOLEAN IRC_SQUIT( CLIENT *Client, REQUEST *Req )
 	target = Client_GetFromID( Req->argv[0] );
 	if( ! target )
 	{
-		Log( LOG_ALERT, "Got SQUIT from %s for unknown server \%s\"!?", Client_ID( Client ), Req->argv[0] );
+		Log( LOG_ERR, "Got SQUIT from %s for unknown server \%s\"!?", Client_ID( Client ), Req->argv[0] );
 		return CONNECTED;
 	}
 
-	if( target == Client ) Log( LOG_NOTICE, "Got SQUIT from %s: %s", Client_ID( Client ), Req->argv[1] );
-	else Log( LOG_NOTICE, "Got SQUIT from %s for %s: %s", Client_ID( Client ), Client_ID( target ), Req->argv[1] );
+	if( target == Client ) Log( LOG_DEBUG, "Got SQUIT from %s: %s", Client_ID( Client ), Req->argv[1] );
+	else Log( LOG_DEBUG, "Got SQUIT from %s for %s: %s", Client_ID( Client ), Client_ID( target ), Req->argv[1] );
 
 	/* FIXME: das SQUIT muss an alle Server weiter-
 	 * geleitet werden ... */
 
 	if( Client_Conn( target ) > NONE )
 	{
-		Conn_Close( Client_Conn( target ), Req->argv[1] );
+		if( Req->argv[1][0] ) Conn_Close( Client_Conn( target ), "Got SQUIT command.", Req->argv[1], TRUE );
+		else Conn_Close( Client_Conn( target ), "Got SQUIT command.", NULL, TRUE );
 		return DISCONNECTED;
 	}
 	else
 	{
-		Client_Destroy( target );
+		Client_Destroy( target, "Got SQUIT command.", Req->argv[1] );
 		return CONNECTED;
 	}
 } /* IRC_SQUIT */
@@ -839,10 +854,18 @@ GLOBAL BOOLEAN IRC_OPER( CLIENT *Client, REQUEST *Req )
 	{
 		if( Conf_Oper[i].name[0] && Conf_Oper[i].pwd[0] && ( strcmp( Conf_Oper[i].name, Req->argv[0] ) == 0 )) break;
 	}
-	if( i >= Conf_Oper_Count ) return IRC_WriteStrClient( Client, ERR_PASSWDMISMATCH_MSG, Client_ID( Client ));
+	if( i >= Conf_Oper_Count )
+	{
+		Log( LOG_WARNING, "Got invalid OPER from \"%s\": Name \"%s\" not configured!", Client_Mask( Client ), Req->argv[0] );
+		return IRC_WriteStrClient( Client, ERR_PASSWDMISMATCH_MSG, Client_ID( Client ));
+	}
 
-	/* Stimmt der Name und das Passwort? */
-	if(( strcmp( Conf_Oper[i].name, Req->argv[0] ) != 0 ) || ( strcmp( Conf_Oper[i].pwd, Req->argv[1] ) != 0 )) return IRC_WriteStrClient( Client, ERR_PASSWDMISMATCH_MSG, Client_ID( Client ));
+	/* Stimmt das Passwort? */
+	if( strcmp( Conf_Oper[i].pwd, Req->argv[1] ) != 0 )
+	{
+		Log( LOG_WARNING, "Got invalid OPER from \"%s\": Bad password for \"%s\"!", Client_Mask( Client ), Conf_Oper[i].name );
+		return IRC_WriteStrClient( Client, ERR_PASSWDMISMATCH_MSG, Client_ID( Client ));
+	}
 	
 	if( ! Client_HasMode( Client, 'o' ))
 	{
@@ -851,7 +874,7 @@ GLOBAL BOOLEAN IRC_OPER( CLIENT *Client, REQUEST *Req )
 		if( ! IRC_WriteStrRelated( Client, "MODE %s :+o", Client_ID( Client ))) return DISCONNECTED;
 	}
 
-	if( ! Client_OperByMe( Client )) Log( LOG_NOTICE, "User \"%s\" is now an IRC Operator.", Client_Mask( Client ));
+	if( ! Client_OperByMe( Client )) Log( LOG_NOTICE, "Got valid OPER from \"%s\", user is an IRC operator now.", Client_Mask( Client ));
 
 	Client_SetOperByMe( Client, TRUE );
 	return IRC_WriteStrClient( Client, RPL_YOUREOPER_MSG, Client_ID( Client ));
@@ -980,6 +1003,7 @@ GLOBAL BOOLEAN IRC_ISON( CLIENT *Client, REQUEST *Req )
 GLOBAL BOOLEAN IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *from, *target, *c;
+	CHAR *ptr = NULL;
 	
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -1001,11 +1025,20 @@ GLOBAL BOOLEAN IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 	/* Forwarden an anderen Server? */
 	if( Req->argc > 1 )
 	{
-		/* Ziel-Server suchen */
+		/* angegebenen Ziel-Server suchen */
 		target = Client_GetFromID( Req->argv[1] );
 		if( ! target ) return IRC_WriteStrClient( from, ERR_NOSUCHSERVER_MSG, Client_ID( from ), Req->argv[1] );
-		else return IRC_WriteStrClientPrefix( target, from, "WHOIS %s :%s", Req->argv[0], Req->argv[1] );
+		ptr = Req->argv[1];
 	}
+	else if( Client_Conn( c ) == NONE )
+	{
+		/* Client ist nicht von uns. Ziel-Server suchen */
+		target = c;
+		ptr = Req->argv[0];
+	}
+	else target = NULL;
+	
+	if( target && ( Client_NextHop( target ) != Client_ThisServer( ))) return IRC_WriteStrClientPrefix( target, from, "WHOIS %s :%s", Req->argv[0], ptr );
 	
 	/* Nick, User und Name */
 	if( ! IRC_WriteStrClient( from, RPL_WHOISUSER_MSG, Client_ID( from ), Client_ID( c ), Client_User( c ), Client_Hostname( c ), Client_Info( c ))) return DISCONNECTED;
@@ -1091,8 +1124,8 @@ LOCAL BOOLEAN Hello_User( CLIENT *Client )
 	if( strcmp( Client_Password( Client ), Conf_ServerPwd ) != 0 )
 	{
 		/* Falsches Passwort */
-		Log( LOG_ALERT, "User \"%s\" rejected (connection %d): Bad password!", Client_Mask( Client ), Client_Conn( Client ));
-		Conn_Close( Client_Conn( Client ), "Bad password!" );
+		Log( LOG_ERR, "User \"%s\" rejected (connection %d): Bad password!", Client_Mask( Client ), Client_Conn( Client ));
+		Conn_Close( Client_Conn( Client ), NULL, "Bad password", TRUE );
 		return DISCONNECTED;
 	}
 
@@ -1148,7 +1181,7 @@ LOCAL BOOLEAN Show_MOTD( CLIENT *Client )
 
 LOCAL VOID Kill_Nick( CHAR *Nick )
 {
-	Log( LOG_ALERT, "User(s) with nick \"%s\" will be disconnected!", Nick );
+	Log( LOG_ERR, "User(s) with nick \"%s\" will be disconnected!", Nick );
 	/* FIXME */
 	Log( LOG_ALERT, "[Kill_Nick() not implemented - OOOPS!]" );
 } /* Kill_Nick */

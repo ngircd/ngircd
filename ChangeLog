@@ -34,6 +34,8 @@ ngIRCd CVS-HEAD
   - in den Konfigurationsvariablen ServerUID und ServerGID kann nun nicht
     nur die numerische ID, sondern auch der Name des Users bzw. der Gruppe
     verwendet werden. Beim Start des Daemons wird nun beides angezeigt.
+  - Fehler-Handling von connect() gefixed: der Server kann sich nun auch   
+    unter A/UX wieder zu anderen verbinden.
 
 ngIRCd 0.5.3, 08.11.2002
 
@@ -322,4 +324,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.116 2002/11/10 13:39:17 alex Exp $
+$Id: ChangeLog,v 1.117 2002/11/11 00:54:44 alex Exp $

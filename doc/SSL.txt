@@ -1,0 +1,55 @@
+
+                     ngIRCd - Next Generation IRC Server
+
+                      (c)2001-2004 by Alexander Barton,
+                    alex@barton.de, http://www.barton.de/
+
+               ngIRCd is free software and published under the
+                   terms of the GNU General Public License.
+
+                                 -- SSL.txt --
+
+
+ngIRCd actually doesn't support secure connections for client-server or
+server-server links using SSL, the Secure Socket Layer, by itself. But you can
+use the stunnel() command to make this work.
+
+Stefan Sperling (stefan at binarchy dot net) mailed me the following text as a
+short "how-to", thanks Stefan!
+
+
+=== snip ===
+    ! This guide applies to stunnel 4.x !
+
+    Put this in your stunnel.conf:
+
+        [ircs]
+        accept = 6667
+        connect = 6668
+
+    This makes stunnel listen for incoming connections
+    on port 6667 and forward decrypted data to port 6668.
+    We call the connection 'ircs'. Stunnel will use this
+    name when logging connection attempts via syslog.
+    You can also use the name in /etc/hosts.{allow,deny}
+    if you run tcp-wrappers.
+
+    To make sure ngircd is listening on the port where
+    the decrypted data arrives, set
+
+        Ports = 6668
+
+    in your ngircd.conf.
+
+    Start stunnel and restart ngircd.
+
+    That's it.
+    Don't forget to activate ssl support in your irc client ;)
+=== snip ===
+
+
+Probably ngIRCd will include support for SSL in the future ...
+
+
+-- 
+$Id: SSL.txt,v 1.1 2004/12/27 01:04:35 alex Exp $

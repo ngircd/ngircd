@@ -60,6 +60,7 @@
 			targets = (
 				08FB779FFE84155DC02AAC07,
 				F538241E024F89BC01A85B04,
+				F5BEF13002A129DC01A85B03,
 			);
 		};
 		08FB7794FE84155DC02AAC07 = {
@@ -137,6 +138,9 @@
 				F5F1813A023EC63701A85B04,
 				F55047BC0240F6E501A85B04,
 				F51044550297AC170173DE11,
+				F5BEF12A02A0EFE201A85B03,
+				F5BEF12E02A1169C01A85B03,
+				F5BEF13302A12AFE01A85B03,
 			);
 			isa = PBXHeadersBuildPhase;
 			name = Headers;
@@ -161,6 +165,9 @@
 				F57C889002328D7201A85B04,
 				F55047BD0240F6E501A85B04,
 				F51044560297B5D40173DE11,
+				F5BEF12B02A0EFE201A85B03,
+				F5BEF12F02A1169C01A85B03,
+				F5BEF13502A24F1001A85B03,
 			);
 			isa = PBXSourcesBuildPhase;
 			name = Sources;
@@ -443,16 +450,22 @@
 				F51DBB1C022D9D8F01A85B04,
 				F51DBB17022D995501A85B04,
 				F51DBB18022D995501A85B04,
+				F5BEF12C02A1169C01A85B03,
+				F5BEF12D02A1169C01A85B03,
 				F57C88850232853501A85B04,
 				F57C88860232853501A85B04,
 				F57C88890232884501A85B04,
 				F57C888A0232884501A85B04,
 				F51DBB13022D95E801A85B04,
 				F51DBB14022D95E801A85B04,
+				F5BEF12802A0EFE201A85B03,
+				F5BEF12902A0EFE201A85B03,
 				F52162BB01C7B904012300F4,
 				F52162BC01C7B904012300F4,
 				F576ABFA01D5E77301A85B03,
 				F576ABFB01D5E77301A85B03,
+				F5BEF13102A12AFE01A85B03,
+				F5BEF13202A12AFE01A85B03,
 				F52162C001C7B904012300F4,
 				F52162C101C7B904012300F4,
 				F51F791201DFC95301D13771,
@@ -891,6 +904,98 @@
 		};
 		F57C889002328D7201A85B04 = {
 			fileRef = F57C888D02328D7201A85B04;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5BEF12802A0EFE201A85B03 = {
+			isa = PBXFileReference;
+			name = lists.c;
+			path = /Users/alex/Develop/ngircd/src/ngircd/lists.c;
+			refType = 0;
+		};
+		F5BEF12902A0EFE201A85B03 = {
+			isa = PBXFileReference;
+			name = lists.h;
+			path = /Users/alex/Develop/ngircd/src/ngircd/lists.h;
+			refType = 0;
+		};
+		F5BEF12A02A0EFE201A85B03 = {
+			fileRef = F5BEF12902A0EFE201A85B03;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5BEF12B02A0EFE201A85B03 = {
+			fileRef = F5BEF12802A0EFE201A85B03;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5BEF12C02A1169C01A85B03 = {
+			isa = PBXFileReference;
+			path = "irc-op.c";
+			refType = 4;
+		};
+		F5BEF12D02A1169C01A85B03 = {
+			isa = PBXFileReference;
+			path = "irc-op.h";
+			refType = 4;
+		};
+		F5BEF12E02A1169C01A85B03 = {
+			fileRef = F5BEF12D02A1169C01A85B03;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5BEF12F02A1169C01A85B03 = {
+			fileRef = F5BEF12C02A1169C01A85B03;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5BEF13002A129DC01A85B03 = {
+			buildArgumentsString = $ACTION;
+			buildPhases = (
+			);
+			buildSettings = {
+				OPTIMIZATION_CFLAGS = "";
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = "ngIRCd Makefile";
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = "-Wmost -Wno-four-char-constants -Wno-unknown-pragmas";
+			};
+			buildToolPath = /usr/bin/gnumake;
+			dependencies = (
+			);
+			isa = PBXLegacyTarget;
+			name = "ngIRCd Makefile";
+			productName = "ngIRCd Makefile";
+			settingsToExpand = 6;
+			settingsToPassInEnvironment = 287;
+			settingsToPassOnCommandLine = 280;
+			shouldUseHeadermap = 0;
+		};
+		F5BEF13102A12AFE01A85B03 = {
+			isa = PBXFileReference;
+			path = resolve.c;
+			refType = 4;
+		};
+		F5BEF13202A12AFE01A85B03 = {
+			isa = PBXFileReference;
+			path = resolve.h;
+			refType = 4;
+		};
+		F5BEF13302A12AFE01A85B03 = {
+			fileRef = F5BEF13202A12AFE01A85B03;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5BEF13502A24F1001A85B03 = {
+			fileRef = F5BEF13102A12AFE01A85B03;
 			isa = PBXBuildFile;
 			settings = {
 			};

@@ -19,7 +19,7 @@ ngIRCd CVS-HEAD
     that don't support strlcpy() and strlcat(), these functions are included
     in the libngportab now (with prototypes in portab.h).
   - If the server can't close a socket, it panics now. This is an error that
-    can't occure during normal operation so there is something broken.
+    can't occur during normal operation so there is something broken.
   - The order of log messages during disconnects is more "natural" now ;-)
   - Cleaned up handling of server configuration structures: modifying and
     removing servers during runtime works more reliable now.
@@ -30,7 +30,7 @@ ngIRCd CVS-HEAD
     configured server and "CONNECT <name> <port> <host> <mypwd> <peerpwd>"
     to add a new server (ngIRCd tries to connect new servers only once!).
   - Added DISCONNECT command ("DISCONNECT <name>") to disable servers.
-  - Restructured the documentation: Now the main language is english.
+  - Restructured the documentation: Now the main language is English.
   - Enhanced killing of users caused by a nickname collision.
   - Better error detection for status code ("numerics") forwarding.
   - Moved tool functions to own library: "libngtool".
@@ -39,13 +39,13 @@ ngIRCd CVS-HEAD
   - There should no longer remain "unknown connections" (see e.g. LUSERS)
     if an outgoing server link can't be established.
   - Added AC_PREREQ(2.50) to configure.in for better autoconf compatibility.
-  - Conn_Close() now handles recurisive calls for the same link correctly.
+  - Conn_Close() now handles recursive calls for the same link correctly.
   - ngIRCd can register itself with Rendezvous: to enable support pass the
     new switch "--with-rendezvous" to configure.
   - Added support for TCP Wrappers library: pass "--with-tcp-wrappers" to
     configure to enable it.
   - Changed some configure options to use "--with"/"--without" as prefix
-    insetead of "--enable"/"--disable": "--without-syslog", "--without-zlib",
+    instead of "--enable"/"--disable": "--without-syslog", "--without-zlib",
     "--with-tcp-wrappers", and "--with-rendezvous".
   - Better error reporting to clients on connect.
 
@@ -429,4 +429,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.182 2003/03/07 17:17:23 alex Exp $
+$Id: ChangeLog,v 1.183 2003/03/09 22:03:58 alex Exp $

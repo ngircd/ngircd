@@ -23,7 +23,7 @@ Differences to version 0.6.x
 
 Differences to version 0.5.x
 
-- Starting with version 0.6.0, other servers are identified using asyncronous
+- Starting with version 0.6.0, other servers are identified using asynchronous
   passwords: therefore the variable "Password" in [Server]-sections has been
   replaced by "MyPassword" and "PeerPassword".
 
@@ -51,9 +51,9 @@ files (using a distribution archive or CVS) is as following:
 
 The first step, autogen.sh, is only necessary if the configure-script isn't
 already generated. This never happens in official ("stable") releases in
-tar.gz-archieves, but when using CVS.
+tar.gz-archives, but when using CVS.
 
-This step is therefore only interesting for developpers.
+This step is therefore only interesting for developers.
 
 autogen.sh produces the Makefile.in's, which are necessary for the configure
 script itself, and some more files for make. To run autogen.sh you'll need
@@ -65,9 +65,9 @@ Again: "end users" do not need this step!
 
 2): "./configure"
 
-The configure-script is used to detect local system dependancies.
+The configure-script is used to detect local system dependencies.
 
-In the perfect case, configure should recognize all needed libraries, header
+In the perfect case, configure should recognise all needed libraries, header
 files and so on. If this shouldn't work, "./configure --help" shows all
 possible options.
 
@@ -91,7 +91,7 @@ overwritten.
 
 This files will be installed by default:
 
-- /usr/local/sbin/ngircd: exectable server
+- /usr/local/sbin/ngircd: executable server
 - /usr/local/etc/ngircd.conf: sample configuration (if not already present)
 
 
@@ -107,7 +107,7 @@ targets:
  - distclean: the above plus erase all generated Makefiles
    next step: -> ./configure
 
- - maintainer-clean: erease all automatic generated files
+ - maintainer-clean: erase all automatic generated files
    next step: -> ./autogen.sh
 
 
@@ -117,8 +117,8 @@ III. Sample configuration file ngircd.conf
 In the sample configuration file, there are comments beginning with "#" OR
 ";" -- this is only for the better understanding of the file.
 
-The file is seperated in four blocks: [Global], [Operator], [Server], and
-[Channel]. In the [Gobal] part, there is the main configuration, like the
+The file is separated in four blocks: [Global], [Operator], [Server], and
+[Channel]. In the [Global] part, there is the main configuration, like the
 server-name and the ports, on which the server should be listening. In the
 [Operator] section, the server-operators are defined and [Server] is the
 section, where the server-links are configured. Use [Channel] blocks to
@@ -154,4 +154,4 @@ number. In both cases the server exits after the output.
 
 
 -- 
-$Id: INSTALL,v 1.12 2003/03/08 12:34:55 alex Exp $
+$Id: INSTALL,v 1.13 2003/03/09 22:03:58 alex Exp $

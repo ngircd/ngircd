@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: channel.c,v 1.14 2002/02/27 15:21:21 alex Exp $
+ * $Id: channel.c,v 1.15 2002/02/27 20:32:10 alex Exp $
  *
  * channel.c: Management der Channels
  *
  * $Log: channel.c,v $
+ * Revision 1.15  2002/02/27 20:32:10  alex
+ * - neue Funktionen Channel_Topic() und Channel_SetTopic().
+ *
  * Revision 1.14  2002/02/27 15:21:21  alex
  * - neue Funktion Channel_IsMemberOf() implementiert.
  *
@@ -449,6 +452,23 @@ GLOBAL BOOLEAN Channel_IsMemberOf( CHANNEL *Chan, CLIENT *Client )
 } /* Channel_IsMemberOf */
 
 
+GLOBAL CHAR *Channel_Topic( CHANNEL *Chan )
+{
+	assert( Chan != NULL );
+	return Chan->topic;
+} /* Channel_Topic */
+
+
+GLOBAL VOID Channel_SetTopic( CHANNEL *Chan, CHAR *Topic )
+{
+	assert( Chan != NULL );
+	assert( Topic != NULL );
+	
+	strncpy( Chan->topic, Topic, CHANNEL_TOPIC_LEN );
+	Chan->topic[CHANNEL_TOPIC_LEN - 1] = '\0';
+} /* Channel_SetTopic */
+
+
 LOCAL CHANNEL *New_Chan( CHAR *Name )
 {
 	/* Neue Channel-Struktur anlegen */
@@ -467,6 +487,7 @@ LOCAL CHANNEL *New_Chan( CHAR *Name )
 	strncpy( c->name, Name, CHANNEL_NAME_LEN );
 	c->name[CHANNEL_NAME_LEN - 1] = '\0';
 	strcpy( c->modes, "" );
+	strcpy( c->topic, "" );
 
 	Log( LOG_DEBUG, "Created new channel structure for \"%s\".", Name );
 	

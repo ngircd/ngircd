@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: channel.h,v 1.12 2002/02/27 15:21:21 alex Exp $
+ * $Id: channel.h,v 1.13 2002/02/27 20:32:10 alex Exp $
  *
  * channel.h: Management der Channels (Header)
  *
  * $Log: channel.h,v $
+ * Revision 1.13  2002/02/27 20:32:10  alex
+ * - neue Funktionen Channel_Topic() und Channel_SetTopic().
+ *
  * Revision 1.12  2002/02/27 15:21:21  alex
  * - neue Funktion Channel_IsMemberOf() implementiert.
  *
@@ -70,6 +73,7 @@ typedef struct _CHANNEL
 	struct _CHANNEL *next;
 	CHAR name[CHANNEL_NAME_LEN];	/* Name des Channel */
 	CHAR modes[CHANNEL_MODE_LEN];	/* Channel-Modes */
+	CHAR topic[CHANNEL_TOPIC_LEN];	/* Topic des Channels */
 } CHANNEL;
 
 typedef struct _CLIENT2CHAN
@@ -100,6 +104,9 @@ GLOBAL INT Channel_Count( VOID );
 
 GLOBAL CHAR *Channel_Name( CHANNEL *Chan );
 GLOBAL CHAR *Channel_Modes( CHANNEL *Chan );
+GLOBAL CHAR *Channel_Topic( CHANNEL *Chan );
+
+GLOBAL VOID Channel_SetTopic( CHANNEL *Chan, CHAR *Topic );
 
 GLOBAL CHANNEL *Channel_Search( CHAR *Name );
 

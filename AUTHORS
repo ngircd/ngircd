@@ -21,7 +21,7 @@ Goetz Hoffart, <goetz@hoffart.de> (goetz)
 Ilja Osthoff, <i.osthoff@gmx.net> (ilja)
 Benjamin Pineau, <ben@zouh.org>
 Sean Reifschneider, <jafo-rpms@tummy.com>
-Florian Westphal, <westphal@foo.fh-furtwangen.de>
+Florian Westphal, <westphal@foo.fh-furtwangen.de> (fw)
 
 
 Code snippets
@@ -32,4 +32,4 @@ Andrew Tridgell & Martin Pool: strl{cpy|cat}()-functions
 
 
 -- 
-$Id: AUTHORS,v 1.10 2005/01/26 13:21:00 alex Exp $
+$Id: AUTHORS,v 1.11 2005/03/19 14:24:52 alex Exp $

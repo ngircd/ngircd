@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: messages.h,v 1.4 2001/12/26 03:22:40 alex Exp $
+ * $Id: messages.h,v 1.5 2001/12/26 03:51:13 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: messages.h,v $
+ * Revision 1.5  2001/12/26 03:51:13  alex
+ * - in ERR_NOTREGISTERED_MSG fehlte ein "%s" - jetzt steht auch hier der Nick.
+ *
  * Revision 1.4  2001/12/26 03:22:40  alex
  * - Format der Meldungen ueberarbeitet: fast immer ist nun der Nick enthalten.
  *
@@ -76,7 +79,7 @@
 #define ERR_ALREADYREGISTRED_MSG	ERR_ALREADYREGISTRED" %s :Connection already registered"
 
 #define ERR_NOTREGISTERED		"451"
-#define ERR_NOTREGISTERED_MSG		ERR_NOTREGISTERED" :Connection not registered"
+#define ERR_NOTREGISTERED_MSG		ERR_NOTREGISTERED" %s :Connection not registered"
 
 
 #endif

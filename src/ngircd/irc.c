@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc.c,v 1.110 2002/12/26 18:41:00 alex Exp $";
+static char UNUSED id[] = "$Id: irc.c,v 1.111 2002/12/27 13:17:04 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -84,10 +84,16 @@ IRC_KILL( CLIENT *Client, REQUEST *Req )
 	c = Client_Search( Req->argv[0] );
 	if( c )
 	{
-		/* Ja, wir haben einen solchen Client */
-		conn = Client_Conn( c );
-		Client_Destroy( c, NULL, reason, FALSE );
-		if( conn != NONE ) Conn_Close( Client_Conn( c ), NULL, reason, TRUE );
+		/* Yes, there is such a client -- but is it a valid user? */
+		if( Client_Type( c ) == CLIENT_SERVER ) IRC_WriteStrClient( prefix, ERR_CANTKILLSERVER_MSG, Client_ID( prefix ));
+		else if( Client_Type( c ) != CLIENT_USER  )IRC_WriteStrClient( prefix, ERR_NOPRIVILEGES_MSG, Client_ID( prefix ));
+		else
+		{
+			/* Kill user NOW! */
+			conn = Client_Conn( c );
+			Client_Destroy( c, NULL, reason, FALSE );
+			if( conn != NONE ) Conn_Close( Client_Conn( c ), NULL, reason, TRUE );
+		}
 	}
 	else Log( LOG_NOTICE, "Client with nick \"%s\" is unknown here.", Req->argv[0] );
 

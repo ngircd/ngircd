@@ -9,11 +9,16 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.2 2001/12/11 22:04:21 alex Exp $
+ * $Id: ngircd.c,v 1.3 2001/12/12 01:40:39 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  *
  * $Log: ngircd.c,v $
+ * Revision 1.3  2001/12/12 01:40:39  alex
+ * - ein paar mehr Kommentare; Variablennamen verstaendlicher gemacht.
+ * - fehlenden Header <arpa/inet.h> ergaenz.
+ * - SIGINT und SIGQUIT werden nun ebenfalls behandelt.
+ *
  * Revision 1.2  2001/12/11 22:04:21  alex
  * - Test auf stdint.h (HAVE_STDINT_H) hinzugefuegt.
  *
@@ -23,10 +28,10 @@
  */
 
 
-#define PORTAB_CHECK_TYPES
+#define PORTAB_CHECK_TYPES		/* Prueffunktion einbinden, s.u. */
 
 #ifndef socklen_t
-#define socklen_t int
+#define socklen_t int			/* u.a. fuer Mac OS X */
 #endif
 
 #include <portab.h>
@@ -35,7 +40,7 @@
 #include <imp.h>
 
 #ifdef HAVE_STDINT_H
-#include <stdint.h>
+#include <stdint.h>			/* u.a. fuer Mac OS X */
 #endif
 
 #include <assert.h>
@@ -43,10 +48,12 @@
 #include <signal.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 #include <sys/types.h> 
 #include <sys/socket.h> 
-#include <unistd.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
+
       
 #include "log.h"
 
@@ -54,7 +61,7 @@
 #include "ngircd.h"
 
 
-BOOLEAN do_quit_now = FALSE;
+BOOLEAN do_quit_now = FALSE;		/* TRUE: Hauptschleife beenden */
 
 
 LOCAL VOID Signal_Handler( INT Signal );
@@ -64,9 +71,9 @@ GLOBAL INT main( INT argc, CONST CHAR *argv[] )
 {
 	FILE *fd;
 	struct sigaction saction;
-	struct sockaddr_in my_sock, a_sock;
-	int my_sock_hndl;
-	int a_sock_len, a_hndl;
+	struct sockaddr_in my_addr, a_addr;
+	int my_sock, a_sock;
+	int a_sock_len;
 
 	portab_check_types( );
 
@@ -77,19 +84,22 @@ GLOBAL INT main( INT argc, CONST CHAR *argv[] )
 	saction.sa_handler = Signal_Handler;
 
 	/* Signal-Handler einhaengen */
+	sigaction( SIGALRM, &saction, NULL );
 	sigaction( SIGHUP, &saction, NULL);
+	sigaction( SIGINT, &saction, NULL );
+	sigaction( SIGQUIT, &saction, NULL );
 	sigaction( SIGTERM, &saction, NULL);
 	sigaction( SIGUSR1, &saction, NULL);
 	sigaction( SIGUSR2, &saction, NULL);
 	
 	/* Server-"Listen"-Socket initialisieren */
-	memset( &my_sock, 0, sizeof( my_sock ));
-	my_sock.sin_family = AF_INET;
-	my_sock.sin_port = htons( 6668 );
-	my_sock.sin_addr.s_addr = htonl( INADDR_ANY );
+	memset( &my_addr, 0, sizeof( my_addr ));
+	my_addr.sin_family = AF_INET;
+	my_addr.sin_port = htons( 6668 );
+	my_addr.sin_addr.s_addr = htonl( INADDR_ANY );
 
 	/* Socket erzeugen, ... */
-	my_sock_hndl = socket( AF_INET, SOCK_STREAM, 0);
+	my_sock = socket( AF_INET, SOCK_STREAM, 0);
 	if( socket < 0 )
 	{
 		Log( LOG_FATAL, "Can't create socket: %s", strerror( errno ));
@@ -97,14 +107,14 @@ GLOBAL INT main( INT argc, CONST CHAR *argv[] )
 	}
 	
 	/* ... an Port binden ... */
-	if( bind( my_sock_hndl, (struct sockaddr *)&my_sock, (socklen_t)sizeof( my_sock )) < 0 )
+	if( bind( my_sock, (struct sockaddr *)&my_addr, (socklen_t)sizeof( my_addr )) < 0 )
 	{
 		Log( LOG_FATAL, "Can't bind socket: %s", strerror( errno ));
 		exit( 1 );
 	}
 
 	/* ... und in "listen mode" gehen :-) */
-	if( listen( my_sock_hndl, 4 ) < 0 )
+	if( listen( my_sock, 10 ) < 0 )
 	{
 		Log( LOG_FATAL, "Can't listen on soecket: %s", strerror( errno ));
 		exit( 1 );
@@ -114,26 +124,27 @@ GLOBAL INT main( INT argc, CONST CHAR *argv[] )
 	while( ! do_quit_now )
 	{
 		/* auf Verbindung warten */
-		a_sock_len = sizeof( a_sock );
-		memset( &a_sock, 0, a_sock_len );
-		a_hndl = accept( my_sock_hndl, (struct sockaddr *)&a_sock, &a_sock_len );
-		if( a_hndl < 0 )
+		a_sock_len = sizeof( a_addr );
+		memset( &a_addr, 0, a_sock_len );
+		a_sock = accept( my_sock, (struct sockaddr *)&a_addr, &a_sock_len );
+		if( a_sock < 0 )
 		{
 			if( errno == EINTR ) continue;
 			
 			Log( LOG_FATAL, "Can't accept connection: %s", strerror( errno ));
 			exit( 1 );
 		}
-		Log( LOG_INFO, "Accepted connection from %s:%d (handle %d).", inet_ntoa( a_sock.sin_addr ), ntohs( a_sock.sin_port), a_hndl );
-		fd = fdopen( a_hndl, "w" );
+		Log( LOG_INFO, "Accepted connection from %s:%d.", inet_ntoa( a_addr.sin_addr ), ntohs( a_addr.sin_port));
+		fd = fdopen( a_sock, "w" );
 
 		fputs( "hello world!\n", fd ); fflush( fd );
 		
 		fclose( fd );
-		close( a_hndl );
+		close( a_sock );
         }
         
         /* Aufraeumen (Sockets etc.!?) */
+        close( my_sock );
 
 	Log_Exit( );
 	return 0;
@@ -145,11 +156,13 @@ LOCAL VOID Signal_Handler( INT Signal )
 	switch( Signal )
 	{
 		case SIGTERM:
-			Log( LOG_WARN, "Got SIGTERM, terminating now ..." );
+		case SIGINT:
+		case SIGQUIT:
+			Log( LOG_WARN, "Got signal %d, terminating now ...", Signal );
 			do_quit_now = TRUE;
 			break;
 		default:
-			Log( LOG_WARN, "Got signal %d! I'll ignore it.", Signal );
+			Log( LOG_WARN, "Got signal %d! Ignored.", Signal );
 	}
 } /* Signal_Handler */
 

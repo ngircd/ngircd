@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-mode.c,v 1.12 2002/09/08 01:16:58 alex Exp $
+ * $Id: irc-mode.c,v 1.13 2002/09/08 01:38:36 alex Exp $
  *
  * irc-mode.c: IRC-Befehle zur Mode-Aenderung (MODE, AWAY, ...)
  */
@@ -101,6 +101,26 @@ IRC_MODE( CLIENT *Client, REQUEST *Req )
 		}
 		else
 		{
+			/* Listen veraendern */
+
+			if( Client_Type( Client ) == CLIENT_USER )
+			{
+				/* Ist der User Channel-Operator? */
+				modeok = FALSE;
+				if( strchr( Channel_UserModes( chan, Client ), 'o' )) modeok = TRUE;
+				if( Conf_OperCanMode )
+				{
+					/* auch IRC-Operatoren duerfen MODE verwenden */
+					if( Client_OperByMe( Client )) modeok = TRUE;
+				}
+
+				if( ! modeok )
+				{
+					Log( LOG_DEBUG, "Can't change modes: \"%s\" is not operator on %s!", Client_ID( Client ), Channel_Name( chan ));
+					return IRC_WriteStrClient( Client, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Client ), Channel_Name( chan ));
+				}
+			}
+			
 			if( Req->argv[1][0] == '+' )
 			{
 				/* Listen-Eintrag hinzufuegen */

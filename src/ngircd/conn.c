@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.134 2004/04/25 14:06:12 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.134.2.1 2004/05/15 23:52:17 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -1600,35 +1600,28 @@ Init_Socket( INT Sock )
 LOCAL VOID
 Read_Resolver_Result( INT r_fd )
 {
-	/* Ergebnis von Resolver Sub-Prozess aus Pipe lesen
-	 * und entsprechende Connection aktualisieren */
+	/* Read result of resolver sub-process from pipe and update the
+	 * apropriate connection/client structure(s): hostname and/or
+	 * IDENT user name.*/
 
-	CHAR result[HOST_LEN];
 	CLIENT *c;
 	INT len, i, n;
-
-	FD_CLR( r_fd, &Resolver_FDs );
-
-	/* Read result from pipe */
-	len = read( r_fd, result, HOST_LEN - 1 );
-	if( len < 0 )
-	{
-		/* Error! */
-		close( r_fd );
-		Log( LOG_CRIT, "Resolver: Can't read result: %s!", strerror( errno ));
-		return;
-	}
-	result[len] = '\0';
+	RES_STAT *s;
+	CHAR *ptr;
 
 	/* Search associated connection ... */
 	for( i = 0; i < Pool_Size; i++ )
 	{
-		if(( My_Connections[i].sock != NONE ) && ( My_Connections[i].res_stat ) && ( My_Connections[i].res_stat->pipe[0] == r_fd )) break;
+		if(( My_Connections[i].sock != NONE )
+		  && ( My_Connections[i].res_stat != NULL )
+		  && ( My_Connections[i].res_stat->pipe[0] == r_fd ))
+			break;
 	}
 	if( i >= Pool_Size )
 	{
 		/* Ops, none found? Probably the connection has already
-		 * been closed. */
+		 * been closed!? We'll ignore that ... */
+		FD_CLR( r_fd, &Resolver_FDs );
 		close( r_fd );
 #ifdef DEBUG
 		Log( LOG_DEBUG, "Resolver: Got result for unknown connection!?" );
@@ -1636,60 +1629,101 @@ Read_Resolver_Result( INT r_fd )
 		return;
 	}
 
+	/* Get resolver structure */
+	s = My_Connections[i].res_stat;
+	assert( s != NULL );
+
+	/* Read result from pipe */
+	len = read( r_fd, s->buffer + s->bufpos, sizeof( s->buffer ) - HOST_LEN - 1 );
+	if( len < 0 )
+	{
+		/* Error! */
+		close( r_fd );
+		Log( LOG_CRIT, "Resolver: Can't read result: %s!", strerror( errno ));
+		return;
+	}
+	s->bufpos += len;
+	s->buffer[s->bufpos] = '\0';
+
+	/* If the result string is incomplete, return to main loop and
+	 * wait until we can read in more bytes. */
+#ifdef IDENTAUTH
+try_resolve:
+#endif
+	ptr = strchr( s->buffer, '\n' );
+	if( ! ptr ) return;
+	*ptr = '\0';
+
 #ifdef DEBUG
-	Log( LOG_DEBUG, "Resolver: %s is \"%s\".", My_Connections[i].host, result );
+	Log( LOG_DEBUG, "Got result from resolver: \"%s\" (%d bytes), stage %d.", s->buffer, len, s->stage );
 #endif
 
-	/* Clean up ... */
-	close( My_Connections[i].res_stat->pipe[0] );
-	close( My_Connections[i].res_stat->pipe[1] );
-	free( My_Connections[i].res_stat );
-	My_Connections[i].res_stat = NULL;
-
+	/* Okay, we got a complete result: this is a host name for outgoing
+	 * connections and a host name or IDENT user name (if enabled) for
+	 * incoming conneciions.*/
 	if( My_Connections[i].sock > NONE )
 	{
 		/* Incoming connection */
-#ifdef IDENTAUTH
-		CHAR *ident;
-#endif
 
 		/* Search client ... */
 		c = Client_GetFromConn( i );
 		assert( c != NULL );
 
 		/* Only update client information of unregistered clients */
-		if( Client_Type( c ) != CLIENT_UNKNOWN )
+		if( Client_Type( c ) == CLIENT_UNKNOWN )
 		{
-#ifdef DEBUG
-			Log( LOG_DEBUG, "Resolver: discarding result for already registered connection %d.", i );
-#endif
-			return;
-		}		
-
-		/* Set hostname */
-		strlcpy( My_Connections[i].host, result, sizeof( My_Connections[i].host ));
-		Client_SetHostname( c, result );
+			if( s->stage == 0 )
+			{
+				/* host name */
+				strlcpy( My_Connections[i].host, s->buffer, sizeof( My_Connections[i].host ));
+				Client_SetHostname( c, s->buffer );
 
 #ifdef IDENTAUTH
-		ident = strchr( result, 0 );
-		ident++;
+				/* clean up buffer for IDENT result */
+				len = strlen( s->buffer ) + 1;
+				memmove( s->buffer, s->buffer + len, sizeof( s->buffer ) - len );
+				s->bufpos -= len;
 
-		/* Do we have a result of the IDENT lookup? If so, set it as the user name */
-		if( *ident )
-		{
-			Log( LOG_INFO, "IDENT lookup for connection %ld: \"%s\".", i, ident );
-			Client_SetUser( c, ident, TRUE );
+				/* Don't close pipe and clean up, but
+				 * instead wait for IDENT result */
+				s->stage = 1;
+				goto try_resolve;
+			}
+			else if( s->stage == 1 )
+			{
+				/* IDENT user name */
+				if( s->buffer[0] )
+				{
+					Log( LOG_INFO, "IDENT lookup for connection %ld: \"%s\".", i, s->buffer );
+					Client_SetUser( c, s->buffer, TRUE );
+				}
+				else Log( LOG_INFO, "IDENT lookup for connection %ld: no result.", i );
+#endif
+			}
+			else Log( LOG_ERR, "Resolver: got result for unknown stage %d!?", s->stage );
 		}
-		else Log( LOG_INFO, "IDENT lookup for connection %ld: no result.", i );
+#ifdef DEBUG
+		else Log( LOG_DEBUG, "Resolver: discarding result for already registered connection %d.", i );
 #endif
 	}
 	else
 	{
-		/* Outgoing connection (server link!): set IP address */
+		/* Outgoing connection (server link): set the IP address
+		 * so that we can connect to it in the main loop. */
+
+		/* Search server ... */
 		n = Conf_GetServer( i );
 		assert( n > NONE );
-		strlcpy( Conf_Server[n].ip, result, sizeof( Conf_Server[n].ip ));
+
+		strlcpy( Conf_Server[n].ip, s->buffer, sizeof( Conf_Server[n].ip ));
 	}
+
+	/* Clean up ... */
+	FD_CLR( r_fd, &Resolver_FDs );
+	close( My_Connections[i].res_stat->pipe[0] );
+	close( My_Connections[i].res_stat->pipe[1] );
+	free( My_Connections[i].res_stat );
+	My_Connections[i].res_stat = NULL;
 
 	/* Reset penalty time */
 	Conn_ResetPenalty( i );

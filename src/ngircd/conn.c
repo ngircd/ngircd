@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.94 2002/11/23 16:09:57 alex Exp $
+ * $Id: conn.c,v 1.95 2002/11/23 17:04:07 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -86,7 +86,7 @@ LOCAL VOID New_Connection PARAMS(( INT Sock ));
 LOCAL CONN_ID Socket2Index PARAMS(( INT Sock ));
 LOCAL VOID Read_Request PARAMS(( CONN_ID Idx ));
 LOCAL BOOLEAN Try_Write PARAMS(( CONN_ID Idx ));
-LOCAL VOID Handle_Buffer PARAMS(( CONN_ID Idx ));
+LOCAL BOOLEAN Handle_Buffer PARAMS(( CONN_ID Idx ));
 LOCAL VOID Check_Connections PARAMS(( VOID ));
 LOCAL VOID Check_Servers PARAMS(( VOID ));
 LOCAL VOID Init_Conn_Struct PARAMS(( LONG Idx ));
@@ -297,10 +297,13 @@ Conn_Handler( VOID )
 	struct timeval tv;
 	time_t start, t;
 	LONG i, idx;
+	BOOLEAN timeout;
 
 	start = time( NULL );
 	while(( ! NGIRCd_Quit ) && ( ! NGIRCd_Restart ))
 	{
+		timeout = TRUE;
+	
 		Check_Servers( );
 
 		Check_Connections( );
@@ -311,7 +314,7 @@ Conn_Handler( VOID )
 			if(( My_Connections[i].sock > NONE ) && ( My_Connections[i].rdatalen > 0 ))
 			{
 				/* Kann aus dem Buffer noch ein Befehl extrahiert werden? */
-				Handle_Buffer( i );
+				if( Handle_Buffer( i )) timeout = FALSE;
 			}
 		}
 
@@ -363,7 +366,9 @@ Conn_Handler( VOID )
 		}
 
 		/* Timeout initialisieren */
-		tv.tv_sec = TIME_RES; tv.tv_usec = 0;
+		tv.tv_usec = 0;
+		if( timeout ) tv.tv_sec = TIME_RES;
+		else tv.tv_sec = 0;
 		
 		/* Auf Aktivitaet warten */
 		i = select( Conn_MaxFD + 1, &read_sockets, &write_sockets, NULL, &tv );
@@ -1039,16 +1044,19 @@ Read_Request( CONN_ID Idx )
 } /* Read_Request */
 
 
-LOCAL VOID
+LOCAL BOOLEAN
 Handle_Buffer( CONN_ID Idx )
 {
-	/* Daten im Lese-Puffer einer Verbindung verarbeiten. */
+	/* Daten im Lese-Puffer einer Verbindung verarbeiten.
+	 * Wurde ein Request verarbeitet, so wird TRUE geliefert,
+	 * ansonsten FALSE (auch bei Fehlern). */
 
 #ifndef STRICT_RFC
 	CHAR *ptr1, *ptr2;
 #endif
 	CHAR *ptr;
 	INT len, delta;
+	BOOLEAN action;
 
 	/* Eine komplette Anfrage muss mit CR+LF enden, vgl.
 	 * RFC 2812. Haben wir eine? */
@@ -1069,6 +1077,7 @@ Handle_Buffer( CONN_ID Idx )
 	}
 #endif
 
+	action = FALSE;
 	if( ptr )
 	{
 		/* Ende der Anfrage wurde gefunden */
@@ -1077,23 +1086,26 @@ Handle_Buffer( CONN_ID Idx )
 		if( len > ( COMMAND_LEN - 1 ))
 		{
 			/* Eine Anfrage darf(!) nicht laenger als 512 Zeichen
-			* (incl. CR+LF!) werden; vgl. RFC 2812. Wenn soetwas
-			* empfangen wird, wird der Client disconnectiert. */
+			 * (incl. CR+LF!) werden; vgl. RFC 2812. Wenn soetwas
+			 * empfangen wird, wird der Client disconnectiert. */
 			Log( LOG_ERR, "Request too long (connection %d): %d bytes (max. %d expected)!", Idx, My_Connections[Idx].rdatalen, COMMAND_LEN - 1 );
 			Conn_Close( Idx, NULL, "Request too long", TRUE );
-			return;
+			return FALSE;
 		}
 
 		if( len > delta )
 		{
 			/* Es wurde ein Request gelesen */
-			if( ! Parse_Request( Idx, My_Connections[Idx].rbuf )) return;
+			if( ! Parse_Request( Idx, My_Connections[Idx].rbuf )) return FALSE;
+			else action = TRUE;
 		}
 
 		/* Puffer anpassen */
 		My_Connections[Idx].rdatalen -= len;
 		memmove( My_Connections[Idx].rbuf, My_Connections[Idx].rbuf + len, My_Connections[Idx].rdatalen );
 	}
+	
+	return action;
 } /* Handle_Buffer */
 
 

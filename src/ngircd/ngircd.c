@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.26 2002/02/23 19:06:47 alex Exp $
+ * $Id: ngircd.c,v 1.27 2002/02/25 11:42:47 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  *
  * $Log: ngircd.c,v $
+ * Revision 1.27  2002/02/25 11:42:47  alex
+ * - wenn ein System sigaction() nicht kennt, so wird nun signal() verwendet.
+ *
  * Revision 1.26  2002/02/23 19:06:47  alex
  * - fuer SIGCHLD wird nun auch SA_NOCLDWAIT gesetzt, wenn vorhanden.
  *
@@ -369,6 +372,9 @@ LOCAL VOID Initialize_Signal_Handler( VOID )
 	/* Signal-Handler initialisieren: einige Signale
 	 * werden ignoriert, andere speziell behandelt. */
 
+#ifdef HAVE_SIGACTION
+	/* sigaction() ist vorhanden */
+
 	struct sigaction saction;
 
 	/* Signal-Struktur initialisieren */
@@ -391,6 +397,19 @@ LOCAL VOID Initialize_Signal_Handler( VOID )
 	/* einige Signale ignorieren */
 	saction.sa_handler = SIG_IGN;
 	sigaction( SIGPIPE, &saction, NULL );
+#else
+	/* kein sigaction() vorhanden */
+
+	/* Signal-Handler einhaengen */
+	signal( SIGINT, Signal_Handler );
+	signal( SIGQUIT, Signal_Handler );
+	signal( SIGTERM, Signal_Handler );
+	signal( SIGHUP, Signal_Handler );
+	signal( SIGCHLD, Signal_Handler );
+
+	/* einige Signale ignorieren */
+	signal( SIGPIPE, SIG_IGN );
+#endif
 } /* Initialize_Signal_Handler */
 
 

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-info.c,v 1.11 2002/12/26 17:14:48 alex Exp $";
+static char UNUSED id[] = "$Id: irc-info.c,v 1.12 2002/12/30 16:07:50 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -24,6 +24,7 @@ static char UNUSED id[] = "$Id: irc-info.c,v 1.11 2002/12/26 17:14:48 alex Exp $
 
 #include "ngircd.h"
 #include "conn.h"
+#include "conn-zip.h"
 #include "client.h"
 #include "channel.h"
 #include "resolve.h"
@@ -375,7 +376,7 @@ IRC_STATS( CLIENT *Client, REQUEST *Req )
 #ifdef USE_ZLIB
 					if( Conn_Options( con ) & CONN_ZIP )
 					{
-						if( ! IRC_WriteStrClient( from, RPL_STATSLINKINFOZIP_MSG, Client_ID( from ), Client_Mask( cl ), Conn_SendQ( con ), Conn_SendMsg( con ), Conn_SendBytesZip( con ), Conn_SendBytes( con ), Conn_RecvMsg( con ), Conn_RecvBytesZip( con ), Conn_RecvBytes( con ), (LONG)( time( NULL ) - Conn_StartTime( con )))) return DISCONNECTED;
+						if( ! IRC_WriteStrClient( from, RPL_STATSLINKINFOZIP_MSG, Client_ID( from ), Client_Mask( cl ), Conn_SendQ( con ), Conn_SendMsg( con ), Zip_SendBytes( con ), Conn_SendBytes( con ), Conn_RecvMsg( con ), Zip_RecvBytes( con ), Conn_RecvBytes( con ), (LONG)( time( NULL ) - Conn_StartTime( con )))) return DISCONNECTED;
 					}
 					else
 #endif

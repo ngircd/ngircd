@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-server.c,v 1.29 2002/12/30 00:01:45 alex Exp $";
+static char UNUSED id[] = "$Id: irc-server.c,v 1.30 2002/12/30 16:07:50 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -24,6 +24,7 @@ static char UNUSED id[] = "$Id: irc-server.c,v 1.29 2002/12/30 00:01:45 alex Exp
 
 #include "resolve.h"
 #include "conn.h"
+#include "conn-zip.h"
 #include "conf.h"
 #include "client.h"
 #include "channel.h"
@@ -120,7 +121,7 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 		/* Kompression initialisieren, wenn erforderlich */
 		if( strchr( Client_Flags( Client ), 'Z' ))
 		{
-			if( ! Conn_InitZip( con ))
+			if( ! Zip_InitConn( con ))
 			{
 				/* Fehler! */
 				Conn_Close( con, "Can't inizialize compression (zlib)!", NULL, FALSE );

@@ -14,6 +14,12 @@ ngIRCd 0.2.x, xx.xx.2002
 
   - bekommt der Server ein HUP-Signal, so startet er neu -- genau so, wie
     er auf den IRC-Befehl RESTART reagiert.
+  - FAQ um Hinweise auf den Bugtracker erweitert.
+  - neuer Kommandozeilen-Schalter "--passive" (-p): wird er angegeben, so
+    verbindet sich der ngIRCd nicht mehr automatisch zu anderen Servern.
+    Zum Debuggen manchmal ganz praktisch :-)
+  - direkt nach dem Start schreibt der ngIRCd nun die aktiven Kommando-
+    zeilenschalter in's Logfile (Passive, Debug, Sniffer ...).
   - neuer Befehl VERSION.
 
 ngIRCd 0.2.1, 17.02.2002
@@ -109,4 +115,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.22 2002/02/17 23:38:13 alex Exp $
+$Id: ChangeLog,v 1.23 2002/02/19 20:08:54 alex Exp $

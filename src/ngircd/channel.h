@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: channel.h,v 1.10 2002/02/06 16:49:10 alex Exp $
+ * $Id: channel.h,v 1.11 2002/02/11 01:00:22 alex Exp $
  *
  * channel.h: Management der Channels (Header)
  *
  * $Log: channel.h,v $
+ * Revision 1.11  2002/02/11 01:00:22  alex
+ * - neue Funktionen Channel_ModeAdd(), Channel_ModeDel(), Channel_UserModes(),
+ *   Channel_UserModeAdd(), Channel_UserModeDel().
+ *
  * Revision 1.10  2002/02/06 16:49:10  alex
  * - neue Funktionen Channel_Modes() und Channel_IsValidName().
  *
@@ -108,6 +112,13 @@ GLOBAL CLIENT *Channel_GetClient( CL2CHAN *Cl2Chan );
 GLOBAL CHANNEL *Channel_GetChannel( CL2CHAN *Cl2Chan );
 
 GLOBAL BOOLEAN Channel_IsValidName( CHAR *Name );
+
+GLOBAL BOOLEAN Channel_ModeAdd( CHANNEL *Chan, CHAR Mode );
+GLOBAL BOOLEAN Channel_ModeDel( CHANNEL *Chan, CHAR Mode );
+
+GLOBAL BOOLEAN Channel_UserModeAdd( CHANNEL *Chan, CLIENT *Client, CHAR Mode );
+GLOBAL BOOLEAN Channel_UserModeDel( CHANNEL *Chan, CLIENT *Client, CHAR Mode );
+GLOBAL CHAR *Channel_UserModes( CHANNEL *Chan, CLIENT *Client );
 
 
 #endif

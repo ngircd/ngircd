@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.72 2002/09/07 22:34:44 alex Exp $
+ * $Id: conn.c,v 1.72.2.1 2002/10/03 16:13:38 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -359,7 +359,6 @@ va_dcl
 	va_list ap;
 
 	assert( Idx >= 0 );
-	assert( My_Connections[Idx].sock > NONE );
 	assert( Format != NULL );
 
 #ifdef PROTOTYPES
@@ -393,9 +392,19 @@ Conn_Write( CONN_ID Idx, CHAR *Data, INT Len )
 	 * der Client disconnectiert und FALSE geliefert. */
 
 	assert( Idx >= 0 );
-	assert( My_Connections[Idx].sock > NONE );
 	assert( Data != NULL );
 	assert( Len > 0 );
+
+	/* Ist der entsprechende Socket ueberhaupt noch offen?
+	 * In einem "Handler-Durchlauf" kann es passieren, dass
+	 * dem nicht mehr so ist, wenn einer von mehreren
+	 * Conn_Write()'s fehlgeschlagen ist. In diesem Fall
+	 * wird hier einfach ein Fehler geliefert. */
+	if( My_Connections[Idx].sock <= NONE )
+	{
+		Log( LOG_DEBUG, "Skipped write on closed socket (connection %d).", Idx );
+		return FALSE;
+	}
 
 	/* pruefen, ob Daten im Schreibpuffer sind. Wenn ja, zunaechst
 	 * pruefen, ob diese gesendet werden koennen */

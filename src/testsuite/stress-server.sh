@@ -1,8 +1,10 @@
 #!/bin/sh
 # ngIRCd Test Suite
-# $Id: stress-server.sh,v 1.4.2.1 2002/09/23 21:55:06 alex Exp $
+# $Id: stress-server.sh,v 1.4.2.2 2002/10/03 16:13:38 alex Exp $
 
-CLIENTS=5
+[ -z "$srcdir" ] && srcdir=`dirname $0`
+
+[ $1 -gt 0 ] 2> /dev/null && CLIENTS=$1 || CLIENTS=5
 
 name=`basename $0`
 test=`echo ${name} | cut -d '.' -f 1`

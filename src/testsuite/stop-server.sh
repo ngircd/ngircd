@@ -1,6 +1,8 @@
 #!/bin/sh
 # ngIRCd Test Suite
-# $Id: stop-server.sh,v 1.4.2.3 2002/09/20 15:18:56 alex Exp $
+# $Id: stop-server.sh,v 1.4.2.4 2002/10/03 16:13:38 alex Exp $
+
+[ -z "$srcdir" ] && srcdir=`dirname $0`
 
 echo "      stopping server ..."
 

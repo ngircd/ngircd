@@ -10,8 +10,13 @@
                         -- ChangeLog / Aenderungen --
 
 
-ngIRCd 0.5.x (CVS)
+ngIRCd 0.5.4, 24.11.2002
 
+  - Fehler-Handling von connect() gefixed: der Server kann sich nun auch   
+    unter A/UX wieder zu anderen verbinden.
+  - in den Konfigurationsvariablen ServerUID und ServerGID kann nun nicht
+    nur die numerische ID, sondern auch der Name des Users bzw. der Gruppe
+    verwendet werden. Beim Start des Daemons wird nun beides angezeigt.
   - Besseres Logging von Prefix-Fehlern.
   - angenommene Sockets werden nun korrekt auf "non-blocking" konfiguriert,
     beim Senden und Empfangen werden Blockierungen besser abgefangen.
@@ -308,4 +313,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.87.2.16 2002/11/23 16:21:02 alex Exp $
+$Id: ChangeLog,v 1.87.2.17 2002/11/24 15:33:14 alex Exp $

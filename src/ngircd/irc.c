@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.36 2002/01/11 23:50:55 alex Exp $
+ * $Id: irc.c,v 1.37 2002/01/16 22:10:18 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.37  2002/01/16 22:10:18  alex
+ * - IRC_LUSERS() implementiert.
+ *
  * Revision 1.36  2002/01/11 23:50:55  alex
  * - LINKS implementiert, LUSERS begonnen.
  *
@@ -1218,14 +1221,58 @@ GLOBAL BOOLEAN IRC_ERROR( CLIENT *Client, REQUEST *Req )
 
 GLOBAL BOOLEAN IRC_LUSERS( CLIENT *Client, REQUEST *Req )
 {
+	CLIENT *target, *from;
+	INT cnt;
+	
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	if( Client_Type( Client ) != CLIENT_USER ) return IRC_WriteStrClient( Client, ERR_NOTREGISTERED_MSG, Client_ID( Client ));
+	if(( Client_Type( Client ) != CLIENT_USER ) && ( Client_Type( Client ) != CLIENT_SERVER )) return IRC_WriteStrClient( Client, ERR_NOTREGISTERED_MSG, Client_ID( Client ));
 
 	/* Falsche Anzahl Parameter? */
 	if(( Req->argc > 2 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+
+	/* Absender ermitteln */
+	if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_GetFromID( Req->prefix );
+	else from = Client;
+	if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
+
+	/* An anderen Server forwarden? */
+	if( Req->argc == 2 )
+	{
+		target = Client_GetFromID( Req->argv[1] );
+		if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->argv[1] );
+		else if( target != Client_ThisServer( )) return IRC_WriteStrClientPrefix( target, from, "LUSERS %s %s", Req->argv[0], Req->argv[1] );
+	}
+
+	/* Wer ist der Absender? */
+	if( Client_Type( Client ) == CLIENT_SERVER ) target = Client_GetFromID( Req->prefix );
+	else target = Client;
+	if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
 	
+	/* Users, Services und Serevr im Netz */
+	if( ! IRC_WriteStrClient( target, RPL_LUSERCLIENT_MSG, Client_ID( target ), Client_UserCount( ), Client_ServiceCount( ), Client_ServerCount( ))) return DISCONNECTED;
+
+	/* IRC-Operatoren im Netz */
+	cnt = Client_OperCount( );
+	if( cnt > 0 )
+	{
+		if( ! IRC_WriteStrClient( target, RPL_LUSEROP_MSG, Client_ID( target ), cnt )) return DISCONNECTED;
+	}
+
+	/* Unbekannt Verbindungen */
+	cnt = Client_UnknownCount( );
+	if( cnt > 0 )
+	{
+		if( ! IRC_WriteStrClient( target, RPL_LUSERUNKNOWN_MSG, Client_ID( target ), cnt )) return DISCONNECTED;
+	}
+
+	/* Channels im Netz */
+	if( ! IRC_WriteStrClient( target, RPL_LUSERCHANNELS_MSG, Client_ID( target ), Channel_Count( ))) return DISCONNECTED;
+
+	/* Channels im Netz */
+	if( ! IRC_WriteStrClient( target, RPL_LUSERME_MSG, Client_ID( target ), Client_MyUserCount( ), Client_MyServiceCount( ), Client_MyServerCount( ))) return DISCONNECTED;
+
 	return CONNECTED;
 } /* IRC_LUSERS */
 

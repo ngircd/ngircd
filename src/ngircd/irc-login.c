@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-login.c,v 1.17 2002/09/02 19:31:26 alex Exp $
+ * $Id: irc-login.c,v 1.18 2002/09/03 18:55:03 alex Exp $
  *
  * irc-login.c: Anmeldung und Abmeldung im IRC
  */
@@ -109,6 +109,8 @@ IRC_PASS( CLIENT *Client, REQUEST *Req )
 		}
 
 		Client_SetType( Client, CLIENT_GOTPASSSERVER );
+		Client_SetFlags( Client, flags );
+
 		return CONNECTED;
 	}
 	else if(( Client_Type( Client ) == CLIENT_UNKNOWN  ) || ( Client_Type( Client ) == CLIENT_UNKNOWNSERVER ))

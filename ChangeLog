@@ -10,7 +10,7 @@
                         -- ChangeLog / Aenderungen --
 
 
-ngIRCd 0.0.2, ?
+ngIRCd 0.0.2, 06.01.2002
 
   - Struktur der Konfigurationsdatei geaendert: sie ist nun "Samba like",
     d.h. sie besteht aus Abschnitten (siehe "doc/sample-ngircd.conf").
@@ -18,10 +18,19 @@ ngIRCd 0.0.2, ?
   - Zombies der Resolver-Prozesse werden nun ordentlich "getoetet".
   - NICK kann nun die Gross- und Kleinschreibung eines Nicks aendern.
   - ein Server-Passwort ist nun konfigurierbar.
+  - neue Befehle: ERROR, SERVER, NJOIN (nur als "Fake"), SQUIT.
+  - Asyncroner Resolver Hostname->IP implementiert.
   - Server-Links teilweise implementiert: bisher kann der ngIRCd jedoch
     nur "leafed server" sein, d.h. keine "Client-Server" haben. Einige
     Befehle sind auch noch nicht (optimal) angepasst: PRIVMSG funktioniert
-    aber bereits, ebenso wie WHOIS (letzteres noch nicht vollstaendig).
+    aber bereits, ebenso wie WHOIS (letzterer wird immer an den Server,
+    auf dem der User registriert ist, weitergegeben).
+  - "arpa/inet.h" wird nur noch includiert, wenn vorhanden.
+  - Fehler bei select() fuerhen nun zum Abbruch von ngIRCd, bisher landete
+    der Server zumeist in einer Endlosschleife.
+  - Logmeldungen und Level an vielen Stellen verbessert.
+  - lokalen Usernamen wird nun ein "~" vorangestellt, da bisher noch keine
+    Ident-Anfragen gemacht werden.
 
 ngIRCd 0.0.1, 31.12.2001
 
@@ -29,4 +38,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.6 2002/01/05 20:08:34 alex Exp $
+$Id: ChangeLog,v 1.7 2002/01/06 15:40:01 alex Exp $

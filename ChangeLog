@@ -49,6 +49,7 @@ ngIRCd CVS-HEAD
     macht er nach dem Befehl RELOAD oder wenn ein HUP-Signal empfangen wird.
   - Channel-Mode "P" ("persistent") kann nur noch von IRC-Operatoren gesetzt
     werden. Grund: User koennen den Server sonst leicht "Channel-Flooden".
+  - RPL_UMODEIS hat Code 221, nicht 211 ... *argl*
 
 ngIRCd 0.5.3, 08.11.2002
 
@@ -337,4 +338,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.125 2002/11/22 18:29:46 alex Exp $
+$Id: ChangeLog,v 1.126 2002/11/22 22:57:14 alex Exp $

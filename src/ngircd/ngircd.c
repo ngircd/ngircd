@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.7 2001/12/13 01:31:46 alex Exp $
+ * $Id: ngircd.c,v 1.8 2001/12/14 08:15:26 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  *
  * $Log: ngircd.c,v $
+ * Revision 1.8  2001/12/14 08:15:26  alex
+ * - neue Module (irc, client, channel) werden an- und abgemeldet.
+ * - zweiter Listen-Socket wird zu Testzwecken konfiguriert.
+ *
  * Revision 1.7  2001/12/13 01:31:46  alex
  * - Conn_Handler() wird nun mit einem Timeout aufgerufen.
  *
@@ -53,8 +57,11 @@
 #include <stdio.h>
 #include <signal.h>
 
+#include "channel.h"
+#include "client.h"
 #include "conf.h"
 #include "conn.h"
+#include "irc.h"
 #include "log.h"
 
 #include <exp.h>
@@ -76,12 +83,15 @@ GLOBAL INT main( INT argc, CONST CHAR *argv[] )
 	/* Module initialisieren */
 	Log_Init( );
 	Conf_Init( );
+	IRC_Init( );
+	Channel_Init( );
+	Client_Init( );
 	Conn_Init( );
 
 	Initialize_Signal_Handler( );
 	
 	if( ! Conn_New_Listener( 6668 )) exit( 1 );
-
+	if( ! Conn_New_Listener( 6669 )) Log( LOG_WARNING, "Can't create second listening socket!" );
 	
 	/* Hauptschleife */
 	while( ! NGIRCd_Quit )
@@ -91,6 +101,9 @@ GLOBAL INT main( INT argc, CONST CHAR *argv[] )
         
 	/* Alles abmelden */
 	Conn_Exit( );
+	Client_Exit( );
+	Channel_Exit( );
+	IRC_Exit( );
 	Conf_Exit( );
 	Log_Exit( );
 	

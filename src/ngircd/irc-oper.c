@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-oper.c,v 1.9 2002/11/22 17:58:41 alex Exp $
+ * $Id: irc-oper.c,v 1.10 2002/11/22 23:32:29 alex Exp $
  *
  * irc-oper.c: IRC-Operator-Befehle
  */
@@ -102,7 +102,7 @@ IRC_DIE( CLIENT *Client, REQUEST *Req )
 
 
 GLOBAL BOOLEAN
-IRC_RELOAD( CLIENT *Client, REQUEST *Req )
+IRC_REHASH( CLIENT *Client, REQUEST *Req )
 {
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -114,11 +114,11 @@ IRC_RELOAD( CLIENT *Client, REQUEST *Req )
 
 	if(( ! Client_HasMode( Client, 'o' )) || ( ! Client_OperByMe( Client ))) return IRC_WriteStrClient( Client, ERR_NOPRIVILEGES_MSG, Client_ID( Client ));
 
-	Log( LOG_NOTICE|LOG_snotice, "Got RELOAD command from \"%s\", re-reading configuration ...", Client_Mask( Client ));
-	NGIRCd_Reload( );
+	Log( LOG_NOTICE|LOG_snotice, "Got REHASH command from \"%s\", re-reading configuration ...", Client_Mask( Client ));
+	NGIRCd_Rehash( );
 	
 	return CONNECTED;
-} /* IRC_RELOAD */
+} /* IRC_REHASH */
 
 
 GLOBAL BOOLEAN

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-oper.h,v 1.7 2002/11/22 16:36:43 alex Exp $
+ * $Id: irc-oper.h,v 1.8 2002/11/22 23:32:29 alex Exp $
  *
  * irc-oper.h: IRC-Operator-Befehle (Header)
  */
@@ -21,7 +21,7 @@
 
 GLOBAL BOOLEAN IRC_OPER PARAMS((CLIENT *Client, REQUEST *Req ));
 GLOBAL BOOLEAN IRC_DIE PARAMS((CLIENT *Client, REQUEST *Req ));
-GLOBAL BOOLEAN IRC_RELOAD PARAMS((CLIENT *Client, REQUEST *Req ));
+GLOBAL BOOLEAN IRC_REHASH PARAMS((CLIENT *Client, REQUEST *Req ));
 GLOBAL BOOLEAN IRC_RESTART PARAMS((CLIENT *Client, REQUEST *Req ));
 GLOBAL BOOLEAN IRC_CONNECT PARAMS((CLIENT *Client, REQUEST *Req ));
 

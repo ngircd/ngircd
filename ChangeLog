@@ -13,6 +13,8 @@
 ngIRCd 0.2.x, xx.02.2002
 
   - NICK korrigiert: es werden nun auch alle "betroffenen" User informiert.
+  - Fehlerhafte bzw. noch nicht verstandene Modes werden nun ausfuehrlicher
+    an den Client geliefert.
 
 ngIRCd 0.2.0, 15.02.2002
 
@@ -99,4 +101,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.18 2002/02/17 17:18:59 alex Exp $
+$Id: ChangeLog,v 1.19 2002/02/17 17:47:01 alex Exp $

@@ -9,15 +9,12 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: Makefile.am,v 1.4 2002/04/04 12:28:29 alex Exp $
+# $Id: Makefile.am,v 1.5 2002/04/04 13:02:41 alex Exp $
 #
 
 man_MANS = ngircd.conf.5 ngircd.8
 
 EXTRA_DIST = $(man_MANS)
-
-clean-local:
-	rm -f *.[0-9]
 
 maintainer-clean-local:
 	rm -f Makefile Makefile.in

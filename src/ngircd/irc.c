@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.85 2002/03/03 19:44:30 alex Exp $
+ * $Id: irc.c,v 1.86 2002/03/04 01:43:20 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.86  2002/03/04 01:43:20  alex
+ * - der WHO-Befehl (ohne Argumente) gat teilweise Channel-Names vergessen.
+ *
  * Revision 1.85  2002/03/03 19:44:30  alex
  * - WHO implementiert (bisher ohne Unterstuetzung von Masks)
  *
@@ -426,9 +429,9 @@ GLOBAL BOOLEAN IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 GLOBAL BOOLEAN IRC_WHO( CLIENT *Client, REQUEST *Req )
 {
 	BOOLEAN ok, only_ops;
+	CHAR flags[8], *ptr;
 	CL2CHAN *cl2chan;
 	CHANNEL *chan;
-	CHAR flags[8];
 	CLIENT *c;
 	
 	assert( Client != NULL );
@@ -484,7 +487,9 @@ GLOBAL BOOLEAN IRC_WHO( CLIENT *Client, REQUEST *Req )
 
 				/* ausgeben */
 				cl2chan = Channel_FirstChannelOf( c );
-				if( ! IRC_WriteStrClient( Client, RPL_WHOREPLY_MSG, Client_ID( Client ), chan ? Channel_Name( Channel_GetChannel( cl2chan )) : "*", Client_User( c ), Client_Hostname( c ), Client_ID( Client_Introducer( c )), Client_ID( c ), flags, Client_Hops( c ), Client_Info( c ))) return DISCONNECTED;
+				if( cl2chan ) ptr = Channel_Name( Channel_GetChannel( cl2chan ));
+				else ptr = "*";
+				if( ! IRC_WriteStrClient( Client, RPL_WHOREPLY_MSG, Client_ID( Client ), ptr, Client_User( c ), Client_Hostname( c ), Client_ID( Client_Introducer( c )), Client_ID( c ), flags, Client_Hops( c ), Client_Info( c ))) return DISCONNECTED;
 			}
 		}
 

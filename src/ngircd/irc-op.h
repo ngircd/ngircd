@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-op.h,v 1.1 2002/05/27 11:22:07 alex Exp $
+ * $Id: irc-op.h,v 1.2 2002/09/08 00:52:55 alex Exp $
  *
  * irc-op.h: Befehle zur Channel-Verwaltung (Header)
  */
@@ -20,7 +20,6 @@
 
 
 GLOBAL BOOLEAN IRC_KICK PARAMS(( CLIENT *Client, REQUEST *Req ));
-GLOBAL BOOLEAN IRC_BAN PARAMS(( CLIENT *Client, REQUEST *Req ));
 GLOBAL BOOLEAN IRC_INVITE PARAMS(( CLIENT *Client, REQUEST *Req ));
 
 

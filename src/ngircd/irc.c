@@ -9,11 +9,16 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.3 2001/12/24 01:34:06 alex Exp $
+ * $Id: irc.c,v 1.4 2001/12/25 19:19:30 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.4  2001/12/25 19:19:30  alex
+ * - bessere Fehler-Abfragen, diverse Bugfixes.
+ * - Nicks werden nur einmal vergeben :-)
+ * - /MOTD wird unterstuetzt.
+ *
  * Revision 1.3  2001/12/24 01:34:06  alex
  * - USER und NICK wird nun in beliebiger Reihenfolge akzeptiert (wg. BitchX)
  * - MOTD-Ausgabe begonnen zu implementieren.
@@ -44,10 +49,14 @@
 #include "irc.h"
 
 
+#define CONNECTED TRUE
+#define DISCONNECTED FALSE
+
+
 LOCAL BOOLEAN Check_Valid_User( CLIENT *Client );
 
-LOCAL VOID Hello_User( CLIENT *Client );
-LOCAL VOID Show_MOTD( CLIENT *Client );
+LOCAL BOOLEAN Hello_User( CLIENT *Client );
+LOCAL BOOLEAN Show_MOTD( CLIENT *Client );
 
 
 GLOBAL VOID IRC_Init( VOID )
@@ -60,11 +69,12 @@ GLOBAL VOID IRC_Exit( VOID )
 } /* IRC_Exit */
 
 
-GLOBAL VOID IRC_WriteStr_Client( CLIENT *Client, CLIENT *Prefix, CHAR *Format, ... )
+GLOBAL BOOLEAN IRC_WriteStr_Client( CLIENT *Client, CLIENT *Prefix, CHAR *Format, ... )
 {
 	/* Text an Clients, lokal bzw. remote, senden. */
 
 	CHAR buffer[1000];
+	BOOLEAN ok = CONNECTED;
 	va_list ap;
 
 	assert( Client != NULL );
@@ -76,15 +86,17 @@ GLOBAL VOID IRC_WriteStr_Client( CLIENT *Client, CLIENT *Prefix, CHAR *Format, .
 	{
 		/* Lokaler Client */
 		vsnprintf( buffer, 1000, Format, ap );
-		if( Prefix ) Conn_WriteStr( Client->conn_id, ":%s %s", Prefix->host, buffer );
-		else Conn_WriteStr( Client->conn_id, buffer );
+		if( Prefix ) ok = Conn_WriteStr( Client->conn_id, ":%s %s", Prefix->host, buffer );
+		else ok = Conn_WriteStr( Client->conn_id, buffer );
 	}
 	else
 	{
 		/* Remote-Client */
 		Log( LOG_DEBUG, "not implemented: IRC_WriteStr_Client()" );
 	}
+
 	va_end( ap );
+	return ok;
 } /* IRC_WriteStr_Client */
 
 
@@ -93,41 +105,49 @@ GLOBAL BOOLEAN IRC_PASS( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	IRC_WriteStr_Client( Client, This_Server, ERR_UNKNOWNCOMMAND_MSG, Req->command );
-	return TRUE;
+	return IRC_WriteStr_Client( Client, This_Server, ERR_UNKNOWNCOMMAND_MSG, Req->command );
 } /* IRC_PASS */
 
 
 GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req )
 {
+	CLIENT *c;
+	
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	if( Client->type == CLIENT_UNKNOWN || Client->type == CLIENT_PASS || Client->type == CLIENT_USER )
+	if( Client->type != CLIENT_SERVER && Client->type != CLIENT_SERVICE )
 	{
-		/* Neuer Client */
-		if( Req->argc == 1 )
-		{
-			if( strlen( Req->argv[0] ) <= CLIENT_NICK_LEN )
-			{
-				/* Client-Nick registrieren */
-				strcpy( Client->nick, Req->argv[0] );
-				if( Client->type == CLIENT_USER ) Hello_User( Client );
-				Client->type = CLIENT_NICK;
-			}
-			else IRC_WriteStr_Client( Client, This_Server, ERR_ERRONEUSNICKNAME_MSG, Req->argv[0] );
-		}
-		else IRC_WriteStr_Client( Client, This_Server, ERR_NEEDMOREPARAMS_MSG );
-	}
-	else if( Client->type == CLIENT_USER )
-	{
-		/* Nick-Aenderung eines Users */
-		if( ! Check_Valid_User( Client )) return TRUE;
-		Log( LOG_DEBUG, "not implemented: IRC_NICK()" );
-	}
-	else IRC_WriteStr_Client( Client, This_Server, ERR_ALREADYREGISTRED_MSG );
+		/* Falsche Anzahl Parameter? */
+		if( Req->argc != 1 ) return IRC_WriteStr_Client( Client, This_Server, ERR_NEEDMOREPARAMS_MSG );
 
-	return TRUE;
+		/* Nick zu lang? */
+		if( strlen( Req->argv[0] ) > CLIENT_NICK_LEN ) return IRC_WriteStr_Client( Client, This_Server, ERR_ERRONEUSNICKNAME_MSG, Req->argv[0] );
+
+		/* pruefen, ob Nick bereits vergeben */
+		c = My_Clients;
+		while( c )
+		{
+			if( strcasecmp( c->nick, Req->argv[0] ) == 0 )
+			{
+				/* den Nick gibt es bereits */
+				return IRC_WriteStr_Client( Client, This_Server, ERR_NICKNAMEINUSE_MSG, Req->argv[0] );
+			}
+			c = c->next;
+		}
+		
+		/* Client-Nick registrieren */
+		strcpy( Client->nick, Req->argv[0] );
+
+		if( Client->type != CLIENT_USER )
+		{
+			/* Neuer Client */
+			if( Client->type == CLIENT_GOTUSER ) return Hello_User( Client );
+			else Client->type = CLIENT_GOTNICK;
+		}
+		return CONNECTED;
+	}
+	else return IRC_WriteStr_Client( Client, This_Server, ERR_ALREADYREGISTRED_MSG );
 } /* IRC_NICK */
 
 
@@ -136,27 +156,40 @@ GLOBAL BOOLEAN IRC_USER( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	if( Client->type == CLIENT_UNKNOWN || Client->type == CLIENT_NICK )
+	if( Client->type == CLIENT_UNKNOWN || Client->type == CLIENT_GOTNICK || Client->type == CLIENT_GOTPASS )
 	{
-		if( Req->argc == 4 )
-		{
-			strncpy( Client->user, Req->argv[0], CLIENT_USER_LEN );
-			Client->user[CLIENT_USER_LEN] = '\0';
-			strncpy( Client->name, Req->argv[3], CLIENT_NAME_LEN );
-			Client->name[CLIENT_NAME_LEN] = '\0';
-			if( Client->type == CLIENT_NICK ) Hello_User( Client );
-			Client->type = CLIENT_USER;
-		}
-		else IRC_WriteStr_Client( Client, This_Server, ERR_NEEDMOREPARAMS_MSG );
+		/* Falsche Anzahl Parameter? */
+		if( Req->argc != 4 ) return IRC_WriteStr_Client( Client, This_Server, ERR_NEEDMOREPARAMS_MSG );
+		
+		strncpy( Client->user, Req->argv[0], CLIENT_USER_LEN );
+		Client->user[CLIENT_USER_LEN] = '\0';
+		strncpy( Client->name, Req->argv[3], CLIENT_NAME_LEN );
+		Client->name[CLIENT_NAME_LEN] = '\0';
+		
+		if( Client->type == CLIENT_GOTNICK ) return Hello_User( Client );
+		else Client->type = CLIENT_GOTUSER;
+		return CONNECTED;
 	}
 	else if( Client->type == CLIENT_USER || Client->type == CLIENT_SERVER || Client->type == CLIENT_SERVICE )
 	{
-		IRC_WriteStr_Client( Client, This_Server, ERR_ALREADYREGISTRED_MSG );
+		return IRC_WriteStr_Client( Client, This_Server, ERR_ALREADYREGISTRED_MSG );
 	}
-	else IRC_WriteStr_Client( Client, This_Server, ERR_NOTREGISTERED_MSG );
-
-	return TRUE;
+	else return IRC_WriteStr_Client( Client, This_Server, ERR_NOTREGISTERED_MSG );
 } /* IRC_USER */
+
+
+GLOBAL BOOLEAN IRC_MOTD( CLIENT *Client, REQUEST *Req )
+{
+	assert( Client != NULL );
+	assert( Req != NULL );
+
+	if( ! Check_Valid_User( Client )) return CONNECTED;
+
+	/* Falsche Anzahl Parameter? */
+	if( Req->argc != 0 ) return IRC_WriteStr_Client( Client, This_Server, ERR_NEEDMOREPARAMS_MSG );
+	
+	return Show_MOTD( Client );	
+} /* IRC_MOTD */
 
 
 LOCAL BOOLEAN Check_Valid_User( CLIENT *Client )
@@ -172,22 +205,26 @@ LOCAL BOOLEAN Check_Valid_User( CLIENT *Client )
 } /* Check_Valid_User */
 
 
-LOCAL VOID Hello_User( CLIENT *Client )
+LOCAL BOOLEAN Hello_User( CLIENT *Client )
 {
 	Log( LOG_INFO, "User \"%s!%s@%s\" (%s) registered.", Client->nick, Client->user, Client->host, Client->name );
+
 	IRC_WriteStr_Client( Client, This_Server, RPL_WELCOME_MSG, Client->nick, Client->nick, Client->user, Client->host );
 	IRC_WriteStr_Client( Client, This_Server, RPL_YOURHOST_MSG, Client->nick, This_Server->host );
 	IRC_WriteStr_Client( Client, This_Server, RPL_CREATED_MSG, Client->nick );
 	IRC_WriteStr_Client( Client, This_Server, RPL_MYINFO_MSG, Client->nick, This_Server->host );
-	Show_MOTD( Client );
+
+	Client->type = CLIENT_USER;
+
+	return Show_MOTD( Client );
 } /* Hello_User */
 
 
-LOCAL VOID Show_MOTD( CLIENT *Client )
+LOCAL BOOLEAN Show_MOTD( CLIENT *Client )
 {
 	IRC_WriteStr_Client( Client, This_Server, RPL_MOTDSTART_MSG, Client->nick, This_Server->host );
 	IRC_WriteStr_Client( Client, This_Server, RPL_MOTD_MSG, Client->nick, "Some cool IRC server welcome message ;-)" );
-	IRC_WriteStr_Client( Client, This_Server, RPL_ENDOFMOTD_MSG, Client->nick );
+	return IRC_WriteStr_Client( Client, This_Server, RPL_ENDOFMOTD_MSG, Client->nick );
 } /* Show_MOTD */
 
 

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.73 2002/09/26 15:59:02 alex Exp $
+ * $Id: conn.c,v 1.74 2002/09/26 16:11:26 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -400,7 +400,7 @@ Conn_Write( CONN_ID Idx, CHAR *Data, INT Len )
 	 * dem nicht mehr so ist, wenn einer von mehreren
 	 * Conn_Write()'s fehlgeschlagen ist. In diesem Fall
 	 * wird hier einfach ein Fehler geliefert. */
-	if( ! My_Connections[Idx].sock > NONE )
+	if( My_Connections[Idx].sock <= NONE )
 	{
 		Log( LOG_DEBUG, "Skipped write on closed socket (connection %d).", Idx );
 		return FALSE;

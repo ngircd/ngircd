@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-write.c,v 1.11 2002/11/04 12:34:22 alex Exp $
+ * $Id: irc-write.c,v 1.12 2002/11/04 13:26:00 alex Exp $
  *
  * irc-write.c: IRC-Texte und Befehle ueber Netzwerk versenden
  */
@@ -386,7 +386,7 @@ va_dcl
 	{
 		/* muessen ueber diese Verbindung Daten gesendet werden? */
 		if( Conn_Flag( conn ) == SEND_TO_SERVER ) ok = Conn_WriteStr( conn, ":%s %s", Client_ID( Prefix ), buffer );
-		else if( Conn_Flag( conn ) == SEND_TO_SERVER ) ok = Conn_WriteStr( conn, ":%s %s", Client_Mask( Prefix ), buffer );
+		else if( Conn_Flag( conn ) == SEND_TO_USER ) ok = Conn_WriteStr( conn, ":%s %s", Client_Mask( Prefix ), buffer );
 		if( ! ok ) break;
 
 		/* naechste Verbindung testen */

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: defines.h,v 1.28 2002/07/15 16:34:46 alex Exp $
+ * $Id: defines.h,v 1.29 2002/09/02 19:05:44 alex Exp $
  *
  * defines.h: (globale) Konstanten
  */
@@ -57,12 +57,6 @@
 
 #define PROTOVER "0210"			/* implementierte Protokoll-Version (RFC 2813, 4.1.1) */
 #define PROTOSUFFIX "-ngIRCd"		/* Protokoll-Suffix (RFC 2813, 4.1.1) */
-
-#ifdef PROTOTYPES
-# define PASSSERVERADD PROTOVER""PROTOSUFFIX" IRC|"PACKAGE"-"VERSION" P"
-#else
-# define PASSSERVERADD "0210-ngIRCd IRC|ngircd-0 P"
-#endif
 
 #define STARTUP_DELAY 1			/* Erst n Sek. nach Start zu anderen Servern verbinden */
 #define RECONNECT_DELAY 3		/* Server-Links erst nach 3 Sekunden versuchen, wieder aufzubauen */

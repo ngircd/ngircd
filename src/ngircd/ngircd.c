@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.8 2001/12/14 08:15:26 alex Exp $
+ * $Id: ngircd.c,v 1.9 2001/12/21 22:24:50 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  *
  * $Log: ngircd.c,v $
+ * Revision 1.9  2001/12/21 22:24:50  alex
+ * - neues Modul "parse" wird initialisiert und abgemeldet.
+ *
  * Revision 1.8  2001/12/14 08:15:26  alex
  * - neue Module (irc, client, channel) werden an- und abgemeldet.
  * - zweiter Listen-Socket wird zu Testzwecken konfiguriert.
@@ -41,7 +44,7 @@
  * - Test auf stdint.h (HAVE_STDINT_H) hinzugefuegt.
  *
  * Revision 1.1.1.1  2001/12/11 21:53:04  alex
- * Imported sources to CVS.
+ * - Imported sources to CVS.
  */
 
 
@@ -63,6 +66,7 @@
 #include "conn.h"
 #include "irc.h"
 #include "log.h"
+#include "parse.h"
 
 #include <exp.h>
 #include "ngircd.h"
@@ -83,6 +87,7 @@ GLOBAL INT main( INT argc, CONST CHAR *argv[] )
 	/* Module initialisieren */
 	Log_Init( );
 	Conf_Init( );
+	Parse_Init( );
 	IRC_Init( );
 	Channel_Init( );
 	Client_Init( );
@@ -104,6 +109,7 @@ GLOBAL INT main( INT argc, CONST CHAR *argv[] )
 	Client_Exit( );
 	Channel_Exit( );
 	IRC_Exit( );
+	Parse_Exit( );
 	Conf_Exit( );
 	Log_Exit( );
 	

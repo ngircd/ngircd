@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-mode.c,v 1.6 2002/05/27 13:09:27 alex Exp $
+ * $Id: irc-mode.c,v 1.7 2002/06/02 15:14:22 alex Exp $
  *
  * irc-mode.c: IRC-Befehle zur Mode-Aenderung (MODE, AWAY, ...)
  */
@@ -203,10 +203,6 @@ IRC_MODE( CLIENT *Client, REQUEST *Req )
 					/* Channel-Modes */
 					switch( *mode_ptr )
 					{
-						case 'a':
-							/* Anonymous */
-							x[0] = 'a';
-							break;
 						case 'i':
 							/* Invite-Only */
 							x[0] = 'i';
@@ -218,18 +214,6 @@ IRC_MODE( CLIENT *Client, REQUEST *Req )
 						case 'n':
 							/* kein Schreiben in den Channel von aussen */
 							x[0] = 'n';
-							break;
-						case 'p':
-							/* Private */
-							x[0] = 'p';
-							break;
-						case 'q':
-							/* Quiet */
-							x[0] = 'q';
-							break;
-						case 's':
-							/* Secret */
-							x[0] = 's';
 							break;
 						case 't':
 							/* Topic Lock */

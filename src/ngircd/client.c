@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.34 2002/01/27 22:07:36 alex Exp $
+ * $Id: client.c,v 1.35 2002/01/29 00:14:49 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,9 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.35  2002/01/29 00:14:49  alex
+ * - neue Funktion Client_TopServer(), Client_NewXXX() angepasst.
+ *
  * Revision 1.34  2002/01/27 22:07:36  alex
  * - Client_GetFromID() besser dokumentiert, kleinere Aenderungen.
  *
@@ -232,25 +235,25 @@ GLOBAL CLIENT *Client_ThisServer( VOID )
 GLOBAL CLIENT *Client_NewLocal( CONN_ID Idx, CHAR *Hostname, INT Type, BOOLEAN Idented )
 {
 	/* Neuen lokalen Client erzeugen: Wrapper-Funktion fuer Client_New(). */
-	return Client_New( Idx, This_Server, Type, NULL, NULL, Hostname, NULL, 0, 0, NULL, Idented );
+	return Client_New( Idx, This_Server, NULL, Type, NULL, NULL, Hostname, NULL, 0, 0, NULL, Idented );
 } /* Client_NewLocal */
 
 
-GLOBAL CLIENT *Client_NewRemoteServer( CLIENT *Introducer, CHAR *Hostname, INT Hops, INT Token, CHAR *Info, BOOLEAN Idented )
+GLOBAL CLIENT *Client_NewRemoteServer( CLIENT *Introducer, CHAR *Hostname, CLIENT *TopServer, INT Hops, INT Token, CHAR *Info, BOOLEAN Idented )
 {
 	/* Neuen Remote-Client erzeugen: Wrapper-Funktion fuer Client_New (). */
-	return Client_New( NONE, Introducer, CLIENT_SERVER, Hostname, NULL, Hostname, Info, Hops, Token, NULL, Idented );
+	return Client_New( NONE, Introducer, TopServer, CLIENT_SERVER, Hostname, NULL, Hostname, Info, Hops, Token, NULL, Idented );
 } /* Client_NewRemoteServer */
 
 
 GLOBAL CLIENT *Client_NewRemoteUser( CLIENT *Introducer, CHAR *Nick, INT Hops, CHAR *User, CHAR *Hostname, INT Token, CHAR *Modes, CHAR *Info, BOOLEAN Idented )
 {
 	/* Neuen Remote-Client erzeugen: Wrapper-Funktion fuer Client_New (). */
-	return Client_New( NONE, Introducer, CLIENT_USER, Nick, User, Hostname, Info, Hops, Token, Modes, Idented );
+	return Client_New( NONE, Introducer, NULL, CLIENT_USER, Nick, User, Hostname, Info, Hops, Token, Modes, Idented );
 } /* Client_NewRemoteUser */
 
 
-GLOBAL CLIENT *Client_New( CONN_ID Idx, CLIENT *Introducer, INT Type, CHAR *ID, CHAR *User, CHAR *Hostname, CHAR *Info, INT Hops, INT Token, CHAR *Modes, BOOLEAN Idented )
+GLOBAL CLIENT *Client_New( CONN_ID Idx, CLIENT *Introducer, CLIENT *TopServer, INT Type, CHAR *ID, CHAR *User, CHAR *Hostname, CHAR *Info, INT Hops, INT Token, CHAR *Modes, BOOLEAN Idented )
 {
 	CLIENT *client;
 
@@ -264,6 +267,7 @@ GLOBAL CLIENT *Client_New( CONN_ID Idx, CLIENT *Introducer, INT Type, CHAR *ID, 
 	/* Initialisieren */
 	client->conn_id = Idx;
 	client->introducer = Introducer;
+	client->topserver = TopServer;
 	client->type = Type;
 	if( ID ) Client_SetID( client, ID );
 	if( User ) Client_SetUser( client, User, Idented );
@@ -688,6 +692,13 @@ GLOBAL CLIENT *Client_Introducer( CLIENT *Client )
 } /* Client_Introducer */
 
 
+GLOBAL CLIENT *Client_TopServer( CLIENT *Client )
+{
+	assert( Client != NULL );
+	return Client->topserver;
+} /* Client_TopServer */
+
+
 GLOBAL BOOLEAN Client_HasMode( CLIENT *Client, CHAR Mode )
 {
 	assert( Client != NULL );
@@ -911,6 +922,7 @@ LOCAL CLIENT *New_Client_Struct( VOID )
 	c->type = CLIENT_UNKNOWN;
 	c->conn_id = NONE;
 	c->introducer = NULL;
+	c->topserver = NULL;
 	strcpy( c->id, "" );
 	strcpy( c->pwd, "" );
 	strcpy( c->host, "" );

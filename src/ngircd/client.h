@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.h,v 1.20 2002/01/21 00:06:49 alex Exp $
+ * $Id: client.h,v 1.21 2002/01/29 00:14:49 alex Exp $
  *
  * client.h: Konfiguration des ngircd (Header)
  *
  * $Log: client.h,v $
+ * Revision 1.21  2002/01/29 00:14:49  alex
+ * - neue Funktion Client_TopServer(), Client_NewXXX() angepasst.
+ *
  * Revision 1.20  2002/01/21 00:06:49  alex
  * - Channel-Pointer aus Client-Struktur entfernt. Wird nun dynamisch verwaltet :-)
  *
@@ -111,6 +114,7 @@ typedef struct _CLIENT
 	CLIENT_TYPE type;		/* Typ des Client, vgl. CLIENT_TYPE */
 	CONN_ID conn_id;		/* ID der Connection (wenn lokal) bzw. NONE (remote) */
 	struct _CLIENT *introducer;	/* ID des Servers, der die Verbindung hat */
+	struct _CLIENT *topserver;	/* Toplevel-Servers (nur gueltig, wenn Client ein Server ist) */
 	CHAR pwd[CLIENT_PASS_LEN];	/* Passwort, welches der Client angegeben hat */
 	CHAR host[CLIENT_HOST_LEN];	/* Hostname des Client */
 	CHAR user[CLIENT_USER_LEN];	/* Benutzername ("Login") */
@@ -128,9 +132,9 @@ GLOBAL VOID Client_Init( VOID );
 GLOBAL VOID Client_Exit( VOID );
 
 GLOBAL CLIENT *Client_NewLocal( CONN_ID Idx, CHAR *Hostname, INT Type, BOOLEAN Idented );
-GLOBAL CLIENT *Client_NewRemoteServer( CLIENT *Introducer, CHAR *Hostname, INT Hops, INT Token, CHAR *Info, BOOLEAN Idented );
+GLOBAL CLIENT *Client_NewRemoteServer( CLIENT *Introducer, CHAR *Hostname, CLIENT *TopServer, INT Hops, INT Token, CHAR *Info, BOOLEAN Idented );
 GLOBAL CLIENT *Client_NewRemoteUser( CLIENT *Introducer, CHAR *Nick, INT Hops, CHAR *User, CHAR *Hostname, INT Token, CHAR *Modes, CHAR *Info, BOOLEAN Idented );
-GLOBAL CLIENT *Client_New( CONN_ID Idx, CLIENT *Introducer, INT Type, CHAR *ID, CHAR *User, CHAR *Hostname, CHAR *Info, INT Hops, INT Token, CHAR *Modes, BOOLEAN Idented );
+GLOBAL CLIENT *Client_New( CONN_ID Idx, CLIENT *Introducer, CLIENT *TopServer, INT Type, CHAR *ID, CHAR *User, CHAR *Hostname, CHAR *Info, INT Hops, INT Token, CHAR *Modes, BOOLEAN Idented );
 
 GLOBAL VOID Client_Destroy( CLIENT *Client, CHAR *LogMsg, CHAR *FwdMsg );
 
@@ -158,6 +162,7 @@ GLOBAL BOOLEAN Client_OperByMe( CLIENT *Client );
 GLOBAL INT Client_Hops( CLIENT *Client );
 GLOBAL INT Client_Token( CLIENT *Client );
 GLOBAL INT Client_MyToken( CLIENT *Client );
+GLOBAL CLIENT *Client_TopServer( CLIENT *Client );
 GLOBAL CLIENT *Client_NextHop( CLIENT *Client );
 
 GLOBAL BOOLEAN Client_HasMode( CLIENT *Client, CHAR Mode );

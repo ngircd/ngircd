@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: defines.h,v 1.2 2002/01/02 02:44:36 alex Exp $
+ * $Id: defines.h,v 1.3 2002/01/03 02:24:00 alex Exp $
  *
  * defines.h: (globale) Konstanten
  *
  * $Log: defines.h,v $
+ * Revision 1.3  2002/01/03 02:24:00  alex
+ * - Protokollversion und Suffix definiert.
+ *
  * Revision 1.2  2002/01/02 02:44:36  alex
  * - neue Defines fuer max. Anzahl Server und Operatoren.
  *
@@ -61,6 +64,10 @@
 
 #define READBUFFER_LEN 2 * COMMAND_LEN	/* Laenge des Lesepuffers je Verbindung (Bytes) */
 #define WRITEBUFFER_LEN 4096		/* Laenge des Schreibpuffers je Verbindung (Bytes) */
+
+#define PROTOVER "0210"			/* implementierte Protokoll-Version (RFC 2813, 4.1.1) */
+#define PROTOSUFFIX "-ngIRCd"		/* Protokoll-Suffix (RFC 2813, 4.1.1) */
+
 
 #endif
 

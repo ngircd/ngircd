@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: client.h,v 1.32 2002/12/12 12:23:43 alex Exp $
+ * $Id: client.h,v 1.33 2002/12/22 23:29:09 alex Exp $
  *
  * Client management (header)
  */
@@ -130,6 +130,8 @@ GLOBAL LONG Client_UnknownCount PARAMS((VOID ));
 GLOBAL LONG Client_MyUserCount PARAMS((VOID ));
 GLOBAL LONG Client_MyServiceCount PARAMS((VOID ));
 GLOBAL LONG Client_MyServerCount PARAMS((VOID ));
+GLOBAL LONG Client_MaxUserCount PARAMS(( VOID ));
+GLOBAL LONG Client_MyMaxUserCount PARAMS(( VOID ));
 
 GLOBAL BOOLEAN Client_IsValidNick PARAMS((CHAR *Nick ));
 

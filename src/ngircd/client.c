@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: client.c,v 1.66 2002/12/19 04:33:27 alex Exp $";
+static char UNUSED id[] = "$Id: client.c,v 1.67 2002/12/22 23:29:09 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -57,6 +57,10 @@ LOCAL LONG MyCount PARAMS(( CLIENT_TYPE Type ));
 
 LOCAL CLIENT *New_Client_Struct PARAMS(( VOID ));
 LOCAL VOID Generate_MyToken PARAMS(( CLIENT *Client ));
+LOCAL VOID Adjust_Counters PARAMS(( CLIENT *Client ));
+
+
+LONG Max_Users = 0, My_Max_Users = 0;
 
 
 GLOBAL VOID
@@ -176,6 +180,9 @@ Client_New( CONN_ID Idx, CLIENT *Introducer, CLIENT *TopServer, INT Type, CHAR *
 	/* Verketten */
 	client->next = (POINTER *)My_Clients;
 	My_Clients = client;
+
+	/* Adjust counters */
+	Adjust_Counters( client );
 
 	return client;
 } /* Client_New */
@@ -414,6 +421,7 @@ Client_SetType( CLIENT *Client, INT Type )
 	assert( Client != NULL );
 	Client->type = Type;
 	if( Type == CLIENT_SERVER ) Generate_MyToken( Client );
+	Adjust_Counters( Client );
 } /* Client_SetType */
 
 
@@ -919,6 +927,20 @@ Client_UnknownCount( VOID )
 } /* Client_UnknownCount */
 
 
+GLOBAL LONG
+Client_MaxUserCount( VOID )
+{
+	return Max_Users;
+} /* Client_MaxUserCount */
+
+
+GLOBAL LONG
+Client_MyMaxUserCount( VOID )
+{
+	return My_Max_Users;
+} /* Client_MyMaxUserCount */
+
+
 GLOBAL BOOLEAN
 Client_IsValidNick( CHAR *Nick )
 {
@@ -1039,6 +1061,26 @@ Generate_MyToken( CLIENT *Client )
 	Client->mytoken = token;
 	Log( LOG_DEBUG, "Assigned token %d to server \"%s\".", token, Client->id );
 } /* Generate_MyToken */
+
+
+LOCAL VOID
+Adjust_Counters( CLIENT *Client )
+{
+	LONG count;
+
+	assert( Client != NULL );
+
+	if( Client->type != CLIENT_USER ) return;
+	
+	if( Client->conn_id != NONE )
+	{
+		/* Local connection */
+		count = Client_MyUserCount( );
+		if( count > My_Max_Users ) My_Max_Users = count;
+	}
+	count = Client_UserCount( );
+	if( count > Max_Users ) Max_Users = count;
+} /* Adjust_Counters */
 
 
 /* -eof- */

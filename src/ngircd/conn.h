@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.h,v 1.18 2002/10/10 15:00:33 alex Exp $
+ * $Id: conn.h,v 1.19 2002/11/02 22:58:19 alex Exp $
  *
  * conn.h: Verwaltung aller Netz-Verbindungen ("connections") (Header)
  */
@@ -43,6 +43,13 @@ GLOBAL time_t Conn_LastPing PARAMS(( CONN_ID Idx ));
 
 GLOBAL VOID Conn_SetPenalty PARAMS(( CONN_ID Idx, time_t Seconds ));
 GLOBAL VOID Conn_ResetPenalty PARAMS(( CONN_ID Idx ));
+
+GLOBAL VOID Conn_ClearFlags PARAMS(( VOID ));
+GLOBAL BOOLEAN Conn_Flag PARAMS(( CONN_ID Idx ));
+GLOBAL VOID Conn_SetFlag PARAMS(( CONN_ID Idx ));
+
+GLOBAL CONN_ID Conn_First PARAMS(( VOID ));
+GLOBAL CONN_ID Conn_Next PARAMS(( CONN_ID Idx ));
 
 
 GLOBAL INT Conn_MaxFD;

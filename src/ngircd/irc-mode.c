@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-mode.c,v 1.9 2002/08/26 23:47:58 alex Exp $
+ * $Id: irc-mode.c,v 1.10 2002/09/02 14:59:18 alex Exp $
  *
  * irc-mode.c: IRC-Befehle zur Mode-Aenderung (MODE, AWAY, ...)
  */
@@ -29,6 +29,8 @@
 #include "log.h"
 #include "parse.h"
 #include "messages.h"
+#include "resolve.h"
+#include "conf.h"
 
 #include "exp.h"
 #include "irc-mode.h"
@@ -39,7 +41,7 @@ IRC_MODE( CLIENT *Client, REQUEST *Req )
 {
 	CHAR *mode_ptr, the_modes[CLIENT_MODE_LEN], x[2];
 	CLIENT *cl, *chan_cl, *prefix;
-	BOOLEAN set, ok;
+	BOOLEAN set, ok, modeok;
 	CHANNEL *chan;
 	
 	assert( Client != NULL );
@@ -171,7 +173,15 @@ IRC_MODE( CLIENT *Client, REQUEST *Req )
 			if( chan )
 			{
 				/* Ist der User ein Channel Operator? */
-				if( ! strchr( Channel_UserModes( chan, Client ), 'o' ))
+				modeok = FALSE;
+				if( strchr( Channel_UserModes( chan, Client ), 'o' )) modeok = TRUE;
+				if( Conf_OperCanMode )
+				{
+					/* auch IRC-Operatoren duerfen MODE verwenden */
+					if( Client_OperByMe( Client )) modeok = TRUE;
+				}
+
+				if( ! modeok )
 				{
 					Log( LOG_DEBUG, "Can't change modes: \"%s\" is not operator on %s!", Client_ID( Client ), Channel_Name( chan ));
 					ok = IRC_WriteStrClient( Client, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Client ), Channel_Name( chan ));

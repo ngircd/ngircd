@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.c,v 1.27 2002/05/30 16:52:21 alex Exp $
+ * $Id: conf.c,v 1.28 2002/09/02 14:59:17 alex Exp $
  *
  * conf.h: Konfiguration des ngircd
  */
@@ -100,6 +100,7 @@ Conf_Test( VOID )
 	printf( "  PingTimeout = %d\n", Conf_PingTimeout );
 	printf( "  PongTimeout = %d\n", Conf_PongTimeout );
 	printf( "  ConnectRetry = %d\n", Conf_ConnectRetry );
+	printf( "  OperCanUseMode = %s\n", Conf_OperCanMode == TRUE ? "yes" : "no" );
 	puts( "" );
 
 	for( i = 0; i < Conf_Oper_Count; i++ )
@@ -167,6 +168,8 @@ Set_Defaults( VOID )
 	Conf_Oper_Count = 0;
 	Conf_Server_Count = 0;
 	Conf_Channel_Count = 0;
+
+	Conf_OperCanMode = FALSE;
 } /* Set_Defaults */
 
 
@@ -369,6 +372,15 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 		/* Sekunden zwischen Verbindungsversuchen zu anderen Servern */
 		Conf_ConnectRetry = atoi( Arg );
 		if(( Conf_ConnectRetry ) < 5 ) Conf_ConnectRetry = 5;
+		return;
+	}
+	if( strcasecmp( Var, "OperCanUseMode" ) == 0 )
+	{
+		/* Koennen IRC-Operatoren immer MODE benutzen? */
+		if( strcasecmp( Arg, "yes" ) == 0 ) Conf_OperCanMode = TRUE;
+		else if( strcasecmp( Arg, "true" ) == 0 ) Conf_OperCanMode = TRUE;
+		else if( atoi( Arg ) != 0 ) Conf_OperCanMode = TRUE;
+		else Conf_OperCanMode = FALSE;
 		return;
 	}
 		

@@ -9,7 +9,7 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: configure.in,v 1.69 2002/11/30 22:14:47 alex Exp $
+# $Id: configure.in,v 1.70 2002/12/25 13:23:11 alex Exp $
 #
 
 # -- Initialisierung --
@@ -201,12 +201,14 @@ AC_DEFINE_UNQUOTED(TARGET_OS, "$target_os" )
 # -- Variablen --
 
 if test "$GCC" = "yes"; then
-	CFLAGS="-Wall $CFLAGS"
+	the_CFLAGS="-Wall -Wtraditional -Wpointer-arith -Wstrict-prototypes"
+	add_CFLAGS="$CFLAGS $CFLAGS_ADD"
+else
+	the_CFLAGS="$CFLAGS"
+	add_CFLAGS="$CFLAGS_ADD"
 fi
 
-the_CFLAGS="$CFLAGS"
-
-CFLAGS="$CFLAGS -DSYSCONFDIR='\"\$(sysconfdir)\"'"
+CFLAGS="$the_CFLAGS $add_CFLAGS -DSYSCONFDIR='\"\$(sysconfdir)\"'"
 
 # -- Ausgabe der Dateien --
 
@@ -237,6 +239,7 @@ M=`eval echo ${mandir}` ; M=`eval echo ${M}`
 echo "                host: ${host}"
 echo "            compiler: ${CC}"
 echo "      compiler flags: ${the_CFLAGS}"
+test -n "$add_CFLAGS" && echo "                      ${add_CFLAGS}"
 echo "  preprocessor flags: ${CPPFLAGS}"
 echo "        linker flags: ${LDFLAGS}"
 echo "           libraries: ${LIBS}"

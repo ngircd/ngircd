@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.55 2002/02/12 14:40:37 alex Exp $
+ * $Id: irc.c,v 1.56 2002/02/13 17:52:27 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.56  2002/02/13 17:52:27  alex
+ * - es werden nun Channel- und User-Modes von Usern angenommen.
+ *
  * Revision 1.55  2002/02/12 14:40:37  alex
  * - via NJOIN gemeldete Benutzer wurden nicht in Channels bekannt gemacht.
  *
@@ -1253,6 +1256,14 @@ GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req )
 					/* Channel-User-Modes */
 					switch( *mode_ptr )
 					{
+						case 'o':
+							/* Channel Operator */
+							x[0] = 'o';
+							break;
+						case 'v':
+							/* Voice */
+							x[0] = 'v';
+							break;
 						default:
 							Log( LOG_DEBUG, "Unknown channel-user-mode \"%c%c\" from \"%s\" on \"%s\" at %s!?", set ? '+' : '-', *mode_ptr, Client_ID( Client ), Client_ID( chan_cl ), Channel_Name( chan ));
 							ok = IRC_WriteStrClient( Client, ERR_UMODEUNKNOWNFLAG_MSG, Client_ID( Client ));
@@ -1264,6 +1275,34 @@ GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req )
 					/* Channel-Modes */
 					switch( *mode_ptr )
 					{
+						case 'a':
+							/* Anonymous */
+							x[0] = 'a';
+							break;
+						case 'm':
+							/* Moderated */
+							x[0] = 'm';
+							break;
+						case 'n':
+							/* kein Schreiben in den Channel von aussen */
+							x[0] = 'n';
+							break;
+						case 'p':
+							/* Private */
+							x[0] = 'p';
+							break;
+						case 'q':
+							/* Quite */
+							x[0] = 'q';
+							break;
+						case 's':
+							/* Secret */
+							x[0] = 's';
+							break;
+						case 't':
+							/* Topic Lock */
+							x[0] = 't';
+							break;
 						default:
 							Log( LOG_DEBUG, "Unknown channel-mode \"%c%c\" from \"%s\" at %s!?", set ? '+' : '-', *mode_ptr, Client_ID( Client ), Channel_Name( chan ));
 							ok = IRC_WriteStrClient( Client, ERR_UMODEUNKNOWNFLAG_MSG, Client_ID( Client ));

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-write.c,v 1.10 2002/11/02 22:59:41 alex Exp $
+ * $Id: irc-write.c,v 1.11 2002/11/04 12:34:22 alex Exp $
  *
  * irc-write.c: IRC-Texte und Befehle ueber Netzwerk versenden
  */
@@ -30,6 +30,10 @@
 
 #include "exp.h"
 #include "irc-write.h"
+
+
+#define SEND_TO_USER 1
+#define SEND_TO_SERVER 2
 
 
 LOCAL CHAR *Get_Prefix PARAMS(( CLIENT *Target, CLIENT *Client ));
@@ -185,25 +189,22 @@ va_dcl
 		{
 			/* Ok, anderer Client */
 			conn = Client_Conn( c );
-			Conn_SetFlag( conn );
+			if( Client_Type( c ) == CLIENT_SERVER )	Conn_SetFlag( conn, SEND_TO_SERVER );
+			else Conn_SetFlag( conn, SEND_TO_USER );
 		}
 		cl2chan = Channel_NextMember( Chan, cl2chan );
 	}
 
-	/* Senden ... */
+	/* Senden: alle Verbindungen durchgehen ... */
 	conn = Conn_First( );
 	while( conn != NONE )
 	{
-		if( Conn_Flag( conn ))
-		{
-			if( Client_Type( Client_GetFromConn( conn )) == CLIENT_SERVER )
-			{
-				/* Ziel-Client ist ein anderer Server */
-				ok = Conn_WriteStr( conn, ":%s %s", Client_ID( Prefix ), buffer );
-			}
-			else ok = Conn_WriteStr( conn, ":%s %s", Client_Mask( Prefix ), buffer );
-			if( ! ok ) break;
-		}
+		/* muessen Daten ueber diese Verbindung verschickt werden? */
+		if( Conn_Flag( conn ) == SEND_TO_SERVER) ok = Conn_WriteStr( conn, ":%s %s", Client_ID( Prefix ), buffer );
+		else if( Conn_Flag( conn ) == SEND_TO_USER ) ok = Conn_WriteStr( conn, ":%s %s", Client_Mask( Prefix ), buffer );
+		if( ! ok ) break;
+
+		/* naechste Verbindung testen */
 		conn = Conn_Next( conn );
 	}
 
@@ -369,7 +370,8 @@ va_dcl
 			{
 				/* Ok, anderer Client */
 				conn = Client_Conn( c );
-				Conn_Flag( conn );
+				if( Client_Type( c ) == CLIENT_SERVER ) Conn_SetFlag( conn, SEND_TO_SERVER );
+				else Conn_SetFlag( conn, SEND_TO_USER );
 			}
 			cl2chan = Channel_NextMember( chan, cl2chan );
 		}
@@ -378,20 +380,16 @@ va_dcl
 		chan_cl2chan = Channel_NextChannelOf( Client, chan_cl2chan );
 	}
 
-	/* Senden ... */
+	/* Senden: alle Verbindungen durchgehen ... */
 	conn = Conn_First( );
 	while( conn != NONE )
 	{
-		if( Conn_Flag( conn ))
-		{
-			if( Client_Type( Client_GetFromConn( conn )) == CLIENT_SERVER )
-			{
-				/* Ziel ist ein anderer Server */
-				ok = Conn_WriteStr( conn, ":%s %s", Client_ID( Prefix ), buffer );
-			}
-			else ok = Conn_WriteStr( conn, ":%s %s", Client_Mask( Prefix ), buffer );
-			if( ! ok ) break;
-		}
+		/* muessen ueber diese Verbindung Daten gesendet werden? */
+		if( Conn_Flag( conn ) == SEND_TO_SERVER ) ok = Conn_WriteStr( conn, ":%s %s", Client_ID( Prefix ), buffer );
+		else if( Conn_Flag( conn ) == SEND_TO_SERVER ) ok = Conn_WriteStr( conn, ":%s %s", Client_Mask( Prefix ), buffer );
+		if( ! ok ) break;
+
+		/* naechste Verbindung testen */
 		conn = Conn_Next( conn );
 	}
 	return ok;

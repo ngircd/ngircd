@@ -17,6 +17,9 @@ ngIRCd 0.3.x, ??.??.2002
     Laeuft der Server nicht im Debug-Modus, so wird diese bei Programm-
     ende geloescht. Sollte der Server abstuerzen, finden sich hier evtl.
     zusaetzliche Informationen.
+  - Server-Gruppen implementiert: es wird immer nur zu einem Server in
+    einer Gruppe eine Verbindung aufgebaut, klappt es beim ersten Server
+    nicht, so wird der naechste probiert.
 
 ngIRCd 0.3.0, 02.03.2002
 
@@ -73,4 +76,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.20 2002/03/10 17:19:29 alex Exp $
+$Id: NEWS,v 1.21 2002/03/10 18:46:46 alex Exp $

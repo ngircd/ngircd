@@ -24,6 +24,12 @@ ngIRCd 0.3.x, ??.??.2002
     ngircd.conf installiert, wenn noch keine "echte" Konfigurationsdatei
     vorhanden ist.
   - bei "ngircd --help" werden nun die eincompilierten Pfade angezeigt.
+  - bei WHO, WHOIS und NAMES wird nun nur noch der Status "Operator" oder
+    "voiced" geliefert -- nicht mehr beides.
+  - Server-Gruppen implementiert: es wird immer nur zu einem Server in
+    einer Gruppe eine Verbindung aufgebaut, klappt es beim ersten Server
+    nicht, so wird der naechste probiert (Variable "Group" in der Kon-
+    figurationsdatei, Sektion [Server]).
 
 ngIRCd 0.3.0, 02.03.2002
 
@@ -154,4 +160,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.46 2002/03/10 17:51:29 alex Exp $
+$Id: ChangeLog,v 1.47 2002/03/10 18:46:46 alex Exp $

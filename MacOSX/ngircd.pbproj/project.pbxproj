@@ -134,6 +134,7 @@
 				F5F18138023EC63701A85B04,
 				F5F18139023EC63701A85B04,
 				F5F1813A023EC63701A85B04,
+				F55047BC0240F6E501A85B04,
 			);
 			isa = PBXHeadersBuildPhase;
 			name = Headers;
@@ -156,6 +157,7 @@
 				F57C88880232853501A85B04,
 				F57C888C0232884501A85B04,
 				F57C889002328D7201A85B04,
+				F55047BD0240F6E501A85B04,
 			);
 			isa = PBXSourcesBuildPhase;
 			name = Sources;
@@ -425,6 +427,8 @@
 				F52162C101C7B904012300F4,
 				F51F791201DFC95301D13771,
 				F576ABFE01D61D7401A85B03,
+				F55047BA0240F6E501A85B04,
+				F55047BB0240F6E501A85B04,
 			);
 			isa = PBXGroup;
 			path = ngircd;
@@ -626,6 +630,28 @@
 			name = Makefile.am;
 			path = ../doc/Makefile.am;
 			refType = 2;
+		};
+		F55047BA0240F6E501A85B04 = {
+			isa = PBXFileReference;
+			path = hash.c;
+			refType = 4;
+		};
+		F55047BB0240F6E501A85B04 = {
+			isa = PBXFileReference;
+			path = hash.h;
+			refType = 4;
+		};
+		F55047BC0240F6E501A85B04 = {
+			fileRef = F55047BB0240F6E501A85B04;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F55047BD0240F6E501A85B04 = {
+			fileRef = F55047BA0240F6E501A85B04;
+			isa = PBXBuildFile;
+			settings = {
+			};
 		};
 		F56D8B9E01E0BFA00155ADA7 = {
 			children = (

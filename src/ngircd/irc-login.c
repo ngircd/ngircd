@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-login.c,v 1.18 2002/09/03 18:55:03 alex Exp $
+ * $Id: irc-login.c,v 1.19 2002/09/03 20:39:54 alex Exp $
  *
  * irc-login.c: Anmeldung und Abmeldung im IRC
  */
@@ -65,7 +65,7 @@ IRC_PASS( CLIENT *Client, REQUEST *Req )
 	}
 	else if((( Client_Type( Client ) == CLIENT_UNKNOWN ) || ( Client_Type( Client ) == CLIENT_UNKNOWNSERVER )) && (( Req->argc == 3 ) || ( Req->argc == 4 )))
 	{
-		CHAR *impl, *serverver, *flags, *ptr;
+		CHAR c, *type, *impl, *serverver, *flags, *ptr;
 		INT protohigh, protolow;
 
 		/* noch nicht registrierte Server-Verbindung */
@@ -74,24 +74,33 @@ IRC_PASS( CLIENT *Client, REQUEST *Req )
 		/* Passwort speichern */
 		Client_SetPassword( Client, Req->argv[0] );
 
-		/* Protokollversion ueberpruefen */
-		if( strlen( Req->argv[1] ) > 4 ) Req->argv[1][4] = '\0';
-		if( strlen( Req->argv[1] ) != 4 ) protohigh = protolow = 0;
-		else
+		/* Protokollversion ermitteln */
+		if( strlen( Req->argv[1] ) >= 4 )
 		{
+			c = Req->argv[1][4];
+			Req->argv[1][4] = '\0';
+			
 			protolow = atoi( &Req->argv[1][2] );
 			Req->argv[1][2] = '\0';
 			protohigh = atoi( Req->argv[1] );
-		}
+			
+			Req->argv[1][4] = c;
+		}			
+		else protohigh = protolow = 0;
+
+		/* Protokoll-Typ */
+		if( strlen( Req->argv[1] ) > 4 ) type = &Req->argv[1][4];
+		else type = NULL;
 
 		/* Implementation, Version und ngIRCd-Flags */
 		impl = Req->argv[2];
 		ptr = strchr( impl, '|' );
 		if( ptr ) *ptr = '\0';
 
-		if( strcmp( impl, PACKAGE ) == 0 )
+		if( type && ( strcmp( type, PROTOIRCPLUS ) == 0 ))
 		{
-			/* auf der anderen Seite laeuft auch ein ngIRCd */
+			/* auf der anderen Seite laeuft ein Server, der
+			 * ebenfalls das IRC+-Protokoll versteht */
 			serverver = ptr + 1;
 			flags = strchr( serverver, ':' );
 			if( flags )
@@ -100,12 +109,12 @@ IRC_PASS( CLIENT *Client, REQUEST *Req )
 				flags++;
 			}
 			else flags = "";
-			Log( LOG_INFO, "Connection %d: Peer announces itself as %s-%s (flags: \"%s\") using protocol version %d.%d.", Client_Conn( Client ), impl, serverver, flags, protohigh, protolow );
+			Log( LOG_INFO, "Connection %d: Peer announces itself as %s-%s (flags: \"%s\") using protocol version %d.%d+.", Client_Conn( Client ), impl, serverver, flags, protohigh, protolow );
 		}
 		else
 		{
 			serverver = flags = "";
-			Log( LOG_INFO, "Connection %d: Peer announces itself as server of type \"%s\" usinf protocol version %d.%d.", Client_Conn( Client ), impl, protohigh, protolow );
+			Log( LOG_INFO, "Connection %d: Peer announces itself as \"%s\" using protocol version %d.%d.", Client_Conn( Client ), impl, protohigh, protolow );
 		}
 
 		Client_SetType( Client, CLIENT_GOTPASSSERVER );

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.36 2002/02/11 01:00:50 alex Exp $
+ * $Id: conn.c,v 1.37 2002/02/19 20:05:37 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
+ * Revision 1.37  2002/02/19 20:05:37  alex
+ * - "Passive-Mode" implementiert: kein Auto-Conect zu anderen Servern.
+ *
  * Revision 1.36  2002/02/11 01:00:50  alex
  * - neue Funktion Conn_LastPing().
  *
@@ -909,6 +912,9 @@ LOCAL VOID Check_Servers( VOID )
 
 	INT idx, i, n;
 	RES_STAT *s;
+
+	/* Wenn "Passive-Mode" aktiv: nicht verbinden */
+	if( NGIRCd_Passive ) return;
 	
 	for( i = 0; i < Conf_Server_Count; i++ )
 	{

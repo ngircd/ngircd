@@ -12,6 +12,7 @@
 
 ngircd 0.8-CVS
 
+  - Added some more debug code ...
   - Fixed wrong variable names in output of "ngircd --configtest".
   - Debian: Fxied the name of the "default file" in the init script for
     ngircd-full packages. And do the test if the binary is executable after
@@ -538,4 +539,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.233.2.8 2004/09/27 11:30:52 alex Exp $
+$Id: ChangeLog,v 1.233.2.9 2004/12/25 00:00:42 alex Exp $

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: parse.c,v 1.18 2002/01/07 15:29:11 alex Exp $
+ * $Id: parse.c,v 1.19 2002/01/09 01:08:42 alex Exp $
  *
  * parse.c: Parsen der Client-Anfragen
  *
  * $Log: parse.c,v $
+ * Revision 1.19  2002/01/09 01:08:42  alex
+ * - Parses handhabt Leerzeichen zw. Parametern nun etwas "lockerer".
+ *
  * Revision 1.18  2002/01/07 15:29:11  alex
  * - Status-Codes an den Server selber werden ignoriert, besseres Logging.
  *
@@ -149,6 +152,11 @@ GLOBAL BOOLEAN Parse_Request( CONN_ID Idx, CHAR *Request )
 		ptr = strchr( Request, ' ' );
 		if( ! ptr ) return Parse_Error( Idx, "Prefix without command!?" );
 		*ptr = '\0';
+#ifndef STRICT_RFC
+		/* multiple Leerzeichen als Trenner zwischen
+		 * Prefix und Befehl ignorieren */
+		while( *(ptr + 1) == ' ' ) ptr++;
+#endif
 		start = ptr + 1;
 	}
 	else start = Request;
@@ -157,7 +165,15 @@ GLOBAL BOOLEAN Parse_Request( CONN_ID Idx, CHAR *Request )
 
 	/* Befehl */
 	ptr = strchr( start, ' ' );
-	if( ptr ) *ptr = '\0';
+	if( ptr )
+	{
+		*ptr = '\0';
+#ifndef STRICT_RFC
+		/* multiple Leerzeichen als Trenner vor
+		*Parametertrennern ignorieren */
+		while( *(ptr + 1) == ' ' ) ptr++;
+#endif
+	}
 	req.command = start;
 
 	if( ! Validate_Command( &req )) return Parse_Error( Idx, "Invalid command" );
@@ -179,7 +195,15 @@ GLOBAL BOOLEAN Parse_Request( CONN_ID Idx, CHAR *Request )
 			{
 				req.argv[req.argc] = start;
 				ptr = strchr( start, ' ' );
-				if( ptr ) *ptr = '\0';
+				if( ptr )
+				{
+					*ptr = '\0';
+#ifndef STRICT_RFC
+					/* multiple Leerzeichen als
+					 * Parametertrenner ignorieren */
+					while( *(ptr + 1) == ' ' ) ptr++;
+#endif
+				}
 			}
 			
 			req.argc++;

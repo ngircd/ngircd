@@ -9,9 +9,12 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: configure.in,v 1.33 2002/03/02 03:57:56 alex Exp $
+# $Id: configure.in,v 1.34 2002/03/10 15:40:26 alex Exp $
 #
 # $Log: configure.in,v $
+# Revision 1.34  2002/03/10 15:40:26  alex
+# - Anpassungen an neues GNU automake/autoconf: acconfig.h entfaellt nun.
+#
 # Revision 1.33  2002/03/02 03:57:56  alex
 # - Versionsnummer auf 0.3.0-CVS angehoben.
 #
@@ -120,6 +123,14 @@ AC_INIT
 AC_CONFIG_SRCDIR(src/ngircd/ngircd.c)
 AM_INIT_AUTOMAKE(ngircd,0.3.0-CVS)
 AM_CONFIG_HEADER(src/config.h)
+
+# -- Templates fuer config.h --
+
+AH_TEMPLATE([DEBUG], [Define if debug-mode should be enabled])
+AH_TEMPLATE([HAVE_socklen_t], [Define if socklen_t exists])
+AH_TEMPLATE([SNIFFER], [Define if IRC sniffer should be enabled])
+AH_TEMPLATE([STRICT_RFC], [Define if ngIRCd should behave strict RFC compliant])
+AH_TEMPLATE([USE_SYSLOG], [Define if syslog should be used for logging])
 
 # -- C Compiler --
 

@@ -9,9 +9,12 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: Makefile.am,v 1.5 2002/01/02 02:52:09 alex Exp $
+# $Id: Makefile.am,v 1.6 2002/03/10 15:40:26 alex Exp $
 #
 # $Log: Makefile.am,v $
+# Revision 1.6  2002/03/10 15:40:26  alex
+# - Anpassungen an neues GNU automake/autoconf: acconfig.h entfaellt nun.
+#
 # Revision 1.5  2002/01/02 02:52:09  alex
 # - Copyright-Texte angepasst ;-)
 #
@@ -32,9 +35,8 @@ AUTOMAKE_OPTIONS = gnu
 
 SUBDIRS = doc MacOSX src
 
-noinst_HEADERS = acconfig.h
-
 maintainer-clean-local:
+	rm -rf autom4te.cache
 	rm -f Makefile.in Makefile aclocal.m4 configure
 	rm -f mkinstalldirs missing depcomp install-sh
 	rm -f config.log

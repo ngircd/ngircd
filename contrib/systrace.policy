@@ -1,0 +1,77 @@
+#
+# Sample systrace policy for ngIRCd on OpenBSD
+# Author: Benjamin Pineau <ben@zouh.org>
+#
+# $Id: systrace.policy,v 1.1 2004/04/28 12:16:59 alex Exp $
+#
+# Tune me, put me in /etc/systrace/usr_local_bin_ngircd and start ngIRCd
+# (with root privileges) as:
+#
+#   systrace -a /usr/local/bin/ngircd
+#
+# I didn't tried this on NetBSD, but it should work as is.
+#
+# On systems with pf, it can be supplemented by strict firewall rules:
+# for a ngircd running as '$ircuser', binding on '$ircport' and accepting
+# 30 connections:
+#
+#   block out log quick proto tcp from any port $ircport to any \
+#    user != $ircuser
+#   pass in inet proto tcp from any to any port $ircport user $ircuser \
+#    keep state (max 30) flags S/SA
+#
+
+Policy: /usr/local/bin/ngircd, Emulation: native
+	native-__sysctl: permit
+	native-fsread: filename eq "/etc/malloc.conf" then permit
+	native-fsread: filename sub "/usr/share/zoneinfo/" then permit
+	native-fsread: filename eq "/usr/local/etc/ngircd.conf" then permit
+	native-fsread: filename eq "/usr/local/etc/ngircd.motd" then permit
+	native-fsread: filename eq "/etc/ngircd.conf" then permit
+	native-fsread: filename eq "/etc/ngircd.motd" then permit
+	native-fsread: filename eq "/etc/spwd.db" then deny[eperm]
+	native-fsread: filename eq "/etc/group" then permit
+	native-fsread: filename eq "/etc/resolv.conf" then permit
+	native-fsread: filename eq "/etc/localtime" then permit
+	native-fsread: filename eq "/etc/hosts" then permit
+	native-fsread: filename sub "<non-existent filename>" then deny[enoent]
+	native-socket: sockdom eq "AF_UNIX" and socktype eq "SOCK_DGRAM" then permit
+	native-socket: sockdom eq "AF_INET" and socktype eq "SOCK_STREAM" then permit
+	native-bind: sockaddr match "inet-*:6667" then permit, if user != root
+	native-connect: sockaddr eq "/dev/log" then permit, if user != root
+	native-connect: sockaddr match "inet-*:53" then permit, if user != root
+	native-setsockopt: permit, if user != root
+	native-listen: permit, if user != root
+	native-accept: permit, if user != root
+	native-sendto: true then permit, if user != root
+	native-recvfrom: permit, if user != root
+	native-read: permit
+	native-pread: permit
+	native-write: permit, if user != root
+	native-mmap: permit
+	native-munmap: permit
+	native-mprotect: permit
+	native-break: permit
+	native-umask: permit
+	native-fork: permit
+	native-setsid: permit
+	native-chdir: permit
+	native-chroot: permit
+	native-setgid: gid neq "0" then permit
+	native-setuid: uid neq "0" and uname neq "root" then permit
+	native-getuid: permit
+	native-getgid: permit
+	native-gettimeofday: permit
+	native-getpid: permit
+	native-select: permit
+	native-fcntl: permit
+	native-fstat: permit
+	native-issetugid: permit
+	native-sigaction: permit
+	native-pipe: permit
+	native-sigreturn: permit
+	native-close: permit
+	native-exit: permit
+	native-fswrite: deny[eperm]
+
+# -eof-

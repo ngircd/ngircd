@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.36 2002/03/27 16:41:25 alex Exp $
+ * $Id: ngircd.c,v 1.37 2002/03/28 14:15:33 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  */
@@ -76,6 +76,18 @@ GLOBAL int main( int argc, const char *argv[] )
 		{
 			/* Lange Option */
 
+			if( strcmp( argv[i], "--config" ) == 0 )
+			{
+				if( i + 1 < argc )
+				{
+					/* Ok, danach kommt noch ein Parameter */
+					strncpy( NGIRCd_ConfFile, argv[i + 1], FNAME_LEN - 1 );
+					NGIRCd_ConfFile[FNAME_LEN - 1] = '\0';
+
+					/* zum uebernaechsten Parameter */
+					i++; ok = TRUE;
+				}
+			}
 			if( strcmp( argv[i], "--configtest" ) == 0 )
 			{
 				configtest = TRUE;
@@ -131,6 +143,19 @@ GLOBAL int main( int argc, const char *argv[] )
 					ok = TRUE;
 				}
 #endif
+				if( argv[i][n] == 'f' )
+				{
+					if(( ! argv[i][n+i] ) && ( i + 1 < argc ))
+					{
+						/* Ok, danach kommt ein Leerzeichen */
+						strncpy( NGIRCd_ConfFile, argv[i + 1], FNAME_LEN - 1 );
+						NGIRCd_ConfFile[FNAME_LEN - 1] = '\0';
+
+						/* zum uebernaechsten Parameter */
+						i++; n = strlen( argv[i] );
+						ok = TRUE;
+					}
+				}
 				if( argv[i][n] == 'n' )
 				{
 					NGIRCd_NoDaemon = TRUE;
@@ -405,16 +430,17 @@ LOCAL VOID Show_Version( VOID )
 LOCAL VOID Show_Help( VOID )
 {
 #ifdef DEBUG
-	puts( "  -d, --debug       log extra debug messages" );
+	puts( "  -d, --debug        log extra debug messages" );
 #endif
-        puts( "  -n, --nodaemon    don't fork and don't detatch from controlling terminal" );
-        puts( "  -p, --passive     disable automatic connections to other servers" );
+	puts( "  -f, --config <f>   use file <f> as configuration file" );
+        puts( "  -n, --nodaemon     don't fork and don't detatch from controlling terminal" );
+        puts( "  -p, --passive      disable automatic connections to other servers" );
 #ifdef SNIFFER
-	puts( "  -s, --sniffer     enable network sniffer and display all IRC traffic" );
+	puts( "  -s, --sniffer      enable network sniffer and display all IRC traffic" );
 #endif
-	puts( "      --configtest  read, validate and display configuration; then exit" );
- 	puts( "      --version     output version information and exit" );
-	puts( "      --help        display this help and exit" );
+	puts( "      --configtest   read, validate and display configuration; then exit" );
+ 	puts( "      --version      output version information and exit" );
+	puts( "      --help         display this help and exit" );
 } /* Show_Help */
 
 

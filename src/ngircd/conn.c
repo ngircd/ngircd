@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.104 2002/12/12 12:24:18 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.105 2002/12/17 11:46:54 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -153,7 +153,7 @@ Conn_Init( VOID )
 		Log( LOG_EMERG, "Can't allocate memory! [Conn_Init]" );
 		exit( 1 );
 	}
-	Log( LOG_DEBUG, "Allocted connection pool for %ld items.", Pool_Size );
+	Log( LOG_DEBUG, "Allocted connection pool for %ld items (%ld bytes).", Pool_Size, sizeof( CONNECTION ) * Pool_Size );
 
 	/* zu Beginn haben wir keine Verbindungen */
 	FD_ZERO( &My_Listeners );
@@ -1189,11 +1189,18 @@ New_Connection( INT Sock )
 			/* Struktur umkopieren ... */
 			memcpy( ptr, My_Connections, sizeof( CONNECTION ) * Pool_Size );
 			
-			Log( LOG_DEBUG, "Allocated new connection pool for %ld items. [malloc()/memcpy()]", new_size );
+			Log( LOG_DEBUG, "Allocated new connection pool for %ld items (%ld bytes). [malloc()/memcpy()]", new_size, sizeof( CONNECTION ) * new_size );
 		}
-		else Log( LOG_DEBUG, "Allocated new connection pool for %ld items. [realloc()]", new_size );
+		else Log( LOG_DEBUG, "Allocated new connection pool for %ld items (%ld bytes). [realloc()]", new_size, sizeof( CONNECTION ) * new_size );
 		
+		/* Adjust pointer to new block */
 		My_Connections = ptr;
+		
+		/* Initialize new items */
+		for( idx = Pool_Size; idx < new_size; idx++ ) Init_Conn_Struct( idx );
+		idx = Pool_Size;
+		
+		/* Adjust new pool size */
 		Pool_Size = new_size;
 	}
 

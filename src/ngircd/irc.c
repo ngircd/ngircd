@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.82 2002/02/27 23:26:36 alex Exp $
+ * $Id: irc.c,v 1.83 2002/02/28 00:48:26 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.83  2002/02/28 00:48:26  alex
+ * - Forwarding von TOPIC an andere Server gefixed. Hoffentlich ;-)
+ *
  * Revision 1.82  2002/02/27 23:26:36  alex
  * - einige Funktionen in irc-xxx-Module ausgegliedert.
  *
@@ -811,9 +814,12 @@ GLOBAL BOOLEAN IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 	Channel_SetTopic( chan, Req->argv[1] );
 	Log( LOG_DEBUG, "User \"%s\" set topic on \"%s\": %s", Client_Mask( from ), Channel_Name( chan ), Req->argv[1][0] ? Req->argv[1] : "<none>" );
 
-	/* im Channel bekannt machen */
-	IRC_WriteStrChannelPrefix( Client, chan, from, TRUE, "TOPIC %s :%s", Req->argv[0], Req->argv[1] );
-	return IRC_WriteStrClientPrefix( from, from, "TOPIC %s :%s", Req->argv[0], Req->argv[1] );
+	/* im Channel bekannt machen und an Server weiterleiten */
+	IRC_WriteStrServersPrefix( Client, from, "TOPIC %s :%s", Req->argv[0], Req->argv[1] );
+	IRC_WriteStrChannelPrefix( Client, chan, from, FALSE, "TOPIC %s :%s", Req->argv[0], Req->argv[1] );
+
+	if( Client_Type( Client ) == CLIENT_USER ) return IRC_WriteStrClientPrefix( Client, Client, "TOPIC %s :%s", Req->argv[0], Req->argv[1] );
+	else return CONNECTED;
 } /* IRC_TOPIC */
 
 

@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: defines.h,v 1.15 2002/03/06 15:35:19 alex Exp $
+ * $Id: defines.h,v 1.16 2002/03/10 17:07:41 alex Exp $
  *
  * defines.h: (globale) Konstanten
  *
  * $Log: defines.h,v $
+ * Revision 1.16  2002/03/10 17:07:41  alex
+ * - die Pfade der Konfigurationsdatei, des MOTD und das Error-Files werden
+ *   nun aus den Vorgaben von configure ermittelt.
+ *
  * Revision 1.15  2002/03/06 15:35:19  alex
  * - Dateinamen und Pfad sind nun in Konstanten definiert.
  *
@@ -119,9 +123,9 @@
 
 #define DEFAULT_AWAY_MSG "Away"		/* Away-Meldung fuer User von anderen Servern */
 
-#define CONFIG_FILE "/usr/local/etc/ngircd.conf"
-#define MOTD_FILE "/usr/local/etc/ngircd.motd"
-#define ERROR_FILE "/tmp/ngircd.err"
+#define CONFIG_FILE SYSCONFDIR"/ngircd.conf"
+#define MOTD_FILE SYSCONFDIR"/ngircd.motd"
+#define ERROR_FILE LOCALSTATEDIR"/ngircd.err"
 
 
 #endif

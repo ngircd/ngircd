@@ -49,6 +49,7 @@ ngIRCd CVS-HEAD
     kompatibel mit dem Original-ircd 2.10.3, d.h. beide Server koennen
     miteinander ueber komprimiert Links kommunizieren.
   - Handling der Schreibpuffer umgestellt: Server sollte schneller arbeiten.
+  - Prefix-Fehler werden besser protokolliert (mit verursachendem Befehl).
   - SQUIT wird nicht mehr doppelt an andere Server weitergeleitet.
   - Der Server versucht nun vor dem Schliessen einer Verbindung Daten, die
     noch im Schreibpuffer stehen, zu senden.
@@ -355,4 +356,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.134 2002/11/28 16:56:20 alex Exp $
+$Id: ChangeLog,v 1.135 2002/11/29 11:42:58 alex Exp $

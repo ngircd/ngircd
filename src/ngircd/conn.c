@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.63 2002/05/19 10:44:02 alex Exp $
+ * $Id: conn.c,v 1.64 2002/05/19 13:05:22 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -618,6 +618,7 @@ LOCAL VOID New_Connection( INT Sock )
 	INT new_sock, new_sock_len;
 	RES_STAT *s;
 	CONN_ID idx;
+	CLIENT *c;
 
 	assert( Sock >= 0 );
 
@@ -639,7 +640,8 @@ LOCAL VOID New_Connection( INT Sock )
 	}
 
 	/* Client-Struktur initialisieren */
-	if( ! Client_NewLocal( idx, inet_ntoa( new_addr.sin_addr ), CLIENT_UNKNOWN, FALSE ))
+	c = Client_NewLocal( idx, inet_ntoa( new_addr.sin_addr ), CLIENT_UNKNOWN, FALSE );
+	if( ! c )
 	{
 		Log( LOG_ALERT, "Can't accept connection: can't create client structure!" );
 		close( new_sock );
@@ -666,8 +668,9 @@ LOCAL VOID New_Connection( INT Sock )
 	}
 	else
 	{
-		/* kann Namen nicht aufloesen */
+		/* kann Namen nicht aufloesen, daher wird die IP-Adresse verwendet */
 		strcpy( My_Connections[idx].host, inet_ntoa( new_addr.sin_addr ));
+		Client_SetHostname( c, My_Connections[idx].host );
 	}
 } /* New_Connection */
 
@@ -906,8 +909,9 @@ LOCAL VOID Check_Servers( VOID )
 		}
 		else
 		{
-			/* kann Namen nicht aufloesen: Connection-Struktur freigeben */
-			Init_Conn_Struct( idx );
+			/* kann Namen nicht aufloesen: nun versuchen wir einfach,
+			 * den "Text" direkt als IP-Adresse zu verwenden ... */
+			strcpy( Conf_Server[My_Connections[idx].our_server].ip, Conf_Server[i].host );
 		}
 	}
 } /* Check_Servers */

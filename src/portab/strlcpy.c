@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2005 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,13 +13,13 @@
  *
  * Code partially borrowed from compat.c of rsync, written by Andrew
  * Tridgell (1998) and Martin Pool (2002):
- * <http://samba.anu.edu.au/rsync/doxygen/head/lib_2compat_8c.html>
+ * <http://cvs.samba.org/cgi-bin/cvsweb/rsync/lib/compat.c>
  */
 
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: strlcpy.c,v 1.3 2005/01/18 09:05:37 alex Exp $";
+static char UNUSED id[] = "$Id: strlcpy.c,v 1.4 2005/02/27 09:29:13 alex Exp $";
 
 #include "imp.h"
 #include <string.h>
@@ -39,10 +39,10 @@ strlcat( CHAR *dst, CONST CHAR *src, size_t size )
 	size_t len1 = strlen( dst );
 	size_t len2 = strlen( src );
 	size_t ret = len1 + len2;
-	
-	if( len1 + len2 >= size ) len2 = size - ( len1 + 1 );
-	if( len2 > 0 )
-	{
+
+	if( size && ( len1 < size - 1 )) {
+		if( len2 >= size - len1 )
+			len2 = size - len1 - 1;
 		memcpy( dst + len1, src, len2 );
 		dst[len1 + len2] = 0;
 	}
@@ -63,10 +63,11 @@ strlcpy( CHAR *dst, CONST CHAR *src, size_t size )
 	size_t len = strlen( src );
 	size_t ret = len;
 
-	if( size <= 0 ) return 0;
-	if( len >= size ) len = size - 1;
-	memcpy( dst, src, len );
-	dst[len] = 0;
+	if( size > 0 ) {
+		if( len >= size ) len = size - 1;
+		memcpy( dst, src, len );
+		dst[len] = 0;
+	}
 	return ret;
 } /* strlcpy */
 

@@ -15,8 +15,20 @@ ngIRCd ist fuer UNIXoide-Systeme konzipiert. Dieser Text beschreibt den
 und GNU autoconf ("configure") unterstuetzt wird.
 
 
-I. Quick Start
-~~~~~~~~~~~~~~
+I. Voraussetzungen
+~~~~~~~~~~~~~~~~~~
+
+ngIRCd benoetigt "Alex' Portability Headers" (portab.h). Diese koennen von
+der Homepage heruntergeladen werden:
+
+<http://arthur.ath.cx/~alex/ngircd/#download>
+
+Vor dem configure-Lauf des ngIRCd muessen dies Header auf dem System in-
+stalliert sein, anonsten bricht configure ab.
+
+
+II. Quick Start
+~~~~~~~~~~~~~~~
 
 In der Regel sind folgende Schritte ausreichend:
 
@@ -58,8 +70,8 @@ Der make-Befehl bearbeitet die vom configure-Script erzeugten Makefile's und
 uebersetzt die comBase-Library und die Testprogramme.
 
 
-II. Nuetzliche make-Targets
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+III. Nuetzliche make-Targets
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Die vom configure-Script erzeugten Makefile's enthalten immer die folgenden
 nuetzlichen Targets:

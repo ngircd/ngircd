@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.h,v 1.21 2002/01/27 21:53:57 alex Exp $
+ * $Id: irc.h,v 1.22 2002/02/17 17:18:59 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: irc.h,v $
+ * Revision 1.22  2002/02/17 17:18:59  alex
+ * - NICK korrigiert.
+ *
  * Revision 1.21  2002/01/27 21:53:57  alex
  * - IRC_WriteStrServersPrefixID() und IRC_WriteStrClientPrefixID() wieder entfernt.
  *
@@ -104,6 +107,7 @@ GLOBAL BOOLEAN IRC_WriteStrChannel( CLIENT *Client, CHANNEL *Chan, BOOLEAN Remot
 GLOBAL BOOLEAN IRC_WriteStrChannelPrefix( CLIENT *Client, CHANNEL *Chan, CLIENT *Prefix, BOOLEAN Remote, CHAR *Format, ... );
 GLOBAL VOID IRC_WriteStrServers( CLIENT *ExceptOf, CHAR *Format, ... );
 GLOBAL VOID IRC_WriteStrServersPrefix( CLIENT *ExceptOf, CLIENT *Prefix, CHAR *Format, ... );
+GLOBAL BOOLEAN IRC_WriteStrRelatedPrefix( CLIENT *Client, CLIENT *Prefix, BOOLEAN Remote, CHAR *Format, ... );
 
 GLOBAL BOOLEAN IRC_PASS( CLIENT *Client, REQUEST *Req );
 GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req );

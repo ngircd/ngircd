@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.57 2002/02/13 23:05:29 alex Exp $
+ * $Id: irc.c,v 1.58 2002/02/17 17:18:59 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.58  2002/02/17 17:18:59  alex
+ * - NICK korrigiert.
+ *
  * Revision 1.57  2002/02/13 23:05:29  alex
  * - Nach Connect eines Users werden LUSERS-Informationen angezeigt.
  *
@@ -326,10 +329,10 @@ GLOBAL BOOLEAN IRC_WriteStrChannel( CLIENT *Client, CHANNEL *Chan, BOOLEAN Remot
 GLOBAL BOOLEAN IRC_WriteStrChannelPrefix( CLIENT *Client, CHANNEL *Chan, CLIENT *Prefix, BOOLEAN Remote, CHAR *Format, ... )
 {
 	CHAR buffer[1000];
-	BOOLEAN sock[MAX_CONNECTIONS], ok = CONNECTED, i;
+	BOOLEAN sock[MAX_CONNECTIONS], ok = CONNECTED;
 	CL2CHAN *cl2chan;
 	CLIENT *c;
-	INT s;
+	INT s, i;
 	va_list ap;
 
 	assert( Client != NULL );
@@ -420,6 +423,74 @@ GLOBAL VOID IRC_WriteStrServersPrefix( CLIENT *ExceptOf, CLIENT *Prefix, CHAR *F
 		c = Client_Next( c );
 	}
 } /* IRC_WriteStrServersPrefix */
+
+
+GLOBAL BOOLEAN IRC_WriteStrRelatedPrefix( CLIENT *Client, CLIENT *Prefix, BOOLEAN Remote, CHAR *Format, ... )
+{
+	BOOLEAN sock[MAX_CONNECTIONS], ok = CONNECTED;
+	CL2CHAN *chan_cl2chan, *cl2chan;
+	CHAR buffer[1000];
+	CHANNEL *chan;
+	va_list ap;
+	CLIENT *c;
+	INT i, s;
+
+	assert( Client != NULL );
+	assert( Prefix != NULL );
+	assert( Format != NULL );
+
+	va_start( ap, Format );
+	vsnprintf( buffer, 1000, Format, ap );
+	va_end( ap );
+
+	/* initialisieren */
+	for( i = 0; i < MAX_CONNECTIONS; i++ ) sock[i] = FALSE;
+
+	/* An alle Clients, die in einem Channel mit dem "Ausloeser" sind,
+	 * den Text schicken. An Remote-Server aber jeweils nur einmal. */
+	chan_cl2chan = Channel_FirstChannelOf( Client );
+	while( chan_cl2chan )
+	{
+		/* Channel des Users durchsuchen */
+		chan = Channel_GetChannel( chan_cl2chan );
+		cl2chan = Channel_FirstMember( chan );
+		while( cl2chan )
+		{
+			c = Channel_GetClient( cl2chan );
+			if( ! Remote )
+			{
+				if( Client_Conn( c ) <= NONE ) c = NULL;
+				else if( Client_Type( c ) == CLIENT_SERVER ) c = NULL;
+			}
+			if( c ) c = Client_NextHop( c );
+
+			if( c && ( c != Client ))
+			{
+				/* Ok, anderer Client */
+				s = Client_Conn( c );
+				assert( s >= 0 );
+				assert( s < MAX_CONNECTIONS );
+				sock[s] = TRUE;
+			}
+			cl2chan = Channel_NextMember( chan, cl2chan );
+		}
+		
+		/* naechsten Channel */
+		chan_cl2chan = Channel_NextChannelOf( Client, chan_cl2chan );
+	}
+
+	/* Senden ... */
+	for( i = 0; i < MAX_CONNECTIONS; i++ )
+	{
+		if( sock[i] )
+		{
+			ok = Conn_WriteStr( i, ":%s %s", Client_ID( Prefix ), buffer );
+			if( ! ok ) break;
+		}
+	}
+	return ok;
+} /* IRC_WriteStrRelatedPrefix */
+
 
 
 GLOBAL BOOLEAN IRC_PASS( CLIENT *Client, REQUEST *Req )
@@ -779,13 +850,14 @@ GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req )
 			/* Nick-Aenderung: allen mitteilen! */
 			Log( LOG_INFO, "User \"%s\" changed nick: \"%s\" -> \"%s\".", Client_Mask( target ), Client_ID( target ), Req->argv[0] );
 			IRC_WriteStrClient( Client, "NICK :%s", Req->argv[0] );
-			IRC_WriteStrServersPrefix( NULL, Client, "NICK :%s", Req->argv[0] );
+			IRC_WriteStrRelatedPrefix( Client, Client, TRUE, "NICK :%s", Req->argv[0] );
 		}
 		else if( Client_Type( Client ) == CLIENT_SERVER )
 		{
 			/* Nick-Aenderung: allen mitteilen! */
 			Log( LOG_DEBUG, "User \"%s\" changed nick: \"%s\" -> \"%s\".", Client_Mask( target ), Client_ID( target ), Req->argv[0] );
 			IRC_WriteStrServersPrefix( Client, target, "NICK :%s", Req->argv[0] );
+			IRC_WriteStrRelatedPrefix( target, target, FALSE, "NICK :%s", Req->argv[0] );
 		}
 	
 		/* Client-Nick registrieren */

@@ -9,7 +9,7 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: Makefile.am,v 1.26 2002/07/22 13:23:28 alex Exp $
+# $Id: Makefile.am,v 1.27 2002/09/07 18:06:29 alex Exp $
 #
 
 AUTOMAKE_OPTIONS = ../portab/ansi2knr
@@ -41,7 +41,7 @@ maintainer-clean-local:
 
 check-version: Makefile
 	echo "#!/bin/sh" > check-version
-	echo "./ngircd --version | grep version > /dev/null 2>&1" >> check-version
+	echo "./ngircd --version | grep ngircd > /dev/null 2>&1" >> check-version
 	chmod 755 check-version
 
 check-help: Makefile

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-info.c,v 1.15 2003/03/31 15:54:21 alex Exp $";
+static char UNUSED id[] = "$Id: irc-info.c,v 1.16 2003/04/21 10:54:30 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -437,7 +437,7 @@ IRC_TIME( CLIENT *Client, REQUEST *Req )
 	}
 
 	t = time( NULL );
-	(VOID)strftime( t_str, 60, "%A %B %d %Y -- %H:%M %z", localtime( &t ));
+	(VOID)strftime( t_str, 60, "%A %B %d %Y -- %H:%M %Z", localtime( &t ));
 	return IRC_WriteStrClient( from, RPL_TIME_MSG, Client_ID( from ), Client_ID( Client_ThisServer( )), t_str );
 } /* IRC_TIME */
 

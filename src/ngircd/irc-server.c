@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-server.c,v 1.17 2002/09/07 17:57:31 alex Exp $
+ * $Id: irc-server.c,v 1.18 2002/10/04 11:21:46 alex Exp $
  *
  * irc-server.c: IRC-Befehle fuer Server-Links
  */
@@ -188,7 +188,7 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 				if( strlen( str ) > ( LINE_LEN - CLIENT_NICK_LEN - 8 ))
 				{
 					/* Zeile senden */
-					if( ! IRC_WriteStrClient( Client, str )) return DISCONNECTED;
+					if( ! IRC_WriteStrClient( Client, "%s", str )) return DISCONNECTED;
 					sprintf( str, "NJOIN %s :", Channel_Name( chan ));
 				}
 				
@@ -199,7 +199,7 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 			if( str[strlen( str ) - 1] != ':')
 			{
 				/* Ja; Also senden ... */
-				if( ! IRC_WriteStrClient( Client, str )) return DISCONNECTED;
+				if( ! IRC_WriteStrClient( Client, "%s", str )) return DISCONNECTED;
 			}
 
 			/* naechsten Channel suchen */

@@ -93,6 +93,7 @@ This files will be installed by default:
 
 - /usr/local/sbin/ngircd: executable server
 - /usr/local/etc/ngircd.conf: sample configuration (if not already present)
+- /usr/local/share/doc/ngircd/: documentation
 
 
 II. Useful make-targets
@@ -157,4 +158,4 @@ number. In both cases the server exits after the output.
 
 
 -- 
-$Id: INSTALL,v 1.15 2003/03/23 23:13:15 alex Exp $
+$Id: INSTALL,v 1.16 2003/04/21 23:31:39 alex Exp $

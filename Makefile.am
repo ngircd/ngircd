@@ -9,7 +9,7 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: Makefile.am,v 1.7 2002/03/12 14:37:51 alex Exp $
+# $Id: Makefile.am,v 1.8 2002/03/25 19:39:48 alex Exp $
 #
 
 AUTOMAKE_OPTIONS = gnu
@@ -21,5 +21,8 @@ maintainer-clean-local:
 	rm -f Makefile.in Makefile aclocal.m4 configure
 	rm -f mkinstalldirs missing depcomp install-sh
 	rm -f config.log
+
+lint:
+	make -C src/ngircd lint
 
 # -eof-

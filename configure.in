@@ -8,7 +8,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: configure.in,v 1.107 2005/03/20 17:23:36 alex Exp $
+# $Id: configure.in,v 1.108 2005/03/21 22:15:15 alex Exp $
 #
 
 # -- Initialisation --
@@ -187,13 +187,14 @@ AC_ARG_WITH(tcp-wrappers,
 				CPPFLAGS="-I$withval/include $CPPFLAGS"
 				LDFLAGS="-L$withval/lib $LDFLAGS"
 			fi
-			AC_CHECK_LIB(wrap, hosts_access)
 			AC_MSG_CHECKING(for hosts_access)
+			LIBS="-lwrap $LIBS"
 			AC_TRY_LINK([
-				#include <tcpd.h>
+#include <tcpd.h>
+int allow_severity = 0;
+int deny_severity = 0;
 				],[
-				void *ptr;
-				ptr = hosts_access;
+				tcpd_warn("link test");
 				],[
 				AC_MSG_RESULT(yes)
 				AC_DEFINE(TCPWRAP, 1)

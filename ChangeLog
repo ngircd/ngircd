@@ -11,6 +11,7 @@
 
 
 ngIRCd CVSHEAD
+  - Fixed ./configure test for TCP Wrappers: now it runs on Mac OS X as well.
   - Enhanced configure script: now you can pass an (optional) search path
     to all --with-XXX parameters, e. g. "--with-ident=/opt/ident".
   - Removed typedefs for the native C datatypes.
@@ -596,4 +597,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.266 2005/03/20 17:23:36 alex Exp $
+$Id: ChangeLog,v 1.267 2005/03/21 22:15:15 alex Exp $

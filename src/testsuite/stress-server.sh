@@ -9,7 +9,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: stress-server.sh,v 1.9 2004/09/04 13:58:31 alex Exp $
+# $Id: stress-server.sh,v 1.10 2004/09/04 14:23:09 alex Exp $
 #
 
 # detect source directory
@@ -60,10 +60,10 @@ while [ ${loop} -lt $LOOPS ]; do
   done
   if [ $LOOPS -gt 1 ]; then
     echo "      loop $loop/$LOOPS: started $no clients."
-    echo -n "      loop $loop/$LOOPS: waiting for clients to complete: "
+    echo -n "      loop $loop/$LOOPS: waiting for clients to complete: ."
   else
     echo "      started $no clients."
-    echo -n "      waiting for clients to complete: "
+    echo -n "      waiting for clients to complete: ."
   fi
 
   res=3
@@ -74,7 +74,7 @@ while [ ${loop} -lt $LOOPS ]; do
     [ $res -ne 99 ] && break
 
     # there are still clients connected. Wait ...
-    sleep 1
+    sleep 3
     echo -n "."
   done
 

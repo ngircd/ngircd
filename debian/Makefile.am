@@ -8,26 +8,12 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: Makefile.am,v 1.11 2003/07/09 21:16:33 alex Exp $
+# $Id: Makefile.am,v 1.2 2003/07/09 21:16:33 alex Exp $
 #
 
-AUTOMAKE_OPTIONS = gnu
-
-SUBDIRS = doc MacOSX src man contrib debian
+EXTRA_DIST = changelog compat control copyright ngircd.init rules
 
 maintainer-clean-local:
-	rm -rf autom4te.cache
-	rm -f Makefile.in Makefile aclocal.m4 configure
-	rm -f mkinstalldirs missing depcomp install-sh
-	rm -f config.log
-
-lint:
-	make -C src/ngircd lint
-
-rpm: distcheck
-	rpm -ta ngircd-*.tar.gz
-
-deb:
-	dpkg-buildpackage -rfakeroot
+	rm -f Makefile Makefile.in
 
 # -eof-

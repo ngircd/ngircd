@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.38 2002/03/29 20:59:22 alex Exp $
+ * $Id: ngircd.c,v 1.39 2002/03/29 22:56:40 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  */
@@ -247,6 +247,23 @@ GLOBAL int main( int argc, const char *argv[] )
 		Client_Init( );
 		Conn_Init( );
 
+		/* Wenn als root ausgefuehrt und eine andere UID
+		 * konfiguriert ist, jetzt zu dieser wechseln */
+		if( getuid( ) != 0 )
+		{
+			if( Conf_GID > 0 )
+			{
+				/* Neue Group-ID setzen */
+				if( setgid( Conf_GID ) != 0 ) Log( LOG_ERR, "Can't change Group-ID to %u: %s", Conf_GID, strerror( errno ));
+			}
+			if( Conf_UID > 0 )
+			{
+				/* Neue User-ID setzen */
+				if( setgid( Conf_UID ) != 0 ) Log( LOG_ERR, "Can't change User-ID to %u: %s", Conf_UID, strerror( errno ));
+			}
+		}
+		Log( LOG_INFO, "Running as user %ld, group %ld.", (INT32)getuid( ), (INT32)getgid( ));
+
 		/* Signal-Handler initialisieren */
 		Initialize_Signal_Handler( );
 
@@ -395,13 +412,13 @@ LOCAL VOID Initialize_Listen_Ports( VOID )
 	/* Ports, auf denen der Server Verbindungen entgegennehmen
 	 * soll, initialisieren */
 	
-	INT created, i;
+	UINT created, i;
 
 	created = 0;
 	for( i = 0; i < Conf_ListenPorts_Count; i++ )
 	{
 		if( Conn_NewListener( Conf_ListenPorts[i] )) created++;
-		else Log( LOG_ERR, "Can't listen on port %d!", Conf_ListenPorts[i] );
+		else Log( LOG_ERR, "Can't listen on port %u!", Conf_ListenPorts[i] );
 	}
 
 	if( created < 1 )

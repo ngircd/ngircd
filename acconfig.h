@@ -9,16 +9,20 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: acconfig.h,v 1.1 2001/12/12 01:58:52 alex Exp $
+ * $Id: acconfig.h,v 1.2 2001/12/21 23:54:15 alex Exp $
  *
  * $Log: acconfig.h,v $
+ * Revision 1.2  2001/12/21 23:54:15  alex
+ * - zusaetzliche Debug-Ausgaben koennen eingeschaltet werden.
+ *
  * Revision 1.1  2001/12/12 01:58:52  alex
  * - Test auf socklen_t verbessert.
- *
  */
 
 
 #undef HAVE_socklen_t
+
+#undef DEBUG
 
 
 /* -eof- */

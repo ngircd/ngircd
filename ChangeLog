@@ -10,7 +10,7 @@
                         -- ChangeLog / Aenderungen --
 
 
-ngIRCd 0.x.x, xx.xx.2002
+ngIRCd 0.2.0, 15.02.2002
 
   - Nicknames und Channel-Namen werden etwas besser auf Gueltigkeit ueber-
     prueft; ist aber nach wie vor noch nicht ausreichend.
@@ -95,4 +95,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.16 2002/02/13 23:06:07 alex Exp $
+$Id: ChangeLog,v 1.17 2002/02/15 14:35:55 alex Exp $

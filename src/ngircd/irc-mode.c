@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-mode.c,v 1.17 2002/12/12 12:24:18 alex Exp $";
+static char UNUSED id[] = "$Id: irc-mode.c,v 1.18 2002/12/14 13:24:09 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -285,9 +285,10 @@ IRC_MODE( CLIENT *Client, REQUEST *Req )
 							x[0] = 't';
 							break;
 						case 'P':
-							/* Persistent. Dieses Flag darf nur von IRC-Operatoren gesetzt werden! */
-							if( set && ( ! Client_OperByMe( Client )))
+							/* Persistent channel */
+							if( set && ( Conf_MaxPChannels > 0 ) && ( Channel_PCount( ) >= Conf_MaxPChannels ))
 							{
+								/* there are too many persistent channels in the network! */
 								ok = IRC_WriteStrClient( Client, ERR_NOPRIVILEGES_MSG, Client_ID( Client ));
 							}
 							else x[0] = 'P';

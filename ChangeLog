@@ -52,6 +52,7 @@ ngIRCd CVS-HEAD
   - Source in weiteres Modul "irc-info" aufgespalten.
   - Konfigurationsvariablen werden besser validiert: Laengen, Zahlen, ...
   - neuen Befehl STATS begonnen: bisher unterstuetzt wird "l".
+  - bei ISON und USERHOST fehlte im Ergebnis-String der korrekte Absender.
 
 ngIRCd 0.5.4, 24.11.2002
 
@@ -355,4 +356,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.139 2002/12/02 13:20:41 alex Exp $
+$Id: ChangeLog,v 1.140 2002/12/02 13:44:36 alex Exp $

@@ -10,12 +10,6 @@
                                  -- CVS.txt --
 
 
-  +-----------------------------------------------------------------------+
-  | This text is only available in german at the moment, but this should  |
-  | change until the release of ngIRCd 0.7.0, so feel free to contribute! |
-  +-----------------------------------------------------------------------+
-
-
 Die Sourcen des ngIRCd werden mit dem "Concurrent Versions System" (CVS)
 verwaltet. Somit koennen ohne Probleme mehrere Leute gleichzeitig die Sourcen
 bearbeitet.
@@ -67,4 +61,4 @@ mit Alex Barton, <alex@barton.de> in Verbindung setzen.
 
 
 -- 
-$Id: CVS.txt,v 1.6 2003/01/04 13:07:54 alex Exp $
+$Id: CVS.txt,v 1.1 2003/01/04 13:07:54 alex Exp $

@@ -10,12 +10,6 @@
                              -- README-AUX.txt --
 
 
-  +-----------------------------------------------------------------------+
-  | This text is only available in german at the moment, but this should  |
-  | change until the release of ngIRCd 0.7.0, so feel free to contribute! |
-  +-----------------------------------------------------------------------+
-
-
 Seit Version 0.2.2-pre gehoert Apple A/UX zu den offiziell unterstuetzten
 Plattformen. Er ist im vollen Funktionsumfang nutzbar.
 
@@ -71,4 +65,4 @@ Noch ein paar Hinweise, wenn es doch (noch) nicht klappt:
 
 
 -- 
-$Id: README-AUX.txt,v 1.5 2003/01/04 13:07:54 alex Exp $
+$Id: README-AUX.txt,v 1.1 2003/01/04 13:07:54 alex Exp $

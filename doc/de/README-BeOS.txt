@@ -10,12 +10,6 @@
                              -- README-BeOS.txt --
 
 
-  +-----------------------------------------------------------------------+
-  | This text is only available in german at the moment, but this should  |
-  | change until the release of ngIRCd 0.7.0, so feel free to contribute! |
-  +-----------------------------------------------------------------------+
-
-
 BeOS gehoert im Moment (noch?) nicht zu den offiziell unterstuetzten Plat-
 formen: der ngIRCd enthaelt zwar bereits einige Anpassungen an BeOS und
 compiliert auch, jedoch bricht er bei jedem Connect-Versuch eines Clients
@@ -50,4 +44,4 @@ mir in Verbindung setzen (alex@barton.de), ich maile gerne meine Patches zu.
 Fuer eine Aenderung im CVS ist es aber meiner Meinung nach noch zu frueh ...
 
 -- 
-$Id: README-BeOS.txt,v 1.4 2003/01/04 13:07:54 alex Exp $
+$Id: README-BeOS.txt,v 1.1 2003/01/04 13:07:54 alex Exp $

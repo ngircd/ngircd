@@ -10,12 +10,6 @@
                               -- Protocol.txt --
 
 
-  +-----------------------------------------------------------------------+
-  | This text is only available in german at the moment, but this should  |
-  | change until the release of ngIRCd 0.7.0, so feel free to contribute! |
-  +-----------------------------------------------------------------------+
-
-
 I. Kompatibilitaet
 ~~~~~~~~~~~~~~~~~~
 
@@ -112,4 +106,4 @@ erzeugt.
 
 
 -- 
-$Id: Protocol.txt,v 1.6 2003/01/04 13:07:54 alex Exp $
+$Id: Protocol.txt,v 1.1 2003/01/04 13:07:54 alex Exp $

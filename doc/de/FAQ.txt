@@ -10,12 +10,6 @@
                     -- FAQ: Frequently Asked Questions --
 
 
-  +-----------------------------------------------------------------------+
-  | This text is only available in german at the moment, but this should  |
-  | change until the release of ngIRCd 0.7.0, so feel free to contribute! |
-  +-----------------------------------------------------------------------+
-
-
 I. Allgemein
 ~~~~~~~~~~~~
 Q: Kann der ngIRCd im Netz zusammen mit "normalen" Servern betrieben werden?
@@ -64,4 +58,4 @@ A: Am besten traegst du ihn in das Bug-Tracking-System des ngIRCd ein:
 
 
 -- 
-$Id: FAQ.txt,v 1.3 2003/01/04 13:07:54 alex Exp $
+$Id: FAQ.txt,v 1.1 2003/01/04 13:07:54 alex Exp $

@@ -10,12 +10,6 @@
                                  -- RFC.txt --
 
 
-  +-----------------------------------------------------------------------+
-  | This text is only available in german at the moment, but this should  |
-  | change until the release of ngIRCd 0.7.0, so feel free to contribute! |
-  +-----------------------------------------------------------------------+
-
-
 Das IRC-Protokoll ist in diesen RFC's (Request For Comments) dokumentiert:
 
   1459	Oikarinen, J. & D. Reed, "Internet Relay Chat Protocol",
@@ -35,4 +29,4 @@ Das IRC-Protokoll ist in diesen RFC's (Request For Comments) dokumentiert:
 
 
 -- 
-$Id: RFC.txt,v 1.5 2003/01/04 13:07:54 alex Exp $
+$Id: RFC.txt,v 1.1 2003/01/04 13:07:54 alex Exp $

@@ -16,7 +16,7 @@
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				OPTIMIZATION_CFLAGS = "-O0";
-				ZERO_LINK = YES;
+				ZERO_LINK = NO;
 			};
 			isa = PBXBuildStyle;
 			name = Development;
@@ -96,6 +96,7 @@
 			children = (
 				FADE2B7B05F14B9F0081A16E,
 				FADE2C9905F1511B0081A16E,
+				FA83332A0627391D00A909F0,
 			);
 			isa = PBXGroup;
 			name = Products;
@@ -214,6 +215,7 @@
 		8DD76FAD0486AB0100D96B5E = {
 			buildActionMask = 2147483647;
 			files = (
+				FA83332B0627391D00A909F0,
 			);
 			isa = PBXFrameworksBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -271,6 +273,20 @@
 //FA2
 //FA3
 //FA4
+		FA83332A0627391D00A909F0 = {
+			isa = PBXFileReference;
+			lastKnownFileType = "compiled.mach-o.dylib";
+			name = libz.dylib;
+			path = /usr/lib/libz.dylib;
+			refType = 0;
+			sourceTree = "<absolute>";
+		};
+		FA83332B0627391D00A909F0 = {
+			fileRef = FA83332A0627391D00A909F0;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
 		FAC0DF4A05F25A150024C8CE = {
 			fileEncoding = 5;
 			isa = PBXFileReference;

@@ -148,7 +148,7 @@ These parameters could be passed to the ngIRCd:
 -p, --passive
 	Server-links won't be automatically established.
 
---configtest
+-t, --configtest
 	Reads, validates and dumps the configuration file as interpreted
 	by the server. Then exits.
 
@@ -158,4 +158,4 @@ number. In both cases the server exits after the output.
 
 
 -- 
-$Id: INSTALL,v 1.17 2004/01/26 02:23:54 alex Exp $
+$Id: INSTALL,v 1.18 2004/02/22 22:12:44 alex Exp $

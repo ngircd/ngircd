@@ -9,7 +9,7 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: configure.in,v 1.43 2002/04/02 18:17:38 alex Exp $
+# $Id: configure.in,v 1.44 2002/04/24 13:33:56 alex Exp $
 #
 
 # -- Initialisierung --
@@ -27,6 +27,7 @@ AH_TEMPLATE([HAVE_socklen_t], [Define if socklen_t exists])
 AH_TEMPLATE([SNIFFER], [Define if IRC sniffer should be enabled])
 AH_TEMPLATE([STRICT_RFC], [Define if ngIRCd should behave strict RFC compliant])
 AH_TEMPLATE([USE_SYSLOG], [Define if syslog should be used for logging])
+AH_TEMPLATE([REGEX], [Define if POSIX regular expression functions are available])
 
 AH_TEMPLATE([TARGET_OS], [Target operating system name])
 AH_TEMPLATE([TARGET_VENDOR], [Target system vendor])
@@ -51,12 +52,14 @@ AC_HEADER_STDC
 
 AC_HEADER_TIME
 
-AC_CHECK_HEADERS(arpa/inet.h)
-
 AC_CHECK_HEADERS([ \
 	errno.h fcntl.h netdb.h netinet/in.h stdlib.h string.h \
 	sys/socket.h sys/time.h sys/wait.h unistd.h \
 	],,AC_MSG_ERROR([required C header missing!]))
+
+AC_CHECK_HEADERS(arpa/inet.h)
+
+AC_CHECK_HEADERS(regex.h,regex_h_ok=1)
 
 # -- Datentypen --
 
@@ -88,6 +91,8 @@ AC_CHECK_FUNCS([ \
 	],,AC_MSG_ERROR([required function missing!]))
 
 AC_CHECK_FUNCS(inet_aton)
+
+AC_CHECK_FUNCS(regcomp,regcomp_ok=1)
 
 AC_CHECK_FUNCS(sigaction)
 
@@ -146,6 +151,18 @@ AC_DEFINE_UNQUOTED(TARGET_CPU, "$target_cpu" )
 AC_DEFINE_UNQUOTED(TARGET_VENDOR, "$target_vendor" )
 AC_DEFINE_UNQUOTED(TARGET_OS, "$target_os" )
 
+if test `uname` = "A/UX"; then
+	# unter A/UX sollte _POSIX_SOURCE definiert sein.
+	AC_MSG_RESULT([detected A/UX, defining _POSIX_SOURCE])
+	CFLAGS="$CFLAGS -D_POSIX_SOURCE"
+fi
+
+if test "$regcomp_ok" -eq 1 -a "$regex_h_ok" -eq 1; then
+	# POSIX Regular Expression Library ist verfuegbar
+	AC_MSG_RESULT([detected POSIX regular expression library])
+	AC_DEFINE(REGEX)
+fi
+
 # -- Variablen --
 
 if test "$GCC" = "yes"; then
@@ -153,12 +170,6 @@ if test "$GCC" = "yes"; then
 fi
 
 CFLAGS="$CFLAGS -DSYSCONFDIR='\"\$(sysconfdir)\"'"
-
-if test `uname` = "A/UX"; then
-	# unter A/UX sollte _POSIX_SOURCE definiert sein.
-	AC_MSG_RESULT([detected A/UX, defining _POSIX_SOURCE])
-	CFLAGS="$CFLAGS -D_POSIX_SOURCE"
-fi
 
 # -- Ausgabe --
 

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.43 2002/04/04 13:03:55 alex Exp $
+ * $Id: ngircd.c,v 1.44 2002/04/24 13:33:56 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  */
@@ -310,6 +310,10 @@ GLOBAL CHAR *NGIRCd_VersionAddition( VOID )
 #ifdef USE_SYSLOG
 	if( txt[0] ) strcat( txt, "+" );
 	strcat( txt, "SYSLOG" );
+#endif
+#ifdef REGEX
+	if( txt[0] ) strcat( txt, "+" );
+	strcat( txt, "REGEX" );
 #endif
 #ifdef STRICT_RFC
 	if( txt[0] ) strcat( txt, "+" );

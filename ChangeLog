@@ -14,10 +14,14 @@ ngIRCd 0.0.2, ?
 
   - Struktur der Konfigurationsdatei geaendert: sie ist nun "Samba like",
     d.h. sie besteht aus Abschnitten (siehe "doc/sample-ngircd.conf").
-  - Es koennen mehrere Server-Oprtatoren konfiguriert werden.
+  - Es koennen mehrere IRC-Server-Opertatoren konfiguriert werden.
   - Zombies der Resolver-Prozesse werden nun ordentlich "getoetet".
   - NICK kann nun die Gross- und Kleinschreibung eines Nicks aendern.
   - ein Server-Passwort ist nun konfigurierbar.
+  - Server-Links teilweise implementiert: bisher kann der ngIRCd jedoch
+    nur "leafed server" sein, d.h. keine "Client-Server" haben. Einige
+    Befehle sind auch noch nicht (optimal) angepasst: PRIVMSG funktioniert
+    aber bereits, ebenso wie WHOIS (letzteres noch nicht vollstaendig).
 
 ngIRCd 0.0.1, 31.12.2001
 
@@ -25,4 +29,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.5 2002/01/04 01:18:38 alex Exp $
+$Id: ChangeLog,v 1.6 2002/01/05 20:08:34 alex Exp $

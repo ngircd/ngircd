@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: portabtest.c,v 1.3 2002/03/12 21:47:40 alex Exp $
+ * $Id: portabtest.c,v 1.4 2002/05/27 13:01:40 alex Exp $
  *
  * portabtest.c: Testprogramm fuer portab.h
  */
@@ -23,10 +23,11 @@
 #include "exp.h"
 
 
-LOCAL BOOLEAN portab_check_types( VOID );
+LOCAL BOOLEAN portab_check_types PARAMS(( VOID ));
 
 
-GLOBAL INT main( VOID )
+GLOBAL int
+main( VOID )
 {
 	INT ret = 0;
 
@@ -44,7 +45,8 @@ GLOBAL INT main( VOID )
 } /* main */
 
 
-LOCAL BOOLEAN portab_check_types( VOID )
+LOCAL BOOLEAN
+portab_check_types( VOID )
 {
 	if( FALSE != 0 ) return 0;
 	if( TRUE != 1 ) return 0;

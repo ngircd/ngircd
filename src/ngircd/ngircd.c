@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.45 2002/05/18 12:20:02 alex Exp $
+ * $Id: ngircd.c,v 1.46 2002/05/27 13:00:50 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  */
@@ -29,29 +29,32 @@
 #include <sys/wait.h>
 #include <time.h>
 
-#include "channel.h"
-#include "client.h"
-#include "conf.h"
+#include "resolve.h"
 #include "conn.h"
+#include "client.h"
+#include "channel.h"
+#include "conf.h"
 #include "defines.h"
-#include "irc.h"
+#include "lists.h"
 #include "log.h"
 #include "parse.h"
+#include "irc.h"
 
 #include "exp.h"
 #include "ngircd.h"
 
 
-LOCAL VOID Initialize_Signal_Handler( VOID );
-LOCAL VOID Signal_Handler( INT Signal );
+LOCAL VOID Initialize_Signal_Handler PARAMS(( VOID ));
+LOCAL VOID Signal_Handler PARAMS(( INT Signal ));
 
-LOCAL VOID Initialize_Listen_Ports( VOID );
+LOCAL VOID Initialize_Listen_Ports PARAMS(( VOID ));
 
-LOCAL VOID Show_Version( VOID );
-LOCAL VOID Show_Help( VOID );
+LOCAL VOID Show_Version PARAMS(( VOID ));
+LOCAL VOID Show_Help PARAMS(( VOID ));
 
 
-GLOBAL int main( int argc, const char *argv[] )
+GLOBAL int
+main( int argc, const char *argv[] )
 {
 	BOOLEAN ok, configtest = FALSE;
 	INT32 pid, n;
@@ -177,8 +180,8 @@ GLOBAL int main( int argc, const char *argv[] )
 
 				if( ! ok )
 				{
-					printf( PACKAGE": invalid option \"-%c\"!\n", argv[i][n] );
-					puts( "Try \""PACKAGE" --help\" for more information." );
+					printf( "%s: invalid option \"-%c\"!\n", PACKAGE, argv[i][n] );
+					printf( "Try \"%s --help\" for more information.\n", PACKAGE );
 					exit( 1 );
 				}
 			}
@@ -186,8 +189,8 @@ GLOBAL int main( int argc, const char *argv[] )
 		}
 		if( ! ok )
 		{
-			printf( PACKAGE": invalid option \"%s\"!\n", argv[i] );
-			puts( "Try \""PACKAGE" --help\" for more information." );
+			printf( "%s: invalid option \"%s\"!\n", PACKAGE, argv[i] );
+			printf( "Try \"%s --help\" for more information.\n", PACKAGE );
 			exit( 1 );
 		}
 	}
@@ -230,7 +233,7 @@ GLOBAL int main( int argc, const char *argv[] )
 			if( pid < 0 )
 			{
 				/* Fehler */
-				printf( PACKAGE": Can't fork: %s!\nFatal error, exiting now ...", strerror( errno ));
+				printf( "%s: Can't fork: %s!\nFatal error, exiting now ...\n", PACKAGE, strerror( errno ));
 				exit( 1 );
 			}
 
@@ -247,7 +250,9 @@ GLOBAL int main( int argc, const char *argv[] )
 
 		/* Module initialisieren */
 		Log_Init( );
+		Resolve_Init( );
 		Conf_Init( );
+		Lists_Init( );
 		Channel_Init( );
 		Client_Init( );
 		Conn_Init( );
@@ -288,7 +293,7 @@ GLOBAL int main( int argc, const char *argv[] )
 		Conn_Exit( );
 		Client_Exit( );
 		Channel_Exit( );
-		Conf_Exit( );
+		Lists_Exit( );
 		Log_Exit( );
 	}
 
@@ -296,16 +301,18 @@ GLOBAL int main( int argc, const char *argv[] )
 } /* main */
 
 
-GLOBAL CHAR *NGIRCd_Version( VOID )
+GLOBAL CHAR *
+NGIRCd_Version( VOID )
 {
 	STATIC CHAR version[126];
 
-	sprintf( version, PACKAGE" version "VERSION"-%s", NGIRCd_VersionAddition( ));
+	sprintf( version, "%s version %s-%s", PACKAGE, VERSION, NGIRCd_VersionAddition( ));
 	return version;
 } /* NGIRCd_Version */
 
 
-GLOBAL CHAR *NGIRCd_VersionAddition( VOID )
+GLOBAL CHAR *
+NGIRCd_VersionAddition( VOID )
 {
 	STATIC CHAR txt[64];
 
@@ -339,7 +346,8 @@ GLOBAL CHAR *NGIRCd_VersionAddition( VOID )
 } /* NGIRCd_VersionAddition */
 
 
-LOCAL VOID Initialize_Signal_Handler( VOID )
+LOCAL VOID
+Initialize_Signal_Handler( VOID )
 {
 	/* Signal-Handler initialisieren: einige Signale
 	 * werden ignoriert, andere speziell behandelt. */
@@ -385,7 +393,8 @@ LOCAL VOID Initialize_Signal_Handler( VOID )
 } /* Initialize_Signal_Handler */
 
 
-LOCAL VOID Signal_Handler( INT Signal )
+LOCAL VOID
+Signal_Handler( INT Signal )
 {
 	/* Signal-Handler. Dieser wird aufgerufen, wenn eines der Signale eintrifft,
 	 * fuer das wir uns registriert haben (vgl. Initialize_Signal_Handler). Die
@@ -418,7 +427,8 @@ LOCAL VOID Signal_Handler( INT Signal )
 } /* Signal_Handler */
 
 
-LOCAL VOID Initialize_Listen_Ports( VOID )
+LOCAL VOID
+Initialize_Listen_Ports( VOID )
 {
 	/* Ports, auf denen der Server Verbindungen entgegennehmen
 	 * soll, initialisieren */
@@ -435,13 +445,14 @@ LOCAL VOID Initialize_Listen_Ports( VOID )
 	if( created < 1 )
 	{
 		Log( LOG_ALERT, "Server isn't listening on a single port!" );
-		Log( LOG_ALERT, PACKAGE" exiting due to fatal errors!" );
+		Log( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE );
 		exit( 1 );
 	}
 } /* Initialize_Listen_Ports */
 
 
-LOCAL VOID Show_Version( VOID )
+LOCAL VOID
+Show_Version( VOID )
 {
 	puts( NGIRCd_Version( ));
 	puts( "Copyright (c)2001,2002 by Alexander Barton (<alex@barton.de>)." );
@@ -451,7 +462,8 @@ LOCAL VOID Show_Version( VOID )
 } /* Show_Version */
 
 
-LOCAL VOID Show_Help( VOID )
+LOCAL VOID
+Show_Help( VOID )
 {
 #ifdef DEBUG
 	puts( "  -d, --debug        log extra debug messages" );

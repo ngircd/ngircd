@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: portab.h,v 1.5 2002/05/19 10:49:23 alex Exp $
+ * $Id: portab.h,v 1.6 2002/05/27 13:01:58 alex Exp $
  *
  * portab.h: "Portabilitaets-Definitionen"
  */
@@ -22,6 +22,18 @@
 #include "config.h"
 
 
+/* Compiler Features */
+
+
+#ifndef PARAMS
+# if PROTOTYPES
+#  define PARAMS(args) args
+# else
+#  define PARAMS(args) ()
+# endif
+#endif
+
+
 /* Keywords */
 
 #define EXTERN extern
@@ -31,6 +43,12 @@
 
 
 /* Datatentypen */
+
+#ifndef PROTOTYPES
+# ifndef signed
+#  define signed
+# endif
+#endif
 
 typedef void VOID;
 typedef void POINTER;
@@ -57,7 +75,11 @@ typedef UINT8 BOOLEAN;
 #define FALSE (BOOLEAN)0
 
 #undef NULL
-#define NULL (VOID *)0
+#ifdef PROTOTYPES
+# define NULL (VOID *)0
+#else
+# define NULL 0L
+#endif
 
 #undef GLOBAL
 #define GLOBAL

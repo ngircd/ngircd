@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: vsnprintf.c,v 1.2 2002/05/19 10:44:52 alex Exp $
+ * $Id: vsnprintf.c,v 1.3 2002/05/27 13:01:04 alex Exp $
  *
  * vsnprintf.c: u.a. Ersatz fuer vsnprintf()
  */
@@ -98,7 +98,7 @@
 /* only include stdio.h if we are not re-defining snprintf or vsnprintf */
 #include <stdio.h>
 /* make the compiler happy with an empty file */
-void dummy_snprintf(void) {} 
+void dummy_snprintf PARAMS(( void )) { }
 #else
 
 #ifdef HAVE_LONG_DOUBLE

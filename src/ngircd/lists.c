@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: lists.c,v 1.7 2002/09/08 00:55:45 alex Exp $
+ * $Id: lists.c,v 1.8 2002/09/08 17:06:07 alex Exp $
  *
  * lists.c: Verwaltung der "IRC-Listen": Ban, Invite, ...
  */
@@ -54,6 +54,7 @@ LOCAL C2C *My_Invites, *My_Bans;
 LOCAL C2C *New_C2C PARAMS(( CHAR *Mask, CHANNEL *Chan, BOOLEAN OnlyOnce ));
 
 LOCAL BOOLEAN Check_List PARAMS(( C2C **Cl2Chan, CLIENT *Client, CHANNEL *Chan ));
+LOCAL BOOLEAN Already_Registered PARAMS(( C2C *Cl2Chan, CHAR *Mask, CHANNEL *Chan ));
 
 
 
@@ -101,13 +102,20 @@ Lists_CheckInvited( CLIENT *Client, CHANNEL *Chan )
 
 
 GLOBAL BOOLEAN
-Lists_AddInvited( CHAR *Mask, CHANNEL *Chan, BOOLEAN OnlyOnce )
+Lists_AddInvited( CLIENT *From, CHAR *Mask, CHANNEL *Chan, BOOLEAN OnlyOnce )
 {
 	C2C *c2c;
 
 	assert( Mask != NULL );
 	assert( Chan != NULL );
 
+	if( Already_Registered( My_Invites, Mask, Chan ))
+	{
+		/* Eintrag ist bereits vorhanden */
+		IRC_WriteStrClient( From, RPL_INVITELIST_MSG, Client_ID( From ), Channel_Name( Chan ), Mask );
+		return FALSE;
+	}
+	
 	c2c = New_C2C( Mask, Chan, OnlyOnce );
 	if( ! c2c )
 	{
@@ -181,12 +189,19 @@ Lists_CheckBanned( CLIENT *Client, CHANNEL *Chan )
 
 
 GLOBAL BOOLEAN
-Lists_AddBanned( CHAR *Mask, CHANNEL *Chan )
+Lists_AddBanned( CLIENT *From, CHAR *Mask, CHANNEL *Chan )
 {
 	C2C *c2c;
 
 	assert( Mask != NULL );
 	assert( Chan != NULL );
+
+	if( Already_Registered( My_Bans, Mask, Chan ))
+	{
+		/* Eintrag ist bereits vorhanden */
+		IRC_WriteStrClient( From, RPL_BANLIST_MSG, Client_ID( From ), Channel_Name( Chan ), Mask );
+		return FALSE;
+	}
 
 	c2c = New_C2C( Mask, Chan, FALSE );
 	if( ! c2c )
@@ -413,6 +428,21 @@ Check_List( C2C **Cl2Chan, CLIENT *Client, CHANNEL *Chan )
 
 	return FALSE;
 } /* Check_List */
+
+
+LOCAL BOOLEAN
+Already_Registered( C2C *List, CHAR *Mask, CHANNEL *Chan )
+{
+	C2C *c2c;
+
+	c2c = List;
+	while( c2c )
+	{
+		if(( c2c->channel == Chan ) && ( strcasecmp( c2c->mask, Mask ) == 0 )) return TRUE;
+		c2c = c2c->next;
+	}
+	return FALSE;
+} /* Already_Registered */
 
 
 /* -eof- */

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.37 2002/03/28 14:15:33 alex Exp $
+ * $Id: ngircd.c,v 1.38 2002/03/29 20:59:22 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  */
@@ -267,11 +267,6 @@ GLOBAL int main( int argc, const char *argv[] )
 		Conf_Exit( );
 		Log_Exit( );
 	}
-
-#ifndef DEBUG
-	/* aufraeumen */
-	if( unlink( ERROR_FILE ) != 0 ) Log( LOG_ERR, "Can't delete \""ERROR_FILE"\": %s", strerror( errno ));
-#endif
 
 	return 0;
 } /* main */

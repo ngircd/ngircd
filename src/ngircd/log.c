@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: log.c,v 1.26 2002/03/27 21:03:09 alex Exp $
+ * $Id: log.c,v 1.27 2002/03/29 20:59:22 alex Exp $
  *
  * log.c: Logging-Funktionen
  */
@@ -37,6 +37,9 @@
 
 #include "exp.h"
 #include "log.h"
+
+
+LOCAL CHAR Error_File[FNAME_LEN];
 
 
 LOCAL VOID Wall_ServerNotice( CHAR *Msg );
@@ -83,8 +86,9 @@ GLOBAL VOID Log_Init( VOID )
 	if( txt[0] ) Log( LOG_INFO, "Activating: %s.", txt );
 
 	/* stderr in Datei umlenken */
+	sprintf( Error_File, ERROR_DIR"/"PACKAGE"-%ld.err", (INT32)getpid( ));
 	fflush( stderr );
-	if( ! freopen( ERROR_FILE, "a+", stderr )) Log( LOG_ERR, "Can't reopen stderr (\""ERROR_FILE"\"): %s", strerror( errno ));
+	if( ! freopen( Error_File, "a+", stderr )) Log( LOG_ERR, "Can't reopen stderr (\"%s\"): %s", Error_File, strerror( errno ));
 
 	fprintf( stderr, "\n--- %s ---\n\n", NGIRCd_StartStr );
 	fprintf( stderr, "%s started.\npid=%ld, ppid=%ld, uid=%ld, gid=%ld [euid=%ld, egid=%ld].\nActivating: %s\n\n", NGIRCd_Version( ), (INT32)getpid( ), (INT32)getppid( ), (INT32)getuid( ), (INT32)getgid( ), (INT32)geteuid( ), (INT32)getegid( ), txt[0] ? txt : "-" );
@@ -103,6 +107,9 @@ GLOBAL VOID Log_Exit( VOID )
 	fputs( ctime( &t ), stderr );
 	fprintf( stderr, PACKAGE" done (pid=%ld).\n", (INT32)getpid( ));
 	fflush( stderr );
+
+	/* Error-File (stderr) loeschen */
+	if( unlink( Error_File ) != 0 ) Log( LOG_ERR, "Can't delete \"%s\": %s", Error_File, strerror( errno ));
 
 #ifdef USE_SYSLOG
 	/* syslog abmelden */

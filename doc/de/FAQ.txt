@@ -37,7 +37,7 @@ A: GNU autoconf ist nicht installiert, wird jedoch bei Builds direkt aus
 Q: ./autogen.sh bricht mit der Meldung "autoconf: Undefined macros:
    AC_FUNC_MALLOC" bzw. "AC_CONFIG_SRCDIR" ab.
 A: Auf dem System ist eine zu alte Version von GNU autoconf installiert.
-   Ein Update auf z.B. Version 2.52 loest dieses Problem (eine installiete
+   Ein Update auf z.B. Version 2.52 loest dieses Problem (eine installierte
    alte Version sollte ggf. zunaechst entfernt werden, bei RPM-Paketen z.B.
    mit dem Befehl "rpm -e autoconf").
 
@@ -58,4 +58,4 @@ A: Am besten traegst du ihn in das Bug-Tracking-System des ngIRCd ein:
 
 
 -- 
-$Id: FAQ.txt,v 1.1 2003/01/04 13:07:54 alex Exp $
+$Id: FAQ.txt,v 1.2 2003/03/09 22:17:35 alex Exp $

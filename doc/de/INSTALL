@@ -17,7 +17,7 @@
 
 Unterschiede zu Version 0.5.x
 
-- Ab Version 0.6.0 werden asyncrone Passwoerter zur Identifikation anderer
+- Ab Version 0.6.0 werden asynchrone Passwoerter zur Identifikation anderer
   Server, die Variable "Password" in [Server]-Abschnitten wird nicht mehr
   unterstuetzt. Passwoerter fuer Server-Server-Links werden nun mit den
   Variablen "MyPassword" und "PeerPassword" angegeben.
@@ -135,7 +135,7 @@ Folgende Parameter koennen dem ngIRCd u.a. uebergeben werden:
 	/usr/local/etc/ngircd.conf die Datei <file> einzulesen.
 
 -n, --nodaemon
-	ngIRCd soll im Fordergrund laufen; alle Meldungen werden zusaetzlich
+	ngIRCd soll im Vordergrund laufen; alle Meldungen werden zusaetzlich
 	zum Syslog auch auf der Konsole ausgegeben.
 
 -p, --passive
@@ -153,4 +153,4 @@ Server nach der Ausgabe wieder.
 
 
 -- 
-$Id: INSTALL,v 1.1 2003/01/04 13:07:54 alex Exp $
+$Id: INSTALL,v 1.2 2003/03/09 22:17:35 alex Exp $

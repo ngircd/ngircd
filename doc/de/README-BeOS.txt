@@ -18,7 +18,7 @@ mit diesem Fehler ab:
    select(): Bad file descriptor!
 
 Es sieht leider so aus, als ob das select() von BeOS nicht mit File-Handles
-von Pipes verschiedener Prozesse umgehen kann: sobald der Resolver asyncron
+von Pipes verschiedener Prozesse umgehen kann: sobald der Resolver asynchron
 gestartet wird, also Pipe-Handles im select() vorhanden sind, fuehrt das zu
 obiger Meldung.
 
@@ -44,4 +44,4 @@ mir in Verbindung setzen (alex@barton.de), ich maile gerne meine Patches zu.
 Fuer eine Aenderung im CVS ist es aber meiner Meinung nach noch zu frueh ...
 
 -- 
-$Id: README-BeOS.txt,v 1.1 2003/01/04 13:07:54 alex Exp $
+$Id: README-BeOS.txt,v 1.2 2003/03/09 22:17:35 alex Exp $

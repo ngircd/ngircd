@@ -1,6 +1,6 @@
 #!/bin/sh
 # ngIRCd Test Suite
-# $Id: getpid.sh,v 1.2 2002/11/10 14:28:06 alex Exp $
+# $Id: getpid.sh,v 1.2.4.1 2003/04/22 20:01:23 alex Exp $
 
 # wurde ein Name uebergeben?
 [ $# -ne 1 ] && exit 1
@@ -18,7 +18,9 @@ fi
 
 # PID ermitteln
 ps $PS_FLAGS > procs.tmp
-pid=$( cat procs.tmp | grep "$1" | awk "{print \$$PS_PIDCOL}" | sort -n | head $HEAD_FLAGS )
+cat procs.tmp | grep "$1" | awk "{print \$$PS_PIDCOL}" | sort -n > pids.tmp
+pid=`head $HEAD_FLAGS pids.tmp`
+rm -rf procs.tmp pids.tmp
 
 # ermittelte PID validieren
 [ "$pid" -gt 1 ] > /dev/null 2>&1

@@ -12,7 +12,7 @@
 
 ngIRCd CVSHEAD
 
-ngIRCd 0.8.0
+ngIRCd 0.8.0 (2004-06-26)
 
   - Fixed wrong buffer size calculation for results of the resolver.
 
@@ -532,4 +532,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.237 2004/05/30 16:29:05 alex Exp $
+$Id: ChangeLog,v 1.238 2004/07/03 18:35:41 alex Exp $

@@ -1,6 +1,9 @@
-# $Id: Makefile.am,v 1.6 2001/12/23 21:53:54 alex Exp $
+# $Id: Makefile.am,v 1.7 2001/12/27 00:37:07 alex Exp $
 
 # $Log: Makefile.am,v $
+# Revision 1.7  2001/12/27 00:37:07  alex
+# - Erkennung der "portab header" geaendert, CFLAGS werden nun anders gesetzt.
+#
 # Revision 1.6  2001/12/23 21:53:54  alex
 # - Header messages.h eingefuegt.
 #
@@ -18,8 +21,6 @@
 #
 # Revision 1.1.1.1  2001/12/11 21:53:04  alex
 # - Imported sources to CVS.
-
-CFLAGS = -Wall -g
 
 sbin_PROGRAMS = ngircd
 

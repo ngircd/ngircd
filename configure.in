@@ -9,9 +9,12 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: configure.in,v 1.6 2001/12/25 22:01:47 alex Exp $
+# $Id: configure.in,v 1.7 2001/12/27 00:37:07 alex Exp $
 #
 # $Log: configure.in,v $
+# Revision 1.7  2001/12/27 00:37:07  alex
+# - Erkennung der "portab header" geaendert, CFLAGS werden nun anders gesetzt.
+#
 # Revision 1.6  2001/12/25 22:01:47  alex
 # - neue configure-Option "--enable-sniffer".
 #
@@ -40,8 +43,7 @@ AM_CONFIG_HEADER(src/config.h)
 
 # -- Variablen --
 
-CFLAGS="$CFLAGS -I/usr/local/include"
-LDFLAGS="$LDFLAGS -L/usr/local/lib"
+CFLAGS="-Wall -g $CFLAGS"
 
 # -- C Compiler --
 
@@ -57,9 +59,15 @@ AC_PROG_RANLIB
 
 AC_HEADER_STDC
 
-AC_CHECK_HEADER(portab.h,,AC_MSG_ERROR([Alex \"portability headers\" (portab.h an friends) not found!]))
-AC_CHECK_HEADER(imp.h,,AC_MSG_ERROR([Alex \"portability headers\" (portab.h an friends) not found!]))
-AC_CHECK_HEADER(exp.h,,AC_MSG_ERROR([Alex \"portability headers\" (portab.h an friends) not found!]))
+AC_CHECK_HEADER(portab.h,[
+	AC_CHECK_HEADER(imp.h,,AC_MSG_ERROR([Alex \"portability headers\" (portab.h an friends) not found!]))
+	AC_CHECK_HEADER(exp.h,,AC_MSG_ERROR([Alex \"portability headers\" (portab.h an friends) not found!]))
+],[
+	AC_CHECK_HEADER(/usr/local/include/portab.h,,AC_MSG_ERROR([Alex \"portability headers\" (portab.h an friends) not found!]))
+	AC_CHECK_HEADER(/usr/local/include/imp.h,,AC_MSG_ERROR([Alex \"portability headers\" (portab.h an friends) not found!]))
+	AC_CHECK_HEADER(/usr/local/include/exp.h,,AC_MSG_ERROR([Alex \"portability headers\" (portab.h an friends) not found!]))
+	CFLAGS="$CFLAGS -I/usr/local/include"
+])
 
 AC_CHECK_HEADERS([netinet/in.h sys/socket.h],,[required C headers missing!])
 

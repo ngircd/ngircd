@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: irc.h,v 1.37 2003/01/13 18:56:30 alex Exp $
+ * $Id: irc.h,v 1.38 2003/01/15 13:49:20 alex Exp $
  *
  * IRC commands (header)
  */
@@ -23,6 +23,7 @@ GLOBAL BOOLEAN IRC_KILL PARAMS(( CLIENT *Client, REQUEST *Req ));
 GLOBAL BOOLEAN IRC_NOTICE PARAMS(( CLIENT *Client, REQUEST *Req ));
 GLOBAL BOOLEAN IRC_PRIVMSG PARAMS(( CLIENT *Client, REQUEST *Req ));
 GLOBAL BOOLEAN IRC_TRACE PARAMS(( CLIENT *Client, REQUEST *Req ));
+GLOBAL BOOLEAN IRC_HELP PARAMS(( CLIENT *Client, REQUEST *Req ));
 
 
 #endif

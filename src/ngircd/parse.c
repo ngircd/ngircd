@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: parse.c,v 1.58 2003/01/13 18:56:30 alex Exp $";
+static char UNUSED id[] = "$Id: parse.c,v 1.59 2003/01/15 13:49:20 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -56,6 +56,7 @@ COMMAND My_Commands[] =
 	{ "DIE", IRC_DIE, CLIENT_USER, 0, 0, 0 },
 	{ "DISCONNECT", IRC_DISCONNECT, CLIENT_USER, 0, 0, 0 },
 	{ "ERROR", IRC_ERROR, 0xFFFF, 0, 0, 0 },
+	{ "HELP", IRC_HELP, CLIENT_USER, 0, 0, 0 },
 	{ "INVITE", IRC_INVITE, CLIENT_USER|CLIENT_SERVER, 0, 0, 0 },
 	{ "ISON", IRC_ISON, CLIENT_USER, 0, 0, 0 },
 	{ "JOIN", IRC_JOIN, CLIENT_USER|CLIENT_SERVER, 0, 0, 0 },

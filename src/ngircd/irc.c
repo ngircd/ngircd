@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.65 2002/02/23 00:03:54 alex Exp $
+ * $Id: irc.c,v 1.66 2002/02/23 21:39:48 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.66  2002/02/23 21:39:48  alex
+ * - IRC-Befehl KILL sowie Kills bei Nick Collsisions implementiert.
+ *
  * Revision 1.65  2002/02/23 00:03:54  alex
  * - Ergebnistyp von Conn_GetIdle() und Conn_LastPing() auf "time_t" geaendert.
  *
@@ -279,7 +282,7 @@
 LOCAL BOOLEAN Hello_User( CLIENT *Client );
 LOCAL BOOLEAN Show_MOTD( CLIENT *Client );
 
-LOCAL VOID Kill_Nick( CHAR *Nick );
+LOCAL VOID Kill_Nick( CHAR *Nick, CHAR *Reason );
 
 LOCAL BOOLEAN Send_NAMES( CLIENT *Client, CHANNEL *Chan );
 LOCAL BOOLEAN Send_LUSERS( CLIENT *Client );
@@ -904,7 +907,7 @@ GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req )
 			 * sowohl der neue, als auch der alte Client muessen nun
 			 * disconnectiert werden. */
 			Log( LOG_ERR, "Server %s introduces already registered nick \"%s\"!", Client_ID( Client ), Req->argv[0] );
-			Kill_Nick( Req->argv[0] );
+			Kill_Nick( Req->argv[0], "Nick collision" );
 			return CONNECTED;
 		}
 
@@ -913,7 +916,7 @@ GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req )
 		if( ! intr_c )
 		{
 			Log( LOG_ERR, "Server %s introduces nick \"%s\" on unknown server!?", Client_ID( Client ), Req->argv[0] );
-			Kill_Nick( Req->argv[0] );
+			Kill_Nick( Req->argv[0], "Unknown server" );
 			return CONNECTED;
 		}
 
@@ -925,7 +928,7 @@ GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req )
 			 * Der Client muss disconnectiert werden, damit der Netz-
 			 * status konsistent bleibt. */
 			Log( LOG_ALERT, "Can't create client structure! (on connection %d)", Client_Conn( Client ));
-			Kill_Nick( Req->argv[0] );
+			Kill_Nick( Req->argv[0], "Server error" );
 			return CONNECTED;
 		}
 
@@ -2079,6 +2082,38 @@ GLOBAL BOOLEAN IRC_VERSION( CLIENT *Client, REQUEST *Req )
 } /* IRC_VERSION */
 
 
+GLOBAL BOOLEAN IRC_KILL( CLIENT *Client, REQUEST *Req )
+{
+	CLIENT *prefix, *c;
+	
+	assert( Client != NULL );
+	assert( Req != NULL );
+
+	if( Client_Type( Client ) != CLIENT_SERVER ) return IRC_WriteStrClient( Client, ERR_NOTREGISTERED_MSG, Client_ID( Client ));
+
+	/* Falsche Anzahl Parameter? */
+	if(( Req->argc != 2 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+
+	prefix = Client_GetFromID( Req->prefix );
+	if( ! prefix )
+	{
+		Log( LOG_WARNING, "Got KILL with invalid prefix: \"%s\"!", Req->prefix );
+		prefix = Client_ThisServer( );
+	}
+	
+	Log( LOG_NOTICE, "Got KILL command from \"%s\" for \"%s\": %s", Client_Mask( prefix ), Req->argv[0], Req->argv[1] );
+	
+	/* andere Server benachrichtigen */
+	IRC_WriteStrServersPrefix( Client, prefix, "KILL %s :%s", Req->argv[0], Req->argv[1] );
+
+	/* haben wir selber einen solchen Client? */
+	c = Client_GetFromID( Req->argv[0] );
+	if( c && ( Client_Conn( c ) != NONE )) Conn_Close( Client_Conn( c ), NULL, Req->argv[1], TRUE );
+	
+	return CONNECTED;
+} /* IRC_KILL */
+
+
 LOCAL BOOLEAN Hello_User( CLIENT *Client )
 {
 	assert( Client != NULL );
@@ -2145,11 +2180,21 @@ LOCAL BOOLEAN Show_MOTD( CLIENT *Client )
 } /* Show_MOTD */
 
 
-LOCAL VOID Kill_Nick( CHAR *Nick )
+LOCAL VOID Kill_Nick( CHAR *Nick, CHAR *Reason )
 {
-	Log( LOG_ERR, "User(s) with nick \"%s\" will be disconnected!", Nick );
-	/* FIXME */
-	Log( LOG_ALERT, "[Kill_Nick() not implemented - OOOPS!]" );
+	CLIENT *c;
+
+	assert( Nick != NULL );
+	assert( Reason != NULL );
+	
+	Log( LOG_ERR, "User(s) with nick \"%s\" will be disconnected: %s", Nick, Reason );
+
+	/* andere Server benachrichtigen */
+	IRC_WriteStrServers( NULL, "KILL %s :%s", Nick, Reason );
+
+	/* Ggf. einen eigenen Client toeten */
+	c = Client_GetFromID( Nick );
+	if( c && ( Client_Conn( c ) != NONE )) Conn_Close( Client_Conn( c ), NULL, Reason, TRUE );
 } /* Kill_Nick */
 
 

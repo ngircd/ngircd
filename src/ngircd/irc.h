@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.h,v 1.23 2002/02/17 23:38:58 alex Exp $
+ * $Id: irc.h,v 1.24 2002/02/23 21:39:48 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: irc.h,v $
+ * Revision 1.24  2002/02/23 21:39:48  alex
+ * - IRC-Befehl KILL sowie Kills bei Nick Collsisions implementiert.
+ *
  * Revision 1.23  2002/02/17 23:38:58  alex
  * - neuer IRC-Befehl VERSION implementiert: IRC_VERSION().
  *
@@ -142,6 +145,7 @@ GLOBAL BOOLEAN IRC_DIE( CLIENT *Client, REQUEST *Req );
 GLOBAL BOOLEAN IRC_RESTART( CLIENT *Client, REQUEST *Req );
 
 GLOBAL BOOLEAN IRC_ERROR( CLIENT *Client, REQUEST *Req );
+GLOBAL BOOLEAN IRC_KILL( CLIENT *Client, REQUEST *Req );
 
 GLOBAL BOOLEAN IRC_JOIN( CLIENT *Client, REQUEST *Req );
 GLOBAL BOOLEAN IRC_PART( CLIENT *Client, REQUEST *Req );

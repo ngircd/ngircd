@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: parse.c,v 1.23 2002/02/17 23:38:58 alex Exp $
+ * $Id: parse.c,v 1.24 2002/02/23 21:39:48 alex Exp $
  *
  * parse.c: Parsen der Client-Anfragen
  *
  * $Log: parse.c,v $
+ * Revision 1.24  2002/02/23 21:39:48  alex
+ * - IRC-Befehl KILL sowie Kills bei Nick Collsisions implementiert.
+ *
  * Revision 1.23  2002/02/17 23:38:58  alex
  * - neuer IRC-Befehl VERSION implementiert: IRC_VERSION().
  *
@@ -371,6 +374,7 @@ LOCAL BOOLEAN Handle_Request( CONN_ID Idx, REQUEST *Req )
 	else if( strcasecmp( Req->command, "JOIN" ) == 0 ) return IRC_JOIN( client, Req );
 	else if( strcasecmp( Req->command, "PART" ) == 0 ) return IRC_PART( client, Req );
 	else if( strcasecmp( Req->command, "VERSION" ) == 0 ) return IRC_VERSION( client, Req );
+	else if( strcasecmp( Req->command, "KILL" ) == 0 ) return IRC_KILL( client, Req );
 	
 	/* Unbekannter Befehl */
 	if( Client_Type( client ) != CLIENT_SERVER ) IRC_WriteStrClient( client, ERR_UNKNOWNCOMMAND_MSG, Client_ID( client ), Req->command );

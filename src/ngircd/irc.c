@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.52 2002/02/11 15:52:21 alex Exp $
+ * $Id: irc.c,v 1.53 2002/02/11 16:06:21 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.53  2002/02/11 16:06:21  alex
+ * - Die Quelle von MODE-Aenderungen wird nun korrekt weitergegeben.
+ *
  * Revision 1.52  2002/02/11 15:52:21  alex
  * - PONG an den Server selber wurde faelschlicherweise versucht zu forwarden.
  * - Channel-Modes wurden falsch geliefert (als User-Modes).
@@ -1091,14 +1094,14 @@ GLOBAL BOOLEAN IRC_NOTICE( CLIENT *Client, REQUEST *Req )
 GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req )
 {
 	CHAR *mode_ptr, the_modes[CLIENT_MODE_LEN], x[2];
+	CLIENT *cl, *chan_cl, *prefix;
 	BOOLEAN set, ok;
 	CHANNEL *chan;
-	CLIENT *cl, *chan_cl;
 	
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	cl = chan_cl = NULL;
+	cl = chan_cl = prefix = NULL;
 	chan = NULL;
 
 	/* Valider Client? */
@@ -1161,6 +1164,14 @@ GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req )
 		else set = TRUE;
 		if(( *mode_ptr == '-' ) || ( *mode_ptr == '+' )) mode_ptr++;
 	}
+	
+	/* Prefix fuer Antworten etc. ermitteln */
+	if( Client_Type( Client ) == CLIENT_SERVER )
+	{
+		prefix = Client_GetFromID( Req->prefix );
+		if( ! prefix ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
+	}
+	else prefix = Client;
 
 	/* Reply-String mit Aenderungen vorbereiten */
 	if( set ) strcpy( the_modes, "+" );
@@ -1286,13 +1297,13 @@ GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req )
 			if( Client_Type( Client ) == CLIENT_SERVER )
 			{
 				/* Modes an andere Server forwarden */
-				IRC_WriteStrServersPrefix( Client, Client, "MODE %s :%s", Client_ID( cl ), the_modes );
+				IRC_WriteStrServersPrefix( Client, prefix, "MODE %s :%s", Client_ID( cl ), the_modes );
 			}
 			else
 			{
 				/* Bestaetigung an Client schicken & andere Server informieren */
-				ok = IRC_WriteStrClient( Client, "MODE %s %s", Client_ID( cl ), the_modes );
-				IRC_WriteStrServers( Client, "MODE %s :%s", Client_ID( cl ), the_modes );
+				ok = IRC_WriteStrClientPrefix( Client, prefix, "MODE %s %s", Client_ID( cl ), the_modes );
+				IRC_WriteStrServersPrefix( Client, prefix, "MODE %s :%s", Client_ID( cl ), the_modes );
 			}
 			Log( LOG_DEBUG, "User \"%s\": Mode change, now \"%s\".", Client_Mask( cl ), Client_Modes( cl ));
 		}
@@ -1305,15 +1316,15 @@ GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req )
 				if( Client_Type( Client ) == CLIENT_SERVER )
 				{
 					/* Modes an andere Server und Channel-User forwarden */
-					IRC_WriteStrServersPrefix( Client, Client, "MODE %s %s :%s", Channel_Name( chan ), the_modes, Client_ID( chan_cl));
-					IRC_WriteStrChannelPrefix( Client, chan, Client, FALSE, "MODE %s %s %s", Channel_Name( chan ), the_modes, Client_ID( chan_cl));
+					IRC_WriteStrServersPrefix( Client, prefix, "MODE %s %s :%s", Channel_Name( chan ), the_modes, Client_ID( chan_cl));
+					IRC_WriteStrChannelPrefix( Client, chan, prefix, FALSE, "MODE %s %s %s", Channel_Name( chan ), the_modes, Client_ID( chan_cl));
 				}
 				else
 				{
 					/* Bestaetigung an Client schicken & andere Server sowie Channel-User informieren */
-					ok = IRC_WriteStrClient( Client, "MODE %s %s %s", Channel_Name( chan ), the_modes, Client_ID( chan_cl));
-					IRC_WriteStrServersPrefix( Client, Client, "MODE %s %s :%s", Channel_Name( chan ), the_modes, Client_ID( chan_cl));
-					IRC_WriteStrChannelPrefix( Client, chan, Client, FALSE, "MODE %s %s %s", Channel_Name( chan ), the_modes, Client_ID( chan_cl));
+					ok = IRC_WriteStrClientPrefix( Client, prefix, "MODE %s %s %s", Channel_Name( chan ), the_modes, Client_ID( chan_cl));
+					IRC_WriteStrServersPrefix( Client, prefix, "MODE %s %s :%s", Channel_Name( chan ), the_modes, Client_ID( chan_cl));
+					IRC_WriteStrChannelPrefix( Client, chan, prefix, FALSE, "MODE %s %s %s", Channel_Name( chan ), the_modes, Client_ID( chan_cl));
 				}
 				Log( LOG_DEBUG, "User \"%s\" on %s: Mode change, now \"%s\".", Client_Mask( chan_cl), Channel_Name( chan ), Channel_UserModes( chan, chan_cl ));
 			}
@@ -1323,15 +1334,15 @@ GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req )
 				if( Client_Type( Client ) == CLIENT_SERVER )
 				{
 					/* Modes an andere Server und Channel-User forwarden */
-					IRC_WriteStrServersPrefix( Client, Client, "MODE %s :%s", Channel_Name( chan ), the_modes );
-					IRC_WriteStrChannelPrefix( Client, chan, Client, FALSE, "MODE %s %s", Channel_Name( chan ), the_modes );
+					IRC_WriteStrServersPrefix( Client, prefix, "MODE %s :%s", Channel_Name( chan ), the_modes );
+					IRC_WriteStrChannelPrefix( Client, chan, prefix, FALSE, "MODE %s %s", Channel_Name( chan ), the_modes );
 				}
 				else
 				{
 					/* Bestaetigung an Client schicken & andere Server sowie Channel-User informieren */
-					ok = IRC_WriteStrClient( Client, "MODE %s %s", Channel_Name( chan ), the_modes );
-					IRC_WriteStrServersPrefix( Client, Client, "MODE %s :%s", Channel_Name( chan ), the_modes );
-					IRC_WriteStrChannelPrefix( Client, chan, Client, FALSE, "MODE %s %s", Channel_Name( chan ), the_modes );
+					ok = IRC_WriteStrClientPrefix( Client, prefix, "MODE %s %s", Channel_Name( chan ), the_modes );
+					IRC_WriteStrServersPrefix( Client, prefix, "MODE %s :%s", Channel_Name( chan ), the_modes );
+					IRC_WriteStrChannelPrefix( Client, chan, prefix, FALSE, "MODE %s %s", Channel_Name( chan ), the_modes );
 				}
 				Log( LOG_DEBUG, "Channel \"%s\": Mode change, now \"%s\".", Channel_Name( chan ), Channel_Modes( chan ));
 			}

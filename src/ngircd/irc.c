@@ -9,74 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.87 2002/03/10 18:16:51 alex Exp $
+ * $Id: irc.c,v 1.88 2002/03/12 14:37:52 alex Exp $
  *
  * irc.c: IRC-Befehle
- *
- * $Log: irc.c,v $
- * Revision 1.87  2002/03/10 18:16:51  alex
- * - bei WHO, WHOIS und NAMES wird nun nur noch der Status "Operator" oder
- *   "voiced" geliefert -- nicht mehr beides.
- *
- * Revision 1.86  2002/03/04 01:43:20  alex
- * - der WHO-Befehl (ohne Argumente) gat teilweise Channel-Names vergessen.
- *
- * Revision 1.85  2002/03/03 19:44:30  alex
- * - WHO implementiert (bisher ohne Unterstuetzung von Masks)
- *
- * Revision 1.84  2002/03/03 17:15:11  alex
- * - Source in weitere Module fuer IRC-Befehle aufgesplitted.
- *
- * Revision 1.83  2002/02/28 00:48:26  alex
- * - Forwarding von TOPIC an andere Server gefixed. Hoffentlich ;-)
- *
- * Revision 1.82  2002/02/27 23:26:36  alex
- * - einige Funktionen in irc-xxx-Module ausgegliedert.
- *
- * Revision 1.81  2002/02/27 20:55:44  alex
- * - Channel-Topics werden nun auch korrekt von anderen Server angenommen.
- *
- * Revision 1.80  2002/02/27 20:33:13  alex
- * - Channel-Topics implementiert.
- *
- * Revision 1.79  2002/02/27 18:57:21  alex
- * - PRIVMSG zeugt nun bei Texten an User an, wenn diese "away" sind.
- *
- * Revision 1.78  2002/02/27 18:23:45  alex
- * - IRC-Befehl "AWAY" implementert.
- *
- * Revision 1.77  2002/02/27 17:05:41  alex
- * - PRIVMSG beachtet nun die Channel-Modes "n" und "m".
- *
- * Revision 1.76  2002/02/27 16:04:14  alex
- * - Bug bei belegtem Nickname bei User-Registrierung (NICK-Befehl) behoben.
- *
- * Revision 1.75  2002/02/27 15:23:27  alex
- * - NAMES beachtet nun das "invisible" Flag ("i") von Usern.
- *
- * Revision 1.74  2002/02/27 03:44:53  alex
- * - gerade eben in SQUIT eingefuehrten Bug behoben: entfernte Server werden nun
- *   nur noch geloescht, die Verbindung, von der SQUIT kam, bleibt wieder offen.
- *
- * Revision 1.73  2002/02/27 03:08:05  alex
- * - Log-Meldungen bei SQUIT erneut ueberarbeitet ...
- *
- * Revision 1.72  2002/02/27 02:26:58  alex
- * - SQUIT wird auf jeden Fall geforwarded, zudem besseres Logging.
- *
- * Revision 1.71  2002/02/27 00:50:05  alex
- * - einige unnoetige Client_NextHop()-Aufrufe entfernt.
- * - NAMES korrigiert und komplett implementiert.
- *
- * Revision 1.70  2002/02/26 22:06:40  alex
- * - Nick-Aenderungen werden nun wieder korrekt ins Logfile geschrieben.
  */
 
 
-#include <portab.h>
-#include "global.h"
+#include "portab.h"
 
-#include <imp.h>
+#include "imp.h"
 #include <assert.h>
 #include <errno.h>
 #include <stdio.h>
@@ -93,7 +34,7 @@
 #include "messages.h"
 #include "tool.h"
 
-#include <exp.h>
+#include "exp.h"
 #include "irc.h"
 
 

@@ -9,26 +9,7 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: Makefile.am,v 1.6 2002/03/10 15:40:26 alex Exp $
-#
-# $Log: Makefile.am,v $
-# Revision 1.6  2002/03/10 15:40:26  alex
-# - Anpassungen an neues GNU automake/autoconf: acconfig.h entfaellt nun.
-#
-# Revision 1.5  2002/01/02 02:52:09  alex
-# - Copyright-Texte angepasst ;-)
-#
-# Revision 1.4  2001/12/31 02:20:20  alex
-# - Unterverzeichnis "doc" aufgenommen.
-#
-# Revision 1.3  2001/12/30 19:24:28  alex
-# - acconfig.h in die "noinst_HEADERS" aufgenommen.
-#
-# Revision 1.2  2001/12/12 17:21:58  alex
-# - Projektdatei fuer den Mac OS X Project Builder erstellt.
-#
-# Revision 1.1.1.1  2001/12/11 21:53:04  alex
-# Imported sources to CVS.
+# $Id: Makefile.am,v 1.7 2002/03/12 14:37:51 alex Exp $
 #
 
 AUTOMAKE_OPTIONS = gnu

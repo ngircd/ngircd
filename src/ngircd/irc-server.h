@@ -9,14 +9,9 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-server.h,v 1.1 2002/03/03 17:15:12 alex Exp $
+ * $Id: irc-server.h,v 1.2 2002/03/12 14:37:52 alex Exp $
  *
  * irc-server.h: IRC-Befehle fuer Server-Links (Header)
- *
- * $Log: irc-server.h,v $
- * Revision 1.1  2002/03/03 17:15:12  alex
- * - Source in weitere Module fuer IRC-Befehle aufgesplitted.
- *
  */
 
 

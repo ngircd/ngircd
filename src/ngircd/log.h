@@ -9,33 +9,9 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: log.h,v 1.7 2002/01/02 02:42:58 alex Exp $
+ * $Id: log.h,v 1.8 2002/03/12 14:37:52 alex Exp $
  *
  * log.h: Logging-Funktionen (Header)
- *
- * $Log: log.h,v $
- * Revision 1.7  2002/01/02 02:42:58  alex
- * - Copyright-Texte aktualisiert.
- *
- * Revision 1.6  2001/12/31 02:18:51  alex
- * - viele neue Befehle (WHOIS, ISON, OPER, DIE, RESTART),
- * - neuen Header "defines.h" mit (fast) allen Konstanten.
- * - Code Cleanups und viele "kleine" Aenderungen & Bugfixes.
- *
- * Revision 1.5  2001/12/29 20:16:31  alex
- * - Log-Funktionen fuer Resolver-Sub-Prozess implementiert.
- *
- * Revision 1.4  2001/12/27 01:44:49  alex
- * - die Verwendung von syslog kann nun abgeschaltet werden.
- *
- * Revision 1.3  2001/12/12 23:31:24  alex
- * - Zum Loggen wird nun auch syslog verwendet.
- *
- * Revision 1.2  2001/12/12 17:19:29  alex
- * - LOG_ERR heisst nun LOG_ERROR.
- *
- * Revision 1.1.1.1  2001/12/11 21:53:04  alex
- * - Imported sources to CVS.
  */
 
 

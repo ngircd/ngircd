@@ -9,120 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.31 2002/03/10 17:50:48 alex Exp $
+ * $Id: ngircd.c,v 1.32 2002/03/12 14:37:52 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
- *
- * $Log: ngircd.c,v $
- * Revision 1.31  2002/03/10 17:50:48  alex
- * - Handling von "--version" und "--help" nochmal geaendert ...
- *
- * Revision 1.30  2002/03/10 17:45:41  alex
- * - bei "ngircd --version" werden nun die eincompilierten Pfade angezeigt.
- *
- * Revision 1.29  2002/03/06 15:36:04  alex
- * - stderr wird nun in eine Datei umgelenkt (ngircd.err). Wenn der Server
- *   nicht im Debug-Modus laeuft, so wird diese bei Programmende geloescht.
- *
- * Revision 1.28  2002/02/27 23:24:29  alex
- * - ueberfluessige Init- und Exit-Funktionen entfernt.
- *
- * Revision 1.27  2002/02/25 11:42:47  alex
- * - wenn ein System sigaction() nicht kennt, so wird nun signal() verwendet.
- *
- * Revision 1.26  2002/02/23 19:06:47  alex
- * - fuer SIGCHLD wird nun auch SA_NOCLDWAIT gesetzt, wenn vorhanden.
- *
- * Revision 1.25  2002/02/19 20:30:47  alex
- * - SA_RESTART wird fuer Signale nur noch gesetzt, wenn es definiert ist.
- *
- * Revision 1.24  2002/02/19 20:08:24  alex
- * - "Passive-Mode" implementiert: kein Auto-Conect zu anderen Servern.
- * - NGIRCd_DebugLevel wird (fuer VERSION-Befehl) ermittelt.
- *
- * Revision 1.23  2002/02/17 23:40:21  alex
- * - neue Funktion NGIRCd_VersionAddition(). NGIRCd_Version() aufgespaltet.
- *
- * Revision 1.22  2002/01/22 17:15:39  alex
- * - die Fehlermeldung "interrupted system call" sollte nicht mehr auftreten.
- *
- * Revision 1.21  2002/01/21 00:02:11  alex
- * - Hilfetexte korrigiert und ergaenzt (Sniffer).
- *
- * Revision 1.20  2002/01/18 11:12:11  alex
- * - der Sniffer wird nun nur noch aktiviert, wenn auf Kommandozeile angegeben.
- *
- * Revision 1.19  2002/01/12 00:17:28  alex
- * - ngIRCd wandelt sich nun selber in einen Daemon (Hintergrundprozess) um.
- *
- * Revision 1.18  2002/01/11 14:45:18  alex
- * - Kommandozeilen-Parser implementiert: Debug- und No-Daemon-Modus, Hilfe.
- *
- * Revision 1.17  2002/01/02 02:51:16  alex
- * - Signal-Handler fuer SIGCHLD: so sollten Zombies nicht mehr vorkommen.
- *
- * Revision 1.15  2001/12/31 02:18:51  alex
- * - viele neue Befehle (WHOIS, ISON, OPER, DIE, RESTART),
- * - neuen Header "defines.h" mit (fast) allen Konstanten.
- * - Code Cleanups und viele "kleine" Aenderungen & Bugfixes.
- *
- * Revision 1.14  2001/12/30 19:26:12  alex
- * - Unterstuetzung fuer die Konfigurationsdatei eingebaut.
- *
- * Revision 1.13  2001/12/30 11:42:00  alex
- * - der Server meldet nun eine ordentliche "Start-Zeit".
- *
- * Revision 1.12  2001/12/29 03:07:36  alex
- * - einige Loglevel geaendert.
- *
- * Revision 1.11  2001/12/26 14:45:37  alex
- * - "Code Cleanups".
- *
- * Revision 1.10  2001/12/24 01:34:38  alex
- * - Signal-Handler aufgeraeumt; u.a. SIGPIPE wird nun korrekt ignoriert.
- *
- * Revision 1.9  2001/12/21 22:24:50  alex
- * - neues Modul "parse" wird initialisiert und abgemeldet.
- *
- * Revision 1.8  2001/12/14 08:15:26  alex
- * - neue Module (irc, client, channel) werden an- und abgemeldet.
- * - zweiter Listen-Socket wird zu Testzwecken konfiguriert.
- *
- * Revision 1.7  2001/12/13 01:31:46  alex
- * - Conn_Handler() wird nun mit einem Timeout aufgerufen.
- *
- * Revision 1.6  2001/12/12 23:30:42  alex
- * - Log-Meldungen an syslog angepasst.
- * - NGIRCd_Quit ist nun das Flag zum Beenden des ngircd.
- *
- * Revision 1.5  2001/12/12 17:21:21  alex
- * - mehr Unterfunktionen eingebaut, Modul besser strukturiert & dokumentiert.
- * - Anpassungen an neue Module.
- *
- * Revision 1.4  2001/12/12 01:58:53  alex
- * - Test auf socklen_t verbessert.
- *
- * Revision 1.3  2001/12/12 01:40:39  alex
- * - ein paar mehr Kommentare; Variablennamen verstaendlicher gemacht.
- * - fehlenden Header <arpa/inet.h> ergaenz.
- * - SIGINT und SIGQUIT werden nun ebenfalls behandelt.
- *
- * Revision 1.2  2001/12/11 22:04:21  alex
- * - Test auf stdint.h (HAVE_STDINT_H) hinzugefuegt.
- *
- * Revision 1.1.1.1  2001/12/11 21:53:04  alex
- * - Imported sources to CVS.
  */
 
 
-#define PORTAB_CHECK_TYPES		/* Prueffunktion einbinden, s.u. */
+#include "portab.h"
 
-
-#include <portab.h>
-#include "global.h"
-
-#include <imp.h>
-
+#include "imp.h"
 #include <assert.h>
 #include <errno.h>
 #include <stdio.h>
@@ -137,11 +32,12 @@
 #include "client.h"
 #include "conf.h"
 #include "conn.h"
+#include "defines.h"
 #include "irc.h"
 #include "log.h"
 #include "parse.h"
 
-#include <exp.h>
+#include "exp.h"
 #include "ngircd.h"
 
 
@@ -158,9 +54,6 @@ GLOBAL INT main( INT argc, CONST CHAR *argv[] )
 {
 	BOOLEAN ok;
 	INT pid, i, n;
-
-	/* Datentypen der portab-Library ueberpruefen */
-	portab_check_types( );
 
 	NGIRCd_Restart = FALSE;
 	NGIRCd_Quit = FALSE;

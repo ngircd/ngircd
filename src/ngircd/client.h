@@ -9,89 +9,9 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.h,v 1.24 2002/03/11 22:04:10 alex Exp $
+ * $Id: client.h,v 1.25 2002/03/12 14:37:52 alex Exp $
  *
  * client.h: Konfiguration des ngircd (Header)
- *
- * $Log: client.h,v $
- * Revision 1.24  2002/03/11 22:04:10  alex
- * - Client_Destroy() hat neuen Paramter: QUITs fuer Clients verschicken?
- *
- * Revision 1.23  2002/02/27 18:22:09  alex
- * - neue Funktion Client_SetAway() und Client_Away() implementiert.
- *
- * Revision 1.22  2002/02/06 16:49:56  alex
- * - neue Funktion Client_IsValidNick().
- *
- * Revision 1.21  2002/01/29 00:14:49  alex
- * - neue Funktion Client_TopServer(), Client_NewXXX() angepasst.
- *
- * Revision 1.20  2002/01/21 00:06:49  alex
- * - Channel-Pointer aus Client-Struktur entfernt. Wird nun dynamisch verwaltet :-)
- *
- * Revision 1.19  2002/01/16 22:10:35  alex
- * - neue Funktionen Client_xxxCount().
- *
- * Revision 1.18  2002/01/07 23:42:12  alex
- * - Es werden fuer alle Server eigene Token generiert,
- * - QUIT von einem Server fuer einen User wird an andere Server geforwarded,
- * - ebenso NICK-Befehle, die "fremde" User einfuehren.
- *
- * Revision 1.17  2002/01/06 15:18:14  alex
- * - Loglevel und Meldungen nochmals geaendert. Level passen nun besser.
- *
- * Revision 1.16  2002/01/05 23:26:05  alex
- * - Vorbereitungen fuer Ident-Abfragen in Client-Strukturen.
- *
- * Revision 1.15  2002/01/05 20:08:17  alex
- * - neue Funktion Client_NextHop().
- *
- * Revision 1.14  2002/01/04 01:21:22  alex
- * - Client-Strukturen koennen von anderen Modulen nun nur noch ueber die
- *   enstprechenden (zum Teil neuen) Funktionen angesprochen werden.
- *
- * Revision 1.13  2002/01/03 02:28:06  alex
- * - neue Funktion Client_CheckID(), diverse Aenderungen fuer Server-Links.
- *
- * Revision 1.12  2002/01/02 02:42:58  alex
- * - Copyright-Texte aktualisiert.
- *
- * Revision 1.11  2001/12/31 15:33:13  alex
- * - neuer Befehl NAMES, kleinere Bugfixes.
- * - Bug bei PING behoben: war zu restriktiv implementiert :-)
- *
- * Revision 1.10  2001/12/31 02:18:51  alex
- * - viele neue Befehle (WHOIS, ISON, OPER, DIE, RESTART),
- * - neuen Header "defines.h" mit (fast) allen Konstanten.
- * - Code Cleanups und viele "kleine" Aenderungen & Bugfixes.
- *
- * Revision 1.9  2001/12/29 20:18:18  alex
- * - neue Funktion Client_SetHostname().
- *
- * Revision 1.8  2001/12/29 03:10:47  alex
- * - Client-Modes implementiert; Loglevel mal wieder angepasst.
- *
- * Revision 1.7  2001/12/27 19:13:47  alex
- * - neue Funktion Client_Search(), besseres Logging.
- *
- * Revision 1.6  2001/12/27 16:54:51  alex
- * - neue Funktion Client_GetID(), liefert die "Client ID".
- *
- * Revision 1.5  2001/12/26 14:45:37  alex
- * - "Code Cleanups".
- *
- * Revision 1.4  2001/12/26 03:19:16  alex
- * - neue Funktion Client_Nick().
- *
- * Revision 1.3  2001/12/25 19:21:26  alex
- * - Client-Typ ("Status") besser unterteilt, My_Clients ist zudem nun global.
- *
- * Revision 1.2  2001/12/23 22:03:47  alex
- * - einige neue Funktionen,
- * - Konstanten um "CLIENT_"-Prefix erweitert.
- *
- * Revision 1.1  2001/12/14 08:13:43  alex
- * - neues Modul begonnen :-)
  */
 
 
@@ -116,6 +36,9 @@ typedef enum
 
 
 #ifdef __client_c__
+
+#include "defines.h"
+
 typedef struct _CLIENT
 {
 	CHAR id[CLIENT_ID_LEN];		/* Nick (User) bzw. ID (Server) */
@@ -133,8 +56,11 @@ typedef struct _CLIENT
 	BOOLEAN oper_by_me;		/* IRC-Operator-Status durch diesen Server? */
 	CHAR away[CLIENT_AWAY_LEN];	/* AWAY-Text, wenn Mode 'a' gesetzt */
 } CLIENT;
+
 #else
+
 typedef POINTER CLIENT;
+
 #endif
 
 

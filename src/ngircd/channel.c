@@ -9,80 +9,18 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: channel.c,v 1.18 2002/03/03 17:17:01 alex Exp $
+ * $Id: channel.c,v 1.19 2002/03/12 14:37:52 alex Exp $
  *
  * channel.c: Management der Channels
- *
- * $Log: channel.c,v $
- * Revision 1.18  2002/03/03 17:17:01  alex
- * - strncpy() und vsnprintf() kopieren nun etwas "optimierter" (1 Byte weniger) :-)
- *
- * Revision 1.17  2002/03/02 01:35:50  alex
- * - Channel- und Nicknames werden nun ordentlich validiert.
- *
- * Revision 1.16  2002/02/27 23:23:53  alex
- * - Includes fuer einige Header bereinigt.
- *
- * Revision 1.15  2002/02/27 20:32:10  alex
- * - neue Funktionen Channel_Topic() und Channel_SetTopic().
- *
- * Revision 1.14  2002/02/27 15:21:21  alex
- * - neue Funktion Channel_IsMemberOf() implementiert.
- *
- * Revision 1.13  2002/02/11 01:00:12  alex
- * - neue Funktionen Channel_ModeAdd(), Channel_ModeDel(), Channel_UserModes(),
- *   Channel_UserModeAdd(), Channel_UserModeDel().
- * - Modes in CL2CHAN-Struktur werden nun korrekt initialisiert.
- *
- * Revision 1.12  2002/02/06 16:48:48  alex
- * - neue Funktion Channel_Modes() und Channel_IsValidName().
- * - Channel-Namen werden (besser) validiert.
- *
- * Revision 1.11  2002/01/29 00:11:10  alex
- * - neue Funktionen Channel_FirstChannelOf() und Channel_NextChannelOf().
- *
- * Revision 1.10  2002/01/28 01:16:15  alex
- * - neue Funktionen Channel_Name(), Channel_First() und Channel_Next().
- *
- * Revision 1.9  2002/01/27 22:47:11  alex
- * - PART wird nicht mehr an den Server verschickt, von dem es empfangen wurde.
- *
- * Revision 1.8  2002/01/27 21:56:54  alex
- * - weitere Anpassungen an Chennals, v.a. ueber Server-Links.
- *
- * Revision 1.7  2002/01/27 17:14:33  alex
- * - diverse Aenderungen fuer Channels ueber mehrere Server.
- *
- * Revision 1.6  2002/01/26 18:41:55  alex
- * - CHANNEL- und CL2CHAN-Strukturen in Header verlegt,
- * - einige neue Funktionen (Channel_GetChannel(), Channel_FirstMember(), ...)
- *
- * Revision 1.5  2002/01/21 00:12:29  alex
- * - begonnen, Channels zu implementieren :-)
- *
- * Revision 1.4  2002/01/16 22:09:07  alex
- * - neue Funktion Channel_Count().
- *
- * Revision 1.3  2002/01/02 02:42:58  alex
- * - Copyright-Texte aktualisiert.
- *
- * Revision 1.2  2001/12/31 02:18:51  alex
- * - viele neue Befehle (WHOIS, ISON, OPER, DIE, RESTART),
- * - neuen Header "defines.h" mit (fast) allen Konstanten.
- * - Code Cleanups und viele "kleine" Aenderungen & Bugfixes.
- *
- * Revision 1.1  2001/12/14 08:13:43  alex
- * - neues Modul begonnen :-)
  */
 
 
 #define __channel_c__
 
 
-#include <portab.h>
-#include "global.h"
+#include "portab.h"
 
-#include <imp.h>
+#include "imp.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
@@ -92,7 +30,7 @@
 #include "log.h"
 #include "messages.h"
 
-#include <exp.h>
+#include "exp.h"
 #include "channel.h"
 
 

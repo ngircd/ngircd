@@ -9,31 +9,9 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.h,v 1.29 2002/03/03 19:44:30 alex Exp $
+ * $Id: irc.h,v 1.30 2002/03/12 14:37:52 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
- *
- * $Log: irc.h,v $
- * Revision 1.29  2002/03/03 19:44:30  alex
- * - WHO implementiert (bisher ohne Unterstuetzung von Masks)
- *
- * Revision 1.28  2002/03/03 17:15:11  alex
- * - Source in weitere Module fuer IRC-Befehle aufgesplitted.
- *
- * Revision 1.27  2002/02/27 23:26:36  alex
- * - einige Funktionen in irc-xxx-Module ausgegliedert.
- *
- * Revision 1.26  2002/02/27 20:33:13  alex
- * - Channel-Topics implementiert.
- *
- * Revision 1.25  2002/02/27 18:23:46  alex
- * - IRC-Befehl "AWAY" implementert.
- *
- * Revision 1.24  2002/02/23 21:39:48  alex
- * - IRC-Befehl KILL sowie Kills bei Nick Collsisions implementiert.
- *
- * Revision 1.23  2002/02/17 23:38:58  alex
- * - neuer IRC-Befehl VERSION implementiert: IRC_VERSION().
  */
 
 

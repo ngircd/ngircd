@@ -9,17 +9,10 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: Makefile.am,v 1.2 2002/01/02 02:41:11 alex Exp $
-#
-# $Log: Makefile.am,v $
-# Revision 1.2  2002/01/02 02:41:11  alex
-# - fehlenden Copyright-Text ergaenzt.
-#
-# Revision 1.1.1.1  2001/12/11 21:53:04  alex
-# Imported sources to CVS.
+# $Id: Makefile.am,v 1.3 2002/03/12 14:37:51 alex Exp $
 #
 
-SUBDIRS = ngircd
+SUBDIRS = portab ngircd
 
 maintainer-clean-local:
 	rm -f Makefile Makefile.in config.h config.h.in stamp-h.in

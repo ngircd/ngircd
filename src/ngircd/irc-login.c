@@ -9,40 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-login.c,v 1.7 2002/03/11 22:07:46 alex Exp $
+ * $Id: irc-login.c,v 1.8 2002/03/12 14:37:52 alex Exp $
  *
  * irc-login.c: Anmeldung und Abmeldung im IRC
- *
- * $Log: irc-login.c,v $
- * Revision 1.7  2002/03/11 22:07:46  alex
- * - SQUIT, QUIT: Loglevel bei unbekannten Clients wieder auf WARNING erhoeht.
- *
- * Revision 1.6  2002/03/11 22:04:10  alex
- * - Client_Destroy() hat neuen Paramter: QUITs fuer Clients verschicken?
- *
- * Revision 1.5  2002/03/11 17:33:40  alex
- * - Log-Level von SQUIT und QUIT bei unbekannten Clients auf DEBUG herabgesetzt.
- *
- * Revision 1.4  2002/03/10 22:40:22  alex
- * - IRC_PING() ist, wenn nicht im "strict RFC"-Mode, toleranter und akzptiert
- *   beliebig viele Parameter: z.B. BitchX sendet soetwas.
- *
- * Revision 1.3  2002/03/03 17:15:11  alex
- * - Source in weitere Module fuer IRC-Befehle aufgesplitted.
- *
- * Revision 1.2  2002/03/02 00:49:11  alex
- * - Bei der USER-Registrierung wird NICK nicht mehr sofort geforwarded,
- *   sondern erst dann, wenn auch ein gueltiges USER empfangen wurde.
- *
- * Revision 1.1  2002/02/27 23:26:21  alex
- * - Modul aus irc.c bzw. irc.h ausgegliedert.
  */
 
 
-#include <portab.h>
-#include "global.h"
+#include "portab.h"
 
-#include <imp.h>
+#include "imp.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -55,7 +30,7 @@
 #include "log.h"
 #include "messages.h"
 
-#include <exp.h>
+#include "exp.h"
 #include "irc-login.h"
 
 

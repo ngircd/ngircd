@@ -9,15 +9,7 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: Makefile.am,v 1.2 2002/01/02 02:40:15 alex Exp $
-#
-# $Log: Makefile.am,v $
-# Revision 1.2  2002/01/02 02:40:15  alex
-# - Copyright-Texte ergaenzt und aktualisiert,
-# - fehlende Dateien in Projekt aufgenommen.
-#
-# Revision 1.1  2001/12/31 16:02:12  alex
-# - Projektdateien von Mac OS X werden nun auch in die Distribution aufgenommen.
+# $Id: Makefile.am,v 1.3 2002/03/12 14:37:51 alex Exp $
 #
 
 EXTRA_DIST = project.pbxproj

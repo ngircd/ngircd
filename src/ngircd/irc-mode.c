@@ -9,32 +9,25 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-mode.c,v 1.2 2002/03/04 01:06:24 alex Exp $
+ * $Id: irc-mode.c,v 1.3 2002/03/12 14:37:52 alex Exp $
  *
  * irc-mode.c: IRC-Befehle zur Mode-Aenderung (MODE, AWAY, ...)
- *
- * $Log: irc-mode.c,v $
- * Revision 1.2  2002/03/04 01:06:24  alex
- * - der AWAY-Mode wurde nicht ueber mehrere Server-Links weitergegeben.
- *
- * Revision 1.1  2002/02/27 23:26:21  alex
- * - Modul aus irc.c bzw. irc.h ausgegliedert.
  */
 
 
-#include <portab.h>
-#include "global.h"
+#include "portab.h"
 
-#include <imp.h>
+#include "imp.h"
 #include <assert.h>
 #include <string.h>
 
 #include "channel.h"
+#include "defines.h"
 #include "irc-write.h"
 #include "log.h"
 #include "messages.h"
 
-#include <exp.h>
+#include "exp.h"
 #include "irc-mode.h"
 
 

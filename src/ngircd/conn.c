@@ -9,190 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.51 2002/03/11 22:04:10 alex Exp $
+ * $Id: conn.c,v 1.52 2002/03/12 14:37:52 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
- *
- * $Log: conn.c,v $
- * Revision 1.51  2002/03/11 22:04:10  alex
- * - Client_Destroy() hat neuen Paramter: QUITs fuer Clients verschicken?
- *
- * Revision 1.50  2002/03/11 00:04:48  alex
- * - ein sofortiger Re-Connect wird nur dann versucht, wenn die Vernindung
- *   "lange genug" bereits bestanden hatte.
- *
- * Revision 1.49  2002/03/10 18:47:02  alex
- * *** empty log message ***
- *
- * Revision 1.48  2002/03/10 17:50:48  alex
- * - Server-Gruppen implementiert.
- *
- * Revision 1.47  2002/03/04 23:16:23  alex
- * - Logging geaendert: detaillierter im Syslog, "allgemeiner" fuer Clients.
- *
- * Revision 1.46  2002/03/02 03:32:08  alex
- * - Aenderung des Idle-Verhalten revidiert: das war ein Schnellschuss :-/
- *
- * Revision 1.45  2002/03/02 02:44:01  alex
- * - Timeouts ausgehender Verbindungen werden besser erkannt (z.B. unter Cygwin).
- * - Idle-Time der Hauptschleife [Conn_Handle()] erhoeht: weniger Last.
- *
- * Revision 1.44  2002/03/02 00:43:31  alex
- * - bei abgebrochene ausgehende Server-Verbindungen wird der naechste Ver-
- *   bindungsversuch in RECONNECT_DELAY Sekunden (3) unternommen und nicht
- *   mehr "ConnectRetry" Sekunden gewartet.
- *
- * Revision 1.43  2002/03/02 00:29:11  alex
- * - der Wert der Konfigurations-Variable "ConnectRetry" wird besser beachtet.
- *
- * Revision 1.42  2002/03/02 00:23:32  alex
- * - ausgehende Verbindungen werden nun asyncron connectiert und blockieren
- *   nicht mehr den Server. Dadurch waren einige Aenderungen noetig.
- * - diverse Log-Meldungen ueberarbeitet.
- *
- * Revision 1.41  2002/02/27 14:47:04  alex
- * - Logging bei Timeout von Verbindungen geaendert.
- *
- * Revision 1.40  2002/02/27 02:26:23  alex
- * - an Conn_Close() werden zwei weitere Fehlermeldungen zum Forwarden uebergeben.
- *
- * Revision 1.39  2002/02/23 00:03:54  alex
- * - Ergebnistyp von Conn_GetIdle() und Conn_LastPing() auf "time_t" geaendert.
- *
- * Revision 1.38  2002/02/19 20:34:31  alex
- * - Bei ausgehenden Verbindungen wird der Ziel-Port ins Log geschrieben.
- *
- * Revision 1.37  2002/02/19 20:05:37  alex
- * - "Passive-Mode" implementiert: kein Auto-Conect zu anderen Servern.
- *
- * Revision 1.36  2002/02/11 01:00:50  alex
- * - neue Funktion Conn_LastPing().
- *
- * Revision 1.35  2002/01/18 11:12:11  alex
- * - der Sniffer wird nun nur noch aktiviert, wenn auf Kommandozeile angegeben.
- *
- * Revision 1.34  2002/01/07 15:29:52  alex
- * - PASSSERVERADD definiert, wird beim PASS-Befehl an Server verwendet.
- *
- * Revision 1.33  2002/01/06 15:18:14  alex
- * - Loglevel und Meldungen nochmals geaendert. Level passen nun besser.
- *
- * Revision 1.32  2002/01/05 23:25:25  alex
- * - Vorbereitungen fuer Ident-Abfragen bei neuen Client-Strukturen.
- *
- * Revision 1.31  2002/01/05 19:15:03  alex
- * - Fehlerpruefung bei select() in der "Hauptschleife" korrigiert.
- *
- * Revision 1.30  2002/01/05 15:56:23  alex
- * - "arpa/inet.h" wird nur noch includiert, wenn vorhanden.
- * - Ein Fehler bei select() fuerht nun zum Abbruch von ngIRCd.
- * - NO_ADDRESS durch NO_DATA ersetzt: ist wohl portabler.
- *
- * Revision 1.29  2002/01/04 01:36:40  alex
- * - Loglevel ein wenig angepasst.
- *
- * Revision 1.28  2002/01/04 01:20:23  alex
- * - Client-Strukruren werden nur noch ueber Funktionen angesprochen.
- *
- * Revision 1.27  2002/01/03 02:25:36  alex
- * - diverse Aenderungen und Umsetellungen fuer Server-Links.
- *
- * Revision 1.26  2002/01/02 02:50:47  alex
- * - Asyncroner Resolver Hostname->IP.
- * - Server-Links begonnen zu implementieren. Die Verbindung wird aufgebaut,
- *   jedoch noch keine SERVER-Befehle verschickt.
- * - Diverse Bug-Fixes und kleinere Erweiterungen.
- *
- * Revision 1.24  2002/01/01 18:25:44  alex
- * - #include's fuer stdlib.h ergaenzt.
- *
- * Revision 1.23  2001/12/31 02:18:51  alex
- * - viele neue Befehle (WHOIS, ISON, OPER, DIE, RESTART),
- * - neuen Header "defines.h" mit (fast) allen Konstanten.
- * - Code Cleanups und viele "kleine" Aenderungen & Bugfixes.
- *
- * Revision 1.22  2001/12/30 19:26:11  alex
- * - Unterstuetzung fuer die Konfigurationsdatei eingebaut.
- *
- * Revision 1.21  2001/12/29 22:33:36  alex
- * - bessere Dokumentation des Modules bzw. der Funktionen.
- *
- * Revision 1.20  2001/12/29 22:09:43  alex
- * - kleinere Aenderungen ("clean-ups") bei Logging (Resolver).
- *
- * Revision 1.19  2001/12/29 21:53:57  alex
- * - Da hatte ich mich wohl ein wenig verrannt; jetzt sollte der Resolver
- *   aber tatsaechlich funktionieren.
- *
- * Revision 1.18  2001/12/29 20:17:25  alex
- * - asyncronen Resolver (IP->Name) implementiert, dadurch div. Aenderungen.
- *
- * Revision 1.17  2001/12/29 03:06:16  alex
- * - Loglevel (nochmal) angepasst.
- *
- * Revision 1.16  2001/12/27 19:32:44  alex
- * - bei "Null-Requests" wird nichts mehr geloggt. Uberfluessig, da normal.
- *
- * Revision 1.15  2001/12/27 16:35:04  alex
- * - vergessene Variable bei Ping-Timeout-Logmeldung ergaenzt. Opsa.
- *
- * Revision 1.14  2001/12/26 14:45:37  alex
- * - "Code Cleanups".
- *
- * Revision 1.13  2001/12/26 03:36:57  alex
- * - Verbindungen mit Lesefehlern werden nun korrekt terminiert.
- *
- * Revision 1.12  2001/12/26 03:20:53  alex
- * - PING/PONG-Timeout implementiert.
- *
- * Revision 1.11  2001/12/25 23:15:16  alex
- * - buffer werden nun periodisch geprueft, keine haengenden Clients mehr.
- *
- * Revision 1.10  2001/12/25 22:03:47  alex
- * - Conn_Close() eingefuehrt: war die lokale Funktion Close_Connection().
- *
- * Revision 1.9  2001/12/24 01:32:33  alex
- * - in Conn_WriteStr() wurde das CR+LF nicht angehaengt!
- * - Fehler-Ausgaben vereinheitlicht.
- *
- * Revision 1.8  2001/12/23 22:02:54  alex
- * - Conn_WriteStr() nimmt nun variable Parameter,
- * - diverse kleinere Aenderungen.
- *
- * Revision 1.7  2001/12/21 22:24:25  alex
- * - kleinere Aenderungen an den Log-Meldungen,
- * - Parse_Request() wird aufgerufen.
- *
- * Revision 1.6  2001/12/15 00:11:55  alex
- * - Lese- und Schreib-Puffer implementiert.
- * - einige neue (Unter-)Funktionen eingefuehrt.
- * - diverse weitere kleinere Aenderungen.
- *
- * Revision 1.5  2001/12/14 08:16:47  alex
- * - Begonnen, Client-spezifische Lesepuffer zu implementieren.
- * - Umstellung auf Datentyp "CONN_ID".
- *
- * Revision 1.4  2001/12/13 02:04:16  alex
- * - boesen "Speicherschiesser" in Log() gefixt.
- *
- * Revision 1.3  2001/12/13 01:33:09  alex
- * - Conn_Handler() unterstuetzt nun einen Timeout.
- * - fuer Verbindungen werden keine FILE-Handles mehr benutzt.
- * - kleinere "Code Cleanups" ;-)
- *
- * Revision 1.2  2001/12/12 23:32:02  alex
- * - diverse Erweiterungen und Verbesserungen (u.a. sind nun mehrere
- *   Verbindungen und Listen-Sockets moeglich).
- *
- * Revision 1.1  2001/12/12 17:18:38  alex
- * - Modul zur Verwaltung aller Netzwerk-Verbindungen begonnen.
  */
 
 
-#include <portab.h>
-#include "global.h"
+#include "portab.h"
 
-#include <imp.h>
+#include "imp.h"
 #include <assert.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -225,7 +50,7 @@
 #include "parse.h"
 #include "tool.h"
 
-#include <exp.h>
+#include "exp.h"
 #include "conn.h"
 
 

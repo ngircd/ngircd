@@ -9,43 +9,20 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: tool.c,v 1.6 2002/01/02 02:42:58 alex Exp $
+ * $Id: tool.c,v 1.7 2002/03/12 14:37:52 alex Exp $
  *
  * tool.c: Hilfsfunktionen, ggf. Platformabhaengig
- *
- * $Log: tool.c,v $
- * Revision 1.6  2002/01/02 02:42:58  alex
- * - Copyright-Texte aktualisiert.
- *
- * Revision 1.5  2001/12/31 02:44:36  alex
- * - ngt_TrimStr() hatte noch einen boesen Bug: evtl. wurde ueber den Start
- *   des Strings nach vorne(!) hinaus gelesen. Hopsa!
- *
- * Revision 1.4  2001/12/31 02:18:51  alex
- * - viele neue Befehle (WHOIS, ISON, OPER, DIE, RESTART),
- * - neuen Header "defines.h" mit (fast) allen Konstanten.
- * - Code Cleanups und viele "kleine" Aenderungen & Bugfixes.
- *
- * Revision 1.3  2001/12/29 03:05:34  alex
- * - Funktionsnamen etwas konsequenter umbenannt :-)
- *
- * Revision 1.2  2001/12/12 17:20:33  alex
- * - Tool-Funktionen haben nun das Praefix "ngt_".
- *
- * Revision 1.1.1.1  2001/12/11 21:53:04  alex
- * - Imported sources to CVS.
  */
 
 
-#include <portab.h>
-#include "global.h"
+#include "portab.h"
 
-#include <imp.h>
+#include "imp.h"
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
 
-#include <exp.h>
+#include "exp.h"
 #include "tool.h"
 
 

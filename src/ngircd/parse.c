@@ -9,114 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: parse.c,v 1.29 2002/03/03 17:17:38 alex Exp $
+ * $Id: parse.c,v 1.30 2002/03/12 14:37:52 alex Exp $
  *
  * parse.c: Parsen der Client-Anfragen
- *
- * $Log: parse.c,v $
- * Revision 1.29  2002/03/03 17:17:38  alex
- * - Sourcen auf weitere Module fuer IRC-Befehle aufgesplitted.
- * - IRC-Befehl WHO implementiert.
- *
- * Revision 1.28  2002/02/27 23:25:31  alex
- * - Anpassungen an Aufteilung von irc.d, Init- und Exit-Funktionen entfernt.
- *
- * Revision 1.27  2002/02/27 20:33:13  alex
- * - Channel-Topics implementiert.
- *
- * Revision 1.26  2002/02/27 18:23:46  alex
- * - IRC-Befehl "AWAY" implementert.
- *
- * Revision 1.25  2002/02/26 20:52:15  alex
- * - Fehler bei Fehlermeldung wg. unbekanntem Prefix behoben.
- *
- * Revision 1.24  2002/02/23 21:39:48  alex
- * - IRC-Befehl KILL sowie Kills bei Nick Collsisions implementiert.
- *
- * Revision 1.23  2002/02/17 23:38:58  alex
- * - neuer IRC-Befehl VERSION implementiert: IRC_VERSION().
- *
- * Revision 1.22  2002/01/21 00:01:37  alex
- * - neue Befehle JOIN und PART.
- *
- * Revision 1.21  2002/01/18 11:12:11  alex
- * - der Sniffer wird nun nur noch aktiviert, wenn auf Kommandozeile angegeben.
- *
- * Revision 1.20  2002/01/11 23:50:55  alex
- * - LINKS implementiert, LUSERS begonnen.
- *
- * Revision 1.19  2002/01/09 01:08:42  alex
- * - Parses handhabt Leerzeichen zw. Parametern nun etwas "lockerer".
- *
- * Revision 1.18  2002/01/07 15:29:11  alex
- * - Status-Codes an den Server selber werden ignoriert, besseres Logging.
- *
- * Revision 1.17  2002/01/06 17:41:44  alex
- * - die Fehlermeldung "unbekannter Befehl" hatte ein falsches Format.
- *
- * Revision 1.16  2002/01/05 23:23:20  alex
- * - generisches Forwarding von Zahlen-Statuscodes implementiert.
- *
- * Revision 1.15  2002/01/05 01:42:08  alex
- * - an Server werden keine ERRORS mehr wegen unbekannter Befehle geschickt.
- *
- * Revision 1.14  2002/01/04 17:56:45  alex
- * - neuer Befehl SQUIT.
- *
- * Revision 1.13  2002/01/04 01:20:02  alex
- * - Client-Strukruren werden nur noch ueber Funktionen angesprochen.
- *
- * Revision 1.12  2002/01/03 02:24:49  alex
- * - neue Befehle NJOIN und SERVER begonnen.
- *
- * Revision 1.11  2002/01/02 02:43:22  alex
- * - Copyright-Texte aktualisiert.
- * - neuer Befehl ERROR.
- *
- * Revision 1.10  2001/12/31 15:33:13  alex
- * - neuer Befehl NAMES, kleinere Bugfixes.
- * - Bug bei PING behoben: war zu restriktiv implementiert :-)
- *
- * Revision 1.9  2001/12/31 02:18:51  alex
- * - viele neue Befehle (WHOIS, ISON, OPER, DIE, RESTART),
- * - neuen Header "defines.h" mit (fast) allen Konstanten.
- * - Code Cleanups und viele "kleine" Aenderungen & Bugfixes.
- *
- * Revision 1.8  2001/12/29 03:08:19  alex
- * - Fuehrende und folgende Leerzeichen etc. in Requests werden geloescht.
- * - Logmeldungen (mal wieder) ein wenig angepasst.
- *
- * Revision 1.7  2001/12/27 19:13:21  alex
- * - neue Befehle NOTICE und PRIVMSG.
- * - Debug-Logging ein wenig reduziert.
- *
- * Revision 1.6  2001/12/26 14:45:37  alex
- * - "Code Cleanups".
- *
- * Revision 1.5  2001/12/26 03:23:03  alex
- * - PING/PONG-Befehle implementiert.
- *
- * Revision 1.4  2001/12/25 22:04:26  alex
- * - Aenderungen an den Debug- und Logging-Funktionen.
- *
- * Revision 1.3  2001/12/25 19:18:36  alex
- * - Gross- und Kleinschreibung der IRC-Befehle wird ignoriert.
- * - bessere Debug-Ausgaben.
- *
- * Revision 1.2  2001/12/23 21:56:47  alex
- * - bessere Debug-Ausgaben,
- * - Bug im Parameter-Parser behoben (bei "langem" Parameter)
- * - erste IRC-Befehle werden erkannt :-)
- *
- * Revision 1.1  2001/12/21 23:53:16  alex
- * - Modul zum Parsen von Client-Requests begonnen.
  */
 
 
-#include <portab.h>
-#include "global.h"
+#include "portab.h"
 
-#include <imp.h>
+#include "imp.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -125,6 +26,7 @@
 #include "ngircd.h"
 #include "client.h"
 #include "conn.h"
+#include "defines.h"
 #include "irc.h"
 #include "irc-channel.h"
 #include "irc-login.h"
@@ -136,7 +38,7 @@
 #include "messages.h"
 #include "tool.h"
 
-#include <exp.h>
+#include "exp.h"
 #include "parse.h"
 
 

@@ -9,27 +9,9 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: parse.h,v 1.5 2002/02/27 23:24:29 alex Exp $
+ * $Id: parse.h,v 1.6 2002/03/12 14:37:52 alex Exp $
  *
  * parse.h: Parsen der Client-Anfragen (Header)
- *
- * $Log: parse.h,v $
- * Revision 1.5  2002/02/27 23:24:29  alex
- * - ueberfluessige Init- und Exit-Funktionen entfernt.
- *
- * Revision 1.4  2002/01/02 02:43:50  alex
- * - Copyright-Text ergaenzt bzw. aktualisiert.
- *
- * Revision 1.3  2001/12/31 02:18:51  alex
- * - viele neue Befehle (WHOIS, ISON, OPER, DIE, RESTART),
- * - neuen Header "defines.h" mit (fast) allen Konstanten.
- * - Code Cleanups und viele "kleine" Aenderungen & Bugfixes.
- *
- * Revision 1.2  2001/12/26 14:45:37  alex
- * - "Code Cleanups".
- *
- * Revision 1.1  2001/12/21 23:53:16  alex
- * - Modul zum Parsen von Client-Requests begonnen.
  */
 
 

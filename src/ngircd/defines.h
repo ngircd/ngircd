@@ -9,63 +9,9 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: defines.h,v 1.16 2002/03/10 17:07:41 alex Exp $
+ * $Id: defines.h,v 1.17 2002/03/12 14:37:52 alex Exp $
  *
  * defines.h: (globale) Konstanten
- *
- * $Log: defines.h,v $
- * Revision 1.16  2002/03/10 17:07:41  alex
- * - die Pfade der Konfigurationsdatei, des MOTD und das Error-Files werden
- *   nun aus den Vorgaben von configure ermittelt.
- *
- * Revision 1.15  2002/03/06 15:35:19  alex
- * - Dateinamen und Pfad sind nun in Konstanten definiert.
- *
- * Revision 1.14  2002/03/04 01:05:10  alex
- * - neue Konstante DEFAULT_AWAY_MSG fuer die Default-Away-Meldung.
- *
- * Revision 1.13  2002/03/02 00:43:31  alex
- * - bei abgebrochene ausgehende Server-Verbindungen wird der naechste Ver-
- *   bindungsversuch in RECONNECT_DELAY Sekunden (3) unternommen und nicht
- *   mehr "ConnectRetry" Sekunden gewartet.
- *
- * Revision 1.12  2002/02/27 23:24:58  alex
- * - CONNECTED und DISCONNECTED fuer die irc-xxx-Module wird nun hier definiert.
- *
- * Revision 1.11  2002/02/27 20:32:34  alex
- * - neue Konstante: CHANNEL_TOPIC_LEN
- *
- * Revision 1.10  2002/02/27 18:22:45  alex
- * - Mode "a" (away) in USERMODES aufgenommen.
- *
- * Revision 1.9  2002/02/13 23:04:27  alex
- * - CHANMODES um Operator (o) und Voiced User (v) ergaenzt.
- *
- * Revision 1.8  2002/02/13 17:45:57  alex
- * - unterstuetzte User- und Channel-Modes stehen nun in Konstanten.
- *
- * Revision 1.7  2002/01/22 17:15:39  alex
- * - die Fehlermeldung "interrupted system call" sollte nicht mehr auftreten.
- *
- * Revision 1.6  2002/01/21 00:03:16  alex
- * - neue Konstante CHANNEL_MODE_LEN.
- *
- * Revision 1.5  2002/01/18 15:51:44  alex
- * - Server-Verbinungen werden beim Start erst nach kurzer Pause aufgebaut.
- *
- * Revision 1.4  2002/01/07 15:29:53  alex
- * - PASSSERVERADD definiert, wird beim PASS-Befehl an Server verwendet.
- *
- * Revision 1.3  2002/01/03 02:24:00  alex
- * - Protokollversion und Suffix definiert.
- *
- * Revision 1.2  2002/01/02 02:44:36  alex
- * - neue Defines fuer max. Anzahl Server und Operatoren.
- *
- * Revision 1.1  2001/12/31 02:18:51  alex
- * - viele neue Befehle (WHOIS, ISON, OPER, DIE, RESTART),
- * - neuen Header "defines.h" mit (fast) allen Konstanten.
- * - Code Cleanups und viele "kleine" Aenderungen & Bugfixes.
  */
 
 #ifndef __defines_h__

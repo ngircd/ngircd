@@ -9,32 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-server.c,v 1.5 2002/03/11 22:06:32 alex Exp $
+ * $Id: irc-server.c,v 1.6 2002/03/12 14:37:52 alex Exp $
  *
  * irc-server.c: IRC-Befehle fuer Server-Links
- *
- * $Log: irc-server.c,v $
- * Revision 1.5  2002/03/11 22:06:32  alex
- * - SQUIT, QUIT: Loglevel bei unbekannten Clients wieder auf WARNING erhoeht.
- *
- * Revision 1.4  2002/03/11 22:04:10  alex
- * - Client_Destroy() hat neuen Paramter: QUITs fuer Clients verschicken?
- *
- * Revision 1.3  2002/03/11 17:33:40  alex
- * - Log-Level von SQUIT und QUIT bei unbekannten Clients auf DEBUG herabgesetzt.
- *
- * Revision 1.2  2002/03/06 15:50:14  alex
- * - kleine Code-Umstellungen.
- *
- * Revision 1.1  2002/03/03 17:15:11  alex
- * - Source in weitere Module fuer IRC-Befehle aufgesplitted.
  */
 
 
-#include <portab.h>
-#include "global.h"
+#include "portab.h"
 
-#include <imp.h>
+#include "imp.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -45,7 +28,7 @@
 #include "log.h"
 #include "messages.h"
 
-#include <exp.h>
+#include "exp.h"
 #include "irc-server.h"
 
 

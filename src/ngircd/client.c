@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.47 2002/03/11 22:04:10 alex Exp $
+ * $Id: client.c,v 1.48 2002/03/12 14:37:52 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -19,165 +19,15 @@
  * Ueber welchen IRC-Server die Verbindung nun tatsaechlich in das Netzwerk her-
  * gestellt wurde, muss der jeweiligen Struktur entnommen werden. Ist es dieser
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
- *
- * $Log: client.c,v $
- * Revision 1.47  2002/03/11 22:04:10  alex
- * - Client_Destroy() hat neuen Paramter: QUITs fuer Clients verschicken?
- *
- * Revision 1.46  2002/03/10 22:03:20  alex
- * - Netz-Splits werden nun als soche ausgegeben.
- *
- * Revision 1.45  2002/03/10 17:15:20  alex
- * - der Bindestrich ("-") ist nun auch in Nicknames erlaubt.
- *
- * Revision 1.44  2002/03/06 14:30:43  alex
- * - ein paar assert()-Tests ergaenzt.
- *
- * Revision 1.43  2002/03/04 01:04:46  alex
- * - neuen Clients mit Mode "a" wird nun auch der Default-Away-Text gesetzt.
- *
- * Revision 1.42  2002/03/03 17:17:01  alex
- * - strncpy() und vsnprintf() kopieren nun etwas "optimierter" (1 Byte weniger) :-)
- *
- * Revision 1.41  2002/03/02 01:35:50  alex
- * - Channel- und Nicknames werden nun ordentlich validiert.
- *
- * Revision 1.40  2002/02/27 23:23:53  alex
- * - Includes fuer einige Header bereinigt.
- *
- * Revision 1.39  2002/02/27 18:22:09  alex
- * - neue Funktion Client_SetAway() und Client_Away() implementiert.
- *
- * Revision 1.38  2002/02/27 14:47:53  alex
- * - Logging beim Abmelden von Clients (erneut) geaendert: nun ist's aber gut ;-)
- *
- * Revision 1.37  2002/02/17 19:02:49  alex
- * - Client_CheckNick() und Client_CheckID() lieferten u.U. falsche Ergebnisse.
- *
- * Revision 1.36  2002/02/06 16:49:41  alex
- * - neue Funktion Client_IsValidNick(), Nicknames werden besser validiert.
- *
- * Revision 1.35  2002/01/29 00:14:49  alex
- * - neue Funktion Client_TopServer(), Client_NewXXX() angepasst.
- *
- * Revision 1.34  2002/01/27 22:07:36  alex
- * - Client_GetFromID() besser dokumentiert, kleinere Aenderungen.
- *
- * Revision 1.33  2002/01/27 21:56:54  alex
- * - weitere Anpassungen an Chennals, v.a. ueber Server-Links.
- *
- * Revision 1.32  2002/01/27 18:27:12  alex
- * - Client_GetFromID() kommt nun auch mit Host-Masken zurecht.
- *
- * Revision 1.31  2002/01/21 00:08:50  alex
- * - wird ein Client entfernt, so wird er auch aus allen Channels geloescht.
- *
- * Revision 1.30  2002/01/18 15:32:01  alex
- * - bei Client_SetModes() wurde das NULL-Byte falsch gesetzt. Opsa.
- *
- * Revision 1.29  2002/01/16 22:10:35  alex
- * - neue Funktionen Client_xxxCount().
- *
- * Revision 1.28  2002/01/11 23:50:40  alex
- * - Hop-Count fuer den Server selber (0) wird korrekt initialisiert.
- *
- * Revision 1.27  2002/01/09 01:08:08  alex
- * - wird ein Server abgemeldet, so wird anderen Server ein SQUIT geschickt.
- *
- * Revision 1.26  2002/01/07 23:42:12  alex
- * - Es werden fuer alle Server eigene Token generiert,
- * - QUIT von einem Server fuer einen User wird an andere Server geforwarded,
- * - ebenso NICK-Befehle, die "fremde" User einfuehren.
- *
- * Revision 1.25  2002/01/07 15:31:00  alex
- * - Bei Log-Meldungen ueber Clients wird nun immer die "Client Mask" verwendet.
- *
- * Revision 1.24  2002/01/06 15:18:14  alex
- * - Loglevel und Meldungen nochmals geaendert. Level passen nun besser.
- *
- * Revision 1.23  2002/01/05 23:26:05  alex
- * - Vorbereitungen fuer Ident-Abfragen in Client-Strukturen.
- *
- * Revision 1.22  2002/01/05 20:08:17  alex
- * - neue Funktion Client_NextHop().
- *
- * Revision 1.21  2002/01/05 19:15:03  alex
- * - Fehlerpruefung bei select() in der "Hauptschleife" korrigiert.
- *
- * Revision 1.20  2002/01/04 17:57:08  alex
- * - Client_Destroy() an Server-Links angepasst.
- *
- * Revision 1.19  2002/01/04 01:21:22  alex
- * - Client-Strukturen koennen von anderen Modulen nun nur noch ueber die
- *   enstprechenden (zum Teil neuen) Funktionen angesprochen werden.
- *
- * Revision 1.18  2002/01/03 02:28:06  alex
- * - neue Funktion Client_CheckID(), diverse Aenderungen fuer Server-Links.
- *
- * Revision 1.17  2002/01/02 02:42:58  alex
- * - Copyright-Texte aktualisiert.
- *
- * Revision 1.16  2002/01/01 18:25:44  alex
- * - #include's fuer stdlib.h ergaenzt.
- *
- * Revision 1.15  2001/12/31 15:33:13  alex
- * - neuer Befehl NAMES, kleinere Bugfixes.
- * - Bug bei PING behoben: war zu restriktiv implementiert :-)
- *
- * Revision 1.14  2001/12/31 02:18:51  alex
- * - viele neue Befehle (WHOIS, ISON, OPER, DIE, RESTART),
- * - neuen Header "defines.h" mit (fast) allen Konstanten.
- * - Code Cleanups und viele "kleine" Aenderungen & Bugfixes.
- *
- * Revision 1.13  2001/12/30 19:26:11  alex
- * - Unterstuetzung fuer die Konfigurationsdatei eingebaut.
- *
- * Revision 1.12  2001/12/29 20:18:18  alex
- * - neue Funktion Client_SetHostname().
- *
- * Revision 1.11  2001/12/29 03:10:47  alex
- * - Client-Modes implementiert; Loglevel mal wieder angepasst.
- *
- * Revision 1.10  2001/12/27 19:13:47  alex
- * - neue Funktion Client_Search(), besseres Logging.
- *
- * Revision 1.9  2001/12/27 17:15:29  alex
- * - der eigene Hostname wird nun komplet (als FQDN) ermittelt.
- *
- * Revision 1.8  2001/12/27 16:54:51  alex
- * - neue Funktion Client_GetID(), liefert die "Client ID".
- *
- * Revision 1.7  2001/12/26 14:45:37  alex
- * - "Code Cleanups".
- *
- * Revision 1.6  2001/12/26 03:19:16  alex
- * - neue Funktion Client_Nick().
- *
- * Revision 1.5  2001/12/25 22:04:26  alex
- * - Aenderungen an den Debug- und Logging-Funktionen.
- *
- * Revision 1.4  2001/12/25 19:21:26  alex
- * - Client-Typ ("Status") besser unterteilt, My_Clients ist zudem nun global.
- *
- * Revision 1.3  2001/12/24 01:31:14  alex
- * - einige assert()'s eingestraeut.
- *
- * Revision 1.2  2001/12/23 22:04:37  alex
- * - einige neue Funktionen,
- * - CLIENT-Struktur erweitert.
- *
- * Revision 1.1  2001/12/14 08:13:43  alex
- * - neues Modul begonnen :-)
  */
 
 
 #define __client_c__
 
 
-#include <portab.h>
-#include "global.h"
+#include "portab.h"
 
-#include <imp.h>
+#include "imp.h"
 #include <assert.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -185,7 +35,7 @@
 #include <string.h>
 #include <netdb.h>
 
-#include <exp.h>
+#include "exp.h"
 #include "client.h"
 
 #include <imp.h>

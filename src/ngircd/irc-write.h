@@ -9,14 +9,9 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-write.h,v 1.1 2002/02/27 23:26:21 alex Exp $
+ * $Id: irc-write.h,v 1.2 2002/03/12 14:37:52 alex Exp $
  *
  * irc-write.h: IRC-Texte und Befehle ueber Netzwerk versenden (Header)
- *
- * $Log: irc-write.h,v $
- * Revision 1.1  2002/02/27 23:26:21  alex
- * - Modul aus irc.c bzw. irc.h ausgegliedert.
- *
  */
 
 

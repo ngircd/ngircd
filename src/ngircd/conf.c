@@ -9,68 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.c,v 1.17 2002/03/10 18:47:02 alex Exp $
+ * $Id: conf.c,v 1.18 2002/03/12 14:37:52 alex Exp $
  *
  * conf.h: Konfiguration des ngircd
- *
- * $Log: conf.c,v $
- * Revision 1.17  2002/03/10 18:47:02  alex
- * *** empty log message ***
- *
- * Revision 1.16  2002/03/10 17:50:48  alex
- * - Server-Gruppen implementiert.
- *
- * Revision 1.15  2002/03/06 15:35:19  alex
- * - Dateinamen und Pfad sind nun in Konstanten definiert.
- *
- * Revision 1.14  2002/03/03 17:17:01  alex
- * - strncpy() und vsnprintf() kopieren nun etwas "optimierter" (1 Byte weniger) :-)
- *
- * Revision 1.13  2002/01/18 15:51:44  alex
- * - Server-Verbinungen werden beim Start erst nach kurzer Pause aufgebaut.
- *
- * Revision 1.12  2002/01/05 23:26:24  alex
- * - Fehlermeldungen korrigiert.
- *
- * Revision 1.11  2002/01/05 16:51:49  alex
- * - Bug bei Remote-Server-Namen entfernt: diese wurden falsch gekuerzt.
- *
- * Revision 1.10  2002/01/03 02:27:20  alex
- * - das Server-Passwort kann nun konfiguriert werden.
- *
- * Revision 1.9  2002/01/02 02:49:15  alex
- * - Konfigurationsdatei "Samba like" umgestellt.
- * - es koennen nun mehrere Server und Oprtatoren konfiguriert werden.
- *
- * Revision 1.7  2002/01/01 18:25:44  alex
- * - #include's fuer stdlib.h ergaenzt.
- *
- * Revision 1.6  2001/12/31 02:18:51  alex
- * - viele neue Befehle (WHOIS, ISON, OPER, DIE, RESTART),
- * - neuen Header "defines.h" mit (fast) allen Konstanten.
- * - Code Cleanups und viele "kleine" Aenderungen & Bugfixes.
- *
- * Revision 1.5  2001/12/30 19:26:11  alex
- * - Unterstuetzung fuer die Konfigurationsdatei eingebaut.
- *
- * Revision 1.4  2001/12/26 22:48:53  alex
- * - MOTD-Datei ist nun konfigurierbar und wird gelesen.
- *
- * Revision 1.3  2001/12/26 14:45:37  alex
- * - "Code Cleanups".
- *
- * Revision 1.2  2001/12/26 03:19:57  alex
- * - erste Konfigurations-Variablen definiert: PING/PONG-Timeout.
- *
- * Revision 1.1  2001/12/12 17:18:20  alex
- * - Modul fuer Server-Konfiguration begonnen.
  */
 
 
-#include <portab.h>
-#include "global.h"
+#include "portab.h"
 
-#include <imp.h>
+#include "imp.h"
 #include <assert.h>
 #include <errno.h>
 #include <stdio.h>
@@ -78,10 +25,11 @@
 #include <string.h>
 
 #include "client.h"
+#include "defines.h"
 #include "log.h"
 #include "tool.h"
 
-#include <exp.h>
+#include "exp.h"
 #include "conf.h"
 
 

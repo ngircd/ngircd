@@ -9,21 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-oper.c,v 1.1 2002/03/03 17:15:11 alex Exp $
+ * $Id: irc-oper.c,v 1.2 2002/03/12 14:37:52 alex Exp $
  *
  * irc-oper.c: IRC-Operator-Befehle
- *
- * $Log: irc-oper.c,v $
- * Revision 1.1  2002/03/03 17:15:11  alex
- * - Source in weitere Module fuer IRC-Befehle aufgesplitted.
- *
  */
 
 
-#include <portab.h>
-#include "global.h"
+#include "portab.h"
 
-#include <imp.h>
+#include "imp.h"
 #include <assert.h>
 
 #include "ngircd.h"

@@ -9,27 +9,9 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: tool.h,v 1.5 2002/01/02 02:42:58 alex Exp $
+ * $Id: tool.h,v 1.6 2002/03/12 14:37:52 alex Exp $
  *
  * log.h: Hilfsfunktionen (Header)
- *
- * $Log: tool.h,v $
- * Revision 1.5  2002/01/02 02:42:58  alex
- * - Copyright-Texte aktualisiert.
- *
- * Revision 1.4  2001/12/31 02:18:51  alex
- * - viele neue Befehle (WHOIS, ISON, OPER, DIE, RESTART),
- * - neuen Header "defines.h" mit (fast) allen Konstanten.
- * - Code Cleanups und viele "kleine" Aenderungen & Bugfixes.
- *
- * Revision 1.3  2001/12/26 14:45:37  alex
- * - "Code Cleanups".
- *
- * Revision 1.2  2001/12/12 17:20:33  alex
- * - Tool-Funktionen haben nun das Praefix "ngt_".
- *
- * Revision 1.1.1.1  2001/12/11 21:53:04  alex
- * - Imported sources to CVS.
  */
 
 

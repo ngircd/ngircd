@@ -9,42 +9,9 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.h,v 1.10 2002/02/19 20:07:48 alex Exp $
+ * $Id: ngircd.h,v 1.11 2002/03/12 14:37:52 alex Exp $
  *
  * ngircd.h: Prototypen aus dem "Haupt-Modul"
- *
- * $Log: ngircd.h,v $
- * Revision 1.10  2002/02/19 20:07:48  alex
- * - Neue Variablen NGIRCd_DebugVersion und NGIRCd_Passive.
- *
- * Revision 1.9  2002/02/17 23:40:32  alex
- * - Neue Funktion NGIRCd_VersionAddition().
- *
- * Revision 1.8  2002/01/18 11:12:11  alex
- * - der Sniffer wird nun nur noch aktiviert, wenn auf Kommandozeile angegeben.
- *
- * Revision 1.7  2002/01/11 14:45:18  alex
- * - Kommandozeilen-Parser implementiert: Debug- und No-Daemon-Modus, Hilfe.
- *
- * Revision 1.6  2002/01/02 02:44:37  alex
- * - neue Defines fuer max. Anzahl Server und Operatoren.
- *
- * Revision 1.5  2001/12/31 03:06:03  alex
- * - das #include fuer time.h hat noch gefehlt.
- *
- * Revision 1.4  2001/12/31 02:18:51  alex
- * - viele neue Befehle (WHOIS, ISON, OPER, DIE, RESTART),
- * - neuen Header "defines.h" mit (fast) allen Konstanten.
- * - Code Cleanups und viele "kleine" Aenderungen & Bugfixes.
- *
- * Revision 1.3  2001/12/30 11:42:00  alex
- * - der Server meldet nun eine ordentliche "Start-Zeit".
- *
- * Revision 1.2  2001/12/12 23:30:01  alex
- * - NGIRCd_Quit ist nun das globale Flag zum Beenden des ngircd.
- *
- * Revision 1.1.1.1  2001/12/11 21:53:04  alex
- * - Imported sources to CVS.
  */
 
 

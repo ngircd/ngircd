@@ -9,83 +9,18 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: log.c,v 1.20 2002/03/06 15:36:04 alex Exp $
+ * $Id: log.c,v 1.21 2002/03/12 14:37:52 alex Exp $
  *
  * log.c: Logging-Funktionen
- *
- * $Log: log.c,v $
- * Revision 1.20  2002/03/06 15:36:04  alex
- * - stderr wird nun in eine Datei umgelenkt (ngircd.err). Wenn der Server
- *   nicht im Debug-Modus laeuft, so wird diese bei Programmende geloescht.
- *
- * Revision 1.19  2002/03/03 17:17:01  alex
- * - strncpy() und vsnprintf() kopieren nun etwas "optimierter" (1 Byte weniger) :-)
- *
- * Revision 1.18  2002/02/19 20:07:13  alex
- * - direkt nach dem Start werden die aktiven "Modes" ins Log geschrieben.
- *
- * Revision 1.17  2002/01/11 14:45:37  alex
- * - Anpassungen an neue Kommandozeilen-Optionen "--debug" und "--nodaemon".
- *
- * Revision 1.16  2002/01/05 15:54:40  alex
- * - syslog() etc. wurde verwendet, auch wenn USE_SYSLOG nicht definiert war.
- *
- * Revision 1.15  2002/01/02 02:42:58  alex
- * - Copyright-Texte aktualisiert.
- *
- * Revision 1.14  2002/01/01 18:01:43  alex
- * - Architektur und Betriebssystem in Start-Meldung aufgenommen.
- *
- * Revision 1.13  2001/12/31 02:18:51  alex
- * - viele neue Befehle (WHOIS, ISON, OPER, DIE, RESTART),
- * - neuen Header "defines.h" mit (fast) allen Konstanten.
- * - Code Cleanups und viele "kleine" Aenderungen & Bugfixes.
- *
- * Revision 1.12  2001/12/29 20:16:31  alex
- * - Log-Funktionen fuer Resolver-Sub-Prozess implementiert.
- *
- * Revision 1.11  2001/12/29 03:08:49  alex
- * - neue configure-Option "--enable-strict-rfc".
- *
- * Revision 1.10  2001/12/27 01:44:49  alex
- * - die Verwendung von syslog kann nun abgeschaltet werden.
- *
- * Revision 1.9  2001/12/26 03:22:16  alex
- * - string.h wird nun includiert.
- *
- * Revision 1.8  2001/12/25 23:13:00  alex
- * - Versionsstring bei Programmstart verbessert.
- *
- * Revision 1.7  2001/12/25 22:04:26  alex
- * - Aenderungen an den Debug- und Logging-Funktionen.
- *
- * Revision 1.6  2001/12/25 19:20:39  alex
- * - es wird nun die Facility LOG_LOCAL5 zum Loggen verwendet.
- *
- * Revision 1.5  2001/12/15 00:07:56  alex
- * - Log-Level der Start- und Stop-Meldungen angehoben.
- *
- * Revision 1.4  2001/12/13 02:04:16  alex
- * - boesen "Speicherschiesser" in Log() gefixt.
- *
- * Revision 1.3  2001/12/12 23:31:24  alex
- * - Zum Loggen wird nun auch syslog verwendet.
- *
- * Revision 1.2  2001/12/12 17:19:12  alex
- * - in Log-Meldungen wird nun auch der Level der Meldung ausgegeben.
- *
- * Revision 1.1.1.1  2001/12/11 21:53:04  alex
- * - Imported sources to CVS.
  */
 
 
 #define MAX_LOG_MSG_LEN 256
 
 
-#include <portab.h>
-#include "global.h"
+#include "portab.h"
 
-#include <imp.h>
+#include "imp.h"
 #include <assert.h>
 #include <errno.h>
 #include <stdarg.h>
@@ -98,10 +33,10 @@
 #include <syslog.h>
 #endif
 
-#include "global.h"
 #include "ngircd.h"
+#include "defines.h"
 
-#include <exp.h>
+#include "exp.h"
 #include "log.h"
 
 

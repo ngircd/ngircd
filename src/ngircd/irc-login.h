@@ -9,16 +9,9 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-login.h,v 1.2 2002/03/03 17:15:11 alex Exp $
+ * $Id: irc-login.h,v 1.3 2002/03/12 14:37:52 alex Exp $
  *
  * irc-login.h: Anmeldung und Abmeldung im IRC (Header)
- *
- * $Log: irc-login.h,v $
- * Revision 1.2  2002/03/03 17:15:11  alex
- * - Source in weitere Module fuer IRC-Befehle aufgesplitted.
- *
- * Revision 1.1  2002/02/27 23:26:21  alex
- * - Modul aus irc.c bzw. irc.h ausgegliedert.
  */
 
 

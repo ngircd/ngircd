@@ -8,12 +8,20 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: Makefile.am,v 1.5 2003/01/13 12:20:16 alex Exp $
+# $Id: Makefile.am,v 1.1 2003/01/13 12:20:16 alex Exp $
 #
 
-SUBDIRS = portab tool ngircd testsuite
+AUTOMAKE_OPTIONS = ansi2knr
+
+INCLUDES = -I$(srcdir)/../portab
+
+noinst_LIBRARIES = libngtool.a
+
+libngtool_a_SOURCES = tool.c
+
+noinst_HEADERS = tool.h
 
 maintainer-clean-local:
-	rm -f Makefile Makefile.in config.h config.h.in stamp-h.in
+	rm -f Makefile Makefile.in
 
 # -eof-

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: tool.c,v 1.10 2002/12/12 12:24:18 alex Exp $";
+static char UNUSED id[] = "$Id: tool.c,v 1.1 2003/01/13 12:20:16 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>

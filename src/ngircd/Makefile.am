@@ -2,19 +2,18 @@
 # ngIRCd -- The Next Generation IRC Daemon
 # Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
 #
-# Dieses Programm ist freie Software. Sie koennen es unter den Bedingungen
-# der GNU General Public License (GPL), wie von der Free Software Foundation
-# herausgegeben, weitergeben und/oder modifizieren, entweder unter Version 2
-# der Lizenz oder (wenn Sie es wuenschen) jeder spaeteren Version.
-# Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
-# der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: Makefile.am,v 1.35 2003/01/04 10:39:14 alex Exp $
+# $Id: Makefile.am,v 1.36 2003/01/13 12:20:16 alex Exp $
 #
 
 AUTOMAKE_OPTIONS = ../portab/ansi2knr
 
-INCLUDES = -I$(srcdir)/../portab
+INCLUDES = -I$(srcdir)/../portab -I$(srcdir)/../tool
 
 LINTARGS = -weak -warnunixlib +unixlib -booltype BOOLEAN
 
@@ -22,17 +21,16 @@ sbin_PROGRAMS = ngircd
 
 ngircd_SOURCES = ngircd.c channel.c client.c conf.c conn.c conn-zip.c conn-func.c \
 	hash.c irc.c irc-channel.c irc-info.c irc-login.c irc-mode.c irc-op.c \
-	irc-oper.c irc-server.c irc-write.c lists.c log.c match.c parse.c resolve.c \
-	tool.c
+	irc-oper.c irc-server.c irc-write.c lists.c log.c match.c parse.c resolve.c
 
-ngircd_LDFLAGS = -L../portab
+ngircd_LDFLAGS = -L../portab -L../tool
 
-ngircd_LDADD = -lngportab
+ngircd_LDADD = -lngportab -lngtool
 
 noinst_HEADERS = ngircd.h channel.h client.h conf.h conn.h conn-zip.h conn-func.h \
 	hash.h irc.h irc-channel.h irc-info.h irc-login.h irc-mode.h irc-op.h \
 	irc-oper.h irc-server.h irc-write.h lists.h log.h match.h parse.h resolve.h \
-	tool.h messages.h defines.h
+	messages.h defines.h
 
 clean-local:
 	rm -f check-version check-help lint.out cvs-version.*

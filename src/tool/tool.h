@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: tool.h,v 1.9 2002/12/12 12:23:43 alex Exp $
+ * $Id: tool.h,v 1.1 2003/01/13 12:20:16 alex Exp $
  *
  * Tool functions (Header)
  */

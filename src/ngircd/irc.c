@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.12 2001/12/27 19:17:26 alex Exp $
+ * $Id: irc.c,v 1.13 2001/12/29 03:10:06 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.13  2001/12/29 03:10:06  alex
+ * - Neue Funktion IRC_MODE() implementiert, div. Aenderungen.
+ * - neue configure-Optione "--enable-strict-rfc".
+ *
  * Revision 1.12  2001/12/27 19:17:26  alex
  * - neue Befehle PRIVMSG, NOTICE, PING.
  *
@@ -161,18 +165,33 @@ GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	if( Client->type != CLIENT_SERVER && Client->type != CLIENT_SERVICE )
+	/* Zumindest BitchX sendet NICK-USER in der falschen Reihenfolge. */
+#ifndef STRICT_RFC
+	if( Client->type == CLIENT_UNKNOWN || Client->type == CLIENT_GOTPASS || Client->type == CLIENT_GOTNICK || Client->type == CLIENT_GOTUSER || Client->type == CLIENT_USER )
+#else
+	if( Client->type == CLIENT_UNKNOWN || Client->type == CLIENT_GOTPASS || Client->type == CLIENT_GOTNICK || Client->type == CLIENT_USER  )
+#endif
 	{
 		/* Falsche Anzahl Parameter? */
 		if( Req->argc != 1 ) return IRC_WriteStrClient( Client, This_Server, ERR_NEEDMOREPARAMS_MSG, Client_Name( Client ), Req->command );
 
+		/* Ist der Client "restricted"? */
+		if( strchr( Client->modes, 'r' )) return IRC_WriteStrClient( Client, This_Server, ERR_RESTRICTED_MSG, Client_Name( Client ));
+
+		/* Wenn der Client zu seinem eigenen Nick wechseln will, so machen
+		 * wir nichts. So macht es das Original und mind. Snak hat probleme,
+		 * wenn wir es nicht so machen. Ob es so okay ist? Hm ... */
+#ifndef STRICT_RFC
+		if( strcasecmp( Client->nick, Req->argv[0] ) == 0 ) return CONNECTED;
+#endif
+		
 		/* pruefen, ob Nick bereits vergeben */
 		if( ! Client_CheckNick( Client, Req->argv[0] )) return CONNECTED;
 
 		if( Client->type == CLIENT_USER )
 		{
 			/* Nick-Aenderung: allen mitteilen! */
-			Log( LOG_INFO, "User \"%s!%s@%s\" (%s) changed nick: \"%s\" -> \"%s\".", Client->nick, Client->user, Client->host, Client->name, Client->nick, Req->argv[0] );
+			Log( LOG_INFO, "User \"%s!%s@%s\" changed nick: \"%s\" -> \"%s\".", Client->nick, Client->user, Client->host, Client->nick, Req->argv[0] );
 			IRC_WriteStrRelated( Client, "NICK :%s", Req->argv[0] );
 		}
 		
@@ -197,7 +216,11 @@ GLOBAL BOOLEAN IRC_USER( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	if( Client->type == CLIENT_UNKNOWN || Client->type == CLIENT_GOTNICK || Client->type == CLIENT_GOTPASS )
+#ifndef STRICT_RFC
+	if( Client->type == CLIENT_GOTNICK || Client->type == CLIENT_GOTPASS || Client->type == CLIENT_UNKNOWN )
+#else
+	if( Client->type == CLIENT_GOTNICK || Client->type == CLIENT_GOTPASS )
+#endif
 	{
 		/* Falsche Anzahl Parameter? */
 		if( Req->argc != 4 ) return IRC_WriteStrClient( Client, This_Server, ERR_NEEDMOREPARAMS_MSG, Client_Name( Client ), Req->command );
@@ -338,6 +361,100 @@ GLOBAL BOOLEAN IRC_NOTICE( CLIENT *Client, REQUEST *Req )
 } /* IRC_NOTICE */
 
 
+GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req )
+{
+	CHAR x[2], new_modes[CLIENT_MODE_LEN], *ptr, *p;
+	BOOLEAN set, ok;
+	
+	assert( Client != NULL );
+	assert( Req != NULL );
+
+	if( ! Check_Valid_User( Client )) return CONNECTED;
+
+	/* Falsche Anzahl Parameter? */
+	if(( Req->argc > 2 ) || ( Req->argc < 1 )) return IRC_WriteStrClient( Client, This_Server, ERR_NEEDMOREPARAMS_MSG, Client_Name( Client ), Req->command );
+
+	/* MODE ist nur fuer sich selber zulaessig */
+	if( Client_Search( Req->argv[0] ) != Client ) return IRC_WriteStrClient( Client, This_Server, ERR_USERSDONTMATCH_MSG, Client_Name( Client ));
+
+	/* Werden die Modes erfragt? */
+	if( Req->argc == 1 ) return IRC_WriteStrClient( Client, This_Server, RPL_UMODEIS_MSG, Client_Name( Client ), Client->modes );
+
+	ptr = Req->argv[1];
+
+	/* Sollen Modes gesetzt oder geloescht werden? */
+	if( *ptr == '+' ) set = TRUE;
+	else if( *ptr == '-' ) set = FALSE;
+	else return IRC_WriteStrClient( Client, This_Server, ERR_UMODEUNKNOWNFLAG_MSG, Client_Name( Client ));
+
+	/* Reply-String mit Aenderungen vorbereiten */
+	if( set ) strcpy( new_modes, "+" );
+	else strcpy( new_modes, "-" );
+
+	ptr++;
+	ok = TRUE;
+	x[1] = '\0';
+	while( *ptr )
+	{
+		x[0] = '\0';
+		switch( *ptr )
+		{
+			case 'i':
+				/* invisible */
+				x[0] = 'i';
+				break;
+			case 'r':
+				/* restricted (kann nur gesetzt werden) */
+				if( set ) x[0] = 'r';
+				else ok = IRC_WriteStrClient( Client, This_Server, ERR_RESTRICTED_MSG, Client_Name( Client ));
+				break;
+			default:
+				ok = IRC_WriteStrClient( Client, This_Server, ERR_UMODEUNKNOWNFLAG_MSG, Client_Name( Client ));
+				x[0] = '\0';
+		}
+		if( ! ok ) break;
+
+		ptr++;
+		if( ! x[0] ) continue;
+
+		/* Okay, gueltigen Mode gefunden */
+		if( set )
+		{
+			/* Modes sollen gesetzt werden */
+			if( ! strchr( Client->modes, x[0] ))
+			{
+				/* Client hat den Mode noch nicht -> setzen */
+				strcat( Client->modes, x );
+				strcat( new_modes, x );
+			}
+		}
+		else
+		{
+			/* Modes sollen geloescht werden */
+			p = strchr( Client->modes, x[0] );
+			if( p )
+			{
+				/* Client hat den Mode -> loeschen */
+				while( *p )
+				{
+					*p = *(p + 1);
+					p++;
+				}
+				strcat( new_modes, x );
+			}
+		}
+	}
+	
+	/* Geanderte Modes? */
+	if( new_modes[1] && ok )
+	{
+		ok = IRC_WriteStrRelated( Client, "MODE %s :%s", Client->nick, new_modes );
+		Log( LOG_DEBUG, "User \"%s!%s@%s\": Mode change, now \"%s\".", Client->nick, Client->user, Client->host, Client->modes );
+	}
+	return ok;
+} /* IRC_MODE */
+
+
 LOCAL BOOLEAN Check_Valid_User( CLIENT *Client )
 {
 	assert( Client != NULL );
@@ -356,7 +473,7 @@ LOCAL BOOLEAN Hello_User( CLIENT *Client )
 	assert( Client != NULL );
 	assert( Client->nick[0] );
 	
-	Log( LOG_INFO, "User \"%s!%s@%s\" (%s) registered.", Client->nick, Client->user, Client->host, Client->name );
+	Log( LOG_NOTICE, "User \"%s!%s@%s\" (%s) registered (connection %d).", Client->nick, Client->user, Client->host, Client->name, Client->conn_id );
 
 	IRC_WriteStrClient( Client, This_Server, RPL_WELCOME_MSG, Client->nick, Client_GetID( Client ));
 	IRC_WriteStrClient( Client, This_Server, RPL_YOURHOST_MSG, Client->nick, This_Server->host );

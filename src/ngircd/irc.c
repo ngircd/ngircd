@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.64 2002/02/19 20:06:45 alex Exp $
+ * $Id: irc.c,v 1.65 2002/02/23 00:03:54 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.65  2002/02/23 00:03:54  alex
+ * - Ergebnistyp von Conn_GetIdle() und Conn_LastPing() auf "time_t" geaendert.
+ *
  * Revision 1.64  2002/02/19 20:06:45  alex
  * - User-Registrierung wird nicht mehr als Nick-Aenderung protokolliert,
  * - VERSION liefert nun doch wieder den Debug-Status im Reply.
@@ -1115,7 +1118,7 @@ GLOBAL BOOLEAN IRC_PONG( CLIENT *Client, REQUEST *Req )
 	/* Der Connection-Timestamp wurde schon beim Lesen aus dem Socket
 	 * aktualisiert, daher muss das hier nicht mehr gemacht werden. */
 
-	if( Client_Conn( Client ) > NONE ) Log( LOG_DEBUG, "Connection %d: received PONG. Lag: %d seconds.", Client_Conn( Client ), time( NULL ) - Conn_LastPing( Client_Conn( Client )));
+	if( Client_Conn( Client ) > NONE ) Log( LOG_DEBUG, "Connection %d: received PONG. Lag: %ld seconds.", Client_Conn( Client ), time( NULL ) - Conn_LastPing( Client_Conn( Client )));
 	else Log( LOG_DEBUG, "Connection %d: received PONG.", Client_Conn( Client ));
 
 	return CONNECTED;

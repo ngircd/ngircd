@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.h,v 1.11 2002/02/11 01:00:50 alex Exp $
+ * $Id: conn.h,v 1.12 2002/02/23 00:03:54 alex Exp $
  *
  * conn.h: Verwaltung aller Netz-Verbindungen ("connections") (Header)
  *
  * $Log: conn.h,v $
+ * Revision 1.12  2002/02/23 00:03:54  alex
+ * - Ergebnistyp von Conn_GetIdle() und Conn_LastPing() auf "time_t" geaendert.
+ *
  * Revision 1.11  2002/02/11 01:00:50  alex
  * - neue Funktion Conn_LastPing().
  *
@@ -55,6 +58,9 @@
 #define __conn_h__
 
 
+#include <time.h>
+
+
 typedef INT CONN_ID;
 
 typedef struct _Res_Stat
@@ -77,8 +83,8 @@ GLOBAL BOOLEAN Conn_WriteStr( CONN_ID Idx, CHAR *Format, ... );
 GLOBAL VOID Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient );
 
 GLOBAL VOID Conn_UpdateIdle( CONN_ID Idx );
-GLOBAL INT32 Conn_GetIdle( CONN_ID Idx );
-GLOBAL INT32 Conn_LastPing( CONN_ID Idx );
+GLOBAL time_t Conn_GetIdle( CONN_ID Idx );
+GLOBAL time_t Conn_LastPing( CONN_ID Idx );
 
 
 #endif

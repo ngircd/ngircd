@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.24 2002/02/19 20:08:24 alex Exp $
+ * $Id: ngircd.c,v 1.25 2002/02/19 20:30:47 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  *
  * $Log: ngircd.c,v $
+ * Revision 1.25  2002/02/19 20:30:47  alex
+ * - SA_RESTART wird fuer Signale nur noch gesetzt, wenn es definiert ist.
+ *
  * Revision 1.24  2002/02/19 20:08:24  alex
  * - "Passive-Mode" implementiert: kein Auto-Conect zu anderen Servern.
  * - NGIRCd_DebugLevel wird (fuer VERSION-Befehl) ermittelt.
@@ -368,7 +371,9 @@ LOCAL VOID Initialize_Signal_Handler( VOID )
 	/* Signal-Struktur initialisieren */
 	memset( &saction, 0, sizeof( saction ));
 	saction.sa_handler = Signal_Handler;
+#ifdef SA_RESTART
 	saction.sa_flags = SA_RESTART;
+#endif
 
 	/* Signal-Handler einhaengen */
 	sigaction( SIGINT, &saction, NULL );

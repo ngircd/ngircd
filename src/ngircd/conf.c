@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.c,v 1.34 2002/10/21 13:45:07 alex Exp $
+ * $Id: conf.c,v 1.35 2002/11/02 22:59:01 alex Exp $
  *
  * conf.h: Konfiguration des ngircd
  */
@@ -104,6 +104,8 @@ Conf_Test( VOID )
 	printf( "  PongTimeout = %d\n", Conf_PongTimeout );
 	printf( "  ConnectRetry = %d\n", Conf_ConnectRetry );
 	printf( "  OperCanUseMode = %s\n", Conf_OperCanMode == TRUE ? "yes" : "no" );
+	if( Conf_MaxConnections > 0 ) printf( "  MaxConnections = %ld\n", Conf_MaxConnections );
+	else printf( "  MaxConnections = -1\n" );
 	puts( "" );
 
 	for( i = 0; i < Conf_Oper_Count; i++ )
@@ -177,6 +179,8 @@ Set_Defaults( VOID )
 	Conf_Channel_Count = 0;
 
 	Conf_OperCanMode = FALSE;
+	
+	Conf_MaxConnections = 0;
 } /* Set_Defaults */
 
 
@@ -409,6 +413,13 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 		else if( strcasecmp( Arg, "true" ) == 0 ) Conf_OperCanMode = TRUE;
 		else if( atoi( Arg ) != 0 ) Conf_OperCanMode = TRUE;
 		else Conf_OperCanMode = FALSE;
+		return;
+	}
+	if( strcasecmp( Var, "MaxConnections" ) == 0 )
+	{
+		/* Maximale Anzahl von Verbindungen. Werte <= 0 stehen
+		 * fuer "kein Limit". */
+		Conf_MaxConnections = atol( Arg );
 		return;
 	}
 		

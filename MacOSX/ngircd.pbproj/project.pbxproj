@@ -59,6 +59,7 @@
 			projectDirPath = "";
 			targets = (
 				08FB779FFE84155DC02AAC07,
+				F538241E024F89BC01A85B04,
 			);
 		};
 		08FB7794FE84155DC02AAC07 = {
@@ -189,6 +190,7 @@
 		1AB674ADFE9D54B511CA2CBB = {
 			children = (
 				034768E8FF38A79811DB9C8B,
+				F538241D024F89BC01A85B04,
 			);
 			isa = PBXGroup;
 			name = Products;
@@ -630,6 +632,93 @@
 			name = Makefile.am;
 			path = ../doc/Makefile.am;
 			refType = 2;
+		};
+		F538241D024F89BC01A85B04 = {
+			isa = PBXExecutableFileReference;
+			path = portabtest;
+			refType = 3;
+		};
+		F538241E024F89BC01A85B04 = {
+			buildPhases = (
+				F538241F024F89BC01A85B04,
+				F5382423024F89BC01A85B04,
+				F5382425024F89BC01A85B04,
+				F5382426024F89BC01A85B04,
+			);
+			buildSettings = {
+				OPTIMIZATION_CFLAGS = "";
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = portabtest;
+				REZ_EXECUTABLE = YES;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = "-Wall";
+			};
+			dependencies = (
+			);
+			isa = PBXToolTarget;
+			name = portabtest;
+			productInstallPath = /usr/local/bin;
+			productName = portabtest;
+			productReference = F538241D024F89BC01A85B04;
+			shouldUseHeadermap = 0;
+		};
+		F538241F024F89BC01A85B04 = {
+			buildActionMask = 2147483647;
+			files = (
+				F5382420024F89BC01A85B04,
+				F5382421024F89BC01A85B04,
+				F5382422024F89BC01A85B04,
+			);
+			isa = PBXHeadersBuildPhase;
+			name = Headers;
+		};
+		F5382420024F89BC01A85B04 = {
+			fileRef = F5F18134023EC63701A85B04;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5382421024F89BC01A85B04 = {
+			fileRef = F5F18135023EC63701A85B04;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5382422024F89BC01A85B04 = {
+			fileRef = F5F18136023EC63701A85B04;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5382423024F89BC01A85B04 = {
+			buildActionMask = 2147483647;
+			files = (
+				F5382424024F89BC01A85B04,
+			);
+			isa = PBXSourcesBuildPhase;
+			name = Sources;
+		};
+		F5382424024F89BC01A85B04 = {
+			fileRef = F5F18137023EC63701A85B04;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5382425024F89BC01A85B04 = {
+			buildActionMask = 2147483647;
+			files = (
+			);
+			isa = PBXFrameworksBuildPhase;
+			name = "Frameworks & Libraries";
+		};
+		F5382426024F89BC01A85B04 = {
+			buildActionMask = 2147483647;
+			files = (
+			);
+			isa = PBXRezBuildPhase;
+			name = "ResourceManager Resources";
 		};
 		F55047BA0240F6E501A85B04 = {
 			isa = PBXFileReference;

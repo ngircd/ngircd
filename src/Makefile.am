@@ -9,10 +9,10 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: Makefile.am,v 1.3 2002/03/12 14:37:51 alex Exp $
+# $Id: Makefile.am,v 1.4 2002/09/09 10:00:15 alex Exp $
 #
 
-SUBDIRS = portab ngircd
+SUBDIRS = portab ngircd testsuite
 
 maintainer-clean-local:
 	rm -f Makefile Makefile.in config.h config.h.in stamp-h.in

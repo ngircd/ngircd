@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.c,v 1.33 2002/10/09 16:53:02 alex Exp $
+ * $Id: conf.c,v 1.34 2002/10/21 13:45:07 alex Exp $
  *
  * conf.h: Konfiguration des ngircd
  */
@@ -539,7 +539,7 @@ Validate_Config( VOID )
 	}
 
 #ifdef STRICT_RFC
-	if( ! ConfAdminMail[0] )
+	if( ! Conf_ServerAdminMail[0] )
 	{
 		/* Keine Server-Information konfiguriert */
 		Config_Error( LOG_ALERT, "No administrator email address configured in \"%s\" ('AdminEMail')!", NGIRCd_ConfFile );

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.83 2002/10/15 09:24:54 alex Exp $
+ * $Id: conn.c,v 1.84 2002/10/21 13:45:07 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -855,7 +855,10 @@ Handle_Buffer( CONN_ID Idx )
 {
 	/* Daten im Lese-Puffer einer Verbindung verarbeiten. */
 
-	CHAR *ptr, *ptr1, *ptr2;
+#ifndef STRICT_RFC
+	CHAR *ptr1, *ptr2;
+#endif
+	CHAR *ptr;
 	INT len, delta;
 
 	/* Eine komplette Anfrage muss mit CR+LF enden, vgl.

@@ -46,6 +46,7 @@ ngIRCd CVS-HEAD
   - Better error detection for status code ("numerics") forwarding.
   - Moved tool functions to own library: "libngtool".
   - New command TRACE (you can trace only servers at the moment).
+  - New command HELP that lists all understood commands.
 
 
 Older changes (sorry, only available in german language):
@@ -409,4 +410,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.171 2003/01/13 18:58:07 alex Exp $
+$Id: ChangeLog,v 1.172 2003/01/15 13:50:03 alex Exp $

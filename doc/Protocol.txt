@@ -96,11 +96,11 @@ Folgende <serverflags> sind zur Zeit definiert:
 II.2 Channel-Modes, persistente Channel und Topic austauschen
 
      Befehl: CHANINFO
-  Parameter: <channel> +<mode> [<topic>]
+  Parameter: <channel> +<modes> <key> <maxusers> [<topic>]
        Fuer: Server
 
 Mit CHANINFO Informiert ein Server den anderen ueber einen Channel: dessen
-Modes und dessen Topic. <topic> ist optional.
+Modes, Channel-Key, User-Limit und dessen Topic. <topic> ist optional.
 
 Existiert auf dem Server, der das CHANINFO empfaengt, der Channel bereits,
 so uebernimmt er die Werte jeweils nur dann, wenn er selber noch keine
@@ -110,6 +110,12 @@ ignoriert.
 Existiert der Channel noch nicht, so wird er mit den entsprechenden Angaben
 erzeugt.
 
+Hat ein Channel keinen Key (in <modes> ist der Mode "k" nicht vorhanden),
+so muss der Parameter <key> ignoriert werden (da <key> vorhanden sein muss,
+sollte in diesem Fall "*" uebergeben werden). Hat er kein User-Limit (kein
+"l" in <modes>), so muss <limit> ignoriert werden (<limit> sollte hierbei
+als "0" uebergeben werden).
+
 
 -- 
-$Id: Protocol.txt,v 1.6 2003/01/04 13:07:54 alex Exp $
+$Id: Protocol.txt,v 1.7 2003/01/15 13:46:01 alex Exp $

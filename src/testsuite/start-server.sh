@@ -1,10 +1,13 @@
 #!/bin/sh
 # ngIRCd Test Suite
-# $Id: start-server.sh,v 1.13 2004/09/04 19:14:46 alex Exp $
+# $Id: start-server.sh,v 1.14 2004/09/06 22:04:06 alex Exp $
 
 [ -z "$srcdir" ] && srcdir=`dirname $0`
 
-echo -n "      starting server ..."
+# read in functions
+. ${srcdir}/functions.inc
+
+echo_n "      starting server ..."
 
 # remove old logfiles
 rm -rf logs *.log

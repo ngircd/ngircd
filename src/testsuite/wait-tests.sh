@@ -9,7 +9,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: wait-tests.sh,v 1.3 2004/09/04 18:22:42 alex Exp $
+# $Id: wait-tests.sh,v 1.4 2004/09/06 22:04:06 alex Exp $
 #
 
 [ "$1" -gt 0 ] 2> /dev/null && MAX="$1" || MAX=5
@@ -17,6 +17,9 @@
 PS_FLAGS="-f"
 ps $PS_FLAGS >/dev/null 2>&1
 [ $? -ne 0 ] && PS_FLAGS="a"
+
+# read in functions
+. ${srcdir}/functions.inc
 
 msg=0
 while true; do
@@ -26,12 +29,12 @@ while true; do
   [ $count -le $MAX ] && break
 
   if [ $msg -lt 1 ]; then
-    echo -n "      waiting for processes to settle: "
+    echo_n "      waiting for processes to settle: "
     msg=1
   fi
 
   # there are still clients connected. Wait ...
-  echo -n "$count>$MAX "
+  echo_n "$count>$MAX "
   sleep 1
 done
 

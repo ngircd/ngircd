@@ -21,7 +21,7 @@
 #ifdef RENDEZVOUS
 
 
-static char UNUSED id[] = "$Id: rendezvous.c,v 1.3 2004/12/26 00:14:33 alex Exp $";
+static char UNUSED id[] = "$Id: rendezvous.c,v 1.4 2004/12/26 16:48:53 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -93,15 +93,10 @@ LOCAL VOID Registration_Reply_Handler( DNSServiceRegistrationReplyErrorType ErrC
 
 #ifdef HOWL
 
-#include <pthread.h>
-
 LOCAL sw_discovery My_Discovery_Session = NULL;
-LOCAL pthread_t My_Howl_Thread;
-LOCAL BOOLEAN My_Howl_Thread_Created = FALSE;
+LOCAL sw_salt My_Salt;
 
 LOCAL sw_result HOWL_API Registration_Reply_Handler( sw_discovery Session, sw_discovery_publish_status Status, sw_discovery_oid Id, sw_opaque Extra );
-
-LOCAL VOID* Howl_Thread( VOID *x );
 
 #endif /* Howl */
 
@@ -116,6 +111,13 @@ GLOBAL VOID Rendezvous_Init( VOID )
 	if( sw_discovery_init( &My_Discovery_Session ) != SW_OKAY )
 	{
 		Log( LOG_EMERG, "Can't initialize Rendezvous (Howl): sw_discovery_init() failed!" );
+		Log( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE_NAME );
+		exit( 1 );
+	}
+
+	if( sw_discovery_salt( My_Discovery_Session, &My_Salt ) != SW_OKAY )
+	{
+		Log( LOG_EMERG, "Can't initialize Rendezvous (Howl): sw_discovery_salt() failed!" );
 		Log( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE_NAME );
 		exit( 1 );
 	}
@@ -137,12 +139,6 @@ GLOBAL VOID Rendezvous_Exit( VOID )
 	}
 
 #ifdef HOWL
-	if( My_Howl_Thread_Created )
-	{
-		Log( LOG_DEBUG, "Rendezvous: Canceling management thread ..." );
-		pthread_cancel( My_Howl_Thread );
-	}
-
 	sw_discovery_fina( My_Discovery_Session );
 #endif
 } /* Rendezvous_Exit */
@@ -261,13 +257,8 @@ GLOBAL VOID Rendezvous_Handler( VOID )
 #endif /* Apple */
 
 #ifdef HOWL
-	if( My_Discovery_Session != NULL && My_Howl_Thread_Created == FALSE )
-	{
-		/* Create POSIX thread for sw_discovery_run() */
-		Log( LOG_DEBUG, "Rendezvous: Creating management thread ..." );
-		pthread_create( &My_Howl_Thread, NULL, Howl_Thread, NULL );
-		My_Howl_Thread_Created = TRUE;
-	}
+	sw_ulong msecs = 10;
+	sw_salt_step( My_Salt, &msecs );
 #endif
 } /* Rendezvous_Handler */
 
@@ -364,14 +355,6 @@ LOCAL sw_result HOWL_API Registration_Reply_Handler( sw_discovery Session, sw_di
 
 	return SW_OKAY;
 } /* Registration_Reply_Handler */
-
-
-LOCAL VOID *Howl_Thread( VOID *x )
-{
-	assert( x == NULL );
-	sw_discovery_run( My_Discovery_Session );
-	pthread_exit( NULL );
-} /* Howl_Thread */
 
 
 #endif /* Howl */

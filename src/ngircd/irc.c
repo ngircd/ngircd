@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc.c,v 1.111 2002/12/27 13:17:04 alex Exp $";
+static char UNUSED id[] = "$Id: irc.c,v 1.112 2002/12/27 13:35:19 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -85,8 +85,8 @@ IRC_KILL( CLIENT *Client, REQUEST *Req )
 	if( c )
 	{
 		/* Yes, there is such a client -- but is it a valid user? */
-		if( Client_Type( c ) == CLIENT_SERVER ) IRC_WriteStrClient( prefix, ERR_CANTKILLSERVER_MSG, Client_ID( prefix ));
-		else if( Client_Type( c ) != CLIENT_USER  )IRC_WriteStrClient( prefix, ERR_NOPRIVILEGES_MSG, Client_ID( prefix ));
+		if( Client_Type( c ) == CLIENT_SERVER ) IRC_WriteStrClient( Client, ERR_CANTKILLSERVER_MSG, Client_ID( Client ));
+		else if( Client_Type( c ) != CLIENT_USER  )IRC_WriteStrClient( Client, ERR_NOPRIVILEGES_MSG, Client_ID( Client ));
 		else
 		{
 			/* Kill user NOW! */

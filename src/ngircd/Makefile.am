@@ -9,7 +9,7 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: Makefile.am,v 1.19 2002/03/29 22:52:12 alex Exp $
+# $Id: Makefile.am,v 1.20 2002/05/19 01:15:55 alex Exp $
 #
 
 AM_CFLAGS = -I$(srcdir)/../portab
@@ -21,6 +21,8 @@ sbin_PROGRAMS = ngircd
 ngircd_SOURCES = ngircd.c channel.c client.c conf.c conn.c hash.c irc.c \
 	irc-channel.c irc-login.c irc-mode.c irc-oper.c irc-server.c \
 	irc-write.c log.c parse.c tool.c
+
+ngircd_LDFLAGS = -L../portab -lngportab
 
 noinst_HEADERS = ngircd.h channel.h client.h conf.h conn.h hash.h irc.h \
 	irc-channel.h irc-login.h irc-mode.h irc-oper.h irc-server.h \

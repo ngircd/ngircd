@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.113 2002/12/30 17:14:59 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.114 2002/12/31 16:13:29 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -1162,9 +1162,6 @@ Check_Servers( VOID )
 	CONN_ID idx;
 	INT i, n;
 
-	/* Don't connect in "passive mode" */
-	if( NGIRCd_Passive ) return;
-
 	/* Serach all connections, are there results from the resolver? */
 	for( idx = 0; idx < Pool_Size; idx++ )
 	{
@@ -1177,8 +1174,8 @@ Check_Servers( VOID )
 	/* Check all configured servers */
 	for( i = 0; i < MAX_SERVERS; i++ )
 	{
-		/* Valid outgoing server which isn't already connected? */
-		if(( ! Conf_Server[i].host[0] ) || ( ! Conf_Server[i].port > 0 ) || ( Conf_Server[i].conn_id > NONE )) continue;
+		/* Valid outgoing server which isn't already connected or disabled? */
+		if(( ! Conf_Server[i].host[0] ) || ( ! Conf_Server[i].port > 0 ) || ( Conf_Server[i].conn_id > NONE ) || ( Conf_Server[i].flags & CONF_SFLAG_DISABLED )) continue;
 
 		/* Is there already a connection in this group? */
 		if( Conf_Server[i].group > NONE )

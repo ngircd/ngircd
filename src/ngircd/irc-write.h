@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-write.h,v 1.3 2002/05/27 13:09:27 alex Exp $
+ * $Id: irc-write.h,v 1.4 2002/09/03 23:56:06 alex Exp $
  *
  * irc-write.h: IRC-Texte und Befehle ueber Netzwerk versenden (Header)
  */
@@ -27,6 +27,7 @@ GLOBAL BOOLEAN IRC_WriteStrChannelPrefix PARAMS((CLIENT *Client, CHANNEL *Chan, 
 
 GLOBAL VOID IRC_WriteStrServers PARAMS((CLIENT *ExceptOf, CHAR *Format, ... ));
 GLOBAL VOID IRC_WriteStrServersPrefix PARAMS((CLIENT *ExceptOf, CLIENT *Prefix, CHAR *Format, ... ));
+GLOBAL VOID IRC_WriteStrServersPrefixFlag PARAMS((CLIENT *ExceptOf, CLIENT *Prefix, CHAR Flag, CHAR *Format, ... ));
 
 GLOBAL BOOLEAN IRC_WriteStrRelatedPrefix PARAMS((CLIENT *Client, CLIENT *Prefix, BOOLEAN Remote, CHAR *Format, ... ));
 

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.56 2002/05/30 16:52:21 alex Exp $
+ * $Id: client.c,v 1.57 2002/06/01 14:36:43 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -249,7 +249,7 @@ Client_Destroy( CLIENT *Client, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN SendQuit )
 						else IRC_WriteStrServersPrefix( Client_NextHop( c ), c, "QUIT :" );
 					}
 				}
-				Channel_RemoveClient( c, FwdMsg ? FwdMsg : c->id );
+				Channel_Quit( c, FwdMsg ? FwdMsg : c->id );
 			}
 			else if( c->type == CLIENT_SERVER )
 			{

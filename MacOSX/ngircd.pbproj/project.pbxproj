@@ -94,11 +94,13 @@
 			);
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = "";
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				HEADER_SEARCH_PATHS = "";
 				INSTALL_PATH = "$(HOME)/bin";
 				LIBRARY_SEARCH_PATHS = "";
-				OTHER_CFLAGS = "-DLOCALSTATEDIR=\\\\\\\"/usr/local/var\\\\\\\" -DSYSCONFDIR=\\\\\\\"/usr/local/etc\\\\\\\"";
-				OTHER_LDFLAGS = "";
+				OPTIMIZATION_CFLAGS = "-O2";
+				OTHER_CFLAGS = "-DSYSCONFDIR=\\\\\\\"/usr/local/etc\\\\\\\"";
+				OTHER_LDFLAGS = "-lz";
 				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = ngircd;
 				REZ_EXECUTABLE = YES;
@@ -821,6 +823,8 @@
 				F5382426024F89BC01A85B04,
 			);
 			buildSettings = {
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				OPTIMIZATION_CFLAGS = "-O2";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				OTHER_REZFLAGS = "";

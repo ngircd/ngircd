@@ -20,6 +20,10 @@ ngIRCd 0.3.x, ??.??.2002
   - Server-Gruppen implementiert: es wird immer nur zu einem Server in
     einer Gruppe eine Verbindung aufgebaut, klappt es beim ersten Server
     nicht, so wird der naechste probiert.
+  - Clients und Channels werden nicht mehr ueber ihren Namen, sondern
+    einen Hash-Wert gesucht: sollte deutlich schneller sein.
+  - neuer Kommandozeilen-Parameter "--configtest": die Konfiguration wird
+    gelesen und die dann verwendeten Werte angezeigt.
 
 ngIRCd 0.3.0, 02.03.2002
 
@@ -76,4 +80,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.21 2002/03/10 18:46:46 alex Exp $
+$Id: NEWS,v 1.22 2002/03/27 19:01:41 alex Exp $

@@ -1,5 +1,5 @@
 .\"
-.\" $Id: ngircd.8,v 1.8 2003/03/10 00:58:06 alex Exp $
+.\" $Id: ngircd.8,v 1.9 2004/04/05 10:59:10 alex Exp $
 .\"
 .TH ngircd 8 "March 2003" ngircd "ngIRCd Manual"
 .SH NAME
@@ -36,9 +36,6 @@ controlling terminal and to wait for clients.
 .PP
 You can use these options to modify this default:
 .TP
-\fB\-\-configtest\fR
-Read, validate and display the configuration; then exit.
-.TP
 \fB\-f\fR \fIfile\fR, \fB\-\-config\fR \fIfile\fR
 Use
 .I file
@@ -51,6 +48,9 @@ All log messages go to the console.
 \fB\-p\fR, \fB\-\-passive\fR
 Disable automatic connections to other servers. You can use the IRC command
 CONNECT later on as IRC Operator to link this ngIRCd to other servers.
+.TP
+\fB\-t\fR, \fB\-\-configtest\fR
+Read, validate and display the configuration; then exit.
 .TP
 \fB\-\-version\fR
 Output version information and exit.

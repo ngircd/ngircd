@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: messages.h,v 1.21 2002/01/27 17:13:37 alex Exp $
+ * $Id: messages.h,v 1.22 2002/01/28 13:06:19 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: messages.h,v $
+ * Revision 1.22  2002/01/28 13:06:19  alex
+ * - RPL_NAMREPLY_MSG an tatsaechliche Implementierung angepasst ;-)
+ *
  * Revision 1.21  2002/01/27 17:13:37  alex
  * - neue Defines fuer RPL_TOPIC und RPL_NOTOPIC.
  *
@@ -159,7 +162,7 @@
 #define RPL_TOPIC_MSG			RPL_TOPIC" %s %s :%s"
 
 #define RPL_NAMREPLY			"353"
-#define RPL_NAMREPLY_MSG		RPL_NAMREPLY" %s %s %s :%s"
+#define RPL_NAMREPLY_MSG		RPL_NAMREPLY" %s %s %s :"
 
 #define RPL_LINKS			"364"
 #define RPL_LINKS_MSG			RPL_LINKS" %s %s %s :%d %s"

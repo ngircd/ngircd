@@ -2,16 +2,15 @@
  * ngIRCd -- The Next Generation IRC Daemon
  * Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
  *
- * Dieses Programm ist freie Software. Sie koennen es unter den Bedingungen
- * der GNU General Public License (GPL), wie von der Free Software Foundation
- * herausgegeben, weitergeben und/oder modifizieren, entweder unter Version 2
- * der Lizenz oder (wenn Sie es wuenschen) jeder spaeteren Version.
- * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
- * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: portab.h,v 1.9 2002/12/12 11:26:08 alex Exp $
+ * $Id: portab.h,v 1.10 2002/12/26 13:26:34 alex Exp $
  *
- * portab.h: "Portabilitaets-Definitionen"
+ * Portability functions and declarations (header for libngbportab).
  */
 
 
@@ -22,7 +21,7 @@
 #include "config.h"
 
 
-/* Compiler Features */
+/* compiler features */
 
 #ifdef __GNUC__
 # define PUNUSED(x) __attribute__ ((unused)) x
@@ -41,7 +40,7 @@
 #endif
 
 
-/* Keywords */
+/* keywords */
 
 #define EXTERN extern
 #define STATIC static
@@ -50,7 +49,7 @@
 #define REGISTER register
 
 
-/* Datatentypen */
+/* datatypes */
 
 #ifndef PROTOTYPES
 # ifndef signed
@@ -105,18 +104,7 @@ typedef UINT8 BOOLEAN;
 #endif
 
 
-/* configure-Optionen */
-
-#ifndef HAVE_socklen_t
-#define socklen_t int			/* u.a. fuer Mac OS X */
-#endif
-
-#if OS_UNIX_AUX
-#define _POSIX_SOURCE			/* muss unter A/UX definiert sein */
-#endif
-
-
-/* Konstanten */
+/* target constants  */
 
 #ifndef TARGET_OS
 #define TARGET_OS "unknown"
@@ -128,6 +116,33 @@ typedef UINT8 BOOLEAN;
 
 #ifndef TARGET_VENDOR
 #define TARGET_VENDOR "unknown"
+#endif
+
+
+/* configure options */
+
+#ifndef HAVE_socklen_t
+#define socklen_t int			/* u.a. fuer Mac OS X */
+#endif
+
+#if OS_UNIX_AUX
+#define _POSIX_SOURCE			/* muss unter A/UX definiert sein */
+#endif
+
+#ifndef HAVE_SNPRINTF
+EXTERN INT snprintf( CHAR *str, size_t count, CONST CHAR *fmt, ... );
+#endif
+
+#ifndef HAVE_STRLCAT
+EXTERN size_t strlcat( CHAR *dst, CONST CHAR *src, size_t size );
+#endif
+
+#ifndef HAVE_STRLCPY
+EXTERN size_t strlcpy( CHAR *dst, CONST CHAR *src, size_t size );
+#endif
+
+#ifndef HAVE_VSNPRINTF
+EXTERN INT vsnprintf( CHAR *str, size_t count, CONST CHAR *fmt, va_list args );
 #endif
 
 

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.14 2001/12/26 14:45:37 alex Exp $
+ * $Id: conn.c,v 1.15 2001/12/27 16:35:04 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
+ * Revision 1.15  2001/12/27 16:35:04  alex
+ * - vergessene Variable bei Ping-Timeout-Logmeldung ergaenzt. Opsa.
+ *
  * Revision 1.14  2001/12/26 14:45:37  alex
  * - "Code Cleanups".
  *
@@ -660,7 +663,7 @@ LOCAL VOID Check_Connections( VOID )
 				if( My_Connections[i].lastping < time( NULL ) - Conf_PongTimeout )
 				{
 					/* Timeout */
-					Log( LOG_NOTICE, "Connection %d: Ping timeout." );
+					Log( LOG_NOTICE, "Connection %d: Ping timeout.", i );
 					Conn_Close( i, "Ping timeout" );
 				}
 			}

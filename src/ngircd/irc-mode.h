@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-mode.h,v 1.2 2002/03/12 14:37:52 alex Exp $
+ * $Id: irc-mode.h,v 1.2.2.1 2002/04/08 18:07:42 alex Exp $
  *
  * irc-mode.h: IRC-Befehle zur Mode-Aenderung (MODE, AWAY, ...) (Header)
  */

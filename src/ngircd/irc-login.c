@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-login.c,v 1.11 2002/03/26 23:58:34 alex Exp $
+ * $Id: irc-login.c,v 1.11.2.1 2002/04/08 18:07:42 alex Exp $
  *
  * irc-login.c: Anmeldung und Abmeldung im IRC
  */
@@ -116,7 +116,7 @@ GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req )
 		 * wenn wir es nicht so machen. Ob es so okay ist? Hm ... */
 		if( strcmp( Client_ID( target ), Req->argv[0] ) == 0 ) return CONNECTED;
 #endif
-		
+
 		/* pruefen, ob Nick bereits vergeben. Speziallfall: der Client
 		 * will nur die Gross- und Kleinschreibung aendern. Das darf
 		 * er natuerlich machen :-) */
@@ -140,8 +140,16 @@ GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req )
 		else
 		{
 			/* Nick-Aenderung */
-			if( Client_Conn( target ) > NONE ) Log( LOG_INFO, "User \"%s\" changed nick (connection %d): \"%s\" -> \"%s\".", Client_Mask( target ), Client_ID( target ), Req->argv[0], Client_Conn( target ));
-			else Log( LOG_DEBUG, "User \"%s\" changed nick: \"%s\" -> \"%s\".", Client_Mask( target ), Client_ID( target ), Req->argv[0] );
+			if( Client_Conn( target ) > NONE )
+			{
+				/* lokaler Client */
+				Log( LOG_INFO, "User \"%s\" changed nick (connection %d): \"%s\" -> \"%s\".", Client_Mask( target ), Client_Conn( target ), Client_ID( target ), Req->argv[0] );
+			}
+			else
+			{
+				/* Remote-Client */
+				Log( LOG_DEBUG, "User \"%s\" changed nick: \"%s\" -> \"%s\".", Client_Mask( target ), Client_ID( target ), Req->argv[0] );
+			}
 
 			/* alle betroffenen User und Server ueber Nick-Aenderung informieren */
 			if( Client_Type( Client ) == CLIENT_USER ) IRC_WriteStrClientPrefix( Client, Client, "NICK :%s", Req->argv[0] );

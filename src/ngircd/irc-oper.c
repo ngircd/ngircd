@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-oper.c,v 1.3 2002/03/27 20:52:58 alex Exp $
+ * $Id: irc-oper.c,v 1.3.2.1 2002/04/08 18:07:42 alex Exp $
  *
  * irc-oper.c: IRC-Operator-Befehle
  */
@@ -19,6 +19,7 @@
 
 #include "imp.h"
 #include <assert.h>
+#include <string.h>
 
 #include "ngircd.h"
 #include "conf.h"

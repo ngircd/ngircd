@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-server.c,v 1.8 2002/03/27 20:52:58 alex Exp $
+ * $Id: irc-server.c,v 1.8.2.1 2002/04/08 18:07:42 alex Exp $
  *
  * irc-server.c: IRC-Befehle fuer Server-Links
  */
@@ -80,10 +80,11 @@ GLOBAL BOOLEAN IRC_SERVER( CLIENT *Client, REQUEST *Req )
 		Client_SetHops( Client, 1 );
 		Client_SetInfo( Client, Req->argv[Req->argc - 1] );
 		
-		/* Meldet sich der Server bei uns an? */
-		if( Req->argc == 2 )
+		/* Meldet sich der Server bei uns an (d.h., bauen nicht wir
+		 * selber die Verbindung zu einem anderen Server auf)? */
+		if( Client_Token( Client ) != TOKEN_OUTBOUND )
 		{
-			/* Unseren SERVER- und PASS-Befehl senden */
+			/* Eingehende Verbindung: Unseren SERVER- und PASS-Befehl senden */
 			ok = TRUE;
 			if( ! IRC_WriteStrClient( Client, "PASS %s "PASSSERVERADD, Conf_Server[i].pwd )) ok = FALSE;
 			else ok = IRC_WriteStrClient( Client, "SERVER %s 1 :%s", Conf_ServerName, Conf_ServerInfo );
@@ -95,7 +96,12 @@ GLOBAL BOOLEAN IRC_SERVER( CLIENT *Client, REQUEST *Req )
 			Client_SetIntroducer( Client, Client );
 			Client_SetToken( Client, 1 );
 		}
-		else  Client_SetToken( Client, atoi( Req->argv[1] ));
+		else
+		{
+			/* Ausgehende verbindung, SERVER und PASS wurden von uns bereits
+			 * an die Gegenseite uerbermittelt */
+			Client_SetToken( Client, atoi( Req->argv[1] ));
+		}
 
 		Log( LOG_NOTICE|LOG_snotice, "Server \"%s\" registered (connection %d, 1 hop - direct link).", Client_ID( Client ), Client_Conn( Client ));
 

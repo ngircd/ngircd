@@ -1,7 +1,7 @@
 
                      ngIRCd - Next Generation IRC Server
 
-                      (c)2001-2004 by Alexander Barton,
+                      (c)2001-2005 by Alexander Barton,
                     alex@barton.de, http://www.barton.de/
 
                ngIRCd is free software and published under the
@@ -9,6 +9,13 @@
 
                                -- ChangeLog --
 
+
+ngircd 0.8.x (CVS)
+
+  - Fixed return values of our own implementation of strlcpy(). The code has
+    been taken from rsync and they fixed it, but we didn't until today :-/
+    It has only been used when the system didn't implement strlcpy by itself,
+    not on "modern" systems. Florian Westphal, <westphal@foo.fh-furtwangen.de>.
 
 ngircd 0.8.1 (2004-12-25)
 
@@ -540,4 +547,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.233.2.11 2004/12/25 00:20:57 alex Exp $
+$Id: ChangeLog,v 1.233.2.12 2005/01/18 09:09:05 alex Exp $

@@ -19,7 +19,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: strlcpy.c,v 1.2 2002/12/26 14:34:11 alex Exp $";
+static char UNUSED id[] = "$Id: strlcpy.c,v 1.2.4.1 2005/01/18 09:09:05 alex Exp $";
 
 #include "imp.h"
 #include <string.h>
@@ -61,12 +61,13 @@ strlcpy( CHAR *dst, CONST CHAR *src, size_t size )
 	 * always null terminates. */
 
 	size_t len = strlen( src );
+	size_t ret = len;
 
-	if( size <= 0 ) return len;
+	if( size <= 0 ) return 0;
 	if( len >= size ) len = size - 1;
 	memcpy( dst, src, len );
 	dst[len] = 0;
-	return len;
+	return ret;
 } /* strlcpy */
 
 #endif

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: channel.c,v 1.21 2002/04/23 19:51:31 alex Exp $
+ * $Id: channel.c,v 1.22 2002/05/21 00:10:16 alex Exp $
  *
  * channel.c: Management der Channels
  */
@@ -26,6 +26,7 @@
 #include <string.h>
 
 #include "client.h"
+#include "conf.h"
 #include "hash.h"
 #include "irc-write.h"
 #include "log.h"
@@ -50,8 +51,41 @@ LOCAL BOOLEAN Delete_Channel( CHANNEL *Chan );
 
 GLOBAL VOID Channel_Init( VOID )
 {
+	CHANNEL *chan;
+	CHAR *c;
+	INT i;
+	
 	My_Channels = NULL;
 	My_Cl2Chan = NULL;
+
+	/* Vordefinierte persistente Channels erzeugen */
+	for( i = 0; i < Conf_Channel_Count; i++ )
+	{
+		/* Ist ein Name konfiguriert? */
+		if( ! Conf_Channel[i].name ) continue;
+
+		/* Gueltiger Channel-Name? */
+		if( ! Channel_IsValidName( Conf_Channel[i].name ))
+		{
+			Log( LOG_ERR, "Can't create pre-defined channel: invalid name: \"%s\"!", Conf_Channel[i].name );
+			continue;
+		}
+		
+		/* Channel anlegen */
+		chan = New_Chan( Conf_Channel[i].name );
+		if( chan )
+		{
+			/* Verketten */
+			chan->next = My_Channels;
+			My_Channels = chan;
+			Channel_ModeAdd( chan, 'P' );
+			Channel_SetTopic( chan, Conf_Channel[i].topic );
+			c = Conf_Channel[i].modes;
+			while( *c ) Channel_ModeAdd( chan, *c++ );
+			Log( LOG_INFO, "Created pre-defined channel \"%s\".", Conf_Channel[i].name );
+		}
+		else Log( LOG_ERR, "Can't create pre-defined channel \"%s\"!", Conf_Channel[i].name );
+	}
 } /* Channel_Init */
 
 
@@ -585,8 +619,11 @@ LOCAL BOOLEAN Remove_Client( CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, CHAR
 
 	Log( LOG_DEBUG, "User \"%s\" left channel \"%s\" (%s).", Client_Mask( Client ), c->name, Reason );
 
-	/* Wenn Channel nun leer: loeschen */
-	if( ! Get_First_Cl2Chan( NULL, Chan )) Delete_Channel( Chan );
+	/* Wenn Channel nun leer und nicht pre-defined: loeschen */
+	if( ! strchr( Channel_Modes( Chan ), 'P' ))
+	{
+		if( ! Get_First_Cl2Chan( NULL, Chan )) Delete_Channel( Chan );
+	}
 		
 	return TRUE;
 } /* Remove_Client */

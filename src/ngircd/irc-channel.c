@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-channel.c,v 1.4 2002/04/23 19:51:14 alex Exp $
+ * $Id: irc-channel.c,v 1.5 2002/05/21 00:10:16 alex Exp $
  *
  * irc-channel.c: IRC-Channel-Befehle
  */
@@ -92,6 +92,9 @@ GLOBAL BOOLEAN IRC_JOIN( CLIENT *Client, REQUEST *Req )
 			Channel_UserModeAdd( chan, target, *flags );
 			flags++;
 		}
+
+		/* Wenn persistenter Channel und IRC-Operator: zum Channel-OP machen */
+		if(( strchr( Channel_Modes( chan ), 'P' )) && ( strchr( Client_Modes( target ), 'o' ))) Channel_UserModeAdd( chan, target, 'o' );
 
 		/* Muessen Modes an andere Server gemeldet werden? */
 		strcpy( &modes[1], Channel_UserModes( chan, target ));

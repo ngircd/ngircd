@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-mode.c,v 1.4 2002/03/25 17:11:45 alex Exp $
+ * $Id: irc-mode.c,v 1.5 2002/05/21 00:10:16 alex Exp $
  *
  * irc-mode.c: IRC-Befehle zur Mode-Aenderung (MODE, AWAY, ...)
  */
@@ -226,6 +226,10 @@ GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req )
 						case 't':
 							/* Topic Lock */
 							x[0] = 't';
+							break;
+						case 'P':
+							/* Persistent */
+							x[0] = 'P';
 							break;
 						default:
 							Log( LOG_DEBUG, "Unknown channel-mode \"%c%c\" from \"%s\" at %s!?", set ? '+' : '-', *mode_ptr, Client_ID( Client ), Channel_Name( chan ));

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.c,v 1.23 2002/03/30 13:08:10 alex Exp $
+ * $Id: conf.c,v 1.24 2002/05/21 00:10:16 alex Exp $
  *
  * conf.h: Konfiguration des ngircd
  */
@@ -46,6 +46,7 @@ LOCAL VOID Validate_Config( VOID );
 GLOBAL VOID Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg );
 GLOBAL VOID Handle_OPERATOR( INT Line, CHAR *Var, CHAR *Arg );
 GLOBAL VOID Handle_SERVER( INT Line, CHAR *Var, CHAR *Arg );
+GLOBAL VOID Handle_CHANNEL( INT Line, CHAR *Var, CHAR *Arg );
 
 LOCAL VOID Config_Error( CONST INT Level, CONST CHAR *Format, ... );
 
@@ -115,6 +116,15 @@ GLOBAL INT Conf_Test( VOID )
 		printf( "  Group = %d\n", Conf_Server[i].group );
 		puts( "" );
 	}
+
+	for( i = 0; i < Conf_Channel_Count; i++ )
+	{
+		puts( "[CHANNEL]" );
+		printf( "  Name = %s\n", Conf_Channel[i].name );
+		printf( "  Modes = %s\n", Conf_Channel[i].modes );
+		printf( "  Topic = %s\n", Conf_Channel[i].topic );
+		puts( "" );
+	}
 	
 	return 0;
 } /* Conf_Test */
@@ -146,8 +156,8 @@ LOCAL VOID Set_Defaults( VOID )
 	Conf_ConnectRetry = 60;
 
 	Conf_Oper_Count = 0;
-
 	Conf_Server_Count = 0;
+	Conf_Channel_Count = 0;
 } /* Set_Defaults */
 
 
@@ -214,6 +224,19 @@ LOCAL VOID Read_Config( VOID )
 				}
 				continue;
 			}
+			if( strcasecmp( section, "[CHANNEL]" ) == 0 )
+			{
+				if( Conf_Channel_Count + 1 > MAX_DEFCHANNELS ) Config_Error( LOG_ERR, "Too many pre-defined channels configured." );
+				else
+				{
+					/* neuen vordefinierten Channel initialisieren */
+					strcpy( Conf_Channel[Conf_Channel_Count].name, "" );
+					strcpy( Conf_Channel[Conf_Channel_Count].modes, "" );
+					strcpy( Conf_Channel[Conf_Channel_Count].topic, "" );
+					Conf_Channel_Count++;
+				}
+				continue;
+			}
 			Config_Error( LOG_ERR, "%s, line %d: Unknown section \"%s\"!", NGIRCd_ConfFile, line, section );
 			section[0] = 0x1;
 		}
@@ -233,6 +256,7 @@ LOCAL VOID Read_Config( VOID )
 		if( strcasecmp( section, "[GLOBAL]" ) == 0 ) Handle_GLOBAL( line, var, arg );
 		else if( strcasecmp( section, "[OPERATOR]" ) == 0 ) Handle_OPERATOR( line, var, arg );
 		else if( strcasecmp( section, "[SERVER]" ) == 0 ) Handle_SERVER( line, var, arg );
+		else if( strcasecmp( section, "[CHANNEL]" ) == 0 ) Handle_CHANNEL( line, var, arg );
 		else Config_Error( LOG_ERR, "%s, line %d: Variable \"%s\" outside section!", NGIRCd_ConfFile, line, var );
 	}
 	
@@ -413,6 +437,38 @@ GLOBAL VOID Handle_SERVER( INT Line, CHAR *Var, CHAR *Arg )
 	
 	Config_Error( LOG_ERR, "%s, line %d (section \"Server\"): Unknown variable \"%s\"!", NGIRCd_ConfFile, Line, Var );
 } /* Handle_SERVER */
+
+
+GLOBAL VOID Handle_CHANNEL( INT Line, CHAR *Var, CHAR *Arg )
+{
+	assert( Line > 0 );
+	assert( Var != NULL );
+	assert( Arg != NULL );
+
+	if( strcasecmp( Var, "Name" ) == 0 )
+	{
+		/* Hostname des Servers */
+		strncpy( Conf_Channel[Conf_Channel_Count - 1].name, Arg, CHANNEL_NAME_LEN - 1 );
+		Conf_Channel[Conf_Channel_Count - 1].name[CHANNEL_NAME_LEN - 1] = '\0';
+		return;
+	}
+	if( strcasecmp( Var, "Modes" ) == 0 )
+	{
+		/* Name des Servers ("Nick") */
+		strncpy( Conf_Channel[Conf_Channel_Count - 1].modes, Arg, CHANNEL_MODE_LEN - 1 );
+		Conf_Channel[Conf_Channel_Count - 1].modes[CHANNEL_MODE_LEN - 1] = '\0';
+		return;
+	}
+	if( strcasecmp( Var, "Topic" ) == 0 )
+	{
+		/* Passwort des Servers */
+		strncpy( Conf_Channel[Conf_Channel_Count - 1].topic, Arg, CHANNEL_TOPIC_LEN - 1 );
+		Conf_Channel[Conf_Channel_Count - 1].topic[CHANNEL_TOPIC_LEN - 1] = '\0';
+		return;
+	}
+
+	Config_Error( LOG_ERR, "%s, line %d (section \"Channel\"): Unknown variable \"%s\"!", NGIRCd_ConfFile, Line, Var );
+} /* Handle_CHANNEL */
 
 
 LOCAL VOID Validate_Config( VOID )

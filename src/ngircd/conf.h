@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.h,v 1.15 2002/03/29 22:53:59 alex Exp $
+ * $Id: conf.h,v 1.16 2002/05/21 00:10:16 alex Exp $
  *
  * conf.h: Konfiguration des ngircd (Header)
  */
@@ -41,6 +41,13 @@ typedef struct _Conf_Server
 	time_t lasttry;			/* Letzter Connect-Versuch */
 	RES_STAT *res_stat;		/* Status des Resolver */
 } CONF_SERVER;
+
+typedef struct _Conf_Channel
+{
+	CHAR name[CHANNEL_NAME_LEN];	/* Name des Channel */
+	CHAR modes[CHANNEL_MODE_LEN];	/* Channel-Modes */
+	CHAR topic[CHANNEL_TOPIC_LEN];	/* Topic des Channels */
+} CONF_CHANNEL;
 
 
 /* Name ("Nick") des Servers */
@@ -77,6 +84,10 @@ GLOBAL INT Conf_Oper_Count;
 /* Server */
 GLOBAL CONF_SERVER Conf_Server[MAX_SERVERS];
 GLOBAL INT Conf_Server_Count;
+
+/* Vorkonfigurierte Channels */
+GLOBAL CONF_CHANNEL Conf_Channel[MAX_DEFCHANNELS];
+GLOBAL INT Conf_Channel_Count;
 
 
 GLOBAL VOID Conf_Init( VOID );

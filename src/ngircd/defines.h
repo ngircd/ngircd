@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: defines.h,v 1.23 2002/04/08 01:18:14 alex Exp $
+ * $Id: defines.h,v 1.24 2002/05/21 00:10:16 alex Exp $
  *
  * defines.h: (globale) Konstanten
  */
@@ -31,6 +31,8 @@
 #define MAX_OPERATORS 16		/* max. Anzahl konfigurierbarer Operatoren */
 
 #define MAX_SERVERS 16			/* max. Anzahl konfigurierbarer Server ("Peers") */
+
+#define MAX_DEFCHANNELS 16		/* max. Anzahl vorkonfigurierbarerr Channels */
 
 #define MAX_CONNECTIONS 100		/* max. Anzahl von Verbindungen an diesem Server */
 
@@ -62,7 +64,7 @@
 #define RECONNECT_DELAY 3		/* Server-Links erst nach 3 Sekunden versuchen, wieder aufzubauen */
 
 #define USERMODES "aios"		/* unterstuetzte User-Modes */
-#define CHANMODES "amnopqstv"		/* unterstuetzte Channel-Modes */
+#define CHANMODES "amnopPqstv"		/* unterstuetzte Channel-Modes */
 
 #define CONNECTED TRUE			/* fuer die irc-xxx-Module */
 #define DISCONNECTED FALSE

@@ -30,7 +30,8 @@ ngIRCd CVS-HEAD
     configured server and "CONNECT <name> <port> <host> <mypwd> <peerpwd>"
     to add a new server (ngIRCd tries to connect new servers only once!).
   - Added DISCONNECT command ("DISCONNECT <name>") to disable servers.
-  - Restructured the documentation: Now the main language is English.
+  - Restructured the documentation: Now the main language is English. The
+    german documentation has been removed (until there is a maintainer).
   - Enhanced killing of users caused by a nickname collision.
   - Better error detection for status code ("numerics") forwarding.
   - Moved tool functions to own library: "libngtool".
@@ -430,4 +431,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.184 2003/03/10 01:00:00 alex Exp $
+$Id: ChangeLog,v 1.185 2003/03/15 11:00:31 alex Exp $

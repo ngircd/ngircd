@@ -8,7 +8,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: configure.in,v 1.82 2003/03/07 14:37:30 alex Exp $
+# $Id: configure.in,v 1.83 2003/03/15 11:00:31 alex Exp $
 #
 
 # -- Initialisierung --
@@ -267,7 +267,6 @@ CFLAGS="$the_CFLAGS $add_CFLAGS -DSYSCONFDIR='\"\$(sysconfdir)\"'"
 AC_OUTPUT([ \
 	Makefile \
 	doc/Makefile \
-	doc/de/Makefile \
 	MacOSX/Makefile \
 	MacOSX/ngircd.pbproj/Makefile \
 	src/Makefile \

@@ -51,7 +51,7 @@ ngIRCd CVS-HEAD
     noch im Schreibpuffer stehen, zu senden.
   - Source in weiteres Modul "irc-info" aufgespalten.
   - Konfigurationsvariablen werden besser validiert: Laengen, Zahlen, ...
-  - neuen Befehl STATS begonnen.
+  - neuen Befehl STATS begonnen: bisher unterstuetzt wird "l".
 
 ngIRCd 0.5.4, 24.11.2002
 
@@ -355,4 +355,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.138 2002/12/01 13:00:50 alex Exp $
+$Id: ChangeLog,v 1.139 2002/12/02 13:20:41 alex Exp $

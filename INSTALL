@@ -118,15 +118,18 @@ In the sample configuration file, there are comments beginning with "#" OR
 ";" -- this is only for the better understanding of the file.
 
 The file is separated in four blocks: [Global], [Operator], [Server], and
-[Channel]. In the [Global] part, there is the main configuration, like the
-server-name and the ports, on which the server should be listening. In the
-[Operator] section, the server-operators are defined and [Server] is the
-section, where the server-links are configured. Use [Channel] blocks to
+[Channel].
+
+In the [Global] section, there is the main configuration like the server
+name and the ports, on which the server should be listening. IRC operators
+of this server are defined in [Operator] blocks. [Server] is the section
+where server links are configured. And [Channel] blocks are used to
 configure pre-defined ("persistent") IRC channels.
 
 The meaning of the variables in the configuration file is explained in the 
 "doc/sample-ngircd.conf", which is used as sample configuration file in
-/usr/local/etc after running "make install" (if you don't already have one).
+/usr/local/etc after running "make install" (if you don't already have one)
+and in the "ngircd.conf" manual page.
 
 
 IV. Command line options
@@ -154,4 +157,4 @@ number. In both cases the server exits after the output.
 
 
 -- 
-$Id: INSTALL,v 1.13 2003/03/09 22:03:58 alex Exp $
+$Id: INSTALL,v 1.14 2003/03/10 00:23:34 alex Exp $

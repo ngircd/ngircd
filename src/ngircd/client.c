@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.53 2002/03/27 20:52:58 alex Exp $
+ * $Id: client.c,v 1.54 2002/04/14 13:54:51 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -798,7 +798,17 @@ GLOBAL INT Client_MyServiceCount( VOID )
 
 GLOBAL INT Client_MyServerCount( VOID )
 {
-	return MyCount( CLIENT_SERVER );
+	CLIENT *c;
+	INT cnt;
+
+	cnt = 0;
+	c = My_Clients;
+	while( c )
+	{
+		if(( c->type == CLIENT_SERVER ) && ( c->hops == 1 )) cnt++;
+		c = (CLIENT *)c->next;
+	}
+	return cnt;
 } /* Client_MyServerCount */
 
 
@@ -867,7 +877,7 @@ LOCAL INT Count( CLIENT_TYPE Type )
 	c = My_Clients;
 	while( c )
 	{
-		if( c && ( c->type == Type )) cnt++;
+		if( c->type == Type ) cnt++;
 		c = (CLIENT *)c->next;
 	}
 	return cnt;
@@ -883,7 +893,7 @@ LOCAL INT MyCount( CLIENT_TYPE Type )
 	c = My_Clients;
 	while( c )
 	{
-		if( c && ( c->introducer == This_Server ) && ( c->type == Type )) cnt++;
+		if(( c->introducer == This_Server ) && ( c->type == Type )) cnt++;
 		c = (CLIENT *)c->next;
 	}
 	return cnt;

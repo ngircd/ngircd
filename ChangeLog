@@ -30,7 +30,8 @@ ngIRCd CVS-HEAD
     Resolver (4 Sekunden), wenn das Ergebnis eintrifft setzt er aber den
     Login sofort fort (bisher wurde immer mind. 1 Sekunde gewartet).
   - RPL_YOURHOST_MSG ist nun ircII- und RFC-kompatibel ;-)
-
+  - Segfault unter hoher Netzaktivitaet behoben: in Conn_Close() wird die
+    Connection-Struktur nun frueher als "ungueltig" markiert.
 
 ngIRCd 0.5.2, 04.10.2002
 
@@ -259,7 +260,6 @@ ngIRCd 0.1.0, 29.01.2002
   - Clients werden nun korrekt sowohl nur ueber den Nickname als auch die
     komplette "Host Mask" erkannt.
 
-
 ngIRCd 0.0.3, 16.01.2002
 
   - Server-Links vollstaendig implementiert: der ngIRCd kann nun auch
@@ -306,4 +306,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.108 2002/10/11 02:27:33 alex Exp $
+$Id: ChangeLog,v 1.109 2002/10/14 22:53:41 alex Exp $

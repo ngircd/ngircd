@@ -1,3 +1,10 @@
+ngircd (0.7.7+HEAD-0ab6) unstable; urgency=low
+
+  * Incorporated actual CVS HEAD version which includes all features of
+    version 0.8.0-pre1 and patches for the resolver and logger.
+
+ -- Alexander Barton <alex@Arthur.Ath.CX>  Tue, 11 May 2004 02:18:50 +0200
+
 ngircd (0.7.7+HEAD-0ab5) unstable; urgency=low
 
   * Updates from CVS HEAD branch, most notably: "INVITE- and BAN-lists

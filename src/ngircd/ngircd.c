@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2003 by Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.64 2002/12/12 11:31:21 alex Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.64.2.1 2003/01/01 13:47:42 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -506,7 +506,7 @@ LOCAL VOID
 Show_Version( VOID )
 {
 	puts( NGIRCd_Version( ));
-	puts( "Copyright (c)2001,2002 by Alexander Barton (<alex@barton.de>)." );
+	puts( "Copyright (c)2001-2003 by Alexander Barton (<alex@barton.de>)." );
 	puts( "Homepage: <http://arthur.ath.cx/~alex/ngircd/>\n" );
 	puts( "This is free software; see the source for copying conditions. There is NO" );
 	puts( "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." );

@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.8 2001/12/23 22:02:54 alex Exp $
+ * $Id: conn.c,v 1.9 2001/12/24 01:32:33 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
+ * Revision 1.9  2001/12/24 01:32:33  alex
+ * - in Conn_WriteStr() wurde das CR+LF nicht angehaengt!
+ * - Fehler-Ausgaben vereinheitlicht.
+ *
  * Revision 1.8  2001/12/23 22:02:54  alex
  * - Conn_WriteStr() nimmt nun variable Parameter,
  * - diverse kleinere Aenderungen.
@@ -178,27 +182,27 @@ GLOBAL BOOLEAN Conn_New_Listener( CONST INT Port )
 	sock = socket( PF_INET, SOCK_STREAM, 0);
 	if( sock < 0 )
 	{
-		Log( LOG_ALERT, "Can't create socket: %s", strerror( errno ));
+		Log( LOG_ALERT, "Can't create socket: %s!", strerror( errno ));
 		return FALSE;
 	}
 
 	/* Socket-Optionen setzen */
 	if( fcntl( sock, F_SETFL, O_NONBLOCK ) != 0 )
 	{
-		Log( LOG_ALERT, "Can't enable non-blocking mode: %s", strerror( errno ));
+		Log( LOG_ALERT, "Can't enable non-blocking mode: %s!", strerror( errno ));
 		close( sock );
 		return FALSE;
 	}
 	if( setsockopt( sock, SOL_SOCKET, SO_REUSEADDR, &on, (socklen_t)sizeof( on )) != 0)
 	{
-		Log( LOG_CRIT, "Can't set socket options: %s", strerror( errno ));
+		Log( LOG_CRIT, "Can't set socket options: %s!", strerror( errno ));
 		/* dieser Fehler kann ignoriert werden. */
 	}
 
 	/* an Port binden */
 	if( bind( sock, (struct sockaddr *)&addr, (socklen_t)sizeof( addr )) != 0 )
 	{
-		Log( LOG_ALERT, "Can't bind socket: %s", strerror( errno ));
+		Log( LOG_ALERT, "Can't bind socket: %s!", strerror( errno ));
 		close( sock );
 		return FALSE;
 	}
@@ -206,7 +210,7 @@ GLOBAL BOOLEAN Conn_New_Listener( CONST INT Port )
 	/* in "listen mode" gehen :-) */
 	if( listen( sock, 10 ) != 0 )
 	{
-		Log( LOG_ALERT, "Can't listen on soecket: %s", strerror( errno ));
+		Log( LOG_ALERT, "Can't listen on soecket: %s!", strerror( errno ));
 		close( sock );
 		return FALSE;
 	}
@@ -247,7 +251,7 @@ GLOBAL VOID Conn_Handler( INT Timeout )
 	read_sockets = My_Sockets;
 	if( select( My_Max_Fd + 1, &read_sockets, &write_sockets, NULL, &tv ) == -1 )
 	{
-		if( errno != EINTR ) Log( LOG_ALERT, "select(): %s", strerror( errno ));
+		if( errno != EINTR ) Log( LOG_ALERT, "select(): %s!", strerror( errno ));
 		return;
 	}
 	
@@ -276,17 +280,19 @@ GLOBAL BOOLEAN Conn_WriteStr( CONN_ID Idx, CHAR *Format, ... )
 	va_list ap;
 
 	va_start( ap, Format );
-	if( vsnprintf( buffer, MAX_CMDLEN, Format, ap ) == MAX_CMDLEN )
+	if( vsnprintf( buffer, MAX_CMDLEN - 2, Format, ap ) == MAX_CMDLEN - 2 )
 	{
 		Log( LOG_ALERT, "String too long to send (connection %d)!", Idx );
 		Close_Connection( Idx, "Server error: String too long to send!" );
 		return FALSE;
 	}
-	ok = Conn_Write( Idx, buffer, strlen( buffer ));
 
 #ifdef DEBUG
 	Log( LOG_DEBUG, " -> connection %d: '%s'.", Idx, buffer );
 #endif
+
+	strcat( buffer, "\r\n" );
+	ok = Conn_Write( Idx, buffer, strlen( buffer ));
 
 	va_end( ap );
 	return ok;
@@ -351,7 +357,7 @@ LOCAL BOOLEAN Try_Write( CONN_ID Idx )
 		/* Fehler! */
 		if( errno != EINTR )
 		{
-			Log( LOG_ALERT, "select(): %s", strerror( errno ));
+			Log( LOG_ALERT, "select(): %s!", strerror( errno ));
 			Close_Connection( Idx, NULL );
 			return FALSE;
 		}
@@ -402,7 +408,7 @@ LOCAL BOOLEAN Handle_Write( CONN_ID Idx )
 	if( len < 0 )
 	{
 		/* Oops, ein Fehler! */
-		Log( LOG_ALERT, "Write error (buffer) on connection %d: %s", Idx, strerror( errno ));
+		Log( LOG_ALERT, "Write error (buffer) on connection %d: %s!", Idx, strerror( errno ));
 		Close_Connection( Idx, NULL );
 		return FALSE;
 	}
@@ -430,7 +436,7 @@ LOCAL VOID New_Connection( INT Sock )
 	new_sock = accept( Sock, (struct sockaddr *)&new_addr, (socklen_t *)&new_sock_len );
 	if( new_sock < 0 )
 	{
-		Log( LOG_CRIT, "Can't accept connection: %s", strerror( errno ));
+		Log( LOG_CRIT, "Can't accept connection: %s!", strerror( errno ));
 		return;
 	}
 		
@@ -492,7 +498,8 @@ LOCAL VOID Close_Connection( CONN_ID Idx, CHAR *Msg )
 
 	if( close( My_Connections[Idx].sock ) != 0 )
 	{
-		Log( LOG_ERR, "Error closing connection %d with %s:%d - %s", Idx, inet_ntoa( My_Connections[Idx].addr.sin_addr ), ntohs( My_Connections[Idx].addr.sin_port), strerror( errno ));
+		Log( LOG_ERR, "Error closing connection %d with %s:%d - %s!", Idx, inet_ntoa( My_Connections[Idx].addr.sin_addr ), ntohs( My_Connections[Idx].addr.sin_port), strerror( errno ));
+		return;
 	}
 	else
 	{
@@ -531,7 +538,7 @@ LOCAL VOID Read_Request( CONN_ID Idx )
 	if( len < 0 )
 	{
 		/* Fehler beim Lesen */
-		Log( LOG_ALERT, "Read error on connection %d!", Idx );
+		Log( LOG_ALERT, "Read error on connection %d: %s!", Idx, strerror( errno ));
 		Close_Connection( Idx, "Read error!" );
 		return;
 	}

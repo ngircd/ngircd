@@ -1,10 +1,10 @@
 #!/bin/sh
 # ngIRCd Test Suite
-# $Id: start-server.sh,v 1.12 2004/09/04 13:58:31 alex Exp $
+# $Id: start-server.sh,v 1.13 2004/09/04 19:14:46 alex Exp $
 
 [ -z "$srcdir" ] && srcdir=`dirname $0`
 
-echo "      starting server ..."
+echo -n "      starting server ..."
 
 # remove old logfiles
 rm -rf logs *.log
@@ -13,14 +13,14 @@ rm -rf logs *.log
 # test-server, because we won't be able to kill it at the end of the test.
 ./getpid.sh sh > /dev/null 2>&1
 if [ $? -ne 0 ]; then
-  echo "      error: getpid.sh FAILED!"
+  echo " getpid.sh failed!"
   exit 1
 fi
 
 # check if there is a test-server already running
 ./getpid.sh T-ngircd > /dev/null 2>&1
 if [ $? -eq 0 ]; then
-  echo "      error: test-server already running!"
+  echo " failure: test-server already running!"
   exit 1
 fi
 
@@ -33,6 +33,9 @@ sleep 1
 
 # validate running test-server
 pid=`./getpid.sh T-ngircd`
-[ -n "$pid" ] && kill -0 $pid > /dev/null 2>&1 || exit 1
+[ -n "$pid" ] && kill -0 $pid > /dev/null 2>&1; r=$?
+
+[ $r -eq 0 ] && echo " ok." || echo " failure!"
+exit 
 
 # -eof-

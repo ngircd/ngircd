@@ -9,7 +9,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: test-loop.sh,v 1.1 2004/09/04 15:44:45 alex Exp $
+# $Id: test-loop.sh,v 1.2 2004/09/04 19:14:46 alex Exp $
 #
 
 # detect source directory
@@ -22,9 +22,10 @@
 loop=0
 while [ ${loop} -lt $LOOPS ]; do
   loop=`expr ${loop} + 1`
-  echo "      loop $loop/$LOOPS starting ..."
+  echo "      loop $loop/$LOOPS starting:"
   for s in $srcdir/*-test; do
-    sh $s
+    sh $s; r=$?
+    [ $r -ne 0 ] && exit $r
     sleep 1
   done
   if [ ${loop} -lt $LOOPS ]; then

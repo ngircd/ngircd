@@ -9,7 +9,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: stress-server.sh,v 1.13 2004/09/04 18:20:16 alex Exp $
+# $Id: stress-server.sh,v 1.14 2004/09/04 19:14:46 alex Exp $
 #
 
 # detect source directory
@@ -69,7 +69,7 @@ while true; do
   echo -n "."
 done
 
-[ $res -eq 0 ] && echo " done." || echo " ERROR!"
+[ $res -eq 0 ] && echo " ok." || echo " failure!"
 
 exit $res
 

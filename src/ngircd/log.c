@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: log.c,v 1.46 2004/05/10 23:57:46 alex Exp $";
+static char UNUSED id[] = "$Id: log.c,v 1.47 2004/06/26 08:50:44 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -182,7 +182,7 @@ va_dcl
 	if( NGIRCd_NoDaemon )
 	{
 		/* auf Konsole ausgeben */
-		fprintf( stdout, "[%d:%d] %s\n", getpid( ), Level, msg );
+		fprintf( stdout, "[%d:%d] %s\n", (INT)getpid( ), Level, msg );
 		fflush( stdout );
 	}
 #ifdef SYSLOG
@@ -265,7 +265,7 @@ va_dcl
 	if( NGIRCd_NoDaemon )
 	{
 		/* Output to console */
-		fprintf( stdout, "[%d:%d] %s\n", getpid( ), Level, msg );
+		fprintf( stdout, "[%d:%d] %s\n", (INT)getpid( ), Level, msg );
 		fflush( stdout );
 	}
 #ifdef SYSLOG

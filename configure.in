@@ -9,7 +9,7 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: configure.in,v 1.38 2002/03/29 22:51:28 alex Exp $
+# $Id: configure.in,v 1.39 2002/03/30 18:02:39 alex Exp $
 #
 
 # -- Initialisierung --
@@ -153,6 +153,12 @@ if test "$GCC" = "yes"; then
 fi
 
 CFLAGS="$CFLAGS -DSYSCONFDIR='\"\$(sysconfdir)\"'"
+
+if test `uname` = "A/UX"; then
+	# unter A/UX sollte _POSIX_SOURCE definiert sein.
+	AC_MSG_RESULT([detected A/UX, defining _POSIX_SOURCE])
+	CFLAGS="$CFLAGS -D_POSIX_SOURCE"
+fi
 
 # -- Ausgabe --
 

@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: messages.h,v 1.56 2002/12/12 12:23:43 alex Exp $
+ * $Id: messages.h,v 1.57 2002/12/13 17:51:41 alex Exp $
  *
  * IRC numerics (Header)
  */
@@ -76,6 +76,7 @@
 #define ERR_NOSUCHSERVER_MSG		"402 %s %s :No such server"
 #define ERR_NOSUCHCHANNEL_MSG		"403 %s %s :No such channel"
 #define ERR_CANNOTSENDTOCHAN_MSG	"404 %s %s :Cannot send to channel"
+#define ERR_TOOMANYCHANNELS_MSG		"405 %s %s :You have joined too many channels"
 #define ERR_WASNOSUCHNICK_MSG		"406 %s %s :There was no such nickname"
 #define ERR_NOORIGIN_MSG		"409 %s :No origin specified"
 #define ERR_NORECIPIENT_MSG		"411 %s :No receipient given (%s)"

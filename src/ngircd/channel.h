@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: channel.h,v 1.5 2002/01/16 22:09:07 alex Exp $
+ * $Id: channel.h,v 1.6 2002/01/21 00:11:59 alex Exp $
  *
  * channel.h: Management der Channels (Header)
  *
  * $Log: channel.h,v $
+ * Revision 1.6  2002/01/21 00:11:59  alex
+ * - Definition der CHANNEL-Struktur aus Header entfernt,
+ * - neue Funktionen Channel_Join(), Channel_Part() und Channel_RemoveClient().
+ *
  * Revision 1.5  2002/01/16 22:09:07  alex
  * - neue Funktion Channel_Count().
  *
@@ -30,22 +34,22 @@
  *
  * Revision 1.1  2001/12/14 08:13:43  alex
  * - neues Modul begonnen :-)
- *
  */
 
 
 #ifndef __channel_h__
 #define __channel_h__
 
-
-typedef struct _CHANNEL
-{
-	CHAR name[CHANNEL_NAME_LEN];	/* Name */
-} CHANNEL;
+#include "client.h"
 
 
 GLOBAL VOID Channel_Init( VOID );
 GLOBAL VOID Channel_Exit( VOID );
+
+GLOBAL BOOLEAN Channel_Join( CLIENT *Client, CHAR *Name );
+GLOBAL BOOLEAN Channel_Part( CLIENT *Client, CLIENT *Origin, CHAR *Name, CHAR *Reason );
+
+GLOBAL VOID Channel_RemoveClient( CLIENT *Client, CHAR *Reason );
 
 GLOBAL INT Channel_Count( VOID );
 

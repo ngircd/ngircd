@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.c,v 1.29 2002/09/16 09:13:06 alex Exp $
+ * $Id: conf.c,v 1.29.2.1 2002/09/19 10:17:50 alex Exp $
  *
  * conf.h: Konfiguration des ngircd
  */
@@ -548,7 +548,7 @@ Validate_Config( VOID )
 	}
 #endif
 
-	if( ! Conf_ServerAdmin1[0] && ! Conf_ServerAdmin1[0] && ! Conf_ServerAdminMail[0] )
+	if( ! Conf_ServerAdmin1[0] && ! Conf_ServerAdmin2[0] && ! Conf_ServerAdminMail[0] )
 	{
 		/* Keine Server-Information konfiguriert */
 		Log( LOG_WARNING, "No server information configured but required by RFC!" );

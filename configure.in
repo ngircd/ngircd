@@ -9,9 +9,12 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: configure.in,v 1.16 2002/01/02 13:41:36 alex Exp $
+# $Id: configure.in,v 1.17 2002/01/05 15:53:20 alex Exp $
 #
 # $Log: configure.in,v $
+# Revision 1.17  2002/01/05 15:53:20  alex
+# - Test auf Header "arpa/inet.h" und Funktion inet_aton() hinzugefuegt (BeOS).
+#
 # Revision 1.16  2002/01/02 13:41:36  alex
 # - CFLAGS wird nur noch gesetzt, wenn der GCC verwendet wird.
 #
@@ -115,9 +118,11 @@ AC_ARG_WITH(portab,
 )
 
 AC_CHECK_HEADERS([ \
-	arpa/inet.h errno.h fcntl.h netinet/in.h string.h \
+	errno.h fcntl.h netinet/in.h string.h \
 	sys/socket.h sys/time.h unistd.h \
 	],,AC_MSG_ERROR([required C header missing!]))
+
+AC_CHECK_HEADERS(arpa/inet.h)
 
 # -- Datentypen --
 
@@ -142,6 +147,8 @@ AC_CHECK_FUNCS([ \
 	gethostname inet_ntoa memmove memset select \
 	socket strcasecmp strchr strerror strstr waitpid \
 	],,AC_MSG_ERROR([required function missing!]))
+
+AC_CHECK_FUNCS(inet_aton)
 
 # -- Libraries --
 

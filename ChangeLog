@@ -43,6 +43,7 @@ ngIRCd 0.2.x, xx.xx.2002
   - ausgehende Server-Verbindungen werden nun asyncron connectiert und
     blockieren nicht mehr den ganzen Server, wenn die Gegenseite nicht
     erreicht werden kann (bis zum Timeout konnten Minuten vergehen!).
+  - Wert der Konfigurations-Variable "ConnectRetry" wird besser beachtet.
 
 ngIRCd 0.2.1, 17.02.2002
 
@@ -137,4 +138,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.37 2002/03/02 00:25:44 alex Exp $
+$Id: ChangeLog,v 1.38 2002/03/02 00:29:04 alex Exp $

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-channel.c,v 1.21.2.3 2003/01/08 20:22:57 alex Exp $";
+static char UNUSED id[] = "$Id: irc-channel.c,v 1.21.2.4 2003/01/08 20:32:17 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -412,7 +412,7 @@ IRC_CHANINFO( CLIENT *Client, REQUEST *Req )
 		if( ! *ptr )
 		{
 			/* OK, there is no topic jet */
-			Channel_SetTopic( chan, arg_topic );
+			Channel_SetTopic( chan, Req->argv[arg_topic] );
 			IRC_WriteStrChannelPrefix( Client, chan, from, FALSE, "TOPIC %s :%s", Req->argv[0], Channel_Topic( chan ));
 		}
 	}

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.67 2002/06/02 17:03:08 alex Exp $
+ * $Id: conn.c,v 1.68 2002/08/26 00:03:15 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -74,6 +74,7 @@ typedef struct _Connection
 	time_t lastdata;		/* Letzte Aktivitaet */
 	time_t lastping;		/* Letzter PING */
 	time_t lastprivmsg;		/* Letzte PRIVMSG */
+	time_t delaytime;		/* Nicht beachten bis ("penalty") */
 } CONNECTION;
 
 
@@ -231,7 +232,7 @@ Conn_Handler( VOID )
 
 	fd_set read_sockets, write_sockets;
 	struct timeval tv;
-	time_t start;
+	time_t start, t;
 	INT i;
 
 	start = time( NULL );
@@ -272,6 +273,7 @@ Conn_Handler( VOID )
 		}
 
 		/* von welchen Sockets koennte gelesen werden? */
+		t = time( NULL );
 		read_sockets = My_Sockets;
 		for( i = 0; i < MAX_CONNECTIONS; i++ )
 		{
@@ -283,6 +285,11 @@ Conn_Handler( VOID )
 			if(( My_Connections[i].sock > NONE ) && ( FD_ISSET( My_Connections[i].sock, &My_Connects )))
 			{
 				/* Hier laeuft noch ein asyncrones connect() */
+				FD_CLR( My_Connections[i].sock, &read_sockets );
+			}
+			if( My_Connections[i].delaytime > t )
+			{
+				/* Fuer die Verbindung ist eine "Penalty-Zeit" gesetzt */
 				FD_CLR( My_Connections[i].sock, &read_sockets );
 			}
 		}
@@ -494,6 +501,24 @@ Conn_LastPing( CONN_ID Idx )
 } /* Conn_LastPing */
 
 
+GLOBAL VOID
+Conn_SetPenalty( CONN_ID Idx, time_t Seconds )
+{
+	/* Penalty-Delay fuer eine Verbindung (in Sekunden) setzen;
+	 * waehrend dieser Zeit wird der entsprechende Socket vom Server
+	 * bei Lese-Operationen komplett ignoriert. Der Delay kann mit
+	 * dieser Funktion nur erhoeht, nicht aber verringert werden. */
+	
+	time_t t;
+	
+	assert( Idx >= 0 );
+	assert( Seconds >= 0 );
+	
+	t = time( NULL ) + Seconds;
+	if( t > My_Connections[Idx].delaytime ) My_Connections[Idx].delaytime = t;
+} /* Conn_SetPenalty */
+
+
 LOCAL BOOLEAN
 Try_Write( CONN_ID Idx )
 {
@@ -691,6 +716,9 @@ New_Connection( INT Sock )
 		strcpy( My_Connections[idx].host, inet_ntoa( new_addr.sin_addr ));
 		Client_SetHostname( c, My_Connections[idx].host );
 	}
+	
+	/* Penalty-Zeit setzen */
+	Conn_SetPenalty( idx, 1 );
 } /* New_Connection */
 
 
@@ -796,7 +824,7 @@ Handle_Buffer( CONN_ID Idx )
 			/* Eine Anfrage darf(!) nicht laenger als 512 Zeichen
 			* (incl. CR+LF!) werden; vgl. RFC 2812. Wenn soetwas
 			* empfangen wird, wird der Client disconnectiert. */
-			Log( LOG_ERR, "Request too long (connection %d): %d bytes!", Idx, My_Connections[Idx].rdatalen );
+			Log( LOG_ERR, "Request too long (connection %d): %d bytes (max. %d expected)!", Idx, My_Connections[Idx].rdatalen, COMMAND_LEN - 1 );
 			Conn_Close( Idx, NULL, "Request too long", TRUE );
 			return;
 		}
@@ -1044,6 +1072,7 @@ Init_Conn_Struct( INT Idx )
 	My_Connections[Idx].lastdata = time( NULL );
 	My_Connections[Idx].lastping = 0;
 	My_Connections[Idx].lastprivmsg = time( NULL );
+	My_Connections[Idx].delaytime = 0;
 } /* Init_Conn_Struct */
 
 

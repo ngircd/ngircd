@@ -9,13 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.c,v 1.8 2002/01/02 02:44:36 alex Exp $
+ * $Id: conf.c,v 1.9 2002/01/02 02:49:15 alex Exp $
  *
  * conf.h: Konfiguration des ngircd
  *
  * $Log: conf.c,v $
- * Revision 1.8  2002/01/02 02:44:36  alex
- * - neue Defines fuer max. Anzahl Server und Operatoren.
+ * Revision 1.9  2002/01/02 02:49:15  alex
+ * - Konfigurationsdatei "Samba like" umgestellt.
+ * - es koennen nun mehrere Server und Oprtatoren konfiguriert werden.
  *
  * Revision 1.7  2002/01/01 18:25:44  alex
  * - #include's fuer stdlib.h ergaenzt.

@@ -9,7 +9,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: autogen.sh,v 1.13 2005/02/21 09:48:50 alex Exp $
+# $Id: autogen.sh,v 1.14 2005/02/21 15:23:23 alex Exp $
 #
 
 #
@@ -125,7 +125,11 @@ fi
 [ "$VERBOSE" = "1" ] && echo "Using \"$EXIST\" to test for tools."
 
 # We want to use GNU automake 1.7, if available (WANT_AUTOMAKE is used by
-# the wrapper scripts of Gentoo Linux):
+# the wrapper scripts of Gentoo Linux, AUTOMAKE_VERSION is used by OpenBSD);
+# same applies for GNU autoconf, we want to use version 2.59.
+AUTOMAKE_VERSION=1.7
+AUTOCONF_VERSION=2.59
+export AUTOMAKE_VERSION AUTOCONF_VERSION
 WANT_AUTOMAKE=1.7
 export WANT_AUTOMAKE
 

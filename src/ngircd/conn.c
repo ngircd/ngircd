@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.114 2002/12/31 16:13:29 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.115 2003/01/15 14:28:59 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -698,6 +698,7 @@ Handle_Write( CONN_ID Idx )
 	/* Daten aus Schreibpuffer versenden bzw. Connection aufbauen */
 
 	INT len, res, err;
+	CLIENT *c;
 
 	assert( Idx > NONE );
 	assert( My_Connections[Idx].sock > NONE );
@@ -721,8 +722,10 @@ Handle_Write( CONN_ID Idx )
 			if( res != 0 ) Log( LOG_CRIT, "getsockopt (connection %d): %s!", Idx, strerror( errno ));
 			else Log( LOG_CRIT, "Can't connect socket to \"%s:%d\" (connection %d): %s!", My_Connections[Idx].host, Conf_Server[Conf_GetServer( Idx )].port, Idx, strerror( err ));
 
-			/* Socket etc. pp. aufraeumen */
+			/* Clean up socket, connection and client structures */
 			FD_CLR( My_Connections[Idx].sock, &My_Sockets );
+			c = Client_GetFromConn( Idx );
+			if( c ) Client_DestroyNow( c );
 			close( My_Connections[Idx].sock );
 			Init_Conn_Struct( Idx );
 

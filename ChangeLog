@@ -10,7 +10,7 @@
                         -- ChangeLog / Aenderungen --
 
 
-ngIRCd 0.5.3-pre1, 04.11.2002
+ngIRCd 0.5.3, 08.11.2002
 
   - NOTICE liefert nun wirklich nie mehr einen Fehler, auch dann nicht,
     wenn der sendende Client noch gar nicht registriert ist.
@@ -298,4 +298,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.87.2.11 2002/11/04 20:03:38 alex Exp $
+$Id: ChangeLog,v 1.87.2.12 2002/11/08 21:17:03 alex Exp $

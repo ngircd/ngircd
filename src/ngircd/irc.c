@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.67 2002/02/25 13:21:25 alex Exp $
+ * $Id: irc.c,v 1.68 2002/02/25 17:46:27 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.68  2002/02/25 17:46:27  alex
+ * - an User wird nun immer ein "komplettes" Prefix verschickt.
+ *
  * Revision 1.67  2002/02/25 13:21:25  alex
  * - WHOIS wird nicht mehr automatisch an den "Original-Server" weiterge-
  *   leitet: war eh nicht RFC-konform und machte Probleme mit Clients.
@@ -291,6 +294,8 @@ LOCAL VOID Kill_Nick( CHAR *Nick, CHAR *Reason );
 LOCAL BOOLEAN Send_NAMES( CLIENT *Client, CHANNEL *Chan );
 LOCAL BOOLEAN Send_LUSERS( CLIENT *Client );
 
+CHAR *Get_Prefix( CLIENT *Target, CLIENT *Client );
+
 
 GLOBAL VOID IRC_Init( VOID )
 {
@@ -337,7 +342,7 @@ GLOBAL BOOLEAN IRC_WriteStrClientPrefix( CLIENT *Client, CLIENT *Prefix, CHAR *F
 	vsnprintf( buffer, 1000, Format, ap );
 	va_end( ap );
 
-	return Conn_WriteStr( Client_Conn( Client_NextHop( Client )), ":%s %s", Client_ID( Prefix ), buffer );
+	return Conn_WriteStr( Client_Conn( Client_NextHop( Client )), ":%s %s", Get_Prefix( Client_NextHop( Client ), Prefix ), buffer );
 } /* IRC_WriteStrClientPrefix */
 
 
@@ -359,8 +364,8 @@ GLOBAL BOOLEAN IRC_WriteStrChannel( CLIENT *Client, CHANNEL *Chan, BOOLEAN Remot
 
 GLOBAL BOOLEAN IRC_WriteStrChannelPrefix( CLIENT *Client, CHANNEL *Chan, CLIENT *Prefix, BOOLEAN Remote, CHAR *Format, ... )
 {
+	BOOLEAN sock[MAX_CONNECTIONS], is_server[MAX_CONNECTIONS], ok = CONNECTED;
 	CHAR buffer[1000];
-	BOOLEAN sock[MAX_CONNECTIONS], ok = CONNECTED;
 	CL2CHAN *cl2chan;
 	CLIENT *c;
 	INT s, i;
@@ -397,6 +402,8 @@ GLOBAL BOOLEAN IRC_WriteStrChannelPrefix( CLIENT *Client, CHANNEL *Chan, CLIENT 
 			assert( s >= 0 );
 			assert( s < MAX_CONNECTIONS );
 			sock[s] = TRUE;
+			if( Client_Type( c ) == CLIENT_SERVER ) is_server[s] = TRUE;
+			else is_server[s] = FALSE;
 		}
 		cl2chan = Channel_NextMember( Chan, cl2chan );
 	}
@@ -406,7 +413,8 @@ GLOBAL BOOLEAN IRC_WriteStrChannelPrefix( CLIENT *Client, CHANNEL *Chan, CLIENT 
 	{
 		if( sock[i] )
 		{
-			ok = Conn_WriteStr( i, ":%s %s", Client_ID( Prefix ), buffer );
+			if( is_server[i] ) ok = Conn_WriteStr( i, ":%s %s", Client_ID( Prefix ), buffer );
+			else ok = Conn_WriteStr( i, ":%s %s", Client_Mask( Prefix ), buffer );
 			if( ! ok ) break;
 		}
 	}
@@ -458,7 +466,7 @@ GLOBAL VOID IRC_WriteStrServersPrefix( CLIENT *ExceptOf, CLIENT *Prefix, CHAR *F
 
 GLOBAL BOOLEAN IRC_WriteStrRelatedPrefix( CLIENT *Client, CLIENT *Prefix, BOOLEAN Remote, CHAR *Format, ... )
 {
-	BOOLEAN sock[MAX_CONNECTIONS], ok = CONNECTED;
+	BOOLEAN sock[MAX_CONNECTIONS], is_server[MAX_CONNECTIONS], ok = CONNECTED;
 	CL2CHAN *chan_cl2chan, *cl2chan;
 	CHAR buffer[1000];
 	CHANNEL *chan;
@@ -502,6 +510,8 @@ GLOBAL BOOLEAN IRC_WriteStrRelatedPrefix( CLIENT *Client, CLIENT *Prefix, BOOLEA
 				assert( s >= 0 );
 				assert( s < MAX_CONNECTIONS );
 				sock[s] = TRUE;
+				if( Client_Type( c ) == CLIENT_SERVER ) is_server[s] = TRUE;
+				else is_server[s] = FALSE;
 			}
 			cl2chan = Channel_NextMember( chan, cl2chan );
 		}
@@ -515,7 +525,8 @@ GLOBAL BOOLEAN IRC_WriteStrRelatedPrefix( CLIENT *Client, CLIENT *Prefix, BOOLEA
 	{
 		if( sock[i] )
 		{
-			ok = Conn_WriteStr( i, ":%s %s", Client_ID( Prefix ), buffer );
+			if( is_server[i] ) ok = Conn_WriteStr( i, ":%s %s", Client_ID( Prefix ), buffer );
+			else ok = Conn_WriteStr( i, ":%s %s", Client_Mask( Prefix ), buffer );
 			if( ! ok ) break;
 		}
 	}
@@ -2272,6 +2283,16 @@ LOCAL BOOLEAN Send_LUSERS( CLIENT *Client )
 	
 	return CONNECTED;
 } /* Send_LUSERS */
+
+
+CHAR *Get_Prefix( CLIENT *Target, CLIENT *Client )
+{
+	assert( Target != NULL );
+	assert( Client != NULL );
+
+	if( Client_Type( Target ) == CLIENT_SERVER ) return Client_ID( Client );
+	else return Client_Mask( Client );
+} /* Get_Prefix */
 
 
 /* -eof- */

@@ -12,7 +12,7 @@
 
 ngIRCd 0.7.0
 
-  ngIRCd 0.7.0-pre2
+  ngIRCd 0.7.0-pre2 (2003-04-27)
   - CVS build system fixes (made autogen.sh more portable).
   - Fixed compilation and test-suite on Solaris (tested with 2.6).
   - New documentation file "doc/Platforms.txt" describing the status of
@@ -445,4 +445,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.188.2.9 2003/04/27 11:49:32 alex Exp $
+$Id: ChangeLog,v 1.188.2.10 2003/04/27 18:33:26 alex Exp $

@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.h,v 1.17 2002/01/11 23:50:55 alex Exp $
+ * $Id: irc.h,v 1.18 2002/01/21 00:04:13 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: irc.h,v $
+ * Revision 1.18  2002/01/21 00:04:13  alex
+ * - neue Funktionen IRC_JOIN, IRC_PART, IRC_WriteStrRelatedPrefix und
+ *   IRC_WriteStrRelatedChannelPrefix().
+ *
  * Revision 1.17  2002/01/11 23:50:55  alex
  * - LINKS implementiert, LUSERS begonnen.
  *
@@ -83,6 +87,8 @@ GLOBAL VOID IRC_Exit( VOID );
 GLOBAL BOOLEAN IRC_WriteStrClient( CLIENT *Client, CHAR *Format, ... );
 GLOBAL BOOLEAN IRC_WriteStrClientPrefix( CLIENT *Client, CLIENT *Prefix, CHAR *Format, ... );
 GLOBAL BOOLEAN IRC_WriteStrRelated( CLIENT *Client, CHAR *Format, ... );
+GLOBAL BOOLEAN IRC_WriteStrRelatedPrefix( CLIENT *Client, CLIENT *Prefix, CHAR *Format, ... );
+GLOBAL BOOLEAN IRC_WriteStrRelatedChannelPrefix( CLIENT *Client, CHAR *ChanName, CLIENT *Prefix, CHAR *Format, ... );
 GLOBAL VOID IRC_WriteStrServers( CLIENT *ExceptOf, CHAR *Format, ... );
 GLOBAL VOID IRC_WriteStrServersPrefix( CLIENT *ExceptOf, CLIENT *Prefix, CHAR *Format, ... );
 
@@ -115,6 +121,9 @@ GLOBAL BOOLEAN IRC_DIE( CLIENT *Client, REQUEST *Req );
 GLOBAL BOOLEAN IRC_RESTART( CLIENT *Client, REQUEST *Req );
 
 GLOBAL BOOLEAN IRC_ERROR( CLIENT *Client, REQUEST *Req );
+
+GLOBAL BOOLEAN IRC_JOIN( CLIENT *Client, REQUEST *Req );
+GLOBAL BOOLEAN IRC_PART( CLIENT *Client, REQUEST *Req );
 
 
 #endif

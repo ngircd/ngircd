@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: parse.c,v 1.48 2002/11/30 15:04:57 alex Exp $
+ * $Id: parse.c,v 1.49 2002/11/30 17:39:56 alex Exp $
  *
  * parse.c: Parsen der Client-Anfragen
  */
@@ -38,6 +38,7 @@
 #include "imp.h"
 #include "irc.h"
 #include "irc-channel.h"
+#include "irc-info.h"
 #include "irc-login.h"
 #include "irc-mode.h"
 #include "irc-op.h"
@@ -89,6 +90,7 @@ COMMAND My_Commands[] =
 	{ "RESTART", IRC_RESTART, CLIENT_USER, 0 },
 	{ "SERVER", IRC_SERVER, 0xFFFF, 0 },
 	{ "SQUIT", IRC_SQUIT, CLIENT_SERVER, 0 },
+	{ "STATS", IRC_STATS, CLIENT_USER|CLIENT_SERVER, 0 },
 	{ "TIME", IRC_TIME, CLIENT_USER|CLIENT_SERVER, 0 },
 	{ "TOPIC", IRC_TOPIC, CLIENT_USER|CLIENT_SERVER, 0 },
 	{ "USER", IRC_USER, 0xFFFF, 0 },

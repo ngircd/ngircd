@@ -146,6 +146,7 @@
 				F5BEF12E02A1169C01A85B03,
 				F5BEF13302A12AFE01A85B03,
 				F5E9448502C9F49D01A85B04,
+				F5D5CC9403990FED0155B873,
 			);
 			isa = PBXHeadersBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -174,6 +175,7 @@
 				F5BEF12F02A1169C01A85B03,
 				F5BEF13502A24F1001A85B03,
 				F5E9448602C9F49D01A85B04,
+				F5D5CC9603990FFA0155B873,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -582,6 +584,8 @@
 				F51D180301C8FDD001E11C2E,
 				F57C888D02328D7201A85B04,
 				F57C888E02328D7201A85B04,
+				F5D5CC9503990FFA0155B873,
+				F5D5CC9303990FED0155B873,
 				F51DBB1B022D9D8F01A85B04,
 				F51DBB1C022D9D8F01A85B04,
 				F51DBB17022D995501A85B04,
@@ -1171,6 +1175,28 @@
 			name = "sample-ngircd.conf";
 			path = "en/sample-ngircd.conf";
 			refType = 4;
+		};
+		F5D5CC9303990FED0155B873 = {
+			isa = PBXFileReference;
+			path = "irc-info.h";
+			refType = 4;
+		};
+		F5D5CC9403990FED0155B873 = {
+			fileRef = F5D5CC9303990FED0155B873;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5D5CC9503990FFA0155B873 = {
+			isa = PBXFileReference;
+			path = "irc-info.c";
+			refType = 4;
+		};
+		F5D5CC9603990FFA0155B873 = {
+			fileRef = F5D5CC9503990FFA0155B873;
+			isa = PBXBuildFile;
+			settings = {
+			};
 		};
 		F5E9447B02C9EE0E01A85B04 = {
 			children = (

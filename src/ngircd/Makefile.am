@@ -9,7 +9,7 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: Makefile.am,v 1.29 2002/10/08 18:30:03 alex Exp $
+# $Id: Makefile.am,v 1.30 2002/11/30 17:39:56 alex Exp $
 #
 
 AUTOMAKE_OPTIONS = ../portab/ansi2knr
@@ -21,16 +21,16 @@ LINTARGS = -weak -warnunixlib +unixlib -booltype BOOLEAN
 sbin_PROGRAMS = ngircd
 
 ngircd_SOURCES = ngircd.c channel.c client.c conf.c conn.c hash.c irc.c \
-	irc-channel.c irc-login.c irc-mode.c irc-op.c irc-oper.c irc-server.c \
-	irc-write.c lists.c log.c match.c parse.c resolve.c tool.c
+	irc-channel.c irc-info.c irc-login.c irc-mode.c irc-op.c irc-oper.c \
+	irc-server.c irc-write.c lists.c log.c match.c parse.c resolve.c tool.c
 
 ngircd_LDFLAGS = -L../portab
 
 ngircd_LDADD = -lngportab
 
 noinst_HEADERS = ngircd.h channel.h client.h conf.h conn.h hash.h irc.h \
-	irc-channel.h irc-login.h irc-mode.h irc-op.h irc-oper.h irc-server.h \
-	irc-write.h lists.h log.h match.h parse.h resolve.h tool.h \
+	irc-channel.h irc-info.h irc-login.h irc-mode.h irc-op.h irc-oper.h \
+	irc-server.h irc-write.h lists.h log.h match.h parse.h resolve.h tool.h \
 	messages.h defines.h
 
 clean-local:

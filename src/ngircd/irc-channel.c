@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-channel.c,v 1.16 2002/11/30 15:04:57 alex Exp $
+ * $Id: irc-channel.c,v 1.17 2002/11/30 17:39:56 alex Exp $
  *
  * irc-channel.c: IRC-Channel-Befehle
  */
@@ -30,7 +30,7 @@
 #include "match.h"
 #include "messages.h"
 #include "parse.h"
-#include "irc.h"
+#include "irc-info.h"
 #include "irc-write.h"
 
 #include "exp.h"

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-login.c,v 1.24 2002/11/30 15:04:57 alex Exp $
+ * $Id: irc-login.c,v 1.25 2002/11/30 17:39:56 alex Exp $
  *
  * irc-login.c: Anmeldung und Abmeldung im IRC
  */
@@ -32,7 +32,7 @@
 #include "log.h"
 #include "messages.h"
 #include "parse.h"
-#include "irc.h"
+#include "irc-info.h"
 #include "irc-write.h"
 
 #include "exp.h"

@@ -51,7 +51,7 @@ ngIRCd CVS-HEAD
     noch im Schreibpuffer stehen, zu senden.
   - Source in weiteres Modul "irc-info" aufgespalten.
   - Konfigurationsvariablen werden besser validiert: Laengen, Zahlen, ...
-  - neuen Befehl STATS begonnen: bisher unterstuetzt wird "l".
+  - neuen Befehl STATS begonnen: bisher unterstuetzt wird "l" und "m".
   - bei ISON und USERHOST fehlte im Ergebnis-String der korrekte Absender.
   - IRC Operatoren koennen nun mit KILL User toeten. Achtung: ein Grund muss
     zwingend als zweiter Parameter angegeben werden!
@@ -362,4 +362,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.146 2002/12/16 23:13:10 alex Exp $
+$Id: ChangeLog,v 1.147 2002/12/18 14:19:58 alex Exp $

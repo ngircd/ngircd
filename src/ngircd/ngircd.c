@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.48 2002/06/02 17:01:21 alex Exp $
+ * $Id: ngircd.c,v 1.49 2002/06/02 17:13:33 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  */
@@ -275,12 +275,15 @@ main( int argc, const char *argv[] )
 				if( setuid( Conf_UID ) != 0 ) Log( LOG_ERR, "Can't change User-ID to %u: %s", Conf_UID, strerror( errno ));
 			}
 		}
-		Log( LOG_INFO, "Running as user %ld, group %ld.", (INT32)getuid( ), (INT32)getgid( ));
+		Log( LOG_INFO, "Running as user %ld, group %ld, with PID %ld.", (INT32)getuid( ), (INT32)getgid( ), (INT32)getpid( ));
 
 		Log_InitErrorfile( );
 
 		/* Signal-Handler initialisieren */
 		Initialize_Signal_Handler( );
+
+		/* Vordefinierte Channels anlegen */
+		Channel_InitPredefined( );
 
 		/* Listen-Ports initialisieren */
 		Initialize_Listen_Ports( );

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.h,v 1.4 2001/12/15 00:08:27 alex Exp $
+ * $Id: conn.h,v 1.5 2001/12/23 21:57:48 alex Exp $
  *
  * conn.h: Verwaltung aller Netz-Verbindungen ("connections") (Header)
  *
  * $Log: conn.h,v $
+ * Revision 1.5  2001/12/23 21:57:48  alex
+ * - Conn_WriteStr() unterstuetzt nun variable Parameter.
+ *
  * Revision 1.4  2001/12/15 00:08:27  alex
  * - neue globale Funktionen: Conn_Write() und Conn_WriteStr().
  *
@@ -43,7 +46,7 @@ GLOBAL BOOLEAN Conn_New_Listener( CONST INT Port );
 GLOBAL VOID Conn_Handler( INT Timeout );
 
 GLOBAL BOOLEAN Conn_Write( CONN_ID Idx, CHAR *Data, INT Len );
-GLOBAL BOOLEAN Conn_WriteStr( CONN_ID Idx, CHAR *Data );
+GLOBAL BOOLEAN Conn_WriteStr( CONN_ID Idx, CHAR *Format, ... );
 
 
 #endif

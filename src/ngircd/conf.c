@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.52 2002/12/30 00:01:45 alex Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.53 2002/12/31 16:12:50 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -196,7 +196,7 @@ Conf_UnsetServer( CONN_ID Idx )
 		/* Gotcha! Mark server configuration as "unused": */
 		Conf_Server[i].conn_id = NONE;
 
-		if( Conf_Server[i].once )
+		if( Conf_Server[i].flags & CONF_SFLAG_ONCE )
 		{
 			/* Delete configuration here */
 			Init_Server_Struct( &Conf_Server[i] );
@@ -242,6 +242,84 @@ Conf_GetServer( CONN_ID Idx )
 	}
 	return NONE;
 } /* Conf_GetServer */
+
+
+GLOBAL BOOLEAN
+Conf_EnableServer( CHAR *Name, INT Port )
+{
+	/* Enable specified server and adjust port */
+
+	INT i;
+
+	assert( Name != NULL );
+
+	for( i = 0; i < MAX_SERVERS; i++ )
+	{
+		if( strcasecmp( Conf_Server[i].name, Name ) == 0 )
+		{
+			/* Gotcha! Set port and enable server: */
+			Conf_Server[i].port = Port;
+			Conf_Server[i].flags &= ~CONF_SFLAG_DISABLED;
+			return TRUE;
+		}
+	}
+	return FALSE;
+} /* Conf_EnableServer */
+
+
+GLOBAL BOOLEAN
+Conf_DisableServer( CHAR *Name )
+{
+	/* Enable specified server and adjust port */
+
+	INT i;
+
+	assert( Name != NULL );
+
+	for( i = 0; i < MAX_SERVERS; i++ )
+	{
+		if( strcasecmp( Conf_Server[i].name, Name ) == 0 )
+		{
+			/* Gotcha! Disable and disconnect server: */
+			Conf_Server[i].flags |= CONF_SFLAG_DISABLED;
+			if( Conf_Server[i].conn_id > NONE ) Conn_Close( Conf_Server[i].conn_id, NULL, "Server link terminated on operator request", TRUE );
+			return TRUE;
+		}
+	}
+	return FALSE;
+} /* Conf_DisableServer */
+
+
+GLOBAL BOOLEAN
+Conf_AddServer( CHAR *Name, INT Port, CHAR *Host, CHAR *MyPwd, CHAR *PeerPwd )
+{
+	/* Add new server to configuration */
+
+	INT i;
+
+	assert( Name != NULL );
+	assert( Host != NULL );
+	assert( MyPwd != NULL );
+	assert( PeerPwd != NULL );
+
+	/* Search unused item in server configuration structure */
+	for( i = 0; i < MAX_SERVERS; i++ )
+	{
+		/* Is this item used? */
+		if( ! Conf_Server[i].name[0] ) break;
+	}
+	if( i >= MAX_SERVERS ) return FALSE;
+
+	Init_Server_Struct( &Conf_Server[i] );
+	strlcpy( Conf_Server[i].name, Name, sizeof( Conf_Server[i].name ));
+	strlcpy( Conf_Server[i].host, Host, sizeof( Conf_Server[i].host ));
+	strlcpy( Conf_Server[i].pwd_out, MyPwd, sizeof( Conf_Server[i].pwd_out ));
+	strlcpy( Conf_Server[i].pwd_in, PeerPwd, sizeof( Conf_Server[i].pwd_in ));
+	Conf_Server[i].port = Port;
+	Conf_Server[i].flags = CONF_SFLAG_ONCE;
+	
+	return TRUE;
+} /* Conf_AddServer */
 
 
 LOCAL VOID
@@ -311,7 +389,7 @@ Read_Config( VOID )
 	for( i = 0; i < MAX_SERVERS; i++ )
 	{
 		if( Conf_Server[i].conn_id == NONE ) Init_Server_Struct( &Conf_Server[i] );
-		else Conf_Server[i].once = TRUE;
+		else Conf_Server[i].flags |= CONF_SFLAG_ONCE;
 	}
 
 	/* Initialize variables */
@@ -770,7 +848,7 @@ Validate_Config( BOOLEAN Configtest )
 		if( Conf_Server[i].name[0] )
 		{
 			servers++;
-			if( Conf_Server[i].once ) servers_once++;
+			if( Conf_Server[i].flags & CONF_SFLAG_ONCE ) servers_once++;
 		}
 	}
 	Log( LOG_DEBUG, "Configuration: Operators=%d, Servers=%d[%d], Channels=%d", Conf_Oper_Count, servers, servers_once, Conf_Channel_Count );
@@ -826,7 +904,8 @@ Init_Server_Struct( CONF_SERVER *Server )
 	Server->group = NONE;
 	Server->lasttry = time( NULL ) - Conf_ConnectRetry + STARTUP_DELAY;
 	Server->res_stat = NULL;
-	Server->once = FALSE;
+	if( NGIRCd_Passive ) Server->flags = CONF_SFLAG_DISABLED;
+	else Server->flags = 0;
 	Server->conn_id = NONE;
 } /* Init_Server_Struct */
 

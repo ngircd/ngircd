@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conf.h,v 1.25 2002/12/30 00:01:45 alex Exp $
+ * $Id: conf.h,v 1.26 2002/12/31 16:12:50 alex Exp $
  *
  * Configuration management (header)
  */
@@ -39,7 +39,7 @@ typedef struct _Conf_Server
 	INT group;			/* Group of server */
 	time_t lasttry;			/* Last connect attempt */
 	RES_STAT *res_stat;		/* Status of the resolver */
-	BOOLEAN once;			/* This server is valid only once */
+	INT flags;			/* Flags */
 	CONN_ID conn_id;		/* ID of server connection or NONE */
 } CONF_SERVER;
 
@@ -49,6 +49,10 @@ typedef struct _Conf_Channel
 	CHAR modes[CHANNEL_MODE_LEN];	/* Initial channel modes */
 	CHAR topic[CHANNEL_TOPIC_LEN];	/* Initial topic */
 } CONF_CHANNEL;
+
+
+#define CONF_SFLAG_ONCE	1		/* Delete this entry after next disconnect */
+#define CONF_SFLAG_DISABLED 2		/* This server configuration entry is disabled */
 
 
 /* Name ("Nick") of the servers */
@@ -111,6 +115,10 @@ GLOBAL INT Conf_Test PARAMS((VOID ));
 GLOBAL VOID Conf_UnsetServer PARAMS(( CONN_ID Idx ));
 GLOBAL VOID Conf_SetServer PARAMS(( INT ConfServer, CONN_ID Idx ));
 GLOBAL INT Conf_GetServer PARAMS(( CONN_ID Idx ));
+
+GLOBAL BOOLEAN Conf_EnableServer PARAMS(( CHAR *Name, INT Port ));
+GLOBAL BOOLEAN Conf_DisableServer PARAMS(( CHAR *Name ));
+GLOBAL BOOLEAN Conf_AddServer PARAMS(( CHAR *Name, INT Port, CHAR *Host, CHAR *MyPwd, CHAR *PeerPwd ));
 
 
 #endif

@@ -1,6 +1,6 @@
 #!/bin/sh
 # ngIRCd Test Suite
-# $Id: tests.sh,v 1.2 2002/09/09 22:56:07 alex Exp $
+# $Id: tests.sh,v 1.3 2002/09/12 02:29:03 alex Exp $
 
 name=`basename $0`
 test=`echo ${name} | cut -d '.' -f 1`
@@ -16,6 +16,6 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "      doing ${test} ..."
-expect ${test}.e > logs/${test}.log
+expect ${srcdir}/${test}.e > logs/${test}.log
 
 # -eof-

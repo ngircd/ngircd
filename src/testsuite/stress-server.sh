@@ -1,6 +1,6 @@
 #!/bin/sh
 # ngIRCd Test Suite
-# $Id: stress-server.sh,v 1.1 2002/09/09 22:56:07 alex Exp $
+# $Id: stress-server.sh,v 1.2 2002/09/12 02:28:44 alex Exp $
 
 CLIENTS=50
 
@@ -20,9 +20,9 @@ fi
 echo "      stressing server with $CLIENTS clients (be patient!) ..."
 no=0
 while [ ${no} -lt $CLIENTS ]; do
-  cat stress-A.e > tests/${no}.e
+  cat ${srcdir}/stress-A.e > tests/${no}.e
   echo "send \"nick test${no}\\r\"" >> tests/${no}.e
-  cat stress-B.e >> tests/${no}.e
+  cat ${srcdir}/stress-B.e >> tests/${no}.e
   no=`expr ${no} + 1`
 done
 no=0
@@ -33,7 +33,7 @@ done
 
 touch logs/check-idle.log
 while true; do
-  expect check-idle.e >> logs/check-idle.log
+  expect ${srcdir}/check-idle.e >> logs/check-idle.log
   res=$?
   [ $res -eq 0 ] && exit 0
   [ $res -eq 1 ] && exit 1

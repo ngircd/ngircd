@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.74 2002/02/27 03:44:53 alex Exp $
+ * $Id: irc.c,v 1.75 2002/02/27 15:23:27 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.75  2002/02/27 15:23:27  alex
+ * - NAMES beachtet nun das "invisible" Flag ("i") von Usern.
+ *
  * Revision 1.74  2002/02/27 03:44:53  alex
  * - gerade eben in SQUIT eingefuehrten Bug behoben: entfernte Server werden nun
  *   nur noch geloescht, die Verbindung, von der SQUIT kam, bleibt wieder offen.
@@ -1714,11 +1717,12 @@ GLOBAL BOOLEAN IRC_NAMES( CLIENT *Client, REQUEST *Req )
 		chan = Channel_Next( chan );
 	}
 
+	/* Nun noch alle Clients ausgeben, die in keinem Channel sind */
 	c = Client_First( );
 	sprintf( rpl, RPL_NAMREPLY_MSG, Client_ID( from ), "*", "*" );
 	while( c )
 	{
-		if(( Client_Type( c ) == CLIENT_USER ) && ( Channel_FirstChannelOf( c ) == NULL ))
+		if(( Client_Type( c ) == CLIENT_USER ) && ( Channel_FirstChannelOf( c ) == NULL ) && ( ! strchr( Client_Modes( c ), 'i' )))
 		{
 			/* Okay, das ist ein User: anhaengen */
 			if( rpl[strlen( rpl ) - 1] != ':' ) strcat( rpl, " " );
@@ -2298,6 +2302,7 @@ LOCAL VOID Kill_Nick( CHAR *Nick, CHAR *Reason )
 
 LOCAL BOOLEAN Send_NAMES( CLIENT *Client, CHANNEL *Chan )
 {
+	BOOLEAN is_visible, is_member;
 	CHAR str[LINE_LEN + 1];
 	CL2CHAN *cl2chan;
 	CLIENT *cl;
@@ -2305,6 +2310,9 @@ LOCAL BOOLEAN Send_NAMES( CLIENT *Client, CHANNEL *Chan )
 	assert( Client != NULL );
 	assert( Chan != NULL );
 
+	if( Channel_IsMemberOf( Chan, Client )) is_member = TRUE;
+	else is_member = FALSE;
+			 
 	/* Alle Mitglieder suchen */
 	sprintf( str, RPL_NAMREPLY_MSG, Client_ID( Client ), "=", Channel_Name( Chan ));
 	cl2chan = Channel_FirstMember( Chan );
@@ -2312,17 +2320,23 @@ LOCAL BOOLEAN Send_NAMES( CLIENT *Client, CHANNEL *Chan )
 	{
 		cl = Channel_GetClient( cl2chan );
 
-		/* Nick anhaengen */
-		if( str[strlen( str ) - 1] != ':' ) strcat( str, " " );
-		if( strchr( Channel_UserModes( Chan, cl ), 'v' )) strcat( str, "+" );
-		if( strchr( Channel_UserModes( Chan, cl ), 'o' )) strcat( str, "@" );
-		strcat( str, Client_ID( cl ));
+		if( strchr( Client_Modes( cl ), 'i' )) is_visible = FALSE;
+		else is_visible = TRUE;
 
-		if( strlen( str ) > ( LINE_LEN - CLIENT_NICK_LEN - 4 ))
+		if( is_member || is_visible )
 		{
-			/* Zeile wird zu lang: senden! */
-			if( ! IRC_WriteStrClient( Client, str )) return DISCONNECTED;
-			sprintf( str, RPL_NAMREPLY_MSG, Client_ID( Client ), "=", Channel_Name( Chan ));
+			/* Nick anhaengen */
+			if( str[strlen( str ) - 1] != ':' ) strcat( str, " " );
+			if( strchr( Channel_UserModes( Chan, cl ), 'v' )) strcat( str, "+" );
+			if( strchr( Channel_UserModes( Chan, cl ), 'o' )) strcat( str, "@" );
+			strcat( str, Client_ID( cl ));
+	
+			if( strlen( str ) > ( LINE_LEN - CLIENT_NICK_LEN - 4 ))
+			{
+				/* Zeile wird zu lang: senden! */
+				if( ! IRC_WriteStrClient( Client, str )) return DISCONNECTED;
+				sprintf( str, RPL_NAMREPLY_MSG, Client_ID( Client ), "=", Channel_Name( Chan ));
+			}
 		}
 
 		/* naechstes Mitglied suchen */

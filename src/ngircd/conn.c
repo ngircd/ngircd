@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.98 2002/11/28 16:56:20 alex Exp $
+ * $Id: conn.c,v 1.99 2002/11/29 13:13:42 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -570,11 +570,13 @@ Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient )
 
 	if( InformClient )
 	{
+#ifndef STRICT_RFC
 		/* Statistik an Client melden, wenn User */
 		if(( c != NULL ) && ( Client_Type( c ) == CLIENT_USER ))
 		{
 			Conn_WriteStr( Idx, "NOTICE %s :%sConnection statistics: client %.1f kb, server %.1f kb.", Client_ThisServer( ), NOTICE_TXTPREFIX, (DOUBLE)My_Connections[Idx].bytes_in / 1024,  (DOUBLE)My_Connections[Idx].bytes_out / 1024 );
 		}
+#endif
 
 		/* ERROR an Client schicken (von RFC so vorgesehen!) */
 		if( FwdMsg ) Conn_WriteStr( Idx, "ERROR :%s", FwdMsg );
@@ -1122,7 +1124,9 @@ New_Connection( INT Sock )
 	if( s )
 	{
 		/* Sub-Prozess wurde asyncron gestartet */
+#ifndef STRICT_RFC
 		Conn_WriteStr( idx, "NOTICE AUTH :%sLooking up your hostname ...", NOTICE_TXTPREFIX );
+#endif
 		My_Connections[idx].res_stat = s;
 	}
 	
@@ -1160,7 +1164,9 @@ Read_Request( CONN_ID Idx )
 	 * Tritt ein Fehler auf, so wird der Socket geschlossen. */
 
 	INT len, bsize;
+#ifdef USE_ZLIB
 	CLIENT *c;
+#endif
 
 	assert( Idx > NONE );
 	assert( My_Connections[Idx].sock > NONE );
@@ -1662,7 +1668,9 @@ Read_Resolver_Result( INT r_fd )
 		strcpy( My_Connections[i].host, result );
 		Client_SetHostname( c, result );
 
+#ifndef STRICT_RFC
 		Conn_WriteStr( i, "NOTICE AUTH :%sGot your hostname.", NOTICE_TXTPREFIX );
+#endif
 	}
 	else
 	{

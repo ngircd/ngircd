@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: log.c,v 1.15 2002/01/02 02:42:58 alex Exp $
+ * $Id: log.c,v 1.16 2002/01/05 15:54:40 alex Exp $
  *
  * log.c: Logging-Funktionen
  *
  * $Log: log.c,v $
+ * Revision 1.16  2002/01/05 15:54:40  alex
+ * - syslog() etc. wurde verwendet, auch wenn USE_SYSLOG nicht definiert war.
+ *
  * Revision 1.15  2002/01/02 02:42:58  alex
  * - Copyright-Texte aktualisiert.
  *
@@ -174,14 +177,14 @@ GLOBAL VOID Log_Resolver( CONST INT Level, CONST CHAR *Format, ... )
 {
 	/* Eintrag des Resolver in Logfile(s) schreiben */
 
+#ifndef USE_SYSLOG
+	return;
+#else
+
 	CHAR msg[MAX_LOG_MSG_LEN];
 	va_list ap;
 
 	assert( Format != NULL );
-
-#ifndef USE_SYSLOG
-	return;
-#endif
 
 #ifndef DEBUG
 	if( Level == LOG_DEBUG ) return;
@@ -196,6 +199,7 @@ GLOBAL VOID Log_Resolver( CONST INT Level, CONST CHAR *Format, ... )
 	syslog( Level, msg );
 
 	va_end( ap );
+#endif
 } /* Log_Resolver */
 
 

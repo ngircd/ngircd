@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.53 2002/03/12 23:42:59 alex Exp $
+ * $Id: conn.c,v 1.54 2002/03/12 23:45:30 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -54,7 +54,7 @@
 #include "conn.h"
 
 
-#define SERVER_WAIT NONE - 1
+#define SERVER_WAIT (NONE - 1)
 
 
 typedef struct _Connection

@@ -12,16 +12,19 @@
 
 ngIRCd CVSHEAD
 
-  - The info text ("real name") of users is set to "-" if none has been
-    specified using the USER command (e. g. "USER user * * :"). Reason:
-    the original ircd doesn't like empty ones and would KILL such users.
-  - Fixed (optional) TCP Wrapper test which was broken and could result in
-    false results. Thanks to Fuminori Tanizaki <tany@mcnet.ad.jp>!
   - The type of service (TOS) of all sockets is set to "interactive" now.
   - Added short command line option "-t" as alternative to "--configtest".
   - Added optional support for "IDENT" lookups on incoming connections. You
     have to enable this function with the ./configure switch "--with-ident".
     The default is not to do IDENT lookups.
+
+ngIRCd 0.7.7 (2004-02-05)
+
+  - The info text ("real name") of users is set to "-" if none has been
+    specified using the USER command (e. g. "USER user * * :"). Reason:
+    the original ircd doesn't like empty ones and would KILL such users.
+  - Fixed (optional) TCP Wrapper test which was broken and could result in
+    false results. Thanks to Fuminori Tanizaki <tany@mcnet.ad.jp>!
   - Removed "USE_" prefixes of configuration #defines.
 
 ngIRCd 0.7.6 (2003-12-05)
@@ -498,4 +501,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.225 2004/02/04 19:56:04 alex Exp $
+$Id: ChangeLog,v 1.226 2004/02/05 14:27:16 alex Exp $

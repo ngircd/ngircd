@@ -11,7 +11,8 @@
 
 
 ngIRCd CVSHEAD
-
+  - Removed typedefs for the native C datatypes.
+    Use stdbool.h / inttypes.h if available.
   - New configuration option "OperServerMode" to enable a workaround needed
     when running an network with ircd2 servers and "OperCanUseMode" enabled
     to prevent the ircd2 daemon to drop mode changes of IRC operators.
@@ -593,4 +594,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.264 2005/03/15 16:56:16 alex Exp $
+$Id: ChangeLog,v 1.265 2005/03/19 18:53:16 fw Exp $

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.47 2002/05/30 16:52:21 alex Exp $
+ * $Id: ngircd.c,v 1.48 2002/06/02 17:01:21 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  */
@@ -26,6 +26,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <sys/wait.h>
 #include <time.h>
 
@@ -59,6 +60,8 @@ main( int argc, const char *argv[] )
 	BOOLEAN ok, configtest = FALSE;
 	INT32 pid, n;
 	INT i;
+
+	umask( 0077 );
 
 	NGIRCd_Restart = FALSE;
 	NGIRCd_Quit = FALSE;
@@ -283,11 +286,7 @@ main( int argc, const char *argv[] )
 		Initialize_Listen_Ports( );
 
 		/* Hauptschleife */
-		while( TRUE )
-		{
-			if( NGIRCd_Quit || NGIRCd_Restart ) break;
-			Conn_Handler( 5 );
-		}
+		Conn_Handler( );
 
 		/* Alles abmelden */
 		Conn_Exit( );

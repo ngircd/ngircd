@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.91 2002/11/20 15:48:41 alex Exp $
+ * $Id: conn.c,v 1.92 2002/11/22 16:35:19 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -500,11 +500,11 @@ Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient )
 
 	if( close( My_Connections[Idx].sock ) != 0 )
 	{
-		Log( LOG_ERR, "Error closing connection %d (socket %d) with %s:%d - %s!", Idx, My_Connections[Idx].sock, inet_ntoa( My_Connections[Idx].addr.sin_addr ), ntohs( My_Connections[Idx].addr.sin_port), strerror( errno ));
+		Log( LOG_ERR, "Error closing connection %d (socket %d) with %s:%d - %s!", Idx, My_Connections[Idx].sock, My_Connections[Idx].host, ntohs( My_Connections[Idx].addr.sin_port), strerror( errno ));
 	}
 	else
 	{
-		Log( LOG_INFO, "Connection %d (socket %d) with %s:%d closed.", Idx, My_Connections[Idx].sock, inet_ntoa( My_Connections[Idx].addr.sin_addr ), ntohs( My_Connections[Idx].addr.sin_port ));
+		Log( LOG_INFO, "Connection %d (socket %d) with %s:%d closed (%.1fK in/%.1fK out).", Idx, My_Connections[Idx].sock, My_Connections[Idx].host, ntohs( My_Connections[Idx].addr.sin_port ), (DOUBLE)My_Connections[Idx].bytes_in / 1024,  (DOUBLE)My_Connections[Idx].bytes_out / 1024 );
 	}
 	
 	/* Socket als "ungueltig" markieren */
@@ -907,18 +907,14 @@ New_Connection( INT Sock )
 	Log( LOG_INFO, "Accepted connection %d from %s:%d on socket %d.", idx, inet_ntoa( new_addr.sin_addr ), ntohs( new_addr.sin_port), Sock );
 
 	/* Hostnamen ermitteln */
+	strcpy( My_Connections[idx].host, inet_ntoa( new_addr.sin_addr ));
+	Client_SetHostname( c, My_Connections[idx].host );
 	s = Resolve_Addr( &new_addr );
 	if( s )
 	{
 		/* Sub-Prozess wurde asyncron gestartet */
 		Conn_WriteStr( idx, "NOTICE AUTH :%sLooking up your hostname ...", NOTICE_TXTPREFIX );
 		My_Connections[idx].res_stat = s;
-	}
-	else
-	{
-		/* kann Namen nicht aufloesen, daher wird die IP-Adresse verwendet */
-		strcpy( My_Connections[idx].host, inet_ntoa( new_addr.sin_addr ));
-		Client_SetHostname( c, My_Connections[idx].host );
 	}
 	
 	/* Penalty-Zeit setzen */
@@ -1172,18 +1168,15 @@ Check_Servers( VOID )
 		My_Connections[idx].sock = SERVER_WAIT;
 		My_Connections[idx].our_server = i;
 
-		/* Hostnamen in IP aufloesen */
+		/* Hostnamen in IP aufloesen (Default bzw. im Fehlerfall: versuchen, den
+		 * konfigurierten Text direkt als IP-Adresse zu verwenden ... */
+		strcpy( Conf_Server[My_Connections[idx].our_server].ip, Conf_Server[i].host );
+		strcpy( My_Connections[idx].host, Conf_Server[i].host );
 		s = Resolve_Name( Conf_Server[i].host );
 		if( s )
 		{
 			/* Sub-Prozess wurde asyncron gestartet */
 			My_Connections[idx].res_stat = s;
-		}
-		else
-		{
-			/* kann Namen nicht aufloesen: nun versuchen wir einfach,
-			 * den "Text" direkt als IP-Adresse zu verwenden ... */
-			strcpy( Conf_Server[My_Connections[idx].our_server].ip, Conf_Server[i].host );
 		}
 	}
 } /* Check_Servers */
@@ -1362,6 +1355,8 @@ Read_Resolver_Result( INT r_fd )
 		return;
 	}
 
+	Log( LOG_DEBUG, "Resolver: %s is \"%s\".", My_Connections[i].host, result );
+	
 	/* Aufraeumen */
 	close( My_Connections[i].res_stat->pipe[0] );
 	close( My_Connections[i].res_stat->pipe[1] );

@@ -9,11 +9,16 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.43 2002/03/02 00:29:11 alex Exp $
+ * $Id: conn.c,v 1.44 2002/03/02 00:43:31 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
+ * Revision 1.44  2002/03/02 00:43:31  alex
+ * - bei abgebrochene ausgehende Server-Verbindungen wird der naechste Ver-
+ *   bindungsversuch in RECONNECT_DELAY Sekunden (3) unternommen und nicht
+ *   mehr "ConnectRetry" Sekunden gewartet.
+ *
  * Revision 1.43  2002/03/02 00:29:11  alex
  * - der Wert der Konfigurations-Variable "ConnectRetry" wird besser beachtet.
  *
@@ -577,8 +582,10 @@ GLOBAL VOID Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformC
 		free( My_Connections[Idx].res_stat );
 	}
 
-	/* Bei Server-Verbindungen lasttry-Zeitpunkt auf "jetzt" setzen */
-	if( My_Connections[Idx].our_server >= 0 ) Conf_Server[My_Connections[Idx].our_server].lasttry = time( NULL );
+	/* Bei Server-Verbindungen lasttry-Zeitpunkt so setzen, dass
+	 * der naechste Verbindungsversuch in RECONNECT_DELAY Sekunden
+	 * gestartet wird */
+	if( My_Connections[Idx].our_server >= 0 ) Conf_Server[My_Connections[Idx].our_server].lasttry = time( NULL ) - Conf_ConnectRetry + RECONNECT_DELAY;
 
 	FD_CLR( My_Connections[Idx].sock, &My_Sockets );
 	My_Connections[Idx].sock = NONE;

@@ -42,6 +42,8 @@ ngIRCd 0.3.x, ??.??.2002
   - Client-Mode "s" (Server Notices) implementiert.
   - mit dem neuen Kommandozeilen-Parameter "--config"/"-f" kann eine
     alternative Konfigurationsdatei angegeben werden.
+  - nach dem Start kann der ngIRCd, wenn er mit root-Rechten laeuft,
+    zu einer anderen User-ID und Group-ID wechseln.
 
 ngIRCd 0.3.0, 02.03.2002
 
@@ -172,4 +174,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.53 2002/03/28 14:15:19 alex Exp $
+$Id: ChangeLog,v 1.54 2002/03/29 23:41:23 alex Exp $

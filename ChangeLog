@@ -10,7 +10,7 @@
                         -- ChangeLog / Aenderungen --
 
 
-ngIRCd CVS-HEAD
+ngIRCd 0.6.0-pre1
 
   - beim Schliessen einer Verbindung zeigt der Server nun vor dem ERROR
     noch eine Statistik ueber die empfangene und gesendete Datenmenge an.
@@ -362,4 +362,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.147 2002/12/18 14:19:58 alex Exp $
+$Id: ChangeLog,v 1.147.2.1 2002/12/18 16:27:14 alex Exp $

@@ -10,7 +10,7 @@
                            -- NEWS / Neuigkeiten --
 
 
-ngIRCd CVS-HEAD
+ngIRCd 0.6.0-pre1
 
   - beim Schliessen einer Verbindung zeigt der Server nun vor dem ERROR
     noch eine Statistik ueber die empfangene und gesendete Datenmenge an.
@@ -139,4 +139,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.45 2002/12/18 12:19:07 alex Exp $
+$Id: NEWS,v 1.45.2.1 2002/12/18 16:27:14 alex Exp $

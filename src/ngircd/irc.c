@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2003 by Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc.c,v 1.118 2003/01/15 13:49:20 alex Exp $";
+static char UNUSED id[] = "$Id: irc.c,v 1.119 2003/03/19 21:16:53 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -36,6 +36,9 @@ static char UNUSED id[] = "$Id: irc.c,v 1.118 2003/01/15 13:49:20 alex Exp $";
 
 #include "exp.h"
 #include "irc.h"
+
+
+LOCAL CHAR *Option_String PARAMS(( CONN_ID Idx ));
 
 
 GLOBAL BOOLEAN
@@ -183,9 +186,8 @@ IRC_PRIVMSG( CLIENT *Client, REQUEST *Req )
 GLOBAL BOOLEAN
 IRC_TRACE( CLIENT *Client, REQUEST *Req )
 {
-	CLIENT *from, *target;
+	CLIENT *from, *target, *c;
 	CONN_ID idx, idx2;
-	CHAR ver[64], *ptr;
 
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -202,10 +204,6 @@ IRC_TRACE( CLIENT *Client, REQUEST *Req )
 	if( Req->argc == 1 ) target = Client_Search( Req->argv[0] );
 	else target = Client_ThisServer( );
 	
-	strlcpy( ver, NGIRCd_VersionAddition( ), sizeof( ver ));
-	ptr = strchr( ver, '-' );
-	if( ptr ) *ptr = '\0';
-
 	/* Forward command to other server? */
 	if( target != Client_ThisServer( ))
 	{
@@ -214,14 +212,37 @@ IRC_TRACE( CLIENT *Client, REQUEST *Req )
 		/* Send RPL_TRACELINK back to initiator */
 		idx = Client_Conn( Client ); assert( idx > NONE );
 		idx2 = Client_Conn( Client_NextHop( target )); assert( idx2 > NONE );
-		if( ! IRC_WriteStrClient( from, RPL_TRACELINK_MSG, Client_ID( from ), PACKAGE, VERSION, Client_ID( target ), Client_ID( Client_NextHop( target )), ver, time( NULL ) - Conn_StartTime( idx ), Conn_SendQ( idx ), Conn_SendQ( idx2 ))) return DISCONNECTED;
+		if( ! IRC_WriteStrClient( from, RPL_TRACELINK_MSG, Client_ID( from ), PACKAGE, VERSION, Client_ID( target ), Client_ID( Client_NextHop( target )), Option_String( idx2 ), time( NULL ) - Conn_StartTime( idx2 ), Conn_SendQ( idx ), Conn_SendQ( idx2 ))) return DISCONNECTED;
 
 		/* Forward command */
 		IRC_WriteStrClientPrefix( target, from, "TRACE %s", Req->argv[0] );
 		return CONNECTED;
 	}
 
-	if( ! IRC_WriteStrClient( from, RPL_TRACESERVER_MSG, Client_ID( from ), Conf_ServerName, Client_Mask( Client_ThisServer( )), ver )) return DISCONNECTED;
+	/* Infos about all connected servers */
+	c = Client_First( );
+	while( c )
+	{
+		if( Client_Conn( c ) > NONE )
+		{
+			/* Local client */
+			if( Client_Type( c ) == CLIENT_SERVER )
+			{
+				/* Server link */
+				if( ! IRC_WriteStrClient( from, RPL_TRACESERVER_MSG, Client_ID( from ), Client_ID( c ), Client_Mask( c ), Option_String( Client_Conn( c )))) return DISCONNECTED;
+			}
+			if(( Client_Type( c ) == CLIENT_USER ) && ( strchr( Client_Modes( c ), 'o' )))
+			{
+				/* IRC Operator */
+				if( ! IRC_WriteStrClient( from, RPL_TRACEOPERATOR_MSG, Client_ID( from ), Client_ID( c ))) return DISCONNECTED;
+			}
+		}
+		c = Client_Next( c );
+	}
+
+	/* Some information about us */
+	if( ! IRC_WriteStrClient( from, RPL_TRACESERVER_MSG, Client_ID( from ), Conf_ServerName, Client_Mask( Client_ThisServer( )), Option_String( Client_Conn( Client )))) return DISCONNECTED;
+
 	return IRC_WriteStrClient( from, RPL_TRACEEND_MSG, Client_ID( from ), Conf_ServerName, PACKAGE, VERSION, NGIRCd_DebugLevel );
 } /* IRC_TRACE */
 
@@ -245,6 +266,23 @@ IRC_HELP( CLIENT *Client, REQUEST *Req )
 	}
 	return CONNECTED;
 } /* IRC_HELP */
+
+
+LOCAL CHAR *
+Option_String( CONN_ID Idx )
+{
+	STATIC CHAR option_txt[8];
+	INT options;
+
+	options = Conn_Options( Idx );
+
+	strcpy( option_txt, "F" );	/* No idea what this means but the original ircd sends it ... */
+#ifdef USE_ZLIB
+	if( options & CONN_ZIP ) strcat( option_txt, "z" );
+#endif
+
+	return option_txt;
+} /* Option_String */
 
 
 /* -eof- */

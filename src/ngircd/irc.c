@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.59 2002/02/17 17:30:21 alex Exp $
+ * $Id: irc.c,v 1.60 2002/02/17 17:43:14 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.60  2002/02/17 17:43:14  alex
+ * - Fehlerhafte Modes werden nun ausfuehrlicher an den Client gemeldet.
+ *
  * Revision 1.59  2002/02/17 17:30:21  alex
  * - NICK-Aenderungen werden an alle Server und betroffene Clients gemeldet.
  * - Neue Funktion IRC_WriteStrRelatedPrefix().
@@ -1307,7 +1310,7 @@ GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req )
 						break;
 					default:
 						Log( LOG_DEBUG, "Unknown mode \"%c%c\" from \"%s\"!?", set ? '+' : '-', *mode_ptr, Client_ID( Client ));
-						ok = IRC_WriteStrClient( Client, ERR_UMODEUNKNOWNFLAG_MSG, Client_ID( Client ));
+						ok = IRC_WriteStrClient( Client, ERR_UMODEUNKNOWNFLAG2_MSG, Client_ID( Client ), set ? '+' : '-', *mode_ptr );
 						x[0] = '\0';
 				}
 			}
@@ -1337,7 +1340,7 @@ GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req )
 							break;
 						default:
 							Log( LOG_DEBUG, "Unknown channel-user-mode \"%c%c\" from \"%s\" on \"%s\" at %s!?", set ? '+' : '-', *mode_ptr, Client_ID( Client ), Client_ID( chan_cl ), Channel_Name( chan ));
-							ok = IRC_WriteStrClient( Client, ERR_UMODEUNKNOWNFLAG_MSG, Client_ID( Client ));
+							ok = IRC_WriteStrClient( Client, ERR_UMODEUNKNOWNFLAG2_MSG, Client_ID( Client ), set ? '+' : '-', *mode_ptr );
 							x[0] = '\0';
 					}
 				}
@@ -1376,7 +1379,7 @@ GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req )
 							break;
 						default:
 							Log( LOG_DEBUG, "Unknown channel-mode \"%c%c\" from \"%s\" at %s!?", set ? '+' : '-', *mode_ptr, Client_ID( Client ), Channel_Name( chan ));
-							ok = IRC_WriteStrClient( Client, ERR_UMODEUNKNOWNFLAG_MSG, Client_ID( Client ));
+							ok = IRC_WriteStrClient( Client, ERR_UMODEUNKNOWNFLAG2_MSG, Client_ID( Client ), set ? '+' : '-', *mode_ptr );
 							x[0] = '\0';
 					}
 				}

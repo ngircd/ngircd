@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.90 2005/02/09 09:52:58 alex Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.91 2005/02/10 12:49:04 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -28,6 +28,7 @@ static char UNUSED id[] = "$Id: ngircd.c,v 1.90 2005/02/09 09:52:58 alex Exp $";
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
+#include <fcntl.h>
 #include <pwd.h>
 #include <grp.h>
 
@@ -61,6 +62,8 @@ LOCAL VOID Pidfile_Create PARAMS(( LONG ));
 LOCAL VOID Pidfile_Delete PARAMS(( VOID ));
 
 LOCAL VOID NGIRCd_FillVersion PARAMS(( VOID ));
+
+LOCAL VOID Setup_FDStreams PARAMS(( VOID ));
 
 
 GLOBAL int
@@ -267,29 +270,31 @@ main( int argc, const char *argv[] )
 			if( setuid( Conf_UID ) != 0 ) Log( LOG_ERR, "Can't change user ID to %u: %s", Conf_UID, strerror( errno ));
 		}
 
-		/* In der Regel wird ein Sub-Prozess ge-fork()'t, der
-		 * nicht mehr mit dem Terminal verbunden ist. Mit der
-		 * Option "--nodaemon" kann dies (z.B. zum Debuggen)
-		 * verhindert werden. */
+		/* Normally a child process is forked which isn't any longer
+		 * connected to ther controlling terminal. Use "--nodaemon"
+		 * to disable this "daemon mode" (useful for debugging). */
 		if( ! NGIRCd_NoDaemon )
 		{
-			/* Daemon im Hintergrund erzeugen */
+			/* fork child process */
 			pid = (LONG)fork( );
 			if( pid > 0 )
 			{
-				/* "alter" Prozess */
+				/* "Old" process: exit. */
 				exit( 0 );
 			}
 			if( pid < 0 )
 			{
-				/* Fehler */
-				printf( "%s: Can't fork: %s!\nFatal error, exiting now ...\n", PACKAGE_NAME, strerror( errno ));
+				/* Error!? */
+				fprintf( stderr, "%s: Can't fork: %s!\nFatal error, exiting now ...\n", PACKAGE_NAME, strerror( errno ));
 				exit( 1 );
 			}
 
-			/* Child-Prozess initialisieren */
+			/* New child process */
 			(VOID)setsid( );
 			chdir( "/" );
+
+			/* Detach stdin, stdout and stderr */
+			(VOID)Setup_FDStreams( );
 		}
 
 		/* Create PID file */
@@ -326,11 +331,11 @@ main( int argc, const char *argv[] )
 #endif
 		Conn_Init( );
 
-		/* Redirect stderr handle to "error file" for debugging.
-		 * But don't try to write in the chroot jail, since it's more 
-		 * secure to have a chroot dir not writable by the daemon.
-		 */
-		if( ! Conf_Chroot[0] ) Log_InitErrorfile( );
+#ifdef DEBUG
+		/* Redirect stderr handle to "error file" for debugging
+		 * when not running in "no daemon" mode: */
+		if( ! NGIRCd_NoDaemon ) Log_InitErrorfile( );
+#endif
 
 		/* Signal-Handler initialisieren */
 		Initialize_Signal_Handler( );
@@ -627,6 +632,33 @@ Pidfile_Create( LONG pid )
 	if( fclose(pidf) != 0 )
 		Log( LOG_ERR, "Error closing PID file (%s): %s", Conf_PidFile, strerror( errno ));
 } /* Pidfile_Create */
+
+
+LOCAL VOID
+Setup_FDStreams( VOID )
+{
+	int fd;
+
+	/* Test if we can open /dev/null for reading and writing. If not
+	 * we are most probably chrooted already and the server has been
+	 * restarted. So we simply don't try to redirect stdXXX ... */
+	fd = open( "/dev/null", O_RDWR );
+	if ( fd < 0 ) return;
+
+	/* Close "old" stdin/out/err descriptors */
+	fclose( stdin ); fclose( stdout ); fclose( stderr );
+
+	/* Create new stdin(0), stdout(1) and stderr(2) descriptors */
+	dup2( fd, 0 ); dup2( fd, 1 ); dup2( fd, 2 );
+
+	/* Close newly opened file descriptor if not stdin/out/err */
+	if( fd > 2 ) close( fd );
+
+	/* Assign FILE handles for stdin/out/err */
+	stdin = fdopen( 0, "r" );
+	stdout = fdopen( 1, "w" );
+	stderr = fdopen( 2, "w" );
+} /* Setup_FDStreams */
 
 
 /* -eof- */

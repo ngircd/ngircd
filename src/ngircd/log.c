@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: log.c,v 1.51 2005/02/09 09:52:58 alex Exp $";
+static char UNUSED id[] = "$Id: log.c,v 1.52 2005/02/10 12:49:04 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -44,8 +44,11 @@ static char UNUSED id[] = "$Id: log.c,v 1.51 2005/02/09 09:52:58 alex Exp $";
 #include "log.h"
 
 
-LOCAL CHAR Error_File[FNAME_LEN];
 LOCAL CHAR Init_Txt[127];
+
+#ifdef DEBUG
+LOCAL CHAR Error_File[FNAME_LEN];
+#endif
 
 
 LOCAL VOID Wall_ServerNotice PARAMS(( CHAR *Msg ));
@@ -89,9 +92,13 @@ Log_Init( VOID )
 #endif
 	if( Init_Txt[0] ) Log( LOG_INFO, "Activating: %s.", Init_Txt );
 
+#ifdef DEBUG
 	Error_File[0] = '\0';
+#endif
 } /* Log_Init */
 
+
+#ifdef DEBUG
 
 GLOBAL VOID
 Log_InitErrorfile( VOID )
@@ -119,6 +126,8 @@ Log_InitErrorfile( VOID )
 	Log( LOG_DEBUG, "Redirected stderr to \"%s\".", Error_File );
 } /* Log_InitErrfile */
 
+#endif
+
 
 GLOBAL VOID
 Log_Exit( VOID )
@@ -127,11 +136,13 @@ Log_Exit( VOID )
 	if( NGIRCd_SignalRestart ) Log( LOG_NOTICE, "%s done (restarting).", PACKAGE_NAME );
 	else Log( LOG_NOTICE, "%s done.", PACKAGE_NAME );
 
+#ifdef DEBUG
 	if( Error_File[0] )
 	{
 		/* Error-File (stderr) loeschen */
 		if( unlink( Error_File ) != 0 ) Log( LOG_ERR, "Can't delete \"%s\": %s", Error_File, strerror( errno ));
 	}
+#endif
 
 #ifdef SYSLOG
 	/* syslog abmelden */
@@ -198,7 +209,7 @@ va_dcl
 
 	if( Level <= LOG_CRIT )
 	{
-		/* Kritische Meldungen in Error-File (stderr) */
+		/* log critical messages to stderr */
 		fprintf( stderr, "%s\n", msg );
 		fflush( stderr );
 	}

@@ -12,6 +12,8 @@
 
 ngIRCd CVSHEAD
 
+  - Write "error file" (/tmp/ngircd-XXX.err) only if compiled with debug
+    code ("--enable-debug") and running as daemon process.
   - Don't create version information string each time a client connects
     but insetead on server startup. By Florian Westphal.
   - New configuration variable "PidFile", section "[Global]": if defined,
@@ -584,4 +586,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.260 2005/02/09 09:52:58 alex Exp $
+$Id: ChangeLog,v 1.261 2005/02/10 12:49:04 alex Exp $

@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: log.h,v 1.14 2003/12/26 15:55:07 alex Exp $
+ * $Id: log.h,v 1.15 2005/02/10 12:49:04 alex Exp $
  *
  * Logging functions (header)
  */
@@ -38,13 +38,16 @@
 GLOBAL VOID Log_Init PARAMS((VOID ));
 GLOBAL VOID Log_Exit PARAMS((VOID ));
 
-GLOBAL VOID Log_InitErrorfile PARAMS((VOID ));
 GLOBAL VOID Log PARAMS((INT Level, CONST CHAR *Format, ... ));
 
 GLOBAL VOID Log_Init_Resolver PARAMS((VOID ));
 GLOBAL VOID Log_Exit_Resolver PARAMS((VOID ));
 
 GLOBAL VOID Log_Resolver PARAMS((CONST INT Level, CONST CHAR *Format, ... ));
+
+#ifdef DEBUG
+GLOBAL VOID Log_InitErrorfile PARAMS((VOID ));
+#endif
 
 
 #endif

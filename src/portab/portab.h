@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: portab.h,v 1.14 2003/03/17 01:12:10 alex Exp $
+ * $Id: portab.h,v 1.15 2003/03/31 19:01:02 alex Exp $
  *
  * Portability functions and declarations (header for libngbportab).
  */
@@ -144,6 +144,14 @@ EXTERN size_t strlcpy PARAMS(( CHAR *dst, CONST CHAR *src, size_t size ));
 #ifndef HAVE_VSNPRINTF
 #include <stdarg.h>
 EXTERN INT vsnprintf PARAMS(( CHAR *str, size_t count, CONST CHAR *fmt, va_list args ));
+#endif
+
+#ifndef PACKAGE_NAME
+#define PACKAGE_NAME PACKAGE
+#endif
+
+#ifndef PACKAGE_VERSION
+#define PACKAGE_VERSION VERSION
 #endif
 
 

@@ -15,6 +15,9 @@ ngIRCd 0.6.x-CVS
   - Fixed KILL: you can't crash the server by killing yourself any more,
     ngIRCd no longer sends a QUIT to other servers after the KILL, and you
     can kill only valid users now.
+  - The server no longer forwards commands to ordinary users, instead it
+    answers with the correct error message ("no such server") now.
+  - WHOIS commands weren't always forwarded as requested.
 
 
 Older changes (sorry, only available in german language):
@@ -378,4 +381,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.147.2.5 2002/12/27 13:37:43 alex Exp $
+$Id: ChangeLog,v 1.147.2.6 2003/01/01 13:46:06 alex Exp $

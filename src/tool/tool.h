@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: tool.h,v 1.1 2003/01/13 12:20:16 alex Exp $
+ * $Id: tool.h,v 1.2 2005/02/04 13:09:03 alex Exp $
  *
  * Tool functions (Header)
  */
@@ -17,6 +17,8 @@
 #ifndef __tool_h__
 #define __tool_h__
 
+
+GLOBAL VOID ngt_TrimLastChr PARAMS((CHAR *String, CONST CHAR Chr ));
 
 GLOBAL VOID ngt_TrimStr PARAMS((CHAR *String ));
 

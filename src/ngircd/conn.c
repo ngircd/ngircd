@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.96 2002/11/26 23:07:24 alex Exp $
+ * $Id: conn.c,v 1.97 2002/11/28 12:17:38 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -1146,15 +1146,24 @@ Read_Request( CONN_ID Idx )
 	/* Daten von Socket einlesen und entsprechend behandeln.
 	 * Tritt ein Fehler auf, so wird der Socket geschlossen. */
 
-	INT len;
+	INT len, bsize;
+	CLIENT *c;
 
 	assert( Idx > NONE );
 	assert( My_Connections[Idx].sock > NONE );
 
+	/* wenn noch nicht registriert: maximal mit ZREADBUFFER_LEN arbeiten,
+	 * ansonsten koennen Daten ggf. nicht umkopiert werden. */
+	bsize = READBUFFER_LEN;
 #ifdef USE_ZLIB
-	if(( READBUFFER_LEN - My_Connections[Idx].rdatalen - 1 < 1 ) || ( ZREADBUFFER_LEN - My_Connections[Idx].zip.rdatalen < 1 ))
+	c = Client_GetFromConn( Idx );
+	if(( Client_Type( c ) != CLIENT_USER ) && ( Client_Type( c ) != CLIENT_SERVER ) && ( Client_Type( c ) != CLIENT_SERVICE ) && ( bsize > ZREADBUFFER_LEN )) bsize = ZREADBUFFER_LEN;
+#endif
+
+#ifdef USE_ZLIB
+	if(( bsize - My_Connections[Idx].rdatalen - 1 < 1 ) || ( ZREADBUFFER_LEN - My_Connections[Idx].zip.rdatalen < 1 ))
 #else
-	if( READBUFFER_LEN - My_Connections[Idx].rdatalen - 1 < 1 )
+	if( bsize - My_Connections[Idx].rdatalen - 1 < 1 )
 #endif
 	{
 		/* Der Lesepuffer ist voll */
@@ -1172,7 +1181,7 @@ Read_Request( CONN_ID Idx )
 	else
 #endif
 	{
-		len = recv( My_Connections[Idx].sock, My_Connections[Idx].rbuf + My_Connections[Idx].rdatalen, READBUFFER_LEN - My_Connections[Idx].rdatalen - 1, 0 );
+		len = recv( My_Connections[Idx].sock, My_Connections[Idx].rbuf + My_Connections[Idx].rdatalen, bsize - My_Connections[Idx].rdatalen - 1, 0 );
 		if( len > 0 ) My_Connections[Idx].rdatalen += len;
 	}
 
@@ -1218,6 +1227,9 @@ Handle_Buffer( CONN_ID Idx )
 	CHAR *ptr;
 	INT len, delta;
 	BOOLEAN action, result;
+#ifdef USE_ZLIB
+	BOOLEAN old_z;
+#endif
 
 	result = FALSE;
 	do
@@ -1267,17 +1279,43 @@ Handle_Buffer( CONN_ID Idx )
 				Conn_Close( Idx, NULL, "Request too long", TRUE );
 				return FALSE;
 			}
-	
+
+#ifdef USE_ZLIB
+			/* merken, ob Stream bereits komprimiert wird */
+			old_z = My_Connections[Idx].options & CONN_ZIP;
+#endif
+
 			if( len > delta )
 			{
 				/* Es wurde ein Request gelesen */
 				if( ! Parse_Request( Idx, My_Connections[Idx].rbuf )) return FALSE;
 				else action = TRUE;
 			}
-	
+
 			/* Puffer anpassen */
 			My_Connections[Idx].rdatalen -= len;
 			memmove( My_Connections[Idx].rbuf, My_Connections[Idx].rbuf + len, My_Connections[Idx].rdatalen );
+
+#ifdef USE_ZLIB
+			if(( ! old_z ) && ( My_Connections[Idx].options & CONN_ZIP ) && ( My_Connections[Idx].rdatalen > 0 ))
+			{
+				/* Mit dem letzten Befehl wurde Socket-Kompression aktiviert.
+				 * Evtl. schon vom Socket gelesene Daten in den Unzip-Puffer
+				 * umkopieren, damit diese nun zunaechst entkomprimiert werden */
+				{
+					if( My_Connections[Idx].rdatalen > ZREADBUFFER_LEN )
+					{
+						/* Hupsa! Soviel Platz haben wir aber gar nicht! */
+						Log( LOG_ALERT, "Can't move read buffer: No space left in unzip buffer (need %d bytes)!", My_Connections[Idx].rdatalen );
+						return FALSE;
+					}
+					memcpy( My_Connections[Idx].zip.rbuf, My_Connections[Idx].rbuf, My_Connections[Idx].rdatalen );
+					My_Connections[Idx].zip.rdatalen = My_Connections[Idx].rdatalen;
+					My_Connections[Idx].rdatalen = 0;
+					Log( LOG_DEBUG, "Moved already received data (%d bytes) to uncompression buffer.", My_Connections[Idx].zip.rdatalen );
+				}
+			}
+#endif
 		}
 		
 		if( action ) result = TRUE;
@@ -1710,7 +1748,7 @@ Unzip_Buffer( CONN_ID Idx )
 	result = inflate( in, Z_SYNC_FLUSH );
 	if( result != Z_OK )
 	{
-		Log( LOG_ALERT, "Decompression error: code %d!?", result );
+		Log( LOG_ALERT, "Decompression error: code %d (ni=%d, ai=%d, no=%d, ao=%d)!?", result, in->next_in, in->avail_in, in->next_out, in->avail_out );
 		Conn_Close( Idx, "Decompression error!", NULL, FALSE );
 		return FALSE;
 	}

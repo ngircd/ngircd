@@ -9,7 +9,7 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: Makefile.am,v 1.13 2004/09/06 20:35:28 alex Exp $
+# $Id: Makefile.am,v 1.14 2004/09/08 09:40:51 alex Exp $
 #
 
 AUTOMAKE_OPTIONS = ../portab/ansi2knr
@@ -17,7 +17,7 @@ AUTOMAKE_OPTIONS = ../portab/ansi2knr
 INCLUDES = -I$(srcdir)/../portab
 
 EXTRA_DIST = \
-	README getpid.sh \
+	README functions.inc getpid.sh \
 	start-server.sh stop-server.sh tests.sh stress-server.sh \
 	test-loop.sh wait-tests.sh \
 	connect-test.e channel-test.e mode-test.e \

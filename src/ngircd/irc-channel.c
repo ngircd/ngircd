@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-channel.c,v 1.9 2002/06/10 21:10:25 alex Exp $
+ * $Id: irc-channel.c,v 1.10 2002/06/26 15:44:15 alex Exp $
  *
  * irc-channel.c: IRC-Channel-Befehle
  */
@@ -27,6 +27,7 @@
 #include "channel.h"
 #include "lists.h"
 #include "log.h"
+#include "match.h"
 #include "messages.h"
 #include "parse.h"
 #include "irc.h"
@@ -293,9 +294,8 @@ IRC_LIST( CLIENT *Client, REQUEST *Req )
 		chan = Channel_First( );
 		while( chan )
 		{
-			/* Passt die Suchmaske auf diesen Channel? Bisher werden hier
-			 * "regular expressions" aber noch nicht unterstuetzt ... */
-			if(( strcasecmp( pattern, Channel_Name( chan )) == 0 ) || ( strcmp( pattern, "*" ) == 0 ))
+			/* Passt die Suchmaske auf diesen Channel? */
+			if( Match( pattern, Channel_Name( chan )))
 			{
 				/* Treffer! */
 				if( ! IRC_WriteStrClient( Client, RPL_LIST_MSG, Client_ID( Client), Channel_Name( chan ), Channel_MemberCount( chan ), Channel_Topic( chan ))) return DISCONNECTED;

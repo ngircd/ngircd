@@ -9,34 +9,83 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: autogen.sh,v 1.9 2004/03/15 18:59:12 alex Exp $
+# $Id: autogen.sh,v 1.10 2004/03/15 20:32:31 alex Exp $
+#
+
+#
+# Usage: [VAR=<value>] ./autogen.sh [<configure-args>]
+#
+# This script generates the ./configure script using GNU automake and
+# GNU autoconf. It tries to be smart in finding the correct/usable/available
+# installed versions of these tools on your system.
+#
+# The following strategy is used for each of aclocal, autoheader, automake,
+# and autoconf: first, "tool" (the regular name of the tool, e. g. "autoconf"
+# or "automake") is checked. If this fails, "tool<major><minor>" (for example
+# "automake16") and "tool-<major>.<minor>" (e. g. "autoconf-2.54") are tried
+# with <major> being 2 for tool of GNU autoconf and 1 for tools of automake;
+# <minor> is tried from 99 to 0. The first occurrence will be used.
+#
+# When you pass <configure-args> to autogen.sh it will call the generated
+# ./configure script on success and pass these parameters to it.
+#
+# You can tweak the behaviour using these environment variables:
+#
+# - ALICA=<cmd>, AUTOHEADER=<cmd>, AUTOMAKE=<cmd>, AUTOCONF=<cmd>
+#   Name and optionally path to the particular tool.
+# - PREFIX=<path>
+#   Search the GNU autoconf and GNU automake tools in <path> first. If the
+#   generated ./configure script will be called, pass "--prefix=<path>" to it.
+# - VERBOSE=1
+#   Output the detected names of the GNU automake and GNU autoconf tools.
+# - GO=1
+#   Call ./configure even if no arguments have been passed to autogen.sh.
+#
+# Examples:
+#
+# - ./autogen.sh
+#   Generates the ./configure script.
+# - GO=1 ./autogen.sh
+#   Generates the ./configure script and runs it as "./configure".
+# - VERBOSE=1 ./autogen.sh --with-ident
+#   Show tool names, generates the ./configure script, and runs it with
+#   these arguments: "./configure --with-ident".
+# - ACLOCAL=aclocal-1.6 GO=1 PREFIX=$HOME ./autogen.sh
+#   Uses "aclocal-1.6" as aclocal tool, generates the ./configure script,
+#   and runs it with these arguments: "./configure --prefix=$HOME".
 #
 
 Search()
 {
 	[ $# -eq 2 ] || exit 1
 
-	name="$1"
+	searchlist="$1"
 	major="$2"
 	minor=99
 
-	type "${name}" >/dev/null 2>&1
-	if [ $? -eq 0 ]; then
-		echo "${name}"
-		return 0
-	fi
+	[ -n "$PREFIX" ] && searchlist="${PREFIX}$1 ${PREFIX}/bin/$1 $searchlist"
+
+	for name in $searchlist; do
+		type "${name}" >/dev/null 2>&1
+		if [ $? -eq 0 ]; then
+			echo "${name}"
+			return 0
+		fi
+	done
 
 	while [ $minor -ge 0 ]; do
-		type "${name}${major}${minor}" >/dev/null 2>&1
-		if [ $? -eq 0 ]; then
-			echo "${name}${major}${minor}"
-			return 0
-		fi
-		type "${name}-${major}.${minor}" >/dev/null 2>&1
-		if [ $? -eq 0 ]; then
-			echo "${name}-${major}.${minor}" >/dev/null 2>&1
-			return 0
-		fi
+		for name in $searchlist; do
+			type "${name}${major}${minor}" >/dev/null 2>&1
+			if [ $? -eq 0 ]; then
+				echo "${name}${major}${minor}"
+				return 0
+			fi
+			type "${name}-${major}.${minor}" >/dev/null 2>&1
+			if [ $? -eq 0 ]; then
+				echo "${name}-${major}.${minor}" >/dev/null 2>&1
+				return 0
+			fi
+		done
 		minor=`expr $minor - 1`
 	done
 	return 1
@@ -67,7 +116,7 @@ echo "Searching tools ..."
 [ -z "$AUTOCONF" ] && AUTOCONF=`Search autoconf 2`
 
 # Some debugging output ...
-if [ -n "$DEBUG" ]; then
+if [ -n "$VERBOSE" ]; then
 	echo "ACLOCAL=$ACLOCAL"
 	echo "AUTOHEADER=$AUTOHEADER"
 	echo "AUTOMAKE=$AUTOMAKE"
@@ -89,12 +138,15 @@ $ACLOCAL && \
 	$AUTOMAKE --add-missing && \
 	$AUTOCONF
 
-if [ $? -eq 0 ]; then
+if [ $? -eq 0 -a -x ./configure ]; then
 	# Success: if we got some parameters we call ./configure and pass
 	# all of them to it.
-	if [ -n "$*" -a -x ./configure ]; then
-		echo "Calling generated \"configure\" script ..."
-		./configure $*
+	if [ -n "$*" -o -n "$GO" ]; then
+		[ -n "$PREFIX" ] && p=" --prefix=$PREFIX" || p=""
+		[ -n "$*" ] && a=" $*" || a=""
+		c="./configure${p}${a}"
+		echo "Calling \"$c\" ..."
+		$c
 		exit $?
 	else
 		echo "Okay, autogen.sh done; now run the \"configure\" script."

@@ -10,112 +10,98 @@
                               -- Protocol.txt --
 
 
-  +-----------------------------------------------------------------------+
-  | This text is only available in german at the moment, but this should  |
-  | change until the release of ngIRCd 0.7.0, so feel free to contribute! |
-  +-----------------------------------------------------------------------+
+I. Compatibility
+~~~~~~~~~~~~~~~~
+
+The ngIRCd implements the Internet Relay Chat (IRC) protocol version 2.10
+as defined in RFC ("request for comment") 1459 and 2810-2813. These (and
+probably further relevant RFCs) are listed in doc/RFC.txt.
+
+Unfortunately, even the "original" ircd doesn't follow these specifications
+in all details. But because the ngIRCd should be a fully compatible
+replacement for this server ("ircd") it tries to emulate these differences.
+
+If you don't like this behavior please ./configure the ngIRCd using the
+"--enable-strict-rfc" command line option. But please not: not all IRC
+clients are compatible with such an server, some can't even connect at all!
+Therefore this option isn't desired for "normal operation".
 
 
-I. Kompatibilitaet
-~~~~~~~~~~~~~~~~~~
+II. The IRC+ Protocol
+~~~~~~~~~~~~~~~~~~~~~
 
-Der ngIRCd haelt sich an das IRC-Protokoll Version 2.10, wie es in den RFCs
-1459 und 2810-2813 beschrieben ist. Diese (und ggf. weitere fuer den ngIRCd
-relevante) RFCs sind in RFC.txt aufgefuehrt.
+Starting with version 0.5.0, the ngIRCd extends the original IRC protocol
+as defined in RFC 2810-2813. This enhanced protocol is named "IRC+". It is
+backwards compatible to the "plain" IRC protocol and will only be used by
+the ngIRCd if it detects that the peer supports it as well.
 
-Leider verhaelt sich aber schon der "Originalserver" nicht immer genau so,
-wie es in den RFCs beschrieben ist. Da der ngIRCd aber ein Ersatz fuer
-eben diesen Server sein soll, werden diese Abweichungen in der Regel vom
-ngIRCd emuliert um die Kompatibilitaet zu wahren.
-
-Sollte dieses Verhalten nicht erwuenscht sein, so kann mit der configure-
-Option "--enable-strict-rfc" der ngIRCd so compiliert werden, dass er sich
-strikt an die entsprechenden RFCs haelt.
-
-ACHTUNG: an einem so compilierten Server koennen sich andere Server und
-Clients, die sich nicht genau an das Protokoll halten, u.U. nicht mehr
-anmelden oder alle Funktionen nutzen! In der Regel ist diese Option daher
-nicht erwuenscht.
+The "PASSV" command is used to detect the protocol and peer versions (see
+RFC 2813, section 4.1.1).
 
 
-II. Das IRC+-Protokoll
-~~~~~~~~~~~~~~~~~~~~~~
+II.1 Register new server link
 
-Der ngIRCd unterstuetzt als Erweiterung zum IRC-Protokoll wie es in den RFCs
-2810-2813 beschrieben ist, das IRC+-Protokoll. Dieses Protokoll ist dabei
-kompatibel zum IRC-Protokoll und wird nur verwendet, wenn der ngIRCd fest-
-stellt, dass ein connectierter Server ebenfalls dieses erweiterte Protokoll
-unterstuetzt.
+     Command: PASS
+  Parameters: <password> <version> <flags> [<options>]
+     Used by: servers only (with these parameters)
 
-Die Protokoll- und Server-Erkennung wird mit dem "PASS"-Befehl durchgefuehrt
-(vgl. RFC 2813, Sektion 4.1.1):
+<password> is the password for this new server link as defined in the server
+configuration which is sent to the peer or received from it.
 
+<version> consists of two parts and is at least 4, at most 14 characters
+long: the first four bytes contain the IRC protocol version number, whereas
+the first two bytes represent the major version, the last two bytes the
+minor version (the string "0210" indicates version 2.10, e.g.).
 
-II.1 neuen Server-Link registrieren
+The following optional(!) 10 bytes contain an implementation-dependent
+version number. Servers supporting the IRC+ protocol as defined in this
+document provide the string "-IRC+" here.
 
-     Befehl: PASS
-  Parameter: <password> <version> <flags> [<options>]
-       Fuer: mit dieser Syntax nur Server
+<flags> consists of two parts separated with the character "|" and is at
+most 100 bytes long. The first part contains the name of the implementation
+(ngIRCd sets this to "ngIRCd", the original ircd to "IRC", e.g.). The second
+part is implementation-dependent and should only be parsed if the peer
+supports the IRC+ protocol as well. In this case the following syntax is
+used: "<serverversion>[:<serverflags>]".
 
-<password> enthaelt das Passwort fur den neu aufzubauenden Server-Link,
-so wie es in der Konfigurationsdatei definiert wurde.
+<serverversion> is an ASCII representation of the clear-text server version
+number, <serverflags> indicates the supported IRC+ protocol extensions (and
+may be empty!).
 
-<version> setzt sich aus zwei Teilen zusammen und ist mindestens 4, maximal
-14 Zeichen lang: die ersten vier Bytes enthalten die Versionsnummer des
-unterstuetzten IRC-Protokolls, wobei die ersten zwei Bytes die Major-, die
-letzten beiden die Minor-Revision angeben. Der String "0210" steht also
-fuer Protokollversion 2.10.
-Die folgenden (optionalen!) 10 Bytes enthalten eine von der jeweiligen
-Implementation abhaengige Versionsnummer. Server, die das IRC+-Protokoll
-unterstuetzen, liefern hier "-IRC+".
+The optional parameter <options> is used to propagate server options as
+defined in RFC 2813, section 4.1.1.
 
-<flags> setzt sich ebenfalls aus zwei Bestandteilen zusammen und ist
-maximal 100 Bytes lang. Getrennt werden die beiden Teile mit dem Zeichen
-"|". Der erste Teil enthaelt den Namen der Implementation, der ngIRCd
-liefert hier z.B. "ngIRCd", der Originalserver "IRC". Anhand dieser "ID"
-kann zwischen Serverimplementationen unterschieden werden. Der zweite Teil
-(nach dem "|") ist implementationsabhaengig und wird nur ausgewertet,
-wenn die Gegenseite das IRC+-Protokoll unterstuetzt. In diesem Fall wird
-folgende Syntax erwartet: "<serverversion>[:<serverflags>]".
+The following <serverflags> are defined at the moment:
 
-<serverversion> ist hier eine ASCII-Klartext-Darstellung der Versionsnummer,
-<serverflags> zeigt die vom Server unterstuetzten Erweiterungen an (und
-kann die leere Menge sein).
+- o: IRC operators are allowed to change channel- and channel-user-modes
+     even if they aren't channel-operator of the affected channel.
 
-Mit dem optionalen Parameter <options> werden Server-Optionen uebermittelt,
-wie sie in RFC 2813, Sektion 4.1.1 definiert sind.
-
-Folgende <serverflags> sind zur Zeit definiert:
-
-- o: IRC-Operatoren duerfen auch dann Channel- und Channel-User-Modes
-     aendern, wenn sie kein Channel-Operator im betroffenen Channel sind.
-
-- C: der Server unterstuetzt den CHANINFO-Befehl.     
+- C: The server supports the CHANINFO command.
 
 
-II.2 Channel-Modes, persistente Channel und Topic austauschen
+II.2 Exchange channel-modes, topics, and persistent channels
 
-     Befehl: CHANINFO
-  Parameter: <channel> +<modes> <key> <maxusers> [<topic>]
-       Fuer: Server
+     Command: CHANINFO
+  Parameters: <channel> +<modes> <key> <maxusers> [<topic>]
+     Used by: servers only
 
-Mit CHANINFO Informiert ein Server den anderen ueber einen Channel: dessen
-Modes, Channel-Key, User-Limit und dessen Topic. <topic> ist optional.
+CHANINFO is used by servers to inform each other about a channel: its
+modes, channel key, user limits and its topic. <topic> is optional.
 
-Existiert auf dem Server, der das CHANINFO empfaengt, der Channel bereits,
-so uebernimmt er die Werte jeweils nur dann, wenn er selber noch keine
-Modes bzw. kein Topic definiert hat. Ansonsten wird der jeweilige Parameter
-ignoriert.
+If the channel already exists on the server receiving the CHANINFO command,
+it only adopts the <modes> (or the <topic>) if there are no modes (or topic)
+already set. It there are already values set the server ignores the
+corresponding parameter.
 
-Existiert der Channel noch nicht, so wird er mit den entsprechenden Angaben
-erzeugt.
+If the channel doesn't exists at all it will be created.
 
-Hat ein Channel keinen Key (in <modes> ist der Mode "k" nicht vorhanden),
-so muss der Parameter <key> ignoriert werden (da <key> vorhanden sein muss,
-sollte in diesem Fall "*" uebergeben werden). Hat er kein User-Limit (kein
-"l" in <modes>), so muss <limit> ignoriert werden (<limit> sollte hierbei
-als "0" uebergeben werden).
+The parameter <key> must be ignored if a channel has no key (the parameter
+<modes> doesn't list the "k" channel mode). In this case <key> should
+contain "*" because the parameter <key> is required by the CHANINFO syntax
+and therefore can't be omitted. The parameter <limit> must be ignored when
+a channel has no user limit (the parameter <modes> doesn't list the "l"
+channel mode). In this case <limit> should be "0".
 
 
 -- 
-$Id: Protocol.txt,v 1.8 2003/03/09 20:04:44 alex Exp $
+$Id: Protocol.txt,v 1.9 2003/04/21 12:48:40 alex Exp $

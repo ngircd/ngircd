@@ -14,8 +14,6 @@ ngIRCd CVS-HEAD
 
   - beim Schliessen einer Verbindung zeigt der Server nun vor dem ERROR
     noch eine Statistik ueber die empfangene und gesendete Datenmenge an.
-  - Clients werden beim Connect mit NOTICEs ueber den Status der Resolver-
-    Subprozesse informiert.
   - Connection-Strukturen werden nun "pool-weise" verwaltet; der Pool wird
     bei Bedarf bis zu einem konfigurierten Limit vergroessert.
   - Mit der neuen Konfigurationsvariable "MaxConnections" (Sekion "Global")
@@ -37,6 +35,9 @@ ngIRCd CVS-HEAD
     nicht, wird automatisch unkomprimiert kommuniziert. Das Verfahren ist
     kompatibel mit dem Original-ircd 2.10.3, d.h. beide Server koennen
     miteinander ueber komprimiert Links kommunizieren.
+  - neue Konfigurations-Variable "MaxJoins": Hiermit kann die maximale Zahl
+    der Channels, in denen ein User Mitglied sein kann, begrent werden.
+  - neue Channel-Modes l (User-Limit) und k (Channel-Key) implementiert.
 
 ngIRCd 0.5.0, 20.09.2002
 
@@ -138,4 +139,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.44 2002/11/26 23:28:49 alex Exp $
+$Id: NEWS,v 1.45 2002/12/18 12:19:07 alex Exp $

@@ -18,6 +18,20 @@
  +-----------------------------------------------------------------------+
 
 
+0. Update von frueheren Versionen
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Unterschiede zu Version 0.5.x
+
+- Ab Version 0.6.0 werden asyncrone Passwoerter zur Identifikation anderer
+  Server, die Variable "Password" in [Server]-Abschnitten wird nicht mehr
+  unterstuetzt. Passwoerter fuer Server-Server-Links werden nun mit den
+  Variablen "MyPassword" und "PeerPassword" angegeben.
+
+- Neue Konfigurationsvariablen, Sektion [Global]: MaxConnections, MaxJoins
+  (vgl. auch Beispiel-Konfiguration "doc/sample-ngircd.conf"!)
+
+
 I. Standard-Installation
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -145,4 +159,4 @@ Server nach der Ausgabe wieder.
 
 
 -- 
-$Id: INSTALL,v 1.8 2002/09/16 11:03:05 alex Exp $
+$Id: INSTALL,v 1.9 2002/12/18 12:19:07 alex Exp $

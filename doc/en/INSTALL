@@ -11,6 +11,19 @@
 
                          
 
+0. Upgrade Information
+~~~~~~~~~~~~~~~~~~~~~~
+
+Differences to version 0.5.x
+
+- Starting with version 0.6.0, other servers are identified using asyncronous
+  passwords: therefore the variable "Password" in [Server]-sections has been
+  replaced by "MyPassword" and "PeerPassword".
+
+- New configuration variables, section [Global]: MaxConnections, MaxJoins
+  (see example configuration file "doc/en/sample-ngircd.conf"!).
+
+
 I. Standard-Installation
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -123,4 +136,4 @@ number. In both cases the server exits after the output.
 
 
 -- 
-$Id: INSTALL,v 1.2 2002/05/20 12:02:58 alex Exp $
+$Id: INSTALL,v 1.3 2002/12/18 12:19:07 alex Exp $

@@ -46,6 +46,7 @@ files (using a distribution archive or CVS) is as following:
   3) make
   4) make install
 
+
 1): "autogen.sh"
 
 The first step, autogen.sh, is only necessary if the configure-script isn't
@@ -56,11 +57,13 @@ This step is therefore only interesting for developpers.
 
 autogen.sh produces the Makefile.in's, which are necessary for the configure
 script itself, and some more files for make. To run autogen.sh you'll need
-GNU autoconf and GNU automake (in recent versions!).
+GNU autoconf and GNU automake (use recent versions! autoconf 2.53 and
+automake 1.6.1 are known to work).
 
 Again: "end users" do not need this step!
 
-4): "./configure"
+
+2): "./configure"
 
 The configure-script is used to detect local system dependancies.
 
@@ -72,12 +75,14 @@ In addition, you can pass some command line options to "configure" to enable
 and/or disable some features of ngIRCd. All these options are shown using
 "./configure --help", too.
 
-5): "make"
+
+3): "make"
 
 The make command uses the Makefiles produced by configure and compiles the
 ngIRCd daemon.
 
-6): "make install"
+
+4): "make install"
 
 Use "make install" to install the server and a sample configuration file on
 the local system. Normally, root privileges are necessary to complete this
@@ -149,4 +154,4 @@ number. In both cases the server exits after the output.
 
 
 -- 
-$Id: INSTALL,v 1.11 2003/03/07 14:45:10 alex Exp $
+$Id: INSTALL,v 1.12 2003/03/08 12:34:55 alex Exp $

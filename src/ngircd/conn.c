@@ -9,11 +9,16 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.41 2002/02/27 14:47:04 alex Exp $
+ * $Id: conn.c,v 1.42 2002/03/02 00:23:32 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
+ * Revision 1.42  2002/03/02 00:23:32  alex
+ * - ausgehende Verbindungen werden nun asyncron connectiert und blockieren
+ *   nicht mehr den Server. Dadurch waren einige Aenderungen noetig.
+ * - diverse Log-Meldungen ueberarbeitet.
+ *
  * Revision 1.41  2002/02/27 14:47:04  alex
  * - Logging bei Timeout von Verbindungen geaendert.
  *
@@ -223,6 +228,7 @@ LOCAL VOID Handle_Buffer( CONN_ID Idx );
 LOCAL VOID Check_Connections( VOID );
 LOCAL VOID Check_Servers( VOID );
 LOCAL VOID Init_Conn_Struct( INT Idx );
+LOCAL BOOLEAN Init_Socket( INT Sock );
 LOCAL VOID New_Server( INT Server, CONN_ID Idx );
 
 LOCAL RES_STAT *ResolveAddr( struct sockaddr_in *Addr );
@@ -236,6 +242,7 @@ LOCAL CHAR *Resolv_Error( INT H_Error );
 LOCAL fd_set My_Listeners;
 LOCAL fd_set My_Sockets;
 LOCAL fd_set My_Resolvers;
+LOCAL fd_set My_Connects;
 
 LOCAL INT My_Max_Fd;
 
@@ -252,6 +259,7 @@ GLOBAL VOID Conn_Init( VOID )
 	FD_ZERO( &My_Listeners );
 	FD_ZERO( &My_Sockets );
 	FD_ZERO( &My_Resolvers );
+	FD_ZERO( &My_Connects );
 
 	My_Max_Fd = 0;
 
@@ -278,16 +286,21 @@ GLOBAL VOID Conn_Exit( VOID )
 			{
 				if( My_Connections[idx].sock == i ) break;
 			}
-			if( idx < MAX_CONNECTIONS ) Conn_Close( idx, NULL, "Server going down", TRUE );
-			else if( FD_ISSET( i, &My_Listeners ))
+			if( FD_ISSET( i, &My_Listeners ))
 			{
 				close( i );
 				Log( LOG_DEBUG, "Listening socket %d closed.", i );
 			}
-			else
+			else if( FD_ISSET( i, &My_Connects ))
 			{
 				close( i );
-				Log( LOG_WARNING, "Unknown connection %d closed.", i );
+				Log( LOG_DEBUG, "Connection %d closed during creation (socket %d).", idx, i );
+			}
+			else if( idx < MAX_CONNECTIONS ) Conn_Close( idx, NULL, "Server going down", TRUE );
+			else
+			{
+				Log( LOG_WARNING, "Closing unknown connection %d ...", i );
+				close( i );
 			}
 		}
 	}
@@ -301,7 +314,7 @@ GLOBAL BOOLEAN Conn_NewListener( CONST INT Port )
 	 * Socket nicht erteugt werden, so wird NULL geliefert.*/
 
 	struct sockaddr_in addr;
-	INT sock, on = 1;
+	INT sock;
 
 	/* Server-"Listen"-Socket initialisieren */
 	memset( &addr, 0, sizeof( addr ));
@@ -317,18 +330,7 @@ GLOBAL BOOLEAN Conn_NewListener( CONST INT Port )
 		return FALSE;
 	}
 
-	/* Socket-Optionen setzen */
-	if( fcntl( sock, F_SETFL, O_NONBLOCK ) != 0 )
-	{
-		Log( LOG_CRIT, "Can't enable non-blocking mode: %s!", strerror( errno ));
-		close( sock );
-		return FALSE;
-	}
-	if( setsockopt( sock, SOL_SOCKET, SO_REUSEADDR, &on, (socklen_t)sizeof( on )) != 0)
-	{
-		Log( LOG_ERR, "Can't set socket options: %s!", strerror( errno ));
-		/* dieser Fehler kann ignoriert werden. */
-	}
+	if( ! Init_Socket( sock )) return FALSE;
 
 	/* an Port binden */
 	if( bind( sock, (struct sockaddr *)&addr, (socklen_t)sizeof( addr )) != 0 )
@@ -407,6 +409,11 @@ GLOBAL VOID Conn_Handler( INT Timeout )
 				FD_SET( My_Connections[i].sock, &write_sockets );
 			}
 		}
+		/* Sockets mit im Aufbau befindlichen ausgehenden Verbindungen suchen */
+		for( i = 0; i < MAX_CONNECTIONS; i++ )
+		{
+			if(( My_Connections[i].sock > NONE ) && ( FD_ISSET( My_Connections[i].sock, &My_Connects ))) FD_SET( My_Connections[i].sock, &write_sockets );
+		}
 
 		/* von welchen Sockets koennte gelesen werden? */
 		read_sockets = My_Sockets;
@@ -415,6 +422,11 @@ GLOBAL VOID Conn_Handler( INT Timeout )
 			if(( My_Connections[i].sock > NONE ) && ( My_Connections[i].host[0] == '\0' ))
 			{
 				/* Hier muss noch auf den Resolver Sub-Prozess gewartet werden */
+				FD_CLR( My_Connections[i].sock, &read_sockets );
+			}
+			if(( My_Connections[i].sock > NONE ) && ( FD_ISSET( My_Connections[i].sock, &My_Connects )))
+			{
+				/* Hier laeuft noch ein asyncrones connect() */
 				FD_CLR( My_Connections[i].sock, &read_sockets );
 			}
 		}
@@ -662,12 +674,47 @@ LOCAL VOID Handle_Read( INT Sock )
 
 LOCAL BOOLEAN Handle_Write( CONN_ID Idx )
 {
-	/* Daten aus Schreibpuffer versenden */
+	/* Daten aus Schreibpuffer versenden bzw. Connection aufbauen */
 
-	INT len;
+	INT len, res, err;
 
 	assert( Idx >= 0 );
 	assert( My_Connections[Idx].sock > NONE );
+
+	if( FD_ISSET( My_Connections[Idx].sock, &My_Connects ))
+	{
+		/* es soll nichts geschrieben werden, sondern ein
+		 * connect() hat ein Ergebnis geliefert */
+
+		FD_CLR( My_Connections[Idx].sock, &My_Connects );
+
+		/* Ergebnis des connect() ermitteln */
+		len = sizeof( err );
+		res = getsockopt( My_Connections[Idx].sock, SOL_SOCKET, SO_ERROR, &err, &len );
+		assert( len == sizeof( err ));
+
+		/* Fehler aufgetreten? */
+		if(( res != 0 ) || ( err != 0 ))
+		{
+			/* Fehler! */
+			if( res != 0 ) Log( LOG_CRIT, "getsockopt (connection %d): %s!", Idx, strerror( errno ));
+			else Log( LOG_CRIT, "Can't connect socket to \"%s:%d\" (connection %d): %s!", My_Connections[Idx].host, Conf_Server[My_Connections[Idx].our_server].port, Idx, strerror( err ));
+
+			/* Socket etc. pp. aufraeumen */
+			FD_CLR( My_Connections[Idx].sock, &My_Sockets );
+			close( My_Connections[Idx].sock );
+			Init_Conn_Struct( Idx );
+			return FALSE;
+		}
+		Log( LOG_DEBUG, "Connection %d with \"%s:%d\" established, now sendig PASS and SERVER ...", Idx, My_Connections[Idx].host, Conf_Server[My_Connections[Idx].our_server].port );
+
+		/* PASS und SERVER verschicken */
+		Conn_WriteStr( Idx, "PASS %s "PASSSERVERADD, Conf_Server[My_Connections[Idx].our_server].pwd );
+		Conn_WriteStr( Idx, "SERVER %s :%s", Conf_ServerName, Conf_ServerInfo );
+
+		return TRUE;
+	}
+
 	assert( My_Connections[Idx].wdatalen > 0 );
 
 	/* Daten schreiben */
@@ -1026,8 +1073,13 @@ LOCAL VOID New_Server( INT Server, CONN_ID Idx )
 		Log( LOG_CRIT, "Can't create socket: %s!", strerror( errno ));
 		return;
 	}
-	if( connect( new_sock, (struct sockaddr *)&new_addr, sizeof( new_addr )) < 0)
+
+	if( ! Init_Socket( new_sock )) return;
+
+	connect( new_sock, (struct sockaddr *)&new_addr, sizeof( new_addr ));
+	if( errno != EINPROGRESS )
 	{
+		
 		close( new_sock );
 		Init_Conn_Struct( Idx );
 		Log( LOG_CRIT, "Can't connect socket: %s!", strerror( errno ));
@@ -1044,7 +1096,7 @@ LOCAL VOID New_Server( INT Server, CONN_ID Idx )
 		return;
 	}
 	Client_SetIntroducer( c, c );
-	
+
 	/* Verbindung registrieren */
 	My_Connections[Idx].sock = new_sock;
 	My_Connections[Idx].addr = new_addr;
@@ -1052,11 +1104,8 @@ LOCAL VOID New_Server( INT Server, CONN_ID Idx )
 
 	/* Neuen Socket registrieren */
 	FD_SET( new_sock, &My_Sockets );
+	FD_SET( new_sock, &My_Connects );
 	if( new_sock > My_Max_Fd ) My_Max_Fd = new_sock;
-
-	/* PASS und SERVER verschicken */
-	Conn_WriteStr( Idx, "PASS %s "PASSSERVERADD, Conf_Server[Server].pwd );
-	Conn_WriteStr( Idx, "SERVER %s :%s", Conf_ServerName, Conf_ServerInfo );
 } /* New_Server */
 
 
@@ -1076,6 +1125,28 @@ LOCAL VOID Init_Conn_Struct( INT Idx )
 	My_Connections[Idx].lastping = 0;
 	My_Connections[Idx].lastprivmsg = time( NULL );
 } /* Init_Conn_Struct */
+
+
+LOCAL BOOLEAN Init_Socket( INT Sock )
+{
+	/* Socket-Optionen setzen */
+
+	INT on = 1;
+
+	if( fcntl( Sock, F_SETFL, O_NONBLOCK ) != 0 )
+	{
+		Log( LOG_CRIT, "Can't enable non-blocking mode: %s!", strerror( errno ));
+		close( Sock );
+		return FALSE;
+	}
+	if( setsockopt( Sock, SOL_SOCKET, SO_REUSEADDR, &on, (socklen_t)sizeof( on )) != 0)
+	{
+		Log( LOG_ERR, "Can't set socket options: %s!", strerror( errno ));
+		/* dieser Fehler kann ignoriert werden. */
+	}
+
+	return TRUE;
+} /* Init_Socket */
 
 
 LOCAL RES_STAT *ResolveAddr( struct sockaddr_in *Addr )

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.64 2002/12/12 11:31:21 alex Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.65 2002/12/19 04:29:59 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -65,10 +65,8 @@ main( int argc, const char *argv[] )
 
 	umask( 0077 );
 
-	NGIRCd_Restart = FALSE;
-	NGIRCd_Quit = FALSE;
-	NGIRCd_NoDaemon = FALSE;
-	NGIRCd_Passive = FALSE;
+	NGIRCd_SignalQuit = NGIRCd_SignalRestart = NGIRCd_SignalRehash = FALSE;
+	NGIRCd_NoDaemon = NGIRCd_Passive = FALSE;
 #ifdef DEBUG
 	NGIRCd_Debug = FALSE;
 #endif
@@ -220,7 +218,7 @@ main( int argc, const char *argv[] )
 		exit( Conf_Test( ));
 	}
 	
-	while( ! NGIRCd_Quit )
+	while( ! NGIRCd_SignalQuit )
 	{
 		/* In der Regel wird ein Sub-Prozess ge-fork()'t, der
 		 * nicht mehr mit dem Terminal verbunden ist. Mit der
@@ -250,8 +248,9 @@ main( int argc, const char *argv[] )
 		/* Globale Variablen initialisieren */
 		NGIRCd_Start = time( NULL );
 		(VOID)strftime( NGIRCd_StartStr, 64, "%a %b %d %Y at %H:%M:%S (%Z)", localtime( &NGIRCd_Start ));
-		NGIRCd_Restart = FALSE;
-		NGIRCd_Quit = FALSE;
+		NGIRCd_SignalRehash = FALSE;
+		NGIRCd_SignalRestart = FALSE;
+		NGIRCd_SignalQuit = FALSE;
 
 		/* Module initialisieren */
 		Log_Init( );
@@ -393,7 +392,10 @@ GLOBAL VOID
 NGIRCd_Rehash( VOID )
 {
 	CHAR old_name[CLIENT_ID_LEN];
-	
+
+	Log( LOG_NOTICE|LOG_snotice, "Re-reading configuration NOW!" );
+	NGIRCd_SignalRehash = FALSE;
+
 	/* Alle Listen-Sockets schliessen */
 	Conn_ExitListeners( );
 
@@ -417,7 +419,7 @@ NGIRCd_Rehash( VOID )
 	/* Listen-Sockets neu anlegen: */
 	Conn_InitListeners( );
 
-	Log( LOG_INFO, "Re-reading of configuration done." );
+	Log( LOG_NOTICE|LOG_snotice, "Re-reading of configuration done." );
 } /* NGIRCd_Rehash */
 
 
@@ -481,23 +483,21 @@ Signal_Handler( INT Signal )
 		case SIGINT:
 		case SIGQUIT:
 			/* wir soll(t)en uns wohl beenden ... */
-			if( Signal == SIGTERM ) Log( LOG_WARNING|LOG_snotice, "Got TERM signal, terminating now ..." );
-			else if( Signal == SIGINT ) Log( LOG_WARNING|LOG_snotice, "Got INT signal, terminating now ..." );
-			else if( Signal == SIGQUIT ) Log( LOG_WARNING|LOG_snotice, "Got QUIT signal, terminating now ..." );
-			NGIRCd_Quit = TRUE;
+			NGIRCd_SignalQuit = TRUE;
 			break;
 		case SIGHUP:
 			/* Konfiguration neu einlesen: */
-			Log( LOG_WARNING|LOG_snotice, "Got HUP signal, re-reading configuration ..." );
-			NGIRCd_Rehash( );
+			NGIRCd_SignalRehash = TRUE;
 			break;
 		case SIGCHLD:
 			/* Child-Prozess wurde beendet. Zombies vermeiden: */
 			while( waitpid( -1, NULL, WNOHANG ) > 0);
 			break;
+#ifdef DEBUG
 		default:
 			/* unbekanntes bzw. unbehandeltes Signal */
-			Log( LOG_NOTICE, "Got signal %d! Ignored.", Signal );
+			Log( LOG_DEBUG, "Got signal %d! Ignored.", Signal );
+#endif
 	}
 } /* Signal_Handler */
 

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-oper.c,v 1.13 2002/12/12 12:33:14 alex Exp $";
+static char UNUSED id[] = "$Id: irc-oper.c,v 1.14 2002/12/19 04:30:00 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -90,8 +90,8 @@ IRC_DIE( CLIENT *Client, REQUEST *Req )
 
 	if(( ! Client_HasMode( Client, 'o' )) || ( ! Client_OperByMe( Client ))) return IRC_WriteStrClient( Client, ERR_NOPRIVILEGES_MSG, Client_ID( Client ));
 
-	Log( LOG_NOTICE|LOG_snotice, "Got DIE command from \"%s\", going down!", Client_Mask( Client ));
-	NGIRCd_Quit = TRUE;
+	Log( LOG_NOTICE|LOG_snotice, "Got DIE command from \"%s\", shutdown triggered!", Client_Mask( Client ));
+	NGIRCd_SignalQuit = TRUE;
 	return CONNECTED;
 } /* IRC_DIE */
 
@@ -107,8 +107,8 @@ IRC_REHASH( CLIENT *Client, REQUEST *Req )
 
 	if(( ! Client_HasMode( Client, 'o' )) || ( ! Client_OperByMe( Client ))) return IRC_WriteStrClient( Client, ERR_NOPRIVILEGES_MSG, Client_ID( Client ));
 
-	Log( LOG_NOTICE|LOG_snotice, "Got REHASH command from \"%s\", re-reading configuration ...", Client_Mask( Client ));
-	NGIRCd_Rehash( );
+	Log( LOG_NOTICE|LOG_snotice, "Got REHASH command from \"%s\", reload of configuration triggered.", Client_Mask( Client ));
+	NGIRCd_SignalRehash = TRUE;
 	
 	return CONNECTED;
 } /* IRC_REHASH */
@@ -125,8 +125,8 @@ IRC_RESTART( CLIENT *Client, REQUEST *Req )
 
 	if(( ! Client_HasMode( Client, 'o' )) || ( ! Client_OperByMe( Client ))) return IRC_WriteStrClient( Client, ERR_NOPRIVILEGES_MSG, Client_ID( Client ));
 
-	Log( LOG_NOTICE|LOG_snotice, "Got RESTART command from \"%s\", going down!", Client_Mask( Client ));
-	NGIRCd_Restart = TRUE;
+	Log( LOG_NOTICE|LOG_snotice, "Got RESTART command from \"%s\", shutdown triggered!", Client_Mask( Client ));
+	NGIRCd_SignalRestart = TRUE;
 	return CONNECTED;
 } /* IRC_RESTART */
 

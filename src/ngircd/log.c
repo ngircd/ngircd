@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: log.c,v 1.41 2002/12/12 12:24:18 alex Exp $";
+static char UNUSED id[] = "$Id: log.c,v 1.42 2002/12/19 04:30:00 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -119,7 +119,7 @@ GLOBAL VOID
 Log_Exit( VOID )
 {
 	/* Good Bye! */
-	if( NGIRCd_Restart ) Log( LOG_NOTICE, "%s done (restarting).", PACKAGE );
+	if( NGIRCd_SignalRestart ) Log( LOG_NOTICE, "%s done (restarting).", PACKAGE );
 	else Log( LOG_NOTICE, "%s done.", PACKAGE );
 
 	/* Error-File (stderr) loeschen */

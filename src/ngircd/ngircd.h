@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: ngircd.h,v 1.17 2002/12/12 11:30:23 alex Exp $
+ * $Id: ngircd.h,v 1.18 2002/12/19 04:30:00 alex Exp $
  *
  * Prototypes of the "main module".
  */
@@ -37,8 +37,9 @@ GLOBAL BOOLEAN NGIRCd_NoDaemon;		/* nicht im Hintergrund laufen */
 
 GLOBAL BOOLEAN NGIRCd_Passive;		/* nicht zu anderen Servern connecten */
 
-GLOBAL BOOLEAN NGIRCd_Quit;		/* TRUE: ngIRCd beenden */
-GLOBAL BOOLEAN NGIRCd_Restart;		/* TRUE: neu starten */
+GLOBAL BOOLEAN NGIRCd_SignalQuit;	/* TRUE: quit server*/
+GLOBAL BOOLEAN NGIRCd_SignalRestart;	/* TRUE: restart server */
+GLOBAL BOOLEAN NGIRCd_SignalRehash;	/* TRUE: reload configuration */
 
 GLOBAL CHAR NGIRCd_DebugLevel[2];	/* Debug-Level fuer IRC_VERSION() */
 

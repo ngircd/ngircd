@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.h,v 1.19 2002/01/16 22:10:35 alex Exp $
+ * $Id: client.h,v 1.20 2002/01/21 00:06:49 alex Exp $
  *
  * client.h: Konfiguration des ngircd (Header)
  *
  * $Log: client.h,v $
+ * Revision 1.20  2002/01/21 00:06:49  alex
+ * - Channel-Pointer aus Client-Struktur entfernt. Wird nun dynamisch verwaltet :-)
+ *
  * Revision 1.19  2002/01/16 22:10:35  alex
  * - neue Funktionen Client_xxxCount().
  *
@@ -83,7 +86,6 @@
 #ifndef __client_h__
 #define __client_h__
 
-#include "channel.h"
 #include "conn.h"
 
 
@@ -113,7 +115,6 @@ typedef struct _CLIENT
 	CHAR host[CLIENT_HOST_LEN];	/* Hostname des Client */
 	CHAR user[CLIENT_USER_LEN];	/* Benutzername ("Login") */
 	CHAR info[CLIENT_INFO_LEN];	/* Langer Benutzername (User) bzw. Infotext (Server) */
-	CHANNEL *channels[MAX_CHANNELS];/* Channel, in denen der Client Mitglied ist */
 	CHAR modes[CLIENT_MODE_LEN];	/* Client Modes */
 	INT hops, token, mytoken;	/* "Hops" und "Token" (-> SERVER-Befehl) */
 	BOOLEAN oper_by_me;		/* IRC-Operator-Status durch diesen Server? */

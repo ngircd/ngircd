@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.27 2002/01/05 19:15:03 alex Exp $
+ * $Id: irc.c,v 1.28 2002/01/05 20:08:02 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.28  2002/01/05 20:08:02  alex
+ * - Div. Aenderungen fuer die Server-Links (u.a. WHOIS, QUIT, NICK angepasst).
+ * - Neue Funktionen IRC_WriteStrServer() und IRC_WriteStrServerPrefix().
+ *
  * Revision 1.27  2002/01/05 19:15:03  alex
  * - Fehlerpruefung bei select() in der "Hauptschleife" korrigiert.
  *
@@ -175,7 +179,6 @@ GLOBAL BOOLEAN IRC_WriteStrClientPrefix( CLIENT *Client, CLIENT *Prefix, CHAR *F
 	/* Text an Clients, lokal bzw. remote, senden. */
 
 	CHAR buffer[1000];
-	CONN_ID send_to;
 	va_list ap;
 
 	assert( Client != NULL );
@@ -186,10 +189,7 @@ GLOBAL BOOLEAN IRC_WriteStrClientPrefix( CLIENT *Client, CLIENT *Prefix, CHAR *F
 	vsnprintf( buffer, 1000, Format, ap );
 	va_end( ap );
 
-	if( Client_Conn( Client ) != NONE ) send_to = Client_Conn( Client );
-	else send_to = Client_Conn( Client_Introducer( Client ));
-
-	return Conn_WriteStr( send_to, ":%s %s", Client_ID( Prefix ), buffer );
+	return Conn_WriteStr( Client_Conn( Client_NextHop( Client )), ":%s %s", Client_ID( Prefix ), buffer );
 } /* IRC_WriteStrClientPrefix */
 
 

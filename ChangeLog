@@ -31,6 +31,9 @@ ngIRCd CVS-HEAD
     ausgehende Verbindung zu diesem auufzubauen. Dadurch kann nun auf beiden
     Servern in der Konfiguration ein Port fuer den Connect konfiguriert
     werden (beide Server versuchen sich dann gegenseitig zu connectieren).
+  - in den Konfigurationsvariablen ServerUID und ServerGID kann nun nicht
+    nur die numerische ID, sondern auch der Name des Users bzw. der Gruppe
+    verwendet werden.
 
 ngIRCd 0.5.3, 08.11.2002
 
@@ -319,4 +322,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.114 2002/11/08 22:19:48 alex Exp $
+$Id: ChangeLog,v 1.115 2002/11/08 23:11:48 alex Exp $

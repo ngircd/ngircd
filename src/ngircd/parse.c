@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: parse.c,v 1.45 2002/11/22 23:33:00 alex Exp $
+ * $Id: parse.c,v 1.46 2002/11/24 18:45:43 alex Exp $
  *
  * parse.c: Parsen der Client-Anfragen
  */
@@ -344,6 +344,7 @@ Handle_Request( CONN_ID Idx, REQUEST *Req )
 	else if( strcasecmp( Req->command, "RESTART" ) == 0 ) return IRC_RESTART( client, Req );
 	else if( strcasecmp( Req->command, "SERVER" ) == 0 ) return IRC_SERVER( client, Req );
 	else if( strcasecmp( Req->command, "SQUIT" ) == 0 ) return IRC_SQUIT( client, Req );
+	else if( strcasecmp( Req->command, "TIME" ) == 0 ) return IRC_TIME( client, Req );
 	else if( strcasecmp( Req->command, "TOPIC" ) == 0 ) return IRC_TOPIC( client, Req );
 	else if( strcasecmp( Req->command, "USER" ) == 0 ) return IRC_USER( client, Req );
 	else if( strcasecmp( Req->command, "USERHOST" ) == 0 ) return IRC_USERHOST( client, Req );

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-server.c,v 1.21 2002/11/26 23:07:24 alex Exp $
+ * $Id: irc-server.c,v 1.22 2002/11/28 14:31:43 alex Exp $
  *
  * irc-server.c: IRC-Befehle fuer Server-Links
  */
@@ -354,9 +354,6 @@ IRC_SQUIT( CLIENT *Client, REQUEST *Req )
 	if( Req->argc != 2 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
 	Log( LOG_DEBUG, "Got SQUIT from %s for \"%s\": \"%s\" ...", Client_ID( Client ), Req->argv[0], Req->argv[1] );
-
-	/* SQUIT an alle Server weiterleiten */
-	IRC_WriteStrServers( Client, "SQUIT %s :%s", Req->argv[0], Req->argv[1] );
 
 	target = Client_Search( Req->argv[0] );
 	if( ! target )

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: parse.c,v 1.46 2002/11/24 18:45:43 alex Exp $
+ * $Id: parse.c,v 1.47 2002/11/28 11:02:50 alex Exp $
  *
  * parse.c: Parsen der Client-Anfragen
  */
@@ -101,8 +101,6 @@ Parse_Request( CONN_ID Idx, CHAR *Request )
 	}
 	else start = Request;
 
-	if( ! Validate_Prefix( Idx, &req, &closed )) return ! closed;
-
 	/* Befehl */
 	ptr = strchr( start, ' ' );
 	if( ptr )
@@ -115,8 +113,6 @@ Parse_Request( CONN_ID Idx, CHAR *Request )
 #endif
 	}
 	req.command = start;
-
-	if( ! Validate_Command( Idx, &req, &closed )) return ! closed;
 
 	/* Argumente, Parameter */
 	if( ptr )
@@ -156,6 +152,9 @@ Parse_Request( CONN_ID Idx, CHAR *Request )
 		}
 	}
 
+	/* Daten validieren */
+	if( ! Validate_Prefix( Idx, &req, &closed )) return ! closed;
+	if( ! Validate_Command( Idx, &req, &closed )) return ! closed;
 	if( ! Validate_Args( Idx, &req, &closed )) return ! closed;
 
 	return Handle_Request( Idx, &req );
@@ -209,7 +208,7 @@ Validate_Prefix( CONN_ID Idx, REQUEST *Req, BOOLEAN *Closed )
 	if( ! c )
 	{
 		/* im Prefix angegebener Client ist nicht bekannt */
-		Log( LOG_ERR, "Invalid prefix \"%s\", client not known (connection %d)!?", Req->prefix, Idx );
+		Log( LOG_ERR, "Invalid prefix \"%s\", client not known (connection %d, command %s)!?", Req->prefix, Idx, Req->command );
 		if( ! Conn_WriteStr( Idx, "ERROR :Invalid prefix \"%s\", client not known!?", Req->prefix )) *Closed = TRUE;
 		return FALSE;
 	}
@@ -221,7 +220,7 @@ Validate_Prefix( CONN_ID Idx, REQUEST *Req, BOOLEAN *Closed )
 	{
 		/* das angegebene Prefix ist aus dieser Richtung, also
 		 * aus der gegebenen Connection, ungueltig! */
-		Log( LOG_ERR, "Spoofed prefix \"%s\" from \"%s\" (connection %d)!", Req->prefix, Client_Mask( Client_GetFromConn( Idx )), Idx );
+		Log( LOG_ERR, "Spoofed prefix \"%s\" from \"%s\" (connection %d, command %s)!", Req->prefix, Client_Mask( Client_GetFromConn( Idx )), Idx, Req->command );
 		Conn_Close( Idx, NULL, "Spoofed prefix", TRUE );
 		*Closed = TRUE;
 		return FALSE;

@@ -13,6 +13,7 @@
 ngIRCd 0.5.x-Branch:
 
   - in RPL_YOURHOST_MSG wurde ein fehlerhafter Versionsstring geliefert.
+  - Test-Suite: es werden nun nur noch 5 Sessions parallel gestartet.
 
 ngIRCd 0.5.0, 20.09.2002:
 
@@ -267,4 +268,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.87.2.6 2002/09/22 21:38:34 alex Exp $
+$Id: ChangeLog,v 1.87.2.7 2002/09/23 21:54:43 alex Exp $

@@ -9,14 +9,16 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: log.h,v 1.1 2001/12/11 21:53:04 alex Exp $
+ * $Id: log.h,v 1.2 2001/12/12 17:19:29 alex Exp $
  *
  * log.h: Logging-Funktionen (Header)
  *
  * $Log: log.h,v $
- * Revision 1.1  2001/12/11 21:53:04  alex
- * Initial revision
+ * Revision 1.2  2001/12/12 17:19:29  alex
+ * - LOG_ERR heisst nun LOG_ERROR.
  *
+ * Revision 1.1.1.1  2001/12/11 21:53:04  alex
+ * - Imported sources to CVS.
  */
 
 
@@ -27,7 +29,7 @@
 #define LOG_DEBUG 4
 #define LOG_INFO 3
 #define LOG_WARN 2
-#define LOG_ERR 1
+#define LOG_ERROR 1
 #define LOG_FATAL 0
 
 

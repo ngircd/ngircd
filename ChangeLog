@@ -14,10 +14,6 @@ ngIRCd CVS-HEAD
 
   - beim Schliessen einer Verbindung zeigt der Server nun vor dem ERROR
     noch eine Statistik ueber die empfangene und gesendete Datenmenge an.
-  - Clients werden beim Connect mit NOTICEs ueber den Status der Resolver-
-    Subprozesse informiert.
-  - NOTICEs vom Server selber (z.B. Verbindungsstatistik oder s-Mode)
-    haben nun ein "Text-Prefix": "*** ".
   - der Server wartet bei einer eingehenden Verbindung nun laenger auf den
     Resolver (4 Sekunden), wenn das Ergebnis eintrifft setzt er aber den
     Login sofort fort (bisher wurde immer mind. 1 Sekunde gewartet).
@@ -356,4 +352,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.135 2002/11/29 11:42:58 alex Exp $
+$Id: ChangeLog,v 1.136 2002/11/29 17:38:17 alex Exp $

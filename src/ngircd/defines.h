@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: defines.h,v 1.37 2002/11/26 23:07:24 alex Exp $
+ * $Id: defines.h,v 1.38 2002/11/29 17:38:17 alex Exp $
  *
  * defines.h: (globale) Konstanten
  */
@@ -95,7 +95,7 @@
 
 #define TOKEN_OUTBOUND -2		/* Kennzeichnung fuer ausgehende Server-Links im Aufbau */
 
-#define NOTICE_TXTPREFIX "*** "		/* Kennzeichnung fuer Server-NOTICEs an User */
+#define NOTICE_TXTPREFIX ""		/* Kennzeichnung fuer Server-NOTICEs an User */
 
 
 #endif

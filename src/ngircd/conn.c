@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.72.2.8 2002/11/24 15:32:14 alex Exp $
+ * $Id: conn.c,v 1.72.2.9 2002/11/29 11:35:08 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -469,6 +469,10 @@ Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient )
 		if( My_Connections[Idx].sock == NONE ) return;
 	}
 
+	/* zunaechst versuchen, noch im Schreibpuffer vorhandene
+	 * Daten auf den Socket zu schreiben ... */
+	Try_Write( Idx );
+
 	if( close( My_Connections[Idx].sock ) != 0 )
 	{
 		Log( LOG_ERR, "Error closing connection %d (socket %d) with %s:%d - %s!", Idx, My_Connections[Idx].sock, inet_ntoa( My_Connections[Idx].addr.sin_addr ), ntohs( My_Connections[Idx].addr.sin_port), strerror( errno ));
@@ -561,15 +565,20 @@ Conn_SetPenalty( CONN_ID Idx, time_t Seconds )
 LOCAL BOOLEAN
 Try_Write( CONN_ID Idx )
 {
-	/* Versuchen, Daten aus dem Schreib-Puffer in den
-	 * Socket zu schreiben. */
+	/* Versuchen, Daten aus dem Schreib-Puffer in den Socket zu 
+	 * schreiben. TRUE wird geliefert, wenn entweder keine Daten
+	 * zum Versenden vorhanden sind oder erfolgreich bearbeitet
+	 * werden konnten. Im Fehlerfall wird FALSE geliefert und
+	 * die Verbindung geschlossen. */
 
 	fd_set write_socket;
 	struct timeval tv;
 
 	assert( Idx >= 0 );
 	assert( My_Connections[Idx].sock > NONE );
-	assert( My_Connections[Idx].wdatalen > 0 );
+
+	/* sind ueberhaupt Daten vorhanden? */
+	if( ! My_Connections[Idx].wdatalen > 0 ) return TRUE;
 
 	/* Timeout initialisieren: 0 Sekunden, also nicht blockieren */
 	tv.tv_sec = 0; tv.tv_usec = 0;

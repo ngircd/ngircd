@@ -22,7 +22,9 @@ ngIRCd CVS-HEAD
     nur IRC-Operatoren, die den Channel betreten. Die persistenten Channels
     werden durch das Flag "P" gelennzeichnet, welches normal durch Channel-
     Op's gesetzt und geloescht werden kann.
-  - Begonnen, INVITE, BAN und KICK zu implementieren.
+  - KICK implementiert (bisher kann nur ein User aus einem Channel geckicked
+    werden, Listen, wir im RFC vorgesehen, werden bisher nicht unterstuetzt).
+  - Begonnen, INVITE und BAN zu implementieren.
   - Unter A/UX (und evtl. weiteren Systemen) kompiliert der ngIRCd nun mit
     dem "nativen" (ggf. pre-ANSI) Compiler.
 
@@ -106,4 +108,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.34 2002/05/31 14:22:22 alex Exp $
+$Id: NEWS,v 1.35 2002/06/01 14:40:59 alex Exp $

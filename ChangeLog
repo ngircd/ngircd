@@ -34,10 +34,13 @@ ngIRCd CVS-HEAD
   - bei "--configtest" werden keine leere Abschnitte mehr ausgegeben.
   - Source in weitere Module aufgespalten: lists, irc-op und resolve.
   - #include's aufgeraeumt: Header includieren keine anderen mehr.
-  - Begonnen, INVITE, BAN und KICK zu implementieren.
+  - KICK implementiert (bisher kann nur ein User aus einem Channel geckicked
+    werden, Listen, wir im RFC vorgesehen, werden bisher nicht unterstuetzt).
+  - Begonnen, INVITE und BAN zu implementieren.
   - Source an ansi2knr fuer pre-ANSI-Compiler angepasst; ansi2knr in Source-
     Tree aufgenommen und in Build-System integriert; der ngIRCd compiliert
     nun z.B. unter A/UX mit dem nativen Compiler von Apple.
+  - TOPIC lieferte bei unbekanntem Channel einen falschen Fehlercode.
 
 ngIRCd 0.4.2, 29.04.2002
 
@@ -221,4 +224,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.72 2002/05/31 14:22:50 alex Exp $
+$Id: ChangeLog,v 1.73 2002/06/01 14:40:59 alex Exp $

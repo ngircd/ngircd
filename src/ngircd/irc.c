@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.54 2002/02/11 23:33:35 alex Exp $
+ * $Id: irc.c,v 1.55 2002/02/12 14:40:37 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.55  2002/02/12 14:40:37  alex
+ * - via NJOIN gemeldete Benutzer wurden nicht in Channels bekannt gemacht.
+ *
  * Revision 1.54  2002/02/11 23:33:35  alex
  * - weitere Anpassungen an Channel-Modes und Channel-User-Modes.
  *
@@ -541,7 +544,7 @@ GLOBAL BOOLEAN IRC_SERVER( CLIENT *Client, REQUEST *Req )
 					if( Client_Conn( c ) > NONE )
 					{
 						/* Dem gefundenen Server gleich den neuen
-						* Server bekannt machen */
+						 * Server bekannt machen */
 						if( ! IRC_WriteStrClient( c, "SERVER %s %d %d :%s", Client_ID( Client ), Client_Hops( Client ) + 1, Client_MyToken( Client ), Client_Info( Client ))) return DISCONNECTED;
 					}
 					
@@ -655,8 +658,8 @@ GLOBAL BOOLEAN IRC_SERVER( CLIENT *Client, REQUEST *Req )
 
 GLOBAL BOOLEAN IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 {
+	CHAR *channame, *ptr, modes[8];
 	BOOLEAN is_op, is_voiced;
-	CHAR *channame, *ptr;
 	CHANNEL *chan;
 	CLIENT *c;
 	
@@ -691,6 +694,17 @@ GLOBAL BOOLEAN IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 			
 			if( is_op ) Channel_UserModeAdd( chan, c, 'o' );
 			if( is_voiced ) Channel_UserModeAdd( chan, c, 'v' );
+
+			/* im Channel bekannt machen */
+			IRC_WriteStrChannelPrefix( Client, chan, c, FALSE, "JOIN :%s", channame );
+
+			/* Channel-User-Modes setzen */
+			strcpy( modes, Channel_UserModes( chan, c ));
+			if( modes[0] )
+			{
+				/* Modes im Channel bekannt machen */
+				IRC_WriteStrChannelPrefix( Client, chan, Client, FALSE, "MODE %s +%s %s", channame, modes, Client_ID( c ));
+			}
 		}
 		else Log( LOG_ERR, "Got NJOIN for unknown nick \"%s\" for channel \"%s\"!", ptr, channame );
 		
@@ -738,10 +752,10 @@ GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req )
 			target = Client;
 		}
 
+#ifndef STRICT_RFC
 		/* Wenn der Client zu seinem eigenen Nick wechseln will, so machen
 		 * wir nichts. So macht es das Original und mind. Snak hat probleme,
 		 * wenn wir es nicht so machen. Ob es so okay ist? Hm ... */
-#ifndef STRICT_RFC
 		if( strcmp( Client_ID( target ), Req->argv[0] ) == 0 ) return CONNECTED;
 #endif
 		

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.88 2002/03/12 14:37:52 alex Exp $
+ * $Id: irc.c,v 1.89 2002/03/25 17:04:02 alex Exp $
  *
  * irc.c: IRC-Befehle
  */
@@ -54,7 +54,6 @@ GLOBAL BOOLEAN IRC_MOTD( CLIENT *Client, REQUEST *Req )
 
 GLOBAL BOOLEAN IRC_PRIVMSG( CLIENT *Client, REQUEST *Req )
 {
-	BOOLEAN is_member, has_voice, is_op, ok;
 	CLIENT *cl, *from;
 	CHANNEL *chan;
 	
@@ -68,7 +67,7 @@ GLOBAL BOOLEAN IRC_PRIVMSG( CLIENT *Client, REQUEST *Req )
 	if( Req->argc == 1 ) return IRC_WriteStrClient( Client, ERR_NOTEXTTOSEND_MSG, Client_ID( Client ));
 	if( Req->argc > 2 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
-	if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_GetFromID( Req->prefix );
+	if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_Search( Req->prefix );
 	else from = Client;
 	if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
 
@@ -88,28 +87,7 @@ GLOBAL BOOLEAN IRC_PRIVMSG( CLIENT *Client, REQUEST *Req )
 	}
 
 	chan = Channel_Search( Req->argv[0] );
-	if( chan )
-	{
-		/* Okay, Ziel ist ein Channel */
-		is_member = has_voice = is_op = FALSE;
-		if( Channel_IsMemberOf( chan, from ))
-		{
-			is_member = TRUE;
-			if( strchr( Channel_UserModes( chan, from ), 'v' )) has_voice = TRUE;
-			if( strchr( Channel_UserModes( chan, from ), 'o' )) is_op = TRUE;
-		}
-		
-		/* pruefen, ob Client in Channel schreiben darf */
-		ok = TRUE;
-		if( strchr( Channel_Modes( chan ), 'n' ) && ( ! is_member )) ok = FALSE;
-		if( strchr( Channel_Modes( chan ), 'm' ) && ( ! is_op ) && ( ! has_voice )) ok = FALSE;
-
-		if( ! ok ) return IRC_WriteStrClient( from, ERR_CANNOTSENDTOCHAN_MSG, Client_ID( from ), Req->argv[0] );
-
-		/* Text senden */
-		if( Client_Conn( from ) > NONE ) Conn_UpdateIdle( Client_Conn( from ));
-		return IRC_WriteStrChannelPrefix( Client, chan, from, TRUE, "PRIVMSG %s :%s", Req->argv[0], Req->argv[1] );
-	}
+	if( chan ) return Channel_Write( chan, from, Client, Req->argv[1] );
 
 	return IRC_WriteStrClient( from, ERR_NOSUCHNICK_MSG, Client_ID( from ), Req->argv[0] );
 } /* IRC_PRIVMSG */
@@ -127,7 +105,7 @@ GLOBAL BOOLEAN IRC_NOTICE( CLIENT *Client, REQUEST *Req )
 	/* Falsche Anzahl Parameter? */
 	if( Req->argc != 2 ) return CONNECTED;
 
-	if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_GetFromID( Req->prefix );
+	if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_Search( Req->prefix );
 	else from = Client;
 	if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
 
@@ -156,14 +134,14 @@ GLOBAL BOOLEAN IRC_NAMES( CLIENT *Client, REQUEST *Req )
 	if( Req->argc > 2 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
 	/* From aus Prefix ermitteln */
-	if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_GetFromID( Req->prefix );
+	if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_Search( Req->prefix );
 	else from = Client;
 	if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->prefix );
 	
 	if( Req->argc == 2 )
 	{
 		/* an anderen Server forwarden */
-		target = Client_GetFromID( Req->argv[1] );
+		target = Client_Search( Req->argv[1] );
 		if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->argv[1] );
 
 		if( target != Client_ThisServer( ))
@@ -258,7 +236,7 @@ GLOBAL BOOLEAN IRC_ISON( CLIENT *Client, REQUEST *Req )
 		while( ptr )
 		{
 			ngt_TrimStr( ptr );
-			c = Client_GetFromID( ptr );
+			c = Client_Search( ptr );
 			if( c && ( Client_Type( c ) == CLIENT_USER ))
 			{
 				/* Dieser Nick ist "online" */
@@ -290,11 +268,11 @@ GLOBAL BOOLEAN IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 	if(( Req->argc < 1 ) || ( Req->argc > 2 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
 	/* Client suchen */
-	c = Client_GetFromID( Req->argv[Req->argc - 1] );
+	c = Client_Search( Req->argv[Req->argc - 1] );
 	if(( ! c ) || ( Client_Type( c ) != CLIENT_USER )) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->argv[Req->argc - 1] );
 
 	/* Empfaenger des WHOIS suchen */
-	if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_GetFromID( Req->prefix );
+	if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_Search( Req->prefix );
 	else from = Client;
 	if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
 	
@@ -302,7 +280,7 @@ GLOBAL BOOLEAN IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 	if( Req->argc > 1 )
 	{
 		/* angegebenen Ziel-Server suchen */
-		target = Client_GetFromID( Req->argv[1] );
+		target = Client_Search( Req->argv[1] );
 		if( ! target ) return IRC_WriteStrClient( from, ERR_NOSUCHSERVER_MSG, Client_ID( from ), Req->argv[1] );
 		ptr = Req->argv[1];
 	}
@@ -468,7 +446,7 @@ GLOBAL BOOLEAN IRC_USERHOST( CLIENT *Client, REQUEST *Req )
 	strcpy( rpl, RPL_USERHOST_MSG );
 	for( i = 0; i < max; i++ )
 	{
-		c = Client_GetFromID( Req->argv[i] );
+		c = Client_Search( Req->argv[i] );
 		if( c && ( Client_Type( c ) == CLIENT_USER ))
 		{
 			/* Dieser Nick ist "online" */
@@ -514,20 +492,20 @@ GLOBAL BOOLEAN IRC_LUSERS( CLIENT *Client, REQUEST *Req )
 	if(( Req->argc > 2 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
 	/* Absender ermitteln */
-	if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_GetFromID( Req->prefix );
+	if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_Search( Req->prefix );
 	else from = Client;
 	if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
 
 	/* An anderen Server forwarden? */
 	if( Req->argc == 2 )
 	{
-		target = Client_GetFromID( Req->argv[1] );
+		target = Client_Search( Req->argv[1] );
 		if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->argv[1] );
 		else if( target != Client_ThisServer( )) return IRC_WriteStrClientPrefix( target, from, "LUSERS %s %s", Req->argv[0], Req->argv[1] );
 	}
 
 	/* Wer ist der Absender? */
-	if( Client_Type( Client ) == CLIENT_SERVER ) target = Client_GetFromID( Req->prefix );
+	if( Client_Type( Client ) == CLIENT_SERVER ) target = Client_Search( Req->prefix );
 	else target = Client;
 	if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
 	
@@ -555,20 +533,20 @@ GLOBAL BOOLEAN IRC_LINKS( CLIENT *Client, REQUEST *Req )
 	else mask = "*";
 
 	/* Absender ermitteln */
-	if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_GetFromID( Req->prefix );
+	if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_Search( Req->prefix );
 	else from = Client;
 	if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
 	
 	/* An anderen Server forwarden? */
 	if( Req->argc == 2 )
 	{
-		target = Client_GetFromID( Req->argv[0] );
+		target = Client_Search( Req->argv[0] );
 		if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->argv[0] );
 		else if( target != Client_ThisServer( )) return IRC_WriteStrClientPrefix( target, from, "LINKS %s %s", Req->argv[0], Req->argv[1] );
 	}
 
 	/* Wer ist der Absender? */
-	if( Client_Type( Client ) == CLIENT_SERVER ) target = Client_GetFromID( Req->prefix );
+	if( Client_Type( Client ) == CLIENT_SERVER ) target = Client_Search( Req->prefix );
 	else target = Client;
 	if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
 	
@@ -597,11 +575,11 @@ GLOBAL BOOLEAN IRC_VERSION( CLIENT *Client, REQUEST *Req )
 	if(( Req->argc > 1 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
 	/* Ziel suchen */
-	if( Req->argc == 1 ) target = Client_GetFromID( Req->argv[0] );
+	if( Req->argc == 1 ) target = Client_Search( Req->argv[0] );
 	else target = Client_ThisServer( );
 
 	/* Prefix ermitteln */
-	if( Client_Type( Client ) == CLIENT_SERVER ) prefix = Client_GetFromID( Req->prefix );
+	if( Client_Type( Client ) == CLIENT_SERVER ) prefix = Client_Search( Req->prefix );
 	else prefix = Client;
 	if( ! prefix ) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->prefix );
 	
@@ -632,7 +610,7 @@ GLOBAL BOOLEAN IRC_KILL( CLIENT *Client, REQUEST *Req )
 	/* Falsche Anzahl Parameter? */
 	if(( Req->argc != 2 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
-	prefix = Client_GetFromID( Req->prefix );
+	prefix = Client_Search( Req->prefix );
 	if( ! prefix )
 	{
 		Log( LOG_WARNING, "Got KILL with invalid prefix: \"%s\"!", Req->prefix );
@@ -645,7 +623,7 @@ GLOBAL BOOLEAN IRC_KILL( CLIENT *Client, REQUEST *Req )
 	IRC_WriteStrServersPrefix( Client, prefix, "KILL %s :%s", Req->argv[0], Req->argv[1] );
 
 	/* haben wir selber einen solchen Client? */
-	c = Client_GetFromID( Req->argv[0] );
+	c = Client_Search( Req->argv[0] );
 	if( c && ( Client_Conn( c ) != NONE )) Conn_Close( Client_Conn( c ), NULL, Req->argv[1], TRUE );
 	
 	return CONNECTED;

@@ -38,6 +38,7 @@ ngIRCd CVS-HEAD
   - New command HELP that lists all understood commands.
   - There should no longer remain "unknown connections" (see e.g. LUSRS)
     if an outgoing server link can't be established.
+  - Added AC_PREREQ(2.50) to configure.in for better autoconf compatibility.
 
 ngIRCd 0.6.1, 2003-01-21
 
@@ -419,4 +420,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.175 2003/01/21 21:22:00 alex Exp $
+$Id: ChangeLog,v 1.176 2003/01/31 18:29:06 alex Exp $

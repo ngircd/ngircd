@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.33 2002/01/27 21:56:54 alex Exp $
+ * $Id: client.c,v 1.34 2002/01/27 22:07:36 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,9 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.34  2002/01/27 22:07:36  alex
+ * - Client_GetFromID() besser dokumentiert, kleinere Aenderungen.
+ *
  * Revision 1.33  2002/01/27 21:56:54  alex
  * - weitere Anpassungen an Chennals, v.a. ueber Server-Links.
  *
@@ -521,23 +524,23 @@ GLOBAL CLIENT *Client_GetFromConn( CONN_ID Idx )
 GLOBAL CLIENT *Client_GetFromID( CHAR *Nick )
 {
 	/* Client-Struktur, die den entsprechenden Nick hat,
-	* liefern. Wird keine gefunden, so wird NULL geliefert. */
+	 * liefern. Wird keine gefunden, so wird NULL geliefert. */
 
-	CLIENT *c;
-	CHAR nick[CLIENT_ID_LEN + 1], *ptr;
+	CHAR n[CLIENT_ID_LEN + 1], *ptr;
+	CLIENT *c = NULL;
 
 	assert( Nick != NULL );
 
-	strncpy( nick, Nick, CLIENT_ID_LEN );
-	nick[CLIENT_ID_LEN] = '\0';
-	
-	ptr = strchr( nick, '!' );
+	/* Nick kopieren und ggf. Host-Mask abschneiden */
+	strncpy( n, Nick, CLIENT_ID_LEN );
+	n[CLIENT_ID_LEN] = '\0';
+	ptr = strchr( n, '!' );
 	if( ptr ) *ptr = '\0';
 
 	c = My_Clients;
 	while( c )
 	{
-		if( strcasecmp( c->id, nick ) == 0 ) return c;
+		if( strcasecmp( c->id, n ) == 0 ) return c;
 		c = c->next;
 	}
 	return NULL;

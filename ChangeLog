@@ -18,6 +18,7 @@ ngIRCd CVS-HEAD
 ngIRCd 0.5.0
 
   - Dokumentation aktualisiert.
+  - Fehler bei Validierung von "AdminInfo2" behoben.
 
   ngIRCd 0.5.0-pre2, 17.09.2002:
   - Fix in IRC_WriteStrServersPrefix() war "badly broken" -- behoben.
@@ -265,4 +266,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.90 2002/09/19 09:35:05 alex Exp $
+$Id: ChangeLog,v 1.91 2002/09/19 10:19:32 alex Exp $

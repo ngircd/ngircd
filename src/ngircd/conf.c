@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.c,v 1.14 2002/03/03 17:17:01 alex Exp $
+ * $Id: conf.c,v 1.15 2002/03/06 15:35:19 alex Exp $
  *
  * conf.h: Konfiguration des ngircd
  *
  * $Log: conf.c,v $
+ * Revision 1.15  2002/03/06 15:35:19  alex
+ * - Dateinamen und Pfad sind nun in Konstanten definiert.
+ *
  * Revision 1.14  2002/03/03 17:17:01  alex
  * - strncpy() und vsnprintf() kopieren nun etwas "optimierter" (1 Byte weniger) :-)
  *
@@ -90,13 +93,13 @@ GLOBAL VOID Conf_Init( VOID )
 	/* Konfigurationsvariablen initialisieren: zunaechst Default-
 	 * Werte setzen, dann Konfigurationsdtaei einlesen. */
 
-	strcpy( Conf_File, "/usr/local/etc/ngircd.conf" );
+	strcpy( Conf_File, CONFIG_FILE );
 
 	strcpy( Conf_ServerName, "" );
 	strcpy( Conf_ServerInfo, PACKAGE" "VERSION );
 	strcpy( Conf_ServerPwd, "" );
 
-	strcpy( Conf_MotdFile, "/usr/local/etc/ngircd.motd" );
+	strcpy( Conf_MotdFile, MOTD_FILE );
 
 	Conf_ListenPorts_Count = 0;
 	

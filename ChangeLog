@@ -13,6 +13,7 @@
 ngIRCd CVS-HEAD
 
   - New signal handler (more secure).
+  - GCC: added more warning options to command line.
 
 
 Older changes (sorry, only available in german language):
@@ -376,4 +377,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.151 2002/12/24 15:10:14 alex Exp $
+$Id: ChangeLog,v 1.152 2002/12/25 13:33:54 alex Exp $

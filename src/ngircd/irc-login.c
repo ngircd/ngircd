@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-login.c,v 1.8 2002/03/12 14:37:52 alex Exp $
+ * $Id: irc-login.c,v 1.9 2002/03/19 16:38:37 alex Exp $
  *
  * irc-login.c: Anmeldung und Abmeldung im IRC
  */
@@ -140,7 +140,8 @@ GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req )
 		else
 		{
 			/* Nick-Aenderung */
-			Log( LOG_INFO, "User \"%s\" changed nick: \"%s\" -> \"%s\".", Client_Mask( target ), Client_ID( target ), Req->argv[0] );
+			if( Client_Conn( target ) > NONE ) Log( LOG_INFO, "User \"%s\" changed nick (connection %d): \"%s\" -> \"%s\".", Client_Mask( target ), Client_ID( target ), Req->argv[0], Client_Conn( target ));
+			else Log( LOG_DEBUG, "User \"%s\" changed nick: \"%s\" -> \"%s\".", Client_Mask( target ), Client_ID( target ), Req->argv[0] );
 
 			/* alle betroffenen User und Server ueber Nick-Aenderung informieren */
 			if( Client_Type( Client ) == CLIENT_USER ) IRC_WriteStrClientPrefix( Client, Client, "NICK :%s", Req->argv[0] );

@@ -1,14 +1,155 @@
 .\"
-.\" $Id: ngircd.conf.5,v 1.6 2002/09/16 11:11:21 alex Exp $
+.\" $Id: ngircd.conf.5,v 1.7 2003/03/10 00:23:50 alex Exp $
 .\"
-.TH ngircd.conf 5 "September 2002" ngircd "ngIRCd Manual"
+.TH ngircd.conf 5 "March 2003" ngircd "ngIRCd Manual"
 .SH NAME
-ngircd.conf \- configuration file of ngircd
+ngircd.conf \- configuration file of ngIRCd
 .SH SYNOPSIS
 .B /usr/local/etc/ngircd.conf
 .SH DESCRIPTION
-(coming soon, please have a look at the sample configuration
-file "doc/sample-ngircd.conf" -- Thank you!)
+.B ngircd.conf
+is the configuration file for
+.B ngircd
+which you can adept to your local preferences and needs.
+.SH FILE FORMAT
+The file consists of sections and parameters. A section begins with the name
+of the section in square brackets and continues until the next section
+begins.
+
+Sections contain parameters of the form
+
+.RS
+.I name
+=
+.I value
+.RE
+
+Any line beginning with a semicolon (';') or a hash ('#') character is
+treated as a comment and ignored.
+
+The file format is line-based - that means, each newline-terminated line
+represents either a comment, a section name or a parameter.
+
+Section and parameter names are not case sensitive.
+.SH SECTION OVERVIEW
+The file is separated in four blocks: [Global], [Operator], [Server],
+and [Channel].
+
+In the
+.I [Global]
+section, there is the main configuration like the server name and the
+ports, on which the server should be listening. IRC operators of this
+server are defined in
+.I [Operator]
+blocks.
+.I [Server]
+is the section where server links are configured. And
+.I [Channel]
+blocks are used to configure pre-defined ("persistent") IRC channels.
+.SH [GLOBAL]
+The
+.I [Global]
+section is used to define the server main configuration, like the server
+name and the ports on which the server should be listening.
+.IP Name
+Server name in the IRC network
+.IP Info
+Info text of the server. This will be shown by WHOIS and LINKS requests for
+example.
+.IP AdminInfo1
+.IP AdminInfo2
+.IP AdminEMail
+Information about the server and the administrator, used by the ADMIN
+command.
+.IP Ports
+Ports on which the server should listen. There may be more than one port,
+separated with ';'. Default: 6667.
+.IP MotdFile
+Text file with the "message of the day" (MOTD). This message will be shown
+to all users connecting to the server.
+.IP ServerUID
+User ID under which the server should run; you can use the name of the user
+or the numerical ID.
+.B Attention:
+For this to work the server must have been
+started with root privileges! In addition, the configuration and MOTD files
+must be readable by this user, otherwise RESTART and REHASH won't work!
+.IP ServerGID
+Group ID under which the ngircd should run; you can use the name of the
+group or the numerical ID.
+.B Attention:
+For this to work the server must have
+been started with root privileges!
+.IP PingTimeout
+After <PingTimeout> seconds of inactivity the server will send a PING to
+the peer to test whether it is alive or not. Default: 120.
+.IP PongTimeout
+If a client fails to answer a PING with a PONG within <PongTimeout>
+seconds, it will be disconnected by the server. Default: 20.
+.IP ConnectRetry
+The server tries every <ConnectRetry> seconds to establish a link to not yet
+(or no longer) connected servers. Default: 60.
+.IP OperCanUseMode
+Should IRC Operators be allowed to use the MODE command even if they are
+not(!) channel-operators? Default: no.
+.IP MaxConnections
+Maximum number of simultaneous connection the server is allowed to accept
+(<=0: unlimited). Default: -1.
+.IP MaxJoins
+Maximum number of channels a user can be member of (<=0: no limit).
+Default: 10.
+.SH [OPERATOR]
+.I [Operator]
+sections are used to define IRC Operators. There may be more than one
+.I [Operator]
+block, one for each local operator.
+.IP Name
+ID of the operator (may be different of the nick name).
+.IP Password
+Password of the IRC operator.
+.SH [SERVER]
+Other servers are configured in
+.I [Server]
+sections. If you configure a port for the connection, then this ngircd
+tries to connect to to the other server on the given port; if not it waits
+for the other server to connect.
+
+The ngIRCd allows "server groups": You can assign an "ID" to every server
+with which you want this ngIRCd to link. If a server of a group won't
+answer, the ngIRCd tries to connect to the next server in the given group.
+But the ngircd never tries to connect to two servers with the same group ID.
+
+There may be more than one server block.
+.IP Name
+IRC name of the server
+.IP Host
+Internet host name of the peer
+.IP Port
+Port of the server to which the ngIRCd should connect. If you assign no port
+the ngIRCd waits for incoming connections.
+.IP MyPassword
+Own password for this connection. This password has to be configured as
+"PeerPassword" on the other server.
+.IP PeerPassword
+Foreign password for this connection. This password has to be configured as
+"MyPassword" on the other server.
+.IP Group
+Group of this server (optional).
+.SH [Channel]
+Pre-defined channels can be configured in [Channel] sections. Such channels
+are created by the server when starting up and even persist when there are
+no more members left.
+
+Persistent channels are marked with the mode 'P', which can be set and unset
+by IRC operators like other modes on the fly.
+
+There may be more than one [Channel] block.
+.IP Name
+Name of the channel
+.IP Topic
+Topic for this channel
+.IP Modes
+Initial channel modes.
 .SH AUTHOR
 Alexander Barton,
 .UR mailto:alex@barton.de

@@ -10,7 +10,7 @@
                                -- ChangeLog --
 
 
-ngIRCd CVSHEAD
+ngIRCd 0.8.0-pre1 (2004-05-07)
 
   - Two new configuration options: "ChrootDir" and "MotdPhrase", thanks to
     Benjamin Pineau <ben@zouh.org>. Now you can force the daemon to change
@@ -521,4 +521,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.233.2.1 2004/05/07 11:24:17 alex Exp $
+$Id: ChangeLog,v 1.233.2.2 2004/05/07 11:56:19 alex Exp $

@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.30 2002/01/06 15:21:29 alex Exp $
+ * $Id: irc.c,v 1.31 2002/01/07 15:39:46 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.31  2002/01/07 15:39:46  alex
+ * - Server nimmt nun Server-Links an: PASS und SERVER entsprechend angepasst.
+ * - MODE und NICK melden nun die Aenderungen an andere Server.
+ *
  * Revision 1.30  2002/01/06 15:21:29  alex
  * - Loglevel und Meldungen nochmals ueberarbeitet.
  * - QUIT und SQUIT forwarden nun den Grund der Trennung,
@@ -308,6 +312,7 @@ GLOBAL BOOLEAN IRC_PASS( CLIENT *Client, REQUEST *Req )
 GLOBAL BOOLEAN IRC_SERVER( CLIENT *Client, REQUEST *Req )
 {
 	CHAR str[LINE_LEN], *ptr;
+	BOOLEAN ok;
 	CLIENT *c;
 	INT i;
 	
@@ -323,7 +328,7 @@ GLOBAL BOOLEAN IRC_SERVER( CLIENT *Client, REQUEST *Req )
 		Log( LOG_DEBUG, "Connection %d: got SERVER command (new server link) ...", Client_Conn( Client ));
 
 		/* Falsche Anzahl Parameter? */
-		if( Req->argc != 3 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+		if(( Req->argc != 2 ) && ( Req->argc != 3 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
 		/* Ist dieser Server bei uns konfiguriert? */
 		for( i = 0; i < Conf_Server_Count; i++ ) if( strcasecmp( Req->argv[0], Conf_Server[i].name ) == 0 ) break;
@@ -345,15 +350,35 @@ GLOBAL BOOLEAN IRC_SERVER( CLIENT *Client, REQUEST *Req )
 		/* Ist ein Server mit dieser ID bereits registriert? */
 		if( ! Client_CheckID( Client, Req->argv[0] )) return DISCONNECTED;
 
+		/* Meldet sich der Server bei uns an? */
+		if( Req->argc == 2 )
+		{
+			/* Unseren SERVER- und PASS-Befehl senden */
+			ok = TRUE;
+			if( ! IRC_WriteStrClient( Client, "PASS %s "PASSSERVERADD, Conf_Server[i].pwd )) ok = FALSE;
+			else ok = IRC_WriteStrClient( Client, "SERVER %s 1 :%s", Conf_ServerName, Conf_ServerInfo );
+			if( ! ok )
+			{
+				Conn_Close( Client_Conn( Client ), "Unexpected server behavior!", NULL, FALSE );
+				return DISCONNECTED;
+			}
+		}
+
 		/* Server-Strukturen fuellen ;-) */
 		Client_SetID( Client, Req->argv[0] );
-		Client_SetToken( Client, atoi( Req->argv[1] ));
-		Client_SetInfo( Client, Req->argv[2] );
 		Client_SetHops( Client, 1 );
+		Client_SetInfo( Client, Req->argv[Req->argc - 1] );
+
+		if( Req->argc == 3 ) Client_SetToken( Client, atoi( Req->argv[1] ));
+		else Client_SetToken( Client, 0 );
 
 		Log( LOG_NOTICE, "Server \"%s\" registered (connection %d, 1 hop - direct link).", Client_ID( Client ), Client_Conn( Client ));
 
 		Client_SetType( Client, CLIENT_SERVER );
+
+		/* Unsere User und Server bekanntmachen */
+		/* ... */
+		
 		return CONNECTED;
 	}
 	else if( Client_Type( Client ) == CLIENT_SERVER )
@@ -404,16 +429,16 @@ GLOBAL BOOLEAN IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 
 GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req )
 {
-	CLIENT *intr_c, *c;
+	CLIENT *intr_c, *target, *c;
 
 	assert( Client != NULL );
 	assert( Req != NULL );
 
 	/* Zumindest BitchX sendet NICK-USER in der falschen Reihenfolge. */
 #ifndef STRICT_RFC
-	if( Client_Type( Client ) == CLIENT_UNKNOWN || Client_Type( Client ) == CLIENT_GOTPASS || Client_Type( Client ) == CLIENT_GOTNICK || Client_Type( Client ) == CLIENT_GOTUSER || Client_Type( Client ) == CLIENT_USER )
+	if( Client_Type( Client ) == CLIENT_UNKNOWN || Client_Type( Client ) == CLIENT_GOTPASS || Client_Type( Client ) == CLIENT_GOTNICK || Client_Type( Client ) == CLIENT_GOTUSER || Client_Type( Client ) == CLIENT_USER || ( Client_Type( Client ) == CLIENT_SERVER && Req->argc == 1 ))
 #else
-	if( Client_Type( Client ) == CLIENT_UNKNOWN || Client_Type( Client ) == CLIENT_GOTPASS || Client_Type( Client ) == CLIENT_GOTNICK || Client_Type( Client ) == CLIENT_USER  )
+	if( Client_Type( Client ) == CLIENT_UNKNOWN || Client_Type( Client ) == CLIENT_GOTPASS || Client_Type( Client ) == CLIENT_GOTNICK || Client_Type( Client ) == CLIENT_USER || ( Client_Type( Client ) == CLIENT_SERVER && Req->argc == 1 ))
 #endif
 	{
 		/* User-Registrierung bzw. Nick-Aenderung */
@@ -421,35 +446,52 @@ GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req )
 		/* Falsche Anzahl Parameter? */
 		if( Req->argc != 1 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
-		/* Ist der Client "restricted"? */
-		if( Client_HasMode( Client, 'r' )) return IRC_WriteStrClient( Client, ERR_RESTRICTED_MSG, Client_ID( Client ));
+		/* "Ziel-Client" ermitteln */
+		if( Client_Type( Client ) == CLIENT_SERVER )
+		{
+			target = Client_GetFromID( Req->prefix );
+			if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->argv[0] );
+		}
+		else
+		{
+			/* Ist der Client "restricted"? */
+			if( Client_HasMode( Client, 'r' )) return IRC_WriteStrClient( Client, ERR_RESTRICTED_MSG, Client_ID( Client ));
+			target = Client;
+		}
 
 		/* Wenn der Client zu seinem eigenen Nick wechseln will, so machen
 		 * wir nichts. So macht es das Original und mind. Snak hat probleme,
 		 * wenn wir es nicht so machen. Ob es so okay ist? Hm ... */
 #ifndef STRICT_RFC
-		if( strcmp( Client_ID( Client ), Req->argv[0] ) == 0 ) return CONNECTED;
+		if( strcmp( Client_ID( target ), Req->argv[0] ) == 0 ) return CONNECTED;
 #endif
 		
 		/* pruefen, ob Nick bereits vergeben. Speziallfall: der Client
 		 * will nur die Gross- und Kleinschreibung aendern. Das darf
 		 * er natuerlich machen :-) */
-		if( strcasecmp( Client_ID( Client ), Req->argv[0] ) != 0 )
+		if( strcasecmp( Client_ID( target ), Req->argv[0] ) != 0 )
 		{
-			if( ! Client_CheckNick( Client, Req->argv[0] ))	return CONNECTED;
+			if( ! Client_CheckNick( target, Req->argv[0] )) return CONNECTED;
 		}
 
 		if( Client_Type( Client ) == CLIENT_USER )
 		{
 			/* Nick-Aenderung: allen mitteilen! */
-			Log( LOG_INFO, "User \"%s\" changed nick: \"%s\" -> \"%s\".", Client_Mask( Client ), Client_ID( Client ), Req->argv[0] );
+			Log( LOG_INFO, "User \"%s\" changed nick: \"%s\" -> \"%s\".", Client_Mask( target ), Client_ID( target ), Req->argv[0] );
 			IRC_WriteStrRelated( Client, "NICK :%s", Req->argv[0] );
+			IRC_WriteStrServersPrefix( NULL, Client, "NICK :%s", Req->argv[0] );
 		}
-		
+		else if( Client_Type( Client ) == CLIENT_SERVER )
+		{
+			/* Nick-Aenderung: allen mitteilen! */
+			Log( LOG_INFO, "User \"%s\" changed nick: \"%s\" -> \"%s\".", Client_Mask( target ), Client_ID( target ), Req->argv[0] );
+			IRC_WriteStrServersPrefix( Client, Client, "NICK :%s", Req->argv[0] );
+		}
+	
 		/* Client-Nick registrieren */
-		Client_SetID( Client, Req->argv[0] );
+		Client_SetID( target, Req->argv[0] );
 
-		if( Client_Type( Client ) != CLIENT_USER )
+		if(( Client_Type( target ) != CLIENT_USER ) && ( Client_Type( target ) != CLIENT_SERVER ))
 		{
 			/* Neuer Client */
 			Log( LOG_DEBUG, "Connection %d: got NICK command ...", Client_Conn( Client ));
@@ -498,7 +540,7 @@ GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req )
 			return CONNECTED;
 		}
 
-		Log( LOG_DEBUG, "User \"%s\" registered (via %s, on %s, %d hop%s).", Client_ID( c ), Client_ID( Client ), Client_ID( intr_c ), Client_Hops( c ), Client_Hops( c ) > 1 ? "s": "" );
+		Log( LOG_DEBUG, "User \"%s\" registered (via %s, on %s, %d hop%s).", Client_Mask( c ), Client_ID( Client ), Client_ID( intr_c ), Client_Hops( c ), Client_Hops( c ) > 1 ? "s": "" );
 
 		return CONNECTED;
 	}
@@ -601,8 +643,8 @@ GLOBAL BOOLEAN IRC_SQUIT( CLIENT *Client, REQUEST *Req )
 	if( target == Client ) Log( LOG_DEBUG, "Got SQUIT from %s: %s", Client_ID( Client ), Req->argv[1] );
 	else Log( LOG_DEBUG, "Got SQUIT from %s for %s: %s", Client_ID( Client ), Client_ID( target ), Req->argv[1] );
 
-	/* FIXME: das SQUIT muss an alle Server weiter-
-	 * geleitet werden ... */
+	/* SQUIT an alle Server weiterleiten */
+	IRC_WriteStrServers( Client, "SQUIT %s :%s", Req->argv[0], Req->argv[1] );
 
 	if( Client_Conn( target ) > NONE )
 	{
@@ -824,12 +866,13 @@ GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req )
 		if( Client_Type( Client ) == CLIENT_SERVER )
 		{
 			/* Modes an andere Server forwarden */
-			/* FIXME */
+			IRC_WriteStrServersPrefix( Client, Client, "MODE %s :%s", Client_ID( target ), new_modes );
 		}
 		else
 		{
-			/* Bestaetigung an Client schicken */
+			/* Bestaetigung an Client schicken & andere Server informieren */
 			ok = IRC_WriteStrRelated( Client, "MODE %s :%s", Client_ID( target ), new_modes );
+			IRC_WriteStrServers( Client, "MODE %s :%s", Client_ID( target ), new_modes );
 		}
 		Log( LOG_DEBUG, "User \"%s\": Mode change, now \"%s\".", Client_Mask( target ), Client_Modes( target ));
 	}

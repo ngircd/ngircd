@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-mode.c,v 1.14 2002/09/08 17:07:14 alex Exp $
+ * $Id: irc-mode.c,v 1.15 2002/11/22 18:28:22 alex Exp $
  *
  * irc-mode.c: IRC-Befehle zur Mode-Aenderung (MODE, AWAY, ...)
  */
@@ -212,7 +212,7 @@ IRC_MODE( CLIENT *Client, REQUEST *Req )
 							Client_SetOperByMe( Client, FALSE );
 							x[0] = 'o';
 						}
-						else ok = IRC_WriteStrClient( Client, ERR_UMODEUNKNOWNFLAG_MSG, Client_ID( Client ));
+						else ok = IRC_WriteStrClient( Client, ERR_NOPRIVILEGES_MSG, Client_ID( Client ));
 						break;
 					case 'r':
 						/* restricted (kann nur gesetzt werden) */
@@ -289,8 +289,12 @@ IRC_MODE( CLIENT *Client, REQUEST *Req )
 							x[0] = 't';
 							break;
 						case 'P':
-							/* Persistent */
-							x[0] = 'P';
+							/* Persistent. Dieses Flag darf nur von IRC-Operatoren gesetzt werden! */
+							if( set && ( ! Client_OperByMe( Client )))
+							{
+								ok = IRC_WriteStrClient( Client, ERR_NOPRIVILEGES_MSG, Client_ID( Client ));
+							}
+							else x[0] = 'P';
 							break;
 						default:
 							Log( LOG_DEBUG, "Unknown channel-mode \"%c%c\" from \"%s\" at %s!?", set ? '+' : '-', *mode_ptr, Client_ID( Client ), Channel_Name( chan ));

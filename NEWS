@@ -21,6 +21,17 @@ ngIRCd CVS-HEAD
   - Mit der neuen Konfigurationsvariable "MaxConnections" (Sekion "Global")
     kann die maximale Anzahl gleichzeitiger Verbindungen begrenzt werden.
     Der Default ist -1, "unlimitiert".
+  - der Server erkennt nun, ob bereits eine eingehende Verbindung von einem
+    Peer-Server besteht und versucht dann nicht mehr, selber eine eigene
+    ausgehende Verbindung zu diesem auufzubauen. Dadurch kann nun auf beiden
+    Servern in der Konfiguration ein Port fuer den Connect konfiguriert
+    werden (beide Server versuchen sich dann gegenseitig zu connectieren).
+  - Server identifizieren sich nun mit asyncronen Passwoertern, d.h. das
+    Passwort, welches A an B schickt, kann ein anderes sein als das, welches
+    B als Antwort an A sendet. In der Konfig.-Datei, Abschnitt "Server",
+    wurde "Password" dazu durch "MyPassword" und "PeerPassword" ersetzt.
+  - Der Server kann nun zur Laufzeit die Konfiguration neu einlesen: dies
+    macht er nach dem Befehl REHASH oder wenn ein HUP-Signal empfangen wird.
 
 ngIRCd 0.5.0, 20.09.2002
 
@@ -122,4 +133,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.42 2002/11/02 23:11:38 alex Exp $
+$Id: NEWS,v 1.43 2002/11/23 15:04:28 alex Exp $

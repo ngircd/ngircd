@@ -9,9 +9,12 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: configure.in,v 1.9 2001/12/27 02:08:38 alex Exp $
+# $Id: configure.in,v 1.10 2001/12/27 16:25:36 alex Exp $
 #
 # $Log: configure.in,v $
+# Revision 1.10  2001/12/27 16:25:36  alex
+# - neue configure-Option "--with-portab=DIR".
+#
 # Revision 1.9  2001/12/27 02:08:38  alex
 # - da fehlte an zwei Stellen ein AC_MSG_ERROR ... ups!
 #
@@ -70,15 +73,30 @@ AC_HEADER_STDC
 
 AC_HEADER_TIME
 
-AC_CHECK_HEADER(portab.h,[
-	AC_CHECK_HEADER(imp.h,,AC_MSG_ERROR([Alex \"portability headers\" (portab.h an friends) not found!]))
-	AC_CHECK_HEADER(exp.h,,AC_MSG_ERROR([Alex \"portability headers\" (portab.h an friends) not found!]))
-],[
-	AC_CHECK_HEADER(/usr/local/include/portab.h,,AC_MSG_ERROR([Alex \"portability headers\" (portab.h an friends) not found!]))
-	AC_CHECK_HEADER(/usr/local/include/imp.h,,AC_MSG_ERROR([Alex \"portability headers\" (portab.h an friends) not found!]))
-	AC_CHECK_HEADER(/usr/local/include/exp.h,,AC_MSG_ERROR([Alex \"portability headers\" (portab.h an friends) not found!]))
-	CFLAGS="$CFLAGS -I/usr/local/include"
-])
+AC_ARG_WITH(portab,
+	[  --with-portab=DIR       search the "portab headers" in DIR],
+	[	if test "x$withval" != "xno"; then
+			CFLAGS="$CFLAGS -I${withval}"
+			if test -f ${withval}/portab.h; then
+				AC_MSG_RESULT([searching "portab headers" in ${withval}...])
+			else
+				AC_MSG_ERROR([${withval}/portab.h not found!])
+			fi
+		else
+			AC_MSG_ERROR([Can't disable Alex \"portability headers\"!])
+		fi
+	],
+	[	AC_CHECK_HEADER(portab.h,[
+			AC_CHECK_HEADER(imp.h,,AC_MSG_ERROR([Alex \"portability headers\" (portab.h an friends) not found!]))
+			AC_CHECK_HEADER(exp.h,,AC_MSG_ERROR([Alex \"portability headers\" (portab.h an friends) not found!]))
+		],[
+			AC_CHECK_HEADER(/usr/local/include/portab.h,,AC_MSG_ERROR([Alex \"portability headers\" (portab.h an friends) not found!]))
+			AC_CHECK_HEADER(/usr/local/include/imp.h,,AC_MSG_ERROR([Alex \"portability headers\" (portab.h an friends) not found!]))
+			AC_CHECK_HEADER(/usr/local/include/exp.h,,AC_MSG_ERROR([Alex \"portability headers\" (portab.h an friends) not found!]))
+			CFLAGS="$CFLAGS -I/usr/local/include"
+		])
+	]
+)
 
 AC_CHECK_HEADERS([ \
 	arpa/inet.h errno.h fcntl.h netinet/in.h string.h \

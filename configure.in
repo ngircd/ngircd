@@ -9,7 +9,7 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: configure.in,v 1.53 2002/05/27 13:12:47 alex Exp $
+# $Id: configure.in,v 1.54 2002/06/26 15:45:22 alex Exp $
 #
 
 # -- Initialisierung --
@@ -64,7 +64,7 @@ AC_CHECK_HEADERS([ \
 	strings.h sys/socket.h sys/time.h unistd.h \
 	],,AC_MSG_ERROR([required C header missing!]))
 
-AC_CHECK_HEADERS(arpa/inet.h malloc.h regex.h stdint.h varargs.h)
+AC_CHECK_HEADERS(arpa/inet.h malloc.h stdint.h varargs.h)
 
 # -- Datentypen --
 
@@ -105,7 +105,7 @@ AC_CHECK_FUNCS([ \
 	strstr waitpid \
 	],,AC_MSG_ERROR([required function missing!]))
 
-AC_CHECK_FUNCS(inet_aton regcomp sigaction snprintf vsnprintf)
+AC_CHECK_FUNCS(inet_aton sigaction snprintf vsnprintf)
 
 # -- Konfigurationsoptionen --
 

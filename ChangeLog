@@ -15,12 +15,14 @@ ngIRCd CVS-HEAD
   - Testsuite an HP-UX angepasst: Test auf ps-Optionen wird nun in anderer
     Reihenfolge durchgefuehrt.
 
-ngIRCd 0.5.0-pre2
+ngIRCd 0.5.0
 
+  - Dokumentation aktualisiert.
+
+  ngIRCd 0.5.0-pre2, 17.09.2002:
   - Fix in IRC_WriteStrServersPrefix() war "badly broken" -- behoben.
 
-ngIRCd 0.5.0-pre1
-
+  ngIRCd 0.5.0-pre1, 16.09.2002:
   - Manual-Pages ngircd.8 und ngircd.conf.5 begonnen.
   - Wird der Netzwerk-Sniffer aktiviert (--sniffer), so schaltet der
     ngIRCd nun automatisch in den Debug-Modus.
@@ -263,4 +265,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.89 2002/09/19 09:27:26 alex Exp $
+$Id: ChangeLog,v 1.90 2002/09/19 09:35:05 alex Exp $

@@ -14,11 +14,11 @@ ngIRCd CVS-HEAD
 
   - (none)
 
-ngIRCd 0.7.0
+ngIRCd 0.7.0 (2003-05-01)
   - "ServerName" is checked better now: a dot (".") is required.
   - The KILL comand verifies and logs more parameters.
 
-  ngIRCd 0.7.0-pre2
+  ngIRCd 0.7.0-pre2 (2003-04-27)
   - CVS build system fixes (made autogen.sh more portable).
   - Fixed compilation and test-suite on Solaris (tested with 2.6).
   - New documentation file "doc/Platforms.txt" describing the status of
@@ -451,4 +451,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.200 2003/04/29 12:36:09 alex Exp $
+$Id: ChangeLog,v 1.201 2003/05/01 10:17:24 alex Exp $

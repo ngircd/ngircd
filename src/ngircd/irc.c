@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.100 2002/11/22 23:31:56 alex Exp $
+ * $Id: irc.c,v 1.101 2002/11/24 16:36:03 alex Exp $
  *
  * irc.c: IRC-Befehle
  */
@@ -44,15 +44,35 @@
 GLOBAL BOOLEAN
 IRC_MOTD( CLIENT *Client, REQUEST *Req )
 {
+	CLIENT *from, *target;
+
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	if( Client_Type( Client ) != CLIENT_USER ) return IRC_WriteStrClient( Client, ERR_NOTREGISTERED_MSG, Client_ID( Client ));
+	if(( Client_Type( Client ) != CLIENT_USER ) && ( Client_Type( Client ) != CLIENT_SERVER )) return IRC_WriteStrClient( Client, ERR_NOTREGISTERED_MSG, Client_ID( Client ));
 
 	/* Falsche Anzahl Parameter? */
-	if( Req->argc != 0 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	if( Req->argc > 1 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
-	return IRC_Show_MOTD( Client );
+	/* From aus Prefix ermitteln */
+	if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_Search( Req->prefix );
+	else from = Client;
+	if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->prefix );
+	
+	if( Req->argc == 1 )
+	{
+		/* an anderen Server forwarden */
+		target = Client_Search( Req->argv[0] );
+		if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->argv[0] );
+
+		if( target != Client_ThisServer( ))
+		{
+			/* Ok, anderer Server ist das Ziel: forwarden */
+			return IRC_WriteStrClientPrefix( target, from, "MOTD %s", Req->argv[0] );
+		}
+	}
+
+	return IRC_Show_MOTD( from );
 } /* IRC_MOTD */
 
 

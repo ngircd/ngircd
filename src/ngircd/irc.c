@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.10 2001/12/26 22:48:53 alex Exp $
+ * $Id: irc.c,v 1.11 2001/12/27 16:55:41 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.11  2001/12/27 16:55:41  alex
+ * - neu: IRC_WriteStrRelated(), Aenderungen auch in IRC_WriteStrClient().
+ *
  * Revision 1.10  2001/12/26 22:48:53  alex
  * - MOTD-Datei ist nun konfigurierbar und wird gelesen.
  *
@@ -96,29 +99,44 @@ GLOBAL BOOLEAN IRC_WriteStrClient( CLIENT *Client, CLIENT *Prefix, CHAR *Format,
 
 	CHAR buffer[1000];
 	BOOLEAN ok = CONNECTED;
+	CONN_ID send_to;
 	va_list ap;
 
 	assert( Client != NULL );
 	assert( Format != NULL );
 
 	va_start( ap, Format );
-
-	if( Client->conn_id != NONE )
-	{
-		/* Lokaler Client */
-		vsnprintf( buffer, 1000, Format, ap );
-		if( Prefix ) ok = Conn_WriteStr( Client->conn_id, ":%s %s", Prefix->host, buffer );
-		else ok = Conn_WriteStr( Client->conn_id, buffer );
-	}
-	else
-	{
-		/* Remote-Client */
-		Log( LOG_EMERG, "not implemented: IRC_WriteStrClient()" );
-	}
-
+	vsnprintf( buffer, 1000, Format, ap );
 	va_end( ap );
+
+	if( Client->conn_id != NONE ) send_to = Client->conn_id;
+	else send_to = Client->introducer->conn_id;
+
+	if( Prefix ) ok = Conn_WriteStr( Client->conn_id, ":%s %s", Client_GetID( Prefix ), buffer );
+	else ok = Conn_WriteStr( Client->conn_id, buffer );
+
 	return ok;
 } /* IRC_WriteStrClient */
+
+
+GLOBAL BOOLEAN IRC_WriteStrRelated( CLIENT *Client, CHAR *Format, ... )
+{
+	CHAR buffer[1000];
+	BOOLEAN ok = CONNECTED;
+	va_list ap;
+
+	assert( Client != NULL );
+	assert( Format != NULL );
+
+	va_start( ap, Format );
+	vsnprintf( buffer, 1000, Format, ap );
+	va_end( ap );
+
+	/* an den Client selber */
+	ok = IRC_WriteStrClient( Client, Client, buffer );
+
+	return ok;
+} /* IRC_WriteStrRelated */
 
 
 GLOBAL BOOLEAN IRC_PASS( CLIENT *Client, REQUEST *Req )
@@ -148,6 +166,12 @@ GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req )
 		/* pruefen, ob Nick bereits vergeben */
 		if( ! Client_CheckNick( Client, Req->argv[0] )) return CONNECTED;
 
+		if( Client->type == CLIENT_USER )
+		{
+			/* Nick-Aenderung: allen mitteilen! */
+			IRC_WriteStrRelated( Client, "NICK :%s", Req->argv[0] );
+		}
+		
 		/* Client-Nick registrieren */
 		strcpy( Client->nick, Req->argv[0] );
 
@@ -271,7 +295,7 @@ LOCAL BOOLEAN Hello_User( CLIENT *Client )
 	
 	Log( LOG_NOTICE, "User \"%s!%s@%s\" (%s) registered.", Client->nick, Client->user, Client->host, Client->name );
 
-	IRC_WriteStrClient( Client, This_Server, RPL_WELCOME_MSG, Client->nick, Client->nick, Client->user, Client->host );
+	IRC_WriteStrClient( Client, This_Server, RPL_WELCOME_MSG, Client->nick, Client_GetID( Client ));
 	IRC_WriteStrClient( Client, This_Server, RPL_YOURHOST_MSG, Client->nick, This_Server->host );
 	IRC_WriteStrClient( Client, This_Server, RPL_CREATED_MSG, Client->nick );
 	IRC_WriteStrClient( Client, This_Server, RPL_MYINFO_MSG, Client->nick, This_Server->host );

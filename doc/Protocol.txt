@@ -22,9 +22,10 @@ in all details. But because the ngIRCd should be a fully compatible
 replacement for this server ("ircd") it tries to emulate these differences.
 
 If you don't like this behavior please ./configure the ngIRCd using the
-"--enable-strict-rfc" command line option. But please note: not all IRC
-clients are compatible with such an server, some can't even connect at all!
-Therefore this option isn't desired for "normal operation".
+"--enable-strict-rfc" command line option. But keep in mind: not all IRC
+clients are compatible with a server configured that way, some can't even
+connect at all! Therefore this option usually isn't desired for "normal
+server operation".
 
 
 II. The IRC+ Protocol
@@ -35,8 +36,8 @@ as defined in RFC 2810-2813. This enhanced protocol is named "IRC+". It is
 backwards compatible to the "plain" IRC protocol and will only be used by
 the ngIRCd if it detects that the peer supports it as well.
 
-The "PASSV" command is used to detect the protocol and peer versions (see
-RFC 2813, section 4.1.1).
+The "PASS" command is used to detect the protocol and peer versions see
+RFC 2813 (section 4.1.1) and below.
 
 
 II.1 Register new server link
@@ -57,9 +58,11 @@ The following optional(!) 10 bytes contain an implementation-dependent
 version number. Servers supporting the IRC+ protocol as defined in this
 document provide the string "-IRC+" here.
 
+Example for <version>: "0210-IRC+".
+
 <flags> consists of two parts separated with the character "|" and is at
 most 100 bytes long. The first part contains the name of the implementation
-(ngIRCd sets this to "ngIRCd", the original ircd to "IRC", e.g.). The second
+(ngIRCd sets this to "ngircd", the original ircd to "IRC", e.g.). The second
 part is implementation-dependent and should only be parsed if the peer
 supports the IRC+ protocol as well. In this case the following syntax is
 used: "<serverversion>[:<serverflags>]".
@@ -68,15 +71,19 @@ used: "<serverversion>[:<serverflags>]".
 number, <serverflags> indicates the supported IRC+ protocol extensions (and
 may be empty!).
 
-The optional parameter <options> is used to propagate server options as
-defined in RFC 2813, section 4.1.1.
-
 The following <serverflags> are defined at the moment:
+
+- C: The server supports the CHANINFO command.
 
 - o: IRC operators are allowed to change channel- and channel-user-modes
      even if they aren't channel-operator of the affected channel.
 
-- C: The server supports the CHANINFO command.
+- Z: Compressed server links are supported by the server.
+
+Example for a complete <flags> string: "ngircd|0.7.5:CZ".
+
+The optional parameter <options> is used to propagate server options as
+defined in RFC 2813, section 4.1.1.
 
 
 II.2 Exchange channel-modes, topics, and persistent channels
@@ -104,4 +111,4 @@ channel mode). In this case <limit> should be "0".
 
 
 -- 
-$Id: Protocol.txt,v 1.9.2.1 2003/04/29 13:42:24 alex Exp $
+$Id: Protocol.txt,v 1.9.2.2 2003/12/08 14:24:13 alex Exp $

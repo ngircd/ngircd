@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.h,v 1.25 2002/03/12 14:37:52 alex Exp $
+ * $Id: client.h,v 1.26 2002/03/25 17:01:07 alex Exp $
  *
  * client.h: Konfiguration des ngircd (Header)
  */
@@ -42,6 +42,7 @@ typedef enum
 typedef struct _CLIENT
 {
 	CHAR id[CLIENT_ID_LEN];		/* Nick (User) bzw. ID (Server) */
+	UINT32 hash;			/* Hash ueber die (kleingeschriebene) ID */
 	POINTER *next;			/* Zeiger auf naechste Client-Struktur */
 	CLIENT_TYPE type;		/* Typ des Client, vgl. CLIENT_TYPE */
 	CONN_ID conn_id;		/* ID der Connection (wenn lokal) bzw. NONE (remote) */
@@ -77,7 +78,6 @@ GLOBAL VOID Client_Destroy( CLIENT *Client, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN 
 GLOBAL CLIENT *Client_ThisServer( VOID );
 
 GLOBAL CLIENT *Client_GetFromConn( CONN_ID Idx );
-GLOBAL CLIENT *Client_GetFromID( CHAR *Nick );
 GLOBAL CLIENT *Client_GetFromToken( CLIENT *Client, INT Token );
 
 GLOBAL CLIENT *Client_Search( CHAR *ID );

@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.63 2002/02/19 02:21:17 alex Exp $
+ * $Id: irc.c,v 1.64 2002/02/19 20:06:45 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.64  2002/02/19 20:06:45  alex
+ * - User-Registrierung wird nicht mehr als Nick-Aenderung protokolliert,
+ * - VERSION liefert nun doch wieder den Debug-Status im Reply.
+ *
  * Revision 1.63  2002/02/19 02:21:17  alex
  * - der Debug-Level wird bei VERSION nicht mehr geliefert. Grund: a) absolut
  *   unnoetig und b) Compiler-Fehler, wenn ohne Debug-Code configure'd ;-))
@@ -863,7 +867,7 @@ GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req )
 		}
 
 		/* Nick-Aenderung: allen mitteilen! */
-		Log( LOG_INFO, "User \"%s\" changed nick: \"%s\" -> \"%s\".", Client_Mask( target ), Client_ID( target ), Req->argv[0] );
+		
 		if( Client_Type( Client ) == CLIENT_USER ) IRC_WriteStrClientPrefix( Client, Client, "NICK :%s", Req->argv[0] );
 		IRC_WriteStrServersPrefix( Client, target, "NICK :%s", Req->argv[0] );
 		IRC_WriteStrRelatedPrefix( target, target, FALSE, "NICK :%s", Req->argv[0] );
@@ -878,6 +882,8 @@ GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req )
 			if( Client_Type( Client ) == CLIENT_GOTUSER ) return Hello_User( Client );
 			else Client_SetType( Client, CLIENT_GOTNICK );
 		}
+		else Log( LOG_INFO, "User \"%s\" changed nick: \"%s\" -> \"%s\".", Client_Mask( target ), Client_ID( target ), Req->argv[0] );
+
 		return CONNECTED;
 	}
 	else if( Client_Type( Client ) == CLIENT_SERVER )
@@ -2066,7 +2072,7 @@ GLOBAL BOOLEAN IRC_VERSION( CLIENT *Client, REQUEST *Req )
 		return CONNECTED;
 	}
 
-	return IRC_WriteStrClient( Client, RPL_VERSION_MSG, Client_ID( Client ), "", Conf_ServerName, NGIRCd_VersionAddition( ));
+	return IRC_WriteStrClient( Client, RPL_VERSION_MSG, Client_ID( Client ), NGIRCd_DebugLevel, Conf_ServerName, NGIRCd_VersionAddition( ));
 } /* IRC_VERSION */
 
 

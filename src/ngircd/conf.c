@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.c,v 1.11 2002/01/05 16:51:49 alex Exp $
+ * $Id: conf.c,v 1.12 2002/01/05 23:26:24 alex Exp $
  *
  * conf.h: Konfiguration des ngircd
  *
  * $Log: conf.c,v $
+ * Revision 1.12  2002/01/05 23:26:24  alex
+ * - Fehlermeldungen korrigiert.
+ *
  * Revision 1.11  2002/01/05 16:51:49  alex
  * - Bug bei Remote-Server-Namen entfernt: diese wurden falsch gekuerzt.
  *
@@ -357,7 +360,7 @@ LOCAL VOID Validate_Config( VOID )
 	if( ! Conf_ServerName[0] )
 	{
 		/* Kein Servername konfiguriert */
-		Log( LOG_ALERT, "No server name configured (use \"ServerName\")!", Conf_File, strerror( errno ));
+		Log( LOG_ALERT, "No server name configured in \"%s\"!", Conf_File );
 		Log( LOG_ALERT, PACKAGE" exiting due to fatal errors!" );
 		exit( 1 );
 	}

@@ -12,6 +12,10 @@
 
 ngIRCd CVSHEAD
 
+  - Fixed return values of our own implementation of strlcpy(). The code has
+    been taken from rsync and they fixed it, but we didn't until today :-/
+    It has only been used when the system didn't implement strlcpy by itself,
+    not on "modern" systems. Florian Westphal, <westphal@foo.fh-furtwangen.de>.
   - Raised the maximum length of passwords to 20 characters.
   - Fixed a memory leak when resizing the connection pool and realloc()
     failed. Now we don't fall back to malloc(), which should be sane anyway.
@@ -557,4 +561,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.250 2005/01/17 13:01:34 alex Exp $
+$Id: ChangeLog,v 1.251 2005/01/18 09:05:37 alex Exp $

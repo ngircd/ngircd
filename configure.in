@@ -9,7 +9,7 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: configure.in,v 1.36 2002/03/12 14:37:51 alex Exp $
+# $Id: configure.in,v 1.37 2002/03/12 15:19:12 alex Exp $
 #
 
 # -- Initialisierung --
@@ -27,6 +27,10 @@ AH_TEMPLATE([HAVE_socklen_t], [Define if socklen_t exists])
 AH_TEMPLATE([SNIFFER], [Define if IRC sniffer should be enabled])
 AH_TEMPLATE([STRICT_RFC], [Define if ngIRCd should behave strict RFC compliant])
 AH_TEMPLATE([USE_SYSLOG], [Define if syslog should be used for logging])
+
+AH_TEMPLATE([TARGET_OS], [Target operating system name])
+AH_TEMPLATE([TARGET_VENDOR], [Target system vendor])
+AH_TEMPLATE([TARGET_CPU], [Target CPU name])
 
 # -- C Compiler --
 
@@ -136,7 +140,13 @@ if test "$x_debug_on" = "yes"; then
 	AC_MSG_RESULT([enabling additional debug output])
 fi
 
-# -- Variablen II --
+# -- Definitionen --
+
+AC_DEFINE_UNQUOTED(TARGET_CPU, "$target_cpu" )
+AC_DEFINE_UNQUOTED(TARGET_VENDOR, "$target_vendor" )
+AC_DEFINE_UNQUOTED(TARGET_OS, "$target_os" )
+
+# -- Variablen --
 
 if test "$GCC" = "yes"; then
 	CFLAGS="-Wall $CFLAGS"

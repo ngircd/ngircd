@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: portab.h,v 1.1 2002/03/12 14:36:44 alex Exp $
+ * $Id: portab.h,v 1.2 2002/03/12 15:19:12 alex Exp $
  *
  * portab.h: "Portabilitaets-Definitionen"
  */
@@ -80,8 +80,17 @@ typedef UINT8 BOOLEAN;
 
 /* Konstanten */
 
-#define P_OSNAME "unknown"
-#define P_ARCHNAME "unknown"
+#ifndef TARGET_OS
+#define TARGET_OS "unknown"
+#endif
+
+#ifndef TARGET_CPU
+#define TARGET_CPU "unknown"
+#endif
+
+#ifndef TARGET_VENDOR
+#define TARGET_VENDOR "unknown"
+#endif
 
 
 #endif

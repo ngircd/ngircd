@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-login.c,v 1.22 2002/09/22 21:40:33 alex Exp $
+ * $Id: irc-login.c,v 1.23 2002/11/26 23:07:24 alex Exp $
  *
  * irc-login.c: Anmeldung und Abmeldung im IRC
  */
@@ -65,7 +65,7 @@ IRC_PASS( CLIENT *Client, REQUEST *Req )
 	}
 	else if((( Client_Type( Client ) == CLIENT_UNKNOWN ) || ( Client_Type( Client ) == CLIENT_UNKNOWNSERVER )) && (( Req->argc == 3 ) || ( Req->argc == 4 )))
 	{
-		CHAR c2, c4, *type, *impl, *serverver, *flags, *ptr;
+		CHAR c2, c4, *type, *impl, *serverver, *flags, *ptr, *ircflags;
 		INT protohigh, protolow;
 
 		/* noch nicht registrierte Server-Verbindung */
@@ -94,6 +94,10 @@ IRC_PASS( CLIENT *Client, REQUEST *Req )
 		if( strlen( Req->argv[1] ) > 4 ) type = &Req->argv[1][4];
 		else type = NULL;
 
+		/* IRC-Flags (nach RFC 2813) */
+		if( Req->argc >= 4 ) ircflags = Req->argv[3];
+		else ircflags = "";
+
 		/* Implementation, Version und ngIRCd-Flags */
 		impl = Req->argv[2];
 		ptr = strchr( impl, '|' );
@@ -115,8 +119,12 @@ IRC_PASS( CLIENT *Client, REQUEST *Req )
 		}
 		else
 		{
-			serverver = flags = "";
-			Log( LOG_INFO, "Connection %d: Peer announces itself as \"%s\" using protocol %d.%d.", Client_Conn( Client ), impl, protohigh, protolow );
+			/* auf der anderen Seite laeuft ein Server, der
+			 * nur das Originalprotokoll unterstuetzt */
+			serverver = "";
+			if( strchr( ircflags, 'Z' )) flags = "Z";
+			else flags = "";
+			Log( LOG_INFO, "Connection %d: Peer announces itself as \"%s\" using protocol %d.%d (flags: \"%s\").", Client_Conn( Client ), impl, protohigh, protolow, flags );
 		}
 
 		Client_SetType( Client, CLIENT_GOTPASSSERVER );

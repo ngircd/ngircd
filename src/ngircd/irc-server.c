@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-server.c,v 1.20 2002/11/19 12:50:20 alex Exp $
+ * $Id: irc-server.c,v 1.21 2002/11/26 23:07:24 alex Exp $
  *
  * irc-server.c: IRC-Befehle fuer Server-Links
  */
@@ -47,6 +47,7 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 	INT max_hops, i;
 	CHANNEL *chan;
 	BOOLEAN ok;
+	CONN_ID con;
 	
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -86,9 +87,10 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 		Client_SetID( Client, Req->argv[0] );
 		Client_SetHops( Client, 1 );
 		Client_SetInfo( Client, Req->argv[Req->argc - 1] );
-		
+
 		/* Meldet sich der Server bei uns an (d.h., bauen nicht wir
 		 * selber die Verbindung zu einem anderen Server auf)? */
+		con = Client_Conn( Client );
 		if( Client_Token( Client ) != TOKEN_OUTBOUND )
 		{
 			/* Eingehende Verbindung: Unseren SERVER- und PASS-Befehl senden */
@@ -97,7 +99,7 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 			else ok = IRC_WriteStrClient( Client, "SERVER %s 1 :%s", Conf_ServerName, Conf_ServerInfo );
 			if( ! ok )
 			{
-				Conn_Close( Client_Conn( Client ), "Unexpected server behavior!", NULL, FALSE );
+				Conn_Close( con, "Unexpected server behavior!", NULL, FALSE );
 				return DISCONNECTED;
 			}
 			Client_SetIntroducer( Client, Client );
@@ -110,10 +112,23 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 			Client_SetToken( Client, atoi( Req->argv[1] ));
 		}
 
-		Log( LOG_NOTICE|LOG_snotice, "Server \"%s\" registered (connection %d, 1 hop - direct link).", Client_ID( Client ), Client_Conn( Client ));
+		Log( LOG_NOTICE|LOG_snotice, "Server \"%s\" registered (connection %d, 1 hop - direct link).", Client_ID( Client ), con );
 
 		Client_SetType( Client, CLIENT_SERVER );
-		Conn_SetServer( Client_Conn( Client ), i );
+		Conn_SetServer( con, i );
+
+#ifdef USE_ZLIB
+		/* Kompression initialisieren, wenn erforderlich */
+		if( strchr( Client_Flags( Client ), 'Z' ))
+		{
+			if( ! Conn_InitZip( con ))
+			{
+				/* Fehler! */
+				Conn_Close( con, "Can't inizialize compression (zlib)!", NULL, FALSE );
+				return DISCONNECTED;
+			}
+		}
+#endif
 
 		/* maximalen Hop Count ermitteln */
 		max_hops = 0;

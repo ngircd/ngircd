@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.61 2002/11/22 23:31:23 alex Exp $
+ * $Id: ngircd.c,v 1.62 2002/11/26 23:07:24 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  */
@@ -294,11 +294,17 @@ main( int argc, const char *argv[] )
 		 * sind in doc/Protocol.txt beschrieben. */
 #ifdef IRCPLUS
 		sprintf( NGIRCd_ProtoID, "%s%s %s|%s:%s", PROTOVER, PROTOIRCPLUS, PACKAGE, VERSION, IRCPLUSFLAGS );
+#ifdef USE_ZLIB
+		strcat( NGIRCd_ProtoID, "Z" );
+#endif
 		if( Conf_OperCanMode ) strcat( NGIRCd_ProtoID, "o" );
 #else
 		sprintf( NGIRCd_ProtoID, "%s%s %s|%s", PROTOVER, PROTOIRC, PACKAGE, VERSION );
 #endif
 		strcat( NGIRCd_ProtoID, " P" );
+#ifdef USE_ZLIB
+		strcat( NGIRCd_ProtoID, "Z" );
+#endif
 		Log( LOG_DEBUG, "Protocol and server ID is \"%s\".", NGIRCd_ProtoID );
 
 		/* Vordefinierte Channels anlegen */
@@ -351,6 +357,10 @@ NGIRCd_VersionAddition( VOID )
 #ifdef USE_SYSLOG
 	if( txt[0] ) strcat( txt, "+" );
 	strcat( txt, "SYSLOG" );
+#endif
+#ifdef USE_ZLIB
+	if( txt[0] ) strcat( txt, "+" );
+	strcat( txt, "ZLIB" );
 #endif
 #ifdef DEBUG
 	if( txt[0] ) strcat( txt, "+" );

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: defines.h,v 1.36 2002/11/23 16:08:18 alex Exp $
+ * $Id: defines.h,v 1.37 2002/11/26 23:07:24 alex Exp $
  *
  * defines.h: (globale) Konstanten
  */
@@ -55,8 +55,13 @@
 
 #define COMMAND_LEN 513			/* max. Laenge eines Befehls, vgl. RFC 2812, 3.2 */
 
-#define READBUFFER_LEN 2 * COMMAND_LEN	/* Laenge des Lesepuffers je Verbindung (Bytes) */
+#define READBUFFER_LEN 2048		/* Laenge des Lesepuffers je Verbindung (Bytes) */
 #define WRITEBUFFER_LEN 4096		/* Laenge des Schreibpuffers je Verbindung (Bytes) */
+
+#ifdef USE_ZLIB
+#define ZREADBUFFER_LEN 1024		/* Laenge des Lesepuffers je Verbindung (Bytes) */
+#define ZWRITEBUFFER_LEN 4096		/* Laenge des Schreibpuffers fuer Kompression (Bytes) */
+#endif
 
 #define PROTOVER "0210"			/* implementierte Protokoll-Version (RFC 2813, 4.1.1) */
 #define PROTOIRC "-IRC"			/* Protokoll-Suffix (RFC 2813, 4.1.1) */

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-channel.c,v 1.2 2002/03/12 14:37:52 alex Exp $
+ * $Id: irc-channel.c,v 1.3 2002/03/25 17:08:54 alex Exp $
  *
  * irc-channel.c: IRC-Channel-Befehle
  */
@@ -47,7 +47,7 @@ GLOBAL BOOLEAN IRC_JOIN( CLIENT *Client, REQUEST *Req )
 	if(( Req->argc > 1 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
 	/* Wer ist der Absender? */
-	if( Client_Type( Client ) == CLIENT_SERVER ) target = Client_GetFromID( Req->prefix );
+	if( Client_Type( Client ) == CLIENT_SERVER ) target = Client_Search( Req->prefix );
 	else target = Client;
 	if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
 
@@ -144,7 +144,7 @@ GLOBAL BOOLEAN IRC_PART( CLIENT *Client, REQUEST *Req )
 	if(( Req->argc > 2 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
 	/* Wer ist der Absender? */
-	if( Client_Type( Client ) == CLIENT_SERVER ) target = Client_GetFromID( Req->prefix );
+	if( Client_Type( Client ) == CLIENT_SERVER ) target = Client_Search( Req->prefix );
 	else target = Client;
 	if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
 
@@ -180,7 +180,7 @@ GLOBAL BOOLEAN IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 	/* Falsche Anzahl Parameter? */
 	if(( Req->argc < 1 ) || ( Req->argc > 2 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
-	if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_GetFromID( Req->prefix );
+	if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_Search( Req->prefix );
 	else from = Client;
 	if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
 

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-server.c,v 1.6 2002/03/12 14:37:52 alex Exp $
+ * $Id: irc-server.c,v 1.7 2002/03/25 17:12:22 alex Exp $
  *
  * irc-server.c: IRC-Befehle fuer Server-Links
  */
@@ -200,7 +200,7 @@ GLOBAL BOOLEAN IRC_SERVER( CLIENT *Client, REQUEST *Req )
 		ptr = strchr( Req->argv[3] + 2, '[' );
 		if( ! ptr ) ptr = Req->argv[3];
 
-		from = Client_GetFromID( Req->prefix );
+		from = Client_Search( Req->prefix );
 		if( ! from )
 		{
 			/* Hm, Server, der diesen einfuehrt, ist nicht bekannt!? */
@@ -262,7 +262,7 @@ GLOBAL BOOLEAN IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 			ptr++;
 		}
 
-		c = Client_GetFromID( ptr );
+		c = Client_Search( ptr );
 		if( c )
 		{
 			Channel_Join( c, channame );
@@ -315,7 +315,7 @@ GLOBAL BOOLEAN IRC_SQUIT( CLIENT *Client, REQUEST *Req )
 	/* SQUIT an alle Server weiterleiten */
 	IRC_WriteStrServers( Client, "SQUIT %s :%s", Req->argv[0], Req->argv[1] );
 
-	target = Client_GetFromID( Req->argv[0] );
+	target = Client_Search( Req->argv[0] );
 	if( ! target )
 	{
 		/* Den Server kennen wir nicht (mehr), also nichts zu tun. */

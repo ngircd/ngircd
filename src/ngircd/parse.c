@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: parse.c,v 1.30 2002/03/12 14:37:52 alex Exp $
+ * $Id: parse.c,v 1.31 2002/03/25 17:13:46 alex Exp $
  *
  * parse.c: Parsen der Client-Anfragen
  */
@@ -224,7 +224,7 @@ LOCAL BOOLEAN Handle_Request( CONN_ID Idx, REQUEST *Req )
 		/* Befehl ist ein Statuscode */
 
 		/* Zielserver ermitteln */
-		if(( Client_Type( client ) == CLIENT_SERVER ) && ( Req->argc > 0 )) target = Client_GetFromID( Req->argv[0] );
+		if(( Client_Type( client ) == CLIENT_SERVER ) && ( Req->argc > 0 )) target = Client_Search( Req->argv[0] );
 		else target = NULL;
 		if( ! target )
 		{
@@ -244,7 +244,7 @@ LOCAL BOOLEAN Handle_Request( CONN_ID Idx, REQUEST *Req )
 			Log( LOG_WARNING, "Got status code without prefix!?" );
 			return TRUE;
 		}
-		else prefix = Client_GetFromID( Req->prefix );
+		else prefix = Client_Search( Req->prefix );
 		if( ! prefix )
 		{
 			Log( LOG_WARNING, "Got status code from unknown source: \"%s\"", Req->prefix );

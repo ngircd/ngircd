@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-login.c,v 1.9 2002/03/19 16:38:37 alex Exp $
+ * $Id: irc-login.c,v 1.10 2002/03/25 17:10:49 alex Exp $
  *
  * irc-login.c: Anmeldung und Abmeldung im IRC
  */
@@ -100,7 +100,7 @@ GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req )
 		/* "Ziel-Client" ermitteln */
 		if( Client_Type( Client ) == CLIENT_SERVER )
 		{
-			target = Client_GetFromID( Req->prefix );
+			target = Client_Search( Req->prefix );
 			if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->argv[0] );
 		}
 		else
@@ -162,7 +162,7 @@ GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req )
 		if( Req->argc != 7 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
 		/* Nick ueberpruefen */
-		c = Client_GetFromID( Req->argv[0] );
+		c = Client_Search( Req->argv[0] );
 		if( c )
 		{
 			/* Der neue Nick ist auf diesem Server bereits registriert:
@@ -298,12 +298,12 @@ GLOBAL BOOLEAN IRC_PING( CLIENT *Client, REQUEST *Req )
 	if( Req->argc > 1 )
 	{
 		/* es wurde ein Ziel-Client angegeben */
-		target = Client_GetFromID( Req->argv[1] );
+		target = Client_Search( Req->argv[1] );
 		if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->argv[1] );
 		if( target != Client_ThisServer( ))
 		{
 			/* ok, forwarden */
-			if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_GetFromID( Req->prefix );
+			if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_Search( Req->prefix );
 			else from = Client;
 			if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->prefix );
 			return IRC_WriteStrClientPrefix( target, from, "PING %s :%s", Client_ID( from ), Req->argv[1] );
@@ -331,12 +331,12 @@ GLOBAL BOOLEAN IRC_PONG( CLIENT *Client, REQUEST *Req )
 	/* forwarden? */
 	if( Req->argc == 2 )
 	{
-		target = Client_GetFromID( Req->argv[1] );
+		target = Client_Search( Req->argv[1] );
 		if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->argv[1] );
 		if( target != Client_ThisServer( ))
 		{
 			/* ok, forwarden */
-			if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_GetFromID( Req->prefix );
+			if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_Search( Req->prefix );
 			else from = Client;
 			if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->prefix );
 			return IRC_WriteStrClientPrefix( target, from, "PONG %s :%s", Client_ID( from ), Req->argv[1] );
@@ -398,7 +398,7 @@ LOCAL VOID Kill_Nick( CHAR *Nick, CHAR *Reason )
 	IRC_WriteStrServers( NULL, "KILL %s :%s", Nick, Reason );
 
 	/* Ggf. einen eigenen Client toeten */
-	c = Client_GetFromID( Nick );
+	c = Client_Search( Nick );
 	if( c && ( Client_Conn( c ) != NONE )) Conn_Close( Client_Conn( c ), NULL, Reason, TRUE );
 } /* Kill_Nick */
 

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-login.c,v 1.19 2002/09/03 20:39:54 alex Exp $
+ * $Id: irc-login.c,v 1.20 2002/09/03 20:58:43 alex Exp $
  *
  * irc-login.c: Anmeldung und Abmeldung im IRC
  */
@@ -65,7 +65,7 @@ IRC_PASS( CLIENT *Client, REQUEST *Req )
 	}
 	else if((( Client_Type( Client ) == CLIENT_UNKNOWN ) || ( Client_Type( Client ) == CLIENT_UNKNOWNSERVER )) && (( Req->argc == 3 ) || ( Req->argc == 4 )))
 	{
-		CHAR c, *type, *impl, *serverver, *flags, *ptr;
+		CHAR c2, c4, *type, *impl, *serverver, *flags, *ptr;
 		INT protohigh, protolow;
 
 		/* noch nicht registrierte Server-Verbindung */
@@ -77,14 +77,16 @@ IRC_PASS( CLIENT *Client, REQUEST *Req )
 		/* Protokollversion ermitteln */
 		if( strlen( Req->argv[1] ) >= 4 )
 		{
-			c = Req->argv[1][4];
+			c2 = Req->argv[1][2];
+			c4 = Req->argv[1][4];
+
 			Req->argv[1][4] = '\0';
-			
 			protolow = atoi( &Req->argv[1][2] );
 			Req->argv[1][2] = '\0';
 			protohigh = atoi( Req->argv[1] );
 			
-			Req->argv[1][4] = c;
+			Req->argv[1][2] = c2;
+			Req->argv[1][4] = c4;
 		}			
 		else protohigh = protolow = 0;
 

@@ -15,8 +15,8 @@ ngIRCd CVS-HEAD
   - Manual-Pages ngircd.8 und ngircd.conf.5 begonnen.
   - Wird der Netzwerk-Sniffer aktiviert (--sniffer), so schaltet der
     ngIRCd nun automatisch in den Debug-Modus.
-  - unter Systemen, die inet_aton() nicht kennen (wie z.B. A/UX) kann der
-    ngIRCd nun auch aktiv Server-Links aufbauen.
+  - auf Systemen, die inet_aton() nicht kennen (wie z.B. A/UX), kann der
+    ngIRCd nun dennoch auch aktiv Server-Links aufbauen.
   - h_errno wird auf Systemen, die das nicht kennen (wie z.B. HP-UX 10.20)
     nicht mehr verwendet. Somit compiliert der ngIRCd nun auch dort :-)
   - um auf dem Ziel-System nicht vorhandene Funktionen nachzubilden wird nun
@@ -232,4 +232,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.77 2002/06/26 15:47:08 alex Exp $
+$Id: ChangeLog,v 1.78 2002/07/08 17:54:57 alex Exp $

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: messages.h,v 1.44 2002/06/02 15:22:40 alex Exp $
+ * $Id: messages.h,v 1.45 2002/07/15 16:33:57 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  */
@@ -48,12 +48,16 @@
 #define RPL_NOTOPIC_MSG			"331 %s %s :No topic is set"
 #define RPL_TOPIC_MSG			"332 %s %s :%s"
 #define RPL_INVITING_MSG		"341 %s %s %s"
+#define RPL_INVITELIST_MSG		"346 %s %s %s"
+#define RPL_ENDOFINVITELIST_MSG		"347 %s %s :End of channel invite list"
 #define RPL_VERSION_MSG			"351 %s %s-%s.%s %s :%s"
 #define RPL_WHOREPLY_MSG		"352 %s %s %s %s %s %s %s :%d %s"
 #define RPL_NAMREPLY_MSG		"353 %s %s %s :"
 #define RPL_LINKS_MSG			"364 %s %s %s :%d %s"
 #define RPL_ENDOFLINKS_MSG		"365 %s %s :End of LINKS list"
 #define RPL_ENDOFNAMES_MSG		"366 %s %s :End of NAMES list"
+#define RPL_BANLIST_MSG			"367 %s %s %s"
+#define RPL_ENDOFBANLIST_MSG		"368 %s %s :End of channel ban list"
 #define RPL_MOTD_MSG			"372 %s :- %s"
 #define RPL_MOTDSTART_MSG		"375 %s :- %s message of the day"
 #define RPL_ENDOFMOTD_MSG		"376 %s :End of MOTD command"
@@ -78,6 +82,7 @@
 #define ERR_NEEDMOREPARAMS_MSG		"461 %s %s :Syntax error"
 #define ERR_ALREADYREGISTRED_MSG	"462 %s :Connection already registered"
 #define ERR_PASSWDMISMATCH_MSG		"464 %s: Invalid password"
+#define ERR_UNKNOWNMODE_MSG		"472 %s: %c :is unknown mode char for %s"
 #define ERR_INVITEONLYCHAN_MSG		"473 %s %s :Cannot join channel (+i)"
 #define ERR_BANNEDFROMCHAN_MSG		"474 %s %s :Cannot join channel (+b)"
 #define ERR_NOPRIVILEGES_MSG		"481 %s :Permission denied"

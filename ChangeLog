@@ -10,6 +10,13 @@
                                -- ChangeLog --
 
 
+ngIRCd 0.8.x
+
+  - Fixed a bug that could case a root exploit when the daemon is compiled
+    to do IDENT lookups and is logging to syslog. Bug discovered by CoKi,
+    <coki@nosystem.com.ar>, thanks a lot!
+    (http://www.nosystem.com.ar/advisories/advisory-11.txt)
+
 ngIRCd 0.8.2 (2005-01-26)
 
   - Added doc/SSL.txt to distribution.
@@ -554,4 +561,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.233.2.18 2005/02/03 09:20:58 alex Exp $
+$Id: ChangeLog,v 1.233.2.19 2005/02/03 09:27:09 alex Exp $

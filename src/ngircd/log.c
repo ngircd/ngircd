@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: log.c,v 1.44.2.3 2004/06/26 09:06:27 alex Exp $";
+static char UNUSED id[] = "$Id: log.c,v 1.44.2.4 2005/02/03 09:27:09 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -269,7 +269,7 @@ va_dcl
 		fflush( stdout );
 	}
 #ifdef SYSLOG
-	else syslog( Level, msg );
+	else syslog( Level, "%s", msg );
 #endif
 } /* Log_Resolver */
 

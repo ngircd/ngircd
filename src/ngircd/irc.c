@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.93 2002/06/11 13:58:43 alex Exp $
+ * $Id: irc.c,v 1.94 2002/07/25 11:37:01 alex Exp $
  *
  * irc.c: IRC-Befehle
  */
@@ -643,8 +643,14 @@ IRC_KILL( CLIENT *Client, REQUEST *Req )
 
 	/* haben wir selber einen solchen Client? */
 	c = Client_Search( Req->argv[0] );
-	if( c && ( Client_Conn( c ) != NONE )) Conn_Close( Client_Conn( c ), NULL, Req->argv[1], TRUE );
-	
+	if( c )
+	{
+		/* Ja, wir haben einen solchen Client */
+		if( Client_Conn( c ) != NONE ) Conn_Close( Client_Conn( c ), NULL, Req->argv[1], TRUE );
+		else Client_Destroy( c, NULL, Req->argv[1], TRUE );
+	}
+	else Log( LOG_NOTICE, "Client with nick \"%s\" is unknown here.", Req->argv[0] );
+
 	return CONNECTED;
 } /* IRC_KILL */
 

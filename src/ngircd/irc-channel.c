@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-channel.c,v 1.12 2002/08/27 13:57:03 alex Exp $
+ * $Id: irc-channel.c,v 1.13 2002/09/03 23:56:55 alex Exp $
  *
  * irc-channel.c: IRC-Channel-Befehle
  */
@@ -310,6 +310,60 @@ IRC_LIST( CLIENT *Client, REQUEST *Req )
 	
 	return IRC_WriteStrClient( Client, RPL_LISTEND_MSG, Client_ID( Client ));
 } /* IRC_LIST */
+
+
+GLOBAL BOOLEAN
+IRC_CHANINFO( CLIENT *Client, REQUEST *Req )
+{
+	CLIENT *from;
+	CHANNEL *chan;
+	CHAR *ptr;
+
+	assert( Client != NULL );
+	assert( Req != NULL );
+
+	if( Client_Type( Client ) != CLIENT_SERVER ) return IRC_WriteStrClient( Client, ERR_NOTREGISTERED_MSG, Client_ID( Client ));
+
+	/* Falsche Anzahl Parameter? */
+	if(( Req->argc < 1 ) || ( Req->argc > 3 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+
+	/* From-Server suchen */
+	from = Client_Search( Req->prefix );
+	if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
+
+	/* Channel suchen bzw. erzeugen */
+	chan = Channel_Search( Req->argv[0] );
+	if( ! chan ) chan = Channel_Create( Req->argv[0] );
+	if( ! chan ) return CONNECTED;
+
+	if( Req->argv[1][0] == '+' )
+	{
+		ptr = Channel_Modes( chan );
+		if( ! *ptr )
+		{
+			/* OK, es sind noch keine Modes gesetzt */
+			Channel_SetModes( chan, &Req->argv[1][1] );
+			IRC_WriteStrChannelPrefix( Client, chan, from, FALSE, "MODE %s +%s", Req->argv[0], &Req->argv[1][1] );
+		}
+	}
+	else Log( LOG_WARNING, "CHANNELINFO: invalid MODE format ignored!" );
+
+	if( Req->argc == 3 )
+	{
+		/* Es wurde auch ein Topic mit uebermittelt */
+		ptr = Channel_Topic( chan );
+		if( ! *ptr )
+		{
+			/* OK, es ist bisher kein Topic gesetzt */
+			Channel_SetTopic( chan, Req->argv[2] );
+			IRC_WriteStrChannelPrefix( Client, chan, from, FALSE, "TOPIC %s :%s", Req->argv[0], Req->argv[2] );
+		}
+	}
+
+	/* an andere Server forwarden */
+	IRC_WriteStrServersPrefixFlag( Client, from, 'C', "CHANINFO %s %s :%s", Req->argv[0], Req->argv[1], Req->argv[2] );
+	return CONNECTED;
+} /* IRC_CHANINFO */
 
 
 /* -eof- */

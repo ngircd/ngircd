@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.c,v 1.24 2002/05/21 00:10:16 alex Exp $
+ * $Id: conf.c,v 1.25 2002/05/22 11:14:36 alex Exp $
  *
  * conf.h: Konfiguration des ngircd
  */
@@ -100,6 +100,9 @@ GLOBAL INT Conf_Test( VOID )
 
 	for( i = 0; i < Conf_Oper_Count; i++ )
 	{
+		if( ! Conf_Oper[i].name[0] ) continue;
+		
+		/* gueltiger Operator-Block: ausgeben */
 		puts( "[OPERATOR]" );
 		printf( "  Name = %s\n", Conf_Oper[i].name );
 		printf( "  Password = %s\n", Conf_Oper[i].pwd );
@@ -108,6 +111,10 @@ GLOBAL INT Conf_Test( VOID )
 
 	for( i = 0; i < Conf_Server_Count; i++ )
 	{
+		if( ! Conf_Server[i].name[0] ) continue;
+		if( ! Conf_Server[i].host[0] ) continue;
+		
+		/* gueltiger Server-Block: ausgeben */
 		puts( "[SERVER]" );
 		printf( "  Name = %s\n", Conf_Server[i].name );
 		printf( "  Host = %s\n", Conf_Server[i].host );
@@ -119,6 +126,9 @@ GLOBAL INT Conf_Test( VOID )
 
 	for( i = 0; i < Conf_Channel_Count; i++ )
 	{
+		if( ! Conf_Channel[i].name[0] ) continue;
+		
+		/* gueltiger Channel-Block: ausgeben */
 		puts( "[CHANNEL]" );
 		printf( "  Name = %s\n", Conf_Channel[i].name );
 		printf( "  Modes = %s\n", Conf_Channel[i].modes );

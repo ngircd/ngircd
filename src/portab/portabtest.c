@@ -14,30 +14,51 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: portabtest.c,v 1.9 2002/12/12 11:38:46 alex Exp $";
+static char UNUSED id[] = "$Id: portabtest.c,v 1.10 2002/12/26 13:19:36 alex Exp $";
 
 #include "imp.h"
+#include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "exp.h"
+
+
+LOCAL VOID Panic PARAMS (( CHAR *Reason, INT Code ));
 
 
 GLOBAL int
 main( VOID )
 {
-	/* Datentypen pruefen */
-	if( FALSE != 0 ) return 1;
-	if( TRUE != 1 ) return 1;
-	if( sizeof( INT8 ) != 1 ) return 1;
-	if( sizeof( UINT8 ) != 1 ) return 1;
-	if( sizeof( INT16 ) != 2 ) return 1;
-	if( sizeof( UINT16 ) != 2 ) return 1;
-	if( sizeof( INT32 ) != 4 ) return 1;
-	if( sizeof( UINT32 ) != 4 ) return 1;
+	/* validate datatypes */
+	if( FALSE != 0 ) Panic( "FALSE", 1 );
+	if( TRUE != 1 ) Panic( "TRUE", 1 );
+	if( sizeof( INT8 ) != 1 ) Panic( "INT8", 1 );
+	if( sizeof( UINT8 ) != 1 ) Panic( "UINT8", 1 );
+	if( sizeof( INT16 ) != 2 ) Panic( "INT16", 1 );
+	if( sizeof( UINT16 ) != 2 ) Panic( "UINT16", 1 );
+	if( sizeof( INT32 ) != 4 ) Panic( "INT32", 1 );
+	if( sizeof( UINT32 ) != 4 ) Panic( "UINT32", 1 );
+
+	/* check functions */
+	if( ! snprintf ) Panic( "snprintf", 2 );
+	if( ! vsnprintf ) Panic( "vsnprintf", 2 );
+	if( ! strlcpy ) Panic( "strlcpy", 2 );
+	if( ! strlcat ) Panic( "strlcat", 2 );
 	
-	/* kein Fehler */
+	/* ok, no error */
 	return 0;
 } /* portab_check_types */
+
+
+LOCAL VOID
+Panic( CHAR *Reason, INT Code )
+{
+	/* Oops, something failed!? */
+	fprintf( stderr, "Oops, test for %s failed!?", Reason );
+	exit( Code );
+} /* Panic */
 
 
 /* -eof- */

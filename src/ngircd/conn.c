@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.106 2002/12/18 13:50:22 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.107 2002/12/19 04:35:26 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -202,7 +202,7 @@ Conn_Exit( VOID )
 			}
 			else if( idx < Pool_Size )
 			{
-				if( NGIRCd_Restart ) Conn_Close( idx, NULL, "Server going down (restarting)", TRUE );
+				if( NGIRCd_SignalRestart ) Conn_Close( idx, NULL, "Server going down (restarting)", TRUE );
 				else Conn_Close( idx, NULL, "Server going down", TRUE );
 			}
 			else
@@ -332,12 +332,15 @@ Conn_Handler( VOID )
 	BOOLEAN timeout;
 
 	start = time( NULL );
-	while(( ! NGIRCd_Quit ) && ( ! NGIRCd_Restart ))
+	while(( ! NGIRCd_SignalQuit ) && ( ! NGIRCd_SignalRestart ))
 	{
 		timeout = TRUE;
-	
-		Check_Servers( );
 
+		/* Should the configuration be reloaded? */
+		if( NGIRCd_SignalRehash ) NGIRCd_Rehash( );
+
+		/* Check configured servers and established links */
+		Check_Servers( );
 		Check_Connections( );
 
 		/* noch volle Lese-Buffer suchen */
@@ -448,6 +451,9 @@ Conn_Handler( VOID )
 			if( FD_ISSET( i, &read_sockets )) Handle_Read( i );
 		}
 	}
+
+	if( NGIRCd_SignalQuit ) Log( LOG_NOTICE|LOG_snotice, "Server going down NOW!" );
+	else if( NGIRCd_SignalRestart ) Log( LOG_NOTICE|LOG_snotice, "Server restarting NOW!" );
 } /* Conn_Handler */
 
 

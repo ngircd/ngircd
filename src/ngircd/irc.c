@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.19 2002/01/02 02:51:39 alex Exp $
+ * $Id: irc.c,v 1.20 2002/01/02 12:46:41 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.20  2002/01/02 12:46:41  alex
+ * - die Gross- und Kleinschreibung des Nicks kann mit NICK nun geaendert werden.
+ *
  * Revision 1.19  2002/01/02 02:51:39  alex
  * - Copyright-Texte angepasst.
  * - neuer Befehl "ERROR".
@@ -204,11 +207,16 @@ GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req )
 		 * wir nichts. So macht es das Original und mind. Snak hat probleme,
 		 * wenn wir es nicht so machen. Ob es so okay ist? Hm ... */
 #ifndef STRICT_RFC
-		if( strcasecmp( Client->nick, Req->argv[0] ) == 0 ) return CONNECTED;
+		if( strcmp( Client->nick, Req->argv[0] ) == 0 ) return CONNECTED;
 #endif
 		
-		/* pruefen, ob Nick bereits vergeben */
-		if( ! Client_CheckNick( Client, Req->argv[0] )) return CONNECTED;
+		/* pruefen, ob Nick bereits vergeben. Speziallfall: der Client
+		 * will nur die Gross- und Kleinschreibung aendern. Das darf
+		 * er natuerlich machen :-) */
+		if( strcasecmp( Client->nick, Req->argv[0] ) != 0 )
+		{
+			if( ! Client_CheckNick( Client, Req->argv[0] )) return CONNECTED;
+		}
 
 		if( Client->type == CLIENT_USER )
 		{

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.43 2002/12/13 17:32:33 alex Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.44 2002/12/14 13:36:19 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -119,8 +119,6 @@ Conf_Test( VOID )
 	else printf( "  MaxConnections = -1\n" );
 	if( Conf_MaxJoins > 0 ) printf( "  MaxJoins = %d\n", Conf_MaxJoins );
 	else printf( "  MaxJoins = -1\n" );
-	if( Conf_MaxPChannels > 0 ) printf( "  MaxPChannels = %d\n", Conf_MaxPChannels );
-	else printf( "  MaxPChannels = -1\n" );
 	puts( "" );
 
 	for( i = 0; i < Conf_Oper_Count; i++ )
@@ -197,7 +195,6 @@ Set_Defaults( VOID )
 	
 	Conf_MaxConnections = -1;
 	Conf_MaxJoins = 10;
-	Conf_MaxPChannels = -1;
 } /* Set_Defaults */
 
 
@@ -492,16 +489,6 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 		else
 #endif
 		Conf_MaxJoins = atoi( Arg );
-		return;
-	}
-	if( strcasecmp( Var, "MaxPChannels" ) == 0 )
-	{
-		/* Maximum number of persistent channels in the network. Values <= 0 are equal to "no limit". */
-#ifdef HAVE_ISDIGIT
-		if( ! isdigit( *Arg )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"MaxPChannels\" is not a number!", NGIRCd_ConfFile, Line );
-		else
-#endif
-		Conf_MaxPChannels = atoi( Arg );
 		return;
 	}
 

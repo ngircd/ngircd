@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2003 by Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: messages.h,v 1.62 2003/01/02 17:55:28 alex Exp $
+ * $Id: messages.h,v 1.63 2003/01/13 18:56:30 alex Exp $
  *
  * IRC numerics (Header)
  */
@@ -23,6 +23,9 @@
 #define RPL_CREATED_MSG			"003 %s :This server has been started %s"
 #define RPL_MYINFO_MSG			"004 %s %s ngircd-%s %s %s"
 #define RPL_ISUPPORT_MSG		"005 %s NICKLEN=%d TOPICLEN=%d AWAYLEN=%d MAXCHANNELS=%d :are supported on this server"
+
+#define RPL_TRACELINK_MSG		"200 %s Link %s-%s %s %s V%s %ld %d %d"
+#define RPL_TRACESERVER_MSG		"206 %s Serv 1 0S 0C %s %s :V%s"
 #define RPL_STATSLINKINFO_MSG		"211 %s %s %d %ld %ld %ld %ld :%ld"
 #define RPL_STATSCOMMANDS_MSG		"212 %s %s %ld %ld %ld"
 #define RPL_ENDOFSTATS_MSG		"219 %s %c :End of STATS report"
@@ -36,6 +39,7 @@
 #define RPL_ADMINLOC1_MSG		"257 %s :%s"
 #define RPL_ADMINLOC2_MSG		"258 %s :%s"
 #define RPL_ADMINEMAIL_MSG		"259 %s :%s"
+#define RPL_TRACEEND_MSG		"262 %s %s %s-%s.%s :End of TRACE"
 #define RPL_LOCALUSERS_MSG		"265 %s :Current local users: %ld, Max: %ld"
 #define RPL_NETUSERS_MSG		"266 %s :Current global users: %ld, Max: %ld"
 

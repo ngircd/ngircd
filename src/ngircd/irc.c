@@ -14,13 +14,17 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc.c,v 1.116 2003/01/08 22:27:13 alex Exp $";
+static char UNUSED id[] = "$Id: irc.c,v 1.117 2003/01/13 18:56:30 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
 
+#include "ngircd.h"
+#include "conn.h"
+#include "resolve.h"
+#include "conf.h"
 #include "conn-func.h"
 #include "client.h"
 #include "channel.h"
@@ -174,6 +178,52 @@ IRC_PRIVMSG( CLIENT *Client, REQUEST *Req )
 
 	return IRC_WriteStrClient( from, ERR_NOSUCHNICK_MSG, Client_ID( from ), Req->argv[0] );
 } /* IRC_PRIVMSG */
+
+
+GLOBAL BOOLEAN
+IRC_TRACE( CLIENT *Client, REQUEST *Req )
+{
+	CLIENT *from, *target;
+	CONN_ID idx, idx2;
+	CHAR ver[64], *ptr;
+
+	assert( Client != NULL );
+	assert( Req != NULL );
+
+	/* Bad number of arguments? */
+	if( Req->argc > 1 ) return IRC_WriteStrClient( Client, ERR_NORECIPIENT_MSG, Client_ID( Client ), Req->command );
+
+	/* Search sender */
+	if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_Search( Req->prefix );
+	else from = Client;
+	if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
+
+	/* Search target */
+	if( Req->argc == 1 ) target = Client_Search( Req->argv[0] );
+	else target = Client_ThisServer( );
+	
+	strlcpy( ver, NGIRCd_VersionAddition( ), sizeof( ver ));
+	ptr = strchr( ver, '-' );
+	if( ptr ) *ptr = '\0';
+
+	/* Forward command to other server? */
+	if( target != Client_ThisServer( ))
+	{
+		if(( ! target ) || ( Client_Type( target ) != CLIENT_SERVER )) return IRC_WriteStrClient( from, ERR_NOSUCHSERVER_MSG, Client_ID( from ), Req->argv[0] );
+
+		/* Send RPL_TRACELINK back to initiator */
+		idx = Client_Conn( Client ); assert( idx > NONE );
+		idx2 = Client_Conn( Client_NextHop( target )); assert( idx2 > NONE );
+		if( ! IRC_WriteStrClient( from, RPL_TRACELINK_MSG, Client_ID( from ), PACKAGE, VERSION, Client_ID( target ), Client_ID( Client_NextHop( target )), ver, time( NULL ) - Conn_StartTime( idx ), Conn_SendQ( idx ), Conn_SendQ( idx2 ))) return DISCONNECTED;
+
+		/* Forward command */
+		IRC_WriteStrClientPrefix( target, from, "TRACE %s", Req->argv[0] );
+		return CONNECTED;
+	}
+
+	if( ! IRC_WriteStrClient( from, RPL_TRACESERVER_MSG, Client_ID( from ), Conf_ServerName, Client_Mask( Client_ThisServer( )), ver )) return DISCONNECTED;
+	return IRC_WriteStrClient( from, RPL_TRACEEND_MSG, Client_ID( from ), Conf_ServerName, PACKAGE, VERSION, NGIRCd_DebugLevel );
+} /* IRC_TRACE */
 
 
 /* -eof- */

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.11 2001/12/25 23:15:16 alex Exp $
+ * $Id: conn.c,v 1.12 2001/12/26 03:20:53 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
+ * Revision 1.12  2001/12/26 03:20:53  alex
+ * - PING/PONG-Timeout implementiert.
+ *
  * Revision 1.11  2001/12/25 23:15:16  alex
  * - buffer werden nun periodisch geprueft, keine haengenden Clients mehr.
  *
@@ -81,6 +84,7 @@
 
 #include "ngircd.h"
 #include "client.h"
+#include "conf.h"
 #include "log.h"
 #include "parse.h"
 #include "tool.h"
@@ -105,6 +109,8 @@ typedef struct _Connection
 	INT rdatalen;			/* Laenge der Daten im Lesepuffer */
 	CHAR wbuf[WRITEBUFFER_LEN + 1];	/* Schreibpuffer */
 	INT wdatalen;			/* Laenge der Daten im Schreibpuffer */
+	time_t lastdata;		/* Letzte Aktivitaet */
+	time_t lastping;		/* Letzter PING */
 } CONNECTION;
 
 
@@ -115,6 +121,7 @@ LOCAL CONN_ID Socket2Index( INT Sock );
 LOCAL VOID Read_Request( CONN_ID Idx );
 LOCAL BOOLEAN Try_Write( CONN_ID Idx );
 LOCAL VOID Handle_Buffer( CONN_ID Idx );
+LOCAL VOID Check_Connections( VOID );
 
 
 LOCAL fd_set My_Listener;
@@ -240,13 +247,25 @@ GLOBAL VOID Conn_Handler( INT Timeout )
 	time_t start;
 	INT i;
 
-	/* Timeout initialisieren */
-	tv.tv_sec = 0;
-	tv.tv_usec = 50000;
-
 	start = time( NULL );
-	while( time( NULL ) - start < Timeout )
+	while(( time( NULL ) - start < Timeout ) && ( ! NGIRCd_Quit ))
 	{
+		Check_Connections( );
+
+		/* Timeout initialisieren */
+		tv.tv_sec = 0;
+		tv.tv_usec = 50000;
+
+		/* noch volle Lese-Buffer suchen */
+		for( i = 0; i < MAX_CONNECTIONS; i++ )
+		{
+			if(( My_Connections[i].sock >= 0 ) && ( My_Connections[i].rdatalen > 0 ))
+			{
+				/* Kann aus dem Buffer noch ein Befehl extrahiert werden? */
+				Handle_Buffer( i );
+			}
+		}
+		
 		/* noch volle Schreib-Puffer suchen */
 		FD_ZERO( &write_sockets );
 		for( i = 0; i < MAX_CONNECTIONS; i++ )
@@ -258,16 +277,6 @@ GLOBAL VOID Conn_Handler( INT Timeout )
 			}
 		}
 		
-		/* noch volle Lese-Buffer suchen */
-		for( i = 0; i < MAX_CONNECTIONS; i++ )
-		{
-			if(( My_Connections[i].sock >= 0 ) && ( My_Connections[i].rdatalen > 0 ))
-			{
-				/* Kann aus dem Buffer noch ein Befehl extrahiert werden? */
-				Handle_Buffer( i );
-			}
-		}
-
 		read_sockets = My_Sockets;
 		if( select( My_Max_Fd + 1, &read_sockets, &write_sockets, NULL, &tv ) == -1 )
 		{
@@ -509,6 +518,8 @@ LOCAL VOID New_Connection( INT Sock )
 	My_Connections[idx].addr = new_addr;
 	My_Connections[idx].rdatalen = 0;
 	My_Connections[idx].wdatalen = 0;
+	My_Connections[idx].lastdata = time( NULL );
+	My_Connections[idx].lastping = 0;
 
 	/* Neuen Socket registrieren */
 	FD_SET( new_sock, &My_Sockets );
@@ -563,6 +574,7 @@ LOCAL VOID Read_Request( CONN_ID Idx )
 		return;
 	}
 
+	/* Lesebuffer updaten */
 	My_Connections[Idx].rdatalen += len;
 	assert( My_Connections[Idx].rdatalen <= READBUFFER_LEN );
 	My_Connections[Idx].rbuf[My_Connections[Idx].rdatalen] = '\0';
@@ -576,6 +588,9 @@ LOCAL VOID Read_Request( CONN_ID Idx )
 		Conn_Close( Idx, "Request too long!" );
 		return;
 	}
+
+	/* Timestamp aktualisieren */
+	My_Connections[Idx].lastdata = time( NULL );
 
 	Handle_Buffer( Idx );
 } /* Read_Request */
@@ -620,6 +635,38 @@ LOCAL VOID Handle_Buffer( CONN_ID Idx )
 		memmove( My_Connections[Idx].rbuf, My_Connections[Idx].rbuf + len, My_Connections[Idx].rdatalen );
 	}
 } /* Handle_Buffer */
+
+
+LOCAL VOID Check_Connections( VOID )
+{
+	/* Pruefen, ob Verbindungen noch "alive" sind */
+
+	INT i;
+
+	for( i = 0; i < MAX_CONNECTIONS; i++ )
+	{
+		if( My_Connections[i].sock != NONE )
+		{
+			if( My_Connections[i].lastping > My_Connections[i].lastdata )
+			{
+				/* es wurde bereits ein PING gesendet */
+				if( My_Connections[i].lastping < time( NULL ) - Conf_PONG_Timeout )
+				{
+					/* Timeout */
+					Log( LOG_NOTICE, "Connection %d: Ping timeout." );
+					Conn_Close( i, "Ping timeout" );
+				}
+			}
+			else if( My_Connections[i].lastdata < time( NULL ) - Conf_PING_Timeout )
+			{
+				/* es muss ein PING gesendet werden */
+				Log( LOG_DEBUG, "Connection %d: sending PING ...", i );
+				My_Connections[i].lastping = time( NULL );
+				Conn_WriteStr( i, "PING :%s", This_Server->nick );
+			}
+		}
+	}
+} /* Conn_Check */
 
 
 /* -eof- */

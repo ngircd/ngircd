@@ -8,15 +8,13 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: irc-oper.c,v 1.12 2002/12/12 12:24:18 alex Exp $
- *
  * IRC operator commands
  */
 
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-oper.c,v 1.12 2002/12/12 12:24:18 alex Exp $";
+static char UNUSED id[] = "$Id: irc-oper.c,v 1.13 2002/12/12 12:33:14 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.10 2001/12/27 19:13:47 alex Exp $
+ * $Id: client.c,v 1.11 2001/12/29 03:10:47 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,9 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.11  2001/12/29 03:10:47  alex
+ * - Client-Modes implementiert; Loglevel mal wieder angepasst.
+ *
  * Revision 1.10  2001/12/27 19:13:47  alex
  * - neue Funktion Client_Search(), besseres Logging.
  *
@@ -174,7 +177,7 @@ GLOBAL VOID Client_Destroy( CLIENT *Client )
 			if( last ) last->next = c->next;
 			else My_Clients = c->next;
 
-			if( c->type == CLIENT_USER ) Log( LOG_INFO, "User \"%s!%s@%s\" (%s) exited.", c->nick, c->user, c->host, c->name );
+			if( c->type == CLIENT_USER ) Log( LOG_NOTICE, "User \"%s!%s@%s\" (%s) exited (connection %d).", c->nick, c->user, c->host, c->name, c->conn_id );
 
 			free( c );
 			break;
@@ -299,6 +302,7 @@ LOCAL CLIENT *New_Client_Struct( VOID )
 	strcpy( c->user, "" );
 	strcpy( c->name, "" );
 	for( i = 0; i < MAX_CHANNELS; c->channels[i++] = NULL );
+	strcpy( c->modes, "" );
 
 	return c;
 } /* New_Client */

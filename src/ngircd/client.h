@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.h,v 1.7 2001/12/27 19:13:47 alex Exp $
+ * $Id: client.h,v 1.8 2001/12/29 03:10:47 alex Exp $
  *
  * client.h: Konfiguration des ngircd (Header)
  *
  * $Log: client.h,v $
+ * Revision 1.8  2001/12/29 03:10:47  alex
+ * - Client-Modes implementiert; Loglevel mal wieder angepasst.
+ *
  * Revision 1.7  2001/12/27 19:13:47  alex
  * - neue Funktion Client_Search(), besseres Logging.
  *
@@ -51,6 +54,7 @@
 #define CLIENT_USER_LEN 8		/* max. Laenge des Benutzernamen ("Login") */
 #define CLIENT_NAME_LEN 32		/* max. Laenge des "langen Benutzernamen" */
 #define CLIENT_HOST_LEN 63		/* max. Laenge des Hostname */
+#define CLIENT_MODE_LEN 16		/* max. Laenge der Client-Modes */
 
 #define MAX_CHANNELS 32			/* max. Anzahl Channels pro Nick */
 
@@ -79,6 +83,7 @@ typedef struct _CLIENT
 	CHAR user[CLIENT_USER_LEN + 1];	/* Benutzername ("Login") */
 	CHAR name[CLIENT_NAME_LEN + 1];	/* Langer Benutzername */
 	CHANNEL *channels[MAX_CHANNELS];/* IDs der Channel, bzw. NULL */
+	CHAR modes[CLIENT_MODE_LEN];	/* Client Modes */
 } CLIENT;
 
 

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.40 2002/02/27 23:23:53 alex Exp $
+ * $Id: client.c,v 1.41 2002/03/02 01:35:50 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,9 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.41  2002/03/02 01:35:50  alex
+ * - Channel- und Nicknames werden nun ordentlich validiert.
+ *
  * Revision 1.40  2002/02/27 23:23:53  alex
  * - Includes fuer einige Header bereinigt.
  *
@@ -947,11 +950,23 @@ GLOBAL INT Client_UnknownCount( VOID )
 GLOBAL BOOLEAN Client_IsValidNick( CHAR *Nick )
 {
 	/* Ist der Nick gueltig? */
+
+	CHAR *ptr, goodchars[] = ";0123456789";
 	
 	assert( Nick != NULL );
 
 	if( Nick[0] == '#' ) return FALSE;
-	if( strlen( Nick ) > CLIENT_NICK_LEN ) return FALSE;
+	if( strchr( goodchars, Nick[0] )) return FALSE;
+	if( strlen( Nick ) >= CLIENT_NICK_LEN ) return FALSE;
+
+	ptr = Nick;
+	while( *ptr )
+	{
+		if(( *ptr < 'A' ) && ( ! strchr( goodchars, *ptr ))) return FALSE;
+		if(( *ptr > '}' ) && ( ! strchr( goodchars, *ptr ))) return FALSE;
+		ptr++;
+	}
+	
 	return TRUE;
 } /* Client_IsValidNick */
 

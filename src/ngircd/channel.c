@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: channel.c,v 1.16 2002/02/27 23:23:53 alex Exp $
+ * $Id: channel.c,v 1.17 2002/03/02 01:35:50 alex Exp $
  *
  * channel.c: Management der Channels
  *
  * $Log: channel.c,v $
+ * Revision 1.17  2002/03/02 01:35:50  alex
+ * - Channel- und Nicknames werden nun ordentlich validiert.
+ *
  * Revision 1.16  2002/02/27 23:23:53  alex
  * - Includes fuer einige Header bereinigt.
  *
@@ -317,10 +320,20 @@ GLOBAL CHANNEL *Channel_GetChannel( CL2CHAN *Cl2Chan )
 GLOBAL BOOLEAN Channel_IsValidName( CHAR *Name )
 {
 	/* PrŸfen, ob Name als Channelname gueltig */
+
+	CHAR *ptr, badchars[] = " ,:\x07";
 	
 	assert( Name != NULL );
 
 	if(( Name[0] != '#' ) || ( strlen( Name ) >= CHANNEL_NAME_LEN )) return FALSE;
+
+	ptr = Name;
+	while( *ptr )
+	{
+		if( strchr( badchars, *ptr )) return FALSE;
+		ptr++;
+	}
+	
 	return TRUE;
 } /* Channel_IsValidName */
 

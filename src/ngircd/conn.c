@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.54 2002/03/12 23:45:30 alex Exp $
+ * $Id: conn.c,v 1.55 2002/03/13 00:15:55 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -1009,12 +1009,14 @@ LOCAL BOOLEAN Init_Socket( INT Sock )
 
 	INT on = 1;
 
+#ifdef O_NONBLOCK	/* A/UX kennt das nicht? */
 	if( fcntl( Sock, F_SETFL, O_NONBLOCK ) != 0 )
 	{
 		Log( LOG_CRIT, "Can't enable non-blocking mode: %s!", strerror( errno ));
 		close( Sock );
 		return FALSE;
 	}
+#endif
 	if( setsockopt( Sock, SOL_SOCKET, SO_REUSEADDR, &on, (socklen_t)sizeof( on )) != 0)
 	{
 		Log( LOG_ERR, "Can't set socket options: %s!", strerror( errno ));

@@ -48,6 +48,8 @@ ngIRCd CVS-HEAD
   - empfangene NJOIN's wurden "zerhackt" an andere Server weitergegeben.
   - neue Konfigurationsoption "OperCanUseMode" (Sektion "Global"):
     ist sie aktiv, koennen IRC-Operatoren immer Channel-Modes setzen. 
+  - Protokoll- und Server-ID bei PASS-Befehlen auf neues Format umgestellt;
+    bei empfangenen PASS-Befehlen werden diese zudem nun auch ausgewertet.
 
 ngIRCd 0.4.3, 11.06.2002
 
@@ -237,4 +239,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.80 2002/09/02 15:00:07 alex Exp $
+$Id: ChangeLog,v 1.81 2002/09/02 19:09:43 alex Exp $

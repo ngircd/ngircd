@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.69 2002/09/02 19:03:09 alex Exp $
+ * $Id: conn.c,v 1.70 2002/09/07 21:13:38 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -220,8 +220,10 @@ Conn_NewListener( CONST UINT Port )
 GLOBAL VOID
 Conn_Handler( VOID )
 {
-	/* Aktive Verbindungen ueberwachen. Folgende Aktionen
-	 * werden durchgefuehrt:
+	/* "Hauptschleife": Aktive Verbindungen ueberwachen. Folgende Aktionen
+	 * werden dabei durchgefuehrt, bis der Server terminieren oder neu
+	 * starten soll:
+	 *
 	 *  - neue Verbindungen annehmen,
 	 *  - Server-Verbindungen aufbauen,
 	 *  - geschlossene Verbindungen loeschen,
@@ -241,10 +243,6 @@ Conn_Handler( VOID )
 		Check_Servers( );
 
 		Check_Connections( );
-
-		/* Timeout initialisieren */
-		tv.tv_sec = 1;
-		tv.tv_usec = 0;
 
 		/* noch volle Lese-Buffer suchen */
 		for( i = 0; i < MAX_CONNECTIONS; i++ )
@@ -302,6 +300,10 @@ Conn_Handler( VOID )
 			}
 		}
 
+		/* Timeout initialisieren */
+		tv.tv_sec = 5;
+		tv.tv_usec = 0;
+		
 		/* Auf Aktivitaet warten */
 		if( select( Conn_MaxFD + 1, &read_sockets, &write_sockets, NULL, &tv ) == -1 )
 		{
@@ -311,7 +313,7 @@ Conn_Handler( VOID )
 				Log( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE );
 				exit( 1 );
 			}
-			continue;
+			if(( ! NGIRCd_Quit ) && ( ! NGIRCd_Restart )) continue;
 		}
 
 		/* Koennen Daten geschrieben werden? */

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-mode.c,v 1.19 2002/12/14 13:36:19 alex Exp $";
+static char UNUSED id[] = "$Id: irc-mode.c,v 1.20 2002/12/15 15:51:24 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -36,6 +36,9 @@ static char UNUSED id[] = "$Id: irc-mode.c,v 1.19 2002/12/14 13:36:19 alex Exp $
 #include "irc-mode.h"
 
 
+LOCAL BOOLEAN Client_Mode PARAMS(( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target ));
+LOCAL BOOLEAN Channel_Mode PARAMS(( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel ));
+
 LOCAL BOOLEAN Add_Invite PARAMS(( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, CHAR *Pattern ));
 LOCAL BOOLEAN Add_Ban PARAMS(( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, CHAR *Pattern ));
 
@@ -48,385 +51,444 @@ LOCAL BOOLEAN Send_ListChange PARAMS(( CHAR *Mode, CLIENT *Prefix, CLIENT *Clien
 GLOBAL BOOLEAN
 IRC_MODE( CLIENT *Client, REQUEST *Req )
 {
-	CHAR *mode_ptr, the_modes[CLIENT_MODE_LEN], x[2];
-	CLIENT *cl, *chan_cl, *prefix;
-	BOOLEAN set, ok, modeok;
+	CLIENT *cl, *origin;
 	CHANNEL *chan;
-	
+
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	cl = chan_cl = prefix = NULL;
-	chan = NULL;
-
-	/* Keine Parameter? */
+	/* No parameters? */
 	if( Req->argc < 1 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
-	/* Ziel suchen: Client bzw. Channel */
+	/* Origin for answers */
+	if( Client_Type( Client ) == CLIENT_SERVER )
+	{
+		origin = Client_Search( Req->prefix );
+		if( ! origin ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
+	}
+	else origin = Client;
+	
+	/* Channel or user mode? */
+	cl = chan = NULL;
 	if( Client_IsValidNick( Req->argv[0] )) cl = Client_Search( Req->argv[0] );
 	if( Channel_IsValidName( Req->argv[0] )) chan = Channel_Search( Req->argv[0] );
 
-	/* Kein Ziel gefunden? */
-	if(( ! cl ) && ( ! chan )) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->argv[0] );
+	if( cl ) return Client_Mode( Client, Req, origin, cl );
+	if( chan ) return Channel_Mode( Client, Req, origin, chan );
 
-	assert(( cl && chan ) != TRUE );
+	/* No target found! */
+	return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->argv[0] );
+} /* IRC_MODE */
 
-	/* Falsche Anzahl Parameter? */
-	if(( cl ) && ( Req->argc > 2 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
-	if(( chan ) && ( Req->argc > 3 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
-	/* Prefix fuer Antworten etc. ermitteln */
-	if( Client_Type( Client ) == CLIENT_SERVER )
-	{
-		prefix = Client_Search( Req->prefix );
-		if( ! prefix ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
-	}
-	else prefix = Client;
-	
-	if(( chan ) && (( Req->argc == 2 ) || ( Req->argc == 3 )))
-	{
-		/* pruefen, ob "Listen-Operation": Invite, Ban */
-		if(( Req->argv[1][0] == '-'  ) || ( Req->argv[1][0] == '+' )) mode_ptr = &Req->argv[1][1];
-		else mode_ptr = &Req->argv[1][0];
+LOCAL BOOLEAN
+Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
+{
+	/* Handle client mode requests */
 
-		if( Req->argc == 2 )
-		{
-			/* Liste anzeigen */
-			if( *mode_ptr == 'I' ) return Lists_ShowInvites( prefix, chan );
-			if( *mode_ptr == 'b' ) return Lists_ShowBans( prefix, chan );
-		}
-		else
-		{
-			/* Listen veraendern */
+	CHAR the_modes[COMMAND_LEN], x[2], *mode_ptr;
+	BOOLEAN ok, set;
+	INT mode_arg;
 
-			if( Client_Type( Client ) == CLIENT_USER )
-			{
-				/* Ist der User Channel-Operator? */
-				modeok = FALSE;
-				if( strchr( Channel_UserModes( chan, Client ), 'o' )) modeok = TRUE;
-				if( Conf_OperCanMode )
-				{
-					/* auch IRC-Operatoren duerfen MODE verwenden */
-					if( Client_OperByMe( Client )) modeok = TRUE;
-				}
-
-				if( ! modeok )
-				{
-					Log( LOG_DEBUG, "Can't change modes: \"%s\" is not operator on %s!", Client_ID( Client ), Channel_Name( chan ));
-					return IRC_WriteStrClient( Client, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Client ), Channel_Name( chan ));
-				}
-			}
-			
-			if( Req->argv[1][0] == '+' )
-			{
-				/* Listen-Eintrag hinzufuegen */
-				if( *mode_ptr == 'I' ) return Add_Invite( prefix, Client, chan, Req->argv[2] );
-				if( *mode_ptr == 'b' ) return Add_Ban( prefix, Client, chan, Req->argv[2] );
-			}
-			else if( Req->argv[1][0] == '-' )
-			{
-				/* Listen-Eintrag loeschen */
-				if( *mode_ptr == 'I' ) return Del_Invite( prefix, Client, chan, Req->argv[2] );
-				if( *mode_ptr == 'b' ) return Del_Ban( prefix, Client, chan, Req->argv[2] );
-			}
-		}
-	}
-
-	/* Client ermitteln, wenn bei Channel-Modes mit 3 Parametern */
-	if(( chan ) && (Req->argc == 3 ))
-	{
-		chan_cl = Client_Search( Req->argv[2] );
-		if( ! chan_cl ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->argv[0] );
-	}
-	
-	/* Wenn Anfragender ein User ist: Zugriff erlaubt? */
+	/* Is the client allowed to request or change the modes? */
 	if( Client_Type( Client ) == CLIENT_USER )
 	{
-		if( cl )
-		{
-			/* MODE ist nur fuer sich selber zulaessig! */
-			if( cl != Client ) return IRC_WriteStrClient( Client, ERR_USERSDONTMATCH_MSG, Client_ID( Client ));
-		}
-		if( chan )
-		{
-			/* Darf der User die Channel-Modes ermitteln? */
-		}
+		/* Users are only allowed to manipulate their own modes! */
+		if( Target != Client ) return IRC_WriteStrClient( Client, ERR_USERSDONTMATCH_MSG, Client_ID( Client ));
 	}
 
-	/* Werden die Modes "nur" erfragt? */
-	if(( cl ) && ( Req->argc == 1 )) return IRC_WriteStrClient( Client, RPL_UMODEIS_MSG, Client_ID( Client ), Client_Modes( cl ));
-	if(( chan ) && ( Req->argc == 1 )) return IRC_WriteStrClient( Client, RPL_CHANNELMODEIS_MSG, Client_ID( Client ), Channel_Name( chan ), Channel_Modes( chan ));
+	/* Mode request: let's answer it :-) */
+	if( Req->argc == 1 ) return IRC_WriteStrClient( Origin, RPL_UMODEIS_MSG, Client_ID( Origin ), Client_Modes( Target ));
 
-	mode_ptr = Req->argv[1];
+	mode_arg = 1;
+	mode_ptr = Req->argv[mode_arg];
 
-	/* Sollen Modes gesetzt oder geloescht werden? */
-	if( cl )
-	{
-		if( *mode_ptr == '+' ) set = TRUE;
-		else if( *mode_ptr == '-' ) set = FALSE;
-		else return IRC_WriteStrClient( Client, ERR_UMODEUNKNOWNFLAG_MSG, Client_ID( Client ));
-		mode_ptr++;
-	}
-	else
-	{
-		if( *mode_ptr == '-' ) set = FALSE;
-		else set = TRUE;
-		if(( *mode_ptr == '-' ) || ( *mode_ptr == '+' )) mode_ptr++;
-	}
+	/* Initial state: set or unset modes? */
+	if( *mode_ptr == '+' ) set = TRUE;
+	else if( *mode_ptr == '-' ) set = FALSE;
+	else return IRC_WriteStrClient( Origin, ERR_UMODEUNKNOWNFLAG_MSG, Client_ID( Origin ));
 
-	/* Reply-String mit Aenderungen vorbereiten */
+	/* Prepare reply string */
 	if( set ) strcpy( the_modes, "+" );
 	else strcpy( the_modes, "-" );
 
-	ok = TRUE;
 	x[1] = '\0';
-	while( *mode_ptr )
+	ok = CONNECTED;
+	while( mode_ptr )
 	{
+		mode_ptr++;
+		if( ! *mode_ptr )
+		{
+			/* Try next argument if there's any */
+			mode_arg++;
+			if( mode_arg < Req->argc ) mode_ptr = Req->argv[mode_arg];
+			else break;
+		}
+		
+		switch( *mode_ptr )
+		{
+			case '+':
+			case '-':
+				if((( *mode_ptr == '+' ) && ( ! set )) || (( *mode_ptr == '-' ) && ( set )))
+				{
+					/* Action modifier ("+"/"-") must be changed ... */
+					if(( the_modes[strlen( the_modes ) - 1] == '+' ) || ( the_modes[strlen( the_modes ) - 1] == '-' ))
+					{
+						/* Adjust last action modifier in result */
+						the_modes[strlen( the_modes ) - 1] = *mode_ptr;
+					}
+					else
+					{
+						/* Append modifier character to result string */
+						x[0] = *mode_ptr; strcat( the_modes, x );
+					}
+					if( *mode_ptr == '+' ) set = TRUE;
+					else set = FALSE;
+				}
+				continue;
+		}
+		
 		x[0] = '\0';
 		if( Client_Type( Client ) == CLIENT_SERVER )
 		{
-			/* Befehl kommt von einem Server, daher
-			 * trauen wir ihm "unbesehen" ... */
+			/* MODE request was received from a server:
+			 * therefore don't validate but trust it! */
 			x[0] = *mode_ptr;
 		}
 		else
 		{
-			/* Modes validieren */
-			if( cl )
+			/* Validate modes */
+			switch( *mode_ptr )
 			{
-				/* User-Modes */
-				switch( *mode_ptr )
-				{
-					case 'i':
-						/* invisible */
-						x[0] = 'i';
-						break;
-					case 'o':
-						/* operator (kann nur geloescht werden) */
-						if( ! set )
-						{
-							Client_SetOperByMe( Client, FALSE );
-							x[0] = 'o';
-						}
-						else ok = IRC_WriteStrClient( Client, ERR_NOPRIVILEGES_MSG, Client_ID( Client ));
-						break;
-					case 'r':
-						/* restricted (kann nur gesetzt werden) */
-						if( set ) x[0] = 'r';
-						else ok = IRC_WriteStrClient( Client, ERR_RESTRICTED_MSG, Client_ID( Client ));
-						break;
-					case 's':
-						/* server messages */
-						x[0] = 's';
-						break;
-					default:
-						Log( LOG_DEBUG, "Unknown mode \"%c%c\" from \"%s\"!?", set ? '+' : '-', *mode_ptr, Client_ID( Client ));
-						ok = IRC_WriteStrClient( Client, ERR_UMODEUNKNOWNFLAG2_MSG, Client_ID( Client ), set ? '+' : '-', *mode_ptr );
-						x[0] = '\0';
-				}
-			}
-			if( chan )
-			{
-				/* Ist der User ein Channel Operator? */
-				modeok = FALSE;
-				if( strchr( Channel_UserModes( chan, Client ), 'o' )) modeok = TRUE;
-				if( Conf_OperCanMode )
-				{
-					/* auch IRC-Operatoren duerfen MODE verwenden */
-					if( Client_OperByMe( Client )) modeok = TRUE;
-				}
-
-				if( ! modeok )
-				{
-					Log( LOG_DEBUG, "Can't change modes: \"%s\" is not operator on %s!", Client_ID( Client ), Channel_Name( chan ));
-					ok = IRC_WriteStrClient( Client, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Client ), Channel_Name( chan ));
+				case 'i':
+					/* Invisible */
+					x[0] = 'i';
 					break;
-				}
-				
-				/* Channel-Modes oder Channel-User-Modes */
-				if( chan_cl )
-				{
-					/* Channel-User-Modes */
-					switch( *mode_ptr )
+				case 'o':
+					/* IRC operator (only unsetable!) */
+					if( ! set )
 					{
-						case 'o':
-							/* Channel Operator */
-							x[0] = 'o';
-							break;
-						case 'v':
-							/* Voice */
-							x[0] = 'v';
-							break;
-						default:
-							Log( LOG_DEBUG, "Unknown channel-user-mode \"%c%c\" from \"%s\" on \"%s\" at %s!?", set ? '+' : '-', *mode_ptr, Client_ID( Client ), Client_ID( chan_cl ), Channel_Name( chan ));
-							ok = IRC_WriteStrClient( Client, ERR_UMODEUNKNOWNFLAG2_MSG, Client_ID( Client ), set ? '+' : '-', *mode_ptr );
-							x[0] = '\0';
+						Client_SetOperByMe( Target, FALSE );
+						x[0] = 'o';
 					}
-				}
-				else
-				{
-					/* Channel-Modes */
-					switch( *mode_ptr )
-					{
-						case 'i':
-							/* Invite-Only */
-							x[0] = 'i';
-							break;
-						case 'm':
-							/* Moderated */
-							x[0] = 'm';
-							break;
-						case 'n':
-							/* kein Schreiben in den Channel von aussen */
-							x[0] = 'n';
-							break;
-						case 't':
-							/* Topic Lock */
-							x[0] = 't';
-							break;
-						case 'P':
-							/* Persistent channel */
-							if( set && ( ! Client_OperByMe( Client )))
-							{
-								/* there are too many persistent channels in the network! */
-								ok = IRC_WriteStrClient( Client, ERR_NOPRIVILEGES_MSG, Client_ID( Client ));
-							}
-							else x[0] = 'P';
-							break;
-						default:
-							Log( LOG_DEBUG, "Unknown channel-mode \"%c%c\" from \"%s\" at %s!?", set ? '+' : '-', *mode_ptr, Client_ID( Client ), Channel_Name( chan ));
-							ok = IRC_WriteStrClient( Client, ERR_UMODEUNKNOWNFLAG2_MSG, Client_ID( Client ), set ? '+' : '-', *mode_ptr );
-							x[0] = '\0';
-					}
-				}
+					else ok = IRC_WriteStrClient( Origin, ERR_NOPRIVILEGES_MSG, Client_ID( Origin ));
+					break;
+				case 'r':
+					/* Restricted (only setable) */
+					if( set ) x[0] = 'r';
+					else ok = IRC_WriteStrClient( Origin, ERR_RESTRICTED_MSG, Client_ID( Origin ));
+					break;
+				case 's':
+					/* Server messages */
+					x[0] = 's';
+					break;
+				default:
+					Log( LOG_DEBUG, "Unknown mode \"%c%c\" from \"%s\"!?", set ? '+' : '-', *mode_ptr, Client_ID( Origin ));
+					ok = IRC_WriteStrClient( Origin, ERR_UMODEUNKNOWNFLAG2_MSG, Client_ID( Origin ), set ? '+' : '-', *mode_ptr );
+					x[0] = '\0';
 			}
 		}
 		if( ! ok ) break;
-		
-		mode_ptr++;
+
+		/* Is there a valid mode change? */
 		if( ! x[0] ) continue;
 
-		/* Okay, gueltigen Mode gefunden */
-		if( cl )
+		if( set )
 		{
-			/* Es geht um User-Modes */
-			if( set )
-			{
-				/* Mode setzen. Wenn der Client ihn noch nicht hatte: merken */
-				if( Client_ModeAdd( cl, x[0] )) strcat( the_modes, x );
-				
-			}
-			else
-			{
-				/* Modes geloescht. Wenn der Client ihn hatte: merken */
-				if( Client_ModeDel( cl, x[0] )) strcat( the_modes, x );
-			}
+			/* Set mode */
+			if( Client_ModeAdd( Target, x[0] )) strcat( the_modes, x );
 
-			/* "nachbearbeiten" */
-			if( x[0] == 'a' )
-			{
-				/* away */
-				if( set ) Client_SetAway( cl, DEFAULT_AWAY_MSG );
-				else Client_SetAway( cl, NULL );
-			}
 		}
-		if( chan )
+		else
 		{
-			/* Es geht um Channel-Modes oder Channel-User-Modes */
-			if( chan_cl )
-			{
-				/* Channel-User-Modes */
-				if( set )
-				{
-					/* Mode setzen. Wenn der Channel ihn noch nicht hatte: merken */
-					if( Channel_UserModeAdd( chan, chan_cl, x[0] )) strcat( the_modes, x );
-				}
-				else
-				{
-					/* Mode setzen. Wenn der Channel ihn noch nicht hatte: merken */
-					if( Channel_UserModeDel( chan, chan_cl, x[0] )) strcat( the_modes, x );
-				}
-			}
-			else
-			{
-				/* Channel-Mode */
-				if( set )
-				{
-					/* Mode setzen. Wenn der Channel ihn noch nicht hatte: merken */
-					if( Channel_ModeAdd( chan, x[0] )) strcat( the_modes, x );
-				}
-				else
-				{
-					/* Mode setzen. Wenn der Channel ihn noch nicht hatte: merken */
-					if( Channel_ModeDel( chan, x[0] )) strcat( the_modes, x );
-				}
-			}
-		}
+			/* Unset mode */
+			if( Client_ModeDel( Target, x[0] )) strcat( the_modes, x );
+		}		
 	}
 
-	/* Wurden Modes geaendert? */
+	/* Are there changed modes? */
 	if( the_modes[1] )
 	{
-		if( cl )
+		/* Remoce needless action modifier characters */
+		if(( the_modes[strlen( the_modes ) - 1] == '+' ) || ( the_modes[strlen( the_modes ) - 1] == '-' )) the_modes[strlen( the_modes ) - 1] = '\0';
+
+		if( Client_Type( Client ) == CLIENT_SERVER )
 		{
-			/* Client-Mode */
-			if( Client_Type( Client ) == CLIENT_SERVER )
-			{
-				/* Modes an andere Server forwarden */
-				IRC_WriteStrServersPrefix( Client, prefix, "MODE %s :%s", Client_ID( cl ), the_modes );
-			}
-			else
-			{
-				/* Bestaetigung an Client schicken & andere Server informieren */
-				ok = IRC_WriteStrClientPrefix( Client, prefix, "MODE %s %s", Client_ID( cl ), the_modes );
-				IRC_WriteStrServersPrefix( Client, prefix, "MODE %s :%s", Client_ID( cl ), the_modes );
-			}
-			Log( LOG_DEBUG, "User \"%s\": Mode change, now \"%s\".", Client_Mask( cl ), Client_Modes( cl ));
+			/* Forward modes to other servers */
+			IRC_WriteStrServersPrefix( Client, Origin, "MODE %s :%s", Client_ID( Target ), the_modes );
 		}
-		if( chan )
+		else
 		{
-			/* Channel-Modes oder Channel-User-Mode */
-			if( chan_cl )
+			/* Send reply to client and inform other servers */
+			ok = IRC_WriteStrClientPrefix( Client, Origin, "MODE %s %s", Client_ID( Target ), the_modes );
+			IRC_WriteStrServersPrefix( Client, Origin, "MODE %s :%s", Client_ID( Target ), the_modes );
+		}
+		Log( LOG_DEBUG, "User \"%s\": Mode change, now \"%s\".", Client_Mask( Target ), Client_Modes( Target ));
+	}
+		
+	return ok;
+} /* Client_Mode */
+
+
+LOCAL BOOLEAN
+Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
+{
+	/* Handle channel and channel-user modes */
+
+	CHAR the_modes[COMMAND_LEN], the_args[COMMAND_LEN], x[2], *mode_ptr;
+	BOOLEAN ok, set, modeok, skiponce;
+	INT mode_arg, arg_arg;
+	CLIENT *client;
+
+	/* Mode request: let's answer it :-) */
+	if( Req->argc == 1 ) return IRC_WriteStrClient( Origin, RPL_CHANNELMODEIS_MSG, Client_ID( Origin ), Channel_Name( Channel ), Channel_Modes( Channel ));
+
+	/* Is the user allowed to change modes? */
+	if( Client_Type( Client ) == CLIENT_USER )
+	{
+		if( strchr( Channel_UserModes( Channel, Origin ), 'o' )) modeok = TRUE;
+		else modeok = FALSE;
+		if( Conf_OperCanMode )
+		{
+			/* auch IRC-Operatoren duerfen MODE verwenden */
+			if( Client_OperByMe( Origin )) modeok = TRUE;
+		}
+	}
+	else modeok = TRUE;
+
+	mode_arg = 1;
+	mode_ptr = Req->argv[mode_arg];
+	if( Req->argc > mode_arg + 1 ) arg_arg = mode_arg + 1;
+	else arg_arg = -1;
+
+	/* Initial state: set or unset modes? */
+	skiponce = FALSE;
+	if( *mode_ptr == '-' ) set = FALSE;
+	else if( *mode_ptr == '+' ) set = TRUE;
+	else set = skiponce = TRUE;
+
+	/* Prepare reply string */
+	if( set ) strcpy( the_modes, "+" );
+	else strcpy( the_modes, "-" );
+	strcpy( the_args, " " );
+
+	x[1] = '\0';
+	ok = CONNECTED;
+	while( mode_ptr )
+	{
+		if( ! skiponce ) mode_ptr++;
+		if( ! *mode_ptr )
+		{
+			/* Try next argument if there's any */
+			if( arg_arg > mode_arg ) mode_arg = arg_arg;
+			else mode_arg++;
+			if( mode_arg < Req->argc ) mode_ptr = Req->argv[mode_arg];
+			else break;
+			if( Req->argc > mode_arg + 1 ) arg_arg = mode_arg + 1;
+			else arg_arg = -1;
+		}
+		skiponce = FALSE;
+
+		switch( *mode_ptr )
+		{
+			case '+':
+			case '-':
+				if((( *mode_ptr == '+' ) && ( ! set )) || (( *mode_ptr == '-' ) && ( set )))
+				{
+					/* Action modifier ("+"/"-") must be changed ... */
+					if(( the_modes[strlen( the_modes ) - 1] == '+' ) || ( the_modes[strlen( the_modes ) - 1] == '-' ))
+					{
+						/* Adjust last action modifier in result */
+						the_modes[strlen( the_modes ) - 1] = *mode_ptr;
+					}
+					else
+					{
+						/* Append modifier character to result string */
+						x[0] = *mode_ptr; strcat( the_modes, x );
+					}
+					if( *mode_ptr == '+' ) set = TRUE;
+					else set = FALSE;
+				}
+				continue;
+		}
+
+		/* Are there arguments left? */
+		if( arg_arg >= Req->argc ) arg_arg = -1;
+
+		x[0] = '\0';
+		client = NULL;
+		if( Client_Type( Client ) == CLIENT_SERVER )
+		{
+			/* MODE request was received from a server:
+			 * therefore don't validate but trust it! */
+			x[0] = *mode_ptr;
+		}
+		else
+		{
+			/* Validate modes */
+			switch( *mode_ptr )
+			{
+				/* Channel modes */
+				case 'i':
+					/* Invite-Only */
+					if( modeok ) x[0] = 'i';
+					else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
+					break;
+				case 'm':
+					/* Moderated */
+					if( modeok ) x[0] = 'm';
+					else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
+					break;
+				case 'n':
+					/* kein Schreiben in den Channel von aussen */
+					if( modeok ) x[0] = 'n';
+					else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
+					break;
+				case 't':
+					/* Topic Lock */
+					if( modeok ) x[0] = 't';
+					else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
+					break;
+				case 'P':
+					/* Persistent channel */
+					if( modeok )
+					{
+						if( set && ( ! Client_OperByMe( Client )))
+						{
+							/* Only IRC operators are allowed to set P mode */
+							ok = IRC_WriteStrClient( Origin, ERR_NOPRIVILEGES_MSG, Client_ID( Origin ));
+						}
+						else x[0] = 'P';
+					}
+					else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
+					break;
+
+				/* Channel user modes */
+				case 'o':
+					/* Channel operator */
+				case 'v':
+					/* Voice */
+					if( arg_arg > mode_arg )
+					{
+						if( modeok )
+						{
+							client = Client_Search( Req->argv[arg_arg] );
+							if( client ) x[0] = *mode_ptr;
+							else ok = IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->argv[arg_arg] );
+						}
+						else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
+						arg_arg++;
+					}
+					else ok = IRC_WriteStrClient( Origin, ERR_NEEDMOREPARAMS_MSG, Client_ID( Origin ), Req->command );
+					break;
+
+				/* Channel lists */
+				case 'I':
+					/* Invite lists */
+					if( arg_arg > mode_arg )
+					{
+						/* modify list */
+						if( modeok )
+						{
+							if( set ) Add_Invite( Origin, Client, Channel, Req->argv[arg_arg] );
+							else Del_Invite( Origin, Client, Channel, Req->argv[arg_arg] );
+						}
+						else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
+						arg_arg++;
+					}
+					else Lists_ShowInvites( Origin, Channel );
+					break;
+				case 'b':
+					/* Ban lists */
+					if( arg_arg > mode_arg )
+					{
+						/* modify list */
+						if( modeok )
+						{
+							if( set ) Add_Ban( Origin, Client, Channel, Req->argv[arg_arg] );
+							else Del_Ban( Origin, Client, Channel, Req->argv[arg_arg] );
+						}
+						else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
+						arg_arg++;
+					}
+					else Lists_ShowBans( Origin, Channel );
+					break;
+
+				default:
+					Log( LOG_DEBUG, "Unknown mode \"%c%c\" from \"%s\" on %s!?", set ? '+' : '-', *mode_ptr, Client_ID( Origin ), Channel_Name( Channel ));
+					ok = IRC_WriteStrClient( Origin, ERR_UMODEUNKNOWNFLAG2_MSG, Client_ID( Origin ), set ? '+' : '-', *mode_ptr );
+					x[0] = '\0';
+			}
+		}
+		if( ! ok ) break;
+
+		/* Is there a valid mode change? */
+		if( ! x[0] ) continue;
+
+		if( set )
+		{
+			/* Set mode */
+			if( client )
 			{
 				/* Channel-User-Mode */
-				if( Client_Type( Client ) == CLIENT_SERVER )
+				if( Channel_UserModeAdd( Channel, client, x[0] ))
 				{
-					/* Modes an andere Server und Channel-User forwarden */
-					IRC_WriteStrServersPrefix( Client, prefix, "MODE %s %s :%s", Channel_Name( chan ), the_modes, Client_ID( chan_cl));
-					IRC_WriteStrChannelPrefix( Client, chan, prefix, FALSE, "MODE %s %s %s", Channel_Name( chan ), the_modes, Client_ID( chan_cl));
+					strcat( the_modes, x );
+					strcat( the_args, Client_ID( client ));
+					strcat( the_args, " " );
 				}
-				else
-				{
-					/* Bestaetigung an Client schicken & andere Server sowie Channel-User informieren */
-					ok = IRC_WriteStrClientPrefix( Client, prefix, "MODE %s %s %s", Channel_Name( chan ), the_modes, Client_ID( chan_cl));
-					IRC_WriteStrServersPrefix( Client, prefix, "MODE %s %s :%s", Channel_Name( chan ), the_modes, Client_ID( chan_cl));
-					IRC_WriteStrChannelPrefix( Client, chan, prefix, FALSE, "MODE %s %s %s", Channel_Name( chan ), the_modes, Client_ID( chan_cl));
-				}
-				Log( LOG_DEBUG, "User \"%s\" on %s: Mode change, now \"%s\".", Client_Mask( chan_cl), Channel_Name( chan ), Channel_UserModes( chan, chan_cl ));
 			}
 			else
 			{
 				/* Channel-Mode */
-				if( Client_Type( Client ) == CLIENT_SERVER )
-				{
-					/* Modes an andere Server und Channel-User forwarden */
-					IRC_WriteStrServersPrefix( Client, prefix, "MODE %s :%s", Channel_Name( chan ), the_modes );
-					IRC_WriteStrChannelPrefix( Client, chan, prefix, FALSE, "MODE %s %s", Channel_Name( chan ), the_modes );
-				}
-				else
-				{
-					/* Bestaetigung an Client schicken & andere Server sowie Channel-User informieren */
-					ok = IRC_WriteStrClientPrefix( Client, prefix, "MODE %s %s", Channel_Name( chan ), the_modes );
-					IRC_WriteStrServersPrefix( Client, prefix, "MODE %s :%s", Channel_Name( chan ), the_modes );
-					IRC_WriteStrChannelPrefix( Client, chan, prefix, FALSE, "MODE %s %s", Channel_Name( chan ), the_modes );
-				}
-				Log( LOG_DEBUG, "Channel \"%s\": Mode change, now \"%s\".", Channel_Name( chan ), Channel_Modes( chan ));
+				if( Channel_ModeAdd( Channel, x[0] )) strcat( the_modes, x );
 			}
 		}
+		else
+		{
+			/* Unset mode */
+			if( client )
+			{
+				/* Channel-User-Mode */
+				if( Channel_UserModeDel( Channel, client, x[0] ))
+				{
+					strcat( the_modes, x );
+					strcat( the_args, Client_ID( client ));
+					strcat( the_args, " " );
+				}
+			}
+			else
+			{
+				/* Channel-Mode */
+				if( Channel_ModeDel( Channel, x[0] )) strcat( the_modes, x );
+			}
+		}		
 	}
 
-	return ok;
-} /* IRC_MODE */
+	/* Are there changed modes? */
+	if( the_modes[1] )
+	{
+		/* Clean up argument string if there are none */
+		if( ! the_args[1] ) the_args[0] = '\0';
+
+		if( Client_Type( Client ) == CLIENT_SERVER )
+		{
+			/* Forward mode changes to channel users and other servers */
+			IRC_WriteStrServersPrefix( Client, Origin, "MODE %s %s%s", Channel_Name( Channel ), the_modes, the_args );
+			IRC_WriteStrChannelPrefix( Client, Channel, Origin, FALSE, "MODE %s %s%s", Channel_Name( Channel ), the_modes, the_args );
+		}
+		else
+		{
+			/* Send reply to client and inform other servers and channel users */
+			ok = IRC_WriteStrClientPrefix( Client, Origin, "MODE %s %s%s", Channel_Name( Channel ), the_modes, the_args );
+			IRC_WriteStrServersPrefix( Client, Origin, "MODE %s %s%s", Channel_Name( Channel ), the_modes, the_args );
+			IRC_WriteStrChannelPrefix( Client, Channel, Origin, FALSE, "MODE %s %s%s", Channel_Name( Channel ), the_modes, the_args );
+		}
+		Log( LOG_DEBUG, "User \"%s\" changes modes on %s: %s%s", Client_ID( Origin ), Channel_Name( Channel ), the_modes, the_args );
+	}
+
+	return CONNECTED;
+} /* Channel_Mode */
 
 
 GLOBAL BOOLEAN

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.23 2002/01/05 23:26:05 alex Exp $
+ * $Id: client.c,v 1.24 2002/01/06 15:18:14 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,9 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.24  2002/01/06 15:18:14  alex
+ * - Loglevel und Meldungen nochmals geaendert. Level passen nun besser.
+ *
  * Revision 1.23  2002/01/05 23:26:05  alex
  * - Vorbereitungen fuer Ident-Abfragen in Client-Strukturen.
  *
@@ -115,6 +118,7 @@
 #include "client.h"
 
 #include <imp.h>
+#include "ngircd.h"
 #include "channel.h"
 #include "conf.h"
 #include "conn.h"
@@ -166,7 +170,7 @@ GLOBAL VOID Client_Exit( VOID )
 	CLIENT *c, *next;
 	INT cnt;
 
-	Client_Destroy( This_Server );
+	Client_Destroy( This_Server, "Server going down.", NULL );
 	
 	cnt = 0;
 	c = My_Clients;
@@ -178,7 +182,7 @@ GLOBAL VOID Client_Exit( VOID )
 		c = next;
 	}
 	if( cnt ) Log( LOG_INFO, "Freed %d client structure%s.", cnt, cnt == 1 ? "" : "s" );
-} /* Client Exit */
+} /* Client_Exit */
 
 
 GLOBAL CLIENT *Client_ThisServer( VOID )
@@ -239,13 +243,18 @@ GLOBAL CLIENT *Client_New( CONN_ID Idx, CLIENT *Introducer, INT Type, CHAR *ID, 
 } /* Client_New */
 
 
-GLOBAL VOID Client_Destroy( CLIENT *Client )
+GLOBAL VOID Client_Destroy( CLIENT *Client, CHAR *LogMsg, CHAR *FwdMsg )
 {
 	/* Client entfernen. */
 	
 	CLIENT *last, *c;
+	CHAR *txt;
 
 	assert( Client != NULL );
+
+	if( LogMsg ) txt = LogMsg;
+	else txt = FwdMsg;
+	if( ! txt ) txt = "Reason unknown.";
 
 	last = NULL;
 	c = My_Clients;
@@ -253,7 +262,7 @@ GLOBAL VOID Client_Destroy( CLIENT *Client )
 	{
 		if(( Client->type == CLIENT_SERVER ) && ( c->introducer == Client ) && ( c != Client ))
 		{
-			Client_Destroy( c );
+			Client_Destroy( c, LogMsg, FwdMsg );
 			last = NULL;
 			c = My_Clients;
 			continue;
@@ -268,13 +277,21 @@ GLOBAL VOID Client_Destroy( CLIENT *Client )
 				if( c->conn_id != NONE )
 				{
 					/* Ein lokaler User. Andere Server informieren! */
-					Log( LOG_NOTICE, "User \"%s\" exited (connection %d).", c->id, c->conn_id );
-					IRC_WriteStrServersPrefix( NULL, c, "QUIT :" );
+					Log( LOG_NOTICE, "User \"%s\" unregistered (connection %d): %s", c->id, c->conn_id, txt );
+
+					if( FwdMsg ) IRC_WriteStrServersPrefix( NULL, c, "QUIT :%s", FwdMsg );
+					else IRC_WriteStrServersPrefix( NULL, c, "QUIT :" );
 				}
-				else Log( LOG_DEBUG, "User \"%s\" exited.", c->id );
+				else
+				{
+					Log( LOG_DEBUG, "User \"%s\" unregistered: %s", c->id, txt );
+				}
 			}
-			else if( c->type == CLIENT_SERVER ) Log( LOG_NOTICE, "Server \"%s\" exited.", c->id );
-			else Log( LOG_NOTICE, "Unknown client \"%s\" exited.", c->id );
+			else if( c->type == CLIENT_SERVER )
+			{
+				if( c != This_Server ) Log( LOG_NOTICE, "Server \"%s\" unregistered: %s", c->id, txt );
+			}
+			else Log( LOG_NOTICE, "Unknown client \"%s\" unregistered: %s", c->id, txt );
 
 			free( c );
 			break;
@@ -661,8 +678,8 @@ GLOBAL BOOLEAN Client_CheckID( CLIENT *Client, CHAR *ID )
 		{
 			/* die Server-ID gibt es bereits */
 			sprintf( str, "ID \"%s\" already registered!", ID );
-			Log( LOG_ALERT, "%s (on connection %d)", str, Client->conn_id );
-			Conn_Close( Client->conn_id, str );
+			Log( LOG_ERR, "%s (on connection %d)", str, Client->conn_id );
+			Conn_Close( Client->conn_id, str, str, TRUE );
 			return FALSE;
 		}
 		c = c->next;

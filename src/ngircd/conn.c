@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.32 2002/01/05 23:25:25 alex Exp $
+ * $Id: conn.c,v 1.33 2002/01/06 15:18:14 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
+ * Revision 1.33  2002/01/06 15:18:14  alex
+ * - Loglevel und Meldungen nochmals geaendert. Level passen nun besser.
+ *
  * Revision 1.32  2002/01/05 23:25:25  alex
  * - Vorbereitungen fuer Ident-Abfragen bei neuen Client-Strukturen.
  *
@@ -242,6 +245,7 @@ GLOBAL VOID Conn_Exit( VOID )
 	INT i;
 
 	/* Sockets schliessen */
+	Log( LOG_DEBUG, "Shutting down all connections ..." );
 	for( i = 0; i < My_Max_Fd + 1; i++ )
 	{
 		if( FD_ISSET( i, &My_Sockets ))
@@ -250,11 +254,11 @@ GLOBAL VOID Conn_Exit( VOID )
 			{
 				if( My_Connections[idx].sock == i ) break;
 			}
-			if( idx < MAX_CONNECTIONS ) Conn_Close( idx, "Server going down ..." );
+			if( idx < MAX_CONNECTIONS ) Conn_Close( idx, NULL, "Server going down", TRUE );
 			else if( FD_ISSET( i, &My_Listeners ))
 			{
 				close( i );
-				Log( LOG_INFO, "Listening socket %d closed.", i );
+				Log( LOG_DEBUG, "Listening socket %d closed.", i );
 			}
 			else
 			{
@@ -285,27 +289,27 @@ GLOBAL BOOLEAN Conn_NewListener( CONST INT Port )
 	sock = socket( PF_INET, SOCK_STREAM, 0);
 	if( sock < 0 )
 	{
-		Log( LOG_ALERT, "Can't create socket: %s!", strerror( errno ));
+		Log( LOG_CRIT, "Can't create socket: %s!", strerror( errno ));
 		return FALSE;
 	}
 
 	/* Socket-Optionen setzen */
 	if( fcntl( sock, F_SETFL, O_NONBLOCK ) != 0 )
 	{
-		Log( LOG_ALERT, "Can't enable non-blocking mode: %s!", strerror( errno ));
+		Log( LOG_CRIT, "Can't enable non-blocking mode: %s!", strerror( errno ));
 		close( sock );
 		return FALSE;
 	}
 	if( setsockopt( sock, SOL_SOCKET, SO_REUSEADDR, &on, (socklen_t)sizeof( on )) != 0)
 	{
-		Log( LOG_CRIT, "Can't set socket options: %s!", strerror( errno ));
+		Log( LOG_ERR, "Can't set socket options: %s!", strerror( errno ));
 		/* dieser Fehler kann ignoriert werden. */
 	}
 
 	/* an Port binden */
 	if( bind( sock, (struct sockaddr *)&addr, (socklen_t)sizeof( addr )) != 0 )
 	{
-		Log( LOG_ALERT, "Can't bind socket: %s!", strerror( errno ));
+		Log( LOG_CRIT, "Can't bind socket: %s!", strerror( errno ));
 		close( sock );
 		return FALSE;
 	}
@@ -313,7 +317,7 @@ GLOBAL BOOLEAN Conn_NewListener( CONST INT Port )
 	/* in "listen mode" gehen :-) */
 	if( listen( sock, 10 ) != 0 )
 	{
-		Log( LOG_ALERT, "Can't listen on soecket: %s!", strerror( errno ));
+		Log( LOG_CRIT, "Can't listen on soecket: %s!", strerror( errno ));
 		close( sock );
 		return FALSE;
 	}
@@ -404,7 +408,7 @@ GLOBAL VOID Conn_Handler( INT Timeout )
 		{
 			if( errno != EINTR )
 			{
-				Log( LOG_ALERT, "select(): %s!", strerror( errno ));
+				Log( LOG_EMERG, "select(): %s!", strerror( errno ));
 				Log( LOG_ALERT, PACKAGE" exiting due to fatal errors!" );
 				exit( 1 );
 			}
@@ -439,8 +443,8 @@ GLOBAL BOOLEAN Conn_WriteStr( CONN_ID Idx, CHAR *Format, ... )
 	va_start( ap, Format );
 	if( vsnprintf( buffer, COMMAND_LEN - 2, Format, ap ) == COMMAND_LEN - 2 )
 	{
-		Log( LOG_ALERT, "String too long to send (connection %d)!", Idx );
-		Conn_Close( Idx, "Server error: String too long to send!" );
+		Log( LOG_CRIT, "Text too long to send (connection %d)!", Idx );
+		Conn_Close( Idx, "Text too long to send!", NULL, FALSE );
 		return FALSE;
 	}
 
@@ -478,7 +482,7 @@ GLOBAL BOOLEAN Conn_Write( CONN_ID Idx, CHAR *Data, INT Len )
 	{
 		/* der Puffer ist dummerweise voll ... */
 		Log( LOG_NOTICE, "Write buffer overflow (connection %d)!", Idx );
-		Conn_Close( Idx, NULL );
+		Conn_Close( Idx, "Write buffer overflow!", NULL, FALSE );
 		return FALSE;
 	}
 
@@ -496,7 +500,7 @@ GLOBAL BOOLEAN Conn_Write( CONN_ID Idx, CHAR *Data, INT Len )
 } /* Conn_Write */
 
 
-GLOBAL VOID Conn_Close( CONN_ID Idx, CHAR *Msg )
+GLOBAL VOID Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient )
 {
 	/* Verbindung schliessen. Evtl. noch von Resolver
 	 * Sub-Prozessen offene Pipes werden geschlossen. */
@@ -506,9 +510,10 @@ GLOBAL VOID Conn_Close( CONN_ID Idx, CHAR *Msg )
 	assert( Idx >= 0 );
 	assert( My_Connections[Idx].sock > NONE );
 
-	if( Msg )
+	if( InformClient )
 	{
-		Conn_WriteStr( Idx, "ERROR :%s", Msg );
+		if( FwdMsg ) Conn_WriteStr( Idx, "ERROR :%s", FwdMsg );
+		else Conn_WriteStr( Idx, "ERROR :Closing connection." );
 		if( My_Connections[Idx].sock == NONE ) return;
 	}
 
@@ -522,7 +527,7 @@ GLOBAL VOID Conn_Close( CONN_ID Idx, CHAR *Msg )
 	}
 
 	c = Client_GetFromConn( Idx );
-	if( c ) Client_Destroy( c );
+	if( c ) Client_Destroy( c, LogMsg, FwdMsg );
 
 	if( My_Connections[Idx].res_stat )
 	{
@@ -577,8 +582,8 @@ LOCAL BOOLEAN Try_Write( CONN_ID Idx )
 		/* Fehler! */
 		if( errno != EINTR )
 		{
-			Log( LOG_ALERT, "select(): %s!", strerror( errno ));
-			Conn_Close( Idx, NULL );
+			Log( LOG_ALERT, "select() failed: %s!", strerror( errno ));
+			Conn_Close( Idx, "Server error!", NULL, FALSE );
 			return FALSE;
 		}
 	}
@@ -637,8 +642,8 @@ LOCAL BOOLEAN Handle_Write( CONN_ID Idx )
 	if( len < 0 )
 	{
 		/* Oops, ein Fehler! */
-		Log( LOG_ALERT, "Write error (buffer) on connection %d: %s!", Idx, strerror( errno ));
-		Conn_Close( Idx, NULL );
+		Log( LOG_ERR, "Write error (buffer) on connection %d: %s!", Idx, strerror( errno ));
+		Conn_Close( Idx, "Write error (buffer)!", NULL, FALSE );
 		return FALSE;
 	}
 
@@ -741,8 +746,8 @@ LOCAL VOID Read_Request( CONN_ID Idx )
 	if( READBUFFER_LEN - My_Connections[Idx].rdatalen - 2 < 0 )
 	{
 		/* Der Lesepuffer ist voll */
-		Log( LOG_ALERT, "Read buffer overflow (connection %d): %d bytes!", Idx, My_Connections[Idx].rdatalen );
-		Conn_Close( Idx, "Read buffer overflow!" );
+		Log( LOG_ERR, "Read buffer overflow (connection %d): %d bytes!", Idx, My_Connections[Idx].rdatalen );
+		Conn_Close( Idx, "Read buffer overflow!", NULL, FALSE );
 		return;
 	}
 
@@ -752,15 +757,15 @@ LOCAL VOID Read_Request( CONN_ID Idx )
 	{
 		/* Socket wurde geschlossen */
 		Log( LOG_INFO, "%s:%d is closing the connection ...", inet_ntoa( My_Connections[Idx].addr.sin_addr ), ntohs( My_Connections[Idx].addr.sin_port));
-		Conn_Close( Idx, NULL );
+		Conn_Close( Idx, "Socket closed.", NULL, FALSE );
 		return;
 	}
 
 	if( len < 0 )
 	{
 		/* Fehler beim Lesen */
-		Log( LOG_ALERT, "Read error on connection %d: %s!", Idx, strerror( errno ));
-		Conn_Close( Idx, NULL );
+		Log( LOG_ERR, "Read error on connection %d: %s!", Idx, strerror( errno ));
+		Conn_Close( Idx, "Read error!", NULL, FALSE );
 		return;
 	}
 
@@ -812,8 +817,8 @@ LOCAL VOID Handle_Buffer( CONN_ID Idx )
 			/* Eine Anfrage darf(!) nicht laenger als 512 Zeichen
 			* (incl. CR+LF!) werden; vgl. RFC 2812. Wenn soetwas
 			* empfangen wird, wird der Client disconnectiert. */
-			Log( LOG_ALERT, "Request too long (connection %d): %d bytes!", Idx, My_Connections[Idx].rdatalen );
-			Conn_Close( Idx, "Request too long!" );
+			Log( LOG_ERR, "Request too long (connection %d): %d bytes!", Idx, My_Connections[Idx].rdatalen );
+			Conn_Close( Idx, NULL, "Request too long", TRUE );
 			return;
 		}
 		
@@ -853,8 +858,8 @@ LOCAL VOID Check_Connections( VOID )
 				if( My_Connections[i].lastping < time( NULL ) - Conf_PongTimeout )
 				{
 					/* Timeout */
-					Log( LOG_INFO, "Connection %d: PING timeout.", i );
-					Conn_Close( i, "PING timeout" );
+					Log( LOG_DEBUG, "Connection %d: Ping timeout.", i );
+					Conn_Close( i, NULL, "Ping timeout", TRUE );
 				}
 			}
 			else if( My_Connections[i].lastdata < time( NULL ) - Conf_PingTimeout )
@@ -872,7 +877,7 @@ LOCAL VOID Check_Connections( VOID )
 			{
 				/* Timeout */
 				Log( LOG_INFO, "Connection %d: Timeout.", i );
-				Conn_Close( i, "Timeout" );
+				Conn_Close( i, NULL, "Timeout", TRUE );
 			}
 		}
 	}
@@ -982,14 +987,14 @@ LOCAL VOID New_Server( INT Server, CONN_ID Idx )
 	if ( new_sock < 0 )
 	{
 		Init_Conn_Struct( Idx );
-		Log( LOG_ALERT, "Can't create socket: %s!", strerror( errno ));
+		Log( LOG_CRIT, "Can't create socket: %s!", strerror( errno ));
 		return;
 	}
 	if( connect( new_sock, (struct sockaddr *)&new_addr, sizeof( new_addr )) < 0)
 	{
 		close( new_sock );
 		Init_Conn_Struct( Idx );
-		Log( LOG_ALERT, "Can't connect socket: %s!", strerror( errno ));
+		Log( LOG_CRIT, "Can't connect socket: %s!", strerror( errno ));
 		return;
 	}
 
@@ -1050,7 +1055,7 @@ LOCAL RES_STAT *ResolveAddr( struct sockaddr_in *Addr )
 	s = malloc( sizeof( RES_STAT ));
 	if( ! s )
 	{
-		Log( LOG_ALERT, "Resolver: Can't alloc memory!" );
+		Log( LOG_EMERG, "Resolver: Can't allocate memory!" );
 		return NULL;
 	}
 
@@ -1085,7 +1090,7 @@ LOCAL RES_STAT *ResolveAddr( struct sockaddr_in *Addr )
 	{
 		/* Fehler */
 		free( s );
-		Log( LOG_ALERT, "Resolver: Can't fork: %s!", strerror( errno ));
+		Log( LOG_CRIT, "Resolver: Can't fork: %s!", strerror( errno ));
 		return NULL;
 	}
 } /* ResolveAddr */
@@ -1104,7 +1109,7 @@ LOCAL RES_STAT *ResolveName( CHAR *Host )
 	s = malloc( sizeof( RES_STAT ));
 	if( ! s )
 	{
-		Log( LOG_ALERT, "Resolver: Can't alloc memory!" );
+		Log( LOG_EMERG, "Resolver: Can't allocate memory!" );
 		return NULL;
 	}
 
@@ -1139,7 +1144,7 @@ LOCAL RES_STAT *ResolveName( CHAR *Host )
 	{
 		/* Fehler */
 		free( s );
-		Log( LOG_ALERT, "Resolver: Can't fork: %s!", strerror( errno ));
+		Log( LOG_CRIT, "Resolver: Can't fork: %s!", strerror( errno ));
 		return NULL;
 	}
 } /* ResolveName */
@@ -1166,7 +1171,7 @@ LOCAL VOID Do_ResolveAddr( struct sockaddr_in *Addr, INT w_fd )
 	/* Antwort an Parent schreiben */
 	if( write( w_fd, hostname, strlen( hostname ) + 1 ) != ( strlen( hostname ) + 1 ))
 	{
-		Log_Resolver( LOG_ALERT, "Resolver: Can't write to parent: %s!", strerror( errno ));
+		Log_Resolver( LOG_CRIT, "Resolver: Can't write to parent: %s!", strerror( errno ));
 		close( w_fd );
 		return;
 	}
@@ -1201,7 +1206,7 @@ LOCAL VOID Do_ResolveName( CHAR *Host, INT w_fd )
 	/* Antwort an Parent schreiben */
 	if( write( w_fd, ip, strlen( ip ) + 1 ) != ( strlen( ip ) + 1 ))
 	{
-		Log_Resolver( LOG_ALERT, "Resolver: Can't write to parent: %s!", strerror( errno ));
+		Log_Resolver( LOG_CRIT, "Resolver: Can't write to parent: %s!", strerror( errno ));
 		close( w_fd );
 		return;
 	}
@@ -1227,7 +1232,7 @@ LOCAL VOID Read_Resolver_Result( INT r_fd )
 	{
 		/* Fehler beim Lesen aus der Pipe */
 		close( r_fd );
-		Log( LOG_ALERT, "Resolver: Can't read result: %s!", strerror( errno ));
+		Log( LOG_CRIT, "Resolver: Can't read result: %s!", strerror( errno ));
 		return;
 	}
 	result[len] = '\0';

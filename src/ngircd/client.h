@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.h,v 1.16 2002/01/05 23:26:05 alex Exp $
+ * $Id: client.h,v 1.17 2002/01/06 15:18:14 alex Exp $
  *
  * client.h: Konfiguration des ngircd (Header)
  *
  * $Log: client.h,v $
+ * Revision 1.17  2002/01/06 15:18:14  alex
+ * - Loglevel und Meldungen nochmals geaendert. Level passen nun besser.
+ *
  * Revision 1.16  2002/01/05 23:26:05  alex
  * - Vorbereitungen fuer Ident-Abfragen in Client-Strukturen.
  *
@@ -120,7 +123,7 @@ GLOBAL CLIENT *Client_NewRemoteServer( CLIENT *Introducer, CHAR *Hostname, INT H
 GLOBAL CLIENT *Client_NewRemoteUser( CLIENT *Introducer, CHAR *Nick, INT Hops, CHAR *User, CHAR *Hostname, INT Token, CHAR *Modes, CHAR *Info, BOOLEAN Idented );
 GLOBAL CLIENT *Client_New( CONN_ID Idx, CLIENT *Introducer, INT Type, CHAR *ID, CHAR *User, CHAR *Hostname, CHAR *Info, INT Hops, INT Token, CHAR *Modes, BOOLEAN Idented );
 
-GLOBAL VOID Client_Destroy( CLIENT *Client );
+GLOBAL VOID Client_Destroy( CLIENT *Client, CHAR *LogMsg, CHAR *FwdMsg );
 
 GLOBAL CLIENT *Client_ThisServer( VOID );
 

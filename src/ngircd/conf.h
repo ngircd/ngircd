@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conf.h,v 1.29 2004/05/07 11:19:21 alex Exp $
+ * $Id: conf.h,v 1.28.2.1 2004/05/07 11:24:18 alex Exp $
  *
  * Configuration management (header)
  */

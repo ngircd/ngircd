@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: defines.h,v 1.46 2004/05/07 11:19:21 alex Exp $
+ * $Id: defines.h,v 1.45.2.1 2004/05/07 11:24:18 alex Exp $
  *
  * Global defines of ngIRCd.
  */

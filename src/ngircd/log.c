@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: log.c,v 1.7 2001/12/25 22:04:26 alex Exp $
+ * $Id: log.c,v 1.8 2001/12/25 23:13:00 alex Exp $
  *
  * log.c: Logging-Funktionen
  *
  * $Log: log.c,v $
+ * Revision 1.8  2001/12/25 23:13:00  alex
+ * - Versionsstring bei Programmstart verbessert.
+ *
  * Revision 1.7  2001/12/25 22:04:26  alex
  * - Aenderungen an den Debug- und Logging-Funktionen.
  *
@@ -55,8 +58,23 @@
 
 GLOBAL VOID Log_Init( VOID )
 {
+	CHAR txt[64];
+
+	strcpy( txt, "" );
+
+#ifdef DEBUG
+	if( txt[0] ) strcat( txt, "+" );
+	else strcat( txt, "-" );
+	strcat( txt, "DEBUG" );
+#endif
+#ifdef SNIFFER
+	if( txt[0] ) strcat( txt, "+" );
+	else strcat( txt, "-" );
+	strcat( txt, "SNIFFER" );
+#endif
+
 	openlog( PACKAGE, LOG_CONS|LOG_PID, LOG_LOCAL5 );
-	Log( LOG_NOTICE, PACKAGE" version "VERSION" started.");
+	Log( LOG_NOTICE, PACKAGE" version "VERSION"%s started.", txt );
 } /* Log_Init */
 
 

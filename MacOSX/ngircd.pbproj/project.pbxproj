@@ -113,7 +113,6 @@
 		08FB77A0FE84155DC02AAC07 = {
 			buildActionMask = 2147483647;
 			files = (
-				F52162CD01C7B904012300F4,
 				F52162CE01C7B904012300F4,
 				F52162CF01C7B904012300F4,
 				F52162D001C7B904012300F4,
@@ -132,6 +131,9 @@
 				F57C88870232853501A85B04,
 				F57C888B0232884501A85B04,
 				F57C888F02328D7201A85B04,
+				F5F18138023EC63701A85B04,
+				F5F18139023EC63701A85B04,
+				F5F1813A023EC63701A85B04,
 			);
 			isa = PBXHeadersBuildPhase;
 			name = Headers;
@@ -376,6 +378,7 @@
 				F52162B801C7B904012300F4,
 				F52162D801C7BAAE012300F4,
 				F52162B901C7B904012300F4,
+				F5F18132023EC61E01A85B04,
 			);
 			isa = PBXGroup;
 			name = src;
@@ -390,7 +393,6 @@
 		F52162B901C7B904012300F4 = {
 			children = (
 				F52162BD01C7B904012300F4,
-				F52162BA01C7B904012300F4,
 				F52162BE01C7B904012300F4,
 				F52162BF01C7B904012300F4,
 				F51D180001C8FDD001E11C2E,
@@ -426,11 +428,6 @@
 			);
 			isa = PBXGroup;
 			path = ngircd;
-			refType = 4;
-		};
-		F52162BA01C7B904012300F4 = {
-			isa = PBXFileReference;
-			path = global.h;
 			refType = 4;
 		};
 		F52162BB01C7B904012300F4 = {
@@ -521,12 +518,6 @@
 			name = README;
 			path = ../README;
 			refType = 2;
-		};
-		F52162CD01C7B904012300F4 = {
-			fileRef = F52162BA01C7B904012300F4;
-			isa = PBXBuildFile;
-			settings = {
-			};
 		};
 		F52162CE01C7B904012300F4 = {
 			fileRef = F52162BC01C7B904012300F4;
@@ -760,6 +751,67 @@
 		};
 		F57C889002328D7201A85B04 = {
 			fileRef = F57C888D02328D7201A85B04;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5F18132023EC61E01A85B04 = {
+			children = (
+				F5F18133023EC63701A85B04,
+				F5F18134023EC63701A85B04,
+				F5F18135023EC63701A85B04,
+				F5F18136023EC63701A85B04,
+				F5F18137023EC63701A85B04,
+			);
+			isa = PBXGroup;
+			name = portab;
+			path = /Users/alex/Develop/ngircd/src;
+			refType = 0;
+		};
+		F5F18133023EC63701A85B04 = {
+			isa = PBXFileReference;
+			name = Makefile.am;
+			path = portab/Makefile.am;
+			refType = 4;
+		};
+		F5F18134023EC63701A85B04 = {
+			isa = PBXFileReference;
+			name = exp.h;
+			path = portab/exp.h;
+			refType = 4;
+		};
+		F5F18135023EC63701A85B04 = {
+			isa = PBXFileReference;
+			name = imp.h;
+			path = portab/imp.h;
+			refType = 4;
+		};
+		F5F18136023EC63701A85B04 = {
+			isa = PBXFileReference;
+			name = portab.h;
+			path = portab/portab.h;
+			refType = 4;
+		};
+		F5F18137023EC63701A85B04 = {
+			isa = PBXFileReference;
+			name = portabtest.c;
+			path = portab/portabtest.c;
+			refType = 4;
+		};
+		F5F18138023EC63701A85B04 = {
+			fileRef = F5F18134023EC63701A85B04;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5F18139023EC63701A85B04 = {
+			fileRef = F5F18135023EC63701A85B04;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5F1813A023EC63701A85B04 = {
+			fileRef = F5F18136023EC63701A85B04;
 			isa = PBXBuildFile;
 			settings = {
 			};

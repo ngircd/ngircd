@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.48 2002/03/12 14:37:52 alex Exp $
+ * $Id: client.c,v 1.49 2002/03/12 23:42:59 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -188,11 +188,8 @@ GLOBAL VOID Client_Destroy( CLIENT *Client, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN 
 	else txt = FwdMsg;
 	if( ! txt ) txt = "Reason unknown.";
 
-	if( Client->type == CLIENT_SERVER )
-	{
-		/* Netz-Split-Nachricht vorbereiten */
-		sprintf( msg, "%s | %s", Client_ID( Client ), Client_ID( Client_TopServer( Client ) ? Client_TopServer( Client ) : Client_ThisServer( )));
-	}
+	/* Netz-Split-Nachricht vorbereiten */
+	if( Client->type == CLIENT_SERVER ) sprintf( msg, "%s: lost server %s", This_Server->id, Client->id );
 
 	last = NULL;
 	c = My_Clients;

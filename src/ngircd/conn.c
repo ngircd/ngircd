@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.52 2002/03/12 14:37:52 alex Exp $
+ * $Id: conn.c,v 1.53 2002/03/12 23:42:59 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -850,8 +850,10 @@ LOCAL VOID Check_Servers( VOID )
 		/* Haben wir schon eine Verbindung? */
 		for( n = 0; n < MAX_CONNECTIONS; n++ )
 		{
+			if( My_Connections[n].sock == NONE ) continue;
+			
 			/* Verbindung zu diesem Server? */
-			if(( My_Connections[n].sock != NONE ) && ( My_Connections[n].our_server == i ))
+			if( My_Connections[n].our_server == i )
 			{
 				/* Komplett aufgebaute Verbindung? */
 				if( My_Connections[n].sock > NONE ) break;
@@ -861,9 +863,9 @@ LOCAL VOID Check_Servers( VOID )
 			}
 
 			/* Verbindung in dieser Server-Gruppe? */
-			if(( My_Connections[n].sock != NONE ) && ( My_Connections[n].our_server != NONE ))
+			if(( My_Connections[n].our_server != NONE ) && ( Conf_Server[i].group != NONE ))
 			{
-				if( Conf_Server[n].group == Conf_Server[i].group != NONE ) break;
+				if( Conf_Server[My_Connections[n].our_server].group == Conf_Server[i].group ) break;
 			}
 		}
 		if( n < MAX_CONNECTIONS ) continue;

@@ -1,3 +1,9 @@
+ngircd (0.8.1-0ab1) unstable; urgency=low
+
+  * New "upstream release".
+
+ -- Alexander Barton <alex@Arthur.Ath.CX>  Sat, 25 Dec 2004 01:18:32 +0100
+
 ngircd (0.8.0-0ab2) unstable; urgency=low
 
   * Added missing commas to debian control file, fixes bug #56.

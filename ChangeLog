@@ -10,7 +10,7 @@
                                -- ChangeLog --
 
 
-ngircd 0.8-CVS
+ngircd 0.8.1 (2004-12-25)
 
   - Autoconf: Updated config.guess and config.sub
   - Added some more debug code ...
@@ -540,4 +540,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.233.2.10 2004/12/25 00:11:42 alex Exp $
+$Id: ChangeLog,v 1.233.2.11 2004/12/25 00:20:57 alex Exp $

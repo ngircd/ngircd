@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.h,v 1.14 2002/01/04 01:21:22 alex Exp $
+ * $Id: client.h,v 1.15 2002/01/05 20:08:17 alex Exp $
  *
  * client.h: Konfiguration des ngircd (Header)
  *
  * $Log: client.h,v $
+ * Revision 1.15  2002/01/05 20:08:17  alex
+ * - neue Funktion Client_NextHop().
+ *
  * Revision 1.14  2002/01/04 01:21:22  alex
  * - Client-Strukturen koennen von anderen Modulen nun nur noch ueber die
  *   enstprechenden (zum Teil neuen) Funktionen angesprochen werden.
@@ -139,6 +142,7 @@ GLOBAL CLIENT *Client_Introducer( CLIENT *Client );
 GLOBAL BOOLEAN Client_OperByMe( CLIENT *Client );
 GLOBAL INT Client_Hops( CLIENT *Client );
 GLOBAL INT Client_Token( CLIENT *Client );
+GLOBAL CLIENT *Client_NextHop( CLIENT *Client );
 
 GLOBAL BOOLEAN Client_HasMode( CLIENT *Client, CHAR Mode );
 

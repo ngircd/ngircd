@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.21 2002/01/05 19:15:03 alex Exp $
+ * $Id: client.c,v 1.22 2002/01/05 20:08:17 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,9 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.22  2002/01/05 20:08:17  alex
+ * - neue Funktion Client_NextHop().
+ *
  * Revision 1.21  2002/01/05 19:15:03  alex
  * - Fehlerpruefung bei select() in der "Hauptschleife" korrigiert.
  *
@@ -557,6 +560,18 @@ GLOBAL INT Client_Token( CLIENT *Client )
 	assert( Client != NULL );
 	return Client->token;
 } /* Client_Token */
+
+
+GLOBAL CLIENT *Client_NextHop( CLIENT *Client )
+{
+	CLIENT *c;
+	
+	assert( Client != NULL );
+
+	c = Client;
+	while( c->introducer && ( c->introducer != c ) && ( c->introducer != This_Server )) c = c->introducer;
+	return c;
+} /* Client_NextHop */
 
 
 GLOBAL CHAR *Client_Mask( CLIENT *Client )

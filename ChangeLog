@@ -10,6 +10,10 @@
                                -- ChangeLog --
 
 
+ngircd 0.8-CVS
+
+  - Enhanced the "test suite": please have a look at src/testsuite/README!
+
 ngircd 0.8.0 (2004-06-26)
 
   - Fixed wrong buffer size calculation for results of the resolver.
@@ -530,4 +534,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.233.2.5 2004/06/26 09:12:38 alex Exp $
+$Id: ChangeLog,v 1.233.2.6 2004/09/04 20:50:53 alex Exp $

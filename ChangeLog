@@ -15,7 +15,7 @@ ngIRCd CVSHEAD
   - Made ngIRCd compile on HP/UX 10.20 with native HP pre-ANSI C compiler and
     most probably other older C compilers on other systems.
   - Fixed wrong variable names in output of "ngircd --configtest".
-  - Debian: Fxied the name of the "default file" in the init script for
+  - Debian: Fixed the name of the "default file" in the init script for
     ngircd-full packages. And do the test if the binary is executable after
     reading this file.
   - When the daemon should switch to another user ID (ServerID is defined in
@@ -545,4 +545,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.243 2004/10/20 13:47:32 alex Exp $
+$Id: ChangeLog,v 1.244 2004/10/31 12:17:22 alex Exp $

@@ -13,7 +13,10 @@
 ngIRCd CVS-HEAD
 
   - in RPL_YOURHOST_MSG wurde ein fehlerhafter Versionsstring geliefert.
-  - Test-Suite: es werden nun nur noch 5 Sessions parallel gestartet.
+  - Test-Suite: start-server.sh, stop-server.sh und stress-server.sh koennen
+    nun "manuell" von der Kommandozeile gestartet werden, stress-server.sh
+    startet per Default nur noch 5 Sessions, eine andere Zahl kann auf der
+    Kommandozeile uebergeben werden (Syntax: "stress-server.sh <count>").
 
 ngIRCd 0.5.0
 
@@ -268,4 +271,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.95 2002/09/23 21:52:58 alex Exp $
+$Id: ChangeLog,v 1.96 2002/09/23 22:07:42 alex Exp $

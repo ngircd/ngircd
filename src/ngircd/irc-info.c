@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-info.c,v 1.24 2005/01/24 14:19:04 alex Exp $";
+static char UNUSED id[] = "$Id: irc-info.c,v 1.25 2005/02/04 13:15:38 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -114,7 +114,7 @@ IRC_ISON( CLIENT *Client, REQUEST *Req )
 			ptr = strtok( NULL, " " );
 		}
 	}
-	if( rpl[strlen( rpl ) - 1] == ' ' ) rpl[strlen( rpl ) - 1] = '\0';
+	ngt_TrimLastChr(rpl, ' ');
 
 	return IRC_WriteStrClient( Client, rpl, Client_ID( Client ) );
 } /* IRC_ISON */
@@ -484,7 +484,7 @@ IRC_USERHOST( CLIENT *Client, REQUEST *Req )
 			strlcat( rpl, " ", sizeof( rpl ));
 		}
 	}
-	if( rpl[strlen( rpl ) - 1] == ' ' ) rpl[strlen( rpl ) - 1] = '\0';
+	ngt_TrimLastChr( rpl, ' ');
 
 	return IRC_WriteStrClient( Client, rpl, Client_ID( Client ) );
 } /* IRC_USERHOST */
@@ -770,7 +770,6 @@ IRC_Show_MOTD( CLIENT *Client )
 	BOOLEAN ok;
 	CHAR line[127];
 	FILE *fd;
-	UINT line_len;
 
 	assert( Client != NULL );
 
@@ -793,9 +792,7 @@ IRC_Show_MOTD( CLIENT *Client )
 	{
 		if( ! fgets( line, sizeof( line ), fd )) break;
 
-		line_len = strlen( line );
-		if( line_len > 0 ) line_len--;
-		if( line[line_len] == '\n' ) line[line_len] = '\0';
+		ngt_TrimLastChr( line, '\n');
 
 		if( ! IRC_WriteStrClient( Client, RPL_MOTD_MSG, Client_ID( Client ), line ))
 		{

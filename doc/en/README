@@ -30,9 +30,10 @@ implemented, some only partly.
 
 Till today (more or less complete) implemented IRC-commands:
 
-AWAY, DIE, ERROR, ISON, JOIN, KILL, LINKS, LIST, LUSERS, MODE, MOTD, NAMES,
-NICK, NOTICE, NJOIN, OPER, PART, PASS, PING, PONG, PRIVMSG, QUIT, RESTART,
-SERVER, SQUIT, TOPIC, USER, USERHOST, VERSION, WHO, WHOIS.
+ADMIN, AWAY, CHANINFO, CONNECT, DIE, ERROR, INVITE, ISON, JOIN, KICK, KILL,
+LINKS, LIST, LUSERS, MODE, MOTD, NAMES, NICK, NJOIN, NOTICE, OPER, PART,
+PASS, PING, PONG, PRIVMSG, QUIT, RESTART, SERVER, SQUIT, TOPIC, USERHOST,
+USER, VERSION, WHO, WHOIS.
 
 
 III. Features (or: why use ngIRCd?)
@@ -42,9 +43,9 @@ III. Features (or: why use ngIRCd?)
 - simple, easy understandable configuration file,
 - freely published C-Sourcecode,
 - ngIRCd will be developed on in the future.
-- supported platforms (tested versions): A/UX (3.0.1), FreeBSD (4.5), HP-UX
-  (10.20), Linux (2.x), Mac OS X, NetBSD (1.5.2), Solaris (2.5.1) and
-  Windows with Cygwin.
+- supported platforms (tested versions): AIX (3.2.5), A/UX (3.0.1), FreeBSD
+  (4.5), HP-UX (10.20), IRIX (6.5), Linux (2.x), Mac OS X (10.x), NetBSD
+  (1.5.2/i386, 1.5.3/m68k), Solaris (2.5.1, 2.6), and Windows with Cygwin.
 
 
 IV. Documentation
@@ -97,4 +98,4 @@ to post a mail to: <alex@barton.de> or <alex@arthur.ath.cx>
 
 
 -- 
-$Id: README,v 1.5 2002/05/20 12:02:58 alex Exp $
+$Id: README,v 1.6 2002/09/16 11:03:05 alex Exp $

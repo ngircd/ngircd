@@ -36,9 +36,10 @@ noch nicht implementiert, andere nur teilweise.
 
 Bisher (mehr oder wenig vollstaendig) implementierte IRC-Befehle:
 
-AWAY, DIE, ERROR, ISON, JOIN, KILL, LINKS, LIST, LUSERS, MODE, MOTD, NAMES,
-NICK, NOTICE, NJOIN, OPER, PART, PASS, PING, PONG, PRIVMSG, QUIT, RESTART,
-SERVER, SQUIT, TOPIC, USER, USERHOST, VERSION, WHO, WHOIS.
+ADMIN, AWAY, CHANINFO, CONNECT, DIE, ERROR, INVITE, ISON, JOIN, KICK, KILL,
+LINKS, LIST, LUSERS, MODE, MOTD, NAMES, NICK, NJOIN, NOTICE, OPER, PART,
+PASS, PING, PONG, PRIVMSG, QUIT, RESTART, SERVER, SQUIT, TOPIC, USERHOST,
+USER, VERSION, WHO, WHOIS.
 
 
 III. Features (oder: warum gerade ngIRCd?)
@@ -48,9 +49,9 @@ III. Features (oder: warum gerade ngIRCd?)
 - einfache, uebersichtliche Konfigurationsdatei,
 - frei verfuegbarer C-Quellcode.
 - ngIRCd wird aktiv weiterentwickelt.
-- unterstuetzte Plattformen (getestete Version): A/UX (3.0.1), FreeBSD (4.5),
-  HP-UX (10.20), Linux (2.x), Mac OS X, NetBSD (1.5.2), Solaris (2.5.1) und
-  Windows mit Cygwin.
+- unterstuetzte Plattformen (getestete Version): AIX (3.2.5), A/UX (3.0.1),
+  FreeBSD/i386 (4.5), HP-UX (10.20), IRIX (6.5), Linux (2.x), Mac OS X (10.x),
+  NetBSD (1.5.2/i386, 1.5.3/m68k), Solaris (2.5.1, 2.6), Windows mit Cygwin.
 
 
 IV. Dokumentation
@@ -101,4 +102,4 @@ schreiben.
 
 
 -- 
-$Id: README,v 1.12 2002/05/19 14:55:47 alex Exp $
+$Id: README,v 1.13 2002/09/16 11:03:05 alex Exp $

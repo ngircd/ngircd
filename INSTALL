@@ -40,7 +40,7 @@ zu 3): "autogen.sh"
 
 Der erste Schritt, autogen.sh, ist nur notwendig, wenn das configure-Script
 noch nicht vorhanden ist. Dies ist nie bei offiziellen ("stabilen") Versionen
-in tar.gz-Archiven der Fall, jedoch nie, wenn der Source-Code ueber CVS
+in tar.gz-Archiven der Fall, jedoch immer, wenn der Source-Code ueber CVS
 bezogen wurde.
 
 Dieser Absatz ist also eigentlich ausschliesslich fuer Entwickler interessant.
@@ -145,4 +145,4 @@ Server nach der Ausgabe wieder.
 
 
 -- 
-$Id: INSTALL,v 1.7 2002/05/20 12:02:58 alex Exp $
+$Id: INSTALL,v 1.8 2002/09/16 11:03:05 alex Exp $

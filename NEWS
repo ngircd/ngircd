@@ -13,8 +13,8 @@
 ngIRCd CVS-HEAD
 
   - Manual-Pages ngircd.8 und ngircd.conf.5 begonnen.
-  - HP-UX 10.20 und Solaris 2.5.1 gehoeren nun auch zu den unterstuetzten
-    Platformen.
+  - AIX (3.2.5), HP-UX (10.20), IRIX (6.5), NetBSD (1.5.3/m68k) und Solaris
+    (2.5.1, 2.6) gehoeren nun auch zu den unterstuetzten Platformen.
   - "persistente Channels" (Mode 'P') implementiert: diese koennen in der
     Konfigurationsdatei definiert werden (Sektion "Channel", vgl. Beispiel-
     Konfiguration "sample-ngircd.conf") und bleiben auch dann bestehen,
@@ -24,13 +24,17 @@ ngIRCd CVS-HEAD
     Op's gesetzt und geloescht werden kann.
   - KICK implementiert (bisher kann nur ein User aus einem Channel geckicked
     werden, Listen, wir im RFC vorgesehen, werden bisher nicht unterstuetzt).
-  - INVITE sowie den Channel-Mode "i" implementiert: das funktioniert nun
-    auch soweit, mit dem MODE-Befehl koennen jedoch noch keine Invite-Masks
-    fuer Channel gesetzt und erfragt werden.
-  - Begonnen, BAN zu implementieren.
+  - INVITE, den Channel-Mode "i" sowie Invite-Lists ueber den MODE-Befehl
+    (setzen, erfragen und loeschen) implementiert.
   - Unter A/UX (und evtl. weiteren Systemen) kompiliert der ngIRCd nun mit
     dem "nativen" (ggf. pre-ANSI) Compiler.
-  - LIST versteht nun Wildcards.
+  - LIST versteht nun Wildcards und kann an andere Server geforwarded werden.
+  - neue Konfigurationsoption "OperCanUseMode" (Sektion "Global"):
+    ist sie aktiv, koennen IRC-Operatoren immer Channel-Modes setzen.
+  - mit dem neuen Befehl CHANINFO syncronisieren Server, die das IRC+-
+    Protokoll unterstuetzen, Channel-Modes und Topics.
+  - Ban-Lists (setzen, erfragen und loeschen) implementiert.
+  - ADMIN-Befehl implementiert.
 
 ngIRCd 0.4.2, 29.04.2002
 
@@ -112,4 +116,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.37 2002/06/26 15:47:08 alex Exp $
+$Id: NEWS,v 1.38 2002/09/16 11:03:05 alex Exp $

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.79 2002/02/27 18:57:21 alex Exp $
+ * $Id: irc.c,v 1.80 2002/02/27 20:33:13 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.80  2002/02/27 20:33:13  alex
+ * - Channel-Topics implementiert.
+ *
  * Revision 1.79  2002/02/27 18:57:21  alex
  * - PRIVMSG zeugt nun bei Texten an User an, wenn diese "away" sind.
  *
@@ -2104,7 +2107,7 @@ GLOBAL BOOLEAN IRC_LINKS( CLIENT *Client, REQUEST *Req )
 
 GLOBAL BOOLEAN IRC_JOIN( CLIENT *Client, REQUEST *Req )
 {
-	CHAR *channame, *flags, modes[8];
+	CHAR *channame, *flags, *topic, modes[8];
 	BOOLEAN is_new_chan;
 	CLIENT *target;
 	CHANNEL *chan;
@@ -2186,7 +2189,8 @@ GLOBAL BOOLEAN IRC_JOIN( CLIENT *Client, REQUEST *Req )
 			IRC_WriteStrClientPrefix( Client, target, "JOIN :%s", channame );
 
 			/* Topic an Client schicken */
-			IRC_WriteStrClient( Client, RPL_TOPIC_MSG, Client_ID( Client ), channame, "What a wonderful channel!" );
+			topic = Channel_Topic( chan );
+			if( *topic ) IRC_WriteStrClient( Client, RPL_TOPIC_MSG, Client_ID( Client ), channame, topic );
 
 			/* Mitglieder an Client Melden */
 			Send_NAMES( Client, chan );
@@ -2234,6 +2238,55 @@ GLOBAL BOOLEAN IRC_PART( CLIENT *Client, REQUEST *Req )
 	}
 	return CONNECTED;
 } /* IRC_PART */
+
+
+GLOBAL BOOLEAN IRC_TOPIC( CLIENT *Client, REQUEST *Req )
+{
+	CHANNEL *chan;
+	CLIENT *from;
+	CHAR *topic;
+	
+	assert( Client != NULL );
+	assert( Req != NULL );
+
+	if(( Client_Type( Client ) != CLIENT_USER ) && ( Client_Type( Client ) != CLIENT_USER )) return IRC_WriteStrClient( Client, ERR_NOTREGISTERED_MSG, Client_ID( Client ));
+
+	/* Falsche Anzahl Parameter? */
+	if(( Req->argc < 1 ) || ( Req->argc > 2 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+
+	if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_GetFromID( Req->prefix );
+	else from = Client;
+	if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
+
+	/* Welcher Channel? */
+	chan = Channel_Search( Req->argv[0] );
+	if( ! chan ) return IRC_WriteStrClient( from, ERR_NOTONCHANNEL_MSG, Client_ID( from ), Req->argv[0] );
+
+	/* Ist der User Mitglied in dem Channel? */
+	if( ! Channel_IsMemberOf( chan, from )) return IRC_WriteStrClient( from, ERR_NOTONCHANNEL_MSG, Client_ID( from ), Req->argv[0] );
+
+	if( Req->argc == 1 )
+	{
+		/* Topic erfragen */
+		topic = Channel_Topic( chan );
+		if( *topic ) return IRC_WriteStrClient( from, RPL_TOPIC_MSG, Client_ID( from ), Channel_Name( chan ), topic );
+		else return IRC_WriteStrClient( from, RPL_NOTOPIC_MSG, Client_ID( from ), Channel_Name( chan ));
+	}
+
+	if( strchr( Channel_Modes( chan ), 't' ))
+	{
+		/* Topic Lock. Ist der User ein Channel Operator? */
+		if( ! strchr( Channel_UserModes( chan, from ), 'o' )) return IRC_WriteStrClient( from, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( from ), Channel_Name( chan ));
+	}
+
+	/* Topic setzen */
+	Channel_SetTopic( chan, Req->argv[1] );
+	Log( LOG_DEBUG, "User \"%s\" set topic on \"%s\": %s", Client_Mask( from ), Channel_Name( chan ), Req->argv[1][0] ? Req->argv[1] : "<none>" );
+
+	/* im Channel bekannt machen */
+	IRC_WriteStrChannelPrefix( from, chan, from, TRUE, "TOPIC %s :%s", Req->argv[0], Req->argv[1] );
+	return IRC_WriteStrClientPrefix( from, from, "TOPIC %s :%s", Req->argv[0], Req->argv[1] );
+} /* IRC_TOPIC */
 
 
 GLOBAL BOOLEAN IRC_VERSION( CLIENT *Client, REQUEST *Req )

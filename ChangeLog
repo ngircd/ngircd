@@ -12,6 +12,7 @@
 
 ngIRCd CVSHEAD
 
+  - Fixed TRACE: don't output "Serv" lines for ourself; display more info.
   - Results of the resolver (hostnames and IDENT names) are discarded after
     the client is successfully registered with the server.
   - Better logging while establishing and shutting down connections.
@@ -504,4 +505,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.227 2004/02/28 02:01:01 alex Exp $
+$Id: ChangeLog,v 1.228 2004/02/28 02:18:16 alex Exp $

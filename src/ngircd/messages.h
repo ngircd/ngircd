@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2003 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2004 Alexander Barton <alex@barton.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: messages.h,v 1.65 2003/12/26 15:55:07 alex Exp $
+ * $Id: messages.h,v 1.66 2004/02/28 02:18:16 alex Exp $
  *
  * IRC numerics (Header)
  */
@@ -26,7 +26,7 @@
 
 #define RPL_TRACELINK_MSG		"200 %s Link %s-%s %s %s V%s %ld %d %d"
 #define RPL_TRACEOPERATOR_MSG		"204 %s Oper 2 :%s"
-#define RPL_TRACESERVER_MSG		"206 %s Serv 1 0S 0C %s *!*@%s :V%s"
+#define RPL_TRACESERVER_MSG		"206 %s Serv 1 0S 0C %s[%s@%s] *!*@%s :V%s"
 #define RPL_STATSLINKINFO_MSG		"211 %s %s %d %ld %ld %ld %ld :%ld"
 #define RPL_STATSCOMMANDS_MSG		"212 %s %s %ld %ld %ld"
 #define RPL_ENDOFSTATS_MSG		"219 %s %c :End of STATS report"

@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2003 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2004 Alexander Barton <alex@barton.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc.c,v 1.123 2003/12/26 15:55:07 alex Exp $";
+static char UNUSED id[] = "$Id: irc.c,v 1.124 2004/02/28 02:18:16 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -210,6 +210,7 @@ IRC_TRACE( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *from, *target, *c;
 	CONN_ID idx, idx2;
+	CHAR user[CLIENT_USER_LEN];
 
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -251,7 +252,9 @@ IRC_TRACE( CLIENT *Client, REQUEST *Req )
 			if( Client_Type( c ) == CLIENT_SERVER )
 			{
 				/* Server link */
-				if( ! IRC_WriteStrClient( from, RPL_TRACESERVER_MSG, Client_ID( from ), Client_ID( c ), Client_Mask( c ), Option_String( Client_Conn( c )))) return DISCONNECTED;
+				strlcpy( user, Client_User( c ), sizeof( user ));
+				if( user[0] == '~' ) strlcpy( user, "unknown", sizeof( user ));
+				if( ! IRC_WriteStrClient( from, RPL_TRACESERVER_MSG, Client_ID( from ), Client_ID( c ), user, Client_Hostname( c ), Client_Mask( Client_ThisServer( )), Option_String( Client_Conn( c )))) return DISCONNECTED;
 			}
 			if(( Client_Type( c ) == CLIENT_USER ) && ( strchr( Client_Modes( c ), 'o' )))
 			{
@@ -261,9 +264,6 @@ IRC_TRACE( CLIENT *Client, REQUEST *Req )
 		}
 		c = Client_Next( c );
 	}
-
-	/* Some information about us */
-	if( ! IRC_WriteStrClient( from, RPL_TRACESERVER_MSG, Client_ID( from ), Conf_ServerName, Client_Mask( Client_ThisServer( )), Option_String( Client_Conn( Client )))) return DISCONNECTED;
 
 	IRC_SetPenalty( Client, 3 );
 	return IRC_WriteStrClient( from, RPL_TRACEEND_MSG, Client_ID( from ), Conf_ServerName, PACKAGE_NAME, PACKAGE_VERSION, NGIRCd_DebugLevel );

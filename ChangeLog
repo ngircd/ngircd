@@ -12,13 +12,14 @@
 
 ngIRCd CVS-HEAD
 
-  - Test der Flags fuer "ps" in der Testsuite verbessert, ist nun zu mehr
-    Plattformen kompatibler.
+  - ...
 
 ngIRCd 0.5.0
 
   - Dokumentation aktualisiert.
   - Fehler bei Validierung von "AdminInfo2" behoben.
+  - Test der Flags fuer "ps" in der Testsuite verbessert, ist nun zu mehr
+    Plattformen kompatibler.
 
   ngIRCd 0.5.0-pre2, 17.09.2002:
   - Fix in IRC_WriteStrServersPrefix() war "badly broken" -- behoben.
@@ -266,4 +267,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.92 2002/09/20 14:57:17 alex Exp $
+$Id: ChangeLog,v 1.93 2002/09/20 15:45:02 alex Exp $

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: log.c,v 1.48 2004/10/20 13:47:32 alex Exp $";
+static char UNUSED id[] = "$Id: log.c,v 1.49 2005/01/20 00:12:23 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -63,12 +63,11 @@ Log_Init( VOID )
 	Log( LOG_NOTICE, "%s started.", NGIRCd_Version( ));
 	  
 	/* Informationen uebern den "Operation Mode" */
-	strcpy( Init_Txt, "" );
+	Init_Txt[0] = '\0';
 #ifdef DEBUG
 	if( NGIRCd_Debug )
 	{
-		if( Init_Txt[0] ) strcat( Init_Txt, ", " );
-		strcat( Init_Txt, "debug-mode" );
+		strcpy( Init_Txt, "debug-mode" );
 	}
 #endif
 	if( NGIRCd_NoDaemon )

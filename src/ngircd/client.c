@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: client.c,v 1.76 2004/03/11 22:16:31 alex Exp $";
+static char UNUSED id[] = "$Id: client.c,v 1.77 2005/01/20 00:11:49 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -1031,24 +1031,14 @@ New_Client_Struct( VOID )
 		return NULL;
 	}
 
-	c->next = NULL;
-	c->hash = 0;
+	memset( c, 0, sizeof ( CLIENT ));
+
 	c->type = CLIENT_UNKNOWN;
 	c->conn_id = NONE;
-	c->introducer = NULL;
-	c->topserver = NULL;
-	strcpy( c->id, "" );
-	strcpy( c->pwd, "" );
-	strcpy( c->host, "" );
-	strcpy( c->user, "" );
-	strcpy( c->info, "" );
-	strcpy( c->modes, "" );
 	c->oper_by_me = FALSE;
 	c->hops = -1;
 	c->token = -1;
 	c->mytoken = -1;
-	strcpy( c->away, "" );
-	strcpy( c->flags, "" );
 
 	return c;
 } /* New_Client */

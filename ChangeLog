@@ -12,6 +12,7 @@
 
 ngIRCd CVSHEAD
 
+  - Code cleanups from Florian Westphal, <westphal@foo.fh-furtwangen.de>.
   - Fixed detection of IRC lines which are too long to send. Detected by
     Florian Westphal, <westphal@foo.fh-furtwangen.de>.
   - Fixed return values of our own implementation of strlcpy(). The code has
@@ -563,4 +564,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.252 2005/01/19 23:33:53 alex Exp $
+$Id: ChangeLog,v 1.253 2005/01/20 00:11:49 alex Exp $

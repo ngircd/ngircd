@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-write.c,v 1.6 2002/09/03 23:56:06 alex Exp $
+ * $Id: irc-write.c,v 1.7 2002/09/16 09:19:23 alex Exp $
  *
  * irc-write.c: IRC-Texte und Befehle ueber Netzwerk versenden
  */
@@ -263,7 +263,7 @@ va_dcl
 	vsnprintf( buffer, 1000, Format, ap );
 	va_end( ap );
 
-	return IRC_WriteStrServersPrefixFlag( ExceptOf, Prefix, '\0', buffer );
+	return;
 } /* IRC_WriteStrServersPrefix */
 	
 

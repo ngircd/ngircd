@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc.c,v 1.109 2002/12/26 17:14:48 alex Exp $";
+static char UNUSED id[] = "$Id: irc.c,v 1.110 2002/12/26 18:41:00 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -52,14 +52,15 @@ IRC_KILL( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *prefix, *c;
 	CHAR reason[COMMAND_LEN];
+	CONN_ID conn;
 
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	/* is the user an IRC operator? */
+	/* Is the user an IRC operator? */
 	if(( Client_Type( Client ) != CLIENT_SERVER ) && ( ! Client_OperByMe( Client ))) return IRC_WriteStrClient( Client, ERR_NOPRIVILEGES_MSG, Client_ID( Client ));
 
-	/* Falsche Anzahl Parameter? */
+	/* Bad number of parameters? */
 	if(( Req->argc != 2 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
 	if( Req->prefix ) prefix = Client_Search( Req->prefix );
@@ -72,24 +73,27 @@ IRC_KILL( CLIENT *Client, REQUEST *Req )
 
 	Log( LOG_NOTICE|LOG_snotice, "Got KILL command from \"%s\" for \"%s\": %s", Client_Mask( prefix ), Req->argv[0], Req->argv[1] );
 
-	/* build reason string */
+	/* Build reason string */
 	if( Client_Type( Client ) == CLIENT_USER ) snprintf( reason, sizeof( reason ), "KILLed by %s: %s", Client_ID( Client ), Req->argv[1] );
 	else strlcpy( reason, Req->argv[1], sizeof( reason ));
 
-	/* andere Server benachrichtigen */
+	/* Inform other servers */
 	IRC_WriteStrServersPrefix( Client, prefix, "KILL %s :%s", Req->argv[0], reason );
 
-	/* haben wir selber einen solchen Client? */
+	/* Do we host such a client? */
 	c = Client_Search( Req->argv[0] );
 	if( c )
 	{
 		/* Ja, wir haben einen solchen Client */
-		if( Client_Conn( c ) != NONE ) Conn_Close( Client_Conn( c ), NULL, reason, TRUE );
-		else Client_Destroy( c, NULL, reason, TRUE );
+		conn = Client_Conn( c );
+		Client_Destroy( c, NULL, reason, FALSE );
+		if( conn != NONE ) Conn_Close( Client_Conn( c ), NULL, reason, TRUE );
 	}
 	else Log( LOG_NOTICE, "Client with nick \"%s\" is unknown here.", Req->argv[0] );
 
-	return CONNECTED;
+	/* Are we still connected or were we killed, too? */
+	if( Client_Search( Req->argv[0] )) return CONNECTED;
+	else return DISCONNECTED;
 } /* IRC_KILL */
 
 

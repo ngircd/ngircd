@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.24 2002/01/04 17:58:44 alex Exp $
+ * $Id: irc.c,v 1.25 2002/01/05 00:48:33 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.25  2002/01/05 00:48:33  alex
+ * - bei SQUIT wurde immer die Verbindung getrennt, auch bei Remote-Servern.
+ *
  * Revision 1.24  2002/01/04 17:58:44  alex
  * - IRC_WriteStrXXX()-Funktionen eingefuehrt, groessere Anpassungen daran.
  * - neuer Befehl SQUIT, QUIT an Server-Links angepasst.
@@ -518,9 +521,16 @@ GLOBAL BOOLEAN IRC_SQUIT( CLIENT *Client, REQUEST *Req )
 	/* FIXME: das SQUIT muss an alle Server weiter-
 	 * geleitet werden ... */
 
-	if( Client_Conn( target ) > NONE ) Conn_Close( Client_Conn( target ), Req->argv[1] );
-	else Client_Destroy( target );
-	return DISCONNECTED;
+	if( Client_Conn( target ) > NONE )
+	{
+		Conn_Close( Client_Conn( target ), Req->argv[1] );
+		return DISCONNECTED;
+	}
+	else
+	{
+		Client_Destroy( target );
+		return CONNECTED;
+	}
 } /* IRC_SQUIT */
 
 

@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.44 2002/03/02 00:43:31 alex Exp $
+ * $Id: conn.c,v 1.45 2002/03/02 02:44:01 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
+ * Revision 1.45  2002/03/02 02:44:01  alex
+ * - Timeouts ausgehender Verbindungen werden besser erkannt (z.B. unter Cygwin).
+ * - Idle-Time der Hauptschleife [Conn_Handle()] erhoeht: weniger Last.
+ *
  * Revision 1.44  2002/03/02 00:43:31  alex
  * - bei abgebrochene ausgehende Server-Verbindungen wird der naechste Ver-
  *   bindungsversuch in RECONNECT_DELAY Sekunden (3) unternommen und nicht
@@ -394,8 +398,8 @@ GLOBAL VOID Conn_Handler( INT Timeout )
 		Check_Connections( );
 
 		/* Timeout initialisieren */
-		tv.tv_sec = 0;
-		tv.tv_usec = 50000;
+		tv.tv_sec = 2;
+		tv.tv_usec = 0;
 
 		/* noch volle Lese-Buffer suchen */
 		for( i = 0; i < MAX_CONNECTIONS; i++ )
@@ -588,6 +592,7 @@ GLOBAL VOID Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformC
 	if( My_Connections[Idx].our_server >= 0 ) Conf_Server[My_Connections[Idx].our_server].lasttry = time( NULL ) - Conf_ConnectRetry + RECONNECT_DELAY;
 
 	FD_CLR( My_Connections[Idx].sock, &My_Sockets );
+	FD_CLR( My_Connections[Idx].sock, &My_Connects );
 	My_Connections[Idx].sock = NONE;
 } /* Conn_Close */
 
@@ -971,7 +976,7 @@ LOCAL VOID Check_Connections( VOID )
 			{
 				/* Timeout */
 				Log( LOG_DEBUG, "Connection %d timed out ...", i );
-				Conn_Close( i, NULL, "Timeout", TRUE );
+				Conn_Close( i, NULL, "Timeout", FALSE );
 			}
 		}
 	}

@@ -14,6 +14,13 @@
 I. Upgrade Information
 ~~~~~~~~~~~~~~~~~~~~~~
 
+Differences to version 0.6.x
+
+- Some options of the configure script have been renamed:
+    --disable-syslog  ->  --without-syslog
+    --disable-zlib    ->  --without-zlib
+  Please call "./configure --help" to review the full list of options!
+
 Differences to version 0.5.x
 
 - Starting with version 0.6.0, other servers are identified using asyncronous
@@ -142,4 +149,4 @@ number. In both cases the server exits after the output.
 
 
 -- 
-$Id: INSTALL,v 1.10 2003/03/04 13:46:53 alex Exp $
+$Id: INSTALL,v 1.11 2003/03/07 14:45:10 alex Exp $

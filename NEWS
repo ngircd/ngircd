@@ -20,7 +20,12 @@ ngIRCd CVS-HEAD
   - New command TRACE (you can trace only servers at the moment).
   - New command HELP that lists all understood commands.
   - ngIRCd can register itself with Rendezvous: to enable support pass the
-    new switch "--enable-rendezvous" to configure.
+    new switch "--with-rendezvous" to configure.
+  - Added support for TCP Wrappers library: pass "--with-tcp-wrappers" to
+    configure to enable it.
+  - Changed some configure options to use "--with"/"--without" as prefix
+    insetead of "--enable"/"--disable": "--without-syslog", "--without-zlib",
+    "--with-tcp-wrappers", and "--with-rendezvous".
 
 
 Older news (sorry, only available in german language):
@@ -154,4 +159,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.51 2003/03/04 14:12:30 alex Exp $
+$Id: NEWS,v 1.52 2003/03/07 14:45:10 alex Exp $

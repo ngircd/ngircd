@@ -8,36 +8,29 @@
                        der GNU General Public License.
 
                          -- INSTALL / Installation --
+                         
+                      Ilja Osthoff, <ilja@glide.ath.cx>
 
 
-ngIRCd ist fuer UNIXoide-Systeme konzipiert. Dieser Text beschreibt den
-"Standardfall": ein UNIX bzw. UNIX-aehnliches System, das von GNU automake
-und GNU autoconf ("configure") unterstuetzt wird.
+I. Standard-Installation
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+ngIRCd ist fuer UNIXoide-Systeme konzipiert worden, das bedeutet, dass die
+Installation auf einem modernen UNIX-aehnlichen System kein Problem dar-
+stellen sollte. Das System muss nur von GNU automake und GNU autoconf
+("configure") unterstuetzt werden.
+
+Die Standard-Installation sieht so aus:
+
+   1) tar xzf ngircd-<Version>.tar.gz
+   2) cd ngircd-<Version>
+   3) ./autogen.sh	[nur erforderlich, wenn ueber CVS bezogen]
+   4) ./configure
+   5) make
+   6) make install
 
 
-I. Voraussetzungen
-~~~~~~~~~~~~~~~~~~
-
-ngIRCd benoetigt "Alex' Portability Headers" (portab.h). Diese koennen von
-der Homepage heruntergeladen werden:
-
-<http://arthur.ath.cx/~alex/ngircd/#download>
-
-Vor dem configure-Lauf des ngIRCd muessen dies Header auf dem System in-
-stalliert sein, anonsten bricht configure ab.
-
-
-II. Quick Start
-~~~~~~~~~~~~~~~
-
-In der Regel sind folgende Schritte ausreichend:
-
-   1) ./autogen.sh	[nur erforderlich, wenn ueber CVS bezogen]
-   2) ./configure
-   3) make
-
-
-zu 1) autogen.sh:
+zu 3): "autogen.sh"
 
 Der erste Schritt, autogen.sh, ist nur notwendig, wenn das configure-Script
 noch nicht vorhanden ist. Dies ist nie bei offiziellen ("stabilen") Versionen
@@ -54,7 +47,7 @@ Versionen!) benoetigt.
 (nochmal: "Endanwender" mussen diesen Schritt i.d.R. nicht ausfuehren!)
 
 
-zu 2) ./configure:
+zu 4): "./configure"
 
 Mit dem configure-Script wird ngIRCd, wie GNU Software meistens, an das
 lokale System angepasst und die erforderlichen Makefile's erzeugt.
@@ -64,10 +57,22 @@ erkennen und entsprechend reagieren. Sollte dies einmal nicht der Fall sein,
 so zeigt "./configure --help" moegliche Optionen.
 
 
-zu 3) make:
+zu 5): "make"
 
 Der make-Befehl bearbeitet die vom configure-Script erzeugten Makefile's und
-uebersetzt die comBase-Library und die Testprogramme.
+uebersetzt den ngIRCd.
+
+
+zu 6): "make install"
+
+Mit "make install" wird der Server und ggf. eine Beispiels-Konfiguration
+im System installiert; hierzu sind in der Regel root-Rechte erforderlich.
+Eine bereits vorhandene Konfigurationsdatei wird nie ueberschrieben.
+
+Folgende Dateien werden installiert:
+
+- /usr/local/sbin/ngircd: ausfuehrbarer Server
+- /usr/local/etc/ngircd.conf: Beispiel-Konfiguration, wenn nicht vorhanden
 
 
 III. Nuetzliche make-Targets
@@ -86,5 +91,52 @@ nuetzlichen Targets:
    Naechster Schritt: -> ./autogen.sh
 
 
+
+IV. Konfigurationsdatei ngircd.conf
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In der Konfigurationsdatei werden Kommentare durch "#" oder durch ";"
+eingeleitet. Dieses dient nur der besseren Lesbarkeit.
+
+Die Datei ist in drei Abschnitte unterteilt: [Global], [Operator] und
+[Server]. Im [Global]-Teil werden die grundlegenden Einstellungen vor-
+genommen, z.B. der Server-Name und die Ports, auf denen er Verbindungen
+annehmen soll. In [Operator]-Abschnitten werden Server-Operatoren fest-
+gelegt und unter [Server] werden die Einstellungen fuer die Verbindung
+mit anderen Servern konfiguriert.
+
+Die Bedeutung der einzelnen Variablen ist in der Beispiel-Konfiguration
+"doc/sample-ngircd.conf" erklaert, die bei "make install" auch als
+"ngircd.conf" in /usr/local/etc installiert wird, wenn dort noch keine
+Konfigurationsdatei vorhanden ist.
+
+
+V. Kommandozeilen-Optionen
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Folgende Parameter koennen dem ngIRCd u.a. uebergeben werden:
+
+-f, --config <file>
+	Der Daemon wird angewiesen, statt der Standard-Konfigurationsdatei
+	/usr/local/etc/ngircd.conf die Datei <file> einzulesen.
+
+-n, --nodaemon
+	ngIRCd soll im Fordergrund laufen; alle Meldungen werden zusaetzlich
+	zum Syslog auch auf der Konsole ausgegeben.
+
+-p, --passive
+	Verbindungen zu anderen Servern (wie in der Konfigurationsdatei in
+	[Server]-Abschnitten definiert) werden nicht automatisch hergestellt.
+
+--configtest
+	Die Konfigurationsdatei wird eingelesen, ueberprueft und so aus-
+	gegeben, wie sie vom ngIRCd interpretiert wurde. Danach beendet
+	sich der Server wieder.
+
+Mit dem Parameter "--help" werden alle unterstuetzten Parameter angezeigt,
+mit "--version" die Versionsnummer. Bei beiden Parametern beendet sich der
+Server nach der Ausgabe wieder.
+
+
 -- 
-$Id: INSTALL,v 1.5 2002/03/03 13:07:01 alex Exp $
+$Id: INSTALL,v 1.6.2.1 2002/05/08 15:47:06 alex Exp $

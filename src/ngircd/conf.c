@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.c,v 1.36 2002/11/08 23:09:26 alex Exp $
+ * $Id: conf.c,v 1.37 2002/11/18 18:47:42 alex Exp $
  *
  * conf.h: Konfiguration des ngircd
  */
@@ -96,7 +96,7 @@ Conf_Test( VOID )
 	printf( "  AdminInfo2 = %s\n", Conf_ServerAdmin2 );
 	printf( "  AdminEMail = %s\n", Conf_ServerAdminMail );
 	printf( "  MotdFile = %s\n", Conf_MotdFile );
-	printf( "  ListenPorts = " );
+	printf( "  Ports = " );
 	for( i = 0; i < Conf_ListenPorts_Count; i++ )
 	{
 		if( i != 0 ) printf( ", " );

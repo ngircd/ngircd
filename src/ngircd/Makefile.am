@@ -1,6 +1,9 @@
-# $Id: Makefile.am,v 1.5 2001/12/21 22:25:30 alex Exp $
+# $Id: Makefile.am,v 1.6 2001/12/23 21:53:54 alex Exp $
 
 # $Log: Makefile.am,v $
+# Revision 1.6  2001/12/23 21:53:54  alex
+# - Header messages.h eingefuegt.
+#
 # Revision 1.5  2001/12/21 22:25:30  alex
 # - neues Modul "parse" eingebunden.
 #
@@ -22,7 +25,7 @@ sbin_PROGRAMS = ngircd
 
 ngircd_SOURCES = ngircd.c channel.c client.c conf.c conn.c irc.c log.c parse.c tool.c
 
-noinst_HEADERS = ngircd.h channel.c client.c conf.h conn.h irc.h log.h parse.h tool.h global.h
+noinst_HEADERS = ngircd.h channel.c client.c conf.h conn.h irc.h log.h parse.h tool.h global.h messages.h
 
 maintainer-clean-local:
 	rm -f Makefile Makefile.in

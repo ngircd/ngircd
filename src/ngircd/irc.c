@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.71 2002/02/27 00:50:05 alex Exp $
+ * $Id: irc.c,v 1.72 2002/02/27 02:26:58 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.72  2002/02/27 02:26:58  alex
+ * - SQUIT wird auf jeden Fall geforwarded, zudem besseres Logging.
+ *
  * Revision 1.71  2002/02/27 00:50:05  alex
  * - einige unnoetige Client_NextHop()-Aufrufe entfernt.
  * - NAMES korrigiert und komplett implementiert.
@@ -1045,6 +1048,7 @@ GLOBAL BOOLEAN IRC_QUIT( CLIENT *Client, REQUEST *Req )
 GLOBAL BOOLEAN IRC_SQUIT( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *target;
+	CHAR msg[128];
 	
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -1054,6 +1058,9 @@ GLOBAL BOOLEAN IRC_SQUIT( CLIENT *Client, REQUEST *Req )
 
 	/* Falsche Anzahl Parameter? */
 	if( Req->argc != 2 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+
+	/* SQUIT an alle Server weiterleiten */
+	IRC_WriteStrServers( Client, "SQUIT %s :%s", Req->argv[0], Req->argv[1] );
 
 	target = Client_GetFromID( Req->argv[0] );
 	if( ! target )
@@ -1065,20 +1072,23 @@ GLOBAL BOOLEAN IRC_SQUIT( CLIENT *Client, REQUEST *Req )
 	if( target == Client ) Log( LOG_DEBUG, "Got SQUIT from %s: %s", Client_ID( Client ), Req->argv[1] );
 	else Log( LOG_DEBUG, "Got SQUIT from %s for %s: %s", Client_ID( Client ), Client_ID( target ), Req->argv[1] );
 
-	/* SQUIT an alle Server weiterleiten */
-	IRC_WriteStrServers( Client, "SQUIT %s :%s", Req->argv[0], Req->argv[1] );
+	if( Req->argv[1][0] )
+	{
+		strcpy( msg, "Got SQUIT: " );
+		strncpy( &msg[11], Req->argv[1], 116 );
+		msg[128] = '\0';
+	}
+	else strcpy( msg, "Got SQUIT command." );
 
 	if( Client_Conn( target ) > NONE )
 	{
-		if( Req->argv[1][0] ) Conn_Close( Client_Conn( target ), "Got SQUIT command.", Req->argv[1], TRUE );
-		else Conn_Close( Client_Conn( target ), "Got SQUIT command.", NULL, TRUE );
-		return DISCONNECTED;
+		/* dieser Server hat die Connection */
+		if( Req->argv[1][0] ) Conn_Close( Client_Conn( target ), msg, Req->argv[1], TRUE );
+		else Conn_Close( Client_Conn( target ), msg, NULL, TRUE );
 	}
-	else
-	{
-		Client_Destroy( target, "Got SQUIT command.", Req->argv[1] );
-		return CONNECTED;
-	}
+	else Client_Destroy( target, msg, Req->argv[1] );
+
+	return DISCONNECTED;
 } /* IRC_SQUIT */
 
 

@@ -9,11 +9,17 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.49 2002/02/06 16:51:22 alex Exp $
+ * $Id: irc.c,v 1.50 2002/02/11 01:03:20 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.50  2002/02/11 01:03:20  alex
+ * - Aenderungen und Anpassungen an Channel-Modes und Channel-User-Modes:
+ *   Modes werden besser geforwarded, lokale User, fuer die ein Channel
+ *   angelegt wird, werden Channel-Operator, etc. pp. ...
+ * - NJOIN's von Servern werden nun korrekt an andere Server weitergeleitet.
+ *
  * Revision 1.49  2002/02/06 16:51:22  alex
  * - neue Funktion zur MODE-Behandlung, fuer Channel-Modes vorbereitet.
  *
@@ -434,11 +440,11 @@ GLOBAL BOOLEAN IRC_PASS( CLIENT *Client, REQUEST *Req )
 GLOBAL BOOLEAN IRC_SERVER( CLIENT *Client, REQUEST *Req )
 {
 	CHAR str[LINE_LEN], *ptr;
-	BOOLEAN ok;
-	CLIENT *from, *c;
-	CHANNEL *chan;
+	CLIENT *from, *c, *cl;
 	CL2CHAN *cl2chan;
 	INT max_hops, i;
+	CHANNEL *chan;
+	BOOLEAN ok;
 	
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -554,8 +560,14 @@ GLOBAL BOOLEAN IRC_SERVER( CLIENT *Client, REQUEST *Req )
 			cl2chan = Channel_FirstMember( chan );
 			while( cl2chan )
 			{
+				cl = Channel_GetClient( cl2chan );
+				assert( cl != NULL );
+
+				/* Nick, ggf. mit Modes, anhaengen */
 				if( str[strlen( str ) - 1] != ':' ) strcat( str, "," );
-				strcat( str, Client_ID( Channel_GetClient( cl2chan )));
+				if( strchr( Channel_UserModes( chan, cl ), 'v' )) strcat( str, "+" );
+				if( strchr( Channel_UserModes( chan, cl ), 'o' )) strcat( str, "@" );
+				strcat( str, Client_ID( cl ));
 
 				if( strlen( str ) > ( LINE_LEN - CLIENT_NICK_LEN - 4 ))
 				{
@@ -629,7 +641,9 @@ GLOBAL BOOLEAN IRC_SERVER( CLIENT *Client, REQUEST *Req )
 
 GLOBAL BOOLEAN IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 {
-	CHAR *chan, *ptr;
+	BOOLEAN is_op, is_voiced;
+	CHAR *channame, *ptr;
+	CHANNEL *chan;
 	CLIENT *c;
 	
 	assert( Client != NULL );
@@ -640,21 +654,39 @@ GLOBAL BOOLEAN IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 	/* Falsche Anzahl Parameter? */
 	if( Req->argc != 2 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
-	chan = Req->argv[0];
+	channame = Req->argv[0];
 	ptr = strtok( Req->argv[1], "," );
 	while( ptr )
 	{
+		is_op = is_voiced = FALSE;
+		
 		/* Prefixe abschneiden */
-		while(( *ptr == '@' ) || ( *ptr == '+' )) ptr++;
+		while(( *ptr == '@' ) || ( *ptr == '+' ))
+		{
+			if( *ptr == '@' ) is_op = TRUE;
+			if( *ptr == '+' ) is_voiced = TRUE;
+			ptr++;
+		}
 
 		c = Client_GetFromID( ptr );
-		if( c ) Channel_Join( c, chan );
-		else Log( LOG_ERR, "Got NJOIN for unknown nick \"%s\" for channel \"%s\"!", ptr, chan );
+		if( c )
+		{
+			Channel_Join( c, channame );
+			chan = Channel_Search( channame );
+			assert( chan != NULL );
+			
+			if( is_op ) Channel_UserModeAdd( chan, c, 'o' );
+			if( is_voiced ) Channel_UserModeAdd( chan, c, 'v' );
+		}
+		else Log( LOG_ERR, "Got NJOIN for unknown nick \"%s\" for channel \"%s\"!", ptr, channame );
 		
 		/* naechsten Nick suchen */
 		ptr = strtok( NULL, "," );
 	}
-	
+
+	/* an andere Server weiterleiten */
+	IRC_WriteStrServersPrefix( Client, Client_ThisServer( ), "NJOIN %s :%s", Req->argv[0], Req->argv[1] );
+
 	return CONNECTED;
 } /* IRC_NJOIN */
 
@@ -928,7 +960,9 @@ GLOBAL BOOLEAN IRC_PONG( CLIENT *Client, REQUEST *Req )
 	/* Der Connection-Timestamp wurde schon beim Lesen aus dem Socket
 	 * aktualisiert, daher muss das hier nicht mehr gemacht werden. */
 
-	Log( LOG_DEBUG, "Connection %d: received PONG.", Client_Conn( Client ));
+	if( Client_Conn( Client ) > NONE ) Log( LOG_DEBUG, "Connection %d: received PONG. Lag: %d seconds.", Client_Conn( Client ), time( NULL ) - Conn_LastPing( Client_Conn( Client )));
+	else Log( LOG_DEBUG, "Connection %d: received PONG.", Client_Conn( Client ));
+
 	return CONNECTED;
 } /* IRC_PONG */
 
@@ -1017,12 +1051,12 @@ GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req )
 	CHAR *mode_ptr, the_modes[CLIENT_MODE_LEN], x[2];
 	BOOLEAN set, ok;
 	CHANNEL *chan;
-	CLIENT *cl;
+	CLIENT *cl, *chan_cl;
 	
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	cl = NULL;
+	cl = chan_cl = NULL;
 	chan = NULL;
 
 	/* Valider Client? */
@@ -1038,9 +1072,18 @@ GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req )
 	/* Kein Ziel gefunden? */
 	if(( ! cl ) && ( ! chan )) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->argv[0] );
 
+	assert(( cl && chan ) != TRUE );
+
 	/* Falsche Anzahl Parameter? */
 	if(( cl ) && ( Req->argc > 2 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 	if(( chan ) && ( Req->argc > 3 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+
+	/* Client ermitteln, wenn bei Channel-Modes mit 3 Parametern */
+	if(( chan ) && (Req->argc == 3 ))
+	{
+		chan_cl = Client_Search( Req->argv[2] );
+		if( ! chan_cl ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->argv[0] );
+	}
 	
 	/* Wenn Anfragender ein User ist: Zugriff erlaubt? */
 	if( Client_Type( Client ) == CLIENT_USER )
@@ -1063,15 +1106,24 @@ GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req )
 	mode_ptr = Req->argv[1];
 
 	/* Sollen Modes gesetzt oder geloescht werden? */
-	if( *mode_ptr == '+' ) set = TRUE;
-	else if( *mode_ptr == '-' ) set = FALSE;
-	else return IRC_WriteStrClient( Client, ERR_UMODEUNKNOWNFLAG_MSG, Client_ID( Client ));
+	if( cl )
+	{
+		if( *mode_ptr == '+' ) set = TRUE;
+		else if( *mode_ptr == '-' ) set = FALSE;
+		else return IRC_WriteStrClient( Client, ERR_UMODEUNKNOWNFLAG_MSG, Client_ID( Client ));
+		mode_ptr++;
+	}
+	else
+	{
+		if( *mode_ptr == '-' ) set = FALSE;
+		else set = TRUE;
+		if(( *mode_ptr == '-' ) || ( *mode_ptr == '+' )) mode_ptr++;
+	}
 
 	/* Reply-String mit Aenderungen vorbereiten */
 	if( set ) strcpy( the_modes, "+" );
 	else strcpy( the_modes, "-" );
 
-	mode_ptr++;
 	ok = TRUE;
 	x[1] = '\0';
 	while( *mode_ptr )
@@ -1116,8 +1168,17 @@ GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req )
 			}
 			if( chan )
 			{
-				/* Channel-Modes */
-				Log( LOG_DEBUG, "Channel-Mode '%c' not supported ...", *mode_ptr );
+				/* Channel-Modes oder Channel-User-Modes */
+				if( chan_cl )
+				{
+					/* Channel-User-Modes */
+					Log( LOG_DEBUG, "Channel-User-Mode '%c' not supported ...", *mode_ptr );
+				}
+				else
+				{
+					/* Channel-Modes */
+					Log( LOG_DEBUG, "Channel-Mode '%c' not supported ...", *mode_ptr );
+				}
 			}
 		}
 		if( ! ok ) break;
@@ -1132,17 +1193,45 @@ GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req )
 			if( set )
 			{
 				/* Mode setzen. Wenn der Client ihn noch nicht hatte: merken */
-				if( Client_ModeAdd( Client, x[0] )) strcat( the_modes, x );
+				if( Client_ModeAdd( cl, x[0] )) strcat( the_modes, x );
 			}
 			else
 			{
 				/* Modes geloescht. Wenn der Client ihn hatte: merken */
-				if( Client_ModeDel( Client, x[0] )) strcat( the_modes, x );
+				if( Client_ModeDel( cl, x[0] )) strcat( the_modes, x );
 			}
 		}
 		if( chan )
 		{
-			/* Es geht um Channel-Modes */
+			/* Es geht um Channel-Modes oder Channel-User-Modes */
+			if( chan_cl )
+			{
+				/* Channel-User-Modes */
+				if( set )
+				{
+					/* Mode setzen. Wenn der Channel ihn noch nicht hatte: merken */
+					if( Channel_UserModeAdd( chan, chan_cl, x[0] )) strcat( the_modes, x );
+				}
+				else
+				{
+					/* Mode setzen. Wenn der Channel ihn noch nicht hatte: merken */
+					if( Channel_UserModeDel( chan, chan_cl, x[0] )) strcat( the_modes, x );
+				}
+			}
+			else
+			{
+				/* Channel-Mode */
+				if( set )
+				{
+					/* Mode setzen. Wenn der Channel ihn noch nicht hatte: merken */
+					if( Channel_ModeAdd( chan, x[0] )) strcat( the_modes, x );
+				}
+				else
+				{
+					/* Mode setzen. Wenn der Channel ihn noch nicht hatte: merken */
+					if( Channel_ModeDel( chan, x[0] )) strcat( the_modes, x );
+				}
+			}
 		}
 	}
 
@@ -1151,6 +1240,7 @@ GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req )
 	{
 		if( cl )
 		{
+			/* Client-Mode */
 			if( Client_Type( Client ) == CLIENT_SERVER )
 			{
 				/* Modes an andere Server forwarden */
@@ -1166,6 +1256,41 @@ GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req )
 		}
 		if( chan )
 		{
+			/* Channel-Modes oder Channel-User-Mode */
+			if( chan_cl )
+			{
+				/* Channel-User-Mode */
+				if( Client_Type( Client ) == CLIENT_SERVER )
+				{
+					/* Modes an andere Server und Channel-User forwarden */
+					IRC_WriteStrServersPrefix( Client, Client, "MODE %s %s :%s", Channel_Name( chan ), the_modes, Client_ID( chan_cl));
+					IRC_WriteStrChannelPrefix( Client, chan, Client, FALSE, "MODE %s %s :%s", Channel_Name( chan ), the_modes, Client_ID( chan_cl));
+				}
+				else
+				{
+					/* Bestaetigung an Client schicken & andere Server informieren */
+					ok = IRC_WriteStrClient( Client, "MODE %s %s :%s", Channel_Name( chan ), the_modes, Client_ID( chan_cl));
+					IRC_WriteStrServersPrefix( Client, Client, "MODE %s %s :%s", Channel_Name( chan ), the_modes, Client_ID( chan_cl));
+					IRC_WriteStrChannelPrefix( Client, chan, Client, FALSE, "MODE %s %s :%s", Channel_Name( chan ), the_modes, Client_ID( chan_cl));
+				}
+				Log( LOG_DEBUG, "User \"%s\" on %s: Mode change, now \"%s\".", Client_Mask( chan_cl), Channel_Name( chan ), Channel_UserModes( chan, chan_cl ));
+			}
+			else
+			{
+				/* Channel-Mode */
+				if( Client_Type( Client ) == CLIENT_SERVER )
+				{
+					/* Modes an andere Server forwarden */
+					IRC_WriteStrServersPrefix( Client, Client, "MODE %s :%s", Channel_Name( chan ), the_modes );
+				}
+				else
+				{
+					/* Bestaetigung an Client schicken & andere Server informieren */
+					ok = IRC_WriteStrClient( Client, "MODE %s :%s", Channel_Name( chan ), the_modes );
+					IRC_WriteStrServers( Client, "MODE %s :%s", Channel_Name( chan ), the_modes );
+				}
+				Log( LOG_DEBUG, "Channel \"%s\": Mode change, now \"%s\".", Channel_Name( chan ), Channel_Modes( chan ));
+			}
 		}
 	}
 
@@ -1342,6 +1467,7 @@ GLOBAL BOOLEAN IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 	CLIENT *from, *target, *c;
 	CHAR str[LINE_LEN + 1], *ptr = NULL;
 	CL2CHAN *cl2chan;
+	CHANNEL *chan;
 	
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -1391,9 +1517,14 @@ GLOBAL BOOLEAN IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 	cl2chan = Channel_FirstChannelOf( c );
 	while( cl2chan )
 	{
+		chan = Channel_GetChannel( cl2chan );
+		assert( chan != NULL );
+		
 		/* Channel-Name anhaengen */
 		if( str[strlen( str ) - 1] != ':' ) strcat( str, " " );
-		strcat( str, Channel_Name( Channel_GetChannel( cl2chan )));
+		if( strchr( Channel_UserModes( chan, c ), 'v' )) strcat( str, "+" );
+		if( strchr( Channel_UserModes( chan, c ), 'o' )) strcat( str, "@" );
+		strcat( str, Channel_Name( chan ));
 
 		if( strlen( str ) > ( LINE_LEN - CHANNEL_NAME_LEN - 4 ))
 		{
@@ -1590,8 +1721,10 @@ GLOBAL BOOLEAN IRC_LINKS( CLIENT *Client, REQUEST *Req )
 
 GLOBAL BOOLEAN IRC_JOIN( CLIENT *Client, REQUEST *Req )
 {
+	CHAR *channame, *flags, modes[8];
+	BOOLEAN is_new_chan;
 	CLIENT *target;
-	CHAR *chan, *flags;
+	CHANNEL *chan;
 	
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -1607,40 +1740,75 @@ GLOBAL BOOLEAN IRC_JOIN( CLIENT *Client, REQUEST *Req )
 	if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
 	
 	/* Channel-Namen durchgehen */
-	chan = strtok( Req->argv[0], "," );
-	while( chan )
+	channame = strtok( Req->argv[0], "," );
+	while( channame )
 	{
+		/* wird der Channel neu angelegt? */
+		flags = NULL;
+
+		if( Channel_Search( channame )) is_new_chan = FALSE;
+		else is_new_chan = TRUE;
+
+		/* Hat ein Server Channel-User-Modes uebergeben? */
 		if( Client_Type( Client ) == CLIENT_SERVER )
 		{
 			/* Channel-Flags extrahieren */
-			flags = strchr( chan, 0x7 );
+			flags = strchr( channame, 0x7 );
 			if( flags ) *flags++ = '\0';
 		}
-		else flags = NULL;
-		
-		if( ! Channel_Join( target, chan ))
+
+		/* neuer Channel udn lokaler Client? */
+		if( is_new_chan && ( Client_Type( Client ) == CLIENT_USER ))
 		{
-			/* naechsten Namen ermitteln */
-			chan = strtok( NULL, "," );
-			continue;
+			/* Dann soll der Client Channel-Operator werden! */
+			flags = "o";
 		}
 
+		/* Channel joinen (und ggf. anlegen) */
+		if( ! Channel_Join( target, channame ))
+		{
+			/* naechsten Namen ermitteln */
+			channame = strtok( NULL, "," );
+			continue;
+		}
+		chan = Channel_Search( channame );
+		assert( chan != NULL );
+
+		/* Modes setzen (wenn vorhanden) */
+		while( flags && *flags )
+		{
+			Channel_UserModeAdd( chan, target, *flags );
+			flags++;
+		}
+
+		/* Muessen Modes an andere Server gemeldet werden? */
+		strcpy( &modes[1], Channel_UserModes( chan, target ));
+		if( modes[1] ) modes[0] = 0x7;
+		else modes[0] = '\0';
+
 		/* An andere Server weiterleiten */
-		IRC_WriteStrServersPrefix( Client, target, "JOIN :%s", chan );
-		IRC_WriteStrChannelPrefix( Client, Channel_Search( chan ), target, FALSE, "JOIN :%s", chan );
+		IRC_WriteStrServersPrefix( Client, target, "JOIN :%s%s", channame, modes );
+
+		/* im Channel bekannt machen */
+		IRC_WriteStrChannelPrefix( Client, chan, target, FALSE, "JOIN :%s", channame );
+		if( modes[1] )
+		{
+			/* Modes im Channel bekannt machen */
+			IRC_WriteStrChannelPrefix( Client, chan, target, FALSE, "MODE %s %s :%s", channame, modes, Client_ID( target ));
+		}
 
 		if( Client_Type( Client ) == CLIENT_USER )
 		{
 			/* an Client bestaetigen */
-			IRC_WriteStrClientPrefix( Client, target, "JOIN :%s", chan );
+			IRC_WriteStrClientPrefix( Client, target, "JOIN :%s", channame );
 			/* Topic an Client schicken */
-			IRC_WriteStrClient( Client, RPL_TOPIC_MSG, Client_ID( Client ), chan, "What a wonderful channel!" );
+			IRC_WriteStrClient( Client, RPL_TOPIC_MSG, Client_ID( Client ), channame, "What a wonderful channel!" );
 			/* Mitglieder an Client Melden */
-			Send_NAMES( Client, Channel_Search( chan ));
+			Send_NAMES( Client, chan );
 		}
 		
 		/* naechsten Namen ermitteln */
-		chan = strtok( NULL, "," );
+		channame = strtok( NULL, "," );
 	}
 	return CONNECTED;
 } /* IRC_JOIN */
@@ -1757,6 +1925,7 @@ LOCAL BOOLEAN Send_NAMES( CLIENT *Client, CHANNEL *Chan )
 {
 	CHAR str[LINE_LEN + 1];
 	CL2CHAN *cl2chan;
+	CLIENT *cl;
 	
 	assert( Client != NULL );
 	assert( Chan != NULL );
@@ -1766,9 +1935,13 @@ LOCAL BOOLEAN Send_NAMES( CLIENT *Client, CHANNEL *Chan )
 	cl2chan = Channel_FirstMember( Chan );
 	while( cl2chan )
 	{
+		cl = Channel_GetClient( cl2chan );
+
 		/* Nick anhaengen */
 		if( str[strlen( str ) - 1] != ':' ) strcat( str, " " );
-		strcat( str, Client_ID( Channel_GetClient( cl2chan )));
+		if( strchr( Channel_UserModes( Chan, cl ), 'v' )) strcat( str, "+" );
+		if( strchr( Channel_UserModes( Chan, cl ), 'o' )) strcat( str, "@" );
+		strcat( str, Client_ID( cl ));
 
 		if( strlen( str ) > ( LINE_LEN - CLIENT_NICK_LEN - 4 ))
 		{

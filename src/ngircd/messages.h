@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: messages.h,v 1.24 2002/02/06 16:51:39 alex Exp $
+ * $Id: messages.h,v 1.25 2002/02/11 15:48:39 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: messages.h,v $
+ * Revision 1.25  2002/02/11 15:48:39  alex
+ * - neue Nachricht RPL_CHANNELMODEIS definiert.
+ *
  * Revision 1.24  2002/02/06 16:51:39  alex
  * - neue Text-Konstante RPL_UMODEISCHAN_MSG.
  *
@@ -136,7 +139,6 @@
 
 #define RPL_UMODEIS			"211"
 #define RPL_UMODEIS_MSG			RPL_UMODEIS" %s +%s"
-#define RPL_UMODEISCHAN_MSG		RPL_UMODEIS" %s %s +%s"
 
 #define RPL_USERHOST			"302"
 #define RPL_USERHOST_MSG		RPL_USERHOST" %s :"
@@ -161,6 +163,9 @@
 
 #define RPL_WHOISCHANNELS		"319"
 #define RPL_WHOISCHANNELS_MSG		RPL_WHOISCHANNELS" %s %s :"
+
+#define RPL_CHANNELMODEIS		"324"
+#define RPL_CHANNELMODEIS_MSG		RPL_CHANNELMODEIS" %s %s +%s"
 
 #define RPL_NOTOPIC			"331"
 #define RPL_NOTOPIC_MSG			RPL_NOTOPIC" %s %s :No topic is set"

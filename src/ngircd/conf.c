@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.c,v 1.35 2002/11/02 22:59:01 alex Exp $
+ * $Id: conf.c,v 1.36 2002/11/08 23:09:26 alex Exp $
  *
  * conf.h: Konfiguration des ngircd
  */
@@ -25,6 +25,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <pwd.h>
+#include <grp.h>
+#include <sys/types.h>
 
 #include "ngircd.h"
 #include "conn.h"
@@ -67,6 +70,8 @@ Conf_Test( VOID )
 {
 	/* Konfiguration einlesen, ueberpruefen und ausgeben. */
 
+	struct passwd *pwd;
+	struct group *grp;
 	INT i;
 
 	Use_Log = FALSE;
@@ -98,8 +103,12 @@ Conf_Test( VOID )
 		printf( "%u", Conf_ListenPorts[i] );
 	}
 	puts( "" );
-	printf( "  ServerUID = %ld\n", (LONG)Conf_UID );
-	printf( "  ServerGID = %ld\n", (LONG)Conf_GID );
+	pwd = getpwuid( Conf_UID );
+	if( pwd ) printf( "  ServerUID = %s\n", pwd->pw_name );
+	else printf( "  ServerUID = %ld\n", (LONG)Conf_UID );
+	grp = getgrgid( Conf_GID );
+	if( grp ) printf( "  ServerGID = %s\n", grp->gr_name );
+	else printf( "  ServerGID = %ld\n", (LONG)Conf_GID );
 	printf( "  PingTimeout = %d\n", Conf_PingTimeout );
 	printf( "  PongTimeout = %d\n", Conf_PongTimeout );
 	printf( "  ConnectRetry = %d\n", Conf_ConnectRetry );
@@ -298,6 +307,8 @@ Read_Config( VOID )
 LOCAL VOID
 Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 {
+	struct passwd *pwd;
+	struct group *grp;
 	CHAR *ptr;
 	LONG port;
 	
@@ -376,13 +387,17 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 	if( strcasecmp( Var, "ServerUID" ) == 0 )
 	{
 		/* UID, mit der der Daemon laufen soll */
-		Conf_UID = (UINT)atoi( Arg );
+		pwd = getpwnam( Arg );
+		if( pwd ) Conf_UID = pwd->pw_uid;
+		else Conf_UID = (UINT)atoi( Arg );
 		return;
 	}
 	if( strcasecmp( Var, "ServerGID" ) == 0 )
 	{
 		/* GID, mit der der Daemon laufen soll */
-		Conf_GID = (UINT)atoi( Arg );
+		grp = getgrnam( Arg );
+		if( grp ) Conf_GID = grp->gr_gid;
+		else Conf_GID = (UINT)atoi( Arg );
 		return;
 	}
 	if( strcasecmp( Var, "PingTimeout" ) == 0 )

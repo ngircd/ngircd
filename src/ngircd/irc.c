@@ -9,11 +9,16 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.38 2002/01/18 15:31:32 alex Exp $
+ * $Id: irc.c,v 1.39 2002/01/21 00:05:11 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.39  2002/01/21 00:05:11  alex
+ * - neue Funktionen IRC_JOIN und IRC_PART begonnen, ebenso die Funktionen
+ *   IRC_WriteStrRelatedPrefix und IRC_WriteStrRelatedChannelPrefix().
+ * - diverse Aenderungen im Zusammenhang mit Channels.
+ *
  * Revision 1.38  2002/01/18 15:31:32  alex
  * - die User-Modes bei einem NICK von einem Server wurden falsch uebernommen.
  *
@@ -160,6 +165,7 @@
 #include <string.h>
 
 #include "ngircd.h"
+#include "channel.h"
 #include "client.h"
 #include "conf.h"
 #include "conn.h"
@@ -227,14 +233,13 @@ GLOBAL BOOLEAN IRC_WriteStrClientPrefix( CLIENT *Client, CLIENT *Prefix, CHAR *F
 	vsnprintf( buffer, 1000, Format, ap );
 	va_end( ap );
 
-	return Conn_WriteStr( Client_Conn( Client_NextHop( Client )), ":%s %s", Client_ID( Prefix ), buffer );
+	return Conn_WriteStr( Client_Conn( Client_NextHop( Client )), ":%s %s", Client_Mask( Prefix ), buffer );
 } /* IRC_WriteStrClientPrefix */
 
 
 GLOBAL BOOLEAN IRC_WriteStrRelated( CLIENT *Client, CHAR *Format, ... )
 {
 	CHAR buffer[1000];
-	BOOLEAN ok = CONNECTED;
 	va_list ap;
 
 	assert( Client != NULL );
@@ -244,13 +249,48 @@ GLOBAL BOOLEAN IRC_WriteStrRelated( CLIENT *Client, CHAR *Format, ... )
 	vsnprintf( buffer, 1000, Format, ap );
 	va_end( ap );
 
-	/* an den Client selber */
-	ok = IRC_WriteStrClient( Client, buffer );
-
-	/* FIXME */
-	
-	return ok;
+	return IRC_WriteStrRelatedPrefix( Client, Client_ThisServer( ), buffer );
 } /* IRC_WriteStrRelated */
+
+
+GLOBAL BOOLEAN IRC_WriteStrRelatedPrefix( CLIENT *Client, CLIENT *Prefix, CHAR *Format, ... )
+{
+	CHAR buffer[1000];
+	va_list ap;
+
+	assert( Client != NULL );
+	assert( Format != NULL );
+
+	va_start( ap, Format );
+	vsnprintf( buffer, 1000, Format, ap );
+	va_end( ap );
+
+	return IRC_WriteStrRelatedChannelPrefix( Client, NULL, Client_ThisServer( ), buffer );
+} /* IRC_WriteStrRelatedPrefix */
+
+
+GLOBAL BOOLEAN IRC_WriteStrRelatedChannelPrefix( CLIENT *Client, CHAR *ChanName, CLIENT *Prefix, CHAR *Format, ... )
+{
+	CHAR buffer[1000];
+	BOOLEAN ok = CONNECTED;
+	va_list ap;
+
+	assert( Client != NULL );
+	assert( Format != NULL );
+	assert( Prefix != NULL );
+
+	va_start( ap, Format );
+	vsnprintf( buffer, 1000, Format, ap );
+	va_end( ap );
+
+	/* An den Client selber, wenn User */
+	if( Client_Type( Client ) == CLIENT_USER ) ok = IRC_WriteStrClientPrefix( Client, Prefix, buffer );
+
+	/* An alle Clients, die in den selben Channels sind.
+	 * Dabei aber nur einmal je Remote-Server */
+		
+	return ok;
+} /* IRC_WriteStrRelatedChannelPrefix */
 
 
 GLOBAL VOID IRC_WriteStrServers( CLIENT *ExceptOf, CHAR *Format, ... )
@@ -934,7 +974,7 @@ GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req )
 		else
 		{
 			/* Bestaetigung an Client schicken & andere Server informieren */
-			ok = IRC_WriteStrRelated( Client, "MODE %s :%s", Client_ID( target ), new_modes );
+			ok = IRC_WriteStrClient( Client, "MODE %s :%s", Client_ID( target ), new_modes );
 			IRC_WriteStrServers( Client, "MODE %s :%s", Client_ID( target ), new_modes );
 		}
 		Log( LOG_DEBUG, "User \"%s\": Mode change, now \"%s\".", Client_Mask( target ), Client_Modes( target ));
@@ -977,7 +1017,7 @@ GLOBAL BOOLEAN IRC_OPER( CLIENT *Client, REQUEST *Req )
 	{
 		/* noch kein o-Mode gesetzt */
 		Client_ModeAdd( Client, 'o' );
-		if( ! IRC_WriteStrRelated( Client, "MODE %s :+o", Client_ID( Client ))) return DISCONNECTED;
+		if( ! IRC_WriteStrClient( Client, "MODE %s :+o", Client_ID( Client ))) return DISCONNECTED;
 		IRC_WriteStrServersPrefix( NULL, Client, "MODE %s :+o", Client_ID( Client ));
 	}
 
@@ -1330,6 +1370,84 @@ GLOBAL BOOLEAN IRC_LINKS( CLIENT *Client, REQUEST *Req )
 	
 	return IRC_WriteStrClient( target, RPL_ENDOFLINKS_MSG, Client_ID( target ), mask );
 } /* IRC_LINKS */
+
+
+GLOBAL BOOLEAN IRC_JOIN( CLIENT *Client, REQUEST *Req )
+{
+	CLIENT *target;
+	CHAR *chan;
+	
+	assert( Client != NULL );
+	assert( Req != NULL );
+
+	if(( Client_Type( Client ) != CLIENT_USER ) && ( Client_Type( Client ) != CLIENT_SERVER )) return IRC_WriteStrClient( Client, ERR_NOTREGISTERED_MSG, Client_ID( Client ));
+
+	/* Falsche Anzahl Parameter? */
+	if(( Req->argc > 1 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+
+	/* Wer ist der Absender? */
+	if( Client_Type( Client ) == CLIENT_SERVER ) target = Client_GetFromID( Req->prefix );
+	else target = Client;
+	if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
+	
+	/* Channel-Namen durchgehen */
+	chan = strtok( Req->argv[0], "," );
+	while( chan )
+	{
+		if( ! Channel_Join( target, chan ))
+		{
+			/* naechsten Namen ermitteln */
+			chan = strtok( NULL, "," );
+			continue;
+		}
+
+		/* An andere Server weiterleiten, an Client bestaetigen */
+		IRC_WriteStrServersPrefix( Client, target, "JOIN :%s", chan );
+		IRC_WriteStrRelatedChannelPrefix( Client, chan, target, "JOIN :%s", chan );
+
+		Log( LOG_DEBUG, "User \"%s\" joined channel \"%s\".", Client_Mask( target ), Req->argv[0] );
+		
+		/* naechsten Namen ermitteln */
+		chan = strtok( NULL, "," );
+	}
+	return CONNECTED;
+} /* IRC_JOIN */
+
+
+GLOBAL BOOLEAN IRC_PART( CLIENT *Client, REQUEST *Req )
+{
+	CLIENT *target;
+	CHAR *chan;
+
+	assert( Client != NULL );
+	assert( Req != NULL );
+
+	if(( Client_Type( Client ) != CLIENT_USER ) && ( Client_Type( Client ) != CLIENT_SERVER )) return IRC_WriteStrClient( Client, ERR_NOTREGISTERED_MSG, Client_ID( Client ));
+
+	/* Falsche Anzahl Parameter? */
+	if(( Req->argc > 2 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+
+	/* Wer ist der Absender? */
+	if( Client_Type( Client ) == CLIENT_SERVER ) target = Client_GetFromID( Req->prefix );
+	else target = Client;
+	if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
+
+	/* Channel-Namen durchgehen */
+	chan = strtok( Req->argv[0], "," );
+	while( chan )
+	{
+		if( ! Channel_Part( target, Client, chan, Req->argc > 1 ? Req->argv[1] : Client_ID( target )))
+		{
+			/* naechsten Namen ermitteln */
+			chan = strtok( NULL, "," );
+			continue;
+		}
+
+		/* naechsten Namen ermitteln */
+		chan = strtok( NULL, "," );
+	}
+	return CONNECTED;
+} /* IRC_PART */
 
 
 LOCAL BOOLEAN Hello_User( CLIENT *Client )

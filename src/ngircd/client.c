@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.28 2002/01/11 23:50:40 alex Exp $
+ * $Id: client.c,v 1.29 2002/01/16 22:10:35 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,9 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.29  2002/01/16 22:10:35  alex
+ * - neue Funktionen Client_xxxCount().
+ *
  * Revision 1.28  2002/01/11 23:50:40  alex
  * - Hop-Count fuer den Server selber (0) wird korrekt initialisiert.
  *
@@ -147,6 +150,9 @@ LOCAL CLIENT *This_Server, *My_Clients;
 LOCAL CHAR GetID_Buffer[CLIENT_ID_LEN];
 
 
+LOCAL INT Count( CLIENT_TYPE Type );
+LOCAL INT MyCount( CLIENT_TYPE Type );
+
 LOCAL CLIENT *New_Client_Struct( VOID );
 LOCAL VOID Generate_MyToken( CLIENT *Client );
 
@@ -225,7 +231,7 @@ GLOBAL CLIENT *Client_NewRemoteServer( CLIENT *Introducer, CHAR *Hostname, INT H
 GLOBAL CLIENT *Client_NewRemoteUser( CLIENT *Introducer, CHAR *Nick, INT Hops, CHAR *User, CHAR *Hostname, INT Token, CHAR *Modes, CHAR *Info, BOOLEAN Idented )
 {
 	/* Neuen Remote-Client erzeugen: Wrapper-Funktion fuer Client_New (). */
-	return Client_New( NONE, Introducer, CLIENT_USER, Nick, User, Hostname, Info, Hops, Token, NULL, Idented );
+	return Client_New( NONE, Introducer, CLIENT_USER, Nick, User, Hostname, Info, Hops, Token, Modes, Idented );
 } /* Client_NewRemoteUser */
 
 
@@ -763,6 +769,106 @@ GLOBAL CLIENT *Client_Next( CLIENT *c )
 	assert( c != NULL );
 	return c->next;
 } /* Client_Next */
+
+
+GLOBAL INT Client_UserCount( VOID )
+{
+	return Count( CLIENT_USER );
+} /* Client_UserCount */
+
+
+GLOBAL INT Client_ServiceCount( VOID )
+{
+	return Count( CLIENT_SERVICE );;
+} /* Client_ServiceCount */
+
+
+GLOBAL INT Client_ServerCount( VOID )
+{
+	return Count( CLIENT_SERVER );
+} /* Client_ServerCount */
+
+
+GLOBAL INT Client_MyUserCount( VOID )
+{
+	return MyCount( CLIENT_USER );
+} /* Client_MyUserCount */
+
+
+GLOBAL INT Client_MyServiceCount( VOID )
+{
+	return MyCount( CLIENT_SERVICE );
+} /* Client_MyServiceCount */
+
+
+GLOBAL INT Client_MyServerCount( VOID )
+{
+	return MyCount( CLIENT_SERVER );
+} /* Client_MyServerCount */
+
+
+GLOBAL INT Client_OperCount( VOID )
+{
+	CLIENT *c;
+	INT cnt;
+
+	cnt = 0;
+	c = My_Clients;
+	while( c )
+	{
+		if( c && ( c->type == CLIENT_USER ) && ( strchr( c->modes, 'o' ))) cnt++;
+		c = c->next;
+	}
+	return cnt;
+} /* Client_OperCount */
+
+
+GLOBAL INT Client_UnknownCount( VOID )
+{
+	CLIENT *c;
+	INT cnt;
+
+	cnt = 0;
+	c = My_Clients;
+	while( c )
+	{
+		if( c && ( c->type != CLIENT_USER ) && ( c->type != CLIENT_SERVICE ) && ( c->type != CLIENT_SERVER )) cnt++;
+		c = c->next;
+	}
+	return cnt;
+} /* Client_UnknownCount */
+
+
+LOCAL INT Count( CLIENT_TYPE Type )
+{
+	CLIENT *c;
+	INT cnt;
+
+	cnt = 0;
+	c = My_Clients;
+	while( c )
+	{
+		if( c && ( c->type == Type )) cnt++;
+		c = c->next;
+	}
+	return cnt;
+} /* Count */
+
+
+LOCAL INT MyCount( CLIENT_TYPE Type )
+{
+	CLIENT *c;
+	INT cnt;
+
+	cnt = 0;
+	c = My_Clients;
+	while( c )
+	{
+		if( c && ( c->introducer == This_Server ) && ( c->type == Type )) cnt++;
+		c = c->next;
+	}
+	return cnt;
+} /* MyCount */
 
 
 LOCAL CLIENT *New_Client_Struct( VOID )

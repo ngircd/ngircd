@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.h,v 1.18 2002/01/07 23:42:12 alex Exp $
+ * $Id: client.h,v 1.19 2002/01/16 22:10:35 alex Exp $
  *
  * client.h: Konfiguration des ngircd (Header)
  *
  * $Log: client.h,v $
+ * Revision 1.19  2002/01/16 22:10:35  alex
+ * - neue Funktionen Client_xxxCount().
+ *
  * Revision 1.18  2002/01/07 23:42:12  alex
  * - Es werden fuer alle Server eigene Token generiert,
  * - QUIT von einem Server fuer einen User wird an andere Server geforwarded,
@@ -175,6 +178,16 @@ GLOBAL BOOLEAN Client_ModeDel( CLIENT *Client, CHAR Mode );
 
 GLOBAL BOOLEAN Client_CheckNick( CLIENT *Client, CHAR *Nick );
 GLOBAL BOOLEAN Client_CheckID( CLIENT *Client, CHAR *ID );
+
+GLOBAL INT Client_UserCount( VOID );
+GLOBAL INT Client_ServiceCount( VOID );
+GLOBAL INT Client_ServerCount( VOID );
+GLOBAL INT Client_OperCount( VOID );
+GLOBAL INT Client_UnknownCount( VOID );
+GLOBAL INT Client_MyUserCount( VOID );
+GLOBAL INT Client_MyServiceCount( VOID );
+GLOBAL INT Client_MyServerCount( VOID );
+
 
 #endif
 

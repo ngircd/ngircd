@@ -9,7 +9,7 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: Makefile.am,v 1.8 2002/09/20 15:39:24 alex Exp $
+# $Id: Makefile.am,v 1.9 2002/11/10 14:28:06 alex Exp $
 #
 
 AUTOMAKE_OPTIONS = ../portab/ansi2knr
@@ -25,7 +25,7 @@ EXTRA_DIST = \
 
 clean-local:
 	rm -rf logs tests *-test ngircd-test.log ngircd-test.motd \
-	 ngircd-TEST* procs.tmp 
+	 T-ngircd procs.tmp 
 
 maintainer-clean-local:
 	rm -f Makefile Makefile.in
@@ -33,7 +33,7 @@ maintainer-clean-local:
 check_SCRIPTS = ngircd-TEST-Binary tests.sh
 
 ngircd-TEST-Binary:
-	cp ../ngircd/ngircd ngircd-TEST
+	cp ../ngircd/ngircd T-ngircd
 	[ -f getpid.sh ] || ln -s $(srcdir)/getpid.sh .
 
 connect-test: tests.sh

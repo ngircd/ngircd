@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: log.c,v 1.8 2001/12/25 23:13:00 alex Exp $
+ * $Id: log.c,v 1.9 2001/12/26 03:22:16 alex Exp $
  *
  * log.c: Logging-Funktionen
  *
  * $Log: log.c,v $
+ * Revision 1.9  2001/12/26 03:22:16  alex
+ * - string.h wird nun includiert.
+ *
  * Revision 1.8  2001/12/25 23:13:00  alex
  * - Versionsstring bei Programmstart verbessert.
  *
@@ -50,6 +53,7 @@
 #include <assert.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <string.h>
 #include <syslog.h>
 
 #include <exp.h>

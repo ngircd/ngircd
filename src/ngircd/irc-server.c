@@ -9,14 +9,16 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-server.c,v 1.1 2002/03/03 17:15:11 alex Exp $
+ * $Id: irc-server.c,v 1.2 2002/03/06 15:50:14 alex Exp $
  *
  * irc-server.c: IRC-Befehle fuer Server-Links
  *
  * $Log: irc-server.c,v $
+ * Revision 1.2  2002/03/06 15:50:14  alex
+ * - kleine Code-Umstellungen.
+ *
  * Revision 1.1  2002/03/03 17:15:11  alex
  * - Source in weitere Module fuer IRC-Befehle aufgesplitted.
- *
  */
 
 
@@ -155,10 +157,9 @@ GLOBAL BOOLEAN IRC_SERVER( CLIENT *Client, REQUEST *Req )
 		chan = Channel_First( );
 		while( chan )
 		{
-			sprintf( str, "NJOIN %s :", Channel_Name( chan ));
-
 			/* alle Member suchen */
 			cl2chan = Channel_FirstMember( chan );
+			sprintf( str, "NJOIN %s :", Channel_Name( chan ));
 			while( cl2chan )
 			{
 				cl = Channel_GetClient( cl2chan );
@@ -170,7 +171,7 @@ GLOBAL BOOLEAN IRC_SERVER( CLIENT *Client, REQUEST *Req )
 				if( strchr( Channel_UserModes( chan, cl ), 'o' )) strcat( str, "@" );
 				strcat( str, Client_ID( cl ));
 
-				if( strlen( str ) > ( LINE_LEN - CLIENT_NICK_LEN - 4 ))
+				if( strlen( str ) > ( LINE_LEN - CLIENT_NICK_LEN - 8 ))
 				{
 					/* Zeile senden */
 					if( ! IRC_WriteStrClient( Client, str )) return DISCONNECTED;

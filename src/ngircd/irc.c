@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.91 2002/05/30 16:52:21 alex Exp $
+ * $Id: irc.c,v 1.92 2002/06/10 21:08:45 alex Exp $
  *
  * irc.c: IRC-Befehle
  */
@@ -79,6 +79,9 @@ IRC_PRIVMSG( CLIENT *Client, REQUEST *Req )
 	cl = Client_Search( Req->argv[0] );
 	if( cl )
 	{
+		/* Okay, Ziel ist ein Client. Aber ist es auch ein User? */
+		if( Client_Type( cl ) != CLIENT_USER ) return IRC_WriteStrClient( from, ERR_NOSUCHNICK_MSG, Client_ID( from ), Req->argv[0] );
+
 		/* Okay, Ziel ist ein User */
 		if(( Client_Type( Client ) != CLIENT_SERVER ) && ( strchr( Client_Modes( cl ), 'a' )))
 		{

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: parse.c,v 1.51 2002/12/12 12:24:18 alex Exp $";
+static char UNUSED id[] = "$Id: parse.c,v 1.52 2002/12/18 13:53:20 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -48,60 +48,51 @@ static char UNUSED id[] = "$Id: parse.c,v 1.51 2002/12/12 12:24:18 alex Exp $";
 #include "exp.h"
 
 
-typedef struct _COMMAND
-{
-	CHAR *name;		/* Name des Befehls */
-	BOOLEAN (*function)( CLIENT *Client, REQUEST *Request );
-	CLIENT_TYPE type;	/* Erlaubte Client-Typen (Bitmaske) */
-	LONG count;		/* Anzahl der Aufrufe */
-} COMMAND;
-
-
 COMMAND My_Commands[] =
 {
-	{ "ADMIN", IRC_ADMIN, CLIENT_USER|CLIENT_SERVER, 0 },
-	{ "AWAY", IRC_AWAY, CLIENT_USER, 0 },
-	{ "CONNECT", IRC_CONNECT, CLIENT_USER, 0 },
-	{ "DIE", IRC_DIE, CLIENT_USER, 0 },
-	{ "ERROR", IRC_ERROR, 0xFFFF, 0 },
-	{ "INVITE", IRC_INVITE, CLIENT_USER|CLIENT_SERVER, 0 },
-	{ "ISON", IRC_ISON, CLIENT_USER, 0 },
-	{ "JOIN", IRC_JOIN, CLIENT_USER|CLIENT_SERVER, 0 },
-	{ "KICK", IRC_KICK, CLIENT_USER|CLIENT_SERVER, 0 },
-	{ "KILL", IRC_KILL, CLIENT_USER|CLIENT_SERVER, 0 },
-	{ "LINKS", IRC_LINKS, CLIENT_USER|CLIENT_SERVER, 0 },
-	{ "LIST", IRC_LIST, CLIENT_USER|CLIENT_SERVER, 0 },
-	{ "LUSERS", IRC_LUSERS, CLIENT_USER|CLIENT_SERVER, 0 },
-	{ "MODE", IRC_MODE, CLIENT_USER|CLIENT_SERVER, 0 },
-	{ "MOTD", IRC_MOTD, CLIENT_USER|CLIENT_SERVER, 0 },
-	{ "NAMES", IRC_NAMES, CLIENT_USER|CLIENT_SERVER, 0 },
-	{ "NICK", IRC_NICK, 0xFFFF, 0 },
-	{ "NJOIN", IRC_NJOIN, CLIENT_SERVER, 0 },
-	{ "NOTICE", IRC_NOTICE, 0xFFFF, 0 },
-	{ "OPER", IRC_OPER, CLIENT_USER, 0 },
-	{ "PART", IRC_PART, CLIENT_USER|CLIENT_SERVER, 0 },
-	{ "PASS", IRC_PASS, 0xFFFF, 0 },
-	{ "PING", IRC_PING, CLIENT_USER|CLIENT_SERVER, 0 },
-	{ "PONG", IRC_PONG, CLIENT_USER|CLIENT_SERVER, 0 },
-	{ "PRIVMSG", IRC_PRIVMSG, CLIENT_USER|CLIENT_SERVER, 0 },
-	{ "QUIT", IRC_QUIT, 0xFFFF, 0 },
-	{ "REHASH", IRC_REHASH, CLIENT_USER, 0 },
-	{ "RESTART", IRC_RESTART, CLIENT_USER, 0 },
-	{ "SERVER", IRC_SERVER, 0xFFFF, 0 },
-	{ "SQUIT", IRC_SQUIT, CLIENT_SERVER, 0 },
-	{ "STATS", IRC_STATS, CLIENT_USER|CLIENT_SERVER, 0 },
-	{ "TIME", IRC_TIME, CLIENT_USER|CLIENT_SERVER, 0 },
-	{ "TOPIC", IRC_TOPIC, CLIENT_USER|CLIENT_SERVER, 0 },
-	{ "USER", IRC_USER, 0xFFFF, 0 },
-	{ "USERHOST", IRC_USERHOST, CLIENT_USER, 0 },
-	{ "VERSION", IRC_VERSION, CLIENT_USER|CLIENT_SERVER, 0 },
-	{ "WHO", IRC_WHO, CLIENT_USER, 0 },
-	{ "WHOIS", IRC_WHOIS, CLIENT_USER|CLIENT_SERVER, 0 },
-	{ "WHOWAS", IRC_WHOWAS, CLIENT_USER|CLIENT_SERVER, 0 },
+	{ "ADMIN", IRC_ADMIN, CLIENT_USER|CLIENT_SERVER, 0, 0, 0 },
+	{ "AWAY", IRC_AWAY, CLIENT_USER, 0, 0, 0 },
+	{ "CONNECT", IRC_CONNECT, CLIENT_USER, 0, 0, 0 },
+	{ "DIE", IRC_DIE, CLIENT_USER, 0, 0, 0 },
+	{ "ERROR", IRC_ERROR, 0xFFFF, 0, 0, 0 },
+	{ "INVITE", IRC_INVITE, CLIENT_USER|CLIENT_SERVER, 0, 0, 0 },
+	{ "ISON", IRC_ISON, CLIENT_USER, 0, 0, 0 },
+	{ "JOIN", IRC_JOIN, CLIENT_USER|CLIENT_SERVER, 0, 0, 0 },
+	{ "KICK", IRC_KICK, CLIENT_USER|CLIENT_SERVER, 0, 0, 0 },
+	{ "KILL", IRC_KILL, CLIENT_USER|CLIENT_SERVER, 0, 0, 0 },
+	{ "LINKS", IRC_LINKS, CLIENT_USER|CLIENT_SERVER, 0, 0, 0 },
+	{ "LIST", IRC_LIST, CLIENT_USER|CLIENT_SERVER, 0, 0, 0 },
+	{ "LUSERS", IRC_LUSERS, CLIENT_USER|CLIENT_SERVER, 0, 0, 0 },
+	{ "MODE", IRC_MODE, CLIENT_USER|CLIENT_SERVER, 0, 0, 0 },
+	{ "MOTD", IRC_MOTD, CLIENT_USER|CLIENT_SERVER, 0, 0, 0 },
+	{ "NAMES", IRC_NAMES, CLIENT_USER|CLIENT_SERVER, 0, 0, 0 },
+	{ "NICK", IRC_NICK, 0xFFFF, 0, 0, 0 },
+	{ "NJOIN", IRC_NJOIN, CLIENT_SERVER, 0, 0, 0 },
+	{ "NOTICE", IRC_NOTICE, 0xFFFF, 0, 0, 0 },
+	{ "OPER", IRC_OPER, CLIENT_USER, 0, 0, 0 },
+	{ "PART", IRC_PART, CLIENT_USER|CLIENT_SERVER, 0, 0, 0 },
+	{ "PASS", IRC_PASS, 0xFFFF, 0, 0, 0 },
+	{ "PING", IRC_PING, CLIENT_USER|CLIENT_SERVER, 0, 0, 0 },
+	{ "PONG", IRC_PONG, CLIENT_USER|CLIENT_SERVER, 0, 0, 0 },
+	{ "PRIVMSG", IRC_PRIVMSG, CLIENT_USER|CLIENT_SERVER, 0, 0, 0 },
+	{ "QUIT", IRC_QUIT, 0xFFFF, 0, 0, 0 },
+	{ "REHASH", IRC_REHASH, CLIENT_USER, 0, 0, 0 },
+	{ "RESTART", IRC_RESTART, CLIENT_USER, 0, 0, 0 },
+	{ "SERVER", IRC_SERVER, 0xFFFF, 0, 0, 0 },
+	{ "SQUIT", IRC_SQUIT, CLIENT_SERVER, 0, 0, 0 },
+	{ "STATS", IRC_STATS, CLIENT_USER|CLIENT_SERVER, 0, 0, 0 },
+	{ "TIME", IRC_TIME, CLIENT_USER|CLIENT_SERVER, 0, 0, 0 },
+	{ "TOPIC", IRC_TOPIC, CLIENT_USER|CLIENT_SERVER, 0, 0, 0 },
+	{ "USER", IRC_USER, 0xFFFF, 0, 0, 0 },
+	{ "USERHOST", IRC_USERHOST, CLIENT_USER, 0, 0, 0 },
+	{ "VERSION", IRC_VERSION, CLIENT_USER|CLIENT_SERVER, 0, 0, 0 },
+	{ "WHO", IRC_WHO, CLIENT_USER, 0, 0, 0 },
+	{ "WHOIS", IRC_WHOIS, CLIENT_USER|CLIENT_SERVER, 0, 0, 0 },
+	{ "WHOWAS", IRC_WHOWAS, CLIENT_USER|CLIENT_SERVER, 0, 0, 0 },
 #ifdef IRCPLUS
-	{ "CHANINFO", IRC_CHANINFO, CLIENT_SERVER, 0 },
+	{ "CHANINFO", IRC_CHANINFO, CLIENT_SERVER, 0, 0, 0 },
 #endif
-	{ NULL, NULL, 0 } /* Ende-Marke */
+	{ NULL, NULL, 0x0, 0, 0, 0 } /* Ende-Marke */
 };
 
 
@@ -112,6 +103,13 @@ LOCAL BOOLEAN Validate_Command PARAMS(( CONN_ID Idx, REQUEST *Req, BOOLEAN *Clos
 LOCAL BOOLEAN Validate_Args PARAMS(( CONN_ID Idx, REQUEST *Req, BOOLEAN *Closed ));
 
 LOCAL BOOLEAN Handle_Request PARAMS(( CONN_ID Idx, REQUEST *Req ));
+
+
+GLOBAL COMMAND *
+Parse_GetCommandStruct( VOID )
+{
+	return My_Commands;
+} /* Parse_GetCommandStruct */
 
 
 GLOBAL BOOLEAN
@@ -317,6 +315,7 @@ Handle_Request( CONN_ID Idx, REQUEST *Req )
 
 	CLIENT *client, *target, *prefix;
 	CHAR str[LINE_LEN];
+	BOOLEAN result;
 	COMMAND *cmd;
 	INT i;
 
@@ -382,10 +381,16 @@ Handle_Request( CONN_ID Idx, REQUEST *Req )
 
 		if( Client_Type( client ) & cmd->type )
 		{
-			/* Der Befehl ist fuer diesen Client-Typ erlaubt.
-			 * Entsprechende Funktion zaehlen nun aufrufen: */
-			cmd->count++;
-			return (cmd->function)( client, Req );
+			/* Command is allowed for this client: call it and count produced bytes */
+			Conn_ResetWCounter( );
+			result = (cmd->function)( client, Req );
+			cmd->bytes += Conn_WCounter( );
+
+			/* Adjust counters */
+			if( Client_Type( client ) != CLIENT_SERVER ) cmd->lcount++;
+			else cmd->rcount++;
+
+			return result;
 		}
 		else
 		{

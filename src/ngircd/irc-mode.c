@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-mode.c,v 1.13 2002/09/08 01:38:36 alex Exp $
+ * $Id: irc-mode.c,v 1.14 2002/09/08 17:07:14 alex Exp $
  *
  * irc-mode.c: IRC-Befehle zur Mode-Aenderung (MODE, AWAY, ...)
  */
@@ -467,7 +467,7 @@ Add_Invite( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, CHAR *Pattern )
 
 	mask = Lists_MakeMask( Pattern );
 
-	if( ! Lists_AddInvited( mask, Channel, FALSE )) return CONNECTED;
+	if( ! Lists_AddInvited( Prefix, mask, Channel, FALSE )) return CONNECTED;
 	return Send_ListChange( "+I", Prefix, Client, Channel, mask );
 } /* Add_Invite */
 
@@ -483,7 +483,7 @@ Add_Ban( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, CHAR *Pattern )
 
 	mask = Lists_MakeMask( Pattern );
 
-	if( ! Lists_AddBanned( mask, Channel )) return CONNECTED;
+	if( ! Lists_AddBanned( Prefix, mask, Channel )) return CONNECTED;
 	return Send_ListChange( "+b", Prefix, Client, Channel, mask );
 } /* Add_Ban */
 

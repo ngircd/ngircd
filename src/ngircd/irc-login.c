@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-login.c,v 1.30 2002/12/30 17:15:42 alex Exp $";
+static char UNUSED id[] = "$Id: irc-login.c,v 1.31 2003/01/01 13:29:40 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -371,7 +371,7 @@ IRC_PING( CLIENT *Client, REQUEST *Req )
 	{
 		/* es wurde ein Ziel-Client angegeben */
 		target = Client_Search( Req->argv[1] );
-		if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->argv[1] );
+		if(( ! target ) || ( Client_Type( target ) != CLIENT_SERVER )) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->argv[1] );
 		if( target != Client_ThisServer( ))
 		{
 			/* ok, forwarden */
@@ -403,7 +403,7 @@ IRC_PONG( CLIENT *Client, REQUEST *Req )
 	if( Req->argc == 2 )
 	{
 		target = Client_Search( Req->argv[1] );
-		if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->argv[1] );
+		if(( ! target ) || ( Client_Type( target ) != CLIENT_SERVER )) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->argv[1] );
 		if( target != Client_ThisServer( ))
 		{
 			/* ok, forwarden */

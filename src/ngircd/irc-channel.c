@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-channel.c,v 1.22 2002/12/26 17:04:54 alex Exp $";
+static char UNUSED id[] = "$Id: irc-channel.c,v 1.23 2003/01/01 13:29:40 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -326,7 +326,7 @@ IRC_LIST( CLIENT *Client, REQUEST *Req )
 	{
 		/* an anderen Server forwarden */
 		target = Client_Search( Req->argv[1] );
-		if( ! target ) return IRC_WriteStrClient( from, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->argv[1] );
+		if(( ! target ) || ( Client_Type( target ) != CLIENT_SERVER )) return IRC_WriteStrClient( from, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->argv[1] );
 
 		if( target != Client_ThisServer( ))
 		{

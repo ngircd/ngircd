@@ -20,6 +20,7 @@ ngIRCd 0.6.x-CVS
   - WHOIS commands weren't always forwarded as requested.
   - The server sets a correct default AWAY message now when propagating
     between servers (bug introduced in 0.6.0).
+  - Fixed up propagation of modes with arguments between servers.
 
 
 Older changes (sorry, only available in german language):
@@ -383,4 +384,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.147.2.8 2003/01/05 23:04:12 alex Exp $
+$Id: ChangeLog,v 1.147.2.9 2003/01/08 17:47:43 alex Exp $

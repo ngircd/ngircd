@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: messages.h,v 1.10 2001/12/30 11:42:00 alex Exp $
+ * $Id: messages.h,v 1.11 2001/12/30 19:25:39 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: messages.h,v $
+ * Revision 1.11  2001/12/30 19:25:39  alex
+ * - RPL_MYINFO_MSG um unterstuetzte User-Modes ergaengz.
+ *
  * Revision 1.10  2001/12/30 11:42:00  alex
  * - der Server meldet nun eine ordentliche "Start-Zeit".
  *
@@ -63,10 +66,10 @@
 #define RPL_CREATED_MSG			RPL_CREATED" %s :This server was started %s"
 
 #define RPL_MYINFO			"004"
-#define RPL_MYINFO_MSG			RPL_MYINFO" %s %s ngircd-"VERSION" + +"
+#define RPL_MYINFO_MSG			RPL_MYINFO" %s %s ngircd-"VERSION" ir +"
 
 #define RPL_MOTDSTART			"375"
-#define RPL_MOTDSTART_MSG		RPL_MOTDSTART" %s :- %s message of the day:"
+#define RPL_MOTDSTART_MSG		RPL_MOTDSTART" %s :- %s message of the day"
 
 #define RPL_MOTD			"372"
 #define RPL_MOTD_MSG			RPL_MOTD" %s :- %s"

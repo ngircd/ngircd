@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.33 2002/03/12 15:19:12 alex Exp $
+ * $Id: ngircd.c,v 1.34 2002/03/12 22:08:24 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  */
@@ -271,7 +271,7 @@ GLOBAL CHAR *NGIRCd_VersionAddition( VOID )
 #endif
 
 	if( txt[0] ) strcat( txt, "-" );
-	strcat( txt, TARGET_OS"/"TARGET_CPU );
+	strcat( txt, TARGET_CPU"/"TARGET_VENDOR"/"TARGET_OS );
 
 	return txt;
 } /* NGIRCd_VersionAddition */

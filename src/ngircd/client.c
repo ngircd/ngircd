@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: client.c,v 1.72 2003/01/08 22:03:21 alex Exp $";
+static char UNUSED id[] = "$Id: client.c,v 1.73 2003/01/15 14:28:25 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -58,6 +58,10 @@ LOCAL LONG MyCount PARAMS(( CLIENT_TYPE Type ));
 LOCAL CLIENT *New_Client_Struct PARAMS(( VOID ));
 LOCAL VOID Generate_MyToken PARAMS(( CLIENT *Client ));
 LOCAL VOID Adjust_Counters PARAMS(( CLIENT *Client ));
+
+#ifndef Client_DestroyNow
+GLOBAL VOID Client_DestroyNow PARAMS((CLIENT *Client ));
+#endif
 
 
 LONG Max_Users = 0, My_Max_Users = 0;
@@ -290,6 +294,35 @@ Client_Destroy( CLIENT *Client, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN SendQuit )
 		c = (CLIENT *)c->next;
 	}
 } /* Client_Destroy */
+
+
+GLOBAL VOID
+Client_DestroyNow( CLIENT *Client )
+{
+	/* Destroy client structure immediately. This function is only
+	 * intended for the connection layer to remove client structures
+	 * of connections that can't be established! */
+
+	CLIENT *last, *c;
+
+	assert( Client != NULL );
+
+	last = NULL;
+	c = My_Clients;
+	while( c )
+	{
+		if( c == Client )
+		{
+			/* Wir haben den Client gefunden: entfernen */
+			if( last ) last->next = c->next;
+			else My_Clients = (CLIENT *)c->next;
+			free( c );
+			break;
+		}
+		last = c;
+		c = (CLIENT *)c->next;
+	}
+} /* Client_DestroyNow */
 
 
 GLOBAL VOID

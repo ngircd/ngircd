@@ -32,6 +32,11 @@ ngIRCd CVS-HEAD
     werden durch das Flag "P" gelennzeichnet, welches normal durch Channel-
     Op's gesetzt und geloescht werden kann.
   - bei "--configtest" werden keine leere Abschnitte mehr ausgegeben.
+  - Source in weitere Module aufgespalten: lists, irc-op und resolve.
+  - #include's aufgeraeumt: Header includieren keine anderen mehr.
+  - Begonnen, INVITE, BAN und KICK zu implementieren.
+  - Source an ansi2knr fuer pre-ANSI-Compiler angepasst; ansi2knr in Source-
+    Tree aufgenommen und in Build-System integriert.
 
 ngIRCd 0.4.2, 29.04.2002
 
@@ -215,4 +220,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.68 2002/05/22 11:15:53 alex Exp $
+$Id: ChangeLog,v 1.69 2002/05/28 09:19:34 alex Exp $

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.61 2002/02/17 19:03:12 alex Exp $
+ * $Id: irc.c,v 1.62 2002/02/17 23:38:58 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.62  2002/02/17 23:38:58  alex
+ * - neuer IRC-Befehl VERSION implementiert: IRC_VERSION().
+ *
  * Revision 1.61  2002/02/17 19:03:12  alex
  * - NICK-Aenderungen wurden dem User selber mit dem falschen Prefix geliefert.
  *
@@ -2035,6 +2038,32 @@ GLOBAL BOOLEAN IRC_PART( CLIENT *Client, REQUEST *Req )
 	}
 	return CONNECTED;
 } /* IRC_PART */
+
+
+GLOBAL BOOLEAN IRC_VERSION( CLIENT *Client, REQUEST *Req )
+{
+	CLIENT *target;
+	
+	assert( Client != NULL );
+	assert( Req != NULL );
+
+	/* Falsche Anzahl Parameter? */
+	if(( Req->argc > 1 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+
+	/* Ziel suchen */
+	if( Req->argc == 1 ) target = Client_GetFromID( Req->argv[0] );
+	else target = Client_ThisServer( );
+
+	/* An anderen Server weiterleiten? */
+	if( target != Client_ThisServer( ))
+	{
+		if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->argv[0] );
+		IRC_WriteStrClientPrefix( Client_NextHop( target ), Client, "VERSION %s", Req->argv[0] );
+		return CONNECTED;
+	}
+	
+	return IRC_WriteStrClient( Client, RPL_VERSION_MSG, Client_ID( Client ), NGIRCd_Debug ? ( NGIRCd_Sniffer ? "2" : "1" ) : "0", Conf_ServerName, NGIRCd_VersionAddition( ));
+} /* IRC_VERSION */
 
 
 LOCAL BOOLEAN Hello_User( CLIENT *Client )

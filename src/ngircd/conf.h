@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.h,v 1.20 2002/11/02 22:58:41 alex Exp $
+ * $Id: conf.h,v 1.21 2002/11/19 12:50:20 alex Exp $
  *
  * conf.h: Konfiguration des ngircd (Header)
  */
@@ -34,7 +34,8 @@ typedef struct _Conf_Server
 	CHAR host[HOST_LEN];		/* Hostname */
 	CHAR ip[16];			/* IP-Adresse (von Resolver) */
 	CHAR name[CLIENT_ID_LEN];	/* IRC-Client-ID */
-	CHAR pwd[CLIENT_PASS_LEN];	/* Passwort */
+	CHAR pwd_in[CLIENT_PASS_LEN];	/* Passwort, welches erwartet wird */
+	CHAR pwd_out[CLIENT_PASS_LEN];	/* An die Gegenseite zu sendendes Passwort */
 	INT port;			/* Server-Port */
 	INT group;			/* Gruppe des Servers */
 	time_t lasttry;			/* Letzter Connect-Versuch */

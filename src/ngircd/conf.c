@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.c,v 1.37 2002/11/18 18:47:42 alex Exp $
+ * $Id: conf.c,v 1.38 2002/11/19 12:50:20 alex Exp $
  *
  * conf.h: Konfiguration des ngircd
  */
@@ -138,7 +138,8 @@ Conf_Test( VOID )
 		printf( "  Name = %s\n", Conf_Server[i].name );
 		printf( "  Host = %s\n", Conf_Server[i].host );
 		printf( "  Port = %d\n", Conf_Server[i].port );
-		printf( "  Password = %s\n", Conf_Server[i].pwd );
+		printf( "  MyPassword = %s\n", Conf_Server[i].pwd_in );
+		printf( "  PeerPassword = %s\n", Conf_Server[i].pwd_out );
 		printf( "  Group = %d\n", Conf_Server[i].group );
 		puts( "" );
 	}
@@ -248,7 +249,8 @@ Read_Config( VOID )
 					strcpy( Conf_Server[Conf_Server_Count].host, "" );
 					strcpy( Conf_Server[Conf_Server_Count].ip, "" );
 					strcpy( Conf_Server[Conf_Server_Count].name, "" );
-					strcpy( Conf_Server[Conf_Server_Count].pwd, "" );
+					strcpy( Conf_Server[Conf_Server_Count].pwd_in, "" );
+					strcpy( Conf_Server[Conf_Server_Count].pwd_out, "" );
 					Conf_Server[Conf_Server_Count].port = 0;
 					Conf_Server[Conf_Server_Count].group = -1;
 					Conf_Server[Conf_Server_Count].lasttry = time( NULL ) - Conf_ConnectRetry + STARTUP_DELAY;
@@ -492,11 +494,18 @@ Handle_SERVER( INT Line, CHAR *Var, CHAR *Arg )
 		Conf_Server[Conf_Server_Count - 1].name[CLIENT_ID_LEN - 1] = '\0';
 		return;
 	}
-	if( strcasecmp( Var, "Password" ) == 0 )
+	if( strcasecmp( Var, "MyPassword" ) == 0 )
 	{
-		/* Passwort des Servers */
-		strncpy( Conf_Server[Conf_Server_Count - 1].pwd, Arg, CLIENT_PASS_LEN - 1 );
-		Conf_Server[Conf_Server_Count - 1].pwd[CLIENT_PASS_LEN - 1] = '\0';
+		/* Passwort dieses Servers, welches empfangen werden muss */
+		strncpy( Conf_Server[Conf_Server_Count - 1].pwd_in, Arg, CLIENT_PASS_LEN - 1 );
+		Conf_Server[Conf_Server_Count - 1].pwd_in[CLIENT_PASS_LEN - 1] = '\0';
+		return;
+	}
+	if( strcasecmp( Var, "PeerPassword" ) == 0 )
+	{
+		/* Passwort des anderen Servers, welches gesendet werden muss */
+		strncpy( Conf_Server[Conf_Server_Count - 1].pwd_out, Arg, CLIENT_PASS_LEN - 1 );
+		Conf_Server[Conf_Server_Count - 1].pwd_out[CLIENT_PASS_LEN - 1] = '\0';
 		return;
 	}
 	if( strcasecmp( Var, "Port" ) == 0 )

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-server.c,v 1.19 2002/11/05 14:18:59 alex Exp $
+ * $Id: irc-server.c,v 1.20 2002/11/19 12:50:20 alex Exp $
  *
  * irc-server.c: IRC-Befehle fuer Server-Links
  */
@@ -71,10 +71,10 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 			Conn_Close( Client_Conn( Client ), NULL, "Server not configured here", TRUE );
 			return DISCONNECTED;
 		}
-		if( strcmp( Client_Password( Client ), Conf_Server[i].pwd ) != 0 )
+		if( strcmp( Client_Password( Client ), Conf_Server[i].pwd_in ) != 0 )
 		{
 			/* Falsches Passwort */
-			Log( LOG_ERR, "Connection %d: Bad password for server \"%s\"!", Client_Conn( Client ), Req->argv[0] );
+			Log( LOG_ERR, "Connection %d: Got bad password from server \"%s\"!", Client_Conn( Client ), Req->argv[0] );
 			Conn_Close( Client_Conn( Client ), NULL, "Bad password", TRUE );
 			return DISCONNECTED;
 		}
@@ -93,7 +93,7 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 		{
 			/* Eingehende Verbindung: Unseren SERVER- und PASS-Befehl senden */
 			ok = TRUE;
-			if( ! IRC_WriteStrClient( Client, "PASS %s %s", Conf_Server[i].pwd, NGIRCd_ProtoID )) ok = FALSE;
+			if( ! IRC_WriteStrClient( Client, "PASS %s %s", Conf_Server[i].pwd_out, NGIRCd_ProtoID )) ok = FALSE;
 			else ok = IRC_WriteStrClient( Client, "SERVER %s 1 :%s", Conf_ServerName, Conf_ServerInfo );
 			if( ! ok )
 			{

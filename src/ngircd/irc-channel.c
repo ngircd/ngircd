@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-channel.c,v 1.13 2002/09/03 23:56:55 alex Exp $
+ * $Id: irc-channel.c,v 1.14 2002/09/08 00:50:25 alex Exp $
  *
  * irc-channel.c: IRC-Channel-Befehle
  */
@@ -41,7 +41,7 @@ GLOBAL BOOLEAN
 IRC_JOIN( CLIENT *Client, REQUEST *Req )
 {
 	CHAR *channame, *flags, *topic, modes[8];
-	BOOLEAN is_new_chan;
+	BOOLEAN is_new_chan, is_invited, is_banned;
 	CLIENT *target;
 	CHANNEL *chan;
 
@@ -96,10 +96,13 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 				chan = Channel_Search( channame );
 				assert( chan != NULL );
 
+				is_banned = Lists_CheckBanned( target, chan );
+				is_invited = Lists_CheckInvited( target, chan );
+
 				/* Testen, ob Client gebanned ist */
-				if( Lists_CheckBanned( target, chan ))
+				if(( is_banned == TRUE ) &&  ( is_invited == FALSE ))
 				{
-					/* Client ist gebanned: */
+					/* Client ist gebanned (und nicht invited): */
 					IRC_WriteStrClient( Client, ERR_BANNEDFROMCHAN_MSG, Client_ID( Client ), channame );
 
 					/* naechsten Namen ermitteln */
@@ -108,18 +111,14 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 				}
 
 				/* Ist der Channel "invite-only"? */
-				if( strchr( Channel_Modes( chan ), 'i' ))
+				if(( strchr( Channel_Modes( chan ), 'i' ) != NULL ) && ( is_invited == FALSE ))
 				{
-					/* Wurde der Client invited? */
-					if( ! Lists_CheckInvited( target, chan ))
-					{
-						/* Client wurde nicht invited: */
-						IRC_WriteStrClient( Client, ERR_INVITEONLYCHAN_MSG, Client_ID( Client ), channame );
+					/* Channel ist "invite-only" und Client wurde nicht invited: */
+					IRC_WriteStrClient( Client, ERR_INVITEONLYCHAN_MSG, Client_ID( Client ), channame );
 
-						/* naechsten Namen ermitteln */
-						channame = strtok( NULL, "," );
-						continue;
-					}
+					/* naechsten Namen ermitteln */
+					channame = strtok( NULL, "," );
+					continue;
 				}
 			}
 		}

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: channel.c,v 1.27 2002/06/02 17:13:07 alex Exp $
+ * $Id: channel.c,v 1.28 2002/06/09 13:15:58 alex Exp $
  *
  * channel.c: Management der Channels
  */
@@ -36,6 +36,7 @@
 #include "resolve.h"
 #include "conf.h"
 #include "hash.h"
+#include "lists.h"
 #include "log.h"
 #include "messages.h"
 
@@ -616,7 +617,7 @@ New_Chan( CHAR *Name )
 	c = malloc( sizeof( CHANNEL ));
 	if( ! c )
 	{
-		Log( LOG_EMERG, "Can't allocate memory!" );
+		Log( LOG_EMERG, "Can't allocate memory! [New_Chan]" );
 		return NULL;
 	}
 	c->next = NULL;
@@ -662,7 +663,7 @@ Add_Client( CHANNEL *Chan, CLIENT *Client )
 	cl2chan = malloc( sizeof( CL2CHAN ));
 	if( ! cl2chan )
 	{
-		Log( LOG_EMERG, "Can't allocate memory!" );
+		Log( LOG_EMERG, "Can't allocate memory! [Add_Client]" );
 		return NULL;
 	}
 	cl2chan->channel = Chan;
@@ -786,6 +787,9 @@ Delete_Channel( CHANNEL *Chan )
 	if( ! chan ) return FALSE;
 
 	Log( LOG_DEBUG, "Freed channel structure for \"%s\".", Chan->name );
+
+	/* Invite- und Ban-Lists aufraeumen */
+	Lists_DeleteChannel( chan );
 
 	/* Neu verketten und freigeben */
 	if( last_chan ) last_chan->next = chan->next;

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.42 2002/03/03 17:17:01 alex Exp $
+ * $Id: client.c,v 1.43 2002/03/04 01:04:46 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,9 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.43  2002/03/04 01:04:46  alex
+ * - neuen Clients mit Mode "a" wird nun auch der Default-Away-Text gesetzt.
+ *
  * Revision 1.42  2002/03/03 17:17:01  alex
  * - strncpy() und vsnprintf() kopieren nun etwas "optimierter" (1 Byte weniger) :-)
  *
@@ -298,6 +301,9 @@ GLOBAL CLIENT *Client_New( CONN_ID Idx, CLIENT *Introducer, CLIENT *TopServer, I
 	client->token = Token;
 	if( Modes ) Client_SetModes( client, Modes );
 	if( Type == CLIENT_SERVER ) Generate_MyToken( client );
+
+	/* ist der User away? */
+	if( strchr( client->modes, 'a' )) strcpy( client->away, DEFAULT_AWAY_MSG );
 
 	/* Verketten */
 	client->next = My_Clients;

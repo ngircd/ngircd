@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-mode.c,v 1.29 2003/01/08 23:00:12 alex Exp $";
+static char UNUSED id[] = "$Id: irc-mode.c,v 1.30 2003/01/17 19:04:19 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -279,6 +279,10 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 	/* Is the user allowed to change modes? */
 	if( Client_Type( Client ) == CLIENT_USER )
 	{
+		/* Is the originating user on that channel? */
+		if( ! Channel_IsMemberOf( Channel, Origin )) return IRC_WriteStrClient( Origin, ERR_NOTONCHANNEL_MSG, Client_ID( Origin ), Channel_Name( Channel ));
+
+		/* Is he channel operator? */
 		if( strchr( Channel_UserModes( Channel, Origin ), 'o' )) modeok = TRUE;
 		else modeok = FALSE;
 		if( Conf_OperCanMode )

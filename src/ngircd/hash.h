@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: hash.h,v 1.2 2002/03/14 15:49:36 alex Exp $
+ * $Id: hash.h,v 1.3 2002/05/27 12:54:07 alex Exp $
  *
  * hash.h: Hash-Werte berechnen (Header)
  */
@@ -19,7 +19,7 @@
 #define __hash_h__
 
 
-GLOBAL UINT32 Hash( CHAR *String );
+GLOBAL UINT32 Hash PARAMS((CHAR *String ));
 
 
 #endif

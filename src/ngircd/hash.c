@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: hash.c,v 1.4 2002/03/25 19:11:01 alex Exp $
+ * $Id: hash.c,v 1.5 2002/05/27 12:54:07 alex Exp $
  *
  * hash.c: Hash-Werte berechnen
  */
@@ -29,10 +29,11 @@
 #include "hash.h"
 
 
-LOCAL UINT32 jenkins_hash( register UINT8 *k, register UINT32 length, register UINT32 initval);
+LOCAL UINT32 jenkins_hash PARAMS(( register UINT8 *k, register UINT32 length, register UINT32 initval ));
 
 
-GLOBAL UINT32 Hash( CHAR *String )
+GLOBAL UINT32
+Hash( CHAR *String )
 {
 	/* Hash-Wert ueber String berechnen */
 
@@ -75,7 +76,8 @@ GLOBAL UINT32 Hash( CHAR *String )
 } /* mix */
 
 
-LOCAL UINT32 jenkins_hash( register UINT8 *k, register UINT32 length, register UINT32 initval)
+LOCAL UINT32
+jenkins_hash( register UINT8 *k, register UINT32 length, register UINT32 initval )
 {
 	/* k: the key
 	 * length: length of the key

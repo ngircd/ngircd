@@ -9,7 +9,7 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: Makefile.am,v 1.24 2002/06/02 23:17:12 alex Exp $
+# $Id: Makefile.am,v 1.25 2002/06/26 15:44:47 alex Exp $
 #
 
 AUTOMAKE_OPTIONS = ../portab/ansi2knr
@@ -22,7 +22,7 @@ sbin_PROGRAMS = ngircd
 
 ngircd_SOURCES = ngircd.c channel.c client.c conf.c conn.c hash.c irc.c \
 	irc-channel.c irc-login.c irc-mode.c irc-op.c irc-oper.c irc-server.c \
-	irc-write.c lists.c log.c parse.c resolve.c tool.c
+	irc-write.c lists.c log.c match.c parse.c resolve.c tool.c
 
 ngircd_LDFLAGS = -L../portab
 
@@ -30,7 +30,7 @@ ngircd_LDADD = -lngportab
 
 noinst_HEADERS = ngircd.h channel.h client.h conf.h conn.h hash.h irc.h \
 	irc-channel.h irc-login.h irc-mode.h irc-op.h irc-oper.h irc-server.h \
-	irc-write.h lists.h log.h parse.h resolve.h tool.h \
+	irc-write.h lists.h log.h match.h parse.h resolve.h tool.h \
 	messages.h defines.h
 
 clean-local:

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.31 2002/01/21 00:08:50 alex Exp $
+ * $Id: client.c,v 1.32 2002/01/27 18:27:12 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,9 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.32  2002/01/27 18:27:12  alex
+ * - Client_GetFromID() kommt nun auch mit Host-Masken zurecht.
+ *
  * Revision 1.31  2002/01/21 00:08:50  alex
  * - wird ein Client entfernt, so wird er auch aus allen Channels geloescht.
  *
@@ -518,13 +521,18 @@ GLOBAL CLIENT *Client_GetFromID( CHAR *Nick )
 	* liefern. Wird keine gefunden, so wird NULL geliefert. */
 
 	CLIENT *c;
+	CHAR nick[CLIENT_NICK_LEN + 1], *ptr;
 
 	assert( Nick != NULL );
+
+	strncpy( nick, Nick, CLIENT_NICK_LEN );
+	ptr = strchr( nick, '!' );
+	if( ptr ) *ptr = '\0';
 
 	c = My_Clients;
 	while( c )
 	{
-		if( strcasecmp( c->id, Nick ) == 0 ) return c;
+		if( strcasecmp( c->id, nick ) == 0 ) return c;
 		c = c->next;
 	}
 	return NULL;

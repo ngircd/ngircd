@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: channel.c,v 1.40 2002/12/26 16:25:43 alex Exp $";
+static char UNUSED id[] = "$Id: channel.c,v 1.41 2002/12/26 16:48:14 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -494,7 +494,7 @@ Channel_ModeAdd( CHANNEL *Chan, CHAR Mode )
 	if( ! strchr( Chan->modes, x[0] ))
 	{
 		/* Client hat den Mode noch nicht -> setzen */
-		strcat( Chan->modes, x );
+		strlcat( Chan->modes, x, sizeof( Chan->modes ));
 		return TRUE;
 	}
 	else return FALSE;
@@ -547,7 +547,7 @@ Channel_UserModeAdd( CHANNEL *Chan, CLIENT *Client, CHAR Mode )
 	if( ! strchr( cl2chan->modes, x[0] ))
 	{
 		/* Client hat den Mode noch nicht -> setzen */
-		strcat( cl2chan->modes, x );
+		strlcat( cl2chan->modes, x, sizeof( cl2chan->modes ));
 		return TRUE;
 	}
 	else return FALSE;

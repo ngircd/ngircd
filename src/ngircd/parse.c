@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: parse.c,v 1.52 2002/12/18 13:53:20 alex Exp $";
+static char UNUSED id[] = "$Id: parse.c,v 1.53 2002/12/26 16:48:14 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -363,9 +363,9 @@ Handle_Request( CONN_ID Idx, REQUEST *Req )
 		strcpy( str, Req->command );
 		for( i = 0; i < Req->argc; i++ )
 		{
-			if( i < Req->argc - 1 ) strcat( str, " " );
-			else strcat( str, " :" );
-			strcat( str, Req->argv[i] );
+			if( i < Req->argc - 1 ) strlcat( str, " ", sizeof( str ));
+			else strlcat( str, " :", sizeof( str ));
+			strlcat( str, Req->argv[i], sizeof( str ));
 		}
 		return IRC_WriteStrClientPrefix( target, prefix, "%s", str );
 	}

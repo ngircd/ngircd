@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.107 2002/12/19 04:35:26 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.108 2002/12/26 16:48:14 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -495,7 +495,7 @@ va_dcl
 	if( NGIRCd_Sniffer ) Log( LOG_DEBUG, " -> connection %d: '%s'.", Idx, buffer );
 #endif
 
-	strcat( buffer, "\r\n" );
+	strlcat( buffer, "\r\n", sizeof( buffer ));
 	ok = Conn_Write( Idx, buffer, strlen( buffer ));
 	My_Connections[Idx].msg_out++;
 

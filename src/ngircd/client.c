@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: client.c,v 1.68 2002/12/26 16:25:43 alex Exp $";
+static char UNUSED id[] = "$Id: client.c,v 1.69 2002/12/26 16:48:14 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -465,7 +465,7 @@ Client_ModeAdd( CLIENT *Client, CHAR Mode )
 	if( ! strchr( Client->modes, x[0] ))
 	{
 		/* Client hat den Mode noch nicht -> setzen */
-		strcat( Client->modes, x );
+		strlcat( Client->modes, x, sizeof( Client->modes ));
 		return TRUE;
 	}
 	else return FALSE;

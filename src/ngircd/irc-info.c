@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-info.c,v 1.9 2002/12/22 23:30:33 alex Exp $";
+static char UNUSED id[] = "$Id: irc-info.c,v 1.10 2002/12/26 16:48:14 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -104,8 +104,8 @@ IRC_ISON( CLIENT *Client, REQUEST *Req )
 			if( c && ( Client_Type( c ) == CLIENT_USER ))
 			{
 				/* Dieser Nick ist "online" */
-				strcat( rpl, ptr );
-				strcat( rpl, " " );
+				strlcat( rpl, ptr, sizeof( rpl ));
+				strlcat( rpl, " ", sizeof( rpl ));
 			}
 			ptr = strtok( NULL, " " );
 		}
@@ -302,8 +302,8 @@ IRC_NAMES( CLIENT *Client, REQUEST *Req )
 		if(( Client_Type( c ) == CLIENT_USER ) && ( Channel_FirstChannelOf( c ) == NULL ) && ( ! strchr( Client_Modes( c ), 'i' )))
 		{
 			/* Okay, das ist ein User: anhaengen */
-			if( rpl[strlen( rpl ) - 1] != ':' ) strcat( rpl, " " );
-			strcat( rpl, Client_ID( c ));
+			if( rpl[strlen( rpl ) - 1] != ':' ) strlcat( rpl, " ", sizeof( rpl ));
+			strlcat( rpl, Client_ID( c ), sizeof( rpl ));
 
 			if( strlen( rpl ) > ( LINE_LEN - CLIENT_NICK_LEN - 4 ))
 			{
@@ -464,15 +464,15 @@ IRC_USERHOST( CLIENT *Client, REQUEST *Req )
 		if( c && ( Client_Type( c ) == CLIENT_USER ))
 		{
 			/* Dieser Nick ist "online" */
-			strcat( rpl, Client_ID( c ));
-			if( Client_HasMode( c, 'o' )) strcat( rpl, "*" );
-			strcat( rpl, "=" );
-			if( Client_HasMode( c, 'a' )) strcat( rpl, "-" );
-			else strcat( rpl, "+" );
-			strcat( rpl, Client_User( c ));
-			strcat( rpl, "@" );
-			strcat( rpl, Client_Hostname( c ));
-			strcat( rpl, " " );
+			strlcat( rpl, Client_ID( c ), sizeof( rpl ));
+			if( Client_HasMode( c, 'o' )) strlcat( rpl, "*", sizeof( rpl ));
+			strlcat( rpl, "=", sizeof( rpl ));
+			if( Client_HasMode( c, 'a' )) strlcat( rpl, "-", sizeof( rpl ));
+			else strlcat( rpl, "+", sizeof( rpl ));
+			strlcat( rpl, Client_User( c ), sizeof( rpl ));
+			strlcat( rpl, "@", sizeof( rpl ));
+			strlcat( rpl, Client_Hostname( c ), sizeof( rpl ));
+			strlcat( rpl, " ", sizeof( rpl ));
 		}
 	}
 	if( rpl[strlen( rpl ) - 1] == ' ' ) rpl[strlen( rpl ) - 1] = '\0';
@@ -572,7 +572,7 @@ IRC_WHO( CLIENT *Client, REQUEST *Req )
 			{
 				/* Flags zusammenbasteln */
 				strcpy( flags, "H" );
-				if( strchr( Client_Modes( c ), 'o' )) strcat( flags, "*" );
+				if( strchr( Client_Modes( c ), 'o' )) strlcat( flags, "*", sizeof( flags ));
 
 				/* ausgeben */
 				cl2chan = Channel_FirstChannelOf( c );
@@ -644,10 +644,10 @@ IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 		assert( chan != NULL );
 
 		/* Channel-Name anhaengen */
-		if( str[strlen( str ) - 1] != ':' ) strcat( str, " " );
-		if( strchr( Channel_UserModes( chan, c ), 'o' )) strcat( str, "@" );
-		else if( strchr( Channel_UserModes( chan, c ), 'v' )) strcat( str, "+" );
-		strcat( str, Channel_Name( chan ));
+		if( str[strlen( str ) - 1] != ':' ) strlcat( str, " ", sizeof( str ));
+		if( strchr( Channel_UserModes( chan, c ), 'o' )) strlcat( str, "@", sizeof( str ));
+		else if( strchr( Channel_UserModes( chan, c ), 'v' )) strlcat( str, "+", sizeof( str ));
+		strlcat( str, Channel_Name( chan ), sizeof( str ));
 
 		if( strlen( str ) > ( LINE_LEN - CHANNEL_NAME_LEN - 4 ))
 		{
@@ -806,10 +806,10 @@ IRC_Send_NAMES( CLIENT *Client, CHANNEL *Chan )
 		if( is_member || is_visible )
 		{
 			/* Nick anhaengen */
-			if( str[strlen( str ) - 1] != ':' ) strcat( str, " " );
-			if( strchr( Channel_UserModes( Chan, cl ), 'o' )) strcat( str, "@" );
-			else if( strchr( Channel_UserModes( Chan, cl ), 'v' )) strcat( str, "+" );
-			strcat( str, Client_ID( cl ));
+			if( str[strlen( str ) - 1] != ':' ) strlcat( str, " ", sizeof( str ));
+			if( strchr( Channel_UserModes( Chan, cl ), 'o' )) strlcat( str, "@", sizeof( str ));
+			else if( strchr( Channel_UserModes( Chan, cl ), 'v' )) strlcat( str, "+", sizeof( str ));
+			strlcat( str, Client_ID( cl ), sizeof( str ));
 
 			if( strlen( str ) > ( LINE_LEN - CLIENT_NICK_LEN - 4 ))
 			{
@@ -859,9 +859,9 @@ IRC_Send_WHO( CLIENT *Client, CHANNEL *Chan, BOOLEAN OnlyOps )
 		{
 			/* Flags zusammenbasteln */
 			strcpy( flags, "H" );
-			if( strchr( Client_Modes( c ), 'o' )) strcat( flags, "*" );
-			if( strchr( Channel_UserModes( Chan, c ), 'o' )) strcat( flags, "@" );
-			else if( strchr( Channel_UserModes( Chan, c ), 'v' )) strcat( flags, "+" );
+			if( strchr( Client_Modes( c ), 'o' )) strlcat( flags, "*", sizeof( flags ));
+			if( strchr( Channel_UserModes( Chan, c ), 'o' )) strlcat( flags, "@", sizeof( flags ));
+			else if( strchr( Channel_UserModes( Chan, c ), 'v' )) strlcat( flags, "+", sizeof( flags ));
 
 			/* ausgeben */
 			if(( ! OnlyOps ) || ( strchr( Client_Modes( c ), 'o' )))

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-server.c,v 1.25 2002/12/26 16:25:43 alex Exp $";
+static char UNUSED id[] = "$Id: irc-server.c,v 1.26 2002/12/26 16:48:14 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -195,10 +195,10 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 				assert( cl != NULL );
 
 				/* Nick, ggf. mit Modes, anhaengen */
-				if( str[strlen( str ) - 1] != ':' ) strcat( str, "," );
-				if( strchr( Channel_UserModes( chan, cl ), 'v' )) strcat( str, "+" );
-				if( strchr( Channel_UserModes( chan, cl ), 'o' )) strcat( str, "@" );
-				strcat( str, Client_ID( cl ));
+				if( str[strlen( str ) - 1] != ':' ) strlcat( str, ",", sizeof( str ));
+				if( strchr( Channel_UserModes( chan, cl ), 'v' )) strlcat( str, "+", sizeof( str ));
+				if( strchr( Channel_UserModes( chan, cl ), 'o' )) strlcat( str, "@", sizeof( str ));
+				strlcat( str, Client_ID( cl ), sizeof( str ));
 
 				if( strlen( str ) > ( LINE_LEN - CLIENT_NICK_LEN - 8 ))
 				{

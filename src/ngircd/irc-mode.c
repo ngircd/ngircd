@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-mode.c,v 1.24 2002/12/18 14:16:21 alex Exp $";
+static char UNUSED id[] = "$Id: irc-mode.c,v 1.25 2002/12/26 16:48:14 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -142,7 +142,8 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 					else
 					{
 						/* Append modifier character to result string */
-						x[0] = *mode_ptr; strcat( the_modes, x );
+						x[0] = *mode_ptr;
+						strlcat( the_modes, x, sizeof( the_modes ));
 					}
 					if( *mode_ptr == '+' ) set = TRUE;
 					else set = FALSE;
@@ -195,13 +196,13 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 		if( set )
 		{
 			/* Set mode */
-			if( Client_ModeAdd( Target, x[0] )) strcat( the_modes, x );
+			if( Client_ModeAdd( Target, x[0] )) strlcat( the_modes, x, sizeof( the_modes ));
 
 		}
 		else
 		{
 			/* Unset mode */
-			if( Client_ModeDel( Target, x[0] )) strcat( the_modes, x );
+			if( Client_ModeDel( Target, x[0] )) strlcat( the_modes, x, sizeof( the_modes ));
 		}		
 	}
 client_exit:
@@ -305,7 +306,8 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 					else
 					{
 						/* Append modifier character to result string */
-						x[0] = *mode_ptr; strcat( the_modes, x );
+						x[0] = *mode_ptr;
+						strlcat( the_modes, x, sizeof( the_modes ));
 					}
 					if( *mode_ptr == '+' ) set = TRUE;
 					else set = FALSE;
@@ -480,8 +482,9 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 				/* Channel-User-Mode */
 				if( Channel_UserModeAdd( Channel, client, x[0] ))
 				{
-					strcat( the_args, Client_ID( client ));
-					strcat( the_args, " " ); strcat( the_modes, x );
+					strlcat( the_args, Client_ID( client ), sizeof( the_args ));
+					strlcat( the_args, " ", sizeof( the_args ));
+					strlcat( the_modes, x, sizeof( the_modes ));
 					Log( LOG_DEBUG, "User \"%s\": Mode change on %s, now \"%s\"", Client_Mask( client ), Channel_Name( Channel ), Channel_UserModes( Channel, client ));
 				}
 			}
@@ -490,7 +493,7 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 				/* Channel-Mode */
 				if( Channel_ModeAdd( Channel, x[0] ))
 				{
-					strcat( the_modes, x );
+					strlcat( the_modes, x, sizeof( the_modes ));
 					Log( LOG_DEBUG, "Channel %s: Mode change, now \"%s\".", Channel_Name( Channel ), Channel_Modes( Channel ));
 				}
 			}
@@ -503,8 +506,9 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 				/* Channel-User-Mode */
 				if( Channel_UserModeDel( Channel, client, x[0] ))
 				{
-					strcat( the_args, Client_ID( client ));
-					strcat( the_args, " " ); strcat( the_modes, x );
+					strlcat( the_args, Client_ID( client ), sizeof( the_args ));
+					strlcat( the_args, " ", sizeof( the_args ));
+					strlcat( the_modes, x, sizeof( the_modes ));
 					Log( LOG_DEBUG, "User \"%s\": Mode change on %s, now \"%s\"", Client_Mask( client ), Channel_Name( Channel ), Channel_UserModes( Channel, client ));
 				}
 			}
@@ -513,7 +517,7 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 				/* Channel-Mode */
 				if( Channel_ModeDel( Channel, x[0] ))
 				{
-					strcat( the_modes, x );
+					strlcat( the_modes, x, sizeof( the_modes ));
 					Log( LOG_DEBUG, "Channel %s: Mode change, now \"%s\".", Channel_Name( Channel ), Channel_Modes( Channel ));
 				}
 			}
@@ -522,8 +526,8 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 		/* Are there additional arguments to add? */
 		if( argadd[0] )
 		{
-			if( the_args[strlen( the_args ) - 1] != ' ' ) strcat( the_args, " " );
-			strcat( the_args, argadd );
+			if( the_args[strlen( the_args ) - 1] != ' ' ) strlcat( the_args, " ", sizeof( the_args ));
+			strlcat( the_args, argadd, sizeof( the_args ));
 		}
 	}
 chan_exit:

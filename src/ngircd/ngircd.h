@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: ngircd.h,v 1.18 2002/12/19 04:30:00 alex Exp $
+ * $Id: ngircd.h,v 1.19 2002/12/26 16:48:14 alex Exp $
  *
  * Prototypes of the "main module".
  */
@@ -45,7 +45,7 @@ GLOBAL CHAR NGIRCd_DebugLevel[2];	/* Debug-Level fuer IRC_VERSION() */
 
 GLOBAL CHAR NGIRCd_ConfFile[FNAME_LEN];	/* Konfigurationsdatei */
 
-GLOBAL CHAR NGIRCd_ProtoID[1024];	/* Protokoll- und Server-Identifikation */
+GLOBAL CHAR NGIRCd_ProtoID[COMMAND_LEN];/* Protokoll- und Server-Identifikation */
 
 
 GLOBAL CHAR *NGIRCd_Version PARAMS((VOID ));

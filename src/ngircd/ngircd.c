@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.67 2002/12/26 16:25:43 alex Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.68 2002/12/26 16:48:14 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -73,8 +73,8 @@ main( int argc, const char *argv[] )
 #ifdef SNIFFER
 	NGIRCd_Sniffer = FALSE;
 #endif
-	strcpy( NGIRCd_ConfFile, SYSCONFDIR );
-	strcat( NGIRCd_ConfFile, CONFIG_FILE );
+	strlcpy( NGIRCd_ConfFile, SYSCONFDIR, sizeof( NGIRCd_ConfFile ));
+	strlcat( NGIRCd_ConfFile, CONFIG_FILE, sizeof( NGIRCd_ConfFile ));
 
 	/* Kommandozeile parsen */
 	for( i = 1; i < argc; i++ )
@@ -376,12 +376,12 @@ NGIRCd_VersionAddition( VOID )
 	strcat( txt, "IRCPLUS" );
 #endif
 	
-	if( txt[0] ) strcat( txt, "-" );
-	strcat( txt, TARGET_CPU );
-	strcat( txt, "/" );
-	strcat( txt, TARGET_VENDOR );
-	strcat( txt, "/" );
-	strcat( txt, TARGET_OS );
+	if( txt[0] ) strlcat( txt, "-", sizeof( txt ));
+	strlcat( txt, TARGET_CPU, sizeof( txt ));
+	strlcat( txt, "/", sizeof( txt ));
+	strlcat( txt, TARGET_VENDOR, sizeof( txt ));
+	strlcat( txt, "/", sizeof( txt ));
+	strlcat( txt, TARGET_OS, sizeof( txt ));
 
 	return txt;
 } /* NGIRCd_VersionAddition */

@@ -9,14 +9,18 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: parse.c,v 1.1 2001/12/21 23:53:16 alex Exp $
+ * $Id: parse.c,v 1.2 2001/12/23 21:56:47 alex Exp $
  *
  * parse.c: Parsen der Client-Anfragen
  *
  * $Log: parse.c,v $
+ * Revision 1.2  2001/12/23 21:56:47  alex
+ * - bessere Debug-Ausgaben,
+ * - Bug im Parameter-Parser behoben (bei "langem" Parameter)
+ * - erste IRC-Befehle werden erkannt :-)
+ *
  * Revision 1.1  2001/12/21 23:53:16  alex
  * - Modul zum Parsen von Client-Requests begonnen.
- *
  */
 
 
@@ -28,8 +32,11 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "client.h"
 #include "conn.h"
+#include "irc.h"
 #include "log.h"
+#include "messages.h"
 
 #include <exp.h>
 #include "parse.h"
@@ -58,8 +65,8 @@ GLOBAL VOID Parse_Exit( VOID )
 
 GLOBAL BOOLEAN Parse_Request( CONN_ID Idx, CHAR *Request )
 {
-	/* Client-Request parsen und verarbeiten. Bei einem schwerwiegenden
-	 * Fehler wird die Verbindung geschlossen und FALSE geliefert.
+	/* Client-Request parsen. Bei einem schwerwiegenden Fehler wird
+	 * die Verbindung geschlossen und FALSE geliefert.
 	 * Der Aufbau gueltiger Requests ist in RFC 2812, 2.3 definiert. */
 
 	REQUEST req;
@@ -67,6 +74,10 @@ GLOBAL BOOLEAN Parse_Request( CONN_ID Idx, CHAR *Request )
 
 	assert( Idx >= 0 );
 	assert( Request != NULL );
+
+#ifdef DEBUG
+	Log( LOG_DEBUG, " <- connection %d: '%s'.", Idx, Request );
+#endif
 	
 	Init_Request( &req );
 
@@ -99,11 +110,17 @@ GLOBAL BOOLEAN Parse_Request( CONN_ID Idx, CHAR *Request )
 		while( start )
 		{
 			/* Parameter-String "zerlegen" */
-			ptr = strchr( start, ' ' );
-			if( ptr ) *ptr = '\0';
-
-			if( start[0] == ':' ) req.argv[req.argc] = start + 1;
-			else req.argv[req.argc] = start;
+			if( start[0] == ':' )
+			{
+				req.argv[req.argc] = start + 1;
+				ptr = NULL;
+			}
+			else
+			{
+				req.argv[req.argc] = start;
+				ptr = strchr( start, ' ' );
+				if( ptr ) *ptr = '\0';
+			}
 			
 			req.argc++;
 
@@ -116,7 +133,7 @@ GLOBAL BOOLEAN Parse_Request( CONN_ID Idx, CHAR *Request )
 	}
 	
 	if( ! Validate_Args( &req )) return Parse_Error( Idx, "Invalid argument(s)" );
-
+	
 	return Handle_Request( Idx, &req );
 } /* Parse_Request */
 
@@ -175,13 +192,28 @@ LOCAL BOOLEAN Validate_Args( REQUEST *Req )
 
 LOCAL BOOLEAN Handle_Request( CONN_ID Idx, REQUEST *Req )
 {
+	/* Client-Request verarbeiten. Bei einem schwerwiegenden Fehler
+	 * wird die Verbindung geschlossen und FALSE geliefert. */
+
+	CLIENT *client;
+
 	assert( Idx >= 0 );
 	assert( Req != NULL );
 	assert( Req->command != NULL );
 
 #ifdef DEBUG
-	Log( LOG_DEBUG, " -> connection %d: '%s', %d %s,%s prefix.", Idx, Req->command, Req->argc, Req->argc == 1 ? "parameter" : "parameters", Req->prefix ? "" : " no" );
+	Log( LOG_DEBUG, "    connection %d: '%s', %d %s,%s prefix.", Idx, Req->command, Req->argc, Req->argc == 1 ? "parameter" : "parameters", Req->prefix ? "" : " no" );
 #endif
+
+	client = Client_GetFromConn( Idx );
+	assert( client != NULL );
+
+	if( strcmp( Req->command, "PASS" ) == 0 ) return IRC_PASS( client, Req );
+	else if( strcmp( Req->command, "NICK" ) == 0 ) return IRC_NICK( client, Req );
+	else if( strcmp( Req->command, "USER" ) == 0 ) return IRC_USER( client, Req );
+
+	/* Unbekannter Befehl */
+	Conn_WriteStr( Idx, ERR_UNKNOWNCOMMAND_MSG, Req->command );
 
 	return TRUE;
 } /* Handle_Request */

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.35 2002/03/25 19:11:01 alex Exp $
+ * $Id: ngircd.c,v 1.36 2002/03/27 16:41:25 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  */
@@ -52,7 +52,7 @@ LOCAL VOID Show_Help( VOID );
 
 GLOBAL int main( int argc, const char *argv[] )
 {
-	BOOLEAN ok;
+	BOOLEAN ok, configtest = FALSE;
 	INT32 pid, n;
 	INT i;
 
@@ -66,6 +66,7 @@ GLOBAL int main( int argc, const char *argv[] )
 #ifdef SNIFFER
 	NGIRCd_Sniffer = FALSE;
 #endif
+	strcpy( NGIRCd_ConfFile, CONFIG_FILE );
 
 	/* Kommandozeile parsen */
 	for( i = 1; i < argc; i++ )
@@ -75,6 +76,11 @@ GLOBAL int main( int argc, const char *argv[] )
 		{
 			/* Lange Option */
 
+			if( strcmp( argv[i], "--configtest" ) == 0 )
+			{
+				configtest = TRUE;
+				ok = TRUE;
+			}
 #ifdef DEBUG
 			if( strcmp( argv[i], "--debug" ) == 0 )
 			{
@@ -84,8 +90,8 @@ GLOBAL int main( int argc, const char *argv[] )
 #endif
 			if( strcmp( argv[i], "--help" ) == 0 )
 			{
-				Show_Version( ); puts( "" );
-				Show_Help( ); puts( "" );
+				Show_Version( );
+				puts( "" ); Show_Help( ); puts( "" );
 				exit( 1 );
 			}
 			if( strcmp( argv[i], "--nodaemon" ) == 0 )
@@ -168,6 +174,13 @@ GLOBAL int main( int argc, const char *argv[] )
 #ifdef SNIFFER
 	if( NGIRCd_Sniffer ) strcpy( NGIRCd_DebugLevel, "2" );
 #endif
+
+	/* Soll nur die Konfigurations ueberprueft und ausgegeben werden? */
+	if( configtest )
+	{
+		Show_Version( ); puts( "" );
+		exit( Conf_Test( ));
+	}
 	
 	while( ! NGIRCd_Quit )
 	{
@@ -391,11 +404,6 @@ LOCAL VOID Show_Version( VOID )
 
 LOCAL VOID Show_Help( VOID )
 {
-	puts( "Compile-time defaults:\n" );
-	puts( "  - configuration: "CONFIG_FILE );
-	puts( "  - MOTD file: "MOTD_FILE );
-	puts( "  - server error log: "ERROR_FILE"\n" );
-	puts( "Run-time options:\n" );
 #ifdef DEBUG
 	puts( "  -d, --debug       log extra debug messages" );
 #endif
@@ -404,6 +412,7 @@ LOCAL VOID Show_Help( VOID )
 #ifdef SNIFFER
 	puts( "  -s, --sniffer     enable network sniffer and display all IRC traffic" );
 #endif
+	puts( "      --configtest  read, validate and display configuration; then exit" );
  	puts( "      --version     output version information and exit" );
 	puts( "      --help        display this help and exit" );
 } /* Show_Help */

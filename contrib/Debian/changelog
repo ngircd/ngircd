@@ -1,3 +1,10 @@
+ngircd (0.7.6+HEAD-0ab2) unstable; urgency=low
+
+  * Included new fixes and additions from the CVS-HEAD upstream branch,
+    e. g. the setting of type of service (TOS) on sockets.
+
+ -- Alexander Barton <alex@Arthur.Ath.CX>  Mon, 26 Jan 2004 04:05:41 +0100
+
 ngircd (0.7.6+HEAD-0ab1) unstable; urgency=low
 
   * Included all changes from the CVS-HEAD upstream version.

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-login.c,v 1.16 2002/09/02 19:04:30 alex Exp $
+ * $Id: irc-login.c,v 1.17 2002/09/02 19:31:26 alex Exp $
  *
  * irc-login.c: Anmeldung und Abmeldung im IRC
  */
@@ -100,12 +100,12 @@ IRC_PASS( CLIENT *Client, REQUEST *Req )
 				flags++;
 			}
 			else flags = "";
-			Log( LOG_INFO, "Other server is \"%s\" %s (flags: \"%s\"), using protocol version %d.%d.", impl, serverver, flags, protohigh, protolow );
+			Log( LOG_INFO, "Connection %d: Peer announces itself as %s-%s (flags: \"%s\") using protocol version %d.%d.", Client_Conn( Client ), impl, serverver, flags, protohigh, protolow );
 		}
 		else
 		{
 			serverver = flags = "";
-			Log( LOG_INFO, "Other server is \"%s\" using protocol version %d.%d.", impl, protohigh, protolow );
+			Log( LOG_INFO, "Connection %d: Peer announces itself as server of type \"%s\" usinf protocol version %d.%d.", Client_Conn( Client ), impl, protohigh, protolow );
 		}
 
 		Client_SetType( Client, CLIENT_GOTPASSSERVER );

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: messages.h,v 1.33 2002/02/27 20:33:01 alex Exp $
+ * $Id: messages.h,v 1.34 2002/03/03 19:41:46 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: messages.h,v $
+ * Revision 1.34  2002/03/03 19:41:46  alex
+ * - neue Konstanten RPL_ENDOFWHO_MSG und RPL_WHOREPLY_MSG definiert.
+ *
  * Revision 1.33  2002/02/27 20:33:01  alex
  * - neue Text-Konstante: ERR_NOTONCHANNEL_MSG
  *
@@ -189,6 +192,9 @@
 #define RPL_WHOISOPERATOR		"313"
 #define RPL_WHOISOPERATOR_MSG		RPL_WHOISOPERATOR" %s %s :is an IRC operator"
 
+#define RPL_ENDOFWHO			"315"
+#define RPL_ENDOFWHO_MSG		RPL_ENDOFWHO" %s %s :End of WHO list"
+
 #define RPL_WHOISIDLE			"317"
 #define RPL_WHOISIDLE_MSG		RPL_WHOISIDLE" %s %s %ld :seconds idle"
 
@@ -209,6 +215,9 @@
 
 #define RPL_VERSION			"351"
 #define RPL_VERSION_MSG			RPL_VERSION" %s "PACKAGE"-"VERSION".%s %s :%s"
+
+#define RPL_WHOREPLY			"352"
+#define RPL_WHOREPLY_MSG		RPL_WHOREPLY" %s %s %s %s %s %s %s :%d %s"
 
 #define RPL_NAMREPLY			"353"
 #define RPL_NAMREPLY_MSG		RPL_NAMREPLY" %s %s %s :"

@@ -12,7 +12,15 @@
 
 ngIRCd CVS-HEAD
 
-  - ...
+  - beim Schlie§en einer Verbindung zeigt der Server nun vor dem ERROR
+    noch eine Statistik ueber die empfangene und gesendete Datenmenge an.
+  - Clients werden beim Connect mit NOTICEs ueber den Status der Resolver-
+    Subprozesse informiert.
+  - NOTICE liefert nun wirklich nie mehr einen Fehler, auch dann nicht,
+    wenn der sendende Client noch gar nicht registriert ist.
+  - NOTICEs vom Server selber (z.B. Verbindungsstatistik oder s-Mode)
+    haben nun ein "Text-Prefix": "*** ".
+
 
 ngIRCd 0.5.2, 04.10.2002
 
@@ -288,4 +296,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.103 2002/10/04 12:43:27 alex Exp $
+$Id: ChangeLog,v 1.104 2002/10/09 13:42:32 alex Exp $

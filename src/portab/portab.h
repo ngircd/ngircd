@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: portab.h,v 1.15 2003/03/31 19:01:02 alex Exp $
+ * $Id: portab.h,v 1.16 2004/01/17 03:22:46 alex Exp $
  *
  * Portability functions and declarations (header for libngbportab).
  */
@@ -21,13 +21,13 @@
 #include "config.h"
 
 #ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
+# include <sys/types.h>
 #endif
 
 
 /* compiler features */
 
-#ifdef __GNUC__
+#if (__GNUC__ > 2 || (__GNUC == 2 && __GNUC_MINOR >= 7))
 # define PUNUSED(x) __attribute__ ((unused)) x
 # define UNUSED     __attribute__ ((unused))
 #else

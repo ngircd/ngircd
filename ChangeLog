@@ -21,6 +21,9 @@ ngIRCd CVS-HEAD
     ngIRCd nun auch aktiv Server-Links aufbauen.
   - h_errno wird auf Systemen, die das nicht kennen (wie z.B. HP-UX 10.20)
     nicht mehr verwendet. Somit compiliert der ngIRCd nun auch dort :-)
+  - um auf dem Ziel-System nicht vorhandene Funktionen nachzubilden wird nun
+    die "libngportab" erzeugt; genutzt wird dies bisher fuer vsnprintf().
+    Nun compiliert der ngIRCd auch unter Solaris 2.5.1.
 
 ngIRCd 0.4.2, 29.04.2002
 
@@ -204,4 +207,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.65 2002/05/18 22:46:06 alex Exp $
+$Id: ChangeLog,v 1.66 2002/05/19 01:39:43 alex Exp $

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.66 2002/05/30 16:52:21 alex Exp $
+ * $Id: conn.c,v 1.67 2002/06/02 17:03:08 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -147,7 +147,11 @@ Conn_Exit( VOID )
 				close( i );
 				Log( LOG_DEBUG, "Connection %d closed during creation (socket %d).", idx, i );
 			}
-			else if( idx < MAX_CONNECTIONS ) Conn_Close( idx, NULL, "Server going down", TRUE );
+			else if( idx < MAX_CONNECTIONS )
+			{
+				if( NGIRCd_Restart ) Conn_Close( idx, NULL, "Server going down (restarting)", TRUE );
+				else Conn_Close( idx, NULL, "Server going down", TRUE );
+			}
 			else
 			{
 				Log( LOG_WARNING, "Closing unknown connection %d ...", i );
@@ -213,10 +217,9 @@ Conn_NewListener( CONST UINT Port )
 
 
 GLOBAL VOID
-Conn_Handler( INT Timeout )
+Conn_Handler( VOID )
 {
-	/* Aktive Verbindungen ueberwachen. Mindestens alle "Timeout"
-	 * Sekunden wird die Funktion verlassen. Folgende Aktionen
+	/* Aktive Verbindungen ueberwachen. Folgende Aktionen
 	 * werden durchgefuehrt:
 	 *  - neue Verbindungen annehmen,
 	 *  - Server-Verbindungen aufbauen,
@@ -232,15 +235,15 @@ Conn_Handler( INT Timeout )
 	INT i;
 
 	start = time( NULL );
-	while(( time( NULL ) - start < Timeout ) && ( ! NGIRCd_Quit ))
+	while(( ! NGIRCd_Quit ) && ( ! NGIRCd_Restart ))
 	{
 		Check_Servers( );
 
 		Check_Connections( );
 
 		/* Timeout initialisieren */
-		tv.tv_sec = 0;
-		tv.tv_usec = 50000;
+		tv.tv_sec = 1;
+		tv.tv_usec = 0;
 
 		/* noch volle Lese-Buffer suchen */
 		for( i = 0; i < MAX_CONNECTIONS; i++ )

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: hash.c,v 1.1 2002/03/14 15:31:22 alex Exp $
+ * $Id: hash.c,v 1.2 2002/03/14 15:49:36 alex Exp $
  *
  * hash.c: Hash-Werte berechnen
  */
@@ -22,6 +22,16 @@
 
 #include "exp.h"
 #include "hash.h"
+
+
+LOCAL UINT32 jenkins_hash( register UINT8 *k, register UINT32 length, register UINT32 initval);
+
+
+GLOBAL UINT32 Hash( CHAR *String )
+{
+	/* Hash-Wert ueber String berechnen */
+	return jenkins_hash( String, strlen( String ), 42 );
+} /* Hash */
 
 
 /*
@@ -37,11 +47,7 @@
  */
 
 
-typedef unsigned long int ub4;
-typedef unsigned char ub1;
-
-
-#define hashsize(n) ((ub4)1<<(n))
+#define hashsize(n) ((UINT32)1<<(n))
 #define hashmask(n) (hashsize(n)-1)
 
 #define mix(a,b,c) \
@@ -55,17 +61,17 @@ typedef unsigned char ub1;
 	a -= b; a -= c; a ^= (c>>3);  \
 	b -= c; b -= a; b ^= (a<<10); \
 	c -= a; c -= b; c ^= (b>>15); \
-}
+} /* mix */
 
 
-ub4 hash( register ub1 *k, register ub4 length, register ub4 initval)
+LOCAL UINT32 jenkins_hash( register UINT8 *k, register UINT32 length, register UINT32 initval)
 {
 	/* k: the key
 	 * length: length of the key
 	 * initval: the previous hash, or an arbitrary value
 	 */
 
-	register ub4 a,b,c,len;
+	register UINT32 a,b,c,len;
 
 	/* Set up the internal state */
 	len = length;
@@ -75,9 +81,9 @@ ub4 hash( register ub1 *k, register ub4 length, register ub4 initval)
 	/* handle most of the key */
 	while (len >= 12)
 	{
-		a += (k[0] +((ub4)k[1]<<8) +((ub4)k[2]<<16) +((ub4)k[3]<<24));
-		b += (k[4] +((ub4)k[5]<<8) +((ub4)k[6]<<16) +((ub4)k[7]<<24));
-		c += (k[8] +((ub4)k[9]<<8) +((ub4)k[10]<<16)+((ub4)k[11]<<24));
+		a += (k[0] +((UINT32)k[1]<<8) +((UINT32)k[2]<<16) +((UINT32)k[3]<<24));
+		b += (k[4] +((UINT32)k[5]<<8) +((UINT32)k[6]<<16) +((UINT32)k[7]<<24));
+		c += (k[8] +((UINT32)k[9]<<8) +((UINT32)k[10]<<16)+((UINT32)k[11]<<24));
 		mix(a,b,c);
 		k += 12; len -= 12;
 	}
@@ -86,17 +92,17 @@ ub4 hash( register ub1 *k, register ub4 length, register ub4 initval)
 	c += length;
 	switch(len)		/* all the case statements fall through */
 	{
-		case 11: c+=((ub4)k[10]<<24);
-		case 10: c+=((ub4)k[9]<<16);
-		case 9 : c+=((ub4)k[8]<<8);
+		case 11: c+=((UINT32)k[10]<<24);
+		case 10: c+=((UINT32)k[9]<<16);
+		case 9 : c+=((UINT32)k[8]<<8);
 		/* the first byte of c is reserved for the length */
-		case 8 : b+=((ub4)k[7]<<24);
-		case 7 : b+=((ub4)k[6]<<16);
-		case 6 : b+=((ub4)k[5]<<8);
+		case 8 : b+=((UINT32)k[7]<<24);
+		case 7 : b+=((UINT32)k[6]<<16);
+		case 6 : b+=((UINT32)k[5]<<8);
 		case 5 : b+=k[4];
-		case 4 : a+=((ub4)k[3]<<24);
-		case 3 : a+=((ub4)k[2]<<16);
-		case 2 : a+=((ub4)k[1]<<8);
+		case 4 : a+=((UINT32)k[3]<<24);
+		case 3 : a+=((UINT32)k[2]<<16);
+		case 2 : a+=((UINT32)k[1]<<8);
 		case 1 : a+=k[0];
 		/* case 0: nothing left to add */
 	}
@@ -104,7 +110,7 @@ ub4 hash( register ub1 *k, register ub4 length, register ub4 initval)
 
 	/* report the result */
 	return c;
-} /* hash */
+} /* jenkins_hash */
 
 
 /* -eof- */

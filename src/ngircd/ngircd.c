@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.74 2003/03/07 14:50:13 alex Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.75 2003/03/27 01:22:44 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -436,6 +436,9 @@ NGIRCd_Rehash( VOID )
 	
 	/* Listen-Sockets neu anlegen: */
 	Conn_InitListeners( );
+
+	/* Sync configuration with established connections */
+	Conn_SyncServerStruct( );
 
 	Log( LOG_NOTICE|LOG_snotice, "Re-reading of configuration done." );
 } /* NGIRCd_Rehash */

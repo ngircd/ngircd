@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.50 2002/09/02 19:00:25 alex Exp $
+ * $Id: ngircd.c,v 1.51 2002/09/02 21:06:11 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  */
@@ -282,8 +282,12 @@ main( int argc, const char *argv[] )
 		/* Signal-Handler initialisieren */
 		Initialize_Signal_Handler( );
 
-		/* Protokoll- und Server-Identifikation erzeugen */
-		sprintf( NGIRCd_ProtoID, "%s%s %s|%s:%s P", PROTOVER, PROTOSUFFIX, PACKAGE, VERSION, "" );
+		/* Protokoll- und Server-Identifikation erzeugen. Die vom ngIRCd
+		 * beim PASS-Befehl verwendete Syntax sowie die erweiterten Flags
+		 * sind in doc/Protocol.txt beschrieben. */
+		sprintf( NGIRCd_ProtoID, "%s%s %s|%s:", PROTOVER, PROTOSUFFIX, PACKAGE, VERSION );
+		if( Conf_OperCanMode ) strcat( NGIRCd_ProtoID, "o" );
+		strcat( NGIRCd_ProtoID, " P" );
 		Log( LOG_DEBUG, "Protocol and server ID is \"%s\".", NGIRCd_ProtoID );
 
 		/* Vordefinierte Channels anlegen */

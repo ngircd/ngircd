@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.89 2005/02/07 19:31:34 alex Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.90 2005/02/09 09:52:58 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -60,6 +60,8 @@ LOCAL VOID Show_Help PARAMS(( VOID ));
 LOCAL VOID Pidfile_Create PARAMS(( LONG ));
 LOCAL VOID Pidfile_Delete PARAMS(( VOID ));
 
+LOCAL VOID NGIRCd_FillVersion PARAMS(( VOID ));
+
 
 GLOBAL int
 main( int argc, const char *argv[] )
@@ -82,6 +84,8 @@ main( int argc, const char *argv[] )
 #endif
 	strlcpy( NGIRCd_ConfFile, SYSCONFDIR, sizeof( NGIRCd_ConfFile ));
 	strlcat( NGIRCd_ConfFile, CONFIG_FILE, sizeof( NGIRCd_ConfFile ));
+
+	NGIRCd_FillVersion( );
 
 	/* Kommandozeile parsen */
 	for( i = 1; i < argc; i++ )
@@ -210,7 +214,7 @@ main( int argc, const char *argv[] )
 	}
 
 	/* Debug-Level (fuer IRC-Befehl "VERSION") ermitteln */
-	strcpy( NGIRCd_DebugLevel, "" );
+	NGIRCd_DebugLevel[0] = '\0';
 #ifdef DEBUG
 	if( NGIRCd_Debug ) strcpy( NGIRCd_DebugLevel, "1" );
 #endif
@@ -381,73 +385,60 @@ main( int argc, const char *argv[] )
 } /* main */
 
 
-GLOBAL CHAR *
-NGIRCd_Version( VOID )
+LOCAL VOID
+NGIRCd_FillVersion( VOID )
 {
-	STATIC CHAR version[126];
-	
-#ifdef CVSDATE
-	sprintf( version, "%s %s(%s)-%s", PACKAGE_NAME, PACKAGE_VERSION, CVSDATE, NGIRCd_VersionAddition( ));
-#else
-	sprintf( version, "%s %s-%s", PACKAGE_NAME, PACKAGE_VERSION, NGIRCd_VersionAddition( ));
-#endif
-	return version;
-} /* NGIRCd_Version */
-
-
-GLOBAL CHAR *
-NGIRCd_VersionAddition( VOID )
-{
-	STATIC CHAR txt[200];
-
-	strcpy( txt, "" );
+	NGIRCd_VersionAddition[0] = '\0';
 
 #ifdef SYSLOG
-	if( txt[0] ) strcat( txt, "+" );
-	strcat( txt, "SYSLOG" );
+	strcpy( NGIRCd_VersionAddition, "SYSLOG" );
 #endif
 #ifdef ZLIB
-	if( txt[0] ) strcat( txt, "+" );
-	strcat( txt, "ZLIB" );
+	if( NGIRCd_VersionAddition[0] ) strcat( NGIRCd_VersionAddition, "+" );
+	strcat( NGIRCd_VersionAddition, "ZLIB" );
 #endif
 #ifdef TCPWRAP
-	if( txt[0] ) strcat( txt, "+" );
-	strcat( txt, "TCPWRAP" );
+	if( NGIRCd_VersionAddition[0] ) strcat( NGIRCd_VersionAddition, "+" );
+	strcat( NGIRCd_VersionAddition, "TCPWRAP" );
 #endif
 #ifdef RENDEZVOUS
-	if( txt[0] ) strcat( txt, "+" );
-	strcat( txt, "RENDEZVOUS" );
+	if( NGIRCd_VersionAddition[0] ) strcat( NGIRCd_VersionAddition, "+" );
+	strcat( NGIRCd_VersionAddition, "RENDEZVOUS" );
 #endif
 #ifdef IDENTAUTH
-	if( txt[0] ) strcat( txt, "+" );
-	strcat( txt, "IDENT" );
+	if( NGIRCd_VersionAddition[0] ) strcat( NGIRCd_VersionAddition, "+" );
+	strcat( NGIRCd_VersionAddition, "IDENT" );
 #endif
 #ifdef DEBUG
-	if( txt[0] ) strcat( txt, "+" );
-	strcat( txt, "DEBUG" );
+	if( NGIRCd_VersionAddition[0] ) strcat( NGIRCd_VersionAddition, "+" );
+	strcat( NGIRCd_VersionAddition, "DEBUG" );
 #endif
 #ifdef SNIFFER
-	if( txt[0] ) strcat( txt, "+" );
-	strcat( txt, "SNIFFER" );
+	if( NGIRCd_VersionAddition[0] ) strcat( NGIRCd_VersionAddition, "+" );
+	strcat( NGIRCd_VersionAddition, "SNIFFER" );
 #endif
 #ifdef STRICT_RFC
-	if( txt[0] ) strcat( txt, "+" );
-	strcat( txt, "RFC" );
+	if( NGIRCd_VersionAddition[0] ) strcat( NGIRCd_VersionAddition, "+" );
+	strcat( NGIRCd_VersionAddition, "RFC" );
 #endif
 #ifdef IRCPLUS
-	if( txt[0] ) strcat( txt, "+" );
-	strcat( txt, "IRCPLUS" );
+	if( NGIRCd_VersionAddition[0] ) strcat( NGIRCd_VersionAddition, "+" );
+	strcat( NGIRCd_VersionAddition, "IRCPLUS" );
 #endif
-	
-	if( txt[0] ) strlcat( txt, "-", sizeof( txt ));
-	strlcat( txt, TARGET_CPU, sizeof( txt ));
-	strlcat( txt, "/", sizeof( txt ));
-	strlcat( txt, TARGET_VENDOR, sizeof( txt ));
-	strlcat( txt, "/", sizeof( txt ));
-	strlcat( txt, TARGET_OS, sizeof( txt ));
 
-	return txt;
-} /* NGIRCd_VersionAddition */
+	if( NGIRCd_VersionAddition[0] ) strlcat( NGIRCd_VersionAddition, "-", sizeof( NGIRCd_VersionAddition ));
+	strlcat( NGIRCd_VersionAddition, TARGET_CPU, sizeof( NGIRCd_VersionAddition ));
+	strlcat( NGIRCd_VersionAddition, "/", sizeof( NGIRCd_VersionAddition ));
+	strlcat( NGIRCd_VersionAddition, TARGET_VENDOR, sizeof( NGIRCd_VersionAddition ));
+	strlcat( NGIRCd_VersionAddition, "/", sizeof( NGIRCd_VersionAddition ));
+	strlcat( NGIRCd_VersionAddition, TARGET_OS, sizeof( NGIRCd_VersionAddition ));
+
+#ifdef CVSDATE
+	snprintf( NGIRCd_Version, sizeof NGIRCd_Version,"%s %s(%s)-%s", PACKAGE_NAME, PACKAGE_VERSION, CVSDATE, NGIRCd_VersionAddition);
+#else
+	snprintf( NGIRCd_Version, sizeof NGIRCd_Version, "%s %s-%s", PACKAGE_NAME, PACKAGE_VERSION, NGIRCd_VersionAddition);
+#endif
+} /* NGIRCd_FillVersion */
 
 
 GLOBAL VOID
@@ -569,7 +560,7 @@ Signal_Handler( INT Signal )
 LOCAL VOID
 Show_Version( VOID )
 {
-	puts( NGIRCd_Version( ));
+	puts( NGIRCd_Version );
 	puts( "Copyright (c)2001-2005 by Alexander Barton (<alex@barton.de>)." );
 	puts( "Homepage: <http://arthur.ath.cx/~alex/ngircd/>\n" );
 	puts( "This is free software; see the source for copying conditions. There is NO" );

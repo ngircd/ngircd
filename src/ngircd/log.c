@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: log.c,v 1.50 2005/02/03 09:26:42 alex Exp $";
+static char UNUSED id[] = "$Id: log.c,v 1.51 2005/02/09 09:52:58 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -60,7 +60,7 @@ Log_Init( VOID )
 #endif
 
 	/* Hello World! */
-	Log( LOG_NOTICE, "%s started.", NGIRCd_Version( ));
+	Log( LOG_NOTICE, "%s started.", NGIRCd_Version );
 	  
 	/* Informationen uebern den "Operation Mode" */
 	Init_Txt[0] = '\0';
@@ -112,7 +112,7 @@ Log_InitErrorfile( VOID )
 
 	/* Einige Infos in das Error-File schreiben */
 	fputs( ctime( &NGIRCd_Start ), stderr );
-	fprintf( stderr, "%s started.\n", NGIRCd_Version( ));
+	fprintf( stderr, "%s started.\n", NGIRCd_Version );
 	fprintf( stderr, "Activating: %s\n\n", Init_Txt[0] ? Init_Txt : "-" );
 	fflush( stderr );
 

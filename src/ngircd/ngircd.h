@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: ngircd.h,v 1.19 2002/12/26 16:48:14 alex Exp $
+ * $Id: ngircd.h,v 1.20 2005/02/09 09:52:58 alex Exp $
  *
  * Prototypes of the "main module".
  */
@@ -24,6 +24,8 @@
 
 GLOBAL time_t NGIRCd_Start;		/* Startzeitpunkt des Daemon */
 GLOBAL CHAR NGIRCd_StartStr[64];
+GLOBAL CHAR NGIRCd_Version[126];
+GLOBAL CHAR NGIRCd_VersionAddition[126];
 
 #ifdef DEBUG
 GLOBAL BOOLEAN NGIRCd_Debug;		/* Debug-Modus aktivieren */
@@ -47,9 +49,6 @@ GLOBAL CHAR NGIRCd_ConfFile[FNAME_LEN];	/* Konfigurationsdatei */
 
 GLOBAL CHAR NGIRCd_ProtoID[COMMAND_LEN];/* Protokoll- und Server-Identifikation */
 
-
-GLOBAL CHAR *NGIRCd_Version PARAMS((VOID ));
-GLOBAL CHAR *NGIRCd_VersionAddition PARAMS((VOID ));
 
 GLOBAL VOID NGIRCd_Rehash PARAMS(( VOID ));
 

@@ -12,6 +12,8 @@
 
 ngIRCd CVSHEAD
 
+  - Don't create version information string each time a client connects
+    but insetead on server startup. By Florian Westphal.
   - New configuration variable "PidFile", section "[Global]": if defined,
     the server writes its process ID (PID) to this file. Default: off.
     Idea of Florian Westphal, <westphal@foo.fh-furtwangen.de>.
@@ -582,4 +584,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.259 2005/02/04 14:24:20 alex Exp $
+$Id: ChangeLog,v 1.260 2005/02/09 09:52:58 alex Exp $

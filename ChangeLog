@@ -35,6 +35,9 @@ ngIRCd 0.3.x, ??.??.2002
   - die "Portab-Header" werden nicht mehr benoetigt, die System-Erkennung
     wird nun ausschliesslich vom configure-Script durchgefuehrt. System-
     abhaengige Definitionen finden sich nun unter src/portrab/.
+  - Clients und Channels werden nicht mehr ueber ihren Namen, sondern
+    einen Hash-Wert gesucht: sollte deutlich schneller sein.
+  - begonnen, neuen Client-Mode "s" (Server Messages) zu implementieren.
 
 ngIRCd 0.3.0, 02.03.2002
 
@@ -165,4 +168,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.49 2002/03/12 15:35:55 alex Exp $
+$Id: ChangeLog,v 1.50 2002/03/25 17:24:03 alex Exp $

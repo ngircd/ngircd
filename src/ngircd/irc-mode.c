@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-mode.c,v 1.27 2002/12/26 17:14:48 alex Exp $";
+static char UNUSED id[] = "$Id: irc-mode.c,v 1.28 2003/01/02 17:57:09 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -157,7 +157,11 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 		{
 			case 'a':
 				/* Away */
-				if( Client_Type( Client ) == CLIENT_SERVER ) x[0] = 'a';
+				if( Client_Type( Client ) == CLIENT_SERVER )
+				{
+					x[0] = 'a';
+					Client_SetAway( Client, DEFAULT_AWAY_MSG );
+				}
 				else ok = IRC_WriteStrClient( Origin, ERR_NOPRIVILEGES_MSG, Client_ID( Origin ));
 				break;
 			case 'i':
@@ -573,13 +577,14 @@ IRC_AWAY( CLIENT *Client, REQUEST *Req )
 	{
 		/* AWAY setzen */
 		Client_SetAway( Client, Req->argv[0] );
+		Client_ModeAdd( Client, 'a' );
 		IRC_WriteStrServersPrefix( Client, Client, "MODE %s :+a", Client_ID( Client ));
 		return IRC_WriteStrClient( Client, RPL_NOWAWAY_MSG, Client_ID( Client ));
 	}
 	else
 	{
 		/* AWAY loeschen */
-		Client_SetAway( Client, NULL );
+		Client_ModeDel( Client, 'a' );
 		IRC_WriteStrServersPrefix( Client, Client, "MODE %s :-a", Client_ID( Client ));
 		return IRC_WriteStrClient( Client, RPL_UNAWAY_MSG, Client_ID( Client ));
 	}

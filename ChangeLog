@@ -10,7 +10,12 @@
                                -- ChangeLog --
 
 
-ngIRCd CVS-HEAD (2003-07-18)
+ngIRCd CVS-HEAD
+
+  - Enhanced test-suite and made it work on GNU/Hurd.
+  - Fixed minor typo in debug output :-)
+
+ngIRCd 0.7.1 (2003-07-18)
 
   - Included files to build Debian packages (located in "debian/").
   - Updated config.guess and config.sub to newer upstream versions.
@@ -458,4 +463,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.208 2003/07/18 20:59:34 alex Exp $
+$Id: ChangeLog,v 1.209 2003/08/30 20:37:15 alex Exp $

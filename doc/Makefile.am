@@ -9,7 +9,7 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: Makefile.am,v 1.6 2002/03/12 14:37:51 alex Exp $
+# $Id: Makefile.am,v 1.7 2002/03/30 15:33:14 alex Exp $
 #
 
 EXTRA_DIST = CC-Speed.txt CVS.txt FAQ.txt README-AUX.txt README-BeOS.txt \
@@ -20,7 +20,7 @@ maintainer-clean-local:
 
 install-data-hook:
 	$(mkinstalldirs) $(DESTDIR)$(sysconfdir)
-	if [ ! -e $(DESTDIR)$(sysconfdir)/ngircd.conf ]; then \
+	if [ ! -f $(DESTDIR)$(sysconfdir)/ngircd.conf ]; then \
 	  $(INSTALL) -m 600 -c $(srcdir)/sample-ngircd.conf $(DESTDIR)$(sysconfdir)/ngircd.conf; \
 	  fi
 

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.h,v 1.8 2002/01/18 11:12:11 alex Exp $
+ * $Id: ngircd.h,v 1.9 2002/02/17 23:40:32 alex Exp $
  *
  * ngircd.h: Prototypen aus dem "Haupt-Modul"
  *
  * $Log: ngircd.h,v $
+ * Revision 1.9  2002/02/17 23:40:32  alex
+ * - Neue Funktion NGIRCd_VersionAddition().
+ *
  * Revision 1.8  2002/01/18 11:12:11  alex
  * - der Sniffer wird nun nur noch aktiviert, wenn auf Kommandozeile angegeben.
  *
@@ -64,8 +67,8 @@ GLOBAL BOOLEAN NGIRCd_NoDaemon;		/* nicht im Hintergrund laufen */
 GLOBAL BOOLEAN NGIRCd_Quit;		/* TRUE: ngIRCd beenden */
 GLOBAL BOOLEAN NGIRCd_Restart;		/* TRUE: neu starten */
 
-
 GLOBAL CHAR *NGIRCd_Version( VOID );
+GLOBAL CHAR *NGIRCd_VersionAddition( VOID );
 
 
 #endif

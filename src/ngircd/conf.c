@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.c,v 1.21 2002/03/27 16:39:22 alex Exp $
+ * $Id: conf.c,v 1.22 2002/03/29 23:33:05 alex Exp $
  *
  * conf.h: Konfiguration des ngircd
  */
@@ -62,7 +62,7 @@ GLOBAL INT Conf_Test( VOID )
 {
 	/* Konfiguration einlesen, ueberpruefen und ausgeben. */
 
-	INT i;
+	UINT i;
 
 	Use_Log = FALSE;
 	Set_Defaults( );
@@ -87,10 +87,11 @@ GLOBAL INT Conf_Test( VOID )
 	for( i = 0; i < Conf_ListenPorts_Count; i++ )
 	{
 		if( i != 0 ) printf( ", " );
-		printf( "%d", Conf_ListenPorts[i] );
+		printf( "%u", Conf_ListenPorts[i] );
 	}
-	if( Conf_ListenPorts_Count < 1 ) puts( "<none>");
-	else puts( "" );
+	puts( "" );
+	printf( "  ServerUID = %ld\n", (INT32)Conf_UID );
+	printf( "  ServerGID = %ld\n", (INT32)Conf_GID );
 	printf( "  PingTimeout = %d\n", Conf_PingTimeout );
 	printf( "  PongTimeout = %d\n", Conf_PongTimeout );
 	printf( "  ConnectRetry = %d\n", Conf_ConnectRetry );
@@ -136,6 +137,8 @@ LOCAL VOID Set_Defaults( VOID )
 	strcpy( Conf_MotdFile, MOTD_FILE );
 
 	Conf_ListenPorts_Count = 0;
+
+	Conf_UID = Conf_GID = 0;
 	
 	Conf_PingTimeout = 120;
 	Conf_PongTimeout = 20;
@@ -279,7 +282,7 @@ GLOBAL VOID Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 			if( Conf_ListenPorts_Count + 1 > MAX_LISTEN_PORTS ) Config_Error( LOG_ERR, "Too many listen ports configured. Port %ld ignored.", port );
 			else
 			{
-				if( port > 0 && port < 0xFFFF ) Conf_ListenPorts[Conf_ListenPorts_Count++] = (INT)port;
+				if( port > 0 && port < 0xFFFF ) Conf_ListenPorts[Conf_ListenPorts_Count++] = (UINT)port;
 				else Config_Error( LOG_ERR, "%s, line %d (section \"Global\"): Illegal port number %ld!", NGIRCd_ConfFile, Line, port );
 			}
 			ptr = strtok( NULL, "," );
@@ -291,6 +294,18 @@ GLOBAL VOID Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 		/* Datei mit der "message of the day" (MOTD) */
 		strncpy( Conf_MotdFile, Arg, FNAME_LEN - 1 );
 		Conf_MotdFile[FNAME_LEN - 1] = '\0';
+		return;
+	}
+	if( strcasecmp( Var, "ServerUID" ) == 0 )
+	{
+		/* UID, mit der der Daemon laufen soll */
+		Conf_UID = (UINT)atoi( Arg );
+		return;
+	}
+	if( strcasecmp( Var, "ServerGID" ) == 0 )
+	{
+		/* GID, mit der der Daemon laufen soll */
+		Conf_GID = (UINT)atoi( Arg );
 		return;
 	}
 	if( strcasecmp( Var, "PingTimeout" ) == 0 )

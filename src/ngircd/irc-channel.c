@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-channel.c,v 1.21 2002/12/16 23:06:46 alex Exp $";
+static char UNUSED id[] = "$Id: irc-channel.c,v 1.22 2002/12/26 17:04:54 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -179,7 +179,7 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 		if(( strchr( Channel_Modes( chan ), 'P' )) && ( strchr( Client_Modes( target ), 'o' ))) Channel_UserModeAdd( chan, target, 'o' );
 
 		/* Muessen Modes an andere Server gemeldet werden? */
-		strcpy( &modes[1], Channel_UserModes( chan, target ));
+		strlcpy( &modes[1], Channel_UserModes( chan, target ), sizeof( modes ) - 1 );
 		if( modes[1] ) modes[0] = 0x7;
 		else modes[0] = '\0';
 

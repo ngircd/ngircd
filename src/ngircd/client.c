@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: client.c,v 1.69 2002/12/26 16:48:14 alex Exp $";
+static char UNUSED id[] = "$Id: client.c,v 1.70 2002/12/26 17:04:54 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -86,7 +86,7 @@ Client_Init( VOID )
 
 	gethostname( This_Server->host, CLIENT_HOST_LEN );
 	h = gethostbyname( This_Server->host );
-	if( h ) strcpy( This_Server->host, h->h_name );
+	if( h ) strlcpy( This_Server->host, h->h_name, sizeof( This_Server->host ));
 
 	Client_SetID( This_Server, Conf_ServerName );
 	Client_SetInfo( This_Server, Conf_ServerInfo );
@@ -175,7 +175,7 @@ Client_New( CONN_ID Idx, CLIENT *Introducer, CLIENT *TopServer, INT Type, CHAR *
 	if( Type == CLIENT_SERVER ) Generate_MyToken( client );
 
 	/* ist der User away? */
-	if( strchr( client->modes, 'a' )) strcpy( client->away, DEFAULT_AWAY_MSG );
+	if( strchr( client->modes, 'a' )) strlcpy( client->away, DEFAULT_AWAY_MSG, sizeof( client->away ));
 
 	/* Verketten */
 	client->next = (POINTER *)My_Clients;

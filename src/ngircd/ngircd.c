@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.68 2002/12/26 16:48:14 alex Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.69 2002/12/26 17:04:54 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -399,6 +399,7 @@ NGIRCd_Rehash( VOID )
 	Conn_ExitListeners( );
 
 	/* Alten Server-Namen merken */
+	assert( sizeof( old_name ) == sizeof( Conf_ServerName ));
 	strcpy( old_name, Conf_ServerName );
 
 	/* Konfiguration neu lesen ... */

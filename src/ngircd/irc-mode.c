@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-mode.c,v 1.25 2002/12/26 16:48:14 alex Exp $";
+static char UNUSED id[] = "$Id: irc-mode.c,v 1.26 2002/12/26 17:04:54 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -392,7 +392,7 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 					{
 						Channel_ModeDel( Channel, 'k' );
 						Channel_SetKey( Channel, Req->argv[arg_arg] );
-						strcpy( argadd, Channel_Key( Channel ));
+						strlcpy( argadd, Channel_Key( Channel ), sizeof( argadd ));
 						x[0] = *mode_ptr;
 					}
 					else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));

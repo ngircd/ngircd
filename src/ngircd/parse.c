@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: parse.c,v 1.53 2002/12/26 16:48:14 alex Exp $";
+static char UNUSED id[] = "$Id: parse.c,v 1.54 2002/12/26 17:04:54 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -360,7 +360,7 @@ Handle_Request( CONN_ID Idx, REQUEST *Req )
 		}
 
 		/* Statuscode weiterleiten */
-		strcpy( str, Req->command );
+		strlcpy( str, Req->command, sizeof( str ));
 		for( i = 0; i < Req->argc; i++ )
 		{
 			if( i < Req->argc - 1 ) strlcat( str, " ", sizeof( str ));

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.50 2002/12/26 16:48:14 alex Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.51 2002/12/26 17:04:54 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -235,7 +235,7 @@ Read_Config( VOID )
 		/* Is this the beginning of a new section? */
 		if(( str[0] == '[' ) && ( str[strlen( str ) - 1] == ']' ))
 		{
-			strcpy( section, str );
+			strlcpy( section, str, sizeof( section ));
 			if( strcasecmp( section, "[GLOBAL]" ) == 0 ) continue;
 			if( strcasecmp( section, "[OPERATOR]" ) == 0 )
 			{

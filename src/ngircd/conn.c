@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.108 2002/12/26 16:48:14 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.109 2002/12/26 17:04:54 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -1251,7 +1251,7 @@ New_Connection( INT Sock )
 	Log( LOG_INFO, "Accepted connection %d from %s:%d on socket %d.", idx, inet_ntoa( new_addr.sin_addr ), ntohs( new_addr.sin_port), Sock );
 
 	/* Hostnamen ermitteln */
-	strcpy( My_Connections[idx].host, inet_ntoa( new_addr.sin_addr ));
+	strlcpy( My_Connections[idx].host, inet_ntoa( new_addr.sin_addr ), sizeof( My_Connections[idx].host ));
 	Client_SetHostname( c, My_Connections[idx].host );
 	s = Resolve_Addr( &new_addr );
 	if( s )
@@ -1588,8 +1588,8 @@ Check_Servers( VOID )
 
 		/* Hostnamen in IP aufloesen (Default bzw. im Fehlerfall: versuchen, den
 		 * konfigurierten Text direkt als IP-Adresse zu verwenden ... */
-		strcpy( Conf_Server[My_Connections[idx].our_server].ip, Conf_Server[i].host );
-		strcpy( My_Connections[idx].host, Conf_Server[i].host );
+		strlcpy( Conf_Server[My_Connections[idx].our_server].ip, Conf_Server[i].host, sizeof( Conf_Server[My_Connections[idx].our_server].ip ));
+		strlcpy( My_Connections[idx].host, Conf_Server[i].host, sizeof( My_Connections[idx].host ));
 		s = Resolve_Name( Conf_Server[i].host );
 		if( s )
 		{
@@ -1677,7 +1677,7 @@ New_Server( INT Server, CONN_ID Idx )
 	/* Verbindung registrieren */
 	My_Connections[Idx].sock = new_sock;
 	My_Connections[Idx].addr = new_addr;
-	strcpy( My_Connections[Idx].host, Conf_Server[Server].host );
+	strlcpy( My_Connections[Idx].host, Conf_Server[Server].host, sizeof( My_Connections[Idx].host ));
 
 	/* Neuen Socket registrieren */
 	FD_SET( new_sock, &My_Sockets );
@@ -1799,14 +1799,14 @@ Read_Resolver_Result( INT r_fd )
 		/* Eingehende Verbindung: Hostnamen setzen */
 		c = Client_GetFromConn( i );
 		assert( c != NULL );
-		strcpy( My_Connections[i].host, result );
+		strlcpy( My_Connections[i].host, result, sizeof( My_Connections[i].host ));
 		Client_SetHostname( c, result );
 	}
 	else
 	{
 		/* Ausgehende Verbindung (=Server): IP setzen */
 		assert( My_Connections[i].our_server > NONE );
-		strcpy( Conf_Server[My_Connections[i].our_server].ip, result );
+		strlcpy( Conf_Server[My_Connections[i].our_server].ip, result, sizeof( Conf_Server[My_Connections[i].our_server].ip ));
 	}
 
 	/* Penalty-Zeit zurueck setzen */

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc.c,v 1.107 2002/12/12 12:24:18 alex Exp $";
+static char UNUSED id[] = "$Id: irc.c,v 1.108 2002/12/26 17:04:54 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -74,7 +74,7 @@ IRC_KILL( CLIENT *Client, REQUEST *Req )
 
 	/* build reason string */
 	if( Client_Type( Client ) == CLIENT_USER ) sprintf( reason, "KILLed by %s: %s", Client_ID( Client ), Req->argv[1] );
-	else strcpy( reason, Req->argv[1] );
+	else strlcpy( reason, Req->argv[1], sizeof( reason ));
 
 	/* andere Server benachrichtigen */
 	IRC_WriteStrServersPrefix( Client, prefix, "KILL %s :%s", Req->argv[0], reason );

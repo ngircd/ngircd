@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-server.c,v 1.26 2002/12/26 16:48:14 alex Exp $";
+static char UNUSED id[] = "$Id: irc-server.c,v 1.27 2002/12/26 17:04:54 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -314,7 +314,7 @@ IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 			IRC_WriteStrChannelPrefix( Client, chan, c, FALSE, "JOIN :%s", channame );
 
 			/* Channel-User-Modes setzen */
-			strcpy( modes, Channel_UserModes( chan, c ));
+			strlcpy( modes, Channel_UserModes( chan, c ), sizeof( modes ));
 			if( modes[0] )
 			{
 				/* Modes im Channel bekannt machen */

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.84 2002/10/21 13:45:07 alex Exp $
+ * $Id: conn.c,v 1.85 2002/10/22 23:25:29 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -466,7 +466,7 @@ Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient )
 		/* Statistik an Client melden, wenn User */
 		if(( c != NULL ) && ( Client_Type( c ) == CLIENT_USER ))
 		{
-			Conn_WriteStr( Idx, "NOTICE %s :%sConnection statistics: %.1f kb received, %.1f kb sent.", Client_ThisServer( ), NOTICE_TXTPREFIX, (DOUBLE)My_Connections[Idx].bytes_in / 1024,  (DOUBLE)My_Connections[Idx].bytes_out / 1024 );
+			Conn_WriteStr( Idx, "NOTICE %s :%sConnection statistics: client %.1f kb, server %.1f kb.", Client_ThisServer( ), NOTICE_TXTPREFIX, (DOUBLE)My_Connections[Idx].bytes_in / 1024,  (DOUBLE)My_Connections[Idx].bytes_out / 1024 );
 		}
 
 		/* ERROR an Client schicken (von RFC so vorgesehen!) */

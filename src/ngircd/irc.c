@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.56 2002/02/13 17:52:27 alex Exp $
+ * $Id: irc.c,v 1.57 2002/02/13 23:05:29 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.57  2002/02/13 23:05:29  alex
+ * - Nach Connect eines Users werden LUSERS-Informationen angezeigt.
+ *
  * Revision 1.56  2002/02/13 17:52:27  alex
  * - es werden nun Channel- und User-Modes von Usern angenommen.
  *
@@ -252,6 +255,7 @@ LOCAL BOOLEAN Show_MOTD( CLIENT *Client );
 LOCAL VOID Kill_Nick( CHAR *Nick );
 
 LOCAL BOOLEAN Send_NAMES( CLIENT *Client, CHANNEL *Chan );
+LOCAL BOOLEAN Send_LUSERS( CLIENT *Client );
 
 
 GLOBAL VOID IRC_Init( VOID )
@@ -1747,7 +1751,6 @@ GLOBAL BOOLEAN IRC_ERROR( CLIENT *Client, REQUEST *Req )
 GLOBAL BOOLEAN IRC_LUSERS( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *target, *from;
-	INT cnt;
 	
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -1775,28 +1778,7 @@ GLOBAL BOOLEAN IRC_LUSERS( CLIENT *Client, REQUEST *Req )
 	else target = Client;
 	if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
 	
-	/* Users, Services und Serevr im Netz */
-	if( ! IRC_WriteStrClient( target, RPL_LUSERCLIENT_MSG, Client_ID( target ), Client_UserCount( ), Client_ServiceCount( ), Client_ServerCount( ))) return DISCONNECTED;
-
-	/* IRC-Operatoren im Netz */
-	cnt = Client_OperCount( );
-	if( cnt > 0 )
-	{
-		if( ! IRC_WriteStrClient( target, RPL_LUSEROP_MSG, Client_ID( target ), cnt )) return DISCONNECTED;
-	}
-
-	/* Unbekannt Verbindungen */
-	cnt = Client_UnknownCount( );
-	if( cnt > 0 )
-	{
-		if( ! IRC_WriteStrClient( target, RPL_LUSERUNKNOWN_MSG, Client_ID( target ), cnt )) return DISCONNECTED;
-	}
-
-	/* Channels im Netz */
-	if( ! IRC_WriteStrClient( target, RPL_LUSERCHANNELS_MSG, Client_ID( target ), Channel_Count( ))) return DISCONNECTED;
-
-	/* Channels im Netz */
-	if( ! IRC_WriteStrClient( target, RPL_LUSERME_MSG, Client_ID( target ), Client_MyUserCount( ), Client_MyServiceCount( ), Client_MyServerCount( ))) return DISCONNECTED;
+	Send_LUSERS( target );
 
 	return CONNECTED;
 } /* IRC_LUSERS */
@@ -2007,7 +1989,10 @@ LOCAL BOOLEAN Hello_User( CLIENT *Client )
 
 	Client_SetType( Client, CLIENT_USER );
 
-	return Show_MOTD( Client );
+	if( ! Send_LUSERS( Client )) return DISCONNECTED;
+	if( ! Show_MOTD( Client )) return DISCONNECTED;
+	
+	return CONNECTED;
 } /* Hello_User */
 
 
@@ -2096,6 +2081,39 @@ LOCAL BOOLEAN Send_NAMES( CLIENT *Client, CHANNEL *Chan )
 	
 	return CONNECTED;
 } /* Send_NAMES */
+
+
+LOCAL BOOLEAN Send_LUSERS( CLIENT *Client )
+{
+	INT cnt;
+
+	assert( Client != NULL );
+
+	/* Users, Services und Serevr im Netz */
+	if( ! IRC_WriteStrClient( Client, RPL_LUSERCLIENT_MSG, Client_ID( Client ), Client_UserCount( ), Client_ServiceCount( ), Client_ServerCount( ))) return DISCONNECTED;
+
+	/* IRC-Operatoren im Netz */
+	cnt = Client_OperCount( );
+	if( cnt > 0 )
+	{
+		if( ! IRC_WriteStrClient( Client, RPL_LUSEROP_MSG, Client_ID( Client ), cnt )) return DISCONNECTED;
+	}
+
+	/* Unbekannt Verbindungen */
+	cnt = Client_UnknownCount( );
+	if( cnt > 0 )
+	{
+		if( ! IRC_WriteStrClient( Client, RPL_LUSERUNKNOWN_MSG, Client_ID( Client ), cnt )) return DISCONNECTED;
+	}
+
+	/* Channels im Netz */
+	if( ! IRC_WriteStrClient( Client, RPL_LUSERCHANNELS_MSG, Client_ID( Client ), Channel_Count( ))) return DISCONNECTED;
+
+	/* Channels im Netz */
+	if( ! IRC_WriteStrClient( Client, RPL_LUSERME_MSG, Client_ID( Client ), Client_MyUserCount( ), Client_MyServiceCount( ), Client_MyServerCount( ))) return DISCONNECTED;
+	
+	return CONNECTED;
+} /* Send_LUSERS */
 
 
 /* -eof- */

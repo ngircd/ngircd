@@ -1,0 +1,21 @@
+
+                     ngIRCd - Next Generation IRC Server
+
+                         (c)2001 by Alexander Barton,
+                    alex@barton.de, http://www.barton.de/
+
+                  ngIRCd ist freie Software und steht unter
+                       der GNU General Public License.
+
+                                 -- CVS.txt --
+
+
+Die Sourcen des ngIRCd werden mit dem "Concurrent Versions System" (CVS)
+verwaltet. Somit koennen ohne Probleme mehrere Leute gleichzeitig die Sourcen
+bearbeitet.
+
+Dieser Text soll in Zukunft die Grundlagen beschreiben. Tut er aber leider
+noch nicht, also frage einfach Alex direkt (siehe AUTHORS-Text), wenn du
+daran interessiert bist, Zugriff auf den Quellcode via CVS zu bekommen!
+
+[ ... more to come ... ]

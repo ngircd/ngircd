@@ -1,0 +1,42 @@
+
+                     ngIRCd - Next Generation IRC Server
+
+                         (c)2001 by Alexander Barton,
+                    alex@barton.de, http://www.barton.de/
+
+                  ngIRCd ist freie Software und steht unter
+                       der GNU General Public License.
+
+                           -- README / Liesmich --
+
+
+ngIRCd ist ein Server fuer den Internet Relay Chat (IRC). Er ist von Grund
+auf neu geschrieben, also nicht wie die meisten anderen IRCd's vom Urvater,
+dem Daemon des IRCNet abgeleitet.
+
+Zur Zeit befindet sich ngIRCd noch in Entwicklung, vieles ist noch nicht
+implementiert bzw. nur "halbherzig": Channels gibt es noch nicht, genau so
+wenig wie Server-Links. Das private Chatten (PRIVMSG) mit den Client-Befehlen
+/msg und /query sollte hingegen funktionieren, ein wenig praktische Funk-
+tionalitaet ist also tatsaechlich schon vorhanden ;-)
+
+Diese Version ist aber auf jeden Fall als "Preview" anzusehen!
+
+Bisher (mehr oder wenig vollstaendig) implementierte IRC-Befehle:
+
+DIE, ISON, MODE, MOTD, NAMES, NICK, NOTICE, OPER, PASS, PING, PONG, PRIVMSG,
+QUIT, RESTART, USER, USERHOST, WHOIS.
+
+Ueber Rueckmeldungen, Bug-Reports und Patches freue ich mich! Also los, haut
+in die Tasten! :-))
+
+Via E-Mail erreichst du mich als <alex@arthur.ath.cx> bzw. <alex@barton.de>.
+Die Homepage des ngIRCd findest du unter <http://arthur.ath.cx/~alex/ngircd/>.
+
+[ ... more to come ... ]
+
+
+Hinweise zur Installation findest du in der Datei INSTALL.
+Alle Autoren von ngIRCd sind in AUTHORS aufgefuehrt.
+In der Datei COPYING steht die GNU General Public License.
+Das README liest du gerade ,-)

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.61 2002/04/08 01:17:54 alex Exp $
+ * $Id: conn.c,v 1.62 2002/05/18 21:53:53 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -92,7 +92,10 @@ LOCAL RES_STAT *ResolveName( CHAR *Host );
 LOCAL VOID Do_ResolveAddr( struct sockaddr_in *Addr, INT w_fd );
 LOCAL VOID Do_ResolveName( CHAR *Host, INT w_fd );
 LOCAL VOID Read_Resolver_Result( INT r_fd );
+
+#ifdef h_errno
 LOCAL CHAR *Resolv_Error( INT H_Error );
+#endif
 
 
 LOCAL fd_set My_Listeners;
@@ -1154,7 +1157,11 @@ LOCAL VOID Do_ResolveAddr( struct sockaddr_in *Addr, INT w_fd )
 	if( h ) strcpy( hostname, h->h_name );
 	else
 	{
-		Log_Resolver( LOG_WARNING, "Can't resolve address %s: code %s!", inet_ntoa( Addr->sin_addr ), Resolv_Error( h_errno ));
+#ifdef h_errno
+		Log_Resolver( LOG_WARNING, "Can't resolve address \"%s\": %s!", inet_ntoa( Addr->sin_addr ), Resolv_Error( h_errno ));
+#else
+		Log_Resolver( LOG_WARNING, "Can't resolve address \"%s\"!", inet_ntoa( Addr->sin_addr ));
+#endif	
 		strcpy( hostname, inet_ntoa( Addr->sin_addr ));
 	}
 
@@ -1189,7 +1196,11 @@ LOCAL VOID Do_ResolveName( CHAR *Host, INT w_fd )
 	}
 	else
 	{
+#ifdef h_errno
 		Log_Resolver( LOG_WARNING, "Can't resolve \"%s\": %s!", Host, Resolv_Error( h_errno ));
+#else
+		Log_Resolver( LOG_WARNING, "Can't resolve \"%s\"!", Host );
+#endif
 		strcpy( ip, "" );
 	}
 
@@ -1264,6 +1275,9 @@ LOCAL VOID Read_Resolver_Result( INT r_fd )
 } /* Read_Resolver_Result */
 
 
+
+#ifdef h_errno
+
 LOCAL CHAR *Resolv_Error( INT H_Error )
 {
 	/* Fehlerbeschreibung fuer H_Error liefern */
@@ -1282,6 +1296,8 @@ LOCAL CHAR *Resolv_Error( INT H_Error )
 			return "unknown error";
 	}
 } /* Resolv_Error */
+
+#endif
 
 
 /* -eof- */

@@ -12,6 +12,16 @@
 
 ngIRCd CVSHEAD
 
+  - Enhanced logging to console when running in "no-detached mode": added
+    PID and log messages of resolver sub-processes.
+  - Fixed host name lookups when using IDENT user lookups.
+
+ngircd 0.8.0-pre2
+
+  - "make clean" and "make maintainer-clean" remove more files now.
+
+ngIRCd 0.8.0-pre1 (2004-05-07)
+
   - Two new configuration options: "ChrootDir" and "MotdPhrase", thanks to
     Benjamin Pineau <ben@zouh.org>. Now you can force the daemon to change
     its root and working directory to something "safe". MotdPhrase is used
@@ -521,4 +531,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.234 2004/05/07 11:19:20 alex Exp $
+$Id: ChangeLog,v 1.235 2004/05/11 00:41:53 alex Exp $

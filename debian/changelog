@@ -1,0 +1,34 @@
+ngircd (0.7.0-0.5ab) unstable; urgency=low
+
+  * Enhanced init script.
+  * Included NJOIN fix from actual CVS "HEAD" branch.
+
+ -- Alexander Barton <alex@Arthur.Ath.CX>  Wed,  9 Jul 2003 22:40:49 +0200
+
+ngircd (0.7.0-0.4ab) unstable; urgency=low
+
+  * Reverted use of dh_installexamples.
+
+ -- Alexander Barton <alex@Arthur.Ath.CX>  Thu, 22 May 2003 00:15:03 +0200
+
+ngircd (0.7.0-0.3ab) unstable; urgency=low
+
+  * Removed "debian/docs" and "debian/conffiles"; debhelper takes care of
+    this for us automagically.
+  * Excluded "etc/ngircd.conf" from dh_fixperms.
+
+ -- Alexander Barton <alex@Arthur.Ath.CX>  Wed, 21 May 2003 23:25:05 +0200
+
+ngircd (0.7.0-0.2ab) unstable; urgency=low
+
+  * Fixed wrong variable substitution in init script.
+  * Added some CVS "Id-Tags" (but not checked in, yet).
+  * Removed own "Provides:" from control file.
+
+ -- Alexander Barton <alex@barton.de>  Wed, 21 May 2003 12:32:34 +0200
+
+ngircd (0.7.0-0.1ab) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Alexander Barton <alex@barton.de>  Wed, 21 May 2003 02:36:52 +0200

@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.140 2004/10/20 13:47:32 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.141 2004/12/22 17:37:41 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -632,6 +632,9 @@ Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient )
 	{
 		/* Conn_Close() has been called recursively for this link;
 		 * probabe reason: Try_Write() failed  -- see below. */
+#ifdef DEBUG
+		Log( LOG_DEBUG, "Recursive request to close connection: %d", Idx );
+#endif
 		return;
 	}
 
@@ -727,6 +730,10 @@ Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient )
 
 	/* Clean up connection structure (=free it) */
 	Init_Conn_Struct( Idx );
+
+#ifdef DEBUG
+	Log( LOG_DEBUG, "Shutdown of connection %d completed.", Idx );
+#endif
 } /* Conn_Close */
 
 
@@ -1276,22 +1283,20 @@ Handle_Buffer( CONN_ID Idx )
 				/* Mit dem letzten Befehl wurde Socket-Kompression aktiviert.
 				 * Evtl. schon vom Socket gelesene Daten in den Unzip-Puffer
 				 * umkopieren, damit diese nun zunaechst entkomprimiert werden */
+				if( My_Connections[Idx].rdatalen > ZREADBUFFER_LEN )
 				{
-					if( My_Connections[Idx].rdatalen > ZREADBUFFER_LEN )
-					{
-						/* Hupsa! Soviel Platz haben wir aber gar nicht! */
-						Log( LOG_ALERT, "Can't move receive buffer: No space left in unzip buffer (need %d bytes)!", My_Connections[Idx].rdatalen );
-						return FALSE;
-					}
-					memcpy( My_Connections[Idx].zip.rbuf, My_Connections[Idx].rbuf, My_Connections[Idx].rdatalen );
-					My_Connections[Idx].zip.rdatalen = My_Connections[Idx].rdatalen;
-					My_Connections[Idx].rdatalen = 0;
-#ifdef DEBUG
-					Log( LOG_DEBUG, "Moved already received data (%d bytes) to uncompression buffer.", My_Connections[Idx].zip.rdatalen );
-#endif
+					/* Hupsa! Soviel Platz haben wir aber gar nicht! */
+					Log( LOG_ALERT, "Can't move receive buffer: No space left in unzip buffer (need %d bytes)!", My_Connections[Idx].rdatalen );
+					return FALSE;
 				}
+				memcpy( My_Connections[Idx].zip.rbuf, My_Connections[Idx].rbuf, My_Connections[Idx].rdatalen );
+				My_Connections[Idx].zip.rdatalen = My_Connections[Idx].rdatalen;
+				My_Connections[Idx].rdatalen = 0;
+#ifdef DEBUG
+				Log( LOG_DEBUG, "Moved already received data (%d bytes) to uncompression buffer.", My_Connections[Idx].zip.rdatalen );
+#endif /* DEBUG */
 			}
-#endif
+#endif /* ZLIB */
 		}
 
 		if( action ) result = TRUE;

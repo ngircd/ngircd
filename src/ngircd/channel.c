@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: channel.c,v 1.8 2002/01/27 21:56:54 alex Exp $
+ * $Id: channel.c,v 1.9 2002/01/27 22:47:11 alex Exp $
  *
  * channel.c: Management der Channels
  *
  * $Log: channel.c,v $
+ * Revision 1.9  2002/01/27 22:47:11  alex
+ * - PART wird nicht mehr an den Server verschickt, von dem es empfangen wurde.
+ *
  * Revision 1.8  2002/01/27 21:56:54  alex
  * - weitere Anpassungen an Chennals, v.a. ueber Server-Links.
  *
@@ -341,9 +344,9 @@ LOCAL BOOLEAN Remove_Client( CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, CHAR
 	else My_Cl2Chan = cl2chan->next;
 	free( cl2chan );
 
-	if( Client_Conn( Origin ) > NONE ) IRC_WriteStrClientPrefix( Origin, Client, "PART %s :%s", c->name, Reason );
 	if( ServerPART ) IRC_WriteStrServersPrefix( Origin, Client, "PART %s :%s", c->name, Reason );
 	IRC_WriteStrChannelPrefix( Origin, c, Client, FALSE, "PART %s :%s", c->name, Reason );
+	if(( Client_Conn( Origin ) > NONE ) && ( Client_Type( Origin ) == CLIENT_USER )) IRC_WriteStrClientPrefix( Origin, Client, "PART %s :%s", c->name, Reason );
 
 	Log( LOG_DEBUG, "User \"%s\" left channel \"%s\" (%s).", Client_Mask( Client ), c->name, Reason );
 

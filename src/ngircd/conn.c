@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.26 2002/01/02 02:50:47 alex Exp $
+ * $Id: conn.c,v 1.27 2002/01/03 02:25:36 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
+ * Revision 1.27  2002/01/03 02:25:36  alex
+ * - diverse Aenderungen und Umsetellungen fuer Server-Links.
+ *
  * Revision 1.26  2002/01/02 02:50:47  alex
  * - Asyncroner Resolver Hostname->IP.
  * - Server-Links begonnen zu implementieren. Die Verbindung wird aufgebaut,
@@ -708,8 +711,15 @@ LOCAL VOID Read_Request( CONN_ID Idx )
 	assert( Idx >= 0 );
 	assert( My_Connections[Idx].sock > NONE );
 
-	len = recv( My_Connections[Idx].sock, My_Connections[Idx].rbuf + My_Connections[Idx].rdatalen, READBUFFER_LEN - My_Connections[Idx].rdatalen - 1, 0 );
-	My_Connections[Idx].rbuf[READBUFFER_LEN - 1] = '\0';
+	if( READBUFFER_LEN - My_Connections[Idx].rdatalen - 2 < 0 )
+	{
+		/* Der Lesepuffer ist voll */
+		Log( LOG_ALERT, "Read buffer overflow (connection %d): %d bytes!", Idx, My_Connections[Idx].rdatalen );
+		Conn_Close( Idx, "Read buffer overflow!" );
+		return;
+	}
+
+	len = recv( My_Connections[Idx].sock, My_Connections[Idx].rbuf + My_Connections[Idx].rdatalen, READBUFFER_LEN - My_Connections[Idx].rdatalen - 2, 0 );
 
 	if( len == 0 )
 	{
@@ -729,18 +739,8 @@ LOCAL VOID Read_Request( CONN_ID Idx )
 
 	/* Lesebuffer updaten */
 	My_Connections[Idx].rdatalen += len;
-	assert( My_Connections[Idx].rdatalen <= READBUFFER_LEN );
+	assert( My_Connections[Idx].rdatalen < READBUFFER_LEN );
 	My_Connections[Idx].rbuf[My_Connections[Idx].rdatalen] = '\0';
-
-	if( My_Connections[Idx].rdatalen > COMMAND_LEN )
-	{
-		/* Eine Anfrage darf(!) nicht laenger als 512 Zeichen
-		 * (incl. CR+LF!) werden; vgl. RFC 2812. Wenn soetwas
-		 * empfangen wird, wird der Client disconnectiert. */
-		Log( LOG_ALERT, "Request too long (connection %d)!", Idx );
-		Conn_Close( Idx, "Request too long!" );
-		return;
-	}
 
 	/* Timestamp aktualisieren */
 	My_Connections[Idx].lastdata = time( NULL );
@@ -761,6 +761,7 @@ LOCAL VOID Handle_Buffer( CONN_ID Idx )
 	ptr = strstr( My_Connections[Idx].rbuf, "\r\n" );
 
 	if( ptr ) delta = 2;
+#ifndef STRICT_RFC
 	else
 	{
 		/* Nicht RFC-konforme Anfrage mit nur CR oder LF? Leider
@@ -772,12 +773,23 @@ LOCAL VOID Handle_Buffer( CONN_ID Idx )
 		else if( ptr1 ) ptr = ptr1;
 		else if( ptr2 ) ptr = ptr2;
 	}
-
+#endif
+	
 	if( ptr )
 	{
 		/* Ende der Anfrage wurde gefunden */
 		*ptr = '\0';
 		len = ( ptr - My_Connections[Idx].rbuf ) + delta;
+		if( len > COMMAND_LEN )
+		{
+			/* Eine Anfrage darf(!) nicht laenger als 512 Zeichen
+			* (incl. CR+LF!) werden; vgl. RFC 2812. Wenn soetwas
+			* empfangen wird, wird der Client disconnectiert. */
+			Log( LOG_ALERT, "Request too long (connection %d): %d bytes!", Idx, My_Connections[Idx].rdatalen );
+			Conn_Close( Idx, "Request too long!" );
+			return;
+		}
+		
 		if( len > delta )
 		{
 			/* Es wurde ein Request gelesen */
@@ -910,6 +922,7 @@ LOCAL VOID New_Server( INT Server, CONN_ID Idx )
 	struct sockaddr_in new_addr;
 	struct in_addr inaddr;
 	INT new_sock;
+	CLIENT *c;
 
 	assert( Server >= 0 );
 	assert( Idx >= 0 );
@@ -954,13 +967,15 @@ LOCAL VOID New_Server( INT Server, CONN_ID Idx )
 	}
 
 	/* Client-Struktur initialisieren */
-	if( ! Client_NewLocal( Idx, inet_ntoa( new_addr.sin_addr )))
+	c = Client_NewLocal( Idx, inet_ntoa( new_addr.sin_addr ));
+	if( ! c )
 	{
 		close( new_sock );
 		Init_Conn_Struct( Idx );
 		Log( LOG_ALERT, "Can't establish connection: can't create client structure!" );
 		return;
 	}
+	c->type = CLIENT_UNKNOWNSERVER;
 	
 	/* Verbindung registrieren */
 	My_Connections[Idx].sock = new_sock;
@@ -970,6 +985,10 @@ LOCAL VOID New_Server( INT Server, CONN_ID Idx )
 	/* Neuen Socket registrieren */
 	FD_SET( new_sock, &My_Sockets );
 	if( new_sock > My_Max_Fd ) My_Max_Fd = new_sock;
+
+	/* PASS und SERVER verschicken */
+	Conn_WriteStr( Idx, "PASS %s "PROTOVER""PROTOSUFFIX" IRC|"PACKAGE"-"VERSION" P", Conf_Server[Server].pwd );
+	Conn_WriteStr( Idx, "SERVER %s :%s", Conf_ServerName, Conf_ServerInfo );
 } /* New_Server */
 
 
@@ -1209,9 +1228,10 @@ LOCAL VOID Read_Resolver_Result( INT r_fd )
 	if( My_Connections[i].sock > NONE )
 	{
 		/* Eingehende Verbindung: Hostnamen setzen */
-		strcpy( My_Connections[i].host, result );
 		c = Client_GetFromConn( i );
-		if( c ) Client_SetHostname( c, result );
+		assert( c != NULL );
+		strcpy( My_Connections[i].host, result );
+		Client_SetHostname( c, result );
 	}
 	else
 	{

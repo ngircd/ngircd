@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 34;
+	objectVersion = 38;
 	objects = {
 		014CEA520018CE5811CA2923 = {
 			buildRules = (
@@ -67,6 +67,7 @@
 			children = (
 				1AB674ADFE9D54B511CA2CBB,
 				F51F791401DFD0DE01D13771,
+				F520AF150335F1B801A85B04,
 				F56D8B9E01E0BFA00155ADA7,
 				F52162B301C7B904012300F4,
 				F52162C301C7B904012300F4,
@@ -144,7 +145,7 @@
 				F5E9448502C9F49D01A85B04,
 			);
 			isa = PBXHeadersBuildPhase;
-			name = Headers;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		08FB77A1FE84155DC02AAC07 = {
 			buildActionMask = 2147483647;
@@ -172,21 +173,21 @@
 				F5E9448602C9F49D01A85B04,
 			);
 			isa = PBXSourcesBuildPhase;
-			name = Sources;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		08FB77A3FE84155DC02AAC07 = {
 			buildActionMask = 2147483647;
 			files = (
 			);
 			isa = PBXFrameworksBuildPhase;
-			name = "Frameworks & Libraries";
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		08FB77A5FE84155DC02AAC07 = {
 			buildActionMask = 2147483647;
 			files = (
 			);
 			isa = PBXRezBuildPhase;
-			name = "ResourceManager Resources";
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 //080
 //081
@@ -389,9 +390,9 @@
 			children = (
 				F5E9447B02C9EE0E01A85B04,
 				F5263AEF01E2A9B801CE8F8F,
-				F5E9447C02C9EE2801A85B04,
 				F51F791501DFD0DE01D13771,
 				F5E9447D02C9EE2801A85B04,
+				F5B565290325412B01A85B04,
 				F5E9447E02C9EE2801A85B04,
 				F5E9447F02C9EE2801A85B04,
 				F51F791601DFD0DE01D13771,
@@ -417,12 +418,137 @@
 			path = "sample-ngircd.conf";
 			refType = 4;
 		};
+		F520AEA80335E29001A85B04 = {
+			children = (
+				F520AEA90335E29001A85B04,
+				F520AEAA0335E29001A85B04,
+				F520AEAC0335E29001A85B04,
+				F520AEAD0335E29001A85B04,
+				F520AEAE0335E29001A85B04,
+				F520AECA0335E29001A85B04,
+				F520AECC0335E29001A85B04,
+				F520AECD0335E29001A85B04,
+				F520AED00335E29001A85B04,
+				F520AED40335E29001A85B04,
+				F520AED50335E29001A85B04,
+				F520AED60335E29001A85B04,
+				F520AED70335E29001A85B04,
+				F520AED80335E29001A85B04,
+				F520AF0C0335E29001A85B04,
+			);
+			isa = PBXGroup;
+			name = testsuite;
+			path = /Users/alex/Develop/ngircd/src/testsuite;
+			refType = 0;
+		};
+		F520AEA90335E29001A85B04 = {
+			isa = PBXExecutableFileReference;
+			path = "channel-test";
+			refType = 4;
+		};
+		F520AEAA0335E29001A85B04 = {
+			isa = PBXFileReference;
+			path = "channel-test.e";
+			refType = 4;
+		};
+		F520AEAC0335E29001A85B04 = {
+			isa = PBXFileReference;
+			path = "check-idle.e";
+			refType = 4;
+		};
+		F520AEAD0335E29001A85B04 = {
+			isa = PBXExecutableFileReference;
+			path = "connect-test";
+			refType = 4;
+		};
+		F520AEAE0335E29001A85B04 = {
+			isa = PBXFileReference;
+			path = "connect-test.e";
+			refType = 4;
+		};
+		F520AECA0335E29001A85B04 = {
+			isa = PBXFileReference;
+			path = Makefile.am;
+			refType = 4;
+		};
+		F520AECC0335E29001A85B04 = {
+			isa = PBXExecutableFileReference;
+			path = "mode-test";
+			refType = 4;
+		};
+		F520AECD0335E29001A85B04 = {
+			isa = PBXFileReference;
+			path = "mode-test.e";
+			refType = 4;
+		};
+		F520AED00335E29001A85B04 = {
+			isa = PBXFileReference;
+			path = "ngircd-test.conf";
+			refType = 4;
+		};
+		F520AED40335E29001A85B04 = {
+			isa = PBXExecutableFileReference;
+			path = "start-server.sh";
+			refType = 4;
+		};
+		F520AED50335E29001A85B04 = {
+			isa = PBXExecutableFileReference;
+			path = "stop-server.sh";
+			refType = 4;
+		};
+		F520AED60335E29001A85B04 = {
+			isa = PBXFileReference;
+			path = "stress-A.e";
+			refType = 4;
+		};
+		F520AED70335E29001A85B04 = {
+			isa = PBXFileReference;
+			path = "stress-B.e";
+			refType = 4;
+		};
+		F520AED80335E29001A85B04 = {
+			isa = PBXExecutableFileReference;
+			path = "stress-server.sh";
+			refType = 4;
+		};
+		F520AF0C0335E29001A85B04 = {
+			isa = PBXExecutableFileReference;
+			path = tests.sh;
+			refType = 4;
+		};
+		F520AF150335F1B801A85B04 = {
+			children = (
+				F520AF180335F1B801A85B04,
+				F520AF1A0335F1B801A85B04,
+				F520AF1B0335F1B801A85B04,
+			);
+			isa = PBXGroup;
+			name = man;
+			path = /Users/alex/Develop/ngircd/man;
+			refType = 0;
+		};
+		F520AF180335F1B801A85B04 = {
+			isa = PBXFileReference;
+			path = Makefile.am;
+			refType = 4;
+		};
+		F520AF1A0335F1B801A85B04 = {
+			isa = PBXFileReference;
+			path = ngircd.8;
+			refType = 4;
+		};
+		F520AF1B0335F1B801A85B04 = {
+			isa = PBXFileReference;
+			path = ngircd.conf.5;
+			refType = 4;
+		};
 		F52162B301C7B904012300F4 = {
 			children = (
 				F52162B801C7B904012300F4,
 				F52162D801C7BAAE012300F4,
 				F52162B901C7B904012300F4,
 				F5F18132023EC61E01A85B04,
+				F520AEA80335E29001A85B04,
 			);
 			isa = PBXGroup;
 			name = src;
@@ -719,7 +845,7 @@
 				F5382422024F89BC01A85B04,
 			);
 			isa = PBXHeadersBuildPhase;
-			name = Headers;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		F5382420024F89BC01A85B04 = {
 			fileRef = F5F18134023EC63701A85B04;
@@ -745,7 +871,7 @@
 				F5382424024F89BC01A85B04,
 			);
 			isa = PBXSourcesBuildPhase;
-			name = Sources;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		F5382424024F89BC01A85B04 = {
 			fileRef = F5F18137023EC63701A85B04;
@@ -758,14 +884,14 @@
 			files = (
 			);
 			isa = PBXFrameworksBuildPhase;
-			name = "Frameworks & Libraries";
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		F5382426024F89BC01A85B04 = {
 			buildActionMask = 2147483647;
 			files = (
 			);
 			isa = PBXRezBuildPhase;
-			name = "ResourceManager Resources";
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		F55047BA0240F6E501A85B04 = {
 			isa = PBXFileReference;
@@ -917,6 +1043,12 @@
 			settings = {
 			};
 		};
+		F5B565290325412B01A85B04 = {
+			isa = PBXFileReference;
+			name = Protocol.txt;
+			path = ../doc/Protocol.txt;
+			refType = 2;
+		};
 		F5BEF12802A0EFE201A85B03 = {
 			isa = PBXFileReference;
 			name = lists.c;
@@ -1016,11 +1148,6 @@
 			);
 			isa = PBXGroup;
 			name = en;
-			refType = 4;
-		};
-		F5E9447C02C9EE2801A85B04 = {
-			isa = PBXFileReference;
-			path = "CC-Speed.txt";
 			refType = 4;
 		};
 		F5E9447D02C9EE2801A85B04 = {

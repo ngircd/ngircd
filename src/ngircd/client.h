@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.h,v 1.26 2002/03/25 17:01:07 alex Exp $
+ * $Id: client.h,v 1.27 2002/03/25 19:11:01 alex Exp $
  *
  * client.h: Konfiguration des ngircd (Header)
  */
@@ -35,7 +35,7 @@ typedef enum
 } CLIENT_TYPE;
 
 
-#ifdef __client_c__
+#if defined(__client_c__) | defined(S_SPLINT_S)
 
 #include "defines.h"
 

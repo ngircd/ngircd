@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: hash.c,v 1.3 2002/03/22 00:21:51 alex Exp $
+ * $Id: hash.c,v 1.4 2002/03/25 19:11:01 alex Exp $
  *
  * hash.c: Hash-Werte berechnen
  */
@@ -41,7 +41,7 @@ GLOBAL UINT32 Hash( CHAR *String )
 	strncpy( buffer, String, LINE_LEN - 1 );
 	buffer[LINE_LEN - 1] = '\0';
 	
-	return jenkins_hash( ngt_LowerStr( buffer ), strlen( buffer ), 42 );
+	return jenkins_hash( (UINT8 *)ngt_LowerStr( buffer ), strlen( buffer ), 42 );
 } /* Hash */
 
 

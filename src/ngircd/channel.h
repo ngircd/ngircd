@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: channel.h,v 1.15 2002/03/25 16:55:14 alex Exp $
+ * $Id: channel.h,v 1.16 2002/03/25 19:11:01 alex Exp $
  *
  * channel.h: Management der Channels (Header)
  */
@@ -21,7 +21,7 @@
 #include "client.h"
 
 
-#ifdef __channel_c__
+#if defined(__channel_c__) | defined(S_SPLINT_S)
 
 #include "defines.h"
 

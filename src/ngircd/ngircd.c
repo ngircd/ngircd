@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.34 2002/03/12 22:08:24 alex Exp $
+ * $Id: ngircd.c,v 1.35 2002/03/25 19:11:01 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  */
@@ -50,10 +50,11 @@ LOCAL VOID Show_Version( VOID );
 LOCAL VOID Show_Help( VOID );
 
 
-GLOBAL INT main( INT argc, CONST CHAR *argv[] )
+GLOBAL int main( int argc, const char *argv[] )
 {
 	BOOLEAN ok;
-	INT pid, i, n;
+	INT32 pid, n;
+	INT i;
 
 	NGIRCd_Restart = FALSE;
 	NGIRCd_Quit = FALSE;
@@ -114,7 +115,7 @@ GLOBAL INT main( INT argc, CONST CHAR *argv[] )
 		{
 			/* Kurze Option */
 			
-			for( n = 1; n < strlen( argv[i] ); n++ )
+			for( n = 1; n < (INT32)strlen( argv[i] ); n++ )
 			{
 				ok = FALSE;
 #ifdef DEBUG
@@ -177,7 +178,7 @@ GLOBAL INT main( INT argc, CONST CHAR *argv[] )
 		if( ! NGIRCd_NoDaemon )
 		{
 			/* Daemon im Hintergrund erzeugen */
-			pid = fork( );
+			pid = (INT32)fork( );
 			if( pid > 0 )
 			{
 				/* "alter" Prozess */
@@ -191,13 +192,13 @@ GLOBAL INT main( INT argc, CONST CHAR *argv[] )
 			}
 
 			/* Child-Prozess initialisieren */
-			setsid( );
+			(VOID)setsid( );
 			chdir( "/" );
 		}
 	
 		/* Globale Variablen initialisieren */
 		NGIRCd_Start = time( NULL );
-		strftime( NGIRCd_StartStr, 64, "%a %b %d %Y at %H:%M:%S (%Z)", localtime( &NGIRCd_Start ));
+		(VOID)strftime( NGIRCd_StartStr, 64, "%a %b %d %Y at %H:%M:%S (%Z)", localtime( &NGIRCd_Start ));
 		NGIRCd_Restart = FALSE;
 		NGIRCd_Quit = FALSE;
 

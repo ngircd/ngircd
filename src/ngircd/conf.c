@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.c,v 1.19 2002/03/25 16:14:15 alex Exp $
+ * $Id: conf.c,v 1.20 2002/03/25 19:11:01 alex Exp $
  *
  * conf.h: Konfiguration des ngircd
  */
@@ -170,7 +170,7 @@ LOCAL VOID Read_Config( VOID )
 GLOBAL VOID Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 {
 	CHAR *ptr;
-	INT port;
+	INT32 port;
 	
 	assert( Line > 0 );
 	assert( Var != NULL );
@@ -209,7 +209,7 @@ GLOBAL VOID Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 			if( Conf_ListenPorts_Count + 1 > MAX_LISTEN_PORTS ) Log( LOG_ERR, "Too many listen ports configured. Port %ld ignored.", port );
 			else
 			{
-				if( port > 0 && port < 0xFFFF ) Conf_ListenPorts[Conf_ListenPorts_Count++] = port;
+				if( port > 0 && port < 0xFFFF ) Conf_ListenPorts[Conf_ListenPorts_Count++] = (INT)port;
 				else Log( LOG_ERR, "%s, line %d (section \"Global\"): Illegal port number %ld!", Conf_File, Line, port );
 			}
 			ptr = strtok( NULL, "," );

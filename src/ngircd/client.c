@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.51 2002/03/25 16:59:36 alex Exp $
+ * $Id: client.c,v 1.52 2002/03/25 19:11:01 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -105,7 +105,7 @@ GLOBAL VOID Client_Exit( VOID )
 	while( c )
 	{
 		cnt++;
-		next = c->next;
+		next = (CLIENT *)c->next;
 		free( c );
 		c = next;
 	}
@@ -169,7 +169,7 @@ GLOBAL CLIENT *Client_New( CONN_ID Idx, CLIENT *Introducer, CLIENT *TopServer, I
 	if( strchr( client->modes, 'a' )) strcpy( client->away, DEFAULT_AWAY_MSG );
 
 	/* Verketten */
-	client->next = My_Clients;
+	client->next = (POINTER *)My_Clients;
 	My_Clients = client;
 
 	return client;
@@ -209,7 +209,7 @@ GLOBAL VOID Client_Destroy( CLIENT *Client, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN 
 		{
 			/* Wir haben den Client gefunden: entfernen */
 			if( last ) last->next = c->next;
-			else My_Clients = c->next;
+			else My_Clients = (CLIENT *)c->next;
 
 			if( c->type == CLIENT_USER )
 			{
@@ -274,7 +274,7 @@ GLOBAL VOID Client_Destroy( CLIENT *Client, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN 
 			break;
 		}
 		last = c;
-		c = c->next;
+		c = (CLIENT *)c->next;
 	}
 } /* Client_Destroy */
 
@@ -478,7 +478,7 @@ GLOBAL CLIENT *Client_GetFromConn( CONN_ID Idx )
 	while( c )
 	{
 		if( c->conn_id == Idx ) return c;
-		c = c->next;
+		c = (CLIENT *)c->next;
 	}
 	return NULL;
 } /* Client_GetFromConn */
@@ -511,7 +511,7 @@ GLOBAL CLIENT *Client_Search( CHAR *Nick )
 			/* lt. Hash-Wert: Treffer! */
 			if( strcasecmp( c->id, search_id ) == 0 ) return c;
 		}
-		c = c->next;
+		c = (CLIENT *)c->next;
 	}
 	return NULL;
 } /* Client_Search */
@@ -532,7 +532,7 @@ GLOBAL CLIENT *Client_GetFromToken( CLIENT *Client, INT Token )
 	while( c )
 	{
 		if(( c->type == CLIENT_SERVER ) && ( c->introducer == Client ) && ( c->token == Token )) return c;
-		c = c->next;
+		c = (CLIENT *)c->next;
 	}
 	return NULL;
 } /* Client_GetFromToken */
@@ -575,7 +575,7 @@ GLOBAL CHAR *Client_Info( CLIENT *Client )
 GLOBAL CHAR *Client_User( CLIENT *Client )
 {
 	assert( Client != NULL );
-	if( Client->user ) return Client->user;
+	if( Client->user[0] ) return Client->user;
 	else return "~";
 } /* Client_User */
 
@@ -741,7 +741,7 @@ GLOBAL BOOLEAN Client_CheckID( CLIENT *Client, CHAR *ID )
 			Conn_Close( Client->conn_id, str, str, TRUE );
 			return FALSE;
 		}
-		c = c->next;
+		c = (CLIENT *)c->next;
 	}
 
 	return TRUE;
@@ -762,7 +762,7 @@ GLOBAL CLIENT *Client_Next( CLIENT *c )
 	 * so wird NULL geliefert. */
 
 	assert( c != NULL );
-	return c->next;
+	return (CLIENT *)c->next;
 } /* Client_Next */
 
 
@@ -812,7 +812,7 @@ GLOBAL INT Client_OperCount( VOID )
 	while( c )
 	{
 		if( c && ( c->type == CLIENT_USER ) && ( strchr( c->modes, 'o' ))) cnt++;
-		c = c->next;
+		c = (CLIENT *)c->next;
 	}
 	return cnt;
 } /* Client_OperCount */
@@ -828,7 +828,7 @@ GLOBAL INT Client_UnknownCount( VOID )
 	while( c )
 	{
 		if( c && ( c->type != CLIENT_USER ) && ( c->type != CLIENT_SERVICE ) && ( c->type != CLIENT_SERVER )) cnt++;
-		c = c->next;
+		c = (CLIENT *)c->next;
 	}
 	return cnt;
 } /* Client_UnknownCount */
@@ -868,7 +868,7 @@ LOCAL INT Count( CLIENT_TYPE Type )
 	while( c )
 	{
 		if( c && ( c->type == Type )) cnt++;
-		c = c->next;
+		c = (CLIENT *)c->next;
 	}
 	return cnt;
 } /* Count */
@@ -884,7 +884,7 @@ LOCAL INT MyCount( CLIENT_TYPE Type )
 	while( c )
 	{
 		if( c && ( c->introducer == This_Server ) && ( c->type == Type )) cnt++;
-		c = c->next;
+		c = (CLIENT *)c->next;
 	}
 	return cnt;
 } /* MyCount */
@@ -941,7 +941,7 @@ LOCAL VOID Generate_MyToken( CLIENT *Client )
 			c = My_Clients;
 			continue;
 		}
-		else c = c->next;
+		else c = (CLIENT *)c->next;
 	}
 	Client->mytoken = token;
 	Log( LOG_DEBUG, "Assigned token %d to server \"%s\".", token, Client->id );

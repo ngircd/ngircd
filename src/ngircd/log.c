@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: log.c,v 1.22 2002/03/21 12:00:23 alex Exp $
+ * $Id: log.c,v 1.23 2002/03/25 19:11:01 alex Exp $
  *
  * log.c: Logging-Funktionen
  */
@@ -85,7 +85,7 @@ GLOBAL VOID Log_Init( VOID )
 	if( ! freopen( ERROR_FILE, "a+", stderr )) Log( LOG_ERR, "Can't reopen stderr (\""ERROR_FILE"\"): %s", strerror( errno ));
 
 	fprintf( stderr, "\n--- %s ---\n\n", NGIRCd_StartStr );
-	fprintf( stderr, "%s started.\npid=%d, ppid=%d, uid=%d, gid=%d [euid=%d, egid=%d].\nActivating: %s\n\n", NGIRCd_Version( ), getpid( ), getppid( ), getuid( ), getgid( ), geteuid( ), getegid( ), txt[0] ? txt : "-" );
+	fprintf( stderr, "%s started.\npid=%ld, ppid=%ld, uid=%ld, gid=%ld [euid=%ld, egid=%ld].\nActivating: %s\n\n", NGIRCd_Version( ), (INT32)getpid( ), (INT32)getppid( ), (INT32)getuid( ), (INT32)getgid( ), (INT32)geteuid( ), (INT32)getegid( ), txt[0] ? txt : "-" );
 	fflush( stderr );
 } /* Log_Init */
 
@@ -99,7 +99,7 @@ GLOBAL VOID Log_Exit( VOID )
 
 	t = time( NULL );
 	fputs( ctime( &t ), stderr );
-	fprintf( stderr, PACKAGE" done (pid=%d).\n", getpid( ));
+	fprintf( stderr, PACKAGE" done (pid=%ld).\n", (INT32)getpid( ));
 	fflush( stderr );
 
 #ifdef USE_SYSLOG

@@ -1,0 +1,28 @@
+.\"
+.\" $Id: ngircd.8.nroff,v 1.1 2002/03/31 20:23:06 alex Exp $
+.\"
+
+.TH ngircd 8 "March 2002" ngircd "User Manuals"
+.SH NAME
+ngircd \- the next generation IRC daemon
+.SH SYNOPSIS
+.B ngircd
+.SH DESCRIPTION
+(coming soon)
+.SH OPTIONS
+(coming soon)
+.SH FILES
+(coming soon)
+.SH ENVIRONMENT
+(coming soon)
+.SH DIAGNOSTICS
+(coming soon)
+.SH BUGS
+(coming soon)
+.SH AUTHOR
+Alexander Barton, <alex@barton.de>
+.SH "SEE ALSO"
+.BR ngircd.conf (5)
+.BR ircd (8)
+
+.\" -eof-

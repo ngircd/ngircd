@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: messages.h,v 1.5 2001/12/26 03:51:13 alex Exp $
+ * $Id: messages.h,v 1.6 2001/12/26 22:48:53 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: messages.h,v $
+ * Revision 1.6  2001/12/26 22:48:53  alex
+ * - MOTD-Datei ist nun konfigurierbar und wird gelesen.
+ *
  * Revision 1.5  2001/12/26 03:51:13  alex
  * - in ERR_NOTREGISTERED_MSG fehlte ein "%s" - jetzt steht auch hier der Nick.
  *
@@ -65,6 +68,9 @@
 
 #define ERR_UNKNOWNCOMMAND		"421"
 #define ERR_UNKNOWNCOMMAND_MSG		ERR_UNKNOWNCOMMAND" %s %s :Unknown command"
+
+#define ERR_NOMOTD			"422"
+#define ERR_NOMOTD_MSG			ERR_NOMOTD" %s :MOTD file is missing"
 
 #define ERR_ERRONEUSNICKNAME		"432"
 #define ERR_ERRONEUSNICKNAME_MSG	ERR_ERRONEUSNICKNAME" %s %s :Erroneous nickname"

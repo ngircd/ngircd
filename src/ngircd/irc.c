@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.9 2001/12/26 14:45:37 alex Exp $
+ * $Id: irc.c,v 1.10 2001/12/26 22:48:53 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.10  2001/12/26 22:48:53  alex
+ * - MOTD-Datei ist nun konfigurierbar und wird gelesen.
+ *
  * Revision 1.9  2001/12/26 14:45:37  alex
  * - "Code Cleanups".
  *
@@ -52,11 +55,13 @@
 
 #include <imp.h>
 #include <assert.h>
+#include <errno.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
 
 #include "client.h"
+#include "conf.h"
 #include "log.h"
 #include "messages.h"
 #include "parse.h"
@@ -279,12 +284,32 @@ LOCAL BOOLEAN Hello_User( CLIENT *Client )
 
 LOCAL BOOLEAN Show_MOTD( CLIENT *Client )
 {
+	BOOLEAN ok;
+	CHAR line[127];
+	FILE *fd;
+	
 	assert( Client != NULL );
 	assert( Client->nick[0] );
+
+	fd = fopen( Conf_MotdFile, "r" );
+	if( ! fd )
+	{
+		Log( LOG_WARNING, "Can't read MOTD file \"%s\": %s", Conf_MotdFile, strerror( errno ));
+		return IRC_WriteStrClient( Client, This_Server, ERR_NOMOTD_MSG, Client->nick );
+	}
 	
 	IRC_WriteStrClient( Client, This_Server, RPL_MOTDSTART_MSG, Client->nick, This_Server->host );
-	IRC_WriteStrClient( Client, This_Server, RPL_MOTD_MSG, Client->nick, "Some cool IRC server welcome message ;-)" );
-	return IRC_WriteStrClient( Client, This_Server, RPL_ENDOFMOTD_MSG, Client->nick );
+	while( TRUE )
+	{
+		if( ! fgets( line, 126, fd )) break;
+		if( line[strlen( line ) - 1] == '\n' ) line[strlen( line ) - 1] = '\0';
+		IRC_WriteStrClient( Client, This_Server, RPL_MOTD_MSG, Client->nick, line );
+	}
+	ok = IRC_WriteStrClient( Client, This_Server, RPL_ENDOFMOTD_MSG, Client->nick );
+
+	fclose( fd );
+	
+	return ok;
 } /* Show_MOTD */
 
 

@@ -10,6 +10,11 @@
                         -- ChangeLog / Aenderungen --
 
 
+ngIRCd 0.3.x, ??.??.2002
+
+  - IRC-Befehle nochmal auf weitere Source-Dateien aufgespalten.
+  - WHO implementiert (bisher ohne komplette Unerstuetzung von Masks).
+
 ngIRCd 0.3.0, 02.03.2002
 
   - bekommt der Server ein HUP-Signal, so startet er neu -- genau so, wie
@@ -139,4 +144,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.40 2002/03/03 13:07:01 alex Exp $
+$Id: ChangeLog,v 1.41 2002/03/03 19:41:59 alex Exp $

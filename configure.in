@@ -1,6 +1,6 @@
 #
 # ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001 by Alexander Barton (alex@barton.de)
+# Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
 #
 # Dieses Programm ist freie Software. Sie koennen es unter den Bedingungen
 # der GNU General Public License (GPL), wie von der Free Software Foundation
@@ -9,9 +9,12 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: configure.in,v 1.14 2001/12/31 16:11:13 alex Exp $
+# $Id: configure.in,v 1.15 2002/01/02 02:52:09 alex Exp $
 #
 # $Log: configure.in,v $
+# Revision 1.15  2002/01/02 02:52:09  alex
+# - Copyright-Texte angepasst ;-)
+#
 # Revision 1.14  2001/12/31 16:11:13  alex
 # - CVS-Version auf "0.0.2-pre" angehoben.
 #
@@ -136,7 +139,7 @@ AC_FUNC_MALLOC
 
 AC_CHECK_FUNCS([ \
 	gethostname inet_ntoa memmove memset select \
-	socket strcasecmp strchr strerror strstr \
+	socket strcasecmp strchr strerror strstr waitpid \
 	],,AC_MSG_ERROR([required function missing!]))
 
 # -- Libraries --

@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
  *
  * Dieses Programm ist freie Software. Sie koennen es unter den Bedingungen
  * der GNU General Public License (GPL), wie von der Free Software Foundation
@@ -9,9 +9,12 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: acconfig.h,v 1.6 2001/12/31 02:21:00 alex Exp $
+ * $Id: acconfig.h,v 1.7 2002/01/02 02:52:09 alex Exp $
  *
  * $Log: acconfig.h,v $
+ * Revision 1.7  2002/01/02 02:52:09  alex
+ * - Copyright-Texte angepasst ;-)
+ *
  * Revision 1.6  2001/12/31 02:21:00  alex
  * - "doc"-Unterverzeichnis aufgenommen.
  *

@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
  *
  * Dieses Programm ist freie Software. Sie koennen es unter den Bedingungen
  * der GNU General Public License (GPL), wie von der Free Software Foundation
@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.17 2001/12/31 15:33:13 alex Exp $
+ * $Id: irc.c,v 1.18 2002/01/02 02:44:36 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.18  2002/01/02 02:44:36  alex
+ * - neue Defines fuer max. Anzahl Server und Operatoren.
+ *
  * Revision 1.17  2001/12/31 15:33:13  alex
  * - neuer Befehl NAMES, kleinere Bugfixes.
  * - Bug bei PING behoben: war zu restriktiv implementiert :-)
@@ -480,6 +483,8 @@ GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req )
 
 GLOBAL BOOLEAN IRC_OPER( CLIENT *Client, REQUEST *Req )
 {
+	INT i;
+	
 	assert( Client != NULL );
 	assert( Req != NULL );
 
@@ -487,12 +492,16 @@ GLOBAL BOOLEAN IRC_OPER( CLIENT *Client, REQUEST *Req )
 	
 	/* Falsche Anzahl Parameter? */
 	if( Req->argc != 2 ) return IRC_WriteStrClient( Client, This_Server, ERR_NEEDMOREPARAMS_MSG, Client_Nick( Client ), Req->command );
-	
-	/* Ist ueberhaupt ein Operator gesetzt? */
-	if(( ! Conf_Oper[0] ) || ( ! Conf_OperPwd[0] )) return IRC_WriteStrClient( Client, This_Server, ERR_PASSWDMISMATCH_MSG, Client_Nick( Client ));
+
+	/* Operator suchen */
+	for( i = 0; i < Conf_Oper_Count; i++)
+	{
+		if( Conf_Oper[i].name[0] && Conf_Oper[i].pwd[0] && ( strcmp( Conf_Oper[i].name, Req->argv[0] ) == 0 )) break;
+	}
+	if( i >= Conf_Oper_Count ) return IRC_WriteStrClient( Client, This_Server, ERR_PASSWDMISMATCH_MSG, Client_Nick( Client ));
 
 	/* Stimmt der Name und das Passwort? */
-	if(( strcmp( Conf_Oper, Req->argv[0] ) != 0 ) || ( strcmp( Conf_OperPwd, Req->argv[1] ) != 0 )) return IRC_WriteStrClient( Client, This_Server, ERR_PASSWDMISMATCH_MSG, Client_Nick( Client ));
+	if(( strcmp( Conf_Oper[i].name, Req->argv[0] ) != 0 ) || ( strcmp( Conf_Oper[i].pwd, Req->argv[1] ) != 0 )) return IRC_WriteStrClient( Client, This_Server, ERR_PASSWDMISMATCH_MSG, Client_Nick( Client ));
 	
 	if( ! strchr( Client->modes, 'o' ))
 	{
@@ -704,7 +713,19 @@ GLOBAL BOOLEAN IRC_USERHOST( CLIENT *Client, REQUEST *Req )
 	if( rpl[strlen( rpl ) - 1] == ' ' ) rpl[strlen( rpl ) - 1] = '\0';
 
 	return IRC_WriteStrClient( Client, This_Server, rpl, Client->nick );
-} /* IRC_USERHOST */	
+} /* IRC_USERHOST */
+
+
+GLOBAL BOOLEAN IRC_ERROR( CLIENT *Client, REQUEST *Req )
+{
+	assert( Client != NULL );
+	assert( Req != NULL );
+
+	if( Req->argc < 1 ) Log( LOG_NOTICE, "Got ERROR from \"%s!%s@%s\"!", Client_Nick( Client ), Client->user, Client->host );
+	else Log( LOG_NOTICE, "Got ERROR from \"%s!%s@%s\": %s!", Client_Nick( Client ), Client->user, Client->host, Req->argv[0] );
+
+	return CONNECTED;
+} /* IRC_ERROR */
 
 
 LOCAL BOOLEAN Check_Valid_User( CLIENT *Client )

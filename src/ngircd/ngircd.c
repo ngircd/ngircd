@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
  *
  * Dieses Programm ist freie Software. Sie koennen es unter den Bedingungen
  * der GNU General Public License (GPL), wie von der Free Software Foundation
@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.15 2001/12/31 02:18:51 alex Exp $
+ * $Id: ngircd.c,v 1.16 2002/01/02 02:44:37 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  *
  * $Log: ngircd.c,v $
+ * Revision 1.16  2002/01/02 02:44:37  alex
+ * - neue Defines fuer max. Anzahl Server und Operatoren.
+ *
  * Revision 1.15  2001/12/31 02:18:51  alex
  * - viele neue Befehle (WHOIS, ISON, OPER, DIE, RESTART),
  * - neuen Header "defines.h" mit (fast) allen Konstanten.
@@ -79,6 +82,8 @@
 #include <assert.h>
 #include <stdio.h>
 #include <signal.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include <time.h>
 
 #include "channel.h"
@@ -162,6 +167,7 @@ LOCAL VOID Initialize_Signal_Handler( VOID )
 	sigaction( SIGINT, &saction, NULL );
 	sigaction( SIGQUIT, &saction, NULL );
 	sigaction( SIGTERM, &saction, NULL);
+	sigaction( SIGCHLD, &saction, NULL);
 
 	/* einige Signale ignorieren */
 	saction.sa_handler = SIG_IGN;
@@ -183,6 +189,10 @@ LOCAL VOID Signal_Handler( INT Signal )
 			/* wir soll(t)en uns wohl beenden ... */
 			Log( LOG_WARNING, "Got signal %d, terminating now ...", Signal );
 			NGIRCd_Quit = TRUE;
+			break;
+		case SIGCHLD:
+			/* Child-Prozess wurde beendet. Zombies vermeiden: */
+			while( waitpid( -1, NULL, WNOHANG ) > 0);
 			break;
 		default:
 			/* unbekanntes bzw. unbehandeltes Signal */

@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
  *
  * Dieses Programm ist freie Software. Sie koennen es unter den Bedingungen
  * der GNU General Public License (GPL), wie von der Free Software Foundation
@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.h,v 1.5 2001/12/31 03:06:03 alex Exp $
+ * $Id: ngircd.h,v 1.6 2002/01/02 02:44:37 alex Exp $
  *
  * ngircd.h: Prototypen aus dem "Haupt-Modul"
  *
  * $Log: ngircd.h,v $
+ * Revision 1.6  2002/01/02 02:44:37  alex
+ * - neue Defines fuer max. Anzahl Server und Operatoren.
+ *
  * Revision 1.5  2001/12/31 03:06:03  alex
  * - das #include fuer time.h hat noch gefehlt.
  *

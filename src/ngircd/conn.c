@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
  *
  * Dieses Programm ist freie Software. Sie koennen es unter den Bedingungen
  * der GNU General Public License (GPL), wie von der Free Software Foundation
@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.24 2002/01/01 18:25:44 alex Exp $
+ * $Id: conn.c,v 1.25 2002/01/02 02:44:36 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
+ * Revision 1.25  2002/01/02 02:44:36  alex
+ * - neue Defines fuer max. Anzahl Server und Operatoren.
+ *
  * Revision 1.24  2002/01/01 18:25:44  alex
  * - #include's fuer stdlib.h ergaenzt.
  *
@@ -135,11 +138,7 @@
 #include "conn.h"
 
 
-typedef struct _Res_Stat
-{
-	INT pid;			/* PID des Child-Prozess */
-	INT pipe[2];			/* Pipe fuer IPC */
-} RES_STAT;
+#define SERVER_WAIT NONE - 1
 
 
 typedef struct _Connection
@@ -152,6 +151,7 @@ typedef struct _Connection
 	INT rdatalen;			/* Laenge der Daten im Lesepuffer */
 	CHAR wbuf[WRITEBUFFER_LEN];	/* Schreibpuffer */
 	INT wdatalen;			/* Laenge der Daten im Schreibpuffer */
+	INT our_server;			/* wenn von uns zu connectender Server: ID */
 	time_t lastdata;		/* Letzte Aktivitaet */
 	time_t lastping;		/* Letzter PING */
 	time_t lastprivmsg;		/* Letzte PRIVMSG */
@@ -166,11 +166,16 @@ LOCAL VOID Read_Request( CONN_ID Idx );
 LOCAL BOOLEAN Try_Write( CONN_ID Idx );
 LOCAL VOID Handle_Buffer( CONN_ID Idx );
 LOCAL VOID Check_Connections( VOID );
+LOCAL VOID Check_Servers( VOID );
 LOCAL VOID Init_Conn_Struct( INT Idx );
+LOCAL VOID New_Server( INT Server, CONN_ID Idx );
 
-LOCAL RES_STAT *Resolve( struct sockaddr_in *Addr );
+LOCAL RES_STAT *ResolveAddr( struct sockaddr_in *Addr );
+LOCAL RES_STAT *ResolveName( CHAR *Host );
+LOCAL VOID Do_ResolveAddr( struct sockaddr_in *Addr, INT w_fd );
+LOCAL VOID Do_ResolveName( CHAR *Host, INT w_fd );
 LOCAL VOID Read_Resolver_Result( INT r_fd );
-LOCAL VOID Do_Resolve( struct sockaddr_in *Addr, INT w_fd );
+LOCAL CHAR *Resolv_Error( INT H_Error );
 
 
 LOCAL fd_set My_Listeners;
@@ -303,6 +308,7 @@ GLOBAL VOID Conn_Handler( INT Timeout )
 	 * Sekunden wird die Funktion verlassen. Folgende Aktionen
 	 * werden durchgefuehrt:
 	 *  - neue Verbindungen annehmen,
+	 *  - Server-Verbindungen aufbauen,
 	 *  - geschlossene Verbindungen loeschen,
 	 *  - volle Schreibpuffer versuchen zu schreiben,
 	 *  - volle Lesepuffer versuchen zu verarbeiten,
@@ -317,6 +323,8 @@ GLOBAL VOID Conn_Handler( INT Timeout )
 	start = time( NULL );
 	while(( time( NULL ) - start < Timeout ) && ( ! NGIRCd_Quit ))
 	{
+		Check_Servers( );
+
 		Check_Connections( );
 
 		/* Timeout initialisieren */
@@ -326,7 +334,7 @@ GLOBAL VOID Conn_Handler( INT Timeout )
 		/* noch volle Lese-Buffer suchen */
 		for( i = 0; i < MAX_CONNECTIONS; i++ )
 		{
-			if(( My_Connections[i].sock >= 0 ) && ( My_Connections[i].rdatalen > 0 ))
+			if(( My_Connections[i].sock > NONE ) && ( My_Connections[i].rdatalen > 0 ))
 			{
 				/* Kann aus dem Buffer noch ein Befehl extrahiert werden? */
 				Handle_Buffer( i );
@@ -337,7 +345,7 @@ GLOBAL VOID Conn_Handler( INT Timeout )
 		FD_ZERO( &write_sockets );
 		for( i = 0; i < MAX_CONNECTIONS; i++ )
 		{
-			if(( My_Connections[i].sock >= 0 ) && ( My_Connections[i].wdatalen > 0 ))
+			if(( My_Connections[i].sock > NONE ) && ( My_Connections[i].wdatalen > 0 ))
 			{
 				/* Socket der Verbindung in Set aufnehmen */
 				FD_SET( My_Connections[i].sock, &write_sockets );
@@ -348,7 +356,7 @@ GLOBAL VOID Conn_Handler( INT Timeout )
 		read_sockets = My_Sockets;
 		for( i = 0; i < MAX_CONNECTIONS; i++ )
 		{
-			if(( My_Connections[i].sock >= 0 ) && ( My_Connections[i].host[0] == '\0' ))
+			if(( My_Connections[i].sock > NONE ) && ( My_Connections[i].host[0] == '\0' ))
 			{
 				/* Hier muss noch auf den Resolver Sub-Prozess gewartet werden */
 				FD_CLR( My_Connections[i].sock, &read_sockets );
@@ -421,7 +429,7 @@ GLOBAL BOOLEAN Conn_Write( CONN_ID Idx, CHAR *Data, INT Len )
 	 * der Client disconnectiert und FALSE geliefert. */
 
 	assert( Idx >= 0 );
-	assert( My_Connections[Idx].sock >= 0 );
+	assert( My_Connections[Idx].sock > NONE );
 	assert( Data != NULL );
 	assert( Len > 0 );
 
@@ -460,22 +468,28 @@ GLOBAL VOID Conn_Close( CONN_ID Idx, CHAR *Msg )
 	/* Verbindung schliessen. Evtl. noch von Resolver
 	 * Sub-Prozessen offene Pipes werden geschlossen. */
 
+	CLIENT *c;
+	
 	assert( Idx >= 0 );
-	assert( My_Connections[Idx].sock >= 0 );
+	assert( My_Connections[Idx].sock > NONE );
 
-	if( Msg ) Conn_WriteStr( Idx, "ERROR :%s", Msg );
+	if( Msg )
+	{
+		Conn_WriteStr( Idx, "ERROR :%s", Msg );
+		if( My_Connections[Idx].sock == NONE ) return;
+	}
 
 	if( close( My_Connections[Idx].sock ) != 0 )
 	{
 		Log( LOG_ERR, "Error closing connection %d with %s:%d - %s!", Idx, inet_ntoa( My_Connections[Idx].addr.sin_addr ), ntohs( My_Connections[Idx].addr.sin_port), strerror( errno ));
-		return;
 	}
 	else
 	{
 		Log( LOG_NOTICE, "Connection %d with %s:%d closed.", Idx, inet_ntoa( My_Connections[Idx].addr.sin_addr ), ntohs( My_Connections[Idx].addr.sin_port ));
 	}
 
-	Client_Destroy( Client_GetFromConn( Idx ));
+	c = Client_GetFromConn( Idx );
+	if( c ) Client_Destroy( c );
 
 	if( My_Connections[Idx].res_stat )
 	{
@@ -485,7 +499,10 @@ GLOBAL VOID Conn_Close( CONN_ID Idx, CHAR *Msg )
 		close( My_Connections[Idx].res_stat->pipe[1] );
 		free( My_Connections[Idx].res_stat );
 	}
-	
+
+	/* Bei Server-Verbindungen lasttry-Zeitpunkt auf "jetzt" setzen */
+	if( My_Connections[Idx].our_server >= 0 ) Conf_Server[My_Connections[Idx].our_server].lasttry = time( NULL );
+
 	FD_CLR( My_Connections[Idx].sock, &My_Sockets );
 	My_Connections[Idx].sock = NONE;
 } /* Conn_Close */
@@ -517,7 +534,7 @@ LOCAL BOOLEAN Try_Write( CONN_ID Idx )
 	fd_set write_socket;
 
 	assert( Idx >= 0 );
-	assert( My_Connections[Idx].sock >= 0 );
+	assert( My_Connections[Idx].sock > NONE );
 	assert( My_Connections[Idx].wdatalen > 0 );
 
 	FD_ZERO( &write_socket );
@@ -579,7 +596,7 @@ LOCAL BOOLEAN Handle_Write( CONN_ID Idx )
 	INT len;
 
 	assert( Idx >= 0 );
-	assert( My_Connections[Idx].sock >= 0 );
+	assert( My_Connections[Idx].sock > NONE );
 	assert( My_Connections[Idx].wdatalen > 0 );
 
 	/* Daten schreiben */
@@ -621,7 +638,7 @@ LOCAL VOID New_Connection( INT Sock )
 	}
 
 	/* Freie Connection-Struktur suschen */
-	for( idx = 0; idx < MAX_CONNECTIONS; idx++ ) if( My_Connections[idx].sock < 0 ) break;
+	for( idx = 0; idx < MAX_CONNECTIONS; idx++ ) if( My_Connections[idx].sock == NONE ) break;
 	if( idx >= MAX_CONNECTIONS )
 	{
 		Log( LOG_ALERT, "Can't accept connection: limit reached (%d)!", MAX_CONNECTIONS );
@@ -649,7 +666,7 @@ LOCAL VOID New_Connection( INT Sock )
 	Log( LOG_NOTICE, "Accepted connection %d from %s:%d on socket %d.", idx, inet_ntoa( new_addr.sin_addr ), ntohs( new_addr.sin_port), Sock );
 
 	/* Hostnamen ermitteln */
-	s = Resolve( &new_addr );
+	s = ResolveAddr( &new_addr );
 	if( s )
 	{
 		/* Sub-Prozess wurde asyncron gestartet */
@@ -686,7 +703,7 @@ LOCAL VOID Read_Request( CONN_ID Idx )
 	INT len;
 
 	assert( Idx >= 0 );
-	assert( My_Connections[Idx].sock >= 0 );
+	assert( My_Connections[Idx].sock > NONE );
 
 	len = recv( My_Connections[Idx].sock, My_Connections[Idx].rbuf + My_Connections[Idx].rdatalen, READBUFFER_LEN - My_Connections[Idx].rdatalen - 1, 0 );
 	My_Connections[Idx].rbuf[READBUFFER_LEN - 1] = '\0';
@@ -777,20 +794,25 @@ LOCAL VOID Check_Connections( VOID )
 	 * nicht der Fall, zunaechst PING-PONG spielen und, wenn
 	 * auch das nicht "hilft", Client disconnectieren. */
 
+	CLIENT *c;
 	INT i;
 
 	for( i = 0; i < MAX_CONNECTIONS; i++ )
 	{
-		if( My_Connections[i].sock != NONE )
+		if( My_Connections[i].sock == NONE ) continue;
+
+		c = Client_GetFromConn( i );
+		if( c && (( c->type == CLIENT_USER ) || ( c->type == CLIENT_SERVER ) || ( c->type == CLIENT_SERVICE )))
 		{
+			/* verbundener User, Server oder Service */
 			if( My_Connections[i].lastping > My_Connections[i].lastdata )
 			{
 				/* es wurde bereits ein PING gesendet */
 				if( My_Connections[i].lastping < time( NULL ) - Conf_PongTimeout )
 				{
 					/* Timeout */
-					Log( LOG_INFO, "Connection %d: Ping timeout.", i );
-					Conn_Close( i, "Ping timeout" );
+					Log( LOG_INFO, "Connection %d: PING timeout.", i );
+					Conn_Close( i, "PING timeout" );
 				}
 			}
 			else if( My_Connections[i].lastdata < time( NULL ) - Conf_PingTimeout )
@@ -801,8 +823,151 @@ LOCAL VOID Check_Connections( VOID )
 				Conn_WriteStr( i, "PING :%s", This_Server->nick );
 			}
 		}
+		else
+		{
+			/* noch nicht vollstaendig aufgebaute Verbindung */
+			if( My_Connections[i].lastdata < time( NULL ) - Conf_PingTimeout )
+			{
+				/* Timeout */
+				Log( LOG_INFO, "Connection %d: Timeout.", i );
+				Conn_Close( i, "Timeout" );
+			}
+		}
 	}
-} /* Conn_Check */
+} /* Check_Connections */
+
+
+LOCAL VOID Check_Servers( VOID )
+{
+	/* Pruefen, ob Server-Verbindungen aufgebaut werden
+	 * muessen bzw. koennen */
+
+	INT idx, i, n;
+	RES_STAT *s;
+	
+	for( i = 0; i < Conf_Server_Count; i++ )
+	{
+		/* Ist ein Hostname und Port definiert? */
+		if(( ! Conf_Server[i].host[0] ) || ( ! Conf_Server[i].port > 0 )) continue;
+		
+		/* Haben wir schon eine Verbindung? */
+		for( n = 0; n < MAX_CONNECTIONS; n++ )
+		{
+			if(( My_Connections[n].sock != NONE ) && ( My_Connections[n].our_server == i ))
+			{
+				/* Komplett aufgebaute Verbindung? */
+				if( My_Connections[n].sock > NONE ) break;
+
+				/* IP schon aufgeloest? */
+				if( My_Connections[n].res_stat == NULL ) New_Server( i, n );
+			}
+		}
+		if( n < MAX_CONNECTIONS ) continue;
+		
+		/* Wann war der letzte Connect-Versuch? */
+		if( Conf_Server[i].lasttry > time( NULL ) - Conf_ConnectRetry ) continue;
+
+		/* Okay, Verbindungsaufbau versuchen */
+		Conf_Server[i].lasttry = time( NULL );
+
+		/* Freie Connection-Struktur suschen */
+		for( idx = 0; idx < MAX_CONNECTIONS; idx++ ) if( My_Connections[idx].sock == NONE ) break;
+		if( idx >= MAX_CONNECTIONS )
+		{
+			Log( LOG_ALERT, "Can't establist server connection: connection limit reached (%d)!", MAX_CONNECTIONS );
+			return;
+		}
+		Log( LOG_DEBUG, "Preparing connection %d for \"%s\" ...", idx, Conf_Server[i].host );
+
+		/* Verbindungs-Struktur initialisieren */
+		Init_Conn_Struct( idx );
+		My_Connections[idx].sock = SERVER_WAIT;
+		My_Connections[idx].our_server = i;
+		
+		/* Hostnamen in IP aufloesen */
+		s = ResolveName( Conf_Server[i].host );
+		if( s )
+		{
+			/* Sub-Prozess wurde asyncron gestartet */
+			My_Connections[idx].res_stat = s;
+		}
+		else
+		{
+			/* kann Namen nicht aufloesen: Connection-Struktur freigeben */
+			Init_Conn_Struct( idx );
+		}
+	}
+} /* Check_Servers */
+
+
+LOCAL VOID New_Server( INT Server, CONN_ID Idx )
+{
+	/* Neue Server-Verbindung aufbauen */
+
+	struct sockaddr_in new_addr;
+	struct in_addr inaddr;
+	INT new_sock;
+
+	assert( Server >= 0 );
+	assert( Idx >= 0 );
+
+	/* Wurde eine gueltige IP-Adresse gefunden? */
+	if( ! Conf_Server[Server].ip[0] )
+	{
+		/* Nein. Verbindung wieder freigeben: */
+		Init_Conn_Struct( Idx );
+		Log( LOG_ERR, "Can't connect to \"%s\" (connection %d): ip address unknown!", Conf_Server[Server].host, Idx );
+		return;
+	}
+	
+	Log( LOG_INFO, "Establishing connection to \"%s\", %s (connection %d) ... ", Conf_Server[Server].host, Conf_Server[Server].ip, Idx );
+
+	if( inet_aton( Conf_Server[Server].ip, &inaddr ) == 0 )
+	{
+		/* Konnte Adresse nicht konvertieren */
+		Init_Conn_Struct( Idx );
+		Log( LOG_ERR, "Can't connect to \"%s\" (connection %d): can't convert ip address %s!", Conf_Server[Server].host, Idx, Conf_Server[Server].ip );
+		return;
+	}
+
+	memset( &new_addr, 0, sizeof( new_addr ));
+	new_addr.sin_family = AF_INET;
+	new_addr.sin_addr = inaddr;
+	new_addr.sin_port = htons( Conf_Server[Server].port );
+
+	new_sock = socket( PF_INET, SOCK_STREAM, 0 );
+	if ( new_sock < 0 )
+	{
+		Init_Conn_Struct( Idx );
+		Log( LOG_ALERT, "Can't create socket: %s!", strerror( errno ));
+		return;
+	}
+	if( connect( new_sock, (struct sockaddr *)&new_addr, sizeof( new_addr )) < 0)
+	{
+		close( new_sock );
+		Init_Conn_Struct( Idx );
+		Log( LOG_ALERT, "Can't connect socket: %s!", strerror( errno ));
+		return;
+	}
+
+	/* Client-Struktur initialisieren */
+	if( ! Client_NewLocal( Idx, inet_ntoa( new_addr.sin_addr )))
+	{
+		close( new_sock );
+		Init_Conn_Struct( Idx );
+		Log( LOG_ALERT, "Can't establish connection: can't create client structure!" );
+		return;
+	}
+	
+	/* Verbindung registrieren */
+	My_Connections[Idx].sock = new_sock;
+	My_Connections[Idx].addr = new_addr;
+	strcpy( My_Connections[Idx].host, Conf_Server[Server].host );
+
+	/* Neuen Socket registrieren */
+	FD_SET( new_sock, &My_Sockets );
+	if( new_sock > My_Max_Fd ) My_Max_Fd = new_sock;
+} /* New_Server */
 
 
 LOCAL VOID Init_Conn_Struct( INT Idx )
@@ -816,15 +981,16 @@ LOCAL VOID Init_Conn_Struct( INT Idx )
 	My_Connections[Idx].rdatalen = 0;
 	My_Connections[Idx].wbuf[0] = '\0';
 	My_Connections[Idx].wdatalen = 0;
+	My_Connections[Idx].our_server = -1;
 	My_Connections[Idx].lastdata = time( NULL );
 	My_Connections[Idx].lastping = 0;
 	My_Connections[Idx].lastprivmsg = time( NULL );
 } /* Init_Conn_Struct */
 
 
-LOCAL RES_STAT *Resolve( struct sockaddr_in *Addr )
+LOCAL RES_STAT *ResolveAddr( struct sockaddr_in *Addr )
 {
-	/* Hostnamen (asyncron!) aufloesen. Bei Fehler, z.B. wenn der
+	/* IP (asyncron!) aufloesen. Bei Fehler, z.B. wenn der
 	 * Child-Prozess nicht erzeugt werden kann, wird NULL geliefert.
 	 * Der Host kann dann nicht aufgeloest werden. */
 
@@ -862,7 +1028,7 @@ LOCAL RES_STAT *Resolve( struct sockaddr_in *Addr )
 	{
 		/* Sub-Prozess */
 		Log_Init_Resolver( );
-		Do_Resolve( Addr, s->pipe[1] );
+		Do_ResolveAddr( Addr, s->pipe[1] );
 		Log_Exit_Resolver( );
 		exit( 0 );
 	}
@@ -873,60 +1039,66 @@ LOCAL RES_STAT *Resolve( struct sockaddr_in *Addr )
 		Log( LOG_ALERT, "Resolver: Can't fork: %s!", strerror( errno ));
 		return NULL;
 	}
-} /* Resolve */
+} /* ResolveAddr */
 
 
-LOCAL VOID Read_Resolver_Result( INT r_fd )
+LOCAL RES_STAT *ResolveName( CHAR *Host )
 {
-	/* Ergebnis von Resolver Sub-Prozess aus Pipe lesen
-	 * und entsprechende Connection aktualisieren */
+	/* Hostnamen (asyncron!) aufloesen. Bei Fehler, z.B. wenn der
+	* Child-Prozess nicht erzeugt werden kann, wird NULL geliefert.
+	* Der Host kann dann nicht aufgeloest werden. */
 
-	CHAR hostname[HOST_LEN];
-	CLIENT *c;
-	INT i;
+	RES_STAT *s;
+	INT pid;
 
-	FD_CLR( r_fd, &My_Resolvers );
-
-	/* Anfrage vom Parent lesen */
-	if( read( r_fd, hostname, HOST_LEN) < 0 )
+	/* Speicher anfordern */
+	s = malloc( sizeof( RES_STAT ));
+	if( ! s )
 	{
-		/* Fehler beim Lesen aus der Pipe */
-		close( r_fd );
-		Log( LOG_ALERT, "Resolver: Can't read result: %s!", strerror( errno ));
-		return;
+		Log( LOG_ALERT, "Resolver: Can't alloc memory!" );
+		return NULL;
 	}
 
-	/* zugehoerige Connection suchen */
-	for( i = 0; i < MAX_CONNECTIONS; i++ )
+	/* Pipe fuer Antwort initialisieren */
+	if( pipe( s->pipe ) != 0 )
 	{
-		if(( My_Connections[i].sock >= 0 ) && ( My_Connections[i].res_stat ) && ( My_Connections[i].res_stat->pipe[0] == r_fd )) break;
+		free( s );
+		Log( LOG_ALERT, "Resolver: Can't create output pipe: %s!", strerror( errno ));
+		return NULL;
 	}
 
-	if( i >= MAX_CONNECTIONS )
+	/* Sub-Prozess erzeugen */
+	pid = fork( );
+	if( pid > 0 )
 	{
-		/* Opsa! Keine passende Connection gefunden!? */
-		close( r_fd );
-		Log( LOG_ALERT, "Resolver: Got result for unknown connection!?" );
-		return;
+		/* Haupt-Prozess */
+		Log( LOG_DEBUG, "Resolver for \"%s\" created (PID %d).", Host, pid );
+		FD_SET( s->pipe[0], &My_Resolvers );
+		if( s->pipe[0] > My_Max_Fd ) My_Max_Fd = s->pipe[0];
+		s->pid = pid;
+		return s;
 	}
+	else if( pid == 0 )
+	{
+		/* Sub-Prozess */
+		Log_Init_Resolver( );
+		Do_ResolveName( Host, s->pipe[1] );
+		Log_Exit_Resolver( );
+		exit( 0 );
+	}
+	else
+	{
+		/* Fehler */
+		free( s );
+		Log( LOG_ALERT, "Resolver: Can't fork: %s!", strerror( errno ));
+		return NULL;
+	}
+} /* ResolveName */
 
-	/* Aufraeumen */
-	close( My_Connections[i].res_stat->pipe[0] );
-	close( My_Connections[i].res_stat->pipe[1] );
-	free( My_Connections[i].res_stat );
-	My_Connections[i].res_stat = NULL;
-	
-	/* Hostnamen setzen */
-	strcpy( My_Connections[i].host, hostname );
-	c = Client_GetFromConn( i );
-	if( c ) Client_SetHostname( c, hostname );
-} /* Read_Resolver_Result */
 
-
-LOCAL VOID Do_Resolve( struct sockaddr_in *Addr, INT w_fd )
+LOCAL VOID Do_ResolveAddr( struct sockaddr_in *Addr, INT w_fd )
 {
-	/* Resolver Sub-Prozess: aufzuloesenden Namen aus
-	 * der Pipe lesen, Ergebnis in Pipe schreiben. */
+	/* Resolver Sub-Prozess: IP aufloesen und Ergebnis in Pipe schreiben. */
 
 	CHAR hostname[HOST_LEN];
 	struct hostent *h;
@@ -938,7 +1110,7 @@ LOCAL VOID Do_Resolve( struct sockaddr_in *Addr, INT w_fd )
 	if( h ) strcpy( hostname, h->h_name );
 	else
 	{
-		Log_Resolver( LOG_WARNING, "Resolver: Can't resolve host name (code %d)!", h_errno );
+		Log_Resolver( LOG_WARNING, "Can't resolve address %s: code %s!", inet_ntoa( Addr->sin_addr ), Resolv_Error( h_errno ));
 		strcpy( hostname, inet_ntoa( Addr->sin_addr ));
 	}
 
@@ -951,7 +1123,120 @@ LOCAL VOID Do_Resolve( struct sockaddr_in *Addr, INT w_fd )
 	}
 
 	Log_Resolver( LOG_DEBUG, "Ok, translated %s to \"%s\".", inet_ntoa( Addr->sin_addr ), hostname );
-} /* Do_Resolve */
+} /* Do_ResolveAddr */
+
+
+LOCAL VOID Do_ResolveName( CHAR *Host, INT w_fd )
+{
+	/* Resolver Sub-Prozess: Name aufloesen und Ergebnis in Pipe schreiben. */
+
+	CHAR ip[16];
+	struct hostent *h;
+	struct in_addr *addr;
+
+	Log_Resolver( LOG_DEBUG, "Now resolving \"%s\" ...", Host );
+
+	/* Namen aufloesen */
+	h = gethostbyname( Host );
+	if( h )
+	{
+		addr = (struct in_addr *)h->h_addr;
+		strcpy( ip, inet_ntoa( *addr ));
+	}
+	else
+	{
+		Log_Resolver( LOG_WARNING, "Can't resolve \"%s\": %s!", Host, Resolv_Error( h_errno ));
+		strcpy( ip, "" );
+	}
+
+	/* Antwort an Parent schreiben */
+	if( write( w_fd, ip, strlen( ip ) + 1 ) != ( strlen( ip ) + 1 ))
+	{
+		Log_Resolver( LOG_ALERT, "Resolver: Can't write to parent: %s!", strerror( errno ));
+		close( w_fd );
+		return;
+	}
+
+	if( ip[0] ) Log_Resolver( LOG_DEBUG, "Ok, translated \"%s\" to %s.", Host, ip );
+} /* Do_ResolveName */
+
+
+LOCAL VOID Read_Resolver_Result( INT r_fd )
+{
+	/* Ergebnis von Resolver Sub-Prozess aus Pipe lesen
+	* und entsprechende Connection aktualisieren */
+
+	CHAR result[HOST_LEN];
+	CLIENT *c;
+	INT len, i;
+
+	FD_CLR( r_fd, &My_Resolvers );
+
+	/* Anfrage vom Parent lesen */
+	len = read( r_fd, result, HOST_LEN);
+	if( len < 0 )
+	{
+		/* Fehler beim Lesen aus der Pipe */
+		close( r_fd );
+		Log( LOG_ALERT, "Resolver: Can't read result: %s!", strerror( errno ));
+		return;
+	}
+	result[len] = '\0';
+
+	/* zugehoerige Connection suchen */
+	for( i = 0; i < MAX_CONNECTIONS; i++ )
+	{
+		if(( My_Connections[i].sock != NONE ) && ( My_Connections[i].res_stat ) && ( My_Connections[i].res_stat->pipe[0] == r_fd )) break;
+	}
+	if( i >= MAX_CONNECTIONS )
+	{
+		/* Opsa! Keine passende Connection gefunden!? Vermutlich
+		 * wurde sie schon wieder geschlossen. */
+		close( r_fd );
+		Log( LOG_DEBUG, "Resolver: Got result for unknown connection!?" );
+		return;
+	}
+
+	/* Aufraeumen */
+	close( My_Connections[i].res_stat->pipe[0] );
+	close( My_Connections[i].res_stat->pipe[1] );
+	free( My_Connections[i].res_stat );
+	My_Connections[i].res_stat = NULL;
+
+	if( My_Connections[i].sock > NONE )
+	{
+		/* Eingehende Verbindung: Hostnamen setzen */
+		strcpy( My_Connections[i].host, result );
+		c = Client_GetFromConn( i );
+		if( c ) Client_SetHostname( c, result );
+	}
+	else
+	{
+		/* Ausgehende Verbindung (=Server): IP setzen */
+		assert( My_Connections[i].our_server >= 0 );
+		strcpy( Conf_Server[My_Connections[i].our_server].ip, result );
+	}
+} /* Read_Resolver_Result */
+
+
+LOCAL CHAR *Resolv_Error( INT H_Error )
+{
+	/* Fehlerbeschreibung fuer H_Error liefern */
+
+	switch( H_Error )
+	{
+		case HOST_NOT_FOUND:
+			return "host not found";
+		case NO_ADDRESS:
+			return "name valid but no IP address defined";
+		case NO_RECOVERY:
+			return "name server error";
+		case TRY_AGAIN:
+			return "name server temporary not available";
+		default:
+			return "unknown error";
+	}
+} /* Resolv_Error */
 
 
 /* -eof- */

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.22 2002/01/22 17:15:39 alex Exp $
+ * $Id: ngircd.c,v 1.23 2002/02/17 23:40:21 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  *
  * $Log: ngircd.c,v $
+ * Revision 1.23  2002/02/17 23:40:21  alex
+ * - neue Funktion NGIRCd_VersionAddition(). NGIRCd_Version() aufgespaltet.
+ *
  * Revision 1.22  2002/01/22 17:15:39  alex
  * - die Fehlermeldung "interrupted system call" sollte nicht mehr auftreten.
  *
@@ -295,34 +298,40 @@ GLOBAL INT main( INT argc, CONST CHAR *argv[] )
 GLOBAL CHAR *NGIRCd_Version( VOID )
 {
 	STATIC CHAR version[126];
-	CHAR txt[64];
+
+	sprintf( version, PACKAGE" version "VERSION"-%s", NGIRCd_VersionAddition( ));
+	return version;
+} /* NGIRCd_Version */
+
+
+GLOBAL CHAR *NGIRCd_VersionAddition( VOID )
+{
+	STATIC CHAR txt[64];
 
 	strcpy( txt, "" );
 
 #ifdef USE_SYSLOG
 	if( txt[0] ) strcat( txt, "+" );
-	else strcat( txt, "-" );
 	strcat( txt, "SYSLOG" );
 #endif
 #ifdef STRICT_RFC
 	if( txt[0] ) strcat( txt, "+" );
-	else strcat( txt, "-" );
 	strcat( txt, "RFC" );
 #endif
 #ifdef DEBUG
 	if( txt[0] ) strcat( txt, "+" );
-	else strcat( txt, "-" );
 	strcat( txt, "DEBUG" );
 #endif
 #ifdef SNIFFER
 	if( txt[0] ) strcat( txt, "+" );
-	else strcat( txt, "-" );
 	strcat( txt, "SNIFFER" );
 #endif
 
-	sprintf( version, PACKAGE" version "VERSION"%s-"P_OSNAME"/"P_ARCHNAME, txt );
-	return version;
-} /* NGIRCd_Version */
+	if( txt[0] ) strcat( txt, "-" );
+	strcat( txt, P_OSNAME"/"P_ARCHNAME );
+
+	return txt;
+} /* NGIRCd_VersionAddition */
 
 
 LOCAL VOID Initialize_Signal_Handler( VOID )
@@ -341,6 +350,7 @@ LOCAL VOID Initialize_Signal_Handler( VOID )
 	sigaction( SIGINT, &saction, NULL );
 	sigaction( SIGQUIT, &saction, NULL );
 	sigaction( SIGTERM, &saction, NULL);
+	sigaction( SIGHUP, &saction, NULL);
 	sigaction( SIGCHLD, &saction, NULL);
 
 	/* einige Signale ignorieren */
@@ -361,8 +371,15 @@ LOCAL VOID Signal_Handler( INT Signal )
 		case SIGINT:
 		case SIGQUIT:
 			/* wir soll(t)en uns wohl beenden ... */
-			Log( LOG_WARNING, "Got signal %d, terminating now ...", Signal );
+			if( Signal == SIGTERM ) Log( LOG_WARNING, "Got TERM signal, terminating now ..." );
+			else if( Signal == SIGINT ) Log( LOG_WARNING, "Got INT signal, terminating now ..." );
+			else if( Signal == SIGQUIT ) Log( LOG_WARNING, "Got QUIT signal, terminating now ..." );
 			NGIRCd_Quit = TRUE;
+			break;
+		case SIGHUP:
+			/* neu starten */
+			Log( LOG_WARNING, "Got HUP signal, restarting now ..." );
+			NGIRCd_Restart = TRUE;
 			break;
 		case SIGCHLD:
 			/* Child-Prozess wurde beendet. Zombies vermeiden: */

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.3 2001/12/13 01:33:09 alex Exp $
+ * $Id: conn.c,v 1.4 2001/12/13 02:04:16 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
+ * Revision 1.4  2001/12/13 02:04:16  alex
+ * - boesen "Speicherschiesser" in Log() gefixt.
+ *
  * Revision 1.3  2001/12/13 01:33:09  alex
  * - Conn_Handler() unterstuetzt nun einen Timeout.
  * - fuer Verbindungen werden keine FILE-Handles mehr benutzt.
@@ -149,7 +152,7 @@ GLOBAL BOOLEAN Conn_New_Listener( CONST INT Port )
 
 	/* Socket erzeugen */
 	sock = socket( PF_INET, SOCK_STREAM, 0);
-	if( socket < 0 )
+	if( sock < 0 )
 	{
 		Log( LOG_ALERT, "Can't create socket: %s", strerror( errno ));
 		return FALSE;
@@ -249,7 +252,7 @@ LOCAL VOID New_Connection( INT Sock )
 	INT new_sock, new_sock_len, idx;
 
 	new_sock_len = sizeof( new_addr );
-	new_sock = accept( Sock, (struct sockaddr *)&new_addr, &new_sock_len );
+	new_sock = accept( Sock, (struct sockaddr *)&new_addr, (socklen_t *)&new_sock_len );
 	if( new_sock < 0 )
 	{
 		Log( LOG_CRIT, "Can't accept connection: %s", strerror( errno ));

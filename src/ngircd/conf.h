@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conf.h,v 1.30 2005/02/04 14:24:21 alex Exp $
+ * $Id: conf.h,v 1.31 2005/03/02 16:07:31 alex Exp $
  *
  * Configuration management (header)
  */
@@ -26,6 +26,7 @@ typedef struct _Conf_Oper
 {
 	CHAR name[CLIENT_PASS_LEN];	/* Name (ID) of IRC operator */
 	CHAR pwd[CLIENT_PASS_LEN];	/* Password */
+	char *mask;
 } CONF_OPER;
 
 typedef struct _Conf_Server

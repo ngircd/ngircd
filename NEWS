@@ -12,6 +12,8 @@
 
 ngIRCd CVSHEAD
 
+  - New configuration option "Mask" for [Operator] sections to limit OPER
+    commands to ussers with a specific IRC mask. Patch from Florian Westphal.
   - New configuration variable "PidFile", section "[Global]": if defined,
     the server writes its process ID (PID) to this file. Default: off.
     Idea of Florian Westphal, <westphal@foo.fh-furtwangen.de>.
@@ -198,4 +200,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.68 2005/02/04 14:24:20 alex Exp $
+$Id: NEWS,v 1.69 2005/03/02 16:07:30 alex Exp $

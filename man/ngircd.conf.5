@@ -1,5 +1,5 @@
 .\"
-.\" $Id: ngircd.conf.5,v 1.14 2005/02/14 00:42:41 alex Exp $
+.\" $Id: ngircd.conf.5,v 1.15 2005/03/02 16:07:31 alex Exp $
 .\"
 .TH ngircd.conf 5 "February 2005" ngircd "ngIRCd Manual"
 .SH NAME
@@ -160,6 +160,10 @@ ID of the operator (may be different of the nick name).
 .TP
 \fBPassword\fR
 Password of the IRC operator.
+.TP
+\fBMask\fR
+Mask that is to be checked before an /OPER for this account is accepted.
+Example: nick!ident@*.example.com
 .SH [SERVER]
 Other servers are configured in
 .I [Server]

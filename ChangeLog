@@ -12,6 +12,8 @@
 
 ngIRCd CVSHEAD
 
+  - New configuration option "Mask" for [Operator] sections to limit OPER
+    commands to ussers with a specific IRC mask. Patch from Florian Westphal.
   - Write "error file" (/tmp/ngircd-XXX.err) only if compiled with debug
     code ("--enable-debug") and running as daemon process.
   - Don't create version information string each time a client connects
@@ -586,4 +588,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.261 2005/02/10 12:49:04 alex Exp $
+$Id: ChangeLog,v 1.262 2005/03/02 16:07:30 alex Exp $

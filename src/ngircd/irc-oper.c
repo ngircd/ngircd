@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-oper.c,v 1.17 2002/12/31 16:10:55 alex Exp $";
+static char UNUSED id[] = "$Id: irc-oper.c,v 1.18 2005/03/02 16:07:31 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -64,6 +64,13 @@ IRC_OPER( CLIENT *Client, REQUEST *Req )
 		Log( LOG_WARNING, "Got invalid OPER from \"%s\": Bad password for \"%s\"!", Client_Mask( Client ), Conf_Oper[i].name );
 		return IRC_WriteStrClient( Client, ERR_PASSWDMISMATCH_MSG, Client_ID( Client ));
 	}
+
+	/* Authorized Mask? */
+	if( Conf_Oper[i].mask && (! Match( Conf_Oper[i].mask, Client_Mask( Client ) ))) {
+		Log( LOG_WARNING, "Rejected valid OPER for \"%s\": Mask mismatch (got: \"%s\", want: \"%s\")!", Conf_Oper[i].name, Client_Mask( Client ), Conf_Oper[i].mask );
+		return IRC_WriteStrClient( Client, ERR_PASSWDMISMATCH_MSG, Client_ID( Client ));
+	}
+
 
 	if( ! Client_HasMode( Client, 'o' ))
 	{

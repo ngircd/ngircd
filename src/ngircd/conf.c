@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.68 2005/02/04 14:24:21 alex Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.69 2005/03/02 16:07:31 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -158,6 +158,7 @@ Conf_Test( VOID )
 		puts( "[OPERATOR]" );
 		printf( "  Name = %s\n", Conf_Oper[i].name );
 		printf( "  Password = %s\n", Conf_Oper[i].pwd );
+		if ( Conf_Oper[i].mask ) printf( "  Mask = %s\n", Conf_Oper[i].mask );
 		puts( "" );
 	}
 
@@ -466,8 +467,12 @@ Read_Config( VOID )
 				else
 				{
 					/* Initialize new operator structure */
-					strcpy( Conf_Oper[Conf_Oper_Count].name, "" );
-					strcpy( Conf_Oper[Conf_Oper_Count].pwd, "" );
+					Conf_Oper[Conf_Oper_Count].name[0] = '\0';
+					Conf_Oper[Conf_Oper_Count].pwd[0] = '\0';
+					if (Conf_Oper[Conf_Oper_Count].mask) {
+						free(Conf_Oper[Conf_Oper_Count].mask );
+						Conf_Oper[Conf_Oper_Count].mask = NULL;
+					}
 					Conf_Oper_Count++;
 				}
 				continue;
@@ -782,6 +787,7 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 LOCAL VOID
 Handle_OPERATOR( INT Line, CHAR *Var, CHAR *Arg )
 {
+	unsigned int len;
 	assert( Line > 0 );
 	assert( Var != NULL );
 	assert( Arg != NULL );
@@ -799,7 +805,19 @@ Handle_OPERATOR( INT Line, CHAR *Var, CHAR *Arg )
 		if( strlcpy( Conf_Oper[Conf_Oper_Count - 1].pwd, Arg, sizeof( Conf_Oper[Conf_Oper_Count - 1].pwd )) >= sizeof( Conf_Oper[Conf_Oper_Count - 1].pwd )) Config_Error_TooLong( Line, Var );
 		return;
 	}
-	
+	if( strcasecmp( Var, "Mask" ) == 0 )
+	{
+		if (Conf_Oper[Conf_Oper_Count - 1].mask) return; /* Hostname already configured */
+		len = strlen( Arg ) + 1;
+		Conf_Oper[Conf_Oper_Count - 1].mask = malloc( len );
+		if (! Conf_Oper[Conf_Oper_Count - 1].mask) {
+			Config_Error( LOG_ERR, "%s, line %d: Cannot allocate memory for operator mask: %s", NGIRCd_ConfFile, Line, strerror(errno) );
+			return;
+		}
+
+		strlcpy( Conf_Oper[Conf_Oper_Count - 1].mask, Arg, len);
+		return;
+	}
 	Config_Error( LOG_ERR, "%s, line %d (section \"Operator\"): Unknown variable \"%s\"!", NGIRCd_ConfFile, Line, Var );
 } /* Handle_OPERATOR */
 

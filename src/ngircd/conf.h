@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.h,v 1.8 2002/01/02 02:49:16 alex Exp $
+ * $Id: conf.h,v 1.9 2002/01/03 02:27:20 alex Exp $
  *
  * conf.h: Konfiguration des ngircd (Header)
  *
  * $Log: conf.h,v $
+ * Revision 1.9  2002/01/03 02:27:20  alex
+ * - das Server-Passwort kann nun konfiguriert werden.
+ *
  * Revision 1.8  2002/01/02 02:49:16  alex
  * - Konfigurationsdatei "Samba like" umgestellt.
  * - es koennen nun mehrere Server und Oprtatoren konfiguriert werden.
@@ -72,6 +75,9 @@ GLOBAL CHAR Conf_ServerName[CLIENT_ID_LEN];
 
 /* Servers-Info-Text */
 GLOBAL CHAR Conf_ServerInfo[CLIENT_INFO_LEN];
+
+/* Server-Passwort */
+GLOBAL CHAR Conf_ServerPwd[CLIENT_PASS_LEN];
 
 /* Datei mit MOTD-Text */
 GLOBAL CHAR Conf_MotdFile[FNAME_LEN];

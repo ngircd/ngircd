@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: messages.h,v 1.6 2001/12/26 22:48:53 alex Exp $
+ * $Id: messages.h,v 1.7 2001/12/27 16:56:06 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: messages.h,v $
+ * Revision 1.7  2001/12/27 16:56:06  alex
+ * - RPL_WELCOME an Client_GetID() angepasst.
+ *
  * Revision 1.6  2001/12/26 22:48:53  alex
  * - MOTD-Datei ist nun konfigurierbar und wird gelesen.
  *
@@ -42,7 +45,7 @@
 
 
 #define RPL_WELCOME			"001"
-#define RPL_WELCOME_MSG			RPL_WELCOME" %s :Welcome to the Internet Relay Network %s!%s@%s"
+#define RPL_WELCOME_MSG			RPL_WELCOME" %s :Welcome to the Internet Relay Network %s"
 
 #define RPL_YOURHOST			"002"
 #define RPL_YOURHOST_MSG		RPL_YOURHOST" %s :Your host is %s, running ngircd "VERSION

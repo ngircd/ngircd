@@ -1,6 +1,6 @@
 #!/bin/sh
 # ngIRCd Test Suite
-# $Id: stop-server.sh,v 1.4.2.1 2002/09/20 13:46:22 alex Exp $
+# $Id: stop-server.sh,v 1.4.2.2 2002/09/20 13:55:51 alex Exp $
 
 echo "      stopping server ..."
 
@@ -10,6 +10,6 @@ if [ $? -ne 0 ]; then PS_FLAGS=a; PS_PIDCOL=1; fi
 
 ps $PS_FLAGS > procs.tmp
 pid=`cat procs.tmp | grep ngircd-TEST | awk "{ print \\\$$PS_PIDCOL }"`
-kill $pid > /dev/null 2>&1
+[ -n "$pid" ] && kill -0 $pid > /dev/null 2>&1 || exit 1
 
 # -eof-

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: parse.c,v 1.13 2002/01/04 01:20:02 alex Exp $
+ * $Id: parse.c,v 1.14 2002/01/04 17:56:45 alex Exp $
  *
  * parse.c: Parsen der Client-Anfragen
  *
  * $Log: parse.c,v $
+ * Revision 1.14  2002/01/04 17:56:45  alex
+ * - neuer Befehl SQUIT.
+ *
  * Revision 1.13  2002/01/04 01:20:02  alex
  * - Client-Strukruren werden nur noch ueber Funktionen angesprochen.
  *
@@ -252,6 +255,7 @@ LOCAL BOOLEAN Handle_Request( CONN_ID Idx, REQUEST *Req )
 	else if( strcasecmp( Req->command, "SERVER" ) == 0 ) return IRC_SERVER( client, Req );
 	else if( strcasecmp( Req->command, "NJOIN" ) == 0 ) return IRC_NJOIN( client, Req );
 	else if( strcasecmp( Req->command, "QUIT" ) == 0 ) return IRC_QUIT( client, Req );
+	else if( strcasecmp( Req->command, "SQUIT" ) == 0 ) return IRC_SQUIT( client, Req );
 	else if( strcasecmp( Req->command, "PING" ) == 0 ) return IRC_PING( client, Req );
 	else if( strcasecmp( Req->command, "PONG" ) == 0 ) return IRC_PONG( client, Req );
 	else if( strcasecmp( Req->command, "MOTD" ) == 0 ) return IRC_MOTD( client, Req );

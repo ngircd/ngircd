@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.56 2002/03/14 13:42:33 alex Exp $
+ * $Id: conn.c,v 1.57 2002/03/26 23:47:45 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -809,7 +809,7 @@ LOCAL VOID Check_Connections( VOID )
 				if( My_Connections[i].lastping < time( NULL ) - Conf_PongTimeout )
 				{
 					/* Timeout */
-					Log( LOG_DEBUG, "Connection %d: Ping timeout.", i );
+					Log( LOG_DEBUG, "Connection %d: Ping timeout: %d seconds.", i, Conf_PongTimeout );
 					Conn_Close( i, NULL, "Ping timeout", TRUE );
 				}
 			}

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: messages.h,v 1.26 2002/02/11 23:33:12 alex Exp $
+ * $Id: messages.h,v 1.27 2002/02/13 17:45:57 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: messages.h,v $
+ * Revision 1.27  2002/02/13 17:45:57  alex
+ * - unterstuetzte User- und Channel-Modes stehen nun in Konstanten.
+ *
  * Revision 1.26  2002/02/11 23:33:12  alex
  * - neue Message ERR_CHANOPRIVSNEEDED_MSG definiert.
  *
@@ -114,7 +117,7 @@
 #define RPL_CREATED_MSG			RPL_CREATED" %s :This server was started %s"
 
 #define RPL_MYINFO			"004"
-#define RPL_MYINFO_MSG			RPL_MYINFO" %s %s ngircd-"VERSION" ior +"
+#define RPL_MYINFO_MSG			RPL_MYINFO" %s %s ngircd-"VERSION" "USERMODES" "CHANMODES
 
 #define RPL_LUSERCLIENT			"251"
 #define RPL_LUSERCLIENT_MSG		RPL_LUSERCLIENT" %s :There are %d users and %d services on %d servers"

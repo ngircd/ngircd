@@ -44,8 +44,12 @@ ngIRCd CVS-HEAD
     Tree aufgenommen und in Build-System integriert; der ngIRCd compiliert
     nun z.B. unter A/UX mit dem nativen Compiler von Apple.
   - TOPIC lieferte bei unbekanntem Channel einen falschen Fehlercode.
-  - Bug in PRIVMSG behoben: wurde als Ziel ein Server angegebn, so beendete
-    sich der ngIRCd mit einem assert().
+
+ngIRCd 0.4.3, 11.06.2002
+
+  - Bei PRIVMSG und NOTICE hat der ngIRCd nicht ueberpruft, ob das Ziel
+    ueberhaupt ein User ist. War es keiner, so fuehrte dies zu einem
+    Abbruch des Servers [es wurde assert() aufgerufen].
 
 ngIRCd 0.4.2, 29.04.2002
 
@@ -229,4 +233,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.75 2002/06/10 21:12:34 alex Exp $
+$Id: ChangeLog,v 1.76 2002/06/11 21:53:23 alex Exp $

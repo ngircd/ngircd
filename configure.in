@@ -9,7 +9,7 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: configure.in,v 1.57 2002/09/09 10:00:15 alex Exp $
+# $Id: configure.in,v 1.58 2002/09/16 11:13:43 alex Exp $
 #
 
 # -- Initialisierung --
@@ -18,7 +18,7 @@ AC_INIT
 AC_PREREQ(2.50)
 AC_CANONICAL_TARGET
 AC_CONFIG_SRCDIR(src/config.h.in)
-AM_INIT_AUTOMAKE(ngircd,CurrentCVS)
+AM_INIT_AUTOMAKE(ngircd,0.5.0-pre1)
 AM_CONFIG_HEADER(src/config.h)
 
 # -- Templates fuer config.h --
@@ -66,7 +66,7 @@ AC_CHECK_HEADERS([ \
 	strings.h sys/socket.h sys/time.h unistd.h \
 	],,AC_MSG_ERROR([required C header missing!]))
 
-AC_CHECK_HEADERS(arpa/inet.h malloc.h stdint.h varargs.h)
+AC_CHECK_HEADERS(arpa/inet.h malloc.h stdint.h sys/select.h varargs.h)
 
 # -- Datentypen --
 

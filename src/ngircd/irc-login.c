@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-login.c,v 1.3 2002/03/03 17:15:11 alex Exp $
+ * $Id: irc-login.c,v 1.4 2002/03/10 22:40:22 alex Exp $
  *
  * irc-login.c: Anmeldung und Abmeldung im IRC
  *
  * $Log: irc-login.c,v $
+ * Revision 1.4  2002/03/10 22:40:22  alex
+ * - IRC_PING() ist, wenn nicht im "strict RFC"-Mode, toleranter und akzptiert
+ *   beliebig viele Parameter: z.B. BitchX sendet soetwas.
+ *
  * Revision 1.3  2002/03/03 17:15:11  alex
  * - Source in weitere Module fuer IRC-Befehle aufgesplitted.
  *
@@ -301,9 +305,11 @@ GLOBAL BOOLEAN IRC_PING( CLIENT *Client, REQUEST *Req )
 
 	/* Falsche Anzahl Parameter? */
 	if( Req->argc < 1 ) return IRC_WriteStrClient( Client, ERR_NOORIGIN_MSG, Client_ID( Client ));
+#ifdef STRICT_RFC
 	if( Req->argc > 2 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+#endif
 
-	if( Req->argc == 2 )
+	if( Req->argc > 1 )
 	{
 		/* es wurde ein Ziel-Client angegeben */
 		target = Client_GetFromID( Req->argv[1] );

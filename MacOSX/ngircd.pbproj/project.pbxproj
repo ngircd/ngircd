@@ -67,7 +67,6 @@
 				F51F791401DFD0DE01D13771,
 				F56D8B9E01E0BFA00155ADA7,
 				F52162B301C7B904012300F4,
-				F52162C201C7B904012300F4,
 				F52162C301C7B904012300F4,
 				F52162C401C7B904012300F4,
 				F52162C501C7B904012300F4,
@@ -114,7 +113,6 @@
 		08FB77A0FE84155DC02AAC07 = {
 			buildActionMask = 2147483647;
 			files = (
-				F52162CC01C7B904012300F4,
 				F52162CD01C7B904012300F4,
 				F52162CE01C7B904012300F4,
 				F52162CF01C7B904012300F4,
@@ -470,12 +468,6 @@
 			path = tool.h;
 			refType = 4;
 		};
-		F52162C201C7B904012300F4 = {
-			isa = PBXFileReference;
-			name = acconfig.h;
-			path = ../acconfig.h;
-			refType = 2;
-		};
 		F52162C301C7B904012300F4 = {
 			isa = PBXExecutableFileReference;
 			name = autogen.sh;
@@ -529,12 +521,6 @@
 			name = README;
 			path = ../README;
 			refType = 2;
-		};
-		F52162CC01C7B904012300F4 = {
-			fileRef = F52162C201C7B904012300F4;
-			isa = PBXBuildFile;
-			settings = {
-			};
 		};
 		F52162CD01C7B904012300F4 = {
 			fileRef = F52162BA01C7B904012300F4;

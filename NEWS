@@ -13,6 +13,9 @@
 ngIRCd 0.3.x, ??.??.2002
 
   - WHO implementiert (bisher ohne komplette Unerstuetzung von Masks).
+  - stderr wird nun in eine Datei umgelenkt (/tmp/ngircd.err). Laeuft der
+    Server nicht im Debug-Modus, so wird diese bei Programmende geloescht.
+    Sollte der Server abstuerzen, finden sich hier evtl. Informationen.
 
 ngIRCd 0.3.0, 02.03.2002
 
@@ -69,4 +72,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.18 2002/03/03 19:41:59 alex Exp $
+$Id: NEWS,v 1.19 2002/03/06 15:39:17 alex Exp $

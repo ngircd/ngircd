@@ -50,6 +50,8 @@ ngIRCd CVS-HEAD
     miteinander ueber komprimiert Links kommunizieren.
   - Handling der Schreibpuffer umgestellt: Server sollte schneller arbeiten.
   - SQUIT wird nicht mehr doppelt an andere Server weitergeleitet.
+  - Der Server versucht nun vor dem Schliessen einer Verbindung Daten, die
+    noch im Schreibpuffer stehen, zu senden.
 
 ngIRCd 0.5.4, 24.11.2002
 
@@ -353,4 +355,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.133 2002/11/28 14:32:18 alex Exp $
+$Id: ChangeLog,v 1.134 2002/11/28 16:56:20 alex Exp $

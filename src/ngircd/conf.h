@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.h,v 1.19 2002/09/16 09:13:40 alex Exp $
+ * $Id: conf.h,v 1.20 2002/11/02 22:58:41 alex Exp $
  *
  * conf.h: Konfiguration des ngircd (Header)
  */
@@ -95,6 +95,10 @@ GLOBAL INT Conf_Channel_Count;
 
 /* Koennen IRC OPs immer Modes setzen? */
 GLOBAL BOOLEAN Conf_OperCanMode;
+
+/* Maximale Anzahl von Verbindungen */
+GLOBAL LONG Conf_MaxConnections;
+
 
 GLOBAL VOID Conf_Init PARAMS((VOID ));
 GLOBAL INT Conf_Test PARAMS((VOID ));

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: parse.h,v 1.4 2002/01/02 02:43:50 alex Exp $
+ * $Id: parse.h,v 1.5 2002/02/27 23:24:29 alex Exp $
  *
  * parse.h: Parsen der Client-Anfragen (Header)
  *
  * $Log: parse.h,v $
+ * Revision 1.5  2002/02/27 23:24:29  alex
+ * - ueberfluessige Init- und Exit-Funktionen entfernt.
+ *
  * Revision 1.4  2002/01/02 02:43:50  alex
  * - Copyright-Text ergaenzt bzw. aktualisiert.
  *
@@ -44,9 +47,6 @@ typedef struct _REQUEST			/* vgl. RFC 2812, 2.3 */
 	INT argc;			/* Anzahl vorhandener Parameter */
 } REQUEST;
 
-
-GLOBAL VOID Parse_Init( VOID );
-GLOBAL VOID Parse_Exit( VOID );
 
 GLOBAL BOOLEAN Parse_Request( CONN_ID Idx, CHAR *Request );
 

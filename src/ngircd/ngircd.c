@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.27 2002/02/25 11:42:47 alex Exp $
+ * $Id: ngircd.c,v 1.28 2002/02/27 23:24:29 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  *
  * $Log: ngircd.c,v $
+ * Revision 1.28  2002/02/27 23:24:29  alex
+ * - ueberfluessige Init- und Exit-Funktionen entfernt.
+ *
  * Revision 1.27  2002/02/25 11:42:47  alex
  * - wenn ein System sigaction() nicht kennt, so wird nun signal() verwendet.
  *
@@ -296,8 +299,6 @@ GLOBAL INT main( INT argc, CONST CHAR *argv[] )
 		/* Module initialisieren */
 		Log_Init( );
 		Conf_Init( );
-		Parse_Init( );
-		IRC_Init( );
 		Channel_Init( );
 		Client_Init( );
 		Conn_Init( );
@@ -319,8 +320,6 @@ GLOBAL INT main( INT argc, CONST CHAR *argv[] )
 		Conn_Exit( );
 		Client_Exit( );
 		Channel_Exit( );
-		IRC_Exit( );
-		Parse_Exit( );
 		Conf_Exit( );
 		Log_Exit( );
 	}

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.42 2002/03/02 00:23:32 alex Exp $
+ * $Id: conn.c,v 1.43 2002/03/02 00:29:11 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
+ * Revision 1.43  2002/03/02 00:29:11  alex
+ * - der Wert der Konfigurations-Variable "ConnectRetry" wird besser beachtet.
+ *
  * Revision 1.42  2002/03/02 00:23:32  alex
  * - ausgehende Verbindungen werden nun asyncron connectiert und blockieren
  *   nicht mehr den Server. Dadurch waren einige Aenderungen noetig.
@@ -704,6 +707,10 @@ LOCAL BOOLEAN Handle_Write( CONN_ID Idx )
 			FD_CLR( My_Connections[Idx].sock, &My_Sockets );
 			close( My_Connections[Idx].sock );
 			Init_Conn_Struct( Idx );
+
+			/* Bei Server-Verbindungen lasttry-Zeitpunkt auf "jetzt" setzen */
+			Conf_Server[My_Connections[Idx].our_server].lasttry = time( NULL );
+
 			return FALSE;
 		}
 		Log( LOG_DEBUG, "Connection %d with \"%s:%d\" established, now sendig PASS and SERVER ...", Idx, My_Connections[Idx].host, Conf_Server[My_Connections[Idx].our_server].port );

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-mode.c,v 1.20 2002/12/15 15:51:24 alex Exp $";
+static char UNUSED id[] = "$Id: irc-mode.c,v 1.21 2002/12/15 16:29:18 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -377,6 +377,7 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 							else ok = IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->argv[arg_arg] );
 						}
 						else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
+						Req->argv[arg_arg][0] = '\0';
 						arg_arg++;
 					}
 					else ok = IRC_WriteStrClient( Origin, ERR_NEEDMOREPARAMS_MSG, Client_ID( Origin ), Req->command );
@@ -394,6 +395,7 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 							else Del_Invite( Origin, Client, Channel, Req->argv[arg_arg] );
 						}
 						else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
+						Req->argv[arg_arg][0] = '\0';
 						arg_arg++;
 					}
 					else Lists_ShowInvites( Origin, Channel );
@@ -409,6 +411,7 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 							else Del_Ban( Origin, Client, Channel, Req->argv[arg_arg] );
 						}
 						else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
+						Req->argv[arg_arg][0] = '\0';
 						arg_arg++;
 					}
 					else Lists_ShowBans( Origin, Channel );
@@ -433,15 +436,19 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 				/* Channel-User-Mode */
 				if( Channel_UserModeAdd( Channel, client, x[0] ))
 				{
-					strcat( the_modes, x );
 					strcat( the_args, Client_ID( client ));
-					strcat( the_args, " " );
+					strcat( the_args, " " ); strcat( the_modes, x );
+					Log( LOG_DEBUG, "User \"%s\": Mode change on %s, now \"%s\"", Client_Mask( client ), Channel_Name( Channel ), Channel_UserModes( Channel, client ));
 				}
 			}
 			else
 			{
 				/* Channel-Mode */
-				if( Channel_ModeAdd( Channel, x[0] )) strcat( the_modes, x );
+				if( Channel_ModeAdd( Channel, x[0] ))
+				{
+					strcat( the_modes, x );
+					Log( LOG_DEBUG, "Channel %s: Mode change, now \"%s\".", Channel_Name( Channel ), Channel_Modes( Channel ));
+				}
 			}
 		}
 		else
@@ -452,15 +459,19 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 				/* Channel-User-Mode */
 				if( Channel_UserModeDel( Channel, client, x[0] ))
 				{
-					strcat( the_modes, x );
 					strcat( the_args, Client_ID( client ));
-					strcat( the_args, " " );
+					strcat( the_args, " " ); strcat( the_modes, x );
+					Log( LOG_DEBUG, "User \"%s\": Mode change on %s, now \"%s\"", Client_Mask( client ), Channel_Name( Channel ), Channel_UserModes( Channel, client ));
 				}
 			}
 			else
 			{
 				/* Channel-Mode */
-				if( Channel_ModeDel( Channel, x[0] )) strcat( the_modes, x );
+				if( Channel_ModeDel( Channel, x[0] ))
+				{
+					strcat( the_modes, x );
+					Log( LOG_DEBUG, "Channel %s: Mode change, now \"%s\".", Channel_Name( Channel ), Channel_Modes( Channel ));
+				}
 			}
 		}		
 	}
@@ -468,6 +479,9 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 	/* Are there changed modes? */
 	if( the_modes[1] )
 	{
+		/* Clean up mode string */
+		if(( the_modes[strlen( the_modes ) - 1] == '+' ) || ( the_modes[strlen( the_modes ) - 1] == '-' )) the_modes[strlen( the_modes ) - 1] = '\0';
+
 		/* Clean up argument string if there are none */
 		if( ! the_args[1] ) the_args[0] = '\0';
 
@@ -484,7 +498,6 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 			IRC_WriteStrServersPrefix( Client, Origin, "MODE %s %s%s", Channel_Name( Channel ), the_modes, the_args );
 			IRC_WriteStrChannelPrefix( Client, Channel, Origin, FALSE, "MODE %s %s%s", Channel_Name( Channel ), the_modes, the_args );
 		}
-		Log( LOG_DEBUG, "User \"%s\" changes modes on %s: %s%s", Client_ID( Origin ), Channel_Name( Channel ), the_modes, the_args );
 	}
 
 	return CONNECTED;

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc.c,v 1.120 2003/03/31 15:54:21 alex Exp $";
+static char UNUSED id[] = "$Id: irc.c,v 1.120.2.1 2003/04/29 12:20:14 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -95,8 +95,30 @@ IRC_KILL( CLIENT *Client, REQUEST *Req )
 	if( c )
 	{
 		/* Yes, there is such a client -- but is it a valid user? */
-		if( Client_Type( c ) == CLIENT_SERVER ) IRC_WriteStrClient( Client, ERR_CANTKILLSERVER_MSG, Client_ID( Client ));
-		else if( Client_Type( c ) != CLIENT_USER  )IRC_WriteStrClient( Client, ERR_NOPRIVILEGES_MSG, Client_ID( Client ));
+		if( Client_Type( c ) == CLIENT_SERVER )
+		{
+			if( Client != Client_ThisServer( )) IRC_WriteStrClient( Client, ERR_CANTKILLSERVER_MSG, Client_ID( Client ));
+			else
+			{
+				/* Oops, I should kill another server!? */
+				Log( LOG_ERR, "Can't KILL server \"%s\"!", Req->argv[0] );
+				conn = Client_Conn( Client_NextHop( c ));
+				assert( conn > NONE );
+				Conn_Close( conn, NULL, "Nick collision for server!?", TRUE );
+			}
+		}
+		else if( Client_Type( c ) != CLIENT_USER  )
+		{
+			if( Client != Client_ThisServer( )) IRC_WriteStrClient( Client, ERR_NOPRIVILEGES_MSG, Client_ID( Client ));
+			else
+			{
+				/* Oops, what sould I close?? */
+				Log( LOG_ERR, "Can't KILL \"%s\": invalid client type!", Req->argv[0] );
+				conn = Client_Conn( Client_NextHop( c ));
+				assert( conn > NONE );
+				Conn_Close( conn, NULL, "Collision for invalid client type!?", TRUE );
+			}
+		}
 		else
 		{
 			/* Kill user NOW! */

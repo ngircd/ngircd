@@ -9,13 +9,16 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.25 2002/01/02 02:44:36 alex Exp $
+ * $Id: conn.c,v 1.26 2002/01/02 02:50:47 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
- * Revision 1.25  2002/01/02 02:44:36  alex
- * - neue Defines fuer max. Anzahl Server und Operatoren.
+ * Revision 1.26  2002/01/02 02:50:47  alex
+ * - Asyncroner Resolver Hostname->IP.
+ * - Server-Links begonnen zu implementieren. Die Verbindung wird aufgebaut,
+ *   jedoch noch keine SERVER-Befehle verschickt.
+ * - Diverse Bug-Fixes und kleinere Erweiterungen.
  *
  * Revision 1.24  2002/01/01 18:25:44  alex
  * - #include's fuer stdlib.h ergaenzt.

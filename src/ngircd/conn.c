@@ -9,11 +9,16 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.5 2001/12/14 08:16:47 alex Exp $
+ * $Id: conn.c,v 1.6 2001/12/15 00:11:55 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
+ * Revision 1.6  2001/12/15 00:11:55  alex
+ * - Lese- und Schreib-Puffer implementiert.
+ * - einige neue (Unter-)Funktionen eingefuehrt.
+ * - diverse weitere kleinere Aenderungen.
+ *
  * Revision 1.5  2001/12/14 08:16:47  alex
  * - Begonnen, Client-spezifische Lesepuffer zu implementieren.
  * - Umstellung auf Datentyp "CONN_ID".
@@ -65,29 +70,30 @@
 
 #define MAX_CONNECTIONS 100		/* max. Anzahl von Verbindungen an diesem Server */
 
-#define LINE_LEN 512			/* Laenge eines Befehls, vgl. RFC 2812, 3.2 */
-#define BUFFER_LEN 2 * LINE_LEN;	/* Laenge des Lesepuffers je Verbindung */
+#define MAX_CMDLEN 512			/* max. Laenge eines Befehls, vgl. RFC 2812, 3.2 */
+
+#define READBUFFER_LEN 2 * MAX_CMDLEN	/* Laenge des Lesepuffers je Verbindung (Bytes) */
+#define WRITEBUFFER_LEN 4096		/* Laenge des Schreibpuffers je Verbindung (Bytes) */
 
 
 typedef struct _Connection
 {
 	INT sock;			/* Socket Handle */
 	struct sockaddr_in addr;	/* Adresse des Client */
-	CHAR buffer[BUFFER_LEN];	/* Lesepuffer */
-	INT datalen;			/* Laenge der Daten im Puffer */
+	CHAR rbuf[READBUFFER_LEN + 1];	/* Lesepuffer */
+	INT rdatalen;			/* Laenge der Daten im Lesepuffer */
+	CHAR wbuf[WRITEBUFFER_LEN + 1];	/* Schreibpuffer */
+	INT wdatalen;			/* Laenge der Daten im Schreibpuffer */
 } CONNECTION;
 
 
-LOCAL VOID Handle_Socket( INT sock );
-
+LOCAL VOID Handle_Read( INT sock );
+LOCAL BOOLEAN Handle_Write( CONN_ID Idx );
 LOCAL VOID New_Connection( INT Sock );
-
 LOCAL CONN_ID Socket2Index( INT Sock );
-
-LOCAL VOID Close_Connection( CONN_ID Idx );
+LOCAL VOID Close_Connection( CONN_ID Idx, CHAR *Msg );
 LOCAL VOID Read_Request( CONN_ID Idx );
-
-LOCAL BOOLEAN Send( CONN_ID Idx, CHAR *Data );
+LOCAL BOOLEAN Try_Write( CONN_ID Idx );
 
 
 LOCAL fd_set My_Listener;
@@ -109,11 +115,7 @@ GLOBAL VOID Conn_Init( VOID )
 	My_Max_Fd = 0;
 	
 	/* Connection-Struktur initialisieren */
-	for( i = 0; i < MAX_CONNECTIONS; i++ )
-	{
-		My_Connections[i].sock = NONE;
-		My_Connections[i].datalen = 0;
-	}
+	for( i = 0; i < MAX_CONNECTIONS; i++ ) My_Connections[i].sock = NONE;
 } /* Conn_Init */
 
 
@@ -131,7 +133,7 @@ GLOBAL VOID Conn_Exit( VOID )
 			{
 				if( My_Connections[idx].sock == i ) break;
 			}
-			if( idx < MAX_CONNECTIONS ) Close_Connection( idx );
+			if( idx < MAX_CONNECTIONS ) Close_Connection( idx, "Server going down ..." );
 			else if( FD_ISSET( i, &My_Listener ))
 			{
 				close( i );
@@ -212,7 +214,7 @@ GLOBAL BOOLEAN Conn_New_Listener( CONST INT Port )
 
 GLOBAL VOID Conn_Handler( INT Timeout )
 {
-	fd_set read_sockets;
+	fd_set read_sockets, write_sockets;
 	struct timeval tv;
 	INT i;
 
@@ -220,25 +222,133 @@ GLOBAL VOID Conn_Handler( INT Timeout )
 	tv.tv_sec = Timeout;
 	tv.tv_usec = 0;
 	
+	/* noch volle Schreib-Puffer suchen */
+	FD_ZERO( &write_sockets );
+	for( i = 0; i < MAX_CONNECTIONS; i++ )
+	{
+		if(( My_Connections[i].sock >= 0 ) && ( My_Connections[i].wdatalen > 0 ))
+		{
+			/* Socket der Verbindung in Set aufnehmen */
+			FD_SET( My_Connections[i].sock, &write_sockets );
+		}
+	}
+	
 	read_sockets = My_Sockets;
-	if( select( My_Max_Fd + 1, &read_sockets, NULL, NULL, &tv ) == -1 )
+	if( select( My_Max_Fd + 1, &read_sockets, &write_sockets, NULL, &tv ) == -1 )
 	{
 		if( errno != EINTR ) Log( LOG_ALERT, "select(): %s", strerror( errno ));
 		return;
 	}
 	
+	/* Koennen Daten geschrieben werden? */
 	for( i = 0; i < My_Max_Fd + 1; i++ )
 	{
-		if( FD_ISSET( i, &read_sockets )) Handle_Socket( i );
+		if( FD_ISSET( i, &write_sockets )) Handle_Write( Socket2Index( i ));
+	}
+	
+	/* Daten zum Lesen vorhanden? */
+	for( i = 0; i < My_Max_Fd + 1; i++ )
+	{
+		if( FD_ISSET( i, &read_sockets )) Handle_Read( i );
 	}
 } /* Conn_Handler */
 
 
-LOCAL VOID Handle_Socket( INT Sock )
+GLOBAL BOOLEAN Conn_WriteStr( CONN_ID Idx, CHAR *Data )
+{
+	/* String in Socket schreiben. CR+LF wird von dieser Funktion
+	 * automatisch angehaengt. */
+	
+	CHAR buffer[MAX_CMDLEN];
+	
+	if( strlen( Data ) > MAX_CMDLEN - 2 )
+	{
+		Log( LOG_ALERT, "String too long to send (connection %d)!", Idx );
+		Close_Connection( Idx, "Server error: String too long to send!" );
+		return FALSE;
+	}
+	
+	sprintf( buffer, "%s\r\n", Data );
+	return Conn_Write( Idx, buffer, strlen( buffer ));
+} /* Conn_WriteStr */
+
+
+GLOBAL BOOLEAN Conn_Write( CONN_ID Idx, CHAR *Data, INT Len )
+{
+	/* Daten in Socket schreiben. Bei "fatalen" Fehlern wird
+	 * der Client disconnectiert und FALSE geliefert. */
+	
+	assert( Idx >= 0 );
+	assert( My_Connections[Idx].sock >= 0 );
+	assert( Data != NULL );
+	assert( Len > 0 );
+
+	/* pruefen, ob Daten im Schreibpuffer sind. Wenn ja, zunaechst
+	 * pruefen, ob diese gesendet werden koennen */
+	if( My_Connections[Idx].wdatalen > 0 )
+	{
+		if( ! Try_Write( Idx )) return FALSE;
+	}
+	
+	/* pruefen, ob im Schreibpuffer genuegend Platz ist */
+	if( WRITEBUFFER_LEN - My_Connections[Idx].wdatalen - Len <= 0 )
+	{
+		/* der Puffer ist dummerweise voll ... */
+		Log( LOG_NOTICE, "Write buffer overflow (connection %d)!", Idx );
+		Close_Connection( Idx, NULL );
+		return FALSE;
+	}
+
+	/* Daten in Puffer kopieren */
+	memcpy( My_Connections[Idx].wbuf + My_Connections[Idx].wdatalen, Data, Len );
+	My_Connections[Idx].wdatalen += Len;
+
+	/* pruefen, on Daten vorhanden sind und geschrieben werden koennen */
+	if( My_Connections[Idx].wdatalen > 0 )
+	{
+		if( ! Try_Write( Idx )) return FALSE;
+	}
+	
+	return TRUE;
+} /* Conn_Write */
+
+
+LOCAL BOOLEAN Try_Write( CONN_ID Idx )
+{
+	/* Versuchen, Daten aus dem Schreib-Puffer in den
+	 * Socket zu schreiben. */
+
+	fd_set write_socket;
+	
+	assert( Idx >= 0 );
+	assert( My_Connections[Idx].sock >= 0 );
+	assert( My_Connections[Idx].wdatalen > 0 );
+
+	FD_ZERO( &write_socket );
+	FD_SET( My_Connections[Idx].sock, &write_socket );
+	if( select( My_Connections[Idx].sock + 1, NULL, &write_socket, NULL, 0 ) == -1 )
+	{
+		/* Fehler! */
+		if( errno != EINTR )
+		{
+			Log( LOG_ALERT, "select(): %s", strerror( errno ));
+			Close_Connection( Idx, NULL );
+			return FALSE;
+		}
+	}
+
+	if( FD_ISSET( My_Connections[Idx].sock, &write_socket )) return Handle_Write( Idx );
+	else return TRUE;
+} /* Try_Write */
+
+
+LOCAL VOID Handle_Read( INT Sock )
 {
 	/* Aktivitaet auf einem Socket verarbeiten */
 
 	CONN_ID idx;
+	
+	assert( Sock >= 0 );
 
 	if( FD_ISSET( Sock, &My_Listener ))
 	{
@@ -254,14 +364,46 @@ LOCAL VOID Handle_Socket( INT Sock )
 		idx = Socket2Index( Sock );
 		Read_Request( idx );
 	}
-} /* Handle_Socket */
+} /* Handle_Read */
+
+
+LOCAL BOOLEAN Handle_Write( CONN_ID Idx )
+{
+	/* Daten aus Schreibpuffer versenden */
+	
+	INT len;
+
+	assert( Idx >= 0 );
+	assert( My_Connections[Idx].sock >= 0 );
+	assert( My_Connections[Idx].wdatalen > 0 );
+		
+	/* Daten schreiben */
+	len = send( My_Connections[Idx].sock, My_Connections[Idx].wbuf, My_Connections[Idx].wdatalen, 0 );
+	if( len < 0 )
+	{
+		/* Oops, ein Fehler! */
+		Log( LOG_ALERT, "Write error (buffer) on connection %d: %s", Idx, strerror( errno ));
+		Close_Connection( Idx, NULL );
+		return FALSE;
+	}
+	
+	/* Puffer anpassen */
+	My_Connections[Idx].wdatalen -= len;
+	memmove( My_Connections[Idx].wbuf, My_Connections[Idx].wbuf + len, My_Connections[Idx].wdatalen );
+	
+	return TRUE;
+} /* Handle_Write */
 
 
 LOCAL VOID New_Connection( INT Sock )
 {
+	/* Neue Client-Verbindung von Listen-Socket annehmen */
+
 	struct sockaddr_in new_addr;
 	INT new_sock, new_sock_len;
 	CONN_ID idx;
+	
+	assert( Sock >= 0 );
 
 	new_sock_len = sizeof( new_addr );
 	new_sock = accept( Sock, (struct sockaddr *)&new_addr, (socklen_t *)&new_sock_len );
@@ -275,7 +417,7 @@ LOCAL VOID New_Connection( INT Sock )
 	for( idx = 0; idx < MAX_CONNECTIONS; idx++ ) if( My_Connections[idx].sock < 0 ) break;
 	if( idx >= MAX_CONNECTIONS )
 	{
-		Log( LOG_ALERT, "Can't accept connection: limit (%d) reached!", MAX_CONNECTIONS );
+		Log( LOG_ALERT, "Can't accept connection: limit reached (%d)!", MAX_CONNECTIONS );
 		close( new_sock );
 		return;
 	}
@@ -283,42 +425,55 @@ LOCAL VOID New_Connection( INT Sock )
 	/* Verbindung registrieren */
 	My_Connections[idx].sock = new_sock;
 	My_Connections[idx].addr = new_addr;
+	My_Connections[idx].rdatalen = 0;
+	My_Connections[idx].wdatalen = 0;
 
 	/* Neuen Socket registrieren */
 	FD_SET( new_sock, &My_Sockets );
 
 	if( new_sock > My_Max_Fd ) My_Max_Fd = new_sock;
 
-	Send( idx, "hello world!\n" );
-
-	Log( LOG_INFO, "Accepted connection from %s:%d on socket %d.", inet_ntoa( new_addr.sin_addr ), ntohs( new_addr.sin_port), Sock );
+	Log( LOG_NOTICE, "Accepted connection %d from %s:%d on socket %d.", idx, inet_ntoa( new_addr.sin_addr ), ntohs( new_addr.sin_port), Sock );
 } /* New_Connection */
 
 
 LOCAL CONN_ID Socket2Index( INT Sock )
 {
+	/* zum Socket passende Connection suchen */
+
 	CONN_ID idx;
 	
-	for( idx = 0; idx < MAX_CONNECTIONS; idx++ ) if( My_Connections[idx].sock == Sock ) break;
-	assert( idx < MAX_CONNECTIONS );
+	assert( Sock >= 0 );
 	
+	for( idx = 0; idx < MAX_CONNECTIONS; idx++ ) if( My_Connections[idx].sock == Sock ) break;
+	
+	assert( idx < MAX_CONNECTIONS );
 	return idx;
 } /* Socket2Index */
 
 
-LOCAL VOID Close_Connection( CONN_ID Idx )
+LOCAL VOID Close_Connection( CONN_ID Idx, CHAR *Msg )
 {
 	/* Verbindung schlie§en */
 
+	CHAR bye_str[MAX_CMDLEN];
+
+	assert( Idx >= 0 );
 	assert( My_Connections[Idx].sock >= 0 );
+	
+	if( Msg )
+	{
+		sprintf( bye_str, "ERROR :%s", Msg );
+		Conn_WriteStr( Idx, bye_str );
+	}
 	
 	if( close( My_Connections[Idx].sock ) != 0 )
 	{
-		Log( LOG_ERR, "Error closing connection with %s:%d - %s", inet_ntoa( My_Connections[Idx].addr.sin_addr ), ntohs( My_Connections[Idx].addr.sin_port), strerror( errno ));
+		Log( LOG_ERR, "Error closing connection %d with %s:%d - %s", Idx, inet_ntoa( My_Connections[Idx].addr.sin_addr ), ntohs( My_Connections[Idx].addr.sin_port), strerror( errno ));
 	}
 	else
 	{
-		Log( LOG_INFO, "Closed connection with %s:%d.", inet_ntoa( My_Connections[Idx].addr.sin_addr ), ntohs( My_Connections[Idx].addr.sin_port ));
+		Log( LOG_NOTICE, "Closed connection %d with %s:%d.", Idx, inet_ntoa( My_Connections[Idx].addr.sin_addr ), ntohs( My_Connections[Idx].addr.sin_port ));
 	}
 
 	FD_CLR( My_Connections[Idx].sock, &My_Sockets );
@@ -332,57 +487,62 @@ LOCAL VOID Read_Request( CONN_ID Idx )
 	 * Tritt ein Fehler auf, so wird der Socket geschlossen. */
 
 	INT len;
+	CHAR *ptr;
+
+	assert( Idx >= 0 );
+	assert( My_Connections[Idx].sock >= 0 );
 	
-	len = recv( My_Connections[Idx].sock, My_Connection[Idx].buffer + My_Connection[Idx].datalen, BUFFER_LEN - My_Connection[Idx].datalen - 1, 0 );
-	My_Connection[Idx].buffer[BUFFER_LEN] = '\0';
+	len = recv( My_Connections[Idx].sock, My_Connections[Idx].rbuf + My_Connections[Idx].rdatalen, READBUFFER_LEN - My_Connections[Idx].rdatalen, 0 );
+	My_Connections[Idx].rbuf[READBUFFER_LEN] = '\0';
 
 	if( len == 0 )
 	{
 		/* Socket wurde geschlossen */
-		Close_Connection( Idx );
+		Close_Connection( Idx, NULL );
 		return;
 	}
 
 	if( len < 0 )
 	{
 		/* Fehler beim Lesen */
-		Log( LOG_ALERT, "Read error on socket %d!", My_Connections[Idx].sock );
-		Close_Connection( Idx );
+		Log( LOG_ALERT, "Read error on connection %d!", Idx );
+		Close_Connection( Idx, "Read error!" );
 		return;
 	}
 
-	My_Connection[Idx].datalen += len;
-	
-	ngt_Trim_Str( buffer );
-	printf( " in: '%s'\n", buffer );
-} /* Read_Data */
+	My_Connections[Idx].rdatalen += len;
+	assert( My_Connections[Idx].rdatalen <= READBUFFER_LEN );
+	My_Connections[Idx].rbuf[My_Connections[Idx].rdatalen] = '\0';
 
-
-LOCAL BOOLEAN Send( CONN_ID Idx, CHAR *Data )
-{
-	/* Daten in Socket schreiben, ggf. in mehreren Stuecken. Tritt
-	 * ein Fehler auf, so wird die Verbindung beendet und FALSE
-	 * als Rueckgabewert geliefert. */
-	
-	INT n, sent, len;
-		
-	sent = 0;
-	len = strlen( Data );
-	
-	while( sent < len )
+	if( My_Connections[Idx].rdatalen > MAX_CMDLEN )
 	{
-		n = send( My_Connections[Idx].sock, Data + sent, len - sent, 0 );
-		if( n <= 0 )
-		{
-			/* Oops, ein Fehler! */
-			Log( LOG_ALERT, "Write error on socket %d!", My_Connections[Idx].sock );
-			Close_Connection( Idx );
-			return FALSE;
-		}
-		sent += n;
+		/* Eine Anfrage darf(!) nicht laenger als 512 Zeichen
+		 * (incl. CR+LF!) werden; vgl. RFC 2812. Wenn soetwas
+		 * empfangen wird, wird der Client disconnectiert. */
+		Log( LOG_ALERT, "Request too long (connection %d)!", Idx );
+		Close_Connection( Idx, "Request too long!" );
+		return;
 	}
-	return TRUE;
-} /* Send */
+	
+	/* Eine komplette Anfrage muss mit CR+LF enden, vgl.
+	 * RFC 2812. Haben wir eine? */
+	ptr = strstr( My_Connections[Idx].rbuf, "\r\n" );
+	if( ptr )
+	{
+		/* Ende der Anfrage (CR+LF) wurde gefunden */
+		*ptr = '\0';
+		len = ( ptr - My_Connections[Idx].rbuf ) + 2;
+		if( len > 2 )
+		{
+			printf( " in: '%s'\n", My_Connections[Idx].rbuf );
+		}
+		else Log( LOG_DEBUG, "Got null-request (connection %d).", Idx );
+
+		/* Puffer anpassen */
+		My_Connections[Idx].rdatalen -= len;
+		memmove( My_Connections[Idx].rbuf, My_Connections[Idx].rbuf + len, My_Connections[Idx].rdatalen );
+	}
+} /* Read_Request */
 
 
 /* -eof- */

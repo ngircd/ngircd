@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.c,v 1.22 2002/03/29 23:33:05 alex Exp $
+ * $Id: conf.c,v 1.23 2002/03/30 13:08:10 alex Exp $
  *
  * conf.h: Konfiguration des ngircd
  */
@@ -237,6 +237,13 @@ LOCAL VOID Read_Config( VOID )
 	}
 	
 	fclose( fd );
+	
+	/* Wenn kein Port definiert wurde, Port 6667 als Default benutzen */
+	if( Conf_ListenPorts_Count < 1 )
+	{
+		Conf_ListenPorts_Count = 1;
+		Conf_ListenPorts[0] = 6667;
+	}
 } /* Read_Config */
 
 

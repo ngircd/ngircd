@@ -9,7 +9,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: wait-tests.sh,v 1.2 2004/09/04 16:14:47 alex Exp $
+# $Id: wait-tests.sh,v 1.3 2004/09/04 18:22:42 alex Exp $
 #
 
 [ "$1" -gt 0 ] 2> /dev/null && MAX="$1" || MAX=5
@@ -26,7 +26,7 @@ while true; do
   [ $count -le $MAX ] && break
 
   if [ $msg -lt 1 ]; then
-    echo -n "      waiting for test scripts to settle: "
+    echo -n "      waiting for processes to settle: "
     msg=1
   fi
 

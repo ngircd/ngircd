@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.89 2002/03/25 17:04:02 alex Exp $
+ * $Id: irc.c,v 1.89.2.1 2002/06/11 17:52:23 alex Exp $
  *
  * irc.c: IRC-Befehle
  */
@@ -74,6 +74,9 @@ GLOBAL BOOLEAN IRC_PRIVMSG( CLIENT *Client, REQUEST *Req )
 	cl = Client_Search( Req->argv[0] );
 	if( cl )
 	{
+		/* Okay, Ziel ist ein Client. Aber ist es auch ein User? */
+		if( Client_Type( cl ) != CLIENT_USER ) return IRC_WriteStrClient( from, ERR_NOSUCHNICK_MSG, Client_ID( from ), Req->argv[0] );
+
 		/* Okay, Ziel ist ein User */
 		if(( Client_Type( Client ) != CLIENT_SERVER ) && ( strchr( Client_Modes( cl ), 'a' )))
 		{
@@ -110,7 +113,7 @@ GLOBAL BOOLEAN IRC_NOTICE( CLIENT *Client, REQUEST *Req )
 	if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
 
 	to = Client_Search( Req->argv[0] );
-	if( to )
+	if(( to ) && ( Client_Type( to ) == CLIENT_USER ))
 	{
 		/* Okay, Ziel ist ein User */
 		return IRC_WriteStrClientPrefix( to, from, "NOTICE %s :%s", Client_ID( to ), Req->argv[1] );

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.h,v 1.13 2002/03/12 14:37:52 alex Exp $
+ * $Id: conf.h,v 1.14 2002/03/27 16:39:22 alex Exp $
  *
  * conf.h: Konfiguration des ngircd (Header)
  */
@@ -42,9 +42,6 @@ typedef struct _Conf_Server
 	RES_STAT *res_stat;		/* Status des Resolver */
 } CONF_SERVER;
 
-
-/* Konfigurationsdatei */
-GLOBAL CHAR Conf_File[FNAME_LEN];
 
 /* Name ("Nick") des Servers */
 GLOBAL CHAR Conf_ServerName[CLIENT_ID_LEN];
@@ -79,6 +76,7 @@ GLOBAL INT Conf_Server_Count;
 
 
 GLOBAL VOID Conf_Init( VOID );
+GLOBAL INT Conf_Test( VOID );
 GLOBAL VOID Conf_Exit( VOID );
 
 

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.c,v 1.20 2002/03/25 19:11:01 alex Exp $
+ * $Id: conf.c,v 1.21 2002/03/27 16:39:22 alex Exp $
  *
  * conf.h: Konfiguration des ngircd
  */
@@ -20,10 +20,13 @@
 #include "imp.h"
 #include <assert.h>
 #include <errno.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
+#include "ngircd.h"
 #include "client.h"
 #include "defines.h"
 #include "log.h"
@@ -33,21 +36,98 @@
 #include "conf.h"
 
 
+LOCAL BOOLEAN Use_Log = TRUE;
+
+
+LOCAL VOID Set_Defaults( VOID );
 LOCAL VOID Read_Config( VOID );
+LOCAL VOID Validate_Config( VOID );
 
 GLOBAL VOID Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg );
 GLOBAL VOID Handle_OPERATOR( INT Line, CHAR *Var, CHAR *Arg );
 GLOBAL VOID Handle_SERVER( INT Line, CHAR *Var, CHAR *Arg );
 
-LOCAL VOID Validate_Config( VOID );
+LOCAL VOID Config_Error( CONST INT Level, CONST CHAR *Format, ... );
 
 
 GLOBAL VOID Conf_Init( VOID )
 {
-	/* Konfigurationsvariablen initialisieren: zunaechst Default-
-	 * Werte setzen, dann Konfigurationsdtaei einlesen. */
+	Set_Defaults( );
+	Read_Config( );
+	Validate_Config( );
+} /* Config_Init */
 
-	strcpy( Conf_File, CONFIG_FILE );
+
+GLOBAL INT Conf_Test( VOID )
+{
+	/* Konfiguration einlesen, ueberpruefen und ausgeben. */
+
+	INT i;
+
+	Use_Log = FALSE;
+	Set_Defaults( );
+
+	printf( "Using \"%s\" as configuration file ...\n", NGIRCd_ConfFile );
+	Read_Config( );
+
+	/* Wenn stdin ein ein TTY ist: auf Taste warten */
+	if( isatty( fileno( stdout )))
+	{
+		puts( "OK, press enter to see a dump of your service configuration ..." );
+		getchar( );
+	}
+	else puts( "Ok, dump of your server configuration follows:\n" );
+
+	puts( "[GLOBAL]" );
+	printf( "  ServerName = %s\n", Conf_ServerName );
+	printf( "  ServerInfo = %s\n", Conf_ServerInfo );
+	printf( "  ServerPwd = %s\n", Conf_ServerPwd );
+	printf( "  MotdFile = %s\n", Conf_MotdFile );
+	printf( "  ListenPorts = " );
+	for( i = 0; i < Conf_ListenPorts_Count; i++ )
+	{
+		if( i != 0 ) printf( ", " );
+		printf( "%d", Conf_ListenPorts[i] );
+	}
+	if( Conf_ListenPorts_Count < 1 ) puts( "<none>");
+	else puts( "" );
+	printf( "  PingTimeout = %d\n", Conf_PingTimeout );
+	printf( "  PongTimeout = %d\n", Conf_PongTimeout );
+	printf( "  ConnectRetry = %d\n", Conf_ConnectRetry );
+	puts( "" );
+
+	for( i = 0; i < Conf_Oper_Count; i++ )
+	{
+		puts( "[OPERATOR]" );
+		printf( "  Name = %s\n", Conf_Oper[i].name );
+		printf( "  Password = %s\n", Conf_Oper[i].pwd );
+		puts( "" );
+	}
+
+	for( i = 0; i < Conf_Server_Count; i++ )
+	{
+		puts( "[SERVER]" );
+		printf( "  Name = %s\n", Conf_Server[i].name );
+		printf( "  Host = %s\n", Conf_Server[i].host );
+		printf( "  Port = %d\n", Conf_Server[i].port );
+		printf( "  Password = %s\n", Conf_Server[i].pwd );
+		printf( "  Group = %d\n", Conf_Server[i].group );
+		puts( "" );
+	}
+	
+	return 0;
+} /* Conf_Test */
+
+
+GLOBAL VOID Conf_Exit( VOID )
+{
+	/* ... */
+} /* Config_Exit */
+
+
+LOCAL VOID Set_Defaults( VOID )
+{
+	/* Konfigurationsvariablen initialisieren, d.h. auf Default-Werte setzen. */
 
 	strcpy( Conf_ServerName, "" );
 	strcpy( Conf_ServerInfo, PACKAGE" "VERSION );
@@ -65,17 +145,7 @@ GLOBAL VOID Conf_Init( VOID )
 	Conf_Oper_Count = 0;
 
 	Conf_Server_Count = 0;
-
-	/* Konfigurationsdatei einlesen und validieren */
-	Read_Config( );
-	Validate_Config( );
-} /* Config_Init */
-
-
-GLOBAL VOID Conf_Exit( VOID )
-{
-	/* ... */
-} /* Config_Exit */
+} /* Set_Defaults */
 
 
 LOCAL VOID Read_Config( VOID )
@@ -86,12 +156,12 @@ LOCAL VOID Read_Config( VOID )
 	INT line;
 	FILE *fd;
 
-	fd = fopen( Conf_File, "r" );
+	fd = fopen( NGIRCd_ConfFile, "r" );
 	if( ! fd )
 	{
 		/* Keine Konfigurationsdatei gefunden */
-		Log( LOG_ALERT, "Can't read configuration \"%s\": %s", Conf_File, strerror( errno ));
-		Log( LOG_ALERT, PACKAGE" exiting due to fatal errors!" );
+		Config_Error( LOG_ALERT, "Can't read configuration \"%s\": %s", NGIRCd_ConfFile, strerror( errno ));
+		Config_Error( LOG_ALERT, PACKAGE" exiting due to fatal errors!" );
 		exit( 1 );
 	}
 
@@ -113,7 +183,7 @@ LOCAL VOID Read_Config( VOID )
 			if( strcasecmp( section, "[GLOBAL]" ) == 0 ) continue;
 			if( strcasecmp( section, "[OPERATOR]" ) == 0 )
 			{
-				if( Conf_Oper_Count + 1 > MAX_OPERATORS ) Log( LOG_ERR, "Too many operators configured." );
+				if( Conf_Oper_Count + 1 > MAX_OPERATORS ) Config_Error( LOG_ERR, "Too many operators configured." );
 				else
 				{
 					/* neuen Operator initialisieren */
@@ -125,7 +195,7 @@ LOCAL VOID Read_Config( VOID )
 			}
 			if( strcasecmp( section, "[SERVER]" ) == 0 )
 			{
-				if( Conf_Server_Count + 1 > MAX_SERVERS ) Log( LOG_ERR, "Too many servers configured." );
+				if( Conf_Server_Count + 1 > MAX_SERVERS ) Config_Error( LOG_ERR, "Too many servers configured." );
 				else
 				{
 					/* neuen Server ("Peer") initialisieren */
@@ -141,7 +211,7 @@ LOCAL VOID Read_Config( VOID )
 				}
 				continue;
 			}
-			Log( LOG_ERR, "%s, line %d: Unknown section \"%s\"!", Conf_File, line, section );
+			Config_Error( LOG_ERR, "%s, line %d: Unknown section \"%s\"!", NGIRCd_ConfFile, line, section );
 			section[0] = 0x1;
 		}
 		if( section[0] == 0x1 ) continue;
@@ -150,7 +220,7 @@ LOCAL VOID Read_Config( VOID )
 		ptr = strchr( str, '=' );
 		if( ! ptr )
 		{
-			Log( LOG_ERR, "%s, line %d: Syntax error!", Conf_File, line );
+			Config_Error( LOG_ERR, "%s, line %d: Syntax error!", NGIRCd_ConfFile, line );
 			continue;
 		}
 		*ptr = '\0';
@@ -160,7 +230,7 @@ LOCAL VOID Read_Config( VOID )
 		if( strcasecmp( section, "[GLOBAL]" ) == 0 ) Handle_GLOBAL( line, var, arg );
 		else if( strcasecmp( section, "[OPERATOR]" ) == 0 ) Handle_OPERATOR( line, var, arg );
 		else if( strcasecmp( section, "[SERVER]" ) == 0 ) Handle_SERVER( line, var, arg );
-		else Log( LOG_ERR, "%s, line %d: Variable \"%s\" outside section!", Conf_File, line, var );
+		else Config_Error( LOG_ERR, "%s, line %d: Variable \"%s\" outside section!", NGIRCd_ConfFile, line, var );
 	}
 	
 	fclose( fd );
@@ -206,11 +276,11 @@ GLOBAL VOID Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 		{
 			ngt_TrimStr( ptr );
 			port = atol( ptr );
-			if( Conf_ListenPorts_Count + 1 > MAX_LISTEN_PORTS ) Log( LOG_ERR, "Too many listen ports configured. Port %ld ignored.", port );
+			if( Conf_ListenPorts_Count + 1 > MAX_LISTEN_PORTS ) Config_Error( LOG_ERR, "Too many listen ports configured. Port %ld ignored.", port );
 			else
 			{
 				if( port > 0 && port < 0xFFFF ) Conf_ListenPorts[Conf_ListenPorts_Count++] = (INT)port;
-				else Log( LOG_ERR, "%s, line %d (section \"Global\"): Illegal port number %ld!", Conf_File, Line, port );
+				else Config_Error( LOG_ERR, "%s, line %d (section \"Global\"): Illegal port number %ld!", NGIRCd_ConfFile, Line, port );
 			}
 			ptr = strtok( NULL, "," );
 		}
@@ -245,7 +315,7 @@ GLOBAL VOID Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 		return;
 	}
 		
-	Log( LOG_ERR, "%s, line %d (section \"Global\"): Unknown variable \"%s\"!", Conf_File, Line, Var );
+	Config_Error( LOG_ERR, "%s, line %d (section \"Global\"): Unknown variable \"%s\"!", NGIRCd_ConfFile, Line, Var );
 } /* Handle_GLOBAL */
 
 
@@ -271,7 +341,7 @@ GLOBAL VOID Handle_OPERATOR( INT Line, CHAR *Var, CHAR *Arg )
 		return;
 	}
 	
-	Log( LOG_ERR, "%s, line %d (section \"Operator\"): Unknown variable \"%s\"!", Conf_File, Line, Var );
+	Config_Error( LOG_ERR, "%s, line %d (section \"Operator\"): Unknown variable \"%s\"!", NGIRCd_ConfFile, Line, Var );
 } /* Handle_OPERATOR */
 
 
@@ -309,7 +379,7 @@ GLOBAL VOID Handle_SERVER( INT Line, CHAR *Var, CHAR *Arg )
 		/* Port, zu dem Verbunden werden soll */
 		port = atol( Arg );
 		if( port > 0 && port < 0xFFFF ) Conf_Server[Conf_Server_Count - 1].port = (INT)port;
-		else Log( LOG_ERR, "%s, line %d (section \"Server\"): Illegal port number %ld!", Conf_File, Line, port );
+		else Config_Error( LOG_ERR, "%s, line %d (section \"Server\"): Illegal port number %ld!", NGIRCd_ConfFile, Line, port );
 		return;
 	}
 	if( strcasecmp( Var, "Group" ) == 0 )
@@ -319,7 +389,7 @@ GLOBAL VOID Handle_SERVER( INT Line, CHAR *Var, CHAR *Arg )
 		return;
 	}
 	
-	Log( LOG_ERR, "%s, line %d (section \"Server\"): Unknown variable \"%s\"!", Conf_File, Line, Var );
+	Config_Error( LOG_ERR, "%s, line %d (section \"Server\"): Unknown variable \"%s\"!", NGIRCd_ConfFile, Line, Var );
 } /* Handle_SERVER */
 
 
@@ -330,10 +400,33 @@ LOCAL VOID Validate_Config( VOID )
 	if( ! Conf_ServerName[0] )
 	{
 		/* Kein Servername konfiguriert */
-		Log( LOG_ALERT, "No server name configured in \"%s\"!", Conf_File );
-		Log( LOG_ALERT, PACKAGE" exiting due to fatal errors!" );
+		Config_Error( LOG_ALERT, "No server name configured in \"%s\"!", NGIRCd_ConfFile );
+		Config_Error( LOG_ALERT, PACKAGE" exiting due to fatal errors!" );
 		exit( 1 );
 	}
 } /* Validate_Config */
+
+
+LOCAL VOID Config_Error( CONST INT Level, CONST CHAR *Format, ... )
+{
+	/* Fehler! Auf Console und/oder ins Log schreiben */
+
+	CHAR msg[MAX_LOG_MSG_LEN];
+	va_list ap;
+
+	assert( Format != NULL );
+
+	/* String mit variablen Argumenten zusammenbauen ... */
+	va_start( ap, Format );
+	vsnprintf( msg, MAX_LOG_MSG_LEN, Format, ap );
+	va_end( ap );
+
+	/* Im "normalen Betrieb" soll der Log-Mechanismus des ngIRCd verwendet
+	 * werden, beim Testen der Konfiguration jedoch nicht, hier sollen alle
+	 * Meldungen direkt auf die Konsole ausgegeben werden: */
+	if( Use_Log ) Log( Level, msg );
+	else puts( msg );
+} /* Config_Error */
+
 
 /* -eof- */

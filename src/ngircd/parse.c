@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: parse.c,v 1.17 2002/01/06 17:41:44 alex Exp $
+ * $Id: parse.c,v 1.18 2002/01/07 15:29:11 alex Exp $
  *
  * parse.c: Parsen der Client-Anfragen
  *
  * $Log: parse.c,v $
+ * Revision 1.18  2002/01/07 15:29:11  alex
+ * - Status-Codes an den Server selber werden ignoriert, besseres Logging.
+ *
  * Revision 1.17  2002/01/06 17:41:44  alex
  * - die Fehlermeldung "unbekannter Befehl" hatte ein falsches Format.
  *
@@ -269,12 +272,30 @@ LOCAL BOOLEAN Handle_Request( CONN_ID Idx, REQUEST *Req )
 		/* Zielserver ermitteln */
 		if(( Client_Type( client ) == CLIENT_SERVER ) && ( Req->argc > 0 )) target = Client_GetFromID( Req->argv[0] );
 		else target = NULL;
-		if( ! target ) return TRUE;
+		if( ! target )
+		{
+			if( target ) Log( LOG_WARNING, "Unknown target for status code: \"%s\"", Req->argv[0] );
+			else Log( LOG_WARNING, "Unknown target for status code!" );
+			return TRUE;
+		}
+		if( target == Client_ThisServer( ))
+		{
+			Log( LOG_DEBUG, "Ignored status code %s from \"%s\".", Req->command, Client_ID( client ));
+			return TRUE;
+		}
 
 		/* Quell-Client ermitteln */
-		if( ! Req->prefix[0] ) return TRUE;
+		if( ! Req->prefix[0] )
+		{
+			Log( LOG_WARNING, "Got status code without prefix!?" );
+			return TRUE;
+		}
 		else prefix = Client_GetFromID( Req->prefix );
-		if( ! prefix ) return TRUE;
+		if( ! prefix )
+		{
+			Log( LOG_WARNING, "Got status code from unknown source: \"%s\"", Req->prefix );
+			return TRUE;
+		}
 
 		/* Statuscode weiterleiten */
 		strcpy( str, Req->command );

@@ -23,6 +23,7 @@ ngIRCd 0.5.1, 03.10.2002
   - im "contrib"-Verzeichnis befindet sich nun eine RPM-Spec-Datei, aus den
     .tar.gz's koennen nun mit "rpm -ta <archiv>" RPM's erzeugt werden. Danke
     an Sean Reifschneider <jafo@tummy.com>!
+  - Syntax von RPL_MYINFO_MSG korrigiert: liefert nun vier Parameter.
 
 ngIRCd 0.5.0, 20.09.2002
 
@@ -277,4 +278,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.87.2.8 2002/10/03 16:09:50 alex Exp $
+$Id: ChangeLog,v 1.87.2.9 2002/10/03 17:08:53 alex Exp $

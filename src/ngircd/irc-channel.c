@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-channel.c,v 1.21.2.1 2003/01/01 13:46:37 alex Exp $";
+static char UNUSED id[] = "$Id: irc-channel.c,v 1.21.2.2 2003/01/08 17:47:48 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -386,9 +386,13 @@ IRC_CHANINFO( CLIENT *Client, REQUEST *Req )
 		ptr = Channel_Modes( chan );
 		if( ! *ptr )
 		{
-			/* OK, es sind noch keine Modes gesetzt */
+			/* OK, this channel doesn't have modes jet, set the received ones: */
 			Channel_SetModes( chan, &Req->argv[1][1] );
 			IRC_WriteStrChannelPrefix( Client, chan, from, FALSE, "MODE %s +%s", Req->argv[0], &Req->argv[1][1] );
+
+			/* Delete modes which we never want to inherit */
+			Channel_ModeDel( chan, 'l' );
+			Channel_ModeDel( chan, 'k' );
 		}
 	}
 	else Log( LOG_WARNING, "CHANNELINFO: invalid MODE format ignored!" );

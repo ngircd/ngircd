@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.16 2001/12/27 19:32:44 alex Exp $
+ * $Id: conn.c,v 1.17 2001/12/29 03:06:16 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
+ * Revision 1.17  2001/12/29 03:06:16  alex
+ * - Loglevel (nochmal) angepasst.
+ *
  * Revision 1.16  2001/12/27 19:32:44  alex
  * - bei "Null-Requests" wird nichts mehr geloggt. Uberfluessig, da normal.
  *
@@ -665,7 +668,7 @@ LOCAL VOID Check_Connections( VOID )
 				if( My_Connections[i].lastping < time( NULL ) - Conf_PongTimeout )
 				{
 					/* Timeout */
-					Log( LOG_NOTICE, "Connection %d: Ping timeout.", i );
+					Log( LOG_INFO, "Connection %d: Ping timeout.", i );
 					Conn_Close( i, "Ping timeout" );
 				}
 			}

@@ -10,6 +10,13 @@
                         -- ChangeLog / Aenderungen --
 
 
+ngIRCd 0.x.x, xx.xx.2002
+
+  - Nicknames und Channel-Namen werden etwas besser auf Gueltigkeit ueber-
+    prueft; ist aber nach wie vor noch nicht ausreichend.
+  - NJOINS von Servern wurden nicht an andere Server weitergeleitet.
+  - Begonnen Channel-Modes und User-Channel-Modes zu implementieren.
+
 ngIRCd 0.1.0, 29.01.2002
 
   - User-Modes bei User-Registrierungen von andere Servern (NICK-Befehl)
@@ -81,4 +88,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.13 2002/01/29 00:17:39 alex Exp $
+$Id: ChangeLog,v 1.14 2002/02/11 00:58:12 alex Exp $

@@ -10,6 +10,10 @@
                            -- NEWS / Neuigkeiten --
 
 
+ngIRCd 0.x.x, xx.xx.2002
+
+  - Begonnen Channel-Modes und User-Channel-Modes zu implementieren.
+
 ngIRCd 0.1.0, 29.01.2002
 
   - Channels implementiert, bisher jedoch noch ohne Channel-Modes, d.h.
@@ -43,4 +47,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.6 2002/01/29 00:17:39 alex Exp $
+$Id: NEWS,v 1.7 2002/02/11 00:58:12 alex Exp $

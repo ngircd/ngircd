@@ -46,6 +46,8 @@ ngIRCd CVS-HEAD
   - wurde ein KILL fuer nicht-lokale Clients empfangen, so wurden die
     Verwaltungs-Strukturen nicht korrekt freigegeben.
   - empfangene NJOIN's wurden "zerhackt" an andere Server weitergegeben.
+  - neue Konfigurationsoption "OperCanUseMode" (Sektion "Global"):
+    ist sie aktiv, koennen IRC-Operatoren immer Channel-Modes setzen. 
 
 ngIRCd 0.4.3, 11.06.2002
 
@@ -235,4 +237,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.79 2002/07/25 12:34:50 alex Exp $
+$Id: ChangeLog,v 1.80 2002/09/02 15:00:07 alex Exp $

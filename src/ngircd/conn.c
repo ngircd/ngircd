@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.72.2.7 2002/11/24 15:10:09 alex Exp $
+ * $Id: conn.c,v 1.72.2.8 2002/11/24 15:32:14 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -1043,7 +1043,7 @@ New_Server( INT Server, CONN_ID Idx )
 
 	struct sockaddr_in new_addr;
 	struct in_addr inaddr;
-	INT new_sock;
+	INT res, new_sock;
 	CLIENT *c;
 
 	assert( Server >= 0 );
@@ -1089,13 +1089,12 @@ New_Server( INT Server, CONN_ID Idx )
 
 	if( ! Init_Socket( new_sock )) return;
 
-	connect( new_sock, (struct sockaddr *)&new_addr, sizeof( new_addr ));
-	if( errno != EINPROGRESS )
+	res = connect( new_sock, (struct sockaddr *)&new_addr, sizeof( new_addr ));
+	if(( res != 0 ) && ( errno != EINPROGRESS ))
 	{
-
+		Log( LOG_CRIT, "Can't connect socket: %s!", strerror( errno ));
 		close( new_sock );
 		Init_Conn_Struct( Idx );
-		Log( LOG_CRIT, "Can't connect socket: %s!", strerror( errno ));
 		return;
 	}
 

@@ -39,6 +39,7 @@ ngIRCd 0.2.x, xx.xx.2002
     Server nun korrekt weitere NICK-Befehle an und verwendet diese.
   - PRIVMSG beachtet nun die Channel-Modes "n" und "m".
   - AWAY implementiert. PRIVMSG, MODE, USERHOST und WHOIS angepasst.
+  - der ngIRCd unterstuetzt nun Channel-Topics (TOPIC-Befehl).
 
 ngIRCd 0.2.1, 17.02.2002
 
@@ -133,4 +134,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.35 2002/02/27 19:02:47 alex Exp $
+$Id: ChangeLog,v 1.36 2002/02/27 20:55:56 alex Exp $

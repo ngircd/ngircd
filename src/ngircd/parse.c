@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: parse.c,v 1.28 2002/02/27 23:25:31 alex Exp $
+ * $Id: parse.c,v 1.29 2002/03/03 17:17:38 alex Exp $
  *
  * parse.c: Parsen der Client-Anfragen
  *
  * $Log: parse.c,v $
+ * Revision 1.29  2002/03/03 17:17:38  alex
+ * - Sourcen auf weitere Module fuer IRC-Befehle aufgesplitted.
+ * - IRC-Befehl WHO implementiert.
+ *
  * Revision 1.28  2002/02/27 23:25:31  alex
  * - Anpassungen an Aufteilung von irc.d, Init- und Exit-Funktionen entfernt.
  *
@@ -122,8 +126,11 @@
 #include "client.h"
 #include "conn.h"
 #include "irc.h"
+#include "irc-channel.h"
 #include "irc-login.h"
 #include "irc-mode.h"
+#include "irc-oper.h"
+#include "irc-server.h"
 #include "irc-write.h"
 #include "log.h"
 #include "messages.h"
@@ -382,6 +389,7 @@ LOCAL BOOLEAN Handle_Request( CONN_ID Idx, REQUEST *Req )
 	else if( strcasecmp( Req->command, "KILL" ) == 0 ) return IRC_KILL( client, Req );
 	else if( strcasecmp( Req->command, "AWAY" ) == 0 ) return IRC_AWAY( client, Req );
 	else if( strcasecmp( Req->command, "TOPIC" ) == 0 ) return IRC_TOPIC( client, Req );
+	else if( strcasecmp( Req->command, "WHO" ) == 0 ) return IRC_WHO( client, Req );
 	
 	/* Unbekannter Befehl */
 	if( Client_Type( client ) != CLIENT_SERVER ) IRC_WriteStrClient( client, ERR_UNKNOWNCOMMAND_MSG, Client_ID( client ), Req->command );

@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.33 2002/01/07 23:42:12 alex Exp $
+ * $Id: irc.c,v 1.34 2002/01/09 01:09:58 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.34  2002/01/09 01:09:58  alex
+ * - WHOIS wird im "Strict-RFC-Mode" nicht mehr automatisch geforwarded,
+ * - andere Server werden nun ueber bisherige Server und User informiert.
+ *
  * Revision 1.33  2002/01/07 23:42:12  alex
  * - Es werden fuer alle Server eigene Token generiert,
  * - QUIT von einem Server fuer einen User wird an andere Server geforwarded,
@@ -359,6 +363,11 @@ GLOBAL BOOLEAN IRC_SERVER( CLIENT *Client, REQUEST *Req )
 		/* Ist ein Server mit dieser ID bereits registriert? */
 		if( ! Client_CheckID( Client, Req->argv[0] )) return DISCONNECTED;
 
+		/* Server-Strukturen fuellen ;-) */
+		Client_SetID( Client, Req->argv[0] );
+		Client_SetHops( Client, 1 );
+		Client_SetInfo( Client, Req->argv[Req->argc - 1] );
+		
 		/* Meldet sich der Server bei uns an? */
 		if( Req->argc == 2 )
 		{
@@ -371,25 +380,46 @@ GLOBAL BOOLEAN IRC_SERVER( CLIENT *Client, REQUEST *Req )
 				Conn_Close( Client_Conn( Client ), "Unexpected server behavior!", NULL, FALSE );
 				return DISCONNECTED;
 			}
+			Client_SetIntroducer( Client, Client );
+			Client_SetToken( Client, 1 );
 		}
-
-		/* Server-Strukturen fuellen ;-) */
-		Client_SetID( Client, Req->argv[0] );
-		Client_SetHops( Client, 1 );
-		Client_SetInfo( Client, Req->argv[Req->argc - 1] );
-
-		if( Req->argc == 3 ) Client_SetToken( Client, atoi( Req->argv[1] ));
-		else Client_SetToken( Client, 0 );
+		else  Client_SetToken( Client, atoi( Req->argv[1] ));
 
 		Log( LOG_NOTICE, "Server \"%s\" registered (connection %d, 1 hop - direct link).", Client_ID( Client ), Client_Conn( Client ));
 
 		Client_SetType( Client, CLIENT_SERVER );
 
-		/* Unsere User und Server dem neuen Server melden */
-		/* ... */
+		/* Alle bisherigen Server dem neuen Server bekannt machen,
+		 * die bisherigen Server ueber den neuen informierenn */
+		c = Client_First( );
+		while( c )
+		{
+			if(( Client_Type( c ) == CLIENT_SERVER ) && ( c != Client ) && ( c != Client_ThisServer( )))
+			{
+				if( Client_Conn( c ) > NONE )
+				{
+					/* Dem gefundenen Server gleich den neuen
+					* Server bekannt machen */
+					if( ! IRC_WriteStrClient( c, "SERVER %s %d %d :%s", Client_ID( Client ), Client_Hops( Client ) + 1, Client_MyToken( Client ), Client_Info( Client ))) return DISCONNECTED;
+				}
+				
+				/* Den neuen Server ueber den alten informieren */
+				if( ! IRC_WriteStrClientPrefix( Client, Client_Introducer( c ), "SERVER %s %d %d :%s", Client_ID( c ), Client_Hops( c ) + 1, Client_MyToken( c ), Client_Info( c ))) return DISCONNECTED;
+			}
+			c = Client_Next( c );
+		}
 
-		/* neuen Servern bei anderen bekannt machen */
-		/* ... */
+		/* alle User dem neuen Server bekannt machen */
+		c = Client_First( );
+		while( c )
+		{
+			if( Client_Type( c ) == CLIENT_USER )
+			{
+				/* User an neuen Server melden */
+				if( ! IRC_WriteStrClient( Client, "NICK %s %d %s %s %d +%s :%s", Client_ID( c ), Client_Hops( c ) + 1, Client_User( c ), Client_Hostname( c ), Client_MyToken( Client_Introducer( c )), Client_Modes( c ), Client_Info( c ))) return DISCONNECTED;
+			}
+			c = Client_Next( c );
+		}
 		
 		return CONNECTED;
 	}
@@ -1090,12 +1120,14 @@ GLOBAL BOOLEAN IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 		if( ! target ) return IRC_WriteStrClient( from, ERR_NOSUCHSERVER_MSG, Client_ID( from ), Req->argv[1] );
 		ptr = Req->argv[1];
 	}
+#ifndef STRICT_RFC
 	else if( Client_Conn( c ) == NONE )
 	{
 		/* Client ist nicht von uns. Ziel-Server suchen */
 		target = c;
 		ptr = Req->argv[0];
 	}
+#endif
 	else target = NULL;
 	
 	if( target && ( Client_NextHop( target ) != Client_ThisServer( ))) return IRC_WriteStrClientPrefix( target, from, "WHOIS %s :%s", Req->argv[0], ptr );

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-channel.c,v 1.7 2002/06/01 14:37:28 alex Exp $
+ * $Id: irc-channel.c,v 1.8 2002/06/02 14:51:14 alex Exp $
  *
  * irc-channel.c: IRC-Channel-Befehle
  */
@@ -62,9 +62,9 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 	channame = strtok( Req->argv[0], "," );
 	while( channame )
 	{
-		/* wird der Channel neu angelegt? */
-		flags = NULL;
+		chan = flags = NULL;
 
+		/* wird der Channel neu angelegt? */
 		if( Channel_Search( channame )) is_new_chan = FALSE;
 		else is_new_chan = TRUE;
 
@@ -95,6 +95,11 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 				if( Lists_CheckBanned( target, chan ))
 				{
 					/* Client ist gebanned: */
+					IRC_WriteStrClient( Client, ERR_BANNEDFROMCHAN_MSG, Client_ID( Client ), channame );
+
+					/* naechsten Namen ermitteln */
+					channame = strtok( NULL, "," );
+					continue;
 				}
 
 				/* Ist der Channel "invite-only"? */
@@ -104,6 +109,11 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 					if( ! Lists_CheckInvited( target, chan ))
 					{
 						/* Client wurde nicht invited: */
+						IRC_WriteStrClient( Client, ERR_INVITEONLYCHAN_MSG, Client_ID( Client ), channame );
+
+						/* naechsten Namen ermitteln */
+						channame = strtok( NULL, "," );
+						continue;
 					}
 				}
 			}

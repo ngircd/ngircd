@@ -37,6 +37,7 @@ ngIRCd CVS-HEAD
   - Fehler-Handling von connect() gefixed: der Server kann sich nun auch   
     unter A/UX wieder zu anderen verbinden.
   - Test-Suite und Dokumentation an A/UX angepasst.
+  - unter HP-UX definiert das configure-Script nun _XOPEN_SOURCE_EXTENDED.
 
 ngIRCd 0.5.3, 08.11.2002
 
@@ -325,4 +326,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.119 2002/11/11 13:07:27 alex Exp $
+$Id: ChangeLog,v 1.120 2002/11/15 22:08:30 alex Exp $

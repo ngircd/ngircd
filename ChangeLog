@@ -20,6 +20,11 @@ ngIRCd CVS-HEAD
     wenn der sendende Client noch gar nicht registriert ist.
   - NOTICEs vom Server selber (z.B. Verbindungsstatistik oder s-Mode)
     haben nun ein "Text-Prefix": "*** ".
+  - ein "schneller Server-Reconnect" wird nur noch dann versucht, wenn die
+    Verbindung zuvor ordentlich (="lange genug") in Ordnung war; somit also
+    nicht meht, wenn der Peer-Server gleich beim Connect ein ERROR liefert.
+  - einige Datentypen aufgeraumt: z.B. sind viele INT32s nun LONGs. Das ist
+    auf Platformen mit 8-Byte-Integern kompatibler.
 
 
 ngIRCd 0.5.2, 04.10.2002
@@ -296,4 +301,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.104 2002/10/09 13:42:32 alex Exp $
+$Id: ChangeLog,v 1.105 2002/10/09 17:10:15 alex Exp $

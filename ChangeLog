@@ -12,6 +12,10 @@
 
 ngIRCd CVS-HEAD
 
+  - ...
+
+ngIRCd 0.5.1, 03.10.2002
+
   - in RPL_YOURHOST_MSG wurde ein fehlerhafter Versionsstring geliefert.
   - Test-Suite: start-server.sh, stop-server.sh und stress-server.sh koennen
     nun "manuell" von der Kommandozeile gestartet werden, stress-server.sh
@@ -25,17 +29,17 @@ ngIRCd CVS-HEAD
     an Sean Reifschneider <jafo@tummy.com>!
   - Syntax von RPL_MYINFO_MSG korrigiert: liefert nun vier Parameter.
 
-ngIRCd 0.5.0
+ngIRCd 0.5.0, 20.09.2002
 
   - Dokumentation aktualisiert.
   - Fehler bei Validierung von "AdminInfo2" behoben.
   - Test der Flags fuer "ps" in der Testsuite verbessert, ist nun zu mehr
     Plattformen kompatibler.
 
-  ngIRCd 0.5.0-pre2, 17.09.2002:
+  ngIRCd 0.5.0-pre2, 17.09.2002
   - Fix in IRC_WriteStrServersPrefix() war "badly broken" -- behoben.
 
-  ngIRCd 0.5.0-pre1, 16.09.2002:
+  ngIRCd 0.5.0-pre1, 16.09.2002
   - Manual-Pages ngircd.8 und ngircd.conf.5 begonnen.
   - Wird der Netzwerk-Sniffer aktiviert (--sniffer), so schaltet der
     ngIRCd nun automatisch in den Debug-Modus.
@@ -278,4 +282,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.99 2002/10/03 16:04:29 alex Exp $
+$Id: ChangeLog,v 1.100 2002/10/03 16:10:43 alex Exp $

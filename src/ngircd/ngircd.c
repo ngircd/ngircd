@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.88 2005/02/04 14:24:21 alex Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.89 2005/02/07 19:31:34 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -618,11 +618,11 @@ Pidfile_Create( LONG pid )
 	/* Pidfile configured? */
 	if( ! Conf_PidFile[0] ) return;
 
-	pidf = fopen( Conf_PidFile, "w" );
-
 #ifdef DEBUG
 	Log( LOG_DEBUG, "Creating PID file (%s) ...", Conf_PidFile );
 #endif
+
+	pidf = fopen( Conf_PidFile, "w" );
 
 	if( ! pidf )
 	{

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.36 2002/02/06 16:49:41 alex Exp $
+ * $Id: client.c,v 1.37 2002/02/17 19:02:49 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,9 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.37  2002/02/17 19:02:49  alex
+ * - Client_CheckNick() und Client_CheckID() lieferten u.U. falsche Ergebnisse.
+ *
  * Revision 1.36  2002/02/06 16:49:41  alex
  * - neue Funktion Client_IsValidNick(), Nicknames werden besser validiert.
  *
@@ -719,7 +722,11 @@ GLOBAL BOOLEAN Client_CheckNick( CLIENT *Client, CHAR *Nick )
 	assert( Nick != NULL );
 	
 	/* Nick ungueltig? */
-	if( ! Client_IsValidNick( Nick )) return IRC_WriteStrClient( Client, ERR_ERRONEUSNICKNAME_MSG, Client_ID( Client ), Nick );
+	if( ! Client_IsValidNick( Nick ))
+	{
+		IRC_WriteStrClient( Client, ERR_ERRONEUSNICKNAME_MSG, Client_ID( Client ), Nick );
+		return FALSE;
+	}
 
 	/* Nick bereits vergeben? */
 	c = My_Clients;
@@ -750,7 +757,11 @@ GLOBAL BOOLEAN Client_CheckID( CLIENT *Client, CHAR *ID )
 	assert( ID != NULL );
 
 	/* Nick zu lang? */
-	if( strlen( ID ) > CLIENT_ID_LEN ) return IRC_WriteStrClient( Client, ERR_ERRONEUSNICKNAME_MSG, Client_ID( Client ), ID );
+	if( strlen( ID ) > CLIENT_ID_LEN )
+	{
+		IRC_WriteStrClient( Client, ERR_ERRONEUSNICKNAME_MSG, Client_ID( Client ), ID );
+		return FALSE;
+	}
 
 	/* ID bereits vergeben? */
 	c = My_Clients;

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: channel.c,v 1.30 2002/08/26 23:47:58 alex Exp $
+ * $Id: channel.c,v 1.31 2002/09/02 18:23:35 alex Exp $
  *
  * channel.c: Management der Channels
  */
@@ -81,7 +81,7 @@ Channel_InitPredefined( VOID )
 	for( i = 0; i < Conf_Channel_Count; i++ )
 	{
 		/* Ist ein Name konfiguriert? */
-		if( ! Conf_Channel[i].name ) continue;
+		if( ! Conf_Channel[i].name[0] ) continue;
 
 		/* Gueltiger Channel-Name? */
 		if( ! Channel_IsValidName( Conf_Channel[i].name ))

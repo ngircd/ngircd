@@ -29,7 +29,7 @@ Bisher (mehr oder wenig vollstaendig) implementierte IRC-Befehle:
 
 AWAY, DIE, ERROR, ISON, JOIN, KILL, LINKS, LUSERS, MODE, MOTD, NAMES, NICK,
 NOTICE, NJOIN, OPER, PART, PASS, PING, PONG, PRIVMSG, QUIT, RESTART, SERVER,
-SQUIT, TOPIC, USER, USERHOST, VERSION, WHOIS.
+SQUIT, TOPIC, USER, USERHOST, VERSION, WHO, WHOIS.
 
 Ueber Rueckmeldungen, Bug-Reports und Patches freue ich mich! Also los, haut
 in die Tasten! :-))
@@ -65,4 +65,4 @@ III. Unterstuetzte Plattformen
 
 
 -- 
-$Id: README,v 1.7 2002/03/03 13:08:33 alex Exp $
+$Id: README,v 1.8 2002/03/21 23:25:15 alex Exp $

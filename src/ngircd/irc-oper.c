@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-oper.c,v 1.2 2002/03/12 14:37:52 alex Exp $
+ * $Id: irc-oper.c,v 1.3 2002/03/27 20:52:58 alex Exp $
  *
  * irc-oper.c: IRC-Operator-Befehle
  */
@@ -68,7 +68,7 @@ GLOBAL BOOLEAN IRC_OPER( CLIENT *Client, REQUEST *Req )
 		IRC_WriteStrServersPrefix( NULL, Client, "MODE %s :+o", Client_ID( Client ));
 	}
 
-	if( ! Client_OperByMe( Client )) Log( LOG_NOTICE, "Got valid OPER from \"%s\", user is an IRC operator now.", Client_Mask( Client ));
+	if( ! Client_OperByMe( Client )) Log( LOG_NOTICE|LOG_snotice, "Got valid OPER from \"%s\", user is an IRC operator now.", Client_Mask( Client ));
 
 	Client_SetOperByMe( Client, TRUE );
 	return IRC_WriteStrClient( Client, RPL_YOUREOPER_MSG, Client_ID( Client ));
@@ -87,7 +87,7 @@ GLOBAL BOOLEAN IRC_DIE( CLIENT *Client, REQUEST *Req )
 
 	if(( ! Client_HasMode( Client, 'o' )) || ( ! Client_OperByMe( Client ))) return IRC_WriteStrClient( Client, ERR_NOPRIVILEGES_MSG, Client_ID( Client ));
 
-	Log( LOG_NOTICE, "Got DIE command from \"%s\", going down!", Client_Mask( Client ));
+	Log( LOG_NOTICE|LOG_snotice, "Got DIE command from \"%s\", going down!", Client_Mask( Client ));
 	NGIRCd_Quit = TRUE;
 	return CONNECTED;
 } /* IRC_DIE */
@@ -105,7 +105,7 @@ GLOBAL BOOLEAN IRC_RESTART( CLIENT *Client, REQUEST *Req )
 
 	if(( ! Client_HasMode( Client, 'o' )) || ( ! Client_OperByMe( Client ))) return IRC_WriteStrClient( Client, ERR_NOPRIVILEGES_MSG, Client_ID( Client ));
 
-	Log( LOG_NOTICE, "Got RESTART command from \"%s\", going down!", Client_Mask( Client ));
+	Log( LOG_NOTICE|LOG_snotice, "Got RESTART command from \"%s\", going down!", Client_Mask( Client ));
 	NGIRCd_Restart = TRUE;
 	return CONNECTED;
 } /* IRC_RESTART */

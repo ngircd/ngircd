@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.52 2002/03/25 19:11:01 alex Exp $
+ * $Id: client.c,v 1.53 2002/03/27 20:52:58 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -245,8 +245,8 @@ GLOBAL VOID Client_Destroy( CLIENT *Client, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN 
 			{
 				if( c != This_Server )
 				{
-					if( c->conn_id != NONE ) Log( LOG_NOTICE, "Server \"%s\" unregistered (connection %d): %s", c->id, c->conn_id, txt );
-					else Log( LOG_NOTICE, "Server \"%s\" unregistered: %s", c->id, txt );
+					if( c->conn_id != NONE ) Log( LOG_NOTICE|LOG_snotice, "Server \"%s\" unregistered (connection %d): %s", c->id, c->conn_id, txt );
+					else Log( LOG_NOTICE|LOG_snotice, "Server \"%s\" unregistered: %s", c->id, txt );
 				}
 
 				/* andere Server informieren */

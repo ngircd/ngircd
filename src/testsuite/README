@@ -1,0 +1,72 @@
+
+                     ngIRCd - Next Generation IRC Server
+
+                      (c)2001-2004 by Alexander Barton,
+                    alex@barton.de, http://www.barton.de/
+
+               ngIRCd is free software and published under the
+                   terms of the GNU General Public License.
+
+		       -- README for the Test Suite --
+
+
+I. Overview
+~~~~~~~~~~~
+
+The purpose of the "test suite" contained in this directory is to detect
+bugs and incompatibilities in ngIRCd introduced during coding and after
+building ngIRCd on a specific platform.
+
+To run the "standard" tests call "make check". It will build ngIRCd (if
+required) and run some tests on it. These tests should be portable and run
+on all supported platforms without errors.
+
+Please note: most tests of this suite depend on the external tools expect(1)
+and telnet(1), so make sure you have them installed. If not, the tests will
+not fail but simply be skipped.
+
+
+II. Shell Scripts
+~~~~~~~~~~~~~~~~
+
+getpid.sh <name>
+
+	This script is used to detect the PID of the running process with
+	the given name in a portable manner. The result is echoed on the
+	console. It is a helper script for some other scripts of this suite.
+
+start-server.sh
+
+	start-server.sh starts up the test binary, "T-ngircd". It makes sure
+	that getpid.sh is available and working, and that no other instance
+	of the test binary is already running.
+	The exit code is 0 if the test binary could be started.
+
+stop-server.sh
+
+	This script uses getpid.sh to detect a running test binary "T-ngircd"
+	and then shuts it down using the TERM signal.
+	The exit code is 0 if the test binary could be stopped.
+
+stress-server.sh
+
+	...
+
+tests.sh
+
+	...
+
+
+III. Scripts for expect(1)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+channel-test.e
+check-idle.e
+connect-test.e
+mode-test.e
+stress-A.e
+stress-B.e
+
+
+-- 
+$Id: README,v 1.1.2.1 2004/09/04 20:49:36 alex Exp $

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-channel.c,v 1.8 2002/06/02 14:51:14 alex Exp $
+ * $Id: irc-channel.c,v 1.9 2002/06/10 21:10:25 alex Exp $
  *
  * irc-channel.c: IRC-Channel-Befehle
  */
@@ -73,7 +73,11 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 		{
 			/* Channel-Flags extrahieren */
 			flags = strchr( channame, 0x7 );
-			if( flags ) *flags++ = '\0';
+			if( flags )
+			{
+				*flags = '\0';
+				flags++;
+			}
 		}
 
 		/* Lokaler Client? */

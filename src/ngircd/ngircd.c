@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.59 2002/11/18 18:49:34 alex Exp $
+ * $Id: ngircd.c,v 1.60 2002/11/22 17:59:43 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  */
@@ -50,8 +50,6 @@
 
 LOCAL VOID Initialize_Signal_Handler PARAMS(( VOID ));
 LOCAL VOID Signal_Handler PARAMS(( INT Signal ));
-
-LOCAL VOID Initialize_Listen_Ports PARAMS(( VOID ));
 
 LOCAL VOID Show_Version PARAMS(( VOID ));
 LOCAL VOID Show_Help PARAMS(( VOID ));
@@ -307,8 +305,13 @@ main( int argc, const char *argv[] )
 		Channel_InitPredefined( );
 
 		/* Listen-Ports initialisieren */
-		Initialize_Listen_Ports( );
-
+		if( Conn_InitListeners( ) < 1 )
+		{
+			Log( LOG_ALERT, "Server isn't listening on a single port!" );
+			Log( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE );
+			exit( 1 );
+		}
+		
 		/* Hauptschleife */
 		Conn_Handler( );
 
@@ -377,6 +380,38 @@ NGIRCd_VersionAddition( VOID )
 } /* NGIRCd_VersionAddition */
 
 
+GLOBAL VOID
+NGIRCd_Reload( VOID )
+{
+	CHAR old_name[CLIENT_ID_LEN];
+	
+	/* Alle Listen-Sockets schliessen */
+	Conn_ExitListeners( );
+
+	/* Alten Server-Namen merken */
+	strcpy( old_name, Conf_ServerName );
+
+	/* Konfiguration neu lesen ... */
+	Conf_Init( );
+
+	/* Alten Server-Namen wiederherstellen: dieser
+	 * kann nicht zur Laufzeit geaendert werden ... */
+	if( strcmp( old_name, Conf_ServerName ) != 0 )
+	{
+		strcpy( Conf_ServerName, old_name );
+		Log( LOG_ERR, "Can't change \"ServerName\" on runtime! Ignored new name." );
+	}
+
+	/* neue pre-defined Channel anlegen: */
+	Channel_InitPredefined( );
+	
+	/* Listen-Sockets neu anlegen: */
+	Conn_InitListeners( );
+
+	Log( LOG_INFO, "Re-reading of configuration done." );
+} /* NGIRCd_Reload */
+
+
 LOCAL VOID
 Initialize_Signal_Handler( VOID )
 {
@@ -437,15 +472,15 @@ Signal_Handler( INT Signal )
 		case SIGINT:
 		case SIGQUIT:
 			/* wir soll(t)en uns wohl beenden ... */
-			if( Signal == SIGTERM ) Log( LOG_WARNING, "Got TERM signal, terminating now ..." );
-			else if( Signal == SIGINT ) Log( LOG_WARNING, "Got INT signal, terminating now ..." );
-			else if( Signal == SIGQUIT ) Log( LOG_WARNING, "Got QUIT signal, terminating now ..." );
+			if( Signal == SIGTERM ) Log( LOG_WARNING|LOG_snotice, "Got TERM signal, terminating now ..." );
+			else if( Signal == SIGINT ) Log( LOG_WARNING|LOG_snotice, "Got INT signal, terminating now ..." );
+			else if( Signal == SIGQUIT ) Log( LOG_WARNING|LOG_snotice, "Got QUIT signal, terminating now ..." );
 			NGIRCd_Quit = TRUE;
 			break;
 		case SIGHUP:
-			/* neu starten */
-			Log( LOG_WARNING, "Got HUP signal, restarting now ..." );
-			NGIRCd_Restart = TRUE;
+			/* Konfiguration neu einlesen: */
+			Log( LOG_WARNING|LOG_snotice, "Got HUP signal, re-reading configuration ..." );
+			NGIRCd_Reload( );
 			break;
 		case SIGCHLD:
 			/* Child-Prozess wurde beendet. Zombies vermeiden: */
@@ -456,30 +491,6 @@ Signal_Handler( INT Signal )
 			Log( LOG_NOTICE, "Got signal %d! Ignored.", Signal );
 	}
 } /* Signal_Handler */
-
-
-LOCAL VOID
-Initialize_Listen_Ports( VOID )
-{
-	/* Ports, auf denen der Server Verbindungen entgegennehmen
-	 * soll, initialisieren */
-	
-	INT created, i;
-
-	created = 0;
-	for( i = 0; i < Conf_ListenPorts_Count; i++ )
-	{
-		if( Conn_NewListener( Conf_ListenPorts[i] )) created++;
-		else Log( LOG_ERR, "Can't listen on port %u!", Conf_ListenPorts[i] );
-	}
-
-	if( created < 1 )
-	{
-		Log( LOG_ALERT, "Server isn't listening on a single port!" );
-		Log( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE );
-		exit( 1 );
-	}
-} /* Initialize_Listen_Ports */
 
 
 LOCAL VOID

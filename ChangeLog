@@ -10,22 +10,31 @@
                         -- ChangeLog / Aenderungen --
 
 
-ngIRCd 0.5.x-Branch:
+ngIRCd 0.5.1, 03.10.2002
 
   - in RPL_YOURHOST_MSG wurde ein fehlerhafter Versionsstring geliefert.
-  - Test-Suite: es werden nun nur noch 5 Sessions parallel gestartet.
+  - Test-Suite: start-server.sh, stop-server.sh und stress-server.sh koennen
+    nun "manuell" von der Kommandozeile gestartet werden, stress-server.sh
+    startet per Default nur noch 5 Sessions, eine andere Zahl kann auf der
+    Kommandozeile uebergeben werden (Syntax: "stress-server.sh <count>").
+  - In bestimmten Faellen hat der Server versucht auf einen bereits wieder
+    geschlossenen Socket Daten zu schreiben; das fuehrte zu einem Abbruch des
+    Servers durch ein assert(). Nun wird geprueft, ob der Socket noch ok ist.
+  - im "contrib"-Verzeichnis befindet sich nun eine RPM-Spec-Datei, aus den
+    .tar.gz's koennen nun mit "rpm -ta <archiv>" RPM's erzeugt werden. Danke
+    an Sean Reifschneider <jafo@tummy.com>!
 
-ngIRCd 0.5.0, 20.09.2002:
+ngIRCd 0.5.0, 20.09.2002
 
   - Dokumentation aktualisiert.
   - Fehler bei Validierung von "AdminInfo2" behoben.
   - Test der Flags fuer "ps" in der Testsuite verbessert, ist nun zu mehr
-    Plattformen kompatibel.
+    Plattformen kompatibler.
 
-  ngIRCd 0.5.0-pre2, 17.09.2002:
+  ngIRCd 0.5.0-pre2, 17.09.2002
   - Fix in IRC_WriteStrServersPrefix() war "badly broken" -- behoben.
 
-  ngIRCd 0.5.0-pre1, 16.09.2002:
+  ngIRCd 0.5.0-pre1, 16.09.2002
   - Manual-Pages ngircd.8 und ngircd.conf.5 begonnen.
   - Wird der Netzwerk-Sniffer aktiviert (--sniffer), so schaltet der
     ngIRCd nun automatisch in den Debug-Modus.
@@ -268,4 +277,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.87.2.7 2002/09/23 21:54:43 alex Exp $
+$Id: ChangeLog,v 1.87.2.8 2002/10/03 16:09:50 alex Exp $

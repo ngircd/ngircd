@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-server.c,v 1.11 2002/05/30 16:52:21 alex Exp $
+ * $Id: irc-server.c,v 1.12 2002/07/25 12:33:19 alex Exp $
  *
  * irc-server.c: IRC-Befehle fuer Server-Links
  */
@@ -248,7 +248,7 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 GLOBAL BOOLEAN
 IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 {
-	CHAR *channame, *ptr, modes[8];
+	CHAR str[COMMAND_LEN], *channame, *ptr, modes[8];
 	BOOLEAN is_op, is_voiced;
 	CHANNEL *chan;
 	CLIENT *c;
@@ -261,8 +261,11 @@ IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 	/* Falsche Anzahl Parameter? */
 	if( Req->argc != 2 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
+	strncpy( str, Req->argv[1], COMMAND_LEN - 1 );
+	str[COMMAND_LEN - 1] = '\0';
+
 	channame = Req->argv[0];
-	ptr = strtok( Req->argv[1], "," );
+	ptr = strtok( str, "," );
 	while( ptr )
 	{
 		is_op = is_voiced = FALSE;

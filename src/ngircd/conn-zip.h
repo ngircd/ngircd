@@ -8,13 +8,13 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conn-zip.h,v 1.1 2002/12/30 16:07:23 alex Exp $
+ * $Id: conn-zip.h,v 1.2 2003/12/26 15:55:07 alex Exp $
  *
  * Connection compression using ZLIB (header)
  */
 
 
-#ifdef USE_ZLIB
+#ifdef ZLIB
 
 #ifndef __conn_zip_h__
 #define __conn_zip_h__
@@ -32,7 +32,7 @@ GLOBAL LONG Zip_RecvBytes PARAMS(( CONN_ID Idx ));
 
 #endif /* __conn_zip_h__ */
 
-#endif /* USE_ZLIB */
+#endif /* ZLIB */
 
 
 /* -eof- */

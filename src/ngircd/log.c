@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: log.c,v 1.43 2003/03/31 15:54:21 alex Exp $";
+static char UNUSED id[] = "$Id: log.c,v 1.44 2003/12/26 15:55:07 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -25,7 +25,7 @@ static char UNUSED id[] = "$Id: log.c,v 1.43 2003/03/31 15:54:21 alex Exp $";
 #include <sys/types.h>
 #include <unistd.h>
 
-#ifdef USE_SYSLOG
+#ifdef SYSLOG
 #include <syslog.h>
 #endif
 
@@ -50,7 +50,7 @@ LOCAL VOID Wall_ServerNotice PARAMS(( CHAR *Msg ));
 GLOBAL VOID
 Log_Init( VOID )
 {
-#ifdef USE_SYSLOG
+#ifdef SYSLOG
 	/* Syslog initialisieren */
 	openlog( PACKAGE_NAME, LOG_CONS|LOG_PID, LOG_LOCAL5 );
 #endif
@@ -125,7 +125,7 @@ Log_Exit( VOID )
 	/* Error-File (stderr) loeschen */
 	if( unlink( Error_File ) != 0 ) Log( LOG_ERR, "Can't delete \"%s\": %s", Error_File, strerror( errno ));
 
-#ifdef USE_SYSLOG
+#ifdef SYSLOG
 	/* syslog abmelden */
 	closelog( );
 #endif
@@ -180,7 +180,7 @@ va_dcl
 		fprintf( stdout, "[%d] %s\n", Level, msg );
 		fflush( stdout );
 	}
-#ifdef USE_SYSLOG
+#ifdef SYSLOG
 	else
 	{
 		/* Syslog */
@@ -206,7 +206,7 @@ va_dcl
 GLOBAL VOID
 Log_Init_Resolver( VOID )
 {
-#ifdef USE_SYSLOG
+#ifdef SYSLOG
 	openlog( PACKAGE_NAME, LOG_CONS|LOG_PID, LOG_LOCAL5 );
 #endif
 } /* Log_Init_Resolver */
@@ -215,7 +215,7 @@ Log_Init_Resolver( VOID )
 GLOBAL VOID
 Log_Exit_Resolver( VOID )
 {
-#ifdef USE_SYSLOG
+#ifdef SYSLOG
 	closelog( );
 #endif
 } /* Log_Exit_Resolver */
@@ -234,7 +234,7 @@ va_dcl
 {
 	/* Eintrag des Resolver in Logfile(s) schreiben */
 
-#ifndef USE_SYSLOG
+#ifndef SYSLOG
 	return;
 #else
 

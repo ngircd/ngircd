@@ -10,8 +10,11 @@
                                -- ChangeLog --
 
 
-ngIRCd 0.7.0-pre1
+ngIRCd 0.7.0
 
+  - CVS build system fixes (made autogen.sh more portable).
+
+  ngIRCd 0.7.0-pre1 (2003-04-22)
   - New signal handler (more secure, actions are executed outside).
   - GCC: the compiler is now called with more warning options enabled.
   - Replaced a lot of str[n]cpy(), str[n]cat() and sprintf() calls with the
@@ -433,4 +436,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.188.2.1 2003/04/21 22:49:45 alex Exp $
+$Id: ChangeLog,v 1.188.2.2 2003/04/22 10:21:33 alex Exp $

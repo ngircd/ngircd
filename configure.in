@@ -8,7 +8,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: configure.in,v 1.81 2003/02/25 14:07:26 alex Exp $
+# $Id: configure.in,v 1.82 2003/03/07 14:37:30 alex Exp $
 #
 
 # -- Initialisierung --
@@ -28,6 +28,7 @@ AH_TEMPLATE([SNIFFER], [Define if IRC sniffer should be enabled])
 AH_TEMPLATE([STRICT_RFC], [Define if ngIRCd should behave strict RFC compliant])
 AH_TEMPLATE([USE_SYSLOG], [Define if syslog should be used for logging])
 AH_TEMPLATE([USE_ZLIB], [Define if zlib compression should be enabled])
+AH_TEMPLATE([USE_TCPWRAP], [Define if TCP wrappers should be used])
 AH_TEMPLATE([IRCPLUS], [Define if IRC+ protocol should be used])
 AH_TEMPLATE([RENDEZVOUS], [Define if Rendezvous support should be included])
 
@@ -132,35 +133,80 @@ AC_CHECK_FUNCS(poll,[AC_CHECK_HEADER(sys/poll.h)],
 # -- Konfigurationsoptionen --
 
 x_syslog_on=no
-AC_ARG_ENABLE(syslog,
-	[  --disable-syslog        disable syslog (autodetected by default)],
-	[	if test "$enableval" = "yes"; then
-			AC_CHECK_HEADER(syslog.h, x_syslog_on=yes,
-				AC_MSG_ERROR([Can't enable syslog: syslog.h not found!])
+AC_ARG_WITH(syslog,
+	[  --without-syslog        disable syslog (autodetected by default)],
+	[	if test "$withval" = "yes"; then
+			AC_CHECK_LIB(be, syslog)
+			AC_CHECK_FUNCS(syslog, x_syslog_on=yes,
+				AC_MSG_ERROR([Can't enable syslog!])
 			)
 		fi
 	],
-	[	AC_CHECK_HEADER(syslog.h, x_syslog_on=yes) ]
+	[
+		AC_CHECK_LIB(be, syslog)
+		AC_CHECK_FUNCS(syslog, x_syslog_on=yes)
+	]
 )
 if test "$x_syslog_on" = "yes"; then
 	AC_DEFINE(USE_SYSLOG, 1)
-	AC_CHECK_LIB(be,syslog)
+	AC_CHECK_HEADERS(syslog.h)
 fi
 
 x_zlib_on=no
-AC_ARG_ENABLE(zlib,
-	[  --disable-zlib          disable zlib compression (autodetected by default)],
-	[	if test "$enableval" = "yes"; then
-			AC_CHECK_HEADER(zlib.h, x_zlib_on=yes,
-				AC_MSG_ERROR([Can't enable zlib: zlib.h not found!])
+AC_ARG_WITH(zlib,
+	[  --without-zlib          disable zlib compression (autodetected by default)],
+	[	if test "$withval" = "yes"; then
+			AC_CHECK_LIB(z, deflate)
+			AC_CHECK_FUNCS(deflate, x_zlib_on=yes,
+				AC_MSG_ERROR([Can't enable zlib!])
 			)
 		fi
 	],
-	[	AC_CHECK_HEADER(zlib.h, x_zlib_on=yes) ]
+	[	AC_CHECK_LIB(z, deflate)
+		AC_CHECK_FUNCS(deflate, x_zlib_on=yes)
+	]
 )
 if test "$x_zlib_on" = "yes"; then
 	AC_DEFINE(USE_ZLIB, 1)
-	AC_CHECK_LIB(z,deflate)
+	AC_CHECK_HEADERS(zlib.h)
+fi
+
+x_tcpwrap_on=no
+AC_ARG_WITH(tcp-wrappers,
+	[  --with-tcp-wrappers     enable TCP wrappers support],
+	[	if test "$withval" = "yes"; then
+			AC_CHECK_LIB(wrap, tcpd_warn)
+			AC_MSG_CHECKING(checking for hosts_access)
+			AC_TRY_LINK([
+				#include <tcpd.h>
+				],[
+				void *ptr;
+				ptr = hosts_access;
+				],[
+				AC_MSG_RESULT(yes)
+				AC_DEFINE(USE_TCPWRAP, 1)
+				x_tcpwrap_on=yes
+				],[
+				AC_MSG_RESULT(no)
+				AC_MSG_ERROR([Can't enable TCP wrappers!])
+			])
+		fi
+	]
+)
+
+x_rendezvous_on=no
+AC_ARG_WITH(rendezvous,
+	[  --with-rendezvous       enable support for "Rendezvous"],
+	[	if test "$withval" = "yes"; then
+			AC_CHECK_FUNCS(DNSServiceRegistrationCreate, x_rendezvous_on=yes,
+				AC_MSG_ERROR([Can't enable Rendezvous!])
+			)
+		fi
+	]
+)
+if test "$x_rendezvous_on" = "yes"; then
+	AC_DEFINE(RENDEZVOUS, 1)
+	AC_CHECK_HEADERS(DNSServiceDiscovery/DNSServiceDiscovery.h mach/port.h)
 fi
 
 x_ircplus_on=yes
@@ -170,21 +216,6 @@ AC_ARG_ENABLE(ircplus,
 )
 if test "$x_ircplus_on" = "yes"; then
 	AC_DEFINE(IRCPLUS, 1)
-fi
-
-x_rendezvous_on=no
-AC_ARG_ENABLE(rendezvous,
-	[  --enable-rendezvous     enable Rendezvous on platforms that support it],
-	[	if test "$enableval" = "yes"; then
-			AC_CHECK_FUNCS(DNSServiceRegistrationCreate, x_rendezvous_on=yes,
-				AC_MSG_ERROR([Can't enable Rendezvous: DNSServiceRegistrationCreate() not available!])
-			)
-		fi
-	]
-)
-if test "$x_rendezvous_on" = "yes"; then
-	AC_DEFINE(RENDEZVOUS, 1)
-	AC_CHECK_HEADERS(DNSServiceDiscovery/DNSServiceDiscovery.h mach/port.h)
 fi
 
 x_sniffer_on=no; x_debug_on=no
@@ -248,8 +279,10 @@ AC_OUTPUT([ \
 	contrib/Makefile \
 ])
 
-# -- Ergebnis --
+# -- Result --
 
+echo
+echo "ngIRCd has been configured with the following options:"
 echo
 
 # Someone please show me a better way :)  [borrowed by OpenSSH]
@@ -258,27 +291,35 @@ S=`eval echo ${sbindir}` ; S=`eval echo ${S}`
 C=`eval echo ${sysconfdir}` ; C=`eval echo ${C}`
 M=`eval echo ${mandir}` ; M=`eval echo ${M}`
 
-echo "                host: ${host}"
-echo "            compiler: ${CC}"
-echo "      compiler flags: ${the_CFLAGS}"
-test -n "$add_CFLAGS" && echo "                      ${add_CFLAGS}"
-echo "  preprocessor flags: ${CPPFLAGS}"
-echo "        linker flags: ${LDFLAGS}"
-echo "           libraries: ${LIBS}"
+echo "               Host: ${host}"
+echo "           Compiler: ${CC}"
+echo "     Compiler flags: ${the_CFLAGS}"
+test -n "$add_CFLAGS" && echo "                     ${add_CFLAGS}"
+echo " Preprocessor flags: ${CPPFLAGS}"
+echo "       Linker flags: ${LDFLAGS}"
+echo "          Libraries: ${LIBS}"
 echo
-echo "     'ngircd' binary: $S"
-echo "  configuration file: $C"
-echo "        manual pages: $M"
+echo "    'ngircd' binary: $S"
+echo " Configuration file: $C"
+echo "       Manual pages: $M"
 echo
 
-echo $ECHO_N "      active options: $ECHO_C"
-test "$x_syslog_on" = "yes"	&& echo $ECHO_N "Syslog $ECHO_C"
-test "$x_zlib_on" = "yes"	&& echo $ECHO_N "zLib $ECHO_C"
-test "$x_debug_on" = "yes"	&& echo $ECHO_N "Debug $ECHO_C"
-test "$x_sniffer_on" = "yes"	&& echo $ECHO_N "Sniffer $ECHO_C"
-test "$x_strict_rfc_on" = "yes"	&& echo $ECHO_N "Strict-RFC $ECHO_C"
-test "$x_ircplus_on" = "yes"	&& echo $ECHO_N "IRC+ $ECHO_C"
-test "$x_rendezvous_on" = "yes"	&& echo $ECHO_N "Rendezvous $ECHO_C"
-echo; echo
+echo $ECHO_N "     Syslog support: $ECHO_C"
+test "$x_syslog_on" = "yes" && echo "yes" || echo "no"
+echo $ECHO_N "   zlib compression: $ECHO_C"
+test "$x_zlib_on" = "yes" && echo "yes" || echo "no"
+echo $ECHO_N "   Use TCP Wrappers: $ECHO_C"
+test "$x_tcpwrap_on" = "yes" && echo "yes" || echo "no"
+echo $ECHO_N " Rendezvous support: $ECHO_C"
+test "$x_rendezvous_on" = "yes"	&& echo "yes" || echo "no"
+echo $ECHO_N "  Enable debug code: $ECHO_C"
+test "$x_debug_on" = "yes" && echo "yes" || echo "no"
+echo $ECHO_N "        IRC sniffer: $ECHO_C"
+test "$x_sniffer_on" = "yes" && echo "yes" || echo "no"
+echo $ECHO_N "    Strict RFC mode: $ECHO_C"
+test "$x_strict_rfc_on" = "yes" && echo "yes" || echo "no"
+echo $ECHO_N "      IRC+ protocol: $ECHO_C"
+test "$x_ircplus_on" = "yes" && echo "yes" || echo "no"
+echo
 
 # -eof-

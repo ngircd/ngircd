@@ -1,6 +1,9 @@
-# $Id: Makefile.am,v 1.3 2001/12/13 02:03:33 alex Exp $
+# $Id: Makefile.am,v 1.4 2001/12/14 08:14:03 alex Exp $
 
 # $Log: Makefile.am,v $
+# Revision 1.4  2001/12/14 08:14:03  alex
+# - neue Module (irc, client, channel) aufgenommen.
+#
 # Revision 1.3  2001/12/13 02:03:33  alex
 # - beim Compilieren werden nun Informationen fuer den Debugger erzeugt.
 #
@@ -15,9 +18,9 @@ CFLAGS = -Wall -g
 
 sbin_PROGRAMS = ngircd
 
-ngircd_SOURCES = ngircd.c conf.c conn.c log.c tool.c
+ngircd_SOURCES = ngircd.c channel.c client.c conf.c conn.c irc.c log.c tool.c
 
-noinst_HEADERS = ngircd.h conf.h conn.h log.h tool.h global.h
+noinst_HEADERS = ngircd.h channel.c client.c conf.h conn.h irc.h log.h tool.h global.h
 
 maintainer-clean-local:
 	rm -f Makefile Makefile.in

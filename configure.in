@@ -8,7 +8,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: configure.in,v 1.102 2004/04/11 13:20:24 alex Exp $
+# $Id: configure.in,v 1.103 2004/05/15 12:24:30 alex Exp $
 #
 
 # -- Initialisation --
@@ -146,7 +146,7 @@ AC_ARG_WITH(syslog,
 )
 if test "$x_syslog_on" = "yes"; then
 	AC_DEFINE(SYSLOG, 1)
-	AC_CHECK_HEADERS(syslog.h)
+	AC_CHECK_HEADERS(syslog.h,,AC_MSG_ERROR([required C header missing!]))
 fi
 
 x_zlib_on=no
@@ -165,7 +165,7 @@ AC_ARG_WITH(zlib,
 )
 if test "$x_zlib_on" = "yes"; then
 	AC_DEFINE(ZLIB, 1)
-	AC_CHECK_HEADERS(zlib.h)
+	AC_CHECK_HEADERS(zlib.h,,AC_MSG_ERROR([required C header missing!]))
 fi
 
 x_tcpwrap_on=no
@@ -203,7 +203,8 @@ AC_ARG_WITH(rendezvous,
 )
 if test "$x_rendezvous_on" = "yes"; then
 	AC_DEFINE(RENDEZVOUS, 1)
-	AC_CHECK_HEADERS(DNSServiceDiscovery/DNSServiceDiscovery.h mach/port.h)
+	AC_CHECK_HEADERS([DNSServiceDiscovery/DNSServiceDiscovery.h \
+	 mach/port.h],,AC_MSG_ERROR([required C header missing!]))
 fi
 
 x_identauth_on=no
@@ -219,7 +220,7 @@ AC_ARG_WITH(ident,
 )
 if test "$x_identauth_on" = "yes"; then
 	AC_DEFINE(IDENTAUTH, 1)
-	AC_CHECK_HEADERS(ident.h)
+	AC_CHECK_HEADERS(ident.h,,AC_MSG_ERROR([required C header missing!]))
 fi
 
 x_ircplus_on=yes

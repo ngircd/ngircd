@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-mode.c,v 1.3 2002/03/12 14:37:52 alex Exp $
+ * $Id: irc-mode.c,v 1.4 2002/03/25 17:11:45 alex Exp $
  *
  * irc-mode.c: IRC-Befehle zur Mode-Aenderung (MODE, AWAY, ...)
  */
@@ -108,7 +108,7 @@ GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req )
 	/* Prefix fuer Antworten etc. ermitteln */
 	if( Client_Type( Client ) == CLIENT_SERVER )
 	{
-		prefix = Client_GetFromID( Req->prefix );
+		prefix = Client_Search( Req->prefix );
 		if( ! prefix ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
 	}
 	else prefix = Client;
@@ -153,6 +153,10 @@ GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req )
 							x[0] = 'o';
 						}
 						else ok = IRC_WriteStrClient( Client, ERR_UMODEUNKNOWNFLAG_MSG, Client_ID( Client ));
+						break;
+					case 's':
+						/* server messages */
+						x[0] = 's';
 						break;
 					default:
 						Log( LOG_DEBUG, "Unknown mode \"%c%c\" from \"%s\"!?", set ? '+' : '-', *mode_ptr, Client_ID( Client ));

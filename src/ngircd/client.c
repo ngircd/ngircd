@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.35 2002/01/29 00:14:49 alex Exp $
+ * $Id: client.c,v 1.36 2002/02/06 16:49:41 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,9 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.36  2002/02/06 16:49:41  alex
+ * - neue Funktion Client_IsValidNick(), Nicknames werden besser validiert.
+ *
  * Revision 1.35  2002/01/29 00:14:49  alex
  * - neue Funktion Client_TopServer(), Client_NewXXX() angepasst.
  *
@@ -715,8 +718,8 @@ GLOBAL BOOLEAN Client_CheckNick( CLIENT *Client, CHAR *Nick )
 	assert( Client != NULL );
 	assert( Nick != NULL );
 	
-	/* Nick zu lang? */
-	if( strlen( Nick ) > CLIENT_NICK_LEN ) return IRC_WriteStrClient( Client, ERR_ERRONEUSNICKNAME_MSG, Client_ID( Client ), Nick );
+	/* Nick ungueltig? */
+	if( ! Client_IsValidNick( Nick )) return IRC_WriteStrClient( Client, ERR_ERRONEUSNICKNAME_MSG, Client_ID( Client ), Nick );
 
 	/* Nick bereits vergeben? */
 	c = My_Clients;
@@ -871,6 +874,18 @@ GLOBAL INT Client_UnknownCount( VOID )
 	}
 	return cnt;
 } /* Client_UnknownCount */
+
+
+GLOBAL BOOLEAN Client_IsValidNick( CHAR *Nick )
+{
+	/* Ist der Nick gueltig? */
+	
+	assert( Nick != NULL );
+
+	if( Nick[0] == '#' ) return FALSE;
+	if( strlen( Nick ) > CLIENT_NICK_LEN ) return FALSE;
+	return TRUE;
+} /* Client_IsValidNick */
 
 
 LOCAL INT Count( CLIENT_TYPE Type )

@@ -12,6 +12,8 @@
 
 ngIRCd CVSHEAD
 
+  - Servers other than the destination server didn't clean up the invite
+    list of an "invite-only" channel properly when an INVITE'd user joined.
   - Changed the reply of the MODE command to match the syntax of the
     original ircd exactly: the unnecessary but missing ":" before the last
     parameter has been added.
@@ -508,4 +510,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.229 2004/02/29 16:28:44 alex Exp $
+$Id: ChangeLog,v 1.230 2004/04/09 20:46:46 alex Exp $

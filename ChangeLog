@@ -37,9 +37,9 @@ ngIRCd 0.3.x, ??.??.2002
     abhaengige Definitionen finden sich nun unter src/portrab/.
   - Clients und Channels werden nicht mehr ueber ihren Namen, sondern
     einen Hash-Wert gesucht: sollte deutlich schneller sein.
-  - begonnen, neuen Client-Mode "s" (Server Messages) zu implementieren.
   - neuer Kommandozeilen-Parameter "--configtest": die Konfiguration wird
     gelesen und die dann verwendeten Werte angezeigt.
+  - Client-Mode "s" (Server Notices) implementiert.
 
 ngIRCd 0.3.0, 02.03.2002
 
@@ -170,4 +170,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.51 2002/03/27 19:01:40 alex Exp $
+$Id: ChangeLog,v 1.52 2002/03/27 20:51:45 alex Exp $

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-login.c,v 1.12 2002/04/08 16:37:50 alex Exp $
+ * $Id: irc-login.c,v 1.13 2002/04/14 14:02:35 alex Exp $
  *
  * irc-login.c: Anmeldung und Abmeldung im IRC
  */
@@ -252,19 +252,7 @@ GLOBAL BOOLEAN IRC_QUIT( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	if(( Client_Type( Client ) == CLIENT_USER ) || ( Client_Type( Client ) == CLIENT_SERVICE ))
-	{
-		/* User / Service */
-		
-		/* Falsche Anzahl Parameter? */
-		if( Req->argc > 1 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
-
-		if( Req->argc == 0 ) Conn_Close( Client_Conn( Client ), "Got QUIT command.", NULL, TRUE );
-		else Conn_Close( Client_Conn( Client ), "Got QUIT command.", Req->argv[0], TRUE );
-		
-		return DISCONNECTED;
-	}
-	else if ( Client_Type( Client ) == CLIENT_SERVER )
+	if ( Client_Type( Client ) == CLIENT_SERVER )
 	{
 		/* Server */
 
@@ -284,7 +272,18 @@ GLOBAL BOOLEAN IRC_QUIT( CLIENT *Client, REQUEST *Req )
 
 		return CONNECTED;
 	}
-	else return IRC_WriteStrClient( Client, ERR_NOTREGISTERED_MSG, Client_ID( Client ));
+	else
+	{
+		/* User, Service, oder noch nicht registriert */
+		
+		/* Falsche Anzahl Parameter? */
+		if( Req->argc > 1 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+
+		if( Req->argc == 0 ) Conn_Close( Client_Conn( Client ), "Got QUIT command.", NULL, TRUE );
+		else Conn_Close( Client_Conn( Client ), "Got QUIT command.", Req->argv[0], TRUE );
+		
+		return DISCONNECTED;
+	}
 } /* IRC_QUIT */
 
 

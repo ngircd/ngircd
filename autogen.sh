@@ -9,7 +9,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: autogen.sh,v 1.10 2004/03/15 20:32:31 alex Exp $
+# $Id: autogen.sh,v 1.11 2004/03/19 11:47:51 alex Exp $
 #
 
 #
@@ -63,10 +63,13 @@ Search()
 	major="$2"
 	minor=99
 
-	[ -n "$PREFIX" ] && searchlist="${PREFIX}$1 ${PREFIX}/bin/$1 $searchlist"
+	which /bin/ls >/dev/null 2>&1
+	[ $? -eq 0 ] && exists="which" || exists="type"
+
+	[ -n "$PREFIX" ] && searchlist="${PREFIX}/$1 ${PREFIX}/bin/$1 $searchlist"
 
 	for name in $searchlist; do
-		type "${name}" >/dev/null 2>&1
+		$exists "${name}" >/dev/null 2>&1
 		if [ $? -eq 0 ]; then
 			echo "${name}"
 			return 0
@@ -75,12 +78,12 @@ Search()
 
 	while [ $minor -ge 0 ]; do
 		for name in $searchlist; do
-			type "${name}${major}${minor}" >/dev/null 2>&1
+			$exists "${name}${major}${minor}" >/dev/null 2>&1
 			if [ $? -eq 0 ]; then
 				echo "${name}${major}${minor}"
 				return 0
 			fi
-			type "${name}-${major}.${minor}" >/dev/null 2>&1
+			$exists "${name}-${major}.${minor}" >/dev/null 2>&1
 			if [ $? -eq 0 ]; then
 				echo "${name}-${major}.${minor}" >/dev/null 2>&1
 				return 0
@@ -111,17 +114,17 @@ export WANT_AUTOMAKE
 # spezifies one:
 echo "Searching tools ..."
 [ -z "$ACLOCAL" ] && ACLOCAL=`Search aclocal 1`
+[ "$VERBOSE" = "1" ] && echo "ACLOCAL=$ACLOCAL"
 [ -z "$AUTOHEADER" ] && AUTOHEADER=`Search autoheader 2`
+[ "$VERBOSE" = "1" ] && echo "AUTOHEADER=$AUTOHEADER"
 [ -z "$AUTOMAKE" ] && AUTOMAKE=`Search automake 1`
+[ "$VERBOSE" = "1" ] && echo "AUTOMAKE=$AUTOMAKE"
 [ -z "$AUTOCONF" ] && AUTOCONF=`Search autoconf 2`
+[ "$VERBOSE" = "1" ] && echo "AUTOCONF=$AUTOCONF"
 
-# Some debugging output ...
-if [ -n "$VERBOSE" ]; then
-	echo "ACLOCAL=$ACLOCAL"
-	echo "AUTOHEADER=$AUTOHEADER"
-	echo "AUTOMAKE=$AUTOMAKE"
-	echo "AUTOCONF=$AUTOCONF"
-fi
+# Call ./configure when parameters have been passed to this script and
+# GO isn't already defined.
+[ -z "$GO" -a $# -gt 0 ] && GO=1
 
 # Verify that all tools have been found
 [ -z "$AUTOCONF" ] && Notfounf autoconf
@@ -141,7 +144,7 @@ $ACLOCAL && \
 if [ $? -eq 0 -a -x ./configure ]; then
 	# Success: if we got some parameters we call ./configure and pass
 	# all of them to it.
-	if [ -n "$*" -o -n "$GO" ]; then
+	if [ "$GO" = "1" ]; then
 		[ -n "$PREFIX" ] && p=" --prefix=$PREFIX" || p=""
 		[ -n "$*" ] && a=" $*" || a=""
 		c="./configure${p}${a}"

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.62 2003/12/19 14:32:59 alex Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.63 2004/01/17 03:17:00 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -23,6 +23,7 @@ static char UNUSED id[] = "$Id: conf.c,v 1.62 2003/12/19 14:32:59 alex Exp $";
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <unistd.h>
 #include <pwd.h>
 #include <grp.h>
@@ -620,7 +621,7 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 		else
 		{
 #ifdef HAVE_ISDIGIT
-			if( ! isdigit( *Arg )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"ServerUID\" is not a number!", NGIRCd_ConfFile, Line );
+			if( ! isdigit( (INT)*Arg )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"ServerUID\" is not a number!", NGIRCd_ConfFile, Line );
 			else
 #endif
 			Conf_UID = (UINT)atoi( Arg );
@@ -635,7 +636,7 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 		else
 		{
 #ifdef HAVE_ISDIGIT
-			if( ! isdigit( *Arg )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"ServerGID\" is not a number!", NGIRCd_ConfFile, Line );
+			if( ! isdigit( (INT)*Arg )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"ServerGID\" is not a number!", NGIRCd_ConfFile, Line );
 			else
 #endif
 			Conf_GID = (UINT)atoi( Arg );
@@ -688,7 +689,7 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 	{
 		/* Maximum number of connections. Values <= 0 are equal to "no limit". */
 #ifdef HAVE_ISDIGIT
-		if( ! isdigit( *Arg )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"MaxConnections\" is not a number!", NGIRCd_ConfFile, Line );
+		if( ! isdigit( (INT)*Arg )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"MaxConnections\" is not a number!", NGIRCd_ConfFile, Line );
 		else
 #endif
 		Conf_MaxConnections = atol( Arg );
@@ -698,7 +699,7 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 	{
 		/* Maximum number of simoultanous connections from one IP. Values <= 0 are equal to "no limit". */
 #ifdef HAVE_ISDIGIT
-		if( ! isdigit( *Arg )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"MaxConnectionsIP\" is not a number!", NGIRCd_ConfFile, Line );
+		if( ! isdigit( (INT)*Arg )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"MaxConnectionsIP\" is not a number!", NGIRCd_ConfFile, Line );
 		else
 #endif
 		Conf_MaxConnectionsIP = atoi( Arg );
@@ -708,7 +709,7 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 	{
 		/* Maximum number of channels a user can join. Values <= 0 are equal to "no limit". */
 #ifdef HAVE_ISDIGIT
-		if( ! isdigit( *Arg )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"MaxJoins\" is not a number!", NGIRCd_ConfFile, Line );
+		if( ! isdigit( (INT)*Arg )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"MaxJoins\" is not a number!", NGIRCd_ConfFile, Line );
 		else
 #endif
 		Conf_MaxJoins = atoi( Arg );
@@ -801,7 +802,7 @@ Handle_SERVER( INT Line, CHAR *Var, CHAR *Arg )
 	{
 		/* Server group */
 #ifdef HAVE_ISDIGIT
-		if( ! isdigit( *Arg )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Group\" is not a number!", NGIRCd_ConfFile, Line );
+		if( ! isdigit( (INT)*Arg )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Group\" is not a number!", NGIRCd_ConfFile, Line );
 		else
 #endif
 		New_Server.group = atoi( Arg );

@@ -65,6 +65,7 @@
 			children = (
 				1AB674ADFE9D54B511CA2CBB,
 				F51F791401DFD0DE01D13771,
+				F56D8B9E01E0BFA00155ADA7,
 				F52162B301C7B904012300F4,
 				F52162C201C7B904012300F4,
 				F52162C301C7B904012300F4,
@@ -551,6 +552,34 @@
 			isa = PBXBuildFile;
 			settings = {
 			};
+		};
+		F56D8B9E01E0BFA00155ADA7 = {
+			children = (
+				F56D8B9F01E0BFA00155ADA7,
+				F56D8BA001E0BFA00155ADA7,
+			);
+			isa = PBXGroup;
+			name = MacOSX;
+			path = "";
+			refType = 2;
+		};
+		F56D8B9F01E0BFA00155ADA7 = {
+			isa = PBXFileReference;
+			path = Makefile.am;
+			refType = 4;
+		};
+		F56D8BA001E0BFA00155ADA7 = {
+			children = (
+				F56D8BA101E0BFA00155ADA7,
+			);
+			isa = PBXGroup;
+			path = ngircd.pbproj;
+			refType = 4;
+		};
+		F56D8BA101E0BFA00155ADA7 = {
+			isa = PBXFileReference;
+			path = Makefile.am;
+			refType = 4;
 		};
 		F576ABFA01D5E77301A85B03 = {
 			isa = PBXFileReference;

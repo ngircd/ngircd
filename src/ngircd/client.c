@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.29 2002/01/16 22:10:35 alex Exp $
+ * $Id: client.c,v 1.30 2002/01/18 15:32:01 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,9 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.30  2002/01/18 15:32:01  alex
+ * - bei Client_SetModes() wurde das NULL-Byte falsch gesetzt. Opsa.
+ *
  * Revision 1.29  2002/01/16 22:10:35  alex
  * - neue Funktionen Client_xxxCount().
  *
@@ -390,7 +393,7 @@ GLOBAL VOID Client_SetModes( CLIENT *Client, CHAR *Modes )
 
 	assert( Client != NULL );
 	strncpy( Client->modes, Modes, CLIENT_MODE_LEN );
-	Client->info[CLIENT_MODE_LEN - 1] = '\0';
+	Client->modes[CLIENT_MODE_LEN - 1] = '\0';
 } /* Client_SetModes */
 
 

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: messages.h,v 1.8 2001/12/27 19:17:26 alex Exp $
+ * $Id: messages.h,v 1.9 2001/12/29 03:06:56 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: messages.h,v $
+ * Revision 1.9  2001/12/29 03:06:56  alex
+ * - Texte ergaenzt, einige Bugs behoben (Leerzeichen falsch gesetzt, z.B.)
+ *
  * Revision 1.8  2001/12/27 19:17:26  alex
  * - neue Befehle PRIVMSG, NOTICE, PING.
  *
@@ -68,6 +71,9 @@
 #define RPL_ENDOFMOTD			"376"
 #define RPL_ENDOFMOTD_MSG		RPL_ENDOFMOTD" %s :End of MOTD command"
 
+#define RPL_UMODEIS			"211"
+#define RPL_UMODEIS_MSG			RPL_UMODEIS" %s +%s"
+
 
 #define ERR_NOSUCHNICK			"401"
 #define ERR_NOSUCHNICK_MSG		ERR_NOSUCHNICK" %s %s :No such nick or channel name"
@@ -76,10 +82,10 @@
 #define ERR_NOORIGIN_MSG		ERR_NOORIGIN" %s :No origin specified"
 
 #define ERR_NORECIPIENT			"411"
-#define ERR_NORECIPIENT_MSG		ERR_NORECIPIENT" %s: No receipient given (%s)"
+#define ERR_NORECIPIENT_MSG		ERR_NORECIPIENT" %s :No receipient given (%s)"
 
 #define ERR_NOTEXTTOSEND		"412"
-#define ERR_NOTEXTTOSEND_MSG		ERR_NOTEXTTOSEND" %s: No text to send"
+#define ERR_NOTEXTTOSEND_MSG		ERR_NOTEXTTOSEND" %s :No text to send"
 
 #define ERR_UNKNOWNCOMMAND		"421"
 #define ERR_UNKNOWNCOMMAND_MSG		ERR_UNKNOWNCOMMAND" %s %s :Unknown command"
@@ -101,6 +107,15 @@
 
 #define ERR_NOTREGISTERED		"451"
 #define ERR_NOTREGISTERED_MSG		ERR_NOTREGISTERED" %s :Connection not registered"
+
+#define ERR_RESTRICTED			"484"
+#define ERR_RESTRICTED_MSG		ERR_RESTRICTED" %s :Your connection is restricted"
+
+#define ERR_UMODEUNKNOWNFLAG		"501"
+#define ERR_UMODEUNKNOWNFLAG_MSG	ERR_UMODEUNKNOWNFLAG" %s :Unknown mode flag"
+
+#define ERR_USERSDONTMATCH		"502"
+#define ERR_USERSDONTMATCH_MSG		ERR_USERSDONTMATCH" %s :Can't set/get mode for other users"
 
 
 #endif

@@ -39,6 +39,7 @@ ngIRCd CVS-HEAD
   - The server sets a correct default AWAY message now when propagating
     between servers (bug introduced in 0.6.0).
   - Restructured the documentation: Now the main language is english.
+  - Fixed up propagation of modes with arguments between servers.
 
 
 Older changes (sorry, only available in german language):
@@ -402,4 +403,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.165 2003/01/05 23:06:12 alex Exp $
+$Id: ChangeLog,v 1.166 2003/01/08 17:45:56 alex Exp $

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-login.c,v 1.41 2005/03/19 18:43:48 fw Exp $";
+static char UNUSED id[] = "$Id: irc-login.c,v 1.42 2005/03/21 22:22:09 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -470,9 +470,9 @@ Hello_User( CLIENT *Client )
 
 	/* Version and system type */
 #ifdef CVSDATE
-        strlcpy( ver, CVSDATE, sizeof( ver ));
-        strncpy( ver + 4, ver + 5, 2 );
-        strncpy( ver + 6, ver + 8, 3 );
+	strlcpy( ver, CVSDATE, sizeof( ver ));
+	strncpy( ver + 4, ver + 5, 2 );
+	strncpy( ver + 6, ver + 8, 3 );
 	snprintf( vertxt, sizeof( vertxt ), "%s(%s)", PACKAGE_VERSION, ver );
 	if( ! IRC_WriteStrClient( Client, RPL_YOURHOST_MSG, Client_ID( Client ), Client_ID( Client_ThisServer( )), vertxt, TARGET_CPU, TARGET_VENDOR, TARGET_OS )) return false;
 #else

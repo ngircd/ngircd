@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.78 2003/12/26 15:55:07 alex Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.79 2003/12/27 13:09:24 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -376,6 +376,10 @@ NGIRCd_VersionAddition( VOID )
 #ifdef RENDEZVOUS
 	if( txt[0] ) strcat( txt, "+" );
 	strcat( txt, "RENDEZVOUS" );
+#endif
+#ifdef IDENTAUTH
+	if( txt[0] ) strcat( txt, "+" );
+	strcat( txt, "IDENT" );
 #endif
 #ifdef DEBUG
 	if( txt[0] ) strcat( txt, "+" );

@@ -1,21 +1,20 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001,2002 Alexander Barton (alex@barton.de)
  *
- * Dieses Programm ist freie Software. Sie koennen es unter den Bedingungen
- * der GNU General Public License (GPL), wie von der Free Software Foundation
- * herausgegeben, weitergeben und/oder modifizieren, entweder unter Version 2
- * der Lizenz oder (wenn Sie es wuenschen) jeder spaeteren Version.
- * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
- * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conf.c,v 1.41 2002/11/30 22:15:49 alex Exp $
- *
- * conf.h: Konfiguration des ngircd
+ * Configuration management (reading, parsing & validation)
  */
 
 
 #include "portab.h"
+
+static char UNUSED id[] = "$Id: conf.c,v 1.42 2002/12/12 11:26:08 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -72,7 +71,7 @@ Conf_Init( VOID )
 GLOBAL INT
 Conf_Test( VOID )
 {
-	/* Konfiguration einlesen, ueberpruefen und ausgeben. */
+	/* Read configuration, validate and output it. */
 
 	struct passwd *pwd;
 	struct group *grp;
@@ -83,7 +82,7 @@ Conf_Test( VOID )
 
 	Read_Config( );
 
-	/* Wenn stdin ein ein TTY ist: auf Taste warten */
+	/* If stdin is a valid tty wait for a key: */
 	if( isatty( fileno( stdout )))
 	{
 		puts( "OK, press enter to see a dump of your service configuration ..." );
@@ -124,7 +123,7 @@ Conf_Test( VOID )
 	{
 		if( ! Conf_Oper[i].name[0] ) continue;
 		
-		/* gueltiger Operator-Block: ausgeben */
+		/* Valid "Operator" section */
 		puts( "[OPERATOR]" );
 		printf( "  Name = %s\n", Conf_Oper[i].name );
 		printf( "  Password = %s\n", Conf_Oper[i].pwd );
@@ -134,9 +133,8 @@ Conf_Test( VOID )
 	for( i = 0; i < Conf_Server_Count; i++ )
 	{
 		if( ! Conf_Server[i].name[0] ) continue;
-		if( ! Conf_Server[i].host[0] ) continue;
 		
-		/* gueltiger Server-Block: ausgeben */
+		/* Valid "Server" section */
 		puts( "[SERVER]" );
 		printf( "  Name = %s\n", Conf_Server[i].name );
 		printf( "  Host = %s\n", Conf_Server[i].host );
@@ -151,7 +149,7 @@ Conf_Test( VOID )
 	{
 		if( ! Conf_Channel[i].name[0] ) continue;
 		
-		/* gueltiger Channel-Block: ausgeben */
+		/* Valid "Channel" section */
 		puts( "[CHANNEL]" );
 		printf( "  Name = %s\n", Conf_Channel[i].name );
 		printf( "  Modes = %s\n", Conf_Channel[i].modes );
@@ -166,7 +164,7 @@ Conf_Test( VOID )
 LOCAL VOID
 Set_Defaults( VOID )
 {
-	/* Konfigurationsvariablen initialisieren, d.h. auf Default-Werte setzen. */
+	/* Initialize configuration variables with default values. */
 
 	strcpy( Conf_ServerName, "" );
 	sprintf( Conf_ServerInfo, "%s %s", PACKAGE, VERSION );
@@ -200,7 +198,7 @@ Set_Defaults( VOID )
 LOCAL VOID
 Read_Config( VOID )
 {
-	/* Konfigurationsdatei einlesen. */
+	/* Read configuration file. */
 
 	CHAR section[LINE_LEN], str[LINE_LEN], *var, *arg, *ptr;
 	INT line;
@@ -209,7 +207,7 @@ Read_Config( VOID )
 	fd = fopen( NGIRCd_ConfFile, "r" );
 	if( ! fd )
 	{
-		/* Keine Konfigurationsdatei gefunden */
+		/* No configuration file found! */
 		Config_Error( LOG_ALERT, "Can't read configuration \"%s\": %s", NGIRCd_ConfFile, strerror( errno ));
 		Config_Error( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE );
 		exit( 1 );
@@ -225,10 +223,10 @@ Read_Config( VOID )
 		ngt_TrimStr( str );
 		line++;
 
-		/* Kommentarzeilen und leere Zeilen ueberspringen */
+		/* Skip comments and empty lines */
 		if( str[0] == ';' || str[0] == '#' || str[0] == '\0' ) continue;
 
-		/* Anfang eines Abschnittes? */
+		/* Is this the beginning of a new section? */
 		if(( str[0] == '[' ) && ( str[strlen( str ) - 1] == ']' ))
 		{
 			strcpy( section, str );
@@ -238,7 +236,7 @@ Read_Config( VOID )
 				if( Conf_Oper_Count + 1 > MAX_OPERATORS ) Config_Error( LOG_ERR, "Too many operators configured." );
 				else
 				{
-					/* neuen Operator initialisieren */
+					/* Initialize new operator structure */
 					strcpy( Conf_Oper[Conf_Oper_Count].name, "" );
 					strcpy( Conf_Oper[Conf_Oper_Count].pwd, "" );
 					Conf_Oper_Count++;
@@ -250,7 +248,7 @@ Read_Config( VOID )
 				if( Conf_Server_Count + 1 > MAX_SERVERS ) Config_Error( LOG_ERR, "Too many servers configured." );
 				else
 				{
-					/* neuen Server ("Peer") initialisieren */
+					/* Initialize new server structure */
 					strcpy( Conf_Server[Conf_Server_Count].host, "" );
 					strcpy( Conf_Server[Conf_Server_Count].ip, "" );
 					strcpy( Conf_Server[Conf_Server_Count].name, "" );
@@ -269,7 +267,7 @@ Read_Config( VOID )
 				if( Conf_Channel_Count + 1 > MAX_DEFCHANNELS ) Config_Error( LOG_ERR, "Too many pre-defined channels configured." );
 				else
 				{
-					/* neuen vordefinierten Channel initialisieren */
+					/* Initialize new channel structure */
 					strcpy( Conf_Channel[Conf_Channel_Count].name, "" );
 					strcpy( Conf_Channel[Conf_Channel_Count].modes, "" );
 					strcpy( Conf_Channel[Conf_Channel_Count].topic, "" );
@@ -282,7 +280,7 @@ Read_Config( VOID )
 		}
 		if( section[0] == 0x1 ) continue;
 
-		/* In Variable und Argument zerlegen */
+		/* Split line into variable name and parameters */
 		ptr = strchr( str, '=' );
 		if( ! ptr )
 		{
@@ -302,7 +300,7 @@ Read_Config( VOID )
 	
 	fclose( fd );
 	
-	/* Wenn kein Port definiert wurde, Port 6667 als Default benutzen */
+	/* If there are no ports configured use the default: 6667 */
 	if( Conf_ListenPorts_Count < 1 )
 	{
 		Conf_ListenPorts_Count = 1;
@@ -325,7 +323,7 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 	
 	if( strcasecmp( Var, "Name" ) == 0 )
 	{
-		/* Der Server-Name */
+		/* Server name */
 		strncpy( Conf_ServerName, Arg, CLIENT_ID_LEN - 1 );
 		Conf_ServerName[CLIENT_ID_LEN - 1] = '\0';
 		if( strlen( Arg ) > CLIENT_ID_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Name\" too long!", NGIRCd_ConfFile, Line );
@@ -333,7 +331,7 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 	}
 	if( strcasecmp( Var, "Info" ) == 0 )
 	{
-		/* Server-Info-Text */
+		/* Info text of server */
 		strncpy( Conf_ServerInfo, Arg, CLIENT_INFO_LEN - 1 );
 		Conf_ServerInfo[CLIENT_INFO_LEN - 1] = '\0';
 		if( strlen( Arg ) > CLIENT_INFO_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Info\" too long!", NGIRCd_ConfFile, Line );
@@ -341,7 +339,7 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 	}
 	if( strcasecmp( Var, "Password" ) == 0 )
 	{
-		/* Server-Passwort */
+		/* Global server password */
 		strncpy( Conf_ServerPwd, Arg, CLIENT_PASS_LEN - 1 );
 		Conf_ServerPwd[CLIENT_PASS_LEN - 1] = '\0';
 		if( strlen( Arg ) > CLIENT_PASS_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Password\" too long!", NGIRCd_ConfFile, Line );
@@ -349,7 +347,7 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 	}
 	if( strcasecmp( Var, "AdminInfo1" ) == 0 )
 	{
-		/* Server-Info-Text */
+		/* Administrative info #1 */
 		strncpy( Conf_ServerAdmin1, Arg, CLIENT_INFO_LEN - 1 );
 		Conf_ServerAdmin1[CLIENT_INFO_LEN - 1] = '\0';
 		if( strlen( Arg ) > CLIENT_INFO_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"AdminInfo1\" too long!", NGIRCd_ConfFile, Line );
@@ -357,7 +355,7 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 	}
 	if( strcasecmp( Var, "AdminInfo2" ) == 0 )
 	{
-		/* Server-Info-Text */
+		/* Administrative info #2 */
 		strncpy( Conf_ServerAdmin2, Arg, CLIENT_INFO_LEN - 1 );
 		Conf_ServerAdmin2[CLIENT_INFO_LEN - 1] = '\0';
 		if( strlen( Arg ) > CLIENT_INFO_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"AdminInfo2\" too long!", NGIRCd_ConfFile, Line );
@@ -365,7 +363,7 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 	}
 	if( strcasecmp( Var, "AdminEMail" ) == 0 )
 	{
-		/* Server-Info-Text */
+		/* Administrative email contact */
 		strncpy( Conf_ServerAdminMail, Arg, CLIENT_INFO_LEN - 1 );
 		Conf_ServerAdminMail[CLIENT_INFO_LEN - 1] = '\0';
 		if( strlen( Arg ) > CLIENT_INFO_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"AdminEMail\" too long!", NGIRCd_ConfFile, Line );
@@ -373,8 +371,8 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 	}
 	if( strcasecmp( Var, "Ports" ) == 0 )
 	{
-		/* Ports, durch "," getrennt, auf denen der Server
-		* Verbindungen annehmen soll */
+		/* Ports on that the server should listen. More port numbers
+		 * must be separated by "," */
 		ptr = strtok( Arg, "," );
 		while( ptr )
 		{
@@ -392,7 +390,7 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 	}
 	if( strcasecmp( Var, "MotdFile" ) == 0 )
 	{
-		/* Datei mit der "message of the day" (MOTD) */
+		/* "Message of the day" (MOTD) file */
 		strncpy( Conf_MotdFile, Arg, FNAME_LEN - 1 );
 		Conf_MotdFile[FNAME_LEN - 1] = '\0';
 		if( strlen( Arg ) > FNAME_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"MotdFile\" too long!", NGIRCd_ConfFile, Line );
@@ -400,7 +398,7 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 	}
 	if( strcasecmp( Var, "ServerUID" ) == 0 )
 	{
-		/* UID, mit der der Daemon laufen soll */
+		/* UID the daemon should switch to */
 		pwd = getpwnam( Arg );
 		if( pwd ) Conf_UID = pwd->pw_uid;
 		else
@@ -415,7 +413,7 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 	}
 	if( strcasecmp( Var, "ServerGID" ) == 0 )
 	{
-		/* GID, mit der der Daemon laufen soll */
+		/* GID the daemon should use */
 		grp = getgrnam( Arg );
 		if( grp ) Conf_GID = grp->gr_gid;
 		else
@@ -430,7 +428,7 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 	}
 	if( strcasecmp( Var, "PingTimeout" ) == 0 )
 	{
-		/* PING-Timeout */
+		/* PING timeout */
 		Conf_PingTimeout = atoi( Arg );
 		if( Conf_PingTimeout < 5 )
 		{
@@ -441,7 +439,7 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 	}
 	if( strcasecmp( Var, "PongTimeout" ) == 0 )
 	{
-		/* PONG-Timeout */
+		/* PONG timeout */
 		Conf_PongTimeout = atoi( Arg );
 		if( Conf_PongTimeout < 5 )
 		{
@@ -452,7 +450,7 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 	}
 	if( strcasecmp( Var, "ConnectRetry" ) == 0 )
 	{
-		/* Sekunden zwischen Verbindungsversuchen zu anderen Servern */
+		/* Seconds between connection attempts to other servers */
 		Conf_ConnectRetry = atoi( Arg );
 		if( Conf_ConnectRetry < 5 )
 		{
@@ -463,7 +461,7 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 	}
 	if( strcasecmp( Var, "OperCanUseMode" ) == 0 )
 	{
-		/* Koennen IRC-Operatoren immer MODE benutzen? */
+		/* Are IRC operators allowed to use MODE in channels they aren't Op in? */
 		if( strcasecmp( Arg, "yes" ) == 0 ) Conf_OperCanMode = TRUE;
 		else if( strcasecmp( Arg, "true" ) == 0 ) Conf_OperCanMode = TRUE;
 		else if( atoi( Arg ) != 0 ) Conf_OperCanMode = TRUE;
@@ -472,8 +470,7 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 	}
 	if( strcasecmp( Var, "MaxConnections" ) == 0 )
 	{
-		/* Maximale Anzahl von Verbindungen. Werte <= 0 stehen
-		 * fuer "kein Limit". */
+		/* Maximum number of connections. Values <= 0 are equal to "no limit". */
 #ifdef HAVE_ISDIGIT
 		if( ! isdigit( *Arg )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"MaxConnections\" is not a number!", NGIRCd_ConfFile, Line );
 		else
@@ -496,7 +493,7 @@ Handle_OPERATOR( INT Line, CHAR *Var, CHAR *Arg )
 
 	if( strcasecmp( Var, "Name" ) == 0 )
 	{
-		/* Name des IRC Operator */
+		/* Name of IRC operator */
 		strncpy( Conf_Oper[Conf_Oper_Count - 1].name, Arg, CLIENT_PASS_LEN - 1 );
 		Conf_Oper[Conf_Oper_Count - 1].name[CLIENT_PASS_LEN - 1] = '\0';
 		if( strlen( Arg ) > CLIENT_PASS_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Name\" too long!", NGIRCd_ConfFile, Line );
@@ -504,7 +501,7 @@ Handle_OPERATOR( INT Line, CHAR *Var, CHAR *Arg )
 	}
 	if( strcasecmp( Var, "Password" ) == 0 )
 	{
-		/* Passwort des IRC Operator */
+		/* Password of IRC operator */
 		strncpy( Conf_Oper[Conf_Oper_Count - 1].pwd, Arg, CLIENT_PASS_LEN - 1 );
 		Conf_Oper[Conf_Oper_Count - 1].pwd[CLIENT_PASS_LEN - 1] = '\0';
 		if( strlen( Arg ) > CLIENT_PASS_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Password\" too long!", NGIRCd_ConfFile, Line );
@@ -526,7 +523,7 @@ Handle_SERVER( INT Line, CHAR *Var, CHAR *Arg )
 
 	if( strcasecmp( Var, "Host" ) == 0 )
 	{
-		/* Hostname des Servers */
+		/* Hostname of the server */
 		strncpy( Conf_Server[Conf_Server_Count - 1].host, Arg, HOST_LEN - 1 );
 		Conf_Server[Conf_Server_Count - 1].host[HOST_LEN - 1] = '\0';
 		if( strlen( Arg ) > HOST_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Host\" too long!", NGIRCd_ConfFile, Line );
@@ -534,7 +531,7 @@ Handle_SERVER( INT Line, CHAR *Var, CHAR *Arg )
 	}
 	if( strcasecmp( Var, "Name" ) == 0 )
 	{
-		/* Name des Servers ("Nick") */
+		/* Name of the server ("Nick"/"ID") */
 		strncpy( Conf_Server[Conf_Server_Count - 1].name, Arg, CLIENT_ID_LEN - 1 );
 		Conf_Server[Conf_Server_Count - 1].name[CLIENT_ID_LEN - 1] = '\0';
 		if( strlen( Arg ) > CLIENT_ID_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Name\" too long!", NGIRCd_ConfFile, Line );
@@ -542,7 +539,7 @@ Handle_SERVER( INT Line, CHAR *Var, CHAR *Arg )
 	}
 	if( strcasecmp( Var, "MyPassword" ) == 0 )
 	{
-		/* Passwort dieses Servers, welches empfangen werden muss */
+		/* Password of this server which is sent to the peer */
 		strncpy( Conf_Server[Conf_Server_Count - 1].pwd_in, Arg, CLIENT_PASS_LEN - 1 );
 		Conf_Server[Conf_Server_Count - 1].pwd_in[CLIENT_PASS_LEN - 1] = '\0';
 		if( strlen( Arg ) > CLIENT_PASS_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"MyPassword\" too long!", NGIRCd_ConfFile, Line );
@@ -550,7 +547,7 @@ Handle_SERVER( INT Line, CHAR *Var, CHAR *Arg )
 	}
 	if( strcasecmp( Var, "PeerPassword" ) == 0 )
 	{
-		/* Passwort des anderen Servers, welches gesendet werden muss */
+		/* Passwort of the peer which must be received */
 		strncpy( Conf_Server[Conf_Server_Count - 1].pwd_out, Arg, CLIENT_PASS_LEN - 1 );
 		Conf_Server[Conf_Server_Count - 1].pwd_out[CLIENT_PASS_LEN - 1] = '\0';
 		if( strlen( Arg ) > CLIENT_PASS_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"PeerPassword\" too long!", NGIRCd_ConfFile, Line );
@@ -558,7 +555,7 @@ Handle_SERVER( INT Line, CHAR *Var, CHAR *Arg )
 	}
 	if( strcasecmp( Var, "Port" ) == 0 )
 	{
-		/* Port, zu dem Verbunden werden soll */
+		/* Port to which this server should connect */
 		port = atol( Arg );
 		if( port > 0 && port < 0xFFFF ) Conf_Server[Conf_Server_Count - 1].port = (INT)port;
 		else Config_Error( LOG_ERR, "%s, line %d (section \"Server\"): Illegal port number %ld!", NGIRCd_ConfFile, Line, port );
@@ -566,7 +563,7 @@ Handle_SERVER( INT Line, CHAR *Var, CHAR *Arg )
 	}
 	if( strcasecmp( Var, "Group" ) == 0 )
 	{
-		/* Server-Gruppe */
+		/* Server group */
 #ifdef HAVE_ISDIGIT
 		if( ! isdigit( *Arg )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Group\" is not a number!", NGIRCd_ConfFile, Line );
 		else
@@ -588,7 +585,7 @@ Handle_CHANNEL( INT Line, CHAR *Var, CHAR *Arg )
 
 	if( strcasecmp( Var, "Name" ) == 0 )
 	{
-		/* Hostname des Servers */
+		/* Name of the channel */
 		strncpy( Conf_Channel[Conf_Channel_Count - 1].name, Arg, CHANNEL_NAME_LEN - 1 );
 		Conf_Channel[Conf_Channel_Count - 1].name[CHANNEL_NAME_LEN - 1] = '\0';
 		if( strlen( Arg ) > CHANNEL_NAME_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Name\" too long!", NGIRCd_ConfFile, Line );
@@ -596,7 +593,7 @@ Handle_CHANNEL( INT Line, CHAR *Var, CHAR *Arg )
 	}
 	if( strcasecmp( Var, "Modes" ) == 0 )
 	{
-		/* Name des Servers ("Nick") */
+		/* Initial modes */
 		strncpy( Conf_Channel[Conf_Channel_Count - 1].modes, Arg, CHANNEL_MODE_LEN - 1 );
 		Conf_Channel[Conf_Channel_Count - 1].modes[CHANNEL_MODE_LEN - 1] = '\0';
 		if( strlen( Arg ) > CHANNEL_MODE_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Modes\" too long!", NGIRCd_ConfFile, Line );
@@ -604,7 +601,7 @@ Handle_CHANNEL( INT Line, CHAR *Var, CHAR *Arg )
 	}
 	if( strcasecmp( Var, "Topic" ) == 0 )
 	{
-		/* Passwort des Servers */
+		/* Initial topic */
 		strncpy( Conf_Channel[Conf_Channel_Count - 1].topic, Arg, CHANNEL_TOPIC_LEN - 1 );
 		Conf_Channel[Conf_Channel_Count - 1].topic[CHANNEL_TOPIC_LEN - 1] = '\0';
 		if( strlen( Arg ) > CHANNEL_TOPIC_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Topic\" too long!", NGIRCd_ConfFile, Line );
@@ -618,11 +615,11 @@ Handle_CHANNEL( INT Line, CHAR *Var, CHAR *Arg )
 LOCAL VOID
 Validate_Config( VOID )
 {
-	/* Konfiguration ueberpruefen */
+	/* Validate configuration settings. */
 	
 	if( ! Conf_ServerName[0] )
 	{
-		/* Kein Servername konfiguriert */
+		/* No server name configured! */
 		Config_Error( LOG_ALERT, "No server name configured in \"%s\" ('ServerName')!", NGIRCd_ConfFile );
 		Config_Error( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE );
 		exit( 1 );
@@ -631,7 +628,7 @@ Validate_Config( VOID )
 #ifdef STRICT_RFC
 	if( ! Conf_ServerAdminMail[0] )
 	{
-		/* Keine Server-Information konfiguriert */
+		/* No administrative contact configured! */
 		Config_Error( LOG_ALERT, "No administrator email address configured in \"%s\" ('AdminEMail')!", NGIRCd_ConfFile );
 		Config_Error( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE );
 		exit( 1 );
@@ -640,7 +637,7 @@ Validate_Config( VOID )
 
 	if( ! Conf_ServerAdmin1[0] && ! Conf_ServerAdmin2[0] && ! Conf_ServerAdminMail[0] )
 	{
-		/* Keine Server-Information konfiguriert */
+		/* No administrative information configured! */
 		Log( LOG_WARNING, "No administrative information configured but required by RFC!" );
 	}
 } /* Validate_Config */
@@ -655,14 +652,13 @@ CONST CHAR *Format;
 va_dcl
 #endif
 {
-	/* Fehler! Auf Console und/oder ins Log schreiben */
+	/* Error! Write to console and/or logfile. */
 
 	CHAR msg[MAX_LOG_MSG_LEN];
 	va_list ap;
 
 	assert( Format != NULL );
 
-	/* String mit variablen Argumenten zusammenbauen ... */
 #ifdef PROTOTYPES
 	va_start( ap, Format );
 #else
@@ -670,10 +666,10 @@ va_dcl
 #endif
 	vsnprintf( msg, MAX_LOG_MSG_LEN, Format, ap );
 	va_end( ap );
-
-	/* Im "normalen Betrieb" soll der Log-Mechanismus des ngIRCd verwendet
-	 * werden, beim Testen der Konfiguration jedoch nicht, hier sollen alle
-	 * Meldungen direkt auf die Konsole ausgegeben werden: */
+	
+	/* During "normal operations" the log functions of the daemon should
+	 * be used, but during testing of the configuration file, all messages
+	 * should go directly to the console: */
 	if( Use_Log ) Log( Level, "%s", msg );
 	else puts( msg );
 } /* Config_Error */

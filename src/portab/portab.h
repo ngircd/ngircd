@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: portab.h,v 1.8 2002/10/09 16:53:30 alex Exp $
+ * $Id: portab.h,v 1.9 2002/12/12 11:26:08 alex Exp $
  *
  * portab.h: "Portabilitaets-Definitionen"
  */
@@ -24,6 +24,13 @@
 
 /* Compiler Features */
 
+#ifdef __GNUC__
+# define PUNUSED(x) __attribute__ ((unused)) x
+# define UNUSED     __attribute__ ((unused))
+#else
+# define PUNUSED(x) x
+# define UNUSED
+#endif
 
 #ifndef PARAMS
 # if PROTOTYPES

@@ -22,7 +22,7 @@ in all details. But because the ngIRCd should be a fully compatible
 replacement for this server ("ircd") it tries to emulate these differences.
 
 If you don't like this behavior please ./configure the ngIRCd using the
-"--enable-strict-rfc" command line option. But please not: not all IRC
+"--enable-strict-rfc" command line option. But please note: not all IRC
 clients are compatible with such an server, some can't even connect at all!
 Therefore this option isn't desired for "normal operation".
 
@@ -104,4 +104,4 @@ channel mode). In this case <limit> should be "0".
 
 
 -- 
-$Id: Protocol.txt,v 1.9 2003/04/21 12:48:40 alex Exp $
+$Id: Protocol.txt,v 1.10 2003/04/29 13:37:36 goetz Exp $

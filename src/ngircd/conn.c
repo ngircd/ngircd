@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.102 2002/12/02 13:56:24 alex Exp $
+ * $Id: conn.c,v 1.103 2002/12/03 18:57:10 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -606,12 +606,12 @@ Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient )
 			out_z_k = (DOUBLE)My_Connections[Idx].zip.bytes_out / 1024;
 			in_p = (INT)(( in_k * 100 ) / in_z_k );
 			out_p = (INT)(( out_k * 100 ) / out_z_k );
-			Log( LOG_INFO, "Connection %d (socket %d) with %s:%d closed (in: %.1fk/%.1fk/%d%%, out: %.1fk/%.1fk/%d%%).", Idx, My_Connections[Idx].sock, My_Connections[Idx].host, ntohs( My_Connections[Idx].addr.sin_port ), in_k, in_z_k, in_p, out_k, out_z_k, out_p );
+			Log( LOG_INFO, "Connection %d with %s:%d closed (in: %.1fk/%.1fk/%d%%, out: %.1fk/%.1fk/%d%%).", Idx, My_Connections[Idx].host, ntohs( My_Connections[Idx].addr.sin_port ), in_k, in_z_k, in_p, out_k, out_z_k, out_p );
 		}
 		else
 #endif
 		{
-			Log( LOG_INFO, "Connection %d (socket %d) with %s:%d closed (in: %.1fk, out: %.1fk).", Idx, My_Connections[Idx].sock, My_Connections[Idx].host, ntohs( My_Connections[Idx].addr.sin_port ), in_k, out_k );
+			Log( LOG_INFO, "Connection %d with %s:%d closed (in: %.1fk, out: %.1fk).", Idx, My_Connections[Idx].host, ntohs( My_Connections[Idx].addr.sin_port ), in_k, out_k );
 		}
 	}
 	
@@ -1305,7 +1305,7 @@ Read_Request( CONN_ID Idx )
 	if( len == 0 )
 	{
 		/* Socket wurde geschlossen */
-		Log( LOG_INFO, "%s:%d is closing the connection ...", inet_ntoa( My_Connections[Idx].addr.sin_addr ), ntohs( My_Connections[Idx].addr.sin_port));
+		Log( LOG_INFO, "%s:%d (%s) is closing the connection ...", My_Connections[Idx].host, ntohs( My_Connections[Idx].addr.sin_port), inet_ntoa( My_Connections[Idx].addr.sin_addr ));
 		Conn_Close( Idx, "Socket closed!", "Client closed connection", FALSE );
 		return;
 	}

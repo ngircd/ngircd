@@ -1,3 +1,9 @@
+ngircd (0.7.1-0.1ab) unstable; urgency=low
+
+  * New upstream version :-)
+
+ -- Alexander Barton <alex@Arthur.Ath.CX>  Fri, 18 Jul 2003 22:53:02 +0200
+
 ngircd (0.7.0-0.7ab) unstable; urgency=low
 
   * Fixed up post installation script (added interpreter, fixed chmod call).

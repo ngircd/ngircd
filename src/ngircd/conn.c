@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.136 2004/05/11 00:53:14 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.137 2004/05/30 16:25:51 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -1634,7 +1634,7 @@ Read_Resolver_Result( INT r_fd )
 	assert( s != NULL );
 
 	/* Read result from pipe */
-	len = read( r_fd, s->buffer + s->bufpos, sizeof( s->buffer ) - HOST_LEN - 1 );
+	len = read( r_fd, s->buffer + s->bufpos, sizeof( s->buffer ) - s->bufpos - 1 );
 	if( len < 0 )
 	{
 		/* Error! */

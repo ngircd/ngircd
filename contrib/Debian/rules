@@ -11,7 +11,7 @@
 #
 # debian/rules for ngIRCd
 #
-# $Id: rules,v 1.1 2003/12/31 17:20:11 alex Exp $
+# $Id: rules,v 1.2 2004/01/01 22:24:48 alex Exp $
 #
 # Based on the sample debian/rules that uses debhelper,
 # GNU copyright 1997 to 1999 by Joey Hess.
@@ -36,33 +36,59 @@ ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
 	INSTALL_PROGRAM += -s
 endif
 
-config.status: configure
+configure-ngircd: configure
 	dh_testdir
 
-	# Add here commands to configure the package.
+	# configure "standard" variant:
 	./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) \
 	  --prefix=/usr \
 	  --sysconfdir=/etc/ngircd \
 	  --mandir=\$${prefix}/share/man \
 	  --with-syslog --with-zlib
 
-build: build-stamp
-
-build-stamp: config.status
+configure-ngircd-full: configure
 	dh_testdir
 
-	# Add here commands to compile the package.
+	# configure "full" variant:
+	./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) \
+	  --prefix=/usr \
+	  --sysconfdir=/etc/ngircd \
+	  --mandir=\$${prefix}/share/man \
+	  --with-syslog --with-zlib --with-tcp-wrappers --with-ident
+
+build:
+	dh_clean -k
+
+build-ngircd: build-stamp-ngircd
+build-stamp-ngircd: configure-ngircd
+	dh_testdir
+	rm -f build-stamp-*
+
+	# Add here commands to compile the "standard" package:
 	$(MAKE)
 
-	touch build-stamp
+	touch build-stamp-ngircd
+
+build-ngircd-full: build-stamp-ngircd-full
+build-stamp-ngircd-full: configure-ngircd-full
+	dh_testdir
+	rm -f build-stamp-*
+
+	# Add here commands to compile the "full" package:
+	$(MAKE)
+
+	touch build-stamp-ngircd-full
 
 clean:
 	dh_testdir
 	dh_testroot
-	rm -f build-stamp 
+	rm -f build-stamp*
+	rm -f $(CURDIR)/debian/ngircd-full.default
+	rm -f $(CURDIR)/debian/ngircd-full.init
+	rm -f $(CURDIR)/debian/ngircd-full.postinst
 
-	# Add here commands to clean up after the build process.
-	-$(MAKE) distclean
+	# Add here commands to clean up after the build process:
+	-$(MAKE) clean
 
 ifneq "$(wildcard /usr/share/misc/config.sub)" ""
 	cp -f /usr/share/misc/config.sub config.sub
@@ -72,36 +98,56 @@ ifneq "$(wildcard /usr/share/misc/config.guess)" ""
 endif
 	dh_clean
 
-install: build
+install: install-ngircd install-ngircd-full
+
+install-ngircd: build-ngircd
 	dh_testdir
 	dh_testroot
-	dh_clean -k
 	dh_installdirs
 
-	# Add here commands to install the package into debian/ngircd.
+	# Add here commands to install the "standard" package into debian/ngircd:
 	$(MAKE) install DESTDIR=$(CURDIR)/debian/ngircd
-	rm -f $(CURDIR)/debian/ngircd/usr/share/doc/ngircd/INSTALL*
-	rm -f $(CURDIR)/debian/ngircd/usr/share/doc/ngircd/COPYING*
+	rm $(CURDIR)/debian/ngircd/usr/share/doc/ngircd/INSTALL*
+	rm $(CURDIR)/debian/ngircd/usr/share/doc/ngircd/COPYING*
+
+install-ngircd-full: build-ngircd-full
+	dh_testdir
+	dh_testroot
+	dh_installdirs
+
+	# Add here commands to install the "full" package into debian/ngircd-full:
+	$(MAKE) install DESTDIR=$(CURDIR)/debian/ngircd-full
+	rm $(CURDIR)/debian/ngircd-full/usr/share/doc/ngircd/INSTALL*
+	rm $(CURDIR)/debian/ngircd-full/usr/share/doc/ngircd/COPYING*
+	mv $(CURDIR)/debian/ngircd-full/usr/share/doc/ngircd \
+	 $(CURDIR)/debian/ngircd-full/usr/share/doc/ngircd-full
 
 # Build architecture-independent files here.
-binary-indep: build install
+binary-indep:
 	# We have nothing to do by default.
 
 # Build architecture-dependent files here.
 binary-arch: build install
+	ln -s $(CURDIR)/debian/ngircd.default \
+	 $(CURDIR)/debian/ngircd-full.default
+	ln -s $(CURDIR)/debian/ngircd.init \
+	 $(CURDIR)/debian/ngircd-full.init
+	ln -s $(CURDIR)/debian/ngircd.postinst \
+	 $(CURDIR)/debian/ngircd-full.postinst
+	
 	dh_testdir
 	dh_testroot
-	dh_installchangelogs ChangeLog
-	dh_installdocs
-	dh_installinit
-	dh_strip
-	dh_compress
-	dh_fixperms
-	dh_installdeb
-	dh_shlibdeps
-	dh_gencontrol
-	dh_md5sums
-	dh_builddeb
+	dh_installchangelogs -a -A ChangeLog
+	dh_installdocs -a
+	dh_installinit -a
+	dh_strip -a
+	dh_compress -a
+	dh_fixperms -a
+	dh_installdeb -a
+	dh_shlibdeps -a
+	dh_gencontrol -a
+	dh_md5sums -a
+	dh_builddeb -a
 
 binary: binary-indep binary-arch
 

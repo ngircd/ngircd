@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: resolve.c,v 1.9 2004/05/11 00:01:11 alex Exp $";
+static char UNUSED id[] = "$Id: resolve.c,v 1.10 2005/03/05 12:57:14 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -53,6 +53,8 @@ LOCAL VOID Do_ResolveName PARAMS(( CHAR *Host, INT w_fd ));
 LOCAL CHAR *Get_Error PARAMS(( INT H_Error ));
 #endif
 
+LOCAL RES_STAT *New_Res_Stat PARAMS(( VOID ));
+
 
 GLOBAL VOID
 Resolve_Init( VOID )
@@ -77,21 +79,8 @@ Resolve_Addr( struct sockaddr_in *Addr )
 	RES_STAT *s;
 	INT pid;
 
-	/* Allocate memory */
-	s = (RES_STAT *)malloc( sizeof( RES_STAT ));
-	if( ! s )
-	{
-		Log( LOG_EMERG, "Resolver: Can't allocate memory! [Resolve_Addr]" );
-		return NULL;
-	}
-
-	/* Initialize pipe for result */
-	if( pipe( s->pipe ) != 0 )
-	{
-		free( s );
-		Log( LOG_ALERT, "Resolver: Can't create output pipe: %s!", strerror( errno ));
-		return NULL;
-	}
+	s = New_Res_Stat( );
+	if( ! s ) return NULL;
 
 	/* For sub-process */
 	pid = fork( );
@@ -102,8 +91,6 @@ Resolve_Addr( struct sockaddr_in *Addr )
 		FD_SET( s->pipe[0], &Resolver_FDs );
 		if( s->pipe[0] > Conn_MaxFD ) Conn_MaxFD = s->pipe[0];
 		s->pid = pid;
-		s->stage = 0;
-		s->bufpos = 0;
 		return s;
 	}
 	else if( pid == 0 )
@@ -137,21 +124,8 @@ Resolve_Name( CHAR *Host )
 	RES_STAT *s;
 	INT pid;
 
-	/* Allocate memory */
-	s = (RES_STAT *)malloc( sizeof( RES_STAT ));
-	if( ! s )
-	{
-		Log( LOG_EMERG, "Resolver: Can't allocate memory! [Resolve_Name]" );
-		return NULL;
-	}
-
-	/* Initialize the pipe for the result */
-	if( pipe( s->pipe ) != 0 )
-	{
-		free( s );
-		Log( LOG_ALERT, "Resolver: Can't create output pipe: %s!", strerror( errno ));
-		return NULL;
-	}
+	s = New_Res_Stat( );
+	if( ! s ) return NULL;
 
 	/* Fork sub-process */
 	pid = fork( );
@@ -162,8 +136,6 @@ Resolve_Name( CHAR *Host )
 		FD_SET( s->pipe[0], &Resolver_FDs );
 		if( s->pipe[0] > Conn_MaxFD ) Conn_MaxFD = s->pipe[0];
 		s->pid = pid;
-		s->stage = 0;
-		s->bufpos = 0;
 		return s;
 	}
 	else if( pid == 0 )
@@ -274,7 +246,7 @@ Do_ResolveName( CHAR *Host, INT w_fd )
 #else
 		Log_Resolver( LOG_WARNING, "Can't resolve \"%s\"!", Host );
 #endif
-		strcpy( ip, "" );
+		ip[0] = '\0';
 	}
 	if( ip[0] ) Log_Resolver( LOG_DEBUG, "Ok, translated \"%s\" to %s.", Host, ip );
 
@@ -312,6 +284,35 @@ Get_Error( INT H_Error )
 } /* Get_Error */
 
 #endif
+
+
+LOCAL RES_STAT *
+New_Res_Stat( VOID )
+{
+	RES_STAT *s;
+
+	/* Allocate memory */
+	s = (RES_STAT *)malloc( sizeof( RES_STAT ));
+	if( ! s )
+	{
+		Log( LOG_EMERG, "Resolver: Can't allocate memory! [Resolve_Addr]" );
+		return NULL;
+	}
+
+	/* Initialize pipe for result */
+	if( pipe( s->pipe ) != 0 )
+	{
+		free( s );
+		Log( LOG_ALERT, "Resolver: Can't create output pipe: %s!", strerror( errno ));
+		return NULL;
+	}
+
+	s->stage = 0;
+	s->bufpos = 0;
+	s->pid = -1;
+
+	return s;
+} /* New_Res_Stat */
 
 
 /* -eof- */

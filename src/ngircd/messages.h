@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: messages.h,v 1.32 2002/02/27 18:23:24 alex Exp $
+ * $Id: messages.h,v 1.33 2002/02/27 20:33:01 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: messages.h,v $
+ * Revision 1.33  2002/02/27 20:33:01  alex
+ * - neue Text-Konstante: ERR_NOTONCHANNEL_MSG
+ *
  * Revision 1.32  2002/02/27 18:23:24  alex
  * - neue Text-Konstanten RPL_UNAWAY_MSG und RPL_NOWAWAY_MSG.
  *
@@ -255,6 +258,9 @@
 
 #define ERR_NICKNAMEINUSE		"433"
 #define ERR_NICKNAMEINUSE_MSG		ERR_NICKNAMEINUSE" %s %s :Nickname already in use"
+
+#define ERR_NOTONCHANNEL		"442"
+#define ERR_NOTONCHANNEL_MSG		ERR_NOTONCHANNEL" %s %s :You are not on that channel"
 
 #define ERR_NOTREGISTERED		"451"
 #define ERR_NOTREGISTERED_MSG		ERR_NOTREGISTERED" %s :Connection not registered"

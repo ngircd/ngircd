@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
  *
  * Dieses Programm ist freie Software. Sie koennen es unter den Bedingungen
  * der GNU General Public License (GPL), wie von der Free Software Foundation
@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: tool.c,v 1.5 2001/12/31 02:44:36 alex Exp $
+ * $Id: tool.c,v 1.6 2002/01/02 02:42:58 alex Exp $
  *
  * tool.c: Hilfsfunktionen, ggf. Platformabhaengig
  *
  * $Log: tool.c,v $
+ * Revision 1.6  2002/01/02 02:42:58  alex
+ * - Copyright-Texte aktualisiert.
+ *
  * Revision 1.5  2001/12/31 02:44:36  alex
  * - ngt_TrimStr() hatte noch einen boesen Bug: evtl. wurde ueber den Start
  *   des Strings nach vorne(!) hinaus gelesen. Hopsa!

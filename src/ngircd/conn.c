@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.31 2002/01/05 19:15:03 alex Exp $
+ * $Id: conn.c,v 1.32 2002/01/05 23:25:25 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
+ * Revision 1.32  2002/01/05 23:25:25  alex
+ * - Vorbereitungen fuer Ident-Abfragen bei neuen Client-Strukturen.
+ *
  * Revision 1.31  2002/01/05 19:15:03  alex
  * - Fehlerpruefung bei select() in der "Hauptschleife" korrigiert.
  *
@@ -677,7 +680,7 @@ LOCAL VOID New_Connection( INT Sock )
 	}
 
 	/* Client-Struktur initialisieren */
-	if( ! Client_NewLocal( idx, inet_ntoa( new_addr.sin_addr ), CLIENT_UNKNOWN ))
+	if( ! Client_NewLocal( idx, inet_ntoa( new_addr.sin_addr ), CLIENT_UNKNOWN, FALSE ))
 	{
 		Log( LOG_ALERT, "Can't accept connection: can't create client structure!" );
 		close( new_sock );
@@ -991,7 +994,7 @@ LOCAL VOID New_Server( INT Server, CONN_ID Idx )
 	}
 
 	/* Client-Struktur initialisieren */
-	c = Client_NewLocal( Idx, inet_ntoa( new_addr.sin_addr ), CLIENT_UNKNOWNSERVER );
+	c = Client_NewLocal( Idx, inet_ntoa( new_addr.sin_addr ), CLIENT_UNKNOWNSERVER, FALSE );
 	if( ! c )
 	{
 		close( new_sock );

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: defines.h,v 1.29 2002/09/02 19:05:44 alex Exp $
+ * $Id: defines.h,v 1.30 2002/09/03 18:53:38 alex Exp $
  *
  * defines.h: (globale) Konstanten
  */
@@ -45,6 +45,7 @@
 #define CLIENT_MODE_LEN 8		/* max. Laenge der Client-Modes */
 #define CLIENT_INFO_LEN 64		/* max. Infotext-Laenge (Server) */
 #define CLIENT_AWAY_LEN 128		/* max. Laenger der AWAY-Nachricht */
+#define CLIENT_FLAGS_LEN 100		/* max. Laenger der Client-Flags */
 
 #define CHANNEL_NAME_LEN 51		/* max. Laenge eines Channel-Namens, vgl. RFC 2812, 1.3 */
 #define CHANNEL_MODE_LEN 8		/* max. Laenge der Channel-Modes */

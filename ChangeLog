@@ -23,7 +23,7 @@ ngIRCd 0.3.x, ??.??.2002
   - die Beispiel-Konfigurationsdatei (doc/sample-ngircd.conf) wird als
     ngircd.conf installiert, wenn noch keine "echte" Konfigurationsdatei
     vorhanden ist.
-  - bei "ngircd --version" werden nun die eincompilierten Pfade angezeigt.
+  - bei "ngircd --help" werden nun die eincompilierten Pfade angezeigt.
 
 ngIRCd 0.3.0, 02.03.2002
 
@@ -154,4 +154,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.45 2002/03/10 17:46:22 alex Exp $
+$Id: ChangeLog,v 1.46 2002/03/10 17:51:29 alex Exp $

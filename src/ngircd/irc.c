@@ -9,11 +9,16 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.39 2002/01/21 00:05:11 alex Exp $
+ * $Id: irc.c,v 1.40 2002/01/26 18:43:11 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.40  2002/01/26 18:43:11  alex
+ * - neue Funktionen IRC_WriteStrChannelPrefix() und IRC_WriteStrChannel(),
+ *   die IRC_Write_xxx_Related() sind dafuer entfallen.
+ * - IRC_PRIVMSG() kann nun auch mit Channels als Ziel umgehen.
+ *
  * Revision 1.39  2002/01/21 00:05:11  alex
  * - neue Funktionen IRC_JOIN und IRC_PART begonnen, ebenso die Funktionen
  *   IRC_WriteStrRelatedPrefix und IRC_WriteStrRelatedChannelPrefix().
@@ -237,7 +242,7 @@ GLOBAL BOOLEAN IRC_WriteStrClientPrefix( CLIENT *Client, CLIENT *Prefix, CHAR *F
 } /* IRC_WriteStrClientPrefix */
 
 
-GLOBAL BOOLEAN IRC_WriteStrRelated( CLIENT *Client, CHAR *Format, ... )
+GLOBAL BOOLEAN IRC_WriteStrChannel( CLIENT *Client, CHANNEL *Chan, CHAR *Format, ... )
 {
 	CHAR buffer[1000];
 	va_list ap;
@@ -249,48 +254,54 @@ GLOBAL BOOLEAN IRC_WriteStrRelated( CLIENT *Client, CHAR *Format, ... )
 	vsnprintf( buffer, 1000, Format, ap );
 	va_end( ap );
 
-	return IRC_WriteStrRelatedPrefix( Client, Client_ThisServer( ), buffer );
-} /* IRC_WriteStrRelated */
+	return IRC_WriteStrChannelPrefix( Client, Chan, Client_ThisServer( ), buffer );
+} /* IRC_WriteStrChannel */
 
 
-GLOBAL BOOLEAN IRC_WriteStrRelatedPrefix( CLIENT *Client, CLIENT *Prefix, CHAR *Format, ... )
+GLOBAL BOOLEAN IRC_WriteStrChannelPrefix( CLIENT *Client, CHANNEL *Chan, CLIENT *Prefix, CHAR *Format, ... )
 {
 	CHAR buffer[1000];
+	BOOLEAN sock[MAX_CONNECTIONS], ok = CONNECTED, i;
+	CL2CHAN *cl2chan;
+	CLIENT *c;
 	va_list ap;
 
 	assert( Client != NULL );
-	assert( Format != NULL );
-
-	va_start( ap, Format );
-	vsnprintf( buffer, 1000, Format, ap );
-	va_end( ap );
-
-	return IRC_WriteStrRelatedChannelPrefix( Client, NULL, Client_ThisServer( ), buffer );
-} /* IRC_WriteStrRelatedPrefix */
-
-
-GLOBAL BOOLEAN IRC_WriteStrRelatedChannelPrefix( CLIENT *Client, CHAR *ChanName, CLIENT *Prefix, CHAR *Format, ... )
-{
-	CHAR buffer[1000];
-	BOOLEAN ok = CONNECTED;
-	va_list ap;
-
-	assert( Client != NULL );
-	assert( Format != NULL );
+	assert( Chan != NULL );
 	assert( Prefix != NULL );
+	assert( Format != NULL );
 
 	va_start( ap, Format );
 	vsnprintf( buffer, 1000, Format, ap );
 	va_end( ap );
 
-	/* An den Client selber, wenn User */
-	if( Client_Type( Client ) == CLIENT_USER ) ok = IRC_WriteStrClientPrefix( Client, Prefix, buffer );
+	for( i = 0; i < MAX_CONNECTIONS; i++ ) sock[i] = FALSE;
 
 	/* An alle Clients, die in den selben Channels sind.
 	 * Dabei aber nur einmal je Remote-Server */
-		
+	cl2chan = Channel_FirstMember( Chan );
+	while( cl2chan )
+	{
+		c = Channel_GetClient( cl2chan );
+		if( c != Client )
+		{
+			/* Ok, anderer Client */
+			if( Client_Conn( c ) > NONE ) sock[Client_Conn( c )] = TRUE;
+		}
+		cl2chan = Channel_NextMember( Chan, cl2chan );
+	}
+
+	/* Senden ... */
+	for( i = 0; i < MAX_CONNECTIONS; i++ )
+	{
+		if( sock[i] )
+		{
+			ok = Conn_WriteStr( i, ":%s %s", Client_Mask( Prefix ), buffer );
+			if( ! ok ) break;
+		}
+	}
 	return ok;
-} /* IRC_WriteStrRelatedChannelPrefix */
+} /* IRC_WriteStrChannelPrefix */
 
 
 GLOBAL VOID IRC_WriteStrServers( CLIENT *ExceptOf, CHAR *Format, ... )
@@ -573,7 +584,7 @@ GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req )
 		{
 			/* Nick-Aenderung: allen mitteilen! */
 			Log( LOG_INFO, "User \"%s\" changed nick: \"%s\" -> \"%s\".", Client_Mask( target ), Client_ID( target ), Req->argv[0] );
-			IRC_WriteStrRelated( Client, "NICK :%s", Req->argv[0] );
+			IRC_WriteStrClient( Client, "NICK :%s", Req->argv[0] );
 			IRC_WriteStrServersPrefix( NULL, Client, "NICK :%s", Req->argv[0] );
 		}
 		else if( Client_Type( Client ) == CLIENT_SERVER )
@@ -812,6 +823,7 @@ GLOBAL BOOLEAN IRC_MOTD( CLIENT *Client, REQUEST *Req )
 GLOBAL BOOLEAN IRC_PRIVMSG( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *to, *from;
+	CHANNEL *chan;
 	
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -831,10 +843,19 @@ GLOBAL BOOLEAN IRC_PRIVMSG( CLIENT *Client, REQUEST *Req )
 	if( to )
 	{
 		/* Okay, Ziel ist ein User */
-		if( Client_Conn( from ) >= 0 ) Conn_UpdateIdle( Client_Conn( from ));
+		if( Client_Conn( from ) > NONE ) Conn_UpdateIdle( Client_Conn( from ));
 		return IRC_WriteStrClientPrefix( to, from, "PRIVMSG %s :%s", Client_ID( to ), Req->argv[1] );
 	}
-	else return IRC_WriteStrClient( from, ERR_NOSUCHNICK_MSG, Client_ID( from ), Req->argv[0] );
+
+	chan = Channel_Search( Req->argv[0] );
+	if( chan )
+	{
+		/* Okay, Ziel ist ein Channel */
+		if( Client_Conn( from ) > NONE ) Conn_UpdateIdle( Client_Conn( from ));
+		return IRC_WriteStrChannelPrefix( Client, chan, from, "PRIVMSG %s :%s", Req->argv[0], Req->argv[1] );
+	}
+
+	return IRC_WriteStrClient( from, ERR_NOSUCHNICK_MSG, Client_ID( from ), Req->argv[0] );
 } /* IRC_PRIVMSG */
 
 
@@ -1403,7 +1424,8 @@ GLOBAL BOOLEAN IRC_JOIN( CLIENT *Client, REQUEST *Req )
 
 		/* An andere Server weiterleiten, an Client bestaetigen */
 		IRC_WriteStrServersPrefix( Client, target, "JOIN :%s", chan );
-		IRC_WriteStrRelatedChannelPrefix( Client, chan, target, "JOIN :%s", chan );
+		IRC_WriteStrClientPrefix( Client, target, "JOIN :%s", chan );
+		IRC_WriteStrChannelPrefix( Client, Channel_Search( chan ), target, "JOIN :%s", chan );
 
 		Log( LOG_DEBUG, "User \"%s\" joined channel \"%s\".", Client_Mask( target ), Req->argv[0] );
 		

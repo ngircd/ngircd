@@ -9,11 +9,16 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.h,v 1.18 2002/01/21 00:04:13 alex Exp $
+ * $Id: irc.h,v 1.19 2002/01/26 18:43:11 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: irc.h,v $
+ * Revision 1.19  2002/01/26 18:43:11  alex
+ * - neue Funktionen IRC_WriteStrChannelPrefix() und IRC_WriteStrChannel(),
+ *   die IRC_Write_xxx_Related() sind dafuer entfallen.
+ * - IRC_PRIVMSG() kann nun auch mit Channels als Ziel umgehen.
+ *
  * Revision 1.18  2002/01/21 00:04:13  alex
  * - neue Funktionen IRC_JOIN, IRC_PART, IRC_WriteStrRelatedPrefix und
  *   IRC_WriteStrRelatedChannelPrefix().
@@ -79,6 +84,7 @@
 #define __irc_h__
 
 #include "parse.h"
+#include "channel.h"
 
 
 GLOBAL VOID IRC_Init( VOID );
@@ -86,9 +92,8 @@ GLOBAL VOID IRC_Exit( VOID );
 
 GLOBAL BOOLEAN IRC_WriteStrClient( CLIENT *Client, CHAR *Format, ... );
 GLOBAL BOOLEAN IRC_WriteStrClientPrefix( CLIENT *Client, CLIENT *Prefix, CHAR *Format, ... );
-GLOBAL BOOLEAN IRC_WriteStrRelated( CLIENT *Client, CHAR *Format, ... );
-GLOBAL BOOLEAN IRC_WriteStrRelatedPrefix( CLIENT *Client, CLIENT *Prefix, CHAR *Format, ... );
-GLOBAL BOOLEAN IRC_WriteStrRelatedChannelPrefix( CLIENT *Client, CHAR *ChanName, CLIENT *Prefix, CHAR *Format, ... );
+GLOBAL BOOLEAN IRC_WriteStrChannel( CLIENT *Client, CHANNEL *Chan, CHAR *Format, ... );
+GLOBAL BOOLEAN IRC_WriteStrChannelPrefix( CLIENT *Client, CHANNEL *Chan, CLIENT *Prefix, CHAR *Format, ... );
 GLOBAL VOID IRC_WriteStrServers( CLIENT *ExceptOf, CHAR *Format, ... );
 GLOBAL VOID IRC_WriteStrServersPrefix( CLIENT *ExceptOf, CLIENT *Prefix, CHAR *Format, ... );
 

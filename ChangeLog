@@ -10,6 +10,20 @@
                         -- ChangeLog / Aenderungen --
 
 
+ngIRCd 0.5.3-pre1, 04.11.2002
+
+  - NOTICE liefert nun wirklich nie mehr einen Fehler, auch dann nicht,
+    wenn der sendende Client noch gar nicht registriert ist.
+  - ein "schneller Server-Reconnect" wird nur noch dann versucht, wenn die
+    Verbindung zuvor ordentlich (="lange genug") in Ordnung war; somit also
+    nicht meht, wenn der Peer-Server gleich beim Connect ein ERROR liefert.
+    Das vermeidet "Connect-Orgien".
+  - einige Datentypen aufgeraumt: z.B. sind viele INT32s nun LONGs. Das ist
+    auf Platformen mit 8-Byte-Integern kompatibler.
+  - RPL_YOURHOST_MSG ist nun ircII- und RFC-kompatibel ;-)
+  - Segfault unter hoher Netzaktivitaet behoben: in Conn_Close() wird die
+    Connection-Struktur nun frueher als "ungueltig" markiert.
+
 ngIRCd 0.5.2, 04.10.2002
 
   - Buffer Overflow in Read_Resolver_Result() behoben.
@@ -284,4 +298,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.87.2.10 2002/10/04 12:43:53 alex Exp $
+$Id: ChangeLog,v 1.87.2.11 2002/11/04 20:03:38 alex Exp $

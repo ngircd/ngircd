@@ -218,7 +218,8 @@
 			);
 			isa = PBXGroup;
 			name = Products;
-			refType = 4;
+			path = "";
+			refType = 2;
 		};
 //1A0
 //1A1
@@ -421,10 +422,10 @@
 		};
 		F51F791401DFD0DE01D13771 = {
 			children = (
-				FA550F3103D59CB300A85B04,
 				F5263AEF01E2A9B801CE8F8F,
 				F51F791501DFD0DE01D13771,
 				F5E9447D02C9EE2801A85B04,
+				FA0B193305060CB800A85B04,
 				F5B565290325412B01A85B04,
 				F5E9447E02C9EE2801A85B04,
 				F5E9447F02C9EE2801A85B04,
@@ -433,8 +434,8 @@
 			);
 			isa = PBXGroup;
 			name = doc;
-			path = /Users/alex/Develop/ngircd/doc;
-			refType = 0;
+			path = ../doc;
+			refType = 2;
 		};
 		F51F791501DFD0DE01D13771 = {
 			fileEncoding = 5;
@@ -477,8 +478,8 @@
 			);
 			isa = PBXGroup;
 			name = testsuite;
-			path = /Users/alex/Develop/ngircd/src/testsuite;
-			refType = 0;
+			path = ../src/testsuite;
+			refType = 2;
 		};
 		F520AEA90335E29001A85B04 = {
 			fileEncoding = 5;
@@ -593,8 +594,8 @@
 			);
 			isa = PBXGroup;
 			name = man;
-			path = /Users/alex/Develop/ngircd/man;
-			refType = 0;
+			path = ../man;
+			refType = 2;
 		};
 		F520AF180335F1B801A85B04 = {
 			fileEncoding = 5;
@@ -691,8 +692,9 @@
 				F576ABFE01D61D7401A85B03,
 			);
 			isa = PBXGroup;
-			path = ngircd;
-			refType = 4;
+			name = ngircd;
+			path = ../src/ngircd;
+			refType = 2;
 		};
 		F52162BB01C7B904012300F4 = {
 			fileEncoding = 5;
@@ -1034,7 +1036,7 @@
 			);
 			isa = PBXGroup;
 			path = ngircd.pbproj;
-			refType = 4;
+			refType = 2;
 		};
 		F56D8BA101E0BFA00155ADA7 = {
 			fileEncoding = 5;
@@ -1275,7 +1277,8 @@
 			);
 			isa = PBXGroup;
 			name = contrib;
-			refType = 4;
+			path = "";
+			refType = 2;
 		};
 		F5D3536203892AD201A85B04 = {
 			fileEncoding = 5;
@@ -1377,8 +1380,8 @@
 			);
 			isa = PBXGroup;
 			name = portab;
-			path = /Users/alex/Develop/ngircd/src;
-			refType = 0;
+			path = ../src/portab;
+			refType = 2;
 		};
 		F5F18133023EC63701A85B04 = {
 			fileEncoding = 5;
@@ -1443,6 +1446,13 @@
 //FA2
 //FA3
 //FA4
+		FA0B193305060CB800A85B04 = {
+			fileEncoding = 5;
+			isa = PBXFileReference;
+			name = Platforms.txt;
+			path = ../doc/Platforms.txt;
+			refType = 2;
+		};
 		FA42C8AD03C0A00B00A85B04 = {
 			fileEncoding = 4;
 			isa = PBXFileReference;
@@ -1503,7 +1513,8 @@
 			);
 			isa = PBXGroup;
 			name = tool;
-			refType = 4;
+			path = ../src;
+			refType = 2;
 		};
 		FA550F2A03D59C8200A85B04 = {
 			fileEncoding = 5;
@@ -1549,93 +1560,6 @@
 			isa = PBXBuildFile;
 			settings = {
 			};
-		};
-		FA550F3103D59CB300A85B04 = {
-			children = (
-				FA550F3503D59CD800A85B04,
-				FA550F3403D59CD800A85B04,
-				FA550F3703D59CD800A85B04,
-				FA550F3203D59CD800A85B04,
-				FA550F3303D59CD800A85B04,
-				FA550F3603D59CD800A85B04,
-				FA550F3803D59CD800A85B04,
-				FA550F3903D59CD800A85B04,
-				FA550F3A03D59CD800A85B04,
-				FA550F3B03D59CD800A85B04,
-			);
-			isa = PBXGroup;
-			name = de;
-			refType = 4;
-		};
-		FA550F3203D59CD800A85B04 = {
-			fileEncoding = 5;
-			isa = PBXFileReference;
-			name = CVS.txt;
-			path = ../doc/de/CVS.txt;
-			refType = 2;
-		};
-		FA550F3303D59CD800A85B04 = {
-			fileEncoding = 5;
-			isa = PBXFileReference;
-			name = FAQ.txt;
-			path = ../doc/de/FAQ.txt;
-			refType = 2;
-		};
-		FA550F3403D59CD800A85B04 = {
-			fileEncoding = 5;
-			isa = PBXFileReference;
-			name = INSTALL;
-			path = ../doc/de/INSTALL;
-			refType = 2;
-		};
-		FA550F3503D59CD800A85B04 = {
-			fileEncoding = 5;
-			isa = PBXFileReference;
-			name = Makefile.am;
-			path = ../doc/de/Makefile.am;
-			refType = 2;
-		};
-		FA550F3603D59CD800A85B04 = {
-			fileEncoding = 5;
-			isa = PBXFileReference;
-			name = Protocol.txt;
-			path = ../doc/de/Protocol.txt;
-			refType = 2;
-		};
-		FA550F3703D59CD800A85B04 = {
-			fileEncoding = 5;
-			isa = PBXFileReference;
-			name = README;
-			path = ../doc/de/README;
-			refType = 2;
-		};
-		FA550F3803D59CD800A85B04 = {
-			fileEncoding = 5;
-			isa = PBXFileReference;
-			name = "README-AUX.txt";
-			path = "../doc/de/README-AUX.txt";
-			refType = 2;
-		};
-		FA550F3903D59CD800A85B04 = {
-			fileEncoding = 5;
-			isa = PBXFileReference;
-			name = "README-BeOS.txt";
-			path = "../doc/de/README-BeOS.txt";
-			refType = 2;
-		};
-		FA550F3A03D59CD800A85B04 = {
-			fileEncoding = 5;
-			isa = PBXFileReference;
-			name = RFC.txt;
-			path = ../doc/de/RFC.txt;
-			refType = 2;
-		};
-		FA550F3B03D59CD800A85B04 = {
-			fileEncoding = 5;
-			isa = PBXFileReference;
-			name = "sample-ngircd.conf";
-			path = "../doc/de/sample-ngircd.conf";
-			refType = 2;
 		};
 		FAC0383C03BB318400A85B04 = {
 			fileRef = F51044520297ABF80173DE11;

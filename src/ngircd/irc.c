@@ -9,11 +9,16 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.32 2002/01/07 16:02:36 alex Exp $
+ * $Id: irc.c,v 1.33 2002/01/07 23:42:12 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.33  2002/01/07 23:42:12  alex
+ * - Es werden fuer alle Server eigene Token generiert,
+ * - QUIT von einem Server fuer einen User wird an andere Server geforwarded,
+ * - ebenso NICK-Befehle, die "fremde" User einfuehren.
+ *
  * Revision 1.32  2002/01/07 16:02:36  alex
  * - Loglevel von Remote-Mode-Aenderungen angepasst (nun Debug).
  * - Im Debug-Mode werden nun auch PING's protokolliert.
@@ -380,7 +385,10 @@ GLOBAL BOOLEAN IRC_SERVER( CLIENT *Client, REQUEST *Req )
 
 		Client_SetType( Client, CLIENT_SERVER );
 
-		/* Unsere User und Server bekanntmachen */
+		/* Unsere User und Server dem neuen Server melden */
+		/* ... */
+
+		/* neuen Servern bei anderen bekannt machen */
 		/* ... */
 		
 		return CONNECTED;
@@ -518,7 +526,7 @@ GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req )
 			/* Der neue Nick ist auf diesem Server bereits registriert:
 			 * sowohl der neue, als auch der alte Client muessen nun
 			 * disconnectiert werden. */
-			Log( LOG_ERR, "Server %s introduces already registered nick %s!", Client_ID( Client ), Req->argv[0] );
+			Log( LOG_ERR, "Server %s introduces already registered nick \"%s\"!", Client_ID( Client ), Req->argv[0] );
 			Kill_Nick( Req->argv[0] );
 			return CONNECTED;
 		}
@@ -527,7 +535,7 @@ GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req )
 		intr_c = Client_GetFromToken( Client, atoi( Req->argv[4] ));
 		if( ! intr_c )
 		{
-			Log( LOG_ERR, "Server %s introduces nick %s with unknown host server!?", Client_ID( Client ), Req->argv[0] );
+			Log( LOG_ERR, "Server %s introduces nick \"%s\" on unknown server!?", Client_ID( Client ), Req->argv[0] );
 			Kill_Nick( Req->argv[0] );
 			return CONNECTED;
 		}
@@ -545,6 +553,9 @@ GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req )
 		}
 
 		Log( LOG_DEBUG, "User \"%s\" registered (via %s, on %s, %d hop%s).", Client_Mask( c ), Client_ID( Client ), Client_ID( intr_c ), Client_Hops( c ), Client_Hops( c ) > 1 ? "s": "" );
+
+		/* Andere Server, ausser dem Introducer, informieren */
+		IRC_WriteStrServersPrefix( Client, Client, "NICK %s %d %s %s %d %s :%s", Req->argv[0], atoi( Req->argv[1] ) + 1, Req->argv[2], Req->argv[3], Client_MyToken( intr_c ), Req->argv[5], Req->argv[6] );
 
 		return CONNECTED;
 	}
@@ -611,7 +622,7 @@ GLOBAL BOOLEAN IRC_QUIT( CLIENT *Client, REQUEST *Req )
 		target = Client_Search( Req->prefix );
 		if( ! target )
 		{
-			Log( LOG_ERR, "Got QUIT from %s for unknown server!?", Client_ID( Client ));
+			Log( LOG_ERR, "Got QUIT from %s for unknown client!?", Client_ID( Client ));
 			return CONNECTED;
 		}
 
@@ -675,7 +686,7 @@ GLOBAL BOOLEAN IRC_PING( CLIENT *Client, REQUEST *Req )
 	if( Req->argc < 1 ) return IRC_WriteStrClient( Client, ERR_NOORIGIN_MSG, Client_ID( Client ));
 	if( Req->argc > 1 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
-	Log( LOG_DEBUG, "Connection %d: Got PING, sending PONG ...", Client_Conn( Client ));
+	Log( LOG_DEBUG, "Connection %d: got PING, sending PONG ...", Client_Conn( Client ));
 	return IRC_WriteStrClient( Client, "PONG %s :%s", Client_ID( Client_ThisServer( )), Client_ID( Client ));
 } /* IRC_PING */
 

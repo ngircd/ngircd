@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.25 2002/01/07 15:31:00 alex Exp $
+ * $Id: client.c,v 1.26 2002/01/07 23:42:12 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,11 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.26  2002/01/07 23:42:12  alex
+ * - Es werden fuer alle Server eigene Token generiert,
+ * - QUIT von einem Server fuer einen User wird an andere Server geforwarded,
+ * - ebenso NICK-Befehle, die "fremde" User einfuehren.
+ *
  * Revision 1.25  2002/01/07 15:31:00  alex
  * - Bei Log-Meldungen ueber Clients wird nun immer die "Client Mask" verwendet.
  *
@@ -137,6 +142,7 @@ LOCAL CHAR GetID_Buffer[CLIENT_ID_LEN];
 
 
 LOCAL CLIENT *New_Client_Struct( VOID );
+LOCAL VOID Generate_MyToken( CLIENT *Client );
 
 
 GLOBAL VOID Client_Init( VOID )
@@ -237,6 +243,7 @@ GLOBAL CLIENT *Client_New( CONN_ID Idx, CLIENT *Introducer, INT Type, CHAR *ID, 
 	client->hops = Hops;
 	client->token = Token;
 	if( Modes ) Client_SetModes( client, Modes );
+	if( Type == CLIENT_SERVER ) Generate_MyToken( client );
 
 	/* Verketten */
 	client->next = My_Clients;
@@ -279,7 +286,7 @@ GLOBAL VOID Client_Destroy( CLIENT *Client, CHAR *LogMsg, CHAR *FwdMsg )
 			{
 				if( c->conn_id != NONE )
 				{
-					/* Ein lokaler User. Andere Server informieren! */
+					/* Ein lokaler User. Alle andere Server informieren! */
 					Log( LOG_NOTICE, "User \"%s\" unregistered (connection %d): %s", Client_Mask( c ), c->conn_id, txt );
 
 					if( FwdMsg ) IRC_WriteStrServersPrefix( NULL, c, "QUIT :%s", FwdMsg );
@@ -287,7 +294,13 @@ GLOBAL VOID Client_Destroy( CLIENT *Client, CHAR *LogMsg, CHAR *FwdMsg )
 				}
 				else
 				{
+					/* Remote User. Andere Server informieren, ausser denen,
+					 * die "in Richtung dem liegen", auf dem der User registriert
+					 * ist. Von denen haben wir das QUIT ja wohl bekommen. */
 					Log( LOG_DEBUG, "User \"%s\" unregistered: %s", Client_Mask( c ), txt );
+					
+					if( FwdMsg ) IRC_WriteStrServersPrefix( Client_NextHop( c ), c, "QUIT :%s", FwdMsg );
+					else IRC_WriteStrServersPrefix( Client_NextHop( c ), c, "QUIT :" );
 				}
 			}
 			else if( c->type == CLIENT_SERVER )
@@ -374,6 +387,7 @@ GLOBAL VOID Client_SetType( CLIENT *Client, INT Type )
 {
 	assert( Client != NULL );
 	Client->type = Type;
+	if( Type == CLIENT_SERVER ) Generate_MyToken( Client );
 } /* Client_SetType */
 
 
@@ -590,6 +604,13 @@ GLOBAL INT Client_Token( CLIENT *Client )
 } /* Client_Token */
 
 
+GLOBAL INT Client_MyToken( CLIENT *Client )
+{
+	assert( Client != NULL );
+	return Client->mytoken;
+} /* Client_MyToken */
+
+
 GLOBAL CLIENT *Client_NextHop( CLIENT *Client )
 {
 	CLIENT *c;
@@ -757,9 +778,33 @@ LOCAL CLIENT *New_Client_Struct( VOID )
 	c->oper_by_me = FALSE;
 	c->hops = -1;
 	c->token = -1;
+	c->mytoken = -1;
 
 	return c;
 } /* New_Client */
+
+
+LOCAL VOID Generate_MyToken( CLIENT *Client )
+{
+	CLIENT *c;
+	INT token;
+
+	c = My_Clients;
+	token = 2;
+	while( c )
+	{
+		if( c->mytoken == token )
+		{
+			/* Das Token wurde bereits vergeben */
+			token++;
+			c = My_Clients;
+			continue;
+		}
+		else c = c->next;
+	}
+	Client->mytoken = token;
+	Log( LOG_DEBUG, "Assigned token %d to server \"%s\".", token, Client->id );
+} /* Generate_MyToken */
 
 
 /* -eof- */

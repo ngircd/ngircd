@@ -9,11 +9,16 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.h,v 1.17 2002/01/06 15:18:14 alex Exp $
+ * $Id: client.h,v 1.18 2002/01/07 23:42:12 alex Exp $
  *
  * client.h: Konfiguration des ngircd (Header)
  *
  * $Log: client.h,v $
+ * Revision 1.18  2002/01/07 23:42:12  alex
+ * - Es werden fuer alle Server eigene Token generiert,
+ * - QUIT von einem Server fuer einen User wird an andere Server geforwarded,
+ * - ebenso NICK-Befehle, die "fremde" User einfuehren.
+ *
  * Revision 1.17  2002/01/06 15:18:14  alex
  * - Loglevel und Meldungen nochmals geaendert. Level passen nun besser.
  *
@@ -107,7 +112,7 @@ typedef struct _CLIENT
 	CHAR info[CLIENT_INFO_LEN];	/* Langer Benutzername (User) bzw. Infotext (Server) */
 	CHANNEL *channels[MAX_CHANNELS];/* Channel, in denen der Client Mitglied ist */
 	CHAR modes[CLIENT_MODE_LEN];	/* Client Modes */
-	INT hops, token;		/* "Hops" und "Token" (-> SERVER-Befehl) */
+	INT hops, token, mytoken;	/* "Hops" und "Token" (-> SERVER-Befehl) */
 	BOOLEAN oper_by_me;		/* IRC-Operator-Status durch diesen Server? */
 } CLIENT;
 #else
@@ -148,6 +153,7 @@ GLOBAL CLIENT *Client_Introducer( CLIENT *Client );
 GLOBAL BOOLEAN Client_OperByMe( CLIENT *Client );
 GLOBAL INT Client_Hops( CLIENT *Client );
 GLOBAL INT Client_Token( CLIENT *Client );
+GLOBAL INT Client_MyToken( CLIENT *Client );
 GLOBAL CLIENT *Client_NextHop( CLIENT *Client );
 
 GLOBAL BOOLEAN Client_HasMode( CLIENT *Client, CHAR Mode );

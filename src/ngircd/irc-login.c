@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-login.c,v 1.15 2002/05/30 16:52:21 alex Exp $
+ * $Id: irc-login.c,v 1.16 2002/09/02 19:04:30 alex Exp $
  *
  * irc-login.c: Anmeldung und Abmeldung im IRC
  */
@@ -65,11 +65,48 @@ IRC_PASS( CLIENT *Client, REQUEST *Req )
 	}
 	else if((( Client_Type( Client ) == CLIENT_UNKNOWN ) || ( Client_Type( Client ) == CLIENT_UNKNOWNSERVER )) && (( Req->argc == 3 ) || ( Req->argc == 4 )))
 	{
+		CHAR *impl, *serverver, *flags, *ptr;
+		INT protohigh, protolow;
+
 		/* noch nicht registrierte Server-Verbindung */
 		Log( LOG_DEBUG, "Connection %d: got PASS command (new server link) ...", Client_Conn( Client ));
 
 		/* Passwort speichern */
 		Client_SetPassword( Client, Req->argv[0] );
+
+		/* Protokollversion ueberpruefen */
+		if( strlen( Req->argv[1] ) > 4 ) Req->argv[1][4] = '\0';
+		if( strlen( Req->argv[1] ) != 4 ) protohigh = protolow = 0;
+		else
+		{
+			protolow = atoi( &Req->argv[1][2] );
+			Req->argv[1][2] = '\0';
+			protohigh = atoi( Req->argv[1] );
+		}
+
+		/* Implementation, Version und ngIRCd-Flags */
+		impl = Req->argv[2];
+		ptr = strchr( impl, '|' );
+		if( ptr ) *ptr = '\0';
+
+		if( strcmp( impl, PACKAGE ) == 0 )
+		{
+			/* auf der anderen Seite laeuft auch ein ngIRCd */
+			serverver = ptr + 1;
+			flags = strchr( serverver, ':' );
+			if( flags )
+			{
+				*flags = '\0';
+				flags++;
+			}
+			else flags = "";
+			Log( LOG_INFO, "Other server is \"%s\" %s (flags: \"%s\"), using protocol version %d.%d.", impl, serverver, flags, protohigh, protolow );
+		}
+		else
+		{
+			serverver = flags = "";
+			Log( LOG_INFO, "Other server is \"%s\" using protocol version %d.%d.", impl, protohigh, protolow );
+		}
 
 		Client_SetType( Client, CLIENT_GOTPASSSERVER );
 		return CONNECTED;

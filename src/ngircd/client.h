@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.h,v 1.30 2002/10/09 16:53:02 alex Exp $
+ * $Id: client.h,v 1.31 2002/11/30 15:04:57 alex Exp $
  *
  * client.h: Konfiguration des ngircd (Header)
  */
@@ -19,18 +19,17 @@
 #define __client_h__
 
 
-typedef enum
-{
-	CLIENT_UNKNOWN,			/* Verbindung mit (noch) unbekanntem Typ */
-	CLIENT_GOTPASS,			/* Client hat PASS gesendet */
-	CLIENT_GOTNICK,			/* Client hat NICK gesendet */
-	CLIENT_GOTUSER,			/* Client hat USER gesendet */
-	CLIENT_USER,			/* Client ist ein Benutzer (USER wurde gesendet) */
-	CLIENT_UNKNOWNSERVER,		/* unregistrierte Server-Verbindung */
-	CLIENT_GOTPASSSERVER,		/* Client hat PASS nach "Server-Art" gesendet */
-	CLIENT_SERVER,			/* Client ist ein Server */
-	CLIENT_SERVICE			/* Client ist ein Service */
-} CLIENT_TYPE;
+#define CLIENT_UNKNOWN 1		/* Verbindung mit (noch) unbekanntem Typ */
+#define CLIENT_GOTPASS 2		/* Client hat PASS gesendet */
+#define CLIENT_GOTNICK 4		/* Client hat NICK gesendet */
+#define CLIENT_GOTUSER 8		/* Client hat USER gesendet */
+#define CLIENT_USER 16			/* Client ist ein Benutzer (USER wurde gesendet) */
+#define CLIENT_UNKNOWNSERVER 32		/* unregistrierte Server-Verbindung */
+#define CLIENT_GOTPASSSERVER 64		/* Client hat PASS nach "Server-Art" gesendet */
+#define CLIENT_SERVER 128		/* Client ist ein Server */
+#define CLIENT_SERVICE 256		/* Client ist ein Service */
+
+#define CLIENT_TYPE INT
 
 
 #if defined(__client_c__) | defined(S_SPLINT_S)

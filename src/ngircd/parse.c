@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: parse.c,v 1.47 2002/11/28 11:02:50 alex Exp $
+ * $Id: parse.c,v 1.48 2002/11/30 15:04:57 alex Exp $
  *
  * parse.c: Parsen der Client-Anfragen
  */
@@ -46,6 +46,62 @@
 #include "irc-write.h"
 
 #include "exp.h"
+
+
+typedef struct _COMMAND
+{
+	CHAR *name;		/* Name des Befehls */
+	BOOLEAN (*function)( CLIENT *Client, REQUEST *Request );
+	CLIENT_TYPE type;	/* Erlaubte Client-Typen (Bitmaske) */
+	LONG count;		/* Anzahl der Aufrufe */
+} COMMAND;
+
+
+COMMAND My_Commands[] =
+{
+	{ "ADMIN", IRC_ADMIN, CLIENT_USER|CLIENT_SERVER, 0 },
+	{ "AWAY", IRC_AWAY, CLIENT_USER, 0 },
+	{ "CONNECT", IRC_CONNECT, CLIENT_USER, 0 },
+	{ "DIE", IRC_DIE, CLIENT_USER, 0 },
+	{ "ERROR", IRC_ERROR, 0xFFFF, 0 },
+	{ "INVITE", IRC_INVITE, CLIENT_USER|CLIENT_SERVER, 0 },
+	{ "ISON", IRC_ISON, CLIENT_USER, 0 },
+	{ "JOIN", IRC_JOIN, CLIENT_USER|CLIENT_SERVER, 0 },
+	{ "KICK", IRC_KICK, CLIENT_USER|CLIENT_SERVER, 0 },
+	{ "KILL", IRC_KILL, CLIENT_SERVER, 0 },
+	{ "LINKS", IRC_LINKS, CLIENT_USER|CLIENT_SERVER, 0 },
+	{ "LIST", IRC_LIST, CLIENT_USER|CLIENT_SERVER, 0 },
+	{ "LUSERS", IRC_LUSERS, CLIENT_USER|CLIENT_SERVER, 0 },
+	{ "MODE", IRC_MODE, CLIENT_USER|CLIENT_SERVER, 0 },
+	{ "MOTD", IRC_MOTD, CLIENT_USER|CLIENT_SERVER, 0 },
+	{ "NAMES", IRC_NAMES, CLIENT_USER|CLIENT_SERVER, 0 },
+	{ "NICK", IRC_NICK, 0xFFFF, 0 },
+	{ "NJOIN", IRC_NJOIN, CLIENT_SERVER, 0 },
+	{ "NOTICE", IRC_NOTICE, 0xFFFF, 0 },
+	{ "OPER", IRC_OPER, CLIENT_USER, 0 },
+	{ "PART", IRC_PART, CLIENT_USER|CLIENT_SERVER, 0 },
+	{ "PASS", IRC_PASS, 0xFFFF, 0 },
+	{ "PING", IRC_PING, CLIENT_USER|CLIENT_SERVER, 0 },
+	{ "PONG", IRC_PONG, CLIENT_USER|CLIENT_SERVER, 0 },
+	{ "PRIVMSG", IRC_PRIVMSG, CLIENT_USER|CLIENT_SERVER, 0 },
+	{ "QUIT", IRC_QUIT, 0xFFFF, 0 },
+	{ "REHASH", IRC_REHASH, CLIENT_USER, 0 },
+	{ "RESTART", IRC_RESTART, CLIENT_USER, 0 },
+	{ "SERVER", IRC_SERVER, 0xFFFF, 0 },
+	{ "SQUIT", IRC_SQUIT, CLIENT_SERVER, 0 },
+	{ "TIME", IRC_TIME, CLIENT_USER|CLIENT_SERVER, 0 },
+	{ "TOPIC", IRC_TOPIC, CLIENT_USER|CLIENT_SERVER, 0 },
+	{ "USER", IRC_USER, 0xFFFF, 0 },
+	{ "USERHOST", IRC_USERHOST, CLIENT_USER, 0 },
+	{ "VERSION", IRC_VERSION, CLIENT_USER|CLIENT_SERVER, 0 },
+	{ "WHO", IRC_WHO, CLIENT_USER, 0 },
+	{ "WHOIS", IRC_WHOIS, CLIENT_USER|CLIENT_SERVER, 0 },
+	{ "WHOWAS", IRC_WHOWAS, CLIENT_USER|CLIENT_SERVER, 0 },
+#ifdef IRCPLUS
+	{ "CHANINFO", IRC_CHANINFO, CLIENT_SERVER, 0 },
+#endif
+	{ NULL, NULL, 0 } /* Ende-Marke */
+};
 
 
 LOCAL VOID Init_Request PARAMS(( REQUEST *Req ));
@@ -260,6 +316,7 @@ Handle_Request( CONN_ID Idx, REQUEST *Req )
 
 	CLIENT *client, *target, *prefix;
 	CHAR str[LINE_LEN];
+	COMMAND *cmd;
 	INT i;
 
 	assert( Idx >= 0 );
@@ -313,53 +370,33 @@ Handle_Request( CONN_ID Idx, REQUEST *Req )
 		return IRC_WriteStrClientPrefix( target, prefix, "%s", str );
 	}
 
-	if( strcasecmp( Req->command, "ADMIN" ) == 0 ) return IRC_ADMIN( client, Req );
-	else if( strcasecmp( Req->command, "AWAY" ) == 0 ) return IRC_AWAY( client, Req );
-	else if( strcasecmp( Req->command, "CONNECT" ) == 0 ) return IRC_CONNECT( client, Req );
-	else if( strcasecmp( Req->command, "DIE" ) == 0 ) return IRC_DIE( client, Req );
-	else if( strcasecmp( Req->command, "ERROR" ) == 0 ) return IRC_ERROR( client, Req );
-	else if( strcasecmp( Req->command, "INVITE" ) == 0 ) return IRC_INVITE( client, Req );
-	else if( strcasecmp( Req->command, "ISON" ) == 0 ) return IRC_ISON( client, Req );
-	else if( strcasecmp( Req->command, "JOIN" ) == 0 ) return IRC_JOIN( client, Req );
-	else if( strcasecmp( Req->command, "KICK" ) == 0 ) return IRC_KICK( client, Req );
-	else if( strcasecmp( Req->command, "KILL" ) == 0 ) return IRC_KILL( client, Req );
-	else if( strcasecmp( Req->command, "LINKS" ) == 0 ) return IRC_LINKS( client, Req );
-	else if( strcasecmp( Req->command, "LIST" ) == 0 ) return IRC_LIST( client, Req );
-	else if( strcasecmp( Req->command, "LUSERS" ) == 0 ) return IRC_LUSERS( client, Req );
-	else if( strcasecmp( Req->command, "MODE" ) == 0 ) return IRC_MODE( client, Req );
-	else if( strcasecmp( Req->command, "MOTD" ) == 0 ) return IRC_MOTD( client, Req );
-	else if( strcasecmp( Req->command, "NAMES" ) == 0 ) return IRC_NAMES( client, Req );
-	else if( strcasecmp( Req->command, "NICK" ) == 0 ) return IRC_NICK( client, Req );
-	else if( strcasecmp( Req->command, "NJOIN" ) == 0 ) return IRC_NJOIN( client, Req );
-	else if( strcasecmp( Req->command, "NOTICE" ) == 0 ) return IRC_NOTICE( client, Req );
-	else if( strcasecmp( Req->command, "OPER" ) == 0 ) return IRC_OPER( client, Req );
-	else if( strcasecmp( Req->command, "PART" ) == 0 ) return IRC_PART( client, Req );
-	else if( strcasecmp( Req->command, "PASS" ) == 0 ) return IRC_PASS( client, Req );
-	else if( strcasecmp( Req->command, "PING" ) == 0 ) return IRC_PING( client, Req );
-	else if( strcasecmp( Req->command, "PONG" ) == 0 ) return IRC_PONG( client, Req );
-	else if( strcasecmp( Req->command, "PRIVMSG" ) == 0 ) return IRC_PRIVMSG( client, Req );
-	else if( strcasecmp( Req->command, "QUIT" ) == 0 ) return IRC_QUIT( client, Req );
-	else if( strcasecmp( Req->command, "REHASH" ) == 0 ) return IRC_REHASH( client, Req );
-	else if( strcasecmp( Req->command, "RESTART" ) == 0 ) return IRC_RESTART( client, Req );
-	else if( strcasecmp( Req->command, "SERVER" ) == 0 ) return IRC_SERVER( client, Req );
-	else if( strcasecmp( Req->command, "SQUIT" ) == 0 ) return IRC_SQUIT( client, Req );
-	else if( strcasecmp( Req->command, "TIME" ) == 0 ) return IRC_TIME( client, Req );
-	else if( strcasecmp( Req->command, "TOPIC" ) == 0 ) return IRC_TOPIC( client, Req );
-	else if( strcasecmp( Req->command, "USER" ) == 0 ) return IRC_USER( client, Req );
-	else if( strcasecmp( Req->command, "USERHOST" ) == 0 ) return IRC_USERHOST( client, Req );
-	else if( strcasecmp( Req->command, "VERSION" ) == 0 ) return IRC_VERSION( client, Req );
-	else if( strcasecmp( Req->command, "WHO" ) == 0 ) return IRC_WHO( client, Req );
-	else if( strcasecmp( Req->command, "WHOIS" ) == 0 ) return IRC_WHOIS( client, Req );
-	else if( strcasecmp( Req->command, "WHOWAS" ) == 0 ) return IRC_WHOWAS( client, Req );
-#ifdef IRCPLUS
-	else if( strcasecmp( Req->command, "CHANINFO" ) == 0 ) return IRC_CHANINFO( client, Req );
-#endif
+	cmd = My_Commands;
+	while( cmd->name )
+	{
+		/* Befehl suchen */
+		if( strcasecmp( Req->command, cmd->name ) != 0 )
+		{
+			cmd++; continue;
+		}
+
+		if( Client_Type( client ) & cmd->type )
+		{
+			/* Der Befehl ist fuer diesen Client-Typ erlaubt.
+			 * Entsprechende Funktion zaehlen nun aufrufen: */
+			cmd->count++;
+			return (cmd->function)( client, Req );
+		}
+		else
+		{
+			/* Befehl ist fuer diesen Client-Typ nicht erlaubt! */
+			return IRC_WriteStrClient( client, ERR_NOTREGISTERED_MSG, Client_ID( client ));
+		}
+	}
 	
 	/* Unbekannter Befehl */
-	if( Client_Type( client ) != CLIENT_SERVER ) IRC_WriteStrClient( client, ERR_UNKNOWNCOMMAND_MSG, Client_ID( client ), Req->command );
 	Log( LOG_DEBUG, "Connection %d: Unknown command \"%s\", %d %s,%s prefix.", Client_Conn( client ), Req->command, Req->argc, Req->argc == 1 ? "parameter" : "parameters", Req->prefix ? "" : " no" );
-
-	return TRUE;
+	if( Client_Type( client ) != CLIENT_SERVER ) return IRC_WriteStrClient( client, ERR_UNKNOWNCOMMAND_MSG, Client_ID( client ), Req->command );
+	else return TRUE;
 } /* Handle_Request */
 
 

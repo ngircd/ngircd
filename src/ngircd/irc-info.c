@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-info.c,v 1.10 2002/12/26 16:48:14 alex Exp $";
+static char UNUSED id[] = "$Id: irc-info.c,v 1.11 2002/12/26 17:14:48 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -296,7 +296,7 @@ IRC_NAMES( CLIENT *Client, REQUEST *Req )
 
 	/* Nun noch alle Clients ausgeben, die in keinem Channel sind */
 	c = Client_First( );
-	sprintf( rpl, RPL_NAMREPLY_MSG, Client_ID( from ), "*", "*" );
+	snprintf( rpl, sizeof( rpl ), RPL_NAMREPLY_MSG, Client_ID( from ), "*", "*" );
 	while( c )
 	{
 		if(( Client_Type( c ) == CLIENT_USER ) && ( Channel_FirstChannelOf( c ) == NULL ) && ( ! strchr( Client_Modes( c ), 'i' )))
@@ -309,7 +309,7 @@ IRC_NAMES( CLIENT *Client, REQUEST *Req )
 			{
 				/* Zeile wird zu lang: senden! */
 				if( ! IRC_WriteStrClient( from, "%s", rpl )) return DISCONNECTED;
-				sprintf( rpl, RPL_NAMREPLY_MSG, Client_ID( from ), "*", "*" );
+				snprintf( rpl, sizeof( rpl ), RPL_NAMREPLY_MSG, Client_ID( from ), "*", "*" );
 			}
 		}
 
@@ -636,7 +636,7 @@ IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 	if( ! IRC_WriteStrClient( from, RPL_WHOISSERVER_MSG, Client_ID( from ), Client_ID( c ), Client_ID( Client_Introducer( c )), Client_Info( Client_Introducer( c )))) return DISCONNECTED;
 
 	/* Channels */
-	sprintf( str, RPL_WHOISCHANNELS_MSG, Client_ID( from ), Client_ID( c ));
+	snprintf( str, sizeof( str ), RPL_WHOISCHANNELS_MSG, Client_ID( from ), Client_ID( c ));
 	cl2chan = Channel_FirstChannelOf( c );
 	while( cl2chan )
 	{
@@ -653,7 +653,7 @@ IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 		{
 			/* Zeile wird zu lang: senden! */
 			if( ! IRC_WriteStrClient( Client, "%s", str )) return DISCONNECTED;
-			sprintf( str, RPL_WHOISCHANNELS_MSG, Client_ID( from ), Client_ID( c ));
+			snprintf( str, sizeof( str ), RPL_WHOISCHANNELS_MSG, Client_ID( from ), Client_ID( c ));
 		}
 
 		/* naechstes Mitglied suchen */
@@ -794,7 +794,7 @@ IRC_Send_NAMES( CLIENT *Client, CHANNEL *Chan )
 	else is_member = FALSE;
 
 	/* Alle Mitglieder suchen */
-	sprintf( str, RPL_NAMREPLY_MSG, Client_ID( Client ), "=", Channel_Name( Chan ));
+	snprintf( str, sizeof( str ), RPL_NAMREPLY_MSG, Client_ID( Client ), "=", Channel_Name( Chan ));
 	cl2chan = Channel_FirstMember( Chan );
 	while( cl2chan )
 	{
@@ -815,7 +815,7 @@ IRC_Send_NAMES( CLIENT *Client, CHANNEL *Chan )
 			{
 				/* Zeile wird zu lang: senden! */
 				if( ! IRC_WriteStrClient( Client, "%s", str )) return DISCONNECTED;
-				sprintf( str, RPL_NAMREPLY_MSG, Client_ID( Client ), "=", Channel_Name( Chan ));
+				snprintf( str, sizeof( str ), RPL_NAMREPLY_MSG, Client_ID( Client ), "=", Channel_Name( Chan ));
 			}
 		}
 

@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: client.c,v 1.70 2002/12/26 17:04:54 alex Exp $";
+static char UNUSED id[] = "$Id: client.c,v 1.71 2002/12/26 17:14:48 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -203,7 +203,7 @@ Client_Destroy( CLIENT *Client, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN SendQuit )
 	if( ! txt ) txt = "Reason unknown.";
 
 	/* Netz-Split-Nachricht vorbereiten (noch nicht optimal) */
-	if( Client->type == CLIENT_SERVER ) sprintf( msg, "%s: lost server %s", This_Server->id, Client->id );
+	if( Client->type == CLIENT_SERVER ) snprintf( msg, sizeof( msg ), "%s: lost server %s", This_Server->id, Client->id );
 
 	last = NULL;
 	c = My_Clients;
@@ -799,7 +799,7 @@ Client_CheckID( CLIENT *Client, CHAR *ID )
 		if( strcasecmp( c->id, ID ) == 0 )
 		{
 			/* die Server-ID gibt es bereits */
-			sprintf( str, "ID \"%s\" already registered", ID );
+			snprintf( str, sizeof( str ), "ID \"%s\" already registered", ID );
 			if( Client->conn_id != c->conn_id ) Log( LOG_ERR, "%s (on connection %d)!", str, c->conn_id );
 			else Log( LOG_ERR, "%s (via network)!", str );
 			Conn_Close( Client->conn_id, str, str, TRUE );

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-server.c,v 1.27 2002/12/26 17:04:54 alex Exp $";
+static char UNUSED id[] = "$Id: irc-server.c,v 1.28 2002/12/26 17:14:48 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -188,7 +188,7 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 
 			/* alle Member suchen */
 			cl2chan = Channel_FirstMember( chan );
-			sprintf( str, "NJOIN %s :", Channel_Name( chan ));
+			snprintf( str, sizeof( str ), "NJOIN %s :", Channel_Name( chan ));
 			while( cl2chan )
 			{
 				cl = Channel_GetClient( cl2chan );
@@ -204,7 +204,7 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 				{
 					/* Zeile senden */
 					if( ! IRC_WriteStrClient( Client, "%s", str )) return DISCONNECTED;
-					sprintf( str, "NJOIN %s :", Channel_Name( chan ));
+					snprintf( str, sizeof( str ), "NJOIN %s :", Channel_Name( chan ));
 				}
 				
 				cl2chan = Channel_NextMember( chan, cl2chan );
@@ -257,7 +257,7 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 		}
 
 		/* Log-Meldung zusammenbauen und ausgeben */
-		if(( Client_Hops( c ) > 1 ) && ( Req->prefix[0] )) sprintf( str, "connected to %s, ", Client_ID( from ));
+		if(( Client_Hops( c ) > 1 ) && ( Req->prefix[0] )) snprintf( str, sizeof( str ), "connected to %s, ", Client_ID( from ));
 		else strcpy( str, "" );
 		Log( LOG_NOTICE|LOG_snotice, "Server \"%s\" registered (via %s, %s%d hop%s).", Client_ID( c ), Client_ID( Client ), str, Client_Hops( c ), Client_Hops( c ) > 1 ? "s": "" );
 
@@ -359,9 +359,9 @@ IRC_SQUIT( CLIENT *Client, REQUEST *Req )
 	if( Req->argv[1][0] )
 	{
 		if( strlen( Req->argv[1] ) > LINE_LEN ) Req->argv[1][LINE_LEN] = '\0';
-		sprintf( msg, "%s (SQUIT from %s).", Req->argv[1], Client_ID( Client ));
+		snprintf( msg, sizeof( msg ), "%s (SQUIT from %s).", Req->argv[1], Client_ID( Client ));
 	}
-	else sprintf( msg, "Got SQUIT from %s.", Client_ID( Client ));
+	else snprintf( msg, sizeof( msg ), "Got SQUIT from %s.", Client_ID( Client ));
 
 	if( Client_Conn( target ) > NONE )
 	{

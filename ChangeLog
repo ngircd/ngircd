@@ -12,19 +12,22 @@
 
 ngIRCd CVSHEAD
 
-  - Autoconf: Updated config.guess and config.sub
-  - Added some more debug code ...
   - Made ngIRCd compile on HP/UX 10.20 with native HP pre-ANSI C compiler and
     most probably other older C compilers on other systems.
-  - Fixed wrong variable names in output of "ngircd --configtest".
-  - Debian: Fixed the name of the "default file" in the init script for
-    ngircd-full packages. And do the test if the binary is executable after
-    reading this file.
   - When the daemon should switch to another user ID (ServerID is defined in
     the configuration file) and is not running in a chroot environment, it
     changes it's working directory to the home directory of this user. This
     should enable the system to write proper core files when not running with
     root privileges ...
+
+ngIRCd 0.8.1 (2004-12-25)
+
+  - Autoconf: Updated config.guess and config.sub
+  - Added some more debug code ...
+  - Fixed wrong variable names in output of "ngircd --configtest".
+  - Debian: Fixed the name of the "default file" in the init script for
+    ngircd-full packages. And do the test if the binary is executable after
+    reading this file.
   - Enhanced the "test suite": please have a look at src/testsuite/README!
 
 ngIRCd 0.8.0 (2004-06-26)
@@ -547,4 +550,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.246 2004/12/25 00:10:19 alex Exp $
+$Id: ChangeLog,v 1.247 2004/12/25 00:22:00 alex Exp $

@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: defines.h,v 1.39 2002/12/12 12:23:43 alex Exp $
+ * $Id: defines.h,v 1.40 2002/12/16 23:10:56 alex Exp $
  *
  * Global defines of ngIRCd.
  */
@@ -34,6 +34,8 @@
 #define MAX_SERVERS 16			/* max. Anzahl konfigurierbarer Server ("Peers") */
 
 #define MAX_DEFCHANNELS 16		/* max. Anzahl vorkonfigurierbarerr Channels */
+
+#define MAX_SERVICES 8			/* maximum number of configurable services */
 
 #define CONNECTION_POOL 100		/* Anzahl Verbindungs-Strukturen, die blockweise alloziert werden */
 
@@ -74,7 +76,7 @@
 #define RECONNECT_DELAY 3		/* Server-Links erst nach 3 Sekunden versuchen, wieder aufzubauen */
 
 #define USERMODES "aios"		/* unterstuetzte User-Modes */
-#define CHANMODES "biImnoPtv"		/* unterstuetzte Channel-Modes */
+#define CHANMODES "biklImnoPtv"		/* unterstuetzte Channel-Modes */
 
 #define CONNECTED TRUE			/* fuer die irc-xxx-Module */
 #define DISCONNECTED FALSE

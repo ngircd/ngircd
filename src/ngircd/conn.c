@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.80 2002/10/09 17:07:22 alex Exp $
+ * $Id: conn.c,v 1.81 2002/10/10 15:01:12 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -548,6 +548,14 @@ Conn_SetPenalty( CONN_ID Idx, time_t Seconds )
 } /* Conn_SetPenalty */
 
 
+GLOBAL VOID
+Conn_ResetPenalty( CONN_ID Idx )
+{
+	assert( Idx >= 0 );
+	My_Connections[Idx].delaytime = 0;
+} /* Conn_ResetPenalty */
+
+
 LOCAL BOOLEAN
 Try_Write( CONN_ID Idx )
 {
@@ -751,7 +759,7 @@ New_Connection( INT Sock )
 	}
 	
 	/* Penalty-Zeit setzen */
-	Conn_SetPenalty( idx, 1 );
+	Conn_SetPenalty( idx, 4 );
 } /* New_Connection */
 
 
@@ -1198,6 +1206,9 @@ Read_Resolver_Result( INT r_fd )
 		assert( My_Connections[i].our_server >= 0 );
 		strcpy( Conf_Server[My_Connections[i].our_server].ip, result );
 	}
+
+	/* Penalty-Zeit zurueck setzen */
+	Conn_ResetPenalty( i );
 } /* Read_Resolver_Result */
 
 

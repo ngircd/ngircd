@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: log.c,v 1.21 2002/03/12 14:37:52 alex Exp $
+ * $Id: log.c,v 1.22 2002/03/21 12:00:23 alex Exp $
  *
  * log.c: Logging-Funktionen
  */
@@ -92,8 +92,13 @@ GLOBAL VOID Log_Init( VOID )
 
 GLOBAL VOID Log_Exit( VOID )
 {
+	time_t t;
+	
 	/* Good Bye! */
 	Log( LOG_NOTICE, PACKAGE" done.");
+
+	t = time( NULL );
+	fputs( ctime( &t ), stderr );
 	fprintf( stderr, PACKAGE" done (pid=%d).\n", getpid( ));
 	fflush( stderr );
 
@@ -110,6 +115,7 @@ GLOBAL VOID Log( CONST INT Level, CONST CHAR *Format, ... )
 
 	CHAR msg[MAX_LOG_MSG_LEN];
 	va_list ap;
+	time_t t;
 
 	assert( Format != NULL );
 
@@ -125,7 +131,12 @@ GLOBAL VOID Log( CONST INT Level, CONST CHAR *Format, ... )
 	va_end( ap );
 
 	/* In Error-File schreiben */
-	if( Level <= LOG_ERR ) fprintf( stderr, "[%d] %s\n", Level, msg );
+	if( Level <= LOG_ERR )
+	{
+		t = time( NULL );
+		fputs( ctime( &t ), stderr );
+		fprintf( stderr, "[%d] %s\n\n", Level, msg );
+	}
 
 	/* ... und ausgeben */
 	if( NGIRCd_NoDaemon ) printf( "[%d] %s\n", Level, msg );

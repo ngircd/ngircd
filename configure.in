@@ -8,7 +8,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: configure.in,v 1.85 2003/03/26 22:43:58 alex Exp $
+# $Id: configure.in,v 1.86 2003/03/30 13:46:00 alex Exp $
 #
 
 # -- Initialisierung --
@@ -289,6 +289,7 @@ B=`eval echo ${bindir}` ; B=`eval echo ${B}`
 S=`eval echo ${sbindir}` ; S=`eval echo ${S}`
 C=`eval echo ${sysconfdir}` ; C=`eval echo ${C}`
 M=`eval echo ${mandir}` ; M=`eval echo ${M}`
+D=`eval echo ${datadir}/doc/${PACKAGE}` ; D=`eval echo ${D}`
 
 echo "               Host: ${host}"
 echo "           Compiler: ${CC}"
@@ -301,6 +302,7 @@ echo
 echo "    'ngircd' binary: $S"
 echo " Configuration file: $C"
 echo "       Manual pages: $M"
+echo "      Documentation: $D"
 echo
 
 echo $ECHO_N "     Syslog support: $ECHO_C"

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-mode.c,v 1.32 2003/11/05 23:24:48 alex Exp $";
+static char UNUSED id[] = "$Id: irc-mode.c,v 1.33 2004/02/29 16:28:44 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -225,7 +225,7 @@ client_exit:
 		else
 		{
 			/* Send reply to client and inform other servers */
-			ok = IRC_WriteStrClientPrefix( Client, Origin, "MODE %s %s", Client_ID( Target ), the_modes );
+			ok = IRC_WriteStrClientPrefix( Client, Origin, "MODE %s :%s", Client_ID( Target ), the_modes );
 			IRC_WriteStrServersPrefix( Client, Origin, "MODE %s :%s", Client_ID( Target ), the_modes );
 		}
 		Log( LOG_DEBUG, "User \"%s\": Mode change, now \"%s\".", Client_Mask( Target ), Client_Modes( Target ));

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.84 2002/03/03 17:15:11 alex Exp $
+ * $Id: irc.c,v 1.85 2002/03/03 19:44:30 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.85  2002/03/03 19:44:30  alex
+ * - WHO implementiert (bisher ohne Unterstuetzung von Masks)
+ *
  * Revision 1.84  2002/03/03 17:15:11  alex
  * - Source in weitere Module fuer IRC-Befehle aufgesplitted.
  *
@@ -422,6 +425,12 @@ GLOBAL BOOLEAN IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 
 GLOBAL BOOLEAN IRC_WHO( CLIENT *Client, REQUEST *Req )
 {
+	BOOLEAN ok, only_ops;
+	CL2CHAN *cl2chan;
+	CHANNEL *chan;
+	CHAR flags[8];
+	CLIENT *c;
+	
 	assert( Client != NULL );
 	assert( Req != NULL );
 
@@ -429,8 +438,63 @@ GLOBAL BOOLEAN IRC_WHO( CLIENT *Client, REQUEST *Req )
 
 	/* Falsche Anzahl Parameter? */
 	if(( Req->argc > 2 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+
+	only_ops = FALSE;
+	chan = NULL;
+
+	if( Req->argc == 2 )
+	{
+		/* Nur OPs anzeigen? */
+		if( strcmp( Req->argv[1], "o" ) == 0 ) only_ops = TRUE;
+#ifdef STRICT_RFC
+		else return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+#endif
+	}
 	
-	return CONNECTED;
+	if( Req->argc >= 1 )
+	{
+		/* wurde ein Channel oder Nick-Mask angegeben? */
+		chan = Channel_Search( Req->argv[0] );
+	}
+
+	if( chan )
+	{
+		/* User eines Channels ausgeben */
+		if( ! IRC_Send_WHO( Client, chan, only_ops )) return DISCONNECTED;
+	}
+
+	c = Client_First( );
+	while( c )
+	{
+		if(( Client_Type( c ) == CLIENT_USER ) && ( ! strchr( Client_Modes( c ), 'i' )))
+		{
+			ok = FALSE;
+			if( Req->argc == 0 ) ok = TRUE;
+			else
+			{
+				if( strcasecmp( Req->argv[0], Client_ID( c )) == 0 ) ok = TRUE;
+				else if( strcmp( Req->argv[0], "0" ) == 0 ) ok = TRUE;
+			}
+				
+			if( ok && (( ! only_ops ) || ( strchr( Client_Modes( c ), 'o' ))))
+			{
+				/* Flags zusammenbasteln */
+				strcpy( flags, "H" );
+				if( strchr( Client_Modes( c ), 'o' )) strcat( flags, "*" );
+
+				/* ausgeben */
+				cl2chan = Channel_FirstChannelOf( c );
+				if( ! IRC_WriteStrClient( Client, RPL_WHOREPLY_MSG, Client_ID( Client ), chan ? Channel_Name( Channel_GetChannel( cl2chan )) : "*", Client_User( c ), Client_Hostname( c ), Client_ID( Client_Introducer( c )), Client_ID( c ), flags, Client_Hops( c ), Client_Info( c ))) return DISCONNECTED;
+			}
+		}
+
+		/* naechster Client */
+		c = Client_Next( c );
+	}
+
+	if( chan ) return IRC_WriteStrClient( Client, RPL_ENDOFWHO_MSG, Client_ID( Client ), Channel_Name( chan ));
+	else if( Req->argc == 0 ) return IRC_WriteStrClient( Client, RPL_ENDOFWHO_MSG, Client_ID( Client ), "*" );
+	else return IRC_WriteStrClient( Client, RPL_ENDOFWHO_MSG, Client_ID( Client ), Req->argv[0] );
 } /* IRC_WHO */
 
 
@@ -722,6 +786,50 @@ GLOBAL BOOLEAN IRC_Send_NAMES( CLIENT *Client, CHANNEL *Chan )
 
 	return CONNECTED;
 } /* IRC_Send_NAMES */
+
+
+GLOBAL BOOLEAN IRC_Send_WHO( CLIENT *Client, CHANNEL *Chan, BOOLEAN OnlyOps )
+{
+	BOOLEAN is_visible, is_member;
+	CL2CHAN *cl2chan;
+	CHAR flags[8];
+	CLIENT *c;
+
+	assert( Client != NULL );
+	assert( Chan != NULL );
+
+	if( Channel_IsMemberOf( Chan, Client )) is_member = TRUE;
+	else is_member = FALSE;
+
+	/* Alle Mitglieder suchen */
+	cl2chan = Channel_FirstMember( Chan );
+	while( cl2chan )
+	{
+		c = Channel_GetClient( cl2chan );
+
+		if( strchr( Client_Modes( c ), 'i' )) is_visible = FALSE;
+		else is_visible = TRUE;
+
+		if( is_member || is_visible )
+		{
+			/* Flags zusammenbasteln */
+			strcpy( flags, "H" );
+			if( strchr( Client_Modes( c ), 'o' )) strcat( flags, "*" );
+			if( strchr( Channel_UserModes( Chan, c ), 'v' )) strcat( flags, "+" );
+			if( strchr( Channel_UserModes( Chan, c ), 'o' )) strcat( flags, "@" );
+			
+			/* ausgeben */
+			if(( ! OnlyOps ) || ( strchr( Client_Modes( c ), 'o' )))
+			{
+				if( ! IRC_WriteStrClient( Client, RPL_WHOREPLY_MSG, Client_ID( Client ), Channel_Name( Chan ), Client_User( c ), Client_Hostname( c ), Client_ID( Client_Introducer( c )), Client_ID( c ), flags, Client_Hops( c ), Client_Info( c ))) return DISCONNECTED;
+			}
+		}
+
+		/* naechstes Mitglied suchen */
+		cl2chan = Channel_NextMember( Chan, cl2chan );
+	}
+	return CONNECTED;
+} /* IRC_Send_WHO */
 
 
 GLOBAL BOOLEAN IRC_Send_LUSERS( CLIENT *Client )

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.h,v 1.28 2002/03/03 17:15:11 alex Exp $
+ * $Id: irc.h,v 1.29 2002/03/03 19:44:30 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: irc.h,v $
+ * Revision 1.29  2002/03/03 19:44:30  alex
+ * - WHO implementiert (bisher ohne Unterstuetzung von Masks)
+ *
  * Revision 1.28  2002/03/03 17:15:11  alex
  * - Source in weitere Module fuer IRC-Befehle aufgesplitted.
  *
@@ -62,6 +65,7 @@ GLOBAL BOOLEAN IRC_KILL( CLIENT *Client, REQUEST *Req );
 GLOBAL BOOLEAN IRC_Send_NAMES( CLIENT *Client, CHANNEL *Chan );
 GLOBAL BOOLEAN IRC_Send_LUSERS( CLIENT *Client );
 GLOBAL BOOLEAN IRC_Show_MOTD( CLIENT *Client );
+GLOBAL BOOLEAN IRC_Send_WHO( CLIENT *Client, CHANNEL *Chan, BOOLEAN OnlyOps );
 
 
 #endif

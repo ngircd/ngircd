@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: parse.c,v 1.41.2.2 2002/10/04 13:12:46 alex Exp $
+ * $Id: parse.c,v 1.41.2.3 2002/11/20 11:11:19 alex Exp $
  *
  * parse.c: Parsen der Client-Anfragen
  */
@@ -209,8 +209,8 @@ Validate_Prefix( CONN_ID Idx, REQUEST *Req, BOOLEAN *Closed )
 	if( ! c )
 	{
 		/* im Prefix angegebener Client ist nicht bekannt */
-		Log( LOG_ERR, "Invalid prefix, client not known (connection %d)!?", Idx );
-		if( ! Conn_WriteStr( Idx, "ERROR :Invalid prefix, client not known!?" )) *Closed = TRUE;
+		Log( LOG_ERR, "Invalid prefix \"%s\", client not known (connection %d)!?", Req->prefix, Idx );
+		if( ! Conn_WriteStr( Idx, "ERROR :Invalid prefix \"%s\", client not known!?", Req->prefix )) *Closed = TRUE;
 		return FALSE;
 	}
 
@@ -280,8 +280,8 @@ Handle_Request( CONN_ID Idx, REQUEST *Req )
 		else target = NULL;
 		if( ! target )
 		{
-			if( Req->argc > 0 ) Log( LOG_WARNING, "Unknown target for status code: \"%s\"", Req->argv[0] );
-			else Log( LOG_WARNING, "Unknown target for status code!" );
+			if( Req->argc > 0 ) Log( LOG_WARNING, "Unknown target for status code %s: \"%s\"", Req->command, Req->argv[0] );
+			else Log( LOG_WARNING, "Unknown target for status code %s!", Req->command );
 			return TRUE;
 		}
 		if( target == Client_ThisServer( ))

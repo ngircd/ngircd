@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: parse.c,v 1.21 2002/01/18 11:12:11 alex Exp $
+ * $Id: parse.c,v 1.22 2002/01/21 00:01:37 alex Exp $
  *
  * parse.c: Parsen der Client-Anfragen
  *
  * $Log: parse.c,v $
+ * Revision 1.22  2002/01/21 00:01:37  alex
+ * - neue Befehle JOIN und PART.
+ *
  * Revision 1.21  2002/01/18 11:12:11  alex
  * - der Sniffer wird nun nur noch aktiviert, wenn auf Kommandozeile angegeben.
  *
@@ -362,6 +365,8 @@ LOCAL BOOLEAN Handle_Request( CONN_ID Idx, REQUEST *Req )
 	else if( strcasecmp( Req->command, "ERROR" ) == 0 ) return IRC_ERROR( client, Req );
 	else if( strcasecmp( Req->command, "LUSERS" ) == 0 ) return IRC_LUSERS( client, Req );
 	else if( strcasecmp( Req->command, "LINKS" ) == 0 ) return IRC_LINKS( client, Req );
+	else if( strcasecmp( Req->command, "JOIN" ) == 0 ) return IRC_JOIN( client, Req );
+	else if( strcasecmp( Req->command, "PART" ) == 0 ) return IRC_PART( client, Req );
 	
 	/* Unbekannter Befehl */
 	if( Client_Type( client ) != CLIENT_SERVER ) IRC_WriteStrClient( client, ERR_UNKNOWNCOMMAND_MSG, Client_ID( client ), Req->command );

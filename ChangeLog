@@ -12,6 +12,10 @@
 
 ngIRCd CVS-HEAD
 
+ - (none)
+
+ngIRCd 0.7.0-pre1
+
   - New signal handler (more secure, actions are executed outside).
   - GCC: the compiler is now called with more warning options enabled.
   - Replaced a lot of str[n]cpy(), str[n]cat() and sprintf() calls with the
@@ -433,4 +437,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.188 2003/04/20 23:12:57 alex Exp $
+$Id: ChangeLog,v 1.189 2003/04/21 22:52:18 alex Exp $

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: messages.h,v 1.43 2002/06/02 14:15:50 alex Exp $
+ * $Id: messages.h,v 1.44 2002/06/02 15:22:40 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  */
@@ -78,6 +78,8 @@
 #define ERR_NEEDMOREPARAMS_MSG		"461 %s %s :Syntax error"
 #define ERR_ALREADYREGISTRED_MSG	"462 %s :Connection already registered"
 #define ERR_PASSWDMISMATCH_MSG		"464 %s: Invalid password"
+#define ERR_INVITEONLYCHAN_MSG		"473 %s %s :Cannot join channel (+i)"
+#define ERR_BANNEDFROMCHAN_MSG		"474 %s %s :Cannot join channel (+b)"
 #define ERR_NOPRIVILEGES_MSG		"481 %s :Permission denied"
 #define ERR_CHANOPRIVSNEEDED_MSG	"482 %s %s :You are not channel operator"
 #define ERR_RESTRICTED_MSG		"484 %s :Your connection is restricted"

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.19 2002/01/04 01:21:22 alex Exp $
+ * $Id: client.c,v 1.20 2002/01/04 17:57:08 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,9 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.20  2002/01/04 17:57:08  alex
+ * - Client_Destroy() an Server-Links angepasst.
+ *
  * Revision 1.19  2002/01/04 01:21:22  alex
  * - Client-Strukturen koennen von anderen Modulen nun nur noch ueber die
  *   enstprechenden (zum Teil neuen) Funktionen angesprochen werden.
@@ -234,17 +237,30 @@ GLOBAL VOID Client_Destroy( CLIENT *Client )
 	CLIENT *last, *c;
 
 	assert( Client != NULL );
-	
+
 	last = NULL;
 	c = My_Clients;
 	while( c )
 	{
+		if(( Client->type == CLIENT_SERVER ) && ( c->introducer == Client ) && ( c != Client ))
+		{
+			Client_Destroy( c );
+			last = NULL;
+			c = My_Clients;
+			continue;
+		}
 		if( c == Client )
 		{
 			if( last ) last->next = c->next;
 			else My_Clients = c->next;
 
-			if( c->type == CLIENT_USER ) Log( LOG_NOTICE, "User \"%s!%s@%s\" exited (connection %d).", c->id, c->user, c->host, c->conn_id );
+			if( c->type == CLIENT_USER )
+			{
+				if( c->conn_id != NONE ) Log( LOG_NOTICE, "User \"%s!%s@%s\" exited (connection %d).", c->id, c->user, c->host, c->conn_id );
+				else Log( LOG_DEBUG, "User \"%s!%s@%s\" exited.", c->id, c->user, c->host );
+			}
+			else if( c->type == CLIENT_SERVER ) Log( LOG_NOTICE, "Server \"%s\" exited.", c->id );
+			else Log( LOG_NOTICE, "Unknown client \"%s\" exited.", c->id );
 
 			free( c );
 			break;
@@ -573,7 +589,7 @@ GLOBAL BOOLEAN Client_CheckNick( CLIENT *Client, CHAR *Nick )
 	assert( Nick != NULL );
 	
 	/* Nick zu lang? */
-	if( strlen( Nick ) > CLIENT_NICK_LEN ) return IRC_WriteStrClient( Client, This_Server, ERR_ERRONEUSNICKNAME_MSG, Client_ID( Client ), Nick );
+	if( strlen( Nick ) > CLIENT_NICK_LEN ) return IRC_WriteStrClient( Client, ERR_ERRONEUSNICKNAME_MSG, Client_ID( Client ), Nick );
 
 	/* Nick bereits vergeben? */
 	c = My_Clients;
@@ -582,7 +598,7 @@ GLOBAL BOOLEAN Client_CheckNick( CLIENT *Client, CHAR *Nick )
 		if( strcasecmp( c->id, Nick ) == 0 )
 		{
 			/* den Nick gibt es bereits */
-			IRC_WriteStrClient( Client, This_Server, ERR_NICKNAMEINUSE_MSG, Client_ID( Client ), Nick );
+			IRC_WriteStrClient( Client, ERR_NICKNAMEINUSE_MSG, Client_ID( Client ), Nick );
 			return FALSE;
 		}
 		c = c->next;
@@ -604,7 +620,7 @@ GLOBAL BOOLEAN Client_CheckID( CLIENT *Client, CHAR *ID )
 	assert( ID != NULL );
 
 	/* Nick zu lang? */
-	if( strlen( ID ) > CLIENT_ID_LEN ) return IRC_WriteStrClient( Client, This_Server, ERR_ERRONEUSNICKNAME_MSG, Client_ID( Client ), ID );
+	if( strlen( ID ) > CLIENT_ID_LEN ) return IRC_WriteStrClient( Client, ERR_ERRONEUSNICKNAME_MSG, Client_ID( Client ), ID );
 
 	/* ID bereits vergeben? */
 	c = My_Clients;

@@ -13,10 +13,14 @@
 ngIRCd CVS-HEAD
 
   - Manual-Pages ngircd.8 und ngircd.conf.5 begonnen.
-  - configure-Script prueft auf POSIX Regular Expression Library, die
-    in Zukunft benutzt werden soll.
+  - configure-Script prueft auf POSIX Regular Expression Library, die in
+    Zukunft benutzt werden soll.
   - Wird der Netzwerk-Sniffer aktiviert (--sniffer), so schaltet der
     ngIRCd nun automatisch in den Debug-Modus.
+  - unter Systemen, die inet_aton() nicht kennen (wie z.B. A/UX) kann der
+    ngIRCd nun auch aktiv Server-Links aufbauen.
+  - h_errno wird auf Systemen, die das nicht kennen (wie z.B. HP-UX 10.20)
+    nicht mehr verwendet. Somit compiliert der ngIRCd nun auch dort :-)
 
 ngIRCd 0.4.2, 29.04.2002
 
@@ -200,4 +204,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.64 2002/05/18 12:21:04 alex Exp $
+$Id: ChangeLog,v 1.65 2002/05/18 22:46:06 alex Exp $

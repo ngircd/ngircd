@@ -48,9 +48,9 @@ III. Features (oder: warum gerade ngIRCd?)
 - einfache, uebersichtliche Konfigurationsdatei,
 - frei verfuegbarer C-Quellcode.
 - ngIRCd wird aktiv weiterentwickelt.
-- unterstuetzte Plattformen: A/UX, FreeBSD, Linux, Mac OS X/Darwin und
-  Windows mit Cygwin.
- 
+- unterstuetzte Plattformen: A/UX, FreeBSD, HP-UX 10.20, Linux, Mac OS X
+  und Windows mit Cygwin.
+
 
 IV. Dokumentation
 ~~~~~~~~~~~~~~~~~
@@ -100,4 +100,4 @@ schreiben.
 
 
 -- 
-$Id: README,v 1.9 2002/05/08 15:43:00 alex Exp $
+$Id: README,v 1.10 2002/05/18 22:46:06 alex Exp $

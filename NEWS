@@ -15,6 +15,7 @@ ngIRCd CVS-HEAD
   - Manual-Pages ngircd.8 und ngircd.conf.5 begonnen.
   - IRC-Funktion LIST implementiert; bisher werden allerdings noch keine
     Regular Expressions (bis auf "*") unterstuetzt.
+  - HP-UX 10.20 gehoert nun auch zu den unterstuetzten Platformen.
 
 ngIRCd 0.4.0, 01.04.2002
 
@@ -91,4 +92,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.30 2002/04/23 19:53:01 alex Exp $
+$Id: NEWS,v 1.31 2002/05/18 22:46:06 alex Exp $

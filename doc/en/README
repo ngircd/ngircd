@@ -42,8 +42,8 @@ III. Features (or: why use ngIRCd?)
 - simple, easy understandable configuration file,
 - freely published C-Sourcecode,
 - ngIRCd will be developed on in the future.
-- supported platforms: A/UX; FreeBSD, Linux, MAC OS X/Darwin and Windows
-  with Cygwin
+- supported platforms: A/UX, FreeBSD, HP-UX 10.20, Linux, MAC OS X
+  and Windows with Cygwin
 
 
 IV. Documentation
@@ -96,4 +96,4 @@ to post a mail to: <alex@barton.de> or <alex@arthur.ath.cx>
 
 
 -- 
-$Id: README,v 1.1 2002/05/08 15:43:00 alex Exp $
+$Id: README,v 1.2 2002/05/18 22:46:06 alex Exp $

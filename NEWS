@@ -12,29 +12,26 @@
 
 ngIRCd CVS-HEAD
 
-  - Manual-Pages ngircd.8 und ngircd.conf.5 begonnen.
+  - ...
+
+ngIRCd 0.5.0
+
   - AIX (3.2.5), HP-UX (10.20), IRIX (6.5), NetBSD (1.5.3/m68k) und Solaris
     (2.5.1, 2.6) gehoeren nun auch zu den unterstuetzten Platformen.
+  - Unter A/UX (und evtl. weiteren Systemen) kompiliert der ngIRCd nun mit
+    dem "nativen" (ggf. pre-ANSI) Compiler.
   - "persistente Channels" (Mode 'P') implementiert: diese koennen in der
     Konfigurationsdatei definiert werden (Sektion "Channel", vgl. Beispiel-
     Konfiguration "sample-ngircd.conf") und bleiben auch dann bestehen,
-    wenn kein User mehr im Channel ist. Zu Channel-Operatoren werden bisher
-    nur IRC-Operatoren, die den Channel betreten. Die persistenten Channels
-    werden durch das Flag "P" gelennzeichnet, welches normal durch Channel-
-    Op's gesetzt und geloescht werden kann.
-  - KICK implementiert (bisher kann nur ein User aus einem Channel geckicked
-    werden, Listen, wir im RFC vorgesehen, werden bisher nicht unterstuetzt).
-  - INVITE, den Channel-Mode "i" sowie Invite-Lists ueber den MODE-Befehl
-    (setzen, erfragen und loeschen) implementiert.
-  - Unter A/UX (und evtl. weiteren Systemen) kompiliert der ngIRCd nun mit
-    dem "nativen" (ggf. pre-ANSI) Compiler.
-  - LIST versteht nun Wildcards und kann an andere Server geforwarded werden.
+    wenn kein User mehr im Channel ist.
+  - neue IRC-Befehle: KICK, INVITE, ADMIN, CHANINFO; LIST wurde erweitert.
+    Mit dem neuen Befehl CHANINFO syncronisieren Server, die das IRC+-
+    Protokoll unterstuetzen, Channel-Modes und Topics. Fuer den ADMIN-Befehl
+    gibt es neue Konfigurationsoptionen (Sektion "Global"): "AdminInfo1",
+    "AdminInfo2" und "AdminEMail".
+  - Invite- und Ban-Lists implementiert.
   - neue Konfigurationsoption "OperCanUseMode" (Sektion "Global"):
     ist sie aktiv, koennen IRC-Operatoren immer Channel-Modes setzen.
-  - mit dem neuen Befehl CHANINFO syncronisieren Server, die das IRC+-
-    Protokoll unterstuetzen, Channel-Modes und Topics.
-  - Ban-Lists (setzen, erfragen und loeschen) implementiert.
-  - ADMIN-Befehl implementiert.
 
 ngIRCd 0.4.2, 29.04.2002
 
@@ -116,4 +113,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.38 2002/09/16 11:03:05 alex Exp $
+$Id: NEWS,v 1.39 2002/09/19 09:27:26 alex Exp $

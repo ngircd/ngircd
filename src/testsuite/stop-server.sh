@@ -1,6 +1,6 @@
 #!/bin/sh
 # ngIRCd Test Suite
-# $Id: stop-server.sh,v 1.10.2.1 2004/09/04 20:49:36 alex Exp $
+# $Id: stop-server.sh,v 1.10.2.2 2004/09/06 20:30:43 alex Exp $
 
 [ -z "$srcdir" ] && srcdir=`dirname $0`
 
@@ -17,7 +17,7 @@ kill $pid > /dev/null 2>&1 || exit 1
 # waiting ...
 for i in 1 2 3 4 5; do
   kill -0 $pid > /dev/null 2>&1; r=$?
-  if [ $r -eq 0 ]; then
+  if [ $r -ne 0 ]; then
     echo " ok".
     exit 0
   fi

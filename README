@@ -10,29 +10,32 @@
                            -- README / Liesmich --
 
 
+I. Einfuehrung
+~~~~~~~~~~~~~~
+
 ngIRCd ist ein Server fuer den Internet Relay Chat (IRC). Er ist von Grund
 auf neu geschrieben, also nicht wie die meisten anderen IRCd's vom Urvater,
 dem Daemon des IRCNet abgeleitet.
 
-Zur Zeit befindet sich ngIRCd noch in Entwicklung, vieles ist noch nicht
-implementiert bzw. nur "halbherzig": Channels gibt es noch nicht, genau so
-wenig wie Server-Links. Das private Chatten (PRIVMSG) mit den Client-Befehlen
-/msg und /query sollte hingegen funktionieren, ein wenig praktische Funk-
-tionalitaet ist also tatsaechlich schon vorhanden ;-)
+Zur Zeit befindet sich der ngIRCd noch in Entwicklung, teilweise fehlen noch
+Features oder sind noch nicht "final" implementiert. 
+
+Channels sind inzwischen implementiert (seit Version 0.1.0), privates Chatten
+mit /msg und /query funktioniert ebenso. Server-Links werden dabei unter-
+stuetzt. Einige User- und Channel-Modes sind implementiert, hier kennt der
+Server jedoch noch nicht alles.
 
 Bisher (mehr oder wenig vollstaendig) implementierte IRC-Befehle:
 
-DIE, ERROR, ISON, JOIN, LINKS, LUSERS, MODE, MOTD, NAMES, NICK, NOTICE, NJOIN,
-OPER, PART, PASS, PING, PONG, PRIVMSG, QUIT, RESTART, SERVER, SQUIT, USER,
-USERHOST, WHOIS.
+AWAY, DIE, ERROR, ISON, JOIN, KILL, LINKS, LUSERS, MODE, MOTD, NAMES, NICK,
+NOTICE, NJOIN, OPER, PART, PASS, PING, PONG, PRIVMSG, QUIT, RESTART, SERVER,
+SQUIT, TOPIC, USER, USERHOST, VERSION, WHOIS.
 
 Ueber Rueckmeldungen, Bug-Reports und Patches freue ich mich! Also los, haut
 in die Tasten! :-))
 
 Via E-Mail erreichst du mich als <alex@arthur.ath.cx> bzw. <alex@barton.de>.
 Die Homepage des ngIRCd findest du unter <http://arthur.ath.cx/~alex/ngircd/>.
-
-[ ... more to come ... ]
 
 
 Hinweise zur Installation findest du in der Datei INSTALL.
@@ -41,5 +44,25 @@ In der Datei COPYING steht die GNU General Public License.
 Das README liest du gerade ,-)
 
 
+II. Vorteile
+~~~~~~~~~~~~
+
+- keine Probleme mit Servern, deren IP-Adressen nicht statisch sind,
+- übersichtliche ("schlanke") Konfigurationsdatei,
+- frei verfügbarer, moderner und "aufgeräumter" C-Quellcode.
+- ngIRCd wird aktiv weiter entwickelt.
+
+
+III. Unterstuetzte Plattformen
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- A/UX
+- FreeBSD
+- Linux
+- Mac OS X
+- NetBSD
+- Windows mit Cygwin
+
+
 -- 
-$Id: README,v 1.5 2002/02/15 15:15:48 anonymous Exp $
+$Id: README,v 1.6 2002/03/03 13:07:01 alex Exp $

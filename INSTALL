@@ -85,3 +85,6 @@ nuetzlichen Targets:
  - maintainer-clean: alle automat. erzeugten Dateien loeschen.
    Naechster Schritt: -> ./autogen.sh
 
+
+-- 
+$Id: INSTALL,v 1.5 2002/03/03 13:07:01 alex Exp $

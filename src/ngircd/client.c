@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.38 2002/02/27 14:47:53 alex Exp $
+ * $Id: client.c,v 1.39 2002/02/27 18:22:09 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,9 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.39  2002/02/27 18:22:09  alex
+ * - neue Funktion Client_SetAway() und Client_Away() implementiert.
+ *
  * Revision 1.38  2002/02/27 14:47:53  alex
  * - Logging beim Abmelden von Clients (erneut) geaendert: nun ist's aber gut ;-)
  *
@@ -449,6 +452,29 @@ GLOBAL VOID Client_SetPassword( CLIENT *Client, CHAR *Pwd )
 } /* Client_SetPassword */
 
 
+GLOBAL VOID Client_SetAway( CLIENT *Client, CHAR *Txt )
+{
+	/* Von einem Client gelieferte AWAY-Nachricht */
+
+	assert( Client != NULL );
+
+	if( Txt )
+	{
+		/* Client AWAY setzen */
+		strncpy( Client->away, Txt, CLIENT_AWAY_LEN );
+		Client->away[CLIENT_AWAY_LEN - 1] = '\0';
+		Client_ModeAdd( Client, 'a' );
+		Log( LOG_DEBUG, "User \"%s\" is away: %s", Client_Mask( Client ), Txt );
+	}
+	else
+	{
+		/* AWAY loeschen */
+		Client_ModeDel( Client, 'a' );
+		Log( LOG_DEBUG, "User \"%s\" is no longer away.", Client_Mask( Client ));
+	}
+} /* Client_SetAway */
+
+
 GLOBAL VOID Client_SetType( CLIENT *Client, INT Type )
 {
 	assert( Client != NULL );
@@ -731,6 +757,15 @@ GLOBAL BOOLEAN Client_HasMode( CLIENT *Client, CHAR Mode )
 } /* Client_HasMode */
 
 
+GLOBAL CHAR *Client_Away( CLIENT *Client )
+{
+	/* AWAY-Text liefern */
+
+	assert( Client != NULL );
+	return Client->away;
+} /* Client_Away */
+
+
 GLOBAL BOOLEAN Client_CheckNick( CLIENT *Client, CHAR *Nick )
 {
 	/* Nick ueberpruefen */
@@ -978,6 +1013,7 @@ LOCAL CLIENT *New_Client_Struct( VOID )
 	c->hops = -1;
 	c->token = -1;
 	c->mytoken = -1;
+	strcpy( c->away, "" );
 
 	return c;
 } /* New_Client */

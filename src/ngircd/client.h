@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.h,v 1.22 2002/02/06 16:49:56 alex Exp $
+ * $Id: client.h,v 1.23 2002/02/27 18:22:09 alex Exp $
  *
  * client.h: Konfiguration des ngircd (Header)
  *
  * $Log: client.h,v $
+ * Revision 1.23  2002/02/27 18:22:09  alex
+ * - neue Funktion Client_SetAway() und Client_Away() implementiert.
+ *
  * Revision 1.22  2002/02/06 16:49:56  alex
  * - neue Funktion Client_IsValidNick().
  *
@@ -125,6 +128,7 @@ typedef struct _CLIENT
 	CHAR modes[CLIENT_MODE_LEN];	/* Client Modes */
 	INT hops, token, mytoken;	/* "Hops" und "Token" (-> SERVER-Befehl) */
 	BOOLEAN oper_by_me;		/* IRC-Operator-Status durch diesen Server? */
+	CHAR away[CLIENT_AWAY_LEN];	/* AWAY-Text, wenn Mode 'a' gesetzt */
 } CLIENT;
 #else
 typedef POINTER CLIENT;
@@ -167,6 +171,7 @@ GLOBAL INT Client_Token( CLIENT *Client );
 GLOBAL INT Client_MyToken( CLIENT *Client );
 GLOBAL CLIENT *Client_TopServer( CLIENT *Client );
 GLOBAL CLIENT *Client_NextHop( CLIENT *Client );
+GLOBAL CHAR *Client_Away( CLIENT *Client );
 
 GLOBAL BOOLEAN Client_HasMode( CLIENT *Client, CHAR Mode );
 
@@ -181,6 +186,7 @@ GLOBAL VOID Client_SetToken( CLIENT *Client, INT Token );
 GLOBAL VOID Client_SetOperByMe( CLIENT *Client, BOOLEAN OperByMe );
 GLOBAL VOID Client_SetModes( CLIENT *Client, CHAR *Modes );
 GLOBAL VOID Client_SetIntroducer( CLIENT *Client, CLIENT *Introducer );
+GLOBAL VOID Client_SetAway( CLIENT *Client, CHAR *Txt );
 
 GLOBAL BOOLEAN Client_ModeAdd( CLIENT *Client, CHAR Mode );
 GLOBAL BOOLEAN Client_ModeDel( CLIENT *Client, CHAR Mode );

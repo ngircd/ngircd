@@ -8,14 +8,15 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: Makefile.am,v 1.42 2003/12/04 14:05:16 alex Exp $
+# $Id: Makefile.am,v 1.43 2004/05/09 18:23:35 alex Exp $
 #
 
 AUTOMAKE_OPTIONS = ../portab/ansi2knr
 
 INCLUDES = -I$(srcdir)/../portab -I$(srcdir)/../tool
 
-LINTARGS = -weak -warnunixlib +unixlib -booltype BOOLEAN
+LINTARGS = -weak -warnunixlib +unixlib -booltype BOOLEAN \
+ -varuse -retvalother -emptyret
 
 sbin_PROGRAMS = ngircd
 
@@ -51,15 +52,28 @@ check-help: Makefile
 	chmod 755 check-help
 
 lint:
-	rm -f lint.out
+	@echo; warnings=0; files=0; \
 	for f in *.c; do \
 	 echo "checking $$f ..."; \
-	 splint $$f $(LINTARGS) -I./.. -I./../portab $(AM_CFLAGS) > lint.out 2>&1; \
+	 splint $$f $(LINTARGS) -I$(srcdir) -I$(srcdir)/.. \
+	  $(INCLUDES) $(AM_CFLAGS) >lint.out 2>&1; \
 	 grep "no warnings" lint.out > /dev/null 2>&1; \
 	 if [ $$? -ne 0 ]; then \
+	  waswarning=1; \
 	  echo; cat lint.out; echo; \
+	  w=$$( grep "code warning" lint.out | awk "{ print \$$4 }" ); \
+	  warnings=`expr $$warnings + $$w`; \
+	  files=`expr $$files + 1`; \
+	 else \
+	  waswarning=0; \
 	 fi; \
-	done;
+	 rm -f lint.out; \
+	done; \
+	[ $$waswarning -eq 0 ] && echo; \
+	[ $$warnings -gt 0 ] \
+	 && echo "Result: $$warnings warning(s) in $$files file(s)!" \
+	 || echo "Result: no warnings found."; \
+	echo; [ $$warnings -gt 0 ] && exit 1
 
 ngircd.c: cvs-version.h
 

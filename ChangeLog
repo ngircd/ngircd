@@ -11,6 +11,8 @@
 
 
 ngIRCd CVSHEAD
+  - Enhanced configure script: now you can pass an (optional) search path
+    to all --with-XXX parameters, e. g. "--with-ident=/opt/ident".
   - Removed typedefs for the native C datatypes.
     Use stdbool.h / inttypes.h if available.
   - New configuration option "OperServerMode" to enable a workaround needed
@@ -594,4 +596,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.265 2005/03/19 18:53:16 fw Exp $
+$Id: ChangeLog,v 1.266 2005/03/20 17:23:36 alex Exp $

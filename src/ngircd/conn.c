@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.7 2001/12/21 22:24:25 alex Exp $
+ * $Id: conn.c,v 1.8 2001/12/23 22:02:54 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
+ * Revision 1.8  2001/12/23 22:02:54  alex
+ * - Conn_WriteStr() nimmt nun variable Parameter,
+ * - diverse kleinere Aenderungen.
+ *
  * Revision 1.7  2001/12/21 22:24:25  alex
  * - kleinere Aenderungen an den Log-Meldungen,
  * - Parse_Request() wird aufgerufen.
@@ -49,6 +53,7 @@
 
 #include <imp.h>
 #include <assert.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <errno.h>
@@ -65,6 +70,7 @@
 #endif
 
 #include "ngircd.h"
+#include "client.h"
 #include "log.h"
 #include "parse.h"
 #include "tool.h"
@@ -259,22 +265,31 @@ GLOBAL VOID Conn_Handler( INT Timeout )
 } /* Conn_Handler */
 
 
-GLOBAL BOOLEAN Conn_WriteStr( CONN_ID Idx, CHAR *Data )
+GLOBAL BOOLEAN Conn_WriteStr( CONN_ID Idx, CHAR *Format, ... )
 {
 	/* String in Socket schreiben. CR+LF wird von dieser Funktion
-	 * automatisch angehaengt. */
+	 * automatisch angehaengt. Im Fehlerfall wird dir Verbindung
+	 * getrennt und FALSE geliefert. */
 	
 	CHAR buffer[MAX_CMDLEN];
-	
-	if( strlen( Data ) > MAX_CMDLEN - 2 )
+	BOOLEAN ok;
+	va_list ap;
+
+	va_start( ap, Format );
+	if( vsnprintf( buffer, MAX_CMDLEN, Format, ap ) == MAX_CMDLEN )
 	{
 		Log( LOG_ALERT, "String too long to send (connection %d)!", Idx );
 		Close_Connection( Idx, "Server error: String too long to send!" );
 		return FALSE;
 	}
-	
-	sprintf( buffer, "%s\r\n", Data );
-	return Conn_Write( Idx, buffer, strlen( buffer ));
+	ok = Conn_Write( Idx, buffer, strlen( buffer ));
+
+#ifdef DEBUG
+	Log( LOG_DEBUG, " -> connection %d: '%s'.", Idx, buffer );
+#endif
+
+	va_end( ap );
+	return ok;
 } /* Conn_WriteStr */
 
 
@@ -402,7 +417,8 @@ LOCAL BOOLEAN Handle_Write( CONN_ID Idx )
 
 LOCAL VOID New_Connection( INT Sock )
 {
-	/* Neue Client-Verbindung von Listen-Socket annehmen */
+	/* Neue Client-Verbindung von Listen-Socket annehmen und
+	 * CLIENT-Struktur anlegen. */
 
 	struct sockaddr_in new_addr;
 	INT new_sock, new_sock_len;
@@ -426,7 +442,15 @@ LOCAL VOID New_Connection( INT Sock )
 		close( new_sock );
 		return;
 	}
-
+	
+	/* Client-Struktur initialisieren */
+	if( ! Client_New_Local( idx, inet_ntoa( new_addr.sin_addr )))
+	{
+		Log( LOG_ALERT, "Can't accept connection: can't create client structure!" );
+		close( new_sock );
+		return;
+	}
+	
 	/* Verbindung registrieren */
 	My_Connections[idx].sock = new_sock;
 	My_Connections[idx].addr = new_addr;
@@ -461,17 +485,11 @@ LOCAL VOID Close_Connection( CONN_ID Idx, CHAR *Msg )
 {
 	/* Verbindung schlie§en */
 
-	CHAR bye_str[MAX_CMDLEN];
-
 	assert( Idx >= 0 );
 	assert( My_Connections[Idx].sock >= 0 );
 	
-	if( Msg )
-	{
-		sprintf( bye_str, "ERROR :%s", Msg );
-		Conn_WriteStr( Idx, bye_str );
-	}
-	
+	if( Msg ) Conn_WriteStr( Idx, "ERROR :%s", Msg );
+
 	if( close( My_Connections[Idx].sock ) != 0 )
 	{
 		Log( LOG_ERR, "Error closing connection %d with %s:%d - %s", Idx, inet_ntoa( My_Connections[Idx].addr.sin_addr ), ntohs( My_Connections[Idx].addr.sin_port), strerror( errno ));
@@ -481,6 +499,8 @@ LOCAL VOID Close_Connection( CONN_ID Idx, CHAR *Msg )
 		Log( LOG_NOTICE, "Connection %d with %s:%d closed.", Idx, inet_ntoa( My_Connections[Idx].addr.sin_addr ), ntohs( My_Connections[Idx].addr.sin_port ));
 	}
 
+	Client_Destroy( Client_GetFromConn( Idx ));
+	
 	FD_CLR( My_Connections[Idx].sock, &My_Sockets );
 	My_Connections[Idx].sock = NONE;
 } /* Close_Connection */

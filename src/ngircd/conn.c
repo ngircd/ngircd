@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.137 2004/05/30 16:25:51 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.138 2004/10/04 23:09:04 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -964,9 +964,9 @@ New_Connection( INT Sock )
 	cnt = Count_Connections( new_addr );
 	if(( Conf_MaxConnectionsIP > 0 ) && ( cnt >= Conf_MaxConnectionsIP ))
 	{
-		/* Access denied, too many connections from this IP! */
-		Log( LOG_ERR, "Refused connection from %s: too may connections (%ld) from this IP!", inet_ntoa( new_addr.sin_addr ), cnt);
-		Simple_Message( new_sock, "ERROR :Connection refused, too many connections from your IP!" );
+		/* Access denied, too many connections from this IP address! */
+		Log( LOG_ERR, "Refused connection from %s: too may connections (%ld) from this IP address!", inet_ntoa( new_addr.sin_addr ), cnt);
+		Simple_Message( new_sock, "ERROR :Connection refused, too many connections from your IP address!" );
 		close( new_sock );
 		return;
 	}

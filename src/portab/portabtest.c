@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: portabtest.c,v 1.11 2003/01/04 10:40:01 alex Exp $";
+static char UNUSED id[] = "$Id: portabtest.c,v 1.12 2005/03/19 18:43:50 fw Exp $";
 
 #include "imp.h"
 #include <stdarg.h>
@@ -25,20 +25,17 @@ static char UNUSED id[] = "$Id: portabtest.c,v 1.11 2003/01/04 10:40:01 alex Exp
 #include "exp.h"
 
 
-LOCAL VOID Panic PARAMS (( CHAR *Reason, INT Code ));
+LOCAL void Panic PARAMS (( char *Reason, int Code ));
 
 
 GLOBAL int
-main( VOID )
+main( void )
 {
 	/* validate datatypes */
-	if( FALSE != 0 ) Panic( "FALSE", 1 );
-	if( TRUE != 1 ) Panic( "TRUE", 1 );
-	if( sizeof( INT8 ) != 1 ) Panic( "INT8", 1 );
+	if( false != 0 ) Panic( "false", 1 );
+	if( true != 1 ) Panic( "true", 1 );
 	if( sizeof( UINT8 ) != 1 ) Panic( "UINT8", 1 );
-	if( sizeof( INT16 ) != 2 ) Panic( "INT16", 1 );
 	if( sizeof( UINT16 ) != 2 ) Panic( "UINT16", 1 );
-	if( sizeof( INT32 ) != 4 ) Panic( "INT32", 1 );
 	if( sizeof( UINT32 ) != 4 ) Panic( "UINT32", 1 );
 
 #ifdef PROTOTYPES
@@ -54,8 +51,8 @@ main( VOID )
 } /* portab_check_types */
 
 
-LOCAL VOID
-Panic( CHAR *Reason, INT Code )
+LOCAL void
+Panic( char *Reason, int Code )
 {
 	/* Oops, something failed!? */
 	fprintf( stderr, "Oops, test for %s failed!?", Reason );

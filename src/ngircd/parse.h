@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: parse.h,v 1.10 2003/01/03 22:03:51 alex Exp $
+ * $Id: parse.h,v 1.11 2005/03/19 18:43:49 fw Exp $
  *
  * IRC command parser and validator (header)
  */
@@ -17,29 +17,30 @@
 #ifndef __parse_h__
 #define __parse_h__
 
+#include "portab.h"
 
 typedef struct _REQUEST			/* vgl. RFC 2812, 2.3 */
 {
-	CHAR *prefix;			/* Prefix */
-	CHAR *command;			/* IRC-Befehl */
-	CHAR *argv[15];			/* Parameter (max. 15: 0..14) */
-	INT argc;			/* Anzahl vorhandener Parameter */
+	char *prefix;			/* Prefix */
+	char *command;			/* IRC-Befehl */
+	char *argv[15];			/* Parameter (max. 15: 0..14) */
+	int argc;			/* Anzahl vorhandener Parameter */
 } REQUEST;
 
 
 typedef struct _COMMAND
 {
-	CHAR *name;		/* command name */
-	BOOLEAN (*function) PARAMS(( CLIENT *Client, REQUEST *Request ));
-	CLIENT_TYPE type;	/* valid client types (bit mask) */
-	LONG lcount, rcount;	/* number of local and remote calls */
-	LONG bytes;		/* number of bytes created */
+	char *name;			/* command name */
+	bool (*function) PARAMS(( CLIENT *Client, REQUEST *Request ));
+	CLIENT_TYPE type;		/* valid client types (bit mask) */
+	long lcount, rcount;	/* number of local and remote calls */
+	long bytes;		/* number of bytes created */
 } COMMAND;
 
 
-GLOBAL BOOLEAN Parse_Request PARAMS((CONN_ID Idx, CHAR *Request ));
+GLOBAL bool Parse_Request PARAMS((CONN_ID Idx, char *Request ));
 
-GLOBAL COMMAND *Parse_GetCommandStruct PARAMS(( VOID ));
+GLOBAL COMMAND *Parse_GetCommandStruct PARAMS(( void ));
 
 
 #endif

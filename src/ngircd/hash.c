@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: hash.c,v 1.10 2005/03/19 14:50:59 fw Exp $";
+static char UNUSED id[] = "$Id: hash.c,v 1.11 2005/03/19 18:43:48 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -31,11 +31,11 @@ LOCAL UINT32 jenkins_hash PARAMS(( register UINT8 *k, register UINT32 length, re
 
 
 GLOBAL UINT32
-Hash( CHAR *String )
+Hash( char *String )
 {
 	/* Hash-Wert ueber String berechnen */
 
-	CHAR buffer[LINE_LEN];
+	char buffer[LINE_LEN];
 
 	strlcpy( buffer, String, sizeof( buffer ));
 	return jenkins_hash( (UINT8 *)ngt_LowerStr( buffer ), strlen( buffer ), 42 );
@@ -99,7 +99,7 @@ jenkins_hash( register UINT8 *k, register UINT32 length, register UINT32 initval
 
 	/* handle the last 11 bytes */
 	c += length;
-	switch( (INT)len )	/* all the case statements fall through */
+	switch( (int)len )	/* all the case statements fall through */
 	{
 		case 11: c+=((UINT32)k[10]<<24);
 		case 10: c+=((UINT32)k[9]<<16);

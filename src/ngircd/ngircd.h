@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: ngircd.h,v 1.20 2005/02/09 09:52:58 alex Exp $
+ * $Id: ngircd.h,v 1.21 2005/03/19 18:43:49 fw Exp $
  *
  * Prototypes of the "main module".
  */
@@ -23,34 +23,34 @@
 
 
 GLOBAL time_t NGIRCd_Start;		/* Startzeitpunkt des Daemon */
-GLOBAL CHAR NGIRCd_StartStr[64];
-GLOBAL CHAR NGIRCd_Version[126];
-GLOBAL CHAR NGIRCd_VersionAddition[126];
+GLOBAL char NGIRCd_StartStr[64];
+GLOBAL char NGIRCd_Version[126];
+GLOBAL char NGIRCd_VersionAddition[126];
 
 #ifdef DEBUG
-GLOBAL BOOLEAN NGIRCd_Debug;		/* Debug-Modus aktivieren */
+GLOBAL bool NGIRCd_Debug;		/* Debug-Modus aktivieren */
 #endif
 
 #ifdef SNIFFER
-GLOBAL BOOLEAN NGIRCd_Sniffer;		/* Sniffer aktivieren */
+GLOBAL bool NGIRCd_Sniffer;		/* Sniffer aktivieren */
 #endif
 
-GLOBAL BOOLEAN NGIRCd_NoDaemon;		/* nicht im Hintergrund laufen */
+GLOBAL bool NGIRCd_NoDaemon;		/* nicht im Hintergrund laufen */
 
-GLOBAL BOOLEAN NGIRCd_Passive;		/* nicht zu anderen Servern connecten */
+GLOBAL bool NGIRCd_Passive;		/* nicht zu anderen Servern connecten */
 
-GLOBAL BOOLEAN NGIRCd_SignalQuit;	/* TRUE: quit server*/
-GLOBAL BOOLEAN NGIRCd_SignalRestart;	/* TRUE: restart server */
-GLOBAL BOOLEAN NGIRCd_SignalRehash;	/* TRUE: reload configuration */
+GLOBAL bool NGIRCd_SignalQuit;	/* true: quit server*/
+GLOBAL bool NGIRCd_SignalRestart;	/* true: restart server */
+GLOBAL bool NGIRCd_SignalRehash;	/* true: reload configuration */
 
-GLOBAL CHAR NGIRCd_DebugLevel[2];	/* Debug-Level fuer IRC_VERSION() */
+GLOBAL char NGIRCd_DebugLevel[2];	/* Debug-Level fuer IRC_VERSION() */
 
-GLOBAL CHAR NGIRCd_ConfFile[FNAME_LEN];	/* Konfigurationsdatei */
+GLOBAL char NGIRCd_ConfFile[FNAME_LEN];	/* Konfigurationsdatei */
 
-GLOBAL CHAR NGIRCd_ProtoID[COMMAND_LEN];/* Protokoll- und Server-Identifikation */
+GLOBAL char NGIRCd_ProtoID[COMMAND_LEN];/* Protokoll- und Server-Identifikation */
 
 
-GLOBAL VOID NGIRCd_Rehash PARAMS(( VOID ));
+GLOBAL void NGIRCd_Rehash PARAMS(( void ));
 
 
 #endif

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-write.c,v 1.16 2004/10/20 13:47:32 alex Exp $";
+static char UNUSED id[] = "$Id: irc-write.c,v 1.17 2005/03/19 18:43:49 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -39,22 +39,22 @@ static char UNUSED id[] = "$Id: irc-write.c,v 1.16 2004/10/20 13:47:32 alex Exp 
 #define SEND_TO_SERVER 2
 
 
-LOCAL CHAR *Get_Prefix PARAMS(( CLIENT *Target, CLIENT *Client ));
+LOCAL char *Get_Prefix PARAMS(( CLIENT *Target, CLIENT *Client ));
 
 
 #ifdef PROTOTYPES
-GLOBAL BOOLEAN
-IRC_WriteStrClient( CLIENT *Client, CHAR *Format, ... )
+GLOBAL bool
+IRC_WriteStrClient( CLIENT *Client, char *Format, ... )
 #else
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_WriteStrClient( Client, Format, va_alist )
 CLIENT *Client;
-CHAR *Format;
+char *Format;
 va_dcl
 #endif
 {
-	CHAR buffer[1000];
-	BOOLEAN ok = CONNECTED;
+	char buffer[1000];
+	bool ok = CONNECTED;
 	va_list ap;
 
 	assert( Client != NULL );
@@ -76,20 +76,20 @@ va_dcl
 
 
 #ifdef PROTOTYPES
-GLOBAL BOOLEAN
-IRC_WriteStrClientPrefix( CLIENT *Client, CLIENT *Prefix, CHAR *Format, ... )
+GLOBAL bool
+IRC_WriteStrClientPrefix( CLIENT *Client, CLIENT *Prefix, char *Format, ... )
 #else
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_WriteStrClientPrefix( Client, Prefix, Format, va_alist )
 CLIENT *Client;
 CLIENT *Prefix;
-CHAR *Format;
+char *Format;
 va_dcl
 #endif
 {
 	/* Text an Clients, lokal bzw. remote, senden. */
 
-	CHAR buffer[1000];
+	char buffer[1000];
 	va_list ap;
 
 	assert( Client != NULL );
@@ -109,19 +109,19 @@ va_dcl
 
 
 #ifdef PROTOTYPES
-GLOBAL BOOLEAN
-IRC_WriteStrChannel( CLIENT *Client, CHANNEL *Chan, BOOLEAN Remote, CHAR *Format, ... )
+GLOBAL bool
+IRC_WriteStrChannel( CLIENT *Client, CHANNEL *Chan, bool Remote, char *Format, ... )
 #else
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_WriteStrChannel( Client, Chan, Remote, Format, va_alist )
 CLIENT *Client;
 CHANNEL *Chan;
-BOOLEAN Remote;
-CHAR *Format;
+bool Remote;
+char *Format;
 va_dcl
 #endif
 {
-	CHAR buffer[1000];
+	char buffer[1000];
 	va_list ap;
 
 	assert( Client != NULL );
@@ -140,21 +140,21 @@ va_dcl
 
 
 #ifdef PROTOTYPES
-GLOBAL BOOLEAN
-IRC_WriteStrChannelPrefix( CLIENT *Client, CHANNEL *Chan, CLIENT *Prefix, BOOLEAN Remote, CHAR *Format, ... )
+GLOBAL bool
+IRC_WriteStrChannelPrefix( CLIENT *Client, CHANNEL *Chan, CLIENT *Prefix, bool Remote, char *Format, ... )
 #else
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_WriteStrChannelPrefix( Client, Chan, Prefix, Remote, Format, va_alist )
 CLIENT *Client;
 CHANNEL *Chan;
 CLIENT *Prefix;
-BOOLEAN Remote;
-CHAR *Format;
+bool Remote;
+char *Format;
 va_dcl
 #endif
 {
-	BOOLEAN ok = CONNECTED;
-	CHAR buffer[1000];
+	bool ok = CONNECTED;
+	char buffer[1000];
 	CL2CHAN *cl2chan;
 	CONN_ID conn;
 	CLIENT *c;
@@ -216,17 +216,17 @@ va_dcl
 
 
 #ifdef PROTOTYPES
-GLOBAL VOID
-IRC_WriteStrServers( CLIENT *ExceptOf, CHAR *Format, ... )
+GLOBAL void
+IRC_WriteStrServers( CLIENT *ExceptOf, char *Format, ... )
 #else
-GLOBAL VOID
+GLOBAL void
 IRC_WriteStrServers( ExceptOf, Format, va_alist )
 CLIENT *ExceptOf;
-CHAR *Format;
+char *Format;
 va_dcl
 #endif
 {
-	CHAR buffer[1000];
+	char buffer[1000];
 	va_list ap;
 
 	assert( Format != NULL );
@@ -245,18 +245,18 @@ va_dcl
 
 
 #ifdef PROTOTYPES
-GLOBAL VOID
-IRC_WriteStrServersPrefix( CLIENT *ExceptOf, CLIENT *Prefix, CHAR *Format, ... )
+GLOBAL void
+IRC_WriteStrServersPrefix( CLIENT *ExceptOf, CLIENT *Prefix, char *Format, ... )
 #else
-GLOBAL VOID
+GLOBAL void
 IRC_WriteStrServersPrefix( ExceptOf, Prefix, Format, va_alist )
 CLIENT *ExceptOf;
 CLIENT *Prefix;
-CHAR *Format;
+char *Format;
 va_dcl
 #endif
 {
-	CHAR buffer[1000];
+	char buffer[1000];
 	va_list ap;
 
 	assert( Format != NULL );
@@ -275,19 +275,19 @@ va_dcl
 	
 
 #ifdef PROTOTYPES
-GLOBAL VOID
-IRC_WriteStrServersPrefixFlag( CLIENT *ExceptOf, CLIENT *Prefix, CHAR Flag, CHAR *Format, ... )
+GLOBAL void
+IRC_WriteStrServersPrefixFlag( CLIENT *ExceptOf, CLIENT *Prefix, char Flag, char *Format, ... )
 #else
-GLOBAL VOID
+GLOBAL void
 IRC_WriteStrServersPrefixFlag( ExceptOf, Prefix, Flag, Format, va_alist )
 CLIENT *ExceptOf;
 CLIENT *Prefix;
-CHAR Flag;
-CHAR *Format;
+char Flag;
+char *Format;
 va_dcl
 #endif
 {
-	CHAR buffer[1000];
+	char buffer[1000];
 	CLIENT *c;
 	va_list ap;
 	
@@ -316,21 +316,21 @@ va_dcl
 
 
 #ifdef PROTOTYPES
-GLOBAL BOOLEAN
-IRC_WriteStrRelatedPrefix( CLIENT *Client, CLIENT *Prefix, BOOLEAN Remote, CHAR *Format, ... )
+GLOBAL bool
+IRC_WriteStrRelatedPrefix( CLIENT *Client, CLIENT *Prefix, bool Remote, char *Format, ... )
 #else
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_WriteStrRelatedPrefix( Client, Prefix, Remote, Format, va_alist )
 CLIENT *Client;
 CLIENT *Prefix;
-BOOLEAN Remote;
-CHAR *Format;
+bool Remote;
+char *Format;
 va_dcl
 #endif
 {
-	BOOLEAN ok = CONNECTED;
+	bool ok = CONNECTED;
 	CL2CHAN *chan_cl2chan, *cl2chan;
-	CHAR buffer[1000];
+	char buffer[1000];
 	CHANNEL *chan;
 	CONN_ID conn;
 	va_list ap;
@@ -399,8 +399,8 @@ va_dcl
 } /* IRC_WriteStrRelatedPrefix */
 
 
-GLOBAL VOID
-IRC_SetPenalty( CLIENT *Client, INT Seconds )
+GLOBAL void
+IRC_SetPenalty( CLIENT *Client, int Seconds )
 {
 	CONN_ID c;
 	
@@ -414,7 +414,7 @@ IRC_SetPenalty( CLIENT *Client, INT Seconds )
 } /* IRC_SetPenalty */
 
 
-LOCAL CHAR *
+LOCAL char *
 Get_Prefix( CLIENT *Target, CLIENT *Client )
 {
 	assert( Target != NULL );

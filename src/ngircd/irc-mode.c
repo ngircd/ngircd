@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-mode.c,v 1.39 2005/03/15 16:56:18 alex Exp $";
+static char UNUSED id[] = "$Id: irc-mode.c,v 1.40 2005/03/19 18:43:48 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -38,19 +38,19 @@ static char UNUSED id[] = "$Id: irc-mode.c,v 1.39 2005/03/15 16:56:18 alex Exp $
 #include "irc-mode.h"
 
 
-LOCAL BOOLEAN Client_Mode PARAMS(( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target ));
-LOCAL BOOLEAN Channel_Mode PARAMS(( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel ));
+LOCAL bool Client_Mode PARAMS(( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target ));
+LOCAL bool Channel_Mode PARAMS(( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel ));
 
-LOCAL BOOLEAN Add_Invite PARAMS(( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, CHAR *Pattern ));
-LOCAL BOOLEAN Add_Ban PARAMS(( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, CHAR *Pattern ));
+LOCAL bool Add_Invite PARAMS(( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Pattern ));
+LOCAL bool Add_Ban PARAMS(( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Pattern ));
 
-LOCAL BOOLEAN Del_Invite PARAMS(( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, CHAR *Pattern ));
-LOCAL BOOLEAN Del_Ban PARAMS(( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, CHAR *Pattern ));
+LOCAL bool Del_Invite PARAMS(( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Pattern ));
+LOCAL bool Del_Ban PARAMS(( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Pattern ));
 
-LOCAL BOOLEAN Send_ListChange PARAMS(( CHAR *Mode, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, CHAR *Mask ));
+LOCAL bool Send_ListChange PARAMS(( char *Mode, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Mask ));
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_MODE( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *cl, *origin;
@@ -83,14 +83,14 @@ IRC_MODE( CLIENT *Client, REQUEST *Req )
 } /* IRC_MODE */
 
 
-LOCAL BOOLEAN
+LOCAL bool
 Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 {
 	/* Handle client mode requests */
 
-	CHAR the_modes[COMMAND_LEN], x[2], *mode_ptr;
-	BOOLEAN ok, set;
-	INT mode_arg;
+	char the_modes[COMMAND_LEN], x[2], *mode_ptr;
+	bool ok, set;
+	int mode_arg;
 	size_t len;
 
 	/* Is the client allowed to request or change the modes? */
@@ -107,8 +107,8 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 	mode_ptr = Req->argv[mode_arg];
 
 	/* Initial state: set or unset modes? */
-	if( *mode_ptr == '+' ) set = TRUE;
-	else if( *mode_ptr == '-' ) set = FALSE;
+	if( *mode_ptr == '+' ) set = true;
+	else if( *mode_ptr == '-' ) set = false;
 	else return IRC_WriteStrClient( Origin, ERR_UMODEUNKNOWNFLAG_MSG, Client_ID( Origin ));
 
 	/* Prepare reply string */
@@ -147,8 +147,8 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 						x[0] = *mode_ptr;
 						strlcat( the_modes, x, sizeof( the_modes ));
 					}
-					if( *mode_ptr == '+' ) set = TRUE;
-					else set = FALSE;
+					if( *mode_ptr == '+' ) set = true;
+					else set = false;
 				}
 				continue;
 		}
@@ -174,7 +174,7 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 			case 'o': /* IRC operator (only unsettable!) */
 				if(( ! set ) || ( Client_Type( Client ) == CLIENT_SERVER ))
 				{
-					Client_SetOperByMe( Target, FALSE );
+					Client_SetOperByMe( Target, false );
 					x[0] = 'o';
 				}
 				else ok = IRC_WriteStrClient( Origin, ERR_NOPRIVILEGES_MSG, Client_ID( Origin ));
@@ -236,16 +236,16 @@ client_exit:
 } /* Client_Mode */
 
 
-LOCAL BOOLEAN
+LOCAL bool
 Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 {
 	/* Handle channel and channel-user modes */
 
-	CHAR the_modes[COMMAND_LEN], the_args[COMMAND_LEN], x[2], argadd[CLIENT_PASS_LEN], *mode_ptr;
-	BOOLEAN ok, set, modeok = FALSE, skiponce, use_servermode = FALSE;
-	INT mode_arg, arg_arg;
+	char the_modes[COMMAND_LEN], the_args[COMMAND_LEN], x[2], argadd[CLIENT_PASS_LEN], *mode_ptr;
+	bool ok, set, modeok = false, skiponce, use_servermode = false;
+	int mode_arg, arg_arg;
 	CLIENT *client;
-	LONG l;
+	long l;
 	size_t len;
 
 	/* Mode request: let's answer it :-) */
@@ -285,17 +285,17 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 		if( ! Channel_IsMemberOf( Channel, Origin )) return IRC_WriteStrClient( Origin, ERR_NOTONCHANNEL_MSG, Client_ID( Origin ), Channel_Name( Channel ));
 
 		/* Is he channel operator? */
-		if( strchr( Channel_UserModes( Channel, Origin ), 'o' )) modeok = TRUE;
+		if( strchr( Channel_UserModes( Channel, Origin ), 'o' )) modeok = true;
 		else if( Conf_OperCanMode )
 		{
 			/* IRC-Operators can use MODE as well */
 			if( Client_OperByMe( Origin )) {
-				modeok = TRUE;
-				if ( Conf_OperServerMode ) use_servermode = TRUE; /* Change Origin to Server */
+				modeok = true;
+				if ( Conf_OperServerMode ) use_servermode = true; /* Change Origin to Server */
 			}
 		}
 	}
-	else modeok = TRUE;
+	else modeok = true;
 
 	mode_arg = 1;
 	mode_ptr = Req->argv[mode_arg];
@@ -303,10 +303,10 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 	else arg_arg = -1;
 
 	/* Initial state: set or unset modes? */
-	skiponce = FALSE;
-	if( *mode_ptr == '-' ) set = FALSE;
-	else if( *mode_ptr == '+' ) set = TRUE;
-	else set = skiponce = TRUE;
+	skiponce = false;
+	if( *mode_ptr == '-' ) set = false;
+	else if( *mode_ptr == '+' ) set = true;
+	else set = skiponce = true;
 
 	/* Prepare reply string */
 	if( set ) strcpy( the_modes, "+" );
@@ -328,7 +328,7 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 			if( Req->argc > mode_arg + 1 ) arg_arg = mode_arg + 1;
 			else arg_arg = -1;
 		}
-		skiponce = FALSE;
+		skiponce = false;
 
 		switch( *mode_ptr )
 		{
@@ -349,8 +349,8 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 						x[0] = *mode_ptr;
 						strlcat( the_modes, x, sizeof( the_modes ));
 					}
-					if( *mode_ptr == '+' ) set = TRUE;
-					else set = FALSE;
+					if( *mode_ptr == '+' ) set = true;
+					else set = false;
 				}
 				continue;
 		}
@@ -582,7 +582,7 @@ chan_exit:
 		{
 			/* Forward mode changes to channel users and other servers */
 			IRC_WriteStrServersPrefix( Client, Origin, "MODE %s %s%s", Channel_Name( Channel ), the_modes, the_args );
-			IRC_WriteStrChannelPrefix( Client, Channel, Origin, FALSE, "MODE %s %s%s", Channel_Name( Channel ), the_modes, the_args );
+			IRC_WriteStrChannelPrefix( Client, Channel, Origin, false, "MODE %s %s%s", Channel_Name( Channel ), the_modes, the_args );
 		}
 		else
 		{
@@ -591,7 +591,7 @@ chan_exit:
 			/* Send reply to client and inform other servers and channel users */
 			ok = IRC_WriteStrClientPrefix( Client, Origin, "MODE %s %s%s", Channel_Name( Channel ), the_modes, the_args );
 			IRC_WriteStrServersPrefix( Client, Origin, "MODE %s %s%s", Channel_Name( Channel ), the_modes, the_args );
-			IRC_WriteStrChannelPrefix( Client, Channel, Origin, FALSE, "MODE %s %s%s", Channel_Name( Channel ), the_modes, the_args );
+			IRC_WriteStrChannelPrefix( Client, Channel, Origin, false, "MODE %s %s%s", Channel_Name( Channel ), the_modes, the_args );
 		}
 	}
 
@@ -600,7 +600,7 @@ chan_exit:
 } /* Channel_Mode */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_AWAY( CLIENT *Client, REQUEST *Req )
 {
 	assert( Client != NULL );
@@ -627,11 +627,11 @@ IRC_AWAY( CLIENT *Client, REQUEST *Req )
 } /* IRC_AWAY */
 
 
-LOCAL BOOLEAN
-Add_Invite( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, CHAR *Pattern )
+LOCAL bool
+Add_Invite( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Pattern )
 {
-	CHAR *mask;
-	BOOLEAN already;
+	char *mask;
+	bool already;
 
 	assert( Client != NULL );
 	assert( Channel != NULL );
@@ -641,19 +641,19 @@ Add_Invite( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, CHAR *Pattern )
 
 	already = Lists_IsInviteEntry( mask, Channel );
 	
-	if( ! Lists_AddInvited( mask, Channel, FALSE )) return CONNECTED;
+	if( ! Lists_AddInvited( mask, Channel, false )) return CONNECTED;
 	
-	if(( Client_Type( Prefix ) == CLIENT_SERVER ) && ( already == TRUE )) return CONNECTED;
+	if(( Client_Type( Prefix ) == CLIENT_SERVER ) && ( already == true)) return CONNECTED;
 
 	return Send_ListChange( "+I", Prefix, Client, Channel, mask );
 } /* Add_Invite */
 
 
-LOCAL BOOLEAN
-Add_Ban( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, CHAR *Pattern )
+LOCAL bool
+Add_Ban( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Pattern )
 {
-	CHAR *mask;
-	BOOLEAN already;
+	char *mask;
+	bool already;
 
 	assert( Client != NULL );
 	assert( Channel != NULL );
@@ -665,16 +665,16 @@ Add_Ban( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, CHAR *Pattern )
 
 	if( ! Lists_AddBanned( mask, Channel )) return CONNECTED;
 
-	if(( Client_Type( Prefix ) == CLIENT_SERVER ) && ( already == TRUE )) return CONNECTED;
+	if(( Client_Type( Prefix ) == CLIENT_SERVER ) && ( already == true)) return CONNECTED;
 
 	return Send_ListChange( "+b", Prefix, Client, Channel, mask );
 } /* Add_Ban */
 
 
-LOCAL BOOLEAN
-Del_Invite( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, CHAR *Pattern )
+LOCAL bool
+Del_Invite( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Pattern )
 {
-	CHAR *mask;
+	char *mask;
 
 	assert( Client != NULL );
 	assert( Channel != NULL );
@@ -686,10 +686,10 @@ Del_Invite( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, CHAR *Pattern )
 } /* Del_Invite */
 
 
-LOCAL BOOLEAN
-Del_Ban( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, CHAR *Pattern )
+LOCAL bool
+Del_Ban( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Pattern )
 {
-	CHAR *mask;
+	char *mask;
 
 	assert( Client != NULL );
 	assert( Channel != NULL );
@@ -701,25 +701,25 @@ Del_Ban( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, CHAR *Pattern )
 } /* Del_Ban */
 
 
-LOCAL BOOLEAN
-Send_ListChange( CHAR *Mode, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, CHAR *Mask )
+LOCAL bool
+Send_ListChange( char *Mode, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Mask )
 {
 	/* Bestaetigung an Client schicken & andere Server sowie Channel-User informieren */
 
-	BOOLEAN ok;
+	bool ok;
 
 	if( Client_Type( Client ) == CLIENT_USER )
 	{
 		/* Bestaetigung an Client */
 		ok = IRC_WriteStrClientPrefix( Client, Prefix, "MODE %s %s %s", Channel_Name( Channel ), Mode, Mask );
 	}
-	else ok = TRUE;
+	else ok = true;
 
 	/* an andere Server */
 	IRC_WriteStrServersPrefix( Client, Prefix, "MODE %s %s %s", Channel_Name( Channel ), Mode, Mask );
 
 	/* und lokale User im Channel */
-	IRC_WriteStrChannelPrefix( Client, Channel, Prefix, FALSE, "MODE %s %s %s", Channel_Name( Channel ), Mode, Mask );
+	IRC_WriteStrChannelPrefix( Client, Channel, Prefix, false, "MODE %s %s %s", Channel_Name( Channel ), Mode, Mask );
 	
 	return ok;
 } /* Send_ListChange */

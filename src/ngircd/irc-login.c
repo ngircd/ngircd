@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-login.c,v 1.40 2004/03/11 22:16:31 alex Exp $";
+static char UNUSED id[] = "$Id: irc-login.c,v 1.41 2005/03/19 18:43:48 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -41,11 +41,11 @@ static char UNUSED id[] = "$Id: irc-login.c,v 1.40 2004/03/11 22:16:31 alex Exp 
 #include "irc-login.h"
 
 
-LOCAL BOOLEAN Hello_User PARAMS(( CLIENT *Client ));
-LOCAL VOID Kill_Nick PARAMS(( CHAR *Nick, CHAR *Reason ));
+LOCAL bool Hello_User PARAMS(( CLIENT *Client ));
+LOCAL void Kill_Nick PARAMS(( char *Nick, char *Reason ));
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_PASS( CLIENT *Client, REQUEST *Req )
 {
 	assert( Client != NULL );
@@ -67,8 +67,8 @@ IRC_PASS( CLIENT *Client, REQUEST *Req )
 	}
 	else if((( Client_Type( Client ) == CLIENT_UNKNOWN ) || ( Client_Type( Client ) == CLIENT_UNKNOWNSERVER )) && (( Req->argc == 3 ) || ( Req->argc == 4 )))
 	{
-		CHAR c2, c4, *type, *impl, *serverver, *flags, *ptr, *ircflags;
-		INT protohigh, protolow;
+		char c2, c4, *type, *impl, *serverver, *flags, *ptr, *ircflags;
+		int protohigh, protolow;
 
 		/* noch nicht registrierte Server-Verbindung */
 		Log( LOG_DEBUG, "Connection %d: got PASS command (new server link) ...", Client_Conn( Client ));
@@ -143,11 +143,11 @@ IRC_PASS( CLIENT *Client, REQUEST *Req )
 } /* IRC_PASS */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_NICK( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *intr_c, *target, *c;
-	CHAR *modes;
+	char *modes;
 
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -221,7 +221,7 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 			/* alle betroffenen User und Server ueber Nick-Aenderung informieren */
 			if( Client_Type( Client ) == CLIENT_USER ) IRC_WriteStrClientPrefix( Client, Client, "NICK :%s", Req->argv[0] );
 			IRC_WriteStrServersPrefix( Client, target, "NICK :%s", Req->argv[0] );
-			IRC_WriteStrRelatedPrefix( target, target, FALSE, "NICK :%s", Req->argv[0] );
+			IRC_WriteStrRelatedPrefix( target, target, false, "NICK :%s", Req->argv[0] );
 			
 			/* neuen Client-Nick speichern */
 			Client_SetID( target, Req->argv[0] );
@@ -259,7 +259,7 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 		}
 
 		/* Neue Client-Struktur anlegen */
-		c = Client_NewRemoteUser( intr_c, Req->argv[0], atoi( Req->argv[1] ), Req->argv[2], Req->argv[3], atoi( Req->argv[4] ), Req->argv[5] + 1, Req->argv[6], TRUE );
+		c = Client_NewRemoteUser( intr_c, Req->argv[0], atoi( Req->argv[1] ), Req->argv[2], Req->argv[3], atoi( Req->argv[4] ), Req->argv[5] + 1, Req->argv[6], true);
 		if( ! c )
 		{
 			/* Eine neue Client-Struktur konnte nicht angelegt werden.
@@ -283,11 +283,11 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 } /* IRC_NICK */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_USER( CLIENT *Client, REQUEST *Req )
 {
 #ifdef IDENTAUTH
-	CHAR *ptr;
+	char *ptr;
 #endif
 
 	assert( Client != NULL );
@@ -305,9 +305,9 @@ IRC_USER( CLIENT *Client, REQUEST *Req )
 		/* User name */
 #ifdef IDENTAUTH
 		ptr = Client_User( Client );
-		if( ! ptr || ! *ptr || *ptr == '~' ) Client_SetUser( Client, Req->argv[0], FALSE );
+		if( ! ptr || ! *ptr || *ptr == '~' ) Client_SetUser( Client, Req->argv[0], false );
 #else
-		Client_SetUser( Client, Req->argv[0], FALSE );
+		Client_SetUser( Client, Req->argv[0], false );
 #endif
 
 		/* "Real name" or user info text: Don't set it to the empty string, the original ircd
@@ -328,7 +328,7 @@ IRC_USER( CLIENT *Client, REQUEST *Req )
 } /* IRC_USER */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_QUIT( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *target;
@@ -351,8 +351,8 @@ IRC_QUIT( CLIENT *Client, REQUEST *Req )
 			return CONNECTED;
 		}
 
-		if( Req->argc == 0 ) Client_Destroy( target, "Got QUIT command.", NULL, TRUE );
-		else Client_Destroy( target, "Got QUIT command.", Req->argv[0], TRUE );
+		if( Req->argc == 0 ) Client_Destroy( target, "Got QUIT command.", NULL, true);
+		else Client_Destroy( target, "Got QUIT command.", Req->argv[0], true);
 
 		return CONNECTED;
 	}
@@ -363,15 +363,15 @@ IRC_QUIT( CLIENT *Client, REQUEST *Req )
 		/* Falsche Anzahl Parameter? */
 		if( Req->argc > 1 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
-		if( Req->argc == 0 ) Conn_Close( Client_Conn( Client ), "Got QUIT command.", NULL, TRUE );
-		else Conn_Close( Client_Conn( Client ), "Got QUIT command.", Req->argv[0], TRUE );
+		if( Req->argc == 0 ) Conn_Close( Client_Conn( Client ), "Got QUIT command.", NULL, true);
+		else Conn_Close( Client_Conn( Client ), "Got QUIT command.", Req->argv[0], true);
 		
 		return DISCONNECTED;
 	}
 } /* IRC_QUIT */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_PING( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *target, *from;
@@ -405,7 +405,7 @@ IRC_PING( CLIENT *Client, REQUEST *Req )
 } /* IRC_PING */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_PONG( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *target, *from;
@@ -442,11 +442,11 @@ IRC_PONG( CLIENT *Client, REQUEST *Req )
 } /* IRC_PONG */
 
 
-LOCAL BOOLEAN
+LOCAL bool
 Hello_User( CLIENT *Client )
 {
 #ifdef CVSDATE
-	CHAR ver[12], vertxt[30];
+	char ver[12], vertxt[30];
 #endif
 
 	assert( Client != NULL );
@@ -456,7 +456,7 @@ Hello_User( CLIENT *Client )
 	{
 		/* Bad password! */
 		Log( LOG_ERR, "User \"%s\" rejected (connection %d): Bad password!", Client_Mask( Client ), Client_Conn( Client ));
-		Conn_Close( Client_Conn( Client ), NULL, "Bad password", TRUE );
+		Conn_Close( Client_Conn( Client ), NULL, "Bad password", true);
 		return DISCONNECTED;
 	}
 
@@ -466,7 +466,7 @@ Hello_User( CLIENT *Client )
 	IRC_WriteStrServers( NULL, "NICK %s 1 %s %s 1 +%s :%s", Client_ID( Client ), Client_User( Client ), Client_Hostname( Client ), Client_Modes( Client ), Client_Info( Client ));
 
 	/* Welcome :-) */
-	if( ! IRC_WriteStrClient( Client, RPL_WELCOME_MSG, Client_ID( Client ), Client_Mask( Client ))) return FALSE;
+	if( ! IRC_WriteStrClient( Client, RPL_WELCOME_MSG, Client_ID( Client ), Client_Mask( Client ))) return false;
 
 	/* Version and system type */
 #ifdef CVSDATE
@@ -474,16 +474,16 @@ Hello_User( CLIENT *Client )
         strncpy( ver + 4, ver + 5, 2 );
         strncpy( ver + 6, ver + 8, 3 );
 	snprintf( vertxt, sizeof( vertxt ), "%s(%s)", PACKAGE_VERSION, ver );
-	if( ! IRC_WriteStrClient( Client, RPL_YOURHOST_MSG, Client_ID( Client ), Client_ID( Client_ThisServer( )), vertxt, TARGET_CPU, TARGET_VENDOR, TARGET_OS )) return FALSE;
+	if( ! IRC_WriteStrClient( Client, RPL_YOURHOST_MSG, Client_ID( Client ), Client_ID( Client_ThisServer( )), vertxt, TARGET_CPU, TARGET_VENDOR, TARGET_OS )) return false;
 #else
-	if( ! IRC_WriteStrClient( Client, RPL_YOURHOST_MSG, Client_ID( Client ), Client_ID( Client_ThisServer( )), PACKAGE_VERSION, TARGET_CPU, TARGET_VENDOR, TARGET_OS )) return FALSE;
+	if( ! IRC_WriteStrClient( Client, RPL_YOURHOST_MSG, Client_ID( Client ), Client_ID( Client_ThisServer( )), PACKAGE_VERSION, TARGET_CPU, TARGET_VENDOR, TARGET_OS )) return false;
 #endif
 
-	if( ! IRC_WriteStrClient( Client, RPL_CREATED_MSG, Client_ID( Client ), NGIRCd_StartStr )) return FALSE;
+	if( ! IRC_WriteStrClient( Client, RPL_CREATED_MSG, Client_ID( Client ), NGIRCd_StartStr )) return false;
 #ifdef CVSDATE
-	if( ! IRC_WriteStrClient( Client, RPL_MYINFO_MSG, Client_ID( Client ), Client_ID( Client_ThisServer( )), vertxt, USERMODES, CHANMODES )) return FALSE;	
+	if( ! IRC_WriteStrClient( Client, RPL_MYINFO_MSG, Client_ID( Client ), Client_ID( Client_ThisServer( )), vertxt, USERMODES, CHANMODES )) return false;	
 #else
-	if( ! IRC_WriteStrClient( Client, RPL_MYINFO_MSG, Client_ID( Client ), Client_ID( Client_ThisServer( )), PACKAGE_VERSION, USERMODES, CHANMODES )) return FALSE;
+	if( ! IRC_WriteStrClient( Client, RPL_MYINFO_MSG, Client_ID( Client ), Client_ID( Client_ThisServer( )), PACKAGE_VERSION, USERMODES, CHANMODES )) return false;
 #endif
 
 	/* Features */
@@ -501,15 +501,15 @@ Hello_User( CLIENT *Client )
 } /* Hello_User */
 
 
-LOCAL VOID
-Kill_Nick( CHAR *Nick, CHAR *Reason )
+LOCAL void
+Kill_Nick( char *Nick, char *Reason )
 {
 	REQUEST r;
 
 	assert( Nick != NULL );
 	assert( Reason != NULL );
 
-	r.prefix = (CHAR *)Client_ThisServer( );
+	r.prefix = (char *)Client_ThisServer( );
 	r.argv[0] = Nick;
 	r.argv[1] = Reason;
 	r.argc = 2;

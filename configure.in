@@ -8,7 +8,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: configure.in,v 1.105 2005/03/19 14:09:32 alex Exp $
+# $Id: configure.in,v 1.106 2005/03/19 18:43:48 fw Exp $
 #
 
 # -- Initialisation --
@@ -85,7 +85,7 @@ AC_CHECK_HEADERS([ \
 	strings.h sys/socket.h sys/time.h unistd.h \
 	],,AC_MSG_ERROR([required C header missing!]))
 
-AC_CHECK_HEADERS([arpa/inet.h ctype.h malloc.h stdint.h varargs.h])
+AC_CHECK_HEADERS([arpa/inet.h ctype.h malloc.h stdbool.h stddef.h varargs.h])
 
 # -- Datatypes --
 

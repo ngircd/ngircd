@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: irc-login.h,v 1.5 2002/12/12 12:23:43 alex Exp $
+ * $Id: irc-login.h,v 1.6 2005/03/19 18:43:48 fw Exp $
  *
  * Login and logout (header)
  */
@@ -18,12 +18,12 @@
 #define __irc_login_h__
 
 
-GLOBAL BOOLEAN IRC_PASS PARAMS((CLIENT *Client, REQUEST *Req ));
-GLOBAL BOOLEAN IRC_NICK PARAMS((CLIENT *Client, REQUEST *Req ));
-GLOBAL BOOLEAN IRC_USER PARAMS((CLIENT *Client, REQUEST *Req ));
-GLOBAL BOOLEAN IRC_PING PARAMS((CLIENT *Client, REQUEST *Req ));
-GLOBAL BOOLEAN IRC_PONG PARAMS((CLIENT *Client, REQUEST *Req ));
-GLOBAL BOOLEAN IRC_QUIT PARAMS((CLIENT *Client, REQUEST *Req ));
+GLOBAL bool IRC_PASS PARAMS((CLIENT *Client, REQUEST *Req ));
+GLOBAL bool IRC_NICK PARAMS((CLIENT *Client, REQUEST *Req ));
+GLOBAL bool IRC_USER PARAMS((CLIENT *Client, REQUEST *Req ));
+GLOBAL bool IRC_PING PARAMS((CLIENT *Client, REQUEST *Req ));
+GLOBAL bool IRC_PONG PARAMS((CLIENT *Client, REQUEST *Req ));
+GLOBAL bool IRC_QUIT PARAMS((CLIENT *Client, REQUEST *Req ));
 
 
 #endif

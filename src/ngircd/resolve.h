@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: resolve.h,v 1.7 2004/05/11 00:01:11 alex Exp $
+ * $Id: resolve.h,v 1.8 2005/03/19 18:43:49 fw Exp $
  *
  * Asynchronous resolver (header)
  */
@@ -27,18 +27,18 @@
 
 typedef struct _Res_Stat
 {
-	INT pid;			/* PID des Child-Prozess */
-	INT pipe[2];			/* Pipe fuer IPC */
-	INT stage;			/* Hostname/IP(0) or IDENT(1)? */
-	INT bufpos;			/* Position in buffer */
-	CHAR buffer[HOST_LEN];		/* Buffer */
+	int pid;			/* PID des Child-Prozess */
+	int pipe[2];			/* Pipe fuer IPC */
+	int stage;			/* Hostname/IP(0) or IDENT(1)? */
+	int bufpos;			/* Position in buffer */
+	char buffer[HOST_LEN];		/* Buffer */
 } RES_STAT;
 
 
 GLOBAL fd_set Resolver_FDs;
 
 
-GLOBAL VOID Resolve_Init PARAMS(( VOID ));
+GLOBAL void Resolve_Init PARAMS(( void ));
 
 #ifdef IDENTAUTH
 GLOBAL RES_STAT *Resolve_Addr PARAMS(( struct sockaddr_in *Addr, int Sock ));
@@ -46,7 +46,7 @@ GLOBAL RES_STAT *Resolve_Addr PARAMS(( struct sockaddr_in *Addr, int Sock ));
 GLOBAL RES_STAT *Resolve_Addr PARAMS(( struct sockaddr_in *Addr ));
 #endif
 
-GLOBAL RES_STAT *Resolve_Name PARAMS(( CHAR *Host ));
+GLOBAL RES_STAT *Resolve_Name PARAMS(( char *Host ));
 
 
 #endif

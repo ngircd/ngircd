@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conn.h,v 1.32 2003/12/26 15:55:07 alex Exp $
+ * $Id: conn.h,v 1.33 2005/03/19 18:43:48 fw Exp $
  *
  * Connection management (header)
  */
@@ -18,7 +18,7 @@
 #define __conn_h__
 
 
-#include <time.h>			/* fro time_t, see below */
+#include <time.h>			/* for time_t, see below */
 
 
 #define CONN_ISCLOSING 1		/* Conn_Close() already called */
@@ -28,7 +28,7 @@
 #endif
 
 
-typedef INT CONN_ID;
+typedef int CONN_ID;
 
 
 #ifdef CONN_MODULE
@@ -42,33 +42,33 @@ typedef struct _ZipData
 {
 	z_stream in;			/* "Handle" for input stream */
 	z_stream out;			/* "Handle" for output stream */
-	CHAR rbuf[READBUFFER_LEN];	/* Read buffer */
-	INT rdatalen;			/* Length of data in read buffer (compressed) */
-	CHAR wbuf[WRITEBUFFER_LEN];	/* Write buffer */
-	INT wdatalen;			/* Length of data in write buffer (uncompressed) */
-	LONG bytes_in, bytes_out;	/* Counter for statistics (uncompressed!) */
+	char rbuf[READBUFFER_LEN];	/* Read buffer */
+	int rdatalen;			/* Length of data in read buffer (compressed) */
+	char wbuf[WRITEBUFFER_LEN];	/* Write buffer */
+	int wdatalen;			/* Length of data in write buffer (uncompressed) */
+	long bytes_in, bytes_out;	/* Counter for statistics (uncompressed!) */
 } ZIPDATA;
 #endif /* ZLIB */
 
 typedef struct _Connection
 {
-	INT sock;			/* Socket handle */
+	int sock;			/* Socket handle */
 	struct sockaddr_in addr;	/* Client address */
 	RES_STAT *res_stat;		/* Status of resolver process, if any */
-	CHAR host[HOST_LEN];		/* Hostname */
-	CHAR rbuf[READBUFFER_LEN];	/* Read buffer */
-	INT rdatalen;			/* Length of data in read buffer */
-	CHAR wbuf[WRITEBUFFER_LEN];	/* Write buffer */
-	INT wdatalen;			/* Length of data in write buffer */
+	char host[HOST_LEN];		/* Hostname */
+	char rbuf[READBUFFER_LEN];	/* Read buffer */
+	int rdatalen;			/* Length of data in read buffer */
+	char wbuf[WRITEBUFFER_LEN];	/* Write buffer */
+	int wdatalen;			/* Length of data in write buffer */
 	time_t starttime;		/* Start time of link */
 	time_t lastdata;		/* Last activity */
 	time_t lastping;		/* Last PING */
 	time_t lastprivmsg;		/* Last PRIVMSG */
 	time_t delaytime;		/* Ignore link ("penalty") */
-	LONG bytes_in, bytes_out;	/* Received and sent bytes */
-	LONG msg_in, msg_out;		/* Received and sent IRC messages */
-	INT flag;			/* Flag (see "irc-write" module) */
-	INT options;			/* Link options */
+	long bytes_in, bytes_out; /* Received and sent bytes */
+	long msg_in, msg_out;	  /* Received and sent IRC messages */
+	int flag;			/* Flag (see "irc-write" module) */
+	int options;			/* Link options */
 #ifdef ZLIB
 	ZIPDATA zip;			/* Compression information */
 #endif  /* ZLIB */
@@ -76,29 +76,29 @@ typedef struct _Connection
 
 GLOBAL CONNECTION *My_Connections;
 GLOBAL CONN_ID Pool_Size;
-GLOBAL LONG WCounter;
+GLOBAL long WCounter;
 
 #endif /* CONN_MODULE */
 
 
-GLOBAL VOID Conn_Init PARAMS((VOID ));
-GLOBAL VOID Conn_Exit PARAMS(( VOID ));
+GLOBAL void Conn_Init PARAMS((void ));
+GLOBAL void Conn_Exit PARAMS(( void ));
 
-GLOBAL INT Conn_InitListeners PARAMS(( VOID ));
-GLOBAL VOID Conn_ExitListeners PARAMS(( VOID ));
+GLOBAL int Conn_InitListeners PARAMS(( void ));
+GLOBAL void Conn_ExitListeners PARAMS(( void ));
 
-GLOBAL BOOLEAN Conn_NewListener PARAMS(( CONST UINT Port ));
+GLOBAL bool Conn_NewListener PARAMS(( const UINT16 Port ));
 
-GLOBAL VOID Conn_Handler PARAMS(( VOID ));
+GLOBAL void Conn_Handler PARAMS(( void ));
 
-GLOBAL BOOLEAN Conn_Write PARAMS(( CONN_ID Idx, CHAR *Data, INT Len ));
-GLOBAL BOOLEAN Conn_WriteStr PARAMS(( CONN_ID Idx, CHAR *Format, ... ));
+GLOBAL bool Conn_Write PARAMS(( CONN_ID Idx, char *Data, int Len ));
+GLOBAL bool Conn_WriteStr PARAMS(( CONN_ID Idx, char *Format, ... ));
 
-GLOBAL VOID Conn_Close PARAMS(( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient ));
+GLOBAL void Conn_Close PARAMS(( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool InformClient ));
 
-GLOBAL VOID Conn_SyncServerStruct PARAMS(( VOID ));
+GLOBAL void Conn_SyncServerStruct PARAMS(( void ));
 
-GLOBAL INT Conn_MaxFD;
+GLOBAL int Conn_MaxFD;
 
 
 #endif

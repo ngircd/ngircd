@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: irc-channel.h,v 1.6 2002/12/12 12:23:43 alex Exp $
+ * $Id: irc-channel.h,v 1.7 2005/03/19 18:43:48 fw Exp $
  *
  * IRC channel commands (header)
  */
@@ -18,13 +18,13 @@
 #define __irc_channel_h__
 
 
-GLOBAL BOOLEAN IRC_JOIN PARAMS((CLIENT *Client, REQUEST *Req ));
-GLOBAL BOOLEAN IRC_PART PARAMS((CLIENT *Client, REQUEST *Req ));
-GLOBAL BOOLEAN IRC_TOPIC PARAMS((CLIENT *Client, REQUEST *Req ));
+GLOBAL bool IRC_JOIN PARAMS((CLIENT *Client, REQUEST *Req ));
+GLOBAL bool IRC_PART PARAMS((CLIENT *Client, REQUEST *Req ));
+GLOBAL bool IRC_TOPIC PARAMS((CLIENT *Client, REQUEST *Req ));
 
-GLOBAL BOOLEAN IRC_LIST PARAMS((CLIENT *Client, REQUEST *Req ));
+GLOBAL bool IRC_LIST PARAMS((CLIENT *Client, REQUEST *Req ));
 
-GLOBAL BOOLEAN IRC_CHANINFO PARAMS((CLIENT *Client, REQUEST *Req ));
+GLOBAL bool IRC_CHANINFO PARAMS((CLIENT *Client, REQUEST *Req ));
 
 
 #endif

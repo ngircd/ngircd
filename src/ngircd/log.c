@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: log.c,v 1.52 2005/02/10 12:49:04 alex Exp $";
+static char UNUSED id[] = "$Id: log.c,v 1.53 2005/03/19 18:43:49 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -44,18 +44,18 @@ static char UNUSED id[] = "$Id: log.c,v 1.52 2005/02/10 12:49:04 alex Exp $";
 #include "log.h"
 
 
-LOCAL CHAR Init_Txt[127];
+LOCAL char Init_Txt[127];
 
 #ifdef DEBUG
-LOCAL CHAR Error_File[FNAME_LEN];
+LOCAL char Error_File[FNAME_LEN];
 #endif
 
 
-LOCAL VOID Wall_ServerNotice PARAMS(( CHAR *Msg ));
+LOCAL void Wall_ServerNotice PARAMS(( char *Msg ));
 
 
-GLOBAL VOID
-Log_Init( VOID )
+GLOBAL void
+Log_Init( void )
 {
 #ifdef SYSLOG
 	/* Syslog initialisieren */
@@ -100,14 +100,14 @@ Log_Init( VOID )
 
 #ifdef DEBUG
 
-GLOBAL VOID
-Log_InitErrorfile( VOID )
+GLOBAL void
+Log_InitErrorfile( void )
 {
 	/* "Error-Log" initialisieren: stderr in Datei umlenken. Dort
 	 * landen z.B. alle Ausgaben von assert()-Aufrufen. */
 
 	/* Dateiname zusammen bauen */
-	sprintf( Error_File, "%s/%s-%ld.err", ERROR_DIR, PACKAGE_NAME, (LONG)getpid( ));
+	sprintf( Error_File, "%s/%s-%ld.err", ERROR_DIR, PACKAGE_NAME, (long)getpid( ));
 
 	/* stderr umlenken */
 	fflush( stderr );
@@ -129,8 +129,8 @@ Log_InitErrorfile( VOID )
 #endif
 
 
-GLOBAL VOID
-Log_Exit( VOID )
+GLOBAL void
+Log_Exit( void )
 {
 	/* Good Bye! */
 	if( NGIRCd_SignalRestart ) Log( LOG_NOTICE, "%s done (restarting).", PACKAGE_NAME );
@@ -152,20 +152,20 @@ Log_Exit( VOID )
 
 
 #ifdef PROTOTYPES
-GLOBAL VOID
-Log( INT Level, CONST CHAR *Format, ... )
+GLOBAL void
+Log( int Level, const char *Format, ... )
 #else
-GLOBAL VOID
+GLOBAL void
 Log( Level, Format, va_alist )
-INT Level;
-CONST CHAR *Format;
+int Level;
+const char *Format;
 va_dcl
 #endif
 {
 	/* Eintrag in Logfile(s) schreiben */
 
-	CHAR msg[MAX_LOG_MSG_LEN];
-	BOOLEAN snotice;
+	char msg[MAX_LOG_MSG_LEN];
+	bool snotice;
 	va_list ap;
 
 	assert( Format != NULL );
@@ -173,10 +173,10 @@ va_dcl
 	if( Level & LOG_snotice )
 	{
 		/* Notice an User mit "s" Mode */
-		snotice = TRUE;
+		snotice = true;
 		Level &= ~LOG_snotice;
 	}
-	else snotice = FALSE;
+	else snotice = false;
 
 #ifdef DEBUG
 	if(( Level == LOG_DEBUG ) && ( ! NGIRCd_Debug )) return;
@@ -196,7 +196,7 @@ va_dcl
 	if( NGIRCd_NoDaemon )
 	{
 		/* auf Konsole ausgeben */
-		fprintf( stdout, "[%d:%d] %s\n", (INT)getpid( ), Level, msg );
+		fprintf( stdout, "[%d:%d] %s\n", (int)getpid( ), Level, msg );
 		fflush( stdout );
 	}
 #ifdef SYSLOG
@@ -222,8 +222,8 @@ va_dcl
 } /* Log */
 
 
-GLOBAL VOID
-Log_Init_Resolver( VOID )
+GLOBAL void
+Log_Init_Resolver( void )
 {
 #ifdef SYSLOG
 	openlog( PACKAGE_NAME, LOG_CONS|LOG_PID, LOG_LOCAL5 );
@@ -232,8 +232,8 @@ Log_Init_Resolver( VOID )
 } /* Log_Init_Resolver */
 
 
-GLOBAL VOID
-Log_Exit_Resolver( VOID )
+GLOBAL void
+Log_Exit_Resolver( void )
 {
 	Log_Resolver( LOG_DEBUG, "Resolver sub-process %d done.", getpid( ));
 #ifdef SYSLOG
@@ -243,19 +243,19 @@ Log_Exit_Resolver( VOID )
 
 
 #ifdef PROTOTYPES
-GLOBAL VOID
-Log_Resolver( CONST INT Level, CONST CHAR *Format, ... )
+GLOBAL void
+Log_Resolver( const int Level, const char *Format, ... )
 #else
-GLOBAL VOID
+GLOBAL void
 Log_Resolver( Level, Format, va_alist )
-CONST INT Level;
-CONST CHAR *Format;
+const int Level;
+const char *Format;
 va_dcl
 #endif
 {
 	/* Eintrag des Resolver in Logfile(s) schreiben */
 
-	CHAR msg[MAX_LOG_MSG_LEN];
+	char msg[MAX_LOG_MSG_LEN];
 	va_list ap;
 
 	assert( Format != NULL );
@@ -279,7 +279,7 @@ va_dcl
 	if( NGIRCd_NoDaemon )
 	{
 		/* Output to console */
-		fprintf( stdout, "[%d:%d] %s\n", (INT)getpid( ), Level, msg );
+		fprintf( stdout, "[%d:%d] %s\n", (int)getpid( ), Level, msg );
 		fflush( stdout );
 	}
 #ifdef SYSLOG
@@ -288,8 +288,8 @@ va_dcl
 } /* Log_Resolver */
 
 
-LOCAL VOID
-Wall_ServerNotice( CHAR *Msg )
+LOCAL void
+Wall_ServerNotice( char *Msg )
 {
 	/* Server-Notice an entsprechende User verschicken */
 

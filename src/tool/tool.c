@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: tool.c,v 1.2 2005/01/25 16:16:48 alex Exp $";
+static char UNUSED id[] = "$Id: tool.c,v 1.3 2005/03/19 18:43:52 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -26,14 +26,14 @@ static char UNUSED id[] = "$Id: tool.c,v 1.2 2005/01/25 16:16:48 alex Exp $";
 #include "tool.h"
 
 
-GLOBAL VOID
-ngt_TrimStr( CHAR *String )
+GLOBAL void
+ngt_TrimStr( char *String )
 {
 	/* Mit ngt_TrimStr() werden fuehrende und folgende Leerzeichen,
 	 * Tabulatoren und Zeilenumbrueche (ASCII 10 und ASCII 13) aus
 	 * dem String entfernt. */
 	
-	CHAR *start, *ptr;
+	char *start, *ptr;
 
 	assert( String != NULL );
 
@@ -51,14 +51,14 @@ ngt_TrimStr( CHAR *String )
 } /* ngt_TrimStr */
 
 
-GLOBAL CHAR *
-ngt_LowerStr( CHAR *String )
+GLOBAL char *
+ngt_LowerStr( char *String )
 {
 	/* String in Kleinbuchstaben konvertieren. Der uebergebene
 	 * Speicherbereich wird durch das Ergebnis ersetzt, zusaetzlich
 	 * wird dieser auch als Pointer geliefert. */
 
-	CHAR *ptr;
+	char *ptr;
 
 	assert( String != NULL );
 
@@ -74,13 +74,13 @@ ngt_LowerStr( CHAR *String )
 } /* ngt_LowerStr */
 
 
-GLOBAL VOID
-ngt_TrimLastChr( CHAR *String, CONST CHAR Chr)
+GLOBAL void
+ngt_TrimLastChr( char *String, const char Chr)
 {
 	/* If last character in the string matches Chr, remove it.
 	 * Empty strings are handled correctly. */
 
-        UINT len;
+        unsigned int len;
 
 	assert( String != NULL );
 

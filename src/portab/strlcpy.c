@@ -19,7 +19,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: strlcpy.c,v 1.4 2005/02/27 09:29:13 alex Exp $";
+static char UNUSED id[] = "$Id: strlcpy.c,v 1.5 2005/03/19 18:43:50 fw Exp $";
 
 #include "imp.h"
 #include <string.h>
@@ -31,7 +31,7 @@ static char UNUSED id[] = "$Id: strlcpy.c,v 1.4 2005/02/27 09:29:13 alex Exp $";
 #ifndef HAVE_STRLCAT
 
 GLOBAL size_t
-strlcat( CHAR *dst, CONST CHAR *src, size_t size )
+strlcat( char *dst, const char *src, size_t size )
 {
 	/* Like strncat() but does not 0 fill the buffer and
 	 * always null terminates. */
@@ -55,7 +55,7 @@ strlcat( CHAR *dst, CONST CHAR *src, size_t size )
 #ifndef HAVE_STRLCPY
 
 GLOBAL size_t
-strlcpy( CHAR *dst, CONST CHAR *src, size_t size )
+strlcpy( char *dst, const char *src, size_t size )
 {
 	/* Like strncpy but does not 0 fill the buffer and
 	 * always null terminates. */

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: resolve.c,v 1.10 2005/03/05 12:57:14 alex Exp $";
+static char UNUSED id[] = "$Id: resolve.c,v 1.11 2005/03/19 18:43:49 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -42,22 +42,22 @@ static char UNUSED id[] = "$Id: resolve.c,v 1.10 2005/03/05 12:57:14 alex Exp $"
 
 
 #ifdef IDENTAUTH
-LOCAL VOID Do_ResolveAddr PARAMS(( struct sockaddr_in *Addr, INT Sock, INT w_fd ));
+LOCAL void Do_ResolveAddr PARAMS(( struct sockaddr_in *Addr, int Sock, int w_fd ));
 #else
-LOCAL VOID Do_ResolveAddr PARAMS(( struct sockaddr_in *Addr, INT w_fd ));
+LOCAL void Do_ResolveAddr PARAMS(( struct sockaddr_in *Addr, int w_fd ));
 #endif
 
-LOCAL VOID Do_ResolveName PARAMS(( CHAR *Host, INT w_fd ));
+LOCAL void Do_ResolveName PARAMS(( char *Host, int w_fd ));
 
 #ifdef h_errno
-LOCAL CHAR *Get_Error PARAMS(( INT H_Error ));
+LOCAL char *Get_Error PARAMS(( int H_Error ));
 #endif
 
-LOCAL RES_STAT *New_Res_Stat PARAMS(( VOID ));
+LOCAL RES_STAT *New_Res_Stat PARAMS(( void ));
 
 
-GLOBAL VOID
-Resolve_Init( VOID )
+GLOBAL void
+Resolve_Init( void )
 {
 	/* Initialize module */
 
@@ -77,7 +77,7 @@ Resolve_Addr( struct sockaddr_in *Addr )
 	 * can't be forked, this functions returns NULL. */
 
 	RES_STAT *s;
-	INT pid;
+	int pid;
 
 	s = New_Res_Stat( );
 	if( ! s ) return NULL;
@@ -116,13 +116,13 @@ Resolve_Addr( struct sockaddr_in *Addr )
 
 
 GLOBAL RES_STAT *
-Resolve_Name( CHAR *Host )
+Resolve_Name( char *Host )
 {
 	/* Resolve hostname (asynchronous!). On errors, e.g. if the child
 	 * process can't be forked, this functions returns NULL. */
 
 	RES_STAT *s;
-	INT pid;
+	int pid;
 
 	s = New_Res_Stat( );
 	if( ! s ) return NULL;
@@ -157,26 +157,26 @@ Resolve_Name( CHAR *Host )
 
 
 #ifdef IDENTAUTH
-LOCAL VOID
-Do_ResolveAddr( struct sockaddr_in *Addr, int Sock, INT w_fd )
+LOCAL void
+Do_ResolveAddr( struct sockaddr_in *Addr, int Sock, int w_fd )
 #else
-LOCAL VOID
-Do_ResolveAddr( struct sockaddr_in *Addr, INT w_fd )
+LOCAL void
+Do_ResolveAddr( struct sockaddr_in *Addr, int w_fd )
 #endif
 {
 	/* Resolver sub-process: resolve IP address and write result into
 	 * pipe to parent. */
 
-	CHAR hostname[HOST_LEN];
+	char hostname[HOST_LEN];
 	struct hostent *h;
-	INT len;
+	int len;
 #ifdef IDENTAUTH
-	CHAR *res;
+	char *res;
 #endif
 
 	/* Resolve IP address */
 	Log_Resolver( LOG_DEBUG, "Now resolving %s ...", inet_ntoa( Addr->sin_addr ));
-	h = gethostbyaddr( (CHAR *)&Addr->sin_addr, sizeof( Addr->sin_addr ), AF_INET );
+	h = gethostbyaddr( (char *)&Addr->sin_addr, sizeof( Addr->sin_addr ), AF_INET );
 	if( h ) strlcpy( hostname, h->h_name, sizeof( hostname ));
 	else
 	{
@@ -219,16 +219,16 @@ Do_ResolveAddr( struct sockaddr_in *Addr, INT w_fd )
 } /* Do_ResolveAddr */
 
 
-LOCAL VOID
-Do_ResolveName( CHAR *Host, INT w_fd )
+LOCAL void
+Do_ResolveName( char *Host, int w_fd )
 {
 	/* Resolver sub-process: resolve name and write result into pipe
 	 * to parent. */
 
-	CHAR ip[16];
+	char ip[16];
 	struct hostent *h;
 	struct in_addr *addr;
-	INT len;
+	int len;
 
 	Log_Resolver( LOG_DEBUG, "Now resolving \"%s\" ...", Host );
 
@@ -263,8 +263,8 @@ Do_ResolveName( CHAR *Host, INT w_fd )
 
 #ifdef h_errno
 
-LOCAL CHAR *
-Get_Error( INT H_Error )
+LOCAL char *
+Get_Error( int H_Error )
 {
 	/* Get error message for H_Error */
 
@@ -287,7 +287,7 @@ Get_Error( INT H_Error )
 
 
 LOCAL RES_STAT *
-New_Res_Stat( VOID )
+New_Res_Stat( void )
 {
 	RES_STAT *s;
 

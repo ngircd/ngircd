@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.94 2005/02/11 13:52:37 alex Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.95 2005/03/19 18:43:49 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -52,18 +52,18 @@ static char UNUSED id[] = "$Id: ngircd.c,v 1.94 2005/02/11 13:52:37 alex Exp $";
 #include "ngircd.h"
 
 
-LOCAL VOID Initialize_Signal_Handler PARAMS(( VOID ));
-LOCAL VOID Signal_Handler PARAMS(( INT Signal ));
+LOCAL void Initialize_Signal_Handler PARAMS(( void ));
+LOCAL void Signal_Handler PARAMS(( int Signal ));
 
-LOCAL VOID Show_Version PARAMS(( VOID ));
-LOCAL VOID Show_Help PARAMS(( VOID ));
+LOCAL void Show_Version PARAMS(( void ));
+LOCAL void Show_Help PARAMS(( void ));
 
-LOCAL VOID Pidfile_Create PARAMS(( LONG ));
-LOCAL VOID Pidfile_Delete PARAMS(( VOID ));
+LOCAL void Pidfile_Create PARAMS(( long ));
+LOCAL void Pidfile_Delete PARAMS(( void ));
 
-LOCAL VOID Fill_Version PARAMS(( VOID ));
+LOCAL void Fill_Version PARAMS(( void ));
 
-LOCAL VOID Setup_FDStreams PARAMS(( VOID ));
+LOCAL void Setup_FDStreams PARAMS(( void ));
 
 
 GLOBAL int
@@ -71,19 +71,20 @@ main( int argc, const char *argv[] )
 {
 	struct passwd *pwd;
 	struct group *grp;
-	BOOLEAN ok, configtest = FALSE;
-	LONG pid, n;
-	INT i;
+	bool ok, configtest = false;
+	long pid;
+	int i;
+	size_t n;
 
 	umask( 0077 );
 
-	NGIRCd_SignalQuit = NGIRCd_SignalRestart = NGIRCd_SignalRehash = FALSE;
-	NGIRCd_NoDaemon = NGIRCd_Passive = FALSE;
+	NGIRCd_SignalQuit = NGIRCd_SignalRestart = NGIRCd_SignalRehash = false;
+	NGIRCd_NoDaemon = NGIRCd_Passive = false;
 #ifdef DEBUG
-	NGIRCd_Debug = FALSE;
+	NGIRCd_Debug = false;
 #endif
 #ifdef SNIFFER
-	NGIRCd_Sniffer = FALSE;
+	NGIRCd_Sniffer = false;
 #endif
 	strlcpy( NGIRCd_ConfFile, SYSCONFDIR, sizeof( NGIRCd_ConfFile ));
 	strlcat( NGIRCd_ConfFile, CONFIG_FILE, sizeof( NGIRCd_ConfFile ));
@@ -93,7 +94,7 @@ main( int argc, const char *argv[] )
 	/* Kommandozeile parsen */
 	for( i = 1; i < argc; i++ )
 	{
-		ok = FALSE;
+		ok = false;
 		if(( argv[i][0] == '-' ) && ( argv[i][1] == '-' ))
 		{
 			/* Lange Option */
@@ -106,19 +107,19 @@ main( int argc, const char *argv[] )
 					strlcpy( NGIRCd_ConfFile, argv[i + 1], sizeof( NGIRCd_ConfFile ));
 
 					/* next parameter */
-					i++; ok = TRUE;
+					i++; ok = true;
 				}
 			}
 			if( strcmp( argv[i], "--configtest" ) == 0 )
 			{
-				configtest = TRUE;
-				ok = TRUE;
+				configtest = true;
+				ok = true;
 			}
 #ifdef DEBUG
 			if( strcmp( argv[i], "--debug" ) == 0 )
 			{
-				NGIRCd_Debug = TRUE;
-				ok = TRUE;
+				NGIRCd_Debug = true;
+				ok = true;
 			}
 #endif
 			if( strcmp( argv[i], "--help" ) == 0 )
@@ -129,19 +130,19 @@ main( int argc, const char *argv[] )
 			}
 			if( strcmp( argv[i], "--nodaemon" ) == 0 )
 			{
-				NGIRCd_NoDaemon = TRUE;
-				ok = TRUE;
+				NGIRCd_NoDaemon = true;
+				ok = true;
 			}
 			if( strcmp( argv[i], "--passive" ) == 0 )
 			{
-				NGIRCd_Passive = TRUE;
-				ok = TRUE;
+				NGIRCd_Passive = true;
+				ok = true;
 			}
 #ifdef SNIFFER
 			if( strcmp( argv[i], "--sniffer" ) == 0 )
 			{
-				NGIRCd_Sniffer = TRUE;
-				ok = TRUE;
+				NGIRCd_Sniffer = true;
+				ok = true;
 			}
 #endif
 			if( strcmp( argv[i], "--version" ) == 0 )
@@ -153,15 +154,14 @@ main( int argc, const char *argv[] )
 		else if(( argv[i][0] == '-' ) && ( argv[i][1] != '-' ))
 		{
 			/* Kurze Option */
-			
-			for( n = 1; n < (LONG)strlen( argv[i] ); n++ )
+			for( n = 1; n < strlen( argv[i] ); n++ )
 			{
-				ok = FALSE;
+				ok = false;
 #ifdef DEBUG
 				if( argv[i][n] == 'd' )
 				{
-					NGIRCd_Debug = TRUE;
-					ok = TRUE;
+					NGIRCd_Debug = true;
+					ok = true;
 				}
 #endif
 				if( argv[i][n] == 'f' )
@@ -172,31 +172,32 @@ main( int argc, const char *argv[] )
 						strlcpy( NGIRCd_ConfFile, argv[i + 1], sizeof( NGIRCd_ConfFile ));
 
 						/* go to the following parameter */
-						i++; n = (LONG)strlen( argv[i] );
-						ok = TRUE;
+						i++;
+						n = strlen( argv[i] );
+						ok = true;
 					}
 				}
 				if( argv[i][n] == 'n' )
 				{
-					NGIRCd_NoDaemon = TRUE;
-					ok = TRUE;
+					NGIRCd_NoDaemon = true;
+					ok = true;
 				}
 				if( argv[i][n] == 'p' )
 				{
-					NGIRCd_Passive = TRUE;
-					ok = TRUE;
+					NGIRCd_Passive = true;
+					ok = true;
 				}
 #ifdef SNIFFER
 				if( argv[i][n] == 's' )
 				{
-					NGIRCd_Sniffer = TRUE;
-					ok = TRUE;
+					NGIRCd_Sniffer = true;
+					ok = true;
 				}
 #endif
 				if( argv[i][n] == 't' )
 				{
-					configtest = TRUE;
-					ok = TRUE;
+					configtest = true;
+					ok = true;
 				}
 
 				if( ! ok )
@@ -224,7 +225,7 @@ main( int argc, const char *argv[] )
 #ifdef SNIFFER
 	if( NGIRCd_Sniffer )
 	{
-		NGIRCd_Debug = TRUE;
+		NGIRCd_Debug = true;
 		strcpy( NGIRCd_DebugLevel, "2" );
 	}
 #endif
@@ -240,11 +241,11 @@ main( int argc, const char *argv[] )
 	{
 		/* Initialize global variables */
 		NGIRCd_Start = time( NULL );
-		(VOID)strftime( NGIRCd_StartStr, 64, "%a %b %d %Y at %H:%M:%S (%Z)", localtime( &NGIRCd_Start ));
+		(void)strftime( NGIRCd_StartStr, 64, "%a %b %d %Y at %H:%M:%S (%Z)", localtime( &NGIRCd_Start ));
 
-		NGIRCd_SignalRehash = FALSE;
-		NGIRCd_SignalRestart = FALSE;
-		NGIRCd_SignalQuit = FALSE;
+		NGIRCd_SignalRehash = false;
+		NGIRCd_SignalRestart = false;
+		NGIRCd_SignalQuit = false;
 
 		/* Initialize modules, part I */
 		Log_Init( );
@@ -276,7 +277,7 @@ main( int argc, const char *argv[] )
 		if( ! NGIRCd_NoDaemon )
 		{
 			/* fork child process */
-			pid = (LONG)fork( );
+			pid = (long)fork( );
 			if( pid > 0 )
 			{
 				/* "Old" process: exit. */
@@ -290,20 +291,20 @@ main( int argc, const char *argv[] )
 			}
 
 			/* New child process */
-			(VOID)setsid( );
+			(void)setsid( );
 			chdir( "/" );
 
 			/* Detach stdin, stdout and stderr */
-			(VOID)Setup_FDStreams( );
+			Setup_FDStreams( );
 		}
 
 		/* Create PID file */
-		pid = (LONG) getpid( );
+		pid = (long) getpid( );
 		Pidfile_Create( pid );
 
 		/* Show user, group, and PID of the running daemon */
 		pwd = getpwuid( getuid( )); grp = getgrgid( getgid( ));
-		Log( LOG_INFO, "Running as user %s(%ld), group %s(%ld), with PID %ld.", pwd ? pwd->pw_name : "unknown", (LONG)getuid( ), grp ? grp->gr_name : "unknown", (LONG)getgid( ), pid);
+		Log( LOG_INFO, "Running as user %s(%ld), group %s(%ld), with PID %ld.", pwd ? pwd->pw_name : "unknown", (long)getuid( ), grp ? grp->gr_name : "unknown", (long)getgid( ), pid);
 
 		/* Change working directory to home directory of the user
 		 * we are running as (when not running chroot()'ed!) */
@@ -390,8 +391,8 @@ main( int argc, const char *argv[] )
 } /* main */
 
 
-LOCAL VOID
-Fill_Version( VOID )
+LOCAL void
+Fill_Version( void )
 {
 	NGIRCd_VersionAddition[0] = '\0';
 
@@ -446,13 +447,13 @@ Fill_Version( VOID )
 } /* Fill_Version */
 
 
-GLOBAL VOID
-NGIRCd_Rehash( VOID )
+GLOBAL void
+NGIRCd_Rehash( void )
 {
-	CHAR old_name[CLIENT_ID_LEN];
+	char old_name[CLIENT_ID_LEN];
 
 	Log( LOG_NOTICE|LOG_snotice, "Re-reading configuration NOW!" );
-	NGIRCd_SignalRehash = FALSE;
+	NGIRCd_SignalRehash = false;
 
 	/* Close down all listening sockets */
 	Conn_ExitListeners( );
@@ -483,8 +484,8 @@ NGIRCd_Rehash( VOID )
 } /* NGIRCd_Rehash */
 
 
-LOCAL VOID
-Initialize_Signal_Handler( VOID )
+LOCAL void
+Initialize_Signal_Handler( void )
 {
 	/* Signal-Handler initialisieren: einige Signale
 	 * werden ignoriert, andere speziell behandelt. */
@@ -530,8 +531,8 @@ Initialize_Signal_Handler( VOID )
 } /* Initialize_Signal_Handler */
 
 
-LOCAL VOID
-Signal_Handler( INT Signal )
+LOCAL void
+Signal_Handler( int Signal )
 {
 	/* Signal-Handler. Dieser wird aufgerufen, wenn eines der Signale eintrifft,
 	 * fuer das wir uns registriert haben (vgl. Initialize_Signal_Handler). Die
@@ -543,11 +544,11 @@ Signal_Handler( INT Signal )
 		case SIGINT:
 		case SIGQUIT:
 			/* wir soll(t)en uns wohl beenden ... */
-			NGIRCd_SignalQuit = TRUE;
+			NGIRCd_SignalQuit = true;
 			break;
 		case SIGHUP:
 			/* Konfiguration neu einlesen: */
-			NGIRCd_SignalRehash = TRUE;
+			NGIRCd_SignalRehash = true;
 			break;
 		case SIGCHLD:
 			/* Child-Prozess wurde beendet. Zombies vermeiden: */
@@ -562,8 +563,8 @@ Signal_Handler( INT Signal )
 } /* Signal_Handler */
 
 
-LOCAL VOID
-Show_Version( VOID )
+LOCAL void
+Show_Version( void )
 {
 	puts( NGIRCd_Version );
 	puts( "Copyright (c)2001-2005 by Alexander Barton (<alex@barton.de>)." );
@@ -573,8 +574,8 @@ Show_Version( VOID )
 } /* Show_Version */
 
 
-LOCAL VOID
-Show_Help( VOID )
+LOCAL void
+Show_Help( void )
 {
 #ifdef DEBUG
 	puts( "  -d, --debug        log extra debug messages" );
@@ -591,8 +592,8 @@ Show_Help( VOID )
 } /* Show_Help */
 
 
-LOCAL VOID
-Pidfile_Delete( VOID )
+LOCAL void
+Pidfile_Delete( void )
 {
 	/* Pidfile configured? */
 	if( ! Conf_PidFile[0] ) return;
@@ -606,8 +607,8 @@ Pidfile_Delete( VOID )
 } /* Pidfile_Delete */
 
 
-LOCAL VOID
-Pidfile_Create( LONG pid )
+LOCAL void
+Pidfile_Create( long pid )
 {
 	FILE *pidf;
 
@@ -634,10 +635,10 @@ Pidfile_Create( LONG pid )
 } /* Pidfile_Create */
 
 
-LOCAL VOID
-Setup_FDStreams( VOID )
+LOCAL void
+Setup_FDStreams( void )
 {
-	INT fd;
+	int fd;
 
 	/* Test if we can open /dev/null for reading and writing. If not
 	 * we are most probably chrooted already and the server has been

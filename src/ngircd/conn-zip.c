@@ -19,7 +19,7 @@
 
 #ifdef ZLIB
 
-static char UNUSED id[] = "$Id: conn-zip.c,v 1.5 2004/04/25 13:55:36 alex Exp $";
+static char UNUSED id[] = "$Id: conn-zip.c,v 1.6 2005/03/19 18:43:48 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -34,7 +34,7 @@ static char UNUSED id[] = "$Id: conn-zip.c,v 1.5 2004/04/25 13:55:36 alex Exp $"
 #include "conn-zip.h"
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 Zip_InitConn( CONN_ID Idx )
 {
 	/* Kompression fuer Link initialisieren */
@@ -52,7 +52,7 @@ Zip_InitConn( CONN_ID Idx )
 	{
 		/* Fehler! */
 		Log( LOG_ALERT, "Can't initialize compression on connection %d (zlib inflate)!", Idx );
-		return FALSE;
+		return false;
 	}
 
 	My_Connections[Idx].zip.out.total_in = 0;
@@ -65,7 +65,7 @@ Zip_InitConn( CONN_ID Idx )
 	{
 		/* Fehler! */
 		Log( LOG_ALERT, "Can't initialize compression on connection %d (zlib deflate)!", Idx );
-		return FALSE;
+		return false;
 	}
 
 	My_Connections[Idx].zip.bytes_in = My_Connections[Idx].bytes_in;
@@ -74,15 +74,15 @@ Zip_InitConn( CONN_ID Idx )
 	Log( LOG_INFO, "Enabled link compression (zlib) on connection %d.", Idx );
 	Conn_SetOption( Idx, CONN_ZIP );
 
-	return TRUE;
+	return true;
 } /* Zip_InitConn */
 
 
-GLOBAL BOOLEAN
-Zip_Buffer( CONN_ID Idx, CHAR *Data, INT Len )
+GLOBAL bool
+Zip_Buffer( CONN_ID Idx, char *Data, int Len )
 {
 	/* Daten zum Komprimieren im "Kompressions-Puffer" sammeln.
-	* Es wird TRUE bei Erfolg, sonst FALSE geliefert. */
+	* Es wird true bei Erfolg, sonst false geliefert. */
 
 	assert( Idx > NONE );
 	assert( Data != NULL );
@@ -92,39 +92,39 @@ Zip_Buffer( CONN_ID Idx, CHAR *Data, INT Len )
 	if( ZWRITEBUFFER_LEN - My_Connections[Idx].zip.wdatalen < Len + 50 )
 	{
 		/* Nein! Puffer zunaechst leeren ...*/
-		if( ! Zip_Flush( Idx )) return FALSE;
+		if( ! Zip_Flush( Idx )) return false;
 	}
 
 	/* Daten kopieren */
 	memmove( My_Connections[Idx].zip.wbuf + My_Connections[Idx].zip.wdatalen, Data, Len );
 	My_Connections[Idx].zip.wdatalen += Len;
 
-	return TRUE;
+	return true;
 } /* Zip_Buffer */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 Zip_Flush( CONN_ID Idx )
 {
 	/* Daten komprimieren und in Schreibpuffer kopieren.
-	* Es wird TRUE bei Erfolg, sonst FALSE geliefert. */
+	* Es wird true bei Erfolg, sonst false geliefert. */
 
-	INT result, out_len;
+	int result, out_len;
 	z_stream *out;
 
 	out = &My_Connections[Idx].zip.out;
 
-	out->next_in = (VOID *)My_Connections[Idx].zip.wbuf;
+	out->next_in = (void *)My_Connections[Idx].zip.wbuf;
 	out->avail_in = My_Connections[Idx].zip.wdatalen;
-	out->next_out = (VOID *)(My_Connections[Idx].wbuf + My_Connections[Idx].wdatalen);
+	out->next_out = (void *)(My_Connections[Idx].wbuf + My_Connections[Idx].wdatalen);
 	out->avail_out = WRITEBUFFER_LEN - My_Connections[Idx].wdatalen;
 
 	result = deflate( out, Z_SYNC_FLUSH );
 	if(( result != Z_OK ) || ( out->avail_in > 0 ))
 	{
 		Log( LOG_ALERT, "Compression error: code %d!?", result );
-		Conn_Close( Idx, "Compression error!", NULL, FALSE );
-		return FALSE;
+		Conn_Close( Idx, "Compression error!", NULL, false );
+		return false;
 	}
 
 	out_len = WRITEBUFFER_LEN - My_Connections[Idx].wdatalen - out->avail_out;
@@ -133,37 +133,37 @@ Zip_Flush( CONN_ID Idx )
 	My_Connections[Idx].zip.bytes_out += My_Connections[Idx].zip.wdatalen;
 	My_Connections[Idx].zip.wdatalen = 0;
 
-	return TRUE;
+	return true;
 } /* Zip_Flush */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 Unzip_Buffer( CONN_ID Idx )
 {
 	/* Daten entpacken und in Lesepuffer kopieren. Bei Fehlern
-	* wird FALSE geliefert, ansonsten TRUE. Der Fall, dass keine
+	* wird false geliefert, ansonsten true. Der Fall, dass keine
 	* Daten mehr zu entpacken sind, ist _kein_ Fehler! */
 
-	INT result, in_len, out_len;
+	int result, in_len, out_len;
 	z_stream *in;
 
 	assert( Idx > NONE );
 
-	if( My_Connections[Idx].zip.rdatalen <= 0 ) return TRUE;
+	if( My_Connections[Idx].zip.rdatalen <= 0 ) return true;
 
 	in = &My_Connections[Idx].zip.in;
 
-	in->next_in = (VOID *)My_Connections[Idx].zip.rbuf;
+	in->next_in = (void *)My_Connections[Idx].zip.rbuf;
 	in->avail_in = My_Connections[Idx].zip.rdatalen;
-	in->next_out = (VOID *)(My_Connections[Idx].rbuf + My_Connections[Idx].rdatalen);
+	in->next_out = (void *)(My_Connections[Idx].rbuf + My_Connections[Idx].rdatalen);
 	in->avail_out = READBUFFER_LEN - My_Connections[Idx].rdatalen - 1;
 
 	result = inflate( in, Z_SYNC_FLUSH );
 	if( result != Z_OK )
 	{
 		Log( LOG_ALERT, "Decompression error: %s (code=%d, ni=%d, ai=%d, no=%d, ao=%d)!?", in->msg, result, in->next_in, in->avail_in, in->next_out, in->avail_out );
-		Conn_Close( Idx, "Decompression error!", NULL, FALSE );
-		return FALSE;
+		Conn_Close( Idx, "Decompression error!", NULL, false );
+		return false;
 	}
 
 	in_len = My_Connections[Idx].zip.rdatalen - in->avail_in;
@@ -180,11 +180,11 @@ Unzip_Buffer( CONN_ID Idx )
 	else My_Connections[Idx].zip.rdatalen = 0;
 	My_Connections[Idx].zip.bytes_in += out_len;
 
-	return TRUE;
+	return true;
 } /* Unzip_Buffer */
 
 
-GLOBAL LONG
+GLOBAL long
 Zip_SendBytes( CONN_ID Idx )
 {
 	/* Anzahl gesendeter Bytes (komprimiert!) liefern */
@@ -194,7 +194,7 @@ Zip_SendBytes( CONN_ID Idx )
 } /* Zip_SendBytes */
 
 
-GLOBAL LONG
+GLOBAL long
 Zip_RecvBytes( CONN_ID Idx )
 {
 	/* Anzahl gesendeter Bytes (komprimiert!) liefern */

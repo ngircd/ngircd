@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: client.h,v 1.34 2003/01/15 14:28:25 alex Exp $
+ * $Id: client.h,v 1.35 2005/03/19 18:43:48 fw Exp $
  *
  * Client management (header)
  */
@@ -28,7 +28,7 @@
 #define CLIENT_SERVER 128		/* client is a server */
 #define CLIENT_SERVICE 256		/* client is a service */
 
-#define CLIENT_TYPE INT
+#define CLIENT_TYPE int
 
 
 #if defined(__client_c__) | defined(S_SPLINT_S)
@@ -37,22 +37,22 @@
 
 typedef struct _CLIENT
 {
-	CHAR id[CLIENT_ID_LEN];		/* nick (user) / ID (server) */
+	char id[CLIENT_ID_LEN];		/* nick (user) / ID (server) */
 	UINT32 hash;			/* hash of lower-case ID */
 	POINTER *next;			/* pointer to next client structure */
 	CLIENT_TYPE type;		/* type of client, see CLIENT_xxx */
 	CONN_ID conn_id;		/* ID of the connection (if local) or NONE (remote) */
 	struct _CLIENT *introducer;	/* ID of the servers which the client is connected to */
 	struct _CLIENT *topserver;	/* toplevel servers (only valid if client is a server) */
-	CHAR pwd[CLIENT_PASS_LEN];	/* password received of the client */
-	CHAR host[CLIENT_HOST_LEN];	/* hostname of the client */
-	CHAR user[CLIENT_USER_LEN];	/* user name ("login") */
-	CHAR info[CLIENT_INFO_LEN];	/* long user name (user) / info text (server) */
-	CHAR modes[CLIENT_MODE_LEN];	/* client modes */
-	INT hops, token, mytoken;	/* "hops" and "Token" (see SERVER command) */
-	BOOLEAN oper_by_me;		/* client is local IRC operator on this server? */
-	CHAR away[CLIENT_AWAY_LEN];	/* AWAY text (valid if mode 'a' is set) */
-	CHAR flags[CLIENT_FLAGS_LEN];	/* flags of the client */
+	char pwd[CLIENT_PASS_LEN];	/* password received of the client */
+	char host[CLIENT_HOST_LEN];	/* hostname of the client */
+	char user[CLIENT_USER_LEN];	/* user name ("login") */
+	char info[CLIENT_INFO_LEN];	/* long user name (user) / info text (server) */
+	char modes[CLIENT_MODE_LEN];	/* client modes */
+	int hops, token, mytoken;	/* "hops" and "Token" (see SERVER command) */
+	bool oper_by_me;		/* client is local IRC operator on this server? */
+	char away[CLIENT_AWAY_LEN];	/* AWAY text (valid if mode 'a' is set) */
+	char flags[CLIENT_FLAGS_LEN];	/* flags of the client */
 } CLIENT;
 
 #else
@@ -62,81 +62,81 @@ typedef POINTER CLIENT;
 #endif
 
 
-GLOBAL VOID Client_Init PARAMS(( VOID ));
-GLOBAL VOID Client_Exit PARAMS(( VOID ));
+GLOBAL void Client_Init PARAMS(( void ));
+GLOBAL void Client_Exit PARAMS(( void ));
 
-GLOBAL CLIENT *Client_NewLocal PARAMS(( CONN_ID Idx, CHAR *Hostname, INT Type, BOOLEAN Idented ));
-GLOBAL CLIENT *Client_NewRemoteServer PARAMS(( CLIENT *Introducer, CHAR *Hostname, CLIENT *TopServer, INT Hops, INT Token, CHAR *Info, BOOLEAN Idented ));
-GLOBAL CLIENT *Client_NewRemoteUser PARAMS(( CLIENT *Introducer, CHAR *Nick, INT Hops, CHAR *User, CHAR *Hostname, INT Token, CHAR *Modes, CHAR *Info, BOOLEAN Idented ));
-GLOBAL CLIENT *Client_New PARAMS(( CONN_ID Idx, CLIENT *Introducer, CLIENT *TopServer, INT Type, CHAR *ID, CHAR *User, CHAR *Hostname, CHAR *Info, INT Hops, INT Token, CHAR *Modes, BOOLEAN Idented ));
+GLOBAL CLIENT *Client_NewLocal PARAMS(( CONN_ID Idx, char *Hostname, int Type, bool Idented ));
+GLOBAL CLIENT *Client_NewRemoteServer PARAMS(( CLIENT *Introducer, char *Hostname, CLIENT *TopServer, int Hops, int Token, char *Info, bool Idented ));
+GLOBAL CLIENT *Client_NewRemoteUser PARAMS(( CLIENT *Introducer, char *Nick, int Hops, char *User, char *Hostname, int Token, char *Modes, char *Info, bool Idented ));
+GLOBAL CLIENT *Client_New PARAMS(( CONN_ID Idx, CLIENT *Introducer, CLIENT *TopServer, int Type, char *ID, char *User, char *Hostname, char *Info, int Hops, int Token, char *Modes, bool Idented ));
 
-GLOBAL VOID Client_Destroy PARAMS(( CLIENT *Client, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN SendQuit ));
+GLOBAL void Client_Destroy PARAMS(( CLIENT *Client, char *LogMsg, char *FwdMsg, bool SendQuit ));
 #ifdef CONN_MODULE
-GLOBAL VOID Client_DestroyNow PARAMS(( CLIENT *Client ));
+GLOBAL void Client_DestroyNow PARAMS(( CLIENT *Client ));
 #endif
 
-GLOBAL CLIENT *Client_ThisServer PARAMS(( VOID ));
+GLOBAL CLIENT *Client_ThisServer PARAMS(( void ));
 
 GLOBAL CLIENT *Client_GetFromConn PARAMS(( CONN_ID Idx ));
-GLOBAL CLIENT *Client_GetFromToken PARAMS(( CLIENT *Client, INT Token ));
+GLOBAL CLIENT *Client_GetFromToken PARAMS(( CLIENT *Client, int Token ));
 
-GLOBAL CLIENT *Client_Search PARAMS(( CHAR *ID ));
-GLOBAL CLIENT *Client_First PARAMS(( VOID ));
+GLOBAL CLIENT *Client_Search PARAMS(( char *ID ));
+GLOBAL CLIENT *Client_First PARAMS(( void ));
 GLOBAL CLIENT *Client_Next PARAMS(( CLIENT *c ));
 
-GLOBAL INT Client_Type PARAMS(( CLIENT *Client ));
+GLOBAL int Client_Type PARAMS(( CLIENT *Client ));
 GLOBAL CONN_ID Client_Conn PARAMS(( CLIENT *Client ));
-GLOBAL CHAR *Client_ID PARAMS(( CLIENT *Client ));
-GLOBAL CHAR *Client_Mask PARAMS(( CLIENT *Client ));
-GLOBAL CHAR *Client_Info PARAMS(( CLIENT *Client ));
-GLOBAL CHAR *Client_User PARAMS(( CLIENT *Client ));
-GLOBAL CHAR *Client_Hostname PARAMS(( CLIENT *Client ));
-GLOBAL CHAR *Client_Password PARAMS(( CLIENT *Client ));
-GLOBAL CHAR *Client_Modes PARAMS(( CLIENT *Client ));
-GLOBAL CHAR *Client_Flags PARAMS(( CLIENT *Client ));
+GLOBAL char *Client_ID PARAMS(( CLIENT *Client ));
+GLOBAL char *Client_Mask PARAMS(( CLIENT *Client ));
+GLOBAL char *Client_Info PARAMS(( CLIENT *Client ));
+GLOBAL char *Client_User PARAMS(( CLIENT *Client ));
+GLOBAL char *Client_Hostname PARAMS(( CLIENT *Client ));
+GLOBAL char *Client_Password PARAMS(( CLIENT *Client ));
+GLOBAL char *Client_Modes PARAMS(( CLIENT *Client ));
+GLOBAL char *Client_Flags PARAMS(( CLIENT *Client ));
 GLOBAL CLIENT *Client_Introducer PARAMS(( CLIENT *Client ));
-GLOBAL BOOLEAN Client_OperByMe PARAMS(( CLIENT *Client ));
-GLOBAL INT Client_Hops PARAMS(( CLIENT *Client ));
-GLOBAL INT Client_Token PARAMS(( CLIENT *Client ));
-GLOBAL INT Client_MyToken PARAMS(( CLIENT *Client ));
+GLOBAL bool Client_OperByMe PARAMS(( CLIENT *Client ));
+GLOBAL int Client_Hops PARAMS(( CLIENT *Client ));
+GLOBAL int Client_Token PARAMS(( CLIENT *Client ));
+GLOBAL int Client_MyToken PARAMS(( CLIENT *Client ));
 GLOBAL CLIENT *Client_TopServer PARAMS(( CLIENT *Client ));
 GLOBAL CLIENT *Client_NextHop PARAMS(( CLIENT *Client ));
-GLOBAL CHAR *Client_Away PARAMS(( CLIENT *Client ));
+GLOBAL char *Client_Away PARAMS(( CLIENT *Client ));
 
-GLOBAL BOOLEAN Client_HasMode PARAMS(( CLIENT *Client, CHAR Mode ));
+GLOBAL bool Client_HasMode PARAMS(( CLIENT *Client, char Mode ));
 
-GLOBAL VOID Client_SetHostname PARAMS(( CLIENT *Client, CHAR *Hostname ));
-GLOBAL VOID Client_SetID PARAMS(( CLIENT *Client, CHAR *Nick ));
-GLOBAL VOID Client_SetUser PARAMS(( CLIENT *Client, CHAR *User, BOOLEAN Idented ));
-GLOBAL VOID Client_SetInfo PARAMS(( CLIENT *Client, CHAR *Info ));
-GLOBAL VOID Client_SetPassword PARAMS(( CLIENT *Client, CHAR *Pwd ));
-GLOBAL VOID Client_SetType PARAMS(( CLIENT *Client, INT Type ));
-GLOBAL VOID Client_SetHops PARAMS(( CLIENT *Client, INT Hops ));
-GLOBAL VOID Client_SetToken PARAMS(( CLIENT *Client, INT Token ));
-GLOBAL VOID Client_SetOperByMe PARAMS(( CLIENT *Client, BOOLEAN OperByMe ));
-GLOBAL VOID Client_SetModes PARAMS(( CLIENT *Client, CHAR *Modes ));
-GLOBAL VOID Client_SetFlags PARAMS(( CLIENT *Client, CHAR *Flags ));
-GLOBAL VOID Client_SetIntroducer PARAMS(( CLIENT *Client, CLIENT *Introducer ));
-GLOBAL VOID Client_SetAway PARAMS(( CLIENT *Client, CHAR *Txt ));
+GLOBAL void Client_SetHostname PARAMS(( CLIENT *Client, char *Hostname ));
+GLOBAL void Client_SetID PARAMS(( CLIENT *Client, char *Nick ));
+GLOBAL void Client_SetUser PARAMS(( CLIENT *Client, char *User, bool Idented ));
+GLOBAL void Client_SetInfo PARAMS(( CLIENT *Client, char *Info ));
+GLOBAL void Client_SetPassword PARAMS(( CLIENT *Client, char *Pwd ));
+GLOBAL void Client_SetType PARAMS(( CLIENT *Client, int Type ));
+GLOBAL void Client_SetHops PARAMS(( CLIENT *Client, int Hops ));
+GLOBAL void Client_SetToken PARAMS(( CLIENT *Client, int Token ));
+GLOBAL void Client_SetOperByMe PARAMS(( CLIENT *Client, bool OperByMe ));
+GLOBAL void Client_SetModes PARAMS(( CLIENT *Client, char *Modes ));
+GLOBAL void Client_SetFlags PARAMS(( CLIENT *Client, char *Flags ));
+GLOBAL void Client_SetIntroducer PARAMS(( CLIENT *Client, CLIENT *Introducer ));
+GLOBAL void Client_SetAway PARAMS(( CLIENT *Client, char *Txt ));
 
-GLOBAL BOOLEAN Client_ModeAdd PARAMS(( CLIENT *Client, CHAR Mode ));
-GLOBAL BOOLEAN Client_ModeDel PARAMS(( CLIENT *Client, CHAR Mode ));
+GLOBAL bool Client_ModeAdd PARAMS(( CLIENT *Client, char Mode ));
+GLOBAL bool Client_ModeDel PARAMS(( CLIENT *Client, char Mode ));
 
-GLOBAL BOOLEAN Client_CheckNick PARAMS(( CLIENT *Client, CHAR *Nick ));
-GLOBAL BOOLEAN Client_CheckID PARAMS(( CLIENT *Client, CHAR *ID ));
+GLOBAL bool Client_CheckNick PARAMS(( CLIENT *Client, char *Nick ));
+GLOBAL bool Client_CheckID PARAMS(( CLIENT *Client, char *ID ));
 
-GLOBAL LONG Client_UserCount PARAMS(( VOID ));
-GLOBAL LONG Client_ServiceCount PARAMS(( VOID ));
-GLOBAL LONG Client_ServerCount PARAMS(( VOID ));
-GLOBAL LONG Client_OperCount PARAMS(( VOID ));
-GLOBAL LONG Client_UnknownCount PARAMS(( VOID ));
-GLOBAL LONG Client_MyUserCount PARAMS(( VOID ));
-GLOBAL LONG Client_MyServiceCount PARAMS(( VOID ));
-GLOBAL LONG Client_MyServerCount PARAMS(( VOID ));
-GLOBAL LONG Client_MaxUserCount PARAMS((  VOID ));
-GLOBAL LONG Client_MyMaxUserCount PARAMS((  VOID ));
+GLOBAL long Client_UserCount PARAMS(( void ));
+GLOBAL long Client_ServiceCount PARAMS(( void ));
+GLOBAL long Client_ServerCount PARAMS(( void ));
+GLOBAL long Client_OperCount PARAMS(( void ));
+GLOBAL long Client_UnknownCount PARAMS(( void ));
+GLOBAL long Client_MyUserCount PARAMS(( void ));
+GLOBAL long Client_MyServiceCount PARAMS(( void ));
+GLOBAL long Client_MyServerCount PARAMS(( void ));
+GLOBAL long Client_MaxUserCount PARAMS((  void ));
+GLOBAL long Client_MyMaxUserCount PARAMS((  void ));
 
-GLOBAL BOOLEAN Client_IsValidNick PARAMS(( CHAR *Nick ));
+GLOBAL bool Client_IsValidNick PARAMS(( char *Nick ));
 
 
 #endif

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-oper.c,v 1.19 2005/03/03 08:36:19 alex Exp $";
+static char UNUSED id[] = "$Id: irc-oper.c,v 1.20 2005/03/19 18:43:48 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -37,10 +37,10 @@ static char UNUSED id[] = "$Id: irc-oper.c,v 1.19 2005/03/03 08:36:19 alex Exp $
 #include "irc-oper.h"
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_OPER( CLIENT *Client, REQUEST *Req )
 {
-	INT i;
+	int i;
 
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -83,12 +83,12 @@ IRC_OPER( CLIENT *Client, REQUEST *Req )
 
 	if( ! Client_OperByMe( Client )) Log( LOG_NOTICE|LOG_snotice, "Got valid OPER from \"%s\", user is an IRC operator now.", Client_Mask( Client ));
 
-	Client_SetOperByMe( Client, TRUE );
+	Client_SetOperByMe( Client, true);
 	return IRC_WriteStrClient( Client, RPL_YOUREOPER_MSG, Client_ID( Client ));
 } /* IRC_OPER */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_DIE( CLIENT *Client, REQUEST *Req )
 {
 	/* Shut down server */
@@ -103,12 +103,12 @@ IRC_DIE( CLIENT *Client, REQUEST *Req )
 	if( Req->argc != 0 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
 	Log( LOG_NOTICE|LOG_snotice, "Got DIE command from \"%s\" ...", Client_Mask( Client ));
-	NGIRCd_SignalQuit = TRUE;
+	NGIRCd_SignalQuit = true;
 	return CONNECTED;
 } /* IRC_DIE */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_REHASH( CLIENT *Client, REQUEST *Req )
 {
 	/* Reload configuration file */
@@ -123,13 +123,13 @@ IRC_REHASH( CLIENT *Client, REQUEST *Req )
 	if( Req->argc != 0 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
 	Log( LOG_NOTICE|LOG_snotice, "Got REHASH command from \"%s\" ...", Client_Mask( Client ));
-	NGIRCd_SignalRehash = TRUE;
+	NGIRCd_SignalRehash = true;
 	
 	return CONNECTED;
 } /* IRC_REHASH */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_RESTART( CLIENT *Client, REQUEST *Req )
 {
 	/* Restart IRC server (fork a new process) */
@@ -144,12 +144,12 @@ IRC_RESTART( CLIENT *Client, REQUEST *Req )
 	if( Req->argc != 0 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
 	Log( LOG_NOTICE|LOG_snotice, "Got RESTART command from \"%s\" ...", Client_Mask( Client ));
-	NGIRCd_SignalRestart = TRUE;
+	NGIRCd_SignalRestart = true;
 	return CONNECTED;
 } /* IRC_RESTART */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_CONNECT(CLIENT *Client, REQUEST *Req )
 {
 	/* Connect configured or new server */
@@ -182,7 +182,7 @@ IRC_CONNECT(CLIENT *Client, REQUEST *Req )
 } /* IRC_CONNECT */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_DISCONNECT(CLIENT *Client, REQUEST *Req )
 {
 	/* Disconnect and disable configured server */

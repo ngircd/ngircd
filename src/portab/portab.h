@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: portab.h,v 1.17 2004/03/15 19:26:39 alex Exp $
+ * $Id: portab.h,v 1.18 2005/03/19 18:43:50 fw Exp $
  *
  * Portability functions and declarations (header for libngbportab).
  */
@@ -24,6 +24,23 @@
 # include <sys/types.h>
 #endif
 
+#ifdef HAVE_INTTYPES_H
+# include <inttypes.h>
+# define NGIRC_GOT_INTTYPES
+#else
+# ifdef HAVE_STDINT_H
+#  include <stdint.h>
+#  define NGIRC_GOT_INTTYPES
+# endif
+#endif
+
+#ifdef HAVE_STDDEF_H
+# include <stddef.h>
+#endif
+
+#ifdef HAVE_STDBOOL_H
+# include <stdbool.h>
+#endif
 
 /* compiler features */
 
@@ -45,13 +62,7 @@
 
 
 /* keywords */
-
-#define EXTERN extern
-#define STATIC static
 #define LOCAL static
-#define CONST const
-#define REGISTER register
-
 
 /* datatypes */
 
@@ -61,39 +72,30 @@
 # endif
 #endif
 
-typedef void VOID;
 typedef void POINTER;
 
-typedef signed int INT;
-typedef unsigned int UINT;
-typedef signed long LONG;
-typedef unsigned long ULONG;
-
-typedef signed char INT8;
+#ifdef NGIRC_GOT_INTTYPES
+typedef uint8_t UINT8;
+typedef uint16_t UINT16;
+typedef uint32_t UINT32;
+#else
 typedef unsigned char UINT8;
-typedef signed short INT16;
 typedef unsigned short UINT16;
-typedef signed long INT32;
-typedef unsigned long UINT32;
+typedef unsigned int UINT32;
+#endif
 
-typedef double DOUBLE;
-typedef float FLOAT;
+#ifndef HAVE_STDBOOL_H
+typedef unsigned char bool;
+#define true (bool)1
+#define false (bool)0
+#endif
 
-typedef char CHAR;
-
-typedef UINT8 BOOLEAN;
-
-#undef TRUE
-#define TRUE (BOOLEAN)1
-
-#undef FALSE
-#define FALSE (BOOLEAN)0
-
-#undef NULL
+#ifndef NULL
 #ifdef PROTOTYPES
-# define NULL (VOID *)0
+# define NULL (void *)0
 #else
 # define NULL 0L
+#endif
 #endif
 
 #undef GLOBAL
@@ -130,20 +132,20 @@ typedef UINT8 BOOLEAN;
 #endif
 
 #ifndef HAVE_SNPRINTF
-EXTERN INT snprintf PARAMS(( CHAR *str, size_t count, CONST CHAR *fmt, ... ));
+extern int snprintf PARAMS(( char *str, size_t count, const char *fmt, ... ));
 #endif
 
 #ifndef HAVE_STRLCAT
-EXTERN size_t strlcat PARAMS(( CHAR *dst, CONST CHAR *src, size_t size ));
+extern size_t strlcat PARAMS(( char *dst, const char *src, size_t size ));
 #endif
 
 #ifndef HAVE_STRLCPY
-EXTERN size_t strlcpy PARAMS(( CHAR *dst, CONST CHAR *src, size_t size ));
+extern size_t strlcpy PARAMS(( char *dst, const char *src, size_t size ));
 #endif
 
 #ifndef HAVE_VSNPRINTF
 #include <stdarg.h>
-EXTERN INT vsnprintf PARAMS(( CHAR *str, size_t count, CONST CHAR *fmt, va_list args ));
+extern int vsnprintf PARAMS(( char *str, size_t count, const char *fmt, va_list args ));
 #endif
 
 #ifndef PACKAGE_NAME

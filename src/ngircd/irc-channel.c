@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-channel.c,v 1.28 2005/03/02 16:35:11 alex Exp $";
+static char UNUSED id[] = "$Id: irc-channel.c,v 1.29 2005/03/19 18:43:48 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -40,11 +40,11 @@ static char UNUSED id[] = "$Id: irc-channel.c,v 1.28 2005/03/02 16:35:11 alex Ex
 #include "irc-channel.h"
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_JOIN( CLIENT *Client, REQUEST *Req )
 {
-	CHAR *channame, *key, *flags, *topic, modes[8];
-	BOOLEAN is_new_chan, is_invited, is_banned;
+	char *channame, *key, *flags, *topic, modes[8];
+	bool is_new_chan, is_invited, is_banned;
 	CLIENT *target;
 	CHANNEL *chan;
 
@@ -71,8 +71,8 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 		chan = NULL; flags = NULL;
 
 		/* wird der Channel neu angelegt? */
-		if( Channel_Search( channame )) is_new_chan = FALSE;
-		else is_new_chan = TRUE;
+		if( Channel_Search( channame )) is_new_chan = false;
+		else is_new_chan = true;
 
 		/* Hat ein Server Channel-User-Modes uebergeben? */
 		if( Client_Type( Client ) == CLIENT_SERVER )
@@ -115,7 +115,7 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 				is_invited = Lists_CheckInvited( target, chan );
 
 				/* Testen, ob Client gebanned ist */
-				if(( is_banned == TRUE ) &&  ( is_invited == FALSE ))
+				if(( is_banned == true) &&  ( is_invited == false ))
 				{
 					/* Client ist gebanned (und nicht invited): */
 					IRC_WriteStrClient( Client, ERR_BANNEDFROMCHAN_MSG, Client_ID( Client ), channame );
@@ -126,7 +126,7 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 				}
 
 				/* Ist der Channel "invite-only"? */
-				if(( strchr( Channel_Modes( chan ), 'i' )) && ( is_invited == FALSE ))
+				if(( strchr( Channel_Modes( chan ), 'i' )) && ( is_invited == false ))
 				{
 					/* Channel ist "invite-only" und Client wurde nicht invited: */
 					IRC_WriteStrClient( Client, ERR_INVITEONLYCHAN_MSG, Client_ID( Client ), channame );
@@ -167,7 +167,7 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 			 * commands) in this list become deleted when a user
 			 * joins a channel this way. */
 			chan = Channel_Search( channame );
-			if( chan != NULL ) (VOID)Lists_CheckInvited( target, chan );
+			if( chan != NULL ) (void)Lists_CheckInvited( target, chan );
 		}
 
 		/* Channel joinen (und ggf. anlegen) */
@@ -199,11 +199,11 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 		IRC_WriteStrServersPrefix( Client, target, "JOIN :%s%s", channame, modes );
 
 		/* im Channel bekannt machen */
-		IRC_WriteStrChannelPrefix( Client, chan, target, FALSE, "JOIN :%s", channame );
+		IRC_WriteStrChannelPrefix( Client, chan, target, false, "JOIN :%s", channame );
 		if( modes[1] )
 		{
 			/* Modes im Channel bekannt machen */
-			IRC_WriteStrChannelPrefix( Client, chan, target, FALSE, "MODE %s +%s %s", channame, &modes[1], Client_ID( target ));
+			IRC_WriteStrChannelPrefix( Client, chan, target, false, "MODE %s +%s %s", channame, &modes[1], Client_ID( target ));
 		}
 
 		if( Client_Type( Client ) == CLIENT_USER )
@@ -227,11 +227,11 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 } /* IRC_JOIN */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_PART( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *target;
-	CHAR *chan;
+	char *chan;
 
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -262,12 +262,12 @@ IRC_PART( CLIENT *Client, REQUEST *Req )
 } /* IRC_PART */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 {
 	CHANNEL *chan;
 	CLIENT *from;
-	CHAR *topic;
+	char *topic;
 
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -306,17 +306,17 @@ IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 
 	/* im Channel bekannt machen und an Server weiterleiten */
 	IRC_WriteStrServersPrefix( Client, from, "TOPIC %s :%s", Req->argv[0], Req->argv[1] );
-	IRC_WriteStrChannelPrefix( Client, chan, from, FALSE, "TOPIC %s :%s", Req->argv[0], Req->argv[1] );
+	IRC_WriteStrChannelPrefix( Client, chan, from, false, "TOPIC %s :%s", Req->argv[0], Req->argv[1] );
 
 	if( Client_Type( Client ) == CLIENT_USER ) return IRC_WriteStrClientPrefix( Client, Client, "TOPIC %s :%s", Req->argv[0], Req->argv[1] );
 	else return CONNECTED;
 } /* IRC_TOPIC */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_LIST( CLIENT *Client, REQUEST *Req )
 {
-	CHAR *pattern;
+	char *pattern;
 	CHANNEL *chan;
 	CLIENT *from, *target;
 
@@ -375,13 +375,13 @@ IRC_LIST( CLIENT *Client, REQUEST *Req )
 } /* IRC_LIST */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_CHANINFO( CLIENT *Client, REQUEST *Req )
 {
-	CHAR modes_add[COMMAND_LEN], l[16], *ptr;
+	char modes_add[COMMAND_LEN], l[16], *ptr;
 	CLIENT *from;
 	CHANNEL *chan;
-	INT arg_topic;
+	int arg_topic;
 
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -441,7 +441,7 @@ IRC_CHANINFO( CLIENT *Client, REQUEST *Req )
 			}
 			
 			/* Inform members of this channel */
-			IRC_WriteStrChannelPrefix( Client, chan, from, FALSE, "MODE %s +%s%s", Req->argv[0], Channel_Modes( chan ), modes_add );
+			IRC_WriteStrChannelPrefix( Client, chan, from, false, "MODE %s +%s%s", Req->argv[0], Channel_Modes( chan ), modes_add );
 		}
 	}
 	else Log( LOG_WARNING, "CHANINFO: invalid MODE format ignored!" );
@@ -454,7 +454,7 @@ IRC_CHANINFO( CLIENT *Client, REQUEST *Req )
 		{
 			/* OK, there is no topic jet */
 			Channel_SetTopic( chan, Req->argv[arg_topic] );
-			IRC_WriteStrChannelPrefix( Client, chan, from, FALSE, "TOPIC %s :%s", Req->argv[0], Channel_Topic( chan ));
+			IRC_WriteStrChannelPrefix( Client, chan, from, false, "TOPIC %s :%s", Req->argv[0], Channel_Topic( chan ));
 		}
 	}
 

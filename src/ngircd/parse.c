@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: parse.c,v 1.60 2004/01/17 03:17:49 alex Exp $";
+static char UNUSED id[] = "$Id: parse.c,v 1.61 2005/03/19 18:43:49 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -100,32 +100,32 @@ COMMAND My_Commands[] =
 };
 
 
-LOCAL VOID Init_Request PARAMS(( REQUEST *Req ));
+LOCAL void Init_Request PARAMS(( REQUEST *Req ));
 
-LOCAL BOOLEAN Validate_Prefix PARAMS(( CONN_ID Idx, REQUEST *Req, BOOLEAN *Closed ));
-LOCAL BOOLEAN Validate_Command PARAMS(( CONN_ID Idx, REQUEST *Req, BOOLEAN *Closed ));
-LOCAL BOOLEAN Validate_Args PARAMS(( CONN_ID Idx, REQUEST *Req, BOOLEAN *Closed ));
+LOCAL bool Validate_Prefix PARAMS(( CONN_ID Idx, REQUEST *Req, bool *Closed ));
+LOCAL bool Validate_Command PARAMS(( CONN_ID Idx, REQUEST *Req, bool *Closed ));
+LOCAL bool Validate_Args PARAMS(( CONN_ID Idx, REQUEST *Req, bool *Closed ));
 
-LOCAL BOOLEAN Handle_Request PARAMS(( CONN_ID Idx, REQUEST *Req ));
+LOCAL bool Handle_Request PARAMS(( CONN_ID Idx, REQUEST *Req ));
 
 
 GLOBAL COMMAND *
-Parse_GetCommandStruct( VOID )
+Parse_GetCommandStruct( void )
 {
 	return My_Commands;
 } /* Parse_GetCommandStruct */
 
 
-GLOBAL BOOLEAN
-Parse_Request( CONN_ID Idx, CHAR *Request )
+GLOBAL bool
+Parse_Request( CONN_ID Idx, char *Request )
 {
 	/* Client-Request parsen. Bei einem schwerwiegenden Fehler wird
-	 * die Verbindung geschlossen und FALSE geliefert.
+	 * die Verbindung geschlossen und false geliefert.
 	 * Der Aufbau gueltiger Requests ist in RFC 2812, 2.3 definiert. */
 
 	REQUEST req;
-	CHAR *start, *ptr;
-	BOOLEAN closed;
+	char *start, *ptr;
+	bool closed;
 
 	assert( Idx >= 0 );
 	assert( Request != NULL );
@@ -220,12 +220,12 @@ Parse_Request( CONN_ID Idx, CHAR *Request )
 } /* Parse_Request */
 
 
-LOCAL VOID
+LOCAL void
 Init_Request( REQUEST *Req )
 {
 	/* Neue Request-Struktur initialisieren */
 
-	INT i;
+	int i;
 
 	assert( Req != NULL );
 
@@ -236,18 +236,18 @@ Init_Request( REQUEST *Req )
 } /* Init_Request */
 
 
-LOCAL BOOLEAN
-Validate_Prefix( CONN_ID Idx, REQUEST *Req, BOOLEAN *Closed )
+LOCAL bool
+Validate_Prefix( CONN_ID Idx, REQUEST *Req, bool *Closed )
 {
 	CLIENT *client, *c;
 
 	assert( Idx >= 0 );
 	assert( Req != NULL );
 
-	*Closed = FALSE;
+	*Closed = false;
 
 	/* ist ueberhaupt ein Prefix vorhanden? */
-	if( ! Req->prefix ) return TRUE;
+	if( ! Req->prefix ) return true;
 
 	/* Client-Struktur der Connection ermitteln */
 	client = Client_GetFromConn( Idx );
@@ -259,7 +259,7 @@ Validate_Prefix( CONN_ID Idx, REQUEST *Req, BOOLEAN *Closed )
 		/* noch nicht registrierte Verbindung.
 		 * Das Prefix wird ignoriert. */
 		Req->prefix = NULL;
-		return TRUE;
+		return true;
 	}
 
 	/* pruefen, ob der im Prefix angegebene Client bekannt ist */
@@ -268,8 +268,8 @@ Validate_Prefix( CONN_ID Idx, REQUEST *Req, BOOLEAN *Closed )
 	{
 		/* im Prefix angegebener Client ist nicht bekannt */
 		Log( LOG_ERR, "Invalid prefix \"%s\", client not known (connection %d, command %s)!?", Req->prefix, Idx, Req->command );
-		if( ! Conn_WriteStr( Idx, "ERROR :Invalid prefix \"%s\", client not known!?", Req->prefix )) *Closed = TRUE;
-		return FALSE;
+		if( ! Conn_WriteStr( Idx, "ERROR :Invalid prefix \"%s\", client not known!?", Req->prefix )) *Closed = true;
+		return false;
 	}
 
 	/* pruefen, ob der Client mit dem angegebenen Prefix in Richtung
@@ -280,48 +280,48 @@ Validate_Prefix( CONN_ID Idx, REQUEST *Req, BOOLEAN *Closed )
 		/* das angegebene Prefix ist aus dieser Richtung, also
 		 * aus der gegebenen Connection, ungueltig! */
 		Log( LOG_ERR, "Spoofed prefix \"%s\" from \"%s\" (connection %d, command %s)!", Req->prefix, Client_Mask( Client_GetFromConn( Idx )), Idx, Req->command );
-		Conn_Close( Idx, NULL, "Spoofed prefix", TRUE );
-		*Closed = TRUE;
-		return FALSE;
+		Conn_Close( Idx, NULL, "Spoofed prefix", true);
+		*Closed = true;
+		return false;
 	}
 
-	return TRUE;
+	return true;
 } /* Validate_Prefix */
 
 
-LOCAL BOOLEAN
-Validate_Command( CONN_ID Idx, REQUEST *Req, BOOLEAN *Closed )
+LOCAL bool
+Validate_Command( CONN_ID Idx, REQUEST *Req, bool *Closed )
 {
 	assert( Idx >= 0 );
 	assert( Req != NULL );
-	*Closed = FALSE;
+	*Closed = false;
 
-	return TRUE;
+	return true;
 } /* Validate_Comman */
 
 
-LOCAL BOOLEAN
-Validate_Args( CONN_ID Idx, REQUEST *Req, BOOLEAN *Closed )
+LOCAL bool
+Validate_Args( CONN_ID Idx, REQUEST *Req, bool *Closed )
 {
 	assert( Idx >= 0 );
 	assert( Req != NULL );
-	*Closed = FALSE;
+	*Closed = false;
 
-	return TRUE;
+	return true;
 } /* Validate_Args */
 
 
-LOCAL BOOLEAN
+LOCAL bool
 Handle_Request( CONN_ID Idx, REQUEST *Req )
 {
 	/* Client-Request verarbeiten. Bei einem schwerwiegenden Fehler
-	 * wird die Verbindung geschlossen und FALSE geliefert. */
+	 * wird die Verbindung geschlossen und false geliefert. */
 
 	CLIENT *client, *target, *prefix;
-	CHAR str[LINE_LEN];
-	BOOLEAN result;
+	char str[LINE_LEN];
+	bool result;
 	COMMAND *cmd;
-	INT i;
+	int i;
 
 	assert( Idx >= 0 );
 	assert( Req != NULL );
@@ -343,13 +343,13 @@ Handle_Request( CONN_ID Idx, REQUEST *Req )
 			/* Status code without target!? */
 			if( Req->argc > 0 ) Log( LOG_WARNING, "Unknown target for status code %s: \"%s\"", Req->command, Req->argv[0] );
 			else Log( LOG_WARNING, "Unknown target for status code %s!", Req->command );
-			return TRUE;
+			return true;
 		}
 		if( target == Client_ThisServer( ))
 		{
 			/* This server is the target, ignore it */
 			Log( LOG_DEBUG, "Ignored status code %s from \"%s\".", Req->command, Client_ID( client ));
-			return TRUE;
+			return true;
 		}
 
 		/* Determine source */
@@ -357,14 +357,14 @@ Handle_Request( CONN_ID Idx, REQUEST *Req )
 		{
 			/* Oops, no prefix!? */
 			Log( LOG_WARNING, "Got status code %s from \"%s\" without prefix!?", Req->command, Client_ID( client ));
-			return TRUE;
+			return true;
 		}
 		else prefix = Client_Search( Req->prefix );
 		if( ! prefix )
 		{
 			/* Oops, unknown prefix!? */
 			Log( LOG_WARNING, "Got status code %s from unknown source: \"%s\"", Req->command, Req->prefix );
-			return TRUE;
+			return true;
 		}
 
 		/* Forward status code */
@@ -410,7 +410,7 @@ Handle_Request( CONN_ID Idx, REQUEST *Req )
 	/* Unbekannter Befehl */
 	Log( LOG_DEBUG, "Connection %d: Unknown command \"%s\", %d %s,%s prefix.", Client_Conn( client ), Req->command, Req->argc, Req->argc == 1 ? "parameter" : "parameters", Req->prefix ? "" : " no" );
 	if( Client_Type( client ) != CLIENT_SERVER ) return IRC_WriteStrClient( client, ERR_UNKNOWNCOMMAND_MSG, Client_ID( client ), Req->command );
-	else return TRUE;
+	else return true;
 } /* Handle_Request */
 
 

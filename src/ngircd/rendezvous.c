@@ -21,7 +21,7 @@
 #ifdef RENDEZVOUS
 
 
-static char UNUSED id[] = "$Id: rendezvous.c,v 1.4 2004/12/26 16:48:53 alex Exp $";
+static char UNUSED id[] = "$Id: rendezvous.c,v 1.5 2005/03/19 18:43:49 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -62,7 +62,7 @@ static char UNUSED id[] = "$Id: rendezvous.c,v 1.4 2004/12/26 16:48:53 alex Exp 
 
 typedef struct _service
 {
-	CHAR Desc[CLIENT_ID_LEN];
+	char Desc[CLIENT_ID_LEN];
 #ifdef APPLE
 	dns_service_discovery_ref Discovery_Ref;
 	mach_port_t Mach_Port;
@@ -75,7 +75,7 @@ typedef struct _service
 LOCAL SERVICE My_Rendezvous[MAX_RENDEZVOUS];
 
 
-LOCAL VOID Unregister( INT Idx );
+LOCAL void Unregister( int Idx );
 
 
 /* -- Apple API -- */
@@ -84,7 +84,7 @@ LOCAL VOID Unregister( INT Idx );
 
 #define MAX_MACH_MSG_SIZE 512
 
-LOCAL VOID Registration_Reply_Handler( DNSServiceRegistrationReplyErrorType ErrCode, VOID *Context );
+LOCAL void Registration_Reply_Handler( DNSServiceRegistrationReplyErrorType ErrCode, void *Context );
 
 #endif /* Apple */
 
@@ -101,11 +101,11 @@ LOCAL sw_result HOWL_API Registration_Reply_Handler( sw_discovery Session, sw_di
 #endif /* Howl */
 
 
-GLOBAL VOID Rendezvous_Init( VOID )
+GLOBAL void Rendezvous_Init( void )
 {
 	/* Initialize structures */
 
-	INT i;
+	int i;
 
 #ifdef HOWL
 	if( sw_discovery_init( &My_Discovery_Session ) != SW_OKAY )
@@ -127,11 +127,11 @@ GLOBAL VOID Rendezvous_Init( VOID )
 } /* Rendezvous_Init */
 
 
-GLOBAL VOID Rendezvous_Exit( VOID )
+GLOBAL void Rendezvous_Exit( void )
 {
 	/* Clean up & exit module */
 
-	INT i;
+	int i;
 
 	for( i = 0; i < MAX_RENDEZVOUS; i++ )
 	{
@@ -144,18 +144,18 @@ GLOBAL VOID Rendezvous_Exit( VOID )
 } /* Rendezvous_Exit */
 
 
-GLOBAL BOOLEAN Rendezvous_Register( CHAR *Name, CHAR *Type, UINT Port )
+GLOBAL bool Rendezvous_Register( char *Name, char *Type, unsigned int Port )
 {
 	/* Register new service */
 
-	INT i;
+	int i;
 
 	/* Search free port structure */
 	for( i = 0; i < MAX_RENDEZVOUS; i++ ) if( ! My_Rendezvous[i].Desc[0] ) break;
 	if( i >= MAX_RENDEZVOUS )
 	{
 		Log( LOG_ERR, "Can't register \"%s\" with Rendezvous: limit (%d) reached!", Name, MAX_RENDEZVOUS );
-		return FALSE;
+		return false;
 	}
 	strlcpy( My_Rendezvous[i].Desc, Name, sizeof( My_Rendezvous[i].Desc ));
 	
@@ -166,7 +166,7 @@ GLOBAL BOOLEAN Rendezvous_Register( CHAR *Name, CHAR *Type, UINT Port )
 	{
 		Log( LOG_ERR, "Can't register \"%s\" with Rendezvous: can't register service!", My_Rendezvous[i].Desc );
 		My_Rendezvous[i].Desc[0] = '\0';
-		return FALSE;
+		return false;
 	}
 	
 	/* Get and save the corresponding Mach Port */
@@ -177,7 +177,7 @@ GLOBAL BOOLEAN Rendezvous_Register( CHAR *Name, CHAR *Type, UINT Port )
 		/* Here we actually leek a descriptor :-( */
 		My_Rendezvous[i].Discovery_Ref = 0;
 		My_Rendezvous[i].Desc[0] = '\0';
-		return FALSE;
+		return false;
 	}
 #endif /* Apple */
 
@@ -186,29 +186,29 @@ GLOBAL BOOLEAN Rendezvous_Register( CHAR *Name, CHAR *Type, UINT Port )
 	{
 		Log( LOG_ERR, "Can't register \"%s\" with Rendezvous: can't register service!", My_Rendezvous[i].Desc );
 		My_Rendezvous[i].Desc[0] = '\0';
-		return FALSE;
+		return false;
 	}
 #endif /* Howl */
 
 	Log( LOG_DEBUG, "Rendezvous: Registering \"%s\" ...", My_Rendezvous[i].Desc );
-	return TRUE;
+	return true;
 } /* Rendezvous_Register */
 
 
-GLOBAL BOOLEAN Rendezvous_Unregister( CHAR *Name )
+GLOBAL bool Rendezvous_Unregister( char *Name )
 {
 	/* Unregister service from rendezvous */
 
-	INT i;
-	BOOLEAN ok;
+	int i;
+	bool ok;
 
-	ok = FALSE;
+	ok = false;
 	for( i = 0; i < MAX_RENDEZVOUS; i++ )
 	{
 		if( strcmp( Name, My_Rendezvous[i].Desc ) == 0 )
 		{
 			Unregister( i );
-			ok = TRUE;
+			ok = true;
 		}
 	}
 
@@ -216,11 +216,11 @@ GLOBAL BOOLEAN Rendezvous_Unregister( CHAR *Name )
 } /* Rendezvous_Unregister */
 
 
-GLOBAL VOID Rendezvous_UnregisterListeners( VOID )
+GLOBAL void Rendezvous_UnregisterListeners( void )
 {
 	/* Unregister all our listening sockets from Rendezvous */
 
-	INT i;
+	int i;
 
 	for( i = 0; i < MAX_RENDEZVOUS; i++ )
 	{
@@ -229,14 +229,14 @@ GLOBAL VOID Rendezvous_UnregisterListeners( VOID )
 } /* Rendezvous_UnregisterListeners */
 
 
-GLOBAL VOID Rendezvous_Handler( VOID )
+GLOBAL void Rendezvous_Handler( void )
 {
 	/* Handle all Rendezvous stuff; this function must be called
 	 * periodically from the run loop of the main program */
 
 #ifdef APPLE
-	INT i;
-	CHAR buffer[MAX_MACH_MSG_SIZE];
+	int i;
+	char buffer[MAX_MACH_MSG_SIZE];
 	mach_msg_return_t result;
 	mach_msg_header_t *msg;
 
@@ -251,7 +251,7 @@ GLOBAL VOID Rendezvous_Handler( VOID )
 		/* Handle message */
 		if( result == MACH_MSG_SUCCESS ) DNSServiceDiscovery_handleReply( msg );
 #ifdef DEBUG
-		else if( result != MACH_RCV_TIMED_OUT ) Log( LOG_DEBUG, "mach_msg(): %ld", (LONG)result );
+		else if( result != MACH_RCV_TIMED_OUT ) Log( LOG_DEBUG, "mach_msg(): %ld", (long)result );
 #endif /* Debug */
 	}
 #endif /* Apple */
@@ -263,7 +263,7 @@ GLOBAL VOID Rendezvous_Handler( VOID )
 } /* Rendezvous_Handler */
 
 
-LOCAL VOID Unregister( INT Idx )
+LOCAL void Unregister( int Idx )
 {
 	/* Unregister service */
 
@@ -289,10 +289,10 @@ LOCAL VOID Unregister( INT Idx )
 #ifdef APPLE
 
 
-LOCAL VOID Registration_Reply_Handler( DNSServiceRegistrationReplyErrorType ErrCode, VOID *Context )
+LOCAL void Registration_Reply_Handler( DNSServiceRegistrationReplyErrorType ErrCode, void *Context )
 {
 	SERVICE *s = (SERVICE *)Context;
-	CHAR txt[50];
+	char txt[50];
 
 	if( ErrCode == kDNSServiceDiscoveryNoError )
 	{
@@ -310,7 +310,7 @@ LOCAL VOID Registration_Reply_Handler( DNSServiceRegistrationReplyErrorType ErrC
 			strcpy( txt, "name conflict!" );
 			break;
 		default:
-			sprintf( txt, "error code %ld!", (LONG)ErrCode );
+			sprintf( txt, "error code %ld!", (long)ErrCode );
 	}
 
 	Log( LOG_INFO, "Can't register \"%s\" with Rendezvous: %s", s->Desc, txt );
@@ -329,7 +329,7 @@ LOCAL VOID Registration_Reply_Handler( DNSServiceRegistrationReplyErrorType ErrC
 LOCAL sw_result HOWL_API Registration_Reply_Handler( sw_discovery Session, sw_discovery_publish_status Status, UNUSED sw_discovery_oid Id, sw_opaque Extra )
 {
 	SERVICE *s = (SERVICE *)Extra;
-	CHAR txt[50];
+	char txt[50];
 
 	assert( Session == My_Discovery_Session );
 	assert( Extra != NULL );
@@ -347,7 +347,7 @@ LOCAL sw_result HOWL_API Registration_Reply_Handler( sw_discovery Session, sw_di
 			strcpy( txt, "name conflict!" );
 			break;
 		default:
-			sprintf( txt, "error code %ld!", (LONG)Status );
+			sprintf( txt, "error code %ld!", (long)Status );
 	}
 
 	Log( LOG_INFO, "Can't register \"%s\" with Rendezvous: %s", s->Desc, txt );

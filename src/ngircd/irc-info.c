@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-info.c,v 1.27 2005/03/02 16:35:11 alex Exp $";
+static char UNUSED id[] = "$Id: irc-info.c,v 1.28 2005/03/19 18:43:48 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -42,7 +42,7 @@ static char UNUSED id[] = "$Id: irc-info.c,v 1.27 2005/03/02 16:35:11 alex Exp $
 #include "irc-info.h"
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_ADMIN(CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *target, *prefix;
@@ -83,13 +83,13 @@ IRC_ADMIN(CLIENT *Client, REQUEST *Req )
 } /* IRC_ADMIN */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_ISON( CLIENT *Client, REQUEST *Req )
 {
-	CHAR rpl[COMMAND_LEN];
+	char rpl[COMMAND_LEN];
 	CLIENT *c;
-	CHAR *ptr;
-	INT i;
+	char *ptr;
+	int i;
 
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -120,11 +120,11 @@ IRC_ISON( CLIENT *Client, REQUEST *Req )
 } /* IRC_ISON */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_LINKS( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *target, *from, *c;
-	CHAR *mask;
+	char *mask;
 
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -169,7 +169,7 @@ IRC_LINKS( CLIENT *Client, REQUEST *Req )
 } /* IRC_LINKS */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_LUSERS( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *target, *from;
@@ -205,7 +205,7 @@ IRC_LUSERS( CLIENT *Client, REQUEST *Req )
 } /* IRC_LUSERS */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_MOTD( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *from, *target;
@@ -239,10 +239,10 @@ IRC_MOTD( CLIENT *Client, REQUEST *Req )
 } /* IRC_MOTD */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_NAMES( CLIENT *Client, REQUEST *Req )
 {
-	CHAR rpl[COMMAND_LEN], *ptr;
+	char rpl[COMMAND_LEN], *ptr;
 	CLIENT *target, *from, *c;
 	CHANNEL *chan;
 
@@ -334,12 +334,12 @@ IRC_NAMES( CLIENT *Client, REQUEST *Req )
 } /* IRC_NAMES */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_STATS( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *from, *target, *cl;
 	CONN_ID con;
-	CHAR query;
+	char query;
 	COMMAND *cmd;
 
 	assert( Client != NULL );
@@ -383,12 +383,12 @@ IRC_STATS( CLIENT *Client, REQUEST *Req )
 #ifdef ZLIB
 					if( Conn_Options( con ) & CONN_ZIP )
 					{
-						if( ! IRC_WriteStrClient( from, RPL_STATSLINKINFOZIP_MSG, Client_ID( from ), Client_Mask( cl ), Conn_SendQ( con ), Conn_SendMsg( con ), Zip_SendBytes( con ), Conn_SendBytes( con ), Conn_RecvMsg( con ), Zip_RecvBytes( con ), Conn_RecvBytes( con ), (LONG)( time( NULL ) - Conn_StartTime( con )))) return DISCONNECTED;
+						if( ! IRC_WriteStrClient( from, RPL_STATSLINKINFOZIP_MSG, Client_ID( from ), Client_Mask( cl ), Conn_SendQ( con ), Conn_SendMsg( con ), Zip_SendBytes( con ), Conn_SendBytes( con ), Conn_RecvMsg( con ), Zip_RecvBytes( con ), Conn_RecvBytes( con ), (long)( time( NULL ) - Conn_StartTime( con )))) return DISCONNECTED;
 					}
 					else
 #endif
 					{
-						if( ! IRC_WriteStrClient( from, RPL_STATSLINKINFO_MSG, Client_ID( from ), Client_Mask( cl ), Conn_SendQ( con ), Conn_SendMsg( con ), Conn_SendBytes( con ), Conn_RecvMsg( con ), Conn_RecvBytes( con ), (LONG)( time( NULL ) - Conn_StartTime( con )))) return DISCONNECTED;
+						if( ! IRC_WriteStrClient( from, RPL_STATSLINKINFO_MSG, Client_ID( from ), Client_Mask( cl ), Conn_SendQ( con ), Conn_SendMsg( con ), Conn_SendBytes( con ), Conn_RecvMsg( con ), Conn_RecvBytes( con ), (long)( time( NULL ) - Conn_StartTime( con )))) return DISCONNECTED;
 					}
 				}
 				con = Conn_Next( con );
@@ -413,11 +413,11 @@ IRC_STATS( CLIENT *Client, REQUEST *Req )
 } /* IRC_STATS */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_TIME( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *from, *target;
-	CHAR t_str[64];
+	char t_str[64];
 	time_t t;
 
 	assert( Client != NULL );
@@ -445,17 +445,17 @@ IRC_TIME( CLIENT *Client, REQUEST *Req )
 	}
 
 	t = time( NULL );
-	(VOID)strftime( t_str, 60, "%A %B %d %Y -- %H:%M %Z", localtime( &t ));
+	(void)strftime( t_str, 60, "%A %B %d %Y -- %H:%M %Z", localtime( &t ));
 	return IRC_WriteStrClient( from, RPL_TIME_MSG, Client_ID( from ), Client_ID( Client_ThisServer( )), t_str );
 } /* IRC_TIME */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_USERHOST( CLIENT *Client, REQUEST *Req )
 {
-	CHAR rpl[COMMAND_LEN];
+	char rpl[COMMAND_LEN];
 	CLIENT *c;
-	INT max, i;
+	int max, i;
 
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -490,12 +490,12 @@ IRC_USERHOST( CLIENT *Client, REQUEST *Req )
 } /* IRC_USERHOST */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_VERSION( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *target, *prefix;
 #ifdef CVSDATE
-	CHAR ver[12], vertxt[30];
+	char ver[12], vertxt[30];
 #endif
 
 	assert( Client != NULL );
@@ -537,11 +537,11 @@ IRC_VERSION( CLIENT *Client, REQUEST *Req )
 } /* IRC_VERSION */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_WHO( CLIENT *Client, REQUEST *Req )
 {
-	BOOLEAN ok, only_ops;
-	CHAR flags[8], *ptr;
+	bool ok, only_ops;
+	char flags[8], *ptr;
 	CL2CHAN *cl2chan;
 	CHANNEL *chan, *cn;
 	CLIENT *c;
@@ -552,13 +552,13 @@ IRC_WHO( CLIENT *Client, REQUEST *Req )
 	/* Falsche Anzahl Parameter? */
 	if(( Req->argc > 2 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
-	only_ops = FALSE;
+	only_ops = false;
 	chan = NULL;
 
 	if( Req->argc == 2 )
 	{
 		/* Nur OPs anzeigen? */
-		if( strcmp( Req->argv[1], "o" ) == 0 ) only_ops = TRUE;
+		if( strcmp( Req->argv[1], "o" ) == 0 ) only_ops = true;
 #ifdef STRICT_RFC
 		else return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 #endif
@@ -581,12 +581,12 @@ IRC_WHO( CLIENT *Client, REQUEST *Req )
 	{
 		if(( Client_Type( c ) == CLIENT_USER ) && ( ! strchr( Client_Modes( c ), 'i' )))
 		{
-			ok = FALSE;
-			if( Req->argc == 0 ) ok = TRUE;
+			ok = false;
+			if( Req->argc == 0 ) ok = true;
 			else
 			{
-				if( strcasecmp( Req->argv[0], Client_ID( c )) == 0 ) ok = TRUE;
-				else if( strcmp( Req->argv[0], "0" ) == 0 ) ok = TRUE;
+				if( strcasecmp( Req->argv[0], Client_ID( c )) == 0 ) ok = true;
+				else if( strcmp( Req->argv[0], "0" ) == 0 ) ok = true;
 			}
 
 			if( ok && (( ! only_ops ) || ( strchr( Client_Modes( c ), 'o' ))))
@@ -624,11 +624,11 @@ IRC_WHO( CLIENT *Client, REQUEST *Req )
 } /* IRC_WHO */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *from, *target, *c;
-	CHAR str[LINE_LEN + 1];
+	char str[LINE_LEN + 1];
 	CL2CHAN *cl2chan;
 	CHANNEL *chan;
 
@@ -722,7 +722,7 @@ IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 } /* IRC_WHOIS */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_WHOWAS( CLIENT *Client, REQUEST *Req )
 {
 	assert( Client != NULL );
@@ -737,10 +737,10 @@ IRC_WHOWAS( CLIENT *Client, REQUEST *Req )
 } /* IRC_WHOWAS */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_Send_LUSERS( CLIENT *Client )
 {
-	LONG cnt;
+	long cnt;
 
 	assert( Client != NULL );
 
@@ -778,11 +778,11 @@ IRC_Send_LUSERS( CLIENT *Client )
 } /* IRC_Send_LUSERS */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_Show_MOTD( CLIENT *Client )
 {
-	BOOLEAN ok;
-	CHAR line[127];
+	bool ok;
+	char line[127];
 	FILE *fd;
 
 	assert( Client != NULL );
@@ -802,7 +802,7 @@ IRC_Show_MOTD( CLIENT *Client )
 	}
 
 	if( ! IRC_WriteStrClient( Client, RPL_MOTDSTART_MSG, Client_ID( Client ), Client_ID( Client_ThisServer( )))) return DISCONNECTED;
-	while( TRUE )
+	while( true )
 	{
 		if( ! fgets( line, sizeof( line ), fd )) break;
 
@@ -811,7 +811,7 @@ IRC_Show_MOTD( CLIENT *Client )
 		if( ! IRC_WriteStrClient( Client, RPL_MOTD_MSG, Client_ID( Client ), line ))
 		{
 			fclose( fd );
-			return FALSE;
+			return false;
 		}
 	}
 	ok = IRC_WriteStrClient( Client, RPL_ENDOFMOTD_MSG, Client_ID( Client ) );
@@ -822,19 +822,19 @@ IRC_Show_MOTD( CLIENT *Client )
 } /* IRC_Show_MOTD */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_Send_NAMES( CLIENT *Client, CHANNEL *Chan )
 {
-	BOOLEAN is_visible, is_member;
-	CHAR str[LINE_LEN + 1];
+	bool is_visible, is_member;
+	char str[LINE_LEN + 1];
 	CL2CHAN *cl2chan;
 	CLIENT *cl;
 
 	assert( Client != NULL );
 	assert( Chan != NULL );
 
-	if( Channel_IsMemberOf( Chan, Client )) is_member = TRUE;
-	else is_member = FALSE;
+	if( Channel_IsMemberOf( Chan, Client )) is_member = true;
+	else is_member = false;
 
 	/* Secret channel? */
 	if( ! is_member && strchr( Channel_Modes( Chan ), 's' )) return CONNECTED;
@@ -846,8 +846,8 @@ IRC_Send_NAMES( CLIENT *Client, CHANNEL *Chan )
 	{
 		cl = Channel_GetClient( cl2chan );
 
-		if( strchr( Client_Modes( cl ), 'i' )) is_visible = FALSE;
-		else is_visible = TRUE;
+		if( strchr( Client_Modes( cl ), 'i' )) is_visible = false;
+		else is_visible = true;
 
 		if( is_member || is_visible )
 		{
@@ -878,19 +878,19 @@ IRC_Send_NAMES( CLIENT *Client, CHANNEL *Chan )
 } /* IRC_Send_NAMES */
 
 
-GLOBAL BOOLEAN
-IRC_Send_WHO( CLIENT *Client, CHANNEL *Chan, BOOLEAN OnlyOps )
+GLOBAL bool
+IRC_Send_WHO( CLIENT *Client, CHANNEL *Chan, bool OnlyOps )
 {
-	BOOLEAN is_visible, is_member;
+	bool is_visible, is_member;
 	CL2CHAN *cl2chan;
-	CHAR flags[8];
+	char flags[8];
 	CLIENT *c;
 
 	assert( Client != NULL );
 	assert( Chan != NULL );
 
-	if( Channel_IsMemberOf( Chan, Client )) is_member = TRUE;
-	else is_member = FALSE;
+	if( Channel_IsMemberOf( Chan, Client )) is_member = true;
+	else is_member = false;
 
 	/* Secret channel? */
 	if( ! is_member && strchr( Channel_Modes( Chan ), 's' )) return CONNECTED;
@@ -901,8 +901,8 @@ IRC_Send_WHO( CLIENT *Client, CHANNEL *Chan, BOOLEAN OnlyOps )
 	{
 		c = Channel_GetClient( cl2chan );
 
-		if( strchr( Client_Modes( c ), 'i' )) is_visible = FALSE;
-		else is_visible = TRUE;
+		if( strchr( Client_Modes( c ), 'i' )) is_visible = false;
+		else is_visible = true;
 
 		if( is_member || is_visible )
 		{

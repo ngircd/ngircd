@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.143 2005/01/19 23:33:54 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.144 2005/03/19 18:43:48 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -81,34 +81,34 @@ static char UNUSED id[] = "$Id: conn.c,v 1.143 2005/01/19 23:33:54 alex Exp $";
 #define SERVER_WAIT (NONE - 1)
 
 
-LOCAL VOID Handle_Read PARAMS(( INT sock ));
-LOCAL BOOLEAN Handle_Write PARAMS(( CONN_ID Idx ));
-LOCAL VOID New_Connection PARAMS(( INT Sock ));
-LOCAL CONN_ID Socket2Index PARAMS(( INT Sock ));
-LOCAL VOID Read_Request PARAMS(( CONN_ID Idx ));
-LOCAL BOOLEAN Try_Write PARAMS(( CONN_ID Idx ));
-LOCAL BOOLEAN Handle_Buffer PARAMS(( CONN_ID Idx ));
-LOCAL VOID Check_Connections PARAMS(( VOID ));
-LOCAL VOID Check_Servers PARAMS(( VOID ));
-LOCAL VOID Init_Conn_Struct PARAMS(( CONN_ID Idx ));
-LOCAL BOOLEAN Init_Socket PARAMS(( INT Sock ));
-LOCAL VOID New_Server PARAMS(( INT Server, CONN_ID Idx ));
-LOCAL VOID Read_Resolver_Result PARAMS(( INT r_fd ));
-LOCAL VOID Simple_Message PARAMS(( INT Sock, CHAR *Msg ));
-LOCAL INT Count_Connections PARAMS(( struct sockaddr_in addr ));
+LOCAL void Handle_Read PARAMS(( int sock ));
+LOCAL bool Handle_Write PARAMS(( CONN_ID Idx ));
+LOCAL void New_Connection PARAMS(( int Sock ));
+LOCAL CONN_ID Socket2Index PARAMS(( int Sock ));
+LOCAL void Read_Request PARAMS(( CONN_ID Idx ));
+LOCAL bool Try_Write PARAMS(( CONN_ID Idx ));
+LOCAL bool Handle_Buffer PARAMS(( CONN_ID Idx ));
+LOCAL void Check_Connections PARAMS(( void ));
+LOCAL void Check_Servers PARAMS(( void ));
+LOCAL void Init_Conn_Struct PARAMS(( CONN_ID Idx ));
+LOCAL bool Init_Socket PARAMS(( int Sock ));
+LOCAL void New_Server PARAMS(( int Server, CONN_ID Idx ));
+LOCAL void Read_Resolver_Result PARAMS(( int r_fd ));
+LOCAL void Simple_Message PARAMS(( int Sock, char *Msg ));
+LOCAL int Count_Connections PARAMS(( struct sockaddr_in addr ));
 
 LOCAL fd_set My_Listeners;
 LOCAL fd_set My_Sockets;
 LOCAL fd_set My_Connects;
 
 #ifdef TCPWRAP
-INT allow_severity = LOG_INFO;
-INT deny_severity = LOG_ERR;
+int allow_severity = LOG_INFO;
+int deny_severity = LOG_ERR;
 #endif
 
 
-GLOBAL VOID
-Conn_Init( VOID )
+GLOBAL void
+Conn_Init( void )
 {
 	/* Modul initialisieren: statische Strukturen "ausnullen". */
 
@@ -148,14 +148,14 @@ Conn_Init( VOID )
 } /* Conn_Init */
 
 
-GLOBAL VOID
-Conn_Exit( VOID )
+GLOBAL void
+Conn_Exit( void )
 {
 	/* Modul abmelden: alle noch offenen Connections
 	 * schliessen und freigeben. */
 
 	CONN_ID idx;
-	INT i;
+	int i;
 
 #ifdef DEBUG
 	Log( LOG_DEBUG, "Shutting down all connections ..." );
@@ -190,8 +190,8 @@ Conn_Exit( VOID )
 			}
 			else if( idx < Pool_Size )
 			{
-				if( NGIRCd_SignalRestart ) Conn_Close( idx, NULL, "Server going down (restarting)", TRUE );
-				else Conn_Close( idx, NULL, "Server going down", TRUE );
+				if( NGIRCd_SignalRestart ) Conn_Close( idx, NULL, "Server going down (restarting)", true );
+				else Conn_Close( idx, NULL, "Server going down", true );
 			}
 			else
 			{
@@ -207,12 +207,12 @@ Conn_Exit( VOID )
 } /* Conn_Exit */
 
 
-GLOBAL INT
-Conn_InitListeners( VOID )
+GLOBAL int
+Conn_InitListeners( void )
 {
 	/* Initialize ports on which the server should accept connections */
 
-	INT created, i;
+	int created, i;
 
 	created = 0;
 	for( i = 0; i < Conf_ListenPorts_Count; i++ )
@@ -224,12 +224,12 @@ Conn_InitListeners( VOID )
 } /* Conn_InitListeners */
 
 
-GLOBAL VOID
-Conn_ExitListeners( VOID )
+GLOBAL void
+Conn_ExitListeners( void )
 {
 	/* Close down all listening sockets */
 
-	INT i;
+	int i;
 
 #ifdef RENDEZVOUS
 	Rendezvous_UnregisterListeners( );
@@ -249,16 +249,16 @@ Conn_ExitListeners( VOID )
 } /* Conn_ExitListeners */
 
 
-GLOBAL BOOLEAN
-Conn_NewListener( CONST UINT Port )
+GLOBAL bool
+Conn_NewListener( const UINT16 Port )
 {
 	/* Create new listening socket on specified port */
 
 	struct sockaddr_in addr;
 	struct in_addr inaddr;
-	INT sock;
+	int sock;
 #ifdef RENDEZVOUS
-	CHAR name[CLIENT_ID_LEN], *info;
+	char name[CLIENT_ID_LEN], *info;
 #endif
 
 	/* Server-"Listen"-Socket initialisieren */
@@ -276,7 +276,7 @@ Conn_NewListener( CONST UINT Port )
 #endif
 		{
 			Log( LOG_CRIT, "Can't listen on %s:%u: can't convert ip address %s!", Conf_ListenAddress, Port, Conf_ListenAddress );
-			return FALSE;
+			return false;
 		}
 	}
 	else inaddr.s_addr = htonl( INADDR_ANY );
@@ -287,17 +287,17 @@ Conn_NewListener( CONST UINT Port )
 	if( sock < 0 )
 	{
 		Log( LOG_CRIT, "Can't create socket: %s!", strerror( errno ));
-		return FALSE;
+		return false;
 	}
 
-	if( ! Init_Socket( sock )) return FALSE;
+	if( ! Init_Socket( sock )) return false;
 
 	/* an Port binden */
 	if( bind( sock, (struct sockaddr *)&addr, (socklen_t)sizeof( addr )) != 0 )
 	{
 		Log( LOG_CRIT, "Can't bind socket: %s!", strerror( errno ));
 		close( sock );
-		return FALSE;
+		return false;
 	}
 
 	/* in "listen mode" gehen :-) */
@@ -305,7 +305,7 @@ Conn_NewListener( CONST UINT Port )
 	{
 		Log( LOG_CRIT, "Can't listen on soecket: %s!", strerror( errno ));
 		close( sock );
-		return FALSE;
+		return false;
 	}
 
 	/* Neuen Listener in Strukturen einfuegen */
@@ -345,12 +345,12 @@ Conn_NewListener( CONST UINT Port )
 	Rendezvous_Register( name, RENDEZVOUS_TYPE, Port );
 #endif
 
-	return TRUE;
+	return true;
 } /* Conn_NewListener */
 
 
-GLOBAL VOID
-Conn_Handler( VOID )
+GLOBAL void
+Conn_Handler( void )
 {
 	/* "Hauptschleife": Aktive Verbindungen ueberwachen. Folgende Aktionen
 	 * werden dabei durchgefuehrt, bis der Server terminieren oder neu
@@ -368,12 +368,12 @@ Conn_Handler( VOID )
 	struct timeval tv;
 	time_t start, t;
 	CONN_ID i, idx;
-	BOOLEAN timeout;
+	bool timeout;
 
 	start = time( NULL );
 	while(( ! NGIRCd_SignalQuit ) && ( ! NGIRCd_SignalRestart ))
 	{
-		timeout = TRUE;
+		timeout = true;
 
 #ifdef RENDEZVOUS
 		Rendezvous_Handler( );
@@ -395,7 +395,7 @@ Conn_Handler( VOID )
 			 ( My_Connections[i].delaytime < t ))
 			{
 				/* Kann aus dem Buffer noch ein Befehl extrahiert werden? */
-				if( Handle_Buffer( i )) timeout = FALSE;
+				if( Handle_Buffer( i )) timeout = false;
 			}
 		}
 
@@ -503,22 +503,22 @@ Conn_Handler( VOID )
 
 
 #ifdef PROTOTYPES
-GLOBAL BOOLEAN
-Conn_WriteStr( CONN_ID Idx, CHAR *Format, ... )
+GLOBAL bool
+Conn_WriteStr( CONN_ID Idx, char *Format, ... )
 #else
-GLOBAL BOOLEAN
+GLOBAL bool 
 Conn_WriteStr( Idx, Format, va_alist )
 CONN_ID Idx;
-CHAR *Format;
+char *Format;
 va_dcl
 #endif
 {
 	/* String in Socket schreiben. CR+LF wird von dieser Funktion
 	 * automatisch angehaengt. Im Fehlerfall wird dir Verbindung
-	 * getrennt und FALSE geliefert. */
+	 * getrennt und false geliefert. */
 
-	CHAR buffer[COMMAND_LEN];
-	BOOLEAN ok;
+	char buffer[COMMAND_LEN];
+	bool ok;
 	va_list ap;
 
 	assert( Idx > NONE );
@@ -532,8 +532,8 @@ va_dcl
 	if( vsnprintf( buffer, COMMAND_LEN - 2, Format, ap ) >= COMMAND_LEN - 2 )
 	{
 		Log( LOG_CRIT, "Text too long to send (connection %d)!", Idx );
-		Conn_Close( Idx, "Text too long to send!", NULL, FALSE );
-		return FALSE;
+		Conn_Close( Idx, "Text too long to send!", NULL, false );
+		return false;
 	}
 
 #ifdef SNIFFER
@@ -549,11 +549,11 @@ va_dcl
 } /* Conn_WriteStr */
 
 
-GLOBAL BOOLEAN
-Conn_Write( CONN_ID Idx, CHAR *Data, INT Len )
+GLOBAL bool
+Conn_Write( CONN_ID Idx, char *Data, int Len )
 {
 	/* Daten in Socket schreiben. Bei "fatalen" Fehlern wird
-	 * der Client disconnectiert und FALSE geliefert. */
+	 * der Client disconnectiert und false geliefert. */
 
 	assert( Idx > NONE );
 	assert( Data != NULL );
@@ -568,7 +568,7 @@ Conn_Write( CONN_ID Idx, CHAR *Data, INT Len )
 #ifdef DEBUG
 		Log( LOG_DEBUG, "Skipped write on closed socket (connection %d).", Idx );
 #endif
-		return FALSE;
+		return false;
 	}
 
 	/* Pruefen, ob im Schreibpuffer genuegend Platz ist. Ziel ist es,
@@ -578,14 +578,14 @@ Conn_Write( CONN_ID Idx, CHAR *Data, INT Len )
 	{
 		/* Der Puffer ist dummerweise voll. Jetzt versuchen, den Puffer
 		 * zu schreiben, wenn das nicht klappt, haben wir ein Problem ... */
-		if( ! Try_Write( Idx )) return FALSE;
+		if( ! Try_Write( Idx )) return false;
 
 		/* nun neu pruefen: */
 		if( WRITEBUFFER_LEN - My_Connections[Idx].wdatalen - Len <= 0 )
 		{
 			Log( LOG_NOTICE, "Write buffer overflow (connection %d)!", Idx );
-			Conn_Close( Idx, "Write buffer overflow!", NULL, FALSE );
-			return FALSE;
+			Conn_Close( Idx, "Write buffer overflow!", NULL, false );
+			return false;
 		}
 	}
 
@@ -593,7 +593,7 @@ Conn_Write( CONN_ID Idx, CHAR *Data, INT Len )
 	if( My_Connections[Idx].options & CONN_ZIP )
 	{
 		/* Daten komprimieren und in Puffer kopieren */
-		if( ! Zip_Buffer( Idx, Data, Len )) return FALSE;
+		if( ! Zip_Buffer( Idx, Data, Len )) return false;
 	}
 	else
 #endif
@@ -607,22 +607,22 @@ Conn_Write( CONN_ID Idx, CHAR *Data, INT Len )
 	/* Adjust global write counter */
 	WCounter += Len;
 
-	return TRUE;
+	return true;
 } /* Conn_Write */
 
 
-GLOBAL VOID
-Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient )
+GLOBAL void
+Conn_Close( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool InformClient )
 {
 	/* Close connection. Open pipes of asyncronous resolver
 	 * sub-processes are closed down. */
 
 	CLIENT *c;
-	CHAR *txt;
-	DOUBLE in_k, out_k;
+	char *txt;
+	double in_k, out_k;
 #ifdef ZLIB
-	DOUBLE in_z_k, out_z_k;
-	INT in_p, out_p;
+	double in_z_k, out_z_k;
+	int in_p, out_p;
 #endif
 
 	assert( Idx > NONE );
@@ -659,7 +659,7 @@ Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient )
 		/* Send statistics to client if registered as user: */
 		if(( c != NULL ) && ( Client_Type( c ) == CLIENT_USER ))
 		{
-			Conn_WriteStr( Idx, "NOTICE %s :%sConnection statistics: client %.1f kb, server %.1f kb.", Client_ThisServer( ), NOTICE_TXTPREFIX, (DOUBLE)My_Connections[Idx].bytes_in / 1024,  (DOUBLE)My_Connections[Idx].bytes_out / 1024 );
+			Conn_WriteStr( Idx, "NOTICE %s :%sConnection statistics: client %.1f kb, server %.1f kb.", Client_ThisServer( ), NOTICE_TXTPREFIX, (double)My_Connections[Idx].bytes_in / 1024,  (double)My_Connections[Idx].bytes_out / 1024 );
 		}
 #endif
 
@@ -669,7 +669,7 @@ Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient )
 	}
 
 	/* Try to write out the write buffer */
-	(VOID)Try_Write( Idx );
+	(void)Try_Write( Idx );
 
 	/* Shut down socket */
 	if( close( My_Connections[Idx].sock ) != 0 )
@@ -686,18 +686,18 @@ Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient )
 	My_Connections[Idx].sock = NONE;
 
 	/* If there is still a client, unregister it now */
-	if( c ) Client_Destroy( c, LogMsg, FwdMsg, TRUE );
+	if( c ) Client_Destroy( c, LogMsg, FwdMsg, true );
 
 	/* Calculate statistics and log information */
-	in_k = (DOUBLE)My_Connections[Idx].bytes_in / 1024;
-	out_k = (DOUBLE)My_Connections[Idx].bytes_out / 1024;
+	in_k = (double)My_Connections[Idx].bytes_in / 1024;
+	out_k = (double)My_Connections[Idx].bytes_out / 1024;
 #ifdef ZLIB
 	if( My_Connections[Idx].options & CONN_ZIP )
 	{
-		in_z_k = (DOUBLE)My_Connections[Idx].zip.bytes_in / 1024;
-		out_z_k = (DOUBLE)My_Connections[Idx].zip.bytes_out / 1024;
-		in_p = (INT)(( in_k * 100 ) / in_z_k );
-		out_p = (INT)(( out_k * 100 ) / out_z_k );
+		in_z_k = (double)My_Connections[Idx].zip.bytes_in / 1024;
+		out_z_k = (double)My_Connections[Idx].zip.bytes_out / 1024;
+		in_p = (int)(( in_k * 100 ) / in_z_k );
+		out_p = (int)(( out_k * 100 ) / out_z_k );
 		Log( LOG_INFO, "Connection %d with %s:%d closed (in: %.1fk/%.1fk/%d%%, out: %.1fk/%.1fk/%d%%).", Idx, My_Connections[Idx].host, ntohs( My_Connections[Idx].addr.sin_port ), in_k, in_z_k, in_p, out_k, out_z_k, out_p );
 	}
 	else
@@ -737,15 +737,15 @@ Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient )
 } /* Conn_Close */
 
 
-GLOBAL VOID
-Conn_SyncServerStruct( VOID )
+GLOBAL void
+Conn_SyncServerStruct( void )
 {
 	/* Synchronize server structures (connection IDs):
 	 * connections <-> configuration */
 
 	CLIENT *client;
 	CONN_ID i;
-	INT c;
+	int c;
 
 	for( i = 0; i < Pool_Size; i++ )
 	{
@@ -768,13 +768,13 @@ Conn_SyncServerStruct( VOID )
 } /* SyncServerStruct */
 
 
-LOCAL BOOLEAN
+LOCAL bool
 Try_Write( CONN_ID Idx )
 {
 	/* Versuchen, Daten aus dem Schreib-Puffer in den Socket zu
-	 * schreiben. TRUE wird geliefert, wenn entweder keine Daten
+	 * schreiben. true wird geliefert, wenn entweder keine Daten
 	 * zum Versenden vorhanden sind oder erfolgreich bearbeitet
-	 * werden konnten. Im Fehlerfall wird FALSE geliefert und
+	 * werden konnten. Im Fehlerfall wird false geliefert und
 	 * die Verbindung geschlossen. */
 
 	fd_set write_socket;
@@ -785,9 +785,9 @@ Try_Write( CONN_ID Idx )
 
 	/* sind ueberhaupt Daten vorhanden? */
 #ifdef ZLIB
-	if(( ! My_Connections[Idx].wdatalen > 0 ) && ( ! My_Connections[Idx].zip.wdatalen )) return TRUE;
+	if(( ! My_Connections[Idx].wdatalen > 0 ) && ( ! My_Connections[Idx].zip.wdatalen )) return true;
 #else
-	if( ! My_Connections[Idx].wdatalen > 0 ) return TRUE;
+	if( ! My_Connections[Idx].wdatalen > 0 ) return true; 
 #endif
 
 	/* Timeout initialisieren: 0 Sekunden, also nicht blockieren */
@@ -801,18 +801,18 @@ Try_Write( CONN_ID Idx )
 		if( errno != EINTR )
 		{
 			Log( LOG_ALERT, "Try_Write(): select() failed: %s (con=%d, sock=%d)!", strerror( errno ), Idx, My_Connections[Idx].sock );
-			Conn_Close( Idx, "Server error!", NULL, FALSE );
-			return FALSE;
+			Conn_Close( Idx, "Server error!", NULL, false );
+			return false;
 		}
 	}
 
 	if( FD_ISSET( My_Connections[Idx].sock, &write_socket )) return Handle_Write( Idx );
-	else return TRUE;
+	else return true;
 } /* Try_Write */
 
 
-LOCAL VOID
-Handle_Read( INT Sock )
+LOCAL void
+Handle_Read( int Sock )
 {
 	/* Aktivitaet auf einem Socket verarbeiten:
 	 *  - neue Clients annehmen,
@@ -846,12 +846,12 @@ Handle_Read( INT Sock )
 } /* Handle_Read */
 
 
-LOCAL BOOLEAN
+LOCAL bool
 Handle_Write( CONN_ID Idx )
 {
 	/* Daten aus Schreibpuffer versenden bzw. Connection aufbauen */
 
-	INT len, res, err;
+	int len, res, err;
 	socklen_t sock_len;
 	CLIENT *c;
 
@@ -888,7 +888,7 @@ Handle_Write( CONN_ID Idx )
 			Conf_Server[Conf_GetServer( Idx )].lasttry = time( NULL );
 			Conf_UnsetServer( Idx );
 
-			return FALSE;
+			return false;
 		}
 		Log( LOG_INFO, "Connection %d with \"%s:%d\" established. Now logging in ...", Idx, My_Connections[Idx].host, Conf_Server[Conf_GetServer( Idx )].port );
 
@@ -910,24 +910,24 @@ Handle_Write( CONN_ID Idx )
 	if( len < 0 )
 	{
 		/* Operation haette Socket "nur" blockiert ... */
-		if( errno == EAGAIN ) return TRUE;
+		if( errno == EAGAIN ) return true;
 
 		/* Oops, ein Fehler! */
 		Log( LOG_ERR, "Write error on connection %d (socket %d): %s!", Idx, My_Connections[Idx].sock, strerror( errno ));
-		Conn_Close( Idx, "Write error!", NULL, FALSE );
-		return FALSE;
+		Conn_Close( Idx, "Write error!", NULL, false );
+		return false;
 	}
 
 	/* Puffer anpassen */
 	My_Connections[Idx].wdatalen -= len;
 	memmove( My_Connections[Idx].wbuf, My_Connections[Idx].wbuf + len, My_Connections[Idx].wdatalen );
 
-	return TRUE;
+	return true;
 } /* Handle_Write */
 
 
-LOCAL VOID
-New_Connection( INT Sock )
+LOCAL void
+New_Connection( int Sock )
 {
 	/* Neue Client-Verbindung von Listen-Socket annehmen und
 	 * CLIENT-Struktur anlegen. */
@@ -936,12 +936,12 @@ New_Connection( INT Sock )
 	struct request_info req;
 #endif
 	struct sockaddr_in new_addr;
-	INT new_sock, new_sock_len;
+	int new_sock, new_sock_len;
 	RES_STAT *s;
 	CONN_ID idx;
 	CLIENT *c;
 	POINTER *ptr;
-	LONG new_size, cnt;
+	long new_size, cnt;
 
 	assert( Sock > NONE );
 
@@ -1037,7 +1037,7 @@ New_Connection( INT Sock )
 	}
 
 	/* Client-Struktur initialisieren */
-	c = Client_NewLocal( idx, inet_ntoa( new_addr.sin_addr ), CLIENT_UNKNOWN, FALSE );
+	c = Client_NewLocal( idx, inet_ntoa( new_addr.sin_addr ), CLIENT_UNKNOWN, false );
 	if( ! c )
 	{
 		Log( LOG_ALERT, "Can't accept connection: can't create client structure!" );
@@ -1077,7 +1077,7 @@ New_Connection( INT Sock )
 
 
 LOCAL CONN_ID
-Socket2Index( INT Sock )
+Socket2Index( int Sock )
 {
 	/* zum Socket passende Connection suchen */
 
@@ -1100,13 +1100,13 @@ Socket2Index( INT Sock )
 } /* Socket2Index */
 
 
-LOCAL VOID
+LOCAL void
 Read_Request( CONN_ID Idx )
 {
 	/* Daten von Socket einlesen und entsprechend behandeln.
 	 * Tritt ein Fehler auf, so wird der Socket geschlossen. */
 
-	INT len, bsize;
+	int len, bsize;
 #ifdef ZLIB
 	CLIENT *c;
 #endif
@@ -1130,7 +1130,7 @@ Read_Request( CONN_ID Idx )
 	{
 		/* Der Lesepuffer ist voll */
 		Log( LOG_ERR, "Receive buffer overflow (connection %d): %d bytes!", Idx, My_Connections[Idx].rdatalen );
-		Conn_Close( Idx, "Receive buffer overflow!", NULL, FALSE );
+		Conn_Close( Idx, "Receive buffer overflow!", NULL, false );
 		return;
 	}
 
@@ -1151,7 +1151,7 @@ Read_Request( CONN_ID Idx )
 	{
 		/* Socket wurde geschlossen */
 		Log( LOG_INFO, "%s:%d (%s) is closing the connection ...", My_Connections[Idx].host, ntohs( My_Connections[Idx].addr.sin_port), inet_ntoa( My_Connections[Idx].addr.sin_addr ));
-		Conn_Close( Idx, "Socket closed!", "Client closed connection", FALSE );
+		Conn_Close( Idx, "Socket closed!", "Client closed connection", false );
 		return;
 	}
 
@@ -1162,7 +1162,7 @@ Read_Request( CONN_ID Idx )
 
 		/* Fehler beim Lesen */
 		Log( LOG_ERR, "Read error on connection %d (socket %d): %s!", Idx, My_Connections[Idx].sock, strerror( errno ));
-		Conn_Close( Idx, "Read error!", "Client closed connection", FALSE );
+		Conn_Close( Idx, "Read error!", "Client closed connection", false );
 		return;
 	}
 
@@ -1176,24 +1176,24 @@ Read_Request( CONN_ID Idx )
 } /* Read_Request */
 
 
-LOCAL BOOLEAN
+LOCAL bool
 Handle_Buffer( CONN_ID Idx )
 {
 	/* Daten im Lese-Puffer einer Verbindung verarbeiten.
-	 * Wurde ein Request verarbeitet, so wird TRUE geliefert,
-	 * ansonsten FALSE (auch bei Fehlern). */
+	 * Wurde ein Request verarbeitet, so wird true geliefert,
+	 * ansonsten false (auch bei Fehlern). */
 
 #ifndef STRICT_RFC
-	CHAR *ptr1, *ptr2;
+	char *ptr1, *ptr2;
 #endif
-	CHAR *ptr;
-	INT len, delta;
-	BOOLEAN action, result;
+	char *ptr;
+	int len, delta;
+	bool action, result;
 #ifdef ZLIB
-	BOOLEAN old_z;
+	bool old_z;
 #endif
 
-	result = FALSE;
+	result = false;
 	do
 	{
 		/* Check penalty */
@@ -1203,7 +1203,7 @@ Handle_Buffer( CONN_ID Idx )
 		/* ggf. noch unkomprimiete Daten weiter entpacken */
 		if( My_Connections[Idx].options & CONN_ZIP )
 		{
-			if( ! Unzip_Buffer( Idx )) return FALSE;
+			if( ! Unzip_Buffer( Idx )) return false;
 		}
 #endif
 
@@ -1229,7 +1229,7 @@ Handle_Buffer( CONN_ID Idx )
 		}
 #endif
 
-		action = FALSE;
+		action = false;
 		if( ptr )
 		{
 			/* Ende der Anfrage wurde gefunden */
@@ -1241,8 +1241,8 @@ Handle_Buffer( CONN_ID Idx )
 				 * (incl. CR+LF!) werden; vgl. RFC 2812. Wenn soetwas
 				 * empfangen wird, wird der Client disconnectiert. */
 				Log( LOG_ERR, "Request too long (connection %d): %d bytes (max. %d expected)!", Idx, My_Connections[Idx].rdatalen, COMMAND_LEN - 1 );
-				Conn_Close( Idx, NULL, "Request too long", TRUE );
-				return FALSE;
+				Conn_Close( Idx, NULL, "Request too long", true );
+				return false;
 			}
 
 #ifdef ZLIB
@@ -1254,8 +1254,8 @@ Handle_Buffer( CONN_ID Idx )
 			{
 				/* Es wurde ein Request gelesen */
 				My_Connections[Idx].msg_in++;
-				if( ! Parse_Request( Idx, My_Connections[Idx].rbuf )) return FALSE;
-				else action = TRUE;
+				if( ! Parse_Request( Idx, My_Connections[Idx].rbuf )) return false;
+				else action = true;
 			}
 
 			/* Puffer anpassen */
@@ -1272,7 +1272,7 @@ Handle_Buffer( CONN_ID Idx )
 				{
 					/* Hupsa! Soviel Platz haben wir aber gar nicht! */
 					Log( LOG_ALERT, "Can't move receive buffer: No space left in unzip buffer (need %d bytes)!", My_Connections[Idx].rdatalen );
-					return FALSE;
+					return false;
 				}
 				memcpy( My_Connections[Idx].zip.rbuf, My_Connections[Idx].rbuf, My_Connections[Idx].rdatalen );
 				My_Connections[Idx].zip.rdatalen = My_Connections[Idx].rdatalen;
@@ -1284,15 +1284,15 @@ Handle_Buffer( CONN_ID Idx )
 #endif /* ZLIB */
 		}
 
-		if( action ) result = TRUE;
+		if( action ) result = true;
 	} while( action );
 
 	return result;
 } /* Handle_Buffer */
 
 
-LOCAL VOID
-Check_Connections( VOID )
+LOCAL void
+Check_Connections( void )
 {
 	/* Pruefen, ob Verbindungen noch "alive" sind. Ist dies
 	 * nicht der Fall, zunaechst PING-PONG spielen und, wenn
@@ -1318,7 +1318,7 @@ Check_Connections( VOID )
 #ifdef DEBUG
 					Log( LOG_DEBUG, "Connection %d: Ping timeout: %d seconds.", i, Conf_PongTimeout );
 #endif
-					Conn_Close( i, NULL, "Ping timeout", TRUE );
+					Conn_Close( i, NULL, "Ping timeout", true );
 				}
 			}
 			else if( My_Connections[i].lastdata < time( NULL ) - Conf_PingTimeout )
@@ -1340,21 +1340,21 @@ Check_Connections( VOID )
 #ifdef DEBUG
 				Log( LOG_DEBUG, "Connection %d timed out ...", i );
 #endif
-				Conn_Close( i, NULL, "Timeout", FALSE );
+				Conn_Close( i, NULL, "Timeout", false );
 			}
 		}
 	}
 } /* Check_Connections */
 
 
-LOCAL VOID
-Check_Servers( VOID )
+LOCAL void
+Check_Servers( void )
 {
 	/* Check if we can establish further server links */
 
 	RES_STAT *s;
 	CONN_ID idx;
-	INT i, n;
+	int i, n;
 
 	/* Serach all connections, are there results from the resolver? */
 	for( idx = 0; idx < Pool_Size; idx++ )
@@ -1417,14 +1417,14 @@ Check_Servers( VOID )
 } /* Check_Servers */
 
 
-LOCAL VOID
-New_Server( INT Server, CONN_ID Idx )
+LOCAL void
+New_Server( int Server, CONN_ID Idx )
 {
 	/* Establish new server link */
 
 	struct sockaddr_in new_addr;
 	struct in_addr inaddr;
-	INT res, new_sock;
+	int res, new_sock;
 	CLIENT *c;
 
 	assert( Server > NONE );
@@ -1486,7 +1486,7 @@ New_Server( INT Server, CONN_ID Idx )
 	}
 
 	/* Client-Struktur initialisieren */
-	c = Client_NewLocal( Idx, inet_ntoa( new_addr.sin_addr ), CLIENT_UNKNOWNSERVER, FALSE );
+	c = Client_NewLocal( Idx, inet_ntoa( new_addr.sin_addr ), CLIENT_UNKNOWNSERVER, false );
 	if( ! c )
 	{
 		/* Can't create new client structure */
@@ -1515,7 +1515,7 @@ New_Server( INT Server, CONN_ID Idx )
 } /* New_Server */
 
 
-LOCAL VOID
+LOCAL void
 Init_Conn_Struct( CONN_ID Idx )
 {
 	/* Connection-Struktur initialisieren */
@@ -1550,19 +1550,19 @@ Init_Conn_Struct( CONN_ID Idx )
 } /* Init_Conn_Struct */
 
 
-LOCAL BOOLEAN
-Init_Socket( INT Sock )
+LOCAL bool
+Init_Socket( int Sock )
 {
 	/* Initialize socket (set options) */
 
-	INT value;
+	int value;
 
 #ifdef O_NONBLOCK	/* unknown on A/UX */
 	if( fcntl( Sock, F_SETFL, O_NONBLOCK ) != 0 )
 	{
 		Log( LOG_CRIT, "Can't enable non-blocking mode for socket: %s!", strerror( errno ));
 		close( Sock );
-		return FALSE;
+		return false;
 	}
 #endif
 
@@ -1587,21 +1587,21 @@ Init_Socket( INT Sock )
 	}
 #endif
 
-	return TRUE;
+	return true;
 } /* Init_Socket */
 
 
-LOCAL VOID
-Read_Resolver_Result( INT r_fd )
+LOCAL void
+Read_Resolver_Result( int r_fd )
 {
 	/* Read result of resolver sub-process from pipe and update the
 	 * apropriate connection/client structure(s): hostname and/or
 	 * IDENT user name.*/
 
 	CLIENT *c;
-	INT len, i, n;
+	int len, i, n;
 	RES_STAT *s;
-	CHAR *ptr;
+	char *ptr;
 
 	/* Search associated connection ... */
 	for( i = 0; i < Pool_Size; i++ )
@@ -1689,7 +1689,7 @@ try_resolve:
 				if( s->buffer[0] )
 				{
 					Log( LOG_INFO, "IDENT lookup for connection %ld: \"%s\".", i, s->buffer );
-					Client_SetUser( c, s->buffer, TRUE );
+					Client_SetUser( c, s->buffer, true );
 				}
 				else Log( LOG_INFO, "IDENT lookup for connection %ld: no result.", i );
 #endif
@@ -1724,8 +1724,8 @@ try_resolve:
 } /* Read_Resolver_Result */
 
 
-LOCAL VOID
-Simple_Message( INT Sock, CHAR *Msg )
+LOCAL void
+Simple_Message( int Sock, char *Msg )
 {
 	/* Write "simple" message to socket, without using compression
 	 * or even the connection write buffers. Used e.g. for error
@@ -1734,15 +1734,15 @@ Simple_Message( INT Sock, CHAR *Msg )
 	assert( Sock > NONE );
 	assert( Msg != NULL );
 
-	(VOID)send( Sock, Msg, strlen( Msg ), 0 );
-	(VOID)send( Sock, "\r\n", 2, 0 );
+	(void)send( Sock, Msg, strlen( Msg ), 0 );
+	(void)send( Sock, "\r\n", 2, 0 );
 } /* Simple_Error */
 
 
-LOCAL INT
+LOCAL int
 Count_Connections( struct sockaddr_in addr_in )
 {
-	INT i, cnt;
+	int i, cnt;
 	
 	cnt = 0;
 	for( i = 0; i < Pool_Size; i++ )

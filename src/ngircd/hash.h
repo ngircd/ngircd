@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: hash.h,v 1.4 2002/12/12 12:23:43 alex Exp $
+ * $Id: hash.h,v 1.5 2005/03/19 18:43:48 fw Exp $
  *
  * Hash calculation (header)
  */
@@ -18,7 +18,7 @@
 #define __hash_h__
 
 
-GLOBAL UINT32 Hash PARAMS((CHAR *String ));
+GLOBAL UINT32 Hash PARAMS((char *String ));
 
 
 #endif

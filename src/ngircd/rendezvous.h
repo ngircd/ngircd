@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: rendezvous.h,v 1.1 2003/02/23 12:02:26 alex Exp $
+ * $Id: rendezvous.h,v 1.2 2005/03/19 18:43:49 fw Exp $
  *
  * "Rendezvous" functions (Header)
  */
@@ -20,15 +20,15 @@
 #define __rdezvous_h__
 
 
-GLOBAL VOID Rendezvous_Init( VOID );
-GLOBAL VOID Rendezvous_Exit( VOID );
+GLOBAL void Rendezvous_Init( void );
+GLOBAL void Rendezvous_Exit( void );
 
-GLOBAL BOOLEAN Rendezvous_Register( CHAR *Name, CHAR *Type, UINT Port );
+GLOBAL bool Rendezvous_Register( char *Name, char *Type, unsigned int Port );
 
-GLOBAL BOOLEAN Rendezvous_Unregister( CHAR *Name );
-GLOBAL VOID Rendezvous_UnregisterListeners( VOID );
+GLOBAL bool Rendezvous_Unregister( char *Name );
+GLOBAL void Rendezvous_UnregisterListeners( void );
 
-GLOBAL VOID Rendezvous_Handler( VOID );
+GLOBAL void Rendezvous_Handler( void );
 
 
 #endif	/* __rdezvous_h__ */

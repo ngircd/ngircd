@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn-func.c,v 1.3 2003/12/26 15:55:07 alex Exp $";
+static char UNUSED id[] = "$Id: conn-func.c,v 1.4 2005/03/19 18:43:48 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -28,7 +28,7 @@ static char UNUSED id[] = "$Id: conn-func.c,v 1.3 2003/12/26 15:55:07 alex Exp $
 #include "conn-func.h"
 
 
-GLOBAL VOID
+GLOBAL void
 Conn_UpdateIdle( CONN_ID Idx )
 {
 	/* Idle-Timer zuruecksetzen */
@@ -58,7 +58,7 @@ Conn_LastPing( CONN_ID Idx )
 } /* Conn_LastPing */
 
 
-GLOBAL VOID
+GLOBAL void
 Conn_SetPenalty( CONN_ID Idx, time_t Seconds )
 {
 	/* Penalty-Delay fuer eine Verbindung (in Sekunden) setzen;
@@ -76,7 +76,7 @@ Conn_SetPenalty( CONN_ID Idx, time_t Seconds )
 } /* Conn_SetPenalty */
 
 
-GLOBAL VOID
+GLOBAL void
 Conn_ResetPenalty( CONN_ID Idx )
 {
 	assert( Idx > NONE );
@@ -84,8 +84,8 @@ Conn_ResetPenalty( CONN_ID Idx )
 } /* Conn_ResetPenalty */
 
 
-GLOBAL VOID
-Conn_ClearFlags( VOID )
+GLOBAL void
+Conn_ClearFlags( void )
 {
 	/* Alle Connection auf "nicht-markiert" setzen */
 
@@ -95,18 +95,18 @@ Conn_ClearFlags( VOID )
 } /* Conn_ClearFlags */
 
 
-GLOBAL INT
+GLOBAL int
 Conn_Flag( CONN_ID Idx )
 {
-	/* Ist eine Connection markiert (TRUE) oder nicht? */
+	/* Ist eine Connection markiert (true) oder nicht? */
 
 	assert( Idx > NONE );
 	return My_Connections[Idx].flag;
 } /* Conn_Flag */
 
 
-GLOBAL VOID
-Conn_SetFlag( CONN_ID Idx, INT Flag )
+GLOBAL void
+Conn_SetFlag( CONN_ID Idx, int Flag )
 {
 	/* Connection markieren */
 
@@ -116,7 +116,7 @@ Conn_SetFlag( CONN_ID Idx, INT Flag )
 
 
 GLOBAL CONN_ID
-Conn_First( VOID )
+Conn_First( void )
 {
 	/* Connection-Struktur der ersten Verbindung liefern;
 	 * Ist keine Verbindung vorhanden, wird NONE geliefert. */
@@ -149,8 +149,8 @@ Conn_Next( CONN_ID Idx )
 } /* Conn_Next */
 
 
-GLOBAL VOID
-Conn_SetOption( CONN_ID Idx, INT Option )
+GLOBAL void
+Conn_SetOption( CONN_ID Idx, int Option )
 {
 	/* Option fuer Verbindung setzen.
 	 * Initial sind alle Optionen _nicht_ gesetzt. */
@@ -162,8 +162,8 @@ Conn_SetOption( CONN_ID Idx, INT Option )
 } /* Conn_SetOption */
 
 
-GLOBAL VOID
-Conn_UnsetOption( CONN_ID Idx, INT Option )
+GLOBAL void
+Conn_UnsetOption( CONN_ID Idx, int Option )
 {
 	/* Option fuer Verbindung loeschen */
 
@@ -174,7 +174,7 @@ Conn_UnsetOption( CONN_ID Idx, INT Option )
 } /* Conn_UnsetOption */
 
 
-GLOBAL INT
+GLOBAL int
 Conn_Options( CONN_ID Idx )
 {
 	assert( Idx > NONE );
@@ -192,7 +192,7 @@ Conn_StartTime( CONN_ID Idx )
 } /* Conn_Uptime */
 
 
-GLOBAL INT
+GLOBAL int
 Conn_SendQ( CONN_ID Idx )
 {
 	/* Laenge der Daten im Schreibbuffer liefern */
@@ -206,7 +206,7 @@ Conn_SendQ( CONN_ID Idx )
 } /* Conn_SendQ */
 
 
-GLOBAL LONG
+GLOBAL long
 Conn_SendMsg( CONN_ID Idx )
 {
 	/* Anzahl gesendeter Nachrichten liefern */
@@ -216,7 +216,7 @@ Conn_SendMsg( CONN_ID Idx )
 } /* Conn_SendMsg */
 
 
-GLOBAL LONG
+GLOBAL long
 Conn_SendBytes( CONN_ID Idx )
 {
 	/* Anzahl gesendeter Bytes (unkomprimiert) liefern */
@@ -226,7 +226,7 @@ Conn_SendBytes( CONN_ID Idx )
 } /* Conn_SendBytes */
 
 
-GLOBAL INT
+GLOBAL int
 Conn_RecvQ( CONN_ID Idx )
 {
 	/* Laenge der Daten im Lesebuffer liefern */
@@ -240,7 +240,7 @@ Conn_RecvQ( CONN_ID Idx )
 } /* Conn_RecvQ */
 
 
-GLOBAL LONG
+GLOBAL long
 Conn_RecvMsg( CONN_ID Idx )
 {
 	/* Anzahl empfangener Nachrichten liefern */
@@ -250,7 +250,7 @@ Conn_RecvMsg( CONN_ID Idx )
 } /* Conn_RecvMsg */
 
 
-GLOBAL LONG
+GLOBAL long
 Conn_RecvBytes( CONN_ID Idx )
 {
 	/* Anzahl empfangener Bytes (unkomprimiert) liefern */
@@ -260,15 +260,15 @@ Conn_RecvBytes( CONN_ID Idx )
 } /* Conn_RecvBytes */
 
 
-GLOBAL VOID
-Conn_ResetWCounter( VOID )
+GLOBAL void
+Conn_ResetWCounter( void )
 {
 	WCounter = 0;
 } /* Conn_ResetWCounter */
 
 
-GLOBAL LONG
-Conn_WCounter( VOID )
+GLOBAL long
+Conn_WCounter( void )
 {
 	return WCounter;
 } /* Conn_WCounter */

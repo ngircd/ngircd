@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: channel.c,v 1.45 2004/03/11 22:16:31 alex Exp $";
+static char UNUSED id[] = "$Id: channel.c,v 1.46 2005/03/19 18:43:48 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -54,28 +54,28 @@ LOCAL CL2CHAN *My_Cl2Chan;
 
 LOCAL CL2CHAN *Get_Cl2Chan PARAMS(( CHANNEL *Chan, CLIENT *Client ));
 LOCAL CL2CHAN *Add_Client PARAMS(( CHANNEL *Chan, CLIENT *Client ));
-LOCAL BOOLEAN Remove_Client PARAMS(( INT Type, CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, CHAR *Reason, BOOLEAN InformServer ));
+LOCAL bool Remove_Client PARAMS(( int Type, CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, char *Reason, bool InformServer ));
 LOCAL CL2CHAN *Get_First_Cl2Chan PARAMS(( CLIENT *Client, CHANNEL *Chan ));
 LOCAL CL2CHAN *Get_Next_Cl2Chan PARAMS(( CL2CHAN *Start, CLIENT *Client, CHANNEL *Chan ));
-LOCAL BOOLEAN Delete_Channel PARAMS(( CHANNEL *Chan ));
+LOCAL bool Delete_Channel PARAMS(( CHANNEL *Chan ));
 
 
-GLOBAL VOID
-Channel_Init( VOID )
+GLOBAL void
+Channel_Init( void )
 {
 	My_Channels = NULL;
 	My_Cl2Chan = NULL;
 } /* Channel_Init */
 
 
-GLOBAL VOID
-Channel_InitPredefined( VOID )
+GLOBAL void
+Channel_InitPredefined( void )
 {
 	/* Vordefinierte persistente Channels erzeugen */
 
 	CHANNEL *chan;
-	CHAR *c;
-	INT i;
+	char *c;
+	int i;
 	
 	for( i = 0; i < Conf_Channel_Count; i++ )
 	{
@@ -112,8 +112,8 @@ Channel_InitPredefined( VOID )
 } /* Channel_InitPredefined */
 
 
-GLOBAL VOID
-Channel_Exit( VOID )
+GLOBAL void
+Channel_Exit( void )
 {
 	CHANNEL *c, *c_next;
 	CL2CHAN *cl2chan, *cl2chan_next;
@@ -138,8 +138,8 @@ Channel_Exit( VOID )
 } /* Channel_Exit */
 
 
-GLOBAL BOOLEAN
-Channel_Join( CLIENT *Client, CHAR *Name )
+GLOBAL bool
+Channel_Join( CLIENT *Client, char *Name )
 {
 	CHANNEL *chan;
 	
@@ -150,7 +150,7 @@ Channel_Join( CLIENT *Client, CHAR *Name )
 	if( ! Channel_IsValidName( Name ))
 	{
 		IRC_WriteStrClient( Client, ERR_NOSUCHCHANNEL_MSG, Client_ID( Client ), Name );
-		return FALSE;
+		return false;
 	}
 
 	/* Channel suchen */
@@ -158,23 +158,23 @@ Channel_Join( CLIENT *Client, CHAR *Name )
 	if( chan )
 	{
 		/* Ist der Client bereits Mitglied? */
-		if( Get_Cl2Chan( chan, Client )) return FALSE;
+		if( Get_Cl2Chan( chan, Client )) return false;
 	}
 	else
 	{
 		/* Gibt es noch nicht? Dann neu anlegen: */
 		chan = Channel_Create( Name );
-		if( ! chan ) return FALSE;
+		if( ! chan ) return false;
 	}
 
 	/* User dem Channel hinzufuegen */
-	if( ! Add_Client( chan, Client )) return FALSE;
-	else return TRUE;
+	if( ! Add_Client( chan, Client )) return false;
+	else return true;
 } /* Channel_Join */
 
 
-GLOBAL BOOLEAN
-Channel_Part( CLIENT *Client, CLIENT *Origin, CHAR *Name, CHAR *Reason )
+GLOBAL bool
+Channel_Part( CLIENT *Client, CLIENT *Origin, char *Name, char *Reason )
 {
 	CHANNEL *chan;
 
@@ -187,17 +187,17 @@ Channel_Part( CLIENT *Client, CLIENT *Origin, CHAR *Name, CHAR *Reason )
 	if(( ! chan ) || ( ! Get_Cl2Chan( chan, Client )))
 	{
 		IRC_WriteStrClient( Client, ERR_NOSUCHCHANNEL_MSG, Client_ID( Client ), Name );
-		return FALSE;
+		return false;
 	}
 
 	/* User aus Channel entfernen */
-	if( ! Remove_Client( REMOVE_PART, chan, Client, Origin, Reason, TRUE )) return FALSE;
-	else return TRUE;
+	if( ! Remove_Client( REMOVE_PART, chan, Client, Origin, Reason, true)) return false;
+	else return true;
 } /* Channel_Part */
 
 
-GLOBAL VOID
-Channel_Kick( CLIENT *Client, CLIENT *Origin, CHAR *Name, CHAR *Reason )
+GLOBAL void
+Channel_Kick( CLIENT *Client, CLIENT *Origin, char *Name, char *Reason )
 {
 	CHANNEL *chan;
 
@@ -235,12 +235,12 @@ Channel_Kick( CLIENT *Client, CLIENT *Origin, CHAR *Name, CHAR *Reason )
 		return;
 	}
 
-	Remove_Client( REMOVE_KICK, chan, Client, Origin, Reason, TRUE );
+	Remove_Client( REMOVE_KICK, chan, Client, Origin, Reason, true);
 } /* Channel_Kick */
 
 
-GLOBAL VOID
-Channel_Quit( CLIENT *Client, CHAR *Reason )
+GLOBAL void
+Channel_Quit( CLIENT *Client, char *Reason )
 {
 	CHANNEL *c, *next_c;
 
@@ -251,19 +251,18 @@ Channel_Quit( CLIENT *Client, CHAR *Reason )
 	while( c )
 	{
 		next_c = c->next;
-		Remove_Client( REMOVE_QUIT, c, Client, Client, Reason, FALSE );
+		Remove_Client( REMOVE_QUIT, c, Client, Client, Reason, false );
 		c = next_c;
 	}
 } /* Channel_Quit */
 
 
-GLOBAL LONG
-Channel_Count( VOID )
+GLOBAL long
+Channel_Count( void )
 {
 	CHANNEL *c;
-	LONG count;
+	long count = 0;
 	
-	count = 0;
 	c = My_Channels;
 	while( c )
 	{
@@ -274,15 +273,14 @@ Channel_Count( VOID )
 } /* Channel_Count */
 
 
-GLOBAL LONG
+GLOBAL long
 Channel_MemberCount( CHANNEL *Chan )
 {
 	CL2CHAN *cl2chan;
-	LONG count;
+	long count = 0;
 
 	assert( Chan != NULL );
 
-	count = 0;
 	cl2chan = My_Cl2Chan;
 	while( cl2chan )
 	{
@@ -293,17 +291,16 @@ Channel_MemberCount( CHANNEL *Chan )
 } /* Channel_MemberCount */
 
 
-GLOBAL INT
+GLOBAL int
 Channel_CountForUser( CLIENT *Client )
 {
 	/* Count number of channels a user is member of. */
 
 	CL2CHAN *cl2chan;
-	INT count;
+	int count = 0;
 	
 	assert( Client != NULL );
 	
-	count = 0;
 	cl2chan = My_Cl2Chan;
 	while( cl2chan )
 	{
@@ -315,15 +312,14 @@ Channel_CountForUser( CLIENT *Client )
 } /* Channel_CountForUser */
 
 
-GLOBAL INT
-Channel_PCount( VOID )
+GLOBAL int
+Channel_PCount( void )
 {
 	/* Count the number of persistent (mode 'P') channels */
 
 	CHANNEL *chan;
-	INT count;
+	int count = 0;
 
-	count = 0;
 	chan = My_Channels;
 	while( chan )
 	{
@@ -335,7 +331,7 @@ Channel_PCount( VOID )
 } /* Channel_PCount */
 
 
-GLOBAL CHAR *
+GLOBAL char *
 Channel_Name( CHANNEL *Chan )
 {
 	assert( Chan != NULL );
@@ -343,7 +339,7 @@ Channel_Name( CHANNEL *Chan )
 } /* Channel_Name */
 
 
-GLOBAL CHAR *
+GLOBAL char *
 Channel_Modes( CHANNEL *Chan )
 {
 	assert( Chan != NULL );
@@ -351,7 +347,7 @@ Channel_Modes( CHANNEL *Chan )
 } /* Channel_Modes */
 
 
-GLOBAL CHAR *
+GLOBAL char *
 Channel_Key( CHANNEL *Chan )
 {
 	assert( Chan != NULL );
@@ -359,7 +355,7 @@ Channel_Key( CHANNEL *Chan )
 } /* Channel_Key */
 
 
-GLOBAL LONG
+GLOBAL long
 Channel_MaxUsers( CHANNEL *Chan )
 {
 	assert( Chan != NULL );
@@ -368,7 +364,7 @@ Channel_MaxUsers( CHANNEL *Chan )
 
 
 GLOBAL CHANNEL *
-Channel_First( VOID )
+Channel_First( void )
 {
 	return My_Channels;
 } /* Channel_First */
@@ -383,7 +379,7 @@ Channel_Next( CHANNEL *Chan )
 
 
 GLOBAL CHANNEL *
-Channel_Search( CHAR *Name )
+Channel_Search( char *Name )
 {
 	/* Channel-Struktur suchen */
 	
@@ -457,86 +453,88 @@ Channel_GetChannel( CL2CHAN *Cl2Chan )
 } /* Channel_GetChannel */
 
 
-GLOBAL BOOLEAN
-Channel_IsValidName( CHAR *Name )
+GLOBAL bool
+Channel_IsValidName( char *Name )
 {
 	/* Pruefen, ob Name als Channelname gueltig */
 
-	CHAR *ptr, badchars[10];
+	char *ptr, badchars[10];
 	
 	assert( Name != NULL );
 
-	if(( Name[0] != '#' ) || ( strlen( Name ) >= CHANNEL_NAME_LEN )) return FALSE;
+	if(( Name[0] != '#' ) || ( strlen( Name ) >= CHANNEL_NAME_LEN )) return false;
 
 	ptr = Name;
 	strcpy( badchars, " ,:\007" );
 	while( *ptr )
 	{
-		if( strchr( badchars, *ptr )) return FALSE;
+		if( strchr( badchars, *ptr )) return false;
 		ptr++;
 	}
 	
-	return TRUE;
+	return true;
 } /* Channel_IsValidName */
 
 
-GLOBAL BOOLEAN
-Channel_ModeAdd( CHANNEL *Chan, CHAR Mode )
+GLOBAL bool
+Channel_ModeAdd( CHANNEL *Chan, char Mode )
 {
-	/* Mode soll gesetzt werden. TRUE wird geliefert, wenn der
-	 * Mode neu gesetzt wurde, FALSE, wenn der Channel den Mode
-	 * bereits hatte. */
+	/* set Mode.
+	 * If the channel already had this mode, return false.
+	 * If the channel mode was newly set return true.
+	 */
 
-	CHAR x[2];
+	char x[2];
 
 	assert( Chan != NULL );
 
 	x[0] = Mode; x[1] = '\0';
 	if( ! strchr( Chan->modes, x[0] ))
 	{
-		/* Client hat den Mode noch nicht -> setzen */
+		/* Channel does not have this mode yet, set it */
 		strlcat( Chan->modes, x, sizeof( Chan->modes ));
-		return TRUE;
+		return true;
 	}
-	else return FALSE;
+	else return false;
 } /* Channel_ModeAdd */
 
 
-GLOBAL BOOLEAN
-Channel_ModeDel( CHANNEL *Chan, CHAR Mode )
+GLOBAL bool
+Channel_ModeDel( CHANNEL *Chan, char Mode )
 {
-	/* Mode soll geloescht werden. TRUE wird geliefert, wenn der
-	 * Mode entfernt wurde, FALSE, wenn der Channel den Mode
-	 * ueberhaupt nicht hatte. */
-
-	CHAR x[2], *p;
+	/* Delete mode.
+	 * if the mode was removed return true.
+	 * if the channel did not have the mode, return false.
+	*/
+	char x[2], *p;
 
 	assert( Chan != NULL );
 
 	x[0] = Mode; x[1] = '\0';
 
 	p = strchr( Chan->modes, x[0] );
-	if( ! p ) return FALSE;
+	if( ! p ) return false;
 
-	/* Client hat den Mode -> loeschen */
+	/* Channel has mode -> delete */
 	while( *p )
 	{
 		*p = *(p + 1);
 		p++;
 	}
-	return TRUE;
+	return true;
 } /* Channel_ModeDel */
 
 
-GLOBAL BOOLEAN
-Channel_UserModeAdd( CHANNEL *Chan, CLIENT *Client, CHAR Mode )
+GLOBAL bool
+Channel_UserModeAdd( CHANNEL *Chan, CLIENT *Client, char Mode )
 {
-	/* Channel-User-Mode soll gesetzt werden. TRUE wird geliefert,
-	 * wenn der Mode neu gesetzt wurde, FALSE, wenn der User den
-	 * Channel-Mode bereits hatte. */
+	/* Set Channel-User-Mode.
+	 * if mode was newly set, return true.
+	 * if the User already had this channel-mode, return false.
+	 */
 
 	CL2CHAN *cl2chan;
-	CHAR x[2];
+	char x[2];
 
 	assert( Chan != NULL );
 	assert( Client != NULL );
@@ -547,23 +545,24 @@ Channel_UserModeAdd( CHANNEL *Chan, CLIENT *Client, CHAR Mode )
 	x[0] = Mode; x[1] = '\0';
 	if( ! strchr( cl2chan->modes, x[0] ))
 	{
-		/* Client hat den Mode noch nicht -> setzen */
+		/* mode not set, -> set it */
 		strlcat( cl2chan->modes, x, sizeof( cl2chan->modes ));
-		return TRUE;
+		return true;
 	}
-	else return FALSE;
+	else return false;
 } /* Channel_UserModeAdd */
 
 
-GLOBAL BOOLEAN
-Channel_UserModeDel( CHANNEL *Chan, CLIENT *Client, CHAR Mode )
+GLOBAL bool
+Channel_UserModeDel( CHANNEL *Chan, CLIENT *Client, char Mode )
 {
-	/* Channel-User-Mode soll geloescht werden. TRUE wird geliefert,
-	 * wenn der Mode entfernt wurde, FALSE, wenn der User den Channel-Mode
-	 * ueberhaupt nicht hatte. */
+	/* Delete Channel-User-Mode.
+	 * If Mode was removed, return true.
+	 * If User did not have the Channel-Mode, return false.
+	 */
 
 	CL2CHAN *cl2chan;
-	CHAR x[2], *p;
+	char x[2], *p;
 
 	assert( Chan != NULL );
 	assert( Client != NULL );
@@ -574,22 +573,22 @@ Channel_UserModeDel( CHANNEL *Chan, CLIENT *Client, CHAR Mode )
 	x[0] = Mode; x[1] = '\0';
 
 	p = strchr( cl2chan->modes, x[0] );
-	if( ! p ) return FALSE;
+	if( ! p ) return false;
 
-	/* Client hat den Mode -> loeschen */
+	/* Client has Mode -> delete */
 	while( *p )
 	{
 		*p = *(p + 1);
 		p++;
 	}
-	return TRUE;
+	return true;
 } /* Channel_UserModeDel */
 
 
-GLOBAL CHAR *
+GLOBAL char *
 Channel_UserModes( CHANNEL *Chan, CLIENT *Client )
 {
-	/* Channel-Modes eines Users liefern */
+	/* return Users' Channel-Modes */
 	
 	CL2CHAN *cl2chan;
 
@@ -603,20 +602,20 @@ Channel_UserModes( CHANNEL *Chan, CLIENT *Client )
 } /* Channel_UserModes */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 Channel_IsMemberOf( CHANNEL *Chan, CLIENT *Client )
 {
-	/* Pruefen, ob Client Mitglied in Channel ist */
+	/* Test if Client is on Channel Chan */
 
 	assert( Chan != NULL );
 	assert( Client != NULL );
 
-	if( Get_Cl2Chan( Chan, Client )) return TRUE;
-	else return FALSE;
+	if( Get_Cl2Chan( Chan, Client )) return true;
+	else return false;
 } /* Channel_IsMemberOf */
 
 
-GLOBAL CHAR *
+GLOBAL char *
 Channel_Topic( CHANNEL *Chan )
 {
 	assert( Chan != NULL );
@@ -624,8 +623,8 @@ Channel_Topic( CHANNEL *Chan )
 } /* Channel_Topic */
 
 
-GLOBAL VOID
-Channel_SetTopic( CHANNEL *Chan, CHAR *Topic )
+GLOBAL void
+Channel_SetTopic( CHANNEL *Chan, char *Topic )
 {
 	assert( Chan != NULL );
 	assert( Topic != NULL );
@@ -634,8 +633,8 @@ Channel_SetTopic( CHANNEL *Chan, CHAR *Topic )
 } /* Channel_SetTopic */
 
 
-GLOBAL VOID
-Channel_SetModes( CHANNEL *Chan, CHAR *Modes )
+GLOBAL void
+Channel_SetModes( CHANNEL *Chan, char *Modes )
 {
 	assert( Chan != NULL );
 	assert( Modes != NULL );
@@ -644,8 +643,8 @@ Channel_SetModes( CHANNEL *Chan, CHAR *Modes )
 } /* Channel_SetModes */
 
 
-GLOBAL VOID
-Channel_SetKey( CHANNEL *Chan, CHAR *Key )
+GLOBAL void
+Channel_SetKey( CHANNEL *Chan, char *Key )
 {
 	assert( Chan != NULL );
 	assert( Key != NULL );
@@ -655,8 +654,8 @@ Channel_SetKey( CHANNEL *Chan, CHAR *Key )
 } /* Channel_SetKey */
 
 
-GLOBAL VOID
-Channel_SetMaxUsers( CHANNEL *Chan, LONG Count )
+GLOBAL void
+Channel_SetMaxUsers( CHANNEL *Chan, long Count )
 {
 	assert( Chan != NULL );
 
@@ -665,45 +664,44 @@ Channel_SetMaxUsers( CHANNEL *Chan, LONG Count )
 } /* Channel_SetMaxUsers */
 
 
-GLOBAL BOOLEAN
-Channel_Write( CHANNEL *Chan, CLIENT *From, CLIENT *Client, CHAR *Text )
+GLOBAL bool
+Channel_Write( CHANNEL *Chan, CLIENT *From, CLIENT *Client, char *Text )
 {
-	BOOLEAN is_member, has_voice, is_op, ok;
+	bool is_member, has_voice, is_op, ok;
 
 	/* Okay, target is a channel */
-	is_member = has_voice = is_op = FALSE;
+	is_member = has_voice = is_op = false;
 	if( Channel_IsMemberOf( Chan, From ))
 	{
-		is_member = TRUE;
-		if( strchr( Channel_UserModes( Chan, From ), 'v' )) has_voice = TRUE;
-		if( strchr( Channel_UserModes( Chan, From ), 'o' )) is_op = TRUE;
+		is_member = true;
+		if( strchr( Channel_UserModes( Chan, From ), 'v' )) has_voice = true;
+		if( strchr( Channel_UserModes( Chan, From ), 'o' )) is_op = true;
 	}
 
-	/* Check weather client is allowed to write to channel */
-	ok = TRUE;
-	if( strchr( Channel_Modes( Chan ), 'n' ) && ( ! is_member )) ok = FALSE;
-	if( strchr( Channel_Modes( Chan ), 'm' ) && ( ! is_op ) && ( ! has_voice )) ok = FALSE;
+	/* Is the client allowed to write to channel? */
+	ok = true;
+	if( strchr( Channel_Modes( Chan ), 'n' ) && ( ! is_member )) ok = false;
+	if( strchr( Channel_Modes( Chan ), 'm' ) && ( ! is_op ) && ( ! has_voice )) ok = false;
 	
 	/* Is the client banned? */
 	if( Lists_CheckBanned( From, Chan ))
 	{
 		/* Client is banned, bus is he channel operator or has voice? */
-		if(( ! has_voice ) && ( ! is_op )) ok = FALSE;
+		if(( ! has_voice ) && ( ! is_op )) ok = false;
 	}
 
 	if( ! ok ) return IRC_WriteStrClient( From, ERR_CANNOTSENDTOCHAN_MSG, Client_ID( From ), Channel_Name( Chan ));
 
 	/* Send text */
 	if( Client_Conn( From ) > NONE ) Conn_UpdateIdle( Client_Conn( From ));
-	return IRC_WriteStrChannelPrefix( Client, Chan, From, TRUE, "PRIVMSG %s :%s", Channel_Name( Chan ), Text );
+	return IRC_WriteStrChannelPrefix( Client, Chan, From, true, "PRIVMSG %s :%s", Channel_Name( Chan ), Text );
 } /* Channel_Write */
 
 
 GLOBAL CHANNEL *
-Channel_Create( CHAR *Name )
+Channel_Create( char *Name )
 {
-	/* Neue Channel-Struktur anlegen */
-
+	/* Create new CHANNEL structure and add it to linked list */
 	CHANNEL *c;
 
 	assert( Name != NULL );
@@ -714,16 +712,9 @@ Channel_Create( CHAR *Name )
 		Log( LOG_EMERG, "Can't allocate memory! [New_Chan]" );
 		return NULL;
 	}
-	c->next = NULL;
+	memset( c, 0, sizeof( CHANNEL ));
 	strlcpy( c->name, Name, sizeof( c->name ));
-	c->name[CHANNEL_NAME_LEN - 1] = '\0';
-	strcpy( c->modes, "" );
-	strcpy( c->topic, "" );
 	c->hash = Hash( c->name );
-	strcpy( c->key, "" );
-	c->maxusers = 0;
-
-	/* Verketten */
 	c->next = My_Channels;
 	My_Channels = c;
 	
@@ -780,8 +771,8 @@ Add_Client( CHANNEL *Chan, CLIENT *Client )
 } /* Add_Client */
 
 
-LOCAL BOOLEAN
-Remove_Client( INT Type, CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, CHAR *Reason, BOOLEAN InformServer )
+LOCAL bool
+Remove_Client( int Type, CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, char *Reason, bool InformServer )
 {
 	CL2CHAN *cl2chan, *last_cl2chan;
 	CHANNEL *c;
@@ -799,7 +790,7 @@ Remove_Client( INT Type, CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, CHAR *Re
 		last_cl2chan = cl2chan;
 		cl2chan = cl2chan->next;
 	}
-	if( ! cl2chan ) return FALSE;
+	if( ! cl2chan ) return false;
 
 	c = cl2chan->channel;
 	assert( c != NULL );
@@ -814,22 +805,22 @@ Remove_Client( INT Type, CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, CHAR *Re
 		case REMOVE_QUIT:
 			/* QUIT: andere Server wurden bereits informiert, vgl. Client_Destroy();
 			 * hier also "nur" noch alle User in betroffenen Channeln infomieren */
-			assert( InformServer == FALSE );
-			IRC_WriteStrChannelPrefix( Origin, c, Origin, FALSE, "QUIT :%s", Reason );
+			assert( InformServer == false );
+			IRC_WriteStrChannelPrefix( Origin, c, Origin, false, "QUIT :%s", Reason );
 			Log( LOG_DEBUG, "User \"%s\" left channel \"%s\" (%s).", Client_Mask( Client ), c->name, Reason );
 			break;
 		case REMOVE_KICK:
 			/* User wurde geKICKed: ggf. andere Server sowie alle betroffenen User
 			 * im entsprechenden Channel informieren */
 			if( InformServer ) IRC_WriteStrServersPrefix( Client_NextHop( Origin ), Origin, "KICK %s %s :%s", c->name, Client_ID( Client ), Reason );
-			IRC_WriteStrChannelPrefix( Client, c, Origin, FALSE, "KICK %s %s :%s", c->name, Client_ID( Client ), Reason );
+			IRC_WriteStrChannelPrefix( Client, c, Origin, false, "KICK %s %s :%s", c->name, Client_ID( Client ), Reason );
 			if(( Client_Conn( Client ) > NONE ) && ( Client_Type( Client ) == CLIENT_USER )) IRC_WriteStrClientPrefix( Client, Origin, "KICK %s %s :%s", c->name, Client_ID( Client ), Reason );
 			Log( LOG_DEBUG, "User \"%s\" has been kicked of \"%s\" by \"%s\": %s.", Client_Mask( Client ), c->name, Client_ID( Origin ), Reason );
 			break;
 		default:
 			/* PART */
 			if( InformServer ) IRC_WriteStrServersPrefix( Origin, Client, "PART %s :%s", c->name, Reason );
-			IRC_WriteStrChannelPrefix( Origin, c, Client, FALSE, "PART %s :%s", c->name, Reason );
+			IRC_WriteStrChannelPrefix( Origin, c, Client, false, "PART %s :%s", c->name, Reason );
 			if(( Client_Conn( Origin ) > NONE ) && ( Client_Type( Origin ) == CLIENT_USER )) IRC_WriteStrClientPrefix( Origin, Client, "PART %s :%s", c->name, Reason );
 			Log( LOG_DEBUG, "User \"%s\" left channel \"%s\" (%s).", Client_Mask( Client ), c->name, Reason );
 	}
@@ -840,7 +831,7 @@ Remove_Client( INT Type, CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, CHAR *Re
 		if( ! Get_First_Cl2Chan( NULL, Chan )) Delete_Channel( Chan );
 	}
 		
-	return TRUE;
+	return true;
 } /* Remove_Client */
 
 
@@ -869,7 +860,7 @@ Get_Next_Cl2Chan( CL2CHAN *Start, CLIENT *Client, CHANNEL *Channel )
 } /* Get_Next_Cl2Chan */
 
 
-LOCAL BOOLEAN
+LOCAL bool
 Delete_Channel( CHANNEL *Chan )
 {
 	/* Channel-Struktur loeschen */
@@ -884,7 +875,7 @@ Delete_Channel( CHANNEL *Chan )
 		last_chan = chan;
 		chan = chan->next;
 	}
-	if( ! chan ) return FALSE;
+	if( ! chan ) return false;
 
 	Log( LOG_DEBUG, "Freed channel structure for \"%s\".", Chan->name );
 
@@ -896,7 +887,7 @@ Delete_Channel( CHANNEL *Chan )
 	else My_Channels = chan->next;
 	free( chan );
 		
-	return TRUE;
+	return true;
 } /* Delete_Channel */
 
 

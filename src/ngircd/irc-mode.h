@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: irc-mode.h,v 1.5 2002/12/12 12:23:43 alex Exp $
+ * $Id: irc-mode.h,v 1.6 2005/03/19 18:43:48 fw Exp $
  *
  * IRC commands for mode changes (header)
  */
@@ -18,8 +18,8 @@
 #define __irc_mode_h__
 
 
-GLOBAL BOOLEAN IRC_MODE PARAMS((CLIENT *Client, REQUEST *Req ));
-GLOBAL BOOLEAN IRC_AWAY PARAMS((CLIENT *Client, REQUEST *Req ));
+GLOBAL bool IRC_MODE PARAMS((CLIENT *Client, REQUEST *Req ));
+GLOBAL bool IRC_AWAY PARAMS((CLIENT *Client, REQUEST *Req ));
 
 
 #endif

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc.c,v 1.124 2004/02/28 02:18:16 alex Exp $";
+static char UNUSED id[] = "$Id: irc.c,v 1.125 2005/03/19 18:43:49 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -38,10 +38,10 @@ static char UNUSED id[] = "$Id: irc.c,v 1.124 2004/02/28 02:18:16 alex Exp $";
 #include "irc.h"
 
 
-LOCAL CHAR *Option_String PARAMS(( CONN_ID Idx ));
+LOCAL char *Option_String PARAMS(( CONN_ID Idx ));
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_ERROR( CLIENT *Client, REQUEST *Req )
 {
 	assert( Client != NULL );
@@ -54,11 +54,11 @@ IRC_ERROR( CLIENT *Client, REQUEST *Req )
 } /* IRC_ERROR */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_KILL( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *prefix, *c;
-	CHAR reason[COMMAND_LEN];
+	char reason[COMMAND_LEN];
 	CONN_ID my_conn, conn;
 
 	assert( Client != NULL );
@@ -104,7 +104,7 @@ IRC_KILL( CLIENT *Client, REQUEST *Req )
 				Log( LOG_ERR, "Can't KILL server \"%s\"!", Req->argv[0] );
 				conn = Client_Conn( Client_NextHop( c ));
 				assert( conn > NONE );
-				Conn_Close( conn, NULL, "Nick collision for server!?", TRUE );
+				Conn_Close( conn, NULL, "Nick collision for server!?", true);
 			}
 		}
 		else if( Client_Type( c ) != CLIENT_USER  )
@@ -116,15 +116,15 @@ IRC_KILL( CLIENT *Client, REQUEST *Req )
 				Log( LOG_ERR, "Can't KILL \"%s\": invalid client type!", Req->argv[0] );
 				conn = Client_Conn( Client_NextHop( c ));
 				assert( conn > NONE );
-				Conn_Close( conn, NULL, "Collision for invalid client type!?", TRUE );
+				Conn_Close( conn, NULL, "Collision for invalid client type!?", true);
 			}
 		}
 		else
 		{
 			/* Kill user NOW! */
 			conn = Client_Conn( c );
-			Client_Destroy( c, NULL, reason, FALSE );
-			if( conn != NONE ) Conn_Close( conn, NULL, reason, TRUE );
+			Client_Destroy( c, NULL, reason, false );
+			if( conn != NONE ) Conn_Close( conn, NULL, reason, true);
 		}
 	}
 	else Log( LOG_NOTICE, "Client with nick \"%s\" is unknown here.", Req->argv[0] );
@@ -135,7 +135,7 @@ IRC_KILL( CLIENT *Client, REQUEST *Req )
 } /* IRC_KILL */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_NOTICE( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *to, *from;
@@ -162,7 +162,7 @@ IRC_NOTICE( CLIENT *Client, REQUEST *Req )
 } /* IRC_NOTICE */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_PRIVMSG( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *cl, *from;
@@ -205,12 +205,12 @@ IRC_PRIVMSG( CLIENT *Client, REQUEST *Req )
 } /* IRC_PRIVMSG */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_TRACE( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *from, *target, *c;
 	CONN_ID idx, idx2;
-	CHAR user[CLIENT_USER_LEN];
+	char user[CLIENT_USER_LEN];
 
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -270,7 +270,7 @@ IRC_TRACE( CLIENT *Client, REQUEST *Req )
 } /* IRC_TRACE */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_HELP( CLIENT *Client, REQUEST *Req )
 {
 	COMMAND *cmd;
@@ -293,11 +293,11 @@ IRC_HELP( CLIENT *Client, REQUEST *Req )
 } /* IRC_HELP */
 
 
-LOCAL CHAR *
+LOCAL char *
 Option_String( CONN_ID Idx )
 {
-	STATIC CHAR option_txt[8];
-	INT options;
+	static char option_txt[8];
+	int options;
 
 	options = Conn_Options( Idx );
 

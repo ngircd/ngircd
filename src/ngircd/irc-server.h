@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: irc-server.h,v 1.4 2002/12/12 12:23:43 alex Exp $
+ * $Id: irc-server.h,v 1.5 2005/03/19 18:43:49 fw Exp $
  *
  * IRC commands for server links (header)
  */
@@ -18,9 +18,9 @@
 #define __irc_server_h__
 
 
-GLOBAL BOOLEAN IRC_SERVER PARAMS((CLIENT *Client, REQUEST *Req ));
-GLOBAL BOOLEAN IRC_NJOIN PARAMS((CLIENT *Client, REQUEST *Req ));
-GLOBAL BOOLEAN IRC_SQUIT PARAMS((CLIENT *Client, REQUEST *Req ));
+GLOBAL bool IRC_SERVER PARAMS((CLIENT *Client, REQUEST *Req ));
+GLOBAL bool IRC_NJOIN PARAMS((CLIENT *Client, REQUEST *Req ));
+GLOBAL bool IRC_SQUIT PARAMS((CLIENT *Client, REQUEST *Req ));
 
 
 #endif

@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: defines.h,v 1.50 2005/03/02 16:35:11 alex Exp $
+ * $Id: defines.h,v 1.51 2005/03/19 18:43:48 fw Exp $
  *
  * Global defines of ngIRCd.
  */
@@ -76,8 +76,8 @@
 #define USERMODES "aios"		/* supported user modes */
 #define CHANMODES "biklImnoPstv"	/* supported channel modes */
 
-#define CONNECTED TRUE			/* internal status codes */
-#define DISCONNECTED FALSE
+#define CONNECTED true			/* internal status codes */
+#define DISCONNECTED false
 
 #define DEFAULT_AWAY_MSG "Away"		/* away message for users connected to linked servers */
 

@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: log.h,v 1.15 2005/02/10 12:49:04 alex Exp $
+ * $Id: log.h,v 1.16 2005/03/19 18:43:49 fw Exp $
  *
  * Logging functions (header)
  */
@@ -35,18 +35,18 @@
 #define LOG_snotice 1024
 
 
-GLOBAL VOID Log_Init PARAMS((VOID ));
-GLOBAL VOID Log_Exit PARAMS((VOID ));
+GLOBAL void Log_Init PARAMS((void ));
+GLOBAL void Log_Exit PARAMS((void ));
 
-GLOBAL VOID Log PARAMS((INT Level, CONST CHAR *Format, ... ));
+GLOBAL void Log PARAMS((int Level, const char *Format, ... ));
 
-GLOBAL VOID Log_Init_Resolver PARAMS((VOID ));
-GLOBAL VOID Log_Exit_Resolver PARAMS((VOID ));
+GLOBAL void Log_Init_Resolver PARAMS((void ));
+GLOBAL void Log_Exit_Resolver PARAMS((void ));
 
-GLOBAL VOID Log_Resolver PARAMS((CONST INT Level, CONST CHAR *Format, ... ));
+GLOBAL void Log_Resolver PARAMS((const int Level, const char *Format, ... ));
 
 #ifdef DEBUG
-GLOBAL VOID Log_InitErrorfile PARAMS((VOID ));
+GLOBAL void Log_InitErrorfile PARAMS((void ));
 #endif
 
 

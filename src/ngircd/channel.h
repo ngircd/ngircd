@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: channel.h,v 1.26 2002/12/16 23:05:24 alex Exp $
+ * $Id: channel.h,v 1.27 2005/03/19 18:43:48 fw Exp $
  *
  * Channel management (header)
  */
@@ -25,12 +25,12 @@
 typedef struct _CHANNEL
 {
 	struct _CHANNEL *next;
-	CHAR name[CHANNEL_NAME_LEN];	/* Name of the channel */
+	char name[CHANNEL_NAME_LEN];	/* Name of the channel */
 	UINT32 hash;			/* Hash of the (lowecase!) name */
-	CHAR modes[CHANNEL_MODE_LEN];	/* Channel modes */
-	CHAR topic[CHANNEL_TOPIC_LEN];	/* Topic of the channel */
-	CHAR key[CLIENT_PASS_LEN];	/* Channel key ("password", mode "k" ) */
-	LONG maxusers;			/* Maximum number of members (mode "l") */
+	char modes[CHANNEL_MODE_LEN];	/* Channel modes */
+	char topic[CHANNEL_TOPIC_LEN];	/* Topic of the channel */
+	char key[CLIENT_PASS_LEN];	/* Channel key ("password", mode "k" ) */
+	long maxusers;			/* Maximum number of members (mode "l") */
 } CHANNEL;
 
 typedef struct _CLIENT2CHAN
@@ -38,7 +38,7 @@ typedef struct _CLIENT2CHAN
 	struct _CLIENT2CHAN *next;
 	CLIENT *client;
 	CHANNEL *channel;
-	CHAR modes[CHANNEL_MODE_LEN];	/* User-Modes in dem Channel */
+	char modes[CHANNEL_MODE_LEN];	/* User-Modes in dem Channel */
 } CL2CHAN;
 
 #else
@@ -49,36 +49,36 @@ typedef POINTER CL2CHAN;
 #endif
 
 
-GLOBAL VOID Channel_Init PARAMS(( VOID ));
-GLOBAL VOID Channel_InitPredefined PARAMS((  VOID ));
-GLOBAL VOID Channel_Exit PARAMS(( VOID ));
+GLOBAL void Channel_Init PARAMS(( void ));
+GLOBAL void Channel_InitPredefined PARAMS((  void ));
+GLOBAL void Channel_Exit PARAMS(( void ));
 
-GLOBAL BOOLEAN Channel_Join PARAMS(( CLIENT *Client, CHAR *Name ));
-GLOBAL BOOLEAN Channel_Part PARAMS(( CLIENT *Client, CLIENT *Origin, CHAR *Name, CHAR *Reason ));
+GLOBAL bool Channel_Join PARAMS(( CLIENT *Client, char *Name ));
+GLOBAL bool Channel_Part PARAMS(( CLIENT *Client, CLIENT *Origin, char *Name, char *Reason ));
 
-GLOBAL VOID Channel_Quit PARAMS(( CLIENT *Client, CHAR *Reason ));
+GLOBAL void Channel_Quit PARAMS(( CLIENT *Client, char *Reason ));
 
-GLOBAL VOID Channel_Kick PARAMS((  CLIENT *Client, CLIENT *Origin, CHAR *Name, CHAR *Reason ));
+GLOBAL void Channel_Kick PARAMS((  CLIENT *Client, CLIENT *Origin, char *Name, char *Reason ));
 
-GLOBAL LONG Channel_Count PARAMS(( VOID ));
-GLOBAL LONG Channel_MemberCount PARAMS(( CHANNEL *Chan ));
-GLOBAL INT Channel_CountForUser PARAMS(( CLIENT *Client ));
-GLOBAL INT Channel_PCount PARAMS(( VOID ));
+GLOBAL long Channel_Count PARAMS(( void ));
+GLOBAL long Channel_MemberCount PARAMS(( CHANNEL *Chan ));
+GLOBAL int Channel_CountForUser PARAMS(( CLIENT *Client ));
+GLOBAL int Channel_PCount PARAMS(( void ));
 
-GLOBAL CHAR *Channel_Name PARAMS(( CHANNEL *Chan ));
-GLOBAL CHAR *Channel_Modes PARAMS(( CHANNEL *Chan ));
-GLOBAL CHAR *Channel_Topic PARAMS(( CHANNEL *Chan ));
-GLOBAL CHAR *Channel_Key PARAMS(( CHANNEL *Chan ));
-GLOBAL LONG Channel_MaxUsers PARAMS(( CHANNEL *Chan ));
+GLOBAL char *Channel_Name PARAMS(( CHANNEL *Chan ));
+GLOBAL char *Channel_Modes PARAMS(( CHANNEL *Chan ));
+GLOBAL char *Channel_Topic PARAMS(( CHANNEL *Chan ));
+GLOBAL char *Channel_Key PARAMS(( CHANNEL *Chan ));
+GLOBAL long Channel_MaxUsers PARAMS(( CHANNEL *Chan ));
 
-GLOBAL VOID Channel_SetTopic PARAMS(( CHANNEL *Chan, CHAR *Topic ));
-GLOBAL VOID Channel_SetModes PARAMS(( CHANNEL *Chan, CHAR *Modes ));
-GLOBAL VOID Channel_SetKey PARAMS(( CHANNEL *Chan, CHAR *Key ));
-GLOBAL VOID Channel_SetMaxUsers PARAMS(( CHANNEL *Chan, LONG Count ));
+GLOBAL void Channel_SetTopic PARAMS(( CHANNEL *Chan, char *Topic ));
+GLOBAL void Channel_SetModes PARAMS(( CHANNEL *Chan, char *Modes ));
+GLOBAL void Channel_SetKey PARAMS(( CHANNEL *Chan, char *Key ));
+GLOBAL void Channel_SetMaxUsers PARAMS(( CHANNEL *Chan, long Count ));
 
-GLOBAL CHANNEL *Channel_Search PARAMS(( CHAR *Name ));
+GLOBAL CHANNEL *Channel_Search PARAMS(( char *Name ));
 
-GLOBAL CHANNEL *Channel_First PARAMS(( VOID ));
+GLOBAL CHANNEL *Channel_First PARAMS(( void ));
 GLOBAL CHANNEL *Channel_Next PARAMS(( CHANNEL *Chan ));
 
 GLOBAL CL2CHAN *Channel_FirstMember PARAMS(( CHANNEL *Chan ));
@@ -89,20 +89,20 @@ GLOBAL CL2CHAN *Channel_NextChannelOf PARAMS(( CLIENT *Client, CL2CHAN *Cl2Chan 
 GLOBAL CLIENT *Channel_GetClient PARAMS(( CL2CHAN *Cl2Chan ));
 GLOBAL CHANNEL *Channel_GetChannel PARAMS(( CL2CHAN *Cl2Chan ));
 
-GLOBAL BOOLEAN Channel_IsValidName PARAMS(( CHAR *Name ));
+GLOBAL bool Channel_IsValidName PARAMS(( char *Name ));
 
-GLOBAL BOOLEAN Channel_ModeAdd PARAMS(( CHANNEL *Chan, CHAR Mode ));
-GLOBAL BOOLEAN Channel_ModeDel PARAMS(( CHANNEL *Chan, CHAR Mode ));
+GLOBAL bool Channel_ModeAdd PARAMS(( CHANNEL *Chan, char Mode ));
+GLOBAL bool Channel_ModeDel PARAMS(( CHANNEL *Chan, char Mode ));
 
-GLOBAL BOOLEAN Channel_UserModeAdd PARAMS(( CHANNEL *Chan, CLIENT *Client, CHAR Mode ));
-GLOBAL BOOLEAN Channel_UserModeDel PARAMS(( CHANNEL *Chan, CLIENT *Client, CHAR Mode ));
-GLOBAL CHAR *Channel_UserModes PARAMS(( CHANNEL *Chan, CLIENT *Client ));
+GLOBAL bool Channel_UserModeAdd PARAMS(( CHANNEL *Chan, CLIENT *Client, char Mode ));
+GLOBAL bool Channel_UserModeDel PARAMS(( CHANNEL *Chan, CLIENT *Client, char Mode ));
+GLOBAL char *Channel_UserModes PARAMS(( CHANNEL *Chan, CLIENT *Client ));
 
-GLOBAL BOOLEAN Channel_IsMemberOf PARAMS(( CHANNEL *Chan, CLIENT *Client ));
+GLOBAL bool Channel_IsMemberOf PARAMS(( CHANNEL *Chan, CLIENT *Client ));
 
-GLOBAL BOOLEAN Channel_Write PARAMS(( CHANNEL *Chan, CLIENT *From, CLIENT *Client, CHAR *Text ));
+GLOBAL bool Channel_Write PARAMS(( CHANNEL *Chan, CLIENT *From, CLIENT *Client, char *Text ));
 
-GLOBAL CHANNEL *Channel_Create PARAMS(( CHAR *Name ));
+GLOBAL CHANNEL *Channel_Create PARAMS(( char *Name ));
 
 
 #endif

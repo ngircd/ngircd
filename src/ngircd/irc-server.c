@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-server.c,v 1.37 2004/05/11 00:01:11 alex Exp $";
+static char UNUSED id[] = "$Id: irc-server.c,v 1.38 2005/03/19 18:43:49 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -41,15 +41,15 @@ static char UNUSED id[] = "$Id: irc-server.c,v 1.37 2004/05/11 00:01:11 alex Exp
 #include "irc-server.h"
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_SERVER( CLIENT *Client, REQUEST *Req )
 {
-	CHAR str[LINE_LEN], *ptr, *modes, *topic;
+	char str[LINE_LEN], *ptr, *modes, *topic;
 	CLIENT *from, *c, *cl;
 	CL2CHAN *cl2chan;
-	INT max_hops, i;
+	int max_hops, i;
 	CHANNEL *chan;
-	BOOLEAN ok;
+	bool ok;
 	CONN_ID con;
 	
 	assert( Client != NULL );
@@ -72,14 +72,14 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 		{
 			/* Server ist nicht konfiguriert! */
 			Log( LOG_ERR, "Connection %d: Server \"%s\" not configured here!", Client_Conn( Client ), Req->argv[0] );
-			Conn_Close( Client_Conn( Client ), NULL, "Server not configured here", TRUE );
+			Conn_Close( Client_Conn( Client ), NULL, "Server not configured here", true);
 			return DISCONNECTED;
 		}
 		if( strcmp( Client_Password( Client ), Conf_Server[i].pwd_in ) != 0 )
 		{
 			/* Falsches Passwort */
 			Log( LOG_ERR, "Connection %d: Got bad password from server \"%s\"!", Client_Conn( Client ), Req->argv[0] );
-			Conn_Close( Client_Conn( Client ), NULL, "Bad password", TRUE );
+			Conn_Close( Client_Conn( Client ), NULL, "Bad password", true);
 			return DISCONNECTED;
 		}
 		
@@ -97,12 +97,12 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 		if( Client_Token( Client ) != TOKEN_OUTBOUND )
 		{
 			/* Eingehende Verbindung: Unseren SERVER- und PASS-Befehl senden */
-			ok = TRUE;
-			if( ! IRC_WriteStrClient( Client, "PASS %s %s", Conf_Server[i].pwd_out, NGIRCd_ProtoID )) ok = FALSE;
+			ok = true;
+			if( ! IRC_WriteStrClient( Client, "PASS %s %s", Conf_Server[i].pwd_out, NGIRCd_ProtoID )) ok = false;
 			else ok = IRC_WriteStrClient( Client, "SERVER %s 1 :%s", Conf_ServerName, Conf_ServerInfo );
 			if( ! ok )
 			{
-				Conn_Close( con, "Unexpected server behavior!", NULL, FALSE );
+				Conn_Close( con, "Unexpected server behavior!", NULL, false );
 				return DISCONNECTED;
 			}
 			Client_SetIntroducer( Client, Client );
@@ -127,7 +127,7 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 			if( ! Zip_InitConn( con ))
 			{
 				/* Fehler! */
-				Conn_Close( con, "Can't inizialize compression (zlib)!", NULL, FALSE );
+				Conn_Close( con, "Can't inizialize compression (zlib)!", NULL, false );
 				return DISCONNECTED;
 			}
 		}
@@ -281,17 +281,17 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 		{
 			/* Hm, Server, der diesen einfuehrt, ist nicht bekannt!? */
 			Log( LOG_ALERT, "Unknown ID in prefix of SERVER: \"%s\"! (on connection %d)", Req->prefix, Client_Conn( Client ));
-			Conn_Close( Client_Conn( Client ), NULL, "Unknown ID in prefix of SERVER", TRUE );
+			Conn_Close( Client_Conn( Client ), NULL, "Unknown ID in prefix of SERVER", true);
 			return DISCONNECTED;
 		}
 
 		/* Neue Client-Struktur anlegen */
-		c = Client_NewRemoteServer( Client, Req->argv[0], from, atoi( Req->argv[1] ), atoi( Req->argv[2] ), ptr, TRUE );
+		c = Client_NewRemoteServer( Client, Req->argv[0], from, atoi( Req->argv[1] ), atoi( Req->argv[2] ), ptr, true);
 		if( ! c )
 		{
 			/* Neue Client-Struktur konnte nicht angelegt werden */
 			Log( LOG_ALERT, "Can't create client structure for server! (on connection %d)", Client_Conn( Client ));
-			Conn_Close( Client_Conn( Client ), NULL, "Can't allocate client structure for remote server", TRUE );
+			Conn_Close( Client_Conn( Client ), NULL, "Can't allocate client structure for remote server", true);
 			return DISCONNECTED;
 		}
 
@@ -309,11 +309,11 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 } /* IRC_SERVER */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 {
-	CHAR nick_in[COMMAND_LEN], nick_out[COMMAND_LEN], *channame, *ptr, modes[8];
-	BOOLEAN is_op, is_voiced;
+	char nick_in[COMMAND_LEN], nick_out[COMMAND_LEN], *channame, *ptr, modes[8];
+	bool is_op, is_voiced;
 	CHANNEL *chan;
 	CLIENT *c;
 	
@@ -330,13 +330,13 @@ IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 	ptr = strtok( nick_in, "," );
 	while( ptr )
 	{
-		is_op = is_voiced = FALSE;
+		is_op = is_voiced = false;
 		
 		/* Prefixe abschneiden */
 		while(( *ptr == '@' ) || ( *ptr == '+' ))
 		{
-			if( *ptr == '@' ) is_op = TRUE;
-			if( *ptr == '+' ) is_voiced = TRUE;
+			if( *ptr == '@' ) is_op = true;
+			if( *ptr == '+' ) is_voiced = true;
 			ptr++;
 		}
 
@@ -351,14 +351,14 @@ IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 			if( is_voiced ) Channel_UserModeAdd( chan, c, 'v' );
 
 			/* im Channel bekannt machen */
-			IRC_WriteStrChannelPrefix( Client, chan, c, FALSE, "JOIN :%s", channame );
+			IRC_WriteStrChannelPrefix( Client, chan, c, false, "JOIN :%s", channame );
 
 			/* Channel-User-Modes setzen */
 			strlcpy( modes, Channel_UserModes( chan, c ), sizeof( modes ));
 			if( modes[0] )
 			{
 				/* Modes im Channel bekannt machen */
-				IRC_WriteStrChannelPrefix( Client, chan, Client, FALSE, "MODE %s +%s %s", channame, modes, Client_ID( c ));
+				IRC_WriteStrChannelPrefix( Client, chan, Client, false, "MODE %s +%s %s", channame, modes, Client_ID( c ));
 			}
 
 			if( nick_out[0] != '\0' ) strlcat( nick_out, ",", sizeof( nick_out ));
@@ -379,11 +379,11 @@ IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 } /* IRC_NJOIN */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_SQUIT( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *target;
-	CHAR msg[LINE_LEN + 64];
+	char msg[LINE_LEN + 64];
 
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -411,14 +411,14 @@ IRC_SQUIT( CLIENT *Client, REQUEST *Req )
 	if( Client_Conn( target ) > NONE )
 	{
 		/* dieser Server hat die Connection */
-		if( Req->argv[1][0] ) Conn_Close( Client_Conn( target ), msg, Req->argv[1], TRUE );
-		else Conn_Close( Client_Conn( target ), msg, NULL, TRUE );
+		if( Req->argv[1][0] ) Conn_Close( Client_Conn( target ), msg, Req->argv[1], true);
+		else Conn_Close( Client_Conn( target ), msg, NULL, true);
 		return DISCONNECTED;
 	}
 	else
 	{
 		/* Verbindung hielt anderer Server */
-		Client_Destroy( target, msg, Req->argv[1], FALSE );
+		Client_Destroy( target, msg, Req->argv[1], false );
 		return CONNECTED;
 	}
 } /* IRC_SQUIT */

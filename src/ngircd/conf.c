@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.71 2005/03/19 15:46:38 fw Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.72 2005/03/19 18:43:48 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -50,60 +50,60 @@ static char UNUSED id[] = "$Id: conf.c,v 1.71 2005/03/19 15:46:38 fw Exp $";
 #include "conf.h"
 
 
-LOCAL BOOLEAN Use_Log = TRUE;
+LOCAL bool Use_Log = true;
 LOCAL CONF_SERVER New_Server;
-LOCAL INT New_Server_Idx;
+LOCAL int New_Server_Idx;
 
 
-LOCAL VOID Set_Defaults PARAMS(( BOOLEAN InitServers ));
-LOCAL VOID Read_Config PARAMS(( VOID ));
-LOCAL VOID Validate_Config PARAMS(( BOOLEAN TestOnly ));
+LOCAL void Set_Defaults PARAMS(( bool InitServers ));
+LOCAL void Read_Config PARAMS(( void ));
+LOCAL void Validate_Config PARAMS(( bool TestOnly ));
 
-LOCAL VOID Handle_GLOBAL PARAMS(( INT Line, CHAR *Var, CHAR *Arg ));
-LOCAL VOID Handle_OPERATOR PARAMS(( INT Line, CHAR *Var, CHAR *Arg ));
-LOCAL VOID Handle_SERVER PARAMS(( INT Line, CHAR *Var, CHAR *Arg ));
-LOCAL VOID Handle_CHANNEL PARAMS(( INT Line, CHAR *Var, CHAR *Arg ));
+LOCAL void Handle_GLOBAL PARAMS(( int Line, char *Var, char *Arg ));
+LOCAL void Handle_OPERATOR PARAMS(( int Line, char *Var, char *Arg ));
+LOCAL void Handle_SERVER PARAMS(( int Line, char *Var, char *Arg ));
+LOCAL void Handle_CHANNEL PARAMS(( int Line, char *Var, char *Arg ));
 
-LOCAL VOID Config_Error PARAMS(( CONST INT Level, CONST CHAR *Format, ... ));
+LOCAL void Config_Error PARAMS(( const int Level, const char *Format, ... ));
 
-LOCAL VOID Config_Error_NaN PARAMS(( const int LINE, const char *Value ));
-LOCAL VOID Config_Error_TooLong PARAMS(( const int LINE, const char *Value ));
+LOCAL void Config_Error_NaN PARAMS(( const int LINE, const char *Value ));
+LOCAL void Config_Error_TooLong PARAMS(( const int LINE, const char *Value ));
 
-LOCAL VOID Init_Server_Struct PARAMS(( CONF_SERVER *Server ));
+LOCAL void Init_Server_Struct PARAMS(( CONF_SERVER *Server ));
 
 
-GLOBAL VOID
-Conf_Init( VOID )
+GLOBAL void
+Conf_Init( void )
 {
-	Set_Defaults( TRUE );
+	Set_Defaults( true );
 	Read_Config( );
-	Validate_Config( FALSE );
+	Validate_Config( false );
 } /* Config_Init */
 
 
-GLOBAL VOID
-Conf_Rehash( VOID )
+GLOBAL void
+Conf_Rehash( void )
 {
-	Set_Defaults( FALSE );
+	Set_Defaults( false );
 	Read_Config( );
-	Validate_Config( FALSE );
+	Validate_Config( false );
 } /* Config_Rehash */
 
 
-GLOBAL INT
-Conf_Test( VOID )
+GLOBAL int
+Conf_Test( void )
 {
 	/* Read configuration, validate and output it. */
 
 	struct passwd *pwd;
 	struct group *grp;
-	INT i;
+	int i;
 
-	Use_Log = FALSE;
-	Set_Defaults( TRUE );
+	Use_Log = false;
+	Set_Defaults( true );
 
 	Read_Config( );
-	Validate_Config( TRUE );
+	Validate_Config( true );
 
 	/* If stdin is a valid tty wait for a key: */
 	if( isatty( fileno( stdout )))
@@ -134,15 +134,15 @@ Conf_Test( VOID )
 	printf( "  Listen = %s\n", Conf_ListenAddress );
 	pwd = getpwuid( Conf_UID );
 	if( pwd ) printf( "  ServerUID = %s\n", pwd->pw_name );
-	else printf( "  ServerUID = %ld\n", (LONG)Conf_UID );
+	else printf( "  ServerUID = %ld\n", (long)Conf_UID );
 	grp = getgrgid( Conf_GID );
 	if( grp ) printf( "  ServerGID = %s\n", grp->gr_name );
-	else printf( "  ServerGID = %ld\n", (LONG)Conf_GID );
+	else printf( "  ServerGID = %ld\n", (long)Conf_GID );
 	printf( "  PingTimeout = %d\n", Conf_PingTimeout );
 	printf( "  PongTimeout = %d\n", Conf_PongTimeout );
 	printf( "  ConnectRetry = %d\n", Conf_ConnectRetry );
-	printf( "  OperCanUseMode = %s\n", Conf_OperCanMode == TRUE ? "yes" : "no" );
-	printf( "  OperServerMode = %s\n", Conf_OperServerMode == TRUE ? "yes" : "no" );
+	printf( "  OperCanUseMode = %s\n", Conf_OperCanMode == true? "yes" : "no" );
+	printf( "  OperServerMode = %s\n", Conf_OperServerMode == true? "yes" : "no" );
 	if( Conf_MaxConnections > 0 ) printf( "  MaxConnections = %ld\n", Conf_MaxConnections );
 	else printf( "  MaxConnections = -1\n" );
 	if( Conf_MaxConnectionsIP > 0 ) printf( "  MaxConnectionsIP = %d\n", Conf_MaxConnectionsIP );
@@ -194,7 +194,7 @@ Conf_Test( VOID )
 } /* Conf_Test */
 
 
-GLOBAL VOID
+GLOBAL void
 Conf_UnsetServer( CONN_ID Idx )
 {
 	/* Set next time for next connection attempt, if this is a server
@@ -202,7 +202,7 @@ Conf_UnsetServer( CONN_ID Idx )
 	 * "once", delete it from our configuration.
 	 * Non-Server-Connections will be silently ignored. */
 
-	INT i;
+	int i;
 
 	/* Check all our configured servers */
 	for( i = 0; i < MAX_SERVERS; i++ )
@@ -230,8 +230,8 @@ Conf_UnsetServer( CONN_ID Idx )
 } /* Conf_UnsetServer */
 
 
-GLOBAL VOID
-Conf_SetServer( INT ConfServer, CONN_ID Idx )
+GLOBAL void
+Conf_SetServer( int ConfServer, CONN_ID Idx )
 {
 	/* Set connection for specified configured server */
 
@@ -242,12 +242,12 @@ Conf_SetServer( INT ConfServer, CONN_ID Idx )
 } /* Conf_SetServer */
 
 
-GLOBAL INT
+GLOBAL int
 Conf_GetServer( CONN_ID Idx )
 {
 	/* Get index of server in configuration structure */
 	
-	INT i = 0;
+	int i = 0;
 	
 	assert( Idx > NONE );
 
@@ -259,12 +259,12 @@ Conf_GetServer( CONN_ID Idx )
 } /* Conf_GetServer */
 
 
-GLOBAL BOOLEAN
-Conf_EnableServer( CHAR *Name, INT Port )
+GLOBAL bool
+Conf_EnableServer( char *Name, UINT16 Port )
 {
 	/* Enable specified server and adjust port */
 
-	INT i;
+	int i;
 
 	assert( Name != NULL );
 
@@ -275,19 +275,19 @@ Conf_EnableServer( CHAR *Name, INT Port )
 			/* Gotcha! Set port and enable server: */
 			Conf_Server[i].port = Port;
 			Conf_Server[i].flags &= ~CONF_SFLAG_DISABLED;
-			return TRUE;
+			return true;
 		}
 	}
-	return FALSE;
+	return false;
 } /* Conf_EnableServer */
 
 
-GLOBAL BOOLEAN
-Conf_DisableServer( CHAR *Name )
+GLOBAL bool
+Conf_DisableServer( char *Name )
 {
 	/* Enable specified server and adjust port */
 
-	INT i;
+	int i;
 
 	assert( Name != NULL );
 
@@ -297,20 +297,20 @@ Conf_DisableServer( CHAR *Name )
 		{
 			/* Gotcha! Disable and disconnect server: */
 			Conf_Server[i].flags |= CONF_SFLAG_DISABLED;
-			if( Conf_Server[i].conn_id > NONE ) Conn_Close( Conf_Server[i].conn_id, NULL, "Server link terminated on operator request", TRUE );
-			return TRUE;
+			if( Conf_Server[i].conn_id > NONE ) Conn_Close( Conf_Server[i].conn_id, NULL, "Server link terminated on operator request", true);
+			return true;
 		}
 	}
-	return FALSE;
+	return false;
 } /* Conf_DisableServer */
 
 
-GLOBAL BOOLEAN
-Conf_AddServer( CHAR *Name, INT Port, CHAR *Host, CHAR *MyPwd, CHAR *PeerPwd )
+GLOBAL bool
+Conf_AddServer( char *Name, UINT16 Port, char *Host, char *MyPwd, char *PeerPwd )
 {
 	/* Add new server to configuration */
 
-	INT i;
+	int i;
 
 	assert( Name != NULL );
 	assert( Host != NULL );
@@ -323,7 +323,7 @@ Conf_AddServer( CHAR *Name, INT Port, CHAR *Host, CHAR *MyPwd, CHAR *PeerPwd )
 		/* Is this item used? */
 		if( ! Conf_Server[i].name[0] ) break;
 	}
-	if( i >= MAX_SERVERS ) return FALSE;
+	if( i >= MAX_SERVERS ) return false;
 
 	Init_Server_Struct( &Conf_Server[i] );
 	strlcpy( Conf_Server[i].name, Name, sizeof( Conf_Server[i].name ));
@@ -333,16 +333,16 @@ Conf_AddServer( CHAR *Name, INT Port, CHAR *Host, CHAR *MyPwd, CHAR *PeerPwd )
 	Conf_Server[i].port = Port;
 	Conf_Server[i].flags = CONF_SFLAG_ONCE;
 	
-	return TRUE;
+	return true;
 } /* Conf_AddServer */
 
 
-LOCAL VOID
-Set_Defaults( BOOLEAN InitServers )
+LOCAL void
+Set_Defaults( bool InitServers )
 {
 	/* Initialize configuration variables with default values. */
 
-	INT i;
+	int i;
 
 	strcpy( Conf_ServerName, "" );
 	sprintf( Conf_ServerInfo, "%s %s", PACKAGE_NAME, PACKAGE_VERSION );
@@ -374,8 +374,8 @@ Set_Defaults( BOOLEAN InitServers )
 	Conf_Oper_Count = 0;
 	Conf_Channel_Count = 0;
 
-	Conf_OperCanMode = FALSE;
-	Conf_OperServerMode = FALSE;
+	Conf_OperCanMode = false;
+	Conf_OperServerMode = false;
 	
 	Conf_MaxConnections = -1;
 	Conf_MaxConnectionsIP = 5;
@@ -386,13 +386,13 @@ Set_Defaults( BOOLEAN InitServers )
 } /* Set_Defaults */
 
 
-LOCAL VOID
-Read_Config( VOID )
+LOCAL void
+Read_Config( void )
 {
 	/* Read configuration file. */
 
-	CHAR section[LINE_LEN], str[LINE_LEN], *var, *arg, *ptr;
-	INT line, i, n;
+	char section[LINE_LEN], str[LINE_LEN], *var, *arg, *ptr;
+	int line, i, n;
 	FILE *fd;
 
 	/* Open configuration file */
@@ -449,7 +449,7 @@ Read_Config( VOID )
 	New_Server_Idx = NONE;
 
 	/* Read configuration file */
-	while( TRUE )
+	while( true )
 	{
 		if( ! fgets( str, LINE_LEN, fd )) break;
 		ngt_TrimStr( str );
@@ -563,24 +563,24 @@ Read_Config( VOID )
 } /* Read_Config */
 
 
-LOCAL BOOLEAN
+LOCAL bool
 Check_ArgIsTrue( const char *Arg )
 {
-	if( strcasecmp( Arg, "yes" ) == 0 ) return TRUE;
-	if( strcasecmp( Arg, "true" ) == 0 ) return TRUE;
-	if( atoi( Arg ) != 0 ) return TRUE;
+	if( strcasecmp( Arg, "yes" ) == 0 ) return true;
+	if( strcasecmp( Arg, "true" ) == 0 ) return true;
+	if( atoi( Arg ) != 0 ) return true;
 
-	return FALSE;
+	return false;
 } /* Check_ArgIsTrue */
 
 
-LOCAL VOID
-Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
+LOCAL void
+Handle_GLOBAL( int Line, char *Var, char *Arg )
 {
 	struct passwd *pwd;
 	struct group *grp;
-	CHAR *ptr;
-	LONG port;
+	char *ptr;
+	long port;
 	
 	assert( Line > 0 );
 	assert( Var != NULL );
@@ -640,7 +640,7 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 			if( Conf_ListenPorts_Count + 1 > MAX_LISTEN_PORTS ) Config_Error( LOG_ERR, "Too many listen ports configured. Port %ld ignored.", port );
 			else
 			{
-				if( port > 0 && port < 0xFFFF ) Conf_ListenPorts[Conf_ListenPorts_Count++] = (UINT)port;
+				if( port > 0 && port < 0xFFFF ) Conf_ListenPorts[Conf_ListenPorts_Count++] = (UINT16)port;
 				else Config_Error( LOG_ERR, "%s, line %d (section \"Global\"): Illegal port number %ld!", NGIRCd_ConfFile, Line, port );
 			}
 			ptr = strtok( NULL, "," );
@@ -689,10 +689,10 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 		else
 		{
 #ifdef HAVE_ISDIGIT
-			if( ! isdigit( (INT)*Arg )) Config_Error_NaN( Line, Var );
+			if( ! isdigit( (int)*Arg )) Config_Error_NaN( Line, Var );
 			else
 #endif
-			Conf_UID = (UINT)atoi( Arg );
+			Conf_UID = (unsigned int)atoi( Arg );
 		}
 		return;
 	}
@@ -704,10 +704,10 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 		else
 		{
 #ifdef HAVE_ISDIGIT
-			if( ! isdigit( (INT)*Arg )) Config_Error_NaN( Line, Var );
+			if( ! isdigit( (int)*Arg )) Config_Error_NaN( Line, Var );
 			else
 #endif
-			Conf_GID = (UINT)atoi( Arg );
+			Conf_GID = (unsigned int)atoi( Arg );
 		}
 		return;
 	}
@@ -760,7 +760,7 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 	{
 		/* Maximum number of connections. Values <= 0 are equal to "no limit". */
 #ifdef HAVE_ISDIGIT
-		if( ! isdigit( (INT)*Arg )) Config_Error_NaN( Line, Var);
+		if( ! isdigit( (int)*Arg )) Config_Error_NaN( Line, Var);
 		else
 #endif
 		Conf_MaxConnections = atol( Arg );
@@ -770,7 +770,7 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 	{
 		/* Maximum number of simoultanous connections from one IP. Values <= 0 are equal to "no limit". */
 #ifdef HAVE_ISDIGIT
-		if( ! isdigit( (INT)*Arg )) Config_Error_NaN( Line, Var );
+		if( ! isdigit( (int)*Arg )) Config_Error_NaN( Line, Var );
 		else
 #endif
 		Conf_MaxConnectionsIP = atoi( Arg );
@@ -780,7 +780,7 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 	{
 		/* Maximum number of channels a user can join. Values <= 0 are equal to "no limit". */
 #ifdef HAVE_ISDIGIT
-		if( ! isdigit( (INT)*Arg )) Config_Error_NaN( Line, Var );
+		if( ! isdigit( (int)*Arg )) Config_Error_NaN( Line, Var );
 		else
 #endif
 		Conf_MaxJoins = atoi( Arg );
@@ -800,8 +800,8 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 } /* Handle_GLOBAL */
 
 
-LOCAL VOID
-Handle_OPERATOR( INT Line, CHAR *Var, CHAR *Arg )
+LOCAL void
+Handle_OPERATOR( int Line, char *Var, char *Arg )
 {
 	unsigned int len;
 	assert( Line > 0 );
@@ -838,10 +838,10 @@ Handle_OPERATOR( INT Line, CHAR *Var, CHAR *Arg )
 } /* Handle_OPERATOR */
 
 
-LOCAL VOID
-Handle_SERVER( INT Line, CHAR *Var, CHAR *Arg )
+LOCAL void
+Handle_SERVER( int Line, char *Var, char *Arg )
 {
-	LONG port;
+	long port;
 	
 	assert( Line > 0 );
 	assert( Var != NULL );
@@ -881,7 +881,7 @@ Handle_SERVER( INT Line, CHAR *Var, CHAR *Arg )
 	{
 		/* Port to which this server should connect */
 		port = atol( Arg );
-		if( port > 0 && port < 0xFFFF ) New_Server.port = (INT)port;
+		if( port > 0 && port < 0xFFFF ) New_Server.port = (UINT16)port;
 		else Config_Error( LOG_ERR, "%s, line %d (section \"Server\"): Illegal port number %ld!", NGIRCd_ConfFile, Line, port );
 		return;
 	}
@@ -889,7 +889,7 @@ Handle_SERVER( INT Line, CHAR *Var, CHAR *Arg )
 	{
 		/* Server group */
 #ifdef HAVE_ISDIGIT
-		if( ! isdigit( (INT)*Arg )) Config_Error_NaN( Line, Var );
+		if( ! isdigit( (int)*Arg )) Config_Error_NaN( Line, Var );
 		else
 #endif
 		New_Server.group = atoi( Arg );
@@ -900,8 +900,8 @@ Handle_SERVER( INT Line, CHAR *Var, CHAR *Arg )
 } /* Handle_SERVER */
 
 
-LOCAL VOID
-Handle_CHANNEL( INT Line, CHAR *Var, CHAR *Arg )
+LOCAL void
+Handle_CHANNEL( int Line, char *Var, char *Arg )
 {
 	assert( Line > 0 );
 	assert( Var != NULL );
@@ -934,13 +934,13 @@ Handle_CHANNEL( INT Line, CHAR *Var, CHAR *Arg )
 } /* Handle_CHANNEL */
 
 
-LOCAL VOID
-Validate_Config( BOOLEAN Configtest )
+LOCAL void
+Validate_Config( bool Configtest )
 {
 	/* Validate configuration settings. */
 
 #ifdef DEBUG
-	INT i, servers, servers_once;
+	int i, servers, servers_once;
 #endif
 
 	if( ! Conf_ServerName[0] )
@@ -984,9 +984,9 @@ Validate_Config( BOOLEAN Configtest )
 		Config_Error( LOG_WARNING, "No administrative information configured but required by RFC!" );
 	}
 #ifdef FD_SETSIZE	
-	if(( Conf_MaxConnections > (LONG)FD_SETSIZE ) || ( Conf_MaxConnections < 1 ))
+	if(( Conf_MaxConnections > (long)FD_SETSIZE ) || ( Conf_MaxConnections < 1 ))
 	{
-		Conf_MaxConnections = (LONG)FD_SETSIZE;
+		Conf_MaxConnections = (long)FD_SETSIZE;
 		Config_Error( LOG_ERR, "Setting MaxConnections to %ld, select() can't handle more file descriptors!", Conf_MaxConnections );
 	}
 #else
@@ -1008,30 +1008,30 @@ Validate_Config( BOOLEAN Configtest )
 } /* Validate_Config */
 
 
-LOCAL VOID
+LOCAL void
 Config_Error_TooLong ( const int Line, const char *Item )
 {
 	Config_Error( LOG_WARNING, "%s, line %d: Value of \"%s\" too long!", NGIRCd_ConfFile, Line, Item );
 }
 
-LOCAL VOID
+LOCAL void
 Config_Error_NaN( const int Line, const char *Item )
 {
 	Config_Error( LOG_WARNING, "%s, line %d: Value of \"%s\" is not a number!", NGIRCd_ConfFile, Line, Item );
 }
 
 #ifdef PROTOTYPES
-LOCAL VOID Config_Error( CONST INT Level, CONST CHAR *Format, ... )
+LOCAL void Config_Error( const int Level, const char *Format, ... )
 #else
-LOCAL VOID Config_Error( Level, Format, va_alist )
-CONST INT Level;
-CONST CHAR *Format;
+LOCAL void Config_Error( Level, Format, va_alist )
+const int Level;
+const char *Format;
 va_dcl
 #endif
 {
 	/* Error! Write to console and/or logfile. */
 
-	CHAR msg[MAX_LOG_MSG_LEN];
+	char msg[MAX_LOG_MSG_LEN];
 	va_list ap;
 
 	assert( Format != NULL );
@@ -1052,7 +1052,7 @@ va_dcl
 } /* Config_Error */
 
 
-LOCAL VOID
+LOCAL void
 Init_Server_Struct( CONF_SERVER *Server )
 {
 	/* Initialize server configuration structur to default values */

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-op.c,v 1.13 2004/04/09 21:41:52 alex Exp $";
+static char UNUSED id[] = "$Id: irc-op.c,v 1.14 2005/03/19 18:43:48 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -35,7 +35,7 @@ static char UNUSED id[] = "$Id: irc-op.c,v 1.13 2004/04/09 21:41:52 alex Exp $";
 #include "irc-op.h"
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_KICK( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *target, *from;
@@ -59,12 +59,12 @@ IRC_KICK( CLIENT *Client, REQUEST *Req )
 } /* IRC_KICK */	
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 IRC_INVITE( CLIENT *Client, REQUEST *Req )
 {
 	CHANNEL *chan;
 	CLIENT *target, *from;
-	BOOLEAN remember = FALSE;
+	bool remember = false;
 
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -92,19 +92,19 @@ IRC_INVITE( CLIENT *Client, REQUEST *Req )
 		{
 			/* Yes. The user must be channel operator! */
 			if( ! strchr( Channel_UserModes( chan, from ), 'o' )) return IRC_WriteStrClient( from, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( from ), Channel_Name( chan ));
-			remember = TRUE;
+			remember = true;
 		}
 
 		/* Is the target user already member of the channel? */
 		if( Channel_IsMemberOf( chan, target )) return IRC_WriteStrClient( from, ERR_USERONCHANNEL_MSG, Client_ID( from ), Req->argv[0], Req->argv[1] );
 
 		/* If the target user is banned on that channel: remember invite */
-		if( Lists_CheckBanned( target, chan )) remember = TRUE;
+		if( Lists_CheckBanned( target, chan )) remember = true;
 
 		if( remember )
 		{
 			/* We must memember this invite */
-			if( ! Lists_AddInvited( Client_Mask( target ), chan, TRUE )) return CONNECTED;
+			if( ! Lists_AddInvited( Client_Mask( target ), chan, true)) return CONNECTED;
 		}
 	}
 

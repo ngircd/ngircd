@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conf.h,v 1.32 2005/03/15 16:56:18 alex Exp $
+ * $Id: conf.h,v 1.33 2005/03/19 18:43:48 fw Exp $
  *
  * Configuration management (header)
  */
@@ -20,35 +20,35 @@
 #include <time.h>
 
 #include "defines.h"
-
+#include "portab.h"
 
 typedef struct _Conf_Oper
 {
-	CHAR name[CLIENT_PASS_LEN];	/* Name (ID) of IRC operator */
-	CHAR pwd[CLIENT_PASS_LEN];	/* Password */
+	char name[CLIENT_PASS_LEN];	/* Name (ID) of IRC operator */
+	char pwd[CLIENT_PASS_LEN];	/* Password */
 	char *mask;
 } CONF_OPER;
 
 typedef struct _Conf_Server
 {
-	CHAR host[HOST_LEN];		/* Hostname */
-	CHAR ip[16];			/* IP address (Resolver) */
-	CHAR name[CLIENT_ID_LEN];	/* IRC-Client-ID */
-	CHAR pwd_in[CLIENT_PASS_LEN];	/* Password which must be received */
-	CHAR pwd_out[CLIENT_PASS_LEN];	/* Password to send to peer */
-	INT port;			/* Server port */
-	INT group;			/* Group of server */
+	char host[HOST_LEN];		/* Hostname */
+	char ip[16];			/* IP address (Resolver) */
+	char name[CLIENT_ID_LEN];	/* IRC-Client-ID */
+	char pwd_in[CLIENT_PASS_LEN];	/* Password which must be received */
+	char pwd_out[CLIENT_PASS_LEN];	/* Password to send to peer */
+	UINT16 port;			/* Server port */
+	int group;			/* Group of server */
 	time_t lasttry;			/* Last connect attempt */
 	RES_STAT *res_stat;		/* Status of the resolver */
-	INT flags;			/* Flags */
+	int flags;			/* Flags */
 	CONN_ID conn_id;		/* ID of server connection or NONE */
 } CONF_SERVER;
 
 typedef struct _Conf_Channel
 {
-	CHAR name[CHANNEL_NAME_LEN];	/* Name of the channel */
-	CHAR modes[CHANNEL_MODE_LEN];	/* Initial channel modes */
-	CHAR topic[CHANNEL_TOPIC_LEN];	/* Initial topic */
+	char name[CHANNEL_NAME_LEN];	/* Name of the channel */
+	char modes[CHANNEL_MODE_LEN];	/* Initial channel modes */
+	char topic[CHANNEL_TOPIC_LEN];	/* Initial topic */
 } CONF_CHANNEL;
 
 
@@ -57,89 +57,89 @@ typedef struct _Conf_Channel
 
 
 /* Name ("Nick") of the servers */
-GLOBAL CHAR Conf_ServerName[CLIENT_ID_LEN];
+GLOBAL char Conf_ServerName[CLIENT_ID_LEN];
 
 /* Server info text */
-GLOBAL CHAR Conf_ServerInfo[CLIENT_INFO_LEN];
+GLOBAL char Conf_ServerInfo[CLIENT_INFO_LEN];
 
 /* Global server passwort */
-GLOBAL CHAR Conf_ServerPwd[CLIENT_PASS_LEN];
+GLOBAL char Conf_ServerPwd[CLIENT_PASS_LEN];
 
 /* Administrative information */
-GLOBAL CHAR Conf_ServerAdmin1[CLIENT_INFO_LEN];
-GLOBAL CHAR Conf_ServerAdmin2[CLIENT_INFO_LEN];
-GLOBAL CHAR Conf_ServerAdminMail[CLIENT_INFO_LEN];
+GLOBAL char Conf_ServerAdmin1[CLIENT_INFO_LEN];
+GLOBAL char Conf_ServerAdmin2[CLIENT_INFO_LEN];
+GLOBAL char Conf_ServerAdminMail[CLIENT_INFO_LEN];
 
 /* File with MOTD text */
-GLOBAL CHAR Conf_MotdFile[FNAME_LEN];
+GLOBAL char Conf_MotdFile[FNAME_LEN];
 
 /* Phrase with MOTD text */
-GLOBAL CHAR Conf_MotdPhrase[LINE_LEN];
+GLOBAL char Conf_MotdPhrase[LINE_LEN];
 
 /* Ports the server should listen on */
-GLOBAL UINT Conf_ListenPorts[MAX_LISTEN_PORTS];
-GLOBAL INT Conf_ListenPorts_Count;
+GLOBAL unsigned int Conf_ListenPorts[MAX_LISTEN_PORTS];
+GLOBAL int Conf_ListenPorts_Count;
 
 /* Address to which the socket should be bound or empty (=all) */
-GLOBAL CHAR Conf_ListenAddress[16];
+GLOBAL char Conf_ListenAddress[16];
 
 /* User and group ID the server should run with */
-GLOBAL UINT Conf_UID;
-GLOBAL UINT Conf_GID;
+GLOBAL unsigned int Conf_UID;
+GLOBAL unsigned int Conf_GID;
 
 /* A directory to chroot() in */
-GLOBAL CHAR Conf_Chroot[FNAME_LEN];
+GLOBAL char Conf_Chroot[FNAME_LEN];
 
 /* File with PID of daemon */
-GLOBAL CHAR Conf_PidFile[FNAME_LEN];
+GLOBAL char Conf_PidFile[FNAME_LEN];
 
 /* Timeouts for PING and PONG */
-GLOBAL INT Conf_PingTimeout;
-GLOBAL INT Conf_PongTimeout;
+GLOBAL int Conf_PingTimeout;
+GLOBAL int Conf_PongTimeout;
 
 /* Seconds between connect attempts to other servers */
-GLOBAL INT Conf_ConnectRetry;
+GLOBAL int Conf_ConnectRetry;
 
 /* Operators */
 GLOBAL CONF_OPER Conf_Oper[MAX_OPERATORS];
-GLOBAL INT Conf_Oper_Count;
+GLOBAL int Conf_Oper_Count;
 
 /* Servers */
 GLOBAL CONF_SERVER Conf_Server[MAX_SERVERS];
 
 /* Pre-defined channels */
 GLOBAL CONF_CHANNEL Conf_Channel[MAX_DEFCHANNELS];
-GLOBAL INT Conf_Channel_Count;
+GLOBAL int Conf_Channel_Count;
 
 /* Are IRC operators allowed to always use MODE? */
-GLOBAL BOOLEAN Conf_OperCanMode;
+GLOBAL bool Conf_OperCanMode;
 
 /* If an IRC op gives chanop privileges without being a chanop,
  * ircd2 will ignore the command. This enables a workaround:
  * It masks the command as coming from the server */
-GLOBAL BOOLEAN Conf_OperServerMode;
+GLOBAL bool Conf_OperServerMode;
 
 /* Maximum number of connections to this server */
-GLOBAL LONG Conf_MaxConnections;
+GLOBAL long Conf_MaxConnections;
 
 /* Maximum number of channels a user can join */
-GLOBAL INT Conf_MaxJoins;
+GLOBAL int Conf_MaxJoins;
 
 /* Maximum number of connections per IP address */
-GLOBAL INT Conf_MaxConnectionsIP;
+GLOBAL int Conf_MaxConnectionsIP;
 
 
-GLOBAL VOID Conf_Init PARAMS((VOID ));
-GLOBAL VOID Conf_Rehash PARAMS((VOID ));
-GLOBAL INT Conf_Test PARAMS((VOID ));
+GLOBAL void Conf_Init PARAMS((void ));
+GLOBAL void Conf_Rehash PARAMS((void ));
+GLOBAL int Conf_Test PARAMS((void ));
 
-GLOBAL VOID Conf_UnsetServer PARAMS(( CONN_ID Idx ));
-GLOBAL VOID Conf_SetServer PARAMS(( INT ConfServer, CONN_ID Idx ));
-GLOBAL INT Conf_GetServer PARAMS(( CONN_ID Idx ));
+GLOBAL void Conf_UnsetServer PARAMS(( CONN_ID Idx ));
+GLOBAL void Conf_SetServer PARAMS(( int ConfServer, CONN_ID Idx ));
+GLOBAL int Conf_GetServer PARAMS(( CONN_ID Idx ));
 
-GLOBAL BOOLEAN Conf_EnableServer PARAMS(( CHAR *Name, INT Port ));
-GLOBAL BOOLEAN Conf_DisableServer PARAMS(( CHAR *Name ));
-GLOBAL BOOLEAN Conf_AddServer PARAMS(( CHAR *Name, INT Port, CHAR *Host, CHAR *MyPwd, CHAR *PeerPwd ));
+GLOBAL bool Conf_EnableServer PARAMS(( char *Name, UINT16 Port ));
+GLOBAL bool Conf_DisableServer PARAMS(( char *Name ));
+GLOBAL bool Conf_AddServer PARAMS(( char *Name, UINT16 Port, char *Host, char *MyPwd, char *PeerPwd ));
 
 
 #endif

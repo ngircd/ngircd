@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: match.c,v 1.2 2002/12/12 12:24:18 alex Exp $";
+static char UNUSED id[] = "$Id: match.c,v 1.3 2005/03/19 18:43:49 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -32,8 +32,8 @@ static char UNUSED id[] = "$Id: match.c,v 1.2 2002/12/12 12:24:18 alex Exp $";
  */
 
 
-LOCAL INT Matche PARAMS(( REGISTER CHAR *p, REGISTER CHAR *t ));
-LOCAL INT Matche_After_Star PARAMS(( REGISTER CHAR *p, REGISTER CHAR *t ));
+LOCAL int Matche PARAMS(( char *p, char *t ));
+LOCAL int Matche_After_Star PARAMS(( char *p, char *t ));
 
 
 #define MATCH_PATTERN	6	/* bad pattern */
@@ -44,22 +44,22 @@ LOCAL INT Matche_After_Star PARAMS(( REGISTER CHAR *p, REGISTER CHAR *t ));
 #define MATCH_VALID	1	/* valid match */
 
 
-GLOBAL BOOLEAN
-Match( CHAR *Pattern, CHAR *String )
+GLOBAL bool
+Match( char *Pattern, char *String )
 {
 	/* Pattern mit String vergleichen */
-	if( Matche( Pattern, String ) == MATCH_VALID ) return TRUE;
-	else return FALSE;
+	if( Matche( Pattern, String ) == MATCH_VALID ) return true;
+	else return false;
 } /* Match */
 
 
-LOCAL INT
-Matche( REGISTER CHAR *p, REGISTER CHAR *t )
+LOCAL int
+Matche( char *p, char *t )
 {
-	REGISTER CHAR range_start, range_end;
-	BOOLEAN invert;
-	BOOLEAN member_match;
-	BOOLEAN loop;
+	register char range_start, range_end;
+	bool invert;
+	bool member_match;
+	bool loop;
 
 	for( ; *p; p++, t++ )
 	{
@@ -83,25 +83,25 @@ Matche( REGISTER CHAR *p, REGISTER CHAR *t )
 				p++;
 
 				/* check if this is a member match or exclusion match */
-				invert = FALSE;
+				invert = false;
 				if( *p == '!' || *p == '^' )
 				{
-					invert = TRUE;
+					invert = true;
 					p++;
 				}
 
 				/* if closing bracket here or at range start then we have a malformed pattern */
 				if ( *p == ']' ) return MATCH_PATTERN;
 
-				member_match = FALSE;
-				loop = TRUE;
+				member_match = false;
+				loop = true;
 
 				while( loop )
 				{
 					/* if end of construct then loop is done */
 					if( *p == ']' )
 					{
-						loop = FALSE;
+						loop = false;
 						continue;
 					}
 
@@ -140,16 +140,16 @@ Matche( REGISTER CHAR *p, REGISTER CHAR *t )
 					{
 						if( *t >= range_start && *t <= range_end )
 						{
-							member_match = TRUE;
-							loop = FALSE;
+							member_match = true;
+							loop = false;
 						}
 					}
 					else
 					{
 						if( *t >= range_end && *t <= range_start )
 						{
-							member_match = TRUE;
-							loop = FALSE;
+							member_match = true;
+							loop = false;
 						}
 					}
 				}
@@ -200,10 +200,10 @@ Matche( REGISTER CHAR *p, REGISTER CHAR *t )
 } /* Matche */
 
 
-LOCAL INT
-Matche_After_Star( REGISTER CHAR *p, REGISTER CHAR *t )
+LOCAL int
+Matche_After_Star( char *p, char *t )
 {
-	REGISTER INT nextp, match = 0;
+	register int nextp, match = 0;
 
 	/* pass over existing ? and * in pattern */
 	while( *p == '?' || *p == '*' )

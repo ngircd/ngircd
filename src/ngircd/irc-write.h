@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: irc-write.h,v 1.6 2003/11/05 23:24:48 alex Exp $
+ * $Id: irc-write.h,v 1.7 2005/03/19 18:43:49 fw Exp $
  *
  * Sending IRC commands over the network (header)
  */
@@ -18,19 +18,19 @@
 #define __irc_write_h__
 
 
-GLOBAL BOOLEAN IRC_WriteStrClient PARAMS(( CLIENT *Client, CHAR *Format, ... ));
-GLOBAL BOOLEAN IRC_WriteStrClientPrefix PARAMS(( CLIENT *Client, CLIENT *Prefix, CHAR *Format, ... ));
+GLOBAL bool IRC_WriteStrClient PARAMS(( CLIENT *Client, char *Format, ... ));
+GLOBAL bool IRC_WriteStrClientPrefix PARAMS(( CLIENT *Client, CLIENT *Prefix, char *Format, ... ));
 
-GLOBAL BOOLEAN IRC_WriteStrChannel PARAMS(( CLIENT *Client, CHANNEL *Chan, BOOLEAN Remote, CHAR *Format, ... ));
-GLOBAL BOOLEAN IRC_WriteStrChannelPrefix PARAMS(( CLIENT *Client, CHANNEL *Chan, CLIENT *Prefix, BOOLEAN Remote, CHAR *Format, ... ));
+GLOBAL bool IRC_WriteStrChannel PARAMS(( CLIENT *Client, CHANNEL *Chan, bool Remote, char *Format, ... ));
+GLOBAL bool IRC_WriteStrChannelPrefix PARAMS(( CLIENT *Client, CHANNEL *Chan, CLIENT *Prefix, bool Remote, char *Format, ... ));
 
-GLOBAL VOID IRC_WriteStrServers PARAMS(( CLIENT *ExceptOf, CHAR *Format, ... ));
-GLOBAL VOID IRC_WriteStrServersPrefix PARAMS(( CLIENT *ExceptOf, CLIENT *Prefix, CHAR *Format, ... ));
-GLOBAL VOID IRC_WriteStrServersPrefixFlag PARAMS(( CLIENT *ExceptOf, CLIENT *Prefix, CHAR Flag, CHAR *Format, ... ));
+GLOBAL void IRC_WriteStrServers PARAMS(( CLIENT *ExceptOf, char *Format, ... ));
+GLOBAL void IRC_WriteStrServersPrefix PARAMS(( CLIENT *ExceptOf, CLIENT *Prefix, char *Format, ... ));
+GLOBAL void IRC_WriteStrServersPrefixFlag PARAMS(( CLIENT *ExceptOf, CLIENT *Prefix, char Flag, char *Format, ... ));
 
-GLOBAL BOOLEAN IRC_WriteStrRelatedPrefix PARAMS(( CLIENT *Client, CLIENT *Prefix, BOOLEAN Remote, CHAR *Format, ... ));
+GLOBAL bool IRC_WriteStrRelatedPrefix PARAMS(( CLIENT *Client, CLIENT *Prefix, bool Remote, char *Format, ... ));
 
-GLOBAL VOID IRC_SetPenalty PARAMS(( CLIENT *Client, INT Seconds ));
+GLOBAL void IRC_SetPenalty PARAMS(( CLIENT *Client, int Seconds ));
 
 
 #endif

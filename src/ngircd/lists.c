@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: lists.c,v 1.16 2005/01/26 13:23:24 alex Exp $";
+static char UNUSED id[] = "$Id: lists.c,v 1.17 2005/03/19 18:43:49 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -42,24 +42,24 @@ static char UNUSED id[] = "$Id: lists.c,v 1.16 2005/01/26 13:23:24 alex Exp $";
 typedef struct _C2C
 {
 	struct _C2C *next;
-	CHAR mask[MASK_LEN];
+	char mask[MASK_LEN];
 	CHANNEL *channel;
-	BOOLEAN onlyonce;
+	bool onlyonce;
 } C2C;
 
 
 LOCAL C2C *My_Invites, *My_Bans;
 
 
-LOCAL C2C *New_C2C PARAMS(( CHAR *Mask, CHANNEL *Chan, BOOLEAN OnlyOnce ));
+LOCAL C2C *New_C2C PARAMS(( char *Mask, CHANNEL *Chan, bool OnlyOnce ));
 
-LOCAL BOOLEAN Check_List PARAMS(( C2C **Cl2Chan, CLIENT *Client, CHANNEL *Chan ));
-LOCAL BOOLEAN Already_Registered PARAMS(( C2C *Cl2Chan, CHAR *Mask, CHANNEL *Chan ));
+LOCAL bool Check_List PARAMS(( C2C **Cl2Chan, CLIENT *Client, CHANNEL *Chan ));
+LOCAL bool Already_Registered PARAMS(( C2C *Cl2Chan, char *Mask, CHANNEL *Chan ));
 
 
 
-GLOBAL VOID
-Lists_Init( VOID )
+GLOBAL void
+Lists_Init( void )
 {
 	/* Modul initialisieren */
 
@@ -67,8 +67,8 @@ Lists_Init( VOID )
 } /* Lists_Init */
 
 
-GLOBAL VOID
-Lists_Exit( VOID )
+GLOBAL void
+Lists_Exit( void )
 {
 	/* Modul abmelden */
 
@@ -94,15 +94,15 @@ Lists_Exit( VOID )
 } /* Lists_Exit */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 Lists_CheckInvited( CLIENT *Client, CHANNEL *Chan )
 {
 	return Check_List( &My_Invites, Client, Chan );
 } /* Lists_CheckInvited */
 
 
-GLOBAL BOOLEAN
-Lists_IsInviteEntry( CHAR *Mask, CHANNEL *Chan )
+GLOBAL bool
+Lists_IsInviteEntry( char *Mask, CHANNEL *Chan )
 {
 	assert( Mask != NULL );
 	assert( Chan != NULL );
@@ -111,21 +111,21 @@ Lists_IsInviteEntry( CHAR *Mask, CHANNEL *Chan )
 } /* Lists_IsInviteEntry */
 
 
-GLOBAL BOOLEAN
-Lists_AddInvited( CHAR *Mask, CHANNEL *Chan, BOOLEAN OnlyOnce )
+GLOBAL bool
+Lists_AddInvited( char *Mask, CHANNEL *Chan, bool OnlyOnce )
 {
 	C2C *c2c;
 
 	assert( Mask != NULL );
 	assert( Chan != NULL );
 
-	if( Already_Registered( My_Invites, Mask, Chan )) return TRUE;
+	if( Already_Registered( My_Invites, Mask, Chan )) return true;
 	
 	c2c = New_C2C( Mask, Chan, OnlyOnce );
 	if( ! c2c )
 	{
 		Log( LOG_ERR, "Can't add new invite list entry!" );
-		return FALSE;
+		return false;
 	}
 
 	/* verketten */
@@ -133,12 +133,12 @@ Lists_AddInvited( CHAR *Mask, CHANNEL *Chan, BOOLEAN OnlyOnce )
 	My_Invites = c2c;
 
 	Log( LOG_DEBUG, "Added \"%s\" to invite list for \"%s\".", Mask, Channel_Name( Chan ));
-	return TRUE;
+	return true;
 } /* Lists_AddInvited */
 
 
-GLOBAL VOID
-Lists_DelInvited( CHAR *Mask, CHANNEL *Chan )
+GLOBAL void
+Lists_DelInvited( char *Mask, CHANNEL *Chan )
 {
 	C2C *c2c, *last, *next;
 
@@ -164,7 +164,7 @@ Lists_DelInvited( CHAR *Mask, CHANNEL *Chan )
 } /* Lists_DelInvited */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 Lists_ShowInvites( CLIENT *Client, CHANNEL *Channel )
 {
 	C2C *c2c;
@@ -186,7 +186,7 @@ Lists_ShowInvites( CLIENT *Client, CHANNEL *Channel )
 } /* Lists_ShowInvites */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 Lists_SendInvites( CLIENT *Client )
 {
 	C2C *c2c;
@@ -203,7 +203,7 @@ Lists_SendInvites( CLIENT *Client )
 } /* Lists_SendInvites */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 Lists_SendBans( CLIENT *Client )
 {
 	C2C *c2c;
@@ -220,15 +220,15 @@ Lists_SendBans( CLIENT *Client )
 } /* Lists_SendBans */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 Lists_CheckBanned( CLIENT *Client, CHANNEL *Chan )
 {
 	return Check_List( &My_Bans, Client, Chan );
 } /* Lists_CheckBanned */
 
 
-GLOBAL BOOLEAN
-Lists_IsBanEntry( CHAR *Mask, CHANNEL *Chan )
+GLOBAL bool
+Lists_IsBanEntry( char *Mask, CHANNEL *Chan )
 {
 	assert( Mask != NULL );
 	assert( Chan != NULL );
@@ -237,21 +237,21 @@ Lists_IsBanEntry( CHAR *Mask, CHANNEL *Chan )
 } /* Lists_IsBanEntry */
 
 
-GLOBAL BOOLEAN
-Lists_AddBanned( CHAR *Mask, CHANNEL *Chan )
+GLOBAL bool
+Lists_AddBanned( char *Mask, CHANNEL *Chan )
 {
 	C2C *c2c;
 
 	assert( Mask != NULL );
 	assert( Chan != NULL );
 
-	if( Already_Registered( My_Bans, Mask, Chan )) return TRUE;
+	if( Already_Registered( My_Bans, Mask, Chan )) return true;
 
-	c2c = New_C2C( Mask, Chan, FALSE );
+	c2c = New_C2C( Mask, Chan, false );
 	if( ! c2c )
 	{
 		Log( LOG_ERR, "Can't add new ban list entry!" );
-		return FALSE;
+		return false;
 	}
 
 	/* verketten */
@@ -259,12 +259,12 @@ Lists_AddBanned( CHAR *Mask, CHANNEL *Chan )
 	My_Bans = c2c;
 
 	Log( LOG_DEBUG, "Added \"%s\" to ban list for \"%s\".", Mask, Channel_Name( Chan ));
-	return TRUE;
+	return true;
 } /* Lists_AddBanned */
 
 
-GLOBAL VOID
-Lists_DelBanned( CHAR *Mask, CHANNEL *Chan )
+GLOBAL void
+Lists_DelBanned( char *Mask, CHANNEL *Chan )
 {
 	C2C *c2c, *last, *next;
 
@@ -290,7 +290,7 @@ Lists_DelBanned( CHAR *Mask, CHANNEL *Chan )
 } /* Lists_DelBanned */
 
 
-GLOBAL BOOLEAN
+GLOBAL bool
 Lists_ShowBans( CLIENT *Client, CHANNEL *Channel )
 {
 	C2C *c2c;
@@ -312,7 +312,7 @@ Lists_ShowBans( CLIENT *Client, CHANNEL *Channel )
 } /* Lists_ShowBans */
 
 
-GLOBAL VOID
+GLOBAL void
 Lists_DeleteChannel( CHANNEL *Chan )
 {
 	/* Channel wurde geloescht, Invite- und Ban-Lists aufraeumen */
@@ -357,16 +357,16 @@ Lists_DeleteChannel( CHANNEL *Chan )
 } /* Lists_DeleteChannel */
 
 
-GLOBAL CHAR *
-Lists_MakeMask( CHAR *Pattern )
+GLOBAL char *
+Lists_MakeMask( char *Pattern )
 {
 	/* This function generats a valid IRC mask of "any" string. This
 	 * mask is only valid until the next call to Lists_MakeMask(),
 	 * because a single global buffer is used. You have to copy the
 	 * generated mask to some sane location yourself! */
 
-	STATIC CHAR TheMask[MASK_LEN];
-	CHAR *excl, *at;
+	static char TheMask[MASK_LEN];
+	char *excl, *at;
 
 	assert( Pattern != NULL );
 
@@ -408,7 +408,7 @@ Lists_MakeMask( CHAR *Pattern )
 
 
 LOCAL C2C *
-New_C2C( CHAR *Mask, CHANNEL *Chan, BOOLEAN OnlyOnce )
+New_C2C( char *Mask, CHANNEL *Chan, bool OnlyOnce )
 {
 	C2C *c2c;
 	
@@ -431,7 +431,7 @@ New_C2C( CHAR *Mask, CHANNEL *Chan, BOOLEAN OnlyOnce )
 } /* New_C2C */
 
 
-LOCAL BOOLEAN
+LOCAL bool
 Check_List( C2C **Cl2Chan, CLIENT *Client, CHANNEL *Chan )
 {
 	C2C *c2c, *last;
@@ -459,29 +459,29 @@ Check_List( C2C **Cl2Chan, CLIENT *Client, CHANNEL *Chan )
 					else *Cl2Chan = c2c->next;
 					free( c2c );
 				}
-				return TRUE;
+				return true;
 			}
 		}
 		last = c2c;
 		c2c = c2c->next;
 	}
 
-	return FALSE;
+	return false;
 } /* Check_List */
 
 
-LOCAL BOOLEAN
-Already_Registered( C2C *List, CHAR *Mask, CHANNEL *Chan )
+LOCAL bool
+Already_Registered( C2C *List, char *Mask, CHANNEL *Chan )
 {
 	C2C *c2c;
 
 	c2c = List;
 	while( c2c )
 	{
-		if(( c2c->channel == Chan ) && ( strcasecmp( c2c->mask, Mask ) == 0 )) return TRUE;
+		if(( c2c->channel == Chan ) && ( strcasecmp( c2c->mask, Mask ) == 0 )) return true;
 		c2c = c2c->next;
 	}
-	return FALSE;
+	return false;
 } /* Already_Registered */
 
 

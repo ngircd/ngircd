@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: lists.h,v 1.11 2004/04/25 15:40:19 alex Exp $
+ * $Id: lists.h,v 1.12 2005/03/19 18:43:49 fw Exp $
  *
  * Management of IRC lists: ban, invite, ... (header)
  */
@@ -18,26 +18,26 @@
 #define __lists_h__
 
 
-GLOBAL VOID Lists_Init PARAMS(( VOID ));
-GLOBAL VOID Lists_Exit PARAMS(( VOID ));
+GLOBAL void Lists_Init PARAMS(( void ));
+GLOBAL void Lists_Exit PARAMS(( void ));
 
-GLOBAL BOOLEAN Lists_CheckInvited PARAMS(( CLIENT *Client, CHANNEL *Chan ));
-GLOBAL BOOLEAN Lists_AddInvited PARAMS(( CHAR *Mask, CHANNEL *Chan, BOOLEAN OnlyOnce ));
-GLOBAL VOID Lists_DelInvited PARAMS(( CHAR *Mask, CHANNEL *Chan ));
-GLOBAL BOOLEAN Lists_ShowInvites PARAMS(( CLIENT *Client, CHANNEL *Channel ));
-GLOBAL BOOLEAN Lists_SendInvites PARAMS(( CLIENT *Client ));
-GLOBAL BOOLEAN Lists_IsInviteEntry PARAMS(( CHAR *Mask, CHANNEL *Chan ));
+GLOBAL bool Lists_CheckInvited PARAMS(( CLIENT *Client, CHANNEL *Chan ));
+GLOBAL bool Lists_AddInvited PARAMS(( char *Mask, CHANNEL *Chan, bool OnlyOnce ));
+GLOBAL void Lists_DelInvited PARAMS(( char *Mask, CHANNEL *Chan ));
+GLOBAL bool Lists_ShowInvites PARAMS(( CLIENT *Client, CHANNEL *Channel ));
+GLOBAL bool Lists_SendInvites PARAMS(( CLIENT *Client ));
+GLOBAL bool Lists_IsInviteEntry PARAMS(( char *Mask, CHANNEL *Chan ));
 
-GLOBAL BOOLEAN Lists_CheckBanned PARAMS(( CLIENT *Client, CHANNEL *Chan ));
-GLOBAL BOOLEAN Lists_AddBanned PARAMS(( CHAR *Mask, CHANNEL *Chan ));
-GLOBAL VOID Lists_DelBanned PARAMS(( CHAR *Mask, CHANNEL *Chan ));
-GLOBAL BOOLEAN Lists_ShowBans PARAMS(( CLIENT *Client, CHANNEL *Channel ));
-GLOBAL BOOLEAN Lists_SendBans PARAMS(( CLIENT *Client ));
-GLOBAL BOOLEAN Lists_IsBanEntry PARAMS(( CHAR *Mask, CHANNEL *Chan ));
+GLOBAL bool Lists_CheckBanned PARAMS(( CLIENT *Client, CHANNEL *Chan ));
+GLOBAL bool Lists_AddBanned PARAMS(( char *Mask, CHANNEL *Chan ));
+GLOBAL void Lists_DelBanned PARAMS(( char *Mask, CHANNEL *Chan ));
+GLOBAL bool Lists_ShowBans PARAMS(( CLIENT *Client, CHANNEL *Channel ));
+GLOBAL bool Lists_SendBans PARAMS(( CLIENT *Client ));
+GLOBAL bool Lists_IsBanEntry PARAMS(( char *Mask, CHANNEL *Chan ));
 
-GLOBAL VOID Lists_DeleteChannel PARAMS(( CHANNEL *Chan ));
+GLOBAL void Lists_DeleteChannel PARAMS(( CHANNEL *Chan ));
 
-GLOBAL CHAR *Lists_MakeMask PARAMS(( CHAR *Pattern ));
+GLOBAL char *Lists_MakeMask PARAMS(( char *Pattern ));
 
 
 #endif

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: lists.c,v 1.2 2002/06/02 15:23:16 alex Exp $
+ * $Id: lists.c,v 1.3 2002/06/09 13:18:23 alex Exp $
  *
  * lists.c: Verwaltung der "IRC-Listen": Ban, Invite, ...
  */
@@ -20,26 +20,35 @@
 #include "imp.h"
 #include <assert.h>
 
+#include "defines.h"
 #include "conn.h"
 #include "client.h"
 #include "channel.h"
+#include "log.h"
+
+#include <stdlib.h>
+#include <string.h>
 
 #include "exp.h"
 #include "lists.h"
 
 
+#define MASK_LEN CLIENT_ID_LEN+CLIENT_HOST_LEN
+
+
 typedef struct _C2C
 {
 	struct _C2C *next;
-	CLIENT *client;
+	CHAR mask[MASK_LEN];
 	CHANNEL *channel;
+	BOOLEAN onlyonce;
 } C2C;
 
 
 LOCAL C2C *My_Invites, *My_Bans;
 
 
-LOCAL C2C *New_C2C  PARAMS(( CLIENT *Client, CHANNEL *Chan ));
+LOCAL C2C *New_C2C PARAMS(( CHAR *Mask, CHANNEL *Chan, BOOLEAN OnlyOnce ));
 
 
 GLOBAL VOID
@@ -55,22 +64,85 @@ GLOBAL VOID
 Lists_Exit( VOID )
 {
 	/* Modul abmelden */
+
+	C2C *c2c, *next;
+
+	/* Invite-Lists freigeben */
+	c2c = My_Invites;
+	while( c2c )
+	{
+		next = c2c->next;
+		free( c2c );
+		c2c = next;
+	}
+
+	/* Ban-Lists freigeben */
+	c2c = My_Bans;
+	while( c2c )
+	{
+		next = c2c->next;
+		free( c2c );
+		c2c = next;
+	}
 } /* Lists_Exit */
 
 
 GLOBAL BOOLEAN
 Lists_CheckInvited( CLIENT *Client, CHANNEL *Chan )
 {
+	C2C *c2c, *last;
+	
 	assert( Client != NULL );
 	assert( Chan != NULL );
 
+	last = NULL;
+	c2c = My_Invites;
+	while( c2c )
+	{
+		if( c2c->channel == Chan )
+		{
+			/* Ok, richtiger Channel. Passt die Maske? */
+			if( strcasecmp( Client_Mask( Client ), c2c->mask ) == 0 )
+			{
+				/* Treffer! */
+				if( c2c->onlyonce )
+				{
+					/* Eintrag loeschen */
+					if( last ) last->next = c2c->next;
+					else My_Invites = c2c->next;
+					free( c2c );
+				}
+				return TRUE;
+			}
+		}
+		last = c2c;
+		c2c = c2c->next;
+	}
+	
 	return FALSE;
 } /* Lists_CheckInvited */
 
 
 GLOBAL VOID
-Lists_AddInvited( CHAR *Pattern, CHANNEL *Chan )
+Lists_AddInvited( CHAR *Pattern, CHANNEL *Chan, BOOLEAN OnlyOnce )
 {
+	C2C *c2c;
+
+	assert( Pattern != NULL );
+	assert( Chan != NULL );
+
+	c2c = New_C2C( Pattern, Chan, OnlyOnce );
+	if( ! c2c )
+	{
+		Log( LOG_ERR, "Can't add new invite list entry!" );
+		return;
+	}
+
+	/* verketten */
+	c2c->next = My_Invites;
+	My_Invites = c2c;
+
+	Log( LOG_DEBUG, "Added \"%s\" to invite list for \"%s\".", Pattern, Channel_Name( Chan ));
 } /* Lists_AddInvited */
 
 
@@ -84,13 +156,70 @@ Lists_CheckBanned( CLIENT *Client, CHANNEL *Chan )
 } /* Lists_CheckBanned */
 
 
-LOCAL C2C *
-New_C2C( CLIENT *Client, CHANNEL *Chan )
+GLOBAL VOID
+Lists_DeleteChannel( CHANNEL *Chan )
 {
-	assert( Client != NULL );
+	/* Channel wurde geloescht, Invite- und Ban-Lists aufraeumen */
+
+	C2C *c2c, *last, *next;
+
+	/* Invite-List */
+	last = NULL;
+	c2c = My_Invites;
+	while( c2c )
+	{
+		next = c2c->next;
+		if( c2c->channel == Chan )
+		{
+			/* dieser Eintrag muss geloescht werden */
+			if( last ) last->next = next;
+			else My_Invites = next;
+			free( c2c );
+		}
+		else last = c2c;
+		c2c = next;
+	}
+
+	/* Ban-List */
+	last = NULL;
+	c2c = My_Bans;
+	while( c2c )
+	{
+		next = c2c->next;
+		if( c2c->channel == Chan )
+		{
+			/* dieser Eintrag muss geloescht werden */
+			if( last ) last->next = next;
+			else My_Bans = next;
+			free( c2c );
+		}
+		else last = c2c;
+		c2c = next;
+	}
+} /* Lists_DeleteChannel */
+
+
+LOCAL C2C *
+New_C2C( CHAR *Mask, CHANNEL *Chan, BOOLEAN OnlyOnce )
+{
+	C2C *c2c;
+	
+	assert( Mask != NULL );
 	assert( Chan != NULL );
 
-	return NULL;
+	/* Speicher fuer Eintrag anfordern */
+	c2c = malloc( sizeof( C2C ));
+	if( ! c2c )
+	{
+		Log( LOG_EMERG, "Can't allocate memory! [New_C2C]" );
+		return NULL;
+	}
+
+	strncpy( c2c->mask, Mask, MASK_LEN );
+	c2c->channel = Chan;
+	c2c->onlyonce = OnlyOnce;
+	
+	return c2c;
 } /* New_C2C */
 
 

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: resolve.h,v 1.1 2002/05/27 11:23:27 alex Exp $
+ * $Id: resolve.h,v 1.2 2002/09/16 09:22:41 alex Exp $
  *
  * resolve.h: asyncroner Resolver (Header)
  */
@@ -21,6 +21,9 @@
 
 #include <sys/types.h>
 #include <netinet/in.h>
+#ifdef HAVE_SYS_SELECT_H
+#	include <sys/select.h>
+#endif
 
 
 typedef struct _Res_Stat

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.63 2002/11/26 08:36:34 alex Exp $
+ * $Id: client.c,v 1.64 2002/12/03 18:57:44 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -808,8 +808,9 @@ Client_CheckID( CLIENT *Client, CHAR *ID )
 		if( strcasecmp( c->id, ID ) == 0 )
 		{
 			/* die Server-ID gibt es bereits */
-			sprintf( str, "ID \"%s\" already registered!", ID );
-			Log( LOG_ERR, "%s (on connection %d)", str, Client->conn_id );
+			sprintf( str, "ID \"%s\" already registered", ID );
+			if( Client->conn_id != c->conn_id ) Log( LOG_ERR, "%s (on connection %d)!", str, c->conn_id );
+			else Log( LOG_ERR, "%s (via network)!", str );
 			Conn_Close( Client->conn_id, str, str, TRUE );
 			return FALSE;
 		}

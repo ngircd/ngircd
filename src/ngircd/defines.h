@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: defines.h,v 1.5 2002/01/18 15:51:44 alex Exp $
+ * $Id: defines.h,v 1.6 2002/01/21 00:03:16 alex Exp $
  *
  * defines.h: (globale) Konstanten
  *
  * $Log: defines.h,v $
+ * Revision 1.6  2002/01/21 00:03:16  alex
+ * - neue Konstante CHANNEL_MODE_LEN.
+ *
  * Revision 1.5  2002/01/18 15:51:44  alex
  * - Server-Verbinungen werden beim Start erst nach kurzer Pause aufgebaut.
  *
@@ -30,7 +33,6 @@
  * - viele neue Befehle (WHOIS, ISON, OPER, DIE, RESTART),
  * - neuen Header "defines.h" mit (fast) allen Konstanten.
  * - Code Cleanups und viele "kleine" Aenderungen & Bugfixes.
- *
  */
 
 #ifndef __defines_h__
@@ -53,8 +55,6 @@
 
 #define MAX_CONNECTIONS 100		/* max. Anzahl von Verbindungen an diesem Server */
 
-#define MAX_CHANNELS 32			/* max. Anzahl Channels pro Nick */
-
 #define CLIENT_ID_LEN 64		/* max. ID-Laenge; vgl. RFC 2812, 1.1 und 1.2.1 */
 #define CLIENT_NICK_LEN 10		/* max. Nick-Laenge; vgl. RFC 2812, 1.2.1 */
 #define CLIENT_PASS_LEN 9		/* max. Laenge des Passwortes */
@@ -64,9 +64,10 @@
 #define CLIENT_MODE_LEN 8		/* max. Laenge der Client-Modes */
 #define CLIENT_INFO_LEN 64		/* max. Infotext-Laenge (Server) */
 
-#define COMMAND_LEN 513			/* max. Laenge eines Befehls, vgl. RFC 2812, 3.2 */
-
 #define CHANNEL_NAME_LEN 51		/* max. Laenge eines Channel-Namens, vgl. RFC 2812, 1.3 */
+#define CHANNEL_MODE_LEN 8		/* max. Laenge der Channel-Modes */
+
+#define COMMAND_LEN 513			/* max. Laenge eines Befehls, vgl. RFC 2812, 3.2 */
 
 #define READBUFFER_LEN 2 * COMMAND_LEN	/* Laenge des Lesepuffers je Verbindung (Bytes) */
 #define WRITEBUFFER_LEN 4096		/* Laenge des Schreibpuffers je Verbindung (Bytes) */

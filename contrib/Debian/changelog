@@ -1,3 +1,10 @@
+ngircd (0.7.7+HEAD-0ab4) unstable; urgency=low
+
+  * This version includes fixes for INVITE command and the handling of the
+    invite and ban lists from CVS-HEAD.
+
+ -- Alexander Barton <alex@Arthur.Ath.CX>  Fri,  9 Apr 2004 23:55:13 +0200
+
 ngircd (0.7.7+HEAD-0ab3) unstable; urgency=low
 
   * Included MODE fix from CVS-HEAD branch.

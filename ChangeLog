@@ -47,6 +47,7 @@ ngIRCd CVS-HEAD
   - Changed some configure options to use "--with"/"--without" as prefix
     insetead of "--enable"/"--disable": "--without-syslog", "--without-zlib",
     "--with-tcp-wrappers", and "--with-rendezvous".
+  - Better error reporting to clients on connect.
 
 ngIRCd 0.6.1, 2003-01-21
 
@@ -428,4 +429,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.181 2003/03/07 14:45:10 alex Exp $
+$Id: ChangeLog,v 1.182 2003/03/07 17:17:23 alex Exp $

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: messages.h,v 1.45 2002/07/15 16:33:57 alex Exp $
+ * $Id: messages.h,v 1.46 2002/09/16 09:23:40 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  */
@@ -29,6 +29,10 @@
 #define	RPL_LUSERUNKNOWN_MSG		"253 %s %d :unknown connection(s)"
 #define RPL_LUSERCHANNELS_MSG		"254 %s %d :channels formed"
 #define	RPL_LUSERME_MSG			"255 %s :I have %d users, %d services and %d servers"
+#define RPL_ADMINME_MSG			"256 %s %s :Administrative info"
+#define RPL_ADMINLOC1_MSG		"257 %s :%s"
+#define RPL_ADMINLOC2_MSG		"258 %s :%s"
+#define RPL_ADMINEMAIL_MSG		"259 %s :%s"
 
 #define RPL_AWAY_MSG			"301 %s %s :%s"
 #define RPL_USERHOST_MSG		"302 %s :"

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.24 2002/01/06 15:18:14 alex Exp $
+ * $Id: client.c,v 1.25 2002/01/07 15:31:00 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,9 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.25  2002/01/07 15:31:00  alex
+ * - Bei Log-Meldungen ueber Clients wird nun immer die "Client Mask" verwendet.
+ *
  * Revision 1.24  2002/01/06 15:18:14  alex
  * - Loglevel und Meldungen nochmals geaendert. Level passen nun besser.
  *
@@ -277,14 +280,14 @@ GLOBAL VOID Client_Destroy( CLIENT *Client, CHAR *LogMsg, CHAR *FwdMsg )
 				if( c->conn_id != NONE )
 				{
 					/* Ein lokaler User. Andere Server informieren! */
-					Log( LOG_NOTICE, "User \"%s\" unregistered (connection %d): %s", c->id, c->conn_id, txt );
+					Log( LOG_NOTICE, "User \"%s\" unregistered (connection %d): %s", Client_Mask( c ), c->conn_id, txt );
 
 					if( FwdMsg ) IRC_WriteStrServersPrefix( NULL, c, "QUIT :%s", FwdMsg );
 					else IRC_WriteStrServersPrefix( NULL, c, "QUIT :" );
 				}
 				else
 				{
-					Log( LOG_DEBUG, "User \"%s\" unregistered: %s", c->id, txt );
+					Log( LOG_DEBUG, "User \"%s\" unregistered: %s", Client_Mask( c ), txt );
 				}
 			}
 			else if( c->type == CLIENT_SERVER )

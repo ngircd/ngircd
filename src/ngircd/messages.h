@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: messages.h,v 1.54 2002/11/24 18:45:31 alex Exp $
+ * $Id: messages.h,v 1.55 2002/12/02 13:17:46 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  */
@@ -23,7 +23,7 @@
 #define RPL_YOURHOST_MSG		"002 %s :Your host is %s, running version ngircd-%s (%s/%s/%s)"
 #define RPL_CREATED_MSG			"003 %s :This server has been started %s"
 #define RPL_MYINFO_MSG			"004 %s %s ngircd-%s %s %s"
-#define RPL_STATSLINKINFO_MSG		"211 %s %s %d %d %d %d %d :%s"
+#define RPL_STATSLINKINFO_MSG		"211 %s %s %d %ld %ld %ld %ld :%ld"
 #define RPL_STATSCOMMANDS_MSG		"212 %s %s %d %d %d"
 #define RPL_ENDOFSTATS_MSG		"219 %s %c :End of STATS report"
 #define RPL_UMODEIS_MSG			"221 %s +%s"
@@ -104,6 +104,10 @@
 #define ERR_UMODEUNKNOWNFLAG_MSG	"501 %s :Unknown mode"
 #define ERR_UMODEUNKNOWNFLAG2_MSG	"501 %s :Unknown mode \"%c%c\""
 #define ERR_USERSDONTMATCH_MSG		"502 %s :Can't set/get mode for other users"
+
+#ifdef USE_ZLIB
+#define RPL_STATSLINKINFOZIP_MSG	"211 %s %s %d %ld %ld/%ld %ld %ld/%ld :%ld"
+#endif
 
 
 #endif

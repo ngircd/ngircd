@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: messages.h,v 1.20 2002/01/21 00:02:34 alex Exp $
+ * $Id: messages.h,v 1.21 2002/01/27 17:13:37 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: messages.h,v $
+ * Revision 1.21  2002/01/27 17:13:37  alex
+ * - neue Defines fuer RPL_TOPIC und RPL_NOTOPIC.
+ *
  * Revision 1.20  2002/01/21 00:02:34  alex
  * - ERR_NOSUCHCHANNEL hinzugefuegt.
  *
@@ -149,6 +152,12 @@
 #define RPL_WHOISCHANNELS		"319"
 #define RPL_WHOISCHANNELS_MSG		RPL_WHOISCHANNELS" %s :"
 
+#define RPL_NOTOPIC			"331"
+#define RPL_NOTOPIC_MSG			RPL_NOTOPIC" %s %s :No topic is set"
+
+#define RPL_TOPIC			"332"
+#define RPL_TOPIC_MSG			RPL_TOPIC" %s %s :%s"
+
 #define RPL_NAMREPLY			"353"
 #define RPL_NAMREPLY_MSG		RPL_NAMREPLY" %s %s %s :%s"
 
@@ -172,7 +181,7 @@
 #define ERR_NOSUCHSERVER_MSG		ERR_NOSUCHSERVER" %s %s :No such server"
 
 #define ERR_NOSUCHCHANNEL		"403"
-#define ERR_NOSUCHCHANNEL_MSG		ERR_NOSUCHCHANNEL"%s %s :No such channel"
+#define ERR_NOSUCHCHANNEL_MSG		ERR_NOSUCHCHANNEL" %s %s :No such channel"
 
 #define ERR_NOORIGIN			"409"
 #define ERR_NOORIGIN_MSG		ERR_NOORIGIN" %s :No origin specified"

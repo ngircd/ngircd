@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: log.c,v 1.4 2001/12/13 02:04:16 alex Exp $
+ * $Id: log.c,v 1.5 2001/12/15 00:07:56 alex Exp $
  *
  * log.c: Logging-Funktionen
  *
  * $Log: log.c,v $
+ * Revision 1.5  2001/12/15 00:07:56  alex
+ * - Log-Level der Start- und Stop-Meldungen angehoben.
+ *
  * Revision 1.4  2001/12/13 02:04:16  alex
  * - boesen "Speicherschiesser" in Log() gefixt.
  *
@@ -47,13 +50,13 @@
 GLOBAL VOID Log_Init( VOID )
 {
 	openlog( PACKAGE, LOG_CONS|LOG_PID, LOG_DAEMON );
-	Log( LOG_INFO, PACKAGE" version "VERSION" started.");
+	Log( LOG_NOTICE, PACKAGE" version "VERSION" started.");
 } /* Log_Init */
 
 
 GLOBAL VOID Log_Exit( VOID )
 {
-	Log( LOG_INFO, PACKAGE" done.");
+	Log( LOG_NOTICE, PACKAGE" done.");
 	closelog( );
 } /* Log_Exit */
 

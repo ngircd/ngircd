@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: channel.c,v 1.11 2002/01/29 00:11:10 alex Exp $
+ * $Id: channel.c,v 1.12 2002/02/06 16:48:48 alex Exp $
  *
  * channel.c: Management der Channels
  *
  * $Log: channel.c,v $
+ * Revision 1.12  2002/02/06 16:48:48  alex
+ * - neue Funktion Channel_Modes() und Channel_IsValidName().
+ * - Channel-Namen werden (besser) validiert.
+ *
  * Revision 1.11  2002/01/29 00:11:10  alex
  * - neue Funktionen Channel_FirstChannelOf() und Channel_NextChannelOf().
  *
@@ -125,7 +129,7 @@ GLOBAL BOOLEAN Channel_Join( CLIENT *Client, CHAR *Name )
 	assert( Name != NULL );
 
 	/* Valider Channel-Name? */
-	if(( Name[0] != '#' ) || ( strlen( Name ) >= CHANNEL_NAME_LEN ))
+	if( ! Channel_IsValidName( Name ))
 	{
 		IRC_WriteStrClient( Client, ERR_NOSUCHCHANNEL_MSG, Client_ID( Client ), Name );
 		return FALSE;
@@ -215,6 +219,13 @@ GLOBAL CHAR *Channel_Name( CHANNEL *Chan )
 } /* Channel_Name */
 
 
+GLOBAL CHAR *Channel_Modes( CHANNEL *Chan )
+{
+	assert( Chan != NULL );
+	return Chan->modes;
+} /* Channel_Modes */
+
+
 GLOBAL CHANNEL *Channel_First( VOID )
 {
 	return My_Channels;
@@ -287,6 +298,17 @@ GLOBAL CHANNEL *Channel_GetChannel( CL2CHAN *Cl2Chan )
 	assert( Cl2Chan != NULL );
 	return Cl2Chan->channel;
 } /* Channel_GetChannel */
+
+
+GLOBAL BOOLEAN Channel_IsValidName( CHAR *Name )
+{
+	/* PrŸfen, ob Name als Channelname gueltig */
+	
+	assert( Name != NULL );
+
+	if(( Name[0] != '#' ) || ( strlen( Name ) >= CHANNEL_NAME_LEN )) return FALSE;
+	return TRUE;
+} /* Channel_IsValidName */
 
 
 LOCAL CHANNEL *New_Chan( CHAR *Name )

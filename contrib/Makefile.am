@@ -9,12 +9,12 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: Makefile.am,v 1.3 2004/02/29 17:19:43 alex Exp $
+# $Id: Makefile.am,v 1.4 2004/04/28 12:18:02 alex Exp $
 #
 
 SUBDIRS = Debian MacOSX
 
-EXTRA_DIST = ngircd.spec
+EXTRA_DIST = README ngircd.spec systrace.policy
 
 maintainer-clean-local:
 	rm -f Makefile Makefile.in

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: lists.h,v 1.3 2002/06/09 13:18:40 alex Exp $
+ * $Id: lists.h,v 1.4 2002/07/15 16:35:21 alex Exp $
  *
  * lists.h: Verwaltung der "IRC-Listen": Ban, Invite, ... (Header)
  */
@@ -23,7 +23,7 @@ GLOBAL VOID Lists_Init PARAMS(( VOID ));
 GLOBAL VOID Lists_Exit PARAMS(( VOID ));
 
 GLOBAL BOOLEAN Lists_CheckInvited PARAMS(( CLIENT *Client, CHANNEL *Chan ));
-GLOBAL VOID Lists_AddInvited PARAMS(( CHAR *Pattern, CHANNEL *Chan, BOOLEAN OnlyOnce ));
+GLOBAL BOOLEAN Lists_AddInvited PARAMS(( CHAR *Pattern, CHANNEL *Chan, BOOLEAN OnlyOnce ));
 
 GLOBAL BOOLEAN Lists_CheckBanned PARAMS(( CLIENT *Client, CHANNEL *Chan ));
 

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: lists.c,v 1.3 2002/06/09 13:18:23 alex Exp $
+ * $Id: lists.c,v 1.4 2002/07/15 16:35:21 alex Exp $
  *
  * lists.c: Verwaltung der "IRC-Listen": Ban, Invite, ...
  */
@@ -123,7 +123,7 @@ Lists_CheckInvited( CLIENT *Client, CHANNEL *Chan )
 } /* Lists_CheckInvited */
 
 
-GLOBAL VOID
+GLOBAL BOOLEAN
 Lists_AddInvited( CHAR *Pattern, CHANNEL *Chan, BOOLEAN OnlyOnce )
 {
 	C2C *c2c;
@@ -135,7 +135,7 @@ Lists_AddInvited( CHAR *Pattern, CHANNEL *Chan, BOOLEAN OnlyOnce )
 	if( ! c2c )
 	{
 		Log( LOG_ERR, "Can't add new invite list entry!" );
-		return;
+		return FALSE;
 	}
 
 	/* verketten */
@@ -143,6 +143,7 @@ Lists_AddInvited( CHAR *Pattern, CHANNEL *Chan, BOOLEAN OnlyOnce )
 	My_Invites = c2c;
 
 	Log( LOG_DEBUG, "Added \"%s\" to invite list for \"%s\".", Pattern, Channel_Name( Chan ));
+	return TRUE;
 } /* Lists_AddInvited */
 
 

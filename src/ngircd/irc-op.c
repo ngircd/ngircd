@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-op.c,v 1.5 2002/06/11 13:59:07 alex Exp $
+ * $Id: irc-op.c,v 1.6 2002/07/15 16:35:21 alex Exp $
  *
  * irc-op.c: Befehle zur Channel-Verwaltung
  */
@@ -124,8 +124,11 @@ IRC_INVITE( CLIENT *Client, REQUEST *Req )
 	}
 
 	Log( LOG_DEBUG, "User \"%s\" invites \"%s\" to \"%s\" ...", Client_Mask( from ), Req->argv[0], Req->argv[1] );
+	if( remember )
+	{
+		if( ! Lists_AddInvited( Client_Mask( target ), chan, TRUE )) return CONNECTED;
+	}
 	IRC_WriteStrClientPrefix( target, from, "INVITE %s %s", Req->argv[0], Req->argv[1] );
-	if( remember ) Lists_AddInvited( Client_Mask( target ), chan, TRUE );
 
 	if( Client_Conn( target ) > NONE )
 	{

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.53 2002/09/03 23:53:19 alex Exp $
+ * $Id: ngircd.c,v 1.54 2002/09/07 17:57:17 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  */
@@ -285,8 +285,12 @@ main( int argc, const char *argv[] )
 		/* Protokoll- und Server-Identifikation erzeugen. Die vom ngIRCd
 		 * beim PASS-Befehl verwendete Syntax sowie die erweiterten Flags
 		 * sind in doc/Protocol.txt beschrieben. */
+#ifdef IRCPLUS
 		sprintf( NGIRCd_ProtoID, "%s%s %s|%s:%s", PROTOVER, PROTOIRCPLUS, PACKAGE, VERSION, IRCPLUSFLAGS );
 		if( Conf_OperCanMode ) strcat( NGIRCd_ProtoID, "o" );
+#else
+		sprintf( NGIRCd_ProtoID, "%s%s %s|%s", PROTOVER, PROTOIRC, PACKAGE, VERSION );
+#endif
 		strcat( NGIRCd_ProtoID, " P" );
 		Log( LOG_DEBUG, "Protocol and server ID is \"%s\".", NGIRCd_ProtoID );
 
@@ -316,7 +320,7 @@ NGIRCd_Version( VOID )
 {
 	STATIC CHAR version[126];
 
-	sprintf( version, "%s version %s-%s", PACKAGE, VERSION, NGIRCd_VersionAddition( ));
+	sprintf( version, "%s %s-%s", PACKAGE, VERSION, NGIRCd_VersionAddition( ));
 	return version;
 } /* NGIRCd_Version */
 
@@ -332,14 +336,6 @@ NGIRCd_VersionAddition( VOID )
 	if( txt[0] ) strcat( txt, "+" );
 	strcat( txt, "SYSLOG" );
 #endif
-#ifdef REGEX
-	if( txt[0] ) strcat( txt, "+" );
-	strcat( txt, "REGEX" );
-#endif
-#ifdef STRICT_RFC
-	if( txt[0] ) strcat( txt, "+" );
-	strcat( txt, "RFC" );
-#endif
 #ifdef DEBUG
 	if( txt[0] ) strcat( txt, "+" );
 	strcat( txt, "DEBUG" );
@@ -348,17 +344,21 @@ NGIRCd_VersionAddition( VOID )
 	if( txt[0] ) strcat( txt, "+" );
 	strcat( txt, "SNIFFER" );
 #endif
-
+#ifdef STRICT_RFC
+	if( txt[0] ) strcat( txt, "+" );
+	strcat( txt, "RFC" );
+#endif
+#ifdef IRCPLUS
+	if( txt[0] ) strcat( txt, "+" );
+	strcat( txt, "IRCPLUS" );
+#endif
+	
 	if( txt[0] ) strcat( txt, "-" );
-#ifdef PROTOTYPES
-	strcat( txt, TARGET_CPU"/"TARGET_VENDOR"/"TARGET_OS );
-#else
 	strcat( txt, TARGET_CPU );
 	strcat( txt, "/" );
 	strcat( txt, TARGET_VENDOR );
 	strcat( txt, "/" );
 	strcat( txt, TARGET_OS );
-#endif	
 
 	return txt;
 } /* NGIRCd_VersionAddition */

@@ -48,6 +48,7 @@ ngIRCd CVS-HEAD
     nicht, wird automatisch unkomprimiert kommuniziert. Das Verfahren ist
     kompatibel mit dem Original-ircd 2.10.3, d.h. beide Server koennen
     miteinander ueber komprimiert Links kommunizieren.
+  - Handling der Schreibpuffer umgestellt: Server sollte schneller arbeiten.
 
 ngIRCd 0.5.4, 24.11.2002
 
@@ -351,4 +352,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.131 2002/11/26 23:20:19 alex Exp $
+$Id: ChangeLog,v 1.132 2002/11/26 23:31:11 alex Exp $

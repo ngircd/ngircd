@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.50 2002/02/11 01:03:20 alex Exp $
+ * $Id: irc.c,v 1.51 2002/02/11 15:15:53 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.51  2002/02/11 15:15:53  alex
+ * - PING und PONG werden nun auch korrekt an andere Server geforwarded.
+ * - bei MODE-Meldungen wird der letzte Parameter nicht mehr mit ":" getrennt.
+ *
  * Revision 1.50  2002/02/11 01:03:20  alex
  * - Aenderungen und Anpassungen an Channel-Modes und Channel-User-Modes:
  *   Modes werden besser geforwarded, lokale User, fuer die ein Channel
@@ -932,22 +936,8 @@ GLOBAL BOOLEAN IRC_SQUIT( CLIENT *Client, REQUEST *Req )
 
 GLOBAL BOOLEAN IRC_PING( CLIENT *Client, REQUEST *Req )
 {
-	assert( Client != NULL );
-	assert( Req != NULL );
-
-	if(( Client_Type( Client ) != CLIENT_USER ) && ( Client_Type( Client ) != CLIENT_SERVER )) return IRC_WriteStrClient( Client, ERR_NOTREGISTERED_MSG, Client_ID( Client ));
-
-	/* Falsche Anzahl Parameter? */
-	if( Req->argc < 1 ) return IRC_WriteStrClient( Client, ERR_NOORIGIN_MSG, Client_ID( Client ));
-	if( Req->argc > 1 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
-
-	Log( LOG_DEBUG, "Connection %d: got PING, sending PONG ...", Client_Conn( Client ));
-	return IRC_WriteStrClient( Client, "PONG %s :%s", Client_ID( Client_ThisServer( )), Client_ID( Client ));
-} /* IRC_PING */
-
-
-GLOBAL BOOLEAN IRC_PONG( CLIENT *Client, REQUEST *Req )
-{
+	CLIENT *target, *from;
+	
 	assert( Client != NULL );
 	assert( Req != NULL );
 
@@ -956,6 +946,50 @@ GLOBAL BOOLEAN IRC_PONG( CLIENT *Client, REQUEST *Req )
 	/* Falsche Anzahl Parameter? */
 	if( Req->argc < 1 ) return IRC_WriteStrClient( Client, ERR_NOORIGIN_MSG, Client_ID( Client ));
 	if( Req->argc > 2 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	
+	if( Req->argc == 2 )
+	{
+		/* es wurde ein Ziel-Client angegeben */
+		target = Client_GetFromID( Req->argv[1] );
+		if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->argv[1] );
+		if( target != Client_ThisServer( ))
+		{
+			/* ok, forwarden */
+			if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_GetFromID( Req->prefix );
+			else from = Client;
+			if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->prefix );
+			return IRC_WriteStrClientPrefix( Client_NextHop( target ), from, "PING %s :%s", Client_ID( from ), Req->argv[1] );
+		}
+	}
+
+	Log( LOG_DEBUG, "Connection %d: got PING, sending PONG ...", Client_Conn( Client ));
+	return IRC_WriteStrClient( Client, "PONG %s :%s", Client_ID( Client_ThisServer( )), Client_ID( Client ));
+} /* IRC_PING */
+
+
+GLOBAL BOOLEAN IRC_PONG( CLIENT *Client, REQUEST *Req )
+{
+	CLIENT *target, *from;
+
+	assert( Client != NULL );
+	assert( Req != NULL );
+
+	if(( Client_Type( Client ) != CLIENT_USER ) && ( Client_Type( Client ) != CLIENT_SERVER )) return IRC_WriteStrClient( Client, ERR_NOTREGISTERED_MSG, Client_ID( Client ));
+
+	/* Falsche Anzahl Parameter? */
+	if( Req->argc < 1 ) return IRC_WriteStrClient( Client, ERR_NOORIGIN_MSG, Client_ID( Client ));
+	if( Req->argc > 2 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+
+	/* forwarden? */
+	if( Req->argc == 2 )
+	{
+		target = Client_GetFromID( Req->argv[1] );
+		if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->argv[1] );
+		if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_GetFromID( Req->prefix );
+		else from = Client;
+		if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->prefix );
+		return IRC_WriteStrClientPrefix( Client_NextHop( target ), from, "PONG %s :%s", Client_ID( from ), Req->argv[1] );
+	}
 
 	/* Der Connection-Timestamp wurde schon beim Lesen aus dem Socket
 	 * aktualisiert, daher muss das hier nicht mehr gemacht werden. */
@@ -1249,7 +1283,7 @@ GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req )
 			else
 			{
 				/* Bestaetigung an Client schicken & andere Server informieren */
-				ok = IRC_WriteStrClient( Client, "MODE %s :%s", Client_ID( cl ), the_modes );
+				ok = IRC_WriteStrClient( Client, "MODE %s %s", Client_ID( cl ), the_modes );
 				IRC_WriteStrServers( Client, "MODE %s :%s", Client_ID( cl ), the_modes );
 			}
 			Log( LOG_DEBUG, "User \"%s\": Mode change, now \"%s\".", Client_Mask( cl ), Client_Modes( cl ));
@@ -1264,14 +1298,14 @@ GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req )
 				{
 					/* Modes an andere Server und Channel-User forwarden */
 					IRC_WriteStrServersPrefix( Client, Client, "MODE %s %s :%s", Channel_Name( chan ), the_modes, Client_ID( chan_cl));
-					IRC_WriteStrChannelPrefix( Client, chan, Client, FALSE, "MODE %s %s :%s", Channel_Name( chan ), the_modes, Client_ID( chan_cl));
+					IRC_WriteStrChannelPrefix( Client, chan, Client, FALSE, "MODE %s %s %s", Channel_Name( chan ), the_modes, Client_ID( chan_cl));
 				}
 				else
 				{
 					/* Bestaetigung an Client schicken & andere Server informieren */
-					ok = IRC_WriteStrClient( Client, "MODE %s %s :%s", Channel_Name( chan ), the_modes, Client_ID( chan_cl));
+					ok = IRC_WriteStrClient( Client, "MODE %s %s %s", Channel_Name( chan ), the_modes, Client_ID( chan_cl));
 					IRC_WriteStrServersPrefix( Client, Client, "MODE %s %s :%s", Channel_Name( chan ), the_modes, Client_ID( chan_cl));
-					IRC_WriteStrChannelPrefix( Client, chan, Client, FALSE, "MODE %s %s :%s", Channel_Name( chan ), the_modes, Client_ID( chan_cl));
+					IRC_WriteStrChannelPrefix( Client, chan, Client, FALSE, "MODE %s %s %s", Channel_Name( chan ), the_modes, Client_ID( chan_cl));
 				}
 				Log( LOG_DEBUG, "User \"%s\" on %s: Mode change, now \"%s\".", Client_Mask( chan_cl), Channel_Name( chan ), Channel_UserModes( chan, chan_cl ));
 			}
@@ -1286,7 +1320,7 @@ GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req )
 				else
 				{
 					/* Bestaetigung an Client schicken & andere Server informieren */
-					ok = IRC_WriteStrClient( Client, "MODE %s :%s", Channel_Name( chan ), the_modes );
+					ok = IRC_WriteStrClient( Client, "MODE %s %s", Channel_Name( chan ), the_modes );
 					IRC_WriteStrServers( Client, "MODE %s :%s", Channel_Name( chan ), the_modes );
 				}
 				Log( LOG_DEBUG, "Channel \"%s\": Mode change, now \"%s\".", Channel_Name( chan ), Channel_Modes( chan ));

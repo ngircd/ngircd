@@ -17,7 +17,7 @@
 #ifdef RENDEZVOUS
 
 
-static char UNUSED id[] = "$Id: rendezvous.c,v 1.1 2003/02/23 12:02:26 alex Exp $";
+static char UNUSED id[] = "$Id: rendezvous.c,v 1.2 2003/03/27 01:24:32 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -154,7 +154,7 @@ GLOBAL VOID Rendezvous_UnregisterListeners( VOID )
 
 	for( i = 0; i < MAX_RENDEZVOUS; i++ )
 	{
-		if( strchr( My_Rendezvous[i].Desc, '.' )) Unregister( i );
+		if( My_Rendezvous[i].Discovery_Ref ) Unregister( i );
 	}
 } /* Rendezvous_UnregisterListeners */
 

@@ -9,7 +9,7 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: configure.in,v 1.55 2002/09/04 22:11:34 alex Exp $
+# $Id: configure.in,v 1.56 2002/09/07 17:59:08 alex Exp $
 #
 
 # -- Initialisierung --
@@ -28,6 +28,7 @@ AH_TEMPLATE([HAVE_socklen_t], [Define if socklen_t exists])
 AH_TEMPLATE([SNIFFER], [Define if IRC sniffer should be enabled])
 AH_TEMPLATE([STRICT_RFC], [Define if ngIRCd should behave strict RFC compliant])
 AH_TEMPLATE([USE_SYSLOG], [Define if syslog should be used for logging])
+AH_TEMPLATE([IRCPLUS], [Define if IRC+ protocol should be used])
 
 AH_TEMPLATE([TARGET_OS], [Target operating system name])
 AH_TEMPLATE([TARGET_VENDOR], [Target system vendor])
@@ -110,41 +111,36 @@ AC_CHECK_FUNCS(inet_aton sigaction snprintf vsnprintf)
 
 # -- Konfigurationsoptionen --
 
+x_syslog_on=no
 AC_ARG_ENABLE(syslog,
 	[  --disable-syslog        disable syslog (autodetected by default)],
 	[	if test "$enableval" = "yes"; then
-			AC_CHECK_HEADER(syslog.h,
-				[	AC_DEFINE(USE_SYSLOG, 1)
-					AC_CHECK_LIB(be,syslog)
-				],
+			AC_CHECK_HEADER(syslog.h, x_syslog_on=yes,
 				AC_MSG_ERROR([Can't enable syslog: syslog.h not found!])
 			)
-		else
-			AC_MSG_RESULT([disabling syslog])
 		fi
 	],
-	[	AC_CHECK_HEADER(syslog.h,
-			[	AC_DEFINE(USE_SYSLOG, 1)
-				AC_CHECK_LIB(be,syslog)
-			]
-		)
-	]
+	[	AC_CHECK_HEADER(syslog.h, x_syslog_on=yes) ]
 )
+if test "$x_syslog_on" = "yes"; then
+	AC_DEFINE(USE_SYSLOG, 1)
+	AC_CHECK_LIB(be,syslog)
+fi
 
-AC_ARG_ENABLE(strict-rfc,
-	[  --enable-strict-rfc     strict RFC conformance, may break clients],
-	if test "$enableval" = "yes"; then
-		AC_DEFINE(STRICT_RFC, 1)
-		AC_MSG_RESULT([enabling strict RFC conformance])
-	fi
+x_ircplus_on=yes
+AC_ARG_ENABLE(ircplus,
+	[  --disable-ircplus       disable IRC+ protocol],
+	if test "$enableval" = "no"; then x_ircplus_on=no; fi
 )
+if test "$x_ircplus_on" = "yes"; then
+	AC_DEFINE(IRCPLUS, 1)
+fi
 
 AC_ARG_ENABLE(sniffer,
-	[  --enable-sniffer        enable network traffic monitor (enables debug mode!)],
+	[  --enable-sniffer        enable IRC traffic sniffer (enables debug mode)],
 	if test "$enableval" = "yes"; then
 		AC_DEFINE(SNIFFER, 1)
-		AC_MSG_RESULT([enabling network traffic monitor])
-		x_debug_on=yes
+		x_sniffer_on=yes; x_debug_on=yes
 	fi
 )
 
@@ -154,8 +150,16 @@ AC_ARG_ENABLE(debug,
 )
 if test "$x_debug_on" = "yes"; then
 	AC_DEFINE(DEBUG, 1)
-	AC_MSG_RESULT([enabling additional debug output])
 fi
+
+AC_ARG_ENABLE(strict-rfc,
+	[  --enable-strict-rfc     strict RFC conformance -- may break clients!],
+	if test "$enableval" = "yes"; then
+		AC_DEFINE(STRICT_RFC, 1)
+		x_strict_rfc_on=yes
+	fi
+)
+
 
 # -- Definitionen --
 
@@ -177,7 +181,7 @@ fi
 
 CFLAGS="$CFLAGS -DSYSCONFDIR='\"\$(sysconfdir)\"'"
 
-# -- Ausgabe --
+# -- Ausgabe der Dateien --
 
 AC_OUTPUT([ \
 	Makefile \
@@ -190,5 +194,36 @@ AC_OUTPUT([ \
 	src/ngircd/Makefile \
 	man/Makefile \
 ])
+
+# -- Ergebnis --
+
+echo
+
+# Someone please show me a better way :)  [borrowed by OpenSSH]
+B=`eval echo ${bindir}` ; B=`eval echo ${B}`
+S=`eval echo ${sbindir}` ; S=`eval echo ${S}`
+C=`eval echo ${sysconfdir}` ; C=`eval echo ${C}`
+M=`eval echo ${mandir}` ; M=`eval echo ${M}`
+
+echo "                host: ${host}"
+echo "            compiler: ${CC}"
+echo "      compiler flags: ${CFLAGS}"
+echo "  preprocessor flags: ${CPPFLAGS}"
+echo "        linker flags: ${LDFLAGS}"
+echo "           libraries: ${LIBS}"
+echo
+
+echo "     'ngircd' binary: $S"
+echo "  configuration file: $C"
+echo "        manual pages: $M"
+echo
+
+echo $ECHO_N "      active options: $ECHO_C"
+test "$x_syslog_on" = "yes"	&& echo $ECHO_N "Syslog $ECHO_C"
+test "$x_debug_on" = "yes"	&& echo $ECHO_N "Debug $ECHO_C"
+test "$x_sniffer_on" = "yes"	&& echo $ECHO_N "Sniffer $ECHO_C"
+test "$x_strict_rfc_on" = "yes"	&& echo $ECHO_N "Strict-RFC $ECHO_C"
+test "$x_ircplus_on" = "yes"	&& echo $ECHO_N "IRC+ $ECHO_C"
+echo; echo
 
 # -eof-

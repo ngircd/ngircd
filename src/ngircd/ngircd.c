@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.13 2001/12/30 11:42:00 alex Exp $
+ * $Id: ngircd.c,v 1.14 2001/12/30 19:26:12 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  *
  * $Log: ngircd.c,v $
+ * Revision 1.14  2001/12/30 19:26:12  alex
+ * - Unterstuetzung fuer die Konfigurationsdatei eingebaut.
+ *
  * Revision 1.13  2001/12/30 11:42:00  alex
  * - der Server meldet nun eine ordentliche "Start-Zeit".
  *
@@ -88,6 +91,8 @@
 LOCAL VOID Initialize_Signal_Handler( VOID );
 LOCAL VOID Signal_Handler( INT Signal );
 
+LOCAL VOID Initialize_Listen_Ports( VOID );
+
 
 GLOBAL INT main( INT argc, CONST CHAR *argv[] )
 {
@@ -110,9 +115,9 @@ GLOBAL INT main( INT argc, CONST CHAR *argv[] )
 
 	/* Signal-Handler initialisieren */
 	Initialize_Signal_Handler( );
-	
-	if( ! Conn_NewListener( 6668 )) exit( 1 );
-	if( ! Conn_NewListener( 6669 )) Log( LOG_WARNING, "Can't create second listening socket!" );
+
+	/* Listen-Ports initialisieren */
+	Initialize_Listen_Ports( );
 	
 	/* Hauptschleife */
 	while( ! NGIRCd_Quit )
@@ -176,5 +181,27 @@ LOCAL VOID Signal_Handler( INT Signal )
 	}
 } /* Signal_Handler */
 
+
+LOCAL VOID Initialize_Listen_Ports( VOID )
+{
+	/* Ports, auf denen der Server Verbindungen entgegennehmen
+	 * soll, initialisieren */
+	
+	INT created, i;
+
+	created = 0;
+	for( i = 0; i < Conf_ListenPorts_Count; i++ )
+	{
+		if( Conn_NewListener( Conf_ListenPorts[i] )) created++;
+		else Log( LOG_ERR, "Can't listen on port %d!", Conf_ListenPorts[i] );
+	}
+
+	if( created < 1 )
+	{
+		Log( LOG_ALERT, "Server isn't listening on a single port!" );
+		Log( LOG_ALERT, PACKAGE" exiting due to fatal errors!" );
+		exit( 1 );
+	}
+} /* Initialize_Listen_Ports */
 
 /* -eof- */

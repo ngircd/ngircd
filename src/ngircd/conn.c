@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.21 2001/12/29 22:33:36 alex Exp $
+ * $Id: conn.c,v 1.22 2001/12/30 19:26:11 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
+ * Revision 1.22  2001/12/30 19:26:11  alex
+ * - Unterstuetzung fuer die Konfigurationsdatei eingebaut.
+ *
  * Revision 1.21  2001/12/29 22:33:36  alex
  * - bessere Dokumentation des Modules bzw. der Funktionen.
  *
@@ -288,7 +291,7 @@ GLOBAL BOOLEAN Conn_NewListener( CONST INT Port )
 
 	if( sock > My_Max_Fd ) My_Max_Fd = sock;
 
-	Log( LOG_INFO, "Now listening on port %d, socket %d.", Port, sock );
+	Log( LOG_INFO, "Now listening on port %d (socket %d).", Port, sock );
 
 	return TRUE;
 } /* Conn_NewListener */

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.12 2001/12/29 20:18:18 alex Exp $
+ * $Id: client.c,v 1.13 2001/12/30 19:26:11 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,9 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.13  2001/12/30 19:26:11  alex
+ * - Unterstuetzung fuer die Konfigurationsdatei eingebaut.
+ *
  * Revision 1.12  2001/12/29 20:18:18  alex
  * - neue Funktion Client_SetHostname().
  *
@@ -75,6 +78,7 @@
 
 #include <imp.h>
 #include "channel.h"
+#include "conf.h"
 #include "conn.h"
 #include "irc.h"
 #include "log.h"
@@ -98,6 +102,7 @@ GLOBAL VOID Client_Init( VOID )
 	if( ! This_Server )
 	{
 		Log( LOG_EMERG, "Can't allocate client structure for server! Going down." );
+		Log( LOG_ALERT, PACKAGE" exiting due to fatal errors!" );
 		exit( 1 );
 	}
 
@@ -111,7 +116,7 @@ GLOBAL VOID Client_Init( VOID )
 	h = gethostbyname( This_Server->host );
 	if( h ) strcpy( This_Server->host, h->h_name );
 
-	strcpy( This_Server->nick, This_Server->host );
+	strcpy( This_Server->nick, Conf_ServerName );
 
 	My_Clients = This_Server;
 } /* Client_Init */
@@ -264,7 +269,7 @@ GLOBAL CHAR *Client_GetID( CLIENT *Client )
 
 	assert( Client != NULL );
 	
-	if( Client->type == CLIENT_SERVER ) return Client->host;
+	if( Client->type == CLIENT_SERVER ) return Client->nick;
 
 	sprintf( GetID_Buffer, "%s!%s@%s", Client->nick, Client->user, Client->host );
 	return GetID_Buffer;

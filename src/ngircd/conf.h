@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.h,v 1.4 2001/12/26 22:48:53 alex Exp $
+ * $Id: conf.h,v 1.5 2001/12/30 19:26:11 alex Exp $
  *
  * conf.h: Konfiguration des ngircd (Header)
  *
  * $Log: conf.h,v $
+ * Revision 1.5  2001/12/30 19:26:11  alex
+ * - Unterstuetzung fuer die Konfigurationsdatei eingebaut.
+ *
  * Revision 1.4  2001/12/26 22:48:53  alex
  * - MOTD-Datei ist nun konfigurierbar und wird gelesen.
  *
@@ -33,14 +36,20 @@
 
 
 #define FNAME_LEN 256
+#define LISTEN_PORTS 16
 
 
-GLOBAL CHAR Conf_File[FNAME_LEN];	/* Konfigurationsdatei */
+GLOBAL CHAR Conf_File[FNAME_LEN];		/* Konfigurationsdatei */
 
-GLOBAL INT Conf_PingTimeout;		/* Ping Timeout */
-GLOBAL INT Conf_PongTimeout;		/* Pong Timeout */
+GLOBAL CHAR Conf_ServerName[CLIENT_ID_LEN];	/* Name ("Nick") des Servers */
 
-GLOBAL CHAR Conf_MotdFile[FNAME_LEN];	/* Datei mit MOTD-Text */
+GLOBAL CHAR Conf_MotdFile[FNAME_LEN];		/* Datei mit MOTD-Text */
+
+GLOBAL INT Conf_ListenPorts[LISTEN_PORTS];	/* Ports, auf denen der Server Verbindungen */
+GLOBAL INT Conf_ListenPorts_Count;		/* entgegen nimmt sowie deren Anzahl */
+
+GLOBAL INT Conf_PingTimeout;			/* Ping Timeout */
+GLOBAL INT Conf_PongTimeout;			/* Pong Timeout */
 
 
 GLOBAL VOID Conf_Init( VOID );

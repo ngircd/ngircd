@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.14 2001/12/30 11:42:00 alex Exp $
+ * $Id: irc.c,v 1.15 2001/12/30 19:26:11 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.15  2001/12/30 19:26:11  alex
+ * - Unterstuetzung fuer die Konfigurationsdatei eingebaut.
+ *
  * Revision 1.14  2001/12/30 11:42:00  alex
  * - der Server meldet nun eine ordentliche "Start-Zeit".
  *
@@ -480,9 +483,9 @@ LOCAL BOOLEAN Hello_User( CLIENT *Client )
 	Log( LOG_NOTICE, "User \"%s!%s@%s\" (%s) registered (connection %d).", Client->nick, Client->user, Client->host, Client->name, Client->conn_id );
 
 	IRC_WriteStrClient( Client, This_Server, RPL_WELCOME_MSG, Client->nick, Client_GetID( Client ));
-	IRC_WriteStrClient( Client, This_Server, RPL_YOURHOST_MSG, Client->nick, This_Server->host );
+	IRC_WriteStrClient( Client, This_Server, RPL_YOURHOST_MSG, Client->nick, This_Server->nick );
 	IRC_WriteStrClient( Client, This_Server, RPL_CREATED_MSG, Client->nick, NGIRCd_StartStr );
-	IRC_WriteStrClient( Client, This_Server, RPL_MYINFO_MSG, Client->nick, This_Server->host );
+	IRC_WriteStrClient( Client, This_Server, RPL_MYINFO_MSG, Client->nick, This_Server->nick );
 
 	Client->type = CLIENT_USER;
 
@@ -506,7 +509,7 @@ LOCAL BOOLEAN Show_MOTD( CLIENT *Client )
 		return IRC_WriteStrClient( Client, This_Server, ERR_NOMOTD_MSG, Client->nick );
 	}
 	
-	IRC_WriteStrClient( Client, This_Server, RPL_MOTDSTART_MSG, Client->nick, This_Server->host );
+	IRC_WriteStrClient( Client, This_Server, RPL_MOTDSTART_MSG, Client->nick, This_Server->nick );
 	while( TRUE )
 	{
 		if( ! fgets( line, 126, fd )) break;

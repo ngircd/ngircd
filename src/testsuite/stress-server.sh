@@ -9,7 +9,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: stress-server.sh,v 1.10 2004/09/04 14:23:09 alex Exp $
+# $Id: stress-server.sh,v 1.11 2004/09/04 15:45:27 alex Exp $
 #
 
 # detect source directory
@@ -17,7 +17,7 @@
 
 # parse command line
 [ "$1" -gt 0 ] 2> /dev/null && CLIENTS="$1" || CLIENTS=5
-[ "$2" -gt 0 ] 2> /dev/null && LOOPS="$2" || LOOPS=1
+[ "$2" -gt 0 ] 2> /dev/null && MAX="$2" || MAX=5
 
 # get our name
 name=`basename $0`
@@ -36,9 +36,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # hello world! :-)
-[ $LOOPS -gt 1 ] \
-  && echo "      stressing server with $CLIENTS clients in $LOOPS loops (be patient!):" \
-  || echo "      stressing server with $CLIENTS clients (be patient!):"
+echo "      stressing server with $CLIENTS clients (be patient!):"
 
 # create scripts for expect(1)
 no=0
@@ -49,41 +47,31 @@ while [ ${no} -lt $CLIENTS ]; do
   no=`expr ${no} + 1`
 done
 
-# main loop ...
-loop=0
-while [ ${loop} -lt $LOOPS ]; do
-  no=0
-  loop=`expr ${loop} + 1`
-  while [ ${no} -lt $CLIENTS ]; do
-    expect tests/${no}.e > logs/stress-${no}.log 2> /dev/null &
-    no=`expr ${no} + 1`
-  done
-  if [ $LOOPS -gt 1 ]; then
-    echo "      loop $loop/$LOOPS: started $no clients."
-    echo -n "      loop $loop/$LOOPS: waiting for clients to complete: ."
-  else
-    echo "      started $no clients."
-    echo -n "      waiting for clients to complete: ."
-  fi
+no=0
+while [ ${no} -lt $CLIENTS ]; do
+  expect tests/${no}.e > logs/stress-${no}.log 2> /dev/null &
+  no=`expr ${no} + 1`
 
-  res=3
-  touch logs/check-idle.log
-  while true; do
-    expect ${srcdir}/check-idle.e >> logs/check-idle.log; res=$?
-    echo "====================" >> logs/check-idle.log
-    [ $res -ne 99 ] && break
+  count=`ps | grep "expect " | wc -l`
+  count=`expr $count - 1`
+  echo "      started client $no/$CLIENTS ($count test scripts running)."
 
-    # there are still clients connected. Wait ...
-    sleep 3
-    echo -n "."
-  done
-
-  if [ $res -ne 0 ]; then
-    echo " ERROR!"
-    break
-  fi
-  echo " done."
+  $srcdir/wait-tests.sh $MAX
 done
+
+echo -n "      waiting for clients to complete: ."
+touch logs/check-idle.log
+while true; do
+  expect ${srcdir}/check-idle.e >> logs/check-idle.log; res=$?
+  echo "====================" >> logs/check-idle.log
+  [ $res -ne 99 ] && break
+
+  # there are still clients connected. Wait ...
+  sleep 3
+  echo -n "."
+done
+
+[ $res -eq 0 ] && echo " done." || echo " ERROR!"
 
 exit $res
 

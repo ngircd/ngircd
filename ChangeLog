@@ -38,6 +38,7 @@ ngIRCd CVS-HEAD
   - WHOIS commands weren't always forwarded as requested.
   - The server sets a correct default AWAY message now when propagating
     between servers.
+  - Restructured the documentation: Now the main language is english.
 
 
 Older changes (sorry, only available in german language):
@@ -401,4 +402,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.163 2003/01/02 17:58:31 alex Exp $
+$Id: ChangeLog,v 1.164 2003/01/04 13:09:07 alex Exp $

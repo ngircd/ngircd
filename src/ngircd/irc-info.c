@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-info.c,v 1.23 2005/01/24 14:17:21 alex Exp $";
+static char UNUSED id[] = "$Id: irc-info.c,v 1.24 2005/01/24 14:19:04 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -794,7 +794,7 @@ IRC_Show_MOTD( CLIENT *Client )
 		if( ! fgets( line, sizeof( line ), fd )) break;
 
 		line_len = strlen( line );
-		if( line_len > 0 ) pos--;
+		if( line_len > 0 ) line_len--;
 		if( line[line_len] == '\n' ) line[line_len] = '\0';
 
 		if( ! IRC_WriteStrClient( Client, RPL_MOTD_MSG, Client_ID( Client ), line ))

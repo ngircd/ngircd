@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: client.c,v 1.65.2.1 2002/12/22 23:42:28 alex Exp $";
+static char UNUSED id[] = "$Id: client.c,v 1.65.2.2 2003/01/08 23:09:04 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -394,24 +394,13 @@ Client_SetPassword( CLIENT *Client, CHAR *Pwd )
 GLOBAL VOID
 Client_SetAway( CLIENT *Client, CHAR *Txt )
 {
-	/* Von einem Client gelieferte AWAY-Nachricht */
-
+	/* Set AWAY reason of client */
+	
 	assert( Client != NULL );
+	assert( Txt != NULL );
 
-	if( Txt )
-	{
-		/* Client AWAY setzen */
-		strncpy( Client->away, Txt, CLIENT_AWAY_LEN - 1 );
-		Client->away[CLIENT_AWAY_LEN - 1] = '\0';
-		Client_ModeAdd( Client, 'a' );
-		Log( LOG_DEBUG, "User \"%s\" is away: %s", Client_Mask( Client ), Txt );
-	}
-	else
-	{
-		/* AWAY loeschen */
-		Client_ModeDel( Client, 'a' );
-		Log( LOG_DEBUG, "User \"%s\" is no longer away.", Client_Mask( Client ));
-	}
+	strlcpy( Client->away, Txt, sizeof( Client->away ));
+	Log( LOG_DEBUG, "User \"%s\" is away: %s", Client_Mask( Client ), Txt );
 } /* Client_SetAway */
 
 

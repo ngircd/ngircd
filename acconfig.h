@@ -9,9 +9,12 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: acconfig.h,v 1.4 2001/12/27 01:44:49 alex Exp $
+ * $Id: acconfig.h,v 1.5 2001/12/29 03:04:35 alex Exp $
  *
  * $Log: acconfig.h,v $
+ * Revision 1.5  2001/12/29 03:04:35  alex
+ * - neue configure-Option "--enable-strict-rfc", #define STRICT_RFC.
+ *
  * Revision 1.4  2001/12/27 01:44:49  alex
  * - die Verwendung von syslog kann nun abgeschaltet werden.
  *
@@ -33,6 +36,8 @@
 #undef SNIFFER
 
 #undef USE_SYSLOG
+
+#undef STRICT_RFC
 
 
 /* -eof- */

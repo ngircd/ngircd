@@ -1,6 +1,9 @@
-# $Id: Makefile.am,v 1.2 2001/12/12 17:20:02 alex Exp $
+# $Id: Makefile.am,v 1.3 2001/12/13 02:03:33 alex Exp $
 
 # $Log: Makefile.am,v $
+# Revision 1.3  2001/12/13 02:03:33  alex
+# - beim Compilieren werden nun Informationen fuer den Debugger erzeugt.
+#
 # Revision 1.2  2001/12/12 17:20:02  alex
 # - neue Sourcefiles und Header ergaenzt.
 #
@@ -8,7 +11,7 @@
 # Imported sources to CVS.
 #
 
-CFLAGS = -Wall
+CFLAGS = -Wall -g
 
 sbin_PROGRAMS = ngircd
 

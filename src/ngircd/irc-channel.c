@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-channel.c,v 1.19 2002/12/13 17:53:32 alex Exp $";
+static char UNUSED id[] = "$Id: irc-channel.c,v 1.20 2002/12/14 13:23:11 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -83,6 +83,16 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 		/* Lokaler Client? */
 		if( Client_Type( Client ) == CLIENT_USER )
 		{
+			/* Test if the user has reached his maximum channel count */
+			if( Client_Type( Client ) == CLIENT_USER )
+			{
+				if(( Conf_MaxJoins > 0 ) && ( Channel_CountForUser( Client ) >= Conf_MaxJoins ))
+				{
+					IRC_WriteStrClient( Client, ERR_TOOMANYCHANNELS_MSG, Client_ID( Client ), channame );
+					return CONNECTED;
+				}
+			}
+
 			/* Existiert der Channel bereits, oder wird er im Moment neu erzeugt? */
 			if( is_new_chan )
 			{
@@ -94,17 +104,6 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 				/* Existierenden Channel suchen */
 				chan = Channel_Search( channame );
 				assert( chan != NULL );
-
-				/* Test if the user has reached his maximum channel count */
-				if( Client_Type( Client ) == CLIENT_USER )
-				{
-					if(( Conf_MaxJoins > 0 ) && ( Channel_CountForUser( chan, Client ) > Conf_MaxJoins ))
-					{
-						IRC_WriteStrClient( Client, ERR_TOOMANYCHANNELS_MSG, Client_ID( Client ), channame );
-						return CONNECTED;
-					}
-				}
-
 
 				is_banned = Lists_CheckBanned( target, chan );
 				is_invited = Lists_CheckInvited( target, chan );

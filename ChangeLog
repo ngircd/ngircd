@@ -13,6 +13,8 @@
 ngIRCd CVS-HEAD
 
   - Manual-Pages ngircd.8 und ngircd.conf.5 begonnen.
+  - LUSERS verzaehlt sich bei eigenen Server-Links nicht mehr.
+  - QUIT wird nun auch von noch nicht registrierten Clients akzeptiert.
 
 ngIRCd 0.4.1, 08.04.2002
 
@@ -189,4 +191,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.60 2002/04/08 17:53:31 alex Exp $
+$Id: ChangeLog,v 1.61 2002/04/14 14:03:45 alex Exp $

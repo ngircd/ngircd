@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: log.c,v 1.13 2001/12/31 02:18:51 alex Exp $
+ * $Id: log.c,v 1.14 2002/01/01 18:01:43 alex Exp $
  *
  * log.c: Logging-Funktionen
  *
  * $Log: log.c,v $
+ * Revision 1.14  2002/01/01 18:01:43  alex
+ * - Architektur und Betriebssystem in Start-Meldung aufgenommen.
+ *
  * Revision 1.13  2001/12/31 02:18:51  alex
  * - viele neue Befehle (WHOIS, ISON, OPER, DIE, RESTART),
  * - neuen Header "defines.h" mit (fast) allen Konstanten.
@@ -107,7 +110,7 @@ GLOBAL VOID Log_Init( VOID )
 #ifdef USE_SYSLOG
 	openlog( PACKAGE, LOG_CONS|LOG_PID, LOG_LOCAL5 );
 #endif
-	Log( LOG_NOTICE, PACKAGE" version "VERSION"%s started.", txt );
+	Log( LOG_NOTICE, PACKAGE" version "VERSION"%s-"P_OSNAME"/"P_ARCHNAME" started.", txt );
 } /* Log_Init */
 
 

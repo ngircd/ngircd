@@ -14,10 +14,11 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-oper.c,v 1.16 2002/12/30 00:01:45 alex Exp $";
+static char UNUSED id[] = "$Id: irc-oper.c,v 1.17 2002/12/31 16:10:55 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "ngircd.h"
@@ -82,13 +83,16 @@ IRC_OPER( CLIENT *Client, REQUEST *Req )
 GLOBAL BOOLEAN
 IRC_DIE( CLIENT *Client, REQUEST *Req )
 {
+	/* Shut down server */
+
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	/* Falsche Anzahl Parameter? */
-	if( Req->argc != 0 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
-
+	/* Not a local IRC operator? */
 	if(( ! Client_HasMode( Client, 'o' )) || ( ! Client_OperByMe( Client ))) return IRC_WriteStrClient( Client, ERR_NOPRIVILEGES_MSG, Client_ID( Client ));
+	
+	/* Bad number of parameters? */
+	if( Req->argc != 0 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
 	Log( LOG_NOTICE|LOG_snotice, "Got DIE command from \"%s\" ...", Client_Mask( Client ));
 	NGIRCd_SignalQuit = TRUE;
@@ -99,13 +103,16 @@ IRC_DIE( CLIENT *Client, REQUEST *Req )
 GLOBAL BOOLEAN
 IRC_REHASH( CLIENT *Client, REQUEST *Req )
 {
+	/* Reload configuration file */
+
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	/* Falsche Anzahl Parameter? */
-	if( Req->argc != 0 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
-
+	/* Not a local IRC operator? */
 	if(( ! Client_HasMode( Client, 'o' )) || ( ! Client_OperByMe( Client ))) return IRC_WriteStrClient( Client, ERR_NOPRIVILEGES_MSG, Client_ID( Client ));
+
+	/* Bad number of parameters? */
+	if( Req->argc != 0 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
 	Log( LOG_NOTICE|LOG_snotice, "Got REHASH command from \"%s\" ...", Client_Mask( Client ));
 	NGIRCd_SignalRehash = TRUE;
@@ -117,13 +124,16 @@ IRC_REHASH( CLIENT *Client, REQUEST *Req )
 GLOBAL BOOLEAN
 IRC_RESTART( CLIENT *Client, REQUEST *Req )
 {
+	/* Restart IRC server (fork a new process) */
+
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	/* Falsche Anzahl Parameter? */
-	if( Req->argc != 0 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
-
+	/* Not a local IRC operator? */
 	if(( ! Client_HasMode( Client, 'o' )) || ( ! Client_OperByMe( Client ))) return IRC_WriteStrClient( Client, ERR_NOPRIVILEGES_MSG, Client_ID( Client ));
+
+	/* Bad number of parameters? */
+	if( Req->argc != 0 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
 	Log( LOG_NOTICE|LOG_snotice, "Got RESTART command from \"%s\" ...", Client_Mask( Client ));
 	NGIRCd_SignalRestart = TRUE;
@@ -134,19 +144,63 @@ IRC_RESTART( CLIENT *Client, REQUEST *Req )
 GLOBAL BOOLEAN
 IRC_CONNECT(CLIENT *Client, REQUEST *Req )
 {
-	/* Vorlaeufige Version zu Debug-Zwecken: es wird einfach
-	 * der "passive mode" aufgehoben, mehr passiert nicht ... */
+	/* Connect configured or new server */
 
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	/* Falsche Anzahl Parameter? */
-	if( Req->argc != 0 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	/* Not a local IRC operator? */
 	if(( ! Client_HasMode( Client, 'o' )) || ( ! Client_OperByMe( Client ))) return IRC_WriteStrClient( Client, ERR_NOPRIVILEGES_MSG, Client_ID( Client ));
 
-	Log( LOG_NOTICE|LOG_snotice, "Got CONNECT command from \"%s\".", Client_Mask( Client ));
-	NGIRCd_Passive = FALSE;
+	/* Bad number of parameters? */
+	if(( Req->argc != 2 ) && ( Req->argc != 5 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+
+	/* Invalid port number? */
+	if( atoi( Req->argv[1] ) < 1 )  return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+
+	Log( LOG_NOTICE|LOG_snotice, "Got CONNECT command from \"%s\" for \"%s\".", Client_Mask( Client ), Req->argv[0]);
+
+	if( Req->argc == 2 )
+	{
+		/* Connect configured server */
+		if( ! Conf_EnableServer( Req->argv[0], atoi( Req->argv[1] ))) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->argv[0] );
+	}
+	else
+	{
+		/* Add server */
+		if( ! Conf_AddServer( Req->argv[0], atoi( Req->argv[1] ), Req->argv[2], Req->argv[3], Req->argv[4] )) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->argv[0] );
+	}
 	return CONNECTED;
+} /* IRC_CONNECT */
+
+
+GLOBAL BOOLEAN
+IRC_DISCONNECT(CLIENT *Client, REQUEST *Req )
+{
+	/* Disconnect and disable configured server */
+
+	CONN_ID my_conn;
+
+	assert( Client != NULL );
+	assert( Req != NULL );
+
+	/* Not a local IRC operator? */
+	if(( ! Client_HasMode( Client, 'o' )) || ( ! Client_OperByMe( Client ))) return IRC_WriteStrClient( Client, ERR_NOPRIVILEGES_MSG, Client_ID( Client ));
+
+	/* Bad number of parameters? */
+	if( Req->argc != 1 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+
+	Log( LOG_NOTICE|LOG_snotice, "Got DISCONNECT command from \"%s\" for0 \"%s\".", Client_Mask( Client ), Req->argv[0]);
+
+	/* Save ID of this connection */
+	my_conn = Client_Conn( Client );
+
+	/* Connect configured server */
+	if( ! Conf_DisableServer( Req->argv[0] )) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->argv[0] );
+
+	/* Are we still connected or were we killed, too? */
+	if( Client_GetFromConn( my_conn )) return CONNECTED;
+	else return DISCONNECTED;
 } /* IRC_CONNECT */
 
 

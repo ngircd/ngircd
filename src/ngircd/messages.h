@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: messages.h,v 1.28 2002/02/13 23:04:50 alex Exp $
+ * $Id: messages.h,v 1.29 2002/02/17 17:42:53 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: messages.h,v $
+ * Revision 1.29  2002/02/17 17:42:53  alex
+ * - neue Text-Konstante ERR_UMODEUNKNOWNFLAG2_MSG.
+ *
  * Revision 1.28  2002/02/13 23:04:50  alex
  * - RPL_MYINFO_MSG korrigiert.
  *
@@ -255,7 +258,8 @@
 #define ERR_NOOPERHOST_MSG		ERR_NOOPERHOST" %s :Not configured for your host"
 
 #define ERR_UMODEUNKNOWNFLAG		"501"
-#define ERR_UMODEUNKNOWNFLAG_MSG	ERR_UMODEUNKNOWNFLAG" %s :Unknown mode flag"
+#define ERR_UMODEUNKNOWNFLAG_MSG	ERR_UMODEUNKNOWNFLAG" %s :Unknown mode"
+#define ERR_UMODEUNKNOWNFLAG2_MSG	ERR_UMODEUNKNOWNFLAG" %s :Unknown mode \"%c%c\""
 
 #define ERR_USERSDONTMATCH		"502"
 #define ERR_USERSDONTMATCH_MSG		ERR_USERSDONTMATCH" %s :Can't set/get mode for other users"

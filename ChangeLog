@@ -37,7 +37,7 @@ ngIRCd CVS-HEAD
     answers with the correct error message ("no such server") now.
   - WHOIS commands weren't always forwarded as requested.
   - The server sets a correct default AWAY message now when propagating
-    between servers.
+    between servers (bug introduced in 0.6.0).
   - Restructured the documentation: Now the main language is english.
 
 
@@ -402,4 +402,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.164 2003/01/04 13:09:07 alex Exp $
+$Id: ChangeLog,v 1.165 2003/01/05 23:06:12 alex Exp $

@@ -9,13 +9,13 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.16 2002/01/02 02:44:37 alex Exp $
+ * $Id: ngircd.c,v 1.17 2002/01/02 02:51:16 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  *
  * $Log: ngircd.c,v $
- * Revision 1.16  2002/01/02 02:44:37  alex
- * - neue Defines fuer max. Anzahl Server und Operatoren.
+ * Revision 1.17  2002/01/02 02:51:16  alex
+ * - Signal-Handler fuer SIGCHLD: so sollten Zombies nicht mehr vorkommen.
  *
  * Revision 1.15  2001/12/31 02:18:51  alex
  * - viele neue Befehle (WHOIS, ISON, OPER, DIE, RESTART),

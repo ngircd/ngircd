@@ -1,6 +1,6 @@
 #!/bin/sh
 # ngIRCd Test Suite
-# $Id: start-server.sh,v 1.1 2002/09/09 10:16:24 alex Exp $
+# $Id: start-server.sh,v 1.2 2002/09/09 22:56:07 alex Exp $
 
 echo "      starting server ..."
 
@@ -11,5 +11,7 @@ sleep 1
 
 pid=`ps a | grep ngircd-test | head -n 1 | cut -d ' ' -f 1`
 kill -0 $pid > /dev/null 2>&1
+
+rm -rf logs
 
 # -eof-

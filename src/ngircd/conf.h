@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conf.h,v 1.22 2002/12/12 11:26:08 alex Exp $
+ * $Id: conf.h,v 1.23 2002/12/13 17:32:33 alex Exp $
  *
  * Configuration management (header)
  */
@@ -98,6 +98,12 @@ GLOBAL BOOLEAN Conf_OperCanMode;
 
 /* Maximum number of connections to this server */
 GLOBAL LONG Conf_MaxConnections;
+
+/* Maximum number of channels a user can join */
+GLOBAL INT Conf_MaxJoins;
+
+/* Maximum number of persistent channels in the network */
+GLOBAL INT Conf_MaxPChannels;
 
 
 GLOBAL VOID Conf_Init PARAMS((VOID ));

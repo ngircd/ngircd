@@ -1,0 +1,27 @@
+
+                     ngIRCd - Next Generation IRC Server
+
+                      (c)2001-2004 by Alexander Barton,
+                    alex@barton.de, http://www.barton.de/
+
+               ngIRCd is free software and published under the
+                   terms of the GNU General Public License.
+
+                            -- Contributions --
+
+
+MacOSX/
+ - Project file for XCode "project builder" of Mac OS X.
+
+Debian/
+ - Various files for building Debian packages.
+
+ngircd.spec
+ - RPM "spec" file.
+
+systrace.policy
+ - Systrace policy file for OpenBSD (and probably NetBSD).
+
+
+--
+$Id: README,v 1.1 2004/04/28 12:18:50 alex Exp $

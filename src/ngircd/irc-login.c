@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-login.c,v 1.6 2002/03/11 22:04:10 alex Exp $
+ * $Id: irc-login.c,v 1.7 2002/03/11 22:07:46 alex Exp $
  *
  * irc-login.c: Anmeldung und Abmeldung im IRC
  *
  * $Log: irc-login.c,v $
+ * Revision 1.7  2002/03/11 22:07:46  alex
+ * - SQUIT, QUIT: Loglevel bei unbekannten Clients wieder auf WARNING erhoeht.
+ *
  * Revision 1.6  2002/03/11 22:04:10  alex
  * - Client_Destroy() hat neuen Paramter: QUITs fuer Clients verschicken?
  *
@@ -288,7 +291,7 @@ GLOBAL BOOLEAN IRC_QUIT( CLIENT *Client, REQUEST *Req )
 		if( ! target )
 		{
 			/* Den Client kennen wir nicht (mehr), also nichts zu tun. */
-			Log( LOG_DEBUG, "Got QUIT from %s for unknown client!?", Client_ID( Client ));
+			Log( LOG_WARNING, "Got QUIT from %s for unknown client!?", Client_ID( Client ));
 			return CONNECTED;
 		}
 

@@ -1,9 +1,9 @@
 ngircd (0.7.0-0.5ab) unstable; urgency=low
 
   * Enhanced init script.
-  * Included all fixes from actual CVS "HEAD" branch.
+  * Included NJOIN fix from actual CVS "HEAD" branch.
 
- -- Alexander Barton <alex@Arthur.Ath.CX>  Wed,  9 Jul 2003 22:18:43 +0200
+ -- Alexander Barton <alex@Arthur.Ath.CX>  Wed,  9 Jul 2003 22:40:49 +0200
 
 ngircd (0.7.0-0.4ab) unstable; urgency=low
 

@@ -1,4 +1,4 @@
-# $Id: check-idle.e,v 1.1 2002/09/09 22:56:07 alex Exp $
+# $Id: check-idle.e,v 1.2 2004/09/04 14:22:13 alex Exp $
 
 spawn telnet localhost 6789
 expect {
@@ -10,6 +10,7 @@ send "nick IdleTest\r"
 send "user idle . . :Idle-Test\r"
 expect {
 	timeout { exit 1 }
+	"433 * IdleTest :Nickname already in use" { exit 99 }
 	"376"
 }
 

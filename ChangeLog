@@ -12,7 +12,7 @@
 
 ngIRCd CVS-HEAD
 
-  - ...
+  - Buffer Overflow in Read_Resolver_Result() behoben.
 
 ngIRCd 0.5.1, 03.10.2002
 
@@ -282,4 +282,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.100 2002/10/03 16:10:43 alex Exp $
+$Id: ChangeLog,v 1.101 2002/10/03 21:03:59 alex Exp $

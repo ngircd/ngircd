@@ -12,6 +12,11 @@
 
 ngIRCd CVSHEAD
 
+  - When the daemon should switch to another user ID (ServerID is defined in
+    the configuration file) and is not running in a chroot environment, it
+    changes it's working directory to the home directory of this user. This
+    should enable the system to write proper core files when not running with
+    root privileges ...
   - Enhanced the "test suite": please have a look at src/testsuite/README!
 
 ngIRCd 0.8.0 (2004-06-26)
@@ -534,4 +539,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.239 2004/09/04 19:39:24 alex Exp $
+$Id: ChangeLog,v 1.240 2004/09/04 20:28:51 alex Exp $

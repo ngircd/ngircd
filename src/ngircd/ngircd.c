@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.85 2004/05/11 00:01:11 alex Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.86 2004/09/04 20:28:51 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -285,6 +285,25 @@ main( int argc, const char *argv[] )
 			chdir( "/" );
 		}
 
+		/* Show user, group, and PID of the running daemon */
+		pwd = getpwuid( getuid( )); grp = getgrgid( getgid( ));
+		Log( LOG_INFO, "Running as user %s(%ld), group %s(%ld), with PID %ld.", pwd ? pwd->pw_name : "unknown", (LONG)getuid( ), grp ? grp->gr_name : "unknown", (LONG)getgid( ), (LONG)getpid( ));
+
+		/* Change working directory to home directory of the user
+		 * we are running as (when not running chroot()'ed!) */
+		if( Conf_UID != 0 && ! Conf_Chroot[0] )
+		{
+			struct passwd *pwd;
+
+			pwd = getpwuid( Conf_UID );
+			if( pwd != NULL )
+			{
+				if( chdir( pwd->pw_dir ) == 0 ) Log( LOG_DEBUG, "Changed working directory to \"%s\" ...", pwd->pw_dir );
+				else Log( LOG_ERR, "Can't change working directory to \"%s\": %s", pwd->pw_dir, strerror( errno ));
+			}
+			else Log( LOG_ERR, "Can't get user informaton for UID %d!?", Conf_UID );
+		}
+
 		/* Initialize modules, part II: these functions are eventually
 		 * called with already dropped privileges ... */
 		Resolve_Init( );
@@ -295,10 +314,6 @@ main( int argc, const char *argv[] )
 		Rendezvous_Init( );
 #endif
 		Conn_Init( );
-
-		/* Show user, group, and PID of the running daemon */
-		pwd = getpwuid( getuid( )); grp = getgrgid( getgid( ));
-		Log( LOG_INFO, "Running as user %s(%ld), group %s(%ld), with PID %ld.", pwd ? pwd->pw_name : "unknown", (LONG)getuid( ), grp ? grp->gr_name : "unknown", (LONG)getgid( ), (LONG)getpid( ));
 
 		/* Redirect stderr handle to "error file" for debugging.
 		 * But don't try to write in the chroot jail, since it's more 

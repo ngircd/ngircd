@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.h,v 1.14 2002/01/03 02:26:07 alex Exp $
+ * $Id: irc.h,v 1.15 2002/01/04 17:58:21 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: irc.h,v $
+ * Revision 1.15  2002/01/04 17:58:21  alex
+ * - IRC_WriteStrXXX()-Funktionen angepasst; neuer Befehl SQUIT.
+ *
  * Revision 1.14  2002/01/03 02:26:07  alex
  * - neue Befehle SERVER und NJOIN begonnen.
  *
@@ -71,7 +74,8 @@
 GLOBAL VOID IRC_Init( VOID );
 GLOBAL VOID IRC_Exit( VOID );
 
-GLOBAL BOOLEAN IRC_WriteStrClient( CLIENT *Client, CLIENT *Prefix, CHAR *Format, ... );
+GLOBAL BOOLEAN IRC_WriteStrClient( CLIENT *Client, CHAR *Format, ... );
+GLOBAL BOOLEAN IRC_WriteStrClientPrefix( CLIENT *Client, CLIENT *Prefix, CHAR *Format, ... );
 GLOBAL BOOLEAN IRC_WriteStrRelated( CLIENT *Client, CHAR *Format, ... );
 
 GLOBAL BOOLEAN IRC_PASS( CLIENT *Client, REQUEST *Req );
@@ -82,6 +86,7 @@ GLOBAL BOOLEAN IRC_NJOIN( CLIENT *Client, REQUEST *Req );
 GLOBAL BOOLEAN IRC_PING( CLIENT *Client, REQUEST *Req );
 GLOBAL BOOLEAN IRC_PONG( CLIENT *Client, REQUEST *Req );
 GLOBAL BOOLEAN IRC_QUIT( CLIENT *Client, REQUEST *Req );
+GLOBAL BOOLEAN IRC_SQUIT( CLIENT *Client, REQUEST *Req );
 
 GLOBAL BOOLEAN IRC_MOTD( CLIENT *Client, REQUEST *Req );
 

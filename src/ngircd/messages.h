@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: messages.h,v 1.13 2001/12/31 15:33:13 alex Exp $
+ * $Id: messages.h,v 1.14 2001/12/31 16:00:57 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: messages.h,v $
+ * Revision 1.14  2001/12/31 16:00:57  alex
+ * - "o" zu den unterstuetzten Modes hinzugefuegt.
+ *
  * Revision 1.13  2001/12/31 15:33:13  alex
  * - neuer Befehl NAMES, kleinere Bugfixes.
  * - Bug bei PING behoben: war zu restriktiv implementiert :-)
@@ -75,7 +78,7 @@
 #define RPL_CREATED_MSG			RPL_CREATED" %s :This server was started %s"
 
 #define RPL_MYINFO			"004"
-#define RPL_MYINFO_MSG			RPL_MYINFO" %s %s ngircd-"VERSION" ir +"
+#define RPL_MYINFO_MSG			RPL_MYINFO" %s %s ngircd-"VERSION" ior +"
 
 #define RPL_MOTDSTART			"375"
 #define RPL_MOTDSTART_MSG		RPL_MOTDSTART" %s :- %s message of the day"

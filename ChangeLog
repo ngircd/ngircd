@@ -12,10 +12,6 @@
 
 ngIRCd CVSHEAD
 
-  - Fixed a bug that could case a root exploit when the daemon is compiled
-    to do IDENT lookups and is logging to syslog. Bug discovered by CoKi,
-    <coki@nosystem.com.ar>, thanks a lot!
-    (http://www.nosystem.com.ar/advisories/advisory-11.txt)
   - Code cleanups from Florian Westphal, <westphal@foo.fh-furtwangen.de>.
   - Raised the maximum length of passwords to 20 characters.
   - Fixed a memory leak when resizing the connection pool and realloc()
@@ -31,6 +27,13 @@ ngIRCd CVSHEAD
     changes it's working directory to the home directory of this user. This
     should enable the system to write proper core files when not running with
     root privileges ...
+
+ngIRCd 0.8.3 (2005-02-03)
+
+  - Fixed a bug that could case a root exploit when the daemon is compiled
+    to do IDENT lookups and is logging to syslog. Bug discovered by CoKi,
+    <coki@nosystem.com.ar>, thanks a lot!
+    (http://www.nosystem.com.ar/advisories/advisory-11.txt)
 
 ngIRCd 0.8.2 (2005-01-26)
 
@@ -576,4 +579,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.257 2005/02/03 09:26:42 alex Exp $
+$Id: ChangeLog,v 1.258 2005/02/04 14:21:35 alex Exp $

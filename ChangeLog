@@ -23,6 +23,8 @@ ngIRCd 0.6.x-CVS
   - Fixed up propagation of modes with arguments between servers and
     enhanced the CHANINFO command.
   - MODE returns the key and user limit for channel members correctly now.
+  - Non-members of a channel could crash the server when trying to change
+    its modes or modes of its members.
 
 
 Older changes (sorry, only available in german language):
@@ -386,4 +388,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.147.2.11 2003/01/08 23:07:57 alex Exp $
+$Id: ChangeLog,v 1.147.2.12 2003/01/17 19:07:15 alex Exp $

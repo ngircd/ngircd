@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: parse.c,v 1.27 2002/02/27 20:33:13 alex Exp $
+ * $Id: parse.c,v 1.28 2002/02/27 23:25:31 alex Exp $
  *
  * parse.c: Parsen der Client-Anfragen
  *
  * $Log: parse.c,v $
+ * Revision 1.28  2002/02/27 23:25:31  alex
+ * - Anpassungen an Aufteilung von irc.d, Init- und Exit-Funktionen entfernt.
+ *
  * Revision 1.27  2002/02/27 20:33:13  alex
  * - Channel-Topics implementiert.
  *
@@ -119,6 +122,9 @@
 #include "client.h"
 #include "conn.h"
 #include "irc.h"
+#include "irc-login.h"
+#include "irc-mode.h"
+#include "irc-write.h"
 #include "log.h"
 #include "messages.h"
 #include "tool.h"
@@ -136,16 +142,6 @@ LOCAL BOOLEAN Validate_Command( REQUEST *Req );
 LOCAL BOOLEAN Validate_Args( REQUEST *Req );
 
 LOCAL BOOLEAN Handle_Request( CONN_ID Idx, REQUEST *Req );
-
-
-GLOBAL VOID Parse_Init( VOID )
-{
-} /* Parse_Init */
-
-
-GLOBAL VOID Parse_Exit( VOID )
-{
-} /* Parse_Exit */
 
 
 GLOBAL BOOLEAN Parse_Request( CONN_ID Idx, CHAR *Request )

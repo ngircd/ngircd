@@ -9,14 +9,16 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: tool.c,v 1.1 2001/12/11 21:53:04 alex Exp $
+ * $Id: tool.c,v 1.2 2001/12/12 17:20:33 alex Exp $
  *
  * tool.c: Hilfsfunktionen, ggf. Platformabhaengig
  *
  * $Log: tool.c,v $
- * Revision 1.1  2001/12/11 21:53:04  alex
- * Initial revision
+ * Revision 1.2  2001/12/12 17:20:33  alex
+ * - Tool-Funktionen haben nun das Praefix "ngt_".
  *
+ * Revision 1.1.1.1  2001/12/11 21:53:04  alex
+ * - Imported sources to CVS.
  */
 
 
@@ -29,13 +31,14 @@
 #include <string.h>
 
 #include <exp.h>
-#include "log.h"
+#include "tool.h"
 
 
-GLOBAL VOID Trim_Str( CHAR *String )
+GLOBAL VOID ngt_Trim_Str( CHAR *String )
 {
-	/* Mit Trim_Str() werden fuehrende und folgende Leerzeichen, Tabulatoren
-	 * und Zeilenumbrueche (ASCII 10 und ASCII 13) aus dem String entfernt. */
+	/* Mit ngt_Trim_Str() werden fuehrende und folgende Leerzeichen,
+	 * Tabulatoren und Zeilenumbrueche (ASCII 10 und ASCII 13) aus
+	 * dem String entfernt. */
 	
 	CHAR *start, *ptr;
 
@@ -52,7 +55,7 @@ GLOBAL VOID Trim_Str( CHAR *String )
 	*(++ptr) = '\0';
 
 	memmove( String, start, strlen( start ) + 1 );
-} /* Trim_Str */
+} /* ngt_Trim_Str */
 
 
 /* -eof- */

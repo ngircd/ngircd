@@ -9,14 +9,16 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: tool.h,v 1.1 2001/12/11 21:53:04 alex Exp $
+ * $Id: tool.h,v 1.2 2001/12/12 17:20:33 alex Exp $
  *
  * log.h: Hilfsfunktionen (Header)
  *
  * $Log: tool.h,v $
- * Revision 1.1  2001/12/11 21:53:04  alex
- * Initial revision
+ * Revision 1.2  2001/12/12 17:20:33  alex
+ * - Tool-Funktionen haben nun das Praefix "ngt_".
  *
+ * Revision 1.1.1.1  2001/12/11 21:53:04  alex
+ * - Imported sources to CVS.
  */
 
 
@@ -24,7 +26,7 @@
 #define __tool_h__
 
 
-GLOBAL VOID Trim_Str( CHAR *String );
+GLOBAL VOID ngt_Trim_Str( CHAR *String );
 
 
 #endif

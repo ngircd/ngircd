@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: log.c,v 1.16 2002/01/05 15:54:40 alex Exp $
+ * $Id: log.c,v 1.17 2002/01/11 14:45:37 alex Exp $
  *
  * log.c: Logging-Funktionen
  *
  * $Log: log.c,v $
+ * Revision 1.17  2002/01/11 14:45:37  alex
+ * - Anpassungen an neue Kommandozeilen-Optionen "--debug" und "--nodaemon".
+ *
  * Revision 1.16  2002/01/05 15:54:40  alex
  * - syslog() etc. wurde verwendet, auch wenn USE_SYSLOG nicht definiert war.
  *
@@ -82,41 +85,19 @@
 #include <syslog.h>
 #endif
 
+#include "global.h"
+#include "ngircd.h"
+
 #include <exp.h>
 #include "log.h"
 
 
 GLOBAL VOID Log_Init( VOID )
 {
-	CHAR txt[64];
-
-	strcpy( txt, "" );
-
-#ifdef USE_SYSLOG
-	if( txt[0] ) strcat( txt, "+" );
-	else strcat( txt, "-" );
-	strcat( txt, "SYSLOG" );
-#endif
-#ifdef STRICT_RFC
-	if( txt[0] ) strcat( txt, "+" );
-	else strcat( txt, "-" );
-	strcat( txt, "RFC" );
-#endif
-#ifdef DEBUG
-	if( txt[0] ) strcat( txt, "+" );
-	else strcat( txt, "-" );
-	strcat( txt, "DEBUG" );
-#endif
-#ifdef SNIFFER
-	if( txt[0] ) strcat( txt, "+" );
-	else strcat( txt, "-" );
-	strcat( txt, "SNIFFER" );
-#endif
-
 #ifdef USE_SYSLOG
 	openlog( PACKAGE, LOG_CONS|LOG_PID, LOG_LOCAL5 );
 #endif
-	Log( LOG_NOTICE, PACKAGE" version "VERSION"%s-"P_OSNAME"/"P_ARCHNAME" started.", txt );
+	Log( LOG_NOTICE, "%s started.", NGIRCd_Version( ));
 } /* Log_Init */
 
 
@@ -138,7 +119,9 @@ GLOBAL VOID Log( CONST INT Level, CONST CHAR *Format, ... )
 
 	assert( Format != NULL );
 
-#ifndef DEBUG
+#ifdef DEBUG
+	if(( Level == LOG_DEBUG ) && ( ! NGIRCd_Debug )) return;
+#else
 	if( Level == LOG_DEBUG ) return;
 #endif
 
@@ -148,7 +131,7 @@ GLOBAL VOID Log( CONST INT Level, CONST CHAR *Format, ... )
 	msg[MAX_LOG_MSG_LEN - 1] = '\0';
 
 	/* ... und ausgeben */
-	printf( "[%d] %s\n", Level, msg );
+	if( NGIRCd_NoDaemon ) printf( "[%d] %s\n", Level, msg );
 #ifdef USE_SYSLOG
 	syslog( Level, msg );
 #endif
@@ -186,7 +169,9 @@ GLOBAL VOID Log_Resolver( CONST INT Level, CONST CHAR *Format, ... )
 
 	assert( Format != NULL );
 
-#ifndef DEBUG
+#ifdef DEBUG
+	if(( Level == LOG_DEBUG ) && ( ! NGIRCd_Debug )) return;
+#else
 	if( Level == LOG_DEBUG ) return;
 #endif
 

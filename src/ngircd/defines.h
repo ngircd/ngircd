@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: defines.h,v 1.21 2002/03/29 22:55:02 alex Exp $
+ * $Id: defines.h,v 1.22 2002/04/08 00:13:45 alex Exp $
  *
  * defines.h: (globale) Konstanten
  */
@@ -28,9 +28,9 @@
 
 #define MAX_LISTEN_PORTS 16		/* max. Anzahl von Listen-Ports */
 
-#define MAX_OPERATORS 8			/* max. Anzahl konfigurierbarer Operatoren */
+#define MAX_OPERATORS 16		/* max. Anzahl konfigurierbarer Operatoren */
 
-#define MAX_SERVERS 8			/* max. Anzahl konfigurierbarer Server ("Peers") */
+#define MAX_SERVERS 16			/* max. Anzahl konfigurierbarer Server ("Peers") */
 
 #define MAX_CONNECTIONS 100		/* max. Anzahl von Verbindungen an diesem Server */
 

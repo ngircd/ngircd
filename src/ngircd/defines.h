@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: defines.h,v 1.27 2002/06/02 15:14:22 alex Exp $
+ * $Id: defines.h,v 1.28 2002/07/15 16:34:46 alex Exp $
  *
  * defines.h: (globale) Konstanten
  */
@@ -68,7 +68,7 @@
 #define RECONNECT_DELAY 3		/* Server-Links erst nach 3 Sekunden versuchen, wieder aufzubauen */
 
 #define USERMODES "aios"		/* unterstuetzte User-Modes */
-#define CHANMODES "imnoPtv"		/* unterstuetzte Channel-Modes */
+#define CHANMODES "biImnoPtv"		/* unterstuetzte Channel-Modes */
 
 #define CONNECTED TRUE			/* fuer die irc-xxx-Module */
 #define DISCONNECTED FALSE

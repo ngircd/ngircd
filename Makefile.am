@@ -8,18 +8,21 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: Makefile.am,v 1.14 2004/01/01 22:24:48 alex Exp $
+# $Id: Makefile.am,v 1.14.2.1 2004/05/11 00:38:17 alex Exp $
 #
 
 AUTOMAKE_OPTIONS = gnu
 
 SUBDIRS = doc src man contrib
 
+clean-local:
+	rm -f build-stamp*
+
 maintainer-clean-local:
 	rm -rf autom4te.cache
 	rm -f Makefile.in Makefile aclocal.m4 configure
 	rm -f mkinstalldirs missing depcomp install-sh
-	rm -f config.log build-stamp* debian
+	rm -f config.log debian
 
 lint:
 	make -C src/ngircd lint

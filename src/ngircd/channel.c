@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: channel.c,v 1.15 2002/02/27 20:32:10 alex Exp $
+ * $Id: channel.c,v 1.16 2002/02/27 23:23:53 alex Exp $
  *
  * channel.c: Management der Channels
  *
  * $Log: channel.c,v $
+ * Revision 1.16  2002/02/27 23:23:53  alex
+ * - Includes fuer einige Header bereinigt.
+ *
  * Revision 1.15  2002/02/27 20:32:10  alex
  * - neue Funktionen Channel_Topic() und Channel_SetTopic().
  *
@@ -79,7 +82,7 @@
 #include <string.h>
 
 #include "client.h"
-#include "irc.h"
+#include "irc-write.h"
 #include "log.h"
 #include "messages.h"
 

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.39 2002/02/27 18:22:09 alex Exp $
+ * $Id: client.c,v 1.40 2002/02/27 23:23:53 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,9 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.40  2002/02/27 23:23:53  alex
+ * - Includes fuer einige Header bereinigt.
+ *
  * Revision 1.39  2002/02/27 18:22:09  alex
  * - neue Funktion Client_SetAway() und Client_Away() implementiert.
  *
@@ -169,7 +172,7 @@
 #include "channel.h"
 #include "conf.h"
 #include "conn.h"
-#include "irc.h"
+#include "irc-write.h"
 #include "log.h"
 #include "messages.h"
 

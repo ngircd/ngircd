@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.h,v 1.9 2002/01/03 02:27:20 alex Exp $
+ * $Id: conf.h,v 1.10 2002/02/27 23:23:53 alex Exp $
  *
  * conf.h: Konfiguration des ngircd (Header)
  *
  * $Log: conf.h,v $
+ * Revision 1.10  2002/02/27 23:23:53  alex
+ * - Includes fuer einige Header bereinigt.
+ *
  * Revision 1.9  2002/01/03 02:27:20  alex
  * - das Server-Passwort kann nun konfiguriert werden.
  *
@@ -47,6 +50,8 @@
 #define __conf_h__
 
 #include <time.h>
+
+#include "conn.h"
 
 
 typedef struct _Conf_Oper

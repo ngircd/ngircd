@@ -14,12 +14,51 @@ Die Sourcen des ngIRCd werden mit dem "Concurrent Versions System" (CVS)
 verwaltet. Somit koennen ohne Probleme mehrere Leute gleichzeitig die Sourcen
 bearbeitet.
 
-Dieser Text soll in Zukunft die Grundlagen beschreiben. Tut er aber leider
-noch nicht, also frage einfach Alex direkt (siehe AUTHORS-Text), wenn du
-daran interessiert bist, Zugriff auf den Quellcode via CVS zu bekommen!
 
-[ ... more to come ... ]
+I. Anonymer "Nur-Lesen"-Zugang
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Anonymer Zugriff auf die CVS-Repository von ngIRCd ist im "nur-lesen"-Modus
+moeglich. Dazu sind folgende Schritte noetig:
+
+Beim CVS-Server anmelden
+
+ $ cvs -d:pserver:anonymous@arthur.ath.cx:/usr/local/CVS/ngircd login
+
+Als Benutzername wird "anonymous" mit einem leeren Passwort verwendet.
+Nun ein "Check-Out" der Quellcodes durchfuehren:
+
+ $ cvs -d:pserver:anonymous@arthur.ath.cx:/usr/local/CVS/ngircd checkout ngircd
+
+Dadurch wird im aktuellen Verzeichnis der neue Ordner "ngircd" mit allen
+Quell-Dateien des ngIRCd erzeugt.
+
+Dieses ist der "Arbeitsordner", alle CVS-Befehle werden in Zukunft aus
+diesem Ordner bzw. einem Unterordner davon ausgefuehrt.
+
+Wichtig: wenn ngIRCd "frisch" aus dem CVS compiliert werden soll, so
+existiert das configure-Script noch nicht. Dieses muss zunaechst mit dem
+Script "autogen.sh" erzeugt werden. Letzteres setzt ein installiertes GNU
+automake und GNU autoconf voraus!
+
+CVS-Tree aktualisieren:
+
+ $ cvs update
+
+Dieser Befehl aktualisiert alle Dateien im aktuellen Verzeichnis sowie allen
+Unterverzeichnissen.
+
+ $ cvs update <filename>
+
+So kann eine einzelne Datei aktualisiert werden (auch dann, wenn sie lokal
+z.B. geloescht wurde -- praktisch, um eigene "Experimente" rueckgaengig zu
+machen ;-))
+
+
+III. Schreibzugriff
+~~~~~~~~~~~~~~~~~~~
+Wer Schreibzugriff auf die CVS-Repository wuenscht, der moege sich bitte
+mit Alex Barton, <alex@barton.de> in Verbindung setzen.
 
 
 -- 
-$Id: CVS.txt,v 1.4 2002/01/23 18:20:04 alex Exp $
+$Id: CVS.txt,v 1.5 2002/02/15 15:15:22 alex Exp $

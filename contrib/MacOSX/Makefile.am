@@ -8,10 +8,13 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: Makefile.am,v 1.1 2004/02/29 17:19:43 alex Exp $
+# $Id: Makefile.am,v 1.2 2004/05/11 00:34:26 alex Exp $
 #
 
 clean-local:
 	rm -rf build
+
+maintainer-clean-local:
+	rm -f Makefile Makefile.in
 
 # -eof-

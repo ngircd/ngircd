@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: log.c,v 1.24 2002/03/27 16:40:06 alex Exp $
+ * $Id: log.c,v 1.25 2002/03/27 20:53:30 alex Exp $
  *
  * log.c: Logging-Funktionen
  */
@@ -31,10 +31,15 @@
 #endif
 
 #include "ngircd.h"
+#include "client.h"
 #include "defines.h"
+#include "irc-write.h"
 
 #include "exp.h"
 #include "log.h"
+
+
+LOCAL VOID Wall_ServerNotice( CHAR *Msg );
 
 
 GLOBAL VOID Log_Init( VOID )
@@ -106,15 +111,25 @@ GLOBAL VOID Log_Exit( VOID )
 } /* Log_Exit */
 
 
-GLOBAL VOID Log( CONST INT Level, CONST CHAR *Format, ... )
+GLOBAL VOID Log( INT Level, CONST CHAR *Format, ... )
 {
 	/* Eintrag in Logfile(s) schreiben */
 
 	CHAR msg[MAX_LOG_MSG_LEN];
+	BOOLEAN snotice;
 	va_list ap;
 	time_t t;
 
 	assert( Format != NULL );
+
+	snotice = FALSE;
+
+	if( Level & LOG_snotice )
+	{
+		/* Notice an User mit "s" Mode */
+		snotice = TRUE;
+		Level &= ~LOG_snotice;
+	}
 
 #ifdef DEBUG
 	if(( Level == LOG_DEBUG ) && ( ! NGIRCd_Debug )) return;
@@ -135,13 +150,16 @@ GLOBAL VOID Log( CONST INT Level, CONST CHAR *Format, ... )
 		fprintf( stderr, "[%d] %s\n\n", Level, msg );
 	}
 
-	/* ... und ausgeben */
+	/* Konsole */
 	if( NGIRCd_NoDaemon ) printf( "[%d] %s\n", Level, msg );
 
 #ifdef USE_SYSLOG
 	/* Syslog */
 	syslog( Level, msg );
 #endif
+
+	/* lokale User mit "s"-Mode */
+	if( snotice ) Wall_ServerNotice( msg );
 } /* Log */
 
 
@@ -190,6 +208,21 @@ GLOBAL VOID Log_Resolver( CONST INT Level, CONST CHAR *Format, ... )
 
 #endif
 } /* Log_Resolver */
+
+
+LOCAL VOID Wall_ServerNotice( CHAR *Msg )
+{
+	CLIENT *c;
+
+	assert( Msg != NULL );
+	
+	c = Client_First( );
+	while( c )
+	{
+		if(( Client_Conn( c ) > NONE ) && ( Client_HasMode( c, 's' ))) IRC_WriteStrClient( c, "NOTICE :%s", Msg );
+		c = Client_Next( c );
+	}
+} /* Wall_ServerNotice */
 
 
 /* -eof- */

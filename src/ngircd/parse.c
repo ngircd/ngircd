@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: parse.c,v 1.34 2002/07/26 21:12:24 alex Exp $
+ * $Id: parse.c,v 1.35 2002/07/29 20:35:33 alex Exp $
  *
  * parse.c: Parsen der Client-Anfragen
  */
@@ -181,15 +181,28 @@ Init_Request( REQUEST *Req )
 LOCAL BOOLEAN
 Validate_Prefix( CONN_ID Idx, REQUEST *Req, BOOLEAN *Closed )
 {
-	CLIENT *c;
+	CLIENT *client, *c;
 
 	assert( Idx >= 0 );
 	assert( Req != NULL );
 
 	*Closed = FALSE;
-	
+
 	/* ist ueberhaupt ein Prefix vorhanden? */
 	if( ! Req->prefix ) return TRUE;
+
+	/* Client-Struktur der Connection ermitteln */
+	client = Client_GetFromConn( Idx );
+	assert( client != NULL );
+
+	/* nur validieren, wenn bereits registrierte Verbindung */
+	if(( Client_Type( client ) != CLIENT_USER ) && ( Client_Type( client ) != CLIENT_SERVER ) && ( Client_Type( client ) != CLIENT_SERVICE ))
+	{
+		/* noch nicht registrierte Verbindung.
+		 * Das Prefix wird ignoriert. */
+		Req->prefix = NULL;
+		return TRUE;
+	}
 
 	/* pruefen, ob der im Prefix angegebene Client bekannt ist */
 	c = Client_Search( Req->prefix );
@@ -200,11 +213,11 @@ Validate_Prefix( CONN_ID Idx, REQUEST *Req, BOOLEAN *Closed )
 		if( ! Conn_WriteStr( Idx, "ERROR :Invalid prefix, client not known!?" )) *Closed = TRUE;
 		return FALSE;
 	}
-	
+
 	/* pruefen, ob der Client mit dem angegebenen Prefix in Richtung
 	 * des Senders liegt, d.h. sicherstellen, dass das Prefix nicht
 	 * gefaelscht ist */
-	if( Client_NextHop( c ) != Client_GetFromConn( Idx ))
+	if( Client_NextHop( c ) != client )
 	{
 		/* das angegebene Prefix ist aus dieser Richtung, also
 		 * aus der gegebenen Connection, ungueltig! */

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-mode.c,v 1.36 2005/02/27 20:09:44 alex Exp $";
+static char UNUSED id[] = "$Id: irc-mode.c,v 1.37 2005/03/02 16:35:11 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -362,6 +362,7 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 			case 'i': /* Invite only */
 			case 'm': /* Moderated */
 			case 'n': /* Only members can write */
+			case 's': /* Secret channel */
 			case 't': /* Topic locked */
 				if( modeok ) x[0] = *mode_ptr;
 				else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));

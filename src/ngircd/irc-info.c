@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-info.c,v 1.26 2005/02/09 09:52:58 alex Exp $";
+static char UNUSED id[] = "$Id: irc-info.c,v 1.27 2005/03/02 16:35:11 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -543,7 +543,7 @@ IRC_WHO( CLIENT *Client, REQUEST *Req )
 	BOOLEAN ok, only_ops;
 	CHAR flags[8], *ptr;
 	CL2CHAN *cl2chan;
-	CHANNEL *chan;
+	CHANNEL *chan, *cn;
 	CLIENT *c;
 
 	assert( Client != NULL );
@@ -591,14 +591,25 @@ IRC_WHO( CLIENT *Client, REQUEST *Req )
 
 			if( ok && (( ! only_ops ) || ( strchr( Client_Modes( c ), 'o' ))))
 			{
-				/* Flags zusammenbasteln */
+				/* Get flags */
 				strcpy( flags, "H" );
 				if( strchr( Client_Modes( c ), 'o' )) strlcat( flags, "*", sizeof( flags ));
 
-				/* ausgeben */
+				/* Search suitable channel */
 				cl2chan = Channel_FirstChannelOf( c );
-				if( cl2chan ) ptr = Channel_Name( Channel_GetChannel( cl2chan ));
-				else ptr = "*";
+				while( cl2chan )
+				{
+					cn = Channel_GetChannel( cl2chan );
+					if( Channel_IsMemberOf( cn, Client ) ||
+					    ! strchr( Channel_Modes( cn ), 's' ))
+					{
+						ptr = Channel_Name( cn );
+						break;
+					}
+					cl2chan = Channel_NextChannelOf( c, cl2chan );
+				}
+				if( ! cl2chan ) ptr = "*";
+
 				if( ! IRC_WriteStrClient( Client, RPL_WHOREPLY_MSG, Client_ID( Client ), ptr, Client_User( c ), Client_Hostname( c ), Client_ID( Client_Introducer( c )), Client_ID( c ), flags, Client_Hops( c ), Client_Info( c ))) return DISCONNECTED;
 			}
 		}
@@ -663,6 +674,12 @@ IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 		chan = Channel_GetChannel( cl2chan );
 		assert( chan != NULL );
 
+		/* next */
+		cl2chan = Channel_NextChannelOf( c, cl2chan );
+
+		/* Secret channel? */
+		if( strchr( Channel_Modes( chan ), 's' ) && ! Channel_IsMemberOf( chan, Client )) continue;
+
 		/* Concatenate channel names */
 		if( str[strlen( str ) - 1] != ':' ) strlcat( str, " ", sizeof( str ));
 		if( strchr( Channel_UserModes( chan, c ), 'o' )) strlcat( str, "@", sizeof( str ));
@@ -675,9 +692,6 @@ IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 			if( ! IRC_WriteStrClient( Client, "%s", str )) return DISCONNECTED;
 			snprintf( str, sizeof( str ), RPL_WHOISCHANNELS_MSG, Client_ID( from ), Client_ID( c ));
 		}
-
-		/* next */
-		cl2chan = Channel_NextChannelOf( c, cl2chan );
 	}
 	if( str[strlen( str ) - 1] != ':')
 	{
@@ -822,6 +836,9 @@ IRC_Send_NAMES( CLIENT *Client, CHANNEL *Chan )
 	if( Channel_IsMemberOf( Chan, Client )) is_member = TRUE;
 	else is_member = FALSE;
 
+	/* Secret channel? */
+	if( ! is_member && strchr( Channel_Modes( Chan ), 's' )) return CONNECTED;
+
 	/* Alle Mitglieder suchen */
 	snprintf( str, sizeof( str ), RPL_NAMREPLY_MSG, Client_ID( Client ), "=", Channel_Name( Chan ));
 	cl2chan = Channel_FirstMember( Chan );
@@ -874,6 +891,9 @@ IRC_Send_WHO( CLIENT *Client, CHANNEL *Chan, BOOLEAN OnlyOps )
 
 	if( Channel_IsMemberOf( Chan, Client )) is_member = TRUE;
 	else is_member = FALSE;
+
+	/* Secret channel? */
+	if( ! is_member && strchr( Channel_Modes( Chan ), 's' )) return CONNECTED;
 
 	/* Alle Mitglieder suchen */
 	cl2chan = Channel_FirstMember( Chan );

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-channel.c,v 1.27 2004/04/09 20:46:48 alex Exp $";
+static char UNUSED id[] = "$Id: irc-channel.c,v 1.28 2005/03/02 16:35:11 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -349,15 +349,19 @@ IRC_LIST( CLIENT *Client, REQUEST *Req )
 	
 	while( pattern )
 	{
-		/* alle Channel durchgehen */
+		/* Loop through all the channels */
 		chan = Channel_First( );
 		while( chan )
 		{
-			/* Passt die Suchmaske auf diesen Channel? */
+			/* Check search pattern */
 			if( Match( pattern, Channel_Name( chan )))
 			{
-				/* Treffer! */
-				if( ! IRC_WriteStrClient( from, RPL_LIST_MSG, from, Channel_Name( chan ), Channel_MemberCount( chan ), Channel_Topic( chan ))) return DISCONNECTED;
+				/* Gotcha! */
+				if( ! strchr( Channel_Modes( chan ), 's' ) ||
+				    Channel_IsMemberOf( chan, from ))
+				{
+					if( ! IRC_WriteStrClient( from, RPL_LIST_MSG, from, Channel_Name( chan ), Channel_MemberCount( chan ), Channel_Topic( chan ))) return DISCONNECTED;
+				}
 			}
 			chan = Channel_Next( chan );
 		}

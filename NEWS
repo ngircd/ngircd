@@ -1,7 +1,7 @@
 
                      ngIRCd - Next Generation IRC Server
 
-                      (c)2001-2004 by Alexander Barton,
+                        (c)2001-2005 Alexander Barton,
                     alex@barton.de, http://www.barton.de/
 
                ngIRCd is free software and published under the
@@ -12,6 +12,7 @@
 
 ngIRCd CVSHEAD
 
+  - Implemented support for "secret channels" (channel mode "s").
   - New configuration option "Mask" for [Operator] sections to limit OPER
     commands to ussers with a specific IRC mask. Patch from Florian Westphal.
   - New configuration variable "PidFile", section "[Global]": if defined,
@@ -200,4 +201,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.69 2005/03/02 16:07:30 alex Exp $
+$Id: NEWS,v 1.70 2005/03/02 16:35:10 alex Exp $

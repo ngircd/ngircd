@@ -12,6 +12,7 @@
 
 ngIRCd CVSHEAD
 
+  - Implemented support for "secret channels" (channel mode "s").
   - New configuration option "Mask" for [Operator] sections to limit OPER
     commands to ussers with a specific IRC mask. Patch from Florian Westphal.
   - Write "error file" (/tmp/ngircd-XXX.err) only if compiled with debug
@@ -588,4 +589,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.262 2005/03/02 16:07:30 alex Exp $
+$Id: ChangeLog,v 1.263 2005/03/02 16:35:10 alex Exp $

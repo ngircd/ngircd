@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: defines.h,v 1.49 2005/02/04 14:24:21 alex Exp $
+ * $Id: defines.h,v 1.50 2005/03/02 16:35:11 alex Exp $
  *
  * Global defines of ngIRCd.
  */
@@ -49,7 +49,7 @@
 #define CLIENT_FLAGS_LEN 100		/* max. length of client flags */
 
 #define CHANNEL_NAME_LEN 51		/* max. length of a channel name, see. RFC 2812, 1.3 */
-#define CHANNEL_MODE_LEN 8		/* max. length of channel modes */
+#define CHANNEL_MODE_LEN 9		/* max. length of channel modes */
 #define CHANNEL_TOPIC_LEN 128		/* max. length of a channel topic */
 
 #define COMMAND_LEN 513			/* max. IRC command length, see. RFC 2812, 3.2 */
@@ -74,7 +74,7 @@
 #define RECONNECT_DELAY 3		/* time to delay re-connect attempts (seconds) */
 
 #define USERMODES "aios"		/* supported user modes */
-#define CHANMODES "biklImnoPtv"		/* supported channel modes */
+#define CHANMODES "biklImnoPstv"	/* supported channel modes */
 
 #define CONNECTED TRUE			/* internal status codes */
 #define DISCONNECTED FALSE

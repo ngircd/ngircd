@@ -9,11 +9,11 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: Makefile.am,v 1.16 2003/04/21 08:01:29 alex Exp $
+# $Id: Makefile.am,v 1.17 2003/04/22 23:50:18 alex Exp $
 #
 
-EXTRA_DIST = CVS.txt FAQ.txt Protocol.txt README-AUX.txt \
-	README-BeOS.txt RFC.txt sample-ngircd.conf
+EXTRA_DIST = CVS.txt FAQ.txt Protocol.txt Platforms.txt \
+	README-AUX.txt README-BeOS.txt RFC.txt sample-ngircd.conf
 
 maintainer-clean-local:
 	rm -f Makefile Makefile.in

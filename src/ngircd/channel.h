@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: channel.h,v 1.1 2001/12/14 08:13:43 alex Exp $
+ * $Id: channel.h,v 1.2 2001/12/23 21:54:30 alex Exp $
  *
  * channel.h: Management der Channels (Header)
  *
  * $Log: channel.h,v $
+ * Revision 1.2  2001/12/23 21:54:30  alex
+ * - Konstanten um Prefix "CHANNEL_" erweitert.
+ *
  * Revision 1.1  2001/12/14 08:13:43  alex
  * - neues Modul begonnen :-)
  *
@@ -24,12 +27,12 @@
 #define __channel_h__
 
 
-#define NAME_LEN 50			/* vgl. RFC 2812, 1.3 */
+#define CHANNEL_NAME_LEN 50			/* vgl. RFC 2812, 1.3 */
 
 
 typedef struct _CHANNEL
 {
-	CHAR name[NAME_LEN + 1];	/* Name */
+	CHAR name[CHANNEL_NAME_LEN + 1];	/* Name */
 } CHANNEL;
 
 

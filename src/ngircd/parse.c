@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: parse.c,v 1.16 2002/01/05 23:23:20 alex Exp $
+ * $Id: parse.c,v 1.17 2002/01/06 17:41:44 alex Exp $
  *
  * parse.c: Parsen der Client-Anfragen
  *
  * $Log: parse.c,v $
+ * Revision 1.17  2002/01/06 17:41:44  alex
+ * - die Fehlermeldung "unbekannter Befehl" hatte ein falsches Format.
+ *
  * Revision 1.16  2002/01/05 23:23:20  alex
  * - generisches Forwarding von Zahlen-Statuscodes implementiert.
  *
@@ -307,7 +310,7 @@ LOCAL BOOLEAN Handle_Request( CONN_ID Idx, REQUEST *Req )
 	else if( strcasecmp( Req->command, "ERROR" ) == 0 ) return IRC_ERROR( client, Req );
 	
 	/* Unbekannter Befehl */
-	if( Client_Type( client ) != CLIENT_SERVER ) IRC_WriteStrClient( client, Client_ThisServer( ), ERR_UNKNOWNCOMMAND_MSG, Client_ID( client ), Req->command );
+	if( Client_Type( client ) != CLIENT_SERVER ) IRC_WriteStrClient( client, ERR_UNKNOWNCOMMAND_MSG, Client_ID( client ), Req->command );
 	Log( LOG_DEBUG, "Connection %d: Unknown command \"%s\", %d %s,%s prefix.", Client_Conn( client ), Req->command, Req->argc, Req->argc == 1 ? "parameter" : "parameters", Req->prefix ? "" : " no" );
 
 	return TRUE;

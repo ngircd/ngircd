@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: global.h,v 1.7 2002/02/25 11:42:15 alex Exp $
+ * $Id: global.h,v 1.8 2002/03/06 14:30:22 alex Exp $
  *
  * global.h: Globaler Header, wir in jedes(!) Modul eingebunden.
  *
  * $Log: global.h,v $
+ * Revision 1.8  2002/03/06 14:30:22  alex
+ * - kleinere Umstellungen.
+ *
  * Revision 1.7  2002/02/25 11:42:15  alex
  * - unter A/UX wird _POSIX_SOURCE definiert: fuer Systemheader notwendig.
  *
@@ -44,11 +47,7 @@
 
 
 #include "config.h"
-#include "defines.h"
 
-#if OS_UNIX_AUX
-#define _POSIX_SOURCE			/* muss unter A/UX definiert sein */
-#endif
 
 #ifndef HAVE_socklen_t
 #define socklen_t int			/* u.a. fuer Mac OS X */
@@ -57,6 +56,13 @@
 #ifndef HAVE_INET_ATON
 #define inet_aton( opt, bind ) 0	/* Dummy fuer inet_aton() */
 #endif
+
+#if OS_UNIX_AUX
+#define _POSIX_SOURCE			/* muss unter A/UX definiert sein */
+#endif
+
+
+#include "defines.h"
 
 
 #endif

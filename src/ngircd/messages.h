@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: messages.h,v 1.29 2002/02/17 17:42:53 alex Exp $
+ * $Id: messages.h,v 1.30 2002/02/17 23:39:24 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: messages.h,v $
+ * Revision 1.30  2002/02/17 23:39:24  alex
+ * - Konstanten sortiert, neue Konstante RPL_VERSION und RPL_VERSION_MSG.
+ *
  * Revision 1.29  2002/02/17 17:42:53  alex
  * - neue Text-Konstante ERR_UMODEUNKNOWNFLAG2_MSG.
  *
@@ -125,6 +128,9 @@
 #define RPL_MYINFO			"004"
 #define RPL_MYINFO_MSG			RPL_MYINFO" %s :%s ngircd-"VERSION" "USERMODES" "CHANMODES
 
+#define RPL_UMODEIS			"211"
+#define RPL_UMODEIS_MSG			RPL_UMODEIS" %s +%s"
+
 #define RPL_LUSERCLIENT			"251"
 #define RPL_LUSERCLIENT_MSG		RPL_LUSERCLIENT" %s :There are %d users and %d services on %d servers"
 
@@ -140,17 +146,15 @@
 #define RPL_LUSERME			"255"
 #define	RPL_LUSERME_MSG			RPL_LUSERME" %s :I have %d users, %d services and %d servers"
 
-#define RPL_MOTDSTART			"375"
-#define RPL_MOTDSTART_MSG		RPL_MOTDSTART" %s :- %s message of the day"
 
 #define RPL_MOTD			"372"
 #define RPL_MOTD_MSG			RPL_MOTD" %s :- %s"
 
+#define RPL_MOTDSTART			"375"
+#define RPL_MOTDSTART_MSG		RPL_MOTDSTART" %s :- %s message of the day"
+
 #define RPL_ENDOFMOTD			"376"
 #define RPL_ENDOFMOTD_MSG		RPL_ENDOFMOTD" %s :End of MOTD command"
-
-#define RPL_UMODEIS			"211"
-#define RPL_UMODEIS_MSG			RPL_UMODEIS" %s +%s"
 
 #define RPL_USERHOST			"302"
 #define RPL_USERHOST_MSG		RPL_USERHOST" %s :"
@@ -185,6 +189,9 @@
 #define RPL_TOPIC			"332"
 #define RPL_TOPIC_MSG			RPL_TOPIC" %s %s :%s"
 
+#define RPL_VERSION			"351"
+#define RPL_VERSION_MSG			RPL_VERSION" %s "PACKAGE"-"VERSION".%s %s :%s"
+
 #define RPL_NAMREPLY			"353"
 #define RPL_NAMREPLY_MSG		RPL_NAMREPLY" %s %s %s :"
 
@@ -196,7 +203,6 @@
 
 #define RPL_ENDOFNAMES			"366"
 #define RPL_ENDOFNAMES_MSG		RPL_ENDOFNAMES" %s %s :End of NAMES list"
-
 
 #define RPL_YOUREOPER			"381"
 #define RPL_YOUREOPER_MSG		RPL_YOUREOPER" %s :You are now an IRC Operator"
@@ -232,6 +238,10 @@
 #define ERR_NICKNAMEINUSE		"433"
 #define ERR_NICKNAMEINUSE_MSG		ERR_NICKNAMEINUSE" %s %s :Nickname already in use"
 
+#define ERR_NOTREGISTERED		"451"
+#define ERR_NOTREGISTERED_MSG		ERR_NOTREGISTERED" %s :Connection not registered"
+#define ERR_NOTREGISTEREDSERVER_MSG	ERR_NOTREGISTERED" %s :Connection not registered as server link"
+
 #define ERR_NEEDMOREPARAMS		"461"
 #define ERR_NEEDMOREPARAMS_MSG		ERR_NEEDMOREPARAMS" %s %s :Syntax error"
 
@@ -240,10 +250,6 @@
 
 #define ERR_PASSWDMISMATCH		"464"
 #define ERR_PASSWDMISMATCH_MSG		ERR_PASSWDMISMATCH" %s: Invalid password"
-
-#define ERR_NOTREGISTERED		"451"
-#define ERR_NOTREGISTERED_MSG		ERR_NOTREGISTERED" %s :Connection not registered"
-#define ERR_NOTREGISTEREDSERVER_MSG	ERR_NOTREGISTERED" %s :Connection not registered as server link"
 
 #define ERR_NOPRIVILEGES		"481"
 #define ERR_NOPRIVILEGES_MSG		ERR_NOPRIVILEGES" %s :Permission denied"
@@ -256,6 +262,7 @@
 
 #define ERR_NOOPERHOST			"491"
 #define ERR_NOOPERHOST_MSG		ERR_NOOPERHOST" %s :Not configured for your host"
+
 
 #define ERR_UMODEUNKNOWNFLAG		"501"
 #define ERR_UMODEUNKNOWNFLAG_MSG	ERR_UMODEUNKNOWNFLAG" %s :Unknown mode"

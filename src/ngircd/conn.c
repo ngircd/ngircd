@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.71 2002/09/07 21:35:06 alex Exp $
+ * $Id: conn.c,v 1.72 2002/09/07 22:34:44 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -289,6 +289,7 @@ Conn_Handler( VOID )
 			{
 				/* Fuer die Verbindung ist eine "Penalty-Zeit" gesetzt */
 				FD_CLR( My_Connections[i].sock, &read_sockets );
+				FD_CLR( My_Connections[i].sock, &write_sockets );
 			}
 		}
 		for( i = 0; i < Conn_MaxFD + 1; i++ )
@@ -305,15 +306,22 @@ Conn_Handler( VOID )
 		tv.tv_usec = 0;
 		
 		/* Auf Aktivitaet warten */
-		if( select( Conn_MaxFD + 1, &read_sockets, &write_sockets, NULL, &tv ) == -1 )
+		i = select( Conn_MaxFD + 1, &read_sockets, &write_sockets, NULL, &tv );
+		if( i == 0 )
 		{
+			/* keine Veraenderung an den Sockets */
+			continue;
+		}
+		if( i == -1 )
+		{
+			/* Fehler (z.B. Interrupt) */
 			if( errno != EINTR )
 			{
 				Log( LOG_EMERG, "select(): %s!", strerror( errno ));
 				Log( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE );
 				exit( 1 );
 			}
-			if(( ! NGIRCd_Quit ) && ( ! NGIRCd_Restart )) continue;
+			continue;
 		}
 
 		/* Koennen Daten geschrieben werden? */

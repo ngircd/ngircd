@@ -1,7 +1,7 @@
 .\"
-.\" $Id: ngircd.conf.5,v 1.13 2004/05/07 11:19:20 alex Exp $
+.\" $Id: ngircd.conf.5,v 1.14 2005/02/14 00:42:41 alex Exp $
 .\"
-.TH ngircd.conf 5 "Mai 2003" ngircd "ngIRCd Manual"
+.TH ngircd.conf 5 "February 2005" ngircd "ngIRCd Manual"
 .SH NAME
 ngircd.conf \- configuration file of ngIRCd
 .SH SYNOPSIS
@@ -65,7 +65,7 @@ command.
 .TP
 \fBPorts\fR
 Ports on which the server should listen. There may be more than one port,
-separated with ';'. Default: 6667.
+separated with ','. Default: 6667.
 .TP
 \fBListen\fR
 The ip address on which the server should listen. Default is empty, so
@@ -112,6 +112,13 @@ won't use the chroot() feature.
 .br
 For this to work the server must have
 been started with root privileges!
+.RE
+.TP
+\fBPidFile\fR
+This tells ngIRCd to write its current process ID to a file. Note that the
+pidfile is written AFTER chroot and switching the user ID, i. e. the
+directory the pidfile resides in must be writeable by the ngIRCd user and
+exist in the chroot directory (if configured, see above).
 .RE
 .TP
 \fBPingTimeout\fR

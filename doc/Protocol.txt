@@ -32,14 +32,14 @@ anmelden oder alle Funktionen nutzen! In der Regel ist diese Option daher
 nicht erwuenscht.
 
 
-II. Erweiterungen des IRC-Protokolls
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+II. Das IRC+-Protokoll
+~~~~~~~~~~~~~~~~~~~~~~
 
-Erkennt der ngIRCd, dass ein connectierter Server ebenfalls ein ngIRCd ist,
-so werden -- so es die Version auf der Gegenseite unterstuetzt (s.u.) --
-Erweiterungen zum IRC-Protokoll 2.10 verwendet. Diese Erweiterungen werden
-dabei nicht von Versionsnummern abhaengig verwendet, sondern anhand von
-Falgs, die die beiden ngIRCd-Server austauschen, aktiviert.
+Der ngIRCd unterstuetzt als Erweiterung zum IRC-Protokoll wie es in den RFCs
+2810-2813 beschrieben ist, das IRC+-Protokoll. Dieses Protokoll ist dabei
+kompatibel zum IRC-Protokoll und wird nur verwendet, wenn der ngIRCd fest-
+stellt, dass ein connectierter Server ebenfalls dieses erweiterte Protokoll
+unterstuetzt.
 
 Die Protokoll- und Server-Erkennung wird mit dem "PASS"-Befehl durchgefuehrt
 (vgl. RFC 2813, Sektion 4.1.1):
@@ -60,18 +60,17 @@ unterstuetzten IRC-Protokolls, wobei die ersten zwei Bytes die Major-, die
 letzten beiden die Minor-Revision angeben. Der String "0210" steht also
 fuer Protokollversion 2.10.
 Die folgenden (optionalen!) 10 Bytes enthalten eine von der jeweiligen
-Implementation abhaengige Versionsnummer, der ngIRCd liefert hier immer
-"-ngIRCd" (Zur Identifikation des ngIRCd sollte dieser String jedoch NICHT
-verwendet werden, s.u.).
+Implementation abhaengige Versionsnummer. Server, die das IRC+-Protokoll
+unterstuetzen, liefern hier "-IRC+".
 
 <flags> setzt sich ebenfalls aus zwei Bestandteilen zusammen und ist
 maximal 100 Bytes lang. Getrennt werden die beiden Teile mit dem Zeichen
 "|". Der erste Teil enthaelt den Namen der Implementation, der ngIRCd
 liefert hier z.B. "ngIRCd", der Originalserver "IRC". Anhand dieser "ID"
 kann zwischen Serverimplementationen unterschieden werden. Der zweite Teil
-(nach dem "|") ist implementationsabhaengig und wird vom ngIRCd nur dann
-ausgewertet, wenn die Gegenseite ebenfalls ein ngIRCd ist. In diesem Fall
-wird folgende Syntax erwartet: "<serverversion>[:<serverflags>]".
+(nach dem "|") ist implementationsabhaengig und wird nur ausgewertet,
+wenn die Gegenseite das IRC+-Protokoll unterstuetzt. In diesem Fall wird
+folgende Syntax erwartet: "<serverversion>[:<serverflags>]".
 
 <serverversion> ist hier eine ASCII-Klartext-Darstellung der Versionsnummer,
 <serverflags> zeigt die vom Server unterstuetzten Erweiterungen an (und
@@ -80,11 +79,11 @@ kann die leere Menge sein).
 Mit dem optionalen Parameter <options> werden Server-Optionen uebermittelt,
 wie sie in RFC 2813, Sektion 4.1.1 definiert sind.
 
-Folgende <serverflags> werden zur Zeit vom ngIRCd verwendet:
+Folgende <serverflags> sind zur Zeit definiert:
 
 - o: IRC-Operatoren duerfen auch dann Channel- und Channel-User-Modes
      aendern, wenn sie kein Channel-Operator im betroffenen Channel sind.
 
 
 -- 
-$Id: Protocol.txt,v 1.2 2002/09/03 11:32:58 alex Exp $
+$Id: Protocol.txt,v 1.3 2002/09/03 20:38:50 alex Exp $

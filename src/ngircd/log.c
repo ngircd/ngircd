@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: log.c,v 1.34 2002/05/30 16:52:21 alex Exp $
+ * $Id: log.c,v 1.35 2002/06/02 17:03:32 alex Exp $
  *
  * log.c: Logging-Funktionen
  */
@@ -120,7 +120,8 @@ GLOBAL VOID
 Log_Exit( VOID )
 {
 	/* Good Bye! */
-	Log( LOG_NOTICE, "%s done.", PACKAGE );
+	if( NGIRCd_Restart ) Log( LOG_NOTICE, "%s done (restarting).", PACKAGE );
+	else Log( LOG_NOTICE, "%s done.", PACKAGE );
 
 	/* Error-File (stderr) loeschen */
 	if( unlink( Error_File ) != 0 ) Log( LOG_ERR, "Can't delete \"%s\": %s", Error_File, strerror( errno ));

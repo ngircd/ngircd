@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-write.c,v 1.4 2002/05/27 13:09:27 alex Exp $
+ * $Id: irc-write.c,v 1.5 2002/05/30 16:52:21 alex Exp $
  *
  * irc-write.c: IRC-Texte und Befehle ueber Netzwerk versenden
  */
@@ -34,8 +34,16 @@
 LOCAL CHAR *Get_Prefix PARAMS(( CLIENT *Target, CLIENT *Client ));
 
 
+#ifdef PROTOTYPES
 GLOBAL BOOLEAN
 IRC_WriteStrClient( CLIENT *Client, CHAR *Format, ... )
+#else
+GLOBAL BOOLEAN
+IRC_WriteStrClient( Client, Format, va_alist )
+CLIENT *Client;
+CHAR *Format;
+va_dcl
+#endif
 {
 	CHAR buffer[1000];
 	BOOLEAN ok = CONNECTED;
@@ -44,7 +52,11 @@ IRC_WriteStrClient( CLIENT *Client, CHAR *Format, ... )
 	assert( Client != NULL );
 	assert( Format != NULL );
 
+#ifdef PROTOTYPES
 	va_start( ap, Format );
+#else
+	va_start( ap );
+#endif
 	vsnprintf( buffer, 1000, Format, ap );
 	va_end( ap );
 
@@ -55,8 +67,17 @@ IRC_WriteStrClient( CLIENT *Client, CHAR *Format, ... )
 } /* IRC_WriteStrClient */
 
 
+#ifdef PROTOTYPES
 GLOBAL BOOLEAN
 IRC_WriteStrClientPrefix( CLIENT *Client, CLIENT *Prefix, CHAR *Format, ... )
+#else
+GLOBAL BOOLEAN
+IRC_WriteStrClientPrefix( Client, Prefix, Format, va_alist )
+CLIENT *Client;
+CLIENT *Prefix;
+CHAR *Format;
+va_dcl
+#endif
 {
 	/* Text an Clients, lokal bzw. remote, senden. */
 
@@ -67,7 +88,11 @@ IRC_WriteStrClientPrefix( CLIENT *Client, CLIENT *Prefix, CHAR *Format, ... )
 	assert( Format != NULL );
 	assert( Prefix != NULL );
 
+#ifdef PROTOTYPES
 	va_start( ap, Format );
+#else
+	va_start( ap );
+#endif
 	vsnprintf( buffer, 1000, Format, ap );
 	va_end( ap );
 
@@ -75,8 +100,18 @@ IRC_WriteStrClientPrefix( CLIENT *Client, CLIENT *Prefix, CHAR *Format, ... )
 } /* IRC_WriteStrClientPrefix */
 
 
+#ifdef PROTOTYPES
 GLOBAL BOOLEAN
 IRC_WriteStrChannel( CLIENT *Client, CHANNEL *Chan, BOOLEAN Remote, CHAR *Format, ... )
+#else
+GLOBAL BOOLEAN
+IRC_WriteStrChannel( Client, Chan, Remote, Format, va_alist )
+CLIENT *Client;
+CHANNEL *Chan;
+BOOLEAN Remote;
+CHAR *Format;
+va_dcl
+#endif
 {
 	CHAR buffer[1000];
 	va_list ap;
@@ -84,7 +119,11 @@ IRC_WriteStrChannel( CLIENT *Client, CHANNEL *Chan, BOOLEAN Remote, CHAR *Format
 	assert( Client != NULL );
 	assert( Format != NULL );
 
+#ifdef PROTOTYPES
 	va_start( ap, Format );
+#else
+	va_start( ap );
+#endif
 	vsnprintf( buffer, 1000, Format, ap );
 	va_end( ap );
 
@@ -92,8 +131,19 @@ IRC_WriteStrChannel( CLIENT *Client, CHANNEL *Chan, BOOLEAN Remote, CHAR *Format
 } /* IRC_WriteStrChannel */
 
 
+#ifdef PROTOTYPES
 GLOBAL BOOLEAN
 IRC_WriteStrChannelPrefix( CLIENT *Client, CHANNEL *Chan, CLIENT *Prefix, BOOLEAN Remote, CHAR *Format, ... )
+#else
+GLOBAL BOOLEAN
+IRC_WriteStrChannelPrefix( Client, Chan, Prefix, Remote, Format, va_alist )
+CLIENT *Client;
+CHANNEL *Chan;
+CLIENT *Prefix;
+BOOLEAN Remote;
+CHAR *Format;
+va_dcl
+#endif
 {
 	BOOLEAN sock[MAX_CONNECTIONS], is_server[MAX_CONNECTIONS], ok = CONNECTED;
 	CHAR buffer[1000];
@@ -107,7 +157,11 @@ IRC_WriteStrChannelPrefix( CLIENT *Client, CHANNEL *Chan, CLIENT *Prefix, BOOLEA
 	assert( Prefix != NULL );
 	assert( Format != NULL );
 
+#ifdef PROTOTYPES
 	va_start( ap, Format );
+#else
+	va_start( ap  );
+#endif
 	vsnprintf( buffer, 1000, Format, ap );
 	va_end( ap );
 
@@ -153,25 +207,46 @@ IRC_WriteStrChannelPrefix( CLIENT *Client, CHANNEL *Chan, CLIENT *Prefix, BOOLEA
 } /* IRC_WriteStrChannelPrefix */
 
 
+#ifdef PROTOTYPES
 GLOBAL VOID
 IRC_WriteStrServers( CLIENT *ExceptOf, CHAR *Format, ... )
+#else
+GLOBAL VOID
+IRC_WriteStrServers( ExceptOf, Format, va_alist )
+CLIENT *ExceptOf;
+CHAR *Format;
+va_dcl
+#endif
 {
 	CHAR buffer[1000];
 	va_list ap;
 
 	assert( Format != NULL );
 
+#ifdef PROTOTYPES
 	va_start( ap, Format );
+#else
+	va_start( ap );
+#endif
 	vsnprintf( buffer, 1000, Format, ap );
 	va_end( ap );
 
 	/* an den Client selber */
-	return IRC_WriteStrServersPrefix( ExceptOf, Client_ThisServer( ), buffer );
+	IRC_WriteStrServersPrefix( ExceptOf, Client_ThisServer( ), buffer );
 } /* IRC_WriteStrServers */
 
 
+#ifdef PROTOTYPES
 GLOBAL VOID
 IRC_WriteStrServersPrefix( CLIENT *ExceptOf, CLIENT *Prefix, CHAR *Format, ... )
+#else
+GLOBAL VOID
+IRC_WriteStrServersPrefix( ExceptOf, Prefix, Format, va_alist )
+CLIENT *ExceptOf;
+CLIENT *Prefix;
+CHAR *Format;
+va_dcl
+#endif
 {
 	CHAR buffer[1000];
 	CLIENT *c;
@@ -180,7 +255,11 @@ IRC_WriteStrServersPrefix( CLIENT *ExceptOf, CLIENT *Prefix, CHAR *Format, ... )
 	assert( Format != NULL );
 	assert( Prefix != NULL );
 
+#ifdef PROTOTYPES
 	va_start( ap, Format );
+#else
+	va_start( ap );
+#endif
 	vsnprintf( buffer, 1000, Format, ap );
 	va_end( ap );
 	
@@ -197,8 +276,18 @@ IRC_WriteStrServersPrefix( CLIENT *ExceptOf, CLIENT *Prefix, CHAR *Format, ... )
 } /* IRC_WriteStrServersPrefix */
 
 
+#ifdef PROTOTYPES
 GLOBAL BOOLEAN
 IRC_WriteStrRelatedPrefix( CLIENT *Client, CLIENT *Prefix, BOOLEAN Remote, CHAR *Format, ... )
+#else
+GLOBAL BOOLEAN
+IRC_WriteStrRelatedPrefix( Client, Prefix, Remote, Format, va_alist )
+CLIENT *Client;
+CLIENT *Prefix;
+BOOLEAN Remote;
+CHAR *Format;
+va_dcl
+#endif
 {
 	BOOLEAN sock[MAX_CONNECTIONS], is_server[MAX_CONNECTIONS], ok = CONNECTED;
 	CL2CHAN *chan_cl2chan, *cl2chan;
@@ -212,7 +301,11 @@ IRC_WriteStrRelatedPrefix( CLIENT *Client, CLIENT *Prefix, BOOLEAN Remote, CHAR 
 	assert( Prefix != NULL );
 	assert( Format != NULL );
 
+#ifdef PROTOTYPES
 	va_start( ap, Format );
+#else
+	va_start( ap );
+#endif
 	vsnprintf( buffer, 1000, Format, ap );
 	va_end( ap );
 

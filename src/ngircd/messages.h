@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: messages.h,v 1.39 2002/05/27 12:35:19 alex Exp $
+ * $Id: messages.h,v 1.40 2002/05/30 16:52:21 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  */
@@ -23,13 +23,13 @@
 #define RPL_WELCOME_MSG			"001 %s :Welcome to the Internet Relay Network %s"
 
 #define RPL_YOURHOST			"002"
-#define RPL_YOURHOST_MSG		"002 %s :Your host is %s, running ngircd "VERSION"-"TARGET_CPU"/"TARGET_VENDOR"/"TARGET_OS
+#define RPL_YOURHOST_MSG		"002 %s :Your host is %s, running ngircd %s-%s/%s/%s"
 
 #define RPL_CREATED			"003"
 #define RPL_CREATED_MSG			"003 %s :This server was started %s"
 
 #define RPL_MYINFO			"004"
-#define RPL_MYINFO_MSG			"004 %s :%s ngircd-"VERSION" "USERMODES" "CHANMODES
+#define RPL_MYINFO_MSG			"004 %s :%s ngircd-%s %s %s"
 
 #define RPL_UMODEIS			"211"
 #define RPL_UMODEIS_MSG			"211 %s +%s"
@@ -111,7 +111,7 @@
 #define RPL_TOPIC_MSG			"332 %s %s :%s"
 
 #define RPL_VERSION			"351"
-#define RPL_VERSION_MSG			"351 %s "PACKAGE"-"VERSION".%s %s :%s"
+#define RPL_VERSION_MSG			"351 %s %s-%s.%s %s :%s"
 
 #define RPL_WHOREPLY			"352"
 #define RPL_WHOREPLY_MSG		"352 %s %s %s %s %s %s %s :%d %s"

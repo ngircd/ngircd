@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: channel.c,v 1.23 2002/05/27 13:09:26 alex Exp $
+ * $Id: channel.c,v 1.24 2002/05/30 16:52:21 alex Exp $
  *
  * channel.c: Management der Channels
  */
@@ -345,15 +345,16 @@ Channel_GetChannel( CL2CHAN *Cl2Chan )
 GLOBAL BOOLEAN
 Channel_IsValidName( CHAR *Name )
 {
-	/* PrŸfen, ob Name als Channelname gueltig */
+	/* Pruefen, ob Name als Channelname gueltig */
 
-	CHAR *ptr, badchars[] = " ,:\x07";
+	CHAR *ptr, badchars[10];
 	
 	assert( Name != NULL );
 
 	if(( Name[0] != '#' ) || ( strlen( Name ) >= CHANNEL_NAME_LEN )) return FALSE;
 
 	ptr = Name;
+	strcpy( badchars, " ,:\x07" );
 	while( *ptr )
 	{
 		if( strchr( badchars, *ptr )) return FALSE;

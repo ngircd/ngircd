@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: resolve.c,v 1.1 2002/05/27 11:23:27 alex Exp $
+ * $Id: resolve.c,v 1.2 2002/05/30 16:52:21 alex Exp $
  *
  * resolve.c: asyncroner Resolver
  */
@@ -40,7 +40,7 @@ LOCAL VOID Do_ResolveAddr PARAMS(( struct sockaddr_in *Addr, INT w_fd ));
 LOCAL VOID Do_ResolveName PARAMS(( CHAR *Host, INT w_fd ));
 
 #ifdef h_errno
-LOCAL CHAR *Resolve_Error PARAMS(( INT H_Error ));
+LOCAL CHAR *Get_Error PARAMS(( INT H_Error ));
 #endif
 
 

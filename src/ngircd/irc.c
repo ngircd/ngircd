@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.90 2002/05/27 13:09:27 alex Exp $
+ * $Id: irc.c,v 1.91 2002/05/30 16:52:21 alex Exp $
  *
  * irc.c: IRC-Befehle
  */
@@ -609,7 +609,7 @@ IRC_VERSION( CLIENT *Client, REQUEST *Req )
 	}
 
 	/* mit Versionsinfo antworten */
-	return IRC_WriteStrClient( Client, RPL_VERSION_MSG, Client_ID( prefix ), NGIRCd_DebugLevel, Conf_ServerName, NGIRCd_VersionAddition( ));
+	return IRC_WriteStrClient( Client, RPL_VERSION_MSG, Client_ID( prefix ), PACKAGE, VERSION, NGIRCd_DebugLevel, Conf_ServerName, NGIRCd_VersionAddition( ));
 } /* IRC_VERSION */
 
 

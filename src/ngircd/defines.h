@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: defines.h,v 1.25 2002/05/27 13:04:07 alex Exp $
+ * $Id: defines.h,v 1.26 2002/05/30 16:52:21 alex Exp $
  *
  * defines.h: (globale) Konstanten
  */
@@ -58,7 +58,11 @@
 #define PROTOVER "0210"			/* implementierte Protokoll-Version (RFC 2813, 4.1.1) */
 #define PROTOSUFFIX "-ngIRCd"		/* Protokoll-Suffix (RFC 2813, 4.1.1) */
 
-#define PASSSERVERADD PROTOVER""PROTOSUFFIX" IRC|"PACKAGE"-"VERSION" P"
+#ifdef PROTOTYPES
+# define PASSSERVERADD PROTOVER""PROTOSUFFIX" IRC|"PACKAGE"-"VERSION" P"
+#else
+# define PASSSERVERADD "0210-ngIRCd IRC|ngircd-0 P"
+#endif
 
 #define STARTUP_DELAY 1			/* Erst n Sek. nach Start zu anderen Servern verbinden */
 #define RECONNECT_DELAY 3		/* Server-Links erst nach 3 Sekunden versuchen, wieder aufzubauen */
@@ -71,8 +75,13 @@
 
 #define DEFAULT_AWAY_MSG "Away"		/* Away-Meldung fuer User von anderen Servern */
 
-#define CONFIG_FILE SYSCONFDIR"/ngircd.conf"
-#define MOTD_FILE SYSCONFDIR"/ngircd.motd"
+#ifdef PROTOTYPES
+# define CONFIG_FILE SYSCONFDIR"/ngircd.conf"
+# define MOTD_FILE SYSCONFDIR"/ngircd.motd"
+#else
+# define CONFIG_FILE "ngircd.conf"
+# define MOTD_FILE "ngircd.motd"
+#endif
 #define ERROR_DIR "/tmp"
 
 #define MAX_LOG_MSG_LEN 256		/* max. Laenge einer Log-Meldung */

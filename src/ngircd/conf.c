@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.c,v 1.26 2002/05/27 13:09:26 alex Exp $
+ * $Id: conf.c,v 1.27 2002/05/30 16:52:21 alex Exp $
  *
  * conf.h: Konfiguration des ngircd
  */
@@ -150,7 +150,7 @@ Set_Defaults( VOID )
 	/* Konfigurationsvariablen initialisieren, d.h. auf Default-Werte setzen. */
 
 	strcpy( Conf_ServerName, "" );
-	strcpy( Conf_ServerInfo, PACKAGE" "VERSION );
+	sprintf( Conf_ServerInfo, "%s %s", PACKAGE, VERSION );
 	strcpy( Conf_ServerPwd, "" );
 
 	strcpy( Conf_MotdFile, MOTD_FILE );
@@ -184,7 +184,7 @@ Read_Config( VOID )
 	{
 		/* Keine Konfigurationsdatei gefunden */
 		Config_Error( LOG_ALERT, "Can't read configuration \"%s\": %s", NGIRCd_ConfFile, strerror( errno ));
-		Config_Error( LOG_ALERT, PACKAGE" exiting due to fatal errors!" );
+		Config_Error( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE );
 		exit( 1 );
 	}
 
@@ -494,14 +494,20 @@ Validate_Config( VOID )
 	{
 		/* Kein Servername konfiguriert */
 		Config_Error( LOG_ALERT, "No server name configured in \"%s\"!", NGIRCd_ConfFile );
-		Config_Error( LOG_ALERT, PACKAGE" exiting due to fatal errors!" );
+		Config_Error( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE );
 		exit( 1 );
 	}
 } /* Validate_Config */
 
 
-LOCAL VOID
-Config_Error( CONST INT Level, CONST CHAR *Format, ... )
+#ifdef PROTOTYPES
+LOCAL VOID Config_Error( CONST INT Level, CONST CHAR *Format, ... )
+#else
+LOCAL VOID Config_Error( Level, Format, va_alist )
+CONST INT Level;
+CONST CHAR *Format;
+va_dcl
+#endif
 {
 	/* Fehler! Auf Console und/oder ins Log schreiben */
 
@@ -511,7 +517,11 @@ Config_Error( CONST INT Level, CONST CHAR *Format, ... )
 	assert( Format != NULL );
 
 	/* String mit variablen Argumenten zusammenbauen ... */
+#ifdef PROTOTYPES
 	va_start( ap, Format );
+#else
+	va_start( ap );
+#endif
 	vsnprintf( msg, MAX_LOG_MSG_LEN, Format, ap );
 	va_end( ap );
 

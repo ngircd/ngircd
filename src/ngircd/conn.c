@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.65 2002/05/27 13:09:26 alex Exp $
+ * $Id: conn.c,v 1.66 2002/05/30 16:52:21 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -298,7 +298,7 @@ Conn_Handler( INT Timeout )
 			if( errno != EINTR )
 			{
 				Log( LOG_EMERG, "select(): %s!", strerror( errno ));
-				Log( LOG_ALERT, PACKAGE" exiting due to fatal errors!" );
+				Log( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE );
 				exit( 1 );
 			}
 			continue;
@@ -319,8 +319,16 @@ Conn_Handler( INT Timeout )
 } /* Conn_Handler */
 
 
+#ifdef PROTOTYPES
 GLOBAL BOOLEAN
 Conn_WriteStr( CONN_ID Idx, CHAR *Format, ... )
+#else
+GLOBAL BOOLEAN
+Conn_WriteStr( Idx, Format, va_alist )
+CONN_ID Idx;
+CHAR *Format;
+va_dcl
+#endif
 {
 	/* String in Socket schreiben. CR+LF wird von dieser Funktion
 	 * automatisch angehaengt. Im Fehlerfall wird dir Verbindung
@@ -333,8 +341,12 @@ Conn_WriteStr( CONN_ID Idx, CHAR *Format, ... )
 	assert( Idx >= 0 );
 	assert( My_Connections[Idx].sock > NONE );
 	assert( Format != NULL );
-	
+
+#ifdef PROTOTYPES
 	va_start( ap, Format );
+#else
+	va_start( ap );
+#endif
 	if( vsnprintf( buffer, COMMAND_LEN - 2, Format, ap ) == COMMAND_LEN - 2 )
 	{
 		Log( LOG_CRIT, "Text too long to send (connection %d)!", Idx );
@@ -586,7 +598,7 @@ Handle_Write( CONN_ID Idx )
 		Log( LOG_DEBUG, "Connection %d with \"%s:%d\" established, now sendig PASS and SERVER ...", Idx, My_Connections[Idx].host, Conf_Server[My_Connections[Idx].our_server].port );
 
 		/* PASS und SERVER verschicken */
-		Conn_WriteStr( Idx, "PASS %s "PASSSERVERADD, Conf_Server[My_Connections[Idx].our_server].pwd );
+		Conn_WriteStr( Idx, "PASS %s %s", Conf_Server[My_Connections[Idx].our_server].pwd, PASSSERVERADD );
 		Conn_WriteStr( Idx, "SERVER %s :%s", Conf_ServerName, Conf_ServerInfo );
 
 		return TRUE;

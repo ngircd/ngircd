@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: log.c,v 1.33 2002/05/27 13:09:27 alex Exp $
+ * $Id: log.c,v 1.34 2002/05/30 16:52:21 alex Exp $
  *
  * log.c: Logging-Funktionen
  */
@@ -96,7 +96,7 @@ Log_InitErrorfile( VOID )
 	 * landen z.B. alle Ausgaben von assert()-Aufrufen. */
 
 	/* Dateiname zusammen bauen */
-	sprintf( Error_File, ERROR_DIR"/"PACKAGE"-%ld.err", (INT32)getpid( ));
+	sprintf( Error_File, "%s/%s-%ld.err", ERROR_DIR, PACKAGE, (INT32)getpid( ));
 
 	/* stderr umlenken */
 	fflush( stderr );
@@ -120,7 +120,7 @@ GLOBAL VOID
 Log_Exit( VOID )
 {
 	/* Good Bye! */
-	Log( LOG_NOTICE, PACKAGE" done.");
+	Log( LOG_NOTICE, "%s done.", PACKAGE );
 
 	/* Error-File (stderr) loeschen */
 	if( unlink( Error_File ) != 0 ) Log( LOG_ERR, "Can't delete \"%s\": %s", Error_File, strerror( errno ));
@@ -132,8 +132,16 @@ Log_Exit( VOID )
 } /* Log_Exit */
 
 
+#ifdef PROTOTYPES
 GLOBAL VOID
 Log( INT Level, CONST CHAR *Format, ... )
+#else
+GLOBAL VOID
+Log( Level, Format, va_alist )
+INT Level;
+CONST CHAR *Format;
+va_dcl
+#endif
 {
 	/* Eintrag in Logfile(s) schreiben */
 
@@ -158,7 +166,11 @@ Log( INT Level, CONST CHAR *Format, ... )
 #endif
 
 	/* String mit variablen Argumenten zusammenbauen ... */
+#ifdef PROTOTYPES
 	va_start( ap, Format );
+#else
+	va_start( ap );
+#endif
 	vsnprintf( msg, MAX_LOG_MSG_LEN, Format, ap );
 	va_end( ap );
 
@@ -206,8 +218,16 @@ Log_Exit_Resolver( VOID )
 } /* Log_Exit_Resolver */
 
 
+#ifdef PROTOTYPES
 GLOBAL VOID
 Log_Resolver( CONST INT Level, CONST CHAR *Format, ... )
+#else
+GLOBAL VOID
+Log_Resolver( Level, Format, va_alist )
+CONST INT Level;
+CONST CHAR *Format;
+va_dcl
+#endif
 {
 	/* Eintrag des Resolver in Logfile(s) schreiben */
 
@@ -227,7 +247,11 @@ Log_Resolver( CONST INT Level, CONST CHAR *Format, ... )
 #endif
 
 	/* String mit variablen Argumenten zusammenbauen ... */
+#ifdef PROTOTYPES
 	va_start( ap, Format );
+#else
+	va_start( ap );
+#endif
 	vsnprintf( msg, MAX_LOG_MSG_LEN, Format, ap );
 	va_end( ap );
 

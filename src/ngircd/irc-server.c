@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-server.c,v 1.10 2002/05/27 13:09:27 alex Exp $
+ * $Id: irc-server.c,v 1.11 2002/05/30 16:52:21 alex Exp $
  *
  * irc-server.c: IRC-Befehle fuer Server-Links
  */
@@ -92,7 +92,7 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 		{
 			/* Eingehende Verbindung: Unseren SERVER- und PASS-Befehl senden */
 			ok = TRUE;
-			if( ! IRC_WriteStrClient( Client, "PASS %s "PASSSERVERADD, Conf_Server[i].pwd )) ok = FALSE;
+			if( ! IRC_WriteStrClient( Client, "PASS %s %s", Conf_Server[i].pwd, PASSSERVERADD )) ok = FALSE;
 			else ok = IRC_WriteStrClient( Client, "SERVER %s 1 :%s", Conf_ServerName, Conf_ServerInfo );
 			if( ! ok )
 			{

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.55 2002/05/27 13:09:26 alex Exp $
+ * $Id: client.c,v 1.56 2002/05/30 16:52:21 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -73,7 +73,7 @@ Client_Init( VOID )
 	if( ! This_Server )
 	{
 		Log( LOG_EMERG, "Can't allocate client structure for server! Going down." );
-		Log( LOG_ALERT, PACKAGE" exiting due to fatal errors!" );
+		Log( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE );
 		exit( 1 );
 	}
 
@@ -906,9 +906,11 @@ Client_IsValidNick( CHAR *Nick )
 {
 	/* Ist der Nick gueltig? */
 
-	CHAR *ptr, goodchars[] = ";0123456789-";
+	CHAR *ptr, goodchars[20];
 	
 	assert( Nick != NULL );
+
+	strcpy( goodchars, ";0123456789-" );
 
 	if( Nick[0] == '#' ) return FALSE;
 	if( strchr( goodchars, Nick[0] )) return FALSE;

@@ -10,6 +10,14 @@
                         -- ChangeLog / Aenderungen --
 
 
+ngIRCd 0.6.x-CVS
+
+  - Fixed KILL: you can't crash the server by killing yourself any more;
+    and ngIRCd no longer sends a QUIT to other servers after the KILL.
+
+
+Older changes (sorry, only available in german language):
+
 ngIRCd 0.6.0, 2002-12-24
 
   ngIRCd 0.6.0-pre2, 2002-12-23
@@ -369,4 +377,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.147.2.3 2002/12/24 13:53:54 alex Exp $
+$Id: ChangeLog,v 1.147.2.4 2002/12/26 19:01:29 alex Exp $

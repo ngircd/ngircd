@@ -1,3 +1,10 @@
+ngircd (0.8.0-0ab2) unstable; urgency=low
+
+  * Added missing commas to debian control file, fixes bug #56.
+    Thanks to Kevin Otte.
+
+ -- Alexander Barton <alex@pc-alex>  Thu, 15 Jul 2004 10:53:39 +0200
+
 ngircd (0.8.0-0ab1) unstable; urgency=low
 
   * New upstream version.

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.10 2001/12/25 22:03:47 alex Exp $
+ * $Id: conn.c,v 1.11 2001/12/25 23:15:16 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
+ * Revision 1.11  2001/12/25 23:15:16  alex
+ * - buffer werden nun periodisch geprueft, keine haengenden Clients mehr.
+ *
  * Revision 1.10  2001/12/25 22:03:47  alex
  * - Conn_Close() eingefuehrt: war die lokale Funktion Close_Connection().
  *
@@ -66,9 +69,9 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <string.h>
-#include <sys/socket.h> 
+#include <sys/socket.h>
 #include <sys/time.h>
-#include <sys/types.h> 
+#include <sys/types.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
@@ -111,6 +114,7 @@ LOCAL VOID New_Connection( INT Sock );
 LOCAL CONN_ID Socket2Index( INT Sock );
 LOCAL VOID Read_Request( CONN_ID Idx );
 LOCAL BOOLEAN Try_Write( CONN_ID Idx );
+LOCAL VOID Handle_Buffer( CONN_ID Idx );
 
 
 LOCAL fd_set My_Listener;
@@ -128,9 +132,9 @@ GLOBAL VOID Conn_Init( VOID )
 	/* zu Beginn haben wir keine Verbindungen */
 	FD_ZERO( &My_Listener );
 	FD_ZERO( &My_Sockets );
-	
+
 	My_Max_Fd = 0;
-	
+
 	/* Connection-Struktur initialisieren */
 	for( i = 0; i < MAX_CONNECTIONS; i++ ) My_Connections[i].sock = NONE;
 } /* Conn_Init */
@@ -140,7 +144,7 @@ GLOBAL VOID Conn_Exit( VOID )
 {
 	CONN_ID idx;
 	INT i;
-	
+
 	/* Sockets schliessen */
 	for( i = 0; i < My_Max_Fd + 1; i++ )
 	{
@@ -220,7 +224,7 @@ GLOBAL BOOLEAN Conn_New_Listener( CONST INT Port )
 	/* Neuen Listener in Strukturen einfuegen */
 	FD_SET( sock, &My_Listener );
 	FD_SET( sock, &My_Sockets );
-	
+
 	if( sock > My_Max_Fd ) My_Max_Fd = sock;
 
 	Log( LOG_INFO, "Now listening on port %d, socket %d.", Port, sock );
@@ -233,40 +237,55 @@ GLOBAL VOID Conn_Handler( INT Timeout )
 {
 	fd_set read_sockets, write_sockets;
 	struct timeval tv;
+	time_t start;
 	INT i;
 
 	/* Timeout initialisieren */
-	tv.tv_sec = Timeout;
-	tv.tv_usec = 0;
-	
-	/* noch volle Schreib-Puffer suchen */
-	FD_ZERO( &write_sockets );
-	for( i = 0; i < MAX_CONNECTIONS; i++ )
+	tv.tv_sec = 0;
+	tv.tv_usec = 50000;
+
+	start = time( NULL );
+	while( time( NULL ) - start < Timeout )
 	{
-		if(( My_Connections[i].sock >= 0 ) && ( My_Connections[i].wdatalen > 0 ))
+		/* noch volle Schreib-Puffer suchen */
+		FD_ZERO( &write_sockets );
+		for( i = 0; i < MAX_CONNECTIONS; i++ )
 		{
-			/* Socket der Verbindung in Set aufnehmen */
-			FD_SET( My_Connections[i].sock, &write_sockets );
+			if(( My_Connections[i].sock >= 0 ) && ( My_Connections[i].wdatalen > 0 ))
+			{
+				/* Socket der Verbindung in Set aufnehmen */
+				FD_SET( My_Connections[i].sock, &write_sockets );
+			}
 		}
-	}
-	
-	read_sockets = My_Sockets;
-	if( select( My_Max_Fd + 1, &read_sockets, &write_sockets, NULL, &tv ) == -1 )
-	{
-		if( errno != EINTR ) Log( LOG_ALERT, "select(): %s!", strerror( errno ));
-		return;
-	}
-	
-	/* Koennen Daten geschrieben werden? */
-	for( i = 0; i < My_Max_Fd + 1; i++ )
-	{
-		if( FD_ISSET( i, &write_sockets )) Handle_Write( Socket2Index( i ));
-	}
-	
-	/* Daten zum Lesen vorhanden? */
-	for( i = 0; i < My_Max_Fd + 1; i++ )
-	{
-		if( FD_ISSET( i, &read_sockets )) Handle_Read( i );
+		
+		/* noch volle Lese-Buffer suchen */
+		for( i = 0; i < MAX_CONNECTIONS; i++ )
+		{
+			if(( My_Connections[i].sock >= 0 ) && ( My_Connections[i].rdatalen > 0 ))
+			{
+				/* Kann aus dem Buffer noch ein Befehl extrahiert werden? */
+				Handle_Buffer( i );
+			}
+		}
+
+		read_sockets = My_Sockets;
+		if( select( My_Max_Fd + 1, &read_sockets, &write_sockets, NULL, &tv ) == -1 )
+		{
+			if( errno != EINTR ) Log( LOG_ALERT, "select(): %s!", strerror( errno ));
+			return;
+		}
+
+		/* Koennen Daten geschrieben werden? */
+		for( i = 0; i < My_Max_Fd + 1; i++ )
+		{
+			if( FD_ISSET( i, &write_sockets )) Handle_Write( Socket2Index( i ));
+		}
+
+		/* Daten zum Lesen vorhanden? */
+		for( i = 0; i < My_Max_Fd + 1; i++ )
+		{
+			if( FD_ISSET( i, &read_sockets )) Handle_Read( i );
+		}
 	}
 } /* Conn_Handler */
 
@@ -276,7 +295,7 @@ GLOBAL BOOLEAN Conn_WriteStr( CONN_ID Idx, CHAR *Format, ... )
 	/* String in Socket schreiben. CR+LF wird von dieser Funktion
 	 * automatisch angehaengt. Im Fehlerfall wird dir Verbindung
 	 * getrennt und FALSE geliefert. */
-	
+
 	CHAR buffer[MAX_CMDLEN];
 	BOOLEAN ok;
 	va_list ap;
@@ -292,7 +311,7 @@ GLOBAL BOOLEAN Conn_WriteStr( CONN_ID Idx, CHAR *Format, ... )
 #ifdef SNIFFER
 	Log( LOG_DEBUG, " -> connection %d: '%s'.", Idx, buffer );
 #endif
-	
+
 	strcat( buffer, "\r\n" );
 	ok = Conn_Write( Idx, buffer, strlen( buffer ));
 
@@ -305,7 +324,7 @@ GLOBAL BOOLEAN Conn_Write( CONN_ID Idx, CHAR *Data, INT Len )
 {
 	/* Daten in Socket schreiben. Bei "fatalen" Fehlern wird
 	 * der Client disconnectiert und FALSE geliefert. */
-	
+
 	assert( Idx >= 0 );
 	assert( My_Connections[Idx].sock >= 0 );
 	assert( Data != NULL );
@@ -317,7 +336,7 @@ GLOBAL BOOLEAN Conn_Write( CONN_ID Idx, CHAR *Data, INT Len )
 	{
 		if( ! Try_Write( Idx )) return FALSE;
 	}
-	
+
 	/* pruefen, ob im Schreibpuffer genuegend Platz ist */
 	if( WRITEBUFFER_LEN - My_Connections[Idx].wdatalen - Len <= 0 )
 	{
@@ -336,7 +355,7 @@ GLOBAL BOOLEAN Conn_Write( CONN_ID Idx, CHAR *Data, INT Len )
 	{
 		if( ! Try_Write( Idx )) return FALSE;
 	}
-	
+
 	return TRUE;
 } /* Conn_Write */
 
@@ -373,7 +392,7 @@ LOCAL BOOLEAN Try_Write( CONN_ID Idx )
 	 * Socket zu schreiben. */
 
 	fd_set write_socket;
-	
+
 	assert( Idx >= 0 );
 	assert( My_Connections[Idx].sock >= 0 );
 	assert( My_Connections[Idx].wdatalen > 0 );
@@ -401,7 +420,7 @@ LOCAL VOID Handle_Read( INT Sock )
 	/* Aktivitaet auf einem Socket verarbeiten */
 
 	CONN_ID idx;
-	
+
 	assert( Sock >= 0 );
 
 	if( FD_ISSET( Sock, &My_Listener ))
@@ -414,7 +433,7 @@ LOCAL VOID Handle_Read( INT Sock )
 	else
 	{
 		/* Ein Client Socket: entweder ein User oder Server */
-		
+
 		idx = Socket2Index( Sock );
 		Read_Request( idx );
 	}
@@ -424,13 +443,13 @@ LOCAL VOID Handle_Read( INT Sock )
 LOCAL BOOLEAN Handle_Write( CONN_ID Idx )
 {
 	/* Daten aus Schreibpuffer versenden */
-	
+
 	INT len;
 
 	assert( Idx >= 0 );
 	assert( My_Connections[Idx].sock >= 0 );
 	assert( My_Connections[Idx].wdatalen > 0 );
-		
+
 	/* Daten schreiben */
 	len = send( My_Connections[Idx].sock, My_Connections[Idx].wbuf, My_Connections[Idx].wdatalen, 0 );
 	if( len < 0 )
@@ -440,11 +459,11 @@ LOCAL BOOLEAN Handle_Write( CONN_ID Idx )
 		Conn_Close( Idx, NULL );
 		return FALSE;
 	}
-	
+
 	/* Puffer anpassen */
 	My_Connections[Idx].wdatalen -= len;
 	memmove( My_Connections[Idx].wbuf, My_Connections[Idx].wbuf + len, My_Connections[Idx].wdatalen );
-	
+
 	return TRUE;
 } /* Handle_Write */
 
@@ -457,7 +476,7 @@ LOCAL VOID New_Connection( INT Sock )
 	struct sockaddr_in new_addr;
 	INT new_sock, new_sock_len;
 	CONN_ID idx;
-	
+
 	assert( Sock >= 0 );
 
 	new_sock_len = sizeof( new_addr );
@@ -467,7 +486,7 @@ LOCAL VOID New_Connection( INT Sock )
 		Log( LOG_CRIT, "Can't accept connection: %s!", strerror( errno ));
 		return;
 	}
-		
+
 	/* Freie Connection-Struktur suschen */
 	for( idx = 0; idx < MAX_CONNECTIONS; idx++ ) if( My_Connections[idx].sock < 0 ) break;
 	if( idx >= MAX_CONNECTIONS )
@@ -476,7 +495,7 @@ LOCAL VOID New_Connection( INT Sock )
 		close( new_sock );
 		return;
 	}
-	
+
 	/* Client-Struktur initialisieren */
 	if( ! Client_New_Local( idx, inet_ntoa( new_addr.sin_addr )))
 	{
@@ -484,7 +503,7 @@ LOCAL VOID New_Connection( INT Sock )
 		close( new_sock );
 		return;
 	}
-	
+
 	/* Verbindung registrieren */
 	My_Connections[idx].sock = new_sock;
 	My_Connections[idx].addr = new_addr;
@@ -505,11 +524,11 @@ LOCAL CONN_ID Socket2Index( INT Sock )
 	/* zum Socket passende Connection suchen */
 
 	CONN_ID idx;
-	
+
 	assert( Sock >= 0 );
-	
+
 	for( idx = 0; idx < MAX_CONNECTIONS; idx++ ) if( My_Connections[idx].sock == Sock ) break;
-	
+
 	assert( idx < MAX_CONNECTIONS );
 	return idx;
 } /* Socket2Index */
@@ -521,11 +540,10 @@ LOCAL VOID Read_Request( CONN_ID Idx )
 	 * Tritt ein Fehler auf, so wird der Socket geschlossen. */
 
 	INT len;
-	CHAR *ptr;
 
 	assert( Idx >= 0 );
 	assert( My_Connections[Idx].sock >= 0 );
-	
+
 	len = recv( My_Connections[Idx].sock, My_Connections[Idx].rbuf + My_Connections[Idx].rdatalen, READBUFFER_LEN - My_Connections[Idx].rdatalen, 0 );
 	My_Connections[Idx].rbuf[READBUFFER_LEN] = '\0';
 
@@ -558,16 +576,39 @@ LOCAL VOID Read_Request( CONN_ID Idx )
 		Conn_Close( Idx, "Request too long!" );
 		return;
 	}
+
+	Handle_Buffer( Idx );
+} /* Read_Request */
+
+
+LOCAL VOID Handle_Buffer( CONN_ID Idx )
+{
+	CHAR *ptr, *ptr1, *ptr2;
+	INT len, delta;
 	
 	/* Eine komplette Anfrage muss mit CR+LF enden, vgl.
 	 * RFC 2812. Haben wir eine? */
 	ptr = strstr( My_Connections[Idx].rbuf, "\r\n" );
+
+	if( ptr ) delta = 2;
+	else
+	{
+		/* Nicht RFC-konforme Anfrage mit nur CR oder LF? Leider
+		 * machen soetwas viele Clients, u.a. "mIRC" :-( */
+		ptr1 = strchr( My_Connections[Idx].rbuf, '\r' );
+		ptr2 = strchr( My_Connections[Idx].rbuf, '\n' );
+		delta = 1;
+		if( ptr1 && ptr2 ) ptr = ptr1 > ptr2 ? ptr2 : ptr1;
+		else if( ptr1 ) ptr = ptr1;
+		else if( ptr2 ) ptr = ptr2;
+	}
+
 	if( ptr )
 	{
-		/* Ende der Anfrage (CR+LF) wurde gefunden */
+		/* Ende der Anfrage wurde gefunden */
 		*ptr = '\0';
-		len = ( ptr - My_Connections[Idx].rbuf ) + 2;
-		if( len > 2 )
+		len = ( ptr - My_Connections[Idx].rbuf ) + delta;
+		if( len > delta )
 		{
 			/* Es wurde ein Request gelesen */
 			if( ! Parse_Request( Idx, My_Connections[Idx].rbuf )) return;
@@ -578,7 +619,7 @@ LOCAL VOID Read_Request( CONN_ID Idx )
 		My_Connections[Idx].rdatalen -= len;
 		memmove( My_Connections[Idx].rbuf, My_Connections[Idx].rbuf + len, My_Connections[Idx].rdatalen );
 	}
-} /* Read_Request */
+} /* Handle_Buffer */
 
 
 /* -eof- */

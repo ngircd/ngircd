@@ -12,7 +12,7 @@
 
 ngIRCd CVS-HEAD
 
-  - Fixed compilation on SunOS (tested with 5.6).
+  - Fixed compilation and test-suite on SunOS (tested with 5.6).
 
 ngIRCd 0.7.0-pre1
 
@@ -437,4 +437,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.190 2003/04/22 18:45:19 alex Exp $
+$Id: ChangeLog,v 1.191 2003/04/22 19:35:05 alex Exp $

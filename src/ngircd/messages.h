@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: messages.h,v 1.41 2002/06/01 11:10:40 alex Exp $
+ * $Id: messages.h,v 1.42 2002/06/01 14:40:00 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  */
@@ -69,6 +69,7 @@
 #define ERR_NOMOTD_MSG			"422 %s :MOTD file is missing"
 #define ERR_ERRONEUSNICKNAME_MSG	"432 %s %s :Erroneous nickname"
 #define ERR_NICKNAMEINUSE_MSG		"433 %s %s :Nickname already in use"
+#define ERR_USERNOTINCHANNEL_MSG	"441 %s %s %s :They aren't on that channel"
 #define ERR_NOTONCHANNEL_MSG		"442 %s %s :You are not on that channel"
 #define ERR_NOTREGISTERED_MSG		"451 %s :Connection not registered"
 #define ERR_NOTREGISTEREDSERVER_MSG	"451 %s :Connection not registered as server link"

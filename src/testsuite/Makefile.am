@@ -9,7 +9,7 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: Makefile.am,v 1.2 2002/09/09 22:56:07 alex Exp $
+# $Id: Makefile.am,v 1.3 2002/09/12 02:26:17 alex Exp $
 #
 
 AUTOMAKE_OPTIONS = ../portab/ansi2knr
@@ -19,25 +19,28 @@ INCLUDES = -I$(srcdir)/../portab
 EXTRA_DIST = \
 	start-server.sh stop-server.sh tests.sh stress-server.sh \
 	connect-test.e channel-test.e mode-test.e \
-	stress-A.e stress-B.e check-idle.e
+	stress-A.e stress-B.e check-idle.e \
 	ngircd-test.conf
 
 clean-local:
-	rm -rf logs tests *-test ngircd-test.log ngircd-test.motd
+	rm -rf logs tests *-test ngircd-test.log ngircd-test.motd ngircd-TEST procs.tmp 
 
 maintainer-clean-local:
 	rm -f Makefile Makefile.in
 
-check_SCRIPTS = tests.sh
+check_SCRIPTS = ngircd-TEST tests.sh
+
+ngircd-TEST:
+	ln -s ../ngircd/ngircd ngircd-TEST
 
 connect-test: tests.sh
-	ln -s tests.sh connect-test
+	ln -s $(srcdir)/tests.sh connect-test
 
 channel-test: tests.sh
-	ln -s tests.sh channel-test
+	ln -s $(srcdir)/tests.sh channel-test
 
 mode-test: tests.sh
-	ln -s tests.sh mode-test
+	ln -s $(srcdir)/tests.sh mode-test
 
 TESTS = start-server.sh \
 	connect-test \

@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.115 2003/01/15 14:28:59 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.116 2003/02/21 19:19:27 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -529,6 +529,17 @@ Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient )
 	assert( Idx > NONE );
 	assert( My_Connections[Idx].sock > NONE );
 
+	/* Is this link already shutting down? */
+	if( My_Connections[Idx].options & CONN_ISCLOSING )
+	{
+		/* Conn_Close() has been called recursively for this link;
+		 * probabe reason: Try_Write() failed  -- see below. */
+		return;
+	}
+
+	/* Mark link as "closing" */
+	My_Connections[Idx].options |= CONN_ISCLOSING;
+
 	/* Search client, if any */
 	c = Client_GetFromConn( Idx );
 
@@ -550,7 +561,7 @@ Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient )
 	}
 
 	/* Try to write out the write buffer */
-	Try_Write( Idx );
+	(VOID)Try_Write( Idx );
 
 	/* Shut down socket */
 	if( close( My_Connections[Idx].sock ) != 0 )

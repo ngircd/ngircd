@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.28 2002/02/27 23:24:29 alex Exp $
+ * $Id: ngircd.c,v 1.29 2002/03/06 15:36:04 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  *
  * $Log: ngircd.c,v $
+ * Revision 1.29  2002/03/06 15:36:04  alex
+ * - stderr wird nun in eine Datei umgelenkt (ngircd.err). Wenn der Server
+ *   nicht im Debug-Modus laeuft, so wird diese bei Programmende geloescht.
+ *
  * Revision 1.28  2002/02/27 23:24:29  alex
  * - ueberfluessige Init- und Exit-Funktionen entfernt.
  *
@@ -286,6 +290,8 @@ GLOBAL INT main( INT argc, CONST CHAR *argv[] )
 				printf( PACKAGE": Can't fork: %s!\nFatal error, exiting now ...", strerror( errno ));
 				exit( 1 );
 			}
+
+			/* Child-Prozess initialisieren */
 			setsid( );
 			chdir( "/" );
 		}
@@ -323,6 +329,12 @@ GLOBAL INT main( INT argc, CONST CHAR *argv[] )
 		Conf_Exit( );
 		Log_Exit( );
 	}
+
+#ifndef DEBUG
+	/* aufraeumen */
+	if( unlink( ERROR_FILE ) != 0 ) Log( LOG_ERR, "Can't delete \""ERROR_FILE"\": %s", strerror( errno ));
+#endif
+
 	return 0;
 } /* main */
 

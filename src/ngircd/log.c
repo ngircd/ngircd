@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: log.c,v 1.19 2002/03/03 17:17:01 alex Exp $
+ * $Id: log.c,v 1.20 2002/03/06 15:36:04 alex Exp $
  *
  * log.c: Logging-Funktionen
  *
  * $Log: log.c,v $
+ * Revision 1.20  2002/03/06 15:36:04  alex
+ * - stderr wird nun in eine Datei umgelenkt (ngircd.err). Wenn der Server
+ *   nicht im Debug-Modus laeuft, so wird diese bei Programmende geloescht.
+ *
  * Revision 1.19  2002/03/03 17:17:01  alex
  * - strncpy() und vsnprintf() kopieren nun etwas "optimierter" (1 Byte weniger) :-)
  *
@@ -83,9 +87,12 @@
 
 #include <imp.h>
 #include <assert.h>
+#include <errno.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #ifdef USE_SYSLOG
 #include <syslog.h>
@@ -109,7 +116,7 @@ GLOBAL VOID Log_Init( VOID )
 
 	/* Hello World! */
 	Log( LOG_NOTICE, "%s started.", NGIRCd_Version( ));
-
+	  
 	/* Informationen uebern den "Operation Mode" */
 	strcpy( txt, "" );
 #ifdef DEBUG
@@ -137,6 +144,14 @@ GLOBAL VOID Log_Init( VOID )
 	}
 #endif
 	if( txt[0] ) Log( LOG_INFO, "Activating: %s.", txt );
+
+	/* stderr in Datei umlenken */
+	fflush( stderr );
+	if( ! freopen( ERROR_FILE, "a+", stderr )) Log( LOG_ERR, "Can't reopen stderr (\""ERROR_FILE"\"): %s", strerror( errno ));
+
+	fprintf( stderr, "\n--- %s ---\n\n", NGIRCd_StartStr );
+	fprintf( stderr, "%s started.\npid=%d, ppid=%d, uid=%d, gid=%d [euid=%d, egid=%d].\nActivating: %s\n\n", NGIRCd_Version( ), getpid( ), getppid( ), getuid( ), getgid( ), geteuid( ), getegid( ), txt[0] ? txt : "-" );
+	fflush( stderr );
 } /* Log_Init */
 
 
@@ -144,7 +159,9 @@ GLOBAL VOID Log_Exit( VOID )
 {
 	/* Good Bye! */
 	Log( LOG_NOTICE, PACKAGE" done.");
-	
+	fprintf( stderr, PACKAGE" done (pid=%d).\n", getpid( ));
+	fflush( stderr );
+
 #ifdef USE_SYSLOG
 	/* syslog abmelden */
 	closelog( );
@@ -172,9 +189,14 @@ GLOBAL VOID Log( CONST INT Level, CONST CHAR *Format, ... )
 	vsnprintf( msg, MAX_LOG_MSG_LEN, Format, ap );
 	va_end( ap );
 
+	/* In Error-File schreiben */
+	if( Level <= LOG_ERR ) fprintf( stderr, "[%d] %s\n", Level, msg );
+
 	/* ... und ausgeben */
 	if( NGIRCd_NoDaemon ) printf( "[%d] %s\n", Level, msg );
+
 #ifdef USE_SYSLOG
+	/* Syslog */
 	syslog( Level, msg );
 #endif
 } /* Log */

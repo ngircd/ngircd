@@ -1,3 +1,9 @@
+ngircd (0.7.5-0.2ab) unstable; urgency=low
+
+  * Updated RPM and Debian package description and configuration.
+
+ -- Alexander Barton <alex@Arthur.Ath.CX>  Sat, 29 Nov 2003 21:24:32 +0100
+
 ngircd (0.7.5-0.1ab) unstable; urgency=low
 
   * New upstream version.

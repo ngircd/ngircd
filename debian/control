@@ -9,14 +9,14 @@ Package: ngircd
 Architecture: any
 Depends: ${shlibs:Depends} ${misc:Depends}
 Description: A lightweight daemon for the Internet Relay Chat (IRC)
- The ngIRCd is a free open source daemon for Internet Relay Chat (IRC),
- developed under the GNU General Public License (GPL). It's written from
- scratch and is not based upon the original IRCd like many others.
+ ngIRCd is a free open source daemon for the Internet Relay Chat (IRC)
+ network. It is written from scratch and is not based upon the original
+ IRCd like many others.
  .
  Advantages:
-  - no problems with servers on changing or non-static IP addresses.
+  - no problems with servers using changing/non-static IP addresses.
   - small and lean configuration file.
-  - free, modern and open source C source code.
+  - free, modern and open source C code.
   - still under active development.
  .
  ngIRCd is compatible to the "original" ircd 2.10.3p3, so you can run

@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # Debian post-installation script
-# $Id: ngircd.postinst,v 1.1.2.3 2003/07/12 22:57:00 alex Exp $
+# $Id: ngircd.postinst,v 1.1.2.4 2003/11/29 20:29:02 alex Exp $
 #
 
 if [ -f /etc/ngircd/ngircd.conf ]; then
@@ -9,14 +9,6 @@ if [ -f /etc/ngircd/ngircd.conf ]; then
 	chmod o= /etc/ngircd/ngircd.conf
 fi
 
-if [ -x "/etc/init.d/ngircd" ]; then
-	# setup init scripts and startup ngircd
-	update-rc.d ngircd defaults >/dev/null
-	if [ -x /usr/sbin/invoke-rc.d ]; then
-		invoke-rc.d ngircd start
-	else
-		/etc/init.d/ngircd start
-	fi
-fi
+#DEBHELPER#
 
 # -eof-

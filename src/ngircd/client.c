@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.44 2002/03/06 14:30:43 alex Exp $
+ * $Id: client.c,v 1.45 2002/03/10 17:15:20 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,9 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.45  2002/03/10 17:15:20  alex
+ * - der Bindestrich ("-") ist nun auch in Nicknames erlaubt.
+ *
  * Revision 1.44  2002/03/06 14:30:43  alex
  * - ein paar assert()-Tests ergaenzt.
  *
@@ -980,7 +983,7 @@ GLOBAL BOOLEAN Client_IsValidNick( CHAR *Nick )
 {
 	/* Ist der Nick gueltig? */
 
-	CHAR *ptr, goodchars[] = ";0123456789";
+	CHAR *ptr, goodchars[] = ";0123456789-";
 	
 	assert( Nick != NULL );
 

@@ -9,7 +9,7 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: configure.in,v 1.72 2002/12/28 14:56:21 alex Exp $
+# $Id: configure.in,v 1.73 2002/12/28 15:17:46 alex Exp $
 #
 
 # -- Initialisierung --
@@ -81,7 +81,9 @@ AC_CHECK_HEADERS([ \
 	strings.h sys/socket.h sys/time.h unistd.h \
 	],,AC_MSG_ERROR([required C header missing!]))
 
-AC_CHECK_HEADERS(arpa/inet.h ctype.h malloc.h stdint.h sys/select.h sys/poll.h varargs.h)
+AC_CHECK_HEADERS([ \
+	arpa/inet.h ctype.h malloc.h stdint.h sys/select.h sys/poll.h \
+	varargs.h])
 
 # -- Datentypen --
 
@@ -118,11 +120,16 @@ AC_FUNC_STRFTIME
 
 AC_CHECK_FUNCS([ \
 	bind gethostbyaddr gethostbyname gethostname inet_ntoa memmove \
-	memset select setsockopt socket strcasecmp strchr strerror \
-	strstr waitpid \
+	memset setsockopt socket strcasecmp strchr strerror strstr waitpid \
 	],,AC_MSG_ERROR([required function missing!]))
 
-AC_CHECK_FUNCS(inet_aton isdigit poll sigaction snprintf vsnprintf strlcpy strlcat)
+AC_CHECK_FUNCS(inet_aton isdigit sigaction snprintf vsnprintf strlcpy strlcat)
+
+AC_CHECK_FUNCS(poll,,
+	[AC_CHECK_FUNCS(select,,
+		AC_MSG_ERROR([neither poll() nor select() is supported!]))
+	]
+)
 
 # -- Konfigurationsoptionen --
 

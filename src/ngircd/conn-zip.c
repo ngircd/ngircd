@@ -19,7 +19,7 @@
 
 #ifdef USE_ZLIB
 
-static char UNUSED id[] = "$Id: conn-zip.c,v 1.2 2002/12/30 17:15:06 alex Exp $";
+static char UNUSED id[] = "$Id: conn-zip.c,v 1.3 2003/04/21 10:52:26 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -114,9 +114,9 @@ Zip_Flush( CONN_ID Idx )
 
 	out = &My_Connections[Idx].zip.out;
 
-	out->next_in = My_Connections[Idx].zip.wbuf;
+	out->next_in = (VOID *)My_Connections[Idx].zip.wbuf;
 	out->avail_in = My_Connections[Idx].zip.wdatalen;
-	out->next_out = My_Connections[Idx].wbuf + My_Connections[Idx].wdatalen;
+	out->next_out = (VOID *)(My_Connections[Idx].wbuf + My_Connections[Idx].wdatalen);
 	out->avail_out = WRITEBUFFER_LEN - My_Connections[Idx].wdatalen;
 
 	result = deflate( out, Z_SYNC_FLUSH );
@@ -153,9 +153,9 @@ Unzip_Buffer( CONN_ID Idx )
 
 	in = &My_Connections[Idx].zip.in;
 
-	in->next_in = My_Connections[Idx].zip.rbuf;
+	in->next_in = (VOID *)My_Connections[Idx].zip.rbuf;
 	in->avail_in = My_Connections[Idx].zip.rdatalen;
-	in->next_out = My_Connections[Idx].rbuf + My_Connections[Idx].rdatalen;
+	in->next_out = (VOID *)(My_Connections[Idx].rbuf + My_Connections[Idx].rdatalen);
 	in->avail_out = READBUFFER_LEN - My_Connections[Idx].rdatalen - 1;
 
 	result = inflate( in, Z_SYNC_FLUSH );

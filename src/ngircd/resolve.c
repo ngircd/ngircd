@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: resolve.c,v 1.5 2002/12/26 17:04:54 alex Exp $";
+static char UNUSED id[] = "$Id: resolve.c,v 1.6 2003/04/21 10:52:51 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -186,7 +186,7 @@ Do_ResolveAddr( struct sockaddr_in *Addr, INT w_fd )
 	}
 
 	/* Antwort an Parent schreiben */
-	if( write( w_fd, hostname, strlen( hostname ) + 1 ) != ( strlen( hostname ) + 1 ))
+	if( (size_t)write( w_fd, hostname, strlen( hostname ) + 1 ) != (size_t)( strlen( hostname ) + 1 ))
 	{
 		Log_Resolver( LOG_CRIT, "Resolver: Can't write to parent: %s!", strerror( errno ));
 		close( w_fd );
@@ -226,7 +226,7 @@ Do_ResolveName( CHAR *Host, INT w_fd )
 	}
 
 	/* Antwort an Parent schreiben */
-	if( write( w_fd, ip, strlen( ip ) + 1 ) != ( strlen( ip ) + 1 ))
+	if( (size_t)write( w_fd, ip, strlen( ip ) + 1 ) != (size_t)( strlen( ip ) + 1 ))
 	{
 		Log_Resolver( LOG_CRIT, "Resolver: Can't write to parent: %s!", strerror( errno ));
 		close( w_fd );

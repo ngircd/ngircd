@@ -8,7 +8,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: configure.in,v 1.89.2.7 2003/07/09 18:57:20 alex Exp $
+# $Id: configure.in,v 1.89.2.8 2003/07/09 21:05:25 alex Exp $
 #
 
 # -- Initialisierung --
@@ -307,6 +307,7 @@ AC_OUTPUT([ \
 	src/testsuite/Makefile \
 	man/Makefile \
 	contrib/Makefile \
+	debian/Makefile \
 ])
 
 # -- Result --

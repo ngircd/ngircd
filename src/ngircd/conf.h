@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.h,v 1.18 2002/09/02 14:59:18 alex Exp $
+ * $Id: conf.h,v 1.19 2002/09/16 09:13:40 alex Exp $
  *
  * conf.h: Konfiguration des ngircd (Header)
  */
@@ -52,11 +52,16 @@ typedef struct _Conf_Channel
 /* Name ("Nick") des Servers */
 GLOBAL CHAR Conf_ServerName[CLIENT_ID_LEN];
 
-/* Servers-Info-Text */
+/* Server-Info-Text */
 GLOBAL CHAR Conf_ServerInfo[CLIENT_INFO_LEN];
 
 /* Server-Passwort */
 GLOBAL CHAR Conf_ServerPwd[CLIENT_PASS_LEN];
+
+/* Admin-Info-Texte */
+GLOBAL CHAR Conf_ServerAdmin1[CLIENT_INFO_LEN];
+GLOBAL CHAR Conf_ServerAdmin2[CLIENT_INFO_LEN];
+GLOBAL CHAR Conf_ServerAdminMail[CLIENT_INFO_LEN];
 
 /* Datei mit MOTD-Text */
 GLOBAL CHAR Conf_MotdFile[FNAME_LEN];

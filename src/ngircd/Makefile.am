@@ -9,9 +9,12 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: Makefile.am,v 1.14 2002/03/03 17:15:11 alex Exp $
+# $Id: Makefile.am,v 1.15 2002/03/10 17:06:27 alex Exp $
 #
 # $Log: Makefile.am,v $
+# Revision 1.15  2002/03/10 17:06:27  alex
+# - das "localstatedir" wird fur "ngircd.err" angelegt.
+#
 # Revision 1.14  2002/03/03 17:15:11  alex
 # - Source in weitere Module fuer IRC-Befehle aufgesplitted.
 #
@@ -83,6 +86,9 @@ check-help: Makefile
 	echo "#!/bin/sh" > check-help
 	echo "./ngircd --help | grep help > /dev/null 2>&1" >> check-help
 	chmod 755 check-help
+
+install-data-hook:
+	$(mkinstalldirs) $(DESTDIR)$(localstatedir)
 
 TESTS = check-version check-help
 

@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: resolve.h,v 1.4 2002/12/28 15:01:45 alex Exp $
+ * $Id: resolve.h,v 1.5 2003/04/21 10:53:10 alex Exp $
  *
  * Asynchronous resolver (header)
  */
@@ -18,6 +18,9 @@
 #define __resolve_h__
 
 
+#ifdef HAVE_SYS_SELECT_H
+#	include <sys/select.h>
+#endif
 #include <sys/types.h>
 #include <netinet/in.h>
 

@@ -2,16 +2,15 @@
  * ngIRCd -- The Next Generation IRC Daemon
  * Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
  *
- * Dieses Programm ist freie Software. Sie koennen es unter den Bedingungen
- * der GNU General Public License (GPL), wie von der Free Software Foundation
- * herausgegeben, weitergeben und/oder modifizieren, entweder unter Version 2
- * der Lizenz oder (wenn Sie es wuenschen) jeder spaeteren Version.
- * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
- * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: client.h,v 1.31 2002/11/30 15:04:57 alex Exp $
+ * $Id: client.h,v 1.32 2002/12/12 12:23:43 alex Exp $
  *
- * client.h: Konfiguration des ngircd (Header)
+ * Client management (header)
  */
 
 
@@ -19,15 +18,15 @@
 #define __client_h__
 
 
-#define CLIENT_UNKNOWN 1		/* Verbindung mit (noch) unbekanntem Typ */
-#define CLIENT_GOTPASS 2		/* Client hat PASS gesendet */
-#define CLIENT_GOTNICK 4		/* Client hat NICK gesendet */
-#define CLIENT_GOTUSER 8		/* Client hat USER gesendet */
-#define CLIENT_USER 16			/* Client ist ein Benutzer (USER wurde gesendet) */
-#define CLIENT_UNKNOWNSERVER 32		/* unregistrierte Server-Verbindung */
-#define CLIENT_GOTPASSSERVER 64		/* Client hat PASS nach "Server-Art" gesendet */
-#define CLIENT_SERVER 128		/* Client ist ein Server */
-#define CLIENT_SERVICE 256		/* Client ist ein Service */
+#define CLIENT_UNKNOWN 1		/* connection of unknown type */
+#define CLIENT_GOTPASS 2		/* client did send PASS */
+#define CLIENT_GOTNICK 4		/* client did send NICK */
+#define CLIENT_GOTUSER 8		/* client did send USER */
+#define CLIENT_USER 16			/* client is an IRC user */
+#define CLIENT_UNKNOWNSERVER 32		/* unregistered server connection */
+#define CLIENT_GOTPASSSERVER 64		/* client did send PASS in "server style" */
+#define CLIENT_SERVER 128		/* client is a server */
+#define CLIENT_SERVICE 256		/* client is a service */
 
 #define CLIENT_TYPE INT
 
@@ -38,22 +37,22 @@
 
 typedef struct _CLIENT
 {
-	CHAR id[CLIENT_ID_LEN];		/* Nick (User) bzw. ID (Server) */
-	UINT32 hash;			/* Hash ueber die (kleingeschriebene) ID */
-	POINTER *next;			/* Zeiger auf naechste Client-Struktur */
-	CLIENT_TYPE type;		/* Typ des Client, vgl. CLIENT_TYPE */
-	CONN_ID conn_id;		/* ID der Connection (wenn lokal) bzw. NONE (remote) */
-	struct _CLIENT *introducer;	/* ID des Servers, der die Verbindung hat */
-	struct _CLIENT *topserver;	/* Toplevel-Servers (nur gueltig, wenn Client ein Server ist) */
-	CHAR pwd[CLIENT_PASS_LEN];	/* Passwort, welches der Client angegeben hat */
-	CHAR host[CLIENT_HOST_LEN];	/* Hostname des Client */
-	CHAR user[CLIENT_USER_LEN];	/* Benutzername ("Login") */
-	CHAR info[CLIENT_INFO_LEN];	/* Langer Benutzername (User) bzw. Infotext (Server) */
-	CHAR modes[CLIENT_MODE_LEN];	/* Client Modes */
-	INT hops, token, mytoken;	/* "Hops" und "Token" (-> SERVER-Befehl) */
-	BOOLEAN oper_by_me;		/* IRC-Operator-Status durch diesen Server? */
-	CHAR away[CLIENT_AWAY_LEN];	/* AWAY-Text, wenn Mode 'a' gesetzt */
-	CHAR flags[CLIENT_FLAGS_LEN];	/* Flags des Client (aktuell nur bei Servern) */
+	CHAR id[CLIENT_ID_LEN];		/* nick (user) / ID (server) */
+	UINT32 hash;			/* hash of lower-case ID */
+	POINTER *next;			/* pointer to next client structure */
+	CLIENT_TYPE type;		/* type of client, see CLIENT_xxx */
+	CONN_ID conn_id;		/* ID of the connection (if local) or NONE (remote) */
+	struct _CLIENT *introducer;	/* ID of the servers which the client is connected to */
+	struct _CLIENT *topserver;	/* toplevel servers (only valid if client is a server) */
+	CHAR pwd[CLIENT_PASS_LEN];	/* password received of the client */
+	CHAR host[CLIENT_HOST_LEN];	/* hostname of the client */
+	CHAR user[CLIENT_USER_LEN];	/* user name ("login") */
+	CHAR info[CLIENT_INFO_LEN];	/* long user name (user) / info text (server) */
+	CHAR modes[CLIENT_MODE_LEN];	/* client modes */
+	INT hops, token, mytoken;	/* "hops" and "Token" (see SERVER command) */
+	BOOLEAN oper_by_me;		/* client is local IRC operator on this server? */
+	CHAR away[CLIENT_AWAY_LEN];	/* AWAY text (valid if mode 'a' is set) */
+	CHAR flags[CLIENT_FLAGS_LEN];	/* flags of the client */
 } CLIENT;
 
 #else

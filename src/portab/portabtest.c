@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: portabtest.c,v 1.6 2002/06/26 12:48:20 alex Exp $
+ * $Id: portabtest.c,v 1.7 2002/09/09 10:00:39 alex Exp $
  *
  * portabtest.c: Testprogramm fuer portab.h
  */
@@ -31,9 +31,9 @@ main( VOID )
 {
 	INT ret = 0;
 
-	printf( "- system type: %s/%s/%s\n", TARGET_CPU, TARGET_VENDOR, TARGET_OS );
+	printf( "      - system type: %s/%s/%s\n", TARGET_CPU, TARGET_VENDOR, TARGET_OS );
 
-	printf( "- datatypes: ");
+	printf( "      - datatypes: ");
 	if( ! portab_check_types( ))
 	{
 		puts( "FAILED!" );

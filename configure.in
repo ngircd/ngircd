@@ -8,7 +8,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: configure.in,v 1.89.2.1 2003/04/21 22:49:45 alex Exp $
+# $Id: configure.in,v 1.89.2.2 2003/04/22 20:00:19 alex Exp $
 #
 
 # -- Initialisierung --
@@ -74,6 +74,13 @@ if test `uname` = "HP-UX"; then
 	# define _XOPEN_SOURCE_EXTENDED when compiling on HP-UX (11.11):
 	AC_MSG_RESULT([detected HP-UX, defining _XOPEN_SOURCE_EXTENDED])
 	add_DEFINES="-D_XOPEN_SOURCE_EXTENDED $add_DEFINES"
+fi
+
+if test `uname` = "SunOS"; then
+	# define _XOPEN_SOURCE, _XOPEN_SOURCE_EXTENDED=1 and __EXTENSIONS__
+	# when compiling on SunOS (tested with 5.6):
+	AC_MSG_RESULT([detected SunOS, defining _XOPEN_SOURCE, _XOPEN_SOURCE_EXTENDED=1 and __EXTENSIONS__])
+	add_DEFINES="-D_XOPEN_SOURCE -D_XOPEN_SOURCE_EXTENDED=1 -D__EXTENSIONS__ $add_DEFINES"
 fi
 
 # -- Header --

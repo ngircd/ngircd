@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-op.c,v 1.7 2002/07/25 11:36:16 alex Exp $
+ * $Id: irc-op.c,v 1.8 2002/09/08 00:52:39 alex Exp $
  *
  * irc-op.c: Befehle zur Channel-Verwaltung
  */
@@ -64,22 +64,6 @@ IRC_KICK( CLIENT *Client, REQUEST *Req )
 
 
 GLOBAL BOOLEAN
-IRC_BAN( CLIENT *Client, REQUEST *Req )
-{
-	assert( Client != NULL );
-	assert( Req != NULL );
-
-	/* Valider Client? */
-	if(( Client_Type( Client ) != CLIENT_USER ) && ( Client_Type( Client ) != CLIENT_SERVER )) return IRC_WriteStrClient( Client, ERR_NOTREGISTERED_MSG, Client_ID( Client ));
-
-	/* Keine Parameter? */
-	if( Req->argc < 1 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
-
-	return CONNECTED;
-} /* IRC_BAN */	
-
-
-GLOBAL BOOLEAN
 IRC_INVITE( CLIENT *Client, REQUEST *Req )
 {
 	CHANNEL *chan;
@@ -120,8 +104,10 @@ IRC_INVITE( CLIENT *Client, REQUEST *Req )
 
 		/* Ist der Ziel-User bereits Mitglied? */
 		if( Channel_IsMemberOf( chan, target )) return IRC_WriteStrClient( from, ERR_USERONCHANNEL_MSG, Client_ID( from ), Req->argv[0], Req->argv[1] );
-
 	}
+
+	/* Wenn der User gebanned ist, so muss das Invite auch gespeichert werden */
+	if( Lists_CheckBanned( target, chan )) remember = TRUE;
 
 	Log( LOG_DEBUG, "User \"%s\" invites \"%s\" to \"%s\" ...", Client_Mask( from ), Req->argv[0], Req->argv[1] );
 	if( remember )

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: messages.h,v 1.3 2001/12/25 19:20:11 alex Exp $
+ * $Id: messages.h,v 1.4 2001/12/26 03:22:40 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: messages.h,v $
+ * Revision 1.4  2001/12/26 03:22:40  alex
+ * - Format der Meldungen ueberarbeitet: fast immer ist nun der Nick enthalten.
+ *
  * Revision 1.3  2001/12/25 19:20:11  alex
  * - neue Message: ERR_NICKNAMEINUSE[_MSG].
  *
@@ -54,20 +57,23 @@
 #define RPL_ENDOFMOTD_MSG		RPL_ENDOFMOTD" %s :End of MOTD command."
 
 
+#define ERR_NOORIGIN			"409"
+#define ERR_NOORIGIN_MSG		ERR_NOORIGIN" %s :No origin specified"
+
 #define ERR_UNKNOWNCOMMAND		"421"
-#define ERR_UNKNOWNCOMMAND_MSG		ERR_UNKNOWNCOMMAND" %s :Unknown command"
+#define ERR_UNKNOWNCOMMAND_MSG		ERR_UNKNOWNCOMMAND" %s %s :Unknown command"
 
 #define ERR_ERRONEUSNICKNAME		"432"
-#define ERR_ERRONEUSNICKNAME_MSG	ERR_ERRONEUSNICKNAME" %s :Erroneous nickname"
+#define ERR_ERRONEUSNICKNAME_MSG	ERR_ERRONEUSNICKNAME" %s %s :Erroneous nickname"
 
 #define ERR_NICKNAMEINUSE		"433"
-#define ERR_NICKNAMEINUSE_MSG		ERR_NICKNAMEINUSE" %s :Nickname already in use"
+#define ERR_NICKNAMEINUSE_MSG		ERR_NICKNAMEINUSE" %s %s :Nickname already in use"
 
 #define ERR_NEEDMOREPARAMS		"461"
-#define ERR_NEEDMOREPARAMS_MSG		ERR_NEEDMOREPARAMS" :Syntax error"
+#define ERR_NEEDMOREPARAMS_MSG		ERR_NEEDMOREPARAMS" %s %s :Syntax error"
 
 #define ERR_ALREADYREGISTRED		"462"
-#define ERR_ALREADYREGISTRED_MSG	ERR_ALREADYREGISTRED" :Connection already registered"
+#define ERR_ALREADYREGISTRED_MSG	ERR_ALREADYREGISTRED" %s :Connection already registered"
 
 #define ERR_NOTREGISTERED		"451"
 #define ERR_NOTREGISTERED_MSG		ERR_NOTREGISTERED" :Connection not registered"

@@ -1,3 +1,10 @@
+ngircd (0.7.7+HEAD-0ab2) unstable; urgency=low
+
+  * Incorporated more fixes and enhancements of CVS-HEAD version,
+    e. g. better connection logging and fixed TRACE command.
+
+ -- Alexander Barton <alex@Arthur.Ath.CX>  Sat, 28 Feb 2004 03:20:32 +0100
+
 ngircd (0.7.7+HEAD-0ab1) unstable; urgency=low
 
   * New upstream version. This debian package includes all features of

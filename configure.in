@@ -8,7 +8,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: configure.in,v 1.94 2003/07/09 21:16:33 alex Exp $
+# $Id: configure.in,v 1.95 2003/10/19 23:03:34 alex Exp $
 #
 
 # -- Initialisierung --
@@ -287,7 +287,7 @@ if test "$GCC" = "yes"; then
 		ansi=""
 	fi
 
-	add_CFLAGS="-Wall -W${ansi}${pedantic} $CFLAGS $CFLAGS_ADD"
+	add_CFLAGS="-pipe -Wall -W${ansi}${pedantic} $CFLAGS $CFLAGS_ADD"
 else
 	the_CFLAGS="$CFLAGS"
 	add_CFLAGS="$CFLAGS_ADD"

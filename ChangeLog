@@ -10,8 +10,15 @@
                         -- ChangeLog / Aenderungen --
 
 
-ngIRCd 0.6.0-pre1
+ngIRCd 0.6.0
 
+  ngIRCd 0.6.0-pre2, 2002/12/23
+  - neuer Numeric 005 ("Features") beim Connect.
+  - LUSERS erweitert: nun wird die maximale Anzahl der lokalen und globalen
+    Clients, die dem Server bzw. im Netzwerk seit dem letzten (Re-)Start
+    dem Server gleichzeitig bekannt waren, angezeigt.
+
+  ngIRCd 0.6.0-pre1, 2002/12/18
   - beim Schliessen einer Verbindung zeigt der Server nun vor dem ERROR
     noch eine Statistik ueber die empfangene und gesendete Datenmenge an.
   - der Server wartet bei einer eingehenden Verbindung nun laenger auf den
@@ -362,4 +369,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.147.2.1 2002/12/18 16:27:14 alex Exp $
+$Id: ChangeLog,v 1.147.2.2 2002/12/22 23:50:59 alex Exp $

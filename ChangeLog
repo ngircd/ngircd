@@ -17,6 +17,9 @@ ngIRCd CVS-HEAD
     nun "manuell" von der Kommandozeile gestartet werden, stress-server.sh
     startet per Default nur noch 5 Sessions, eine andere Zahl kann auf der
     Kommandozeile uebergeben werden (Syntax: "stress-server.sh <count>").
+  - In bestimmten Faellen hat der Server versucht auf einen bereits wieder
+    geschlossenen Socket Daten zu schreiben; das fuehrte zu einem Abbruch des
+    Servers durch ein assert(). Nun wird geprueft, ob der Socket noch ok ist.
 
 ngIRCd 0.5.0
 
@@ -271,4 +274,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.96 2002/09/23 22:07:42 alex Exp $
+$Id: ChangeLog,v 1.97 2002/09/26 16:02:38 alex Exp $

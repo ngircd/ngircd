@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-info.c,v 1.14 2003/01/01 13:30:35 alex Exp $";
+static char UNUSED id[] = "$Id: irc-info.c,v 1.15 2003/03/31 15:54:21 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -513,7 +513,7 @@ IRC_VERSION( CLIENT *Client, REQUEST *Req )
 	}
 
 	/* mit Versionsinfo antworten */
-	return IRC_WriteStrClient( Client, RPL_VERSION_MSG, Client_ID( prefix ), PACKAGE, VERSION, NGIRCd_DebugLevel, Conf_ServerName, NGIRCd_VersionAddition( ));
+	return IRC_WriteStrClient( Client, RPL_VERSION_MSG, Client_ID( prefix ), PACKAGE_NAME, PACKAGE_VERSION, NGIRCd_DebugLevel, Conf_ServerName, NGIRCd_VersionAddition( ));
 } /* IRC_VERSION */
 
 

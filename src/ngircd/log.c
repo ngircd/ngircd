@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: log.c,v 1.42 2002/12/19 04:30:00 alex Exp $";
+static char UNUSED id[] = "$Id: log.c,v 1.43 2003/03/31 15:54:21 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -52,7 +52,7 @@ Log_Init( VOID )
 {
 #ifdef USE_SYSLOG
 	/* Syslog initialisieren */
-	openlog( PACKAGE, LOG_CONS|LOG_PID, LOG_LOCAL5 );
+	openlog( PACKAGE_NAME, LOG_CONS|LOG_PID, LOG_LOCAL5 );
 #endif
 
 	/* Hello World! */
@@ -95,7 +95,7 @@ Log_InitErrorfile( VOID )
 	 * landen z.B. alle Ausgaben von assert()-Aufrufen. */
 
 	/* Dateiname zusammen bauen */
-	sprintf( Error_File, "%s/%s-%ld.err", ERROR_DIR, PACKAGE, (LONG)getpid( ));
+	sprintf( Error_File, "%s/%s-%ld.err", ERROR_DIR, PACKAGE_NAME, (LONG)getpid( ));
 
 	/* stderr umlenken */
 	fflush( stderr );
@@ -119,8 +119,8 @@ GLOBAL VOID
 Log_Exit( VOID )
 {
 	/* Good Bye! */
-	if( NGIRCd_SignalRestart ) Log( LOG_NOTICE, "%s done (restarting).", PACKAGE );
-	else Log( LOG_NOTICE, "%s done.", PACKAGE );
+	if( NGIRCd_SignalRestart ) Log( LOG_NOTICE, "%s done (restarting).", PACKAGE_NAME );
+	else Log( LOG_NOTICE, "%s done.", PACKAGE_NAME );
 
 	/* Error-File (stderr) loeschen */
 	if( unlink( Error_File ) != 0 ) Log( LOG_ERR, "Can't delete \"%s\": %s", Error_File, strerror( errno ));
@@ -207,7 +207,7 @@ GLOBAL VOID
 Log_Init_Resolver( VOID )
 {
 #ifdef USE_SYSLOG
-	openlog( PACKAGE, LOG_CONS|LOG_PID, LOG_LOCAL5 );
+	openlog( PACKAGE_NAME, LOG_CONS|LOG_PID, LOG_LOCAL5 );
 #endif
 } /* Log_Init_Resolver */
 

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-login.c,v 1.33 2003/01/08 22:28:12 alex Exp $";
+static char UNUSED id[] = "$Id: irc-login.c,v 1.34 2003/03/31 15:54:21 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -445,9 +445,9 @@ Hello_User( CLIENT *Client )
 	IRC_WriteStrServers( NULL, "NICK %s 1 %s %s 1 +%s :%s", Client_ID( Client ), Client_User( Client ), Client_Hostname( Client ), Client_Modes( Client ), Client_Info( Client ));
 
 	if( ! IRC_WriteStrClient( Client, RPL_WELCOME_MSG, Client_ID( Client ), Client_Mask( Client ))) return FALSE;
-	if( ! IRC_WriteStrClient( Client, RPL_YOURHOST_MSG, Client_ID( Client ), Client_ID( Client_ThisServer( )), VERSION, TARGET_CPU, TARGET_VENDOR, TARGET_OS )) return FALSE;
+	if( ! IRC_WriteStrClient( Client, RPL_YOURHOST_MSG, Client_ID( Client ), Client_ID( Client_ThisServer( )), PACKAGE_VERSION, TARGET_CPU, TARGET_VENDOR, TARGET_OS )) return FALSE;
 	if( ! IRC_WriteStrClient( Client, RPL_CREATED_MSG, Client_ID( Client ), NGIRCd_StartStr )) return FALSE;
-	if( ! IRC_WriteStrClient( Client, RPL_MYINFO_MSG, Client_ID( Client ), Client_ID( Client_ThisServer( )), VERSION, USERMODES, CHANMODES )) return FALSE;
+	if( ! IRC_WriteStrClient( Client, RPL_MYINFO_MSG, Client_ID( Client ), Client_ID( Client_ThisServer( )), PACKAGE_VERSION, USERMODES, CHANMODES )) return FALSE;
 
 	/* Features */
 	if( ! IRC_WriteStrClient( Client, RPL_ISUPPORT_MSG, Client_ID( Client ), CLIENT_NICK_LEN - 1, CHANNEL_TOPIC_LEN - 1, CLIENT_AWAY_LEN - 1, Conf_MaxJoins )) return DISCONNECTED;

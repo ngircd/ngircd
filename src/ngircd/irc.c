@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc.c,v 1.119 2003/03/19 21:16:53 alex Exp $";
+static char UNUSED id[] = "$Id: irc.c,v 1.120 2003/03/31 15:54:21 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -212,7 +212,7 @@ IRC_TRACE( CLIENT *Client, REQUEST *Req )
 		/* Send RPL_TRACELINK back to initiator */
 		idx = Client_Conn( Client ); assert( idx > NONE );
 		idx2 = Client_Conn( Client_NextHop( target )); assert( idx2 > NONE );
-		if( ! IRC_WriteStrClient( from, RPL_TRACELINK_MSG, Client_ID( from ), PACKAGE, VERSION, Client_ID( target ), Client_ID( Client_NextHop( target )), Option_String( idx2 ), time( NULL ) - Conn_StartTime( idx2 ), Conn_SendQ( idx ), Conn_SendQ( idx2 ))) return DISCONNECTED;
+		if( ! IRC_WriteStrClient( from, RPL_TRACELINK_MSG, Client_ID( from ), PACKAGE_NAME, PACKAGE_VERSION, Client_ID( target ), Client_ID( Client_NextHop( target )), Option_String( idx2 ), time( NULL ) - Conn_StartTime( idx2 ), Conn_SendQ( idx ), Conn_SendQ( idx2 ))) return DISCONNECTED;
 
 		/* Forward command */
 		IRC_WriteStrClientPrefix( target, from, "TRACE %s", Req->argv[0] );
@@ -243,7 +243,7 @@ IRC_TRACE( CLIENT *Client, REQUEST *Req )
 	/* Some information about us */
 	if( ! IRC_WriteStrClient( from, RPL_TRACESERVER_MSG, Client_ID( from ), Conf_ServerName, Client_Mask( Client_ThisServer( )), Option_String( Client_Conn( Client )))) return DISCONNECTED;
 
-	return IRC_WriteStrClient( from, RPL_TRACEEND_MSG, Client_ID( from ), Conf_ServerName, PACKAGE, VERSION, NGIRCd_DebugLevel );
+	return IRC_WriteStrClient( from, RPL_TRACEEND_MSG, Client_ID( from ), Conf_ServerName, PACKAGE_NAME, PACKAGE_VERSION, NGIRCd_DebugLevel );
 } /* IRC_TRACE */
 
 

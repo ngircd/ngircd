@@ -8,7 +8,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: Makefile.am,v 1.37 2003/02/23 12:02:26 alex Exp $
+# $Id: Makefile.am,v 1.38 2003/03/31 15:54:21 alex Exp $
 #
 
 AUTOMAKE_OPTIONS = ../portab/ansi2knr
@@ -64,7 +64,7 @@ lint:
 ngircd.c: cvs-date cvs-version.h
 
 cvs-date:
-	grep VERSION ../config.h | grep "CVS" \
+	grep PACKAGE_VERSION ../config.h | grep "CVS" \
 	 && echo "#define CVSDATE \"$$( grep "\$$Id" $(srcdir)/*.c \
 	    | $(AWK) "{ print \$$9 }" | sort | tail -1 \
 	    | sed -e "s/\//-/g" )\"" > cvs-version.new \

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.54 2003/03/27 01:21:38 alex Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.55 2003/03/31 15:54:21 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -329,7 +329,7 @@ Set_Defaults( BOOLEAN InitServers )
 	INT i;
 
 	strcpy( Conf_ServerName, "" );
-	sprintf( Conf_ServerInfo, "%s %s", PACKAGE, VERSION );
+	sprintf( Conf_ServerInfo, "%s %s", PACKAGE_NAME, PACKAGE_VERSION );
 	strcpy( Conf_ServerPwd, "" );
 
 	strcpy( Conf_ServerAdmin1, "" );
@@ -376,7 +376,7 @@ Read_Config( VOID )
 	{
 		/* No configuration file found! */
 		Config_Error( LOG_ALERT, "Can't read configuration \"%s\": %s", NGIRCd_ConfFile, strerror( errno ));
-		Config_Error( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE );
+		Config_Error( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE_NAME );
 		exit( 1 );
 	}
 
@@ -833,7 +833,7 @@ Validate_Config( BOOLEAN Configtest )
 		Config_Error( LOG_ALERT, "No server name configured in \"%s\" ('ServerName')!", NGIRCd_ConfFile );
 		if( ! Configtest )
 		{
-			Config_Error( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE );
+			Config_Error( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE_NAME );
 			exit( 1 );
 		}
 	}
@@ -845,7 +845,7 @@ Validate_Config( BOOLEAN Configtest )
 		Config_Error( LOG_ALERT, "No administrator email address configured in \"%s\" ('AdminEMail')!", NGIRCd_ConfFile );
 		if( ! Configtest )
 		{
-			Config_Error( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE );
+			Config_Error( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE_NAME );
 			exit( 1 );
 		}
 	}

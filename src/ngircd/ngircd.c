@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.75 2003/03/27 01:22:44 alex Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.76 2003/03/31 15:54:21 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -186,8 +186,8 @@ main( int argc, const char *argv[] )
 
 				if( ! ok )
 				{
-					printf( "%s: invalid option \"-%c\"!\n", PACKAGE, argv[i][n] );
-					printf( "Try \"%s --help\" for more information.\n", PACKAGE );
+					printf( "%s: invalid option \"-%c\"!\n", PACKAGE_NAME, argv[i][n] );
+					printf( "Try \"%s --help\" for more information.\n", PACKAGE_NAME );
 					exit( 1 );
 				}
 			}
@@ -195,8 +195,8 @@ main( int argc, const char *argv[] )
 		}
 		if( ! ok )
 		{
-			printf( "%s: invalid option \"%s\"!\n", PACKAGE, argv[i] );
-			printf( "Try \"%s --help\" for more information.\n", PACKAGE );
+			printf( "%s: invalid option \"%s\"!\n", PACKAGE_NAME, argv[i] );
+			printf( "Try \"%s --help\" for more information.\n", PACKAGE_NAME );
 			exit( 1 );
 		}
 	}
@@ -239,7 +239,7 @@ main( int argc, const char *argv[] )
 			if( pid < 0 )
 			{
 				/* Fehler */
-				printf( "%s: Can't fork: %s!\nFatal error, exiting now ...\n", PACKAGE, strerror( errno ));
+				printf( "%s: Can't fork: %s!\nFatal error, exiting now ...\n", PACKAGE_NAME, strerror( errno ));
 				exit( 1 );
 			}
 
@@ -297,13 +297,13 @@ main( int argc, const char *argv[] )
 		 * beim PASS-Befehl verwendete Syntax sowie die erweiterten Flags
 		 * sind in doc/Protocol.txt beschrieben. */
 #ifdef IRCPLUS
-		sprintf( NGIRCd_ProtoID, "%s%s %s|%s:%s", PROTOVER, PROTOIRCPLUS, PACKAGE, VERSION, IRCPLUSFLAGS );
+		sprintf( NGIRCd_ProtoID, "%s%s %s|%s:%s", PROTOVER, PROTOIRCPLUS, PACKAGE_NAME, PACKAGE_VERSION, IRCPLUSFLAGS );
 #ifdef USE_ZLIB
 		strcat( NGIRCd_ProtoID, "Z" );
 #endif
 		if( Conf_OperCanMode ) strcat( NGIRCd_ProtoID, "o" );
 #else
-		sprintf( NGIRCd_ProtoID, "%s%s %s|%s", PROTOVER, PROTOIRC, PACKAGE, VERSION );
+		sprintf( NGIRCd_ProtoID, "%s%s %s|%s", PROTOVER, PROTOIRC, PACKAGE_NAME, PACKAGE_VERSION );
 #endif
 		strcat( NGIRCd_ProtoID, " P" );
 #ifdef USE_ZLIB
@@ -318,7 +318,7 @@ main( int argc, const char *argv[] )
 		if( Conn_InitListeners( ) < 1 )
 		{
 			Log( LOG_ALERT, "Server isn't listening on a single port!" );
-			Log( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE );
+			Log( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE_NAME );
 			exit( 1 );
 		}
 		
@@ -346,9 +346,9 @@ NGIRCd_Version( VOID )
 	STATIC CHAR version[126];
 	
 #ifdef CVSDATE
-	sprintf( version, "%s %s(%s)-%s", PACKAGE, VERSION, CVSDATE, NGIRCd_VersionAddition( ));
+	sprintf( version, "%s %s(%s)-%s", PACKAGE_NAME, PACKAGE_VERSION, CVSDATE, NGIRCd_VersionAddition( ));
 #else
-	sprintf( version, "%s %s-%s", PACKAGE, VERSION, NGIRCd_VersionAddition( ));
+	sprintf( version, "%s %s-%s", PACKAGE_NAME, PACKAGE_VERSION, NGIRCd_VersionAddition( ));
 #endif
 	return version;
 } /* NGIRCd_Version */

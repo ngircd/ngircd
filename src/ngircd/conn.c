@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.120 2003/03/27 01:20:22 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.121 2003/03/31 15:54:21 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -429,7 +429,7 @@ Conn_Handler( VOID )
 			if( errno != EINTR )
 			{
 				Log( LOG_EMERG, "Conn_Handler(): select(): %s!", strerror( errno ));
-				Log( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE );
+				Log( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE_NAME );
 				exit( 1 );
 			}
 			continue;
@@ -626,7 +626,7 @@ Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient )
 	{
 		/* Oops, we can't close the socket!? This is fatal! */
 		Log( LOG_EMERG, "Error closing connection %d (socket %d) with %s:%d - %s!", Idx, My_Connections[Idx].sock, My_Connections[Idx].host, ntohs( My_Connections[Idx].addr.sin_port), strerror( errno ));
-		Log( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE );
+		Log( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE_NAME );
 		exit( 1 );
 	}
 
@@ -901,7 +901,7 @@ New_Connection( INT Sock )
 	
 #ifdef USE_TCPWRAP
 	/* Validate socket using TCP Wrappers */
-	request_init( &req, RQ_DAEMON, PACKAGE, RQ_FILE, new_sock, RQ_CLIENT_SIN, &new_addr, NULL );
+	request_init( &req, RQ_DAEMON, PACKAGE_NAME, RQ_FILE, new_sock, RQ_CLIENT_SIN, &new_addr, NULL );
 	if( ! hosts_access( &req ))
 	{
 		/* Access denied! */

@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: client.c,v 1.73 2003/01/15 14:28:25 alex Exp $";
+static char UNUSED id[] = "$Id: client.c,v 1.74 2003/03/31 15:54:21 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -76,7 +76,7 @@ Client_Init( VOID )
 	if( ! This_Server )
 	{
 		Log( LOG_EMERG, "Can't allocate client structure for server! Going down." );
-		Log( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE );
+		Log( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE_NAME );
 		exit( 1 );
 	}
 

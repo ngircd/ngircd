@@ -9,23 +9,33 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.h,v 1.1 2001/12/14 08:13:43 alex Exp $
+ * $Id: irc.h,v 1.2 2001/12/23 21:57:16 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: irc.h,v $
+ * Revision 1.2  2001/12/23 21:57:16  alex
+ * - erste IRC-Befehle zu implementieren begonnen.
+ *
  * Revision 1.1  2001/12/14 08:13:43  alex
  * - neues Modul begonnen :-)
- *
  */
 
 
 #ifndef __irc_h__
 #define __irc_h__
 
+#include "parse.h"
+
 
 GLOBAL VOID IRC_Init( VOID );
 GLOBAL VOID IRC_Exit( VOID );
+
+GLOBAL VOID IRC_WriteStr_Client( CLIENT *Client, CLIENT *Prefix, CHAR *Format, ... );
+
+GLOBAL BOOLEAN IRC_PASS( CLIENT *Client, REQUEST *Req );
+GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req );
+GLOBAL BOOLEAN IRC_USER( CLIENT *Client, REQUEST *Req );
 
 
 #endif

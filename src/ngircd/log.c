@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: log.c,v 1.30 2002/03/29 23:58:10 alex Exp $
+ * $Id: log.c,v 1.31 2002/03/30 13:37:12 alex Exp $
  *
  * log.c: Logging-Funktionen
  */
@@ -150,16 +150,29 @@ GLOBAL VOID Log( INT Level, CONST CHAR *Format, ... )
 	vsnprintf( msg, MAX_LOG_MSG_LEN, Format, ap );
 	va_end( ap );
 
-	/* Konsole */
-	if( NGIRCd_NoDaemon ) printf( "[%d] %s\n", Level, msg );
+	if( NGIRCd_NoDaemon )
+	{
+		/* auf Konsole ausgeben */
+		printf( "[%d] %s\n", Level, msg );
+	}
+
+	if( Level <= LOG_CRIT )
+	{
+		/* Kritische Meldungen in Error-File (stderr) */
+		fprintf( stderr, "%s\n", msg );
+		fflush( stderr );
+	}
 
 #ifdef USE_SYSLOG
 	/* Syslog */
 	syslog( Level, msg );
 #endif
 
-	/* lokale User mit "s"-Mode */
-	if( snotice ) Wall_ServerNotice( msg );
+	if( snotice )
+	{
+		/* NOTICE an lokale User mit "s"-Mode */
+		Wall_ServerNotice( msg );
+	}
 } /* Log */
 
 

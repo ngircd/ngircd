@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.58 2002/03/29 22:54:35 alex Exp $
+ * $Id: conn.c,v 1.59 2002/03/30 13:37:12 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -557,7 +557,11 @@ LOCAL BOOLEAN Handle_Write( CONN_ID Idx )
 
 		/* Ergebnis des connect() ermitteln */
 		len = sizeof( err );
+#ifdef SO_ERROR
 		res = getsockopt( My_Connections[Idx].sock, SOL_SOCKET, SO_ERROR, &err, &len );
+#else
+		res = err = 0;
+#endif
 		assert( len == sizeof( err ));
 
 		/* Fehler aufgetreten? */

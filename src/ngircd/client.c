@@ -2,23 +2,13 @@
  * ngIRCd -- The Next Generation IRC Daemon
  * Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
  *
- * Dieses Programm ist freie Software. Sie koennen es unter den Bedingungen
- * der GNU General Public License (GPL), wie von der Free Software Foundation
- * herausgegeben, weitergeben und/oder modifizieren, entweder unter Version 2
- * der Lizenz oder (wenn Sie es wuenschen) jeder spaeteren Version.
- * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
- * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: client.c,v 1.64 2002/12/03 18:57:44 alex Exp $
- *
- * client.c: Management aller Clients
- *
- * Der Begriff "Client" ist in diesem Fall evtl. etwas verwirrend: Clients sind
- * alle Verbindungen, die im gesamten(!) IRC-Netzwerk bekannt sind. Das sind IRC-
- * Clients (User), andere Server und IRC-Services.
- * Ueber welchen IRC-Server die Verbindung nun tatsaechlich in das Netzwerk her-
- * gestellt wurde, muss der jeweiligen Struktur entnommen werden. Ist es dieser
- * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
+ * Client management.
  */
 
 
@@ -26,6 +16,8 @@
 
 
 #include "portab.h"
+
+static char UNUSED id[] = "$Id: client.c,v 1.65 2002/12/12 12:24:18 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>

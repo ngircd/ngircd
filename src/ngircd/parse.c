@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: parse.c,v 1.2 2001/12/23 21:56:47 alex Exp $
+ * $Id: parse.c,v 1.3 2001/12/25 19:18:36 alex Exp $
  *
  * parse.c: Parsen der Client-Anfragen
  *
  * $Log: parse.c,v $
+ * Revision 1.3  2001/12/25 19:18:36  alex
+ * - Gross- und Kleinschreibung der IRC-Befehle wird ignoriert.
+ * - bessere Debug-Ausgaben.
+ *
  * Revision 1.2  2001/12/23 21:56:47  alex
  * - bessere Debug-Ausgaben,
  * - Bug im Parameter-Parser behoben (bei "langem" Parameter)
@@ -208,12 +212,17 @@ LOCAL BOOLEAN Handle_Request( CONN_ID Idx, REQUEST *Req )
 	client = Client_GetFromConn( Idx );
 	assert( client != NULL );
 
-	if( strcmp( Req->command, "PASS" ) == 0 ) return IRC_PASS( client, Req );
-	else if( strcmp( Req->command, "NICK" ) == 0 ) return IRC_NICK( client, Req );
-	else if( strcmp( Req->command, "USER" ) == 0 ) return IRC_USER( client, Req );
+	if( strcasecmp( Req->command, "PASS" ) == 0 ) return IRC_PASS( client, Req );
+	else if( strcasecmp( Req->command, "NICK" ) == 0 ) return IRC_NICK( client, Req );
+	else if( strcasecmp( Req->command, "USER" ) == 0 ) return IRC_USER( client, Req );
+	else if( strcasecmp( Req->command, "MOTD" ) == 0 ) return IRC_MOTD( client, Req );
 
 	/* Unbekannter Befehl */
 	Conn_WriteStr( Idx, ERR_UNKNOWNCOMMAND_MSG, Req->command );
+
+#ifndef DEBUG
+	Log( LOG_DEBUG, "Connection %d: Unknown command '%s', %d %s,%s prefix.", Idx, Req->command, Req->argc, Req->argc == 1 ? "parameter" : "parameters", Req->prefix ? "" : " no" );
+#endif
 
 	return TRUE;
 } /* Handle_Request */

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.62 2002/05/18 21:53:53 alex Exp $
+ * $Id: conn.c,v 1.63 2002/05/19 10:44:02 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -936,7 +936,13 @@ LOCAL VOID New_Server( INT Server, CONN_ID Idx )
 
 	Log( LOG_INFO, "Establishing connection to \"%s\", %s, port %d (connection %d) ... ", Conf_Server[Server].host, Conf_Server[Server].ip, Conf_Server[Server].port, Idx );
 
+#ifdef HAVE_INET_ATON
 	if( inet_aton( Conf_Server[Server].ip, &inaddr ) == 0 )
+#else
+	memset( &inaddr, 0, sizeof( inaddr ));
+	inaddr.s_addr = inet_addr( Conf_Server[Server].ip );
+	if( inaddr.s_addr == (unsigned)-1 )
+#endif
 	{
 		/* Konnte Adresse nicht konvertieren */
 		Init_Conn_Struct( Idx );

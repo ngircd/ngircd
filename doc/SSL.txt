@@ -12,7 +12,10 @@
 
 ngIRCd actually doesn't support secure connections for client-server or
 server-server links using SSL, the Secure Socket Layer, by itself. But you can
-use the stunnel() command to make this work.
+use the stunnel(8) command to make this work.
+
+  <http://stunnel.mirt.net/>
+  <http://www.stunnel.org/>
 
 Stefan Sperling (stefan at binarchy dot net) mailed me the following text as a
 short "how-to", thanks Stefan!
@@ -52,4 +55,4 @@ Probably ngIRCd will include support for SSL in the future ...
 
 
 -- 
-$Id: SSL.txt,v 1.1 2004/12/27 01:04:35 alex Exp $
+$Id: SSL.txt,v 1.2 2004/12/27 01:11:40 alex Exp $

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.74 2005/03/20 15:00:25 fw Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.75 2005/03/22 18:57:08 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -105,8 +105,9 @@ Conf_Test( void )
 	Read_Config( );
 	Validate_Config( true );
 
-	/* If stdin is a valid tty wait for a key: */
-	if( isatty( fileno( stdin )))
+	/* If stdin and stdout ("you can read our nice message and we can
+	 * read in your keypress") are valid tty's, wait for a key: */
+	if( isatty( fileno( stdin )) && isatty( fileno( stdout )))
 	{
 		puts( "OK, press enter to see a dump of your service configuration ..." );
 		getchar( );

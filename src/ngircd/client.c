@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.62 2002/10/09 16:53:02 alex Exp $
+ * $Id: client.c,v 1.63 2002/11/26 08:36:34 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -375,7 +375,7 @@ Client_SetFlags( CLIENT *Client, CHAR *Flags )
 	assert( Flags != NULL );
 
 	strncpy( Client->flags, Flags, CLIENT_FLAGS_LEN - 1 );
-	Client->modes[CLIENT_FLAGS_LEN - 1] = '\0';
+	Client->flags[CLIENT_FLAGS_LEN - 1] = '\0';
 } /* Client_SetFlags */
 
 

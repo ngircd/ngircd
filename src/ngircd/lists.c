@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: lists.c,v 1.14 2004/04/09 21:41:52 alex Exp $";
+static char UNUSED id[] = "$Id: lists.c,v 1.15 2004/04/25 15:40:19 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -102,6 +102,16 @@ Lists_CheckInvited( CLIENT *Client, CHANNEL *Chan )
 
 
 GLOBAL BOOLEAN
+Lists_IsInviteEntry( CHAR *Mask, CHANNEL *Chan )
+{
+	assert( Mask != NULL );
+	assert( Chan != NULL );
+	
+	return Already_Registered( My_Invites, Mask, Chan );
+} /* Lists_IsInviteEntry */
+
+
+GLOBAL BOOLEAN
 Lists_AddInvited( CHAR *Mask, CHANNEL *Chan, BOOLEAN OnlyOnce )
 {
 	C2C *c2c;
@@ -177,10 +187,54 @@ Lists_ShowInvites( CLIENT *Client, CHANNEL *Channel )
 
 
 GLOBAL BOOLEAN
+Lists_SendInvites( CLIENT *Client )
+{
+	C2C *c2c;
+	
+	assert( Client != NULL );
+	
+	c2c = My_Invites;
+	while( c2c )
+	{
+		if( ! IRC_WriteStrClient( Client, "MODE %s +I %s", Channel_Name( c2c->channel ), c2c->mask )) return DISCONNECTED;
+		c2c = c2c->next;
+	}
+	return CONNECTED;
+} /* Lists_SendInvites */
+
+
+GLOBAL BOOLEAN
+Lists_SendBans( CLIENT *Client )
+{
+	C2C *c2c;
+	
+	assert( Client != NULL );
+	
+	c2c = My_Bans;
+	while( c2c )
+	{
+		if( ! IRC_WriteStrClient( Client, "MODE %s +b %s", Channel_Name( c2c->channel ), c2c->mask )) return DISCONNECTED;
+		c2c = c2c->next;
+	}
+	return CONNECTED;
+} /* Lists_SendBans */
+
+
+GLOBAL BOOLEAN
 Lists_CheckBanned( CLIENT *Client, CHANNEL *Chan )
 {
 	return Check_List( &My_Bans, Client, Chan );
 } /* Lists_CheckBanned */
+
+
+GLOBAL BOOLEAN
+Lists_IsBanEntry( CHAR *Mask, CHANNEL *Chan )
+{
+	assert( Mask != NULL );
+	assert( Chan != NULL );
+	
+	return Already_Registered( My_Bans, Mask, Chan );
+} /* Lists_IsBanEntry */
 
 
 GLOBAL BOOLEAN

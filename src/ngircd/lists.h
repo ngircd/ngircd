@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: lists.h,v 1.10 2004/04/09 21:41:52 alex Exp $
+ * $Id: lists.h,v 1.11 2004/04/25 15:40:19 alex Exp $
  *
  * Management of IRC lists: ban, invite, ... (header)
  */
@@ -25,11 +25,15 @@ GLOBAL BOOLEAN Lists_CheckInvited PARAMS(( CLIENT *Client, CHANNEL *Chan ));
 GLOBAL BOOLEAN Lists_AddInvited PARAMS(( CHAR *Mask, CHANNEL *Chan, BOOLEAN OnlyOnce ));
 GLOBAL VOID Lists_DelInvited PARAMS(( CHAR *Mask, CHANNEL *Chan ));
 GLOBAL BOOLEAN Lists_ShowInvites PARAMS(( CLIENT *Client, CHANNEL *Channel ));
+GLOBAL BOOLEAN Lists_SendInvites PARAMS(( CLIENT *Client ));
+GLOBAL BOOLEAN Lists_IsInviteEntry PARAMS(( CHAR *Mask, CHANNEL *Chan ));
 
 GLOBAL BOOLEAN Lists_CheckBanned PARAMS(( CLIENT *Client, CHANNEL *Chan ));
 GLOBAL BOOLEAN Lists_AddBanned PARAMS(( CHAR *Mask, CHANNEL *Chan ));
 GLOBAL VOID Lists_DelBanned PARAMS(( CHAR *Mask, CHANNEL *Chan ));
 GLOBAL BOOLEAN Lists_ShowBans PARAMS(( CLIENT *Client, CHANNEL *Channel ));
+GLOBAL BOOLEAN Lists_SendBans PARAMS(( CLIENT *Client ));
+GLOBAL BOOLEAN Lists_IsBanEntry PARAMS(( CHAR *Mask, CHANNEL *Chan ));
 
 GLOBAL VOID Lists_DeleteChannel PARAMS(( CHANNEL *Chan ));
 

@@ -19,6 +19,7 @@ ngIRCd 0.0.4, ??.??.????
   - Hilfetext korrigiert: --help und --version waren vertauscht, die
     Option --sniffer wurde gar nicht erwaehnt.
   - Begonnen, Channels einzubauen.
+  - FAQ.txt in doc/ begonnen.
 
 ngIRCd 0.0.3, 16.01.2002
 
@@ -66,4 +67,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.11 2002/01/21 00:00:54 alex Exp $
+$Id: ChangeLog,v 1.12 2002/01/23 14:05:20 alex Exp $

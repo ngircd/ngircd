@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.75 2002/10/03 21:03:11 alex Exp $
+ * $Id: conn.c,v 1.76 2002/10/09 13:15:08 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -75,6 +75,7 @@ typedef struct _Connection
 	time_t lastping;		/* Letzter PING */
 	time_t lastprivmsg;		/* Letzte PRIVMSG */
 	time_t delaytime;		/* Nicht beachten bis ("penalty") */
+	INT32 bytes_in, bytes_out;	/* Counter fuer Statistik */
 } CONNECTION;
 
 
@@ -447,8 +448,17 @@ Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient )
 	assert( Idx >= 0 );
 	assert( My_Connections[Idx].sock > NONE );
 
+	c = Client_GetFromConn( Idx );
+
 	if( InformClient )
 	{
+		/* Statistik an Client melden, wenn User */
+		if(( c != NULL ) && ( Client_Type( c ) == CLIENT_USER ))
+		{
+			Conn_WriteStr( Idx, "NOTICE %s :%sConnection statistics: %.1f kb received, %.1f kb sent.", Client_ThisServer( ), NOTICE_TXTPREFIX, (double)My_Connections[Idx].bytes_in / 1024,  (double)My_Connections[Idx].bytes_out / 1024 );
+		}
+
+		/* ERROR an Client schicken (von RFC so vorgesehen!) */
 		if( FwdMsg ) Conn_WriteStr( Idx, "ERROR :%s", FwdMsg );
 		else Conn_WriteStr( Idx, "ERROR :Closing connection." );
 		if( My_Connections[Idx].sock == NONE ) return;
@@ -463,7 +473,6 @@ Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient )
 		Log( LOG_INFO, "Connection %d with %s:%d closed.", Idx, inet_ntoa( My_Connections[Idx].addr.sin_addr ), ntohs( My_Connections[Idx].addr.sin_port ));
 	}
 
-	c = Client_GetFromConn( Idx );
 	if( c ) Client_Destroy( c, LogMsg, FwdMsg, TRUE );
 
 	if( My_Connections[Idx].res_stat )
@@ -663,6 +672,9 @@ Handle_Write( CONN_ID Idx )
 		return FALSE;
 	}
 
+	/* Connection-Statistik aktualisieren */
+	My_Connections[Idx].bytes_out += len;
+
 	/* Puffer anpassen */
 	My_Connections[Idx].wdatalen -= len;
 	memmove( My_Connections[Idx].wbuf, My_Connections[Idx].wbuf + len, My_Connections[Idx].wdatalen );
@@ -793,6 +805,9 @@ Read_Request( CONN_ID Idx )
 		Conn_Close( Idx, "Read error!", "Client closed connection", FALSE );
 		return;
 	}
+
+	/* Connection-Statistik aktualisieren */
+	My_Connections[Idx].bytes_in += len;
 
 	/* Lesebuffer updaten */
 	My_Connections[Idx].rdatalen += len;
@@ -1092,6 +1107,8 @@ Init_Conn_Struct( INT Idx )
 	My_Connections[Idx].lastping = 0;
 	My_Connections[Idx].lastprivmsg = time( NULL );
 	My_Connections[Idx].delaytime = 0;
+	My_Connections[Idx].bytes_in = 0;
+	My_Connections[Idx].bytes_out = 0;
 } /* Init_Conn_Struct */
 
 

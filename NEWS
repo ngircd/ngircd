@@ -21,6 +21,7 @@ ngIRCd 0.2.x, xx.xx.2002
   - Anpassungen an A/UX: gehoert nun auch zu den unterstuetzten Platformen.
   - AWAY (und der User-Mode 'a') ist nun implementiert.
   - der ngIRCd unterstuetzt nun Channel-Topics (TOPIC-Befehl).
+  - Channel- und Nicknames werden nun ordentlich validiert.
 
 ngIRCd 0.2.0, 15.02.2002
 
@@ -64,4 +65,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.15 2002/02/27 20:55:56 alex Exp $
+$Id: NEWS,v 1.16 2002/03/02 01:36:35 alex Exp $

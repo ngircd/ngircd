@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-login.c,v 1.1 2002/02/27 23:26:21 alex Exp $
+ * $Id: irc-login.c,v 1.2 2002/03/02 00:49:11 alex Exp $
  *
  * irc-login.c: Anmeldung und Abmeldung im IRC
  *
  * $Log: irc-login.c,v $
+ * Revision 1.2  2002/03/02 00:49:11  alex
+ * - Bei der USER-Registrierung wird NICK nicht mehr sofort geforwarded,
+ *   sondern erst dann, wenn auch ein gueltiges USER empfangen wurde.
+ *
  * Revision 1.1  2002/02/27 23:26:21  alex
  * - Modul aus irc.c bzw. irc.h ausgegliedert.
  *
@@ -396,12 +400,6 @@ GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req )
 			if( ! Client_CheckNick( target, Req->argv[0] )) return CONNECTED;
 		}
 
-		/* Nick-Aenderung: allen mitteilen! */
-		
-		if( Client_Type( Client ) == CLIENT_USER ) IRC_WriteStrClientPrefix( Client, Client, "NICK :%s", Req->argv[0] );
-		IRC_WriteStrServersPrefix( Client, target, "NICK :%s", Req->argv[0] );
-		IRC_WriteStrRelatedPrefix( target, target, FALSE, "NICK :%s", Req->argv[0] );
-
 		if(( Client_Type( target ) != CLIENT_USER ) && ( Client_Type( target ) != CLIENT_SERVER ))
 		{
 			/* Neuer Client */
@@ -419,6 +417,11 @@ GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req )
 			/* Nick-Aenderung */
 			Log( LOG_INFO, "User \"%s\" changed nick: \"%s\" -> \"%s\".", Client_Mask( target ), Client_ID( target ), Req->argv[0] );
 
+			/* alle betroffenen User und Server ueber Nick-Aenderung informieren */
+			if( Client_Type( Client ) == CLIENT_USER ) IRC_WriteStrClientPrefix( Client, Client, "NICK :%s", Req->argv[0] );
+			IRC_WriteStrServersPrefix( Client, target, "NICK :%s", Req->argv[0] );
+			IRC_WriteStrRelatedPrefix( target, target, FALSE, "NICK :%s", Req->argv[0] );
+			
 			/* neuen Client-Nick speichern */
 			Client_SetID( target, Req->argv[0] );
 		}

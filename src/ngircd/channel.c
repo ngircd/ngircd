@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: channel.c,v 1.33 2002/10/09 16:53:02 alex Exp $
+ * $Id: channel.c,v 1.34 2002/11/22 17:57:15 alex Exp $
  *
  * channel.c: Management der Channels
  */
@@ -86,6 +86,14 @@ Channel_InitPredefined( VOID )
 		if( ! Channel_IsValidName( Conf_Channel[i].name ))
 		{
 			Log( LOG_ERR, "Can't create pre-defined channel: invalid name: \"%s\"!", Conf_Channel[i].name );
+			continue;
+		}
+
+		/* Gibt es den Channel bereits? */
+		chan = Channel_Search( Conf_Channel[i].name );
+		if( chan )
+		{
+			Log( LOG_INFO, "Can't create pre-defined channel \"%s\": name already in use.", Conf_Channel[i].name );
 			continue;
 		}
 		

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.43 2002/01/27 21:56:39 alex Exp $
+ * $Id: irc.c,v 1.44 2002/01/28 00:55:08 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.44  2002/01/28 00:55:08  alex
+ * - ein neu connectierender Server wird nun korrekt im Netz bekannt gemacht.
+ *
  * Revision 1.43  2002/01/27 21:56:39  alex
  * - IRC_WriteStrServersPrefixID() und IRC_WriteStrClientPrefixID() wieder entfernt.
  * - einige kleinere Fixes bezueglich Channels ...
@@ -412,7 +415,7 @@ GLOBAL BOOLEAN IRC_SERVER( CLIENT *Client, REQUEST *Req )
 {
 	CHAR str[LINE_LEN], *ptr;
 	BOOLEAN ok;
-	CLIENT *c;
+	CLIENT *from, *c;
 	INT i;
 	
 	assert( Client != NULL );
@@ -485,7 +488,7 @@ GLOBAL BOOLEAN IRC_SERVER( CLIENT *Client, REQUEST *Req )
 				if( Client_Conn( c ) > NONE )
 				{
 					/* Dem gefundenen Server gleich den neuen
-					* Server bekannt machen */
+					 * Server bekannt machen */
 					if( ! IRC_WriteStrClient( c, "SERVER %s %d %d :%s", Client_ID( Client ), Client_Hops( Client ) + 1, Client_MyToken( Client ), Client_Info( Client ))) return DISCONNECTED;
 				}
 				
@@ -523,6 +526,15 @@ GLOBAL BOOLEAN IRC_SERVER( CLIENT *Client, REQUEST *Req )
 		ptr = strchr( Req->argv[3] + 2, '[' );
 		if( ! ptr ) ptr = Req->argv[3];
 
+		from = Client_GetFromID( Req->prefix );
+		if( ! from )
+		{
+			/* Hm, Server, der diesen einfuehrt, ist nicht bekannt!? */
+			Log( LOG_ALERT, "Unknown ID in prefix of SERVER: \"%s\"! (on connection %d)", Req->prefix, Client_Conn( Client ));
+			Conn_Close( Client_Conn( Client ), NULL, "Unknown ID in prefix of SERVER", TRUE );
+			return DISCONNECTED;
+		}
+
 		/* Neue Client-Struktur anlegen */
 		c = Client_NewRemoteServer( Client, Req->argv[0], atoi( Req->argv[1] ), atoi( Req->argv[2] ), ptr, TRUE );
 		if( ! c )
@@ -534,10 +546,13 @@ GLOBAL BOOLEAN IRC_SERVER( CLIENT *Client, REQUEST *Req )
 		}
 
 		/* Log-Meldung zusammenbauen und ausgeben */
-		if(( Client_Hops( c ) > 1 ) && ( Req->prefix[0] )) sprintf( str, "connected to %s, ", Req->prefix );
+		if(( Client_Hops( c ) > 1 ) && ( Req->prefix[0] )) sprintf( str, "connected to %s, ", Client_ID( from ));
 		else strcpy( str, "" );
 		Log( LOG_NOTICE, "Server \"%s\" registered (via %s, %s%d hop%s).", Client_ID( c ), Client_ID( Client ), str, Client_Hops( c ), Client_Hops( c ) > 1 ? "s": "" );
-		
+
+		/* Andere Server informieren */
+		IRC_WriteStrServersPrefix( Client, from, "SERVER %s %d %d :%s", Client_ID( c ), Client_Hops( c ) + 1, Client_MyToken( c ), Client_Info( c ));
+
 		return CONNECTED;
 	}
 	else return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );

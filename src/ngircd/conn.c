@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.76 2002/10/09 13:15:08 alex Exp $
+ * $Id: conn.c,v 1.77 2002/10/09 13:34:19 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -739,6 +739,7 @@ New_Connection( INT Sock )
 	if( s )
 	{
 		/* Sub-Prozess wurde asyncron gestartet */
+		Conn_WriteStr( idx, "NOTICE AUTH :%sLooking up your hostname ...", NOTICE_TXTPREFIX );
 		My_Connections[idx].res_stat = s;
 	}
 	else
@@ -1187,6 +1188,8 @@ Read_Resolver_Result( INT r_fd )
 		assert( c != NULL );
 		strcpy( My_Connections[i].host, result );
 		Client_SetHostname( c, result );
+
+		Conn_WriteStr( i, "NOTICE AUTH :%sGot your hostname.", NOTICE_TXTPREFIX );
 	}
 	else
 	{

@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2005 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: lists.c,v 1.15 2004/04/25 15:40:19 alex Exp $";
+static char UNUSED id[] = "$Id: lists.c,v 1.16 2005/01/26 13:23:24 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -360,9 +360,10 @@ Lists_DeleteChannel( CHANNEL *Chan )
 GLOBAL CHAR *
 Lists_MakeMask( CHAR *Pattern )
 {
-	/* Hier wird aus einem "beliebigen" Pattern eine gueltige IRC-Mask erzeugt.
-	 * Diese ist aber nur bis zum naechsten Aufruf von Lists_MakeMask() gueltig,
-	 * da ein einziger globaler Puffer verwendet wird. ->Umkopieren!*/
+	/* This function generats a valid IRC mask of "any" string. This
+	 * mask is only valid until the next call to Lists_MakeMask(),
+	 * because a single global buffer is used. You have to copy the
+	 * generated mask to some sane location yourself! */
 
 	STATIC CHAR TheMask[MASK_LEN];
 	CHAR *excl, *at;
@@ -376,7 +377,7 @@ Lists_MakeMask( CHAR *Pattern )
 
 	if(( ! at ) && ( ! excl ))
 	{
-		/* weder ! noch @ vorhanden: als Nick annehmen */
+		/* Neither "!" nor "@" found: use string as nick name */
 		strlcpy( TheMask, Pattern, sizeof( TheMask ) - 5 );
 		strlcat( TheMask, "!*@*", sizeof( TheMask ));
 		return TheMask;
@@ -384,7 +385,7 @@ Lists_MakeMask( CHAR *Pattern )
 
 	if(( ! at ) && ( excl ))
 	{
-		/* Domain fehlt */
+		/* Domain part is missing */
 		strlcpy( TheMask, Pattern, sizeof( TheMask ) - 3 );
 		strlcat( TheMask, "@*", sizeof( TheMask ));
 		return TheMask;
@@ -392,15 +393,15 @@ Lists_MakeMask( CHAR *Pattern )
 
 	if(( at ) && ( ! excl ))
 	{
-		/* User fehlt */
+		/* User name is missing */
 		*at = '\0'; at++;
-		strlcpy( TheMask, Pattern, sizeof( TheMask ) - strlen( at ) - 4 );
+		strlcpy( TheMask, Pattern, sizeof( TheMask ) - 5 );
 		strlcat( TheMask, "!*@", sizeof( TheMask ));
 		strlcat( TheMask, at, sizeof( TheMask ));
 		return TheMask;
 	}
 
-	/* alle Teile vorhanden */
+	/* All parts (nick, user and domain name) are given */
 	strlcpy( TheMask, Pattern, sizeof( TheMask ));
 	return TheMask;
 } /* Lists_MakeMask */

@@ -12,6 +12,8 @@
 
 ngIRCd CVSHEAD
 
+  - Fixed a buffer overflow that could cause the daemon to crash. Bug found
+    by Florian Westphal, <westphal@foo.fh-furtwangen.de>.
   - Fixed a possible buffer underrun when reading the MOTD file. Thanks
     to Florian Westphal, <westphal@foo.fh-furtwangen.de>.
   - Code cleanups from Florian Westphal, <westphal@foo.fh-furtwangen.de>.
@@ -566,4 +568,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.254 2005/01/24 14:17:21 alex Exp $
+$Id: ChangeLog,v 1.255 2005/01/26 13:23:24 alex Exp $

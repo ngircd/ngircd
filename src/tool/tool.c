@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2005 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: tool.c,v 1.1 2003/01/13 12:20:16 alex Exp $";
+static char UNUSED id[] = "$Id: tool.c,v 1.2 2005/01/25 16:16:48 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -72,6 +72,25 @@ ngt_LowerStr( CHAR *String )
 	
 	return String;
 } /* ngt_LowerStr */
+
+
+GLOBAL VOID
+ngt_TrimLastChr( CHAR *String, CONST CHAR Chr)
+{
+	/* If last character in the string matches Chr, remove it.
+	 * Empty strings are handled correctly. */
+
+        UINT len;
+
+	assert( String != NULL );
+
+	len = strlen( String );
+	if( len == 0 ) return;
+
+	len--;
+
+	if( String[len] == Chr ) String[len] = '\0';
+} /* ngt_TrimLastChr */
 
 
 /* -eof- */

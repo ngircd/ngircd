@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.h,v 1.6 2002/01/02 02:44:37 alex Exp $
+ * $Id: ngircd.h,v 1.7 2002/01/11 14:45:18 alex Exp $
  *
  * ngircd.h: Prototypen aus dem "Haupt-Modul"
  *
  * $Log: ngircd.h,v $
+ * Revision 1.7  2002/01/11 14:45:18  alex
+ * - Kommandozeilen-Parser implementiert: Debug- und No-Daemon-Modus, Hilfe.
+ *
  * Revision 1.6  2002/01/02 02:44:37  alex
  * - neue Defines fuer max. Anzahl Server und Operatoren.
  *
@@ -45,8 +48,17 @@
 GLOBAL time_t NGIRCd_Start;		/* Startzeitpunkt des Daemon */
 GLOBAL CHAR NGIRCd_StartStr[64];
 
+#ifdef DEBUG
+GLOBAL BOOLEAN NGIRCd_Debug;		/* Debug-Modus aktivieren */
+#endif
+
+GLOBAL BOOLEAN NGIRCd_NoDaemon;		/* nicht im Hintergrund laufen */
+
 GLOBAL BOOLEAN NGIRCd_Quit;		/* TRUE: ngIRCd beenden */
 GLOBAL BOOLEAN NGIRCd_Restart;		/* TRUE: neu starten */
+
+
+GLOBAL CHAR *NGIRCd_Version( VOID );
 
 
 #endif

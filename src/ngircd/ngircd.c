@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.17 2002/01/02 02:51:16 alex Exp $
+ * $Id: ngircd.c,v 1.18 2002/01/11 14:45:18 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  *
  * $Log: ngircd.c,v $
+ * Revision 1.18  2002/01/11 14:45:18  alex
+ * - Kommandozeilen-Parser implementiert: Debug- und No-Daemon-Modus, Hilfe.
+ *
  * Revision 1.17  2002/01/02 02:51:16  alex
  * - Signal-Handler fuer SIGCHLD: so sollten Zombies nicht mehr vorkommen.
  *
@@ -82,6 +85,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <signal.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <time.h>
@@ -103,11 +107,93 @@ LOCAL VOID Signal_Handler( INT Signal );
 
 LOCAL VOID Initialize_Listen_Ports( VOID );
 
+LOCAL VOID Show_Version( VOID );
+LOCAL VOID Show_Help( VOID );
+
 
 GLOBAL INT main( INT argc, CONST CHAR *argv[] )
 {
+	BOOLEAN ok;
+	INT i, n;
+
 	/* Datentypen der portab-Library ueberpruefen */
 	portab_check_types( );
+
+	NGIRCd_Restart = FALSE;
+	NGIRCd_Quit = FALSE;
+	NGIRCd_NoDaemon = FALSE;
+#ifdef DEBUG
+	NGIRCd_Debug = FALSE;
+#endif
+
+	/* Kommandozeile parsen */
+	for( i = 1; i < argc; i++ )
+	{
+		ok = FALSE;
+		if(( argv[i][0] == '-' ) && ( argv[i][1] == '-' ))
+		{
+			/* Lange Option */
+
+			if( strcmp( argv[i], "--help" ) == 0 )
+			{
+				Show_Version( ); puts( "" );
+				Show_Help( ); puts( "" );
+				exit( 1 );
+			}
+			if( strcmp( argv[i], "--version" ) == 0 )
+			{
+				Show_Version( );
+				exit( 1 );
+			}
+#ifdef DEBUG
+			if( strcmp( argv[i], "--debug" ) == 0 )
+			{
+				NGIRCd_Debug = TRUE;
+				ok = TRUE;
+			}
+#endif
+			if( strcmp( argv[i], "--nodaemon" ) == 0 )
+			{
+				NGIRCd_NoDaemon = TRUE;
+				ok = TRUE;
+			}
+		}
+		else if(( argv[i][0] == '-' ) && ( argv[i][1] != '-' ))
+		{
+			/* Kurze Option */
+			
+			for( n = 1; n < strlen( argv[i] ); n++ )
+			{
+				ok = FALSE;
+#ifdef DEBUG
+				if( argv[i][n] == 'd' )
+				{
+					NGIRCd_Debug = TRUE;
+					ok = TRUE;
+				}
+#endif
+				if( argv[i][n] == 'n' )
+				{
+					NGIRCd_NoDaemon = TRUE;
+					ok = TRUE;
+				}
+
+				if( ! ok )
+				{
+					printf( PACKAGE": invalid option \"-%c\"!\n", argv[i][n] );
+					puts( "Try \""PACKAGE" --help\" for more information." );
+					exit( 1 );
+				}
+			}
+
+		}
+		if( ! ok )
+		{
+			printf( PACKAGE": invalid option \"%s\"!\n", argv[i] );
+			puts( "Try \""PACKAGE" --help\" for more information." );
+			exit( 1 );
+		}
+	}
 
 	while( ! NGIRCd_Quit )
 	{
@@ -150,6 +236,39 @@ GLOBAL INT main( INT argc, CONST CHAR *argv[] )
 	}
 	return 0;
 } /* main */
+
+
+GLOBAL CHAR *NGIRCd_Version( VOID )
+{
+	STATIC CHAR version[126];
+	CHAR txt[64];
+
+	strcpy( txt, "" );
+
+#ifdef USE_SYSLOG
+	if( txt[0] ) strcat( txt, "+" );
+	else strcat( txt, "-" );
+	strcat( txt, "SYSLOG" );
+#endif
+#ifdef STRICT_RFC
+	if( txt[0] ) strcat( txt, "+" );
+	else strcat( txt, "-" );
+	strcat( txt, "RFC" );
+#endif
+#ifdef DEBUG
+	if( txt[0] ) strcat( txt, "+" );
+	else strcat( txt, "-" );
+	strcat( txt, "DEBUG" );
+#endif
+#ifdef SNIFFER
+	if( txt[0] ) strcat( txt, "+" );
+	else strcat( txt, "-" );
+	strcat( txt, "SNIFFER" );
+#endif
+
+	sprintf( version, PACKAGE" version "VERSION"%s-"P_OSNAME"/"P_ARCHNAME, txt );
+	return version;
+} /* NGIRCd_Version */
 
 
 LOCAL VOID Initialize_Signal_Handler( VOID )
@@ -222,5 +341,26 @@ LOCAL VOID Initialize_Listen_Ports( VOID )
 		exit( 1 );
 	}
 } /* Initialize_Listen_Ports */
+
+
+LOCAL VOID Show_Version( VOID )
+{
+	puts( NGIRCd_Version( ));
+	puts( "Copyright (c)2001,2002 by Alexander Barton (alex@barton.de).\n" );
+	puts( "This is free software; see the source for copying conditions. There is NO" );
+	puts( "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." );
+} /* Show_Version */
+
+
+LOCAL VOID Show_Help( VOID )
+{
+#ifdef DEBUG
+	puts( "  -d, --debug       log extra debug messages" );
+#endif
+        puts( "  -n, --nodaemon    don't fork and don't detatch from controlling terminal" );
+ 	puts( "      --version     display this help and exit" );
+	puts( "      --help        output version information and exit" );
+} /* Show_Help */
+
 
 /* -eof- */

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-login.c,v 1.36 2003/12/04 14:05:16 alex Exp $";
+static char UNUSED id[] = "$Id: irc-login.c,v 1.37 2003/12/27 13:01:12 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -285,6 +285,10 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 GLOBAL BOOLEAN
 IRC_USER( CLIENT *Client, REQUEST *Req )
 {
+#ifdef IDENTAUTH
+	CHAR *ptr;
+#endif
+
 	assert( Client != NULL );
 	assert( Req != NULL );
 
@@ -297,6 +301,10 @@ IRC_USER( CLIENT *Client, REQUEST *Req )
 		/* Falsche Anzahl Parameter? */
 		if( Req->argc != 4 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
+#ifdef IDENTAUTH
+		ptr = Client_User( Client );
+		if( ! ptr || ! *ptr || *ptr == '~' )
+#endif
 		Client_SetUser( Client, Req->argv[0], FALSE );
 		Client_SetInfo( Client, Req->argv[3] );
 

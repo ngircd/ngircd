@@ -1,4 +1,4 @@
-# $Id: mode-test.e,v 1.4 2002/12/15 15:52:34 alex Exp $
+# $Id: mode-test.e,v 1.5 2003/12/27 13:01:12 alex Exp $
 
 spawn telnet localhost 6789
 expect {
@@ -16,7 +16,7 @@ expect {
 send "mode nick +i\r"
 expect {
 	timeout { exit 1 }
-	":nick!~user@* MODE nick +i"
+	"@* MODE nick +i"
 }
 
 send "mode nick\r"
@@ -28,7 +28,7 @@ expect {
 send "mode nick -i\r"
 expect {
 	timeout { exit 1 }
-	":nick!~user@* MODE nick -i"
+	"@* MODE nick -i"
 }
 
 send "oper TestOp 123\r"
@@ -50,7 +50,7 @@ expect {
 send "join #channel\r"
 expect {
 	timeout { exit 1 }
-	":nick!~user@* JOIN :#channel"
+	"@* JOIN :#channel"
 }
 expect {
 	timeout { exit 1 }
@@ -60,7 +60,7 @@ expect {
 send "mode #channel +tn\r"
 expect {
 	timeout { exit 1 }
-	":nick!~user@* MODE #channel +tn"
+	"@* MODE #channel +tn"
 }
 
 send "mode #channel\r"
@@ -72,31 +72,31 @@ expect {
 send "mode #channel +v nick\r"
 expect {
 	timeout { exit 1 }
-	":nick!~user@* MODE #channel +v nick"
+	"@* MODE #channel +v nick"
 }
 
 send "mode #channel +I nick1\r"
 expect {
 	timeout { exit 1 }
-	":nick!~user@* MODE #channel +I nick1!*@*"
+	"@* MODE #channel +I nick1!*@*"
 }
 
 send "mode #channel +b nick2@domain\r"
 expect {
 	timeout { exit 1 }
-	":nick!~user@* MODE #channel +b nick2!*@domain"
+	"@* MODE #channel +b nick2!*@domain"
 }
 
 send "mode #channel +I nick3!user\r"
 expect {
 	timeout { exit 1 }
-	":nick!~user@* MODE #channel +I nick3!user@*"
+	"@* MODE #channel +I nick3!user@*"
 }
 
 send "mode #channel -vo nick nick\r"
 expect {
 	timeout { exit 1 }
-	":nick!~user@* MODE #channel -vo nick nick"
+	"@* MODE #channel -vo nick nick"
 }
 
 send "quit\r"

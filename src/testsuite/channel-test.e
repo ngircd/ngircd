@@ -1,4 +1,4 @@
-# $Id: channel-test.e,v 1.2 2002/09/09 21:26:00 alex Exp $
+# $Id: channel-test.e,v 1.3 2003/12/27 13:01:12 alex Exp $
 
 spawn telnet localhost 6789
 expect {
@@ -16,7 +16,7 @@ expect {
 send "join #channel\r"
 expect {
 	timeout { exit 1 }
-	":nick!~user@* JOIN :#channel"
+	"@* JOIN :#channel"
 }
 expect {
 	timeout { exit 1 }
@@ -26,13 +26,17 @@ expect {
 send "topic #channel :Test-Topic\r"
 expect {
 	timeout { exit 1 }
-	":nick!~user@* TOPIC #channel :Test-Topic"
+	"@* TOPIC #channel :Test-Topic"
 }
 
 send "who #channel\r"
 expect {
 	timeout { exit 1 }
-	"352 nick #channel ~user * nick H@ :0 User"
+	"352 nick #channel"
+}
+expect {
+	timeout { exit 1 }
+	"* nick H@ :0 User"
 }
 expect {
 	timeout { exit 1 }
@@ -62,7 +66,7 @@ expect {
 send "part #channel\r"
 expect {
 	timeout { exit 1 }
-	":nick!~user@* PART #channel :nick"
+	"@* PART #channel :nick"
 }
 
 send "quit\r"

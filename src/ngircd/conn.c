@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.128 2003/12/26 15:55:07 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.129 2003/12/27 13:01:12 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -1054,7 +1054,11 @@ New_Connection( INT Sock )
 	/* Hostnamen ermitteln */
 	strlcpy( My_Connections[idx].host, inet_ntoa( new_addr.sin_addr ), sizeof( My_Connections[idx].host ));
 	Client_SetHostname( c, My_Connections[idx].host );
+#ifdef IDENTAUTH
+	s = Resolve_Addr( &new_addr, My_Connections[idx].sock );
+#else
 	s = Resolve_Addr( &new_addr );
+#endif
 	if( s )
 	{
 		/* Sub-Prozess wurde asyncron gestartet */
@@ -1579,26 +1583,26 @@ Read_Resolver_Result( INT r_fd )
 
 	FD_CLR( r_fd, &Resolver_FDs );
 
-	/* Anfrage vom Parent lesen */
+	/* Read result from pipe */
 	len = read( r_fd, result, HOST_LEN - 1 );
 	if( len < 0 )
 	{
-		/* Fehler beim Lesen aus der Pipe */
+		/* Error! */
 		close( r_fd );
 		Log( LOG_CRIT, "Resolver: Can't read result: %s!", strerror( errno ));
 		return;
 	}
 	result[len] = '\0';
 
-	/* zugehoerige Connection suchen */
+	/* Search associated connection ... */
 	for( i = 0; i < Pool_Size; i++ )
 	{
 		if(( My_Connections[i].sock != NONE ) && ( My_Connections[i].res_stat ) && ( My_Connections[i].res_stat->pipe[0] == r_fd )) break;
 	}
 	if( i >= Pool_Size )
 	{
-		/* Opsa! Keine passende Connection gefunden!? Vermutlich
-		 * wurde sie schon wieder geschlossen. */
+		/* Ops, none found? Probably the connection has already
+		 * been closed. */
 		close( r_fd );
 #ifdef DEBUG
 		Log( LOG_DEBUG, "Resolver: Got result for unknown connection!?" );
@@ -1610,7 +1614,7 @@ Read_Resolver_Result( INT r_fd )
 	Log( LOG_DEBUG, "Resolver: %s is \"%s\".", My_Connections[i].host, result );
 #endif
 
-	/* Aufraeumen */
+	/* Clean up ... */
 	close( My_Connections[i].res_stat->pipe[0] );
 	close( My_Connections[i].res_stat->pipe[1] );
 	free( My_Connections[i].res_stat );
@@ -1618,21 +1622,37 @@ Read_Resolver_Result( INT r_fd )
 
 	if( My_Connections[i].sock > NONE )
 	{
-		/* Eingehende Verbindung: Hostnamen setzen */
+#ifdef IDENTAUTH
+		CHAR *ident;
+#endif
+		/* Incoming connection: set hostname */
 		c = Client_GetFromConn( i );
 		assert( c != NULL );
 		strlcpy( My_Connections[i].host, result, sizeof( My_Connections[i].host ));
 		Client_SetHostname( c, result );
+
+#ifdef IDENTAUTH
+		ident = strchr( result, 0 );
+		ident++;
+
+		/* Do we have a result of the IDENT lookup? */
+		if( *ident )
+		{
+			Log( LOG_INFO, "IDENT lookup on connection %ld: \"%s\".", i, ident );
+			Client_SetUser( c, ident, TRUE );
+		}
+		else Log( LOG_INFO, "IDENT lookup on connection %ld: no result.", i );
+#endif
 	}
 	else
 	{
-		/* Ausgehende Verbindung (=Server): IP setzen */
+		/* Outgoing connection (server link!): set IP address */
 		n = Conf_GetServer( i );
 		if( n > NONE ) strlcpy( Conf_Server[n].ip, result, sizeof( Conf_Server[n].ip ));
 		else Log( LOG_ERR, "Got resolver result for non-configured server!?" );
 	}
 
-	/* Penalty-Zeit zurueck setzen */
+	/* Reset penalty time */
 	Conn_ResetPenalty( i );
 } /* Read_Resolver_Result */
 

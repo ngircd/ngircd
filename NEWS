@@ -10,6 +10,12 @@
                                   -- NEWS --
 
 
+ngIRCd CVSHEAD
+
+  - Added optional support for "IDENT" lookups on incoming connections. You
+    have to enable this function with the ./configure switch "--with-ident".
+    The default is not to do IDENT lookups.
+
 ngIRCd 0.7.5 (2003-07-11)
 
   - New configuration variable "MaxConnectionsIP" to limit the number of
@@ -174,4 +180,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.60 2003/11/07 21:32:15 alex Exp $
+$Id: NEWS,v 1.61 2003/12/27 13:01:12 alex Exp $

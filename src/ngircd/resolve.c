@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2003 by Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: resolve.c,v 1.6 2003/04/21 10:52:51 alex Exp $";
+static char UNUSED id[] = "$Id: resolve.c,v 1.7 2003/12/27 13:01:12 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -27,6 +27,12 @@ static char UNUSED id[] = "$Id: resolve.c,v 1.6 2003/04/21 10:52:51 alex Exp $";
 #include <arpa/inet.h>
 #include <netdb.h>
 
+#ifdef IDENTAUTH
+#ifdef HAVE_IDENT_H
+#include <ident.h>
+#endif
+#endif
+
 #include "conn.h"
 #include "defines.h"
 #include "log.h"
@@ -35,7 +41,12 @@ static char UNUSED id[] = "$Id: resolve.c,v 1.6 2003/04/21 10:52:51 alex Exp $";
 #include "resolve.h"
 
 
+#ifdef IDENTAUTH
+LOCAL VOID Do_ResolveAddr PARAMS(( struct sockaddr_in *Addr, INT Sock, INT w_fd ));
+#else
 LOCAL VOID Do_ResolveAddr PARAMS(( struct sockaddr_in *Addr, INT w_fd ));
+#endif
+
 LOCAL VOID Do_ResolveName PARAMS(( CHAR *Host, INT w_fd ));
 
 #ifdef h_errno
@@ -46,23 +57,27 @@ LOCAL CHAR *Get_Error PARAMS(( INT H_Error ));
 GLOBAL VOID
 Resolve_Init( VOID )
 {
-	/* Modul initialisieren */
+	/* Initialize module */
 
 	FD_ZERO( &Resolver_FDs );
 } /* Resolve_Init */
 
 
+#ifdef IDENTAUTH
+GLOBAL RES_STAT *
+Resolve_Addr( struct sockaddr_in *Addr, int Sock )
+#else
 GLOBAL RES_STAT *
 Resolve_Addr( struct sockaddr_in *Addr )
+#endif
 {
-	/* IP (asyncron!) aufloesen. Bei Fehler, z.B. wenn der
-	 * Child-Prozess nicht erzeugt werden kann, wird NULL geliefert.
-	 * Der Host kann dann nicht aufgeloest werden. */
+	/* Resolve IP (asynchronous!). On errors, e.g. if the child process
+	 * can't be forked, this functions returns NULL. */
 
 	RES_STAT *s;
 	INT pid;
 
-	/* Speicher anfordern */
+	/* Allocate memory */
 	s = malloc( sizeof( RES_STAT ));
 	if( ! s )
 	{
@@ -70,7 +85,7 @@ Resolve_Addr( struct sockaddr_in *Addr )
 		return NULL;
 	}
 
-	/* Pipe fuer Antwort initialisieren */
+	/* Initialize pipe for result */
 	if( pipe( s->pipe ) != 0 )
 	{
 		free( s );
@@ -78,11 +93,11 @@ Resolve_Addr( struct sockaddr_in *Addr )
 		return NULL;
 	}
 
-	/* Sub-Prozess erzeugen */
+	/* For sub-process */
 	pid = fork( );
 	if( pid > 0 )
 	{
-		/* Haupt-Prozess */
+		/* Main process */
 		Log( LOG_DEBUG, "Resolver for %s created (PID %d).", inet_ntoa( Addr->sin_addr ), pid );
 		FD_SET( s->pipe[0], &Resolver_FDs );
 		if( s->pipe[0] > Conn_MaxFD ) Conn_MaxFD = s->pipe[0];
@@ -91,15 +106,19 @@ Resolve_Addr( struct sockaddr_in *Addr )
 	}
 	else if( pid == 0 )
 	{
-		/* Sub-Prozess */
+		/* Sub process */
 		Log_Init_Resolver( );
+#ifdef IDENTAUTH
+		Do_ResolveAddr( Addr, Sock, s->pipe[1] );
+#else
 		Do_ResolveAddr( Addr, s->pipe[1] );
+#endif
 		Log_Exit_Resolver( );
 		exit( 0 );
 	}
 	else
 	{
-		/* Fehler */
+		/* Error! */
 		free( s );
 		Log( LOG_CRIT, "Resolver: Can't fork: %s!", strerror( errno ));
 		return NULL;
@@ -110,14 +129,13 @@ Resolve_Addr( struct sockaddr_in *Addr )
 GLOBAL RES_STAT *
 Resolve_Name( CHAR *Host )
 {
-	/* Hostnamen (asyncron!) aufloesen. Bei Fehler, z.B. wenn der
-	 * Child-Prozess nicht erzeugt werden kann, wird NULL geliefert.
-	 * Der Host kann dann nicht aufgeloest werden. */
+	/* Resolve hostname (asynchronous!). On errors, e.g. if the child
+	 * process can't be forked, this functions returns NULL. */
 
 	RES_STAT *s;
 	INT pid;
 
-	/* Speicher anfordern */
+	/* Allocate memory */
 	s = malloc( sizeof( RES_STAT ));
 	if( ! s )
 	{
@@ -125,7 +143,7 @@ Resolve_Name( CHAR *Host )
 		return NULL;
 	}
 
-	/* Pipe fuer Antwort initialisieren */
+	/* Initialize the pipe for the result */
 	if( pipe( s->pipe ) != 0 )
 	{
 		free( s );
@@ -133,11 +151,11 @@ Resolve_Name( CHAR *Host )
 		return NULL;
 	}
 
-	/* Sub-Prozess erzeugen */
+	/* Fork sub-process */
 	pid = fork( );
 	if( pid > 0 )
 	{
-		/* Haupt-Prozess */
+		/* Main process */
 		Log( LOG_DEBUG, "Resolver for \"%s\" created (PID %d).", Host, pid );
 		FD_SET( s->pipe[0], &Resolver_FDs );
 		if( s->pipe[0] > Conn_MaxFD ) Conn_MaxFD = s->pipe[0];
@@ -146,7 +164,7 @@ Resolve_Name( CHAR *Host )
 	}
 	else if( pid == 0 )
 	{
-		/* Sub-Prozess */
+		/* Sub process */
 		Log_Init_Resolver( );
 		Do_ResolveName( Host, s->pipe[1] );
 		Log_Exit_Resolver( );
@@ -154,7 +172,7 @@ Resolve_Name( CHAR *Host )
 	}
 	else
 	{
-		/* Fehler */
+		/* Error! */
 		free( s );
 		Log( LOG_CRIT, "Resolver: Can't fork: %s!", strerror( errno ));
 		return NULL;
@@ -162,17 +180,26 @@ Resolve_Name( CHAR *Host )
 } /* Resolve_Name */
 
 
+#ifdef IDENTAUTH
+LOCAL VOID
+Do_ResolveAddr( struct sockaddr_in *Addr, int Sock, INT w_fd )
+#else
 LOCAL VOID
 Do_ResolveAddr( struct sockaddr_in *Addr, INT w_fd )
+#endif
 {
-	/* Resolver Sub-Prozess: IP aufloesen und Ergebnis in Pipe schreiben. */
+	/* Resolver sub-process: resolve IP address and write result into
+	 * pipe to parent. */
 
 	CHAR hostname[HOST_LEN];
 	struct hostent *h;
+#ifdef IDENTAUTH
+	CHAR *res;
+#endif
 
 	Log_Resolver( LOG_DEBUG, "Now resolving %s ...", inet_ntoa( Addr->sin_addr ));
 
-	/* Namen aufloesen */
+	/* Resolve IP address */
 	h = gethostbyaddr( (CHAR *)&Addr->sin_addr, sizeof( Addr->sin_addr ), AF_INET );
 	if( h ) strlcpy( hostname, h->h_name, sizeof( hostname ));
 	else
@@ -185,13 +212,30 @@ Do_ResolveAddr( struct sockaddr_in *Addr, INT w_fd )
 		strlcpy( hostname, inet_ntoa( Addr->sin_addr ), sizeof( hostname ));
 	}
 
-	/* Antwort an Parent schreiben */
+#ifdef IDENTAUTH
+	/* Do "IDENT" (aka "AUTH") lookup and write result to parent */
+	Log_Resolver( LOG_DEBUG, "Doing IDENT lookup on socket %d ...", Sock );
+	res = ident_id( Sock, 10 );
+	Log_Resolver( LOG_DEBUG, "IDENT lookup on socket %d done.", Sock );
+#endif
+
+	/* Write result into pipe to parent */
 	if( (size_t)write( w_fd, hostname, strlen( hostname ) + 1 ) != (size_t)( strlen( hostname ) + 1 ))
 	{
 		Log_Resolver( LOG_CRIT, "Resolver: Can't write to parent: %s!", strerror( errno ));
 		close( w_fd );
 		return;
 	}
+#ifdef IDENTAUTH
+	if( (size_t)write( w_fd, res ? res : "", strlen( res ? res : "" ) + 1 ) != (size_t)( strlen( res ? res : "" ) + 1 ))
+	{
+		Log_Resolver( LOG_CRIT, "Resolver: Can't write to parent (IDENT): %s!", strerror( errno ));
+		close( w_fd );
+		free( res );
+		return;
+	}
+	free( res );
+#endif
 
 	Log_Resolver( LOG_DEBUG, "Ok, translated %s to \"%s\".", inet_ntoa( Addr->sin_addr ), hostname );
 } /* Do_ResolveAddr */
@@ -200,7 +244,8 @@ Do_ResolveAddr( struct sockaddr_in *Addr, INT w_fd )
 LOCAL VOID
 Do_ResolveName( CHAR *Host, INT w_fd )
 {
-	/* Resolver Sub-Prozess: Name aufloesen und Ergebnis in Pipe schreiben. */
+	/* Resolver sub-process: resolve name and write result into pipe
+	 * to parent. */
 
 	CHAR ip[16];
 	struct hostent *h;
@@ -208,7 +253,7 @@ Do_ResolveName( CHAR *Host, INT w_fd )
 
 	Log_Resolver( LOG_DEBUG, "Now resolving \"%s\" ...", Host );
 
-	/* Namen aufloesen */
+	/* Resolve hostname */
 	h = gethostbyname( Host );
 	if( h )
 	{
@@ -225,7 +270,7 @@ Do_ResolveName( CHAR *Host, INT w_fd )
 		strcpy( ip, "" );
 	}
 
-	/* Antwort an Parent schreiben */
+	/* Write result into pipe to parent */
 	if( (size_t)write( w_fd, ip, strlen( ip ) + 1 ) != (size_t)( strlen( ip ) + 1 ))
 	{
 		Log_Resolver( LOG_CRIT, "Resolver: Can't write to parent: %s!", strerror( errno ));
@@ -242,7 +287,7 @@ Do_ResolveName( CHAR *Host, INT w_fd )
 LOCAL CHAR *
 Get_Error( INT H_Error )
 {
-	/* Fehlerbeschreibung fuer H_Error liefern */
+	/* Get error message for H_Error */
 
 	switch( H_Error )
 	{

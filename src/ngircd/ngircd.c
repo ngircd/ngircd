@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.58 2002/11/10 13:38:41 alex Exp $
+ * $Id: ngircd.c,v 1.59 2002/11/18 18:49:34 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  */
@@ -500,7 +500,7 @@ Show_Help( VOID )
 	puts( "  -d, --debug        log extra debug messages" );
 #endif
 	puts( "  -f, --config <f>   use file <f> as configuration file" );
-        puts( "  -n, --nodaemon     don't fork and don't detatch from controlling terminal" );
+        puts( "  -n, --nodaemon     don't fork and don't detach from controlling terminal" );
         puts( "  -p, --passive      disable automatic connections to other servers" );
 #ifdef SNIFFER
 	puts( "  -s, --sniffer      enable network sniffer and display all IRC traffic" );

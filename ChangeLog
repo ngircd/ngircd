@@ -12,7 +12,7 @@
 
 ngIRCd CVS-HEAD
 
-  - (none)
+  - Made Makefile more compatible with "make -j<n>".
 
 ngIRCd 0.7.0 (2003-05-01)
   - "ServerName" is checked better now: a dot (".") is required.
@@ -451,4 +451,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.201 2003/05/01 10:17:24 alex Exp $
+$Id: ChangeLog,v 1.202 2003/05/03 16:29:57 alex Exp $

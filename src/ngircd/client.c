@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.60 2002/09/03 18:54:31 alex Exp $
+ * $Id: client.c,v 1.61 2002/10/04 12:39:58 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -53,8 +53,11 @@
 #include <exp.h>
 
 
+#define GETID_LEN (CLIENT_NICK_LEN-1) + 1 + (CLIENT_USER_LEN-1) + 1 + (CLIENT_HOST_LEN-1) + 1
+
+
 LOCAL CLIENT *This_Server, *My_Clients;
-LOCAL CHAR GetID_Buffer[CLIENT_ID_LEN];
+LOCAL CHAR GetID_Buffer[GETID_LEN];
 
 
 LOCAL INT Count PARAMS(( CLIENT_TYPE Type ));
@@ -713,7 +716,7 @@ Client_Mask( CLIENT *Client )
 	
 	if( Client->type == CLIENT_SERVER ) return Client->id;
 
-	sprintf( GetID_Buffer, "%s!%s@%s", Client->id, Client->user, Client->host );
+	snprintf( GetID_Buffer, GETID_LEN, "%s!%s@%s", Client->id, Client->user, Client->host );
 	return GetID_Buffer;
 } /* Client_Mask */
 

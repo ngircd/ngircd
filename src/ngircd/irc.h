@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.h,v 1.15 2002/01/04 17:58:21 alex Exp $
+ * $Id: irc.h,v 1.16 2002/01/05 19:15:03 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: irc.h,v $
+ * Revision 1.16  2002/01/05 19:15:03  alex
+ * - Fehlerpruefung bei select() in der "Hauptschleife" korrigiert.
+ *
  * Revision 1.15  2002/01/04 17:58:21  alex
  * - IRC_WriteStrXXX()-Funktionen angepasst; neuer Befehl SQUIT.
  *
@@ -77,6 +80,8 @@ GLOBAL VOID IRC_Exit( VOID );
 GLOBAL BOOLEAN IRC_WriteStrClient( CLIENT *Client, CHAR *Format, ... );
 GLOBAL BOOLEAN IRC_WriteStrClientPrefix( CLIENT *Client, CLIENT *Prefix, CHAR *Format, ... );
 GLOBAL BOOLEAN IRC_WriteStrRelated( CLIENT *Client, CHAR *Format, ... );
+GLOBAL VOID IRC_WriteStrServers( CLIENT *ExceptOf, CHAR *Format, ... );
+GLOBAL VOID IRC_WriteStrServersPrefix( CLIENT *ExceptOf, CLIENT *Prefix, CHAR *Format, ... );
 
 GLOBAL BOOLEAN IRC_PASS( CLIENT *Client, REQUEST *Req );
 GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req );

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.20 2002/01/04 17:57:08 alex Exp $
+ * $Id: client.c,v 1.21 2002/01/05 19:15:03 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,9 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.21  2002/01/05 19:15:03  alex
+ * - Fehlerpruefung bei select() in der "Hauptschleife" korrigiert.
+ *
  * Revision 1.20  2002/01/04 17:57:08  alex
  * - Client_Destroy() an Server-Links angepasst.
  *
@@ -256,7 +259,12 @@ GLOBAL VOID Client_Destroy( CLIENT *Client )
 
 			if( c->type == CLIENT_USER )
 			{
-				if( c->conn_id != NONE ) Log( LOG_NOTICE, "User \"%s!%s@%s\" exited (connection %d).", c->id, c->user, c->host, c->conn_id );
+				if( c->conn_id != NONE )
+				{
+					/* Ein lokaler User. Andere Server informieren! */
+					Log( LOG_NOTICE, "User \"%s!%s@%s\" exited (connection %d).", c->id, c->user, c->host, c->conn_id );
+					IRC_WriteStrServersPrefix( NULL, c, "QUIT :" );
+				}
 				else Log( LOG_DEBUG, "User \"%s!%s@%s\" exited.", c->id, c->user, c->host );
 			}
 			else if( c->type == CLIENT_SERVER ) Log( LOG_NOTICE, "Server \"%s\" exited.", c->id );

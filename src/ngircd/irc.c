@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.11 2001/12/27 16:55:41 alex Exp $
+ * $Id: irc.c,v 1.12 2001/12/27 19:17:26 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.12  2001/12/27 19:17:26  alex
+ * - neue Befehle PRIVMSG, NOTICE, PING.
+ *
  * Revision 1.11  2001/12/27 16:55:41  alex
  * - neu: IRC_WriteStrRelated(), Aenderungen auch in IRC_WriteStrClient().
  *
@@ -169,6 +172,7 @@ GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req )
 		if( Client->type == CLIENT_USER )
 		{
 			/* Nick-Aenderung: allen mitteilen! */
+			Log( LOG_INFO, "User \"%s!%s@%s\" (%s) changed nick: \"%s\" -> \"%s\".", Client->nick, Client->user, Client->host, Client->name, Client->nick, Req->argv[0] );
 			IRC_WriteStrRelated( Client, "NICK :%s", Req->argv[0] );
 		}
 		
@@ -235,10 +239,21 @@ GLOBAL BOOLEAN IRC_QUIT( CLIENT *Client, REQUEST *Req )
 
 GLOBAL BOOLEAN IRC_PING( CLIENT *Client, REQUEST *Req )
 {
+	CLIENT *to;
+	
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	return IRC_WriteStrClient( Client, This_Server, ERR_UNKNOWNCOMMAND_MSG, Client_Name( Client ), Req->command );
+	if( ! Check_Valid_User( Client )) return CONNECTED;
+
+	/* Falsche Anzahl Parameter? */
+	if( Req->argc < 1 ) return IRC_WriteStrClient( Client, This_Server, ERR_NOORIGIN_MSG, Client_Name( Client ));
+	if( Req->argc > 1 ) return IRC_WriteStrClient( Client, This_Server, ERR_NEEDMOREPARAMS_MSG, Client_Name( Client ), Req->command );
+
+	to = Client_Search( Req->argv[0] );
+	
+	if( to ) return IRC_WriteStrClient( Client, This_Server, "PONG :%s", Client_Name( Client ));
+	else return IRC_WriteStrClient( Client, This_Server, ERR_NOSUCHNICK_MSG, Client_Name( Client ), Req->argv[0] );
 } /* IRC_PING */
 
 
@@ -275,6 +290,54 @@ GLOBAL BOOLEAN IRC_MOTD( CLIENT *Client, REQUEST *Req )
 } /* IRC_MOTD */
 
 
+GLOBAL BOOLEAN IRC_PRIVMSG( CLIENT *Client, REQUEST *Req )
+{
+	CLIENT *to;
+	
+	assert( Client != NULL );
+	assert( Req != NULL );
+
+	if( ! Check_Valid_User( Client )) return CONNECTED;
+
+	/* Falsche Anzahl Parameter? */
+	if( Req->argc == 0 ) return IRC_WriteStrClient( Client, This_Server, ERR_NORECIPIENT_MSG, Client_Name( Client ), Req->command );
+	if( Req->argc == 1 ) return IRC_WriteStrClient( Client, This_Server, ERR_NOTEXTTOSEND_MSG, Client_Name( Client ));
+	if( Req->argc > 2 ) return IRC_WriteStrClient( Client, This_Server, ERR_NEEDMOREPARAMS_MSG, Client_Name( Client ), Req->command );
+
+	to = Client_Search( Req->argv[0] );
+	if( to )
+	{
+		/* Okay, Ziel ist ein User */
+		return IRC_WriteStrClient( to, Client, "PRIVMSG %s :%s", to->nick, Req->argv[1] );
+	}
+
+	return IRC_WriteStrClient( Client, This_Server, ERR_NOSUCHNICK_MSG, Client_Name( Client ), Req->argv[0] );
+} /* IRC_PRIVMSG */
+
+
+GLOBAL BOOLEAN IRC_NOTICE( CLIENT *Client, REQUEST *Req )
+{
+	CLIENT *to;
+
+	assert( Client != NULL );
+	assert( Req != NULL );
+
+	if( ! Check_Valid_User( Client )) return CONNECTED;
+
+	/* Falsche Anzahl Parameter? */
+	if( Req->argc != 2 ) return CONNECTED;
+
+	to = Client_Search( Req->argv[0] );
+	if( to )
+	{
+		/* Okay, Ziel ist ein User */
+		return IRC_WriteStrClient( to, Client, "NOTICE %s :%s", to->nick, Req->argv[1] );
+	}
+
+	return CONNECTED;
+} /* IRC_NOTICE */
+
+
 LOCAL BOOLEAN Check_Valid_User( CLIENT *Client )
 {
 	assert( Client != NULL );
@@ -293,7 +356,7 @@ LOCAL BOOLEAN Hello_User( CLIENT *Client )
 	assert( Client != NULL );
 	assert( Client->nick[0] );
 	
-	Log( LOG_NOTICE, "User \"%s!%s@%s\" (%s) registered.", Client->nick, Client->user, Client->host, Client->name );
+	Log( LOG_INFO, "User \"%s!%s@%s\" (%s) registered.", Client->nick, Client->user, Client->host, Client->name );
 
 	IRC_WriteStrClient( Client, This_Server, RPL_WELCOME_MSG, Client->nick, Client_GetID( Client ));
 	IRC_WriteStrClient( Client, This_Server, RPL_YOURHOST_MSG, Client->nick, This_Server->host );

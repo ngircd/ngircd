@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: messages.h,v 1.7 2001/12/27 16:56:06 alex Exp $
+ * $Id: messages.h,v 1.8 2001/12/27 19:17:26 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: messages.h,v $
+ * Revision 1.8  2001/12/27 19:17:26  alex
+ * - neue Befehle PRIVMSG, NOTICE, PING.
+ *
  * Revision 1.7  2001/12/27 16:56:06  alex
  * - RPL_WELCOME an Client_GetID() angepasst.
  *
@@ -48,7 +51,7 @@
 #define RPL_WELCOME_MSG			RPL_WELCOME" %s :Welcome to the Internet Relay Network %s"
 
 #define RPL_YOURHOST			"002"
-#define RPL_YOURHOST_MSG		RPL_YOURHOST" %s :Your host is %s, running ngircd "VERSION
+#define RPL_YOURHOST_MSG		RPL_YOURHOST" %s :Your host is %s, running ngircd "VERSION"-"P_OSNAME"/"P_ARCHNAME
 
 #define RPL_CREATED			"003"
 #define RPL_CREATED_MSG			RPL_CREATED" %s :This server was created once upon a time ... ;-)"
@@ -57,17 +60,26 @@
 #define RPL_MYINFO_MSG			RPL_MYINFO" %s %s ngircd-"VERSION" + +"
 
 #define RPL_MOTDSTART			"375"
-#define RPL_MOTDSTART_MSG		RPL_MOTDSTART" %s :- %s Message of the day"
+#define RPL_MOTDSTART_MSG		RPL_MOTDSTART" %s :- %s message of the day:"
 
 #define RPL_MOTD			"372"
 #define RPL_MOTD_MSG			RPL_MOTD" %s :- %s"
 
 #define RPL_ENDOFMOTD			"376"
-#define RPL_ENDOFMOTD_MSG		RPL_ENDOFMOTD" %s :End of MOTD command."
+#define RPL_ENDOFMOTD_MSG		RPL_ENDOFMOTD" %s :End of MOTD command"
 
+
+#define ERR_NOSUCHNICK			"401"
+#define ERR_NOSUCHNICK_MSG		ERR_NOSUCHNICK" %s %s :No such nick or channel name"
 
 #define ERR_NOORIGIN			"409"
 #define ERR_NOORIGIN_MSG		ERR_NOORIGIN" %s :No origin specified"
+
+#define ERR_NORECIPIENT			"411"
+#define ERR_NORECIPIENT_MSG		ERR_NORECIPIENT" %s: No receipient given (%s)"
+
+#define ERR_NOTEXTTOSEND		"412"
+#define ERR_NOTEXTTOSEND_MSG		ERR_NOTEXTTOSEND" %s: No text to send"
 
 #define ERR_UNKNOWNCOMMAND		"421"
 #define ERR_UNKNOWNCOMMAND_MSG		ERR_UNKNOWNCOMMAND" %s %s :Unknown command"

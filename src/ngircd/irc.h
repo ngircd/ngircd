@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.h,v 1.7 2001/12/27 16:55:41 alex Exp $
+ * $Id: irc.h,v 1.8 2001/12/27 19:17:26 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: irc.h,v $
+ * Revision 1.8  2001/12/27 19:17:26  alex
+ * - neue Befehle PRIVMSG, NOTICE, PING.
+ *
  * Revision 1.7  2001/12/27 16:55:41  alex
  * - neu: IRC_WriteStrRelated(), Aenderungen auch in IRC_WriteStrClient().
  *
@@ -60,6 +63,9 @@ GLOBAL BOOLEAN IRC_PONG( CLIENT *Client, REQUEST *Req );
 GLOBAL BOOLEAN IRC_QUIT( CLIENT *Client, REQUEST *Req );
 
 GLOBAL BOOLEAN IRC_MOTD( CLIENT *Client, REQUEST *Req );
+
+GLOBAL BOOLEAN IRC_PRIVMSG( CLIENT *Client, REQUEST *Req );
+GLOBAL BOOLEAN IRC_NOTICE( CLIENT *Client, REQUEST *Req );
 
 
 #endif

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.99 2002/10/09 16:53:02 alex Exp $
+ * $Id: irc.c,v 1.100 2002/11/22 23:31:56 alex Exp $
  *
  * irc.c: IRC-Befehle
  */
@@ -359,6 +359,23 @@ IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 	/* End of Whois */
 	return IRC_WriteStrClient( from, RPL_ENDOFWHOIS_MSG, Client_ID( from ), Client_ID( c ));
 } /* IRC_WHOIS */
+
+
+GLOBAL BOOLEAN
+IRC_WHOWAS( CLIENT *Client, REQUEST *Req )
+{
+	assert( Client != NULL );
+	assert( Req != NULL );
+
+	if(( Client_Type( Client ) != CLIENT_USER ) && ( Client_Type( Client ) != CLIENT_SERVER )) return IRC_WriteStrClient( Client, ERR_NOTREGISTERED_MSG, Client_ID( Client ));
+
+	/* Falsche Anzahl Parameter? */
+	if(( Req->argc < 1 ) || ( Req->argc > 3 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+
+	/* ... */
+
+	return CONNECTED;
+} /* IRC_WHOWAS */
 
 
 GLOBAL BOOLEAN

@@ -1,7 +1,9 @@
 #!/bin/sh
 #
-# $Id: autogen.sh,v 1.4 2003/01/11 15:35:47 alex Exp $
+# $Id: autogen.sh,v 1.5 2003/04/04 10:05:34 alex Exp $
 #
+
+export WANT_AUTOMAKE=1.6
 
 aclocal && \
  autoheader && \

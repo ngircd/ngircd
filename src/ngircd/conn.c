@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.141 2004/12/22 17:37:41 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.142 2005/01/17 11:57:39 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -1012,32 +1012,17 @@ New_Connection( INT Sock )
 			return;
 		}
 
-		/* zunaechst realloc() versuchen; wenn das scheitert, malloc() versuchen
-		 * und Daten ggf. "haendisch" umkopieren. (Haesslich! Eine wirklich
-		 * dynamische Verwaltung waere wohl _deutlich_ besser ...) */
 		ptr = (POINTER *)realloc( My_Connections, sizeof( CONNECTION ) * new_size );
 		if( ! ptr )
 		{
-			/* realloc() ist fehlgeschlagen. Nun malloc() probieren: */
-			ptr = (POINTER *)malloc( sizeof( CONNECTION ) * new_size );
-			if( ! ptr )
-			{
-				/* Offenbar steht kein weiterer Sepeicher zur Verfuegung :-( */
-				Log( LOG_EMERG, "Can't allocate memory! [New_Connection]" );
-				Simple_Message( new_sock, "ERROR: Internal error" );
-				close( new_sock );
-				return;
-			}
-
-			/* Struktur umkopieren ... */
-			memcpy( ptr, My_Connections, sizeof( CONNECTION ) * Pool_Size );
-
-#ifdef DEBUG
-			Log( LOG_DEBUG, "Allocated new connection pool for %ld items (%ld bytes). [malloc()/memcpy()]", new_size, sizeof( CONNECTION ) * new_size );
-#endif
+			Log( LOG_EMERG, "Can't allocate memory! [New_Connection]" );
+			Simple_Message( new_sock, "ERROR: Internal error" );
+			close( new_sock );
+			return;
 		}
+
 #ifdef DEBUG
-		else Log( LOG_DEBUG, "Allocated new connection pool for %ld items (%ld bytes). [realloc()]", new_size, sizeof( CONNECTION ) * new_size );
+		Log( LOG_DEBUG, "Allocated new connection pool for %ld items (%ld bytes). [realloc()]", new_size, sizeof( CONNECTION ) * new_size );
 #endif
 
 		/* Adjust pointer to new block */

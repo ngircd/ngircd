@@ -12,6 +12,9 @@
 
 ngIRCd CVSHEAD
 
+  - Fixed a memory leak when resizing the connection pool and realloc()
+    failed. Now we don't fall back to malloc(), which should be sane anyway.
+    Patch from Florian Westphal, <westphal@foo.fh-furtwangen.de>.
   - Added support for the Howl (http://www.porchdogsoft.com/products/howl/)
     Rendezvous API, in addition to the API of Apple (Mac OS X). The available
     APU will be autodetected when you call "./configure --with-rendezvous".
@@ -553,4 +556,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.248 2004/12/26 00:14:33 alex Exp $
+$Id: ChangeLog,v 1.249 2005/01/17 11:57:39 alex Exp $

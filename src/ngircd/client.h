@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.h,v 1.6 2001/12/27 16:54:51 alex Exp $
+ * $Id: client.h,v 1.7 2001/12/27 19:13:47 alex Exp $
  *
  * client.h: Konfiguration des ngircd (Header)
  *
  * $Log: client.h,v $
+ * Revision 1.7  2001/12/27 19:13:47  alex
+ * - neue Funktion Client_Search(), besseres Logging.
+ *
  * Revision 1.6  2001/12/27 16:54:51  alex
  * - neue Funktion Client_GetID(), liefert die "Client ID".
  *
@@ -91,6 +94,7 @@ GLOBAL CLIENT *Client_GetFromConn( CONN_ID Idx );
 GLOBAL CHAR *Client_Name( CLIENT *Client );
 GLOBAL BOOLEAN Client_CheckNick( CLIENT *Client, CHAR *Nick );
 GLOBAL CHAR *Client_GetID( CLIENT *Client );
+GLOBAL CLIENT *Client_Search( CHAR *ID );
 
 
 #endif

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.9 2001/12/27 17:15:29 alex Exp $
+ * $Id: client.c,v 1.10 2001/12/27 19:13:47 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,9 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.10  2001/12/27 19:13:47  alex
+ * - neue Funktion Client_Search(), besseres Logging.
+ *
  * Revision 1.9  2001/12/27 17:15:29  alex
  * - der eigene Hostname wird nun komplet (als FQDN) ermittelt.
  *
@@ -170,6 +173,9 @@ GLOBAL VOID Client_Destroy( CLIENT *Client )
 		{
 			if( last ) last->next = c->next;
 			else My_Clients = c->next;
+
+			if( c->type == CLIENT_USER ) Log( LOG_INFO, "User \"%s!%s@%s\" (%s) exited.", c->nick, c->user, c->host, c->name );
+
 			free( c );
 			break;
 		}
@@ -248,6 +254,25 @@ GLOBAL CHAR *Client_GetID( CLIENT *Client )
 	sprintf( GetID_Buffer, "%s!%s@%s", Client->nick, Client->user, Client->host );
 	return GetID_Buffer;
 } /* Client_GetID */
+
+
+GLOBAL CLIENT *Client_Search( CHAR *ID )
+{
+	/* Client suchen, auf den ID passt */
+
+	CLIENT *c;
+
+	assert( ID != NULL );
+
+	c = My_Clients;
+	while( c )
+	{
+		if( strcasecmp( c->nick, ID ) == 0 ) return c;
+		c = c->next;
+	}
+	
+	return NULL;
+} /* Client_Search */
 
 
 LOCAL CLIENT *New_Client_Struct( VOID )

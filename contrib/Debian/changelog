@@ -1,3 +1,10 @@
+ngircd (0.8.0+HEAD-0ab1) unstable; urgency=low
+
+  * Added missing commas to debian control file, fixes bug #56.
+    Thanks to Kevin Otte.
+
+ -- Alexander Barton <alex@pc-alex>  Thu, 15 Jul 2004 11:00:14 +0200
+
 ngircd (0.7.7+HEAD-0ab6) unstable; urgency=low
 
   * Incorporated actual CVS HEAD version which includes all features of

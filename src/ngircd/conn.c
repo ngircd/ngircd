@@ -12,9 +12,11 @@
  */
 
 
+#define __conn_c__
+
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.111 2002/12/30 00:01:45 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.112 2002/12/30 16:07:23 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -41,9 +43,8 @@ static char UNUSED id[] = "$Id: conn.c,v 1.111 2002/12/30 00:01:45 alex Exp $";
 #include <stdint.h>			/* u.a. fuer Mac OS X */
 #endif
 
-#ifdef USE_ZLIB
-#include <zlib.h>
-#endif
+#include "defines.h"
+#include "resolve.h"
 
 #include "exp.h"
 #include "conn.h"
@@ -51,8 +52,8 @@ static char UNUSED id[] = "$Id: conn.c,v 1.111 2002/12/30 00:01:45 alex Exp $";
 #include "imp.h"
 #include "ngircd.h"
 #include "client.h"
-#include "resolve.h"
 #include "conf.h"
+#include "conn-zip.h"
 #include "log.h"
 #include "parse.h"
 #include "tool.h"
@@ -61,45 +62,6 @@ static char UNUSED id[] = "$Id: conn.c,v 1.111 2002/12/30 00:01:45 alex Exp $";
 
 
 #define SERVER_WAIT (NONE - 1)
-
-
-#ifdef USE_ZLIB
-typedef struct _ZipData
-{
-	z_stream in;			/* "Handle" for input stream */
-	z_stream out;			/* "Handle" for output stream */
-	CHAR rbuf[READBUFFER_LEN];	/* Read buffer */
-	INT rdatalen;			/* Length of data in read buffer (compressed) */
-	CHAR wbuf[WRITEBUFFER_LEN];	/* Write buffer */
-	INT wdatalen;			/* Length of data in write buffer (uncompressed) */
-	LONG bytes_in, bytes_out;	/* Counter for statistics (uncompressed!) */
-} ZIPDATA;
-#endif
-
-
-typedef struct _Connection
-{
-	INT sock;			/* Socket handle */
-	struct sockaddr_in addr;	/* Client address */
-	RES_STAT *res_stat;		/* Status of resolver process, if any */
-	CHAR host[HOST_LEN];		/* Hostname */
-	CHAR rbuf[READBUFFER_LEN];	/* Read buffer */
-	INT rdatalen;			/* Length of data in read buffer */
-	CHAR wbuf[WRITEBUFFER_LEN];	/* Write buffer */
-	INT wdatalen;			/* Length of data in write buffer */
-	time_t starttime;		/* Start time of link */
-	time_t lastdata;		/* Last activity */
-	time_t lastping;		/* Last PING */
-	time_t lastprivmsg;		/* Last PRIVMSG */
-	time_t delaytime;		/* Ignore link ("penalty") */
-	LONG bytes_in, bytes_out;	/* Received and sent bytes */
-	LONG msg_in, msg_out;		/* Received and sent IRC messages */
-	INT flag;			/* Flag (see "irc-write" module) */
-	INT options;			/* Link options */
-#ifdef USE_ZLIB
-	ZIPDATA zip;			/* Compression information */
-#endif
-} CONNECTION;
 
 
 LOCAL VOID Handle_Read PARAMS(( INT sock ));
@@ -111,24 +73,16 @@ LOCAL BOOLEAN Try_Write PARAMS(( CONN_ID Idx ));
 LOCAL BOOLEAN Handle_Buffer PARAMS(( CONN_ID Idx ));
 LOCAL VOID Check_Connections PARAMS(( VOID ));
 LOCAL VOID Check_Servers PARAMS(( VOID ));
-LOCAL VOID Init_Conn_Struct PARAMS(( LONG Idx ));
+LOCAL VOID Init_Conn_Struct PARAMS(( CONN_ID Idx ));
 LOCAL BOOLEAN Init_Socket PARAMS(( INT Sock ));
 LOCAL VOID New_Server PARAMS(( INT Server, CONN_ID Idx ));
 LOCAL VOID Read_Resolver_Result PARAMS(( INT r_fd ));
-
-#ifdef USE_ZLIB
-LOCAL BOOLEAN Zip_Buffer PARAMS(( CONN_ID Idx, CHAR *Data, INT Len ));
-LOCAL BOOLEAN Zip_Flush PARAMS(( CONN_ID Idx ));
-LOCAL BOOLEAN Unzip_Buffer PARAMS(( CONN_ID Idx ));
-#endif
-
 
 LOCAL fd_set My_Listeners;
 LOCAL fd_set My_Sockets;
 LOCAL fd_set My_Connects;
 
-LOCAL CONNECTION *My_Connections;
-LOCAL LONG Pool_Size, WCounter;
+LOCAL LONG WCounter;
 
 
 GLOBAL VOID
@@ -152,7 +106,7 @@ Conn_Init( VOID )
 		Log( LOG_EMERG, "Can't allocate memory! [Conn_Init]" );
 		exit( 1 );
 	}
-	Log( LOG_DEBUG, "Allocted connection pool for %ld items (%ld bytes).", Pool_Size, sizeof( CONNECTION ) * Pool_Size );
+	Log( LOG_DEBUG, "Allocted connection pool for %d items (%ld bytes).", Pool_Size, sizeof( CONNECTION ) * Pool_Size );
 
 	/* zu Beginn haben wir keine Verbindungen */
 	FD_ZERO( &My_Listeners );
@@ -221,8 +175,7 @@ Conn_Exit( VOID )
 GLOBAL INT
 Conn_InitListeners( VOID )
 {
-	/* Ports, auf denen der Server Verbindungen entgegennehmen
-	* soll, initialisieren */
+	/* Initialize ports on which the server should accept connections */
 
 	INT created, i;
 
@@ -239,7 +192,7 @@ Conn_InitListeners( VOID )
 GLOBAL VOID
 Conn_ExitListeners( VOID )
 {
-	/* Alle "Listen-Sockets" schliessen */
+	/* Close down all listening sockets */
 
 	INT i;
 
@@ -258,9 +211,7 @@ Conn_ExitListeners( VOID )
 GLOBAL BOOLEAN
 Conn_NewListener( CONST UINT Port )
 {
-	/* Neuen Listen-Socket erzeugen: der Server wartet dann auf
-	 * dem angegebenen Port auf Verbindungen. Kann der Listen-
-	 * Socket nicht erteugt werden, so wird NULL geliefert.*/
+	/* Create new listening socket on specified port */
 
 	struct sockaddr_in addr;
 	INT sock;
@@ -327,7 +278,7 @@ Conn_Handler( VOID )
 	fd_set read_sockets, write_sockets;
 	struct timeval tv;
 	time_t start, t;
-	LONG i, idx;
+	CONN_ID i, idx;
 	BOOLEAN timeout;
 
 	start = time( NULL );
@@ -366,6 +317,7 @@ Conn_Handler( VOID )
 				FD_SET( My_Connections[i].sock, &write_sockets );
 			}
 		}
+
 		/* Sockets mit im Aufbau befindlichen ausgehenden Verbindungen suchen */
 		for( i = 0; i < Pool_Size; i++ )
 		{
@@ -391,7 +343,6 @@ Conn_Handler( VOID )
 			{
 				/* Fuer die Verbindung ist eine "Penalty-Zeit" gesetzt */
 				FD_CLR( My_Connections[i].sock, &read_sockets );
-				FD_CLR( My_Connections[i].sock, &write_sockets );
 			}
 		}
 		for( i = 0; i < Conn_MaxFD + 1; i++ )
@@ -725,7 +676,7 @@ Conn_ClearFlags( VOID )
 {
 	/* Alle Connection auf "nicht-markiert" setzen */
 
-	LONG i;
+	CONN_ID i;
 
 	for( i = 0; i < Pool_Size; i++ ) My_Connections[i].flag = 0;
 } /* Conn_ClearFlags */
@@ -757,7 +708,7 @@ Conn_First( VOID )
 	/* Connection-Struktur der ersten Verbindung liefern;
 	 * Ist keine Verbindung vorhanden, wird NONE geliefert. */
 
-	LONG i;
+	CONN_ID i;
 	
 	for( i = 0; i < Pool_Size; i++ )
 	{
@@ -773,7 +724,7 @@ Conn_Next( CONN_ID Idx )
 	/* Naechste Verbindungs-Struktur liefern; existiert keine
 	 * weitere, so wird NONE geliefert. */
 
-	LONG i = NONE;
+	CONN_ID i = NONE;
 
 	assert( Idx > NONE );
 	
@@ -816,74 +767,6 @@ Conn_Options( CONN_ID Idx )
 	assert( Idx > NONE );
 	return My_Connections[Idx].options;
 } /* Conn_Options */
-
-
-#ifdef USE_ZLIB
-
-GLOBAL BOOLEAN
-Conn_InitZip( CONN_ID Idx )
-{
-	/* Kompression fuer Link initialisieren */
-
-	assert( Idx > NONE );
-
-	My_Connections[Idx].zip.in.avail_in = 0;
-	My_Connections[Idx].zip.in.total_in = 0;
-	My_Connections[Idx].zip.in.total_out = 0;
-	My_Connections[Idx].zip.in.zalloc = NULL;
-	My_Connections[Idx].zip.in.zfree = NULL;
-	My_Connections[Idx].zip.in.data_type = Z_ASCII;
-
-	if( inflateInit( &My_Connections[Idx].zip.in ) != Z_OK )
-	{
-		/* Fehler! */
-		Log( LOG_ALERT, "Can't initialize compression on connection %d (zlib inflate)!", Idx );
-		return FALSE;
-	}
-	
-	My_Connections[Idx].zip.out.total_in = 0;
-	My_Connections[Idx].zip.out.total_in = 0;
-	My_Connections[Idx].zip.out.zalloc = NULL;
-	My_Connections[Idx].zip.out.zfree = NULL;
-	My_Connections[Idx].zip.out.data_type = Z_ASCII;
-
-	if( deflateInit( &My_Connections[Idx].zip.out, Z_DEFAULT_COMPRESSION ) != Z_OK )
-	{
-		/* Fehler! */
-		Log( LOG_ALERT, "Can't initialize compression on connection %d (zlib deflate)!", Idx );
-		return FALSE;
-	}
-
-	My_Connections[Idx].zip.bytes_in = My_Connections[Idx].bytes_in;
-	My_Connections[Idx].zip.bytes_out = My_Connections[Idx].bytes_out;
-
-	Log( LOG_INFO, "Enabled link compression (zlib) on connection %d.", Idx );
-	Conn_SetOption( Idx, CONN_ZIP );
-
-	return TRUE;
-} /* Conn_InitZip */
-
-
-GLOBAL LONG
-Conn_SendBytesZip( CONN_ID Idx )
-{
-	/* Anzahl gesendeter Bytes (komprimiert!) liefern */
-
-	assert( Idx > NONE );
-	return My_Connections[Idx].zip.bytes_out;
-} /* Conn_SendBytesZip */
-
-
-GLOBAL LONG
-Conn_RecvBytesZip( CONN_ID Idx )
-{
-	/* Anzahl gesendeter Bytes (komprimiert!) liefern */
-
-	assert( Idx > NONE );
-	return My_Connections[Idx].zip.bytes_in;
-} /* Conn_RecvBytesZip */
-
-#endif
 
 
 GLOBAL time_t
@@ -1181,6 +1064,12 @@ New_Connection( INT Sock )
 			}
 			if( new_size > Conf_MaxConnections ) new_size = Conf_MaxConnections;
 		}
+		if( new_size < Pool_Size )
+		{
+			Log( LOG_ALERT, "Can't accespt connection: limit (%d) reached -- overflow!", Pool_Size );
+			close( new_sock );
+			return;
+		}
 		
 		/* zunaechst realloc() versuchen; wenn das scheitert, malloc() versuchen
 		 * und Daten ggf. "haendisch" umkopieren. (Haesslich! Eine wirklich
@@ -1469,7 +1358,7 @@ Check_Connections( VOID )
 	 * auch das nicht "hilft", Client disconnectieren. */
 
 	CLIENT *c;
-	LONG i;
+	CONN_ID i;
 
 	for( i = 0; i < Pool_Size; i++ )
 	{
@@ -1671,7 +1560,7 @@ New_Server( INT Server, CONN_ID Idx )
 
 
 LOCAL VOID
-Init_Conn_Struct( LONG Idx )
+Init_Conn_Struct( CONN_ID Idx )
 {
 	/* Connection-Struktur initialisieren */
 
@@ -1794,117 +1683,6 @@ Read_Resolver_Result( INT r_fd )
 	/* Penalty-Zeit zurueck setzen */
 	Conn_ResetPenalty( i );
 } /* Read_Resolver_Result */
-
-
-#ifdef USE_ZLIB
-
-LOCAL BOOLEAN
-Zip_Buffer( CONN_ID Idx, CHAR *Data, INT Len )
-{
-	/* Daten zum Komprimieren im "Kompressions-Puffer" sammeln.
-	 * Es wird TRUE bei Erfolg, sonst FALSE geliefert. */
-
-	assert( Idx > NONE );
-	assert( Data != NULL );
-	assert( Len > 0 );
-
-	/* Ist noch Platz im Kompressions-Puffer? */
-	if( ZWRITEBUFFER_LEN - My_Connections[Idx].zip.wdatalen < Len + 50 )
-	{
-		/* Nein! Puffer zunaechst leeren ...*/
-		if( ! Zip_Flush( Idx )) return FALSE;
-	}
-
-	/* Daten kopieren */
-	memmove( My_Connections[Idx].zip.wbuf + My_Connections[Idx].zip.wdatalen, Data, Len );
-	My_Connections[Idx].zip.wdatalen += Len;
-
-	return TRUE;
-} /* Zip_Buffer */
-
-
-LOCAL BOOLEAN
-Zip_Flush( CONN_ID Idx )
-{
-	/* Daten komprimieren und in Schreibpuffer kopieren.
-	 * Es wird TRUE bei Erfolg, sonst FALSE geliefert. */
-
-	INT result, out_len;
-	z_stream *out;
-
-	out = &My_Connections[Idx].zip.out;
-
-	out->next_in = My_Connections[Idx].zip.wbuf;
-	out->avail_in = My_Connections[Idx].zip.wdatalen;
-	out->next_out = My_Connections[Idx].wbuf + My_Connections[Idx].wdatalen;
-	out->avail_out = WRITEBUFFER_LEN - My_Connections[Idx].wdatalen;
-
-	result = deflate( out, Z_SYNC_FLUSH );
-	if(( result != Z_OK ) || ( out->avail_in > 0 ))
-	{
-		Log( LOG_ALERT, "Compression error: code %d!?", result );
-		Conn_Close( Idx, "Compression error!", NULL, FALSE );
-		return FALSE;
-	}
-
-	out_len = WRITEBUFFER_LEN - My_Connections[Idx].wdatalen - out->avail_out;
-	My_Connections[Idx].wdatalen += out_len;
-	My_Connections[Idx].bytes_out += out_len;
-	My_Connections[Idx].zip.bytes_out += My_Connections[Idx].zip.wdatalen;
-	My_Connections[Idx].zip.wdatalen = 0;
-	
-	return TRUE;
-} /* Zip_Flush */
-
-
-LOCAL BOOLEAN
-Unzip_Buffer( CONN_ID Idx )
-{
-	/* Daten entpacken und in Lesepuffer kopieren. Bei Fehlern
-	 * wird FALSE geliefert, ansonsten TRUE. Der Fall, dass keine
-	 * Daten mehr zu entpacken sind, ist _kein_ Fehler! */
-
-	INT result, in_len, out_len;
-	z_stream *in;
-
-	assert( Idx > NONE );
-
-	if( My_Connections[Idx].zip.rdatalen <= 0 ) return TRUE;
-
-	in = &My_Connections[Idx].zip.in;
-
-	in->next_in = My_Connections[Idx].zip.rbuf;
-	in->avail_in = My_Connections[Idx].zip.rdatalen;
-	in->next_out = My_Connections[Idx].rbuf + My_Connections[Idx].rdatalen;
-	in->avail_out = READBUFFER_LEN - My_Connections[Idx].rdatalen - 1;
-
-	result = inflate( in, Z_SYNC_FLUSH );
-	if( result != Z_OK )
-	{
-		Log( LOG_ALERT, "Decompression error: code %d (ni=%d, ai=%d, no=%d, ao=%d)!?", result, in->next_in, in->avail_in, in->next_out, in->avail_out );
-		Conn_Close( Idx, "Decompression error!", NULL, FALSE );
-		return FALSE;
-	}
-
-	in_len = My_Connections[Idx].zip.rdatalen - in->avail_in;
-	out_len = READBUFFER_LEN - My_Connections[Idx].rdatalen - 1 - in->avail_out;
-	My_Connections[Idx].rdatalen += out_len;
-
-	if( in->avail_in > 0 )
-	{
-		/* es konnten nicht alle Daten entpackt werden, vermutlich war
-		 * im Ziel-Puffer kein Platz mehr. Umkopieren ... */
-		My_Connections[Idx].zip.rdatalen -= in_len;
-		memmove( My_Connections[Idx].zip.rbuf, My_Connections[Idx].zip.rbuf + in_len, My_Connections[Idx].zip.rdatalen );
-	}
-	else My_Connections[Idx].zip.rdatalen = 0;
-	My_Connections[Idx].zip.bytes_in += out_len;
-
-	return TRUE;
-} /* Unzip_Buffer */
-
-
-#endif
 
 
 /* -eof- */

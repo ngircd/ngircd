@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conn.h,v 1.27 2002/12/30 00:01:45 alex Exp $
+ * $Id: conn.h,v 1.28 2002/12/30 16:07:23 alex Exp $
  *
  * Connection management (header)
  */
@@ -27,6 +27,55 @@
 
 
 typedef INT CONN_ID;
+
+
+#if defined(__conn_c__) || defined(__conn_zip_c__)
+
+#include "defines.h"
+#include "resolve.h"
+
+#ifdef USE_ZLIB
+#include <zlib.h>
+typedef struct _ZipData
+{
+	z_stream in;			/* "Handle" for input stream */
+	z_stream out;			/* "Handle" for output stream */
+	CHAR rbuf[READBUFFER_LEN];	/* Read buffer */
+	INT rdatalen;			/* Length of data in read buffer (compressed) */
+	CHAR wbuf[WRITEBUFFER_LEN];	/* Write buffer */
+	INT wdatalen;			/* Length of data in write buffer (uncompressed) */
+	LONG bytes_in, bytes_out;	/* Counter for statistics (uncompressed!) */
+} ZIPDATA;
+#endif /* USE_ZLIB */
+
+typedef struct _Connection
+{
+	INT sock;			/* Socket handle */
+	struct sockaddr_in addr;	/* Client address */
+	RES_STAT *res_stat;		/* Status of resolver process, if any */
+	CHAR host[HOST_LEN];		/* Hostname */
+	CHAR rbuf[READBUFFER_LEN];	/* Read buffer */
+	INT rdatalen;			/* Length of data in read buffer */
+	CHAR wbuf[WRITEBUFFER_LEN];	/* Write buffer */
+	INT wdatalen;			/* Length of data in write buffer */
+	time_t starttime;		/* Start time of link */
+	time_t lastdata;		/* Last activity */
+	time_t lastping;		/* Last PING */
+	time_t lastprivmsg;		/* Last PRIVMSG */
+	time_t delaytime;		/* Ignore link ("penalty") */
+	LONG bytes_in, bytes_out;	/* Received and sent bytes */
+	LONG msg_in, msg_out;		/* Received and sent IRC messages */
+	INT flag;			/* Flag (see "irc-write" module) */
+	INT options;			/* Link options */
+#ifdef USE_ZLIB
+	ZIPDATA zip;			/* Compression information */
+#endif  /* USE_ZLIB */
+} CONNECTION;
+
+GLOBAL CONNECTION *My_Connections;
+GLOBAL CONN_ID Pool_Size;
+
+#endif /* defined() */
 
 
 GLOBAL VOID Conn_Init PARAMS((VOID ));
@@ -68,12 +117,6 @@ GLOBAL CONN_ID Conn_Next PARAMS(( CONN_ID Idx ));
 GLOBAL VOID Conn_SetOption PARAMS(( CONN_ID Idx, INT Option ));
 GLOBAL VOID Conn_UnsetOption PARAMS(( CONN_ID Idx, INT Option ));
 GLOBAL INT Conn_Options PARAMS(( CONN_ID Idx ));
-
-#ifdef USE_ZLIB
-GLOBAL BOOLEAN Conn_InitZip PARAMS(( CONN_ID Idx ));
-GLOBAL LONG Conn_SendBytesZip PARAMS(( CONN_ID Idx ));
-GLOBAL LONG Conn_RecvBytesZip PARAMS(( CONN_ID Idx ));
-#endif
 
 GLOBAL VOID Conn_ResetWCounter PARAMS(( VOID ));
 GLOBAL LONG Conn_WCounter PARAMS(( VOID ));

@@ -1,11 +1,11 @@
 
                      ngIRCd - Next Generation IRC Server
 
-                      (c)2001,2002 by Alexander Barton,
+                      (c)2001-2003 by Alexander Barton,
                     alex@barton.de, http://www.barton.de/
 
-                  ngIRCd ist freie Software und steht unter
-                       der GNU General Public License.
+               ngIRCd is free software and published under the
+                   terms of the GNU General Public License.
 
                              -- README-AUX.txt --
 
@@ -71,4 +71,4 @@ Noch ein paar Hinweise, wenn es doch (noch) nicht klappt:
 
 
 -- 
-$Id: README-AUX.txt,v 1.5 2003/01/04 13:07:54 alex Exp $
+$Id: README-AUX.txt,v 1.6 2003/03/09 20:04:44 alex Exp $

@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2003 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2004 by Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,7 +8,11 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * Rendezvous service registration (using Mach Ports, e.g. Mac OS X)
+ * Rendezvous service registration.
+ *
+ * Supported APIs are:
+ *  - Apple Mac OS X
+ *  - Howl
  */
 
 
@@ -17,7 +21,7 @@
 #ifdef RENDEZVOUS
 
 
-static char UNUSED id[] = "$Id: rendezvous.c,v 1.2 2003/03/27 01:24:32 alex Exp $";
+static char UNUSED id[] = "$Id: rendezvous.c,v 1.3 2004/12/26 00:14:33 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -34,6 +38,10 @@ static char UNUSED id[] = "$Id: rendezvous.c,v 1.2 2003/03/27 01:24:32 alex Exp 
 #include <DNSServiceDiscovery/DNSServiceDiscovery.h>
 #endif
 
+#ifdef HAVE_RENDEZVOUS_RENDEZVOUS_H
+#include <rendezvous/rendezvous.h>
+#endif
+
 #include "defines.h"
 #include "log.h"
 
@@ -41,23 +49,61 @@ static char UNUSED id[] = "$Id: rendezvous.c,v 1.2 2003/03/27 01:24:32 alex Exp 
 #include "rendezvous.h"
 
 
-typedef struct _service
-{
-	dns_service_discovery_ref Discovery_Ref;
-	mach_port_t Mach_Port;
-	CHAR Desc[CLIENT_ID_LEN];
-} SERVICE;
-
-
-LOCAL VOID Registration_Reply_Handler( DNSServiceRegistrationReplyErrorType ErrCode, VOID *Context );
-LOCAL VOID Unregister( INT Idx );
+#if defined(HAVE_DNSSERVICEREGISTRATIONCREATE)
+#	define APPLE
+#elif defined(HAVE_SW_DISCOVERY_INIT)
+#	define HOWL
+#else
+#	error "Can't detect Rendezvous API!?"
+#endif
 
 
 #define MAX_RENDEZVOUS 1000
-#define MAX_MACH_MSG_SIZE 512
 
+typedef struct _service
+{
+	CHAR Desc[CLIENT_ID_LEN];
+#ifdef APPLE
+	dns_service_discovery_ref Discovery_Ref;
+	mach_port_t Mach_Port;
+#endif
+#ifdef HOWL
+	sw_discovery_oid Id;
+#endif
+} SERVICE;
 
 LOCAL SERVICE My_Rendezvous[MAX_RENDEZVOUS];
+
+
+LOCAL VOID Unregister( INT Idx );
+
+
+/* -- Apple API -- */
+
+#ifdef APPLE
+
+#define MAX_MACH_MSG_SIZE 512
+
+LOCAL VOID Registration_Reply_Handler( DNSServiceRegistrationReplyErrorType ErrCode, VOID *Context );
+
+#endif /* Apple */
+
+
+/* -- Howl API -- */
+
+#ifdef HOWL
+
+#include <pthread.h>
+
+LOCAL sw_discovery My_Discovery_Session = NULL;
+LOCAL pthread_t My_Howl_Thread;
+LOCAL BOOLEAN My_Howl_Thread_Created = FALSE;
+
+LOCAL sw_result HOWL_API Registration_Reply_Handler( sw_discovery Session, sw_discovery_publish_status Status, sw_discovery_oid Id, sw_opaque Extra );
+
+LOCAL VOID* Howl_Thread( VOID *x );
+
+#endif /* Howl */
 
 
 GLOBAL VOID Rendezvous_Init( VOID )
@@ -66,11 +112,16 @@ GLOBAL VOID Rendezvous_Init( VOID )
 
 	INT i;
 
-	for( i = 0; i < MAX_RENDEZVOUS; i++ )
+#ifdef HOWL
+	if( sw_discovery_init( &My_Discovery_Session ) != SW_OKAY )
 	{
-		My_Rendezvous[i].Discovery_Ref = 0;
-		My_Rendezvous[i].Mach_Port = 0;
+		Log( LOG_EMERG, "Can't initialize Rendezvous (Howl): sw_discovery_init() failed!" );
+		Log( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE_NAME );
+		exit( 1 );
 	}
+#endif
+
+	for( i = 0; i < MAX_RENDEZVOUS; i++ ) My_Rendezvous[i].Desc[0] = '\0';
 } /* Rendezvous_Init */
 
 
@@ -82,8 +133,18 @@ GLOBAL VOID Rendezvous_Exit( VOID )
 
 	for( i = 0; i < MAX_RENDEZVOUS; i++ )
 	{
-		if( My_Rendezvous[i].Discovery_Ref ) Unregister( i );
+		if( My_Rendezvous[i].Desc[0] ) Unregister( i );
 	}
+
+#ifdef HOWL
+	if( My_Howl_Thread_Created )
+	{
+		Log( LOG_DEBUG, "Rendezvous: Canceling management thread ..." );
+		pthread_cancel( My_Howl_Thread );
+	}
+
+	sw_discovery_fina( My_Discovery_Session );
+#endif
 } /* Rendezvous_Exit */
 
 
@@ -94,7 +155,7 @@ GLOBAL BOOLEAN Rendezvous_Register( CHAR *Name, CHAR *Type, UINT Port )
 	INT i;
 
 	/* Search free port structure */
-	for( i = 0; i < MAX_RENDEZVOUS; i++ ) if( ! My_Rendezvous[i].Discovery_Ref ) break;
+	for( i = 0; i < MAX_RENDEZVOUS; i++ ) if( ! My_Rendezvous[i].Desc[0] ) break;
 	if( i >= MAX_RENDEZVOUS )
 	{
 		Log( LOG_ERR, "Can't register \"%s\" with Rendezvous: limit (%d) reached!", Name, MAX_RENDEZVOUS );
@@ -102,11 +163,13 @@ GLOBAL BOOLEAN Rendezvous_Register( CHAR *Name, CHAR *Type, UINT Port )
 	}
 	strlcpy( My_Rendezvous[i].Desc, Name, sizeof( My_Rendezvous[i].Desc ));
 	
+#ifdef APPLE
 	/* Register new service */
-	My_Rendezvous[i].Discovery_Ref = DNSServiceRegistrationCreate( Name, Type, "", htonl( Port ), "", Registration_Reply_Handler, My_Rendezvous[i].Desc );
+	My_Rendezvous[i].Discovery_Ref = DNSServiceRegistrationCreate( Name, Type, "", htonl( Port ), "", Registration_Reply_Handler, &My_Rendezvous[i] );
 	if( ! My_Rendezvous[i].Discovery_Ref )
 	{
 		Log( LOG_ERR, "Can't register \"%s\" with Rendezvous: can't register service!", My_Rendezvous[i].Desc );
+		My_Rendezvous[i].Desc[0] = '\0';
 		return FALSE;
 	}
 	
@@ -117,8 +180,19 @@ GLOBAL BOOLEAN Rendezvous_Register( CHAR *Name, CHAR *Type, UINT Port )
 		Log( LOG_ERR, "Can't register \"%s\" with Rendezvous: got no Mach Port!", My_Rendezvous[i].Desc );
 		/* Here we actually leek a descriptor :-( */
 		My_Rendezvous[i].Discovery_Ref = 0;
+		My_Rendezvous[i].Desc[0] = '\0';
 		return FALSE;
 	}
+#endif /* Apple */
+
+#ifdef HOWL
+	if( sw_discovery_publish( My_Discovery_Session, 0, Name, Type, NULL, NULL, Port, NULL, 0, Registration_Reply_Handler, &My_Rendezvous[i], &My_Rendezvous[i].Id ) != SW_OKAY )
+	{
+		Log( LOG_ERR, "Can't register \"%s\" with Rendezvous: can't register service!", My_Rendezvous[i].Desc );
+		My_Rendezvous[i].Desc[0] = '\0';
+		return FALSE;
+	}
+#endif /* Howl */
 
 	Log( LOG_DEBUG, "Rendezvous: Registering \"%s\" ...", My_Rendezvous[i].Desc );
 	return TRUE;
@@ -154,7 +228,7 @@ GLOBAL VOID Rendezvous_UnregisterListeners( VOID )
 
 	for( i = 0; i < MAX_RENDEZVOUS; i++ )
 	{
-		if( My_Rendezvous[i].Discovery_Ref ) Unregister( i );
+		if( My_Rendezvous[i].Desc[0] ) Unregister( i );
 	}
 } /* Rendezvous_UnregisterListeners */
 
@@ -164,6 +238,7 @@ GLOBAL VOID Rendezvous_Handler( VOID )
 	/* Handle all Rendezvous stuff; this function must be called
 	 * periodically from the run loop of the main program */
 
+#ifdef APPLE
 	INT i;
 	CHAR buffer[MAX_MACH_MSG_SIZE];
 	mach_msg_return_t result;
@@ -181,19 +256,57 @@ GLOBAL VOID Rendezvous_Handler( VOID )
 		if( result == MACH_MSG_SUCCESS ) DNSServiceDiscovery_handleReply( msg );
 #ifdef DEBUG
 		else if( result != MACH_RCV_TIMED_OUT ) Log( LOG_DEBUG, "mach_msg(): %ld", (LONG)result );
-#endif
+#endif /* Debug */
 	}
+#endif /* Apple */
+
+#ifdef HOWL
+	if( My_Discovery_Session != NULL && My_Howl_Thread_Created == FALSE )
+	{
+		/* Create POSIX thread for sw_discovery_run() */
+		Log( LOG_DEBUG, "Rendezvous: Creating management thread ..." );
+		pthread_create( &My_Howl_Thread, NULL, Howl_Thread, NULL );
+		My_Howl_Thread_Created = TRUE;
+	}
+#endif
 } /* Rendezvous_Handler */
+
+
+LOCAL VOID Unregister( INT Idx )
+{
+	/* Unregister service */
+
+#ifdef APPLE
+	DNSServiceDiscoveryDeallocate( My_Rendezvous[Idx].Discovery_Ref );
+#endif /* Apple */
+
+#ifdef HOWL
+	if( sw_discovery_cancel( My_Discovery_Session, My_Rendezvous[Idx].Id ) != SW_OKAY )
+	{
+		Log( LOG_ERR, "Rendezvous: Failed to unregister \"%s\"!", My_Rendezvous[Idx].Desc );
+		return;
+	}
+#endif /* Howl */
+	
+	Log( LOG_INFO, "Unregistered \"%s\" from Rendezvous.", My_Rendezvous[Idx].Desc );
+	My_Rendezvous[Idx].Desc[0] = '\0';
+} /* Unregister */
+
+
+/* -- Apple API -- */
+
+#ifdef APPLE
 
 
 LOCAL VOID Registration_Reply_Handler( DNSServiceRegistrationReplyErrorType ErrCode, VOID *Context )
 {
+	SERVICE *s = (SERVICE *)Context;
 	CHAR txt[50];
 
 	if( ErrCode == kDNSServiceDiscoveryNoError )
 	{
 		/* Success! */
-		Log( LOG_INFO, "Successfully registered \"%s\" with Rendezvous.", Context ? Context : "NULL" );
+		Log( LOG_INFO, "Successfully registered \"%s\" with Rendezvous.", s->Desc );
 		return;
 	}
 
@@ -209,18 +322,59 @@ LOCAL VOID Registration_Reply_Handler( DNSServiceRegistrationReplyErrorType ErrC
 			sprintf( txt, "error code %ld!", (LONG)ErrCode );
 	}
 
-	Log( LOG_INFO, "Can't register \"%s\" with Rendezvous: %s", Context ? Context : "NULL", txt );
+	Log( LOG_INFO, "Can't register \"%s\" with Rendezvous: %s", s->Desc, txt );
+	s->Desc[0] = '\0';
 } /* Registration_Reply_Handler */
 
 
-LOCAL VOID Unregister( INT Idx )
-{
-	/* Unregister service */
+#endif /* Apple */
 
-	DNSServiceDiscoveryDeallocate( My_Rendezvous[Idx].Discovery_Ref );
-	Log( LOG_INFO, "Unregistered \"%s\" from Rendezvous.", My_Rendezvous[Idx].Desc );
-	My_Rendezvous[Idx].Discovery_Ref = 0;
-} /* Unregister */
+
+/* -- Howl API -- */
+
+#ifdef HOWL
+
+
+LOCAL sw_result HOWL_API Registration_Reply_Handler( sw_discovery Session, sw_discovery_publish_status Status, UNUSED sw_discovery_oid Id, sw_opaque Extra )
+{
+	SERVICE *s = (SERVICE *)Extra;
+	CHAR txt[50];
+
+	assert( Session == My_Discovery_Session );
+	assert( Extra != NULL );
+
+	if( Status == SW_DISCOVERY_PUBLISH_STARTED || Status == SW_DISCOVERY_PUBLISH_STOPPED )
+	{
+		/* Success! */
+		Log( LOG_INFO, "Successfully registered \"%s\" with Rendezvous.", s->Desc );
+		return SW_OKAY;
+	}
+		
+	switch( Status )
+	{
+		case SW_DISCOVERY_PUBLISH_NAME_COLLISION:
+			strcpy( txt, "name conflict!" );
+			break;
+		default:
+			sprintf( txt, "error code %ld!", (LONG)Status );
+	}
+
+	Log( LOG_INFO, "Can't register \"%s\" with Rendezvous: %s", s->Desc, txt );
+	s->Desc[0] = '\0';
+
+	return SW_OKAY;
+} /* Registration_Reply_Handler */
+
+
+LOCAL VOID *Howl_Thread( VOID *x )
+{
+	assert( x == NULL );
+	sw_discovery_run( My_Discovery_Session );
+	pthread_exit( NULL );
+} /* Howl_Thread */
+
+
+#endif /* Howl */
 
 
 #endif	/* RENDEZVOUS */

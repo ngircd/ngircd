@@ -10,6 +10,12 @@
                                   -- NEWS --
 
 
+ngIRCd CVSHEAD
+
+  - Added support for the Howl (http://www.porchdogsoft.com/products/howl/)
+    Rendezvous API, in addition to the API of Apple (Mac OS X). The available
+    APU will be autodetected when you call "./configure --with-rendezvous".
+
 ngIRCd 0.8.0 (2004-06-26)
 
   - Two new configuration options: "ChrootDir" and "MotdPhrase", thanks to
@@ -189,4 +195,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.66 2004/07/03 18:35:41 alex Exp $
+$Id: NEWS,v 1.67 2004/12/26 00:14:33 alex Exp $

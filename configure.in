@@ -8,7 +8,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: configure.in,v 1.103 2004/05/15 12:24:30 alex Exp $
+# $Id: configure.in,v 1.104 2004/12/26 00:14:33 alex Exp $
 #
 
 # -- Initialisation --
@@ -195,16 +195,42 @@ x_rendezvous_on=no
 AC_ARG_WITH(rendezvous,
 	[  --with-rendezvous       enable support for "Rendezvous"],
 	[	if test "$withval" = "yes"; then
-			AC_CHECK_FUNCS(DNSServiceRegistrationCreate, x_rendezvous_on=yes,
-				AC_MSG_ERROR([Can't enable Rendezvous!])
-			)
+			AC_CHECK_FUNCS(DNSServiceRegistrationCreate, x_rendezvous_on=osx,
+			[
+				AC_CHECK_LIB(pthread, pthread_mutexattr_init)
+				AC_CHECK_LIB(howl, sw_discovery_init)
+				AC_CHECK_FUNCS(sw_discovery_init, \
+				 x_rendezvous_on=howl, \
+				 AC_MSG_ERROR([Can't enable Rendezvous!]))
+			])
 		fi
 	]
 )
-if test "$x_rendezvous_on" = "yes"; then
-	AC_DEFINE(RENDEZVOUS, 1)
+if test "$x_rendezvous_on" = "osx"; then
 	AC_CHECK_HEADERS([DNSServiceDiscovery/DNSServiceDiscovery.h \
 	 mach/port.h],,AC_MSG_ERROR([required C header missing!]))
+	AC_DEFINE(RENDEZVOUS, 1)
+fi
+if test "$x_rendezvous_on" = "howl"; then
+	for dir in /usr/local/include /usr/local/include/howl* \
+	 /usr/include /usr/include/howl*; do
+	 	test -d "$dir" || continue
+		AC_MSG_CHECKING([for Howl headers in $dir])
+		if test -f "$dir/rendezvous/rendezvous.h"; then
+			if test "$dir" != "/usr/local/include" -a \
+			 "$dir" != "/usr/include"; then
+				CFLAGS="$CFLAGS -I$dir"
+				CPPFLAGS="-I$dir $CPPFLAGS"
+			fi
+			AC_MSG_RESULT(yes)
+			break
+		else
+			AC_MSG_RESULT(no)
+		fi
+	done
+	AC_CHECK_HEADERS([rendezvous/rendezvous.h],, \
+	 AC_MSG_ERROR([required C header missing!]))
+	AC_DEFINE(RENDEZVOUS, 1)
 fi
 
 x_identauth_on=no
@@ -348,7 +374,7 @@ test "$x_strict_rfc_on" = "yes" \
 	|| echo "no"
 
 echo $ECHO_N " Rendezvous support: $ECHO_C"
-test "$x_rendezvous_on" = "yes"	\
+test "$x_rendezvous_on" = "osx" -o "$x_rendezvous_on" = "howl" \
 	&& echo $ECHO_N "yes $ECHO_C" \
 	|| echo $ECHO_N "no  $ECHO_C"
 echo $ECHO_N "      IRC+ protocol: $ECHO_C"

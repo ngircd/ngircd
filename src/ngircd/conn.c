@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.145 2005/03/20 11:00:31 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.146 2005/03/20 13:54:06 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -218,7 +218,7 @@ Conn_InitListeners( void )
 	for( i = 0; i < Conf_ListenPorts_Count; i++ )
 	{
 		if( Conn_NewListener( Conf_ListenPorts[i] )) created++;
-		else Log( LOG_ERR, "Can't listen on port %u!", Conf_ListenPorts[i] );
+		else Log( LOG_ERR, "Can't listen on port %u!", (unsigned int) Conf_ListenPorts[i] );
 	}
 	return created;
 } /* Conn_InitListeners */

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.72 2005/03/19 18:43:48 fw Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.73 2005/03/20 13:54:06 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -128,7 +128,7 @@ Conf_Test( void )
 	for( i = 0; i < Conf_ListenPorts_Count; i++ )
 	{
 		if( i != 0 ) printf( ", " );
-		printf( "%u", Conf_ListenPorts[i] );
+		printf( "%u", (unsigned int) Conf_ListenPorts[i] );
 	}
 	puts( "" );
 	printf( "  Listen = %s\n", Conf_ListenAddress );

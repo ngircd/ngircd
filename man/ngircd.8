@@ -1,7 +1,7 @@
 .\"
-.\" $Id: ngircd.8,v 1.1 2002/04/02 18:14:33 alex Exp $
+.\" $Id: ngircd.8,v 1.2 2002/04/02 20:19:22 alex Exp $
 .\"
-.TH ngircd 8 "March 2002" ngircd "User Manuals"
+.TH ngircd 8 "March 2002" ngircd "ngIRCd Manual"
 .SH NAME
 ngircd \- the next generation IRC daemon
 .SH SYNOPSIS
@@ -9,22 +9,43 @@ ngircd \- the next generation IRC daemon
 .I Options
 .B ]
 .SH DESCRIPTION
-ngIRCd is a portable IRC daemon written from scratch. It is easy to
-configure, supports server links (even with original ircds) and runs on
-hosts with changing IP addresses (such as dial-in networks). Currently
-supported platforms are A/UX, Darwin/Mac OS X, FreeBSD, Linux, NetBSD,
-and Windows with Cygwin.
+.B ngircd
+is a portable IRC daemon written from scratch. It is easy to configure,
+supports server links (even with original ircds) and runs on hosts with
+changing IP addresses (such as dial-in networks). Currently supported
+platforms are A/UX, Darwin/Mac OS X, FreeBSD, Linux, NetBSD, and Windows
+with Cygwin.
 .SH OPTIONS
-(coming soon, please see
-.B ngircd --help
-at the moment)
+.IP --configtest
+read, validate and display configuration; then exit.
+.IP "-f file, --config file"
+use
+.I file
+as configuration file.
+.IP "-n, --nodaemon"
+don't fork and don't detatch from controlling terminal.
+.IP "-p, --passive"
+disable automatic connections to other servers.
+.IP --version
+output version information and exit.
+.IP --help
+display brief help text and exit.
 .SH FILES
-(coming soon)
+.I /usr/local/etc/ngircd.conf
+.RS
+The system wide default configuration file.
 .SH DIAGNOSTICS
 (coming soon)
 .SH AUTHOR
-Alexander Barton, <alex@barton.de>
-.\"Homepage: <http://arthur.ath.cx/~alex/ngircd/>
+Alexander Barton,
+.UR mailto:alex@barton.de
+alex@barton.de
+.UE
+.PP
+Homepage:
+.UR http://arthur.ath.cx/~alex/ngircd/
+http://arthur.ath.cx/~alex/ngircd/
+.UE
 .SH "SEE ALSO"
 .BR ngircd.conf (5)
 .BR ircd (8)

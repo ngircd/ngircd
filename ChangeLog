@@ -13,6 +13,10 @@
 ngIRCd CVS-HEAD
 
   - Manual-Pages ngircd.8 und ngircd.conf.5 begonnen.
+  - Bei Server-Links wird nicht mehr an Hand der Anzahl der Parameter
+    eines empfangenen SERVER-Befehls, sondern "intern" erkannt, ob es
+    sich um eine ein- oder ausgehende Verbindung handelt und somit das
+    eigene PASS-SERVER-Paar gesendet werden muss oder nicht.
 
 ngIRCd 0.4.0, 01.04.2002
 
@@ -178,4 +182,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.58 2002/04/01 17:21:48 alex Exp $
+$Id: ChangeLog,v 1.59 2002/04/08 01:25:44 alex Exp $

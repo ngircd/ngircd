@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-info.c,v 1.2 2002/11/30 18:10:01 alex Exp $
+ * $Id: irc-info.c,v 1.3 2002/12/02 13:20:02 alex Exp $
  *
  * irc-info.c: IRC-Info-Befehle
  */
@@ -330,7 +330,8 @@ IRC_NAMES( CLIENT *Client, REQUEST *Req )
 GLOBAL BOOLEAN
 IRC_STATS( CLIENT *Client, REQUEST *Req )
 {
-	CLIENT *from, *target;
+	CLIENT *from, *target, *cl;
+	CONN_ID con;
 	CHAR query;
 
 	assert( Client != NULL );
@@ -359,6 +360,35 @@ IRC_STATS( CLIENT *Client, REQUEST *Req )
 
 	if( Req->argc > 0 ) query = Req->argv[0][0] ? Req->argv[0][0] : '*';
 	else query = '*';
+
+	switch ( query )
+	{
+		case 'l':	/* Links */
+		case 'L':
+			con = Conn_First( );
+			while( con != NONE )
+			{
+				cl = Client_GetFromConn( con );
+				if( cl )
+				{
+#ifdef USE_ZLIB
+					if( Conn_Options( con ) & CONN_ZIP )
+					{
+						if( ! IRC_WriteStrClient( from, RPL_STATSLINKINFOZIP_MSG, Client_ID( from ), Client_Mask( cl ), Conn_SendQ( con ), Conn_SendMsg( con ), Conn_SendBytesZip( con ), Conn_SendBytes( con ), Conn_RecvMsg( con ), Conn_RecvBytesZip( con ), Conn_RecvBytes( con ), (LONG)( time( NULL ) - Conn_StartTime( con )))) return DISCONNECTED;
+					}
+					else
+#endif
+					{
+						if( ! IRC_WriteStrClient( from, RPL_STATSLINKINFO_MSG, Client_ID( from ), Client_Mask( cl ), Conn_SendQ( con ), Conn_SendMsg( con ), Conn_SendBytes( con ), Conn_RecvMsg( con ), Conn_RecvBytes( con ), (LONG)( time( NULL ) - Conn_StartTime( con )))) return DISCONNECTED;
+					}
+				}
+				con = Conn_Next( con );
+			}
+			break;
+		case 'm':	/* IRC-Befehle */
+		case 'M':
+			break;
+	}
 
 	return IRC_WriteStrClient( from, RPL_ENDOFSTATS_MSG, Client_ID( from ), query );
 } /* IRC_STATS */

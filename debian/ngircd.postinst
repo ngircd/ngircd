@@ -1,7 +1,7 @@
+#!/bin/sh
 #
 # Debian post-installation script
-#
-# $Id: ngircd.postinst,v 1.1.2.1 2003/07/12 18:29:19 alex Exp $
+# $Id: ngircd.postinst,v 1.1.2.2 2003/07/12 18:48:17 alex Exp $
 #
 
 if [ -f /etc/ngircd/ngircd.conf ]; then

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: parse.c,v 1.31 2002/03/25 17:13:46 alex Exp $
+ * $Id: parse.c,v 1.32 2002/04/23 19:50:27 alex Exp $
  *
  * parse.c: Parsen der Client-Anfragen
  */
@@ -292,6 +292,7 @@ LOCAL BOOLEAN Handle_Request( CONN_ID Idx, REQUEST *Req )
 	else if( strcasecmp( Req->command, "AWAY" ) == 0 ) return IRC_AWAY( client, Req );
 	else if( strcasecmp( Req->command, "TOPIC" ) == 0 ) return IRC_TOPIC( client, Req );
 	else if( strcasecmp( Req->command, "WHO" ) == 0 ) return IRC_WHO( client, Req );
+	else if( strcasecmp( Req->command, "LIST" ) == 0 ) return IRC_LIST( client, Req );
 	
 	/* Unbekannter Befehl */
 	if( Client_Type( client ) != CLIENT_SERVER ) IRC_WriteStrClient( client, ERR_UNKNOWNCOMMAND_MSG, Client_ID( client ), Req->command );

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.h,v 1.23 2002/11/26 23:06:51 alex Exp $
+ * $Id: conn.h,v 1.24 2002/12/02 13:19:37 alex Exp $
  *
  * conn.h: Verwaltung aller Netz-Verbindungen ("connections") (Header)
  */
@@ -48,6 +48,13 @@ GLOBAL VOID Conn_Close PARAMS(( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN
 GLOBAL VOID Conn_UpdateIdle PARAMS(( CONN_ID Idx ));
 GLOBAL time_t Conn_GetIdle PARAMS(( CONN_ID Idx ));
 GLOBAL time_t Conn_LastPing PARAMS(( CONN_ID Idx ));
+GLOBAL time_t Conn_StartTime PARAMS(( CONN_ID Idx ));
+GLOBAL INT Conn_SendQ PARAMS(( CONN_ID Idx ));
+GLOBAL INT Conn_RecvQ PARAMS(( CONN_ID Idx ));
+GLOBAL LONG Conn_SendMsg PARAMS(( CONN_ID Idx ));
+GLOBAL LONG Conn_RecvMsg PARAMS(( CONN_ID Idx ));
+GLOBAL LONG Conn_SendBytes PARAMS(( CONN_ID Idx ));
+GLOBAL LONG Conn_RecvBytes PARAMS(( CONN_ID Idx ));
 
 GLOBAL VOID Conn_SetPenalty PARAMS(( CONN_ID Idx, time_t Seconds ));
 GLOBAL VOID Conn_ResetPenalty PARAMS(( CONN_ID Idx ));
@@ -67,6 +74,8 @@ GLOBAL INT Conn_Options PARAMS(( CONN_ID Idx ));
 
 #ifdef USE_ZLIB
 GLOBAL BOOLEAN Conn_InitZip PARAMS(( CONN_ID Idx ));
+GLOBAL LONG Conn_SendBytesZip PARAMS(( CONN_ID Idx ));
+GLOBAL LONG Conn_RecvBytesZip PARAMS(( CONN_ID Idx ));
 #endif
 
 

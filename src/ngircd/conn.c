@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.100 2002/11/29 17:36:50 alex Exp $
+ * $Id: conn.c,v 1.101 2002/12/02 13:19:37 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -89,11 +89,13 @@ typedef struct _Connection
 	CHAR wbuf[WRITEBUFFER_LEN];	/* Schreibpuffer */
 	INT wdatalen;			/* Laenge der Daten im Schreibpuffer */
 	INT our_server;			/* wenn von uns zu connectender Server: ID */
+	time_t starttime;		/* Startzeit des Links */
 	time_t lastdata;		/* Letzte Aktivitaet */
 	time_t lastping;		/* Letzter PING */
 	time_t lastprivmsg;		/* Letzte PRIVMSG */
 	time_t delaytime;		/* Nicht beachten bis ("penalty") */
-	LONG bytes_in, bytes_out;	/* Counter fuer Statistik */
+	LONG bytes_in, bytes_out;	/* Empfangene uns gesendete Bytes */
+	LONG msg_in, msg_out;		/* Empfangene uns gesendete Nachtichten */
 	INT flag;			/* "Markierungs-Flag" (vgl. "irc-write"-Modul) */
 	INT options;			/* Link-Optionen */
 #ifdef USE_ZLIB
@@ -487,6 +489,7 @@ va_dcl
 
 	strcat( buffer, "\r\n" );
 	ok = Conn_Write( Idx, buffer, strlen( buffer ));
+	My_Connections[Idx].msg_out++;
 
 	va_end( ap );
 	return ok;
@@ -864,7 +867,105 @@ Conn_InitZip( CONN_ID Idx )
 	return TRUE;
 } /* Conn_InitZip */
 
+
+GLOBAL LONG
+Conn_SendBytesZip( CONN_ID Idx )
+{
+	/* Anzahl gesendeter Bytes (komprimiert!) liefern */
+
+	assert( Idx > NONE );
+	return My_Connections[Idx].zip.bytes_out;
+} /* Conn_SendBytesZip */
+
+
+GLOBAL LONG
+Conn_RecvBytesZip( CONN_ID Idx )
+{
+	/* Anzahl gesendeter Bytes (komprimiert!) liefern */
+
+	assert( Idx > NONE );
+	return My_Connections[Idx].zip.bytes_in;
+} /* Conn_RecvBytesZip */
+
 #endif
+
+
+GLOBAL time_t
+Conn_StartTime( CONN_ID Idx )
+{
+	/* Zeitpunkt des Link-Starts liefern (in Sekunden) */
+
+	assert( Idx > NONE );
+	return My_Connections[Idx].starttime;
+} /* Conn_Uptime */
+
+
+GLOBAL INT
+Conn_SendQ( CONN_ID Idx )
+{
+	/* Laenge der Daten im Schreibbuffer liefern */
+
+	assert( Idx > NONE );
+#ifdef USE_ZLIB
+	return My_Connections[Idx].zip.wdatalen;
+#else
+	return My_Connections[Idx].wdatalen;
+#endif
+} /* Conn_SendQ */
+
+
+GLOBAL LONG
+Conn_SendMsg( CONN_ID Idx )
+{
+	/* Anzahl gesendeter Nachrichten liefern */
+
+	assert( Idx > NONE );
+	return My_Connections[Idx].msg_out;
+} /* Conn_SendMsg */
+
+
+GLOBAL LONG
+Conn_SendBytes( CONN_ID Idx )
+{
+	/* Anzahl gesendeter Bytes (unkomprimiert) liefern */
+
+	assert( Idx > NONE );
+	return My_Connections[Idx].bytes_out;
+} /* Conn_SendBytes */
+
+
+GLOBAL INT
+Conn_RecvQ( CONN_ID Idx )
+{
+	/* Laenge der Daten im Lesebuffer liefern */
+
+	assert( Idx > NONE );
+#ifdef USE_ZLIB
+	return My_Connections[Idx].zip.rdatalen;
+#else
+	return My_Connections[Idx].rdatalen;
+#endif
+} /* Conn_RecvQ */
+
+
+GLOBAL LONG
+Conn_RecvMsg( CONN_ID Idx )
+{
+	/* Anzahl empfangener Nachrichten liefern */
+
+	assert( Idx > NONE );
+	return My_Connections[Idx].msg_in;
+} /* Conn_RecvMsg */
+
+
+GLOBAL LONG
+Conn_RecvBytes( CONN_ID Idx )
+{
+	/* Anzahl empfangener Bytes (unkomprimiert) liefern */
+
+	assert( Idx > NONE );
+	return My_Connections[Idx].bytes_in;
+} /* Conn_RecvBytes */
 
 
 LOCAL BOOLEAN
@@ -1304,6 +1405,7 @@ Handle_Buffer( CONN_ID Idx )
 			if( len > delta )
 			{
 				/* Es wurde ein Request gelesen */
+				My_Connections[Idx].msg_in++;
 				if( ! Parse_Request( Idx, My_Connections[Idx].rbuf )) return FALSE;
 				else action = TRUE;
 			}
@@ -1567,12 +1669,15 @@ Init_Conn_Struct( LONG Idx )
 	My_Connections[Idx].wbuf[0] = '\0';
 	My_Connections[Idx].wdatalen = 0;
 	My_Connections[Idx].our_server = NONE;
+	My_Connections[Idx].starttime = time( NULL );
 	My_Connections[Idx].lastdata = time( NULL );
 	My_Connections[Idx].lastping = 0;
 	My_Connections[Idx].lastprivmsg = time( NULL );
 	My_Connections[Idx].delaytime = 0;
 	My_Connections[Idx].bytes_in = 0;
 	My_Connections[Idx].bytes_out = 0;
+	My_Connections[Idx].msg_in = 0;
+	My_Connections[Idx].msg_out = 0;
 	My_Connections[Idx].flag = 0;
 	My_Connections[Idx].options = 0;
 

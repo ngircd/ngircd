@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.122.2.3 2003/12/26 16:16:48 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.122.2.4 2004/02/03 13:54:36 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -937,6 +937,7 @@ New_Connection( INT Sock )
 #ifdef TCPWRAP
 	/* Validate socket using TCP Wrappers */
 	request_init( &req, RQ_DAEMON, PACKAGE_NAME, RQ_FILE, new_sock, RQ_CLIENT_SIN, &new_addr, NULL );
+	fromhost(&req);
 	if( ! hosts_access( &req ))
 	{
 		/* Access denied! */

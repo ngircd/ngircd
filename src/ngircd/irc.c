@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.68 2002/02/25 17:46:27 alex Exp $
+ * $Id: irc.c,v 1.69 2002/02/26 20:52:40 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.69  2002/02/26 20:52:40  alex
+ * - VERSION wurde falsch weitergeleitet und beantwortet (Prefix nicht beachtet)
+ *
  * Revision 1.68  2002/02/25 17:46:27  alex
  * - an User wird nun immer ein "komplettes" Prefix verschickt.
  *
@@ -2067,7 +2070,7 @@ GLOBAL BOOLEAN IRC_PART( CLIENT *Client, REQUEST *Req )
 
 GLOBAL BOOLEAN IRC_VERSION( CLIENT *Client, REQUEST *Req )
 {
-	CLIENT *target;
+	CLIENT *target, *prefix;
 	
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -2079,15 +2082,23 @@ GLOBAL BOOLEAN IRC_VERSION( CLIENT *Client, REQUEST *Req )
 	if( Req->argc == 1 ) target = Client_GetFromID( Req->argv[0] );
 	else target = Client_ThisServer( );
 
+	/* Prefix ermitteln */
+	if( Client_Type( Client ) == CLIENT_SERVER ) prefix = Client_GetFromID( Req->prefix );
+	else prefix = Client;
+	if( ! prefix ) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->prefix );
+	
 	/* An anderen Server weiterleiten? */
 	if( target != Client_ThisServer( ))
 	{
 		if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->argv[0] );
-		IRC_WriteStrClientPrefix( Client_NextHop( target ), Client, "VERSION %s", Req->argv[0] );
+
+		/* forwarden */
+		IRC_WriteStrClientPrefix( Client_NextHop( target ), prefix, "VERSION %s", Req->argv[0] );
 		return CONNECTED;
 	}
 
-	return IRC_WriteStrClient( Client, RPL_VERSION_MSG, Client_ID( Client ), NGIRCd_DebugLevel, Conf_ServerName, NGIRCd_VersionAddition( ));
+	/* mit Versionsinfo antworten */
+	return IRC_WriteStrClient( Client, RPL_VERSION_MSG, Client_ID( prefix ), NGIRCd_DebugLevel, Conf_ServerName, NGIRCd_VersionAddition( ));
 } /* IRC_VERSION */
 
 

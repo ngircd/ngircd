@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: autogen.sh,v 1.5 2003/04/04 10:05:34 alex Exp $
+# $Id: autogen.sh,v 1.6 2003/04/13 22:34:17 alex Exp $
 #
 
 export WANT_AUTOMAKE=1.6
@@ -9,6 +9,6 @@ aclocal && \
  autoheader && \
  automake --add-missing && \
  autoconf && \
- echo "Okay, autogen.sh war erfolgreich."
+ echo "Okay, autogen.sh done."
 
 # -eof-

@@ -8,12 +8,12 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: Makefile.am,v 1.12 2003/12/31 17:09:40 alex Exp $
+# $Id: Makefile.am,v 1.13 2003/12/31 17:20:11 alex Exp $
 #
 
 AUTOMAKE_OPTIONS = gnu
 
-SUBDIRS = doc MacOSX src man contrib debian
+SUBDIRS = doc src man contrib
 
 maintainer-clean-local:
 	rm -rf autom4te.cache

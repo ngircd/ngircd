@@ -8,7 +8,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: Makefile.am,v 1.4 2003/12/31 17:09:40 alex Exp $
+# $Id: Makefile.am,v 1.1 2003/12/31 17:20:11 alex Exp $
 #
 
 EXTRA_DIST = rules changelog compat control copyright \

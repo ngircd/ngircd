@@ -9,8 +9,10 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: Makefile.am,v 1.1 2002/10/01 09:57:08 alex Exp $
+# $Id: Makefile.am,v 1.2 2003/12/31 17:20:11 alex Exp $
 #
+
+SUBDIRS = Debian
 
 EXTRA_DIST = ngircd.spec
 

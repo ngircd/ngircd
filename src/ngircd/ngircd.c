@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.40 2002/03/29 23:34:18 alex Exp $
+ * $Id: ngircd.c,v 1.41 2002/03/31 13:20:42 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  */
@@ -145,7 +145,7 @@ GLOBAL int main( int argc, const char *argv[] )
 #endif
 				if( argv[i][n] == 'f' )
 				{
-					if(( ! argv[i][n+i] ) && ( i + 1 < argc ))
+					if(( ! argv[i][n + 1] ) && ( i + 1 < argc ))
 					{
 						/* Ok, danach kommt ein Leerzeichen */
 						strncpy( NGIRCd_ConfFile, argv[i + 1], FNAME_LEN - 1 );

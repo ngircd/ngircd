@@ -10,13 +10,22 @@
                            -- NEWS / Neuigkeiten --
 
 
+ngIRCd 0.1.0, 29.01.2002
+
+  - Channels implementiert, bisher jedoch noch ohne Channel-Modes, d.h.
+    es gibt keine Channel-Ops, kein Topic, kein "topic lock" etc. pp.
+    Chatten in Channels ist aber natuerlich moeglich ;-)
+    Dadurch zum Teil groessere Aenderungen an bisherigen Funktionen.
+  - neue Befehle fuer Channles: JOIN, PART und NJOIN.
+  - FAQ.txt in doc/ begonnen.
+
 ngIRCd 0.0.3, 16.01.2002
 
   - Server-Links vollstaendig implementiert: der ngIRCd kann nun auch
     "Sub-Server" haben, also sowohl als Leaf-Node als auch Hub in einem
     IRC-Netzwerk arbeiten.
   - WHOIS wird nun immer an den "Original-Server" weitergeleitet.
-  - Parses handhabt Leerzeichen zw. Parametern nun etwas "lockerer".
+  - Parser handhabt Leerzeichen zw. Parametern nun etwas "lockerer".
   - Kommandozeilen-Parser: Debug- und No-Daemon-Modus, Hilfe.
   - ngIRCd wandelt sich nun in einen Daemon (Hintergrundprozess) um.
   - neue Befehle: LUSERS, LINKS.
@@ -34,4 +43,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.5 2002/01/16 22:35:28 alex Exp $
+$Id: NEWS,v 1.6 2002/01/29 00:17:39 alex Exp $

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.27 2002/01/09 01:08:08 alex Exp $
+ * $Id: client.c,v 1.28 2002/01/11 23:50:40 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,9 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.28  2002/01/11 23:50:40  alex
+ * - Hop-Count fuer den Server selber (0) wird korrekt initialisiert.
+ *
  * Revision 1.27  2002/01/09 01:08:08  alex
  * - wird ein Server abgemeldet, so wird anderen Server ein SQUIT geschickt.
  *
@@ -166,6 +169,7 @@ GLOBAL VOID Client_Init( VOID )
 	This_Server->conn_id = NONE;
 	This_Server->introducer = This_Server;
 	This_Server->mytoken = 1;
+	This_Server->hops = 0;
 
 	gethostname( This_Server->host, CLIENT_HOST_LEN );
 	h = gethostbyname( This_Server->host );

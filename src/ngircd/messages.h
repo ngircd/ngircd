@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: messages.h,v 1.22 2002/01/28 13:06:19 alex Exp $
+ * $Id: messages.h,v 1.23 2002/01/29 00:14:05 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: messages.h,v $
+ * Revision 1.23  2002/01/29 00:14:05  alex
+ * - RPL_WHOISCHANNELS_MSG korrigiert.
+ *
  * Revision 1.22  2002/01/28 13:06:19  alex
  * - RPL_NAMREPLY_MSG an tatsaechliche Implementierung angepasst ;-)
  *
@@ -153,7 +156,7 @@
 #define RPL_ENDOFWHOIS_MSG		RPL_ENDOFWHOIS" %s %s :End of WHOIS list"
 
 #define RPL_WHOISCHANNELS		"319"
-#define RPL_WHOISCHANNELS_MSG		RPL_WHOISCHANNELS" %s :"
+#define RPL_WHOISCHANNELS_MSG		RPL_WHOISCHANNELS" %s %s :"
 
 #define RPL_NOTOPIC			"331"
 #define RPL_NOTOPIC_MSG			RPL_NOTOPIC" %s %s :No topic is set"

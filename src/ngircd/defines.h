@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: defines.h,v 1.3 2002/01/03 02:24:00 alex Exp $
+ * $Id: defines.h,v 1.4 2002/01/07 15:29:53 alex Exp $
  *
  * defines.h: (globale) Konstanten
  *
  * $Log: defines.h,v $
+ * Revision 1.4  2002/01/07 15:29:53  alex
+ * - PASSSERVERADD definiert, wird beim PASS-Befehl an Server verwendet.
+ *
  * Revision 1.3  2002/01/03 02:24:00  alex
  * - Protokollversion und Suffix definiert.
  *
@@ -67,6 +70,8 @@
 
 #define PROTOVER "0210"			/* implementierte Protokoll-Version (RFC 2813, 4.1.1) */
 #define PROTOSUFFIX "-ngIRCd"		/* Protokoll-Suffix (RFC 2813, 4.1.1) */
+
+#define PASSSERVERADD PROTOVER""PROTOSUFFIX" IRC|"PACKAGE"-"VERSION" P"
 
 
 #endif

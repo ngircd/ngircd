@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.33 2002/01/06 15:18:14 alex Exp $
+ * $Id: conn.c,v 1.34 2002/01/07 15:29:52 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
+ * Revision 1.34  2002/01/07 15:29:52  alex
+ * - PASSSERVERADD definiert, wird beim PASS-Befehl an Server verwendet.
+ *
  * Revision 1.33  2002/01/06 15:18:14  alex
  * - Loglevel und Meldungen nochmals geaendert. Level passen nun besser.
  *
@@ -1019,7 +1022,7 @@ LOCAL VOID New_Server( INT Server, CONN_ID Idx )
 	if( new_sock > My_Max_Fd ) My_Max_Fd = new_sock;
 
 	/* PASS und SERVER verschicken */
-	Conn_WriteStr( Idx, "PASS %s "PROTOVER""PROTOSUFFIX" IRC|"PACKAGE"-"VERSION" P", Conf_Server[Server].pwd );
+	Conn_WriteStr( Idx, "PASS %s "PASSSERVERADD, Conf_Server[Server].pwd );
 	Conn_WriteStr( Idx, "SERVER %s :%s", Conf_ServerName, Conf_ServerInfo );
 } /* New_Server */
 

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.20 2002/01/18 11:12:11 alex Exp $
+ * $Id: ngircd.c,v 1.21 2002/01/21 00:02:11 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  *
  * $Log: ngircd.c,v $
+ * Revision 1.21  2002/01/21 00:02:11  alex
+ * - Hilfetexte korrigiert und ergaenzt (Sniffer).
+ *
  * Revision 1.20  2002/01/18 11:12:11  alex
  * - der Sniffer wird nun nur noch aktiviert, wenn auf Kommandozeile angegeben.
  *
@@ -406,8 +409,11 @@ LOCAL VOID Show_Help( VOID )
 	puts( "  -d, --debug       log extra debug messages" );
 #endif
         puts( "  -n, --nodaemon    don't fork and don't detatch from controlling terminal" );
- 	puts( "      --version     display this help and exit" );
-	puts( "      --help        output version information and exit" );
+#ifdef SNIFFER
+	puts( "  -s, --sniffer     enable network sniffer and display all IRC traffic" );
+#endif
+ 	puts( "      --version     output version information and exit" );
+	puts( "      --help        display this help and exit" );
 } /* Show_Help */
 
 

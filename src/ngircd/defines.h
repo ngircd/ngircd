@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: defines.h,v 1.42.2.1 2003/11/07 20:51:11 alex Exp $
+ * $Id: defines.h,v 1.42.2.2 2003/12/26 16:16:48 alex Exp $
  *
  * Global defines of ngIRCd.
  */
@@ -57,7 +57,7 @@
 #define READBUFFER_LEN 2048		/* Laenge des Lesepuffers je Verbindung (Bytes) */
 #define WRITEBUFFER_LEN 4096		/* Laenge des Schreibpuffers je Verbindung (Bytes) */
 
-#ifdef USE_ZLIB
+#ifdef ZLIB
 #define ZREADBUFFER_LEN 1024		/* Laenge des Lesepuffers je Verbindung (Bytes) */
 #define ZWRITEBUFFER_LEN 4096		/* Laenge des Schreibpuffers fuer Kompression (Bytes) */
 #endif

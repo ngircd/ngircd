@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-server.c,v 1.32.2.1 2003/07/09 18:53:08 alex Exp $";
+static char UNUSED id[] = "$Id: irc-server.c,v 1.32.2.2 2003/12/26 16:16:48 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -117,7 +117,7 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 		Client_SetType( Client, CLIENT_SERVER );
 		Conf_SetServer( i, con );
 
-#ifdef USE_ZLIB
+#ifdef ZLIB
 		/* Kompression initialisieren, wenn erforderlich */
 		if( strchr( Client_Flags( Client ), 'Z' ))
 		{

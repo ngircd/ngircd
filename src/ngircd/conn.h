@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conn.h,v 1.31 2003/03/27 01:20:22 alex Exp $
+ * $Id: conn.h,v 1.31.2.1 2003/12/26 16:16:48 alex Exp $
  *
  * Connection management (header)
  */
@@ -23,7 +23,7 @@
 
 #define CONN_ISCLOSING 1		/* Conn_Close() already called */
 
-#ifdef USE_ZLIB
+#ifdef ZLIB
 #define CONN_ZIP 2			/* zlib compressed link */
 #endif
 
@@ -36,7 +36,7 @@ typedef INT CONN_ID;
 #include "defines.h"
 #include "resolve.h"
 
-#ifdef USE_ZLIB
+#ifdef ZLIB
 #include <zlib.h>
 typedef struct _ZipData
 {
@@ -48,7 +48,7 @@ typedef struct _ZipData
 	INT wdatalen;			/* Length of data in write buffer (uncompressed) */
 	LONG bytes_in, bytes_out;	/* Counter for statistics (uncompressed!) */
 } ZIPDATA;
-#endif /* USE_ZLIB */
+#endif /* ZLIB */
 
 typedef struct _Connection
 {
@@ -69,9 +69,9 @@ typedef struct _Connection
 	LONG msg_in, msg_out;		/* Received and sent IRC messages */
 	INT flag;			/* Flag (see "irc-write" module) */
 	INT options;			/* Link options */
-#ifdef USE_ZLIB
+#ifdef ZLIB
 	ZIPDATA zip;			/* Compression information */
-#endif  /* USE_ZLIB */
+#endif  /* ZLIB */
 } CONNECTION;
 
 GLOBAL CONNECTION *My_Connections;

@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: messages.h,v 1.64 2003/03/19 21:16:16 alex Exp $
+ * $Id: messages.h,v 1.64.2.1 2003/12/26 16:16:48 alex Exp $
  *
  * IRC numerics (Header)
  */
@@ -117,7 +117,7 @@
 #define ERR_UMODEUNKNOWNFLAG2_MSG	"501 %s :Unknown mode \"%c%c\""
 #define ERR_USERSDONTMATCH_MSG		"502 %s :Can't set/get mode for other users"
 
-#ifdef USE_ZLIB
+#ifdef ZLIB
 #define RPL_STATSLINKINFOZIP_MSG	"211 %s %s %d %ld %ld/%ld %ld %ld/%ld :%ld"
 #endif
 

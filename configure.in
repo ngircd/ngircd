@@ -8,7 +8,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: configure.in,v 1.89.2.14 2003/12/19 14:01:14 alex Exp $
+# $Id: configure.in,v 1.89.2.15 2003/12/26 16:16:48 alex Exp $
 #
 
 # -- Initialisierung --
@@ -26,9 +26,9 @@ AH_TEMPLATE([DEBUG], [Define if debug-mode should be enabled])
 AH_TEMPLATE([HAVE_socklen_t], [Define if socklen_t exists])
 AH_TEMPLATE([SNIFFER], [Define if IRC sniffer should be enabled])
 AH_TEMPLATE([STRICT_RFC], [Define if ngIRCd should behave strict RFC compliant])
-AH_TEMPLATE([USE_SYSLOG], [Define if syslog should be used for logging])
-AH_TEMPLATE([USE_ZLIB], [Define if zlib compression should be enabled])
-AH_TEMPLATE([USE_TCPWRAP], [Define if TCP wrappers should be used])
+AH_TEMPLATE([SYSLOG], [Define if syslog should be used for logging])
+AH_TEMPLATE([ZLIB], [Define if zlib compression should be enabled])
+AH_TEMPLATE([TCPWRAP], [Define if TCP wrappers should be used])
 AH_TEMPLATE([IRCPLUS], [Define if IRC+ protocol should be used])
 AH_TEMPLATE([RENDEZVOUS], [Define if Rendezvous support should be included])
 
@@ -162,7 +162,7 @@ AC_ARG_WITH(syslog,
 	]
 )
 if test "$x_syslog_on" = "yes"; then
-	AC_DEFINE(USE_SYSLOG, 1)
+	AC_DEFINE(SYSLOG, 1)
 	AC_CHECK_HEADERS(syslog.h)
 fi
 
@@ -181,7 +181,7 @@ AC_ARG_WITH(zlib,
 	]
 )
 if test "$x_zlib_on" = "yes"; then
-	AC_DEFINE(USE_ZLIB, 1)
+	AC_DEFINE(ZLIB, 1)
 	AC_CHECK_HEADERS(zlib.h)
 fi
 
@@ -198,7 +198,7 @@ AC_ARG_WITH(tcp-wrappers,
 				ptr = hosts_access;
 				],[
 				AC_MSG_RESULT(yes)
-				AC_DEFINE(USE_TCPWRAP, 1)
+				AC_DEFINE(TCPWRAP, 1)
 				x_tcpwrap_on=yes
 				],[
 				AC_MSG_RESULT(no)

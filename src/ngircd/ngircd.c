@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.76.2.1 2003/07/18 20:50:05 alex Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.76.2.2 2003/12/26 16:16:48 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -298,7 +298,7 @@ main( int argc, const char *argv[] )
 		 * sind in doc/Protocol.txt beschrieben. */
 #ifdef IRCPLUS
 		sprintf( NGIRCd_ProtoID, "%s%s %s|%s:%s", PROTOVER, PROTOIRCPLUS, PACKAGE_NAME, PACKAGE_VERSION, IRCPLUSFLAGS );
-#ifdef USE_ZLIB
+#ifdef ZLIB
 		strcat( NGIRCd_ProtoID, "Z" );
 #endif
 		if( Conf_OperCanMode ) strcat( NGIRCd_ProtoID, "o" );
@@ -306,7 +306,7 @@ main( int argc, const char *argv[] )
 		sprintf( NGIRCd_ProtoID, "%s%s %s|%s", PROTOVER, PROTOIRC, PACKAGE_NAME, PACKAGE_VERSION );
 #endif
 		strcat( NGIRCd_ProtoID, " P" );
-#ifdef USE_ZLIB
+#ifdef ZLIB
 		strcat( NGIRCd_ProtoID, "Z" );
 #endif
 		Log( LOG_DEBUG, "Protocol and server ID is \"%s\".", NGIRCd_ProtoID );
@@ -361,15 +361,15 @@ NGIRCd_VersionAddition( VOID )
 
 	strcpy( txt, "" );
 
-#ifdef USE_SYSLOG
+#ifdef SYSLOG
 	if( txt[0] ) strcat( txt, "+" );
 	strcat( txt, "SYSLOG" );
 #endif
-#ifdef USE_ZLIB
+#ifdef ZLIB
 	if( txt[0] ) strcat( txt, "+" );
 	strcat( txt, "ZLIB" );
 #endif
-#ifdef USE_TCPWRAP
+#ifdef TCPWRAP
 	if( txt[0] ) strcat( txt, "+" );
 	strcat( txt, "TCPWRAP" );
 #endif

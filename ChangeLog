@@ -10,6 +10,10 @@
                                -- ChangeLog --
 
 
+ngIRCd 0.7-CVS
+
+  - Removed "USE_" prefixes of configuration #defines.
+
 ngIRCd 0.7.6 (2003-12-05)
 
   - Fixed abort() ("server crash") when INVITE'ing users to nonexistent
@@ -484,4 +488,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.188.2.19 2003/12/05 13:40:24 alex Exp $
+$Id: ChangeLog,v 1.188.2.20 2003/12/26 16:16:48 alex Exp $

@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: log.h,v 1.13 2002/12/12 12:23:43 alex Exp $
+ * $Id: log.h,v 1.13.4.1 2003/12/26 16:16:48 alex Exp $
  *
  * Logging functions (header)
  */
@@ -18,7 +18,7 @@
 #define __log_h__
 
 
-#ifdef USE_SYSLOG
+#ifdef SYSLOG
 #	include <syslog.h>
 #else
 #	define LOG_EMERG 0

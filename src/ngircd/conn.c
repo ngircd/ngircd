@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.122.2.2 2003/11/07 20:51:11 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.122.2.3 2003/12/26 16:16:48 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -43,7 +43,7 @@ static char UNUSED id[] = "$Id: conn.c,v 1.122.2.2 2003/11/07 20:51:11 alex Exp 
 #include <stdint.h>			/* e.g. for Mac OS X */
 #endif
 
-#ifdef USE_TCPWRAP
+#ifdef TCPWRAP
 #include <tcpd.h>			/* for TCP Wrappers */
 #endif
 
@@ -93,7 +93,7 @@ LOCAL fd_set My_Listeners;
 LOCAL fd_set My_Sockets;
 LOCAL fd_set My_Connects;
 
-#ifdef USE_TCPWRAP
+#ifdef TCPWRAP
 INT allow_severity = LOG_INFO;
 INT deny_severity = LOG_ERR;
 #endif
@@ -395,7 +395,7 @@ Conn_Handler( VOID )
 		FD_ZERO( &write_sockets );
 		for( i = 0; i < Pool_Size; i++ )
 		{
-#ifdef USE_ZLIB
+#ifdef ZLIB
 			if(( My_Connections[i].sock > NONE ) && (( My_Connections[i].wdatalen > 0 ) || ( My_Connections[i].zip.wdatalen > 0 )))
 #else
 			if(( My_Connections[i].sock > NONE ) && ( My_Connections[i].wdatalen > 0 ))
@@ -581,7 +581,7 @@ Conn_Write( CONN_ID Idx, CHAR *Data, INT Len )
 		}
 	}
 
-#ifdef USE_ZLIB
+#ifdef ZLIB
 	if( My_Connections[Idx].options & CONN_ZIP )
 	{
 		/* Daten komprimieren und in Puffer kopieren */
@@ -611,7 +611,7 @@ Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient )
 
 	CLIENT *c;
 	DOUBLE in_k, out_k;
-#ifdef USE_ZLIB
+#ifdef ZLIB
 	DOUBLE in_z_k, out_z_k;
 	INT in_p, out_p;
 #endif
@@ -673,7 +673,7 @@ Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient )
 	/* Calculate statistics and log information */
 	in_k = (DOUBLE)My_Connections[Idx].bytes_in / 1024;
 	out_k = (DOUBLE)My_Connections[Idx].bytes_out / 1024;
-#ifdef USE_ZLIB
+#ifdef ZLIB
 	if( My_Connections[Idx].options & CONN_ZIP )
 	{
 		in_z_k = (DOUBLE)My_Connections[Idx].zip.bytes_in / 1024;
@@ -701,7 +701,7 @@ Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient )
 	/* Servers: Modify time of next connect attempt? */
 	Conf_UnsetServer( Idx );
 
-#ifdef USE_ZLIB
+#ifdef ZLIB
 	/* Clean up zlib, if link was compressed */
 	if( Conn_Options( Idx ) & CONN_ZIP )
 	{
@@ -762,7 +762,7 @@ Try_Write( CONN_ID Idx )
 	assert( My_Connections[Idx].sock > NONE );
 
 	/* sind ueberhaupt Daten vorhanden? */
-#ifdef USE_ZLIB
+#ifdef ZLIB
 	if(( ! My_Connections[Idx].wdatalen > 0 ) && ( ! My_Connections[Idx].zip.wdatalen )) return TRUE;
 #else
 	if( ! My_Connections[Idx].wdatalen > 0 ) return TRUE;
@@ -877,7 +877,7 @@ Handle_Write( CONN_ID Idx )
 		return Conn_WriteStr( Idx, "SERVER %s :%s", Conf_ServerName, Conf_ServerInfo );
 	}
 
-#ifdef USE_ZLIB
+#ifdef ZLIB
 	/* Schreibpuffer leer, aber noch Daten im Kompressionsbuffer?
 	 * Dann muss dieser nun geflushed werden! */
 	if( My_Connections[Idx].wdatalen == 0 ) Zip_Flush( Idx );
@@ -912,7 +912,7 @@ New_Connection( INT Sock )
 	/* Neue Client-Verbindung von Listen-Socket annehmen und
 	 * CLIENT-Struktur anlegen. */
 
-#ifdef USE_TCPWRAP
+#ifdef TCPWRAP
 	struct request_info req;
 #endif
 	struct sockaddr_in new_addr;
@@ -934,7 +934,7 @@ New_Connection( INT Sock )
 		return;
 	}
 
-#ifdef USE_TCPWRAP
+#ifdef TCPWRAP
 	/* Validate socket using TCP Wrappers */
 	request_init( &req, RQ_DAEMON, PACKAGE_NAME, RQ_FILE, new_sock, RQ_CLIENT_SIN, &new_addr, NULL );
 	if( ! hosts_access( &req ))
@@ -1097,7 +1097,7 @@ Read_Request( CONN_ID Idx )
 	 * Tritt ein Fehler auf, so wird der Socket geschlossen. */
 
 	INT len, bsize;
-#ifdef USE_ZLIB
+#ifdef ZLIB
 	CLIENT *c;
 #endif
 
@@ -1107,12 +1107,12 @@ Read_Request( CONN_ID Idx )
 	/* wenn noch nicht registriert: maximal mit ZREADBUFFER_LEN arbeiten,
 	 * ansonsten koennen Daten ggf. nicht umkopiert werden. */
 	bsize = READBUFFER_LEN;
-#ifdef USE_ZLIB
+#ifdef ZLIB
 	c = Client_GetFromConn( Idx );
 	if(( Client_Type( c ) != CLIENT_USER ) && ( Client_Type( c ) != CLIENT_SERVER ) && ( Client_Type( c ) != CLIENT_SERVICE ) && ( bsize > ZREADBUFFER_LEN )) bsize = ZREADBUFFER_LEN;
 #endif
 
-#ifdef USE_ZLIB
+#ifdef ZLIB
 	if(( bsize - My_Connections[Idx].rdatalen - 1 < 1 ) || ( ZREADBUFFER_LEN - My_Connections[Idx].zip.rdatalen < 1 ))
 #else
 	if( bsize - My_Connections[Idx].rdatalen - 1 < 1 )
@@ -1124,7 +1124,7 @@ Read_Request( CONN_ID Idx )
 		return;
 	}
 
-#ifdef USE_ZLIB
+#ifdef ZLIB
 	if( My_Connections[Idx].options & CONN_ZIP )
 	{
 		len = recv( My_Connections[Idx].sock, My_Connections[Idx].zip.rbuf + My_Connections[Idx].zip.rdatalen, ( ZREADBUFFER_LEN - My_Connections[Idx].zip.rdatalen ), 0 );
@@ -1179,7 +1179,7 @@ Handle_Buffer( CONN_ID Idx )
 	CHAR *ptr;
 	INT len, delta;
 	BOOLEAN action, result;
-#ifdef USE_ZLIB
+#ifdef ZLIB
 	BOOLEAN old_z;
 #endif
 
@@ -1189,7 +1189,7 @@ Handle_Buffer( CONN_ID Idx )
 		/* Check penalty */
 		if( My_Connections[Idx].delaytime > time( NULL )) return result;
 		
-#ifdef USE_ZLIB
+#ifdef ZLIB
 		/* ggf. noch unkomprimiete Daten weiter entpacken */
 		if( My_Connections[Idx].options & CONN_ZIP )
 		{
@@ -1235,7 +1235,7 @@ Handle_Buffer( CONN_ID Idx )
 				return FALSE;
 			}
 
-#ifdef USE_ZLIB
+#ifdef ZLIB
 			/* merken, ob Stream bereits komprimiert wird */
 			old_z = My_Connections[Idx].options & CONN_ZIP;
 #endif
@@ -1252,7 +1252,7 @@ Handle_Buffer( CONN_ID Idx )
 			My_Connections[Idx].rdatalen -= len;
 			memmove( My_Connections[Idx].rbuf, My_Connections[Idx].rbuf + len, My_Connections[Idx].rdatalen );
 
-#ifdef USE_ZLIB
+#ifdef ZLIB
 			if(( ! old_z ) && ( My_Connections[Idx].options & CONN_ZIP ) && ( My_Connections[Idx].rdatalen > 0 ))
 			{
 				/* Mit dem letzten Befehl wurde Socket-Kompression aktiviert.
@@ -1531,7 +1531,7 @@ Init_Conn_Struct( CONN_ID Idx )
 	My_Connections[Idx].flag = 0;
 	My_Connections[Idx].options = 0;
 
-#ifdef USE_ZLIB
+#ifdef ZLIB
 	My_Connections[Idx].zip.rbuf[0] = '\0';
 	My_Connections[Idx].zip.rdatalen = 0;
 	My_Connections[Idx].zip.wbuf[0] = '\0';

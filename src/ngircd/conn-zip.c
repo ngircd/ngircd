@@ -17,9 +17,9 @@
 #define CONN_MODULE
 
 
-#ifdef USE_ZLIB
+#ifdef ZLIB
 
-static char UNUSED id[] = "$Id: conn-zip.c,v 1.3 2003/04/21 10:52:26 alex Exp $";
+static char UNUSED id[] = "$Id: conn-zip.c,v 1.3.2.1 2003/12/26 16:16:48 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-mode.c,v 1.37 2005/03/02 16:35:11 alex Exp $";
+static char UNUSED id[] = "$Id: irc-mode.c,v 1.38 2005/03/05 11:44:01 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -91,6 +91,7 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 	CHAR the_modes[COMMAND_LEN], x[2], *mode_ptr;
 	BOOLEAN ok, set;
 	INT mode_arg;
+	size_t len;
 
 	/* Is the client allowed to request or change the modes? */
 	if( Client_Type( Client ) == CLIENT_USER )
@@ -134,10 +135,11 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 				if((( *mode_ptr == '+' ) && ( ! set )) || (( *mode_ptr == '-' ) && ( set )))
 				{
 					/* Action modifier ("+"/"-") must be changed ... */
-					if(( the_modes[strlen( the_modes ) - 1] == '+' ) || ( the_modes[strlen( the_modes ) - 1] == '-' ))
+					len = strlen( the_modes ) - 1;
+					if(( the_modes[len] == '+' ) || ( the_modes[len] == '-' ))
 					{
 						/* Adjust last action modifier in result */
-						the_modes[strlen( the_modes ) - 1] = *mode_ptr;
+						the_modes[len] = *mode_ptr;
 					}
 					else
 					{
@@ -212,7 +214,8 @@ client_exit:
 	if( the_modes[1] )
 	{
 		/* Remoce needless action modifier characters */
-		if(( the_modes[strlen( the_modes ) - 1] == '+' ) || ( the_modes[strlen( the_modes ) - 1] == '-' )) the_modes[strlen( the_modes ) - 1] = '\0';
+		len = strlen( the_modes ) - 1;
+		if(( the_modes[len] == '+' ) || ( the_modes[len] == '-' )) the_modes[len] = '\0';
 
 		if( Client_Type( Client ) == CLIENT_SERVER )
 		{
@@ -243,6 +246,7 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 	INT mode_arg, arg_arg;
 	CLIENT *client;
 	LONG l;
+	size_t len;
 
 	/* Mode request: let's answer it :-) */
 	if( Req->argc == 1 )
@@ -331,10 +335,11 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 				if((( *mode_ptr == '+' ) && ( ! set )) || (( *mode_ptr == '-' ) && ( set )))
 				{
 					/* Action modifier ("+"/"-") must be changed ... */
-					if(( the_modes[strlen( the_modes ) - 1] == '+' ) || ( the_modes[strlen( the_modes ) - 1] == '-' ))
+					len = strlen( the_modes ) - 1;
+					if(( the_modes[len] == '+' ) || ( the_modes[len] == '-' ))
 					{
 						/* Adjust last action modifier in result */
-						the_modes[strlen( the_modes ) - 1] = *mode_ptr;
+						the_modes[len] = *mode_ptr;
 					}
 					else
 					{
@@ -554,7 +559,8 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 		/* Are there additional arguments to add? */
 		if( argadd[0] )
 		{
-			if( the_args[strlen( the_args ) - 1] != ' ' ) strlcat( the_args, " ", sizeof( the_args ));
+			len = strlen( the_args ) - 1;
+			if( the_args[len] != ' ' ) strlcat( the_args, " ", sizeof( the_args ));
 			strlcat( the_args, argadd, sizeof( the_args ));
 		}
 	}
@@ -564,7 +570,8 @@ chan_exit:
 	if( the_modes[1] )
 	{
 		/* Clean up mode string */
-		if(( the_modes[strlen( the_modes ) - 1] == '+' ) || ( the_modes[strlen( the_modes ) - 1] == '-' )) the_modes[strlen( the_modes ) - 1] = '\0';
+		len = strlen( the_modes ) - 1;
+		if(( the_modes[len] == '+' ) || ( the_modes[len] == '-' )) the_modes[len] = '\0';
 
 		/* Clean up argument string if there are none */
 		if( ! the_args[1] ) the_args[0] = '\0';

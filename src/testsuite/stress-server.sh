@@ -9,7 +9,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: stress-server.sh,v 1.11 2004/09/04 15:45:27 alex Exp $
+# $Id: stress-server.sh,v 1.12 2004/09/04 16:14:47 alex Exp $
 #
 
 # detect source directory
@@ -47,12 +47,16 @@ while [ ${no} -lt $CLIENTS ]; do
   no=`expr ${no} + 1`
 done
 
+PS_FLAGS="-f"
+ps $PS_FLAGS >/dev/null 2>&1
+[ $? -ne 0 ] && PS_FLAGS="a"
+
 no=0
 while [ ${no} -lt $CLIENTS ]; do
   expect tests/${no}.e > logs/stress-${no}.log 2> /dev/null &
   no=`expr ${no} + 1`
 
-  count=`ps | grep "expect " | wc -l`
+  count=`ps $PS_FLAGS | grep "expect " | wc -l`
   count=`expr $count - 1`
   echo "      started client $no/$CLIENTS ($count test scripts running)."
 

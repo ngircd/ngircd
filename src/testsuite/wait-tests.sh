@@ -9,14 +9,18 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: wait-tests.sh,v 1.1 2004/09/04 15:44:45 alex Exp $
+# $Id: wait-tests.sh,v 1.2 2004/09/04 16:14:47 alex Exp $
 #
 
 [ "$1" -gt 0 ] 2> /dev/null && MAX="$1" || MAX=5
 
+PS_FLAGS="-f"
+ps $PS_FLAGS >/dev/null 2>&1
+[ $? -ne 0 ] && PS_FLAGS="a"
+
 msg=0
 while true; do
-  count=`ps | grep "expect " | wc -l`
+  count=`ps $PS_FLAGS | grep "expect " | wc -l`
   count=`expr $count - 1`
 
   [ $count -le $MAX ] && break

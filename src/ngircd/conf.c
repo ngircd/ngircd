@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.61 2003/11/05 21:41:02 alex Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.62 2003/12/19 14:32:59 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -854,7 +854,7 @@ Validate_Config( BOOLEAN Configtest )
 	if( ! Conf_ServerName[0] )
 	{
 		/* No server name configured! */
-		Config_Error( LOG_ALERT, "No server name configured in \"%s\" ('ServerName')!", NGIRCd_ConfFile );
+		Config_Error( LOG_ALERT, "No server name configured in \"%s\" (section 'Global': 'Name')!", NGIRCd_ConfFile );
 		if( ! Configtest )
 		{
 			Config_Error( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE_NAME );
@@ -862,10 +862,10 @@ Validate_Config( BOOLEAN Configtest )
 		}
 	}
 	
-	if( ! strchr( Conf_ServerName, '.' ))
+	if( Conf_ServerName[0] && ! strchr( Conf_ServerName, '.' ))
 	{
 		/* No dot in server name! */
-		Config_Error( LOG_ALERT, "Invalid server name configured in \"%s\" ('ServerName'): Dot missing!", NGIRCd_ConfFile );
+		Config_Error( LOG_ALERT, "Invalid server name configured in \"%s\" (section 'Global': 'Name'): Dot missing!", NGIRCd_ConfFile );
 		if( ! Configtest )
 		{
 			Config_Error( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE_NAME );

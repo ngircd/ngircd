@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: parse.c,v 1.24 2002/02/23 21:39:48 alex Exp $
+ * $Id: parse.c,v 1.25 2002/02/26 20:52:15 alex Exp $
  *
  * parse.c: Parsen der Client-Anfragen
  *
  * $Log: parse.c,v $
+ * Revision 1.25  2002/02/26 20:52:15  alex
+ * - Fehler bei Fehlermeldung wg. unbekanntem Prefix behoben.
+ *
  * Revision 1.24  2002/02/23 21:39:48  alex
  * - IRC-Befehl KILL sowie Kills bei Nick Collsisions implementiert.
  *
@@ -314,7 +317,7 @@ LOCAL BOOLEAN Handle_Request( CONN_ID Idx, REQUEST *Req )
 		else target = NULL;
 		if( ! target )
 		{
-			if( target ) Log( LOG_WARNING, "Unknown target for status code: \"%s\"", Req->argv[0] );
+			if( Req->argc > 0 ) Log( LOG_WARNING, "Unknown target for status code: \"%s\"", Req->argv[0] );
 			else Log( LOG_WARNING, "Unknown target for status code!" );
 			return TRUE;
 		}

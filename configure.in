@@ -8,7 +8,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: configure.in,v 1.83 2003/03/15 11:00:31 alex Exp $
+# $Id: configure.in,v 1.84 2003/03/19 17:27:05 alex Exp $
 #
 
 # -- Initialisierung --
@@ -176,7 +176,7 @@ AC_ARG_WITH(tcp-wrappers,
 	[  --with-tcp-wrappers     enable TCP wrappers support],
 	[	if test "$withval" = "yes"; then
 			AC_CHECK_LIB(wrap, tcpd_warn)
-			AC_MSG_CHECKING(checking for hosts_access)
+			AC_MSG_CHECKING(for hosts_access)
 			AC_TRY_LINK([
 				#include <tcpd.h>
 				],[

@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conf.h,v 1.31 2005/03/02 16:07:31 alex Exp $
+ * $Id: conf.h,v 1.32 2005/03/15 16:56:18 alex Exp $
  *
  * Configuration management (header)
  */
@@ -113,6 +113,11 @@ GLOBAL INT Conf_Channel_Count;
 
 /* Are IRC operators allowed to always use MODE? */
 GLOBAL BOOLEAN Conf_OperCanMode;
+
+/* If an IRC op gives chanop privileges without being a chanop,
+ * ircd2 will ignore the command. This enables a workaround:
+ * It masks the command as coming from the server */
+GLOBAL BOOLEAN Conf_OperServerMode;
 
 /* Maximum number of connections to this server */
 GLOBAL LONG Conf_MaxConnections;

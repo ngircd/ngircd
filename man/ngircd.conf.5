@@ -1,5 +1,5 @@
 .\"
-.\" $Id: ngircd.conf.5,v 1.15 2005/03/02 16:07:31 alex Exp $
+.\" $Id: ngircd.conf.5,v 1.16 2005/03/15 16:56:17 alex Exp $
 .\"
 .TH ngircd.conf 5 "February 2005" ngircd "ngIRCd Manual"
 .SH NAME
@@ -136,6 +136,11 @@ The server tries every <ConnectRetry> seconds to establish a link to not yet
 \fBOperCanUseMode\fR
 Should IRC Operators be allowed to use the MODE command even if they are
 not(!) channel-operators? Default: no.
+.TP
+\fBOperServerMode\fR
+If OperCanUseMode is enabled, this may lead the compatibility problems with
+Servers that run the ircd-irc2 Software. This Option "masks" mode requests
+by non-chanops as if they were coming from the server. Default: no.
 .TP
 \fBMaxConnections\fR
 Maximum number of simultaneous connection the server is allowed to accept

@@ -12,6 +12,10 @@
 
 ngIRCd CVSHEAD
 
+  - New configuration option "OperServerMode" to enable a workaround needed
+    when running an network with ircd2 servers and "OperCanUseMode" enabled
+    to prevent the ircd2 daemon to drop mode changes of IRC operators.
+    Patch by Florian Westphal, <westphal@foo.fh-furtwangen.de>.
   - Implemented support for "secret channels" (channel mode "s").
   - New configuration option "Mask" for [Operator] sections to limit OPER
     commands to ussers with a specific IRC mask. Patch from Florian Westphal.
@@ -201,4 +205,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.70 2005/03/02 16:35:10 alex Exp $
+$Id: NEWS,v 1.71 2005/03/15 16:56:16 alex Exp $

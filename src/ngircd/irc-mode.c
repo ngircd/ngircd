@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-mode.c,v 1.38 2005/03/05 11:44:01 alex Exp $";
+static char UNUSED id[] = "$Id: irc-mode.c,v 1.39 2005/03/15 16:56:18 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -242,7 +242,7 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 	/* Handle channel and channel-user modes */
 
 	CHAR the_modes[COMMAND_LEN], the_args[COMMAND_LEN], x[2], argadd[CLIENT_PASS_LEN], *mode_ptr;
-	BOOLEAN ok, set, modeok, skiponce;
+	BOOLEAN ok, set, modeok = FALSE, skiponce, use_servermode = FALSE;
 	INT mode_arg, arg_arg;
 	CLIENT *client;
 	LONG l;
@@ -286,11 +286,13 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 
 		/* Is he channel operator? */
 		if( strchr( Channel_UserModes( Channel, Origin ), 'o' )) modeok = TRUE;
-		else modeok = FALSE;
-		if( Conf_OperCanMode )
+		else if( Conf_OperCanMode )
 		{
-			/* auch IRC-Operatoren duerfen MODE verwenden */
-			if( Client_OperByMe( Origin )) modeok = TRUE;
+			/* IRC-Operators can use MODE as well */
+			if( Client_OperByMe( Origin )) {
+				modeok = TRUE;
+				if ( Conf_OperServerMode ) use_servermode = TRUE; /* Change Origin to Server */
+			}
 		}
 	}
 	else modeok = TRUE;
@@ -584,6 +586,8 @@ chan_exit:
 		}
 		else
 		{
+			if ( use_servermode ) Origin = Client_ThisServer();
+
 			/* Send reply to client and inform other servers and channel users */
 			ok = IRC_WriteStrClientPrefix( Client, Origin, "MODE %s %s%s", Channel_Name( Channel ), the_modes, the_args );
 			IRC_WriteStrServersPrefix( Client, Origin, "MODE %s %s%s", Channel_Name( Channel ), the_modes, the_args );

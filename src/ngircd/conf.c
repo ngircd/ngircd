@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.69 2005/03/02 16:07:31 alex Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.70 2005/03/15 16:56:18 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -142,6 +142,7 @@ Conf_Test( VOID )
 	printf( "  PongTimeout = %d\n", Conf_PongTimeout );
 	printf( "  ConnectRetry = %d\n", Conf_ConnectRetry );
 	printf( "  OperCanUseMode = %s\n", Conf_OperCanMode == TRUE ? "yes" : "no" );
+	printf( "  OperServerMode = %s\n", Conf_OperServerMode == TRUE ? "yes" : "no" );
 	if( Conf_MaxConnections > 0 ) printf( "  MaxConnections = %ld\n", Conf_MaxConnections );
 	else printf( "  MaxConnections = -1\n" );
 	if( Conf_MaxConnectionsIP > 0 ) printf( "  MaxConnectionsIP = %d\n", Conf_MaxConnectionsIP );
@@ -374,6 +375,7 @@ Set_Defaults( BOOLEAN InitServers )
 	Conf_Channel_Count = 0;
 
 	Conf_OperCanMode = FALSE;
+	Conf_OperServerMode = FALSE;
 	
 	Conf_MaxConnections = -1;
 	Conf_MaxConnectionsIP = 5;
@@ -561,6 +563,17 @@ Read_Config( VOID )
 } /* Read_Config */
 
 
+LOCAL BOOLEAN
+Check_ArgIsTrue( const char *Arg )
+{
+	if( strcasecmp( Arg, "yes" ) == 0 ) return TRUE;
+	if( strcasecmp( Arg, "true" ) == 0 ) return TRUE;
+	if( atoi( Arg ) != 0 ) return TRUE;
+
+	return FALSE;
+} /* Check_ArgIsTrue */
+
+
 LOCAL VOID
 Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 {
@@ -734,10 +747,13 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 	if( strcasecmp( Var, "OperCanUseMode" ) == 0 )
 	{
 		/* Are IRC operators allowed to use MODE in channels they aren't Op in? */
-		if( strcasecmp( Arg, "yes" ) == 0 ) Conf_OperCanMode = TRUE;
-		else if( strcasecmp( Arg, "true" ) == 0 ) Conf_OperCanMode = TRUE;
-		else if( atoi( Arg ) != 0 ) Conf_OperCanMode = TRUE;
-		else Conf_OperCanMode = FALSE;
+		Conf_OperCanMode = Check_ArgIsTrue( Arg );
+		return;
+	}
+	if( strcasecmp( Var, "OperServerMode" ) == 0 )
+	{
+		/* Mask IRC operator as if coming from the server? (ircd-irc2 compat hack) */
+		Conf_OperServerMode = Check_ArgIsTrue( Arg );
 		return;
 	}
 	if( strcasecmp( Var, "MaxConnections" ) == 0 )

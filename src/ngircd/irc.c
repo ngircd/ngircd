@@ -9,11 +9,16 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.40 2002/01/26 18:43:11 alex Exp $
+ * $Id: irc.c,v 1.41 2002/01/27 17:15:49 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.41  2002/01/27 17:15:49  alex
+ * - anderungen an den Funktions-Prototypen von IRC_WriteStrChannel() und
+ *   IRC_WriteStrChannelPrefix(),
+ * - neue: IRC_WriteStrClientPrefixID() und IRC_WriteStrServersPrefixID().
+ *
  * Revision 1.40  2002/01/26 18:43:11  alex
  * - neue Funktionen IRC_WriteStrChannelPrefix() und IRC_WriteStrChannel(),
  *   die IRC_Write_xxx_Related() sind dafuer entfallen.
@@ -242,7 +247,26 @@ GLOBAL BOOLEAN IRC_WriteStrClientPrefix( CLIENT *Client, CLIENT *Prefix, CHAR *F
 } /* IRC_WriteStrClientPrefix */
 
 
-GLOBAL BOOLEAN IRC_WriteStrChannel( CLIENT *Client, CHANNEL *Chan, CHAR *Format, ... )
+GLOBAL BOOLEAN IRC_WriteStrClientPrefixID( CLIENT *Client, CLIENT *Prefix, CHAR *Format, ... )
+{
+	/* Text an Clients, lokal bzw. remote, senden. */
+
+	CHAR buffer[1000];
+	va_list ap;
+
+	assert( Client != NULL );
+	assert( Format != NULL );
+	assert( Prefix != NULL );
+
+	va_start( ap, Format );
+	vsnprintf( buffer, 1000, Format, ap );
+	va_end( ap );
+
+	return Conn_WriteStr( Client_Conn( Client_NextHop( Client )), ":%s %s", Client_ID( Prefix ), buffer );
+} /* IRC_WriteStrClientPrefixID */
+
+
+GLOBAL BOOLEAN IRC_WriteStrChannel( CLIENT *Client, CHANNEL *Chan, BOOLEAN Remote, CHAR *Format, ... )
 {
 	CHAR buffer[1000];
 	va_list ap;
@@ -254,16 +278,17 @@ GLOBAL BOOLEAN IRC_WriteStrChannel( CLIENT *Client, CHANNEL *Chan, CHAR *Format,
 	vsnprintf( buffer, 1000, Format, ap );
 	va_end( ap );
 
-	return IRC_WriteStrChannelPrefix( Client, Chan, Client_ThisServer( ), buffer );
+	return IRC_WriteStrChannelPrefix( Client, Chan, Client_ThisServer( ), Remote, buffer );
 } /* IRC_WriteStrChannel */
 
 
-GLOBAL BOOLEAN IRC_WriteStrChannelPrefix( CLIENT *Client, CHANNEL *Chan, CLIENT *Prefix, CHAR *Format, ... )
+GLOBAL BOOLEAN IRC_WriteStrChannelPrefix( CLIENT *Client, CHANNEL *Chan, CLIENT *Prefix, BOOLEAN Remote, CHAR *Format, ... )
 {
 	CHAR buffer[1000];
 	BOOLEAN sock[MAX_CONNECTIONS], ok = CONNECTED, i;
 	CL2CHAN *cl2chan;
 	CLIENT *c;
+	INT s;
 	va_list ap;
 
 	assert( Client != NULL );
@@ -282,11 +307,20 @@ GLOBAL BOOLEAN IRC_WriteStrChannelPrefix( CLIENT *Client, CHANNEL *Chan, CLIENT 
 	cl2chan = Channel_FirstMember( Chan );
 	while( cl2chan )
 	{
-		c = Channel_GetClient( cl2chan );
-		if( c != Client )
+		if( Remote ) c = Client_NextHop( Channel_GetClient( cl2chan ));
+		else
+		{
+			c = Channel_GetClient( cl2chan );
+			if( Client_Conn( c ) <= NONE ) c = NULL;
+		}
+			
+		if( c && ( c != Client ))
 		{
 			/* Ok, anderer Client */
-			if( Client_Conn( c ) > NONE ) sock[Client_Conn( c )] = TRUE;
+			s = Client_Conn( c );
+			assert( s >= 0 );
+			assert( s < MAX_CONNECTIONS );
+			sock[s] = TRUE;
 		}
 		cl2chan = Channel_NextMember( Chan, cl2chan );
 	}
@@ -296,7 +330,7 @@ GLOBAL BOOLEAN IRC_WriteStrChannelPrefix( CLIENT *Client, CHANNEL *Chan, CLIENT 
 	{
 		if( sock[i] )
 		{
-			ok = Conn_WriteStr( i, ":%s %s", Client_Mask( Prefix ), buffer );
+			ok = Conn_WriteStr( i, ":%s %s", Client_ID( Prefix ), buffer );
 			if( ! ok ) break;
 		}
 	}
@@ -344,6 +378,32 @@ GLOBAL VOID IRC_WriteStrServersPrefix( CLIENT *ExceptOf, CLIENT *Prefix, CHAR *F
 		c = Client_Next( c );
 	}
 } /* IRC_WriteStrServersPrefix */
+
+
+GLOBAL VOID IRC_WriteStrServersPrefixID( CLIENT *ExceptOf, CLIENT *Prefix, CHAR *Format, ... )
+{
+	CHAR buffer[1000];
+	CLIENT *c;
+	va_list ap;
+
+	assert( Format != NULL );
+	assert( Prefix != NULL );
+
+	va_start( ap, Format );
+	vsnprintf( buffer, 1000, Format, ap );
+	va_end( ap );
+
+	c = Client_First( );
+	while( c )
+	{
+		if(( Client_Type( c ) == CLIENT_SERVER ) && ( Client_Conn( c ) > NONE ) && ( c != Client_ThisServer( )) && ( c != ExceptOf ))
+		{
+			/* Ziel-Server gefunden */
+			IRC_WriteStrClientPrefixID( c, Prefix, buffer );
+		}
+		c = Client_Next( c );
+	}
+} /* IRC_WriteStrServersPrefixID */
 
 
 GLOBAL BOOLEAN IRC_PASS( CLIENT *Client, REQUEST *Req )
@@ -523,11 +583,32 @@ GLOBAL BOOLEAN IRC_SERVER( CLIENT *Client, REQUEST *Req )
 
 GLOBAL BOOLEAN IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 {
+	CHAR *chan, *ptr;
+	CLIENT *c;
+	
 	assert( Client != NULL );
 	assert( Req != NULL );
 
 	if( Client_Type( Client ) != CLIENT_SERVER ) return IRC_WriteStrClient( Client, ERR_NOTREGISTEREDSERVER_MSG, Client_ID( Client ));
 
+	/* Falsche Anzahl Parameter? */
+	if( Req->argc != 2 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+
+	chan = Req->argv[0];
+	ptr = strtok( Req->argv[1], "," );
+	while( ptr )
+	{
+		/* Prefixe abschneiden */
+		while(( *ptr == '@' ) || ( *ptr == '+' )) ptr++;
+
+		c = Client_GetFromID( ptr );
+		if( c ) Channel_Join( c, chan );
+		else Log( LOG_ERR, "Got NJOIN for unknown nick \"%s\" for channel \"%s\"!", ptr, chan );
+		
+		/* naechsten Nick suchen */
+		ptr = strtok( NULL, "," );
+	}
+	
 	return CONNECTED;
 } /* IRC_NJOIN */
 
@@ -852,7 +933,7 @@ GLOBAL BOOLEAN IRC_PRIVMSG( CLIENT *Client, REQUEST *Req )
 	{
 		/* Okay, Ziel ist ein Channel */
 		if( Client_Conn( from ) > NONE ) Conn_UpdateIdle( Client_Conn( from ));
-		return IRC_WriteStrChannelPrefix( Client, chan, from, "PRIVMSG %s :%s", Req->argv[0], Req->argv[1] );
+		return IRC_WriteStrChannelPrefix( Client, chan, from, TRUE, "PRIVMSG %s :%s", Req->argv[0], Req->argv[1] );
 	}
 
 	return IRC_WriteStrClient( from, ERR_NOSUCHNICK_MSG, Client_ID( from ), Req->argv[0] );
@@ -1396,7 +1477,7 @@ GLOBAL BOOLEAN IRC_LINKS( CLIENT *Client, REQUEST *Req )
 GLOBAL BOOLEAN IRC_JOIN( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *target;
-	CHAR *chan;
+	CHAR *chan, *flags;
 	
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -1415,6 +1496,14 @@ GLOBAL BOOLEAN IRC_JOIN( CLIENT *Client, REQUEST *Req )
 	chan = strtok( Req->argv[0], "," );
 	while( chan )
 	{
+		if( Client_Type( Client ) == CLIENT_SERVER )
+		{
+			/* Channel-Flags extrahieren */
+			flags = strchr( chan, 0x7 );
+			if( flags ) *flags++ = '\0';
+		}
+		else flags = NULL;
+		
 		if( ! Channel_Join( target, chan ))
 		{
 			/* naechsten Namen ermitteln */
@@ -1423,11 +1512,15 @@ GLOBAL BOOLEAN IRC_JOIN( CLIENT *Client, REQUEST *Req )
 		}
 
 		/* An andere Server weiterleiten, an Client bestaetigen */
-		IRC_WriteStrServersPrefix( Client, target, "JOIN :%s", chan );
+		IRC_WriteStrServersPrefixID( Client, target, "JOIN :%s", chan );
 		IRC_WriteStrClientPrefix( Client, target, "JOIN :%s", chan );
-		IRC_WriteStrChannelPrefix( Client, Channel_Search( chan ), target, "JOIN :%s", chan );
+		IRC_WriteStrChannelPrefix( Client, Channel_Search( chan ), target, FALSE, "JOIN :%s", chan );
 
-		Log( LOG_DEBUG, "User \"%s\" joined channel \"%s\".", Client_Mask( target ), Req->argv[0] );
+		if( Client_Type( Client ) == CLIENT_USER )
+		{
+			/* Topic an Client schicken */
+			IRC_WriteStrClient( Client, RPL_TOPIC_MSG, Client_ID( Client ), chan, "What a wonderful channel!" );
+		}
 		
 		/* naechsten Namen ermitteln */
 		chan = strtok( NULL, "," );

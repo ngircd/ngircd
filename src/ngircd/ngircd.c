@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.91 2005/02/10 12:49:04 alex Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.92 2005/02/10 13:09:11 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -61,7 +61,7 @@ LOCAL VOID Show_Help PARAMS(( VOID ));
 LOCAL VOID Pidfile_Create PARAMS(( LONG ));
 LOCAL VOID Pidfile_Delete PARAMS(( VOID ));
 
-LOCAL VOID NGIRCd_FillVersion PARAMS(( VOID ));
+LOCAL VOID Fill_Version PARAMS(( VOID ));
 
 LOCAL VOID Setup_FDStreams PARAMS(( VOID ));
 
@@ -88,7 +88,7 @@ main( int argc, const char *argv[] )
 	strlcpy( NGIRCd_ConfFile, SYSCONFDIR, sizeof( NGIRCd_ConfFile ));
 	strlcat( NGIRCd_ConfFile, CONFIG_FILE, sizeof( NGIRCd_ConfFile ));
 
-	NGIRCd_FillVersion( );
+	Fill_Version( );
 
 	/* Kommandozeile parsen */
 	for( i = 1; i < argc; i++ )
@@ -391,7 +391,7 @@ main( int argc, const char *argv[] )
 
 
 LOCAL VOID
-NGIRCd_FillVersion( VOID )
+Fill_Version( VOID )
 {
 	NGIRCd_VersionAddition[0] = '\0';
 
@@ -443,7 +443,7 @@ NGIRCd_FillVersion( VOID )
 #else
 	snprintf( NGIRCd_Version, sizeof NGIRCd_Version, "%s %s-%s", PACKAGE_NAME, PACKAGE_VERSION, NGIRCd_VersionAddition);
 #endif
-} /* NGIRCd_FillVersion */
+} /* Fill_Version */
 
 
 GLOBAL VOID
@@ -637,7 +637,7 @@ Pidfile_Create( LONG pid )
 LOCAL VOID
 Setup_FDStreams( VOID )
 {
-	int fd;
+	INT fd;
 
 	/* Test if we can open /dev/null for reading and writing. If not
 	 * we are most probably chrooted already and the server has been

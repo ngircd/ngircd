@@ -17,6 +17,8 @@ ngIRCd CVS-HEAD
     configured server and "CONNECT <name> <port> <host> <mypwd> <peerpwd>"
     to add a new server (ngIRCd tries to connect new servers only once!).
   - Added DISCONNECT command ("DISCONNECT <name>") to disable servers.
+  - ngIRCd can register itself with Rendezvous: to enable support pass the
+    new switch "--enable-rendezvous" to configure.
 
 
 Older news (sorry, only available in german language):
@@ -150,4 +152,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.49 2002/12/31 16:18:07 alex Exp $
+$Id: NEWS,v 1.50 2003/02/23 12:02:39 alex Exp $

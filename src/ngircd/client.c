@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.26 2002/01/07 23:42:12 alex Exp $
+ * $Id: client.c,v 1.27 2002/01/09 01:08:08 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,9 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.27  2002/01/09 01:08:08  alex
+ * - wird ein Server abgemeldet, so wird anderen Server ein SQUIT geschickt.
+ *
  * Revision 1.26  2002/01/07 23:42:12  alex
  * - Es werden fuer alle Server eigene Token generiert,
  * - QUIT von einem Server fuer einen User wird an andere Server geforwarded,
@@ -162,6 +165,7 @@ GLOBAL VOID Client_Init( VOID )
 	This_Server->type = CLIENT_SERVER;
 	This_Server->conn_id = NONE;
 	This_Server->introducer = This_Server;
+	This_Server->mytoken = 1;
 
 	gethostname( This_Server->host, CLIENT_HOST_LEN );
 	h = gethostbyname( This_Server->host );
@@ -306,6 +310,13 @@ GLOBAL VOID Client_Destroy( CLIENT *Client, CHAR *LogMsg, CHAR *FwdMsg )
 			else if( c->type == CLIENT_SERVER )
 			{
 				if( c != This_Server ) Log( LOG_NOTICE, "Server \"%s\" unregistered: %s", c->id, txt );
+
+				/* andere Server informieren */
+				if( ! NGIRCd_Quit )
+				{
+					if( FwdMsg ) IRC_WriteStrServersPrefix( Client_NextHop( c ), c, "SQUIT %s :%s", c->id, FwdMsg );
+					else IRC_WriteStrServersPrefix( Client_NextHop( c ), c, "SQUIT %s :", c->id );
+				}
 			}
 			else Log( LOG_NOTICE, "Unknown client \"%s\" unregistered: %s", c->id, txt );
 

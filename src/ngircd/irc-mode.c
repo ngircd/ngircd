@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-mode.c,v 1.21 2002/12/15 16:29:18 alex Exp $";
+static char UNUSED id[] = "$Id: irc-mode.c,v 1.22 2002/12/16 10:52:53 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -148,45 +148,36 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 				continue;
 		}
 		
+		/* Validate modes */
 		x[0] = '\0';
-		if( Client_Type( Client ) == CLIENT_SERVER )
+		switch( *mode_ptr )
 		{
-			/* MODE request was received from a server:
-			 * therefore don't validate but trust it! */
-			x[0] = *mode_ptr;
-		}
-		else
-		{
-			/* Validate modes */
-			switch( *mode_ptr )
-			{
-				case 'i':
-					/* Invisible */
-					x[0] = 'i';
-					break;
-				case 'o':
-					/* IRC operator (only unsetable!) */
-					if( ! set )
-					{
-						Client_SetOperByMe( Target, FALSE );
-						x[0] = 'o';
-					}
-					else ok = IRC_WriteStrClient( Origin, ERR_NOPRIVILEGES_MSG, Client_ID( Origin ));
-					break;
-				case 'r':
-					/* Restricted (only setable) */
-					if( set ) x[0] = 'r';
-					else ok = IRC_WriteStrClient( Origin, ERR_RESTRICTED_MSG, Client_ID( Origin ));
-					break;
-				case 's':
-					/* Server messages */
-					x[0] = 's';
-					break;
-				default:
-					Log( LOG_DEBUG, "Unknown mode \"%c%c\" from \"%s\"!?", set ? '+' : '-', *mode_ptr, Client_ID( Origin ));
-					ok = IRC_WriteStrClient( Origin, ERR_UMODEUNKNOWNFLAG2_MSG, Client_ID( Origin ), set ? '+' : '-', *mode_ptr );
-					x[0] = '\0';
-			}
+			case 'i':
+				/* Invisible */
+				x[0] = 'i';
+				break;
+			case 'o':
+				/* IRC operator (only unsetable!) */
+				if( ! set )
+				{
+					Client_SetOperByMe( Target, FALSE );
+					x[0] = 'o';
+				}
+				else ok = IRC_WriteStrClient( Origin, ERR_NOPRIVILEGES_MSG, Client_ID( Origin ));
+				break;
+			case 'r':
+				/* Restricted (only setable) */
+				if( set ) x[0] = 'r';
+				else ok = IRC_WriteStrClient( Origin, ERR_RESTRICTED_MSG, Client_ID( Origin ));
+				break;
+			case 's':
+				/* Server messages */
+				x[0] = 's';
+				break;
+			default:
+				Log( LOG_DEBUG, "Unknown mode \"%c%c\" from \"%s\"!?", set ? '+' : '-', *mode_ptr, Client_ID( Origin ));
+				if( Client_Type( Client ) != CLIENT_SERVER ) ok = IRC_WriteStrClient( Origin, ERR_UMODEUNKNOWNFLAG2_MSG, Client_ID( Origin ), set ? '+' : '-', *mode_ptr );
+				x[0] = '\0';
 		}
 		if( ! ok ) break;
 
@@ -315,113 +306,104 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 		/* Are there arguments left? */
 		if( arg_arg >= Req->argc ) arg_arg = -1;
 
+		/* Validate modes */
 		x[0] = '\0';
 		client = NULL;
-		if( Client_Type( Client ) == CLIENT_SERVER )
+		switch( *mode_ptr )
 		{
-			/* MODE request was received from a server:
-			 * therefore don't validate but trust it! */
-			x[0] = *mode_ptr;
-		}
-		else
-		{
-			/* Validate modes */
-			switch( *mode_ptr )
-			{
-				/* Channel modes */
-				case 'i':
-					/* Invite-Only */
-					if( modeok ) x[0] = 'i';
-					else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
-					break;
-				case 'm':
-					/* Moderated */
-					if( modeok ) x[0] = 'm';
-					else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
-					break;
-				case 'n':
-					/* kein Schreiben in den Channel von aussen */
-					if( modeok ) x[0] = 'n';
-					else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
-					break;
-				case 't':
-					/* Topic Lock */
-					if( modeok ) x[0] = 't';
-					else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
-					break;
-				case 'P':
-					/* Persistent channel */
+			/* Channel modes */
+			case 'i':
+				/* Invite-Only */
+				if( modeok ) x[0] = 'i';
+				else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
+				break;
+			case 'm':
+				/* Moderated */
+				if( modeok ) x[0] = 'm';
+				else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
+				break;
+			case 'n':
+				/* kein Schreiben in den Channel von aussen */
+				if( modeok ) x[0] = 'n';
+				else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
+				break;
+			case 't':
+				/* Topic Lock */
+				if( modeok ) x[0] = 't';
+				else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
+				break;
+			case 'P':
+				/* Persistent channel */
+				if( modeok )
+				{
+					if( set && ( ! Client_OperByMe( Client )))
+					{
+						/* Only IRC operators are allowed to set P mode */
+						ok = IRC_WriteStrClient( Origin, ERR_NOPRIVILEGES_MSG, Client_ID( Origin ));
+					}
+					else x[0] = 'P';
+				}
+				else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
+				break;
+
+			/* Channel user modes */
+			case 'o':
+				/* Channel operator */
+			case 'v':
+				/* Voice */
+				if( arg_arg > mode_arg )
+				{
 					if( modeok )
 					{
-						if( set && ( ! Client_OperByMe( Client )))
-						{
-							/* Only IRC operators are allowed to set P mode */
-							ok = IRC_WriteStrClient( Origin, ERR_NOPRIVILEGES_MSG, Client_ID( Origin ));
-						}
-						else x[0] = 'P';
+						client = Client_Search( Req->argv[arg_arg] );
+						if( client ) x[0] = *mode_ptr;
+						else ok = IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->argv[arg_arg] );
 					}
 					else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
-					break;
+					Req->argv[arg_arg][0] = '\0';
+					arg_arg++;
+				}
+				else ok = IRC_WriteStrClient( Origin, ERR_NEEDMOREPARAMS_MSG, Client_ID( Origin ), Req->command );
+				break;
 
-				/* Channel user modes */
-				case 'o':
-					/* Channel operator */
-				case 'v':
-					/* Voice */
-					if( arg_arg > mode_arg )
+			/* Channel lists */
+			case 'I':
+				/* Invite lists */
+				if( arg_arg > mode_arg )
+				{
+					/* modify list */
+					if( modeok )
 					{
-						if( modeok )
-						{
-							client = Client_Search( Req->argv[arg_arg] );
-							if( client ) x[0] = *mode_ptr;
-							else ok = IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->argv[arg_arg] );
-						}
-						else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
-						Req->argv[arg_arg][0] = '\0';
-						arg_arg++;
+						if( set ) Add_Invite( Origin, Client, Channel, Req->argv[arg_arg] );
+						else Del_Invite( Origin, Client, Channel, Req->argv[arg_arg] );
 					}
-					else ok = IRC_WriteStrClient( Origin, ERR_NEEDMOREPARAMS_MSG, Client_ID( Origin ), Req->command );
-					break;
+					else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
+					Req->argv[arg_arg][0] = '\0';
+					arg_arg++;
+				}
+				else Lists_ShowInvites( Origin, Channel );
+				break;
+			case 'b':
+				/* Ban lists */
+				if( arg_arg > mode_arg )
+				{
+					/* modify list */
+					if( modeok )
+					{
+						if( set ) Add_Ban( Origin, Client, Channel, Req->argv[arg_arg] );
+						else Del_Ban( Origin, Client, Channel, Req->argv[arg_arg] );
+					}
+					else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
+					Req->argv[arg_arg][0] = '\0';
+					arg_arg++;
+				}
+				else Lists_ShowBans( Origin, Channel );
+				break;
 
-				/* Channel lists */
-				case 'I':
-					/* Invite lists */
-					if( arg_arg > mode_arg )
-					{
-						/* modify list */
-						if( modeok )
-						{
-							if( set ) Add_Invite( Origin, Client, Channel, Req->argv[arg_arg] );
-							else Del_Invite( Origin, Client, Channel, Req->argv[arg_arg] );
-						}
-						else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
-						Req->argv[arg_arg][0] = '\0';
-						arg_arg++;
-					}
-					else Lists_ShowInvites( Origin, Channel );
-					break;
-				case 'b':
-					/* Ban lists */
-					if( arg_arg > mode_arg )
-					{
-						/* modify list */
-						if( modeok )
-						{
-							if( set ) Add_Ban( Origin, Client, Channel, Req->argv[arg_arg] );
-							else Del_Ban( Origin, Client, Channel, Req->argv[arg_arg] );
-						}
-						else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
-						Req->argv[arg_arg][0] = '\0';
-						arg_arg++;
-					}
-					else Lists_ShowBans( Origin, Channel );
-					break;
-
-				default:
-					Log( LOG_DEBUG, "Unknown mode \"%c%c\" from \"%s\" on %s!?", set ? '+' : '-', *mode_ptr, Client_ID( Origin ), Channel_Name( Channel ));
-					ok = IRC_WriteStrClient( Origin, ERR_UMODEUNKNOWNFLAG2_MSG, Client_ID( Origin ), set ? '+' : '-', *mode_ptr );
-					x[0] = '\0';
-			}
+			default:
+				Log( LOG_DEBUG, "Unknown mode \"%c%c\" from \"%s\" on %s!?", set ? '+' : '-', *mode_ptr, Client_ID( Origin ), Channel_Name( Channel ));
+				if( Client_Type( Client ) != CLIENT_SERVER ) ok = IRC_WriteStrClient( Origin, ERR_UMODEUNKNOWNFLAG2_MSG, Client_ID( Origin ), set ? '+' : '-', *mode_ptr );
+				x[0] = '\0';
 		}
 		if( ! ok ) break;
 

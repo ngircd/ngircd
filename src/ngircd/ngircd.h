@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.h,v 1.4 2001/12/31 02:18:51 alex Exp $
+ * $Id: ngircd.h,v 1.5 2001/12/31 03:06:03 alex Exp $
  *
  * ngircd.h: Prototypen aus dem "Haupt-Modul"
  *
  * $Log: ngircd.h,v $
+ * Revision 1.5  2001/12/31 03:06:03  alex
+ * - das #include fuer time.h hat noch gefehlt.
+ *
  * Revision 1.4  2001/12/31 02:18:51  alex
  * - viele neue Befehle (WHOIS, ISON, OPER, DIE, RESTART),
  * - neuen Header "defines.h" mit (fast) allen Konstanten.
@@ -32,6 +35,8 @@
 
 #ifndef __ngircd_h__
 #define __ngircd_h__
+
+#include <time.h>
 
 
 GLOBAL time_t NGIRCd_Start;		/* Startzeitpunkt des Daemon */

@@ -1,5 +1,5 @@
 %define name    ngircd
-%define version 0.6.x-CVS
+%define version 0.6.1
 %define release 1
 %define prefix  %{_prefix}
 

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.h,v 1.2 2001/12/23 22:03:47 alex Exp $
+ * $Id: client.h,v 1.3 2001/12/25 19:21:26 alex Exp $
  *
  * client.h: Konfiguration des ngircd (Header)
  *
  * $Log: client.h,v $
+ * Revision 1.3  2001/12/25 19:21:26  alex
+ * - Client-Typ ("Status") besser unterteilt, My_Clients ist zudem nun global.
+ *
  * Revision 1.2  2001/12/23 22:03:47  alex
  * - einige neue Funktionen,
  * - Konstanten um "CLIENT_"-Prefix erweitert.
@@ -43,8 +46,9 @@
 typedef enum
 {
 	CLIENT_UNKNOWN,			/* Verbindung mit (noch) unbekanntem Typ */
-	CLIENT_PASS,			/* Client hat PASS gesendet */
-	CLIENT_NICK,			/* NICK wurde gesendet */
+	CLIENT_GOTPASS,			/* Client hat PASS gesendet */
+	CLIENT_GOTNICK,			/* Client hat NICK gesendet */
+	CLIENT_GOTUSER,			/* Client hat USER gesendet */
 	CLIENT_USER,			/* Client ist ein Benutzer (USER wurde gesendet) */
 	CLIENT_SERVER,			/* Client ist ein Server */
 	CLIENT_SERVICE			/* Client ist ein Service */
@@ -71,6 +75,7 @@ typedef struct _CLIENT
 
 
 GLOBAL CLIENT *This_Server;
+GLOBAL CLIENT *My_Clients;
 
 
 GLOBAL VOID Client_Init( VOID );

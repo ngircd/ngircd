@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.3 2001/12/24 01:31:14 alex Exp $
+ * $Id: client.c,v 1.4 2001/12/25 19:21:26 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,9 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.4  2001/12/25 19:21:26  alex
+ * - Client-Typ ("Status") besser unterteilt, My_Clients ist zudem nun global.
+ *
  * Revision 1.3  2001/12/24 01:31:14  alex
  * - einige assert()'s eingestraeut.
  *
@@ -48,9 +51,6 @@
 
 #include <exp.h>
 #include "client.h"
-
-
-LOCAL CLIENT *My_Clients;
 
 
 LOCAL CLIENT *New_Client_Struct( VOID );

@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: defines.h,v 1.40 2002/12/16 23:10:56 alex Exp $
+ * $Id: defines.h,v 1.41 2002/12/26 13:17:56 alex Exp $
  *
  * Global defines of ngIRCd.
  */
@@ -83,13 +83,9 @@
 
 #define DEFAULT_AWAY_MSG "Away"		/* Away-Meldung fuer User von anderen Servern */
 
-#ifdef PROTOTYPES
-# define CONFIG_FILE SYSCONFDIR"/ngircd.conf"
-# define MOTD_FILE SYSCONFDIR"/ngircd.motd"
-#else
-# define CONFIG_FILE "ngircd.conf"
-# define MOTD_FILE "ngircd.motd"
-#endif
+#define CONFIG_FILE "/ngircd.conf"
+#define MOTD_FILE "/ngircd.motd"
+
 #define ERROR_DIR "/tmp"
 
 #define MAX_LOG_MSG_LEN 256		/* max. Laenge einer Log-Meldung */

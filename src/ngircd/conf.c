@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.47 2002/12/18 02:53:36 alex Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.48 2002/12/26 13:17:56 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -178,7 +178,8 @@ Set_Defaults( VOID )
 	strcpy( Conf_ServerAdmin2, "" );
 	strcpy( Conf_ServerAdminMail, "" );
 
-	strcpy( Conf_MotdFile, MOTD_FILE );
+	strcpy( Conf_MotdFile, SYSCONFDIR );
+	strcat( Conf_MotdFile, MOTD_FILE );
 
 	Conf_ListenPorts_Count = 0;
 

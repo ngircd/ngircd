@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.65 2002/12/19 04:29:59 alex Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.66 2002/12/26 13:17:57 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -73,7 +73,8 @@ main( int argc, const char *argv[] )
 #ifdef SNIFFER
 	NGIRCd_Sniffer = FALSE;
 #endif
-	strcpy( NGIRCd_ConfFile, CONFIG_FILE );
+	strcpy( NGIRCd_ConfFile, SYSCONFDIR );
+	strcat( NGIRCd_ConfFile, CONFIG_FILE );
 
 	/* Kommandozeile parsen */
 	for( i = 1; i < argc; i++ )

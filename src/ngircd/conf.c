@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.53 2002/12/31 16:12:50 alex Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.54 2003/03/27 01:21:38 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -210,7 +210,6 @@ Conf_UnsetServer( CONN_ID Idx )
 				Conf_Server[i].lasttry = time( NULL ) - Conf_ConnectRetry + RECONNECT_DELAY;
 			}
 		}
-		break;
 	}
 } /* Conf_UnsetServer */
 
@@ -368,7 +367,7 @@ Read_Config( VOID )
 	/* Read configuration file. */
 
 	CHAR section[LINE_LEN], str[LINE_LEN], *var, *arg, *ptr;
-	INT line, i;
+	INT line, i, n;
 	FILE *fd;
 
 	/* Open configuration file */
@@ -385,11 +384,37 @@ Read_Config( VOID )
 
 	/* Clean up server configuration structure: mark all already
 	 * configured servers as "once" so that they are deleted
-	 * after the next disconnect and delete all unused servers. */
+	 * after the next disconnect and delete all unused servers.
+	 * And delete all servers which are "duplicates" of servers
+	 * that are already marked as "once" (such servers have been
+	 * created by the last rehash but are now useless). */
 	for( i = 0; i < MAX_SERVERS; i++ )
 	{
 		if( Conf_Server[i].conn_id == NONE ) Init_Server_Struct( &Conf_Server[i] );
-		else Conf_Server[i].flags |= CONF_SFLAG_ONCE;
+		else
+		{
+			/* This structure is in use ... */
+			if( Conf_Server[i].flags & CONF_SFLAG_ONCE )
+			{
+				/* Check for duplicates */
+				for( n = 0; n < MAX_SERVERS; n++ )
+				{
+					if( n == i ) continue;
+
+					if( Conf_Server[i].conn_id == Conf_Server[n].conn_id )
+					{
+						Init_Server_Struct( &Conf_Server[n] );
+						Log( LOG_DEBUG, "Deleted unused duplicate server %d (kept %d).", n, i );
+					}
+				}
+			}
+			else
+			{
+				/* Mark server as "once" */
+				Conf_Server[i].flags |= CONF_SFLAG_ONCE;
+				Log( LOG_DEBUG, "Market server %d as \"once\"", i );
+			}
+		}
 	}
 
 	/* Initialize variables */

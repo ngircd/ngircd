@@ -9,9 +9,12 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: configure.in,v 1.32 2002/03/02 03:36:14 alex Exp $
+# $Id: configure.in,v 1.33 2002/03/02 03:57:56 alex Exp $
 #
 # $Log: configure.in,v $
+# Revision 1.33  2002/03/02 03:57:56  alex
+# - Versionsnummer auf 0.3.0-CVS angehoben.
+#
 # Revision 1.32  2002/03/02 03:36:14  alex
 # - Version 0.3.0
 #
@@ -115,7 +118,7 @@
 
 AC_INIT
 AC_CONFIG_SRCDIR(src/ngircd/ngircd.c)
-AM_INIT_AUTOMAKE(ngircd,0.3.0)
+AM_INIT_AUTOMAKE(ngircd,0.3.0-CVS)
 AM_CONFIG_HEADER(src/config.h)
 
 # -- C Compiler --

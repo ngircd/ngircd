@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.87 2005/01/26 22:03:15 alex Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.88 2005/02/04 14:24:21 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -56,6 +56,9 @@ LOCAL VOID Signal_Handler PARAMS(( INT Signal ));
 
 LOCAL VOID Show_Version PARAMS(( VOID ));
 LOCAL VOID Show_Help PARAMS(( VOID ));
+
+LOCAL VOID Pidfile_Create PARAMS(( LONG ));
+LOCAL VOID Pidfile_Delete PARAMS(( VOID ));
 
 
 GLOBAL int
@@ -285,9 +288,13 @@ main( int argc, const char *argv[] )
 			chdir( "/" );
 		}
 
+		/* Create PID file */
+		pid = (LONG) getpid( );
+		Pidfile_Create( pid );
+
 		/* Show user, group, and PID of the running daemon */
 		pwd = getpwuid( getuid( )); grp = getgrgid( getgid( ));
-		Log( LOG_INFO, "Running as user %s(%ld), group %s(%ld), with PID %ld.", pwd ? pwd->pw_name : "unknown", (LONG)getuid( ), grp ? grp->gr_name : "unknown", (LONG)getgid( ), (LONG)getpid( ));
+		Log( LOG_INFO, "Running as user %s(%ld), group %s(%ld), with PID %ld.", pwd ? pwd->pw_name : "unknown", (LONG)getuid( ), grp ? grp->gr_name : "unknown", (LONG)getgid( ), pid);
 
 		/* Change working directory to home directory of the user
 		 * we are running as (when not running chroot()'ed!) */
@@ -350,6 +357,7 @@ main( int argc, const char *argv[] )
 		{
 			Log( LOG_ALERT, "Server isn't listening on a single port!" );
 			Log( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE_NAME );
+			Pidfile_Delete( );
 			exit( 1 );
 		}
 		
@@ -365,6 +373,8 @@ main( int argc, const char *argv[] )
 		Channel_Exit( );
 		Lists_Exit( );
 		Log_Exit( );
+
+		Pidfile_Delete( );
 	}
 
 	return 0;
@@ -583,6 +593,49 @@ Show_Help( VOID )
  	puts( "      --version      output version information and exit" );
 	puts( "      --help         display this help and exit" );
 } /* Show_Help */
+
+
+LOCAL VOID
+Pidfile_Delete( VOID )
+{
+	/* Pidfile configured? */
+	if( ! Conf_PidFile[0] ) return;
+
+#ifdef DEBUG
+	Log( LOG_DEBUG, "Removing PID file (%s) ...", Conf_PidFile );
+#endif
+
+	if( unlink( Conf_PidFile ))
+		Log( LOG_ERR, "Error unlinking PID file (%s): %s", Conf_PidFile, strerror( errno ));
+} /* Pidfile_Delete */
+
+
+LOCAL VOID
+Pidfile_Create( LONG pid )
+{
+	FILE *pidf;
+
+	/* Pidfile configured? */
+	if( ! Conf_PidFile[0] ) return;
+
+	pidf = fopen( Conf_PidFile, "w" );
+
+#ifdef DEBUG
+	Log( LOG_DEBUG, "Creating PID file (%s) ...", Conf_PidFile );
+#endif
+
+	if( ! pidf )
+	{
+		Log( LOG_ERR, "Error writing PID file (%s): %s", Conf_PidFile, strerror( errno ));
+		return;
+	}
+
+	if( fprintf( pidf, "%ld\n", pid ) < 0 )
+		Log( LOG_ERR, "Can't write PID file (%s): %s", Conf_PidFile, strerror( errno ));
+
+	if( fclose(pidf) != 0 )
+		Log( LOG_ERR, "Error closing PID file (%s): %s", Conf_PidFile, strerror( errno ));
+} /* Pidfile_Create */
 
 
 /* -eof- */

@@ -12,6 +12,9 @@
 
 ngIRCd CVSHEAD
 
+  - New configuration variable "PidFile", section "[Global]": if defined,
+    the server writes its process ID (PID) to this file. Default: off.
+    Idea of Florian Westphal, <westphal@foo.fh-furtwangen.de>.
   - Code cleanups from Florian Westphal, <westphal@foo.fh-furtwangen.de>.
   - Raised the maximum length of passwords to 20 characters.
   - Fixed a memory leak when resizing the connection pool and realloc()
@@ -19,7 +22,7 @@ ngIRCd CVSHEAD
     Patch from Florian Westphal, <westphal@foo.fh-furtwangen.de>.
   - Added support for the Howl (http://www.porchdogsoft.com/products/howl/)
     Rendezvous API, in addition to the API of Apple (Mac OS X). The available
-    APU will be autodetected when you call "./configure --with-rendezvous".
+    API will be autodetected when you call "./configure --with-rendezvous".
   - Made ngIRCd compile on HP/UX 10.20 with native HP pre-ANSI C compiler and
     most probably other older C compilers on other systems.
   - When the daemon should switch to another user ID (ServerID is defined in
@@ -579,4 +582,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.258 2005/02/04 14:21:35 alex Exp $
+$Id: ChangeLog,v 1.259 2005/02/04 14:24:20 alex Exp $

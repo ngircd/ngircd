@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: defines.h,v 1.48 2005/01/17 13:14:36 alex Exp $
+ * $Id: defines.h,v 1.49 2005/02/04 14:24:21 alex Exp $
  *
  * Global defines of ngIRCd.
  */
@@ -85,6 +85,7 @@
 #define MOTD_FILE "/ngircd.motd"
 #define MOTD_PHRASE ""
 #define CHROOT_DIR ""
+#define PID_FILE ""
 
 #define ERROR_DIR "/tmp"
 

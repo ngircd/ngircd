@@ -12,9 +12,12 @@
 
 ngIRCd CVSHEAD
 
+  - New configuration variable "PidFile", section "[Global]": if defined,
+    the server writes its process ID (PID) to this file. Default: off.
+    Idea of Florian Westphal, <westphal@foo.fh-furtwangen.de>.
   - Added support for the Howl (http://www.porchdogsoft.com/products/howl/)
     Rendezvous API, in addition to the API of Apple (Mac OS X). The available
-    APU will be autodetected when you call "./configure --with-rendezvous".
+    API will be autodetected when you call "./configure --with-rendezvous".
 
 ngIRCd 0.8.0 (2004-06-26)
 
@@ -195,4 +198,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.67 2004/12/26 00:14:33 alex Exp $
+$Id: NEWS,v 1.68 2005/02/04 14:24:20 alex Exp $

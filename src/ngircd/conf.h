@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conf.h,v 1.29 2004/05/07 11:19:21 alex Exp $
+ * $Id: conf.h,v 1.30 2005/02/04 14:24:21 alex Exp $
  *
  * Configuration management (header)
  */
@@ -88,6 +88,9 @@ GLOBAL UINT Conf_GID;
 
 /* A directory to chroot() in */
 GLOBAL CHAR Conf_Chroot[FNAME_LEN];
+
+/* File with PID of daemon */
+GLOBAL CHAR Conf_PidFile[FNAME_LEN];
 
 /* Timeouts for PING and PONG */
 GLOBAL INT Conf_PingTimeout;

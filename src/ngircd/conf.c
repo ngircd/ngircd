@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.67 2005/01/20 00:13:08 alex Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.68 2005/02/04 14:24:21 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -122,7 +122,8 @@ Conf_Test( VOID )
 	printf( "  AdminEMail = %s\n", Conf_ServerAdminMail );
 	printf( "  MotdFile = %s\n", Conf_MotdFile );
 	printf( "  MotdPhrase = %s\n", Conf_MotdPhrase );
-	printf( "  ChrootDir= %s\n", Conf_Chroot );
+	printf( "  ChrootDir = %s\n", Conf_Chroot );
+	printf( "  PidFile = %s\n", Conf_PidFile);
 	printf( "  Ports = " );
 	for( i = 0; i < Conf_ListenPorts_Count; i++ )
 	{
@@ -355,6 +356,8 @@ Set_Defaults( BOOLEAN InitServers )
 	strlcpy( Conf_MotdPhrase, MOTD_PHRASE, sizeof( Conf_MotdPhrase ));
 
 	strlcpy( Conf_Chroot, CHROOT_DIR, sizeof( Conf_Chroot ));
+
+	strlcpy( Conf_PidFile, PID_FILE, sizeof( Conf_PidFile ));
 
 	Conf_ListenPorts_Count = 0;
 	strcpy( Conf_ListenAddress, "" );
@@ -650,6 +653,16 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 
 		return;
 	}
+
+	if ( strcasecmp( Var, "PidFile" ) == 0 )
+	{
+		/* name of pidfile */
+		if( strlcpy( Conf_PidFile, Arg, sizeof( Conf_PidFile )) >= sizeof( Conf_PidFile ))
+			Config_Error_TooLong( Line, Var );
+
+		return;
+	}
+
 	if( strcasecmp( Var, "ServerUID" ) == 0 )
 	{
 		/* UID the daemon should switch to */

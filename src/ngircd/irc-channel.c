@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-channel.c,v 1.14 2002/09/08 00:50:25 alex Exp $
+ * $Id: irc-channel.c,v 1.15 2002/09/16 09:16:17 alex Exp $
  *
  * irc-channel.c: IRC-Channel-Befehle
  */
@@ -275,17 +275,36 @@ IRC_LIST( CLIENT *Client, REQUEST *Req )
 {
 	CHAR *pattern;
 	CHANNEL *chan;
+	CLIENT *from, *target;
 
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	if( Client_Type( Client ) != CLIENT_USER ) return IRC_WriteStrClient( Client, ERR_NOTREGISTERED_MSG, Client_ID( Client ));
+	if(( Client_Type( Client ) != CLIENT_USER ) && ( Client_Type( Client ) != CLIENT_SERVER )) return IRC_WriteStrClient( Client, ERR_NOTREGISTERED_MSG, Client_ID( Client ));
 
 	/* Falsche Anzahl Parameter? */
-	if( Req->argc > 1 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	if( Req->argc > 2 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
 	if( Req->argc > 0 ) pattern = strtok( Req->argv[0], "," );
 	else pattern = "*";
+
+	/* From aus Prefix ermitteln */
+	if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_Search( Req->prefix );
+	else from = Client;
+	if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->prefix );
+
+	if( Req->argc == 2 )
+	{
+		/* an anderen Server forwarden */
+		target = Client_Search( Req->argv[1] );
+		if( ! target ) return IRC_WriteStrClient( from, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->argv[1] );
+
+		if( target != Client_ThisServer( ))
+		{
+			/* Ok, anderer Server ist das Ziel: forwarden */
+			return IRC_WriteStrClientPrefix( target, from, "LIST %s :%s", from, Req->argv[1] );
+		}
+	}
 	
 	while( pattern )
 	{
@@ -297,7 +316,7 @@ IRC_LIST( CLIENT *Client, REQUEST *Req )
 			if( Match( pattern, Channel_Name( chan )))
 			{
 				/* Treffer! */
-				if( ! IRC_WriteStrClient( Client, RPL_LIST_MSG, Client_ID( Client), Channel_Name( chan ), Channel_MemberCount( chan ), Channel_Topic( chan ))) return DISCONNECTED;
+				if( ! IRC_WriteStrClient( from, RPL_LIST_MSG, from, Channel_Name( chan ), Channel_MemberCount( chan ), Channel_Topic( chan ))) return DISCONNECTED;
 			}
 			chan = Channel_Next( chan );
 		}
@@ -307,7 +326,7 @@ IRC_LIST( CLIENT *Client, REQUEST *Req )
 		else pattern = NULL;
 	}
 	
-	return IRC_WriteStrClient( Client, RPL_LISTEND_MSG, Client_ID( Client ));
+	return IRC_WriteStrClient( from, RPL_LISTEND_MSG, from );
 } /* IRC_LIST */
 
 

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-login.c,v 1.27 2002/12/12 12:24:18 alex Exp $";
+static char UNUSED id[] = "$Id: irc-login.c,v 1.27.2.1 2002/12/22 23:42:28 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -447,6 +447,9 @@ Hello_User( CLIENT *Client )
 	if( ! IRC_WriteStrClient( Client, RPL_YOURHOST_MSG, Client_ID( Client ), Client_ID( Client_ThisServer( )), VERSION, TARGET_CPU, TARGET_VENDOR, TARGET_OS )) return FALSE;
 	if( ! IRC_WriteStrClient( Client, RPL_CREATED_MSG, Client_ID( Client ), NGIRCd_StartStr )) return FALSE;
 	if( ! IRC_WriteStrClient( Client, RPL_MYINFO_MSG, Client_ID( Client ), Client_ID( Client_ThisServer( )), VERSION, USERMODES, CHANMODES )) return FALSE;
+
+	/* Features */
+	if( ! IRC_WriteStrClient( Client, RPL_FEATURE_MSG, Client_ID( Client ), CLIENT_NICK_LEN - 1, CHANNEL_TOPIC_LEN - 1, CLIENT_AWAY_LEN - 1, Conf_MaxJoins )) return DISCONNECTED;
 
 	Client_SetType( Client, CLIENT_USER );
 

@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: messages.h,v 1.59 2002/12/18 14:03:14 alex Exp $
+ * $Id: messages.h,v 1.59.2.1 2002/12/22 23:42:28 alex Exp $
  *
  * IRC numerics (Header)
  */
@@ -22,6 +22,7 @@
 #define RPL_YOURHOST_MSG		"002 %s :Your host is %s, running version ngircd-%s (%s/%s/%s)"
 #define RPL_CREATED_MSG			"003 %s :This server has been started %s"
 #define RPL_MYINFO_MSG			"004 %s %s ngircd-%s %s %s"
+#define RPL_FEATURE_MSG			"005 %s NICKLEN=%d TOPICLEN=%d AWAYLEN=%d MAXCHANNELS=%d :are supported on this server"
 #define RPL_STATSLINKINFO_MSG		"211 %s %s %d %ld %ld %ld %ld :%ld"
 #define RPL_STATSCOMMANDS_MSG		"212 %s %s %ld %ld %ld"
 #define RPL_ENDOFSTATS_MSG		"219 %s %c :End of STATS report"
@@ -35,6 +36,8 @@
 #define RPL_ADMINLOC1_MSG		"257 %s :%s"
 #define RPL_ADMINLOC2_MSG		"258 %s :%s"
 #define RPL_ADMINEMAIL_MSG		"259 %s :%s"
+#define RPL_LOCALUSERS_MSG		"265 %s :Current local users: %ld, Max: %ld"
+#define RPL_NETUSERS_MSG		"266 %s :Current global users: %ld, Max: %ld"
 
 #define RPL_AWAY_MSG			"301 %s %s :%s"
 #define RPL_USERHOST_MSG		"302 %s :"

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.75 2002/02/27 15:23:27 alex Exp $
+ * $Id: irc.c,v 1.76 2002/02/27 16:04:14 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.76  2002/02/27 16:04:14  alex
+ * - Bug bei belegtem Nickname bei User-Registrierung (NICK-Befehl) behoben.
+ *
  * Revision 1.75  2002/02/27 15:23:27  alex
  * - NAMES beachtet nun das "invisible" Flag ("i") von Usern.
  *
@@ -919,14 +922,23 @@ GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req )
 		if(( Client_Type( target ) != CLIENT_USER ) && ( Client_Type( target ) != CLIENT_SERVER ))
 		{
 			/* Neuer Client */
-			Log( LOG_DEBUG, "Connection %d: got NICK command ...", Client_Conn( Client ));
+			Log( LOG_DEBUG, "Connection %d: got valid NICK command ...", Client_Conn( Client ));
+
+			/* Client-Nick registrieren */
+			Client_SetID( target, Req->argv[0] );
+
+			/* schon ein USER da? Dann registrieren! */
 			if( Client_Type( Client ) == CLIENT_GOTUSER ) return Hello_User( Client );
 			else Client_SetType( Client, CLIENT_GOTNICK );
 		}
-		else Log( LOG_INFO, "User \"%s\" changed nick: \"%s\" -> \"%s\".", Client_Mask( target ), Client_ID( target ), Req->argv[0] );
+		else
+		{
+			/* Nick-Aenderung */
+			Log( LOG_INFO, "User \"%s\" changed nick: \"%s\" -> \"%s\".", Client_Mask( target ), Client_ID( target ), Req->argv[0] );
 
-		/* Client-Nick registrieren */
-		Client_SetID( target, Req->argv[0] );
+			/* neuen Client-Nick speichern */
+			Client_SetID( target, Req->argv[0] );
+		}
 
 		return CONNECTED;
 	}
@@ -1000,7 +1012,7 @@ GLOBAL BOOLEAN IRC_USER( CLIENT *Client, REQUEST *Req )
 		Client_SetUser( Client, Req->argv[0], FALSE );
 		Client_SetInfo( Client, Req->argv[3] );
 
-		Log( LOG_DEBUG, "Connection %d: got USER command ...", Client_Conn( Client ));
+		Log( LOG_DEBUG, "Connection %d: got valid USER command ...", Client_Conn( Client ));
 		if( Client_Type( Client ) == CLIENT_GOTNICK ) return Hello_User( Client );
 		else Client_SetType( Client, CLIENT_GOTUSER );
 		return CONNECTED;

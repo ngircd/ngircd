@@ -8,7 +8,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: configure.in,v 1.88 2003/04/21 08:01:29 alex Exp $
+# $Id: configure.in,v 1.89 2003/04/21 10:51:44 alex Exp $
 #
 
 # -- Initialisierung --
@@ -57,16 +57,23 @@ AC_C_CONST
 
 # -- Defines --
 
+if test `uname` = "Linux"; then
+	# define _POSIX_SOURCE, _GNU_SOURCE and _BSD_SOURCE when compiling
+	# on Linux (glibc-based systems):
+	AC_MSG_RESULT([detected Linux, defining _POSIX_SOURCE, _GNU_SOURCE and _BSD_SOURCE])
+	add_DEFINES="-D_POSIX_SOURCE -D_GNU_SOURCE -D_BSD_SOURCE $add_DEFINES"
+fi
+
 if test `uname` = "A/UX"; then
-	# unter A/UX sollte _POSIX_SOURCE definiert sein.
+	# define _POSIX_SOURCE when compiling on A/UX:
 	AC_MSG_RESULT([detected A/UX, defining _POSIX_SOURCE])
-	CFLAGS="$CFLAGS -D_POSIX_SOURCE"
+	add_DEFINES="-D_POSIX_SOURCE $add_DEFINES"
 fi
 
 if test `uname` = "HP-UX"; then
-	# unter HP-UX 11.11 muss _XOPEN_SOURCE_EXTENDED definiert sein.
+	# define _XOPEN_SOURCE_EXTENDED when compiling on HP-UX (11.11):
 	AC_MSG_RESULT([detected HP-UX, defining _XOPEN_SOURCE_EXTENDED])
-	CFLAGS="$CFLAGS -D_XOPEN_SOURCE_EXTENDED"
+	add_DEFINES="-D_XOPEN_SOURCE_EXTENDED $add_DEFINES"
 fi
 
 # -- Header --
@@ -124,10 +131,8 @@ AC_CHECK_FUNCS([ \
 
 AC_CHECK_FUNCS(inet_aton isdigit sigaction snprintf vsnprintf strlcpy strlcat)
 
-AC_CHECK_FUNCS(poll,[AC_CHECK_HEADER(sys/poll.h)],
-	[AC_CHECK_FUNCS(select,[AC_CHECK_HEADER(sys/select.h)],
-		AC_MSG_ERROR([neither poll() nor select() is available!]))
-	]
+AC_CHECK_FUNCS(select,[AC_CHECK_HEADERS(sys/select.h)],
+	AC_MSG_ERROR([required function select() is missing!])
 )
 
 # -- Konfigurationsoptionen --
@@ -253,14 +258,14 @@ AC_DEFINE_UNQUOTED(TARGET_OS, "$target_os" )
 # -- Variablen --
 
 if test "$GCC" = "yes"; then
-	the_CFLAGS="-Wall -Wtraditional -Wpointer-arith -Wstrict-prototypes"
-	add_CFLAGS="$CFLAGS $CFLAGS_ADD"
+	the_CFLAGS="-Wmissing-declarations -Wpointer-arith -Wstrict-prototypes"
+	add_CFLAGS="-Wall -W -ansi -pedantic $CFLAGS $CFLAGS_ADD"
 else
 	the_CFLAGS="$CFLAGS"
 	add_CFLAGS="$CFLAGS_ADD"
 fi
 
-CFLAGS="$the_CFLAGS $add_CFLAGS -DSYSCONFDIR='\"\$(sysconfdir)\"'"
+CFLAGS="$the_CFLAGS $add_CFLAGS $add_DEFINES -DSYSCONFDIR='\"\$(sysconfdir)\"'"
 
 # -- Ausgabe der Dateien --
 
@@ -294,10 +299,11 @@ D=`eval echo ${datadir}/doc/${PACKAGE}` ; D=`eval echo ${D}`
 echo "               Host: ${host}"
 echo "           Compiler: ${CC}"
 echo "     Compiler flags: ${the_CFLAGS}"
-test -n "$add_CFLAGS" && echo "                     ${add_CFLAGS}"
-echo " Preprocessor flags: ${CPPFLAGS}"
-echo "       Linker flags: ${LDFLAGS}"
-echo "          Libraries: ${LIBS}"
+test -n "$add_CFLAGS"	&& echo "                     ${add_CFLAGS}"
+test -n "$add_DEFINES"	&& echo "                     ${add_DEFINES}"
+test -n "$CPPFLAGS"	&& echo " Preprocessor flags: ${CPPFLAGS}"
+test -n "$LDFLAGS"	&& echo "       Linker flags: ${LDFLAGS}"
+test -n "$LIBS"		&& echo "          Libraries: ${LIBS}"
 echo
 echo "    'ngircd' binary: $S"
 echo " Configuration file: $C"
@@ -306,21 +312,40 @@ echo "      Documentation: $D"
 echo
 
 echo $ECHO_N "     Syslog support: $ECHO_C"
-test "$x_syslog_on" = "yes" && echo "yes" || echo "no"
-echo $ECHO_N "   zlib compression: $ECHO_C"
-test "$x_zlib_on" = "yes" && echo "yes" || echo "no"
-echo $ECHO_N "   Use TCP Wrappers: $ECHO_C"
-test "$x_tcpwrap_on" = "yes" && echo "yes" || echo "no"
-echo $ECHO_N " Rendezvous support: $ECHO_C"
-test "$x_rendezvous_on" = "yes"	&& echo "yes" || echo "no"
+test "$x_syslog_on" = "yes" \
+	&& echo $ECHO_N "yes $ECHO_C" \
+	|| echo $ECHO_N "no  $ECHO_C"
 echo $ECHO_N "  Enable debug code: $ECHO_C"
-test "$x_debug_on" = "yes" && echo "yes" || echo "no"
+test "$x_debug_on" = "yes" \
+	&& echo "yes" \
+	|| echo "no"
+
+echo $ECHO_N "   zlib compression: $ECHO_C"
+test "$x_zlib_on" = "yes" \
+	&& echo $ECHO_N "yes $ECHO_C" \
+	|| echo $ECHO_N "no  $ECHO_C"
 echo $ECHO_N "        IRC sniffer: $ECHO_C"
-test "$x_sniffer_on" = "yes" && echo "yes" || echo "no"
+test "$x_sniffer_on" = "yes" \
+	&& echo "yes" \
+	|| echo "no"
+
+echo $ECHO_N "   Use TCP Wrappers: $ECHO_C"
+test "$x_tcpwrap_on" = "yes" \
+	&& echo $ECHO_N "yes $ECHO_C" \
+	|| echo $ECHO_N "no  $ECHO_C"
 echo $ECHO_N "    Strict RFC mode: $ECHO_C"
-test "$x_strict_rfc_on" = "yes" && echo "yes" || echo "no"
+test "$x_strict_rfc_on" = "yes" \
+	&& echo "yes" \
+	|| echo "no"
+
+echo $ECHO_N " Rendezvous support: $ECHO_C"
+test "$x_rendezvous_on" = "yes"	\
+	&& echo $ECHO_N "yes $ECHO_C" \
+	|| echo $ECHO_N "no  $ECHO_C"
 echo $ECHO_N "      IRC+ protocol: $ECHO_C"
-test "$x_ircplus_on" = "yes" && echo "yes" || echo "no"
+test "$x_ircplus_on" = "yes" \
+	&& echo "yes" \
+	|| echo "no"
 echo
 
 # -eof-

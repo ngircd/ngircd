@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.52 2002/09/03 20:39:54 alex Exp $
+ * $Id: ngircd.c,v 1.53 2002/09/03 23:53:19 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  */
@@ -285,7 +285,7 @@ main( int argc, const char *argv[] )
 		/* Protokoll- und Server-Identifikation erzeugen. Die vom ngIRCd
 		 * beim PASS-Befehl verwendete Syntax sowie die erweiterten Flags
 		 * sind in doc/Protocol.txt beschrieben. */
-		sprintf( NGIRCd_ProtoID, "%s%s %s|%s:", PROTOVER, PROTOIRCPLUS, PACKAGE, VERSION );
+		sprintf( NGIRCd_ProtoID, "%s%s %s|%s:%s", PROTOVER, PROTOIRCPLUS, PACKAGE, VERSION, IRCPLUSFLAGS );
 		if( Conf_OperCanMode ) strcat( NGIRCd_ProtoID, "o" );
 		strcat( NGIRCd_ProtoID, " P" );
 		Log( LOG_DEBUG, "Protocol and server ID is \"%s\".", NGIRCd_ProtoID );

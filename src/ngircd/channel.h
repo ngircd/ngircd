@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: channel.h,v 1.4 2002/01/02 02:42:58 alex Exp $
+ * $Id: channel.h,v 1.5 2002/01/16 22:09:07 alex Exp $
  *
  * channel.h: Management der Channels (Header)
  *
  * $Log: channel.h,v $
+ * Revision 1.5  2002/01/16 22:09:07  alex
+ * - neue Funktion Channel_Count().
+ *
  * Revision 1.4  2002/01/02 02:42:58  alex
  * - Copyright-Texte aktualisiert.
  *
@@ -43,6 +46,8 @@ typedef struct _CHANNEL
 
 GLOBAL VOID Channel_Init( VOID );
 GLOBAL VOID Channel_Exit( VOID );
+
+GLOBAL INT Channel_Count( VOID );
 
 
 #endif

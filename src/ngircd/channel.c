@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: channel.c,v 1.3 2002/01/02 02:42:58 alex Exp $
+ * $Id: channel.c,v 1.4 2002/01/16 22:09:07 alex Exp $
  *
  * channel.c: Management der Channels
  *
  * $Log: channel.c,v $
+ * Revision 1.4  2002/01/16 22:09:07  alex
+ * - neue Funktion Channel_Count().
+ *
  * Revision 1.3  2002/01/02 02:42:58  alex
  * - Copyright-Texte aktualisiert.
  *
@@ -50,6 +53,12 @@ GLOBAL VOID Channel_Init( VOID )
 GLOBAL VOID Channel_Exit( VOID )
 {
 } /* Channel_Exit */
+
+
+GLOBAL INT Channel_Count( VOID )
+{
+	return 0;
+} /* Channel_Count */
 
 
 /* -eof- */

@@ -51,20 +51,9 @@ III. Features (oder: warum gerade ngIRCd?)
 IV. Dokumentation
 ~~~~~~~~~~~~~~~~~
 
-Im Paket enthalten ist u.a.:
-
-- README: das Dokument, das Du gerade liest :-)
-- INSTALL: Hinweise zur Installation des ngIRCd
-- NEWS: sagt der Name schon :-)
-- ChangeLog: die komplette History des ngIRCd
-- doc/FAQ.txt: haeufige Fragen und Antworten zum ngIRCd
-- doc/CVS.txt: Hinweise zum CVS-System
-- doc/RFC.txt: Infos ueber die RFC's
-- doc/sample-ngircd.conf: Beispiel-Konfigurationsdatei
-- doc/README-AUX.txt: Installationshinweise fuer A/UX
-- doc/README-BeOS.txt: dito fuer BeOS
-
-- doc/en/: englischsprachige Dokumentation
+Englischsprachige Dokumentation finde sich im Verzeichnis "doc/", deutsch-
+sprachige in "doc/de/". Die allgemeinen README- und INSTALL-Texte (wiederum
+in englisch) finden sich im Hauptverzeichnis der ngIRCd-Sourcen.
 
 
 V. Bezugsquellen
@@ -96,4 +85,4 @@ schreiben.
 
 
 -- 
-$Id: README,v 1.1 2003/01/04 13:07:54 alex Exp $
+$Id: README,v 1.2 2003/01/04 13:14:46 alex Exp $

@@ -9,9 +9,12 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: Makefile.am,v 1.3 2002/01/02 02:40:31 alex Exp $
+# $Id: Makefile.am,v 1.4 2002/02/25 14:10:38 alex Exp $
 #
 # $Log: Makefile.am,v $
+# Revision 1.4  2002/02/25 14:10:38  alex
+# - die neuen Texte werden nun auch in Archive ("make dist") aufgenommen ;-)
+#
 # Revision 1.3  2002/01/02 02:40:31  alex
 # - Copyright-Text ergaenzt.
 #
@@ -22,7 +25,8 @@
 # - Makefile.am fuer das "doc"-Verzeichnis begonnen.
 #
 
-EXTRA_DIST = CVS.txt RFC.txt sample-ngircd.conf
+EXTRA_DIST = CC-Speed.txt CVS.txt FAQ.txt README-AUX.txt README-BeOS.txt \
+	RFC.txt sample-ngircd.conf
 
 maintainer-clean-local:
 	rm -f Makefile Makefile.in

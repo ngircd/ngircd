@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: messages.h,v 1.57 2002/12/13 17:51:41 alex Exp $
+ * $Id: messages.h,v 1.58 2002/12/16 23:11:59 alex Exp $
  *
  * IRC numerics (Header)
  */
@@ -70,6 +70,7 @@
 #define RPL_MOTDSTART_MSG		"375 %s :- %s message of the day"
 #define RPL_ENDOFMOTD_MSG		"376 %s :End of MOTD command"
 #define RPL_YOUREOPER_MSG		"381 %s :You are now an IRC Operator"
+#define RPL_YOURESERVICE_MSG		"383 %s :You are service %s"
 #define RPL_TIME_MSG			"391 %s %s :%s"
 
 #define ERR_NOSUCHNICK_MSG		"401 %s %s :No such nick or channel name"
@@ -92,10 +93,12 @@
 #define ERR_NOTREGISTEREDSERVER_MSG	"451 %s :Connection not registered as server link"
 #define ERR_NEEDMOREPARAMS_MSG		"461 %s %s :Syntax error"
 #define ERR_ALREADYREGISTRED_MSG	"462 %s :Connection already registered"
-#define ERR_PASSWDMISMATCH_MSG		"464 %s: Invalid password"
+#define ERR_PASSWDMISMATCH_MSG		"464 %s :Invalid password"
+#define ERR_CHANNELISFULL_MSG		"471 %s %s :Cannot join channel (+l)"
 #define ERR_UNKNOWNMODE_MSG		"472 %s: %c :is unknown mode char for %s"
 #define ERR_INVITEONLYCHAN_MSG		"473 %s %s :Cannot join channel (+i)"
 #define ERR_BANNEDFROMCHAN_MSG		"474 %s %s :Cannot join channel (+b)"
+#define ERR_BADCHANNELKEY_MSG		"475 %s %s :Cannot join channel (+k)"
 #define ERR_NOPRIVILEGES_MSG		"481 %s :Permission denied"
 #define ERR_CHANOPRIVSNEEDED_MSG	"482 %s %s :You are not channel operator"
 #define ERR_RESTRICTED_MSG		"484 %s :Your connection is restricted"

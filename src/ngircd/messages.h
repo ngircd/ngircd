@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: messages.h,v 1.58 2002/12/16 23:11:59 alex Exp $
+ * $Id: messages.h,v 1.59 2002/12/18 14:03:14 alex Exp $
  *
  * IRC numerics (Header)
  */
@@ -23,7 +23,7 @@
 #define RPL_CREATED_MSG			"003 %s :This server has been started %s"
 #define RPL_MYINFO_MSG			"004 %s %s ngircd-%s %s %s"
 #define RPL_STATSLINKINFO_MSG		"211 %s %s %d %ld %ld %ld %ld :%ld"
-#define RPL_STATSCOMMANDS_MSG		"212 %s %s %d %d %d"
+#define RPL_STATSCOMMANDS_MSG		"212 %s %s %ld %ld %ld"
 #define RPL_ENDOFSTATS_MSG		"219 %s %c :End of STATS report"
 #define RPL_UMODEIS_MSG			"221 %s +%s"
 #define RPL_LUSERCLIENT_MSG		"251 %s :There are %ld users and %ld services on %ld servers"

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: defines.h,v 1.32 2002/09/03 23:53:41 alex Exp $
+ * $Id: defines.h,v 1.33 2002/09/07 17:58:00 alex Exp $
  *
  * defines.h: (globale) Konstanten
  */
@@ -57,9 +57,12 @@
 #define WRITEBUFFER_LEN 4096		/* Laenge des Schreibpuffers je Verbindung (Bytes) */
 
 #define PROTOVER "0210"			/* implementierte Protokoll-Version (RFC 2813, 4.1.1) */
-#define PROTOIRCPLUS "-IRC+"		/* Protokoll-Suffix (RFC 2813, 4.1.1) */
+#define PROTOIRC "-IRC"			/* Protokoll-Suffix (RFC 2813, 4.1.1) */
+#define PROTOIRCPLUS "-IRC+"		/* Protokoll-Suffix für IRC+-Protokoll */
 
-#define IRCPLUSFLAGS "C"		/* IRC+-Flags, die immer zutreffen */
+#ifdef IRCPLUS
+# define IRCPLUSFLAGS "C"		/* IRC+-Flags, die immer zutreffen */
+#endif
 
 #define STARTUP_DELAY 1			/* Erst n Sek. nach Start zu anderen Servern verbinden */
 #define RECONNECT_DELAY 3		/* Server-Links erst nach 3 Sekunden versuchen, wieder aufzubauen */

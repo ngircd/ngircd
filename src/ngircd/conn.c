@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.82 2002/10/14 22:21:00 alex Exp $
+ * $Id: conn.c,v 1.83 2002/10/15 09:24:54 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -318,7 +318,7 @@ Conn_Handler( VOID )
 			/* Fehler (z.B. Interrupt) */
 			if( errno != EINTR )
 			{
-				Log( LOG_EMERG, "Conn_Handler: select(): %s!", strerror( errno ));
+				Log( LOG_EMERG, "Conn_Handler(): select(): %s!", strerror( errno ));
 				Log( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE );
 				exit( 1 );
 			}
@@ -329,10 +329,10 @@ Conn_Handler( VOID )
 		for( i = 0; i < Conn_MaxFD + 1; i++ )
 		{
 			if( ! FD_ISSET( i, &write_sockets )) continue;
-			
+
 			/* Es kann geschrieben werden ... */
 			idx = Socket2Index( i );
-			if( ! idx ) continue;
+			if( idx == NONE ) continue;
 			
 			if( ! Handle_Write( idx ))
 			{
@@ -590,7 +590,7 @@ Try_Write( CONN_ID Idx )
 		/* Fehler! */
 		if( errno != EINTR )
 		{
-			Log( LOG_ALERT, "Try_Write: select() failed: %s (con=%d, sock=%d)!", strerror( errno ), Idx, My_Connections[Idx].sock );
+			Log( LOG_ALERT, "Try_Write(): select() failed: %s (con=%d, sock=%d)!", strerror( errno ), Idx, My_Connections[Idx].sock );
 			Conn_Close( Idx, "Server error!", NULL, FALSE );
 			return FALSE;
 		}
@@ -632,7 +632,6 @@ Handle_Read( INT Sock )
 
 		idx = Socket2Index( Sock );
 		if( idx > NONE ) Read_Request( idx );
-		else Log( LOG_DEBUG, "Handle_Read: can't get connection for socket %d!", Sock );
 	}
 } /* Handle_Read */
 
@@ -644,7 +643,7 @@ Handle_Write( CONN_ID Idx )
 
 	INT len, res, err;
 
-	assert( Idx >= NONE );
+	assert( Idx > NONE );
 	assert( My_Connections[Idx].sock > NONE );
 
 	if( FD_ISSET( My_Connections[Idx].sock, &My_Connects ))
@@ -788,7 +787,13 @@ Socket2Index( INT Sock )
 
 	for( idx = 0; idx < MAX_CONNECTIONS; idx++ ) if( My_Connections[idx].sock == Sock ) break;
 
-	if( idx >= MAX_CONNECTIONS ) return NONE;
+	if( idx >= MAX_CONNECTIONS )
+	{
+		/* die Connection wurde vermutlich (wegen eines
+		 * Fehlers) bereits wieder abgebaut ... */
+		Log( LOG_DEBUG, "Socket2Index: can't get connection for socket %d!", Sock );
+		return NONE;
+	}
 	else return idx;
 } /* Socket2Index */
 
@@ -1111,6 +1116,8 @@ New_Server( INT Server, CONN_ID Idx )
 	FD_SET( new_sock, &My_Sockets );
 	FD_SET( new_sock, &My_Connects );
 	if( new_sock > Conn_MaxFD ) Conn_MaxFD = new_sock;
+	
+	Log( LOG_DEBUG, "Registered new connection %d on socket %d.", Idx, My_Connections[Idx].sock );
 } /* New_Server */
 
 
@@ -1192,7 +1199,7 @@ Read_Resolver_Result( INT r_fd )
 	if( i >= MAX_CONNECTIONS )
 	{
 		/* Opsa! Keine passende Connection gefunden!? Vermutlich
-		* wurde sie schon wieder geschlossen. */
+		 * wurde sie schon wieder geschlossen. */
 		close( r_fd );
 		Log( LOG_DEBUG, "Resolver: Got result for unknown connection!?" );
 		return;

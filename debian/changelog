@@ -1,3 +1,9 @@
+ngircd (0.7.7-0ab1) unstable; urgency=low
+
+  * New upstream version.
+
+ -- Alexander Barton <alex@Arthur.Ath.CX>  Thu,  5 Feb 2004 14:11:08 +0100
+
 ngircd (0.7.6-0ab1) unstable; urgency=medium
 
   * New upstream version.

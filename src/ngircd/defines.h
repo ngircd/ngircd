@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: defines.h,v 1.4 2002/01/07 15:29:53 alex Exp $
+ * $Id: defines.h,v 1.5 2002/01/18 15:51:44 alex Exp $
  *
  * defines.h: (globale) Konstanten
  *
  * $Log: defines.h,v $
+ * Revision 1.5  2002/01/18 15:51:44  alex
+ * - Server-Verbinungen werden beim Start erst nach kurzer Pause aufgebaut.
+ *
  * Revision 1.4  2002/01/07 15:29:53  alex
  * - PASSSERVERADD definiert, wird beim PASS-Befehl an Server verwendet.
  *
@@ -73,6 +76,7 @@
 
 #define PASSSERVERADD PROTOVER""PROTOSUFFIX" IRC|"PACKAGE"-"VERSION" P"
 
+#define STARTUP_DELAY 3			/* Erst n Sek. nach Start zu anderen Servern verbinden */
 
 #endif
 

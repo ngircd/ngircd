@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.c,v 1.12 2002/01/05 23:26:24 alex Exp $
+ * $Id: conf.c,v 1.13 2002/01/18 15:51:44 alex Exp $
  *
  * conf.h: Konfiguration des ngircd
  *
  * $Log: conf.c,v $
+ * Revision 1.13  2002/01/18 15:51:44  alex
+ * - Server-Verbinungen werden beim Start erst nach kurzer Pause aufgebaut.
+ *
  * Revision 1.12  2002/01/05 23:26:24  alex
  * - Fehlermeldungen korrigiert.
  *
@@ -171,7 +174,7 @@ LOCAL VOID Read_Config( VOID )
 					strcpy( Conf_Server[Conf_Server_Count].name, "" );
 					strcpy( Conf_Server[Conf_Server_Count].pwd, "" );
 					Conf_Server[Conf_Server_Count].port = 0;
-					Conf_Server[Conf_Server_Count].lasttry = 0;
+					Conf_Server[Conf_Server_Count].lasttry = time( NULL ) - Conf_ConnectRetry + STARTUP_DELAY;
 					Conf_Server[Conf_Server_Count].res_stat = NULL;
 					Conf_Server_Count++;
 				}

@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: channel.c,v 1.36 2002/12/13 17:22:57 alex Exp $";
+static char UNUSED id[] = "$Id: channel.c,v 1.37 2002/12/14 13:21:56 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -293,14 +293,13 @@ Channel_MemberCount( CHANNEL *Chan )
 
 
 GLOBAL INT
-Channel_CountForUser( CHANNEL *Chan, CLIENT *Client )
+Channel_CountForUser( CLIENT *Client )
 {
 	/* Count number of channels a user is member of. */
 
 	CL2CHAN *cl2chan;
 	INT count;
 	
-	assert( Chan != NULL );
 	assert( Client != NULL );
 	
 	count = 0;
@@ -314,6 +313,25 @@ Channel_CountForUser( CHANNEL *Chan, CLIENT *Client )
 	return count;
 } /* Channel_CountForUser */
 
+
+GLOBAL INT
+Channel_PCount( VOID )
+{
+	/* Count the number of persistent (mode 'P') channels */
+
+	CHANNEL *chan;
+	INT count;
+
+	count = 0;
+	chan = My_Channels;
+	while( chan )
+	{
+		if( strchr( chan->modes, 'P' )) count++;
+		chan = chan->next;
+	}
+
+	return count;
+} /* Channel_PCount */
 
 
 GLOBAL CHAR *

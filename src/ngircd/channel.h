@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: channel.h,v 1.24 2002/12/13 17:22:57 alex Exp $
+ * $Id: channel.h,v 1.25 2002/12/14 13:21:56 alex Exp $
  *
  * Channel management (header)
  */
@@ -60,7 +60,8 @@ GLOBAL VOID Channel_Kick PARAMS((  CLIENT *Client, CLIENT *Origin, CHAR *Name, C
 
 GLOBAL LONG Channel_Count PARAMS(( VOID ));
 GLOBAL LONG Channel_MemberCount PARAMS(( CHANNEL *Chan ));
-GLOBAL INT Channel_CountForUser PARAMS(( CHANNEL *Chan, CLIENT *Client ));
+GLOBAL INT Channel_CountForUser PARAMS(( CLIENT *Client ));
+GLOBAL INT Channel_PCount PARAMS(( VOID ));
 
 GLOBAL CHAR *Channel_Name PARAMS(( CHANNEL *Chan ));
 GLOBAL CHAR *Channel_Modes PARAMS(( CHANNEL *Chan ));

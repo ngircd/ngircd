@@ -12,7 +12,11 @@
 
 ngIRCd 0.x.x, xx.xx.2002
 
-  - Begonnen Channel-Modes und User-Channel-Modes zu implementieren.
+  - Begonnen Channel-Modes und User-Channel-Modes zu implementieren: der
+    Server versteht an User-Modes o und v, beachtet letzteres allerdings
+    noch nirgends. Bekannte (aber nicht beachtete!) Channel-Modes sind
+    bisher a, m, n, p, q, s und t. Diese Modes werden von Usern ange-
+    nommen, von anderen Servern werden auch unbekannte Modes uebernommen.
 
 ngIRCd 0.1.0, 29.01.2002
 
@@ -47,4 +51,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.7 2002/02/11 00:58:12 alex Exp $
+$Id: NEWS,v 1.8 2002/02/13 17:52:37 alex Exp $

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: channel.c,v 1.29 2002/08/26 23:39:22 alex Exp $
+ * $Id: channel.c,v 1.30 2002/08/26 23:47:58 alex Exp $
  *
  * channel.c: Management der Channels
  */
@@ -454,7 +454,6 @@ Channel_ModeDel( CHANNEL *Chan, CHAR Mode )
 	CHAR x[2], *p;
 
 	assert( Chan != NULL );
-	assert( Mode > ' ' );
 
 	x[0] = Mode; x[1] = '\0';
 
@@ -483,7 +482,6 @@ Channel_UserModeAdd( CHANNEL *Chan, CLIENT *Client, CHAR Mode )
 
 	assert( Chan != NULL );
 	assert( Client != NULL );
-	assert( Mode > ' ' );
 
 	cl2chan = Get_Cl2Chan( Chan, Client );
 	assert( cl2chan != NULL );

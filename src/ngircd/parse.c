@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: parse.c,v 1.36 2002/08/26 23:39:22 alex Exp $
+ * $Id: parse.c,v 1.37 2002/08/26 23:47:58 alex Exp $
  *
  * parse.c: Parsen der Client-Anfragen
  */
@@ -348,7 +348,6 @@ Handle_Request( CONN_ID Idx, REQUEST *Req )
 	else if( strcasecmp( Req->command, "INVITE" ) == 0 ) return IRC_INVITE( client, Req );
 	else if( strcasecmp( Req->command, "KICK" ) == 0 ) return IRC_KICK( client, Req );
 	else if( strcasecmp( Req->command, "BAN" ) == 0 ) return IRC_BAN( client, Req );
-	else if( strcasecmp( Req->command, "CONNECT" ) == 0 ) return IRC_CONNECT( client, Req );
 
 	/* Unbekannter Befehl */
 	if( Client_Type( client ) != CLIENT_SERVER ) IRC_WriteStrClient( client, ERR_UNKNOWNCOMMAND_MSG, Client_ID( client ), Req->command );

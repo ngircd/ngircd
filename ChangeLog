@@ -10,7 +10,7 @@
                         -- ChangeLog / Aenderungen --
 
 
-ngIRCd 0.6.x-CVS
+ngIRCd 0.6.1, 2002-01-21
 
   - Fixed KILL: you can't crash the server by killing yourself any more,
     ngIRCd no longer sends a QUIT to other servers after the KILL, and you
@@ -20,11 +20,13 @@ ngIRCd 0.6.x-CVS
   - WHOIS commands weren't always forwarded as requested.
   - The server sets a correct default AWAY message now when propagating
     between servers (bug introduced in 0.6.0).
-  - Fixed up propagation of modes with arguments between servers and
-    enhanced the CHANINFO command.
+  - Fixed up and enhanced CHANINFO command: channel keys and user limits
+    are syncronized between servers now, too.
   - MODE returns the key and user limit for channel members correctly now.
   - Non-members of a channel could crash the server when trying to change
     its modes or modes of its members.
+  - The server didn't validate weather a target user is a valid channel
+    member when changing his channel user modes which could crash ngIRCd.
 
 
 Older changes (sorry, only available in german language):
@@ -388,4 +390,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.147.2.12 2003/01/17 19:07:15 alex Exp $
+$Id: ChangeLog,v 1.147.2.13 2003/01/21 21:20:19 alex Exp $

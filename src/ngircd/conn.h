@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.h,v 1.1 2001/12/12 17:18:38 alex Exp $
+ * $Id: conn.h,v 1.2 2001/12/13 01:33:32 alex Exp $
  *
  * conn.h: Verwaltung aller Netz-Verbindungen ("connections") (Header)
  *
  * $Log: conn.h,v $
+ * Revision 1.2  2001/12/13 01:33:32  alex
+ * - Conn_Handler() unterstuetzt nun einen Timeout (in Sekunden).
+ *
  * Revision 1.1  2001/12/12 17:18:38  alex
  * - Modul zur Verwaltung aller Netzwerk-Verbindungen begonnen.
  *
@@ -29,7 +32,7 @@ GLOBAL VOID Conn_Exit( VOID );
 
 GLOBAL BOOLEAN Conn_New_Listener( CONST INT Port );
 
-GLOBAL VOID Conn_Handler( VOID );
+GLOBAL VOID Conn_Handler( INT Timeout );
 
 
 #endif

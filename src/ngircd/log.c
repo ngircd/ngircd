@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: log.c,v 1.36 2002/09/03 17:25:45 alex Exp $
+ * $Id: log.c,v 1.37 2002/09/09 22:55:21 alex Exp $
  *
  * log.c: Logging-Funktionen
  */
@@ -181,6 +181,13 @@ va_dcl
 		fprintf( stdout, "[%d] %s\n", Level, msg );
 		fflush( stdout );
 	}
+#ifdef USE_SYSLOG
+	else
+	{
+		/* Syslog */
+		syslog( Level, msg );
+	}
+#endif
 
 	if( Level <= LOG_CRIT )
 	{
@@ -188,11 +195,6 @@ va_dcl
 		fprintf( stderr, "%s\n", msg );
 		fflush( stderr );
 	}
-
-#ifdef USE_SYSLOG
-	/* Syslog */
-	syslog( Level, msg );
-#endif
 
 	if( snotice )
 	{
@@ -241,6 +243,8 @@ va_dcl
 	va_list ap;
 
 	assert( Format != NULL );
+
+	if( NGIRCd_NoDaemon ) return;
 
 #ifdef DEBUG
 	if(( Level == LOG_DEBUG ) && ( ! NGIRCd_Debug )) return;

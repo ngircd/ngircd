@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: defines.h,v 1.8 2002/02/13 17:45:57 alex Exp $
+ * $Id: defines.h,v 1.9 2002/02/13 23:04:27 alex Exp $
  *
  * defines.h: (globale) Konstanten
  *
  * $Log: defines.h,v $
+ * Revision 1.9  2002/02/13 23:04:27  alex
+ * - CHANMODES um Operator (o) und Voiced User (v) ergaenzt.
+ *
  * Revision 1.8  2002/02/13 17:45:57  alex
  * - unterstuetzte User- und Channel-Modes stehen nun in Konstanten.
  *
@@ -86,7 +89,7 @@
 #define STARTUP_DELAY 1			/* Erst n Sek. nach Start zu anderen Servern verbinden */
 
 #define USERMODES "io"			/* unterstuetzte User-Modes */
-#define CHANMODES "amnpqst"		/* unterstuetzte Channel-Modes */
+#define CHANMODES "amnopqstv"		/* unterstuetzte Channel-Modes */
 
 
 #endif

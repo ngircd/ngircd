@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.9 2001/12/24 01:32:33 alex Exp $
+ * $Id: conn.c,v 1.10 2001/12/25 22:03:47 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
+ * Revision 1.10  2001/12/25 22:03:47  alex
+ * - Conn_Close() eingefuehrt: war die lokale Funktion Close_Connection().
+ *
  * Revision 1.9  2001/12/24 01:32:33  alex
  * - in Conn_WriteStr() wurde das CR+LF nicht angehaengt!
  * - Fehler-Ausgaben vereinheitlicht.
@@ -106,7 +109,6 @@ LOCAL VOID Handle_Read( INT sock );
 LOCAL BOOLEAN Handle_Write( CONN_ID Idx );
 LOCAL VOID New_Connection( INT Sock );
 LOCAL CONN_ID Socket2Index( INT Sock );
-LOCAL VOID Close_Connection( CONN_ID Idx, CHAR *Msg );
 LOCAL VOID Read_Request( CONN_ID Idx );
 LOCAL BOOLEAN Try_Write( CONN_ID Idx );
 
@@ -148,7 +150,7 @@ GLOBAL VOID Conn_Exit( VOID )
 			{
 				if( My_Connections[idx].sock == i ) break;
 			}
-			if( idx < MAX_CONNECTIONS ) Close_Connection( idx, "Server going down ..." );
+			if( idx < MAX_CONNECTIONS ) Conn_Close( idx, "Server going down ..." );
 			else if( FD_ISSET( i, &My_Listener ))
 			{
 				close( i );
@@ -283,14 +285,14 @@ GLOBAL BOOLEAN Conn_WriteStr( CONN_ID Idx, CHAR *Format, ... )
 	if( vsnprintf( buffer, MAX_CMDLEN - 2, Format, ap ) == MAX_CMDLEN - 2 )
 	{
 		Log( LOG_ALERT, "String too long to send (connection %d)!", Idx );
-		Close_Connection( Idx, "Server error: String too long to send!" );
+		Conn_Close( Idx, "Server error: String too long to send!" );
 		return FALSE;
 	}
 
-#ifdef DEBUG
+#ifdef SNIFFER
 	Log( LOG_DEBUG, " -> connection %d: '%s'.", Idx, buffer );
 #endif
-
+	
 	strcat( buffer, "\r\n" );
 	ok = Conn_Write( Idx, buffer, strlen( buffer ));
 
@@ -321,7 +323,7 @@ GLOBAL BOOLEAN Conn_Write( CONN_ID Idx, CHAR *Data, INT Len )
 	{
 		/* der Puffer ist dummerweise voll ... */
 		Log( LOG_NOTICE, "Write buffer overflow (connection %d)!", Idx );
-		Close_Connection( Idx, NULL );
+		Conn_Close( Idx, NULL );
 		return FALSE;
 	}
 
@@ -337,6 +339,32 @@ GLOBAL BOOLEAN Conn_Write( CONN_ID Idx, CHAR *Data, INT Len )
 	
 	return TRUE;
 } /* Conn_Write */
+
+
+GLOBAL VOID Conn_Close( CONN_ID Idx, CHAR *Msg )
+{
+	/* Verbindung schliessen */
+
+	assert( Idx >= 0 );
+	assert( My_Connections[Idx].sock >= 0 );
+
+	if( Msg ) Conn_WriteStr( Idx, "ERROR :%s", Msg );
+
+	if( close( My_Connections[Idx].sock ) != 0 )
+	{
+		Log( LOG_ERR, "Error closing connection %d with %s:%d - %s!", Idx, inet_ntoa( My_Connections[Idx].addr.sin_addr ), ntohs( My_Connections[Idx].addr.sin_port), strerror( errno ));
+		return;
+	}
+	else
+	{
+		Log( LOG_NOTICE, "Connection %d with %s:%d closed.", Idx, inet_ntoa( My_Connections[Idx].addr.sin_addr ), ntohs( My_Connections[Idx].addr.sin_port ));
+	}
+
+	Client_Destroy( Client_GetFromConn( Idx ));
+
+	FD_CLR( My_Connections[Idx].sock, &My_Sockets );
+	My_Connections[Idx].sock = NONE;
+} /* Conn_Close */
 
 
 LOCAL BOOLEAN Try_Write( CONN_ID Idx )
@@ -358,7 +386,7 @@ LOCAL BOOLEAN Try_Write( CONN_ID Idx )
 		if( errno != EINTR )
 		{
 			Log( LOG_ALERT, "select(): %s!", strerror( errno ));
-			Close_Connection( Idx, NULL );
+			Conn_Close( Idx, NULL );
 			return FALSE;
 		}
 	}
@@ -409,7 +437,7 @@ LOCAL BOOLEAN Handle_Write( CONN_ID Idx )
 	{
 		/* Oops, ein Fehler! */
 		Log( LOG_ALERT, "Write error (buffer) on connection %d: %s!", Idx, strerror( errno ));
-		Close_Connection( Idx, NULL );
+		Conn_Close( Idx, NULL );
 		return FALSE;
 	}
 	
@@ -487,32 +515,6 @@ LOCAL CONN_ID Socket2Index( INT Sock )
 } /* Socket2Index */
 
 
-LOCAL VOID Close_Connection( CONN_ID Idx, CHAR *Msg )
-{
-	/* Verbindung schlie§en */
-
-	assert( Idx >= 0 );
-	assert( My_Connections[Idx].sock >= 0 );
-	
-	if( Msg ) Conn_WriteStr( Idx, "ERROR :%s", Msg );
-
-	if( close( My_Connections[Idx].sock ) != 0 )
-	{
-		Log( LOG_ERR, "Error closing connection %d with %s:%d - %s!", Idx, inet_ntoa( My_Connections[Idx].addr.sin_addr ), ntohs( My_Connections[Idx].addr.sin_port), strerror( errno ));
-		return;
-	}
-	else
-	{
-		Log( LOG_NOTICE, "Connection %d with %s:%d closed.", Idx, inet_ntoa( My_Connections[Idx].addr.sin_addr ), ntohs( My_Connections[Idx].addr.sin_port ));
-	}
-
-	Client_Destroy( Client_GetFromConn( Idx ));
-	
-	FD_CLR( My_Connections[Idx].sock, &My_Sockets );
-	My_Connections[Idx].sock = NONE;
-} /* Close_Connection */
-
-
 LOCAL VOID Read_Request( CONN_ID Idx )
 {
 	/* Daten von Socket einlesen und entsprechend behandeln.
@@ -531,7 +533,7 @@ LOCAL VOID Read_Request( CONN_ID Idx )
 	{
 		/* Socket wurde geschlossen */
 		Log( LOG_INFO, "%s:%d is closing the connection ...", inet_ntoa( My_Connections[Idx].addr.sin_addr ), ntohs( My_Connections[Idx].addr.sin_port));
-		Close_Connection( Idx, NULL );
+		Conn_Close( Idx, NULL );
 		return;
 	}
 
@@ -539,7 +541,7 @@ LOCAL VOID Read_Request( CONN_ID Idx )
 	{
 		/* Fehler beim Lesen */
 		Log( LOG_ALERT, "Read error on connection %d: %s!", Idx, strerror( errno ));
-		Close_Connection( Idx, "Read error!" );
+		Conn_Close( Idx, "Read error!" );
 		return;
 	}
 
@@ -553,7 +555,7 @@ LOCAL VOID Read_Request( CONN_ID Idx )
 		 * (incl. CR+LF!) werden; vgl. RFC 2812. Wenn soetwas
 		 * empfangen wird, wird der Client disconnectiert. */
 		Log( LOG_ALERT, "Request too long (connection %d)!", Idx );
-		Close_Connection( Idx, "Request too long!" );
+		Conn_Close( Idx, "Request too long!" );
 		return;
 	}
 	

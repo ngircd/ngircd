@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.44 2002/01/28 00:55:08 alex Exp $
+ * $Id: irc.c,v 1.45 2002/01/28 01:18:14 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.45  2002/01/28 01:18:14  alex
+ * - connectierenden Servern werden Channels nun mit NJOIN bekannt gemacht.
+ *
  * Revision 1.44  2002/01/28 00:55:08  alex
  * - ein neu connectierender Server wird nun korrekt im Netz bekannt gemacht.
  *
@@ -416,6 +419,8 @@ GLOBAL BOOLEAN IRC_SERVER( CLIENT *Client, REQUEST *Req )
 	CHAR str[LINE_LEN], *ptr;
 	BOOLEAN ok;
 	CLIENT *from, *c;
+	CHANNEL *chan;
+	CL2CHAN *cl2chan;
 	INT i;
 	
 	assert( Client != NULL );
@@ -508,6 +513,40 @@ GLOBAL BOOLEAN IRC_SERVER( CLIENT *Client, REQUEST *Req )
 				if( ! IRC_WriteStrClient( Client, "NICK %s %d %s %s %d +%s :%s", Client_ID( c ), Client_Hops( c ) + 1, Client_User( c ), Client_Hostname( c ), Client_MyToken( Client_Introducer( c )), Client_Modes( c ), Client_Info( c ))) return DISCONNECTED;
 			}
 			c = Client_Next( c );
+		}
+
+		/* Channels dem neuen Server bekannt machen */
+		chan = Channel_First( );
+		while( chan )
+		{
+			sprintf( str, "NJOIN %s :", Channel_Name( chan ));
+
+			/* alle Member suchen */
+			cl2chan = Channel_FirstMember( chan );
+			while( cl2chan )
+			{
+				if( str[strlen( str ) - 1] != ':' ) strcat( str, "," );
+				strcat( str, Client_ID( Channel_GetClient( cl2chan )));
+
+				if( strlen( str ) > ( LINE_LEN - CLIENT_NICK_LEN - 4 ))
+				{
+					/* Zeile senden */
+					if( ! IRC_WriteStrClient( Client, str )) return DISCONNECTED;
+					sprintf( str, "NJOIN %s :", Channel_Name( chan ));
+				}
+				
+				cl2chan = Channel_NextMember( chan, cl2chan );
+			}
+
+			/* noch Daten da? */
+			if( str[strlen( str ) - 1] != ':')
+			{
+				/* Ja; Also senden ... */
+				if( ! IRC_WriteStrClient( Client, str )) return DISCONNECTED;
+			}
+
+			/* naechsten Channel suchen */
+			chan = Channel_Next( chan );
 		}
 		
 		return CONNECTED;

@@ -9,7 +9,7 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: configure.in,v 1.59 2002/09/17 17:12:24 alex Exp $
+# $Id: configure.in,v 1.58.2.1 2002/09/17 17:29:38 alex Exp $
 #
 
 # -- Initialisierung --

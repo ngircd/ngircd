@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.82 2004/01/17 03:15:45 alex Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.83 2004/01/19 21:54:59 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -422,30 +422,26 @@ NGIRCd_Rehash( VOID )
 	Log( LOG_NOTICE|LOG_snotice, "Re-reading configuration NOW!" );
 	NGIRCd_SignalRehash = FALSE;
 
-	/* Alle Listen-Sockets schliessen */
+	/* Close down all listening sockets */
 	Conn_ExitListeners( );
 
-	/* Alten Server-Namen merken */
-#ifdef DEBUG
-	assert( sizeof( old_name ) == sizeof( Conf_ServerName ));
-#endif
+	/* Remember old server name */
 	strcpy( old_name, Conf_ServerName );
 
-	/* Konfiguration neu lesen ... */
+	/* Re-read configuration ... */
 	Conf_Rehash( );
 
-	/* Alten Server-Namen wiederherstellen: dieser
-	 * kann nicht zur Laufzeit geaendert werden ... */
+	/* Recover old server name: it can't be changed during run-time */
 	if( strcmp( old_name, Conf_ServerName ) != 0 )
 	{
 		strcpy( Conf_ServerName, old_name );
 		Log( LOG_ERR, "Can't change \"ServerName\" on runtime! Ignored new name." );
 	}
 
-	/* neue pre-defined Channel anlegen: */
+	/* Create new pre-defined channels */
 	Channel_InitPredefined( );
 	
-	/* Listen-Sockets neu anlegen: */
+	/* Start listening on sockets */
 	Conn_InitListeners( );
 
 	/* Sync configuration with established connections */

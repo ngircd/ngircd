@@ -42,5 +42,20 @@ A: Auf dem System ist eine zu alte Version von GNU autoconf installiert.
    mit dem Befehl "rpm -e autoconf").
 
 
+III. Bugs!?
+~~~~~~~~~~~
+Q: Gibt es eine Liste der bekannten Bugs bzw. Feature-Wuensche?
+A: Ja. Es existiert ein Bug-Tracking-System fuer den ngIRCd (Bugzilla):
+   URL: <http://arthur.ath.cx/bugzilla/ngircd/>. Dort koennen Bugs ge-
+   meldet und Feature-Wunsche kundgetan werden. Bekannte Bugs koennen in
+   der Datenbank gesucht und aufgelistet werden.
+   Einen Account zum Suchen und Melden von Bugs bzw. Feature-Wuenschen
+   kannst du dir dort selber anlegen.
+
+Q: Was mache ich, wenn ich einen Bug gefunden habe?
+A: Am besten traegst du ihn in das Bug-Tracking-System des ngIRCd ein:
+   URL: <http://arthur.ath.cx/bugzilla/ngircd/>
+
+
 -- 
-$Id: FAQ.txt,v 1.1 2002/01/23 14:05:20 alex Exp $
+$Id: FAQ.txt,v 1.2 2002/02/19 20:05:02 alex Exp $

@@ -9,11 +9,16 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.2 2001/12/12 23:32:02 alex Exp $
+ * $Id: conn.c,v 1.3 2001/12/13 01:33:09 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
+ * Revision 1.3  2001/12/13 01:33:09  alex
+ * - Conn_Handler() unterstuetzt nun einen Timeout.
+ * - fuer Verbindungen werden keine FILE-Handles mehr benutzt.
+ * - kleinere "Code Cleanups" ;-)
+ *
  * Revision 1.2  2001/12/12 23:32:02  alex
  * - diverse Erweiterungen und Verbesserungen (u.a. sind nun mehrere
  *   Verbindungen und Listen-Sockets moeglich).
@@ -58,7 +63,6 @@ typedef struct _Connection
 {
 	INT sock;			/* Socket Handle */
 	struct sockaddr_in addr;	/* Adresse des Client */
-	FILE *fd;			/* FILE Handle */
 } CONNECTION;
 
 
@@ -69,7 +73,9 @@ LOCAL VOID New_Connection( INT Sock );
 LOCAL INT Socket2Index( INT Sock );
 
 LOCAL VOID Close_Connection( INT Idx );
-LOCAL VOID Read_Data( INT Idx );
+LOCAL VOID Read_Request( INT Idx );
+
+LOCAL BOOLEAN Send( INT Idx, CHAR *Data );
 
 
 LOCAL fd_set My_Listener;
@@ -94,7 +100,6 @@ GLOBAL VOID Conn_Init( VOID )
 	for( i = 0; i < MAX_CONNECTIONS; i++ )
 	{
 		My_Connections[i].sock = -1;
-		My_Connections[i].fd = NULL;
 	}
 } /* Conn_Init */
 
@@ -191,16 +196,20 @@ GLOBAL BOOLEAN Conn_New_Listener( CONST INT Port )
 } /* Conn_New_Listener */
 
 
-GLOBAL VOID Conn_Handler( VOID )
+GLOBAL VOID Conn_Handler( INT Timeout )
 {
 	fd_set read_sockets;
+	struct timeval tv;
 	INT i;
+
+	/* Timeout initialisieren */
+	tv.tv_sec = Timeout;
+	tv.tv_usec = 0;
 	
 	read_sockets = My_Sockets;
-	if( select( My_Max_Fd + 1, &read_sockets, NULL, NULL, NULL ) == -1 )
+	if( select( My_Max_Fd + 1, &read_sockets, NULL, NULL, &tv ) == -1 )
 	{
-		if( NGIRCd_Quit ) return;
-		Log( LOG_ALERT, "select(): %s", strerror( errno ));
+		if( errno != EINTR ) Log( LOG_ALERT, "select(): %s", strerror( errno ));
 		return;
 	}
 	
@@ -229,7 +238,7 @@ LOCAL VOID Handle_Socket( INT Sock )
 		/* Ein Client Socket: entweder ein User oder Server */
 		
 		idx = Socket2Index( Sock );
-		Read_Data( idx );
+		Read_Request( idx );
 	}
 } /* Handle_Socket */
 
@@ -238,7 +247,6 @@ LOCAL VOID New_Connection( INT Sock )
 {
 	struct sockaddr_in new_addr;
 	INT new_sock, new_sock_len, idx;
-	FILE *fd;
 
 	new_sock_len = sizeof( new_addr );
 	new_sock = accept( Sock, (struct sockaddr *)&new_addr, &new_sock_len );
@@ -252,16 +260,13 @@ LOCAL VOID New_Connection( INT Sock )
 	for( idx = 0; idx < MAX_CONNECTIONS; idx++ ) if( My_Connections[idx].sock < 0 ) break;
 	if( idx >= MAX_CONNECTIONS )
 	{
-		Log( LOG_ALERT, "Connection limit (%d) reached!", MAX_CONNECTIONS );
+		Log( LOG_ALERT, "Can't accept connection: limit (%d) reached!", MAX_CONNECTIONS );
 		close( new_sock );
 		return;
 	}
 
-	fd = fdopen( new_sock, "r+" );
-		
 	/* Verbindung registrieren */
 	My_Connections[idx].sock = new_sock;
-	My_Connections[idx].fd = fd;
 	My_Connections[idx].addr = new_addr;
 
 	/* Neuen Socket registrieren */
@@ -269,7 +274,7 @@ LOCAL VOID New_Connection( INT Sock )
 
 	if( new_sock > My_Max_Fd ) My_Max_Fd = new_sock;
 
-	fputs( "hello world!\n", fd ); fflush( fd );
+	Send( idx, "hello world!\n" );
 
 	Log( LOG_INFO, "Accepted connection from %s:%d.", inet_ntoa( new_addr.sin_addr ), ntohs( new_addr.sin_port));
 } /* New_Connection */
@@ -292,33 +297,43 @@ LOCAL VOID Close_Connection( INT Idx )
 
 	assert( My_Connections[Idx].sock >= 0 );
 	
-	if( fclose( My_Connections[Idx].fd ) != 0 )
+	if( close( My_Connections[Idx].sock ) != 0 )
 	{
 		Log( LOG_ERR, "Error closing connection with %s:%d - %s", inet_ntoa( My_Connections[Idx].addr.sin_addr ), ntohs( My_Connections[Idx].addr.sin_port), strerror( errno ));
 	}
 	else
 	{
 		Log( LOG_INFO, "Closed connection with %s:%d.", inet_ntoa( My_Connections[Idx].addr.sin_addr ), ntohs( My_Connections[Idx].addr.sin_port ));
-		close( My_Connections[Idx].sock );
 	}
 
 	FD_CLR( My_Connections[Idx].sock, &My_Sockets );
-
 	My_Connections[Idx].sock = -1;
-	My_Connections[Idx].fd = NULL;
 } /* Close_Connection */
 
 
-LOCAL VOID Read_Data( INT Idx )
+LOCAL VOID Read_Request( INT Idx )
 {
-	/* Daten von Socket einlesen */
+	/* Daten von Socket einlesen und entsprechend behandeln.
+	 * Tritt ein Fehler auf, so wird der Socket geschlossen. */
 
 	#define SIZE 256
 	
 	CHAR buffer[SIZE];
+	INT len;
 	
-	if( ! fgets( buffer, SIZE, My_Connections[Idx].fd ))
+	len = recv( My_Connections[Idx].sock, buffer, SIZE, 0 );
+
+	if( len == 0 )
 	{
+		/* Socket wurde geschlossen */
+		Close_Connection( Idx );
+		return;
+	}
+
+	if( len < 0 )
+	{
+		/* Fehler beim Lesen */
+		Log( LOG_ALERT, "Read error on socket %d!", My_Connections[Idx].sock );
 		Close_Connection( Idx );
 		return;
 	}
@@ -326,6 +341,33 @@ LOCAL VOID Read_Data( INT Idx )
 	ngt_Trim_Str( buffer );
 	printf( " in: '%s'\n", buffer );
 } /* Read_Data */
+
+
+LOCAL BOOLEAN Send( INT Idx, CHAR *Data )
+{
+	/* Daten in Socket schreiben, ggf. in mehreren Stuecken. Tritt
+	 * ein Fehler auf, so wird die Verbindung beendet und FALSE
+	 * als Rueckgabewert geliefert. */
+	
+	INT n, sent, len;
+		
+	sent = 0;
+	len = strlen( Data );
+	
+	while( sent < len )
+	{
+		n = send( My_Connections[Idx].sock, Data + sent, len - sent, 0 );
+		if( n <= 0 )
+		{
+			/* Oops, ein Fehler! */
+			Log( LOG_ALERT, "Write error on socket %d!", My_Connections[Idx].sock );
+			Close_Connection( Idx );
+			return FALSE;
+		}
+		sent += n;
+	}
+	return TRUE;
+} /* Send */
 
 
 /* -eof- */

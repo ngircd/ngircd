@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.144 2005/03/19 18:43:48 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.145 2005/03/20 11:00:31 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -1518,35 +1518,14 @@ New_Server( int Server, CONN_ID Idx )
 LOCAL void
 Init_Conn_Struct( CONN_ID Idx )
 {
+	time_t now = time( NULL );
 	/* Connection-Struktur initialisieren */
 
+	memset( &My_Connections[Idx], 0, sizeof ( CONNECTION ));
 	My_Connections[Idx].sock = NONE;
-	My_Connections[Idx].res_stat = NULL;
-	My_Connections[Idx].host[0] = '\0';
-	My_Connections[Idx].rbuf[0] = '\0';
-	My_Connections[Idx].rdatalen = 0;
-	My_Connections[Idx].wbuf[0] = '\0';
-	My_Connections[Idx].wdatalen = 0;
-	My_Connections[Idx].starttime = time( NULL );
-	My_Connections[Idx].lastdata = time( NULL );
-	My_Connections[Idx].lastping = 0;
-	My_Connections[Idx].lastprivmsg = time( NULL );
-	My_Connections[Idx].delaytime = 0;
-	My_Connections[Idx].bytes_in = 0;
-	My_Connections[Idx].bytes_out = 0;
-	My_Connections[Idx].msg_in = 0;
-	My_Connections[Idx].msg_out = 0;
-	My_Connections[Idx].flag = 0;
-	My_Connections[Idx].options = 0;
-
-#ifdef ZLIB
-	My_Connections[Idx].zip.rbuf[0] = '\0';
-	My_Connections[Idx].zip.rdatalen = 0;
-	My_Connections[Idx].zip.wbuf[0] = '\0';
-	My_Connections[Idx].zip.wdatalen = 0;
-	My_Connections[Idx].zip.bytes_in = 0;
-	My_Connections[Idx].zip.bytes_out = 0;
-#endif
+	My_Connections[Idx].starttime = now;
+	My_Connections[Idx].lastdata = now;
+	My_Connections[Idx].lastprivmsg = now;
 } /* Init_Conn_Struct */
 
 

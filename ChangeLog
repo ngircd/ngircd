@@ -45,6 +45,7 @@ ngIRCd CVS-HEAD
   - MODE returns the key and user limit for channel members correctly now.
   - Better error detection for status code ("numerics") forwarding.
   - Moved tool functions to own library: "libngtool".
+  - New command TRACE (you can trace only servers at the moment).
 
 
 Older changes (sorry, only available in german language):
@@ -408,4 +409,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.170 2003/01/13 12:22:16 alex Exp $
+$Id: ChangeLog,v 1.171 2003/01/13 18:58:07 alex Exp $

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.c,v 1.32 2002/10/04 11:21:46 alex Exp $
+ * $Id: conf.c,v 1.33 2002/10/09 16:53:02 alex Exp $
  *
  * conf.h: Konfiguration des ngircd
  */
@@ -98,8 +98,8 @@ Conf_Test( VOID )
 		printf( "%u", Conf_ListenPorts[i] );
 	}
 	puts( "" );
-	printf( "  ServerUID = %ld\n", (INT32)Conf_UID );
-	printf( "  ServerGID = %ld\n", (INT32)Conf_GID );
+	printf( "  ServerUID = %ld\n", (LONG)Conf_UID );
+	printf( "  ServerGID = %ld\n", (LONG)Conf_GID );
 	printf( "  PingTimeout = %d\n", Conf_PingTimeout );
 	printf( "  PongTimeout = %d\n", Conf_PongTimeout );
 	printf( "  ConnectRetry = %d\n", Conf_ConnectRetry );
@@ -295,7 +295,7 @@ LOCAL VOID
 Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 {
 	CHAR *ptr;
-	INT32 port;
+	LONG port;
 	
 	assert( Line > 0 );
 	assert( Var != NULL );
@@ -446,7 +446,7 @@ Handle_OPERATOR( INT Line, CHAR *Var, CHAR *Arg )
 LOCAL VOID
 Handle_SERVER( INT Line, CHAR *Var, CHAR *Arg )
 {
-	INT32 port;
+	LONG port;
 	
 	assert( Line > 0 );
 	assert( Var != NULL );

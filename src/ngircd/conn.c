@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.77 2002/10/09 13:34:19 alex Exp $
+ * $Id: conn.c,v 1.78 2002/10/09 16:53:02 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -75,7 +75,7 @@ typedef struct _Connection
 	time_t lastping;		/* Letzter PING */
 	time_t lastprivmsg;		/* Letzte PRIVMSG */
 	time_t delaytime;		/* Nicht beachten bis ("penalty") */
-	INT32 bytes_in, bytes_out;	/* Counter fuer Statistik */
+	LONG bytes_in, bytes_out;	/* Counter fuer Statistik */
 } CONNECTION;
 
 

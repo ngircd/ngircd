@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: log.c,v 1.39 2002/10/09 13:15:18 alex Exp $
+ * $Id: log.c,v 1.40 2002/10/09 16:53:02 alex Exp $
  *
  * log.c: Logging-Funktionen
  */
@@ -96,7 +96,7 @@ Log_InitErrorfile( VOID )
 	 * landen z.B. alle Ausgaben von assert()-Aufrufen. */
 
 	/* Dateiname zusammen bauen */
-	sprintf( Error_File, "%s/%s-%ld.err", ERROR_DIR, PACKAGE, (INT32)getpid( ));
+	sprintf( Error_File, "%s/%s-%ld.err", ERROR_DIR, PACKAGE, (LONG)getpid( ));
 
 	/* stderr umlenken */
 	fflush( stderr );

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: channel.c,v 1.32 2002/09/03 23:57:57 alex Exp $
+ * $Id: channel.c,v 1.33 2002/10/09 16:53:02 alex Exp $
  *
  * channel.c: Management der Channels
  */
@@ -249,11 +249,11 @@ Channel_Quit( CLIENT *Client, CHAR *Reason )
 } /* Channel_Quit */
 
 
-GLOBAL INT
+GLOBAL LONG
 Channel_Count( VOID )
 {
 	CHANNEL *c;
-	INT count;
+	LONG count;
 	
 	count = 0;
 	c = My_Channels;
@@ -266,11 +266,11 @@ Channel_Count( VOID )
 } /* Channel_Count */
 
 
-GLOBAL INT
+GLOBAL LONG
 Channel_MemberCount( CHANNEL *Chan )
 {
 	CL2CHAN *cl2chan;
-	INT count;
+	LONG count;
 
 	assert( Chan != NULL );
 

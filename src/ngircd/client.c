@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.61 2002/10/04 12:39:58 alex Exp $
+ * $Id: client.c,v 1.62 2002/10/09 16:53:02 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -60,8 +60,8 @@ LOCAL CLIENT *This_Server, *My_Clients;
 LOCAL CHAR GetID_Buffer[GETID_LEN];
 
 
-LOCAL INT Count PARAMS(( CLIENT_TYPE Type ));
-LOCAL INT MyCount PARAMS(( CLIENT_TYPE Type ));
+LOCAL LONG Count PARAMS(( CLIENT_TYPE Type ));
+LOCAL LONG MyCount PARAMS(( CLIENT_TYPE Type ));
 
 LOCAL CLIENT *New_Client_Struct PARAMS(( VOID ));
 LOCAL VOID Generate_MyToken PARAMS(( CLIENT *Client ));
@@ -840,46 +840,46 @@ Client_Next( CLIENT *c )
 } /* Client_Next */
 
 
-GLOBAL INT
+GLOBAL LONG
 Client_UserCount( VOID )
 {
 	return Count( CLIENT_USER );
 } /* Client_UserCount */
 
 
-GLOBAL INT
+GLOBAL LONG
 Client_ServiceCount( VOID )
 {
 	return Count( CLIENT_SERVICE );;
 } /* Client_ServiceCount */
 
 
-GLOBAL INT
+GLOBAL LONG
 Client_ServerCount( VOID )
 {
 	return Count( CLIENT_SERVER );
 } /* Client_ServerCount */
 
 
-GLOBAL INT
+GLOBAL LONG
 Client_MyUserCount( VOID )
 {
 	return MyCount( CLIENT_USER );
 } /* Client_MyUserCount */
 
 
-GLOBAL INT
+GLOBAL LONG
 Client_MyServiceCount( VOID )
 {
 	return MyCount( CLIENT_SERVICE );
 } /* Client_MyServiceCount */
 
 
-GLOBAL INT
+GLOBAL LONG
 Client_MyServerCount( VOID )
 {
 	CLIENT *c;
-	INT cnt;
+	LONG cnt;
 
 	cnt = 0;
 	c = My_Clients;
@@ -892,11 +892,11 @@ Client_MyServerCount( VOID )
 } /* Client_MyServerCount */
 
 
-GLOBAL INT
+GLOBAL LONG
 Client_OperCount( VOID )
 {
 	CLIENT *c;
-	INT cnt;
+	LONG cnt;
 
 	cnt = 0;
 	c = My_Clients;
@@ -909,11 +909,11 @@ Client_OperCount( VOID )
 } /* Client_OperCount */
 
 
-GLOBAL INT
+GLOBAL LONG
 Client_UnknownCount( VOID )
 {
 	CLIENT *c;
-	INT cnt;
+	LONG cnt;
 
 	cnt = 0;
 	c = My_Clients;
@@ -953,11 +953,11 @@ Client_IsValidNick( CHAR *Nick )
 } /* Client_IsValidNick */
 
 
-LOCAL INT
+LOCAL LONG
 Count( CLIENT_TYPE Type )
 {
 	CLIENT *c;
-	INT cnt;
+	LONG cnt;
 
 	cnt = 0;
 	c = My_Clients;
@@ -970,11 +970,11 @@ Count( CLIENT_TYPE Type )
 } /* Count */
 
 
-LOCAL INT
+LOCAL LONG
 MyCount( CLIENT_TYPE Type )
 {
 	CLIENT *c;
-	INT cnt;
+	LONG cnt;
 
 	cnt = 0;
 	c = My_Clients;

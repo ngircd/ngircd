@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.98 2002/10/09 13:35:32 alex Exp $
+ * $Id: irc.c,v 1.99 2002/10/09 16:53:02 alex Exp $
  *
  * irc.c: IRC-Befehle
  */
@@ -834,7 +834,7 @@ IRC_Send_WHO( CLIENT *Client, CHANNEL *Chan, BOOLEAN OnlyOps )
 GLOBAL BOOLEAN
 IRC_Send_LUSERS( CLIENT *Client )
 {
-	INT cnt;
+	LONG cnt;
 
 	assert( Client != NULL );
 

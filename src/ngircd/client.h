@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.h,v 1.29 2002/09/03 18:54:31 alex Exp $
+ * $Id: client.h,v 1.30 2002/10/09 16:53:02 alex Exp $
  *
  * client.h: Konfiguration des ngircd (Header)
  */
@@ -124,14 +124,14 @@ GLOBAL BOOLEAN Client_ModeDel PARAMS((CLIENT *Client, CHAR Mode ));
 GLOBAL BOOLEAN Client_CheckNick PARAMS((CLIENT *Client, CHAR *Nick ));
 GLOBAL BOOLEAN Client_CheckID PARAMS((CLIENT *Client, CHAR *ID ));
 
-GLOBAL INT Client_UserCount PARAMS((VOID ));
-GLOBAL INT Client_ServiceCount PARAMS((VOID ));
-GLOBAL INT Client_ServerCount PARAMS((VOID ));
-GLOBAL INT Client_OperCount PARAMS((VOID ));
-GLOBAL INT Client_UnknownCount PARAMS((VOID ));
-GLOBAL INT Client_MyUserCount PARAMS((VOID ));
-GLOBAL INT Client_MyServiceCount PARAMS((VOID ));
-GLOBAL INT Client_MyServerCount PARAMS((VOID ));
+GLOBAL LONG Client_UserCount PARAMS((VOID ));
+GLOBAL LONG Client_ServiceCount PARAMS((VOID ));
+GLOBAL LONG Client_ServerCount PARAMS((VOID ));
+GLOBAL LONG Client_OperCount PARAMS((VOID ));
+GLOBAL LONG Client_UnknownCount PARAMS((VOID ));
+GLOBAL LONG Client_MyUserCount PARAMS((VOID ));
+GLOBAL LONG Client_MyServiceCount PARAMS((VOID ));
+GLOBAL LONG Client_MyServerCount PARAMS((VOID ));
 
 GLOBAL BOOLEAN Client_IsValidNick PARAMS((CHAR *Nick ));
 

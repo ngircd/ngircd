@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.9 2001/12/21 22:24:50 alex Exp $
+ * $Id: ngircd.c,v 1.10 2001/12/24 01:34:38 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  *
  * $Log: ngircd.c,v $
+ * Revision 1.10  2001/12/24 01:34:38  alex
+ * - Signal-Handler aufgeraeumt; u.a. SIGPIPE wird nun korrekt ignoriert.
+ *
  * Revision 1.9  2001/12/21 22:24:50  alex
  * - neues Modul "parse" wird initialisiert und abgemeldet.
  *
@@ -125,16 +128,16 @@ LOCAL VOID Initialize_Signal_Handler( VOID )
 
 	/* Signal-Struktur initialisieren */
 	memset( &saction, 0, sizeof( saction ));
-	saction.sa_handler = Signal_Handler;
 
 	/* Signal-Handler einhaengen */
-	sigaction( SIGALRM, &saction, NULL );
-	sigaction( SIGHUP, &saction, NULL);
+	saction.sa_handler = Signal_Handler;
 	sigaction( SIGINT, &saction, NULL );
 	sigaction( SIGQUIT, &saction, NULL );
 	sigaction( SIGTERM, &saction, NULL);
-	sigaction( SIGUSR1, &saction, NULL);
-	sigaction( SIGUSR2, &saction, NULL);
+
+	/* einige Signale ignorieren */
+	saction.sa_handler = SIG_IGN;
+	sigaction( SIGPIPE, &saction, NULL );
 } /* Initialize_Signal_Handler */
 
 

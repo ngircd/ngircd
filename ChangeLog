@@ -10,8 +10,27 @@
                                -- ChangeLog --
 
 
+ngIRCd 0.7.5 (2003-11-07)
+
+  - Fixed ban behavior: users which are banned from a channel can't no
+    longer send PRIVMSG's to this channel (fixes Bug #47).
+  - Fixed and enhanced the "penalty handling" of the server: commands that
+    require more resources block the client for a short time.
+  - Changed the internal time resolution to one second.
+  - New configuration variable "MaxConnectionsIP" to limit the number of
+    simultaneous connections from a single IP that the server will accept.
+    This configuration options lowers the risk of denial of service attacks
+    (DoS), the default is 5 connections per client IP.
+  - Fixed build problems under Mac OS X 10.3.
+  - Use "-pipe" when compiling with gcc, speeds things up a little :-)
+  - Added new configuration variable "Listen" to bind all listening
+    sockets of the server to a single IP address.
+  - Suppress misleading error message of diff during make run.
+  - Enhanced test-suite and made it work on GNU/Hurd.
+  - Fixed minor typo in debug output :-)
+
 ngIRCd 0.7.1 (2003-07-18)
-  
+
   - Included files to build Debian packages (located in "debian/").
   - Updated config.guess and config.sub to newer upstream versions.
   - NJOIN propagates user channel modes correctly again ... Upsa.
@@ -458,4 +477,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.188.2.17 2003/07/18 20:54:47 alex Exp $
+$Id: ChangeLog,v 1.188.2.18 2003/11/07 20:51:08 alex Exp $

@@ -8,13 +8,13 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: configure.in,v 1.89.2.10 2003/07/18 20:55:10 alex Exp $
+# $Id: configure.in,v 1.89.2.11 2003/11/07 20:51:08 alex Exp $
 #
 
 # -- Initialisierung --
 
 AC_PREREQ(2.50)
-AC_INIT(ngircd, 0.7.1)
+AC_INIT(ngircd, 0.7.5)
 AC_CONFIG_SRCDIR(src/ngircd/ngircd.c)
 AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE(1.6)
@@ -271,7 +271,7 @@ if test "$GCC" = "yes"; then
 	ansi=" -ansi"
 	pedantic=" -pedantic"
 
-	$CC --version | grep 20020420 > /dev/null 2>&1
+	$CC --version | grep 20020420 >/dev/null 2>&1
 	if test $? -eq 0; then
 		# Mac OS X (and Darwin?) ship with a slightly broken
 		# prerelease of GCC 3.1 which don't like -pedantic:
@@ -279,7 +279,16 @@ if test "$GCC" = "yes"; then
 		pedantic=""
 	fi
 
-	uname | grep "CYGWIN" > /dev/null 2>&1
+	$CC --version | grep 20030304 >/dev/null 2>&1
+	if test $? -eq 0; then
+		# Mac OS X 10.3 (and Darwin 7.0?) have a strange gcc (or
+		# system header files?) which produces lots of errors when
+		# using -ansi; so we don't =:-)
+		AC_MSG_RESULT([detected broken GNU C compiler, disabling "-ansi"])
+		ansi=""
+	fi
+
+	uname | grep "CYGWIN" >/dev/null 2>&1
 	if test $? -eq 0; then
 		# The include files of Cygwin don't like -ansi,
 		# so we disable it:
@@ -287,7 +296,7 @@ if test "$GCC" = "yes"; then
 		ansi=""
 	fi
 
-	add_CFLAGS="-Wall -W${ansi}${pedantic} $CFLAGS $CFLAGS_ADD"
+	add_CFLAGS="-pipe -Wall -W${ansi}${pedantic} $CFLAGS $CFLAGS_ADD"
 else
 	the_CFLAGS="$CFLAGS"
 	add_CFLAGS="$CFLAGS_ADD"

@@ -1,6 +1,6 @@
 #!/bin/sh
 # ngIRCd Test Suite
-# $Id: stress-server.sh,v 1.6.4.1 2003/04/22 20:01:23 alex Exp $
+# $Id: stress-server.sh,v 1.6.4.2 2003/11/07 20:51:11 alex Exp $
 
 [ -z "$srcdir" ] && srcdir=`dirname $0`
 
@@ -12,11 +12,11 @@ mkdir -p logs tests
 
 type expect > /dev/null 2>&1
 if [ $? -ne 0 ]; then
-  echo "SKIP: ${name} -- \"expect\" not found.";  exit 77
+  echo "      ${name}: \"expect\" not found.";  exit 77
 fi
 type telnet > /dev/null 2>&1
 if [ $? -ne 0 ]; then
-  echo "SKIP: ${name} -- \"telnet\" not found.";  exit 77
+  echo "      ${name}: \"telnet\" not found.";  exit 77
 fi
 
 echo "      stressing server with $CLIENTS clients (be patient!) ..."

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.57.2.2 2003/04/29 12:37:18 alex Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.57.2.3 2003/11/07 20:51:10 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -120,6 +120,7 @@ Conf_Test( VOID )
 		printf( "%u", Conf_ListenPorts[i] );
 	}
 	puts( "" );
+	printf( "  Listen = %s\n", Conf_ListenAddress );
 	pwd = getpwuid( Conf_UID );
 	if( pwd ) printf( "  ServerUID = %s\n", pwd->pw_name );
 	else printf( "  ServerUID = %ld\n", (LONG)Conf_UID );
@@ -132,6 +133,8 @@ Conf_Test( VOID )
 	printf( "  OperCanUseMode = %s\n", Conf_OperCanMode == TRUE ? "yes" : "no" );
 	if( Conf_MaxConnections > 0 ) printf( "  MaxConnections = %ld\n", Conf_MaxConnections );
 	else printf( "  MaxConnections = -1\n" );
+	if( Conf_MaxConnectionsIP > 0 ) printf( "  MaxConnectionsIP = %d\n", Conf_MaxConnectionsIP );
+	else printf( "  MaxConnectionsIP = -1\n" );
 	if( Conf_MaxJoins > 0 ) printf( "  MaxJoins = %d\n", Conf_MaxJoins );
 	else printf( "  MaxJoins = -1\n" );
 	puts( "" );
@@ -340,6 +343,7 @@ Set_Defaults( BOOLEAN InitServers )
 	strlcat( Conf_MotdFile, MOTD_FILE, sizeof( Conf_MotdFile ));
 
 	Conf_ListenPorts_Count = 0;
+	strcpy( Conf_ListenAddress, "" );
 
 	Conf_UID = Conf_GID = 0;
 	
@@ -354,6 +358,7 @@ Set_Defaults( BOOLEAN InitServers )
 	Conf_OperCanMode = FALSE;
 	
 	Conf_MaxConnections = -1;
+	Conf_MaxConnectionsIP = 5;
 	Conf_MaxJoins = 10;
 
 	/* Initialize server configuration structures */
@@ -689,6 +694,16 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 		Conf_MaxConnections = atol( Arg );
 		return;
 	}
+	if( strcasecmp( Var, "MaxConnectionsIP" ) == 0 )
+	{
+		/* Maximum number of simoultanous connections from one IP. Values <= 0 are equal to "no limit". */
+#ifdef HAVE_ISDIGIT
+		if( ! isdigit( *Arg )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"MaxConnectionsIP\" is not a number!", NGIRCd_ConfFile, Line );
+		else
+#endif
+		Conf_MaxConnectionsIP = atoi( Arg );
+		return;
+	}
 	if( strcasecmp( Var, "MaxJoins" ) == 0 )
 	{
 		/* Maximum number of channels a user can join. Values <= 0 are equal to "no limit". */
@@ -697,6 +712,15 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 		else
 #endif
 		Conf_MaxJoins = atoi( Arg );
+		return;
+	}
+	if( strcasecmp( Var, "Listen" ) == 0 )
+	{
+		/* IP-Address to bind sockets */
+		if( strlcpy( Conf_ListenAddress, Arg, sizeof( Conf_ListenAddress )) >= sizeof( Conf_ListenAddress ))
+		{
+			Config_Error( LOG_WARNING, "%s, line %d: Value of \"Listen\" too long!", NGIRCd_ConfFile, Line );
+		}
 		return;
 	}
 

@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.122.2.1 2003/04/25 16:50:53 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.122.2.2 2003/11/07 20:51:11 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -87,6 +87,7 @@ LOCAL BOOLEAN Init_Socket PARAMS(( INT Sock ));
 LOCAL VOID New_Server PARAMS(( INT Server, CONN_ID Idx ));
 LOCAL VOID Read_Resolver_Result PARAMS(( INT r_fd ));
 LOCAL VOID Simple_Message PARAMS(( INT Sock, CHAR *Msg ));
+LOCAL INT Count_Connections PARAMS(( struct sockaddr_in addr ));
 
 LOCAL fd_set My_Listeners;
 LOCAL fd_set My_Sockets;
@@ -119,7 +120,9 @@ Conn_Init( VOID )
 		Log( LOG_EMERG, "Can't allocate memory! [Conn_Init]" );
 		exit( 1 );
 	}
-	Log( LOG_DEBUG, "Allocted connection pool for %d items (%ld bytes).", Pool_Size, sizeof( CONNECTION ) * Pool_Size );
+#ifdef DEBUG
+	Log( LOG_DEBUG, "Allocated connection pool for %d items (%ld bytes).", Pool_Size, sizeof( CONNECTION ) * Pool_Size );
+#endif
 
 	/* zu Beginn haben wir keine Verbindungen */
 	FD_ZERO( &My_Listeners );
@@ -146,7 +149,9 @@ Conn_Exit( VOID )
 	CONN_ID idx;
 	INT i;
 
+#ifdef DEBUG
 	Log( LOG_DEBUG, "Shutting down all connections ..." );
+#endif
 
 #ifdef RENDEZVOUS
 	Rendezvous_UnregisterListeners( );
@@ -164,12 +169,16 @@ Conn_Exit( VOID )
 			if( FD_ISSET( i, &My_Listeners ))
 			{
 				close( i );
+#ifdef DEBUG
 				Log( LOG_DEBUG, "Listening socket %d closed.", i );
+#endif
 			}
 			else if( FD_ISSET( i, &My_Connects ))
 			{
 				close( i );
+#ifdef DEBUG
 				Log( LOG_DEBUG, "Connection %d closed during creation (socket %d).", idx, i );
+#endif
 			}
 			else if( idx < Pool_Size )
 			{
@@ -224,7 +233,9 @@ Conn_ExitListeners( VOID )
 		if( FD_ISSET( i, &My_Sockets ) && FD_ISSET( i, &My_Listeners ))
 		{
 			close( i );
+#ifdef DEBUG
 			Log( LOG_DEBUG, "Listening socket %d closed.", i );
+#endif
 		}
 	}
 } /* Conn_ExitListeners */
@@ -236,6 +247,7 @@ Conn_NewListener( CONST UINT Port )
 	/* Create new listening socket on specified port */
 
 	struct sockaddr_in addr;
+	struct in_addr inaddr;
 	INT sock;
 #ifdef RENDEZVOUS
 	CHAR name[CLIENT_ID_LEN], *info;
@@ -243,9 +255,24 @@ Conn_NewListener( CONST UINT Port )
 
 	/* Server-"Listen"-Socket initialisieren */
 	memset( &addr, 0, sizeof( addr ));
+	memset( &inaddr, 0, sizeof( inaddr ));
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons( Port );
-	addr.sin_addr.s_addr = htonl( INADDR_ANY );
+	if( Conf_ListenAddress[0] )
+	{
+#ifdef HAVE_INET_ATON
+		if( inet_aton( Conf_ListenAddress, &inaddr ) == 0 )
+#else
+		inaddr.s_addr = inet_addr( Conf_ListenAddress );
+		if( inaddr.s_addr == (unsigned)-1 )
+#endif
+		{
+			Log( LOG_CRIT, "Can't listen on %s:%u: can't convert ip address %s!", Conf_ListenAddress, Port, Conf_ListenAddress );
+			return FALSE;
+		}
+	}
+	else inaddr.s_addr = htonl( INADDR_ANY );
+	addr.sin_addr = inaddr;
 
 	/* Socket erzeugen */
 	sock = socket( PF_INET, SOCK_STREAM, 0);
@@ -279,7 +306,8 @@ Conn_NewListener( CONST UINT Port )
 
 	if( sock > Conn_MaxFD ) Conn_MaxFD = sock;
 
-	Log( LOG_INFO, "Now listening on port %d (socket %d).", Port, sock );
+	if( Conf_ListenAddress[0]) Log( LOG_INFO, "Now listening on %s:%d (socket %d).", Conf_ListenAddress, Port, sock );
+	else Log( LOG_INFO, "Now listening on 0.0.0.0:%d (socket %d).", Port, sock );
 
 #ifdef RENDEZVOUS
 	/* Get best server description text */
@@ -350,10 +378,13 @@ Conn_Handler( VOID )
 		Check_Servers( );
 		Check_Connections( );
 
+		t = time( NULL );
+
 		/* noch volle Lese-Buffer suchen */
 		for( i = 0; i < Pool_Size; i++ )
 		{
-			if(( My_Connections[i].sock > NONE ) && ( My_Connections[i].rdatalen > 0 ))
+			if(( My_Connections[i].sock > NONE ) && ( My_Connections[i].rdatalen > 0 ) &&
+			 ( My_Connections[i].delaytime < t ))
 			{
 				/* Kann aus dem Buffer noch ein Befehl extrahiert werden? */
 				if( Handle_Buffer( i )) timeout = FALSE;
@@ -382,7 +413,6 @@ Conn_Handler( VOID )
 		}
 
 		/* von welchen Sockets koennte gelesen werden? */
-		t = time( NULL );
 		read_sockets = My_Sockets;
 		for( i = 0; i < Pool_Size; i++ )
 		{
@@ -413,7 +443,7 @@ Conn_Handler( VOID )
 
 		/* Timeout initialisieren */
 		tv.tv_usec = 0;
-		if( timeout ) tv.tv_sec = TIME_RES;
+		if( timeout ) tv.tv_sec = 1;
 		else tv.tv_sec = 0;
 
 		/* Auf Aktivitaet warten */
@@ -527,7 +557,9 @@ Conn_Write( CONN_ID Idx, CHAR *Data, INT Len )
 	 * In diesem Fall wird hier einfach ein Fehler geliefert. */
 	if( My_Connections[Idx].sock <= NONE )
 	{
+#ifdef DEBUG
 		Log( LOG_DEBUG, "Skipped write on closed socket (connection %d).", Idx );
+#endif
 		return FALSE;
 	}
 
@@ -836,7 +868,9 @@ Handle_Write( CONN_ID Idx )
 
 			return FALSE;
 		}
+#ifdef DEBUG
 		Log( LOG_DEBUG, "Connection %d with \"%s:%d\" established, now sendig PASS and SERVER ...", Idx, My_Connections[Idx].host, Conf_Server[Conf_GetServer( Idx )].port );
+#endif
 
 		/* PASS und SERVER verschicken */
 		Conn_WriteStr( Idx, "PASS %s %s", Conf_Server[Conf_GetServer( Idx )].pwd_out, NGIRCd_ProtoID );
@@ -887,7 +921,7 @@ New_Connection( INT Sock )
 	CONN_ID idx;
 	CLIENT *c;
 	POINTER *ptr;
-	LONG new_size;
+	LONG new_size, cnt;
 
 	assert( Sock > NONE );
 
@@ -915,6 +949,17 @@ New_Connection( INT Sock )
 
 	/* Socket initialisieren */
 	Init_Socket( new_sock );
+	
+	/* Check IP-based connection limit */
+	cnt = Count_Connections( new_addr );
+	if(( Conf_MaxConnectionsIP > 0 ) && ( cnt >= Conf_MaxConnectionsIP ))
+	{
+		/* Access denied, too many connections from this IP! */
+		Log( LOG_ERR, "Refused connection from %s: too may connections (%ld) from this IP!", inet_ntoa( new_addr.sin_addr ), cnt);
+		Simple_Message( new_sock, "ERROR :Connection refused, too many connections from your IP!" );
+		close( new_sock );
+		return;
+	}
 
 	/* Freie Connection-Struktur suchen */
 	for( idx = 0; idx < Pool_Size; idx++ ) if( My_Connections[idx].sock == NONE ) break;
@@ -966,9 +1011,13 @@ New_Connection( INT Sock )
 			/* Struktur umkopieren ... */
 			memcpy( ptr, My_Connections, sizeof( CONNECTION ) * Pool_Size );
 
+#ifdef DEBUG
 			Log( LOG_DEBUG, "Allocated new connection pool for %ld items (%ld bytes). [malloc()/memcpy()]", new_size, sizeof( CONNECTION ) * new_size );
+#endif
 		}
+#ifdef DEBUG
 		else Log( LOG_DEBUG, "Allocated new connection pool for %ld items (%ld bytes). [realloc()]", new_size, sizeof( CONNECTION ) * new_size );
+#endif
 
 		/* Adjust pointer to new block */
 		My_Connections = ptr;
@@ -1032,7 +1081,9 @@ Socket2Index( INT Sock )
 	{
 		/* die Connection wurde vermutlich (wegen eines
 		 * Fehlers) bereits wieder abgebaut ... */
+#ifdef DEBUG
 		Log( LOG_DEBUG, "Socket2Index: can't get connection for socket %d!", Sock );
+#endif
 		return NONE;
 	}
 	else return idx;
@@ -1135,6 +1186,9 @@ Handle_Buffer( CONN_ID Idx )
 	result = FALSE;
 	do
 	{
+		/* Check penalty */
+		if( My_Connections[Idx].delaytime > time( NULL )) return result;
+		
 #ifdef USE_ZLIB
 		/* ggf. noch unkomprimiete Daten weiter entpacken */
 		if( My_Connections[Idx].options & CONN_ZIP )
@@ -1214,7 +1268,9 @@ Handle_Buffer( CONN_ID Idx )
 					memcpy( My_Connections[Idx].zip.rbuf, My_Connections[Idx].rbuf, My_Connections[Idx].rdatalen );
 					My_Connections[Idx].zip.rdatalen = My_Connections[Idx].rdatalen;
 					My_Connections[Idx].rdatalen = 0;
+#ifdef DEBUG
 					Log( LOG_DEBUG, "Moved already received data (%d bytes) to uncompression buffer.", My_Connections[Idx].zip.rdatalen );
+#endif
 				}
 			}
 #endif
@@ -1251,14 +1307,18 @@ Check_Connections( VOID )
 				if( My_Connections[i].lastping < time( NULL ) - Conf_PongTimeout )
 				{
 					/* Timeout */
+#ifdef DEBUG
 					Log( LOG_DEBUG, "Connection %d: Ping timeout: %d seconds.", i, Conf_PongTimeout );
+#endif
 					Conn_Close( i, NULL, "Ping timeout", TRUE );
 				}
 			}
 			else if( My_Connections[i].lastdata < time( NULL ) - Conf_PingTimeout )
 			{
 				/* es muss ein PING gesendet werden */
+#ifdef DEBUG
 				Log( LOG_DEBUG, "Connection %d: sending PING ...", i );
+#endif
 				My_Connections[i].lastping = time( NULL );
 				Conn_WriteStr( i, "PING :%s", Client_ID( Client_ThisServer( )));
 			}
@@ -1269,7 +1329,9 @@ Check_Connections( VOID )
 			if( My_Connections[i].lastdata < time( NULL ) - Conf_PingTimeout )
 			{
 				/* Timeout */
+#ifdef DEBUG
 				Log( LOG_DEBUG, "Connection %d timed out ...", i );
+#endif
 				Conn_Close( i, NULL, "Timeout", FALSE );
 			}
 		}
@@ -1325,7 +1387,9 @@ Check_Servers( VOID )
 			Log( LOG_ALERT, "Can't establist server connection: connection limit reached (%d)!", Pool_Size );
 			return;
 		}
+#ifdef DEBUG
 		Log( LOG_DEBUG, "Preparing connection %d for \"%s\" ...", idx, Conf_Server[i].host );
+#endif
 
 		/* Verbindungs-Struktur initialisieren */
 		Init_Conn_Struct( idx );
@@ -1437,7 +1501,9 @@ New_Server( INT Server, CONN_ID Idx )
 	FD_SET( new_sock, &My_Connects );
 	if( new_sock > Conn_MaxFD ) Conn_MaxFD = new_sock;
 
+#ifdef DEBUG
 	Log( LOG_DEBUG, "Registered new connection %d on socket %d.", Idx, My_Connections[Idx].sock );
+#endif
 } /* New_Server */
 
 
@@ -1534,11 +1600,15 @@ Read_Resolver_Result( INT r_fd )
 		/* Opsa! Keine passende Connection gefunden!? Vermutlich
 		 * wurde sie schon wieder geschlossen. */
 		close( r_fd );
+#ifdef DEBUG
 		Log( LOG_DEBUG, "Resolver: Got result for unknown connection!?" );
+#endif
 		return;
 	}
 
+#ifdef DEBUG
 	Log( LOG_DEBUG, "Resolver: %s is \"%s\".", My_Connections[i].host, result );
+#endif
 
 	/* Aufraeumen */
 	close( My_Connections[i].res_stat->pipe[0] );
@@ -1580,6 +1650,20 @@ Simple_Message( INT Sock, CHAR *Msg )
 	(VOID)send( Sock, Msg, strlen( Msg ), 0 );
 	(VOID)send( Sock, "\r\n", 2, 0 );
 } /* Simple_Error */
+
+
+LOCAL INT
+Count_Connections( struct sockaddr_in addr_in )
+{
+	INT i, cnt;
+	
+	cnt = 0;
+	for( i = 0; i < Pool_Size; i++ )
+	{
+		if(( My_Connections[i].sock > NONE ) && ( My_Connections[i].addr.sin_addr.s_addr == addr_in.sin_addr.s_addr )) cnt++;
+	}
+	return cnt;
+} /* Count_Connections */
 
 
 /* -eof- */

@@ -1,5 +1,5 @@
 .\"
-.\" $Id: ngircd.conf.5,v 1.9.2.1 2003/07/18 20:48:20 alex Exp $
+.\" $Id: ngircd.conf.5,v 1.9.2.2 2003/11/07 20:51:10 alex Exp $
 .\"
 .TH ngircd.conf 5 "Mai 2003" ngircd "ngIRCd Manual"
 .SH NAME
@@ -67,6 +67,10 @@ command.
 Ports on which the server should listen. There may be more than one port,
 separated with ';'. Default: 6667.
 .TP
+\fBListen\fR
+The ip address on which the server should listen. Default is empty, so
+the server listens on all configured ip addresses and interfaces.
+.TP
 \fBMotdFile\fR
 Text file with the "message of the day" (MOTD). This message will be shown
 to all users connecting to the server.
@@ -113,6 +117,11 @@ not(!) channel-operators? Default: no.
 \fBMaxConnections\fR
 Maximum number of simultaneous connection the server is allowed to accept
 (<=0: unlimited). Default: -1.
+.TP
+\fBMaxConnectionsIP\fR
+Maximum number of simultaneous connections from a single IP address that
+the server will accept (<=0: unlimited). This configuration options lowers
+the risk of denial of service attacks (DoS). Default: 5.
 .TP
 \fBMaxJoins\fR
 Maximum number of channels a user can be member of (<=0: no limit).

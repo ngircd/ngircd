@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-write.c,v 1.14 2002/12/30 17:15:42 alex Exp $";
+static char UNUSED id[] = "$Id: irc-write.c,v 1.14.2.1 2003/11/07 20:51:11 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -393,6 +393,21 @@ va_dcl
 	}
 	return ok;
 } /* IRC_WriteStrRelatedPrefix */
+
+
+GLOBAL VOID
+IRC_SetPenalty( CLIENT *Client, INT Seconds )
+{
+	CONN_ID c;
+	
+	assert( Client != NULL );
+	assert( Seconds > 0 );
+	
+	if( Client_Type( Client ) == CLIENT_SERVER ) return;
+	
+	c = Client_Conn( Client );
+	if( c > NONE ) Conn_SetPenalty( c, Seconds );		
+} /* IRC_SetPenalty */
 
 
 LOCAL CHAR *

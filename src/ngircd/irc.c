@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc.c,v 1.120.2.1 2003/04/29 12:20:14 alex Exp $";
+static char UNUSED id[] = "$Id: irc.c,v 1.120.2.2 2003/11/07 20:51:11 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -265,6 +265,7 @@ IRC_TRACE( CLIENT *Client, REQUEST *Req )
 	/* Some information about us */
 	if( ! IRC_WriteStrClient( from, RPL_TRACESERVER_MSG, Client_ID( from ), Conf_ServerName, Client_Mask( Client_ThisServer( )), Option_String( Client_Conn( Client )))) return DISCONNECTED;
 
+	IRC_SetPenalty( Client, 3 );
 	return IRC_WriteStrClient( from, RPL_TRACEEND_MSG, Client_ID( from ), Conf_ServerName, PACKAGE_NAME, PACKAGE_VERSION, NGIRCd_DebugLevel );
 } /* IRC_TRACE */
 
@@ -286,6 +287,8 @@ IRC_HELP( CLIENT *Client, REQUEST *Req )
 		if( ! IRC_WriteStrClient( Client, "NOTICE %s :%s", Client_ID( Client ), cmd->name )) return DISCONNECTED;
 		cmd++;
 	}
+	
+	IRC_SetPenalty( Client, 2 );
 	return CONNECTED;
 } /* IRC_HELP */
 

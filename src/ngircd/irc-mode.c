@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-mode.c,v 1.31 2003/01/21 21:04:16 alex Exp $";
+static char UNUSED id[] = "$Id: irc-mode.c,v 1.31.2.1 2003/11/07 20:51:11 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -230,7 +230,8 @@ client_exit:
 		}
 		Log( LOG_DEBUG, "User \"%s\": Mode change, now \"%s\".", Client_Mask( Target ), Client_Modes( Target ));
 	}
-		
+	
+	IRC_SetPenalty( Client, 1 );	
 	return ok;
 } /* Client_Mode */
 
@@ -598,6 +599,7 @@ chan_exit:
 		}
 	}
 
+	IRC_SetPenalty( Client, 1 );
 	return CONNECTED;
 } /* Channel_Mode */
 

@@ -10,6 +10,15 @@
                                   -- NEWS --
 
 
+ngIRCd 0.7.5 (2003-07-11)
+
+  - New configuration variable "MaxConnectionsIP" to limit the number of
+    simultaneous connections from a single IP that the server will accept.
+    This configuration options lowers the risk of denial of service attacks
+    (DoS), the default is 5 connections per client IP.
+  - Added new configuration variable "Listen" to bind all listening
+    sockets of the server to a single IP address.
+
 ngIRCd 0.7.1 (2003-07-18)
 
   - Added support for GNU/Hurd.
@@ -165,4 +174,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.53.2.4 2003/07/18 20:54:47 alex Exp $
+$Id: NEWS,v 1.53.2.5 2003/11/07 20:51:08 alex Exp $

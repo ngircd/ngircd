@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conf.h,v 1.26 2002/12/31 16:12:50 alex Exp $
+ * $Id: conf.h,v 1.26.2.1 2003/11/07 20:51:11 alex Exp $
  *
  * Configuration management (header)
  */
@@ -76,6 +76,9 @@ GLOBAL CHAR Conf_MotdFile[FNAME_LEN];
 GLOBAL UINT Conf_ListenPorts[MAX_LISTEN_PORTS];
 GLOBAL INT Conf_ListenPorts_Count;
 
+/* Address to which the socket should be bound or empty (=all) */
+GLOBAL CHAR Conf_ListenAddress[16];
+
 /* User and group ID the server should run with */
 GLOBAL UINT Conf_UID;
 GLOBAL UINT Conf_GID;
@@ -106,6 +109,9 @@ GLOBAL LONG Conf_MaxConnections;
 
 /* Maximum number of channels a user can join */
 GLOBAL INT Conf_MaxJoins;
+
+/* Maximum number of connections per IP address */
+GLOBAL INT Conf_MaxConnectionsIP;
 
 
 GLOBAL VOID Conf_Init PARAMS((VOID ));

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-login.c,v 1.34 2003/03/31 15:54:21 alex Exp $";
+static char UNUSED id[] = "$Id: irc-login.c,v 1.34.2.1 2003/11/07 20:51:11 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -223,6 +223,7 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 			
 			/* neuen Client-Nick speichern */
 			Client_SetID( target, Req->argv[0] );
+			IRC_SetPenalty( target, 2 );
 		}
 
 		return CONNECTED;
@@ -456,6 +457,9 @@ Hello_User( CLIENT *Client )
 
 	if( ! IRC_Send_LUSERS( Client )) return DISCONNECTED;
 	if( ! IRC_Show_MOTD( Client )) return DISCONNECTED;
+
+	/* Suspend the client for a second ... */
+	IRC_SetPenalty( Client, 1 );
 
 	return CONNECTED;
 } /* Hello_User */

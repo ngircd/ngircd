@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: portabtest.c,v 1.7 2002/09/09 10:00:39 alex Exp $
+ * $Id: portabtest.c,v 1.8 2002/09/09 10:05:10 alex Exp $
  *
  * portabtest.c: Testprogramm fuer portab.h
  */
@@ -23,40 +23,21 @@
 #include "exp.h"
 
 
-LOCAL BOOLEAN portab_check_types PARAMS(( VOID ));
-
-
 GLOBAL int
 main( VOID )
 {
-	INT ret = 0;
-
-	printf( "      - system type: %s/%s/%s\n", TARGET_CPU, TARGET_VENDOR, TARGET_OS );
-
-	printf( "      - datatypes: ");
-	if( ! portab_check_types( ))
-	{
-		puts( "FAILED!" );
-		ret = 1;
-	}
-	else puts( "ok." );
-
-	return ret;
-} /* main */
-
-
-LOCAL BOOLEAN
-portab_check_types( VOID )
-{
-	if( FALSE != 0 ) return 0;
-	if( TRUE != 1 ) return 0;
-	if( sizeof( INT8 ) != 1 ) return 0;
-	if( sizeof( UINT8 ) != 1 ) return 0;
-	if( sizeof( INT16 ) != 2 ) return 0;
-	if( sizeof( UINT16 ) != 2 ) return 0;
-	if( sizeof( INT32 ) != 4 ) return 0;
-	if( sizeof( UINT32 ) != 4 ) return 0;
-	return 1;
+	/* Datentypen pruefen */
+	if( FALSE != 0 ) return 1;
+	if( TRUE != 1 ) return 1;
+	if( sizeof( INT8 ) != 1 ) return 1;
+	if( sizeof( UINT8 ) != 1 ) return 1;
+	if( sizeof( INT16 ) != 2 ) return 1;
+	if( sizeof( UINT16 ) != 2 ) return 1;
+	if( sizeof( INT32 ) != 4 ) return 1;
+	if( sizeof( UINT32 ) != 4 ) return 1;
+	
+	/* kein Fehler */
+	return 0;
 } /* portab_check_types */
 
 

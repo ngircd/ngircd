@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.23 2002/02/17 23:40:21 alex Exp $
+ * $Id: ngircd.c,v 1.24 2002/02/19 20:08:24 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  *
  * $Log: ngircd.c,v $
+ * Revision 1.24  2002/02/19 20:08:24  alex
+ * - "Passive-Mode" implementiert: kein Auto-Conect zu anderen Servern.
+ * - NGIRCd_DebugLevel wird (fuer VERSION-Befehl) ermittelt.
+ *
  * Revision 1.23  2002/02/17 23:40:21  alex
  * - neue Funktion NGIRCd_VersionAddition(). NGIRCd_Version() aufgespaltet.
  *
@@ -139,6 +143,7 @@ GLOBAL INT main( INT argc, CONST CHAR *argv[] )
 	NGIRCd_Restart = FALSE;
 	NGIRCd_Quit = FALSE;
 	NGIRCd_NoDaemon = FALSE;
+	NGIRCd_Passive = FALSE;
 #ifdef DEBUG
 	NGIRCd_Debug = FALSE;
 #endif
@@ -154,17 +159,6 @@ GLOBAL INT main( INT argc, CONST CHAR *argv[] )
 		{
 			/* Lange Option */
 
-			if( strcmp( argv[i], "--help" ) == 0 )
-			{
-				Show_Version( ); puts( "" );
-				Show_Help( ); puts( "" );
-				exit( 1 );
-			}
-			if( strcmp( argv[i], "--version" ) == 0 )
-			{
-				Show_Version( );
-				exit( 1 );
-			}
 #ifdef DEBUG
 			if( strcmp( argv[i], "--debug" ) == 0 )
 			{
@@ -172,6 +166,22 @@ GLOBAL INT main( INT argc, CONST CHAR *argv[] )
 				ok = TRUE;
 			}
 #endif
+			if( strcmp( argv[i], "--help" ) == 0 )
+			{
+				Show_Version( ); puts( "" );
+				Show_Help( ); puts( "" );
+				exit( 1 );
+			}
+			if( strcmp( argv[i], "--nodaemon" ) == 0 )
+			{
+				NGIRCd_NoDaemon = TRUE;
+				ok = TRUE;
+			}
+			if( strcmp( argv[i], "--passive" ) == 0 )
+			{
+				NGIRCd_Passive = TRUE;
+				ok = TRUE;
+			}
 #ifdef SNIFFER
 			if( strcmp( argv[i], "--sniffer" ) == 0 )
 			{
@@ -179,10 +189,10 @@ GLOBAL INT main( INT argc, CONST CHAR *argv[] )
 				ok = TRUE;
 			}
 #endif
-			if( strcmp( argv[i], "--nodaemon" ) == 0 )
+			if( strcmp( argv[i], "--version" ) == 0 )
 			{
-				NGIRCd_NoDaemon = TRUE;
-				ok = TRUE;
+				Show_Version( );
+				exit( 1 );
 			}
 		}
 		else if(( argv[i][0] == '-' ) && ( argv[i][1] != '-' ))
@@ -199,6 +209,16 @@ GLOBAL INT main( INT argc, CONST CHAR *argv[] )
 					ok = TRUE;
 				}
 #endif
+				if( argv[i][n] == 'n' )
+				{
+					NGIRCd_NoDaemon = TRUE;
+					ok = TRUE;
+				}
+				if( argv[i][n] == 'p' )
+				{
+					NGIRCd_Passive = TRUE;
+					ok = TRUE;
+				}
 #ifdef SNIFFER
 				if( argv[i][n] == 's' )
 				{
@@ -206,11 +226,6 @@ GLOBAL INT main( INT argc, CONST CHAR *argv[] )
 					ok = TRUE;
 				}
 #endif
-				if( argv[i][n] == 'n' )
-				{
-					NGIRCd_NoDaemon = TRUE;
-					ok = TRUE;
-				}
 
 				if( ! ok )
 				{
@@ -229,6 +244,15 @@ GLOBAL INT main( INT argc, CONST CHAR *argv[] )
 		}
 	}
 
+	/* Debug-Level (fuer IRC-Befehl "VERSION") ermitteln */
+	strcpy( NGIRCd_DebugLevel, "" );
+#ifdef DEBUG
+	if( NGIRCd_Debug ) strcpy( NGIRCd_DebugLevel, "1" );
+#endif
+#ifdef SNIFFER
+	if( NGIRCd_Sniffer ) strcpy( NGIRCd_DebugLevel, "2" );
+#endif
+	
 	while( ! NGIRCd_Quit )
 	{
 		/* In der Regel wird ein Sub-Prozess ge-fork()'t, der
@@ -430,6 +454,7 @@ LOCAL VOID Show_Help( VOID )
 	puts( "  -d, --debug       log extra debug messages" );
 #endif
         puts( "  -n, --nodaemon    don't fork and don't detatch from controlling terminal" );
+        puts( "  -p, --passive     disable automatic connections to other servers" );
 #ifdef SNIFFER
 	puts( "  -s, --sniffer     enable network sniffer and display all IRC traffic" );
 #endif

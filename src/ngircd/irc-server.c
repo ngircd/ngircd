@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-server.c,v 1.35 2004/01/17 03:17:49 alex Exp $";
+static char UNUSED id[] = "$Id: irc-server.c,v 1.36 2004/04/25 15:43:18 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -30,6 +30,7 @@ static char UNUSED id[] = "$Id: irc-server.c,v 1.35 2004/01/17 03:17:49 alex Exp
 #include "client.h"
 #include "channel.h"
 #include "irc-write.h"
+#include "lists.h"
 #include "log.h"
 #include "messages.h"
 #include "parse.h"
@@ -183,6 +184,9 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 			/* Send CHANINFO if the peer supports it */
 			if( strchr( Client_Flags( Client ), 'C' ))
 			{
+#ifdef DEBUG
+				Log( LOG_DEBUG, "Sending CHANINFO commands ..." );
+#endif
 				modes = Channel_Modes( chan );
 				topic = Channel_Topic( chan );
 
@@ -238,6 +242,18 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 				/* Ja; Also senden ... */
 				if( ! IRC_WriteStrClient( Client, "%s", str )) return DISCONNECTED;
 			}
+
+#ifdef IRCPLUS
+			if( strchr( Client_Flags( Client ), 'L' ))
+			{
+#ifdef DEBUG
+				Log( LOG_DEBUG, "Synchronizing INVITE- and BAN-lists ..." );
+#endif
+				/* Synchronize INVITE- and BAN-lists */
+				if( ! Lists_SendInvites( Client )) return DISCONNECTED;
+				if( ! Lists_SendBans( Client )) return DISCONNECTED;
+			}
+#endif
 
 			/* naechsten Channel suchen */
 			chan = Channel_Next( chan );

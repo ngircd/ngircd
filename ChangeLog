@@ -12,6 +12,7 @@
 
 ngircd 0.8.x (CVS)
 
+  - Added doc/SSL.txt to distribution.
   - Fixed a buffer overflow that could cause the daemon to crash. Bug found
     by Florian Westphal, <westphal@foo.fh-furtwangen.de>.
   - Fixed a possible buffer underrun when reading the MOTD file. Thanks
@@ -553,4 +554,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.233.2.15 2005/01/26 13:27:01 alex Exp $
+$Id: ChangeLog,v 1.233.2.16 2005/01/26 21:47:47 alex Exp $

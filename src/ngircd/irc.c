@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.76 2002/02/27 16:04:14 alex Exp $
+ * $Id: irc.c,v 1.77 2002/02/27 17:05:41 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.77  2002/02/27 17:05:41  alex
+ * - PRIVMSG beachtet nun die Channel-Modes "n" und "m".
+ *
  * Revision 1.76  2002/02/27 16:04:14  alex
  * - Bug bei belegtem Nickname bei User-Registrierung (NICK-Befehl) behoben.
  *
@@ -1203,7 +1206,8 @@ GLOBAL BOOLEAN IRC_MOTD( CLIENT *Client, REQUEST *Req )
 
 GLOBAL BOOLEAN IRC_PRIVMSG( CLIENT *Client, REQUEST *Req )
 {
-	CLIENT *to, *from;
+	BOOLEAN is_member, has_voice, is_op, ok;
+	CLIENT *cl, *from;
 	CHANNEL *chan;
 	
 	assert( Client != NULL );
@@ -1220,18 +1224,34 @@ GLOBAL BOOLEAN IRC_PRIVMSG( CLIENT *Client, REQUEST *Req )
 	else from = Client;
 	if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
 
-	to = Client_Search( Req->argv[0] );
-	if( to )
+	cl = Client_Search( Req->argv[0] );
+	if( cl )
 	{
 		/* Okay, Ziel ist ein User */
 		if( Client_Conn( from ) > NONE ) Conn_UpdateIdle( Client_Conn( from ));
-		return IRC_WriteStrClientPrefix( to, from, "PRIVMSG %s :%s", Client_ID( to ), Req->argv[1] );
+		return IRC_WriteStrClientPrefix( cl, from, "PRIVMSG %s :%s", Client_ID( cl ), Req->argv[1] );
 	}
 
 	chan = Channel_Search( Req->argv[0] );
 	if( chan )
 	{
 		/* Okay, Ziel ist ein Channel */
+		is_member = has_voice = is_op = FALSE;
+		if( Channel_IsMemberOf( chan, from ))
+		{
+			is_member = TRUE;
+			if( strchr( Channel_UserModes( chan, from ), 'v' )) has_voice = TRUE;
+			if( strchr( Channel_UserModes( chan, from ), 'o' )) is_op = TRUE;
+		}
+		
+		/* pruefen, ob Client in Channel schreiben darf */
+		ok = TRUE;
+		if( strchr( Channel_Modes( chan ), 'n' ) && ( ! is_member )) ok = FALSE;
+		if( strchr( Channel_Modes( chan ), 'm' ) && ( ! is_op ) && ( ! has_voice )) ok = FALSE;
+
+		if( ! ok ) return IRC_WriteStrClient( from, ERR_CANNOTSENDTOCHAN_MSG, Client_ID( from ), Req->argv[0] );
+
+		/* Text senden */
 		if( Client_Conn( from ) > NONE ) Conn_UpdateIdle( Client_Conn( from ));
 		return IRC_WriteStrChannelPrefix( Client, chan, from, TRUE, "PRIVMSG %s :%s", Req->argv[0], Req->argv[1] );
 	}

@@ -9,7 +9,7 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: configure.in,v 1.51 2002/05/24 23:42:37 alex Exp $
+# $Id: configure.in,v 1.52 2002/05/27 13:03:11 alex Exp $
 #
 
 # -- Initialisierung --
@@ -60,11 +60,11 @@ AC_HEADER_TIME
 AC_HEADER_SYS_WAIT
 
 AC_CHECK_HEADERS([ \
-	ctype.h errno.h fcntl.h netdb.h netinet/in.h regex.h stdlib.h \
-	string.h strings.h sys/socket.h sys/time.h unistd.h \
+	ctype.h errno.h fcntl.h netdb.h netinet/in.h regex.h stdlib.h string.h \
+	strings.h sys/socket.h sys/time.h unistd.h \
 	],,AC_MSG_ERROR([required C header missing!]))
 
-AC_CHECK_HEADERS(arpa/inet.h malloc.h stdint.h)
+AC_CHECK_HEADERS(arpa/inet.h malloc.h regex.h stdint.h varargs.h)
 
 # -- Datentypen --
 
@@ -101,11 +101,11 @@ AC_FUNC_STRFTIME
 
 AC_CHECK_FUNCS([ \
 	bind gethostbyaddr gethostbyname gethostname inet_ntoa memmove \
-	memset regcomp select setsockopt socket strcasecmp strchr \
-	strerror strstr waitpid \
+	memset select setsockopt socket strcasecmp strchr strerror \
+	strstr waitpid \
 	],,AC_MSG_ERROR([required function missing!]))
 
-AC_CHECK_FUNCS(inet_aton sigaction snprintf vsnprintf)
+AC_CHECK_FUNCS(inet_aton regcomp sigaction snprintf vsnprintf)
 
 # -- Konfigurationsoptionen --
 

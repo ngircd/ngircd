@@ -19,6 +19,8 @@ ngIRCd 0.7.0
   ngIRCd 0.7.0-pre2
   - CVS build system fixes (made autogen.sh more portable).
   - Fixed compilation and test-suite on SunOS (tested with 5.6).
+  - New documentation file "doc/Platforms.txt" describing the status of
+    ngIRCd on the various tested platforms.
 
   ngIRCd 0.7.0-pre1 (2003-04-22)
   - New signal handler (more secure, actions are executed outside).
@@ -442,4 +444,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.192 2003/04/22 20:42:28 alex Exp $
+$Id: ChangeLog,v 1.193 2003/04/22 23:55:06 alex Exp $

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.92 2002/06/10 21:08:45 alex Exp $
+ * $Id: irc.c,v 1.93 2002/06/11 13:58:43 alex Exp $
  *
  * irc.c: IRC-Befehle
  */
@@ -119,7 +119,7 @@ IRC_NOTICE( CLIENT *Client, REQUEST *Req )
 	if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
 
 	to = Client_Search( Req->argv[0] );
-	if( to )
+	if(( to ) && ( Client_Type( to ) == CLIENT_USER ))
 	{
 		/* Okay, Ziel ist ein User */
 		return IRC_WriteStrClientPrefix( to, from, "NOTICE %s :%s", Client_ID( to ), Req->argv[1] );

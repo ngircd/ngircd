@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.73 2003/03/07 14:35:52 alex Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.74 2003/03/07 14:50:13 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -357,7 +357,7 @@ NGIRCd_Version( VOID )
 GLOBAL CHAR *
 NGIRCd_VersionAddition( VOID )
 {
-	STATIC CHAR txt[64];
+	STATIC CHAR txt[200];
 
 	strcpy( txt, "" );
 

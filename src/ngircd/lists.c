@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: lists.c,v 1.10 2002/12/12 12:24:18 alex Exp $";
+static char UNUSED id[] = "$Id: lists.c,v 1.11 2002/12/26 16:25:43 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -331,19 +331,17 @@ Lists_MakeMask( CHAR *Pattern )
 
 	if(( ! at ) && ( ! excl ))
 	{
-		/* weder ! noch @Êvorhanden: als Nick annehmen */
-		strncpy( TheMask, Pattern, MASK_LEN - 5 );
-		TheMask[MASK_LEN - 5] = '\0';
-		strcat( TheMask, "!*@*" );
+		/* weder ! noch @ vorhanden: als Nick annehmen */
+		strlcpy( TheMask, Pattern, sizeof( TheMask ) - 5 );
+		strlcat( TheMask, "!*@*", sizeof( TheMask ));
 		return TheMask;
 	}
 
 	if(( ! at ) && ( excl ))
 	{
 		/* Domain fehlt */
-		strncpy( TheMask, Pattern, MASK_LEN - 3 );
-		TheMask[MASK_LEN - 3] = '\0';
-		strcat( TheMask, "@*" );
+		strlcpy( TheMask, Pattern, sizeof( TheMask ) - 3 );
+		strlcat( TheMask, "@*", sizeof( TheMask ));
 		return TheMask;
 	}
 
@@ -351,17 +349,14 @@ Lists_MakeMask( CHAR *Pattern )
 	{
 		/* User fehlt */
 		*at = '\0'; at++;
-		strncpy( TheMask, Pattern, MASK_LEN - 4 );
-		TheMask[MASK_LEN - 4] = '\0';
-		strcat( TheMask, "!*@" );
-		strncat( TheMask, at, strlen( TheMask ) - MASK_LEN - 1 );
-		TheMask[MASK_LEN - 1] = '\0';
+		strlcpy( TheMask, Pattern, sizeof( TheMask ) - strlen( at ) - 4 );
+		strlcat( TheMask, "!*@", sizeof( TheMask ));
+		strlcat( TheMask, at, sizeof( TheMask ));
 		return TheMask;
 	}
 
 	/* alle Teile vorhanden */
-	strncpy( TheMask, Pattern, MASK_LEN - 1 );
-	TheMask[MASK_LEN - 1] = '\0';
+	strlcpy( TheMask, Pattern, sizeof( TheMask ));
 	return TheMask;
 } /* Lists_MakeMask */
 
@@ -382,7 +377,7 @@ New_C2C( CHAR *Mask, CHANNEL *Chan, BOOLEAN OnlyOnce )
 		return NULL;
 	}
 
-	strncpy( c2c->mask, Mask, MASK_LEN );
+	strlcpy( c2c->mask, Mask, sizeof( c2c->mask ));
 	c2c->channel = Chan;
 	c2c->onlyonce = OnlyOnce;
 

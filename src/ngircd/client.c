@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: client.c,v 1.67 2002/12/22 23:29:09 alex Exp $";
+static char UNUSED id[] = "$Id: client.c,v 1.68 2002/12/26 16:25:43 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -300,8 +300,7 @@ Client_SetHostname( CLIENT *Client, CHAR *Hostname )
 	assert( Client != NULL );
 	assert( Hostname != NULL );
 	
-	strncpy( Client->host, Hostname, CLIENT_HOST_LEN - 1 );
-	Client->host[CLIENT_HOST_LEN - 1] = '\0';
+	strlcpy( Client->host, Hostname, sizeof( Client->host ));
 } /* Client_SetHostname */
 
 
@@ -313,8 +312,7 @@ Client_SetID( CLIENT *Client, CHAR *ID )
 	assert( Client != NULL );
 	assert( ID != NULL );
 	
-	strncpy( Client->id, ID, CLIENT_ID_LEN - 1 );
-	Client->id[CLIENT_ID_LEN - 1] = '\0';
+	strlcpy( Client->id, ID, sizeof( Client->id ));
 
 	/* Hash */
 	Client->hash = Hash( Client->id );
@@ -329,13 +327,12 @@ Client_SetUser( CLIENT *Client, CHAR *User, BOOLEAN Idented )
 	assert( Client != NULL );
 	assert( User != NULL );
 	
-	if( Idented ) strncpy( Client->user, User, CLIENT_USER_LEN - 1 );
+	if( Idented ) strlcpy( Client->user, User, sizeof( Client->user ));
 	else
 	{
 		Client->user[0] = '~';
-		strncpy( Client->user + 1, User, CLIENT_USER_LEN - 2 );
+		strlcpy( Client->user + 1, User, sizeof( Client->user ) - 1 );
 	}
-	Client->user[CLIENT_USER_LEN - 1] = '\0';
 } /* Client_SetUser */
 
 
@@ -347,8 +344,7 @@ Client_SetInfo( CLIENT *Client, CHAR *Info )
 	assert( Client != NULL );
 	assert( Info != NULL );
 	
-	strncpy( Client->info, Info, CLIENT_INFO_LEN - 1 );
-	Client->info[CLIENT_INFO_LEN - 1] = '\0';
+	strlcpy( Client->info, Info, sizeof( Client->info ));
 } /* Client_SetInfo */
 
 
@@ -360,8 +356,7 @@ Client_SetModes( CLIENT *Client, CHAR *Modes )
 	assert( Client != NULL );
 	assert( Modes != NULL );
 
-	strncpy( Client->modes, Modes, CLIENT_MODE_LEN - 1 );
-	Client->modes[CLIENT_MODE_LEN - 1] = '\0';
+	strlcpy( Client->modes, Modes, sizeof( Client->modes ));
 } /* Client_SetModes */
 
 
@@ -373,8 +368,7 @@ Client_SetFlags( CLIENT *Client, CHAR *Flags )
 	assert( Client != NULL );
 	assert( Flags != NULL );
 
-	strncpy( Client->flags, Flags, CLIENT_FLAGS_LEN - 1 );
-	Client->flags[CLIENT_FLAGS_LEN - 1] = '\0';
+	strlcpy( Client->flags, Flags, sizeof( Client->flags ));
 } /* Client_SetFlags */
 
 
@@ -386,8 +380,7 @@ Client_SetPassword( CLIENT *Client, CHAR *Pwd )
 	assert( Client != NULL );
 	assert( Pwd != NULL );
 	
-	strncpy( Client->pwd, Pwd, CLIENT_PASS_LEN - 1 );
-	Client->pwd[CLIENT_PASS_LEN - 1] = '\0';
+	strlcpy( Client->pwd, Pwd, sizeof( Client->pwd ));
 } /* Client_SetPassword */
 
 
@@ -401,8 +394,7 @@ Client_SetAway( CLIENT *Client, CHAR *Txt )
 	if( Txt )
 	{
 		/* Client AWAY setzen */
-		strncpy( Client->away, Txt, CLIENT_AWAY_LEN - 1 );
-		Client->away[CLIENT_AWAY_LEN - 1] = '\0';
+		strlcpy( Client->away, Txt, sizeof( Client->away ));
 		Client_ModeAdd( Client, 'a' );
 		Log( LOG_DEBUG, "User \"%s\" is away: %s", Client_Mask( Client ), Txt );
 	}
@@ -539,8 +531,7 @@ Client_Search( CHAR *Nick )
 	assert( Nick != NULL );
 
 	/* Nick kopieren und ggf. Host-Mask abschneiden */
-	strncpy( search_id, Nick, CLIENT_ID_LEN - 1 );
-	search_id[CLIENT_ID_LEN - 1] = '\0';
+	strlcpy( search_id, Nick, sizeof( search_id ));
 	ptr = strchr( search_id, '!' );
 	if( ptr ) *ptr = '\0';
 

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: hash.c,v 1.8 2002/12/26 13:16:54 alex Exp $";
+static char UNUSED id[] = "$Id: hash.c,v 1.9 2002/12/26 16:25:43 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -38,9 +38,7 @@ Hash( CHAR *String )
 
 	CHAR buffer[LINE_LEN];
 
-	strncpy( buffer, String, LINE_LEN - 1 );
-	buffer[LINE_LEN - 1] = '\0';
-	
+	strlcpy( buffer, String, sizeof( buffer ));
 	return jenkins_hash( (UINT8 *)ngt_LowerStr( buffer ), strlen( buffer ), 42 );
 } /* Hash */
 

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.66 2002/12/26 13:17:57 alex Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.67 2002/12/26 16:25:43 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -88,11 +88,10 @@ main( int argc, const char *argv[] )
 			{
 				if( i + 1 < argc )
 				{
-					/* Ok, danach kommt noch ein Parameter */
-					strncpy( NGIRCd_ConfFile, argv[i + 1], FNAME_LEN - 1 );
-					NGIRCd_ConfFile[FNAME_LEN - 1] = '\0';
+					/* Ok, there's an parameter left */
+					strlcpy( NGIRCd_ConfFile, argv[i + 1], sizeof( NGIRCd_ConfFile ));
 
-					/* zum uebernaechsten Parameter */
+					/* next parameter */
 					i++; ok = TRUE;
 				}
 			}
@@ -155,11 +154,10 @@ main( int argc, const char *argv[] )
 				{
 					if(( ! argv[i][n + 1] ) && ( i + 1 < argc ))
 					{
-						/* Ok, danach kommt ein Leerzeichen */
-						strncpy( NGIRCd_ConfFile, argv[i + 1], FNAME_LEN - 1 );
-						NGIRCd_ConfFile[FNAME_LEN - 1] = '\0';
+						/* Ok, next character is a blank */
+						strlcpy( NGIRCd_ConfFile, argv[i + 1], sizeof( NGIRCd_ConfFile ));
 
-						/* zum uebernaechsten Parameter */
+						/* go to the following parameter */
 						i++; n = (LONG)strlen( argv[i] );
 						ok = TRUE;
 					}

@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: channel.c,v 1.39 2002/12/25 13:22:43 alex Exp $";
+static char UNUSED id[] = "$Id: channel.c,v 1.40 2002/12/26 16:25:43 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -629,8 +629,7 @@ Channel_SetTopic( CHANNEL *Chan, CHAR *Topic )
 	assert( Chan != NULL );
 	assert( Topic != NULL );
 	
-	strncpy( Chan->topic, Topic, CHANNEL_TOPIC_LEN - 1 );
-	Chan->topic[CHANNEL_TOPIC_LEN - 1] = '\0';
+	strlcpy( Chan->topic, Topic, sizeof( Chan->topic ));
 } /* Channel_SetTopic */
 
 
@@ -640,8 +639,7 @@ Channel_SetModes( CHANNEL *Chan, CHAR *Modes )
 	assert( Chan != NULL );
 	assert( Modes != NULL );
 
-	strncpy( Chan->modes, Modes, CHANNEL_MODE_LEN - 1 );
-	Chan->topic[CHANNEL_MODE_LEN - 1] = '\0';
+	strlcpy( Chan->modes, Modes, sizeof( Chan->modes ));
 } /* Channel_SetModes */
 
 
@@ -651,8 +649,7 @@ Channel_SetKey( CHANNEL *Chan, CHAR *Key )
 	assert( Chan != NULL );
 	assert( Key != NULL );
 
-	strncpy( Chan->key, Key, CLIENT_PASS_LEN - 1 );
-	Chan->key[CLIENT_PASS_LEN - 1] = '\0';
+	strlcpy( Chan->key, Key, sizeof( Chan->key ));
 	Log( LOG_DEBUG, "Channel %s: Key is now \"%s\".", Chan->name, Chan->key );
 } /* Channel_SetKey */
 
@@ -710,7 +707,7 @@ Channel_Create( CHAR *Name )
 		return NULL;
 	}
 	c->next = NULL;
-	strncpy( c->name, Name, CHANNEL_NAME_LEN - 1 );
+	strlcpy( c->name, Name, sizeof( c->name ));
 	c->name[CHANNEL_NAME_LEN - 1] = '\0';
 	strcpy( c->modes, "" );
 	strcpy( c->topic, "" );

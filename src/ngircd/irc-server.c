@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-server.c,v 1.24 2002/12/12 12:24:18 alex Exp $";
+static char UNUSED id[] = "$Id: irc-server.c,v 1.25 2002/12/26 16:25:43 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -284,8 +284,7 @@ IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 	/* Falsche Anzahl Parameter? */
 	if( Req->argc != 2 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
-	strncpy( str, Req->argv[1], COMMAND_LEN - 1 );
-	str[COMMAND_LEN - 1] = '\0';
+	strlcpy( str, Req->argv[1], sizeof( str ));
 
 	channame = Req->argv[0];
 	ptr = strtok( str, "," );

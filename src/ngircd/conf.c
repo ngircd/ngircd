@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.48 2002/12/26 13:17:56 alex Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.49 2002/12/26 16:25:43 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -330,49 +330,37 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 	if( strcasecmp( Var, "Name" ) == 0 )
 	{
 		/* Server name */
-		strncpy( Conf_ServerName, Arg, CLIENT_ID_LEN - 1 );
-		Conf_ServerName[CLIENT_ID_LEN - 1] = '\0';
-		if( strlen( Arg ) > CLIENT_ID_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Name\" too long!", NGIRCd_ConfFile, Line );
+		if( strlcpy( Conf_ServerName, Arg, sizeof( Conf_ServerName )) >= sizeof( Conf_ServerName )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Name\" too long!", NGIRCd_ConfFile, Line );
 		return;
 	}
 	if( strcasecmp( Var, "Info" ) == 0 )
 	{
 		/* Info text of server */
-		strncpy( Conf_ServerInfo, Arg, CLIENT_INFO_LEN - 1 );
-		Conf_ServerInfo[CLIENT_INFO_LEN - 1] = '\0';
-		if( strlen( Arg ) > CLIENT_INFO_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Info\" too long!", NGIRCd_ConfFile, Line );
+		if( strlcpy( Conf_ServerInfo, Arg, sizeof( Conf_ServerInfo )) >= sizeof( Conf_ServerInfo )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Info\" too long!", NGIRCd_ConfFile, Line );
 		return;
 	}
 	if( strcasecmp( Var, "Password" ) == 0 )
 	{
 		/* Global server password */
-		strncpy( Conf_ServerPwd, Arg, CLIENT_PASS_LEN - 1 );
-		Conf_ServerPwd[CLIENT_PASS_LEN - 1] = '\0';
-		if( strlen( Arg ) > CLIENT_PASS_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Password\" too long!", NGIRCd_ConfFile, Line );
+		if( strlcpy( Conf_ServerPwd, Arg, sizeof( Conf_ServerPwd )) >= sizeof( Conf_ServerPwd )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Password\" too long!", NGIRCd_ConfFile, Line );
 		return;
 	}
 	if( strcasecmp( Var, "AdminInfo1" ) == 0 )
 	{
 		/* Administrative info #1 */
-		strncpy( Conf_ServerAdmin1, Arg, CLIENT_INFO_LEN - 1 );
-		Conf_ServerAdmin1[CLIENT_INFO_LEN - 1] = '\0';
-		if( strlen( Arg ) > CLIENT_INFO_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"AdminInfo1\" too long!", NGIRCd_ConfFile, Line );
+		if( strlcpy( Conf_ServerAdmin1, Arg, sizeof( Conf_ServerAdmin1 )) >= sizeof( Conf_ServerAdmin1 )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"AdminInfo1\" too long!", NGIRCd_ConfFile, Line );
 		return;
 	}
 	if( strcasecmp( Var, "AdminInfo2" ) == 0 )
 	{
 		/* Administrative info #2 */
-		strncpy( Conf_ServerAdmin2, Arg, CLIENT_INFO_LEN - 1 );
-		Conf_ServerAdmin2[CLIENT_INFO_LEN - 1] = '\0';
-		if( strlen( Arg ) > CLIENT_INFO_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"AdminInfo2\" too long!", NGIRCd_ConfFile, Line );
+		if( strlcpy( Conf_ServerAdmin2, Arg, sizeof( Conf_ServerAdmin2 )) >= sizeof( Conf_ServerAdmin2 )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"AdminInfo2\" too long!", NGIRCd_ConfFile, Line );
 		return;
 	}
 	if( strcasecmp( Var, "AdminEMail" ) == 0 )
 	{
 		/* Administrative email contact */
-		strncpy( Conf_ServerAdminMail, Arg, CLIENT_INFO_LEN - 1 );
-		Conf_ServerAdminMail[CLIENT_INFO_LEN - 1] = '\0';
-		if( strlen( Arg ) > CLIENT_INFO_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"AdminEMail\" too long!", NGIRCd_ConfFile, Line );
+		if( strlcpy( Conf_ServerAdminMail, Arg, sizeof( Conf_ServerAdminMail )) >= sizeof( Conf_ServerAdminMail )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"AdminEMail\" too long!", NGIRCd_ConfFile, Line );
 		return;
 	}
 	if( strcasecmp( Var, "Ports" ) == 0 )
@@ -397,9 +385,7 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 	if( strcasecmp( Var, "MotdFile" ) == 0 )
 	{
 		/* "Message of the day" (MOTD) file */
-		strncpy( Conf_MotdFile, Arg, FNAME_LEN - 1 );
-		Conf_MotdFile[FNAME_LEN - 1] = '\0';
-		if( strlen( Arg ) > FNAME_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"MotdFile\" too long!", NGIRCd_ConfFile, Line );
+		if( strlcpy( Conf_MotdFile, Arg, sizeof( Conf_MotdFile )) >= sizeof( Conf_MotdFile )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"MotdFile\" too long!", NGIRCd_ConfFile, Line );
 		return;
 	}
 	if( strcasecmp( Var, "ServerUID" ) == 0 )
@@ -510,17 +496,13 @@ Handle_OPERATOR( INT Line, CHAR *Var, CHAR *Arg )
 	if( strcasecmp( Var, "Name" ) == 0 )
 	{
 		/* Name of IRC operator */
-		strncpy( Conf_Oper[Conf_Oper_Count - 1].name, Arg, CLIENT_PASS_LEN - 1 );
-		Conf_Oper[Conf_Oper_Count - 1].name[CLIENT_PASS_LEN - 1] = '\0';
-		if( strlen( Arg ) > CLIENT_PASS_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Name\" too long!", NGIRCd_ConfFile, Line );
+		if( strlcpy( Conf_Oper[Conf_Oper_Count - 1].name, Arg, sizeof( Conf_Oper[Conf_Oper_Count - 1].name )) >= sizeof( Conf_Oper[Conf_Oper_Count - 1].name )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Name\" too long!", NGIRCd_ConfFile, Line );
 		return;
 	}
 	if( strcasecmp( Var, "Password" ) == 0 )
 	{
 		/* Password of IRC operator */
-		strncpy( Conf_Oper[Conf_Oper_Count - 1].pwd, Arg, CLIENT_PASS_LEN - 1 );
-		Conf_Oper[Conf_Oper_Count - 1].pwd[CLIENT_PASS_LEN - 1] = '\0';
-		if( strlen( Arg ) > CLIENT_PASS_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Password\" too long!", NGIRCd_ConfFile, Line );
+		if( strlcpy( Conf_Oper[Conf_Oper_Count - 1].pwd, Arg, sizeof( Conf_Oper[Conf_Oper_Count - 1].pwd )) >= sizeof( Conf_Oper[Conf_Oper_Count - 1].pwd )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Password\" too long!", NGIRCd_ConfFile, Line );
 		return;
 	}
 	
@@ -540,33 +522,25 @@ Handle_SERVER( INT Line, CHAR *Var, CHAR *Arg )
 	if( strcasecmp( Var, "Host" ) == 0 )
 	{
 		/* Hostname of the server */
-		strncpy( Conf_Server[Conf_Server_Count - 1].host, Arg, HOST_LEN - 1 );
-		Conf_Server[Conf_Server_Count - 1].host[HOST_LEN - 1] = '\0';
-		if( strlen( Arg ) > HOST_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Host\" too long!", NGIRCd_ConfFile, Line );
+		if( strlcpy( Conf_Server[Conf_Server_Count - 1].host, Arg, sizeof( Conf_Server[Conf_Server_Count - 1].host )) >= sizeof( Conf_Server[Conf_Server_Count - 1].host )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Host\" too long!", NGIRCd_ConfFile, Line );
 		return;
 	}
 	if( strcasecmp( Var, "Name" ) == 0 )
 	{
 		/* Name of the server ("Nick"/"ID") */
-		strncpy( Conf_Server[Conf_Server_Count - 1].name, Arg, CLIENT_ID_LEN - 1 );
-		Conf_Server[Conf_Server_Count - 1].name[CLIENT_ID_LEN - 1] = '\0';
-		if( strlen( Arg ) > CLIENT_ID_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Name\" too long!", NGIRCd_ConfFile, Line );
+		if( strlcpy( Conf_Server[Conf_Server_Count - 1].name, Arg, sizeof( Conf_Server[Conf_Server_Count - 1].name )) >= sizeof( Conf_Server[Conf_Server_Count - 1].name )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Name\" too long!", NGIRCd_ConfFile, Line );
 		return;
 	}
 	if( strcasecmp( Var, "MyPassword" ) == 0 )
 	{
 		/* Password of this server which is sent to the peer */
-		strncpy( Conf_Server[Conf_Server_Count - 1].pwd_in, Arg, CLIENT_PASS_LEN - 1 );
-		Conf_Server[Conf_Server_Count - 1].pwd_in[CLIENT_PASS_LEN - 1] = '\0';
-		if( strlen( Arg ) > CLIENT_PASS_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"MyPassword\" too long!", NGIRCd_ConfFile, Line );
+		if( strlcpy( Conf_Server[Conf_Server_Count - 1].pwd_in, Arg, sizeof( Conf_Server[Conf_Server_Count - 1].pwd_in )) >= sizeof( Conf_Server[Conf_Server_Count - 1].pwd_in )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"MyPassword\" too long!", NGIRCd_ConfFile, Line );
 		return;
 	}
 	if( strcasecmp( Var, "PeerPassword" ) == 0 )
 	{
 		/* Passwort of the peer which must be received */
-		strncpy( Conf_Server[Conf_Server_Count - 1].pwd_out, Arg, CLIENT_PASS_LEN - 1 );
-		Conf_Server[Conf_Server_Count - 1].pwd_out[CLIENT_PASS_LEN - 1] = '\0';
-		if( strlen( Arg ) > CLIENT_PASS_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"PeerPassword\" too long!", NGIRCd_ConfFile, Line );
+		if( strlcpy( Conf_Server[Conf_Server_Count - 1].pwd_out, Arg, sizeof( Conf_Server[Conf_Server_Count - 1].pwd_out )) >= sizeof( Conf_Server[Conf_Server_Count - 1].pwd_out )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"PeerPassword\" too long!", NGIRCd_ConfFile, Line );
 		return;
 	}
 	if( strcasecmp( Var, "Port" ) == 0 )
@@ -602,25 +576,19 @@ Handle_CHANNEL( INT Line, CHAR *Var, CHAR *Arg )
 	if( strcasecmp( Var, "Name" ) == 0 )
 	{
 		/* Name of the channel */
-		strncpy( Conf_Channel[Conf_Channel_Count - 1].name, Arg, CHANNEL_NAME_LEN - 1 );
-		Conf_Channel[Conf_Channel_Count - 1].name[CHANNEL_NAME_LEN - 1] = '\0';
-		if( strlen( Arg ) > CHANNEL_NAME_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Name\" too long!", NGIRCd_ConfFile, Line );
+		if( strlcpy( Conf_Channel[Conf_Channel_Count - 1].name, Arg, sizeof( Conf_Channel[Conf_Channel_Count - 1].name )) >= sizeof( Conf_Channel[Conf_Channel_Count - 1].name )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Name\" too long!", NGIRCd_ConfFile, Line );
 		return;
 	}
 	if( strcasecmp( Var, "Modes" ) == 0 )
 	{
 		/* Initial modes */
-		strncpy( Conf_Channel[Conf_Channel_Count - 1].modes, Arg, CHANNEL_MODE_LEN - 1 );
-		Conf_Channel[Conf_Channel_Count - 1].modes[CHANNEL_MODE_LEN - 1] = '\0';
-		if( strlen( Arg ) > CHANNEL_MODE_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Modes\" too long!", NGIRCd_ConfFile, Line );
+		if( strlcpy( Conf_Channel[Conf_Channel_Count - 1].modes, Arg, sizeof( Conf_Channel[Conf_Channel_Count - 1].modes )) >= sizeof( Conf_Channel[Conf_Channel_Count - 1].modes )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Modes\" too long!", NGIRCd_ConfFile, Line );
 		return;
 	}
 	if( strcasecmp( Var, "Topic" ) == 0 )
 	{
 		/* Initial topic */
-		strncpy( Conf_Channel[Conf_Channel_Count - 1].topic, Arg, CHANNEL_TOPIC_LEN - 1 );
-		Conf_Channel[Conf_Channel_Count - 1].topic[CHANNEL_TOPIC_LEN - 1] = '\0';
-		if( strlen( Arg ) > CHANNEL_TOPIC_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Topic\" too long!", NGIRCd_ConfFile, Line );
+		if( strlcpy( Conf_Channel[Conf_Channel_Count - 1].topic, Arg, sizeof( Conf_Channel[Conf_Channel_Count - 1].topic )) >= sizeof( Conf_Channel[Conf_Channel_Count - 1].topic )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Topic\" too long!", NGIRCd_ConfFile, Line );
 		return;
 	}
 

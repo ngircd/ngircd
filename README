@@ -48,8 +48,8 @@ II. Vorteile
 ~~~~~~~~~~~~
 
 - keine Probleme mit Servern, deren IP-Adressen nicht statisch sind,
-- übersichtliche ("schlanke") Konfigurationsdatei,
-- frei verfügbarer, moderner und "aufgeräumter" C-Quellcode.
+- uebersichtliche ("schlanke") Konfigurationsdatei,
+- frei verfuegbarer, moderner und "aufgeraeumter" C-Quellcode.
 - ngIRCd wird aktiv weiter entwickelt.
 
 
@@ -65,4 +65,4 @@ III. Unterstuetzte Plattformen
 
 
 -- 
-$Id: README,v 1.6 2002/03/03 13:07:01 alex Exp $
+$Id: README,v 1.7 2002/03/03 13:08:33 alex Exp $

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.56 2003/04/20 23:09:43 alex Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.57 2003/04/21 11:06:07 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -230,9 +230,9 @@ GLOBAL INT
 Conf_GetServer( CONN_ID Idx )
 {
 	/* Get index of server in configuration structure */
-
-	INT i;
-
+	
+	INT i = 0;
+	
 	assert( Idx > NONE );
 
 	for( i = 0; i < MAX_SERVERS; i++ )

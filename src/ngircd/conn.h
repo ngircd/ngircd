@@ -1,0 +1,38 @@
+/*
+ * ngIRCd -- The Next Generation IRC Daemon
+ * Copyright (c)2001 by Alexander Barton (alex@barton.de)
+ *
+ * Dieses Programm ist freie Software. Sie koennen es unter den Bedingungen
+ * der GNU General Public License (GPL), wie von der Free Software Foundation
+ * herausgegeben, weitergeben und/oder modifizieren, entweder unter Version 2
+ * der Lizenz oder (wenn Sie es wuenschen) jeder spaeteren Version.
+ * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
+ * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
+ *
+ * $Id: conn.h,v 1.1 2001/12/12 17:18:38 alex Exp $
+ *
+ * conn.h: Verwaltung aller Netz-Verbindungen ("connections") (Header)
+ *
+ * $Log: conn.h,v $
+ * Revision 1.1  2001/12/12 17:18:38  alex
+ * - Modul zur Verwaltung aller Netzwerk-Verbindungen begonnen.
+ *
+ */
+
+
+#ifndef __conn_h__
+#define __conn_h__
+
+
+GLOBAL VOID Conn_Init( VOID );
+GLOBAL VOID Conn_Exit( VOID );
+
+GLOBAL BOOLEAN Conn_New_Listener( CONST INT Port );
+
+GLOBAL VOID Conn_Handler( VOID );
+
+
+#endif
+
+
+/* -eof- */

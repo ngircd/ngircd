@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.h,v 1.11 2002/03/12 14:37:52 alex Exp $
+ * $Id: ngircd.h,v 1.12 2002/03/27 16:40:31 alex Exp $
  *
  * ngircd.h: Prototypen aus dem "Haupt-Modul"
  */
@@ -19,6 +19,8 @@
 #define __ngircd_h__
 
 #include <time.h>
+
+#include "defines.h"
 
 
 GLOBAL time_t NGIRCd_Start;		/* Startzeitpunkt des Daemon */
@@ -40,6 +42,8 @@ GLOBAL BOOLEAN NGIRCd_Quit;		/* TRUE: ngIRCd beenden */
 GLOBAL BOOLEAN NGIRCd_Restart;		/* TRUE: neu starten */
 
 GLOBAL CHAR NGIRCd_DebugLevel[2];	/* Debug-Level fuer IRC_VERSION() */
+
+GLOBAL CHAR NGIRCd_ConfFile[FNAME_LEN];	/* Konfigurationsdatei */
 
 GLOBAL CHAR *NGIRCd_Version( VOID );
 GLOBAL CHAR *NGIRCd_VersionAddition( VOID );

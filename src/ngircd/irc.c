@@ -9,11 +9,16 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.47 2002/01/28 13:05:48 alex Exp $
+ * $Id: irc.c,v 1.48 2002/01/29 00:13:45 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.48  2002/01/29 00:13:45  alex
+ * - WHOIS zeigt nun auch die Channels an, in denen der jeweilige User Mitglied ist.
+ * - zu jedem Server wird nun der "Top-Server" gespeichert, somit funktioniert
+ *   LINKS wieder korrekt.
+ *
  * Revision 1.47  2002/01/28 13:05:48  alex
  * - nach einem JOIN wird die Liste der Mitglieder an den Client geschickt.
  * - MODE fuer Channels wird nun komplett ignoriert (keine Fehlermeldung mehr).
@@ -596,7 +601,7 @@ GLOBAL BOOLEAN IRC_SERVER( CLIENT *Client, REQUEST *Req )
 		}
 
 		/* Neue Client-Struktur anlegen */
-		c = Client_NewRemoteServer( Client, Req->argv[0], atoi( Req->argv[1] ), atoi( Req->argv[2] ), ptr, TRUE );
+		c = Client_NewRemoteServer( Client, Req->argv[0], from, atoi( Req->argv[1] ), atoi( Req->argv[2] ), ptr, TRUE );
 		if( ! c )
 		{
 			/* Neue Client-Struktur konnte nicht angelegt werden */
@@ -1307,7 +1312,8 @@ GLOBAL BOOLEAN IRC_ISON( CLIENT *Client, REQUEST *Req )
 GLOBAL BOOLEAN IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *from, *target, *c;
-	CHAR *ptr = NULL;
+	CHAR str[LINE_LEN + 1], *ptr = NULL;
+	CL2CHAN *cl2chan;
 	
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -1352,6 +1358,31 @@ GLOBAL BOOLEAN IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 	/* Server */
 	if( ! IRC_WriteStrClient( from, RPL_WHOISSERVER_MSG, Client_ID( from ), Client_ID( c ), Client_ID( Client_Introducer( c )), Client_Info( Client_Introducer( c )))) return DISCONNECTED;
 
+	/* Channels */
+	sprintf( str, RPL_WHOISCHANNELS_MSG, Client_ID( from ), Client_ID( c ));
+	cl2chan = Channel_FirstChannelOf( c );
+	while( cl2chan )
+	{
+		/* Channel-Name anhaengen */
+		if( str[strlen( str ) - 1] != ':' ) strcat( str, " " );
+		strcat( str, Channel_Name( Channel_GetChannel( cl2chan )));
+
+		if( strlen( str ) > ( LINE_LEN - CHANNEL_NAME_LEN - 4 ))
+		{
+			/* Zeile wird zu lang: senden! */
+			if( ! IRC_WriteStrClient( Client, str )) return DISCONNECTED;
+			sprintf( str, RPL_WHOISCHANNELS_MSG, Client_ID( from ), Client_ID( c ));
+		}
+
+		/* naechstes Mitglied suchen */
+		cl2chan = Channel_NextChannelOf( c, cl2chan );
+	}
+	if( str[strlen( str ) - 1] != ':')
+	{
+		/* Es sind noch Daten da, die gesendet werden muessen */
+		if( ! IRC_WriteStrClient( Client, str )) return DISCONNECTED;
+	}
+	
 	/* IRC-Operator? */
 	if( Client_HasMode( c, 'o' ))
 	{
@@ -1520,7 +1551,7 @@ GLOBAL BOOLEAN IRC_LINKS( CLIENT *Client, REQUEST *Req )
 	{
 		if( Client_Type( c ) == CLIENT_SERVER )
 		{
-			if( ! IRC_WriteStrClient( target, RPL_LINKS_MSG, Client_ID( target ), Client_ID( c ), Client_ID( Client_Introducer( c )), Client_Hops( c ), Client_Info( c ))) return DISCONNECTED;
+			if( ! IRC_WriteStrClient( target, RPL_LINKS_MSG, Client_ID( target ), Client_ID( c ), Client_ID( Client_TopServer( c ) ? Client_TopServer( c ) : Client_ThisServer( )), Client_Hops( c ), Client_Info( c ))) return DISCONNECTED;
 		}
 		c = Client_Next( c );
 	}
@@ -1698,7 +1729,6 @@ LOCAL BOOLEAN Send_NAMES( CLIENT *Client, CHANNEL *Chan )
 {
 	CHAR str[LINE_LEN + 1];
 	CL2CHAN *cl2chan;
-	CLIENT *c;
 	
 	assert( Client != NULL );
 	assert( Chan != NULL );
@@ -1708,9 +1738,6 @@ LOCAL BOOLEAN Send_NAMES( CLIENT *Client, CHANNEL *Chan )
 	cl2chan = Channel_FirstMember( Chan );
 	while( cl2chan )
 	{
-		/* Client ermitteln */
-		c = Channel_GetClient( cl2chan );
-
 		/* Nick anhaengen */
 		if( str[strlen( str ) - 1] != ':' ) strcat( str, " " );
 		strcat( str, Client_ID( Channel_GetClient( cl2chan )));

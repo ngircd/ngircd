@@ -84,6 +84,8 @@ Folgende <serverflags> sind zur Zeit definiert:
 - o: IRC-Operatoren duerfen auch dann Channel- und Channel-User-Modes
      aendern, wenn sie kein Channel-Operator im betroffenen Channel sind.
 
+- C: der Server unterstuetzt den CHANINFO-Befehl.     
+
 
 II.2 Channel-Modes, persistente Channel und Topic austauschen
 
@@ -104,4 +106,4 @@ erzeugt.
 
 
 -- 
-$Id: Protocol.txt,v 1.4 2002/09/04 00:00:43 alex Exp $
+$Id: Protocol.txt,v 1.5 2002/09/04 00:06:19 alex Exp $

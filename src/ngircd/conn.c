@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.60 2002/03/30 13:40:56 alex Exp $
+ * $Id: conn.c,v 1.61 2002/04/08 01:17:54 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -976,6 +976,7 @@ LOCAL VOID New_Server( INT Server, CONN_ID Idx )
 		return;
 	}
 	Client_SetIntroducer( c, c );
+	Client_SetToken( c, TOKEN_OUTBOUND );
 
 	/* Verbindung registrieren */
 	My_Connections[Idx].sock = new_sock;

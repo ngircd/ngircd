@@ -7,13 +7,18 @@
  * herausgegeben, weitergeben und/oder modifizieren, entweder unter Version 2
  * der Lizenz oder (wenn Sie es wuenschen) jeder spaeteren Version.
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
- * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
+ * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.c,v 1.5 2001/12/30 19:26:11 alex Exp $
+ * $Id: conf.c,v 1.6 2001/12/31 02:18:51 alex Exp $
  *
  * conf.h: Konfiguration des ngircd
  *
  * $Log: conf.c,v $
+ * Revision 1.6  2001/12/31 02:18:51  alex
+ * - viele neue Befehle (WHOIS, ISON, OPER, DIE, RESTART),
+ * - neuen Header "defines.h" mit (fast) allen Konstanten.
+ * - Code Cleanups und viele "kleine" Aenderungen & Bugfixes.
+ *
  * Revision 1.5  2001/12/30 19:26:11  alex
  * - Unterstuetzung fuer die Konfigurationsdatei eingebaut.
  *
@@ -48,9 +53,6 @@
 #include "conf.h"
 
 
-#define MAX_LINE_LEN 246		/* max. Laenge einer Konfigurationszeile */
-
-
 LOCAL VOID Read_Config( VOID );
 LOCAL VOID Validate_Config( VOID );
 
@@ -63,6 +65,10 @@ GLOBAL VOID Conf_Init( VOID )
 	strcpy( Conf_File, "/usr/local/etc/ngircd.conf" );
 
 	strcpy( Conf_ServerName, "" );
+	strcpy( Conf_ServerInfo, PACKAGE" "VERSION );
+
+	strcpy( Conf_Oper, "" );
+	strcpy( Conf_OperPwd, "" );
 
 	strcpy( Conf_MotdFile, "/usr/local/etc/ngircd.motd" );
 
@@ -87,7 +93,7 @@ LOCAL VOID Read_Config( VOID )
 {
 	/* Konfigurationsdatei einlesen. */
 
-	CHAR str[MAX_LINE_LEN], *var, *arg, *ptr;
+	CHAR str[LINE_LEN], *var, *arg, *ptr;
 	BOOLEAN ok;
 	INT32 port;
 	INT line;
@@ -105,14 +111,14 @@ LOCAL VOID Read_Config( VOID )
 	line = 0;
 	while( TRUE )
 	{
-		if( ! fgets( str, MAX_LINE_LEN, fd )) break;
+		ok = FALSE;
+
+		if( ! fgets( str, LINE_LEN, fd )) break;
 		ngt_TrimStr( str );
 		line++;
 
 		/* Kommentarzeilen und leere Zeilen ueberspringen */
 		if( str[0] == ';' || str[0] == '#' || str[0] == '\0' ) continue;
-
-		ok = FALSE;
 
 		ptr = strchr( str, '=' );
 		if( ! ptr )
@@ -129,7 +135,28 @@ LOCAL VOID Read_Config( VOID )
 		{
 			/* Der Server-Name */
 			strncpy( Conf_ServerName, arg, CLIENT_ID_LEN );
-			Conf_ServerName[CLIENT_ID_LEN] = '\0';
+			Conf_ServerName[CLIENT_ID_LEN - 1] = '\0';
+			ok = TRUE;
+		}
+		else if( strcasecmp( str, "ServerInfo" ) == 0 )
+		{
+			/* Server-Info-Text */
+			strncpy( Conf_ServerInfo, arg, CLIENT_INFO_LEN );
+			Conf_ServerInfo[CLIENT_INFO_LEN - 1] = '\0';
+			ok = TRUE;
+		}
+		else if( strcasecmp( str, "Operator" ) == 0 )
+		{
+			/* Name des IRC Operator */
+			strncpy( Conf_Oper, arg, CLIENT_PASS_LEN );
+			Conf_Oper[CLIENT_PASS_LEN - 1] = '\0';
+			ok = TRUE;
+		}
+		else if( strcasecmp( str, "OperatorPwd" ) == 0 )
+		{
+			/* Passwort des IRC Operator */
+			strncpy( Conf_OperPwd, arg, CLIENT_PASS_LEN );
+			Conf_OperPwd[CLIENT_PASS_LEN - 1] = '\0';
 			ok = TRUE;
 		}
 		else if( strcasecmp( str, "ListenPorts" ) == 0 )
@@ -152,7 +179,7 @@ LOCAL VOID Read_Config( VOID )
 		{
 			/* Datei mit der "message of the day" (MOTD) */
 			strncpy( Conf_MotdFile, arg, FNAME_LEN );
-			Conf_MotdFile[FNAME_LEN] = '\0';
+			Conf_MotdFile[FNAME_LEN - 1] = '\0';
 			ok = TRUE;
 		}
 		else if( strcasecmp( str, "PingTimeout" ) == 0 )

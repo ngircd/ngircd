@@ -7,13 +7,18 @@
  * herausgegeben, weitergeben und/oder modifizieren, entweder unter Version 2
  * der Lizenz oder (wenn Sie es wuenschen) jeder spaeteren Version.
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
- * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
+ * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.14 2001/12/30 19:26:12 alex Exp $
+ * $Id: ngircd.c,v 1.15 2001/12/31 02:18:51 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  *
  * $Log: ngircd.c,v $
+ * Revision 1.15  2001/12/31 02:18:51  alex
+ * - viele neue Befehle (WHOIS, ISON, OPER, DIE, RESTART),
+ * - neuen Header "defines.h" mit (fast) allen Konstanten.
+ * - Code Cleanups und viele "kleine" Aenderungen & Bugfixes.
+ *
  * Revision 1.14  2001/12/30 19:26:12  alex
  * - Unterstuetzung fuer die Konfigurationsdatei eingebaut.
  *
@@ -99,41 +104,45 @@ GLOBAL INT main( INT argc, CONST CHAR *argv[] )
 	/* Datentypen der portab-Library ueberpruefen */
 	portab_check_types( );
 
-	/* Globale Variablen initialisieren */
-	NGIRCd_Start = time( NULL );
-	strftime( NGIRCd_StartStr, 64, "%a %b %d %Y at %H:%M:%S (%Z)", localtime( &NGIRCd_Start ));
-	NGIRCd_Quit = FALSE;
-
-	/* Module initialisieren */
-	Log_Init( );
-	Conf_Init( );
-	Parse_Init( );
-	IRC_Init( );
-	Channel_Init( );
-	Client_Init( );
-	Conn_Init( );
-
-	/* Signal-Handler initialisieren */
-	Initialize_Signal_Handler( );
-
-	/* Listen-Ports initialisieren */
-	Initialize_Listen_Ports( );
-	
-	/* Hauptschleife */
 	while( ! NGIRCd_Quit )
 	{
-		Conn_Handler( 5 );
-        }
-        
-	/* Alles abmelden */
-	Conn_Exit( );
-	Client_Exit( );
-	Channel_Exit( );
-	IRC_Exit( );
-	Parse_Exit( );
-	Conf_Exit( );
-	Log_Exit( );
-	
+		/* Globale Variablen initialisieren */
+		NGIRCd_Start = time( NULL );
+		strftime( NGIRCd_StartStr, 64, "%a %b %d %Y at %H:%M:%S (%Z)", localtime( &NGIRCd_Start ));
+		NGIRCd_Restart = FALSE;
+		NGIRCd_Quit = FALSE;
+
+		/* Module initialisieren */
+		Log_Init( );
+		Conf_Init( );
+		Parse_Init( );
+		IRC_Init( );
+		Channel_Init( );
+		Client_Init( );
+		Conn_Init( );
+
+		/* Signal-Handler initialisieren */
+		Initialize_Signal_Handler( );
+
+		/* Listen-Ports initialisieren */
+		Initialize_Listen_Ports( );
+
+		/* Hauptschleife */
+		while( TRUE )
+		{
+			if( NGIRCd_Quit || NGIRCd_Restart ) break;
+			Conn_Handler( 5 );
+		}
+
+		/* Alles abmelden */
+		Conn_Exit( );
+		Client_Exit( );
+		Channel_Exit( );
+		IRC_Exit( );
+		Parse_Exit( );
+		Conf_Exit( );
+		Log_Exit( );
+	}
 	return 0;
 } /* main */
 

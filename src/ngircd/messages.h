@@ -7,13 +7,18 @@
  * herausgegeben, weitergeben und/oder modifizieren, entweder unter Version 2
  * der Lizenz oder (wenn Sie es wuenschen) jeder spaeteren Version.
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
- * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
+ * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: messages.h,v 1.11 2001/12/30 19:25:39 alex Exp $
+ * $Id: messages.h,v 1.12 2001/12/31 02:18:51 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: messages.h,v $
+ * Revision 1.12  2001/12/31 02:18:51  alex
+ * - viele neue Befehle (WHOIS, ISON, OPER, DIE, RESTART),
+ * - neuen Header "defines.h" mit (fast) allen Konstanten.
+ * - Code Cleanups und viele "kleine" Aenderungen & Bugfixes.
+ *
  * Revision 1.11  2001/12/30 19:25:39  alex
  * - RPL_MYINFO_MSG um unterstuetzte User-Modes ergaengz.
  *
@@ -80,6 +85,33 @@
 #define RPL_UMODEIS			"211"
 #define RPL_UMODEIS_MSG			RPL_UMODEIS" %s +%s"
 
+#define RPL_USERHOST			"302"
+#define RPL_USERHOST_MSG		RPL_USERHOST" %s :"
+
+#define RPL_ISON			"303"
+#define RPL_ISON_MSG			RPL_ISON" %s :"
+
+#define RPL_WHOISUSER			"311"
+#define RPL_WHOISUSER_MSG		RPL_WHOISUSER" %s %s %s %s * :%s"
+
+#define RPL_WHOISSERVER			"312"
+#define RPL_WHOISSERVER_MSG		RPL_WHOISSERVER" %s %s %s :%s"
+
+#define RPL_WHOISOPERATOR		"313"
+#define RPL_WHOISOPERATOR_MSG		RPL_WHOISOPERATOR" %s %s :is an IRC operator"
+
+#define RPL_WHOISIDLE			"317"
+#define RPL_WHOISIDLE_MSG		RPL_WHOISIDLE" %s %s %ld :seconds idle"
+
+#define RPL_ENDOFWHOIS			"318"
+#define RPL_ENDOFWHOIS_MSG		RPL_ENDOFWHOIS" %s %s :End of WHOIS list"
+
+#define RPL_WHOISCHANNELS		"319"
+#define RPL_WHOISCHANNELS_MSG		RPL_WHOISCHANNELS" %s :"
+
+#define RPL_YOUREOPER			"381"
+#define RPL_YOUREOPER_MSG		RPL_YOUREOPER" %s :You are now an IRC Operator"
+
 
 #define ERR_NOSUCHNICK			"401"
 #define ERR_NOSUCHNICK_MSG		ERR_NOSUCHNICK" %s %s :No such nick or channel name"
@@ -111,11 +143,20 @@
 #define ERR_ALREADYREGISTRED		"462"
 #define ERR_ALREADYREGISTRED_MSG	ERR_ALREADYREGISTRED" %s :Connection already registered"
 
+#define ERR_PASSWDMISMATCH		"464"
+#define ERR_PASSWDMISMATCH_MSG		ERR_PASSWDMISMATCH" %s: Invalid password"
+
 #define ERR_NOTREGISTERED		"451"
 #define ERR_NOTREGISTERED_MSG		ERR_NOTREGISTERED" %s :Connection not registered"
 
+#define ERR_NOPRIVILEGES		"481"
+#define ERR_NOPRIVILEGES_MSG		ERR_NOPRIVILEGES" %s :Permission denied"
+
 #define ERR_RESTRICTED			"484"
 #define ERR_RESTRICTED_MSG		ERR_RESTRICTED" %s :Your connection is restricted"
+
+#define ERR_NOOPERHOST			"491"
+#define ERR_NOOPERHOST_MSG		ERR_NOOPERHOST" %s :Not configured for your host"
 
 #define ERR_UMODEUNKNOWNFLAG		"501"
 #define ERR_UMODEUNKNOWNFLAG_MSG	ERR_UMODEUNKNOWNFLAG" %s :Unknown mode flag"

@@ -7,13 +7,18 @@
  * herausgegeben, weitergeben und/oder modifizieren, entweder unter Version 2
  * der Lizenz oder (wenn Sie es wuenschen) jeder spaeteren Version.
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
- * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
+ * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.h,v 1.3 2001/12/30 11:42:00 alex Exp $
+ * $Id: ngircd.h,v 1.4 2001/12/31 02:18:51 alex Exp $
  *
  * ngircd.h: Prototypen aus dem "Haupt-Modul"
  *
  * $Log: ngircd.h,v $
+ * Revision 1.4  2001/12/31 02:18:51  alex
+ * - viele neue Befehle (WHOIS, ISON, OPER, DIE, RESTART),
+ * - neuen Header "defines.h" mit (fast) allen Konstanten.
+ * - Code Cleanups und viele "kleine" Aenderungen & Bugfixes.
+ *
  * Revision 1.3  2001/12/30 11:42:00  alex
  * - der Server meldet nun eine ordentliche "Start-Zeit".
  *
@@ -32,7 +37,8 @@
 GLOBAL time_t NGIRCd_Start;		/* Startzeitpunkt des Daemon */
 GLOBAL CHAR NGIRCd_StartStr[64];
 
-GLOBAL BOOLEAN NGIRCd_Quit;		/* TRUE: Hauptschleife beenden */
+GLOBAL BOOLEAN NGIRCd_Quit;		/* TRUE: ngIRCd beenden */
+GLOBAL BOOLEAN NGIRCd_Restart;		/* TRUE: neu starten */
 
 
 #endif

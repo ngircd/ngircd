@@ -7,13 +7,18 @@
  * herausgegeben, weitergeben und/oder modifizieren, entweder unter Version 2
  * der Lizenz oder (wenn Sie es wuenschen) jeder spaeteren Version.
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
- * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
+ * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.h,v 1.9 2001/12/29 20:18:18 alex Exp $
+ * $Id: client.h,v 1.10 2001/12/31 02:18:51 alex Exp $
  *
  * client.h: Konfiguration des ngircd (Header)
  *
  * $Log: client.h,v $
+ * Revision 1.10  2001/12/31 02:18:51  alex
+ * - viele neue Befehle (WHOIS, ISON, OPER, DIE, RESTART),
+ * - neuen Header "defines.h" mit (fast) allen Konstanten.
+ * - Code Cleanups und viele "kleine" Aenderungen & Bugfixes.
+ *
  * Revision 1.9  2001/12/29 20:18:18  alex
  * - neue Funktion Client_SetHostname().
  *
@@ -30,7 +35,7 @@
  * - "Code Cleanups".
  *
  * Revision 1.4  2001/12/26 03:19:16  alex
- * - neue Funktion Client_Name().
+ * - neue Funktion Client_Nick().
  *
  * Revision 1.3  2001/12/25 19:21:26  alex
  * - Client-Typ ("Status") besser unterteilt, My_Clients ist zudem nun global.
@@ -51,17 +56,6 @@
 #include "conn.h"
 
 
-#define CLIENT_ID_LEN 63		/* max. ID-Laenge; vgl. RFC 2812, 1.1 und 1.2.1 */
-#define CLIENT_NICK_LEN 9		/* max. Nick-Laenge; vgl. RFC 2812, 1.2.1 */
-#define CLIENT_PASS_LEN 9		/* max. Laenge des Passwortes */
-#define CLIENT_USER_LEN 8		/* max. Laenge des Benutzernamen ("Login") */
-#define CLIENT_NAME_LEN 32		/* max. Laenge des "langen Benutzernamen" */
-#define CLIENT_HOST_LEN 63		/* max. Laenge des Hostname */
-#define CLIENT_MODE_LEN 16		/* max. Laenge der Client-Modes */
-
-#define MAX_CHANNELS 32			/* max. Anzahl Channels pro Nick */
-
-
 typedef enum
 {
 	CLIENT_UNKNOWN,			/* Verbindung mit (noch) unbekanntem Typ */
@@ -80,13 +74,15 @@ typedef struct _CLIENT
 	CLIENT_TYPE type;		/* Typ des Client, vgl. CLIENT_TYPE */
 	CONN_ID conn_id;		/* ID der Connection (wenn lokal) bzw. NONE (remote) */
 	struct _CLIENT *introducer;	/* ID des Servers, der die Verbindung hat */
-	CHAR nick[CLIENT_ID_LEN + 1];	/* Nick (bzw. Server-ID, daher auch IDLEN!) */
-	CHAR pass[CLIENT_PASS_LEN + 1];	/* Passwort, welches der Client angegeben hat */
-	CHAR host[CLIENT_HOST_LEN + 1];	/* Hostname des Client */
-	CHAR user[CLIENT_USER_LEN + 1];	/* Benutzername ("Login") */
-	CHAR name[CLIENT_NAME_LEN + 1];	/* Langer Benutzername */
+	CHAR nick[CLIENT_ID_LEN];	/* Nick (bzw. Server-ID, daher auch IDLEN!) */
+	CHAR pass[CLIENT_PASS_LEN];	/* Passwort, welches der Client angegeben hat */
+	CHAR host[CLIENT_HOST_LEN];	/* Hostname des Client */
+	CHAR user[CLIENT_USER_LEN];	/* Benutzername ("Login") */
+	CHAR name[CLIENT_NAME_LEN];	/* Langer Benutzername */
+	CHAR info[CLIENT_INFO_LEN];	/* Infotext (Server) */
 	CHANNEL *channels[MAX_CHANNELS];/* IDs der Channel, bzw. NULL */
 	CHAR modes[CLIENT_MODE_LEN];	/* Client Modes */
+	BOOLEAN oper_by_me;		/* Operator-Status durch diesen Server? */
 } CLIENT;
 
 
@@ -100,7 +96,8 @@ GLOBAL CLIENT *Client_NewLocal( CONN_ID Idx, CHAR *Hostname );
 GLOBAL VOID Client_Destroy( CLIENT *Client );
 GLOBAL VOID Client_SetHostname( CLIENT *Client, CHAR *Hostname );
 GLOBAL CLIENT *Client_GetFromConn( CONN_ID Idx );
-GLOBAL CHAR *Client_Name( CLIENT *Client );
+GLOBAL CLIENT *Client_GetFromNick( CHAR *Nick );
+GLOBAL CHAR *Client_Nick( CLIENT *Client );
 GLOBAL BOOLEAN Client_CheckNick( CLIENT *Client, CHAR *Nick );
 GLOBAL CHAR *Client_GetID( CLIENT *Client );
 GLOBAL CLIENT *Client_Search( CHAR *ID );

@@ -7,13 +7,18 @@
  * herausgegeben, weitergeben und/oder modifizieren, entweder unter Version 2
  * der Lizenz oder (wenn Sie es wuenschen) jeder spaeteren Version.
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
- * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
+ * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.22 2001/12/30 19:26:11 alex Exp $
+ * $Id: conn.c,v 1.23 2001/12/31 02:18:51 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
+ * Revision 1.23  2001/12/31 02:18:51  alex
+ * - viele neue Befehle (WHOIS, ISON, OPER, DIE, RESTART),
+ * - neuen Header "defines.h" mit (fast) allen Konstanten.
+ * - Code Cleanups und viele "kleine" Aenderungen & Bugfixes.
+ *
  * Revision 1.22  2001/12/30 19:26:11  alex
  * - Unterstuetzung fuer die Konfigurationsdatei eingebaut.
  *
@@ -126,16 +131,6 @@
 #include "conn.h"
 
 
-#define MAX_CONNECTIONS 100		/* max. Anzahl von Verbindungen an diesem Server */
-
-#define MAX_CMDLEN 512			/* max. Laenge eines Befehls, vgl. RFC 2812, 3.2 */
-
-#define READBUFFER_LEN 2 * MAX_CMDLEN	/* Laenge des Lesepuffers je Verbindung (Bytes) */
-#define WRITEBUFFER_LEN 4096		/* Laenge des Schreibpuffers je Verbindung (Bytes) */
-
-#define HOST_LEN 256			/* max. Laenge eines Hostnamen */
-
-
 typedef struct _Res_Stat
 {
 	INT pid;			/* PID des Child-Prozess */
@@ -149,12 +144,13 @@ typedef struct _Connection
 	struct sockaddr_in addr;	/* Adresse des Client */
 	RES_STAT *res_stat;		/* "Resolver-Status", s.o. */
 	CHAR host[HOST_LEN];		/* Hostname */
-	CHAR rbuf[READBUFFER_LEN + 1];	/* Lesepuffer */
+	CHAR rbuf[READBUFFER_LEN];	/* Lesepuffer */
 	INT rdatalen;			/* Laenge der Daten im Lesepuffer */
-	CHAR wbuf[WRITEBUFFER_LEN + 1];	/* Schreibpuffer */
+	CHAR wbuf[WRITEBUFFER_LEN];	/* Schreibpuffer */
 	INT wdatalen;			/* Laenge der Daten im Schreibpuffer */
 	time_t lastdata;		/* Letzte Aktivitaet */
 	time_t lastping;		/* Letzter PING */
+	time_t lastprivmsg;		/* Letzte PRIVMSG */
 } CONNECTION;
 
 
@@ -391,12 +387,12 @@ GLOBAL BOOLEAN Conn_WriteStr( CONN_ID Idx, CHAR *Format, ... )
 	 * automatisch angehaengt. Im Fehlerfall wird dir Verbindung
 	 * getrennt und FALSE geliefert. */
 
-	CHAR buffer[MAX_CMDLEN];
+	CHAR buffer[COMMAND_LEN];
 	BOOLEAN ok;
 	va_list ap;
 
 	va_start( ap, Format );
-	if( vsnprintf( buffer, MAX_CMDLEN - 2, Format, ap ) == MAX_CMDLEN - 2 )
+	if( vsnprintf( buffer, COMMAND_LEN - 2, Format, ap ) == COMMAND_LEN - 2 )
 	{
 		Log( LOG_ALERT, "String too long to send (connection %d)!", Idx );
 		Conn_Close( Idx, "Server error: String too long to send!" );
@@ -489,6 +485,24 @@ GLOBAL VOID Conn_Close( CONN_ID Idx, CHAR *Msg )
 	FD_CLR( My_Connections[Idx].sock, &My_Sockets );
 	My_Connections[Idx].sock = NONE;
 } /* Conn_Close */
+
+
+GLOBAL VOID Conn_UpdateIdle( CONN_ID Idx )
+{
+	/* Idle-Timer zuruecksetzen */
+
+	assert( Idx >= 0 );
+	My_Connections[Idx].lastprivmsg = time( NULL );
+}
+
+
+GLOBAL INT32 Conn_GetIdle( CONN_ID Idx )
+{
+	/* Idle-Time einer Verbindung liefern (in Sekunden) */
+
+	assert( Idx >= 0 );
+	return time( NULL ) - My_Connections[Idx].lastprivmsg;
+} /* Conn_GetIdle */
 
 
 LOCAL BOOLEAN Try_Write( CONN_ID Idx )
@@ -670,8 +684,8 @@ LOCAL VOID Read_Request( CONN_ID Idx )
 	assert( Idx >= 0 );
 	assert( My_Connections[Idx].sock >= 0 );
 
-	len = recv( My_Connections[Idx].sock, My_Connections[Idx].rbuf + My_Connections[Idx].rdatalen, READBUFFER_LEN - My_Connections[Idx].rdatalen, 0 );
-	My_Connections[Idx].rbuf[READBUFFER_LEN] = '\0';
+	len = recv( My_Connections[Idx].sock, My_Connections[Idx].rbuf + My_Connections[Idx].rdatalen, READBUFFER_LEN - My_Connections[Idx].rdatalen - 1, 0 );
+	My_Connections[Idx].rbuf[READBUFFER_LEN - 1] = '\0';
 
 	if( len == 0 )
 	{
@@ -694,7 +708,7 @@ LOCAL VOID Read_Request( CONN_ID Idx )
 	assert( My_Connections[Idx].rdatalen <= READBUFFER_LEN );
 	My_Connections[Idx].rbuf[My_Connections[Idx].rdatalen] = '\0';
 
-	if( My_Connections[Idx].rdatalen > MAX_CMDLEN )
+	if( My_Connections[Idx].rdatalen > COMMAND_LEN )
 	{
 		/* Eine Anfrage darf(!) nicht laenger als 512 Zeichen
 		 * (incl. CR+LF!) werden; vgl. RFC 2812. Wenn soetwas
@@ -800,6 +814,7 @@ LOCAL VOID Init_Conn_Struct( INT Idx )
 	My_Connections[Idx].wdatalen = 0;
 	My_Connections[Idx].lastdata = time( NULL );
 	My_Connections[Idx].lastping = 0;
+	My_Connections[Idx].lastprivmsg = time( NULL );
 } /* Init_Conn_Struct */
 
 

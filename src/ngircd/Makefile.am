@@ -1,6 +1,11 @@
-# $Id: Makefile.am,v 1.8 2001/12/30 19:25:03 alex Exp $
+# $Id: Makefile.am,v 1.9 2001/12/31 02:18:51 alex Exp $
 
 # $Log: Makefile.am,v $
+# Revision 1.9  2001/12/31 02:18:51  alex
+# - viele neue Befehle (WHOIS, ISON, OPER, DIE, RESTART),
+# - neuen Header "defines.h" mit (fast) allen Konstanten.
+# - Code Cleanups und viele "kleine" Aenderungen & Bugfixes.
+#
 # Revision 1.8  2001/12/30 19:25:03  alex
 # - in "noinst_HEADERS" waren einige Dateien als .c anstelle .h aufgefuehrt.
 #
@@ -27,9 +32,11 @@
 
 sbin_PROGRAMS = ngircd
 
-ngircd_SOURCES = ngircd.c channel.c client.c conf.c conn.c irc.c log.c parse.c tool.c
+ngircd_SOURCES = ngircd.c channel.c client.c conf.c conn.c irc.c log.c \
+	parse.c tool.c
 
-noinst_HEADERS = ngircd.h channel.h client.h conf.h conn.h irc.h log.h parse.h tool.h global.h messages.h
+noinst_HEADERS = ngircd.h channel.h client.h conf.h conn.h irc.h log.h \
+	parse.h tool.h global.h messages.h defines.h
 
 maintainer-clean-local:
 	rm -f Makefile Makefile.in

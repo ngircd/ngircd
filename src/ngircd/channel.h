@@ -7,13 +7,18 @@
  * herausgegeben, weitergeben und/oder modifizieren, entweder unter Version 2
  * der Lizenz oder (wenn Sie es wuenschen) jeder spaeteren Version.
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
- * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
+ * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: channel.h,v 1.2 2001/12/23 21:54:30 alex Exp $
+ * $Id: channel.h,v 1.3 2001/12/31 02:18:51 alex Exp $
  *
  * channel.h: Management der Channels (Header)
  *
  * $Log: channel.h,v $
+ * Revision 1.3  2001/12/31 02:18:51  alex
+ * - viele neue Befehle (WHOIS, ISON, OPER, DIE, RESTART),
+ * - neuen Header "defines.h" mit (fast) allen Konstanten.
+ * - Code Cleanups und viele "kleine" Aenderungen & Bugfixes.
+ *
  * Revision 1.2  2001/12/23 21:54:30  alex
  * - Konstanten um Prefix "CHANNEL_" erweitert.
  *
@@ -27,12 +32,9 @@
 #define __channel_h__
 
 
-#define CHANNEL_NAME_LEN 50			/* vgl. RFC 2812, 1.3 */
-
-
 typedef struct _CHANNEL
 {
-	CHAR name[CHANNEL_NAME_LEN + 1];	/* Name */
+	CHAR name[CHANNEL_NAME_LEN];	/* Name */
 } CHANNEL;
 
 

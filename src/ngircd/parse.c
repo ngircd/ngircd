@@ -7,13 +7,18 @@
  * herausgegeben, weitergeben und/oder modifizieren, entweder unter Version 2
  * der Lizenz oder (wenn Sie es wuenschen) jeder spaeteren Version.
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
- * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
+ * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: parse.c,v 1.8 2001/12/29 03:08:19 alex Exp $
+ * $Id: parse.c,v 1.9 2001/12/31 02:18:51 alex Exp $
  *
  * parse.c: Parsen der Client-Anfragen
  *
  * $Log: parse.c,v $
+ * Revision 1.9  2001/12/31 02:18:51  alex
+ * - viele neue Befehle (WHOIS, ISON, OPER, DIE, RESTART),
+ * - neuen Header "defines.h" mit (fast) allen Konstanten.
+ * - Code Cleanups und viele "kleine" Aenderungen & Bugfixes.
+ *
  * Revision 1.8  2001/12/29 03:08:19  alex
  * - Fuehrende und folgende Leerzeichen etc. in Requests werden geloescht.
  * - Logmeldungen (mal wieder) ein wenig angepasst.
@@ -239,9 +244,15 @@ LOCAL BOOLEAN Handle_Request( CONN_ID Idx, REQUEST *Req )
 	else if( strcasecmp( Req->command, "PRIVMSG" ) == 0 ) return IRC_PRIVMSG( client, Req );
 	else if( strcasecmp( Req->command, "NOTICE" ) == 0 ) return IRC_NOTICE( client, Req );
 	else if( strcasecmp( Req->command, "MODE" ) == 0 ) return IRC_MODE( client, Req );
+	else if( strcasecmp( Req->command, "ISON" ) == 0 ) return IRC_ISON( client, Req );
+	else if( strcasecmp( Req->command, "WHOIS" ) == 0 ) return IRC_WHOIS( client, Req );
+	else if( strcasecmp( Req->command, "USERHOST" ) == 0 ) return IRC_USERHOST( client, Req );
+	else if( strcasecmp( Req->command, "OPER" ) == 0 ) return IRC_OPER( client, Req );
+	else if( strcasecmp( Req->command, "DIE" ) == 0 ) return IRC_DIE( client, Req );
+	else if( strcasecmp( Req->command, "RESTART" ) == 0 ) return IRC_RESTART( client, Req );
 	
 	/* Unbekannter Befehl */
-	IRC_WriteStrClient( client, This_Server, ERR_UNKNOWNCOMMAND_MSG, Client_Name( client ), Req->command );
+	IRC_WriteStrClient( client, This_Server, ERR_UNKNOWNCOMMAND_MSG, Client_Nick( client ), Req->command );
 	Log( LOG_DEBUG, "User \"%s!%s@%s\": Unknown command \"%s\", %d %s,%s prefix.", client->nick, client->user, client->host, Req->command, Req->argc, Req->argc == 1 ? "parameter" : "parameters", Req->prefix ? "" : " no" );
 
 	return TRUE;

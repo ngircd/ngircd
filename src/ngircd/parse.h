@@ -7,13 +7,18 @@
  * herausgegeben, weitergeben und/oder modifizieren, entweder unter Version 2
  * der Lizenz oder (wenn Sie es wuenschen) jeder spaeteren Version.
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
- * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
+ * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: parse.h,v 1.2 2001/12/26 14:45:37 alex Exp $
+ * $Id: parse.h,v 1.3 2001/12/31 02:18:51 alex Exp $
  *
  * parse.h: Parsen der Client-Anfragen (Header)
  *
  * $Log: parse.h,v $
+ * Revision 1.3  2001/12/31 02:18:51  alex
+ * - viele neue Befehle (WHOIS, ISON, OPER, DIE, RESTART),
+ * - neuen Header "defines.h" mit (fast) allen Konstanten.
+ * - Code Cleanups und viele "kleine" Aenderungen & Bugfixes.
+ *
  * Revision 1.2  2001/12/26 14:45:37  alex
  * - "Code Cleanups".
  *

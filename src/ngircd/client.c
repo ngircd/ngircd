@@ -7,9 +7,9 @@
  * herausgegeben, weitergeben und/oder modifizieren, entweder unter Version 2
  * der Lizenz oder (wenn Sie es wuenschen) jeder spaeteren Version.
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
- * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
+ * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.13 2001/12/30 19:26:11 alex Exp $
+ * $Id: client.c,v 1.14 2001/12/31 02:18:51 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,11 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.14  2001/12/31 02:18:51  alex
+ * - viele neue Befehle (WHOIS, ISON, OPER, DIE, RESTART),
+ * - neuen Header "defines.h" mit (fast) allen Konstanten.
+ * - Code Cleanups und viele "kleine" Aenderungen & Bugfixes.
+ *
  * Revision 1.13  2001/12/30 19:26:11  alex
  * - Unterstuetzung fuer die Konfigurationsdatei eingebaut.
  *
@@ -43,7 +48,7 @@
  * - "Code Cleanups".
  *
  * Revision 1.6  2001/12/26 03:19:16  alex
- * - neue Funktion Client_Name().
+ * - neue Funktion Client_Nick().
  *
  * Revision 1.5  2001/12/25 22:04:26  alex
  * - Aenderungen an den Debug- und Logging-Funktionen.
@@ -117,6 +122,7 @@ GLOBAL VOID Client_Init( VOID )
 	if( h ) strcpy( This_Server->host, h->h_name );
 
 	strcpy( This_Server->nick, Conf_ServerName );
+	strcpy( This_Server->info, Conf_ServerInfo );
 
 	My_Clients = This_Server;
 } /* Client_Init */
@@ -201,13 +207,13 @@ GLOBAL VOID Client_SetHostname( CLIENT *Client, CHAR *Hostname )
 	
 	assert( Client != NULL );
 	strncpy( Client->host, Hostname, CLIENT_HOST_LEN );
-	Client->host[CLIENT_HOST_LEN] = '\0';
+	Client->host[CLIENT_HOST_LEN - 1] = '\0';
 } /* Client_SetHostname */
 
 
 GLOBAL CLIENT *Client_GetFromConn( CONN_ID Idx )
 {
-	/* Client-Struktur, die zur lokalen Verbindung Idx gehoert
+	/* Client-Struktur, die zur lokalen Verbindung Idx gehoert,
 	 * liefern. Wird keine gefunden, so wird NULL geliefert. */
 
 	CLIENT *c;
@@ -224,7 +230,26 @@ GLOBAL CLIENT *Client_GetFromConn( CONN_ID Idx )
 } /* Client_GetFromConn */
 
 
-GLOBAL CHAR *Client_Name( CLIENT *Client )
+GLOBAL CLIENT *Client_GetFromNick( CHAR *Nick )
+{
+	/* Client-Struktur, die den entsprechenden Nick hat,
+	* liefern. Wird keine gefunden, so wird NULL geliefert. */
+
+	CLIENT *c;
+
+	assert( Nick != NULL );
+
+	c = My_Clients;
+	while( c )
+	{
+		if( strcasecmp( c->nick, Nick ) == 0 ) return c;
+		c = c->next;
+	}
+	return NULL;
+} /* Client_GetFromNick */
+
+
+GLOBAL CHAR *Client_Nick( CLIENT *Client )
 {
 	assert( Client != NULL );
 
@@ -243,7 +268,7 @@ GLOBAL BOOLEAN Client_CheckNick( CLIENT *Client, CHAR *Nick )
 	assert( Nick != NULL );
 	
 	/* Nick zu lang? */
-	if( strlen( Nick ) > CLIENT_NICK_LEN ) return IRC_WriteStrClient( Client, This_Server, ERR_ERRONEUSNICKNAME_MSG, Client_Name( Client ), Nick );
+	if( strlen( Nick ) > CLIENT_NICK_LEN ) return IRC_WriteStrClient( Client, This_Server, ERR_ERRONEUSNICKNAME_MSG, Client_Nick( Client ), Nick );
 
 	/* Nick bereits vergeben? */
 	c = My_Clients;
@@ -252,7 +277,7 @@ GLOBAL BOOLEAN Client_CheckNick( CLIENT *Client, CHAR *Nick )
 		if( strcasecmp( c->nick, Nick ) == 0 )
 		{
 			/* den Nick gibt es bereits */
-			IRC_WriteStrClient( Client, This_Server, ERR_NICKNAMEINUSE_MSG, Client_Name( Client ), Nick );
+			IRC_WriteStrClient( Client, This_Server, ERR_NICKNAMEINUSE_MSG, Client_Nick( Client ), Nick );
 			return FALSE;
 		}
 		c = c->next;
@@ -318,8 +343,10 @@ LOCAL CLIENT *New_Client_Struct( VOID )
 	strcpy( c->host, "" );
 	strcpy( c->user, "" );
 	strcpy( c->name, "" );
+	strcpy( c->info, "" );
 	for( i = 0; i < MAX_CHANNELS; c->channels[i++] = NULL );
 	strcpy( c->modes, "" );
+	c->oper_by_me = FALSE;
 
 	return c;
 } /* New_Client */

@@ -7,13 +7,18 @@
  * herausgegeben, weitergeben und/oder modifizieren, entweder unter Version 2
  * der Lizenz oder (wenn Sie es wuenschen) jeder spaeteren Version.
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
- * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
+ * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: log.h,v 1.5 2001/12/29 20:16:31 alex Exp $
+ * $Id: log.h,v 1.6 2001/12/31 02:18:51 alex Exp $
  *
  * log.h: Logging-Funktionen (Header)
  *
  * $Log: log.h,v $
+ * Revision 1.6  2001/12/31 02:18:51  alex
+ * - viele neue Befehle (WHOIS, ISON, OPER, DIE, RESTART),
+ * - neuen Header "defines.h" mit (fast) allen Konstanten.
+ * - Code Cleanups und viele "kleine" Aenderungen & Bugfixes.
+ *
  * Revision 1.5  2001/12/29 20:16:31  alex
  * - Log-Funktionen fuer Resolver-Sub-Prozess implementiert.
  *

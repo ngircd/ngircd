@@ -2,7 +2,7 @@
 #
 # ngIRCd start and stop script for Debian-based systems
 #
-# $Id: ngircd.init,v 1.3 2005/02/07 23:07:52 alex Exp $
+# $Id: ngircd.init,v 1.4 2005/02/14 00:44:48 alex Exp $
 #
 
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
@@ -45,7 +45,7 @@ case "$1" in
 	;;
   stop)
 	echo -n "Stopping $DESC: "
-	start-stop-daemon --stop --quiet --exec $DAEMON \
+	start-stop-daemon --stop --quiet --pidfile /var/run/ircd/ngircd.pid --exec $DAEMON \
 	  && echo "$NAME." \
 	  || echo "(none running)"
 	;;

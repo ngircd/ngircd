@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: channel.c,v 1.25 2002/06/01 14:35:39 alex Exp $
+ * $Id: channel.c,v 1.26 2002/06/01 15:55:17 alex Exp $
  *
  * channel.c: Management der Channels
  */
@@ -244,7 +244,7 @@ Channel_Quit( CLIENT *Client, CHAR *Reason )
 	while( c )
 	{
 		next_c = c->next;
-		Remove_Client( REMOVE_QUIT, c, Client, Client_ThisServer( ), Reason, FALSE );
+		Remove_Client( REMOVE_QUIT, c, Client, Client, Reason, FALSE );
 		c = next_c;
 	}
 } /* Channel_Quit */
@@ -705,17 +705,22 @@ Remove_Client( INT Type, CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, CHAR *Re
 	switch( Type )
 	{
 		case REMOVE_QUIT:
+			/* QUIT: andere Server wurden bereits informiert, vgl. Client_Destroy();
+			 * hier also "nur" noch alle User in betroffenen Channeln infomieren */
 			assert( InformServer == FALSE );
 			IRC_WriteStrChannelPrefix( Origin, c, Origin, FALSE, "QUIT :%s", Reason );
 			Log( LOG_DEBUG, "User \"%s\" left channel \"%s\" (%s).", Client_Mask( Client ), c->name, Reason );
 			break;
 		case REMOVE_KICK:
+			/* User wurde geKICKed: ggf. andere Server sowie alle betroffenen User
+			 * im entsprechenden Channel informieren */
 			if( InformServer ) IRC_WriteStrServersPrefix( Client_NextHop( Origin ), Origin, "KICK %s %s :%s", c->name, Client_ID( Client ), Reason );
 			IRC_WriteStrChannelPrefix( Client, c, Origin, FALSE, "KICK %s %s :%s", c->name, Client_ID( Client ), Reason );
 			if(( Client_Conn( Client ) > NONE ) && ( Client_Type( Client ) == CLIENT_USER )) IRC_WriteStrClientPrefix( Client, Origin, "KICK %s %s :%s", c->name, Client_ID( Client ), Reason );
 			Log( LOG_DEBUG, "User \"%s\" has been kicked of \"%s\" by \"%s\": %s.", Client_Mask( Client ), c->name, Client_ID( Origin ), Reason );
 			break;
 		default:
+			/* PART */
 			if( InformServer ) IRC_WriteStrServersPrefix( Origin, Client, "PART %s :%s", c->name, Reason );
 			IRC_WriteStrChannelPrefix( Origin, c, Client, FALSE, "PART %s :%s", c->name, Reason );
 			if(( Client_Conn( Origin ) > NONE ) && ( Client_Type( Origin ) == CLIENT_USER )) IRC_WriteStrClientPrefix( Origin, Client, "PART %s :%s", c->name, Reason );

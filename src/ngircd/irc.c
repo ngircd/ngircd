@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.73 2002/02/27 03:08:05 alex Exp $
+ * $Id: irc.c,v 1.74 2002/02/27 03:44:53 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.74  2002/02/27 03:44:53  alex
+ * - gerade eben in SQUIT eingefuehrten Bug behoben: entfernte Server werden nun
+ *   nur noch geloescht, die Verbindung, von der SQUIT kam, bleibt wieder offen.
+ *
  * Revision 1.73  2002/02/27 03:08:05  alex
  * - Log-Meldungen bei SQUIT erneut ueberarbeitet ...
  *
@@ -1086,10 +1090,14 @@ GLOBAL BOOLEAN IRC_SQUIT( CLIENT *Client, REQUEST *Req )
 		/* dieser Server hat die Connection */
 		if( Req->argv[1][0] ) Conn_Close( Client_Conn( target ), msg, Req->argv[1], TRUE );
 		else Conn_Close( Client_Conn( target ), msg, NULL, TRUE );
+		return DISCONNECTED;
 	}
-	else Client_Destroy( target, msg, Req->argv[1] );
-
-	return DISCONNECTED;
+	else
+	{
+		/* Verbindung hielt anderer Server */
+		Client_Destroy( target, msg, Req->argv[1] );
+		return CONNECTED;
+	}
 } /* IRC_SQUIT */
 
 

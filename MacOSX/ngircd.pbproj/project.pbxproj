@@ -123,6 +123,8 @@
 				F51D17FE01C8F5B701E11C2E,
 				F51D180401C8FDD001E11C2E,
 				F51D180501C8FDD001E11C2E,
+				F576ABFC01D5E77301A85B03,
+				F576ABFF01D61D7401A85B03,
 			);
 			isa = PBXHeadersBuildPhase;
 			name = Headers;
@@ -138,6 +140,7 @@
 				F51D17FF01C8F5B701E11C2E,
 				F51D180601C8FDD001E11C2E,
 				F51D180701C8FDD001E11C2E,
+				F576ABFD01D5E77301A85B03,
 			);
 			isa = PBXSourcesBuildPhase;
 			name = Sources;
@@ -290,8 +293,11 @@
 				F51D180301C8FDD001E11C2E,
 				F52162BB01C7B904012300F4,
 				F52162BC01C7B904012300F4,
+				F576ABFA01D5E77301A85B03,
+				F576ABFB01D5E77301A85B03,
 				F52162C001C7B904012300F4,
 				F52162C101C7B904012300F4,
+				F576ABFE01D61D7401A85B03,
 			);
 			isa = PBXGroup;
 			path = ngircd;
@@ -501,6 +507,40 @@
 		};
 		F52162E501C7C79E012300F4 = {
 			fileRef = F52162E201C7C77B012300F4;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F576ABFA01D5E77301A85B03 = {
+			isa = PBXFileReference;
+			path = parse.c;
+			refType = 4;
+		};
+		F576ABFB01D5E77301A85B03 = {
+			isa = PBXFileReference;
+			path = parse.h;
+			refType = 4;
+		};
+		F576ABFC01D5E77301A85B03 = {
+			fileRef = F576ABFB01D5E77301A85B03;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F576ABFD01D5E77301A85B03 = {
+			fileRef = F576ABFA01D5E77301A85B03;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F576ABFE01D61D7401A85B03 = {
+			isa = PBXFileReference;
+			name = messages.h;
+			path = ../src/ngircd/messages.h;
+			refType = 2;
+		};
+		F576ABFF01D61D7401A85B03 = {
+			fileRef = F576ABFE01D61D7401A85B03;
 			isa = PBXBuildFile;
 			settings = {
 			};

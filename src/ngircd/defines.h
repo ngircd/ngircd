@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: defines.h,v 1.17 2002/03/12 14:37:52 alex Exp $
+ * $Id: defines.h,v 1.18 2002/03/27 16:39:50 alex Exp $
  *
  * defines.h: (globale) Konstanten
  */
@@ -72,6 +72,8 @@
 #define CONFIG_FILE SYSCONFDIR"/ngircd.conf"
 #define MOTD_FILE SYSCONFDIR"/ngircd.motd"
 #define ERROR_FILE LOCALSTATEDIR"/ngircd.err"
+
+#define MAX_LOG_MSG_LEN 256		/* max. Laenge einer Log-Meldung */
 
 
 #endif

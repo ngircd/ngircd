@@ -42,6 +42,7 @@ ngIRCd CVS-HEAD
     Passwort, welches A an B schickt, kann ein anderes sein als das, welches
     B als Antwort an A sendet. In der Konfig.-Datei, Abschnitt "Server",
     wurde "Password" dazu durch "MyPassword" und "PeerPassword" ersetzt.
+  - Besseres Logging von Prefix-Fehlern.
 
 ngIRCd 0.5.3, 08.11.2002
 
@@ -330,4 +331,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.121 2002/11/19 12:50:48 alex Exp $
+$Id: ChangeLog,v 1.122 2002/11/20 11:14:16 alex Exp $

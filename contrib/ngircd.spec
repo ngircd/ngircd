@@ -51,4 +51,4 @@ make
 %doc AUTHORS  COPYING  ChangeLog  INSTALL NEWS  README
 %config(noreplace) /etc
 %{_prefix}/sbin
-%attr(644,root,root) %{_prefix}/share/man/
+%{_prefix}/share/man/

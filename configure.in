@@ -8,7 +8,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: configure.in,v 1.89.2.2 2003/04/22 20:00:19 alex Exp $
+# $Id: configure.in,v 1.89.2.3 2003/04/23 01:15:20 alex Exp $
 #
 
 # -- Initialisierung --
@@ -266,7 +266,15 @@ AC_DEFINE_UNQUOTED(TARGET_OS, "$target_os" )
 
 if test "$GCC" = "yes"; then
 	the_CFLAGS="-Wmissing-declarations -Wpointer-arith -Wstrict-prototypes"
-	add_CFLAGS="-Wall -W -ansi -pedantic $CFLAGS $CFLAGS_ADD"
+	$CC --version | grep 20020420 > /dev/null 2>&1
+	if test $? -eq 0; then
+		# Mac OS X (and Darwin?) ship with a slightly broken
+		# prerelease of GCC 3.1 which don't like -pedantic:
+		AC_MSG_RESULT([detected broken GNU C compiler, disabling "-pedantic"])
+		add_CFLAGS="-Wall -W -ansi $CFLAGS $CFLAGS_ADD"
+	else
+		add_CFLAGS="-Wall -W -ansi -pedantic $CFLAGS $CFLAGS_ADD"
+	fi
 else
 	the_CFLAGS="$CFLAGS"
 	add_CFLAGS="$CFLAGS_ADD"

@@ -9,32 +9,27 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-login.h,v 1.2 2002/03/03 17:15:11 alex Exp $
+ * $Id: irc-channel.h,v 1.1 2002/03/03 17:15:11 alex Exp $
  *
- * irc-login.h: Anmeldung und Abmeldung im IRC (Header)
+ * irc-channel.h: IRC-Channel-Befehle (Header)
  *
- * $Log: irc-login.h,v $
- * Revision 1.2  2002/03/03 17:15:11  alex
+ * $Log: irc-channel.h,v $
+ * Revision 1.1  2002/03/03 17:15:11  alex
  * - Source in weitere Module fuer IRC-Befehle aufgesplitted.
  *
- * Revision 1.1  2002/02/27 23:26:21  alex
- * - Modul aus irc.c bzw. irc.h ausgegliedert.
  */
 
 
-#ifndef __irc_login_h__
-#define __irc_login_h__
+#ifndef __irc_channel_h__
+#define __irc_channel_h__
 
 #include "parse.h"
 #include "client.h"
 
 
-GLOBAL BOOLEAN IRC_PASS( CLIENT *Client, REQUEST *Req );
-GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req );
-GLOBAL BOOLEAN IRC_USER( CLIENT *Client, REQUEST *Req );
-GLOBAL BOOLEAN IRC_PING( CLIENT *Client, REQUEST *Req );
-GLOBAL BOOLEAN IRC_PONG( CLIENT *Client, REQUEST *Req );
-GLOBAL BOOLEAN IRC_QUIT( CLIENT *Client, REQUEST *Req );
+GLOBAL BOOLEAN IRC_JOIN( CLIENT *Client, REQUEST *Req );
+GLOBAL BOOLEAN IRC_PART( CLIENT *Client, REQUEST *Req );
+GLOBAL BOOLEAN IRC_TOPIC( CLIENT *Client, REQUEST *Req );
 
 
 #endif

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.83 2002/02/28 00:48:26 alex Exp $
+ * $Id: irc.c,v 1.84 2002/03/03 17:15:11 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.84  2002/03/03 17:15:11  alex
+ * - Source in weitere Module fuer IRC-Befehle aufgesplitted.
+ *
  * Revision 1.83  2002/02/28 00:48:26  alex
  * - Forwarding von TOPIC an andere Server gefixed. Hoffentlich ;-)
  *
@@ -185,87 +188,6 @@ GLOBAL BOOLEAN IRC_NOTICE( CLIENT *Client, REQUEST *Req )
 	}
 	else return CONNECTED;
 } /* IRC_NOTICE */
-
-
-GLOBAL BOOLEAN IRC_OPER( CLIENT *Client, REQUEST *Req )
-{
-	INT i;
-	
-	assert( Client != NULL );
-	assert( Req != NULL );
-
-	if( Client_Type( Client ) != CLIENT_USER ) return IRC_WriteStrClient( Client, ERR_NOTREGISTERED_MSG, Client_ID( Client ));
-	
-	/* Falsche Anzahl Parameter? */
-	if( Req->argc != 2 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
-
-	/* Operator suchen */
-	for( i = 0; i < Conf_Oper_Count; i++)
-	{
-		if( Conf_Oper[i].name[0] && Conf_Oper[i].pwd[0] && ( strcmp( Conf_Oper[i].name, Req->argv[0] ) == 0 )) break;
-	}
-	if( i >= Conf_Oper_Count )
-	{
-		Log( LOG_WARNING, "Got invalid OPER from \"%s\": Name \"%s\" not configured!", Client_Mask( Client ), Req->argv[0] );
-		return IRC_WriteStrClient( Client, ERR_PASSWDMISMATCH_MSG, Client_ID( Client ));
-	}
-
-	/* Stimmt das Passwort? */
-	if( strcmp( Conf_Oper[i].pwd, Req->argv[1] ) != 0 )
-	{
-		Log( LOG_WARNING, "Got invalid OPER from \"%s\": Bad password for \"%s\"!", Client_Mask( Client ), Conf_Oper[i].name );
-		return IRC_WriteStrClient( Client, ERR_PASSWDMISMATCH_MSG, Client_ID( Client ));
-	}
-	
-	if( ! Client_HasMode( Client, 'o' ))
-	{
-		/* noch kein o-Mode gesetzt */
-		Client_ModeAdd( Client, 'o' );
-		if( ! IRC_WriteStrClient( Client, "MODE %s :+o", Client_ID( Client ))) return DISCONNECTED;
-		IRC_WriteStrServersPrefix( NULL, Client, "MODE %s :+o", Client_ID( Client ));
-	}
-
-	if( ! Client_OperByMe( Client )) Log( LOG_NOTICE, "Got valid OPER from \"%s\", user is an IRC operator now.", Client_Mask( Client ));
-
-	Client_SetOperByMe( Client, TRUE );
-	return IRC_WriteStrClient( Client, RPL_YOUREOPER_MSG, Client_ID( Client ));
-} /* IRC_OPER */
-
-
-GLOBAL BOOLEAN IRC_DIE( CLIENT *Client, REQUEST *Req )
-{
-	assert( Client != NULL );
-	assert( Req != NULL );
-
-	if( Client_Type( Client ) != CLIENT_USER ) return IRC_WriteStrClient( Client, ERR_NOTREGISTERED_MSG, Client_ID( Client ));
-
-	/* Falsche Anzahl Parameter? */
-	if( Req->argc != 0 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
-
-	if(( ! Client_HasMode( Client, 'o' )) || ( ! Client_OperByMe( Client ))) return IRC_WriteStrClient( Client, ERR_NOPRIVILEGES_MSG, Client_ID( Client ));
-
-	Log( LOG_NOTICE, "Got DIE command from \"%s\", going down!", Client_Mask( Client ));
-	NGIRCd_Quit = TRUE;
-	return CONNECTED;
-} /* IRC_DIE */
-
-
-GLOBAL BOOLEAN IRC_RESTART( CLIENT *Client, REQUEST *Req )
-{
-	assert( Client != NULL );
-	assert( Req != NULL );
-
-	if( Client_Type( Client ) != CLIENT_USER ) return IRC_WriteStrClient( Client, ERR_NOTREGISTERED_MSG, Client_ID( Client ));
-
-	/* Falsche Anzahl Parameter? */
-	if( Req->argc != 0 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
-
-	if(( ! Client_HasMode( Client, 'o' )) || ( ! Client_OperByMe( Client ))) return IRC_WriteStrClient( Client, ERR_NOPRIVILEGES_MSG, Client_ID( Client ));
-
-	Log( LOG_NOTICE, "Got RESTART command from \"%s\", going down!", Client_Mask( Client ));
-	NGIRCd_Restart = TRUE;
-	return CONNECTED;
-} /* IRC_RESTART */
 
 
 GLOBAL BOOLEAN IRC_NAMES( CLIENT *Client, REQUEST *Req )
@@ -498,6 +420,20 @@ GLOBAL BOOLEAN IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 } /* IRC_WHOIS */
 
 
+GLOBAL BOOLEAN IRC_WHO( CLIENT *Client, REQUEST *Req )
+{
+	assert( Client != NULL );
+	assert( Req != NULL );
+
+	if( Client_Type( Client ) != CLIENT_USER ) return IRC_WriteStrClient( Client, ERR_NOTREGISTERED_MSG, Client_ID( Client ));
+
+	/* Falsche Anzahl Parameter? */
+	if(( Req->argc > 2 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	
+	return CONNECTED;
+} /* IRC_WHO */
+
+
 GLOBAL BOOLEAN IRC_USERHOST( CLIENT *Client, REQUEST *Req )
 {
 	CHAR rpl[COMMAND_LEN];
@@ -634,193 +570,6 @@ GLOBAL BOOLEAN IRC_LINKS( CLIENT *Client, REQUEST *Req )
 	
 	return IRC_WriteStrClient( target, RPL_ENDOFLINKS_MSG, Client_ID( target ), mask );
 } /* IRC_LINKS */
-
-
-GLOBAL BOOLEAN IRC_JOIN( CLIENT *Client, REQUEST *Req )
-{
-	CHAR *channame, *flags, *topic, modes[8];
-	BOOLEAN is_new_chan;
-	CLIENT *target;
-	CHANNEL *chan;
-	
-	assert( Client != NULL );
-	assert( Req != NULL );
-
-	if(( Client_Type( Client ) != CLIENT_USER ) && ( Client_Type( Client ) != CLIENT_SERVER )) return IRC_WriteStrClient( Client, ERR_NOTREGISTERED_MSG, Client_ID( Client ));
-
-	/* Falsche Anzahl Parameter? */
-	if(( Req->argc > 1 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
-
-	/* Wer ist der Absender? */
-	if( Client_Type( Client ) == CLIENT_SERVER ) target = Client_GetFromID( Req->prefix );
-	else target = Client;
-	if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
-	
-	/* Channel-Namen durchgehen */
-	channame = strtok( Req->argv[0], "," );
-	while( channame )
-	{
-		/* wird der Channel neu angelegt? */
-		flags = NULL;
-
-		if( Channel_Search( channame )) is_new_chan = FALSE;
-		else is_new_chan = TRUE;
-
-		/* Hat ein Server Channel-User-Modes uebergeben? */
-		if( Client_Type( Client ) == CLIENT_SERVER )
-		{
-			/* Channel-Flags extrahieren */
-			flags = strchr( channame, 0x7 );
-			if( flags ) *flags++ = '\0';
-		}
-
-		/* neuer Channel udn lokaler Client? */
-		if( is_new_chan && ( Client_Type( Client ) == CLIENT_USER ))
-		{
-			/* Dann soll der Client Channel-Operator werden! */
-			flags = "o";
-		}
-
-		/* Channel joinen (und ggf. anlegen) */
-		if( ! Channel_Join( target, channame ))
-		{
-			/* naechsten Namen ermitteln */
-			channame = strtok( NULL, "," );
-			continue;
-		}
-		chan = Channel_Search( channame );
-		assert( chan != NULL );
-
-		/* Modes setzen (wenn vorhanden) */
-		while( flags && *flags )
-		{
-			Channel_UserModeAdd( chan, target, *flags );
-			flags++;
-		}
-
-		/* Muessen Modes an andere Server gemeldet werden? */
-		strcpy( &modes[1], Channel_UserModes( chan, target ));
-		if( modes[1] ) modes[0] = 0x7;
-		else modes[0] = '\0';
-
-		/* An andere Server weiterleiten */
-		IRC_WriteStrServersPrefix( Client, target, "JOIN :%s%s", channame, modes );
-
-		/* im Channel bekannt machen */
-		IRC_WriteStrChannelPrefix( Client, chan, target, FALSE, "JOIN :%s", channame );
-		if( modes[1] )
-		{
-			/* Modes im Channel bekannt machen */
-			IRC_WriteStrChannelPrefix( Client, chan, target, FALSE, "MODE %s %s :%s", channame, modes, Client_ID( target ));
-		}
-
-		if( Client_Type( Client ) == CLIENT_USER )
-		{
-			/* an Client bestaetigen */
-			IRC_WriteStrClientPrefix( Client, target, "JOIN :%s", channame );
-
-			/* Topic an Client schicken */
-			topic = Channel_Topic( chan );
-			if( *topic ) IRC_WriteStrClient( Client, RPL_TOPIC_MSG, Client_ID( Client ), channame, topic );
-
-			/* Mitglieder an Client Melden */
-			IRC_Send_NAMES( Client, chan );
-			IRC_WriteStrClient( Client, RPL_ENDOFNAMES_MSG, Client_ID( Client ), Channel_Name( chan ));
-		}
-		
-		/* naechsten Namen ermitteln */
-		channame = strtok( NULL, "," );
-	}
-	return CONNECTED;
-} /* IRC_JOIN */
-
-
-GLOBAL BOOLEAN IRC_PART( CLIENT *Client, REQUEST *Req )
-{
-	CLIENT *target;
-	CHAR *chan;
-
-	assert( Client != NULL );
-	assert( Req != NULL );
-
-	if(( Client_Type( Client ) != CLIENT_USER ) && ( Client_Type( Client ) != CLIENT_SERVER )) return IRC_WriteStrClient( Client, ERR_NOTREGISTERED_MSG, Client_ID( Client ));
-
-	/* Falsche Anzahl Parameter? */
-	if(( Req->argc > 2 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
-
-	/* Wer ist der Absender? */
-	if( Client_Type( Client ) == CLIENT_SERVER ) target = Client_GetFromID( Req->prefix );
-	else target = Client;
-	if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
-
-	/* Channel-Namen durchgehen */
-	chan = strtok( Req->argv[0], "," );
-	while( chan )
-	{
-		if( ! Channel_Part( target, Client, chan, Req->argc > 1 ? Req->argv[1] : Client_ID( target )))
-		{
-			/* naechsten Namen ermitteln */
-			chan = strtok( NULL, "," );
-			continue;
-		}
-
-		/* naechsten Namen ermitteln */
-		chan = strtok( NULL, "," );
-	}
-	return CONNECTED;
-} /* IRC_PART */
-
-
-GLOBAL BOOLEAN IRC_TOPIC( CLIENT *Client, REQUEST *Req )
-{
-	CHANNEL *chan;
-	CLIENT *from;
-	CHAR *topic;
-	
-	assert( Client != NULL );
-	assert( Req != NULL );
-
-	if(( Client_Type( Client ) != CLIENT_USER ) && ( Client_Type( Client ) != CLIENT_SERVER )) return IRC_WriteStrClient( Client, ERR_NOTREGISTERED_MSG, Client_ID( Client ));
-
-	/* Falsche Anzahl Parameter? */
-	if(( Req->argc < 1 ) || ( Req->argc > 2 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
-
-	if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_GetFromID( Req->prefix );
-	else from = Client;
-	if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
-
-	/* Welcher Channel? */
-	chan = Channel_Search( Req->argv[0] );
-	if( ! chan ) return IRC_WriteStrClient( from, ERR_NOTONCHANNEL_MSG, Client_ID( from ), Req->argv[0] );
-
-	/* Ist der User Mitglied in dem Channel? */
-	if( ! Channel_IsMemberOf( chan, from )) return IRC_WriteStrClient( from, ERR_NOTONCHANNEL_MSG, Client_ID( from ), Req->argv[0] );
-
-	if( Req->argc == 1 )
-	{
-		/* Topic erfragen */
-		topic = Channel_Topic( chan );
-		if( *topic ) return IRC_WriteStrClient( from, RPL_TOPIC_MSG, Client_ID( from ), Channel_Name( chan ), topic );
-		else return IRC_WriteStrClient( from, RPL_NOTOPIC_MSG, Client_ID( from ), Channel_Name( chan ));
-	}
-
-	if( strchr( Channel_Modes( chan ), 't' ))
-	{
-		/* Topic Lock. Ist der User ein Channel Operator? */
-		if( ! strchr( Channel_UserModes( chan, from ), 'o' )) return IRC_WriteStrClient( from, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( from ), Channel_Name( chan ));
-	}
-
-	/* Topic setzen */
-	Channel_SetTopic( chan, Req->argv[1] );
-	Log( LOG_DEBUG, "User \"%s\" set topic on \"%s\": %s", Client_Mask( from ), Channel_Name( chan ), Req->argv[1][0] ? Req->argv[1] : "<none>" );
-
-	/* im Channel bekannt machen und an Server weiterleiten */
-	IRC_WriteStrServersPrefix( Client, from, "TOPIC %s :%s", Req->argv[0], Req->argv[1] );
-	IRC_WriteStrChannelPrefix( Client, chan, from, FALSE, "TOPIC %s :%s", Req->argv[0], Req->argv[1] );
-
-	if( Client_Type( Client ) == CLIENT_USER ) return IRC_WriteStrClientPrefix( Client, Client, "TOPIC %s :%s", Req->argv[0], Req->argv[1] );
-	else return CONNECTED;
-} /* IRC_TOPIC */
 
 
 GLOBAL BOOLEAN IRC_VERSION( CLIENT *Client, REQUEST *Req )

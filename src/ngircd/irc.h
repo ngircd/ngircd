@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.h,v 1.27 2002/02/27 23:26:36 alex Exp $
+ * $Id: irc.h,v 1.28 2002/03/03 17:15:11 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: irc.h,v $
+ * Revision 1.28  2002/03/03 17:15:11  alex
+ * - Source in weitere Module fuer IRC-Befehle aufgesplitted.
+ *
  * Revision 1.27  2002/02/27 23:26:36  alex
  * - einige Funktionen in irc-xxx-Module ausgegliedert.
  *
@@ -51,17 +54,10 @@ GLOBAL BOOLEAN IRC_NAMES( CLIENT *Client, REQUEST *Req );
 GLOBAL BOOLEAN IRC_ISON( CLIENT *Client, REQUEST *Req );
 GLOBAL BOOLEAN IRC_WHOIS( CLIENT *Client, REQUEST *Req );
 GLOBAL BOOLEAN IRC_USERHOST( CLIENT *Client, REQUEST *Req );
-
-GLOBAL BOOLEAN IRC_OPER( CLIENT *Client, REQUEST *Req );
-GLOBAL BOOLEAN IRC_DIE( CLIENT *Client, REQUEST *Req );
-GLOBAL BOOLEAN IRC_RESTART( CLIENT *Client, REQUEST *Req );
+GLOBAL BOOLEAN IRC_WHO( CLIENT *Client, REQUEST *Req );
 
 GLOBAL BOOLEAN IRC_ERROR( CLIENT *Client, REQUEST *Req );
 GLOBAL BOOLEAN IRC_KILL( CLIENT *Client, REQUEST *Req );
-
-GLOBAL BOOLEAN IRC_JOIN( CLIENT *Client, REQUEST *Req );
-GLOBAL BOOLEAN IRC_PART( CLIENT *Client, REQUEST *Req );
-GLOBAL BOOLEAN IRC_TOPIC( CLIENT *Client, REQUEST *Req );
 
 GLOBAL BOOLEAN IRC_Send_NAMES( CLIENT *Client, CHANNEL *Chan );
 GLOBAL BOOLEAN IRC_Send_LUSERS( CLIENT *Client );

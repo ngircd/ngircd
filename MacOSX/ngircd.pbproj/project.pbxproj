@@ -100,7 +100,7 @@
 				PRODUCT_NAME = ngircd;
 				REZ_EXECUTABLE = YES;
 				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = "-Wmost -Wno-four-char-constants -Wno-unknown-pragmas";
+				WARNING_CFLAGS = "-Wall";
 			};
 			dependencies = (
 			);
@@ -131,6 +131,9 @@
 				F51DBB15022D95E801A85B04,
 				F51DBB19022D995501A85B04,
 				F51DBB1D022D9D8F01A85B04,
+				F57C88870232853501A85B04,
+				F57C888B0232884501A85B04,
+				F57C888F02328D7201A85B04,
 			);
 			isa = PBXHeadersBuildPhase;
 			name = Headers;
@@ -150,6 +153,9 @@
 				F51DBB16022D95E801A85B04,
 				F51DBB1A022D995501A85B04,
 				F51DBB1E022D9D8F01A85B04,
+				F57C88880232853501A85B04,
+				F57C888C0232884501A85B04,
+				F57C889002328D7201A85B04,
 			);
 			isa = PBXSourcesBuildPhase;
 			name = Sources;
@@ -399,10 +405,16 @@
 				F52162DB01C7BCDC012300F4,
 				F51D180201C8FDD001E11C2E,
 				F51D180301C8FDD001E11C2E,
+				F57C888D02328D7201A85B04,
+				F57C888E02328D7201A85B04,
 				F51DBB1B022D9D8F01A85B04,
 				F51DBB1C022D9D8F01A85B04,
 				F51DBB17022D995501A85B04,
 				F51DBB18022D995501A85B04,
+				F57C88850232853501A85B04,
+				F57C88860232853501A85B04,
+				F57C88890232884501A85B04,
+				F57C888A0232884501A85B04,
 				F51DBB13022D95E801A85B04,
 				F51DBB14022D95E801A85B04,
 				F52162BB01C7B904012300F4,
@@ -696,6 +708,72 @@
 		};
 		F576ABFF01D61D7401A85B03 = {
 			fileRef = F576ABFE01D61D7401A85B03;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F57C88850232853501A85B04 = {
+			isa = PBXFileReference;
+			path = "irc-oper.c";
+			refType = 4;
+		};
+		F57C88860232853501A85B04 = {
+			isa = PBXFileReference;
+			path = "irc-oper.h";
+			refType = 4;
+		};
+		F57C88870232853501A85B04 = {
+			fileRef = F57C88860232853501A85B04;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F57C88880232853501A85B04 = {
+			fileRef = F57C88850232853501A85B04;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F57C88890232884501A85B04 = {
+			isa = PBXFileReference;
+			path = "irc-server.c";
+			refType = 4;
+		};
+		F57C888A0232884501A85B04 = {
+			isa = PBXFileReference;
+			path = "irc-server.h";
+			refType = 4;
+		};
+		F57C888B0232884501A85B04 = {
+			fileRef = F57C888A0232884501A85B04;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F57C888C0232884501A85B04 = {
+			fileRef = F57C88890232884501A85B04;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F57C888D02328D7201A85B04 = {
+			isa = PBXFileReference;
+			path = "irc-channel.c";
+			refType = 4;
+		};
+		F57C888E02328D7201A85B04 = {
+			isa = PBXFileReference;
+			path = "irc-channel.h";
+			refType = 4;
+		};
+		F57C888F02328D7201A85B04 = {
+			fileRef = F57C888E02328D7201A85B04;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F57C889002328D7201A85B04 = {
+			fileRef = F57C888D02328D7201A85B04;
 			isa = PBXBuildFile;
 			settings = {
 			};

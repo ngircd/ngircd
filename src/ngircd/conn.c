@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.46 2002/03/02 03:32:08 alex Exp $
+ * $Id: conn.c,v 1.47 2002/03/04 23:16:23 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
+ * Revision 1.47  2002/03/04 23:16:23  alex
+ * - Logging geaendert: detaillierter im Syslog, "allgemeiner" fuer Clients.
+ *
  * Revision 1.46  2002/03/02 03:32:08  alex
  * - Aenderung des Idle-Verhalten revidiert: das war ein Schnellschuss :-/
  *
@@ -859,7 +862,7 @@ LOCAL VOID Read_Request( CONN_ID Idx )
 	{
 		/* Socket wurde geschlossen */
 		Log( LOG_INFO, "%s:%d is closing the connection ...", inet_ntoa( My_Connections[Idx].addr.sin_addr ), ntohs( My_Connections[Idx].addr.sin_port));
-		Conn_Close( Idx, NULL, "Client closed connection.", FALSE );
+		Conn_Close( Idx, "Socket closed!", "Client closed connection", FALSE );
 		return;
 	}
 
@@ -867,7 +870,7 @@ LOCAL VOID Read_Request( CONN_ID Idx )
 	{
 		/* Fehler beim Lesen */
 		Log( LOG_ERR, "Read error on connection %d: %s!", Idx, strerror( errno ));
-		Conn_Close( Idx, NULL, "Read error!", FALSE );
+		Conn_Close( Idx, "Read error!", "Client closed connection", FALSE );
 		return;
 	}
 

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: messages.h,v 1.52 2002/11/22 22:56:58 alex Exp $
+ * $Id: messages.h,v 1.53 2002/11/22 23:08:04 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  */
@@ -23,6 +23,9 @@
 #define RPL_YOURHOST_MSG		"002 %s :Your host is %s, running version ngircd-%s (%s/%s/%s)"
 #define RPL_CREATED_MSG			"003 %s :This server has been started %s"
 #define RPL_MYINFO_MSG			"004 %s %s ngircd-%s %s %s"
+#define RPL_STATSLINKINFO_MSG		"211 %s %s %d %d %d %d %d :%s"
+#define RPL_STATSCOMMANDS_MSG		"212 %s %s %d %d %d"
+#define RPL_ENDOFSTATS_MSG		"219 %s %c :End of STATS report"
 #define RPL_UMODEIS_MSG			"221 %s +%s"
 #define RPL_LUSERCLIENT_MSG		"251 %s :There are %ld users and %ld services on %ld servers"
 #define RPL_LUSEROP_MSG			"252 %s %ld :operator(s) online"
@@ -42,6 +45,7 @@
 #define RPL_WHOISUSER_MSG		"311 %s %s %s %s * :%s"
 #define RPL_WHOISSERVER_MSG		"312 %s %s %s :%s"
 #define RPL_WHOISOPERATOR_MSG		"313 %s %s :is an IRC operator"
+#define RPL_WHOWASUSER_MSG		"314 %s %s %s %s * :%s"
 #define RPL_ENDOFWHO_MSG		"315 %s %s :End of WHO list"
 #define RPL_WHOISIDLE_MSG		"317 %s %s %ld :seconds idle"
 #define RPL_ENDOFWHOIS_MSG		"318 %s %s :End of WHOIS list"
@@ -62,6 +66,7 @@
 #define RPL_ENDOFNAMES_MSG		"366 %s %s :End of NAMES list"
 #define RPL_BANLIST_MSG			"367 %s %s %s"
 #define RPL_ENDOFBANLIST_MSG		"368 %s %s :End of channel ban list"
+#define RPL_ENDOFWHOWAS_MSG		"369 %s %s :End of WHOWAS list"
 #define RPL_MOTD_MSG			"372 %s :- %s"
 #define RPL_MOTDSTART_MSG		"375 %s :- %s message of the day"
 #define RPL_ENDOFMOTD_MSG		"376 %s :End of MOTD command"
@@ -71,6 +76,7 @@
 #define ERR_NOSUCHSERVER_MSG		"402 %s %s :No such server"
 #define ERR_NOSUCHCHANNEL_MSG		"403 %s %s :No such channel"
 #define ERR_CANNOTSENDTOCHAN_MSG	"404 %s %s :Cannot send to channel"
+#define ERR_WASNOSUCHNICK_MSG		"406 %s %s :There was no such nickname"
 #define ERR_NOORIGIN_MSG		"409 %s :No origin specified"
 #define ERR_NORECIPIENT_MSG		"411 %s :No receipient given (%s)"
 #define ERR_NOTEXTTOSEND_MSG		"412 %s :No text to send"

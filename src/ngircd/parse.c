@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: parse.c,v 1.15 2002/01/05 01:42:08 alex Exp $
+ * $Id: parse.c,v 1.16 2002/01/05 23:23:20 alex Exp $
  *
  * parse.c: Parsen der Client-Anfragen
  *
  * $Log: parse.c,v $
+ * Revision 1.16  2002/01/05 23:23:20  alex
+ * - generisches Forwarding von Zahlen-Statuscodes implementiert.
+ *
  * Revision 1.15  2002/01/05 01:42:08  alex
  * - an Server werden keine ERRORS mehr wegen unbekannter Befehle geschickt.
  *
@@ -75,6 +78,7 @@
 
 #include <imp.h>
 #include <assert.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -243,7 +247,9 @@ LOCAL BOOLEAN Handle_Request( CONN_ID Idx, REQUEST *Req )
 	/* Client-Request verarbeiten. Bei einem schwerwiegenden Fehler
 	 * wird die Verbindung geschlossen und FALSE geliefert. */
 
-	CLIENT *client;
+	CLIENT *client, *target, *prefix;
+	CHAR str[LINE_LEN];
+	INT i;
 
 	assert( Idx >= 0 );
 	assert( Req != NULL );
@@ -251,6 +257,32 @@ LOCAL BOOLEAN Handle_Request( CONN_ID Idx, REQUEST *Req )
 
 	client = Client_GetFromConn( Idx );
 	assert( client != NULL );
+
+	/* Statuscode, der geforwarded werden muss? */
+	if(( strlen( Req->command ) == 3 ) && ( atoi( Req->command ) > 100 ))
+	{
+		/* Befehl ist ein Statuscode */
+
+		/* Zielserver ermitteln */
+		if(( Client_Type( client ) == CLIENT_SERVER ) && ( Req->argc > 0 )) target = Client_GetFromID( Req->argv[0] );
+		else target = NULL;
+		if( ! target ) return TRUE;
+
+		/* Quell-Client ermitteln */
+		if( ! Req->prefix[0] ) return TRUE;
+		else prefix = Client_GetFromID( Req->prefix );
+		if( ! prefix ) return TRUE;
+
+		/* Statuscode weiterleiten */
+		strcpy( str, Req->command );
+		for( i = 0; i < Req->argc; i++ )
+		{
+			if( i < Req->argc - 1 ) strcat( str, " " );
+			else strcat( str, " :" );
+			strcat( str, Req->argv[i] );
+		}
+		return IRC_WriteStrClientPrefix( target, prefix, str );
+	}
 
 	if( strcasecmp( Req->command, "PASS" ) == 0 ) return IRC_PASS( client, Req );
 	else if( strcasecmp( Req->command, "NICK" ) == 0 ) return IRC_NICK( client, Req );

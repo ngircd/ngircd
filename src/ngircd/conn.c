@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.17 2001/12/29 03:06:16 alex Exp $
+ * $Id: conn.c,v 1.18 2001/12/29 20:17:25 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
+ * Revision 1.18  2001/12/29 20:17:25  alex
+ * - asyncronen Resolver (IP->Name) implementiert, dadurch div. Aenderungen.
+ *
  * Revision 1.17  2001/12/29 03:06:16  alex
  * - Loglevel (nochmal) angepasst.
  *
@@ -93,6 +96,7 @@
 #include <time.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <netdb.h>
 
 #ifdef HAVE_STDINT_H
 #include <stdint.h>			/* u.a. fuer Mac OS X */
@@ -116,11 +120,23 @@
 #define READBUFFER_LEN 2 * MAX_CMDLEN	/* Laenge des Lesepuffers je Verbindung (Bytes) */
 #define WRITEBUFFER_LEN 4096		/* Laenge des Schreibpuffers je Verbindung (Bytes) */
 
+#define HOST_LEN 256			/* max. Laenge eines Hostnamen */
+
+
+typedef struct _Res_Stat
+{
+	INT pid;			/* PID des Child-Prozess */
+	INT out_pipe[2];		/* Pipe fuer IPC: zum Client */
+	INT in_pipe[2];			/* Pipe fuer IPC: vom Client */
+} RES_STAT;
+
 
 typedef struct _Connection
 {
 	INT sock;			/* Socket Handle */
 	struct sockaddr_in addr;	/* Adresse des Client */
+	RES_STAT *res_stat;		/* "Resolver-Status", s.o. */
+	CHAR host[HOST_LEN];		/* Hostname */
 	CHAR rbuf[READBUFFER_LEN + 1];	/* Lesepuffer */
 	INT rdatalen;			/* Laenge der Daten im Lesepuffer */
 	CHAR wbuf[WRITEBUFFER_LEN + 1];	/* Schreibpuffer */
@@ -138,10 +154,16 @@ LOCAL VOID Read_Request( CONN_ID Idx );
 LOCAL BOOLEAN Try_Write( CONN_ID Idx );
 LOCAL VOID Handle_Buffer( CONN_ID Idx );
 LOCAL VOID Check_Connections( VOID );
+LOCAL VOID Init_Conn_Struct( INT Idx );
+
+LOCAL RES_STAT *Resolve( CHAR *Host );
+LOCAL VOID Do_Resolve( INT r_fd, INT w_fd );
+LOCAL VOID Read_Resolver_Result( INT r_fd );
 
 
-LOCAL fd_set My_Listener;
+LOCAL fd_set My_Listeners;
 LOCAL fd_set My_Sockets;
+LOCAL fd_set My_Resolvers;
 
 LOCAL INT My_Max_Fd;
 
@@ -153,13 +175,14 @@ GLOBAL VOID Conn_Init( VOID )
 	CONN_ID i;
 
 	/* zu Beginn haben wir keine Verbindungen */
-	FD_ZERO( &My_Listener );
+	FD_ZERO( &My_Listeners );
 	FD_ZERO( &My_Sockets );
+	FD_ZERO( &My_Resolvers );
 
 	My_Max_Fd = 0;
 
 	/* Connection-Struktur initialisieren */
-	for( i = 0; i < MAX_CONNECTIONS; i++ ) My_Connections[i].sock = NONE;
+	for( i = 0; i < MAX_CONNECTIONS; i++ ) Init_Conn_Struct( i );
 } /* Conn_Init */
 
 
@@ -178,7 +201,7 @@ GLOBAL VOID Conn_Exit( VOID )
 				if( My_Connections[idx].sock == i ) break;
 			}
 			if( idx < MAX_CONNECTIONS ) Conn_Close( idx, "Server going down ..." );
-			else if( FD_ISSET( i, &My_Listener ))
+			else if( FD_ISSET( i, &My_Listeners ))
 			{
 				close( i );
 				Log( LOG_INFO, "Listening socket %d closed.", i );
@@ -245,7 +268,7 @@ GLOBAL BOOLEAN Conn_NewListener( CONST INT Port )
 	}
 
 	/* Neuen Listener in Strukturen einfuegen */
-	FD_SET( sock, &My_Listener );
+	FD_SET( sock, &My_Listeners );
 	FD_SET( sock, &My_Sockets );
 
 	if( sock > My_Max_Fd ) My_Max_Fd = sock;
@@ -292,8 +315,27 @@ GLOBAL VOID Conn_Handler( INT Timeout )
 				FD_SET( My_Connections[i].sock, &write_sockets );
 			}
 		}
-		
+
+		/* von welchen Sockets koennte gelesen werden? */
 		read_sockets = My_Sockets;
+		for( i = 0; i < MAX_CONNECTIONS; i++ )
+		{
+			if(( My_Connections[i].sock >= 0 ) && ( My_Connections[i].host[0] == '\0' ))
+			{
+				/* Hier muss noch auf den Resolver Sub-Prozess gewartet werden */
+				FD_CLR( My_Connections[i].sock, &read_sockets );
+			}
+		}
+		for( i = 0; i < My_Max_Fd + 1; i++ )
+		{
+			/* Pipes von Resolver Sub-Prozessen aufnehmen */
+			if( FD_ISSET( i, &My_Resolvers ))
+			{
+				FD_SET( i, &read_sockets );
+			}
+		}
+
+		/* Auf Aktivitaet warten */
 		if( select( My_Max_Fd + 1, &read_sockets, &write_sockets, NULL, &tv ) == -1 )
 		{
 			if( errno != EINTR ) Log( LOG_ALERT, "select(): %s!", strerror( errno ));
@@ -406,6 +448,17 @@ GLOBAL VOID Conn_Close( CONN_ID Idx, CHAR *Msg )
 
 	Client_Destroy( Client_GetFromConn( Idx ));
 
+	if( My_Connections[Idx].res_stat )
+	{
+		/* Resolver-Strukturen freigeben, wenn noch nicht geschehen */
+		FD_CLR( My_Connections[Idx].res_stat->in_pipe[0], &My_Resolvers );
+		close( My_Connections[Idx].res_stat->out_pipe[0] );
+		close( My_Connections[Idx].res_stat->out_pipe[1] );
+		close( My_Connections[Idx].res_stat->in_pipe[0] );
+		close( My_Connections[Idx].res_stat->in_pipe[1] );
+		free( My_Connections[Idx].res_stat );
+	}
+	
 	FD_CLR( My_Connections[Idx].sock, &My_Sockets );
 	My_Connections[Idx].sock = NONE;
 } /* Conn_Close */
@@ -447,13 +500,19 @@ LOCAL VOID Handle_Read( INT Sock )
 	CONN_ID idx;
 
 	assert( Sock >= 0 );
-
-	if( FD_ISSET( Sock, &My_Listener ))
+	
+	if( FD_ISSET( Sock, &My_Listeners ))
 	{
 		/* es ist einer unserer Listener-Sockets: es soll
 		 * also eine neue Verbindung aufgebaut werden. */
 
 		New_Connection( Sock );
+	}
+	else if( FD_ISSET( Sock, &My_Resolvers ))
+	{
+		/* Rueckmeldung von einem Resolver Sub-Prozess */
+
+		Read_Resolver_Result( Sock );
 	}
 	else
 	{
@@ -500,6 +559,7 @@ LOCAL VOID New_Connection( INT Sock )
 
 	struct sockaddr_in new_addr;
 	INT new_sock, new_sock_len;
+	RES_STAT *s;
 	CONN_ID idx;
 
 	assert( Sock >= 0 );
@@ -530,19 +590,28 @@ LOCAL VOID New_Connection( INT Sock )
 	}
 
 	/* Verbindung registrieren */
+	Init_Conn_Struct( idx );
 	My_Connections[idx].sock = new_sock;
 	My_Connections[idx].addr = new_addr;
-	My_Connections[idx].rdatalen = 0;
-	My_Connections[idx].wdatalen = 0;
-	My_Connections[idx].lastdata = time( NULL );
-	My_Connections[idx].lastping = 0;
 
 	/* Neuen Socket registrieren */
 	FD_SET( new_sock, &My_Sockets );
-
 	if( new_sock > My_Max_Fd ) My_Max_Fd = new_sock;
 
 	Log( LOG_NOTICE, "Accepted connection %d from %s:%d on socket %d.", idx, inet_ntoa( new_addr.sin_addr ), ntohs( new_addr.sin_port), Sock );
+
+	/* Hostnamen ermitteln */
+	s = Resolve( inet_ntoa( new_addr.sin_addr ));
+	if( s )
+	{
+		/* Sub-Prozess wurde asyncron gestartet */
+		My_Connections[idx].res_stat = s;
+	}
+	else
+	{
+		/* kann Namen nicht aufloesen */
+		strcpy( My_Connections[idx].host, inet_ntoa( new_addr.sin_addr ));
+	}
 } /* New_Connection */
 
 
@@ -682,6 +751,182 @@ LOCAL VOID Check_Connections( VOID )
 		}
 	}
 } /* Conn_Check */
+
+
+LOCAL VOID Init_Conn_Struct( INT Idx )
+{
+	/* Connection-Struktur initialisieren */
+
+	My_Connections[Idx].sock = NONE;
+	My_Connections[Idx].res_stat = NULL;
+	My_Connections[Idx].host[0] = '\0';
+	My_Connections[Idx].rbuf[0] = '\0';
+	My_Connections[Idx].rdatalen = 0;
+	My_Connections[Idx].wbuf[0] = '\0';
+	My_Connections[Idx].wdatalen = 0;
+	My_Connections[Idx].lastdata = time( NULL );
+	My_Connections[Idx].lastping = 0;
+} /* Init_Conn_Struct */
+
+
+LOCAL RES_STAT *Resolve( CHAR *Host )
+{
+	/* Hostnamen (asyncron!) aufloesen. Bei Fehler, z.B. wenn der
+	 * Child-Prozess nicht erzeugt werden kann, wird NULL geliefert.
+	 * Der Host kann dann nicht aufgeloest werden. */
+
+	RES_STAT *s;
+	INT pid;
+
+	s = malloc( sizeof( RES_STAT ));
+	if( ! s )
+	{
+		Log( LOG_ALERT, "Resolver: Can't alloc memory!" );
+		return NULL;
+	}
+
+	if( pipe( s->out_pipe ) != 0 )
+	{
+		free( s );
+		Log( LOG_ALERT, "Resolver: Can't create output pipe: %s!", strerror( errno ));
+		return NULL;
+	}
+
+	if( pipe( s->in_pipe ) != 0 )
+	{
+		free( s );
+		Log( LOG_ALERT, "Resolver: Can't create input pipe: %s!", strerror( errno ));
+		return NULL;
+	}
+
+	pid = fork( );
+	if( pid > 0 )
+	{
+		/* Haupt-Prozess */
+		if( write( s->out_pipe[1], Host, strlen( Host ) + 1 ) != ( strlen( Host ) + 1 ))
+		{
+			free( s );
+			Log( LOG_ALERT, "Resolver: Can't write to child: %s!", strerror( errno ));
+			return NULL;
+		}
+
+		FD_SET( s->in_pipe[0], &My_Resolvers );
+		if( s->in_pipe[0] > My_Max_Fd ) My_Max_Fd = s->in_pipe[0];
+
+		s->pid = pid;
+
+		Log( LOG_DEBUG, "Resolver process for \"%s\" (PID %d) created.", Host, pid );
+		return s;
+	}
+	else if( pid == 0 )
+	{
+		/* Sub-Prozess */
+		Log_Init_Resolver( );
+		Do_Resolve( s->out_pipe[0], s->in_pipe[1] );
+		Log_Exit_Resolver( );
+		exit( 0 );
+	}
+	else
+	{
+		/* Fehler */
+		free( s );
+		Log( LOG_ALERT, "Resolver: Can't fork: %s!", strerror( errno ));
+		return NULL;
+	}
+} /* Resolve */
+
+
+LOCAL VOID Read_Resolver_Result( INT r_fd )
+{
+	/* Ergebnis von Resolver Sub-Prozess aus Pipe lesen
+	 * und entsprechende Connection aktualisieren */
+
+	CHAR hostname[HOST_LEN];
+	CLIENT *c;
+	INT i;
+
+	FD_CLR( r_fd, &My_Resolvers );
+
+	/* Anfrage vom Parent lesen */
+	if( read( r_fd, hostname, HOST_LEN) < 0 )
+	{
+		/* Fehler beim Lesen aus der Pipe */
+		close( r_fd );
+		Log( LOG_ALERT, "Resolver: Can't read result: %s!", strerror( errno ));
+		return;
+	}
+
+	for( i = 0; i < MAX_CONNECTIONS; i++ )
+	{
+		/* zugehoerige Connection suchen */
+		if(( My_Connections[i].sock >= 0 ) && ( My_Connections[i].res_stat ) && ( My_Connections[i].res_stat->in_pipe[0] == r_fd )) break;
+	}
+
+	if( i >= MAX_CONNECTIONS )
+	{
+		/* Opsa! Keine passende Connection gefunden!? */
+		close( r_fd );
+		Log( LOG_ALERT, "Resolver: Got result for unknown connection!?" );
+		return;
+	}
+
+	/* Aufraeumen */
+	close( My_Connections[i].res_stat->out_pipe[0] );
+	close( My_Connections[i].res_stat->out_pipe[1] );
+	close( My_Connections[i].res_stat->in_pipe[0] );
+	close( My_Connections[i].res_stat->in_pipe[1] );
+	free( My_Connections[i].res_stat );
+	My_Connections[i].res_stat = NULL;
+	
+	/* Hostnamen setzen */
+	strcpy( My_Connections[i].host, hostname );
+	c = Client_GetFromConn( i );
+	if( c )
+	{
+		Log( LOG_DEBUG, "Set hostname: \"%s\".", hostname );
+		Client_SetHostname( c, hostname );
+	}
+} /* Read_Resolver_Result */
+
+
+LOCAL VOID Do_Resolve( INT r_fd, INT w_fd )
+{
+	/* Resolver Sub-Prozess: aufzuloesenden Namen aus
+	 * der Pipe lesen, Ergebnis in Pipe schreiben. */
+
+	CHAR host[HOST_LEN], res_host[HOST_LEN];
+	struct hostent *h;
+
+	/* Anfrage vom Parent lesen */
+	if( read( r_fd, host, HOST_LEN) < 0 )
+	{
+		Log_Resolver( LOG_ALERT, "Resolver: Can't read from parent: %s!", strerror( errno ));
+		close( r_fd ); close( w_fd );
+		return;
+	}
+	host[HOST_LEN] = '\0';
+
+	Log_Resolver( LOG_DEBUG, "Now resolving \"%s\" ...", host );
+
+	/* Namen aufloesen */
+	h = gethostbyname( host );
+	if( h ) strcpy( res_host, h->h_name );
+	else
+	{
+		Log_Resolver( LOG_WARNING, "Can't resolce host name (code %d)!", h_errno );
+		strcpy( res_host, host );
+	}
+
+	/* Antwort an Parent schreiben */
+	if( write( w_fd, res_host, strlen( res_host ) + 1 ) != ( strlen( res_host ) + 1 ))
+	{
+		Log_Resolver( LOG_ALERT, "Resolver: Can't write to parent: %s!", strerror( errno ));
+		close( r_fd ); close( w_fd );
+		return;
+	}
+
+	Log_Resolver( LOG_DEBUG, "Ok, translated \"%s\" to \"%s\".", host, res_host );
+} /* Do_Resolve */
 
 
 /* -eof- */

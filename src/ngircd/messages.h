@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: messages.h,v 1.42 2002/06/01 14:40:00 alex Exp $
+ * $Id: messages.h,v 1.43 2002/06/02 14:15:50 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  */
@@ -47,6 +47,7 @@
 #define RPL_CHANNELMODEIS_MSG		"324 %s %s +%s"
 #define RPL_NOTOPIC_MSG			"331 %s %s :No topic is set"
 #define RPL_TOPIC_MSG			"332 %s %s :%s"
+#define RPL_INVITING_MSG		"341 %s %s %s"
 #define RPL_VERSION_MSG			"351 %s %s-%s.%s %s :%s"
 #define RPL_WHOREPLY_MSG		"352 %s %s %s %s %s %s %s :%d %s"
 #define RPL_NAMREPLY_MSG		"353 %s %s %s :"
@@ -71,6 +72,7 @@
 #define ERR_NICKNAMEINUSE_MSG		"433 %s %s :Nickname already in use"
 #define ERR_USERNOTINCHANNEL_MSG	"441 %s %s %s :They aren't on that channel"
 #define ERR_NOTONCHANNEL_MSG		"442 %s %s :You are not on that channel"
+#define ERR_USERONCHANNEL_MSG		"443 %s %s %s :is already on channel"
 #define ERR_NOTREGISTERED_MSG		"451 %s :Connection not registered"
 #define ERR_NOTREGISTEREDSERVER_MSG	"451 %s :Connection not registered as server link"
 #define ERR_NEEDMOREPARAMS_MSG		"461 %s %s :Syntax error"

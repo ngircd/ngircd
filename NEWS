@@ -10,6 +10,17 @@
                            -- NEWS / Neuigkeiten --
 
 
+ngIRCd 0.0.3, 16.01.2002
+
+  - Server-Links vollstaendig implementiert: der ngIRCd kann nun auch
+    "Sub-Server" haben, also sowohl als Leaf-Node als auch Hub in einem
+    IRC-Netzwerk arbeiten.
+  - WHOIS wird nun immer an den "Original-Server" weitergeleitet.
+  - Parses handhabt Leerzeichen zw. Parametern nun etwas "lockerer".
+  - Kommandozeilen-Parser: Debug- und No-Daemon-Modus, Hilfe.
+  - ngIRCd wandelt sich nun in einen Daemon (Hintergrundprozess) um.
+  - neue Befehle: LUSERS, LINKS.
+
 ngIRCd 0.0.2, 06.01.2002
 
   - neuer Aufbau der Konfigurationsdatei,
@@ -23,4 +34,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.4 2002/01/06 15:40:01 alex Exp $
+$Id: NEWS,v 1.5 2002/01/16 22:35:28 alex Exp $

@@ -10,6 +10,23 @@
                         -- ChangeLog / Aenderungen --
 
 
+ngIRCd 0.0.3, 16.01.2002
+
+  - Server-Links vollstaendig implementiert: der ngIRCd kann nun auch
+    "Sub-Server" haben, also sowohl als Leaf-Node als auch Hub in einem
+    IRC-Netzwerk arbeiten.
+  - MODE und NICK melden nun die Aenderungen an andere Server, ebenso
+    die Befehle QUIT und SQUIT.
+  - WHOIS wird nun immer an den "Original-Server" weitergeleitet.
+  - Parses handhabt Leerzeichen zw. Parametern nun etwas "lockerer".
+  - Status-Codes an den Server selber werden ignorier.
+  - Log-Meldungen und Log-Level ueberarbeitet und korrigiert.
+  - Kommandozeilen-Parser: Debug- und No-Daemon-Modus, Hilfe.
+  - ngIRCd wandelt sich nun in einen Daemon (Hintergrundprozess) um.
+  - WHOIS korrigiert: Anfrage wurde u.U. an User geforwarded anstatt vom
+    Server beantwortet zu werden.
+  - neue Befehle: LUSERS, LINKS
+
 ngIRCd 0.0.2, 06.01.2002
 
   - Struktur der Konfigurationsdatei geaendert: sie ist nun "Samba like",
@@ -38,4 +55,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.7 2002/01/06 15:40:01 alex Exp $
+$Id: ChangeLog,v 1.8 2002/01/16 22:35:28 alex Exp $

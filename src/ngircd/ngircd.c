@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.25 2002/02/19 20:30:47 alex Exp $
+ * $Id: ngircd.c,v 1.26 2002/02/23 19:06:47 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  *
  * $Log: ngircd.c,v $
+ * Revision 1.26  2002/02/23 19:06:47  alex
+ * - fuer SIGCHLD wird nun auch SA_NOCLDWAIT gesetzt, wenn vorhanden.
+ *
  * Revision 1.25  2002/02/19 20:30:47  alex
  * - SA_RESTART wird fuer Signale nur noch gesetzt, wenn es definiert ist.
  *
@@ -372,7 +375,10 @@ LOCAL VOID Initialize_Signal_Handler( VOID )
 	memset( &saction, 0, sizeof( saction ));
 	saction.sa_handler = Signal_Handler;
 #ifdef SA_RESTART
-	saction.sa_flags = SA_RESTART;
+	saction.sa_flags |= SA_RESTART;
+#endif
+#ifdef SA_NOCLDWAIT
+	saction.sa_flags |= SA_NOCLDWAIT;
 #endif
 
 	/* Signal-Handler einhaengen */

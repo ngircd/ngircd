@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.51 2002/02/11 15:15:53 alex Exp $
+ * $Id: irc.c,v 1.52 2002/02/11 15:52:21 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.52  2002/02/11 15:52:21  alex
+ * - PONG an den Server selber wurde faelschlicherweise versucht zu forwarden.
+ * - Channel-Modes wurden falsch geliefert (als User-Modes).
+ *
  * Revision 1.51  2002/02/11 15:15:53  alex
  * - PING und PONG werden nun auch korrekt an andere Server geforwarded.
  * - bei MODE-Meldungen wird der letzte Parameter nicht mehr mit ":" getrennt.
@@ -985,10 +989,14 @@ GLOBAL BOOLEAN IRC_PONG( CLIENT *Client, REQUEST *Req )
 	{
 		target = Client_GetFromID( Req->argv[1] );
 		if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->argv[1] );
-		if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_GetFromID( Req->prefix );
-		else from = Client;
-		if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->prefix );
-		return IRC_WriteStrClientPrefix( Client_NextHop( target ), from, "PONG %s :%s", Client_ID( from ), Req->argv[1] );
+		if( target != Client_ThisServer( ))
+		{
+			/* ok, forwarden */
+			if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_GetFromID( Req->prefix );
+			else from = Client;
+			if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->prefix );
+			return IRC_WriteStrClientPrefix( Client_NextHop( target ), from, "PONG %s :%s", Client_ID( from ), Req->argv[1] );
+		}
 	}
 
 	/* Der Connection-Timestamp wurde schon beim Lesen aus dem Socket
@@ -1135,7 +1143,7 @@ GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req )
 
 	/* Werden die Modes "nur" erfragt? */
 	if(( cl ) && ( Req->argc == 1 )) return IRC_WriteStrClient( Client, RPL_UMODEIS_MSG, Client_ID( Client ), Client_Modes( cl ));
-	if(( chan ) && ( Req->argc == 1 )) return IRC_WriteStrClient( Client, RPL_UMODEISCHAN_MSG, Client_ID( Client ), Channel_Name( chan ), Channel_Modes( chan ));
+	if(( chan ) && ( Req->argc == 1 )) return IRC_WriteStrClient( Client, RPL_CHANNELMODEIS_MSG, Client_ID( Client ), Channel_Name( chan ), Channel_Modes( chan ));
 
 	mode_ptr = Req->argv[1];
 
@@ -1302,7 +1310,7 @@ GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req )
 				}
 				else
 				{
-					/* Bestaetigung an Client schicken & andere Server informieren */
+					/* Bestaetigung an Client schicken & andere Server sowie Channel-User informieren */
 					ok = IRC_WriteStrClient( Client, "MODE %s %s %s", Channel_Name( chan ), the_modes, Client_ID( chan_cl));
 					IRC_WriteStrServersPrefix( Client, Client, "MODE %s %s :%s", Channel_Name( chan ), the_modes, Client_ID( chan_cl));
 					IRC_WriteStrChannelPrefix( Client, chan, Client, FALSE, "MODE %s %s %s", Channel_Name( chan ), the_modes, Client_ID( chan_cl));
@@ -1314,14 +1322,16 @@ GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req )
 				/* Channel-Mode */
 				if( Client_Type( Client ) == CLIENT_SERVER )
 				{
-					/* Modes an andere Server forwarden */
+					/* Modes an andere Server und Channel-User forwarden */
 					IRC_WriteStrServersPrefix( Client, Client, "MODE %s :%s", Channel_Name( chan ), the_modes );
+					IRC_WriteStrChannelPrefix( Client, chan, Client, FALSE, "MODE %s %s", Channel_Name( chan ), the_modes );
 				}
 				else
 				{
-					/* Bestaetigung an Client schicken & andere Server informieren */
+					/* Bestaetigung an Client schicken & andere Server sowie Channel-User informieren */
 					ok = IRC_WriteStrClient( Client, "MODE %s %s", Channel_Name( chan ), the_modes );
-					IRC_WriteStrServers( Client, "MODE %s :%s", Channel_Name( chan ), the_modes );
+					IRC_WriteStrServersPrefix( Client, Client, "MODE %s :%s", Channel_Name( chan ), the_modes );
+					IRC_WriteStrChannelPrefix( Client, chan, Client, FALSE, "MODE %s %s", Channel_Name( chan ), the_modes );
 				}
 				Log( LOG_DEBUG, "Channel \"%s\": Mode change, now \"%s\".", Channel_Name( chan ), Channel_Modes( chan ));
 			}

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: portabtest.c,v 1.2 2002/03/12 15:19:12 alex Exp $
+ * $Id: portabtest.c,v 1.3 2002/03/12 21:47:40 alex Exp $
  *
  * portabtest.c: Testprogramm fuer portab.h
  */
@@ -38,7 +38,7 @@ GLOBAL INT main( VOID )
 	}
 	else puts( "ok." );
 
-	puts( "- system type: "TARGET_OS"/"TARGET_CPU );
+	puts( "- system type: "TARGET_CPU"/"TARGET_VENDOR"/"TARGET_OS );
 
 	return ret;
 } /* main */

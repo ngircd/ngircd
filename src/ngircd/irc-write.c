@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-write.c,v 1.9 2002/10/04 11:21:46 alex Exp $
+ * $Id: irc-write.c,v 1.10 2002/11/02 22:59:41 alex Exp $
  *
  * irc-write.c: IRC-Texte und Befehle ueber Netzwerk versenden
  */
@@ -146,11 +146,11 @@ CHAR *Format;
 va_dcl
 #endif
 {
-	BOOLEAN sock[MAX_CONNECTIONS], is_server[MAX_CONNECTIONS], ok = CONNECTED;
+	BOOLEAN ok = CONNECTED;
 	CHAR buffer[1000];
 	CL2CHAN *cl2chan;
+	CONN_ID conn;
 	CLIENT *c;
-	INT s, i;
 	va_list ap;
 
 	assert( Client != NULL );
@@ -166,7 +166,7 @@ va_dcl
 	vsnprintf( buffer, 1000, Format, ap );
 	va_end( ap );
 
-	for( i = 0; i < MAX_CONNECTIONS; i++ ) sock[i] = FALSE;
+	Conn_ClearFlags( );
 
 	/* An alle Clients, die in den selben Channels sind.
 	 * Dabei aber nur einmal je Remote-Server */
@@ -184,26 +184,29 @@ va_dcl
 		if( c && ( c != Client ))
 		{
 			/* Ok, anderer Client */
-			s = Client_Conn( c );
-			assert( s >= 0 );
-			assert( s < MAX_CONNECTIONS );
-			sock[s] = TRUE;
-			if( Client_Type( c ) == CLIENT_SERVER ) is_server[s] = TRUE;
-			else is_server[s] = FALSE;
+			conn = Client_Conn( c );
+			Conn_SetFlag( conn );
 		}
 		cl2chan = Channel_NextMember( Chan, cl2chan );
 	}
 
 	/* Senden ... */
-	for( i = 0; i < MAX_CONNECTIONS; i++ )
+	conn = Conn_First( );
+	while( conn != NONE )
 	{
-		if( sock[i] )
+		if( Conn_Flag( conn ))
 		{
-			if( is_server[i] ) ok = Conn_WriteStr( i, ":%s %s", Client_ID( Prefix ), buffer );
-			else ok = Conn_WriteStr( i, ":%s %s", Client_Mask( Prefix ), buffer );
+			if( Client_Type( Client_GetFromConn( conn )) == CLIENT_SERVER )
+			{
+				/* Ziel-Client ist ein anderer Server */
+				ok = Conn_WriteStr( conn, ":%s %s", Client_ID( Prefix ), buffer );
+			}
+			else ok = Conn_WriteStr( conn, ":%s %s", Client_Mask( Prefix ), buffer );
 			if( ! ok ) break;
 		}
+		conn = Conn_Next( conn );
 	}
+
 	return ok;
 } /* IRC_WriteStrChannelPrefix */
 
@@ -321,13 +324,13 @@ CHAR *Format;
 va_dcl
 #endif
 {
-	BOOLEAN sock[MAX_CONNECTIONS], is_server[MAX_CONNECTIONS], ok = CONNECTED;
+	BOOLEAN ok = CONNECTED;
 	CL2CHAN *chan_cl2chan, *cl2chan;
 	CHAR buffer[1000];
 	CHANNEL *chan;
+	CONN_ID conn;
 	va_list ap;
 	CLIENT *c;
-	INT i, s;
 
 	assert( Client != NULL );
 	assert( Prefix != NULL );
@@ -342,7 +345,7 @@ va_dcl
 	va_end( ap );
 
 	/* initialisieren */
-	for( i = 0; i < MAX_CONNECTIONS; i++ ) sock[i] = FALSE;
+	Conn_ClearFlags( );
 
 	/* An alle Clients, die in einem Channel mit dem "Ausloeser" sind,
 	 * den Text schicken. An Remote-Server aber jeweils nur einmal. */
@@ -365,12 +368,8 @@ va_dcl
 			if( c && ( c != Client ))
 			{
 				/* Ok, anderer Client */
-				s = Client_Conn( c );
-				assert( s >= 0 );
-				assert( s < MAX_CONNECTIONS );
-				sock[s] = TRUE;
-				if( Client_Type( c ) == CLIENT_SERVER ) is_server[s] = TRUE;
-				else is_server[s] = FALSE;
+				conn = Client_Conn( c );
+				Conn_Flag( conn );
 			}
 			cl2chan = Channel_NextMember( chan, cl2chan );
 		}
@@ -380,14 +379,20 @@ va_dcl
 	}
 
 	/* Senden ... */
-	for( i = 0; i < MAX_CONNECTIONS; i++ )
+	conn = Conn_First( );
+	while( conn != NONE )
 	{
-		if( sock[i] )
+		if( Conn_Flag( conn ))
 		{
-			if( is_server[i] ) ok = Conn_WriteStr( i, ":%s %s", Client_ID( Prefix ), buffer );
-			else ok = Conn_WriteStr( i, ":%s %s", Client_Mask( Prefix ), buffer );
+			if( Client_Type( Client_GetFromConn( conn )) == CLIENT_SERVER )
+			{
+				/* Ziel ist ein anderer Server */
+				ok = Conn_WriteStr( conn, ":%s %s", Client_ID( Prefix ), buffer );
+			}
+			else ok = Conn_WriteStr( conn, ":%s %s", Client_Mask( Prefix ), buffer );
 			if( ! ok ) break;
 		}
+		conn = Conn_Next( conn );
 	}
 	return ok;
 } /* IRC_WriteStrRelatedPrefix */

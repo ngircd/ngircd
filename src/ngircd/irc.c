@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.62 2002/02/17 23:38:58 alex Exp $
+ * $Id: irc.c,v 1.63 2002/02/19 02:21:17 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.63  2002/02/19 02:21:17  alex
+ * - der Debug-Level wird bei VERSION nicht mehr geliefert. Grund: a) absolut
+ *   unnoetig und b) Compiler-Fehler, wenn ohne Debug-Code configure'd ;-))
+ *
  * Revision 1.62  2002/02/17 23:38:58  alex
  * - neuer IRC-Befehl VERSION implementiert: IRC_VERSION().
  *
@@ -2061,8 +2065,8 @@ GLOBAL BOOLEAN IRC_VERSION( CLIENT *Client, REQUEST *Req )
 		IRC_WriteStrClientPrefix( Client_NextHop( target ), Client, "VERSION %s", Req->argv[0] );
 		return CONNECTED;
 	}
-	
-	return IRC_WriteStrClient( Client, RPL_VERSION_MSG, Client_ID( Client ), NGIRCd_Debug ? ( NGIRCd_Sniffer ? "2" : "1" ) : "0", Conf_ServerName, NGIRCd_VersionAddition( ));
+
+	return IRC_WriteStrClient( Client, RPL_VERSION_MSG, Client_ID( Client ), "", Conf_ServerName, NGIRCd_VersionAddition( ));
 } /* IRC_VERSION */
 
 

@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.5 2001/12/12 17:21:21 alex Exp $
+ * $Id: ngircd.c,v 1.6 2001/12/12 23:30:42 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  *
  * $Log: ngircd.c,v $
+ * Revision 1.6  2001/12/12 23:30:42  alex
+ * - Log-Meldungen an syslog angepasst.
+ * - NGIRCd_Quit ist nun das Flag zum Beenden des ngircd.
+ *
  * Revision 1.5  2001/12/12 17:21:21  alex
  * - mehr Unterfunktionen eingebaut, Modul besser strukturiert & dokumentiert.
  * - Anpassungen an neue Module.
@@ -54,9 +58,6 @@
 #include "ngircd.h"
 
 
-BOOLEAN do_quit_now = FALSE;		/* TRUE: Hauptschleife beenden */
-
-
 LOCAL VOID Initialize_Signal_Handler( VOID );
 LOCAL VOID Signal_Handler( INT Signal );
 
@@ -65,6 +66,9 @@ GLOBAL INT main( INT argc, CONST CHAR *argv[] )
 {
 	/* Datentypen der portab-Library ueberpruefen */
 	portab_check_types( );
+
+	/* Globale Variablen initialisieren */
+	NGIRCd_Quit = FALSE;
 
 	/* Module initialisieren */
 	Log_Init( );
@@ -77,7 +81,7 @@ GLOBAL INT main( INT argc, CONST CHAR *argv[] )
 
 	
 	/* Hauptschleife */
-	while( ! do_quit_now )
+	while( ! NGIRCd_Quit )
 	{
 		Conn_Handler( );
         }
@@ -124,12 +128,12 @@ LOCAL VOID Signal_Handler( INT Signal )
 		case SIGINT:
 		case SIGQUIT:
 			/* wir soll(t)en uns wohl beenden ... */
-			Log( LOG_WARN, "Got signal %d, terminating now ...", Signal );
-			do_quit_now = TRUE;
+			Log( LOG_NOTICE, "Got signal %d, terminating now ...", Signal );
+			NGIRCd_Quit = TRUE;
 			break;
 		default:
 			/* unbekanntes bzw. unbehandeltes Signal */
-			Log( LOG_WARN, "Got signal %d! Ignored.", Signal );
+			Log( LOG_NOTICE, "Got signal %d! Ignored.", Signal );
 	}
 } /* Signal_Handler */
 

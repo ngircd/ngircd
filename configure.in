@@ -9,16 +9,15 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: configure.in,v 1.75 2002/12/28 21:58:02 alex Exp $
+# $Id: configure.in,v 1.76 2003/01/03 19:07:09 alex Exp $
 #
 
 # -- Initialisierung --
 
-AC_INIT
-AC_PREREQ(2.50)
+AC_INIT(ngircd, CVSHEAD)
+AC_CONFIG_SRCDIR(src/ngircd/ngircd.c)
 AC_CANONICAL_TARGET
-AC_CONFIG_SRCDIR(src/config.h.in)
-AM_INIT_AUTOMAKE(ngircd,CVSHEAD)
+AM_INIT_AUTOMAKE
 AM_CONFIG_HEADER(src/config.h)
 
 # -- Templates fuer config.h --

@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: defines.h,v 1.44 2003/12/26 15:55:07 alex Exp $
+ * $Id: defines.h,v 1.45 2004/04/25 15:46:50 alex Exp $
  *
  * Global defines of ngIRCd.
  */
@@ -67,7 +67,7 @@
 #define PROTOIRCPLUS "-IRC+"		/* Protokoll-Suffix für IRC+-Protokoll */
 
 #ifdef IRCPLUS
-# define IRCPLUSFLAGS "C"		/* IRC+-Flags, die immer zutreffen */
+# define IRCPLUSFLAGS "CL"		/* IRC+-Flags, die immer zutreffen */
 #endif
 
 #define STARTUP_DELAY 1			/* Erst n Sek. nach Start zu anderen Servern verbinden */

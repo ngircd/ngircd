@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.87 2002/11/04 12:31:27 alex Exp $
+ * $Id: conn.c,v 1.88 2002/11/05 14:18:39 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -393,7 +393,7 @@ va_dcl
 	BOOLEAN ok;
 	va_list ap;
 
-	assert( Idx >= 0 );
+	assert( Idx > NONE );
 	assert( Format != NULL );
 
 #ifdef PROTOTYPES
@@ -426,7 +426,7 @@ Conn_Write( CONN_ID Idx, CHAR *Data, INT Len )
 	/* Daten in Socket schreiben. Bei "fatalen" Fehlern wird
 	 * der Client disconnectiert und FALSE geliefert. */
 
-	assert( Idx >= 0 );
+	assert( Idx > NONE );
 	assert( Data != NULL );
 	assert( Len > 0 );
 
@@ -479,7 +479,7 @@ Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient )
 
 	CLIENT *c;
 
-	assert( Idx >= 0 );
+	assert( Idx > NONE );
 	assert( My_Connections[Idx].sock > NONE );
 
 	c = Client_GetFromConn( Idx );
@@ -524,7 +524,7 @@ Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient )
 	}
 
 	/* Startzeit des naechsten Connect-Versuchs modifizieren? */
-	if(( My_Connections[Idx].our_server >= 0 ) && ( Conf_Server[My_Connections[Idx].our_server].lasttry <  time( NULL ) - Conf_ConnectRetry ))
+	if(( My_Connections[Idx].our_server > NONE ) && ( Conf_Server[My_Connections[Idx].our_server].lasttry <  time( NULL ) - Conf_ConnectRetry ))
 	{
 		/* Okay, die Verbindung stand schon "genuegend lange":
 		 * lasttry-Zeitpunkt so setzen, dass der naechste
@@ -543,7 +543,7 @@ Conn_UpdateIdle( CONN_ID Idx )
 {
 	/* Idle-Timer zuruecksetzen */
 
-	assert( Idx >= 0 );
+	assert( Idx > NONE );
 	My_Connections[Idx].lastprivmsg = time( NULL );
 }
 
@@ -553,7 +553,7 @@ Conn_GetIdle( CONN_ID Idx )
 {
 	/* Idle-Time einer Verbindung liefern (in Sekunden) */
 
-	assert( Idx >= 0 );
+	assert( Idx > NONE );
 	return time( NULL ) - My_Connections[Idx].lastprivmsg;
 } /* Conn_GetIdle */
 
@@ -563,7 +563,7 @@ Conn_LastPing( CONN_ID Idx )
 {
 	/* Zeitpunkt des letzten PING liefern */
 
-	assert( Idx >= 0 );
+	assert( Idx > NONE );
 	return My_Connections[Idx].lastping;
 } /* Conn_LastPing */
 
@@ -578,7 +578,7 @@ Conn_SetPenalty( CONN_ID Idx, time_t Seconds )
 	
 	time_t t;
 	
-	assert( Idx >= 0 );
+	assert( Idx > NONE );
 	assert( Seconds >= 0 );
 	
 	t = time( NULL ) + Seconds;
@@ -589,7 +589,7 @@ Conn_SetPenalty( CONN_ID Idx, time_t Seconds )
 GLOBAL VOID
 Conn_ResetPenalty( CONN_ID Idx )
 {
-	assert( Idx >= NONE );
+	assert( Idx > NONE );
 	My_Connections[Idx].delaytime = 0;
 } /* Conn_ResetPenalty */
 
@@ -610,7 +610,7 @@ Conn_Flag( CONN_ID Idx )
 {
 	/* Ist eine Connection markiert (TRUE) oder nicht? */
 
-	assert( Idx >= NONE );
+	assert( Idx > NONE );
 	return My_Connections[Idx].flag;
 } /* Conn_Flag */
 
@@ -620,7 +620,7 @@ Conn_SetFlag( CONN_ID Idx, INT Flag )
 {
 	/* Connection markieren */
 
-	assert( Idx >= NONE );
+	assert( Idx > NONE );
 	My_Connections[Idx].flag = Flag;
 } /* Conn_SetFlag */
 
@@ -649,7 +649,7 @@ Conn_Next( CONN_ID Idx )
 
 	LONG i = NONE;
 
-	assert( Idx >= NONE );
+	assert( Idx > NONE );
 	
 	for( i = Idx + 1; i < Pool_Size; i++ )
 	{
@@ -657,6 +657,19 @@ Conn_Next( CONN_ID Idx )
 	}
 	return NONE;
 } /* Conn_Next */
+
+
+GLOBAL VOID
+Conn_SetServer( CONN_ID Idx, INT ConfServer )
+{
+	/* Connection als Server markieren: Index des konfigurierten
+	 * Servers speichern. Verbindung muss bereits bestehen! */
+	
+	assert( Idx > NONE );
+	assert( My_Connections[Idx].sock > NONE );
+	
+	My_Connections[Idx].our_server = ConfServer;
+} /* Conn_SetServer */
 
 
 LOCAL BOOLEAN
@@ -667,7 +680,7 @@ Try_Write( CONN_ID Idx )
 
 	fd_set write_socket;
 
-	assert( Idx >= 0 );
+	assert( Idx > NONE );
 	assert( My_Connections[Idx].sock > NONE );
 	assert( My_Connections[Idx].wdatalen > 0 );
 
@@ -699,7 +712,7 @@ Handle_Read( INT Sock )
 
 	CONN_ID idx;
 
-	assert( Sock >= 0 );
+	assert( Sock > NONE );
 
 	if( FD_ISSET( Sock, &My_Listeners ))
 	{
@@ -807,7 +820,7 @@ New_Connection( INT Sock )
 	POINTER *ptr;
 	LONG new_size;
 
-	assert( Sock >= 0 );
+	assert( Sock > NONE );
 
 	new_sock_len = sizeof( new_addr );
 	new_sock = accept( Sock, (struct sockaddr *)&new_addr, (socklen_t *)&new_sock_len );
@@ -913,7 +926,7 @@ Socket2Index( INT Sock )
 
 	CONN_ID idx;
 
-	assert( Sock >= 0 );
+	assert( Sock > NONE );
 
 	for( idx = 0; idx < Pool_Size; idx++ ) if( My_Connections[idx].sock == Sock ) break;
 
@@ -936,7 +949,7 @@ Read_Request( CONN_ID Idx )
 
 	INT len;
 
-	assert( Idx >= 0 );
+	assert( Idx > NONE );
 	assert( My_Connections[Idx].sock > NONE );
 
 	if( READBUFFER_LEN - My_Connections[Idx].rdatalen - 2 < 0 )
@@ -1176,8 +1189,8 @@ New_Server( INT Server, CONN_ID Idx )
 	INT new_sock;
 	CLIENT *c;
 
-	assert( Server >= 0 );
-	assert( Idx >= 0 );
+	assert( Server > NONE );
+	assert( Idx > NONE );
 
 	/* Wurde eine gueltige IP-Adresse gefunden? */
 	if( ! Conf_Server[Server].ip[0] )
@@ -1359,7 +1372,7 @@ Read_Resolver_Result( INT r_fd )
 	else
 	{
 		/* Ausgehende Verbindung (=Server): IP setzen */
-		assert( My_Connections[i].our_server >= 0 );
+		assert( My_Connections[i].our_server > NONE );
 		strcpy( Conf_Server[My_Connections[i].our_server].ip, result );
 	}
 

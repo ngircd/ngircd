@@ -10,6 +10,13 @@
                         -- ChangeLog / Aenderungen --
 
 
+ngIRCd 0.5.x-CVS
+
+  - Prefix-Fehler werden besser protokolliert (mit verursachendem Befehl).
+  - SQUIT wird nicht mehr doppelt an andere Server weitergeleitet.
+  - Der Server versucht nun vor dem Schliessen einer Verbindung Daten, die
+    noch im Schreibpuffer stehen, zu senden.
+
 ngIRCd 0.5.4, 24.11.2002
 
   - Fehler-Handling von connect() gefixed: der Server kann sich nun auch   
@@ -313,4 +320,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.87.2.17 2002/11/24 15:33:14 alex Exp $
+$Id: ChangeLog,v 1.87.2.18 2002/11/29 11:42:24 alex Exp $

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.64 2002/05/19 13:05:22 alex Exp $
+ * $Id: conn.c,v 1.65 2002/05/27 13:09:26 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -31,7 +31,6 @@
 #include <sys/types.h>
 #include <time.h>
 #include <netinet/in.h>
-#include <netdb.h>
 
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
@@ -43,15 +42,19 @@
 #include <stdint.h>			/* u.a. fuer Mac OS X */
 #endif
 
+#include "exp.h"
+#include "conn.h"
+
+#include "imp.h"
 #include "ngircd.h"
 #include "client.h"
+#include "resolve.h"
 #include "conf.h"
 #include "log.h"
 #include "parse.h"
 #include "tool.h"
 
 #include "exp.h"
-#include "conn.h"
 
 
 #define SERVER_WAIT (NONE - 1)
@@ -74,41 +77,30 @@ typedef struct _Connection
 } CONNECTION;
 
 
-LOCAL VOID Handle_Read( INT sock );
-LOCAL BOOLEAN Handle_Write( CONN_ID Idx );
-LOCAL VOID New_Connection( INT Sock );
-LOCAL CONN_ID Socket2Index( INT Sock );
-LOCAL VOID Read_Request( CONN_ID Idx );
-LOCAL BOOLEAN Try_Write( CONN_ID Idx );
-LOCAL VOID Handle_Buffer( CONN_ID Idx );
-LOCAL VOID Check_Connections( VOID );
-LOCAL VOID Check_Servers( VOID );
-LOCAL VOID Init_Conn_Struct( INT Idx );
-LOCAL BOOLEAN Init_Socket( INT Sock );
-LOCAL VOID New_Server( INT Server, CONN_ID Idx );
-
-LOCAL RES_STAT *ResolveAddr( struct sockaddr_in *Addr );
-LOCAL RES_STAT *ResolveName( CHAR *Host );
-LOCAL VOID Do_ResolveAddr( struct sockaddr_in *Addr, INT w_fd );
-LOCAL VOID Do_ResolveName( CHAR *Host, INT w_fd );
-LOCAL VOID Read_Resolver_Result( INT r_fd );
-
-#ifdef h_errno
-LOCAL CHAR *Resolv_Error( INT H_Error );
-#endif
+LOCAL VOID Handle_Read PARAMS(( INT sock ));
+LOCAL BOOLEAN Handle_Write PARAMS(( CONN_ID Idx ));
+LOCAL VOID New_Connection PARAMS(( INT Sock ));
+LOCAL CONN_ID Socket2Index PARAMS(( INT Sock ));
+LOCAL VOID Read_Request PARAMS(( CONN_ID Idx ));
+LOCAL BOOLEAN Try_Write PARAMS(( CONN_ID Idx ));
+LOCAL VOID Handle_Buffer PARAMS(( CONN_ID Idx ));
+LOCAL VOID Check_Connections PARAMS(( VOID ));
+LOCAL VOID Check_Servers PARAMS(( VOID ));
+LOCAL VOID Init_Conn_Struct PARAMS(( INT Idx ));
+LOCAL BOOLEAN Init_Socket PARAMS(( INT Sock ));
+LOCAL VOID New_Server PARAMS(( INT Server, CONN_ID Idx ));
+LOCAL VOID Read_Resolver_Result PARAMS(( INT r_fd ));
 
 
 LOCAL fd_set My_Listeners;
 LOCAL fd_set My_Sockets;
-LOCAL fd_set My_Resolvers;
 LOCAL fd_set My_Connects;
-
-LOCAL INT My_Max_Fd;
 
 LOCAL CONNECTION My_Connections[MAX_CONNECTIONS];
 
 
-GLOBAL VOID Conn_Init( VOID )
+GLOBAL VOID
+Conn_Init( VOID )
 {
 	/* Modul initialisieren: statische Strukturen "ausnullen". */
 
@@ -117,17 +109,17 @@ GLOBAL VOID Conn_Init( VOID )
 	/* zu Beginn haben wir keine Verbindungen */
 	FD_ZERO( &My_Listeners );
 	FD_ZERO( &My_Sockets );
-	FD_ZERO( &My_Resolvers );
 	FD_ZERO( &My_Connects );
 
-	My_Max_Fd = 0;
+	Conn_MaxFD = 0;
 
 	/* Connection-Struktur initialisieren */
 	for( i = 0; i < MAX_CONNECTIONS; i++ ) Init_Conn_Struct( i );
 } /* Conn_Init */
 
 
-GLOBAL VOID Conn_Exit( VOID )
+GLOBAL VOID
+Conn_Exit( VOID )
 {
 	/* Modul abmelden: alle noch offenen Connections
 	 * schliessen und freigeben. */
@@ -137,7 +129,7 @@ GLOBAL VOID Conn_Exit( VOID )
 
 	/* Sockets schliessen */
 	Log( LOG_DEBUG, "Shutting down all connections ..." );
-	for( i = 0; i < My_Max_Fd + 1; i++ )
+	for( i = 0; i < Conn_MaxFD + 1; i++ )
 	{
 		if( FD_ISSET( i, &My_Sockets ))
 		{
@@ -166,7 +158,8 @@ GLOBAL VOID Conn_Exit( VOID )
 } /* Conn_Exit */
 
 
-GLOBAL BOOLEAN Conn_NewListener( CONST UINT Port )
+GLOBAL BOOLEAN
+Conn_NewListener( CONST UINT Port )
 {
 	/* Neuen Listen-Socket erzeugen: der Server wartet dann auf
 	 * dem angegebenen Port auf Verbindungen. Kann der Listen-
@@ -211,7 +204,7 @@ GLOBAL BOOLEAN Conn_NewListener( CONST UINT Port )
 	FD_SET( sock, &My_Listeners );
 	FD_SET( sock, &My_Sockets );
 
-	if( sock > My_Max_Fd ) My_Max_Fd = sock;
+	if( sock > Conn_MaxFD ) Conn_MaxFD = sock;
 
 	Log( LOG_INFO, "Now listening on port %d (socket %d).", Port, sock );
 
@@ -219,7 +212,8 @@ GLOBAL BOOLEAN Conn_NewListener( CONST UINT Port )
 } /* Conn_NewListener */
 
 
-GLOBAL VOID Conn_Handler( INT Timeout )
+GLOBAL VOID
+Conn_Handler( INT Timeout )
 {
 	/* Aktive Verbindungen ueberwachen. Mindestens alle "Timeout"
 	 * Sekunden wird die Funktion verlassen. Folgende Aktionen
@@ -289,17 +283,17 @@ GLOBAL VOID Conn_Handler( INT Timeout )
 				FD_CLR( My_Connections[i].sock, &read_sockets );
 			}
 		}
-		for( i = 0; i < My_Max_Fd + 1; i++ )
+		for( i = 0; i < Conn_MaxFD + 1; i++ )
 		{
 			/* Pipes von Resolver Sub-Prozessen aufnehmen */
-			if( FD_ISSET( i, &My_Resolvers ))
+			if( FD_ISSET( i, &Resolver_FDs ))
 			{
 				FD_SET( i, &read_sockets );
 			}
 		}
 
 		/* Auf Aktivitaet warten */
-		if( select( My_Max_Fd + 1, &read_sockets, &write_sockets, NULL, &tv ) == -1 )
+		if( select( Conn_MaxFD + 1, &read_sockets, &write_sockets, NULL, &tv ) == -1 )
 		{
 			if( errno != EINTR )
 			{
@@ -311,13 +305,13 @@ GLOBAL VOID Conn_Handler( INT Timeout )
 		}
 
 		/* Koennen Daten geschrieben werden? */
-		for( i = 0; i < My_Max_Fd + 1; i++ )
+		for( i = 0; i < Conn_MaxFD + 1; i++ )
 		{
 			if( FD_ISSET( i, &write_sockets )) Handle_Write( Socket2Index( i ));
 		}
 
 		/* Daten zum Lesen vorhanden? */
-		for( i = 0; i < My_Max_Fd + 1; i++ )
+		for( i = 0; i < Conn_MaxFD + 1; i++ )
 		{
 			if( FD_ISSET( i, &read_sockets )) Handle_Read( i );
 		}
@@ -325,7 +319,8 @@ GLOBAL VOID Conn_Handler( INT Timeout )
 } /* Conn_Handler */
 
 
-GLOBAL BOOLEAN Conn_WriteStr( CONN_ID Idx, CHAR *Format, ... )
+GLOBAL BOOLEAN
+Conn_WriteStr( CONN_ID Idx, CHAR *Format, ... )
 {
 	/* String in Socket schreiben. CR+LF wird von dieser Funktion
 	 * automatisch angehaengt. Im Fehlerfall wird dir Verbindung
@@ -359,7 +354,8 @@ GLOBAL BOOLEAN Conn_WriteStr( CONN_ID Idx, CHAR *Format, ... )
 } /* Conn_WriteStr */
 
 
-GLOBAL BOOLEAN Conn_Write( CONN_ID Idx, CHAR *Data, INT Len )
+GLOBAL BOOLEAN
+Conn_Write( CONN_ID Idx, CHAR *Data, INT Len )
 {
 	/* Daten in Socket schreiben. Bei "fatalen" Fehlern wird
 	 * der Client disconnectiert und FALSE geliefert. */
@@ -399,7 +395,8 @@ GLOBAL BOOLEAN Conn_Write( CONN_ID Idx, CHAR *Data, INT Len )
 } /* Conn_Write */
 
 
-GLOBAL VOID Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient )
+GLOBAL VOID
+Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient )
 {
 	/* Verbindung schliessen. Evtl. noch von Resolver
 	 * Sub-Prozessen offene Pipes werden geschlossen. */
@@ -431,7 +428,7 @@ GLOBAL VOID Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformC
 	if( My_Connections[Idx].res_stat )
 	{
 		/* Resolver-Strukturen freigeben, wenn noch nicht geschehen */
-		FD_CLR( My_Connections[Idx].res_stat->pipe[0], &My_Resolvers );
+		FD_CLR( My_Connections[Idx].res_stat->pipe[0], &Resolver_FDs );
 		close( My_Connections[Idx].res_stat->pipe[0] );
 		close( My_Connections[Idx].res_stat->pipe[1] );
 		free( My_Connections[Idx].res_stat );
@@ -452,7 +449,8 @@ GLOBAL VOID Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformC
 } /* Conn_Close */
 
 
-GLOBAL VOID Conn_UpdateIdle( CONN_ID Idx )
+GLOBAL VOID
+Conn_UpdateIdle( CONN_ID Idx )
 {
 	/* Idle-Timer zuruecksetzen */
 
@@ -461,7 +459,8 @@ GLOBAL VOID Conn_UpdateIdle( CONN_ID Idx )
 }
 
 
-GLOBAL time_t Conn_GetIdle( CONN_ID Idx )
+GLOBAL time_t
+Conn_GetIdle( CONN_ID Idx )
 {
 	/* Idle-Time einer Verbindung liefern (in Sekunden) */
 
@@ -470,7 +469,8 @@ GLOBAL time_t Conn_GetIdle( CONN_ID Idx )
 } /* Conn_GetIdle */
 
 
-GLOBAL time_t Conn_LastPing( CONN_ID Idx )
+GLOBAL time_t
+Conn_LastPing( CONN_ID Idx )
 {
 	/* Zeitpunkt des letzten PING liefern */
 
@@ -479,7 +479,8 @@ GLOBAL time_t Conn_LastPing( CONN_ID Idx )
 } /* Conn_LastPing */
 
 
-LOCAL BOOLEAN Try_Write( CONN_ID Idx )
+LOCAL BOOLEAN
+Try_Write( CONN_ID Idx )
 {
 	/* Versuchen, Daten aus dem Schreib-Puffer in den
 	 * Socket zu schreiben. */
@@ -508,7 +509,8 @@ LOCAL BOOLEAN Try_Write( CONN_ID Idx )
 } /* Try_Write */
 
 
-LOCAL VOID Handle_Read( INT Sock )
+LOCAL VOID
+Handle_Read( INT Sock )
 {
 	/* Aktivitaet auf einem Socket verarbeiten:
 	 *  - neue Clients annehmen,
@@ -526,7 +528,7 @@ LOCAL VOID Handle_Read( INT Sock )
 
 		New_Connection( Sock );
 	}
-	else if( FD_ISSET( Sock, &My_Resolvers ))
+	else if( FD_ISSET( Sock, &Resolver_FDs ))
 	{
 		/* Rueckmeldung von einem Resolver Sub-Prozess */
 
@@ -542,7 +544,8 @@ LOCAL VOID Handle_Read( INT Sock )
 } /* Handle_Read */
 
 
-LOCAL BOOLEAN Handle_Write( CONN_ID Idx )
+LOCAL BOOLEAN
+Handle_Write( CONN_ID Idx )
 {
 	/* Daten aus Schreibpuffer versenden bzw. Connection aufbauen */
 
@@ -609,7 +612,8 @@ LOCAL BOOLEAN Handle_Write( CONN_ID Idx )
 } /* Handle_Write */
 
 
-LOCAL VOID New_Connection( INT Sock )
+LOCAL VOID
+New_Connection( INT Sock )
 {
 	/* Neue Client-Verbindung von Listen-Socket annehmen und
 	 * CLIENT-Struktur anlegen. */
@@ -655,12 +659,12 @@ LOCAL VOID New_Connection( INT Sock )
 
 	/* Neuen Socket registrieren */
 	FD_SET( new_sock, &My_Sockets );
-	if( new_sock > My_Max_Fd ) My_Max_Fd = new_sock;
+	if( new_sock > Conn_MaxFD ) Conn_MaxFD = new_sock;
 
 	Log( LOG_INFO, "Accepted connection %d from %s:%d on socket %d.", idx, inet_ntoa( new_addr.sin_addr ), ntohs( new_addr.sin_port), Sock );
 
 	/* Hostnamen ermitteln */
-	s = ResolveAddr( &new_addr );
+	s = Resolve_Addr( &new_addr );
 	if( s )
 	{
 		/* Sub-Prozess wurde asyncron gestartet */
@@ -675,7 +679,8 @@ LOCAL VOID New_Connection( INT Sock )
 } /* New_Connection */
 
 
-LOCAL CONN_ID Socket2Index( INT Sock )
+LOCAL CONN_ID
+Socket2Index( INT Sock )
 {
 	/* zum Socket passende Connection suchen */
 
@@ -690,7 +695,8 @@ LOCAL CONN_ID Socket2Index( INT Sock )
 } /* Socket2Index */
 
 
-LOCAL VOID Read_Request( CONN_ID Idx )
+LOCAL VOID
+Read_Request( CONN_ID Idx )
 {
 	/* Daten von Socket einlesen und entsprechend behandeln.
 	 * Tritt ein Fehler auf, so wird der Socket geschlossen. */
@@ -738,7 +744,8 @@ LOCAL VOID Read_Request( CONN_ID Idx )
 } /* Read_Request */
 
 
-LOCAL VOID Handle_Buffer( CONN_ID Idx )
+LOCAL VOID
+Handle_Buffer( CONN_ID Idx )
 {
 	/* Daten im Lese-Puffer einer Verbindung verarbeiten. */
 
@@ -769,7 +776,7 @@ LOCAL VOID Handle_Buffer( CONN_ID Idx )
 		/* Ende der Anfrage wurde gefunden */
 		*ptr = '\0';
 		len = ( ptr - My_Connections[Idx].rbuf ) + delta;
-		if( len > COMMAND_LEN )
+		if( len > ( COMMAND_LEN - 1 ))
 		{
 			/* Eine Anfrage darf(!) nicht laenger als 512 Zeichen
 			* (incl. CR+LF!) werden; vgl. RFC 2812. Wenn soetwas
@@ -792,7 +799,8 @@ LOCAL VOID Handle_Buffer( CONN_ID Idx )
 } /* Handle_Buffer */
 
 
-LOCAL VOID Check_Connections( VOID )
+LOCAL VOID
+Check_Connections( VOID )
 {
 	/* Pruefen, ob Verbindungen noch "alive" sind. Ist dies
 	 * nicht der Fall, zunaechst PING-PONG spielen und, wenn
@@ -841,7 +849,8 @@ LOCAL VOID Check_Connections( VOID )
 } /* Check_Connections */
 
 
-LOCAL VOID Check_Servers( VOID )
+LOCAL VOID
+Check_Servers( VOID )
 {
 	/* Pruefen, ob Server-Verbindungen aufgebaut werden
 	 * muessen bzw. koennen */
@@ -901,7 +910,7 @@ LOCAL VOID Check_Servers( VOID )
 		My_Connections[idx].our_server = i;
 
 		/* Hostnamen in IP aufloesen */
-		s = ResolveName( Conf_Server[i].host );
+		s = Resolve_Name( Conf_Server[i].host );
 		if( s )
 		{
 			/* Sub-Prozess wurde asyncron gestartet */
@@ -917,7 +926,8 @@ LOCAL VOID Check_Servers( VOID )
 } /* Check_Servers */
 
 
-LOCAL VOID New_Server( INT Server, CONN_ID Idx )
+LOCAL VOID
+New_Server( INT Server, CONN_ID Idx )
 {
 	/* Neue Server-Verbindung aufbauen */
 
@@ -999,11 +1009,12 @@ LOCAL VOID New_Server( INT Server, CONN_ID Idx )
 	/* Neuen Socket registrieren */
 	FD_SET( new_sock, &My_Sockets );
 	FD_SET( new_sock, &My_Connects );
-	if( new_sock > My_Max_Fd ) My_Max_Fd = new_sock;
+	if( new_sock > Conn_MaxFD ) Conn_MaxFD = new_sock;
 } /* New_Server */
 
 
-LOCAL VOID Init_Conn_Struct( INT Idx )
+LOCAL VOID
+Init_Conn_Struct( INT Idx )
 {
 	/* Connection-Struktur initialisieren */
 
@@ -1021,7 +1032,8 @@ LOCAL VOID Init_Conn_Struct( INT Idx )
 } /* Init_Conn_Struct */
 
 
-LOCAL BOOLEAN Init_Socket( INT Sock )
+LOCAL BOOLEAN
+Init_Socket( INT Sock )
 {
 	/* Socket-Optionen setzen */
 
@@ -1045,197 +1057,17 @@ LOCAL BOOLEAN Init_Socket( INT Sock )
 } /* Init_Socket */
 
 
-LOCAL RES_STAT *ResolveAddr( struct sockaddr_in *Addr )
-{
-	/* IP (asyncron!) aufloesen. Bei Fehler, z.B. wenn der
-	 * Child-Prozess nicht erzeugt werden kann, wird NULL geliefert.
-	 * Der Host kann dann nicht aufgeloest werden. */
-
-	RES_STAT *s;
-	INT pid;
-
-	/* Speicher anfordern */
-	s = malloc( sizeof( RES_STAT ));
-	if( ! s )
-	{
-		Log( LOG_EMERG, "Resolver: Can't allocate memory!" );
-		return NULL;
-	}
-
-	/* Pipe fuer Antwort initialisieren */
-	if( pipe( s->pipe ) != 0 )
-	{
-		free( s );
-		Log( LOG_ALERT, "Resolver: Can't create output pipe: %s!", strerror( errno ));
-		return NULL;
-	}
-
-	/* Sub-Prozess erzeugen */
-	pid = fork( );
-	if( pid > 0 )
-	{
-		/* Haupt-Prozess */
-		Log( LOG_DEBUG, "Resolver for %s created (PID %d).", inet_ntoa( Addr->sin_addr ), pid );
-		FD_SET( s->pipe[0], &My_Resolvers );
-		if( s->pipe[0] > My_Max_Fd ) My_Max_Fd = s->pipe[0];
-		s->pid = pid;
-		return s;
-	}
-	else if( pid == 0 )
-	{
-		/* Sub-Prozess */
-		Log_Init_Resolver( );
-		Do_ResolveAddr( Addr, s->pipe[1] );
-		Log_Exit_Resolver( );
-		exit( 0 );
-	}
-	else
-	{
-		/* Fehler */
-		free( s );
-		Log( LOG_CRIT, "Resolver: Can't fork: %s!", strerror( errno ));
-		return NULL;
-	}
-} /* ResolveAddr */
-
-
-LOCAL RES_STAT *ResolveName( CHAR *Host )
-{
-	/* Hostnamen (asyncron!) aufloesen. Bei Fehler, z.B. wenn der
-	* Child-Prozess nicht erzeugt werden kann, wird NULL geliefert.
-	* Der Host kann dann nicht aufgeloest werden. */
-
-	RES_STAT *s;
-	INT pid;
-
-	/* Speicher anfordern */
-	s = malloc( sizeof( RES_STAT ));
-	if( ! s )
-	{
-		Log( LOG_EMERG, "Resolver: Can't allocate memory!" );
-		return NULL;
-	}
-
-	/* Pipe fuer Antwort initialisieren */
-	if( pipe( s->pipe ) != 0 )
-	{
-		free( s );
-		Log( LOG_ALERT, "Resolver: Can't create output pipe: %s!", strerror( errno ));
-		return NULL;
-	}
-
-	/* Sub-Prozess erzeugen */
-	pid = fork( );
-	if( pid > 0 )
-	{
-		/* Haupt-Prozess */
-		Log( LOG_DEBUG, "Resolver for \"%s\" created (PID %d).", Host, pid );
-		FD_SET( s->pipe[0], &My_Resolvers );
-		if( s->pipe[0] > My_Max_Fd ) My_Max_Fd = s->pipe[0];
-		s->pid = pid;
-		return s;
-	}
-	else if( pid == 0 )
-	{
-		/* Sub-Prozess */
-		Log_Init_Resolver( );
-		Do_ResolveName( Host, s->pipe[1] );
-		Log_Exit_Resolver( );
-		exit( 0 );
-	}
-	else
-	{
-		/* Fehler */
-		free( s );
-		Log( LOG_CRIT, "Resolver: Can't fork: %s!", strerror( errno ));
-		return NULL;
-	}
-} /* ResolveName */
-
-
-LOCAL VOID Do_ResolveAddr( struct sockaddr_in *Addr, INT w_fd )
-{
-	/* Resolver Sub-Prozess: IP aufloesen und Ergebnis in Pipe schreiben. */
-
-	CHAR hostname[HOST_LEN];
-	struct hostent *h;
-
-	Log_Resolver( LOG_DEBUG, "Now resolving %s ...", inet_ntoa( Addr->sin_addr ));
-
-	/* Namen aufloesen */
-	h = gethostbyaddr( (CHAR *)&Addr->sin_addr, sizeof( Addr->sin_addr ), AF_INET );
-	if( h ) strcpy( hostname, h->h_name );
-	else
-	{
-#ifdef h_errno
-		Log_Resolver( LOG_WARNING, "Can't resolve address \"%s\": %s!", inet_ntoa( Addr->sin_addr ), Resolv_Error( h_errno ));
-#else
-		Log_Resolver( LOG_WARNING, "Can't resolve address \"%s\"!", inet_ntoa( Addr->sin_addr ));
-#endif	
-		strcpy( hostname, inet_ntoa( Addr->sin_addr ));
-	}
-
-	/* Antwort an Parent schreiben */
-	if( write( w_fd, hostname, strlen( hostname ) + 1 ) != ( strlen( hostname ) + 1 ))
-	{
-		Log_Resolver( LOG_CRIT, "Resolver: Can't write to parent: %s!", strerror( errno ));
-		close( w_fd );
-		return;
-	}
-
-	Log_Resolver( LOG_DEBUG, "Ok, translated %s to \"%s\".", inet_ntoa( Addr->sin_addr ), hostname );
-} /* Do_ResolveAddr */
-
-
-LOCAL VOID Do_ResolveName( CHAR *Host, INT w_fd )
-{
-	/* Resolver Sub-Prozess: Name aufloesen und Ergebnis in Pipe schreiben. */
-
-	CHAR ip[16];
-	struct hostent *h;
-	struct in_addr *addr;
-
-	Log_Resolver( LOG_DEBUG, "Now resolving \"%s\" ...", Host );
-
-	/* Namen aufloesen */
-	h = gethostbyname( Host );
-	if( h )
-	{
-		addr = (struct in_addr *)h->h_addr;
-		strcpy( ip, inet_ntoa( *addr ));
-	}
-	else
-	{
-#ifdef h_errno
-		Log_Resolver( LOG_WARNING, "Can't resolve \"%s\": %s!", Host, Resolv_Error( h_errno ));
-#else
-		Log_Resolver( LOG_WARNING, "Can't resolve \"%s\"!", Host );
-#endif
-		strcpy( ip, "" );
-	}
-
-	/* Antwort an Parent schreiben */
-	if( write( w_fd, ip, strlen( ip ) + 1 ) != ( strlen( ip ) + 1 ))
-	{
-		Log_Resolver( LOG_CRIT, "Resolver: Can't write to parent: %s!", strerror( errno ));
-		close( w_fd );
-		return;
-	}
-
-	if( ip[0] ) Log_Resolver( LOG_DEBUG, "Ok, translated \"%s\" to %s.", Host, ip );
-} /* Do_ResolveName */
-
-
-LOCAL VOID Read_Resolver_Result( INT r_fd )
+LOCAL VOID
+Read_Resolver_Result( INT r_fd )
 {
 	/* Ergebnis von Resolver Sub-Prozess aus Pipe lesen
-	* und entsprechende Connection aktualisieren */
+	 * und entsprechende Connection aktualisieren */
 
 	CHAR result[HOST_LEN];
 	CLIENT *c;
 	INT len, i;
 
-	FD_CLR( r_fd, &My_Resolvers );
+	FD_CLR( r_fd, &Resolver_FDs );
 
 	/* Anfrage vom Parent lesen */
 	len = read( r_fd, result, HOST_LEN);
@@ -1256,7 +1088,7 @@ LOCAL VOID Read_Resolver_Result( INT r_fd )
 	if( i >= MAX_CONNECTIONS )
 	{
 		/* Opsa! Keine passende Connection gefunden!? Vermutlich
-		 * wurde sie schon wieder geschlossen. */
+		* wurde sie schon wieder geschlossen. */
 		close( r_fd );
 		Log( LOG_DEBUG, "Resolver: Got result for unknown connection!?" );
 		return;
@@ -1283,31 +1115,6 @@ LOCAL VOID Read_Resolver_Result( INT r_fd )
 		strcpy( Conf_Server[My_Connections[i].our_server].ip, result );
 	}
 } /* Read_Resolver_Result */
-
-
-
-#ifdef h_errno
-
-LOCAL CHAR *Resolv_Error( INT H_Error )
-{
-	/* Fehlerbeschreibung fuer H_Error liefern */
-
-	switch( H_Error )
-	{
-		case HOST_NOT_FOUND:
-			return "host not found";
-		case NO_DATA:
-			return "name valid but no IP address defined";
-		case NO_RECOVERY:
-			return "name server error";
-		case TRY_AGAIN:
-			return "name server temporary not available";
-		default:
-			return "unknown error";
-	}
-} /* Resolv_Error */
-
-#endif
 
 
 /* -eof- */

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.89 2002/03/25 17:04:02 alex Exp $
+ * $Id: irc.c,v 1.90 2002/05/27 13:09:27 alex Exp $
  *
  * irc.c: IRC-Befehle
  */
@@ -25,20 +25,24 @@
 #include <string.h>
 
 #include "ngircd.h"
-#include "channel.h"
+#include "conn.h"
 #include "client.h"
+#include "channel.h"
+#include "resolve.h"
 #include "conf.h"
 #include "conn.h"
 #include "irc-write.h"
 #include "log.h"
 #include "messages.h"
+#include "parse.h"
 #include "tool.h"
 
 #include "exp.h"
 #include "irc.h"
 
 
-GLOBAL BOOLEAN IRC_MOTD( CLIENT *Client, REQUEST *Req )
+GLOBAL BOOLEAN
+IRC_MOTD( CLIENT *Client, REQUEST *Req )
 {
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -52,7 +56,8 @@ GLOBAL BOOLEAN IRC_MOTD( CLIENT *Client, REQUEST *Req )
 } /* IRC_MOTD */
 
 
-GLOBAL BOOLEAN IRC_PRIVMSG( CLIENT *Client, REQUEST *Req )
+GLOBAL BOOLEAN
+IRC_PRIVMSG( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *cl, *from;
 	CHANNEL *chan;
@@ -93,7 +98,8 @@ GLOBAL BOOLEAN IRC_PRIVMSG( CLIENT *Client, REQUEST *Req )
 } /* IRC_PRIVMSG */
 
 
-GLOBAL BOOLEAN IRC_NOTICE( CLIENT *Client, REQUEST *Req )
+GLOBAL BOOLEAN
+IRC_NOTICE( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *to, *from;
 
@@ -119,7 +125,8 @@ GLOBAL BOOLEAN IRC_NOTICE( CLIENT *Client, REQUEST *Req )
 } /* IRC_NOTICE */
 
 
-GLOBAL BOOLEAN IRC_NAMES( CLIENT *Client, REQUEST *Req )
+GLOBAL BOOLEAN
+IRC_NAMES( CLIENT *Client, REQUEST *Req )
 {
 	CHAR rpl[COMMAND_LEN], *ptr;
 	CLIENT *target, *from, *c;
@@ -214,7 +221,8 @@ GLOBAL BOOLEAN IRC_NAMES( CLIENT *Client, REQUEST *Req )
 } /* IRC_NAMES */
 
 
-GLOBAL BOOLEAN IRC_ISON( CLIENT *Client, REQUEST *Req )
+GLOBAL BOOLEAN
+IRC_ISON( CLIENT *Client, REQUEST *Req )
 {
 	CHAR rpl[COMMAND_LEN];
 	CLIENT *c;
@@ -252,7 +260,8 @@ GLOBAL BOOLEAN IRC_ISON( CLIENT *Client, REQUEST *Req )
 } /* IRC_ISON */
 
 
-GLOBAL BOOLEAN IRC_WHOIS( CLIENT *Client, REQUEST *Req )
+GLOBAL BOOLEAN
+IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *from, *target, *c;
 	CHAR str[LINE_LEN + 1], *ptr = NULL;
@@ -349,7 +358,8 @@ GLOBAL BOOLEAN IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 } /* IRC_WHOIS */
 
 
-GLOBAL BOOLEAN IRC_WHO( CLIENT *Client, REQUEST *Req )
+GLOBAL BOOLEAN
+IRC_WHO( CLIENT *Client, REQUEST *Req )
 {
 	BOOLEAN ok, only_ops;
 	CHAR flags[8], *ptr;
@@ -426,7 +436,8 @@ GLOBAL BOOLEAN IRC_WHO( CLIENT *Client, REQUEST *Req )
 } /* IRC_WHO */
 
 
-GLOBAL BOOLEAN IRC_USERHOST( CLIENT *Client, REQUEST *Req )
+GLOBAL BOOLEAN
+IRC_USERHOST( CLIENT *Client, REQUEST *Req )
 {
 	CHAR rpl[COMMAND_LEN];
 	CLIENT *c;
@@ -467,7 +478,8 @@ GLOBAL BOOLEAN IRC_USERHOST( CLIENT *Client, REQUEST *Req )
 } /* IRC_USERHOST */
 
 
-GLOBAL BOOLEAN IRC_ERROR( CLIENT *Client, REQUEST *Req )
+GLOBAL BOOLEAN
+IRC_ERROR( CLIENT *Client, REQUEST *Req )
 {
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -479,7 +491,8 @@ GLOBAL BOOLEAN IRC_ERROR( CLIENT *Client, REQUEST *Req )
 } /* IRC_ERROR */
 
 
-GLOBAL BOOLEAN IRC_LUSERS( CLIENT *Client, REQUEST *Req )
+GLOBAL BOOLEAN
+IRC_LUSERS( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *target, *from;
 	
@@ -515,7 +528,8 @@ GLOBAL BOOLEAN IRC_LUSERS( CLIENT *Client, REQUEST *Req )
 } /* IRC_LUSERS */
 
 
-GLOBAL BOOLEAN IRC_LINKS( CLIENT *Client, REQUEST *Req )
+GLOBAL BOOLEAN
+IRC_LINKS( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *target, *from, *c;
 	CHAR *mask;
@@ -564,7 +578,8 @@ GLOBAL BOOLEAN IRC_LINKS( CLIENT *Client, REQUEST *Req )
 } /* IRC_LINKS */
 
 
-GLOBAL BOOLEAN IRC_VERSION( CLIENT *Client, REQUEST *Req )
+GLOBAL BOOLEAN
+IRC_VERSION( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *target, *prefix;
 	
@@ -598,7 +613,8 @@ GLOBAL BOOLEAN IRC_VERSION( CLIENT *Client, REQUEST *Req )
 } /* IRC_VERSION */
 
 
-GLOBAL BOOLEAN IRC_KILL( CLIENT *Client, REQUEST *Req )
+GLOBAL BOOLEAN
+IRC_KILL( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *prefix, *c;
 	
@@ -630,7 +646,8 @@ GLOBAL BOOLEAN IRC_KILL( CLIENT *Client, REQUEST *Req )
 } /* IRC_KILL */
 
 
-GLOBAL BOOLEAN IRC_Show_MOTD( CLIENT *Client )
+GLOBAL BOOLEAN
+IRC_Show_MOTD( CLIENT *Client )
 {
 	BOOLEAN ok;
 	CHAR line[127];
@@ -664,7 +681,8 @@ GLOBAL BOOLEAN IRC_Show_MOTD( CLIENT *Client )
 } /* IRC_Show_MOTD */
 
 
-GLOBAL BOOLEAN IRC_Send_NAMES( CLIENT *Client, CHANNEL *Chan )
+GLOBAL BOOLEAN
+IRC_Send_NAMES( CLIENT *Client, CHANNEL *Chan )
 {
 	BOOLEAN is_visible, is_member;
 	CHAR str[LINE_LEN + 1];
@@ -716,7 +734,8 @@ GLOBAL BOOLEAN IRC_Send_NAMES( CLIENT *Client, CHANNEL *Chan )
 } /* IRC_Send_NAMES */
 
 
-GLOBAL BOOLEAN IRC_Send_WHO( CLIENT *Client, CHANNEL *Chan, BOOLEAN OnlyOps )
+GLOBAL BOOLEAN
+IRC_Send_WHO( CLIENT *Client, CHANNEL *Chan, BOOLEAN OnlyOps )
 {
 	BOOLEAN is_visible, is_member;
 	CL2CHAN *cl2chan;
@@ -760,7 +779,8 @@ GLOBAL BOOLEAN IRC_Send_WHO( CLIENT *Client, CHANNEL *Chan, BOOLEAN OnlyOps )
 } /* IRC_Send_WHO */
 
 
-GLOBAL BOOLEAN IRC_Send_LUSERS( CLIENT *Client )
+GLOBAL BOOLEAN
+IRC_Send_LUSERS( CLIENT *Client )
 {
 	INT cnt;
 

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.h,v 1.27 2002/03/25 19:11:01 alex Exp $
+ * $Id: client.h,v 1.28 2002/05/27 13:09:26 alex Exp $
  *
  * client.h: Konfiguration des ngircd (Header)
  */
@@ -17,8 +17,6 @@
 
 #ifndef __client_h__
 #define __client_h__
-
-#include "conn.h"
 
 
 typedef enum
@@ -65,74 +63,74 @@ typedef POINTER CLIENT;
 #endif
 
 
-GLOBAL VOID Client_Init( VOID );
-GLOBAL VOID Client_Exit( VOID );
+GLOBAL VOID Client_Init PARAMS((VOID ));
+GLOBAL VOID Client_Exit PARAMS((VOID ));
 
-GLOBAL CLIENT *Client_NewLocal( CONN_ID Idx, CHAR *Hostname, INT Type, BOOLEAN Idented );
-GLOBAL CLIENT *Client_NewRemoteServer( CLIENT *Introducer, CHAR *Hostname, CLIENT *TopServer, INT Hops, INT Token, CHAR *Info, BOOLEAN Idented );
-GLOBAL CLIENT *Client_NewRemoteUser( CLIENT *Introducer, CHAR *Nick, INT Hops, CHAR *User, CHAR *Hostname, INT Token, CHAR *Modes, CHAR *Info, BOOLEAN Idented );
-GLOBAL CLIENT *Client_New( CONN_ID Idx, CLIENT *Introducer, CLIENT *TopServer, INT Type, CHAR *ID, CHAR *User, CHAR *Hostname, CHAR *Info, INT Hops, INT Token, CHAR *Modes, BOOLEAN Idented );
+GLOBAL CLIENT *Client_NewLocal PARAMS((CONN_ID Idx, CHAR *Hostname, INT Type, BOOLEAN Idented ));
+GLOBAL CLIENT *Client_NewRemoteServer PARAMS((CLIENT *Introducer, CHAR *Hostname, CLIENT *TopServer, INT Hops, INT Token, CHAR *Info, BOOLEAN Idented ));
+GLOBAL CLIENT *Client_NewRemoteUser PARAMS((CLIENT *Introducer, CHAR *Nick, INT Hops, CHAR *User, CHAR *Hostname, INT Token, CHAR *Modes, CHAR *Info, BOOLEAN Idented ));
+GLOBAL CLIENT *Client_New PARAMS((CONN_ID Idx, CLIENT *Introducer, CLIENT *TopServer, INT Type, CHAR *ID, CHAR *User, CHAR *Hostname, CHAR *Info, INT Hops, INT Token, CHAR *Modes, BOOLEAN Idented ));
 
-GLOBAL VOID Client_Destroy( CLIENT *Client, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN SendQuit );
+GLOBAL VOID Client_Destroy PARAMS((CLIENT *Client, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN SendQuit ));
 
-GLOBAL CLIENT *Client_ThisServer( VOID );
+GLOBAL CLIENT *Client_ThisServer PARAMS((VOID ));
 
-GLOBAL CLIENT *Client_GetFromConn( CONN_ID Idx );
-GLOBAL CLIENT *Client_GetFromToken( CLIENT *Client, INT Token );
+GLOBAL CLIENT *Client_GetFromConn PARAMS((CONN_ID Idx ));
+GLOBAL CLIENT *Client_GetFromToken PARAMS((CLIENT *Client, INT Token ));
 
-GLOBAL CLIENT *Client_Search( CHAR *ID );
-GLOBAL CLIENT *Client_First( VOID );
-GLOBAL CLIENT *Client_Next( CLIENT *c );
+GLOBAL CLIENT *Client_Search PARAMS((CHAR *ID ));
+GLOBAL CLIENT *Client_First PARAMS((VOID ));
+GLOBAL CLIENT *Client_Next PARAMS((CLIENT *c ));
 
-GLOBAL INT Client_Type( CLIENT *Client );
-GLOBAL CONN_ID Client_Conn( CLIENT *Client );
-GLOBAL CHAR *Client_ID( CLIENT *Client );
-GLOBAL CHAR *Client_Mask( CLIENT *Client );
-GLOBAL CHAR *Client_Info( CLIENT *Client );
-GLOBAL CHAR *Client_User( CLIENT *Client );
-GLOBAL CHAR *Client_Hostname( CLIENT *Client );
-GLOBAL CHAR *Client_Password( CLIENT *Client );
-GLOBAL CHAR *Client_Modes( CLIENT *Client );
-GLOBAL CLIENT *Client_Introducer( CLIENT *Client );
-GLOBAL BOOLEAN Client_OperByMe( CLIENT *Client );
-GLOBAL INT Client_Hops( CLIENT *Client );
-GLOBAL INT Client_Token( CLIENT *Client );
-GLOBAL INT Client_MyToken( CLIENT *Client );
-GLOBAL CLIENT *Client_TopServer( CLIENT *Client );
-GLOBAL CLIENT *Client_NextHop( CLIENT *Client );
-GLOBAL CHAR *Client_Away( CLIENT *Client );
+GLOBAL INT Client_Type PARAMS((CLIENT *Client ));
+GLOBAL CONN_ID Client_Conn PARAMS((CLIENT *Client ));
+GLOBAL CHAR *Client_ID PARAMS((CLIENT *Client ));
+GLOBAL CHAR *Client_Mask PARAMS((CLIENT *Client ));
+GLOBAL CHAR *Client_Info PARAMS((CLIENT *Client ));
+GLOBAL CHAR *Client_User PARAMS((CLIENT *Client ));
+GLOBAL CHAR *Client_Hostname PARAMS((CLIENT *Client ));
+GLOBAL CHAR *Client_Password PARAMS((CLIENT *Client ));
+GLOBAL CHAR *Client_Modes PARAMS((CLIENT *Client ));
+GLOBAL CLIENT *Client_Introducer PARAMS((CLIENT *Client ));
+GLOBAL BOOLEAN Client_OperByMe PARAMS((CLIENT *Client ));
+GLOBAL INT Client_Hops PARAMS((CLIENT *Client ));
+GLOBAL INT Client_Token PARAMS((CLIENT *Client ));
+GLOBAL INT Client_MyToken PARAMS((CLIENT *Client ));
+GLOBAL CLIENT *Client_TopServer PARAMS((CLIENT *Client ));
+GLOBAL CLIENT *Client_NextHop PARAMS((CLIENT *Client ));
+GLOBAL CHAR *Client_Away PARAMS((CLIENT *Client ));
 
-GLOBAL BOOLEAN Client_HasMode( CLIENT *Client, CHAR Mode );
+GLOBAL BOOLEAN Client_HasMode PARAMS((CLIENT *Client, CHAR Mode ));
 
-GLOBAL VOID Client_SetHostname( CLIENT *Client, CHAR *Hostname );
-GLOBAL VOID Client_SetID( CLIENT *Client, CHAR *Nick );
-GLOBAL VOID Client_SetUser( CLIENT *Client, CHAR *User, BOOLEAN Idented );
-GLOBAL VOID Client_SetInfo( CLIENT *Client, CHAR *Info );
-GLOBAL VOID Client_SetPassword( CLIENT *Client, CHAR *Pwd );
-GLOBAL VOID Client_SetType( CLIENT *Client, INT Type );
-GLOBAL VOID Client_SetHops( CLIENT *Client, INT Hops );
-GLOBAL VOID Client_SetToken( CLIENT *Client, INT Token );
-GLOBAL VOID Client_SetOperByMe( CLIENT *Client, BOOLEAN OperByMe );
-GLOBAL VOID Client_SetModes( CLIENT *Client, CHAR *Modes );
-GLOBAL VOID Client_SetIntroducer( CLIENT *Client, CLIENT *Introducer );
-GLOBAL VOID Client_SetAway( CLIENT *Client, CHAR *Txt );
+GLOBAL VOID Client_SetHostname PARAMS((CLIENT *Client, CHAR *Hostname ));
+GLOBAL VOID Client_SetID PARAMS((CLIENT *Client, CHAR *Nick ));
+GLOBAL VOID Client_SetUser PARAMS((CLIENT *Client, CHAR *User, BOOLEAN Idented ));
+GLOBAL VOID Client_SetInfo PARAMS((CLIENT *Client, CHAR *Info ));
+GLOBAL VOID Client_SetPassword PARAMS((CLIENT *Client, CHAR *Pwd ));
+GLOBAL VOID Client_SetType PARAMS((CLIENT *Client, INT Type ));
+GLOBAL VOID Client_SetHops PARAMS((CLIENT *Client, INT Hops ));
+GLOBAL VOID Client_SetToken PARAMS((CLIENT *Client, INT Token ));
+GLOBAL VOID Client_SetOperByMe PARAMS((CLIENT *Client, BOOLEAN OperByMe ));
+GLOBAL VOID Client_SetModes PARAMS((CLIENT *Client, CHAR *Modes ));
+GLOBAL VOID Client_SetIntroducer PARAMS((CLIENT *Client, CLIENT *Introducer ));
+GLOBAL VOID Client_SetAway PARAMS((CLIENT *Client, CHAR *Txt ));
 
-GLOBAL BOOLEAN Client_ModeAdd( CLIENT *Client, CHAR Mode );
-GLOBAL BOOLEAN Client_ModeDel( CLIENT *Client, CHAR Mode );
+GLOBAL BOOLEAN Client_ModeAdd PARAMS((CLIENT *Client, CHAR Mode ));
+GLOBAL BOOLEAN Client_ModeDel PARAMS((CLIENT *Client, CHAR Mode ));
 
-GLOBAL BOOLEAN Client_CheckNick( CLIENT *Client, CHAR *Nick );
-GLOBAL BOOLEAN Client_CheckID( CLIENT *Client, CHAR *ID );
+GLOBAL BOOLEAN Client_CheckNick PARAMS((CLIENT *Client, CHAR *Nick ));
+GLOBAL BOOLEAN Client_CheckID PARAMS((CLIENT *Client, CHAR *ID ));
 
-GLOBAL INT Client_UserCount( VOID );
-GLOBAL INT Client_ServiceCount( VOID );
-GLOBAL INT Client_ServerCount( VOID );
-GLOBAL INT Client_OperCount( VOID );
-GLOBAL INT Client_UnknownCount( VOID );
-GLOBAL INT Client_MyUserCount( VOID );
-GLOBAL INT Client_MyServiceCount( VOID );
-GLOBAL INT Client_MyServerCount( VOID );
+GLOBAL INT Client_UserCount PARAMS((VOID ));
+GLOBAL INT Client_ServiceCount PARAMS((VOID ));
+GLOBAL INT Client_ServerCount PARAMS((VOID ));
+GLOBAL INT Client_OperCount PARAMS((VOID ));
+GLOBAL INT Client_UnknownCount PARAMS((VOID ));
+GLOBAL INT Client_MyUserCount PARAMS((VOID ));
+GLOBAL INT Client_MyServiceCount PARAMS((VOID ));
+GLOBAL INT Client_MyServerCount PARAMS((VOID ));
 
-GLOBAL BOOLEAN Client_IsValidNick( CHAR *Nick );
+GLOBAL BOOLEAN Client_IsValidNick PARAMS((CHAR *Nick ));
 
 
 #endif

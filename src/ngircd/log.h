@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: log.h,v 1.11 2002/03/29 23:33:42 alex Exp $
+ * $Id: log.h,v 1.12 2002/05/27 13:09:27 alex Exp $
  *
  * log.h: Logging-Funktionen (Header)
  */
@@ -36,16 +36,16 @@
 #define LOG_snotice 1024
 
 
-GLOBAL VOID Log_Init( VOID );
-GLOBAL VOID Log_Exit( VOID );
+GLOBAL VOID Log_Init PARAMS((VOID ));
+GLOBAL VOID Log_Exit PARAMS((VOID ));
 
-GLOBAL VOID Log_InitErrorfile( VOID );
-GLOBAL VOID Log( INT Level, CONST CHAR *Format, ... );
+GLOBAL VOID Log_InitErrorfile PARAMS((VOID ));
+GLOBAL VOID Log PARAMS((INT Level, CONST CHAR *Format, ... ));
 
-GLOBAL VOID Log_Init_Resolver( VOID );
-GLOBAL VOID Log_Exit_Resolver( VOID );
+GLOBAL VOID Log_Init_Resolver PARAMS((VOID ));
+GLOBAL VOID Log_Exit_Resolver PARAMS((VOID ));
 
-GLOBAL VOID Log_Resolver( CONST INT Level, CONST CHAR *Format, ... );
+GLOBAL VOID Log_Resolver PARAMS((CONST INT Level, CONST CHAR *Format, ... ));
 
 
 #endif

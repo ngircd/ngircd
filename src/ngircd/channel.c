@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: channel.c,v 1.22 2002/05/21 00:10:16 alex Exp $
+ * $Id: channel.c,v 1.23 2002/05/27 13:09:26 alex Exp $
  *
  * channel.c: Management der Channels
  */
@@ -25,31 +25,38 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "conn.h"
 #include "client.h"
+
+#include "exp.h"
+#include "channel.h"
+
+#include "imp.h"
+#include "irc-write.h"
+#include "resolve.h"
 #include "conf.h"
 #include "hash.h"
-#include "irc-write.h"
 #include "log.h"
 #include "messages.h"
 
 #include "exp.h"
-#include "channel.h"
 
 
 LOCAL CHANNEL *My_Channels;
 LOCAL CL2CHAN *My_Cl2Chan;
 
 
-LOCAL CHANNEL *New_Chan( CHAR *Name );
-LOCAL CL2CHAN *Get_Cl2Chan( CHANNEL *Chan, CLIENT *Client );
-LOCAL CL2CHAN *Add_Client( CHANNEL *Chan, CLIENT *Client );
-LOCAL BOOLEAN Remove_Client( CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, CHAR *Reason, BOOLEAN ServerPART );
-LOCAL CL2CHAN *Get_First_Cl2Chan( CLIENT *Client, CHANNEL *Chan );
-LOCAL CL2CHAN *Get_Next_Cl2Chan( CL2CHAN *Start, CLIENT *Client, CHANNEL *Chan );
-LOCAL BOOLEAN Delete_Channel( CHANNEL *Chan );
+LOCAL CHANNEL *New_Chan PARAMS(( CHAR *Name ));
+LOCAL CL2CHAN *Get_Cl2Chan PARAMS(( CHANNEL *Chan, CLIENT *Client ));
+LOCAL CL2CHAN *Add_Client PARAMS(( CHANNEL *Chan, CLIENT *Client ));
+LOCAL BOOLEAN Remove_Client PARAMS(( CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, CHAR *Reason, BOOLEAN ServerPART ));
+LOCAL CL2CHAN *Get_First_Cl2Chan PARAMS(( CLIENT *Client, CHANNEL *Chan ));
+LOCAL CL2CHAN *Get_Next_Cl2Chan PARAMS(( CL2CHAN *Start, CLIENT *Client, CHANNEL *Chan ));
+LOCAL BOOLEAN Delete_Channel PARAMS(( CHANNEL *Chan ));
 
 
-GLOBAL VOID Channel_Init( VOID )
+GLOBAL VOID
+Channel_Init( VOID )
 {
 	CHANNEL *chan;
 	CHAR *c;
@@ -89,7 +96,8 @@ GLOBAL VOID Channel_Init( VOID )
 } /* Channel_Init */
 
 
-GLOBAL VOID Channel_Exit( VOID )
+GLOBAL VOID
+Channel_Exit( VOID )
 {
 	CHANNEL *c, *c_next;
 	CL2CHAN *cl2chan, *cl2chan_next;
@@ -114,7 +122,8 @@ GLOBAL VOID Channel_Exit( VOID )
 } /* Channel_Exit */
 
 
-GLOBAL BOOLEAN Channel_Join( CLIENT *Client, CHAR *Name )
+GLOBAL BOOLEAN
+Channel_Join( CLIENT *Client, CHAR *Name )
 {
 	CHANNEL *chan;
 	
@@ -152,7 +161,8 @@ GLOBAL BOOLEAN Channel_Join( CLIENT *Client, CHAR *Name )
 } /* Channel_Join */
 
 
-GLOBAL BOOLEAN Channel_Part( CLIENT *Client, CLIENT *Origin, CHAR *Name, CHAR *Reason )
+GLOBAL BOOLEAN
+Channel_Part( CLIENT *Client, CLIENT *Origin, CHAR *Name, CHAR *Reason )
 {
 	CHANNEL *chan;
 
@@ -173,7 +183,8 @@ GLOBAL BOOLEAN Channel_Part( CLIENT *Client, CLIENT *Origin, CHAR *Name, CHAR *R
 } /* Channel_Part */
 
 
-GLOBAL VOID Channel_RemoveClient( CLIENT *Client, CHAR *Reason )
+GLOBAL VOID
+Channel_RemoveClient( CLIENT *Client, CHAR *Reason )
 {
 	CHANNEL *c, *next_c;
 
@@ -189,7 +200,8 @@ GLOBAL VOID Channel_RemoveClient( CLIENT *Client, CHAR *Reason )
 } /* Channel_RemoveClient */
 
 
-GLOBAL INT Channel_Count( VOID )
+GLOBAL INT
+Channel_Count( VOID )
 {
 	CHANNEL *c;
 	INT count;
@@ -205,7 +217,8 @@ GLOBAL INT Channel_Count( VOID )
 } /* Channel_Count */
 
 
-GLOBAL INT Channel_MemberCount( CHANNEL *Chan )
+GLOBAL INT
+Channel_MemberCount( CHANNEL *Chan )
 {
 	CL2CHAN *cl2chan;
 	INT count;
@@ -223,34 +236,39 @@ GLOBAL INT Channel_MemberCount( CHANNEL *Chan )
 } /* Channel_MemberCount */
 
 
-GLOBAL CHAR *Channel_Name( CHANNEL *Chan )
+GLOBAL CHAR *
+Channel_Name( CHANNEL *Chan )
 {
 	assert( Chan != NULL );
 	return Chan->name;
 } /* Channel_Name */
 
 
-GLOBAL CHAR *Channel_Modes( CHANNEL *Chan )
+GLOBAL CHAR *
+Channel_Modes( CHANNEL *Chan )
 {
 	assert( Chan != NULL );
 	return Chan->modes;
 } /* Channel_Modes */
 
 
-GLOBAL CHANNEL *Channel_First( VOID )
+GLOBAL CHANNEL *
+Channel_First( VOID )
 {
 	return My_Channels;
 } /* Channel_First */
 
 
-GLOBAL CHANNEL *Channel_Next( CHANNEL *Chan )
+GLOBAL CHANNEL *
+Channel_Next( CHANNEL *Chan )
 {
 	assert( Chan != NULL );
 	return Chan->next;
 } /* Channel_Next */
 
 
-GLOBAL CHANNEL *Channel_Search( CHAR *Name )
+GLOBAL CHANNEL *
+Channel_Search( CHAR *Name )
 {
 	/* Channel-Struktur suchen */
 	
@@ -274,14 +292,16 @@ GLOBAL CHANNEL *Channel_Search( CHAR *Name )
 } /* Channel_Search */
 
 
-GLOBAL CL2CHAN *Channel_FirstMember( CHANNEL *Chan )
+GLOBAL CL2CHAN *
+Channel_FirstMember( CHANNEL *Chan )
 {
 	assert( Chan != NULL );
 	return Get_First_Cl2Chan( NULL, Chan );
 } /* Channel_FirstMember */
 
 
-GLOBAL CL2CHAN *Channel_NextMember( CHANNEL *Chan, CL2CHAN *Cl2Chan )
+GLOBAL CL2CHAN *
+Channel_NextMember( CHANNEL *Chan, CL2CHAN *Cl2Chan )
 {
 	assert( Chan != NULL );
 	assert( Cl2Chan != NULL );
@@ -289,14 +309,16 @@ GLOBAL CL2CHAN *Channel_NextMember( CHANNEL *Chan, CL2CHAN *Cl2Chan )
 } /* Channel_NextMember */
 
 
-GLOBAL CL2CHAN *Channel_FirstChannelOf( CLIENT *Client )
+GLOBAL CL2CHAN *
+Channel_FirstChannelOf( CLIENT *Client )
 {
 	assert( Client != NULL );
 	return Get_First_Cl2Chan( Client, NULL );
 } /* Channel_FirstChannelOf */
 
 
-GLOBAL CL2CHAN *Channel_NextChannelOf( CLIENT *Client, CL2CHAN *Cl2Chan )
+GLOBAL CL2CHAN *
+Channel_NextChannelOf( CLIENT *Client, CL2CHAN *Cl2Chan )
 {
 	assert( Client != NULL );
 	assert( Cl2Chan != NULL );
@@ -304,21 +326,24 @@ GLOBAL CL2CHAN *Channel_NextChannelOf( CLIENT *Client, CL2CHAN *Cl2Chan )
 } /* Channel_NextChannelOf */
 
 
-GLOBAL CLIENT *Channel_GetClient( CL2CHAN *Cl2Chan )
+GLOBAL CLIENT *
+Channel_GetClient( CL2CHAN *Cl2Chan )
 {
 	assert( Cl2Chan != NULL );
 	return Cl2Chan->client;
 } /* Channel_GetClient */
 
 
-GLOBAL CHANNEL *Channel_GetChannel( CL2CHAN *Cl2Chan )
+GLOBAL CHANNEL *
+Channel_GetChannel( CL2CHAN *Cl2Chan )
 {
 	assert( Cl2Chan != NULL );
 	return Cl2Chan->channel;
 } /* Channel_GetChannel */
 
 
-GLOBAL BOOLEAN Channel_IsValidName( CHAR *Name )
+GLOBAL BOOLEAN
+Channel_IsValidName( CHAR *Name )
 {
 	/* PrŸfen, ob Name als Channelname gueltig */
 
@@ -339,7 +364,8 @@ GLOBAL BOOLEAN Channel_IsValidName( CHAR *Name )
 } /* Channel_IsValidName */
 
 
-GLOBAL BOOLEAN Channel_ModeAdd( CHANNEL *Chan, CHAR Mode )
+GLOBAL BOOLEAN
+Channel_ModeAdd( CHANNEL *Chan, CHAR Mode )
 {
 	/* Mode soll gesetzt werden. TRUE wird geliefert, wenn der
 	 * Mode neu gesetzt wurde, FALSE, wenn der Channel den Mode
@@ -360,7 +386,8 @@ GLOBAL BOOLEAN Channel_ModeAdd( CHANNEL *Chan, CHAR Mode )
 } /* Channel_ModeAdd */
 
 
-GLOBAL BOOLEAN Channel_ModeDel( CHANNEL *Chan, CHAR Mode )
+GLOBAL BOOLEAN
+Channel_ModeDel( CHANNEL *Chan, CHAR Mode )
 {
 	/* Mode soll geloescht werden. TRUE wird geliefert, wenn der
 	 * Mode entfernt wurde, FALSE, wenn der Channel den Mode
@@ -385,7 +412,8 @@ GLOBAL BOOLEAN Channel_ModeDel( CHANNEL *Chan, CHAR Mode )
 } /* Channel_ModeDel */
 
 
-GLOBAL BOOLEAN Channel_UserModeAdd( CHANNEL *Chan, CLIENT *Client, CHAR Mode )
+GLOBAL BOOLEAN
+Channel_UserModeAdd( CHANNEL *Chan, CLIENT *Client, CHAR Mode )
 {
 	/* Channel-User-Mode soll gesetzt werden. TRUE wird geliefert,
 	 * wenn der Mode neu gesetzt wurde, FALSE, wenn der User den
@@ -411,7 +439,8 @@ GLOBAL BOOLEAN Channel_UserModeAdd( CHANNEL *Chan, CLIENT *Client, CHAR Mode )
 } /* Channel_UserModeAdd */
 
 
-GLOBAL BOOLEAN Channel_UserModeDel( CHANNEL *Chan, CLIENT *Client, CHAR Mode )
+GLOBAL BOOLEAN
+Channel_UserModeDel( CHANNEL *Chan, CLIENT *Client, CHAR Mode )
 {
 	/* Channel-User-Mode soll geloescht werden. TRUE wird geliefert,
 	 * wenn der Mode entfernt wurde, FALSE, wenn der User den Channel-Mode
@@ -441,7 +470,8 @@ GLOBAL BOOLEAN Channel_UserModeDel( CHANNEL *Chan, CLIENT *Client, CHAR Mode )
 } /* Channel_UserModeDel */
 
 
-GLOBAL CHAR *Channel_UserModes( CHANNEL *Chan, CLIENT *Client )
+GLOBAL CHAR *
+Channel_UserModes( CHANNEL *Chan, CLIENT *Client )
 {
 	/* Channel-Modes eines Users liefern */
 	
@@ -457,7 +487,8 @@ GLOBAL CHAR *Channel_UserModes( CHANNEL *Chan, CLIENT *Client )
 } /* Channel_UserModes */
 
 
-GLOBAL BOOLEAN Channel_IsMemberOf( CHANNEL *Chan, CLIENT *Client )
+GLOBAL BOOLEAN
+Channel_IsMemberOf( CHANNEL *Chan, CLIENT *Client )
 {
 	/* Pruefen, ob Client Mitglied in Channel ist */
 
@@ -469,14 +500,16 @@ GLOBAL BOOLEAN Channel_IsMemberOf( CHANNEL *Chan, CLIENT *Client )
 } /* Channel_IsMemberOf */
 
 
-GLOBAL CHAR *Channel_Topic( CHANNEL *Chan )
+GLOBAL CHAR *
+Channel_Topic( CHANNEL *Chan )
 {
 	assert( Chan != NULL );
 	return Chan->topic;
 } /* Channel_Topic */
 
 
-GLOBAL VOID Channel_SetTopic( CHANNEL *Chan, CHAR *Topic )
+GLOBAL VOID
+Channel_SetTopic( CHANNEL *Chan, CHAR *Topic )
 {
 	assert( Chan != NULL );
 	assert( Topic != NULL );
@@ -486,7 +519,8 @@ GLOBAL VOID Channel_SetTopic( CHANNEL *Chan, CHAR *Topic )
 } /* Channel_SetTopic */
 
 
-GLOBAL BOOLEAN Channel_Write( CHANNEL *Chan, CLIENT *From, CLIENT *Client, CHAR *Text )
+GLOBAL BOOLEAN
+Channel_Write( CHANNEL *Chan, CLIENT *From, CLIENT *Client, CHAR *Text )
 {
 	BOOLEAN is_member, has_voice, is_op, ok;
 
@@ -513,7 +547,8 @@ GLOBAL BOOLEAN Channel_Write( CHANNEL *Chan, CLIENT *From, CLIENT *Client, CHAR 
 
 
 
-LOCAL CHANNEL *New_Chan( CHAR *Name )
+LOCAL CHANNEL *
+New_Chan( CHAR *Name )
 {
 	/* Neue Channel-Struktur anlegen */
 
@@ -540,7 +575,8 @@ LOCAL CHANNEL *New_Chan( CHAR *Name )
 } /* New_Chan */
 
 
-LOCAL CL2CHAN *Get_Cl2Chan( CHANNEL *Chan, CLIENT *Client )
+LOCAL CL2CHAN *
+Get_Cl2Chan( CHANNEL *Chan, CLIENT *Client )
 {
 	CL2CHAN *cl2chan;
 
@@ -557,7 +593,8 @@ LOCAL CL2CHAN *Get_Cl2Chan( CHANNEL *Chan, CLIENT *Client )
 } /* Get_Cl2Chan */
 
 
-LOCAL CL2CHAN *Add_Client( CHANNEL *Chan, CLIENT *Client )
+LOCAL CL2CHAN *
+Add_Client( CHANNEL *Chan, CLIENT *Client )
 {
 	CL2CHAN *cl2chan;
 
@@ -585,7 +622,8 @@ LOCAL CL2CHAN *Add_Client( CHANNEL *Chan, CLIENT *Client )
 } /* Add_Client */
 
 
-LOCAL BOOLEAN Remove_Client( CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, CHAR *Reason, BOOLEAN ServerPART )
+LOCAL BOOLEAN
+Remove_Client( CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, CHAR *Reason, BOOLEAN ServerPART )
 {
 	CL2CHAN *cl2chan, *last_cl2chan;
 	CHANNEL *c;
@@ -629,13 +667,15 @@ LOCAL BOOLEAN Remove_Client( CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, CHAR
 } /* Remove_Client */
 
 
-LOCAL CL2CHAN *Get_First_Cl2Chan( CLIENT *Client, CHANNEL *Chan )
+LOCAL CL2CHAN *
+Get_First_Cl2Chan( CLIENT *Client, CHANNEL *Chan )
 {
 	return Get_Next_Cl2Chan( My_Cl2Chan, Client, Chan );
 } /* Get_First_Cl2Chan */
 
 
-LOCAL CL2CHAN *Get_Next_Cl2Chan( CL2CHAN *Start, CLIENT *Client, CHANNEL *Channel )
+LOCAL CL2CHAN *
+Get_Next_Cl2Chan( CL2CHAN *Start, CLIENT *Client, CHANNEL *Channel )
 {
 	CL2CHAN *cl2chan;
 
@@ -652,7 +692,8 @@ LOCAL CL2CHAN *Get_Next_Cl2Chan( CL2CHAN *Start, CLIENT *Client, CHANNEL *Channe
 } /* Get_Next_Cl2Chan */
 
 
-LOCAL BOOLEAN Delete_Channel( CHANNEL *Chan )
+LOCAL BOOLEAN
+Delete_Channel( CHANNEL *Chan )
 {
 	/* Channel-Struktur loeschen */
 	

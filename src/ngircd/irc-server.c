@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-server.c,v 1.9 2002/04/08 01:20:14 alex Exp $
+ * $Id: irc-server.c,v 1.10 2002/05/27 13:09:27 alex Exp $
  *
  * irc-server.c: IRC-Befehle fuer Server-Links
  */
@@ -23,16 +23,22 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "resolve.h"
 #include "conf.h"
+#include "conn.h"
+#include "client.h"
+#include "channel.h"
 #include "irc-write.h"
 #include "log.h"
 #include "messages.h"
+#include "parse.h"
 
 #include "exp.h"
 #include "irc-server.h"
 
 
-GLOBAL BOOLEAN IRC_SERVER( CLIENT *Client, REQUEST *Req )
+GLOBAL BOOLEAN
+IRC_SERVER( CLIENT *Client, REQUEST *Req )
 {
 	CHAR str[LINE_LEN], *ptr;
 	CLIENT *from, *c, *cl;
@@ -239,7 +245,8 @@ GLOBAL BOOLEAN IRC_SERVER( CLIENT *Client, REQUEST *Req )
 } /* IRC_SERVER */
 
 
-GLOBAL BOOLEAN IRC_NJOIN( CLIENT *Client, REQUEST *Req )
+GLOBAL BOOLEAN
+IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 {
 	CHAR *channame, *ptr, modes[8];
 	BOOLEAN is_op, is_voiced;
@@ -302,7 +309,8 @@ GLOBAL BOOLEAN IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 } /* IRC_NJOIN */
 
 
-GLOBAL BOOLEAN IRC_SQUIT( CLIENT *Client, REQUEST *Req )
+GLOBAL BOOLEAN
+IRC_SQUIT( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *target;
 	CHAR msg[LINE_LEN + 64];

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-write.c,v 1.3 2002/03/25 17:13:07 alex Exp $
+ * $Id: irc-write.c,v 1.4 2002/05/27 13:09:27 alex Exp $
  *
  * irc-write.c: IRC-Texte und Befehle ueber Netzwerk versenden
  */
@@ -22,16 +22,20 @@
 #include <stdarg.h>
 #include <stdio.h>
 
+#include "conn.h"
+#include "client.h"
+#include "channel.h"
 #include "defines.h"
 
 #include "exp.h"
 #include "irc-write.h"
 
 
-LOCAL CHAR *Get_Prefix( CLIENT *Target, CLIENT *Client );
+LOCAL CHAR *Get_Prefix PARAMS(( CLIENT *Target, CLIENT *Client ));
 
 
-GLOBAL BOOLEAN IRC_WriteStrClient( CLIENT *Client, CHAR *Format, ... )
+GLOBAL BOOLEAN
+IRC_WriteStrClient( CLIENT *Client, CHAR *Format, ... )
 {
 	CHAR buffer[1000];
 	BOOLEAN ok = CONNECTED;
@@ -51,7 +55,8 @@ GLOBAL BOOLEAN IRC_WriteStrClient( CLIENT *Client, CHAR *Format, ... )
 } /* IRC_WriteStrClient */
 
 
-GLOBAL BOOLEAN IRC_WriteStrClientPrefix( CLIENT *Client, CLIENT *Prefix, CHAR *Format, ... )
+GLOBAL BOOLEAN
+IRC_WriteStrClientPrefix( CLIENT *Client, CLIENT *Prefix, CHAR *Format, ... )
 {
 	/* Text an Clients, lokal bzw. remote, senden. */
 
@@ -70,7 +75,8 @@ GLOBAL BOOLEAN IRC_WriteStrClientPrefix( CLIENT *Client, CLIENT *Prefix, CHAR *F
 } /* IRC_WriteStrClientPrefix */
 
 
-GLOBAL BOOLEAN IRC_WriteStrChannel( CLIENT *Client, CHANNEL *Chan, BOOLEAN Remote, CHAR *Format, ... )
+GLOBAL BOOLEAN
+IRC_WriteStrChannel( CLIENT *Client, CHANNEL *Chan, BOOLEAN Remote, CHAR *Format, ... )
 {
 	CHAR buffer[1000];
 	va_list ap;
@@ -86,7 +92,8 @@ GLOBAL BOOLEAN IRC_WriteStrChannel( CLIENT *Client, CHANNEL *Chan, BOOLEAN Remot
 } /* IRC_WriteStrChannel */
 
 
-GLOBAL BOOLEAN IRC_WriteStrChannelPrefix( CLIENT *Client, CHANNEL *Chan, CLIENT *Prefix, BOOLEAN Remote, CHAR *Format, ... )
+GLOBAL BOOLEAN
+IRC_WriteStrChannelPrefix( CLIENT *Client, CHANNEL *Chan, CLIENT *Prefix, BOOLEAN Remote, CHAR *Format, ... )
 {
 	BOOLEAN sock[MAX_CONNECTIONS], is_server[MAX_CONNECTIONS], ok = CONNECTED;
 	CHAR buffer[1000];
@@ -146,7 +153,8 @@ GLOBAL BOOLEAN IRC_WriteStrChannelPrefix( CLIENT *Client, CHANNEL *Chan, CLIENT 
 } /* IRC_WriteStrChannelPrefix */
 
 
-GLOBAL VOID IRC_WriteStrServers( CLIENT *ExceptOf, CHAR *Format, ... )
+GLOBAL VOID
+IRC_WriteStrServers( CLIENT *ExceptOf, CHAR *Format, ... )
 {
 	CHAR buffer[1000];
 	va_list ap;
@@ -162,7 +170,8 @@ GLOBAL VOID IRC_WriteStrServers( CLIENT *ExceptOf, CHAR *Format, ... )
 } /* IRC_WriteStrServers */
 
 
-GLOBAL VOID IRC_WriteStrServersPrefix( CLIENT *ExceptOf, CLIENT *Prefix, CHAR *Format, ... )
+GLOBAL VOID
+IRC_WriteStrServersPrefix( CLIENT *ExceptOf, CLIENT *Prefix, CHAR *Format, ... )
 {
 	CHAR buffer[1000];
 	CLIENT *c;
@@ -188,7 +197,8 @@ GLOBAL VOID IRC_WriteStrServersPrefix( CLIENT *ExceptOf, CLIENT *Prefix, CHAR *F
 } /* IRC_WriteStrServersPrefix */
 
 
-GLOBAL BOOLEAN IRC_WriteStrRelatedPrefix( CLIENT *Client, CLIENT *Prefix, BOOLEAN Remote, CHAR *Format, ... )
+GLOBAL BOOLEAN
+IRC_WriteStrRelatedPrefix( CLIENT *Client, CLIENT *Prefix, BOOLEAN Remote, CHAR *Format, ... )
 {
 	BOOLEAN sock[MAX_CONNECTIONS], is_server[MAX_CONNECTIONS], ok = CONNECTED;
 	CL2CHAN *chan_cl2chan, *cl2chan;
@@ -258,7 +268,8 @@ GLOBAL BOOLEAN IRC_WriteStrRelatedPrefix( CLIENT *Client, CLIENT *Prefix, BOOLEA
 } /* IRC_WriteStrRelatedPrefix */
 
 
-LOCAL CHAR *Get_Prefix( CLIENT *Target, CLIENT *Client )
+LOCAL CHAR *
+Get_Prefix( CLIENT *Target, CLIENT *Client )
 {
 	assert( Target != NULL );
 	assert( Client != NULL );

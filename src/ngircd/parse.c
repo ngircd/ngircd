@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: parse.c,v 1.32 2002/04/23 19:50:27 alex Exp $
+ * $Id: parse.c,v 1.33 2002/05/27 13:09:27 alex Exp $
  *
  * parse.c: Parsen der Client-Anfragen
  */
@@ -24,16 +24,10 @@
 #include <string.h>
 
 #include "ngircd.h"
-#include "client.h"
-#include "conn.h"
 #include "defines.h"
-#include "irc.h"
-#include "irc-channel.h"
-#include "irc-login.h"
-#include "irc-mode.h"
-#include "irc-oper.h"
-#include "irc-server.h"
-#include "irc-write.h"
+#include "conn.h"
+#include "client.h"
+#include "channel.h"
 #include "log.h"
 #include "messages.h"
 #include "tool.h"
@@ -41,19 +35,32 @@
 #include "exp.h"
 #include "parse.h"
 
+#include "imp.h"
+#include "irc.h"
+#include "irc-channel.h"
+#include "irc-login.h"
+#include "irc-mode.h"
+#include "irc-op.h"
+#include "irc-oper.h"
+#include "irc-server.h"
+#include "irc-write.h"
 
-LOCAL VOID Init_Request( REQUEST *Req );
-
-LOCAL BOOLEAN Parse_Error( CONN_ID Idx, CHAR *Error );
-
-LOCAL BOOLEAN Validate_Prefix( REQUEST *Req );
-LOCAL BOOLEAN Validate_Command( REQUEST *Req );
-LOCAL BOOLEAN Validate_Args( REQUEST *Req );
-
-LOCAL BOOLEAN Handle_Request( CONN_ID Idx, REQUEST *Req );
+#include "exp.h"
 
 
-GLOBAL BOOLEAN Parse_Request( CONN_ID Idx, CHAR *Request )
+LOCAL VOID Init_Request PARAMS(( REQUEST *Req ));
+
+LOCAL BOOLEAN Parse_Error PARAMS(( CONN_ID Idx, CHAR *Error ));
+
+LOCAL BOOLEAN Validate_Prefix PARAMS(( REQUEST *Req ));
+LOCAL BOOLEAN Validate_Command PARAMS(( REQUEST *Req ));
+LOCAL BOOLEAN Validate_Args PARAMS(( REQUEST *Req ));
+
+LOCAL BOOLEAN Handle_Request PARAMS(( CONN_ID Idx, REQUEST *Req ));
+
+
+GLOBAL BOOLEAN
+Parse_Request( CONN_ID Idx, CHAR *Request )
 {
 	/* Client-Request parsen. Bei einem schwerwiegenden Fehler wird
 	 * die Verbindung geschlossen und FALSE geliefert.
@@ -152,7 +159,8 @@ GLOBAL BOOLEAN Parse_Request( CONN_ID Idx, CHAR *Request )
 } /* Parse_Request */
 
 
-LOCAL VOID Init_Request( REQUEST *Req )
+LOCAL VOID
+Init_Request( REQUEST *Req )
 {
 	/* Neue Request-Struktur initialisieren */
 
@@ -167,7 +175,8 @@ LOCAL VOID Init_Request( REQUEST *Req )
 } /* Init_Request */
 
 
-LOCAL BOOLEAN Parse_Error( CONN_ID Idx, CHAR *Error )
+LOCAL BOOLEAN
+Parse_Error( CONN_ID Idx, CHAR *Error )
 {
 	/* Fehler beim Parsen. Fehlermeldung an den Client schicken.
 	 * TRUE: Connection wurde durch diese Funktion nicht geschlossen,
@@ -181,28 +190,32 @@ LOCAL BOOLEAN Parse_Error( CONN_ID Idx, CHAR *Error )
 } /* Parse_Error */
 
 
-LOCAL BOOLEAN Validate_Prefix( REQUEST *Req )
+LOCAL BOOLEAN
+Validate_Prefix( REQUEST *Req )
 {
 	assert( Req != NULL );
 	return TRUE;
 } /* Validate_Prefix */
 
 
-LOCAL BOOLEAN Validate_Command( REQUEST *Req )
+LOCAL BOOLEAN
+Validate_Command( REQUEST *Req )
 {
 	assert( Req != NULL );
 	return TRUE;
 } /* Validate_Comman */
 
 
-LOCAL BOOLEAN Validate_Args( REQUEST *Req )
+LOCAL BOOLEAN
+Validate_Args( REQUEST *Req )
 {
 	assert( Req != NULL );
 	return TRUE;
 } /* Validate_Args */
 
 
-LOCAL BOOLEAN Handle_Request( CONN_ID Idx, REQUEST *Req )
+LOCAL BOOLEAN
+Handle_Request( CONN_ID Idx, REQUEST *Req )
 {
 	/* Client-Request verarbeiten. Bei einem schwerwiegenden Fehler
 	 * wird die Verbindung geschlossen und FALSE geliefert. */
@@ -293,6 +306,9 @@ LOCAL BOOLEAN Handle_Request( CONN_ID Idx, REQUEST *Req )
 	else if( strcasecmp( Req->command, "TOPIC" ) == 0 ) return IRC_TOPIC( client, Req );
 	else if( strcasecmp( Req->command, "WHO" ) == 0 ) return IRC_WHO( client, Req );
 	else if( strcasecmp( Req->command, "LIST" ) == 0 ) return IRC_LIST( client, Req );
+	else if( strcasecmp( Req->command, "INVITE" ) == 0 ) return IRC_INVITE( client, Req );
+	else if( strcasecmp( Req->command, "KICK" ) == 0 ) return IRC_KICK( client, Req );
+	else if( strcasecmp( Req->command, "BAN" ) == 0 ) return IRC_BAN( client, Req );
 	
 	/* Unbekannter Befehl */
 	if( Client_Type( client ) != CLIENT_SERVER ) IRC_WriteStrClient( client, ERR_UNKNOWNCOMMAND_MSG, Client_ID( client ), Req->command );

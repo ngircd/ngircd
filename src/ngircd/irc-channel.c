@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-channel.c,v 1.5 2002/05/21 00:10:16 alex Exp $
+ * $Id: irc-channel.c,v 1.6 2002/05/27 13:09:26 alex Exp $
  *
  * irc-channel.c: IRC-Channel-Befehle
  */
@@ -22,16 +22,22 @@
 #include <string.h>
 
 #include "defines.h"
-#include "irc.h"
-#include "irc-write.h"
+#include "conn.h"
+#include "client.h"
+#include "channel.h"
+#include "lists.h"
 #include "log.h"
 #include "messages.h"
+#include "parse.h"
+#include "irc.h"
+#include "irc-write.h"
 
 #include "exp.h"
 #include "irc-channel.h"
 
 
-GLOBAL BOOLEAN IRC_JOIN( CLIENT *Client, REQUEST *Req )
+GLOBAL BOOLEAN
+IRC_JOIN( CLIENT *Client, REQUEST *Req )
 {
 	CHAR *channame, *flags, *topic, modes[8];
 	BOOLEAN is_new_chan;
@@ -52,6 +58,7 @@ GLOBAL BOOLEAN IRC_JOIN( CLIENT *Client, REQUEST *Req )
 	if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
 
 	/* Channel-Namen durchgehen */
+	chan = NULL;
 	channame = strtok( Req->argv[0], "," );
 	while( channame )
 	{
@@ -69,11 +76,37 @@ GLOBAL BOOLEAN IRC_JOIN( CLIENT *Client, REQUEST *Req )
 			if( flags ) *flags++ = '\0';
 		}
 
-		/* neuer Channel udn lokaler Client? */
-		if( is_new_chan && ( Client_Type( Client ) == CLIENT_USER ))
+		/* Lokaler Client? */
+		if( Client_Type( Client ) == CLIENT_USER )
 		{
-			/* Dann soll der Client Channel-Operator werden! */
-			flags = "o";
+			/* Existiert der Channel bereits, oder wird er im Moment neu erzeugt? */
+			if( is_new_chan )
+			{
+				/* Erster User im Channel: Operator-Flag setzen */
+				flags = "o";
+			}
+			else
+			{
+				/* Existierenden Channel suchen */
+				chan = Channel_Search( channame );
+				assert( chan != NULL );
+
+				/* Testen, ob Client gebanned ist */
+				if( Lists_CheckBanned( target, chan ))
+				{
+					/* Client ist gebanned: */
+				}
+
+				/* Ist der Channel "invite-only"? */
+				if( strchr( Channel_Modes( chan ), 'i' ))
+				{
+					/* Wurde der Client invited? */
+					if( ! Lists_CheckInvited( target, chan ))
+					{
+						/* Client wurde nicht invited: */
+					}
+				}
+			}
 		}
 
 		/* Channel joinen (und ggf. anlegen) */
@@ -83,7 +116,7 @@ GLOBAL BOOLEAN IRC_JOIN( CLIENT *Client, REQUEST *Req )
 			channame = strtok( NULL, "," );
 			continue;
 		}
-		chan = Channel_Search( channame );
+		if( ! chan ) chan = Channel_Search( channame );
 		assert( chan != NULL );
 
 		/* Modes setzen (wenn vorhanden) */
@@ -133,7 +166,8 @@ GLOBAL BOOLEAN IRC_JOIN( CLIENT *Client, REQUEST *Req )
 } /* IRC_JOIN */
 
 
-GLOBAL BOOLEAN IRC_PART( CLIENT *Client, REQUEST *Req )
+GLOBAL BOOLEAN
+IRC_PART( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *target;
 	CHAR *chan;
@@ -169,7 +203,8 @@ GLOBAL BOOLEAN IRC_PART( CLIENT *Client, REQUEST *Req )
 } /* IRC_PART */
 
 
-GLOBAL BOOLEAN IRC_TOPIC( CLIENT *Client, REQUEST *Req )
+GLOBAL BOOLEAN
+IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 {
 	CHANNEL *chan;
 	CLIENT *from;
@@ -221,7 +256,8 @@ GLOBAL BOOLEAN IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 } /* IRC_TOPIC */
 
 
-GLOBAL BOOLEAN IRC_LIST( CLIENT *Client, REQUEST *Req )
+GLOBAL BOOLEAN
+IRC_LIST( CLIENT *Client, REQUEST *Req )
 {
 	CHAR *pattern;
 	CHANNEL *chan;

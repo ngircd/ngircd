@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-oper.c,v 1.4 2002/04/04 13:03:39 alex Exp $
+ * $Id: irc-oper.c,v 1.5 2002/05/27 13:09:27 alex Exp $
  *
  * irc-oper.c: IRC-Operator-Befehle
  */
@@ -22,16 +22,22 @@
 #include <string.h>
 
 #include "ngircd.h"
+#include "resolve.h"
 #include "conf.h"
+#include "conn.h"
+#include "client.h"
+#include "channel.h"
 #include "irc-write.h"
 #include "log.h"
 #include "messages.h"
+#include "parse.h"
 
 #include <exp.h>
 #include "irc-oper.h"
 
 
-GLOBAL BOOLEAN IRC_OPER( CLIENT *Client, REQUEST *Req )
+GLOBAL BOOLEAN
+IRC_OPER( CLIENT *Client, REQUEST *Req )
 {
 	INT i;
 
@@ -76,7 +82,8 @@ GLOBAL BOOLEAN IRC_OPER( CLIENT *Client, REQUEST *Req )
 } /* IRC_OPER */
 
 
-GLOBAL BOOLEAN IRC_DIE( CLIENT *Client, REQUEST *Req )
+GLOBAL BOOLEAN
+IRC_DIE( CLIENT *Client, REQUEST *Req )
 {
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -94,7 +101,8 @@ GLOBAL BOOLEAN IRC_DIE( CLIENT *Client, REQUEST *Req )
 } /* IRC_DIE */
 
 
-GLOBAL BOOLEAN IRC_RESTART( CLIENT *Client, REQUEST *Req )
+GLOBAL BOOLEAN
+IRC_RESTART( CLIENT *Client, REQUEST *Req )
 {
 	assert( Client != NULL );
 	assert( Req != NULL );

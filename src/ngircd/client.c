@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.54 2002/04/14 13:54:51 alex Exp $
+ * $Id: client.c,v 1.55 2002/05/27 13:09:26 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -35,14 +35,16 @@
 #include <string.h>
 #include <netdb.h>
 
+#include "conn.h"
+
 #include "exp.h"
 #include "client.h"
 
 #include <imp.h>
 #include "ngircd.h"
 #include "channel.h"
+#include "resolve.h"
 #include "conf.h"
-#include "conn.h"
 #include "hash.h"
 #include "irc-write.h"
 #include "log.h"
@@ -55,14 +57,15 @@ LOCAL CLIENT *This_Server, *My_Clients;
 LOCAL CHAR GetID_Buffer[CLIENT_ID_LEN];
 
 
-LOCAL INT Count( CLIENT_TYPE Type );
-LOCAL INT MyCount( CLIENT_TYPE Type );
+LOCAL INT Count PARAMS(( CLIENT_TYPE Type ));
+LOCAL INT MyCount PARAMS(( CLIENT_TYPE Type ));
 
-LOCAL CLIENT *New_Client_Struct( VOID );
-LOCAL VOID Generate_MyToken( CLIENT *Client );
+LOCAL CLIENT *New_Client_Struct PARAMS(( VOID ));
+LOCAL VOID Generate_MyToken PARAMS(( CLIENT *Client ));
 
 
-GLOBAL VOID Client_Init( VOID )
+GLOBAL VOID
+Client_Init( VOID )
 {
 	struct hostent *h;
 	
@@ -93,7 +96,8 @@ GLOBAL VOID Client_Init( VOID )
 } /* Client_Init */
 
 
-GLOBAL VOID Client_Exit( VOID )
+GLOBAL VOID
+Client_Exit( VOID )
 {
 	CLIENT *c, *next;
 	INT cnt;
@@ -113,34 +117,39 @@ GLOBAL VOID Client_Exit( VOID )
 } /* Client_Exit */
 
 
-GLOBAL CLIENT *Client_ThisServer( VOID )
+GLOBAL CLIENT *
+Client_ThisServer( VOID )
 {
 	return This_Server;
 } /* Client_ThisServer */
 
 
-GLOBAL CLIENT *Client_NewLocal( CONN_ID Idx, CHAR *Hostname, INT Type, BOOLEAN Idented )
+GLOBAL CLIENT *
+Client_NewLocal( CONN_ID Idx, CHAR *Hostname, INT Type, BOOLEAN Idented )
 {
 	/* Neuen lokalen Client erzeugen: Wrapper-Funktion fuer Client_New(). */
 	return Client_New( Idx, This_Server, NULL, Type, NULL, NULL, Hostname, NULL, 0, 0, NULL, Idented );
 } /* Client_NewLocal */
 
 
-GLOBAL CLIENT *Client_NewRemoteServer( CLIENT *Introducer, CHAR *Hostname, CLIENT *TopServer, INT Hops, INT Token, CHAR *Info, BOOLEAN Idented )
+GLOBAL CLIENT *
+Client_NewRemoteServer( CLIENT *Introducer, CHAR *Hostname, CLIENT *TopServer, INT Hops, INT Token, CHAR *Info, BOOLEAN Idented )
 {
 	/* Neuen Remote-Client erzeugen: Wrapper-Funktion fuer Client_New (). */
 	return Client_New( NONE, Introducer, TopServer, CLIENT_SERVER, Hostname, NULL, Hostname, Info, Hops, Token, NULL, Idented );
 } /* Client_NewRemoteServer */
 
 
-GLOBAL CLIENT *Client_NewRemoteUser( CLIENT *Introducer, CHAR *Nick, INT Hops, CHAR *User, CHAR *Hostname, INT Token, CHAR *Modes, CHAR *Info, BOOLEAN Idented )
+GLOBAL CLIENT *
+Client_NewRemoteUser( CLIENT *Introducer, CHAR *Nick, INT Hops, CHAR *User, CHAR *Hostname, INT Token, CHAR *Modes, CHAR *Info, BOOLEAN Idented )
 {
 	/* Neuen Remote-Client erzeugen: Wrapper-Funktion fuer Client_New (). */
 	return Client_New( NONE, Introducer, NULL, CLIENT_USER, Nick, User, Hostname, Info, Hops, Token, Modes, Idented );
 } /* Client_NewRemoteUser */
 
 
-GLOBAL CLIENT *Client_New( CONN_ID Idx, CLIENT *Introducer, CLIENT *TopServer, INT Type, CHAR *ID, CHAR *User, CHAR *Hostname, CHAR *Info, INT Hops, INT Token, CHAR *Modes, BOOLEAN Idented )
+GLOBAL CLIENT *
+Client_New( CONN_ID Idx, CLIENT *Introducer, CLIENT *TopServer, INT Type, CHAR *ID, CHAR *User, CHAR *Hostname, CHAR *Info, INT Hops, INT Token, CHAR *Modes, BOOLEAN Idented )
 {
 	CLIENT *client;
 
@@ -176,7 +185,8 @@ GLOBAL CLIENT *Client_New( CONN_ID Idx, CLIENT *Introducer, CLIENT *TopServer, I
 } /* Client_New */
 
 
-GLOBAL VOID Client_Destroy( CLIENT *Client, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN SendQuit )
+GLOBAL VOID
+Client_Destroy( CLIENT *Client, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN SendQuit )
 {
 	/* Client entfernen. */
 	
@@ -279,7 +289,8 @@ GLOBAL VOID Client_Destroy( CLIENT *Client, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN 
 } /* Client_Destroy */
 
 
-GLOBAL VOID Client_SetHostname( CLIENT *Client, CHAR *Hostname )
+GLOBAL VOID
+Client_SetHostname( CLIENT *Client, CHAR *Hostname )
 {
 	/* Hostname eines Clients setzen */
 	
@@ -291,7 +302,8 @@ GLOBAL VOID Client_SetHostname( CLIENT *Client, CHAR *Hostname )
 } /* Client_SetHostname */
 
 
-GLOBAL VOID Client_SetID( CLIENT *Client, CHAR *ID )
+GLOBAL VOID
+Client_SetID( CLIENT *Client, CHAR *ID )
 {
 	/* Hostname eines Clients setzen, Hash-Wert berechnen */
 
@@ -306,7 +318,8 @@ GLOBAL VOID Client_SetID( CLIENT *Client, CHAR *ID )
 } /* Client_SetID */
 
 
-GLOBAL VOID Client_SetUser( CLIENT *Client, CHAR *User, BOOLEAN Idented )
+GLOBAL VOID
+Client_SetUser( CLIENT *Client, CHAR *User, BOOLEAN Idented )
 {
 	/* Username eines Clients setzen */
 
@@ -323,7 +336,8 @@ GLOBAL VOID Client_SetUser( CLIENT *Client, CHAR *User, BOOLEAN Idented )
 } /* Client_SetUser */
 
 
-GLOBAL VOID Client_SetInfo( CLIENT *Client, CHAR *Info )
+GLOBAL VOID
+Client_SetInfo( CLIENT *Client, CHAR *Info )
 {
 	/* Hostname eines Clients setzen */
 
@@ -335,7 +349,8 @@ GLOBAL VOID Client_SetInfo( CLIENT *Client, CHAR *Info )
 } /* Client_SetInfo */
 
 
-GLOBAL VOID Client_SetModes( CLIENT *Client, CHAR *Modes )
+GLOBAL VOID
+Client_SetModes( CLIENT *Client, CHAR *Modes )
 {
 	/* Hostname eines Clients setzen */
 
@@ -347,7 +362,8 @@ GLOBAL VOID Client_SetModes( CLIENT *Client, CHAR *Modes )
 } /* Client_SetModes */
 
 
-GLOBAL VOID Client_SetPassword( CLIENT *Client, CHAR *Pwd )
+GLOBAL VOID
+Client_SetPassword( CLIENT *Client, CHAR *Pwd )
 {
 	/* Von einem Client geliefertes Passwort */
 
@@ -359,7 +375,8 @@ GLOBAL VOID Client_SetPassword( CLIENT *Client, CHAR *Pwd )
 } /* Client_SetPassword */
 
 
-GLOBAL VOID Client_SetAway( CLIENT *Client, CHAR *Txt )
+GLOBAL VOID
+Client_SetAway( CLIENT *Client, CHAR *Txt )
 {
 	/* Von einem Client gelieferte AWAY-Nachricht */
 
@@ -382,7 +399,8 @@ GLOBAL VOID Client_SetAway( CLIENT *Client, CHAR *Txt )
 } /* Client_SetAway */
 
 
-GLOBAL VOID Client_SetType( CLIENT *Client, INT Type )
+GLOBAL VOID
+Client_SetType( CLIENT *Client, INT Type )
 {
 	assert( Client != NULL );
 	Client->type = Type;
@@ -390,21 +408,24 @@ GLOBAL VOID Client_SetType( CLIENT *Client, INT Type )
 } /* Client_SetType */
 
 
-GLOBAL VOID Client_SetHops( CLIENT *Client, INT Hops )
+GLOBAL VOID
+Client_SetHops( CLIENT *Client, INT Hops )
 {
 	assert( Client != NULL );
 	Client->hops = Hops;
 } /* Client_SetHops */
 
 
-GLOBAL VOID Client_SetToken( CLIENT *Client, INT Token )
+GLOBAL VOID
+Client_SetToken( CLIENT *Client, INT Token )
 {
 	assert( Client != NULL );
 	Client->token = Token;
 } /* Client_SetToken */
 
 
-GLOBAL VOID Client_SetIntroducer( CLIENT *Client, CLIENT *Introducer )
+GLOBAL VOID
+Client_SetIntroducer( CLIENT *Client, CLIENT *Introducer )
 {
 	assert( Client != NULL );
 	assert( Introducer != NULL );
@@ -412,14 +433,16 @@ GLOBAL VOID Client_SetIntroducer( CLIENT *Client, CLIENT *Introducer )
 } /* Client_SetIntroducer */
 
 
-GLOBAL VOID Client_SetOperByMe( CLIENT *Client, BOOLEAN OperByMe )
+GLOBAL VOID
+Client_SetOperByMe( CLIENT *Client, BOOLEAN OperByMe )
 {
 	assert( Client != NULL );
 	Client->oper_by_me = OperByMe;
 } /* Client_SetOperByMe */
 
 
-GLOBAL BOOLEAN Client_ModeAdd( CLIENT *Client, CHAR Mode )
+GLOBAL BOOLEAN
+Client_ModeAdd( CLIENT *Client, CHAR Mode )
 {
 	/* Mode soll gesetzt werden. TRUE wird geliefert, wenn der
 	 * Mode neu gesetzt wurde, FALSE, wenn der Client den Mode
@@ -440,7 +463,8 @@ GLOBAL BOOLEAN Client_ModeAdd( CLIENT *Client, CHAR Mode )
 } /* Client_ModeAdd */
 
 
-GLOBAL BOOLEAN Client_ModeDel( CLIENT *Client, CHAR Mode )
+GLOBAL BOOLEAN
+Client_ModeDel( CLIENT *Client, CHAR Mode )
 {
 	/* Mode soll geloescht werden. TRUE wird geliefert, wenn der
 	* Mode entfernt wurde, FALSE, wenn der Client den Mode
@@ -465,7 +489,8 @@ GLOBAL BOOLEAN Client_ModeDel( CLIENT *Client, CHAR Mode )
 } /* Client_ModeDel */
 
 
-GLOBAL CLIENT *Client_GetFromConn( CONN_ID Idx )
+GLOBAL CLIENT *
+Client_GetFromConn( CONN_ID Idx )
 {
 	/* Client-Struktur, die zur lokalen Verbindung Idx gehoert,
 	 * liefern. Wird keine gefunden, so wird NULL geliefert. */
@@ -484,7 +509,8 @@ GLOBAL CLIENT *Client_GetFromConn( CONN_ID Idx )
 } /* Client_GetFromConn */
 
 
-GLOBAL CLIENT *Client_Search( CHAR *Nick )
+GLOBAL CLIENT *
+Client_Search( CHAR *Nick )
 {
 	/* Client-Struktur, die den entsprechenden Nick hat, liefern.
 	 * Wird keine gefunden, so wird NULL geliefert. */
@@ -517,7 +543,8 @@ GLOBAL CLIENT *Client_Search( CHAR *Nick )
 } /* Client_Search */
 
 
-GLOBAL CLIENT *Client_GetFromToken( CLIENT *Client, INT Token )
+GLOBAL CLIENT *
+Client_GetFromToken( CLIENT *Client, INT Token )
 {
 	/* Client-Struktur, die den entsprechenden Introducer (=Client)
 	 * und das gegebene Token hat, liefern. Wird keine gefunden,
@@ -538,21 +565,24 @@ GLOBAL CLIENT *Client_GetFromToken( CLIENT *Client, INT Token )
 } /* Client_GetFromToken */
 
 
-GLOBAL INT Client_Type( CLIENT *Client )
+GLOBAL INT
+Client_Type( CLIENT *Client )
 {
 	assert( Client != NULL );
 	return Client->type;
 } /* Client_Type */
 
 
-GLOBAL CONN_ID Client_Conn( CLIENT *Client )
+GLOBAL CONN_ID
+Client_Conn( CLIENT *Client )
 {
 	assert( Client != NULL );
 	return Client->conn_id;
 } /* Client_Conn */
 
 
-GLOBAL CHAR *Client_ID( CLIENT *Client )
+GLOBAL CHAR *
+Client_ID( CLIENT *Client )
 {
 	assert( Client != NULL );
 
@@ -565,14 +595,16 @@ GLOBAL CHAR *Client_ID( CLIENT *Client )
 } /* Client_ID */
 
 
-GLOBAL CHAR *Client_Info( CLIENT *Client )
+GLOBAL CHAR *
+Client_Info( CLIENT *Client )
 {
 	assert( Client != NULL );
 	return Client->info;
 } /* Client_Info */
 
 
-GLOBAL CHAR *Client_User( CLIENT *Client )
+GLOBAL CHAR *
+Client_User( CLIENT *Client )
 {
 	assert( Client != NULL );
 	if( Client->user[0] ) return Client->user;
@@ -580,56 +612,64 @@ GLOBAL CHAR *Client_User( CLIENT *Client )
 } /* Client_User */
 
 
-GLOBAL CHAR *Client_Hostname( CLIENT *Client )
+GLOBAL CHAR *
+Client_Hostname( CLIENT *Client )
 {
 	assert( Client != NULL );
 	return Client->host;
 } /* Client_Hostname */
 
 
-GLOBAL CHAR *Client_Password( CLIENT *Client )
+GLOBAL CHAR *
+Client_Password( CLIENT *Client )
 {
 	assert( Client != NULL );
 	return Client->pwd;
 } /* Client_Password */
 
 
-GLOBAL CHAR *Client_Modes( CLIENT *Client )
+GLOBAL CHAR *
+Client_Modes( CLIENT *Client )
 {
 	assert( Client != NULL );
 	return Client->modes;
 } /* Client_Modes */
 
 
-GLOBAL BOOLEAN Client_OperByMe( CLIENT *Client )
+GLOBAL BOOLEAN
+Client_OperByMe( CLIENT *Client )
 {
 	assert( Client != NULL );
 	return Client->oper_by_me;
 } /* Client_OperByMe */
 
 
-GLOBAL INT Client_Hops( CLIENT *Client )
+GLOBAL INT
+Client_Hops( CLIENT *Client )
 {
 	assert( Client != NULL );
 	return Client->hops;
 } /* Client_Hops */
 
 
-GLOBAL INT Client_Token( CLIENT *Client )
+GLOBAL INT
+Client_Token( CLIENT *Client )
 {
 	assert( Client != NULL );
 	return Client->token;
 } /* Client_Token */
 
 
-GLOBAL INT Client_MyToken( CLIENT *Client )
+GLOBAL INT
+Client_MyToken( CLIENT *Client )
 {
 	assert( Client != NULL );
 	return Client->mytoken;
 } /* Client_MyToken */
 
 
-GLOBAL CLIENT *Client_NextHop( CLIENT *Client )
+GLOBAL CLIENT *
+Client_NextHop( CLIENT *Client )
 {
 	CLIENT *c;
 	
@@ -641,7 +681,8 @@ GLOBAL CLIENT *Client_NextHop( CLIENT *Client )
 } /* Client_NextHop */
 
 
-GLOBAL CHAR *Client_Mask( CLIENT *Client )
+GLOBAL CHAR *
+Client_Mask( CLIENT *Client )
 {
 	/* Client-"ID" liefern, wie sie z.B. fuer
 	 * Prefixe benoetigt wird. */
@@ -655,28 +696,32 @@ GLOBAL CHAR *Client_Mask( CLIENT *Client )
 } /* Client_Mask */
 
 
-GLOBAL CLIENT *Client_Introducer( CLIENT *Client )
+GLOBAL CLIENT *
+Client_Introducer( CLIENT *Client )
 {
 	assert( Client != NULL );
 	return Client->introducer;
 } /* Client_Introducer */
 
 
-GLOBAL CLIENT *Client_TopServer( CLIENT *Client )
+GLOBAL CLIENT *
+Client_TopServer( CLIENT *Client )
 {
 	assert( Client != NULL );
 	return Client->topserver;
 } /* Client_TopServer */
 
 
-GLOBAL BOOLEAN Client_HasMode( CLIENT *Client, CHAR Mode )
+GLOBAL BOOLEAN
+Client_HasMode( CLIENT *Client, CHAR Mode )
 {
 	assert( Client != NULL );
 	return strchr( Client->modes, Mode ) != NULL;
 } /* Client_HasMode */
 
 
-GLOBAL CHAR *Client_Away( CLIENT *Client )
+GLOBAL CHAR *
+Client_Away( CLIENT *Client )
 {
 	/* AWAY-Text liefern */
 
@@ -685,7 +730,8 @@ GLOBAL CHAR *Client_Away( CLIENT *Client )
 } /* Client_Away */
 
 
-GLOBAL BOOLEAN Client_CheckNick( CLIENT *Client, CHAR *Nick )
+GLOBAL BOOLEAN
+Client_CheckNick( CLIENT *Client, CHAR *Nick )
 {
 	/* Nick ueberpruefen */
 
@@ -711,7 +757,8 @@ GLOBAL BOOLEAN Client_CheckNick( CLIENT *Client, CHAR *Nick )
 } /* Client_CheckNick */
 
 
-GLOBAL BOOLEAN Client_CheckID( CLIENT *Client, CHAR *ID )
+GLOBAL BOOLEAN
+Client_CheckID( CLIENT *Client, CHAR *ID )
 {
 	/* Nick ueberpruefen */
 
@@ -748,7 +795,8 @@ GLOBAL BOOLEAN Client_CheckID( CLIENT *Client, CHAR *ID )
 } /* Client_CheckID */
 
 
-GLOBAL CLIENT *Client_First( VOID )
+GLOBAL CLIENT *
+Client_First( VOID )
 {
 	/* Ersten Client liefern. */
 
@@ -756,7 +804,8 @@ GLOBAL CLIENT *Client_First( VOID )
 } /* Client_First */
 
 
-GLOBAL CLIENT *Client_Next( CLIENT *c )
+GLOBAL CLIENT *
+Client_Next( CLIENT *c )
 {
 	/* Naechsten Client liefern. Existiert keiner,
 	 * so wird NULL geliefert. */
@@ -766,37 +815,43 @@ GLOBAL CLIENT *Client_Next( CLIENT *c )
 } /* Client_Next */
 
 
-GLOBAL INT Client_UserCount( VOID )
+GLOBAL INT
+Client_UserCount( VOID )
 {
 	return Count( CLIENT_USER );
 } /* Client_UserCount */
 
 
-GLOBAL INT Client_ServiceCount( VOID )
+GLOBAL INT
+Client_ServiceCount( VOID )
 {
 	return Count( CLIENT_SERVICE );;
 } /* Client_ServiceCount */
 
 
-GLOBAL INT Client_ServerCount( VOID )
+GLOBAL INT
+Client_ServerCount( VOID )
 {
 	return Count( CLIENT_SERVER );
 } /* Client_ServerCount */
 
 
-GLOBAL INT Client_MyUserCount( VOID )
+GLOBAL INT
+Client_MyUserCount( VOID )
 {
 	return MyCount( CLIENT_USER );
 } /* Client_MyUserCount */
 
 
-GLOBAL INT Client_MyServiceCount( VOID )
+GLOBAL INT
+Client_MyServiceCount( VOID )
 {
 	return MyCount( CLIENT_SERVICE );
 } /* Client_MyServiceCount */
 
 
-GLOBAL INT Client_MyServerCount( VOID )
+GLOBAL INT
+Client_MyServerCount( VOID )
 {
 	CLIENT *c;
 	INT cnt;
@@ -812,7 +867,8 @@ GLOBAL INT Client_MyServerCount( VOID )
 } /* Client_MyServerCount */
 
 
-GLOBAL INT Client_OperCount( VOID )
+GLOBAL INT
+Client_OperCount( VOID )
 {
 	CLIENT *c;
 	INT cnt;
@@ -828,7 +884,8 @@ GLOBAL INT Client_OperCount( VOID )
 } /* Client_OperCount */
 
 
-GLOBAL INT Client_UnknownCount( VOID )
+GLOBAL INT
+Client_UnknownCount( VOID )
 {
 	CLIENT *c;
 	INT cnt;
@@ -844,7 +901,8 @@ GLOBAL INT Client_UnknownCount( VOID )
 } /* Client_UnknownCount */
 
 
-GLOBAL BOOLEAN Client_IsValidNick( CHAR *Nick )
+GLOBAL BOOLEAN
+Client_IsValidNick( CHAR *Nick )
 {
 	/* Ist der Nick gueltig? */
 
@@ -868,7 +926,8 @@ GLOBAL BOOLEAN Client_IsValidNick( CHAR *Nick )
 } /* Client_IsValidNick */
 
 
-LOCAL INT Count( CLIENT_TYPE Type )
+LOCAL INT
+Count( CLIENT_TYPE Type )
 {
 	CLIENT *c;
 	INT cnt;
@@ -884,7 +943,8 @@ LOCAL INT Count( CLIENT_TYPE Type )
 } /* Count */
 
 
-LOCAL INT MyCount( CLIENT_TYPE Type )
+LOCAL INT
+MyCount( CLIENT_TYPE Type )
 {
 	CLIENT *c;
 	INT cnt;
@@ -900,7 +960,8 @@ LOCAL INT MyCount( CLIENT_TYPE Type )
 } /* MyCount */
 
 
-LOCAL CLIENT *New_Client_Struct( VOID )
+LOCAL CLIENT *
+New_Client_Struct( VOID )
 {
 	/* Neue CLIENT-Struktur pre-initialisieren */
 	
@@ -935,7 +996,8 @@ LOCAL CLIENT *New_Client_Struct( VOID )
 } /* New_Client */
 
 
-LOCAL VOID Generate_MyToken( CLIENT *Client )
+LOCAL VOID
+Generate_MyToken( CLIENT *Client )
 {
 	CLIENT *c;
 	INT token;

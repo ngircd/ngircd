@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.h,v 1.16 2002/05/21 00:10:16 alex Exp $
+ * $Id: conf.h,v 1.17 2002/05/27 13:09:26 alex Exp $
  *
  * conf.h: Konfiguration des ngircd (Header)
  */
@@ -20,7 +20,6 @@
 
 #include <time.h>
 
-#include "conn.h"
 #include "defines.h"
 
 
@@ -90,9 +89,8 @@ GLOBAL CONF_CHANNEL Conf_Channel[MAX_DEFCHANNELS];
 GLOBAL INT Conf_Channel_Count;
 
 
-GLOBAL VOID Conf_Init( VOID );
-GLOBAL INT Conf_Test( VOID );
-GLOBAL VOID Conf_Exit( VOID );
+GLOBAL VOID Conf_Init PARAMS((VOID ));
+GLOBAL INT Conf_Test PARAMS((VOID ));
 
 
 #endif

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: parse.h,v 1.6 2002/03/12 14:37:52 alex Exp $
+ * $Id: parse.h,v 1.7 2002/05/27 13:09:27 alex Exp $
  *
  * parse.h: Parsen der Client-Anfragen (Header)
  */
@@ -17,8 +17,6 @@
 
 #ifndef __parse_h__
 #define __parse_h__
-
-#include "conn.h"
 
 
 typedef struct _REQUEST			/* vgl. RFC 2812, 2.3 */
@@ -30,7 +28,7 @@ typedef struct _REQUEST			/* vgl. RFC 2812, 2.3 */
 } REQUEST;
 
 
-GLOBAL BOOLEAN Parse_Request( CONN_ID Idx, CHAR *Request );
+GLOBAL BOOLEAN Parse_Request PARAMS((CONN_ID Idx, CHAR *Request ));
 
 
 #endif

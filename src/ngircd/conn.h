@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.h,v 1.14 2002/03/29 22:54:35 alex Exp $
+ * $Id: conn.h,v 1.15 2002/05/27 13:09:26 alex Exp $
  *
  * conn.h: Verwaltung aller Netz-Verbindungen ("connections") (Header)
  */
@@ -24,28 +24,25 @@
 
 typedef INT CONN_ID;
 
-typedef struct _Res_Stat
-{
-	INT pid;			/* PID des Child-Prozess */
-	INT pipe[2];			/* Pipe fuer IPC */
-} RES_STAT;
+
+GLOBAL VOID Conn_Init PARAMS((VOID ));
+GLOBAL VOID Conn_Exit PARAMS(( VOID ));
+
+GLOBAL BOOLEAN Conn_NewListener PARAMS(( CONST UINT Port ));
+
+GLOBAL VOID Conn_Handler PARAMS(( INT Timeout ));
+
+GLOBAL BOOLEAN Conn_Write PARAMS(( CONN_ID Idx, CHAR *Data, INT Len ));
+GLOBAL BOOLEAN Conn_WriteStr PARAMS(( CONN_ID Idx, CHAR *Format, ... ));
+
+GLOBAL VOID Conn_Close PARAMS(( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient ));
+
+GLOBAL VOID Conn_UpdateIdle PARAMS(( CONN_ID Idx ));
+GLOBAL time_t Conn_GetIdle PARAMS(( CONN_ID Idx ));
+GLOBAL time_t Conn_LastPing PARAMS(( CONN_ID Idx ));
 
 
-GLOBAL VOID Conn_Init( VOID );
-GLOBAL VOID Conn_Exit( VOID );
-
-GLOBAL BOOLEAN Conn_NewListener( CONST UINT Port );
-
-GLOBAL VOID Conn_Handler( INT Timeout );
-
-GLOBAL BOOLEAN Conn_Write( CONN_ID Idx, CHAR *Data, INT Len );
-GLOBAL BOOLEAN Conn_WriteStr( CONN_ID Idx, CHAR *Format, ... );
-
-GLOBAL VOID Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient );
-
-GLOBAL VOID Conn_UpdateIdle( CONN_ID Idx );
-GLOBAL time_t Conn_GetIdle( CONN_ID Idx );
-GLOBAL time_t Conn_LastPing( CONN_ID Idx );
+GLOBAL INT Conn_MaxFD;
 
 
 #endif

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-login.c,v 1.13 2002/04/14 14:02:35 alex Exp $
+ * $Id: irc-login.c,v 1.14 2002/05/27 13:09:26 alex Exp $
  *
  * irc-login.c: Anmeldung und Abmeldung im IRC
  */
@@ -24,21 +24,27 @@
 #include <string.h>
 
 #include "ngircd.h"
+#include "resolve.h"
 #include "conf.h"
-#include "irc.h"
-#include "irc-write.h"
+#include "conn.h"
+#include "client.h"
+#include "channel.h"
 #include "log.h"
 #include "messages.h"
+#include "parse.h"
+#include "irc.h"
+#include "irc-write.h"
 
 #include "exp.h"
 #include "irc-login.h"
 
 
-LOCAL BOOLEAN Hello_User( CLIENT *Client );
-LOCAL VOID Kill_Nick( CHAR *Nick, CHAR *Reason );
+LOCAL BOOLEAN Hello_User PARAMS(( CLIENT *Client ));
+LOCAL VOID Kill_Nick PARAMS(( CHAR *Nick, CHAR *Reason ));
 
 
-GLOBAL BOOLEAN IRC_PASS( CLIENT *Client, REQUEST *Req )
+GLOBAL BOOLEAN
+IRC_PASS( CLIENT *Client, REQUEST *Req )
 {
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -77,7 +83,8 @@ GLOBAL BOOLEAN IRC_PASS( CLIENT *Client, REQUEST *Req )
 } /* IRC_PASS */
 
 
-GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req )
+GLOBAL BOOLEAN
+IRC_NICK( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *intr_c, *target, *c;
 	CHAR *modes;
@@ -215,7 +222,8 @@ GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req )
 } /* IRC_NICK */
 
 
-GLOBAL BOOLEAN IRC_USER( CLIENT *Client, REQUEST *Req )
+GLOBAL BOOLEAN
+IRC_USER( CLIENT *Client, REQUEST *Req )
 {
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -245,7 +253,8 @@ GLOBAL BOOLEAN IRC_USER( CLIENT *Client, REQUEST *Req )
 } /* IRC_USER */
 
 
-GLOBAL BOOLEAN IRC_QUIT( CLIENT *Client, REQUEST *Req )
+GLOBAL BOOLEAN
+IRC_QUIT( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *target;
 	
@@ -287,7 +296,8 @@ GLOBAL BOOLEAN IRC_QUIT( CLIENT *Client, REQUEST *Req )
 } /* IRC_QUIT */
 
 
-GLOBAL BOOLEAN IRC_PING( CLIENT *Client, REQUEST *Req )
+GLOBAL BOOLEAN
+IRC_PING( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *target, *from;
 
@@ -322,7 +332,8 @@ GLOBAL BOOLEAN IRC_PING( CLIENT *Client, REQUEST *Req )
 } /* IRC_PING */
 
 
-GLOBAL BOOLEAN IRC_PONG( CLIENT *Client, REQUEST *Req )
+GLOBAL BOOLEAN
+IRC_PONG( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *target, *from;
 
@@ -360,7 +371,8 @@ GLOBAL BOOLEAN IRC_PONG( CLIENT *Client, REQUEST *Req )
 } /* IRC_PONG */
 
 
-LOCAL BOOLEAN Hello_User( CLIENT *Client )
+LOCAL BOOLEAN
+Hello_User( CLIENT *Client )
 {
 	assert( Client != NULL );
 
@@ -392,7 +404,8 @@ LOCAL BOOLEAN Hello_User( CLIENT *Client )
 } /* Hello_User */
 
 
-LOCAL VOID Kill_Nick( CHAR *Nick, CHAR *Reason )
+LOCAL VOID
+Kill_Nick( CHAR *Nick, CHAR *Reason )
 {
 	CLIENT *c;
 

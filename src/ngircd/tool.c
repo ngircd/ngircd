@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: tool.c,v 1.8 2002/03/22 00:17:27 alex Exp $
+ * $Id: tool.c,v 1.9 2002/05/27 13:09:27 alex Exp $
  *
  * tool.c: Hilfsfunktionen, ggf. Platformabhaengig
  */
@@ -27,7 +27,8 @@
 #include "tool.h"
 
 
-GLOBAL VOID ngt_TrimStr( CHAR *String )
+GLOBAL VOID
+ngt_TrimStr( CHAR *String )
 {
 	/* Mit ngt_TrimStr() werden fuehrende und folgende Leerzeichen,
 	 * Tabulatoren und Zeilenumbrueche (ASCII 10 und ASCII 13) aus
@@ -51,7 +52,8 @@ GLOBAL VOID ngt_TrimStr( CHAR *String )
 } /* ngt_TrimStr */
 
 
-GLOBAL CHAR *ngt_LowerStr( CHAR *String )
+GLOBAL CHAR *
+ngt_LowerStr( CHAR *String )
 {
 	/* String in Kleinbuchstaben konvertieren. Der uebergebene
 	 * Speicherbereich wird durch das Ergebnis ersetzt, zusaetzlich

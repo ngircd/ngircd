@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: log.c,v 1.32 2002/03/31 16:46:15 alex Exp $
+ * $Id: log.c,v 1.33 2002/05/27 13:09:27 alex Exp $
  *
  * log.c: Logging-Funktionen
  */
@@ -31,8 +31,10 @@
 #endif
 
 #include "ngircd.h"
-#include "client.h"
 #include "defines.h"
+#include "conn.h"
+#include "client.h"
+#include "channel.h"
 #include "irc-write.h"
 
 #include "exp.h"
@@ -43,10 +45,11 @@ LOCAL CHAR Error_File[FNAME_LEN];
 LOCAL CHAR Init_Txt[127];
 
 
-LOCAL VOID Wall_ServerNotice( CHAR *Msg );
+LOCAL VOID Wall_ServerNotice PARAMS(( CHAR *Msg ));
 
 
-GLOBAL VOID Log_Init( VOID )
+GLOBAL VOID
+Log_Init( VOID )
 {
 #ifdef USE_SYSLOG
 	/* Syslog initialisieren */
@@ -86,7 +89,8 @@ GLOBAL VOID Log_Init( VOID )
 } /* Log_Init */
 
 
-GLOBAL VOID Log_InitErrorfile( VOID )
+GLOBAL VOID
+Log_InitErrorfile( VOID )
 {
 	/* "Error-Log" initialisieren: stderr in Datei umlenken. Dort
 	 * landen z.B. alle Ausgaben von assert()-Aufrufen. */
@@ -112,7 +116,8 @@ GLOBAL VOID Log_InitErrorfile( VOID )
 } /* Log_InitErrfile */
 
 
-GLOBAL VOID Log_Exit( VOID )
+GLOBAL VOID
+Log_Exit( VOID )
 {
 	/* Good Bye! */
 	Log( LOG_NOTICE, PACKAGE" done.");
@@ -127,7 +132,8 @@ GLOBAL VOID Log_Exit( VOID )
 } /* Log_Exit */
 
 
-GLOBAL VOID Log( INT Level, CONST CHAR *Format, ... )
+GLOBAL VOID
+Log( INT Level, CONST CHAR *Format, ... )
 {
 	/* Eintrag in Logfile(s) schreiben */
 
@@ -182,7 +188,8 @@ GLOBAL VOID Log( INT Level, CONST CHAR *Format, ... )
 } /* Log */
 
 
-GLOBAL VOID Log_Init_Resolver( VOID )
+GLOBAL VOID
+Log_Init_Resolver( VOID )
 {
 #ifdef USE_SYSLOG
 	openlog( PACKAGE, LOG_CONS|LOG_PID, LOG_LOCAL5 );
@@ -190,7 +197,8 @@ GLOBAL VOID Log_Init_Resolver( VOID )
 } /* Log_Init_Resolver */
 
 
-GLOBAL VOID Log_Exit_Resolver( VOID )
+GLOBAL VOID
+Log_Exit_Resolver( VOID )
 {
 #ifdef USE_SYSLOG
 	closelog( );
@@ -198,7 +206,8 @@ GLOBAL VOID Log_Exit_Resolver( VOID )
 } /* Log_Exit_Resolver */
 
 
-GLOBAL VOID Log_Resolver( CONST INT Level, CONST CHAR *Format, ... )
+GLOBAL VOID
+Log_Resolver( CONST INT Level, CONST CHAR *Format, ... )
 {
 	/* Eintrag des Resolver in Logfile(s) schreiben */
 
@@ -229,7 +238,8 @@ GLOBAL VOID Log_Resolver( CONST INT Level, CONST CHAR *Format, ... )
 } /* Log_Resolver */
 
 
-LOCAL VOID Wall_ServerNotice( CHAR *Msg )
+LOCAL VOID
+Wall_ServerNotice( CHAR *Msg )
 {
 	/* Server-Notice an entsprechende User verschicken */
 

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.c,v 1.25 2002/05/22 11:14:36 alex Exp $
+ * $Id: conf.c,v 1.26 2002/05/27 13:09:26 alex Exp $
  *
  * conf.h: Konfiguration des ngircd
  */
@@ -27,9 +27,11 @@
 #include <unistd.h>
 
 #include "ngircd.h"
+#include "conn.h"
 #include "client.h"
 #include "defines.h"
 #include "log.h"
+#include "resolve.h"
 #include "tool.h"
 
 #include "exp.h"
@@ -39,19 +41,20 @@
 LOCAL BOOLEAN Use_Log = TRUE;
 
 
-LOCAL VOID Set_Defaults( VOID );
-LOCAL VOID Read_Config( VOID );
-LOCAL VOID Validate_Config( VOID );
+LOCAL VOID Set_Defaults PARAMS(( VOID ));
+LOCAL VOID Read_Config PARAMS(( VOID ));
+LOCAL VOID Validate_Config PARAMS(( VOID ));
 
-GLOBAL VOID Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg );
-GLOBAL VOID Handle_OPERATOR( INT Line, CHAR *Var, CHAR *Arg );
-GLOBAL VOID Handle_SERVER( INT Line, CHAR *Var, CHAR *Arg );
-GLOBAL VOID Handle_CHANNEL( INT Line, CHAR *Var, CHAR *Arg );
+LOCAL VOID Handle_GLOBAL PARAMS(( INT Line, CHAR *Var, CHAR *Arg ));
+LOCAL VOID Handle_OPERATOR PARAMS(( INT Line, CHAR *Var, CHAR *Arg ));
+LOCAL VOID Handle_SERVER PARAMS(( INT Line, CHAR *Var, CHAR *Arg ));
+LOCAL VOID Handle_CHANNEL PARAMS(( INT Line, CHAR *Var, CHAR *Arg ));
 
-LOCAL VOID Config_Error( CONST INT Level, CONST CHAR *Format, ... );
+LOCAL VOID Config_Error PARAMS(( CONST INT Level, CONST CHAR *Format, ... ));
 
 
-GLOBAL VOID Conf_Init( VOID )
+GLOBAL VOID
+Conf_Init( VOID )
 {
 	Set_Defaults( );
 	Read_Config( );
@@ -59,7 +62,8 @@ GLOBAL VOID Conf_Init( VOID )
 } /* Config_Init */
 
 
-GLOBAL INT Conf_Test( VOID )
+GLOBAL INT
+Conf_Test( VOID )
 {
 	/* Konfiguration einlesen, ueberpruefen und ausgeben. */
 
@@ -140,13 +144,8 @@ GLOBAL INT Conf_Test( VOID )
 } /* Conf_Test */
 
 
-GLOBAL VOID Conf_Exit( VOID )
-{
-	/* ... */
-} /* Config_Exit */
-
-
-LOCAL VOID Set_Defaults( VOID )
+LOCAL VOID
+Set_Defaults( VOID )
 {
 	/* Konfigurationsvariablen initialisieren, d.h. auf Default-Werte setzen. */
 
@@ -171,7 +170,8 @@ LOCAL VOID Set_Defaults( VOID )
 } /* Set_Defaults */
 
 
-LOCAL VOID Read_Config( VOID )
+LOCAL VOID
+Read_Config( VOID )
 {
 	/* Konfigurationsdatei einlesen. */
 
@@ -281,7 +281,8 @@ LOCAL VOID Read_Config( VOID )
 } /* Read_Config */
 
 
-GLOBAL VOID Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
+LOCAL VOID
+Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 {
 	CHAR *ptr;
 	INT32 port;
@@ -375,7 +376,8 @@ GLOBAL VOID Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 } /* Handle_GLOBAL */
 
 
-GLOBAL VOID Handle_OPERATOR( INT Line, CHAR *Var, CHAR *Arg )
+LOCAL VOID
+Handle_OPERATOR( INT Line, CHAR *Var, CHAR *Arg )
 {
 	assert( Line > 0 );
 	assert( Var != NULL );
@@ -401,7 +403,8 @@ GLOBAL VOID Handle_OPERATOR( INT Line, CHAR *Var, CHAR *Arg )
 } /* Handle_OPERATOR */
 
 
-GLOBAL VOID Handle_SERVER( INT Line, CHAR *Var, CHAR *Arg )
+LOCAL VOID
+Handle_SERVER( INT Line, CHAR *Var, CHAR *Arg )
 {
 	INT32 port;
 	
@@ -449,7 +452,8 @@ GLOBAL VOID Handle_SERVER( INT Line, CHAR *Var, CHAR *Arg )
 } /* Handle_SERVER */
 
 
-GLOBAL VOID Handle_CHANNEL( INT Line, CHAR *Var, CHAR *Arg )
+LOCAL VOID
+Handle_CHANNEL( INT Line, CHAR *Var, CHAR *Arg )
 {
 	assert( Line > 0 );
 	assert( Var != NULL );
@@ -481,7 +485,8 @@ GLOBAL VOID Handle_CHANNEL( INT Line, CHAR *Var, CHAR *Arg )
 } /* Handle_CHANNEL */
 
 
-LOCAL VOID Validate_Config( VOID )
+LOCAL VOID
+Validate_Config( VOID )
 {
 	/* Konfiguration ueberpruefen */
 	
@@ -495,7 +500,8 @@ LOCAL VOID Validate_Config( VOID )
 } /* Validate_Config */
 
 
-LOCAL VOID Config_Error( CONST INT Level, CONST CHAR *Format, ... )
+LOCAL VOID
+Config_Error( CONST INT Level, CONST CHAR *Format, ... )
 {
 	/* Fehler! Auf Console und/oder ins Log schreiben */
 

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-login.h,v 1.3 2002/03/12 14:37:52 alex Exp $
+ * $Id: irc-login.h,v 1.4 2002/05/27 13:09:27 alex Exp $
  *
  * irc-login.h: Anmeldung und Abmeldung im IRC (Header)
  */
@@ -18,16 +18,13 @@
 #ifndef __irc_login_h__
 #define __irc_login_h__
 
-#include "parse.h"
-#include "client.h"
 
-
-GLOBAL BOOLEAN IRC_PASS( CLIENT *Client, REQUEST *Req );
-GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req );
-GLOBAL BOOLEAN IRC_USER( CLIENT *Client, REQUEST *Req );
-GLOBAL BOOLEAN IRC_PING( CLIENT *Client, REQUEST *Req );
-GLOBAL BOOLEAN IRC_PONG( CLIENT *Client, REQUEST *Req );
-GLOBAL BOOLEAN IRC_QUIT( CLIENT *Client, REQUEST *Req );
+GLOBAL BOOLEAN IRC_PASS PARAMS((CLIENT *Client, REQUEST *Req ));
+GLOBAL BOOLEAN IRC_NICK PARAMS((CLIENT *Client, REQUEST *Req ));
+GLOBAL BOOLEAN IRC_USER PARAMS((CLIENT *Client, REQUEST *Req ));
+GLOBAL BOOLEAN IRC_PING PARAMS((CLIENT *Client, REQUEST *Req ));
+GLOBAL BOOLEAN IRC_PONG PARAMS((CLIENT *Client, REQUEST *Req ));
+GLOBAL BOOLEAN IRC_QUIT PARAMS((CLIENT *Client, REQUEST *Req ));
 
 
 #endif

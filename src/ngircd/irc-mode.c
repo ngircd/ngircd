@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-mode.c,v 1.5 2002/05/21 00:10:16 alex Exp $
+ * $Id: irc-mode.c,v 1.6 2002/05/27 13:09:27 alex Exp $
  *
  * irc-mode.c: IRC-Befehle zur Mode-Aenderung (MODE, AWAY, ...)
  */
@@ -21,17 +21,21 @@
 #include <assert.h>
 #include <string.h>
 
+#include "conn.h"
+#include "client.h"
 #include "channel.h"
 #include "defines.h"
 #include "irc-write.h"
 #include "log.h"
+#include "parse.h"
 #include "messages.h"
 
 #include "exp.h"
 #include "irc-mode.h"
 
 
-GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req )
+GLOBAL BOOLEAN
+IRC_MODE( CLIENT *Client, REQUEST *Req )
 {
 	CHAR *mode_ptr, the_modes[CLIENT_MODE_LEN], x[2];
 	CLIENT *cl, *chan_cl, *prefix;
@@ -140,11 +144,6 @@ GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req )
 						/* invisible */
 						x[0] = 'i';
 						break;
-					case 'r':
-						/* restricted (kann nur gesetzt werden) */
-						if( set ) x[0] = 'r';
-						else ok = IRC_WriteStrClient( Client, ERR_RESTRICTED_MSG, Client_ID( Client ));
-						break;
 					case 'o':
 						/* operator (kann nur geloescht werden) */
 						if( ! set )
@@ -153,6 +152,11 @@ GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req )
 							x[0] = 'o';
 						}
 						else ok = IRC_WriteStrClient( Client, ERR_UMODEUNKNOWNFLAG_MSG, Client_ID( Client ));
+						break;
+					case 'r':
+						/* restricted (kann nur gesetzt werden) */
+						if( set ) x[0] = 'r';
+						else ok = IRC_WriteStrClient( Client, ERR_RESTRICTED_MSG, Client_ID( Client ));
 						break;
 					case 's':
 						/* server messages */
@@ -202,6 +206,10 @@ GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req )
 						case 'a':
 							/* Anonymous */
 							x[0] = 'a';
+							break;
+						case 'i':
+							/* Invite-Only */
+							x[0] = 'i';
 							break;
 						case 'm':
 							/* Moderated */
@@ -367,7 +375,8 @@ GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req )
 } /* IRC_MODE */
 
 
-GLOBAL BOOLEAN IRC_AWAY( CLIENT *Client, REQUEST *Req )
+GLOBAL BOOLEAN
+IRC_AWAY( CLIENT *Client, REQUEST *Req )
 {
 	assert( Client != NULL );
 	assert( Req != NULL );

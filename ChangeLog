@@ -36,6 +36,8 @@ ngIRCd CVS-HEAD
   - The server no longer forwards commands to ordinary users, instead it
     answers with the correct error message ("no such server") now.
   - WHOIS commands weren't always forwarded as requested.
+  - The server sets a correct default AWAY message now when propagating
+    between servers.
 
 
 Older changes (sorry, only available in german language):
@@ -399,4 +401,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.162 2003/01/01 13:32:47 alex Exp $
+$Id: ChangeLog,v 1.163 2003/01/02 17:58:31 alex Exp $

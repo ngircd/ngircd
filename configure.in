@@ -8,7 +8,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: configure.in,v 1.91 2003/04/23 01:07:59 alex Exp $
+# $Id: configure.in,v 1.92 2003/04/25 15:04:43 alex Exp $
 #
 
 # -- Initialisierung --
@@ -266,15 +266,26 @@ AC_DEFINE_UNQUOTED(TARGET_OS, "$target_os" )
 
 if test "$GCC" = "yes"; then
 	the_CFLAGS="-Wmissing-declarations -Wpointer-arith -Wstrict-prototypes"
+	ansi=" -ansi"
+	pedantic=" -pedantic"
+
 	$CC --version | grep 20020420 > /dev/null 2>&1
 	if test $? -eq 0; then
 		# Mac OS X (and Darwin?) ship with a slightly broken
 		# prerelease of GCC 3.1 which don't like -pedantic:
 		AC_MSG_RESULT([detected broken GNU C compiler, disabling "-pedantic"])
-		add_CFLAGS="-Wall -W -ansi $CFLAGS $CFLAGS_ADD"
-	else
-		add_CFLAGS="-Wall -W -ansi -pedantic $CFLAGS $CFLAGS_ADD"
+		pedantic=""
 	fi
+
+	uname | grep "CYGWIN" > /dev/null 2>&1
+	if test $? -eq 0; then
+		# The include files of Cygwin don't like -ansi,
+		# so we disable it:
+		AC_MSG_RESULT([detected Cygwin, disabling "-ansi"])
+		ansi=""
+	fi
+
+	add_CFLAGS="-Wall -W${ansi}${pedantic} $CFLAGS $CFLAGS_ADD"
 else
 	the_CFLAGS="$CFLAGS"
 	add_CFLAGS="$CFLAGS_ADD"

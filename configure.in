@@ -8,7 +8,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: configure.in,v 1.101 2004/03/11 22:21:20 alex Exp $
+# $Id: configure.in,v 1.102 2004/04/11 13:20:24 alex Exp $
 #
 
 # -- Initialisation --
@@ -60,6 +60,14 @@ if test "$GCC" = "yes"; then
 	# We are using the GNU C compiler. Good!
 	CFLAGS="$CFLAGS -pipe -W -Wall -Wpointer-arith -Wstrict-prototypes"
 fi
+
+case "$target_os" in
+	hpux*)
+		# This is HP/UX, we need to define _XOPEN_SOURCE_EXTENDED
+		# (tested with HP/UX 11.11)
+		CFLAGS="$CFLAGS -D_XOPEN_SOURCE_EXTENDED"
+		;;
+esac
 
 # Add additional CFLAGS, eventually specified on the command line:
 test -n "$CFLAGS_ADD" && CFLAGS="$CFLAGS $CFLAGS_ADD"
@@ -297,7 +305,8 @@ C=`eval echo ${sysconfdir}` ; C=`eval echo ${C}`
 M=`eval echo ${mandir}` ; M=`eval echo ${M}`
 D=`eval echo ${datadir}/doc/${PACKAGE}` ; D=`eval echo ${D}`
 
-echo "               Host: ${host}"
+echo "             Target: ${target}"
+test "$target" != "$host" && echo "               Host: ${host}"
 echo "           Compiler: ${CC}"
 test -n "$CFLAGS"	&& echo "     Compiler flags: ${CFLAGS}"
 test -n "$CPPFLAGS"	&& echo " Preprocessor flags: ${CPPFLAGS}"

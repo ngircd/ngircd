@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.94 2002/07/25 11:37:01 alex Exp $
+ * $Id: irc.c,v 1.95 2002/09/16 09:14:45 alex Exp $
  *
  * irc.c: IRC-Befehle
  */
@@ -653,6 +653,49 @@ IRC_KILL( CLIENT *Client, REQUEST *Req )
 
 	return CONNECTED;
 } /* IRC_KILL */
+
+
+GLOBAL BOOLEAN
+IRC_ADMIN(CLIENT *Client, REQUEST *Req )
+{
+	CLIENT *target, *prefix;
+
+	assert( Client != NULL );
+	assert( Req != NULL );
+
+	if(( Client_Type( Client ) != CLIENT_USER ) && ( Client_Type( Client ) != CLIENT_SERVER )) return IRC_WriteStrClient( Client, ERR_NOTREGISTERED_MSG, Client_ID( Client ));
+
+	/* Falsche Anzahl Parameter? */
+	if(( Req->argc > 1 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+
+	/* Ziel suchen */
+	if( Req->argc == 1 ) target = Client_Search( Req->argv[0] );
+	else target = Client_ThisServer( );
+
+	/* Prefix ermitteln */
+	if( Client_Type( Client ) == CLIENT_SERVER ) prefix = Client_Search( Req->prefix );
+	else prefix = Client;
+	if( ! prefix ) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->prefix );
+
+	/* An anderen Server weiterleiten? */
+	if( target != Client_ThisServer( ))
+	{
+		if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->argv[0] );
+
+		/* forwarden */
+		IRC_WriteStrClientPrefix( target, prefix, "ADMIN %s", Req->argv[0] );
+		return CONNECTED;
+	}
+
+	/* mit Versionsinfo antworten */
+	if( ! IRC_WriteStrClient( Client, RPL_ADMINME_MSG, Client_ID( prefix ), Conf_ServerName )) return DISCONNECTED;
+	if( ! IRC_WriteStrClient( Client, RPL_ADMINLOC1_MSG, Client_ID( prefix ), Conf_ServerAdmin1 )) return DISCONNECTED;
+	if( ! IRC_WriteStrClient( Client, RPL_ADMINLOC2_MSG, Client_ID( prefix ), Conf_ServerAdmin2 )) return DISCONNECTED;
+	if( ! IRC_WriteStrClient( Client, RPL_ADMINEMAIL_MSG, Client_ID( prefix ), Conf_ServerAdminMail )) return DISCONNECTED;
+
+	return CONNECTED;
+} /* IRC_ADMIN */
+
 
 
 GLOBAL BOOLEAN

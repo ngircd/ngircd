@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.h,v 1.31 2002/05/27 13:09:27 alex Exp $
+ * $Id: irc.h,v 1.32 2002/09/16 09:14:45 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  */
@@ -23,6 +23,7 @@ GLOBAL BOOLEAN IRC_MOTD PARAMS((CLIENT *Client, REQUEST *Req ));
 GLOBAL BOOLEAN IRC_LUSERS PARAMS((CLIENT *Client, REQUEST *Req ));
 GLOBAL BOOLEAN IRC_LINKS PARAMS((CLIENT *Client, REQUEST *Req ));
 GLOBAL BOOLEAN IRC_VERSION PARAMS((CLIENT *Client, REQUEST *Req ));
+GLOBAL BOOLEAN IRC_ADMIN PARAMS((CLIENT *Client, REQUEST *Req ));
 
 GLOBAL BOOLEAN IRC_PRIVMSG PARAMS((CLIENT *Client, REQUEST *Req ));
 GLOBAL BOOLEAN IRC_NOTICE PARAMS((CLIENT *Client, REQUEST *Req ));

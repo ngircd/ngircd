@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.57 2002/06/01 14:36:43 alex Exp $
+ * $Id: client.c,v 1.58 2002/06/02 23:16:42 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -102,7 +102,8 @@ Client_Exit( VOID )
 	CLIENT *c, *next;
 	INT cnt;
 
-	Client_Destroy( This_Server, "Server going down.", NULL, FALSE );
+	if( NGIRCd_Restart ) Client_Destroy( This_Server, "Server going down (restarting).", NULL, FALSE );
+	else Client_Destroy( This_Server, "Server going down.", NULL, FALSE );
 	
 	cnt = 0;
 	c = My_Clients;

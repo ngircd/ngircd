@@ -24,9 +24,10 @@ Sean Reifschneider, <jafo-rpms@tummy.com>
 
 Code snippets
 ~~~~~~~~~~~~~
+J. Kercheval: pattern matching functions
 Patrick Powell, <papowell@astart.com>: snprintf()-function
 Andrew Tridgell & Martin Pool: strl{cpy|cat}()-functions
 
 
 -- 
-$Id: AUTHORS,v 1.6 2003/08/30 20:37:15 alex Exp $
+$Id: AUTHORS,v 1.7 2003/09/02 16:09:29 alex Exp $

@@ -9,7 +9,7 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: configure.in,v 1.70 2002/12/25 13:23:11 alex Exp $
+# $Id: configure.in,v 1.71 2002/12/26 13:20:07 alex Exp $
 #
 
 # -- Initialisierung --
@@ -122,7 +122,7 @@ AC_CHECK_FUNCS([ \
 	strstr waitpid \
 	],,AC_MSG_ERROR([required function missing!]))
 
-AC_CHECK_FUNCS(inet_aton isdigit sigaction snprintf vsnprintf)
+AC_CHECK_FUNCS(inet_aton isdigit sigaction snprintf vsnprintf strlcpy strlcat)
 
 # -- Konfigurationsoptionen --
 

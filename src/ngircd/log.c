@@ -9,13 +9,10 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: log.c,v 1.23 2002/03/25 19:11:01 alex Exp $
+ * $Id: log.c,v 1.24 2002/03/27 16:40:06 alex Exp $
  *
  * log.c: Logging-Funktionen
  */
-
-
-#define MAX_LOG_MSG_LEN 256
 
 
 #include "portab.h"

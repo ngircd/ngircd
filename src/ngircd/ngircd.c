@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.44 2002/04/24 13:33:56 alex Exp $
+ * $Id: ngircd.c,v 1.45 2002/05/18 12:20:02 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  */
@@ -198,7 +198,11 @@ GLOBAL int main( int argc, const char *argv[] )
 	if( NGIRCd_Debug ) strcpy( NGIRCd_DebugLevel, "1" );
 #endif
 #ifdef SNIFFER
-	if( NGIRCd_Sniffer ) strcpy( NGIRCd_DebugLevel, "2" );
+	if( NGIRCd_Sniffer )
+	{
+		NGIRCd_Debug = TRUE;
+		strcpy( NGIRCd_DebugLevel, "2" );
+	}
 #endif
 
 	/* Soll nur die Konfigurations ueberprueft und ausgegeben werden? */

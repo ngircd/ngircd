@@ -46,6 +46,20 @@ files (using a distribution archive or CVS) is as following:
   3) make
   4) make install
 
+(Please see details below!)
+
+Now the newly compiled executable "ngircd" is installed in its standard
+location, /usr/local/sbin/.
+
+The next step is to configure and afterwards starting the daemon. Please
+have a look at the ngircd(8) and ngircd.conf(5) manual pages for details
+and all possible options.
+
+If no previous version of the configuration file exists (the standard name
+is /usr/local/etc/ngircd.conf), a sample configuration file containing all
+possible options will be installed there. You'll find its template in the
+doc/ directory: sample-ngircd.conf.
+
 
 1): "autogen.sh"
 
@@ -163,4 +177,4 @@ number. In both cases the server exits after the output.
 
 
 -- 
-$Id: INSTALL,v 1.19 2004/05/07 11:19:20 alex Exp $
+$Id: INSTALL,v 1.20 2004/09/03 20:01:12 alex Exp $

@@ -9,12 +9,12 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: Makefile.am,v 1.23 2002/05/27 11:25:17 alex Exp $
+# $Id: Makefile.am,v 1.24 2002/06/02 23:17:12 alex Exp $
 #
 
 AUTOMAKE_OPTIONS = ../portab/ansi2knr
 
-AM_CFLAGS = -I$(srcdir)/../portab
+INCLUDES = -I$(srcdir)/../portab
 
 LINTARGS = -weak -warnunixlib +unixlib -booltype BOOLEAN
 

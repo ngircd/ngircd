@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: parse.h,v 1.9 2002/12/18 13:53:20 alex Exp $
+ * $Id: parse.h,v 1.10 2003/01/03 22:03:51 alex Exp $
  *
  * IRC command parser and validator (header)
  */
@@ -30,7 +30,7 @@ typedef struct _REQUEST			/* vgl. RFC 2812, 2.3 */
 typedef struct _COMMAND
 {
 	CHAR *name;		/* command name */
-	BOOLEAN (*function)( CLIENT *Client, REQUEST *Request );
+	BOOLEAN (*function) PARAMS(( CLIENT *Client, REQUEST *Request ));
 	CLIENT_TYPE type;	/* valid client types (bit mask) */
 	LONG lcount, rcount;	/* number of local and remote calls */
 	LONG bytes;		/* number of bytes created */

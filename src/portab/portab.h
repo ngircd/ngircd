@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: portab.h,v 1.11 2002/12/26 14:48:05 alex Exp $
+ * $Id: portab.h,v 1.12 2003/01/03 22:03:51 alex Exp $
  *
  * Portability functions and declarations (header for libngbportab).
  */
@@ -134,19 +134,19 @@ typedef UINT8 BOOLEAN;
 #endif
 
 #ifndef HAVE_SNPRINTF
-EXTERN INT snprintf( CHAR *str, size_t count, CONST CHAR *fmt, ... );
+EXTERN INT snprintf PARAMS(( CHAR *str, size_t count, CONST CHAR *fmt, ... ));
 #endif
 
 #ifndef HAVE_STRLCAT
-EXTERN size_t strlcat( CHAR *dst, CONST CHAR *src, size_t size );
+EXTERN size_t strlcat PARAMS(( CHAR *dst, CONST CHAR *src, size_t size ));
 #endif
 
 #ifndef HAVE_STRLCPY
-EXTERN size_t strlcpy( CHAR *dst, CONST CHAR *src, size_t size );
+EXTERN size_t strlcpy PARAMS(( CHAR *dst, CONST CHAR *src, size_t size ));
 #endif
 
 #ifndef HAVE_VSNPRINTF
-EXTERN INT vsnprintf( CHAR *str, size_t count, CONST CHAR *fmt, va_list args );
+EXTERN INT vsnprintf PARAMS(( CHAR *str, size_t count, CONST CHAR *fmt, va_list args ));
 #endif
 
 

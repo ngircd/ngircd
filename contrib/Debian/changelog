@@ -2,7 +2,7 @@ ngircd (0.8.2-0ab1) unstable; urgency=high
 
   * New "upstream release", including security fixes.
 
- -- alex <alex@Arthur.Ath.CX>  Wed, 26 Jan 2005 23:14:12 +0100
+ -- Alexander Barton <alex@Arthur.Ath.CX>  Wed, 26 Jan 2005 23:14:12 +0100
 
 ngircd (0.8.1-0ab1) unstable; urgency=low
 

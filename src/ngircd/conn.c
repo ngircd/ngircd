@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.37 2002/02/19 20:05:37 alex Exp $
+ * $Id: conn.c,v 1.38 2002/02/19 20:34:31 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
+ * Revision 1.38  2002/02/19 20:34:31  alex
+ * - Bei ausgehenden Verbindungen wird der Ziel-Port ins Log geschrieben.
+ *
  * Revision 1.37  2002/02/19 20:05:37  alex
  * - "Passive-Mode" implementiert: kein Auto-Conect zu anderen Servern.
  *
@@ -992,7 +995,7 @@ LOCAL VOID New_Server( INT Server, CONN_ID Idx )
 		return;
 	}
 	
-	Log( LOG_INFO, "Establishing connection to \"%s\", %s (connection %d) ... ", Conf_Server[Server].host, Conf_Server[Server].ip, Idx );
+	Log( LOG_INFO, "Establishing connection to \"%s\", %s, port %d (connection %d) ... ", Conf_Server[Server].host, Conf_Server[Server].ip, Conf_Server[Server].port, Idx );
 
 	if( inet_aton( Conf_Server[Server].ip, &inaddr ) == 0 )
 	{

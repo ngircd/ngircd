@@ -26,6 +26,11 @@ ngIRCd CVS-HEAD
   - Mit der neuen Konfigurationsvariable "MaxConnections" (Sekion "Global")
     kann die maximale Anzahl gleichzeitiger Verbindungen begrenzt werden.
     Der Default ist -1, "unlimitiert".
+  - der Server erkennt nun, ob bereits eine eingehende Verbindung von einem
+    Peer-Server besteht und versucht dann nicht mehr, selber eine eigene
+    ausgehende Verbindung zu diesem auufzubauen. Dadurch kann nun auf beiden
+    Servern in der Konfiguration ein Port fuer den Connect konfiguriert
+    werden (beide Server versuchen sich dann gegenseitig zu connectieren).
 
 ngIRCd 0.5.3-pre1, 04.11.2002
 
@@ -314,4 +319,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.112 2002/11/04 20:04:18 alex Exp $
+$Id: ChangeLog,v 1.113 2002/11/05 14:30:52 alex Exp $

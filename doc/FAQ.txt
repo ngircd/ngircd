@@ -10,58 +10,54 @@
                     -- FAQ: Frequently Asked Questions --
 
 
-  +-----------------------------------------------------------------------+
-  | This text is only available in german at the moment, but this should  |
-  | change until the release of ngIRCd 0.7.0, so feel free to contribute! |
-  +-----------------------------------------------------------------------+
+I. General
+~~~~~~~~~~
+Q: Is it possible to link the ngIRCd with non-ngIRCd servers?
+A: Yes. ngIRCd is compatible to the original ircd used by IRCNet. Actually
+   this is being tested with version 2.10.3p3.
+
+Q: Is there a homepage with further information and downloads?
+A: Yes. Please visit <http://arthur.ath.cx/~alex/ngircd/>.
 
 
-I. Allgemein
-~~~~~~~~~~~~
-Q: Kann der ngIRCd im Netz zusammen mit "normalen" Servern betrieben werden?
-A: Ja. ngIRCd ist zum Original kompatibel, getestet wird dies zur Zeit mit
-   der Version 2.10.3p3 des ircd.
-
-Q: Gibt es eine Homepage mit Informationen und Downloads?
-A: Ja. Die URL ist <http://arthur.ath.cx/~alex/ngircd/>.
-
-
-II. Compilieren
+II. Compilation
 ~~~~~~~~~~~~~~~
-Q: Ich habe die Sourcen von ngIRCd ueber CVS installiert. Nun kann ich
-   ./configure nicht ausfuehren, da es nicht existiert!?
-A: Bei Builds direkt aus dem CVS-Tree muss das configure-Script zunaechst
-   durch GNU autoconf sowie die Makefile.in's durch GNU automake generiert
-   werden. Um dies zu vereinfachen existiert das Script "./autogen.sh".
-   GNU automake und GNU autoconf werden -- im Gegensatz zu Builds aus den
-   Sourcen eines .tar.gz-Archivs -- hierbei benoetigt!
+Q: I did a "CVS checkout" but can't execute ./configure because the script
+   is missing in the generated directory!?
+A: When using development versions via CVS, the configure script as well as
+   the Makefile.in templates must be generated using GNU automake and GNU
+   autoconf. To simplify this task run the ./autogen.sh script which will
+   execute the required tools for you; then continue with executing the
+   ./configure script as usual.
 
-Q: ./autogen.sh bricht mit der Meldung "autoheader: command not found" ab.
-A: GNU autoconf ist nicht installiert, wird jedoch bei Builds direkt aus
-   dem CVS-Tree benoetigt.
+Q: The ./autogen.sh script complains "aclocal: command not found".
+A: GNU automake is missing on your system but required for building CVS
+   versions of ngIRCd. Install GNU automake 1.6 or later and try again.
 
-Q: ./autogen.sh bricht mit der Meldung "autoconf: Undefined macros:
-   AC_FUNC_MALLOC" bzw. "AC_CONFIG_SRCDIR" ab.
-A: Auf dem System ist eine zu alte Version von GNU autoconf installiert.
-   Ein Update auf z.B. Version 2.52 loest dieses Problem (eine installiete
-   alte Version sollte ggf. zunaechst entfernt werden, bei RPM-Paketen z.B.
-   mit dem Befehl "rpm -e autoconf").
+Q: The ./autogen.sh script stops with "autoheader: command not found".
+A: GNU autoconf is missing on your system but required for building CVS
+   versions of ngIRCd. Install GNU autoconf 2.52 or later and try again.
+
+Q: The ./autogen.sh script fails and the message "automake: configure.in:
+   AM_INIT_AUTOMAKE must be used" is displayed.
+A: Most probably you are using version 1.5 of GNU automake which seems to be
+   incompatible to the build system of ngIRCd. Solution: upgrade to at least
+   version 1.6 of GNU automake.
+   (If you are using Debian 3.0 "Woody" you can try to downgrade to version
+   1.4 of GNU automake shipped with this distribution; it should work, too.)
 
 
 III. Bugs!?
 ~~~~~~~~~~~
-Q: Gibt es eine Liste der bekannten Bugs bzw. Feature-Wuensche?
-A: Ja. Es existiert ein Bug-Tracking-System fuer den ngIRCd (Bugzilla):
-   URL: <http://arthur.ath.cx/bugzilla/ngircd/>. Dort koennen Bugs ge-
-   meldet und Feature-Wunsche kundgetan werden. Bekannte Bugs koennen in
-   der Datenbank gesucht und aufgelistet werden.
-   Einen Account zum Suchen und Melden von Bugs bzw. Feature-Wuenschen
-   kannst du dir dort selber anlegen.
+Q: Is there a list of known bugs and desired feature enhancements?
+A: Yes. Have a look at the bug tracking system (Bugzilla) for ngIRCd located
+   at <http://arthur.ath.cx/bugzilla/ngircd/>. There you can file bug reports
+   and feature requests as well as search the bug database.
 
-Q: Was mache ich, wenn ich einen Bug gefunden habe?
-A: Am besten traegst du ihn in das Bug-Tracking-System des ngIRCd ein:
-   URL: <http://arthur.ath.cx/bugzilla/ngircd/>
+Q: What should I do if I found a bug?
+A: Please file a bug report at <http://arthur.ath.cx/bugzilla/ngircd/>!
+   The author of the particular component will be notified automagically :-)
 
 
 -- 
-$Id: FAQ.txt,v 1.4 2003/03/09 20:04:44 alex Exp $
+$Id: FAQ.txt,v 1.5 2003/04/05 11:37:17 alex Exp $

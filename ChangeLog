@@ -63,7 +63,7 @@ ngIRCd 0.6.1, 2003-01-21
   - The server sets a correct default AWAY message now when propagating
     between servers (bug introduced in 0.6.0).
   - Fixed up and enhanced CHANINFO command: channel keys and user limits
-    are syncronized between servers now, too.
+    are synchronized between servers now, too.
   - MODE returns the key and user limit for channel members correctly now.
   - Non-members of a channel could crash the server when trying to change
     its modes or modes of its members.
@@ -432,4 +432,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.186 2003/03/30 13:46:58 alex Exp $
+$Id: ChangeLog,v 1.187 2003/04/05 11:37:17 alex Exp $

@@ -9,11 +9,14 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: configure.in,v 1.1 2001/12/11 21:53:04 alex Exp $
+# $Id: configure.in,v 1.2 2001/12/11 22:04:21 alex Exp $
 #
 # $Log: configure.in,v $
-# Revision 1.1  2001/12/11 21:53:04  alex
-# Initial revision
+# Revision 1.2  2001/12/11 22:04:21  alex
+# - Test auf stdint.h (HAVE_STDINT_H) hinzugefuegt.
+#
+# Revision 1.1.1.1  2001/12/11 21:53:04  alex
+# Imported sources to CVS.
 #
 
 # -- Initialisierung --
@@ -47,6 +50,8 @@ AC_CHECK_HEADER(imp.h,,AC_MSG_ERROR([Alex \"portability headers\" (portab.h an f
 AC_CHECK_HEADER(exp.h,,AC_MSG_ERROR([Alex \"portability headers\" (portab.h an friends) not found!]))
 
 AC_CHECK_HEADERS([netinet/in.h sys/socket.h],,[required C headers missing!])
+
+AC_CHECK_HEADERS([stdint.h])
 
 # -- Datentypen --
 

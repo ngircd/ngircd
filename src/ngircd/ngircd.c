@@ -9,13 +9,16 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.1 2001/12/11 21:53:04 alex Exp $
+ * $Id: ngircd.c,v 1.2 2001/12/11 22:04:21 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  *
  * $Log: ngircd.c,v $
- * Revision 1.1  2001/12/11 21:53:04  alex
- * Initial revision
+ * Revision 1.2  2001/12/11 22:04:21  alex
+ * - Test auf stdint.h (HAVE_STDINT_H) hinzugefuegt.
+ *
+ * Revision 1.1.1.1  2001/12/11 21:53:04  alex
+ * Imported sources to CVS.
  *
  */
 
@@ -30,10 +33,14 @@
 #include "global.h"
 
 #include <imp.h>
+
+#ifdef HAVE_STDINT_H
+#include <stdint.h>
+#endif
+
 #include <assert.h>
 #include <errno.h>
 #include <signal.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h> 

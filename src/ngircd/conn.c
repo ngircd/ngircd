@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.74 2002/09/26 16:11:26 alex Exp $
+ * $Id: conn.c,v 1.75 2002/10/03 21:03:11 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -1133,7 +1133,7 @@ Read_Resolver_Result( INT r_fd )
 	FD_CLR( r_fd, &Resolver_FDs );
 
 	/* Anfrage vom Parent lesen */
-	len = read( r_fd, result, HOST_LEN);
+	len = read( r_fd, result, HOST_LEN - 1 );
 	if( len < 0 )
 	{
 		/* Fehler beim Lesen aus der Pipe */

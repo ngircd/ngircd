@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: log.c,v 1.35 2002/06/02 17:03:32 alex Exp $
+ * $Id: log.c,v 1.36 2002/09/03 17:25:45 alex Exp $
  *
  * log.c: Logging-Funktionen
  */
@@ -178,7 +178,8 @@ va_dcl
 	if( NGIRCd_NoDaemon )
 	{
 		/* auf Konsole ausgeben */
-		printf( "[%d] %s\n", Level, msg );
+		fprintf( stdout, "[%d] %s\n", Level, msg );
+		fflush( stdout );
 	}
 
 	if( Level <= LOG_CRIT )

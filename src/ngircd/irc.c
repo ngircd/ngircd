@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.101 2002/11/24 16:36:03 alex Exp $
+ * $Id: irc.c,v 1.102 2002/11/24 18:45:53 alex Exp $
  *
  * irc.c: IRC-Befehle
  */
@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "ngircd.h"
 #include "conn.h"
@@ -733,6 +734,44 @@ IRC_ADMIN(CLIENT *Client, REQUEST *Req )
 	return CONNECTED;
 } /* IRC_ADMIN */
 
+
+GLOBAL BOOLEAN
+IRC_TIME( CLIENT *Client, REQUEST *Req )
+{
+	CLIENT *from, *target;
+	CHAR t_str[64];
+	time_t t;
+
+	assert( Client != NULL );
+	assert( Req != NULL );
+
+	if(( Client_Type( Client ) != CLIENT_USER ) && ( Client_Type( Client ) != CLIENT_SERVER )) return IRC_WriteStrClient( Client, ERR_NOTREGISTERED_MSG, Client_ID( Client ));
+
+	/* Falsche Anzahl Parameter? */
+	if( Req->argc > 1 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+
+	/* From aus Prefix ermitteln */
+	if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_Search( Req->prefix );
+	else from = Client;
+	if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->prefix );
+	
+	if( Req->argc == 1 )
+	{
+		/* an anderen Server forwarden */
+		target = Client_Search( Req->argv[0] );
+		if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->argv[0] );
+
+		if( target != Client_ThisServer( ))
+		{
+			/* Ok, anderer Server ist das Ziel: forwarden */
+			return IRC_WriteStrClientPrefix( target, from, "TIME %s", Req->argv[0] );
+		}
+	}
+
+	t = time( NULL );
+	(VOID)strftime( t_str, 60, "%A %B %d %Y -- %H:%M %z", localtime( &t ));
+	return IRC_WriteStrClient( from, RPL_TIME_MSG, Client_ID( from ), Client_ID( Client_ThisServer( )), t_str );
+} /* IRC_TIME */
 
 
 GLOBAL BOOLEAN

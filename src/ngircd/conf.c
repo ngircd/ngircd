@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.63 2004/01/17 03:17:00 alex Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.64 2004/05/07 11:19:21 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -114,6 +114,8 @@ Conf_Test( VOID )
 	printf( "  AdminInfo2 = %s\n", Conf_ServerAdmin2 );
 	printf( "  AdminEMail = %s\n", Conf_ServerAdminMail );
 	printf( "  MotdFile = %s\n", Conf_MotdFile );
+	printf( "  MotdPhrase = %s\n", Conf_MotdPhrase );
+	printf( "  ChrootDir= %s\n", Conf_Chroot );
 	printf( "  Ports = " );
 	for( i = 0; i < Conf_ListenPorts_Count; i++ )
 	{
@@ -342,6 +344,10 @@ Set_Defaults( BOOLEAN InitServers )
 
 	strlcpy( Conf_MotdFile, SYSCONFDIR, sizeof( Conf_MotdFile ));
 	strlcat( Conf_MotdFile, MOTD_FILE, sizeof( Conf_MotdFile ));
+
+	strlcpy( Conf_MotdPhrase, MOTD_PHRASE, sizeof( Conf_MotdPhrase ));
+
+	strlcpy( Conf_Chroot, CHROOT_DIR, sizeof( Conf_Chroot ));
 
 	Conf_ListenPorts_Count = 0;
 	strcpy( Conf_ListenAddress, "" );
@@ -611,6 +617,18 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 	{
 		/* "Message of the day" (MOTD) file */
 		if( strlcpy( Conf_MotdFile, Arg, sizeof( Conf_MotdFile )) >= sizeof( Conf_MotdFile )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"MotdFile\" too long!", NGIRCd_ConfFile, Line );
+		return;
+	}
+	if( strcasecmp( Var, "MotdPhrase" ) == 0 )
+	{
+		/* "Message of the day" phrase (instead of file) */
+		if( strlcpy( Conf_MotdPhrase, Arg, sizeof( Conf_MotdPhrase )) >= sizeof( Conf_MotdPhrase )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"MotdPhrase\" too long!", NGIRCd_ConfFile, Line );
+		return;
+	}
+	if( strcasecmp( Var, "ChrootDir" ) == 0 )
+	{
+		/* directory for chroot() */
+		if( strlcpy( Conf_Chroot, Arg, sizeof( Conf_Chroot )) >= sizeof( Conf_Chroot )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"ChrootDir\" too long!", NGIRCd_ConfFile, Line );
 		return;
 	}
 	if( strcasecmp( Var, "ServerUID" ) == 0 )

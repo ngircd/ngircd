@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.83 2004/01/19 21:54:59 alex Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.84 2004/05/07 11:19:21 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -228,6 +228,38 @@ main( int argc, const char *argv[] )
 	
 	while( ! NGIRCd_SignalQuit )
 	{
+		/* Initialize global variables */
+		NGIRCd_Start = time( NULL );
+		(VOID)strftime( NGIRCd_StartStr, 64, "%a %b %d %Y at %H:%M:%S (%Z)", localtime( &NGIRCd_Start ));
+
+		NGIRCd_SignalRehash = FALSE;
+		NGIRCd_SignalRestart = FALSE;
+		NGIRCd_SignalQuit = FALSE;
+
+		/* Initialize modules, part I */
+		Log_Init( );
+		Conf_Init( );
+
+		if( Conf_Chroot[0] )
+		{
+			/* Chroot */
+			if( chdir( Conf_Chroot ) != 0 ) Log( LOG_ERR, "Can't chdir() in ChrootDir (%s): %s", Conf_Chroot, strerror( errno ));
+
+			if( chroot( Conf_Chroot ) != 0 ) Log( LOG_ERR, "Can't change root directory to \"%s\": %s", Conf_Chroot, strerror( errno ));
+			else Log( LOG_INFO, "Changed root and working directory to \"%s\".", Conf_Chroot );
+		}
+
+		if( Conf_GID != 0 )
+		{
+			/* Set new group ID */
+			if( setgid( Conf_GID ) != 0 ) Log( LOG_ERR, "Can't change group ID to %u: %s", Conf_GID, strerror( errno ));
+		}
+		if( Conf_UID != 0 )
+		{
+			/* Set new user ID */
+			if( setuid( Conf_UID ) != 0 ) Log( LOG_ERR, "Can't change user ID to %u: %s", Conf_UID, strerror( errno ));
+		}
+
 		/* In der Regel wird ein Sub-Prozess ge-fork()'t, der
 		 * nicht mehr mit dem Terminal verbunden ist. Mit der
 		 * Option "--nodaemon" kann dies (z.B. zum Debuggen)
@@ -252,18 +284,10 @@ main( int argc, const char *argv[] )
 			(VOID)setsid( );
 			chdir( "/" );
 		}
-	
-		/* Globale Variablen initialisieren */
-		NGIRCd_Start = time( NULL );
-		(VOID)strftime( NGIRCd_StartStr, 64, "%a %b %d %Y at %H:%M:%S (%Z)", localtime( &NGIRCd_Start ));
-		NGIRCd_SignalRehash = FALSE;
-		NGIRCd_SignalRestart = FALSE;
-		NGIRCd_SignalQuit = FALSE;
 
-		/* Module initialisieren */
-		Log_Init( );
+		/* Initialize modules, part II: these functions are eventually
+		 * called with already dropped privileges ... */
 		Resolve_Init( );
-		Conf_Init( );
 		Lists_Init( );
 		Channel_Init( );
 		Client_Init( );
@@ -272,28 +296,15 @@ main( int argc, const char *argv[] )
 #endif
 		Conn_Init( );
 
-		/* Wenn als root ausgefuehrt und eine andere UID
-		 * konfiguriert ist, jetzt zu dieser wechseln */
-		if( getuid( ) == 0 )
-		{
-			if( Conf_GID != 0 )
-			{
-				/* Neue Group-ID setzen */
-				if( setgid( Conf_GID ) != 0 ) Log( LOG_ERR, "Can't change Group-ID to %u: %s", Conf_GID, strerror( errno ));
-			}
-			if( Conf_UID != 0 )
-			{
-				/* Neue User-ID setzen */
-				if( setuid( Conf_UID ) != 0 ) Log( LOG_ERR, "Can't change User-ID to %u: %s", Conf_UID, strerror( errno ));
-			}
-		}
-		
-		/* User, Gruppe und Prozess-ID des Daemon ausgeben */
+		/* Show user, group, and PID of the running daemon */
 		pwd = getpwuid( getuid( )); grp = getgrgid( getgid( ));
 		Log( LOG_INFO, "Running as user %s(%ld), group %s(%ld), with PID %ld.", pwd ? pwd->pw_name : "unknown", (LONG)getuid( ), grp ? grp->gr_name : "unknown", (LONG)getgid( ), (LONG)getpid( ));
 
-		/* stderr in "Error-File" umlenken */
-		Log_InitErrorfile( );
+		/* Redirect stderr handle to "error file" for debugging.
+		 * But don't try to write in the chroot jail, since it's more 
+		 * secure to have a chroot dir not writable by the daemon.
+		 */
+		if( ! Conf_Chroot[0] ) Log_InitErrorfile( );
 
 		/* Signal-Handler initialisieren */
 		Initialize_Signal_Handler( );

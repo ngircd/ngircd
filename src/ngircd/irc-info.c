@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-info.c,v 1.21 2004/01/17 03:17:49 alex Exp $";
+static char UNUSED id[] = "$Id: irc-info.c,v 1.22 2004/05/07 11:19:21 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -773,6 +773,13 @@ IRC_Show_MOTD( CLIENT *Client )
 
 	assert( Client != NULL );
 
+	if( Conf_MotdPhrase[0] )
+	{
+		if( ! IRC_WriteStrClient( Client, RPL_MOTDSTART_MSG, Client_ID( Client ), Client_ID( Client_ThisServer( )))) return DISCONNECTED;
+		if( ! IRC_WriteStrClient( Client, RPL_MOTD_MSG, Client_ID( Client ), Conf_MotdPhrase )) return DISCONNECTED;
+		return IRC_WriteStrClient( Client, RPL_ENDOFMOTD_MSG, Client_ID( Client ));
+	}
+
 	fd = fopen( Conf_MotdFile, "r" );
 	if( ! fd )
 	{
@@ -780,7 +787,7 @@ IRC_Show_MOTD( CLIENT *Client )
 		return IRC_WriteStrClient( Client, ERR_NOMOTD_MSG, Client_ID( Client ) );
 	}
 
-	IRC_WriteStrClient( Client, RPL_MOTDSTART_MSG, Client_ID( Client ), Client_ID( Client_ThisServer( )));
+	if( ! IRC_WriteStrClient( Client, RPL_MOTDSTART_MSG, Client_ID( Client ), Client_ID( Client_ThisServer( )))) return DISCONNECTED;
 	while( TRUE )
 	{
 		if( ! fgets( line, 126, fd )) break;

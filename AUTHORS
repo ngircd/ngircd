@@ -19,6 +19,7 @@ Contributors
 ~~~~~~~~~~~~
 Goetz Hoffart, <goetz@hoffart.de> (goetz)
 Ilja Osthoff, <i.osthoff@gmx.net> (ilja)
+Benjamin Pineau, <ben@zouh.org>
 Sean Reifschneider, <jafo-rpms@tummy.com>
 
 
@@ -30,4 +31,4 @@ Andrew Tridgell & Martin Pool: strl{cpy|cat}()-functions
 
 
 -- 
-$Id: AUTHORS,v 1.8 2004/01/26 02:23:54 alex Exp $
+$Id: AUTHORS,v 1.9 2004/05/07 11:19:20 alex Exp $

@@ -12,6 +12,11 @@
 
 ngIRCd CVSHEAD
 
+  - Two new configuration options: "ChrootDir" and "MotdPhrase", thanks to
+    Benjamin Pineau <ben@zouh.org>. Now you can force the daemon to change
+    its root and working directory to something "safe". MotdPhrase is used
+    to define an "MOTD string" instead of a whole file, useful if the
+    "real" MOTD file would be outside the "jail".
   - INVITE- and BAN-lists become synchronized between IRC+ servers when
     establishing new connections, if the peer supports this as well.
   - The type of service (TOS) of all sockets is set to "interactive" now.
@@ -184,4 +189,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.64 2004/04/25 15:51:15 alex Exp $
+$Id: NEWS,v 1.65 2004/05/07 11:19:20 alex Exp $

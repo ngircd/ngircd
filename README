@@ -45,7 +45,8 @@ III. Features (or: why use ngIRCd?)
 - ngIRCd will be developed on in the future.
 - supported platforms (tested versions): AIX (3.2.5), A/UX (3.0.1), FreeBSD
   (4.5), HP-UX (10.20), IRIX (6.5), Linux (2.x), Mac OS X (10.x), NetBSD
-  (1.5.2/i386, 1.5.3/m68k), Solaris (2.5.1, 2.6), and Windows with Cygwin.
+  (1.5.2/i386, 1.5.3/m68k), Solaris (2.5.1, 2.6), Windows with Cygwin, and
+  OpenBSD (3.4/i386).
 
 
 IV. Documentation
@@ -83,4 +84,4 @@ mail to: <alex@barton.de> or <alex@arthur.ath.cx>
 
 
 -- 
-$Id: README,v 1.18 2004/01/26 02:23:54 alex Exp $
+$Id: README,v 1.19 2004/05/07 11:19:20 alex Exp $

@@ -75,6 +75,11 @@ In addition, you can pass some command line options to "configure" to enable
 and/or disable some features of ngIRCd. All these options are shown using
 "./configure --help", too.
 
+Compiling a static binary will avoid you the hassle of feeding a chroot dir
+(if you want use the chroot feature). Just do something like:
+  CFLAGS=-static ./configure [--your-options ...]
+Then you can use a void directory as ChrootDir (like OpenSSH's /var/empty).
+
 
 3): "make"
 
@@ -158,4 +163,4 @@ number. In both cases the server exits after the output.
 
 
 -- 
-$Id: INSTALL,v 1.18 2004/02/22 22:12:44 alex Exp $
+$Id: INSTALL,v 1.19 2004/05/07 11:19:20 alex Exp $

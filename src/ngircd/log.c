@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: log.c,v 1.44 2003/12/26 15:55:07 alex Exp $";
+static char UNUSED id[] = "$Id: log.c,v 1.45 2004/05/07 11:19:21 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -85,6 +85,8 @@ Log_Init( VOID )
 	}
 #endif
 	if( Init_Txt[0] ) Log( LOG_INFO, "Activating: %s.", Init_Txt );
+
+	Error_File[0] = '\0';
 } /* Log_Init */
 
 
@@ -122,8 +124,11 @@ Log_Exit( VOID )
 	if( NGIRCd_SignalRestart ) Log( LOG_NOTICE, "%s done (restarting).", PACKAGE_NAME );
 	else Log( LOG_NOTICE, "%s done.", PACKAGE_NAME );
 
-	/* Error-File (stderr) loeschen */
-	if( unlink( Error_File ) != 0 ) Log( LOG_ERR, "Can't delete \"%s\": %s", Error_File, strerror( errno ));
+	if( Error_File[0] )
+	{
+		/* Error-File (stderr) loeschen */
+		if( unlink( Error_File ) != 0 ) Log( LOG_ERR, "Can't delete \"%s\": %s", Error_File, strerror( errno ));
+	}
 
 #ifdef SYSLOG
 	/* syslog abmelden */

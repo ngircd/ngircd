@@ -1,5 +1,5 @@
 .\"
-.\" $Id: ngircd.conf.5,v 1.12 2003/11/05 21:41:02 alex Exp $
+.\" $Id: ngircd.conf.5,v 1.13 2004/05/07 11:19:20 alex Exp $
 .\"
 .TH ngircd.conf 5 "Mai 2003" ngircd "ngIRCd Manual"
 .SH NAME
@@ -75,6 +75,10 @@ the server listens on all configured ip addresses and interfaces.
 Text file with the "message of the day" (MOTD). This message will be shown
 to all users connecting to the server.
 .TP
+\fBMotdPhrase\fR
+A simple Phrase (<256 chars) if you don't want to use a motd file.
+If it is set no MotdFile will be read at all.
+.TP
 \fBServerUID\fR
 User ID under which the server should run; you can use the name of the user
 or the numerical ID.
@@ -90,6 +94,18 @@ must be readable by this user, otherwise RESTART and REHASH won't work!
 \fBServerGID\fR
 Group ID under which the ngIRCd should run; you can use the name of the
 group or the numerical ID.
+.PP
+.RS
+.B Attention:
+.br
+For this to work the server must have
+been started with root privileges!
+.RE
+.TP
+\fBChrootDir\fR
+A directory to chroot in when everything is initialized. It doesn't need
+to be populated if ngIRCd is compiled as a static binary. By default ngIRCd
+won't use the chroot() feature.
 .PP
 .RS
 .B Attention:

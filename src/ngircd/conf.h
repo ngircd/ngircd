@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conf.h,v 1.28 2003/11/05 21:41:02 alex Exp $
+ * $Id: conf.h,v 1.29 2004/05/07 11:19:21 alex Exp $
  *
  * Configuration management (header)
  */
@@ -72,6 +72,9 @@ GLOBAL CHAR Conf_ServerAdminMail[CLIENT_INFO_LEN];
 /* File with MOTD text */
 GLOBAL CHAR Conf_MotdFile[FNAME_LEN];
 
+/* Phrase with MOTD text */
+GLOBAL CHAR Conf_MotdPhrase[LINE_LEN];
+
 /* Ports the server should listen on */
 GLOBAL UINT Conf_ListenPorts[MAX_LISTEN_PORTS];
 GLOBAL INT Conf_ListenPorts_Count;
@@ -82,6 +85,9 @@ GLOBAL CHAR Conf_ListenAddress[16];
 /* User and group ID the server should run with */
 GLOBAL UINT Conf_UID;
 GLOBAL UINT Conf_GID;
+
+/* A directory to chroot() in */
+GLOBAL CHAR Conf_Chroot[FNAME_LEN];
 
 /* Timeouts for PING and PONG */
 GLOBAL INT Conf_PingTimeout;

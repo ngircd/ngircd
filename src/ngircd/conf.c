@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.73 2005/03/20 13:54:06 fw Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.74 2005/03/20 15:00:25 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -106,7 +106,7 @@ Conf_Test( void )
 	Validate_Config( true );
 
 	/* If stdin is a valid tty wait for a key: */
-	if( isatty( fileno( stdout )))
+	if( isatty( fileno( stdin )))
 	{
 		puts( "OK, press enter to see a dump of your service configuration ..." );
 		getchar( );

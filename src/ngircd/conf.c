@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.c,v 1.40 2002/11/25 01:01:59 alex Exp $
+ * $Id: conf.c,v 1.41 2002/11/30 22:15:49 alex Exp $
  *
  * conf.h: Konfiguration des ngircd
  */
@@ -28,6 +28,10 @@
 #include <pwd.h>
 #include <grp.h>
 #include <sys/types.h>
+
+#ifdef HAVE_CTYPE_H
+# include <ctype.h>
+#endif
 
 #include "ngircd.h"
 #include "conn.h"
@@ -324,6 +328,7 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 		/* Der Server-Name */
 		strncpy( Conf_ServerName, Arg, CLIENT_ID_LEN - 1 );
 		Conf_ServerName[CLIENT_ID_LEN - 1] = '\0';
+		if( strlen( Arg ) > CLIENT_ID_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Name\" too long!", NGIRCd_ConfFile, Line );
 		return;
 	}
 	if( strcasecmp( Var, "Info" ) == 0 )
@@ -331,6 +336,7 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 		/* Server-Info-Text */
 		strncpy( Conf_ServerInfo, Arg, CLIENT_INFO_LEN - 1 );
 		Conf_ServerInfo[CLIENT_INFO_LEN - 1] = '\0';
+		if( strlen( Arg ) > CLIENT_INFO_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Info\" too long!", NGIRCd_ConfFile, Line );
 		return;
 	}
 	if( strcasecmp( Var, "Password" ) == 0 )
@@ -338,6 +344,7 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 		/* Server-Passwort */
 		strncpy( Conf_ServerPwd, Arg, CLIENT_PASS_LEN - 1 );
 		Conf_ServerPwd[CLIENT_PASS_LEN - 1] = '\0';
+		if( strlen( Arg ) > CLIENT_PASS_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Password\" too long!", NGIRCd_ConfFile, Line );
 		return;
 	}
 	if( strcasecmp( Var, "AdminInfo1" ) == 0 )
@@ -345,6 +352,7 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 		/* Server-Info-Text */
 		strncpy( Conf_ServerAdmin1, Arg, CLIENT_INFO_LEN - 1 );
 		Conf_ServerAdmin1[CLIENT_INFO_LEN - 1] = '\0';
+		if( strlen( Arg ) > CLIENT_INFO_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"AdminInfo1\" too long!", NGIRCd_ConfFile, Line );
 		return;
 	}
 	if( strcasecmp( Var, "AdminInfo2" ) == 0 )
@@ -352,6 +360,7 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 		/* Server-Info-Text */
 		strncpy( Conf_ServerAdmin2, Arg, CLIENT_INFO_LEN - 1 );
 		Conf_ServerAdmin2[CLIENT_INFO_LEN - 1] = '\0';
+		if( strlen( Arg ) > CLIENT_INFO_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"AdminInfo2\" too long!", NGIRCd_ConfFile, Line );
 		return;
 	}
 	if( strcasecmp( Var, "AdminEMail" ) == 0 )
@@ -359,6 +368,7 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 		/* Server-Info-Text */
 		strncpy( Conf_ServerAdminMail, Arg, CLIENT_INFO_LEN - 1 );
 		Conf_ServerAdminMail[CLIENT_INFO_LEN - 1] = '\0';
+		if( strlen( Arg ) > CLIENT_INFO_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"AdminEMail\" too long!", NGIRCd_ConfFile, Line );
 		return;
 	}
 	if( strcasecmp( Var, "Ports" ) == 0 )
@@ -385,6 +395,7 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 		/* Datei mit der "message of the day" (MOTD) */
 		strncpy( Conf_MotdFile, Arg, FNAME_LEN - 1 );
 		Conf_MotdFile[FNAME_LEN - 1] = '\0';
+		if( strlen( Arg ) > FNAME_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"MotdFile\" too long!", NGIRCd_ConfFile, Line );
 		return;
 	}
 	if( strcasecmp( Var, "ServerUID" ) == 0 )
@@ -392,7 +403,14 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 		/* UID, mit der der Daemon laufen soll */
 		pwd = getpwnam( Arg );
 		if( pwd ) Conf_UID = pwd->pw_uid;
-		else Conf_UID = (UINT)atoi( Arg );
+		else
+		{
+#ifdef HAVE_ISDIGIT
+			if( ! isdigit( *Arg )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"ServerUID\" is not a number!", NGIRCd_ConfFile, Line );
+			else
+#endif
+			Conf_UID = (UINT)atoi( Arg );
+		}
 		return;
 	}
 	if( strcasecmp( Var, "ServerGID" ) == 0 )
@@ -400,28 +418,47 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 		/* GID, mit der der Daemon laufen soll */
 		grp = getgrnam( Arg );
 		if( grp ) Conf_GID = grp->gr_gid;
-		else Conf_GID = (UINT)atoi( Arg );
+		else
+		{
+#ifdef HAVE_ISDIGIT
+			if( ! isdigit( *Arg )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"ServerGID\" is not a number!", NGIRCd_ConfFile, Line );
+			else
+#endif
+			Conf_GID = (UINT)atoi( Arg );
+		}
 		return;
 	}
 	if( strcasecmp( Var, "PingTimeout" ) == 0 )
 	{
 		/* PING-Timeout */
 		Conf_PingTimeout = atoi( Arg );
-		if(( Conf_PingTimeout ) < 5 ) Conf_PingTimeout = 5;
+		if( Conf_PingTimeout < 5 )
+		{
+			Config_Error( LOG_WARNING, "%s, line %d: Value of \"PingTimeout\" too low!", NGIRCd_ConfFile, Line );
+			Conf_PingTimeout = 5;
+		}
 		return;
 	}
 	if( strcasecmp( Var, "PongTimeout" ) == 0 )
 	{
 		/* PONG-Timeout */
 		Conf_PongTimeout = atoi( Arg );
-		if(( Conf_PongTimeout ) < 5 ) Conf_PongTimeout = 5;
+		if( Conf_PongTimeout < 5 )
+		{
+			Config_Error( LOG_WARNING, "%s, line %d: Value of \"PongTimeout\" too low!", NGIRCd_ConfFile, Line );
+			Conf_PongTimeout = 5;
+		}
 		return;
 	}
 	if( strcasecmp( Var, "ConnectRetry" ) == 0 )
 	{
 		/* Sekunden zwischen Verbindungsversuchen zu anderen Servern */
 		Conf_ConnectRetry = atoi( Arg );
-		if(( Conf_ConnectRetry ) < 5 ) Conf_ConnectRetry = 5;
+		if( Conf_ConnectRetry < 5 )
+		{
+			Config_Error( LOG_WARNING, "%s, line %d: Value of \"ConnectRetry\" too low!", NGIRCd_ConfFile, Line );
+			Conf_ConnectRetry = 5;
+		}
 		return;
 	}
 	if( strcasecmp( Var, "OperCanUseMode" ) == 0 )
@@ -437,6 +474,10 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 	{
 		/* Maximale Anzahl von Verbindungen. Werte <= 0 stehen
 		 * fuer "kein Limit". */
+#ifdef HAVE_ISDIGIT
+		if( ! isdigit( *Arg )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"MaxConnections\" is not a number!", NGIRCd_ConfFile, Line );
+		else
+#endif
 		Conf_MaxConnections = atol( Arg );
 		return;
 	}
@@ -458,6 +499,7 @@ Handle_OPERATOR( INT Line, CHAR *Var, CHAR *Arg )
 		/* Name des IRC Operator */
 		strncpy( Conf_Oper[Conf_Oper_Count - 1].name, Arg, CLIENT_PASS_LEN - 1 );
 		Conf_Oper[Conf_Oper_Count - 1].name[CLIENT_PASS_LEN - 1] = '\0';
+		if( strlen( Arg ) > CLIENT_PASS_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Name\" too long!", NGIRCd_ConfFile, Line );
 		return;
 	}
 	if( strcasecmp( Var, "Password" ) == 0 )
@@ -465,6 +507,7 @@ Handle_OPERATOR( INT Line, CHAR *Var, CHAR *Arg )
 		/* Passwort des IRC Operator */
 		strncpy( Conf_Oper[Conf_Oper_Count - 1].pwd, Arg, CLIENT_PASS_LEN - 1 );
 		Conf_Oper[Conf_Oper_Count - 1].pwd[CLIENT_PASS_LEN - 1] = '\0';
+		if( strlen( Arg ) > CLIENT_PASS_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Password\" too long!", NGIRCd_ConfFile, Line );
 		return;
 	}
 	
@@ -486,6 +529,7 @@ Handle_SERVER( INT Line, CHAR *Var, CHAR *Arg )
 		/* Hostname des Servers */
 		strncpy( Conf_Server[Conf_Server_Count - 1].host, Arg, HOST_LEN - 1 );
 		Conf_Server[Conf_Server_Count - 1].host[HOST_LEN - 1] = '\0';
+		if( strlen( Arg ) > HOST_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Host\" too long!", NGIRCd_ConfFile, Line );
 		return;
 	}
 	if( strcasecmp( Var, "Name" ) == 0 )
@@ -493,6 +537,7 @@ Handle_SERVER( INT Line, CHAR *Var, CHAR *Arg )
 		/* Name des Servers ("Nick") */
 		strncpy( Conf_Server[Conf_Server_Count - 1].name, Arg, CLIENT_ID_LEN - 1 );
 		Conf_Server[Conf_Server_Count - 1].name[CLIENT_ID_LEN - 1] = '\0';
+		if( strlen( Arg ) > CLIENT_ID_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Name\" too long!", NGIRCd_ConfFile, Line );
 		return;
 	}
 	if( strcasecmp( Var, "MyPassword" ) == 0 )
@@ -500,6 +545,7 @@ Handle_SERVER( INT Line, CHAR *Var, CHAR *Arg )
 		/* Passwort dieses Servers, welches empfangen werden muss */
 		strncpy( Conf_Server[Conf_Server_Count - 1].pwd_in, Arg, CLIENT_PASS_LEN - 1 );
 		Conf_Server[Conf_Server_Count - 1].pwd_in[CLIENT_PASS_LEN - 1] = '\0';
+		if( strlen( Arg ) > CLIENT_PASS_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"MyPassword\" too long!", NGIRCd_ConfFile, Line );
 		return;
 	}
 	if( strcasecmp( Var, "PeerPassword" ) == 0 )
@@ -507,6 +553,7 @@ Handle_SERVER( INT Line, CHAR *Var, CHAR *Arg )
 		/* Passwort des anderen Servers, welches gesendet werden muss */
 		strncpy( Conf_Server[Conf_Server_Count - 1].pwd_out, Arg, CLIENT_PASS_LEN - 1 );
 		Conf_Server[Conf_Server_Count - 1].pwd_out[CLIENT_PASS_LEN - 1] = '\0';
+		if( strlen( Arg ) > CLIENT_PASS_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"PeerPassword\" too long!", NGIRCd_ConfFile, Line );
 		return;
 	}
 	if( strcasecmp( Var, "Port" ) == 0 )
@@ -520,6 +567,10 @@ Handle_SERVER( INT Line, CHAR *Var, CHAR *Arg )
 	if( strcasecmp( Var, "Group" ) == 0 )
 	{
 		/* Server-Gruppe */
+#ifdef HAVE_ISDIGIT
+		if( ! isdigit( *Arg )) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Group\" is not a number!", NGIRCd_ConfFile, Line );
+		else
+#endif
 		Conf_Server[Conf_Server_Count - 1].group = atoi( Arg );
 		return;
 	}
@@ -540,6 +591,7 @@ Handle_CHANNEL( INT Line, CHAR *Var, CHAR *Arg )
 		/* Hostname des Servers */
 		strncpy( Conf_Channel[Conf_Channel_Count - 1].name, Arg, CHANNEL_NAME_LEN - 1 );
 		Conf_Channel[Conf_Channel_Count - 1].name[CHANNEL_NAME_LEN - 1] = '\0';
+		if( strlen( Arg ) > CHANNEL_NAME_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Name\" too long!", NGIRCd_ConfFile, Line );
 		return;
 	}
 	if( strcasecmp( Var, "Modes" ) == 0 )
@@ -547,6 +599,7 @@ Handle_CHANNEL( INT Line, CHAR *Var, CHAR *Arg )
 		/* Name des Servers ("Nick") */
 		strncpy( Conf_Channel[Conf_Channel_Count - 1].modes, Arg, CHANNEL_MODE_LEN - 1 );
 		Conf_Channel[Conf_Channel_Count - 1].modes[CHANNEL_MODE_LEN - 1] = '\0';
+		if( strlen( Arg ) > CHANNEL_MODE_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Modes\" too long!", NGIRCd_ConfFile, Line );
 		return;
 	}
 	if( strcasecmp( Var, "Topic" ) == 0 )
@@ -554,6 +607,7 @@ Handle_CHANNEL( INT Line, CHAR *Var, CHAR *Arg )
 		/* Passwort des Servers */
 		strncpy( Conf_Channel[Conf_Channel_Count - 1].topic, Arg, CHANNEL_TOPIC_LEN - 1 );
 		Conf_Channel[Conf_Channel_Count - 1].topic[CHANNEL_TOPIC_LEN - 1] = '\0';
+		if( strlen( Arg ) > CHANNEL_TOPIC_LEN - 1 ) Config_Error( LOG_WARNING, "%s, line %d: Value of \"Topic\" too long!", NGIRCd_ConfFile, Line );
 		return;
 	}
 

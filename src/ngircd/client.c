@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.41 2002/03/02 01:35:50 alex Exp $
+ * $Id: client.c,v 1.42 2002/03/03 17:17:01 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,9 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.42  2002/03/03 17:17:01  alex
+ * - strncpy() und vsnprintf() kopieren nun etwas "optimierter" (1 Byte weniger) :-)
+ *
  * Revision 1.41  2002/03/02 01:35:50  alex
  * - Channel- und Nicknames werden nun ordentlich validiert.
  *
@@ -398,7 +401,7 @@ GLOBAL VOID Client_SetHostname( CLIENT *Client, CHAR *Hostname )
 	/* Hostname eines Clients setzen */
 	
 	assert( Client != NULL );
-	strncpy( Client->host, Hostname, CLIENT_HOST_LEN );
+	strncpy( Client->host, Hostname, CLIENT_HOST_LEN - 1 );
 	Client->host[CLIENT_HOST_LEN - 1] = '\0';
 } /* Client_SetHostname */
 
@@ -408,7 +411,7 @@ GLOBAL VOID Client_SetID( CLIENT *Client, CHAR *ID )
 	/* Hostname eines Clients setzen */
 
 	assert( Client != NULL );
-	strncpy( Client->id, ID, CLIENT_ID_LEN );
+	strncpy( Client->id, ID, CLIENT_ID_LEN - 1 );
 	Client->id[CLIENT_ID_LEN - 1] = '\0';
 } /* Client_SetID */
 
@@ -418,11 +421,11 @@ GLOBAL VOID Client_SetUser( CLIENT *Client, CHAR *User, BOOLEAN Idented )
 	/* Username eines Clients setzen */
 
 	assert( Client != NULL );
-	if( Idented ) strncpy( Client->user, User, CLIENT_USER_LEN );
+	if( Idented ) strncpy( Client->user, User, CLIENT_USER_LEN - 1 );
 	else
 	{
 		Client->user[0] = '~';
-		strncpy( Client->user + 1, User, CLIENT_USER_LEN - 1 );
+		strncpy( Client->user + 1, User, CLIENT_USER_LEN - 2 );
 	}
 	Client->user[CLIENT_USER_LEN - 1] = '\0';
 } /* Client_SetUser */
@@ -433,7 +436,7 @@ GLOBAL VOID Client_SetInfo( CLIENT *Client, CHAR *Info )
 	/* Hostname eines Clients setzen */
 
 	assert( Client != NULL );
-	strncpy( Client->info, Info, CLIENT_INFO_LEN );
+	strncpy( Client->info, Info, CLIENT_INFO_LEN - 1 );
 	Client->info[CLIENT_INFO_LEN - 1] = '\0';
 } /* Client_SetInfo */
 
@@ -443,7 +446,7 @@ GLOBAL VOID Client_SetModes( CLIENT *Client, CHAR *Modes )
 	/* Hostname eines Clients setzen */
 
 	assert( Client != NULL );
-	strncpy( Client->modes, Modes, CLIENT_MODE_LEN );
+	strncpy( Client->modes, Modes, CLIENT_MODE_LEN - 1 );
 	Client->modes[CLIENT_MODE_LEN - 1] = '\0';
 } /* Client_SetModes */
 
@@ -453,7 +456,7 @@ GLOBAL VOID Client_SetPassword( CLIENT *Client, CHAR *Pwd )
 	/* Von einem Client geliefertes Passwort */
 
 	assert( Client != NULL );
-	strncpy( Client->pwd, Pwd, CLIENT_PASS_LEN );
+	strncpy( Client->pwd, Pwd, CLIENT_PASS_LEN - 1 );
 	Client->pwd[CLIENT_PASS_LEN - 1] = '\0';
 } /* Client_SetPassword */
 
@@ -467,7 +470,7 @@ GLOBAL VOID Client_SetAway( CLIENT *Client, CHAR *Txt )
 	if( Txt )
 	{
 		/* Client AWAY setzen */
-		strncpy( Client->away, Txt, CLIENT_AWAY_LEN );
+		strncpy( Client->away, Txt, CLIENT_AWAY_LEN - 1 );
 		Client->away[CLIENT_AWAY_LEN - 1] = '\0';
 		Client_ModeAdd( Client, 'a' );
 		Log( LOG_DEBUG, "User \"%s\" is away: %s", Client_Mask( Client ), Txt );
@@ -584,17 +587,17 @@ GLOBAL CLIENT *Client_GetFromConn( CONN_ID Idx )
 
 GLOBAL CLIENT *Client_GetFromID( CHAR *Nick )
 {
-	/* Client-Struktur, die den entsprechenden Nick hat,
-	 * liefern. Wird keine gefunden, so wird NULL geliefert. */
+	/* Client-Struktur, die den entsprechenden Nick hat, liefern.
+	 * Wird keine gefunden, so wird NULL geliefert. */
 
-	CHAR n[CLIENT_ID_LEN + 1], *ptr;
+	CHAR n[CLIENT_ID_LEN], *ptr;
 	CLIENT *c = NULL;
 
 	assert( Nick != NULL );
 
 	/* Nick kopieren und ggf. Host-Mask abschneiden */
-	strncpy( n, Nick, CLIENT_ID_LEN );
-	n[CLIENT_ID_LEN] = '\0';
+	strncpy( n, Nick, CLIENT_ID_LEN - 1 );
+	n[CLIENT_ID_LEN - 1] = '\0';
 	ptr = strchr( n, '!' );
 	if( ptr ) *ptr = '\0';
 

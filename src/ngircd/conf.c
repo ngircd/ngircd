@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.c,v 1.13 2002/01/18 15:51:44 alex Exp $
+ * $Id: conf.c,v 1.14 2002/03/03 17:17:01 alex Exp $
  *
  * conf.h: Konfiguration des ngircd
  *
  * $Log: conf.c,v $
+ * Revision 1.14  2002/03/03 17:17:01  alex
+ * - strncpy() und vsnprintf() kopieren nun etwas "optimierter" (1 Byte weniger) :-)
+ *
  * Revision 1.13  2002/01/18 15:51:44  alex
  * - Server-Verbinungen werden beim Start erst nach kurzer Pause aufgebaut.
  *
@@ -218,21 +221,21 @@ GLOBAL VOID Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 	if( strcasecmp( Var, "Name" ) == 0 )
 	{
 		/* Der Server-Name */
-		strncpy( Conf_ServerName, Arg, CLIENT_ID_LEN );
+		strncpy( Conf_ServerName, Arg, CLIENT_ID_LEN - 1 );
 		Conf_ServerName[CLIENT_ID_LEN - 1] = '\0';
 		return;
 	}
 	if( strcasecmp( Var, "Info" ) == 0 )
 	{
 		/* Server-Info-Text */
-		strncpy( Conf_ServerInfo, Arg, CLIENT_INFO_LEN );
+		strncpy( Conf_ServerInfo, Arg, CLIENT_INFO_LEN - 1 );
 		Conf_ServerInfo[CLIENT_INFO_LEN - 1] = '\0';
 		return;
 	}
 	if( strcasecmp( Var, "Password" ) == 0 )
 	{
-		/* Der Server-Name */
-		strncpy( Conf_ServerPwd, Arg, CLIENT_PASS_LEN );
+		/* Server-Passwort */
+		strncpy( Conf_ServerPwd, Arg, CLIENT_PASS_LEN - 1 );
 		Conf_ServerPwd[CLIENT_PASS_LEN - 1] = '\0';
 		return;
 	}
@@ -258,7 +261,7 @@ GLOBAL VOID Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 	if( strcasecmp( Var, "MotdFile" ) == 0 )
 	{
 		/* Datei mit der "message of the day" (MOTD) */
-		strncpy( Conf_MotdFile, Arg, FNAME_LEN );
+		strncpy( Conf_MotdFile, Arg, FNAME_LEN - 1 );
 		Conf_MotdFile[FNAME_LEN - 1] = '\0';
 		return;
 	}
@@ -298,14 +301,14 @@ GLOBAL VOID Handle_OPERATOR( INT Line, CHAR *Var, CHAR *Arg )
 	if( strcasecmp( Var, "Name" ) == 0 )
 	{
 		/* Name des IRC Operator */
-		strncpy( Conf_Oper[Conf_Oper_Count - 1].name, Arg, CLIENT_ID_LEN );
+		strncpy( Conf_Oper[Conf_Oper_Count - 1].name, Arg, CLIENT_ID_LEN - 1 );
 		Conf_Oper[Conf_Oper_Count - 1].name[CLIENT_ID_LEN - 1] = '\0';
 		return;
 	}
 	if( strcasecmp( Var, "Password" ) == 0 )
 	{
 		/* Passwort des IRC Operator */
-		strncpy( Conf_Oper[Conf_Oper_Count - 1].pwd, Arg, CLIENT_PASS_LEN );
+		strncpy( Conf_Oper[Conf_Oper_Count - 1].pwd, Arg, CLIENT_PASS_LEN - 1 );
 		Conf_Oper[Conf_Oper_Count - 1].pwd[CLIENT_PASS_LEN - 1] = '\0';
 		return;
 	}
@@ -325,21 +328,21 @@ GLOBAL VOID Handle_SERVER( INT Line, CHAR *Var, CHAR *Arg )
 	if( strcasecmp( Var, "Host" ) == 0 )
 	{
 		/* Hostname des Servers */
-		strncpy( Conf_Server[Conf_Server_Count - 1].host, Arg, HOST_LEN );
+		strncpy( Conf_Server[Conf_Server_Count - 1].host, Arg, HOST_LEN - 1 );
 		Conf_Server[Conf_Server_Count - 1].host[HOST_LEN - 1] = '\0';
 		return;
 	}
 	if( strcasecmp( Var, "Name" ) == 0 )
 	{
 		/* Name des Servers ("Nick") */
-		strncpy( Conf_Server[Conf_Server_Count - 1].name, Arg, CLIENT_ID_LEN );
+		strncpy( Conf_Server[Conf_Server_Count - 1].name, Arg, CLIENT_ID_LEN - 1 );
 		Conf_Server[Conf_Server_Count - 1].name[CLIENT_ID_LEN - 1] = '\0';
 		return;
 	}
 	if( strcasecmp( Var, "Password" ) == 0 )
 	{
 		/* Passwort des Servers */
-		strncpy( Conf_Server[Conf_Server_Count - 1].pwd, Arg, CLIENT_PASS_LEN );
+		strncpy( Conf_Server[Conf_Server_Count - 1].pwd, Arg, CLIENT_PASS_LEN - 1 );
 		Conf_Server[Conf_Server_Count - 1].pwd[CLIENT_PASS_LEN - 1] = '\0';
 		return;
 	}

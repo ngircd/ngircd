@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: log.c,v 1.18 2002/02/19 20:07:13 alex Exp $
+ * $Id: log.c,v 1.19 2002/03/03 17:17:01 alex Exp $
  *
  * log.c: Logging-Funktionen
  *
  * $Log: log.c,v $
+ * Revision 1.19  2002/03/03 17:17:01  alex
+ * - strncpy() und vsnprintf() kopieren nun etwas "optimierter" (1 Byte weniger) :-)
+ *
  * Revision 1.18  2002/02/19 20:07:13  alex
  * - direkt nach dem Start werden die aktiven "Modes" ins Log geschrieben.
  *
@@ -166,16 +169,14 @@ GLOBAL VOID Log( CONST INT Level, CONST CHAR *Format, ... )
 
 	/* String mit variablen Argumenten zusammenbauen ... */
 	va_start( ap, Format );
-	vsnprintf( msg, MAX_LOG_MSG_LEN - 1, Format, ap );
-	msg[MAX_LOG_MSG_LEN - 1] = '\0';
+	vsnprintf( msg, MAX_LOG_MSG_LEN, Format, ap );
+	va_end( ap );
 
 	/* ... und ausgeben */
 	if( NGIRCd_NoDaemon ) printf( "[%d] %s\n", Level, msg );
 #ifdef USE_SYSLOG
 	syslog( Level, msg );
 #endif
-
-	va_end( ap );
 } /* Log */
 
 
@@ -216,13 +217,12 @@ GLOBAL VOID Log_Resolver( CONST INT Level, CONST CHAR *Format, ... )
 
 	/* String mit variablen Argumenten zusammenbauen ... */
 	va_start( ap, Format );
-	vsnprintf( msg, MAX_LOG_MSG_LEN - 1, Format, ap );
-	msg[MAX_LOG_MSG_LEN - 1] = '\0';
+	vsnprintf( msg, MAX_LOG_MSG_LEN, Format, ap );
+	va_end( ap );
 
 	/* ... und ausgeben */
 	syslog( Level, msg );
 
-	va_end( ap );
 #endif
 } /* Log_Resolver */
 

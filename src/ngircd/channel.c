@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: channel.c,v 1.17 2002/03/02 01:35:50 alex Exp $
+ * $Id: channel.c,v 1.18 2002/03/03 17:17:01 alex Exp $
  *
  * channel.c: Management der Channels
  *
  * $Log: channel.c,v $
+ * Revision 1.18  2002/03/03 17:17:01  alex
+ * - strncpy() und vsnprintf() kopieren nun etwas "optimierter" (1 Byte weniger) :-)
+ *
  * Revision 1.17  2002/03/02 01:35:50  alex
  * - Channel- und Nicknames werden nun ordentlich validiert.
  *
@@ -480,7 +483,7 @@ GLOBAL VOID Channel_SetTopic( CHANNEL *Chan, CHAR *Topic )
 	assert( Chan != NULL );
 	assert( Topic != NULL );
 	
-	strncpy( Chan->topic, Topic, CHANNEL_TOPIC_LEN );
+	strncpy( Chan->topic, Topic, CHANNEL_TOPIC_LEN - 1 );
 	Chan->topic[CHANNEL_TOPIC_LEN - 1] = '\0';
 } /* Channel_SetTopic */
 
@@ -500,7 +503,7 @@ LOCAL CHANNEL *New_Chan( CHAR *Name )
 		return NULL;
 	}
 	c->next = NULL;
-	strncpy( c->name, Name, CHANNEL_NAME_LEN );
+	strncpy( c->name, Name, CHANNEL_NAME_LEN - 1 );
 	c->name[CHANNEL_NAME_LEN - 1] = '\0';
 	strcpy( c->modes, "" );
 	strcpy( c->topic, "" );

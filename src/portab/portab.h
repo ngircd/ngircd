@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: portab.h,v 1.4 2002/05/19 10:46:08 alex Exp $
+ * $Id: portab.h,v 1.5 2002/05/19 10:49:23 alex Exp $
  *
  * portab.h: "Portabilitaets-Definitionen"
  */
@@ -28,10 +28,6 @@
 #define STATIC static
 #define LOCAL static
 #define CONST const
-
-#ifndef signed
-#define signed
-#endif
 
 
 /* Datatentypen */

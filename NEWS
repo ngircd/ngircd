@@ -10,7 +10,11 @@
                                   -- NEWS --
 
 
-ngIRCd 0.7.0
+ngIRCd 0.7.1
+
+  - Added support for GNU/Hurd.
+
+ngIRCd 0.7.0 (2003-05-01)
 
   - New command CONNECT to enable and add server links. The syntax is not
     RFC-compatible: use "CONNECT <name> <port>" to enable and connect an
@@ -161,4 +165,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.53.2.2 2003/04/27 18:33:26 alex Exp $
+$Id: NEWS,v 1.53.2.3 2003/07/18 20:47:08 alex Exp $

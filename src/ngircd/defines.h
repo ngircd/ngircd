@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: defines.h,v 1.46 2004/05/07 11:19:21 alex Exp $
+ * $Id: defines.h,v 1.47 2005/01/17 13:01:34 alex Exp $
  *
  * Global defines of ngIRCd.
  */
@@ -39,7 +39,7 @@
 
 #define CLIENT_ID_LEN 64		/* max. ID-Laenge; vgl. RFC 2812, 1.1 und 1.2.1 */
 #define CLIENT_NICK_LEN 10		/* max. Nick-Laenge; vgl. RFC 2812, 1.2.1 */
-#define CLIENT_PASS_LEN 9		/* max. Laenge des Passwortes */
+#define CLIENT_PASS_LEN 21		/* max. Laenge des Passwortes */
 #define CLIENT_USER_LEN 9		/* max. Laenge des Benutzernamen ("Login") */
 #define CLIENT_NAME_LEN 32		/* max. Laenge des "langen Benutzernamen" */
 #define CLIENT_HOST_LEN 64		/* max. Laenge des Hostname */

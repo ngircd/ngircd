@@ -10,7 +10,7 @@
                                -- ChangeLog --
 
 
-ngircd 0.8.2 (2005-01-26)
+ngIRCd 0.8.2 (2005-01-26)
 
   - Added doc/SSL.txt to distribution.
   - Fixed a buffer overflow that could cause the daemon to crash. Bug found
@@ -24,7 +24,7 @@ ngircd 0.8.2 (2005-01-26)
     It has only been used when the system didn't implement strlcpy by itself,
     not on "modern" systems. Florian Westphal, <westphal@foo.fh-furtwangen.de>.
 
-ngircd 0.8.1 (2004-12-25)
+nIRCd 0.8.1 (2004-12-25)
 
   - Autoconf: Updated config.guess and config.sub
   - Added some more debug code ...
@@ -34,11 +34,11 @@ ngircd 0.8.1 (2004-12-25)
     reading this file.
   - Enhanced the "test suite": please have a look at src/testsuite/README!
 
-ngircd 0.8.0 (2004-06-26)
+ngIRCd 0.8.0 (2004-06-26)
 
   - Fixed wrong buffer size calculation for results of the resolver.
 
-  ngircd 0.8.0-pre2 (2004-05-16)
+  ngIRCd 0.8.0-pre2 (2004-05-16)
   - Enhanced logging to console when running in "no-detached mode": added
     PID and log messages of resolver sub-processes.
   - Fixed host name lookups when using IDENT user lookups.
@@ -554,4 +554,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.233.2.17 2005/01/26 22:05:26 alex Exp $
+$Id: ChangeLog,v 1.233.2.18 2005/02/03 09:20:58 alex Exp $

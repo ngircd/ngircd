@@ -10,7 +10,7 @@
                            -- NEWS / Neuigkeiten --
 
 
-ngIRCd 0.3.x, ??.??.2002
+ngIRCd 0.4.0-pre1, 30.03.2002
 
   - WHO implementiert (bisher ohne komplette Unerstuetzung von Masks).
   - stderr wird nun in eine Datei umgelenkt (/usr/local/var/ngircd.err).
@@ -85,4 +85,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.25 2002/03/29 23:41:23 alex Exp $
+$Id: NEWS,v 1.26 2002/03/31 17:59:00 alex Exp $

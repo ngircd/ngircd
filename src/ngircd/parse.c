@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: parse.c,v 1.43 2002/11/20 10:54:24 alex Exp $
+ * $Id: parse.c,v 1.44 2002/11/22 16:36:02 alex Exp $
  *
  * parse.c: Parsen der Client-Anfragen
  */
@@ -314,41 +314,42 @@ Handle_Request( CONN_ID Idx, REQUEST *Req )
 		return IRC_WriteStrClientPrefix( target, prefix, "%s", str );
 	}
 
-	if( strcasecmp( Req->command, "PASS" ) == 0 ) return IRC_PASS( client, Req );
+	if( strcasecmp( Req->command, "ADMIN" ) == 0 ) return IRC_ADMIN( client, Req );
+	else if( strcasecmp( Req->command, "AWAY" ) == 0 ) return IRC_AWAY( client, Req );
+	else if( strcasecmp( Req->command, "CONNECT" ) == 0 ) return IRC_CONNECT( client, Req );
+	else if( strcasecmp( Req->command, "DIE" ) == 0 ) return IRC_DIE( client, Req );
+	else if( strcasecmp( Req->command, "ERROR" ) == 0 ) return IRC_ERROR( client, Req );
+	else if( strcasecmp( Req->command, "INVITE" ) == 0 ) return IRC_INVITE( client, Req );
+	else if( strcasecmp( Req->command, "ISON" ) == 0 ) return IRC_ISON( client, Req );
+	else if( strcasecmp( Req->command, "JOIN" ) == 0 ) return IRC_JOIN( client, Req );
+	else if( strcasecmp( Req->command, "KICK" ) == 0 ) return IRC_KICK( client, Req );
+	else if( strcasecmp( Req->command, "KILL" ) == 0 ) return IRC_KILL( client, Req );
+	else if( strcasecmp( Req->command, "LINKS" ) == 0 ) return IRC_LINKS( client, Req );
+	else if( strcasecmp( Req->command, "LIST" ) == 0 ) return IRC_LIST( client, Req );
+	else if( strcasecmp( Req->command, "LUSERS" ) == 0 ) return IRC_LUSERS( client, Req );
+	else if( strcasecmp( Req->command, "MODE" ) == 0 ) return IRC_MODE( client, Req );
+	else if( strcasecmp( Req->command, "MOTD" ) == 0 ) return IRC_MOTD( client, Req );
+	else if( strcasecmp( Req->command, "NAMES" ) == 0 ) return IRC_NAMES( client, Req );
 	else if( strcasecmp( Req->command, "NICK" ) == 0 ) return IRC_NICK( client, Req );
-	else if( strcasecmp( Req->command, "USER" ) == 0 ) return IRC_USER( client, Req );
-	else if( strcasecmp( Req->command, "SERVER" ) == 0 ) return IRC_SERVER( client, Req );
 	else if( strcasecmp( Req->command, "NJOIN" ) == 0 ) return IRC_NJOIN( client, Req );
-	else if( strcasecmp( Req->command, "QUIT" ) == 0 ) return IRC_QUIT( client, Req );
-	else if( strcasecmp( Req->command, "SQUIT" ) == 0 ) return IRC_SQUIT( client, Req );
+	else if( strcasecmp( Req->command, "NOTICE" ) == 0 ) return IRC_NOTICE( client, Req );
+	else if( strcasecmp( Req->command, "OPER" ) == 0 ) return IRC_OPER( client, Req );
+	else if( strcasecmp( Req->command, "PART" ) == 0 ) return IRC_PART( client, Req );
+	else if( strcasecmp( Req->command, "PASS" ) == 0 ) return IRC_PASS( client, Req );
 	else if( strcasecmp( Req->command, "PING" ) == 0 ) return IRC_PING( client, Req );
 	else if( strcasecmp( Req->command, "PONG" ) == 0 ) return IRC_PONG( client, Req );
-	else if( strcasecmp( Req->command, "MOTD" ) == 0 ) return IRC_MOTD( client, Req );
 	else if( strcasecmp( Req->command, "PRIVMSG" ) == 0 ) return IRC_PRIVMSG( client, Req );
-	else if( strcasecmp( Req->command, "NOTICE" ) == 0 ) return IRC_NOTICE( client, Req );
-	else if( strcasecmp( Req->command, "MODE" ) == 0 ) return IRC_MODE( client, Req );
-	else if( strcasecmp( Req->command, "NAMES" ) == 0 ) return IRC_NAMES( client, Req );
-	else if( strcasecmp( Req->command, "ISON" ) == 0 ) return IRC_ISON( client, Req );
-	else if( strcasecmp( Req->command, "WHOIS" ) == 0 ) return IRC_WHOIS( client, Req );
-	else if( strcasecmp( Req->command, "USERHOST" ) == 0 ) return IRC_USERHOST( client, Req );
-	else if( strcasecmp( Req->command, "OPER" ) == 0 ) return IRC_OPER( client, Req );
-	else if( strcasecmp( Req->command, "DIE" ) == 0 ) return IRC_DIE( client, Req );
+	else if( strcasecmp( Req->command, "QUIT" ) == 0 ) return IRC_QUIT( client, Req );
+	else if( strcasecmp( Req->command, "RELOAD" ) == 0 ) return IRC_RELOAD( client, Req );
 	else if( strcasecmp( Req->command, "RESTART" ) == 0 ) return IRC_RESTART( client, Req );
-	else if( strcasecmp( Req->command, "ERROR" ) == 0 ) return IRC_ERROR( client, Req );
-	else if( strcasecmp( Req->command, "LUSERS" ) == 0 ) return IRC_LUSERS( client, Req );
-	else if( strcasecmp( Req->command, "LINKS" ) == 0 ) return IRC_LINKS( client, Req );
-	else if( strcasecmp( Req->command, "JOIN" ) == 0 ) return IRC_JOIN( client, Req );
-	else if( strcasecmp( Req->command, "PART" ) == 0 ) return IRC_PART( client, Req );
-	else if( strcasecmp( Req->command, "VERSION" ) == 0 ) return IRC_VERSION( client, Req );
-	else if( strcasecmp( Req->command, "KILL" ) == 0 ) return IRC_KILL( client, Req );
-	else if( strcasecmp( Req->command, "AWAY" ) == 0 ) return IRC_AWAY( client, Req );
+	else if( strcasecmp( Req->command, "SERVER" ) == 0 ) return IRC_SERVER( client, Req );
+	else if( strcasecmp( Req->command, "SQUIT" ) == 0 ) return IRC_SQUIT( client, Req );
 	else if( strcasecmp( Req->command, "TOPIC" ) == 0 ) return IRC_TOPIC( client, Req );
+	else if( strcasecmp( Req->command, "USER" ) == 0 ) return IRC_USER( client, Req );
+	else if( strcasecmp( Req->command, "USERHOST" ) == 0 ) return IRC_USERHOST( client, Req );
+	else if( strcasecmp( Req->command, "VERSION" ) == 0 ) return IRC_VERSION( client, Req );
 	else if( strcasecmp( Req->command, "WHO" ) == 0 ) return IRC_WHO( client, Req );
-	else if( strcasecmp( Req->command, "LIST" ) == 0 ) return IRC_LIST( client, Req );
-	else if( strcasecmp( Req->command, "INVITE" ) == 0 ) return IRC_INVITE( client, Req );
-	else if( strcasecmp( Req->command, "KICK" ) == 0 ) return IRC_KICK( client, Req );
-	else if( strcasecmp( Req->command, "CONNECT" ) == 0 ) return IRC_CONNECT( client, Req );
-	else if( strcasecmp( Req->command, "ADMIN" ) == 0 ) return IRC_ADMIN( client, Req );
+	else if( strcasecmp( Req->command, "WHOIS" ) == 0 ) return IRC_WHOIS( client, Req );
 #ifdef IRCPLUS
 	else if( strcasecmp( Req->command, "CHANINFO" ) == 0 ) return IRC_CHANINFO( client, Req );
 #endif

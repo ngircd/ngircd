@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.50 2002/03/12 23:43:56 alex Exp $
+ * $Id: client.c,v 1.51 2002/03/25 16:59:36 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -43,6 +43,7 @@
 #include "channel.h"
 #include "conf.h"
 #include "conn.h"
+#include "hash.h"
 #include "irc-write.h"
 #include "log.h"
 #include "messages.h"
@@ -85,8 +86,8 @@ GLOBAL VOID Client_Init( VOID )
 	h = gethostbyname( This_Server->host );
 	if( h ) strcpy( This_Server->host, h->h_name );
 
-	strcpy( This_Server->id, Conf_ServerName );
-	strcpy( This_Server->info, Conf_ServerInfo );
+	Client_SetID( This_Server, Conf_ServerName );
+	Client_SetInfo( This_Server, Conf_ServerInfo );
 
 	My_Clients = This_Server;
 } /* Client_Init */
@@ -292,13 +293,16 @@ GLOBAL VOID Client_SetHostname( CLIENT *Client, CHAR *Hostname )
 
 GLOBAL VOID Client_SetID( CLIENT *Client, CHAR *ID )
 {
-	/* Hostname eines Clients setzen */
+	/* Hostname eines Clients setzen, Hash-Wert berechnen */
 
 	assert( Client != NULL );
 	assert( ID != NULL );
 	
 	strncpy( Client->id, ID, CLIENT_ID_LEN - 1 );
 	Client->id[CLIENT_ID_LEN - 1] = '\0';
+
+	/* Hash */
+	Client->hash = Hash( Client->id );
 } /* Client_SetID */
 
 
@@ -480,30 +484,37 @@ GLOBAL CLIENT *Client_GetFromConn( CONN_ID Idx )
 } /* Client_GetFromConn */
 
 
-GLOBAL CLIENT *Client_GetFromID( CHAR *Nick )
+GLOBAL CLIENT *Client_Search( CHAR *Nick )
 {
 	/* Client-Struktur, die den entsprechenden Nick hat, liefern.
 	 * Wird keine gefunden, so wird NULL geliefert. */
 
-	CHAR n[CLIENT_ID_LEN], *ptr;
+	CHAR search_id[CLIENT_ID_LEN], *ptr;
 	CLIENT *c = NULL;
+	UINT32 search_hash;
 
 	assert( Nick != NULL );
 
 	/* Nick kopieren und ggf. Host-Mask abschneiden */
-	strncpy( n, Nick, CLIENT_ID_LEN - 1 );
-	n[CLIENT_ID_LEN - 1] = '\0';
-	ptr = strchr( n, '!' );
+	strncpy( search_id, Nick, CLIENT_ID_LEN - 1 );
+	search_id[CLIENT_ID_LEN - 1] = '\0';
+	ptr = strchr( search_id, '!' );
 	if( ptr ) *ptr = '\0';
+
+	search_hash = Hash( search_id );
 
 	c = My_Clients;
 	while( c )
 	{
-		if( strcasecmp( c->id, n ) == 0 ) return c;
+		if( c->hash == search_hash )
+		{
+			/* lt. Hash-Wert: Treffer! */
+			if( strcasecmp( c->id, search_id ) == 0 ) return c;
+		}
 		c = c->next;
 	}
 	return NULL;
-} /* Client_GetFromID */
+} /* Client_Search */
 
 
 GLOBAL CLIENT *Client_GetFromToken( CLIENT *Client, INT Token )
@@ -678,8 +689,6 @@ GLOBAL BOOLEAN Client_CheckNick( CLIENT *Client, CHAR *Nick )
 {
 	/* Nick ueberpruefen */
 
-	CLIENT *c;
-	
 	assert( Client != NULL );
 	assert( Nick != NULL );
 	
@@ -691,16 +700,11 @@ GLOBAL BOOLEAN Client_CheckNick( CLIENT *Client, CHAR *Nick )
 	}
 
 	/* Nick bereits vergeben? */
-	c = My_Clients;
-	while( c )
+	if( Client_Search( Nick ))
 	{
-		if( strcasecmp( c->id, Nick ) == 0 )
-		{
-			/* den Nick gibt es bereits */
-			IRC_WriteStrClient( Client, ERR_NICKNAMEINUSE_MSG, Client_ID( Client ), Nick );
-			return FALSE;
-		}
-		c = c->next;
+		/* den Nick gibt es bereits */
+		IRC_WriteStrClient( Client, ERR_NICKNAMEINUSE_MSG, Client_ID( Client ), Nick );
+		return FALSE;
 	}
 
 	return TRUE;
@@ -742,25 +746,6 @@ GLOBAL BOOLEAN Client_CheckID( CLIENT *Client, CHAR *ID )
 
 	return TRUE;
 } /* Client_CheckID */
-
-
-GLOBAL CLIENT *Client_Search( CHAR *ID )
-{
-	/* Client suchen, auf den ID passt */
-
-	CLIENT *c;
-
-	assert( ID != NULL );
-
-	c = My_Clients;
-	while( c )
-	{
-		if( strcasecmp( c->id, ID ) == 0 ) return c;
-		c = c->next;
-	}
-	
-	return NULL;
-} /* Client_Search */
 
 
 GLOBAL CLIENT *Client_First( VOID )
@@ -919,6 +904,7 @@ LOCAL CLIENT *New_Client_Struct( VOID )
 	}
 
 	c->next = NULL;
+	c->hash = 0;
 	c->type = CLIENT_UNKNOWN;
 	c->conn_id = NONE;
 	c->introducer = NULL;

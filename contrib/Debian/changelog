@@ -1,9 +1,33 @@
-ngircd (0.8.0+HEAD-0ab1) unstable; urgency=low
+ngircd (0.8.3-0ab1) unstable; urgency=high
+
+  * New "upstream release", including security fixes.
+
+ -- Alexander Barton <alex@Arthur.Ath.CX>  Thu,  3 Feb 2005 10:41:55 +0100
+
+ngircd (0.8.2-0ab1) unstable; urgency=high
+
+  * New "upstream release", including security fixes.
+
+ -- Alexander Barton <alex@Arthur.Ath.CX>  Wed, 26 Jan 2005 23:14:12 +0100
+
+ngircd (0.8.1-0ab1) unstable; urgency=low
+
+  * New "upstream release".
+
+ -- Alexander Barton <alex@Arthur.Ath.CX>  Sat, 25 Dec 2004 01:18:32 +0100
+
+ngircd (0.8.0-0ab2) unstable; urgency=low
 
   * Added missing commas to debian control file, fixes bug #56.
     Thanks to Kevin Otte.
 
- -- Alexander Barton <alex@pc-alex>  Thu, 15 Jul 2004 11:00:14 +0200
+ -- Alexander Barton <alex@Arthur.Ath.CX>  Thu, 15 Jul 2004 10:53:39 +0200
+
+ngircd (0.8.0-0ab1) unstable; urgency=low
+
+  * New upstream version.
+
+ -- Alexander Barton <alex@Arthur.Ath.CX>  Sat, 26 Jun 2004 11:25:59 +0200
 
 ngircd (0.7.7+HEAD-0ab6) unstable; urgency=low
 

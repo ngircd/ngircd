@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: messages.h,v 1.31 2002/02/27 17:05:13 alex Exp $
+ * $Id: messages.h,v 1.32 2002/02/27 18:23:24 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: messages.h,v $
+ * Revision 1.32  2002/02/27 18:23:24  alex
+ * - neue Text-Konstanten RPL_UNAWAY_MSG und RPL_NOWAWAY_MSG.
+ *
  * Revision 1.31  2002/02/27 17:05:13  alex
  * - neue Text-Konstante ERR_CANNOTSENDTOCHAN_MSG eingefuehrt.
  *
@@ -150,6 +153,12 @@
 #define	RPL_LUSERME_MSG			RPL_LUSERME" %s :I have %d users, %d services and %d servers"
 
 
+#define RPL_UNAWAY			"305"
+#define RPL_UNAWAY_MSG			RPL_UNAWAY" %s :You are no longer marked as being away"
+
+#define RPL_NOWAWAY			"306"
+#define RPL_NOWAWAY_MSG			RPL_NOWAWAY" %s :You have been marked as being away"
+
 #define RPL_MOTD			"372"
 #define RPL_MOTD_MSG			RPL_MOTD" %s :- %s"
 
@@ -158,6 +167,9 @@
 
 #define RPL_ENDOFMOTD			"376"
 #define RPL_ENDOFMOTD_MSG		RPL_ENDOFMOTD" %s :End of MOTD command"
+
+#define	RPL_AWAY			"301"
+#define RPL_AWAY_MSG			RPL_AWAY" %s %s :%s"
 
 #define RPL_USERHOST			"302"
 #define RPL_USERHOST_MSG		RPL_USERHOST" %s :"

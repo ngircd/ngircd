@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.5 2001/12/25 22:02:42 alex Exp $
+ * $Id: irc.c,v 1.6 2001/12/25 23:13:33 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.6  2001/12/25 23:13:33  alex
+ * - Debug-Meldungen angepasst.
+ *
  * Revision 1.5  2001/12/25 22:02:42  alex
  * - neuer IRC-Befehl "/QUIT". Verbessertes Logging & Debug-Ausgaben.
  *
@@ -110,7 +113,7 @@ GLOBAL BOOLEAN IRC_PASS( CLIENT *Client, REQUEST *Req )
 
 	if( Client->type == CLIENT_UNKNOWN )
 	{
-		Log( LOG_DEBUG, "Registration of connection %d: got PASS command ...", Client->conn_id );
+		Log( LOG_DEBUG, "Connection %d: got PASS command ...", Client->conn_id );
 		return IRC_WriteStr_Client( Client, This_Server, ERR_UNKNOWNCOMMAND_MSG, Req->command );
 	}
 	else return IRC_WriteStr_Client( Client, This_Server, ERR_ALREADYREGISTRED_MSG );
@@ -120,7 +123,7 @@ GLOBAL BOOLEAN IRC_PASS( CLIENT *Client, REQUEST *Req )
 GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *c;
-	
+
 	assert( Client != NULL );
 	assert( Req != NULL );
 
@@ -143,14 +146,14 @@ GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req )
 			}
 			c = c->next;
 		}
-		
+
 		/* Client-Nick registrieren */
 		strcpy( Client->nick, Req->argv[0] );
 
 		if( Client->type != CLIENT_USER )
 		{
 			/* Neuer Client */
-			Log( LOG_DEBUG, "Registration of connection %d: got NICK command ...", Client->conn_id );
+			Log( LOG_DEBUG, "Connection %d: got NICK command ...", Client->conn_id );
 			if( Client->type == CLIENT_GOTUSER ) return Hello_User( Client );
 			else Client->type = CLIENT_GOTNICK;
 		}
@@ -169,13 +172,13 @@ GLOBAL BOOLEAN IRC_USER( CLIENT *Client, REQUEST *Req )
 	{
 		/* Falsche Anzahl Parameter? */
 		if( Req->argc != 4 ) return IRC_WriteStr_Client( Client, This_Server, ERR_NEEDMOREPARAMS_MSG );
-		
+
 		strncpy( Client->user, Req->argv[0], CLIENT_USER_LEN );
 		Client->user[CLIENT_USER_LEN] = '\0';
 		strncpy( Client->name, Req->argv[3], CLIENT_NAME_LEN );
 		Client->name[CLIENT_NAME_LEN] = '\0';
-		
-		Log( LOG_DEBUG, "Registration of connection %d: got USER command ...", Client->conn_id );
+
+		Log( LOG_DEBUG, "Connection %d: got USER command ...", Client->conn_id );
 		if( Client->type == CLIENT_GOTNICK ) return Hello_User( Client );
 		else Client->type = CLIENT_GOTUSER;
 		return CONNECTED;
@@ -214,8 +217,8 @@ GLOBAL BOOLEAN IRC_MOTD( CLIENT *Client, REQUEST *Req )
 
 	/* Falsche Anzahl Parameter? */
 	if( Req->argc != 0 ) return IRC_WriteStr_Client( Client, This_Server, ERR_NEEDMOREPARAMS_MSG );
-	
-	return Show_MOTD( Client );	
+
+	return Show_MOTD( Client );
 } /* IRC_MOTD */
 
 

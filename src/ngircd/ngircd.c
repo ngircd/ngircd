@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.60 2002/11/22 17:59:43 alex Exp $
+ * $Id: ngircd.c,v 1.61 2002/11/22 23:31:23 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  */
@@ -381,7 +381,7 @@ NGIRCd_VersionAddition( VOID )
 
 
 GLOBAL VOID
-NGIRCd_Reload( VOID )
+NGIRCd_Rehash( VOID )
 {
 	CHAR old_name[CLIENT_ID_LEN];
 	
@@ -409,7 +409,7 @@ NGIRCd_Reload( VOID )
 	Conn_InitListeners( );
 
 	Log( LOG_INFO, "Re-reading of configuration done." );
-} /* NGIRCd_Reload */
+} /* NGIRCd_Rehash */
 
 
 LOCAL VOID
@@ -480,7 +480,7 @@ Signal_Handler( INT Signal )
 		case SIGHUP:
 			/* Konfiguration neu einlesen: */
 			Log( LOG_WARNING|LOG_snotice, "Got HUP signal, re-reading configuration ..." );
-			NGIRCd_Reload( );
+			NGIRCd_Rehash( );
 			break;
 		case SIGCHLD:
 			/* Child-Prozess wurde beendet. Zombies vermeiden: */

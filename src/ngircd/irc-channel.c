@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-channel.c,v 1.20 2002/12/14 13:23:11 alex Exp $";
+static char UNUSED id[] = "$Id: irc-channel.c,v 1.21 2002/12/16 23:06:46 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -41,7 +41,7 @@ static char UNUSED id[] = "$Id: irc-channel.c,v 1.20 2002/12/14 13:23:11 alex Ex
 GLOBAL BOOLEAN
 IRC_JOIN( CLIENT *Client, REQUEST *Req )
 {
-	CHAR *channame, *flags, *topic, modes[8];
+	CHAR *channame, *key, *flags, *topic, modes[8];
 	BOOLEAN is_new_chan, is_invited, is_banned;
 	CLIENT *target;
 	CHANNEL *chan;
@@ -49,13 +49,17 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	/* Falsche Anzahl Parameter? */
-	if(( Req->argc > 1 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	/* Bad number of arguments? */
+	if(( Req->argc > 2 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
-	/* Wer ist der Absender? */
+	/* Who is the sender? */
 	if( Client_Type( Client ) == CLIENT_SERVER ) target = Client_Search( Req->prefix );
 	else target = Client;
 	if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
+
+	/* Are channel keys given? */
+	if( Req->argc > 1 ) key = Req->argv[1];
+	else key = NULL;
 
 	/* Channel-Namen durchgehen */
 	chan = NULL;
@@ -114,18 +118,40 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 					/* Client ist gebanned (und nicht invited): */
 					IRC_WriteStrClient( Client, ERR_BANNEDFROMCHAN_MSG, Client_ID( Client ), channame );
 
-					/* naechsten Namen ermitteln */
+					/* Try next name, if any */
 					channame = strtok( NULL, "," );
 					continue;
 				}
 
 				/* Ist der Channel "invite-only"? */
-				if(( strchr( Channel_Modes( chan ), 'i' ) != NULL ) && ( is_invited == FALSE ))
+				if(( strchr( Channel_Modes( chan ), 'i' )) && ( is_invited == FALSE ))
 				{
 					/* Channel ist "invite-only" und Client wurde nicht invited: */
 					IRC_WriteStrClient( Client, ERR_INVITEONLYCHAN_MSG, Client_ID( Client ), channame );
 
-					/* naechsten Namen ermitteln */
+					/* Try next name, if any */
+					channame = strtok( NULL, "," );
+					continue;
+				}
+
+				/* Is the channel protected by a key? */
+				if(( strchr( Channel_Modes( chan ), 'k' )) && ( strcmp( Channel_Key( chan ), key ? key : "" ) != 0 ))
+				{
+					/* Bad channel key! */
+					IRC_WriteStrClient( Client, ERR_BADCHANNELKEY_MSG, Client_ID( Client ), channame );
+
+					/* Try next name, if any */
+					channame = strtok( NULL, "," );
+					continue;
+				}
+
+				/* Are there already too many members? */
+				if(( strchr( Channel_Modes( chan ), 'l' )) && ( Channel_MaxUsers( chan ) <= Channel_MemberCount( chan )))
+				{
+					/* Bad channel key! */
+					IRC_WriteStrClient( Client, ERR_CHANNELISFULL_MSG, Client_ID( Client ), channame );
+
+					/* Try next name, if any */
 					channame = strtok( NULL, "," );
 					continue;
 				}

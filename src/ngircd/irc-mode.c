@@ -14,10 +14,12 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-mode.c,v 1.22 2002/12/16 10:52:53 alex Exp $";
+static char UNUSED id[] = "$Id: irc-mode.c,v 1.23 2002/12/16 23:06:46 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "conn.h"
@@ -178,6 +180,7 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 				Log( LOG_DEBUG, "Unknown mode \"%c%c\" from \"%s\"!?", set ? '+' : '-', *mode_ptr, Client_ID( Origin ));
 				if( Client_Type( Client ) != CLIENT_SERVER ) ok = IRC_WriteStrClient( Origin, ERR_UMODEUNKNOWNFLAG2_MSG, Client_ID( Origin ), set ? '+' : '-', *mode_ptr );
 				x[0] = '\0';
+				goto client_exit;
 		}
 		if( ! ok ) break;
 
@@ -196,7 +199,8 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 			if( Client_ModeDel( Target, x[0] )) strcat( the_modes, x );
 		}		
 	}
-
+client_exit:
+	
 	/* Are there changed modes? */
 	if( the_modes[1] )
 	{
@@ -226,10 +230,11 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 {
 	/* Handle channel and channel-user modes */
 
-	CHAR the_modes[COMMAND_LEN], the_args[COMMAND_LEN], x[2], *mode_ptr;
+	CHAR the_modes[COMMAND_LEN], the_args[COMMAND_LEN], x[2], argadd[CLIENT_PASS_LEN], *mode_ptr;
 	BOOLEAN ok, set, modeok, skiponce;
 	INT mode_arg, arg_arg;
 	CLIENT *client;
+	LONG l;
 
 	/* Mode request: let's answer it :-) */
 	if( Req->argc == 1 ) return IRC_WriteStrClient( Origin, RPL_CHANNELMODEIS_MSG, Client_ID( Origin ), Channel_Name( Channel ), Channel_Modes( Channel ));
@@ -308,6 +313,7 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 
 		/* Validate modes */
 		x[0] = '\0';
+		argadd[0] = '\0';
 		client = NULL;
 		switch( *mode_ptr )
 		{
@@ -365,6 +371,56 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 				}
 				else ok = IRC_WriteStrClient( Origin, ERR_NEEDMOREPARAMS_MSG, Client_ID( Origin ), Req->command );
 				break;
+			case 'k':
+				/* Channel key */
+				if( ! set )
+				{
+					if( modeok ) x[0] = *mode_ptr;
+					else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
+					break;
+				}
+				if( arg_arg > mode_arg )
+				{
+					if( modeok )
+					{
+						Channel_ModeDel( Channel, 'k' );
+						Channel_SetKey( Channel, Req->argv[arg_arg] );
+						strcpy( argadd, Channel_Key( Channel ));
+						x[0] = *mode_ptr;
+					}
+					else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
+					Req->argv[arg_arg][0] = '\0';
+					arg_arg++;
+				}
+				else ok = IRC_WriteStrClient( Origin, ERR_NEEDMOREPARAMS_MSG, Client_ID( Origin ), Req->command );
+				break;
+			case 'l':
+				/* Member limit */
+				if( ! set )
+				{
+					if( modeok ) x[0] = *mode_ptr;
+					else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
+					break;
+				}
+				if( arg_arg > mode_arg )
+				{
+					if( modeok )
+					{
+						l = atol( Req->argv[arg_arg] );
+						if( l > 0 && l < 0xFFFF )
+						{
+							Channel_ModeDel( Channel, 'l' );
+							Channel_SetMaxUsers( Channel, l );
+							sprintf( argadd, "%ld", l );
+							x[0] = *mode_ptr;
+						}
+					}
+					else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
+					Req->argv[arg_arg][0] = '\0';
+					arg_arg++;
+				}
+				else ok = IRC_WriteStrClient( Origin, ERR_NEEDMOREPARAMS_MSG, Client_ID( Origin ), Req->command );
+				break;
 
 			/* Channel lists */
 			case 'I':
@@ -404,6 +460,7 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 				Log( LOG_DEBUG, "Unknown mode \"%c%c\" from \"%s\" on %s!?", set ? '+' : '-', *mode_ptr, Client_ID( Origin ), Channel_Name( Channel ));
 				if( Client_Type( Client ) != CLIENT_SERVER ) ok = IRC_WriteStrClient( Origin, ERR_UMODEUNKNOWNFLAG2_MSG, Client_ID( Origin ), set ? '+' : '-', *mode_ptr );
 				x[0] = '\0';
+				goto chan_exit;
 		}
 		if( ! ok ) break;
 
@@ -455,8 +512,16 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 					Log( LOG_DEBUG, "Channel %s: Mode change, now \"%s\".", Channel_Name( Channel ), Channel_Modes( Channel ));
 				}
 			}
-		}		
+		}
+
+		/* Are there additional arguments to add? */
+		if( argadd[0] )
+		{
+			if( the_args[strlen( the_args ) - 1] != ' ' ) strcat( the_args, " " );
+			strcat( the_args, argadd );
+		}
 	}
+chan_exit:
 
 	/* Are there changed modes? */
 	if( the_modes[1] )

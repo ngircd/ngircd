@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.h,v 1.13 2002/01/02 02:51:39 alex Exp $
+ * $Id: irc.h,v 1.14 2002/01/03 02:26:07 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: irc.h,v $
+ * Revision 1.14  2002/01/03 02:26:07  alex
+ * - neue Befehle SERVER und NJOIN begonnen.
+ *
  * Revision 1.13  2002/01/02 02:51:39  alex
  * - Copyright-Texte angepasst.
  * - neuer Befehl "ERROR".
@@ -74,6 +77,8 @@ GLOBAL BOOLEAN IRC_WriteStrRelated( CLIENT *Client, CHAR *Format, ... );
 GLOBAL BOOLEAN IRC_PASS( CLIENT *Client, REQUEST *Req );
 GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req );
 GLOBAL BOOLEAN IRC_USER( CLIENT *Client, REQUEST *Req );
+GLOBAL BOOLEAN IRC_SERVER( CLIENT *Client, REQUEST *Req );
+GLOBAL BOOLEAN IRC_NJOIN( CLIENT *Client, REQUEST *Req );
 GLOBAL BOOLEAN IRC_PING( CLIENT *Client, REQUEST *Req );
 GLOBAL BOOLEAN IRC_PONG( CLIENT *Client, REQUEST *Req );
 GLOBAL BOOLEAN IRC_QUIT( CLIENT *Client, REQUEST *Req );

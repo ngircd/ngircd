@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.93 2005/02/10 16:55:52 alex Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.94 2005/02/11 13:52:37 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -580,8 +580,8 @@ Show_Help( VOID )
 	puts( "  -d, --debug        log extra debug messages" );
 #endif
 	puts( "  -f, --config <f>   use file <f> as configuration file" );
-        puts( "  -n, --nodaemon     don't fork and don't detach from controlling terminal" );
-        puts( "  -p, --passive      disable automatic connections to other servers" );
+	puts( "  -n, --nodaemon     don't fork and don't detach from controlling terminal" );
+	puts( "  -p, --passive      disable automatic connections to other servers" );
 #ifdef SNIFFER
 	puts( "  -s, --sniffer      enable network sniffer and display all IRC traffic" );
 #endif

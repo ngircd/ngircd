@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.c,v 1.38 2002/11/19 12:50:20 alex Exp $
+ * $Id: conf.c,v 1.39 2002/11/22 17:57:40 alex Exp $
  *
  * conf.h: Konfiguration des ngircd
  */
@@ -211,6 +211,8 @@ Read_Config( VOID )
 		Config_Error( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE );
 		exit( 1 );
 	}
+
+	Config_Error( LOG_INFO, "Reading configuration from \"%s\" ...", NGIRCd_ConfFile );
 
 	line = 0;
 	strcpy( section, "" );
@@ -586,7 +588,7 @@ Validate_Config( VOID )
 	if( ! Conf_ServerAdmin1[0] && ! Conf_ServerAdmin2[0] && ! Conf_ServerAdminMail[0] )
 	{
 		/* Keine Server-Information konfiguriert */
-		Log( LOG_WARNING, "No server information configured but required by RFC!" );
+		Log( LOG_WARNING, "No administrative information configured but required by RFC!" );
 	}
 } /* Validate_Config */
 

@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.124 2003/08/30 20:28:54 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.125 2003/09/11 12:05:28 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -236,6 +236,7 @@ Conn_NewListener( CONST UINT Port )
 	/* Create new listening socket on specified port */
 
 	struct sockaddr_in addr;
+	struct in_addr inaddr;
 	INT sock;
 #ifdef RENDEZVOUS
 	CHAR name[CLIENT_ID_LEN], *info;
@@ -243,9 +244,24 @@ Conn_NewListener( CONST UINT Port )
 
 	/* Server-"Listen"-Socket initialisieren */
 	memset( &addr, 0, sizeof( addr ));
+	memset( &inaddr, 0, sizeof( inaddr ));
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons( Port );
-	addr.sin_addr.s_addr = htonl( INADDR_ANY );
+	if( Conf_ListenAddress[0] )
+	{
+#ifdef HAVE_INET_ATON
+		if( inet_aton( Conf_ListenAddress, &inaddr ) == 0 )
+#else
+		inaddr.s_addr = inet_addr( Conf_ListenAddress );
+		if( inaddr.s_addr == (unsigned)-1 )
+#endif
+		{
+			Log( LOG_CRIT, "Can't listen on %s:%u: can't convert ip address %s!", Conf_ListenAddress, Port, Conf_ListenAddress );
+			return FALSE;
+		}
+	}
+	else inaddr.s_addr = htonl( INADDR_ANY );
+	addr.sin_addr = inaddr;
 
 	/* Socket erzeugen */
 	sock = socket( PF_INET, SOCK_STREAM, 0);
@@ -279,7 +295,8 @@ Conn_NewListener( CONST UINT Port )
 
 	if( sock > Conn_MaxFD ) Conn_MaxFD = sock;
 
-	Log( LOG_INFO, "Now listening on port %d (socket %d).", Port, sock );
+	if( Conf_ListenAddress[0]) Log( LOG_INFO, "Now listening on %s:%d (socket %d).", Conf_ListenAddress, Port, sock );
+	else Log( LOG_INFO, "Now listening on 0.0.0.0:%d (socket %d).", Port, sock );
 
 #ifdef RENDEZVOUS
 	/* Get best server description text */

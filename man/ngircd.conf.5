@@ -1,5 +1,5 @@
 .\"
-.\" $Id: ngircd.conf.5,v 1.10 2003/05/02 20:51:42 alex Exp $
+.\" $Id: ngircd.conf.5,v 1.11 2003/09/11 12:05:28 alex Exp $
 .\"
 .TH ngircd.conf 5 "Mai 2003" ngircd "ngIRCd Manual"
 .SH NAME
@@ -66,6 +66,10 @@ command.
 \fBPorts\fR
 Ports on which the server should listen. There may be more than one port,
 separated with ';'. Default: 6667.
+.TP
+\fBListen\fR
+The ip address on which the server should listen. Default is empty, so
+the server listens on all configured ip addresses and interfaces.
 .TP
 \fBMotdFile\fR
 Text file with the "message of the day" (MOTD). This message will be shown

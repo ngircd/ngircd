@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conf.h,v 1.26 2002/12/31 16:12:50 alex Exp $
+ * $Id: conf.h,v 1.27 2003/09/11 12:05:28 alex Exp $
  *
  * Configuration management (header)
  */
@@ -75,6 +75,9 @@ GLOBAL CHAR Conf_MotdFile[FNAME_LEN];
 /* Ports the server should listen on */
 GLOBAL UINT Conf_ListenPorts[MAX_LISTEN_PORTS];
 GLOBAL INT Conf_ListenPorts_Count;
+
+/* Address to which the socket should be bound or empty (=all) */
+GLOBAL CHAR Conf_ListenAddress[16];
 
 /* User and group ID the server should run with */
 GLOBAL UINT Conf_UID;

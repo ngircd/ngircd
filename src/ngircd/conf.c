@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.59 2003/04/29 12:36:09 alex Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.60 2003/09/11 12:05:28 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -120,6 +120,7 @@ Conf_Test( VOID )
 		printf( "%u", Conf_ListenPorts[i] );
 	}
 	puts( "" );
+	printf( "  Listen = %s\n", Conf_ListenAddress );
 	pwd = getpwuid( Conf_UID );
 	if( pwd ) printf( "  ServerUID = %s\n", pwd->pw_name );
 	else printf( "  ServerUID = %ld\n", (LONG)Conf_UID );
@@ -340,6 +341,7 @@ Set_Defaults( BOOLEAN InitServers )
 	strlcat( Conf_MotdFile, MOTD_FILE, sizeof( Conf_MotdFile ));
 
 	Conf_ListenPorts_Count = 0;
+	strcpy( Conf_ListenAddress, "" );
 
 	Conf_UID = Conf_GID = 0;
 	
@@ -698,6 +700,15 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 #endif
 		Conf_MaxJoins = atoi( Arg );
 		return;
+	}
+	if( strcasecmp( Var, "Listen" ) == 0 )
+	{
+		/* IP-Address to bind sockets */
+		if( strlcpy( Conf_ListenAddress, Arg, sizeof( Conf_ListenAddress )) >= sizeof( Conf_ListenAddress ))
+		{
+			Config_Error( LOG_WARNING, "%s, line %d: Value of \"Listen\" too long!", NGIRCd_ConfFile, Line );
+			return;
+		}
 	}
 
 	Config_Error( LOG_ERR, "%s, line %d (section \"Global\"): Unknown variable \"%s\"!", NGIRCd_ConfFile, Line, Var );

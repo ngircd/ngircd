@@ -8,7 +8,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: Makefile.am,v 1.10.4.1 2003/07/09 21:05:25 alex Exp $
+# $Id: Makefile.am,v 1.10.4.2 2003/07/09 21:14:08 alex Exp $
 #
 
 AUTOMAKE_OPTIONS = gnu
@@ -28,6 +28,6 @@ rpm: distcheck
 	rpm -ta ngircd-*.tar.gz
 
 deb:
-	dpkg-buildpackage -r fakeroot
+	dpkg-buildpackage -rfakeroot
 
 # -eof-

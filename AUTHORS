@@ -7,7 +7,20 @@
                ngIRCd is free software and published under the
                    terms of the GNU General Public License.
 
-                                -- AUTHORS --
+                       -- AUTHORS and CONTRIBUTORS --
 
 
-Alexander Barton, alex@arthur.ath.cx
+Main Authors
+~~~~~~~~~~~~
+Alexander Barton, <alex@barton.de>, "alex"
+
+
+Contributors
+~~~~~~~~~~~~
+Goetz Hoffart, <goetz@hoffart.de>
+Ilja Osthoff, <i.osthoff@gmx.net>
+Sean Reifschneider, <jafo-rpms@tummy.com>
+
+
+-- 
+$Id: AUTHORS,v 1.5 2003/04/21 21:33:18 alex Exp $

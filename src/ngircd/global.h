@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: global.h,v 1.5 2002/01/02 02:42:58 alex Exp $
+ * $Id: global.h,v 1.6 2002/01/05 15:55:11 alex Exp $
  *
  * global.h: Globaler Header, wir in jedes(!) Modul eingebunden.
  *
  * $Log: global.h,v $
+ * Revision 1.6  2002/01/05 15:55:11  alex
+ * - Wrapper fuer inet_aton(): liefert immer Fehler.
+ *
  * Revision 1.5  2002/01/02 02:42:58  alex
  * - Copyright-Texte aktualisiert.
  *
@@ -42,6 +45,10 @@
 
 #ifndef HAVE_socklen_t
 #define socklen_t int			/* u.a. fuer Mac OS X */
+#endif
+
+#ifndef HAVE_INET_ATON
+#define inet_aton( opt, bind ) 0
 #endif
 
 

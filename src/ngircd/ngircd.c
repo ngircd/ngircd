@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.18 2002/01/11 14:45:18 alex Exp $
+ * $Id: ngircd.c,v 1.19 2002/01/12 00:17:28 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  *
  * $Log: ngircd.c,v $
+ * Revision 1.19  2002/01/12 00:17:28  alex
+ * - ngIRCd wandelt sich nun selber in einen Daemon (Hintergrundprozess) um.
+ *
  * Revision 1.18  2002/01/11 14:45:18  alex
  * - Kommandozeilen-Parser implementiert: Debug- und No-Daemon-Modus, Hilfe.
  *
@@ -83,9 +86,11 @@
 #include <imp.h>
 
 #include <assert.h>
+#include <errno.h>
 #include <stdio.h>
 #include <signal.h>
 #include <string.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <time.h>
@@ -114,7 +119,7 @@ LOCAL VOID Show_Help( VOID );
 GLOBAL INT main( INT argc, CONST CHAR *argv[] )
 {
 	BOOLEAN ok;
-	INT i, n;
+	INT pid, i, n;
 
 	/* Datentypen der portab-Library ueberpruefen */
 	portab_check_types( );
@@ -197,6 +202,29 @@ GLOBAL INT main( INT argc, CONST CHAR *argv[] )
 
 	while( ! NGIRCd_Quit )
 	{
+		/* In der Regel wird ein Sub-Prozess ge-fork()'t, der
+		 * nicht mehr mit dem Terminal verbunden ist. Mit der
+		 * Option "--nodaemon" kann dies (z.B. zum Debuggen)
+		 * verhindert werden. */
+		if( ! NGIRCd_NoDaemon )
+		{
+			/* Daemon im Hintergrund erzeugen */
+			pid = fork( );
+			if( pid > 0 )
+			{
+				/* "alter" Prozess */
+				exit( 0 );
+			}
+			if( pid < 0 )
+			{
+				/* Fehler */
+				printf( PACKAGE": Can't fork: %s!\nFatal error, exiting now ...", strerror( errno ));
+				exit( 1 );
+			}
+			setsid( );
+			chdir( "/" );
+		}
+	
 		/* Globale Variablen initialisieren */
 		NGIRCd_Start = time( NULL );
 		strftime( NGIRCd_StartStr, 64, "%a %b %d %Y at %H:%M:%S (%Z)", localtime( &NGIRCd_Start ));

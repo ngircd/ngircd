@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.105 2002/12/06 17:02:39 alex Exp $
+ * $Id: irc.c,v 1.106 2002/12/12 11:40:41 alex Exp $
  *
  * irc.c: IRC-Befehle
  */
@@ -19,6 +19,7 @@
 
 #include "imp.h"
 #include <assert.h>
+#include <stdio.h>
 #include <string.h>
 
 #include "conn.h"

@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.123 2003/04/25 16:47:52 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.124 2003/08/30 20:28:54 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -119,7 +119,7 @@ Conn_Init( VOID )
 		Log( LOG_EMERG, "Can't allocate memory! [Conn_Init]" );
 		exit( 1 );
 	}
-	Log( LOG_DEBUG, "Allocted connection pool for %d items (%ld bytes).", Pool_Size, sizeof( CONNECTION ) * Pool_Size );
+	Log( LOG_DEBUG, "Allocated connection pool for %d items (%ld bytes).", Pool_Size, sizeof( CONNECTION ) * Pool_Size );
 
 	/* zu Beginn haben wir keine Verbindungen */
 	FD_ZERO( &My_Listeners );

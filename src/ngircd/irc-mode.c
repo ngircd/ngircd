@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-mode.c,v 1.28 2003/01/02 17:57:09 alex Exp $";
+static char UNUSED id[] = "$Id: irc-mode.c,v 1.29 2003/01/08 23:00:12 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -247,7 +247,34 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 	LONG l;
 
 	/* Mode request: let's answer it :-) */
-	if( Req->argc == 1 ) return IRC_WriteStrClient( Origin, RPL_CHANNELMODEIS_MSG, Client_ID( Origin ), Channel_Name( Channel ), Channel_Modes( Channel ));
+	if( Req->argc == 1 )
+	{
+		/* Member or not? -- That's the question! */
+		if( ! Channel_IsMemberOf( Channel, Origin )) return IRC_WriteStrClient( Origin, RPL_CHANNELMODEIS_MSG, Client_ID( Origin ), Channel_Name( Channel ), Channel_Modes( Channel ));
+
+		/* The sender is a member: generate extended reply */
+		strlcpy( the_modes, Channel_Modes( Channel ), sizeof( the_modes ));
+		mode_ptr = the_modes;
+		strcpy( the_args, "" );
+		while( *mode_ptr )
+		{
+			switch( *mode_ptr )
+			{
+				case 'l':
+					snprintf( argadd, sizeof( argadd ), " %ld", Channel_MaxUsers( Channel ));
+					strlcat( the_args, argadd, sizeof( the_args ));
+					break;
+				case 'k':
+					strlcat( the_args, " ", sizeof( the_args ));
+					strlcat( the_args, Channel_Key( Channel ), sizeof( the_args ));
+					break;
+			}
+			mode_ptr++;
+		}
+		if( the_args[0] ) strlcat( the_modes, the_args, sizeof( the_modes ));
+
+		return IRC_WriteStrClient( Origin, RPL_CHANNELMODEIS_MSG, Client_ID( Origin ), Channel_Name( Channel ), the_modes );
+	}
 
 	/* Is the user allowed to change modes? */
 	if( Client_Type( Client ) == CLIENT_USER )

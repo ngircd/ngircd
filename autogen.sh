@@ -9,7 +9,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: autogen.sh,v 1.12 2004/04/05 12:02:21 alex Exp $
+# $Id: autogen.sh,v 1.13 2005/02/21 09:48:50 alex Exp $
 #
 
 #
@@ -85,7 +85,7 @@ Search()
 			fi
 			$EXIST "${name}-${major}.${minor}" >/dev/null 2>&1
 			if [ $? -eq 0 ]; then
-				echo "${name}-${major}.${minor}" >/dev/null 2>&1
+				echo "${name}-${major}.${minor}"
 				return 0
 			fi
 		done

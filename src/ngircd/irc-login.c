@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-login.c,v 1.5 2002/03/11 17:33:40 alex Exp $
+ * $Id: irc-login.c,v 1.6 2002/03/11 22:04:10 alex Exp $
  *
  * irc-login.c: Anmeldung und Abmeldung im IRC
  *
  * $Log: irc-login.c,v $
+ * Revision 1.6  2002/03/11 22:04:10  alex
+ * - Client_Destroy() hat neuen Paramter: QUITs fuer Clients verschicken?
+ *
  * Revision 1.5  2002/03/11 17:33:40  alex
  * - Log-Level von SQUIT und QUIT bei unbekannten Clients auf DEBUG herabgesetzt.
  *
@@ -289,8 +292,8 @@ GLOBAL BOOLEAN IRC_QUIT( CLIENT *Client, REQUEST *Req )
 			return CONNECTED;
 		}
 
-		if( Req->argc == 0 ) Client_Destroy( target, "Got QUIT command.", NULL );
-		else Client_Destroy( target, "Got QUIT command.", Req->argv[0] );
+		if( Req->argc == 0 ) Client_Destroy( target, "Got QUIT command.", NULL, TRUE );
+		else Client_Destroy( target, "Got QUIT command.", Req->argv[0], TRUE );
 
 		return CONNECTED;
 	}

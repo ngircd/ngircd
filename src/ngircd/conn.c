@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.50 2002/03/11 00:04:48 alex Exp $
+ * $Id: conn.c,v 1.51 2002/03/11 22:04:10 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
+ * Revision 1.51  2002/03/11 22:04:10  alex
+ * - Client_Destroy() hat neuen Paramter: QUITs fuer Clients verschicken?
+ *
  * Revision 1.50  2002/03/11 00:04:48  alex
  * - ein sofortiger Re-Connect wird nur dann versucht, wenn die Vernindung
  *   "lange genug" bereits bestanden hatte.
@@ -591,7 +594,7 @@ GLOBAL VOID Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformC
 	}
 
 	c = Client_GetFromConn( Idx );
-	if( c ) Client_Destroy( c, LogMsg, FwdMsg );
+	if( c ) Client_Destroy( c, LogMsg, FwdMsg, TRUE );
 
 	if( My_Connections[Idx].res_stat )
 	{

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.46 2002/03/10 22:03:20 alex Exp $
+ * $Id: client.c,v 1.47 2002/03/11 22:04:10 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,9 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.47  2002/03/11 22:04:10  alex
+ * - Client_Destroy() hat neuen Paramter: QUITs fuer Clients verschicken?
+ *
  * Revision 1.46  2002/03/10 22:03:20  alex
  * - Netz-Splits werden nun als soche ausgegeben.
  *
@@ -244,7 +247,7 @@ GLOBAL VOID Client_Exit( VOID )
 	CLIENT *c, *next;
 	INT cnt;
 
-	Client_Destroy( This_Server, "Server going down.", NULL );
+	Client_Destroy( This_Server, "Server going down.", NULL, FALSE );
 	
 	cnt = 0;
 	c = My_Clients;
@@ -322,7 +325,7 @@ GLOBAL CLIENT *Client_New( CONN_ID Idx, CLIENT *Introducer, CLIENT *TopServer, I
 } /* Client_New */
 
 
-GLOBAL VOID Client_Destroy( CLIENT *Client, CHAR *LogMsg, CHAR *FwdMsg )
+GLOBAL VOID Client_Destroy( CLIENT *Client, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN SendQuit )
 {
 	/* Client entfernen. */
 	
@@ -349,7 +352,7 @@ GLOBAL VOID Client_Destroy( CLIENT *Client, CHAR *LogMsg, CHAR *FwdMsg )
 		{
 			/* der Client, der geloescht wird ist ein Server. Der Client, den wir gerade
 			 * pruefen, ist ein Child von diesem und muss daher auch entfernt werden */
-			Client_Destroy( c, NULL, msg);
+			Client_Destroy( c, NULL, msg, FALSE );
 			last = NULL;
 			c = My_Clients;
 			continue;
@@ -364,21 +367,29 @@ GLOBAL VOID Client_Destroy( CLIENT *Client, CHAR *LogMsg, CHAR *FwdMsg )
 			{
 				if( c->conn_id != NONE )
 				{
-					/* Ein lokaler User. Alle andere Server informieren! */
+					/* Ein lokaler User */
 					Log( LOG_NOTICE, "User \"%s\" unregistered (connection %d): %s", Client_Mask( c ), c->conn_id, txt );
 
-					if( FwdMsg ) IRC_WriteStrServersPrefix( NULL, c, "QUIT :%s", FwdMsg );
-					else IRC_WriteStrServersPrefix( NULL, c, "QUIT :" );
+					if( SendQuit )
+					{
+						/* Alle andere Server informieren! */
+						if( FwdMsg ) IRC_WriteStrServersPrefix( NULL, c, "QUIT :%s", FwdMsg );
+						else IRC_WriteStrServersPrefix( NULL, c, "QUIT :" );
+					}
 				}
 				else
 				{
-					/* Remote User. Andere Server informieren, ausser denen,
-					 * die "in Richtung dem liegen", auf dem der User registriert
-					 * ist. Von denen haben wir das QUIT ja wohl bekommen. */
+					/* Remote User */
 					Log( LOG_DEBUG, "User \"%s\" unregistered: %s", Client_Mask( c ), txt );
-					
-					if( FwdMsg ) IRC_WriteStrServersPrefix( Client_NextHop( c ), c, "QUIT :%s", FwdMsg );
-					else IRC_WriteStrServersPrefix( Client_NextHop( c ), c, "QUIT :" );
+
+					if( SendQuit )
+					{
+						/* Andere Server informieren, ausser denen, die "in
+						 * Richtung dem liegen", auf dem der User registriert
+						 * ist. Von denen haben wir das QUIT ja wohl bekommen. */
+						if( FwdMsg ) IRC_WriteStrServersPrefix( Client_NextHop( c ), c, "QUIT :%s", FwdMsg );
+						else IRC_WriteStrServersPrefix( Client_NextHop( c ), c, "QUIT :" );
+					}
 				}
 				Channel_RemoveClient( c, FwdMsg ? FwdMsg : c->id );
 			}

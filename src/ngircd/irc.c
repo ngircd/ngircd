@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.70 2002/02/26 22:06:40 alex Exp $
+ * $Id: irc.c,v 1.71 2002/02/27 00:50:05 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.71  2002/02/27 00:50:05  alex
+ * - einige unnoetige Client_NextHop()-Aufrufe entfernt.
+ * - NAMES korrigiert und komplett implementiert.
+ *
  * Revision 1.70  2002/02/26 22:06:40  alex
  * - Nick-Aenderungen werden nun wieder korrekt ins Logfile geschrieben.
  *
@@ -1102,7 +1106,7 @@ GLOBAL BOOLEAN IRC_PING( CLIENT *Client, REQUEST *Req )
 			if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_GetFromID( Req->prefix );
 			else from = Client;
 			if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->prefix );
-			return IRC_WriteStrClientPrefix( Client_NextHop( target ), from, "PING %s :%s", Client_ID( from ), Req->argv[1] );
+			return IRC_WriteStrClientPrefix( target, from, "PING %s :%s", Client_ID( from ), Req->argv[1] );
 		}
 	}
 
@@ -1135,7 +1139,7 @@ GLOBAL BOOLEAN IRC_PONG( CLIENT *Client, REQUEST *Req )
 			if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_GetFromID( Req->prefix );
 			else from = Client;
 			if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->prefix );
-			return IRC_WriteStrClientPrefix( Client_NextHop( target ), from, "PONG %s :%s", Client_ID( from ), Req->argv[1] );
+			return IRC_WriteStrClientPrefix( target, from, "PONG %s :%s", Client_ID( from ), Req->argv[1] );
 		}
 	}
 
@@ -1630,46 +1634,95 @@ GLOBAL BOOLEAN IRC_RESTART( CLIENT *Client, REQUEST *Req )
 
 GLOBAL BOOLEAN IRC_NAMES( CLIENT *Client, REQUEST *Req )
 {
-	CHAR rpl[COMMAND_LEN];
-	CLIENT *c;
+	CHAR rpl[COMMAND_LEN], *ptr;
+	CLIENT *target, *from, *c;
+	CHANNEL *chan;
 	
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	if( Client_Type( Client ) != CLIENT_USER ) return IRC_WriteStrClient( Client, ERR_NOTREGISTERED_MSG, Client_ID( Client ));
+	if(( Client_Type( Client ) != CLIENT_USER ) && ( Client_Type( Client ) != CLIENT_SERVER )) return IRC_WriteStrClient( Client, ERR_NOTREGISTERED_MSG, Client_ID( Client ));
 
 	/* Falsche Anzahl Parameter? */
-	if( Req->argc != 0 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	if( Req->argc > 2 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
-	/* Noch alle User ausgeben, die in keinem Channel sind */
-	rpl[0] = '\0';
+	/* From aus Prefix ermitteln */
+	if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_GetFromID( Req->prefix );
+	else from = Client;
+	if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->prefix );
+	
+	if( Req->argc == 2 )
+	{
+		/* an anderen Server forwarden */
+		target = Client_GetFromID( Req->argv[1] );
+		if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->argv[1] );
+
+		if( target != Client_ThisServer( ))
+		{
+			/* Ok, anderer Server ist das Ziel: forwarden */
+			return IRC_WriteStrClientPrefix( target, from, "NAMES %s :%s", Req->argv[0], Req->argv[1] );
+		}
+	}
+
+	if( Req->argc > 0 )
+	{
+		/* bestimmte Channels durchgehen */
+		ptr = strtok( Req->argv[0], "," );
+		while( ptr )
+		{
+			chan = Channel_Search( ptr );
+			if( chan )
+			{
+				/* Namen ausgeben */
+				if( ! Send_NAMES( from, chan )) return DISCONNECTED;
+			}
+			if( ! IRC_WriteStrClient( from, RPL_ENDOFNAMES_MSG, Client_ID( from ), ptr )) return DISCONNECTED;
+			
+			/* naechsten Namen ermitteln */
+			ptr = strtok( NULL, "," );
+		}
+		return CONNECTED;
+	}
+	
+	/* alle Channels durchgehen */
+	chan = Channel_First( );
+	while( chan )
+	{
+		/* Namen ausgeben */
+		if( ! Send_NAMES( from, chan )) return DISCONNECTED;
+
+		/* naechster Channel */
+		chan = Channel_Next( chan );
+	}
+
 	c = Client_First( );
+	sprintf( rpl, RPL_NAMREPLY_MSG, Client_ID( from ), "*", "*" );
 	while( c )
 	{
-		if( Client_Type( c ) == CLIENT_USER )
+		if(( Client_Type( c ) == CLIENT_USER ) && ( Channel_FirstChannelOf( c ) == NULL ))
 		{
-			/* Okay, das ist ein User */
+			/* Okay, das ist ein User: anhaengen */
+			if( rpl[strlen( rpl ) - 1] != ':' ) strcat( rpl, " " );
 			strcat( rpl, Client_ID( c ));
-			strcat( rpl, " " );
+
+			if( strlen( rpl ) > ( LINE_LEN - CLIENT_NICK_LEN - 4 ))
+			{
+				/* Zeile wird zu lang: senden! */
+				if( ! IRC_WriteStrClient( from, rpl )) return DISCONNECTED;
+				sprintf( rpl, RPL_NAMREPLY_MSG, Client_ID( from ), "*", "*" );
+			}
 		}
 
-		/* Antwort zu lang? Splitten. */
-		if( strlen( rpl ) > 480 )
-		{
-			if( rpl[strlen( rpl ) - 1] == ' ' ) rpl[strlen( rpl ) - 1] = '\0';
-			if( ! IRC_WriteStrClient( Client, RPL_NAMREPLY_MSG, Client_ID( Client ), "*", "*", rpl )) return DISCONNECTED;
-			rpl[0] = '\0';
-		}
-		
+		/* naechster Client */
 		c = Client_Next( c );
 	}
-	if( rpl[0] )
+	if( rpl[strlen( rpl ) - 1] != ':')
 	{
 		/* es wurden User gefunden */
-		if( rpl[strlen( rpl ) - 1] == ' ' ) rpl[strlen( rpl ) - 1] = '\0';
-		if( ! IRC_WriteStrClient( Client, RPL_NAMREPLY_MSG, Client_ID( Client ), "*", "*", rpl )) return DISCONNECTED;
+		if( ! IRC_WriteStrClient( from, rpl )) return DISCONNECTED;
 	}
-	return IRC_WriteStrClient( Client, RPL_ENDOFNAMES_MSG, Client_ID( Client ), "*" );
+	
+	return IRC_WriteStrClient( from, RPL_ENDOFNAMES_MSG, Client_ID( from ), "*" );
 } /* IRC_NAMES */
 
 
@@ -2022,10 +2075,13 @@ GLOBAL BOOLEAN IRC_JOIN( CLIENT *Client, REQUEST *Req )
 		{
 			/* an Client bestaetigen */
 			IRC_WriteStrClientPrefix( Client, target, "JOIN :%s", channame );
+
 			/* Topic an Client schicken */
 			IRC_WriteStrClient( Client, RPL_TOPIC_MSG, Client_ID( Client ), channame, "What a wonderful channel!" );
+
 			/* Mitglieder an Client Melden */
 			Send_NAMES( Client, chan );
+			IRC_WriteStrClient( Client, RPL_ENDOFNAMES_MSG, Client_ID( Client ), Channel_Name( chan ));
 		}
 		
 		/* naechsten Namen ermitteln */
@@ -2096,7 +2152,7 @@ GLOBAL BOOLEAN IRC_VERSION( CLIENT *Client, REQUEST *Req )
 		if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->argv[0] );
 
 		/* forwarden */
-		IRC_WriteStrClientPrefix( Client_NextHop( target ), prefix, "VERSION %s", Req->argv[0] );
+		IRC_WriteStrClientPrefix( target, prefix, "VERSION %s", Req->argv[0] );
 		return CONNECTED;
 	}
 
@@ -2259,9 +2315,6 @@ LOCAL BOOLEAN Send_NAMES( CLIENT *Client, CHANNEL *Chan )
 		if( ! IRC_WriteStrClient( Client, str )) return DISCONNECTED;
 	}
 
-	/* Ende anzeigen */
-	IRC_WriteStrClient( Client, RPL_ENDOFNAMES_MSG, Client_ID( Client ), Channel_Name( Chan ));
-	
 	return CONNECTED;
 } /* Send_NAMES */
 

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-mode.c,v 1.10 2002/09/02 14:59:18 alex Exp $
+ * $Id: irc-mode.c,v 1.11 2002/09/08 00:51:28 alex Exp $
  *
  * irc-mode.c: IRC-Befehle zur Mode-Aenderung (MODE, AWAY, ...)
  */
@@ -26,6 +26,7 @@
 #include "channel.h"
 #include "defines.h"
 #include "irc-write.h"
+#include "lists.h"
 #include "log.h"
 #include "parse.h"
 #include "messages.h"
@@ -34,6 +35,13 @@
 
 #include "exp.h"
 #include "irc-mode.h"
+
+
+LOCAL BOOLEAN Add_Invite PARAMS(( CLIENT *Client, CHANNEL *Channel, CHAR *Pattern ));
+LOCAL BOOLEAN Add_Ban PARAMS(( CLIENT *Client, CHANNEL *Channel, CHAR *Pattern ));
+
+LOCAL BOOLEAN Del_Invite PARAMS(( CLIENT *Client, CHANNEL *Channel, CHAR *Pattern ));
+LOCAL BOOLEAN Del_Ban PARAMS(( CLIENT *Client, CHANNEL *Channel, CHAR *Pattern ));
 
 
 GLOBAL BOOLEAN
@@ -68,6 +76,43 @@ IRC_MODE( CLIENT *Client, REQUEST *Req )
 	/* Falsche Anzahl Parameter? */
 	if(( cl ) && ( Req->argc > 2 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 	if(( chan ) && ( Req->argc > 3 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+
+	/* Prefix fuer Antworten etc. ermitteln */
+	if( Client_Type( Client ) == CLIENT_SERVER )
+	{
+		prefix = Client_Search( Req->prefix );
+		if( ! prefix ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
+	}
+	else prefix = Client;
+	
+	if(( chan ) && (( Req->argc == 2 ) || ( Req->argc == 3 )))
+	{
+		/* pruefen, ob "Listen-Operation": Invite, Ban */
+		if(( Req->argv[1][0] == '-'  ) || ( Req->argv[1][0] == '+' )) mode_ptr = &Req->argv[1][1];
+		else mode_ptr = &Req->argv[1][0];
+
+		if( Req->argc == 2 )
+		{
+			/* Liste anzeigen */
+			if( *mode_ptr == 'I' ) return Lists_ShowInvites( prefix, chan );
+			if( *mode_ptr == 'b' ) return Lists_ShowBans( prefix, chan );
+		}
+		else
+		{
+			if( Req->argv[1][0] == '+' )
+			{
+				/* Listen-Eintrag hinzufuegen */
+				if( *mode_ptr == 'I' ) return Add_Invite( prefix, chan, Req->argv[2] );
+				if( *mode_ptr == 'b' ) return Add_Ban( prefix, chan, Req->argv[2] );
+			}
+			else if( Req->argv[1][0] == '-' )
+			{
+				/* Listen-Eintrag loeschen */
+				if( *mode_ptr == 'I' ) return Del_Invite( prefix, chan, Req->argv[2] );
+				if( *mode_ptr == 'b' ) return Del_Ban( prefix, chan, Req->argv[2] );
+			}
+		}
+	}
 
 	/* Client ermitteln, wenn bei Channel-Modes mit 3 Parametern */
 	if(( chan ) && (Req->argc == 3 ))
@@ -110,14 +155,6 @@ IRC_MODE( CLIENT *Client, REQUEST *Req )
 		else set = TRUE;
 		if(( *mode_ptr == '-' ) || ( *mode_ptr == '+' )) mode_ptr++;
 	}
-	
-	/* Prefix fuer Antworten etc. ermitteln */
-	if( Client_Type( Client ) == CLIENT_SERVER )
-	{
-		prefix = Client_Search( Req->prefix );
-		if( ! prefix ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
-	}
-	else prefix = Client;
 
 	/* Reply-String mit Aenderungen vorbereiten */
 	if( set ) strcpy( the_modes, "+" );
@@ -395,6 +432,92 @@ IRC_AWAY( CLIENT *Client, REQUEST *Req )
 		return IRC_WriteStrClient( Client, RPL_UNAWAY_MSG, Client_ID( Client ));
 	}
 } /* IRC_AWAY */
+
+
+LOCAL BOOLEAN
+Add_Invite( CLIENT *Client, CHANNEL *Channel, CHAR *Pattern )
+{
+	CHAR *mask;
+
+	assert( Client != NULL );
+	assert( Channel != NULL );
+	assert( Pattern != NULL );
+
+	mask = Lists_MakeMask( Pattern );
+
+	if( ! Lists_AddInvited( mask, Channel, FALSE )) return CONNECTED;
+
+	IRC_WriteStrChannelPrefix( Client, Channel, Client, TRUE, "MODE %s +I %s", Channel_Name( Channel ), mask );
+	if( Client_Type( Client ) == CLIENT_USER )
+	{
+		if( ! IRC_WriteStrClientPrefix( Client, Client, "MODE %s +I %s", Channel_Name( Channel ), mask )) return DISCONNECTED;
+	}
+	return CONNECTED;
+} /* Add_Invite */
+
+
+LOCAL BOOLEAN
+Add_Ban( CLIENT *Client, CHANNEL *Channel, CHAR *Pattern )
+{
+	CHAR *mask;
+
+	assert( Client != NULL );
+	assert( Channel != NULL );
+	assert( Pattern != NULL );
+
+	mask = Lists_MakeMask( Pattern );
+
+	if( ! Lists_AddBanned( mask, Channel )) return CONNECTED;
+
+	IRC_WriteStrChannelPrefix( Client, Channel, Client, TRUE, "MODE %s +b %s", Channel_Name( Channel ), mask );
+	if( Client_Type( Client ) == CLIENT_USER )
+	{
+		if( ! IRC_WriteStrClientPrefix( Client, Client, "MODE %s +b %s", Channel_Name( Channel ), mask )) return DISCONNECTED;
+	}
+	return CONNECTED;
+} /* Add_Ban */
+
+
+LOCAL BOOLEAN
+Del_Invite( CLIENT *Client, CHANNEL *Channel, CHAR *Pattern )
+{
+	CHAR *mask;
+
+	assert( Client != NULL );
+	assert( Channel != NULL );
+	assert( Pattern != NULL );
+
+	mask = Lists_MakeMask( Pattern );
+	Lists_DelInvited( mask, Channel );
+
+	IRC_WriteStrChannelPrefix( Client, Channel, Client, TRUE, "MODE %s -I %s", Channel_Name( Channel ), mask );
+	if( Client_Type( Client ) == CLIENT_USER )
+	{
+		if( ! IRC_WriteStrClientPrefix( Client, Client, "MODE %s -I %s", Channel_Name( Channel ), mask )) return DISCONNECTED;
+	}
+	return CONNECTED;
+} /* Del_Invite */
+
+
+LOCAL BOOLEAN
+Del_Ban( CLIENT *Client, CHANNEL *Channel, CHAR *Pattern )
+{
+	CHAR *mask;
+
+	assert( Client != NULL );
+	assert( Channel != NULL );
+	assert( Pattern != NULL );
+
+	mask = Lists_MakeMask( Pattern );
+	Lists_DelBanned( mask, Channel );
+
+	IRC_WriteStrChannelPrefix( Client, Channel, Client, TRUE, "MODE %s -b %s", Channel_Name( Channel ), mask );
+	if( Client_Type( Client ) == CLIENT_USER )
+	{
+		if( ! IRC_WriteStrClientPrefix( Client, Client, "MODE %s -b %s", Channel_Name( Channel ), mask )) return DISCONNECTED;
+	}
+	return CONNECTED;
+} /* Del_Ban */
 
 
 /* -eof- */

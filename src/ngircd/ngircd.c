@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.6 2001/12/12 23:30:42 alex Exp $
+ * $Id: ngircd.c,v 1.7 2001/12/13 01:31:46 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  *
  * $Log: ngircd.c,v $
+ * Revision 1.7  2001/12/13 01:31:46  alex
+ * - Conn_Handler() wird nun mit einem Timeout aufgerufen.
+ *
  * Revision 1.6  2001/12/12 23:30:42  alex
  * - Log-Meldungen an syslog angepasst.
  * - NGIRCd_Quit ist nun das Flag zum Beenden des ngircd.
@@ -83,7 +86,7 @@ GLOBAL INT main( INT argc, CONST CHAR *argv[] )
 	/* Hauptschleife */
 	while( ! NGIRCd_Quit )
 	{
-		Conn_Handler( );
+		Conn_Handler( 5 );
         }
         
 	/* Alles abmelden */

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.92 2005/02/10 13:09:11 alex Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.93 2005/02/10 16:55:52 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -646,18 +646,13 @@ Setup_FDStreams( VOID )
 	if ( fd < 0 ) return;
 
 	/* Close "old" stdin/out/err descriptors */
-	fclose( stdin ); fclose( stdout ); fclose( stderr );
+	close( 0 ); close( 1 ); close( 2 );
 
 	/* Create new stdin(0), stdout(1) and stderr(2) descriptors */
 	dup2( fd, 0 ); dup2( fd, 1 ); dup2( fd, 2 );
 
 	/* Close newly opened file descriptor if not stdin/out/err */
 	if( fd > 2 ) close( fd );
-
-	/* Assign FILE handles for stdin/out/err */
-	stdin = fdopen( 0, "r" );
-	stdout = fdopen( 1, "w" );
-	stderr = fdopen( 2, "w" );
 } /* Setup_FDStreams */
 
 

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.68 2002/08/26 00:03:15 alex Exp $
+ * $Id: conn.c,v 1.69 2002/09/02 19:03:09 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -626,7 +626,7 @@ Handle_Write( CONN_ID Idx )
 		Log( LOG_DEBUG, "Connection %d with \"%s:%d\" established, now sendig PASS and SERVER ...", Idx, My_Connections[Idx].host, Conf_Server[My_Connections[Idx].our_server].port );
 
 		/* PASS und SERVER verschicken */
-		Conn_WriteStr( Idx, "PASS %s %s", Conf_Server[My_Connections[Idx].our_server].pwd, PASSSERVERADD );
+		Conn_WriteStr( Idx, "PASS %s %s", Conf_Server[My_Connections[Idx].our_server].pwd, NGIRCd_ProtoID );
 		Conn_WriteStr( Idx, "SERVER %s :%s", Conf_ServerName, Conf_ServerInfo );
 
 		return TRUE;

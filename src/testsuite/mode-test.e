@@ -1,4 +1,4 @@
-# $Id: mode-test.e,v 1.2 2002/09/09 21:26:00 alex Exp $
+# $Id: mode-test.e,v 1.2.2.1 2002/11/22 23:46:09 alex Exp $
 
 spawn telnet localhost 6789
 expect {
@@ -22,7 +22,7 @@ expect {
 send "mode nick\r"
 expect {
 	timeout { exit 1 }
-	"211 nick +i"
+	"221 nick +i"
 }
 
 send "mode nick -i\r"
@@ -44,7 +44,7 @@ expect {
 send "mode nick\r"
 expect {
 	timeout { exit 1 }
-	"211 nick +o"
+	"221 nick +o"
 }
 
 send "join #channel\r"

@@ -33,6 +33,7 @@ ngIRCd 0.2.x, xx.xx.2002
   - an User wird nun immer ein "komplettes" Prefix (mit Host-Mask) ver-
     schickt, Server bekommen nach wie vor kurze: das "Original" hat bei
     bestimmten Befehlen (PRIVMSG) ansonsten evtl. Probleme ...
+  - NAMES korrigiert und vollstaendig implementiert.
 
 ngIRCd 0.2.1, 17.02.2002
 
@@ -127,4 +128,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.30 2002/02/25 17:47:41 alex Exp $
+$Id: ChangeLog,v 1.31 2002/02/27 00:51:31 alex Exp $

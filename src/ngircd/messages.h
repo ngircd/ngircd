@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: messages.h,v 1.19 2002/01/16 22:09:52 alex Exp $
+ * $Id: messages.h,v 1.20 2002/01/21 00:02:34 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: messages.h,v $
+ * Revision 1.20  2002/01/21 00:02:34  alex
+ * - ERR_NOSUCHCHANNEL hinzugefuegt.
+ *
  * Revision 1.19  2002/01/16 22:09:52  alex
  * - RPL_LUSERME_MSG erweitert, kleinere Aenderungen.
  *
@@ -167,6 +170,9 @@
 
 #define ERR_NOSUCHSERVER		"402"
 #define ERR_NOSUCHSERVER_MSG		ERR_NOSUCHSERVER" %s %s :No such server"
+
+#define ERR_NOSUCHCHANNEL		"403"
+#define ERR_NOSUCHCHANNEL_MSG		ERR_NOSUCHCHANNEL"%s %s :No such channel"
 
 #define ERR_NOORIGIN			"409"
 #define ERR_NOORIGIN_MSG		ERR_NOORIGIN" %s :No origin specified"

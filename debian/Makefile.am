@@ -8,10 +8,11 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: Makefile.am,v 1.1.2.1 2003/07/09 21:08:55 alex Exp $
+# $Id: Makefile.am,v 1.1.2.2 2003/12/05 13:31:22 alex Exp $
 #
 
-EXTRA_DIST = changelog compat control copyright ngircd.init rules
+EXTRA_DIST = rules changelog compat control copyright \
+	ngircd.init ngircd.postinst
 
 maintainer-clean-local:
 	rm -f Makefile Makefile.in

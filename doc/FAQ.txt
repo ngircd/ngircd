@@ -19,6 +19,10 @@ A: Yes. ngIRCd is compatible to the original ircd used by IRCNet. Actually
 Q: Is there a homepage with further information and downloads?
 A: Yes. Please visit <http://arthur.ath.cx/~alex/ngircd/>.
 
+Q: Why should I use ngIRCd instead of the original one?
+A: ngIRCd offers several benefits: no problems with dynamic IPs, easy to
+   configure, open source (GPL), under active development.
+
 
 II. Compilation
 ~~~~~~~~~~~~~~~
@@ -60,4 +64,4 @@ A: Please file a bug report at <http://arthur.ath.cx/bugzilla/ngircd/>!
 
 
 -- 
-$Id: FAQ.txt,v 1.5 2003/04/05 11:37:17 alex Exp $
+$Id: FAQ.txt,v 1.5.2.1 2003/04/29 13:45:09 alex Exp $

@@ -33,6 +33,9 @@ ngIRCd CVS-HEAD
     configured server and "CONNECT <name> <port> <host> <mypwd> <peerpwd>"
     to add a new server (ngIRCd tries to connect new servers only once!).
   - Added DISCONNECT command ("DISCONNECT <name>") to disable servers.
+  - The server no longer forwards commands to ordinary users, instead it
+    answers with the correct error message ("no such server") now.
+  - WHOIS commands weren't always forwarded as requested.
 
 
 Older changes (sorry, only available in german language):
@@ -396,4 +399,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.160 2002/12/31 16:18:07 alex Exp $
+$Id: ChangeLog,v 1.161 2003/01/01 13:30:51 alex Exp $

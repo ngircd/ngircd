@@ -43,6 +43,8 @@ ngIRCd CVS-HEAD
     B als Antwort an A sendet. In der Konfig.-Datei, Abschnitt "Server",
     wurde "Password" dazu durch "MyPassword" und "PeerPassword" ersetzt.
   - Besseres Logging von Prefix-Fehlern.
+  - angenommene Sockets werden nun korrekt auf "non-blocking" konfiguriert,
+    beim Senden und Empfangen werden Blockierungen besser abgefangen.
 
 ngIRCd 0.5.3, 08.11.2002
 
@@ -331,4 +333,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.122 2002/11/20 11:14:16 alex Exp $
+$Id: ChangeLog,v 1.123 2002/11/20 15:50:13 alex Exp $

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.39 2002/02/23 00:03:54 alex Exp $
+ * $Id: conn.c,v 1.40 2002/02/27 02:26:23 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
+ * Revision 1.40  2002/02/27 02:26:23  alex
+ * - an Conn_Close() werden zwei weitere Fehlermeldungen zum Forwarden uebergeben.
+ *
  * Revision 1.39  2002/02/23 00:03:54  alex
  * - Ergebnistyp von Conn_GetIdle() und Conn_LastPing() auf "time_t" geaendert.
  *
@@ -784,7 +787,7 @@ LOCAL VOID Read_Request( CONN_ID Idx )
 	{
 		/* Socket wurde geschlossen */
 		Log( LOG_INFO, "%s:%d is closing the connection ...", inet_ntoa( My_Connections[Idx].addr.sin_addr ), ntohs( My_Connections[Idx].addr.sin_port));
-		Conn_Close( Idx, "Socket closed.", NULL, FALSE );
+		Conn_Close( Idx, NULL, "Client closed connection.", FALSE );
 		return;
 	}
 
@@ -792,7 +795,7 @@ LOCAL VOID Read_Request( CONN_ID Idx )
 	{
 		/* Fehler beim Lesen */
 		Log( LOG_ERR, "Read error on connection %d: %s!", Idx, strerror( errno ));
-		Conn_Close( Idx, "Read error!", NULL, FALSE );
+		Conn_Close( Idx, NULL, "Read error!", FALSE );
 		return;
 	}
 

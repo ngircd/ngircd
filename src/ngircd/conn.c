@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.117 2003/02/23 12:04:05 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.118 2003/03/07 14:35:52 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -40,7 +40,11 @@ static char UNUSED id[] = "$Id: conn.c,v 1.117 2003/02/23 12:04:05 alex Exp $";
 #endif
 
 #ifdef HAVE_STDINT_H
-#include <stdint.h>			/* u.a. fuer Mac OS X */
+#include <stdint.h>			/* e.g. for Mac OS X */
+#endif
+
+#ifdef USE_TCPWRAP
+#include <tcpd.h>			/* for TCP Wrappers */
 #endif
 
 #include "defines.h"
@@ -86,6 +90,11 @@ LOCAL VOID Read_Resolver_Result PARAMS(( INT r_fd ));
 LOCAL fd_set My_Listeners;
 LOCAL fd_set My_Sockets;
 LOCAL fd_set My_Connects;
+
+#ifdef USE_TCPWRAP
+INT allow_severity = LOG_INFO;
+INT deny_severity = LOG_ERR;
+#endif
 
 
 GLOBAL VOID
@@ -836,6 +845,9 @@ New_Connection( INT Sock )
 	/* Neue Client-Verbindung von Listen-Socket annehmen und
 	 * CLIENT-Struktur anlegen. */
 
+#ifdef USE_TCPWRAP
+	struct request_info req;
+#endif
 	struct sockaddr_in new_addr;
 	INT new_sock, new_sock_len;
 	RES_STAT *s;
@@ -854,6 +866,18 @@ New_Connection( INT Sock )
 		Log( LOG_CRIT, "Can't accept connection: %s!", strerror( errno ));
 		return;
 	}
+	
+#ifdef USE_TCPWRAP
+	/* Validate socket using TCP Wrappers */
+	request_init( &req, RQ_DAEMON, PACKAGE, RQ_FILE, new_sock, RQ_CLIENT_SIN, &new_addr, NULL );
+	if( ! hosts_access( &req ))
+	{
+		/* Access denied! */
+		Log( deny_severity, "Refused connection from %s (by TCP Wrappers)!", inet_ntoa( new_addr.sin_addr ));
+		close( new_sock );
+		return;
+	}
+#endif
 
 	/* Socket initialisieren */
 	Init_Socket( new_sock );

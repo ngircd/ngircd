@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.72 2003/02/23 12:04:05 alex Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.73 2003/03/07 14:35:52 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -369,6 +369,14 @@ NGIRCd_VersionAddition( VOID )
 	if( txt[0] ) strcat( txt, "+" );
 	strcat( txt, "ZLIB" );
 #endif
+#ifdef USE_TCPWRAP
+	if( txt[0] ) strcat( txt, "+" );
+	strcat( txt, "TCPWRAP" );
+#endif
+#ifdef RENDEZVOUS
+	if( txt[0] ) strcat( txt, "+" );
+	strcat( txt, "RENDEZVOUS" );
+#endif
 #ifdef DEBUG
 	if( txt[0] ) strcat( txt, "+" );
 	strcat( txt, "DEBUG" );
@@ -384,10 +392,6 @@ NGIRCd_VersionAddition( VOID )
 #ifdef IRCPLUS
 	if( txt[0] ) strcat( txt, "+" );
 	strcat( txt, "IRCPLUS" );
-#endif
-#ifdef RENDEZVOUS
-	if( txt[0] ) strcat( txt, "+" );
-	strcat( txt, "RENDEZVOUS" );
 #endif
 	
 	if( txt[0] ) strlcat( txt, "-", sizeof( txt ));

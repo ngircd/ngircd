@@ -1,70 +1,56 @@
 
                      ngIRCd - Next Generation IRC Server
 
-                      (c)2001,2002 by Alexander Barton,
+                      (c)2001-2003 by Alexander Barton,
                     alex@barton.de, http://www.barton.de/
 
-                  ngIRCd ist freie Software und steht unter
-                       der GNU General Public License.
+               ngIRCd is free software and published under the
+                   terms of the GNU General Public License.
 
                                  -- CVS.txt --
 
 
-  +-----------------------------------------------------------------------+
-  | This text is only available in german at the moment, but this should  |
-  | change until the release of ngIRCd 0.7.0, so feel free to contribute! |
-  +-----------------------------------------------------------------------+
+The source code of ngIRCd is maintained using the "Concurrent Versions
+System" (CVS). Thereby several developers can work with the source tree at
+the same time.
 
 
-Die Sourcen des ngIRCd werden mit dem "Concurrent Versions System" (CVS)
-verwaltet. Somit koennen ohne Probleme mehrere Leute gleichzeitig die Sourcen
-bearbeitet.
+I. Anonymous read-only Access
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+To access the source tree anonymously in read-only mode, follow these steps:
 
-
-I. Anonymer "Nur-Lesen"-Zugang
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Anonymer Zugriff auf die CVS-Repository von ngIRCd ist im "nur-lesen"-Modus
-moeglich. Dazu sind folgende Schritte noetig:
-
-Beim CVS-Server anmelden
+Login to the CVS server:
 
  $ cvs -d:pserver:anonymous@arthur.ath.cx:/usr/local/CVS/ngircd login
 
-Als Benutzername wird "anonymous" mit einem leeren Passwort verwendet.
-Nun ein "Check-Out" der Quellcodes durchfuehren:
+Use "anonymous" as user name and no password (just hit Return). Now you can
+check out the sources:
 
  $ cvs -d:pserver:anonymous@arthur.ath.cx:/usr/local/CVS/ngircd checkout ngircd
 
-Dadurch wird im aktuellen Verzeichnis der neue Ordner "ngircd" mit allen
-Quell-Dateien des ngIRCd erzeugt.
+Thereby a new folder "ngircd" will be created containing all the individual
+source files.
 
-Dieses ist der "Arbeitsordner", alle CVS-Befehle werden in Zukunft aus
-diesem Ordner bzw. einem Unterordner davon ausgefuehrt.
+This is the "working folder", all CVS commands will be executed from within
+this folder in the future.
 
-Wichtig: wenn ngIRCd "frisch" aus dem CVS compiliert werden soll, so
-existiert das configure-Script noch nicht. Dieses muss zunaechst mit dem
-Script "autogen.sh" erzeugt werden. Letzteres setzt ein installiertes GNU
-automake und GNU autoconf voraus!
+Please note: When checking out a fresh copy of ngIRCd from CVS, the
+configure script doesn't exist; you have to run the autogen.sh shell script
+(which is included in the source tree) to generate it. This requires you to
+have GNU automake and GNU autoconf installed on your system.
 
-CVS-Tree aktualisieren:
+Updating the CVS tree:
 
- $ cvs update
+ $ cvs update -d -P [<filename>]
 
-Dieser Befehl aktualisiert alle Dateien im aktuellen Verzeichnis sowie allen
-Unterverzeichnissen.
-
- $ cvs update <filename>
-
-So kann eine einzelne Datei aktualisiert werden (auch dann, wenn sie lokal
-z.B. geloescht wurde -- praktisch, um eigene "Experimente" rueckgaengig zu
-machen ;-))
+You can update a single file or the complete source tree.
 
 
-III. Schreibzugriff
-~~~~~~~~~~~~~~~~~~~
-Wer Schreibzugriff auf die CVS-Repository wuenscht, der moege sich bitte
-mit Alex Barton, <alex@barton.de> in Verbindung setzen.
+III. Write Access
+~~~~~~~~~~~~~~~~~
+If you want to contribute a couple of patches and write access to the CVS
+repository would be handy, please contact Alex Barton, <alex@barton.de>.
 
 
 -- 
-$Id: CVS.txt,v 1.6 2003/01/04 13:07:54 alex Exp $
+$Id: CVS.txt,v 1.7 2003/03/26 22:34:33 alex Exp $

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.41 2002/03/31 13:20:42 alex Exp $
+ * $Id: ngircd.c,v 1.41.2.1 2002/04/01 17:05:00 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  */
@@ -435,7 +435,8 @@ LOCAL VOID Initialize_Listen_Ports( VOID )
 LOCAL VOID Show_Version( VOID )
 {
 	puts( NGIRCd_Version( ));
-	puts( "Copyright (c)2001,2002 by Alexander Barton (alex@barton.de).\n" );
+	puts( "Copyright (c)2001,2002 by Alexander Barton (<alex@barton.de>)." );
+	puts( "Homepage: <http://arthur.ath.cx/~alex/ngircd/>\n" );
 	puts( "This is free software; see the source for copying conditions. There is NO" );
 	puts( "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." );
 } /* Show_Version */

@@ -72,12 +72,12 @@
 				F52162C301C7B904012300F4,
 				F52162C401C7B904012300F4,
 				F52162C501C7B904012300F4,
+				F52162CB01C7B904012300F4,
 				F52162C601C7B904012300F4,
 				F52162C701C7B904012300F4,
-				F52162C801C7B904012300F4,
 				F52162C901C7B904012300F4,
 				F52162CA01C7B904012300F4,
-				F52162CB01C7B904012300F4,
+				F52162C801C7B904012300F4,
 			);
 			isa = PBXGroup;
 			name = ngircd;
@@ -385,8 +385,13 @@
 		};
 		F51F791401DFD0DE01D13771 = {
 			children = (
+				F5E9447B02C9EE0E01A85B04,
 				F5263AEF01E2A9B801CE8F8F,
+				F5E9447C02C9EE2801A85B04,
 				F51F791501DFD0DE01D13771,
+				F5E9447D02C9EE2801A85B04,
+				F5E9447E02C9EE2801A85B04,
+				F5E9447F02C9EE2801A85B04,
 				F51F791601DFD0DE01D13771,
 				F51F791701DFD0DE01D13771,
 			);
@@ -998,6 +1003,54 @@
 			isa = PBXBuildFile;
 			settings = {
 			};
+		};
+		F5E9447B02C9EE0E01A85B04 = {
+			children = (
+				F5E9448002C9EE4901A85B04,
+				F5E9448202C9EE4901A85B04,
+				F5E9448102C9EE4901A85B04,
+			);
+			isa = PBXGroup;
+			name = en;
+			refType = 4;
+		};
+		F5E9447C02C9EE2801A85B04 = {
+			isa = PBXFileReference;
+			path = "CC-Speed.txt";
+			refType = 4;
+		};
+		F5E9447D02C9EE2801A85B04 = {
+			isa = PBXFileReference;
+			path = FAQ.txt;
+			refType = 4;
+		};
+		F5E9447E02C9EE2801A85B04 = {
+			isa = PBXFileReference;
+			path = "README-AUX.txt";
+			refType = 4;
+		};
+		F5E9447F02C9EE2801A85B04 = {
+			isa = PBXFileReference;
+			path = "README-BeOS.txt";
+			refType = 4;
+		};
+		F5E9448002C9EE4901A85B04 = {
+			isa = PBXFileReference;
+			name = Makefile.am;
+			path = en/Makefile.am;
+			refType = 4;
+		};
+		F5E9448102C9EE4901A85B04 = {
+			isa = PBXFileReference;
+			name = INSTALL;
+			path = en/INSTALL;
+			refType = 4;
+		};
+		F5E9448202C9EE4901A85B04 = {
+			isa = PBXFileReference;
+			name = README;
+			path = en/README;
+			refType = 4;
 		};
 		F5F18132023EC61E01A85B04 = {
 			children = (

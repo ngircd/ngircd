@@ -14,12 +14,12 @@
 
 #include "portab.h"
 
-#define __conn_zip_c__
+#define CONN_MODULE
 
 
 #ifdef USE_ZLIB
 
-static char UNUSED id[] = "$Id: conn-zip.c,v 1.1 2002/12/30 16:07:23 alex Exp $";
+static char UNUSED id[] = "$Id: conn-zip.c,v 1.2 2002/12/30 17:15:06 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -27,6 +27,7 @@ static char UNUSED id[] = "$Id: conn-zip.c,v 1.1 2002/12/30 16:07:23 alex Exp $"
 #include <zlib.h>
 
 #include "conn.h"
+#include "conn-func.h"
 #include "log.h"
 
 #include "exp.h"

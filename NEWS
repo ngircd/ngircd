@@ -12,7 +12,15 @@
 
 ngIRCd CVS-HEAD
 
-  - ...
+  - beim Schliessen einer Verbindung zeigt der Server nun vor dem ERROR
+    noch eine Statistik ueber die empfangene und gesendete Datenmenge an.
+  - Clients werden beim Connect mit NOTICEs ueber den Status der Resolver-
+    Subprozesse informiert.
+  - Connection-Strukturen werden nun "pool-weise" verwaltet; der Pool wird
+    bei Bedarf bis zu einem konfigurierten Limit vergroessert.
+  - Mit der neuen Konfigurationsvariable "MaxConnections" (Sekion "Global")
+    kann die maximale Anzahl gleichzeitiger Verbindungen begrenzt werden.
+    Der Default ist -1, "unlimitiert".
 
 ngIRCd 0.5.0, 20.09.2002
 
@@ -114,4 +122,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.41 2002/10/03 16:04:29 alex Exp $
+$Id: NEWS,v 1.42 2002/11/02 23:11:38 alex Exp $

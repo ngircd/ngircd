@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: lists.c,v 1.13 2004/03/11 22:16:31 alex Exp $";
+static char UNUSED id[] = "$Id: lists.c,v 1.14 2004/04/09 21:41:52 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -102,19 +102,14 @@ Lists_CheckInvited( CLIENT *Client, CHANNEL *Chan )
 
 
 GLOBAL BOOLEAN
-Lists_AddInvited( CLIENT *From, CHAR *Mask, CHANNEL *Chan, BOOLEAN OnlyOnce )
+Lists_AddInvited( CHAR *Mask, CHANNEL *Chan, BOOLEAN OnlyOnce )
 {
 	C2C *c2c;
 
 	assert( Mask != NULL );
 	assert( Chan != NULL );
 
-	if( Already_Registered( My_Invites, Mask, Chan ))
-	{
-		/* Eintrag ist bereits vorhanden */
-		IRC_WriteStrClient( From, RPL_INVITELIST_MSG, Client_ID( From ), Channel_Name( Chan ), Mask );
-		return FALSE;
-	}
+	if( Already_Registered( My_Invites, Mask, Chan )) return TRUE;
 	
 	c2c = New_C2C( Mask, Chan, OnlyOnce );
 	if( ! c2c )
@@ -189,19 +184,14 @@ Lists_CheckBanned( CLIENT *Client, CHANNEL *Chan )
 
 
 GLOBAL BOOLEAN
-Lists_AddBanned( CLIENT *From, CHAR *Mask, CHANNEL *Chan )
+Lists_AddBanned( CHAR *Mask, CHANNEL *Chan )
 {
 	C2C *c2c;
 
 	assert( Mask != NULL );
 	assert( Chan != NULL );
 
-	if( Already_Registered( My_Bans, Mask, Chan ))
-	{
-		/* Eintrag ist bereits vorhanden */
-		IRC_WriteStrClient( From, RPL_BANLIST_MSG, Client_ID( From ), Channel_Name( Chan ), Mask );
-		return FALSE;
-	}
+	if( Already_Registered( My_Bans, Mask, Chan )) return TRUE;
 
 	c2c = New_C2C( Mask, Chan, FALSE );
 	if( ! c2c )

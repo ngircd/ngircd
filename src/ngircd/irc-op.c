@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-op.c,v 1.12 2003/12/05 11:57:28 alex Exp $";
+static char UNUSED id[] = "$Id: irc-op.c,v 1.13 2004/04/09 21:41:52 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -104,7 +104,7 @@ IRC_INVITE( CLIENT *Client, REQUEST *Req )
 		if( remember )
 		{
 			/* We must memember this invite */
-			if( ! Lists_AddInvited( from, Client_Mask( target ), chan, TRUE )) return CONNECTED;
+			if( ! Lists_AddInvited( Client_Mask( target ), chan, TRUE )) return CONNECTED;
 		}
 	}
 

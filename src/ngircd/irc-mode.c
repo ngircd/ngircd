@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-mode.c,v 1.33 2004/02/29 16:28:44 alex Exp $";
+static char UNUSED id[] = "$Id: irc-mode.c,v 1.34 2004/04/09 21:41:52 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -642,7 +642,8 @@ Add_Invite( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, CHAR *Pattern )
 
 	mask = Lists_MakeMask( Pattern );
 
-	if( ! Lists_AddInvited( Prefix, mask, Channel, FALSE )) return CONNECTED;
+	if( ! Lists_AddInvited( mask, Channel, FALSE )) return CONNECTED;
+
 	return Send_ListChange( "+I", Prefix, Client, Channel, mask );
 } /* Add_Invite */
 
@@ -658,7 +659,8 @@ Add_Ban( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, CHAR *Pattern )
 
 	mask = Lists_MakeMask( Pattern );
 
-	if( ! Lists_AddBanned( Prefix, mask, Channel )) return CONNECTED;
+	if( ! Lists_AddBanned( mask, Channel )) return CONNECTED;
+
 	return Send_ListChange( "+b", Prefix, Client, Channel, mask );
 } /* Add_Ban */
 

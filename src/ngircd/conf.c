@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.70 2005/03/15 16:56:18 alex Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.71 2005/03/19 15:46:38 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -66,8 +66,8 @@ LOCAL VOID Handle_CHANNEL PARAMS(( INT Line, CHAR *Var, CHAR *Arg ));
 
 LOCAL VOID Config_Error PARAMS(( CONST INT Level, CONST CHAR *Format, ... ));
 
-LOCAL VOID Config_Error_NaN PARAMS(( INT LINE, CONST CHAR *Value ));
-LOCAL VOID Config_Error_TooLong PARAMS(( INT LINE, CONST CHAR *Value ));
+LOCAL VOID Config_Error_NaN PARAMS(( const int LINE, const char *Value ));
+LOCAL VOID Config_Error_TooLong PARAMS(( const int LINE, const char *Value ));
 
 LOCAL VOID Init_Server_Struct PARAMS(( CONF_SERVER *Server ));
 
@@ -1009,13 +1009,13 @@ Validate_Config( BOOLEAN Configtest )
 
 
 LOCAL VOID
-Config_Error_TooLong ( CONST INT Line, CONST CHAR *Item )
+Config_Error_TooLong ( const int Line, const char *Item )
 {
 	Config_Error( LOG_WARNING, "%s, line %d: Value of \"%s\" too long!", NGIRCd_ConfFile, Line, Item );
 }
 
 LOCAL VOID
-Config_Error_NaN( CONST INT Line, CONST CHAR *Item )
+Config_Error_NaN( const int Line, const char *Item )
 {
 	Config_Error( LOG_WARNING, "%s, line %d: Value of \"%s\" is not a number!", NGIRCd_ConfFile, Line, Item );
 }

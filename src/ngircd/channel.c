@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: channel.c,v 1.10 2002/01/28 01:16:15 alex Exp $
+ * $Id: channel.c,v 1.11 2002/01/29 00:11:10 alex Exp $
  *
  * channel.c: Management der Channels
  *
  * $Log: channel.c,v $
+ * Revision 1.11  2002/01/29 00:11:10  alex
+ * - neue Funktionen Channel_FirstChannelOf() und Channel_NextChannelOf().
+ *
  * Revision 1.10  2002/01/28 01:16:15  alex
  * - neue Funktionen Channel_Name(), Channel_First() und Channel_Next().
  *
@@ -246,7 +249,7 @@ GLOBAL CL2CHAN *Channel_FirstMember( CHANNEL *Chan )
 {
 	assert( Chan != NULL );
 	return Get_First_Cl2Chan( NULL, Chan );
-} /* Channel_IsMember */
+} /* Channel_FirstMember */
 
 
 GLOBAL CL2CHAN *Channel_NextMember( CHANNEL *Chan, CL2CHAN *Cl2Chan )
@@ -255,6 +258,21 @@ GLOBAL CL2CHAN *Channel_NextMember( CHANNEL *Chan, CL2CHAN *Cl2Chan )
 	assert( Cl2Chan != NULL );
 	return Get_Next_Cl2Chan( Cl2Chan->next, NULL, Chan );
 } /* Channel_NextMember */
+
+
+GLOBAL CL2CHAN *Channel_FirstChannelOf( CLIENT *Client )
+{
+	assert( Client != NULL );
+	return Get_First_Cl2Chan( Client, NULL );
+} /* Channel_FirstChannelOf */
+
+
+GLOBAL CL2CHAN *Channel_NextChannelOf( CLIENT *Client, CL2CHAN *Cl2Chan )
+{
+	assert( Client != NULL );
+	assert( Cl2Chan != NULL );
+	return Get_Next_Cl2Chan( Cl2Chan->next, Client, NULL );
+} /* Channel_NextChannelOf */
 
 
 GLOBAL CLIENT *Channel_GetClient( CL2CHAN *Cl2Chan )

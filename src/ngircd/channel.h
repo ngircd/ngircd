@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: channel.h,v 1.8 2002/01/28 01:16:15 alex Exp $
+ * $Id: channel.h,v 1.9 2002/01/29 00:11:19 alex Exp $
  *
  * channel.h: Management der Channels (Header)
  *
  * $Log: channel.h,v $
+ * Revision 1.9  2002/01/29 00:11:19  alex
+ * - neue Funktionen Channel_FirstChannelOf() und Channel_NextChannelOf().
+ *
  * Revision 1.8  2002/01/28 01:16:15  alex
  * - neue Funktionen Channel_Name(), Channel_First() und Channel_Next().
  *
@@ -94,6 +97,8 @@ GLOBAL CHANNEL *Channel_Next( CHANNEL *Chan );
 
 GLOBAL CL2CHAN *Channel_FirstMember( CHANNEL *Chan );
 GLOBAL CL2CHAN *Channel_NextMember( CHANNEL *Chan, CL2CHAN *Cl2Chan );
+GLOBAL CL2CHAN *Channel_FirstChannelOf( CLIENT *Client );
+GLOBAL CL2CHAN *Channel_NextChannelOf( CLIENT *Client, CL2CHAN *Cl2Chan );
 
 GLOBAL CLIENT *Channel_GetClient( CL2CHAN *Cl2Chan );
 GLOBAL CHANNEL *Channel_GetChannel( CL2CHAN *Cl2Chan );

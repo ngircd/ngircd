@@ -141,9 +141,9 @@
 				F52162DD01C7BCDD012300F4,
 				F52162E501C7C79E012300F4,
 				F51D17FF01C8F5B701E11C2E,
-				F51D180601C8FDD001E11C2E,
 				F51D180701C8FDD001E11C2E,
 				F576ABFD01D5E77301A85B03,
+				F5263AEE01E263D201CE8F8F,
 			);
 			isa = PBXSourcesBuildPhase;
 			name = Sources;
@@ -250,12 +250,6 @@
 			settings = {
 			};
 		};
-		F51D180601C8FDD001E11C2E = {
-			fileRef = F51D180001C8FDD001E11C2E;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
 		F51D180701C8FDD001E11C2E = {
 			fileRef = F51D180201C8FDD001E11C2E;
 			isa = PBXBuildFile;
@@ -276,6 +270,7 @@
 		};
 		F51F791401DFD0DE01D13771 = {
 			children = (
+				F5263AEF01E2A9B801CE8F8F,
 				F51F791501DFD0DE01D13771,
 				F51F791601DFD0DE01D13771,
 				F51F791701DFD0DE01D13771,
@@ -552,6 +547,18 @@
 			isa = PBXBuildFile;
 			settings = {
 			};
+		};
+		F5263AEE01E263D201CE8F8F = {
+			fileRef = F51D180001C8FDD001E11C2E;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5263AEF01E2A9B801CE8F8F = {
+			isa = PBXFileReference;
+			name = Makefile.am;
+			path = ../doc/Makefile.am;
+			refType = 2;
 		};
 		F56D8B9E01E0BFA00155ADA7 = {
 			children = (

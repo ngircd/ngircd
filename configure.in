@@ -9,9 +9,13 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: configure.in,v 1.29 2002/02/19 02:11:26 alex Exp $
+# $Id: configure.in,v 1.30 2002/02/25 11:41:43 alex Exp $
 #
 # $Log: configure.in,v $
+# Revision 1.30  2002/02/25 11:41:43  alex
+# - es werden ein paar Funktionen mehr getestet: u.a. vsnprintf() und setsockopt().
+# - libUTIL wird eingebunden, so vorhanden (unter A/UX notwendig!)
+#
 # Revision 1.29  2002/02/19 02:11:26  alex
 # - auf die "libbe" wird nur noch getestet, wenn syslog ueberhaupt verwendet wird.
 #
@@ -176,18 +180,23 @@ AC_TRY_COMPILE([
 	AC_MSG_RESULT(no)
 ])
 
+# -- Libraries --
+
+AC_CHECK_LIB(UTIL,memmove)
+
 # -- Funktionen --
 
 AC_FUNC_MALLOC
 
 AC_CHECK_FUNCS([ \
-	gethostbyaddr gethostbyname gethostname inet_ntoa memmove memset \
-	select socket strcasecmp strchr strerror strftime strstr waitpid \
+	bind gethostbyaddr gethostbyname gethostname inet_ntoa memmove \
+	memset select setsockopt socket strcasecmp strchr strerror strftime \
+	strstr vsnprintf waitpid \
 	],,AC_MSG_ERROR([required function missing!]))
 
 AC_CHECK_FUNCS(inet_aton)
 
-# -- Libraries --
+AC_CHECK_FUNCS(sigaction)
 
 # -- Konfigurationsoptionen --
 

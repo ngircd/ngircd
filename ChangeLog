@@ -13,8 +13,6 @@
 ngIRCd CVS-HEAD
 
   - Manual-Pages ngircd.8 und ngircd.conf.5 begonnen.
-  - configure-Script prueft auf POSIX Regular Expression Library, die in
-    Zukunft benutzt werden soll.
   - Wird der Netzwerk-Sniffer aktiviert (--sniffer), so schaltet der
     ngIRCd nun automatisch in den Debug-Modus.
   - unter Systemen, die inet_aton() nicht kennen (wie z.B. A/UX) kann der
@@ -44,6 +42,7 @@ ngIRCd CVS-HEAD
     Tree aufgenommen und in Build-System integriert; der ngIRCd compiliert
     nun z.B. unter A/UX mit dem nativen Compiler von Apple.
   - TOPIC lieferte bei unbekanntem Channel einen falschen Fehlercode.
+  - LIST versteht nun Wildcards.
 
 ngIRCd 0.4.3, 11.06.2002
 
@@ -56,7 +55,7 @@ ngIRCd 0.4.2, 29.04.2002
   - LUSERS verzaehlt sich bei eigenen Server-Links nicht mehr.
   - QUIT wird nun auch von noch nicht registrierten Clients akzeptiert.
   - IRC-Funktion LIST implementiert; bisher werden allerdings noch keine
-    Regular Expressions (bis auf "*") unterstuetzt.
+    Wildcards (bis auf "*") unterstuetzt.
 
 ngIRCd 0.4.1, 08.04.2002
 
@@ -233,4 +232,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.76 2002/06/11 21:53:23 alex Exp $
+$Id: ChangeLog,v 1.77 2002/06/26 15:47:08 alex Exp $

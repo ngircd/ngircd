@@ -30,6 +30,7 @@ ngIRCd CVS-HEAD
   - Begonnen, BAN zu implementieren.
   - Unter A/UX (und evtl. weiteren Systemen) kompiliert der ngIRCd nun mit
     dem "nativen" (ggf. pre-ANSI) Compiler.
+  - LIST versteht nun Wildcards.
 
 ngIRCd 0.4.2, 29.04.2002
 
@@ -111,4 +112,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.36 2002/06/09 13:21:28 alex Exp $
+$Id: NEWS,v 1.37 2002/06/26 15:47:08 alex Exp $

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.h,v 1.14 2002/09/02 19:01:11 alex Exp $
+ * $Id: ngircd.h,v 1.15 2002/11/22 17:59:54 alex Exp $
  *
  * ngircd.h: Prototypen aus dem "Haupt-Modul"
  */
@@ -47,8 +47,11 @@ GLOBAL CHAR NGIRCd_ConfFile[FNAME_LEN];	/* Konfigurationsdatei */
 
 GLOBAL CHAR NGIRCd_ProtoID[1024];	/* Protokoll- und Server-Identifikation */
 
+
 GLOBAL CHAR *NGIRCd_Version PARAMS((VOID ));
 GLOBAL CHAR *NGIRCd_VersionAddition PARAMS((VOID ));
+
+GLOBAL VOID NGIRCd_Reload PARAMS(( VOID ));
 
 
 #endif

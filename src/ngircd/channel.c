@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: channel.c,v 1.31 2002/09/02 18:23:35 alex Exp $
+ * $Id: channel.c,v 1.32 2002/09/03 23:57:57 alex Exp $
  *
  * channel.c: Management der Channels
  */
@@ -52,7 +52,6 @@ LOCAL CHANNEL *My_Channels;
 LOCAL CL2CHAN *My_Cl2Chan;
 
 
-LOCAL CHANNEL *New_Chan PARAMS(( CHAR *Name ));
 LOCAL CL2CHAN *Get_Cl2Chan PARAMS(( CHANNEL *Chan, CLIENT *Client ));
 LOCAL CL2CHAN *Add_Client PARAMS(( CHANNEL *Chan, CLIENT *Client ));
 LOCAL BOOLEAN Remove_Client PARAMS(( INT Type, CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, CHAR *Reason, BOOLEAN InformServer ));
@@ -91,12 +90,9 @@ Channel_InitPredefined( VOID )
 		}
 		
 		/* Channel anlegen */
-		chan = New_Chan( Conf_Channel[i].name );
+		chan = Channel_Create( Conf_Channel[i].name );
 		if( chan )
 		{
-			/* Verketten */
-			chan->next = My_Channels;
-			My_Channels = chan;
 			Channel_ModeAdd( chan, 'P' );
 			Channel_SetTopic( chan, Conf_Channel[i].topic );
 			c = Conf_Channel[i].modes;
@@ -159,12 +155,8 @@ Channel_Join( CLIENT *Client, CHAR *Name )
 	else
 	{
 		/* Gibt es noch nicht? Dann neu anlegen: */
-		chan = New_Chan( Name );
+		chan = Channel_Create( Name );
 		if( ! chan ) return FALSE;
-
-		/* Verketten */
-		chan->next = My_Channels;
-		My_Channels = chan;
 	}
 
 	/* User dem Channel hinzufuegen */
@@ -577,6 +569,18 @@ Channel_SetTopic( CHANNEL *Chan, CHAR *Topic )
 } /* Channel_SetTopic */
 
 
+GLOBAL VOID
+Channel_SetModes( CHANNEL *Chan, CHAR *Modes )
+{
+	assert( Chan != NULL );
+	assert( Modes != NULL );
+
+	strncpy( Chan->modes, Modes, CHANNEL_MODE_LEN - 1 );
+	Chan->topic[CHANNEL_MODE_LEN - 1] = '\0';
+} /* Channel_SetModes */
+
+
+
 GLOBAL BOOLEAN
 Channel_Write( CHANNEL *Chan, CLIENT *From, CLIENT *Client, CHAR *Text )
 {
@@ -604,9 +608,8 @@ Channel_Write( CHANNEL *Chan, CLIENT *From, CLIENT *Client, CHAR *Text )
 } /* Channel_Write */
 
 
-
-LOCAL CHANNEL *
-New_Chan( CHAR *Name )
+GLOBAL CHANNEL *
+Channel_Create( CHAR *Name )
 {
 	/* Neue Channel-Struktur anlegen */
 
@@ -627,10 +630,14 @@ New_Chan( CHAR *Name )
 	strcpy( c->topic, "" );
 	c->hash = Hash( c->name );
 
+	/* Verketten */
+	c->next = My_Channels;
+	My_Channels = c;
+	
 	Log( LOG_DEBUG, "Created new channel structure for \"%s\".", Name );
 	
 	return c;
-} /* New_Chan */
+} /* Channel_Create */
 
 
 LOCAL CL2CHAN *

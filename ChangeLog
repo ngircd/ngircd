@@ -24,6 +24,8 @@ ngIRCd 0.2.x, xx.xx.2002
     jeweiligen System auch definiert ist.
   - bei ausgehenden Verbindungen wird nun der Ziel-Port protokolliert.
   - neuer Befehl VERSION.
+  - make-Target "check" (und "distcheck") mit Sinn erfuellt :-)
+    (die Tests sind aber bisher nicht all zu tiefgehend ...)
 
 ngIRCd 0.2.1, 17.02.2002
 
@@ -118,4 +120,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.25 2002/02/19 20:36:40 alex Exp $
+$Id: ChangeLog,v 1.26 2002/02/21 23:59:52 alex Exp $

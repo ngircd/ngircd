@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.119 2003/03/07 17:16:49 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.120 2003/03/27 01:20:22 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -681,6 +681,37 @@ Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient )
 	/* Clean up connection structure (=free it) */
 	Init_Conn_Struct( Idx );
 } /* Conn_Close */
+
+
+GLOBAL VOID
+Conn_SyncServerStruct( VOID )
+{
+	/* Synchronize server structures (connection IDs):
+	 * connections <-> configuration */
+
+	CLIENT *client;
+	CONN_ID i;
+	INT c;
+
+	for( i = 0; i < Pool_Size; i++ )
+	{
+		/* Established connection? */
+		if( My_Connections[i].sock <= NONE ) continue;
+
+		/* Server connection? */
+		client = Client_GetFromConn( i );
+		if(( ! client ) || ( Client_Type( client ) != CLIENT_SERVER )) continue;
+
+		for( c = 0; c < MAX_SERVERS; c++ )
+		{
+			/* Configured server? */
+			if( ! Conf_Server[c].host[0] ) continue;
+
+			/* Duplicate? */
+			if( strcmp( Conf_Server[c].name, Client_ID( client )) == 0 ) Conf_Server[c].conn_id = i;
+		}
+	}
+} /* SyncServerStruct */
 
 
 LOCAL BOOLEAN

@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conn.h,v 1.30 2003/02/21 19:18:48 alex Exp $
+ * $Id: conn.h,v 1.31 2003/03/27 01:20:22 alex Exp $
  *
  * Connection management (header)
  */
@@ -96,6 +96,7 @@ GLOBAL BOOLEAN Conn_WriteStr PARAMS(( CONN_ID Idx, CHAR *Format, ... ));
 
 GLOBAL VOID Conn_Close PARAMS(( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient ));
 
+GLOBAL VOID Conn_SyncServerStruct PARAMS(( VOID ));
 
 GLOBAL INT Conn_MaxFD;
 

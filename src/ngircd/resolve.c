@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: resolve.c,v 1.2 2002/05/30 16:52:21 alex Exp $
+ * $Id: resolve.c,v 1.3 2002/06/09 13:19:08 alex Exp $
  *
  * resolve.c: asyncroner Resolver
  */
@@ -67,7 +67,7 @@ Resolve_Addr( struct sockaddr_in *Addr )
 	s = malloc( sizeof( RES_STAT ));
 	if( ! s )
 	{
-		Log( LOG_EMERG, "Resolver: Can't allocate memory!" );
+		Log( LOG_EMERG, "Resolver: Can't allocate memory! [Resolve_Addr]" );
 		return NULL;
 	}
 
@@ -122,7 +122,7 @@ Resolve_Name( CHAR *Host )
 	s = malloc( sizeof( RES_STAT ));
 	if( ! s )
 	{
-		Log( LOG_EMERG, "Resolver: Can't allocate memory!" );
+		Log( LOG_EMERG, "Resolver: Can't allocate memory! [Resolve_Name]" );
 		return NULL;
 	}
 

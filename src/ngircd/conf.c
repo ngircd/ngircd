@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.c,v 1.28 2002/09/02 14:59:17 alex Exp $
+ * $Id: conf.c,v 1.29 2002/09/16 09:13:06 alex Exp $
  *
  * conf.h: Konfiguration des ngircd
  */
@@ -87,6 +87,9 @@ Conf_Test( VOID )
 	printf( "  ServerName = %s\n", Conf_ServerName );
 	printf( "  ServerInfo = %s\n", Conf_ServerInfo );
 	printf( "  ServerPwd = %s\n", Conf_ServerPwd );
+	printf( "  AdminInfo1 = %s\n", Conf_ServerAdmin1 );
+	printf( "  AdminInfo2 = %s\n", Conf_ServerAdmin2 );
+	printf( "  AdminEMail = %s\n", Conf_ServerAdminMail );
 	printf( "  MotdFile = %s\n", Conf_MotdFile );
 	printf( "  ListenPorts = " );
 	for( i = 0; i < Conf_ListenPorts_Count; i++ )
@@ -153,6 +156,10 @@ Set_Defaults( VOID )
 	strcpy( Conf_ServerName, "" );
 	sprintf( Conf_ServerInfo, "%s %s", PACKAGE, VERSION );
 	strcpy( Conf_ServerPwd, "" );
+
+	strcpy( Conf_ServerAdmin1, "" );
+	strcpy( Conf_ServerAdmin2, "" );
+	strcpy( Conf_ServerAdminMail, "" );
 
 	strcpy( Conf_MotdFile, MOTD_FILE );
 
@@ -315,6 +322,27 @@ Handle_GLOBAL( INT Line, CHAR *Var, CHAR *Arg )
 		Conf_ServerPwd[CLIENT_PASS_LEN - 1] = '\0';
 		return;
 	}
+	if( strcasecmp( Var, "AdminInfo1" ) == 0 )
+	{
+		/* Server-Info-Text */
+		strncpy( Conf_ServerAdmin1, Arg, CLIENT_INFO_LEN - 1 );
+		Conf_ServerAdmin1[CLIENT_INFO_LEN - 1] = '\0';
+		return;
+	}
+	if( strcasecmp( Var, "AdminInfo2" ) == 0 )
+	{
+		/* Server-Info-Text */
+		strncpy( Conf_ServerAdmin2, Arg, CLIENT_INFO_LEN - 1 );
+		Conf_ServerAdmin2[CLIENT_INFO_LEN - 1] = '\0';
+		return;
+	}
+	if( strcasecmp( Var, "AdminEMail" ) == 0 )
+	{
+		/* Server-Info-Text */
+		strncpy( Conf_ServerAdminMail, Arg, CLIENT_INFO_LEN - 1 );
+		Conf_ServerAdminMail[CLIENT_INFO_LEN - 1] = '\0';
+		return;
+	}
 	if( strcasecmp( Var, "Ports" ) == 0 )
 	{
 		/* Ports, durch "," getrennt, auf denen der Server
@@ -399,8 +427,8 @@ Handle_OPERATOR( INT Line, CHAR *Var, CHAR *Arg )
 	if( strcasecmp( Var, "Name" ) == 0 )
 	{
 		/* Name des IRC Operator */
-		strncpy( Conf_Oper[Conf_Oper_Count - 1].name, Arg, CLIENT_ID_LEN - 1 );
-		Conf_Oper[Conf_Oper_Count - 1].name[CLIENT_ID_LEN - 1] = '\0';
+		strncpy( Conf_Oper[Conf_Oper_Count - 1].name, Arg, CLIENT_PASS_LEN - 1 );
+		Conf_Oper[Conf_Oper_Count - 1].name[CLIENT_PASS_LEN - 1] = '\0';
 		return;
 	}
 	if( strcasecmp( Var, "Password" ) == 0 )
@@ -505,9 +533,25 @@ Validate_Config( VOID )
 	if( ! Conf_ServerName[0] )
 	{
 		/* Kein Servername konfiguriert */
-		Config_Error( LOG_ALERT, "No server name configured in \"%s\"!", NGIRCd_ConfFile );
+		Config_Error( LOG_ALERT, "No server name configured in \"%s\" ('ServerName')!", NGIRCd_ConfFile );
 		Config_Error( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE );
 		exit( 1 );
+	}
+
+#ifdef STRICT_RFC
+	if( ! ConfAdminMail[0] )
+	{
+		/* Keine Server-Information konfiguriert */
+		Config_Error( LOG_ALERT, "No administrator email address configured in \"%s\" ('AdminEMail')!", NGIRCd_ConfFile );
+		Config_Error( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE );
+		exit( 1 );
+	}
+#endif
+
+	if( ! Conf_ServerAdmin1[0] && ! Conf_ServerAdmin1[0] && ! Conf_ServerAdminMail[0] )
+	{
+		/* Keine Server-Information konfiguriert */
+		Log( LOG_WARNING, "No server information configured but required by RFC!" );
 	}
 } /* Validate_Config */
 

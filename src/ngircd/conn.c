@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.70 2002/09/07 21:13:38 alex Exp $
+ * $Id: conn.c,v 1.71 2002/09/07 21:35:06 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -301,7 +301,7 @@ Conn_Handler( VOID )
 		}
 
 		/* Timeout initialisieren */
-		tv.tv_sec = 5;
+		tv.tv_sec = 1;
 		tv.tv_usec = 0;
 		
 		/* Auf Aktivitaet warten */

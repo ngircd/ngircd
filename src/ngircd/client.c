@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.22 2002/01/05 20:08:17 alex Exp $
+ * $Id: client.c,v 1.23 2002/01/05 23:26:05 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,9 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.23  2002/01/05 23:26:05  alex
+ * - Vorbereitungen fuer Ident-Abfragen in Client-Strukturen.
+ *
  * Revision 1.22  2002/01/05 20:08:17  alex
  * - neue Funktion Client_NextHop().
  *
@@ -184,28 +187,28 @@ GLOBAL CLIENT *Client_ThisServer( VOID )
 } /* Client_ThisServer */
 
 
-GLOBAL CLIENT *Client_NewLocal( CONN_ID Idx, CHAR *Hostname, INT Type )
+GLOBAL CLIENT *Client_NewLocal( CONN_ID Idx, CHAR *Hostname, INT Type, BOOLEAN Idented )
 {
 	/* Neuen lokalen Client erzeugen: Wrapper-Funktion fuer Client_New(). */
-	return Client_New( Idx, This_Server, Type, NULL, NULL, Hostname, NULL, 0, 0, NULL );
+	return Client_New( Idx, This_Server, Type, NULL, NULL, Hostname, NULL, 0, 0, NULL, Idented );
 } /* Client_NewLocal */
 
 
-GLOBAL CLIENT *Client_NewRemoteServer( CLIENT *Introducer, CHAR *Hostname, INT Hops, INT Token, CHAR *Info )
+GLOBAL CLIENT *Client_NewRemoteServer( CLIENT *Introducer, CHAR *Hostname, INT Hops, INT Token, CHAR *Info, BOOLEAN Idented )
 {
 	/* Neuen Remote-Client erzeugen: Wrapper-Funktion fuer Client_New (). */
-	return Client_New( NONE, Introducer, CLIENT_SERVER, Hostname, NULL, Hostname, Info, Hops, Token, NULL );
+	return Client_New( NONE, Introducer, CLIENT_SERVER, Hostname, NULL, Hostname, Info, Hops, Token, NULL, Idented );
 } /* Client_NewRemoteServer */
 
 
-GLOBAL CLIENT *Client_NewRemoteUser( CLIENT *Introducer, CHAR *Nick, INT Hops, CHAR *User, CHAR *Hostname, INT Token, CHAR *Modes, CHAR *Info )
+GLOBAL CLIENT *Client_NewRemoteUser( CLIENT *Introducer, CHAR *Nick, INT Hops, CHAR *User, CHAR *Hostname, INT Token, CHAR *Modes, CHAR *Info, BOOLEAN Idented )
 {
 	/* Neuen Remote-Client erzeugen: Wrapper-Funktion fuer Client_New (). */
-	return Client_New( NONE, Introducer, CLIENT_USER, Nick, User, Hostname, Info, Hops, Token, NULL );
+	return Client_New( NONE, Introducer, CLIENT_USER, Nick, User, Hostname, Info, Hops, Token, NULL, Idented );
 } /* Client_NewRemoteUser */
 
 
-GLOBAL CLIENT *Client_New( CONN_ID Idx, CLIENT *Introducer, INT Type, CHAR *ID, CHAR *User, CHAR *Hostname, CHAR *Info, INT Hops, INT Token, CHAR *Modes )
+GLOBAL CLIENT *Client_New( CONN_ID Idx, CLIENT *Introducer, INT Type, CHAR *ID, CHAR *User, CHAR *Hostname, CHAR *Info, INT Hops, INT Token, CHAR *Modes, BOOLEAN Idented )
 {
 	CLIENT *client;
 
@@ -221,7 +224,7 @@ GLOBAL CLIENT *Client_New( CONN_ID Idx, CLIENT *Introducer, INT Type, CHAR *ID, 
 	client->introducer = Introducer;
 	client->type = Type;
 	if( ID ) Client_SetID( client, ID );
-	if( User ) Client_SetUser( client, User );
+	if( User ) Client_SetUser( client, User, Idented );
 	if( Hostname ) Client_SetHostname( client, Hostname );
 	if( Info ) Client_SetInfo( client, Info );
 	client->hops = Hops;
@@ -265,10 +268,10 @@ GLOBAL VOID Client_Destroy( CLIENT *Client )
 				if( c->conn_id != NONE )
 				{
 					/* Ein lokaler User. Andere Server informieren! */
-					Log( LOG_NOTICE, "User \"%s!%s@%s\" exited (connection %d).", c->id, c->user, c->host, c->conn_id );
+					Log( LOG_NOTICE, "User \"%s\" exited (connection %d).", c->id, c->conn_id );
 					IRC_WriteStrServersPrefix( NULL, c, "QUIT :" );
 				}
-				else Log( LOG_DEBUG, "User \"%s!%s@%s\" exited.", c->id, c->user, c->host );
+				else Log( LOG_DEBUG, "User \"%s\" exited.", c->id );
 			}
 			else if( c->type == CLIENT_SERVER ) Log( LOG_NOTICE, "Server \"%s\" exited.", c->id );
 			else Log( LOG_NOTICE, "Unknown client \"%s\" exited.", c->id );
@@ -302,12 +305,17 @@ GLOBAL VOID Client_SetID( CLIENT *Client, CHAR *ID )
 } /* Client_SetID */
 
 
-GLOBAL VOID Client_SetUser( CLIENT *Client, CHAR *User )
+GLOBAL VOID Client_SetUser( CLIENT *Client, CHAR *User, BOOLEAN Idented )
 {
 	/* Username eines Clients setzen */
 
 	assert( Client != NULL );
-	strncpy( Client->user, User, CLIENT_USER_LEN );
+	if( Idented ) strncpy( Client->user, User, CLIENT_USER_LEN );
+	else
+	{
+		Client->user[0] = '~';
+		strncpy( Client->user + 1, User, CLIENT_USER_LEN - 1 );
+	}
 	Client->user[CLIENT_USER_LEN - 1] = '\0';
 } /* Client_SetUser */
 

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.h,v 1.15 2002/01/05 20:08:17 alex Exp $
+ * $Id: client.h,v 1.16 2002/01/05 23:26:05 alex Exp $
  *
  * client.h: Konfiguration des ngircd (Header)
  *
  * $Log: client.h,v $
+ * Revision 1.16  2002/01/05 23:26:05  alex
+ * - Vorbereitungen fuer Ident-Abfragen in Client-Strukturen.
+ *
  * Revision 1.15  2002/01/05 20:08:17  alex
  * - neue Funktion Client_NextHop().
  *
@@ -112,10 +115,10 @@ typedef POINTER CLIENT;
 GLOBAL VOID Client_Init( VOID );
 GLOBAL VOID Client_Exit( VOID );
 
-GLOBAL CLIENT *Client_NewLocal( CONN_ID Idx, CHAR *Hostname, INT Type );
-GLOBAL CLIENT *Client_NewRemoteServer( CLIENT *Introducer, CHAR *Hostname, INT Hops, INT Token, CHAR *Info );
-GLOBAL CLIENT *Client_NewRemoteUser( CLIENT *Introducer, CHAR *Nick, INT Hops, CHAR *User, CHAR *Hostname, INT Token, CHAR *Modes, CHAR *Info );
-GLOBAL CLIENT *Client_New( CONN_ID Idx, CLIENT *Introducer, INT Type, CHAR *ID, CHAR *User, CHAR *Hostname, CHAR *Info, INT Hops, INT Token, CHAR *Modes );
+GLOBAL CLIENT *Client_NewLocal( CONN_ID Idx, CHAR *Hostname, INT Type, BOOLEAN Idented );
+GLOBAL CLIENT *Client_NewRemoteServer( CLIENT *Introducer, CHAR *Hostname, INT Hops, INT Token, CHAR *Info, BOOLEAN Idented );
+GLOBAL CLIENT *Client_NewRemoteUser( CLIENT *Introducer, CHAR *Nick, INT Hops, CHAR *User, CHAR *Hostname, INT Token, CHAR *Modes, CHAR *Info, BOOLEAN Idented );
+GLOBAL CLIENT *Client_New( CONN_ID Idx, CLIENT *Introducer, INT Type, CHAR *ID, CHAR *User, CHAR *Hostname, CHAR *Info, INT Hops, INT Token, CHAR *Modes, BOOLEAN Idented );
 
 GLOBAL VOID Client_Destroy( CLIENT *Client );
 
@@ -148,7 +151,7 @@ GLOBAL BOOLEAN Client_HasMode( CLIENT *Client, CHAR Mode );
 
 GLOBAL VOID Client_SetHostname( CLIENT *Client, CHAR *Hostname );
 GLOBAL VOID Client_SetID( CLIENT *Client, CHAR *Nick );
-GLOBAL VOID Client_SetUser( CLIENT *Client, CHAR *User );
+GLOBAL VOID Client_SetUser( CLIENT *Client, CHAR *User, BOOLEAN Idented );
 GLOBAL VOID Client_SetInfo( CLIENT *Client, CHAR *Info );
 GLOBAL VOID Client_SetPassword( CLIENT *Client, CHAR *Pwd );
 GLOBAL VOID Client_SetType( CLIENT *Client, INT Type );

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.43 2002/03/04 01:04:46 alex Exp $
+ * $Id: client.c,v 1.44 2002/03/06 14:30:43 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,9 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.44  2002/03/06 14:30:43  alex
+ * - ein paar assert()-Tests ergaenzt.
+ *
  * Revision 1.43  2002/03/04 01:04:46  alex
  * - neuen Clients mit Mode "a" wird nun auch der Default-Away-Text gesetzt.
  *
@@ -407,6 +410,8 @@ GLOBAL VOID Client_SetHostname( CLIENT *Client, CHAR *Hostname )
 	/* Hostname eines Clients setzen */
 	
 	assert( Client != NULL );
+	assert( Hostname != NULL );
+	
 	strncpy( Client->host, Hostname, CLIENT_HOST_LEN - 1 );
 	Client->host[CLIENT_HOST_LEN - 1] = '\0';
 } /* Client_SetHostname */
@@ -417,6 +422,8 @@ GLOBAL VOID Client_SetID( CLIENT *Client, CHAR *ID )
 	/* Hostname eines Clients setzen */
 
 	assert( Client != NULL );
+	assert( ID != NULL );
+	
 	strncpy( Client->id, ID, CLIENT_ID_LEN - 1 );
 	Client->id[CLIENT_ID_LEN - 1] = '\0';
 } /* Client_SetID */
@@ -427,6 +434,8 @@ GLOBAL VOID Client_SetUser( CLIENT *Client, CHAR *User, BOOLEAN Idented )
 	/* Username eines Clients setzen */
 
 	assert( Client != NULL );
+	assert( User != NULL );
+	
 	if( Idented ) strncpy( Client->user, User, CLIENT_USER_LEN - 1 );
 	else
 	{
@@ -442,6 +451,8 @@ GLOBAL VOID Client_SetInfo( CLIENT *Client, CHAR *Info )
 	/* Hostname eines Clients setzen */
 
 	assert( Client != NULL );
+	assert( Info != NULL );
+	
 	strncpy( Client->info, Info, CLIENT_INFO_LEN - 1 );
 	Client->info[CLIENT_INFO_LEN - 1] = '\0';
 } /* Client_SetInfo */
@@ -452,6 +463,8 @@ GLOBAL VOID Client_SetModes( CLIENT *Client, CHAR *Modes )
 	/* Hostname eines Clients setzen */
 
 	assert( Client != NULL );
+	assert( Modes != NULL );
+
 	strncpy( Client->modes, Modes, CLIENT_MODE_LEN - 1 );
 	Client->modes[CLIENT_MODE_LEN - 1] = '\0';
 } /* Client_SetModes */
@@ -462,6 +475,8 @@ GLOBAL VOID Client_SetPassword( CLIENT *Client, CHAR *Pwd )
 	/* Von einem Client geliefertes Passwort */
 
 	assert( Client != NULL );
+	assert( Pwd != NULL );
+	
 	strncpy( Client->pwd, Pwd, CLIENT_PASS_LEN - 1 );
 	Client->pwd[CLIENT_PASS_LEN - 1] = '\0';
 } /* Client_SetPassword */
@@ -515,6 +530,7 @@ GLOBAL VOID Client_SetToken( CLIENT *Client, INT Token )
 GLOBAL VOID Client_SetIntroducer( CLIENT *Client, CLIENT *Introducer )
 {
 	assert( Client != NULL );
+	assert( Introducer != NULL );
 	Client->introducer = Introducer;
 } /* Client_SetIntroducer */
 
@@ -656,6 +672,10 @@ GLOBAL CHAR *Client_ID( CLIENT *Client )
 {
 	assert( Client != NULL );
 
+#ifdef DEBUG
+	if( Client->type == CLIENT_USER ) assert( strlen( Client->id ) < CLIENT_NICK_LEN );
+#endif
+						   
 	if( Client->id[0] ) return Client->id;
 	else return "*";
 } /* Client_ID */

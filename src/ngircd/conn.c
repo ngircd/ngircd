@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.79 2002/10/09 17:02:49 alex Exp $
+ * $Id: conn.c,v 1.80 2002/10/09 17:07:22 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -484,12 +484,13 @@ Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient )
 		free( My_Connections[Idx].res_stat );
 	}
 
-	/* Bei Server-Verbindungen lasttry-Zeitpunkt so setzen, dass
-	 * der naechste Verbindungsversuch in RECONNECT_DELAY Sekunden
-	 * gestartet wird. */
-	if(( My_Connections[Idx].our_server >= 0 ) && ( Conf_Server[My_Connections[Idx].our_server].lasttry <  time( NULL )))
+	/* Startzeit des naechsten Connect-Versuchs modifizieren? */
+	if(( My_Connections[Idx].our_server >= 0 ) && ( Conf_Server[My_Connections[Idx].our_server].lasttry <  time( NULL ) - Conf_ConnectRetry ))
 	{
-		/* Okay, die Verbindung stand schon "genuegend lange" */
+		/* Okay, die Verbindung stand schon "genuegend lange":
+		 * lasttry-Zeitpunkt so setzen, dass der naechste
+		 * Verbindungsversuch in RECONNECT_DELAY Sekunden
+		 * gestartet wird. */
 		Conf_Server[My_Connections[Idx].our_server].lasttry = time( NULL ) - Conf_ConnectRetry + RECONNECT_DELAY;
 	}
 

@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: resolve.h,v 1.6 2003/12/27 13:01:12 alex Exp $
+ * $Id: resolve.h,v 1.7 2004/05/11 00:01:11 alex Exp $
  *
  * Asynchronous resolver (header)
  */
@@ -29,6 +29,9 @@ typedef struct _Res_Stat
 {
 	INT pid;			/* PID des Child-Prozess */
 	INT pipe[2];			/* Pipe fuer IPC */
+	INT stage;			/* Hostname/IP(0) or IDENT(1)? */
+	INT bufpos;			/* Position in buffer */
+	CHAR buffer[HOST_LEN];		/* Buffer */
 } RES_STAT;
 
 

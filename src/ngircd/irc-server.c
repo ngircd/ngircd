@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-server.c,v 1.36 2004/04/25 15:43:18 alex Exp $";
+static char UNUSED id[] = "$Id: irc-server.c,v 1.37 2004/05/11 00:01:11 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -23,6 +23,7 @@ static char UNUSED id[] = "$Id: irc-server.c,v 1.36 2004/04/25 15:43:18 alex Exp
 #include <string.h>
 #include <strings.h>
 
+#include "defines.h"
 #include "resolve.h"
 #include "conn.h"
 #include "conn-zip.h"

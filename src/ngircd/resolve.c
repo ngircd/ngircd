@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: resolve.c,v 1.8 2004/03/11 22:16:31 alex Exp $";
+static char UNUSED id[] = "$Id: resolve.c,v 1.9 2004/05/11 00:01:11 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -102,6 +102,8 @@ Resolve_Addr( struct sockaddr_in *Addr )
 		FD_SET( s->pipe[0], &Resolver_FDs );
 		if( s->pipe[0] > Conn_MaxFD ) Conn_MaxFD = s->pipe[0];
 		s->pid = pid;
+		s->stage = 0;
+		s->bufpos = 0;
 		return s;
 	}
 	else if( pid == 0 )
@@ -160,6 +162,8 @@ Resolve_Name( CHAR *Host )
 		FD_SET( s->pipe[0], &Resolver_FDs );
 		if( s->pipe[0] > Conn_MaxFD ) Conn_MaxFD = s->pipe[0];
 		s->pid = pid;
+		s->stage = 0;
+		s->bufpos = 0;
 		return s;
 	}
 	else if( pid == 0 )
@@ -193,13 +197,13 @@ Do_ResolveAddr( struct sockaddr_in *Addr, INT w_fd )
 
 	CHAR hostname[HOST_LEN];
 	struct hostent *h;
+	INT len;
 #ifdef IDENTAUTH
 	CHAR *res;
 #endif
 
-	Log_Resolver( LOG_DEBUG, "Now resolving %s ...", inet_ntoa( Addr->sin_addr ));
-
 	/* Resolve IP address */
+	Log_Resolver( LOG_DEBUG, "Now resolving %s ...", inet_ntoa( Addr->sin_addr ));
 	h = gethostbyaddr( (CHAR *)&Addr->sin_addr, sizeof( Addr->sin_addr ), AF_INET );
 	if( h ) strlcpy( hostname, h->h_name, sizeof( hostname ));
 	else
@@ -211,33 +215,35 @@ Do_ResolveAddr( struct sockaddr_in *Addr, INT w_fd )
 #endif	
 		strlcpy( hostname, inet_ntoa( Addr->sin_addr ), sizeof( hostname ));
 	}
+	Log_Resolver( LOG_DEBUG, "Ok, translated %s to \"%s\".", inet_ntoa( Addr->sin_addr ), hostname );
 
-#ifdef IDENTAUTH
-	/* Do "IDENT" (aka "AUTH") lookup and write result to parent */
-	Log_Resolver( LOG_DEBUG, "Doing IDENT lookup on socket %d ...", Sock );
-	res = ident_id( Sock, 10 );
-	Log_Resolver( LOG_DEBUG, "IDENT lookup on socket %d done.", Sock );
-#endif
-
-	/* Write result into pipe to parent */
-	if( (size_t)write( w_fd, hostname, strlen( hostname ) + 1 ) != (size_t)( strlen( hostname ) + 1 ))
+	/* Write resolver result into pipe to parent */
+	len = strlen( hostname ); 
+	hostname[len] = '\n'; len++;
+	if( (size_t)write( w_fd, hostname, len ) != (size_t)len )
 	{
 		Log_Resolver( LOG_CRIT, "Resolver: Can't write to parent: %s!", strerror( errno ));
 		close( w_fd );
 		return;
 	}
+
 #ifdef IDENTAUTH
-	if( (size_t)write( w_fd, res ? res : "", strlen( res ? res : "" ) + 1 ) != (size_t)( strlen( res ? res : "" ) + 1 ))
+	/* Do "IDENT" (aka "AUTH") lookup and write result to parent */
+	Log_Resolver( LOG_DEBUG, "Doing IDENT lookup on socket %d ...", Sock );
+	res = ident_id( Sock, 10 );
+	Log_Resolver( LOG_DEBUG, "Ok, IDENT lookup on socket %d done: \"%s\"", Sock, res ? res : "" );
+
+	/* Write IDENT result into pipe to parent */
+	len = strlen( res ? res : "" );
+	if( res != NULL ) res[len] = '\n';
+	len++;
+	if( (size_t)write( w_fd, res ? res : "\n", len ) != (size_t)len )
 	{
 		Log_Resolver( LOG_CRIT, "Resolver: Can't write to parent (IDENT): %s!", strerror( errno ));
 		close( w_fd );
-		free( res );
-		return;
 	}
 	free( res );
 #endif
-
-	Log_Resolver( LOG_DEBUG, "Ok, translated %s to \"%s\".", inet_ntoa( Addr->sin_addr ), hostname );
 } /* Do_ResolveAddr */
 
 
@@ -250,6 +256,7 @@ Do_ResolveName( CHAR *Host, INT w_fd )
 	CHAR ip[16];
 	struct hostent *h;
 	struct in_addr *addr;
+	INT len;
 
 	Log_Resolver( LOG_DEBUG, "Now resolving \"%s\" ...", Host );
 
@@ -269,16 +276,16 @@ Do_ResolveName( CHAR *Host, INT w_fd )
 #endif
 		strcpy( ip, "" );
 	}
+	if( ip[0] ) Log_Resolver( LOG_DEBUG, "Ok, translated \"%s\" to %s.", Host, ip );
 
 	/* Write result into pipe to parent */
-	if( (size_t)write( w_fd, ip, strlen( ip ) + 1 ) != (size_t)( strlen( ip ) + 1 ))
+	len = strlen( ip );
+	ip[len] = '\n'; len++;
+	if( (size_t)write( w_fd, ip, len ) != (size_t)len )
 	{
 		Log_Resolver( LOG_CRIT, "Resolver: Can't write to parent: %s!", strerror( errno ));
 		close( w_fd );
-		return;
 	}
-
-	if( ip[0] ) Log_Resolver( LOG_DEBUG, "Ok, translated \"%s\" to %s.", Host, ip );
 } /* Do_ResolveName */
 
 

@@ -8,7 +8,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: configure.in,v 1.87 2003/03/31 16:17:33 alex Exp $
+# $Id: configure.in,v 1.88 2003/04/21 08:01:29 alex Exp $
 #
 
 # -- Initialisierung --
@@ -289,7 +289,7 @@ B=`eval echo ${bindir}` ; B=`eval echo ${B}`
 S=`eval echo ${sbindir}` ; S=`eval echo ${S}`
 C=`eval echo ${sysconfdir}` ; C=`eval echo ${C}`
 M=`eval echo ${mandir}` ; M=`eval echo ${M}`
-D=`eval echo ${datadir}/doc/ngIRCd` ; D=`eval echo ${D}`
+D=`eval echo ${datadir}/doc/${PACKAGE}` ; D=`eval echo ${D}`
 
 echo "               Host: ${host}"
 echo "           Compiler: ${CC}"

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: lists.c,v 1.1 2002/05/27 11:22:39 alex Exp $
+ * $Id: lists.c,v 1.2 2002/06/02 15:23:16 alex Exp $
  *
  * lists.c: Verwaltung der "IRC-Listen": Ban, Invite, ...
  */
@@ -66,6 +66,12 @@ Lists_CheckInvited( CLIENT *Client, CHANNEL *Chan )
 
 	return FALSE;
 } /* Lists_CheckInvited */
+
+
+GLOBAL VOID
+Lists_AddInvited( CHAR *Pattern, CHANNEL *Chan )
+{
+} /* Lists_AddInvited */
 
 
 GLOBAL BOOLEAN

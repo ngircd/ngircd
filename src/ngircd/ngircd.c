@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.71 2003/01/01 13:32:23 alex Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.72 2003/02/23 12:04:05 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -42,6 +42,10 @@ static char UNUSED id[] = "$Id: ngircd.c,v 1.71 2003/01/01 13:32:23 alex Exp $";
 #include "log.h"
 #include "parse.h"
 #include "irc.h"
+
+#ifdef RENDEZVOUS
+#include "rendezvous.h"
+#endif
 
 #include "exp.h"
 #include "ngircd.h"
@@ -258,6 +262,9 @@ main( int argc, const char *argv[] )
 		Lists_Init( );
 		Channel_Init( );
 		Client_Init( );
+#ifdef RENDEZVOUS
+		Rendezvous_Init( );
+#endif
 		Conn_Init( );
 
 		/* Wenn als root ausgefuehrt und eine andere UID
@@ -320,6 +327,9 @@ main( int argc, const char *argv[] )
 
 		/* Alles abmelden */
 		Conn_Exit( );
+#ifdef RENDEZVOUS
+		Rendezvous_Exit( );
+#endif
 		Client_Exit( );
 		Channel_Exit( );
 		Lists_Exit( );
@@ -374,6 +384,10 @@ NGIRCd_VersionAddition( VOID )
 #ifdef IRCPLUS
 	if( txt[0] ) strcat( txt, "+" );
 	strcat( txt, "IRCPLUS" );
+#endif
+#ifdef RENDEZVOUS
+	if( txt[0] ) strcat( txt, "+" );
+	strcat( txt, "RENDEZVOUS" );
 #endif
 	
 	if( txt[0] ) strlcat( txt, "-", sizeof( txt ));

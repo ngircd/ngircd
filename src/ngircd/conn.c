@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2003 by Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.116 2003/02/21 19:19:27 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.117 2003/02/23 12:04:05 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -58,6 +58,10 @@ static char UNUSED id[] = "$Id: conn.c,v 1.116 2003/02/21 19:19:27 alex Exp $";
 #include "log.h"
 #include "parse.h"
 #include "tool.h"
+
+#ifdef RENDEZVOUS
+#include "rendezvous.h"
+#endif
 
 #include "exp.h"
 
@@ -132,8 +136,13 @@ Conn_Exit( VOID )
 	CONN_ID idx;
 	INT i;
 
-	/* Sockets schliessen */
 	Log( LOG_DEBUG, "Shutting down all connections ..." );
+
+#ifdef RENDEZVOUS
+	Rendezvous_UnregisterListeners( );
+#endif
+	
+	/* Sockets schliessen */
 	for( i = 0; i < Conn_MaxFD + 1; i++ )
 	{
 		if( FD_ISSET( i, &My_Sockets ))
@@ -195,6 +204,10 @@ Conn_ExitListeners( VOID )
 
 	INT i;
 
+#ifdef RENDEZVOUS
+	Rendezvous_UnregisterListeners( );
+#endif
+	
 	Log( LOG_INFO, "Shutting down all listening sockets ..." );
 	for( i = 0; i < Conn_MaxFD + 1; i++ )
 	{
@@ -214,7 +227,10 @@ Conn_NewListener( CONST UINT Port )
 
 	struct sockaddr_in addr;
 	INT sock;
-
+#ifdef RENDEZVOUS
+	CHAR name[CLIENT_ID_LEN], *info;
+#endif
+	
 	/* Server-"Listen"-Socket initialisieren */
 	memset( &addr, 0, sizeof( addr ));
 	addr.sin_family = AF_INET;
@@ -255,6 +271,34 @@ Conn_NewListener( CONST UINT Port )
 
 	Log( LOG_INFO, "Now listening on port %d (socket %d).", Port, sock );
 
+#ifdef RENDEZVOUS
+	/* Get best server description text */
+	if( ! Conf_ServerInfo[0] ) info = Conf_ServerName;
+	else
+	{
+		/* Use server info string */
+		info = NULL;
+		if( Conf_ServerInfo[0] == '[' )
+		{
+			/* Cut off leading hostname part in "[]" */
+			info = strchr( Conf_ServerInfo, ']' );
+			if( info )
+			{
+				info++;
+				while( *info == ' ' ) info++;
+			}
+		}
+		if( ! info ) info = Conf_ServerInfo;
+	}
+
+	/* Add port number to description if non-standard */
+	if( Port != 6667 ) snprintf( name, sizeof( name ), "%s (port %u)", info, Port );
+	else strlcpy( name, info, sizeof( name ));
+
+	/* Register service */
+	Rendezvous_Register( name, RENDEZVOUS_TYPE, Port );
+#endif
+
 	return TRUE;
 } /* Conn_NewListener */
 
@@ -284,6 +328,10 @@ Conn_Handler( VOID )
 	while(( ! NGIRCd_SignalQuit ) && ( ! NGIRCd_SignalRestart ))
 	{
 		timeout = TRUE;
+
+#ifdef RENDEZVOUS
+		Rendezvous_Handler( );
+#endif
 
 		/* Should the configuration be reloaded? */
 		if( NGIRCd_SignalRehash ) NGIRCd_Rehash( );

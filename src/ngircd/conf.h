@@ -9,13 +9,16 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.h,v 1.11 2002/03/10 17:50:48 alex Exp $
+ * $Id: conf.h,v 1.12 2002/03/10 18:47:02 alex Exp $
  *
  * conf.h: Konfiguration des ngircd (Header)
  *
  * $Log: conf.h,v $
+ * Revision 1.12  2002/03/10 18:47:02  alex
+ * *** empty log message ***
+ *
  * Revision 1.11  2002/03/10 17:50:48  alex
- * - Handling von "--version" und "--help" nochmal geaendert ...
+ * - Server-Gruppen implementiert.
  *
  * Revision 1.10  2002/02/27 23:23:53  alex
  * - Includes fuer einige Header bereinigt.

@@ -9,13 +9,16 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.48 2002/03/10 17:50:48 alex Exp $
+ * $Id: conn.c,v 1.49 2002/03/10 18:47:02 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
+ * Revision 1.49  2002/03/10 18:47:02  alex
+ * *** empty log message ***
+ *
  * Revision 1.48  2002/03/10 17:50:48  alex
- * - Handling von "--version" und "--help" nochmal geaendert ...
+ * - Server-Gruppen implementiert.
  *
  * Revision 1.47  2002/03/04 23:16:23  alex
  * - Logging geaendert: detaillierter im Syslog, "allgemeiner" fuer Clients.

@@ -9,13 +9,16 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.c,v 1.16 2002/03/10 17:50:48 alex Exp $
+ * $Id: conf.c,v 1.17 2002/03/10 18:47:02 alex Exp $
  *
  * conf.h: Konfiguration des ngircd
  *
  * $Log: conf.c,v $
+ * Revision 1.17  2002/03/10 18:47:02  alex
+ * *** empty log message ***
+ *
  * Revision 1.16  2002/03/10 17:50:48  alex
- * - Handling von "--version" und "--help" nochmal geaendert ...
+ * - Server-Gruppen implementiert.
  *
  * Revision 1.15  2002/03/06 15:35:19  alex
  * - Dateinamen und Pfad sind nun in Konstanten definiert.

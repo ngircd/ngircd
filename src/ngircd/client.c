@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: client.c,v 1.75 2004/01/17 03:17:49 alex Exp $";
+static char UNUSED id[] = "$Id: client.c,v 1.76 2004/03/11 22:16:31 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -1024,7 +1024,7 @@ New_Client_Struct( VOID )
 	
 	CLIENT *c;
 	
-	c = malloc( sizeof( CLIENT ));
+	c = (CLIENT *)malloc( sizeof( CLIENT ));
 	if( ! c )
 	{
 		Log( LOG_EMERG, "Can't allocate memory! [New_Client_Struct]" );

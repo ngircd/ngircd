@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: resolve.c,v 1.7 2003/12/27 13:01:12 alex Exp $";
+static char UNUSED id[] = "$Id: resolve.c,v 1.8 2004/03/11 22:16:31 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -78,7 +78,7 @@ Resolve_Addr( struct sockaddr_in *Addr )
 	INT pid;
 
 	/* Allocate memory */
-	s = malloc( sizeof( RES_STAT ));
+	s = (RES_STAT *)malloc( sizeof( RES_STAT ));
 	if( ! s )
 	{
 		Log( LOG_EMERG, "Resolver: Can't allocate memory! [Resolve_Addr]" );
@@ -136,7 +136,7 @@ Resolve_Name( CHAR *Host )
 	INT pid;
 
 	/* Allocate memory */
-	s = malloc( sizeof( RES_STAT ));
+	s = (RES_STAT *)malloc( sizeof( RES_STAT ));
 	if( ! s )
 	{
 		Log( LOG_EMERG, "Resolver: Can't allocate memory! [Resolve_Name]" );

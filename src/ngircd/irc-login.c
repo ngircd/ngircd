@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-login.c,v 1.39 2004/02/04 19:56:05 alex Exp $";
+static char UNUSED id[] = "$Id: irc-login.c,v 1.40 2004/03/11 22:16:31 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -509,7 +509,7 @@ Kill_Nick( CHAR *Nick, CHAR *Reason )
 	assert( Nick != NULL );
 	assert( Reason != NULL );
 
-	r.prefix = Client_ThisServer( );
+	r.prefix = (CHAR *)Client_ThisServer( );
 	r.argv[0] = Nick;
 	r.argv[1] = Reason;
 	r.argc = 2;

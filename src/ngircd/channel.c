@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: channel.c,v 1.44 2004/01/17 03:17:49 alex Exp $";
+static char UNUSED id[] = "$Id: channel.c,v 1.45 2004/03/11 22:16:31 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -708,7 +708,7 @@ Channel_Create( CHAR *Name )
 
 	assert( Name != NULL );
 	
-	c = malloc( sizeof( CHANNEL ));
+	c = (CHANNEL *)malloc( sizeof( CHANNEL ));
 	if( ! c )
 	{
 		Log( LOG_EMERG, "Can't allocate memory! [New_Chan]" );
@@ -760,7 +760,7 @@ Add_Client( CHANNEL *Chan, CLIENT *Client )
 	assert( Client != NULL );
 
 	/* neue CL2CHAN-Struktur anlegen */
-	cl2chan = malloc( sizeof( CL2CHAN ));
+	cl2chan = (CL2CHAN *)malloc( sizeof( CL2CHAN ));
 	if( ! cl2chan )
 	{
 		Log( LOG_EMERG, "Can't allocate memory! [Add_Client]" );

@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.132 2004/02/28 02:01:01 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.133 2004/03/11 22:16:31 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -117,7 +117,7 @@ Conn_Init( VOID )
 		/* konfiguriertes Limit beachten */
 		if( Pool_Size > Conf_MaxConnections ) Pool_Size = Conf_MaxConnections;
 	}
-	My_Connections = malloc( sizeof( CONNECTION ) * Pool_Size );
+	My_Connections = (CONNECTION *)malloc( sizeof( CONNECTION ) * Pool_Size );
 	if( ! My_Connections )
 	{
 		/* Speicher konnte nicht alloziert werden! */
@@ -1003,11 +1003,11 @@ New_Connection( INT Sock )
 		/* zunaechst realloc() versuchen; wenn das scheitert, malloc() versuchen
 		 * und Daten ggf. "haendisch" umkopieren. (Haesslich! Eine wirklich
 		 * dynamische Verwaltung waere wohl _deutlich_ besser ...) */
-		ptr = realloc( My_Connections, sizeof( CONNECTION ) * new_size );
+		ptr = (POINTER *)realloc( My_Connections, sizeof( CONNECTION ) * new_size );
 		if( ! ptr )
 		{
 			/* realloc() ist fehlgeschlagen. Nun malloc() probieren: */
-			ptr = malloc( sizeof( CONNECTION ) * new_size );
+			ptr = (POINTER *)malloc( sizeof( CONNECTION ) * new_size );
 			if( ! ptr )
 			{
 				/* Offenbar steht kein weiterer Sepeicher zur Verfuegung :-( */
@@ -1029,7 +1029,7 @@ New_Connection( INT Sock )
 #endif
 
 		/* Adjust pointer to new block */
-		My_Connections = ptr;
+		My_Connections = (CONNECTION *)ptr;
 
 		/* Initialize new items */
 		for( idx = Pool_Size; idx < new_size; idx++ ) Init_Conn_Struct( idx );

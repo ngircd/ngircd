@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: lists.c,v 1.12 2004/01/17 03:17:49 alex Exp $";
+static char UNUSED id[] = "$Id: lists.c,v 1.13 2004/03/11 22:16:31 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -371,7 +371,7 @@ New_C2C( CHAR *Mask, CHANNEL *Chan, BOOLEAN OnlyOnce )
 	assert( Chan != NULL );
 
 	/* Speicher fuer Eintrag anfordern */
-	c2c = malloc( sizeof( C2C ));
+	c2c = (C2C *)malloc( sizeof( C2C ));
 	if( ! c2c )
 	{
 		Log( LOG_EMERG, "Can't allocate memory! [New_C2C]" );

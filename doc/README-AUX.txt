@@ -31,7 +31,7 @@ Folgende Software wird jedoch benoetigt:
     ftp://arthur.ath.cx/pub/AUX/Software/Tools/sed-3.02.tar.gz
 
   - install (z.B. aus den GNU fileutils)
-    Ein install, daﬂ es entweder so "broken" ist, daﬂ configure das eigene
+    Ein install, welches entweder so "broken" ist, dass configure das eigene
     Shell-Script waehlt, oder eines, das funktioniert. Leider ist mindestens
     ein Binary im Umlauf, das Probleme macht.
     Bezugsquelle:
@@ -68,4 +68,4 @@ configure: 7:33, make: 12:02
 
 
 -- 
-$Id: README-AUX.txt,v 1.1.2.1 2002/04/29 14:11:23 alex Exp $
+$Id: README-AUX.txt,v 1.1.2.2 2002/04/29 14:44:24 alex Exp $

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: log.c,v 1.45 2004/05/07 11:19:21 alex Exp $";
+static char UNUSED id[] = "$Id: log.c,v 1.46 2004/05/10 23:57:46 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -182,7 +182,7 @@ va_dcl
 	if( NGIRCd_NoDaemon )
 	{
 		/* auf Konsole ausgeben */
-		fprintf( stdout, "[%d] %s\n", Level, msg );
+		fprintf( stdout, "[%d:%d] %s\n", getpid( ), Level, msg );
 		fflush( stdout );
 	}
 #ifdef SYSLOG
@@ -214,12 +214,14 @@ Log_Init_Resolver( VOID )
 #ifdef SYSLOG
 	openlog( PACKAGE_NAME, LOG_CONS|LOG_PID, LOG_LOCAL5 );
 #endif
+	Log_Resolver( LOG_DEBUG, "Resolver sub-process starting, PID %d.", getpid( ));
 } /* Log_Init_Resolver */
 
 
 GLOBAL VOID
 Log_Exit_Resolver( VOID )
 {
+	Log_Resolver( LOG_DEBUG, "Resolver sub-process %d done.", getpid( ));
 #ifdef SYSLOG
 	closelog( );
 #endif
@@ -239,16 +241,10 @@ va_dcl
 {
 	/* Eintrag des Resolver in Logfile(s) schreiben */
 
-#ifndef SYSLOG
-	return;
-#else
-
 	CHAR msg[MAX_LOG_MSG_LEN];
 	va_list ap;
 
 	assert( Format != NULL );
-
-	if( NGIRCd_NoDaemon ) return;
 
 #ifdef DEBUG
 	if(( Level == LOG_DEBUG ) && ( ! NGIRCd_Debug )) return;
@@ -265,9 +261,15 @@ va_dcl
 	vsnprintf( msg, MAX_LOG_MSG_LEN, Format, ap );
 	va_end( ap );
 
-	/* ... und ausgeben */
-	syslog( Level, msg );
-
+	/* Output */
+	if( NGIRCd_NoDaemon )
+	{
+		/* Output to console */
+		fprintf( stdout, "[%d:%d] %s\n", getpid( ), Level, msg );
+		fflush( stdout );
+	}
+#ifdef SYSLOG
+	else syslog( Level, msg );
 #endif
 } /* Log_Resolver */
 

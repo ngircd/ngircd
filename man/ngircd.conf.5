@@ -1,5 +1,5 @@
 .\"
-.\" $Id: ngircd.conf.5,v 1.7 2003/03/10 00:23:50 alex Exp $
+.\" $Id: ngircd.conf.5,v 1.8 2003/03/10 00:35:51 alex Exp $
 .\"
 .TH ngircd.conf 5 "March 2003" ngircd "ngIRCd Manual"
 .SH NAME
@@ -7,10 +7,10 @@ ngircd.conf \- configuration file of ngIRCd
 .SH SYNOPSIS
 .B /usr/local/etc/ngircd.conf
 .SH DESCRIPTION
-.B ngircd.conf
+.BR ngircd.conf
 is the configuration file for
-.B ngircd
-which you can adept to your local preferences and needs.
+.BR ngircd (8)
+which you should adept to your local preferences and needs.
 .SH FILE FORMAT
 The file consists of sections and parameters. A section begins with the name
 of the section in square brackets and continues until the next section
@@ -75,7 +75,7 @@ For this to work the server must have been
 started with root privileges! In addition, the configuration and MOTD files
 must be readable by this user, otherwise RESTART and REHASH won't work!
 .IP ServerGID
-Group ID under which the ngircd should run; you can use the name of the
+Group ID under which the ngIRCd should run; you can use the name of the
 group or the numerical ID.
 .B Attention:
 For this to work the server must have
@@ -110,16 +110,18 @@ Password of the IRC operator.
 .SH [SERVER]
 Other servers are configured in
 .I [Server]
-sections. If you configure a port for the connection, then this ngircd
-tries to connect to to the other server on the given port; if not it waits
+sections. If you configure a port for the connection, then this ngIRCd
+tries to connect to to the other server on the given port; if not, it waits
 for the other server to connect.
 
 The ngIRCd allows "server groups": You can assign an "ID" to every server
 with which you want this ngIRCd to link. If a server of a group won't
 answer, the ngIRCd tries to connect to the next server in the given group.
-But the ngircd never tries to connect to two servers with the same group ID.
+But ngIRCd never tries to connect to two servers with the same group ID.
 
-There may be more than one server block.
+There may be more than one
+.I [Server]
+block.
 .IP Name
 IRC name of the server
 .IP Host
@@ -135,21 +137,29 @@ Foreign password for this connection. This password has to be configured as
 "MyPassword" on the other server.
 .IP Group
 Group of this server (optional).
-.SH [Channel]
-Pre-defined channels can be configured in [Channel] sections. Such channels
-are created by the server when starting up and even persist when there are
-no more members left.
+.SH [CHANNEL]
+Pre-defined channels can be configured in
+.I [Channel]
+sections. Such channels are created by the server when starting up and even
+persist when there are no more members left.
 
 Persistent channels are marked with the mode 'P', which can be set and unset
 by IRC operators like other modes on the fly.
 
-There may be more than one [Channel] block.
+There may be more than one
+.I [Channel]
+block.
 .IP Name
 Name of the channel
 .IP Topic
 Topic for this channel
 .IP Modes
 Initial channel modes.
+.SH HINTS
+It's wise to use "ngircd --configtest" to validate the configuration file
+after changing it. See
+.BR ngircd (8)
+for details.
 .SH AUTHOR
 Alexander Barton,
 .UR mailto:alex@barton.de

@@ -8,7 +8,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: Makefile.am,v 1.40 2003/05/03 16:29:57 alex Exp $
+# $Id: Makefile.am,v 1.41 2003/09/09 13:24:41 alex Exp $
 #
 
 AUTOMAKE_OPTIONS = ../portab/ansi2knr
@@ -71,7 +71,8 @@ cvs-date:
 	    | $(AWK) "{ print \$$9 }" | sort | tail -1 \
 	    | sed -e "s/\//-/g" )\"" > cvs-version.new \
 	 || echo "" > cvs-version.new
-	diff cvs-version.h cvs-version.new || cp cvs-version.new cvs-version.h
+	diff cvs-version.h cvs-version.new 2>/dev/null \
+	 || cp cvs-version.new cvs-version.h
 
 TESTS = check-version check-help
 

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: channel.c,v 1.13 2002/02/11 01:00:12 alex Exp $
+ * $Id: channel.c,v 1.14 2002/02/27 15:21:21 alex Exp $
  *
  * channel.c: Management der Channels
  *
  * $Log: channel.c,v $
+ * Revision 1.14  2002/02/27 15:21:21  alex
+ * - neue Funktion Channel_IsMemberOf() implementiert.
+ *
  * Revision 1.13  2002/02/11 01:00:12  alex
  * - neue Funktionen Channel_ModeAdd(), Channel_ModeDel(), Channel_UserModes(),
  *   Channel_UserModeAdd(), Channel_UserModeDel().
@@ -432,6 +435,18 @@ GLOBAL CHAR *Channel_UserModes( CHANNEL *Chan, CLIENT *Client )
 
 	return cl2chan->modes;
 } /* Channel_UserModes */
+
+
+GLOBAL BOOLEAN Channel_IsMemberOf( CHANNEL *Chan, CLIENT *Client )
+{
+	/* Pruefen, ob Client Mitglied in Channel ist */
+
+	assert( Chan != NULL );
+	assert( Client != NULL );
+
+	if( Get_Cl2Chan( Chan, Client )) return TRUE;
+	else return FALSE;
+} /* Channel_IsMemberOf */
 
 
 LOCAL CHANNEL *New_Chan( CHAR *Name )

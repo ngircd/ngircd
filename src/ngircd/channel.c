@@ -9,11 +9,16 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: channel.c,v 1.12 2002/02/06 16:48:48 alex Exp $
+ * $Id: channel.c,v 1.13 2002/02/11 01:00:12 alex Exp $
  *
  * channel.c: Management der Channels
  *
  * $Log: channel.c,v $
+ * Revision 1.13  2002/02/11 01:00:12  alex
+ * - neue Funktionen Channel_ModeAdd(), Channel_ModeDel(), Channel_UserModes(),
+ *   Channel_UserModeAdd(), Channel_UserModeDel().
+ * - Modes in CL2CHAN-Struktur werden nun korrekt initialisiert.
+ *
  * Revision 1.12  2002/02/06 16:48:48  alex
  * - neue Funktion Channel_Modes() und Channel_IsValidName().
  * - Channel-Namen werden (besser) validiert.
@@ -311,6 +316,124 @@ GLOBAL BOOLEAN Channel_IsValidName( CHAR *Name )
 } /* Channel_IsValidName */
 
 
+GLOBAL BOOLEAN Channel_ModeAdd( CHANNEL *Chan, CHAR Mode )
+{
+	/* Mode soll gesetzt werden. TRUE wird geliefert, wenn der
+	 * Mode neu gesetzt wurde, FALSE, wenn der Channel den Mode
+	 * bereits hatte. */
+
+	CHAR x[2];
+
+	assert( Chan != NULL );
+
+	x[0] = Mode; x[1] = '\0';
+	if( ! strchr( Chan->modes, x[0] ))
+	{
+		/* Client hat den Mode noch nicht -> setzen */
+		strcat( Chan->modes, x );
+		return TRUE;
+	}
+	else return FALSE;
+} /* Channel_ModeAdd */
+
+
+GLOBAL BOOLEAN Channel_ModeDel( CHANNEL *Chan, CHAR Mode )
+{
+	/* Mode soll geloescht werden. TRUE wird geliefert, wenn der
+	 * Mode entfernt wurde, FALSE, wenn der Channel den Mode
+	 * ueberhaupt nicht hatte. */
+
+	CHAR x[2], *p;
+
+	assert( Chan != NULL );
+
+	x[0] = Mode; x[1] = '\0';
+
+	p = strchr( Chan->modes, x[0] );
+	if( ! p ) return FALSE;
+
+	/* Client hat den Mode -> loeschen */
+	while( *p )
+	{
+		*p = *(p + 1);
+		p++;
+	}
+	return TRUE;
+} /* Channel_ModeDel */
+
+
+GLOBAL BOOLEAN Channel_UserModeAdd( CHANNEL *Chan, CLIENT *Client, CHAR Mode )
+{
+	/* Channel-User-Mode soll gesetzt werden. TRUE wird geliefert,
+	 * wenn der Mode neu gesetzt wurde, FALSE, wenn der User den
+	 * Channel-Mode bereits hatte. */
+
+	CL2CHAN *cl2chan;
+	CHAR x[2];
+
+	assert( Chan != NULL );
+	assert( Client != NULL );
+
+	cl2chan = Get_Cl2Chan( Chan, Client );
+	assert( cl2chan != NULL );
+	
+	x[0] = Mode; x[1] = '\0';
+	if( ! strchr( cl2chan->modes, x[0] ))
+	{
+		/* Client hat den Mode noch nicht -> setzen */
+		strcat( cl2chan->modes, x );
+		return TRUE;
+	}
+	else return FALSE;
+} /* Channel_UserModeAdd */
+
+
+GLOBAL BOOLEAN Channel_UserModeDel( CHANNEL *Chan, CLIENT *Client, CHAR Mode )
+{
+	/* Channel-User-Mode soll geloescht werden. TRUE wird geliefert,
+	 * wenn der Mode entfernt wurde, FALSE, wenn der User den Channel-Mode
+	 * ueberhaupt nicht hatte. */
+
+	CL2CHAN *cl2chan;
+	CHAR x[2], *p;
+
+	assert( Chan != NULL );
+	assert( Client != NULL );
+
+	cl2chan = Get_Cl2Chan( Chan, Client );
+	assert( cl2chan != NULL );
+
+	x[0] = Mode; x[1] = '\0';
+
+	p = strchr( cl2chan->modes, x[0] );
+	if( ! p ) return FALSE;
+
+	/* Client hat den Mode -> loeschen */
+	while( *p )
+	{
+		*p = *(p + 1);
+		p++;
+	}
+	return TRUE;
+} /* Channel_UserModeDel */
+
+
+GLOBAL CHAR *Channel_UserModes( CHANNEL *Chan, CLIENT *Client )
+{
+	/* Channel-Modes eines Users liefern */
+	
+	CL2CHAN *cl2chan;
+
+	assert( Chan != NULL );
+	assert( Client != NULL );
+
+	cl2chan = Get_Cl2Chan( Chan, Client );
+	assert( cl2chan != NULL );
+
+	return cl2chan->modes;
+} /* Channel_UserModes */
+
+
 LOCAL CHANNEL *New_Chan( CHAR *Name )
 {
 	/* Neue Channel-Struktur anlegen */
@@ -360,6 +483,7 @@ LOCAL CL2CHAN *Add_Client( CHANNEL *Chan, CLIENT *Client )
 	assert( Chan != NULL );
 	assert( Client != NULL );
 
+	/* neue CL2CHAN-Struktur anlegen */
 	cl2chan = malloc( sizeof( CL2CHAN ));
 	if( ! cl2chan )
 	{
@@ -368,6 +492,7 @@ LOCAL CL2CHAN *Add_Client( CHANNEL *Chan, CLIENT *Client )
 	}
 	cl2chan->channel = Chan;
 	cl2chan->client = Client;
+	strcpy( cl2chan->modes, "" );
 
 	/* Verketten */
 	cl2chan->next = My_Cl2Chan;

@@ -39,7 +39,6 @@ ngIRCd CVS-HEAD
     Tree aufgenommen und in Build-System integriert; der ngIRCd compiliert
     nun z.B. unter A/UX mit dem nativen Compiler von Apple.
 
-ngIRCd 0.4.2, 29.04.2002
 
   - LUSERS verzaehlt sich bei eigenen Server-Links nicht mehr.
   - QUIT wird nun auch von noch nicht registrierten Clients akzeptiert.
@@ -221,4 +220,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.70 2002/05/30 16:54:04 alex Exp $
+$Id: ChangeLog,v 1.71 2002/05/31 14:22:22 alex Exp $

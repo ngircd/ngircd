@@ -12,6 +12,8 @@
 
 ngIRCd CVS-HEAD
 
+  - Included files to build Debian packages (located in "debian/").
+  - Updated config.guess and config.sub to newer upstream versions.
   - NJOIN propagates user channel modes correctly again ... Upsa.
   - Made Makefile more compatible with "make -j<n>".
   - Added support for GNU/Hurd.
@@ -19,7 +21,7 @@ ngIRCd CVS-HEAD
 
 ngIRCd 0.7.0 (2003-05-01)
   - "ServerName" is checked better now: a dot (".") is required.
-  - The KILL comand verifies and logs more parameters.
+  - The KILL command verifies and logs more parameters.
 
   ngIRCd 0.7.0-pre2 (2003-04-27)
   - CVS build system fixes (made autogen.sh more portable).
@@ -29,7 +31,7 @@ ngIRCd 0.7.0 (2003-05-01)
   - Test for broken GCC on Mac OS X and disable "-pedantic" in this case.
   - Disable "-ansi" on Cygwin: system headers are incompatible.
   - The server tried to connect to other servers only once when DNS or
-    socket failures occured.
+    socket failures occurred.
   - Fixed --configtest: There is no variable "ServerPwd", it's "Password".
 
   ngIRCd 0.7.0-pre1 (2003-04-22)
@@ -454,4 +456,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.205 2003/07/09 18:48:49 alex Exp $
+$Id: ChangeLog,v 1.206 2003/07/09 20:23:35 alex Exp $

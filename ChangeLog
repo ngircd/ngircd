@@ -13,6 +13,7 @@
 ngIRCd CVS-HEAD
 
   - Buffer Overflow in Read_Resolver_Result() behoben.
+  - Format-String-Bugs, die zum Abbruch des Servers fuehrten, behoben.
 
 ngIRCd 0.5.1, 03.10.2002
 
@@ -282,4 +283,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.101 2002/10/03 21:03:59 alex Exp $
+$Id: ChangeLog,v 1.102 2002/10/04 11:22:20 alex Exp $

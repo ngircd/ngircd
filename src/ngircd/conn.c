@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.28 2002/01/04 01:20:23 alex Exp $
+ * $Id: conn.c,v 1.29 2002/01/04 01:36:40 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
+ * Revision 1.29  2002/01/04 01:36:40  alex
+ * - Loglevel ein wenig angepasst.
+ *
  * Revision 1.28  2002/01/04 01:20:23  alex
  * - Client-Strukruren werden nur noch ueber Funktionen angesprochen.
  *
@@ -494,7 +497,7 @@ GLOBAL VOID Conn_Close( CONN_ID Idx, CHAR *Msg )
 	}
 	else
 	{
-		Log( LOG_NOTICE, "Connection %d with %s:%d closed.", Idx, inet_ntoa( My_Connections[Idx].addr.sin_addr ), ntohs( My_Connections[Idx].addr.sin_port ));
+		Log( LOG_INFO, "Connection %d with %s:%d closed.", Idx, inet_ntoa( My_Connections[Idx].addr.sin_addr ), ntohs( My_Connections[Idx].addr.sin_port ));
 	}
 
 	c = Client_GetFromConn( Idx );
@@ -672,7 +675,7 @@ LOCAL VOID New_Connection( INT Sock )
 	FD_SET( new_sock, &My_Sockets );
 	if( new_sock > My_Max_Fd ) My_Max_Fd = new_sock;
 
-	Log( LOG_NOTICE, "Accepted connection %d from %s:%d on socket %d.", idx, inet_ntoa( new_addr.sin_addr ), ntohs( new_addr.sin_port), Sock );
+	Log( LOG_INFO, "Accepted connection %d from %s:%d on socket %d.", idx, inet_ntoa( new_addr.sin_addr ), ntohs( new_addr.sin_port), Sock );
 
 	/* Hostnamen ermitteln */
 	s = ResolveAddr( &new_addr );

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.22 2002/01/04 01:21:47 alex Exp $
+ * $Id: irc.c,v 1.23 2002/01/04 01:36:40 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.23  2002/01/04 01:36:40  alex
+ * - Loglevel ein wenig angepasst.
+ *
  * Revision 1.22  2002/01/04 01:21:47  alex
  * - Client-Strukruren werden nur noch ueber Funktionen angesprochen.
  * - Weitere Anpassungen und Erweiterungen der Server-Links.
@@ -247,7 +250,7 @@ GLOBAL BOOLEAN IRC_SERVER( CLIENT *Client, REQUEST *Req )
 		Client_SetInfo( Client, Req->argv[2] );
 		Client_SetHops( Client, 1 );
 
-		Log( LOG_NOTICE, "Server \"%s\" registered (connection %d, 1 hop).", Client_ID( Client ), Client_Conn( Client ));
+		Log( LOG_NOTICE, "Server \"%s\" registered (connection %d, 1 hop - direct link).", Client_ID( Client ), Client_Conn( Client ));
 
 		Client_SetType( Client, CLIENT_SERVER );
 		return CONNECTED;

@@ -1,6 +1,6 @@
 #!/bin/sh
 # ngIRCd Test Suite
-# $Id: start-server.sh,v 1.11 2003/08/22 11:31:18 alex Exp $
+# $Id: start-server.sh,v 1.12 2004/09/04 13:58:31 alex Exp $
 
 [ -z "$srcdir" ] && srcdir=`dirname $0`
 
@@ -28,7 +28,7 @@ fi
 echo "This is an ngIRCd Test Server" > ngircd-test.motd
 
 # starting up test-server ...
-./T-ngircd -np -f ${srcdir}/ngircd-test.conf > ngircd-test.log 2>&1 &
+./T-ngircd -np -f ${srcdir}/ngircd-test.conf $* > ngircd-test.log 2>&1 &
 sleep 1
 
 # validate running test-server

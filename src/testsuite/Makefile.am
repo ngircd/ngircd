@@ -9,7 +9,7 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: Makefile.am,v 1.9 2002/11/10 14:28:06 alex Exp $
+# $Id: Makefile.am,v 1.10 2004/09/04 13:58:31 alex Exp $
 #
 
 AUTOMAKE_OPTIONS = ../portab/ansi2knr
@@ -22,6 +22,8 @@ EXTRA_DIST = \
 	connect-test.e channel-test.e mode-test.e \
 	stress-A.e stress-B.e check-idle.e \
 	ngircd-test.conf
+
+all: ngircd-TEST-Binary
 
 clean-local:
 	rm -rf logs tests *-test ngircd-test.log ngircd-test.motd \

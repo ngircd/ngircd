@@ -1,6 +1,9 @@
-# $Id: Makefile.am,v 1.3 2001/12/30 19:24:28 alex Exp $
+# $Id: Makefile.am,v 1.4 2001/12/31 02:20:20 alex Exp $
 
 # $Log: Makefile.am,v $
+# Revision 1.4  2001/12/31 02:20:20  alex
+# - Unterverzeichnis "doc" aufgenommen.
+#
 # Revision 1.3  2001/12/30 19:24:28  alex
 # - acconfig.h in die "noinst_HEADERS" aufgenommen.
 #
@@ -13,7 +16,7 @@
 
 AUTOMAKE_OPTIONS = gnu
 
-SUBDIRS = MacOSX src
+SUBDIRS = doc MacOSX src
 
 noinst_HEADERS = acconfig.h
 

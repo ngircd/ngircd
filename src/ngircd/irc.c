@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.53 2002/02/11 16:06:21 alex Exp $
+ * $Id: irc.c,v 1.54 2002/02/11 23:33:35 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.54  2002/02/11 23:33:35  alex
+ * - weitere Anpassungen an Channel-Modes und Channel-User-Modes.
+ *
  * Revision 1.53  2002/02/11 16:06:21  alex
  * - Die Quelle von MODE-Aenderungen wird nun korrekt weitergegeben.
  *
@@ -1215,22 +1218,43 @@ GLOBAL BOOLEAN IRC_MODE( CLIENT *Client, REQUEST *Req )
 						else ok = IRC_WriteStrClient( Client, ERR_UMODEUNKNOWNFLAG_MSG, Client_ID( Client ));
 						break;
 					default:
+						Log( LOG_DEBUG, "Unknown mode \"%c%c\" from \"%s\"!?", set ? '+' : '-', *mode_ptr, Client_ID( Client ));
 						ok = IRC_WriteStrClient( Client, ERR_UMODEUNKNOWNFLAG_MSG, Client_ID( Client ));
 						x[0] = '\0';
 				}
 			}
 			if( chan )
 			{
+				/* Ist der User ein Channel Operator? */
+				if( ! strchr( Channel_UserModes( chan, Client ), 'o' ))
+				{
+					Log( LOG_DEBUG, "Can't change modes: \"%s\" is not operator on %s!", Client_ID( Client ), Channel_Name( chan ));
+					ok = IRC_WriteStrClient( Client, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Client ), Channel_Name( chan ));
+					break;
+				}
+				
 				/* Channel-Modes oder Channel-User-Modes */
 				if( chan_cl )
 				{
 					/* Channel-User-Modes */
-					Log( LOG_DEBUG, "Channel-User-Mode '%c' not supported ...", *mode_ptr );
+					switch( *mode_ptr )
+					{
+						default:
+							Log( LOG_DEBUG, "Unknown channel-user-mode \"%c%c\" from \"%s\" on \"%s\" at %s!?", set ? '+' : '-', *mode_ptr, Client_ID( Client ), Client_ID( chan_cl ), Channel_Name( chan ));
+							ok = IRC_WriteStrClient( Client, ERR_UMODEUNKNOWNFLAG_MSG, Client_ID( Client ));
+							x[0] = '\0';
+					}
 				}
 				else
 				{
 					/* Channel-Modes */
-					Log( LOG_DEBUG, "Channel-Mode '%c' not supported ...", *mode_ptr );
+					switch( *mode_ptr )
+					{
+						default:
+							Log( LOG_DEBUG, "Unknown channel-mode \"%c%c\" from \"%s\" at %s!?", set ? '+' : '-', *mode_ptr, Client_ID( Client ), Channel_Name( chan ));
+							ok = IRC_WriteStrClient( Client, ERR_UMODEUNKNOWNFLAG_MSG, Client_ID( Client ));
+							x[0] = '\0';
+					}
 				}
 			}
 		}

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: global.h,v 1.2 2001/12/12 01:58:53 alex Exp $
+ * $Id: global.h,v 1.3 2001/12/14 08:14:34 alex Exp $
  *
  * global.h: Globaler Header, wir in jedes(!) Modul eingebunden.
  *
  * $Log: global.h,v $
+ * Revision 1.3  2001/12/14 08:14:34  alex
+ * - NONE als -1 definiert. Macht den Source lesbarer ;-)
+ *
  * Revision 1.2  2001/12/12 01:58:53  alex
  * - Test auf socklen_t verbessert.
  *
@@ -31,6 +34,9 @@
 #ifndef HAVE_socklen_t
 #define socklen_t int			/* u.a. fuer Mac OS X */
 #endif
+
+
+#define NONE -1
 
 
 #endif

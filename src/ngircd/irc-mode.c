@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-mode.c,v 1.24.2.2 2003/01/08 23:08:12 alex Exp $";
+static char UNUSED id[] = "$Id: irc-mode.c,v 1.24.2.3 2003/01/08 23:13:45 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -252,7 +252,7 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 		if( ! Channel_IsMemberOf( Channel, Origin )) return IRC_WriteStrClient( Origin, RPL_CHANNELMODEIS_MSG, Client_ID( Origin ), Channel_Name( Channel ), Channel_Modes( Channel ));
 
 		/* The sender is a member: generate extended reply */
-		strlcpy( the_modes, Channel_Modes( Channel ), sizeof( the_modes ));
+		strcpy( the_modes, Channel_Modes( Channel ));
 		mode_ptr = the_modes;
 		strcpy( the_args, "" );
 		while( *mode_ptr )
@@ -261,16 +261,16 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 			{
 				case 'l':
 					snprintf( argadd, sizeof( argadd ), " %ld", Channel_MaxUsers( Channel ));
-					strlcat( the_args, argadd, sizeof( the_args ));
+					strcat( the_args, argadd );
 					break;
 				case 'k':
-					strlcat( the_args, " ", sizeof( the_args ));
-					strlcat( the_args, Channel_Key( Channel ), sizeof( the_args ));
+					strcat( the_args, " " );
+					strcat( the_args, Channel_Key( Channel ));
 					break;
 			}
 			mode_ptr++;
 		}
-		if( the_args[0] ) strlcat( the_modes, the_args, sizeof( the_modes ));
+		if( the_args[0] ) strcat( the_modes, the_args );
 
 		return IRC_WriteStrClient( Origin, RPL_CHANNELMODEIS_MSG, Client_ID( Origin ), Channel_Name( Channel ), the_modes );
 	}

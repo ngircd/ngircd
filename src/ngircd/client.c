@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: client.c,v 1.65.2.2 2003/01/08 23:09:04 alex Exp $";
+static char UNUSED id[] = "$Id: client.c,v 1.65.2.3 2003/01/08 23:13:45 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -399,7 +399,8 @@ Client_SetAway( CLIENT *Client, CHAR *Txt )
 	assert( Client != NULL );
 	assert( Txt != NULL );
 
-	strlcpy( Client->away, Txt, sizeof( Client->away ));
+	strncpy( Client->away, Txt, CLIENT_AWAY_LEN - 1 );
+	Client->away[CLIENT_AWAY_LEN - 1] = '\0';
 	Log( LOG_DEBUG, "User \"%s\" is away: %s", Client_Mask( Client ), Txt );
 } /* Client_SetAway */
 

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: messages.h,v 1.2 2001/12/24 01:30:46 alex Exp $
+ * $Id: messages.h,v 1.3 2001/12/25 19:20:11 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: messages.h,v $
+ * Revision 1.3  2001/12/25 19:20:11  alex
+ * - neue Message: ERR_NICKNAMEINUSE[_MSG].
+ *
  * Revision 1.2  2001/12/24 01:30:46  alex
  * - einige Messages korrigiert, andere ergaenzt (u.a. fuer MOTD).
  *
@@ -42,7 +45,7 @@
 #define RPL_MYINFO_MSG			RPL_MYINFO" %s %s ngircd-"VERSION" + +"
 
 #define RPL_MOTDSTART			"375"
-#define RPL_MOTDSTART_MSG		RPL_MOTDSTART" %s :- %s Message of the day - "
+#define RPL_MOTDSTART_MSG		RPL_MOTDSTART" %s :- %s Message of the day"
 
 #define RPL_MOTD			"372"
 #define RPL_MOTD_MSG			RPL_MOTD" %s :- %s"
@@ -56,6 +59,9 @@
 
 #define ERR_ERRONEUSNICKNAME		"432"
 #define ERR_ERRONEUSNICKNAME_MSG	ERR_ERRONEUSNICKNAME" %s :Erroneous nickname"
+
+#define ERR_NICKNAMEINUSE		"433"
+#define ERR_NICKNAMEINUSE_MSG		ERR_NICKNAMEINUSE" %s :Nickname already in use"
 
 #define ERR_NEEDMOREPARAMS		"461"
 #define ERR_NEEDMOREPARAMS_MSG		ERR_NEEDMOREPARAMS" :Syntax error"

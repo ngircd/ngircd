@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: resolve.h,v 1.3 2002/12/12 12:23:43 alex Exp $
+ * $Id: resolve.h,v 1.4 2002/12/28 15:01:45 alex Exp $
  *
  * Asynchronous resolver (header)
  */
@@ -20,9 +20,6 @@
 
 #include <sys/types.h>
 #include <netinet/in.h>
-#ifdef HAVE_SYS_SELECT_H
-#	include <sys/select.h>
-#endif
 
 
 typedef struct _Res_Stat

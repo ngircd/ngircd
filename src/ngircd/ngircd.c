@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.54.2.3 2002/11/04 19:18:39 alex Exp $
+ * $Id: ngircd.c,v 1.54.2.4 2002/11/24 15:25:25 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  */
@@ -29,6 +29,8 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <time.h>
+#include <pwd.h>
+#include <grp.h>
 
 #include "resolve.h"
 #include "conn.h"
@@ -57,6 +59,8 @@ LOCAL VOID Show_Help PARAMS(( VOID ));
 GLOBAL int
 main( int argc, const char *argv[] )
 {
+	struct passwd *pwd;
+	struct group *grp;
 	BOOLEAN ok, configtest = FALSE;
 	LONG pid, n;
 	INT i;
@@ -275,8 +279,12 @@ main( int argc, const char *argv[] )
 				if( setuid( Conf_UID ) != 0 ) Log( LOG_ERR, "Can't change User-ID to %u: %s", Conf_UID, strerror( errno ));
 			}
 		}
-		Log( LOG_INFO, "Running as user %ld, group %ld, with PID %ld.", (LONG)getuid( ), (LONG)getgid( ), (LONG)getpid( ));
+		
+		/* User, Gruppe und Prozess-ID des Daemon ausgeben */
+		pwd = getpwuid( getuid( )); grp = getgrgid( getgid( ));
+		Log( LOG_INFO, "Running as user %s(%ld), group %s(%ld), with PID %ld.", pwd ? pwd->pw_name : "unknown", (LONG)getuid( ), grp ? grp->gr_name : "unknown", (LONG)getgid( ), (LONG)getpid( ));
 
+		/* stderr in "Error-File" umlenken */
 		Log_InitErrorfile( );
 
 		/* Signal-Handler initialisieren */

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * irc-write.c,v 1.7.2.1 2002/09/17 17:29:20 alex Exp
+ * $Id: irc-write.c,v 1.7.2.3 2002/10/04 13:12:46 alex Exp $
  *
  * irc-write.c: IRC-Texte und Befehle ueber Netzwerk versenden
  */

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * irc-server.c,v 1.18 2002/10/04 11:21:46 alex Exp
+ * $Id: irc-server.c,v 1.17.2.2 2002/10/04 13:12:46 alex Exp $
  *
  * irc-server.c: IRC-Befehle fuer Server-Links
  */

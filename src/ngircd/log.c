@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * log.c,v 1.38 2002/10/04 11:21:46 alex Exp
+ * $Id: log.c,v 1.37.2.2 2002/10/04 13:12:46 alex Exp $
  *
  * log.c: Logging-Funktionen
  */

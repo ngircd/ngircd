@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * conf.c,v 1.29.2.1 2002/09/19 10:17:50 alex Exp
+ * $Id: conf.c,v 1.29.2.3 2002/10/04 13:12:46 alex Exp $
  *
  * conf.h: Konfiguration des ngircd
  */

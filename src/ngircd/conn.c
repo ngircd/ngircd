@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * conn.c,v 1.72.2.1 2002/10/03 16:13:38 alex Exp
+ * $Id: conn.c,v 1.72.2.3 2002/10/04 13:12:46 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */

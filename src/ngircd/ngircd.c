@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * ngircd.c,v 1.55 2002/10/03 21:49:59 alex Exp
+ * $Id: ngircd.c,v 1.54.2.2 2002/10/04 13:12:46 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  */

@@ -28,6 +28,8 @@ ngIRCd 0.2.x, xx.xx.2002
     (die Tests sind aber bisher nicht all zu tiefgehend ...)
   - Durch einen Ueberlauf konnte die Idle-Time bei WHOIS negativ werden ...
   - Anpassungen an A/UX: gehoert nun auch zu den unterstuetzten Platformen.
+  - WHOIS wird nicht mehr automatisch an den "Original-Server" weiterge-
+    leitet: war eh nicht RFC-konform und machte mit Clients Probleme.
 
 ngIRCd 0.2.1, 17.02.2002
 
@@ -122,4 +124,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.28 2002/02/25 11:47:30 alex Exp $
+$Id: ChangeLog,v 1.29 2002/02/25 13:23:31 alex Exp $

@@ -12,6 +12,8 @@
 
 ngIRCd CVSHEAD
 
+  - The type of service (TOS) of all sockets is set to "interactive" now.
+  - Added short command line option "-t" as alternative to "--configtest".
   - Added optional support for "IDENT" lookups on incoming connections. You
     have to enable this function with the ./configure switch "--with-ident".
     The default is not to do IDENT lookups.
@@ -180,4 +182,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.61 2003/12/27 13:01:12 alex Exp $
+$Id: NEWS,v 1.62 2004/01/25 16:06:34 alex Exp $

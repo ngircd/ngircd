@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2003 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2004 by Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.129 2003/12/27 13:01:12 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.130 2004/01/25 16:06:35 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -33,18 +33,22 @@ static char UNUSED id[] = "$Id: conn.c,v 1.129 2003/12/27 13:01:12 alex Exp $";
 #include <time.h>
 #include <netinet/in.h>
 
+#ifdef HAVE_NETINET_IP_H
+# include <netinet/ip.h>
+#endif
+
 #ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
+# include <arpa/inet.h>
 #else
-#define PF_INET AF_INET
+# define PF_INET AF_INET
 #endif
 
 #ifdef HAVE_STDINT_H
-#include <stdint.h>			/* e.g. for Mac OS X */
+# include <stdint.h>			/* e.g. for Mac OS X */
 #endif
 
 #ifdef TCPWRAP
-#include <tcpd.h>			/* for TCP Wrappers */
+# include <tcpd.h>			/* for TCP Wrappers */
 #endif
 
 #include "defines.h"
@@ -64,7 +68,7 @@ static char UNUSED id[] = "$Id: conn.c,v 1.129 2003/12/27 13:01:12 alex Exp $";
 #include "tool.h"
 
 #ifdef RENDEZVOUS
-#include "rendezvous.h"
+# include "rendezvous.h"
 #endif
 
 #include "exp.h"
@@ -1549,23 +1553,39 @@ Init_Conn_Struct( CONN_ID Idx )
 LOCAL BOOLEAN
 Init_Socket( INT Sock )
 {
-	/* Socket-Optionen setzen */
+	/* Initialize socket (set options) */
 
-	INT on = 1;
+	INT value;
 
-#ifdef O_NONBLOCK	/* A/UX kennt das nicht? */
+#ifdef O_NONBLOCK	/* unknown on A/UX */
 	if( fcntl( Sock, F_SETFL, O_NONBLOCK ) != 0 )
 	{
-		Log( LOG_CRIT, "Can't enable non-blocking mode: %s!", strerror( errno ));
+		Log( LOG_CRIT, "Can't enable non-blocking mode for socket: %s!", strerror( errno ));
 		close( Sock );
 		return FALSE;
 	}
 #endif
-	if( setsockopt( Sock, SOL_SOCKET, SO_REUSEADDR, &on, (socklen_t)sizeof( on )) != 0)
+
+	/* Don't block this port after socket shutdown */
+	value = 1;
+	if( setsockopt( Sock, SOL_SOCKET, SO_REUSEADDR, &value, (socklen_t)sizeof( value )) != 0 )
 	{
-		Log( LOG_ERR, "Can't set socket options: %s!", strerror( errno ));
-		/* dieser Fehler kann ignoriert werden. */
+		Log( LOG_ERR, "Can't set socket option SO_REUSEADDR: %s!", strerror( errno ));
+		/* ignore this error */
 	}
+
+	/* Set type of service (TOS) */
+#if defined(IP_TOS) && defined(IPTOS_LOWDELAY)
+	value = IPTOS_LOWDELAY;
+#ifdef DEBUG
+	Log( LOG_DEBUG, "Setting option IP_TOS on socket %d to IPTOS_LOWDELAY (%d).", Sock, value );
+#endif
+	if( setsockopt( Sock, SOL_IP, IP_TOS, &value, (socklen_t)sizeof( value )) != 0 )
+	{
+		Log( LOG_ERR, "Can't set socket option IP_TOS: %s!", strerror( errno ));
+		/* ignore this error */
+	}
+#endif
 
 	return TRUE;
 } /* Init_Socket */

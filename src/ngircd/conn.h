@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.h,v 1.10 2002/01/06 15:18:15 alex Exp $
+ * $Id: conn.h,v 1.11 2002/02/11 01:00:50 alex Exp $
  *
  * conn.h: Verwaltung aller Netz-Verbindungen ("connections") (Header)
  *
  * $Log: conn.h,v $
+ * Revision 1.11  2002/02/11 01:00:50  alex
+ * - neue Funktion Conn_LastPing().
+ *
  * Revision 1.10  2002/01/06 15:18:15  alex
  * - Loglevel und Meldungen nochmals geaendert. Level passen nun besser.
  *
@@ -75,6 +78,7 @@ GLOBAL VOID Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformC
 
 GLOBAL VOID Conn_UpdateIdle( CONN_ID Idx );
 GLOBAL INT32 Conn_GetIdle( CONN_ID Idx );
+GLOBAL INT32 Conn_LastPing( CONN_ID Idx );
 
 
 #endif

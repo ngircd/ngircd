@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.35 2002/01/18 11:12:11 alex Exp $
+ * $Id: conn.c,v 1.36 2002/02/11 01:00:50 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
+ * Revision 1.36  2002/02/11 01:00:50  alex
+ * - neue Funktion Conn_LastPing().
+ *
  * Revision 1.35  2002/01/18 11:12:11  alex
  * - der Sniffer wird nun nur noch aktiviert, wenn auf Kommandozeile angegeben.
  *
@@ -568,6 +571,15 @@ GLOBAL INT32 Conn_GetIdle( CONN_ID Idx )
 	assert( Idx >= 0 );
 	return time( NULL ) - My_Connections[Idx].lastprivmsg;
 } /* Conn_GetIdle */
+
+
+GLOBAL INT32 Conn_LastPing( CONN_ID Idx )
+{
+	/* Zeitpunkt des letzten PING liefern */
+
+	assert( Idx >= 0 );
+	return My_Connections[Idx].lastping;
+} /* Conn_LastPing */
 
 
 LOCAL BOOLEAN Try_Write( CONN_ID Idx )

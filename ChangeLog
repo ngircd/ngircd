@@ -21,6 +21,7 @@ ngIRCd 0.7.0
   - Disable "-ansi" on Cygwin: system headers are incompatible.
   - The server tried to connect to other servers only once when DNS or
     socket failures occured.
+  - Fixed --configtest: There is no variable "ServerPwd", it's "Password".
 
   ngIRCd 0.7.0-pre1 (2003-04-22)
   - New signal handler (more secure, actions are executed outside).
@@ -444,4 +445,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.188.2.8 2003/04/25 16:59:28 alex Exp $
+$Id: ChangeLog,v 1.188.2.9 2003/04/27 11:49:32 alex Exp $

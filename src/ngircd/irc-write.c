@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-write.c,v 1.2 2002/03/12 14:37:52 alex Exp $
+ * $Id: irc-write.c,v 1.3 2002/03/25 17:13:07 alex Exp $
  *
  * irc-write.c: IRC-Texte und Befehle ueber Netzwerk versenden
  */
@@ -28,7 +28,7 @@
 #include "irc-write.h"
 
 
-CHAR *Get_Prefix( CLIENT *Target, CLIENT *Client );
+LOCAL CHAR *Get_Prefix( CLIENT *Target, CLIENT *Client );
 
 
 GLOBAL BOOLEAN IRC_WriteStrClient( CLIENT *Client, CHAR *Format, ... )
@@ -258,7 +258,7 @@ GLOBAL BOOLEAN IRC_WriteStrRelatedPrefix( CLIENT *Client, CLIENT *Prefix, BOOLEA
 } /* IRC_WriteStrRelatedPrefix */
 
 
-CHAR *Get_Prefix( CLIENT *Target, CLIENT *Client )
+LOCAL CHAR *Get_Prefix( CLIENT *Target, CLIENT *Client )
 {
 	assert( Target != NULL );
 	assert( Client != NULL );

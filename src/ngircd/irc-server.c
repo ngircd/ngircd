@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-server.c,v 1.31 2003/01/08 22:04:43 alex Exp $";
+static char UNUSED id[] = "$Id: irc-server.c,v 1.32 2003/04/20 23:09:26 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -294,7 +294,7 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 GLOBAL BOOLEAN
 IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 {
-	CHAR str[COMMAND_LEN], *channame, *ptr, modes[8];
+	CHAR nick_in[COMMAND_LEN], nick_out[COMMAND_LEN], *channame, *ptr, modes[8];
 	BOOLEAN is_op, is_voiced;
 	CHANNEL *chan;
 	CLIENT *c;
@@ -305,10 +305,11 @@ IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 	/* Falsche Anzahl Parameter? */
 	if( Req->argc != 2 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
-	strlcpy( str, Req->argv[1], sizeof( str ));
+	strlcpy( nick_in, Req->argv[1], sizeof( nick_in ));
+	strcpy( nick_out, "" );
 
 	channame = Req->argv[0];
-	ptr = strtok( str, "," );
+	ptr = strtok( nick_in, "," );
 	while( ptr )
 	{
 		is_op = is_voiced = FALSE;
@@ -341,6 +342,9 @@ IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 				/* Modes im Channel bekannt machen */
 				IRC_WriteStrChannelPrefix( Client, chan, Client, FALSE, "MODE %s +%s %s", channame, modes, Client_ID( c ));
 			}
+
+			if( nick_out[0] != '\0' ) strlcat( nick_out, ",", sizeof( nick_out ));
+			strlcat( nick_out, ptr, sizeof( nick_out ));
 		}
 		else Log( LOG_ERR, "Got NJOIN for unknown nick \"%s\" for channel \"%s\"!", ptr, channame );
 		
@@ -349,7 +353,7 @@ IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 	}
 
 	/* an andere Server weiterleiten */
-	IRC_WriteStrServersPrefix( Client, Client_ThisServer( ), "NJOIN %s :%s", Req->argv[0], Req->argv[1] );
+	if( nick_out[0] != '\0' ) IRC_WriteStrServersPrefix( Client, Client_ThisServer( ), "NJOIN %s :%s", Req->argv[0], nick_out );
 
 	return CONNECTED;
 } /* IRC_NJOIN */

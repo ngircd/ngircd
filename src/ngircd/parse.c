@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: parse.c,v 1.14 2002/01/04 17:56:45 alex Exp $
+ * $Id: parse.c,v 1.15 2002/01/05 01:42:08 alex Exp $
  *
  * parse.c: Parsen der Client-Anfragen
  *
  * $Log: parse.c,v $
+ * Revision 1.15  2002/01/05 01:42:08  alex
+ * - an Server werden keine ERRORS mehr wegen unbekannter Befehle geschickt.
+ *
  * Revision 1.14  2002/01/04 17:56:45  alex
  * - neuer Befehl SQUIT.
  *
@@ -272,8 +275,8 @@ LOCAL BOOLEAN Handle_Request( CONN_ID Idx, REQUEST *Req )
 	else if( strcasecmp( Req->command, "ERROR" ) == 0 ) return IRC_ERROR( client, Req );
 	
 	/* Unbekannter Befehl */
-	IRC_WriteStrClient( client, Client_ThisServer( ), ERR_UNKNOWNCOMMAND_MSG, Client_ID( client ), Req->command );
-	Log( LOG_DEBUG, "User \"%s\": Unknown command \"%s\", %d %s,%s prefix.", Client_Mask( client ), Req->command, Req->argc, Req->argc == 1 ? "parameter" : "parameters", Req->prefix ? "" : " no" );
+	if( Client_Type( client ) != CLIENT_SERVER ) IRC_WriteStrClient( client, Client_ThisServer( ), ERR_UNKNOWNCOMMAND_MSG, Client_ID( client ), Req->command );
+	Log( LOG_DEBUG, "Connection %d: Unknown command \"%s\", %d %s,%s prefix.", Client_Conn( client ), Req->command, Req->argc, Req->argc == 1 ? "parameter" : "parameters", Req->prefix ? "" : " no" );
 
 	return TRUE;
 } /* Handle_Request */

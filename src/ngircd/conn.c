@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.122 2003/04/21 10:52:26 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.122.2.1 2003/04/25 16:50:53 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -151,7 +151,7 @@ Conn_Exit( VOID )
 #ifdef RENDEZVOUS
 	Rendezvous_UnregisterListeners( );
 #endif
-	
+
 	/* Sockets schliessen */
 	for( i = 0; i < Conn_MaxFD + 1; i++ )
 	{
@@ -183,7 +183,7 @@ Conn_Exit( VOID )
 			}
 		}
 	}
-	
+
 	free( My_Connections );
 	My_Connections = NULL;
 	Pool_Size = 0;
@@ -217,7 +217,7 @@ Conn_ExitListeners( VOID )
 #ifdef RENDEZVOUS
 	Rendezvous_UnregisterListeners( );
 #endif
-	
+
 	Log( LOG_INFO, "Shutting down all listening sockets ..." );
 	for( i = 0; i < Conn_MaxFD + 1; i++ )
 	{
@@ -240,7 +240,7 @@ Conn_NewListener( CONST UINT Port )
 #ifdef RENDEZVOUS
 	CHAR name[CLIENT_ID_LEN], *info;
 #endif
-	
+
 	/* Server-"Listen"-Socket initialisieren */
 	memset( &addr, 0, sizeof( addr ));
 	addr.sin_family = AF_INET;
@@ -415,7 +415,7 @@ Conn_Handler( VOID )
 		tv.tv_usec = 0;
 		if( timeout ) tv.tv_sec = TIME_RES;
 		else tv.tv_sec = 0;
-		
+
 		/* Auf Aktivitaet warten */
 		i = select( Conn_MaxFD + 1, &read_sockets, &write_sockets, NULL, &tv );
 		if( i == 0 )
@@ -443,7 +443,7 @@ Conn_Handler( VOID )
 			/* Es kann geschrieben werden ... */
 			idx = Socket2Index( i );
 			if( idx == NONE ) continue;
-			
+
 			if( ! Handle_Write( idx ))
 			{
 				/* Fehler beim Schreiben! Diesen Socket nun
@@ -899,7 +899,7 @@ New_Connection( INT Sock )
 		Log( LOG_CRIT, "Can't accept connection: %s!", strerror( errno ));
 		return;
 	}
-	
+
 #ifdef USE_TCPWRAP
 	/* Validate socket using TCP Wrappers */
 	request_init( &req, RQ_DAEMON, PACKAGE_NAME, RQ_FILE, new_sock, RQ_CLIENT_SIN, &new_addr, NULL );
@@ -921,10 +921,10 @@ New_Connection( INT Sock )
 	if( idx >= Pool_Size )
 	{
 		new_size = Pool_Size + CONNECTION_POOL;
-		
+
 		/* Im bisherigen Pool wurde keine freie Connection-Struktur mehr gefunden.
 		 * Wenn erlaubt und moeglich muss nun der Pool vergroessert werden: */
-		
+
 		if( Conf_MaxConnections > 0 )
 		{
 			/* Es ist ein Limit konfiguriert */
@@ -945,7 +945,7 @@ New_Connection( INT Sock )
 			close( new_sock );
 			return;
 		}
-		
+
 		/* zunaechst realloc() versuchen; wenn das scheitert, malloc() versuchen
 		 * und Daten ggf. "haendisch" umkopieren. (Haesslich! Eine wirklich
 		 * dynamische Verwaltung waere wohl _deutlich_ besser ...) */
@@ -962,21 +962,21 @@ New_Connection( INT Sock )
 				close( new_sock );
 				return;
 			}
-			
+
 			/* Struktur umkopieren ... */
 			memcpy( ptr, My_Connections, sizeof( CONNECTION ) * Pool_Size );
-			
+
 			Log( LOG_DEBUG, "Allocated new connection pool for %ld items (%ld bytes). [malloc()/memcpy()]", new_size, sizeof( CONNECTION ) * new_size );
 		}
 		else Log( LOG_DEBUG, "Allocated new connection pool for %ld items (%ld bytes). [realloc()]", new_size, sizeof( CONNECTION ) * new_size );
-		
+
 		/* Adjust pointer to new block */
 		My_Connections = ptr;
-		
+
 		/* Initialize new items */
 		for( idx = Pool_Size; idx < new_size; idx++ ) Init_Conn_Struct( idx );
 		idx = Pool_Size;
-		
+
 		/* Adjust new pool size */
 		Pool_Size = new_size;
 	}
@@ -1011,7 +1011,7 @@ New_Connection( INT Sock )
 		/* Sub-Prozess wurde asyncron gestartet */
 		My_Connections[idx].res_stat = s;
 	}
-	
+
 	/* Penalty-Zeit setzen */
 	Conn_SetPenalty( idx, 4 );
 } /* New_Connection */
@@ -1142,14 +1142,14 @@ Handle_Buffer( CONN_ID Idx )
 			if( ! Unzip_Buffer( Idx )) return FALSE;
 		}
 #endif
-	
+
 		if( My_Connections[Idx].rdatalen < 1 ) break;
 
 		/* Eine komplette Anfrage muss mit CR+LF enden, vgl.
 		 * RFC 2812. Haben wir eine? */
 		My_Connections[Idx].rbuf[My_Connections[Idx].rdatalen] = '\0';
 		ptr = strstr( My_Connections[Idx].rbuf, "\r\n" );
-	
+
 		if( ptr ) delta = 2;
 #ifndef STRICT_RFC
 		else
@@ -1164,7 +1164,7 @@ Handle_Buffer( CONN_ID Idx )
 			else if( ptr2 ) ptr = ptr2;
 		}
 #endif
-	
+
 		action = FALSE;
 		if( ptr )
 		{
@@ -1219,10 +1219,10 @@ Handle_Buffer( CONN_ID Idx )
 			}
 #endif
 		}
-		
+
 		if( action ) result = TRUE;
 	} while( action );
-	
+
 	return result;
 } /* Handle_Buffer */
 
@@ -1348,7 +1348,7 @@ Check_Servers( VOID )
 LOCAL VOID
 New_Server( INT Server, CONN_ID Idx )
 {
-	/* Neue Server-Verbindung aufbauen */
+	/* Establish new server link */
 
 	struct sockaddr_in new_addr;
 	struct in_addr inaddr;
@@ -1358,11 +1358,12 @@ New_Server( INT Server, CONN_ID Idx )
 	assert( Server > NONE );
 	assert( Idx > NONE );
 
-	/* Wurde eine gueltige IP-Adresse gefunden? */
+	/* Did we get a valid IP address? */
 	if( ! Conf_Server[Server].ip[0] )
 	{
-		/* Nein. Verbindung wieder freigeben: */
+		/* No. Free connection structure and abort: */
 		Init_Conn_Struct( Idx );
+		Conf_Server[Server].conn_id = NONE;
 		Log( LOG_ERR, "Can't connect to \"%s\" (connection %d): ip address unknown!", Conf_Server[Server].host, Idx );
 		return;
 	}
@@ -1377,8 +1378,9 @@ New_Server( INT Server, CONN_ID Idx )
 	if( inaddr.s_addr == (unsigned)-1 )
 #endif
 	{
-		/* Konnte Adresse nicht konvertieren */
+		/* Can't convert IP address */
 		Init_Conn_Struct( Idx );
+		Conf_Server[Server].conn_id = NONE;
 		Log( LOG_ERR, "Can't connect to \"%s\" (connection %d): can't convert ip address %s!", Conf_Server[Server].host, Idx, Conf_Server[Server].ip );
 		return;
 	}
@@ -1391,7 +1393,9 @@ New_Server( INT Server, CONN_ID Idx )
 	new_sock = socket( PF_INET, SOCK_STREAM, 0 );
 	if ( new_sock < 0 )
 	{
+		/* Can't create socket */
 		Init_Conn_Struct( Idx );
+		Conf_Server[Server].conn_id = NONE;
 		Log( LOG_CRIT, "Can't create socket: %s!", strerror( errno ));
 		return;
 	}
@@ -1401,9 +1405,11 @@ New_Server( INT Server, CONN_ID Idx )
 	res = connect( new_sock, (struct sockaddr *)&new_addr, sizeof( new_addr ));
 	if(( res != 0 ) && ( errno != EINPROGRESS ))
 	{
+		/* Can't connect socket */
 		Log( LOG_CRIT, "Can't connect socket: %s!", strerror( errno ));
 		close( new_sock );
 		Init_Conn_Struct( Idx );
+		Conf_Server[Server].conn_id = NONE;
 		return;
 	}
 
@@ -1411,24 +1417,26 @@ New_Server( INT Server, CONN_ID Idx )
 	c = Client_NewLocal( Idx, inet_ntoa( new_addr.sin_addr ), CLIENT_UNKNOWNSERVER, FALSE );
 	if( ! c )
 	{
+		/* Can't create new client structure */
 		close( new_sock );
 		Init_Conn_Struct( Idx );
+		Conf_Server[Server].conn_id = NONE;
 		Log( LOG_ALERT, "Can't establish connection: can't create client structure!" );
 		return;
 	}
 	Client_SetIntroducer( c, c );
 	Client_SetToken( c, TOKEN_OUTBOUND );
 
-	/* Verbindung registrieren */
+	/* Register connection */
 	My_Connections[Idx].sock = new_sock;
 	My_Connections[Idx].addr = new_addr;
 	strlcpy( My_Connections[Idx].host, Conf_Server[Server].host, sizeof( My_Connections[Idx].host ));
 
-	/* Neuen Socket registrieren */
+	/* Register new socket */
 	FD_SET( new_sock, &My_Sockets );
 	FD_SET( new_sock, &My_Connects );
 	if( new_sock > Conn_MaxFD ) Conn_MaxFD = new_sock;
-	
+
 	Log( LOG_DEBUG, "Registered new connection %d on socket %d.", Idx, My_Connections[Idx].sock );
 } /* New_Server */
 
@@ -1531,7 +1539,7 @@ Read_Resolver_Result( INT r_fd )
 	}
 
 	Log( LOG_DEBUG, "Resolver: %s is \"%s\".", My_Connections[i].host, result );
-	
+
 	/* Aufraeumen */
 	close( My_Connections[i].res_stat->pipe[0] );
 	close( My_Connections[i].res_stat->pipe[1] );

@@ -10,7 +10,7 @@
                                -- ChangeLog --
 
 
-ngIRCd 0.7.0
+ngIRCd 0.7.0 (2003-05-01)
   - "ServerName" is checked better now: a dot (".") is required.
   - The KILL comand verifies and logs more parameters.
 
@@ -447,4 +447,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.188.2.12 2003/04/29 12:37:17 alex Exp $
+$Id: ChangeLog,v 1.188.2.13 2003/05/01 10:15:02 alex Exp $

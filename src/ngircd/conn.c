@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.72.2.4 2002/11/04 19:18:39 alex Exp $
+ * $Id: conn.c,v 1.72.2.5 2002/11/20 15:52:40 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -671,6 +671,9 @@ Handle_Write( CONN_ID Idx )
 	len = send( My_Connections[Idx].sock, My_Connections[Idx].wbuf, My_Connections[Idx].wdatalen, 0 );
 	if( len < 0 )
 	{
+		/* Operation haette Socket "nur" blockiert ... */
+		if( errno == EAGAIN ) return TRUE;
+
 		/* Oops, ein Fehler! */
 		Log( LOG_ERR, "Write error on connection %d (socket %d): %s!", Idx, My_Connections[Idx].sock, strerror( errno ));
 		Conn_Close( Idx, "Write error!", NULL, FALSE );
@@ -699,6 +702,7 @@ New_Connection( INT Sock )
 
 	assert( Sock >= 0 );
 
+	/* Connection auf Listen-Socket annehmen */
 	new_sock_len = sizeof( new_addr );
 	new_sock = accept( Sock, (struct sockaddr *)&new_addr, (socklen_t *)&new_sock_len );
 	if( new_sock < 0 )
@@ -706,6 +710,9 @@ New_Connection( INT Sock )
 		Log( LOG_CRIT, "Can't accept connection: %s!", strerror( errno ));
 		return;
 	}
+
+	/* Socket initialisieren */
+	Init_Socket( new_sock );
 
 	/* Freie Connection-Struktur suchen */
 	for( idx = 0; idx < MAX_CONNECTIONS; idx++ ) if( My_Connections[idx].sock == NONE ) break;
@@ -808,6 +815,9 @@ Read_Request( CONN_ID Idx )
 
 	if( len < 0 )
 	{
+		/* Operation haette Socket "nur" blockiert ... */
+		if( errno == EAGAIN ) return;
+
 		/* Fehler beim Lesen */
 		Log( LOG_ERR, "Read error on connection %d (socket %d): %s!", Idx, My_Connections[Idx].sock, strerror( errno ));
 		Conn_Close( Idx, "Read error!", "Client closed connection", FALSE );

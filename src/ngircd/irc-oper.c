@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-oper.c,v 1.5 2002/05/27 13:09:27 alex Exp $
+ * $Id: irc-oper.c,v 1.6 2002/08/26 23:39:22 alex Exp $
  *
  * irc-oper.c: IRC-Operator-Befehle
  */
@@ -118,6 +118,27 @@ IRC_RESTART( CLIENT *Client, REQUEST *Req )
 	NGIRCd_Restart = TRUE;
 	return CONNECTED;
 } /* IRC_RESTART */
+
+
+GLOBAL BOOLEAN
+IRC_CONNECT(CLIENT *Client, REQUEST *Req )
+{
+	/* Vorlaeufige Version zu Debug-Zwecken ... */
+
+	assert( Client != NULL );
+	assert( Req != NULL );
+
+	if( Client_Type( Client ) != CLIENT_USER ) return IRC_WriteStrClient( Client, ERR_NOTREGISTERED_MSG, Client_ID( Client ));
+
+	/* Falsche Anzahl Parameter? */
+	if( Req->argc != 0 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+
+	if(( ! Client_HasMode( Client, 'o' )) || ( ! Client_OperByMe( Client ))) return IRC_WriteStrClient( Client, ERR_NOPRIVILEGES_MSG, Client_ID( Client ));
+
+	Log( LOG_NOTICE|LOG_snotice, "Got CONNECT command from \"%s\".", Client_Mask( Client ));
+	NGIRCd_Passive = FALSE;
+	return CONNECTED;
+} /* IRC_CONNECT */
 
 
 /* -eof- */

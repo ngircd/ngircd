@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: lists.c,v 1.4 2002/07/15 16:35:21 alex Exp $
+ * $Id: lists.c,v 1.5 2002/08/26 23:39:22 alex Exp $
  *
  * lists.c: Verwaltung der "IRC-Listen": Ban, Invite, ...
  */
@@ -25,6 +25,7 @@
 #include "client.h"
 #include "channel.h"
 #include "log.h"
+#include "match.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -102,7 +103,8 @@ Lists_CheckInvited( CLIENT *Client, CHANNEL *Chan )
 		if( c2c->channel == Chan )
 		{
 			/* Ok, richtiger Channel. Passt die Maske? */
-			if( strcasecmp( Client_Mask( Client ), c2c->mask ) == 0 )
+Log( LOG_DEBUG, "%s : %s", Client_Mask( Client ), c2c->mask );
+			if( Match( Client_Mask( Client ), c2c->mask ))
 			{
 				/* Treffer! */
 				if( c2c->onlyonce )
@@ -124,14 +126,14 @@ Lists_CheckInvited( CLIENT *Client, CHANNEL *Chan )
 
 
 GLOBAL BOOLEAN
-Lists_AddInvited( CHAR *Pattern, CHANNEL *Chan, BOOLEAN OnlyOnce )
+Lists_AddInvited( CHAR *Mask, CHANNEL *Chan, BOOLEAN OnlyOnce )
 {
 	C2C *c2c;
 
-	assert( Pattern != NULL );
+	assert( Mask != NULL );
 	assert( Chan != NULL );
 
-	c2c = New_C2C( Pattern, Chan, OnlyOnce );
+	c2c = New_C2C( Mask, Chan, OnlyOnce );
 	if( ! c2c )
 	{
 		Log( LOG_ERR, "Can't add new invite list entry!" );
@@ -142,7 +144,7 @@ Lists_AddInvited( CHAR *Pattern, CHANNEL *Chan, BOOLEAN OnlyOnce )
 	c2c->next = My_Invites;
 	My_Invites = c2c;
 
-	Log( LOG_DEBUG, "Added \"%s\" to invite list for \"%s\".", Pattern, Channel_Name( Chan ));
+	Log( LOG_DEBUG, "Added \"%s\" to invite list for \"%s\".", Mask, Channel_Name( Chan ));
 	return TRUE;
 } /* Lists_AddInvited */
 
@@ -198,6 +200,18 @@ Lists_DeleteChannel( CHANNEL *Chan )
 		c2c = next;
 	}
 } /* Lists_DeleteChannel */
+
+
+GLOBAL CHAR *
+Lists_MakeMask( CHAR *Pattern )
+{
+	assert( Pattern );
+
+	/* Hier sollte aus einem "beliebigen" Pattern eine
+	 * gueltige IRC-Mask erzeugt werden ... */
+	
+	return Pattern;
+} /* Lists_MakeMask */
 
 
 LOCAL C2C *

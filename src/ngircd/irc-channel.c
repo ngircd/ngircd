@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-channel.c,v 1.10 2002/06/26 15:44:15 alex Exp $
+ * $Id: irc-channel.c,v 1.11 2002/08/26 23:39:22 alex Exp $
  *
  * irc-channel.c: IRC-Channel-Befehle
  */
@@ -157,7 +157,7 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 		if( modes[1] )
 		{
 			/* Modes im Channel bekannt machen */
-			IRC_WriteStrChannelPrefix( Client, chan, target, FALSE, "MODE %s %s :%s", channame, modes, Client_ID( target ));
+			IRC_WriteStrChannelPrefix( Client, chan, target, FALSE, "MODE %s +%s :%s", channame, &modes[1], Client_ID( target ));
 		}
 
 		if( Client_Type( Client ) == CLIENT_USER )

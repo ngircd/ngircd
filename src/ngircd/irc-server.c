@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-server.c,v 1.12 2002/07/25 12:33:19 alex Exp $
+ * $Id: irc-server.c,v 1.13 2002/08/26 23:39:22 alex Exp $
  *
  * irc-server.c: IRC-Befehle fuer Server-Links
  */
@@ -299,7 +299,7 @@ IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 				IRC_WriteStrChannelPrefix( Client, chan, Client, FALSE, "MODE %s +%s %s", channame, modes, Client_ID( c ));
 			}
 		}
-		else Log( LOG_ERR, "Got NJOIN for unknown nick \"%s\" for channel \"%s\"!", ptr, channame );
+		else Log( LOG_ERR, "Got NJOIN for unknown nick \"%s\", channel \"%s\"!", ptr, channame );
 		
 		/* naechsten Nick suchen */
 		ptr = strtok( NULL, "," );

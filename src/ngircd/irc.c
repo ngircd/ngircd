@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.25 2002/01/05 00:48:33 alex Exp $
+ * $Id: irc.c,v 1.26 2002/01/05 16:51:18 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.26  2002/01/05 16:51:18  alex
+ * - das Passwort von Servern wird nun ueberprueft (PASS- und SERVER-Befehl).
+ *
  * Revision 1.25  2002/01/05 00:48:33  alex
  * - bei SQUIT wurde immer die Verbindung getrennt, auch bei Remote-Servern.
  *
@@ -253,6 +256,7 @@ GLOBAL BOOLEAN IRC_SERVER( CLIENT *Client, REQUEST *Req )
 {
 	CHAR str[LINE_LEN], *ptr;
 	CLIENT *c;
+	INT i;
 	
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -268,6 +272,23 @@ GLOBAL BOOLEAN IRC_SERVER( CLIENT *Client, REQUEST *Req )
 		/* Falsche Anzahl Parameter? */
 		if( Req->argc != 3 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
+		/* Ist dieser Server bei uns konfiguriert? */
+		for( i = 0; i < Conf_Server_Count; i++ ) if( strcasecmp( Req->argv[0], Conf_Server[i].name ) == 0 ) break;
+		if( i >= Conf_Server_Count )
+		{
+			/* Server ist nicht konfiguriert! */
+			Log( LOG_ALERT, "Connection %d: Server \"%s\" not configured here!", Client_Conn( Client ), Req->argv[0] );
+			Conn_Close( Client_Conn( Client ), "Server not configured here!" );
+			return DISCONNECTED;
+		}
+		if( strcmp( Client_Password( Client ), Conf_Server[i].pwd ) != 0 )
+		{
+			/* Falsches Passwort */
+			Log( LOG_ALERT, "Connection %d: Bad password for server \"%s\"!", Client_Conn( Client ), Req->argv[0] );
+			Conn_Close( Client_Conn( Client ), "Bad password!" );
+			return DISCONNECTED;
+		}
+		
 		/* Ist ein Server mit dieser ID bereits registriert? */
 		if( ! Client_CheckID( Client, Req->argv[0] )) return DISCONNECTED;
 

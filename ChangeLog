@@ -12,6 +12,8 @@
 
 ngIRCd CVS-HEAD
 
+  - Fixed ban behavior: users which are banned from a channel can't no
+    longer send PRIVMSG's to this channel (fixes Bug #47).
   - Fixed and enhanced the "penalty handling" of the server: commands that
     require more resources block the client for a short time.
   - Changed the internal time resolution to one second.
@@ -475,4 +477,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.215 2003/11/05 23:24:48 alex Exp $
+$Id: ChangeLog,v 1.216 2003/11/06 01:07:44 alex Exp $

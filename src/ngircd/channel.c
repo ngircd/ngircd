@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: channel.c,v 1.42 2002/12/30 17:15:42 alex Exp $";
+static char UNUSED id[] = "$Id: channel.c,v 1.43 2003/11/06 01:07:44 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -669,7 +669,7 @@ Channel_Write( CHANNEL *Chan, CLIENT *From, CLIENT *Client, CHAR *Text )
 {
 	BOOLEAN is_member, has_voice, is_op, ok;
 
-	/* Okay, Ziel ist ein Channel */
+	/* Okay, target is a channel */
 	is_member = has_voice = is_op = FALSE;
 	if( Channel_IsMemberOf( Chan, From ))
 	{
@@ -678,14 +678,21 @@ Channel_Write( CHANNEL *Chan, CLIENT *From, CLIENT *Client, CHAR *Text )
 		if( strchr( Channel_UserModes( Chan, From ), 'o' )) is_op = TRUE;
 	}
 
-	/* pruefen, ob Client in Channel schreiben darf */
+	/* Check weather client is allowed to write to channel */
 	ok = TRUE;
 	if( strchr( Channel_Modes( Chan ), 'n' ) && ( ! is_member )) ok = FALSE;
 	if( strchr( Channel_Modes( Chan ), 'm' ) && ( ! is_op ) && ( ! has_voice )) ok = FALSE;
+	
+	/* Is the client banned? */
+	if( Lists_CheckBanned( From, Chan ))
+	{
+		/* Client is banned, bus is he channel operator or has voice? */
+		if(( ! has_voice ) && ( ! is_op )) ok = FALSE;
+	}
 
 	if( ! ok ) return IRC_WriteStrClient( From, ERR_CANNOTSENDTOCHAN_MSG, Client_ID( From ), Channel_Name( Chan ));
 
-	/* Text senden */
+	/* Send text */
 	if( Client_Conn( From ) > NONE ) Conn_UpdateIdle( Client_Conn( From ));
 	return IRC_WriteStrChannelPrefix( Client, Chan, From, TRUE, "PRIVMSG %s :%s", Channel_Name( Chan ), Text );
 } /* Channel_Write */

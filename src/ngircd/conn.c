@@ -9,11 +9,16 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.29 2002/01/04 01:36:40 alex Exp $
+ * $Id: conn.c,v 1.30 2002/01/05 15:56:23 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
+ * Revision 1.30  2002/01/05 15:56:23  alex
+ * - "arpa/inet.h" wird nur noch includiert, wenn vorhanden.
+ * - Ein Fehler bei select() fuerht nun zum Abbruch von ngIRCd.
+ * - NO_ADDRESS durch NO_DATA ersetzt: ist wohl portabler.
+ *
  * Revision 1.29  2002/01/04 01:36:40  alex
  * - Loglevel ein wenig angepasst.
  *
@@ -132,8 +137,13 @@
 #include <sys/types.h>
 #include <time.h>
 #include <netinet/in.h>
-#include <arpa/inet.h>
 #include <netdb.h>
+
+#ifdef HAVE_ARPA_INET_H
+#include <arpa/inet.h>
+#else
+#define PF_INET AF_INET
+#endif
 
 #ifdef HAVE_STDINT_H
 #include <stdint.h>			/* u.a. fuer Mac OS X */
@@ -387,7 +397,8 @@ GLOBAL VOID Conn_Handler( INT Timeout )
 		if( select( My_Max_Fd + 1, &read_sockets, &write_sockets, NULL, &tv ) == -1 )
 		{
 			if( errno != EINTR ) Log( LOG_ALERT, "select(): %s!", strerror( errno ));
-			return;
+			Log( LOG_ALERT, PACKAGE" exiting due to fatal errors!" );
+			exit( 1 );
 		}
 
 		/* Koennen Daten geschrieben werden? */
@@ -1256,7 +1267,7 @@ LOCAL CHAR *Resolv_Error( INT H_Error )
 	{
 		case HOST_NOT_FOUND:
 			return "host not found";
-		case NO_ADDRESS:
+		case NO_DATA:
 			return "name valid but no IP address defined";
 		case NO_RECOVERY:
 			return "name server error";

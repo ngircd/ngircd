@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-login.c,v 1.34.2.1 2003/11/07 20:51:11 alex Exp $";
+static char UNUSED id[] = "$Id: irc-login.c,v 1.34.2.2 2003/12/04 14:13:42 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -34,6 +34,7 @@ static char UNUSED id[] = "$Id: irc-login.c,v 1.34.2.1 2003/11/07 20:51:11 alex 
 #include "irc.h"
 #include "irc-info.h"
 #include "irc-write.h"
+#include "cvs-version.h"
 
 #include "exp.h"
 #include "irc-login.h"
@@ -429,12 +430,16 @@ IRC_PONG( CLIENT *Client, REQUEST *Req )
 LOCAL BOOLEAN
 Hello_User( CLIENT *Client )
 {
+#ifdef CVSDATE
+	CHAR ver[12], vertxt[30];
+#endif
+
 	assert( Client != NULL );
 
-	/* Passwort ueberpruefen */
+	/* Check password ... */
 	if( strcmp( Client_Password( Client ), Conf_ServerPwd ) != 0 )
 	{
-		/* Falsches Passwort */
+		/* Bad password! */
 		Log( LOG_ERR, "User \"%s\" rejected (connection %d): Bad password!", Client_Mask( Client ), Client_Conn( Client ));
 		Conn_Close( Client_Conn( Client ), NULL, "Bad password", TRUE );
 		return DISCONNECTED;
@@ -442,13 +447,29 @@ Hello_User( CLIENT *Client )
 
 	Log( LOG_NOTICE, "User \"%s\" registered (connection %d).", Client_Mask( Client ), Client_Conn( Client ));
 
-	/* Andere Server informieren */
+	/* Inform other servers */
 	IRC_WriteStrServers( NULL, "NICK %s 1 %s %s 1 +%s :%s", Client_ID( Client ), Client_User( Client ), Client_Hostname( Client ), Client_Modes( Client ), Client_Info( Client ));
 
+	/* Welcome :-) */
 	if( ! IRC_WriteStrClient( Client, RPL_WELCOME_MSG, Client_ID( Client ), Client_Mask( Client ))) return FALSE;
+
+	/* Version and system type */
+#ifdef CVSDATE
+        strlcpy( ver, CVSDATE, sizeof( ver ));
+        strncpy( ver + 4, ver + 5, 2 );
+        strncpy( ver + 6, ver + 8, 3 );
+	snprintf( vertxt, sizeof( vertxt ), "%s(%s)", PACKAGE_VERSION, ver );
+	if( ! IRC_WriteStrClient( Client, RPL_YOURHOST_MSG, Client_ID( Client ), Client_ID( Client_ThisServer( )), vertxt, TARGET_CPU, TARGET_VENDOR, TARGET_OS )) return FALSE;
+#else
 	if( ! IRC_WriteStrClient( Client, RPL_YOURHOST_MSG, Client_ID( Client ), Client_ID( Client_ThisServer( )), PACKAGE_VERSION, TARGET_CPU, TARGET_VENDOR, TARGET_OS )) return FALSE;
+#endif
+
 	if( ! IRC_WriteStrClient( Client, RPL_CREATED_MSG, Client_ID( Client ), NGIRCd_StartStr )) return FALSE;
+#ifdef CVSDATE
+	if( ! IRC_WriteStrClient( Client, RPL_MYINFO_MSG, Client_ID( Client ), Client_ID( Client_ThisServer( )), vertxt, USERMODES, CHANMODES )) return FALSE;	
+#else
 	if( ! IRC_WriteStrClient( Client, RPL_MYINFO_MSG, Client_ID( Client ), Client_ID( Client_ThisServer( )), PACKAGE_VERSION, USERMODES, CHANMODES )) return FALSE;
+#endif
 
 	/* Features */
 	if( ! IRC_WriteStrClient( Client, RPL_ISUPPORT_MSG, Client_ID( Client ), CLIENT_NICK_LEN - 1, CHANNEL_TOPIC_LEN - 1, CLIENT_AWAY_LEN - 1, Conf_MaxJoins )) return DISCONNECTED;

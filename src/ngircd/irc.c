@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.6 2001/12/25 23:13:33 alex Exp $
+ * $Id: irc.c,v 1.7 2001/12/25 23:25:18 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.7  2001/12/25 23:25:18  alex
+ * - und nochmal Aenderungen am Logging ;-)
+ *
  * Revision 1.6  2001/12/25 23:13:33  alex
  * - Debug-Meldungen angepasst.
  *
@@ -237,7 +240,7 @@ LOCAL BOOLEAN Check_Valid_User( CLIENT *Client )
 
 LOCAL BOOLEAN Hello_User( CLIENT *Client )
 {
-	Log( LOG_INFO, "User \"%s!%s@%s\" (%s) registered.", Client->nick, Client->user, Client->host, Client->name );
+	Log( LOG_NOTICE, "User \"%s!%s@%s\" (%s) registered.", Client->nick, Client->user, Client->host, Client->name );
 
 	IRC_WriteStr_Client( Client, This_Server, RPL_WELCOME_MSG, Client->nick, Client->nick, Client->user, Client->host );
 	IRC_WriteStr_Client( Client, This_Server, RPL_YOURHOST_MSG, Client->nick, This_Server->host );

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.80 2002/02/27 20:33:13 alex Exp $
+ * $Id: irc.c,v 1.81 2002/02/27 20:55:44 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.81  2002/02/27 20:55:44  alex
+ * - Channel-Topics werden nun auch korrekt von anderen Server angenommen.
+ *
  * Revision 1.80  2002/02/27 20:33:13  alex
  * - Channel-Topics implementiert.
  *
@@ -2249,7 +2252,7 @@ GLOBAL BOOLEAN IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	if(( Client_Type( Client ) != CLIENT_USER ) && ( Client_Type( Client ) != CLIENT_USER )) return IRC_WriteStrClient( Client, ERR_NOTREGISTERED_MSG, Client_ID( Client ));
+	if(( Client_Type( Client ) != CLIENT_USER ) && ( Client_Type( Client ) != CLIENT_SERVER )) return IRC_WriteStrClient( Client, ERR_NOTREGISTERED_MSG, Client_ID( Client ));
 
 	/* Falsche Anzahl Parameter? */
 	if(( Req->argc < 1 ) || ( Req->argc > 2 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
@@ -2284,7 +2287,7 @@ GLOBAL BOOLEAN IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 	Log( LOG_DEBUG, "User \"%s\" set topic on \"%s\": %s", Client_Mask( from ), Channel_Name( chan ), Req->argv[1][0] ? Req->argv[1] : "<none>" );
 
 	/* im Channel bekannt machen */
-	IRC_WriteStrChannelPrefix( from, chan, from, TRUE, "TOPIC %s :%s", Req->argv[0], Req->argv[1] );
+	IRC_WriteStrChannelPrefix( Client, chan, from, TRUE, "TOPIC %s :%s", Req->argv[0], Req->argv[1] );
 	return IRC_WriteStrClientPrefix( from, from, "TOPIC %s :%s", Req->argv[0], Req->argv[1] );
 } /* IRC_TOPIC */
 

@@ -11,7 +11,7 @@
 #
 # debian/rules for ngIRCd
 #
-# $Id: rules,v 1.2 2004/01/01 22:24:48 alex Exp $
+# $Id: rules,v 1.3 2005/02/07 23:09:31 alex Exp $
 #
 # Based on the sample debian/rules that uses debhelper,
 # GNU copyright 1997 to 1999 by Joey Hess.
@@ -38,7 +38,7 @@ endif
 
 configure-ngircd: configure
 	dh_testdir
-
+	
 	# configure "standard" variant:
 	./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) \
 	  --prefix=/usr \
@@ -48,7 +48,7 @@ configure-ngircd: configure
 
 configure-ngircd-full: configure
 	dh_testdir
-
+	
 	# configure "full" variant:
 	./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) \
 	  --prefix=/usr \
@@ -63,20 +63,20 @@ build-ngircd: build-stamp-ngircd
 build-stamp-ngircd: configure-ngircd
 	dh_testdir
 	rm -f build-stamp-*
-
+	
 	# Add here commands to compile the "standard" package:
 	$(MAKE)
-
+	
 	touch build-stamp-ngircd
 
 build-ngircd-full: build-stamp-ngircd-full
 build-stamp-ngircd-full: configure-ngircd-full
 	dh_testdir
 	rm -f build-stamp-*
-
+	
 	# Add here commands to compile the "full" package:
 	$(MAKE)
-
+	
 	touch build-stamp-ngircd-full
 
 clean:
@@ -86,10 +86,10 @@ clean:
 	rm -f $(CURDIR)/debian/ngircd-full.default
 	rm -f $(CURDIR)/debian/ngircd-full.init
 	rm -f $(CURDIR)/debian/ngircd-full.postinst
-
+	
 	# Add here commands to clean up after the build process:
 	-$(MAKE) clean
-
+	
 ifneq "$(wildcard /usr/share/misc/config.sub)" ""
 	cp -f /usr/share/misc/config.sub config.sub
 endif
@@ -104,23 +104,39 @@ install-ngircd: build-ngircd
 	dh_testdir
 	dh_testroot
 	dh_installdirs
-
+	
 	# Add here commands to install the "standard" package into debian/ngircd:
 	$(MAKE) install DESTDIR=$(CURDIR)/debian/ngircd
 	rm $(CURDIR)/debian/ngircd/usr/share/doc/ngircd/INSTALL*
 	rm $(CURDIR)/debian/ngircd/usr/share/doc/ngircd/COPYING*
+	mkdir -p $(CURDIR)/debian/ngircd/var/run/ircd
+	cat $(CURDIR)/debian/ngircd/usr/share/doc/ngircd/sample-ngircd.conf | \
+	 sed -e "s/;ServerUID = 65534/ServerUID = irc/g" | \
+	 sed -e "s/;ServerGID = 65534/ServerGID = irc/g" | \
+	 sed -e "s/;MotdFile = \/usr\/local\/etc\/ngircd.motd/MotdFile = \/etc\/ngircd\/ngircd.motd/g" | \
+	 sed -e "s/;PidFile = \/var\/run\/ngircd\/ngircd.pid/PidFile = \/var\/run\/ircd\/ngircd.pid/g" \
+	 >$(CURDIR)/debian/ngircd/etc/ngircd/ngircd.conf
+	touch $(CURDIR)/debian/ngircd/etc/ngircd/ngircd.motd
 
 install-ngircd-full: build-ngircd-full
 	dh_testdir
 	dh_testroot
 	dh_installdirs
-
+	
 	# Add here commands to install the "full" package into debian/ngircd-full:
 	$(MAKE) install DESTDIR=$(CURDIR)/debian/ngircd-full
 	rm $(CURDIR)/debian/ngircd-full/usr/share/doc/ngircd/INSTALL*
 	rm $(CURDIR)/debian/ngircd-full/usr/share/doc/ngircd/COPYING*
 	mv $(CURDIR)/debian/ngircd-full/usr/share/doc/ngircd \
 	 $(CURDIR)/debian/ngircd-full/usr/share/doc/ngircd-full
+	mkdir -p $(CURDIR)/debian/ngircd-full/var/run/ircd
+	cat $(CURDIR)/debian/ngircd-full/usr/share/doc/ngircd-full/sample-ngircd.conf | \
+	 sed -e "s/;ServerUID = 65534/ServerUID = irc/g" | \
+	 sed -e "s/;ServerGID = 65534/ServerGID = irc/g" | \
+	 sed -e "s/;MotdFile = \/usr\/local\/etc\/ngircd.motd/MotdFile = \/etc\/ngircd\/ngircd.motd/g" | \
+	 sed -e "s/;PidFile = \/var\/run\/ngircd\/ngircd.pid/PidFile = \/var\/run\/ircd\/ngircd.pid/g" \
+	 >$(CURDIR)/debian/ngircd-full/etc/ngircd/ngircd.conf
+	touch $(CURDIR)/debian/ngircd-full/etc/ngircd/ngircd.motd
 
 # Build architecture-independent files here.
 binary-indep:

@@ -17,12 +17,13 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: channel.c,v 1.43 2003/11/06 01:07:44 alex Exp $";
+static char UNUSED id[] = "$Id: channel.c,v 1.44 2004/01/17 03:17:49 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 
 #include "conn-func.h"
 #include "client.h"

@@ -14,13 +14,14 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-login.c,v 1.37 2003/12/27 13:01:12 alex Exp $";
+static char UNUSED id[] = "$Id: irc-login.c,v 1.38 2004/01/17 03:17:49 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 
 #include "ngircd.h"
 #include "resolve.h"

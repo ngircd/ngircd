@@ -13,9 +13,9 @@
 ngIRCd 0.4.0-pre1, 30.03.2002
 
   - IRC-Befehle nochmal auf weitere Source-Dateien aufgespalten.
-  - WHO implementiert (bisher ohne komplette Unerstuetzung von Masks).
+  - WHO implementiert (bisher ohne komplette Unterstuetzung von Masks).
   - Der AWAY-Mode wurde nicht ueber mehrere Server-Links weitergegeben.
-  - stderr wird nun in eine Datei umgelenkt (/usr/local/var/ngircd.err).
+  - stderr wird nun in eine Datei umgelenkt (/tmp/ngircd-<PID>.err).
     Laeuft der Server nicht im Debug-Modus, so wird diese bei Programm-
     ende geloescht. Sollte der Server abstuerzen, finden sich hier evtl.
     zusaetzliche Informationen.
@@ -23,7 +23,6 @@ ngIRCd 0.4.0-pre1, 30.03.2002
   - die Beispiel-Konfigurationsdatei (doc/sample-ngircd.conf) wird als
     ngircd.conf installiert, wenn noch keine "echte" Konfigurationsdatei
     vorhanden ist.
-  - bei "ngircd --help" werden nun die eincompilierten Pfade angezeigt.
   - bei WHO, WHOIS und NAMES wird nun nur noch der Status "Operator" oder
     "voiced" geliefert -- nicht mehr beides.
   - Server-Gruppen implementiert: es wird immer nur zu einem Server in
@@ -31,14 +30,14 @@ ngIRCd 0.4.0-pre1, 30.03.2002
     nicht, so wird der naechste probiert (Variable "Group" in der Kon-
     figurationsdatei, Sektion [Server]).
   - IRC_PING() ist, wenn nicht im "strict RFC"-Mode, toleranter und ak-
-    zeptiert beliebig viele Parameter: z.B. BitchX sendet soetwas.
+    zeptiert beliebig viele Parameter (z.B. BitchX sendet soetwas).
   - die "Portab-Header" werden nicht mehr benoetigt, die System-Erkennung
     wird nun ausschliesslich vom configure-Script durchgefuehrt. System-
     abhaengige Definitionen finden sich nun unter src/portrab/.
   - Clients und Channels werden nicht mehr ueber ihren Namen, sondern
     einen Hash-Wert gesucht: sollte deutlich schneller sein.
   - neuer Kommandozeilen-Parameter "--configtest": die Konfiguration wird
-    gelesen und die dann verwendeten Werte angezeigt.
+    gelesen und dann die verwendeten Werte angezeigt.
   - Client-Mode "s" (Server Notices) implementiert.
   - mit dem neuen Kommandozeilen-Parameter "--config"/"-f" kann eine
     alternative Konfigurationsdatei angegeben werden.
@@ -174,4 +173,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.55 2002/03/31 17:59:00 alex Exp $
+$Id: ChangeLog,v 1.56 2002/03/31 23:34:56 alex Exp $

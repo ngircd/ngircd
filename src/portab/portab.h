@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: portab.h,v 1.3 2002/03/25 19:13:19 alex Exp $
+ * $Id: portab.h,v 1.4 2002/05/19 10:46:08 alex Exp $
  *
  * portab.h: "Portabilitaets-Definitionen"
  */
@@ -28,6 +28,10 @@
 #define STATIC static
 #define LOCAL static
 #define CONST const
+
+#ifndef signed
+#define signed
+#endif
 
 
 /* Datatentypen */
@@ -75,10 +79,6 @@ typedef UINT8 BOOLEAN;
 
 #ifndef HAVE_socklen_t
 #define socklen_t int			/* u.a. fuer Mac OS X */
-#endif
-
-#ifndef HAVE_INET_ATON
-#define inet_aton( opt, bind ) 0	/* Dummy fuer inet_aton() */
 #endif
 
 #if OS_UNIX_AUX

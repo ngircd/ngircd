@@ -12,10 +12,15 @@
 
 ngIRCd CVS-HEAD
 
+  - (none)
+
+ngIRCd 0.7.0
+
+  ngIRCd 0.7.0-pre2
+  - CVS build system fixes (made autogen.sh more portable).
   - Fixed compilation and test-suite on SunOS (tested with 5.6).
 
-ngIRCd 0.7.0-pre1
-
+  ngIRCd 0.7.0-pre1 (2003-04-22)
   - New signal handler (more secure, actions are executed outside).
   - GCC: the compiler is now called with more warning options enabled.
   - Replaced a lot of str[n]cpy(), str[n]cat() and sprintf() calls with the
@@ -437,4 +442,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.191 2003/04/22 19:35:05 alex Exp $
+$Id: ChangeLog,v 1.192 2003/04/22 20:42:28 alex Exp $

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: parse.c,v 1.20 2002/01/11 23:50:55 alex Exp $
+ * $Id: parse.c,v 1.21 2002/01/18 11:12:11 alex Exp $
  *
  * parse.c: Parsen der Client-Anfragen
  *
  * $Log: parse.c,v $
+ * Revision 1.21  2002/01/18 11:12:11  alex
+ * - der Sniffer wird nun nur noch aktiviert, wenn auf Kommandozeile angegeben.
+ *
  * Revision 1.20  2002/01/11 23:50:55  alex
  * - LINKS implementiert, LUSERS begonnen.
  *
@@ -94,6 +97,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "ngircd.h"
 #include "client.h"
 #include "conn.h"
 #include "irc.h"
@@ -139,7 +143,7 @@ GLOBAL BOOLEAN Parse_Request( CONN_ID Idx, CHAR *Request )
 	assert( Request != NULL );
 
 #ifdef SNIFFER
-	Log( LOG_DEBUG, " <- connection %d: '%s'.", Idx, Request );
+	if( NGIRCd_Sniffer ) Log( LOG_DEBUG, " <- connection %d: '%s'.", Idx, Request );
 #endif
 	
 	Init_Request( &req );

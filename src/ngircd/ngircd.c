@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.19 2002/01/12 00:17:28 alex Exp $
+ * $Id: ngircd.c,v 1.20 2002/01/18 11:12:11 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  *
  * $Log: ngircd.c,v $
+ * Revision 1.20  2002/01/18 11:12:11  alex
+ * - der Sniffer wird nun nur noch aktiviert, wenn auf Kommandozeile angegeben.
+ *
  * Revision 1.19  2002/01/12 00:17:28  alex
  * - ngIRCd wandelt sich nun selber in einen Daemon (Hintergrundprozess) um.
  *
@@ -130,6 +133,9 @@ GLOBAL INT main( INT argc, CONST CHAR *argv[] )
 #ifdef DEBUG
 	NGIRCd_Debug = FALSE;
 #endif
+#ifdef SNIFFER
+	NGIRCd_Sniffer = FALSE;
+#endif
 
 	/* Kommandozeile parsen */
 	for( i = 1; i < argc; i++ )
@@ -157,6 +163,13 @@ GLOBAL INT main( INT argc, CONST CHAR *argv[] )
 				ok = TRUE;
 			}
 #endif
+#ifdef SNIFFER
+			if( strcmp( argv[i], "--sniffer" ) == 0 )
+			{
+				NGIRCd_Sniffer = TRUE;
+				ok = TRUE;
+			}
+#endif
 			if( strcmp( argv[i], "--nodaemon" ) == 0 )
 			{
 				NGIRCd_NoDaemon = TRUE;
@@ -174,6 +187,13 @@ GLOBAL INT main( INT argc, CONST CHAR *argv[] )
 				if( argv[i][n] == 'd' )
 				{
 					NGIRCd_Debug = TRUE;
+					ok = TRUE;
+				}
+#endif
+#ifdef SNIFFER
+				if( argv[i][n] == 's' )
+				{
+					NGIRCd_Sniffer = TRUE;
 					ok = TRUE;
 				}
 #endif

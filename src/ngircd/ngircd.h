@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.h,v 1.7 2002/01/11 14:45:18 alex Exp $
+ * $Id: ngircd.h,v 1.8 2002/01/18 11:12:11 alex Exp $
  *
  * ngircd.h: Prototypen aus dem "Haupt-Modul"
  *
  * $Log: ngircd.h,v $
+ * Revision 1.8  2002/01/18 11:12:11  alex
+ * - der Sniffer wird nun nur noch aktiviert, wenn auf Kommandozeile angegeben.
+ *
  * Revision 1.7  2002/01/11 14:45:18  alex
  * - Kommandozeilen-Parser implementiert: Debug- und No-Daemon-Modus, Hilfe.
  *
@@ -50,6 +53,10 @@ GLOBAL CHAR NGIRCd_StartStr[64];
 
 #ifdef DEBUG
 GLOBAL BOOLEAN NGIRCd_Debug;		/* Debug-Modus aktivieren */
+#endif
+
+#ifdef SNIFFER
+GLOBAL BOOLEAN NGIRCd_Sniffer;		/* Sniffer aktivieren */
 #endif
 
 GLOBAL BOOLEAN NGIRCd_NoDaemon;		/* nicht im Hintergrund laufen */

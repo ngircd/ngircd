@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.57 2002/03/26 23:47:45 alex Exp $
+ * $Id: conn.c,v 1.58 2002/03/29 22:54:35 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -163,7 +163,7 @@ GLOBAL VOID Conn_Exit( VOID )
 } /* Conn_Exit */
 
 
-GLOBAL BOOLEAN Conn_NewListener( CONST INT Port )
+GLOBAL BOOLEAN Conn_NewListener( CONST UINT Port )
 {
 	/* Neuen Listen-Socket erzeugen: der Server wartet dann auf
 	 * dem angegebenen Port auf Verbindungen. Kann der Listen-

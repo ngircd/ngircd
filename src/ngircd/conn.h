@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.h,v 1.13 2002/03/12 14:37:52 alex Exp $
+ * $Id: conn.h,v 1.14 2002/03/29 22:54:35 alex Exp $
  *
  * conn.h: Verwaltung aller Netz-Verbindungen ("connections") (Header)
  */
@@ -34,7 +34,7 @@ typedef struct _Res_Stat
 GLOBAL VOID Conn_Init( VOID );
 GLOBAL VOID Conn_Exit( VOID );
 
-GLOBAL BOOLEAN Conn_NewListener( CONST INT Port );
+GLOBAL BOOLEAN Conn_NewListener( CONST UINT Port );
 
 GLOBAL VOID Conn_Handler( INT Timeout );
 

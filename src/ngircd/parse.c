@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: parse.c,v 1.11 2002/01/02 02:43:22 alex Exp $
+ * $Id: parse.c,v 1.12 2002/01/03 02:24:49 alex Exp $
  *
  * parse.c: Parsen der Client-Anfragen
  *
  * $Log: parse.c,v $
+ * Revision 1.12  2002/01/03 02:24:49  alex
+ * - neue Befehle NJOIN und SERVER begonnen.
+ *
  * Revision 1.11  2002/01/02 02:43:22  alex
  * - Copyright-Texte aktualisiert.
  * - neuer Befehl ERROR.
@@ -171,7 +174,7 @@ GLOBAL BOOLEAN Parse_Request( CONN_ID Idx, CHAR *Request )
 	}
 	
 	if( ! Validate_Args( &req )) return Parse_Error( Idx, "Invalid argument(s)" );
-	
+
 	return Handle_Request( Idx, &req );
 } /* Parse_Request */
 
@@ -245,6 +248,8 @@ LOCAL BOOLEAN Handle_Request( CONN_ID Idx, REQUEST *Req )
 	if( strcasecmp( Req->command, "PASS" ) == 0 ) return IRC_PASS( client, Req );
 	else if( strcasecmp( Req->command, "NICK" ) == 0 ) return IRC_NICK( client, Req );
 	else if( strcasecmp( Req->command, "USER" ) == 0 ) return IRC_USER( client, Req );
+	else if( strcasecmp( Req->command, "SERVER" ) == 0 ) return IRC_SERVER( client, Req );
+	else if( strcasecmp( Req->command, "NJOIN" ) == 0 ) return IRC_NJOIN( client, Req );
 	else if( strcasecmp( Req->command, "QUIT" ) == 0 ) return IRC_QUIT( client, Req );
 	else if( strcasecmp( Req->command, "PING" ) == 0 ) return IRC_PING( client, Req );
 	else if( strcasecmp( Req->command, "PONG" ) == 0 ) return IRC_PONG( client, Req );

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.h,v 1.9 2002/02/17 23:40:32 alex Exp $
+ * $Id: ngircd.h,v 1.10 2002/02/19 20:07:48 alex Exp $
  *
  * ngircd.h: Prototypen aus dem "Haupt-Modul"
  *
  * $Log: ngircd.h,v $
+ * Revision 1.10  2002/02/19 20:07:48  alex
+ * - Neue Variablen NGIRCd_DebugVersion und NGIRCd_Passive.
+ *
  * Revision 1.9  2002/02/17 23:40:32  alex
  * - Neue Funktion NGIRCd_VersionAddition().
  *
@@ -64,8 +67,12 @@ GLOBAL BOOLEAN NGIRCd_Sniffer;		/* Sniffer aktivieren */
 
 GLOBAL BOOLEAN NGIRCd_NoDaemon;		/* nicht im Hintergrund laufen */
 
+GLOBAL BOOLEAN NGIRCd_Passive;		/* nicht zu anderen Servern connecten */
+
 GLOBAL BOOLEAN NGIRCd_Quit;		/* TRUE: ngIRCd beenden */
 GLOBAL BOOLEAN NGIRCd_Restart;		/* TRUE: neu starten */
+
+GLOBAL CHAR NGIRCd_DebugLevel[2];	/* Debug-Level fuer IRC_VERSION() */
 
 GLOBAL CHAR *NGIRCd_Version( VOID );
 GLOBAL CHAR *NGIRCd_VersionAddition( VOID );

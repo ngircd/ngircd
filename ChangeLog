@@ -13,6 +13,8 @@
 ngIRCd 0.2.x, xx.02.2002
 
   - NICK korrigiert: es werden nun auch alle "betroffenen" User informiert.
+  - configure-Script erweitert, u.a. bessere Anpassung an BeOS: dort wird
+    nun die "libbe" zum ngIRCd gelinkt, somit funktioniert auch syslog.
   - Fehlerhafte bzw. noch nicht verstandene Modes werden nun ausfuehrlicher
     an den Client geliefert.
 
@@ -101,4 +103,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.19 2002/02/17 17:47:01 alex Exp $
+$Id: ChangeLog,v 1.20 2002/02/17 19:08:19 alex Exp $

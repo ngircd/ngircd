@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc.c,v 1.107.2.1 2002/12/26 19:01:29 alex Exp $";
+static char UNUSED id[] = "$Id: irc.c,v 1.107.2.2 2002/12/27 13:37:43 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -82,7 +82,7 @@ IRC_KILL( CLIENT *Client, REQUEST *Req )
 
 	/* Do we host such a client? */
 	c = Client_Search( Req->argv[0] );
-	if( c )
+	if( c && Client_Type( c ) == CLIENT_USER )
 	{
 		/* Yes, I found it! */
 		conn = Client_Conn( c );

@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: parse.c,v 1.6 2001/12/26 14:45:37 alex Exp $
+ * $Id: parse.c,v 1.7 2001/12/27 19:13:21 alex Exp $
  *
  * parse.c: Parsen der Client-Anfragen
  *
  * $Log: parse.c,v $
+ * Revision 1.7  2001/12/27 19:13:21  alex
+ * - neue Befehle NOTICE und PRIVMSG.
+ * - Debug-Logging ein wenig reduziert.
+ *
  * Revision 1.6  2001/12/26 14:45:37  alex
  * - "Code Cleanups".
  *
@@ -214,10 +218,6 @@ LOCAL BOOLEAN Handle_Request( CONN_ID Idx, REQUEST *Req )
 	assert( Req != NULL );
 	assert( Req->command != NULL );
 
-#ifdef SNIFFER
-	Log( LOG_DEBUG, "    connection %d: '%s', %d %s,%s prefix.", Idx, Req->command, Req->argc, Req->argc == 1 ? "parameter" : "parameters", Req->prefix ? "" : " no" );
-#endif
-	
 	client = Client_GetFromConn( Idx );
 	assert( client != NULL );
 
@@ -228,7 +228,9 @@ LOCAL BOOLEAN Handle_Request( CONN_ID Idx, REQUEST *Req )
 	else if( strcasecmp( Req->command, "PING" ) == 0 ) return IRC_PING( client, Req );
 	else if( strcasecmp( Req->command, "PONG" ) == 0 ) return IRC_PONG( client, Req );
 	else if( strcasecmp( Req->command, "MOTD" ) == 0 ) return IRC_MOTD( client, Req );
-
+	else if( strcasecmp( Req->command, "PRIVMSG" ) == 0 ) return IRC_PRIVMSG( client, Req );
+	else if( strcasecmp( Req->command, "NOTICE" ) == 0 ) return IRC_NOTICE( client, Req );
+	
 	/* Unbekannter Befehl */
 	IRC_WriteStrClient( client, This_Server, ERR_UNKNOWNCOMMAND_MSG, Client_Name( client ), Req->command );
 

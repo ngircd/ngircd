@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-channel.c,v 1.3 2002/03/25 17:08:54 alex Exp $
+ * $Id: irc-channel.c,v 1.4 2002/04/23 19:51:14 alex Exp $
  *
  * irc-channel.c: IRC-Channel-Befehle
  */
@@ -216,6 +216,47 @@ GLOBAL BOOLEAN IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 	if( Client_Type( Client ) == CLIENT_USER ) return IRC_WriteStrClientPrefix( Client, Client, "TOPIC %s :%s", Req->argv[0], Req->argv[1] );
 	else return CONNECTED;
 } /* IRC_TOPIC */
+
+
+GLOBAL BOOLEAN IRC_LIST( CLIENT *Client, REQUEST *Req )
+{
+	CHAR *pattern;
+	CHANNEL *chan;
+
+	assert( Client != NULL );
+	assert( Req != NULL );
+
+	if( Client_Type( Client ) != CLIENT_USER ) return IRC_WriteStrClient( Client, ERR_NOTREGISTERED_MSG, Client_ID( Client ));
+
+	/* Falsche Anzahl Parameter? */
+	if( Req->argc > 1 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+
+	if( Req->argc > 0 ) pattern = strtok( Req->argv[0], "," );
+	else pattern = "*";
+	
+	while( pattern )
+	{
+		/* alle Channel durchgehen */
+		chan = Channel_First( );
+		while( chan )
+		{
+			/* Passt die Suchmaske auf diesen Channel? Bisher werden hier
+			 * "regular expressions" aber noch nicht unterstuetzt ... */
+			if(( strcasecmp( pattern, Channel_Name( chan )) == 0 ) || ( strcmp( pattern, "*" ) == 0 ))
+			{
+				/* Treffer! */
+				if( ! IRC_WriteStrClient( Client, RPL_LIST_MSG, Client_ID( Client), Channel_Name( chan ), Channel_MemberCount( chan ), Channel_Topic( chan ))) return DISCONNECTED;
+			}
+			chan = Channel_Next( chan );
+		}
+		
+		/* naechsten Namen ermitteln */
+		if( Req->argc > 0 ) pattern = strtok( NULL, "," );
+		else pattern = NULL;
+	}
+	
+	return IRC_WriteStrClient( Client, RPL_LISTEND_MSG, Client_ID( Client ));
+} /* IRC_LIST */
 
 
 /* -eof- */

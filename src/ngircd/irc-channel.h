@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-channel.h,v 1.2 2002/03/12 14:37:52 alex Exp $
+ * $Id: irc-channel.h,v 1.3 2002/04/23 19:51:14 alex Exp $
  *
  * irc-channel.h: IRC-Channel-Befehle (Header)
  */
@@ -26,6 +26,7 @@ GLOBAL BOOLEAN IRC_JOIN( CLIENT *Client, REQUEST *Req );
 GLOBAL BOOLEAN IRC_PART( CLIENT *Client, REQUEST *Req );
 GLOBAL BOOLEAN IRC_TOPIC( CLIENT *Client, REQUEST *Req );
 
+GLOBAL BOOLEAN IRC_LIST( CLIENT *Client, REQUEST *Req );
 
 #endif
 

@@ -15,6 +15,8 @@ ngIRCd CVS-HEAD
   - Manual-Pages ngircd.8 und ngircd.conf.5 begonnen.
   - LUSERS verzaehlt sich bei eigenen Server-Links nicht mehr.
   - QUIT wird nun auch von noch nicht registrierten Clients akzeptiert.
+  - IRC-Funktion LIST implementiert; bisher werden allerdings noch keine
+    Regular Expressions (bis auf "*") unterstuetzt.
 
 ngIRCd 0.4.1, 08.04.2002
 
@@ -191,4 +193,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.61 2002/04/14 14:03:45 alex Exp $
+$Id: ChangeLog,v 1.62 2002/04/23 19:53:01 alex Exp $

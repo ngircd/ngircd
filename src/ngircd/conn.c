@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.101 2002/12/02 13:19:37 alex Exp $
+ * $Id: conn.c,v 1.102 2002/12/02 13:56:24 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  */
@@ -907,10 +907,10 @@ Conn_SendQ( CONN_ID Idx )
 
 	assert( Idx > NONE );
 #ifdef USE_ZLIB
-	return My_Connections[Idx].zip.wdatalen;
-#else
-	return My_Connections[Idx].wdatalen;
+	if( My_Connections[Idx].options & CONN_ZIP ) return My_Connections[Idx].zip.wdatalen;
+	else
 #endif
+	return My_Connections[Idx].wdatalen;
 } /* Conn_SendQ */
 
 
@@ -941,10 +941,10 @@ Conn_RecvQ( CONN_ID Idx )
 
 	assert( Idx > NONE );
 #ifdef USE_ZLIB
-	return My_Connections[Idx].zip.rdatalen;
-#else
-	return My_Connections[Idx].rdatalen;
+	if( My_Connections[Idx].options & CONN_ZIP ) return My_Connections[Idx].zip.rdatalen;
+	else
 #endif
+	return My_Connections[Idx].rdatalen;
 } /* Conn_RecvQ */
 
 

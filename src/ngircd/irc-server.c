@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-server.c,v 1.18 2002/10/04 11:21:46 alex Exp $
+ * $Id: irc-server.c,v 1.19 2002/11/05 14:18:59 alex Exp $
  *
  * irc-server.c: IRC-Befehle fuer Server-Links
  */
@@ -113,6 +113,7 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 		Log( LOG_NOTICE|LOG_snotice, "Server \"%s\" registered (connection %d, 1 hop - direct link).", Client_ID( Client ), Client_Conn( Client ));
 
 		Client_SetType( Client, CLIENT_SERVER );
+		Conn_SetServer( Client_Conn( Client ), i );
 
 		/* maximalen Hop Count ermitteln */
 		max_hops = 0;

@@ -19,7 +19,7 @@
 
 #ifdef ZLIB
 
-static char UNUSED id[] = "$Id: conn-zip.c,v 1.4 2003/12/26 15:55:07 alex Exp $";
+static char UNUSED id[] = "$Id: conn-zip.c,v 1.5 2004/04/25 13:55:36 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -161,7 +161,7 @@ Unzip_Buffer( CONN_ID Idx )
 	result = inflate( in, Z_SYNC_FLUSH );
 	if( result != Z_OK )
 	{
-		Log( LOG_ALERT, "Decompression error: code %d (ni=%d, ai=%d, no=%d, ao=%d)!?", result, in->next_in, in->avail_in, in->next_out, in->avail_out );
+		Log( LOG_ALERT, "Decompression error: %s (code=%d, ni=%d, ai=%d, no=%d, ao=%d)!?", in->msg, result, in->next_in, in->avail_in, in->next_out, in->avail_out );
 		Conn_Close( Idx, "Decompression error!", NULL, FALSE );
 		return FALSE;
 	}

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.109 2002/12/26 17:04:54 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.110 2002/12/27 13:20:13 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -567,8 +567,8 @@ Conn_Write( CONN_ID Idx, CHAR *Data, INT Len )
 GLOBAL VOID
 Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient )
 {
-	/* Verbindung schliessen. Evtl. noch von Resolver
-	 * Sub-Prozessen offene Pipes werden geschlossen. */
+	/* Close connection. Open pipes of asyncronous resolver
+	 * sub-processes are closed down. */
 
 	CLIENT *c;
 	DOUBLE in_k, out_k;
@@ -580,69 +580,75 @@ Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient )
 	assert( Idx > NONE );
 	assert( My_Connections[Idx].sock > NONE );
 
+	/* Search client, if any */
 	c = Client_GetFromConn( Idx );
 
+	/* Should the client be informed? */
 	if( InformClient )
 	{
 #ifndef STRICT_RFC
-		/* Statistik an Client melden, wenn User */
+		/* Send statistics to client if registered as user: */
 		if(( c != NULL ) && ( Client_Type( c ) == CLIENT_USER ))
 		{
 			Conn_WriteStr( Idx, "NOTICE %s :%sConnection statistics: client %.1f kb, server %.1f kb.", Client_ThisServer( ), NOTICE_TXTPREFIX, (DOUBLE)My_Connections[Idx].bytes_in / 1024,  (DOUBLE)My_Connections[Idx].bytes_out / 1024 );
 		}
 #endif
 
-		/* ERROR an Client schicken (von RFC so vorgesehen!) */
+		/* Send ERROR to client (see RFC!) */
 		if( FwdMsg ) Conn_WriteStr( Idx, "ERROR :%s", FwdMsg );
 		else Conn_WriteStr( Idx, "ERROR :Closing connection." );
 		if( My_Connections[Idx].sock == NONE ) return;
 	}
 
-	/* zunaechst versuchen, noch im Schreibpuffer vorhandene
-	 * Daten auf den Socket zu schreiben ... */
+	/* Try to write out the write buffer */
 	Try_Write( Idx );
 
+	/* Shut down socket */
 	if( close( My_Connections[Idx].sock ) != 0 )
 	{
-		Log( LOG_ERR, "Error closing connection %d (socket %d) with %s:%d - %s!", Idx, My_Connections[Idx].sock, My_Connections[Idx].host, ntohs( My_Connections[Idx].addr.sin_port), strerror( errno ));
+		/* Oops, we can't close the socket!? This is fatal! */
+		Log( LOG_EMERG, "Error closing connection %d (socket %d) with %s:%d - %s!", Idx, My_Connections[Idx].sock, My_Connections[Idx].host, ntohs( My_Connections[Idx].addr.sin_port), strerror( errno ));
+		Log( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE );
+		exit( 1 );
 	}
-	else
-	{
-		in_k = (DOUBLE)My_Connections[Idx].bytes_in / 1024;
-		out_k = (DOUBLE)My_Connections[Idx].bytes_out / 1024;
-#ifdef USE_ZLIB
-		if( My_Connections[Idx].options & CONN_ZIP )
-		{
-			in_z_k = (DOUBLE)My_Connections[Idx].zip.bytes_in / 1024;
-			out_z_k = (DOUBLE)My_Connections[Idx].zip.bytes_out / 1024;
-			in_p = (INT)(( in_k * 100 ) / in_z_k );
-			out_p = (INT)(( out_k * 100 ) / out_z_k );
-			Log( LOG_INFO, "Connection %d with %s:%d closed (in: %.1fk/%.1fk/%d%%, out: %.1fk/%.1fk/%d%%).", Idx, My_Connections[Idx].host, ntohs( My_Connections[Idx].addr.sin_port ), in_k, in_z_k, in_p, out_k, out_z_k, out_p );
-		}
-		else
-#endif
-		{
-			Log( LOG_INFO, "Connection %d with %s:%d closed (in: %.1fk, out: %.1fk).", Idx, My_Connections[Idx].host, ntohs( My_Connections[Idx].addr.sin_port ), in_k, out_k );
-		}
-	}
-	
-	/* Socket als "ungueltig" markieren */
+
+	/* Mark socket as invalid: */
 	FD_CLR( My_Connections[Idx].sock, &My_Sockets );
 	FD_CLR( My_Connections[Idx].sock, &My_Connects );
 	My_Connections[Idx].sock = NONE;
 
+	/* If there is still a client, unregister it now */
 	if( c ) Client_Destroy( c, LogMsg, FwdMsg, TRUE );
 
+	/* Calculate statistics and log information */
+	in_k = (DOUBLE)My_Connections[Idx].bytes_in / 1024;
+	out_k = (DOUBLE)My_Connections[Idx].bytes_out / 1024;
+#ifdef USE_ZLIB
+	if( My_Connections[Idx].options & CONN_ZIP )
+	{
+		in_z_k = (DOUBLE)My_Connections[Idx].zip.bytes_in / 1024;
+		out_z_k = (DOUBLE)My_Connections[Idx].zip.bytes_out / 1024;
+		in_p = (INT)(( in_k * 100 ) / in_z_k );
+		out_p = (INT)(( out_k * 100 ) / out_z_k );
+		Log( LOG_INFO, "Connection %d with %s:%d closed (in: %.1fk/%.1fk/%d%%, out: %.1fk/%.1fk/%d%%).", Idx, My_Connections[Idx].host, ntohs( My_Connections[Idx].addr.sin_port ), in_k, in_z_k, in_p, out_k, out_z_k, out_p );
+	}
+	else
+#endif
+	{
+		Log( LOG_INFO, "Connection %d with %s:%d closed (in: %.1fk, out: %.1fk).", Idx, My_Connections[Idx].host, ntohs( My_Connections[Idx].addr.sin_port ), in_k, out_k );
+	}
+
+	/* Is there a resolver sub-process running? */
 	if( My_Connections[Idx].res_stat )
 	{
-		/* Resolver-Strukturen freigeben, wenn noch nicht geschehen */
+		/* Free resolver structures */
 		FD_CLR( My_Connections[Idx].res_stat->pipe[0], &Resolver_FDs );
 		close( My_Connections[Idx].res_stat->pipe[0] );
 		close( My_Connections[Idx].res_stat->pipe[1] );
 		free( My_Connections[Idx].res_stat );
 	}
 
-	/* Startzeit des naechsten Connect-Versuchs modifizieren? */
+	/* Servers: Modify time of next connect attempt? */
 	if(( My_Connections[Idx].our_server > NONE ) && ( Conf_Server[My_Connections[Idx].our_server].lasttry <  time( NULL ) - Conf_ConnectRetry ))
 	{
 		/* Okay, die Verbindung stand schon "genuegend lange":
@@ -653,7 +659,7 @@ Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient )
 	}
 
 #ifdef USE_ZLIB
-	/* Ggf. zlib abmelden */
+	/* Clean up zlib, if link was compressed */
 	if( Conn_Options( Idx ) & CONN_ZIP )
 	{
 		inflateEnd( &My_Connections[Idx].zip.in );
@@ -661,7 +667,7 @@ Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient )
 	}
 #endif
 
-	/* Connection-Struktur loeschen (=freigeben) */
+	/* Clean up connection structure (=free it) */
 	Init_Conn_Struct( Idx );
 } /* Conn_Close */
 

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.h,v 1.5 2001/12/26 14:45:37 alex Exp $
+ * $Id: client.h,v 1.6 2001/12/27 16:54:51 alex Exp $
  *
  * client.h: Konfiguration des ngircd (Header)
  *
  * $Log: client.h,v $
+ * Revision 1.6  2001/12/27 16:54:51  alex
+ * - neue Funktion Client_GetID(), liefert die "Client ID".
+ *
  * Revision 1.5  2001/12/26 14:45:37  alex
  * - "Code Cleanups".
  *
@@ -66,7 +69,7 @@ typedef struct _CLIENT
 	POINTER *next;			/* Zeiger auf naechste Client-Struktur */
 	CLIENT_TYPE type;		/* Typ des Client, vgl. CLIENT_TYPE */
 	CONN_ID conn_id;		/* ID der Connection (wenn lokal) bzw. NONE (remote) */
-	POINTER *introducer;		/* ID des Servers, der die Verbindung hat */
+	struct _CLIENT *introducer;	/* ID des Servers, der die Verbindung hat */
 	CHAR nick[CLIENT_ID_LEN + 1];	/* Nick (bzw. Server-ID, daher auch IDLEN!) */
 	CHAR pass[CLIENT_PASS_LEN + 1];	/* Passwort, welches der Client angegeben hat */
 	CHAR host[CLIENT_HOST_LEN + 1];	/* Hostname des Client */
@@ -87,6 +90,7 @@ GLOBAL VOID Client_Destroy( CLIENT *Client );
 GLOBAL CLIENT *Client_GetFromConn( CONN_ID Idx );
 GLOBAL CHAR *Client_Name( CLIENT *Client );
 GLOBAL BOOLEAN Client_CheckNick( CLIENT *Client, CHAR *Nick );
+GLOBAL CHAR *Client_GetID( CLIENT *Client );
 
 
 #endif

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.7 2001/12/26 14:45:37 alex Exp $
+ * $Id: client.c,v 1.8 2001/12/27 16:54:51 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,9 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.8  2001/12/27 16:54:51  alex
+ * - neue Funktion Client_GetID(), liefert die "Client ID".
+ *
  * Revision 1.7  2001/12/26 14:45:37  alex
  * - "Code Cleanups".
  *
@@ -51,6 +54,7 @@
 #include <imp.h>
 #include <assert.h>
 #include <unistd.h>
+#include <stdio.h>
 #include <string.h>
 
 #include <exp.h>
@@ -66,7 +70,8 @@
 #include <exp.h>
 
 
-GLOBAL CLIENT *My_Clients;
+LOCAL CLIENT *My_Clients;
+LOCAL CHAR GetID_Buffer[CLIENT_ID_LEN];
 
 
 LOCAL CLIENT *New_Client_Struct( VOID );
@@ -219,6 +224,20 @@ GLOBAL BOOLEAN Client_CheckNick( CLIENT *Client, CHAR *Nick )
 
 	return TRUE;
 } /* Client_CheckNick */
+
+
+GLOBAL CHAR *Client_GetID( CLIENT *Client )
+{
+	/* Client-"ID" liefern, wie sie z.B. fuer
+	 * Prefixe benoetigt wird. */
+
+	assert( Client != NULL );
+	
+	if( Client->type == CLIENT_SERVER ) return Client->host;
+
+	sprintf( GetID_Buffer, "%s!%s@%s", Client->nick, Client->user, Client->host );
+	return GetID_Buffer;
+} /* Client_GetID */
 
 
 LOCAL CLIENT *New_Client_Struct( VOID )

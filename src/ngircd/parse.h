@@ -9,14 +9,16 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: parse.h,v 1.1 2001/12/21 23:53:16 alex Exp $
+ * $Id: parse.h,v 1.2 2001/12/26 14:45:37 alex Exp $
  *
  * parse.h: Parsen der Client-Anfragen (Header)
  *
  * $Log: parse.h,v $
+ * Revision 1.2  2001/12/26 14:45:37  alex
+ * - "Code Cleanups".
+ *
  * Revision 1.1  2001/12/21 23:53:16  alex
  * - Modul zum Parsen von Client-Requests begonnen.
- *
  */
 
 

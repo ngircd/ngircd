@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.13 2001/12/26 03:36:57 alex Exp $
+ * $Id: conn.c,v 1.14 2001/12/26 14:45:37 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
+ * Revision 1.14  2001/12/26 14:45:37  alex
+ * - "Code Cleanups".
+ *
  * Revision 1.13  2001/12/26 03:36:57  alex
  * - Verbindungen mit Lesefehlern werden nun korrekt terminiert.
  *
@@ -181,7 +184,7 @@ GLOBAL VOID Conn_Exit( VOID )
 } /* Conn_Exit */
 
 
-GLOBAL BOOLEAN Conn_New_Listener( CONST INT Port )
+GLOBAL BOOLEAN Conn_NewListener( CONST INT Port )
 {
 	/* Neuen Listen-Socket erzeugen: der Server wartet dann
 	 * auf dem angegebenen Port auf Verbindungen. */
@@ -241,7 +244,7 @@ GLOBAL BOOLEAN Conn_New_Listener( CONST INT Port )
 	Log( LOG_INFO, "Now listening on port %d, socket %d.", Port, sock );
 
 	return TRUE;
-} /* Conn_New_Listener */
+} /* Conn_NewListener */
 
 
 GLOBAL VOID Conn_Handler( INT Timeout )
@@ -510,7 +513,7 @@ LOCAL VOID New_Connection( INT Sock )
 	}
 
 	/* Client-Struktur initialisieren */
-	if( ! Client_New_Local( idx, inet_ntoa( new_addr.sin_addr )))
+	if( ! Client_NewLocal( idx, inet_ntoa( new_addr.sin_addr )))
 	{
 		Log( LOG_ALERT, "Can't accept connection: can't create client structure!" );
 		close( new_sock );
@@ -654,14 +657,14 @@ LOCAL VOID Check_Connections( VOID )
 			if( My_Connections[i].lastping > My_Connections[i].lastdata )
 			{
 				/* es wurde bereits ein PING gesendet */
-				if( My_Connections[i].lastping < time( NULL ) - Conf_PONG_Timeout )
+				if( My_Connections[i].lastping < time( NULL ) - Conf_PongTimeout )
 				{
 					/* Timeout */
 					Log( LOG_NOTICE, "Connection %d: Ping timeout." );
 					Conn_Close( i, "Ping timeout" );
 				}
 			}
-			else if( My_Connections[i].lastdata < time( NULL ) - Conf_PING_Timeout )
+			else if( My_Connections[i].lastdata < time( NULL ) - Conf_PingTimeout )
 			{
 				/* es muss ein PING gesendet werden */
 				Log( LOG_DEBUG, "Connection %d: sending PING ...", i );

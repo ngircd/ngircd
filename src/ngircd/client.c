@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.6 2001/12/26 03:19:16 alex Exp $
+ * $Id: client.c,v 1.7 2001/12/26 14:45:37 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,9 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.7  2001/12/26 14:45:37  alex
+ * - "Code Cleanups".
+ *
  * Revision 1.6  2001/12/26 03:19:16  alex
  * - neue Funktion Client_Name().
  *
@@ -39,7 +42,6 @@
  *
  * Revision 1.1  2001/12/14 08:13:43  alex
  * - neues Modul begonnen :-)
- *
  */
 
 
@@ -51,12 +53,20 @@
 #include <unistd.h>
 #include <string.h>
 
-#include "channel.h"
-#include "conn.h"
-#include "log.h"
-
 #include <exp.h>
 #include "client.h"
+
+#include <imp.h>
+#include "channel.h"
+#include "conn.h"
+#include "irc.h"
+#include "log.h"
+#include "messages.h"
+
+#include <exp.h>
+
+
+GLOBAL CLIENT *My_Clients;
 
 
 LOCAL CLIENT *New_Client_Struct( VOID );
@@ -103,7 +113,7 @@ GLOBAL VOID Client_Exit( VOID )
 } /* Client Exit */
 
 
-GLOBAL CLIENT *Client_New_Local( CONN_ID Idx, CHAR *Hostname )
+GLOBAL CLIENT *Client_NewLocal( CONN_ID Idx, CHAR *Hostname )
 {
 	/* Neuen lokalen Client erzeugen. */
 	
@@ -126,7 +136,7 @@ GLOBAL CLIENT *Client_New_Local( CONN_ID Idx, CHAR *Hostname )
 	My_Clients = client;
 	
 	return client;
-} /* Client_New_Local */
+} /* Client_NewLocal */
 
 
 GLOBAL VOID Client_Destroy( CLIENT *Client )
@@ -180,6 +190,35 @@ GLOBAL CHAR *Client_Name( CLIENT *Client )
 	if( Client->nick[0] ) return Client->nick;
 	else return "*";
 } /* Client_Name */
+
+
+GLOBAL BOOLEAN Client_CheckNick( CLIENT *Client, CHAR *Nick )
+{
+	/* Nick ueberpruefen */
+
+	CLIENT *c;
+	
+	assert( Client != NULL );
+	assert( Nick != NULL );
+	
+	/* Nick zu lang? */
+	if( strlen( Nick ) > CLIENT_NICK_LEN ) return IRC_WriteStrClient( Client, This_Server, ERR_ERRONEUSNICKNAME_MSG, Client_Name( Client ), Nick );
+
+	/* Nick bereits vergeben? */
+	c = My_Clients;
+	while( c )
+	{
+		if( strcasecmp( c->nick, Nick ) == 0 )
+		{
+			/* den Nick gibt es bereits */
+			IRC_WriteStrClient( Client, This_Server, ERR_NICKNAMEINUSE_MSG, Client_Name( Client ), Nick );
+			return FALSE;
+		}
+		c = c->next;
+	}
+
+	return TRUE;
+} /* Client_CheckNick */
 
 
 LOCAL CLIENT *New_Client_Struct( VOID )

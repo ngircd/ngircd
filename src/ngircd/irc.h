@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.h,v 1.5 2001/12/26 03:21:46 alex Exp $
+ * $Id: irc.h,v 1.6 2001/12/26 14:45:37 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: irc.h,v $
+ * Revision 1.6  2001/12/26 14:45:37  alex
+ * - "Code Cleanups".
+ *
  * Revision 1.5  2001/12/26 03:21:46  alex
  * - PING/PONG-Befehle implementiert,
  * - Meldungen ueberarbeitet: enthalten nun (fast) immer den Nick.
@@ -43,7 +46,7 @@
 GLOBAL VOID IRC_Init( VOID );
 GLOBAL VOID IRC_Exit( VOID );
 
-GLOBAL BOOLEAN IRC_WriteStr_Client( CLIENT *Client, CLIENT *Prefix, CHAR *Format, ... );
+GLOBAL BOOLEAN IRC_WriteStrClient( CLIENT *Client, CLIENT *Prefix, CHAR *Format, ... );
 
 GLOBAL BOOLEAN IRC_PASS( CLIENT *Client, REQUEST *Req );
 GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req );

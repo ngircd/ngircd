@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.h,v 1.4 2001/12/26 03:19:16 alex Exp $
+ * $Id: client.h,v 1.5 2001/12/26 14:45:37 alex Exp $
  *
  * client.h: Konfiguration des ngircd (Header)
  *
  * $Log: client.h,v $
+ * Revision 1.5  2001/12/26 14:45:37  alex
+ * - "Code Cleanups".
+ *
  * Revision 1.4  2001/12/26 03:19:16  alex
  * - neue Funktion Client_Name().
  *
@@ -58,10 +61,6 @@ typedef enum
 } CLIENT_TYPE;
 
 
-/* Das Verfahren, mit dem neue Client-Verbindungen beim Server registriert
- * werden, ist in RFC 2812, Abschnitt 3.1 ff. definiert. */
-
-
 typedef struct _CLIENT
 {
 	POINTER *next;			/* Zeiger auf naechste Client-Struktur */
@@ -78,16 +77,16 @@ typedef struct _CLIENT
 
 
 GLOBAL CLIENT *This_Server;
-GLOBAL CLIENT *My_Clients;
 
 
 GLOBAL VOID Client_Init( VOID );
 GLOBAL VOID Client_Exit( VOID );
 
-GLOBAL CLIENT *Client_New_Local( CONN_ID Idx, CHAR *Hostname );
+GLOBAL CLIENT *Client_NewLocal( CONN_ID Idx, CHAR *Hostname );
 GLOBAL VOID Client_Destroy( CLIENT *Client );
 GLOBAL CLIENT *Client_GetFromConn( CONN_ID Idx );
 GLOBAL CHAR *Client_Name( CLIENT *Client );
+GLOBAL BOOLEAN Client_CheckNick( CLIENT *Client, CHAR *Nick );
 
 
 #endif

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.10 2001/12/24 01:34:38 alex Exp $
+ * $Id: ngircd.c,v 1.11 2001/12/26 14:45:37 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  *
  * $Log: ngircd.c,v $
+ * Revision 1.11  2001/12/26 14:45:37  alex
+ * - "Code Cleanups".
+ *
  * Revision 1.10  2001/12/24 01:34:38  alex
  * - Signal-Handler aufgeraeumt; u.a. SIGPIPE wird nun korrekt ignoriert.
  *
@@ -96,10 +99,11 @@ GLOBAL INT main( INT argc, CONST CHAR *argv[] )
 	Client_Init( );
 	Conn_Init( );
 
+	/* Signal-Handler initialisieren */
 	Initialize_Signal_Handler( );
 	
-	if( ! Conn_New_Listener( 6668 )) exit( 1 );
-	if( ! Conn_New_Listener( 6669 )) Log( LOG_WARNING, "Can't create second listening socket!" );
+	if( ! Conn_NewListener( 6668 )) exit( 1 );
+	if( ! Conn_NewListener( 6669 )) Log( LOG_WARNING, "Can't create second listening socket!" );
 	
 	/* Hauptschleife */
 	while( ! NGIRCd_Quit )
@@ -122,7 +126,8 @@ GLOBAL INT main( INT argc, CONST CHAR *argv[] )
 
 LOCAL VOID Initialize_Signal_Handler( VOID )
 {
-	/* Signal-Handler initialisieren: Strukturen anlegen und einhaengen :-) */
+	/* Signal-Handler initialisieren: einige Signale
+	 * werden ignoriert, andere speziell behandelt. */
 
 	struct sigaction saction;
 

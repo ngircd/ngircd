@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: parse.c,v 1.5 2001/12/26 03:23:03 alex Exp $
+ * $Id: parse.c,v 1.6 2001/12/26 14:45:37 alex Exp $
  *
  * parse.c: Parsen der Client-Anfragen
  *
  * $Log: parse.c,v $
+ * Revision 1.6  2001/12/26 14:45:37  alex
+ * - "Code Cleanups".
+ *
  * Revision 1.5  2001/12/26 03:23:03  alex
  * - PING/PONG-Befehle implementiert.
  *
@@ -227,7 +230,7 @@ LOCAL BOOLEAN Handle_Request( CONN_ID Idx, REQUEST *Req )
 	else if( strcasecmp( Req->command, "MOTD" ) == 0 ) return IRC_MOTD( client, Req );
 
 	/* Unbekannter Befehl */
-	IRC_WriteStr_Client( client, This_Server, ERR_UNKNOWNCOMMAND_MSG, Client_Name( client ), Req->command );
+	IRC_WriteStrClient( client, This_Server, ERR_UNKNOWNCOMMAND_MSG, Client_Name( client ), Req->command );
 
 	Log( LOG_DEBUG, "Connection %d: Unknown command '%s', %d %s,%s prefix.", Idx, Req->command, Req->argc, Req->argc == 1 ? "parameter" : "parameters", Req->prefix ? "" : " no" );
 	

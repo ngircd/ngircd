@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.118 2003/03/07 14:35:52 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.119 2003/03/07 17:16:49 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -86,6 +86,7 @@ LOCAL VOID Init_Conn_Struct PARAMS(( CONN_ID Idx ));
 LOCAL BOOLEAN Init_Socket PARAMS(( INT Sock ));
 LOCAL VOID New_Server PARAMS(( INT Server, CONN_ID Idx ));
 LOCAL VOID Read_Resolver_Result PARAMS(( INT r_fd ));
+LOCAL VOID Simple_Message PARAMS(( INT Sock, CHAR *Msg ));
 
 LOCAL fd_set My_Listeners;
 LOCAL fd_set My_Sockets;
@@ -874,6 +875,7 @@ New_Connection( INT Sock )
 	{
 		/* Access denied! */
 		Log( deny_severity, "Refused connection from %s (by TCP Wrappers)!", inet_ntoa( new_addr.sin_addr ));
+		Simple_Message( new_sock, "ERROR :Connection refused" );
 		close( new_sock );
 		return;
 	}
@@ -898,6 +900,7 @@ New_Connection( INT Sock )
 			{
 				/* Mehr Verbindungen duerfen wir leider nicht mehr annehmen ... */
 				Log( LOG_ALERT, "Can't accept connection: limit (%d) reached!", Pool_Size );
+				Simple_Message( new_sock, "ERROR :Connection limit reached" );
 				close( new_sock );
 				return;
 			}
@@ -906,6 +909,7 @@ New_Connection( INT Sock )
 		if( new_size < Pool_Size )
 		{
 			Log( LOG_ALERT, "Can't accespt connection: limit (%d) reached -- overflow!", Pool_Size );
+			Simple_Message( new_sock, "ERROR :Connection limit reached" );
 			close( new_sock );
 			return;
 		}
@@ -922,6 +926,7 @@ New_Connection( INT Sock )
 			{
 				/* Offenbar steht kein weiterer Sepeicher zur Verfuegung :-( */
 				Log( LOG_EMERG, "Can't allocate memory! [New_Connection]" );
+				Simple_Message( new_sock, "ERROR: Internal error" );
 				close( new_sock );
 				return;
 			}
@@ -949,6 +954,7 @@ New_Connection( INT Sock )
 	if( ! c )
 	{
 		Log( LOG_ALERT, "Can't accept connection: can't create client structure!" );
+		Simple_Message( new_sock, "ERROR :Internal error" );
 		close( new_sock );
 		return;
 	}
@@ -1519,6 +1525,21 @@ Read_Resolver_Result( INT r_fd )
 	/* Penalty-Zeit zurueck setzen */
 	Conn_ResetPenalty( i );
 } /* Read_Resolver_Result */
+
+
+LOCAL VOID
+Simple_Message( INT Sock, CHAR *Msg )
+{
+	/* Write "simple" message to socket, without using compression
+	 * or even the connection write buffers. Used e.g. for error
+	 * messages by New_Connection(). */
+
+	assert( Sock > NONE );
+	assert( Msg != NULL );
+
+	(VOID)send( Sock, Msg, strlen( Msg ), 0 );
+	(VOID)send( Sock, "\r\n", 2, 0 );
+} /* Simple_Error */
 
 
 /* -eof- */

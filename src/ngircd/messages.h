@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: messages.h,v 1.46.2.3 2002/11/04 19:27:23 alex Exp $
+ * $Id: messages.h,v 1.46.2.4 2002/11/22 22:55:05 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  */
@@ -23,7 +23,7 @@
 #define RPL_YOURHOST_MSG		"002 %s :Your host is %s, running version ngircd-%s (%s/%s/%s)"
 #define RPL_CREATED_MSG			"003 %s :This server has been started %s"
 #define RPL_MYINFO_MSG			"004 %s %s ngircd-%s %s %s"
-#define RPL_UMODEIS_MSG			"211 %s +%s"
+#define RPL_UMODEIS_MSG			"221 %s +%s"
 #define RPL_LUSERCLIENT_MSG		"251 %s :There are %ld users and %ld services on %ld servers"
 #define RPL_LUSEROP_MSG			"252 %s %ld :operator(s) online"
 #define RPL_LUSERUNKNOWN_MSG		"253 %s %ld :unknown connection(s)"

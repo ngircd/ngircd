@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: defines.h,v 1.11 2002/02/27 20:32:34 alex Exp $
+ * $Id: defines.h,v 1.12 2002/02/27 23:24:58 alex Exp $
  *
  * defines.h: (globale) Konstanten
  *
  * $Log: defines.h,v $
+ * Revision 1.12  2002/02/27 23:24:58  alex
+ * - CONNECTED und DISCONNECTED fuer die irc-xxx-Module wird nun hier definiert.
+ *
  * Revision 1.11  2002/02/27 20:32:34  alex
  * - neue Konstante: CHANNEL_TOPIC_LEN
  *
@@ -98,6 +101,9 @@
 
 #define USERMODES "aio"			/* unterstuetzte User-Modes */
 #define CHANMODES "amnopqstv"		/* unterstuetzte Channel-Modes */
+
+#define CONNECTED TRUE			/* fuer die irc-xxx-Module */
+#define DISCONNECTED FALSE
 
 
 #endif

@@ -136,6 +136,7 @@
 				F5F18139023EC63701A85B04,
 				F5F1813A023EC63701A85B04,
 				F55047BC0240F6E501A85B04,
+				F51044550297AC170173DE11,
 			);
 			isa = PBXHeadersBuildPhase;
 			name = Headers;
@@ -159,6 +160,7 @@
 				F57C888C0232884501A85B04,
 				F57C889002328D7201A85B04,
 				F55047BD0240F6E501A85B04,
+				F51044560297B5D40173DE11,
 			);
 			isa = PBXSourcesBuildPhase;
 			name = Sources;
@@ -206,6 +208,30 @@
 //F52
 //F53
 //F54
+		F51044520297ABF80173DE11 = {
+			isa = PBXFileReference;
+			name = vsnprintf.c;
+			path = /Users/alex/Develop/ngircd/src/portab/vsnprintf.c;
+			refType = 0;
+		};
+		F51044540297AC170173DE11 = {
+			isa = PBXFileReference;
+			name = splint.h;
+			path = portab/splint.h;
+			refType = 4;
+		};
+		F51044550297AC170173DE11 = {
+			fileRef = F51044540297AC170173DE11;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F51044560297B5D40173DE11 = {
+			fileRef = F51044520297ABF80173DE11;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
 		F51D17FC01C8F5B701E11C2E = {
 			isa = PBXFileReference;
 			name = client.c;
@@ -876,6 +902,8 @@
 				F5F18135023EC63701A85B04,
 				F5F18136023EC63701A85B04,
 				F5F18137023EC63701A85B04,
+				F51044540297AC170173DE11,
+				F51044520297ABF80173DE11,
 			);
 			isa = PBXGroup;
 			name = portab;

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: parse.c,v 1.44 2002/11/22 16:36:02 alex Exp $
+ * $Id: parse.c,v 1.45 2002/11/22 23:33:00 alex Exp $
  *
  * parse.c: Parsen der Client-Anfragen
  */
@@ -340,7 +340,7 @@ Handle_Request( CONN_ID Idx, REQUEST *Req )
 	else if( strcasecmp( Req->command, "PONG" ) == 0 ) return IRC_PONG( client, Req );
 	else if( strcasecmp( Req->command, "PRIVMSG" ) == 0 ) return IRC_PRIVMSG( client, Req );
 	else if( strcasecmp( Req->command, "QUIT" ) == 0 ) return IRC_QUIT( client, Req );
-	else if( strcasecmp( Req->command, "RELOAD" ) == 0 ) return IRC_RELOAD( client, Req );
+	else if( strcasecmp( Req->command, "REHASH" ) == 0 ) return IRC_REHASH( client, Req );
 	else if( strcasecmp( Req->command, "RESTART" ) == 0 ) return IRC_RESTART( client, Req );
 	else if( strcasecmp( Req->command, "SERVER" ) == 0 ) return IRC_SERVER( client, Req );
 	else if( strcasecmp( Req->command, "SQUIT" ) == 0 ) return IRC_SQUIT( client, Req );
@@ -350,6 +350,7 @@ Handle_Request( CONN_ID Idx, REQUEST *Req )
 	else if( strcasecmp( Req->command, "VERSION" ) == 0 ) return IRC_VERSION( client, Req );
 	else if( strcasecmp( Req->command, "WHO" ) == 0 ) return IRC_WHO( client, Req );
 	else if( strcasecmp( Req->command, "WHOIS" ) == 0 ) return IRC_WHOIS( client, Req );
+	else if( strcasecmp( Req->command, "WHOWAS" ) == 0 ) return IRC_WHOWAS( client, Req );
 #ifdef IRCPLUS
 	else if( strcasecmp( Req->command, "CHANINFO" ) == 0 ) return IRC_CHANINFO( client, Req );
 #endif

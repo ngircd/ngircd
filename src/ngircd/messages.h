@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: messages.h,v 1.30 2002/02/17 23:39:24 alex Exp $
+ * $Id: messages.h,v 1.31 2002/02/27 17:05:13 alex Exp $
  *
  * irc.h: IRC-Befehle (Header)
  *
  * $Log: messages.h,v $
+ * Revision 1.31  2002/02/27 17:05:13  alex
+ * - neue Text-Konstante ERR_CANNOTSENDTOCHAN_MSG eingefuehrt.
+ *
  * Revision 1.30  2002/02/17 23:39:24  alex
  * - Konstanten sortiert, neue Konstante RPL_VERSION und RPL_VERSION_MSG.
  *
@@ -216,6 +219,9 @@
 
 #define ERR_NOSUCHCHANNEL		"403"
 #define ERR_NOSUCHCHANNEL_MSG		ERR_NOSUCHCHANNEL" %s %s :No such channel"
+
+#define ERR_CANNOTSENDTOCHAN		"404"
+#define ERR_CANNOTSENDTOCHAN_MSG	ERR_CANNOTSENDTOCHAN" %s %s :Cannot send to channel"
 
 #define ERR_NOORIGIN			"409"
 #define ERR_NOORIGIN_MSG		ERR_NOORIGIN" %s :No origin specified"

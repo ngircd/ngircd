@@ -48,6 +48,7 @@ ngIRCd CVS-HEAD
     instead of "--enable"/"--disable": "--without-syslog", "--without-zlib",
     "--with-tcp-wrappers", and "--with-rendezvous".
   - Better error reporting to clients on connect.
+  - Enhanced manual pages ngircd(8) and ngircd.conf(5).
 
 ngIRCd 0.6.1, 2003-01-21
 
@@ -429,4 +430,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.183 2003/03/09 22:03:58 alex Exp $
+$Id: ChangeLog,v 1.184 2003/03/10 01:00:00 alex Exp $

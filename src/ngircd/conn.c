@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.18 2001/12/29 20:17:25 alex Exp $
+ * $Id: conn.c,v 1.19 2001/12/29 21:53:57 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
+ * Revision 1.19  2001/12/29 21:53:57  alex
+ * - Da hatte ich mich wohl ein wenig verrannt; jetzt sollte der Resolver
+ *   aber tatsaechlich funktionieren.
+ *
  * Revision 1.18  2001/12/29 20:17:25  alex
  * - asyncronen Resolver (IP->Name) implementiert, dadurch div. Aenderungen.
  *
@@ -126,8 +130,7 @@
 typedef struct _Res_Stat
 {
 	INT pid;			/* PID des Child-Prozess */
-	INT out_pipe[2];		/* Pipe fuer IPC: zum Client */
-	INT in_pipe[2];			/* Pipe fuer IPC: vom Client */
+	INT pipe[2];			/* Pipe fuer IPC */
 } RES_STAT;
 
 
@@ -156,9 +159,9 @@ LOCAL VOID Handle_Buffer( CONN_ID Idx );
 LOCAL VOID Check_Connections( VOID );
 LOCAL VOID Init_Conn_Struct( INT Idx );
 
-LOCAL RES_STAT *Resolve( CHAR *Host );
-LOCAL VOID Do_Resolve( INT r_fd, INT w_fd );
+LOCAL RES_STAT *Resolve( struct sockaddr_in *Addr );
 LOCAL VOID Read_Resolver_Result( INT r_fd );
+LOCAL VOID Do_Resolve( struct sockaddr_in *Addr, INT w_fd );
 
 
 LOCAL fd_set My_Listeners;
@@ -451,11 +454,9 @@ GLOBAL VOID Conn_Close( CONN_ID Idx, CHAR *Msg )
 	if( My_Connections[Idx].res_stat )
 	{
 		/* Resolver-Strukturen freigeben, wenn noch nicht geschehen */
-		FD_CLR( My_Connections[Idx].res_stat->in_pipe[0], &My_Resolvers );
-		close( My_Connections[Idx].res_stat->out_pipe[0] );
-		close( My_Connections[Idx].res_stat->out_pipe[1] );
-		close( My_Connections[Idx].res_stat->in_pipe[0] );
-		close( My_Connections[Idx].res_stat->in_pipe[1] );
+		FD_CLR( My_Connections[Idx].res_stat->pipe[0], &My_Resolvers );
+		close( My_Connections[Idx].res_stat->pipe[0] );
+		close( My_Connections[Idx].res_stat->pipe[1] );
 		free( My_Connections[Idx].res_stat );
 	}
 	
@@ -601,7 +602,7 @@ LOCAL VOID New_Connection( INT Sock )
 	Log( LOG_NOTICE, "Accepted connection %d from %s:%d on socket %d.", idx, inet_ntoa( new_addr.sin_addr ), ntohs( new_addr.sin_port), Sock );
 
 	/* Hostnamen ermitteln */
-	s = Resolve( inet_ntoa( new_addr.sin_addr ));
+	s = Resolve( &new_addr );
 	if( s )
 	{
 		/* Sub-Prozess wurde asyncron gestartet */
@@ -769,7 +770,7 @@ LOCAL VOID Init_Conn_Struct( INT Idx )
 } /* Init_Conn_Struct */
 
 
-LOCAL RES_STAT *Resolve( CHAR *Host )
+LOCAL RES_STAT *Resolve( struct sockaddr_in *Addr )
 {
 	/* Hostnamen (asyncron!) aufloesen. Bei Fehler, z.B. wenn der
 	 * Child-Prozess nicht erzeugt werden kann, wird NULL geliefert.
@@ -785,17 +786,10 @@ LOCAL RES_STAT *Resolve( CHAR *Host )
 		return NULL;
 	}
 
-	if( pipe( s->out_pipe ) != 0 )
+	if( pipe( s->pipe ) != 0 )
 	{
 		free( s );
 		Log( LOG_ALERT, "Resolver: Can't create output pipe: %s!", strerror( errno ));
-		return NULL;
-	}
-
-	if( pipe( s->in_pipe ) != 0 )
-	{
-		free( s );
-		Log( LOG_ALERT, "Resolver: Can't create input pipe: %s!", strerror( errno ));
 		return NULL;
 	}
 
@@ -803,26 +797,17 @@ LOCAL RES_STAT *Resolve( CHAR *Host )
 	if( pid > 0 )
 	{
 		/* Haupt-Prozess */
-		if( write( s->out_pipe[1], Host, strlen( Host ) + 1 ) != ( strlen( Host ) + 1 ))
-		{
-			free( s );
-			Log( LOG_ALERT, "Resolver: Can't write to child: %s!", strerror( errno ));
-			return NULL;
-		}
-
-		FD_SET( s->in_pipe[0], &My_Resolvers );
-		if( s->in_pipe[0] > My_Max_Fd ) My_Max_Fd = s->in_pipe[0];
-
+		Log( LOG_DEBUG, "Resolver process for %s (PID %d) created.", inet_ntoa( Addr->sin_addr ), pid );
+		FD_SET( s->pipe[0], &My_Resolvers );
+		if( s->pipe[0] > My_Max_Fd ) My_Max_Fd = s->pipe[0];
 		s->pid = pid;
-
-		Log( LOG_DEBUG, "Resolver process for \"%s\" (PID %d) created.", Host, pid );
 		return s;
 	}
 	else if( pid == 0 )
 	{
 		/* Sub-Prozess */
 		Log_Init_Resolver( );
-		Do_Resolve( s->out_pipe[0], s->in_pipe[1] );
+		Do_Resolve( Addr, s->pipe[1] );
 		Log_Exit_Resolver( );
 		exit( 0 );
 	}
@@ -859,7 +844,7 @@ LOCAL VOID Read_Resolver_Result( INT r_fd )
 	for( i = 0; i < MAX_CONNECTIONS; i++ )
 	{
 		/* zugehoerige Connection suchen */
-		if(( My_Connections[i].sock >= 0 ) && ( My_Connections[i].res_stat ) && ( My_Connections[i].res_stat->in_pipe[0] == r_fd )) break;
+		if(( My_Connections[i].sock >= 0 ) && ( My_Connections[i].res_stat ) && ( My_Connections[i].res_stat->pipe[0] == r_fd )) break;
 	}
 
 	if( i >= MAX_CONNECTIONS )
@@ -871,10 +856,8 @@ LOCAL VOID Read_Resolver_Result( INT r_fd )
 	}
 
 	/* Aufraeumen */
-	close( My_Connections[i].res_stat->out_pipe[0] );
-	close( My_Connections[i].res_stat->out_pipe[1] );
-	close( My_Connections[i].res_stat->in_pipe[0] );
-	close( My_Connections[i].res_stat->in_pipe[1] );
+	close( My_Connections[i].res_stat->pipe[0] );
+	close( My_Connections[i].res_stat->pipe[1] );
 	free( My_Connections[i].res_stat );
 	My_Connections[i].res_stat = NULL;
 	
@@ -889,43 +872,34 @@ LOCAL VOID Read_Resolver_Result( INT r_fd )
 } /* Read_Resolver_Result */
 
 
-LOCAL VOID Do_Resolve( INT r_fd, INT w_fd )
+LOCAL VOID Do_Resolve( struct sockaddr_in *Addr, INT w_fd )
 {
 	/* Resolver Sub-Prozess: aufzuloesenden Namen aus
 	 * der Pipe lesen, Ergebnis in Pipe schreiben. */
 
-	CHAR host[HOST_LEN], res_host[HOST_LEN];
+	CHAR hostname[HOST_LEN];
 	struct hostent *h;
 
-	/* Anfrage vom Parent lesen */
-	if( read( r_fd, host, HOST_LEN) < 0 )
-	{
-		Log_Resolver( LOG_ALERT, "Resolver: Can't read from parent: %s!", strerror( errno ));
-		close( r_fd ); close( w_fd );
-		return;
-	}
-	host[HOST_LEN] = '\0';
-
-	Log_Resolver( LOG_DEBUG, "Now resolving \"%s\" ...", host );
+	Log_Resolver( LOG_DEBUG, "Now resolving %s ...", inet_ntoa( Addr->sin_addr ));
 
 	/* Namen aufloesen */
-	h = gethostbyname( host );
-	if( h ) strcpy( res_host, h->h_name );
+	h = gethostbyaddr( (CHAR *)&Addr->sin_addr, sizeof( Addr->sin_addr ), AF_INET );
+	if( h ) strcpy( hostname, h->h_name );
 	else
 	{
 		Log_Resolver( LOG_WARNING, "Can't resolce host name (code %d)!", h_errno );
-		strcpy( res_host, host );
+		strcpy( hostname, inet_ntoa( Addr->sin_addr ));
 	}
 
 	/* Antwort an Parent schreiben */
-	if( write( w_fd, res_host, strlen( res_host ) + 1 ) != ( strlen( res_host ) + 1 ))
+	if( write( w_fd, hostname, strlen( hostname ) + 1 ) != ( strlen( hostname ) + 1 ))
 	{
 		Log_Resolver( LOG_ALERT, "Resolver: Can't write to parent: %s!", strerror( errno ));
-		close( r_fd ); close( w_fd );
+		close( w_fd );
 		return;
 	}
 
-	Log_Resolver( LOG_DEBUG, "Ok, translated \"%s\" to \"%s\".", host, res_host );
+	Log_Resolver( LOG_DEBUG, "Ok, translated %s to \"%s\".", inet_ntoa( Addr->sin_addr ), hostname );
 } /* Do_Resolve */
 
 

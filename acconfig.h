@@ -9,31 +9,16 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: global.h,v 1.2 2001/12/12 01:58:53 alex Exp $
+ * $Id: acconfig.h,v 1.1 2001/12/12 01:58:52 alex Exp $
  *
- * global.h: Globaler Header, wir in jedes(!) Modul eingebunden.
- *
- * $Log: global.h,v $
- * Revision 1.2  2001/12/12 01:58:53  alex
+ * $Log: acconfig.h,v $
+ * Revision 1.1  2001/12/12 01:58:52  alex
  * - Test auf socklen_t verbessert.
  *
- * Revision 1.1.1.1  2001/12/11 21:53:04  alex
- * Imported sources to CVS.
  */
 
 
-#ifndef __global_h__
-#define __global_h__
-
-
-#include "config.h"
-
-#ifndef HAVE_socklen_t
-#define socklen_t int			/* u.a. fuer Mac OS X */
-#endif
-
-
-#endif
+#undef HAVE_socklen_t
 
 
 /* -eof- */

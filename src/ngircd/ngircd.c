@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.3 2001/12/12 01:40:39 alex Exp $
+ * $Id: ngircd.c,v 1.4 2001/12/12 01:58:53 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  *
  * $Log: ngircd.c,v $
+ * Revision 1.4  2001/12/12 01:58:53  alex
+ * - Test auf socklen_t verbessert.
+ *
  * Revision 1.3  2001/12/12 01:40:39  alex
  * - ein paar mehr Kommentare; Variablennamen verstaendlicher gemacht.
  * - fehlenden Header <arpa/inet.h> ergaenz.
@@ -24,15 +27,11 @@
  *
  * Revision 1.1.1.1  2001/12/11 21:53:04  alex
  * Imported sources to CVS.
- *
  */
 
 
 #define PORTAB_CHECK_TYPES		/* Prueffunktion einbinden, s.u. */
 
-#ifndef socklen_t
-#define socklen_t int			/* u.a. fuer Mac OS X */
-#endif
 
 #include <portab.h>
 #include "global.h"

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-server.c,v 1.32 2003/04/20 23:09:26 alex Exp $";
+static char UNUSED id[] = "$Id: irc-server.c,v 1.33 2003/07/09 18:45:56 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -344,6 +344,8 @@ IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 			}
 
 			if( nick_out[0] != '\0' ) strlcat( nick_out, ",", sizeof( nick_out ));
+			if( is_op ) strlcat( nick_out, "@", sizeof( nick_out ));
+			if( is_voiced ) strlcat( nick_out, "+", sizeof( nick_out ));
 			strlcat( nick_out, ptr, sizeof( nick_out ));
 		}
 		else Log( LOG_ERR, "Got NJOIN for unknown nick \"%s\" for channel \"%s\"!", ptr, channame );

@@ -1,6 +1,6 @@
 #
 # ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001-2003 by Alexander Barton (alex@barton.de)
+# Copyright (c)2001-2004 Alexander Barton <alex@barton.de>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -8,7 +8,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: configure.in,v 1.99 2003/12/31 17:31:03 alex Exp $
+# $Id: configure.in,v 1.100 2004/02/29 17:19:43 alex Exp $
 #
 
 # -- Initialisierung --
@@ -321,7 +321,7 @@ fi
 
 CFLAGS="$the_CFLAGS $add_CFLAGS $add_DEFINES -DSYSCONFDIR='\"\$(sysconfdir)\"'"
 
-# -- Ausgabe der Dateien --
+# -- Generate files --
 
 AC_OUTPUT([ \
 	Makefile \
@@ -334,6 +334,7 @@ AC_OUTPUT([ \
 	man/Makefile \
 	contrib/Makefile \
 	contrib/Debian/Makefile \
+	contrib/MacOSX/Makefile \
 ])
 
 # -- Result --

@@ -23,6 +23,7 @@ ngIRCd CVS-HEAD
   - im "contrib"-Verzeichnis befindet sich nun eine RPM-Spec-Datei, aus den
     .tar.gz's koennen nun mit "rpm -ta <archiv>" RPM's erzeugt werden. Danke
     an Sean Reifschneider <jafo@tummy.com>!
+  - Syntax von RPL_MYINFO_MSG korrigiert: liefert nun vier Parameter.
 
 ngIRCd 0.5.0
 
@@ -277,4 +278,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.98 2002/10/01 09:57:26 alex Exp $
+$Id: ChangeLog,v 1.99 2002/10/03 16:04:29 alex Exp $

@@ -14,7 +14,7 @@ ngIRCd CVS-HEAD
 
   - ...
 
-ngIRCd 0.5.0
+ngIRCd 0.5.0, 20.09.2002
 
   - AIX (3.2.5), HP-UX (10.20), IRIX (6.5), NetBSD (1.5.3/m68k) und Solaris
     (2.5.1, 2.6) gehoeren nun auch zu den unterstuetzten Platformen.
@@ -114,4 +114,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.40 2002/09/20 15:26:26 alex Exp $
+$Id: NEWS,v 1.41 2002/10/03 16:04:29 alex Exp $

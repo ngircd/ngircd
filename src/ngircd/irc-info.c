@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-info.c,v 1.8.2.1 2002/12/22 23:42:28 alex Exp $";
+static char UNUSED id[] = "$Id: irc-info.c,v 1.8.2.2 2003/01/01 13:46:37 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -62,7 +62,7 @@ IRC_ADMIN(CLIENT *Client, REQUEST *Req )
 	/* An anderen Server weiterleiten? */
 	if( target != Client_ThisServer( ))
 	{
-		if( ! target ) return IRC_WriteStrClient( prefix, ERR_NOSUCHSERVER_MSG, Client_ID( prefix ), Req->argv[0] );
+		if(( ! target ) || ( Client_Type( target ) != CLIENT_SERVER )) return IRC_WriteStrClient( prefix, ERR_NOSUCHSERVER_MSG, Client_ID( prefix ), Req->argv[0] );
 
 		/* forwarden */
 		IRC_WriteStrClientPrefix( target, prefix, "ADMIN %s", Req->argv[0] );
@@ -141,7 +141,7 @@ IRC_LINKS( CLIENT *Client, REQUEST *Req )
 	if( Req->argc == 2 )
 	{
 		target = Client_Search( Req->argv[0] );
-		if( ! target ) return IRC_WriteStrClient( from, ERR_NOSUCHSERVER_MSG, Client_ID( from ), Req->argv[0] );
+		if(( ! target ) || ( Client_Type( target ) != CLIENT_SERVER )) return IRC_WriteStrClient( from, ERR_NOSUCHSERVER_MSG, Client_ID( from ), Req->argv[0] );
 		else if( target != Client_ThisServer( )) return IRC_WriteStrClientPrefix( target, from, "LINKS %s %s", Req->argv[0], Req->argv[1] );
 	}
 
@@ -184,7 +184,7 @@ IRC_LUSERS( CLIENT *Client, REQUEST *Req )
 	if( Req->argc == 2 )
 	{
 		target = Client_Search( Req->argv[1] );
-		if( ! target ) return IRC_WriteStrClient( from, ERR_NOSUCHSERVER_MSG, Client_ID( from ), Req->argv[1] );
+		if(( ! target ) || ( Client_Type( target ) != CLIENT_SERVER )) return IRC_WriteStrClient( from, ERR_NOSUCHSERVER_MSG, Client_ID( from ), Req->argv[1] );
 		else if( target != Client_ThisServer( )) return IRC_WriteStrClientPrefix( target, from, "LUSERS %s %s", Req->argv[0], Req->argv[1] );
 	}
 
@@ -219,7 +219,7 @@ IRC_MOTD( CLIENT *Client, REQUEST *Req )
 	{
 		/* an anderen Server forwarden */
 		target = Client_Search( Req->argv[0] );
-		if( ! target ) return IRC_WriteStrClient( from, ERR_NOSUCHSERVER_MSG, Client_ID( from ), Req->argv[0] );
+		if(( ! target ) || ( Client_Type( target ) != CLIENT_SERVER )) return IRC_WriteStrClient( from, ERR_NOSUCHSERVER_MSG, Client_ID( from ), Req->argv[0] );
 
 		if( target != Client_ThisServer( ))
 		{
@@ -254,7 +254,7 @@ IRC_NAMES( CLIENT *Client, REQUEST *Req )
 	{
 		/* an anderen Server forwarden */
 		target = Client_Search( Req->argv[1] );
-		if( ! target ) return IRC_WriteStrClient( from, ERR_NOSUCHSERVER_MSG, Client_ID( from ), Req->argv[1] );
+		if(( ! target ) || ( Client_Type( target ) != CLIENT_SERVER )) return IRC_WriteStrClient( from, ERR_NOSUCHSERVER_MSG, Client_ID( from ), Req->argv[1] );
 
 		if( target != Client_ThisServer( ))
 		{
@@ -349,7 +349,7 @@ IRC_STATS( CLIENT *Client, REQUEST *Req )
 	{
 		/* an anderen Server forwarden */
 		target = Client_Search( Req->argv[1] );
-		if( ! target ) return IRC_WriteStrClient( from, ERR_NOSUCHSERVER_MSG, Client_ID( from ), Req->argv[1] );
+		if(( ! target ) || ( Client_Type( target ) != CLIENT_SERVER )) return IRC_WriteStrClient( from, ERR_NOSUCHSERVER_MSG, Client_ID( from ), Req->argv[1] );
 
 		if( target != Client_ThisServer( ))
 		{
@@ -426,7 +426,7 @@ IRC_TIME( CLIENT *Client, REQUEST *Req )
 	{
 		/* an anderen Server forwarden */
 		target = Client_Search( Req->argv[0] );
-		if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->argv[0] );
+		if(( ! target ) || ( Client_Type( target ) != CLIENT_SERVER )) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->argv[0] );
 
 		if( target != Client_ThisServer( ))
 		{
@@ -504,7 +504,7 @@ IRC_VERSION( CLIENT *Client, REQUEST *Req )
 	/* An anderen Server weiterleiten? */
 	if( target != Client_ThisServer( ))
 	{
-		if( ! target ) return IRC_WriteStrClient( prefix, ERR_NOSUCHSERVER_MSG, Client_ID( prefix ), Req->argv[0] );
+		if(( ! target ) || ( Client_Type( target ) != CLIENT_SERVER )) return IRC_WriteStrClient( prefix, ERR_NOSUCHSERVER_MSG, Client_ID( prefix ), Req->argv[0] );
 
 		/* forwarden */
 		IRC_WriteStrClientPrefix( target, prefix, "VERSION %s", Req->argv[0] );
@@ -596,40 +596,39 @@ GLOBAL BOOLEAN
 IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *from, *target, *c;
-	CHAR str[LINE_LEN + 1], *ptr = NULL;
+	CHAR str[LINE_LEN + 1];
 	CL2CHAN *cl2chan;
 	CHANNEL *chan;
 
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	/* Falsche Anzahl Parameter? */
+	/* Bad number of parameters? */
 	if(( Req->argc < 1 ) || ( Req->argc > 2 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
-	/* Client suchen */
+	/* Search client */
 	c = Client_Search( Req->argv[Req->argc - 1] );
 	if(( ! c ) || ( Client_Type( c ) != CLIENT_USER )) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->argv[Req->argc - 1] );
 
-	/* Empfaenger des WHOIS suchen */
+	/* Search sender of the WHOIS */
 	if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_Search( Req->prefix );
 	else from = Client;
 	if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
 
-	/* Forwarden an anderen Server? */
+	/* Forward to other server? */
 	if( Req->argc > 1 )
 	{
-		/* angegebenen Ziel-Server suchen */
-		target = Client_Search( Req->argv[1] );
-		if( ! target ) return IRC_WriteStrClient( from, ERR_NOSUCHSERVER_MSG, Client_ID( from ), Req->argv[1] );
-		ptr = Req->argv[1];
+		/* Search target server (can be specified as nick of that server!) */
+		target = Client_Search( Req->argv[0] );
+		if( ! target ) return IRC_WriteStrClient( from, ERR_NOSUCHSERVER_MSG, Client_ID( from ), Req->argv[0] );
 	}
 	else target = Client_ThisServer( );
 
 	assert( target != NULL );
 
-	if(( Client_NextHop( target ) != Client_ThisServer( )) && ( Client_Type( Client_NextHop( target )) == CLIENT_SERVER )) return IRC_WriteStrClientPrefix( target, from, "WHOIS %s :%s", Req->argv[0], ptr );
+	if(( Client_NextHop( target ) != Client_ThisServer( )) && ( Client_Type( Client_NextHop( target )) == CLIENT_SERVER )) return IRC_WriteStrClientPrefix( target, from, "WHOIS %s :%s", Req->argv[0], Req->argv[1] );
 
-	/* Nick, User und Name */
+	/* Nick, user and name */
 	if( ! IRC_WriteStrClient( from, RPL_WHOISUSER_MSG, Client_ID( from ), Client_ID( c ), Client_User( c ), Client_Hostname( c ), Client_Info( c ))) return DISCONNECTED;
 
 	/* Server */
@@ -643,7 +642,7 @@ IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 		chan = Channel_GetChannel( cl2chan );
 		assert( chan != NULL );
 
-		/* Channel-Name anhaengen */
+		/* Concatenate channel names */
 		if( str[strlen( str ) - 1] != ':' ) strcat( str, " " );
 		if( strchr( Channel_UserModes( chan, c ), 'o' )) strcat( str, "@" );
 		else if( strchr( Channel_UserModes( chan, c ), 'v' )) strcat( str, "+" );
@@ -651,17 +650,17 @@ IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 
 		if( strlen( str ) > ( LINE_LEN - CHANNEL_NAME_LEN - 4 ))
 		{
-			/* Zeile wird zu lang: senden! */
+			/* Line becomes too long: send it! */
 			if( ! IRC_WriteStrClient( Client, "%s", str )) return DISCONNECTED;
 			sprintf( str, RPL_WHOISCHANNELS_MSG, Client_ID( from ), Client_ID( c ));
 		}
 
-		/* naechstes Mitglied suchen */
+		/* next */
 		cl2chan = Channel_NextChannelOf( c, cl2chan );
 	}
 	if( str[strlen( str ) - 1] != ':')
 	{
-		/* Es sind noch Daten da, die gesendet werden muessen */
+		/* There is data left to send: */
 		if( ! IRC_WriteStrClient( Client, "%s", str )) return DISCONNECTED;
 	}
 
@@ -671,7 +670,7 @@ IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 		if( ! IRC_WriteStrClient( from, RPL_WHOISOPERATOR_MSG, Client_ID( from ), Client_ID( c ))) return DISCONNECTED;
 	}
 
-	/* Idle (nur lokale Clients) */
+	/* Idle (only local clients) */
 	if( Client_Conn( c ) > NONE )
 	{
 		if( ! IRC_WriteStrClient( from, RPL_WHOISIDLE_MSG, Client_ID( from ), Client_ID( c ), Conn_GetIdle( Client_Conn ( c )))) return DISCONNECTED;

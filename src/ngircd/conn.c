@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.27 2002/01/03 02:25:36 alex Exp $
+ * $Id: conn.c,v 1.28 2002/01/04 01:20:23 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
+ * Revision 1.28  2002/01/04 01:20:23  alex
+ * - Client-Strukruren werden nur noch ueber Funktionen angesprochen.
+ *
  * Revision 1.27  2002/01/03 02:25:36  alex
  * - diverse Aenderungen und Umsetellungen fuer Server-Links.
  *
@@ -653,7 +656,7 @@ LOCAL VOID New_Connection( INT Sock )
 	}
 
 	/* Client-Struktur initialisieren */
-	if( ! Client_NewLocal( idx, inet_ntoa( new_addr.sin_addr )))
+	if( ! Client_NewLocal( idx, inet_ntoa( new_addr.sin_addr ), CLIENT_UNKNOWN ))
 	{
 		Log( LOG_ALERT, "Can't accept connection: can't create client structure!" );
 		close( new_sock );
@@ -817,7 +820,7 @@ LOCAL VOID Check_Connections( VOID )
 		if( My_Connections[i].sock == NONE ) continue;
 
 		c = Client_GetFromConn( i );
-		if( c && (( c->type == CLIENT_USER ) || ( c->type == CLIENT_SERVER ) || ( c->type == CLIENT_SERVICE )))
+		if( c && (( Client_Type( c ) == CLIENT_USER ) || ( Client_Type( c ) == CLIENT_SERVER ) || ( Client_Type( c ) == CLIENT_SERVICE )))
 		{
 			/* verbundener User, Server oder Service */
 			if( My_Connections[i].lastping > My_Connections[i].lastdata )
@@ -835,7 +838,7 @@ LOCAL VOID Check_Connections( VOID )
 				/* es muss ein PING gesendet werden */
 				Log( LOG_DEBUG, "Connection %d: sending PING ...", i );
 				My_Connections[i].lastping = time( NULL );
-				Conn_WriteStr( i, "PING :%s", This_Server->nick );
+				Conn_WriteStr( i, "PING :%s", Client_ID( Client_ThisServer( )));
 			}
 		}
 		else
@@ -967,7 +970,7 @@ LOCAL VOID New_Server( INT Server, CONN_ID Idx )
 	}
 
 	/* Client-Struktur initialisieren */
-	c = Client_NewLocal( Idx, inet_ntoa( new_addr.sin_addr ));
+	c = Client_NewLocal( Idx, inet_ntoa( new_addr.sin_addr ), CLIENT_UNKNOWNSERVER );
 	if( ! c )
 	{
 		close( new_sock );
@@ -975,7 +978,7 @@ LOCAL VOID New_Server( INT Server, CONN_ID Idx )
 		Log( LOG_ALERT, "Can't establish connection: can't create client structure!" );
 		return;
 	}
-	c->type = CLIENT_UNKNOWNSERVER;
+	Client_SetIntroducer( c, c );
 	
 	/* Verbindung registrieren */
 	My_Connections[Idx].sock = new_sock;

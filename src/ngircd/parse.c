@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: parse.c,v 1.12 2002/01/03 02:24:49 alex Exp $
+ * $Id: parse.c,v 1.13 2002/01/04 01:20:02 alex Exp $
  *
  * parse.c: Parsen der Client-Anfragen
  *
  * $Log: parse.c,v $
+ * Revision 1.13  2002/01/04 01:20:02  alex
+ * - Client-Strukruren werden nur noch ueber Funktionen angesprochen.
+ *
  * Revision 1.12  2002/01/03 02:24:49  alex
  * - neue Befehle NJOIN und SERVER begonnen.
  *
@@ -128,7 +131,7 @@ GLOBAL BOOLEAN Parse_Request( CONN_ID Idx, CHAR *Request )
 		/* Prefix vorhanden */
 		req.prefix = Request + 1;
 		ptr = strchr( Request, ' ' );
-		if( ! ptr ) return Parse_Error( Idx, "Invalid prefix (command missing!?)" );
+		if( ! ptr ) return Parse_Error( Idx, "Prefix without command!?" );
 		*ptr = '\0';
 		start = ptr + 1;
 	}
@@ -200,13 +203,11 @@ LOCAL BOOLEAN Parse_Error( CONN_ID Idx, CHAR *Error )
 	 * TRUE: Connection wurde durch diese Funktion nicht geschlossen,
 	 * FALSE: Connection wurde terminiert. */
 	
-	CHAR msg[256];
-	
 	assert( Idx >= 0 );
 	assert( Error != NULL );
 
-	sprintf( msg, "Parse error: %s!", Error );
-	return Conn_WriteStr( Idx, msg );
+	Log( LOG_DEBUG, "Connection %d: Parse error: %s", Idx, Error );
+	return Conn_WriteStr( Idx, "ERROR :Parse error: %s", Error );
 } /* Parse_Error */
 
 
@@ -267,8 +268,8 @@ LOCAL BOOLEAN Handle_Request( CONN_ID Idx, REQUEST *Req )
 	else if( strcasecmp( Req->command, "ERROR" ) == 0 ) return IRC_ERROR( client, Req );
 	
 	/* Unbekannter Befehl */
-	IRC_WriteStrClient( client, This_Server, ERR_UNKNOWNCOMMAND_MSG, Client_Nick( client ), Req->command );
-	Log( LOG_DEBUG, "User \"%s!%s@%s\": Unknown command \"%s\", %d %s,%s prefix.", client->nick, client->user, client->host, Req->command, Req->argc, Req->argc == 1 ? "parameter" : "parameters", Req->prefix ? "" : " no" );
+	IRC_WriteStrClient( client, Client_ThisServer( ), ERR_UNKNOWNCOMMAND_MSG, Client_ID( client ), Req->command );
+	Log( LOG_DEBUG, "User \"%s\": Unknown command \"%s\", %d %s,%s prefix.", Client_Mask( client ), Req->command, Req->argc, Req->argc == 1 ? "parameter" : "parameters", Req->prefix ? "" : " no" );
 
 	return TRUE;
 } /* Handle_Request */

@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2005 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-mode.c,v 1.35 2004/04/25 15:42:05 alex Exp $";
+static char UNUSED id[] = "$Id: irc-mode.c,v 1.36 2005/02/27 20:09:44 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -155,8 +155,12 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 		x[0] = '\0';
 		switch( *mode_ptr )
 		{
-			case 'a':
-				/* Away */
+			case 'i': /* Invisible */
+			case 's': /* Server messages */
+				x[0] = *mode_ptr;
+				break;
+
+			case 'a': /* Away */
 				if( Client_Type( Client ) == CLIENT_SERVER )
 				{
 					x[0] = 'a';
@@ -164,12 +168,8 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 				}
 				else ok = IRC_WriteStrClient( Origin, ERR_NOPRIVILEGES_MSG, Client_ID( Origin ));
 				break;
-			case 'i':
-				/* Invisible */
-				x[0] = 'i';
-				break;
-			case 'o':
-				/* IRC operator (only unsetable!) */
+
+			case 'o': /* IRC operator (only unsettable!) */
 				if(( ! set ) || ( Client_Type( Client ) == CLIENT_SERVER ))
 				{
 					Client_SetOperByMe( Target, FALSE );
@@ -177,15 +177,12 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 				}
 				else ok = IRC_WriteStrClient( Origin, ERR_NOPRIVILEGES_MSG, Client_ID( Origin ));
 				break;
-			case 'r':
-				/* Restricted (only setable) */
+
+			case 'r': /* Restricted (only settable) */
 				if(( set ) || ( Client_Type( Client ) == CLIENT_SERVER )) x[0] = 'r';
 				else ok = IRC_WriteStrClient( Origin, ERR_RESTRICTED_MSG, Client_ID( Origin ));
 				break;
-			case 's':
-				/* Server messages */
-				x[0] = 's';
-				break;
+
 			default:
 				Log( LOG_DEBUG, "Unknown mode \"%c%c\" from \"%s\"!?", set ? '+' : '-', *mode_ptr, Client_ID( Origin ));
 				if( Client_Type( Client ) != CLIENT_SERVER ) ok = IRC_WriteStrClient( Origin, ERR_UMODEUNKNOWNFLAG2_MSG, Client_ID( Origin ), set ? '+' : '-', *mode_ptr );
@@ -360,62 +357,17 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 		client = NULL;
 		switch( *mode_ptr )
 		{
-			/* Channel modes */
-			case 'i':
-				/* Invite-Only */
-				if( modeok ) x[0] = 'i';
-				else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
-				break;
-			case 'm':
-				/* Moderated */
-				if( modeok ) x[0] = 'm';
-				else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
-				break;
-			case 'n':
-				/* kein Schreiben in den Channel von aussen */
-				if( modeok ) x[0] = 'n';
-				else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
-				break;
-			case 't':
-				/* Topic Lock */
-				if( modeok ) x[0] = 't';
-				else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
-				break;
-			case 'P':
-				/* Persistent channel */
-				if( modeok )
-				{
-					if( set && ( ! Client_OperByMe( Client )))
-					{
-						/* Only IRC operators are allowed to set P mode */
-						ok = IRC_WriteStrClient( Origin, ERR_NOPRIVILEGES_MSG, Client_ID( Origin ));
-					}
-					else x[0] = 'P';
-				}
+			/* --- Channel modes --- */
+
+			case 'i': /* Invite only */
+			case 'm': /* Moderated */
+			case 'n': /* Only members can write */
+			case 't': /* Topic locked */
+				if( modeok ) x[0] = *mode_ptr;
 				else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
 				break;
 
-			/* Channel user modes */
-			case 'o':
-				/* Channel operator */
-			case 'v':
-				/* Voice */
-				if( arg_arg > mode_arg )
-				{
-					if( modeok )
-					{
-						client = Client_Search( Req->argv[arg_arg] );
-						if( client ) x[0] = *mode_ptr;
-						else ok = IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->argv[arg_arg] );
-					}
-					else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
-					Req->argv[arg_arg][0] = '\0';
-					arg_arg++;
-				}
-				else ok = IRC_WriteStrClient( Origin, ERR_NEEDMOREPARAMS_MSG, Client_ID( Origin ), Req->command );
-				break;
-			case 'k':
-				/* Channel key */
+			case 'k': /* Channel key */
 				if( ! set )
 				{
 					if( modeok ) x[0] = *mode_ptr;
@@ -437,8 +389,8 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 				}
 				else ok = IRC_WriteStrClient( Origin, ERR_NEEDMOREPARAMS_MSG, Client_ID( Origin ), Req->command );
 				break;
-			case 'l':
-				/* Member limit */
+
+			case 'l': /* Member limit */
 				if( ! set )
 				{
 					if( modeok ) x[0] = *mode_ptr;
@@ -465,9 +417,41 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 				else ok = IRC_WriteStrClient( Origin, ERR_NEEDMOREPARAMS_MSG, Client_ID( Origin ), Req->command );
 				break;
 
-			/* Channel lists */
-			case 'I':
-				/* Invite lists */
+			case 'P': /* Persistent channel */
+				if( modeok )
+				{
+					if( set && ( ! Client_OperByMe( Client )))
+					{
+						/* Only IRC operators are allowed to set P mode */
+						ok = IRC_WriteStrClient( Origin, ERR_NOPRIVILEGES_MSG, Client_ID( Origin ));
+					}
+					else x[0] = 'P';
+				}
+				else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
+				break;
+
+			/* --- Channel user modes --- */
+
+			case 'o': /* Channel operator */
+			case 'v': /* Voice */
+				if( arg_arg > mode_arg )
+				{
+					if( modeok )
+					{
+						client = Client_Search( Req->argv[arg_arg] );
+						if( client ) x[0] = *mode_ptr;
+						else ok = IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->argv[arg_arg] );
+					}
+					else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
+					Req->argv[arg_arg][0] = '\0';
+					arg_arg++;
+				}
+				else ok = IRC_WriteStrClient( Origin, ERR_NEEDMOREPARAMS_MSG, Client_ID( Origin ), Req->command );
+				break;
+
+			/* --- Channel lists --- */
+
+			case 'I': /* Invite lists */
 				if( arg_arg > mode_arg )
 				{
 					/* modify list */
@@ -482,8 +466,8 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 				}
 				else Lists_ShowInvites( Origin, Channel );
 				break;
-			case 'b':
-				/* Ban lists */
+
+			case 'b': /* Ban lists */
 				if( arg_arg > mode_arg )
 				{
 					/* modify list */

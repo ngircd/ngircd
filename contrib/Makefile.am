@@ -9,23 +9,12 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: Makefile.am,v 1.10 2002/10/01 09:57:08 alex Exp $
+# $Id: Makefile.am,v 1.1 2002/10/01 09:57:08 alex Exp $
 #
 
-AUTOMAKE_OPTIONS = gnu
-
-SUBDIRS = doc MacOSX src man contrib
+EXTRA_DIST = ngircd.spec
 
 maintainer-clean-local:
-	rm -rf autom4te.cache
-	rm -f Makefile.in Makefile aclocal.m4 configure
-	rm -f mkinstalldirs missing depcomp install-sh
-	rm -f config.log
-
-lint:
-	make -C src/ngircd lint
-
-rpm: distcheck
-	rpm -ta ngircd-*.tar.gz
+	rm -f Makefile Makefile.in
 
 # -eof-

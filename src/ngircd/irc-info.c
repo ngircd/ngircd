@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-info.c,v 1.16 2003/04/21 10:54:30 alex Exp $";
+static char UNUSED id[] = "$Id: irc-info.c,v 1.16.2.1 2003/07/18 20:49:35 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -23,6 +23,7 @@ static char UNUSED id[] = "$Id: irc-info.c,v 1.16 2003/04/21 10:54:30 alex Exp $
 #include <string.h>
 
 #include "ngircd.h"
+#include "cvs-version.h"
 #include "conn-func.h"
 #include "conn-zip.h"
 #include "client.h"
@@ -486,6 +487,9 @@ GLOBAL BOOLEAN
 IRC_VERSION( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *target, *prefix;
+#ifdef CVSDATE
+	CHAR ver[12];
+#endif
 
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -513,7 +517,14 @@ IRC_VERSION( CLIENT *Client, REQUEST *Req )
 	}
 
 	/* mit Versionsinfo antworten */
+#ifdef CVSDATE
+	strlcpy( ver, CVSDATE, sizeof( ver ));
+	strncpy( ver + 4, ver + 5, 2 );
+	strncpy( ver + 6, ver + 8, 3 );
+	return IRC_WriteStrClient( Client, RPL_VERSION_MSG, Client_ID( prefix ), PACKAGE_NAME, ver, NGIRCd_DebugLevel, Conf_ServerName, NGIRCd_VersionAddition( ));
+#else
 	return IRC_WriteStrClient( Client, RPL_VERSION_MSG, Client_ID( prefix ), PACKAGE_NAME, PACKAGE_VERSION, NGIRCd_DebugLevel, Conf_ServerName, NGIRCd_VersionAddition( ));
+#endif
 } /* IRC_VERSION */
 
 

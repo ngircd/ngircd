@@ -43,6 +43,11 @@ ngIRCd CVS-HEAD
     werden. Grund: User koennen den Server sonst leicht "Channel-Flooden".
   - MOTD kann nun an andere Server geforwarded werden.
   - IRC-Befehl "TIME" implementiert.
+  - Server-Server-Links koennen nun komprimiert werden, dazu wird die zlib
+    (www.zlib.org) benoetigt. Unterstuetzt die Gegenseite die Komprimierung
+    nicht, wird automatisch unkomprimiert kommuniziert. Das Verfahren ist
+    kompatibel mit dem Original-ircd 2.10.3, d.h. beide Server koennen
+    miteinander ueber komprimiert Links kommunizieren.
 
 ngIRCd 0.5.4, 24.11.2002
 
@@ -346,4 +351,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.130 2002/11/24 18:47:15 alex Exp $
+$Id: ChangeLog,v 1.131 2002/11/26 23:20:19 alex Exp $

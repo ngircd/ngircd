@@ -9,7 +9,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: autogen.sh,v 1.8 2004/03/11 22:21:20 alex Exp $
+# $Id: autogen.sh,v 1.9 2004/03/15 18:59:12 alex Exp $
 #
 
 Search()
@@ -35,6 +35,7 @@ Search()
 		type "${name}-${major}.${minor}" >/dev/null 2>&1
 		if [ $? -eq 0 ]; then
 			echo "${name}-${major}.${minor}" >/dev/null 2>&1
+			return 0
 		fi
 		minor=`expr $minor - 1`
 	done

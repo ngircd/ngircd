@@ -10,8 +10,11 @@
                                -- ChangeLog --
 
 
-ngircd 0.8.0-pre2
+ngircd 0.8.0-pre2 (2004-05-16)
 
+  - Enhanced logging to console when running in "no-detached mode": added
+    PID and log messages of resolver sub-processes.
+  - Fixed host name lookups when using IDENT user lookups.
   - "make clean" and "make maintainer-clean" remove more files mow.
 
 ngIRCd 0.8.0-pre1 (2004-05-07)
@@ -525,4 +528,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.233.2.3 2004/05/11 00:38:17 alex Exp $
+$Id: ChangeLog,v 1.233.2.4 2004/05/15 23:55:48 alex Exp $

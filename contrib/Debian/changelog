@@ -1,3 +1,9 @@
+ngircd (0.8.0-0ab1) unstable; urgency=low
+
+  * New upstream version.
+
+ -- Alexander Barton <alex@Arthur.Ath.CX>  Sat, 26 Jun 2004 11:25:59 +0200
+
 ngircd (0.7.7+HEAD-0ab5) unstable; urgency=low
 
   * Updates from CVS HEAD branch, most notably: "INVITE- and BAN-lists

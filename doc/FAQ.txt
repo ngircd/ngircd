@@ -24,7 +24,6 @@ A: ngIRCd offers several benefits: no problems with dynamic IPs, easy to
    configure, open source (GPL), under active development.
 
 
-
 II. Compilation
 ~~~~~~~~~~~~~~~
 Q: I did a "CVS checkout" but can't execute ./configure because the script
@@ -65,4 +64,4 @@ A: Please file a bug report at <http://arthur.ath.cx/bugzilla/ngircd/>!
 
 
 -- 
-$Id: FAQ.txt,v 1.6 2003/04/29 13:36:55 goetz Exp $
+$Id: FAQ.txt,v 1.7 2003/11/07 21:32:15 alex Exp $

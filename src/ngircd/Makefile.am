@@ -9,9 +9,12 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: Makefile.am,v 1.10 2002/01/02 02:43:50 alex Exp $
+# $Id: Makefile.am,v 1.11 2002/02/21 17:25:16 alex Exp $
 #
 # $Log: Makefile.am,v $
+# Revision 1.11  2002/02/21 17:25:16  alex
+# - "check"-Target für "make check" und "make distcheck" begonnen ...
+#
 # Revision 1.10  2002/01/02 02:43:50  alex
 # - Copyright-Text ergaenzt bzw. aktualisiert.
 #
@@ -53,7 +56,20 @@ ngircd_SOURCES = ngircd.c channel.c client.c conf.c conn.c irc.c log.c \
 noinst_HEADERS = ngircd.h channel.h client.h conf.h conn.h irc.h log.h \
 	parse.h tool.h global.h messages.h defines.h
 
+clean-local:
+	rm -f check-version check-help
+
 maintainer-clean-local:
 	rm -f Makefile Makefile.in
+
+check-version: Makefile
+	echo "#!/bin/sh" > check-version
+	echo "./ngircd --version | grep version > /dev/null 2>&1" >> check-version
+
+check-help: Makefile
+	echo "#!/bin/sh" > check-help
+	echo "./ngircd --help | grep help > /dev/null 2>&1" >> check-help
+
+TESTS = check-version check-help
 
 # -eof-

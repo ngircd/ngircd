@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.133 2004/03/11 22:16:31 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.134 2004/04/25 14:06:12 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -622,7 +622,6 @@ Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient )
 #endif
 
 	assert( Idx > NONE );
-	assert( My_Connections[Idx].sock > NONE );
 
 	/* Is this link already shutting down? */
 	if( My_Connections[Idx].options & CONN_ISCLOSING )
@@ -631,6 +630,8 @@ Conn_Close( CONN_ID Idx, CHAR *LogMsg, CHAR *FwdMsg, BOOLEAN InformClient )
 		 * probabe reason: Try_Write() failed  -- see below. */
 		return;
 	}
+
+	assert( My_Connections[Idx].sock > NONE );
 
 	/* Mark link as "closing" */
 	My_Connections[Idx].options |= CONN_ISCLOSING;

@@ -12,6 +12,8 @@
 
 ngIRCd CVSHEAD
 
+  - Fixed a wrong assert() which could cause the daemon to exit spuriously
+    when closing down connections.
   - Better logging of decompression errors returned by zlib.
   - Servers other than the destination server didn't clean up the invite
     list of an "invite-only" channel properly when an INVITE'd user joined.
@@ -511,4 +513,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.231 2004/04/25 13:55:34 alex Exp $
+$Id: ChangeLog,v 1.232 2004/04/25 14:06:11 alex Exp $

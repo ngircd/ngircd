@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: client.c,v 1.1 2001/12/14 08:13:43 alex Exp $
+ * $Id: client.c,v 1.2 2001/12/23 22:04:37 alex Exp $
  *
  * client.c: Management aller Clients
  *
@@ -21,6 +21,10 @@
  * Server gewesen, so existiert eine entsprechende CONNECTION-Struktur.
  *
  * $Log: client.c,v $
+ * Revision 1.2  2001/12/23 22:04:37  alex
+ * - einige neue Funktionen,
+ * - CLIENT-Struktur erweitert.
+ *
  * Revision 1.1  2001/12/14 08:13:43  alex
  * - neues Modul begonnen :-)
  *
@@ -32,6 +36,8 @@
 
 #include <imp.h>
 #include <assert.h>
+#include <unistd.h>
+#include <string.h>
 
 #include "channel.h"
 #include "conn.h"
@@ -41,7 +47,7 @@
 #include "client.h"
 
 
-LOCAL CLIENT *This_Server, *My_Clients;
+LOCAL CLIENT *My_Clients;
 
 
 LOCAL CLIENT *New_Client_Struct( VOID );
@@ -61,19 +67,100 @@ GLOBAL VOID Client_Init( VOID )
 	This_Server->type = CLIENT_SERVER;
 	This_Server->conn_id = NONE;
 	This_Server->introducer = This_Server;
-	strcpy( This_Server->nick, "ngircd" );	/* FIXME! */
-	
+	gethostname( This_Server->host, CLIENT_HOST_LEN );
+	strcpy( This_Server->nick, This_Server->host );
+
 	My_Clients = This_Server;
 } /* Client_Init */
 
 
 GLOBAL VOID Client_Exit( VOID )
 {
+	CLIENT *c, *next;
+	INT cnt;
+
+	Client_Destroy( This_Server );
+	
+	cnt = 0;
+	c = My_Clients;
+	while( c )
+	{
+		cnt++;
+		next = c->next;
+		free( c );
+		c = next;
+	}
+	if( cnt ) Log( LOG_DEBUG, "Freed %d client structure%s.", cnt, cnt == 1 ? "" : "s" );
 } /* Client Exit */
+
+
+GLOBAL CLIENT *Client_New_Local( CONN_ID Idx, CHAR *Hostname )
+{
+	/* Neuen lokalen Client erzeugen. */
+	
+	CLIENT *client;
+
+	client = New_Client_Struct( );
+	if( ! client ) return NULL;
+
+	/* Initgialisieren */
+	client->conn_id = Idx;
+	client->introducer = This_Server;
+	strncpy( client->host, Hostname, CLIENT_HOST_LEN );
+	client->host[CLIENT_HOST_LEN] = '\0';
+
+	/* Verketten */
+	client->next = My_Clients;
+	My_Clients = client;
+	
+	return client;
+} /* Client_New_Local */
+
+
+GLOBAL VOID Client_Destroy( CLIENT *Client )
+{
+	/* Client entfernen. */
+	
+	CLIENT *last, *c;
+
+	last = NULL;
+	c = My_Clients;
+	while( c )
+	{
+		if( c == Client )
+		{
+			if( last ) last->next = c->next;
+			else My_Clients = c->next;
+			free( c );
+			break;
+		}
+		last = c;
+		c = c->next;
+	}
+} /* Client_Destroy */
+
+
+GLOBAL CLIENT *Client_GetFromConn( CONN_ID Idx )
+{
+	/* Client-Struktur, die zur lokalen Verbindung Idx gehoert
+	 * liefern. Wird keine gefunden, so wird NULL geliefert. */
+
+	CLIENT *c;
+
+	c = My_Clients;
+	while( c )
+	{
+		if( c->conn_id == Idx ) return c;
+		c = c->next;
+	}
+	return NULL;
+} /* Client_GetFromConn */
 
 
 LOCAL CLIENT *New_Client_Struct( VOID )
 {
+	/* Neue CLIENT-Struktur pre-initialisieren */
+	
 	CLIENT *c;
 	INT i;
 	
@@ -90,8 +177,11 @@ LOCAL CLIENT *New_Client_Struct( VOID )
 	c->introducer = NULL;
 	strcpy( c->nick, "" );
 	strcpy( c->pass, "" );
+	strcpy( c->host, "" );
+	strcpy( c->user, "" );
+	strcpy( c->name, "" );
 	for( i = 0; i < MAX_CHANNELS; c->channels[i++] = NULL );
-	
+
 	return c;
 } /* New_Client */
 

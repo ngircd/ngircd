@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.135 2004/05/11 00:01:11 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.136 2004/05/11 00:53:14 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -1647,7 +1647,9 @@ Read_Resolver_Result( INT r_fd )
 
 	/* If the result string is incomplete, return to main loop and
 	 * wait until we can read in more bytes. */
+#ifdef IDENTAUTH
 try_resolve:
+#endif
 	ptr = strchr( s->buffer, '\n' );
 	if( ! ptr ) return;
 	*ptr = '\0';

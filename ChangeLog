@@ -26,6 +26,7 @@ ngIRCd 0.0.3, 16.01.2002
   - WHOIS korrigiert: Anfrage wurde u.U. an User geforwarded anstatt vom
     Server beantwortet zu werden.
   - neue Befehle: LUSERS, LINKS
+  - Client-Modes von Remote-Servern wurden nicht korrekt uerbernommen.
 
 ngIRCd 0.0.2, 06.01.2002
 
@@ -55,4 +56,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.8 2002/01/16 22:35:28 alex Exp $
+$Id: ChangeLog,v 1.9 2002/01/16 22:55:45 alex Exp $

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: log.c,v 1.37 2002/09/09 22:55:21 alex Exp $
+ * log.c,v 1.38 2002/10/04 11:21:46 alex Exp
  *
  * log.c: Logging-Funktionen
  */
@@ -185,7 +185,7 @@ va_dcl
 	else
 	{
 		/* Syslog */
-		syslog( Level, msg );
+		syslog( Level, "%s", msg );
 	}
 #endif
 

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: parse.c,v 1.41 2002/09/16 09:20:27 alex Exp $
+ * parse.c,v 1.42 2002/10/04 11:21:46 alex Exp
  *
  * parse.c: Parsen der Client-Anfragen
  */
@@ -311,7 +311,7 @@ Handle_Request( CONN_ID Idx, REQUEST *Req )
 			else strcat( str, " :" );
 			strcat( str, Req->argv[i] );
 		}
-		return IRC_WriteStrClientPrefix( target, prefix, str );
+		return IRC_WriteStrClientPrefix( target, prefix, "%s", str );
 	}
 
 	if( strcasecmp( Req->command, "PASS" ) == 0 ) return IRC_PASS( client, Req );

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-write.c,v 1.7.2.1 2002/09/17 17:29:20 alex Exp $
+ * irc-write.c,v 1.7.2.1 2002/09/17 17:29:20 alex Exp
  *
  * irc-write.c: IRC-Texte und Befehle ueber Netzwerk versenden
  */
@@ -62,7 +62,7 @@ va_dcl
 	va_end( ap );
 
 	/* an den Client selber */
-	ok = IRC_WriteStrClientPrefix( Client, Client_ThisServer( ), buffer );
+	ok = IRC_WriteStrClientPrefix( Client, Client_ThisServer( ), "%s", buffer );
 
 	return ok;
 } /* IRC_WriteStrClient */
@@ -128,7 +128,7 @@ va_dcl
 	vsnprintf( buffer, 1000, Format, ap );
 	va_end( ap );
 
-	return IRC_WriteStrChannelPrefix( Client, Chan, Client_ThisServer( ), Remote, buffer );
+	return IRC_WriteStrChannelPrefix( Client, Chan, Client_ThisServer( ), Remote, "%s", buffer );
 } /* IRC_WriteStrChannel */
 
 
@@ -233,7 +233,7 @@ va_dcl
 	va_end( ap );
 
 	/* an den Client selber */
-	IRC_WriteStrServersPrefix( ExceptOf, Client_ThisServer( ), buffer );
+	IRC_WriteStrServersPrefix( ExceptOf, Client_ThisServer( ), "%s", buffer );
 } /* IRC_WriteStrServers */
 
 
@@ -263,7 +263,7 @@ va_dcl
 	vsnprintf( buffer, 1000, Format, ap );
 	va_end( ap );
 
-	IRC_WriteStrServersPrefixFlag( ExceptOf, Prefix, '\0', buffer );
+	IRC_WriteStrServersPrefixFlag( ExceptOf, Prefix, '\0', "%s", buffer );
 } /* IRC_WriteStrServersPrefix */
 	
 
@@ -301,7 +301,7 @@ va_dcl
 		if(( Client_Type( c ) == CLIENT_SERVER ) && ( Client_Conn( c ) > NONE ) && ( c != Client_ThisServer( )) && ( c != ExceptOf ))
 		{
 			/* Ziel-Server gefunden. Nun noch pruefen, ob Flags stimmen */
-			if(( Flag == '\0' ) || ( strchr( Client_Flags( c ), Flag ) != NULL )) IRC_WriteStrClientPrefix( c, Prefix, buffer );
+			if(( Flag == '\0' ) || ( strchr( Client_Flags( c ), Flag ) != NULL )) IRC_WriteStrClientPrefix( c, Prefix, "%s", buffer );
 		}
 		c = Client_Next( c );
 	}

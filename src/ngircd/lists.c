@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: lists.c,v 1.8 2002/09/08 17:06:07 alex Exp $
+ * lists.c,v 1.9 2002/10/03 21:49:59 alex Exp
  *
  * lists.c: Verwaltung der "IRC-Listen": Ban, Invite, ...
  */
@@ -317,13 +317,13 @@ GLOBAL CHAR *
 Lists_MakeMask( CHAR *Pattern )
 {
 	/* Hier wird aus einem "beliebigen" Pattern eine gueltige IRC-Mask erzeugt.
-	* Diese ist aber nur bis zum naechsten Aufruf von Lists_MakeMask() gueltig,
-	* da ein einziger globaler Puffer verwendet wird. ->Umkopieren!*/
+	 * Diese ist aber nur bis zum naechsten Aufruf von Lists_MakeMask() gueltig,
+	 * da ein einziger globaler Puffer verwendet wird. ->Umkopieren!*/
 
 	STATIC CHAR TheMask[MASK_LEN];
 	CHAR *excl, *at;
 
-	assert( Pattern );
+	assert( Pattern != NULL );
 
 	excl = strchr( Pattern, '!' );
 	at = strchr( Pattern, '@' );

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.c,v 1.29.2.1 2002/09/19 10:17:50 alex Exp $
+ * conf.c,v 1.29.2.1 2002/09/19 10:17:50 alex Exp
  *
  * conf.h: Konfiguration des ngircd
  */
@@ -67,7 +67,7 @@ Conf_Test( VOID )
 {
 	/* Konfiguration einlesen, ueberpruefen und ausgeben. */
 
-	UINT i;
+	INT i;
 
 	Use_Log = FALSE;
 	Set_Defaults( );
@@ -584,7 +584,7 @@ va_dcl
 	/* Im "normalen Betrieb" soll der Log-Mechanismus des ngIRCd verwendet
 	 * werden, beim Testen der Konfiguration jedoch nicht, hier sollen alle
 	 * Meldungen direkt auf die Konsole ausgegeben werden: */
-	if( Use_Log ) Log( Level, msg );
+	if( Use_Log ) Log( Level, "%s", msg );
 	else puts( msg );
 } /* Config_Error */
 

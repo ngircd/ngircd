@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.95 2002/09/16 09:14:45 alex Exp $
+ * irc.c,v 1.96 2002/10/04 11:21:46 alex Exp
  *
  * irc.c: IRC-Befehle
  */
@@ -206,7 +206,7 @@ IRC_NAMES( CLIENT *Client, REQUEST *Req )
 			if( strlen( rpl ) > ( LINE_LEN - CLIENT_NICK_LEN - 4 ))
 			{
 				/* Zeile wird zu lang: senden! */
-				if( ! IRC_WriteStrClient( from, rpl )) return DISCONNECTED;
+				if( ! IRC_WriteStrClient( from, "%s", rpl )) return DISCONNECTED;
 				sprintf( rpl, RPL_NAMREPLY_MSG, Client_ID( from ), "*", "*" );
 			}
 		}
@@ -217,7 +217,7 @@ IRC_NAMES( CLIENT *Client, REQUEST *Req )
 	if( rpl[strlen( rpl ) - 1] != ':')
 	{
 		/* es wurden User gefunden */
-		if( ! IRC_WriteStrClient( from, rpl )) return DISCONNECTED;
+		if( ! IRC_WriteStrClient( from, "%s", rpl )) return DISCONNECTED;
 	}
 	
 	return IRC_WriteStrClient( from, RPL_ENDOFNAMES_MSG, Client_ID( from ), "*" );
@@ -259,7 +259,7 @@ IRC_ISON( CLIENT *Client, REQUEST *Req )
 	}
 	if( rpl[strlen( rpl ) - 1] == ' ' ) rpl[strlen( rpl ) - 1] = '\0';
 
-	return IRC_WriteStrClient( Client, rpl, Client_ID( Client ) );
+	return IRC_WriteStrClient( Client, "%s", rpl, Client_ID( Client ) );
 } /* IRC_ISON */
 
 
@@ -325,7 +325,7 @@ IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 		if( strlen( str ) > ( LINE_LEN - CHANNEL_NAME_LEN - 4 ))
 		{
 			/* Zeile wird zu lang: senden! */
-			if( ! IRC_WriteStrClient( Client, str )) return DISCONNECTED;
+			if( ! IRC_WriteStrClient( Client, "%s", str )) return DISCONNECTED;
 			sprintf( str, RPL_WHOISCHANNELS_MSG, Client_ID( from ), Client_ID( c ));
 		}
 
@@ -335,7 +335,7 @@ IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 	if( str[strlen( str ) - 1] != ':')
 	{
 		/* Es sind noch Daten da, die gesendet werden muessen */
-		if( ! IRC_WriteStrClient( Client, str )) return DISCONNECTED;
+		if( ! IRC_WriteStrClient( Client, "%s", str )) return DISCONNECTED;
 	}
 	
 	/* IRC-Operator? */
@@ -477,7 +477,7 @@ IRC_USERHOST( CLIENT *Client, REQUEST *Req )
 	}
 	if( rpl[strlen( rpl ) - 1] == ' ' ) rpl[strlen( rpl ) - 1] = '\0';
 
-	return IRC_WriteStrClient( Client, rpl, Client_ID( Client ) );
+	return IRC_WriteStrClient( Client, "%s", rpl, Client_ID( Client ) );
 } /* IRC_USERHOST */
 
 
@@ -768,7 +768,7 @@ IRC_Send_NAMES( CLIENT *Client, CHANNEL *Chan )
 			if( strlen( str ) > ( LINE_LEN - CLIENT_NICK_LEN - 4 ))
 			{
 				/* Zeile wird zu lang: senden! */
-				if( ! IRC_WriteStrClient( Client, str )) return DISCONNECTED;
+				if( ! IRC_WriteStrClient( Client, "%s", str )) return DISCONNECTED;
 				sprintf( str, RPL_NAMREPLY_MSG, Client_ID( Client ), "=", Channel_Name( Chan ));
 			}
 		}
@@ -779,7 +779,7 @@ IRC_Send_NAMES( CLIENT *Client, CHANNEL *Chan )
 	if( str[strlen( str ) - 1] != ':')
 	{
 		/* Es sind noch Daten da, die gesendet werden muessen */
-		if( ! IRC_WriteStrClient( Client, str )) return DISCONNECTED;
+		if( ! IRC_WriteStrClient( Client, "%s", str )) return DISCONNECTED;
 	}
 
 	return CONNECTED;

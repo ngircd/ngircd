@@ -12,6 +12,8 @@
 
 ngIRCd CVSHEAD
 
+  - INVITE- and BAN-lists become synchronized between IRC+ servers when
+    establishing new connections, if the peer supports this as well.
   - The type of service (TOS) of all sockets is set to "interactive" now.
   - Added short command line option "-t" as alternative to "--configtest".
   - Added optional support for "IDENT" lookups on incoming connections. You
@@ -182,4 +184,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.63 2004/01/26 02:23:54 alex Exp $
+$Id: NEWS,v 1.64 2004/04/25 15:51:15 alex Exp $

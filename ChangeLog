@@ -12,6 +12,9 @@
 
 ngIRCd CVSHEAD
 
+  - INVITE- and BAN-lists become synchronized between IRC+ servers when
+    establishing new connections, if the peer supports this as well.
+  - Reorganized autogen.sh and configure scripts.
   - Fixed a wrong assert() which could cause the daemon to exit spuriously
     when closing down connections.
   - Better logging of decompression errors returned by zlib.
@@ -513,4 +516,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.232 2004/04/25 14:06:11 alex Exp $
+$Id: ChangeLog,v 1.233 2004/04/25 15:51:15 alex Exp $

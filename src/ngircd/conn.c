@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.19 2001/12/29 21:53:57 alex Exp $
+ * $Id: conn.c,v 1.20 2001/12/29 22:09:43 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
+ * Revision 1.20  2001/12/29 22:09:43  alex
+ * - kleinere Aenderungen ("clean-ups") bei Logging (Resolver).
+ *
  * Revision 1.19  2001/12/29 21:53:57  alex
  * - Da hatte ich mich wohl ein wenig verrannt; jetzt sollte der Resolver
  *   aber tatsaechlich funktionieren.
@@ -797,7 +800,7 @@ LOCAL RES_STAT *Resolve( struct sockaddr_in *Addr )
 	if( pid > 0 )
 	{
 		/* Haupt-Prozess */
-		Log( LOG_DEBUG, "Resolver process for %s (PID %d) created.", inet_ntoa( Addr->sin_addr ), pid );
+		Log( LOG_DEBUG, "Resolver process for %s created (PID %d).", inet_ntoa( Addr->sin_addr ), pid );
 		FD_SET( s->pipe[0], &My_Resolvers );
 		if( s->pipe[0] > My_Max_Fd ) My_Max_Fd = s->pipe[0];
 		s->pid = pid;
@@ -864,11 +867,7 @@ LOCAL VOID Read_Resolver_Result( INT r_fd )
 	/* Hostnamen setzen */
 	strcpy( My_Connections[i].host, hostname );
 	c = Client_GetFromConn( i );
-	if( c )
-	{
-		Log( LOG_DEBUG, "Set hostname: \"%s\".", hostname );
-		Client_SetHostname( c, hostname );
-	}
+	if( c ) Client_SetHostname( c, hostname );
 } /* Read_Resolver_Result */
 
 
@@ -887,7 +886,7 @@ LOCAL VOID Do_Resolve( struct sockaddr_in *Addr, INT w_fd )
 	if( h ) strcpy( hostname, h->h_name );
 	else
 	{
-		Log_Resolver( LOG_WARNING, "Can't resolce host name (code %d)!", h_errno );
+		Log_Resolver( LOG_WARNING, "Resolver: Can't resolve host name (code %d)!", h_errno );
 		strcpy( hostname, inet_ntoa( Addr->sin_addr ));
 	}
 

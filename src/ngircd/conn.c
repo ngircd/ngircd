@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.40 2002/02/27 02:26:23 alex Exp $
+ * $Id: conn.c,v 1.41 2002/02/27 14:47:04 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
+ * Revision 1.41  2002/02/27 14:47:04  alex
+ * - Logging bei Timeout von Verbindungen geaendert.
+ *
  * Revision 1.40  2002/02/27 02:26:23  alex
  * - an Conn_Close() werden zwei weitere Fehlermeldungen zum Forwarden uebergeben.
  *
@@ -906,7 +909,7 @@ LOCAL VOID Check_Connections( VOID )
 			if( My_Connections[i].lastdata < time( NULL ) - Conf_PingTimeout )
 			{
 				/* Timeout */
-				Log( LOG_INFO, "Connection %d: Timeout.", i );
+				Log( LOG_DEBUG, "Connection %d timed out ...", i );
 				Conn_Close( i, NULL, "Timeout", TRUE );
 			}
 		}

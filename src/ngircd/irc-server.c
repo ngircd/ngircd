@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-server.c,v 1.16 2002/09/03 23:55:44 alex Exp $
+ * $Id: irc-server.c,v 1.17 2002/09/07 17:57:31 alex Exp $
  *
  * irc-server.c: IRC-Befehle fuer Server-Links
  */
@@ -162,13 +162,15 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 		chan = Channel_First( );
 		while( chan )
 		{
+#ifdef IRCPLUS
 			/* Wenn unterstuetzt, CHANINFO senden */
 			if( strchr( Client_Flags( Client ), 'C' ))
 			{
 				/* CHANINFO senden */
 				if( ! IRC_WriteStrClient( Client, "CHANINFO %s +%s :%s", Channel_Name( chan ), Channel_Modes( chan ), Channel_Topic( chan ))) return DISCONNECTED;
 			}
-			
+#endif
+
 			/* alle Member suchen */
 			cl2chan = Channel_FirstMember( chan );
 			sprintf( str, "NJOIN %s :", Channel_Name( chan ));

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-server.c,v 1.2 2002/03/06 15:50:14 alex Exp $
+ * $Id: irc-server.c,v 1.3 2002/03/11 17:33:40 alex Exp $
  *
  * irc-server.c: IRC-Befehle fuer Server-Links
  *
  * $Log: irc-server.c,v $
+ * Revision 1.3  2002/03/11 17:33:40  alex
+ * - Log-Level von SQUIT und QUIT bei unbekannten Clients auf DEBUG herabgesetzt.
+ *
  * Revision 1.2  2002/03/06 15:50:14  alex
  * - kleine Code-Umstellungen.
  *
@@ -326,7 +329,8 @@ GLOBAL BOOLEAN IRC_SQUIT( CLIENT *Client, REQUEST *Req )
 	target = Client_GetFromID( Req->argv[0] );
 	if( ! target )
 	{
-		Log( LOG_ERR, "Got SQUIT from %s for unknown server \"%s\"!?", Client_ID( Client ), Req->argv[0] );
+		/* Den Server kennen wir nicht (mehr), also nichts zu tun. */
+		Log( LOG_DEBUG, "Got SQUIT from %s for unknown server \"%s\"!?", Client_ID( Client ), Req->argv[0] );
 		return CONNECTED;
 	}
 

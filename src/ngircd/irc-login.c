@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-login.c,v 1.4 2002/03/10 22:40:22 alex Exp $
+ * $Id: irc-login.c,v 1.5 2002/03/11 17:33:40 alex Exp $
  *
  * irc-login.c: Anmeldung und Abmeldung im IRC
  *
  * $Log: irc-login.c,v $
+ * Revision 1.5  2002/03/11 17:33:40  alex
+ * - Log-Level von SQUIT und QUIT bei unbekannten Clients auf DEBUG herabgesetzt.
+ *
  * Revision 1.4  2002/03/10 22:40:22  alex
  * - IRC_PING() ist, wenn nicht im "strict RFC"-Mode, toleranter und akzptiert
  *   beliebig viele Parameter: z.B. BitchX sendet soetwas.
@@ -281,7 +284,8 @@ GLOBAL BOOLEAN IRC_QUIT( CLIENT *Client, REQUEST *Req )
 		target = Client_Search( Req->prefix );
 		if( ! target )
 		{
-			Log( LOG_ERR, "Got QUIT from %s for unknown client!?", Client_ID( Client ));
+			/* Den Client kennen wir nicht (mehr), also nichts zu tun. */
+			Log( LOG_DEBUG, "Got QUIT from %s for unknown client!?", Client_ID( Client ));
 			return CONNECTED;
 		}
 

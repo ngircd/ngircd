@@ -1,0 +1,86 @@
+
+                     ngIRCd - Next Generation IRC Server
+
+                      (c)2001,2002 by Alexander Barton,
+                    alex@barton.de, http://www.barton.de/
+
+                  ngIRCd ist freie Software und steht unter
+                       der GNU General Public License.
+
+                              -- Protocol.txt --
+
+
+I. Kompatibilitaet
+~~~~~~~~~~~~~~~~~~
+
+Der ngIRCd haelt sich an das IRC-Protokoll Version 2.10, wie es in den RFCs
+1459 und 2810-2813 beschrieben ist. Diese (und ggf. weitere fuer den ngIRCd
+relevante) RFCs sind in RFC.txt aufgefuehrt.
+
+Leider verhaelt sich aber schon der "Originalserver" nicht immer genau so,
+wie es in den RFCs beschrieben ist. Da der ngIRCd aber ein Ersatz fuer
+eben diesen Server sein soll, werden diese Abweichungen in der Regel vom
+ngIRCd emuliert um die Kompatibilitaet zu wahren.
+
+Sollte dieses Verhalten nicht erwuenscht sein, so kann mit der configure-
+Option "--enable-strict-rfc" der ngIRCd so compiliert werden, dass er sich
+strikt an die entsprechenden RFCs haelt.
+
+ACHTUNG: an einem so compilierten Server koennen sich andere Server und
+Clients, die sich nicht genau an das Protokoll halten, u.U. nicht mehr
+anmelden oder alle Funktionen nutzen! In der Regel ist diese Option daher
+nicht erwuenscht.
+
+
+II. Erweiterungen des IRC-Protokolls
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Erkennt der ngIRCd, dass ein connectierter Server ebenfalls ein ngIRCd ist,
+so werden -- so es die Version auf der Gegenseite unterstuetzt (s.u.) --
+Erweiterungen zum IRC-Protokoll 2.10 verwendet. Diese Erweiterungen werden
+dabei nicht von Versionsnummern abhaengig verwendet, sondern anhand von
+Falgs, die die beiden ngIRCd-Server austauschen, aktiviert.
+
+Die Protokoll- und Server-Erkennung wird mit dem "PASS"-Befehl durchgefuehrt
+(vgl. RFC 2813, Sektion 4.1.1):
+
+
+II.1 neuen Server-Link registrieren
+
+     Befehl: PASS
+  Parameter: <password> <version> <flags> [<options>]
+       Fuer: mit dieser Syntax nur Server
+
+<password> enthaelt das Passwort fur den neu aufzubauenden Server-Link, wie er
+in der Konfigurationsdatei definiert wurde.
+
+<version> setzt sich aus zwei Teilen zusammen und ist mindestens 4, maximal
+14 Zeichen lang: die ersten vier Bytes enthalten die Versionsnummer des IRC-
+Protokolls, wobei die ersten zwei Bytes die Major-, die letzten beiden die
+Minor-Revision angeben. "0210" steht also fuer Protokollversion 2.10.
+Die folgenden (optionalen!) 10 Bytes enthalten eine implementationsabhaengige
+Versionsnummer, der ngIRCd liefert hier immer "-ngIRCd" (Zur Identifikation
+des ngIRCd sollte dieser String jedoch NICHT verwendet werden, s.u.).
+
+<flags> setzt sich ebenfalls aus zwei Bestandteilen zusammen und ist maximal
+100 Bytes lang. Getrennt werden die beiden Teile mit dem Zeichen "|". Der
+erste Teil enthaelt den Namen der Implementation, der ngIRCd liefert hier z.B.
+"ngIRCd", der Originalserver "IRC". Anhand dieser "ID" kann zwischen Server-
+Implementationen unterschieden werden.
+Der zweite Teil (nach dem "|") ist implementationsabhaengig und wird vom ngIRCd
+nur ausgewertet, wenn die Gegenseite ebenfalls ein ngIRCd ist. In diesem Fall
+wird folgende Syntax erwartet: "<serverversion>[:<serverflags>]".
+<version> ist hier eine ASCII-Darstellung der Versionsnummer, <flags> zeigt die
+vom Server unterstuetzten Erweiterungen an (und kann die leere Menge sein).
+
+Mit dem optionalen Parameter <options> werden Server-Optionen bekannt gemacht,
+wie sie in RFC 2813, Sektion 4.1.1 definiert sind.
+
+Folgende <serverflags> werden zur Zeit vom ngIRCd verwendet:
+
+- o: IRC-Operatoren duerfen auch dann Channel- und Channel-User-Modes aendern,
+     wenn sie kein Channel-Operator im betroffenen Channel sind.
+
+
+-- 
+$Id: Protocol.txt,v 1.1 2002/09/02 21:04:27 alex Exp $

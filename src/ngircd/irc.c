@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.60 2002/02/17 17:43:14 alex Exp $
+ * $Id: irc.c,v 1.61 2002/02/17 19:03:12 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.61  2002/02/17 19:03:12  alex
+ * - NICK-Aenderungen wurden dem User selber mit dem falschen Prefix geliefert.
+ *
  * Revision 1.60  2002/02/17 17:43:14  alex
  * - Fehlerhafte Modes werden nun ausfuehrlicher an den Client gemeldet.
  *
@@ -854,7 +857,7 @@ GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req )
 
 		/* Nick-Aenderung: allen mitteilen! */
 		Log( LOG_INFO, "User \"%s\" changed nick: \"%s\" -> \"%s\".", Client_Mask( target ), Client_ID( target ), Req->argv[0] );
-		if( Client_Type( Client ) == CLIENT_USER ) IRC_WriteStrClient( Client, "NICK :%s", Req->argv[0] );
+		if( Client_Type( Client ) == CLIENT_USER ) IRC_WriteStrClientPrefix( Client, Client, "NICK :%s", Req->argv[0] );
 		IRC_WriteStrServersPrefix( Client, target, "NICK :%s", Req->argv[0] );
 		IRC_WriteStrRelatedPrefix( target, target, FALSE, "NICK :%s", Req->argv[0] );
 	

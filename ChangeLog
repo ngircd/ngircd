@@ -50,7 +50,8 @@ ngIRCd CVS-HEAD
     "--with-tcp-wrappers", and "--with-rendezvous".
   - Better error reporting to clients on connect.
   - Enhanced manual pages ngircd(8) and ngircd.conf(5).
-  - Documentation is now installed in $(datadir)/doc/ngircd
+  - Documentation is now installed in $(datadir)/doc/ngircd.
+  - Enhanced hanling of NJOIN in case of nick collisions.
 
 ngIRCd 0.6.1, 2003-01-21
 
@@ -432,4 +433,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.187 2003/04/05 11:37:17 alex Exp $
+$Id: ChangeLog,v 1.188 2003/04/20 23:12:57 alex Exp $

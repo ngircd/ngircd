@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc-login.c,v 1.10 2002/03/25 17:10:49 alex Exp $
+ * $Id: irc-login.c,v 1.11 2002/03/26 23:58:34 alex Exp $
  *
  * irc-login.c: Anmeldung und Abmeldung im IRC
  */
@@ -344,7 +344,7 @@ GLOBAL BOOLEAN IRC_PONG( CLIENT *Client, REQUEST *Req )
 	}
 
 	/* Der Connection-Timestamp wurde schon beim Lesen aus dem Socket
-		* aktualisiert, daher muss das hier nicht mehr gemacht werden. */
+	 * aktualisiert, daher muss das hier nicht mehr gemacht werden. */
 
 	if( Client_Conn( Client ) > NONE ) Log( LOG_DEBUG, "Connection %d: received PONG. Lag: %ld seconds.", Client_Conn( Client ), time( NULL ) - Conn_LastPing( Client_Conn( Client )));
 	else Log( LOG_DEBUG, "Connection %d: received PONG.", Client_Conn( Client ));

@@ -12,8 +12,8 @@
 
 ngIRCd CVS-HEAD
 
-  - Testsuite an HP-UX angepasst: Test auf ps-Optionen wird nun in anderer
-    Reihenfolge durchgefuehrt.
+  - Test der Flags fuer "ps" in der Testsuite verbessert, ist nun zu mehr
+    Plattformen kompatibler.
 
 ngIRCd 0.5.0
 
@@ -266,4 +266,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.91 2002/09/19 10:19:32 alex Exp $
+$Id: ChangeLog,v 1.92 2002/09/20 14:57:17 alex Exp $

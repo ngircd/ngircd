@@ -18,8 +18,8 @@ ngIRCd CVS-HEAD
     more secure functions strlcpy(), strlcat() and snprintf(). On systems
     that don't support strlcpy() and strlcat(), these functions are included
     in the libngportab now (with prototypes in portab.h).
-  - Fixed KILL: you can't crash the server by killing yourself, and ngIRCd
-    doesn't send a QUIT to other servers after the KILL any more.
+  - Fixed KILL: you can't crash the server by killing yourself any more;
+    and ngIRCd no longer sends a QUIT to other servers after the KILL.   
 
 
 Older changes (sorry, only available in german language):
@@ -383,4 +383,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.154 2002/12/26 18:44:41 alex Exp $
+$Id: ChangeLog,v 1.155 2002/12/26 18:47:01 alex Exp $

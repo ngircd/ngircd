@@ -8,61 +8,96 @@
                        der GNU General Public License.
 
                            -- README / Liesmich --
+                           
+                      Ilja Osthoff, <ilja@glide.ath.cx>
+
+
+ +-----------------------------------------------------------------------+
+ | Please note: English translations of some of the german documentation |
+ | files can be found in the directory "doc/en" -- please have a look!   |
+ +-----------------------------------------------------------------------+
 
 
 I. Einfuehrung
 ~~~~~~~~~~~~~~
 
-ngIRCd ist ein Server fuer den Internet Relay Chat (IRC). Er ist von Grund
-auf neu geschrieben, also nicht wie die meisten anderen IRCd's vom Urvater,
-dem Daemon des IRCNet abgeleitet.
+ngIRCd ist ein Open-Source-Server fuer den Internet Relay Chat (IRC), der
+unter der GNU General Public License (http://www.gnu.org/licenses/gpl.html)
+entwickelt wird. ngIRCd steht fuer "next generation IRC daemon", er ist von
+Grund auf neu geschrieben, also nicht wie die meisten anderen IRCd's vom
+Urvater, dem Daemon des IRCNet abgeleitet.
 
-Zur Zeit befindet sich der ngIRCd noch in Entwicklung, teilweise fehlen noch
-Features oder sind noch nicht "final" implementiert. 
 
-Channels sind inzwischen implementiert (seit Version 0.1.0), privates Chatten
-mit /msg und /query funktioniert ebenso. Server-Links werden dabei unter-
-stuetzt. Einige User- und Channel-Modes sind implementiert, hier kennt der
-Server jedoch noch nicht alles.
+II. Status
+~~~~~~~~~~~
+
+Zur Zeit befindet sich der ngIRCd noch in Entwicklung, manche Features sind
+noch nicht implementiert, andere nur teilweise.
 
 Bisher (mehr oder wenig vollstaendig) implementierte IRC-Befehle:
 
-AWAY, DIE, ERROR, ISON, JOIN, KILL, LINKS, LUSERS, MODE, MOTD, NAMES, NICK,
-NOTICE, NJOIN, OPER, PART, PASS, PING, PONG, PRIVMSG, QUIT, RESTART, SERVER,
-SQUIT, TOPIC, USER, USERHOST, VERSION, WHO, WHOIS.
-
-Ueber Rueckmeldungen, Bug-Reports und Patches freue ich mich! Also los, haut
-in die Tasten! :-))
-
-Via E-Mail erreichst du mich als <alex@arthur.ath.cx> bzw. <alex@barton.de>.
-Die Homepage des ngIRCd findest du unter <http://arthur.ath.cx/~alex/ngircd/>.
+AWAY, DIE, ERROR, ISON, JOIN, KILL, LINKS, LIST, LUSERS, MODE, MOTD, NAMES,
+NICK, NOTICE, NJOIN, OPER, PART, PASS, PING, PONG, PRIVMSG, QUIT, RESTART,
+SERVER, SQUIT, TOPIC, USER, USERHOST, VERSION, WHO, WHOIS.
 
 
-Hinweise zur Installation findest du in der Datei INSTALL.
-Alle Autoren von ngIRCd sind in AUTHORS aufgefuehrt.
-In der Datei COPYING steht die GNU General Public License.
-Das README liest du gerade ,-)
+III. Features (oder: warum gerade ngIRCd?)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- keine Probleme mit Servern, deren IP-Adresse dynamisch ist,
+- einfache, uebersichtliche Konfigurationsdatei,
+- frei verfuegbarer C-Quellcode.
+- ngIRCd wird aktiv weiterentwickelt.
+- unterstuetzte Plattformen: A/UX, FreeBSD, Linux, Mac OS X/Darwin und
+  Windows mit Cygwin.
+ 
+
+IV. Dokumentation
+~~~~~~~~~~~~~~~~~
+
+Im Paket enthalten ist u.a.:
+
+- README: das Dokument, das Du gerade liest :-)
+- INSTALL: Hinweise zur Installation des ngIRCd
+- NEWS: sagt der Name schon :-)
+- ChangeLog: die komplette History des ngIRCd
+- doc/FAQ.txt: haeufige Fragen und Antworten zum ngIRCd
+- doc/CVS.txt: Hinweise zum CVS-System
+- doc/RFC.txt: Infos ueber die RFC's
+- doc/sample-ngircd.conf: Beispiel-Konfigurationsdatei
+- doc/README-AUX.txt: Installationshinweise fuer A/UX
+- doc/README-BeOS.txt: dito fuer BeOS
+
+- doc/en/: englischsprachige Dokumentation
 
 
-II. Vorteile
-~~~~~~~~~~~~
+V. Bezugsquellen
+~~~~~~~~~~~~~~~~
 
-- keine Probleme mit Servern, deren IP-Adressen nicht statisch sind,
-- uebersichtliche ("schlanke") Konfigurationsdatei,
-- frei verfuegbarer, moderner und "aufgeraeumter" C-Quellcode.
-- ngIRCd wird aktiv weiter entwickelt.
+Die Homepage des ngIRCd ist: <http://arthur.ath.cx/~alex/ngircd>; dort
+findest du immer die neusten Informationen ueber den ngIRCd und die aktuellen
+freigegebenen ("stabilen") Releases.
+
+Falls du dich fuer die aktuellen Entwicklungs-Versionen (die jedoch nicht
+immer "stabil" sind) interessierst, dann lese bitte den Punkt "CVS" auf der
+Homepage und die Datei "doc/CVS.txt", die die Verwendung des "Concurrent
+Versioning System" (CVS) beschreibt.
 
 
-III. Unterstuetzte Plattformen
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+VI. Bugs
+~~~~~~~~
 
-- A/UX
-- FreeBSD
-- Linux
-- Mac OS X
-- NetBSD
-- Windows mit Cygwin
+Wenn du im ngIRCd Bugs finden solltest (so was soll ja auch vorkommen :-),
+dann lege bitte einen Bug-Report ueber diese URL an:
+
+<http://arthur.ath.cx/~alex/ngircd/#bugs>
+
+Dort kannst du dich auch ueber bekannte Fehler informieren.
+
+Falls du noch Anregungen, Kritik, Patches etc. pp. zum ngIRCd hast, dann
+bitte einfach eine Mail an <alex@barton.de> oder <alex@arthur.ath.cx>
+schreiben.
 
 
 -- 
-$Id: README,v 1.8 2002/03/21 23:25:15 alex Exp $
+$Id: README,v 1.9 2002/05/08 15:43:00 alex Exp $

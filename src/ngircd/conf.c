@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.46 2002/12/18 02:52:51 alex Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.47 2002/12/18 02:53:36 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -631,8 +631,6 @@ LOCAL VOID
 Validate_Config( BOOLEAN Configtest )
 {
 	/* Validate configuration settings. */
-	
-	INT i;
 	
 	if( ! Conf_ServerName[0] )
 	{

@@ -49,7 +49,9 @@ ngIRCd CVS-HEAD
   - SQUIT wird nicht mehr doppelt an andere Server weitergeleitet.
   - Der Server versucht nun vor dem Schliessen einer Verbindung Daten, die
     noch im Schreibpuffer stehen, zu senden.
+  - Source in weiteres Modul "irc-info" aufgespalten.
   - Konfigurationsvariablen werden besser validiert: Laengen, Zahlen, ...
+  - neuen Befehl STATS begonnen.
 
 ngIRCd 0.5.4, 24.11.2002
 
@@ -353,4 +355,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.137 2002/11/30 22:18:09 alex Exp $
+$Id: ChangeLog,v 1.138 2002/12/01 13:00:50 alex Exp $

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: defines.h,v 1.9 2002/02/13 23:04:27 alex Exp $
+ * $Id: defines.h,v 1.10 2002/02/27 18:22:45 alex Exp $
  *
  * defines.h: (globale) Konstanten
  *
  * $Log: defines.h,v $
+ * Revision 1.10  2002/02/27 18:22:45  alex
+ * - Mode "a" (away) in USERMODES aufgenommen.
+ *
  * Revision 1.9  2002/02/13 23:04:27  alex
  * - CHANMODES um Operator (o) und Voiced User (v) ergaenzt.
  *
@@ -72,6 +75,7 @@
 #define CLIENT_HOST_LEN 64		/* max. Laenge des Hostname */
 #define CLIENT_MODE_LEN 8		/* max. Laenge der Client-Modes */
 #define CLIENT_INFO_LEN 64		/* max. Infotext-Laenge (Server) */
+#define CLIENT_AWAY_LEN 128		/* max. Laenger der AWAY-Nachricht */
 
 #define CHANNEL_NAME_LEN 51		/* max. Laenge eines Channel-Namens, vgl. RFC 2812, 1.3 */
 #define CHANNEL_MODE_LEN 8		/* max. Laenge der Channel-Modes */
@@ -88,7 +92,7 @@
 
 #define STARTUP_DELAY 1			/* Erst n Sek. nach Start zu anderen Servern verbinden */
 
-#define USERMODES "io"			/* unterstuetzte User-Modes */
+#define USERMODES "aio"			/* unterstuetzte User-Modes */
 #define CHANMODES "amnopqstv"		/* unterstuetzte Channel-Modes */
 
 

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.72 2002/02/27 02:26:58 alex Exp $
+ * $Id: irc.c,v 1.73 2002/02/27 03:08:05 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.73  2002/02/27 03:08:05  alex
+ * - Log-Meldungen bei SQUIT erneut ueberarbeitet ...
+ *
  * Revision 1.72  2002/02/27 02:26:58  alex
  * - SQUIT wird auf jeden Fall geforwarded, zudem besseres Logging.
  *
@@ -1048,7 +1051,7 @@ GLOBAL BOOLEAN IRC_QUIT( CLIENT *Client, REQUEST *Req )
 GLOBAL BOOLEAN IRC_SQUIT( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *target;
-	CHAR msg[128];
+	CHAR msg[LINE_LEN + 64];
 	
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -1059,26 +1062,24 @@ GLOBAL BOOLEAN IRC_SQUIT( CLIENT *Client, REQUEST *Req )
 	/* Falsche Anzahl Parameter? */
 	if( Req->argc != 2 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
+	Log( LOG_DEBUG, "Got SQUIT from %s for \"%s\": \"%s\" ...", Client_ID( Client ), Req->argv[0], Req->argv[1] );
+	
 	/* SQUIT an alle Server weiterleiten */
 	IRC_WriteStrServers( Client, "SQUIT %s :%s", Req->argv[0], Req->argv[1] );
 
 	target = Client_GetFromID( Req->argv[0] );
 	if( ! target )
 	{
-		Log( LOG_ERR, "Got SQUIT from %s for unknown server \%s\"!?", Client_ID( Client ), Req->argv[0] );
+		Log( LOG_ERR, "Got SQUIT from %s for unknown server \"%s\"!?", Client_ID( Client ), Req->argv[0] );
 		return CONNECTED;
 	}
 
-	if( target == Client ) Log( LOG_DEBUG, "Got SQUIT from %s: %s", Client_ID( Client ), Req->argv[1] );
-	else Log( LOG_DEBUG, "Got SQUIT from %s for %s: %s", Client_ID( Client ), Client_ID( target ), Req->argv[1] );
-
 	if( Req->argv[1][0] )
 	{
-		strcpy( msg, "Got SQUIT: " );
-		strncpy( &msg[11], Req->argv[1], 116 );
-		msg[128] = '\0';
+		if( strlen( Req->argv[1] ) > LINE_LEN ) Req->argv[1][LINE_LEN] = '\0';
+		sprintf( msg, "%s (SQUIT from %s).", Req->argv[1], Client_ID( Client ));
 	}
-	else strcpy( msg, "Got SQUIT command." );
+	else sprintf( msg, "Got SQUIT from %s.", Client_ID( Client ));
 
 	if( Client_Conn( target ) > NONE )
 	{

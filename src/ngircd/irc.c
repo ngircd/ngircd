@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.28 2002/01/05 20:08:02 alex Exp $
+ * $Id: irc.c,v 1.29 2002/01/05 23:24:54 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.29  2002/01/05 23:24:54  alex
+ * - WHOIS erweitert: Anfragen koennen an andere Server weitergeleitet werden.
+ * - Vorbereitungen fuer Ident-Abfragen bei neuen Client-Strukturen.
+ *
  * Revision 1.28  2002/01/05 20:08:02  alex
  * - Div. Aenderungen fuer die Server-Links (u.a. WHOIS, QUIT, NICK angepasst).
  * - Neue Funktionen IRC_WriteStrServer() und IRC_WriteStrServerPrefix().
@@ -362,7 +366,7 @@ GLOBAL BOOLEAN IRC_SERVER( CLIENT *Client, REQUEST *Req )
 		if( ! ptr ) ptr = Req->argv[3];
 
 		/* Neue Client-Struktur anlegen */
-		c = Client_NewRemoteServer( Client, Req->argv[0], atoi( Req->argv[1] ), atoi( Req->argv[2] ), ptr );
+		c = Client_NewRemoteServer( Client, Req->argv[0], atoi( Req->argv[1] ), atoi( Req->argv[2] ), ptr, TRUE );
 		if( ! c )
 		{
 			/* Neue Client-Struktur konnte nicht angelegt werden */
@@ -478,7 +482,7 @@ GLOBAL BOOLEAN IRC_NICK( CLIENT *Client, REQUEST *Req )
 		}
 
 		/* Neue Client-Struktur anlegen */
-		c = Client_NewRemoteUser( intr_c, Req->argv[0], atoi( Req->argv[1] ), Req->argv[2], Req->argv[3], atoi( Req->argv[4] ), Req->argv[5], Req->argv[6] );
+		c = Client_NewRemoteUser( intr_c, Req->argv[0], atoi( Req->argv[1] ), Req->argv[2], Req->argv[3], atoi( Req->argv[4] ), Req->argv[5], Req->argv[6], TRUE );
 		if( ! c )
 		{
 			/* Eine neue Client-Struktur konnte nicht angelegt werden.
@@ -511,7 +515,7 @@ GLOBAL BOOLEAN IRC_USER( CLIENT *Client, REQUEST *Req )
 		/* Falsche Anzahl Parameter? */
 		if( Req->argc != 4 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
-		Client_SetUser( Client, Req->argv[0] );
+		Client_SetUser( Client, Req->argv[0], FALSE );
 		Client_SetInfo( Client, Req->argv[3] );
 
 		Log( LOG_DEBUG, "Connection %d: got USER command ...", Client_Conn( Client ));
@@ -975,7 +979,7 @@ GLOBAL BOOLEAN IRC_ISON( CLIENT *Client, REQUEST *Req )
 
 GLOBAL BOOLEAN IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 {
-	CLIENT *target, *c;
+	CLIENT *from, *target, *c;
 	
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -986,34 +990,43 @@ GLOBAL BOOLEAN IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 	if(( Req->argc < 1 ) || ( Req->argc > 2 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
 	/* Client suchen */
-	c = Client_GetFromID( Req->argv[0] );
-	if(( ! c ) || ( Client_Type( c ) != CLIENT_USER )) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->argv[0] );
+	c = Client_GetFromID( Req->argv[Req->argc - 1] );
+	if(( ! c ) || ( Client_Type( c ) != CLIENT_USER )) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->argv[Req->argc - 1] );
 
 	/* Empfaenger des WHOIS suchen */
-	if( Client_Type( Client ) == CLIENT_SERVER ) target = Client_GetFromID( Req->prefix );
-	else target = Client;
-	if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
+	if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_GetFromID( Req->prefix );
+	else from = Client;
+	if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
+	
+	/* Forwarden an anderen Server? */
+	if( Req->argc > 1 )
+	{
+		/* Ziel-Server suchen */
+		target = Client_GetFromID( Req->argv[1] );
+		if( ! target ) return IRC_WriteStrClient( from, ERR_NOSUCHSERVER_MSG, Client_ID( from ), Req->argv[1] );
+		else return IRC_WriteStrClientPrefix( target, from, "WHOIS %s :%s", Req->argv[0], Req->argv[1] );
+	}
 	
 	/* Nick, User und Name */
-	if( ! IRC_WriteStrClient( target, RPL_WHOISUSER_MSG, Client_ID( target ), Client_ID( c ), Client_User( c ), Client_Hostname( c ), Client_Info( c ))) return DISCONNECTED;
+	if( ! IRC_WriteStrClient( from, RPL_WHOISUSER_MSG, Client_ID( from ), Client_ID( c ), Client_User( c ), Client_Hostname( c ), Client_Info( c ))) return DISCONNECTED;
 
 	/* Server */
-	if( ! IRC_WriteStrClient( target, RPL_WHOISSERVER_MSG, Client_ID( target ), Client_ID( c ), Client_ID( Client_Introducer( c )), Client_Info( Client_Introducer( c )))) return DISCONNECTED;
+	if( ! IRC_WriteStrClient( from, RPL_WHOISSERVER_MSG, Client_ID( from ), Client_ID( c ), Client_ID( Client_Introducer( c )), Client_Info( Client_Introducer( c )))) return DISCONNECTED;
 
 	/* IRC-Operator? */
 	if( Client_HasMode( c, 'o' ))
 	{
-		if( ! IRC_WriteStrClient( target, RPL_WHOISOPERATOR_MSG, Client_ID( target ), Client_ID( c ))) return DISCONNECTED;
+		if( ! IRC_WriteStrClient( from, RPL_WHOISOPERATOR_MSG, Client_ID( from ), Client_ID( c ))) return DISCONNECTED;
 	}
 
 	/* Idle (nur lokale Clients) */
 	if( Client_Conn( c ) > NONE )
 	{
-		if( ! IRC_WriteStrClient( target, RPL_WHOISIDLE_MSG, Client_ID( target ), Client_ID( c ), Conn_GetIdle( Client_Conn ( c )))) return DISCONNECTED;
+		if( ! IRC_WriteStrClient( from, RPL_WHOISIDLE_MSG, Client_ID( from ), Client_ID( c ), Conn_GetIdle( Client_Conn ( c )))) return DISCONNECTED;
 	}
 
 	/* End of Whois */
-	return IRC_WriteStrClient( target, RPL_ENDOFWHOIS_MSG, Client_ID( target ), Client_ID( c ));
+	return IRC_WriteStrClient( from, RPL_ENDOFWHOIS_MSG, Client_ID( from ), Client_ID( c ));
 } /* IRC_WHOIS */
 
 

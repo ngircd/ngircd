@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: defines.h,v 1.22 2002/04/08 00:13:45 alex Exp $
+ * $Id: defines.h,v 1.23 2002/04/08 01:18:14 alex Exp $
  *
  * defines.h: (globale) Konstanten
  */
@@ -74,6 +74,8 @@
 #define ERROR_DIR "/tmp"
 
 #define MAX_LOG_MSG_LEN 256		/* max. Laenge einer Log-Meldung */
+
+#define TOKEN_OUTBOUND -2		/* Kennzeichnung fuer ausgehende Server-Links im Aufbau */
 
 
 #endif

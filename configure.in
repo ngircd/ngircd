@@ -9,7 +9,7 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: configure.in,v 1.62 2002/10/07 21:16:12 alex Exp $
+# $Id: configure.in,v 1.63 2002/10/11 00:49:49 alex Exp $
 #
 
 # -- Initialisierung --
@@ -179,6 +179,8 @@ if test "$GCC" = "yes"; then
 	CFLAGS="-Wall $CFLAGS"
 fi
 
+the_CFLAGS="$CFLAGS"
+
 CFLAGS="$CFLAGS -DSYSCONFDIR='\"\$(sysconfdir)\"'"
 
 # -- Ausgabe der Dateien --
@@ -209,12 +211,11 @@ M=`eval echo ${mandir}` ; M=`eval echo ${M}`
 
 echo "                host: ${host}"
 echo "            compiler: ${CC}"
-echo "      compiler flags: ${CFLAGS}"
+echo "      compiler flags: ${the_CFLAGS}"
 echo "  preprocessor flags: ${CPPFLAGS}"
 echo "        linker flags: ${LDFLAGS}"
 echo "           libraries: ${LIBS}"
 echo
-
 echo "     'ngircd' binary: $S"
 echo "  configuration file: $C"
 echo "        manual pages: $M"

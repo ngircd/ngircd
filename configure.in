@@ -9,9 +9,12 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: configure.in,v 1.12 2001/12/31 02:21:00 alex Exp $
+# $Id: configure.in,v 1.13 2001/12/31 16:02:30 alex Exp $
 #
 # $Log: configure.in,v $
+# Revision 1.13  2001/12/31 16:02:30  alex
+# - Version 0.0.1
+#
 # Revision 1.12  2001/12/31 02:21:00  alex
 # - "doc"-Unterverzeichnis aufgenommen.
 #
@@ -53,7 +56,7 @@
 
 AC_INIT
 AC_CONFIG_SRCDIR(src/ngircd/ngircd.c)
-AM_INIT_AUTOMAKE(ngircd,0.0.1-pre)
+AM_INIT_AUTOMAKE(ngircd,0.0.1)
 AM_CONFIG_HEADER(src/config.h)
 
 # -- Variablen --
@@ -177,6 +180,13 @@ AC_ARG_ENABLE(sniffer,
 
 # -- Ausgabe --
 
-AC_OUTPUT([Makefile doc/Makefile MacOSX/Makefile src/Makefile src/ngircd/Makefile])
+AC_OUTPUT([ \
+	Makefile \
+	doc/Makefile \
+	MacOSX/Makefile \
+	MacOSX/ngircd.pbproj/Makefile \
+	src/Makefile \
+	src/ngircd/Makefile \
+])
 
 # -eof-

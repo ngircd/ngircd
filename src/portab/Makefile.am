@@ -9,10 +9,10 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: Makefile.am,v 1.1 2002/03/12 14:36:44 alex Exp $
+# $Id: Makefile.am,v 1.2 2002/03/15 15:41:55 alex Exp $
 #
 
-noinst_PROGRAMS = portabtest
+check_PROGRAMS = portabtest
 
 portabtest_SOURCES = portabtest.c
 

@@ -28,6 +28,11 @@ ngIRCd CVS-HEAD
     removing servers during runtime works more reliable now.
   - Compression code from "conn.[ch]" is now found in new "conn-zip.[ch]"
   - Moved some connection functions from "conn.[ch]" to "conn-func.[ch]".
+  - New command CONNECT to enable and add server links. The syntax is not
+    RFC-compatible: use "CONNECT <name> <port>" to enable and connect an
+    configured server and "CONNECT <name> <port> <host> <mypwd> <peerpwd>"
+    to add a new server (ngIRCd tries to connect new servers only once!).
+  - Added DISCONNECT command ("DISCONNECT <name>") to disable servers.
 
 
 Older changes (sorry, only available in german language):
@@ -391,4 +396,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.159 2002/12/30 17:16:39 alex Exp $
+$Id: ChangeLog,v 1.160 2002/12/31 16:18:07 alex Exp $

@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: tool.h,v 1.6 2002/03/12 14:37:52 alex Exp $
+ * $Id: tool.h,v 1.7 2002/03/22 00:17:27 alex Exp $
  *
  * log.h: Hilfsfunktionen (Header)
  */
@@ -20,6 +20,8 @@
 
 
 GLOBAL VOID ngt_TrimStr( CHAR *String );
+
+GLOBAL CHAR *ngt_LowerStr( CHAR *String );
 
 
 #endif

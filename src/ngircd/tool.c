@@ -9,7 +9,7 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: tool.c,v 1.7 2002/03/12 14:37:52 alex Exp $
+ * $Id: tool.c,v 1.8 2002/03/22 00:17:27 alex Exp $
  *
  * tool.c: Hilfsfunktionen, ggf. Platformabhaengig
  */
@@ -19,6 +19,7 @@
 
 #include "imp.h"
 #include <assert.h>
+#include <ctype.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -48,6 +49,28 @@ GLOBAL VOID ngt_TrimStr( CHAR *String )
 
 	memmove( String, start, strlen( start ) + 1 );
 } /* ngt_TrimStr */
+
+
+GLOBAL CHAR *ngt_LowerStr( CHAR *String )
+{
+	/* String in Kleinbuchstaben konvertieren. Der uebergebene
+	 * Speicherbereich wird durch das Ergebnis ersetzt, zusaetzlich
+	 * wird dieser auch als Pointer geliefert. */
+
+	CHAR *ptr;
+
+	assert( String != NULL );
+
+	/* Zeichen konvertieren */
+	ptr = String;
+	while( *ptr )
+	{
+		*ptr = tolower( *ptr );
+		ptr++;
+	}
+	
+	return String;
+} /* ngt_LowerStr */
 
 
 /* -eof- */

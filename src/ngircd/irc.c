@@ -9,11 +9,15 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: irc.c,v 1.86 2002/03/04 01:43:20 alex Exp $
+ * $Id: irc.c,v 1.87 2002/03/10 18:16:51 alex Exp $
  *
  * irc.c: IRC-Befehle
  *
  * $Log: irc.c,v $
+ * Revision 1.87  2002/03/10 18:16:51  alex
+ * - bei WHO, WHOIS und NAMES wird nun nur noch der Status "Operator" oder
+ *   "voiced" geliefert -- nicht mehr beides.
+ *
  * Revision 1.86  2002/03/04 01:43:20  alex
  * - der WHO-Befehl (ohne Argumente) gat teilweise Channel-Names vergessen.
  *
@@ -383,8 +387,8 @@ GLOBAL BOOLEAN IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 		
 		/* Channel-Name anhaengen */
 		if( str[strlen( str ) - 1] != ':' ) strcat( str, " " );
-		if( strchr( Channel_UserModes( chan, c ), 'v' )) strcat( str, "+" );
 		if( strchr( Channel_UserModes( chan, c ), 'o' )) strcat( str, "@" );
+		else if( strchr( Channel_UserModes( chan, c ), 'v' )) strcat( str, "+" );
 		strcat( str, Channel_Name( chan ));
 
 		if( strlen( str ) > ( LINE_LEN - CHANNEL_NAME_LEN - 4 ))
@@ -768,8 +772,8 @@ GLOBAL BOOLEAN IRC_Send_NAMES( CLIENT *Client, CHANNEL *Chan )
 		{
 			/* Nick anhaengen */
 			if( str[strlen( str ) - 1] != ':' ) strcat( str, " " );
-			if( strchr( Channel_UserModes( Chan, cl ), 'v' )) strcat( str, "+" );
 			if( strchr( Channel_UserModes( Chan, cl ), 'o' )) strcat( str, "@" );
+			else if( strchr( Channel_UserModes( Chan, cl ), 'v' )) strcat( str, "+" );
 			strcat( str, Client_ID( cl ));
 	
 			if( strlen( str ) > ( LINE_LEN - CLIENT_NICK_LEN - 4 ))
@@ -820,8 +824,8 @@ GLOBAL BOOLEAN IRC_Send_WHO( CLIENT *Client, CHANNEL *Chan, BOOLEAN OnlyOps )
 			/* Flags zusammenbasteln */
 			strcpy( flags, "H" );
 			if( strchr( Client_Modes( c ), 'o' )) strcat( flags, "*" );
-			if( strchr( Channel_UserModes( Chan, c ), 'v' )) strcat( flags, "+" );
 			if( strchr( Channel_UserModes( Chan, c ), 'o' )) strcat( flags, "@" );
+			else if( strchr( Channel_UserModes( Chan, c ), 'v' )) strcat( flags, "+" );
 			
 			/* ausgeben */
 			if(( ! OnlyOps ) || ( strchr( Client_Modes( c ), 'o' )))

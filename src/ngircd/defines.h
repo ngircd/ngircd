@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: defines.h,v 1.13 2002/03/02 00:43:31 alex Exp $
+ * $Id: defines.h,v 1.14 2002/03/04 01:05:10 alex Exp $
  *
  * defines.h: (globale) Konstanten
  *
  * $Log: defines.h,v $
+ * Revision 1.14  2002/03/04 01:05:10  alex
+ * - neue Konstante DEFAULT_AWAY_MSG fuer die Default-Away-Meldung.
+ *
  * Revision 1.13  2002/03/02 00:43:31  alex
  * - bei abgebrochene ausgehende Server-Verbindungen wird der naechste Ver-
  *   bindungsversuch in RECONNECT_DELAY Sekunden (3) unternommen und nicht
@@ -110,6 +113,8 @@
 
 #define CONNECTED TRUE			/* fuer die irc-xxx-Module */
 #define DISCONNECTED FALSE
+
+#define DEFAULT_AWAY_MSG "Away"		/* Away-Meldung fuer User von anderen Servern */
 
 
 #endif

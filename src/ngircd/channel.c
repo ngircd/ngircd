@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: channel.c,v 1.6 2002/01/26 18:41:55 alex Exp $
+ * $Id: channel.c,v 1.7 2002/01/27 17:14:33 alex Exp $
  *
  * channel.c: Management der Channels
  *
  * $Log: channel.c,v $
+ * Revision 1.7  2002/01/27 17:14:33  alex
+ * - diverse Aenderungen fuer Channels ueber mehrere Server.
+ *
  * Revision 1.6  2002/01/26 18:41:55  alex
  * - CHANNEL- und CL2CHAN-Strukturen in Header verlegt,
  * - einige neue Funktionen (Channel_GetChannel(), Channel_FirstMember(), ...)
@@ -64,7 +67,7 @@ LOCAL CL2CHAN *My_Cl2Chan;
 LOCAL CHANNEL *New_Chan( CHAR *Name );
 LOCAL CL2CHAN *Get_Cl2Chan( CHANNEL *Chan, CLIENT *Client );
 LOCAL CL2CHAN *Add_Client( CHANNEL *Chan, CLIENT *Client );
-LOCAL BOOLEAN Remove_Client( CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, CHAR *Reason );
+LOCAL BOOLEAN Remove_Client( CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, CHAR *Reason, BOOLEAN ServerPART );
 LOCAL CL2CHAN *Get_First_Cl2Chan( CLIENT *Client, CHANNEL *Chan );
 LOCAL CL2CHAN *Get_Next_Cl2Chan( CL2CHAN *Start, CLIENT *Client, CHANNEL *Chan );
 LOCAL BOOLEAN Delete_Channel( CHANNEL *Chan );
@@ -156,7 +159,7 @@ GLOBAL BOOLEAN Channel_Part( CLIENT *Client, CLIENT *Origin, CHAR *Name, CHAR *R
 	}
 
 	/* User aus Channel entfernen */
-	if( ! Remove_Client( chan, Client, Origin, Reason )) return FALSE;
+	if( ! Remove_Client( chan, Client, Origin, Reason, TRUE )) return FALSE;
 	else return TRUE;
 } /* Channel_Part */
 
@@ -171,7 +174,7 @@ GLOBAL VOID Channel_RemoveClient( CLIENT *Client, CHAR *Reason )
 	while( c )
 	{
 		next_c = c->next;
-		Remove_Client( c, Client, Client_ThisServer( ), Reason );
+		Remove_Client( c, Client, Client_ThisServer( ), Reason, FALSE );
 		c = next_c;
 	}
 } /* Channel_RemoveClient */
@@ -300,12 +303,14 @@ LOCAL CL2CHAN *Add_Client( CHANNEL *Chan, CLIENT *Client )
 	/* Verketten */
 	cl2chan->next = My_Cl2Chan;
 	My_Cl2Chan = cl2chan;
-	
+
+	Log( LOG_DEBUG, "User \"%s\" joined channel \"%s\".", Client_Mask( Client ), Chan->name );
+
 	return cl2chan;
 } /* Add_Client */
 
 
-LOCAL BOOLEAN Remove_Client( CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, CHAR *Reason )
+LOCAL BOOLEAN Remove_Client( CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, CHAR *Reason, BOOLEAN ServerPART )
 {
 	CL2CHAN *cl2chan, *last_cl2chan;
 	CHANNEL *c;
@@ -334,8 +339,8 @@ LOCAL BOOLEAN Remove_Client( CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, CHAR
 	free( cl2chan );
 
 	if( Client_Conn( Origin ) > NONE ) IRC_WriteStrClientPrefix( Origin, Client, "PART %s :%s", c->name, Reason );
-	IRC_WriteStrServersPrefix( Origin, Client, "PART %s :%s", c->name, Reason );
-	IRC_WriteStrChannelPrefix( Origin, c, Client, "PART %s :%s", c->name, Reason );
+	if( ServerPART ) IRC_WriteStrServersPrefixID( Origin, Client, "PART %s :%s", c->name, Reason );
+	IRC_WriteStrChannelPrefix( Origin, c, Client, FALSE, "PART %s :%s", c->name, Reason );
 
 	Log( LOG_DEBUG, "User \"%s\" left channel \"%s\" (%s).", Client_Mask( Client ), c->name, Reason );
 

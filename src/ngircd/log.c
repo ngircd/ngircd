@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an comBase beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: log.c,v 1.10 2001/12/27 01:44:49 alex Exp $
+ * $Id: log.c,v 1.11 2001/12/29 03:08:49 alex Exp $
  *
  * log.c: Logging-Funktionen
  *
  * $Log: log.c,v $
+ * Revision 1.11  2001/12/29 03:08:49  alex
+ * - neue configure-Option "--enable-strict-rfc".
+ *
  * Revision 1.10  2001/12/27 01:44:49  alex
  * - die Verwendung von syslog kann nun abgeschaltet werden.
  *
@@ -76,6 +79,11 @@ GLOBAL VOID Log_Init( VOID )
 	if( txt[0] ) strcat( txt, "+" );
 	else strcat( txt, "-" );
 	strcat( txt, "SYSLOG" );
+#endif
+#ifdef STRICT_RFC
+	if( txt[0] ) strcat( txt, "+" );
+	else strcat( txt, "-" );
+	strcat( txt, "RFC" );
 #endif
 #ifdef DEBUG
 	if( txt[0] ) strcat( txt, "+" );

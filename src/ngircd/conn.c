@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conn.c,v 1.47 2002/03/04 23:16:23 alex Exp $
+ * $Id: conn.c,v 1.48 2002/03/10 17:50:48 alex Exp $
  *
  * connect.h: Verwaltung aller Netz-Verbindungen ("connections")
  *
  * $Log: conn.c,v $
+ * Revision 1.48  2002/03/10 17:50:48  alex
+ * - Handling von "--version" und "--help" nochmal geaendert ...
+ *
  * Revision 1.47  2002/03/04 23:16:23  alex
  * - Logging geaendert: detaillierter im Syslog, "allgemeiner" fuer Clients.
  *
@@ -1008,6 +1011,7 @@ LOCAL VOID Check_Servers( VOID )
 		/* Haben wir schon eine Verbindung? */
 		for( n = 0; n < MAX_CONNECTIONS; n++ )
 		{
+			/* Verbindung zu diesem Server? */
 			if(( My_Connections[n].sock != NONE ) && ( My_Connections[n].our_server == i ))
 			{
 				/* Komplett aufgebaute Verbindung? */
@@ -1015,6 +1019,12 @@ LOCAL VOID Check_Servers( VOID )
 
 				/* IP schon aufgeloest? */
 				if( My_Connections[n].res_stat == NULL ) New_Server( i, n );
+			}
+
+			/* Verbindung in dieser Server-Gruppe? */
+			if(( My_Connections[n].sock != NONE ) && ( My_Connections[n].our_server != NONE ))
+			{
+				if( Conf_Server[n].group == Conf_Server[i].group != NONE ) break;
 			}
 		}
 		if( n < MAX_CONNECTIONS ) continue;
@@ -1145,7 +1155,7 @@ LOCAL VOID Init_Conn_Struct( INT Idx )
 	My_Connections[Idx].rdatalen = 0;
 	My_Connections[Idx].wbuf[0] = '\0';
 	My_Connections[Idx].wdatalen = 0;
-	My_Connections[Idx].our_server = -1;
+	My_Connections[Idx].our_server = NONE;
 	My_Connections[Idx].lastdata = time( NULL );
 	My_Connections[Idx].lastping = 0;
 	My_Connections[Idx].lastprivmsg = time( NULL );

@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.c,v 1.15 2002/03/06 15:35:19 alex Exp $
+ * $Id: conf.c,v 1.16 2002/03/10 17:50:48 alex Exp $
  *
  * conf.h: Konfiguration des ngircd
  *
  * $Log: conf.c,v $
+ * Revision 1.16  2002/03/10 17:50:48  alex
+ * - Handling von "--version" und "--help" nochmal geaendert ...
+ *
  * Revision 1.15  2002/03/06 15:35:19  alex
  * - Dateinamen und Pfad sind nun in Konstanten definiert.
  *
@@ -180,6 +183,7 @@ LOCAL VOID Read_Config( VOID )
 					strcpy( Conf_Server[Conf_Server_Count].name, "" );
 					strcpy( Conf_Server[Conf_Server_Count].pwd, "" );
 					Conf_Server[Conf_Server_Count].port = 0;
+					Conf_Server[Conf_Server_Count].group = -1;
 					Conf_Server[Conf_Server_Count].lasttry = time( NULL ) - Conf_ConnectRetry + STARTUP_DELAY;
 					Conf_Server[Conf_Server_Count].res_stat = NULL;
 					Conf_Server_Count++;
@@ -322,7 +326,7 @@ GLOBAL VOID Handle_OPERATOR( INT Line, CHAR *Var, CHAR *Arg )
 
 GLOBAL VOID Handle_SERVER( INT Line, CHAR *Var, CHAR *Arg )
 {
-	INT port;
+	INT32 port;
 	
 	assert( Line > 0 );
 	assert( Var != NULL );
@@ -353,8 +357,14 @@ GLOBAL VOID Handle_SERVER( INT Line, CHAR *Var, CHAR *Arg )
 	{
 		/* Port, zu dem Verbunden werden soll */
 		port = atol( Arg );
-		if( port > 0 && port < 0xFFFF ) Conf_Server[Conf_Server_Count - 1].port = port;
+		if( port > 0 && port < 0xFFFF ) Conf_Server[Conf_Server_Count - 1].port = (INT)port;
 		else Log( LOG_ERR, "%s, line %d (section \"Server\"): Illegal port number %ld!", Conf_File, Line, port );
+		return;
+	}
+	if( strcasecmp( Var, "Group" ) == 0 )
+	{
+		/* Server-Gruppe */
+		Conf_Server[Conf_Server_Count - 1].group = atoi( Arg );
 		return;
 	}
 	

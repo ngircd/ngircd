@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: conf.h,v 1.10 2002/02/27 23:23:53 alex Exp $
+ * $Id: conf.h,v 1.11 2002/03/10 17:50:48 alex Exp $
  *
  * conf.h: Konfiguration des ngircd (Header)
  *
  * $Log: conf.h,v $
+ * Revision 1.11  2002/03/10 17:50:48  alex
+ * - Handling von "--version" und "--help" nochmal geaendert ...
+ *
  * Revision 1.10  2002/02/27 23:23:53  alex
  * - Includes fuer einige Header bereinigt.
  *
@@ -56,19 +59,20 @@
 
 typedef struct _Conf_Oper
 {
-	CHAR name[CLIENT_PASS_LEN];
-	CHAR pwd[CLIENT_PASS_LEN];
+	CHAR name[CLIENT_PASS_LEN];	/* Name (ID) des IRC-OPs */
+	CHAR pwd[CLIENT_PASS_LEN];	/* Passwort */
 } CONF_OPER;
 
 typedef struct _Conf_Server
 {
-	CHAR host[HOST_LEN];
-	CHAR ip[16];
-	CHAR name[CLIENT_ID_LEN];
-	CHAR pwd[CLIENT_PASS_LEN];
-	INT port;
-	time_t lasttry;
-	RES_STAT *res_stat;
+	CHAR host[HOST_LEN];		/* Hostname */
+	CHAR ip[16];			/* IP-Adresse (von Resolver) */
+	CHAR name[CLIENT_ID_LEN];	/* IRC-Client-ID */
+	CHAR pwd[CLIENT_PASS_LEN];	/* Passwort */
+	INT port;			/* Server-Port */
+	INT group;			/* Gruppe des Servers */
+	time_t lasttry;			/* Letzter Connect-Versuch */
+	RES_STAT *res_stat;		/* Status des Resolver */
 } CONF_SERVER;
 
 

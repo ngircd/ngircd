@@ -9,11 +9,14 @@
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  *
- * $Id: ngircd.c,v 1.30 2002/03/10 17:45:41 alex Exp $
+ * $Id: ngircd.c,v 1.31 2002/03/10 17:50:48 alex Exp $
  *
  * ngircd.c: Hier beginnt alles ;-)
  *
  * $Log: ngircd.c,v $
+ * Revision 1.31  2002/03/10 17:50:48  alex
+ * - Handling von "--version" und "--help" nochmal geaendert ...
+ *
  * Revision 1.30  2002/03/10 17:45:41  alex
  * - bei "ngircd --version" werden nun die eincompilierten Pfade angezeigt.
  *
@@ -210,7 +213,7 @@ GLOBAL INT main( INT argc, CONST CHAR *argv[] )
 #endif
 			if( strcmp( argv[i], "--version" ) == 0 )
 			{
-				Show_Version( ); puts( "" );
+				Show_Version( );
 				exit( 1 );
 			}
 		}
@@ -489,15 +492,16 @@ LOCAL VOID Show_Version( VOID )
 	puts( "Copyright (c)2001,2002 by Alexander Barton (alex@barton.de).\n" );
 	puts( "This is free software; see the source for copying conditions. There is NO" );
 	puts( "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." );
-        puts( "\nCompile-time defaults:\n" );
-        puts( "  - configuration: "CONFIG_FILE );
-        puts( "  - MOTD file: "MOTD_FILE );
-        puts( "  - server error log: "ERROR_FILE );
 } /* Show_Version */
 
 
 LOCAL VOID Show_Help( VOID )
 {
+	puts( "Compile-time defaults:\n" );
+	puts( "  - configuration: "CONFIG_FILE );
+	puts( "  - MOTD file: "MOTD_FILE );
+	puts( "  - server error log: "ERROR_FILE"\n" );
+	puts( "Run-time options:\n" );
 #ifdef DEBUG
 	puts( "  -d, --debug       log extra debug messages" );
 #endif

@@ -94,7 +94,7 @@
 				HEADER_SEARCH_PATHS = "";
 				INSTALL_PATH = "$(HOME)/bin";
 				LIBRARY_SEARCH_PATHS = "";
-				OTHER_CFLAGS = "";
+				OTHER_CFLAGS = "-DLOCALSTATEDIR=\\\\\\\"/usr/local/var\\\\\\\" -DSYSCONFDIR=\\\\\\\"/usr/local/etc\\\\\\\"";
 				OTHER_LDFLAGS = "";
 				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = ngircd;

@@ -48,7 +48,6 @@
 				FADE2AA505F149580081A16E,
 				FADE2AA605F1495F0081A16E,
 				FADE2AC905F149D70081A16E,
-				FA2002670807EB84005A2F4C,
 				FADE2AAA05F1499A0081A16E,
 				FADE2AA805F1499A0081A16E,
 				FADE2AAD05F1499A0081A16E,
@@ -67,6 +66,7 @@
 		08FB7795FE84155DC02AAC07 = {
 			children = (
 				FADE2B9005F14C6C0081A16E,
+				FA59ACBF080854DC00CD93BE,
 				FADE2AED05F14A6A0081A16E,
 				FADE2AEE05F14A700081A16E,
 				FADE2AEF05F14A760081A16E,
@@ -270,20 +270,20 @@
 //FA2
 //FA3
 //FA4
-		FA2002670807EB84005A2F4C = {
-			fileEncoding = 5;
-			isa = PBXFileReference;
-			lastKnownFileType = text;
-			name = Doxyfile;
-			path = ../../Doxyfile;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
 		FA2002770807EE21005A2F4C = {
 			buildSettings = {
 			};
 			isa = PBXBuildStyle;
 			name = Deployment;
+		};
+		FA59ACBF080854DC00CD93BE = {
+			fileEncoding = 5;
+			isa = PBXFileReference;
+			lastKnownFileType = text;
+			name = Doxyfile;
+			path = ../../src/Doxyfile;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
 		};
 		FA83332A0627391D00A909F0 = {
 			isa = PBXFileReference;

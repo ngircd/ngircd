@@ -8,7 +8,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: Makefile.am,v 1.43 2004/05/09 18:23:35 alex Exp $
+# $Id: Makefile.am,v 1.44 2005/04/09 12:30:55 alex Exp $
 #
 
 AUTOMAKE_OPTIONS = ../portab/ansi2knr
@@ -52,6 +52,8 @@ check-help: Makefile
 	chmod 755 check-help
 
 lint:
+	@splint --version >/dev/null 2>&1 \
+	 || ( echo; echo "Error: \"splint\" not found!"; echo; exit 1 )
 	@echo; warnings=0; files=0; \
 	for f in *.c; do \
 	 echo "checking $$f ..."; \
@@ -60,7 +62,7 @@ lint:
 	 grep "no warnings" lint.out > /dev/null 2>&1; \
 	 if [ $$? -ne 0 ]; then \
 	  waswarning=1; \
-	  echo; cat lint.out; echo; \
+	  echo; grep -v "^Command Line: " lint.out; echo; \
 	  w=$$( grep "code warning" lint.out | awk "{ print \$$4 }" ); \
 	  warnings=`expr $$warnings + $$w`; \
 	  files=`expr $$files + 1`; \

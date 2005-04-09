@@ -8,12 +8,17 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: Makefile.am,v 1.5 2003/01/13 12:20:16 alex Exp $
+# $Id: Makefile.am,v 1.6 2005/04/09 12:22:41 alex Exp $
 #
 
 SUBDIRS = portab tool ngircd testsuite
 
 maintainer-clean-local:
 	rm -f Makefile Makefile.in config.h config.h.in stamp-h.in
+
+srcdoc:
+	@doxygen --version >/dev/null 2>&1 \
+	 || ( echo; echo "Error: \"doxygen\" not found!"; echo; exit 1 )
+	doxygen
 
 # -eof-

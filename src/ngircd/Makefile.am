@@ -8,7 +8,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: Makefile.am,v 1.44 2005/04/09 12:30:55 alex Exp $
+# $Id: Makefile.am,v 1.45 2005/04/09 18:23:37 alex Exp $
 #
 
 AUTOMAKE_OPTIONS = ../portab/ansi2knr
@@ -16,7 +16,7 @@ AUTOMAKE_OPTIONS = ../portab/ansi2knr
 INCLUDES = -I$(srcdir)/../portab -I$(srcdir)/../tool
 
 LINTARGS = -weak -warnunixlib +unixlib -booltype BOOLEAN \
- -varuse -retvalother -emptyret
+ -varuse -retvalother -emptyret -unrecog
 
 sbin_PROGRAMS = ngircd
 

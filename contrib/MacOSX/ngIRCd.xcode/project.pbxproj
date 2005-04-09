@@ -7,14 +7,10 @@
 	objects = {
 		014CEA520018CE5811CA2923 = {
 			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				DEBUGGING_SYMBOLS = YES;
-				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				OPTIMIZATION_CFLAGS = "-O0";
-				ZERO_LINK = NO;
+				ZERO_LINK = YES;
 			};
 			isa = PBXBuildStyle;
 			name = Development;
@@ -34,6 +30,7 @@
 			};
 			buildStyles = (
 				014CEA520018CE5811CA2923,
+				FA2002770807EE21005A2F4C,
 			);
 			hasScannedForEncodings = 1;
 			isa = PBXProject;
@@ -51,6 +48,7 @@
 				FADE2AA505F149580081A16E,
 				FADE2AA605F1495F0081A16E,
 				FADE2AC905F149D70081A16E,
+				FA2002670807EB84005A2F4C,
 				FADE2AAA05F1499A0081A16E,
 				FADE2AA805F1499A0081A16E,
 				FADE2AAD05F1499A0081A16E,
@@ -77,6 +75,7 @@
 			);
 			isa = PBXGroup;
 			name = src;
+			path = "";
 			refType = 4;
 			sourceTree = "<group>";
 		};
@@ -271,6 +270,21 @@
 //FA2
 //FA3
 //FA4
+		FA2002670807EB84005A2F4C = {
+			fileEncoding = 5;
+			isa = PBXFileReference;
+			lastKnownFileType = text;
+			name = Doxyfile;
+			path = ../../Doxyfile;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		FA2002770807EE21005A2F4C = {
+			buildSettings = {
+			};
+			isa = PBXBuildStyle;
+			name = Deployment;
+		};
 		FA83332A0627391D00A909F0 = {
 			isa = PBXFileReference;
 			lastKnownFileType = "compiled.mach-o.dylib";
@@ -627,9 +641,9 @@
 			isa = PBXFileReference;
 			lastKnownFileType = text;
 			name = ngircd.spec;
-			path = /local/alex/Develop/ngircd/HEAD/contrib/ngircd.spec;
-			refType = 0;
-			sourceTree = "<absolute>";
+			path = ../ngircd.spec;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
 		};
 		FADE2AED05F14A6A0081A16E = {
 			children = (

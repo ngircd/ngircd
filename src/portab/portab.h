@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2003 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2005 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: portab.h,v 1.19 2005/03/30 16:37:02 alex Exp $
+ * $Id: portab.h,v 1.20 2005/04/09 18:27:16 alex Exp $
  *
  * Portability functions and declarations (header for libngbportab).
  */
@@ -132,7 +132,7 @@ typedef unsigned char bool;
 /* configure options */
 
 #ifndef HAVE_socklen_t
-#define socklen_t int			/* u.a. fuer Mac OS X */
+typedef int socklen_t;			/* for Mac OS X, amongst others */
 #endif
 
 #ifndef HAVE_SNPRINTF

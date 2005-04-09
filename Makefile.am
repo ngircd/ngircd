@@ -8,7 +8,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: Makefile.am,v 1.15 2004/05/11 00:32:31 alex Exp $
+# $Id: Makefile.am,v 1.16 2005/04/09 12:27:40 alex Exp $
 #
 
 AUTOMAKE_OPTIONS = gnu
@@ -26,6 +26,15 @@ maintainer-clean-local:
 
 lint:
 	make -C src/ngircd lint
+
+srcdoc:
+	make -C src srcdoc
+
+xcode:
+	@xcodebuild -project contrib/MacOSX/ngIRCd.xcode -list >/dev/null 2>&1 \
+	 || ( echo; echo "Error: \"xcodebuild\" not found!"; echo; exit 1 )
+	xcodebuild -project contrib/MacOSX/ngIRCd.xcode -alltargets \
+	 -buildstyle Development
 
 rpm: distcheck
 	rpm -ta ngircd-*.tar.gz

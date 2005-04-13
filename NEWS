@@ -18,7 +18,7 @@ ngIRCd CVSHEAD
     Patch by Florian Westphal, <westphal@foo.fh-furtwangen.de>.
   - Implemented support for "secret channels" (channel mode "s").
   - New configuration option "Mask" for [Operator] sections to limit OPER
-    commands to ussers with a specific IRC mask. Patch from Florian Westphal.
+    commands to users with a specific IRC mask. Patch from Florian Westphal.
   - New configuration variable "PidFile", section "[Global]": if defined,
     the server writes its process ID (PID) to this file. Default: off.
     Idea of Florian Westphal, <westphal@foo.fh-furtwangen.de>.
@@ -68,7 +68,7 @@ ngIRCd 0.7.0 (2003-05-01)
   - Added support for TCP Wrappers library: pass "--with-tcp-wrappers" to
     configure to enable it.
   - Changed some configure options to use "--with"/"--without" as prefix
-    insetead of "--enable"/"--disable": "--without-syslog", "--without-zlib",
+    instead of "--enable"/"--disable": "--without-syslog", "--without-zlib",
     "--with-tcp-wrappers", and "--with-rendezvous".
   - Enhanced manual pages ngircd(8) and ngircd.conf(5).
   - Documentation is now installed in $(datadir)/doc/ngircd.
@@ -205,4 +205,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.71 2005/03/15 16:56:16 alex Exp $
+$Id: NEWS,v 1.72 2005/04/13 21:40:49 alex Exp $

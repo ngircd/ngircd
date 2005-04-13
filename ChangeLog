@@ -23,11 +23,11 @@ ngIRCd CVSHEAD
     Patch by Florian Westphal, <westphal@foo.fh-furtwangen.de>.
   - Implemented support for "secret channels" (channel mode "s").
   - New configuration option "Mask" for [Operator] sections to limit OPER
-    commands to ussers with a specific IRC mask. Patch from Florian Westphal.
+    commands to users with a specific IRC mask. Patch from Florian Westphal.
   - Write "error file" (/tmp/ngircd-XXX.err) only if compiled with debug
     code ("--enable-debug") and running as daemon process.
   - Don't create version information string each time a client connects
-    but insetead on server startup. By Florian Westphal.
+    but instead on server startup. By Florian Westphal.
   - New configuration variable "PidFile", section "[Global]": if defined,
     the server writes its process ID (PID) to this file. Default: off.
     Idea of Florian Westphal, <westphal@foo.fh-furtwangen.de>.
@@ -598,4 +598,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.268 2005/03/30 17:00:42 alex Exp $
+$Id: ChangeLog,v 1.269 2005/04/13 21:40:49 alex Exp $

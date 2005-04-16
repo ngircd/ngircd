@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.146 2005/03/20 13:54:06 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.147 2005/04/16 09:19:49 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -121,7 +121,7 @@ Conn_Init( void )
 		/* konfiguriertes Limit beachten */
 		if( Pool_Size > Conf_MaxConnections ) Pool_Size = Conf_MaxConnections;
 	}
-	My_Connections = (CONNECTION *)malloc( sizeof( CONNECTION ) * Pool_Size );
+	My_Connections = (CONNECTION *) calloc( Pool_Size,  sizeof( CONNECTION ) );
 	if( ! My_Connections )
 	{
 		/* Speicher konnte nicht alloziert werden! */

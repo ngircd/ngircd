@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.147 2005/04/16 09:19:49 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.148 2005/04/16 20:50:03 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -1006,7 +1006,7 @@ New_Connection( int Sock )
 		}
 		if( new_size < Pool_Size )
 		{
-			Log( LOG_ALERT, "Can't accespt connection: limit (%d) reached -- overflow!", Pool_Size );
+			Log( LOG_ALERT, "Can't accept connection: limit (%d) reached -- overflow!", Pool_Size );
 			Simple_Message( new_sock, "ERROR :Connection limit reached" );
 			close( new_sock );
 			return;

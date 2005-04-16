@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: log.c,v 1.53 2005/03/19 18:43:49 fw Exp $";
+static char UNUSED id[] = "$Id: log.c,v 1.54 2005/04/16 09:31:30 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -58,6 +58,12 @@ GLOBAL void
 Log_Init( void )
 {
 #ifdef SYSLOG
+#ifndef LOG_CONS	/* Kludge: mips-dec-ultrix4.5 has no LOG_CONS/LOG_LOCAL5 */
+#define LOG_CONS 0
+#endif
+#ifndef LOG_LOCAL5
+#define LOG_LOCAL5 0
+#endif
 	/* Syslog initialisieren */
 	openlog( PACKAGE_NAME, LOG_CONS|LOG_PID, LOG_LOCAL5 );
 #endif

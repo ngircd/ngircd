@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: portab.h,v 1.20 2005/04/09 18:27:16 alex Exp $
+ * $Id: portab.h,v 1.21 2005/04/16 09:23:01 fw Exp $
  *
  * Portability functions and declarations (header for libngbportab).
  */
@@ -145,6 +145,10 @@ extern size_t strlcat PARAMS(( char *dst, const char *src, size_t size ));
 
 #ifndef HAVE_STRLCPY
 extern size_t strlcpy PARAMS(( char *dst, const char *src, size_t size ));
+#endif
+
+#ifndef HAVE_STRDUP
+extern char * strdup PARAMS(( const char *s ));
 #endif
 
 #ifndef HAVE_VSNPRINTF

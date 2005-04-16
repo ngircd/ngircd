@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.75 2005/03/22 18:57:08 alex Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.76 2005/04/16 09:23:01 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -804,7 +804,6 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 LOCAL void
 Handle_OPERATOR( int Line, char *Var, char *Arg )
 {
-	unsigned int len;
 	assert( Line > 0 );
 	assert( Var != NULL );
 	assert( Arg != NULL );
@@ -825,14 +824,12 @@ Handle_OPERATOR( int Line, char *Var, char *Arg )
 	if( strcasecmp( Var, "Mask" ) == 0 )
 	{
 		if (Conf_Oper[Conf_Oper_Count - 1].mask) return; /* Hostname already configured */
-		len = strlen( Arg ) + 1;
-		Conf_Oper[Conf_Oper_Count - 1].mask = malloc( len );
+		Conf_Oper[Conf_Oper_Count - 1].mask = strdup( Arg );
 		if (! Conf_Oper[Conf_Oper_Count - 1].mask) {
 			Config_Error( LOG_ERR, "%s, line %d: Cannot allocate memory for operator mask: %s", NGIRCd_ConfFile, Line, strerror(errno) );
 			return;
 		}
 
-		strlcpy( Conf_Oper[Conf_Oper_Count - 1].mask, Arg, len);
 		return;
 	}
 	Config_Error( LOG_ERR, "%s, line %d (section \"Operator\"): Unknown variable \"%s\"!", NGIRCd_ConfFile, Line, Var );

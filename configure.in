@@ -8,7 +8,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: configure.in,v 1.108 2005/03/21 22:15:15 alex Exp $
+# $Id: configure.in,v 1.109 2005/04/16 07:26:44 fw Exp $
 #
 
 # -- Initialisation --
@@ -121,7 +121,7 @@ AC_CHECK_FUNCS([ \
 	memset realloc setsid setsockopt socket strcasecmp strchr strerror \
 	strstr waitpid],,AC_MSG_ERROR([required function missing!]))
 
-AC_CHECK_FUNCS(inet_aton isdigit sigaction snprintf vsnprintf strlcpy strlcat)
+AC_CHECK_FUNCS(inet_aton isdigit sigaction snprintf vsnprintf strdup strlcpy strlcat)
 
 AC_CHECK_FUNCS(select,[AC_CHECK_HEADERS(sys/select.h)],
 	AC_MSG_ERROR([required function select() is missing!])

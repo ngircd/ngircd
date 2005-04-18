@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conn.h,v 1.33 2005/03/19 18:43:48 fw Exp $
+ * $Id: conn.h,v 1.34 2005/04/18 21:08:31 fw Exp $
  *
  * Connection management (header)
  */
@@ -21,10 +21,11 @@
 #include <time.h>			/* for time_t, see below */
 
 
-#define CONN_ISCLOSING 1		/* Conn_Close() already called */
+#define CONN_ISCLOSING		1U	/* Conn_Close() already called */
+#define CONN_ISCONNECTING	2U	/* connect() in progress */
 
 #ifdef ZLIB
-#define CONN_ZIP 2			/* zlib compressed link */
+#define CONN_ZIP		4U	/* zlib compressed link */
 #endif
 
 
@@ -65,10 +66,10 @@ typedef struct _Connection
 	time_t lastping;		/* Last PING */
 	time_t lastprivmsg;		/* Last PRIVMSG */
 	time_t delaytime;		/* Ignore link ("penalty") */
-	long bytes_in, bytes_out; /* Received and sent bytes */
-	long msg_in, msg_out;	  /* Received and sent IRC messages */
+	long bytes_in, bytes_out;	/* Received and sent bytes */
+	long msg_in, msg_out;		/* Received and sent IRC messages */
 	int flag;			/* Flag (see "irc-write" module) */
-	int options;			/* Link options */
+	UINT16 options;			/* Link options / connection state */
 #ifdef ZLIB
 	ZIPDATA zip;			/* Compression information */
 #endif  /* ZLIB */

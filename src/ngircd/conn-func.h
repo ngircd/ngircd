@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conn-func.h,v 1.2 2005/03/19 18:43:48 fw Exp $
+ * $Id: conn-func.h,v 1.3 2005/04/18 21:08:31 fw Exp $
  *
  * Connection management: Global functions (header)
  */
@@ -54,6 +54,9 @@ GLOBAL int Conn_Options PARAMS(( CONN_ID Idx ));
 GLOBAL void Conn_ResetWCounter PARAMS(( void ));
 GLOBAL long Conn_WCounter PARAMS(( void ));
 
+#define Conn_OPTION_ADD( x, opt )   ( (x)->options |= opt ) 
+#define Conn_OPTION_DEL( x, opt )   ( (x)->options &= ~opt )
+#define Conn_OPTION_ISSET( x, opt ) ( (x)->options & opt )
 
 #endif
 

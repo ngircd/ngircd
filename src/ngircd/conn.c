@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.148 2005/04/16 20:50:03 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.149 2005/04/23 14:28:44 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -99,7 +99,6 @@ LOCAL int Count_Connections PARAMS(( struct sockaddr_in addr ));
 
 LOCAL fd_set My_Listeners;
 LOCAL fd_set My_Sockets;
-LOCAL fd_set My_Connects;
 
 #ifdef TCPWRAP
 int allow_severity = LOG_INFO;
@@ -135,7 +134,6 @@ Conn_Init( void )
 	/* zu Beginn haben wir keine Verbindungen */
 	FD_ZERO( &My_Listeners );
 	FD_ZERO( &My_Sockets );
-	FD_ZERO( &My_Connects );
 
 	/* Groesster File-Descriptor fuer select() */
 	Conn_MaxFD = 0;
@@ -179,13 +177,6 @@ Conn_Exit( void )
 				close( i );
 #ifdef DEBUG
 				Log( LOG_DEBUG, "Listening socket %d closed.", i );
-#endif
-			}
-			else if( FD_ISSET( i, &My_Connects ))
-			{
-				close( i );
-#ifdef DEBUG
-				Log( LOG_DEBUG, "Connection %d closed during creation (socket %d).", idx, i );
 #endif
 			}
 			else if( idx < Pool_Size )
@@ -417,22 +408,30 @@ Conn_Handler( void )
 		/* Sockets mit im Aufbau befindlichen ausgehenden Verbindungen suchen */
 		for( i = 0; i < Pool_Size; i++ )
 		{
-			if(( My_Connections[i].sock > NONE ) && ( FD_ISSET( My_Connections[i].sock, &My_Connects ))) FD_SET( My_Connections[i].sock, &write_sockets );
+			if ( My_Connections[i].sock > NONE ) {
+				if ( Conn_OPTION_ISSET( &My_Connections[i], CONN_ISCONNECTING )) {
+					FD_SET( My_Connections[i].sock, &write_sockets );
+				}
+			}
+
 		}
 
 		/* von welchen Sockets koennte gelesen werden? */
 		read_sockets = My_Sockets;
 		for( i = 0; i < Pool_Size; i++ )
 		{
-			if(( My_Connections[i].sock > NONE ) && ( My_Connections[i].host[0] == '\0' ))
-			{
-				/* Hier muss noch auf den Resolver Sub-Prozess gewartet werden */
-				FD_CLR( My_Connections[i].sock, &read_sockets );
-			}
-			if(( My_Connections[i].sock > NONE ) && ( FD_ISSET( My_Connections[i].sock, &My_Connects )))
-			{
-				/* Hier laeuft noch ein asyncrones connect() */
-				FD_CLR( My_Connections[i].sock, &read_sockets );
+			if ( My_Connections[i].sock > NONE ) {
+				if ( My_Connections[i].host[0] == '\0' ) {
+					/* wait for completion of Resolver Sub-Process */
+					FD_CLR( My_Connections[i].sock, &read_sockets );
+					continue;
+				}
+
+				if ( Conn_OPTION_ISSET( &My_Connections[i], CONN_ISCONNECTING )) {
+					/* wait for completion of connect() */
+					FD_CLR( My_Connections[i].sock, &read_sockets );
+					continue;
+                                }
 			}
 			if( My_Connections[i].delaytime > t )
 			{
@@ -590,8 +589,7 @@ Conn_Write( CONN_ID Idx, char *Data, int Len )
 	}
 
 #ifdef ZLIB
-	if( My_Connections[Idx].options & CONN_ZIP )
-	{
+	if ( Conn_OPTION_ISSET( &My_Connections[Idx], CONN_ZIP )) {
 		/* Daten komprimieren und in Puffer kopieren */
 		if( ! Zip_Buffer( Idx, Data, Len )) return false;
 	}
@@ -628,8 +626,7 @@ Conn_Close( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool InformClient )
 	assert( Idx > NONE );
 
 	/* Is this link already shutting down? */
-	if( My_Connections[Idx].options & CONN_ISCLOSING )
-	{
+	if( Conn_OPTION_ISSET( &My_Connections[Idx], CONN_ISCLOSING )) {
 		/* Conn_Close() has been called recursively for this link;
 		 * probabe reason: Try_Write() failed  -- see below. */
 #ifdef DEBUG
@@ -641,7 +638,7 @@ Conn_Close( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool InformClient )
 	assert( My_Connections[Idx].sock > NONE );
 
 	/* Mark link as "closing" */
-	My_Connections[Idx].options |= CONN_ISCLOSING;
+	Conn_OPTION_ADD( &My_Connections[Idx], CONN_ISCLOSING );
 		
 	if( LogMsg ) txt = LogMsg;
 	else txt = FwdMsg;
@@ -682,7 +679,6 @@ Conn_Close( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool InformClient )
 
 	/* Mark socket as invalid: */
 	FD_CLR( My_Connections[Idx].sock, &My_Sockets );
-	FD_CLR( My_Connections[Idx].sock, &My_Connects );
 	My_Connections[Idx].sock = NONE;
 
 	/* If there is still a client, unregister it now */
@@ -692,8 +688,7 @@ Conn_Close( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool InformClient )
 	in_k = (double)My_Connections[Idx].bytes_in / 1024;
 	out_k = (double)My_Connections[Idx].bytes_out / 1024;
 #ifdef ZLIB
-	if( My_Connections[Idx].options & CONN_ZIP )
-	{
+	if ( Conn_OPTION_ISSET( &My_Connections[Idx], CONN_ZIP )) {
 		in_z_k = (double)My_Connections[Idx].zip.bytes_in / 1024;
 		out_z_k = (double)My_Connections[Idx].zip.bytes_out / 1024;
 		in_p = (int)(( in_k * 100 ) / in_z_k );
@@ -721,8 +716,7 @@ Conn_Close( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool InformClient )
 
 #ifdef ZLIB
 	/* Clean up zlib, if link was compressed */
-	if( Conn_Options( Idx ) & CONN_ZIP )
-	{
+	if ( Conn_OPTION_ISSET( &My_Connections[Idx], CONN_ZIP )) {
 		inflateEnd( &My_Connections[Idx].zip.in );
 		deflateEnd( &My_Connections[Idx].zip.out );
 	}
@@ -858,12 +852,10 @@ Handle_Write( CONN_ID Idx )
 	assert( Idx > NONE );
 	assert( My_Connections[Idx].sock > NONE );
 
-	if( FD_ISSET( My_Connections[Idx].sock, &My_Connects ))
-	{
-		/* es soll nichts geschrieben werden, sondern ein
-		 * connect() hat ein Ergebnis geliefert */
+	if ( Conn_OPTION_ISSET( &My_Connections[Idx], CONN_ISCONNECTING )) {
+		/* connect() has finished, check result */
 
-		FD_CLR( My_Connections[Idx].sock, &My_Connects );
+		Conn_OPTION_DEL( &My_Connections[Idx], CONN_ISCONNECTING );
 
 		/* Ergebnis des connect() ermitteln */
 		sock_len = sizeof( err );
@@ -1135,8 +1127,7 @@ Read_Request( CONN_ID Idx )
 	}
 
 #ifdef ZLIB
-	if( My_Connections[Idx].options & CONN_ZIP )
-	{
+	if ( Conn_OPTION_ISSET( &My_Connections[Idx], CONN_ZIP )) {
 		len = recv( My_Connections[Idx].sock, My_Connections[Idx].zip.rbuf + My_Connections[Idx].zip.rdatalen, ( ZREADBUFFER_LEN - My_Connections[Idx].zip.rdatalen ), 0 );
 		if( len > 0 ) My_Connections[Idx].zip.rdatalen += len;
 	}
@@ -1201,10 +1192,8 @@ Handle_Buffer( CONN_ID Idx )
 		
 #ifdef ZLIB
 		/* ggf. noch unkomprimiete Daten weiter entpacken */
-		if( My_Connections[Idx].options & CONN_ZIP )
-		{
+		if ( Conn_OPTION_ISSET( &My_Connections[Idx], CONN_ZIP ))
 			if( ! Unzip_Buffer( Idx )) return false;
-		}
 #endif
 
 		if( My_Connections[Idx].rdatalen < 1 ) break;
@@ -1506,7 +1495,8 @@ New_Server( int Server, CONN_ID Idx )
 
 	/* Register new socket */
 	FD_SET( new_sock, &My_Sockets );
-	FD_SET( new_sock, &My_Connects );
+	Conn_OPTION_ADD( &My_Connections[Idx], CONN_ISCONNECTING );
+
 	if( new_sock > Conn_MaxFD ) Conn_MaxFD = new_sock;
 
 #ifdef DEBUG

@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn-func.c,v 1.4 2005/03/19 18:43:48 fw Exp $";
+static char UNUSED id[] = "$Id: conn-func.c,v 1.5 2005/04/25 18:37:16 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -147,31 +147,6 @@ Conn_Next( CONN_ID Idx )
 	}
 	return NONE;
 } /* Conn_Next */
-
-
-GLOBAL void
-Conn_SetOption( CONN_ID Idx, int Option )
-{
-	/* Option fuer Verbindung setzen.
-	 * Initial sind alle Optionen _nicht_ gesetzt. */
-
-	assert( Idx > NONE );
-	assert( Option != 0 );
-
-	My_Connections[Idx].options |= Option;
-} /* Conn_SetOption */
-
-
-GLOBAL void
-Conn_UnsetOption( CONN_ID Idx, int Option )
-{
-	/* Option fuer Verbindung loeschen */
-
-	assert( Idx > NONE );
-	assert( Option != 0 );
-
-	My_Connections[Idx].options &= ~Option;
-} /* Conn_UnsetOption */
 
 
 GLOBAL int

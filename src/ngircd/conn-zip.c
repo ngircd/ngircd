@@ -19,7 +19,7 @@
 
 #ifdef ZLIB
 
-static char UNUSED id[] = "$Id: conn-zip.c,v 1.6 2005/03/19 18:43:48 fw Exp $";
+static char UNUSED id[] = "$Id: conn-zip.c,v 1.7 2005/04/25 18:37:16 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -72,7 +72,7 @@ Zip_InitConn( CONN_ID Idx )
 	My_Connections[Idx].zip.bytes_out = My_Connections[Idx].bytes_out;
 
 	Log( LOG_INFO, "Enabled link compression (zlib) on connection %d.", Idx );
-	Conn_SetOption( Idx, CONN_ZIP );
+	Conn_OPTION_ADD( &My_Connections[Idx], CONN_ZIP );
 
 	return true;
 } /* Zip_InitConn */

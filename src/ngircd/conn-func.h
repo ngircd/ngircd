@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conn-func.h,v 1.3 2005/04/18 21:08:31 fw Exp $
+ * $Id: conn-func.h,v 1.4 2005/04/25 18:37:16 fw Exp $
  *
  * Connection management: Global functions (header)
  */
@@ -47,8 +47,6 @@ GLOBAL void Conn_SetFlag PARAMS(( CONN_ID Idx, int Flag ));
 GLOBAL CONN_ID Conn_First PARAMS(( void ));
 GLOBAL CONN_ID Conn_Next PARAMS(( CONN_ID Idx ));
 
-GLOBAL void Conn_SetOption PARAMS(( CONN_ID Idx, int Option ));
-GLOBAL void Conn_UnsetOption PARAMS(( CONN_ID Idx, int Option ));
 GLOBAL int Conn_Options PARAMS(( CONN_ID Idx ));
 
 GLOBAL void Conn_ResetWCounter PARAMS(( void ));

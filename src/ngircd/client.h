@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: client.h,v 1.35 2005/03/19 18:43:48 fw Exp $
+ * $Id: client.h,v 1.36 2005/04/27 07:36:25 alex Exp $
  *
  * Client management (header)
  */
@@ -32,8 +32,6 @@
 
 
 #if defined(__client_c__) | defined(S_SPLINT_S)
-
-#include "defines.h"
 
 typedef struct _CLIENT
 {

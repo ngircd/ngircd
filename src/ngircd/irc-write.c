@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2005 by Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-write.c,v 1.17 2005/03/19 18:43:49 fw Exp $";
+static char UNUSED id[] = "$Id: irc-write.c,v 1.18 2005/04/27 07:39:18 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -26,10 +26,10 @@ static char UNUSED id[] = "$Id: irc-write.c,v 1.17 2005/03/19 18:43:49 fw Exp $"
 #include <stdio.h>
 #include <string.h>
 
+#include "defines.h"
 #include "conn-func.h"
 #include "client.h"
 #include "channel.h"
-#include "defines.h"
 
 #include "exp.h"
 #include "irc-write.h"

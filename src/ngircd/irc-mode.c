@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-mode.c,v 1.41 2005/04/27 07:38:00 alex Exp $";
+static char UNUSED id[] = "$Id: irc-mode.c,v 1.42 2005/05/14 20:29:34 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -166,7 +166,7 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 				if( Client_Type( Client ) == CLIENT_SERVER )
 				{
 					x[0] = 'a';
-					Client_SetAway( Client, DEFAULT_AWAY_MSG );
+					Client_SetAway( Origin, DEFAULT_AWAY_MSG );
 				}
 				else ok = IRC_WriteStrClient( Origin, ERR_NOPRIVILEGES_MSG, Client_ID( Origin ));
 				break;

@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2005 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,12 +14,13 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-info.c,v 1.28 2005/03/19 18:43:48 fw Exp $";
+static char UNUSED id[] = "$Id: irc-info.c,v 1.29 2005/05/16 12:25:15 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
 #include <errno.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <strings.h>
 
@@ -722,18 +723,109 @@ IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 } /* IRC_WHOIS */
 
 
+/**
+ * IRC "WHOWAS" function.
+ * This function implements the IRC command "WHOWHAS". It handles local
+ * requests and request that should be forwarded to other servers.
+ */
 GLOBAL bool
 IRC_WHOWAS( CLIENT *Client, REQUEST *Req )
 {
+	CLIENT *target, *prefix;
+	WHOWAS *whowas;
+	int max, last, count, i;
+	char t_str[60];
+	
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	/* Falsche Anzahl Parameter? */
-	if(( Req->argc < 1 ) || ( Req->argc > 3 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	/* Wrong number of parameters? */
+	if(( Req->argc < 1 ) || ( Req->argc > 3 ))
+		return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG,
+					   Client_ID( Client ), Req->command );
 
-	/* ... */
+	/* Search taget */
+	if( Req->argc == 3 )
+		target = Client_Search( Req->argv[2] );
+	else
+		target = Client_ThisServer( );
 
-	return CONNECTED;
+	/* Get prefix */
+	if( Client_Type( Client ) == CLIENT_SERVER )
+		prefix = Client_Search( Req->prefix );
+	else
+		prefix = Client;
+
+	if( ! prefix )
+		return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG,
+					   Client_ID( Client ), Req->prefix );
+
+	/* Forward to other server? */
+	if( target != Client_ThisServer( ))
+	{
+		if(( ! target ) || ( Client_Type( target ) != CLIENT_SERVER ))
+			return IRC_WriteStrClient( prefix, ERR_NOSUCHSERVER_MSG,
+						   Client_ID( prefix ),
+						   Req->argv[2] );
+
+		/* Forward */
+		IRC_WriteStrClientPrefix( target, prefix, "WHOWAS %s %s %s",
+					  Req->argv[0], Req->argv[1],
+					  Req->argv[2] );
+		return CONNECTED;
+	}
+	
+	whowas = Client_GetWhowas( );
+	last = Client_GetLastWhowasIndex( );
+	if( last < 0 ) last = 0;
+	
+	if( Req->argc > 1 )
+	{
+		max = atoi( Req->argv[1] );
+		if( max < 1 ) max = MAX_WHOWAS;
+	}
+	else
+		max = DEFAULT_WHOWAS;
+	
+	i = last;
+	count = 0;
+	do
+	{
+		/* Used entry? */
+		if( whowas[i].time > 0 &&
+		    strcasecmp( Req->argv[0], whowas[i].id ) == 0 )
+		{
+			(void)strftime( t_str, sizeof(t_str),
+					"%a %b %d %H:%M:%S %Y",
+					localtime( &whowas[i].time ));
+		
+			if( ! IRC_WriteStrClient( prefix, RPL_WHOWASUSER_MSG,
+						  Client_ID( prefix ),
+						  whowas[i].id,
+						  whowas[i].user,
+						  whowas[i].host, 
+						  whowas[i].info ))
+				return DISCONNECTED;
+		
+			if( ! IRC_WriteStrClient( prefix, RPL_WHOISSERVER_MSG,
+						  Client_ID( prefix ),
+						  whowas[i].id,
+						  whowas[i].server, t_str ))
+				return DISCONNECTED;
+		
+			count++;
+			if( count >= max ) break;
+		}
+		
+		/* previos entry */
+		i--;
+
+		/* "underflow", wrap around */
+		if( i < 0 ) i = MAX_WHOWAS - 1;
+	} while( i != last );
+	
+	return IRC_WriteStrClient( prefix, RPL_ENDOFWHOWAS_MSG,
+				   Client_ID( prefix ), Req->argv[0] );
 } /* IRC_WHOWAS */
 
 

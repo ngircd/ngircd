@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2005 by Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: client.c,v 1.79 2005/04/27 07:46:50 alex Exp $";
+static char UNUSED id[] = "$Id: client.c,v 1.80 2005/05/16 12:23:48 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -53,6 +53,9 @@ static char UNUSED id[] = "$Id: client.c,v 1.79 2005/04/27 07:46:50 alex Exp $";
 LOCAL CLIENT *This_Server, *My_Clients;
 LOCAL char GetID_Buffer[GETID_LEN];
 
+LOCAL WHOWAS My_Whowas[MAX_WHOWAS];
+LOCAL int Last_Whowas = -1;
+
 
 LOCAL long Count PARAMS(( CLIENT_TYPE Type ));
 LOCAL long MyCount PARAMS(( CLIENT_TYPE Type ));
@@ -60,6 +63,7 @@ LOCAL long MyCount PARAMS(( CLIENT_TYPE Type ));
 LOCAL CLIENT *New_Client_Struct PARAMS(( void ));
 LOCAL void Generate_MyToken PARAMS(( CLIENT *Client ));
 LOCAL void Adjust_Counters PARAMS(( CLIENT *Client ));
+LOCAL void Register_Whowas PARAMS(( CLIENT *Client ));
 
 #ifndef Client_DestroyNow
 GLOBAL void Client_DestroyNow PARAMS((CLIENT *Client ));
@@ -98,6 +102,8 @@ Client_Init( void )
 	Client_SetInfo( This_Server, Conf_ServerInfo );
 
 	My_Clients = This_Server;
+	
+	memset( &My_Whowas, 0, sizeof( My_Whowas ));
 } /* Client_Init */
 
 
@@ -258,7 +264,12 @@ Client_Destroy( CLIENT *Client, char *LogMsg, char *FwdMsg, bool SendQuit )
 						else IRC_WriteStrServersPrefix( Client_NextHop( c ), c, "QUIT :" );
 					}
 				}
+
+				/* Unregister client from channels */
 				Channel_Quit( c, FwdMsg ? FwdMsg : c->id );
+				
+				/* Register client in My_Whowas structure */
+				Register_Whowas( c );
 			}
 			else if( c->type == CLIENT_SERVER )
 			{
@@ -988,6 +999,25 @@ Client_IsValidNick( char *Nick )
 } /* Client_IsValidNick */
 
 
+/**
+ * Return pointer to "My_Whowas" structure.
+ */
+GLOBAL WHOWAS *
+Client_GetWhowas( void )
+{
+	return My_Whowas;
+} /* Client_GetWhowas */
+
+/**
+ * Return the index of the last used WHOWAS entry.
+ */
+GLOBAL int
+Client_GetLastWhowasIndex( void )
+{
+	return Last_Whowas;
+} /* Client_GetLastWhowasIndex */
+
+
 LOCAL long
 Count( CLIENT_TYPE Type )
 {
@@ -1091,6 +1121,39 @@ Adjust_Counters( CLIENT *Client )
 	count = Client_UserCount( );
 	if( count > Max_Users ) Max_Users = count;
 } /* Adjust_Counters */
+
+
+/**
+ * Register client in My_Whowas structure for further recall by WHOWAS.
+ */
+LOCAL void
+Register_Whowas( CLIENT *Client )
+{
+	int slot;
+	
+	assert( Client != NULL );
+
+	slot = Last_Whowas + 1;
+	if( slot >= MAX_WHOWAS || slot < 0 ) slot = 0;
+
+#ifdef DEBUG
+	Log( LOG_DEBUG, "Saving WHOWAS information to slot %d ...", slot );
+#endif
+	
+	My_Whowas[slot].time = time( NULL );
+	strlcpy( My_Whowas[slot].id, Client_ID( Client ),
+		 sizeof( My_Whowas[slot].id ));
+	strlcpy( My_Whowas[slot].user, Client_User( Client ),
+		 sizeof( My_Whowas[slot].user ));
+	strlcpy( My_Whowas[slot].host, Client_Hostname( Client ),
+		 sizeof( My_Whowas[slot].host ));
+	strlcpy( My_Whowas[slot].info, Client_Info( Client ),
+		 sizeof( My_Whowas[slot].info ));
+	strlcpy( My_Whowas[slot].server, Client_ID( Client_Introducer( Client )),
+		 sizeof( My_Whowas[slot].server ));
+	
+	Last_Whowas = slot;
+} /* Register_Whowas */
 
 
 /* -eof- */

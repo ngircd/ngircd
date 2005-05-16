@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: defines.h,v 1.51 2005/03/19 18:43:48 fw Exp $
+ * $Id: defines.h,v 1.52 2005/05/16 12:22:32 alex Exp $
  *
  * Global defines of ngIRCd.
  */
@@ -34,6 +34,9 @@
 #define MAX_DEFCHANNELS 16		/* max. count of preconfigurable channels */
 
 #define MAX_SERVICES 8			/* max. number of configurable services */
+
+#define MAX_WHOWAS 64			/* max. number of WHOWAS items */
+#define DEFAULT_WHOWAS 5		/* default count for WHOWAS command */
 
 #define CONNECTION_POOL 100		/* size of default connection pool */
 

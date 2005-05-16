@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: client.h,v 1.36 2005/04/27 07:36:25 alex Exp $
+ * $Id: client.h,v 1.37 2005/05/16 12:24:31 alex Exp $
  *
  * Client management (header)
  */
@@ -58,6 +58,17 @@ typedef struct _CLIENT
 typedef POINTER CLIENT;
 
 #endif
+
+
+typedef struct _WHOWAS
+{
+	time_t time;			/* time stamp of entry or 0 if unused */
+	char id[CLIENT_NICK_LEN];	/* client nick name */
+	char host[CLIENT_HOST_LEN];	/* hostname of the client */
+	char user[CLIENT_USER_LEN];	/* user name ("login") */
+	char info[CLIENT_INFO_LEN];	/* long user name */
+	char server[CLIENT_HOST_LEN];	/* server name */
+} WHOWAS;
 
 
 GLOBAL void Client_Init PARAMS(( void ));
@@ -135,6 +146,9 @@ GLOBAL long Client_MaxUserCount PARAMS((  void ));
 GLOBAL long Client_MyMaxUserCount PARAMS((  void ));
 
 GLOBAL bool Client_IsValidNick PARAMS(( char *Nick ));
+
+GLOBAL WHOWAS *Client_GetWhowas PARAMS(( void ));
+GLOBAL int Client_GetLastWhowasIndex PARAMS(( void ));
 
 
 #endif

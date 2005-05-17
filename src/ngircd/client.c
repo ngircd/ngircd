@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: client.c,v 1.80 2005/05/16 12:23:48 alex Exp $";
+static char UNUSED id[] = "$Id: client.c,v 1.81 2005/05/17 23:18:54 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -63,7 +63,6 @@ LOCAL long MyCount PARAMS(( CLIENT_TYPE Type ));
 LOCAL CLIENT *New_Client_Struct PARAMS(( void ));
 LOCAL void Generate_MyToken PARAMS(( CLIENT *Client ));
 LOCAL void Adjust_Counters PARAMS(( CLIENT *Client ));
-LOCAL void Register_Whowas PARAMS(( CLIENT *Client ));
 
 #ifndef Client_DestroyNow
 GLOBAL void Client_DestroyNow PARAMS((CLIENT *Client ));
@@ -269,7 +268,7 @@ Client_Destroy( CLIENT *Client, char *LogMsg, char *FwdMsg, bool SendQuit )
 				Channel_Quit( c, FwdMsg ? FwdMsg : c->id );
 				
 				/* Register client in My_Whowas structure */
-				Register_Whowas( c );
+				Client_RegisterWhowas( c );
 			}
 			else if( c->type == CLIENT_SERVER )
 			{
@@ -1126,8 +1125,8 @@ Adjust_Counters( CLIENT *Client )
 /**
  * Register client in My_Whowas structure for further recall by WHOWAS.
  */
-LOCAL void
-Register_Whowas( CLIENT *Client )
+GLOBAL void
+Client_RegisterWhowas( CLIENT *Client )
 {
 	int slot;
 	
@@ -1153,7 +1152,7 @@ Register_Whowas( CLIENT *Client )
 		 sizeof( My_Whowas[slot].server ));
 	
 	Last_Whowas = slot;
-} /* Register_Whowas */
+} /* Client_RegisterWhowas */
 
 
 /* -eof- */

@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: client.h,v 1.37 2005/05/16 12:24:31 alex Exp $
+ * $Id: client.h,v 1.38 2005/05/17 23:18:54 alex Exp $
  *
  * Client management (header)
  */
@@ -149,6 +149,8 @@ GLOBAL bool Client_IsValidNick PARAMS(( char *Nick ));
 
 GLOBAL WHOWAS *Client_GetWhowas PARAMS(( void ));
 GLOBAL int Client_GetLastWhowasIndex PARAMS(( void ));
+
+GLOBAL void Client_RegisterWhowas PARAMS(( CLIENT *Client ));
 
 
 #endif

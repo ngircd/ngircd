@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-login.c,v 1.42 2005/03/21 22:22:09 alex Exp $";
+static char UNUSED id[] = "$Id: irc-login.c,v 1.43 2005/05/17 23:24:43 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -143,6 +143,12 @@ IRC_PASS( CLIENT *Client, REQUEST *Req )
 } /* IRC_PASS */
 
 
+/**
+ * IRC "NICK" command.
+ * This function implements the IRC command "NICK" which is used to register
+ * with the server, to change already registered nicknames and to introduce
+ * new users which are connected to other servers.
+ */
 GLOBAL bool
 IRC_NICK( CLIENT *Client, REQUEST *Req )
 {
@@ -152,79 +158,123 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	/* Zumindest BitchX sendet NICK-USER in der falschen Reihenfolge. */
 #ifndef STRICT_RFC
-	if( Client_Type( Client ) == CLIENT_UNKNOWN || Client_Type( Client ) == CLIENT_GOTPASS || Client_Type( Client ) == CLIENT_GOTNICK || Client_Type( Client ) == CLIENT_GOTUSER || Client_Type( Client ) == CLIENT_USER || ( Client_Type( Client ) == CLIENT_SERVER && Req->argc == 1 ))
+	/* Some IRC clients, for example BitchX, send the NICK and USER
+	 * commands in the wrong order ... */
+	if( Client_Type( Client ) == CLIENT_UNKNOWN
+	    || Client_Type( Client ) == CLIENT_GOTPASS
+	    || Client_Type( Client ) == CLIENT_GOTNICK
+	    || Client_Type( Client ) == CLIENT_GOTUSER
+	    || Client_Type( Client ) == CLIENT_USER
+	    || ( Client_Type( Client ) == CLIENT_SERVER && Req->argc == 1 ))
 #else
-	if( Client_Type( Client ) == CLIENT_UNKNOWN || Client_Type( Client ) == CLIENT_GOTPASS || Client_Type( Client ) == CLIENT_GOTNICK || Client_Type( Client ) == CLIENT_USER || ( Client_Type( Client ) == CLIENT_SERVER && Req->argc == 1 ))
+	if( Client_Type( Client ) == CLIENT_UNKNOWN
+	    || Client_Type( Client ) == CLIENT_GOTPASS
+	    || Client_Type( Client ) == CLIENT_GOTNICK
+	    || Client_Type( Client ) == CLIENT_USER
+	    || ( Client_Type( Client ) == CLIENT_SERVER && Req->argc == 1 ))
 #endif
 	{
-		/* User-Registrierung bzw. Nick-Aenderung */
+		/* User registration or change of nickname */
 
-		/* Falsche Anzahl Parameter? */
-		if( Req->argc != 1 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+		/* Wrong number of arguments? */
+		if( Req->argc != 1 )
+			return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG,
+						   Client_ID( Client ),
+						   Req->command );
 
-		/* "Ziel-Client" ermitteln */
+		/* Search "target" client */
 		if( Client_Type( Client ) == CLIENT_SERVER )
 		{
 			target = Client_Search( Req->prefix );
-			if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->argv[0] );
+			if( ! target )
+				return IRC_WriteStrClient( Client,
+							   ERR_NOSUCHNICK_MSG,
+							   Client_ID( Client ),
+							   Req->argv[0] );
 		}
 		else
 		{
-			/* Ist der Client "restricted"? */
-			if( Client_HasMode( Client, 'r' )) return IRC_WriteStrClient( Client, ERR_RESTRICTED_MSG, Client_ID( Client ));
+			/* Is this a restricted client? */
+			if( Client_HasMode( Client, 'r' ))
+				return IRC_WriteStrClient( Client,
+							   ERR_RESTRICTED_MSG,
+							   Client_ID( Client ));
+
 			target = Client;
 		}
 
 #ifndef STRICT_RFC
-		/* Wenn der Client zu seinem eigenen Nick wechseln will, so machen
-		 * wir nichts. So macht es das Original und mind. Snak hat probleme,
-		 * wenn wir es nicht so machen. Ob es so okay ist? Hm ... */
-		if( strcmp( Client_ID( target ), Req->argv[0] ) == 0 ) return CONNECTED;
+		/* If the clients tries to change to its own nickname we won't
+		 * do anything. This is how the original ircd behaves and some
+		 * clients (for example Snak) expect it to be like this.
+		 * But I doubt that this is "really the right thing" ... */
+		if( strcmp( Client_ID( target ), Req->argv[0] ) == 0 )
+			return CONNECTED;
 #endif
 
-		/* pruefen, ob Nick bereits vergeben. Speziallfall: der Client
-		 * will nur die Gross- und Kleinschreibung aendern. Das darf
-		 * er natuerlich machen :-) */
+		/* Check that the new nickname is available. Special case:
+		 * the client only changes from/to upper to lower case. */
 		if( strcasecmp( Client_ID( target ), Req->argv[0] ) != 0 )
 		{
-			if( ! Client_CheckNick( target, Req->argv[0] )) return CONNECTED;
+			if( ! Client_CheckNick( target, Req->argv[0] ))
+				return CONNECTED;
 		}
 
-		if(( Client_Type( target ) != CLIENT_USER ) && ( Client_Type( target ) != CLIENT_SERVER ))
+		if(( Client_Type( target ) != CLIENT_USER )
+		   && ( Client_Type( target ) != CLIENT_SERVER ))
 		{
-			/* Neuer Client */
-			Log( LOG_DEBUG, "Connection %d: got valid NICK command ...", Client_Conn( Client ));
+			/* New client */
+			Log( LOG_DEBUG, "Connection %d: got valid NICK command ...", 
+			     Client_Conn( Client ));
 
-			/* Client-Nick registrieren */
+			/* Register new nickname of this client */
 			Client_SetID( target, Req->argv[0] );
 
-			/* schon ein USER da? Dann registrieren! */
-			if( Client_Type( Client ) == CLIENT_GOTUSER ) return Hello_User( Client );
-			else Client_SetType( Client, CLIENT_GOTNICK );
+			/* If we received a valid USER command already then
+			 * register the new client! */
+			if( Client_Type( Client ) == CLIENT_GOTUSER )
+				return Hello_User( Client );
+			else
+				Client_SetType( Client, CLIENT_GOTNICK );
 		}
 		else
 		{
-			/* Nick-Aenderung */
+			/* Nickname change */
 			if( Client_Conn( target ) > NONE )
 			{
-				/* lokaler Client */
-				Log( LOG_INFO, "User \"%s\" changed nick (connection %d): \"%s\" -> \"%s\".", Client_Mask( target ), Client_Conn( target ), Client_ID( target ), Req->argv[0] );
+				/* Local client */
+				Log( LOG_INFO,
+				     "User \"%s\" changed nick (connection %d): \"%s\" -> \"%s\".",
+				     Client_Mask( target ), Client_Conn( target ),
+				     Client_ID( target ), Req->argv[0] );
 			}
 			else
 			{
-				/* Remote-Client */
-				Log( LOG_DEBUG, "User \"%s\" changed nick: \"%s\" -> \"%s\".", Client_Mask( target ), Client_ID( target ), Req->argv[0] );
+				/* Remote client */
+				Log( LOG_DEBUG,
+				     "User \"%s\" changed nick: \"%s\" -> \"%s\".",
+				     Client_Mask( target ), Client_ID( target ),
+				     Req->argv[0] );
 			}
 
-			/* alle betroffenen User und Server ueber Nick-Aenderung informieren */
-			if( Client_Type( Client ) == CLIENT_USER ) IRC_WriteStrClientPrefix( Client, Client, "NICK :%s", Req->argv[0] );
-			IRC_WriteStrServersPrefix( Client, target, "NICK :%s", Req->argv[0] );
-			IRC_WriteStrRelatedPrefix( target, target, false, "NICK :%s", Req->argv[0] );
+			/* Inform all users and servers (which have to know)
+			 * of this nickname change */
+			if( Client_Type( Client ) == CLIENT_USER )
+				IRC_WriteStrClientPrefix( Client, Client,
+							  "NICK :%s",
+							  Req->argv[0] );
+			IRC_WriteStrServersPrefix( Client, target,
+						   "NICK :%s", Req->argv[0] );
+			IRC_WriteStrRelatedPrefix( target, target, false,
+						   "NICK :%s", Req->argv[0] );
 			
-			/* neuen Client-Nick speichern */
+			/* Register old nickname for WHOWAS queries */
+			Client_RegisterWhowas( target );
+				
+			/* Save new nickname */
 			Client_SetID( target, Req->argv[0] );
+			
 			IRC_SetPenalty( target, 2 );
 		}
 
@@ -232,7 +282,7 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 	}
 	else if( Client_Type( Client ) == CLIENT_SERVER )
 	{
-		/* Server fuehrt neuen Client ein */
+		/* Server introduces new client */
 
 		/* Falsche Anzahl Parameter? */
 		if( Req->argc != 7 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );

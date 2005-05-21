@@ -8,7 +8,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: configure.in,v 1.109 2005/04/16 07:26:44 fw Exp $
+# $Id: configure.in,v 1.110 2005/05/21 21:34:47 alex Exp $
 #
 
 # -- Initialisation --
@@ -348,7 +348,7 @@ fi
 # -- Result --
 
 echo
-echo "ngIRCd has been configured with the following options:"
+echo "ngIRCd $PACKAGE_VERSION has been configured with the following options:"
 echo
 
 # Someone please show me a better way :)  [borrowed by OpenSSH]

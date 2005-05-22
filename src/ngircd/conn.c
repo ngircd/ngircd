@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.149 2005/04/23 14:28:44 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.150 2005/05/22 23:55:58 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -671,10 +671,8 @@ Conn_Close( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool InformClient )
 	/* Shut down socket */
 	if( close( My_Connections[Idx].sock ) != 0 )
 	{
-		/* Oops, we can't close the socket!? This is fatal! */
-		Log( LOG_EMERG, "Error closing connection %d (socket %d) with %s:%d - %s!", Idx, My_Connections[Idx].sock, My_Connections[Idx].host, ntohs( My_Connections[Idx].addr.sin_port), strerror( errno ));
-		Log( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE_NAME );
-		exit( 1 );
+		/* Oops, we can't close the socket!? This is ... ugly! */
+		Log( LOG_CRIT, "Error closing connection %d (socket %d) with %s:%d - %s! (ignored)", Idx, My_Connections[Idx].sock, My_Connections[Idx].host, ntohs( My_Connections[Idx].addr.sin_port), strerror( errno ));
 	}
 
 	/* Mark socket as invalid: */

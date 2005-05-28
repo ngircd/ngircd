@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: resolve.c,v 1.11 2005/03/19 18:43:49 fw Exp $";
+static char UNUSED id[] = "$Id: resolve.c,v 1.12 2005/05/28 10:46:50 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -169,7 +169,7 @@ Do_ResolveAddr( struct sockaddr_in *Addr, int w_fd )
 
 	char hostname[HOST_LEN];
 	struct hostent *h;
-	int len;
+	size_t len;
 #ifdef IDENTAUTH
 	char *res;
 #endif
@@ -206,9 +206,12 @@ Do_ResolveAddr( struct sockaddr_in *Addr, int w_fd )
 	Log_Resolver( LOG_DEBUG, "Ok, IDENT lookup on socket %d done: \"%s\"", Sock, res ? res : "" );
 
 	/* Write IDENT result into pipe to parent */
-	len = strlen( res ? res : "" );
-	if( res != NULL ) res[len] = '\n';
-	len++;
+	if (res) {
+		len = strlen(res);
+		res[len] = '\n';
+		len++;
+	} else len = 1;
+
 	if( (size_t)write( w_fd, res ? res : "\n", len ) != (size_t)len )
 	{
 		Log_Resolver( LOG_CRIT, "Resolver: Can't write to parent (IDENT): %s!", strerror( errno ));

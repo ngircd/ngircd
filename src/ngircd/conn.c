@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.150 2005/05/22 23:55:58 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.151 2005/06/01 21:28:50 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -104,6 +104,23 @@ LOCAL fd_set My_Sockets;
 int allow_severity = LOG_INFO;
 int deny_severity = LOG_ERR;
 #endif
+
+LOCAL void
+FreeRes_stat( CONNECTION *c )
+{
+	assert( c != NULL );
+	assert( c->res_stat != NULL );
+
+	if (!c->res_stat) return;
+
+	FD_CLR( c->res_stat->pipe[0], &Resolver_FDs );
+
+	close( c->res_stat->pipe[0] );
+	close( c->res_stat->pipe[1] );
+
+	free( c->res_stat );
+	c->res_stat = NULL;
+}
 
 
 GLOBAL void
@@ -421,7 +438,7 @@ Conn_Handler( void )
 		for( i = 0; i < Pool_Size; i++ )
 		{
 			if ( My_Connections[i].sock > NONE ) {
-				if ( My_Connections[i].host[0] == '\0' ) {
+				if ( My_Connections[i].res_stat ) {
 					/* wait for completion of Resolver Sub-Process */
 					FD_CLR( My_Connections[i].sock, &read_sockets );
 					continue;
@@ -701,13 +718,7 @@ Conn_Close( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool InformClient )
 
 	/* Is there a resolver sub-process running? */
 	if( My_Connections[Idx].res_stat )
-	{
-		/* Free resolver structures */
-		FD_CLR( My_Connections[Idx].res_stat->pipe[0], &Resolver_FDs );
-		close( My_Connections[Idx].res_stat->pipe[0] );
-		close( My_Connections[Idx].res_stat->pipe[1] );
-		free( My_Connections[Idx].res_stat );
-	}
+		FreeRes_stat( &My_Connections[Idx] );
 
 	/* Servers: Modify time of next connect attempt? */
 	Conf_UnsetServer( Idx );
@@ -896,7 +907,7 @@ Handle_Write( CONN_ID Idx )
 	assert( My_Connections[Idx].wdatalen > 0 );
 
 	/* Daten schreiben */
-	len = send( My_Connections[Idx].sock, My_Connections[Idx].wbuf, My_Connections[Idx].wdatalen, 0 );
+	len = write( My_Connections[Idx].sock, My_Connections[Idx].wbuf, My_Connections[Idx].wdatalen );
 	if( len < 0 )
 	{
 		/* Operation haette Socket "nur" blockiert ... */
@@ -1055,11 +1066,8 @@ New_Connection( int Sock )
 #else
 	s = Resolve_Addr( &new_addr );
 #endif
-	if( s )
-	{
-		/* Sub-Prozess wurde asyncron gestartet */
-		My_Connections[idx].res_stat = s;
-	}
+	/* resolver process has been started */
+	if( s ) My_Connections[idx].res_stat = s;
 
 	/* Penalty-Zeit setzen */
 	Conn_SetPenalty( idx, 4 );
@@ -1395,11 +1403,9 @@ Check_Servers( void )
 		strlcpy( Conf_Server[i].ip, Conf_Server[i].host, sizeof( Conf_Server[i].ip ));
 		strlcpy( My_Connections[idx].host, Conf_Server[i].host, sizeof( My_Connections[idx].host ));
 		s = Resolve_Name( Conf_Server[i].host );
-		if( s )
-		{
-			/* Sub-Prozess wurde asyncron gestartet */
-			My_Connections[idx].res_stat = s;
-		}
+
+		/* resolver process running? */
+		if( s ) My_Connections[idx].res_stat = s;
 	}
 } /* Check_Servers */
 
@@ -1599,8 +1605,8 @@ Read_Resolver_Result( int r_fd )
 	if( len < 0 )
 	{
 		/* Error! */
-		close( r_fd );
 		Log( LOG_CRIT, "Resolver: Can't read result: %s!", strerror( errno ));
+		FreeRes_stat( &My_Connections[i] );
 		return;
 	}
 	s->bufpos += len;
@@ -1621,38 +1627,34 @@ try_resolve:
 
 	/* Okay, we got a complete result: this is a host name for outgoing
 	 * connections and a host name or IDENT user name (if enabled) for
-	 * incoming conneciions.*/
+	 * incoming connections.*/
 	if( My_Connections[i].sock > NONE )
 	{
-		/* Incoming connection */
-
-		/* Search client ... */
+		/* Incoming connection. Search client ... */
 		c = Client_GetFromConn( i );
 		assert( c != NULL );
 
 		/* Only update client information of unregistered clients */
 		if( Client_Type( c ) == CLIENT_UNKNOWN )
 		{
-			if( s->stage == 0 )
-			{
-				/* host name */
+			switch(s->stage) {
+				case 0: /* host name */
 				strlcpy( My_Connections[i].host, s->buffer, sizeof( My_Connections[i].host ));
 				Client_SetHostname( c, s->buffer );
-
 #ifdef IDENTAUTH
 				/* clean up buffer for IDENT result */
 				len = strlen( s->buffer ) + 1;
+				assert(len <= sizeof( s->buffer ));
 				memmove( s->buffer, s->buffer + len, sizeof( s->buffer ) - len );
+				assert(len <= s->bufpos );
 				s->bufpos -= len;
 
 				/* Don't close pipe and clean up, but
 				 * instead wait for IDENT result */
 				s->stage = 1;
 				goto try_resolve;
-			}
-			else if( s->stage == 1 )
-			{
-				/* IDENT user name */
+
+				case 1: /* IDENT user name */
 				if( s->buffer[0] )
 				{
 					Log( LOG_INFO, "IDENT lookup for connection %ld: \"%s\".", i, s->buffer );
@@ -1660,8 +1662,10 @@ try_resolve:
 				}
 				else Log( LOG_INFO, "IDENT lookup for connection %ld: no result.", i );
 #endif
+				break;
+				default:
+				Log( LOG_ERR, "Resolver: got result for unknown stage %d!?", s->stage );
 			}
-			else Log( LOG_ERR, "Resolver: got result for unknown stage %d!?", s->stage );
 		}
 #ifdef DEBUG
 		else Log( LOG_DEBUG, "Resolver: discarding result for already registered connection %d.", i );
@@ -1680,11 +1684,7 @@ try_resolve:
 	}
 
 	/* Clean up ... */
-	FD_CLR( r_fd, &Resolver_FDs );
-	close( My_Connections[i].res_stat->pipe[0] );
-	close( My_Connections[i].res_stat->pipe[1] );
-	free( My_Connections[i].res_stat );
-	My_Connections[i].res_stat = NULL;
+	FreeRes_stat( &My_Connections[i] );
 
 	/* Reset penalty time */
 	Conn_ResetPenalty( i );
@@ -1701,8 +1701,8 @@ Simple_Message( int Sock, char *Msg )
 	assert( Sock > NONE );
 	assert( Msg != NULL );
 
-	(void)send( Sock, Msg, strlen( Msg ), 0 );
-	(void)send( Sock, "\r\n", 2, 0 );
+	(void)write( Sock, Msg, strlen( Msg ) );
+	(void)write( Sock, "\r\n", 2 );
 } /* Simple_Error */
 
 

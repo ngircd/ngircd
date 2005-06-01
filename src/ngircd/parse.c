@@ -7,14 +7,17 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
- *
- * IRC command parser and validator
  */
 
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: parse.c,v 1.61 2005/03/19 18:43:49 fw Exp $";
+static char UNUSED id[] = "$Id: parse.c,v 1.62 2005/06/01 21:52:18 alex Exp $";
+
+/**
+ * @file
+ * IRC command parser and validator.
+ */
 
 #include "imp.h"
 #include <assert.h>
@@ -109,6 +112,12 @@ LOCAL bool Validate_Args PARAMS(( CONN_ID Idx, REQUEST *Req, bool *Closed ));
 LOCAL bool Handle_Request PARAMS(( CONN_ID Idx, REQUEST *Req ));
 
 
+/**
+ * Return the pointer to the global "IRC command structure".
+ * This structure, an array of type "COMMAND" describes all the IRC commands
+ * implemented by ngIRCd and how to handle them.
+ * @return Pointer to the global command structure.
+ */
 GLOBAL COMMAND *
 Parse_GetCommandStruct( void )
 {
@@ -116,13 +125,27 @@ Parse_GetCommandStruct( void )
 } /* Parse_GetCommandStruct */
 
 
+/**
+ * Parse a command ("request") received from a client.
+ * 
+ * This function is called after the connection layer received a valid CR+LF
+ * terminated line of text: we asume that this is a valid IRC command and
+ * try to do something useful with it :-)
+ *
+ * All errors are reported to the client from which the command has been
+ * received, and if the error is fatal this connection is closed down.
+ *
+ * This function is able to parse the syntax as described in RFC 2812,
+ * section 2.3.
+ *
+ * @param Idx Index of the connection from which the command has been received.
+ * @param Request NULL terminated line of text (the "command").
+ * @return true on success (valid command or "regular" error), false if a
+ * 	fatal error occured and the connection has been shut down.
+ */
 GLOBAL bool
 Parse_Request( CONN_ID Idx, char *Request )
 {
-	/* Client-Request parsen. Bei einem schwerwiegenden Fehler wird
-	 * die Verbindung geschlossen und false geliefert.
-	 * Der Aufbau gueltiger Requests ist in RFC 2812, 2.3 definiert. */
-
 	REQUEST req;
 	char *start, *ptr;
 	bool closed;
@@ -220,6 +243,10 @@ Parse_Request( CONN_ID Idx, char *Request )
 } /* Parse_Request */
 
 
+/**
+ * Initialize request structure.
+ * @param Req Request structure to be initialized.
+ */
 LOCAL void
 Init_Request( REQUEST *Req )
 {

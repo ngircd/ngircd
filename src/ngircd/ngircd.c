@@ -7,14 +7,18 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
- *
- * Main program -- main()
  */
 
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.95 2005/03/19 18:43:49 fw Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.96 2005/06/01 21:52:18 alex Exp $";
+
+/**
+ * @file
+ * The main program, including the C function main() which is called
+ * by the loader of the operating system.
+ */
 
 #include "imp.h"
 #include <assert.h>
@@ -66,6 +70,14 @@ LOCAL void Fill_Version PARAMS(( void ));
 LOCAL void Setup_FDStreams PARAMS(( void ));
 
 
+/**
+ * The main() function of ngIRCd.
+ * Here all starts: this function is called by the operating system loader,
+ * it is the first portion of code executed of ngIRCd.
+ * @param argc The number of arguments passed to ngIRCd on the command line.
+ * @param argv An array containing all the arguments passed to ngIRCd.
+ * @return Global exit code of ngIRCd, zero on success.
+ */
 GLOBAL int
 main( int argc, const char *argv[] )
 {
@@ -391,6 +403,12 @@ main( int argc, const char *argv[] )
 } /* main */
 
 
+/**
+ * Generate ngIRCd "version string".
+ * This string is generated once and then stored in NGIRCd_Version for
+ * further usage, for example by the IRC command VERSION and the --version
+ * command line switch.
+ */
 LOCAL void
 Fill_Version( void )
 {
@@ -447,6 +465,9 @@ Fill_Version( void )
 } /* Fill_Version */
 
 
+/**
+ * Reload the server configuration file.
+ */
 GLOBAL void
 NGIRCd_Rehash( void )
 {
@@ -484,6 +505,9 @@ NGIRCd_Rehash( void )
 } /* NGIRCd_Rehash */
 
 
+/**
+ * Initialize the signal handler.
+ */
 LOCAL void
 Initialize_Signal_Handler( void )
 {
@@ -531,13 +555,15 @@ Initialize_Signal_Handler( void )
 } /* Initialize_Signal_Handler */
 
 
+/**
+ * Signal handler of ngIRCd.
+ * This function is called whenever ngIRCd catches a signal sent by the
+ * user and/or the system to it. For example SIGTERM and SIGHUP.
+ * @param Signal Number of the signal to handle.
+ */
 LOCAL void
 Signal_Handler( int Signal )
 {
-	/* Signal-Handler. Dieser wird aufgerufen, wenn eines der Signale eintrifft,
-	 * fuer das wir uns registriert haben (vgl. Initialize_Signal_Handler). Die
-	 * Nummer des eingetroffenen Signals wird der Funktion uebergeben. */
-
 	switch( Signal )
 	{
 		case SIGTERM:
@@ -563,6 +589,9 @@ Signal_Handler( int Signal )
 } /* Signal_Handler */
 
 
+/**
+ * Display copyright and version information of ngIRCd on the console.
+ */
 LOCAL void
 Show_Version( void )
 {
@@ -574,6 +603,11 @@ Show_Version( void )
 } /* Show_Version */
 
 
+/**
+ * Display a short help text on the console.
+ * This help depends on the configuration of the executable and only shows
+ * options that are actually enabled.
+ */
 LOCAL void
 Show_Help( void )
 {
@@ -592,6 +626,9 @@ Show_Help( void )
 } /* Show_Help */
 
 
+/**
+ * Delete the file containing the process ID (PID).
+ */
 LOCAL void
 Pidfile_Delete( void )
 {
@@ -607,6 +644,10 @@ Pidfile_Delete( void )
 } /* Pidfile_Delete */
 
 
+/**
+ * Create the file containing the process ID of ngIRCd ("PID file").
+ * @param pid The process ID to be stored in this file.
+ */
 LOCAL void
 Pidfile_Create( long pid )
 {
@@ -635,6 +676,9 @@ Pidfile_Create( long pid )
 } /* Pidfile_Create */
 
 
+/**
+ * Redirect stdin, stdout and stderr to apropriate file handles.
+ */
 LOCAL void
 Setup_FDStreams( void )
 {

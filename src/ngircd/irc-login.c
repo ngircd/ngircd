@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-login.c,v 1.43 2005/05/17 23:24:43 alex Exp $";
+static char UNUSED id[] = "$Id: irc-login.c,v 1.44 2005/06/04 12:32:09 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -382,17 +382,21 @@ GLOBAL bool
 IRC_QUIT( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *target;
+	char quitmsg[LINE_LEN];
 	
 	assert( Client != NULL );
 	assert( Req != NULL );
+		
+	/* Wrong number of arguments? */
+	if( Req->argc > 1 )
+		return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+
+	if (Req->argc == 1)
+		strlcpy(quitmsg, Req->argv[0], sizeof quitmsg);
 
 	if ( Client_Type( Client ) == CLIENT_SERVER )
 	{
 		/* Server */
-
-		/* Falsche Anzahl Parameter? */
-		if( Req->argc > 1 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
-
 		target = Client_Search( Req->prefix );
 		if( ! target )
 		{
@@ -401,20 +405,21 @@ IRC_QUIT( CLIENT *Client, REQUEST *Req )
 			return CONNECTED;
 		}
 
-		if( Req->argc == 0 ) Client_Destroy( target, "Got QUIT command.", NULL, true);
-		else Client_Destroy( target, "Got QUIT command.", Req->argv[0], true);
+		Client_Destroy( target, "Got QUIT command.", Req->argc == 1 ? quitmsg : NULL, true);
 
 		return CONNECTED;
 	}
 	else
 	{
-		/* User, Service, oder noch nicht registriert */
-		
-		/* Falsche Anzahl Parameter? */
-		if( Req->argc > 1 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+		if (Req->argc == 1 && quitmsg[0] != '\"') {
+			/* " " to avoid confusion */
+			strlcpy(quitmsg, "\"", sizeof quitmsg);
+			strlcat(quitmsg, Req->argv[0], sizeof quitmsg-1);
+			strlcat(quitmsg, "\"", sizeof quitmsg );
+		}
 
-		if( Req->argc == 0 ) Conn_Close( Client_Conn( Client ), "Got QUIT command.", NULL, true);
-		else Conn_Close( Client_Conn( Client ), "Got QUIT command.", Req->argv[0], true);
+		/* User, Service, oder noch nicht registriert */
+		Conn_Close( Client_Conn( Client ), "Got QUIT command.", Req->argc == 1 ? quitmsg : NULL, true);
 		
 		return DISCONNECTED;
 	}

@@ -11,6 +11,7 @@
 
 
 ngIRCd CVSHEAD
+  - Make Netsplit Messages RFC compliant.
   - Fix handling of QUIT Messages: send only one message, even if client
     is member of multiple channels.
   - Don't exit server if closing of a socket fails; instead ignore it and
@@ -603,4 +604,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.272 2005/06/04 11:53:24 fw Exp $
+$Id: ChangeLog,v 1.273 2005/06/04 12:32:09 fw Exp $

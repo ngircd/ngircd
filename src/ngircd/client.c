@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: client.c,v 1.81 2005/05/17 23:18:54 alex Exp $";
+static char UNUSED id[] = "$Id: client.c,v 1.82 2005/06/04 12:32:09 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -214,7 +214,11 @@ Client_Destroy( CLIENT *Client, char *LogMsg, char *FwdMsg, bool SendQuit )
 	if( ! txt ) txt = "Reason unknown.";
 
 	/* Netz-Split-Nachricht vorbereiten (noch nicht optimal) */
-	if( Client->type == CLIENT_SERVER ) snprintf( msg, sizeof( msg ), "%s: lost server %s", This_Server->id, Client->id );
+	if( Client->type == CLIENT_SERVER ) {
+		strlcpy(msg, This_Server->id, sizeof (msg));
+		strlcat(msg, " ", sizeof (msg));
+		strlcat(msg, Client->id, sizeof (msg));
+	}
 
 	last = NULL;
 	c = My_Clients;

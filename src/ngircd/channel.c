@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: channel.c,v 1.47 2005/04/27 07:34:25 alex Exp $";
+static char UNUSED id[] = "$Id: channel.c,v 1.48 2005/06/04 11:53:25 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -247,6 +247,8 @@ Channel_Quit( CLIENT *Client, char *Reason )
 
 	assert( Client != NULL );
 	assert( Reason != NULL );
+
+	IRC_WriteStrRelatedPrefix( Client, Client, false, "QUIT :%s", Reason );
 
 	c = My_Channels;
 	while( c )
@@ -807,7 +809,6 @@ Remove_Client( int Type, CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, char *Re
 			/* QUIT: andere Server wurden bereits informiert, vgl. Client_Destroy();
 			 * hier also "nur" noch alle User in betroffenen Channeln infomieren */
 			assert( InformServer == false );
-			IRC_WriteStrChannelPrefix( Origin, c, Origin, false, "QUIT :%s", Reason );
 			Log( LOG_DEBUG, "User \"%s\" left channel \"%s\" (%s).", Client_Mask( Client ), c->name, Reason );
 			break;
 		case REMOVE_KICK:

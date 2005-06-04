@@ -1,15 +1,15 @@
 .\"
-.\" $Id: ngircd.8,v 1.9 2004/04/05 10:59:10 alex Exp $
+.\" $Id: ngircd.8,v 1.10 2005/06/04 13:39:20 alex Exp $
 .\"
-.TH ngircd 8 "March 2003" ngircd "ngIRCd Manual"
+.TH ngircd 8 "Juni 2005" ngircd "ngIRCd Manual"
 .SH NAME
-ngircd \- the next generation IRC daemon
+ngIRCd \- the next generation IRC daemon
 .SH SYNOPSIS
 .B ngircd [
 .I Options
 .B ]
 .SH DESCRIPTION
-.BR ngircd
+.BR ngIRCd
 is a free open source daemon for the Internet Relay Chat (IRC),
 developed under the GNU General Public License (GPL).
 .PP
@@ -18,16 +18,12 @@ many others. It is easy to configure, supports server links (even with
 original ircd's) and runs on hosts with changing IP addresses (such as
 dial-in networks).
 .PP
-Currently supported platforms (tested versions) are: AIX (3.2.5 with IBM XL
-C Compiler), A/UX (3.x, Apple pre-ANSI C Compiler and GNU C), FreeBSD
-(4.5/i386, GNU C), HP-UX (10.20, GNU C), IRIX (6.5, SGI MIPSpro C 7.30),
-Linux (2.2.x/i386, 2.4.x/i386 and 2.4.x/hppa, GNU C), Mac OS X (10.x, GNU C),
-NetBSD (1.5.2/i386 and 1.5.3/m68k, GNU C), Solaris (2.5.1 and 2.6, GNU C),
-and Windows with Cygwin (GNU C).
+Currently supported platforms include AIX, A/UX, FreeBSD, HP-UX, IRIX,
+Linux, Mac OS X, NetBSD, OpenBSD, Solaris, and Windows with Cygwin.
 .PP
 As ngIRCd relies on UNIX standards and uses GNU automake and GNU autoconf
 there are good chances that it also supports other UNIX-based operating
-systems.
+systems as well.
 .SH OPTIONS
 The default behaviour of
 .BR ngircd
@@ -43,7 +39,8 @@ as configuration file.
 .TP
 \fB\-n\fR, \fB\-\-nodaemon\fR
 Don't fork a child and don't detach from controlling terminal.
-All log messages go to the console.
+All log messages go to the console and you can use CTRL-C to
+terminate the server.
 .TP
 \fB\-p\fR, \fB\-\-passive\fR
 Disable automatic connections to other servers. You can use the IRC command

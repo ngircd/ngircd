@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.151 2005/06/01 21:28:50 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.152 2005/06/04 11:49:20 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -86,7 +86,6 @@ LOCAL bool Handle_Write PARAMS(( CONN_ID Idx ));
 LOCAL void New_Connection PARAMS(( int Sock ));
 LOCAL CONN_ID Socket2Index PARAMS(( int Sock ));
 LOCAL void Read_Request PARAMS(( CONN_ID Idx ));
-LOCAL bool Try_Write PARAMS(( CONN_ID Idx ));
 LOCAL bool Handle_Buffer PARAMS(( CONN_ID Idx ));
 LOCAL void Check_Connections PARAMS(( void ));
 LOCAL void Check_Servers PARAMS(( void ));
@@ -594,7 +593,7 @@ Conn_Write( CONN_ID Idx, char *Data, int Len )
 	{
 		/* Der Puffer ist dummerweise voll. Jetzt versuchen, den Puffer
 		 * zu schreiben, wenn das nicht klappt, haben wir ein Problem ... */
-		if( ! Try_Write( Idx )) return false;
+		if( ! Handle_Write( Idx )) return false;
 
 		/* nun neu pruefen: */
 		if( WRITEBUFFER_LEN - My_Connections[Idx].wdatalen - Len <= 0 )
@@ -645,7 +644,7 @@ Conn_Close( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool InformClient )
 	/* Is this link already shutting down? */
 	if( Conn_OPTION_ISSET( &My_Connections[Idx], CONN_ISCLOSING )) {
 		/* Conn_Close() has been called recursively for this link;
-		 * probabe reason: Try_Write() failed  -- see below. */
+		 * probabe reason: Handle_Write() failed  -- see below. */
 #ifdef DEBUG
 		Log( LOG_DEBUG, "Recursive request to close connection: %d", Idx );
 #endif
@@ -683,7 +682,7 @@ Conn_Close( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool InformClient )
 	}
 
 	/* Try to write out the write buffer */
-	(void)Try_Write( Idx );
+	(void)Handle_Write( Idx );
 
 	/* Shut down socket */
 	if( close( My_Connections[Idx].sock ) != 0 )
@@ -771,49 +770,6 @@ Conn_SyncServerStruct( void )
 } /* SyncServerStruct */
 
 
-LOCAL bool
-Try_Write( CONN_ID Idx )
-{
-	/* Versuchen, Daten aus dem Schreib-Puffer in den Socket zu
-	 * schreiben. true wird geliefert, wenn entweder keine Daten
-	 * zum Versenden vorhanden sind oder erfolgreich bearbeitet
-	 * werden konnten. Im Fehlerfall wird false geliefert und
-	 * die Verbindung geschlossen. */
-
-	fd_set write_socket;
-	struct timeval tv;
-
-	assert( Idx > NONE );
-	assert( My_Connections[Idx].sock > NONE );
-
-	/* sind ueberhaupt Daten vorhanden? */
-#ifdef ZLIB
-	if(( ! My_Connections[Idx].wdatalen > 0 ) && ( ! My_Connections[Idx].zip.wdatalen )) return true;
-#else
-	if( ! My_Connections[Idx].wdatalen > 0 ) return true; 
-#endif
-
-	/* Timeout initialisieren: 0 Sekunden, also nicht blockieren */
-	tv.tv_sec = 0; tv.tv_usec = 0;
-
-	FD_ZERO( &write_socket );
-	FD_SET( My_Connections[Idx].sock, &write_socket );
-	if( select( My_Connections[Idx].sock + 1, NULL, &write_socket, NULL, &tv ) == -1 )
-	{
-		/* Fehler! */
-		if( errno != EINTR )
-		{
-			Log( LOG_ALERT, "Try_Write(): select() failed: %s (con=%d, sock=%d)!", strerror( errno ), Idx, My_Connections[Idx].sock );
-			Conn_Close( Idx, "Server error!", NULL, false );
-			return false;
-		}
-	}
-
-	if( FD_ISSET( My_Connections[Idx].sock, &write_socket )) return Handle_Write( Idx );
-	else return true;
-} /* Try_Write */
-
-
 LOCAL void
 Handle_Read( int Sock )
 {
@@ -899,27 +855,28 @@ Handle_Write( CONN_ID Idx )
 	}
 
 #ifdef ZLIB
-	/* Schreibpuffer leer, aber noch Daten im Kompressionsbuffer?
-	 * Dann muss dieser nun geflushed werden! */
+	if(( My_Connections[Idx].wdatalen <= 0 ) && ( ! My_Connections[Idx].zip.wdatalen ))
+		return true;
+
+	/* write buffer empty, but not compression buf? -> flush compression buf. */
 	if( My_Connections[Idx].wdatalen == 0 ) Zip_Flush( Idx );
+#else
+	if( My_Connections[Idx].wdatalen <= 0 )
+		return true;
 #endif
 
-	assert( My_Connections[Idx].wdatalen > 0 );
-
-	/* Daten schreiben */
 	len = write( My_Connections[Idx].sock, My_Connections[Idx].wbuf, My_Connections[Idx].wdatalen );
-	if( len < 0 )
-	{
-		/* Operation haette Socket "nur" blockiert ... */
-		if( errno == EAGAIN ) return true;
+	if( len < 0 ) {
+		if( errno == EAGAIN || errno == EINTR)
+			return true;
 
-		/* Oops, ein Fehler! */
-		Log( LOG_ERR, "Write error on connection %d (socket %d): %s!", Idx, My_Connections[Idx].sock, strerror( errno ));
+		Log( LOG_ERR, "Write error on connection %d (socket %d): %s!", Idx,
+					My_Connections[Idx].sock, strerror( errno ));
 		Conn_Close( Idx, "Write error!", NULL, false );
 		return false;
 	}
 
-	/* Puffer anpassen */
+	/* Update buffer len and move any data not yet written to beginning of buf */
 	My_Connections[Idx].wdatalen -= len;
 	memmove( My_Connections[Idx].wbuf, My_Connections[Idx].wbuf + len, My_Connections[Idx].wdatalen );
 

@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: client.h,v 1.38 2005/05/17 23:18:54 alex Exp $
+ * $Id: client.h,v 1.39 2005/06/12 16:18:49 alex Exp $
  *
  * Client management (header)
  */
@@ -35,6 +35,7 @@
 
 typedef struct _CLIENT
 {
+	time_t starttime;		/* Start time of link */
 	char id[CLIENT_ID_LEN];		/* nick (user) / ID (server) */
 	UINT32 hash;			/* hash of lower-case ID */
 	POINTER *next;			/* pointer to next client structure */
@@ -111,6 +112,7 @@ GLOBAL int Client_MyToken PARAMS(( CLIENT *Client ));
 GLOBAL CLIENT *Client_TopServer PARAMS(( CLIENT *Client ));
 GLOBAL CLIENT *Client_NextHop PARAMS(( CLIENT *Client ));
 GLOBAL char *Client_Away PARAMS(( CLIENT *Client ));
+GLOBAL time_t Client_StartTime PARAMS(( CLIENT *Client ));
 
 GLOBAL bool Client_HasMode PARAMS(( CLIENT *Client, char Mode ));
 

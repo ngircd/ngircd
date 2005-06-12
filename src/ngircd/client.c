@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: client.c,v 1.82 2005/06/04 12:32:09 fw Exp $";
+static char UNUSED id[] = "$Id: client.c,v 1.83 2005/06/12 16:18:49 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -172,6 +172,7 @@ Client_New( CONN_ID Idx, CLIENT *Introducer, CLIENT *TopServer, int Type, char *
 	if( ! client ) return NULL;
 
 	/* Initialisieren */
+	client->starttime = time(NULL);
 	client->conn_id = Idx;
 	client->introducer = Introducer;
 	client->topserver = TopServer;
@@ -1019,6 +1020,19 @@ Client_GetLastWhowasIndex( void )
 {
 	return Last_Whowas;
 } /* Client_GetLastWhowasIndex */
+
+
+/**
+ * Get the start time of this client.
+ * The result is the start time in seconds since 1970-01-01, as reported
+ * by the C function time(NULL).
+ */
+GLOBAL time_t
+Client_StartTime(CLIENT *Client)
+{
+	assert( Client != NULL );
+	return Client->starttime;
+} /* Client_Uptime */
 
 
 LOCAL long

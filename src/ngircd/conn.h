@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conn.h,v 1.34 2005/04/18 21:08:31 fw Exp $
+ * $Id: conn.h,v 1.35 2005/06/12 16:28:55 alex Exp $
  *
  * Connection management (header)
  */
@@ -61,7 +61,6 @@ typedef struct _Connection
 	int rdatalen;			/* Length of data in read buffer */
 	char wbuf[WRITEBUFFER_LEN];	/* Write buffer */
 	int wdatalen;			/* Length of data in write buffer */
-	time_t starttime;		/* Start time of link */
 	time_t lastdata;		/* Last activity */
 	time_t lastping;		/* Last PING */
 	time_t lastprivmsg;		/* Last PRIVMSG */

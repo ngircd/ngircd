@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.152 2005/06/04 11:49:20 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.153 2005/06/12 16:28:55 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -1474,7 +1474,6 @@ Init_Conn_Struct( CONN_ID Idx )
 
 	memset( &My_Connections[Idx], 0, sizeof ( CONNECTION ));
 	My_Connections[Idx].sock = NONE;
-	My_Connections[Idx].starttime = now;
 	My_Connections[Idx].lastdata = now;
 	My_Connections[Idx].lastprivmsg = now;
 } /* Init_Conn_Struct */

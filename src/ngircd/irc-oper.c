@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-oper.c,v 1.20 2005/03/19 18:43:48 fw Exp $";
+static char UNUSED id[] = "$Id: irc-oper.c,v 1.21 2005/06/12 17:18:27 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -37,6 +37,15 @@ static char UNUSED id[] = "$Id: irc-oper.c,v 1.20 2005/03/19 18:43:48 fw Exp $";
 #include "irc-oper.h"
 
 
+static bool
+bad_operpass(CLIENT *Client, char *errtoken, char *errmsg)
+{
+ Log( LOG_WARNING, "Got invalid OPER from \"%s\": \"%s\" -- %s", Client_Mask( Client ), errtoken, errmsg);
+ IRC_SetPenalty(Client, 3);
+ return IRC_WriteStrClient( Client, ERR_PASSWDMISMATCH_MSG, Client_ID( Client ));
+}
+
+
 GLOBAL bool
 IRC_OPER( CLIENT *Client, REQUEST *Req )
 {
@@ -54,24 +63,15 @@ IRC_OPER( CLIENT *Client, REQUEST *Req )
 		if( Conf_Oper[i].name[0] && Conf_Oper[i].pwd[0] && ( strcmp( Conf_Oper[i].name, Req->argv[0] ) == 0 )) break;
 	}
 	if( i >= Conf_Oper_Count )
-	{
-		Log( LOG_WARNING, "Got invalid OPER from \"%s\": Name \"%s\" not configured!", Client_Mask( Client ), Req->argv[0] );
-		return IRC_WriteStrClient( Client, ERR_PASSWDMISMATCH_MSG, Client_ID( Client ));
-	}
+		return bad_operpass(Client, Req->argv[0], "not configured");
 
 	/* Stimmt das Passwort? */
 	if( strcmp( Conf_Oper[i].pwd, Req->argv[1] ) != 0 )
-	{
-		Log( LOG_WARNING, "Got invalid OPER from \"%s\": Bad password for \"%s\"!", Client_Mask( Client ), Conf_Oper[i].name );
-		return IRC_WriteStrClient( Client, ERR_PASSWDMISMATCH_MSG, Client_ID( Client ));
-	}
+		return bad_operpass(Client, Conf_Oper[i].name, "Bad password");
 
 	/* Authorized Mask? */
-	if( Conf_Oper[i].mask && (! Match( Conf_Oper[i].mask, Client_Mask( Client ) ))) {
-		Log( LOG_WARNING, "Rejected valid OPER for \"%s\": Mask mismatch (got: \"%s\", want: \"%s\")!", Conf_Oper[i].name, Client_Mask( Client ), Conf_Oper[i].mask );
-		return IRC_WriteStrClient( Client, ERR_PASSWDMISMATCH_MSG, Client_ID( Client ));
-	}
-
+	if( Conf_Oper[i].mask && (! Match( Conf_Oper[i].mask, Client_Mask( Client ) )))
+		return bad_operpass(Client, Conf_Oper[i].mask, "hostmask check failed" );
 
 	if( ! Client_HasMode( Client, 'o' ))
 	{

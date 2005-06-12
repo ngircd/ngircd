@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: client.c,v 1.83 2005/06/12 16:18:49 alex Exp $";
+static char UNUSED id[] = "$Id: client.c,v 1.84 2005/06/12 16:39:42 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -1142,6 +1142,9 @@ Adjust_Counters( CLIENT *Client )
 
 /**
  * Register client in My_Whowas structure for further recall by WHOWAS.
+ * Note: Only clients that have been connected at least 30 seconds will be
+ * registered to prevent automated IRC bots to "destroy" a nice server
+ * history database.
  */
 GLOBAL void
 Client_RegisterWhowas( CLIENT *Client )
@@ -1149,6 +1152,10 @@ Client_RegisterWhowas( CLIENT *Client )
 	int slot;
 	
 	assert( Client != NULL );
+
+	/* Don't register clients that were connected less than 30 seconds. */
+	if( time(NULL) - Client->starttime < 30 )
+		return;
 
 	slot = Last_Whowas + 1;
 	if( slot >= MAX_WHOWAS || slot < 0 ) slot = 0;

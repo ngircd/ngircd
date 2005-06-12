@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-oper.c,v 1.21 2005/06/12 17:18:27 fw Exp $";
+static char UNUSED id[] = "$Id: irc-oper.c,v 1.22 2005/06/12 18:02:09 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -37,12 +37,13 @@ static char UNUSED id[] = "$Id: irc-oper.c,v 1.21 2005/06/12 17:18:27 fw Exp $";
 #include "irc-oper.h"
 
 
-static bool
-bad_operpass(CLIENT *Client, char *errtoken, char *errmsg)
+LOCAL bool
+Bad_OperPass(CLIENT *Client, char *errtoken, char *errmsg)
 {
- Log( LOG_WARNING, "Got invalid OPER from \"%s\": \"%s\" -- %s", Client_Mask( Client ), errtoken, errmsg);
- IRC_SetPenalty(Client, 3);
- return IRC_WriteStrClient( Client, ERR_PASSWDMISMATCH_MSG, Client_ID( Client ));
+	Log( LOG_WARNING, "Got invalid OPER from \"%s\": \"%s\" -- %s", Client_Mask( Client ),
+										errtoken, errmsg);
+	IRC_SetPenalty(Client, 3);
+	return IRC_WriteStrClient( Client, ERR_PASSWDMISMATCH_MSG, Client_ID( Client ));
 }
 
 
@@ -63,15 +64,15 @@ IRC_OPER( CLIENT *Client, REQUEST *Req )
 		if( Conf_Oper[i].name[0] && Conf_Oper[i].pwd[0] && ( strcmp( Conf_Oper[i].name, Req->argv[0] ) == 0 )) break;
 	}
 	if( i >= Conf_Oper_Count )
-		return bad_operpass(Client, Req->argv[0], "not configured");
+		return Bad_OperPass(Client, Req->argv[0], "not configured");
 
 	/* Stimmt das Passwort? */
 	if( strcmp( Conf_Oper[i].pwd, Req->argv[1] ) != 0 )
-		return bad_operpass(Client, Conf_Oper[i].name, "Bad password");
+		return Bad_OperPass(Client, Conf_Oper[i].name, "Bad password");
 
 	/* Authorized Mask? */
 	if( Conf_Oper[i].mask && (! Match( Conf_Oper[i].mask, Client_Mask( Client ) )))
-		return bad_operpass(Client, Conf_Oper[i].mask, "hostmask check failed" );
+		return Bad_OperPass(Client, Conf_Oper[i].mask, "hostmask check failed" );
 
 	if( ! Client_HasMode( Client, 'o' ))
 	{

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-channel.c,v 1.29 2005/03/19 18:43:48 fw Exp $";
+static char UNUSED id[] = "$Id: irc-channel.c,v 1.30 2005/06/12 18:23:59 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -313,6 +313,11 @@ IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 } /* IRC_TOPIC */
 
 
+/**
+ * Handler for the IRC "LIST" command.
+ * This implementation handles the local case as well as the forwarding of the
+ * LIST command to other servers in the IRC network.
+ */
 GLOBAL bool
 IRC_LIST( CLIENT *Client, REQUEST *Req )
 {
@@ -323,27 +328,40 @@ IRC_LIST( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	/* Falsche Anzahl Parameter? */
-	if( Req->argc > 2 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	/* Bad number of prameters? */
+	if( Req->argc > 2 )
+		return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG,
+			Client_ID( Client ), Req->command );
 
-	if( Req->argc > 0 ) pattern = strtok( Req->argv[0], "," );
-	else pattern = "*";
+	if( Req->argc > 0 )
+		pattern = strtok( Req->argv[0], "," );
+	else
+		pattern = "*";
 
-	/* From aus Prefix ermitteln */
-	if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_Search( Req->prefix );
-	else from = Client;
-	if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->prefix );
+	/* Get sender from prefix, if any */
+	if( Client_Type( Client ) == CLIENT_SERVER )
+		from = Client_Search( Req->prefix );
+	else
+		from = Client;
+
+	if( ! from )
+		return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG,
+				Client_ID( Client ), Req->prefix );
 
 	if( Req->argc == 2 )
 	{
-		/* an anderen Server forwarden */
+		/* Forward to other server? */
 		target = Client_Search( Req->argv[1] );
-		if(( ! target ) || ( Client_Type( target ) != CLIENT_SERVER )) return IRC_WriteStrClient( from, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->argv[1] );
+		if(( ! target ) || ( Client_Type( target ) != CLIENT_SERVER ))
+			return IRC_WriteStrClient( from, ERR_NOSUCHSERVER_MSG,
+					Client_ID( Client ), Req->argv[1] );
 
 		if( target != Client_ThisServer( ))
 		{
-			/* Ok, anderer Server ist das Ziel: forwarden */
-			return IRC_WriteStrClientPrefix( target, from, "LIST %s :%s", from, Req->argv[1] );
+			/* Target is indeed an other server, forward it! */
+			return IRC_WriteStrClientPrefix( target, from,
+					"LIST %s :%s", Client_ID( from ),
+					Req->argv[1] );
 		}
 	}
 	
@@ -360,18 +378,25 @@ IRC_LIST( CLIENT *Client, REQUEST *Req )
 				if( ! strchr( Channel_Modes( chan ), 's' ) ||
 				    Channel_IsMemberOf( chan, from ))
 				{
-					if( ! IRC_WriteStrClient( from, RPL_LIST_MSG, from, Channel_Name( chan ), Channel_MemberCount( chan ), Channel_Topic( chan ))) return DISCONNECTED;
+					if( ! IRC_WriteStrClient( from,
+					    RPL_LIST_MSG, Client_ID( from ),
+					    Channel_Name( chan ),
+					    Channel_MemberCount( chan ),
+					    Channel_Topic( chan )))
+						return DISCONNECTED;
 				}
 			}
 			chan = Channel_Next( chan );
 		}
 		
-		/* naechsten Namen ermitteln */
-		if( Req->argc > 0 ) pattern = strtok( NULL, "," );
-		else pattern = NULL;
+		/* Get next name ... */
+		if( Req->argc > 0 )
+			pattern = strtok( NULL, "," );
+		else
+			pattern = NULL;
 	}
 	
-	return IRC_WriteStrClient( from, RPL_LISTEND_MSG, from );
+	return IRC_WriteStrClient( from, RPL_LISTEND_MSG, Client_ID( from ));
 } /* IRC_LIST */
 
 

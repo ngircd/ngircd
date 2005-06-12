@@ -16,13 +16,14 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn-func.c,v 1.5 2005/04/25 18:37:16 fw Exp $";
+static char UNUSED id[] = "$Id: conn-func.c,v 1.6 2005/06/12 16:32:17 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
 #include <log.h>
 
 #include "conn.h"
+#include "client.h"
 
 #include "exp.h"
 #include "conn-func.h"
@@ -157,14 +158,25 @@ Conn_Options( CONN_ID Idx )
 } /* Conn_Options */
 
 
+/**
+ * Get the start time of the connection.
+ * The result is the start time in seconds since 1970-01-01, as reported
+ * by the C function time(NULL).
+ */
 GLOBAL time_t
 Conn_StartTime( CONN_ID Idx )
 {
-	/* Zeitpunkt des Link-Starts liefern (in Sekunden) */
+	CLIENT *c;
 
-	assert( Idx > NONE );
-	return My_Connections[Idx].starttime;
-} /* Conn_Uptime */
+	assert(Idx > NONE);
+
+	/* Search client structure for this link ... */
+	c = Client_GetFromConn(Idx);
+	if(c != NULL)
+		return Client_StartTime(c);
+
+	return 0;
+} /* Conn_StartTime */
 
 
 GLOBAL int

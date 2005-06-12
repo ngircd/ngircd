@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.153 2005/06/12 16:28:55 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.154 2005/06/12 17:21:46 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -1650,15 +1650,16 @@ try_resolve:
 LOCAL void
 Simple_Message( int Sock, char *Msg )
 {
+	char buf[COMMAND_LEN];
 	/* Write "simple" message to socket, without using compression
 	 * or even the connection write buffers. Used e.g. for error
 	 * messages by New_Connection(). */
-
 	assert( Sock > NONE );
 	assert( Msg != NULL );
 
-	(void)write( Sock, Msg, strlen( Msg ) );
-	(void)write( Sock, "\r\n", 2 );
+	strlcpy( buf, Msg, sizeof buf - 2);
+	strlcat( buf, "\r\n", sizeof buf);
+	(void)write( Sock, buf, strlen( buf ) );
 } /* Simple_Error */
 
 

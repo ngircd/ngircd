@@ -11,6 +11,7 @@
 
 
 ngIRCd CVSHEAD
+  - ngircd startup: never run with root privileges, i.e. always switch uid.
   - Make Netsplit Messages RFC compliant.
   - Fix handling of QUIT Messages: send only one message, even if client
     is member of multiple channels.
@@ -604,4 +605,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.273 2005/06/04 12:32:09 fw Exp $
+$Id: ChangeLog,v 1.274 2005/06/17 19:04:53 fw Exp $

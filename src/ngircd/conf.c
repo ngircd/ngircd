@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.76 2005/04/16 09:23:01 fw Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.77 2005/06/17 19:16:53 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -346,7 +346,7 @@ Set_Defaults( bool InitServers )
 	int i;
 
 	strcpy( Conf_ServerName, "" );
-	sprintf( Conf_ServerInfo, "%s %s", PACKAGE_NAME, PACKAGE_VERSION );
+	snprintf( Conf_ServerInfo, sizeof Conf_ServerInfo, "%s %s", PACKAGE_NAME, PACKAGE_VERSION );
 	strcpy( Conf_ServerPwd, "" );
 
 	strcpy( Conf_ServerAdmin1, "" );

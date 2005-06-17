@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: log.c,v 1.54 2005/04/16 09:31:30 fw Exp $";
+static char UNUSED id[] = "$Id: log.c,v 1.55 2005/06/17 19:16:53 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -76,24 +76,24 @@ Log_Init( void )
 #ifdef DEBUG
 	if( NGIRCd_Debug )
 	{
-		strcpy( Init_Txt, "debug-mode" );
+		strlcpy( Init_Txt, "debug-mode", sizeof Init_Txt );
 	}
 #endif
 	if( NGIRCd_NoDaemon )
 	{
-		if( Init_Txt[0] ) strcat( Init_Txt, ", " );
-		strcat( Init_Txt, "no-daemon-mode" );
+		if( Init_Txt[0] ) strlcat( Init_Txt, ", ", sizeof Init_Txt );
+		strlcat( Init_Txt, "no-daemon-mode", sizeof Init_Txt );
 	}
 	if( NGIRCd_Passive )
 	{
-		if( Init_Txt[0] ) strcat( Init_Txt, ", " );
-		strcat( Init_Txt, "passive-mode" );
+		if( Init_Txt[0] ) strlcat( Init_Txt, ", ", sizeof Init_Txt );
+		strlcat( Init_Txt, "passive-mode", sizeof Init_Txt );
 	}
 #ifdef SNIFFER
 	if( NGIRCd_Sniffer )
 	{
-		if( Init_Txt[0] ) strcat( Init_Txt, ", " );
-		strcat( Init_Txt, "network sniffer" );
+		if( Init_Txt[0] ) strlcat( Init_Txt, ", ", sizeof Init_Txt );
+		strlcat( Init_Txt, "network sniffer", sizeof Init_Txt );
 	}
 #endif
 	if( Init_Txt[0] ) Log( LOG_INFO, "Activating: %s.", Init_Txt );
@@ -113,7 +113,7 @@ Log_InitErrorfile( void )
 	 * landen z.B. alle Ausgaben von assert()-Aufrufen. */
 
 	/* Dateiname zusammen bauen */
-	sprintf( Error_File, "%s/%s-%ld.err", ERROR_DIR, PACKAGE_NAME, (long)getpid( ));
+	snprintf( Error_File, sizeof Error_File, "%s/%s-%ld.err", ERROR_DIR, PACKAGE_NAME, (long)getpid( ));
 
 	/* stderr umlenken */
 	fflush( stderr );

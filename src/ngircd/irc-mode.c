@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-mode.c,v 1.42 2005/05/14 20:29:34 alex Exp $";
+static char UNUSED id[] = "$Id: irc-mode.c,v 1.43 2005/06/17 19:14:58 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -257,7 +257,7 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 		/* The sender is a member: generate extended reply */
 		strlcpy( the_modes, Channel_Modes( Channel ), sizeof( the_modes ));
 		mode_ptr = the_modes;
-		strcpy( the_args, "" );
+		the_args[0] = '\0';
 		while( *mode_ptr )
 		{
 			switch( *mode_ptr )

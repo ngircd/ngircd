@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-info.c,v 1.29 2005/05/16 12:25:15 alex Exp $";
+static char UNUSED id[] = "$Id: irc-info.c,v 1.30 2005/06/17 19:15:43 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -98,7 +98,7 @@ IRC_ISON( CLIENT *Client, REQUEST *Req )
 	/* Falsche Anzahl Parameter? */
 	if(( Req->argc < 1 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
-	strcpy( rpl, RPL_ISON_MSG );
+	strlcpy( rpl, RPL_ISON_MSG, sizeof rpl );
 	for( i = 0; i < Req->argc; i++ )
 	{
 		ptr = strtok( Req->argv[i], " " );
@@ -467,7 +467,7 @@ IRC_USERHOST( CLIENT *Client, REQUEST *Req )
 	if( Req->argc > 5 ) max = 5;
 	else max = Req->argc;
 
-	strcpy( rpl, RPL_USERHOST_MSG );
+	strlcpy( rpl, RPL_USERHOST_MSG, sizeof rpl );
 	for( i = 0; i < max; i++ )
 	{
 		c = Client_Search( Req->argv[i] );

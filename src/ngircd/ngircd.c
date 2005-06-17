@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.97 2005/06/17 18:22:45 fw Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.98 2005/06/17 20:35:45 fw Exp $";
 
 /**
  * @file
@@ -787,9 +787,9 @@ NGIRCd_Init( bool NGIRCd_NoDaemon )
 	}
 
 	/* Change working directory to home directory of the user
-	 * we are running as (when not running chroot()'ed!) */
+	 * we are running as (only when running in daemon mode and not in chroot) */
 	
-	if ( pwd ) {
+	if ( pwd && !NGIRCd_NoDaemon ) {
 		if( chdir( pwd->pw_dir ) == 0 ) 
 			Log( LOG_DEBUG, "Changed working directory to \"%s\" ...", pwd->pw_dir );
 		else 

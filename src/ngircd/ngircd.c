@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.99 2005/06/17 23:13:41 fw Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.100 2005/06/17 23:17:09 fw Exp $";
 
 /**
  * @file
@@ -796,7 +796,7 @@ NGIRCd_Init( bool NGIRCd_NoDaemon )
 			else 
 				Log( LOG_ERR, "Can't change working directory to \"%s\": %s",
 								pwd->pw_dir, strerror( errno ));
-
+		}
 	} else {
 		Log( LOG_ERR, "Can't get user informaton for UID %d!?", Conf_UID );
 	}

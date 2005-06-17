@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.98 2005/06/17 20:35:45 fw Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.99 2005/06/17 23:13:41 fw Exp $";
 
 /**
  * @file
@@ -789,12 +789,14 @@ NGIRCd_Init( bool NGIRCd_NoDaemon )
 	/* Change working directory to home directory of the user
 	 * we are running as (only when running in daemon mode and not in chroot) */
 	
-	if ( pwd && !NGIRCd_NoDaemon ) {
-		if( chdir( pwd->pw_dir ) == 0 ) 
-			Log( LOG_DEBUG, "Changed working directory to \"%s\" ...", pwd->pw_dir );
-		else 
-			Log( LOG_ERR, "Can't change working directory to \"%s\": %s",
-							pwd->pw_dir, strerror( errno ));
+	if ( pwd ) {
+		if (!NGIRCd_NoDaemon ) {
+			if( chdir( pwd->pw_dir ) == 0 ) 
+				Log( LOG_DEBUG, "Changed working directory to \"%s\" ...", pwd->pw_dir );
+			else 
+				Log( LOG_ERR, "Can't change working directory to \"%s\": %s",
+								pwd->pw_dir, strerror( errno ));
+
 	} else {
 		Log( LOG_ERR, "Can't get user informaton for UID %d!?", Conf_UID );
 	}

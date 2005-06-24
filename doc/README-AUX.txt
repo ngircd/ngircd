@@ -1,7 +1,7 @@
 
                     ngIRCd - Next Generation IRC Server
 
-                     (c)2001-2003 by Alexander Barton,
+                      (c)2001-2005 Alexander Barton,
                    alex@barton.de, http://www.barton.de/
 
                ngIRCd is free software and published under the
@@ -22,7 +22,7 @@ The following software packages are needed:
  - GNU sed
    Source:
    http://www.rezepte-im-web.de/appleux/sed-3.02.tar.gz
-   ftp://arthur.ath.cx/pub/AUX/Software/Tools/sed-3.02.tar.gz
+   ftp://arthur.barton.de/pub/UNIX/AUX/Tools/sed-3.02.tar.gz
 
    A/UX comes with /bin/sed which isn't supporting all functions needed
    by GNU automake/autoconf.
@@ -33,8 +33,8 @@ The following software packages are needed:
 
  - libUTIL.a
    Source:
-   http://ftp.mayn.de/pub/apple/apple_unix/Sys_stuff/libUTIL-2.1.tar.gz
-   ftp://arthur.ath.cx/pub/AUX/Software/Libraries/libUTIL-2.1.tar.gz
+   ftp://ftp.mayn.de/pub/really_old_stuff/apple/apple_unix/Sys_stuff/libUTIL-2.1.tar.gz>
+   ftp://arthur.barton.de/pub/UNIX/AUX/Libraries/libUTIL-2.1.tar.gz
 
    This library contains functions that are common on other UNIX
    systems but not on A/UX e.g. memmove(), strerror() und strdup().
@@ -50,7 +50,7 @@ A few hints in case of errors:
    (so 'configure' uses its own shell script) or use a fully functionable one.
    There's at least one binary "out there" causing problems. The one
    of the GNU fileutils works fine:
-   ftp://arthur.ath.cx/pub/UNIX/AUX/Software/Tools/fileutils-4.0.tar.gz
+   ftp://arthur.barton.de/pub/UNIX/AUX/Software/Tools/fileutils-4.0.tar.gz
 
  - The precompiled binary of the old 'bash' shouldn't be installed within
    /bin (better do this in /usr/local/bin) because 'configure' would
@@ -64,4 +64,4 @@ A few hints in case of errors:
    even if you don't use ngIRCd.
 
 -- 
-$Id: README-AUX.txt,v 1.8 2003/04/21 21:59:34 goetz Exp $
+$Id: README-AUX.txt,v 1.9 2005/06/24 20:59:13 alex Exp $

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: log.c,v 1.55 2005/06/17 19:16:53 fw Exp $";
+static char UNUSED id[] = "$Id: log.c,v 1.56 2005/06/24 19:20:56 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -50,9 +50,10 @@ LOCAL char Init_Txt[127];
 LOCAL char Error_File[FNAME_LEN];
 #endif
 
-
+LOCAL Is_Daemon;
 LOCAL void Wall_ServerNotice PARAMS(( char *Msg ));
 
+GLOBAL void Log_SetDaemonized(void) { Is_Daemon = true; }
 
 GLOBAL void
 Log_Init( void )
@@ -79,7 +80,7 @@ Log_Init( void )
 		strlcpy( Init_Txt, "debug-mode", sizeof Init_Txt );
 	}
 #endif
-	if( NGIRCd_NoDaemon )
+	if( ! Is_Daemon )
 	{
 		if( Init_Txt[0] ) strlcat( Init_Txt, ", ", sizeof Init_Txt );
 		strlcat( Init_Txt, "no-daemon-mode", sizeof Init_Txt );
@@ -129,7 +130,9 @@ Log_InitErrorfile( void )
 	fprintf( stderr, "Activating: %s\n\n", Init_Txt[0] ? Init_Txt : "-" );
 	fflush( stderr );
 
+#ifdef DEBUG
 	Log( LOG_DEBUG, "Redirected stderr to \"%s\".", Error_File );
+#endif
 } /* Log_InitErrfile */
 
 #endif
@@ -199,7 +202,7 @@ va_dcl
 	vsnprintf( msg, MAX_LOG_MSG_LEN, Format, ap );
 	va_end( ap );
 
-	if( NGIRCd_NoDaemon )
+	if( ! Is_Daemon )
 	{
 		/* auf Konsole ausgeben */
 		fprintf( stdout, "[%d:%d] %s\n", (int)getpid( ), Level, msg );
@@ -234,14 +237,18 @@ Log_Init_Resolver( void )
 #ifdef SYSLOG
 	openlog( PACKAGE_NAME, LOG_CONS|LOG_PID, LOG_LOCAL5 );
 #endif
+#ifdef DEBUG
 	Log_Resolver( LOG_DEBUG, "Resolver sub-process starting, PID %d.", getpid( ));
+#endif
 } /* Log_Init_Resolver */
 
 
 GLOBAL void
 Log_Exit_Resolver( void )
 {
+#ifdef DEBUG
 	Log_Resolver( LOG_DEBUG, "Resolver sub-process %d done.", getpid( ));
+#endif
 #ifdef SYSLOG
 	closelog( );
 #endif
@@ -281,8 +288,7 @@ va_dcl
 	vsnprintf( msg, MAX_LOG_MSG_LEN, Format, ap );
 	va_end( ap );
 
-	/* Output */
-	if( NGIRCd_NoDaemon )
+	if( ! Is_Daemon )
 	{
 		/* Output to console */
 		fprintf( stdout, "[%d:%d] %s\n", (int)getpid( ), Level, msg );

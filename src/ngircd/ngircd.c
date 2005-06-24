@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.100 2005/06/17 23:17:09 fw Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.101 2005/06/24 19:20:56 fw Exp $";
 
 /**
  * @file
@@ -83,13 +83,14 @@ GLOBAL int
 main( int argc, const char *argv[] )
 {
 	bool ok, configtest = false;
+	bool NGIRCd_NoDaemon = false;
 	int i;
 	size_t n;
 
 	umask( 0077 );
 
 	NGIRCd_SignalQuit = NGIRCd_SignalRestart = NGIRCd_SignalRehash = false;
-	NGIRCd_NoDaemon = NGIRCd_Passive = false;
+	NGIRCd_Passive = false;
 #ifdef DEBUG
 	NGIRCd_Debug = false;
 #endif
@@ -742,6 +743,7 @@ NGIRCd_Init( bool NGIRCd_NoDaemon )
 	 * to disable this "daemon mode" (useful for debugging). */
 	if ( ! NGIRCd_NoDaemon ) {
 		initialized = true;
+		Log_SetDaemonized();
 		pid = (long)fork( );
 		if( pid > 0 ) {
 			/* "Old" process: exit. */

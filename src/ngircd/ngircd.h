@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: ngircd.h,v 1.21 2005/03/19 18:43:49 fw Exp $
+ * $Id: ngircd.h,v 1.22 2005/06/24 19:20:56 fw Exp $
  *
  * Prototypes of the "main module".
  */
@@ -34,8 +34,6 @@ GLOBAL bool NGIRCd_Debug;		/* Debug-Modus aktivieren */
 #ifdef SNIFFER
 GLOBAL bool NGIRCd_Sniffer;		/* Sniffer aktivieren */
 #endif
-
-GLOBAL bool NGIRCd_NoDaemon;		/* nicht im Hintergrund laufen */
 
 GLOBAL bool NGIRCd_Passive;		/* nicht zu anderen Servern connecten */
 

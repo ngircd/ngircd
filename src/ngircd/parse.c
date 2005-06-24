@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: parse.c,v 1.62 2005/06/01 21:52:18 alex Exp $";
+static char UNUSED id[] = "$Id: parse.c,v 1.63 2005/06/24 20:56:46 alex Exp $";
 
 /**
  * @file
@@ -433,11 +433,23 @@ Handle_Request( CONN_ID Idx, REQUEST *Req )
 			return IRC_WriteStrClient( client, ERR_NOTREGISTERED_MSG, Client_ID( client ));
 		}
 	}
+
+	if( Client_Type( client ) != CLIENT_USER &&
+	    Client_Type( client ) != CLIENT_SERVER &&
+	    Client_Type( client ) != CLIENT_SERVICE )
+		return true;
 	
-	/* Unbekannter Befehl */
-	Log( LOG_DEBUG, "Connection %d: Unknown command \"%s\", %d %s,%s prefix.", Client_Conn( client ), Req->command, Req->argc, Req->argc == 1 ? "parameter" : "parameters", Req->prefix ? "" : " no" );
-	if( Client_Type( client ) != CLIENT_SERVER ) return IRC_WriteStrClient( client, ERR_UNKNOWNCOMMAND_MSG, Client_ID( client ), Req->command );
-	else return true;
+	/* Unknown command and registered connection: generate error: */
+	Log( LOG_DEBUG, "Connection %d: Unknown command \"%s\", %d %s,%s prefix.",
+			Client_Conn( client ), Req->command, Req->argc,
+			Req->argc == 1 ? "parameter" : "parameters",
+			Req->prefix ? "" : " no" );
+
+	if( Client_Type( client ) != CLIENT_SERVER )
+		return IRC_WriteStrClient( client, ERR_UNKNOWNCOMMAND_MSG,
+				Client_ID( client ), Req->command );
+
+	return true;
 } /* Handle_Request */
 
 

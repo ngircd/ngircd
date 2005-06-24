@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: log.c,v 1.56 2005/06/24 19:20:56 fw Exp $";
+static char UNUSED id[] = "$Id: log.c,v 1.57 2005/06/24 19:55:10 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -45,19 +45,21 @@ static char UNUSED id[] = "$Id: log.c,v 1.56 2005/06/24 19:20:56 fw Exp $";
 
 
 LOCAL char Init_Txt[127];
+LOCAL bool Is_Daemon;
 
 #ifdef DEBUG
 LOCAL char Error_File[FNAME_LEN];
 #endif
 
-LOCAL Is_Daemon;
+
 LOCAL void Wall_ServerNotice PARAMS(( char *Msg ));
 
-GLOBAL void Log_SetDaemonized(void) { Is_Daemon = true; }
 
 GLOBAL void
-Log_Init( void )
+Log_Init( bool Daemon_Mode )
 {
+	Is_Daemon = Daemon_Mode;
+	
 #ifdef SYSLOG
 #ifndef LOG_CONS	/* Kludge: mips-dec-ultrix4.5 has no LOG_CONS/LOG_LOCAL5 */
 #define LOG_CONS 0

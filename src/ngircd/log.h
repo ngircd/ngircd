@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: log.h,v 1.17 2005/06/24 19:20:56 fw Exp $
+ * $Id: log.h,v 1.18 2005/06/24 19:55:10 alex Exp $
  *
  * Logging functions (header)
  */
@@ -35,21 +35,20 @@
 #define LOG_snotice 1024
 
 
-GLOBAL void Log_Init PARAMS((void ));
-GLOBAL void Log_Exit PARAMS((void ));
+GLOBAL void Log_Init PARAMS(( bool Daemon_Mode ));
+GLOBAL void Log_Exit PARAMS(( void ));
 
-GLOBAL void Log PARAMS((int Level, const char *Format, ... ));
+GLOBAL void Log PARAMS(( int Level, const char *Format, ... ));
 
-GLOBAL void Log_Init_Resolver PARAMS((void ));
-GLOBAL void Log_Exit_Resolver PARAMS((void ));
+GLOBAL void Log_Init_Resolver PARAMS(( void ));
+GLOBAL void Log_Exit_Resolver PARAMS(( void ));
 
-GLOBAL void Log_Resolver PARAMS((const int Level, const char *Format, ... ));
+GLOBAL void Log_Resolver PARAMS(( const int Level, const char *Format, ... ));
 
 #ifdef DEBUG
-GLOBAL void Log_InitErrorfile PARAMS((void ));
+GLOBAL void Log_InitErrorfile PARAMS(( void ));
 #endif
 
-GLOBAL void Log_SetDaemonized PARAMS((void));
 
 #endif
 

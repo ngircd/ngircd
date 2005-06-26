@@ -8,7 +8,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: configure.in,v 1.110 2005/05/21 21:34:47 alex Exp $
+# $Id: configure.in,v 1.111 2005/06/26 13:42:11 alex Exp $
 #
 
 # -- Initialisation --
@@ -91,8 +91,8 @@ AC_CHECK_HEADERS([arpa/inet.h ctype.h malloc.h stdbool.h stddef.h varargs.h])
 
 AC_MSG_CHECKING(whether socklen_t exists)
 AC_TRY_COMPILE([
-#include <sys/socket.h>
 #include <sys/types.h>
+#include <sys/socket.h>
 	],[
 	socklen_t a, b;
 	a = 2; b = 4; a += b;

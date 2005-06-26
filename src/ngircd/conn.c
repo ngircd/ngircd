@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.154 2005/06/12 17:21:46 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.155 2005/06/26 13:43:59 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -1600,7 +1600,7 @@ try_resolve:
 #ifdef IDENTAUTH
 				/* clean up buffer for IDENT result */
 				len = strlen( s->buffer ) + 1;
-				assert(len <= sizeof( s->buffer ));
+				assert((size_t)len <= sizeof( s->buffer ));
 				memmove( s->buffer, s->buffer + len, sizeof( s->buffer ) - len );
 				assert(len <= s->bufpos );
 				s->bufpos -= len;

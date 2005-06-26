@@ -15,7 +15,7 @@ ngIRCd CVSHEAD
   - Don't generate error messages for unknown commands received before the
     client is registered with the server (like the original ircd).
   - Never run with root privileges but always switch the user ID.
-  - Make netsplit messages RFC compliant.
+  - Make "netsplit" messages RFC compliant.
   - Fix handling of QUIT Messages: send only one message, even if the client
     is member of multiple channels.
   - Don't exit server if closing of a socket fails; instead ignore it and
@@ -53,7 +53,7 @@ ngIRCd CVSHEAD
     most probably other older C compilers on other systems.
   - When the daemon should switch to another user ID (ServerID is defined in
     the configuration file) and is not running in a chroot environment, it
-    changes it's working directory to the home directory of this user. This
+    changes its working directory to the home directory of this user. This
     should enable the system to write proper core files when not running with
     root privileges ...
 
@@ -608,4 +608,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.275 2005/06/24 20:56:46 alex Exp $
+$Id: ChangeLog,v 1.276 2005/06/26 21:54:01 alex Exp $

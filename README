@@ -1,21 +1,19 @@
 
                      ngIRCd - Next Generation IRC Server
 
-                      (c)2001-2004 by Alexander Barton,
+                        (c)2001-2005 Alexander Barton,
                     alex@barton.de, http://www.barton.de/
 
                ngIRCd is free software and published under the
                    terms of the GNU General Public License.
 
                                 -- README --
-                           
-                      Ilja Osthoff, <ilja@glide.ath.cx>
 
 
 I. Introduction
 ~~~~~~~~~~~~~~~
 
-ngIRCd is an Open-Source server for the Internet Relay Chat (IRC), which
+ngIRCd is an Open Source server for the Internet Relay Chat (IRC), which
 is developed and published under the terms of the GNU General Public
 Licence (URL: http://www.gnu.org/licenses/gpl.html). ngIRCd means "next
 generation IRC daemon", it's written from scratch and not deduced from the
@@ -25,15 +23,19 @@ generation IRC daemon", it's written from scratch and not deduced from the
 II. Status
 ~~~~~~~~~~~
 
-At present, the ngIRCd is under active development, some features are not
-implemented, some only partly.
+It is not the goal of ngIRCd to implement all the nasty behaviours of the
+original ircd, but to implement most of the useful commands and semantics
+specified by the RFCs.
 
-Till today (more or less complete) implemented IRC-commands:
+In the meantime ngIRCd should be quite feature complete and stable to be
+used in real IRC networks.
+
+Implemented IRC-commands are:
 
 ADMIN, AWAY, CHANINFO, CONNECT, DIE, DISCONNECT, ERROR, HELP, INVITE, ISON,
-JOIN, KICK, KILL, LINKS, LIST, LUSERS, MODE, MOTD, NAMES, NICK, NJOIN,
-NOTICE, OPER, PART, PASS, PING, PONG, PRIVMSG, QUIT, REHASH, RESTART, SERVER,
-SQUIT, STATS, TIME, TOPIC, TRACE, USER, USERHOST, VERSION, WHO, WHOIS.
+JOIN, KICK, KILL, LINKS, LIST, LUSERS, MODE, MOTD, NAMES, NICK, NJOIN, NOTICE,
+OPER, PART, PASS, PING, PONG, PRIVMSG, QUIT, REHASH, RESTART, SERVER, SQUIT,
+STATS, TIME, TOPIC, TRACE, USER, USERHOST, VERSION, WHO, WHOIS, WHOWAS.
 
 
 III. Features (or: why use ngIRCd?)
@@ -43,10 +45,8 @@ III. Features (or: why use ngIRCd?)
 - simple, easy understandable configuration file,
 - freely published open-source C source code,
 - ngIRCd will be developed on in the future.
-- supported platforms (tested versions): AIX (3.2.5), A/UX (3.0.1), FreeBSD
-  (4.5), HP-UX (10.20), IRIX (6.5), Linux (2.x), Mac OS X (10.x), NetBSD
-  (1.5.2/i386, 1.5.3/m68k), Solaris (2.5.1, 2.6), Windows with Cygwin, and
-  OpenBSD (3.4/i386).
+- wide field of supported platforms, including AIX, A/UX, FreeBSD, HP-UX,
+  IRIX, Linux, Mac OS X, NetBSD, OpenBSD, Solaris, and Windows with Cygwin.
 
 
 IV. Documentation
@@ -84,4 +84,4 @@ mail to: <alex@barton.de> or <alex@arthur.ath.cx>
 
 
 -- 
-$Id: README,v 1.19 2004/05/07 11:19:20 alex Exp $
+$Id: README,v 1.20 2005/06/26 21:54:01 alex Exp $

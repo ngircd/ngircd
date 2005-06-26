@@ -10,8 +10,10 @@
                                   -- NEWS --
 
 
-ngIRCd CVSHEAD
+ngIRCd 0.9.0
 
+  - Never run with root privileges but always switch the user ID.
+  - Make "netsplit" messages RFC compliant.
   - Implemented the IRC function "WHOWAS".
   - New configuration option "OperServerMode" to enable a workaround needed
     when running an network with ircd2 servers and "OperCanUseMode" enabled
@@ -206,4 +208,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.73 2005/05/16 12:25:15 alex Exp $
+$Id: NEWS,v 1.74 2005/06/26 21:54:02 alex Exp $

@@ -10,7 +10,7 @@
                                -- ChangeLog --
 
 
-ngIRCd CVSHEAD
+ngIRCd 0.9.x
 
   - Don't generate error messages for unknown commands received before the
     client is registered with the server (like the original ircd).
@@ -608,4 +608,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.276 2005/06/26 21:54:01 alex Exp $
+$Id: ChangeLog,v 1.276.2.1 2005/06/27 16:12:51 alex Exp $

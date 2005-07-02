@@ -12,6 +12,10 @@
 
 ngIRCd CVSHEAD
 
+ngIRCd 0.9.x
+
+  - Cut off oversized IRC messages that should be sent to the network instead
+    of shuttding down the (wrong) connection.
   - Don't generate error messages for unknown commands received before the
     client is registered with the server (like the original ircd).
   - Never run with root privileges but always switch the user ID.
@@ -608,4 +612,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.276 2005/06/26 21:54:01 alex Exp $
+$Id: ChangeLog,v 1.277 2005/07/02 14:46:38 alex Exp $

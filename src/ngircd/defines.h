@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: defines.h,v 1.52 2005/05/16 12:22:32 alex Exp $
+ * $Id: defines.h,v 1.52.2.1 2005/07/02 14:44:36 alex Exp $
  *
  * Global defines of ngIRCd.
  */
@@ -98,6 +98,8 @@
 
 #define NOTICE_TXTPREFIX ""		/* prefix for NOTICEs from the server to users */
 
+#define CUT_TXTSUFFIX "[CUT]"		/* Suffix for oversized messages that
+					   have been shortened and cut off. */
 #ifdef RENDEZVOUS
 #define RENDEZVOUS_TYPE "_ircu._tcp."	/* service type to register with Rendezvous */
 #endif

@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2004 Alexander Barton <alex@barton.de>
+ * Copyright (c)2001-2005 Alexander Barton <alex@barton.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.155 2005/06/26 13:43:59 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.156 2005/07/02 14:36:03 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -517,6 +517,15 @@ Conn_Handler( void )
 } /* Conn_Handler */
 
 
+/**
+ * Write a text string into the socket of a connection.
+ * This function automatically appends CR+LF to the string and validates that
+ * the result is a valid IRC message (oversized messages are shortened, for
+ * example). Then it calls the Conn_Write() function to do the actual sending.
+ * @param Idx Index fo the connection.
+ * @param Format Format string, see printf().
+ * @return true on success, false otherwise.
+ */
 #ifdef PROTOTYPES
 GLOBAL bool
 Conn_WriteStr( CONN_ID Idx, char *Format, ... )
@@ -528,10 +537,6 @@ char *Format;
 va_dcl
 #endif
 {
-	/* String in Socket schreiben. CR+LF wird von dieser Funktion
-	 * automatisch angehaengt. Im Fehlerfall wird dir Verbindung
-	 * getrennt und false geliefert. */
-
 	char buffer[COMMAND_LEN];
 	bool ok;
 	va_list ap;
@@ -544,15 +549,38 @@ va_dcl
 #else
 	va_start( ap );
 #endif
-	if( vsnprintf( buffer, COMMAND_LEN - 2, Format, ap ) >= COMMAND_LEN - 2 )
-	{
-		Log( LOG_CRIT, "Text too long to send (connection %d)!", Idx );
-		Conn_Close( Idx, "Text too long to send!", NULL, false );
-		return false;
+
+	if (vsnprintf(buffer, COMMAND_LEN - 2, Format, ap) >= COMMAND_LEN - 2) {
+		/*
+		 * The string that should be written to the socket is longer
+		 * than the allowed size of COMMAND_LEN bytes (including both
+		 * the CR and LF characters). This can be caused by the
+		 * IRC_WriteXXX() functions when the prefix of this server had
+		 * to be added to an already "quite long" command line which
+		 * has been received from a regular IRC client, for example.
+		 * 
+		 * We are not allowed to send such "oversized" messages to
+		 * other servers and clients, see RFC 2812 2.3 and 2813 3.3
+		 * ("these messages SHALL NOT exceed 512 characters in length,
+		 * counting all characters including the trailing CR-LF").
+		 *
+		 * So we have a big problem here: we should send more bytes
+		 * to the network than we are allowed to and we don't know
+		 * the originator (any more). The "old" behaviour of blaming
+		 * the receiver ("next hop") is a bad idea (it could be just
+		 * an other server only routing the message!), so the only
+		 * option left is to shorten the string and to hope that the
+		 * result is still somewhat useful ...
+		 *                                                   -alex-
+		 */
+
+		strcpy (buffer + sizeof(buffer) - strlen(CUT_TXTSUFFIX) - 2 - 1,
+			CUT_TXTSUFFIX);
 	}
 
 #ifdef SNIFFER
-	if( NGIRCd_Sniffer ) Log( LOG_DEBUG, " -> connection %d: '%s'.", Idx, buffer );
+	if (NGIRCd_Sniffer)
+		Log(LOG_DEBUG, " -> connection %d: '%s'.", Idx, buffer);
 #endif
 
 	strlcat( buffer, "\r\n", sizeof( buffer ));

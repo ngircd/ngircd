@@ -12,6 +12,7 @@
 
 ngIRCd 0.9.x
 
+  - Fixed maximum length of user names, now allow up to 9 characters.
   - Cut off oversized IRC messages that should be sent to the network instead
     of shuttding down the (wrong) connection.
   - Don't generate error messages for unknown commands received before the
@@ -610,4 +611,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.276.2.2 2005/07/02 14:45:07 alex Exp $
+$Id: ChangeLog,v 1.276.2.3 2005/07/05 22:58:25 alex Exp $

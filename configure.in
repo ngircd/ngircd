@@ -8,7 +8,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: configure.in,v 1.111 2005/06/26 13:42:11 alex Exp $
+# $Id: configure.in,v 1.112 2005/07/07 18:49:58 fw Exp $
 #
 
 # -- Initialisation --
@@ -177,6 +177,45 @@ if test "$x_zlib_on" = "yes"; then
 	AC_DEFINE(ZLIB, 1)
 	AC_CHECK_HEADERS(zlib.h,,AC_MSG_ERROR([required C header missing!]))
 fi
+
+
+x_io_backend=select
+AC_ARG_WITH(epoll,
+	[  --without-epoll          disable epoll support (autodetected by default)],
+	[	if test "$withval" != "no"; then
+			if test "$withval" != "yes"; then
+				CFLAGS="-I$withval/include $CFLAGS"
+				CPPFLAGS="-I$withval/include $CPPFLAGS"
+				LDFLAGS="-L$withval/lib $LDFLAGS"
+			fi
+			AC_CHECK_FUNCS(epoll_create, x_io_backend=epoll,
+				AC_MSG_ERROR([Can't enable epoll support!])
+			)
+		fi
+	],
+	[
+		AC_CHECK_FUNCS(epoll_create, x_io_backend=epoll)
+	]
+)
+
+AC_ARG_WITH(kqueue,
+	[  --without-kqueue          disable kqueue support (autodetected by default)],
+	[	if test "$withval" != "no"; then
+			if test "$withval" != "yes"; then
+				CFLAGS="-I$withval/include $CFLAGS"
+				CPPFLAGS="-I$withval/include $CPPFLAGS"
+				LDFLAGS="-L$withval/lib $LDFLAGS"
+			fi
+			AC_CHECK_FUNCS(kqueue, x_io_backend=kqueue,
+				AC_MSG_ERROR([Can't enable kqueue support!])
+			)
+		fi
+	],
+	[
+		AC_CHECK_FUNCS(kqueue, x_io_backend=kqueue)
+	]
+)
+
 
 x_tcpwrap_on=no
 AC_ARG_WITH(tcp-wrappers,
@@ -412,6 +451,8 @@ echo $ECHO_N "      IDENT support: $ECHO_C"
 test "$x_identauth_on" = "yes" \
 	&& echo $ECHO_N "yes $ECHO_C" \
 	|| echo $ECHO_N "no  $ECHO_C"
+echo $ECHO_N "        I/O backend: $ECHO_C"
+	echo "$x_io_backend"
 
 echo; echo
 

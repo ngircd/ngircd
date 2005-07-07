@@ -8,7 +8,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: Makefile.am,v 1.46 2005/05/23 00:11:15 alex Exp $
+# $Id: Makefile.am,v 1.47 2005/07/07 18:47:46 fw Exp $
 #
 
 AUTOMAKE_OPTIONS = ../portab/ansi2knr
@@ -20,8 +20,8 @@ LINTARGS = -weak -warnunixlib +unixlib -booltype BOOLEAN \
 
 sbin_PROGRAMS = ngircd
 
-ngircd_SOURCES = ngircd.c channel.c client.c conf.c conn.c conn-zip.c conn-func.c \
-	hash.c irc.c irc-channel.c irc-info.c irc-login.c irc-mode.c irc-op.c \
+ngircd_SOURCES = array.c ngircd.c channel.c client.c conf.c conn.c conn-zip.c conn-func.c \
+	hash.c io.c irc.c irc-channel.c irc-info.c irc-login.c irc-mode.c irc-op.c \
 	irc-oper.c irc-server.c irc-write.c lists.c log.c match.c parse.c \
 	rendezvous.c resolve.c
 
@@ -29,8 +29,8 @@ ngircd_LDFLAGS = -L../portab -L../tool
 
 ngircd_LDADD = -lngportab -lngtool
 
-noinst_HEADERS = ngircd.h channel.h client.h conf.h conn.h conn-zip.h conn-func.h \
-	hash.h irc.h irc-channel.h irc-info.h irc-login.h irc-mode.h irc-op.h \
+noinst_HEADERS = array.h ngircd.h channel.h client.h conf.h conn.h conn-zip.h conn-func.h \
+	hash.h io.h irc.h irc-channel.h irc-info.h irc-login.h irc-mode.h irc-op.h \
 	irc-oper.h irc-server.h irc-write.h lists.h log.h match.h parse.h \
 	rendezvous.h resolve.h \
 	messages.h defines.h

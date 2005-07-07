@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn-func.c,v 1.6 2005/06/12 16:32:17 alex Exp $";
+static char UNUSED id[] = "$Id: conn-func.c,v 1.7 2005/07/07 18:39:45 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -186,10 +186,11 @@ Conn_SendQ( CONN_ID Idx )
 
 	assert( Idx > NONE );
 #ifdef ZLIB
-	if( My_Connections[Idx].options & CONN_ZIP ) return My_Connections[Idx].zip.wdatalen;
+	if( My_Connections[Idx].options & CONN_ZIP )
+		return array_bytes(&My_Connections[Idx].zip.wbuf);
 	else
 #endif
-	return My_Connections[Idx].wdatalen;
+	return array_bytes(&My_Connections[Idx].wbuf);
 } /* Conn_SendQ */
 
 
@@ -220,10 +221,11 @@ Conn_RecvQ( CONN_ID Idx )
 
 	assert( Idx > NONE );
 #ifdef ZLIB
-	if( My_Connections[Idx].options & CONN_ZIP ) return My_Connections[Idx].zip.rdatalen;
+	if( My_Connections[Idx].options & CONN_ZIP )
+		return array_bytes(&My_Connections[Idx].zip.rbuf);
 	else
 #endif
-	return My_Connections[Idx].rdatalen;
+	return array_bytes(&My_Connections[Idx].rbuf);
 } /* Conn_RecvQ */
 
 

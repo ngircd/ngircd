@@ -15,8 +15,9 @@
 #define CONN_MODULE
 
 #include "portab.h"
+#include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.156 2005/07/02 14:36:03 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.157 2005/07/07 18:49:04 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -29,7 +30,6 @@ static char UNUSED id[] = "$Id: conn.c,v 1.156 2005/07/02 14:36:03 alex Exp $";
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
-#include <fcntl.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/time.h>
@@ -55,6 +55,7 @@ static char UNUSED id[] = "$Id: conn.c,v 1.156 2005/07/02 14:36:03 alex Exp $";
 # include <tcpd.h>			/* for TCP Wrappers */
 #endif
 
+#include "array.h"
 #include "defines.h"
 #include "resolve.h"
 
@@ -81,7 +82,6 @@ static char UNUSED id[] = "$Id: conn.c,v 1.156 2005/07/02 14:36:03 alex Exp $";
 #define SERVER_WAIT (NONE - 1)
 
 
-LOCAL void Handle_Read PARAMS(( int sock ));
 LOCAL bool Handle_Write PARAMS(( CONN_ID Idx ));
 LOCAL void New_Connection PARAMS(( int Sock ));
 LOCAL CONN_ID Socket2Index PARAMS(( int Sock ));
@@ -92,17 +92,103 @@ LOCAL void Check_Servers PARAMS(( void ));
 LOCAL void Init_Conn_Struct PARAMS(( CONN_ID Idx ));
 LOCAL bool Init_Socket PARAMS(( int Sock ));
 LOCAL void New_Server PARAMS(( int Server, CONN_ID Idx ));
-LOCAL void Read_Resolver_Result PARAMS(( int r_fd ));
 LOCAL void Simple_Message PARAMS(( int Sock, char *Msg ));
 LOCAL int Count_Connections PARAMS(( struct sockaddr_in addr ));
 
-LOCAL fd_set My_Listeners;
-LOCAL fd_set My_Sockets;
+static array My_Listeners;
 
 #ifdef TCPWRAP
 int allow_severity = LOG_INFO;
 int deny_severity = LOG_ERR;
 #endif
+
+
+static void cb_clientserver PARAMS((int sock, short what));
+
+static void
+cb_listen(int sock, short irrelevant)
+{
+	(void) irrelevant;
+	New_Connection( sock );
+}
+
+
+static void
+cb_connserver(int sock, short what)
+{
+	int res, err;
+	socklen_t sock_len;
+	CLIENT *c;
+	CONN_ID idx = Socket2Index( sock );
+	if (idx <= NONE) {
+#ifdef DEBUG
+		Log(LOG_DEBUG, "cb_connserver wants to write on unknown socket?!");
+#endif
+		io_close(sock);
+		return;
+	}
+
+	assert( what & IO_WANTWRITE);
+
+	/* connect() finished, get result. */
+	sock_len = sizeof( err );
+	res = getsockopt( My_Connections[idx].sock, SOL_SOCKET, SO_ERROR, &err, &sock_len );
+	assert( sock_len == sizeof( err ));
+
+	/* Fehler aufgetreten? */
+	if(( res != 0 ) || ( err != 0 )) {
+		if ( res != 0 ) 
+			Log( LOG_CRIT, "getsockopt (connection %d): %s!", idx, strerror( errno ));
+		else
+			Log( LOG_CRIT, "Can't connect socket to \"%s:%d\" (connection %d): %s!",
+				My_Connections[idx].host, Conf_Server[Conf_GetServer( idx )].port,
+										idx, strerror( err ));
+
+			/* Clean up socket, connection and client structures */
+			c = Client_GetFromConn( idx );
+			if( c ) Client_DestroyNow( c );
+			io_close( My_Connections[idx].sock );
+			Init_Conn_Struct( idx );
+
+			/* Bei Server-Verbindungen lasttry-Zeitpunkt auf "jetzt" setzen */
+			Conf_Server[Conf_GetServer( idx )].lasttry = time( NULL );
+			Conf_UnsetServer( idx );
+			return;
+	}
+
+	Conn_OPTION_DEL( &My_Connections[idx], CONN_ISCONNECTING );
+
+	Log( LOG_INFO, "Connection %d with \"%s:%d\" established. Now logging in ...", idx,
+			My_Connections[idx].host, Conf_Server[Conf_GetServer( idx )].port );
+
+	io_event_setcb( My_Connections[idx].sock, cb_clientserver);
+	io_event_add( My_Connections[idx].sock, IO_WANTREAD|IO_WANTWRITE);
+
+	/* Send PASS and SERVER command to peer */
+	Conn_WriteStr( idx, "PASS %s %s", Conf_Server[Conf_GetServer( idx )].pwd_out, NGIRCd_ProtoID );
+	Conn_WriteStr( idx, "SERVER %s :%s", Conf_ServerName, Conf_ServerInfo );
+}
+
+
+static void
+cb_clientserver(int sock, short what)
+{
+	CONN_ID idx = Socket2Index( sock );
+	if (idx <= NONE) {
+#ifdef DEBUG
+		Log(LOG_WARNING, "WTF: cb_clientserver wants to write on unknown socket?!");
+#endif
+		io_close(sock);
+		return;
+ 	}
+
+	if (what & IO_WANTREAD)
+		Read_Request( idx );
+
+	if (what & IO_WANTWRITE)
+		Handle_Write( idx );
+}
+
 
 LOCAL void
 FreeRes_stat( CONNECTION *c )
@@ -112,10 +198,7 @@ FreeRes_stat( CONNECTION *c )
 
 	if (!c->res_stat) return;
 
-	FD_CLR( c->res_stat->pipe[0], &Resolver_FDs );
-
-	close( c->res_stat->pipe[0] );
-	close( c->res_stat->pipe[1] );
+	io_close( c->res_stat->pipe[0] );
 
 	free( c->res_stat );
 	c->res_stat = NULL;
@@ -147,9 +230,7 @@ Conn_Init( void )
 	Log( LOG_DEBUG, "Allocated connection pool for %d items (%ld bytes).", Pool_Size, sizeof( CONNECTION ) * Pool_Size );
 #endif
 
-	/* zu Beginn haben wir keine Verbindungen */
-	FD_ZERO( &My_Listeners );
-	FD_ZERO( &My_Sockets );
+	array_free( &My_Listeners );
 
 	/* Groesster File-Descriptor fuer select() */
 	Conn_MaxFD = 0;
@@ -169,48 +250,26 @@ Conn_Exit( void )
 	 * schliessen und freigeben. */
 
 	CONN_ID idx;
-	int i;
 
 #ifdef DEBUG
 	Log( LOG_DEBUG, "Shutting down all connections ..." );
 #endif
 
-#ifdef RENDEZVOUS
-	Rendezvous_UnregisterListeners( );
-#endif
+	Conn_ExitListeners();
 
 	/* Sockets schliessen */
-	for( i = 0; i < Conn_MaxFD + 1; i++ )
-	{
-		if( FD_ISSET( i, &My_Sockets ))
-		{
-			for( idx = 0; idx < Pool_Size; idx++ )
-			{
-				if( My_Connections[idx].sock == i ) break;
-			}
-			if( FD_ISSET( i, &My_Listeners ))
-			{
-				close( i );
-#ifdef DEBUG
-				Log( LOG_DEBUG, "Listening socket %d closed.", i );
-#endif
-			}
-			else if( idx < Pool_Size )
-			{
-				if( NGIRCd_SignalRestart ) Conn_Close( idx, NULL, "Server going down (restarting)", true );
-				else Conn_Close( idx, NULL, "Server going down", true );
-			}
-			else
-			{
-				Log( LOG_WARNING, "Closing unknown connection %d ...", i );
-				close( i );
-			}
+	for( idx = 0; idx < Pool_Size; idx++ ) {
+		if( My_Connections[idx].sock > NONE ) {
+			Conn_Close( idx, NULL, NGIRCd_SignalRestart ?
+				"Server going down (restarting)":"Server going down", true );
+			continue;
 		}
 	}
 
 	free( My_Connections );
 	My_Connections = NULL;
 	Pool_Size = 0;
+	io_library_shutdown();
 } /* Conn_Exit */
 
 
@@ -220,6 +279,11 @@ Conn_InitListeners( void )
 	/* Initialize ports on which the server should accept connections */
 
 	int created, i;
+
+	if (!io_library_init(CONNECTION_POOL)) {
+		Log(LOG_EMERG, "Cannot initialize IO routines: %s", strerror(errno));
+		return -1;
+	}
 
 	created = 0;
 	for( i = 0; i < Conf_ListenPorts_Count; i++ )
@@ -235,24 +299,26 @@ GLOBAL void
 Conn_ExitListeners( void )
 {
 	/* Close down all listening sockets */
-
-	int i;
-
+	int *fd;
+	unsigned int arraylen;
 #ifdef RENDEZVOUS
 	Rendezvous_UnregisterListeners( );
 #endif
 
-	Log( LOG_INFO, "Shutting down all listening sockets ..." );
-	for( i = 0; i < Conn_MaxFD + 1; i++ )
-	{
-		if( FD_ISSET( i, &My_Sockets ) && FD_ISSET( i, &My_Listeners ))
-		{
-			close( i );
+	arraylen = array_length(&My_Listeners, sizeof (int));
+	Log( LOG_INFO, "Shutting down all listening sockets (%d)...", arraylen );
+	while(arraylen--) {
+		fd = (int*) array_get(&My_Listeners, sizeof (int), arraylen);
+		if (fd) {
+			close(*fd);
+			Log( LOG_DEBUG, "Listening socket %d closed.", *fd );
 #ifdef DEBUG
-			Log( LOG_DEBUG, "Listening socket %d closed.", i );
+		} else {
+			Log( LOG_DEBUG, "array_get pos %d returned NULL", arraylen );
 #endif
 		}
 	}
+	array_free(&My_Listeners);
 } /* Conn_ExitListeners */
 
 
@@ -316,10 +382,12 @@ Conn_NewListener( const UINT16 Port )
 	}
 
 	/* Neuen Listener in Strukturen einfuegen */
-	FD_SET( sock, &My_Listeners );
-	FD_SET( sock, &My_Sockets );
-
-	if( sock > Conn_MaxFD ) Conn_MaxFD = sock;
+	if (!array_catb( &My_Listeners,(char*) &sock, sizeof(int) )) {
+		Log( LOG_CRIT, "Can't add socket to My_Listeners array: %s!", strerror( errno ));
+		close( sock );
+		return false;
+	}
+	io_event_create( sock, IO_WANTREAD, cb_listen ); 
 
 	if( Conf_ListenAddress[0]) Log( LOG_INFO, "Now listening on %s:%d (socket %d).", Conf_ListenAddress, Port, sock );
 	else Log( LOG_INFO, "Now listening on 0.0.0.0:%d (socket %d).", Port, sock );
@@ -351,7 +419,6 @@ Conn_NewListener( const UINT16 Port )
 	/* Register service */
 	Rendezvous_Register( name, RENDEZVOUS_TYPE, Port );
 #endif
-
 	return true;
 } /* Conn_NewListener */
 
@@ -370,11 +437,10 @@ Conn_Handler( void )
 	 *  - volle Lesepuffer versuchen zu verarbeiten,
 	 *  - Antworten von Resolver Sub-Prozessen annehmen.
 	 */
-
-	fd_set read_sockets, write_sockets;
+	int i;
+	unsigned int wdatalen;
 	struct timeval tv;
 	time_t start, t;
-	CONN_ID i, idx;
 	bool timeout;
 
 	start = time( NULL );
@@ -398,70 +464,53 @@ Conn_Handler( void )
 		/* noch volle Lese-Buffer suchen */
 		for( i = 0; i < Pool_Size; i++ )
 		{
-			if(( My_Connections[i].sock > NONE ) && ( My_Connections[i].rdatalen > 0 ) &&
+			if(( My_Connections[i].sock > NONE ) && ( array_bytes(&My_Connections[i].rbuf) > 0 ) &&
 			 ( My_Connections[i].delaytime < t ))
 			{
 				/* Kann aus dem Buffer noch ein Befehl extrahiert werden? */
-				if( Handle_Buffer( i )) timeout = false;
+				if (Handle_Buffer( i )) timeout = false;
 			}
 		}
 
 		/* noch volle Schreib-Puffer suchen */
-		FD_ZERO( &write_sockets );
-		for( i = 0; i < Pool_Size; i++ )
-		{
+		for( i = 0; i < Pool_Size; i++ ) {
+			if ( My_Connections[i].sock <= NONE )
+				continue;
+			
+			wdatalen = array_bytes(&My_Connections[i].wbuf);
+
 #ifdef ZLIB
-			if(( My_Connections[i].sock > NONE ) && (( My_Connections[i].wdatalen > 0 ) || ( My_Connections[i].zip.wdatalen > 0 )))
+			if (( wdatalen > 0 ) || ( array_bytes(&My_Connections[i].zip.wbuf)> 0 ))
 #else
-			if(( My_Connections[i].sock > NONE ) && ( My_Connections[i].wdatalen > 0 ))
+			if ( wdatalen > 0 )
 #endif
 			{
 				/* Socket der Verbindung in Set aufnehmen */
-				FD_SET( My_Connections[i].sock, &write_sockets );
-			}
-		}
-
-		/* Sockets mit im Aufbau befindlichen ausgehenden Verbindungen suchen */
-		for( i = 0; i < Pool_Size; i++ )
-		{
-			if ( My_Connections[i].sock > NONE ) {
-				if ( Conn_OPTION_ISSET( &My_Connections[i], CONN_ISCONNECTING )) {
-					FD_SET( My_Connections[i].sock, &write_sockets );
-				}
+				io_event_add( My_Connections[i].sock, IO_WANTWRITE );
 			}
 
 		}
 
 		/* von welchen Sockets koennte gelesen werden? */
-		read_sockets = My_Sockets;
-		for( i = 0; i < Pool_Size; i++ )
-		{
-			if ( My_Connections[i].sock > NONE ) {
-				if ( My_Connections[i].res_stat ) {
-					/* wait for completion of Resolver Sub-Process */
-					FD_CLR( My_Connections[i].sock, &read_sockets );
-					continue;
-				}
+		for (i = 0; i < Pool_Size; i++ ) {
+			if ( My_Connections[i].sock <= NONE )
+				continue;
 
-				if ( Conn_OPTION_ISSET( &My_Connections[i], CONN_ISCONNECTING )) {
-					/* wait for completion of connect() */
-					FD_CLR( My_Connections[i].sock, &read_sockets );
-					continue;
-                                }
+			if ( My_Connections[i].res_stat ) {
+				/* wait for completion of Resolver Sub-Process */
+				io_event_del( My_Connections[i].sock, IO_WANTREAD );
+				continue;
 			}
-			if( My_Connections[i].delaytime > t )
-			{
+
+			if ( Conn_OPTION_ISSET( &My_Connections[i], CONN_ISCONNECTING ))
+				continue;	/* wait for completion of connect() */
+
+			if( My_Connections[i].delaytime > t ) {
 				/* Fuer die Verbindung ist eine "Penalty-Zeit" gesetzt */
-				FD_CLR( My_Connections[i].sock, &read_sockets );
+				io_event_del( My_Connections[i].sock, IO_WANTREAD );
+				continue;
 			}
-		}
-		for( i = 0; i < Conn_MaxFD + 1; i++ )
-		{
-			/* Pipes von Resolver Sub-Prozessen aufnehmen */
-			if( FD_ISSET( i, &Resolver_FDs ))
-			{
-				FD_SET( i, &read_sockets );
-			}
+			io_event_add( My_Connections[i].sock, IO_WANTREAD );
 		}
 
 		/* Timeout initialisieren */
@@ -470,45 +519,11 @@ Conn_Handler( void )
 		else tv.tv_sec = 0;
 
 		/* Auf Aktivitaet warten */
-		i = select( Conn_MaxFD + 1, &read_sockets, &write_sockets, NULL, &tv );
-		if( i == 0 )
-		{
-			/* keine Veraenderung an den Sockets */
-			continue;
-		}
-		if( i == -1 )
-		{
-			/* Fehler (z.B. Interrupt) */
-			if( errno != EINTR )
-			{
-				Log( LOG_EMERG, "Conn_Handler(): select(): %s!", strerror( errno ));
-				Log( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE_NAME );
-				exit( 1 );
-			}
-			continue;
-		}
-
-		/* Koennen Daten geschrieben werden? */
-		for( i = 0; i < Conn_MaxFD + 1; i++ )
-		{
-			if( ! FD_ISSET( i, &write_sockets )) continue;
-
-			/* Es kann geschrieben werden ... */
-			idx = Socket2Index( i );
-			if( idx == NONE ) continue;
-
-			if( ! Handle_Write( idx ))
-			{
-				/* Fehler beim Schreiben! Diesen Socket nun
-				 * auch aus dem Read-Set entfernen: */
-				FD_CLR( i, &read_sockets );
-			}
-		}
-
-		/* Daten zum Lesen vorhanden? */
-		for( i = 0; i < Conn_MaxFD + 1; i++ )
-		{
-			if( FD_ISSET( i, &read_sockets )) Handle_Read( i );
+		i = io_dispatch( &tv );
+		if (i == -1 && errno != EINTR ) {
+			Log(LOG_EMERG, "Conn_Handler(): io_dispatch(): %s!", strerror(errno));
+			Log(LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE_NAME);
+			exit( 1 );
 		}
 	}
 
@@ -549,8 +564,7 @@ va_dcl
 #else
 	va_start( ap );
 #endif
-
-	if (vsnprintf(buffer, COMMAND_LEN - 2, Format, ap) >= COMMAND_LEN - 2) {
+	if (vsnprintf( buffer, COMMAND_LEN - 2, Format, ap ) >= COMMAND_LEN - 2 ) {
 		/*
 		 * The string that should be written to the socket is longer
 		 * than the allowed size of COMMAND_LEN bytes (including both
@@ -593,7 +607,7 @@ va_dcl
 
 
 GLOBAL bool
-Conn_Write( CONN_ID Idx, char *Data, int Len )
+Conn_Write( CONN_ID Idx, char *Data, unsigned int Len )
 {
 	/* Daten in Socket schreiben. Bei "fatalen" Fehlern wird
 	 * der Client disconnectiert und false geliefert. */
@@ -617,15 +631,13 @@ Conn_Write( CONN_ID Idx, char *Data, int Len )
 	/* Pruefen, ob im Schreibpuffer genuegend Platz ist. Ziel ist es,
 	 * moeglichts viel im Puffer zu haben und _nicht_ gleich alles auf den
 	 * Socket zu schreiben (u.a. wg. Komprimierung). */
-	if( WRITEBUFFER_LEN - My_Connections[Idx].wdatalen - Len <= 0 )
-	{
+	if( array_bytes(&My_Connections[Idx].wbuf) >= WRITEBUFFER_LEN) {
 		/* Der Puffer ist dummerweise voll. Jetzt versuchen, den Puffer
 		 * zu schreiben, wenn das nicht klappt, haben wir ein Problem ... */
 		if( ! Handle_Write( Idx )) return false;
 
-		/* nun neu pruefen: */
-		if( WRITEBUFFER_LEN - My_Connections[Idx].wdatalen - Len <= 0 )
-		{
+		/* check again: if our writebuf is twice als large as the initial limit: Kill connection */
+		if( array_bytes(&My_Connections[Idx].wbuf) >= (WRITEBUFFER_LEN*2)) {
 			Log( LOG_NOTICE, "Write buffer overflow (connection %d)!", Idx );
 			Conn_Close( Idx, "Write buffer overflow!", NULL, false );
 			return false;
@@ -641,8 +653,9 @@ Conn_Write( CONN_ID Idx, char *Data, int Len )
 #endif
 	{
 		/* Daten in Puffer kopieren */
-		memcpy( My_Connections[Idx].wbuf + My_Connections[Idx].wdatalen, Data, Len );
-		My_Connections[Idx].wdatalen += Len;
+		if (!array_catb( &My_Connections[Idx].wbuf, Data, Len ))
+			return false;
+
 		My_Connections[Idx].bytes_out += Len;
 	}
 
@@ -711,16 +724,15 @@ Conn_Close( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool InformClient )
 
 	/* Try to write out the write buffer */
 	(void)Handle_Write( Idx );
-
+	
 	/* Shut down socket */
-	if( close( My_Connections[Idx].sock ) != 0 )
+	if( ! io_close( My_Connections[Idx].sock ))
 	{
 		/* Oops, we can't close the socket!? This is ... ugly! */
 		Log( LOG_CRIT, "Error closing connection %d (socket %d) with %s:%d - %s! (ignored)", Idx, My_Connections[Idx].sock, My_Connections[Idx].host, ntohs( My_Connections[Idx].addr.sin_port), strerror( errno ));
 	}
 
 	/* Mark socket as invalid: */
-	FD_CLR( My_Connections[Idx].sock, &My_Sockets );
 	My_Connections[Idx].sock = NONE;
 
 	/* If there is still a client, unregister it now */
@@ -755,9 +767,13 @@ Conn_Close( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool InformClient )
 	if ( Conn_OPTION_ISSET( &My_Connections[Idx], CONN_ZIP )) {
 		inflateEnd( &My_Connections[Idx].zip.in );
 		deflateEnd( &My_Connections[Idx].zip.out );
+		array_free(&My_Connections[Idx].zip.rbuf);
+		array_free(&My_Connections[Idx].zip.wbuf);
 	}
 #endif
 
+	array_free(&My_Connections[Idx].rbuf);
+	array_free(&My_Connections[Idx].wbuf);
 	/* Clean up connection structure (=free it) */
 	Init_Conn_Struct( Idx );
 
@@ -798,102 +814,41 @@ Conn_SyncServerStruct( void )
 } /* SyncServerStruct */
 
 
-LOCAL void
-Handle_Read( int Sock )
-{
-	/* Aktivitaet auf einem Socket verarbeiten:
-	 *  - neue Clients annehmen,
-	 *  - Daten von Clients verarbeiten,
-	 *  - Resolver-Rueckmeldungen annehmen. */
-
-	CONN_ID idx;
-
-	assert( Sock > NONE );
-
-	if( FD_ISSET( Sock, &My_Listeners ))
-	{
-		/* es ist einer unserer Listener-Sockets: es soll
-		 * also eine neue Verbindung aufgebaut werden. */
-
-		New_Connection( Sock );
-	}
-	else if( FD_ISSET( Sock, &Resolver_FDs ))
-	{
-		/* Rueckmeldung von einem Resolver Sub-Prozess */
-
-		Read_Resolver_Result( Sock );
-	}
-	else
-	{
-		/* Ein Client Socket: entweder ein User oder Server */
-
-		idx = Socket2Index( Sock );
-		if( idx > NONE ) Read_Request( idx );
-	}
-} /* Handle_Read */
-
-
 LOCAL bool
 Handle_Write( CONN_ID Idx )
 {
 	/* Daten aus Schreibpuffer versenden bzw. Connection aufbauen */
 
-	int len, res, err;
-	socklen_t sock_len;
-	CLIENT *c;
+	int len;
+	unsigned int wdatalen;
 
+	Log(LOG_DEBUG, "Handle_Write");
 	assert( Idx > NONE );
+	if ( My_Connections[Idx].sock < 0 ) {
+		Log(LOG_WARNING, "Handle_Write() on closed socket, idx %d", Idx);
+		return false;
+	}
 	assert( My_Connections[Idx].sock > NONE );
 
-	if ( Conn_OPTION_ISSET( &My_Connections[Idx], CONN_ISCONNECTING )) {
-		/* connect() has finished, check result */
 
-		Conn_OPTION_DEL( &My_Connections[Idx], CONN_ISCONNECTING );
-
-		/* Ergebnis des connect() ermitteln */
-		sock_len = sizeof( err );
-		res = getsockopt( My_Connections[Idx].sock, SOL_SOCKET, SO_ERROR, &err, &sock_len );
-		assert( sock_len == sizeof( err ));
-
-		/* Fehler aufgetreten? */
-		if(( res != 0 ) || ( err != 0 ))
-		{
-			/* Fehler! */
-			if( res != 0 ) Log( LOG_CRIT, "getsockopt (connection %d): %s!", Idx, strerror( errno ));
-			else Log( LOG_CRIT, "Can't connect socket to \"%s:%d\" (connection %d): %s!", My_Connections[Idx].host, Conf_Server[Conf_GetServer( Idx )].port, Idx, strerror( err ));
-
-			/* Clean up socket, connection and client structures */
-			FD_CLR( My_Connections[Idx].sock, &My_Sockets );
-			c = Client_GetFromConn( Idx );
-			if( c ) Client_DestroyNow( c );
-			close( My_Connections[Idx].sock );
-			Init_Conn_Struct( Idx );
-
-			/* Bei Server-Verbindungen lasttry-Zeitpunkt auf "jetzt" setzen */
-			Conf_Server[Conf_GetServer( Idx )].lasttry = time( NULL );
-			Conf_UnsetServer( Idx );
-
-			return false;
-		}
-		Log( LOG_INFO, "Connection %d with \"%s:%d\" established. Now logging in ...", Idx, My_Connections[Idx].host, Conf_Server[Conf_GetServer( Idx )].port );
-
-		/* Send PASS and SERVER command to peer */
-		Conn_WriteStr( Idx, "PASS %s %s", Conf_Server[Conf_GetServer( Idx )].pwd_out, NGIRCd_ProtoID );
-		return Conn_WriteStr( Idx, "SERVER %s :%s", Conf_ServerName, Conf_ServerInfo );
+	wdatalen = array_bytes(&My_Connections[Idx].wbuf );
+#ifdef ZLIB
+	if(( wdatalen == 0 ) && ( ! array_bytes(&My_Connections[Idx].zip.wbuf))) {
+		io_event_del(My_Connections[Idx].sock, IO_WANTWRITE );
+		return true;
 	}
 
-#ifdef ZLIB
-	if(( My_Connections[Idx].wdatalen <= 0 ) && ( ! My_Connections[Idx].zip.wdatalen ))
-		return true;
-
 	/* write buffer empty, but not compression buf? -> flush compression buf. */
-	if( My_Connections[Idx].wdatalen == 0 ) Zip_Flush( Idx );
+	if( wdatalen == 0 ) Zip_Flush( Idx );
 #else
-	if( My_Connections[Idx].wdatalen <= 0 )
+	if( wdatalen == 0 ) {
+		io_event_del(My_Connections[Idx].sock, IO_WANTWRITE );
 		return true;
+	}
 #endif
 
-	len = write( My_Connections[Idx].sock, My_Connections[Idx].wbuf, My_Connections[Idx].wdatalen );
+	wdatalen = array_bytes(&My_Connections[Idx].wbuf ); /* Zip_Flush may change wbuf  */
+	len = write( My_Connections[Idx].sock, array_start(&My_Connections[Idx].wbuf), wdatalen );
 	if( len < 0 ) {
 		if( errno == EAGAIN || errno == EINTR)
 			return true;
@@ -904,9 +859,8 @@ Handle_Write( CONN_ID Idx )
 		return false;
 	}
 
-	/* Update buffer len and move any data not yet written to beginning of buf */
-	My_Connections[Idx].wdatalen -= len;
-	memmove( My_Connections[Idx].wbuf, My_Connections[Idx].wbuf + len, My_Connections[Idx].wdatalen );
+	/* move any data not yet written to beginning */
+	array_moveleft(&My_Connections[Idx].wbuf, 1, len);
 
 	return true;
 } /* Handle_Write */
@@ -930,7 +884,6 @@ New_Connection( int Sock )
 	long new_size, cnt;
 
 	assert( Sock > NONE );
-
 	/* Connection auf Listen-Socket annehmen */
 	new_sock_len = sizeof( new_addr );
 	new_sock = accept( Sock, (struct sockaddr *)&new_addr, (socklen_t *)&new_sock_len );
@@ -1038,8 +991,7 @@ New_Connection( int Sock )
 	My_Connections[idx].addr = new_addr;
 
 	/* Neuen Socket registrieren */
-	FD_SET( new_sock, &My_Sockets );
-	if( new_sock > Conn_MaxFD ) Conn_MaxFD = new_sock;
+	io_event_create( new_sock, IO_WANTREAD, cb_clientserver);
 
 	Log( LOG_INFO, "Accepted connection %d from %s:%d on socket %d.", idx, inet_ntoa( new_addr.sin_addr ), ntohs( new_addr.sin_port), Sock );
 
@@ -1089,7 +1041,9 @@ Read_Request( CONN_ID Idx )
 	/* Daten von Socket einlesen und entsprechend behandeln.
 	 * Tritt ein Fehler auf, so wird der Socket geschlossen. */
 
-	int len, bsize;
+	unsigned int bsize;
+	int len;
+	char readbuf[1024];
 #ifdef ZLIB
 	CLIENT *c;
 #endif
@@ -1102,50 +1056,56 @@ Read_Request( CONN_ID Idx )
 	bsize = READBUFFER_LEN;
 #ifdef ZLIB
 	c = Client_GetFromConn( Idx );
-	if(( Client_Type( c ) != CLIENT_USER ) && ( Client_Type( c ) != CLIENT_SERVER ) && ( Client_Type( c ) != CLIENT_SERVICE ) && ( bsize > ZREADBUFFER_LEN )) bsize = ZREADBUFFER_LEN;
+
+	if(( Client_Type( c ) != CLIENT_USER ) && ( Client_Type( c ) != CLIENT_SERVER ) &&
+			( Client_Type( c ) != CLIENT_SERVICE ) && ( bsize > ZREADBUFFER_LEN ))
+		bsize = ZREADBUFFER_LEN;
 #endif
 
 #ifdef ZLIB
-	if(( bsize - My_Connections[Idx].rdatalen - 1 < 1 ) || ( ZREADBUFFER_LEN - My_Connections[Idx].zip.rdatalen < 1 ))
+	if (( array_bytes(&My_Connections[Idx].rbuf) >= READBUFFER_LEN ) ||
+		( array_bytes(&My_Connections[Idx].zip.rbuf) >= ZREADBUFFER_LEN ))
 #else
-	if( bsize - My_Connections[Idx].rdatalen - 1 < 1 )
+	if ( array_bytes(&My_Connections[Idx].rbuf) >= READBUFFER_LEN )
 #endif
 	{
 		/* Der Lesepuffer ist voll */
-		Log( LOG_ERR, "Receive buffer overflow (connection %d): %d bytes!", Idx, My_Connections[Idx].rdatalen );
+		Log( LOG_ERR, "Receive buffer overflow (connection %d): %d bytes!", Idx,
+						array_bytes(&My_Connections[Idx].rbuf));
 		Conn_Close( Idx, "Receive buffer overflow!", NULL, false );
 		return;
 	}
 
-#ifdef ZLIB
-	if ( Conn_OPTION_ISSET( &My_Connections[Idx], CONN_ZIP )) {
-		len = recv( My_Connections[Idx].sock, My_Connections[Idx].zip.rbuf + My_Connections[Idx].zip.rdatalen, ( ZREADBUFFER_LEN - My_Connections[Idx].zip.rdatalen ), 0 );
-		if( len > 0 ) My_Connections[Idx].zip.rdatalen += len;
-	}
-	else
-#endif
-	{
-		len = recv( My_Connections[Idx].sock, My_Connections[Idx].rbuf + My_Connections[Idx].rdatalen, bsize - My_Connections[Idx].rdatalen - 1, 0 );
-		if( len > 0 ) My_Connections[Idx].rdatalen += len;
-	}
-
-	if( len == 0 )
-	{
-		/* Socket wurde geschlossen */
-		Log( LOG_INFO, "%s:%d (%s) is closing the connection ...", My_Connections[Idx].host, ntohs( My_Connections[Idx].addr.sin_port), inet_ntoa( My_Connections[Idx].addr.sin_addr ));
+	len = read( My_Connections[Idx].sock, readbuf, sizeof readbuf );
+	if( len == 0 ) {
+		Log( LOG_INFO, "%s:%d (%s) is closing the connection ...",
+			 My_Connections[Idx].host, ntohs( My_Connections[Idx].addr.sin_port),
+						inet_ntoa( My_Connections[Idx].addr.sin_addr ));
 		Conn_Close( Idx, "Socket closed!", "Client closed connection", false );
 		return;
 	}
-
-	if( len < 0 )
-	{
-		/* Operation haette Socket "nur" blockiert ... */
+	if( len < 0 ) {
 		if( errno == EAGAIN ) return;
-
-		/* Fehler beim Lesen */
-		Log( LOG_ERR, "Read error on connection %d (socket %d): %s!", Idx, My_Connections[Idx].sock, strerror( errno ));
+		Log( LOG_ERR, "Read error on connection %d (socket %d): %s!", Idx,
+					My_Connections[Idx].sock, strerror( errno ));
 		Conn_Close( Idx, "Read error!", "Client closed connection", false );
 		return;
+	}
+#ifdef ZLIB
+	if ( Conn_OPTION_ISSET( &My_Connections[Idx], CONN_ZIP )) {
+		if (!array_catb( &My_Connections[Idx].zip.rbuf, readbuf, len)) {
+			Log( LOG_ERR, "Could not append recieved data to zip input buffer (connn %d): %d bytes!", Idx, len );
+			Conn_Close( Idx, "Receive buffer overflow!", NULL, false );
+			return;
+		}
+	} else
+#endif
+	{
+		readbuf[len] = 0;
+		if (!array_cats( &My_Connections[Idx].rbuf, readbuf )) {
+			Log( LOG_ERR, "Could not append recieved data to input buffer (connn %d): %d bytes!", Idx, len );
+			Conn_Close( Idx, "Receive buffer overflow!", NULL, false );
+		}
 	}
 
 	/* Connection-Statistik aktualisieren */
@@ -1161,15 +1121,14 @@ Read_Request( CONN_ID Idx )
 LOCAL bool
 Handle_Buffer( CONN_ID Idx )
 {
-	/* Daten im Lese-Puffer einer Verbindung verarbeiten.
-	 * Wurde ein Request verarbeitet, so wird true geliefert,
-	 * ansonsten false (auch bei Fehlern). */
-
+	/* Handle Data in Connections Read-Buffer.
+	 * Return true if a reuqest was handled, false otherwise (also returned on errors). */
 #ifndef STRICT_RFC
 	char *ptr1, *ptr2;
 #endif
 	char *ptr;
 	int len, delta;
+	unsigned int arraylen;
 	bool action, result;
 #ifdef ZLIB
 	bool old_z;
@@ -1180,28 +1139,32 @@ Handle_Buffer( CONN_ID Idx )
 	{
 		/* Check penalty */
 		if( My_Connections[Idx].delaytime > time( NULL )) return result;
-		
 #ifdef ZLIB
-		/* ggf. noch unkomprimiete Daten weiter entpacken */
+		/* unpack compressed data */
 		if ( Conn_OPTION_ISSET( &My_Connections[Idx], CONN_ZIP ))
 			if( ! Unzip_Buffer( Idx )) return false;
 #endif
 
-		if( My_Connections[Idx].rdatalen < 1 ) break;
+		arraylen = array_bytes(&My_Connections[Idx].rbuf);
+		if (arraylen == 0)
+			break;
 
-		/* Eine komplette Anfrage muss mit CR+LF enden, vgl.
-		 * RFC 2812. Haben wir eine? */
-		My_Connections[Idx].rbuf[My_Connections[Idx].rdatalen] = '\0';
-		ptr = strstr( My_Connections[Idx].rbuf, "\r\n" );
+		if (!array_cat0(&My_Connections[Idx].rbuf)) /* make sure buf is NULL terminated */
+			return false;
 
-		if( ptr ) delta = 2;
+		array_truncate(&My_Connections[Idx].rbuf, 1, arraylen); /* do not count trailing NULL */
+
+
+		/* A Complete Request end with CR+LF, see RFC 2812. */
+		ptr = strstr( array_start(&My_Connections[Idx].rbuf), "\r\n" );
+
+		if( ptr ) delta = 2; /* complete request */
 #ifndef STRICT_RFC
-		else
-		{
-			/* Nicht RFC-konforme Anfrage mit nur CR oder LF? Leider
-			 * machen soetwas viele Clients, u.a. "mIRC" :-( */
-			ptr1 = strchr( My_Connections[Idx].rbuf, '\r' );
-			ptr2 = strchr( My_Connections[Idx].rbuf, '\n' );
+		else {
+			/* Check for non-RFC-compliant request (only CR or LF)? Unfortunately,
+			 * there are quite a few clients that do this (incl. "mIRC" :-( */
+			ptr1 = strchr( array_start(&My_Connections[Idx].rbuf), '\r' );
+			ptr2 = strchr( array_start(&My_Connections[Idx].rbuf), '\n' );
 			delta = 1;
 			if( ptr1 && ptr2 ) ptr = ptr1 > ptr2 ? ptr2 : ptr1;
 			else if( ptr1 ) ptr = ptr1;
@@ -1210,60 +1173,61 @@ Handle_Buffer( CONN_ID Idx )
 #endif
 
 		action = false;
-		if( ptr )
-		{
-			/* Ende der Anfrage wurde gefunden */
-			*ptr = '\0';
-			len = ( ptr - My_Connections[Idx].rbuf ) + delta;
-			if( len > ( COMMAND_LEN - 1 ))
-			{
-				/* Eine Anfrage darf(!) nicht laenger als 512 Zeichen
-				 * (incl. CR+LF!) werden; vgl. RFC 2812. Wenn soetwas
-				 * empfangen wird, wird der Client disconnectiert. */
-				Log( LOG_ERR, "Request too long (connection %d): %d bytes (max. %d expected)!", Idx, My_Connections[Idx].rdatalen, COMMAND_LEN - 1 );
-				Conn_Close( Idx, NULL, "Request too long", true );
-				return false;
-			}
+		if( ! ptr )
+			break;
 
-#ifdef ZLIB
-			/* merken, ob Stream bereits komprimiert wird */
-			old_z = My_Connections[Idx].options & CONN_ZIP;
-#endif
+		/* End of request found */
+		*ptr = '\0';
 
-			if( len > delta )
-			{
-				/* Es wurde ein Request gelesen */
-				My_Connections[Idx].msg_in++;
-				if( ! Parse_Request( Idx, My_Connections[Idx].rbuf )) return false;
-				else action = true;
-			}
+		len = ( ptr - (char*) array_start(&My_Connections[Idx].rbuf)) + delta;
 
-			/* Puffer anpassen */
-			My_Connections[Idx].rdatalen -= len;
-			memmove( My_Connections[Idx].rbuf, My_Connections[Idx].rbuf + len, My_Connections[Idx].rdatalen );
-
-#ifdef ZLIB
-			if(( ! old_z ) && ( My_Connections[Idx].options & CONN_ZIP ) && ( My_Connections[Idx].rdatalen > 0 ))
-			{
-				/* Mit dem letzten Befehl wurde Socket-Kompression aktiviert.
-				 * Evtl. schon vom Socket gelesene Daten in den Unzip-Puffer
-				 * umkopieren, damit diese nun zunaechst entkomprimiert werden */
-				if( My_Connections[Idx].rdatalen > ZREADBUFFER_LEN )
-				{
-					/* Hupsa! Soviel Platz haben wir aber gar nicht! */
-					Log( LOG_ALERT, "Can't move receive buffer: No space left in unzip buffer (need %d bytes)!", My_Connections[Idx].rdatalen );
-					return false;
-				}
-				memcpy( My_Connections[Idx].zip.rbuf, My_Connections[Idx].rbuf, My_Connections[Idx].rdatalen );
-				My_Connections[Idx].zip.rdatalen = My_Connections[Idx].rdatalen;
-				My_Connections[Idx].rdatalen = 0;
-#ifdef DEBUG
-				Log( LOG_DEBUG, "Moved already received data (%d bytes) to uncompression buffer.", My_Connections[Idx].zip.rdatalen );
-#endif /* DEBUG */
-			}
-#endif /* ZLIB */
+		if( len < 0 || len > ( COMMAND_LEN - 1 )) {
+			/* Request must not exceed 512 chars (incl. CR+LF!), see
+			 * RFC 2812. Disconnect Client if this happens. */
+			Log( LOG_ERR, "Request too long (connection %d): %d bytes (max. %d expected)!",
+						Idx, array_bytes(&My_Connections[Idx].rbuf), COMMAND_LEN - 1 );
+			Conn_Close( Idx, NULL, "Request too long", true );
+			return false;
 		}
 
+#ifdef ZLIB
+		/* remember if stream is already compressed */
+		old_z = My_Connections[Idx].options & CONN_ZIP;
+#endif
+
+		if( len > delta )
+		{
+			/* A Request was read */
+			My_Connections[Idx].msg_in++;
+			if( ! Parse_Request( Idx, (char*)array_start(&My_Connections[Idx].rbuf) )) return false;
+			else action = true;
+				
+			array_moveleft(&My_Connections[Idx].rbuf, 1, len);
+#ifdef DEBUG
+			Log(LOG_DEBUG, "%d byte left in rbuf", array_bytes(&My_Connections[Idx].rbuf));
+#endif
+		}
+
+#ifdef ZLIB
+		if(( ! old_z ) && ( My_Connections[Idx].options & CONN_ZIP ) && ( array_bytes(&My_Connections[Idx].rbuf) > 0 ))
+		{
+			/* The last Command activated Socket-Compression.
+			 * Data that was read after that needs to be copied to Unzip-buf
+			 * for decompression */
+			if( array_bytes(&My_Connections[Idx].rbuf)> ZREADBUFFER_LEN ) {
+				/* No space left */
+				Log( LOG_ALERT, "Can't move receive buffer: No space left in unzip buffer (need %d bytes)!", array_bytes(&My_Connections[Idx].rbuf ));
+				return false;
+			}
+			if (!array_copy( &My_Connections[Idx].zip.rbuf, &My_Connections[Idx].rbuf ))
+				return false;
+
+			array_trunc(&My_Connections[Idx].rbuf);
+#ifdef DEBUG
+			Log( LOG_DEBUG, "Moved already received data (%d bytes) to uncompression buffer.", array_bytes(&My_Connections[Idx].zip.rbuf));
+#endif /* DEBUG */
+		}
+#endif /* ZLIB */
 		if( action ) result = true;
 	} while( action );
 
@@ -1483,10 +1447,8 @@ New_Server( int Server, CONN_ID Idx )
 	strlcpy( My_Connections[Idx].host, Conf_Server[Server].host, sizeof( My_Connections[Idx].host ));
 
 	/* Register new socket */
-	FD_SET( new_sock, &My_Sockets );
+	io_event_create( new_sock, IO_WANTWRITE, cb_connserver);
 	Conn_OPTION_ADD( &My_Connections[Idx], CONN_ISCONNECTING );
-
-	if( new_sock > Conn_MaxFD ) Conn_MaxFD = new_sock;
 
 #ifdef DEBUG
 	Log( LOG_DEBUG, "Registered new connection %d on socket %d.", Idx, My_Connections[Idx].sock );
@@ -1514,14 +1476,11 @@ Init_Socket( int Sock )
 
 	int value;
 
-#ifdef O_NONBLOCK	/* unknown on A/UX */
-	if( fcntl( Sock, F_SETFL, O_NONBLOCK ) != 0 )
-	{
+	if (!io_setnonblock(Sock)) {
 		Log( LOG_CRIT, "Can't enable non-blocking mode for socket: %s!", strerror( errno ));
 		close( Sock );
 		return false;
 	}
-#endif
 
 	/* Don't block this port after socket shutdown */
 	value = 1;
@@ -1548,8 +1507,8 @@ Init_Socket( int Sock )
 } /* Init_Socket */
 
 
-LOCAL void
-Read_Resolver_Result( int r_fd )
+GLOBAL
+void Read_Resolver_Result( int r_fd )
 {
 	/* Read result of resolver sub-process from pipe and update the
 	 * apropriate connection/client structure(s): hostname and/or
@@ -1560,6 +1519,7 @@ Read_Resolver_Result( int r_fd )
 	RES_STAT *s;
 	char *ptr;
 
+	Log( LOG_DEBUG, "Resolver: started, fd %d\n", r_fd );
 	/* Search associated connection ... */
 	for( i = 0; i < Pool_Size; i++ )
 	{
@@ -1572,8 +1532,7 @@ Read_Resolver_Result( int r_fd )
 	{
 		/* Ops, none found? Probably the connection has already
 		 * been closed!? We'll ignore that ... */
-		FD_CLR( r_fd, &Resolver_FDs );
-		close( r_fd );
+		io_close( r_fd );
 #ifdef DEBUG
 		Log( LOG_DEBUG, "Resolver: Got result for unknown connection!?" );
 #endif
@@ -1628,7 +1587,7 @@ try_resolve:
 #ifdef IDENTAUTH
 				/* clean up buffer for IDENT result */
 				len = strlen( s->buffer ) + 1;
-				assert((size_t)len <= sizeof( s->buffer ));
+				assert((size_t) len <= sizeof( s->buffer ));
 				memmove( s->buffer, s->buffer + len, sizeof( s->buffer ) - len );
 				assert(len <= s->bufpos );
 				s->bufpos -= len;
@@ -1703,6 +1662,7 @@ Count_Connections( struct sockaddr_in addr_in )
 	}
 	return cnt;
 } /* Count_Connections */
+
 
 
 /* -eof- */

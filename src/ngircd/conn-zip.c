@@ -19,7 +19,7 @@
 
 #ifdef ZLIB
 
-static char UNUSED id[] = "$Id: conn-zip.c,v 1.7 2005/04/25 18:37:16 fw Exp $";
+static char UNUSED id[] = "$Id: conn-zip.c,v 1.8 2005/07/07 18:48:33 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -30,6 +30,7 @@ static char UNUSED id[] = "$Id: conn-zip.c,v 1.7 2005/04/25 18:37:16 fw Exp $";
 #include "conn-func.h"
 #include "log.h"
 
+#include "array.h"
 #include "exp.h"
 #include "conn-zip.h"
 
@@ -87,19 +88,16 @@ Zip_Buffer( CONN_ID Idx, char *Data, int Len )
 	assert( Idx > NONE );
 	assert( Data != NULL );
 	assert( Len > 0 );
+	assert( Len <= ZWRITEBUFFER_LEN );
 
-	/* Ist noch Platz im Kompressions-Puffer? */
-	if( ZWRITEBUFFER_LEN - My_Connections[Idx].zip.wdatalen < Len + 50 )
-	{
-		/* Nein! Puffer zunaechst leeren ...*/
+	if (Len < 0 || Len > ZWRITEBUFFER_LEN) return false;
+
+	if ( array_bytes( &My_Connections[Idx].zip.wbuf ) >= ZWRITEBUFFER_LEN ) {
+		/* compression buffer is full, flush */
 		if( ! Zip_Flush( Idx )) return false;
 	}
 
-	/* Daten kopieren */
-	memmove( My_Connections[Idx].zip.wbuf + My_Connections[Idx].zip.wdatalen, Data, Len );
-	My_Connections[Idx].zip.wdatalen += Len;
-
-	return true;
+	return array_catb( &My_Connections[Idx].zip.wbuf, Data, Len );
 } /* Zip_Buffer */
 
 
@@ -109,16 +107,24 @@ Zip_Flush( CONN_ID Idx )
 	/* Daten komprimieren und in Schreibpuffer kopieren.
 	* Es wird true bei Erfolg, sonst false geliefert. */
 
-	int result, out_len;
+	int result;
+	unsigned char zipbuf[WRITEBUFFER_LEN];
+	unsigned int zipbuf_used = 0;
 	z_stream *out;
 
 	out = &My_Connections[Idx].zip.out;
 
-	out->next_in = (void *)My_Connections[Idx].zip.wbuf;
-	out->avail_in = My_Connections[Idx].zip.wdatalen;
-	out->next_out = (void *)(My_Connections[Idx].wbuf + My_Connections[Idx].wdatalen);
-	out->avail_out = WRITEBUFFER_LEN - My_Connections[Idx].wdatalen;
+	out->next_in = array_start(&My_Connections[Idx].zip.wbuf);
+	assert(out->next_in);
+	if (!out->next_in)
+		return false;
 
+	out->avail_in = array_bytes(&My_Connections[Idx].zip.wbuf);
+
+	out->next_out = zipbuf;
+	out->avail_out = sizeof zipbuf;
+
+	Log(LOG_DEBUG, "out->avail_in %d, out->avail_out %d", out->avail_in, out->avail_out);
 	result = deflate( out, Z_SYNC_FLUSH );
 	if(( result != Z_OK ) || ( out->avail_in > 0 ))
 	{
@@ -127,11 +133,15 @@ Zip_Flush( CONN_ID Idx )
 		return false;
 	}
 
-	out_len = WRITEBUFFER_LEN - My_Connections[Idx].wdatalen - out->avail_out;
-	My_Connections[Idx].wdatalen += out_len;
-	My_Connections[Idx].bytes_out += out_len;
-	My_Connections[Idx].zip.bytes_out += My_Connections[Idx].zip.wdatalen;
-	My_Connections[Idx].zip.wdatalen = 0;
+	assert(out->avail_out <= WRITEBUFFER_LEN);
+	zipbuf_used = WRITEBUFFER_LEN - out->avail_out;
+	Log(LOG_DEBUG, "zipbuf_used: %d\n", zipbuf_used);
+	if (!array_catb( &My_Connections[Idx].wbuf, (char*) zipbuf, zipbuf_used ))
+		return false;
+
+	My_Connections[Idx].bytes_out += zipbuf_used;
+	My_Connections[Idx].zip.bytes_out += array_bytes(&My_Connections[Idx].zip.wbuf); 
+	array_trunc(&My_Connections[Idx].zip.wbuf);
 
 	return true;
 } /* Zip_Flush */
@@ -144,20 +154,32 @@ Unzip_Buffer( CONN_ID Idx )
 	* wird false geliefert, ansonsten true. Der Fall, dass keine
 	* Daten mehr zu entpacken sind, ist _kein_ Fehler! */
 
-	int result, in_len, out_len;
+	int result;
+	unsigned char unzipbuf[READBUFFER_LEN];
+	unsigned int unzipbuf_used = 0;
+	unsigned int z_rdatalen;
+	unsigned int in_len;
+	
 	z_stream *in;
 
 	assert( Idx > NONE );
 
-	if( My_Connections[Idx].zip.rdatalen <= 0 ) return true;
+	z_rdatalen = array_bytes(&My_Connections[Idx].zip.rbuf);
+	if (z_rdatalen == 0)
+		return true;
 
 	in = &My_Connections[Idx].zip.in;
+	
+	in->next_in = array_start(&My_Connections[Idx].zip.rbuf);
+	assert(in->next_in);
+	if (!in->next_in)
+		return false;
 
-	in->next_in = (void *)My_Connections[Idx].zip.rbuf;
-	in->avail_in = My_Connections[Idx].zip.rdatalen;
-	in->next_out = (void *)(My_Connections[Idx].rbuf + My_Connections[Idx].rdatalen);
-	in->avail_out = READBUFFER_LEN - My_Connections[Idx].rdatalen - 1;
+	in->avail_in = z_rdatalen;
+	in->next_out = unzipbuf;
+	in->avail_out = sizeof unzipbuf;
 
+	Log(LOG_DEBUG, "in->avail_in %d, in->avail_out %d", in->avail_in, in->avail_out);
 	result = inflate( in, Z_SYNC_FLUSH );
 	if( result != Z_OK )
 	{
@@ -166,19 +188,20 @@ Unzip_Buffer( CONN_ID Idx )
 		return false;
 	}
 
-	in_len = My_Connections[Idx].zip.rdatalen - in->avail_in;
-	out_len = READBUFFER_LEN - My_Connections[Idx].rdatalen - 1 - in->avail_out;
-	My_Connections[Idx].rdatalen += out_len;
+	assert(z_rdatalen >= in->avail_in);
+	in_len = z_rdatalen - in->avail_in;
+	unzipbuf_used = READBUFFER_LEN - in->avail_out;
+	Log(LOG_DEBUG, "unzipbuf_used: %d - %d = %d\n", READBUFFER_LEN,  in->avail_out, unzipbuf_used);
+	assert(unzipbuf_used <= READBUFFER_LEN);
+	if (!array_catb(&My_Connections[Idx].rbuf, (char*) unzipbuf, unzipbuf_used))
+		return false;
 
-	if( in->avail_in > 0 )
-	{
-		/* es konnten nicht alle Daten entpackt werden, vermutlich war
-		* im Ziel-Puffer kein Platz mehr. Umkopieren ... */
-		My_Connections[Idx].zip.rdatalen -= in_len;
-		memmove( My_Connections[Idx].zip.rbuf, My_Connections[Idx].zip.rbuf + in_len, My_Connections[Idx].zip.rdatalen );
+	if( in->avail_in > 0 ) {
+		array_moveleft(&My_Connections[Idx].zip.rbuf, 1, in_len );
+	} else {
+		array_trunc( &My_Connections[Idx].zip.rbuf );
+		My_Connections[Idx].zip.bytes_in += unzipbuf_used;
 	}
-	else My_Connections[Idx].zip.rdatalen = 0;
-	My_Connections[Idx].zip.bytes_in += out_len;
 
 	return true;
 } /* Unzip_Buffer */

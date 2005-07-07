@@ -49,6 +49,14 @@ A: Most probably you are using version 1.5 of GNU automake which seems to be
    version 1.6 of GNU automake.
    (If you are using Debian 3.0 "Woody" you can try to downgrade to version
    1.4 of GNU automake shipped with this distribution; it should work, too.)
+Q: I cannot connect to remote peers and I use the chroot option. ngircd says:
+   ngircd[2152]: Can't resolve example.com: unknown erroror!
+
+A: On Linux/Glibc with chroot enabled you need to put
+   some libraries inside the chroot as well, notably libnss_dns; maybe others.
+   Unfortunately, even linking ngircd statically does not help this.
+   The only known workaround is to either disable chroot support or
+   link against dietlibc instead of glibc. (tnx to Sebastian Siewior)
 
 
 III. Bugs!?
@@ -64,4 +72,4 @@ A: Please file a bug report at <http://arthur.ath.cx/bugzilla/ngircd/>!
 
 
 -- 
-$Id: FAQ.txt,v 1.7 2003/11/07 21:32:15 alex Exp $
+$Id: FAQ.txt,v 1.8 2005/07/07 20:53:35 fw Exp $

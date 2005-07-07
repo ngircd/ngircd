@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: resolve.c,v 1.12 2005/05/28 10:46:50 fw Exp $";
+static char UNUSED id[] = "$Id: resolve.c,v 1.13 2005/07/07 18:39:08 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -39,6 +39,7 @@ static char UNUSED id[] = "$Id: resolve.c,v 1.12 2005/05/28 10:46:50 fw Exp $";
 
 #include "exp.h"
 #include "resolve.h"
+#include "io.h"
 
 
 #ifdef IDENTAUTH
@@ -56,13 +57,11 @@ LOCAL char *Get_Error PARAMS(( int H_Error ));
 LOCAL RES_STAT *New_Res_Stat PARAMS(( void ));
 
 
-GLOBAL void
-Resolve_Init( void )
-{
-	/* Initialize module */
-
-	FD_ZERO( &Resolver_FDs );
-} /* Resolve_Init */
+static void
+cb_resolver(int fd, short unused) {
+	(void) unused;	/* shut up compiler warning */
+	Read_Resolver_Result(fd);
+}
 
 
 #ifdef IDENTAUTH
@@ -86,15 +85,24 @@ Resolve_Addr( struct sockaddr_in *Addr )
 	pid = fork( );
 	if( pid > 0 )
 	{
+		close( s->pipe[1] );
 		/* Main process */
 		Log( LOG_DEBUG, "Resolver for %s created (PID %d).", inet_ntoa( Addr->sin_addr ), pid );
-		FD_SET( s->pipe[0], &Resolver_FDs );
-		if( s->pipe[0] > Conn_MaxFD ) Conn_MaxFD = s->pipe[0];
+		if (!io_setnonblock( s->pipe[0] )) {
+			Log( LOG_DEBUG, "Could not set Non-Blocking mode for pipefd %d", s->pipe[0] );
+			goto out;
+		}
+		if (!io_event_create( s->pipe[0], IO_WANTREAD, cb_resolver )) {
+			Log( LOG_DEBUG, "Could not add pipefd %dto event watchlist: %s",
+								s->pipe[0], strerror(errno) );
+			goto out;
+		}
 		s->pid = pid;
 		return s;
 	}
 	else if( pid == 0 )
 	{
+		close( s->pipe[0] );
 		/* Sub process */
 		Log_Init_Resolver( );
 #ifdef IDENTAUTH
@@ -105,13 +113,13 @@ Resolve_Addr( struct sockaddr_in *Addr )
 		Log_Exit_Resolver( );
 		exit( 0 );
 	}
-	else
-	{
-		/* Error! */
-		free( s );
-		Log( LOG_CRIT, "Resolver: Can't fork: %s!", strerror( errno ));
-		return NULL;
-	}
+	
+	Log( LOG_CRIT, "Resolver: Can't fork: %s!", strerror( errno ));
+
+out: /* Error! */
+	close( s->pipe[0] );
+	free( s );
+return NULL;
 } /* Resolve_Addr */
 
 
@@ -131,28 +139,37 @@ Resolve_Name( char *Host )
 	pid = fork( );
 	if( pid > 0 )
 	{
+		close( s->pipe[1] );
 		/* Main process */
 		Log( LOG_DEBUG, "Resolver for \"%s\" created (PID %d).", Host, pid );
-		FD_SET( s->pipe[0], &Resolver_FDs );
-		if( s->pipe[0] > Conn_MaxFD ) Conn_MaxFD = s->pipe[0];
+		if (!io_setnonblock( s->pipe[0] )) {
+			Log( LOG_DEBUG, "Could not set Non-Blocking mode for pipefd %d", s->pipe[0] );
+			goto out;
+		}
+		if (!io_event_create( s->pipe[0], IO_WANTREAD, cb_resolver )) {
+			Log( LOG_DEBUG, "Could not add pipefd %dto event watchlist: %s",
+								s->pipe[0], strerror(errno) );
+			goto out;
+		}
 		s->pid = pid;
 		return s;
 	}
 	else if( pid == 0 )
 	{
+		close( s->pipe[0] );
 		/* Sub process */
 		Log_Init_Resolver( );
 		Do_ResolveName( Host, s->pipe[1] );
 		Log_Exit_Resolver( );
 		exit( 0 );
 	}
-	else
-	{
-		/* Error! */
-		free( s );
-		Log( LOG_CRIT, "Resolver: Can't fork: %s!", strerror( errno ));
-		return NULL;
-	}
+
+	Log( LOG_CRIT, "Resolver: Can't fork: %s!", strerror( errno ));
+
+out: /* Error! */
+	close( s->pipe[0] );
+	free( s );
+	return NULL;
 } /* Resolve_Name */
 
 

@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conn.h,v 1.35 2005/06/12 16:28:55 alex Exp $
+ * $Id: conn.h,v 1.36 2005/07/07 18:45:33 fw Exp $
  *
  * Connection management (header)
  */
@@ -36,6 +36,7 @@ typedef int CONN_ID;
 
 #include "defines.h"
 #include "resolve.h"
+#include "array.h"
 
 #ifdef ZLIB
 #include <zlib.h>
@@ -43,10 +44,8 @@ typedef struct _ZipData
 {
 	z_stream in;			/* "Handle" for input stream */
 	z_stream out;			/* "Handle" for output stream */
-	char rbuf[READBUFFER_LEN];	/* Read buffer */
-	int rdatalen;			/* Length of data in read buffer (compressed) */
-	char wbuf[WRITEBUFFER_LEN];	/* Write buffer */
-	int wdatalen;			/* Length of data in write buffer (uncompressed) */
+	array rbuf;			/* Read buffer (compressed) */
+	array wbuf;			/* Write buffer (uncompressed) */
 	long bytes_in, bytes_out;	/* Counter for statistics (uncompressed!) */
 } ZIPDATA;
 #endif /* ZLIB */
@@ -57,10 +56,8 @@ typedef struct _Connection
 	struct sockaddr_in addr;	/* Client address */
 	RES_STAT *res_stat;		/* Status of resolver process, if any */
 	char host[HOST_LEN];		/* Hostname */
-	char rbuf[READBUFFER_LEN];	/* Read buffer */
-	int rdatalen;			/* Length of data in read buffer */
-	char wbuf[WRITEBUFFER_LEN];	/* Write buffer */
-	int wdatalen;			/* Length of data in write buffer */
+	array rbuf;			/* Read buffer */
+	array wbuf;			/* Write buffer */
 	time_t lastdata;		/* Last activity */
 	time_t lastping;		/* Last PING */
 	time_t lastprivmsg;		/* Last PRIVMSG */
@@ -91,12 +88,14 @@ GLOBAL bool Conn_NewListener PARAMS(( const UINT16 Port ));
 
 GLOBAL void Conn_Handler PARAMS(( void ));
 
-GLOBAL bool Conn_Write PARAMS(( CONN_ID Idx, char *Data, int Len ));
+GLOBAL bool Conn_Write PARAMS(( CONN_ID Idx, char *Data, unsigned int Len ));
 GLOBAL bool Conn_WriteStr PARAMS(( CONN_ID Idx, char *Format, ... ));
 
 GLOBAL void Conn_Close PARAMS(( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool InformClient ));
 
 GLOBAL void Conn_SyncServerStruct PARAMS(( void ));
+
+GLOBAL void Read_Resolver_Result PARAMS(( int x ));
 
 GLOBAL int Conn_MaxFD;
 

@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.102 2005/06/24 19:55:10 alex Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.103 2005/07/07 18:37:36 fw Exp $";
 
 /**
  * @file
@@ -269,7 +269,6 @@ main( int argc, const char *argv[] )
 
 		/* Initialize modules, part II: these functions are eventually
 		 * called with already dropped privileges ... */
-		Resolve_Init( );
 		Lists_Init( );
 		Channel_Init( );
 		Client_Init( );

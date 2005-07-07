@@ -12,7 +12,7 @@
 
 #include "array.h"
 
-static char UNUSED id[] = "$Id: array.c,v 1.1 2005/07/07 18:38:14 fw Exp $";
+static char UNUSED id[] = "$Id: array.c,v 1.2 2005/07/07 21:26:31 fw Exp $";
 
 #include <assert.h>
 
@@ -28,23 +28,23 @@ static char UNUSED id[] = "$Id: array.c,v 1.1 2005/07/07 18:38:14 fw Exp $";
 #define ALIGN_4096U(x)		((x | 0xfffU) +1)
 
 
-static int
+static bool
 safemult_uint(unsigned int a, unsigned int b, unsigned int *res)
 {
 	unsigned int tmp;
 
 	if (!a || !b) {
 		*res = 0;
-		return 1;
+		return true;
 	}
 
 	tmp = a * b;
 
 	if (tmp / b != a)
-		return 0;
+		return false;
 
 	*res = tmp;
-	return 1;
+	return true;
 }
 
 

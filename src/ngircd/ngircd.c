@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.102 2005/06/24 19:55:10 alex Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.102.2.1 2005/07/08 21:05:19 alex Exp $";
 
 /**
  * @file
@@ -713,7 +713,7 @@ NGIRCd_Init( bool NGIRCd_NoDaemon )
 	}
 
 	if ( Conf_UID == 0 ) {
-		Log( LOG_INFO, "Conf_UID must not be 0, switching to user nobody", Conf_UID );
+		Log( LOG_INFO, "ServerUID must not be 0, switching to user nobody", Conf_UID );
 
   		if (!NGIRCd_getNobodyID(&Conf_UID, &Conf_GID )) {
 			Log( LOG_WARNING, "Could not get uid/gid of user nobody: %s",

@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.102.2.1 2005/07/08 21:05:19 alex Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.102.2.2 2005/07/08 23:20:04 alex Exp $";
 
 /**
  * @file
@@ -712,28 +712,34 @@ NGIRCd_Init( bool NGIRCd_NoDaemon )
 		}
 	}
 
-	if ( Conf_UID == 0 ) {
-		Log( LOG_INFO, "ServerUID must not be 0, switching to user nobody", Conf_UID );
+	if (Conf_UID == 0) {
+		Log(LOG_INFO, "ServerUID must not be 0, using \"nobody\" instead.", Conf_UID);
 
-  		if (!NGIRCd_getNobodyID(&Conf_UID, &Conf_GID )) {
-			Log( LOG_WARNING, "Could not get uid/gid of user nobody: %s",
+  		if (! NGIRCd_getNobodyID(&Conf_UID, &Conf_GID)) {
+			Log(LOG_WARNING, "Could not get user/group ID of user \"nobody\": %s",
 					errno ? strerror(errno) : "not found" );
 			return false;
 		}
 	}
 
-	if( setgid( Conf_GID ) != 0 ) {
-		real_errno = errno;
-		Log( LOG_ERR, "Can't change group ID to %u: %s", Conf_GID, strerror( errno ));
-		if (real_errno != EPERM) 
-			return false;
+	if (getgid() != Conf_GID) {
+		/* Change group ID */
+		if (setgid(Conf_GID) != 0) {
+			real_errno = errno;
+			Log( LOG_ERR, "Can't change group ID to %u: %s", Conf_GID, strerror( errno ));
+			if (real_errno != EPERM) 
+				return false;
+		}
 	}
 
-	if( setuid( Conf_UID ) != 0 ) {
-		real_errno = errno;
-		Log( LOG_ERR, "Can't change user ID to %u: %s", Conf_UID, strerror( errno ));
-		if (real_errno != EPERM) 
-			return false;
+	if (getuid() != Conf_UID) {
+		/* Change user ID */
+		if (setuid(Conf_UID) != 0) {
+			real_errno = errno;
+			Log(LOG_ERR, "Can't change user ID to %u: %s", Conf_UID, strerror(errno));
+			if (real_errno != EPERM) 
+				return false;
+		}
 	}
 
 	initialized = true;
@@ -765,16 +771,14 @@ NGIRCd_Init( bool NGIRCd_NoDaemon )
 
 	Pidfile_Create( pid );
 
-	/* check uid we are running as, can be different from values configured (e.g. if we were already
-	started with a uid > 0 */
+	/* Check UID/GID we are running as, can be different from values
+	 * configured (e. g. if we were already started with a UID>0. */
 	Conf_UID = getuid();
 	Conf_GID = getgid();
 
-	assert( Conf_GID > 0);
-	assert( Conf_UID > 0);
-
 	pwd = getpwuid( Conf_UID );
 	grp = getgrgid( Conf_GID );
+
 	Log( LOG_INFO, "Running as user %s(%ld), group %s(%ld), with PID %ld.",
 				pwd ? pwd->pw_name : "unknown", Conf_UID,
 				grp ? grp->gr_name : "unknown", Conf_GID, pid);

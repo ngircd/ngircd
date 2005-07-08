@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: defines.h,v 1.54 2005/07/05 22:44:47 alex Exp $
+ * $Id: defines.h,v 1.55 2005/07/08 16:18:39 alex Exp $
  */
 
 
@@ -122,8 +122,8 @@
 #define CUT_TXTSUFFIX "[CUT]"		/* Suffix for oversized messages that
 					   have been shortened and cut off. */
 
-#ifdef RENDEZVOUS
-#define RENDEZVOUS_TYPE "_ircu._tcp."	/* Service type to register with mDNS */
+#ifdef ZEROCONF
+#define MDNS_TYPE "_ircu._tcp."		/* Service type to register with mDNS */
 #endif
 
 

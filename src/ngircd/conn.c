@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.157 2005/07/07 18:49:04 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.158 2005/07/08 16:18:39 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -72,7 +72,7 @@ static char UNUSED id[] = "$Id: conn.c,v 1.157 2005/07/07 18:49:04 fw Exp $";
 #include "parse.h"
 #include "tool.h"
 
-#ifdef RENDEZVOUS
+#ifdef ZEROCONF
 # include "rendezvous.h"
 #endif
 
@@ -301,7 +301,7 @@ Conn_ExitListeners( void )
 	/* Close down all listening sockets */
 	int *fd;
 	unsigned int arraylen;
-#ifdef RENDEZVOUS
+#ifdef ZEROCONF
 	Rendezvous_UnregisterListeners( );
 #endif
 
@@ -330,7 +330,7 @@ Conn_NewListener( const UINT16 Port )
 	struct sockaddr_in addr;
 	struct in_addr inaddr;
 	int sock;
-#ifdef RENDEZVOUS
+#ifdef ZEROCONF
 	char name[CLIENT_ID_LEN], *info;
 #endif
 
@@ -392,7 +392,7 @@ Conn_NewListener( const UINT16 Port )
 	if( Conf_ListenAddress[0]) Log( LOG_INFO, "Now listening on %s:%d (socket %d).", Conf_ListenAddress, Port, sock );
 	else Log( LOG_INFO, "Now listening on 0.0.0.0:%d (socket %d).", Port, sock );
 
-#ifdef RENDEZVOUS
+#ifdef ZEROCONF
 	/* Get best server description text */
 	if( ! Conf_ServerInfo[0] ) info = Conf_ServerName;
 	else
@@ -417,7 +417,7 @@ Conn_NewListener( const UINT16 Port )
 	else strlcpy( name, info, sizeof( name ));
 
 	/* Register service */
-	Rendezvous_Register( name, RENDEZVOUS_TYPE, Port );
+	Rendezvous_Register( name, MDNS_TYPE, Port );
 #endif
 	return true;
 } /* Conn_NewListener */
@@ -448,7 +448,7 @@ Conn_Handler( void )
 	{
 		timeout = true;
 
-#ifdef RENDEZVOUS
+#ifdef ZEROCONF
 		Rendezvous_Handler( );
 #endif
 

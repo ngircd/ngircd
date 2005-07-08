@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.103 2005/07/07 18:37:36 fw Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.104 2005/07/08 16:18:39 alex Exp $";
 
 /**
  * @file
@@ -48,7 +48,7 @@ static char UNUSED id[] = "$Id: ngircd.c,v 1.103 2005/07/07 18:37:36 fw Exp $";
 #include "parse.h"
 #include "irc.h"
 
-#ifdef RENDEZVOUS
+#ifdef ZEROCONF
 #include "rendezvous.h"
 #endif
 
@@ -272,7 +272,7 @@ main( int argc, const char *argv[] )
 		Lists_Init( );
 		Channel_Init( );
 		Client_Init( );
-#ifdef RENDEZVOUS
+#ifdef ZEROCONF
 		Rendezvous_Init( );
 #endif
 		Conn_Init( );
@@ -321,7 +321,7 @@ main( int argc, const char *argv[] )
 
 		/* Alles abmelden */
 		Conn_Exit( );
-#ifdef RENDEZVOUS
+#ifdef ZEROCONF
 		Rendezvous_Exit( );
 #endif
 		Client_Exit( );
@@ -361,11 +361,11 @@ Fill_Version( void )
 
 	strlcat( NGIRCd_VersionAddition, "TCPWRAP", sizeof NGIRCd_VersionAddition );
 #endif
-#ifdef RENDEZVOUS
+#ifdef ZEROCONF
 	if( NGIRCd_VersionAddition[0] )
 		strlcat( NGIRCd_VersionAddition, "+", sizeof NGIRCd_VersionAddition );
 
-	strlcat( NGIRCd_VersionAddition, "RENDEZVOUS", sizeof NGIRCd_VersionAddition );
+	strlcat( NGIRCd_VersionAddition, "ZEROCONF", sizeof NGIRCd_VersionAddition );
 #endif
 #ifdef IDENTAUTH
 	if( NGIRCd_VersionAddition[0] )

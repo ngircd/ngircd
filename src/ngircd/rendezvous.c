@@ -18,10 +18,10 @@
 
 #include "portab.h"
 
-#ifdef RENDEZVOUS
+#ifdef ZEROCONF
 
 
-static char UNUSED id[] = "$Id: rendezvous.c,v 1.5 2005/03/19 18:43:49 fw Exp $";
+static char UNUSED id[] = "$Id: rendezvous.c,v 1.6 2005/07/08 16:18:39 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -360,7 +360,7 @@ LOCAL sw_result HOWL_API Registration_Reply_Handler( sw_discovery Session, sw_di
 #endif /* Howl */
 
 
-#endif	/* RENDEZVOUS */
+#endif	/* ZEROCONF */
 
 
 /* -eof- */

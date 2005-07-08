@@ -8,7 +8,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: configure.in,v 1.113 2005/07/08 12:39:38 alex Exp $
+# $Id: configure.in,v 1.114 2005/07/08 16:18:38 alex Exp $
 #
 
 # -- Initialisation --
@@ -30,7 +30,7 @@ AH_TEMPLATE([SYSLOG], [Define if syslog should be used for logging])
 AH_TEMPLATE([ZLIB], [Define if zlib compression should be enabled])
 AH_TEMPLATE([TCPWRAP], [Define if TCP wrappers should be used])
 AH_TEMPLATE([IRCPLUS], [Define if IRC+ protocol should be used])
-AH_TEMPLATE([RENDEZVOUS], [Define if Rendezvous support should be included])
+AH_TEMPLATE([ZEROCONF], [Define if support for Zeroconf should be included])
 AH_TEMPLATE([IDENTAUTH], [Define if the server should do IDENT requests])
 
 AH_TEMPLATE([TARGET_OS], [Target operating system name])
@@ -246,32 +246,32 @@ int deny_severity = 0;
 	]
 )
 
-x_rendezvous_on=no
-AC_ARG_WITH(rendezvous,
-	[  --with-rendezvous       enable support for "Rendezvous"],
+x_zeroconf_on=no
+AC_ARG_WITH(zeroconf,
+	[  --with-zeroconf         enable support for "Zeroconf"],
 	[	if test "$withval" != "no"; then
 			if test "$withval" != "yes"; then
 				CFLAGS="-I$withval/include $CFLAGS"
 				CPPFLAGS="-I$withval/include $CPPFLAGS"
 				LDFLAGS="-L$withval/lib $LDFLAGS"
 			fi
-			AC_CHECK_FUNCS(DNSServiceRegistrationCreate, x_rendezvous_on=osx,
+			AC_CHECK_FUNCS(DNSServiceRegistrationCreate, x_zeroconf_on=osx,
 			[
 				AC_CHECK_LIB(pthread, pthread_mutexattr_init)
 				AC_CHECK_LIB(howl, sw_discovery_init)
 				AC_CHECK_FUNCS(sw_discovery_init, \
-				 x_rendezvous_on=howl, \
-				 AC_MSG_ERROR([Can't enable Rendezvous!]))
+				 x_zeroconf_on=howl, \
+				 AC_MSG_ERROR([Can't enable Zeroconf!]))
 			])
 		fi
 	]
 )
-if test "$x_rendezvous_on" = "osx"; then
+if test "$x_zeroconf_on" = "osx"; then
 	AC_CHECK_HEADERS([DNSServiceDiscovery/DNSServiceDiscovery.h \
 	 mach/port.h],,AC_MSG_ERROR([required C header missing!]))
-	AC_DEFINE(RENDEZVOUS, 1)
+	AC_DEFINE(ZEROCONF, 1)
 fi
-if test "$x_rendezvous_on" = "howl"; then
+if test "$x_zeroconf_on" = "howl"; then
 	for dir in /usr/local/include /usr/local/include/howl* \
 	 /usr/include /usr/include/howl*; do
 	 	test -d "$dir" || continue
@@ -290,7 +290,7 @@ if test "$x_rendezvous_on" = "howl"; then
 	done
 	AC_CHECK_HEADERS([rendezvous/rendezvous.h],, \
 	 AC_MSG_ERROR([required C header missing!]))
-	AC_DEFINE(RENDEZVOUS, 1)
+	AC_DEFINE(ZEROCONF, 1)
 fi
 
 x_identauth_on=no
@@ -413,8 +413,8 @@ echo
 
 echo $ECHO_N "     Syslog support: $ECHO_C"
 test "$x_syslog_on" = "yes" \
-	&& echo $ECHO_N "yes $ECHO_C" \
-	|| echo $ECHO_N "no  $ECHO_C"
+	&& echo $ECHO_N "yes   $ECHO_C" \
+	|| echo $ECHO_N "no    $ECHO_C"
 echo $ECHO_N "  Enable debug code: $ECHO_C"
 test "$x_debug_on" = "yes" \
 	&& echo "yes" \
@@ -422,8 +422,8 @@ test "$x_debug_on" = "yes" \
 
 echo $ECHO_N "   zlib compression: $ECHO_C"
 test "$x_zlib_on" = "yes" \
-	&& echo $ECHO_N "yes $ECHO_C" \
-	|| echo $ECHO_N "no  $ECHO_C"
+	&& echo $ECHO_N "yes   $ECHO_C" \
+	|| echo $ECHO_N "no    $ECHO_C"
 echo $ECHO_N "        IRC sniffer: $ECHO_C"
 test "$x_sniffer_on" = "yes" \
 	&& echo "yes" \
@@ -431,17 +431,25 @@ test "$x_sniffer_on" = "yes" \
 
 echo $ECHO_N "   Use TCP Wrappers: $ECHO_C"
 test "$x_tcpwrap_on" = "yes" \
-	&& echo $ECHO_N "yes $ECHO_C" \
-	|| echo $ECHO_N "no  $ECHO_C"
+	&& echo $ECHO_N "yes   $ECHO_C" \
+	|| echo $ECHO_N "no    $ECHO_C"
 echo $ECHO_N "    Strict RFC mode: $ECHO_C"
 test "$x_strict_rfc_on" = "yes" \
 	&& echo "yes" \
 	|| echo "no"
 
-echo $ECHO_N " Rendezvous support: $ECHO_C"
-test "$x_rendezvous_on" = "osx" -o "$x_rendezvous_on" = "howl" \
-	&& echo $ECHO_N "yes $ECHO_C" \
-	|| echo $ECHO_N "no  $ECHO_C"
+echo $ECHO_N "   Zeroconf support: $ECHO_C"
+case "$x_zeroconf_on" in
+	osx)
+		echo $ECHO_N "Apple $ECHO_C"
+		;;
+	howl)
+		echo $ECHO_N "Howl  $ECHO_C"
+		;;
+	*)
+		echo $ECHO_N "no    $ECHO_C"
+		;;
+esac
 echo $ECHO_N "      IRC+ protocol: $ECHO_C"
 test "$x_ircplus_on" = "yes" \
 	&& echo "yes" \
@@ -449,11 +457,11 @@ test "$x_ircplus_on" = "yes" \
 
 echo $ECHO_N "      IDENT support: $ECHO_C"
 test "$x_identauth_on" = "yes" \
-	&& echo $ECHO_N "yes $ECHO_C" \
-	|| echo $ECHO_N "no  $ECHO_C"
+	&& echo $ECHO_N "yes   $ECHO_C" \
+	|| echo $ECHO_N "no    $ECHO_C"
 echo $ECHO_N "        I/O backend: $ECHO_C"
 	echo "$x_io_backend"
 
-echo; echo
+echo
 
 # -eof-

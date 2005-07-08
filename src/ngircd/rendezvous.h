@@ -8,13 +8,13 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: rendezvous.h,v 1.2 2005/03/19 18:43:49 fw Exp $
+ * $Id: rendezvous.h,v 1.3 2005/07/08 16:18:39 alex Exp $
  *
  * "Rendezvous" functions (Header)
  */
 
 
-#ifdef RENDEZVOUS
+#ifdef ZEROCONF
 
 #ifndef __rdezvous_h__
 #define __rdezvous_h__
@@ -33,7 +33,7 @@ GLOBAL void Rendezvous_Handler( void );
 
 #endif	/* __rdezvous_h__ */
 
-#endif	/* RENDEZVOUS */
+#endif	/* ZEROCONF */
 
 
 /* -eof- */

@@ -14,6 +14,12 @@
 I. Upgrade Information
 ~~~~~~~~~~~~~~~~~~~~~~
 
+Differences to version 0.9.x
+
+- The option of the configure script to enable support for Zeroconf/Bonjour/
+  Rendezvous/WhateverItIsNamedToday has been renamed:
+    --with-rendezvous  ->  --with-zeroconf
+
 Differences to version 0.8.x
 
 - The maximum length of passwords has been raised to 20 characters (instead
@@ -183,4 +189,4 @@ number. In both cases the server exits after the output.
 
 
 -- 
-$Id: INSTALL,v 1.21 2005/02/10 08:20:09 alex Exp $
+$Id: INSTALL,v 1.22 2005/07/08 16:23:00 alex Exp $

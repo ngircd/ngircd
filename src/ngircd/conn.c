@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.158 2005/07/08 16:18:39 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.159 2005/07/09 21:35:20 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -180,7 +180,7 @@ cb_clientserver(int sock, short what)
 #endif
 		io_close(sock);
 		return;
- 	}
+	}
 
 	if (what & IO_WANTREAD)
 		Read_Request( idx );
@@ -311,8 +311,8 @@ Conn_ExitListeners( void )
 		fd = (int*) array_get(&My_Listeners, sizeof (int), arraylen);
 		if (fd) {
 			close(*fd);
-			Log( LOG_DEBUG, "Listening socket %d closed.", *fd );
 #ifdef DEBUG
+			Log( LOG_DEBUG, "Listening socket %d closed.", *fd );
 		} else {
 			Log( LOG_DEBUG, "array_get pos %d returned NULL", arraylen );
 #endif
@@ -387,7 +387,7 @@ Conn_NewListener( const UINT16 Port )
 		close( sock );
 		return false;
 	}
-	io_event_create( sock, IO_WANTREAD, cb_listen ); 
+	io_event_create( sock, IO_WANTREAD, cb_listen );
 
 	if( Conf_ListenAddress[0]) Log( LOG_INFO, "Now listening on %s:%d (socket %d).", Conf_ListenAddress, Port, sock );
 	else Log( LOG_INFO, "Now listening on 0.0.0.0:%d (socket %d).", Port, sock );
@@ -488,7 +488,6 @@ Conn_Handler( void )
 				/* Socket der Verbindung in Set aufnehmen */
 				io_event_add( My_Connections[i].sock, IO_WANTWRITE );
 			}
-
 		}
 
 		/* von welchen Sockets koennte gelesen werden? */
@@ -1060,9 +1059,7 @@ Read_Request( CONN_ID Idx )
 	if(( Client_Type( c ) != CLIENT_USER ) && ( Client_Type( c ) != CLIENT_SERVER ) &&
 			( Client_Type( c ) != CLIENT_SERVICE ) && ( bsize > ZREADBUFFER_LEN ))
 		bsize = ZREADBUFFER_LEN;
-#endif
 
-#ifdef ZLIB
 	if (( array_bytes(&My_Connections[Idx].rbuf) >= READBUFFER_LEN ) ||
 		( array_bytes(&My_Connections[Idx].zip.rbuf) >= ZREADBUFFER_LEN ))
 #else
@@ -1135,8 +1132,7 @@ Handle_Buffer( CONN_ID Idx )
 #endif
 
 	result = false;
-	do
-	{
+	do {
 		/* Check penalty */
 		if( My_Connections[Idx].delaytime > time( NULL )) return result;
 #ifdef ZLIB
@@ -1238,26 +1234,21 @@ Handle_Buffer( CONN_ID Idx )
 LOCAL void
 Check_Connections( void )
 {
-	/* Pruefen, ob Verbindungen noch "alive" sind. Ist dies
-	 * nicht der Fall, zunaechst PING-PONG spielen und, wenn
-	 * auch das nicht "hilft", Client disconnectieren. */
-
+	/* check if connections are alive. if not, play PING-PONG first.
+	 * if this doesn't help either, disconnect client. */
 	CLIENT *c;
 	CONN_ID i;
 
-	for( i = 0; i < Pool_Size; i++ )
-	{
+	for( i = 0; i < Pool_Size; i++ ) {
 		if( My_Connections[i].sock == NONE ) continue;
 
 		c = Client_GetFromConn( i );
 		if( c && (( Client_Type( c ) == CLIENT_USER ) || ( Client_Type( c ) == CLIENT_SERVER ) || ( Client_Type( c ) == CLIENT_SERVICE )))
 		{
-			/* verbundener User, Server oder Service */
-			if( My_Connections[i].lastping > My_Connections[i].lastdata )
-			{
-				/* es wurde bereits ein PING gesendet */
-				if( My_Connections[i].lastping < time( NULL ) - Conf_PongTimeout )
-				{
+			/* connected User, Server or Service */
+			if( My_Connections[i].lastping > My_Connections[i].lastdata ) {
+				/* we already sent a ping */
+				if( My_Connections[i].lastping < time( NULL ) - Conf_PongTimeout ) {
 					/* Timeout */
 #ifdef DEBUG
 					Log( LOG_DEBUG, "Connection %d: Ping timeout: %d seconds.", i, Conf_PongTimeout );
@@ -1265,9 +1256,8 @@ Check_Connections( void )
 					Conn_Close( i, NULL, "Ping timeout", true );
 				}
 			}
-			else if( My_Connections[i].lastdata < time( NULL ) - Conf_PingTimeout )
-			{
-				/* es muss ein PING gesendet werden */
+			else if( My_Connections[i].lastdata < time( NULL ) - Conf_PingTimeout ) {
+				/* we need to sent a PING */
 #ifdef DEBUG
 				Log( LOG_DEBUG, "Connection %d: sending PING ...", i );
 #endif
@@ -1277,7 +1267,7 @@ Check_Connections( void )
 		}
 		else
 		{
-			/* noch nicht vollstaendig aufgebaute Verbindung */
+			/* connection is not fully established yet */
 			if( My_Connections[i].lastdata < time( NULL ) - Conf_PingTimeout )
 			{
 				/* Timeout */

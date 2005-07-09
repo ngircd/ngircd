@@ -10,7 +10,7 @@
                                -- ChangeLog --
 
 
-ngIRCd 0.9.x
+ngIRCd 0.9.0-pre1 (2005-07-09)
 
   - Fixed maximum length of user names, now allow up to 9 characters.
   - Cut off oversized IRC messages that should be sent to the network instead
@@ -611,4 +611,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.276.2.3 2005/07/05 22:58:25 alex Exp $
+$Id: ChangeLog,v 1.276.2.4 2005/07/09 11:57:07 alex Exp $

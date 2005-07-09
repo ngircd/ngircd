@@ -53,15 +53,15 @@ IV. Documentation
 ~~~~~~~~~~~~~~~~~
 
 More documentation can be found in the "doc/" directory and the homepage of
-the ngIRCd: <http://arthur.ath.cx/~alex/ngircd/>.
+the ngIRCd: <http://ngircd.barton.de/>.
 
 
 V. Download
 ~~~~~~~~~~~
 
-The homepage of the ngIRCd is: <http://arthur.ath.cx/~alex/ngircd>; you
-will find the newest information about the ngIRCd and the most recent
-("stable") releases there.
+The homepage of the ngIRCd is: <http://ngircd.barton.de/>; you will find
+the newest information about the ngIRCd and the most recent ("stable")
+releases there.
 
 If you are interested in the latest development versions (which are not
 always stable), then please read the section "CVS" on the homepage and
@@ -75,13 +75,13 @@ VI. Bugs
 If you find bugs in the ngIRCd (which might be there :-), please report
 them at the following URL:
 
-<http://arthur.ath.cx/~alex/ngircd/#bugs>
+<http://ngircd.barton.de/#bugs>
 
 There you can read about known bugs and limitations, too.
 
 If you have critics, patches or something else, please feel free to post a
-mail to: <alex@barton.de> or <alex@arthur.ath.cx>
+mail to <alex@barton.de>.
 
 
 -- 
-$Id: README,v 1.20 2005/06/26 21:54:01 alex Exp $
+$Id: README,v 1.20.2.1 2005/07/09 14:41:39 alex Exp $

@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: io.c,v 1.1 2005/07/07 18:38:35 fw Exp $";
+static char UNUSED id[] = "$Id: io.c,v 1.2 2005/07/09 20:23:00 fw Exp $";
 
 #include <assert.h>
 #include <stdlib.h>
@@ -90,12 +90,6 @@ io_event_get(int fd)
 	i = (io_event *) array_get(&io_events, sizeof(io_event), fd);
 	assert(i);
 
-	if (!i) {
-#ifdef DEBUG
-		Log(LOG_DEBUG, "io_event_add(): EMPTY FOR fd %d", fd);
-#endif
-		return NULL;
-	}
 	return i;
 }
 
@@ -155,21 +149,15 @@ io_library_init(unsigned int eventsize)
 }
 
 
-bool
+void
 io_library_shutdown(void)
 {
-	unsigned int len = array_length(&io_events, sizeof(io_event));
-
-	while (len--) {
-		if (NULL == io_event_get(len))
-			continue;
-	}
-#ifndef IO_USE_SELECT
-	close(io_masterfd);	/* kqueue, epoll */
-	io_masterfd = -1;
-#else
+#ifdef IO_USE_SELECT
 	FD_ZERO(&readers);
 	FD_ZERO(&writers);
+#else
+	close(io_masterfd);	/* kqueue, epoll */
+	io_masterfd = -1;
 #endif
 #ifdef IO_USE_KQUEUE
 	array_free(&io_evcache);
@@ -331,8 +319,7 @@ io_event_add(int fd, short what)
 	if (i->what == what)
 		return true;
 #ifdef DEBUG
-	Log(LOG_DEBUG, "io_event_add(): fd %d (arg: %d), what %d.", i->fd, fd,
-	    what);
+	Log(LOG_DEBUG, "io_event_add(): fd %d (arg: %d), what %d.", i->fd, fd, what);
 #endif
 
 	i->what |= what;
@@ -407,12 +394,11 @@ io_event_del(int fd, short what)
 #endif
 	io_event *i = io_event_get(fd);
 #ifdef DEBUG
-	Log(LOG_DEBUG, "io_event_del(): trying to delete eventtype %d on fd %d",
-	    what, fd);
+	Log(LOG_DEBUG, "io_event_del(): trying to delete eventtype %d on fd %d", what, fd);
 #endif
 	assert(i);
 	if (!i)
-		return true;
+		return false;
 
 	i->what &= ~what;
 

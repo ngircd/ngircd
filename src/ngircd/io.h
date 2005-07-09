@@ -7,7 +7,7 @@
  *
  * I/O abstraction interface header
  *
- * $Id: io.h,v 1.1 2005/07/07 18:38:35 fw Exp $
+ * $Id: io.h,v 1.2 2005/07/09 20:22:29 fw Exp $
  */
 
 #ifndef io_H_inclucded
@@ -24,7 +24,7 @@
 bool io_library_init PARAMS((unsigned int ioevlen));
 
 /* shutdown and free all internal data structures */
-bool io_library_shutdown PARAMS((void));
+void io_library_shutdown PARAMS((void));
 
 /* add fd to internal set, enable readability check, set callback */
 bool io_event_create PARAMS((int fd, short what, void (*cbfunc)(int, short)));

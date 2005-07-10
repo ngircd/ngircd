@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.106 2005/07/08 23:19:20 alex Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.107 2005/07/10 21:07:22 fw Exp $";
 
 /**
  * @file
@@ -438,7 +438,7 @@ NGIRCd_Rehash( void )
 	/* Recover old server name: it can't be changed during run-time */
 	if( strcmp( old_name, Conf_ServerName ) != 0 )
 	{
-		strcpy( Conf_ServerName, old_name );
+		strlcpy( Conf_ServerName, old_name, sizeof Conf_ServerName );
 		Log( LOG_ERR, "Can't change \"ServerName\" on runtime! Ignored new name." );
 	}
 

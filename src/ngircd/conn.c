@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.161 2005/07/11 14:56:38 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.162 2005/07/11 20:58:05 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -1083,7 +1083,7 @@ Read_Request( CONN_ID Idx )
 		return;
 	}
 
-	len = read( My_Connections[Idx].sock, readbuf, sizeof readbuf );
+	len = read( My_Connections[Idx].sock, readbuf, sizeof readbuf -1 );
 	if( len == 0 ) {
 		Log( LOG_INFO, "%s:%d (%s) is closing the connection ...",
 			 My_Connections[Idx].host, ntohs( My_Connections[Idx].addr.sin_port),
@@ -1405,8 +1405,7 @@ New_Server( int Server, CONN_ID Idx )
 	new_addr.sin_port = htons( Conf_Server[Server].port );
 
 	new_sock = socket( PF_INET, SOCK_STREAM, 0 );
-	if ( new_sock < 0 )
-	{
+	if ( new_sock < 0 ) {
 		/* Can't create socket */
 		Init_Conn_Struct( Idx );
 		Conf_Server[Server].conn_id = NONE;
@@ -1417,8 +1416,7 @@ New_Server( int Server, CONN_ID Idx )
 	if( ! Init_Socket( new_sock )) return;
 
 	res = connect( new_sock, (struct sockaddr *)&new_addr, sizeof( new_addr ));
-	if(( res != 0 ) && ( errno != EINPROGRESS ))
-	{
+	if(( res != 0 ) && ( errno != EINPROGRESS )) {
 		/* Can't connect socket */
 		Log( LOG_CRIT, "Can't connect socket: %s!", strerror( errno ));
 		close( new_sock );
@@ -1429,8 +1427,7 @@ New_Server( int Server, CONN_ID Idx )
 
 	/* Client-Struktur initialisieren */
 	c = Client_NewLocal( Idx, inet_ntoa( new_addr.sin_addr ), CLIENT_UNKNOWNSERVER, false );
-	if( ! c )
-	{
+	if( ! c ) {
 		/* Can't create new client structure */
 		close( new_sock );
 		Init_Conn_Struct( Idx );

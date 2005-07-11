@@ -12,7 +12,7 @@
 
 #include "array.h"
 
-static char UNUSED id[] = "$Id: array.c,v 1.2 2005/07/07 21:26:31 fw Exp $";
+static char UNUSED id[] = "$Id: array.c,v 1.3 2005/07/11 14:10:53 fw Exp $";
 
 #include <assert.h>
 
@@ -56,7 +56,7 @@ array_alloc(array * a, unsigned int size, unsigned int pos)
 	unsigned int aligned = 0;
 	char *tmp;
 
-	assert(size);
+	assert(size > 0);
 
 	if (pos_plus1 < pos)
 		return NULL;
@@ -110,8 +110,8 @@ array_alloc(array * a, unsigned int size, unsigned int pos)
 unsigned int
 array_length(const array * const a, unsigned int membersize)
 {
-	assert(a);
-	assert(membersize);
+	assert(a != NULL);
+	assert(membersize > 0);
 
 	if (array_UNUSABLE(a))
 		return 0;
@@ -135,8 +135,8 @@ array_copy(array * dest, const array * const src)
 bool
 array_copyb(array * dest, const char *src, unsigned int len)
 {
-	assert(dest);
-	assert(src);
+	assert(dest != NULL);
+	assert(src != NULL );
 
 	if (!len || !src)
 		return true;
@@ -172,8 +172,8 @@ array_catb(array * dest, const char *src, unsigned int len)
 	unsigned int used;
 	char *ptr;
 
-	assert(dest);
-	assert(src);
+	assert(dest != NULL);
+	assert(src != NULL);
 
 	if (!len)
 		return true;
@@ -192,7 +192,7 @@ array_catb(array * dest, const char *src, unsigned int len)
 
 	ptr = dest->mem;
 
-	assert(ptr);
+	assert(ptr != NULL);
 
 #ifdef DEBUG
 	Log(LOG_DEBUG,
@@ -240,8 +240,8 @@ array_get(array * a, unsigned int membersize, unsigned int pos)
 {
 	unsigned int totalsize;
 
-	assert(membersize);
-	assert(a);
+	assert(membersize > 0);
+	assert(a != NULL);
 
 	if (array_UNUSABLE(a))
 		return NULL;
@@ -259,7 +259,7 @@ array_get(array * a, unsigned int membersize, unsigned int pos)
 void
 array_free(array * a)
 {
-	assert(a);
+	assert(a != NULL);
 #ifdef DEBUG
 	Log(LOG_DEBUG,
 	    "array_free: %u bytes free'd (%u bytes still used at time of free())",
@@ -285,7 +285,7 @@ array_free_wipe(array * a)
 void *
 array_start(const array * const a)
 {
-	assert(a);
+	assert(a != NULL);
 	return a->mem;
 }
 
@@ -293,7 +293,7 @@ array_start(const array * const a)
 void
 array_trunc(array * a)
 {
-	assert(a);
+	assert(a != NULL);
 	a->used = 0;
 }
 
@@ -302,7 +302,7 @@ void
 array_truncate(array * a, unsigned int membersize, unsigned int len)
 {
 	unsigned int newlen;
-	assert(a);
+	assert(a != NULL);
 	if (!safemult_uint(membersize, len, &newlen))
 		return;
 
@@ -317,8 +317,8 @@ array_moveleft(array * a, unsigned int membersize, unsigned int pos)
 {
 	unsigned int bytepos;
 
-	assert(a);
-	assert(membersize);
+	assert(a != NULL);
+	assert(membersize > 0);
 
 	if (!pos)
 		return;

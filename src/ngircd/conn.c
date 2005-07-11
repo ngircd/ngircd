@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.159 2005/07/09 21:35:20 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.160 2005/07/11 14:11:35 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -278,7 +278,8 @@ Conn_InitListeners( void )
 {
 	/* Initialize ports on which the server should accept connections */
 
-	int created, i;
+	int created;
+	unsigned int i;
 
 	if (!io_library_init(CONNECTION_POOL)) {
 		Log(LOG_EMERG, "Cannot initialize IO routines: %s", strerror(errno));

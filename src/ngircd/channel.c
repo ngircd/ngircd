@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: channel.c,v 1.50 2005/06/18 08:57:37 fw Exp $";
+static char UNUSED id[] = "$Id: channel.c,v 1.51 2005/07/11 14:11:35 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -76,7 +76,7 @@ Channel_InitPredefined( void )
 
 	CHANNEL *chan;
 	char *c;
-	int i;
+	unsigned int i;
 	
 	for( i = 0; i < Conf_Channel_Count; i++ )
 	{

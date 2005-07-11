@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conf.h,v 1.34 2005/03/20 13:54:06 fw Exp $
+ * $Id: conf.h,v 1.35 2005/07/11 14:11:35 fw Exp $
  *
  * Configuration management (header)
  */
@@ -78,7 +78,7 @@ GLOBAL char Conf_MotdPhrase[LINE_LEN];
 
 /* Ports the server should listen on */
 GLOBAL UINT16 Conf_ListenPorts[MAX_LISTEN_PORTS];
-GLOBAL int Conf_ListenPorts_Count;
+GLOBAL unsigned int Conf_ListenPorts_Count;
 
 /* Address to which the socket should be bound or empty (=all) */
 GLOBAL char Conf_ListenAddress[16];
@@ -102,14 +102,14 @@ GLOBAL int Conf_ConnectRetry;
 
 /* Operators */
 GLOBAL CONF_OPER Conf_Oper[MAX_OPERATORS];
-GLOBAL int Conf_Oper_Count;
+GLOBAL unsigned int Conf_Oper_Count;
 
 /* Servers */
 GLOBAL CONF_SERVER Conf_Server[MAX_SERVERS];
 
 /* Pre-defined channels */
 GLOBAL CONF_CHANNEL Conf_Channel[MAX_DEFCHANNELS];
-GLOBAL int Conf_Channel_Count;
+GLOBAL unsigned int Conf_Channel_Count;
 
 /* Are IRC operators allowed to always use MODE? */
 GLOBAL bool Conf_OperCanMode;

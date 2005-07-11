@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.78 2005/07/07 18:46:46 fw Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.79 2005/07/11 14:11:35 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -97,7 +97,7 @@ Conf_Test( void )
 
 	struct passwd *pwd;
 	struct group *grp;
-	int i;
+	unsigned int i;
 
 	Use_Log = false;
 	Set_Defaults( true );

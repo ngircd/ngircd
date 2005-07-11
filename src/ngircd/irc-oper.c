@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-oper.c,v 1.22 2005/06/12 18:02:09 fw Exp $";
+static char UNUSED id[] = "$Id: irc-oper.c,v 1.23 2005/07/11 14:11:35 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -50,7 +50,7 @@ Bad_OperPass(CLIENT *Client, char *errtoken, char *errmsg)
 GLOBAL bool
 IRC_OPER( CLIENT *Client, REQUEST *Req )
 {
-	int i;
+	unsigned int i;
 
 	assert( Client != NULL );
 	assert( Req != NULL );

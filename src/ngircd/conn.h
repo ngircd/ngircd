@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conn.h,v 1.36 2005/07/07 18:45:33 fw Exp $
+ * $Id: conn.h,v 1.37 2005/07/11 14:56:38 fw Exp $
  *
  * Connection management (header)
  */
@@ -83,8 +83,6 @@ GLOBAL void Conn_Exit PARAMS(( void ));
 
 GLOBAL int Conn_InitListeners PARAMS(( void ));
 GLOBAL void Conn_ExitListeners PARAMS(( void ));
-
-GLOBAL bool Conn_NewListener PARAMS(( const UINT16 Port ));
 
 GLOBAL void Conn_Handler PARAMS(( void ));
 

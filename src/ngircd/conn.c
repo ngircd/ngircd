@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.160 2005/07/11 14:11:35 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.161 2005/07/11 14:56:38 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -94,6 +94,7 @@ LOCAL bool Init_Socket PARAMS(( int Sock ));
 LOCAL void New_Server PARAMS(( int Server, CONN_ID Idx ));
 LOCAL void Simple_Message PARAMS(( int Sock, char *Msg ));
 LOCAL int Count_Connections PARAMS(( struct sockaddr_in addr ));
+LOCAL int NewListener PARAMS(( const UINT16 Port ));
 
 static array My_Listeners;
 
@@ -278,7 +279,7 @@ Conn_InitListeners( void )
 {
 	/* Initialize ports on which the server should accept connections */
 
-	int created;
+	int created, fd;
 	unsigned int i;
 
 	if (!io_library_init(CONNECTION_POOL)) {
@@ -287,10 +288,19 @@ Conn_InitListeners( void )
 	}
 
 	created = 0;
-	for( i = 0; i < Conf_ListenPorts_Count; i++ )
-	{
-		if( Conn_NewListener( Conf_ListenPorts[i] )) created++;
-		else Log( LOG_ERR, "Can't listen on port %u!", (unsigned int) Conf_ListenPorts[i] );
+	for( i = 0; i < Conf_ListenPorts_Count; i++ ) {
+		fd = NewListener( Conf_ListenPorts[i] );
+		if (fd < 0) {
+			Log( LOG_ERR, "Can't listen on port %u!", (unsigned int) Conf_ListenPorts[i] );
+			continue;
+		}
+		if (!io_event_create( fd, IO_WANTREAD, cb_listen )) {
+			Log( LOG_ERR, "io_event_create(): Could not add listening fd %d (port %u): %s!",
+						fd, (unsigned int) Conf_ListenPorts[i], strerror(errno));
+			close(fd);
+			continue;
+		}
+		created++;
 	}
 	return created;
 } /* Conn_InitListeners */
@@ -323,8 +333,8 @@ Conn_ExitListeners( void )
 } /* Conn_ExitListeners */
 
 
-GLOBAL bool
-Conn_NewListener( const UINT16 Port )
+LOCAL int
+NewListener( const UINT16 Port )
 {
 	/* Create new listening socket on specified port */
 
@@ -350,7 +360,7 @@ Conn_NewListener( const UINT16 Port )
 #endif
 		{
 			Log( LOG_CRIT, "Can't listen on %s:%u: can't convert ip address %s!", Conf_ListenAddress, Port, Conf_ListenAddress );
-			return false;
+			return -1;
 		}
 	}
 	else inaddr.s_addr = htonl( INADDR_ANY );
@@ -361,17 +371,17 @@ Conn_NewListener( const UINT16 Port )
 	if( sock < 0 )
 	{
 		Log( LOG_CRIT, "Can't create socket: %s!", strerror( errno ));
-		return false;
+		return -1;
 	}
 
-	if( ! Init_Socket( sock )) return false;
+	if( ! Init_Socket( sock )) return -1;
 
 	/* an Port binden */
 	if( bind( sock, (struct sockaddr *)&addr, (socklen_t)sizeof( addr )) != 0 )
 	{
 		Log( LOG_CRIT, "Can't bind socket: %s!", strerror( errno ));
 		close( sock );
-		return false;
+		return -1;
 	}
 
 	/* in "listen mode" gehen :-) */
@@ -379,16 +389,15 @@ Conn_NewListener( const UINT16 Port )
 	{
 		Log( LOG_CRIT, "Can't listen on soecket: %s!", strerror( errno ));
 		close( sock );
-		return false;
+		return -1;
 	}
 
 	/* Neuen Listener in Strukturen einfuegen */
 	if (!array_catb( &My_Listeners,(char*) &sock, sizeof(int) )) {
 		Log( LOG_CRIT, "Can't add socket to My_Listeners array: %s!", strerror( errno ));
 		close( sock );
-		return false;
+		return -1;
 	}
-	io_event_create( sock, IO_WANTREAD, cb_listen );
 
 	if( Conf_ListenAddress[0]) Log( LOG_INFO, "Now listening on %s:%d (socket %d).", Conf_ListenAddress, Port, sock );
 	else Log( LOG_INFO, "Now listening on 0.0.0.0:%d (socket %d).", Port, sock );
@@ -420,8 +429,8 @@ Conn_NewListener( const UINT16 Port )
 	/* Register service */
 	Rendezvous_Register( name, MDNS_TYPE, Port );
 #endif
-	return true;
-} /* Conn_NewListener */
+	return sock;
+} /* NewListener */
 
 
 GLOBAL void

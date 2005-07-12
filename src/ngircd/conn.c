@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.162 2005/07/11 20:58:05 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.163 2005/07/12 20:44:46 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -333,6 +333,7 @@ Conn_ExitListeners( void )
 } /* Conn_ExitListeners */
 
 
+/* return new listening port file descriptor or -1 on failure */
 LOCAL int
 NewListener( const UINT16 Port )
 {
@@ -436,16 +437,11 @@ NewListener( const UINT16 Port )
 GLOBAL void
 Conn_Handler( void )
 {
-	/* "Hauptschleife": Aktive Verbindungen ueberwachen. Folgende Aktionen
-	 * werden dabei durchgefuehrt, bis der Server terminieren oder neu
-	 * starten soll:
-	 *
-	 *  - neue Verbindungen annehmen,
-	 *  - Server-Verbindungen aufbauen,
-	 *  - geschlossene Verbindungen loeschen,
-	 *  - volle Schreibpuffer versuchen zu schreiben,
-	 *  - volle Lesepuffer versuchen zu verarbeiten,
-	 *  - Antworten von Resolver Sub-Prozessen annehmen.
+	/* "Main Loop.": Loop until a signal (for shutdown or restart) arrives.
+	 * Call io_dispatch() to check for read/writeable sockets every second
+	 * Wait for status change on pending connections (e.g: when the hostname has been resolved)
+	 * check for penalty/timeouts
+	 * handle input buffers
 	 */
 	int i;
 	unsigned int wdatalen;
@@ -486,7 +482,7 @@ Conn_Handler( void )
 		for( i = 0; i < Pool_Size; i++ ) {
 			if ( My_Connections[i].sock <= NONE )
 				continue;
-			
+
 			wdatalen = array_bytes(&My_Connections[i].wbuf);
 
 #ifdef ZLIB
@@ -733,7 +729,7 @@ Conn_Close( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool InformClient )
 
 	/* Try to write out the write buffer */
 	(void)Handle_Write( Idx );
-	
+
 	/* Shut down socket */
 	if( ! io_close( My_Connections[Idx].sock ))
 	{
@@ -961,8 +957,7 @@ New_Connection( int Sock )
 		}
 
 		ptr = (POINTER *)realloc( My_Connections, sizeof( CONNECTION ) * new_size );
-		if( ! ptr )
-		{
+		if( ! ptr ) {
 			Log( LOG_EMERG, "Can't allocate memory! [New_Connection]" );
 			Simple_Message( new_sock, "ERROR: Internal error" );
 			close( new_sock );
@@ -986,8 +981,7 @@ New_Connection( int Sock )
 
 	/* Client-Struktur initialisieren */
 	c = Client_NewLocal( idx, inet_ntoa( new_addr.sin_addr ), CLIENT_UNKNOWN, false );
-	if( ! c )
-	{
+	if( ! c ) {
 		Log( LOG_ALERT, "Can't accept connection: can't create client structure!" );
 		Simple_Message( new_sock, "ERROR :Internal error" );
 		close( new_sock );
@@ -1000,7 +994,11 @@ New_Connection( int Sock )
 	My_Connections[idx].addr = new_addr;
 
 	/* Neuen Socket registrieren */
-	io_event_create( new_sock, IO_WANTREAD, cb_clientserver);
+	if (!io_event_create( new_sock, IO_WANTREAD, cb_clientserver)) {
+		Simple_Message( new_sock, "ERROR :Internal error" );
+		Conn_Close( idx, "io_event_create() failed", NULL, false );
+		return;
+	}
 
 	Log( LOG_INFO, "Accepted connection %d from %s:%d on socket %d.", idx, inet_ntoa( new_addr.sin_addr ), ntohs( new_addr.sin_port), Sock );
 
@@ -1086,11 +1084,12 @@ Read_Request( CONN_ID Idx )
 	len = read( My_Connections[Idx].sock, readbuf, sizeof readbuf -1 );
 	if( len == 0 ) {
 		Log( LOG_INFO, "%s:%d (%s) is closing the connection ...",
-			 My_Connections[Idx].host, ntohs( My_Connections[Idx].addr.sin_port),
-						inet_ntoa( My_Connections[Idx].addr.sin_addr ));
+			My_Connections[Idx].host, ntohs( My_Connections[Idx].addr.sin_port),
+					inet_ntoa( My_Connections[Idx].addr.sin_addr ));
 		Conn_Close( Idx, "Socket closed!", "Client closed connection", false );
 		return;
 	}
+
 	if( len < 0 ) {
 		if( errno == EAGAIN ) return;
 		Log( LOG_ERR, "Read error on connection %d (socket %d): %s!", Idx,
@@ -1207,7 +1206,7 @@ Handle_Buffer( CONN_ID Idx )
 			My_Connections[Idx].msg_in++;
 			if( ! Parse_Request( Idx, (char*)array_start(&My_Connections[Idx].rbuf) )) return false;
 			else action = true;
-				
+
 			array_moveleft(&My_Connections[Idx].rbuf, 1, len);
 #ifdef DEBUG
 			Log(LOG_DEBUG, "%d byte left in rbuf", array_bytes(&My_Connections[Idx].rbuf));
@@ -1373,13 +1372,10 @@ New_Server( int Server, CONN_ID Idx )
 	assert( Idx > NONE );
 
 	/* Did we get a valid IP address? */
-	if( ! Conf_Server[Server].ip[0] )
-	{
+	if( ! Conf_Server[Server].ip[0] ) {
 		/* No. Free connection structure and abort: */
-		Init_Conn_Struct( Idx );
-		Conf_Server[Server].conn_id = NONE;
 		Log( LOG_ERR, "Can't connect to \"%s\" (connection %d): ip address unknown!", Conf_Server[Server].host, Idx );
-		return;
+		goto out;
 	}
 
 	Log( LOG_INFO, "Establishing connection to \"%s\", %s, port %d (connection %d) ... ", Conf_Server[Server].host, Conf_Server[Server].ip, Conf_Server[Server].port, Idx );
@@ -1393,10 +1389,8 @@ New_Server( int Server, CONN_ID Idx )
 #endif
 	{
 		/* Can't convert IP address */
-		Init_Conn_Struct( Idx );
-		Conf_Server[Server].conn_id = NONE;
 		Log( LOG_ERR, "Can't connect to \"%s\" (connection %d): can't convert ip address %s!", Conf_Server[Server].host, Idx, Conf_Server[Server].ip );
-		return;
+		goto out;
 	}
 
 	memset( &new_addr, 0, sizeof( new_addr ));
@@ -1407,10 +1401,8 @@ New_Server( int Server, CONN_ID Idx )
 	new_sock = socket( PF_INET, SOCK_STREAM, 0 );
 	if ( new_sock < 0 ) {
 		/* Can't create socket */
-		Init_Conn_Struct( Idx );
-		Conf_Server[Server].conn_id = NONE;
 		Log( LOG_CRIT, "Can't create socket: %s!", strerror( errno ));
-		return;
+		goto out;
 	}
 
 	if( ! Init_Socket( new_sock )) return;
@@ -1420,21 +1412,18 @@ New_Server( int Server, CONN_ID Idx )
 		/* Can't connect socket */
 		Log( LOG_CRIT, "Can't connect socket: %s!", strerror( errno ));
 		close( new_sock );
-		Init_Conn_Struct( Idx );
-		Conf_Server[Server].conn_id = NONE;
-		return;
+		goto out;
 	}
 
 	/* Client-Struktur initialisieren */
 	c = Client_NewLocal( Idx, inet_ntoa( new_addr.sin_addr ), CLIENT_UNKNOWNSERVER, false );
 	if( ! c ) {
 		/* Can't create new client structure */
-		close( new_sock );
-		Init_Conn_Struct( Idx );
-		Conf_Server[Server].conn_id = NONE;
 		Log( LOG_ALERT, "Can't establish connection: can't create client structure!" );
-		return;
+		close( new_sock );
+		goto out;
 	}
+
 	Client_SetIntroducer( c, c );
 	Client_SetToken( c, TOKEN_OUTBOUND );
 
@@ -1444,12 +1433,20 @@ New_Server( int Server, CONN_ID Idx )
 	strlcpy( My_Connections[Idx].host, Conf_Server[Server].host, sizeof( My_Connections[Idx].host ));
 
 	/* Register new socket */
-	io_event_create( new_sock, IO_WANTWRITE, cb_connserver);
-	Conn_OPTION_ADD( &My_Connections[Idx], CONN_ISCONNECTING );
+	if (!io_event_create( new_sock, IO_WANTWRITE, cb_connserver)) {
+		Log( LOG_ALERT, "io_event_create(): could not add fd %d", strerror(errno));
+		Conn_Close( Idx, "io_event_create() failed", NULL, false );
+		goto out;
+	}
 
 #ifdef DEBUG
 	Log( LOG_DEBUG, "Registered new connection %d on socket %d.", Idx, My_Connections[Idx].sock );
 #endif
+	Conn_OPTION_ADD( &My_Connections[Idx], CONN_ISCONNECTING );
+	return;
+out:
+	Init_Conn_Struct( Idx );
+	Conf_Server[Server].conn_id = NONE;
 } /* New_Server */
 
 

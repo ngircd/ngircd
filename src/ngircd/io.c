@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: io.c,v 1.2 2005/07/09 20:23:00 fw Exp $";
+static char UNUSED id[] = "$Id: io.c,v 1.3 2005/07/12 20:44:13 fw Exp $";
 
 #include <assert.h>
 #include <stdlib.h>
@@ -162,7 +162,6 @@ io_library_shutdown(void)
 #ifdef IO_USE_KQUEUE
 	array_free(&io_evcache);
 #endif
-	return true;
 }
 
 

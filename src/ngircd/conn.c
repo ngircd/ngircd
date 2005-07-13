@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.163 2005/07/12 20:44:46 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.164 2005/07/13 16:06:55 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -1048,26 +1048,13 @@ Read_Request( CONN_ID Idx )
 	/* Daten von Socket einlesen und entsprechend behandeln.
 	 * Tritt ein Fehler auf, so wird der Socket geschlossen. */
 
-	unsigned int bsize;
 	int len;
 	char readbuf[1024];
-#ifdef ZLIB
-	CLIENT *c;
-#endif
 
 	assert( Idx > NONE );
 	assert( My_Connections[Idx].sock > NONE );
 
-	/* wenn noch nicht registriert: maximal mit ZREADBUFFER_LEN arbeiten,
-	 * ansonsten koennen Daten ggf. nicht umkopiert werden. */
-	bsize = READBUFFER_LEN;
 #ifdef ZLIB
-	c = Client_GetFromConn( Idx );
-
-	if(( Client_Type( c ) != CLIENT_USER ) && ( Client_Type( c ) != CLIENT_SERVER ) &&
-			( Client_Type( c ) != CLIENT_SERVICE ) && ( bsize > ZREADBUFFER_LEN ))
-		bsize = ZREADBUFFER_LEN;
-
 	if (( array_bytes(&My_Connections[Idx].rbuf) >= READBUFFER_LEN ) ||
 		( array_bytes(&My_Connections[Idx].zip.rbuf) >= ZREADBUFFER_LEN ))
 #else

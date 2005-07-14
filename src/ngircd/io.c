@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: io.c,v 1.3 2005/07/12 20:44:13 fw Exp $";
+static char UNUSED id[] = "$Id: io.c,v 1.4 2005/07/14 09:20:39 alex Exp $";
 
 #include <assert.h>
 #include <stdlib.h>
@@ -115,26 +115,26 @@ io_library_init(unsigned int eventsize)
 #ifdef IO_USE_EPOLL
 	io_masterfd = epoll_create(ecreate_hint);
 	Log(LOG_INFO,
-	    "io subsystem: using epoll (hint size %d), initial io_event maxfd: %u, io_masterfd %d",
+	    "IO subsystem: epoll (hint size %d, initial maxfd %u, masterfd %d).",
 	    ecreate_hint, eventsize, io_masterfd);
 	return io_masterfd >= 0;
 #endif
 #ifdef IO_USE_SELECT
-	Log(LOG_INFO, "io subsystem: using select, initial io_event maxfd: %u",
+	Log(LOG_INFO, "IO subsystem: select (initial maxfd %u).",
 	    eventsize);
 	FD_ZERO(&readers);
 	FD_ZERO(&writers);
 #ifdef FD_SETSIZE
 	if (Conf_MaxConnections >= FD_SETSIZE) {
 		Log(LOG_WARNING,
-		    "Conf_MaxConnections (%d) exceeds limit (%u), changed Conf_MaxConnections to %u",
+		    "MaxConnections (%d) exceeds limit (%u), changed MaxConnections to %u.",
 		    Conf_MaxConnections, FD_SETSIZE, FD_SETSIZE - 1);
 
 		Conf_MaxConnections = FD_SETSIZE - 1;
 	}
 #else
 	Log(LOG_WARNING,
-	    "FD_SETSIZE undefined, don't know how many descriptors select() can handle on your platform");
+	    "FD_SETSIZE undefined, don't know how many descriptors select() can handle on your platform ...");
 #endif
 	return true;
 #endif
@@ -142,7 +142,7 @@ io_library_init(unsigned int eventsize)
 	io_masterfd = kqueue();
 
 	Log(LOG_INFO,
-	    "io subsystem: using kqueue, initial io_event maxfd: %u, io_masterfd %d",
+	    "IO subsystem: kqueue (initial maxfd %u, masterfd %d)",
 	    eventsize, io_masterfd);
 	return io_masterfd >= 0;
 #endif
@@ -529,7 +529,8 @@ io_dispatch_kqueue(struct timeval *tv)
 			assert(newevents);
 #endif
 
-		ret = kevent(io_masterfd, newevents, newevents_len, kev, 100, &ts);
+		ret = kevent(io_masterfd, newevents, newevents_len, kev,
+			     100, &ts);
 		if ((newevents_len>0) && ret != -1)
 			array_trunc(&io_evcache);
 

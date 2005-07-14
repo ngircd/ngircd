@@ -12,7 +12,7 @@
 
 #include "array.h"
 
-static char UNUSED id[] = "$Id: array.c,v 1.3 2005/07/11 14:10:53 fw Exp $";
+static char UNUSED id[] = "$Id: array.c,v 1.4 2005/07/14 09:14:12 alex Exp $";
 
 #include <assert.h>
 
@@ -75,7 +75,7 @@ array_alloc(array * a, unsigned int size, unsigned int pos)
 			}
 		}
 #ifdef DEBUG
-		Log(LOG_DEBUG, "Rounded %u to %u byte.", alloc, aligned);
+		Log(LOG_DEBUG, "array_alloc(): rounded %u to %u bytes.", alloc, aligned);
 #endif
 
 		assert(aligned >= alloc);
@@ -85,7 +85,7 @@ array_alloc(array * a, unsigned int size, unsigned int pos)
 
 		alloc = aligned;
 #ifdef DEBUG
-		Log(LOG_DEBUG, "array_alloc: changing size from %u to %u byte",
+		Log(LOG_DEBUG, "array_alloc(): changing size from %u to %u bytes.",
 		    a->allocated, aligned);
 #endif
 
@@ -148,7 +148,7 @@ array_copyb(array * dest, const char *src, unsigned int len)
 	memcpy(dest->mem, src, len);
 #ifdef DEBUG
 	Log(LOG_DEBUG,
-	    "array_copyb: copied %u bytes to array (%u total bytes allocated)",
+	    "array_copyb(): copied %u bytes to array (%u bytes allocated).",
 	    len, dest->allocated);
 #endif
 	return true;
@@ -196,7 +196,7 @@ array_catb(array * dest, const char *src, unsigned int len)
 
 #ifdef DEBUG
 	Log(LOG_DEBUG,
-	    "array_catb: appending %u bytes to array (now %u total bytes in array)",
+	    "array_catb(): appending %u bytes to array (now %u bytes in array).",
 	    len, tmp);
 #endif
 	memcpy(ptr + used, src, len);
@@ -262,7 +262,7 @@ array_free(array * a)
 	assert(a != NULL);
 #ifdef DEBUG
 	Log(LOG_DEBUG,
-	    "array_free: %u bytes free'd (%u bytes still used at time of free())",
+	    "array_free(): %u bytes free'd (%u bytes still used at time of free()).",
 	    a->allocated, a->used);
 #endif
 	free(a->mem);
@@ -333,7 +333,7 @@ array_moveleft(array * a, unsigned int membersize, unsigned int pos)
 
 #ifdef DEBUG
 	Log(LOG_DEBUG,
-	    "array_moveleft: %u used bytes in array, move to beginning, starting at pos %u",
+	    "array_moveleft(): %u bytes used in array, starting at position %u.",
 	    a->used, bytepos);
 #endif
 	if (a->used <= bytepos) {

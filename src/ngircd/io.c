@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: io.c,v 1.4 2005/07/14 09:20:39 alex Exp $";
+static char UNUSED id[] = "$Id: io.c,v 1.5 2005/07/14 14:35:38 fw Exp $";
 
 #include <assert.h>
 #include <stdlib.h>
@@ -46,6 +46,7 @@ typedef struct {
 #endif
 #endif
 
+static bool library_initialized;
 
 #ifdef IO_USE_EPOLL
 #include <sys/epoll.h>
@@ -97,11 +98,15 @@ io_event_get(int fd)
 bool
 io_library_init(unsigned int eventsize)
 {
+	bool ret;
 #ifdef IO_USE_EPOLL
 	int ecreate_hint = (int)eventsize;
 	if (ecreate_hint <= 0)
 		ecreate_hint = 128;
 #endif
+
+	if (library_initialized)
+		return true;
 
 #ifdef IO_USE_SELECT
 #ifdef FD_SETSIZE
@@ -117,7 +122,10 @@ io_library_init(unsigned int eventsize)
 	Log(LOG_INFO,
 	    "IO subsystem: epoll (hint size %d, initial maxfd %u, masterfd %d).",
 	    ecreate_hint, eventsize, io_masterfd);
-	return io_masterfd >= 0;
+	ret = io_masterfd >= 0;
+	if (ret) library_initialized = true;
+
+	return ret;
 #endif
 #ifdef IO_USE_SELECT
 	Log(LOG_INFO, "IO subsystem: select (initial maxfd %u).",
@@ -135,16 +143,20 @@ io_library_init(unsigned int eventsize)
 #else
 	Log(LOG_WARNING,
 	    "FD_SETSIZE undefined, don't know how many descriptors select() can handle on your platform ...");
-#endif
+#endif /* FD_SETSIZE */
+	library_initialized = true;
 	return true;
-#endif
+#endif /* SELECT */
 #ifdef IO_USE_KQUEUE
 	io_masterfd = kqueue();
 
 	Log(LOG_INFO,
 	    "IO subsystem: kqueue (initial maxfd %u, masterfd %d)",
 	    eventsize, io_masterfd);
-	return io_masterfd >= 0;
+	ret = io_masterfd >= 0;
+	if (ret) library_initialized = true;
+
+	return ret;
 #endif
 }
 
@@ -162,6 +174,7 @@ io_library_shutdown(void)
 #ifdef IO_USE_KQUEUE
 	array_free(&io_evcache);
 #endif
+	library_initialized = false;
 }
 
 

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.79 2005/07/11 14:11:35 fw Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.80 2005/07/17 18:58:04 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -804,35 +804,47 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 LOCAL void
 Handle_OPERATOR( int Line, char *Var, char *Arg )
 {
+	unsigned int opercount;
+	size_t len;
 	assert( Line > 0 );
 	assert( Var != NULL );
 	assert( Arg != NULL );
 	assert( Conf_Oper_Count > 0 );
 
-	if( strcasecmp( Var, "Name" ) == 0 )
-	{
+	if ( Conf_Oper_Count == 0 )
+		return;
+
+	opercount = Conf_Oper_Count - 1;
+
+	if( strcasecmp( Var, "Name" ) == 0 ) {
 		/* Name of IRC operator */
-		if( strlcpy( Conf_Oper[Conf_Oper_Count - 1].name, Arg, sizeof( Conf_Oper[Conf_Oper_Count - 1].name )) >= sizeof( Conf_Oper[Conf_Oper_Count - 1].name )) Config_Error_TooLong( Line, Var );
+		len = strlcpy( Conf_Oper[opercount].name, Arg, sizeof( Conf_Oper[opercount].name ));
+		if (len >= sizeof( Conf_Oper[opercount].name ))
+				Config_Error_TooLong( Line, Var );
+
 		return;
 	}
-	if( strcasecmp( Var, "Password" ) == 0 )
-	{
+	if( strcasecmp( Var, "Password" ) == 0 ) {
 		/* Password of IRC operator */
-		if( strlcpy( Conf_Oper[Conf_Oper_Count - 1].pwd, Arg, sizeof( Conf_Oper[Conf_Oper_Count - 1].pwd )) >= sizeof( Conf_Oper[Conf_Oper_Count - 1].pwd )) Config_Error_TooLong( Line, Var );
+		len = strlcpy( Conf_Oper[opercount].pwd, Arg, sizeof( Conf_Oper[opercount].pwd ));
+		if (len >= sizeof( Conf_Oper[opercount].pwd ))
+				Config_Error_TooLong( Line, Var );
 		return;
 	}
-	if( strcasecmp( Var, "Mask" ) == 0 )
-	{
-		if (Conf_Oper[Conf_Oper_Count - 1].mask) return; /* Hostname already configured */
-		Conf_Oper[Conf_Oper_Count - 1].mask = strdup( Arg );
-		if (! Conf_Oper[Conf_Oper_Count - 1].mask) {
-			Config_Error( LOG_ERR, "%s, line %d: Cannot allocate memory for operator mask: %s", NGIRCd_ConfFile, Line, strerror(errno) );
+	if( strcasecmp( Var, "Mask" ) == 0 ) {
+		if (Conf_Oper[opercount].mask) return; /* Hostname already configured */
+
+		Conf_Oper[opercount].mask = strdup( Arg );
+		if (! Conf_Oper[opercount].mask) {
+			Config_Error( LOG_ERR, "%s, line %d: Cannot allocate memory for operator mask: %s",
+								NGIRCd_ConfFile, Line, strerror(errno) );
 			return;
 		}
 
 		return;
 	}
-	Config_Error( LOG_ERR, "%s, line %d (section \"Operator\"): Unknown variable \"%s\"!", NGIRCd_ConfFile, Line, Var );
+	Config_Error( LOG_ERR, "%s, line %d (section \"Operator\"): Unknown variable \"%s\"!",
+								NGIRCd_ConfFile, Line, Var );
 } /* Handle_OPERATOR */
 
 

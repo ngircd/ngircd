@@ -8,7 +8,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: Makefile.am,v 1.16 2005/04/09 12:27:40 alex Exp $
+# $Id: Makefile.am,v 1.17 2005/07/22 21:01:52 alex Exp $
 #
 
 AUTOMAKE_OPTIONS = gnu
@@ -28,7 +28,7 @@ lint:
 	make -C src/ngircd lint
 
 srcdoc:
-	make -C src srcdoc
+	make -C doc srcdoc
 
 xcode:
 	@xcodebuild -project contrib/MacOSX/ngIRCd.xcode -list >/dev/null 2>&1 \

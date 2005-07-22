@@ -1,7 +1,7 @@
 /*
  * Cascading Style Sheet for the ngIRCd source documentation
  *
- * $Id: ngircd-doc.css,v 1.1 2005/07/22 20:58:22 alex Exp $
+ * $Id: ngircd-doc.css,v 1.2 2005/07/22 21:23:22 alex Exp $
  */
 
 BODY {
@@ -65,5 +65,13 @@ DIV.nav {
 }
 
 HR.footer { margin-top: 50px; }
+
+.comment {
+	color: gray;
+	font-style: italic;
+}
+.preprocessor { color: #f90; }
+.keyword, .keywordflow, .keywordtype { color: red; }
+.stringliteral { color: green; }
 
 /* -eof- */

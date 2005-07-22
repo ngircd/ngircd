@@ -9,8 +9,10 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: Makefile.am,v 1.19 2005/07/08 16:19:03 alex Exp $
+# $Id: Makefile.am,v 1.20 2005/07/22 21:00:22 alex Exp $
 #
+
+SUBDIRS = src
 
 EXTRA_DIST = CVS.txt FAQ.txt Protocol.txt Platforms.txt README-AUX.txt \
 	README-BeOS.txt RFC.txt Zeroconf.txt  sample-ngircd.conf
@@ -38,5 +40,8 @@ install-data-hook:
 
 uninstall-hook:
 	rm -rf $(DESTDIR)$(docdir)
+
+srcdoc:
+	make -C src srcdoc
 
 # -eof-

@@ -8,7 +8,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: configure.in,v 1.114 2005/07/08 16:18:38 alex Exp $
+# $Id: configure.in,v 1.115 2005/07/22 21:02:22 alex Exp $
 #
 
 # -- Initialisation --
@@ -365,6 +365,7 @@ test -n "$CFLAGS_END" && CFLAGS="$CFLAGS $CFLAGS_END"
 AC_OUTPUT([ \
 	Makefile \
 	doc/Makefile \
+	doc/src/Makefile \
 	src/Makefile \
 	src/portab/Makefile \
 	src/tool/Makefile \

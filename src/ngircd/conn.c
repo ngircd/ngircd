@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.164 2005/07/13 16:06:55 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.165 2005/07/22 21:31:05 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -115,7 +115,7 @@ cb_listen(int sock, short irrelevant)
 
 
 static void
-cb_connserver(int sock, short what)
+cb_connserver(int sock, UNUSED short what)
 {
 	int res, err;
 	socklen_t sock_len;

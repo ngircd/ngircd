@@ -1,0 +1,69 @@
+/*
+ * Cascading Style Sheet for the ngIRCd source documentation
+ *
+ * $Id: ngircd-doc.css,v 1.1 2005/07/22 20:58:22 alex Exp $
+ */
+
+BODY {
+	background-color: white;
+	color: black;
+	margin: 30px;
+	font-family: Geneva, sans-serif;
+	font-size: 12px;
+}
+
+A:visited { color: purple; background: transparent; }
+A:link { color: navy; background: transparent; }
+A:active { color: red; background: transparent; }
+A:hover { background: #ffa; }
+
+H1, H2, H3 {
+	font-family: Verdana, sans-serif;
+	background-color: white;
+	color: #005555;
+}
+H1 { margin-bottom: 10px; }
+H2 {
+	margin-top: 20px;
+	margin-bottom: 10px;
+}
+
+P, LI, TD, TH, DT {
+	font-family: Geneva, sans-serif;
+	font-size: 12px;
+	line-height: 1.2
+}
+
+DD { margin-bottom: 1em; }
+
+UL { list-style-type: square; }
+
+HR { margin: 2em 0px; }
+
+BODY>TABLE { padding: 1em 0px; }
+
+TD.mdRow {
+	border: 1px dotted silver;
+	background-color: #fff9dd;
+}
+
+TD.md { font-weight: bold; }
+
+TD.memItemLeft { padding-top: 4px; }
+TD.memItemRight { padding-top: 4px; }
+TD.mdescRight { font-style: italic; }
+
+DIV.qindex {
+	background-color: #eee;
+	border: 1px dotted silver;
+	padding: 3px;
+	margin-bottom: 2px;
+}
+
+DIV.nav {
+	margin: 1em 0px;
+}
+
+HR.footer { margin-top: 50px; }
+
+/* -eof- */

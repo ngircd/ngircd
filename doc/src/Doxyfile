@@ -8,7 +8,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: Doxyfile,v 1.1 2005/07/22 20:58:22 alex Exp $
+# $Id: Doxyfile,v 1.2 2005/07/23 00:48:38 alex Exp $
 #
 
 # This file describes the settings to be used by the documentation system
@@ -29,6 +29,15 @@ PROJECT_NAME           = ngIRCd
 # where doxygen was started. If left blank the current directory will be used.
 
 OUTPUT_DIRECTORY       = .
+
+# If the FULL_PATH_NAMES tag is set to YES then the STRIP_FROM_PATH tag 
+# can be used to strip a user-defined part of the path. Stripping is 
+# only done if one of the specified strings matches the left-hand part of 
+# the path. The tag can be used to show relative paths in the file list. 
+# If left blank the directory from which doxygen is run is used as the 
+# path to strip.
+
+STRIP_FROM_PATH        = ../..
 
 # If the JAVADOC_AUTOBRIEF tag is set to YES then Doxygen 
 # will interpret the first line (until the first dot) of a JavaDoc-style 

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: resolve.c,v 1.13 2005/07/07 18:39:08 fw Exp $";
+static char UNUSED id[] = "$Id: resolve.c,v 1.14 2005/07/24 21:42:00 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -185,8 +185,10 @@ Do_ResolveAddr( struct sockaddr_in *Addr, int w_fd )
 	 * pipe to parent. */
 
 	char hostname[HOST_LEN];
+	char ipstr[HOST_LEN];
 	struct hostent *h;
 	size_t len;
+	struct in_addr *addr;
 #ifdef IDENTAUTH
 	char *res;
 #endif
@@ -194,15 +196,30 @@ Do_ResolveAddr( struct sockaddr_in *Addr, int w_fd )
 	/* Resolve IP address */
 	Log_Resolver( LOG_DEBUG, "Now resolving %s ...", inet_ntoa( Addr->sin_addr ));
 	h = gethostbyaddr( (char *)&Addr->sin_addr, sizeof( Addr->sin_addr ), AF_INET );
-	if( h ) strlcpy( hostname, h->h_name, sizeof( hostname ));
-	else
-	{
+	if (!h) {
 #ifdef h_errno
 		Log_Resolver( LOG_WARNING, "Can't resolve address \"%s\": %s!", inet_ntoa( Addr->sin_addr ), Get_Error( h_errno ));
 #else
 		Log_Resolver( LOG_WARNING, "Can't resolve address \"%s\"!", inet_ntoa( Addr->sin_addr ));
 #endif	
 		strlcpy( hostname, inet_ntoa( Addr->sin_addr ), sizeof( hostname ));
+	} else {
+ 		strlcpy( hostname, h->h_name, sizeof( hostname ));
+
+		h = gethostbyname( hostname );
+		if ( h ) {
+			if (memcmp(h->h_addr, &Addr->sin_addr, sizeof (struct in_addr))) {
+				addr = (struct in_addr*) h->h_addr;
+				strlcpy(ipstr, inet_ntoa(*addr), sizeof ipstr); 
+				Log(LOG_WARNING,"Possible forgery: %s resolved to %s (which is at ip %s!)",
+								inet_ntoa( Addr->sin_addr), hostname, ipstr);
+				strlcpy( hostname, inet_ntoa( Addr->sin_addr ), sizeof( hostname ));
+			}
+		} else {
+			Log(LOG_WARNING, "Possible forgery: %s resolved to %s (which has no ip address)",
+						inet_ntoa( Addr->sin_addr ), hostname);
+				strlcpy( hostname, inet_ntoa( Addr->sin_addr ), sizeof( hostname ));
+		}
 	}
 	Log_Resolver( LOG_DEBUG, "Ok, translated %s to \"%s\".", inet_ntoa( Addr->sin_addr ), hostname );
 

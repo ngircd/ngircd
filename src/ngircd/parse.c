@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: parse.c,v 1.63 2005/06/24 20:56:46 alex Exp $";
+static char UNUSED id[] = "$Id: parse.c,v 1.63.2.1 2005/07/24 21:06:51 alex Exp $";
 
 /**
  * @file
@@ -317,7 +317,7 @@ Validate_Prefix( CONN_ID Idx, REQUEST *Req, bool *Closed )
 
 
 LOCAL bool
-Validate_Command( CONN_ID Idx, REQUEST *Req, bool *Closed )
+Validate_Command( UNUSED CONN_ID Idx, UNUSED REQUEST *Req, bool *Closed )
 {
 	assert( Idx >= 0 );
 	assert( Req != NULL );
@@ -328,7 +328,7 @@ Validate_Command( CONN_ID Idx, REQUEST *Req, bool *Closed )
 
 
 LOCAL bool
-Validate_Args( CONN_ID Idx, REQUEST *Req, bool *Closed )
+Validate_Args( UNUSED CONN_ID Idx, UNUSED REQUEST *Req, bool *Closed )
 {
 	assert( Idx >= 0 );
 	assert( Req != NULL );

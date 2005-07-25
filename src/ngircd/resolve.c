@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: resolve.c,v 1.14 2005/07/24 21:42:00 fw Exp $";
+static char UNUSED id[] = "$Id: resolve.c,v 1.15 2005/07/25 09:20:10 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -189,12 +189,15 @@ Do_ResolveAddr( struct sockaddr_in *Addr, int w_fd )
 	struct hostent *h;
 	size_t len;
 	struct in_addr *addr;
+	char *ntoaptr;
 #ifdef IDENTAUTH
 	char *res;
 #endif
 
 	/* Resolve IP address */
+#ifdef DEBUG
 	Log_Resolver( LOG_DEBUG, "Now resolving %s ...", inet_ntoa( Addr->sin_addr ));
+#endif
 	h = gethostbyaddr( (char *)&Addr->sin_addr, sizeof( Addr->sin_addr ), AF_INET );
 	if (!h) {
 #ifdef h_errno
@@ -211,14 +214,16 @@ Do_ResolveAddr( struct sockaddr_in *Addr, int w_fd )
 			if (memcmp(h->h_addr, &Addr->sin_addr, sizeof (struct in_addr))) {
 				addr = (struct in_addr*) h->h_addr;
 				strlcpy(ipstr, inet_ntoa(*addr), sizeof ipstr); 
+				ntoaptr = inet_ntoa( Addr->sin_addr );
 				Log(LOG_WARNING,"Possible forgery: %s resolved to %s (which is at ip %s!)",
-								inet_ntoa( Addr->sin_addr), hostname, ipstr);
-				strlcpy( hostname, inet_ntoa( Addr->sin_addr ), sizeof( hostname ));
+										ntoaptr, hostname, ipstr);
+				strlcpy( hostname, ntoaptr, sizeof hostname);
 			}
 		} else {
+			ntoaptr = inet_ntoa( Addr->sin_addr );
 			Log(LOG_WARNING, "Possible forgery: %s resolved to %s (which has no ip address)",
-						inet_ntoa( Addr->sin_addr ), hostname);
-				strlcpy( hostname, inet_ntoa( Addr->sin_addr ), sizeof( hostname ));
+											ntoaptr, hostname);
+			strlcpy( hostname, ntoaptr, sizeof hostname);
 		}
 	}
 	Log_Resolver( LOG_DEBUG, "Ok, translated %s to \"%s\".", inet_ntoa( Addr->sin_addr ), hostname );

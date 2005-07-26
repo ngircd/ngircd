@@ -1,3 +1,10 @@
+ngircd (0.9.0-0ab2) unstable; urgency=medium
+
+  * Init script: fixed a problem with symbolic links in runlevel directories
+    that could prevent the init script from working correctly.
+
+ -- Alexander Barton <alex@barton.de>  Tue, 26 Jul 2005 21:31:18 +0200
+
 ngircd (0.9.0-0ab1) unstable; urgency=low
 
   * New "upstream release".

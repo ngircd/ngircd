@@ -2,7 +2,7 @@
 #
 # ngIRCd start and stop script for Debian-based systems
 #
-# $Id: ngircd.init,v 1.5 2005/06/01 21:51:11 alex Exp $
+# $Id: ngircd.init,v 1.5.2.1 2005/07/26 19:30:54 alex Exp $
 #
 
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
@@ -11,7 +11,8 @@ NAME=ngIRCd
 DESC="IRC daemon"
 PARAMS=""
 
-test -h "$0" && BASENAME=`readlink $0` || BASENAME=`basename $0`
+test -h "$0" && me=`readlink $0` || me="$0"
+BASENAME=`basename $me`
 
 test -f /etc/default/$BASENAME && . /etc/default/$BASENAME
 

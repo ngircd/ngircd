@@ -12,6 +12,9 @@
 
 ngIRCd CVSHEAD
 
+  - Topic is no longer limited to 127 characters. The only limit is now the maximum
+    length of a irc command, i.e. 512 bytes. (in pratice, this limits the topic to about
+    490 characters due to protocol overhead)
   - Reverse DNS lookup code now checks the result by doing an additional
     lookup to prevent spoofing.
   - Added new IO layer which (optionally) supports epoll() and kqueue() in
@@ -619,4 +622,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.281 2005/07/26 19:41:49 alex Exp $
+$Id: ChangeLog,v 1.282 2005/07/28 16:28:11 fw Exp $

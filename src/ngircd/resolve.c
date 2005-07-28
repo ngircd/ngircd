@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: resolve.c,v 1.15 2005/07/25 09:20:10 fw Exp $";
+static char UNUSED id[] = "$Id: resolve.c,v 1.16 2005/07/28 16:13:09 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -350,7 +350,7 @@ New_Res_Stat( void )
 	}
 
 	s->stage = 0;
-	s->bufpos = 0;
+	array_init(&s->buffer);
 	s->pid = -1;
 
 	return s;

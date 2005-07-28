@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.165 2005/07/22 21:31:05 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.166 2005/07/28 16:13:09 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -201,6 +201,7 @@ FreeRes_stat( CONNECTION *c )
 
 	io_close( c->res_stat->pipe[0] );
 
+	array_free(&c->res_stat->buffer);
 	free( c->res_stat );
 	c->res_stat = NULL;
 }
@@ -1121,7 +1122,6 @@ Handle_Buffer( CONN_ID Idx )
 #endif
 	char *ptr;
 	int len, delta;
-	unsigned int arraylen;
 	bool action, result;
 #ifdef ZLIB
 	bool old_z;
@@ -1137,15 +1137,11 @@ Handle_Buffer( CONN_ID Idx )
 			if( ! Unzip_Buffer( Idx )) return false;
 #endif
 
-		arraylen = array_bytes(&My_Connections[Idx].rbuf);
-		if (arraylen == 0)
+		if (0 == array_bytes(&My_Connections[Idx].rbuf))
 			break;
 
-		if (!array_cat0(&My_Connections[Idx].rbuf)) /* make sure buf is NULL terminated */
+		if (!array_cat0_temporary(&My_Connections[Idx].rbuf)) /* make sure buf is NULL terminated */
 			return false;
-
-		array_truncate(&My_Connections[Idx].rbuf, 1, arraylen); /* do not count trailing NULL */
-
 
 		/* A Complete Request end with CR+LF, see RFC 2812. */
 		ptr = strstr( array_start(&My_Connections[Idx].rbuf), "\r\n" );
@@ -1496,9 +1492,12 @@ void Read_Resolver_Result( int r_fd )
 	 * IDENT user name.*/
 
 	CLIENT *c;
-	int len, i, n;
+	int bytes_read, i, n;
+	unsigned int len;
 	RES_STAT *s;
 	char *ptr;
+	char *bufptr;
+	char readbuf[HOST_LEN];
 
 	Log( LOG_DEBUG, "Resolver: started, fd %d\n", r_fd );
 	/* Search associated connection ... */
@@ -1525,28 +1524,41 @@ void Read_Resolver_Result( int r_fd )
 	assert( s != NULL );
 
 	/* Read result from pipe */
-	len = read( r_fd, s->buffer + s->bufpos, sizeof( s->buffer ) - s->bufpos - 1 );
-	if( len < 0 )
+	bytes_read = read( r_fd, readbuf, sizeof readbuf -1 );
+	if( bytes_read < 0 )
 	{
 		/* Error! */
 		Log( LOG_CRIT, "Resolver: Can't read result: %s!", strerror( errno ));
 		FreeRes_stat( &My_Connections[i] );
 		return;
 	}
-	s->bufpos += len;
-	s->buffer[s->bufpos] = '\0';
+	len = (unsigned int) bytes_read;
+	readbuf[len] = '\0';
+	if (!array_catb(&s->buffer, readbuf, len)) { 
+		Log( LOG_CRIT, "Resolver: Can't append result %s to buffer: %s", readbuf, strerror( errno ));
+		FreeRes_stat(&My_Connections[i]);
+		return;
+	}
+
+	if (!array_cat0_temporary(&s->buffer)) {
+		Log( LOG_CRIT, "Resolver: Can't append result %s to buffer: %s", readbuf, strerror( errno ));
+		FreeRes_stat(&My_Connections[i]);
+		return;
+	}
 
 	/* If the result string is incomplete, return to main loop and
 	 * wait until we can read in more bytes. */
 #ifdef IDENTAUTH
 try_resolve:
 #endif
-	ptr = strchr( s->buffer, '\n' );
+	bufptr = (char*) array_start(&s->buffer);
+	assert(bufptr != NULL);
+	ptr = strchr( bufptr, '\n' );
 	if( ! ptr ) return;
 	*ptr = '\0';
 
 #ifdef DEBUG
-	Log( LOG_DEBUG, "Got result from resolver: \"%s\" (%d bytes), stage %d.", s->buffer, len, s->stage );
+	Log( LOG_DEBUG, "Got result from resolver: \"%s\" (%u bytes read), stage %d.", bufptr, len, s->stage);
 #endif
 
 	/* Okay, we got a complete result: this is a host name for outgoing
@@ -1563,15 +1575,14 @@ try_resolve:
 		{
 			switch(s->stage) {
 				case 0: /* host name */
-				strlcpy( My_Connections[i].host, s->buffer, sizeof( My_Connections[i].host ));
-				Client_SetHostname( c, s->buffer );
+				strlcpy( My_Connections[i].host, bufptr, sizeof( My_Connections[i].host));
+
+				Client_SetHostname( c, bufptr);
 #ifdef IDENTAUTH
 				/* clean up buffer for IDENT result */
-				len = strlen( s->buffer ) + 1;
-				assert((size_t) len <= sizeof( s->buffer ));
-				memmove( s->buffer, s->buffer + len, sizeof( s->buffer ) - len );
-				assert(len <= s->bufpos );
-				s->bufpos -= len;
+				len = strlen(bufptr) + 1;
+				assert(len <= array_bytes(&s->buffer));
+				array_moveleft(&s->buffer, 1, len);
 
 				/* Don't close pipe and clean up, but
 				 * instead wait for IDENT result */
@@ -1579,10 +1590,10 @@ try_resolve:
 				goto try_resolve;
 
 				case 1: /* IDENT user name */
-				if( s->buffer[0] )
-				{
-					Log( LOG_INFO, "IDENT lookup for connection %ld: \"%s\".", i, s->buffer );
-					Client_SetUser( c, s->buffer, true );
+				if (array_bytes(&s->buffer)) {
+					bufptr = (char*) array_start(&s->buffer);
+					Log( LOG_INFO, "IDENT lookup for connection %ld: \"%s\".", i, bufptr);
+					Client_SetUser( c, bufptr, true );
 				}
 				else Log( LOG_INFO, "IDENT lookup for connection %ld: no result.", i );
 #endif
@@ -1603,8 +1614,9 @@ try_resolve:
 		/* Search server ... */
 		n = Conf_GetServer( i );
 		assert( n > NONE );
-
-		strlcpy( Conf_Server[n].ip, s->buffer, sizeof( Conf_Server[n].ip ));
+		
+		bufptr = (char*) array_start(&s->buffer);
+		strlcpy( Conf_Server[n].ip, bufptr, sizeof( Conf_Server[n].ip ));
 	}
 
 	/* Clean up ... */

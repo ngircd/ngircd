@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: resolve.h,v 1.8 2005/03/19 18:43:49 fw Exp $
+ * $Id: resolve.h,v 1.9 2005/07/28 16:13:09 fw Exp $
  *
  * Asynchronous resolver (header)
  */
@@ -17,6 +17,7 @@
 #ifndef __resolve_h__
 #define __resolve_h__
 
+#include "array.h"
 
 #ifdef HAVE_SYS_SELECT_H
 #	include <sys/select.h>
@@ -27,11 +28,10 @@
 
 typedef struct _Res_Stat
 {
-	int pid;			/* PID des Child-Prozess */
-	int pipe[2];			/* Pipe fuer IPC */
+	int pid;			/* PID of resolver process */
+	int pipe[2];			/* pipe for lookup result */
 	int stage;			/* Hostname/IP(0) or IDENT(1)? */
-	int bufpos;			/* Position in buffer */
-	char buffer[HOST_LEN];		/* Buffer */
+	array buffer;			/* resolved hostname / ident result */
 } RES_STAT;
 
 

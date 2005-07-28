@@ -8,7 +8,7 @@
  * libarray - dynamically allocate arrays.
  * Copyright (c) 2005 Florian Westphal (westphal@foo.fh-furtwangen.de)
  *
- * $Id: array.h,v 1.2 2005/07/14 09:11:38 alex Exp $
+ * $Id: array.h,v 1.3 2005/07/28 16:12:50 fw Exp $
  */
 
 #ifndef array_h_included
@@ -27,6 +27,9 @@ typedef struct {
 
 #define array_unallocated(x)	(array_bytes(x)==0)
 #define INIT_ARRAY		{ NULL, 0, 0 }
+
+/* set all variables in a to 0 */
+extern void array_init PARAMS((array *a));
 
 /* allocates space for at least nmemb+1 elements of size bytes each.
    return pointer to elem at pos, or NULL if realloc() fails */
@@ -63,6 +66,9 @@ extern bool array_cats PARAMS((array* dest, const char* src));
 
 /* append NUL byte to dest */
 extern bool array_cat0 PARAMS((array* dest));
+
+/* append NUL byte to dest, but do not count null byte */
+extern bool array_cat0_temporary PARAMS((array* dest));
 
 /* append contents of array src to array dest. */
 extern bool array_cat PARAMS((array* dest, const array* const src));

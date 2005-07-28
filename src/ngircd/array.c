@@ -12,7 +12,7 @@
 
 #include "array.h"
 
-static char UNUSED id[] = "$Id: array.c,v 1.4 2005/07/14 09:14:12 alex Exp $";
+static char UNUSED id[] = "$Id: array.c,v 1.5 2005/07/28 16:12:50 fw Exp $";
 
 #include <assert.h>
 
@@ -47,6 +47,16 @@ safemult_uint(unsigned int a, unsigned int b, unsigned int *res)
 	return true;
 }
 
+
+void
+array_init(array *a)
+{
+	assert(a);	
+	a->mem = NULL;
+	a->allocated = 0;
+	a->used = 0;
+}
+	
 
 /* if realloc() fails, array_alloc return NULL. otherwise return pointer to elem pos in array */
 void *
@@ -220,6 +230,18 @@ array_cat0(array * a)
 	return array_catb(a, "", 1);
 }
 
+
+/* append trailing NUL byte to array, but do not count it. */
+bool
+array_cat0_temporary(array * a)
+{
+	unsigned int len = array_bytes(a);
+	if (!array_catb(a, "", 1))
+		return false;
+
+	array_truncate(a, 1, len);
+	return true;
+}
 
 /* add contents of array src to array dest. */
 bool

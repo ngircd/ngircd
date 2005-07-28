@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: defines.h,v 1.55 2005/07/08 16:18:39 alex Exp $
+ * $Id: defines.h,v 1.56 2005/07/28 16:23:55 fw Exp $
  */
 
 
@@ -62,7 +62,6 @@
 #define CHANNEL_NAME_LEN 51		/* Max. length of a channel name, see
 					   RFC 2812 section 1.3 */
 #define CHANNEL_MODE_LEN 9		/* Max. length of channel modes */
-#define CHANNEL_TOPIC_LEN 128		/* Max. length of a channel topic */
 
 #define COMMAND_LEN 513			/* Max. IRC command length, see. RFC
 					   2812 section 3.2 */

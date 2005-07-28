@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.80 2005/07/17 18:58:04 fw Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.81 2005/07/28 16:23:55 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -98,6 +98,7 @@ Conf_Test( void )
 	struct passwd *pwd;
 	struct group *grp;
 	unsigned int i;
+	char *topic;
 
 	Use_Log = false;
 	Set_Defaults( true );
@@ -187,7 +188,8 @@ Conf_Test( void )
 		puts( "[CHANNEL]" );
 		printf( "  Name = %s\n", Conf_Channel[i].name );
 		printf( "  Modes = %s\n", Conf_Channel[i].modes );
-		printf( "  Topic = %s\n", Conf_Channel[i].topic );
+		topic = (char*)array_start(&Conf_Channel[i].topic);
+		printf( "  Topic = %s\n", topic ? topic : "");
 		puts( "" );
 	}
 	
@@ -508,15 +510,14 @@ Read_Config( void )
 				else New_Server_Idx = i;
 				continue;
 			}
-			if( strcasecmp( section, "[CHANNEL]" ) == 0 )
-			{
-				if( Conf_Channel_Count + 1 > MAX_DEFCHANNELS ) Config_Error( LOG_ERR, "Too many pre-defined channels configured." );
-				else
-				{
+			if( strcasecmp( section, "[CHANNEL]" ) == 0 ) {
+				if( Conf_Channel_Count + 1 > MAX_DEFCHANNELS ) {
+					Config_Error( LOG_ERR, "Too many pre-defined channels configured." );
+				} else {
 					/* Initialize new channel structure */
 					strcpy( Conf_Channel[Conf_Channel_Count].name, "" );
 					strcpy( Conf_Channel[Conf_Channel_Count].modes, "" );
-					strcpy( Conf_Channel[Conf_Channel_Count].topic, "" );
+					array_free(&Conf_Channel[Conf_Channel_Count].topic);
 					Conf_Channel_Count++;
 				}
 				continue;
@@ -934,7 +935,7 @@ Handle_CHANNEL( int Line, char *Var, char *Arg )
 	if( strcasecmp( Var, "Topic" ) == 0 )
 	{
 		/* Initial topic */
-		if( strlcpy( Conf_Channel[Conf_Channel_Count - 1].topic, Arg, sizeof( Conf_Channel[Conf_Channel_Count - 1].topic )) >= sizeof( Conf_Channel[Conf_Channel_Count - 1].topic ))
+		if (!array_copys( &Conf_Channel[Conf_Channel_Count - 1].topic, Arg))
 			Config_Error_TooLong( Line, Var );
  
 		return;

@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: channel.h,v 1.27 2005/03/19 18:43:48 fw Exp $
+ * $Id: channel.h,v 1.28 2005/07/28 16:23:55 fw Exp $
  *
  * Channel management (header)
  */
@@ -21,6 +21,7 @@
 #if defined(__channel_c__) | defined(S_SPLINT_S)
 
 #include "defines.h"
+#include "array.h"
 
 typedef struct _CHANNEL
 {
@@ -28,7 +29,7 @@ typedef struct _CHANNEL
 	char name[CHANNEL_NAME_LEN];	/* Name of the channel */
 	UINT32 hash;			/* Hash of the (lowecase!) name */
 	char modes[CHANNEL_MODE_LEN];	/* Channel modes */
-	char topic[CHANNEL_TOPIC_LEN];	/* Topic of the channel */
+	array topic;			/* Topic of the channel */
 	char key[CLIENT_PASS_LEN];	/* Channel key ("password", mode "k" ) */
 	long maxusers;			/* Maximum number of members (mode "l") */
 } CHANNEL;

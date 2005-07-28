@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conf.h,v 1.35 2005/07/11 14:11:35 fw Exp $
+ * $Id: conf.h,v 1.36 2005/07/28 16:23:55 fw Exp $
  *
  * Configuration management (header)
  */
@@ -20,6 +20,7 @@
 #include <time.h>
 
 #include "defines.h"
+#include "array.h"
 #include "portab.h"
 
 typedef struct _Conf_Oper
@@ -48,7 +49,7 @@ typedef struct _Conf_Channel
 {
 	char name[CHANNEL_NAME_LEN];	/* Name of the channel */
 	char modes[CHANNEL_MODE_LEN];	/* Initial channel modes */
-	char topic[CHANNEL_TOPIC_LEN];	/* Initial topic */
+	array topic;			/* Initial topic */
 } CONF_CHANNEL;
 
 

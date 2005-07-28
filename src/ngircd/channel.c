@@ -17,12 +17,13 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: channel.c,v 1.51 2005/07/11 14:11:35 fw Exp $";
+static char UNUSED id[] = "$Id: channel.c,v 1.52 2005/07/28 16:23:55 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 #include <strings.h>
 
 #include "defines.h"
@@ -87,6 +88,7 @@ Channel_InitPredefined( void )
 		if( ! Channel_IsValidName( Conf_Channel[i].name ))
 		{
 			Log( LOG_ERR, "Can't create pre-defined channel: invalid name: \"%s\"!", Conf_Channel[i].name );
+			array_free(&Conf_Channel[i].topic);
 			continue;
 		}
 
@@ -95,6 +97,7 @@ Channel_InitPredefined( void )
 		if( chan )
 		{
 			Log( LOG_INFO, "Can't create pre-defined channel \"%s\": name already in use.", Conf_Channel[i].name );
+			array_free(&Conf_Channel[i].topic);
 			continue;
 		}
 		
@@ -103,7 +106,11 @@ Channel_InitPredefined( void )
 		if( chan )
 		{
 			Channel_ModeAdd( chan, 'P' );
-			Channel_SetTopic( chan, Conf_Channel[i].topic );
+			if (!array_copy(&chan->topic, &Conf_Channel[i].topic)) {
+				Log( LOG_WARNING, "Could not set topic for new pre-defined channel: %s",
+											strerror(errno));
+			}
+			array_free(&Conf_Channel[i].topic);
 			c = Conf_Channel[i].modes;
 			while( *c ) Channel_ModeAdd( chan, *c++ );
 			Log( LOG_INFO, "Created pre-defined channel \"%s\".", Conf_Channel[i].name );
@@ -124,6 +131,7 @@ Channel_Exit( void )
 	while( c )
 	{
 		c_next = c->next;
+		array_free(&c->topic);
 		free( c );
 		c = c_next;
 	}
@@ -621,18 +629,28 @@ Channel_IsMemberOf( CHANNEL *Chan, CLIENT *Client )
 GLOBAL char *
 Channel_Topic( CHANNEL *Chan )
 {
+	char *ret;
 	assert( Chan != NULL );
-	return Chan->topic;
+	ret = array_start(&Chan->topic);
+	return ret ? ret : "";
 } /* Channel_Topic */
 
 
 GLOBAL void
 Channel_SetTopic( CHANNEL *Chan, char *Topic )
 {
+	size_t len;
 	assert( Chan != NULL );
 	assert( Topic != NULL );
-	
-	strlcpy( Chan->topic, Topic, sizeof( Chan->topic ));
+
+	len = strlen(Topic);
+	if (len < array_bytes(&Chan->topic))
+		array_free(&Chan->topic);
+
+	if (!array_copyb(&Chan->topic, Topic, len))
+		Log(LOG_WARNING, "could not set new Topic %s: %s", Topic, strerror(errno));
+
+	array_cat0(&Chan->topic);
 } /* Channel_SetTopic */
 
 
@@ -720,9 +738,9 @@ Channel_Create( char *Name )
 	c->hash = Hash( c->name );
 	c->next = My_Channels;
 	My_Channels = c;
-	
+#ifdef DEBUG	
 	Log( LOG_DEBUG, "Created new channel structure for \"%s\".", Name );
-	
+#endif
 	return c;
 } /* Channel_Create */
 

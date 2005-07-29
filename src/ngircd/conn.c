@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.166 2005/07/28 16:13:09 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.167 2005/07/29 09:29:47 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -83,7 +83,7 @@ static char UNUSED id[] = "$Id: conn.c,v 1.166 2005/07/28 16:13:09 fw Exp $";
 
 
 LOCAL bool Handle_Write PARAMS(( CONN_ID Idx ));
-LOCAL void New_Connection PARAMS(( int Sock ));
+LOCAL int New_Connection PARAMS(( int Sock ));
 LOCAL CONN_ID Socket2Index PARAMS(( int Sock ));
 LOCAL void Read_Request PARAMS(( CONN_ID Idx ));
 LOCAL bool Handle_Buffer PARAMS(( CONN_ID Idx ));
@@ -103,6 +103,7 @@ int allow_severity = LOG_INFO;
 int deny_severity = LOG_ERR;
 #endif
 
+static void server_login PARAMS((CONN_ID idx));
 
 static void cb_clientserver PARAMS((int sock, short what));
 
@@ -158,7 +159,13 @@ cb_connserver(int sock, UNUSED short what)
 	}
 
 	Conn_OPTION_DEL( &My_Connections[idx], CONN_ISCONNECTING );
+	server_login(idx);
+}
 
+
+static void
+server_login(CONN_ID idx)
+{
 	Log( LOG_INFO, "Connection %d with \"%s:%d\" established. Now logging in ...", idx,
 			My_Connections[idx].host, Conf_Server[Conf_GetServer( idx )].port );
 
@@ -275,34 +282,50 @@ Conn_Exit( void )
 } /* Conn_Exit */
 
 
+static unsigned int
+ports_initlisteners(array *a, void (*func)(int,short))
+{
+	unsigned int created = 0, len;
+	int fd;
+	UINT16 *port;
+
+	len = array_length(a, sizeof (UINT16));
+	port = array_start(a);
+	while(len--) {
+		fd = NewListener( *port );
+		if (fd < 0) {
+			port++;
+			continue;
+		}
+		if (!io_event_create( fd, IO_WANTREAD, func )) {
+			Log( LOG_ERR, "io_event_create(): Could not add listening fd %d (port %u): %s!",
+							fd, (unsigned int) *port, strerror(errno));
+			close(fd);
+			port++;
+			continue;
+		}
+		created++;
+		port++;
+	}
+
+	return created;
+}
+
+
 GLOBAL int
 Conn_InitListeners( void )
 {
 	/* Initialize ports on which the server should accept connections */
 
-	int created, fd;
-	unsigned int i;
+	unsigned int created;
 
 	if (!io_library_init(CONNECTION_POOL)) {
 		Log(LOG_EMERG, "Cannot initialize IO routines: %s", strerror(errno));
 		return -1;
 	}
 
-	created = 0;
-	for( i = 0; i < Conf_ListenPorts_Count; i++ ) {
-		fd = NewListener( Conf_ListenPorts[i] );
-		if (fd < 0) {
-			Log( LOG_ERR, "Can't listen on port %u!", (unsigned int) Conf_ListenPorts[i] );
-			continue;
-		}
-		if (!io_event_create( fd, IO_WANTREAD, cb_listen )) {
-			Log( LOG_ERR, "io_event_create(): Could not add listening fd %d (port %u): %s!",
-						fd, (unsigned int) Conf_ListenPorts[i], strerror(errno));
-			close(fd);
-			continue;
-		}
-		created++;
-	}
+	created = ports_initlisteners(&Conf_ListenPorts, cb_listen);
+
 	return created;
 } /* Conn_InitListeners */
 
@@ -836,7 +859,6 @@ Handle_Write( CONN_ID Idx )
 	}
 	assert( My_Connections[Idx].sock > NONE );
 
-
 	wdatalen = array_bytes(&My_Connections[Idx].wbuf );
 #ifdef ZLIB
 	if(( wdatalen == 0 ) && ( ! array_bytes(&My_Connections[Idx].zip.wbuf))) {
@@ -872,7 +894,7 @@ Handle_Write( CONN_ID Idx )
 } /* Handle_Write */
 
 
-LOCAL void
+LOCAL int
 New_Connection( int Sock )
 {
 	/* Neue Client-Verbindung von Listen-Socket annehmen und
@@ -896,7 +918,7 @@ New_Connection( int Sock )
 	if( new_sock < 0 )
 	{
 		Log( LOG_CRIT, "Can't accept connection: %s!", strerror( errno ));
-		return;
+		return -1;
 	}
 
 #ifdef TCPWRAP
@@ -909,7 +931,7 @@ New_Connection( int Sock )
 		Log( deny_severity, "Refused connection from %s (by TCP Wrappers)!", inet_ntoa( new_addr.sin_addr ));
 		Simple_Message( new_sock, "ERROR :Connection refused" );
 		close( new_sock );
-		return;
+		return -1;
 	}
 #endif
 
@@ -924,7 +946,7 @@ New_Connection( int Sock )
 		Log( LOG_ERR, "Refused connection from %s: too may connections (%ld) from this IP address!", inet_ntoa( new_addr.sin_addr ), cnt);
 		Simple_Message( new_sock, "ERROR :Connection refused, too many connections from your IP address!" );
 		close( new_sock );
-		return;
+		return -1;
 	}
 
 	/* Freie Connection-Struktur suchen */
@@ -945,7 +967,7 @@ New_Connection( int Sock )
 				Log( LOG_ALERT, "Can't accept connection: limit (%d) reached!", Pool_Size );
 				Simple_Message( new_sock, "ERROR :Connection limit reached" );
 				close( new_sock );
-				return;
+				return -1;
 			}
 			if( new_size > Conf_MaxConnections ) new_size = Conf_MaxConnections;
 		}
@@ -954,7 +976,7 @@ New_Connection( int Sock )
 			Log( LOG_ALERT, "Can't accept connection: limit (%d) reached -- overflow!", Pool_Size );
 			Simple_Message( new_sock, "ERROR :Connection limit reached" );
 			close( new_sock );
-			return;
+			return -1;
 		}
 
 		ptr = (POINTER *)realloc( My_Connections, sizeof( CONNECTION ) * new_size );
@@ -962,7 +984,7 @@ New_Connection( int Sock )
 			Log( LOG_EMERG, "Can't allocate memory! [New_Connection]" );
 			Simple_Message( new_sock, "ERROR: Internal error" );
 			close( new_sock );
-			return;
+			return -1;
 		}
 
 #ifdef DEBUG
@@ -986,7 +1008,7 @@ New_Connection( int Sock )
 		Log( LOG_ALERT, "Can't accept connection: can't create client structure!" );
 		Simple_Message( new_sock, "ERROR :Internal error" );
 		close( new_sock );
-		return;
+		return -1;
 	}
 
 	/* Verbindung registrieren */
@@ -998,7 +1020,7 @@ New_Connection( int Sock )
 	if (!io_event_create( new_sock, IO_WANTREAD, cb_clientserver)) {
 		Simple_Message( new_sock, "ERROR :Internal error" );
 		Conn_Close( idx, "io_event_create() failed", NULL, false );
-		return;
+		return -1;
 	}
 
 	Log( LOG_INFO, "Accepted connection %d from %s:%d on socket %d.", idx, inet_ntoa( new_addr.sin_addr ), ntohs( new_addr.sin_port), Sock );
@@ -1016,6 +1038,7 @@ New_Connection( int Sock )
 
 	/* Penalty-Zeit setzen */
 	Conn_SetPenalty( idx, 4 );
+	return new_sock;
 } /* New_Connection */
 
 
@@ -1525,8 +1548,7 @@ void Read_Resolver_Result( int r_fd )
 
 	/* Read result from pipe */
 	bytes_read = read( r_fd, readbuf, sizeof readbuf -1 );
-	if( bytes_read < 0 )
-	{
+	if( bytes_read < 0 ) {
 		/* Error! */
 		Log( LOG_CRIT, "Resolver: Can't read result: %s!", strerror( errno ));
 		FreeRes_stat( &My_Connections[i] );
@@ -1534,7 +1556,7 @@ void Read_Resolver_Result( int r_fd )
 	}
 	len = (unsigned int) bytes_read;
 	readbuf[len] = '\0';
-	if (!array_catb(&s->buffer, readbuf, len)) { 
+	if (!array_catb(&s->buffer, readbuf, len)) {
 		Log( LOG_CRIT, "Resolver: Can't append result %s to buffer: %s", readbuf, strerror( errno ));
 		FreeRes_stat(&My_Connections[i]);
 		return;
@@ -1614,7 +1636,7 @@ try_resolve:
 		/* Search server ... */
 		n = Conf_GetServer( i );
 		assert( n > NONE );
-		
+
 		bufptr = (char*) array_start(&s->buffer);
 		strlcpy( Conf_Server[n].ip, bufptr, sizeof( Conf_Server[n].ip ));
 	}

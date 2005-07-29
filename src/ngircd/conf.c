@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.81 2005/07/28 16:23:55 fw Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.82 2005/07/29 09:29:47 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -38,6 +38,7 @@ static char UNUSED id[] = "$Id: conf.c,v 1.81 2005/07/28 16:23:55 fw Exp $";
 # include <ctype.h>
 #endif
 
+#include "array.h"
 #include "ngircd.h"
 #include "conn.h"
 #include "client.h"
@@ -70,6 +71,54 @@ LOCAL void Config_Error_NaN PARAMS(( const int LINE, const char *Value ));
 LOCAL void Config_Error_TooLong PARAMS(( const int LINE, const char *Value ));
 
 LOCAL void Init_Server_Struct PARAMS(( CONF_SERVER *Server ));
+
+
+static void
+ports_puts(array *a)
+{
+	unsigned int len;
+	UINT16 *ports;
+	len = array_length(a, sizeof(UINT16));
+	if (len--) {
+		ports = (UINT16*) array_start(a);
+		printf("%u", (unsigned int) *ports);
+		while (len--) {
+			ports++;
+			printf(", %u", (unsigned int) *ports);
+		}
+	}
+	putc('\n', stdout);
+}
+
+
+static void
+ports_parse(array *a, int Line, char *Arg)
+{
+	char *ptr;
+	int port;
+	UINT16 port16;
+
+	array_trunc(a);
+
+	/* Ports on that the server should listen. More port numbers
+	 * must be separated by "," */
+	ptr = strtok( Arg, "," );
+	while (ptr) {
+		ngt_TrimStr( ptr );
+		port = atol( ptr );
+		if (port > 0 && port < 0xFFFF) {
+			port16 = (UINT16) port;
+			if (!array_catb(a, (char*)&port16, sizeof port16))
+				Config_Error(LOG_ERR, "%s, line %d Could not add port number %ld: %s",
+							NGIRCd_ConfFile, Line, port, strerror(errno));
+		} else {
+			Config_Error( LOG_ERR, "%s, line %d (section \"Global\"): Illegal port number %ld!",
+									NGIRCd_ConfFile, Line, port );
+		}
+
+		ptr = strtok( NULL, "," );
+	}
+}
 
 
 GLOBAL void
@@ -126,13 +175,10 @@ Conf_Test( void )
 	printf( "  MotdPhrase = %s\n", Conf_MotdPhrase );
 	printf( "  ChrootDir = %s\n", Conf_Chroot );
 	printf( "  PidFile = %s\n", Conf_PidFile);
-	printf( "  Ports = " );
-	for( i = 0; i < Conf_ListenPorts_Count; i++ )
-	{
-		if( i != 0 ) printf( ", " );
-		printf( "%u", (unsigned int) Conf_ListenPorts[i] );
-	}
-	puts( "" );
+	fputs("  Ports = ", stdout);
+
+	ports_puts(&Conf_ListenPorts);
+
 	printf( "  Listen = %s\n", Conf_ListenAddress );
 	pwd = getpwuid( Conf_UID );
 	if( pwd ) printf( "  ServerUID = %s\n", pwd->pw_name );
@@ -188,6 +234,7 @@ Conf_Test( void )
 		puts( "[CHANNEL]" );
 		printf( "  Name = %s\n", Conf_Channel[i].name );
 		printf( "  Modes = %s\n", Conf_Channel[i].modes );
+
 		topic = (char*)array_start(&Conf_Channel[i].topic);
 		printf( "  Topic = %s\n", topic ? topic : "");
 		puts( "" );
@@ -364,7 +411,6 @@ Set_Defaults( bool InitServers )
 
 	strlcpy( Conf_PidFile, PID_FILE, sizeof( Conf_PidFile ));
 
-	Conf_ListenPorts_Count = 0;
 	strcpy( Conf_ListenAddress, "" );
 
 	Conf_UID = Conf_GID = 0;
@@ -395,6 +441,7 @@ Read_Config( void )
 	/* Read configuration file. */
 
 	char section[LINE_LEN], str[LINE_LEN], *var, *arg, *ptr;
+	const UINT16 defaultport = 6667;
 	int line, i, n;
 	FILE *fd;
 
@@ -555,12 +602,13 @@ Read_Config( void )
 		assert( New_Server_Idx > NONE );
 		Conf_Server[New_Server_Idx] = New_Server;
 	}
-	
-	/* If there are no ports configured use the default: 6667 */
-	if( Conf_ListenPorts_Count < 1 )
-	{
-		Conf_ListenPorts_Count = 1;
-		Conf_ListenPorts[0] = 6667;
+
+	if (0 == array_length(&Conf_ListenPorts, sizeof(UINT16))) {
+		if (!array_copyb(&Conf_ListenPorts, (char*) &defaultport, sizeof defaultport)) {
+			Config_Error( LOG_ALERT, "Could not add default listening Port %u: %s",
+							(unsigned int) defaultport, strerror(errno));
+			exit( 1 );
+		}
 	}
 } /* Read_Config */
 
@@ -581,8 +629,6 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 {
 	struct passwd *pwd;
 	struct group *grp;
-	char *ptr;
-	long port;
 	
 	assert( Line > 0 );
 	assert( Var != NULL );
@@ -630,23 +676,9 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 		if( strlcpy( Conf_ServerAdminMail, Arg, sizeof( Conf_ServerAdminMail )) >= sizeof( Conf_ServerAdminMail )) Config_Error_TooLong( Line, Var );
 		return;
 	}
-	if( strcasecmp( Var, "Ports" ) == 0 )
-	{
-		/* Ports on that the server should listen. More port numbers
-		 * must be separated by "," */
-		ptr = strtok( Arg, "," );
-		while( ptr )
-		{
-			ngt_TrimStr( ptr );
-			port = atol( ptr );
-			if( Conf_ListenPorts_Count + 1 > MAX_LISTEN_PORTS ) Config_Error( LOG_ERR, "Too many listen ports configured. Port %ld ignored.", port );
-			else
-			{
-				if( port > 0 && port < 0xFFFF ) Conf_ListenPorts[Conf_ListenPorts_Count++] = (UINT16)port;
-				else Config_Error( LOG_ERR, "%s, line %d (section \"Global\"): Illegal port number %ld!", NGIRCd_ConfFile, Line, port );
-			}
-			ptr = strtok( NULL, "," );
-		}
+
+	if( strcasecmp( Var, "Ports" ) == 0 ) {
+		ports_parse(&Conf_ListenPorts, Line, Arg);
 		return;
 	}
 	if( strcasecmp( Var, "MotdFile" ) == 0 )

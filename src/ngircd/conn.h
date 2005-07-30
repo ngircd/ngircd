@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conn.h,v 1.37 2005/07/11 14:56:38 fw Exp $
+ * $Id: conn.h,v 1.38 2005/07/30 22:53:16 alex Exp $
  *
  * Connection management (header)
  */
@@ -21,11 +21,11 @@
 #include <time.h>			/* for time_t, see below */
 
 
-#define CONN_ISCLOSING		1U	/* Conn_Close() already called */
-#define CONN_ISCONNECTING	2U	/* connect() in progress */
+#define CONN_ISCLOSING		1	/* Conn_Close() already called */
+#define CONN_ISCONNECTING	2	/* connect() in progress */
 
 #ifdef ZLIB
-#define CONN_ZIP		4U	/* zlib compressed link */
+#define CONN_ZIP		4	/* zlib compressed link */
 #endif
 
 

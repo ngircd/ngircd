@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: client.c,v 1.84 2005/06/12 16:39:42 alex Exp $";
+static char UNUSED id[] = "$Id: client.c,v 1.85 2005/07/31 20:13:08 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -50,19 +50,19 @@ static char UNUSED id[] = "$Id: client.c,v 1.84 2005/06/12 16:39:42 alex Exp $";
 #define GETID_LEN (CLIENT_NICK_LEN-1) + 1 + (CLIENT_USER_LEN-1) + 1 + (CLIENT_HOST_LEN-1) + 1
 
 
-LOCAL CLIENT *This_Server, *My_Clients;
-LOCAL char GetID_Buffer[GETID_LEN];
+static CLIENT *This_Server, *My_Clients;
+static char GetID_Buffer[GETID_LEN];
 
-LOCAL WHOWAS My_Whowas[MAX_WHOWAS];
-LOCAL int Last_Whowas = -1;
+static WHOWAS My_Whowas[MAX_WHOWAS];
+static int Last_Whowas = -1;
 
 
-LOCAL long Count PARAMS(( CLIENT_TYPE Type ));
-LOCAL long MyCount PARAMS(( CLIENT_TYPE Type ));
+static long Count PARAMS(( CLIENT_TYPE Type ));
+static long MyCount PARAMS(( CLIENT_TYPE Type ));
 
-LOCAL CLIENT *New_Client_Struct PARAMS(( void ));
-LOCAL void Generate_MyToken PARAMS(( CLIENT *Client ));
-LOCAL void Adjust_Counters PARAMS(( CLIENT *Client ));
+static CLIENT *New_Client_Struct PARAMS(( void ));
+static void Generate_MyToken PARAMS(( CLIENT *Client ));
+static void Adjust_Counters PARAMS(( CLIENT *Client ));
 
 #ifndef Client_DestroyNow
 GLOBAL void Client_DestroyNow PARAMS((CLIENT *Client ));
@@ -1035,7 +1035,7 @@ Client_StartTime(CLIENT *Client)
 } /* Client_Uptime */
 
 
-LOCAL long
+static long
 Count( CLIENT_TYPE Type )
 {
 	CLIENT *c;
@@ -1052,7 +1052,7 @@ Count( CLIENT_TYPE Type )
 } /* Count */
 
 
-LOCAL long
+static long
 MyCount( CLIENT_TYPE Type )
 {
 	CLIENT *c;
@@ -1069,7 +1069,7 @@ MyCount( CLIENT_TYPE Type )
 } /* MyCount */
 
 
-LOCAL CLIENT *
+static CLIENT *
 New_Client_Struct( void )
 {
 	/* Neue CLIENT-Struktur pre-initialisieren */
@@ -1096,7 +1096,7 @@ New_Client_Struct( void )
 } /* New_Client */
 
 
-LOCAL void
+static void
 Generate_MyToken( CLIENT *Client )
 {
 	CLIENT *c;
@@ -1120,7 +1120,7 @@ Generate_MyToken( CLIENT *Client )
 } /* Generate_MyToken */
 
 
-LOCAL void
+static void
 Adjust_Counters( CLIENT *Client )
 {
 	long count;

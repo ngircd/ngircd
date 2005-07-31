@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: resolve.c,v 1.16 2005/07/28 16:13:09 fw Exp $";
+static char UNUSED id[] = "$Id: resolve.c,v 1.17 2005/07/31 20:13:08 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -43,18 +43,18 @@ static char UNUSED id[] = "$Id: resolve.c,v 1.16 2005/07/28 16:13:09 fw Exp $";
 
 
 #ifdef IDENTAUTH
-LOCAL void Do_ResolveAddr PARAMS(( struct sockaddr_in *Addr, int Sock, int w_fd ));
+static void Do_ResolveAddr PARAMS(( struct sockaddr_in *Addr, int Sock, int w_fd ));
 #else
-LOCAL void Do_ResolveAddr PARAMS(( struct sockaddr_in *Addr, int w_fd ));
+static void Do_ResolveAddr PARAMS(( struct sockaddr_in *Addr, int w_fd ));
 #endif
 
-LOCAL void Do_ResolveName PARAMS(( char *Host, int w_fd ));
+static void Do_ResolveName PARAMS(( char *Host, int w_fd ));
 
 #ifdef h_errno
-LOCAL char *Get_Error PARAMS(( int H_Error ));
+static char *Get_Error PARAMS(( int H_Error ));
 #endif
 
-LOCAL RES_STAT *New_Res_Stat PARAMS(( void ));
+static RES_STAT *New_Res_Stat PARAMS(( void ));
 
 
 static void
@@ -174,10 +174,10 @@ out: /* Error! */
 
 
 #ifdef IDENTAUTH
-LOCAL void
+static void
 Do_ResolveAddr( struct sockaddr_in *Addr, int Sock, int w_fd )
 #else
-LOCAL void
+static void
 Do_ResolveAddr( struct sockaddr_in *Addr, int w_fd )
 #endif
 {
@@ -261,7 +261,7 @@ Do_ResolveAddr( struct sockaddr_in *Addr, int w_fd )
 } /* Do_ResolveAddr */
 
 
-LOCAL void
+static void
 Do_ResolveName( char *Host, int w_fd )
 {
 	/* Resolver sub-process: resolve name and write result into pipe
@@ -305,7 +305,7 @@ Do_ResolveName( char *Host, int w_fd )
 
 #ifdef h_errno
 
-LOCAL char *
+static char *
 Get_Error( int H_Error )
 {
 	/* Get error message for H_Error */
@@ -328,7 +328,7 @@ Get_Error( int H_Error )
 #endif
 
 
-LOCAL RES_STAT *
+static RES_STAT *
 New_Res_Stat( void )
 {
 	RES_STAT *s;

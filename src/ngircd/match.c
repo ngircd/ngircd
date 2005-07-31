@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: match.c,v 1.3 2005/03/19 18:43:49 fw Exp $";
+static char UNUSED id[] = "$Id: match.c,v 1.4 2005/07/31 20:13:08 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -32,8 +32,8 @@ static char UNUSED id[] = "$Id: match.c,v 1.3 2005/03/19 18:43:49 fw Exp $";
  */
 
 
-LOCAL int Matche PARAMS(( char *p, char *t ));
-LOCAL int Matche_After_Star PARAMS(( char *p, char *t ));
+static int Matche PARAMS(( char *p, char *t ));
+static int Matche_After_Star PARAMS(( char *p, char *t ));
 
 
 #define MATCH_PATTERN	6	/* bad pattern */
@@ -53,7 +53,7 @@ Match( char *Pattern, char *String )
 } /* Match */
 
 
-LOCAL int
+static int
 Matche( char *p, char *t )
 {
 	register char range_start, range_end;
@@ -200,7 +200,7 @@ Matche( char *p, char *t )
 } /* Matche */
 
 
-LOCAL int
+static int
 Matche_After_Star( char *p, char *t )
 {
 	register int nextp, match = 0;

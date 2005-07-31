@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-write.c,v 1.18 2005/04/27 07:39:18 alex Exp $";
+static char UNUSED id[] = "$Id: irc-write.c,v 1.19 2005/07/31 20:13:08 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -39,7 +39,7 @@ static char UNUSED id[] = "$Id: irc-write.c,v 1.18 2005/04/27 07:39:18 alex Exp 
 #define SEND_TO_SERVER 2
 
 
-LOCAL char *Get_Prefix PARAMS(( CLIENT *Target, CLIENT *Client ));
+static char *Get_Prefix PARAMS(( CLIENT *Target, CLIENT *Client ));
 
 
 #ifdef PROTOTYPES
@@ -414,7 +414,7 @@ IRC_SetPenalty( CLIENT *Client, int Seconds )
 } /* IRC_SetPenalty */
 
 
-LOCAL char *
+static char *
 Get_Prefix( CLIENT *Target, CLIENT *Client )
 {
 	assert( Target != NULL );

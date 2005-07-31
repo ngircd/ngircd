@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: log.c,v 1.57 2005/06/24 19:55:10 alex Exp $";
+static char UNUSED id[] = "$Id: log.c,v 1.58 2005/07/31 20:13:08 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -44,15 +44,15 @@ static char UNUSED id[] = "$Id: log.c,v 1.57 2005/06/24 19:55:10 alex Exp $";
 #include "log.h"
 
 
-LOCAL char Init_Txt[127];
-LOCAL bool Is_Daemon;
+static char Init_Txt[127];
+static bool Is_Daemon;
 
 #ifdef DEBUG
-LOCAL char Error_File[FNAME_LEN];
+static char Error_File[FNAME_LEN];
 #endif
 
 
-LOCAL void Wall_ServerNotice PARAMS(( char *Msg ));
+static void Wall_ServerNotice PARAMS(( char *Msg ));
 
 
 GLOBAL void
@@ -302,7 +302,7 @@ va_dcl
 } /* Log_Resolver */
 
 
-LOCAL void
+static void
 Wall_ServerNotice( char *Msg )
 {
 	/* Server-Notice an entsprechende User verschicken */

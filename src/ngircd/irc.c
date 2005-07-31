@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc.c,v 1.126 2005/04/18 15:44:39 alex Exp $";
+static char UNUSED id[] = "$Id: irc.c,v 1.127 2005/07/31 20:13:08 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -38,7 +38,7 @@ static char UNUSED id[] = "$Id: irc.c,v 1.126 2005/04/18 15:44:39 alex Exp $";
 #include "irc.h"
 
 
-LOCAL char *Option_String PARAMS(( CONN_ID Idx ));
+static char *Option_String PARAMS(( CONN_ID Idx ));
 
 
 GLOBAL bool
@@ -325,7 +325,7 @@ IRC_HELP( CLIENT *Client, REQUEST *Req )
 } /* IRC_HELP */
 
 
-LOCAL char *
+static char *
 Option_String( CONN_ID Idx )
 {
 	static char option_txt[8];

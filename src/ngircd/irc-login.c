@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-login.c,v 1.45 2005/07/28 16:23:55 fw Exp $";
+static char UNUSED id[] = "$Id: irc-login.c,v 1.46 2005/07/31 20:13:08 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -41,8 +41,8 @@ static char UNUSED id[] = "$Id: irc-login.c,v 1.45 2005/07/28 16:23:55 fw Exp $"
 #include "irc-login.h"
 
 
-LOCAL bool Hello_User PARAMS(( CLIENT *Client ));
-LOCAL void Kill_Nick PARAMS(( char *Nick, char *Reason ));
+static bool Hello_User PARAMS(( CLIENT *Client ));
+static void Kill_Nick PARAMS(( char *Nick, char *Reason ));
 
 
 GLOBAL bool
@@ -497,7 +497,7 @@ IRC_PONG( CLIENT *Client, REQUEST *Req )
 } /* IRC_PONG */
 
 
-LOCAL bool
+static bool
 Hello_User( CLIENT *Client )
 {
 #ifdef CVSDATE
@@ -557,7 +557,7 @@ Hello_User( CLIENT *Client )
 } /* Hello_User */
 
 
-LOCAL void
+static void
 Kill_Nick( char *Nick, char *Reason )
 {
 	REQUEST r;

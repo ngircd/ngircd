@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-mode.c,v 1.43 2005/06/17 19:14:58 fw Exp $";
+static char UNUSED id[] = "$Id: irc-mode.c,v 1.44 2005/07/31 20:13:08 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -38,16 +38,16 @@ static char UNUSED id[] = "$Id: irc-mode.c,v 1.43 2005/06/17 19:14:58 fw Exp $";
 #include "irc-mode.h"
 
 
-LOCAL bool Client_Mode PARAMS(( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target ));
-LOCAL bool Channel_Mode PARAMS(( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel ));
+static bool Client_Mode PARAMS(( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target ));
+static bool Channel_Mode PARAMS(( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel ));
 
-LOCAL bool Add_Invite PARAMS(( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Pattern ));
-LOCAL bool Add_Ban PARAMS(( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Pattern ));
+static bool Add_Invite PARAMS(( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Pattern ));
+static bool Add_Ban PARAMS(( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Pattern ));
 
-LOCAL bool Del_Invite PARAMS(( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Pattern ));
-LOCAL bool Del_Ban PARAMS(( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Pattern ));
+static bool Del_Invite PARAMS(( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Pattern ));
+static bool Del_Ban PARAMS(( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Pattern ));
 
-LOCAL bool Send_ListChange PARAMS(( char *Mode, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Mask ));
+static bool Send_ListChange PARAMS(( char *Mode, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Mask ));
 
 
 GLOBAL bool
@@ -83,7 +83,7 @@ IRC_MODE( CLIENT *Client, REQUEST *Req )
 } /* IRC_MODE */
 
 
-LOCAL bool
+static bool
 Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 {
 	/* Handle client mode requests */
@@ -236,7 +236,7 @@ client_exit:
 } /* Client_Mode */
 
 
-LOCAL bool
+static bool
 Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 {
 	/* Handle channel and channel-user modes */
@@ -627,7 +627,7 @@ IRC_AWAY( CLIENT *Client, REQUEST *Req )
 } /* IRC_AWAY */
 
 
-LOCAL bool
+static bool
 Add_Invite( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Pattern )
 {
 	char *mask;
@@ -649,7 +649,7 @@ Add_Invite( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Pattern )
 } /* Add_Invite */
 
 
-LOCAL bool
+static bool
 Add_Ban( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Pattern )
 {
 	char *mask;
@@ -671,7 +671,7 @@ Add_Ban( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Pattern )
 } /* Add_Ban */
 
 
-LOCAL bool
+static bool
 Del_Invite( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Pattern )
 {
 	char *mask;
@@ -686,7 +686,7 @@ Del_Invite( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Pattern )
 } /* Del_Invite */
 
 
-LOCAL bool
+static bool
 Del_Ban( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Pattern )
 {
 	char *mask;
@@ -701,7 +701,7 @@ Del_Ban( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Pattern )
 } /* Del_Ban */
 
 
-LOCAL bool
+static bool
 Send_ListChange( char *Mode, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Mask )
 {
 	/* Bestaetigung an Client schicken & andere Server sowie Channel-User informieren */

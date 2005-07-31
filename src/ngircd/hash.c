@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: hash.c,v 1.11 2005/03/19 18:43:48 fw Exp $";
+static char UNUSED id[] = "$Id: hash.c,v 1.12 2005/07/31 20:13:08 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -27,7 +27,7 @@ static char UNUSED id[] = "$Id: hash.c,v 1.11 2005/03/19 18:43:48 fw Exp $";
 #include "hash.h"
 
 
-LOCAL UINT32 jenkins_hash PARAMS(( register UINT8 *k, register UINT32 length, register UINT32 initval ));
+static UINT32 jenkins_hash PARAMS(( register UINT8 *k, register UINT32 length, register UINT32 initval ));
 
 
 GLOBAL UINT32
@@ -72,7 +72,7 @@ Hash( char *String )
 } /* mix */
 
 
-LOCAL UINT32
+static UINT32
 jenkins_hash( register UINT8 *k, register UINT32 length, register UINT32 initval )
 {
 	/* k: the key

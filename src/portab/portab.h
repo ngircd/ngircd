@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: portab.h,v 1.21 2005/04/16 09:23:01 fw Exp $
+ * $Id: portab.h,v 1.22 2005/07/31 20:13:11 alex Exp $
  *
  * Portability functions and declarations (header for libngbportab).
  */
@@ -64,9 +64,6 @@
 # endif
 #endif
 
-
-/* keywords */
-#define LOCAL static
 
 /* datatypes */
 

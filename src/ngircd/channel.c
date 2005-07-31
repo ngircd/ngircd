@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: channel.c,v 1.52 2005/07/28 16:23:55 fw Exp $";
+static char UNUSED id[] = "$Id: channel.c,v 1.53 2005/07/31 20:13:08 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -50,16 +50,16 @@ static char UNUSED id[] = "$Id: channel.c,v 1.52 2005/07/28 16:23:55 fw Exp $";
 #define REMOVE_KICK 2
 
 
-LOCAL CHANNEL *My_Channels;
-LOCAL CL2CHAN *My_Cl2Chan;
+static CHANNEL *My_Channels;
+static CL2CHAN *My_Cl2Chan;
 
 
-LOCAL CL2CHAN *Get_Cl2Chan PARAMS(( CHANNEL *Chan, CLIENT *Client ));
-LOCAL CL2CHAN *Add_Client PARAMS(( CHANNEL *Chan, CLIENT *Client ));
-LOCAL bool Remove_Client PARAMS(( int Type, CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, char *Reason, bool InformServer ));
-LOCAL CL2CHAN *Get_First_Cl2Chan PARAMS(( CLIENT *Client, CHANNEL *Chan ));
-LOCAL CL2CHAN *Get_Next_Cl2Chan PARAMS(( CL2CHAN *Start, CLIENT *Client, CHANNEL *Chan ));
-LOCAL bool Delete_Channel PARAMS(( CHANNEL *Chan ));
+static CL2CHAN *Get_Cl2Chan PARAMS(( CHANNEL *Chan, CLIENT *Client ));
+static CL2CHAN *Add_Client PARAMS(( CHANNEL *Chan, CLIENT *Client ));
+static bool Remove_Client PARAMS(( int Type, CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, char *Reason, bool InformServer ));
+static CL2CHAN *Get_First_Cl2Chan PARAMS(( CLIENT *Client, CHANNEL *Chan ));
+static CL2CHAN *Get_Next_Cl2Chan PARAMS(( CL2CHAN *Start, CLIENT *Client, CHANNEL *Chan ));
+static bool Delete_Channel PARAMS(( CHANNEL *Chan ));
 
 
 GLOBAL void
@@ -745,7 +745,7 @@ Channel_Create( char *Name )
 } /* Channel_Create */
 
 
-LOCAL CL2CHAN *
+static CL2CHAN *
 Get_Cl2Chan( CHANNEL *Chan, CLIENT *Client )
 {
 	CL2CHAN *cl2chan;
@@ -763,7 +763,7 @@ Get_Cl2Chan( CHANNEL *Chan, CLIENT *Client )
 } /* Get_Cl2Chan */
 
 
-LOCAL CL2CHAN *
+static CL2CHAN *
 Add_Client( CHANNEL *Chan, CLIENT *Client )
 {
 	CL2CHAN *cl2chan;
@@ -792,7 +792,7 @@ Add_Client( CHANNEL *Chan, CLIENT *Client )
 } /* Add_Client */
 
 
-LOCAL bool
+static bool
 Remove_Client( int Type, CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, char *Reason, bool InformServer )
 {
 	CL2CHAN *cl2chan, *last_cl2chan;
@@ -855,14 +855,14 @@ Remove_Client( int Type, CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, char *Re
 } /* Remove_Client */
 
 
-LOCAL CL2CHAN *
+static CL2CHAN *
 Get_First_Cl2Chan( CLIENT *Client, CHANNEL *Chan )
 {
 	return Get_Next_Cl2Chan( My_Cl2Chan, Client, Chan );
 } /* Get_First_Cl2Chan */
 
 
-LOCAL CL2CHAN *
+static CL2CHAN *
 Get_Next_Cl2Chan( CL2CHAN *Start, CLIENT *Client, CHANNEL *Channel )
 {
 	CL2CHAN *cl2chan;
@@ -880,7 +880,7 @@ Get_Next_Cl2Chan( CL2CHAN *Start, CLIENT *Client, CHANNEL *Channel )
 } /* Get_Next_Cl2Chan */
 
 
-LOCAL bool
+static bool
 Delete_Channel( CHANNEL *Chan )
 {
 	/* Channel-Struktur loeschen */

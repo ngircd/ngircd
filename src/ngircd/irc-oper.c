@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-oper.c,v 1.23 2005/07/11 14:11:35 fw Exp $";
+static char UNUSED id[] = "$Id: irc-oper.c,v 1.24 2005/07/31 20:13:08 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -37,7 +37,7 @@ static char UNUSED id[] = "$Id: irc-oper.c,v 1.23 2005/07/11 14:11:35 fw Exp $";
 #include "irc-oper.h"
 
 
-LOCAL bool
+static bool
 Bad_OperPass(CLIENT *Client, char *errtoken, char *errmsg)
 {
 	Log( LOG_WARNING, "Got invalid OPER from \"%s\": \"%s\" -- %s", Client_Mask( Client ),

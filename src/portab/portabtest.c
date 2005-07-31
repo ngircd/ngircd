@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: portabtest.c,v 1.12 2005/03/19 18:43:50 fw Exp $";
+static char UNUSED id[] = "$Id: portabtest.c,v 1.13 2005/07/31 20:13:11 alex Exp $";
 
 #include "imp.h"
 #include <stdarg.h>
@@ -25,7 +25,7 @@ static char UNUSED id[] = "$Id: portabtest.c,v 1.12 2005/03/19 18:43:50 fw Exp $
 #include "exp.h"
 
 
-LOCAL void Panic PARAMS (( char *Reason, int Code ));
+static void Panic PARAMS (( char *Reason, int Code ));
 
 
 GLOBAL int
@@ -51,7 +51,7 @@ main( void )
 } /* portab_check_types */
 
 
-LOCAL void
+static void
 Panic( char *Reason, int Code )
 {
 	/* Oops, something failed!? */

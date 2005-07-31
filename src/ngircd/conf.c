@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.82 2005/07/29 09:29:47 fw Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.83 2005/07/31 20:13:08 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -51,26 +51,26 @@ static char UNUSED id[] = "$Id: conf.c,v 1.82 2005/07/29 09:29:47 fw Exp $";
 #include "conf.h"
 
 
-LOCAL bool Use_Log = true;
-LOCAL CONF_SERVER New_Server;
-LOCAL int New_Server_Idx;
+static bool Use_Log = true;
+static CONF_SERVER New_Server;
+static int New_Server_Idx;
 
 
-LOCAL void Set_Defaults PARAMS(( bool InitServers ));
-LOCAL void Read_Config PARAMS(( void ));
-LOCAL void Validate_Config PARAMS(( bool TestOnly ));
+static void Set_Defaults PARAMS(( bool InitServers ));
+static void Read_Config PARAMS(( void ));
+static void Validate_Config PARAMS(( bool TestOnly ));
 
-LOCAL void Handle_GLOBAL PARAMS(( int Line, char *Var, char *Arg ));
-LOCAL void Handle_OPERATOR PARAMS(( int Line, char *Var, char *Arg ));
-LOCAL void Handle_SERVER PARAMS(( int Line, char *Var, char *Arg ));
-LOCAL void Handle_CHANNEL PARAMS(( int Line, char *Var, char *Arg ));
+static void Handle_GLOBAL PARAMS(( int Line, char *Var, char *Arg ));
+static void Handle_OPERATOR PARAMS(( int Line, char *Var, char *Arg ));
+static void Handle_SERVER PARAMS(( int Line, char *Var, char *Arg ));
+static void Handle_CHANNEL PARAMS(( int Line, char *Var, char *Arg ));
 
-LOCAL void Config_Error PARAMS(( const int Level, const char *Format, ... ));
+static void Config_Error PARAMS(( const int Level, const char *Format, ... ));
 
-LOCAL void Config_Error_NaN PARAMS(( const int LINE, const char *Value ));
-LOCAL void Config_Error_TooLong PARAMS(( const int LINE, const char *Value ));
+static void Config_Error_NaN PARAMS(( const int LINE, const char *Value ));
+static void Config_Error_TooLong PARAMS(( const int LINE, const char *Value ));
 
-LOCAL void Init_Server_Struct PARAMS(( CONF_SERVER *Server ));
+static void Init_Server_Struct PARAMS(( CONF_SERVER *Server ));
 
 
 static void
@@ -387,7 +387,7 @@ Conf_AddServer( char *Name, UINT16 Port, char *Host, char *MyPwd, char *PeerPwd 
 } /* Conf_AddServer */
 
 
-LOCAL void
+static void
 Set_Defaults( bool InitServers )
 {
 	/* Initialize configuration variables with default values. */
@@ -435,7 +435,7 @@ Set_Defaults( bool InitServers )
 } /* Set_Defaults */
 
 
-LOCAL void
+static void
 Read_Config( void )
 {
 	/* Read configuration file. */
@@ -613,7 +613,7 @@ Read_Config( void )
 } /* Read_Config */
 
 
-LOCAL bool
+static bool
 Check_ArgIsTrue( const char *Arg )
 {
 	if( strcasecmp( Arg, "yes" ) == 0 ) return true;
@@ -624,7 +624,7 @@ Check_ArgIsTrue( const char *Arg )
 } /* Check_ArgIsTrue */
 
 
-LOCAL void
+static void
 Handle_GLOBAL( int Line, char *Var, char *Arg )
 {
 	struct passwd *pwd;
@@ -834,7 +834,7 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 } /* Handle_GLOBAL */
 
 
-LOCAL void
+static void
 Handle_OPERATOR( int Line, char *Var, char *Arg )
 {
 	unsigned int opercount;
@@ -881,7 +881,7 @@ Handle_OPERATOR( int Line, char *Var, char *Arg )
 } /* Handle_OPERATOR */
 
 
-LOCAL void
+static void
 Handle_SERVER( int Line, char *Var, char *Arg )
 {
 	long port;
@@ -943,7 +943,7 @@ Handle_SERVER( int Line, char *Var, char *Arg )
 } /* Handle_SERVER */
 
 
-LOCAL void
+static void
 Handle_CHANNEL( int Line, char *Var, char *Arg )
 {
 	assert( Line > 0 );
@@ -977,7 +977,7 @@ Handle_CHANNEL( int Line, char *Var, char *Arg )
 } /* Handle_CHANNEL */
 
 
-LOCAL void
+static void
 Validate_Config( bool Configtest )
 {
 	/* Validate configuration settings. */
@@ -1041,22 +1041,22 @@ Validate_Config( bool Configtest )
 } /* Validate_Config */
 
 
-LOCAL void
+static void
 Config_Error_TooLong ( const int Line, const char *Item )
 {
 	Config_Error( LOG_WARNING, "%s, line %d: Value of \"%s\" too long!", NGIRCd_ConfFile, Line, Item );
 }
 
-LOCAL void
+static void
 Config_Error_NaN( const int Line, const char *Item )
 {
 	Config_Error( LOG_WARNING, "%s, line %d: Value of \"%s\" is not a number!", NGIRCd_ConfFile, Line, Item );
 }
 
 #ifdef PROTOTYPES
-LOCAL void Config_Error( const int Level, const char *Format, ... )
+static void Config_Error( const int Level, const char *Format, ... )
 #else
-LOCAL void Config_Error( Level, Format, va_alist )
+static void Config_Error( Level, Format, va_alist )
 const int Level;
 const char *Format;
 va_dcl
@@ -1085,7 +1085,7 @@ va_dcl
 } /* Config_Error */
 
 
-LOCAL void
+static void
 Init_Server_Struct( CONF_SERVER *Server )
 {
 	/* Initialize server configuration structur to default values */

@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: parse.c,v 1.64 2005/07/22 21:31:05 alex Exp $";
+static char UNUSED id[] = "$Id: parse.c,v 1.65 2005/07/31 20:13:08 alex Exp $";
 
 /**
  * @file
@@ -103,13 +103,13 @@ COMMAND My_Commands[] =
 };
 
 
-LOCAL void Init_Request PARAMS(( REQUEST *Req ));
+static void Init_Request PARAMS(( REQUEST *Req ));
 
-LOCAL bool Validate_Prefix PARAMS(( CONN_ID Idx, REQUEST *Req, bool *Closed ));
-LOCAL bool Validate_Command PARAMS(( CONN_ID Idx, REQUEST *Req, bool *Closed ));
-LOCAL bool Validate_Args PARAMS(( CONN_ID Idx, REQUEST *Req, bool *Closed ));
+static bool Validate_Prefix PARAMS(( CONN_ID Idx, REQUEST *Req, bool *Closed ));
+static bool Validate_Command PARAMS(( CONN_ID Idx, REQUEST *Req, bool *Closed ));
+static bool Validate_Args PARAMS(( CONN_ID Idx, REQUEST *Req, bool *Closed ));
 
-LOCAL bool Handle_Request PARAMS(( CONN_ID Idx, REQUEST *Req ));
+static bool Handle_Request PARAMS(( CONN_ID Idx, REQUEST *Req ));
 
 
 /**
@@ -247,7 +247,7 @@ Parse_Request( CONN_ID Idx, char *Request )
  * Initialize request structure.
  * @param Req Request structure to be initialized.
  */
-LOCAL void
+static void
 Init_Request( REQUEST *Req )
 {
 	/* Neue Request-Struktur initialisieren */
@@ -263,7 +263,7 @@ Init_Request( REQUEST *Req )
 } /* Init_Request */
 
 
-LOCAL bool
+static bool
 Validate_Prefix( CONN_ID Idx, REQUEST *Req, bool *Closed )
 {
 	CLIENT *client, *c;
@@ -316,7 +316,7 @@ Validate_Prefix( CONN_ID Idx, REQUEST *Req, bool *Closed )
 } /* Validate_Prefix */
 
 
-LOCAL bool
+static bool
 Validate_Command( UNUSED CONN_ID Idx, UNUSED REQUEST *Req, bool *Closed )
 {
 	assert( Idx >= 0 );
@@ -327,7 +327,7 @@ Validate_Command( UNUSED CONN_ID Idx, UNUSED REQUEST *Req, bool *Closed )
 } /* Validate_Comman */
 
 
-LOCAL bool
+static bool
 Validate_Args( UNUSED CONN_ID Idx, UNUSED REQUEST *Req, bool *Closed )
 {
 	assert( Idx >= 0 );
@@ -338,7 +338,7 @@ Validate_Args( UNUSED CONN_ID Idx, UNUSED REQUEST *Req, bool *Closed )
 } /* Validate_Args */
 
 
-LOCAL bool
+static bool
 Handle_Request( CONN_ID Idx, REQUEST *Req )
 {
 	/* Client-Request verarbeiten. Bei einem schwerwiegenden Fehler

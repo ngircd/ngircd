@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.107 2005/07/10 21:07:22 fw Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.108 2005/07/31 20:13:08 alex Exp $";
 
 /**
  * @file
@@ -56,20 +56,20 @@ static char UNUSED id[] = "$Id: ngircd.c,v 1.107 2005/07/10 21:07:22 fw Exp $";
 #include "ngircd.h"
 
 
-LOCAL void Initialize_Signal_Handler PARAMS(( void ));
-LOCAL void Signal_Handler PARAMS(( int Signal ));
+static void Initialize_Signal_Handler PARAMS(( void ));
+static void Signal_Handler PARAMS(( int Signal ));
 
-LOCAL void Show_Version PARAMS(( void ));
-LOCAL void Show_Help PARAMS(( void ));
+static void Show_Version PARAMS(( void ));
+static void Show_Help PARAMS(( void ));
 
-LOCAL void Pidfile_Create PARAMS(( long ));
-LOCAL void Pidfile_Delete PARAMS(( void ));
+static void Pidfile_Create PARAMS(( long ));
+static void Pidfile_Delete PARAMS(( void ));
 
-LOCAL void Fill_Version PARAMS(( void ));
+static void Fill_Version PARAMS(( void ));
 
-LOCAL void Setup_FDStreams PARAMS(( void ));
+static void Setup_FDStreams PARAMS(( void ));
 
-LOCAL bool NGIRCd_Init PARAMS(( bool ));
+static bool NGIRCd_Init PARAMS(( bool ));
 
 /**
  * The main() function of ngIRCd.
@@ -341,7 +341,7 @@ main( int argc, const char *argv[] )
  * further usage, for example by the IRC command VERSION and the --version
  * command line switch.
  */
-LOCAL void
+static void
 Fill_Version( void )
 {
 	NGIRCd_VersionAddition[0] = '\0';
@@ -458,7 +458,7 @@ NGIRCd_Rehash( void )
 /**
  * Initialize the signal handler.
  */
-LOCAL void
+static void
 Initialize_Signal_Handler( void )
 {
 	/* Signal-Handler initialisieren: einige Signale
@@ -511,7 +511,7 @@ Initialize_Signal_Handler( void )
  * user and/or the system to it. For example SIGTERM and SIGHUP.
  * @param Signal Number of the signal to handle.
  */
-LOCAL void
+static void
 Signal_Handler( int Signal )
 {
 	switch( Signal )
@@ -542,7 +542,7 @@ Signal_Handler( int Signal )
 /**
  * Display copyright and version information of ngIRCd on the console.
  */
-LOCAL void
+static void
 Show_Version( void )
 {
 	puts( NGIRCd_Version );
@@ -558,7 +558,7 @@ Show_Version( void )
  * This help depends on the configuration of the executable and only shows
  * options that are actually enabled.
  */
-LOCAL void
+static void
 Show_Help( void )
 {
 #ifdef DEBUG
@@ -579,7 +579,7 @@ Show_Help( void )
 /**
  * Delete the file containing the process ID (PID).
  */
-LOCAL void
+static void
 Pidfile_Delete( void )
 {
 	/* Pidfile configured? */
@@ -598,7 +598,7 @@ Pidfile_Delete( void )
  * Create the file containing the process ID of ngIRCd ("PID file").
  * @param pid The process ID to be stored in this file.
  */
-LOCAL void
+static void
 Pidfile_Create( long pid )
 {
 	int pidfd;
@@ -635,7 +635,7 @@ Pidfile_Create( long pid )
 /**
  * Redirect stdin, stdout and stderr to apropriate file handles.
  */
-LOCAL void
+static void
 Setup_FDStreams( void )
 {
 	int fd;
@@ -660,7 +660,7 @@ Setup_FDStreams( void )
 } /* Setup_FDStreams */
 
 
-LOCAL bool
+static bool
 NGIRCd_getNobodyID(unsigned int *uid, unsigned int *gid )
 {
 	struct passwd *pwd;
@@ -679,7 +679,7 @@ NGIRCd_getNobodyID(unsigned int *uid, unsigned int *gid )
 }
 
 
-LOCAL bool
+static bool
 NGIRCd_Init( bool NGIRCd_NoDaemon ) 
 {
 	static bool initialized;

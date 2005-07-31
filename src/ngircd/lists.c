@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: lists.c,v 1.17 2005/03/19 18:43:49 fw Exp $";
+static char UNUSED id[] = "$Id: lists.c,v 1.18 2005/07/31 20:13:08 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -48,13 +48,13 @@ typedef struct _C2C
 } C2C;
 
 
-LOCAL C2C *My_Invites, *My_Bans;
+static C2C *My_Invites, *My_Bans;
 
 
-LOCAL C2C *New_C2C PARAMS(( char *Mask, CHANNEL *Chan, bool OnlyOnce ));
+static C2C *New_C2C PARAMS(( char *Mask, CHANNEL *Chan, bool OnlyOnce ));
 
-LOCAL bool Check_List PARAMS(( C2C **Cl2Chan, CLIENT *Client, CHANNEL *Chan ));
-LOCAL bool Already_Registered PARAMS(( C2C *Cl2Chan, char *Mask, CHANNEL *Chan ));
+static bool Check_List PARAMS(( C2C **Cl2Chan, CLIENT *Client, CHANNEL *Chan ));
+static bool Already_Registered PARAMS(( C2C *Cl2Chan, char *Mask, CHANNEL *Chan ));
 
 
 
@@ -407,7 +407,7 @@ Lists_MakeMask( char *Pattern )
 } /* Lists_MakeMask */
 
 
-LOCAL C2C *
+static C2C *
 New_C2C( char *Mask, CHANNEL *Chan, bool OnlyOnce )
 {
 	C2C *c2c;
@@ -431,7 +431,7 @@ New_C2C( char *Mask, CHANNEL *Chan, bool OnlyOnce )
 } /* New_C2C */
 
 
-LOCAL bool
+static bool
 Check_List( C2C **Cl2Chan, CLIENT *Client, CHANNEL *Chan )
 {
 	C2C *c2c, *last;
@@ -470,7 +470,7 @@ Check_List( C2C **Cl2Chan, CLIENT *Client, CHANNEL *Chan )
 } /* Check_List */
 
 
-LOCAL bool
+static bool
 Already_Registered( C2C *List, char *Mask, CHANNEL *Chan )
 {
 	C2C *c2c;

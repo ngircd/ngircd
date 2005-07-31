@@ -21,7 +21,7 @@
 #ifdef ZEROCONF
 
 
-static char UNUSED id[] = "$Id: rendezvous.c,v 1.6 2005/07/08 16:18:39 alex Exp $";
+static char UNUSED id[] = "$Id: rendezvous.c,v 1.7 2005/07/31 20:13:08 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -72,10 +72,10 @@ typedef struct _service
 #endif
 } SERVICE;
 
-LOCAL SERVICE My_Rendezvous[MAX_RENDEZVOUS];
+static SERVICE My_Rendezvous[MAX_RENDEZVOUS];
 
 
-LOCAL void Unregister( int Idx );
+static void Unregister( int Idx );
 
 
 /* -- Apple API -- */
@@ -84,7 +84,7 @@ LOCAL void Unregister( int Idx );
 
 #define MAX_MACH_MSG_SIZE 512
 
-LOCAL void Registration_Reply_Handler( DNSServiceRegistrationReplyErrorType ErrCode, void *Context );
+static void Registration_Reply_Handler( DNSServiceRegistrationReplyErrorType ErrCode, void *Context );
 
 #endif /* Apple */
 
@@ -93,10 +93,10 @@ LOCAL void Registration_Reply_Handler( DNSServiceRegistrationReplyErrorType ErrC
 
 #ifdef HOWL
 
-LOCAL sw_discovery My_Discovery_Session = NULL;
-LOCAL sw_salt My_Salt;
+static sw_discovery My_Discovery_Session = NULL;
+static sw_salt My_Salt;
 
-LOCAL sw_result HOWL_API Registration_Reply_Handler( sw_discovery Session, sw_discovery_publish_status Status, sw_discovery_oid Id, sw_opaque Extra );
+static sw_result HOWL_API Registration_Reply_Handler( sw_discovery Session, sw_discovery_publish_status Status, sw_discovery_oid Id, sw_opaque Extra );
 
 #endif /* Howl */
 
@@ -263,7 +263,7 @@ GLOBAL void Rendezvous_Handler( void )
 } /* Rendezvous_Handler */
 
 
-LOCAL void Unregister( int Idx )
+static void Unregister( int Idx )
 {
 	/* Unregister service */
 
@@ -289,7 +289,7 @@ LOCAL void Unregister( int Idx )
 #ifdef APPLE
 
 
-LOCAL void Registration_Reply_Handler( DNSServiceRegistrationReplyErrorType ErrCode, void *Context )
+static void Registration_Reply_Handler( DNSServiceRegistrationReplyErrorType ErrCode, void *Context )
 {
 	SERVICE *s = (SERVICE *)Context;
 	char txt[50];
@@ -326,7 +326,7 @@ LOCAL void Registration_Reply_Handler( DNSServiceRegistrationReplyErrorType ErrC
 #ifdef HOWL
 
 
-LOCAL sw_result HOWL_API Registration_Reply_Handler( sw_discovery Session, sw_discovery_publish_status Status, UNUSED sw_discovery_oid Id, sw_opaque Extra )
+static sw_result HOWL_API Registration_Reply_Handler( sw_discovery Session, sw_discovery_publish_status Status, UNUSED sw_discovery_oid Id, sw_opaque Extra )
 {
 	SERVICE *s = (SERVICE *)Extra;
 	char txt[50];

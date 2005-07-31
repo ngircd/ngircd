@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.167 2005/07/29 09:29:47 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.168 2005/07/31 20:13:08 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -82,19 +82,19 @@ static char UNUSED id[] = "$Id: conn.c,v 1.167 2005/07/29 09:29:47 fw Exp $";
 #define SERVER_WAIT (NONE - 1)
 
 
-LOCAL bool Handle_Write PARAMS(( CONN_ID Idx ));
-LOCAL int New_Connection PARAMS(( int Sock ));
-LOCAL CONN_ID Socket2Index PARAMS(( int Sock ));
-LOCAL void Read_Request PARAMS(( CONN_ID Idx ));
-LOCAL bool Handle_Buffer PARAMS(( CONN_ID Idx ));
-LOCAL void Check_Connections PARAMS(( void ));
-LOCAL void Check_Servers PARAMS(( void ));
-LOCAL void Init_Conn_Struct PARAMS(( CONN_ID Idx ));
-LOCAL bool Init_Socket PARAMS(( int Sock ));
-LOCAL void New_Server PARAMS(( int Server, CONN_ID Idx ));
-LOCAL void Simple_Message PARAMS(( int Sock, char *Msg ));
-LOCAL int Count_Connections PARAMS(( struct sockaddr_in addr ));
-LOCAL int NewListener PARAMS(( const UINT16 Port ));
+static bool Handle_Write PARAMS(( CONN_ID Idx ));
+static int New_Connection PARAMS(( int Sock ));
+static CONN_ID Socket2Index PARAMS(( int Sock ));
+static void Read_Request PARAMS(( CONN_ID Idx ));
+static bool Handle_Buffer PARAMS(( CONN_ID Idx ));
+static void Check_Connections PARAMS(( void ));
+static void Check_Servers PARAMS(( void ));
+static void Init_Conn_Struct PARAMS(( CONN_ID Idx ));
+static bool Init_Socket PARAMS(( int Sock ));
+static void New_Server PARAMS(( int Server, CONN_ID Idx ));
+static void Simple_Message PARAMS(( int Sock, char *Msg ));
+static int Count_Connections PARAMS(( struct sockaddr_in addr ));
+static int NewListener PARAMS(( const UINT16 Port ));
 
 static array My_Listeners;
 
@@ -198,7 +198,7 @@ cb_clientserver(int sock, short what)
 }
 
 
-LOCAL void
+static void
 FreeRes_stat( CONNECTION *c )
 {
 	assert( c != NULL );
@@ -358,7 +358,7 @@ Conn_ExitListeners( void )
 
 
 /* return new listening port file descriptor or -1 on failure */
-LOCAL int
+static int
 NewListener( const UINT16 Port )
 {
 	/* Create new listening socket on specified port */
@@ -843,7 +843,7 @@ Conn_SyncServerStruct( void )
 } /* SyncServerStruct */
 
 
-LOCAL bool
+static bool
 Handle_Write( CONN_ID Idx )
 {
 	/* Daten aus Schreibpuffer versenden bzw. Connection aufbauen */
@@ -894,7 +894,7 @@ Handle_Write( CONN_ID Idx )
 } /* Handle_Write */
 
 
-LOCAL int
+static int
 New_Connection( int Sock )
 {
 	/* Neue Client-Verbindung von Listen-Socket annehmen und
@@ -1042,7 +1042,7 @@ New_Connection( int Sock )
 } /* New_Connection */
 
 
-LOCAL CONN_ID
+static CONN_ID
 Socket2Index( int Sock )
 {
 	/* zum Socket passende Connection suchen */
@@ -1066,7 +1066,7 @@ Socket2Index( int Sock )
 } /* Socket2Index */
 
 
-LOCAL void
+static void
 Read_Request( CONN_ID Idx )
 {
 	/* Daten von Socket einlesen und entsprechend behandeln.
@@ -1135,7 +1135,7 @@ Read_Request( CONN_ID Idx )
 } /* Read_Request */
 
 
-LOCAL bool
+static bool
 Handle_Buffer( CONN_ID Idx )
 {
 	/* Handle Data in Connections Read-Buffer.
@@ -1246,7 +1246,7 @@ Handle_Buffer( CONN_ID Idx )
 } /* Handle_Buffer */
 
 
-LOCAL void
+static void
 Check_Connections( void )
 {
 	/* check if connections are alive. if not, play PING-PONG first.
@@ -1296,7 +1296,7 @@ Check_Connections( void )
 } /* Check_Connections */
 
 
-LOCAL void
+static void
 Check_Servers( void )
 {
 	/* Check if we can establish further server links */
@@ -1364,7 +1364,7 @@ Check_Servers( void )
 } /* Check_Servers */
 
 
-LOCAL void
+static void
 New_Server( int Server, CONN_ID Idx )
 {
 	/* Establish new server link */
@@ -1456,7 +1456,7 @@ out:
 } /* New_Server */
 
 
-LOCAL void
+static void
 Init_Conn_Struct( CONN_ID Idx )
 {
 	time_t now = time( NULL );
@@ -1469,7 +1469,7 @@ Init_Conn_Struct( CONN_ID Idx )
 } /* Init_Conn_Struct */
 
 
-LOCAL bool
+static bool
 Init_Socket( int Sock )
 {
 	/* Initialize socket (set options) */
@@ -1649,7 +1649,7 @@ try_resolve:
 } /* Read_Resolver_Result */
 
 
-LOCAL void
+static void
 Simple_Message( int Sock, char *Msg )
 {
 	char buf[COMMAND_LEN];
@@ -1665,7 +1665,7 @@ Simple_Message( int Sock, char *Msg )
 } /* Simple_Error */
 
 
-LOCAL int
+static int
 Count_Connections( struct sockaddr_in addr_in )
 {
 	int i, cnt;

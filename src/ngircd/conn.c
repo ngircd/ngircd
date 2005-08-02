@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.168 2005/07/31 20:13:08 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.169 2005/08/02 22:48:57 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -1522,7 +1522,7 @@ void Read_Resolver_Result( int r_fd )
 	char *bufptr;
 	char readbuf[HOST_LEN];
 
-	Log( LOG_DEBUG, "Resolver: started, fd %d\n", r_fd );
+	Log( LOG_DEBUG, "Resolver: started, fd %d", r_fd );
 	/* Search associated connection ... */
 	for( i = 0; i < Pool_Size; i++ )
 	{

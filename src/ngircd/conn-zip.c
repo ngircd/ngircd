@@ -19,7 +19,7 @@
 
 #ifdef ZLIB
 
-static char UNUSED id[] = "$Id: conn-zip.c,v 1.8 2005/07/07 18:48:33 fw Exp $";
+static char UNUSED id[] = "$Id: conn-zip.c,v 1.9 2005/08/02 22:48:57 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -135,7 +135,7 @@ Zip_Flush( CONN_ID Idx )
 
 	assert(out->avail_out <= WRITEBUFFER_LEN);
 	zipbuf_used = WRITEBUFFER_LEN - out->avail_out;
-	Log(LOG_DEBUG, "zipbuf_used: %d\n", zipbuf_used);
+	Log(LOG_DEBUG, "zipbuf_used: %d", zipbuf_used);
 	if (!array_catb( &My_Connections[Idx].wbuf, (char*) zipbuf, zipbuf_used ))
 		return false;
 
@@ -191,7 +191,7 @@ Unzip_Buffer( CONN_ID Idx )
 	assert(z_rdatalen >= in->avail_in);
 	in_len = z_rdatalen - in->avail_in;
 	unzipbuf_used = READBUFFER_LEN - in->avail_out;
-	Log(LOG_DEBUG, "unzipbuf_used: %d - %d = %d\n", READBUFFER_LEN,  in->avail_out, unzipbuf_used);
+	Log(LOG_DEBUG, "unzipbuf_used: %d - %d = %d", READBUFFER_LEN,  in->avail_out, unzipbuf_used);
 	assert(unzipbuf_used <= READBUFFER_LEN);
 	if (!array_catb(&My_Connections[Idx].rbuf, (char*) unzipbuf, unzipbuf_used))
 		return false;

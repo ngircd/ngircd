@@ -10,6 +10,12 @@
                                -- ChangeLog --
 
 
+ngIRCd 0.9.x
+
+  - The KILL command killed much more than desired (including server links!)
+    when the target user is connected to a remote server. Bug introduced in
+    ngIRCd 0.9.0 ...  Reported by <qssl@fastmail.fm>, Thanks!
+
 ngIRCd 0.9.0 (2005-07-24)
 
   ngIRCd 0.9.0-pre1 (2005-07-09)
@@ -612,4 +618,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.276.2.5 2005/07/24 21:39:45 alex Exp $
+$Id: ChangeLog,v 1.276.2.6 2005/08/02 23:08:26 alex Exp $

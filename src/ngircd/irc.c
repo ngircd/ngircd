@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc.c,v 1.126 2005/04/18 15:44:39 alex Exp $";
+static char UNUSED id[] = "$Id: irc.c,v 1.126.2.1 2005/08/02 23:08:27 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -151,7 +151,7 @@ IRC_KILL( CLIENT *Client, REQUEST *Req )
 		}
 
 		/* Kill client NOW! */
-		conn = Client_Conn( Client_NextHop( c ));
+		conn = Client_Conn( c );
 		Client_Destroy( c, NULL, reason, false );
 		if( conn > NONE )
 			Conn_Close( conn, NULL, reason, true );

@@ -21,6 +21,12 @@ ngIRCd CVSHEAD
   - Added new IO layer which (optionally) supports epoll() and kqueue() in
     addition to the select() interface.
 
+ngIRCd 0.9.x
+
+  - The KILL command killed much more than desired (including server links!)
+    when the target user is connected to a remote server. Bug introduced in
+    ngIRCd 0.9.0 ...  Reported by <qssl@fastmail.fm>, Thanks!
+
 ngIRCd 0.9.0 (2005-07-24)
 
   ngIRCd 0.9.0-pre1 (2005-07-09)
@@ -623,4 +629,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.284 2005/07/31 20:13:07 alex Exp $
+$Id: ChangeLog,v 1.285 2005/08/02 23:19:21 alex Exp $

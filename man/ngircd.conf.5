@@ -1,16 +1,17 @@
 .\"
-.\" $Id: ngircd.conf.5,v 1.18 2005/06/04 13:39:20 alex Exp $
+.\" $Id: ngircd.conf.5,v 1.19 2005/08/12 13:20:54 alex Exp $
 .\"
-.TH ngircd.conf 5 "Juni 2005" ngircd "ngIRCd Manual"
+.TH ngircd.conf 5 "August 2005" ngircd "ngIRCd Manual"
 .SH NAME
 ngircd.conf \- configuration file of ngIRCd
 .SH SYNOPSIS
 .B /usr/local/etc/ngircd.conf
 .SH DESCRIPTION
 .BR ngircd.conf
-is the configuration file for
+is the configuration file of the
 .BR ngircd (8)
-which you should adept to your local preferences and needs.
+Internet Relay Chat (IRC) daemon which you should adept to your local
+preferences and needs.
 .SH "FILE FORMAT"
 The file consists of sections and parameters. A section begins with the name
 of the section in square brackets and continues until the next section
@@ -24,8 +25,8 @@ Sections contain parameters of the form
 .I value
 .RE
 .PP
-Any line beginning with a semicolon (';') or a hash ('#') character is
-treated as a comment and ignored.
+Empty lines and any line beginning with a semicolon (';') or a hash ('#')
+character is treated as a comment and will be ignored.
 .PP
 The file format is line-based - that means, each newline-terminated line
 represents either a comment, a section name or a parameter.
@@ -241,8 +242,8 @@ alex@barton.de
 .UE
 .br
 Homepage:
-.UR http://arthur.ath.cx/~alex/ngircd/
-http://arthur.ath.cx/~alex/ngircd/
+.UR http://ngircd.barton.de/
+http://ngircd.barton.de/
 .UE
 .SH "SEE ALSO"
 .BR ngircd (8)

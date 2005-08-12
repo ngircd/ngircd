@@ -1,4 +1,6 @@
-# $Id: stress-A.e,v 1.1 2002/09/09 22:56:07 alex Exp $
+# $Id: stress-A.e,v 1.2 2005/08/12 21:35:12 alex Exp $
+
+set timeout 30
 
 spawn telnet localhost 6789
 expect {

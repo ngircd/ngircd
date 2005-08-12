@@ -1,10 +1,12 @@
-# $Id: stress-B.e,v 1.1 2002/09/09 22:56:07 alex Exp $
+# $Id: stress-B.e,v 1.2 2005/08/12 21:38:52 alex Exp $
 
 send "user user . . :User\r"
 expect {
 	timeout { exit 1 }
 	"376"
 }
+
+sleep 2
 
 send "oper TestOp 123\r"
 expect {
@@ -15,6 +17,8 @@ expect {
 	timeout { exit 1 }
 	"381 test*"
 }
+
+sleep 2
 
 send "join #channel\r"
 expect {
@@ -47,6 +51,8 @@ expect {
 	timeout { exit 1 }
 	"366"
 }
+
+sleep 3
 
 send "part #channel2\r"
 expect {

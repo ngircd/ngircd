@@ -1,7 +1,7 @@
 
                      ngIRCd - Next Generation IRC Server
 
-                      (c)2001-2004 by Alexander Barton,
+                        (c)2001-2005 Alexander Barton,
                     alex@barton.de, http://www.barton.de/
 
                ngIRCd is free software and published under the
@@ -16,6 +16,9 @@ MacOSX/
 Debian/
  - Various files for building Debian packages.
 
+ngircd.sh
+ - Start script for FreeBSD.
+
 ngircd.spec
  - RPM "spec" file.
 
@@ -24,4 +27,4 @@ systrace.policy
 
 
 --
-$Id: README,v 1.1 2004/04/28 12:18:50 alex Exp $
+$Id: README,v 1.2 2005/08/12 21:32:45 alex Exp $

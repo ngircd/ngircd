@@ -9,10 +9,13 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: wait-tests.sh,v 1.4 2004/09/06 22:04:06 alex Exp $
+# $Id: wait-tests.sh,v 1.5 2005/08/12 21:34:19 alex Exp $
 #
 
 [ "$1" -gt 0 ] 2> /dev/null && MAX="$1" || MAX=5
+
+# detect source directory
+[ -z "$srcdir" ] && srcdir=`dirname $0`
 
 PS_FLAGS="-f"
 ps $PS_FLAGS >/dev/null 2>&1

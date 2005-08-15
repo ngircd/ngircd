@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.169 2005/08/02 22:48:57 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.170 2005/08/15 23:02:40 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -736,19 +736,23 @@ Conn_Close( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool InformClient )
 	c = Client_GetFromConn( Idx );
 
 	/* Should the client be informed? */
-	if( InformClient )
-	{
+	if (InformClient) {
 #ifndef STRICT_RFC
 		/* Send statistics to client if registered as user: */
-		if(( c != NULL ) && ( Client_Type( c ) == CLIENT_USER ))
-		{
-			Conn_WriteStr( Idx, "NOTICE %s :%sConnection statistics: client %.1f kb, server %.1f kb.", Client_ThisServer( ), NOTICE_TXTPREFIX, (double)My_Connections[Idx].bytes_in / 1024,  (double)My_Connections[Idx].bytes_out / 1024 );
+		if ((c != NULL) && (Client_Type(c) == CLIENT_USER)) {
+			Conn_WriteStr( Idx,
+			 "NOTICE %s :%sConnection statistics: client %.1f kb, server %.1f kb.",
+			 Client_ID(Client_ThisServer()), NOTICE_TXTPREFIX,
+			 (double)My_Connections[Idx].bytes_in / 1024,
+			 (double)My_Connections[Idx].bytes_out / 1024);
 		}
 #endif
 
 		/* Send ERROR to client (see RFC!) */
-		if( FwdMsg ) Conn_WriteStr( Idx, "ERROR :%s", FwdMsg );
-		else Conn_WriteStr( Idx, "ERROR :Closing connection." );
+		if (FwdMsg)
+			Conn_WriteStr(Idx, "ERROR :%s", FwdMsg);
+		else
+			Conn_WriteStr(Idx, "ERROR :Closing connection.");
 	}
 
 	/* Try to write out the write buffer */

@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.108 2005/07/31 20:13:08 alex Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.109 2005/08/25 08:48:43 alex Exp $";
 
 /**
  * @file
@@ -262,8 +262,10 @@ main( int argc, const char *argv[] )
 		Log_Init( ! NGIRCd_NoDaemon );
 		Conf_Init( );
 
-		if (!NGIRCd_Init( NGIRCd_NoDaemon )) {
-			Log(LOG_WARNING, "Fatal: Initialization failed");
+		/* Initialize the "main program": chroot environment, user and
+		 * group ID, ... */
+		if (!NGIRCd_Init(NGIRCd_NoDaemon)) {
+			Log(LOG_ALERT, "Fatal: Initialization failed");
 			exit(1);
 		}
 

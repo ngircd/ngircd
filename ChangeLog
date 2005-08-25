@@ -10,6 +10,10 @@
                                -- ChangeLog --
 
 
+ngIRCd 0.9.x
+
+  - Fixed a format string bug in "connection statistics" messages to clients.
+
 ngIRCd 0.9.1 (2005-08-03)
 
   - The KILL command killed much more than desired (including server links!)
@@ -620,4 +624,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.276.2.7 2005/08/03 14:27:48 alex Exp $
+$Id: ChangeLog,v 1.276.2.8 2005/08/25 09:04:23 alex Exp $

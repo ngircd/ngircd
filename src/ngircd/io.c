@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: io.c,v 1.6 2005/08/27 20:25:54 fw Exp $";
+static char UNUSED id[] = "$Id: io.c,v 1.7 2005/08/27 20:27:07 fw Exp $";
 
 #include <assert.h>
 #include <stdlib.h>
@@ -521,7 +521,7 @@ io_dispatch_kqueue(struct timeval *tv)
 {
 	int i, total = 0, ret;
 	struct kevent kev[100];
-	struct kevent *newevents;
+	const struct kevent *newevents;
 	struct timespec ts;
 	int newevents_len;
 	short type;

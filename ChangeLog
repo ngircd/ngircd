@@ -15,7 +15,7 @@ ngIRCd CVSHEAD
   - Fixed a format string bug in "connection statistics" messages to clients.
   - Removed unnecessary #define of "LOCAL", now use plain C "static" instead.
   - Channel topics are no longer limited to 127 characters: now the only limit
-    is the maximum length of an IRC command, i. e. 512 bytes (in pratice, this
+    is the maximum length of an IRC command, i. e. 512 bytes (in practice, this
     limits the topic to about 490 characters due to protocol overhead).
   - Reverse DNS lookup code now checks the result by doing an additional
     lookup to prevent spoofing.
@@ -35,7 +35,7 @@ ngIRCd 0.9.0 (2005-07-24)
   ngIRCd 0.9.0-pre1 (2005-07-09)
   - Fixed maximum length of user names, now allow up to 9 characters.
   - Cut off oversized IRC messages that should be sent to the network instead
-    of shuttding down the (wrong) connection.
+    of shutting down the (wrong) connection.
   - Don't generate error messages for unknown commands received before the
     client is registered with the server (like the original ircd).
   - Never run with root privileges but always switch the user ID.
@@ -632,4 +632,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.287 2005/08/27 22:55:13 alex Exp $
+$Id: ChangeLog,v 1.288 2005/08/27 22:59:06 alex Exp $

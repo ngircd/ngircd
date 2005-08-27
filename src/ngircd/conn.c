@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.170 2005/08/15 23:02:40 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.171 2005/08/27 23:33:11 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -1078,6 +1078,7 @@ Read_Request( CONN_ID Idx )
 
 	int len;
 	char readbuf[1024];
+	CLIENT *c;
 
 	assert( Idx > NONE );
 	assert( My_Connections[Idx].sock > NONE );
@@ -1129,13 +1130,21 @@ Read_Request( CONN_ID Idx )
 		}
 	}
 
-	/* Connection-Statistik aktualisieren */
+	/* Update connection statistics */
 	My_Connections[Idx].bytes_in += len;
 
-	/* Timestamp aktualisieren */
-	My_Connections[Idx].lastdata = time( NULL );
+	/* Update timestamp of last data received if this connection is
+	 * registered as a user, server or service connection. Don't update
+	 * otherwise, so users have at least Conf_PongTimeout seconds time to
+	 * register with the IRC server -- see Check_Connections(). */
+	c = Client_GetFromConn(Idx);
+	if (c && (Client_Type(c) == CLIENT_USER
+		  || Client_Type(c) == CLIENT_SERVER
+		  || Client_Type(c) == CLIENT_SERVICE))
+		My_Connections[Idx].lastdata = time(NULL);
 
-	Handle_Buffer( Idx );
+	/* Look at the data in the (read-) buffer of this connection */
+	Handle_Buffer(Idx);
 } /* Read_Request */
 
 
@@ -1286,14 +1295,19 @@ Check_Connections( void )
 		}
 		else
 		{
-			/* connection is not fully established yet */
-			if( My_Connections[i].lastdata < time( NULL ) - Conf_PingTimeout )
-			{
-				/* Timeout */
+			/* The connection is not fully established yet, so
+			 * we don't do the PING-PONG game here but instead
+			 * disconnect the client after "a short time" if it's
+			 * still not registered. */
+
+			if (My_Connections[i].lastdata <
+			    time(NULL) - Conf_PongTimeout) {
 #ifdef DEBUG
-				Log( LOG_DEBUG, "Connection %d timed out ...", i );
+				Log(LOG_DEBUG,
+				    "Unregistered connection %d timed out ...",
+				    i);
 #endif
-				Conn_Close( i, NULL, "Timeout", false );
+				Conn_Close(i, NULL, "Timeout", false);
 			}
 		}
 	}

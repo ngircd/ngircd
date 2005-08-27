@@ -12,6 +12,7 @@
 
 ngIRCd CVSHEAD
 
+  - Fixed a format string bug in "connection statistics" messages to clients.
   - Removed unnecessary #define of "LOCAL", now use plain C "static" instead.
   - Channel topics are no longer limited to 127 characters: now the only limit
     is the maximum length of an IRC command, i. e. 512 bytes (in pratice, this
@@ -631,4 +632,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.286 2005/08/25 09:00:16 alex Exp $
+$Id: ChangeLog,v 1.287 2005/08/27 22:55:13 alex Exp $

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-login.c,v 1.46 2005/07/31 20:13:08 alex Exp $";
+static char UNUSED id[] = "$Id: irc-login.c,v 1.47 2005/08/27 18:39:56 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -434,29 +434,39 @@ IRC_PING( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	/* Falsche Anzahl Parameter? */
+	/* wrong number of arguments? */
 	if( Req->argc < 1 ) return IRC_WriteStrClient( Client, ERR_NOORIGIN_MSG, Client_ID( Client ));
 #ifdef STRICT_RFC
 	if( Req->argc > 2 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 #endif
 
-	if( Req->argc > 1 )
-	{
-		/* es wurde ein Ziel-Client angegeben */
+	if( Req->argc > 1 ) {
+		/* a target client was specified */
 		target = Client_Search( Req->argv[1] );
-		if(( ! target ) || ( Client_Type( target ) != CLIENT_SERVER )) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->argv[1] );
-		if( target != Client_ThisServer( ))
-		{
-			/* ok, forwarden */
-			if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_Search( Req->prefix );
-			else from = Client;
-			if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->prefix );
-			return IRC_WriteStrClientPrefix( target, from, "PING %s :%s", Client_ID( from ), Req->argv[1] );
+		if(( ! target ) || ( Client_Type( target ) != CLIENT_SERVER ))
+			return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->argv[1] );
+		if( target != Client_ThisServer( )) {
+			/* ok, forward */
+			if( Client_Type( Client ) == CLIENT_SERVER )
+				from = Client_Search( Req->prefix );
+			else
+				from = Client;
+			if (!from)
+				return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG,
+							Client_ID( Client ), Req->prefix );
+			return IRC_WriteStrClientPrefix(target, from,
+					"PING %s :%s", Client_ID( from ), Req->argv[1] );
 		}
 	}
 
 	Log( LOG_DEBUG, "Connection %d: got PING, sending PONG ...", Client_Conn( Client ));
-	return IRC_WriteStrClient( Client, "PONG %s :%s", Client_ID( Client_ThisServer( )), Client_ID( Client ));
+#ifdef STRICT_RFC
+	return IRC_WriteStrClient( Client, "PONG %s :%s", Client_ID( Client_ThisServer( )),
+									Client_ID( Client ));
+#else
+	/* some clients depend on argument being returned in PONG reply (not mentioned in any RFC, though) */
+	return IRC_WriteStrClient( Client, "PONG %s :%s", Client_ID( Client_ThisServer( )), Req->argv[0]);
+#endif	
 } /* IRC_PING */
 
 

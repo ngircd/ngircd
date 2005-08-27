@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: io.c,v 1.5 2005/07/14 14:35:38 fw Exp $";
+static char UNUSED id[] = "$Id: io.c,v 1.6 2005/08/27 20:25:54 fw Exp $";
 
 #include <assert.h>
 #include <stdlib.h>
@@ -299,7 +299,6 @@ io_event_add_kqueue(int fd, short what)
 	struct kevent kev;
 	short filter = 0;
 	unsigned int len = array_length(&io_evcache, sizeof kev);
-	bool ret;
 
 	if (what & IO_WANTREAD)
 		filter = EVFILT_READ;
@@ -308,9 +307,7 @@ io_event_add_kqueue(int fd, short what)
 		filter |= EVFILT_WRITE;
 
 	if (len >= 100) {
-		ret = io_event_kqueue_commit_cache();
-		if (ret)
-			array_trunc(&io_evcache);
+		(void)array_trunc(&io_evcache);
 	}
 
 	EV_SET(&kev, fd, filter, EV_ADD | EV_ENABLE, 0, 0, NULL);
@@ -524,7 +521,7 @@ io_dispatch_kqueue(struct timeval *tv)
 {
 	int i, total = 0, ret;
 	struct kevent kev[100];
-	struct kevents *newevents;
+	struct kevent *newevents;
 	struct timespec ts;
 	int newevents_len;
 	short type;

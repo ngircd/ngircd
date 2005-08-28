@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.172 2005/08/27 23:42:23 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.173 2005/08/28 00:19:29 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -1214,8 +1214,8 @@ Handle_Buffer( CONN_ID Idx )
 			return false;
 		}
 
-		if (len < 3) { /* request was empty (only '\r\n') */
-			array_trunc(&My_Connections[Idx].rbuf);
+		if (len <= 2) { /* request was empty (only '\r\n') */
+			array_moveleft(&My_Connections[Idx].rbuf, 1, delta); /* delta is either 1 or 2 */
 			break;
 		}
 #ifdef ZLIB

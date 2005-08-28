@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.173 2005/08/28 00:19:29 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.174 2005/08/28 16:51:20 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -1158,13 +1158,13 @@ Handle_Buffer( CONN_ID Idx )
 #endif
 	char *ptr;
 	int len, delta;
-	bool action, result;
+	bool result;
 #ifdef ZLIB
 	bool old_z;
 #endif
 
 	result = false;
-	do {
+	for (;;) {
 		/* Check penalty */
 		if( My_Connections[Idx].delaytime > time( NULL )) return result;
 #ifdef ZLIB
@@ -1196,7 +1196,6 @@ Handle_Buffer( CONN_ID Idx )
 		}
 #endif
 
-		action = false;
 		if( ! ptr )
 			break;
 
@@ -1223,28 +1222,27 @@ Handle_Buffer( CONN_ID Idx )
 		old_z = My_Connections[Idx].options & CONN_ZIP;
 #endif
 
-		if( len > delta )
-		{
-			/* A Request was read */
-			My_Connections[Idx].msg_in++;
-			if( ! Parse_Request( Idx, (char*)array_start(&My_Connections[Idx].rbuf) )) return false;
-			else action = true;
+		My_Connections[Idx].msg_in++;
+		if (!Parse_Request(Idx, (char*)array_start(&My_Connections[Idx].rbuf) ))
+			return false;
 
-			array_moveleft(&My_Connections[Idx].rbuf, 1, len);
+		result = true;
+
+		array_moveleft(&My_Connections[Idx].rbuf, 1, len);
 #ifdef DEBUG
-			Log(LOG_DEBUG, "%d byte left in rbuf", array_bytes(&My_Connections[Idx].rbuf));
+		Log(LOG_DEBUG, "%u byte left in rbuf", array_bytes(&My_Connections[Idx].rbuf));
 #endif
-		}
 
 #ifdef ZLIB
-		if(( ! old_z ) && ( My_Connections[Idx].options & CONN_ZIP ) && ( array_bytes(&My_Connections[Idx].rbuf) > 0 ))
+		if(( ! old_z ) && ( My_Connections[Idx].options & CONN_ZIP ) &&
+				( array_bytes(&My_Connections[Idx].rbuf) > 0 ))
 		{
 			/* The last Command activated Socket-Compression.
 			 * Data that was read after that needs to be copied to Unzip-buf
 			 * for decompression */
 			if( array_bytes(&My_Connections[Idx].rbuf)> ZREADBUFFER_LEN ) {
-				/* No space left */
-				Log( LOG_ALERT, "Can't move receive buffer: No space left in unzip buffer (need %d bytes)!", array_bytes(&My_Connections[Idx].rbuf ));
+				Log( LOG_ALERT, "Connection %d: No space left in unzip buf (need %u bytes)!",
+								Idx, array_bytes(&My_Connections[Idx].rbuf ));
 				return false;
 			}
 			if (!array_copy( &My_Connections[Idx].zip.rbuf, &My_Connections[Idx].rbuf ))
@@ -1252,12 +1250,12 @@ Handle_Buffer( CONN_ID Idx )
 
 			array_trunc(&My_Connections[Idx].rbuf);
 #ifdef DEBUG
-			Log( LOG_DEBUG, "Moved already received data (%d bytes) to uncompression buffer.", array_bytes(&My_Connections[Idx].zip.rbuf));
+			Log( LOG_DEBUG, "Moved already received data (%u bytes) to uncompression buffer.",
+								array_bytes(&My_Connections[Idx].zip.rbuf));
 #endif /* DEBUG */
 		}
 #endif /* ZLIB */
-		if( action ) result = true;
-	} while( action );
+	}
 
 	return result;
 } /* Handle_Buffer */

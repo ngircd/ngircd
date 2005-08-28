@@ -12,7 +12,7 @@
 
 #include "array.h"
 
-static char UNUSED id[] = "$Id: array.c,v 1.5 2005/07/28 16:12:50 fw Exp $";
+static char UNUSED id[] = "$Id: array.c,v 1.6 2005/08/28 11:47:02 fw Exp $";
 
 #include <assert.h>
 
@@ -235,11 +235,11 @@ array_cat0(array * a)
 bool
 array_cat0_temporary(array * a)
 {
-	unsigned int len = array_bytes(a);
-	if (!array_catb(a, "", 1))
+	char *endpos = array_alloc(a, 1, array_bytes(len));
+	if (!endpos)
 		return false;
 
-	array_truncate(a, 1, len);
+	*endpos = '\0';
 	return true;
 }
 

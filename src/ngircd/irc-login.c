@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-login.c,v 1.47 2005/08/27 18:39:56 fw Exp $";
+static char UNUSED id[] = "$Id: irc-login.c,v 1.48 2005/08/28 11:40:13 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -427,81 +427,127 @@ IRC_QUIT( CLIENT *Client, REQUEST *Req )
 
 
 GLOBAL bool
-IRC_PING( CLIENT *Client, REQUEST *Req )
+IRC_PING(CLIENT *Client, REQUEST *Req)
 {
 	CLIENT *target, *from;
 
-	assert( Client != NULL );
-	assert( Req != NULL );
+	assert(Client != NULL);
+	assert(Req != NULL);
 
-	/* wrong number of arguments? */
-	if( Req->argc < 1 ) return IRC_WriteStrClient( Client, ERR_NOORIGIN_MSG, Client_ID( Client ));
+	/* Wrong number of arguments? */
+	if (Req->argc < 1)
+		return IRC_WriteStrClient(Client, ERR_NOORIGIN_MSG,
+					  Client_ID(Client));
 #ifdef STRICT_RFC
-	if( Req->argc > 2 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	/* Don't ignore additional arguments when in "strict" mode */
+	if (Req->argc > 2)
+		 return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+					   Client_ID(Client), Req->command);
 #endif
 
-	if( Req->argc > 1 ) {
-		/* a target client was specified */
-		target = Client_Search( Req->argv[1] );
-		if(( ! target ) || ( Client_Type( target ) != CLIENT_SERVER ))
-			return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->argv[1] );
-		if( target != Client_ThisServer( )) {
-			/* ok, forward */
-			if( Client_Type( Client ) == CLIENT_SERVER )
-				from = Client_Search( Req->prefix );
+	if (Req->argc > 1) {
+		/* A target has been specified ... */
+		target = Client_Search(Req->argv[1]);
+
+		if (!target || Client_Type(target) != CLIENT_SERVER)
+			return IRC_WriteStrClient(Client, ERR_NOSUCHSERVER_MSG,
+					Client_ID(Client), Req->argv[1]);
+
+		if (target != Client_ThisServer()) {
+			/* Ok, we have to forward the PING */
+			if (Client_Type(Client) == CLIENT_SERVER)
+				from = Client_Search(Req->prefix);
 			else
 				from = Client;
 			if (!from)
-				return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG,
-							Client_ID( Client ), Req->prefix );
+				return IRC_WriteStrClient(Client,
+						ERR_NOSUCHSERVER_MSG,
+						Client_ID(Client), Req->prefix);
+
 			return IRC_WriteStrClientPrefix(target, from,
-					"PING %s :%s", Client_ID( from ), Req->argv[1] );
+					"PING %s :%s", Req->argv[0],
+					Req->argv[1] );
 		}
 	}
 
-	Log( LOG_DEBUG, "Connection %d: got PING, sending PONG ...", Client_Conn( Client ));
+	if (Client_Type(Client) == CLIENT_SERVER) {
+		if (Req->prefix)
+			from = Client_Search(Req->prefix);
+		else
+			from = Client;
+	} else
+		from = Client_ThisServer();
+	if (!from)
+		return IRC_WriteStrClient(Client, ERR_NOSUCHSERVER_MSG,
+					Client_ID(Client), Req->prefix);
+
+	Log(LOG_DEBUG, "Connection %d: got PING, sending PONG ...",
+	    Client_Conn(Client));
+
 #ifdef STRICT_RFC
-	return IRC_WriteStrClient( Client, "PONG %s :%s", Client_ID( Client_ThisServer( )),
-									Client_ID( Client ));
+	return IRC_WriteStrClient(Client, "PONG %s :%s",
+		Client_ID(from), Client_ID(Client));
 #else
-	/* some clients depend on argument being returned in PONG reply (not mentioned in any RFC, though) */
-	return IRC_WriteStrClient( Client, "PONG %s :%s", Client_ID( Client_ThisServer( )), Req->argv[0]);
-#endif	
+	/* Some clients depend on the argument being returned in the PONG
+         * reply (not mentioned in any RFC, though) */
+	return IRC_WriteStrClient(Client, "PONG %s :%s",
+		Client_ID(from), Req->argv[0]);
+#endif
 } /* IRC_PING */
 
 
 GLOBAL bool
-IRC_PONG( CLIENT *Client, REQUEST *Req )
+IRC_PONG(CLIENT *Client, REQUEST *Req)
 {
 	CLIENT *target, *from;
+	char *s;
 
-	assert( Client != NULL );
-	assert( Req != NULL );
+	assert(Client != NULL);
+	assert(Req != NULL);
 
-	/* Falsche Anzahl Parameter? */
-	if( Req->argc < 1 ) return IRC_WriteStrClient( Client, ERR_NOORIGIN_MSG, Client_ID( Client ));
-	if( Req->argc > 2 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	/* Wrong number of arguments? */
+	if (Req->argc < 1)
+		return IRC_WriteStrClient(Client, ERR_NOORIGIN_MSG,
+					  Client_ID(Client));
+	if (Req->argc > 2)
+		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+					  Client_ID(Client), Req->command);
 
-	/* forwarden? */
-	if( Req->argc == 2 )
-	{
-		target = Client_Search( Req->argv[1] );
-		if(( ! target ) || ( Client_Type( target ) != CLIENT_SERVER )) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->argv[1] );
-		if( target != Client_ThisServer( ))
-		{
-			/* ok, forwarden */
-			if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_Search( Req->prefix );
-			else from = Client;
-			if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->prefix );
-			return IRC_WriteStrClientPrefix( target, from, "PONG %s :%s", Client_ID( from ), Req->argv[1] );
+	/* Forward? */
+	if (Req->argc == 2 && Client_Type(Client) == CLIENT_SERVER) {
+		target = Client_Search(Req->argv[0]);
+		if (!target)
+			return IRC_WriteStrClient(Client, ERR_NOSUCHSERVER_MSG,
+					Client_ID(Client), Req->argv[0]);
+
+		if (target != Client_ThisServer()) {
+			/* Ok, we have to forward the message. */
+			from = Client_Search(Req->prefix);
+			if (!from)
+				return IRC_WriteStrClient(Client,
+						ERR_NOSUCHSERVER_MSG,
+						Client_ID(Client), Req->prefix);
+
+			if (Client_Type(Client_NextHop(target)) != CLIENT_SERVER)
+				s = Client_ID(from);
+			else
+				s = Req->argv[0];
+			return IRC_WriteStrClientPrefix(target, from,
+				 "PONG %s :%s", s, Req->argv[1]);
 		}
 	}
 
-	/* Der Connection-Timestamp wurde schon beim Lesen aus dem Socket
-	 * aktualisiert, daher muss das hier nicht mehr gemacht werden. */
+	/* The connection timestamp has already been updated when the data has
+	 * been read from so socket, so we don't need to update it here. */
 
-	if( Client_Conn( Client ) > NONE ) Log( LOG_DEBUG, "Connection %d: received PONG. Lag: %ld seconds.", Client_Conn( Client ), time( NULL ) - Conn_LastPing( Client_Conn( Client )));
-	else Log( LOG_DEBUG, "Connection %d: received PONG.", Client_Conn( Client ));
+	if (Client_Conn(Client) > NONE)
+		Log(LOG_DEBUG,
+			"Connection %d: received PONG. Lag: %ld seconds.",
+			Client_Conn(Client),
+			time(NULL) - Conn_LastPing(Client_Conn(Client)));
+	else
+		 Log(LOG_DEBUG,
+			"Connection %d: received PONG.", Client_Conn(Client));
 
 	return CONNECTED;
 } /* IRC_PONG */

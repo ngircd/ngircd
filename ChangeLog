@@ -12,6 +12,8 @@
 
 ngIRCd CVSHEAD
 
+  - Enhanced the handler for PING and PONG commands: fix forwarding and enable
+    back-passing of a client supplied additional argument of PING.
   - Changed handling of timeouts for unregistered connections: don't reset
     the counter if data is received and disconnect clients earlier.
   - Fixed a format string bug in "connection statistics" messages to clients.
@@ -634,4 +636,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.289 2005/08/27 23:33:10 alex Exp $
+$Id: ChangeLog,v 1.290 2005/08/28 11:40:13 alex Exp $

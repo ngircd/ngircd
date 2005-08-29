@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.174 2005/08/28 16:51:20 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.175 2005/08/29 11:11:15 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -741,8 +741,9 @@ Conn_Close( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool InformClient )
 		/* Send statistics to client if registered as user: */
 		if ((c != NULL) && (Client_Type(c) == CLIENT_USER)) {
 			Conn_WriteStr( Idx,
-			 "NOTICE %s :%sConnection statistics: client %.1f kb, server %.1f kb.",
-			 Client_ID(Client_ThisServer()), NOTICE_TXTPREFIX,
+			 ":%s NOTICE %s :%sConnection statistics: client %.1f kb, server %.1f kb.",
+			 Client_ID(Client_ThisServer()), Client_ID(c),
+			 NOTICE_TXTPREFIX,
 			 (double)My_Connections[Idx].bytes_in / 1024,
 			 (double)My_Connections[Idx].bytes_out / 1024);
 		}

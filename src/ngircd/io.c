@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: io.c,v 1.8 2005/08/27 23:23:54 fw Exp $";
+static char UNUSED id[] = "$Id: io.c,v 1.9 2005/08/29 13:58:54 fw Exp $";
 
 #include <assert.h>
 #include <stdlib.h>
@@ -307,7 +307,7 @@ io_event_add_kqueue(int fd, short what)
 		filter |= EVFILT_WRITE;
 
 	if (len >= 100) {
-		(void)array_trunc(&io_evcache);
+		(void)io_event_kqueue_commit_cache();
 	}
 
 	EV_SET(&kev, fd, filter, EV_ADD | EV_ENABLE, 0, 0, NULL);

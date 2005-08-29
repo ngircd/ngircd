@@ -12,6 +12,7 @@
 
 ngIRCd CVSHEAD
 
+  - Fixed server NOTICEs to users with "s" mode ("server messages").
   - Enhanced the handler for PING and PONG commands: fix forwarding and enable
     back-passing of a client supplied additional argument of PING.
   - Changed handling of timeouts for unregistered connections: don't reset
@@ -636,4 +637,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.290 2005/08/28 11:40:13 alex Exp $
+$Id: ChangeLog,v 1.291 2005/08/29 10:58:00 alex Exp $

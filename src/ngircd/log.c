@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2005 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: log.c,v 1.58 2005/07/31 20:13:08 alex Exp $";
+static char UNUSED id[] = "$Id: log.c,v 1.59 2005/08/29 10:58:00 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -302,19 +302,23 @@ va_dcl
 } /* Log_Resolver */
 
 
+/**
+ * Send log messages to users flagged with the "s" mode.
+ * @param Msg The message to send.
+ */
 static void
 Wall_ServerNotice( char *Msg )
 {
-	/* Server-Notice an entsprechende User verschicken */
-
 	CLIENT *c;
 
 	assert( Msg != NULL );
 
 	c = Client_First( );
-	while( c )
-	{
-		if(( Client_Conn( c ) > NONE ) && ( Client_HasMode( c, 's' ))) IRC_WriteStrClient( c, "NOTICE %s :%s%s", Client_ThisServer( ), NOTICE_TXTPREFIX, Msg );
+	while(c) {
+		if (Client_Conn(c) > NONE && Client_HasMode(c, 's'))
+			IRC_WriteStrClient(c, "NOTICE %s :%s%s", Client_ID(c),
+							NOTICE_TXTPREFIX, Msg);
+
 		c = Client_Next( c );
 	}
 } /* Wall_ServerNotice */

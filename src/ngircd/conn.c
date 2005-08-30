@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.175 2005/08/29 11:11:15 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.176 2005/08/30 22:08:00 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -1326,9 +1326,8 @@ Check_Servers( void )
 	CONN_ID idx;
 	int i, n;
 
-	/* Serach all connections, are there results from the resolver? */
-	for( idx = 0; idx < Pool_Size; idx++ )
-	{
+	/* Search all connections, are there results from the resolver? */
+	for( idx = 0; idx < Pool_Size; idx++ ) {
 		if( My_Connections[idx].sock != SERVER_WAIT ) continue;
 
 		/* IP resolved? */
@@ -1336,20 +1335,21 @@ Check_Servers( void )
 	}
 
 	/* Check all configured servers */
-	for( i = 0; i < MAX_SERVERS; i++ )
-	{
+	for( i = 0; i < MAX_SERVERS; i++ ) {
 		/* Valid outgoing server which isn't already connected or disabled? */
-		if(( ! Conf_Server[i].host[0] ) || ( ! Conf_Server[i].port > 0 ) || ( Conf_Server[i].conn_id > NONE ) || ( Conf_Server[i].flags & CONF_SFLAG_DISABLED )) continue;
+		if(( ! Conf_Server[i].host[0] ) || ( ! Conf_Server[i].port > 0 ) ||
+			( Conf_Server[i].conn_id > NONE ) || ( Conf_Server[i].flags & CONF_SFLAG_DISABLED ))
+				continue;
 
 		/* Is there already a connection in this group? */
-		if( Conf_Server[i].group > NONE )
-		{
-			for( n = 0; n < MAX_SERVERS; n++ )
-			{
+		if( Conf_Server[i].group > NONE ) {
+			for( n = 0; n < MAX_SERVERS; n++ ) {
 				if( n == i ) continue;
-				if(( Conf_Server[n].conn_id > NONE ) && ( Conf_Server[n].group == Conf_Server[i].group )) break;
+				if(( Conf_Server[n].conn_id > NONE ) &&
+					( Conf_Server[n].group == Conf_Server[i].group ))
+						break;
 			}
-			if( n < MAX_SERVERS ) continue;
+			if (n < MAX_SERVERS) continue;
 		}
 
 		/* Check last connect attempt? */
@@ -1401,11 +1401,14 @@ New_Server( int Server, CONN_ID Idx )
 	/* Did we get a valid IP address? */
 	if( ! Conf_Server[Server].ip[0] ) {
 		/* No. Free connection structure and abort: */
-		Log( LOG_ERR, "Can't connect to \"%s\" (connection %d): ip address unknown!", Conf_Server[Server].host, Idx );
-		goto out;
+		Log( LOG_ERR, "Can't connect to \"%s\": ip address unknown!", Conf_Server[Server].host );
+        	Init_Conn_Struct( Idx );
+	        Conf_Server[Server].conn_id = NONE;
+		return;
 	}
 
-	Log( LOG_INFO, "Establishing connection to \"%s\", %s, port %d (connection %d) ... ", Conf_Server[Server].host, Conf_Server[Server].ip, Conf_Server[Server].port, Idx );
+	Log( LOG_INFO, "Establishing connection to \"%s\", %s, port %d ... ", Conf_Server[Server].host,
+							Conf_Server[Server].ip, Conf_Server[Server].port );
 
 #ifdef HAVE_INET_ATON
 	if( inet_aton( Conf_Server[Server].ip, &inaddr ) == 0 )
@@ -1545,8 +1548,7 @@ void Read_Resolver_Result( int r_fd )
 
 	Log( LOG_DEBUG, "Resolver: started, fd %d", r_fd );
 	/* Search associated connection ... */
-	for( i = 0; i < Pool_Size; i++ )
-	{
+	for( i = 0; i < Pool_Size; i++ ) {
 		if(( My_Connections[i].sock != NONE )
 		  && ( My_Connections[i].res_stat != NULL )
 		  && ( My_Connections[i].res_stat->pipe[0] == r_fd ))

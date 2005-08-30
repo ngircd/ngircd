@@ -8,7 +8,7 @@
  * libarray - dynamically allocate arrays.
  * Copyright (c) 2005 Florian Westphal (westphal@foo.fh-furtwangen.de)
  *
- * $Id: array.h,v 1.3 2005/07/28 16:12:50 fw Exp $
+ * $Id: array.h,v 1.4 2005/08/30 13:36:32 fw Exp $
  */
 
 #ifndef array_h_included
@@ -18,8 +18,8 @@
 
 typedef struct {
 	char * mem;
-	unsigned int allocated;
-	unsigned int used;
+	size_t allocated;
+	size_t used;
 } array;
 
 /* allocated: mem != NULL, used >= 0 && used <= allocated, allocated > 0
@@ -33,13 +33,13 @@ extern void array_init PARAMS((array *a));
 
 /* allocates space for at least nmemb+1 elements of size bytes each.
    return pointer to elem at pos, or NULL if realloc() fails */
-extern void * array_alloc PARAMS((array *a, unsigned int size, unsigned int pos));
+extern void * array_alloc PARAMS((array *a, size_t size, size_t pos));
 
 /* returns the number of initialized BYTES in a. */
 #define array_bytes(array)	( (array)->used )
 
 /* returns the number of initialized ELEMS in a. */
-extern unsigned int array_length PARAMS((const array* const a, unsigned int elemsize));
+extern size_t array_length PARAMS((const array* const a, size_t elemsize));
 
 /* _copy functions: copy src to dest.
    return true if OK, else false (e. g. realloc failure, invalid src/dest
@@ -49,7 +49,7 @@ extern unsigned int array_length PARAMS((const array* const a, unsigned int elem
 extern bool array_copy PARAMS((array* dest, const array* const src));
 
 /* copy len bytes from src to array dest. */
-extern bool array_copyb PARAMS((array* dest, const char* src, unsigned int len));
+extern bool array_copyb PARAMS((array* dest, const char* src, size_t len));
 
 /* copy string to dest */
 extern bool array_copys PARAMS((array* dest, const char* src));
@@ -59,7 +59,7 @@ extern bool array_copys PARAMS((array* dest, const char* src));
    array, ...). In that case dest is left unchanged. */
 
 /* append len bytes from src to array dest. */
-extern bool array_catb PARAMS((array* dest, const char* src, unsigned int len));
+extern bool array_catb PARAMS((array* dest, const char* src, size_t len));
 
 /* append string to dest */
 extern bool array_cats PARAMS((array* dest, const char* src));
@@ -76,7 +76,7 @@ extern bool array_cat PARAMS((array* dest, const array* const src));
 /* return pointer to element at pos.
    return NULL if the array is unallocated or if pos is larger than the number
    of elements stored int the array. */
-extern void* array_get PARAMS((array* a, unsigned int membersize, unsigned int pos));
+extern void* array_get PARAMS((array* a, size_t membersize, size_t pos));
 
 /* free the contents of this array. */
 extern void array_free PARAMS((array* a));
@@ -91,10 +91,10 @@ extern void* array_start PARAMS((const array* const a));
 extern void array_trunc PARAMS((array* a));
 
 /* set number of used elements in this array to len */
-extern void array_truncate PARAMS((array* a, unsigned int membersize, unsigned int len));
+extern void array_truncate PARAMS((array* a, size_t membersize, size_t len));
 
 /* move elements starting at pos to beginning of array */
-extern void array_moveleft PARAMS((array* a, unsigned int membersize, unsigned int pos));
+extern void array_moveleft PARAMS((array* a, size_t membersize, size_t pos));
 
 #endif
 

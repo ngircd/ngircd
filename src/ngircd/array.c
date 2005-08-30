@@ -12,7 +12,7 @@
 
 #include "array.h"
 
-static char UNUSED id[] = "$Id: array.c,v 1.7 2005/08/28 12:18:50 fw Exp $";
+static char UNUSED id[] = "$Id: array.c,v 1.8 2005/08/30 13:36:32 fw Exp $";
 
 #include <assert.h>
 
@@ -29,9 +29,9 @@ static char UNUSED id[] = "$Id: array.c,v 1.7 2005/08/28 12:18:50 fw Exp $";
 
 
 static bool
-safemult_uint(unsigned int a, unsigned int b, unsigned int *res)
+safemult_sizet(size_t a, size_t b, size_t *res)
 {
-	unsigned int tmp;
+	size_t tmp;
 
 	if (!a || !b) {
 		*res = 0;
@@ -60,10 +60,10 @@ array_init(array *a)
 
 /* if realloc() fails, array_alloc return NULL. otherwise return pointer to elem pos in array */
 void *
-array_alloc(array * a, unsigned int size, unsigned int pos)
+array_alloc(array * a, size_t size, size_t pos)
 {
-	unsigned int alloc, pos_plus1 = pos + 1;
-	unsigned int aligned = 0;
+	size_t alloc, pos_plus1 = pos + 1;
+	size_t aligned = 0;
 	char *tmp;
 
 	assert(size > 0);
@@ -71,7 +71,7 @@ array_alloc(array * a, unsigned int size, unsigned int pos)
 	if (pos_plus1 < pos)
 		return NULL;
 
-	if (!safemult_uint(size, pos_plus1, &alloc))
+	if (!safemult_sizet(size, pos_plus1, &alloc))
 		return NULL;
 
 	if (a->allocated < alloc) {
@@ -117,8 +117,8 @@ array_alloc(array * a, unsigned int size, unsigned int pos)
 
 
 /*return number of initialized ELEMS in a. */
-unsigned int
-array_length(const array * const a, unsigned int membersize)
+size_t
+array_length(const array * const a, size_t membersize)
 {
 	assert(a != NULL);
 	assert(membersize > 0);
@@ -141,27 +141,18 @@ array_copy(array * dest, const array * const src)
 }
 
 
-/* return false if we could not append src (realloc failure, invalid src/dest array) */
+/* return false on failure (realloc failure, invalid src/dest array) */
 bool
-array_copyb(array * dest, const char *src, unsigned int len)
+array_copyb(array * dest, const char *src, size_t len)
 {
 	assert(dest != NULL);
 	assert(src != NULL );
 
-	if (!len || !src)
-		return true;
-
-	if (!array_alloc(dest, 1, len))
+	if (!src || !dest)
 		return false;
 
-	dest->used = len;
-	memcpy(dest->mem, src, len);
-#ifdef DEBUG
-	Log(LOG_DEBUG,
-	    "array_copyb(): copied %u bytes to array (%u bytes allocated).",
-	    len, dest->allocated);
-#endif
-	return true;
+	array_trunc(dest);
+	return array_catb(dest, src, len);
 }
 
 
@@ -176,10 +167,10 @@ array_copys(array * dest, const char *src)
 /* append len bytes from src to the array dest.
 return false if we could not append all bytes (realloc failure, invalid src/dest array) */
 bool
-array_catb(array * dest, const char *src, unsigned int len)
+array_catb(array * dest, const char *src, size_t len)
 {
-	unsigned int tmp;
-	unsigned int used;
+	size_t tmp;
+	size_t used;
 	char *ptr;
 
 	assert(dest != NULL);
@@ -258,9 +249,9 @@ array_cat(array * dest, const array * const src)
    return NULL if the array is unallocated, or if pos is larger than
    the number of elements stored int the array. */
 void *
-array_get(array * a, unsigned int membersize, unsigned int pos)
+array_get(array * a, size_t membersize, size_t pos)
 {
-	unsigned int totalsize;
+	size_t totalsize;
 
 	assert(membersize > 0);
 	assert(a != NULL);
@@ -268,7 +259,7 @@ array_get(array * a, unsigned int membersize, unsigned int pos)
 	if (array_UNUSABLE(a))
 		return NULL;
 
-	if (!safemult_uint(pos, membersize, &totalsize))
+	if (!safemult_sizet(pos, membersize, &totalsize))
 		return NULL;
 
 	if (a->allocated < totalsize)
@@ -321,11 +312,11 @@ array_trunc(array * a)
 
 
 void
-array_truncate(array * a, unsigned int membersize, unsigned int len)
+array_truncate(array * a, size_t membersize, size_t len)
 {
-	unsigned int newlen;
+	size_t newlen;
 	assert(a != NULL);
-	if (!safemult_uint(membersize, len, &newlen))
+	if (!safemult_sizet(membersize, len, &newlen))
 		return;
 
 	if (newlen <= a->allocated)
@@ -335,9 +326,9 @@ array_truncate(array * a, unsigned int membersize, unsigned int len)
 
 /* move elements starting at pos to beginning of array */
 void
-array_moveleft(array * a, unsigned int membersize, unsigned int pos)
+array_moveleft(array * a, size_t membersize, size_t pos)
 {
-	unsigned int bytepos;
+	size_t bytepos;
 
 	assert(a != NULL);
 	assert(membersize > 0);
@@ -345,7 +336,7 @@ array_moveleft(array * a, unsigned int membersize, unsigned int pos)
 	if (!pos)
 		return;
 
-	if (!safemult_uint(membersize, pos, &bytepos)) {
+	if (!safemult_sizet(membersize, pos, &bytepos)) {
 		a->used = 0;
 		return;
 	}

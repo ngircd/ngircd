@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.176 2005/08/30 22:08:00 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.177 2005/09/02 13:28:30 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -856,39 +856,49 @@ Handle_Write( CONN_ID Idx )
 	int len;
 	unsigned int wdatalen;
 
-	Log(LOG_DEBUG, "Handle_Write");
 	assert( Idx > NONE );
 	if ( My_Connections[Idx].sock < 0 ) {
-		Log(LOG_WARNING, "Handle_Write() on closed socket, idx %d", Idx);
+		Log(LOG_WARNING,
+		    "Handle_Write() on closed socket, connection %d", Idx);
 		return false;
 	}
 	assert( My_Connections[Idx].sock > NONE );
 
+#ifdef DEBUG
+	Log(LOG_DEBUG, "Handle_Write() called for connection %d ...", Idx);
+#endif
+
 	wdatalen = array_bytes(&My_Connections[Idx].wbuf );
 #ifdef ZLIB
-	if(( wdatalen == 0 ) && ( ! array_bytes(&My_Connections[Idx].zip.wbuf))) {
+	if (wdatalen == 0 && !array_bytes(&My_Connections[Idx].zip.wbuf)) {
 		io_event_del(My_Connections[Idx].sock, IO_WANTWRITE );
 		return true;
 	}
 
-	/* write buffer empty, but not compression buf? -> flush compression buf. */
-	if( wdatalen == 0 ) Zip_Flush( Idx );
+	/* write buffer empty, but not compression buffer?
+         * -> flush compression buffer! */
+	if (wdatalen == 0)
+		Zip_Flush(Idx);
 #else
-	if( wdatalen == 0 ) {
+	if (wdatalen == 0) {
 		io_event_del(My_Connections[Idx].sock, IO_WANTWRITE );
 		return true;
 	}
 #endif
 
-	wdatalen = array_bytes(&My_Connections[Idx].wbuf ); /* Zip_Flush may change wbuf  */
-	len = write( My_Connections[Idx].sock, array_start(&My_Connections[Idx].wbuf), wdatalen );
+ 	/* Zip_Flush() may have changed the write buffer ... */
+	wdatalen = array_bytes(&My_Connections[Idx].wbuf);
+
+	len = write(My_Connections[Idx].sock,
+	            array_start(&My_Connections[Idx].wbuf), wdatalen );
+
 	if( len < 0 ) {
-		if( errno == EAGAIN || errno == EINTR)
+		if (errno == EAGAIN || errno == EINTR)
 			return true;
 
-		Log( LOG_ERR, "Write error on connection %d (socket %d): %s!", Idx,
-					My_Connections[Idx].sock, strerror( errno ));
-		Conn_Close( Idx, "Write error!", NULL, false );
+		Log(LOG_ERR, "Write error on connection %d (socket %d): %s!",
+		    Idx, My_Connections[Idx].sock, strerror(errno));
+		Conn_Close(Idx, "Write error!", NULL, false);
 		return false;
 	}
 
@@ -1231,9 +1241,10 @@ Handle_Buffer( CONN_ID Idx )
 
 		array_moveleft(&My_Connections[Idx].rbuf, 1, len);
 #ifdef DEBUG
-		Log(LOG_DEBUG, "%u byte left in rbuf", array_bytes(&My_Connections[Idx].rbuf));
+		Log(LOG_DEBUG,
+		    "Connection %d: %d bytes left in read buffer.",
+		    Idx, array_bytes(&My_Connections[Idx].rbuf));
 #endif
-
 #ifdef ZLIB
 		if(( ! old_z ) && ( My_Connections[Idx].options & CONN_ZIP ) &&
 				( array_bytes(&My_Connections[Idx].rbuf) > 0 ))

@@ -12,6 +12,8 @@
 
 ngIRCd CVSHEAD
 
+  - Fixed a bug that caused the daemon to leak file descriptors when no
+    resolver subprocesses could be created.
   - JOIN now supports more than one channel key at a time.
   - Implementec numeric "333": Time and user name who set a channel topic.
   - Fixed server NOTICEs to users with "s" mode ("server messages").
@@ -639,4 +641,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.293 2005/09/02 15:46:49 alex Exp $
+$Id: ChangeLog,v 1.294 2005/09/02 22:12:43 alex Exp $

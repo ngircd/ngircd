@@ -1,5 +1,5 @@
 .\"
-.\" $Id: ngircd.conf.5,v 1.19 2005/08/12 13:20:54 alex Exp $
+.\" $Id: ngircd.conf.5,v 1.20 2005/09/02 14:39:00 fw Exp $
 .\"
 .TH ngircd.conf 5 "August 2005" ngircd "ngIRCd Manual"
 .SH NAME
@@ -201,7 +201,7 @@ the ngIRCd waits for incoming connections.
 .TP
 \fBMyPassword\fR
 Own password for this connection. This password has to be configured as
-"PeerPassword" on the other server.
+"PeerPassword" on the other server. Must not have ':' as first character.
 .TP
 \fBPeerPassword\fR
 Foreign password for this connection. This password has to be configured as

@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: channel.h,v 1.28 2005/07/28 16:23:55 fw Exp $
+ * $Id: channel.h,v 1.29 2005/09/02 12:50:25 alex Exp $
  *
  * Channel management (header)
  */
@@ -30,6 +30,10 @@ typedef struct _CHANNEL
 	UINT32 hash;			/* Hash of the (lowecase!) name */
 	char modes[CHANNEL_MODE_LEN];	/* Channel modes */
 	array topic;			/* Topic of the channel */
+#ifndef STRICT_RFC
+	time_t topic_time;		/* Time when topic was set */
+	char topic_who[CLIENT_NICK_LEN];/* Nickname of user that set topic */
+#endif
 	char key[CLIENT_PASS_LEN];	/* Channel key ("password", mode "k" ) */
 	long maxusers;			/* Maximum number of members (mode "l") */
 } CHANNEL;
@@ -72,7 +76,7 @@ GLOBAL char *Channel_Topic PARAMS(( CHANNEL *Chan ));
 GLOBAL char *Channel_Key PARAMS(( CHANNEL *Chan ));
 GLOBAL long Channel_MaxUsers PARAMS(( CHANNEL *Chan ));
 
-GLOBAL void Channel_SetTopic PARAMS(( CHANNEL *Chan, char *Topic ));
+GLOBAL void Channel_SetTopic PARAMS(( CHANNEL *Chan, CLIENT *Client, char *Topic ));
 GLOBAL void Channel_SetModes PARAMS(( CHANNEL *Chan, char *Modes ));
 GLOBAL void Channel_SetKey PARAMS(( CHANNEL *Chan, char *Key ));
 GLOBAL void Channel_SetMaxUsers PARAMS(( CHANNEL *Chan, long Count ));
@@ -104,6 +108,11 @@ GLOBAL bool Channel_IsMemberOf PARAMS(( CHANNEL *Chan, CLIENT *Client ));
 GLOBAL bool Channel_Write PARAMS(( CHANNEL *Chan, CLIENT *From, CLIENT *Client, char *Text ));
 
 GLOBAL CHANNEL *Channel_Create PARAMS(( char *Name ));
+
+#ifndef STRICT_RFC
+GLOBAL unsigned int Channel_TopicTime PARAMS(( CHANNEL *Chan ));
+GLOBAL char *Channel_TopicWho PARAMS(( CHANNEL *Chan ));
+#endif
 
 
 #endif

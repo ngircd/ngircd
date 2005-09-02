@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: messages.h,v 1.66 2004/02/28 02:18:16 alex Exp $
+ * $Id: messages.h,v 1.67 2005/09/02 12:50:25 alex Exp $
  *
  * IRC numerics (Header)
  */
@@ -62,6 +62,7 @@
 #define RPL_CHANNELMODEIS_MSG		"324 %s %s +%s"
 #define RPL_NOTOPIC_MSG			"331 %s %s :No topic is set"
 #define RPL_TOPIC_MSG			"332 %s %s :%s"
+#define RPL_TOPICSETBY_MSG		"333 %s %s %s %u"
 #define RPL_INVITING_MSG		"341 %s %s %s"
 #define RPL_INVITELIST_MSG		"346 %s %s %s"
 #define RPL_ENDOFINVITELIST_MSG		"347 %s %s :End of channel invite list"

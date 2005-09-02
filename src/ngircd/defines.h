@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: defines.h,v 1.56 2005/07/28 16:23:55 fw Exp $
+ * $Id: defines.h,v 1.57 2005/09/02 12:50:25 alex Exp $
  */
 
 
@@ -102,6 +102,8 @@
 
 #define DEFAULT_AWAY_MSG "Away"		/* Away message for users connected to
 					   linked servers. */
+
+#define DEFAULT_TOPIC_ID "-Server-"	/* Default ID for "topic owner". */
 
 #define CONFIG_FILE "/ngircd.conf"	/* Configuration file name. */
 #define MOTD_FILE "/ngircd.motd"	/* Name of the MOTD file. */

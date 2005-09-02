@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-channel.c,v 1.30 2005/06/12 18:23:59 alex Exp $";
+static char UNUSED id[] = "$Id: irc-channel.c,v 1.31 2005/09/02 12:50:25 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -47,7 +47,7 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 	bool is_new_chan, is_invited, is_banned;
 	CLIENT *target;
 	CHANNEL *chan;
-
+	
 	assert( Client != NULL );
 	assert( Req != NULL );
 
@@ -211,9 +211,18 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 			/* an Client bestaetigen */
 			IRC_WriteStrClientPrefix( Client, target, "JOIN :%s", channame );
 
-			/* Topic an Client schicken */
-			topic = Channel_Topic( chan );
-			if( *topic ) IRC_WriteStrClient( Client, RPL_TOPIC_MSG, Client_ID( Client ), channame, topic );
+			/* Send topic to client, if any */
+			topic = Channel_Topic(chan);
+			if (*topic) {
+				IRC_WriteStrClient(Client, RPL_TOPIC_MSG,
+					Client_ID(Client), channame, topic);
+#ifndef STRICT_RFC
+				IRC_WriteStrClient(Client, RPL_TOPICSETBY_MSG,
+					Client_ID(Client), channame,
+					Channel_TopicWho(chan),
+					Channel_TopicTime(chan));
+#endif
+			}
 
 			/* Mitglieder an Client Melden */
 			IRC_Send_NAMES( Client, chan );
@@ -268,6 +277,7 @@ IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 	CHANNEL *chan;
 	CLIENT *from;
 	char *topic;
+	bool r;
 
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -288,10 +298,22 @@ IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 
 	if( Req->argc == 1 )
 	{
-		/* Topic erfragen */
-		topic = Channel_Topic( chan );
-		if( *topic ) return IRC_WriteStrClient( from, RPL_TOPIC_MSG, Client_ID( from ), Channel_Name( chan ), topic );
-		else return IRC_WriteStrClient( from, RPL_NOTOPIC_MSG, Client_ID( from ), Channel_Name( chan ));
+		/* Request actual topic */
+		topic = Channel_Topic(chan);
+		if (*topic) {
+			r = IRC_WriteStrClient(from, RPL_TOPIC_MSG,
+				Client_ID(Client), Channel_Name(chan), topic);
+#ifndef STRICT_RFC
+			r = IRC_WriteStrClient(from, RPL_TOPICSETBY_MSG,
+				Client_ID(Client), Channel_Name(chan),
+				Channel_TopicWho(chan),
+				Channel_TopicTime(chan));
+#endif
+			return r;
+		}
+		else
+			 return IRC_WriteStrClient(from, RPL_NOTOPIC_MSG,
+					Client_ID(from), Channel_Name(chan));
 	}
 
 	if( strchr( Channel_Modes( chan ), 't' ))
@@ -300,9 +322,11 @@ IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 		if( ! strchr( Channel_UserModes( chan, from ), 'o' )) return IRC_WriteStrClient( from, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( from ), Channel_Name( chan ));
 	}
 
-	/* Topic setzen */
-	Channel_SetTopic( chan, Req->argv[1] );
-	Log( LOG_DEBUG, "User \"%s\" set topic on \"%s\": %s", Client_Mask( from ), Channel_Name( chan ), Req->argv[1][0] ? Req->argv[1] : "<none>" );
+	/* Set new topic */
+	Channel_SetTopic(chan, from, Req->argv[1]);
+	Log(LOG_DEBUG, "User \"%s\" set topic on \"%s\": %s",
+		Client_Mask(from), Channel_Name(chan),
+		Req->argv[1][0] ? Req->argv[1] : "<none>");
 
 	/* im Channel bekannt machen und an Server weiterleiten */
 	IRC_WriteStrServersPrefix( Client, from, "TOPIC %s :%s", Req->argv[0], Req->argv[1] );
@@ -478,8 +502,9 @@ IRC_CHANINFO( CLIENT *Client, REQUEST *Req )
 		if(( ! *ptr ) && ( Req->argv[arg_topic][0] ))
 		{
 			/* OK, there is no topic jet */
-			Channel_SetTopic( chan, Req->argv[arg_topic] );
-			IRC_WriteStrChannelPrefix( Client, chan, from, false, "TOPIC %s :%s", Req->argv[0], Channel_Topic( chan ));
+			Channel_SetTopic(chan, Client, Req->argv[arg_topic]);
+			IRC_WriteStrChannelPrefix(Client, chan, from, false,
+			     "TOPIC %s :%s", Req->argv[0], Channel_Topic(chan));
 		}
 	}
 

@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: channel.c,v 1.53 2005/07/31 20:13:08 alex Exp $";
+static char UNUSED id[] = "$Id: channel.c,v 1.54 2005/09/02 12:50:25 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -100,22 +100,25 @@ Channel_InitPredefined( void )
 			array_free(&Conf_Channel[i].topic);
 			continue;
 		}
-		
-		/* Channel anlegen */
-		chan = Channel_Create( Conf_Channel[i].name );
-		if( chan )
-		{
-			Channel_ModeAdd( chan, 'P' );
-			if (!array_copy(&chan->topic, &Conf_Channel[i].topic)) {
-				Log( LOG_WARNING, "Could not set topic for new pre-defined channel: %s",
-											strerror(errno));
-			}
+
+		/* Create channel */
+		chan = Channel_Create(Conf_Channel[i].name);
+		if (chan) {
+			Channel_ModeAdd(chan, 'P');
+
+			Channel_SetTopic(chan, NULL,
+					 array_start(&Conf_Channel[i].topic));
 			array_free(&Conf_Channel[i].topic);
+
 			c = Conf_Channel[i].modes;
-			while( *c ) Channel_ModeAdd( chan, *c++ );
-			Log( LOG_INFO, "Created pre-defined channel \"%s\".", Conf_Channel[i].name );
+			while (*c)
+				Channel_ModeAdd(chan, *c++);
+		
+			Log(LOG_INFO, "Created pre-defined channel \"%s\".",
+							Conf_Channel[i].name );
 		}
-		else Log( LOG_ERR, "Can't create pre-defined channel \"%s\"!", Conf_Channel[i].name );
+		else Log(LOG_ERR, "Can't create pre-defined channel \"%s\"!",
+							Conf_Channel[i].name );
 	}
 } /* Channel_InitPredefined */
 
@@ -635,9 +638,29 @@ Channel_Topic( CHANNEL *Chan )
 	return ret ? ret : "";
 } /* Channel_Topic */
 
+	
+#ifndef STRICT_RFC
+
+GLOBAL unsigned int
+Channel_TopicTime(CHANNEL *Chan)
+{
+	assert(Chan != NULL);
+	return (unsigned int) Chan->topic_time;
+} /* Channel_TopicTime */
+
+
+GLOBAL char *
+Channel_TopicWho(CHANNEL *Chan)
+{
+	assert(Chan != NULL);
+	return Chan->topic_who;
+} /* Channel_TopicWho */
+
+#endif
+
 
 GLOBAL void
-Channel_SetTopic( CHANNEL *Chan, char *Topic )
+Channel_SetTopic(CHANNEL *Chan, CLIENT *Client, char *Topic)
 {
 	size_t len;
 	assert( Chan != NULL );
@@ -648,9 +671,22 @@ Channel_SetTopic( CHANNEL *Chan, char *Topic )
 		array_free(&Chan->topic);
 
 	if (!array_copyb(&Chan->topic, Topic, len))
-		Log(LOG_WARNING, "could not set new Topic %s: %s", Topic, strerror(errno));
+		Log(LOG_WARNING, "could not set new Topic \"%s\" on %s: %s",
+					Topic, Chan->name, strerror(errno));
 
 	array_cat0(&Chan->topic);
+
+#ifndef STRICT_RFC
+	Chan->topic_time = time(NULL);
+	if (Client != NULL && Client_Type(Client) != CLIENT_SERVER)
+		strlcpy(Chan->topic_who, Client_ID(Client),
+			sizeof Chan->topic_who);
+	else
+		strlcpy(Chan->topic_who, DEFAULT_TOPIC_ID,
+			sizeof Chan->topic_who);
+#else
+	(void) Client;
+#endif
 } /* Channel_SetTopic */
 
 

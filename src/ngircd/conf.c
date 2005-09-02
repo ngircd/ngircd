@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.84 2005/09/02 13:50:52 fw Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.85 2005/09/02 13:58:52 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -910,6 +910,11 @@ Handle_SERVER( int Line, char *Var, char *Arg )
 	}
 	if( strcasecmp( Var, "MyPassword" ) == 0 ) {
 		/* Password of this server which is sent to the peer */
+		if (*Arg == ':') {
+			Config_Error(LOG_ERR,
+				"%s, line %d (section \"Server\"): MyPassword must not start with ':'!",
+										NGIRCd_ConfFile, Line);
+		}
 		len = strlcpy( New_Server.pwd_in, Arg, sizeof( New_Server.pwd_in ));
 		if (len >= sizeof( New_Server.pwd_in ))
 			Config_Error_TooLong( Line, Var );

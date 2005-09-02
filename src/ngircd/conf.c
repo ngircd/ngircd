@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.83 2005/07/31 20:13:08 alex Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.84 2005/09/02 13:50:52 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -885,6 +885,7 @@ static void
 Handle_SERVER( int Line, char *Var, char *Arg )
 {
 	long port;
+	size_t len;
 	
 	assert( Line > 0 );
 	assert( Var != NULL );
@@ -893,53 +894,57 @@ Handle_SERVER( int Line, char *Var, char *Arg )
 	/* Ignore server block if no space is left in server configuration structure */
 	if( New_Server_Idx <= NONE ) return;
 
-	if( strcasecmp( Var, "Host" ) == 0 )
-	{
+	if( strcasecmp( Var, "Host" ) == 0 ) {
 		/* Hostname of the server */
-		if( strlcpy( New_Server.host, Arg, sizeof( New_Server.host )) >= sizeof( New_Server.host ))
+		len = strlcpy( New_Server.host, Arg, sizeof( New_Server.host ));
+		if (len >= sizeof( New_Server.host ))
 			Config_Error_TooLong ( Line, Var );
-
 		return;
 	}
-	if( strcasecmp( Var, "Name" ) == 0 )
-	{
+	if( strcasecmp( Var, "Name" ) == 0 ) {
 		/* Name of the server ("Nick"/"ID") */
-		if( strlcpy( New_Server.name, Arg, sizeof( New_Server.name )) >= sizeof( New_Server.name ))
+		len = strlcpy( New_Server.name, Arg, sizeof( New_Server.name ));
+		if (len >= sizeof( New_Server.name ))
 			Config_Error_TooLong( Line, Var );
 		return;
 	}
-	if( strcasecmp( Var, "MyPassword" ) == 0 )
-	{
+	if( strcasecmp( Var, "MyPassword" ) == 0 ) {
 		/* Password of this server which is sent to the peer */
-		if( strlcpy( New_Server.pwd_in, Arg, sizeof( New_Server.pwd_in )) >= sizeof( New_Server.pwd_in )) Config_Error_TooLong( Line, Var );
+		len = strlcpy( New_Server.pwd_in, Arg, sizeof( New_Server.pwd_in ));
+		if (len >= sizeof( New_Server.pwd_in ))
+			Config_Error_TooLong( Line, Var );
 		return;
 	}
-	if( strcasecmp( Var, "PeerPassword" ) == 0 )
-	{
+	if( strcasecmp( Var, "PeerPassword" ) == 0 ) {
 		/* Passwort of the peer which must be received */
-		if( strlcpy( New_Server.pwd_out, Arg, sizeof( New_Server.pwd_out )) >= sizeof( New_Server.pwd_out )) Config_Error_TooLong( Line, Var );
+		len = strlcpy( New_Server.pwd_out, Arg, sizeof( New_Server.pwd_out ));
+		if (len >= sizeof( New_Server.pwd_out ))
+			Config_Error_TooLong( Line, Var );
 		return;
 	}
-	if( strcasecmp( Var, "Port" ) == 0 )
-	{
+	if( strcasecmp( Var, "Port" ) == 0 ) {
 		/* Port to which this server should connect */
 		port = atol( Arg );
-		if( port > 0 && port < 0xFFFF ) New_Server.port = (UINT16)port;
-		else Config_Error( LOG_ERR, "%s, line %d (section \"Server\"): Illegal port number %ld!", NGIRCd_ConfFile, Line, port );
+		if( port > 0 && port < 0xFFFF )
+			New_Server.port = (UINT16)port;
+		else
+			Config_Error( LOG_ERR, "%s, line %d (section \"Server\"): Illegal port number %ld!",
+										NGIRCd_ConfFile, Line, port );
 		return;
 	}
-	if( strcasecmp( Var, "Group" ) == 0 )
-	{
+	if( strcasecmp( Var, "Group" ) == 0 ) {
 		/* Server group */
 #ifdef HAVE_ISDIGIT
-		if( ! isdigit( (int)*Arg )) Config_Error_NaN( Line, Var );
+		if( ! isdigit( (int)*Arg ))
+			Config_Error_NaN( Line, Var );
 		else
 #endif
 		New_Server.group = atoi( Arg );
 		return;
 	}
 	
-	Config_Error( LOG_ERR, "%s, line %d (section \"Server\"): Unknown variable \"%s\"!", NGIRCd_ConfFile, Line, Var );
+	Config_Error( LOG_ERR, "%s, line %d (section \"Server\"): Unknown variable \"%s\"!",
+								NGIRCd_ConfFile, Line, Var );
 } /* Handle_SERVER */
 
 

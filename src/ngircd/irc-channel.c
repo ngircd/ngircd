@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-channel.c,v 1.31 2005/09/02 12:50:25 alex Exp $";
+static char UNUSED id[] = "$Id: irc-channel.c,v 1.32 2005/09/02 15:46:49 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -43,7 +43,7 @@ static char UNUSED id[] = "$Id: irc-channel.c,v 1.31 2005/09/02 12:50:25 alex Ex
 GLOBAL bool
 IRC_JOIN( CLIENT *Client, REQUEST *Req )
 {
-	char *channame, *key, *flags, *topic, modes[8];
+	char *channame, *channame_ptr, *key, *key_ptr, *flags, *topic, modes[8];
 	bool is_new_chan, is_invited, is_banned;
 	CLIENT *target;
 	CHANNEL *chan;
@@ -60,14 +60,22 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 	if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
 
 	/* Are channel keys given? */
-	if( Req->argc > 1 ) key = Req->argv[1];
-	else key = NULL;
+	if (Req->argc > 1) {
+		key = Req->argv[1];
+		key_ptr = strchr(key, ',');
+		if (key_ptr) *key_ptr = '\0';
+	}
+	else
+		key = key_ptr = NULL;
+
+	channame = Req->argv[0];
+	channame_ptr = strchr(channame, ',');
+	if (channame_ptr) *channame_ptr = '\0';
 
 	/* Channel-Namen durchgehen */
-	chan = NULL;
-	channame = strtok( Req->argv[0], "," );
-	while( channame )
+	while (channame)
 	{
+		Log(LOG_INFO, "channame=%s, key=%s", channame, key ? key : "-");
 		chan = NULL; flags = NULL;
 
 		/* wird der Channel neu angelegt? */
@@ -229,8 +237,19 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 			IRC_WriteStrClient( Client, RPL_ENDOFNAMES_MSG, Client_ID( Client ), Channel_Name( chan ));
 		}
 
-		/* naechsten Namen ermitteln */
-		channame = strtok( NULL, "," );
+		/* next channel? */
+		channame = channame_ptr;
+		if (channame) {
+			channame++;
+			channame_ptr = strchr(channame, ',');
+			if (channame_ptr) *channame_ptr = '\0';
+
+			if (key_ptr) {
+				key = ++key_ptr;
+				key_ptr = strchr(key, ',');
+				if (key_ptr) *key_ptr = '\0';
+			}
+		}
 	}
 	return CONNECTED;
 } /* IRC_JOIN */

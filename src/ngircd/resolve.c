@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: resolve.c,v 1.12 2005/05/28 10:46:50 fw Exp $";
+static char UNUSED id[] = "$Id: resolve.c,v 1.12.2.1 2005/09/02 22:07:38 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -108,6 +108,8 @@ Resolve_Addr( struct sockaddr_in *Addr )
 	else
 	{
 		/* Error! */
+		close(s->pipe[0]);
+		close(s->pipe[1]);
 		free( s );
 		Log( LOG_CRIT, "Resolver: Can't fork: %s!", strerror( errno ));
 		return NULL;
@@ -149,6 +151,8 @@ Resolve_Name( char *Host )
 	else
 	{
 		/* Error! */
+		close(s->pipe[0]);
+		close(s->pipe[1]);
 		free( s );
 		Log( LOG_CRIT, "Resolver: Can't fork: %s!", strerror( errno ));
 		return NULL;

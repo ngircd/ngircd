@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: resolve.c,v 1.17 2005/07/31 20:13:08 alex Exp $";
+static char UNUSED id[] = "$Id: resolve.c,v 1.18 2005/09/02 21:47:30 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -118,6 +118,7 @@ Resolve_Addr( struct sockaddr_in *Addr )
 
 out: /* Error! */
 	close( s->pipe[0] );
+	close( s->pipe[1] );
 	free( s );
 return NULL;
 } /* Resolve_Addr */
@@ -168,6 +169,7 @@ Resolve_Name( char *Host )
 
 out: /* Error! */
 	close( s->pipe[0] );
+	close( s->pipe[1] );
 	free( s );
 	return NULL;
 } /* Resolve_Name */

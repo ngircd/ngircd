@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.177 2005/09/02 13:28:30 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.178 2005/09/02 17:01:23 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -1354,10 +1354,10 @@ Check_Servers( void )
 
 		/* Is there already a connection in this group? */
 		if( Conf_Server[i].group > NONE ) {
-			for( n = 0; n < MAX_SERVERS; n++ ) {
-				if( n == i ) continue;
-				if(( Conf_Server[n].conn_id > NONE ) &&
-					( Conf_Server[n].group == Conf_Server[i].group ))
+			for (n = 0; n < MAX_SERVERS; n++) {
+				if (n == i) continue;
+				if ((Conf_Server[n].conn_id > NONE) &&
+					(Conf_Server[n].group == Conf_Server[i].group))
 						break;
 			}
 			if (n < MAX_SERVERS) continue;

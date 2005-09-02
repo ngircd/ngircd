@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.109 2005/08/25 08:48:43 alex Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.110 2005/09/02 17:12:58 alex Exp $";
 
 /**
  * @file
@@ -548,8 +548,8 @@ static void
 Show_Version( void )
 {
 	puts( NGIRCd_Version );
-	puts( "Copyright (c)2001-2005 by Alexander Barton (<alex@barton.de>)." );
-	puts( "Homepage: <http://arthur.ath.cx/~alex/ngircd/>\n" );
+	puts( "Copyright (c)2001-2005 Alexander Barton (<alex@barton.de>) and Contributors." );
+	puts( "Homepage: <http://ngircd.barton.de/>\n" );
 	puts( "This is free software; see the source for copying conditions. There is NO" );
 	puts( "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." );
 } /* Show_Version */

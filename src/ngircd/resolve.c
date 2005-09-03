@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: resolve.c,v 1.18 2005/09/02 21:47:30 fw Exp $";
+static char UNUSED id[] = "$Id: resolve.c,v 1.19 2005/09/03 11:17:16 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -192,9 +192,12 @@ Do_ResolveAddr( struct sockaddr_in *Addr, int w_fd )
 	size_t len;
 	struct in_addr *addr;
 	char *ntoaptr;
+	array resolved_addr;
 #ifdef IDENTAUTH
 	char *res;
 #endif
+
+	array_init(&resolved_addr);
 
 	/* Resolve IP address */
 #ifdef DEBUG
@@ -230,36 +233,41 @@ Do_ResolveAddr( struct sockaddr_in *Addr, int w_fd )
 	}
 	Log_Resolver( LOG_DEBUG, "Ok, translated %s to \"%s\".", inet_ntoa( Addr->sin_addr ), hostname );
 
-	/* Write resolver result into pipe to parent */
 	len = strlen( hostname ); 
 	hostname[len] = '\n'; len++;
-	if( (size_t)write( w_fd, hostname, len ) != (size_t)len )
-	{
-		Log_Resolver( LOG_CRIT, "Resolver: Can't write to parent: %s!", strerror( errno ));
+	if (!array_copyb(&resolved_addr, hostname, len )) {
+		Log_Resolver( LOG_CRIT, "Resolver: Can't copy resolved name: %s!", strerror( errno ));
 		close( w_fd );
 		return;
 	}
 
 #ifdef IDENTAUTH
-	/* Do "IDENT" (aka "AUTH") lookup and write result to parent */
+	/* Do "IDENT" (aka "AUTH") lookup and append result to resolved_addr array */
 	Log_Resolver( LOG_DEBUG, "Doing IDENT lookup on socket %d ...", Sock );
 	res = ident_id( Sock, 10 );
 	Log_Resolver( LOG_DEBUG, "Ok, IDENT lookup on socket %d done: \"%s\"", Sock, res ? res : "" );
 
-	/* Write IDENT result into pipe to parent */
 	if (res) {
-		len = strlen(res);
-		res[len] = '\n';
-		len++;
-	} else len = 1;
-
-	if( (size_t)write( w_fd, res ? res : "\n", len ) != (size_t)len )
-	{
-		Log_Resolver( LOG_CRIT, "Resolver: Can't write to parent (IDENT): %s!", strerror( errno ));
-		close( w_fd );
+		if (!array_cats(&resolved_addr, res))
+			Log_Resolver(LOG_WARNING, "Resolver: Cannot copy IDENT result: %s!", strerror(errno));
+		/* try to omit ident and return hostname only */ 
 	}
-	free( res );
+
+	if (!array_catb(&resolved_addr, "\n", 1)) {
+		close(w_fd);
+		Log_Resolver(LOG_CRIT, "Resolver: Cannot copy result: %s!", strerror(errno));
+		array_free(&resolved_addr);
+		return;
+	}
+
+	if (res) free(res);
 #endif
+	len = array_bytes(&resolved_addr);
+	if( (size_t)write( w_fd, array_start(&resolved_addr), len) != len )
+		Log_Resolver( LOG_CRIT, "Resolver: Can't write result to parent: %s!", strerror( errno ));
+
+	close(w_fd);
+	array_free(&resolved_addr);
 } /* Do_ResolveAddr */
 
 

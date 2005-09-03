@@ -137,7 +137,6 @@
 		FA232A0908C9E8EC0093207B /* ngircd.spec */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = ngircd.spec; path = ../ngircd.spec; sourceTree = SOURCE_ROOT; };
 		FA232A0A08C9E8EC0093207B /* README */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = README; path = ../README; sourceTree = SOURCE_ROOT; };
 		FA232A0B08C9E8EC0093207B /* systrace.policy */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = systrace.policy; path = ../systrace.policy; sourceTree = SOURCE_ROOT; };
-		FA232A2C08C9EB7C0093207B /* config.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = SOURCE_ROOT; };
 		FA83332A0627391D00A909F0 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = /usr/lib/libz.dylib; sourceTree = "<absolute>"; };
 		FA8B5EFD08C9E4C900B781D4 /* SSL.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = SSL.txt; path = ../../doc/SSL.txt; sourceTree = SOURCE_ROOT; };
 		FA8B5EFE08C9E4C900B781D4 /* Zeroconf.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = Zeroconf.txt; path = ../../doc/Zeroconf.txt; sourceTree = SOURCE_ROOT; };
@@ -393,7 +392,6 @@
 			isa = PBXGroup;
 			children = (
 				FAC0DF4A05F25A150024C8CE /* Makefile.am */,
-				FA232A2C08C9EB7C0093207B /* config.h */,
 			);
 			name = "Mac OS X";
 			sourceTree = "<group>";
@@ -727,8 +725,11 @@
 		FA8B5E9708C9DB5600B781D4 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_OPTIMIZATION_LEVEL = 2;
 				PRODUCT_NAME = ngIRCd;
+				ZERO_LINK = NO;
 			};
 			name = Deployment;
 		};
@@ -739,13 +740,7 @@
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
-				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
-				GCC_WARN_UNUSED_LABEL = YES;
-				GCC_WARN_UNUSED_PARAMETER = YES;
-				GCC_WARN_UNUSED_VALUE = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
 				PRODUCT_NAME = portabtest;
-				WARNING_CFLAGS = "-Wall";
 				ZERO_LINK = YES;
 			};
 			name = Development;
@@ -753,14 +748,12 @@
 		FA8B5E9B08C9DB5600B781D4 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_OPTIMIZATION_LEVEL = 2;
 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
-				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
-				GCC_WARN_UNUSED_LABEL = YES;
-				GCC_WARN_UNUSED_PARAMETER = YES;
-				GCC_WARN_UNUSED_VALUE = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
 				PRODUCT_NAME = portabtest;
-				WARNING_CFLAGS = "-Wall";
+				ZERO_LINK = NO;
 			};
 			name = Deployment;
 		};
@@ -770,6 +763,17 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "SYSCONFDIR='\"/opt/ngircd/etc\"'";
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_PEDANTIC = YES;
+				GCC_WARN_SHADOW = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = NO;
+				GCC_WARN_UNKNOWN_PRAGMAS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_LABEL = YES;
 				GCC_WARN_UNUSED_PARAMETER = YES;
 				GCC_WARN_UNUSED_VALUE = YES;
@@ -784,6 +788,17 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "SYSCONFDIR='\"/opt/ngircd/etc\"'";
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_PEDANTIC = YES;
+				GCC_WARN_SHADOW = YES;
+				GCC_WARN_SIGN_COMPARE = YES;
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = NO;
+				GCC_WARN_UNKNOWN_PRAGMAS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_LABEL = YES;
 				GCC_WARN_UNUSED_PARAMETER = YES;
 				GCC_WARN_UNUSED_VALUE = YES;

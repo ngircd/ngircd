@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: io.c,v 1.10 2005/08/30 13:38:16 fw Exp $";
+static char UNUSED id[] = "$Id: io.c,v 1.11 2005/09/04 13:38:59 fw Exp $";
 
 #include <assert.h>
 #include <stdlib.h>
@@ -390,7 +390,10 @@ io_close(int fd)
 	if (array_length(&io_evcache, sizeof (struct kevent)))	/* pending data in cache? */
 		io_event_kqueue_commit_cache();
 #endif
-	return close(fd) == 0;	/* both epoll an kqueue will remove fd from all sets automatically */
+#ifdef IO_USE_EPOLL
+	epoll_ctl(io_masterfd, EPOLL_CTL_DEL, fd, NULL);
+#endif
+	return close(fd) == 0;	/* kqueue will remove fd from all sets automatically */
 }
 
 

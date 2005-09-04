@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: parse.c,v 1.65 2005/07/31 20:13:08 alex Exp $";
+static char UNUSED id[] = "$Id: parse.c,v 1.66 2005/09/04 23:42:24 alex Exp $";
 
 /**
  * @file
@@ -445,9 +445,12 @@ Handle_Request( CONN_ID Idx, REQUEST *Req )
 			Req->argc == 1 ? "parameter" : "parameters",
 			Req->prefix ? "" : " no" );
 
-	if( Client_Type( client ) != CLIENT_SERVER )
-		return IRC_WriteStrClient( client, ERR_UNKNOWNCOMMAND_MSG,
-				Client_ID( client ), Req->command );
+	if (Client_Type(client) != CLIENT_SERVER) {
+		result = IRC_WriteStrClient(client, ERR_UNKNOWNCOMMAND_MSG,
+				Client_ID(client), Req->command);
+		Conn_SetPenalty(Idx, 1);
+		return result;
+	}
 
 	return true;
 } /* Handle_Request */

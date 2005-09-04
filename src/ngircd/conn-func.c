@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn-func.c,v 1.7 2005/07/07 18:39:45 fw Exp $";
+static char UNUSED id[] = "$Id: conn-func.c,v 1.8 2005/09/04 23:38:32 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -73,7 +73,13 @@ Conn_SetPenalty( CONN_ID Idx, time_t Seconds )
 	assert( Seconds >= 0 );
 
 	t = time( NULL ) + Seconds;
-	if( t > My_Connections[Idx].delaytime ) My_Connections[Idx].delaytime = t;
+	if (t > My_Connections[Idx].delaytime)
+		My_Connections[Idx].delaytime = t;
+
+#ifdef DEBUG
+	Log(LOG_DEBUG, "Add penalty time on connection %d: %ld second(s).",
+			Idx, (long)Seconds);
+#endif
 } /* Conn_SetPenalty */
 
 

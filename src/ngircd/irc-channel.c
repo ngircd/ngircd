@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-channel.c,v 1.32 2005/09/02 15:46:49 alex Exp $";
+static char UNUSED id[] = "$Id: irc-channel.c,v 1.33 2005/09/05 08:11:11 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -75,7 +75,6 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 	/* Channel-Namen durchgehen */
 	while (channame)
 	{
-		Log(LOG_INFO, "channame=%s, key=%s", channame, key ? key : "-");
 		chan = NULL; flags = NULL;
 
 		/* wird der Channel neu angelegt? */

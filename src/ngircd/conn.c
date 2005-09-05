@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.178 2005/09/02 17:01:23 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.179 2005/09/05 09:10:08 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -858,11 +858,12 @@ Handle_Write( CONN_ID Idx )
 
 	assert( Idx > NONE );
 	if ( My_Connections[Idx].sock < 0 ) {
-		Log(LOG_WARNING,
+#ifdef DEBUG
+		Log(LOG_DEBUG,
 		    "Handle_Write() on closed socket, connection %d", Idx);
+#endif
 		return false;
 	}
-	assert( My_Connections[Idx].sock > NONE );
 
 #ifdef DEBUG
 	Log(LOG_DEBUG, "Handle_Write() called for connection %d ...", Idx);

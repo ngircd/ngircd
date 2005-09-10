@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.85 2005/09/02 13:58:52 fw Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.86 2005/09/10 23:42:12 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -71,6 +71,16 @@ static void Config_Error_NaN PARAMS(( const int LINE, const char *Value ));
 static void Config_Error_TooLong PARAMS(( const int LINE, const char *Value ));
 
 static void Init_Server_Struct PARAMS(( CONF_SERVER *Server ));
+
+
+static char *
+strdup_warn(const char *str)
+{
+	char *dup = strdup(str);
+	if (!dup)
+		Config_Error(LOG_ERR, "Could not allocate mem for string: %s", str);
+	return dup;
+}
 
 
 static void
@@ -157,12 +167,12 @@ Conf_Test( void )
 
 	/* If stdin and stdout ("you can read our nice message and we can
 	 * read in your keypress") are valid tty's, wait for a key: */
-	if( isatty( fileno( stdin )) && isatty( fileno( stdout )))
-	{
+	if( isatty( fileno( stdin )) && isatty( fileno( stdout ))) {
 		puts( "OK, press enter to see a dump of your service configuration ..." );
 		getchar( );
+	} else {
+		puts( "Ok, dump of your server configuration follows:\n" );
 	}
-	else puts( "Ok, dump of your server configuration follows:\n" );
 
 	puts( "[GLOBAL]" );
 	printf( "  Name = %s\n", Conf_ServerName );
@@ -191,16 +201,11 @@ Conf_Test( void )
 	printf( "  ConnectRetry = %d\n", Conf_ConnectRetry );
 	printf( "  OperCanUseMode = %s\n", Conf_OperCanMode == true? "yes" : "no" );
 	printf( "  OperServerMode = %s\n", Conf_OperServerMode == true? "yes" : "no" );
-	if( Conf_MaxConnections > 0 ) printf( "  MaxConnections = %ld\n", Conf_MaxConnections );
-	else printf( "  MaxConnections = -1\n" );
-	if( Conf_MaxConnectionsIP > 0 ) printf( "  MaxConnectionsIP = %d\n", Conf_MaxConnectionsIP );
-	else printf( "  MaxConnectionsIP = -1\n" );
-	if( Conf_MaxJoins > 0 ) printf( "  MaxJoins = %d\n", Conf_MaxJoins );
-	else printf( "  MaxJoins = -1\n" );
-	puts( "" );
+	printf( "  MaxConnections = %ld\n", Conf_MaxConnections>0 ? Conf_MaxConnections : -1);
+	printf( "  MaxConnectionsIP = %d\n", Conf_MaxConnectionsIP>0 ? Conf_MaxConnectionsIP : -1);
+	printf( "  MaxJoins = %d\n\n", Conf_MaxJoins>0 ? Conf_MaxJoins : -1);
 
-	for( i = 0; i < Conf_Oper_Count; i++ )
-	{
+	for( i = 0; i < Conf_Oper_Count; i++ ) {
 		if( ! Conf_Oper[i].name[0] ) continue;
 		
 		/* Valid "Operator" section */
@@ -211,8 +216,7 @@ Conf_Test( void )
 		puts( "" );
 	}
 
-	for( i = 0; i < MAX_SERVERS; i++ )
-	{
+	for( i = 0; i < MAX_SERVERS; i++ ) {
 		if( ! Conf_Server[i].name[0] ) continue;
 		
 		/* Valid "Server" section */
@@ -222,12 +226,10 @@ Conf_Test( void )
 		printf( "  Port = %d\n", Conf_Server[i].port );
 		printf( "  MyPassword = %s\n", Conf_Server[i].pwd_in );
 		printf( "  PeerPassword = %s\n", Conf_Server[i].pwd_out );
-		printf( "  Group = %d\n", Conf_Server[i].group );
-		puts( "" );
+		printf( "  Group = %d\n\n", Conf_Server[i].group );
 	}
 
-	for( i = 0; i < Conf_Channel_Count; i++ )
-	{
+	for( i = 0; i < Conf_Channel_Count; i++ ) {
 		if( ! Conf_Channel[i].name[0] ) continue;
 		
 		/* Valid "Channel" section */
@@ -236,8 +238,7 @@ Conf_Test( void )
 		printf( "  Modes = %s\n", Conf_Channel[i].modes );
 
 		topic = (char*)array_start(&Conf_Channel[i].topic);
-		printf( "  Topic = %s\n", topic ? topic : "");
-		puts( "" );
+		printf( "  Topic = %s\n\n", topic ? topic : "");
 	}
 	
 	return 0;
@@ -255,23 +256,18 @@ Conf_UnsetServer( CONN_ID Idx )
 	int i;
 
 	/* Check all our configured servers */
-	for( i = 0; i < MAX_SERVERS; i++ )
-	{
+	for( i = 0; i < MAX_SERVERS; i++ ) {
 		if( Conf_Server[i].conn_id != Idx ) continue;
 
 		/* Gotcha! Mark server configuration as "unused": */
 		Conf_Server[i].conn_id = NONE;
 
-		if( Conf_Server[i].flags & CONF_SFLAG_ONCE )
-		{
+		if( Conf_Server[i].flags & CONF_SFLAG_ONCE ) {
 			/* Delete configuration here */
 			Init_Server_Struct( &Conf_Server[i] );
-		}
-		else
-		{
+		} else {
 			/* Set time for next connect attempt */
-			if( Conf_Server[i].lasttry <  time( NULL ) - Conf_ConnectRetry )
-			{
+			if( Conf_Server[i].lasttry <  time( NULL ) - Conf_ConnectRetry ) {
 				/* Okay, the connection was established "long enough": */
 				Conf_Server[i].lasttry = time( NULL ) - Conf_ConnectRetry + RECONNECT_DELAY;
 			}
@@ -301,8 +297,7 @@ Conf_GetServer( CONN_ID Idx )
 	
 	assert( Idx > NONE );
 
-	for( i = 0; i < MAX_SERVERS; i++ )
-	{
+	for( i = 0; i < MAX_SERVERS; i++ ) {
 		if( Conf_Server[i].conn_id == Idx ) return i;
 	}
 	return NONE;
@@ -318,10 +313,8 @@ Conf_EnableServer( char *Name, UINT16 Port )
 
 	assert( Name != NULL );
 
-	for( i = 0; i < MAX_SERVERS; i++ )
-	{
-		if( strcasecmp( Conf_Server[i].name, Name ) == 0 )
-		{
+	for( i = 0; i < MAX_SERVERS; i++ ) {
+		if( strcasecmp( Conf_Server[i].name, Name ) == 0 ) {
 			/* Gotcha! Set port and enable server: */
 			Conf_Server[i].port = Port;
 			Conf_Server[i].flags &= ~CONF_SFLAG_DISABLED;
@@ -341,10 +334,8 @@ Conf_DisableServer( char *Name )
 
 	assert( Name != NULL );
 
-	for( i = 0; i < MAX_SERVERS; i++ )
-	{
-		if( strcasecmp( Conf_Server[i].name, Name ) == 0 )
-		{
+	for( i = 0; i < MAX_SERVERS; i++ ) {
+		if( strcasecmp( Conf_Server[i].name, Name ) == 0 ) {
 			/* Gotcha! Disable and disconnect server: */
 			Conf_Server[i].flags |= CONF_SFLAG_DISABLED;
 			if( Conf_Server[i].conn_id > NONE ) Conn_Close( Conf_Server[i].conn_id, NULL, "Server link terminated on operator request", true);
@@ -368,8 +359,7 @@ Conf_AddServer( char *Name, UINT16 Port, char *Host, char *MyPwd, char *PeerPwd 
 	assert( PeerPwd != NULL );
 
 	/* Search unused item in server configuration structure */
-	for( i = 0; i < MAX_SERVERS; i++ )
-	{
+	for( i = 0; i < MAX_SERVERS; i++ ) {
 		/* Is this item used? */
 		if( ! Conf_Server[i].name[0] ) break;
 	}
@@ -447,10 +437,10 @@ Read_Config( void )
 
 	/* Open configuration file */
 	fd = fopen( NGIRCd_ConfFile, "r" );
-	if( ! fd )
-	{
+	if( ! fd ) {
 		/* No configuration file found! */
-		Config_Error( LOG_ALERT, "Can't read configuration \"%s\": %s", NGIRCd_ConfFile, strerror( errno ));
+		Config_Error( LOG_ALERT, "Can't read configuration \"%s\": %s",
+					NGIRCd_ConfFile, strerror( errno ));
 		Config_Error( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE_NAME );
 		exit( 1 );
 	}
@@ -463,28 +453,24 @@ Read_Config( void )
 	 * And delete all servers which are "duplicates" of servers
 	 * that are already marked as "once" (such servers have been
 	 * created by the last rehash but are now useless). */
-	for( i = 0; i < MAX_SERVERS; i++ )
-	{
+	for( i = 0; i < MAX_SERVERS; i++ ) {
 		if( Conf_Server[i].conn_id == NONE ) Init_Server_Struct( &Conf_Server[i] );
-		else
-		{
+		else {
 			/* This structure is in use ... */
-			if( Conf_Server[i].flags & CONF_SFLAG_ONCE )
-			{
+			if( Conf_Server[i].flags & CONF_SFLAG_ONCE ) {
 				/* Check for duplicates */
-				for( n = 0; n < MAX_SERVERS; n++ )
-				{
+				for( n = 0; n < MAX_SERVERS; n++ ) {
 					if( n == i ) continue;
 
-					if( Conf_Server[i].conn_id == Conf_Server[n].conn_id )
-					{
+					if( Conf_Server[i].conn_id == Conf_Server[n].conn_id ) {
 						Init_Server_Struct( &Conf_Server[n] );
-						Log( LOG_DEBUG, "Deleted unused duplicate server %d (kept %d).", n, i );
+#ifdef DEBUG
+						Log(LOG_DEBUG,"Deleted unused duplicate server %d (kept %d).",
+												n, i );
+#endif
 					}
 				}
-			}
-			else
-			{
+			} else {
 				/* Mark server as "once" */
 				Conf_Server[i].flags |= CONF_SFLAG_ONCE;
 				Log( LOG_DEBUG, "Marked server %d as \"once\"", i );
@@ -499,8 +485,7 @@ Read_Config( void )
 	New_Server_Idx = NONE;
 
 	/* Read configuration file */
-	while( true )
-	{
+	while( true ) {
 		if( ! fgets( str, LINE_LEN, fd )) break;
 		ngt_TrimStr( str );
 		line++;
@@ -509,15 +494,15 @@ Read_Config( void )
 		if( str[0] == ';' || str[0] == '#' || str[0] == '\0' ) continue;
 
 		/* Is this the beginning of a new section? */
-		if(( str[0] == '[' ) && ( str[strlen( str ) - 1] == ']' ))
-		{
+		if(( str[0] == '[' ) && ( str[strlen( str ) - 1] == ']' )) {
 			strlcpy( section, str, sizeof( section ));
-			if( strcasecmp( section, "[GLOBAL]" ) == 0 ) continue;
-			if( strcasecmp( section, "[OPERATOR]" ) == 0 )
-			{
-				if( Conf_Oper_Count + 1 > MAX_OPERATORS ) Config_Error( LOG_ERR, "Too many operators configured." );
-				else
-				{
+			if( strcasecmp( section, "[GLOBAL]" ) == 0 )
+				continue;
+
+			if( strcasecmp( section, "[OPERATOR]" ) == 0 ) {
+				if( Conf_Oper_Count + 1 > MAX_OPERATORS )
+					Config_Error( LOG_ERR, "Too many operators configured.");
+				else {
 					/* Initialize new operator structure */
 					Conf_Oper[Conf_Oper_Count].name[0] = '\0';
 					Conf_Oper[Conf_Oper_Count].pwd[0] = '\0';
@@ -529,11 +514,9 @@ Read_Config( void )
 				}
 				continue;
 			}
-			if( strcasecmp( section, "[SERVER]" ) == 0 )
-			{
+			if( strcasecmp( section, "[SERVER]" ) == 0 ) {
 				/* Check if there is already a server to add */
-				if( New_Server.name[0] )
-				{
+				if( New_Server.name[0] ) {
 					/* Copy data to "real" server structure */
 					assert( New_Server_Idx > NONE );
 					Conf_Server[New_Server_Idx] = New_Server;
@@ -543,13 +526,11 @@ Read_Config( void )
 				Init_Server_Struct( &New_Server );
 
 				/* Search unused item in server configuration structure */
-				for( i = 0; i < MAX_SERVERS; i++ )
-				{
+				for( i = 0; i < MAX_SERVERS; i++ ) {
 					/* Is this item used? */
 					if( ! Conf_Server[i].name[0] ) break;
 				}
-				if( i >= MAX_SERVERS )
-				{
+				if( i >= MAX_SERVERS ) {
 					/* Oops, no free item found! */
 					Config_Error( LOG_ERR, "Too many servers configured." );
 					New_Server_Idx = NONE;
@@ -576,8 +557,7 @@ Read_Config( void )
 
 		/* Split line into variable name and parameters */
 		ptr = strchr( str, '=' );
-		if( ! ptr )
-		{
+		if( ! ptr ) {
 			Config_Error( LOG_ERR, "%s, line %d: Syntax error!", NGIRCd_ConfFile, line );
 			continue;
 		}
@@ -596,8 +576,7 @@ Read_Config( void )
 	fclose( fd );
 
 	/* Check if there is still a server to add */
-	if( New_Server.name[0] )
-	{
+	if( New_Server.name[0] ) {
 		/* Copy data to "real" server structure */
 		assert( New_Server_Idx > NONE );
 		Conf_Server[New_Server_Idx] = New_Server;
@@ -629,51 +608,52 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 {
 	struct passwd *pwd;
 	struct group *grp;
+	size_t len;
 	
 	assert( Line > 0 );
 	assert( Var != NULL );
 	assert( Arg != NULL );
 	
-	if( strcasecmp( Var, "Name" ) == 0 )
-	{
+	if( strcasecmp( Var, "Name" ) == 0 ) {
 		/* Server name */
-		if( strlcpy( Conf_ServerName, Arg, sizeof( Conf_ServerName )) >= sizeof( Conf_ServerName ))
+		len = strlcpy( Conf_ServerName, Arg, sizeof( Conf_ServerName ));
+		if (len >= sizeof( Conf_ServerName ))
 			Config_Error_TooLong( Line, Var );
-
 		return;
 	}
-	if( strcasecmp( Var, "Info" ) == 0 )
-	{
+	if( strcasecmp( Var, "Info" ) == 0 ) {
 		/* Info text of server */
-		if( strlcpy( Conf_ServerInfo, Arg, sizeof( Conf_ServerInfo )) >= sizeof( Conf_ServerInfo ))
+		len = strlcpy( Conf_ServerInfo, Arg, sizeof( Conf_ServerInfo ));
+		if (len >= sizeof( Conf_ServerInfo ))
 			Config_Error_TooLong ( Line, Var );
-
 		return;
 	}
-	if( strcasecmp( Var, "Password" ) == 0 )
-	{
+	if( strcasecmp( Var, "Password" ) == 0 ) {
 		/* Global server password */
-		if( strlcpy( Conf_ServerPwd, Arg, sizeof( Conf_ServerPwd )) >= sizeof( Conf_ServerPwd ))
+		len = strlcpy( Conf_ServerPwd, Arg, sizeof( Conf_ServerPwd ));
+		if (len >= sizeof( Conf_ServerPwd ))
 			Config_Error_TooLong( Line, Var );
-
 		return;
 	}
-	if( strcasecmp( Var, "AdminInfo1" ) == 0 )
-	{
+	if( strcasecmp( Var, "AdminInfo1" ) == 0 ) {
 		/* Administrative info #1 */
-		if( strlcpy( Conf_ServerAdmin1, Arg, sizeof( Conf_ServerAdmin1 )) >= sizeof( Conf_ServerAdmin1 )) Config_Error_TooLong ( Line, Var );
+		len = strlcpy( Conf_ServerAdmin1, Arg, sizeof( Conf_ServerAdmin1 ));
+		if (len >= sizeof( Conf_ServerAdmin1 ))
+			Config_Error_TooLong ( Line, Var );
 		return;
 	}
-	if( strcasecmp( Var, "AdminInfo2" ) == 0 )
-	{
+	if( strcasecmp( Var, "AdminInfo2" ) == 0 ) {
 		/* Administrative info #2 */
-		if( strlcpy( Conf_ServerAdmin2, Arg, sizeof( Conf_ServerAdmin2 )) >= sizeof( Conf_ServerAdmin2 )) Config_Error_TooLong ( Line, Var );
+		len = strlcpy( Conf_ServerAdmin2, Arg, sizeof( Conf_ServerAdmin2 ));
+		if (len >= sizeof( Conf_ServerAdmin2 ))
+			Config_Error_TooLong ( Line, Var );
 		return;
 	}
-	if( strcasecmp( Var, "AdminEMail" ) == 0 )
-	{
+	if( strcasecmp( Var, "AdminEMail" ) == 0 ) {
 		/* Administrative email contact */
-		if( strlcpy( Conf_ServerAdminMail, Arg, sizeof( Conf_ServerAdminMail )) >= sizeof( Conf_ServerAdminMail )) Config_Error_TooLong( Line, Var );
+		len = strlcpy( Conf_ServerAdminMail, Arg, sizeof( Conf_ServerAdminMail ));
+		if (len >= sizeof( Conf_ServerAdminMail ))
+			Config_Error_TooLong( Line, Var );
 		return;
 	}
 
@@ -681,47 +661,39 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 		ports_parse(&Conf_ListenPorts, Line, Arg);
 		return;
 	}
-	if( strcasecmp( Var, "MotdFile" ) == 0 )
-	{
+	if( strcasecmp( Var, "MotdFile" ) == 0 ) {
 		/* "Message of the day" (MOTD) file */
-		if( strlcpy( Conf_MotdFile, Arg, sizeof( Conf_MotdFile )) >= sizeof( Conf_MotdFile ))
+		len = strlcpy( Conf_MotdFile, Arg, sizeof( Conf_MotdFile ));
+		if (len >= sizeof( Conf_MotdFile ))
 			Config_Error_TooLong( Line, Var );
-
 		return;
 	}
-	if( strcasecmp( Var, "MotdPhrase" ) == 0 )
-	{
+	if( strcasecmp( Var, "MotdPhrase" ) == 0 ) {
 		/* "Message of the day" phrase (instead of file) */
-		if( strlcpy( Conf_MotdPhrase, Arg, sizeof( Conf_MotdPhrase )) >= sizeof( Conf_MotdPhrase ))
+		len = strlcpy( Conf_MotdPhrase, Arg, sizeof( Conf_MotdPhrase ));
+		if (len >= sizeof( Conf_MotdPhrase ))
 			Config_Error_TooLong( Line, Var );
-
 		return;
 	}
-	if( strcasecmp( Var, "ChrootDir" ) == 0 )
-	{
+	if( strcasecmp( Var, "ChrootDir" ) == 0 ) {
 		/* directory for chroot() */
-		if( strlcpy( Conf_Chroot, Arg, sizeof( Conf_Chroot )) >= sizeof( Conf_Chroot ))
+		len = strlcpy( Conf_Chroot, Arg, sizeof( Conf_Chroot ));
+		if (len >= sizeof( Conf_Chroot ))
 			Config_Error_TooLong( Line, Var );
-
 		return;
 	}
-
-	if ( strcasecmp( Var, "PidFile" ) == 0 )
-	{
+	if ( strcasecmp( Var, "PidFile" ) == 0 ) {
 		/* name of pidfile */
-		if( strlcpy( Conf_PidFile, Arg, sizeof( Conf_PidFile )) >= sizeof( Conf_PidFile ))
+		len = strlcpy( Conf_PidFile, Arg, sizeof( Conf_PidFile ));
+		if (len >= sizeof( Conf_PidFile ))
 			Config_Error_TooLong( Line, Var );
-
 		return;
 	}
-
-	if( strcasecmp( Var, "ServerUID" ) == 0 )
-	{
+	if( strcasecmp( Var, "ServerUID" ) == 0 ) {
 		/* UID the daemon should switch to */
 		pwd = getpwnam( Arg );
 		if( pwd ) Conf_UID = pwd->pw_uid;
-		else
-		{
+		else {
 #ifdef HAVE_ISDIGIT
 			if( ! isdigit( (int)*Arg )) Config_Error_NaN( Line, Var );
 			else
@@ -730,13 +702,11 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 		}
 		return;
 	}
-	if( strcasecmp( Var, "ServerGID" ) == 0 )
-	{
+	if( strcasecmp( Var, "ServerGID" ) == 0 ) {
 		/* GID the daemon should use */
 		grp = getgrnam( Arg );
 		if( grp ) Conf_GID = grp->gr_gid;
-		else
-		{
+		else {
 #ifdef HAVE_ISDIGIT
 			if( ! isdigit( (int)*Arg )) Config_Error_NaN( Line, Var );
 			else
@@ -745,53 +715,47 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 		}
 		return;
 	}
-	if( strcasecmp( Var, "PingTimeout" ) == 0 )
-	{
+	if( strcasecmp( Var, "PingTimeout" ) == 0 ) {
 		/* PING timeout */
 		Conf_PingTimeout = atoi( Arg );
-		if( Conf_PingTimeout < 5 )
-		{
-			Config_Error( LOG_WARNING, "%s, line %d: Value of \"PingTimeout\" too low!", NGIRCd_ConfFile, Line );
+		if( Conf_PingTimeout < 5 ) {
+			Config_Error( LOG_WARNING, "%s, line %d: Value of \"PingTimeout\" too low!",
+									NGIRCd_ConfFile, Line );
 			Conf_PingTimeout = 5;
 		}
 		return;
 	}
-	if( strcasecmp( Var, "PongTimeout" ) == 0 )
-	{
+	if( strcasecmp( Var, "PongTimeout" ) == 0 ) {
 		/* PONG timeout */
 		Conf_PongTimeout = atoi( Arg );
-		if( Conf_PongTimeout < 5 )
-		{
-			Config_Error( LOG_WARNING, "%s, line %d: Value of \"PongTimeout\" too low!", NGIRCd_ConfFile, Line );
+		if( Conf_PongTimeout < 5 ) {
+			Config_Error( LOG_WARNING, "%s, line %d: Value of \"PongTimeout\" too low!",
+									NGIRCd_ConfFile, Line );
 			Conf_PongTimeout = 5;
 		}
 		return;
 	}
-	if( strcasecmp( Var, "ConnectRetry" ) == 0 )
-	{
+	if( strcasecmp( Var, "ConnectRetry" ) == 0 ) {
 		/* Seconds between connection attempts to other servers */
 		Conf_ConnectRetry = atoi( Arg );
-		if( Conf_ConnectRetry < 5 )
-		{
-			Config_Error( LOG_WARNING, "%s, line %d: Value of \"ConnectRetry\" too low!", NGIRCd_ConfFile, Line );
+		if( Conf_ConnectRetry < 5 ) {
+			Config_Error( LOG_WARNING, "%s, line %d: Value of \"ConnectRetry\" too low!",
+									NGIRCd_ConfFile, Line );
 			Conf_ConnectRetry = 5;
 		}
 		return;
 	}
-	if( strcasecmp( Var, "OperCanUseMode" ) == 0 )
-	{
+	if( strcasecmp( Var, "OperCanUseMode" ) == 0 ) {
 		/* Are IRC operators allowed to use MODE in channels they aren't Op in? */
 		Conf_OperCanMode = Check_ArgIsTrue( Arg );
 		return;
 	}
-	if( strcasecmp( Var, "OperServerMode" ) == 0 )
-	{
+	if( strcasecmp( Var, "OperServerMode" ) == 0 ) {
 		/* Mask IRC operator as if coming from the server? (ircd-irc2 compat hack) */
 		Conf_OperServerMode = Check_ArgIsTrue( Arg );
 		return;
 	}
-	if( strcasecmp( Var, "MaxConnections" ) == 0 )
-	{
+	if( strcasecmp( Var, "MaxConnections" ) == 0 ) {
 		/* Maximum number of connections. Values <= 0 are equal to "no limit". */
 #ifdef HAVE_ISDIGIT
 		if( ! isdigit( (int)*Arg )) Config_Error_NaN( Line, Var);
@@ -800,9 +764,8 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 		Conf_MaxConnections = atol( Arg );
 		return;
 	}
-	if( strcasecmp( Var, "MaxConnectionsIP" ) == 0 )
-	{
-		/* Maximum number of simoultanous connections from one IP. Values <= 0 are equal to "no limit". */
+	if( strcasecmp( Var, "MaxConnectionsIP" ) == 0 ) {
+		/* Maximum number of simultaneous connections from one IP. Values <= 0 -> "no limit" */
 #ifdef HAVE_ISDIGIT
 		if( ! isdigit( (int)*Arg )) Config_Error_NaN( Line, Var );
 		else
@@ -810,8 +773,7 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 		Conf_MaxConnectionsIP = atoi( Arg );
 		return;
 	}
-	if( strcasecmp( Var, "MaxJoins" ) == 0 )
-	{
+	if( strcasecmp( Var, "MaxJoins" ) == 0 ) {
 		/* Maximum number of channels a user can join. Values <= 0 are equal to "no limit". */
 #ifdef HAVE_ISDIGIT
 		if( ! isdigit( (int)*Arg )) Config_Error_NaN( Line, Var );
@@ -820,17 +782,16 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 		Conf_MaxJoins = atoi( Arg );
 		return;
 	}
-	if( strcasecmp( Var, "Listen" ) == 0 )
-	{
+	if( strcasecmp( Var, "Listen" ) == 0 ) {
 		/* IP-Address to bind sockets */
-		if( strlcpy( Conf_ListenAddress, Arg, sizeof( Conf_ListenAddress )) >= sizeof( Conf_ListenAddress ))
-		{
+		len = strlcpy( Conf_ListenAddress, Arg, sizeof( Conf_ListenAddress ));
+		if (len >= sizeof( Conf_ListenAddress ))
 			Config_Error_TooLong( Line, Var );
-		}
 		return;
 	}
 
-	Config_Error( LOG_ERR, "%s, line %d (section \"Global\"): Unknown variable \"%s\"!", NGIRCd_ConfFile, Line, Var );
+	Config_Error( LOG_ERR, "%s, line %d (section \"Global\"): Unknown variable \"%s\"!",
+								NGIRCd_ConfFile, Line, Var );
 } /* Handle_GLOBAL */
 
 
@@ -854,7 +815,6 @@ Handle_OPERATOR( int Line, char *Var, char *Arg )
 		len = strlcpy( Conf_Oper[opercount].name, Arg, sizeof( Conf_Oper[opercount].name ));
 		if (len >= sizeof( Conf_Oper[opercount].name ))
 				Config_Error_TooLong( Line, Var );
-
 		return;
 	}
 	if( strcasecmp( Var, "Password" ) == 0 ) {
@@ -867,13 +827,7 @@ Handle_OPERATOR( int Line, char *Var, char *Arg )
 	if( strcasecmp( Var, "Mask" ) == 0 ) {
 		if (Conf_Oper[opercount].mask) return; /* Hostname already configured */
 
-		Conf_Oper[opercount].mask = strdup( Arg );
-		if (! Conf_Oper[opercount].mask) {
-			Config_Error( LOG_ERR, "%s, line %d: Cannot allocate memory for operator mask: %s",
-								NGIRCd_ConfFile, Line, strerror(errno) );
-			return;
-		}
-
+		Conf_Oper[opercount].mask = strdup_warn( Arg );
 		return;
 	}
 	Config_Error( LOG_ERR, "%s, line %d (section \"Operator\"): Unknown variable \"%s\"!",
@@ -956,34 +910,38 @@ Handle_SERVER( int Line, char *Var, char *Arg )
 static void
 Handle_CHANNEL( int Line, char *Var, char *Arg )
 {
+	size_t len;
+	size_t chancount = 0;
+
 	assert( Line > 0 );
 	assert( Var != NULL );
 	assert( Arg != NULL );
+	if (Conf_Channel_Count > 0)
+		chancount = Conf_Channel_Count - 1;
 
-	if( strcasecmp( Var, "Name" ) == 0 )
-	{
+	if( strcasecmp( Var, "Name" ) == 0 ) {
 		/* Name of the channel */
-		if( strlcpy( Conf_Channel[Conf_Channel_Count - 1].name, Arg, sizeof( Conf_Channel[Conf_Channel_Count - 1].name )) >= sizeof( Conf_Channel[Conf_Channel_Count - 1].name ))
+		len = strlcpy( Conf_Channel[chancount].name, Arg, sizeof( Conf_Channel[chancount].name ));
+		if (len >= sizeof( Conf_Channel[chancount].name ))
 			Config_Error_TooLong( Line, Var );
 		return;
 	}
-	if( strcasecmp( Var, "Modes" ) == 0 )
-	{
+	if( strcasecmp( Var, "Modes" ) == 0 ) {
 		/* Initial modes */
-		if( strlcpy( Conf_Channel[Conf_Channel_Count - 1].modes, Arg, sizeof( Conf_Channel[Conf_Channel_Count - 1].modes )) >= sizeof( Conf_Channel[Conf_Channel_Count - 1].modes ))
+		len = strlcpy( Conf_Channel[chancount].modes, Arg, sizeof( Conf_Channel[chancount].modes ));
+		if (len >= sizeof( Conf_Channel[chancount].modes ))
 			Config_Error_TooLong( Line, Var );
 		return;
 	}
-	if( strcasecmp( Var, "Topic" ) == 0 )
-	{
+	if( strcasecmp( Var, "Topic" ) == 0 ) {
 		/* Initial topic */
-		if (!array_copys( &Conf_Channel[Conf_Channel_Count - 1].topic, Arg))
+		if (!array_copys( &Conf_Channel[chancount].topic, Arg))
 			Config_Error_TooLong( Line, Var );
- 
 		return;
 	}
 
-	Config_Error( LOG_ERR, "%s, line %d (section \"Channel\"): Unknown variable \"%s\"!", NGIRCd_ConfFile, Line, Var );
+	Config_Error( LOG_ERR, "%s, line %d (section \"Channel\"): Unknown variable \"%s\"!",
+								NGIRCd_ConfFile, Line, Var );
 } /* Handle_CHANNEL */
 
 
@@ -996,57 +954,50 @@ Validate_Config( bool Configtest )
 	int i, servers, servers_once;
 #endif
 
-	if( ! Conf_ServerName[0] )
-	{
+	if( ! Conf_ServerName[0] ) {
 		/* No server name configured! */
-		Config_Error( LOG_ALERT, "No server name configured in \"%s\" (section 'Global': 'Name')!", NGIRCd_ConfFile );
-		if( ! Configtest )
-		{
+		Config_Error( LOG_ALERT, "No server name configured in \"%s\" (section 'Global': 'Name')!",
+											NGIRCd_ConfFile );
+		if( ! Configtest ) {
 			Config_Error( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE_NAME );
 			exit( 1 );
 		}
 	}
 	
-	if( Conf_ServerName[0] && ! strchr( Conf_ServerName, '.' ))
-	{
+	if( Conf_ServerName[0] && ! strchr( Conf_ServerName, '.' )) {
 		/* No dot in server name! */
 		Config_Error( LOG_ALERT, "Invalid server name configured in \"%s\" (section 'Global': 'Name'): Dot missing!", NGIRCd_ConfFile );
-		if( ! Configtest )
-		{
+		if( ! Configtest ) {
 			Config_Error( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE_NAME );
 			exit( 1 );
 		}
 	}
 
 #ifdef STRICT_RFC
-	if( ! Conf_ServerAdminMail[0] )
-	{
+	if( ! Conf_ServerAdminMail[0] ) {
 		/* No administrative contact configured! */
 		Config_Error( LOG_ALERT, "No administrator email address configured in \"%s\" ('AdminEMail')!", NGIRCd_ConfFile );
-		if( ! Configtest )
-		{
+		if( ! Configtest ) {
 			Config_Error( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE_NAME );
 			exit( 1 );
 		}
 	}
 #endif
 
-	if( ! Conf_ServerAdmin1[0] && ! Conf_ServerAdmin2[0] && ! Conf_ServerAdminMail[0] )
-	{
+	if( ! Conf_ServerAdmin1[0] && ! Conf_ServerAdmin2[0] && ! Conf_ServerAdminMail[0] ) {
 		/* No administrative information configured! */
 		Config_Error( LOG_WARNING, "No administrative information configured but required by RFC!" );
 	}
 #ifdef DEBUG
 	servers = servers_once = 0;
-	for( i = 0; i < MAX_SERVERS; i++ )
-	{
-		if( Conf_Server[i].name[0] )
-		{
+	for( i = 0; i < MAX_SERVERS; i++ ) {
+		if( Conf_Server[i].name[0] ) {
 			servers++;
 			if( Conf_Server[i].flags & CONF_SFLAG_ONCE ) servers_once++;
 		}
 	}
-	Log( LOG_DEBUG, "Configuration: Operators=%d, Servers=%d[%d], Channels=%d", Conf_Oper_Count, servers, servers_once, Conf_Channel_Count );
+	Log( LOG_DEBUG, "Configuration: Operators=%d, Servers=%d[%d], Channels=%d",
+			Conf_Oper_Count, servers, servers_once, Conf_Channel_Count );
 #endif
 } /* Validate_Config */
 
@@ -1060,7 +1011,8 @@ Config_Error_TooLong ( const int Line, const char *Item )
 static void
 Config_Error_NaN( const int Line, const char *Item )
 {
-	Config_Error( LOG_WARNING, "%s, line %d: Value of \"%s\" is not a number!", NGIRCd_ConfFile, Line, Item );
+	Config_Error( LOG_WARNING, "%s, line %d: Value of \"%s\" is not a number!",
+						NGIRCd_ConfFile, Line, Item );
 }
 
 #ifdef PROTOTYPES
@@ -1090,7 +1042,7 @@ va_dcl
 	/* During "normal operations" the log functions of the daemon should
 	 * be used, but during testing of the configuration file, all messages
 	 * should go directly to the console: */
-	if( Use_Log ) Log( Level, "%s", msg );
+	if (Use_Log) Log( Level, "%s", msg );
 	else puts( msg );
 } /* Config_Error */
 

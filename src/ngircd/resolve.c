@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: resolve.c,v 1.19 2005/09/03 11:17:16 fw Exp $";
+static char UNUSED id[] = "$Id: resolve.c,v 1.20 2005/09/11 11:42:48 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -83,8 +83,7 @@ Resolve_Addr( struct sockaddr_in *Addr )
 
 	/* For sub-process */
 	pid = fork( );
-	if( pid > 0 )
-	{
+	if (pid > 0) {
 		close( s->pipe[1] );
 		/* Main process */
 		Log( LOG_DEBUG, "Resolver for %s created (PID %d).", inet_ntoa( Addr->sin_addr ), pid );
@@ -99,9 +98,7 @@ Resolve_Addr( struct sockaddr_in *Addr )
 		}
 		s->pid = pid;
 		return s;
-	}
-	else if( pid == 0 )
-	{
+	} else if( pid == 0 ) {
 		close( s->pipe[0] );
 		/* Sub process */
 		Log_Init_Resolver( );
@@ -111,7 +108,7 @@ Resolve_Addr( struct sockaddr_in *Addr )
 		Do_ResolveAddr( Addr, s->pipe[1] );
 #endif
 		Log_Exit_Resolver( );
-		exit( 0 );
+		exit(0);
 	}
 	
 	Log( LOG_CRIT, "Resolver: Can't fork: %s!", strerror( errno ));
@@ -138,8 +135,7 @@ Resolve_Name( char *Host )
 
 	/* Fork sub-process */
 	pid = fork( );
-	if( pid > 0 )
-	{
+	if (pid > 0) {
 		close( s->pipe[1] );
 		/* Main process */
 		Log( LOG_DEBUG, "Resolver for \"%s\" created (PID %d).", Host, pid );
@@ -154,15 +150,13 @@ Resolve_Name( char *Host )
 		}
 		s->pid = pid;
 		return s;
-	}
-	else if( pid == 0 )
-	{
+	} else if( pid == 0 ) {
 		close( s->pipe[0] );
 		/* Sub process */
 		Log_Init_Resolver( );
 		Do_ResolveName( Host, s->pipe[1] );
 		Log_Exit_Resolver( );
-		exit( 0 );
+		exit(0);
 	}
 
 	Log( LOG_CRIT, "Resolver: Can't fork: %s!", strerror( errno ));
@@ -286,13 +280,10 @@ Do_ResolveName( char *Host, int w_fd )
 
 	/* Resolve hostname */
 	h = gethostbyname( Host );
-	if( h )
-	{
+	if( h ) {
 		addr = (struct in_addr *)h->h_addr;
 		strlcpy( ip, inet_ntoa( *addr ), sizeof( ip ));
-	}
-	else
-	{
+	} else {
 #ifdef h_errno
 		Log_Resolver( LOG_WARNING, "Can't resolve \"%s\": %s!", Host, Get_Error( h_errno ));
 #else
@@ -305,8 +296,7 @@ Do_ResolveName( char *Host, int w_fd )
 	/* Write result into pipe to parent */
 	len = strlen( ip );
 	ip[len] = '\n'; len++;
-	if( (size_t)write( w_fd, ip, len ) != (size_t)len )
-	{
+	if( (size_t)write( w_fd, ip, len ) != (size_t)len ) {
 		Log_Resolver( LOG_CRIT, "Resolver: Can't write to parent: %s!", strerror( errno ));
 		close( w_fd );
 	}

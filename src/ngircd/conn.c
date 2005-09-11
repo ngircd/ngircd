@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.179 2005/09/05 09:10:08 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.180 2005/09/11 11:42:48 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -1283,7 +1283,8 @@ Check_Connections( void )
 	CONN_ID i;
 
 	for( i = 0; i < Pool_Size; i++ ) {
-		if( My_Connections[i].sock == NONE ) continue;
+		if (My_Connections[i].sock < 0)
+			continue;
 
 		c = Client_GetFromConn( i );
 		if( c && (( Client_Type( c ) == CLIENT_USER ) || ( Client_Type( c ) == CLIENT_SERVER ) || ( Client_Type( c ) == CLIENT_SERVICE )))
@@ -1365,16 +1366,17 @@ Check_Servers( void )
 		}
 
 		/* Check last connect attempt? */
-		if( Conf_Server[i].lasttry > time( NULL ) - Conf_ConnectRetry ) continue;
+		if( Conf_Server[i].lasttry > time( NULL ) - Conf_ConnectRetry )
+			continue;
 
 		/* Okay, try to connect now */
 		Conf_Server[i].lasttry = time( NULL );
 
 		/* Search free connection structure */
 		for( idx = 0; idx < Pool_Size; idx++ ) if( My_Connections[idx].sock == NONE ) break;
-		if( idx >= Pool_Size )
-		{
-			Log( LOG_ALERT, "Can't establist server connection: connection limit reached (%d)!", Pool_Size );
+		if (idx >= Pool_Size) {
+			Log( LOG_ALERT, "Can't establist server connection: connection limit reached (%d)!",
+											Pool_Size );
 			return;
 		}
 #ifdef DEBUG
@@ -1566,8 +1568,7 @@ void Read_Resolver_Result( int r_fd )
 		  && ( My_Connections[i].res_stat->pipe[0] == r_fd ))
 			break;
 	}
-	if( i >= Pool_Size )
-	{
+	if( i >= Pool_Size ) {
 		/* Ops, none found? Probably the connection has already
 		 * been closed!? We'll ignore that ... */
 		io_close( r_fd );
@@ -1706,8 +1707,7 @@ Count_Connections( struct sockaddr_in addr_in )
 	int i, cnt;
 	
 	cnt = 0;
-	for( i = 0; i < Pool_Size; i++ )
-	{
+	for( i = 0; i < Pool_Size; i++ ) {
 		if(( My_Connections[i].sock > NONE ) && ( My_Connections[i].addr.sin_addr.s_addr == addr_in.sin_addr.s_addr )) cnt++;
 	}
 	return cnt;

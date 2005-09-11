@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: resolve.h,v 1.9 2005/07/28 16:13:09 fw Exp $
+ * $Id: resolve.h,v 1.10 2005/09/11 11:42:48 fw Exp $
  *
  * Asynchronous resolver (header)
  */
@@ -35,11 +35,6 @@ typedef struct _Res_Stat
 } RES_STAT;
 
 
-GLOBAL fd_set Resolver_FDs;
-
-
-GLOBAL void Resolve_Init PARAMS(( void ));
-
 #ifdef IDENTAUTH
 GLOBAL RES_STAT *Resolve_Addr PARAMS(( struct sockaddr_in *Addr, int Sock ));
 #else
@@ -50,6 +45,4 @@ GLOBAL RES_STAT *Resolve_Name PARAMS(( char *Host ));
 
 
 #endif
-
-
 /* -eof- */

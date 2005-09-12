@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conn.h,v 1.38 2005/07/30 22:53:16 alex Exp $
+ * $Id: conn.h,v 1.39 2005/09/12 19:10:20 fw Exp $
  *
  * Connection management (header)
  */
@@ -54,7 +54,7 @@ typedef struct _Connection
 {
 	int sock;			/* Socket handle */
 	struct sockaddr_in addr;	/* Client address */
-	RES_STAT *res_stat;		/* Status of resolver process, if any */
+	RES_STAT res_stat;		/* Status of resolver process */
 	char host[HOST_LEN];		/* Hostname */
 	array rbuf;			/* Read buffer */
 	array wbuf;			/* Write buffer */
@@ -93,10 +93,7 @@ GLOBAL void Conn_Close PARAMS(( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool In
 
 GLOBAL void Conn_SyncServerStruct PARAMS(( void ));
 
-GLOBAL void Read_Resolver_Result PARAMS(( int x ));
-
 GLOBAL int Conn_MaxFD;
-
 
 #endif
 

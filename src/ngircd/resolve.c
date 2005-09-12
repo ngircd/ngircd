@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: resolve.c,v 1.20 2005/09/11 11:42:48 fw Exp $";
+static char UNUSED id[] = "$Id: resolve.c,v 1.21 2005/09/12 19:10:20 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -42,140 +42,106 @@ static char UNUSED id[] = "$Id: resolve.c,v 1.20 2005/09/11 11:42:48 fw Exp $";
 #include "io.h"
 
 
-#ifdef IDENTAUTH
 static void Do_ResolveAddr PARAMS(( struct sockaddr_in *Addr, int Sock, int w_fd ));
-#else
-static void Do_ResolveAddr PARAMS(( struct sockaddr_in *Addr, int w_fd ));
-#endif
-
-static void Do_ResolveName PARAMS(( char *Host, int w_fd ));
+static void Do_ResolveName PARAMS(( const char *Host, int w_fd ));
+static bool register_callback PARAMS((RES_STAT *s, void (*cbfunc)(int, short)));
 
 #ifdef h_errno
 static char *Get_Error PARAMS(( int H_Error ));
 #endif
 
-static RES_STAT *New_Res_Stat PARAMS(( void ));
+static int
+Resolver_fork(int *pipefds)
+{
+	int pid;
+	if (pipe(pipefds) != 0) {
+                Log( LOG_ALERT, "Resolver: Can't create output pipe: %s!", strerror( errno ));
+                return -1;
+	}
 
-
-static void
-cb_resolver(int fd, short unused) {
-	(void) unused;	/* shut up compiler warning */
-	Read_Resolver_Result(fd);
+	pid = fork();
+	switch(pid) {
+		case -1:
+			Log( LOG_CRIT, "Resolver: Can't fork: %s!", strerror( errno ));
+			close(pipefds[0]);
+			close(pipefds[1]);
+			return -1;
+		case 0: /* child */
+			close(pipefds[0]);
+			Log_Init_Resolver( );
+			return 0;
+	}
+	/* parent */
+	close(pipefds[1]);
+	return pid; 
 }
 
 
-#ifdef IDENTAUTH
-GLOBAL RES_STAT *
-Resolve_Addr( struct sockaddr_in *Addr, int Sock )
-#else
-GLOBAL RES_STAT *
-Resolve_Addr( struct sockaddr_in *Addr )
-#endif
+GLOBAL bool
+Resolve_Addr( RES_STAT *s, struct sockaddr_in *Addr, int identsock, void (*cbfunc)(int, short))
 {
-	/* Resolve IP (asynchronous!). On errors, e.g. if the child process
-	 * can't be forked, this functions returns NULL. */
+	/* Resolve IP (asynchronous!). */
+	int pid, pipefd[2];
+	assert(s != NULL);
+	s->success = false;
 
-	RES_STAT *s;
-	int pid;
-
-	s = New_Res_Stat( );
-	if( ! s ) return NULL;
-
-	/* For sub-process */
-	pid = fork( );
+	pid = Resolver_fork(pipefd);
 	if (pid > 0) {
-		close( s->pipe[1] );
-		/* Main process */
+#ifdef DEBUG
 		Log( LOG_DEBUG, "Resolver for %s created (PID %d).", inet_ntoa( Addr->sin_addr ), pid );
-		if (!io_setnonblock( s->pipe[0] )) {
-			Log( LOG_DEBUG, "Could not set Non-Blocking mode for pipefd %d", s->pipe[0] );
-			goto out;
-		}
-		if (!io_event_create( s->pipe[0], IO_WANTREAD, cb_resolver )) {
-			Log( LOG_DEBUG, "Could not add pipefd %dto event watchlist: %s",
-								s->pipe[0], strerror(errno) );
-			goto out;
-		}
-		s->pid = pid;
-		return s;
-	} else if( pid == 0 ) {
-		close( s->pipe[0] );
-		/* Sub process */
-		Log_Init_Resolver( );
-#ifdef IDENTAUTH
-		Do_ResolveAddr( Addr, Sock, s->pipe[1] );
-#else
-		Do_ResolveAddr( Addr, s->pipe[1] );
 #endif
+		s->pid = pid;
+		s->resolver_fd = pipefd[0];
+		return register_callback(s, cbfunc);
+	} else if( pid == 0 ) {
+		/* Sub process */
+		Do_ResolveAddr( Addr, identsock, pipefd[1]);
 		Log_Exit_Resolver( );
 		exit(0);
 	}
-	
-	Log( LOG_CRIT, "Resolver: Can't fork: %s!", strerror( errno ));
-
-out: /* Error! */
-	close( s->pipe[0] );
-	close( s->pipe[1] );
-	free( s );
-return NULL;
+	return false;
 } /* Resolve_Addr */
 
 
-GLOBAL RES_STAT *
-Resolve_Name( char *Host )
+GLOBAL bool
+Resolve_Name( RES_STAT *s, const char *Host, void (*cbfunc)(int, short))
 {
-	/* Resolve hostname (asynchronous!). On errors, e.g. if the child
-	 * process can't be forked, this functions returns NULL. */
+	/* Resolve hostname (asynchronous!). */
+	int pid, pipefd[2];
+	assert(s != NULL);
+	s->success = false;
 
-	RES_STAT *s;
-	int pid;
-
-	s = New_Res_Stat( );
-	if( ! s ) return NULL;
-
-	/* Fork sub-process */
-	pid = fork( );
+	pid = Resolver_fork(pipefd);
 	if (pid > 0) {
-		close( s->pipe[1] );
 		/* Main process */
+#ifdef DEBUG
 		Log( LOG_DEBUG, "Resolver for \"%s\" created (PID %d).", Host, pid );
-		if (!io_setnonblock( s->pipe[0] )) {
-			Log( LOG_DEBUG, "Could not set Non-Blocking mode for pipefd %d", s->pipe[0] );
-			goto out;
-		}
-		if (!io_event_create( s->pipe[0], IO_WANTREAD, cb_resolver )) {
-			Log( LOG_DEBUG, "Could not add pipefd %dto event watchlist: %s",
-								s->pipe[0], strerror(errno) );
-			goto out;
-		}
+#endif
 		s->pid = pid;
-		return s;
+		s->resolver_fd = pipefd[0];
+		return register_callback(s, cbfunc);
 	} else if( pid == 0 ) {
-		close( s->pipe[0] );
 		/* Sub process */
-		Log_Init_Resolver( );
-		Do_ResolveName( Host, s->pipe[1] );
+		Do_ResolveName(Host, pipefd[1]);
 		Log_Exit_Resolver( );
 		exit(0);
 	}
-
-	Log( LOG_CRIT, "Resolver: Can't fork: %s!", strerror( errno ));
-
-out: /* Error! */
-	close( s->pipe[0] );
-	close( s->pipe[1] );
-	free( s );
-	return NULL;
+	return false;
 } /* Resolve_Name */
 
 
-#ifdef IDENTAUTH
+GLOBAL void
+Resolve_Init(RES_STAT *s)
+{
+	assert(s != NULL);
+	s->resolver_fd = -1;
+	s->pid = 0;
+	/* s->success must not be changed -- it will be set by other Resolve_*() functions */
+}
+
+
 static void
-Do_ResolveAddr( struct sockaddr_in *Addr, int Sock, int w_fd )
-#else
-static void
-Do_ResolveAddr( struct sockaddr_in *Addr, int w_fd )
-#endif
+Do_ResolveAddr( struct sockaddr_in *Addr, int identsock, int w_fd )
 {
 	/* Resolver sub-process: resolve IP address and write result into
 	 * pipe to parent. */
@@ -190,9 +156,7 @@ Do_ResolveAddr( struct sockaddr_in *Addr, int w_fd )
 #ifdef IDENTAUTH
 	char *res;
 #endif
-
 	array_init(&resolved_addr);
-
 	/* Resolve IP address */
 #ifdef DEBUG
 	Log_Resolver( LOG_DEBUG, "Now resolving %s ...", inet_ntoa( Addr->sin_addr ));
@@ -236,25 +200,26 @@ Do_ResolveAddr( struct sockaddr_in *Addr, int w_fd )
 	}
 
 #ifdef IDENTAUTH
-	/* Do "IDENT" (aka "AUTH") lookup and append result to resolved_addr array */
-	Log_Resolver( LOG_DEBUG, "Doing IDENT lookup on socket %d ...", Sock );
-	res = ident_id( Sock, 10 );
-	Log_Resolver( LOG_DEBUG, "Ok, IDENT lookup on socket %d done: \"%s\"", Sock, res ? res : "" );
-
-	if (res) {
-		if (!array_cats(&resolved_addr, res))
+	assert(identsock >= 0);
+	if (identsock >= 0) {
+		/* Do "IDENT" (aka "AUTH") lookup and append result to resolved_addr array */
+#ifdef DEBUG
+		Log_Resolver( LOG_DEBUG, "Doing IDENT lookup on socket %d ...", identsock );
+#endif
+		res = ident_id( identsock, 10 );
+#ifdef DEBUG
+		Log_Resolver(LOG_DEBUG, "Ok, IDENT lookup on socket %d done: \"%s\"",
+							identsock, res ? res : "(NULL)" );
+#endif
+		if (res && !array_cats(&resolved_addr, res)) {
 			Log_Resolver(LOG_WARNING, "Resolver: Cannot copy IDENT result: %s!", strerror(errno));
-		/* try to omit ident and return hostname only */ 
-	}
+			/* omit ident and return hostname only */ 
+		}
 
-	if (!array_catb(&resolved_addr, "\n", 1)) {
-		close(w_fd);
-		Log_Resolver(LOG_CRIT, "Resolver: Cannot copy result: %s!", strerror(errno));
-		array_free(&resolved_addr);
-		return;
+		if (res) free(res);
 	}
-
-	if (res) free(res);
+#else
+	(void)identsock;
 #endif
 	len = array_bytes(&resolved_addr);
 	if( (size_t)write( w_fd, array_start(&resolved_addr), len) != len )
@@ -266,7 +231,7 @@ Do_ResolveAddr( struct sockaddr_in *Addr, int w_fd )
 
 
 static void
-Do_ResolveName( char *Host, int w_fd )
+Do_ResolveName( const char *Host, int w_fd )
 {
 	/* Resolver sub-process: resolve name and write result into pipe
 	 * to parent. */
@@ -289,10 +254,12 @@ Do_ResolveName( char *Host, int w_fd )
 #else
 		Log_Resolver( LOG_WARNING, "Can't resolve \"%s\"!", Host );
 #endif
-		ip[0] = '\0';
+		close(w_fd);
+		return;
 	}
-	if( ip[0] ) Log_Resolver( LOG_DEBUG, "Ok, translated \"%s\" to %s.", Host, ip );
-
+#ifdef DEBUG
+	Log_Resolver( LOG_DEBUG, "Ok, translated \"%s\" to %s.", Host, ip );
+#endif
 	/* Write result into pipe to parent */
 	len = strlen( ip );
 	ip[len] = '\n'; len++;
@@ -328,33 +295,70 @@ Get_Error( int H_Error )
 #endif
 
 
-static RES_STAT *
-New_Res_Stat( void )
+static bool
+register_callback( RES_STAT *s, void (*cbfunc)(int, short))
 {
-	RES_STAT *s;
+	assert(cbfunc);
+	assert(s != NULL);
+	assert(s->resolver_fd >= 0);
 
-	/* Allocate memory */
-	s = (RES_STAT *)malloc( sizeof( RES_STAT ));
-	if( ! s )
-	{
-		Log( LOG_EMERG, "Resolver: Can't allocate memory! [Resolve_Addr]" );
-		return NULL;
+	if (io_setnonblock(s->resolver_fd) &&
+		io_event_create(s->resolver_fd, IO_WANTREAD, cbfunc))
+			return true;
+
+	Log( LOG_CRIT, "Resolver: Could not register callback function: %s!", strerror(errno));
+	Resolve_Shutdown(s);
+	return false;
+}
+
+
+GLOBAL bool
+Resolve_Shutdown( RES_STAT *s)
+{
+	bool ret = false;
+
+	assert(s != NULL);
+	assert(s->resolver_fd >= 0);
+
+	if (s->resolver_fd >= 0)
+		ret = io_close(s->resolver_fd);
+
+	Resolve_Init(s);
+	return ret;
+}
+
+                
+GLOBAL size_t
+Resolve_Read( RES_STAT *s, void* readbuf, size_t buflen)
+{
+	/* Read result of resolver sub-process from pipe */
+	int err, bytes_read;
+	assert(buflen > 0);
+
+	/* Read result from pipe */
+	errno = 0;
+	bytes_read = read(s->resolver_fd, readbuf, buflen);
+	if (bytes_read < 0) {
+		if (errno != EAGAIN) {
+			err = errno;
+			Log( LOG_CRIT, "Resolver: Can't read result: %s!", strerror(err));
+			Resolve_Shutdown(s);
+			errno = err;
+			return 0;
+		}
+		return 0;
 	}
 
-	/* Initialize pipe for result */
-	if( pipe( s->pipe ) != 0 )
-	{
-		free( s );
-		Log( LOG_ALERT, "Resolver: Can't create output pipe: %s!", strerror( errno ));
-		return NULL;
+	Resolve_Shutdown(s);
+	if (bytes_read == 0) {	/* EOF: lookup failed */
+#ifdef DEBUG
+		Log( LOG_DEBUG, "Resolver: Can't read result: EOF");
+#endif
+		return 0;
 	}
 
-	s->stage = 0;
-	array_init(&s->buffer);
-	s->pid = -1;
-
-	return s;
-} /* New_Res_Stat */
-
-
+	s->success = true;
+	return bytes_read;
+}
 /* -eof- */
+

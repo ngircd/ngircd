@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: resolve.h,v 1.10 2005/09/11 11:42:48 fw Exp $
+ * $Id: resolve.h,v 1.11 2005/09/12 19:10:21 fw Exp $
  *
  * Asynchronous resolver (header)
  */
@@ -18,31 +18,25 @@
 #define __resolve_h__
 
 #include "array.h"
-
-#ifdef HAVE_SYS_SELECT_H
-#	include <sys/select.h>
-#endif
-#include <sys/types.h>
 #include <netinet/in.h>
 
-
-typedef struct _Res_Stat
-{
+/* This struct must not be accessed directly */
+typedef struct _Res_Stat {
 	int pid;			/* PID of resolver process */
-	int pipe[2];			/* pipe for lookup result */
-	int stage;			/* Hostname/IP(0) or IDENT(1)? */
-	array buffer;			/* resolved hostname / ident result */
+	int resolver_fd;		/* pipe fd for lookup result. */
+	bool success;			/* resolver returned data */
 } RES_STAT;
 
 
-#ifdef IDENTAUTH
-GLOBAL RES_STAT *Resolve_Addr PARAMS(( struct sockaddr_in *Addr, int Sock ));
-#else
-GLOBAL RES_STAT *Resolve_Addr PARAMS(( struct sockaddr_in *Addr ));
-#endif
+#define Resolve_Getfd(x)		((x)->resolver_fd)
+#define Resolve_INPROGRESS(x)		((x)->resolver_fd >= 0)
+#define Resolve_SUCCESS(x)		((x)->resolver_fd < 0 && (x)->success)
 
-GLOBAL RES_STAT *Resolve_Name PARAMS(( char *Host ));
-
+GLOBAL bool Resolve_Addr PARAMS(( RES_STAT *s, struct sockaddr_in *Addr, int identsock, void (*cbfunc)(int, short)));
+GLOBAL bool Resolve_Name PARAMS(( RES_STAT *s, const char *Host, void (*cbfunc)(int, short) ));
+GLOBAL size_t Resolve_Read PARAMS(( RES_STAT *s, void *buf, size_t buflen));
+GLOBAL void Resolve_Init PARAMS(( RES_STAT *s));
+GLOBAL bool Resolve_Shutdown PARAMS(( RES_STAT *s));
 
 #endif
 /* -eof- */

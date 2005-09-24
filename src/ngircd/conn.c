@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.182 2005/09/24 02:20:00 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.183 2005/09/24 02:48:46 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -368,40 +368,35 @@ NewListener( const UINT16 Port )
 		if( inaddr.s_addr == (unsigned)-1 )
 #endif
 		{
-			Log( LOG_CRIT, "Can't listen on %s:%u: can't convert ip address %s!", Conf_ListenAddress, Port, Conf_ListenAddress );
+			Log( LOG_CRIT, "Can't listen on %s:%u: can't convert ip address %s!",
+					Conf_ListenAddress, Port, Conf_ListenAddress );
 			return -1;
 		}
 	}
 	else inaddr.s_addr = htonl( INADDR_ANY );
 	addr.sin_addr = inaddr;
 
-	/* Socket erzeugen */
 	sock = socket( PF_INET, SOCK_STREAM, 0);
-	if( sock < 0 )
-	{
+	if( sock < 0 ) {
 		Log( LOG_CRIT, "Can't create socket: %s!", strerror( errno ));
 		return -1;
 	}
 
 	if( ! Init_Socket( sock )) return -1;
 
-	/* an Port binden */
-	if( bind( sock, (struct sockaddr *)&addr, (socklen_t)sizeof( addr )) != 0 )
-	{
+	if( bind( sock, (struct sockaddr *)&addr, (socklen_t)sizeof( addr )) != 0 ) {
 		Log( LOG_CRIT, "Can't bind socket: %s!", strerror( errno ));
 		close( sock );
 		return -1;
 	}
 
-	/* in "listen mode" gehen :-) */
-	if( listen( sock, 10 ) != 0 )
-	{
-		Log( LOG_CRIT, "Can't listen on soecket: %s!", strerror( errno ));
+	if( listen( sock, 10 ) != 0 ) {
+		Log( LOG_CRIT, "Can't listen on socket: %s!", strerror( errno ));
 		close( sock );
 		return -1;
 	}
 
-	/* Neuen Listener in Strukturen einfuegen */
+	/* keep fd in list so we can close it when ngircd restarts/shuts down */
 	if (!array_catb( &My_Listeners,(char*) &sock, sizeof(int) )) {
 		Log( LOG_CRIT, "Can't add socket to My_Listeners array: %s!", strerror( errno ));
 		close( sock );
@@ -454,12 +449,10 @@ Conn_Handler( void )
 	int i;
 	unsigned int wdatalen;
 	struct timeval tv;
-	time_t start, t;
+	time_t t;
 	bool timeout;
 
-	start = time( NULL );
-	while(( ! NGIRCd_SignalQuit ) && ( ! NGIRCd_SignalRestart ))
-	{
+	while(( ! NGIRCd_SignalQuit ) && ( ! NGIRCd_SignalRestart )) {
 		timeout = true;
 
 #ifdef ZEROCONF
@@ -476,8 +469,7 @@ Conn_Handler( void )
 		t = time( NULL );
 
 		/* noch volle Lese-Buffer suchen */
-		for( i = 0; i < Pool_Size; i++ )
-		{
+		for( i = 0; i < Pool_Size; i++ ) {
 			if(( My_Connections[i].sock > NONE ) && ( array_bytes(&My_Connections[i].rbuf) > 0 ) &&
 			 ( My_Connections[i].delaytime < t ))
 			{
@@ -526,12 +518,11 @@ Conn_Handler( void )
 			io_event_add( My_Connections[i].sock, IO_WANTREAD );
 		}
 
-		/* Timeout initialisieren */
+		/* (re-)set timeout - tv_sec/usec are undefined after io_dispatch() returns */
 		tv.tv_usec = 0;
-		if( timeout ) tv.tv_sec = 1;
-		else tv.tv_sec = 0;
+		tv.tv_sec = timeout ? 1 : 0;
 
-		/* Auf Aktivitaet warten */
+		/* wait for activity */
 		i = io_dispatch( &tv );
 		if (i == -1 && errno != EINTR ) {
 			Log(LOG_EMERG, "Conn_Handler(): io_dispatch(): %s!", strerror(errno));
@@ -1318,6 +1309,7 @@ Check_Servers( void )
 
 	CONN_ID idx;
 	int i, n;
+	time_t time_now;
 
 	/* Search all connections, are there results from the resolver? */
 	for( idx = 0; idx < Pool_Size; idx++ ) {
@@ -1347,11 +1339,12 @@ Check_Servers( void )
 		}
 
 		/* Check last connect attempt? */
-		if( Conf_Server[i].lasttry > time( NULL ) - Conf_ConnectRetry )
+		time_now = time(NULL);
+		if( Conf_Server[i].lasttry > (time_now - Conf_ConnectRetry))
 			continue;
 
 		/* Okay, try to connect now */
-		Conf_Server[i].lasttry = time( NULL );
+		Conf_Server[i].lasttry = time_now;
 
 		/* Search free connection structure */
 		for( idx = 0; idx < Pool_Size; idx++ ) if( My_Connections[idx].sock == NONE ) break;

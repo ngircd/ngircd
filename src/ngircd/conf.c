@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.86 2005/09/10 23:42:12 fw Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.87 2005/09/24 17:06:54 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -76,10 +76,10 @@ static void Init_Server_Struct PARAMS(( CONF_SERVER *Server ));
 static char *
 strdup_warn(const char *str)
 {
-	char *dup = strdup(str);
-	if (!dup)
+	char *ptr = strdup(str);
+	if (!ptr)
 		Config_Error(LOG_ERR, "Could not allocate mem for string: %s", str);
-	return dup;
+	return ptr;
 }
 
 

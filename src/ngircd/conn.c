@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.181 2005/09/12 19:10:20 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.182 2005/09/24 02:20:00 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -320,23 +320,22 @@ Conn_ExitListeners( void )
 {
 	/* Close down all listening sockets */
 	int *fd;
-	unsigned int arraylen;
+	size_t arraylen;
 #ifdef ZEROCONF
 	Rendezvous_UnregisterListeners( );
 #endif
 
 	arraylen = array_length(&My_Listeners, sizeof (int));
-	Log( LOG_INFO, "Shutting down all listening sockets (%d)...", arraylen );
+	Log( LOG_INFO, "Shutting down all listening sockets (%d total)...", arraylen );
+	fd = array_start(&My_Listeners);
 	while(arraylen--) {
-		fd = (int*) array_get(&My_Listeners, sizeof (int), arraylen);
-		if (fd) {
-			close(*fd);
+		assert(fd);
+		assert(*fd >= 0);
+		io_close(*fd);
 #ifdef DEBUG
-			Log( LOG_DEBUG, "Listening socket %d closed.", *fd );
-		} else {
-			Log( LOG_DEBUG, "array_get pos %d returned NULL", arraylen );
+		Log( LOG_DEBUG, "Listening socket %d closed.", *fd );
 #endif
-		}
+		fd++;
 	}
 	array_free(&My_Listeners);
 } /* Conn_ExitListeners */

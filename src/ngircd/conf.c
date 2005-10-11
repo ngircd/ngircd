@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.77 2005/06/17 19:16:53 fw Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.77.2.1 2005/10/11 19:28:47 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -204,6 +204,7 @@ Conf_UnsetServer( CONN_ID Idx )
 	 * Non-Server-Connections will be silently ignored. */
 
 	int i;
+	time_t t;
 
 	/* Check all our configured servers */
 	for( i = 0; i < MAX_SERVERS; i++ )
@@ -221,11 +222,14 @@ Conf_UnsetServer( CONN_ID Idx )
 		else
 		{
 			/* Set time for next connect attempt */
-			if( Conf_Server[i].lasttry <  time( NULL ) - Conf_ConnectRetry )
-			{
-				/* Okay, the connection was established "long enough": */
-				Conf_Server[i].lasttry = time( NULL ) - Conf_ConnectRetry + RECONNECT_DELAY;
-			}
+			t = time(NULL);
+			if (Conf_Server[i].lasttry < t - Conf_ConnectRetry) {
+				/* The connection has been "long", so we don't
+				 * require the next attempt to be delayed. */
+				Conf_Server[i].lasttry =
+					t - Conf_ConnectRetry + RECONNECT_DELAY;
+			} else
+				Conf_Server[i].lasttry = t;
 		}
 	}
 } /* Conf_UnsetServer */

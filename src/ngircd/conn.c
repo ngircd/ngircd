@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.183 2005/09/24 02:48:46 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.184 2005/10/11 19:29:23 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -138,25 +138,30 @@ cb_connserver(int sock, UNUSED short what)
 	res = getsockopt( My_Connections[idx].sock, SOL_SOCKET, SO_ERROR, &err, &sock_len );
 	assert( sock_len == sizeof( err ));
 
-	/* Fehler aufgetreten? */
-	if(( res != 0 ) || ( err != 0 )) {
-		if ( res != 0 ) 
-			Log( LOG_CRIT, "getsockopt (connection %d): %s!", idx, strerror( errno ));
-		else
-			Log( LOG_CRIT, "Can't connect socket to \"%s:%d\" (connection %d): %s!",
-				My_Connections[idx].host, Conf_Server[Conf_GetServer( idx )].port,
-										idx, strerror( err ));
+	/* Error while connecting? */
+ 	if ((res != 0) || (err != 0)) {
+ 		if (res != 0)
+ 			Log(LOG_CRIT, "getsockopt (connection %d): %s!",
+ 			    idx, strerror(errno));
+ 		else
+ 			Log(LOG_CRIT,
+ 			    "Can't connect socket to \"%s:%d\" (connection %d): %s!",
+ 			    My_Connections[idx].host,
+ 			    Conf_Server[Conf_GetServer(idx)].port,
+ 			    idx, strerror(err));
 
-			/* Clean up socket, connection and client structures */
-			c = Client_GetFromConn( idx );
-			if( c ) Client_DestroyNow( c );
-			io_close( My_Connections[idx].sock );
-			Init_Conn_Struct( idx );
+		/* Clean up the CLIENT structure (to avoid silly log
+ 		 * messages) and call Conn_Close() to do the rest. */
+ 		c = Client_GetFromConn(idx);
+ 		if (c)
+			Client_DestroyNow(c);
+ 
+ 		Conn_Close(idx, "Can't connect!", NULL, false);
+ 
+ 		/* Set the timestamp of the last connect attempt */
+ 		Conf_UnsetServer(idx);
 
-			/* Bei Server-Verbindungen lasttry-Zeitpunkt auf "jetzt" setzen */
-			Conf_Server[Conf_GetServer( idx )].lasttry = time( NULL );
-			Conf_UnsetServer( idx );
-			return;
+		return;
 	}
 
 	Conn_OPTION_DEL( &My_Connections[idx], CONN_ISCONNECTING );
@@ -731,8 +736,14 @@ Conn_Close( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool InformClient )
 			Conn_WriteStr(Idx, "ERROR :Closing connection.");
 	}
 
-	/* Try to write out the write buffer */
+	/* Try to write out the write buffer. Note: Handle_Write() eventually
+	 * removes the CLIENT structure associated with this connection if an
+	 * error occurs! So we have to re-check if there is still an valid
+	 * CLIENT structure after calling Handle_Write() ...*/
 	(void)Handle_Write( Idx );
+
+	/* Search client, if any (re-check!) */
+	c = Client_GetFromConn( Idx );
 
 	/* Shut down socket */
 	if( ! io_close( My_Connections[Idx].sock ))

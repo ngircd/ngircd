@@ -2,7 +2,7 @@ ngircd (0.9.2-0ab1) unstable; urgency=low
 
   * New "upstream release" fixing a few bugs in 0.9.1.
 
- -- Alexander Barton <alex@Pollux>  Sat, 15 Oct 2005 14:10:34 +0200
+ -- Alexander Barton <alex@barton.de>  Sat, 15 Oct 2005 14:10:34 +0200
 
 ngircd (0.9.1-0ab1) unstable; urgency=medium
 

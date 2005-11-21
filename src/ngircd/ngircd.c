@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.110 2005/09/02 17:12:58 alex Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.111 2005/11/21 16:31:30 alex Exp $";
 
 /**
  * @file
@@ -482,27 +482,27 @@ Initialize_Signal_Handler( void )
 #endif
 
 	/* Signal-Handler einhaengen */
-	sigaction( SIGINT, &saction, NULL );
-	sigaction( SIGQUIT, &saction, NULL );
-	sigaction( SIGTERM, &saction, NULL);
-	sigaction( SIGHUP, &saction, NULL);
-	sigaction( SIGCHLD, &saction, NULL);
+	sigaction(SIGINT, &saction, NULL);
+	sigaction(SIGQUIT, &saction, NULL);
+	sigaction(SIGTERM, &saction, NULL);
+	sigaction(SIGHUP, &saction, NULL);
+	sigaction(SIGCHLD, &saction, NULL);
 
 	/* einige Signale ignorieren */
 	saction.sa_handler = SIG_IGN;
-	sigaction( SIGPIPE, &saction, NULL );
+	sigaction(SIGPIPE, &saction, NULL);
 #else
 	/* kein sigaction() vorhanden */
 
 	/* Signal-Handler einhaengen */
-	signal( SIGINT, Signal_Handler );
-	signal( SIGQUIT, Signal_Handler );
-	signal( SIGTERM, Signal_Handler );
-	signal( SIGHUP, Signal_Handler );
-	signal( SIGCHLD, Signal_Handler );
+	signal(SIGINT, Signal_Handler);
+	signal(SIGQUIT, Signal_Handler);
+	signal(SIGTERM, Signal_Handler);
+	signal(SIGHUP, Signal_Handler);
+	signal(SIGCHLD, Signal_Handler);
 
 	/* einige Signale ignorieren */
-	signal( SIGPIPE, SIG_IGN );
+	signal(SIGPIPE, SIG_IGN);
 #endif
 } /* Initialize_Signal_Handler */
 

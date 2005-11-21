@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conf.h,v 1.37 2005/07/29 09:29:47 fw Exp $
+ * $Id: conf.h,v 1.38 2005/11/21 16:31:30 alex Exp $
  *
  * Configuration management (header)
  */
@@ -129,9 +129,9 @@ GLOBAL int Conf_MaxJoins;
 GLOBAL int Conf_MaxConnectionsIP;
 
 
-GLOBAL void Conf_Init PARAMS((void ));
-GLOBAL void Conf_Rehash PARAMS((void ));
-GLOBAL int Conf_Test PARAMS((void ));
+GLOBAL void Conf_Init PARAMS((void));
+GLOBAL void Conf_Rehash PARAMS((void));
+GLOBAL int Conf_Test PARAMS((void));
 
 GLOBAL void Conf_UnsetServer PARAMS(( CONN_ID Idx ));
 GLOBAL void Conf_SetServer PARAMS(( int ConfServer, CONN_ID Idx ));

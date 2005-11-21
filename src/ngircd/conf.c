@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.88 2005/10/11 19:29:23 alex Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.89 2005/11/21 16:31:30 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -1013,12 +1013,14 @@ Config_Error_TooLong ( const int Line, const char *Item )
 	Config_Error( LOG_WARNING, "%s, line %d: Value of \"%s\" too long!", NGIRCd_ConfFile, Line, Item );
 }
 
+
 static void
 Config_Error_NaN( const int Line, const char *Item )
 {
 	Config_Error( LOG_WARNING, "%s, line %d: Value of \"%s\" is not a number!",
 						NGIRCd_ConfFile, Line, Item );
 }
+
 
 #ifdef PROTOTYPES
 static void Config_Error( const int Level, const char *Format, ... )

@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.184 2005/10/11 19:29:23 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.185 2005/11/21 15:06:37 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -158,9 +158,6 @@ cb_connserver(int sock, UNUSED short what)
  
  		Conn_Close(idx, "Can't connect!", NULL, false);
  
- 		/* Set the timestamp of the last connect attempt */
- 		Conf_UnsetServer(idx);
-
 		return;
 	}
 

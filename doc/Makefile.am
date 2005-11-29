@@ -9,7 +9,7 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: Makefile.am,v 1.20 2005/07/22 21:00:22 alex Exp $
+# $Id: Makefile.am,v 1.21 2005/11/29 20:59:57 alex Exp $
 #
 
 SUBDIRS = src
@@ -19,9 +19,6 @@ EXTRA_DIST = CVS.txt FAQ.txt Protocol.txt Platforms.txt README-AUX.txt \
 
 maintainer-clean-local:
 	rm -f Makefile Makefile.in
-
-distclean-local:
-	rm -rf src
 
 docdir = $(datadir)/doc/$(PACKAGE)
 

@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.185 2005/11/21 15:06:37 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.186 2005/12/09 09:26:55 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -1557,15 +1557,15 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 
 	/* Read result from pipe */
 	len = Resolve_Read(&My_Connections[i].res_stat, readbuf, sizeof readbuf -1);
-	if (len == 0) 
-		return;
+	if (len == 0)
+		goto out;
 
 	readbuf[len] = '\0';
 	identptr = strchr(readbuf, '\n');
 	assert(identptr != NULL);
 	if (!identptr) {
 		Log( LOG_CRIT, "Resolver: Got malformed result!");
-		return;
+		goto out;
 	}
 
 	*identptr = '\0';
@@ -1610,6 +1610,16 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 
 	/* Reset penalty time */
 	Conn_ResetPenalty( i );
+	return;
+out:
+	if (My_Connections[i].sock == SERVER_WAIT) {
+		n = Conf_GetServer( i );
+		assert(n > NONE );
+		if (n > NONE) {
+			Conf_Server[n].conn_id = NONE;  
+			Init_Conn_Struct(i);
+		}
+	}
 } /* cb_Read_Resolver_Result */
 
 

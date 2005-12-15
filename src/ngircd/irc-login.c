@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-login.c,v 1.44 2005/06/04 12:32:09 fw Exp $";
+static char UNUSED id[] = "$Id: irc-login.c,v 1.44.2.1 2005/12/15 11:01:59 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -456,7 +456,15 @@ IRC_PING( CLIENT *Client, REQUEST *Req )
 	}
 
 	Log( LOG_DEBUG, "Connection %d: got PING, sending PONG ...", Client_Conn( Client ));
-	return IRC_WriteStrClient( Client, "PONG %s :%s", Client_ID( Client_ThisServer( )), Client_ID( Client ));
+#ifdef STRICT_RFC
+	return IRC_WriteStrClient(Client, "PONG %s :%s",
+		Client_ID(Client_ThisServer()), Client_ID(Client));
+#else
+	/* Some clients depend on the argument being returned in the PONG
+	 * reply (not mentioned in any RFC, though) */
+	return IRC_WriteStrClient(Client, "PONG %s :%s",
+		Client_ID(Client_ThisServer( )), Req->argv[0]);
+#endif	
 } /* IRC_PING */
 
 

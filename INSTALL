@@ -127,7 +127,59 @@ This files will be installed by default:
 - /usr/local/share/doc/ngircd/: documentation
 
 
-II. Useful make-targets
+III. Additional features
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following optional features can be compiled into the daemon by passing
+options to the "configure" script. Most options can handle a <path> argument
+which will be used to search for the required libraries and header files in
+the given paths ("<path>/lib/...", "<path>/include/...") in addition to the
+standard locations.
+
+* Syslog Logging (autodetected by default): 
+  --with-syslog[=<path>] / --without-syslog
+
+  Enable (disable) support for logging to "syslog", which should be
+  available on most modern UNIX-like operating systems by default.
+
+* ZLib Compression (autodetected by default):
+  --with-zlib[=<path>] / --without-zlib
+
+  Enable (disable) support for compressed server-server links.
+  The Z compression library ("libz") is required for this option.
+  
+* IO Backend (autodetected by default):
+  --with-epoll[=<path>] / --without-epoll
+  --with-kqueue[=<path>] / --without-kqueue  
+
+  ngIRCd can use three different IO "backends": the "old school" select()
+  API which should be supported by most UNIX-like operating systems, or the
+  more efficient and flexible epoll() (Linux 2.6) or kqueue() (BSD) APIs.
+  By default the IO backend is autodetected, but you can use "--without-xxx"
+  to disable a more enhanced API and force the daemon to use select().
+
+* IDENT-Support:
+  --with-ident[=<path>]
+
+  Include support for IDENT ("AUTH") lookups. The "ident" library is
+  required for this option.
+
+* ZeroConf Support:
+  --with-zeroconf[=<path>] 
+
+  Compile ngIRCd with support for ZeroConf multicast DNS service registration.
+  Either the Apple ZeroConf implementation (e. g. Mac OS X) or the Howl
+  library is required. Which one is available is autodetected.
+
+* TCP-Wrappers:
+  --with-tcp-wrappers[=<path>] 
+
+  Include support for Wietse Venemas "TCP Wrappers" to limit client access
+  to the daemon, for example by using "/etc/hosts.{allow|deny}".
+  The "libwrap" is required for this option.
+
+
+IV. Useful make-targets
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 The Makefile produced by the configure-script contains always these useful
@@ -143,8 +195,8 @@ targets:
    next step: -> ./autogen.sh
 
 
-III. Sample configuration file ngircd.conf
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+V. Sample configuration file ngircd.conf
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In the sample configuration file, there are comments beginning with "#" OR
 ";" -- this is only for the better understanding of the file.
@@ -164,7 +216,7 @@ The meaning of the variables in the configuration file is explained in the
 and in the "ngircd.conf" manual page.
 
 
-IV. Command line options
+VI. Command line options
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 These parameters could be passed to the ngIRCd:
@@ -189,4 +241,4 @@ number. In both cases the server exits after the output.
 
 
 -- 
-$Id: INSTALL,v 1.22 2005/07/08 16:23:00 alex Exp $
+$Id: INSTALL,v 1.23 2005/12/30 22:43:23 alex Exp $

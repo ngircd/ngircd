@@ -1,9 +1,9 @@
-# $Id: stress-B.e,v 1.2 2005/08/12 21:38:52 alex Exp $
+# $Id: stress-B.e,v 1.3 2005/12/30 22:12:28 alex Exp $
 
 send "user user . . :User\r"
 expect {
 	timeout { exit 1 }
-	"376"
+	" 376"
 }
 
 sleep 2
@@ -15,7 +15,7 @@ expect {
 }
 expect {
 	timeout { exit 1 }
-	"381 test*"
+	" 381 test"
 }
 
 sleep 2
@@ -23,33 +23,33 @@ sleep 2
 send "join #channel\r"
 expect {
 	timeout { exit 1 }
-	":test*!~user@* JOIN :#channel"
+	" 353 * = #channel "
 }
 expect {
 	timeout { exit 1 }
-	"366"
+	" 366 * #channel :"
 }
 
 send "mode #channel\r"
 expect {
 	timeout { exit 1 }
-	"324 test* #channel"
+	" 324 test* #channel"
 }
 
 send "join #channel2\r"
 expect {
 	timeout { exit 1 }
-	":test*!~user@* JOIN :#channel2"
+	" 353 * = #channel2 "
 }
 expect {
 	timeout { exit 1 }
-	"366"
+	" 366 * #channel2 :"
 }
 
 send "names\r"
 expect {
 	timeout { exit 1 }
-	"366"
+	" 366 "
 }
 
 sleep 3
@@ -57,14 +57,16 @@ sleep 3
 send "part #channel2\r"
 expect {
 	timeout { exit 1 }
-	":test*!~user@* PART #channel2"
+	" PART #channel2 "
 }
 
 send "part #channel\r"
 expect {
 	timeout { exit 1 }
-	":test*!~user@* PART #channel"
+	" PART #channel "
 }
+
+sleep 1
 
 send "quit\r"
 expect {

@@ -9,7 +9,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: stress-server.sh,v 1.15 2004/09/06 22:04:06 alex Exp $
+# $Id: stress-server.sh,v 1.16 2005/12/30 22:13:21 alex Exp $
 #
 
 # detect source directory
@@ -49,6 +49,16 @@ while [ ${no} -lt $CLIENTS ]; do
   cat ${srcdir}/stress-B.e >> tests/${no}.e
   no=`expr ${no} + 1`
 done
+
+# run first script and check if it succeeds
+echo_n "      checking stress script ..."
+expect tests/0.e > logs/stress-0.log 2> /dev/null
+if [ $? -ne 0 ]; then
+  echo " failure!"
+  exit 1
+else
+  echo " ok."
+fi
 
 no=0
 while [ ${no} -lt $CLIENTS ]; do

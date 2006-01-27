@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-info.c,v 1.30 2005/06/17 19:15:43 fw Exp $";
+static char UNUSED id[] = "$Id: irc-info.c,v 1.31 2006/01/27 17:19:58 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -870,47 +870,59 @@ IRC_Send_LUSERS( CLIENT *Client )
 } /* IRC_Send_LUSERS */
 
 
+static bool Show_MOTD_Start(CLIENT *Client)
+{
+	return IRC_WriteStrClient(Client, RPL_MOTDSTART_MSG,
+		Client_ID( Client ), Client_ID( Client_ThisServer( )));
+}
+
+static bool Show_MOTD_Sendline(CLIENT *Client, const char *msg)
+{
+	return IRC_WriteStrClient(Client, RPL_MOTD_MSG, Client_ID( Client ), msg);
+}
+
+static bool Show_MOTD_End(CLIENT *Client)
+{
+	return IRC_WriteStrClient( Client, RPL_ENDOFMOTD_MSG, Client_ID( Client ));
+}
+
+
 GLOBAL bool
 IRC_Show_MOTD( CLIENT *Client )
 {
-	bool ok;
 	char line[127];
 	FILE *fd;
 
 	assert( Client != NULL );
 
-	if( Conf_MotdPhrase[0] )
-	{
-		if( ! IRC_WriteStrClient( Client, RPL_MOTDSTART_MSG, Client_ID( Client ), Client_ID( Client_ThisServer( )))) return DISCONNECTED;
-		if( ! IRC_WriteStrClient( Client, RPL_MOTD_MSG, Client_ID( Client ), Conf_MotdPhrase )) return DISCONNECTED;
-		return IRC_WriteStrClient( Client, RPL_ENDOFMOTD_MSG, Client_ID( Client ));
+	if (Conf_MotdPhrase[0]) {
+		if (!Show_MOTD_Start(Client))
+			return DISCONNECTED;
+		if (!Show_MOTD_Sendline(Client, Conf_MotdPhrase))
+			return DISCONNECTED;
+
+		return Show_MOTD_End(Client);
 	}
 
 	fd = fopen( Conf_MotdFile, "r" );
-	if( ! fd )
-	{
+	if( ! fd ) {
 		Log( LOG_WARNING, "Can't read MOTD file \"%s\": %s", Conf_MotdFile, strerror( errno ));
 		return IRC_WriteStrClient( Client, ERR_NOMOTD_MSG, Client_ID( Client ) );
 	}
 
-	if( ! IRC_WriteStrClient( Client, RPL_MOTDSTART_MSG, Client_ID( Client ), Client_ID( Client_ThisServer( )))) return DISCONNECTED;
-	while( true )
-	{
-		if( ! fgets( line, sizeof( line ), fd )) break;
+	if (!Show_MOTD_Start( Client ))
+		return DISCONNECTED;
 
+	while (fgets( line, sizeof( line ), fd )) {
 		ngt_TrimLastChr( line, '\n');
 
-		if( ! IRC_WriteStrClient( Client, RPL_MOTD_MSG, Client_ID( Client ), line ))
-		{
+		if( ! Show_MOTD_Sendline( Client, line)) {
 			fclose( fd );
 			return false;
 		}
 	}
-	ok = IRC_WriteStrClient( Client, RPL_ENDOFMOTD_MSG, Client_ID( Client ) );
-
-	fclose( fd );
-
-	return ok;
+	fclose(fd);
+	return Show_MOTD_End(Client);
 } /* IRC_Show_MOTD */
 
 

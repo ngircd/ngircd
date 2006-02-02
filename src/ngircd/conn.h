@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conn.h,v 1.39 2005/09/12 19:10:20 fw Exp $
+ * $Id: conn.h,v 1.40 2006/02/02 21:00:22 fw Exp $
  *
  * Connection management (header)
  */
@@ -92,8 +92,6 @@ GLOBAL bool Conn_WriteStr PARAMS(( CONN_ID Idx, char *Format, ... ));
 GLOBAL void Conn_Close PARAMS(( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool InformClient ));
 
 GLOBAL void Conn_SyncServerStruct PARAMS(( void ));
-
-GLOBAL int Conn_MaxFD;
 
 #endif
 

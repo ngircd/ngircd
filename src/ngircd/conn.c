@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.186 2005/12/09 09:26:55 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.187 2006/02/02 21:00:21 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -227,9 +227,6 @@ Conn_Init( void )
 #endif
 
 	array_free( &My_Listeners );
-
-	/* Groesster File-Descriptor fuer select() */
-	Conn_MaxFD = 0;
 
 	/* Connection-Struktur initialisieren */
 	for( i = 0; i < Pool_Size; i++ ) Init_Conn_Struct( i );
@@ -462,7 +459,9 @@ Conn_Handler( void )
 #endif
 
 		/* Should the configuration be reloaded? */
-		if( NGIRCd_SignalRehash ) NGIRCd_Rehash( );
+		if (NGIRCd_SignalRehash) {
+			NGIRCd_Rehash( );
+		}
 
 		/* Check configured servers and established links */
 		Check_Servers( );
@@ -811,10 +810,10 @@ Conn_SyncServerStruct( void )
 	CONN_ID i;
 	int c;
 
-	for( i = 0; i < Pool_Size; i++ )
-	{
+	for( i = 0; i < Pool_Size; i++ ) {
 		/* Established connection? */
-		if( My_Connections[i].sock <= NONE ) continue;
+		if (My_Connections[i].sock < 0)
+			continue;
 
 		/* Server connection? */
 		client = Client_GetFromConn( i );
@@ -1616,7 +1615,7 @@ out:
 		n = Conf_GetServer( i );
 		assert(n > NONE );
 		if (n > NONE) {
-			Conf_Server[n].conn_id = NONE;  
+			Conf_Server[n].conn_id = NONE;
 			Init_Conn_Struct(i);
 		}
 	}

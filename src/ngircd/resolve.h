@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: resolve.h,v 1.11 2005/09/12 19:10:21 fw Exp $
+ * $Id: resolve.h,v 1.12 2006/02/08 15:24:10 fw Exp $
  *
  * Asynchronous resolver (header)
  */
@@ -24,13 +24,11 @@
 typedef struct _Res_Stat {
 	int pid;			/* PID of resolver process */
 	int resolver_fd;		/* pipe fd for lookup result. */
-	bool success;			/* resolver returned data */
 } RES_STAT;
 
 
 #define Resolve_Getfd(x)		((x)->resolver_fd)
 #define Resolve_INPROGRESS(x)		((x)->resolver_fd >= 0)
-#define Resolve_SUCCESS(x)		((x)->resolver_fd < 0 && (x)->success)
 
 GLOBAL bool Resolve_Addr PARAMS(( RES_STAT *s, struct sockaddr_in *Addr, int identsock, void (*cbfunc)(int, short)));
 GLOBAL bool Resolve_Name PARAMS(( RES_STAT *s, const char *Host, void (*cbfunc)(int, short) ));

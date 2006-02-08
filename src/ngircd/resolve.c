@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: resolve.c,v 1.22 2006/02/08 15:20:21 fw Exp $";
+static char UNUSED id[] = "$Id: resolve.c,v 1.23 2006/02/08 15:24:10 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -83,7 +83,6 @@ Resolve_Addr( RES_STAT *s, struct sockaddr_in *Addr, int identsock, void (*cbfun
 	/* Resolve IP (asynchronous!). */
 	int pid, pipefd[2];
 	assert(s != NULL);
-	s->success = false;
 
 	pid = Resolver_fork(pipefd);
 	if (pid > 0) {
@@ -109,7 +108,6 @@ Resolve_Name( RES_STAT *s, const char *Host, void (*cbfunc)(int, short))
 	/* Resolve hostname (asynchronous!). */
 	int pid, pipefd[2];
 	assert(s != NULL);
-	s->success = false;
 
 	pid = Resolver_fork(pipefd);
 	if (pid > 0) {
@@ -136,7 +134,6 @@ Resolve_Init(RES_STAT *s)
 	assert(s != NULL);
 	s->resolver_fd = -1;
 	s->pid = 0;
-	/* s->success must not be changed -- it will be set by other Resolve_*() functions */
 }
 
 
@@ -356,7 +353,6 @@ Resolve_Read( RES_STAT *s, void* readbuf, size_t buflen)
 		return 0;
 	}
 
-	s->success = true;
 	return bytes_read;
 }
 /* -eof- */

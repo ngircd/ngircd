@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: log.h,v 1.18 2005/06/24 19:55:10 alex Exp $
+ * $Id: log.h,v 1.18.2.1 2006/02/08 21:23:21 fw Exp $
  *
  * Logging functions (header)
  */
@@ -39,6 +39,7 @@ GLOBAL void Log_Init PARAMS(( bool Daemon_Mode ));
 GLOBAL void Log_Exit PARAMS(( void ));
 
 GLOBAL void Log PARAMS(( int Level, const char *Format, ... ));
+GLOBAL void LogDebug PARAMS(( const char *Format, ... ));
 
 GLOBAL void Log_Init_Resolver PARAMS(( void ));
 GLOBAL void Log_Exit_Resolver PARAMS(( void ));

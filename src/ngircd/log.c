@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: log.c,v 1.57.2.1 2005/08/29 11:19:48 alex Exp $";
+static char UNUSED id[] = "$Id: log.c,v 1.57.2.2 2006/02/08 21:23:21 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -44,15 +44,15 @@ static char UNUSED id[] = "$Id: log.c,v 1.57.2.1 2005/08/29 11:19:48 alex Exp $"
 #include "log.h"
 
 
-LOCAL char Init_Txt[127];
-LOCAL bool Is_Daemon;
+static char Init_Txt[127];
+static bool Is_Daemon;
 
 #ifdef DEBUG
-LOCAL char Error_File[FNAME_LEN];
+static char Error_File[FNAME_LEN];
 #endif
 
 
-LOCAL void Wall_ServerNotice PARAMS(( char *Msg ));
+static void Wall_ServerNotice PARAMS(( char *Msg ));
 
 
 GLOBAL void
@@ -162,6 +162,35 @@ Log_Exit( void )
 } /* Log_Exit */
 
 
+# ifdef PROTOTYPES
+GLOBAL void
+LogDebug( const char *Format, ... )
+# else
+GLOBAL void
+LogDebug( Format, va_alist )
+const char *Format;
+va_dcl
+# endif
+#ifdef DEBUG
+{
+	char msg[MAX_LOG_MSG_LEN];
+	va_list ap;
+
+	if (!NGIRCd_Debug) return;
+#ifdef PROTOTYPES
+	va_start( ap, Format );
+#else
+	va_start( ap );
+#endif
+	vsnprintf( msg, MAX_LOG_MSG_LEN, Format, ap );
+	va_end( ap );
+	Log(LOG_DEBUG, "%s", msg);
+}
+#else
+{ /* do nothing */ }
+#endif	/* DEBUG */
+
+	
 #ifdef PROTOTYPES
 GLOBAL void
 Log( int Level, const char *Format, ... )
@@ -174,7 +203,6 @@ va_dcl
 #endif
 {
 	/* Eintrag in Logfile(s) schreiben */
-
 	char msg[MAX_LOG_MSG_LEN];
 	bool snotice;
 	va_list ap;
@@ -306,7 +334,7 @@ va_dcl
  * Send log messages to users flagged with the "s" mode.
  * @param Msg The message to send.
  */
-LOCAL void
+static void
 Wall_ServerNotice( char *Msg )
 {
 	CLIENT *c;

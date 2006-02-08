@@ -12,6 +12,8 @@
 
 ngIRCd CVSHEAD
 
+  - Internal: For outgoing (Server) connections, allocte Connstruct after
+    successfull connect(). Made Conn-ID equal to connection file descriptor.
   - Internal: Simplified resolver code.
   - JOIN now supports more than one channel key at a time.
   - Implementec numeric "333": Time and user name who set a channel topic.
@@ -647,4 +649,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.297 2005/10/31 21:40:17 alex Exp $
+$Id: ChangeLog,v 1.298 2006/02/08 15:20:21 fw Exp $

@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conf.h,v 1.38 2005/11/21 16:31:30 alex Exp $
+ * $Id: conf.h,v 1.39 2006/02/08 15:20:21 fw Exp $
  *
  * Configuration management (header)
  */
@@ -40,7 +40,7 @@ typedef struct _Conf_Server
 	UINT16 port;			/* Server port */
 	int group;			/* Group of server */
 	time_t lasttry;			/* Last connect attempt */
-	RES_STAT *res_stat;		/* Status of the resolver */
+	RES_STAT res_stat;		/* Status of the resolver */
 	int flags;			/* Flags */
 	CONN_ID conn_id;		/* ID of server connection or NONE */
 } CONF_SERVER;

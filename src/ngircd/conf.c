@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.89 2005/11/21 16:31:30 alex Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.90 2006/02/08 15:20:21 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -1068,6 +1068,7 @@ Init_Server_Struct( CONF_SERVER *Server )
 
 	if( NGIRCd_Passive ) Server->flags = CONF_SFLAG_DISABLED;
 
+	Resolve_Init(&Server->res_stat);
 	Server->conn_id = NONE;
 } /* Init_Server_Struct */
 

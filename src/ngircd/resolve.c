@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: resolve.c,v 1.21 2005/09/12 19:10:20 fw Exp $";
+static char UNUSED id[] = "$Id: resolve.c,v 1.22 2006/02/08 15:20:21 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -262,8 +262,7 @@ Do_ResolveName( const char *Host, int w_fd )
 #endif
 	/* Write result into pipe to parent */
 	len = strlen( ip );
-	ip[len] = '\n'; len++;
-	if( (size_t)write( w_fd, ip, len ) != (size_t)len ) {
+	if( write( w_fd, ip, len ) != len) {
 		Log_Resolver( LOG_CRIT, "Resolver: Can't write to parent: %s!", strerror( errno ));
 		close( w_fd );
 	}

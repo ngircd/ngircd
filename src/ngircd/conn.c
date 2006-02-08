@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.187 2006/02/02 21:00:21 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.188 2006/02/08 15:20:21 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -91,7 +91,7 @@ static void Check_Connections PARAMS(( void ));
 static void Check_Servers PARAMS(( void ));
 static void Init_Conn_Struct PARAMS(( CONN_ID Idx ));
 static bool Init_Socket PARAMS(( int Sock ));
-static void New_Server PARAMS(( int Server, CONN_ID Idx ));
+static void New_Server PARAMS(( int Server ));
 static void Simple_Message PARAMS(( int Sock, char *Msg ));
 static int Count_Connections PARAMS(( struct sockaddr_in addr ));
 static int NewListener PARAMS(( const UINT16 Port ));
@@ -106,6 +106,7 @@ int deny_severity = LOG_ERR;
 static void server_login PARAMS((CONN_ID idx));
 
 static void cb_Read_Resolver_Result PARAMS(( int sock, UNUSED short what));
+static void cb_Connect_to_Server PARAMS(( int sock, UNUSED short what));
 static void cb_clientserver PARAMS((int sock, short what));
 
 static void
@@ -825,7 +826,8 @@ Conn_SyncServerStruct( void )
 			if( ! Conf_Server[c].host[0] ) continue;
 
 			/* Duplicate? */
-			if( strcmp( Conf_Server[c].name, Client_ID( client )) == 0 ) Conf_Server[c].conn_id = i;
+			if( strcmp( Conf_Server[c].name, Client_ID( client )) == 0 )
+				Conf_Server[c].conn_id = i;
 		}
 	}
 } /* SyncServerStruct */
@@ -904,8 +906,7 @@ New_Connection( int Sock )
 	struct request_info req;
 #endif
 	struct sockaddr_in new_addr;
-	int new_sock, new_sock_len;
-	CONN_ID idx;
+	int i, new_sock, new_sock_len;
 	CLIENT *c;
 	POINTER *ptr;
 	long new_size, cnt;
@@ -948,15 +949,15 @@ New_Connection( int Sock )
 		return -1;
 	}
 
-	/* Freie Connection-Struktur suchen */
-	for( idx = 0; idx < Pool_Size; idx++ ) if( My_Connections[idx].sock == NONE ) break;
-	if( idx >= Pool_Size )
-	{
+#ifdef DEBUG
+	if (new_sock < Pool_Size)	
+		assert(My_Connections[new_sock].sock == NONE );
+#endif	
+	if( new_sock >= Pool_Size ) {
 		new_size = Pool_Size + CONNECTION_POOL;
 
 		/* Im bisherigen Pool wurde keine freie Connection-Struktur mehr gefunden.
 		 * Wenn erlaubt und moeglich muss nun der Pool vergroessert werden: */
-
 		if( Conf_MaxConnections > 0 )
 		{
 			/* Es ist ein Limit konfiguriert */
@@ -994,15 +995,15 @@ New_Connection( int Sock )
 		My_Connections = (CONNECTION *)ptr;
 
 		/* Initialize new items */
-		for( idx = Pool_Size; idx < new_size; idx++ ) Init_Conn_Struct( idx );
-		idx = Pool_Size;
+		for( i = Pool_Size; i < new_size; i++ )
+			Init_Conn_Struct( i );
 
 		/* Adjust new pool size */
 		Pool_Size = new_size;
 	}
 
 	/* Client-Struktur initialisieren */
-	c = Client_NewLocal( idx, inet_ntoa( new_addr.sin_addr ), CLIENT_UNKNOWN, false );
+	c = Client_NewLocal( new_sock, inet_ntoa( new_addr.sin_addr ), CLIENT_UNKNOWN, false );
 	if( ! c ) {
 		Log( LOG_ALERT, "Can't accept connection: can't create client structure!" );
 		Simple_Message( new_sock, "ERROR :Internal error" );
@@ -1011,28 +1012,31 @@ New_Connection( int Sock )
 	}
 
 	/* Verbindung registrieren */
-	Init_Conn_Struct( idx );
-	My_Connections[idx].sock = new_sock;
-	My_Connections[idx].addr = new_addr;
+	Init_Conn_Struct( new_sock );
+	My_Connections[new_sock].sock = new_sock;
+	My_Connections[new_sock].addr = new_addr;
 
 	/* Neuen Socket registrieren */
 	if (!io_event_create( new_sock, IO_WANTREAD, cb_clientserver)) {
 		Simple_Message( new_sock, "ERROR :Internal error" );
-		Conn_Close( idx, "io_event_create() failed", NULL, false );
+		Conn_Close( new_sock, "io_event_create() failed", NULL, false );
 		return -1;
 	}
 
-	Log( LOG_INFO, "Accepted connection %d from %s:%d on socket %d.", idx, inet_ntoa( new_addr.sin_addr ), ntohs( new_addr.sin_port), Sock );
+	Log( LOG_INFO, "Accepted connection %d from %s:%d on socket %d.", new_sock,
+			inet_ntoa( new_addr.sin_addr ), ntohs( new_addr.sin_port), Sock );
 
 	/* Hostnamen ermitteln */
-	strlcpy( My_Connections[idx].host, inet_ntoa( new_addr.sin_addr ), sizeof( My_Connections[idx].host ));
-	Client_SetHostname( c, My_Connections[idx].host );
+	strlcpy( My_Connections[new_sock].host, inet_ntoa( new_addr.sin_addr ),
+						sizeof( My_Connections[new_sock].host ));
 
-	Resolve_Addr(&My_Connections[idx].res_stat, &new_addr,
-		My_Connections[idx].sock, cb_Read_Resolver_Result);
+	Client_SetHostname( c, My_Connections[new_sock].host );
+
+	Resolve_Addr(&My_Connections[new_sock].res_stat, &new_addr,
+		My_Connections[new_sock].sock, cb_Read_Resolver_Result);
 
 	/* Penalty-Zeit setzen */
-	Conn_SetPenalty( idx, 4 );
+	Conn_SetPenalty( new_sock, 4 );
 	return new_sock;
 } /* New_Connection */
 
@@ -1042,14 +1046,9 @@ Socket2Index( int Sock )
 {
 	/* zum Socket passende Connection suchen */
 
-	CONN_ID idx;
+	assert( Sock >= 0 );
 
-	assert( Sock > NONE );
-
-	for( idx = 0; idx < Pool_Size; idx++ ) if( My_Connections[idx].sock == Sock ) break;
-
-	if( idx >= Pool_Size )
-	{
+	if( Sock >= Pool_Size || My_Connections[Sock].sock != Sock ) {
 		/* die Connection wurde vermutlich (wegen eines
 		 * Fehlers) bereits wieder abgebaut ... */
 #ifdef DEBUG
@@ -1057,7 +1056,7 @@ Socket2Index( int Sock )
 #endif
 		return NONE;
 	}
-	else return idx;
+	return Sock;
 } /* Socket2Index */
 
 
@@ -1314,18 +1313,8 @@ Check_Servers( void )
 {
 	/* Check if we can establish further server links */
 
-	CONN_ID idx;
 	int i, n;
 	time_t time_now;
-
-	/* Search all connections, are there results from the resolver? */
-	for( idx = 0; idx < Pool_Size; idx++ ) {
-		if( My_Connections[idx].sock != SERVER_WAIT ) continue;
-
-		/* IP resolved? */
-		if (Resolve_SUCCESS(&My_Connections[idx].res_stat))
-			New_Server(Conf_GetServer( idx ), idx);
-	}
 
 	/* Check all configured servers */
 	for( i = 0; i < MAX_SERVERS; i++ ) {
@@ -1352,35 +1341,14 @@ Check_Servers( void )
 
 		/* Okay, try to connect now */
 		Conf_Server[i].lasttry = time_now;
-
-		/* Search free connection structure */
-		for( idx = 0; idx < Pool_Size; idx++ ) if( My_Connections[idx].sock == NONE ) break;
-		if (idx >= Pool_Size) {
-			Log( LOG_ALERT, "Can't establist server connection: connection limit reached (%d)!",
-											Pool_Size );
-			return;
-		}
-#ifdef DEBUG
-		Log( LOG_DEBUG, "Preparing connection %d for \"%s\" ...", idx, Conf_Server[i].host );
-#endif
-
-		Init_Conn_Struct( idx );
-		My_Connections[idx].sock = SERVER_WAIT;
-		Conf_Server[i].conn_id = idx;
-
-		/* Resolve Hostname. If this fails, try to use it as an IP address */
-		strlcpy( Conf_Server[i].ip, Conf_Server[i].host, sizeof( Conf_Server[i].ip ));
-		strlcpy( My_Connections[idx].host, Conf_Server[i].host, sizeof( My_Connections[idx].host ));
-
-		assert(Resolve_Getfd(&My_Connections[idx].res_stat) < 0);
-
-		Resolve_Name(&My_Connections[idx].res_stat, Conf_Server[i].host, cb_Read_Resolver_Result);
+		assert(Resolve_Getfd(&Conf_Server[i].res_stat) < 0);
+		Resolve_Name(&Conf_Server[i].res_stat, Conf_Server[i].host, cb_Connect_to_Server);
 	}
 } /* Check_Servers */
 
 
 static void
-New_Server( int Server, CONN_ID Idx )
+New_Server( int Server )
 {
 	/* Establish new server link */
 
@@ -1390,7 +1358,6 @@ New_Server( int Server, CONN_ID Idx )
 	CLIENT *c;
 
 	assert( Server > NONE );
-	assert( Idx > NONE );
 
 	Log( LOG_INFO, "Establishing connection to \"%s\", %s, port %d ... ", Conf_Server[Server].host,
 							Conf_Server[Server].ip, Conf_Server[Server].port );
@@ -1403,9 +1370,9 @@ New_Server( int Server, CONN_ID Idx )
 	if( inaddr.s_addr == (unsigned)-1 )
 #endif
 	{
-		/* Can't convert IP address */
-		Log( LOG_ERR, "Can't connect to \"%s\" (connection %d): can't convert ip address %s!", Conf_Server[Server].host, Idx, Conf_Server[Server].ip );
-		goto out;
+		Log( LOG_ERR, "Can't connect to \"%s\": can't convert ip address %s!",
+				Conf_Server[Server].host, Conf_Server[Server].ip );
+		return;
 	}
 
 	memset( &new_addr, 0, sizeof( new_addr ));
@@ -1415,53 +1382,59 @@ New_Server( int Server, CONN_ID Idx )
 
 	new_sock = socket( PF_INET, SOCK_STREAM, 0 );
 	if ( new_sock < 0 ) {
-		/* Can't create socket */
 		Log( LOG_CRIT, "Can't create socket: %s!", strerror( errno ));
-		goto out;
+		return;
 	}
 
 	if( ! Init_Socket( new_sock )) return;
 
 	res = connect( new_sock, (struct sockaddr *)&new_addr, sizeof( new_addr ));
 	if(( res != 0 ) && ( errno != EINPROGRESS )) {
-		/* Can't connect socket */
 		Log( LOG_CRIT, "Can't connect socket: %s!", strerror( errno ));
 		close( new_sock );
-		goto out;
+		return;
+	}
+	if (new_sock >= Pool_Size) {
+		Log( LOG_ALERT, "Can't establist server connection: connection limit reached (%d)!",
+											Pool_Size );
+		close( new_sock );
+		return;
 	}
 
-	/* Client-Struktur initialisieren */
-	c = Client_NewLocal( Idx, inet_ntoa( new_addr.sin_addr ), CLIENT_UNKNOWNSERVER, false );
+	assert(My_Connections[new_sock].sock < 0 );
+
+	Init_Conn_Struct(new_sock);
+
+	c = Client_NewLocal( new_sock, inet_ntoa( new_addr.sin_addr ), CLIENT_UNKNOWNSERVER, false );
 	if( ! c ) {
-		/* Can't create new client structure */
 		Log( LOG_ALERT, "Can't establish connection: can't create client structure!" );
 		close( new_sock );
-		goto out;
+		return;
 	}
 
 	Client_SetIntroducer( c, c );
 	Client_SetToken( c, TOKEN_OUTBOUND );
 
 	/* Register connection */
-	My_Connections[Idx].sock = new_sock;
-	My_Connections[Idx].addr = new_addr;
-	strlcpy( My_Connections[Idx].host, Conf_Server[Server].host, sizeof( My_Connections[Idx].host ));
+	Conf_Server[Server].conn_id = new_sock;
+	My_Connections[new_sock].sock = new_sock;
+	My_Connections[new_sock].addr = new_addr;
+	strlcpy( My_Connections[new_sock].host, Conf_Server[Server].host,
+				sizeof(My_Connections[new_sock].host ));
 
 	/* Register new socket */
 	if (!io_event_create( new_sock, IO_WANTWRITE, cb_connserver)) {
 		Log( LOG_ALERT, "io_event_create(): could not add fd %d", strerror(errno));
-		Conn_Close( Idx, "io_event_create() failed", NULL, false );
-		goto out;
+		Conn_Close( new_sock, "io_event_create() failed", NULL, false );
+		Init_Conn_Struct( new_sock );
+		Conf_Server[Server].conn_id = NONE;
 	}
 
 #ifdef DEBUG
-	Log( LOG_DEBUG, "Registered new connection %d on socket %d.", Idx, My_Connections[Idx].sock );
+	Log( LOG_DEBUG, "Registered new connection %d on socket %d.",
+				new_sock, My_Connections[new_sock].sock );
 #endif
-	Conn_OPTION_ADD( &My_Connections[Idx], CONN_ISCONNECTING );
-	return;
-out:
-	Init_Conn_Struct( Idx );
-	Conf_Server[Server].conn_id = NONE;
+	Conn_OPTION_ADD( &My_Connections[new_sock], CONN_ISCONNECTING );
 } /* New_Server */
 
 
@@ -1472,7 +1445,7 @@ Init_Conn_Struct( CONN_ID Idx )
 	/* Connection-Struktur initialisieren */
 
 	memset( &My_Connections[Idx], 0, sizeof ( CONNECTION ));
-	My_Connections[Idx].sock = NONE;
+	My_Connections[Idx].sock = -1;
 	My_Connections[Idx].lastdata = now;
 	My_Connections[Idx].lastprivmsg = now;
 	Resolve_Init(&My_Connections[Idx].res_stat);
@@ -1517,6 +1490,48 @@ Init_Socket( int Sock )
 } /* Init_Socket */
 
 
+
+static void
+cb_Connect_to_Server(int fd, UNUSED short events)
+{
+	/* Read result of resolver sub-process from pipe and start connection */
+	int i;
+	size_t len;
+	char readbuf[HOST_LEN + 1];
+
+#ifdef DEBUG
+	Log( LOG_DEBUG, "Resolver: Got forward lookup callback on fd %d, events %d", fd, events);
+#endif
+	for (i=0; i < MAX_SERVERS; i++) {
+		  if (Resolve_Getfd(&Conf_Server[i].res_stat) == fd )
+			  break;
+	}
+	
+	if( i >= MAX_SERVERS) {
+		/* Ops, no matching server found?! */
+		io_close( fd );
+#ifdef DEBUG
+		Log( LOG_DEBUG, "Resolver: Got Forward Lookup callback for unknown server!?" );
+#endif
+		return;
+	}
+
+	/* Read result from pipe */
+	len = Resolve_Read(&Conf_Server[i].res_stat, readbuf, sizeof readbuf -1);
+	if (len == 0)
+		return;
+	
+	readbuf[len] = '\0';
+#ifdef DEBUG
+	Log( LOG_DEBUG, "Got result from resolver: \"%s\" (%u bytes read).", readbuf, len);
+#endif
+	strlcpy( Conf_Server[i].ip, readbuf, sizeof( Conf_Server[i].ip ));
+
+	/* connect() */
+	New_Server(i);
+} /* cb_Read_Forward_Lookup */
+
+
 static void
 cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 {
@@ -1525,7 +1540,7 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 	 * IDENT user name.*/
 
 	CLIENT *c;
-	int i, n;
+	int i;
 	size_t len;
 	char *identptr;
 #ifdef IDENTAUTH
@@ -1557,14 +1572,14 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 	/* Read result from pipe */
 	len = Resolve_Read(&My_Connections[i].res_stat, readbuf, sizeof readbuf -1);
 	if (len == 0)
-		goto out;
+		return;
 
 	readbuf[len] = '\0';
 	identptr = strchr(readbuf, '\n');
 	assert(identptr != NULL);
 	if (!identptr) {
 		Log( LOG_CRIT, "Resolver: Got malformed result!");
-		goto out;
+		return;
 	}
 
 	*identptr = '\0';
@@ -1574,51 +1589,30 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 	/* Okay, we got a complete result: this is a host name for outgoing
 	 * connections and a host name and IDENT user name (if enabled) for
 	 * incoming connections.*/
-	if( My_Connections[i].sock > NONE ) {
-		/* Incoming connection. Search client ... */
-		c = Client_GetFromConn( i );
-		assert( c != NULL );
+	assert ( My_Connections[i].sock >= 0 );
+	/* Incoming connection. Search client ... */
+	c = Client_GetFromConn( i );
+	assert( c != NULL );
 
-		/* Only update client information of unregistered clients */
-		if( Client_Type( c ) == CLIENT_UNKNOWN ) {
-			strlcpy(My_Connections[i].host, readbuf, sizeof( My_Connections[i].host));
-			Client_SetHostname( c, readbuf);
+	/* Only update client information of unregistered clients */
+	if( Client_Type( c ) == CLIENT_UNKNOWN ) {
+		strlcpy(My_Connections[i].host, readbuf, sizeof( My_Connections[i].host));
+		Client_SetHostname( c, readbuf);
 #ifdef IDENTAUTH
-			++identptr;
-			if (*identptr) {
-				Log( LOG_INFO, "IDENT lookup for connection %ld: \"%s\".", i, identptr);
-				Client_SetUser( c, identptr, true );
-			} else {
-				Log( LOG_INFO, "IDENT lookup for connection %ld: no result.", i );
-			}
-#endif
+		++identptr;
+		if (*identptr) {
+			Log( LOG_INFO, "IDENT lookup for connection %ld: \"%s\".", i, identptr);
+			Client_SetUser( c, identptr, true );
+		} else {
+			Log( LOG_INFO, "IDENT lookup for connection %ld: no result.", i );
 		}
+#endif
+	}
 #ifdef DEBUG
 		else Log( LOG_DEBUG, "Resolver: discarding result for already registered connection %d.", i );
 #endif
-	} else {
-		/* Outgoing connection (server link): set the IP address
-		 * so that we can connect to it in the main loop. */
-
-		/* Search server ... */
-		n = Conf_GetServer( i );
-		assert( n > NONE );
-
-		strlcpy( Conf_Server[n].ip, readbuf, sizeof( Conf_Server[n].ip ));
-	}
-
 	/* Reset penalty time */
 	Conn_ResetPenalty( i );
-	return;
-out:
-	if (My_Connections[i].sock == SERVER_WAIT) {
-		n = Conf_GetServer( i );
-		assert(n > NONE );
-		if (n > NONE) {
-			Conf_Server[n].conn_id = NONE;
-			Init_Conn_Struct(i);
-		}
-	}
 } /* cb_Read_Resolver_Result */
 
 

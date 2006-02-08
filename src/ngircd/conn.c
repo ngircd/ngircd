@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.188 2006/02/08 15:20:21 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.189 2006/02/08 17:33:28 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -125,9 +125,7 @@ cb_connserver(int sock, UNUSED short what)
 	CLIENT *c;
 	CONN_ID idx = Socket2Index( sock );
 	if (idx <= NONE) {
-#ifdef DEBUG
-		Log(LOG_DEBUG, "cb_connserver wants to write on unknown socket?!");
-#endif
+		LogDebug("cb_connserver wants to write on unknown socket?!");
 		io_close(sock);
 		return;
 	}
@@ -223,9 +221,8 @@ Conn_Init( void )
 		Log( LOG_EMERG, "Can't allocate memory! [Conn_Init]" );
 		exit( 1 );
 	}
-#ifdef DEBUG
-	Log( LOG_DEBUG, "Allocated connection pool for %d items (%ld bytes).", Pool_Size, sizeof( CONNECTION ) * Pool_Size );
-#endif
+	LogDebug("Allocated connection pool for %d items (%ld bytes).", Pool_Size,
+						sizeof( CONNECTION ) * Pool_Size );
 
 	array_free( &My_Listeners );
 
@@ -245,9 +242,7 @@ Conn_Exit( void )
 
 	CONN_ID idx;
 
-#ifdef DEBUG
-	Log( LOG_DEBUG, "Shutting down all connections ..." );
-#endif
+	LogDebug("Shutting down all connections ..." );
 
 	Conn_ExitListeners();
 
@@ -332,9 +327,7 @@ Conn_ExitListeners( void )
 		assert(fd);
 		assert(*fd >= 0);
 		io_close(*fd);
-#ifdef DEBUG
-		Log( LOG_DEBUG, "Listening socket %d closed.", *fd );
-#endif
+		LogDebug("Listening socket %d closed.", *fd );
 		fd++;
 	}
 	array_free(&My_Listeners);
@@ -626,11 +619,8 @@ Conn_Write( CONN_ID Idx, char *Data, unsigned int Len )
 	 * "Handler-Durchlauf" kann es passieren, dass dem nicht mehr so
 	 * ist, wenn einer von mehreren Conn_Write()'s fehlgeschlagen ist.
 	 * In diesem Fall wird hier einfach ein Fehler geliefert. */
-	if( My_Connections[Idx].sock <= NONE )
-	{
-#ifdef DEBUG
-		Log( LOG_DEBUG, "Skipped write on closed socket (connection %d).", Idx );
-#endif
+	if( My_Connections[Idx].sock <= NONE ) {
+		LogDebug("Skipped write on closed socket (connection %d).", Idx );
 		return false;
 	}
 
@@ -692,9 +682,7 @@ Conn_Close( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool InformClient )
 	if( Conn_OPTION_ISSET( &My_Connections[Idx], CONN_ISCLOSING )) {
 		/* Conn_Close() has been called recursively for this link;
 		 * probabe reason: Handle_Write() failed  -- see below. */
-#ifdef DEBUG
-		Log( LOG_DEBUG, "Recursive request to close connection: %d", Idx );
-#endif
+		LogDebug("Recursive request to close connection: %d", Idx );
 		return;
 	}
 
@@ -796,7 +784,7 @@ Conn_Close( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool InformClient )
 	Init_Conn_Struct( Idx );
 
 #ifdef DEBUG
-	Log( LOG_DEBUG, "Shutdown of connection %d completed.", Idx );
+	LogDebug("Shutdown of connection %d completed.", Idx );
 #endif
 } /* Conn_Close */
 
@@ -843,17 +831,12 @@ Handle_Write( CONN_ID Idx )
 
 	assert( Idx > NONE );
 	if ( My_Connections[Idx].sock < 0 ) {
-#ifdef DEBUG
-		Log(LOG_DEBUG,
-		    "Handle_Write() on closed socket, connection %d", Idx);
-#endif
+		LogDebug("Handle_Write() on closed socket, connection %d", Idx);
 		return false;
 	}
 	assert( My_Connections[Idx].sock > NONE );
 
-#ifdef DEBUG
-	Log(LOG_DEBUG, "Handle_Write() called for connection %d ...", Idx);
-#endif
+	LogDebug("Handle_Write() called for connection %d ...", Idx);
 
 	wdatalen = array_bytes(&My_Connections[Idx].wbuf );
 #ifdef ZLIB
@@ -987,9 +970,8 @@ New_Connection( int Sock )
 			return -1;
 		}
 
-#ifdef DEBUG
-		Log( LOG_DEBUG, "Allocated new connection pool for %ld items (%ld bytes). [realloc()]", new_size, sizeof( CONNECTION ) * new_size );
-#endif
+		LogDebug("Allocated new connection pool for %ld items (%ld bytes). [realloc()]",
+							new_size, sizeof( CONNECTION ) * new_size );
 
 		/* Adjust pointer to new block */
 		My_Connections = (CONNECTION *)ptr;
@@ -1023,7 +1005,7 @@ New_Connection( int Sock )
 		return -1;
 	}
 
-	Log( LOG_INFO, "Accepted connection %d from %s:%d on socket %d.", new_sock,
+	LogDebug( "Accepted connection %d from %s:%d on socket %d.", new_sock,
 			inet_ntoa( new_addr.sin_addr ), ntohs( new_addr.sin_port), Sock );
 
 	/* Hostnamen ermitteln */
@@ -1051,9 +1033,8 @@ Socket2Index( int Sock )
 	if( Sock >= Pool_Size || My_Connections[Sock].sock != Sock ) {
 		/* die Connection wurde vermutlich (wegen eines
 		 * Fehlers) bereits wieder abgebaut ... */
-#ifdef DEBUG
-		Log( LOG_DEBUG, "Socket2Index: can't get connection for socket %d!", Sock );
-#endif
+
+		LogDebug( "Socket2Index: can't get connection for socket %d!", Sock );
 		return NONE;
 	}
 	return Sock;
@@ -1219,11 +1200,9 @@ Handle_Buffer( CONN_ID Idx )
 		result = true;
 
 		array_moveleft(&My_Connections[Idx].rbuf, 1, len);
-#ifdef DEBUG
-		Log(LOG_DEBUG,
-		    "Connection %d: %d bytes left in read buffer.",
-		    Idx, array_bytes(&My_Connections[Idx].rbuf));
-#endif
+
+		LogDebug("Connection %d: %d bytes left in read buffer.", Idx,
+					array_bytes(&My_Connections[Idx].rbuf));
 #ifdef ZLIB
 		if(( ! old_z ) && ( My_Connections[Idx].options & CONN_ZIP ) &&
 				( array_bytes(&My_Connections[Idx].rbuf) > 0 ))
@@ -1240,10 +1219,9 @@ Handle_Buffer( CONN_ID Idx )
 				return false;
 
 			array_trunc(&My_Connections[Idx].rbuf);
-#ifdef DEBUG
-			Log( LOG_DEBUG, "Moved already received data (%u bytes) to uncompression buffer.",
+
+			LogDebug("Moved already received data (%u bytes) to uncompression buffer.",
 								array_bytes(&My_Connections[Idx].zip.rbuf));
-#endif /* DEBUG */
 		}
 #endif /* ZLIB */
 	}
@@ -1272,17 +1250,15 @@ Check_Connections( void )
 				/* we already sent a ping */
 				if( My_Connections[i].lastping < time( NULL ) - Conf_PongTimeout ) {
 					/* Timeout */
-#ifdef DEBUG
-					Log( LOG_DEBUG, "Connection %d: Ping timeout: %d seconds.", i, Conf_PongTimeout );
-#endif
+
+					LogDebug("Connection %d: Ping timeout: %d seconds.", i,
+										Conf_PongTimeout );
 					Conn_Close( i, NULL, "Ping timeout", true );
 				}
 			}
 			else if( My_Connections[i].lastdata < time( NULL ) - Conf_PingTimeout ) {
 				/* we need to sent a PING */
-#ifdef DEBUG
-				Log( LOG_DEBUG, "Connection %d: sending PING ...", i );
-#endif
+				LogDebug("Connection %d: sending PING ...", i );
 				My_Connections[i].lastping = time( NULL );
 				Conn_WriteStr( i, "PING :%s", Client_ID( Client_ThisServer( )));
 			}
@@ -1296,11 +1272,7 @@ Check_Connections( void )
 
 			if (My_Connections[i].lastdata <
 			    time(NULL) - Conf_PongTimeout) {
-#ifdef DEBUG
-				Log(LOG_DEBUG,
-				    "Unregistered connection %d timed out ...",
-				    i);
-#endif
+				LogDebug("Unregistered connection %d timed out ...", i);
 				Conn_Close(i, NULL, "Timeout", false);
 			}
 		}
@@ -1430,10 +1402,7 @@ New_Server( int Server )
 		Conf_Server[Server].conn_id = NONE;
 	}
 
-#ifdef DEBUG
-	Log( LOG_DEBUG, "Registered new connection %d on socket %d.",
-				new_sock, My_Connections[new_sock].sock );
-#endif
+	LogDebug("Registered new connection %d on socket %d.", new_sock, My_Connections[new_sock].sock );
 	Conn_OPTION_ADD( &My_Connections[new_sock], CONN_ISCONNECTING );
 } /* New_Server */
 
@@ -1476,9 +1445,8 @@ Init_Socket( int Sock )
 	/* Set type of service (TOS) */
 #if defined(IP_TOS) && defined(IPTOS_LOWDELAY)
 	value = IPTOS_LOWDELAY;
-#ifdef DEBUG
-	Log( LOG_DEBUG, "Setting option IP_TOS on socket %d to IPTOS_LOWDELAY (%d).", Sock, value );
-#endif
+
+	LogDebug("Setting option IP_TOS on socket %d to IPTOS_LOWDELAY (%d).", Sock, value );
 	if( setsockopt( Sock, SOL_IP, IP_TOS, &value, (socklen_t)sizeof( value )) != 0 )
 	{
 		Log( LOG_ERR, "Can't set socket option IP_TOS: %s!", strerror( errno ));
@@ -1499,9 +1467,8 @@ cb_Connect_to_Server(int fd, UNUSED short events)
 	size_t len;
 	char readbuf[HOST_LEN + 1];
 
-#ifdef DEBUG
-	Log( LOG_DEBUG, "Resolver: Got forward lookup callback on fd %d, events %d", fd, events);
-#endif
+	LogDebug("Resolver: Got forward lookup callback on fd %d, events %d", fd, events);
+
 	for (i=0; i < MAX_SERVERS; i++) {
 		  if (Resolve_Getfd(&Conf_Server[i].res_stat) == fd )
 			  break;
@@ -1510,9 +1477,7 @@ cb_Connect_to_Server(int fd, UNUSED short events)
 	if( i >= MAX_SERVERS) {
 		/* Ops, no matching server found?! */
 		io_close( fd );
-#ifdef DEBUG
-		Log( LOG_DEBUG, "Resolver: Got Forward Lookup callback for unknown server!?" );
-#endif
+		LogDebug("Resolver: Got Forward Lookup callback for unknown server!?" );
 		return;
 	}
 
@@ -1522,9 +1487,7 @@ cb_Connect_to_Server(int fd, UNUSED short events)
 		return;
 	
 	readbuf[len] = '\0';
-#ifdef DEBUG
-	Log( LOG_DEBUG, "Got result from resolver: \"%s\" (%u bytes read).", readbuf, len);
-#endif
+	LogDebug("Got result from resolver: \"%s\" (%u bytes read).", readbuf, len);
 	strlcpy( Conf_Server[i].ip, readbuf, sizeof( Conf_Server[i].ip ));
 
 	/* connect() */
@@ -1549,9 +1512,7 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 	char readbuf[HOST_LEN + 1];
 #endif
 
-#ifdef DEBUG
-	Log( LOG_DEBUG, "Resolver: Got callback on fd %d, events %d", r_fd, events );
-#endif
+	LogDebug("Resolver: Got callback on fd %d, events %d", r_fd, events );
 
 	/* Search associated connection ... */
 	for( i = 0; i < Pool_Size; i++ ) {
@@ -1563,9 +1524,7 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 		/* Ops, none found? Probably the connection has already
 		 * been closed!? We'll ignore that ... */
 		io_close( r_fd );
-#ifdef DEBUG
-		Log( LOG_DEBUG, "Resolver: Got callback for unknown connection!?" );
-#endif
+		LogDebug("Resolver: Got callback for unknown connection!?");
 		return;
 	}
 
@@ -1583,9 +1542,9 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 	}
 
 	*identptr = '\0';
-#ifdef DEBUG
-	Log( LOG_DEBUG, "Got result from resolver: \"%s\" (%u bytes read).", readbuf, len);
-#endif
+
+	LogDebug( "Got result from resolver: \"%s\" (%u bytes read).", readbuf, len);
+
 	/* Okay, we got a complete result: this is a host name for outgoing
 	 * connections and a host name and IDENT user name (if enabled) for
 	 * incoming connections.*/

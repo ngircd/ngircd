@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.189 2006/02/08 17:33:28 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.190 2006/02/16 19:21:57 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -97,6 +97,7 @@ static int Count_Connections PARAMS(( struct sockaddr_in addr ));
 static int NewListener PARAMS(( const UINT16 Port ));
 
 static array My_Listeners;
+static array My_ConnArray;
 
 #ifdef TCPWRAP
 int allow_severity = LOG_INFO;
@@ -214,16 +215,20 @@ Conn_Init( void )
 		/* konfiguriertes Limit beachten */
 		if( Pool_Size > Conf_MaxConnections ) Pool_Size = Conf_MaxConnections;
 	}
-	My_Connections = (CONNECTION *) calloc( Pool_Size,  sizeof( CONNECTION ) );
-	if( ! My_Connections )
-	{
-		/* Speicher konnte nicht alloziert werden! */
+	
+	if (!array_alloc(&My_ConnArray, sizeof(CONNECTION),  Pool_Size)) {
 		Log( LOG_EMERG, "Can't allocate memory! [Conn_Init]" );
 		exit( 1 );
 	}
-	LogDebug("Allocated connection pool for %d items (%ld bytes).", Pool_Size,
-						sizeof( CONNECTION ) * Pool_Size );
 
+	/* XXX: My_Connetions/Pool_Size are needed by other parts of the code; remove them */
+	My_Connections = (CONNECTION*) array_start(&My_ConnArray);
+
+	LogDebug("Allocated connection pool for %d items (%ld bytes).",
+		array_length(&My_ConnArray, sizeof( CONNECTION )), array_bytes(&My_ConnArray));
+
+	assert( array_length(&My_ConnArray, sizeof( CONNECTION )) >= (size_t) Pool_Size);
+	
 	array_free( &My_Listeners );
 
 	/* Connection-Struktur initialisieren */
@@ -251,11 +256,10 @@ Conn_Exit( void )
 		if( My_Connections[idx].sock > NONE ) {
 			Conn_Close( idx, NULL, NGIRCd_SignalRestart ?
 				"Server going down (restarting)":"Server going down", true );
-			continue;
 		}
 	}
 
-	free( My_Connections );
+	array_free(&My_ConnArray);
 	My_Connections = NULL;
 	Pool_Size = 0;
 	io_library_shutdown();
@@ -783,9 +787,7 @@ Conn_Close( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool InformClient )
 	/* Clean up connection structure (=free it) */
 	Init_Conn_Struct( Idx );
 
-#ifdef DEBUG
 	LogDebug("Shutdown of connection %d completed.", Idx );
-#endif
 } /* Conn_Close */
 
 
@@ -889,10 +891,9 @@ New_Connection( int Sock )
 	struct request_info req;
 #endif
 	struct sockaddr_in new_addr;
-	int i, new_sock, new_sock_len;
+	int new_sock, new_sock_len, new_Pool_Size;
 	CLIENT *c;
-	POINTER *ptr;
-	long new_size, cnt;
+	long cnt;
 
 	assert( Sock > NONE );
 	/* Connection auf Listen-Socket annehmen */
@@ -919,7 +920,8 @@ New_Connection( int Sock )
 #endif
 
 	/* Socket initialisieren */
-	Init_Socket( new_sock );
+	if (!Init_Socket( new_sock ))
+		return -1;
 	
 	/* Check IP-based connection limit */
 	cnt = Count_Connections( new_addr );
@@ -932,59 +934,32 @@ New_Connection( int Sock )
 		return -1;
 	}
 
-#ifdef DEBUG
-	if (new_sock < Pool_Size)	
-		assert(My_Connections[new_sock].sock == NONE );
-#endif	
 	if( new_sock >= Pool_Size ) {
-		new_size = Pool_Size + CONNECTION_POOL;
-
-		/* Im bisherigen Pool wurde keine freie Connection-Struktur mehr gefunden.
-		 * Wenn erlaubt und moeglich muss nun der Pool vergroessert werden: */
-		if( Conf_MaxConnections > 0 )
+		new_Pool_Size = new_sock + 1;
+		/* No free Connection Structures, check if we may accept further connections */
+		if ((( Conf_MaxConnections > 0) && Pool_Size >= Conf_MaxConnections) ||
+			(new_Pool_Size < Pool_Size))
 		{
-			/* Es ist ein Limit konfiguriert */
-			if( Pool_Size >= Conf_MaxConnections )
-			{
-				/* Mehr Verbindungen duerfen wir leider nicht mehr annehmen ... */
-				Log( LOG_ALERT, "Can't accept connection: limit (%d) reached!", Pool_Size );
-				Simple_Message( new_sock, "ERROR :Connection limit reached" );
-				close( new_sock );
-				return -1;
-			}
-			if( new_size > Conf_MaxConnections ) new_size = Conf_MaxConnections;
-		}
-		if( new_size < Pool_Size )
-		{
-			Log( LOG_ALERT, "Can't accept connection: limit (%d) reached -- overflow!", Pool_Size );
+			Log( LOG_ALERT, "Can't accept connection: limit (%d) reached!", Pool_Size );
 			Simple_Message( new_sock, "ERROR :Connection limit reached" );
 			close( new_sock );
 			return -1;
 		}
 
-		ptr = (POINTER *)realloc( My_Connections, sizeof( CONNECTION ) * new_size );
-		if( ! ptr ) {
+		if (!array_alloc(&My_ConnArray, sizeof( CONNECTION ), new_sock)) {
 			Log( LOG_EMERG, "Can't allocate memory! [New_Connection]" );
 			Simple_Message( new_sock, "ERROR: Internal error" );
 			close( new_sock );
 			return -1;
 		}
-
-		LogDebug("Allocated new connection pool for %ld items (%ld bytes). [realloc()]",
-							new_size, sizeof( CONNECTION ) * new_size );
+		LogDebug("Bumped connection pool to %ld items (internal: %ld items, %ld bytes)",
+			new_sock, array_length(&My_ConnArray, sizeof(CONNECTION)), array_bytes(&My_ConnArray));
 
 		/* Adjust pointer to new block */
-		My_Connections = (CONNECTION *)ptr;
-
-		/* Initialize new items */
-		for( i = Pool_Size; i < new_size; i++ )
-			Init_Conn_Struct( i );
-
-		/* Adjust new pool size */
-		Pool_Size = new_size;
+		My_Connections = array_start(&My_ConnArray);
+		Pool_Size = new_Pool_Size;
 	}
 
-	/* Client-Struktur initialisieren */
 	c = Client_NewLocal( new_sock, inet_ntoa( new_addr.sin_addr ), CLIENT_UNKNOWN, false );
 	if( ! c ) {
 		Log( LOG_ALERT, "Can't accept connection: can't create client structure!" );
@@ -993,19 +968,18 @@ New_Connection( int Sock )
 		return -1;
 	}
 
-	/* Verbindung registrieren */
 	Init_Conn_Struct( new_sock );
 	My_Connections[new_sock].sock = new_sock;
 	My_Connections[new_sock].addr = new_addr;
 
-	/* Neuen Socket registrieren */
+	/* register callback */
 	if (!io_event_create( new_sock, IO_WANTREAD, cb_clientserver)) {
 		Simple_Message( new_sock, "ERROR :Internal error" );
 		Conn_Close( new_sock, "io_event_create() failed", NULL, false );
 		return -1;
 	}
 
-	LogDebug( "Accepted connection %d from %s:%d on socket %d.", new_sock,
+	Log( LOG_INFO, "Accepted connection %d from %s:%d on socket %d.", new_sock,
 			inet_ntoa( new_addr.sin_addr ), ntohs( new_addr.sin_port), Sock );
 
 	/* Hostnamen ermitteln */
@@ -1033,8 +1007,7 @@ Socket2Index( int Sock )
 	if( Sock >= Pool_Size || My_Connections[Sock].sock != Sock ) {
 		/* die Connection wurde vermutlich (wegen eines
 		 * Fehlers) bereits wieder abgebaut ... */
-
-		LogDebug( "Socket2Index: can't get connection for socket %d!", Sock );
+		LogDebug("Socket2Index: can't get connection for socket %d!", Sock);
 		return NONE;
 	}
 	return Sock;
@@ -1200,9 +1173,8 @@ Handle_Buffer( CONN_ID Idx )
 		result = true;
 
 		array_moveleft(&My_Connections[Idx].rbuf, 1, len);
-
-		LogDebug("Connection %d: %d bytes left in read buffer.", Idx,
-					array_bytes(&My_Connections[Idx].rbuf));
+		LogDebug("Connection %d: %d bytes left in read buffer.",
+		    Idx, array_bytes(&My_Connections[Idx].rbuf));
 #ifdef ZLIB
 		if(( ! old_z ) && ( My_Connections[Idx].options & CONN_ZIP ) &&
 				( array_bytes(&My_Connections[Idx].rbuf) > 0 ))
@@ -1219,13 +1191,11 @@ Handle_Buffer( CONN_ID Idx )
 				return false;
 
 			array_trunc(&My_Connections[Idx].rbuf);
-
 			LogDebug("Moved already received data (%u bytes) to uncompression buffer.",
 								array_bytes(&My_Connections[Idx].zip.rbuf));
 		}
 #endif /* ZLIB */
 	}
-
 	return result;
 } /* Handle_Buffer */
 
@@ -1250,9 +1220,8 @@ Check_Connections( void )
 				/* we already sent a ping */
 				if( My_Connections[i].lastping < time( NULL ) - Conf_PongTimeout ) {
 					/* Timeout */
-
-					LogDebug("Connection %d: Ping timeout: %d seconds.", i,
-										Conf_PongTimeout );
+					LogDebug("Connection %d: Ping timeout: %d seconds.",
+									i, Conf_PongTimeout );
 					Conn_Close( i, NULL, "Ping timeout", true );
 				}
 			}
@@ -1366,14 +1335,16 @@ New_Server( int Server )
 		close( new_sock );
 		return;
 	}
-	if (new_sock >= Pool_Size) {
-		Log( LOG_ALERT, "Can't establist server connection: connection limit reached (%d)!",
-											Pool_Size );
+	
+	if (!array_alloc(&My_ConnArray, sizeof(CONNECTION), new_sock)) {
+		Log( LOG_ALERT, "Cannot allocate memory for server connection (socket %d)", new_sock);
 		close( new_sock );
 		return;
 	}
 
-	assert(My_Connections[new_sock].sock < 0 );
+	My_Connections = array_start(&My_ConnArray);
+
+	assert(My_Connections[new_sock].sock <= 0);
 
 	Init_Conn_Struct(new_sock);
 
@@ -1402,7 +1373,8 @@ New_Server( int Server )
 		Conf_Server[Server].conn_id = NONE;
 	}
 
-	LogDebug("Registered new connection %d on socket %d.", new_sock, My_Connections[new_sock].sock );
+	LogDebug("Registered new connection %d on socket %d.",
+				new_sock, My_Connections[new_sock].sock );
 	Conn_OPTION_ADD( &My_Connections[new_sock], CONN_ISCONNECTING );
 } /* New_Server */
 
@@ -1445,7 +1417,6 @@ Init_Socket( int Sock )
 	/* Set type of service (TOS) */
 #if defined(IP_TOS) && defined(IPTOS_LOWDELAY)
 	value = IPTOS_LOWDELAY;
-
 	LogDebug("Setting option IP_TOS on socket %d to IPTOS_LOWDELAY (%d).", Sock, value );
 	if( setsockopt( Sock, SOL_IP, IP_TOS, &value, (socklen_t)sizeof( value )) != 0 )
 	{
@@ -1477,7 +1448,7 @@ cb_Connect_to_Server(int fd, UNUSED short events)
 	if( i >= MAX_SERVERS) {
 		/* Ops, no matching server found?! */
 		io_close( fd );
-		LogDebug("Resolver: Got Forward Lookup callback for unknown server!?" );
+		LogDebug("Resolver: Got Forward Lookup callback for unknown server!?");
 		return;
 	}
 
@@ -1542,9 +1513,7 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 	}
 
 	*identptr = '\0';
-
-	LogDebug( "Got result from resolver: \"%s\" (%u bytes read).", readbuf, len);
-
+	LogDebug("Got result from resolver: \"%s\" (%u bytes read).", readbuf, len);
 	/* Okay, we got a complete result: this is a host name for outgoing
 	 * connections and a host name and IDENT user name (if enabled) for
 	 * incoming connections.*/

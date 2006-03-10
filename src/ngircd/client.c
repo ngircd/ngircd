@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: client.c,v 1.85 2005/07/31 20:13:08 alex Exp $";
+static char UNUSED id[] = "$Id: client.c,v 1.86 2006/03/10 20:25:29 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -159,7 +159,7 @@ Client_NewRemoteUser( CLIENT *Introducer, char *Nick, int Hops, char *User, char
 } /* Client_NewRemoteUser */
 
 
-GLOBAL CLIENT *
+static CLIENT *
 Client_New( CONN_ID Idx, CLIENT *Introducer, CLIENT *TopServer, int Type, char *ID, char *User, char *Hostname, char *Info, int Hops, int Token, char *Modes, bool Idented )
 {
 	CLIENT *client;

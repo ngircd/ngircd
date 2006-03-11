@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: client.c,v 1.88 2006/03/11 10:33:30 fw Exp $";
+static char UNUSED id[] = "$Id: client.c,v 1.89 2006/03/11 10:43:49 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -568,7 +568,7 @@ Client_ModeDel( CLIENT *Client, char Mode )
 GLOBAL CLIENT *
 Client_GetFromConn( CONN_ID Idx )
 {
-	/* return Client-Structure that belongs to the local Connection Idx gehoert.
+	/* return Client-Structure that belongs to the local Connection Idx.
 	 * If none is found, return NULL.
 	 */
 

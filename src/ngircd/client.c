@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: client.c,v 1.86 2006/03/10 20:25:29 fw Exp $";
+static char UNUSED id[] = "$Id: client.c,v 1.87 2006/03/11 01:37:31 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -63,6 +63,10 @@ static long MyCount PARAMS(( CLIENT_TYPE Type ));
 static CLIENT *New_Client_Struct PARAMS(( void ));
 static void Generate_MyToken PARAMS(( CLIENT *Client ));
 static void Adjust_Counters PARAMS(( CLIENT *Client ));
+
+static CLIENT *Init_New_Client PARAMS((CONN_ID Idx, CLIENT *Introducer,
+ CLIENT *TopServer, int Type, char *ID, char *User, char *Hostname,
+ char *Info, int Hops, int Token, char *Modes, bool Idented));
 
 #ifndef Client_DestroyNow
 GLOBAL void Client_DestroyNow PARAMS((CLIENT *Client ));
@@ -135,32 +139,53 @@ Client_ThisServer( void )
 } /* Client_ThisServer */
 
 
+/**
+ * Initialize new local client; wrapper function for Init_New_Client().
+ * @return New CLIENT structure.
+ */
 GLOBAL CLIENT *
-Client_NewLocal( CONN_ID Idx, char *Hostname, int Type, bool Idented )
+Client_NewLocal(CONN_ID Idx, char *Hostname, int Type, bool Idented)
 {
-	/* Neuen lokalen Client erzeugen: Wrapper-Funktion fuer Client_New(). */
-	return Client_New( Idx, This_Server, NULL, Type, NULL, NULL, Hostname, NULL, 0, 0, NULL, Idented );
+	return Init_New_Client(Idx, This_Server, NULL, Type, NULL, NULL,
+		Hostname, NULL, 0, 0, NULL, Idented);
 } /* Client_NewLocal */
 
 
+/**
+ * Initialize new remote server; wrapper function for Init_New_Client().
+ * @return New CLIENT structure.
+ */
 GLOBAL CLIENT *
-Client_NewRemoteServer( CLIENT *Introducer, char *Hostname, CLIENT *TopServer, int Hops, int Token, char *Info, bool Idented )
+Client_NewRemoteServer(CLIENT *Introducer, char *Hostname, CLIENT *TopServer,
+ int Hops, int Token, char *Info, bool Idented)
 {
-	/* Neuen Remote-Client erzeugen: Wrapper-Funktion fuer Client_New (). */
-	return Client_New( NONE, Introducer, TopServer, CLIENT_SERVER, Hostname, NULL, Hostname, Info, Hops, Token, NULL, Idented );
+	return Init_New_Client(NONE, Introducer, TopServer, CLIENT_SERVER,
+		Hostname, NULL, Hostname, Info, Hops, Token, NULL, Idented);
 } /* Client_NewRemoteServer */
 
 
+/**
+ * Initialize new remote client; wrapper function for Init_New_Client().
+ * @return New CLIENT structure.
+ */
 GLOBAL CLIENT *
-Client_NewRemoteUser( CLIENT *Introducer, char *Nick, int Hops, char *User, char *Hostname, int Token, char *Modes, char *Info, bool Idented )
+Client_NewRemoteUser(CLIENT *Introducer, char *Nick, int Hops, char *User,
+ char *Hostname, int Token, char *Modes, char *Info, bool Idented)
 {
-	/* Neuen Remote-Client erzeugen: Wrapper-Funktion fuer Client_New (). */
-	return Client_New( NONE, Introducer, NULL, CLIENT_USER, Nick, User, Hostname, Info, Hops, Token, Modes, Idented );
+	return Init_New_Client(NONE, Introducer, NULL, CLIENT_USER, Nick,
+		User, Hostname, Info, Hops, Token, Modes, Idented);
 } /* Client_NewRemoteUser */
 
 
+/**
+ * Initialize new client and set up the given parameters like client type,
+ * user name, host name, introducing server etc. ...
+ * @return New CLIENT structure.
+ */
 static CLIENT *
-Client_New( CONN_ID Idx, CLIENT *Introducer, CLIENT *TopServer, int Type, char *ID, char *User, char *Hostname, char *Info, int Hops, int Token, char *Modes, bool Idented )
+Init_New_Client(CONN_ID Idx, CLIENT *Introducer, CLIENT *TopServer,
+ int Type, char *ID, char *User, char *Hostname, char *Info, int Hops,
+ int Token, char *Modes, bool Idented)
 {
 	CLIENT *client;
 
@@ -197,7 +222,7 @@ Client_New( CONN_ID Idx, CLIENT *Introducer, CLIENT *TopServer, int Type, char *
 	Adjust_Counters( client );
 
 	return client;
-} /* Client_New */
+} /* Init_New_Client */
 
 
 GLOBAL void

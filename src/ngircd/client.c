@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: client.c,v 1.87 2006/03/11 01:37:31 alex Exp $";
+static char UNUSED id[] = "$Id: client.c,v 1.88 2006/03/11 10:33:30 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -1175,11 +1175,13 @@ GLOBAL void
 Client_RegisterWhowas( CLIENT *Client )
 {
 	int slot;
+	time_t now;
 	
 	assert( Client != NULL );
 
+	now = time(NULL);
 	/* Don't register clients that were connected less than 30 seconds. */
-	if( time(NULL) - Client->starttime < 30 )
+	if( now - Client->starttime < 30 )
 		return;
 
 	slot = Last_Whowas + 1;
@@ -1189,7 +1191,7 @@ Client_RegisterWhowas( CLIENT *Client )
 	Log( LOG_DEBUG, "Saving WHOWAS information to slot %d ...", slot );
 #endif
 	
-	My_Whowas[slot].time = time( NULL );
+	My_Whowas[slot].time = now;
 	strlcpy( My_Whowas[slot].id, Client_ID( Client ),
 		 sizeof( My_Whowas[slot].id ));
 	strlcpy( My_Whowas[slot].user, Client_User( Client ),

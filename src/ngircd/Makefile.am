@@ -8,7 +8,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: Makefile.am,v 1.48 2005/08/25 08:40:15 alex Exp $
+# $Id: Makefile.am,v 1.49 2006/03/11 01:48:50 alex Exp $
 #
 
 AUTOMAKE_OPTIONS = ../portab/ansi2knr
@@ -63,7 +63,7 @@ lint:
 	 if [ $$? -ne 0 ]; then \
 	  waswarning=1; \
 	  echo; grep -v "^Command Line: " lint.out; echo; \
-	  w=$$( grep "code warning" lint.out | awk "{ print \$$4 }" ); \
+	  w=$$( grep "code warning" lint.out | $(AWK) "{ print \$$4 }" ); \
 	  [ "$$w" -gt 0 ] && warnings=`expr $$warnings + $$w`; \
 	  files=`expr $$files + 1`; \
 	 else \

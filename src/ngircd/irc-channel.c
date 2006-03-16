@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-channel.c,v 1.33 2005/09/05 08:11:11 alex Exp $";
+static char UNUSED id[] = "$Id: irc-channel.c,v 1.34 2006/03/16 19:56:34 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -97,13 +97,10 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 		if( Client_Type( Client ) == CLIENT_USER )
 		{
 			/* Test if the user has reached his maximum channel count */
-			if( Client_Type( Client ) == CLIENT_USER )
-			{
-				if(( Conf_MaxJoins > 0 ) && ( Channel_CountForUser( Client ) >= Conf_MaxJoins ))
-				{
-					IRC_WriteStrClient( Client, ERR_TOOMANYCHANNELS_MSG, Client_ID( Client ), channame );
-					return CONNECTED;
-				}
+			if(( Conf_MaxJoins > 0 ) && ( Channel_CountForUser( Client ) >= Conf_MaxJoins )) {
+				IRC_WriteStrClient( Client, ERR_TOOMANYCHANNELS_MSG,
+							Client_ID( Client ), channame );
+				return CONNECTED;
 			}
 
 			/* Existiert der Channel bereits, oder wird er im Moment neu erzeugt? */

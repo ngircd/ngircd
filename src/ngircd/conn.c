@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.155.2.3 2005/10/11 19:28:47 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.155.2.4 2006/03/18 22:30:45 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -93,7 +93,7 @@ LOCAL void Init_Conn_Struct PARAMS(( CONN_ID Idx ));
 LOCAL bool Init_Socket PARAMS(( int Sock ));
 LOCAL void New_Server PARAMS(( int Server, CONN_ID Idx ));
 LOCAL void Read_Resolver_Result PARAMS(( int r_fd ));
-LOCAL void Simple_Message PARAMS(( int Sock, char *Msg ));
+LOCAL void Simple_Message PARAMS(( int Sock, const char *Msg ));
 LOCAL int Count_Connections PARAMS(( struct sockaddr_in addr ));
 
 LOCAL fd_set My_Listeners;
@@ -538,6 +538,7 @@ va_dcl
 #endif
 {
 	char buffer[COMMAND_LEN];
+	size_t len;
 	bool ok;
 	va_list ap;
 
@@ -583,8 +584,9 @@ va_dcl
 		Log(LOG_DEBUG, " -> connection %d: '%s'.", Idx, buffer);
 #endif
 
-	strlcat( buffer, "\r\n", sizeof( buffer ));
-	ok = Conn_Write( Idx, buffer, strlen( buffer ));
+	len = strlcat( buffer, "\r\n", sizeof( buffer ));
+	assert(len < COMMAND_LEN);
+	ok = Conn_Write(Idx, buffer, len);
 	My_Connections[Idx].msg_out++;
 
 	va_end( ap );
@@ -1186,15 +1188,17 @@ Handle_Buffer( CONN_ID Idx )
 	char *ptr;
 	int len, delta;
 	bool action, result;
+	time_t starttime;
 #ifdef ZLIB
 	bool old_z;
 #endif
 
+	starttime = time(NULL);
 	result = false;
 	do
 	{
 		/* Check penalty */
-		if( My_Connections[Idx].delaytime > time( NULL )) return result;
+		if( My_Connections[Idx].delaytime > starttime) return result;
 		
 #ifdef ZLIB
 		/* ggf. noch unkomprimiete Daten weiter entpacken */
@@ -1691,9 +1695,10 @@ try_resolve:
 
 
 LOCAL void
-Simple_Message( int Sock, char *Msg )
+Simple_Message( int Sock, const char *Msg )
 {
 	char buf[COMMAND_LEN];
+	size_t len;
 	/* Write "simple" message to socket, without using compression
 	 * or even the connection write buffers. Used e.g. for error
 	 * messages by New_Connection(). */
@@ -1701,8 +1706,9 @@ Simple_Message( int Sock, char *Msg )
 	assert( Msg != NULL );
 
 	strlcpy( buf, Msg, sizeof buf - 2);
-	strlcat( buf, "\r\n", sizeof buf);
-	(void)write( Sock, buf, strlen( buf ) );
+	len = strlcat( buf, "\r\n", sizeof buf);
+	assert(len < COMMAND_LEN);
+	(void)write(Sock, buf, len);
 } /* Simple_Error */
 
 

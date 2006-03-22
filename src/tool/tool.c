@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: tool.c,v 1.3 2005/03/19 18:43:52 fw Exp $";
+static char UNUSED id[] = "$Id: tool.c,v 1.4 2006/03/22 08:05:10 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -26,28 +26,33 @@ static char UNUSED id[] = "$Id: tool.c,v 1.3 2005/03/19 18:43:52 fw Exp $";
 #include "tool.h"
 
 
+/**
+ * Removes all leading and trailing whitespaces of a string.
+ * @param String The string to remove whitespaces from.
+ */
 GLOBAL void
-ngt_TrimStr( char *String )
+ngt_TrimStr(char *String)
 {
-	/* Mit ngt_TrimStr() werden fuehrende und folgende Leerzeichen,
-	 * Tabulatoren und Zeilenumbrueche (ASCII 10 und ASCII 13) aus
-	 * dem String entfernt. */
-	
-	char *start, *ptr;
+	char *start, *end;
 
-	assert( String != NULL );
+	assert(String != NULL);
 
 	start = String;
-	
-	/* Zeichen am Anfang pruefen ... */
-	while(( *start == ' ' ) || ( *start == 9 )) start++;
-	
-	/* Zeichen am Ende pruefen ... */
-	ptr = strchr( start, '\0' ) - 1;
-	while((( *ptr == ' ' ) || ( *ptr == 9 ) || ( *ptr == 10 ) || ( *ptr == 13 )) && ptr >= start ) ptr--;
-	*(++ptr) = '\0';
 
-	memmove( String, start, strlen( start ) + 1 );
+	/* Remove whitespaces at the beginning of the string ... */
+	while (*start == ' ' || *start == '\t')
+		start++;
+
+	/* ... and at the end: */
+	end = strchr(start, '\0');
+	while ((*end == ' ' || *end == '\t' || *end == '\n' || *end == '\r')
+	       && end >= start)
+		end--;
+
+	/* New trailing NULL byte */
+	*(++end) = '\0';
+
+	memmove(String, start, (size_t)(end - start));
 } /* ngt_TrimStr */
 
 

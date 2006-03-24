@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: client.c,v 1.84 2005/06/12 16:39:42 alex Exp $";
+static char UNUSED id[] = "$Id: client.c,v 1.84.2.1 2006/03/24 23:30:34 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -296,11 +296,9 @@ Client_Destroy( CLIENT *Client, char *LogMsg, char *FwdMsg, bool SendQuit )
 				{
 					if( c->id[0] ) Log( LOG_NOTICE, "Client \"%s\" unregistered (connection %d): %s", c->id, c->conn_id, txt );
 					else Log( LOG_NOTICE, "Client unregistered (connection %d): %s", c->conn_id, txt );
-				}
-				else
-				{
-					if( c->id[0] ) Log( LOG_WARNING, "Unregistered unknown client \"%s\": %s", c->id, txt );
-					else Log( LOG_WARNING, "Unregistered unknown client: %s", c->id, txt );
+				} else {
+					Log(LOG_WARNING, "Unregistered unknown client \"%s\": %s",
+								c->id[0] ? c->id : "(No Nick)", txt );
 				}
 			}
 

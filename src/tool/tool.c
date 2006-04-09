@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: tool.c,v 1.5 2006/03/24 23:25:39 fw Exp $";
+static char UNUSED id[] = "$Id: tool.c,v 1.6 2006/04/09 12:53:07 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -40,18 +40,20 @@ ngt_TrimStr(char *String)
 	start = String;
 
 	/* Remove whitespaces at the beginning of the string ... */
-	while (*start == ' ' || *start == '\t')
+	while (*start == ' ' || *start == '\t' ||
+	       *start == '\n' || *start == '\r')
 		start++;
 
 	if (!*start) {
-		*String = 0;
+		*String = '\0';
 		return;
 	}
+
 	/* ... and at the end: */
 	end = strchr(start, '\0');
 	end--;
 	while ((*end == ' ' || *end == '\t' || *end == '\n' || *end == '\r')
-	       && end > start)
+	       && end >= start)
 		end--;
 
 	/* New trailing NULL byte */

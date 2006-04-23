@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc.c,v 1.128 2005/08/02 23:19:22 alex Exp $";
+static char UNUSED id[] = "$Id: irc.c,v 1.129 2006/04/23 10:37:27 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -160,7 +160,7 @@ IRC_KILL( CLIENT *Client, REQUEST *Req )
 		Log( LOG_NOTICE, "Client with nick \"%s\" is unknown here.", Req->argv[0] );
 
 	/* Are we still connected or were we killed, too? */
-	if(( my_conn > NONE ) && ( Client_GetFromConn( my_conn )))
+	if(( my_conn > NONE ) && ( Conn_GetClient( my_conn )))
 		return CONNECTED;
 	else
 		return DISCONNECTED;

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-oper.c,v 1.24 2005/07/31 20:13:08 alex Exp $";
+static char UNUSED id[] = "$Id: irc-oper.c,v 1.25 2006/04/23 10:37:27 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -208,7 +208,7 @@ IRC_DISCONNECT(CLIENT *Client, REQUEST *Req )
 	if( ! Conf_DisableServer( Req->argv[0] )) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->argv[0] );
 
 	/* Are we still connected or were we killed, too? */
-	if( Client_GetFromConn( my_conn )) return CONNECTED;
+	if( Conn_GetClient( my_conn )) return CONNECTED;
 	else return DISCONNECTED;
 } /* IRC_CONNECT */
 

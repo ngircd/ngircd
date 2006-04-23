@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: client.h,v 1.41 2006/03/11 01:37:31 alex Exp $
+ * $Id: client.h,v 1.42 2006/04/23 10:37:27 fw Exp $
  *
  * Client management (header)
  */
@@ -30,6 +30,7 @@
 
 #define CLIENT_TYPE int
 
+#include "defines.h"
 
 #if defined(__client_c__) | defined(S_SPLINT_S)
 
@@ -86,7 +87,6 @@ GLOBAL void Client_DestroyNow PARAMS(( CLIENT *Client ));
 
 GLOBAL CLIENT *Client_ThisServer PARAMS(( void ));
 
-GLOBAL CLIENT *Client_GetFromConn PARAMS(( CONN_ID Idx ));
 GLOBAL CLIENT *Client_GetFromToken PARAMS(( CLIENT *Client, int Token ));
 
 GLOBAL CLIENT *Client_Search PARAMS(( char *ID ));

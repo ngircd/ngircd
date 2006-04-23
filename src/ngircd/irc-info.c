@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-info.c,v 1.31 2006/01/27 17:19:58 fw Exp $";
+static char UNUSED id[] = "$Id: irc-info.c,v 1.32 2006/04/23 10:37:27 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -377,7 +377,7 @@ IRC_STATS( CLIENT *Client, REQUEST *Req )
 			con = Conn_First( );
 			while( con != NONE )
 			{
-				cl = Client_GetFromConn( con );
+				cl = Conn_GetClient( con );
 				if( cl && (( Client_Type( cl ) == CLIENT_SERVER ) || ( cl == Client )))
 				{
 					/* Server link or our own connection */

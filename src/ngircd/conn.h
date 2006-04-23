@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conn.h,v 1.40 2006/02/02 21:00:22 fw Exp $
+ * $Id: conn.h,v 1.41 2006/04/23 10:37:27 fw Exp $
  *
  * Connection management (header)
  */
@@ -31,6 +31,7 @@
 
 typedef int CONN_ID;
 
+#include "client.h"
 
 #ifdef CONN_MODULE
 
@@ -66,6 +67,7 @@ typedef struct _Connection
 	long msg_in, msg_out;		/* Received and sent IRC messages */
 	int flag;			/* Flag (see "irc-write" module) */
 	UINT16 options;			/* Link options / connection state */
+	CLIENT *client;			/* pointer to client structure */
 #ifdef ZLIB
 	ZIPDATA zip;			/* Compression information */
 #endif  /* ZLIB */
@@ -93,7 +95,7 @@ GLOBAL void Conn_Close PARAMS(( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool In
 
 GLOBAL void Conn_SyncServerStruct PARAMS(( void ));
 
+GLOBAL CLIENT* Conn_GetClient PARAMS((CONN_ID i));
 #endif
-
 
 /* -eof- */

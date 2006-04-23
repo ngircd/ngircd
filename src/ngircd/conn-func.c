@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn-func.c,v 1.8 2005/09/04 23:38:32 alex Exp $";
+static char UNUSED id[] = "$Id: conn-func.c,v 1.9 2006/04/23 10:37:27 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -177,7 +177,7 @@ Conn_StartTime( CONN_ID Idx )
 	assert(Idx > NONE);
 
 	/* Search client structure for this link ... */
-	c = Client_GetFromConn(Idx);
+	c = Conn_GetClient(Idx);
 	if(c != NULL)
 		return Client_StartTime(c);
 

@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: parse.c,v 1.66 2005/09/04 23:42:24 alex Exp $";
+static char UNUSED id[] = "$Id: parse.c,v 1.67 2006/04/23 10:37:27 fw Exp $";
 
 /**
  * @file
@@ -277,7 +277,7 @@ Validate_Prefix( CONN_ID Idx, REQUEST *Req, bool *Closed )
 	if( ! Req->prefix ) return true;
 
 	/* Client-Struktur der Connection ermitteln */
-	client = Client_GetFromConn( Idx );
+	client = Conn_GetClient( Idx );
 	assert( client != NULL );
 
 	/* nur validieren, wenn bereits registrierte Verbindung */
@@ -306,7 +306,7 @@ Validate_Prefix( CONN_ID Idx, REQUEST *Req, bool *Closed )
 	{
 		/* das angegebene Prefix ist aus dieser Richtung, also
 		 * aus der gegebenen Connection, ungueltig! */
-		Log( LOG_ERR, "Spoofed prefix \"%s\" from \"%s\" (connection %d, command %s)!", Req->prefix, Client_Mask( Client_GetFromConn( Idx )), Idx, Req->command );
+		Log( LOG_ERR, "Spoofed prefix \"%s\" from \"%s\" (connection %d, command %s)!", Req->prefix, Client_Mask( Conn_GetClient( Idx )), Idx, Req->command );
 		Conn_Close( Idx, NULL, "Spoofed prefix", true);
 		*Closed = true;
 		return false;
@@ -354,7 +354,7 @@ Handle_Request( CONN_ID Idx, REQUEST *Req )
 	assert( Req != NULL );
 	assert( Req->command != NULL );
 
-	client = Client_GetFromConn( Idx );
+	client = Conn_GetClient( Idx );
 	assert( client != NULL );
 
 	/* Statuscode? */

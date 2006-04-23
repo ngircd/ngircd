@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.191 2006/03/18 22:27:09 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.192 2006/04/23 10:37:27 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -152,7 +152,7 @@ cb_connserver(int sock, UNUSED short what)
 
 		/* Clean up the CLIENT structure (to avoid silly log
  		 * messages) and call Conn_Close() to do the rest. */
- 		c = Client_GetFromConn(idx);
+ 		c = Conn_GetClient(idx);
  		if (c)
 			Client_DestroyNow(c);
  
@@ -602,7 +602,6 @@ va_dcl
 #endif
 
 	len = strlcat( buffer, "\r\n", sizeof( buffer ));
-	assert(len < COMMAND_LEN);
 	ok = Conn_Write(Idx, buffer, len);
 	My_Connections[Idx].msg_out++;
 
@@ -704,7 +703,7 @@ Conn_Close( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool InformClient )
 	Log( LOG_INFO, "Shutting down connection %d (%s) with %s:%d ...", Idx, LogMsg ? LogMsg : FwdMsg, My_Connections[Idx].host, ntohs( My_Connections[Idx].addr.sin_port ));
 
 	/* Search client, if any */
-	c = Client_GetFromConn( Idx );
+	c = Conn_GetClient( Idx );
 
 	/* Should the client be informed? */
 	if (InformClient) {
@@ -734,7 +733,7 @@ Conn_Close( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool InformClient )
 	(void)Handle_Write( Idx );
 
 	/* Search client, if any (re-check!) */
-	c = Client_GetFromConn( Idx );
+	c = Conn_GetClient( Idx );
 
 	/* Shut down socket */
 	if( ! io_close( My_Connections[Idx].sock ))
@@ -809,7 +808,7 @@ Conn_SyncServerStruct( void )
 			continue;
 
 		/* Server connection? */
-		client = Client_GetFromConn( i );
+		client = Conn_GetClient( i );
 		if(( ! client ) || ( Client_Type( client ) != CLIENT_SERVER )) continue;
 
 		for( c = 0; c < MAX_SERVERS; c++ )
@@ -973,6 +972,7 @@ New_Connection( int Sock )
 	Init_Conn_Struct( new_sock );
 	My_Connections[new_sock].sock = new_sock;
 	My_Connections[new_sock].addr = new_addr;
+	My_Connections[new_sock].client = c;
 
 	/* register callback */
 	if (!io_event_create( new_sock, IO_WANTREAD, cb_clientserver)) {
@@ -1083,7 +1083,7 @@ Read_Request( CONN_ID Idx )
 	 * registered as a user, server or service connection. Don't update
 	 * otherwise, so users have at least Conf_PongTimeout seconds time to
 	 * register with the IRC server -- see Check_Connections(). */
-	c = Client_GetFromConn(Idx);
+	c = Conn_GetClient(Idx);
 	if (c && (Client_Type(c) == CLIENT_USER
 		  || Client_Type(c) == CLIENT_SERVER
 		  || Client_Type(c) == CLIENT_SERVICE))
@@ -1216,7 +1216,7 @@ Check_Connections( void )
 		if (My_Connections[i].sock < 0)
 			continue;
 
-		c = Client_GetFromConn( i );
+		c = Conn_GetClient( i );
 		if( c && (( Client_Type( c ) == CLIENT_USER ) || ( Client_Type( c ) == CLIENT_SERVER ) || ( Client_Type( c ) == CLIENT_SERVICE )))
 		{
 			/* connected User, Server or Service */
@@ -1366,6 +1366,7 @@ New_Server( int Server )
 	Conf_Server[Server].conn_id = new_sock;
 	My_Connections[new_sock].sock = new_sock;
 	My_Connections[new_sock].addr = new_addr;
+	My_Connections[new_sock].client = c;
 	strlcpy( My_Connections[new_sock].host, Conf_Server[Server].host,
 				sizeof(My_Connections[new_sock].host ));
 
@@ -1523,7 +1524,7 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 	 * incoming connections.*/
 	assert ( My_Connections[i].sock >= 0 );
 	/* Incoming connection. Search client ... */
-	c = Client_GetFromConn( i );
+	c = Conn_GetClient( i );
 	assert( c != NULL );
 
 	/* Only update client information of unregistered clients */
@@ -1551,8 +1552,8 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 static void
 Simple_Message( int Sock, const char *Msg )
 {
-	size_t len;
 	char buf[COMMAND_LEN];
+	size_t len;
 	/* Write "simple" message to socket, without using compression
 	 * or even the connection write buffers. Used e.g. for error
 	 * messages by New_Connection(). */
@@ -1561,7 +1562,6 @@ Simple_Message( int Sock, const char *Msg )
 
 	strlcpy( buf, Msg, sizeof buf - 2);
 	len = strlcat( buf, "\r\n", sizeof buf);
-	assert(len < COMMAND_LEN);
 	(void)write(Sock, buf, len);
 } /* Simple_Error */
 
@@ -1579,5 +1579,20 @@ Count_Connections( struct sockaddr_in addr_in )
 } /* Count_Connections */
 
 
+GLOBAL CLIENT *
+Conn_GetClient( CONN_ID Idx ) 
+{
+	/* return Client-Structure that belongs to the local Connection Idx.
+	 * If none is found, return NULL.
+	 */
+	CONNECTION *c;
+	assert( Idx >= 0 );
+
+	c = array_get(&My_ConnArray, sizeof (CONNECTION), Idx);
+	
+	assert(c != NULL);
+	
+	return c ? c->client : NULL;
+}
 
 /* -eof- */

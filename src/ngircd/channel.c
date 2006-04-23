@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: channel.c,v 1.54 2005/09/02 12:50:25 alex Exp $";
+static char UNUSED id[] = "$Id: channel.c,v 1.55 2006/04/23 10:33:37 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -158,17 +158,13 @@ Channel_Join( CLIENT *Client, char *Name )
 	assert( Client != NULL );
 	assert( Name != NULL );
 
-	/* Valider Channel-Name? */
-	if( ! Channel_IsValidName( Name ))
-	{
+	if( ! Channel_IsValidName( Name )) {
 		IRC_WriteStrClient( Client, ERR_NOSUCHCHANNEL_MSG, Client_ID( Client ), Name );
 		return false;
 	}
 
-	/* Channel suchen */
 	chan = Channel_Search( Name );
-	if( chan )
-	{
+	if( chan ) {
 		/* Ist der Client bereits Mitglied? */
 		if( Get_Cl2Chan( chan, Client )) return false;
 	}
@@ -194,7 +190,6 @@ Channel_Part( CLIENT *Client, CLIENT *Origin, char *Name, char *Reason )
 	assert( Name != NULL );
 	assert( Reason != NULL );
 
-	/* Channel suchen */
 	chan = Channel_Search( Name );
 	if(( ! chan ) || ( ! Get_Cl2Chan( chan, Client )))
 	{
@@ -226,21 +221,20 @@ Channel_Kick( CLIENT *Client, CLIENT *Origin, char *Name, char *Reason )
 		return;
 	}
 
-	/* Ist der User Mitglied in dem Channel? */
 	if( ! Channel_IsMemberOf( chan, Origin ))
 	{
 		IRC_WriteStrClient( Origin, ERR_NOTONCHANNEL_MSG, Client_ID( Origin ), Name );
 		return;
 	}
 
-	/* Ist der User Channel-Operator? */
+	/* Is User Channel-Operator? */
 	if( ! strchr( Channel_UserModes( chan, Origin ), 'o' ))
 	{
 		IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Name);
 		return;
 	}
 
-	/* Ist der Ziel-User Mitglied im Channel? */
+	/* Ist the kickED User member of channel? */
 	if( ! Channel_IsMemberOf( chan, Client ))
 	{
 		IRC_WriteStrClient( Origin, ERR_USERNOTINCHANNEL_MSG, Client_ID( Origin ), Client_ID( Client ), Name );
@@ -520,13 +514,11 @@ Channel_ModeDel( CHANNEL *Chan, char Mode )
 	 * if the mode was removed return true.
 	 * if the channel did not have the mode, return false.
 	*/
-	char x[2], *p;
+	char *p;
 
 	assert( Chan != NULL );
 
-	x[0] = Mode; x[1] = '\0';
-
-	p = strchr( Chan->modes, x[0] );
+	p = strchr( Chan->modes, Mode );
 	if( ! p ) return false;
 
 	/* Channel has mode -> delete */
@@ -576,7 +568,7 @@ Channel_UserModeDel( CHANNEL *Chan, CLIENT *Client, char Mode )
 	 */
 
 	CL2CHAN *cl2chan;
-	char x[2], *p;
+	char *p;
 
 	assert( Chan != NULL );
 	assert( Client != NULL );
@@ -584,9 +576,7 @@ Channel_UserModeDel( CHANNEL *Chan, CLIENT *Client, char Mode )
 	cl2chan = Get_Cl2Chan( Chan, Client );
 	assert( cl2chan != NULL );
 
-	x[0] = Mode; x[1] = '\0';
-
-	p = strchr( cl2chan->modes, x[0] );
+	p = strchr( cl2chan->modes, Mode );
 	if( ! p ) return false;
 
 	/* Client has Mode -> delete */
@@ -743,7 +733,7 @@ Channel_Write( CHANNEL *Chan, CLIENT *From, CLIENT *Client, char *Text )
 	/* Is the client banned? */
 	if( Lists_CheckBanned( From, Chan ))
 	{
-		/* Client is banned, bus is he channel operator or has voice? */
+		/* Client is banned, but is he channel operator or has voice? */
 		if(( ! has_voice ) && ( ! is_op )) ok = false;
 	}
 

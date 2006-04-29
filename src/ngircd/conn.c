@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.192 2006/04/23 10:37:27 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.193 2006/04/29 16:19:46 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -958,7 +958,8 @@ New_Connection( int Sock )
 
 		/* Adjust pointer to new block */
 		My_Connections = array_start(&My_ConnArray);
-		Pool_Size = new_Pool_Size;
+		while (Pool_Size < new_Pool_Size)
+			Init_Conn_Struct(Pool_Size++);
 	}
 
 	c = Client_NewLocal( new_sock, inet_ntoa( new_addr.sin_addr ), CLIENT_UNKNOWN, false );

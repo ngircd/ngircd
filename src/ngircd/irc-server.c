@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2006 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-server.c,v 1.38 2005/03/19 18:43:49 fw Exp $";
+static char UNUSED id[] = "$Id: irc-server.c,v 1.39 2006/04/30 21:31:43 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -244,22 +244,24 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 				if( ! IRC_WriteStrClient( Client, "%s", str )) return DISCONNECTED;
 			}
 
+			/* Get next channel ... */
+			chan = Channel_Next(chan);
+		}
+
 #ifdef IRCPLUS
-			if( strchr( Client_Flags( Client ), 'L' ))
-			{
+		if (strchr(Client_Flags(Client), 'L')) {
 #ifdef DEBUG
-				Log( LOG_DEBUG, "Synchronizing INVITE- and BAN-lists ..." );
+			Log(LOG_DEBUG,
+			    "Synchronizing INVITE- and BAN-lists ...");
 #endif
-				/* Synchronize INVITE- and BAN-lists */
-				if( ! Lists_SendInvites( Client )) return DISCONNECTED;
-				if( ! Lists_SendBans( Client )) return DISCONNECTED;
-			}
+			/* Synchronize INVITE- and BAN-lists */
+			if (! Lists_SendInvites(Client))
+				return DISCONNECTED;
+			if (! Lists_SendBans(Client))
+				return DISCONNECTED;
+		}
 #endif
 
-			/* naechsten Channel suchen */
-			chan = Channel_Next( chan );
-		}
-		
 		return CONNECTED;
 	}
 	else if( Client_Type( Client ) == CLIENT_SERVER )

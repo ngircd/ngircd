@@ -12,7 +12,7 @@
 
 #include "array.h"
 
-static char UNUSED id[] = "$Id: array.c,v 1.8 2005/08/30 13:36:32 fw Exp $";
+static char UNUSED id[] = "$Id: array.c,v 1.9 2006/05/07 10:52:47 fw Exp $";
 
 #include <assert.h>
 
@@ -21,26 +21,21 @@ static char UNUSED id[] = "$Id: array.c,v 1.8 2005/08/30 13:36:32 fw Exp $";
 
 #include "log.h"
 
-#define array_UNUSABLE(x)	( ! x->mem  || (0 == x->allocated) )
+#define array_UNUSABLE(x)	( !(x)->mem || (0 == (x)->allocated) )
 
-#define ALIGN_32U(x)		((x | 0x1fU) +1)
-#define ALIGN_1024U(x)		((x | 0x3ffU) +1)
-#define ALIGN_4096U(x)		((x | 0xfffU) +1)
+#define ALIGN_32U(x)		(((x) | 0x1fU) +1)
+#define ALIGN_1024U(x)		(((x) | 0x3ffU) +1)
+#define ALIGN_4096U(x)		(((x) | 0xfffU) +1)
 
 
 static bool
 safemult_sizet(size_t a, size_t b, size_t *res)
 {
 	size_t tmp;
-
-	if (!a || !b) {
-		*res = 0;
-		return true;
-	}
-
+	
 	tmp = a * b;
 
-	if (tmp / b != a)
+	if (b && (tmp / b != a))
 		return false;
 
 	*res = tmp;
@@ -51,7 +46,7 @@ safemult_sizet(size_t a, size_t b, size_t *res)
 void
 array_init(array *a)
 {
-	assert(a);	
+	assert(a != NULL);
 	a->mem = NULL;
 	a->allocated = 0;
 	a->used = 0;

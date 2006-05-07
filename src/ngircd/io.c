@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: io.c,v 1.11 2005/09/04 13:38:59 fw Exp $";
+static char UNUSED id[] = "$Id: io.c,v 1.12 2006/05/07 10:54:42 fw Exp $";
 
 #include <assert.h>
 #include <stdlib.h>
@@ -52,8 +52,7 @@ static bool library_initialized;
 #include <sys/epoll.h>
 
 static int io_masterfd;
-static bool io_event_new_epoll(int fd, short what);
-static bool io_event_change_epoll(int fd, short what);
+static bool io_event_change_epoll(int fd, short what, const int action);
 static int io_dispatch_epoll(struct timeval *tv);
 #endif
 
@@ -64,7 +63,7 @@ static array io_evcache;
 static int io_masterfd;
 
 static int io_dispatch_kqueue(struct timeval *tv);
-static bool io_event_add_kqueue(int, short);
+static bool io_event_change_kqueue(int, short, const int action);
 #endif
 
 #ifdef IO_USE_SELECT
@@ -104,7 +103,6 @@ io_library_init(unsigned int eventsize)
 	if (ecreate_hint <= 0)
 		ecreate_hint = 128;
 #endif
-
 	if (library_initialized)
 		return true;
 
@@ -193,6 +191,7 @@ io_event_setcb(int fd, void (*cbfunc) (int, short))
 bool
 io_event_create(int fd, short what, void (*cbfunc) (int, short))
 {
+	bool ret;
 	io_event *i;
 
 	assert(fd >= 0);
@@ -218,24 +217,24 @@ io_event_create(int fd, short what, void (*cbfunc) (int, short))
 
 	i->fd = fd;
 	i->callback = cbfunc;
+	i->what = 0;
 #ifdef IO_USE_EPOLL
-	i->what = what;
-	return io_event_new_epoll(fd, what);
+	ret = io_event_change_epoll(fd, what, EPOLL_CTL_ADD);
 #endif
 #ifdef IO_USE_KQUEUE
-	i->what = what;
-	return io_event_add_kqueue(fd, what);
+	ret = io_event_change_kqueue(fd, what, EV_ADD|EV_ENABLE);
 #endif
 #ifdef IO_USE_SELECT
-	i->what = 0;
-	return io_event_add(fd, what);
+	ret = io_event_add(fd, what);
 #endif
+	if (ret) i->what = what;
+	return ret;
 }
 
 
 #ifdef IO_USE_EPOLL
 static bool
-io_event_new_epoll(int fd, short what)
+io_event_change_epoll(int fd, short what, const int action)
 {
 	struct epoll_event ev = { 0, {0} };
 	ev.data.fd = fd;
@@ -245,22 +244,7 @@ io_event_new_epoll(int fd, short what)
 	if (what & IO_WANTWRITE)
 		ev.events |= EPOLLOUT;
 
-	return epoll_ctl(io_masterfd, EPOLL_CTL_ADD, fd, &ev) == 0;
-}
-
-
-static bool
-io_event_change_epoll(int fd, short what)
-{
-	struct epoll_event ev = { 0, {0} };
-	ev.data.fd = fd;
-
-	if (what & IO_WANTREAD)
-		ev.events = EPOLLIN | EPOLLPRI;
-	if (what & IO_WANTWRITE)
-		ev.events |= EPOLLOUT;
-
-	return epoll_ctl(io_masterfd, EPOLL_CTL_MOD, fd, &ev) == 0;
+	return epoll_ctl(io_masterfd, action, fd, &ev) == 0;
 }
 #endif
 
@@ -294,24 +278,28 @@ io_event_kqueue_commit_cache(void)
 
 
 static bool
-io_event_add_kqueue(int fd, short what)
+io_event_change_kqueue(int fd, short what, const int action)
 {
 	struct kevent kev;
-	short filter = 0;
-	size_t len = array_length(&io_evcache, sizeof kev);
+	bool ret = true;
 
-	if (what & IO_WANTREAD)
-		filter = EVFILT_READ;
+	if (what & IO_WANTREAD) {
+		EV_SET(&kev, fd, EVFILT_READ, action, 0, 0, 0);
+		ret = array_catb(&io_evcache, (char*) &kev, sizeof (kev));
+		if (!ret)
+			ret = kevent(io_masterfd, &kev,1, NULL, 0, NULL) == 0;
+	}	
 
-	if (what & IO_WANTWRITE)
-		filter |= EVFILT_WRITE;
-
-	if (len >= 100) {
-		(void)io_event_kqueue_commit_cache();
+	if (ret && (what & IO_WANTWRITE)) {
+		EV_SET(&kev, fd, EVFILT_WRITE, action, 0, 0, 0);
+		ret = array_catb(&io_evcache, (char*) &kev, sizeof (kev));
+		if (!ret)
+			ret = kevent(io_masterfd, &kev, 1, NULL, 0, NULL) == 0;
 	}
 
-	EV_SET(&kev, fd, filter, EV_ADD | EV_ENABLE, 0, 0, NULL);
-	return array_catb(&io_evcache, (char*) &kev, sizeof (kev));
+	if (array_length(&io_evcache, sizeof kev) >= 100)
+		io_event_kqueue_commit_cache();
+	return ret;
 }
 #endif
 
@@ -321,24 +309,20 @@ io_event_add(int fd, short what)
 {
 	io_event *i = io_event_get(fd);
 
-	assert(i);
+	assert(i != NULL);
 
-	if (!i)
-		return false;
-	if (i->what == what)
-		return true;
+	if (!i) return false;
+	if (i->what == what) return true;
 #ifdef DEBUG
 	Log(LOG_DEBUG, "io_event_add(): fd %d (arg: %d), what %d.", i->fd, fd, what);
 #endif
-
 	i->what |= what;
-
 #ifdef IO_USE_EPOLL
-	return io_event_change_epoll(fd, i->what);
+	return io_event_change_epoll(fd, i->what, EPOLL_CTL_MOD);
 #endif
 
 #ifdef IO_USE_KQUEUE
-	return io_event_add_kqueue(fd, what);
+	return io_event_change_kqueue(fd, what, EV_ADD | EV_ENABLE);
 #endif
 
 #ifdef IO_USE_SELECT
@@ -374,61 +358,62 @@ io_setnonblock(int fd)
 bool
 io_close(int fd)
 {
-	io_event *i = io_event_get(fd);
-	if (i) {
-		memset(i, 0, sizeof(io_event));
-		i->fd = -1;
-	}
+	io_event *i;
 #ifdef IO_USE_SELECT
 	FD_CLR(fd, &writers);
 	FD_CLR(fd, &readers);
 
-	if (fd == select_maxfd)
-		select_maxfd--;
+	if (fd == select_maxfd) {
+		while (select_maxfd>0) {
+			--select_maxfd; /* find largest fd */  
+			i = io_event_get(select_maxfd);
+			if (i && (i->fd >= 0)) break;
+		}	
+	}	
 #endif
+	i = io_event_get(fd);
 #ifdef IO_USE_KQUEUE
 	if (array_length(&io_evcache, sizeof (struct kevent)))	/* pending data in cache? */
 		io_event_kqueue_commit_cache();
+
+	/* both kqueue and epoll remove fd from all sets automatically on the last close
+	 * of the descriptor. since we don't know if this is the last close we'll have
+	 * to remove the set explicitly. */
+	if (i) {
+		io_event_change_kqueue(fd, i->what, EV_DELETE);
+		io_event_kqueue_commit_cache();
+	}	
 #endif
 #ifdef IO_USE_EPOLL
-	epoll_ctl(io_masterfd, EPOLL_CTL_DEL, fd, NULL);
+	io_event_change_epoll(fd, 0, EPOLL_CTL_DEL);
 #endif
-	return close(fd) == 0;	/* kqueue will remove fd from all sets automatically */
+	if (i) {
+		memset(i, 0, sizeof(io_event));
+		i->fd = -1;
+	}
+	return close(fd) == 0;
 }
 
 
 bool
 io_event_del(int fd, short what)
 {
-#ifdef IO_USE_KQUEUE
-	struct kevent kev;
-	short filter = 0;
-#endif
 	io_event *i = io_event_get(fd);
 #ifdef DEBUG
 	Log(LOG_DEBUG, "io_event_del(): trying to delete eventtype %d on fd %d", what, fd);
 #endif
-	assert(i);
-	if (!i)
-		return false;
+	assert(i != NULL);
+	if (!i) return false;
 
 	i->what &= ~what;
 
 #ifdef IO_USE_EPOLL
-	return io_event_change_epoll(fd, i->what);
+	return io_event_change_epoll(fd, i->what, EPOLL_CTL_MOD);
 #endif
 
 #ifdef IO_USE_KQUEUE
-	if (what & IO_WANTREAD)
-		filter = EVFILT_READ;
-
-	if (what & IO_WANTWRITE)
-		filter |= EVFILT_WRITE;
-
-	EV_SET(&kev, fd, filter, EV_DELETE, 0, 0, NULL);
-	return kevent(io_masterfd, &kev, 1, NULL, 0, NULL) == 0;
+	return io_event_change_kqueue(fd, what, EV_DISABLE);
 #endif
-
 #ifdef IO_USE_SELECT
 	if (what & IO_WANTWRITE)
 		FD_CLR(i->fd, &writers);
@@ -527,7 +512,6 @@ io_dispatch_kqueue(struct timeval *tv)
 	struct kevent *newevents;
 	struct timespec ts;
 	int newevents_len;
-	short type;
 	ts.tv_sec = tv->tv_sec;
 	ts.tv_nsec = tv->tv_usec * 1000;
 	
@@ -541,7 +525,6 @@ io_dispatch_kqueue(struct timeval *tv)
 		if (newevents_len)
 			assert(newevents);
 #endif
-
 		ret = kevent(io_masterfd, newevents, newevents_len, kev,
 			     100, &ts);
 		if ((newevents_len>0) && ret != -1)
@@ -552,25 +535,35 @@ io_dispatch_kqueue(struct timeval *tv)
 			return total;
 
 		for (i = 0; i < ret; i++) {
-			type = 0;
-			if (kev[i].flags & EV_EOF)
-				type = IO_ERROR;
+			switch (kev[i].filter) {
+				case EVFILT_READ:
+					io_docallback(kev[i].ident, IO_WANTREAD);
+					break;
+				case EVFILT_WRITE:
+					io_docallback(kev[i].ident, IO_WANTWRITE);
+					break;
+				default:
+#ifdef DEBUG
+					LogDebug("Unknown kev.filter number %d for fd %d",
+						kev[i].filter, kev[i].ident); /* Fall through */
+#endif
+				case EV_ERROR:
+					io_docallback(kev[i].ident, IO_ERROR);
+					break;
+						
+			}
+			if (kev[i].flags & EV_EOF) {
+#ifdef DEBUG
+				LogDebug("kev.flag has EV_EOF set, setting IO_ERROR",
+					kev[i].filter, kev[i].ident); /* Fall through */
 
-			if (kev[i].filter & EV_ERROR)
-				type = IO_ERROR;
+#endif				
+				io_docallback(kev[i].ident, IO_ERROR);
 
-			if (kev[i].filter & EVFILT_READ)
-				type |= IO_WANTREAD;
-
-			if (kev[i].filter & EVFILT_WRITE)
-				type |= IO_WANTWRITE;
-
-			io_docallback(kev[i].ident, type);
+			}	
 		}
-
 		ts.tv_sec = 0;
 		ts.tv_nsec = 0;
-
 	} while (ret == 100);
 
 	return total;

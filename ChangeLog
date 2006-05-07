@@ -11,7 +11,7 @@
 
 
 ngIRCd CVSHEAD
-
+  - kqueue() support was (almost..) completely broken. Fixed.
   - Internal: For outgoing (Server) connections, allocte Connstruct after
     successfull connect(). Made Conn-ID equal to connection file descriptor.
   - Internal: Simplified resolver code.
@@ -649,4 +649,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.298 2006/02/08 15:20:21 fw Exp $
+$Id: ChangeLog,v 1.299 2006/05/07 10:55:43 fw Exp $

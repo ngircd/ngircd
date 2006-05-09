@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.193 2006/04/29 16:19:46 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.194 2006/05/09 14:49:08 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -1083,12 +1083,15 @@ Read_Request( CONN_ID Idx )
 	/* Update timestamp of last data received if this connection is
 	 * registered as a user, server or service connection. Don't update
 	 * otherwise, so users have at least Conf_PongTimeout seconds time to
-	 * register with the IRC server -- see Check_Connections(). */
+	 * register with the IRC server -- see Check_Connections().
+	 * Set "lastping", too, so we can handle time shifts backwards ... */
 	c = Conn_GetClient(Idx);
 	if (c && (Client_Type(c) == CLIENT_USER
 		  || Client_Type(c) == CLIENT_SERVER
-		  || Client_Type(c) == CLIENT_SERVICE))
+		  || Client_Type(c) == CLIENT_SERVICE)) {
 		My_Connections[Idx].lastdata = time(NULL);
+		My_Connections[Idx].lastping = My_Connections[Idx].lastdata;
+	}
 
 	/* Look at the data in the (read-) buffer of this connection */
 	Handle_Buffer(Idx);
@@ -1206,39 +1209,43 @@ Handle_Buffer( CONN_ID Idx )
 
 
 static void
-Check_Connections( void )
+Check_Connections(void)
 {
 	/* check if connections are alive. if not, play PING-PONG first.
 	 * if this doesn't help either, disconnect client. */
 	CLIENT *c;
 	CONN_ID i;
 
-	for( i = 0; i < Pool_Size; i++ ) {
+	for (i = 0; i < Pool_Size; i++) {
 		if (My_Connections[i].sock < 0)
 			continue;
 
-		c = Conn_GetClient( i );
-		if( c && (( Client_Type( c ) == CLIENT_USER ) || ( Client_Type( c ) == CLIENT_SERVER ) || ( Client_Type( c ) == CLIENT_SERVICE )))
-		{
+		c = Conn_GetClient(i);
+		if (c && ((Client_Type(c) == CLIENT_USER)
+			  || (Client_Type(c) == CLIENT_SERVER)
+			  || (Client_Type(c) == CLIENT_SERVICE))) {
 			/* connected User, Server or Service */
-			if( My_Connections[i].lastping > My_Connections[i].lastdata ) {
-				/* we already sent a ping */
-				if( My_Connections[i].lastping < time( NULL ) - Conf_PongTimeout ) {
+			if (My_Connections[i].lastping >
+			    My_Connections[i].lastdata) {
+				/* We already sent a ping */
+				if (My_Connections[i].lastping <
+				    time(NULL) - Conf_PongTimeout) {
 					/* Timeout */
-					LogDebug("Connection %d: Ping timeout: %d seconds.",
-									i, Conf_PongTimeout );
-					Conn_Close( i, NULL, "Ping timeout", true );
+					LogDebug
+					    ("Connection %d: Ping timeout: %d seconds.",
+					     i, Conf_PongTimeout);
+					Conn_Close(i, NULL, "Ping timeout",
+						   true);
 				}
+			} else if (My_Connections[i].lastdata <
+				   time(NULL) - Conf_PingTimeout) {
+				/* We need to send a PING ... */
+				LogDebug("Connection %d: sending PING ...", i);
+				My_Connections[i].lastping = time(NULL);
+				Conn_WriteStr(i, "PING :%s",
+					      Client_ID(Client_ThisServer()));
 			}
-			else if( My_Connections[i].lastdata < time( NULL ) - Conf_PingTimeout ) {
-				/* we need to sent a PING */
-				LogDebug("Connection %d: sending PING ...", i );
-				My_Connections[i].lastping = time( NULL );
-				Conn_WriteStr( i, "PING :%s", Client_ID( Client_ThisServer( )));
-			}
-		}
-		else
-		{
+		} else {
 			/* The connection is not fully established yet, so
 			 * we don't do the PING-PONG game here but instead
 			 * disconnect the client after "a short time" if it's
@@ -1246,7 +1253,9 @@ Check_Connections( void )
 
 			if (My_Connections[i].lastdata <
 			    time(NULL) - Conf_PongTimeout) {
-				LogDebug("Unregistered connection %d timed out ...", i);
+				LogDebug
+				    ("Unregistered connection %d timed out ...",
+				     i);
 				Conn_Close(i, NULL, "Timeout", false);
 			}
 		}

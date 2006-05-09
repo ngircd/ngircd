@@ -12,7 +12,7 @@
 
 #include "array.h"
 
-static char UNUSED id[] = "$Id: array.c,v 1.9 2006/05/07 10:52:47 fw Exp $";
+static char UNUSED id[] = "$Id: array.c,v 1.10 2006/05/09 17:02:40 fw Exp $";
 
 #include <assert.h>
 
@@ -20,6 +20,11 @@ static char UNUSED id[] = "$Id: array.c,v 1.9 2006/05/07 10:52:47 fw Exp $";
 #include <string.h>
 
 #include "log.h"
+
+/* Enable more Debug messages in alloc / append / memmove code. */
+/* #define DEBUG_ARRAY */
+
+
 
 #define array_UNUSABLE(x)	( !(x)->mem || (0 == (x)->allocated) )
 
@@ -79,7 +84,7 @@ array_alloc(array * a, size_t size, size_t pos)
 				aligned = ALIGN_4096U(alloc);
 			}
 		}
-#ifdef DEBUG
+#ifdef DEBUG_ARRAY
 		Log(LOG_DEBUG, "array_alloc(): rounded %u to %u bytes.", alloc, aligned);
 #endif
 
@@ -89,7 +94,7 @@ array_alloc(array * a, size_t size, size_t pos)
 			return NULL;
 
 		alloc = aligned;
-#ifdef DEBUG
+#ifdef DEBUG_ARRAY
 		Log(LOG_DEBUG, "array_alloc(): changing size from %u to %u bytes.",
 		    a->allocated, aligned);
 #endif
@@ -190,7 +195,7 @@ array_catb(array * dest, const char *src, size_t len)
 
 	assert(ptr != NULL);
 
-#ifdef DEBUG
+#ifdef DEBUG_ARRAY
 	Log(LOG_DEBUG,
 	    "array_catb(): appending %u bytes to array (now %u bytes in array).",
 	    len, tmp);
@@ -339,7 +344,7 @@ array_moveleft(array * a, size_t membersize, size_t pos)
 	if (!bytepos)
 		return;	/* nothing to do */
 
-#ifdef DEBUG
+#ifdef DEBUG_ARRAY
 	Log(LOG_DEBUG,
 	    "array_moveleft(): %u bytes used in array, starting at position %u.",
 	    a->used, bytepos);

@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: io.c,v 1.12 2006/05/07 10:54:42 fw Exp $";
+static char UNUSED id[] = "$Id: io.c,v 1.13 2006/05/09 17:02:40 fw Exp $";
 
 #include <assert.h>
 #include <stdlib.h>
@@ -26,6 +26,8 @@ static char UNUSED id[] = "$Id: io.c,v 1.12 2006/05/07 10:54:42 fw Exp $";
 #include "io.h"
 #include "log.h"
 
+/* Enables extra debug messages in event add/delete/callback code. */
+/* #define DEBUG_IO */
 
 typedef struct {
  void (*callback)(int, short);
@@ -313,7 +315,7 @@ io_event_add(int fd, short what)
 
 	if (!i) return false;
 	if (i->what == what) return true;
-#ifdef DEBUG
+#ifdef DEBUG_IO
 	Log(LOG_DEBUG, "io_event_add(): fd %d (arg: %d), what %d.", i->fd, fd, what);
 #endif
 	i->what |= what;
@@ -399,7 +401,7 @@ bool
 io_event_del(int fd, short what)
 {
 	io_event *i = io_event_get(fd);
-#ifdef DEBUG
+#ifdef DEBUG_IO
 	Log(LOG_DEBUG, "io_event_del(): trying to delete eventtype %d on fd %d", what, fd);
 #endif
 	assert(i != NULL);
@@ -591,7 +593,7 @@ static void
 io_docallback(int fd, short what)
 {
 	io_event *i;
-#ifdef DEBUG
+#ifdef DEBUG_IO
 	Log(LOG_DEBUG, "doing callback for fd %d, what %d", fd, what);
 #endif
 	i = io_event_get(fd);

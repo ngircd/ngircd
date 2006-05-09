@@ -11,9 +11,11 @@
 
 
 ngIRCd CVSHEAD
-  - kqueue() support was (almost..) completely broken. Fixed.
-  - Internal: For outgoing (Server) connections, allocte Connstruct after
-    successfull connect(). Made Conn-ID equal to connection file descriptor.
+
+  - The ngIRCd handles time shifts backwards more gracefully now (the
+    timeout handling doesn't disconnect clients by mistake any more).
+  - Internal: Restructured connection handling (the connection ID is equal
+    to the file descriptor of the connection).
   - Internal: Simplified resolver code.
   - JOIN now supports more than one channel key at a time.
   - Implementec numeric "333": Time and user name who set a channel topic.
@@ -649,4 +651,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.299 2006/05/07 10:55:43 fw Exp $
+$Id: ChangeLog,v 1.300 2006/05/09 15:45:30 alex Exp $

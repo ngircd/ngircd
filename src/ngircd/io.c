@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: io.c,v 1.13 2006/05/09 17:02:40 fw Exp $";
+static char UNUSED id[] = "$Id: io.c,v 1.14 2006/05/10 17:33:36 fw Exp $";
 
 #include <assert.h>
 #include <stdlib.h>
@@ -88,9 +88,12 @@ static io_event *
 io_event_get(int fd)
 {
 	io_event *i;
+
 	assert(fd >= 0);
-	i = (io_event *) array_get(&io_events, sizeof(io_event), fd);
-	assert(i);
+
+	i = (io_event *) array_get(&io_events, sizeof(io_event), (size_t) fd);
+
+	assert(i != NULL);
 
 	return i;
 }
@@ -114,7 +117,7 @@ io_library_init(unsigned int eventsize)
 		eventsize = FD_SETSIZE - 1;
 #endif
 #endif
-	if (eventsize && !array_alloc(&io_events, sizeof(io_event), eventsize))
+	if ((eventsize > 0) && !array_alloc(&io_events, sizeof(io_event), (size_t)eventsize))
 		eventsize = 0;
 
 #ifdef IO_USE_EPOLL
@@ -133,7 +136,7 @@ io_library_init(unsigned int eventsize)
 	FD_ZERO(&readers);
 	FD_ZERO(&writers);
 #ifdef FD_SETSIZE
-	if (Conf_MaxConnections >= FD_SETSIZE) {
+	if (Conf_MaxConnections >= (int)FD_SETSIZE) {
 		Log(LOG_WARNING,
 		    "MaxConnections (%d) exceeds limit (%u), changed MaxConnections to %u.",
 		    Conf_MaxConnections, FD_SETSIZE, FD_SETSIZE - 1);
@@ -209,7 +212,7 @@ io_event_create(int fd, short what, void (*cbfunc) (int, short))
 #endif				/* FD_SETSIZE */
 #endif				/* IO_USE_SELECT */
 
-	i = (io_event *) array_alloc(&io_events, sizeof(io_event), fd);
+	i = (io_event *) array_alloc(&io_events, sizeof(io_event), (size_t) fd);
 	if (!i) {
 		Log(LOG_WARNING,
 		    "array_alloc failed: could not allocate space for %d io_event structures",
@@ -270,7 +273,7 @@ io_event_kqueue_commit_cache(void)
 
 	events = array_start(&io_evcache);
 
-	assert(events);
+	assert(events != NULL);
 
 	ret = kevent(io_masterfd, events, len, NULL, 0, NULL) == 0;
 	if (ret)
@@ -310,8 +313,6 @@ bool
 io_event_add(int fd, short what)
 {
 	io_event *i = io_event_get(fd);
-
-	assert(i != NULL);
 
 	if (!i) return false;
 	if (i->what == what) return true;
@@ -404,7 +405,6 @@ io_event_del(int fd, short what)
 #ifdef DEBUG_IO
 	Log(LOG_DEBUG, "io_event_del(): trying to delete eventtype %d on fd %d", what, fd);
 #endif
-	assert(i != NULL);
 	if (!i) return false;
 
 	i->what &= ~what;
@@ -525,7 +525,7 @@ io_dispatch_kqueue(struct timeval *tv)
 			newevents_len = 0;
 #ifdef DEBUG
 		if (newevents_len)
-			assert(newevents);
+			assert(newevents != NULL);
 #endif
 		ret = kevent(io_masterfd, newevents, newevents_len, kev,
 			     100, &ts);
@@ -537,12 +537,21 @@ io_dispatch_kqueue(struct timeval *tv)
 			return total;
 
 		for (i = 0; i < ret; i++) {
+			if (kev[i].flags & EV_EOF) {
+#ifdef DEBUG
+				LogDebug("kev.flag has EV_EOF set, setting IO_ERROR",
+					kev[i].filter, kev[i].ident);
+#endif				
+				io_docallback((int)kev[i].ident, IO_ERROR);
+				continue;
+			}	
+
 			switch (kev[i].filter) {
 				case EVFILT_READ:
-					io_docallback(kev[i].ident, IO_WANTREAD);
+					io_docallback((int)kev[i].ident, IO_WANTREAD);
 					break;
 				case EVFILT_WRITE:
-					io_docallback(kev[i].ident, IO_WANTWRITE);
+					io_docallback((int)kev[i].ident, IO_WANTWRITE);
 					break;
 				default:
 #ifdef DEBUG
@@ -550,19 +559,9 @@ io_dispatch_kqueue(struct timeval *tv)
 						kev[i].filter, kev[i].ident); /* Fall through */
 #endif
 				case EV_ERROR:
-					io_docallback(kev[i].ident, IO_ERROR);
+					io_docallback((int)kev[i].ident, IO_ERROR);
 					break;
-						
 			}
-			if (kev[i].flags & EV_EOF) {
-#ifdef DEBUG
-				LogDebug("kev.flag has EV_EOF set, setting IO_ERROR",
-					kev[i].filter, kev[i].ident); /* Fall through */
-
-#endif				
-				io_docallback(kev[i].ident, IO_ERROR);
-
-			}	
 		}
 		ts.tv_sec = 0;
 		ts.tv_nsec = 0;
@@ -597,9 +596,10 @@ io_docallback(int fd, short what)
 	Log(LOG_DEBUG, "doing callback for fd %d, what %d", fd, what);
 #endif
 	i = io_event_get(fd);
-	assert(i);
 
-	if (i->callback)	/* callback might be 0 if previous callback function called io_close on this fd */
+	if (i->callback) {	/* callback might be NULL if a previous callback function 
+				   called io_close on this fd */
 		i->callback(fd, (what & IO_ERROR) ? i->what : what);
-	/* if error indicator is set, we return the event(s) the app asked for */
+	}	
+	/* if error indicator is set, we return the event(s) that were registered */
 }

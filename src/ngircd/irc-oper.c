@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-oper.c,v 1.25 2006/04/23 10:37:27 fw Exp $";
+static char UNUSED id[] = "$Id: irc-oper.c,v 1.26 2006/05/10 21:24:01 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -150,35 +150,52 @@ IRC_RESTART( CLIENT *Client, REQUEST *Req )
 } /* IRC_RESTART */
 
 
+/**
+ * Connect configured or new server.
+ */
 GLOBAL bool
-IRC_CONNECT(CLIENT *Client, REQUEST *Req )
+IRC_CONNECT(CLIENT * Client, REQUEST * Req)
 {
-	/* Connect configured or new server */
 
-	assert( Client != NULL );
-	assert( Req != NULL );
+	assert(Client != NULL);
+	assert(Req != NULL);
 
 	/* Not a local IRC operator? */
-	if(( ! Client_HasMode( Client, 'o' )) || ( ! Client_OperByMe( Client ))) return IRC_WriteStrClient( Client, ERR_NOPRIVILEGES_MSG, Client_ID( Client ));
+	if ((!Client_HasMode(Client, 'o')) || (!Client_OperByMe(Client)))
+		return IRC_WriteStrClient(Client, ERR_NOPRIVILEGES_MSG,
+					  Client_ID(Client));
 
 	/* Bad number of parameters? */
-	if(( Req->argc != 2 ) && ( Req->argc != 5 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	if ((Req->argc != 2) && (Req->argc != 5))
+		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+					  Client_ID(Client), Req->command);
 
 	/* Invalid port number? */
-	if( atoi( Req->argv[1] ) < 1 )  return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	if (atoi(Req->argv[1]) < 1)
+		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+					  Client_ID(Client), Req->command);
 
-	Log( LOG_NOTICE|LOG_snotice, "Got CONNECT command from \"%s\" for \"%s\".", Client_Mask( Client ), Req->argv[0]);
+	Log(LOG_NOTICE | LOG_snotice,
+	    "Got CONNECT command from \"%s\" for \"%s\".", Client_Mask(Client),
+	    Req->argv[0]);
 
-	if( Req->argc == 2 )
-	{
+	if (Req->argc == 2) {
 		/* Connect configured server */
-		if( ! Conf_EnableServer( Req->argv[0], atoi( Req->argv[1] ))) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->argv[0] );
-	}
-	else
-	{
+		if (!Conf_EnableServer
+		    (Req->argv[0], (UINT16) atoi(Req->argv[1])))
+			return IRC_WriteStrClient(Client, ERR_NOSUCHSERVER_MSG,
+						  Client_ID(Client),
+						  Req->argv[0]);
+	} else {
 		/* Add server */
-		if( ! Conf_AddServer( Req->argv[0], atoi( Req->argv[1] ), Req->argv[2], Req->argv[3], Req->argv[4] )) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->argv[0] );
+		if (!Conf_AddServer
+		    (Req->argv[0], (UINT16) atoi(Req->argv[1]), Req->argv[2],
+		     Req->argv[3], Req->argv[4]))
+			return IRC_WriteStrClient(Client, ERR_NOSUCHSERVER_MSG,
+						  Client_ID(Client),
+						  Req->argv[0]);
 	}
+
 	return CONNECTED;
 } /* IRC_CONNECT */
 

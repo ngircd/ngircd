@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conn.h,v 1.41 2006/04/23 10:37:27 fw Exp $
+ * $Id: conn.h,v 1.42 2006/05/10 21:24:01 alex Exp $
  *
  * Connection management (header)
  */
@@ -88,7 +88,7 @@ GLOBAL void Conn_ExitListeners PARAMS(( void ));
 
 GLOBAL void Conn_Handler PARAMS(( void ));
 
-GLOBAL bool Conn_Write PARAMS(( CONN_ID Idx, char *Data, unsigned int Len ));
+GLOBAL bool Conn_Write PARAMS(( CONN_ID Idx, char *Data, size_t Len ));
 GLOBAL bool Conn_WriteStr PARAMS(( CONN_ID Idx, char *Format, ... ));
 
 GLOBAL void Conn_Close PARAMS(( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool InformClient ));

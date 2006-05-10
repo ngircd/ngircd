@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: rendezvous.h,v 1.3 2005/07/08 16:18:39 alex Exp $
+ * $Id: rendezvous.h,v 1.4 2006/05/10 21:24:01 alex Exp $
  *
  * "Rendezvous" functions (Header)
  */
@@ -23,7 +23,7 @@
 GLOBAL void Rendezvous_Init( void );
 GLOBAL void Rendezvous_Exit( void );
 
-GLOBAL bool Rendezvous_Register( char *Name, char *Type, unsigned int Port );
+GLOBAL bool Rendezvous_Register( char *Name, char *Type, UINT16 Port );
 
 GLOBAL bool Rendezvous_Unregister( char *Name );
 GLOBAL void Rendezvous_UnregisterListeners( void );

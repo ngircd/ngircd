@@ -19,7 +19,7 @@
 
 #ifdef ZLIB
 
-static char UNUSED id[] = "$Id: conn-zip.c,v 1.9 2005/08/02 22:48:57 alex Exp $";
+static char UNUSED id[] = "$Id: conn-zip.c,v 1.10 2006/05/10 21:24:01 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -80,7 +80,7 @@ Zip_InitConn( CONN_ID Idx )
 
 
 GLOBAL bool
-Zip_Buffer( CONN_ID Idx, char *Data, int Len )
+Zip_Buffer( CONN_ID Idx, char *Data, size_t Len )
 {
 	/* Daten zum Komprimieren im "Kompressions-Puffer" sammeln.
 	* Es wird true bei Erfolg, sonst false geliefert. */
@@ -90,14 +90,15 @@ Zip_Buffer( CONN_ID Idx, char *Data, int Len )
 	assert( Len > 0 );
 	assert( Len <= ZWRITEBUFFER_LEN );
 
-	if (Len < 0 || Len > ZWRITEBUFFER_LEN) return false;
+	if (Len > ZWRITEBUFFER_LEN)
+		return false;
 
 	if ( array_bytes( &My_Connections[Idx].zip.wbuf ) >= ZWRITEBUFFER_LEN ) {
 		/* compression buffer is full, flush */
 		if( ! Zip_Flush( Idx )) return false;
 	}
 
-	return array_catb( &My_Connections[Idx].zip.wbuf, Data, Len );
+	return array_catb(&My_Connections[Idx].zip.wbuf, Data, Len);
 } /* Zip_Buffer */
 
 
@@ -109,20 +110,19 @@ Zip_Flush( CONN_ID Idx )
 
 	int result;
 	unsigned char zipbuf[WRITEBUFFER_LEN];
-	unsigned int zipbuf_used = 0;
+	int zipbuf_used = 0;
 	z_stream *out;
 
 	out = &My_Connections[Idx].zip.out;
 
 	out->next_in = array_start(&My_Connections[Idx].zip.wbuf);
-	assert(out->next_in);
 	if (!out->next_in)
 		return false;
 
-	out->avail_in = array_bytes(&My_Connections[Idx].zip.wbuf);
+	out->avail_in = (uInt)array_bytes(&My_Connections[Idx].zip.wbuf);
 
 	out->next_out = zipbuf;
-	out->avail_out = sizeof zipbuf;
+	out->avail_out = (uInt)sizeof zipbuf;
 
 	Log(LOG_DEBUG, "out->avail_in %d, out->avail_out %d", out->avail_in, out->avail_out);
 	result = deflate( out, Z_SYNC_FLUSH );
@@ -136,7 +136,8 @@ Zip_Flush( CONN_ID Idx )
 	assert(out->avail_out <= WRITEBUFFER_LEN);
 	zipbuf_used = WRITEBUFFER_LEN - out->avail_out;
 	Log(LOG_DEBUG, "zipbuf_used: %d", zipbuf_used);
-	if (!array_catb( &My_Connections[Idx].wbuf, (char*) zipbuf, zipbuf_used ))
+	if (!array_catb(&My_Connections[Idx].wbuf,
+			(char *)zipbuf, (size_t) zipbuf_used))
 		return false;
 
 	My_Connections[Idx].bytes_out += zipbuf_used;
@@ -156,7 +157,7 @@ Unzip_Buffer( CONN_ID Idx )
 
 	int result;
 	unsigned char unzipbuf[READBUFFER_LEN];
-	unsigned int unzipbuf_used = 0;
+	int unzipbuf_used = 0;
 	unsigned int z_rdatalen;
 	unsigned int in_len;
 	
@@ -164,20 +165,19 @@ Unzip_Buffer( CONN_ID Idx )
 
 	assert( Idx > NONE );
 
-	z_rdatalen = array_bytes(&My_Connections[Idx].zip.rbuf);
+	z_rdatalen = (unsigned int)array_bytes(&My_Connections[Idx].zip.rbuf);
 	if (z_rdatalen == 0)
 		return true;
 
 	in = &My_Connections[Idx].zip.in;
 	
 	in->next_in = array_start(&My_Connections[Idx].zip.rbuf);
-	assert(in->next_in);
 	if (!in->next_in)
 		return false;
 
 	in->avail_in = z_rdatalen;
 	in->next_out = unzipbuf;
-	in->avail_out = sizeof unzipbuf;
+	in->avail_out = (uInt)sizeof unzipbuf;
 
 	Log(LOG_DEBUG, "in->avail_in %d, in->avail_out %d", in->avail_in, in->avail_out);
 	result = inflate( in, Z_SYNC_FLUSH );
@@ -193,7 +193,8 @@ Unzip_Buffer( CONN_ID Idx )
 	unzipbuf_used = READBUFFER_LEN - in->avail_out;
 	Log(LOG_DEBUG, "unzipbuf_used: %d - %d = %d", READBUFFER_LEN,  in->avail_out, unzipbuf_used);
 	assert(unzipbuf_used <= READBUFFER_LEN);
-	if (!array_catb(&My_Connections[Idx].rbuf, (char*) unzipbuf, unzipbuf_used))
+	if (!array_catb(&My_Connections[Idx].rbuf, (char*) unzipbuf,
+			(size_t)unzipbuf_used))
 		return false;
 
 	if( in->avail_in > 0 ) {

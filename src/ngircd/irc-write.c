@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-write.c,v 1.19 2005/07/31 20:13:08 alex Exp $";
+static char UNUSED id[] = "$Id: irc-write.c,v 1.20 2006/05/10 21:24:01 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -400,7 +400,7 @@ va_dcl
 
 
 GLOBAL void
-IRC_SetPenalty( CLIENT *Client, int Seconds )
+IRC_SetPenalty( CLIENT *Client, time_t Seconds )
 {
 	CONN_ID c;
 	
@@ -410,7 +410,8 @@ IRC_SetPenalty( CLIENT *Client, int Seconds )
 	if( Client_Type( Client ) == CLIENT_SERVER ) return;
 	
 	c = Client_Conn( Client );
-	if( c > NONE ) Conn_SetPenalty( c, Seconds );		
+	if (c > NONE)
+		Conn_SetPenalty(c, Seconds);
 } /* IRC_SetPenalty */
 
 

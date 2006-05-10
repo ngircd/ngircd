@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn-func.c,v 1.9 2006/04/23 10:37:27 fw Exp $";
+static char UNUSED id[] = "$Id: conn-func.c,v 1.10 2006/05/10 21:24:01 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -156,7 +156,7 @@ Conn_Next( CONN_ID Idx )
 } /* Conn_Next */
 
 
-GLOBAL int
+GLOBAL UINT16
 Conn_Options( CONN_ID Idx )
 {
 	assert( Idx > NONE );
@@ -185,7 +185,7 @@ Conn_StartTime( CONN_ID Idx )
 } /* Conn_StartTime */
 
 
-GLOBAL int
+GLOBAL size_t
 Conn_SendQ( CONN_ID Idx )
 {
 	/* Laenge der Daten im Schreibbuffer liefern */
@@ -220,7 +220,7 @@ Conn_SendBytes( CONN_ID Idx )
 } /* Conn_SendBytes */
 
 
-GLOBAL int
+GLOBAL size_t
 Conn_RecvQ( CONN_ID Idx )
 {
 	/* Laenge der Daten im Lesebuffer liefern */

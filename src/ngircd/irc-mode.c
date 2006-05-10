@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-mode.c,v 1.44 2005/07/31 20:13:08 alex Exp $";
+static char UNUSED id[] = "$Id: irc-mode.c,v 1.45 2006/05/10 21:24:01 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -71,15 +71,20 @@ IRC_MODE( CLIENT *Client, REQUEST *Req )
 	else origin = Client;
 	
 	/* Channel or user mode? */
-	cl = chan = NULL;
-	if( Client_IsValidNick( Req->argv[0] )) cl = Client_Search( Req->argv[0] );
-	if( Channel_IsValidName( Req->argv[0] )) chan = Channel_Search( Req->argv[0] );
+	cl = NULL; chan = NULL;
+	if (Client_IsValidNick(Req->argv[0]))
+		cl = Client_Search(Req->argv[0]);
+	if (Channel_IsValidName(Req->argv[0]))
+		chan = Channel_Search(Req->argv[0]);
 
-	if( cl ) return Client_Mode( Client, Req, origin, cl );
-	if( chan ) return Channel_Mode( Client, Req, origin, chan );
+	if (cl)
+		return Client_Mode(Client, Req, origin, cl);
+	if (chan)
+		return Channel_Mode(Client, Req, origin, chan);
 
 	/* No target found! */
-	return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->argv[0] );
+	return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
+			Client_ID(Client), Req->argv[0]);
 } /* IRC_MODE */
 
 

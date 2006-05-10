@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-info.c,v 1.32 2006/04/23 10:37:27 fw Exp $";
+static char UNUSED id[] = "$Id: irc-info.c,v 1.33 2006/05/10 21:24:01 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -913,7 +913,7 @@ IRC_Show_MOTD( CLIENT *Client )
 	if (!Show_MOTD_Start( Client ))
 		return DISCONNECTED;
 
-	while (fgets( line, sizeof( line ), fd )) {
+	while (fgets( line, (int)sizeof line, fd )) {
 		ngt_TrimLastChr( line, '\n');
 
 		if( ! Show_MOTD_Sendline( Client, line)) {

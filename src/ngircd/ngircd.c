@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.111 2005/11/21 16:31:30 alex Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.112 2006/05/10 21:24:01 alex Exp $";
 
 /**
  * @file
@@ -62,7 +62,7 @@ static void Signal_Handler PARAMS(( int Signal ));
 static void Show_Version PARAMS(( void ));
 static void Show_Help PARAMS(( void ));
 
-static void Pidfile_Create PARAMS(( long ));
+static void Pidfile_Create PARAMS(( pid_t pid ));
 static void Pidfile_Delete PARAMS(( void ));
 
 static void Fill_Version PARAMS(( void ));
@@ -601,7 +601,7 @@ Pidfile_Delete( void )
  * @param pid The process ID to be stored in this file.
  */
 static void
-Pidfile_Create( long pid )
+Pidfile_Create(pid_t pid)
 {
 	int pidfd;
 	char pidbuf[64];
@@ -620,13 +620,13 @@ Pidfile_Create( long pid )
 		return;
 	}
 
-	len = snprintf( pidbuf, sizeof pidbuf, "%ld\n", pid );
-	if (len < 0|| len < (int)sizeof pid) {
+	len = snprintf(pidbuf, sizeof pidbuf, "%ld\n", (long)pid);
+	if (len < 0 || len >= (int)sizeof pidbuf) {
 		Log( LOG_ERR, "Error converting pid");
 		return;
 	}
 	
-	if( write( pidfd, pidbuf, len) != len)
+	if (write(pidfd, pidbuf, (size_t)len) != (ssize_t)len)
 		Log( LOG_ERR, "Can't write PID file (%s): %s", Conf_PidFile, strerror( errno ));
 
 	if( close(pidfd) != 0 )
@@ -663,7 +663,7 @@ Setup_FDStreams( void )
 
 
 static bool
-NGIRCd_getNobodyID(unsigned int *uid, unsigned int *gid )
+NGIRCd_getNobodyID(uid_t *uid, gid_t *gid )
 {
 	struct passwd *pwd;
 
@@ -689,7 +689,7 @@ NGIRCd_Init( bool NGIRCd_NoDaemon )
 	struct passwd *pwd;
 	struct group *grp;
 	int real_errno;
-	long pid;
+	pid_t pid;
 
 	if (initialized)
 		return true;
@@ -749,7 +749,7 @@ NGIRCd_Init( bool NGIRCd_NoDaemon )
 	 * connected to ther controlling terminal. Use "--nodaemon"
 	 * to disable this "daemon mode" (useful for debugging). */
 	if ( ! NGIRCd_NoDaemon ) {
-		pid = (long)fork( );
+		pid = fork( );
 		if( pid > 0 ) {
 			/* "Old" process: exit. */
 			exit( 0 );

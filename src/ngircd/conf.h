@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conf.h,v 1.39 2006/02/08 15:20:21 fw Exp $
+ * $Id: conf.h,v 1.40 2006/05/10 21:24:01 alex Exp $
  *
  * Configuration management (header)
  */
@@ -84,8 +84,8 @@ GLOBAL array Conf_ListenPorts;
 GLOBAL char Conf_ListenAddress[16];
 
 /* User and group ID the server should run with */
-GLOBAL unsigned int Conf_UID;
-GLOBAL unsigned int Conf_GID;
+GLOBAL uid_t Conf_UID;
+GLOBAL gid_t Conf_GID;
 
 /* A directory to chroot() in */
 GLOBAL char Conf_Chroot[FNAME_LEN];

@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: resolve.h,v 1.12 2006/02/08 15:24:10 fw Exp $
+ * $Id: resolve.h,v 1.13 2006/05/10 21:24:02 alex Exp $
  *
  * Asynchronous resolver (header)
  */
@@ -22,7 +22,7 @@
 
 /* This struct must not be accessed directly */
 typedef struct _Res_Stat {
-	int pid;			/* PID of resolver process */
+	pid_t pid;			/* PID of resolver process */
 	int resolver_fd;		/* pipe fd for lookup result. */
 } RES_STAT;
 

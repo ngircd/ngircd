@@ -21,7 +21,7 @@
 #ifdef ZEROCONF
 
 
-static char UNUSED id[] = "$Id: rendezvous.c,v 1.7 2005/07/31 20:13:08 alex Exp $";
+static char UNUSED id[] = "$Id: rendezvous.c,v 1.8 2006/05/10 21:24:01 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -144,7 +144,7 @@ GLOBAL void Rendezvous_Exit( void )
 } /* Rendezvous_Exit */
 
 
-GLOBAL bool Rendezvous_Register( char *Name, char *Type, unsigned int Port )
+GLOBAL bool Rendezvous_Register( char *Name, char *Type, UINT16 Port )
 {
 	/* Register new service */
 
@@ -310,7 +310,8 @@ static void Registration_Reply_Handler( DNSServiceRegistrationReplyErrorType Err
 			strcpy( txt, "name conflict!" );
 			break;
 		default:
-			sprintf( txt, "error code %ld!", (long)ErrCode );
+			snprintf(txt, sizeof txt, "error code %ld!",
+			 	 (long)ErrCode);
 	}
 
 	Log( LOG_INFO, "Can't register \"%s\" with Rendezvous: %s", s->Desc, txt );
@@ -347,7 +348,8 @@ static sw_result HOWL_API Registration_Reply_Handler( sw_discovery Session, sw_d
 			strcpy( txt, "name conflict!" );
 			break;
 		default:
-			sprintf( txt, "error code %ld!", (long)Status );
+			snprintf(txt, sizeof txt, "error code %ld!",
+			 	 (long)Status);
 	}
 
 	Log( LOG_INFO, "Can't register \"%s\" with Rendezvous: %s", s->Desc, txt );

@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conn-zip.h,v 1.3 2005/03/19 18:43:48 fw Exp $
+ * $Id: conn-zip.h,v 1.4 2006/05/10 21:24:01 alex Exp $
  *
  * Connection compression using ZLIB (header)
  */
@@ -22,7 +22,7 @@
 
 GLOBAL bool Zip_InitConn PARAMS(( CONN_ID Idx ));
 
-GLOBAL bool Zip_Buffer PARAMS(( CONN_ID Idx, char *Data, int Len ));
+GLOBAL bool Zip_Buffer PARAMS(( CONN_ID Idx, char *Data, size_t Len ));
 GLOBAL bool Zip_Flush PARAMS(( CONN_ID Idx ));
 GLOBAL bool Unzip_Buffer PARAMS(( CONN_ID Idx ));
 

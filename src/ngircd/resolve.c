@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: resolve.c,v 1.23 2006/02/08 15:24:10 fw Exp $";
+static char UNUSED id[] = "$Id: resolve.c,v 1.24 2006/05/10 21:24:01 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -50,10 +50,11 @@ static bool register_callback PARAMS((RES_STAT *s, void (*cbfunc)(int, short)));
 static char *Get_Error PARAMS(( int H_Error ));
 #endif
 
-static int
+static pid_t
 Resolver_fork(int *pipefds)
 {
-	int pid;
+	pid_t pid;
+
 	if (pipe(pipefds) != 0) {
                 Log( LOG_ALERT, "Resolver: Can't create output pipe: %s!", strerror( errno ));
                 return -1;
@@ -77,11 +78,16 @@ Resolver_fork(int *pipefds)
 }
 
 
+/**
+ * Resolve IP (asynchronous!).
+ */
 GLOBAL bool
-Resolve_Addr( RES_STAT *s, struct sockaddr_in *Addr, int identsock, void (*cbfunc)(int, short))
+Resolve_Addr(RES_STAT * s, struct sockaddr_in *Addr, int identsock,
+	     void (*cbfunc) (int, short))
 {
-	/* Resolve IP (asynchronous!). */
-	int pid, pipefd[2];
+	int pipefd[2];
+	pid_t pid;
+
 	assert(s != NULL);
 
 	pid = Resolver_fork(pipefd);
@@ -102,11 +108,15 @@ Resolve_Addr( RES_STAT *s, struct sockaddr_in *Addr, int identsock, void (*cbfun
 } /* Resolve_Addr */
 
 
+/**
+ * Resolve hostname (asynchronous!).
+ */
 GLOBAL bool
 Resolve_Name( RES_STAT *s, const char *Host, void (*cbfunc)(int, short))
 {
-	/* Resolve hostname (asynchronous!). */
-	int pid, pipefd[2];
+	int pipefd[2];
+	pid_t pid;
+
 	assert(s != NULL);
 
 	pid = Resolver_fork(pipefd);
@@ -236,7 +246,7 @@ Do_ResolveName( const char *Host, int w_fd )
 	char ip[16];
 	struct hostent *h;
 	struct in_addr *addr;
-	int len;
+	size_t len;
 
 	Log_Resolver( LOG_DEBUG, "Now resolving \"%s\" ...", Host );
 
@@ -259,7 +269,7 @@ Do_ResolveName( const char *Host, int w_fd )
 #endif
 	/* Write result into pipe to parent */
 	len = strlen( ip );
-	if( write( w_fd, ip, len ) != len) {
+	if ((size_t)write( w_fd, ip, len ) != len) {
 		Log_Resolver( LOG_CRIT, "Resolver: Can't write to parent: %s!", strerror( errno ));
 		close( w_fd );
 	}
@@ -294,7 +304,7 @@ Get_Error( int H_Error )
 static bool
 register_callback( RES_STAT *s, void (*cbfunc)(int, short))
 {
-	assert(cbfunc);
+	assert(cbfunc != NULL);
 	assert(s != NULL);
 	assert(s->resolver_fd >= 0);
 
@@ -324,11 +334,15 @@ Resolve_Shutdown( RES_STAT *s)
 }
 
                 
+/**
+ * Read result of resolver sub-process from pipe
+ */
 GLOBAL size_t
 Resolve_Read( RES_STAT *s, void* readbuf, size_t buflen)
 {
-	/* Read result of resolver sub-process from pipe */
-	int err, bytes_read;
+	int err;
+	ssize_t bytes_read;
+
 	assert(buflen > 0);
 
 	/* Read result from pipe */
@@ -353,7 +367,7 @@ Resolve_Read( RES_STAT *s, void* readbuf, size_t buflen)
 		return 0;
 	}
 
-	return bytes_read;
+	return (size_t)bytes_read;
 }
 /* -eof- */
 

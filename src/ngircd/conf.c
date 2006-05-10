@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.90 2006/02/08 15:20:21 fw Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.91 2006/05/10 21:24:01 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -86,7 +86,7 @@ strdup_warn(const char *str)
 static void
 ports_puts(array *a)
 {
-	unsigned int len;
+	size_t len;
 	UINT16 *ports;
 	len = array_length(a, sizeof(UINT16));
 	if (len--) {
@@ -223,7 +223,7 @@ Conf_Test( void )
 		puts( "[SERVER]" );
 		printf( "  Name = %s\n", Conf_Server[i].name );
 		printf( "  Host = %s\n", Conf_Server[i].host );
-		printf( "  Port = %d\n", Conf_Server[i].port );
+		printf( "  Port = %u\n", (unsigned int)Conf_Server[i].port );
 		printf( "  MyPassword = %s\n", Conf_Server[i].pwd_in );
 		printf( "  PeerPassword = %s\n", Conf_Server[i].pwd_out );
 		printf( "  Group = %d\n\n", Conf_Server[i].group );

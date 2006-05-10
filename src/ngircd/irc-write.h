@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: irc-write.h,v 1.7 2005/03/19 18:43:49 fw Exp $
+ * $Id: irc-write.h,v 1.8 2006/05/10 21:24:01 alex Exp $
  *
  * Sending IRC commands over the network (header)
  */
@@ -30,7 +30,7 @@ GLOBAL void IRC_WriteStrServersPrefixFlag PARAMS(( CLIENT *ExceptOf, CLIENT *Pre
 
 GLOBAL bool IRC_WriteStrRelatedPrefix PARAMS(( CLIENT *Client, CLIENT *Prefix, bool Remote, char *Format, ... ));
 
-GLOBAL void IRC_SetPenalty PARAMS(( CLIENT *Client, int Seconds ));
+GLOBAL void IRC_SetPenalty PARAMS(( CLIENT *Client, time_t Seconds ));
 
 
 #endif

@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.194 2006/05/09 14:49:08 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.195 2006/05/10 21:24:01 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -216,12 +216,13 @@ Conn_Init( void )
 		if( Pool_Size > Conf_MaxConnections ) Pool_Size = Conf_MaxConnections;
 	}
 	
-	if (!array_alloc(&My_ConnArray, sizeof(CONNECTION),  Pool_Size)) {
+	if (!array_alloc(&My_ConnArray, sizeof(CONNECTION), (size_t)Pool_Size)) {
 		Log( LOG_EMERG, "Can't allocate memory! [Conn_Init]" );
 		exit( 1 );
 	}
 
-	/* XXX: My_Connetions/Pool_Size are needed by other parts of the code; remove them */
+	/* FIXME: My_Connetions/Pool_Size is needed by other parts of the
+	 * code; remove them! */
 	My_Connections = (CONNECTION*) array_start(&My_ConnArray);
 
 	LogDebug("Allocated connection pool for %d items (%ld bytes).",
@@ -266,10 +267,11 @@ Conn_Exit( void )
 } /* Conn_Exit */
 
 
-static unsigned int
+static int
 ports_initlisteners(array *a, void (*func)(int,short))
 {
-	unsigned int created = 0, len;
+	int created = 0;
+	size_t len;
 	int fd;
 	UINT16 *port;
 
@@ -301,7 +303,7 @@ Conn_InitListeners( void )
 {
 	/* Initialize ports on which the server should accept connections */
 
-	unsigned int created;
+	int created;
 
 	if (!io_library_init(CONNECTION_POOL)) {
 		Log(LOG_EMERG, "Cannot initialize IO routines: %s", strerror(errno));
@@ -328,7 +330,7 @@ Conn_ExitListeners( void )
 	Log( LOG_INFO, "Shutting down all listening sockets (%d total)...", arraylen );
 	fd = array_start(&My_Listeners);
 	while(arraylen--) {
-		assert(fd);
+		assert(fd != NULL);
 		assert(*fd >= 0);
 		io_close(*fd);
 		LogDebug("Listening socket %d closed.", *fd );
@@ -354,7 +356,7 @@ NewListener( const UINT16 Port )
 	/* Server-"Listen"-Socket initialisieren */
 	memset( &addr, 0, sizeof( addr ));
 	memset( &inaddr, 0, sizeof( inaddr ));
-	addr.sin_family = AF_INET;
+	addr.sin_family = (sa_family_t)AF_INET;
 	addr.sin_port = htons( Port );
 	if( Conf_ListenAddress[0] )
 	{
@@ -381,7 +383,7 @@ NewListener( const UINT16 Port )
 
 	if( ! Init_Socket( sock )) return -1;
 
-	if( bind( sock, (struct sockaddr *)&addr, (socklen_t)sizeof( addr )) != 0 ) {
+	if (bind(sock, (struct sockaddr *)&addr, (int)sizeof(addr)) != 0) {
 		Log( LOG_CRIT, "Can't bind socket: %s!", strerror( errno ));
 		close( sock );
 		return -1;
@@ -424,8 +426,11 @@ NewListener( const UINT16 Port )
 	}
 
 	/* Add port number to description if non-standard */
-	if( Port != 6667 ) snprintf( name, sizeof( name ), "%s (port %u)", info, Port );
-	else strlcpy( name, info, sizeof( name ));
+	if (Port != 6667)
+		snprintf(name, sizeof name, "%s (port %u)", info,
+		 	 (unsigned int)Port);
+	else
+	 	strlcpy(name, info, sizeof name);
 
 	/* Register service */
 	Rendezvous_Register( name, MDNS_TYPE, Port );
@@ -482,7 +487,7 @@ Conn_Handler( void )
 			if ( My_Connections[i].sock <= NONE )
 				continue;
 
-			wdatalen = array_bytes(&My_Connections[i].wbuf);
+			wdatalen = (unsigned int)array_bytes(&My_Connections[i].wbuf);
 
 #ifdef ZLIB
 			if (( wdatalen > 0 ) || ( array_bytes(&My_Connections[i].zip.wbuf)> 0 ))
@@ -611,7 +616,7 @@ va_dcl
 
 
 GLOBAL bool
-Conn_Write( CONN_ID Idx, char *Data, unsigned int Len )
+Conn_Write( CONN_ID Idx, char *Data, size_t Len )
 {
 	/* Daten in Socket schreiben. Bei "fatalen" Fehlern wird
 	 * der Client disconnectiert und false geliefert. */
@@ -824,13 +829,14 @@ Conn_SyncServerStruct( void )
 } /* SyncServerStruct */
 
 
+/**
+ * Send out data of write buffer; connect new sockets.
+ */
 static bool
 Handle_Write( CONN_ID Idx )
 {
-	/* Daten aus Schreibpuffer versenden bzw. Connection aufbauen */
-
-	int len;
-	unsigned int wdatalen;
+	ssize_t len;
+	size_t wdatalen;
 
 	assert( Idx > NONE );
 	if ( My_Connections[Idx].sock < 0 ) {
@@ -876,7 +882,7 @@ Handle_Write( CONN_ID Idx )
 	}
 
 	/* move any data not yet written to beginning */
-	array_moveleft(&My_Connections[Idx].wbuf, 1, len);
+	array_moveleft(&My_Connections[Idx].wbuf, 1, (size_t)len);
 
 	return true;
 } /* Handle_Write */
@@ -898,11 +904,11 @@ New_Connection( int Sock )
 
 	assert( Sock > NONE );
 	/* Connection auf Listen-Socket annehmen */
-	new_sock_len = sizeof( new_addr );
-	new_sock = accept( Sock, (struct sockaddr *)&new_addr, (socklen_t *)&new_sock_len );
-	if( new_sock < 0 )
-	{
-		Log( LOG_CRIT, "Can't accept connection: %s!", strerror( errno ));
+	new_sock_len = (int)sizeof new_addr;
+	new_sock = accept(Sock, (struct sockaddr *)&new_addr,
+			  (socklen_t *)&new_sock_len);
+	if (new_sock < 0) {
+		Log(LOG_CRIT, "Can't accept connection: %s!", strerror(errno));
 		return -1;
 	}
 
@@ -947,7 +953,8 @@ New_Connection( int Sock )
 			return -1;
 		}
 
-		if (!array_alloc(&My_ConnArray, sizeof( CONNECTION ), new_sock)) {
+		if (!array_alloc(&My_ConnArray, sizeof(CONNECTION),
+				 (size_t)new_sock)) {
 			Log( LOG_EMERG, "Can't allocate memory! [New_Connection]" );
 			Simple_Message( new_sock, "ERROR: Internal error" );
 			close( new_sock );
@@ -1023,7 +1030,7 @@ Read_Request( CONN_ID Idx )
 	/* Daten von Socket einlesen und entsprechend behandeln.
 	 * Tritt ein Fehler auf, so wird der Socket geschlossen. */
 
-	int len;
+	ssize_t len;
 	char readbuf[1024];
 	CLIENT *c;
 
@@ -1061,10 +1068,14 @@ Read_Request( CONN_ID Idx )
 		return;
 	}
 #ifdef ZLIB
-	if ( Conn_OPTION_ISSET( &My_Connections[Idx], CONN_ZIP )) {
-		if (!array_catb( &My_Connections[Idx].zip.rbuf, readbuf, len)) {
-			Log( LOG_ERR, "Could not append recieved data to zip input buffer (connn %d): %d bytes!", Idx, len );
-			Conn_Close( Idx, "Receive buffer overflow!", NULL, false );
+	if (Conn_OPTION_ISSET(&My_Connections[Idx], CONN_ZIP)) {
+		if (!array_catb(&My_Connections[Idx].zip.rbuf, readbuf,
+				(size_t) len)) {
+			Log(LOG_ERR,
+			    "Could not append recieved data to zip input buffer (connn %d): %d bytes!",
+			    Idx, len);
+			Conn_Close(Idx, "Receive buffer overflow!", NULL,
+				   false);
 			return;
 		}
 	} else
@@ -1107,7 +1118,7 @@ Handle_Buffer( CONN_ID Idx )
 	char *ptr1, *ptr2;
 #endif
 	char *ptr;
-	int len, delta;
+	size_t len, delta;
 	bool result;
 	time_t starttime;
 #ifdef ZLIB
@@ -1156,7 +1167,7 @@ Handle_Buffer( CONN_ID Idx )
 
 		len = ( ptr - (char*) array_start(&My_Connections[Idx].rbuf)) + delta;
 
-		if( len < 0 || len > ( COMMAND_LEN - 1 )) {
+		if( len > ( COMMAND_LEN - 1 )) {
 			/* Request must not exceed 512 chars (incl. CR+LF!), see
 			 * RFC 2812. Disconnect Client if this happens. */
 			Log( LOG_ERR, "Request too long (connection %d): %d bytes (max. %d expected)!",
@@ -1331,7 +1342,7 @@ New_Server( int Server )
 	}
 
 	memset( &new_addr, 0, sizeof( new_addr ));
-	new_addr.sin_family = AF_INET;
+	new_addr.sin_family = (sa_family_t)AF_INET;
 	new_addr.sin_addr = inaddr;
 	new_addr.sin_port = htons( Conf_Server[Server].port );
 
@@ -1343,15 +1354,18 @@ New_Server( int Server )
 
 	if( ! Init_Socket( new_sock )) return;
 
-	res = connect( new_sock, (struct sockaddr *)&new_addr, sizeof( new_addr ));
+	res = connect(new_sock, (struct sockaddr *)&new_addr,
+			(socklen_t)sizeof(new_addr));
 	if(( res != 0 ) && ( errno != EINPROGRESS )) {
 		Log( LOG_CRIT, "Can't connect socket: %s!", strerror( errno ));
 		close( new_sock );
 		return;
 	}
 	
-	if (!array_alloc(&My_ConnArray, sizeof(CONNECTION), new_sock)) {
-		Log( LOG_ALERT, "Cannot allocate memory for server connection (socket %d)", new_sock);
+	if (!array_alloc(&My_ConnArray, sizeof(CONNECTION), (size_t)new_sock)) {
+		Log(LOG_ALERT,
+		    "Cannot allocate memory for server connection (socket %d)",
+		    new_sock);
 		close( new_sock );
 		return;
 	}
@@ -1598,7 +1612,7 @@ Conn_GetClient( CONN_ID Idx )
 	CONNECTION *c;
 	assert( Idx >= 0 );
 
-	c = array_get(&My_ConnArray, sizeof (CONNECTION), Idx);
+	c = array_get(&My_ConnArray, sizeof (CONNECTION), (size_t)Idx);
 	
 	assert(c != NULL);
 	

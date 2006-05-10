@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc.c,v 1.129 2006/04/23 10:37:27 fw Exp $";
+static char UNUSED id[] = "$Id: irc.c,v 1.130 2006/05/10 21:24:01 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -329,13 +329,15 @@ static char *
 Option_String( CONN_ID Idx )
 {
 	static char option_txt[8];
-	int options;
+	UINT16 options;
 
-	options = Conn_Options( Idx );
+	options = Conn_Options(Idx);
 
-	strcpy( option_txt, "F" );	/* No idea what this means but the original ircd sends it ... */
+	strcpy(option_txt, "F");	/* No idea what this means, but the
+					 * original ircd sends it ... */
 #ifdef ZLIB
-	if( options & CONN_ZIP ) strcat( option_txt, "z" );
+	if(options & CONN_ZIP)		/* zlib compression supported. */
+		strcat(option_txt, "z");
 #endif
 
 	return option_txt;

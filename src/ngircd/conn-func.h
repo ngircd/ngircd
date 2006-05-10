@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conn-func.h,v 1.4 2005/04/25 18:37:16 fw Exp $
+ * $Id: conn-func.h,v 1.5 2006/05/10 21:24:01 alex Exp $
  *
  * Connection management: Global functions (header)
  */
@@ -30,8 +30,8 @@ GLOBAL void Conn_UpdateIdle PARAMS(( CONN_ID Idx ));
 GLOBAL time_t Conn_GetIdle PARAMS(( CONN_ID Idx ));
 GLOBAL time_t Conn_LastPing PARAMS(( CONN_ID Idx ));
 GLOBAL time_t Conn_StartTime PARAMS(( CONN_ID Idx ));
-GLOBAL int Conn_SendQ PARAMS(( CONN_ID Idx ));
-GLOBAL int Conn_RecvQ PARAMS(( CONN_ID Idx ));
+GLOBAL size_t Conn_SendQ PARAMS(( CONN_ID Idx ));
+GLOBAL size_t Conn_RecvQ PARAMS(( CONN_ID Idx ));
 GLOBAL long Conn_SendMsg PARAMS(( CONN_ID Idx ));
 GLOBAL long Conn_RecvMsg PARAMS(( CONN_ID Idx ));
 GLOBAL long Conn_SendBytes PARAMS(( CONN_ID Idx ));
@@ -47,7 +47,7 @@ GLOBAL void Conn_SetFlag PARAMS(( CONN_ID Idx, int Flag ));
 GLOBAL CONN_ID Conn_First PARAMS(( void ));
 GLOBAL CONN_ID Conn_Next PARAMS(( CONN_ID Idx ));
 
-GLOBAL int Conn_Options PARAMS(( CONN_ID Idx ));
+GLOBAL UINT16 Conn_Options PARAMS(( CONN_ID Idx ));
 
 GLOBAL void Conn_ResetWCounter PARAMS(( void ));
 GLOBAL long Conn_WCounter PARAMS(( void ));

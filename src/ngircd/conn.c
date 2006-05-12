@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.195 2006/05/10 21:24:01 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.196 2006/05/12 11:53:04 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -383,7 +383,7 @@ NewListener( const UINT16 Port )
 
 	if( ! Init_Socket( sock )) return -1;
 
-	if (bind(sock, (struct sockaddr *)&addr, (int)sizeof(addr)) != 0) {
+	if (bind(sock, (struct sockaddr *)&addr, (socklen_t)sizeof(addr)) != 0) {
 		Log( LOG_CRIT, "Can't bind socket: %s!", strerror( errno ));
 		close( sock );
 		return -1;

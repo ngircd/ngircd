@@ -8,7 +8,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: configure.in,v 1.117 2005/12/06 22:37:50 alex Exp $
+# $Id: configure.in,v 1.118 2006/05/17 16:44:14 alex Exp $
 #
 
 # -- Initialisation --
@@ -293,7 +293,8 @@ if test "$x_zeroconf_on" = "osx"; then
 fi
 if test "$x_zeroconf_on" = "howl"; then
 	for dir in /usr/local/include /usr/local/include/howl* \
-	 /usr/include /usr/include/howl*; do
+	 /usr/include /usr/include/howl* \
+	 /usr/local/include/avahi* /usr/include/avahi*; do
 	 	test -d "$dir" || continue
 		AC_MSG_CHECKING([for Howl headers in $dir])
 		if test -f "$dir/rendezvous/rendezvous.h"; then

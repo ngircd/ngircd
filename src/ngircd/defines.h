@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: defines.h,v 1.57 2005/09/02 12:50:25 alex Exp $
+ * $Id: defines.h,v 1.58 2006/06/15 20:28:15 alex Exp $
  */
 
 
@@ -95,7 +95,7 @@
 					   in seconds. */
 
 #define USERMODES "aios"		/* Supported user modes. */
-#define CHANMODES "biklImnoPstv"	/* Supported channel modes. */
+#define CHANMODES "biIklmnoPstv"	/* Supported channel modes. */
 
 #define CONNECTED true			/* Internal status codes. */
 #define DISCONNECTED false

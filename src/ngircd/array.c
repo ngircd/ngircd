@@ -12,7 +12,7 @@
 
 #include "array.h"
 
-static char UNUSED id[] = "$Id: array.c,v 1.10 2006/05/09 17:02:40 fw Exp $";
+static char UNUSED id[] = "$Id: array.c,v 1.11 2006/07/01 22:11:48 fw Exp $";
 
 #include <assert.h>
 
@@ -28,17 +28,15 @@ static char UNUSED id[] = "$Id: array.c,v 1.10 2006/05/09 17:02:40 fw Exp $";
 
 #define array_UNUSABLE(x)	( !(x)->mem || (0 == (x)->allocated) )
 
-#define ALIGN_32U(x)		(((x) | 0x1fU) +1)
-#define ALIGN_1024U(x)		(((x) | 0x3ffU) +1)
-#define ALIGN_4096U(x)		(((x) | 0xfffU) +1)
+#define ALIGN_32U(x)            (((x)+31U  ) & ~(31U))
+#define ALIGN_1024U(x)          (((x)+1023U) & ~(1023U))
+#define ALIGN_4096U(x)          (((x)+4095U) & ~(4095U))
 
 
 static bool
 safemult_sizet(size_t a, size_t b, size_t *res)
 {
-	size_t tmp;
-	
-	tmp = a * b;
+	size_t tmp = a * b;
 
 	if (b && (tmp / b != a))
 		return false;
@@ -56,7 +54,7 @@ array_init(array *a)
 	a->allocated = 0;
 	a->used = 0;
 }
-	
+
 
 /* if realloc() fails, array_alloc return NULL. otherwise return pointer to elem pos in array */
 void *

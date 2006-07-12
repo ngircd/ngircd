@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: io.c,v 1.14 2006/05/10 17:33:36 fw Exp $";
+static char UNUSED id[] = "$Id: io.c,v 1.15 2006/07/12 19:27:12 fw Exp $";
 
 #include <assert.h>
 #include <stdlib.h>
@@ -31,7 +31,6 @@ static char UNUSED id[] = "$Id: io.c,v 1.14 2006/05/10 17:33:36 fw Exp $";
 
 typedef struct {
  void (*callback)(int, short);
- int fd;
  short what;
 } io_event;
 
@@ -220,7 +219,6 @@ io_event_create(int fd, short what, void (*cbfunc) (int, short))
 		return false;
 	}
 
-	i->fd = fd;
 	i->callback = cbfunc;
 	i->what = 0;
 #ifdef IO_USE_EPOLL
@@ -370,7 +368,7 @@ io_close(int fd)
 		while (select_maxfd>0) {
 			--select_maxfd; /* find largest fd */  
 			i = io_event_get(select_maxfd);
-			if (i && (i->fd >= 0)) break;
+			if (i && i->callback) break;
 		}	
 	}	
 #endif
@@ -391,8 +389,8 @@ io_close(int fd)
 	io_event_change_epoll(fd, 0, EPOLL_CTL_DEL);
 #endif
 	if (i) {
-		memset(i, 0, sizeof(io_event));
-		i->fd = -1;
+		i->callback = NULL;
+		i->what = 0;
 	}
 	return close(fd) == 0;
 }
@@ -418,10 +416,10 @@ io_event_del(int fd, short what)
 #endif
 #ifdef IO_USE_SELECT
 	if (what & IO_WANTWRITE)
-		FD_CLR(i->fd, &writers);
+		FD_CLR(fd, &writers);
 
 	if (what & IO_WANTREAD)
-		FD_CLR(i->fd, &readers);
+		FD_CLR(fd, &readers);
 
 	return true;
 #endif

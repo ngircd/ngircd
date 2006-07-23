@@ -21,18 +21,19 @@ To access the source tree anonymously in read-only mode, follow these steps:
 
 Login to the CVS server:
 
- $ cvs -d:pserver:anonymous@arthur.ath.cx:/usr/local/CVS/ngircd login
+ $ cvs -d:pserver:anonymous@ngircd.barton.de:/srv/cvs/ngircd login
 
 Use "anonymous" as user name and no password (just hit Return). Now you can
 check out the sources:
 
- $ cvs -d:pserver:anonymous@arthur.ath.cx:/usr/local/CVS/ngircd checkout ngircd
+ $ cvs -d:pserver:anonymous@ngircd.barton.de:/srv/cvs/ngircd checkout ngircd
 
 Thereby a new folder "ngircd" will be created containing all the individual
-source files.
+source files. (Substitute the last "ngircd" with "website" to check out all
+the files of the homepage of ngIRCd.)
 
-This is the "working folder", all CVS commands will be executed from within
-this folder in the future.
+The newly created folder ("ngircd" or "website") is the "working folder", all
+CVS commands will be executed from within this folder in the future.
 
 Please note: When checking out a fresh copy of ngIRCd from CVS, the
 configure script doesn't exist; you have to run the autogen.sh shell script
@@ -53,4 +54,4 @@ repository would be handy, please contact Alex Barton, <alex@barton.de>.
 
 
 -- 
-$Id: CVS.txt,v 1.7 2003/03/26 22:34:33 alex Exp $
+$Id: CVS.txt,v 1.8 2006/07/23 12:43:15 alex Exp $

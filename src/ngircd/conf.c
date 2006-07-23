@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.91 2006/05/10 21:24:01 alex Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.92 2006/07/23 16:42:45 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -58,7 +58,7 @@ static int New_Server_Idx;
 
 static void Set_Defaults PARAMS(( bool InitServers ));
 static void Read_Config PARAMS(( void ));
-static void Validate_Config PARAMS(( bool TestOnly ));
+static void Validate_Config PARAMS(( bool TestOnly, bool Rehash ));
 
 static void Handle_GLOBAL PARAMS(( int Line, char *Var, char *Arg ));
 static void Handle_OPERATOR PARAMS(( int Line, char *Var, char *Arg ));
@@ -136,7 +136,7 @@ Conf_Init( void )
 {
 	Set_Defaults( true );
 	Read_Config( );
-	Validate_Config( false );
+	Validate_Config(false, false);
 } /* Config_Init */
 
 
@@ -145,7 +145,7 @@ Conf_Rehash( void )
 {
 	Set_Defaults( false );
 	Read_Config( );
-	Validate_Config( false );
+	Validate_Config(false, true);
 } /* Config_Rehash */
 
 
@@ -163,7 +163,7 @@ Conf_Test( void )
 	Set_Defaults( true );
 
 	Read_Config( );
-	Validate_Config( true );
+	Validate_Config(true, false);
 
 	/* If stdin and stdout ("you can read our nice message and we can
 	 * read in your keypress") are valid tty's, wait for a key: */
@@ -951,58 +951,89 @@ Handle_CHANNEL( int Line, char *Var, char *Arg )
 
 
 static void
-Validate_Config( bool Configtest )
+Validate_Config(bool Configtest, bool Rehash)
 {
 	/* Validate configuration settings. */
 
 #ifdef DEBUG
 	int i, servers, servers_once;
 #endif
+	char *ptr;
 
-	if( ! Conf_ServerName[0] ) {
+	/* Validate configured server name, see RFC 2812 section 2.3.1 */
+	ptr = Conf_ServerName;
+	do {
+		if (*ptr >= 'a' && *ptr <= 'z') continue;
+		if (*ptr >= 'A' && *ptr <= 'Z') continue;
+		if (*ptr >= '1' && *ptr <= '0') continue;
+		if (ptr > Conf_ServerName) {
+			if (*ptr == '.' || *ptr == '-')
+				continue;
+		}
+		Conf_ServerName[0] = '\0';
+		break;
+	} while (*(++ptr));
+
+	if (!Conf_ServerName[0]) {
 		/* No server name configured! */
-		Config_Error( LOG_ALERT, "No server name configured in \"%s\" (section 'Global': 'Name')!",
-											NGIRCd_ConfFile );
-		if( ! Configtest ) {
-			Config_Error( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE_NAME );
-			exit( 1 );
+		Config_Error(LOG_ALERT,
+			     "No (valid) server name configured in \"%s\" (section 'Global': 'Name')!",
+			     NGIRCd_ConfFile);
+		if (!Configtest && !Rehash) {
+			Config_Error(LOG_ALERT,
+				     "%s exiting due to fatal errors!",
+				     PACKAGE_NAME);
+			exit(1);
 		}
 	}
-	
-	if( Conf_ServerName[0] && ! strchr( Conf_ServerName, '.' )) {
+
+	if (Conf_ServerName[0] && !strchr(Conf_ServerName, '.')) {
 		/* No dot in server name! */
-		Config_Error( LOG_ALERT, "Invalid server name configured in \"%s\" (section 'Global': 'Name'): Dot missing!", NGIRCd_ConfFile );
-		if( ! Configtest ) {
-			Config_Error( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE_NAME );
-			exit( 1 );
+		Config_Error(LOG_ALERT,
+			     "Invalid server name configured in \"%s\" (section 'Global': 'Name'): Dot missing!",
+			     NGIRCd_ConfFile);
+		if (!Configtest) {
+			Config_Error(LOG_ALERT,
+				     "%s exiting due to fatal errors!",
+				     PACKAGE_NAME);
+			exit(1);
 		}
 	}
 
 #ifdef STRICT_RFC
-	if( ! Conf_ServerAdminMail[0] ) {
+	if (!Conf_ServerAdminMail[0]) {
 		/* No administrative contact configured! */
-		Config_Error( LOG_ALERT, "No administrator email address configured in \"%s\" ('AdminEMail')!", NGIRCd_ConfFile );
-		if( ! Configtest ) {
-			Config_Error( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE_NAME );
-			exit( 1 );
+		Config_Error(LOG_ALERT,
+			     "No administrator email address configured in \"%s\" ('AdminEMail')!",
+			     NGIRCd_ConfFile);
+		if (!Configtest) {
+			Config_Error(LOG_ALERT,
+				     "%s exiting due to fatal errors!",
+				     PACKAGE_NAME);
+			exit(1);
 		}
 	}
 #endif
 
-	if( ! Conf_ServerAdmin1[0] && ! Conf_ServerAdmin2[0] && ! Conf_ServerAdminMail[0] ) {
+	if (!Conf_ServerAdmin1[0] && !Conf_ServerAdmin2[0]
+	    && !Conf_ServerAdminMail[0]) {
 		/* No administrative information configured! */
-		Config_Error( LOG_WARNING, "No administrative information configured but required by RFC!" );
+		Config_Error(LOG_WARNING,
+			     "No administrative information configured but required by RFC!");
 	}
+
 #ifdef DEBUG
 	servers = servers_once = 0;
-	for( i = 0; i < MAX_SERVERS; i++ ) {
-		if( Conf_Server[i].name[0] ) {
+	for (i = 0; i < MAX_SERVERS; i++) {
+		if (Conf_Server[i].name[0]) {
 			servers++;
-			if( Conf_Server[i].flags & CONF_SFLAG_ONCE ) servers_once++;
+			if (Conf_Server[i].flags & CONF_SFLAG_ONCE)
+				servers_once++;
 		}
 	}
-	Log( LOG_DEBUG, "Configuration: Operators=%d, Servers=%d[%d], Channels=%d",
-			Conf_Oper_Count, servers, servers_once, Conf_Channel_Count );
+	Log(LOG_DEBUG,
+	    "Configuration: Operators=%d, Servers=%d[%d], Channels=%d",
+	    Conf_Oper_Count, servers, servers_once, Conf_Channel_Count);
 #endif
 } /* Validate_Config */
 

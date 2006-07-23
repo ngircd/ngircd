@@ -12,6 +12,7 @@
 
 ngIRCd CVSHEAD
 
+  - Validate "ServerName" (see RFC 2812, section 2.3.1).
   - Enhanced DIE to accept a single parameter ("comment text") which is sent
     to all locally connected clients before the server goes down.
   - The ngIRCd handles time shifts backwards more gracefully now (the
@@ -653,4 +654,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.301 2006/07/23 15:47:26 alex Exp $
+$Id: ChangeLog,v 1.302 2006/07/23 16:42:45 alex Exp $

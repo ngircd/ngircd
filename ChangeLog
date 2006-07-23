@@ -12,13 +12,15 @@
 
 ngIRCd CVSHEAD
 
+  - Enhanced DIE to accept a single parameter ("comment text") which is sent
+    to all locally connected clients before the server goes down.
   - The ngIRCd handles time shifts backwards more gracefully now (the
     timeout handling doesn't disconnect clients by mistake any more).
   - Internal: Restructured connection handling (the connection ID is equal
     to the file descriptor of the connection).
   - Internal: Simplified resolver code.
   - JOIN now supports more than one channel key at a time.
-  - Implementec numeric "333": Time and user name who set a channel topic.
+  - Implemented numeric "333": Time and user name who set a channel topic.
   - Enhanced the handler for PING and PONG commands: fix forwarding and enable
     back-passing of a client supplied additional argument of PING.
   - Changed handling of timeouts for unregistered connections: don't reset
@@ -34,7 +36,7 @@ ngIRCd CVSHEAD
 
 ngIRCd 0.9.2 (2005-10-15)
 
-  - Fixed a bug that could cause the damon to crash when outgoing server
+  - Fixed a bug that could cause the daemon to crash when outgoing server
     connections can't be established.
   - Fixed a bug that caused the daemon to leak file descriptors when no
     resolver subprocesses could be created.
@@ -651,4 +653,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.300 2006/05/09 15:45:30 alex Exp $
+$Id: ChangeLog,v 1.301 2006/07/23 15:47:26 alex Exp $

@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.196 2006/05/12 11:53:04 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.197 2006/07/23 15:22:56 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -845,9 +845,8 @@ Handle_Write( CONN_ID Idx )
 	}
 	assert( My_Connections[Idx].sock > NONE );
 
-	LogDebug("Handle_Write() called for connection %d ...", Idx);
-
 	wdatalen = array_bytes(&My_Connections[Idx].wbuf );
+
 #ifdef ZLIB
 	if (wdatalen == 0 && !array_bytes(&My_Connections[Idx].zip.wbuf)) {
 		io_event_del(My_Connections[Idx].sock, IO_WANTWRITE );
@@ -865,8 +864,11 @@ Handle_Write( CONN_ID Idx )
 	}
 #endif
 
- 	/* Zip_Flush() may have changed the write buffer ... */
+	/* Zip_Flush() may have changed the write buffer ... */
 	wdatalen = array_bytes(&My_Connections[Idx].wbuf);
+	LogDebug
+	    ("Handle_Write() called for connection %d, %ld bytes pending ...",
+	     Idx, wdatalen);
 
 	len = write(My_Connections[Idx].sock,
 	            array_start(&My_Connections[Idx].wbuf), wdatalen );

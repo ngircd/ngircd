@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-oper.c,v 1.26 2006/05/10 21:24:01 alex Exp $";
+static char UNUSED id[] = "$Id: irc-oper.c,v 1.27 2006/07/23 15:43:18 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -23,7 +23,7 @@ static char UNUSED id[] = "$Id: irc-oper.c,v 1.26 2006/05/10 21:24:01 alex Exp $
 
 #include "ngircd.h"
 #include "resolve.h"
-#include "conn.h"
+#include "conn-func.h"
 #include "conf.h"
 #include "client.h"
 #include "channel.h"
@@ -90,21 +90,46 @@ IRC_OPER( CLIENT *Client, REQUEST *Req )
 
 
 GLOBAL bool
-IRC_DIE( CLIENT *Client, REQUEST *Req )
+IRC_DIE(CLIENT * Client, REQUEST * Req)
 {
 	/* Shut down server */
 
-	assert( Client != NULL );
-	assert( Req != NULL );
+	CONN_ID c;
+	CLIENT *cl;
+
+	assert(Client != NULL);
+	assert(Req != NULL);
 
 	/* Not a local IRC operator? */
-	if(( ! Client_HasMode( Client, 'o' )) || ( ! Client_OperByMe( Client ))) return IRC_WriteStrClient( Client, ERR_NOPRIVILEGES_MSG, Client_ID( Client ));
-	
-	/* Bad number of parameters? */
-	if( Req->argc != 0 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	if ((!Client_HasMode(Client, 'o')) || (!Client_OperByMe(Client)))
+		return IRC_WriteStrClient(Client, ERR_NOPRIVILEGES_MSG,
+					  Client_ID(Client));
 
-	Log( LOG_NOTICE|LOG_snotice, "Got DIE command from \"%s\" ...", Client_Mask( Client ));
+	/* Bad number of parameters? */
+#ifdef STRICT_RFC
+	if (Req->argc != 0)
+#else
+	if (Req->argc > 1)
+#endif
+		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+					  Client_ID(Client), Req->command);
+
+	/* Is a message given? */
+	if (Req->argc > 0) {
+		c = Conn_First();
+		while (c != NONE) {
+			cl = Conn_GetClient(c);
+			if (Client_Type(cl) == CLIENT_USER)
+				IRC_WriteStrClient(cl, "NOTICE %s :%s",
+						Client_ID(cl), Req->argv[0]);
+			c = Conn_Next(c);
+		}
+	}
+
+	Log(LOG_NOTICE | LOG_snotice, "Got DIE command from \"%s\" ...",
+	    Client_Mask(Client));
 	NGIRCd_SignalQuit = true;
+
 	return CONNECTED;
 } /* IRC_DIE */
 

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: log.c,v 1.60 2006/02/08 17:33:28 fw Exp $";
+static char UNUSED id[] = "$Id: log.c,v 1.61 2006/07/23 23:23:45 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -162,15 +162,28 @@ Log_Exit( void )
 } /* Log_Exit */
 
 
+/**
+ * Log function for debug messages.
+ * This function is only functional when the program is compiled with debug
+ * code enabled; otherwise it is an empty function which the compiler will
+ * hopefully mangle down to "nothing". Therefore you should use LogDebug(...)
+ * in favor to Log(LOG_DEBUG, ...).
+ * @param Format Format string like printf().
+ * @param ... Further arguments.
+ */
 # ifdef PROTOTYPES
 GLOBAL void
+#ifdef DEBUG
 LogDebug( const char *Format, ... )
+#else
+LogDebug( UNUSED const char *Format, ... )
+#endif /* DEBUG */
 # else
 GLOBAL void
 LogDebug( Format, va_alist )
 const char *Format;
 va_dcl
-# endif
+# endif /* PROTOTYPES */
 #ifdef DEBUG
 {
 	char msg[MAX_LOG_MSG_LEN];
@@ -187,10 +200,22 @@ va_dcl
 	Log(LOG_DEBUG, "%s", msg);
 }
 #else
-{ /* do nothing */ }
+{
+	/* Do nothing.
+	 * The compiler should optimize this out, please ;-) */
+}
 #endif	/* DEBUG */
 
 	
+/**
+ * Logging function of ngIRCd.
+ * This function logs messages to the console and/or syslog, whichever is
+ * suitable for the mode ngIRCd is running in (daemon vs. non-daemon).
+ * Please note: you sould use LogDebug(...) for debug messages!
+ * @param Level syslog level (LOG_xxx)
+ * @param Format Format string like printf().
+ * @param ... Further arguments.
+ */
 #ifdef PROTOTYPES
 GLOBAL void
 Log( int Level, const char *Format, ... )

@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.197 2006/07/23 15:22:56 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.198 2006/07/23 23:05:20 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -701,11 +701,16 @@ Conn_Close( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool InformClient )
 	/* Mark link as "closing" */
 	Conn_OPTION_ADD( &My_Connections[Idx], CONN_ISCLOSING );
 		
-	if( LogMsg ) txt = LogMsg;
-	else txt = FwdMsg;
-	if( ! txt ) txt = "Reason unknown";
+	if (LogMsg)
+		txt = LogMsg;
+	else
+		txt = FwdMsg;
+	if (! txt)
+		txt = "Reason unknown";
 
-	Log( LOG_INFO, "Shutting down connection %d (%s) with %s:%d ...", Idx, LogMsg ? LogMsg : FwdMsg, My_Connections[Idx].host, ntohs( My_Connections[Idx].addr.sin_port ));
+	Log(LOG_INFO, "Shutting down connection %d (%s) with %s:%d ...", Idx,
+	    LogMsg ? LogMsg : FwdMsg, My_Connections[Idx].host,
+	    ntohs(My_Connections[Idx].addr.sin_port));
 
 	/* Search client, if any */
 	c = Conn_GetClient( Idx );
@@ -741,39 +746,57 @@ Conn_Close( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool InformClient )
 	c = Conn_GetClient( Idx );
 
 	/* Shut down socket */
-	if( ! io_close( My_Connections[Idx].sock ))
-	{
+	if (! io_close(My_Connections[Idx].sock)) {
 		/* Oops, we can't close the socket!? This is ... ugly! */
-		Log( LOG_CRIT, "Error closing connection %d (socket %d) with %s:%d - %s! (ignored)", Idx, My_Connections[Idx].sock, My_Connections[Idx].host, ntohs( My_Connections[Idx].addr.sin_port), strerror( errno ));
+		Log(LOG_CRIT,
+		    "Error closing connection %d (socket %d) with %s:%d - %s! (ignored)",
+		    Idx, My_Connections[Idx].sock, My_Connections[Idx].host,
+		    ntohs(My_Connections[Idx].addr.sin_port), strerror(errno));
 	}
 
 	/* Mark socket as invalid: */
 	My_Connections[Idx].sock = NONE;
 
 	/* If there is still a client, unregister it now */
-	if( c ) Client_Destroy( c, LogMsg, FwdMsg, true );
+	if (c)
+		Client_Destroy(c, LogMsg, FwdMsg, true);
 
 	/* Calculate statistics and log information */
 	in_k = (double)My_Connections[Idx].bytes_in / 1024;
 	out_k = (double)My_Connections[Idx].bytes_out / 1024;
 #ifdef ZLIB
-	if ( Conn_OPTION_ISSET( &My_Connections[Idx], CONN_ZIP )) {
+	if (Conn_OPTION_ISSET( &My_Connections[Idx], CONN_ZIP)) {
 		in_z_k = (double)My_Connections[Idx].zip.bytes_in / 1024;
 		out_z_k = (double)My_Connections[Idx].zip.bytes_out / 1024;
+		/* Make sure that no division by zero can occur during
+		 * the calculation of in_p and out_p: in_z_k and out_z_k
+		 * are non-zero, that's guaranteed by the protocol until
+		 * compression can be enabled. */
+		if (! in_z_k)
+			in_z_k = in_k;
+		if (! out_z_k)
+			out_z_k = out_k;
 		in_p = (int)(( in_k * 100 ) / in_z_k );
 		out_p = (int)(( out_k * 100 ) / out_z_k );
-		Log( LOG_INFO, "Connection %d with %s:%d closed (in: %.1fk/%.1fk/%d%%, out: %.1fk/%.1fk/%d%%).", Idx, My_Connections[Idx].host, ntohs( My_Connections[Idx].addr.sin_port ), in_k, in_z_k, in_p, out_k, out_z_k, out_p );
+		Log(LOG_INFO,
+		    "Connection %d with %s:%d closed (in: %.1fk/%.1fk/%d%%, out: %.1fk/%.1fk/%d%%).",
+		    Idx, My_Connections[Idx].host,
+		    ntohs(My_Connections[Idx].addr.sin_port),
+		    in_k, in_z_k, in_p, out_k, out_z_k, out_p);
 	}
 	else
 #endif
 	{
-		Log( LOG_INFO, "Connection %d with %s:%d closed (in: %.1fk, out: %.1fk).", Idx, My_Connections[Idx].host, ntohs( My_Connections[Idx].addr.sin_port ), in_k, out_k );
+		Log(LOG_INFO,
+		    "Connection %d with %s:%d closed (in: %.1fk, out: %.1fk).",
+		    Idx, My_Connections[Idx].host,
+		    ntohs(My_Connections[Idx].addr.sin_port),
+		    in_k, out_k);
 	}
 
 	/* cancel running resolver */
-	if (Resolve_INPROGRESS(&My_Connections[Idx].res_stat)) {
+	if (Resolve_INPROGRESS(&My_Connections[Idx].res_stat))
 		Resolve_Shutdown(&My_Connections[Idx].res_stat);
-	}
 
 	/* Servers: Modify time of next connect attempt? */
 	Conf_UnsetServer( Idx );
@@ -790,6 +813,7 @@ Conn_Close( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool InformClient )
 
 	array_free(&My_Connections[Idx].rbuf);
 	array_free(&My_Connections[Idx].wbuf);
+
 	/* Clean up connection structure (=free it) */
 	Init_Conn_Struct( Idx );
 

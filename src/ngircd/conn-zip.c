@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2006 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,10 @@
 
 #ifdef ZLIB
 
-static char UNUSED id[] = "$Id: conn-zip.c,v 1.10 2006/05/10 21:24:01 alex Exp $";
+/* enable more zlib related debug messages: */
+/* #define DEBUG_ZLIB */
+
+static char UNUSED id[] = "$Id: conn-zip.c,v 1.11 2006/07/23 15:19:20 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -124,7 +127,10 @@ Zip_Flush( CONN_ID Idx )
 	out->next_out = zipbuf;
 	out->avail_out = (uInt)sizeof zipbuf;
 
-	Log(LOG_DEBUG, "out->avail_in %d, out->avail_out %d", out->avail_in, out->avail_out);
+#ifdef DEBUG_ZIP
+	Log(LOG_DEBUG, "out->avail_in %d, out->avail_out %d",
+		out->avail_in, out->avail_out);
+#endif
 	result = deflate( out, Z_SYNC_FLUSH );
 	if(( result != Z_OK ) || ( out->avail_in > 0 ))
 	{
@@ -135,7 +141,9 @@ Zip_Flush( CONN_ID Idx )
 
 	assert(out->avail_out <= WRITEBUFFER_LEN);
 	zipbuf_used = WRITEBUFFER_LEN - out->avail_out;
+#ifdef DEBUG_ZIP
 	Log(LOG_DEBUG, "zipbuf_used: %d", zipbuf_used);
+#endif
 	if (!array_catb(&My_Connections[Idx].wbuf,
 			(char *)zipbuf, (size_t) zipbuf_used))
 		return false;
@@ -179,7 +187,10 @@ Unzip_Buffer( CONN_ID Idx )
 	in->next_out = unzipbuf;
 	in->avail_out = (uInt)sizeof unzipbuf;
 
-	Log(LOG_DEBUG, "in->avail_in %d, in->avail_out %d", in->avail_in, in->avail_out);
+#ifdef DEBUG_ZIP
+	Log(LOG_DEBUG, "in->avail_in %d, in->avail_out %d",
+		in->avail_in, in->avail_out);
+#endif
 	result = inflate( in, Z_SYNC_FLUSH );
 	if( result != Z_OK )
 	{
@@ -191,7 +202,10 @@ Unzip_Buffer( CONN_ID Idx )
 	assert(z_rdatalen >= in->avail_in);
 	in_len = z_rdatalen - in->avail_in;
 	unzipbuf_used = READBUFFER_LEN - in->avail_out;
-	Log(LOG_DEBUG, "unzipbuf_used: %d - %d = %d", READBUFFER_LEN,  in->avail_out, unzipbuf_used);
+#ifdef DEBUG_ZIP
+	Log(LOG_DEBUG, "unzipbuf_used: %d - %d = %d", READBUFFER_LEN,
+		in->avail_out, unzipbuf_used);
+#endif
 	assert(unzipbuf_used <= READBUFFER_LEN);
 	if (!array_catb(&My_Connections[Idx].rbuf, (char*) unzipbuf,
 			(size_t)unzipbuf_used))

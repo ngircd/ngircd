@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: io.c,v 1.15 2006/07/12 19:27:12 fw Exp $";
+static char UNUSED id[] = "$Id: io.c,v 1.16 2006/07/23 23:11:44 alex Exp $";
 
 #include <assert.h>
 #include <stdlib.h>
@@ -101,7 +101,9 @@ io_event_get(int fd)
 bool
 io_library_init(unsigned int eventsize)
 {
+#if defined(IO_USE_EPOLL) || defined(IO_USE_KQUEUE)
 	bool ret;
+#endif
 #ifdef IO_USE_EPOLL
 	int ecreate_hint = (int)eventsize;
 	if (ecreate_hint <= 0)

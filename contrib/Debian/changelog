@@ -1,4 +1,4 @@
-ngircd (0.9.2-0ab1) unstable; urgency=low
+ngircd (0.9.2-0ab1) stable; urgency=low
 
   * New "upstream release" fixing a few bugs in 0.9.1.
 

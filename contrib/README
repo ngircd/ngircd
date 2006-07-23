@@ -10,11 +10,14 @@
                             -- Contributions --
 
 
-MacOSX/
- - Project file for XCode "project builder" of Mac OS X.
-
 Debian/
- - Various files for building Debian packages.
+ - Various files for building Debian GNU/Linux packages (".deb's").
+
+MacOSX/
+ - Project files for XCode, the "project builder" of Apple Mac OS X.
+
+ngindent
+ - Script to indent the code of ngIRCd in the "standard way".
 
 ngircd.sh
  - Start script for FreeBSD.
@@ -27,4 +30,4 @@ systrace.policy
 
 
 --
-$Id: README,v 1.2 2005/08/12 21:32:45 alex Exp $
+$Id: README,v 1.3 2006/07/23 11:34:32 alex Exp $

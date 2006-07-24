@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: channel.c,v 1.55 2006/04/23 10:33:37 fw Exp $";
+static char UNUSED id[] = "$Id: channel.c,v 1.56 2006/07/24 22:54:09 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -106,7 +106,8 @@ Channel_InitPredefined( void )
 		if (chan) {
 			Channel_ModeAdd(chan, 'P');
 
-			Channel_SetTopic(chan, NULL,
+			if (array_start(&Conf_Channel[i].topic) != NULL)
+				Channel_SetTopic(chan, NULL,
 					 array_start(&Conf_Channel[i].topic));
 			array_free(&Conf_Channel[i].topic);
 

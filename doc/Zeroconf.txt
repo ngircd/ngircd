@@ -1,7 +1,7 @@
 
                      ngIRCd - Next Generation IRC Server
 
-                        (c)2001-2005 Alexander Barton
+                        (c)2001-2006 Alexander Barton
                     alex@barton.de, http://www.barton.de/
 
                ngIRCd is free software and published under the
@@ -16,7 +16,8 @@ with DNS Service Discovery (DNS-SD[3]).
 To use this features you can use one of two APIs:
 
   a) Apple "Bonjour" API as used by Mac OS X,
-  b) the Howl[4] Zeroconf library.
+  b) the Howl[4] Zeroconf library or the Howl compatibility layer
+     of the newer Avahi[5] library.
 
 When calling the configure script using the "--with-zeroconf" switch the
 avalable API will be autodetected and the required additional libraries will
@@ -32,7 +33,8 @@ Links:
  [2] http://www.multicastdns.org/
  [3] http://www.dns-sd.org/
  [4] http://www.porchdogsoft.com/products/howl/
+ [5] http://avahi.org/
 
 
 -- 
-$Id: Zeroconf.txt,v 1.1 2005/07/08 16:19:03 alex Exp $
+$Id: Zeroconf.txt,v 1.1.2.1 2006/08/02 09:04:20 alex Exp $

@@ -1,4 +1,10 @@
-ngircd (0.9.2-0ab1) stable; urgency=low
+ngircd (0.10.0-0ab0-pre1) unstable; urgency=low
+
+  * Prerelease of upcoming new "upstream release".
+
+ -- Alexander Barton <alex@barton.de>  Wed,  2 Aug 2006 12:01:07 +0200
+
+ngircd (0.9.2-0ab1) unstable; urgency=low
 
   * New "upstream release" fixing a few bugs in 0.9.1.
 

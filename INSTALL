@@ -1,7 +1,7 @@
 
                      ngIRCd - Next Generation IRC Server
 
-                      (c)2001-2004 by Alexander Barton,
+                      (c)2001-2006 by Alexander Barton,
                     alex@barton.de, http://www.barton.de/
 
                ngIRCd is free software and published under the
@@ -241,4 +241,4 @@ number. In both cases the server exits after the output.
 
 
 -- 
-$Id: INSTALL,v 1.23 2005/12/30 22:43:23 alex Exp $
+$Id: INSTALL,v 1.24 2006/08/03 14:37:29 alex Exp $

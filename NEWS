@@ -1,7 +1,7 @@
 
                      ngIRCd - Next Generation IRC Server
 
-                        (c)2001-2005 Alexander Barton,
+                        (c)2001-2006 Alexander Barton,
                     alex@barton.de, http://www.barton.de/
 
                ngIRCd is free software and published under the
@@ -9,6 +9,20 @@
 
                                   -- NEWS --
 
+
+ngIRCd 0.10.0-pre1 (2006-08-02)
+
+  - Enhanced DIE to accept a single parameter ("comment text") which is sent
+    to all locally connected clients before the server goes down.
+  - JOIN now supports more than one channel key at a time.
+  - Implemented numeric "333": Time and user name who set a channel topic.
+  - Channel topics are no longer limited to 127 characters: now the only limit
+    is the maximum length of an IRC command, i. e. 512 bytes (in practice, this
+    limits the topic to about 490 characters due to protocol overhead).
+  - Reverse DNS lookup code now checks the result by doing an additional
+    lookup to prevent spoofing.
+  - Added new IO layer which (optionally) supports epoll() and kqueue() in
+    addition to the select() interface.
 
 ngIRCd 0.9.0 (2005-07-24)
 
@@ -208,4 +222,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.75 2005/07/26 19:41:49 alex Exp $
+$Id: NEWS,v 1.76 2006/08/03 14:37:29 alex Exp $

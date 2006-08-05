@@ -8,7 +8,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: configure.in,v 1.118 2006/05/17 16:44:14 alex Exp $
+# $Id: configure.in,v 1.119 2006/08/05 08:58:16 fw Exp $
 #
 
 # -- Initialisation --
@@ -53,6 +53,7 @@ AC_PROG_RANLIB
 
 AM_C_PROTOTYPES
 AC_C_CONST
+AC_C_INLINE
 
 # -- Hard coded system and compiler dependencies/features/options ... --
 

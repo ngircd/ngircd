@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: log.h,v 1.19 2006/02/08 17:33:28 fw Exp $
+ * $Id: log.h,v 1.20 2006/08/05 09:16:21 fw Exp $
  *
  * Logging functions (header)
  */
@@ -39,7 +39,13 @@ GLOBAL void Log_Init PARAMS(( bool Daemon_Mode ));
 GLOBAL void Log_Exit PARAMS(( void ));
 
 GLOBAL void Log PARAMS(( int Level, const char *Format, ... ));
+
+#ifdef DEBUG
 GLOBAL void LogDebug PARAMS(( const char *Format, ... ));
+#else
+static inline void LogDebug PARAMS(( UNUSED const char *Format, ... )){/* Do nothing. The compiler should optimize this out, please ;-) */}
+#endif
+
 
 GLOBAL void Log_Init_Resolver PARAMS(( void ));
 GLOBAL void Log_Exit_Resolver PARAMS(( void ));

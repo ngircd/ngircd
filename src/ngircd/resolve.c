@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: resolve.c,v 1.24 2006/05/10 21:24:01 alex Exp $";
+static char UNUSED id[] = "$Id: resolve.c,v 1.25 2006/08/12 11:54:23 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -340,33 +340,24 @@ Resolve_Shutdown( RES_STAT *s)
 GLOBAL size_t
 Resolve_Read( RES_STAT *s, void* readbuf, size_t buflen)
 {
-	int err;
 	ssize_t bytes_read;
 
 	assert(buflen > 0);
 
 	/* Read result from pipe */
-	errno = 0;
 	bytes_read = read(s->resolver_fd, readbuf, buflen);
 	if (bytes_read < 0) {
-		if (errno != EAGAIN) {
-			err = errno;
-			Log( LOG_CRIT, "Resolver: Can't read result: %s!", strerror(err));
-			Resolve_Shutdown(s);
-			errno = err;
+		if (errno == EAGAIN)
 			return 0;
-		}
-		return 0;
-	}
 
-	Resolve_Shutdown(s);
-	if (bytes_read == 0) {	/* EOF: lookup failed */
+		Log( LOG_CRIT, "Resolver: Can't read result: %s!", strerror(errno));
+		bytes_read = 0;
+	}
 #ifdef DEBUG
+	else if (bytes_read == 0)
 		Log( LOG_DEBUG, "Resolver: Can't read result: EOF");
 #endif
-		return 0;
-	}
-
+	Resolve_Shutdown(s);
 	return (size_t)bytes_read;
 }
 /* -eof- */

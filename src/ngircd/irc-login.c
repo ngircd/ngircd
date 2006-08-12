@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-login.c,v 1.49 2005/09/01 10:51:24 alex Exp $";
+static char UNUSED id[] = "$Id: irc-login.c,v 1.50 2006/08/12 11:56:24 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -268,13 +268,13 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 						   "NICK :%s", Req->argv[0] );
 			IRC_WriteStrRelatedPrefix( target, target, false,
 						   "NICK :%s", Req->argv[0] );
-			
+
 			/* Register old nickname for WHOWAS queries */
 			Client_RegisterWhowas( target );
-				
+
 			/* Save new nickname */
 			Client_SetID( target, Req->argv[0] );
-			
+
 			IRC_SetPenalty( target, 2 );
 		}
 

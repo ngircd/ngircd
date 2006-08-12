@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-write.c,v 1.20 2006/05/10 21:24:01 alex Exp $";
+static char UNUSED id[] = "$Id: irc-write.c,v 1.21 2006/08/12 11:56:24 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -378,7 +378,7 @@ va_dcl
 			}
 			cl2chan = Channel_NextMember( chan, cl2chan );
 		}
-		
+
 		/* naechsten Channel */
 		chan_cl2chan = Channel_NextChannelOf( Client, chan_cl2chan );
 	}
@@ -403,12 +403,12 @@ GLOBAL void
 IRC_SetPenalty( CLIENT *Client, time_t Seconds )
 {
 	CONN_ID c;
-	
+
 	assert( Client != NULL );
 	assert( Seconds > 0 );
-	
+
 	if( Client_Type( Client ) == CLIENT_SERVER ) return;
-	
+
 	c = Client_Conn( Client );
 	if (c > NONE)
 		Conn_SetPenalty(c, Seconds);

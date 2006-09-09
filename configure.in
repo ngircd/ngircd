@@ -8,7 +8,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: configure.in,v 1.118.2.3 2006/08/13 18:21:31 alex Exp $
+# $Id: configure.in,v 1.118.2.4 2006/09/09 18:34:00 alex Exp $
 #
 
 # -- Initialisation --
@@ -56,29 +56,28 @@ AC_C_CONST
 
 # -- Hard coded system and compiler dependencies/features/options ... --
 
-if test "$GCC" = "yes"; then
-	# We are using the GNU C compiler. Good!
-	CFLAGS="$CFLAGS -pipe -W -Wall -Wpointer-arith -Wstrict-prototypes"
-fi
-
-
 AC_DEFUN([GCC_STACK_PROTECT_CC],[
   ssp_cc=yes
-  if test "X$CC" != "X"; then
-    AC_MSG_CHECKING([whether ${CC} accepts -fstack-protector])
-    ssp_old_cflags="$CFLAGS"
-    CFLAGS="$CFLAGS -fstack-protector"
-    AC_TRY_LINK(,,, ssp_cc=no)
-    echo $ssp_cc
-    if test "X$ssp_cc" = "Xno"; then
-      CFLAGS="$ssp_old_cflags"
-    else
+  # we use -fstack-protector-all for the test to enfoce the use of the guard variable 
+  AC_MSG_CHECKING([whether ${CC} accepts -fstack-protector])
+  ssp_old_cflags="$CFLAGS"
+  CFLAGS="$CFLAGS -fstack-protector-all"
+  AC_TRY_LINK(,,, ssp_cc=no)
+  echo $ssp_cc
+  CFLAGS="$ssp_old_cflags"
+  if test "X$ssp_cc" = "Xyes"; then
+      CFLAGS="$CFLAGS -fstack-protector"
       AC_DEFINE([ENABLE_SSP_CC], 1, [Define if SSP C support is enabled.])
-    fi
   fi
 ])
 
-GCC_STACK_PROTECT_CC
+
+if test "$GCC" = "yes"; then
+	# We are using the GNU C compiler. Good!
+	CFLAGS="$CFLAGS -pipe -W -Wall -Wpointer-arith -Wstrict-prototypes"
+
+	GCC_STACK_PROTECT_CC
+fi
 
 case "$target_os" in
 	hpux*)

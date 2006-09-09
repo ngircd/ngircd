@@ -1,3 +1,9 @@
+ngircd (0.10.0-0ab0-pre2) unstable; urgency=low
+
+  * Second "upstream" prerelease of upcoming 0.10.0 release.
+
+ -- Alexander Barton <alex@barton.de>  Sat,  9 Sep 2006 20:57:52 +0200
+
 ngircd (0.10.0-0ab0-pre1) unstable; urgency=low
 
   * Prerelease of upcoming new "upstream release".

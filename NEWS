@@ -10,8 +10,9 @@
                                   -- NEWS --
 
 
-ngIRCd 0.10.0-pre1 (2006-08-02)
+ngIRCd 0.10.0-pre2 (2006-09-09)
 
+  ngIRCd 0.10.0-pre1 (2006-08-02)
   - Enhanced DIE to accept a single parameter ("comment text") which is sent
     to all locally connected clients before the server goes down.
   - JOIN now supports more than one channel key at a time.
@@ -222,4 +223,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.75.2.1 2006/08/02 08:19:38 alex Exp $
+$Id: NEWS,v 1.75.2.2 2006/09/09 18:50:47 alex Exp $

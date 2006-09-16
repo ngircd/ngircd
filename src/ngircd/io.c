@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: io.c,v 1.17 2006/09/16 14:49:26 fw Exp $";
+static char UNUSED id[] = "$Id: io.c,v 1.18 2006/09/16 15:00:10 fw Exp $";
 
 #include <assert.h>
 #include <stdlib.h>
@@ -43,7 +43,11 @@ typedef struct {
 # ifdef HAVE_KQUEUE
 #define IO_USE_KQUEUE   1
 # else
+#   ifdef HAVE_POLL
+#define IO_USE_POLL     1
+#   else
 #define IO_USE_SELECT   1
+#   endif /* HAVE_POLL */
 # endif /* HAVE_KQUEUE */
 #endif /* HAVE_EPOLL_CREATE */
 
@@ -65,6 +69,14 @@ static int io_masterfd;
 
 static int io_dispatch_kqueue(struct timeval *tv);
 static bool io_event_change_kqueue(int, short, const int action);
+#endif
+
+#ifdef IO_USE_POLL
+#include <poll.h>
+static array pollfds;
+static int poll_maxfd;
+
+static bool io_event_change_poll(int fd, short what);
 #endif
 
 #ifdef IO_USE_SELECT
@@ -96,6 +108,29 @@ io_event_get(int fd)
 
 	return i;
 }
+
+
+#ifdef IO_USE_POLL
+static bool
+io_library_init_poll(unsigned int eventsize)
+{
+	struct pollfd *p;
+	array_init(&pollfds);
+	poll_maxfd = 0;
+	Log(LOG_INFO, "IO subsystem: poll (initial maxfd %u).",
+	    eventsize);
+	p = array_alloc(&pollfds, sizeof(struct pollfd), eventsize);
+	if (p) {
+		unsigned i;
+		p = array_start(&pollfds);
+		for (i = 0; i < eventsize; i++)
+			p[i].fd = -1;
+
+		library_initialized = true;
+	}
+	return p != NULL;
+}
+#endif
 
 
 #ifdef IO_USE_SELECT
@@ -180,6 +215,9 @@ io_library_init(unsigned int eventsize)
 #ifdef IO_USE_KQUEUE
 	return io_library_init_kqueue(eventsize);
 #endif
+#ifdef IO_USE_POLL
+	return io_library_init_poll(eventsize);
+#endif
 #ifdef IO_USE_SELECT
 	return io_library_init_select(eventsize);
 #endif
@@ -243,6 +281,9 @@ io_event_create(int fd, short what, void (*cbfunc) (int, short))
 
 	i->callback = cbfunc;
 	i->what = 0;
+#ifdef IO_USE_POLL
+	ret = io_event_change_poll(fd, what);
+#endif
 #ifdef IO_USE_EPOLL
 	ret = io_event_change_epoll(fd, what, EPOLL_CTL_ADD);
 #endif
@@ -256,6 +297,29 @@ io_event_create(int fd, short what, void (*cbfunc) (int, short))
 	return ret;
 }
 
+
+#ifdef IO_USE_POLL
+static bool
+io_event_change_poll(int fd, short what)
+{
+	struct pollfd *p;
+	short events = 0;
+
+	if (what & IO_WANTREAD)
+		events = POLLIN | POLLPRI;
+	if (what & IO_WANTWRITE)
+		events |= POLLOUT;
+
+	p = array_alloc(&pollfds, sizeof *p, fd);
+	if (p) {
+		p->events = events;
+		p->fd = fd;
+		if (fd > poll_maxfd)
+			poll_maxfd = fd;
+	}
+	return p != NULL;
+}
+#endif
 
 #ifdef IO_USE_EPOLL
 static bool
@@ -347,6 +411,9 @@ io_event_add(int fd, short what)
 #ifdef IO_USE_KQUEUE
 	return io_event_change_kqueue(fd, what, EV_ADD | EV_ENABLE);
 #endif
+#ifdef IO_USE_POLL
+	return io_event_change_poll(fd, i->what);
+#endif
 #ifdef IO_USE_SELECT
 	if (fd > select_maxfd)
 		select_maxfd = fd;
@@ -375,6 +442,29 @@ io_setnonblock(int fd)
 
 	return fcntl(fd, F_SETFL, flags) == 0;
 }
+
+
+#ifdef IO_USE_POLL
+static void
+io_close_poll(int fd)
+{
+	struct pollfd *p;
+	p = array_get(&pollfds, sizeof *p, fd);
+	if (!p) return;
+
+	p->fd = -1;
+	if (fd == poll_maxfd) {
+		while (poll_maxfd > 0) {
+			--poll_maxfd;
+			p = array_get(&pollfds, sizeof *p, poll_maxfd);
+			if (p && p->fd >= 0)
+				break;
+		}
+	}
+}
+#else
+static inline void io_close_poll(int UNUSED x) { /* NOTHING */ }
+#endif
 
 
 #ifdef IO_USE_SELECT
@@ -420,6 +510,7 @@ io_close(int fd)
 	}
 #endif
 
+	io_close_poll(fd);
 	io_close_select(fd);
 
 #ifdef IO_USE_EPOLL
@@ -444,6 +535,9 @@ io_event_del(int fd, short what)
 
 	i->what &= ~what;
 
+#ifdef IO_USE_POLL
+	return io_event_change_poll(fd, i->what);
+#endif
 #ifdef IO_USE_EPOLL
 	return io_event_change_epoll(fd, i->what, EPOLL_CTL_MOD);
 #endif
@@ -491,6 +585,49 @@ io_dispatch_select(struct timeval *tv)
 		}
 		if (what)
 			io_docallback(i, what);
+		if (fds_ready <= 0)
+			break;
+	}
+
+	return ret;
+}
+#endif
+
+
+#ifdef IO_USE_POLL
+static int
+io_dispatch_poll(struct timeval *tv)
+{
+	time_t sec = tv->tv_sec * 1000;
+	int i, ret, timeout = tv->tv_usec + sec;
+	int fds_ready;
+	short what;
+	struct pollfd *p = array_start(&pollfds);
+
+	if (timeout < 0)
+		timeout = 1000;
+
+	ret = poll(p, poll_maxfd + 1, timeout);
+	if (ret <= 0)
+		return ret;
+
+	fds_ready = ret;
+	for (i=0; i <= poll_maxfd; i++) {
+		what = 0;
+		if (p[i].revents & (POLLIN|POLLPRI))
+			what = IO_WANTREAD;
+
+		if (p[i].revents & POLLOUT)
+			what |= IO_WANTWRITE;
+
+		if (p[i].revents && !what) {
+			/* other flag is set, probably POLLERR */
+			what = IO_ERROR;
+		}
+		if (what) {
+			fds_ready--;
+			io_docallback(i, what);
+		}
 		if (fds_ready <= 0)
 			break;
 	}
@@ -615,6 +752,9 @@ io_dispatch(struct timeval *tv)
 #endif
 #ifdef IO_USE_KQUEUE
 	return io_dispatch_kqueue(tv);
+#endif
+#ifdef IO_USE_POLL
+	return io_dispatch_poll(tv);
 #endif
 #ifdef IO_USE_EPOLL
 	return io_dispatch_epoll(tv);

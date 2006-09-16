@@ -10,8 +10,11 @@
                                -- ChangeLog --
 
 
-ngIRCd 0.10.0-pre2 (2006-09-09)
+ngIRCd 0.10.0
 
+  - Fixed file handle leak when daemon is not able to send MOTD to a client.
+
+  ngIRCd 0.10.0-pre2 (2006-09-09)
   - Fixed build problems with GCC option -fstack-protector.
   - Minor documentation updates.
 
@@ -658,4 +661,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.302.2.2 2006/09/09 18:50:47 alex Exp $
+$Id: ChangeLog,v 1.302.2.3 2006/09/16 13:51:35 alex Exp $

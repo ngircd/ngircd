@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: io.c,v 1.18 2006/09/16 15:00:10 fw Exp $";
+static char UNUSED id[] = "$Id: io.c,v 1.19 2006/09/16 16:47:27 fw Exp $";
 
 #include <assert.h>
 #include <stdlib.h>
@@ -111,7 +111,7 @@ io_event_get(int fd)
 
 
 #ifdef IO_USE_POLL
-static bool
+static void
 io_library_init_poll(unsigned int eventsize)
 {
 	struct pollfd *p;
@@ -128,13 +128,12 @@ io_library_init_poll(unsigned int eventsize)
 
 		library_initialized = true;
 	}
-	return p != NULL;
 }
 #endif
 
 
 #ifdef IO_USE_SELECT
-static bool
+static void
 io_library_init_select(unsigned int eventsize)
 {
 	Log(LOG_INFO, "IO subsystem: select (initial maxfd %u).",
@@ -151,16 +150,14 @@ io_library_init_select(unsigned int eventsize)
 	}
 #endif /* FD_SETSIZE */
 	library_initialized = true;
-	return true;
 }
 #endif /* SELECT */
 
 
 #ifdef IO_USE_EPOLL
-static bool
+static void
 io_library_init_epoll(unsigned int eventsize)
 {
-	bool ret;
 	int ecreate_hint = (int)eventsize;
 	if (ecreate_hint <= 0)
 		ecreate_hint = 128;
@@ -168,27 +165,23 @@ io_library_init_epoll(unsigned int eventsize)
 	Log(LOG_INFO,
 	    "IO subsystem: epoll (hint size %d, initial maxfd %u, masterfd %d).",
 	    ecreate_hint, eventsize, io_masterfd);
-	ret = io_masterfd >= 0;
-	if (ret) library_initialized = true;
-
-	return ret;
+	if (io_masterfd >= 0)
+		library_initialized = true;
 }
 #endif
 
 
 #ifdef IO_USE_KQUEUE
-static bool
+static void
 io_library_init_kqueue(unsigned int eventsize)
 {
-	bool ret;
 	io_masterfd = kqueue();
 
 	Log(LOG_INFO,
 	    "IO subsystem: kqueue (initial maxfd %u, masterfd %d)",
 	    eventsize, io_masterfd);
-	ret = io_masterfd >= 0;
-	if (ret) library_initialized = true;
-	return ret;
+	if (io_masterfd >= 0)
+		library_initialized = true;
 }
 #endif
 
@@ -210,17 +203,18 @@ io_library_init(unsigned int eventsize)
 	if ((eventsize > 0) && !array_alloc(&io_events, sizeof(io_event), (size_t)eventsize))
 		eventsize = 0;
 #ifdef IO_USE_EPOLL
-	return io_library_init_epoll(eventsize);
+	io_library_init_epoll(eventsize);
 #endif
 #ifdef IO_USE_KQUEUE
-	return io_library_init_kqueue(eventsize);
+	io_library_init_kqueue(eventsize);
 #endif
 #ifdef IO_USE_POLL
-	return io_library_init_poll(eventsize);
+	io_library_init_poll(eventsize);
 #endif
 #ifdef IO_USE_SELECT
-	return io_library_init_select(eventsize);
+	io_library_init_select(eventsize);
 #endif
+	return library_initialized;
 }
 
 

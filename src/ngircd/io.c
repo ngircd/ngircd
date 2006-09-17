@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: io.c,v 1.19 2006/09/16 16:47:27 fw Exp $";
+static char UNUSED id[] = "$Id: io.c,v 1.20 2006/09/17 10:41:07 fw Exp $";
 
 #include <assert.h>
 #include <stdlib.h>
@@ -43,11 +43,15 @@ typedef struct {
 # ifdef HAVE_KQUEUE
 #define IO_USE_KQUEUE   1
 # else
-#   ifdef HAVE_POLL
-#define IO_USE_POLL     1
+#  ifdef HAVE_SYS_DEVPOLL_H
+#define IO_USE_DEVPOLL  1
 #   else
+#    ifdef HAVE_POLL
+#define IO_USE_POLL     1
+#        else
 #define IO_USE_SELECT   1
-#   endif /* HAVE_POLL */
+#      endif /* HAVE_POLL */
+#    endif /* HAVE_SYS_DEVPOLL_H */
 # endif /* HAVE_KQUEUE */
 #endif /* HAVE_EPOLL_CREATE */
 
@@ -73,10 +77,18 @@ static bool io_event_change_kqueue(int, short, const int action);
 
 #ifdef IO_USE_POLL
 #include <poll.h>
+
 static array pollfds;
 static int poll_maxfd;
 
 static bool io_event_change_poll(int fd, short what);
+#endif
+
+#ifdef IO_USE_DEVPOLL
+#include <sys/devpoll.h>
+static int io_masterfd;
+
+static bool io_event_change_devpoll(int fd, short what);
 #endif
 
 #ifdef IO_USE_SELECT
@@ -108,6 +120,19 @@ io_event_get(int fd)
 
 	return i;
 }
+
+
+#ifdef IO_USE_DEVPOLL
+static void
+io_library_init_devpoll(unsigned int eventsize)
+{
+	io_masterfd = open("/dev/poll", O_RDWR);
+	if (io_masterfd >= 0)
+		library_initialized = true;
+	Log(LOG_INFO, "IO subsystem: /dev/poll (initial maxfd %u, masterfd %d).",
+		eventsize, io_masterfd);
+}
+#endif
 
 
 #ifdef IO_USE_POLL
@@ -208,6 +233,9 @@ io_library_init(unsigned int eventsize)
 #ifdef IO_USE_KQUEUE
 	io_library_init_kqueue(eventsize);
 #endif
+#ifdef IO_USE_DEVPOLL
+	io_library_init_devpoll(eventsize);
+#endif
 #ifdef IO_USE_POLL
 	io_library_init_poll(eventsize);
 #endif
@@ -275,6 +303,9 @@ io_event_create(int fd, short what, void (*cbfunc) (int, short))
 
 	i->callback = cbfunc;
 	i->what = 0;
+#ifdef IO_USE_DEVPOLL
+	ret = io_event_change_devpoll(fd, what);
+#endif
 #ifdef IO_USE_POLL
 	ret = io_event_change_poll(fd, what);
 #endif
@@ -290,6 +321,26 @@ io_event_create(int fd, short what, void (*cbfunc) (int, short))
 	if (ret) i->what = what;
 	return ret;
 }
+
+
+#ifdef IO_USE_DEVPOLL
+static bool
+io_event_change_devpoll(int fd, short what)
+{
+	struct pollfd p;
+
+	p.events = 0;
+
+	if (what & IO_WANTREAD)
+		p.events = POLLIN | POLLPRI;
+	if (what & IO_WANTWRITE)
+		p.events |= POLLOUT;
+
+	p.fd = fd;
+	return write(io_masterfd, &p, sizeof p) == (ssize_t)sizeof p;
+}
+#endif
+
 
 
 #ifdef IO_USE_POLL
@@ -405,6 +456,9 @@ io_event_add(int fd, short what)
 #ifdef IO_USE_KQUEUE
 	return io_event_change_kqueue(fd, what, EV_ADD | EV_ENABLE);
 #endif
+#ifdef IO_USE_DEVPOLL
+	return io_event_change_devpoll(fd, i->what);
+#endif
 #ifdef IO_USE_POLL
 	return io_event_change_poll(fd, i->what);
 #endif
@@ -438,6 +492,21 @@ io_setnonblock(int fd)
 }
 
 
+#ifdef IO_USE_DEVPOLL
+static void
+io_close_devpoll(int fd)
+{
+	struct pollfd p;
+	p.events = POLLREMOVE;
+	p.fd = fd;
+	write(io_masterfd, &p, sizeof p);
+}
+#else
+static inline void io_close_devpoll(int UNUSED x) { /* NOTHING */ }
+#endif
+
+
+
 #ifdef IO_USE_POLL
 static void
 io_close_poll(int fd)
@@ -455,7 +524,6 @@ io_close_poll(int fd)
 				break;
 		}
 	}
-}
 #else
 static inline void io_close_poll(int UNUSED x) { /* NOTHING */ }
 #endif
@@ -504,6 +572,7 @@ io_close(int fd)
 	}
 #endif
 
+	io_close_devpoll(fd);
 	io_close_poll(fd);
 	io_close_select(fd);
 
@@ -529,6 +598,9 @@ io_event_del(int fd, short what)
 
 	i->what &= ~what;
 
+#ifdef IO_USE_DEVPOLL
+	return io_event_change_devpoll(fd, i->what);
+#endif
 #ifdef IO_USE_POLL
 	return io_event_change_poll(fd, i->what);
 #endif
@@ -584,6 +656,49 @@ io_dispatch_select(struct timeval *tv)
 	}
 
 	return ret;
+}
+#endif
+
+
+#ifdef IO_USE_DEVPOLL
+static int
+io_dispatch_devpoll(struct timeval *tv)
+{
+	struct dvpoll dvp;
+	time_t sec = tv->tv_sec * 1000;
+	int i, total, ret, timeout = tv->tv_usec + sec;
+	short what;
+	struct pollfd p[100];
+
+	if (timeout < 0)
+		timeout = 1000;
+
+	total = 0;
+	do {
+		dvp.dp_timeout = timeout;
+		dvp.dp_nfds = 100;
+		dvp.dp_fds = p;
+		ret = ioctl(io_masterfd, DP_POLL, &dvp);
+		total += ret;
+		if (ret <= 0)
+			return total;
+		for (i=0; i < ret ; i++) {
+			what = 0;
+			if (p[i].revents & (POLLIN|POLLPRI))
+				what = IO_WANTREAD;
+
+			if (p[i].revents & POLLOUT)
+				what |= IO_WANTWRITE;
+
+			if (p[i].revents && !what) {
+				/* other flag is set, probably POLLERR */
+				what = IO_ERROR;
+			}
+			io_docallback(p[i].fd, what);
+		}
+	} while (ret == 100);
+
+	return total;
 }
 #endif
 
@@ -746,6 +861,9 @@ io_dispatch(struct timeval *tv)
 #endif
 #ifdef IO_USE_KQUEUE
 	return io_dispatch_kqueue(tv);
+#endif
+#ifdef IO_USE_DEVPOLL
+	return io_dispatch_devpoll(tv);
 #endif
 #ifdef IO_USE_POLL
 	return io_dispatch_poll(tv);

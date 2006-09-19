@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: io.c,v 1.20 2006/09/17 10:41:07 fw Exp $";
+static char UNUSED id[] = "$Id: io.c,v 1.21 2006/09/19 18:21:30 fw Exp $";
 
 #include <assert.h>
 #include <stdlib.h>
@@ -524,6 +524,7 @@ io_close_poll(int fd)
 				break;
 		}
 	}
+}
 #else
 static inline void io_close_poll(int UNUSED x) { /* NOTHING */ }
 #endif

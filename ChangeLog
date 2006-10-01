@@ -10,12 +10,15 @@
                                -- ChangeLog --
 
 
-ngIRCd CVSHEAD
+ngIRCd 0.10.0 (2006-10-01)
 
-  - ...
+  - Fixed file handle leak when daemon is not able to send MOTD to a client.
 
-ngIRCd 0.10.0-pre1 (2006-08-02)
+  ngIRCd 0.10.0-pre2 (2006-09-09)
+  - Fixed build problems with GCC option -fstack-protector.
+  - Minor documentation updates.
 
+  ngIRCd 0.10.0-pre1 (2006-08-02)
   - Validate "ServerName" (see RFC 2812, section 2.3.1).
   - Enhanced DIE to accept a single parameter ("comment text") which is sent
     to all locally connected clients before the server goes down.
@@ -658,4 +661,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.303 2006/08/03 14:37:29 alex Exp $
+$Id: ChangeLog,v 1.304 2006/10/01 17:23:36 alex Exp $

@@ -3,11 +3,12 @@ Section: net
 Priority: optional
 Maintainer: Alexander Barton <alex@barton.de>
 Build-Depends: debhelper (>> 4.0.0), libz-dev, libwrap-dev, libident-dev
-Standards-Version: 3.5.8
+Standards-Version: 3.7.2.1
 
 Package: ngircd
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
+Provides: ircd
 Description: A lightweight daemon for the Internet Relay Chat (IRC)
  ngIRCd is a free open source daemon for the Internet Relay Chat (IRC)
  network. It is written from scratch and is not based upon the original
@@ -28,6 +29,7 @@ Description: A lightweight daemon for the Internet Relay Chat (IRC)
 Package: ngircd-full
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
+Provides: ircd
 Conflicts: ngircd
 Description: A lightweight daemon for the Internet Relay Chat (IRC)
  ngIRCd is a free open source daemon for the Internet Relay Chat (IRC)

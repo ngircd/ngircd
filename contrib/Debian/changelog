@@ -1,4 +1,29 @@
-ngircd (0.9.2-0ab1) stable; urgency=low
+ngircd (0.10.0-0ab1) unstable; urgency=low
+
+  * New "upstream" release: 0.10.0
+
+ -- Alexander Barton <alex@barton.de>  Sun,  1 Oct 2006 18:14:21 +0200
+
+ngircd (0.10.0-0ab0-pre2-1) unstable; urgency=low
+
+  * Bumped standards version to 3.7.2.1.
+  * Added "Provides: ircd" to Debian control file.
+
+ -- Alexander Barton <alex@barton.de>  Sun,  1 Oct 2006 16:25:33 +0200
+
+ngircd (0.10.0-0ab0-pre2) unstable; urgency=low
+
+  * Second "upstream" prerelease of upcoming 0.10.0 release.
+
+ -- Alexander Barton <alex@barton.de>  Sat,  9 Sep 2006 20:57:52 +0200
+
+ngircd (0.10.0-0ab0-pre1) unstable; urgency=low
+
+  * Prerelease of upcoming new "upstream release".
+
+ -- Alexander Barton <alex@barton.de>  Wed,  2 Aug 2006 12:01:07 +0200
+
+ngircd (0.9.2-0ab1) unstable; urgency=low
 
   * New "upstream release" fixing a few bugs in 0.9.1.
 

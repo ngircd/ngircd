@@ -1,3 +1,10 @@
+ngircd (0.10.0-0ab0-pre2-1~sid) unstable; urgency=low
+
+  * Bumped standards version to 3.7.2.1.
+  * Added "Provides: ircd" to Debian control file.
+
+ -- Alexander Barton <alex@barton.de>  Sun,  1 Oct 2006 16:25:33 +0200
+
 ngircd (0.10.0-0ab0-pre2) unstable; urgency=low
 
   * Second "upstream" prerelease of upcoming 0.10.0 release.

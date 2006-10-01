@@ -1,4 +1,4 @@
-ngircd (0.10.0-0ab0-pre2-1~sid) unstable; urgency=low
+ngircd (0.10.0-0ab0-pre2-1) unstable; urgency=low
 
   * Bumped standards version to 3.7.2.1.
   * Added "Provides: ircd" to Debian control file.

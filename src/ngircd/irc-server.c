@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-server.c,v 1.39 2006/04/30 21:31:43 alex Exp $";
+static char UNUSED id[] = "$Id: irc-server.c,v 1.40 2006/10/01 19:05:02 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -41,6 +41,10 @@ static char UNUSED id[] = "$Id: irc-server.c,v 1.39 2006/04/30 21:31:43 alex Exp
 #include "irc-server.h"
 
 
+/**
+ * Handler for the IRC command "SERVER".
+ * See RFC 2813 section 4.1.2.
+ */
 GLOBAL bool
 IRC_SERVER( CLIENT *Client, REQUEST *Req )
 {
@@ -55,13 +59,17 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	/* Fehler liefern, wenn kein lokaler Client */
-	if( Client_Conn( Client ) <= NONE ) return IRC_WriteStrClient( Client, ERR_UNKNOWNCOMMAND_MSG, Client_ID( Client ), Req->command );
+	/* Return an error if this is not a local client */
+	if (Client_Conn(Client) <= NONE)
+		return IRC_WriteStrClient(Client, ERR_UNKNOWNCOMMAND_MSG,
+					  Client_ID(Client), Req->command);
 
-	if( Client_Type( Client ) == CLIENT_GOTPASSSERVER )
-	{
-		/* Verbindung soll als Server-Server-Verbindung registriert werden */
-		Log( LOG_DEBUG, "Connection %d: got SERVER command (new server link) ...", Client_Conn( Client ));
+	if (Client_Type(Client) == CLIENT_GOTPASS) {
+		/* We got a PASS command from the peer, and now a SERVER
+		 * command: the peer tries to register itself as a server. */
+		Log(LOG_DEBUG,
+		    "Connection %d: got SERVER command (new server link) ...",
+		    Client_Conn(Client));
 
 		/* Falsche Anzahl Parameter? */
 		if(( Req->argc != 2 ) && ( Req->argc != 3 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );

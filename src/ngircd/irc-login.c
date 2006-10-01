@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-login.c,v 1.51 2006/10/01 19:03:05 alex Exp $";
+static char UNUSED id[] = "$Id: irc-login.c,v 1.52 2006/10/01 19:05:02 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -45,101 +45,120 @@ static bool Hello_User PARAMS(( CLIENT *Client ));
 static void Kill_Nick PARAMS(( char *Nick, char *Reason ));
 
 
+/**
+ * Handler for the IRC command "PASS".
+ * See RFC 2813 section 4.1.1, and RFC 2812 section 3.1.1.
+ */
 GLOBAL bool
 IRC_PASS( CLIENT *Client, REQUEST *Req )
 {
+	char *type, *orig_flags;
+	int protohigh, protolow;
+
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	/* Fehler liefern, wenn kein lokaler Client */
-	if( Client_Conn( Client ) <= NONE ) return IRC_WriteStrClient( Client, ERR_UNKNOWNCOMMAND_MSG, Client_ID( Client ), Req->command );
+	/* Return an error if this is not a local client */
+	if (Client_Conn(Client) <= NONE)
+		return IRC_WriteStrClient(Client, ERR_UNKNOWNCOMMAND_MSG,
+					  Client_ID(Client), Req->command);
 	
-	if(( Client_Type( Client ) == CLIENT_UNKNOWN ) && ( Req->argc == 1))
-	{
-		/* noch nicht registrierte unbekannte Verbindung */
-		Log( LOG_DEBUG, "Connection %d: got PASS command ...", Client_Conn( Client ));
-
-		/* Passwort speichern */
-		Client_SetPassword( Client, Req->argv[0] );
-
-		Client_SetType( Client, CLIENT_GOTPASS );
-		return CONNECTED;
+	if (Client_Type(Client) == CLIENT_UNKNOWN && Req->argc == 1) {
+		/* Not yet registered "unknown" connection, PASS with one
+		 * argument: either a regular client, service, or server
+		 * using the old RFC 1459 section 4.1.1 syntax. */
+		LogDebug("Connection %d: got PASS command ...",
+			 Client_Conn(Client));
+	} else if ((Client_Type(Client) == CLIENT_UNKNOWN ||
+		    Client_Type(Client) == CLIENT_UNKNOWNSERVER) &&
+		   (Req->argc == 3 || Req->argc == 4)) {
+		/* Not yet registered "unknown" connection or outgoing server
+		 * link, PASS with three or four argument: server using the
+		 * RFC 2813 section 4.1.1 syntax. */
+		LogDebug("Connection %d: got PASS command (new server link) ...",
+			 Client_Conn(Client));
+	} else if (Client_Type(Client) == CLIENT_UNKNOWN ||
+		   Client_Type(Client) == CLIENT_UNKNOWNSERVER) {
+		/* Unregistered connection, but wrong number of arguments: */
+		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+					  Client_ID(Client), Req->command);
+	} else {
+		/* Registered connection, PASS command is not allowed! */
+		return IRC_WriteStrClient(Client, ERR_ALREADYREGISTRED_MSG,
+					  Client_ID(Client));
 	}
-	else if((( Client_Type( Client ) == CLIENT_UNKNOWN ) || ( Client_Type( Client ) == CLIENT_UNKNOWNSERVER )) && (( Req->argc == 3 ) || ( Req->argc == 4 )))
-	{
-		char c2, c4, *type, *impl, *serverver, *flags, *ptr, *ircflags;
-		int protohigh, protolow;
 
-		/* noch nicht registrierte Server-Verbindung */
-		Log( LOG_DEBUG, "Connection %d: got PASS command (new server link) ...", Client_Conn( Client ));
+	Client_SetPassword(Client, Req->argv[0]);
+	Client_SetType(Client, CLIENT_GOTPASS);
 
-		/* Passwort speichern */
-		Client_SetPassword( Client, Req->argv[0] );
+	/* Protocol version */
+	if (Req->argc >= 2 && strlen(Req->argv[1]) >= 4) {
+		int c2, c4;
 
-		/* Protokollversion ermitteln */
-		if( strlen( Req->argv[1] ) >= 4 )
-		{
-			c2 = Req->argv[1][2];
-			c4 = Req->argv[1][4];
+		c2 = Req->argv[1][2];
+		c4 = Req->argv[1][4];
 
-			Req->argv[1][4] = '\0';
-			protolow = atoi( &Req->argv[1][2] );
-			Req->argv[1][2] = '\0';
-			protohigh = atoi( Req->argv[1] );
+		Req->argv[1][4] = '\0';
+		protolow = atoi(&Req->argv[1][2]);
+		Req->argv[1][2] = '\0';
+		protohigh = atoi(Req->argv[1]);
 			
-			Req->argv[1][2] = c2;
-			Req->argv[1][4] = c4;
-		}			
-		else protohigh = protolow = 0;
+		Req->argv[1][2] = c2;
+		Req->argv[1][4] = c4;
+	} else
+		protohigh = protolow = 0;
 
-		/* Protokoll-Typ */
-		if( strlen( Req->argv[1] ) > 4 ) type = &Req->argv[1][4];
-		else type = NULL;
+	/* Protocol type, see doc/Protocol.txt */
+	if (Req->argc >= 2 && strlen(Req->argv[1]) > 4)
+		type = &Req->argv[1][4];
+	else
+		type = NULL;
+	
+	/* Protocol flags/options */
+	if (Req->argc >= 4)
+		orig_flags = Req->argv[3];
+	else
+		orig_flags = "";
 
-		/* IRC-Flags (nach RFC 2813) */
-		if( Req->argc >= 4 ) ircflags = Req->argv[3];
-		else ircflags = "";
+	/* Implementation, version and IRC+ flags */
+	if (Req->argc >= 3) {
+		char *impl, *ptr, *serverver, *flags;
+		int _unused_var;
 
-		/* Implementation, Version und ngIRCd-Flags */
 		impl = Req->argv[2];
-		ptr = strchr( impl, '|' );
-		if( ptr ) *ptr = '\0';
+		ptr = strchr(impl, '|');
+		if (ptr)
+			*ptr = '\0';
 
-		if( type && ( strcmp( type, PROTOIRCPLUS ) == 0 ))
-		{
-			/* auf der anderen Seite laeuft ein Server, der
-			 * ebenfalls das IRC+-Protokoll versteht */
+		if (type && strcmp(type, PROTOIRCPLUS) == 0) {
+			/* The peer seems to be a server which supports the
+			 * IRC+ protocol (see doc/Protocol.txt). */
 			serverver = ptr + 1;
-			flags = strchr( serverver, ':' );
-			if( flags )
-			{
+			flags = strchr(serverver, ':');
+			if (flags) {
 				*flags = '\0';
 				flags++;
-			}
-			else flags = "";
-			Log( LOG_INFO, "Peer announces itself as %s-%s using protocol %d.%d/IRC+ (flags: \"%s\").", impl, serverver, protohigh, protolow, flags );
-		}
-		else
-		{
-			/* auf der anderen Seite laeuft ein Server, der
-			 * nur das Originalprotokoll unterstuetzt */
+			} else
+				flags = "";
+			Log(LOG_INFO,
+			    "Peer announces itself as %s-%s using protocol %d.%d/IRC+ (flags: \"%s\").",
+			    impl, serverver, protohigh, protolow, flags);
+		} else {
+			/* The peer seems to be a server supporting the
+			 * "original" IRC protocol (RFC 2813). */
 			serverver = "";
-			if( strchr( ircflags, 'Z' )) flags = "Z";
-			else flags = "";
-			Log( LOG_INFO, "Peer announces itself as \"%s\" using protocol %d.%d (flags: \"%s\").", impl, protohigh, protolow, flags );
+			if (strchr(orig_flags, 'Z'))
+				flags = "Z";
+			else
+				flags = "";
+			Log(LOG_INFO,
+			    "Peer announces itself as \"%s\" using protocol %d.%d (flags: \"%s\").",
+			    impl, protohigh, protolow, flags);
 		}
-
-		Client_SetType( Client, CLIENT_GOTPASSSERVER );
-		Client_SetFlags( Client, flags );
-
-		return CONNECTED;
+		Client_SetFlags(Client, flags);
 	}
-	else if(( Client_Type( Client ) == CLIENT_UNKNOWN  ) || ( Client_Type( Client ) == CLIENT_UNKNOWNSERVER ))
-	{
-		/* Falsche Anzahl Parameter? */
-		return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
-	}
-	else return IRC_WriteStrClient( Client, ERR_ALREADYREGISTRED_MSG, Client_ID( Client ));
+
+	return CONNECTED;
 } /* IRC_PASS */
 
 

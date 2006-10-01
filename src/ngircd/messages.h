@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: messages.h,v 1.68 2006/10/01 19:03:05 alex Exp $
+ * $Id: messages.h,v 1.69 2006/10/01 19:13:32 alex Exp $
  *
  * IRC numerics (Header)
  */
@@ -42,8 +42,8 @@
 #define RPL_ADMINLOC2_MSG		"258 %s :%s"
 #define RPL_ADMINEMAIL_MSG		"259 %s :%s"
 #define RPL_TRACEEND_MSG		"262 %s %s %s-%s.%s :End of TRACE"
-#define RPL_LOCALUSERS_MSG		"265 %s :Current local users: %ld, Max: %ld"
-#define RPL_NETUSERS_MSG		"266 %s :Current global users: %ld, Max: %ld"
+#define RPL_LOCALUSERS_MSG		"265 %s %ld %ld :Current local users: %ld, Max: %ld"
+#define RPL_NETUSERS_MSG		"266 %s %ld %ld :Current global users: %ld, Max: %ld"
 
 #define RPL_AWAY_MSG			"301 %s %s :%s"
 #define RPL_USERHOST_MSG		"302 %s :"

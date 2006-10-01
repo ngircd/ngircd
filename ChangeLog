@@ -12,6 +12,7 @@
 
 ngIRCd HEAD
 
+  - Changed Numerics 265 and 266 to follow ircd 2.11.x "standards".
   - Allow PASS syntax defined in RFC 1459 for server links, too.
   - Enhanced ISUPPORT message (005 numeric).
 
@@ -666,4 +667,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.306 2006/10/01 19:05:00 alex Exp $
+$Id: ChangeLog,v 1.307 2006/10/01 19:13:32 alex Exp $

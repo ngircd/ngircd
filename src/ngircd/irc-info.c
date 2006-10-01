@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-info.c,v 1.34 2006/09/16 12:22:09 fw Exp $";
+static char UNUSED id[] = "$Id: irc-info.c,v 1.35 2006/10/01 19:13:32 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -833,6 +833,9 @@ GLOBAL bool
 IRC_Send_LUSERS( CLIENT *Client )
 {
 	long cnt;
+#ifndef STRICT_RFC
+	long max;
+#endif
 
 	assert( Client != NULL );
 
@@ -861,9 +864,17 @@ IRC_Send_LUSERS( CLIENT *Client )
 
 #ifndef STRICT_RFC
 	/* Maximum number of local users */
-	if( ! IRC_WriteStrClient( Client, RPL_LOCALUSERS_MSG, Client_ID( Client ), Client_MyUserCount( ), Client_MyMaxUserCount( ))) return DISCONNECTED;
+	cnt = Client_MyUserCount();
+	max = Client_MyMaxUserCount();
+	if (! IRC_WriteStrClient(Client, RPL_LOCALUSERS_MSG, Client_ID(Client),
+			cnt, max, cnt, max))
+		return DISCONNECTED;
 	/* Maximum number of users in the network */
-	if( ! IRC_WriteStrClient( Client, RPL_NETUSERS_MSG, Client_ID( Client ), Client_UserCount( ), Client_MaxUserCount( ))) return DISCONNECTED;
+	cnt = Client_UserCount();
+	max = Client_MaxUserCount();
+	if(! IRC_WriteStrClient(Client, RPL_NETUSERS_MSG, Client_ID(Client),
+			cnt, max, cnt, max))
+		return DISCONNECTED;
 #endif
 	
 	return CONNECTED;

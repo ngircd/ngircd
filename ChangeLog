@@ -10,6 +10,10 @@
                                -- ChangeLog --
 
 
+ngIRCd HEAD
+
+  - Enhanced ISUPPORT message (005 numeric).
+
 ngIRCd 0.10.0 (2006-10-01)
 
   - Fixed file handle leak when daemon is not able to send MOTD to a client.
@@ -661,4 +665,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.304 2006/10/01 17:23:36 alex Exp $
+$Id: ChangeLog,v 1.305 2006/10/01 19:03:05 alex Exp $

@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: messages.h,v 1.67 2005/09/02 12:50:25 alex Exp $
+ * $Id: messages.h,v 1.68 2006/10/01 19:03:05 alex Exp $
  *
  * IRC numerics (Header)
  */
@@ -22,7 +22,8 @@
 #define RPL_YOURHOST_MSG		"002 %s :Your host is %s, running version ngircd-%s (%s/%s/%s)"
 #define RPL_CREATED_MSG			"003 %s :This server has been started %s"
 #define RPL_MYINFO_MSG			"004 %s %s ngircd-%s %s %s"
-#define RPL_ISUPPORT_MSG		"005 %s NICKLEN=%d TOPICLEN=%d AWAYLEN=%d MAXCHANNELS=%d :are supported on this server"
+#define RPL_ISUPPORT1_MSG		"005 %s RFC2812 CASEMAPPING=ascii PREFIX=(ov)@+ CHANTYPES=# CHANMODES=bI,k,l,imnPst CHANLIMIT=#:%d :are supported on this server"
+#define RPL_ISUPPORT2_MSG		"005 %s CHANNELLEN=%d NICKLEN=%d TOPICLEN=%d AWAYLEN=%d KICKLEN=%d PENALTY :are supported on this server"
 
 #define RPL_TRACELINK_MSG		"200 %s Link %s-%s %s %s V%s %ld %d %d"
 #define RPL_TRACEOPERATOR_MSG		"204 %s Oper 2 :%s"

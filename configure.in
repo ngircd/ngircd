@@ -8,13 +8,13 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: configure.in,v 1.118.2.5 2006/09/09 18:50:47 alex Exp $
+# $Id: configure.in,v 1.118.2.6 2006/10/01 16:21:56 alex Exp $
 #
 
 # -- Initialisation --
 
 AC_PREREQ(2.50)
-AC_INIT(ngircd, 0.10.0-pre2)
+AC_INIT(ngircd, 0.10.0)
 AC_CONFIG_SRCDIR(src/ngircd/ngircd.c)
 AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE(1.6)

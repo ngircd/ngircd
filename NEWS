@@ -10,7 +10,7 @@
                                   -- NEWS --
 
 
-ngIRCd 0.10.0-pre2 (2006-09-09)
+ngIRCd 0.10.0 (2006-10-01)
 
   ngIRCd 0.10.0-pre1 (2006-08-02)
   - Enhanced DIE to accept a single parameter ("comment text") which is sent
@@ -223,4 +223,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.75.2.2 2006/09/09 18:50:47 alex Exp $
+$Id: NEWS,v 1.75.2.3 2006/10/01 16:21:55 alex Exp $

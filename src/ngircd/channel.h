@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: channel.h,v 1.29 2005/09/02 12:50:25 alex Exp $
+ * $Id: channel.h,v 1.30 2006/10/02 21:55:50 fw Exp $
  *
  * Channel management (header)
  */
@@ -94,7 +94,7 @@ GLOBAL CL2CHAN *Channel_NextChannelOf PARAMS(( CLIENT *Client, CL2CHAN *Cl2Chan 
 GLOBAL CLIENT *Channel_GetClient PARAMS(( CL2CHAN *Cl2Chan ));
 GLOBAL CHANNEL *Channel_GetChannel PARAMS(( CL2CHAN *Cl2Chan ));
 
-GLOBAL bool Channel_IsValidName PARAMS(( char *Name ));
+GLOBAL bool Channel_IsValidName PARAMS(( const char *Name ));
 
 GLOBAL bool Channel_ModeAdd PARAMS(( CHANNEL *Chan, char Mode ));
 GLOBAL bool Channel_ModeDel PARAMS(( CHANNEL *Chan, char Mode ));

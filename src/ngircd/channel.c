@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: channel.c,v 1.57 2006/08/12 11:58:21 fw Exp $";
+static char UNUSED id[] = "$Id: channel.c,v 1.58 2006/10/02 21:55:49 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -462,25 +462,13 @@ Channel_GetChannel( CL2CHAN *Cl2Chan )
 
 
 GLOBAL bool
-Channel_IsValidName( char *Name )
+Channel_IsValidName( const char *Name )
 {
-	/* Pruefen, ob Name als Channelname gueltig */
-
-	char *ptr, badchars[10];
-	
 	assert( Name != NULL );
 
 	if(( Name[0] != '#' ) || ( strlen( Name ) >= CHANNEL_NAME_LEN )) return false;
 
-	ptr = Name;
-	strcpy( badchars, " ,:\007" );
-	while( *ptr )
-	{
-		if( strchr( badchars, *ptr )) return false;
-		ptr++;
-	}
-	
-	return true;
+	return Name[strcspn(Name, " ,:\007")] == 0;
 } /* Channel_IsValidName */
 
 

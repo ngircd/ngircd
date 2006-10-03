@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-login.c,v 1.52 2006/10/01 19:05:02 alex Exp $";
+static char UNUSED id[] = "$Id: irc-login.c,v 1.53 2006/10/03 10:28:38 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -123,7 +123,6 @@ IRC_PASS( CLIENT *Client, REQUEST *Req )
 	/* Implementation, version and IRC+ flags */
 	if (Req->argc >= 3) {
 		char *impl, *ptr, *serverver, *flags;
-		int _unused_var;
 
 		impl = Req->argv[2];
 		ptr = strchr(impl, '|');

@@ -10,6 +10,10 @@
                                -- ChangeLog --
 
 
+ngIRCd 0.10.x
+
+  - Update info text of local server after re-reading configuration.
+
 ngIRCd 0.10.0 (2006-10-01)
 
   - Fixed file handle leak when daemon is not able to send MOTD to a client.
@@ -661,4 +665,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.302.2.4 2006/10/01 16:21:55 alex Exp $
+$Id: ChangeLog,v 1.302.2.5 2006/10/03 11:01:05 alex Exp $

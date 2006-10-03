@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.92 2006/07/23 16:42:45 alex Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.93 2006/10/03 10:59:41 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -146,6 +146,9 @@ Conf_Rehash( void )
 	Set_Defaults( false );
 	Read_Config( );
 	Validate_Config(false, true);
+	
+	/* Update CLIENT structure of local server */
+	Client_SetInfo(Client_ThisServer(), Conf_ServerInfo);
 } /* Config_Rehash */
 
 

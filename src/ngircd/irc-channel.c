@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-channel.c,v 1.35 2006/03/16 20:14:16 fw Exp $";
+static char UNUSED id[] = "$Id: irc-channel.c,v 1.36 2006/10/05 18:26:54 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -123,7 +123,7 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 					IRC_WriteStrClient( Client, ERR_BANNEDFROMCHAN_MSG, Client_ID( Client ), channame );
 
 					/* Try next name, if any */
-					channame = strtok( NULL, "," );
+					channame = strchr(channame, ',');
 					continue;
 				}
 
@@ -134,7 +134,7 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 					IRC_WriteStrClient( Client, ERR_INVITEONLYCHAN_MSG, Client_ID( Client ), channame );
 
 					/* Try next name, if any */
-					channame = strtok( NULL, "," );
+					channame = strchr(channame, ',');
 					continue;
 				}
 
@@ -145,7 +145,7 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 					IRC_WriteStrClient( Client, ERR_BADCHANNELKEY_MSG, Client_ID( Client ), channame );
 
 					/* Try next name, if any */
-					channame = strtok( NULL, "," );
+					channame = strchr(channame, ',');
 					continue;
 				}
 
@@ -156,7 +156,7 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 					IRC_WriteStrClient( Client, ERR_CHANNELISFULL_MSG, Client_ID( Client ), channame );
 
 					/* Try next name, if any */
-					channame = strtok( NULL, "," );
+					channame = strchr(channame, ',');
 					continue;
 				}
 			}
@@ -176,7 +176,7 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 		if( ! Channel_Join( target, channame ))
 		{
 			/* naechsten Namen ermitteln */
-			channame = strtok( NULL, "," );
+			channame = strchr(channame, ',');
 			continue;
 		}
 		if( ! chan ) chan = Channel_Search( channame );

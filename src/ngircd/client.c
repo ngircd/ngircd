@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: client.c,v 1.91 2006/04/23 10:37:27 fw Exp $";
+static char UNUSED id[] = "$Id: client.c,v 1.92 2006/10/06 19:57:56 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -979,15 +979,12 @@ Client_MyMaxUserCount( void )
 
 
 GLOBAL bool
-Client_IsValidNick( char *Nick )
+Client_IsValidNick( const char *Nick )
 {
-	/* Ist der Nick gueltig? */
+	const char *ptr;
+	static const char goodchars[] = ";0123456789-";
 
-	char *ptr, goodchars[20];
-	
 	assert( Nick != NULL );
-
-	strcpy( goodchars, ";0123456789-" );
 
 	if( Nick[0] == '#' ) return false;
 	if( strchr( goodchars, Nick[0] )) return false;
@@ -996,11 +993,11 @@ Client_IsValidNick( char *Nick )
 	ptr = Nick;
 	while( *ptr )
 	{
-		if(( *ptr < 'A' ) && ( ! strchr( goodchars, *ptr ))) return false;
-		if(( *ptr > '}' ) && ( ! strchr( goodchars, *ptr ))) return false;
+		if (( *ptr < 'A' ) && ( ! strchr( goodchars, *ptr ))) return false;
+		if ( *ptr > '}' ) return false;
 		ptr++;
 	}
-	
+
 	return true;
 } /* Client_IsValidNick */
 

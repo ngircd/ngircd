@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-server.c,v 1.40 2006/10/01 19:05:02 alex Exp $";
+static char UNUSED id[] = "$Id: irc-server.c,v 1.41 2006/10/06 21:32:58 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -215,7 +215,13 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 					else
 					{
 						/* "CHANINFO <chan> +<modes> <key> <limit> :<topic>" */
-						if( ! IRC_WriteStrClient( Client, "CHANINFO %s +%s %s %ld :%s", Channel_Name( chan ), modes, strchr( Channel_Modes( chan ), 'k' ) ? Channel_Key( chan ) : "*", strchr( Channel_Modes( chan ), 'l' ) ? Channel_MaxUsers( chan ) : 0L, topic )) return DISCONNECTED;
+						if( ! IRC_WriteStrClient( Client, "CHANINFO %s +%s %s %lu :%s",
+							Channel_Name( chan ), modes,
+							strchr( Channel_Modes( chan ), 'k' ) ? Channel_Key( chan ) : "*",
+							strchr( Channel_Modes( chan ), 'l' ) ? Channel_MaxUsers( chan ) : 0UL, topic ))
+						{
+							return DISCONNECTED;
+						}
 					}
 				}
 			}

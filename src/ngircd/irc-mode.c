@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-mode.c,v 1.46 2006/08/12 11:56:24 fw Exp $";
+static char UNUSED id[] = "$Id: irc-mode.c,v 1.47 2006/10/06 21:32:58 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -268,7 +268,7 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 			switch( *mode_ptr )
 			{
 				case 'l':
-					snprintf( argadd, sizeof( argadd ), " %ld", Channel_MaxUsers( Channel ));
+					snprintf( argadd, sizeof( argadd ), " %lu", Channel_MaxUsers( Channel ));
 					strlcat( the_args, argadd, sizeof( the_args ));
 					break;
 				case 'k':

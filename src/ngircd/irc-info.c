@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-info.c,v 1.35 2006/10/01 19:13:32 alex Exp $";
+static char UNUSED id[] = "$Id: irc-info.c,v 1.36 2006/10/06 21:32:58 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -542,7 +542,8 @@ GLOBAL bool
 IRC_WHO( CLIENT *Client, REQUEST *Req )
 {
 	bool ok, only_ops;
-	char flags[8], *ptr;
+	char flags[8];
+	const char *ptr;
 	CL2CHAN *cl2chan;
 	CHANNEL *chan, *cn;
 	CLIENT *c;

@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: messages.h,v 1.69 2006/10/01 19:13:32 alex Exp $
+ * $Id: messages.h,v 1.70 2006/10/06 21:32:58 fw Exp $
  *
  * IRC numerics (Header)
  */
@@ -35,7 +35,7 @@
 #define RPL_LUSERCLIENT_MSG		"251 %s :There are %ld users and %ld services on %ld servers"
 #define RPL_LUSEROP_MSG			"252 %s %ld :operator(s) online"
 #define RPL_LUSERUNKNOWN_MSG		"253 %s %ld :unknown connection(s)"
-#define RPL_LUSERCHANNELS_MSG		"254 %s %ld :channels formed"
+#define RPL_LUSERCHANNELS_MSG		"254 %s %lu :channels formed"
 #define RPL_LUSERME_MSG			"255 %s :I have %ld users, %ld services and %ld servers"
 #define RPL_ADMINME_MSG			"256 %s %s :Administrative info"
 #define RPL_ADMINLOC1_MSG		"257 %s :%s"

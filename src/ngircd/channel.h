@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: channel.h,v 1.30 2006/10/02 21:55:50 fw Exp $
+ * $Id: channel.h,v 1.31 2006/10/06 21:32:58 fw Exp $
  *
  * Channel management (header)
  */
@@ -35,7 +35,7 @@ typedef struct _CHANNEL
 	char topic_who[CLIENT_NICK_LEN];/* Nickname of user that set topic */
 #endif
 	char key[CLIENT_PASS_LEN];	/* Channel key ("password", mode "k" ) */
-	long maxusers;			/* Maximum number of members (mode "l") */
+	unsigned long maxusers;		/* Maximum number of members (mode "l") */
 } CHANNEL;
 
 typedef struct _CLIENT2CHAN
@@ -65,21 +65,21 @@ GLOBAL void Channel_Quit PARAMS(( CLIENT *Client, char *Reason ));
 
 GLOBAL void Channel_Kick PARAMS((  CLIENT *Client, CLIENT *Origin, char *Name, char *Reason ));
 
-GLOBAL long Channel_Count PARAMS(( void ));
-GLOBAL long Channel_MemberCount PARAMS(( CHANNEL *Chan ));
+GLOBAL unsigned long Channel_Count PARAMS(( void ));
+GLOBAL unsigned long Channel_MemberCount PARAMS(( CHANNEL *Chan ));
 GLOBAL int Channel_CountForUser PARAMS(( CLIENT *Client ));
 GLOBAL int Channel_PCount PARAMS(( void ));
 
-GLOBAL char *Channel_Name PARAMS(( CHANNEL *Chan ));
+GLOBAL const char *Channel_Name PARAMS(( const CHANNEL *Chan ));
 GLOBAL char *Channel_Modes PARAMS(( CHANNEL *Chan ));
 GLOBAL char *Channel_Topic PARAMS(( CHANNEL *Chan ));
 GLOBAL char *Channel_Key PARAMS(( CHANNEL *Chan ));
-GLOBAL long Channel_MaxUsers PARAMS(( CHANNEL *Chan ));
+GLOBAL unsigned long Channel_MaxUsers PARAMS(( CHANNEL *Chan ));
 
 GLOBAL void Channel_SetTopic PARAMS(( CHANNEL *Chan, CLIENT *Client, char *Topic ));
 GLOBAL void Channel_SetModes PARAMS(( CHANNEL *Chan, char *Modes ));
 GLOBAL void Channel_SetKey PARAMS(( CHANNEL *Chan, char *Key ));
-GLOBAL void Channel_SetMaxUsers PARAMS(( CHANNEL *Chan, long Count ));
+GLOBAL void Channel_SetMaxUsers PARAMS(( CHANNEL *Chan, unsigned long Count ));
 
 GLOBAL CHANNEL *Channel_Search PARAMS(( char *Name ));
 

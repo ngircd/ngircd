@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: channel.c,v 1.58 2006/10/02 21:55:49 fw Exp $";
+static char UNUSED id[] = "$Id: channel.c,v 1.59 2006/10/06 21:32:58 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -265,11 +265,11 @@ Channel_Quit( CLIENT *Client, char *Reason )
 } /* Channel_Quit */
 
 
-GLOBAL long
+GLOBAL unsigned long
 Channel_Count( void )
 {
 	CHANNEL *c;
-	long count = 0;
+	unsigned long count = 0;
 	
 	c = My_Channels;
 	while( c )
@@ -281,11 +281,11 @@ Channel_Count( void )
 } /* Channel_Count */
 
 
-GLOBAL long
+GLOBAL unsigned long
 Channel_MemberCount( CHANNEL *Chan )
 {
 	CL2CHAN *cl2chan;
-	long count = 0;
+	unsigned long count = 0;
 
 	assert( Chan != NULL );
 
@@ -339,8 +339,8 @@ Channel_PCount( void )
 } /* Channel_PCount */
 
 
-GLOBAL char *
-Channel_Name( CHANNEL *Chan )
+GLOBAL const char *
+Channel_Name( const CHANNEL *Chan )
 {
 	assert( Chan != NULL );
 	return Chan->name;
@@ -363,7 +363,7 @@ Channel_Key( CHANNEL *Chan )
 } /* Channel_Key */
 
 
-GLOBAL long
+GLOBAL unsigned long
 Channel_MaxUsers( CHANNEL *Chan )
 {
 	assert( Chan != NULL );
@@ -687,7 +687,7 @@ Channel_SetKey( CHANNEL *Chan, char *Key )
 
 
 GLOBAL void
-Channel_SetMaxUsers( CHANNEL *Chan, long Count )
+Channel_SetMaxUsers(CHANNEL *Chan, unsigned long Count)
 {
 	assert( Chan != NULL );
 
@@ -714,7 +714,7 @@ Channel_Write( CHANNEL *Chan, CLIENT *From, CLIENT *Client, char *Text )
 	ok = true;
 	if( strchr( Channel_Modes( Chan ), 'n' ) && ( ! is_member )) ok = false;
 	if( strchr( Channel_Modes( Chan ), 'm' ) && ( ! is_op ) && ( ! has_voice )) ok = false;
-	
+
 	/* Is the client banned? */
 	if( Lists_CheckBanned( From, Chan ))
 	{

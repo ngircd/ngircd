@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: hash.c,v 1.12 2005/07/31 20:13:08 alex Exp $";
+static char UNUSED id[] = "$Id: hash.c,v 1.13 2006/10/06 21:23:47 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -31,7 +31,7 @@ static UINT32 jenkins_hash PARAMS(( register UINT8 *k, register UINT32 length, r
 
 
 GLOBAL UINT32
-Hash( char *String )
+Hash( const char *String )
 {
 	/* Hash-Wert ueber String berechnen */
 

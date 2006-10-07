@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-info.c,v 1.36 2006/10/06 21:32:58 fw Exp $";
+static char UNUSED id[] = "$Id: irc-info.c,v 1.37 2006/10/07 10:40:52 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -833,9 +833,9 @@ IRC_WHOWAS( CLIENT *Client, REQUEST *Req )
 GLOBAL bool
 IRC_Send_LUSERS( CLIENT *Client )
 {
-	long cnt;
+	unsigned long cnt;
 #ifndef STRICT_RFC
-	long max;
+	unsigned long max;
 #endif
 
 	assert( Client != NULL );

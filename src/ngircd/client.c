@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: client.c,v 1.92 2006/10/06 19:57:56 fw Exp $";
+static char UNUSED id[] = "$Id: client.c,v 1.93 2006/10/07 10:40:52 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -57,8 +57,8 @@ static WHOWAS My_Whowas[MAX_WHOWAS];
 static int Last_Whowas = -1;
 
 
-static long Count PARAMS(( CLIENT_TYPE Type ));
-static long MyCount PARAMS(( CLIENT_TYPE Type ));
+static unsigned long Count PARAMS(( CLIENT_TYPE Type ));
+static unsigned long MyCount PARAMS(( CLIENT_TYPE Type ));
 
 static CLIENT *New_Client_Struct PARAMS(( void ));
 static void Generate_MyToken PARAMS(( CLIENT *Client ));
@@ -211,8 +211,8 @@ Init_New_Client(CONN_ID Idx, CLIENT *Introducer, CLIENT *TopServer,
 	if( Modes ) Client_SetModes( client, Modes );
 	if( Type == CLIENT_SERVER ) Generate_MyToken( client );
 
-	/* ist der User away? */
-	if( strchr( client->modes, 'a' )) strlcpy( client->away, DEFAULT_AWAY_MSG, sizeof( client->away ));
+	if( strchr( client->modes, 'a' ))
+		strlcpy( client->away, DEFAULT_AWAY_MSG, sizeof( client->away ));
 
 	/* Verketten */
 	client->next = (POINTER *)My_Clients;
@@ -399,7 +399,7 @@ Client_SetUser( CLIENT *Client, char *User, bool Idented )
 
 	assert( Client != NULL );
 	assert( User != NULL );
-	
+
 	if( Idented ) strlcpy( Client->user, User, sizeof( Client->user ));
 	else
 	{
@@ -416,7 +416,7 @@ Client_SetInfo( CLIENT *Client, char *Info )
 
 	assert( Client != NULL );
 	assert( Info != NULL );
-	
+
 	strlcpy( Client->info, Info, sizeof( Client->info ));
 } /* Client_SetInfo */
 
@@ -452,7 +452,7 @@ Client_SetPassword( CLIENT *Client, char *Pwd )
 
 	assert( Client != NULL );
 	assert( Pwd != NULL );
-	
+
 	strlcpy( Client->pwd, Pwd, sizeof( Client->pwd ));
 } /* Client_SetPassword */
 
@@ -522,7 +522,7 @@ Client_ModeAdd( CLIENT *Client, char Mode )
 	 */
 
 	char x[2];
-	
+
 	assert( Client != NULL );
 
 	x[0] = Mode; x[1] = '\0';
@@ -734,11 +734,13 @@ GLOBAL CLIENT *
 Client_NextHop( CLIENT *Client )
 {
 	CLIENT *c;
-	
+
 	assert( Client != NULL );
 
 	c = Client;
-	while( c->introducer && ( c->introducer != c ) && ( c->introducer != This_Server )) c = c->introducer;
+	while( c->introducer && ( c->introducer != c ) && ( c->introducer != This_Server ))
+		c = c->introducer;
+
 	return c;
 } /* Client_NextHop */
 
@@ -750,7 +752,7 @@ Client_Mask( CLIENT *Client )
 	 * Prefixe benoetigt wird. */
 
 	assert( Client != NULL );
-	
+
 	if( Client->type == CLIENT_SERVER ) return Client->id;
 
 	snprintf( GetID_Buffer, GETID_LEN, "%s!%s@%s", Client->id, Client->user, Client->host );
@@ -795,12 +797,9 @@ Client_Away( CLIENT *Client )
 GLOBAL bool
 Client_CheckNick( CLIENT *Client, char *Nick )
 {
-	/* Nick ueberpruefen */
-
 	assert( Client != NULL );
 	assert( Nick != NULL );
-	
-	/* Nick ungueltig? */
+
 	if( ! Client_IsValidNick( Nick ))
 	{
 		IRC_WriteStrClient( Client, ERR_ERRONEUSNICKNAME_MSG, Client_ID( Client ), Nick );
@@ -913,11 +912,11 @@ Client_MyServiceCount( void )
 } /* Client_MyServiceCount */
 
 
-GLOBAL long
+GLOBAL unsigned long
 Client_MyServerCount( void )
 {
 	CLIENT *c;
-	long cnt;
+	unsigned long cnt;
 
 	cnt = 0;
 	c = My_Clients;
@@ -930,11 +929,11 @@ Client_MyServerCount( void )
 } /* Client_MyServerCount */
 
 
-GLOBAL long
+GLOBAL unsigned long
 Client_OperCount( void )
 {
 	CLIENT *c;
-	long cnt;
+	unsigned long cnt;
 
 	cnt = 0;
 	c = My_Clients;
@@ -947,19 +946,19 @@ Client_OperCount( void )
 } /* Client_OperCount */
 
 
-GLOBAL long
+GLOBAL unsigned long
 Client_UnknownCount( void )
 {
 	CLIENT *c;
-	long cnt;
+	unsigned long cnt = 0;
 
-	cnt = 0;
 	c = My_Clients;
 	while( c )
 	{
 		if( c && ( c->type != CLIENT_USER ) && ( c->type != CLIENT_SERVICE ) && ( c->type != CLIENT_SERVER )) cnt++;
 		c = (CLIENT *)c->next;
 	}
+
 	return cnt;
 } /* Client_UnknownCount */
 
@@ -1034,13 +1033,12 @@ Client_StartTime(CLIENT *Client)
 } /* Client_Uptime */
 
 
-static long
+static unsigned long
 Count( CLIENT_TYPE Type )
 {
 	CLIENT *c;
-	long cnt;
+	unsigned long cnt = 0;
 
-	cnt = 0;
 	c = My_Clients;
 	while( c )
 	{
@@ -1051,13 +1049,12 @@ Count( CLIENT_TYPE Type )
 } /* Count */
 
 
-static long
+static unsigned long
 MyCount( CLIENT_TYPE Type )
 {
 	CLIENT *c;
-	long cnt;
+	unsigned long cnt = 0;
 
-	cnt = 0;
 	c = My_Clients;
 	while( c )
 	{
@@ -1072,9 +1069,9 @@ static CLIENT *
 New_Client_Struct( void )
 {
 	/* Neue CLIENT-Struktur pre-initialisieren */
-	
+
 	CLIENT *c;
-	
+
 	c = (CLIENT *)malloc( sizeof( CLIENT ));
 	if( ! c )
 	{
@@ -1127,7 +1124,7 @@ Adjust_Counters( CLIENT *Client )
 	assert( Client != NULL );
 
 	if( Client->type != CLIENT_USER ) return;
-	
+
 	if( Client->conn_id != NONE )
 	{
 		/* Local connection */
@@ -1150,7 +1147,7 @@ Client_RegisterWhowas( CLIENT *Client )
 {
 	int slot;
 	time_t now;
-	
+
 	assert( Client != NULL );
 
 	now = time(NULL);
@@ -1164,7 +1161,7 @@ Client_RegisterWhowas( CLIENT *Client )
 #ifdef DEBUG
 	Log( LOG_DEBUG, "Saving WHOWAS information to slot %d ...", slot );
 #endif
-	
+
 	My_Whowas[slot].time = now;
 	strlcpy( My_Whowas[slot].id, Client_ID( Client ),
 		 sizeof( My_Whowas[slot].id ));
@@ -1176,7 +1173,7 @@ Client_RegisterWhowas( CLIENT *Client )
 		 sizeof( My_Whowas[slot].info ));
 	strlcpy( My_Whowas[slot].server, Client_ID( Client_Introducer( Client )),
 		 sizeof( My_Whowas[slot].server ));
-	
+
 	Last_Whowas = slot;
 } /* Client_RegisterWhowas */
 

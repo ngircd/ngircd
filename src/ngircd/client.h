@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: client.h,v 1.44 2006/10/06 19:57:56 fw Exp $
+ * $Id: client.h,v 1.45 2006/10/07 10:40:52 fw Exp $
  *
  * Client management (header)
  */
@@ -137,11 +137,11 @@ GLOBAL bool Client_CheckID PARAMS(( CLIENT *Client, char *ID ));
 GLOBAL long Client_UserCount PARAMS(( void ));
 GLOBAL long Client_ServiceCount PARAMS(( void ));
 GLOBAL long Client_ServerCount PARAMS(( void ));
-GLOBAL long Client_OperCount PARAMS(( void ));
-GLOBAL long Client_UnknownCount PARAMS(( void ));
+GLOBAL unsigned long Client_OperCount PARAMS(( void ));
+GLOBAL unsigned long Client_UnknownCount PARAMS(( void ));
 GLOBAL long Client_MyUserCount PARAMS(( void ));
 GLOBAL long Client_MyServiceCount PARAMS(( void ));
-GLOBAL long Client_MyServerCount PARAMS(( void ));
+GLOBAL unsigned long Client_MyServerCount PARAMS(( void ));
 GLOBAL long Client_MaxUserCount PARAMS((  void ));
 GLOBAL long Client_MyMaxUserCount PARAMS((  void ));
 

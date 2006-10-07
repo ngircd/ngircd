@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: messages.h,v 1.70 2006/10/06 21:32:58 fw Exp $
+ * $Id: messages.h,v 1.71 2006/10/07 10:40:52 fw Exp $
  *
  * IRC numerics (Header)
  */
@@ -33,17 +33,17 @@
 #define RPL_ENDOFSTATS_MSG		"219 %s %c :End of STATS report"
 #define RPL_UMODEIS_MSG			"221 %s +%s"
 #define RPL_LUSERCLIENT_MSG		"251 %s :There are %ld users and %ld services on %ld servers"
-#define RPL_LUSEROP_MSG			"252 %s %ld :operator(s) online"
-#define RPL_LUSERUNKNOWN_MSG		"253 %s %ld :unknown connection(s)"
+#define RPL_LUSEROP_MSG			"252 %s %lu :operator(s) online"
+#define RPL_LUSERUNKNOWN_MSG		"253 %s %lu :unknown connection(s)"
 #define RPL_LUSERCHANNELS_MSG		"254 %s %lu :channels formed"
-#define RPL_LUSERME_MSG			"255 %s :I have %ld users, %ld services and %ld servers"
+#define RPL_LUSERME_MSG			"255 %s :I have %lu users, %lu services and %lu servers"
 #define RPL_ADMINME_MSG			"256 %s %s :Administrative info"
 #define RPL_ADMINLOC1_MSG		"257 %s :%s"
 #define RPL_ADMINLOC2_MSG		"258 %s :%s"
 #define RPL_ADMINEMAIL_MSG		"259 %s :%s"
 #define RPL_TRACEEND_MSG		"262 %s %s %s-%s.%s :End of TRACE"
 #define RPL_LOCALUSERS_MSG		"265 %s %ld %ld :Current local users: %ld, Max: %ld"
-#define RPL_NETUSERS_MSG		"266 %s %ld %ld :Current global users: %ld, Max: %ld"
+#define RPL_NETUSERS_MSG		"266 %s %lu %lu :Current global users: %lu, Max: %lu"
 
 #define RPL_AWAY_MSG			"301 %s %s :%s"
 #define RPL_USERHOST_MSG		"302 %s :"

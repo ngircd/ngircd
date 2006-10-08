@@ -51,6 +51,7 @@ powerpc/apple/darwin7.4.0   gcc 3.3      0.8.0      04-05-30 alex   Y Y Y Y
 powerpc/apple/darwin7.9.0   gcc 3.3      CVSHEAD    06-05-07 fw     Y Y Y Y (3)
 powerpc/apple/darwin8.1.0   gcc 4.0      0.9.x-CVS  05-06-27 alex   Y Y Y Y
 powerpc/unknown/linux-gnu   gcc 3.3.3    0.8.0      04-05-30 alex   Y Y Y Y
+powerpc/unknown/openbsd3.6  gcc 2.95.3   0.10.0     06-10-08 alex   Y Y n Y
 sparc/sun/solaris2.6        gcc 2.95.3   0.7.x-CVS  03-04-22 alex   Y Y Y Y
 sparc/sun/solaris2.7        gcc 3.3      0.8.0      04-05-30 alex   Y Y Y Y
 sparc/unkn./netbsdelf1.6.1  gcc 2.95.3   0.8.0      04-05-30 alex   Y Y Y Y
@@ -73,4 +74,4 @@ Notes
 (3) Using the kqueue() IO interface.
 
 -- 
-$Id: Platforms.txt,v 1.17 2006/08/29 23:59:35 alex Exp $
+$Id: Platforms.txt,v 1.18 2006/10/08 14:09:16 alex Exp $

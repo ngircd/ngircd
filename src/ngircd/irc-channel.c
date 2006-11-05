@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-channel.c,v 1.37 2006/10/06 21:32:58 fw Exp $";
+static char UNUSED id[] = "$Id: irc-channel.c,v 1.38 2006/11/05 13:03:48 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -78,8 +78,17 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 		chan = NULL; flags = NULL;
 
 		/* wird der Channel neu angelegt? */
-		if( Channel_Search( channame )) is_new_chan = false;
-		else is_new_chan = true;
+		if( Channel_Search( channame )) {
+			is_new_chan = false;
+		} else {
+			if (Conf_PredefChannelsOnly) { /* this server does not allow creation of channels */
+				IRC_WriteStrClient( Client, ERR_BANNEDFROMCHAN_MSG, Client_ID( Client ), channame );
+				/* Try next name, if any */
+				channame = strchr(channame, ',');
+				continue;
+			}
+			is_new_chan = true;
+		}
 
 		/* Hat ein Server Channel-User-Modes uebergeben? */
 		if( Client_Type( Client ) == CLIENT_SERVER )

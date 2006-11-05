@@ -16,6 +16,8 @@ ngIRCd HEAD
   - Changed Numerics 265 and 266 to follow ircd 2.11.x "standards".
   - Allow PASS syntax defined in RFC 1459 for server links, too.
   - Enhanced ISUPPORT message (005 numeric).
+  - New configuration option "PredefChannelsOnly": if set, clients can
+   only join predefined channels.
 
 ngIRCd 0.10.0 (2006-10-01)
 
@@ -668,4 +670,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.308 2006/10/03 10:59:40 alex Exp $
+$Id: ChangeLog,v 1.309 2006/11/05 13:03:46 fw Exp $

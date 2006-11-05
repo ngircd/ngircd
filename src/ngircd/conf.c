@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.93 2006/10/03 10:59:41 alex Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.94 2006/11/05 13:03:48 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -146,7 +146,7 @@ Conf_Rehash( void )
 	Set_Defaults( false );
 	Read_Config( );
 	Validate_Config(false, true);
-	
+
 	/* Update CLIENT structure of local server */
 	Client_SetInfo(Client_ThisServer(), Conf_ServerInfo);
 } /* Config_Rehash */
@@ -202,15 +202,16 @@ Conf_Test( void )
 	printf( "  PingTimeout = %d\n", Conf_PingTimeout );
 	printf( "  PongTimeout = %d\n", Conf_PongTimeout );
 	printf( "  ConnectRetry = %d\n", Conf_ConnectRetry );
-	printf( "  OperCanUseMode = %s\n", Conf_OperCanMode == true? "yes" : "no" );
+	printf( "  OperCanUseMode = %s\n", Conf_OperCanMode == true ? "yes" : "no" );
 	printf( "  OperServerMode = %s\n", Conf_OperServerMode == true? "yes" : "no" );
+	printf( "  PredefChannelsOnly = %s\n", Conf_PredefChannelsOnly == true ? "yes" : "no" );
 	printf( "  MaxConnections = %ld\n", Conf_MaxConnections>0 ? Conf_MaxConnections : -1);
 	printf( "  MaxConnectionsIP = %d\n", Conf_MaxConnectionsIP>0 ? Conf_MaxConnectionsIP : -1);
 	printf( "  MaxJoins = %d\n\n", Conf_MaxJoins>0 ? Conf_MaxJoins : -1);
 
 	for( i = 0; i < Conf_Oper_Count; i++ ) {
 		if( ! Conf_Oper[i].name[0] ) continue;
-		
+
 		/* Valid "Operator" section */
 		puts( "[OPERATOR]" );
 		printf( "  Name = %s\n", Conf_Oper[i].name );
@@ -221,7 +222,7 @@ Conf_Test( void )
 
 	for( i = 0; i < MAX_SERVERS; i++ ) {
 		if( ! Conf_Server[i].name[0] ) continue;
-		
+
 		/* Valid "Server" section */
 		puts( "[SERVER]" );
 		printf( "  Name = %s\n", Conf_Server[i].name );
@@ -234,7 +235,7 @@ Conf_Test( void )
 
 	for( i = 0; i < Conf_Channel_Count; i++ ) {
 		if( ! Conf_Channel[i].name[0] ) continue;
-		
+
 		/* Valid "Channel" section */
 		puts( "[CHANNEL]" );
 		printf( "  Name = %s\n", Conf_Channel[i].name );
@@ -243,7 +244,7 @@ Conf_Test( void )
 		topic = (char*)array_start(&Conf_Channel[i].topic);
 		printf( "  Topic = %s\n\n", topic ? topic : "");
 	}
-	
+
 	return 0;
 } /* Conf_Test */
 
@@ -271,14 +272,14 @@ Conf_UnsetServer( CONN_ID Idx )
 			Init_Server_Struct( &Conf_Server[i] );
 		} else {
 			/* Set time for next connect attempt */
- 			t = time(NULL);
- 			if (Conf_Server[i].lasttry < t - Conf_ConnectRetry) {
- 				/* The connection has been "long", so we don't
- 				 * require the next attempt to be delayed. */
- 				Conf_Server[i].lasttry =
- 					t - Conf_ConnectRetry + RECONNECT_DELAY;
- 			} else
- 				Conf_Server[i].lasttry = t;
+			t = time(NULL);
+			if (Conf_Server[i].lasttry < t - Conf_ConnectRetry) {
+				/* The connection has been "long", so we don't
+				 * require the next attempt to be delayed. */
+				Conf_Server[i].lasttry =
+					t - Conf_ConnectRetry + RECONNECT_DELAY;
+			} else
+				Conf_Server[i].lasttry = t;
 		}
 	}
 } /* Conf_UnsetServer */
@@ -300,9 +301,9 @@ GLOBAL int
 Conf_GetServer( CONN_ID Idx )
 {
 	/* Get index of server in configuration structure */
-	
+
 	int i = 0;
-	
+
 	assert( Idx > NONE );
 
 	for( i = 0; i < MAX_SERVERS; i++ ) {
@@ -380,7 +381,7 @@ Conf_AddServer( char *Name, UINT16 Port, char *Host, char *MyPwd, char *PeerPwd 
 	strlcpy( Conf_Server[i].pwd_in, PeerPwd, sizeof( Conf_Server[i].pwd_in ));
 	Conf_Server[i].port = Port;
 	Conf_Server[i].flags = CONF_SFLAG_ONCE;
-	
+
 	return true;
 } /* Conf_AddServer */
 
@@ -412,7 +413,7 @@ Set_Defaults( bool InitServers )
 	strcpy( Conf_ListenAddress, "" );
 
 	Conf_UID = Conf_GID = 0;
-	
+
 	Conf_PingTimeout = 120;
 	Conf_PongTimeout = 20;
 
@@ -422,8 +423,9 @@ Set_Defaults( bool InitServers )
 	Conf_Channel_Count = 0;
 
 	Conf_OperCanMode = false;
+	Conf_PredefChannelsOnly = false;
 	Conf_OperServerMode = false;
-	
+
 	Conf_MaxConnections = -1;
 	Conf_MaxConnectionsIP = 5;
 	Conf_MaxJoins = 10;
@@ -751,6 +753,11 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 									NGIRCd_ConfFile, Line );
 			Conf_ConnectRetry = 5;
 		}
+		return;
+	}
+	if( strcasecmp( Var, "PredefChannelsOnly" ) == 0 ) {
+		/* Should we only allow pre-defined-channels? (i.e. users cannot create their own channels) */
+		Conf_PredefChannelsOnly = Check_ArgIsTrue( Arg );
 		return;
 	}
 	if( strcasecmp( Var, "OperCanUseMode" ) == 0 ) {

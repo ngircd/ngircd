@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.92.2.1 2006/10/03 11:01:06 alex Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.92.2.2 2006/11/10 10:06:14 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -968,7 +968,7 @@ Validate_Config(bool Configtest, bool Rehash)
 	do {
 		if (*ptr >= 'a' && *ptr <= 'z') continue;
 		if (*ptr >= 'A' && *ptr <= 'Z') continue;
-		if (*ptr >= '1' && *ptr <= '0') continue;
+		if (*ptr >= '0' && *ptr <= '9') continue;
 		if (ptr > Conf_ServerName) {
 			if (*ptr == '.' || *ptr == '-')
 				continue;

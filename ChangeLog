@@ -12,6 +12,7 @@
 
 ngIRCd 0.10.x
 
+  - Fixed validation of server names containing digits.
   - Update info text of local server after re-reading configuration.
 
 ngIRCd 0.10.0 (2006-10-01)
@@ -665,4 +666,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.302.2.5 2006/10/03 11:01:05 alex Exp $
+$Id: ChangeLog,v 1.302.2.6 2006/11/10 10:06:14 alex Exp $

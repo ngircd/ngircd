@@ -12,6 +12,7 @@
 
 ngIRCd HEAD
 
+  - Fixed validation of server names containing digits.
   - Update info text of local server after re-reading configuration.
   - Changed Numerics 265 and 266 to follow ircd 2.11.x "standards".
   - Allow PASS syntax defined in RFC 1459 for server links, too.
@@ -670,4 +671,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.309 2006/11/05 13:03:46 fw Exp $
+$Id: ChangeLog,v 1.310 2006/11/10 10:05:00 alex Exp $

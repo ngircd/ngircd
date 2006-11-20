@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.95 2006/11/10 10:05:08 alex Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.96 2006/11/20 19:32:07 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -922,6 +922,21 @@ Handle_SERVER( int Line, char *Var, char *Arg )
 } /* Handle_SERVER */
 
 
+static bool
+Handle_Channelname(size_t chancount, const char *name)
+{
+	size_t size = sizeof( Conf_Channel[chancount].name );
+	char *dest = Conf_Channel[chancount].name;
+
+	if (*name && *name != '#') {
+		*dest = '#';
+		--size;
+		++dest;
+	}
+	return size > strlcpy(dest, name, size);
+}
+
+
 static void
 Handle_CHANNEL( int Line, char *Var, char *Arg )
 {
@@ -935,9 +950,7 @@ Handle_CHANNEL( int Line, char *Var, char *Arg )
 		chancount = Conf_Channel_Count - 1;
 
 	if( strcasecmp( Var, "Name" ) == 0 ) {
-		/* Name of the channel */
-		len = strlcpy( Conf_Channel[chancount].name, Arg, sizeof( Conf_Channel[chancount].name ));
-		if (len >= sizeof( Conf_Channel[chancount].name ))
+		if (!Handle_Channelname(chancount, Arg))
 			Config_Error_TooLong( Line, Var );
 		return;
 	}

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: lists.c,v 1.18 2005/07/31 20:13:08 alex Exp $";
+static char UNUSED id[] = "$Id: lists.c,v 1.18.2.1 2006/12/02 13:05:38 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -36,7 +36,7 @@ static char UNUSED id[] = "$Id: lists.c,v 1.18 2005/07/31 20:13:08 alex Exp $";
 #include "lists.h"
 
 
-#define MASK_LEN 2*CLIENT_HOST_LEN
+#define MASK_LEN	(2*CLIENT_HOST_LEN)
 
 
 typedef struct _C2C
@@ -106,7 +106,7 @@ Lists_IsInviteEntry( char *Mask, CHANNEL *Chan )
 {
 	assert( Mask != NULL );
 	assert( Chan != NULL );
-	
+
 	return Already_Registered( My_Invites, Mask, Chan );
 } /* Lists_IsInviteEntry */
 

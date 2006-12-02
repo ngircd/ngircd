@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: match.h,v 1.3 2005/03/19 18:43:49 fw Exp $
+ * $Id: match.h,v 1.3.4.1 2006/12/02 13:01:11 fw Exp $
  *
  * Wildcard pattern matching (header)
  */
@@ -18,7 +18,7 @@
 #define __match_h__
 
 
-GLOBAL bool Match PARAMS(( char *Pattern, char *String ));
+GLOBAL bool Match PARAMS(( const char *Pattern, const char *String ));
 
 
 #endif

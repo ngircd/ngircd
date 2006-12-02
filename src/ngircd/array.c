@@ -12,7 +12,7 @@
 
 #include "array.h"
 
-static char UNUSED id[] = "$Id: array.c,v 1.11 2006/07/01 22:11:48 fw Exp $";
+static char UNUSED id[] = "$Id: array.c,v 1.11.2.1 2006/12/02 13:00:25 fw Exp $";
 
 #include <assert.h>
 
@@ -66,10 +66,7 @@ array_alloc(array * a, size_t size, size_t pos)
 
 	assert(size > 0);
 
-	if (pos_plus1 < pos)
-		return NULL;
-
-	if (!safemult_sizet(size, pos_plus1, &alloc))
+	if (pos_plus1 == 0 || !safemult_sizet(size, pos_plus1, &alloc))
 		return NULL;
 
 	if (a->allocated < alloc) {
@@ -263,7 +260,7 @@ array_get(array * a, size_t membersize, size_t pos)
 	if (a->allocated < totalsize)
 		return NULL;
 
-	return a->mem + pos * membersize;
+	return a->mem + totalsize;
 }
 
 
@@ -280,16 +277,6 @@ array_free(array * a)
 	a->mem = NULL;
 	a->allocated = 0;
 	a->used = 0;
-}
-
-
-void
-array_free_wipe(array * a)
-{
-	if (!array_UNUSABLE(a))
-		memset(a->mem, 0, a->allocated);
-
-	array_free(a);
 }
 
 
@@ -330,9 +317,6 @@ array_moveleft(array * a, size_t membersize, size_t pos)
 
 	assert(a != NULL);
 	assert(membersize > 0);
-
-	if (!pos)
-		return;
 
 	if (!safemult_sizet(membersize, pos, &bytepos)) {
 		a->used = 0;

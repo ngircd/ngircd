@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-info.c,v 1.33.2.1 2006/09/16 13:49:15 alex Exp $";
+static char UNUSED id[] = "$Id: irc-info.c,v 1.33.2.2 2006/12/02 14:26:53 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -542,7 +542,8 @@ GLOBAL bool
 IRC_WHO( CLIENT *Client, REQUEST *Req )
 {
 	bool ok, only_ops;
-	char flags[8], *ptr;
+	char flags[8];
+	const char *ptr;
 	CL2CHAN *cl2chan;
 	CHANNEL *chan, *cn;
 	CLIENT *c;
@@ -832,7 +833,10 @@ IRC_WHOWAS( CLIENT *Client, REQUEST *Req )
 GLOBAL bool
 IRC_Send_LUSERS( CLIENT *Client )
 {
-	long cnt;
+	unsigned long cnt;
+#ifndef STRICT_RFC
+	unsigned long max;
+#endif
 
 	assert( Client != NULL );
 
@@ -861,9 +865,17 @@ IRC_Send_LUSERS( CLIENT *Client )
 
 #ifndef STRICT_RFC
 	/* Maximum number of local users */
-	if( ! IRC_WriteStrClient( Client, RPL_LOCALUSERS_MSG, Client_ID( Client ), Client_MyUserCount( ), Client_MyMaxUserCount( ))) return DISCONNECTED;
+	cnt = Client_MyUserCount();
+	max = Client_MyMaxUserCount();
+	if (! IRC_WriteStrClient(Client, RPL_LOCALUSERS_MSG, Client_ID(Client),
+			cnt, max, cnt, max))
+		return DISCONNECTED;
 	/* Maximum number of users in the network */
-	if( ! IRC_WriteStrClient( Client, RPL_NETUSERS_MSG, Client_ID( Client ), Client_UserCount( ), Client_MaxUserCount( ))) return DISCONNECTED;
+	cnt = Client_UserCount();
+	max = Client_MaxUserCount();
+	if(! IRC_WriteStrClient(Client, RPL_NETUSERS_MSG, Client_ID(Client),
+			cnt, max, cnt, max))
+		return DISCONNECTED;
 #endif
 	
 	return CONNECTED;

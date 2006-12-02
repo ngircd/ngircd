@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: client.h,v 1.42.2.1 2006/12/02 14:00:00 fw Exp $
+ * $Id: client.h,v 1.42.2.2 2006/12/02 14:26:53 fw Exp $
  *
  * Client management (header)
  */
@@ -23,10 +23,9 @@
 #define CLIENT_GOTNICK 4		/* client did send NICK */
 #define CLIENT_GOTUSER 8		/* client did send USER */
 #define CLIENT_USER 16			/* client is an IRC user */
-#define CLIENT_UNKNOWNSERVER 32		/* unregistered server connection */
-#define CLIENT_GOTPASSSERVER 64		/* client did send PASS in "server style" */
-#define CLIENT_SERVER 128		/* client is a server */
-#define CLIENT_SERVICE 256		/* client is a service */
+#define CLIENT_SERVER 32		/* client is a server */
+#define CLIENT_SERVICE 64		/* client is a service */
+#define CLIENT_UNKNOWNSERVER 128	/* unregistered server connection */
 
 #define CLIENT_TYPE int
 

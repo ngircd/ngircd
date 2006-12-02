@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: messages.h,v 1.67.2.1 2006/12/02 14:21:26 fw Exp $
+ * $Id: messages.h,v 1.67.2.2 2006/12/02 14:26:53 fw Exp $
  *
  * IRC numerics (Header)
  */
@@ -22,7 +22,8 @@
 #define RPL_YOURHOST_MSG		"002 %s :Your host is %s, running version ngircd-%s (%s/%s/%s)"
 #define RPL_CREATED_MSG			"003 %s :This server has been started %s"
 #define RPL_MYINFO_MSG			"004 %s %s ngircd-%s %s %s"
-#define RPL_ISUPPORT_MSG		"005 %s NICKLEN=%d TOPICLEN=%d AWAYLEN=%d MAXCHANNELS=%d :are supported on this server"
+#define RPL_ISUPPORT1_MSG		"005 %s RFC2812 CASEMAPPING=ascii PREFIX=(ov)@+ CHANTYPES=# CHANMODES=bI,k,l,imnPst CHANLIMIT=#:%d :are supported on this server"
+#define RPL_ISUPPORT2_MSG		"005 %s CHANNELLEN=%d NICKLEN=%d TOPICLEN=%d AWAYLEN=%d KICKLEN=%d PENALTY :are supported on this server"
 
 #define RPL_TRACELINK_MSG		"200 %s Link %s-%s %s %s V%s %ld %d %d"
 #define RPL_TRACEOPERATOR_MSG		"204 %s Oper 2 :%s"
@@ -41,8 +42,8 @@
 #define RPL_ADMINLOC2_MSG		"258 %s :%s"
 #define RPL_ADMINEMAIL_MSG		"259 %s :%s"
 #define RPL_TRACEEND_MSG		"262 %s %s %s-%s.%s :End of TRACE"
-#define RPL_LOCALUSERS_MSG		"265 %s :Current local users: %lu, Max: %lu"
-#define RPL_NETUSERS_MSG		"266 %s :Current global users: %lu, Max: %lu"
+#define RPL_LOCALUSERS_MSG		"265 %s %lu %lu :Current local users: %lu, Max: %lu"
+#define RPL_NETUSERS_MSG		"266 %s %lu %lu :Current global users: %lu, Max: %lu"
 
 #define RPL_AWAY_MSG			"301 %s %s :%s"
 #define RPL_USERHOST_MSG		"302 %s :"

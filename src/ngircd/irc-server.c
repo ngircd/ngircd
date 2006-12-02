@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-server.c,v 1.39.2.1 2006/12/02 14:21:26 fw Exp $";
+static char UNUSED id[] = "$Id: irc-server.c,v 1.39.2.2 2006/12/02 14:26:53 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -64,7 +64,7 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 		return IRC_WriteStrClient(Client, ERR_UNKNOWNCOMMAND_MSG,
 					  Client_ID(Client), Req->command);
 
-	if (Client_Type(Client) == CLIENT_GOTPASSSERVER) {
+	if (Client_Type(Client) == CLIENT_GOTPASS) {
 		/* We got a PASS command from the peer, and now a SERVER
 		 * command: the peer tries to register itself as a server. */
 		LogDebug("Connection %d: got SERVER command (new server link) ...",

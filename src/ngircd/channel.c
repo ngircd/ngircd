@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: channel.c,v 1.56 2006/07/24 22:54:09 alex Exp $";
+static char UNUSED id[] = "$Id: channel.c,v 1.56.2.1 2006/12/02 13:08:02 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -114,7 +114,7 @@ Channel_InitPredefined( void )
 			c = Conf_Channel[i].modes;
 			while (*c)
 				Channel_ModeAdd(chan, *c++);
-		
+
 			Log(LOG_INFO, "Created pre-defined channel \"%s\".",
 							Conf_Channel[i].name );
 		}
@@ -173,7 +173,7 @@ Channel_Join( CLIENT *Client, char *Name )
 	{
 		/* Gibt es noch nicht? Dann neu anlegen: */
 		chan = Channel_Create( Name );
-		if( ! chan ) return false;
+		if (!chan) return false;
 	}
 
 	/* User dem Channel hinzufuegen */
@@ -214,7 +214,6 @@ Channel_Kick( CLIENT *Client, CLIENT *Origin, char *Name, char *Reason )
 	assert( Name != NULL );
 	assert( Reason != NULL );
 
-	/* Channel suchen */
 	chan = Channel_Search( Name );
 	if( ! chan )
 	{
@@ -266,11 +265,11 @@ Channel_Quit( CLIENT *Client, char *Reason )
 } /* Channel_Quit */
 
 
-GLOBAL long
+GLOBAL unsigned long
 Channel_Count( void )
 {
 	CHANNEL *c;
-	long count = 0;
+	unsigned long count = 0;
 	
 	c = My_Channels;
 	while( c )
@@ -282,11 +281,11 @@ Channel_Count( void )
 } /* Channel_Count */
 
 
-GLOBAL long
+GLOBAL unsigned long
 Channel_MemberCount( CHANNEL *Chan )
 {
 	CL2CHAN *cl2chan;
-	long count = 0;
+	unsigned long count = 0;
 
 	assert( Chan != NULL );
 
@@ -340,8 +339,8 @@ Channel_PCount( void )
 } /* Channel_PCount */
 
 
-GLOBAL char *
-Channel_Name( CHANNEL *Chan )
+GLOBAL const char *
+Channel_Name( const CHANNEL *Chan )
 {
 	assert( Chan != NULL );
 	return Chan->name;
@@ -364,7 +363,7 @@ Channel_Key( CHANNEL *Chan )
 } /* Channel_Key */
 
 
-GLOBAL long
+GLOBAL unsigned long
 Channel_MaxUsers( CHANNEL *Chan )
 {
 	assert( Chan != NULL );
@@ -463,25 +462,13 @@ Channel_GetChannel( CL2CHAN *Cl2Chan )
 
 
 GLOBAL bool
-Channel_IsValidName( char *Name )
+Channel_IsValidName( const char *Name )
 {
-	/* Pruefen, ob Name als Channelname gueltig */
-
-	char *ptr, badchars[10];
-	
 	assert( Name != NULL );
 
 	if(( Name[0] != '#' ) || ( strlen( Name ) >= CHANNEL_NAME_LEN )) return false;
 
-	ptr = Name;
-	strcpy( badchars, " ,:\007" );
-	while( *ptr )
-	{
-		if( strchr( badchars, *ptr )) return false;
-		ptr++;
-	}
-	
-	return true;
+	return Name[strcspn(Name, " ,:\007")] == 0;
 } /* Channel_IsValidName */
 
 
@@ -548,7 +535,7 @@ Channel_UserModeAdd( CHANNEL *Chan, CLIENT *Client, char Mode )
 
 	cl2chan = Get_Cl2Chan( Chan, Client );
 	assert( cl2chan != NULL );
-	
+
 	x[0] = Mode; x[1] = '\0';
 	if( ! strchr( cl2chan->modes, x[0] ))
 	{
@@ -594,7 +581,7 @@ GLOBAL char *
 Channel_UserModes( CHANNEL *Chan, CLIENT *Client )
 {
 	/* return Users' Channel-Modes */
-	
+
 	CL2CHAN *cl2chan;
 
 	assert( Chan != NULL );
@@ -661,12 +648,9 @@ Channel_SetTopic(CHANNEL *Chan, CLIENT *Client, char *Topic)
 	if (len < array_bytes(&Chan->topic))
 		array_free(&Chan->topic);
 
-	if (!array_copyb(&Chan->topic, Topic, len))
+	if (len >= COMMAND_LEN || !array_copyb(&Chan->topic, Topic, len+1))
 		Log(LOG_WARNING, "could not set new Topic \"%s\" on %s: %s",
 					Topic, Chan->name, strerror(errno));
-
-	array_cat0(&Chan->topic);
-
 #ifndef STRICT_RFC
 	Chan->topic_time = time(NULL);
 	if (Client != NULL && Client_Type(Client) != CLIENT_SERVER)
@@ -698,17 +682,17 @@ Channel_SetKey( CHANNEL *Chan, char *Key )
 	assert( Key != NULL );
 
 	strlcpy( Chan->key, Key, sizeof( Chan->key ));
-	Log( LOG_DEBUG, "Channel %s: Key is now \"%s\".", Chan->name, Chan->key );
+	LogDebug("Channel %s: Key is now \"%s\".", Chan->name, Chan->key );
 } /* Channel_SetKey */
 
 
 GLOBAL void
-Channel_SetMaxUsers( CHANNEL *Chan, long Count )
+Channel_SetMaxUsers(CHANNEL *Chan, unsigned long Count)
 {
 	assert( Chan != NULL );
 
 	Chan->maxusers = Count;
-	Log( LOG_DEBUG, "Channel %s: Member limit is now %ld.", Chan->name, Chan->maxusers );
+	LogDebug("Channel %s: Member limit is now %lu.", Chan->name, Chan->maxusers );
 } /* Channel_SetMaxUsers */
 
 
@@ -730,7 +714,7 @@ Channel_Write( CHANNEL *Chan, CLIENT *From, CLIENT *Client, char *Text )
 	ok = true;
 	if( strchr( Channel_Modes( Chan ), 'n' ) && ( ! is_member )) ok = false;
 	if( strchr( Channel_Modes( Chan ), 'm' ) && ( ! is_op ) && ( ! has_voice )) ok = false;
-	
+
 	/* Is the client banned? */
 	if( Lists_CheckBanned( From, Chan ))
 	{
@@ -753,7 +737,7 @@ Channel_Create( char *Name )
 	CHANNEL *c;
 
 	assert( Name != NULL );
-	
+
 	c = (CHANNEL *)malloc( sizeof( CHANNEL ));
 	if( ! c )
 	{
@@ -765,9 +749,7 @@ Channel_Create( char *Name )
 	c->hash = Hash( c->name );
 	c->next = My_Channels;
 	My_Channels = c;
-#ifdef DEBUG	
-	Log( LOG_DEBUG, "Created new channel structure for \"%s\".", Name );
-#endif
+	LogDebug("Created new channel structure for \"%s\".", Name);
 	return c;
 } /* Channel_Create */
 
@@ -851,25 +833,42 @@ Remove_Client( int Type, CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, char *Re
 	switch( Type )
 	{
 		case REMOVE_QUIT:
-			/* QUIT: andere Server wurden bereits informiert, vgl. Client_Destroy();
-			 * hier also "nur" noch alle User in betroffenen Channeln infomieren */
+			/* QUIT: other servers have already been notified, see Client_Destroy();
+			 * so only inform other clients in same channel. */
 			assert( InformServer == false );
-			Log( LOG_DEBUG, "User \"%s\" left channel \"%s\" (%s).", Client_Mask( Client ), c->name, Reason );
+			LogDebug("User \"%s\" left channel \"%s\" (%s).",
+					Client_Mask( Client ), c->name, Reason );
 			break;
 		case REMOVE_KICK:
-			/* User wurde geKICKed: ggf. andere Server sowie alle betroffenen User
-			 * im entsprechenden Channel informieren */
-			if( InformServer ) IRC_WriteStrServersPrefix( Client_NextHop( Origin ), Origin, "KICK %s %s :%s", c->name, Client_ID( Client ), Reason );
-			IRC_WriteStrChannelPrefix( Client, c, Origin, false, "KICK %s %s :%s", c->name, Client_ID( Client ), Reason );
-			if(( Client_Conn( Client ) > NONE ) && ( Client_Type( Client ) == CLIENT_USER )) IRC_WriteStrClientPrefix( Client, Origin, "KICK %s %s :%s", c->name, Client_ID( Client ), Reason );
-			Log( LOG_DEBUG, "User \"%s\" has been kicked of \"%s\" by \"%s\": %s.", Client_Mask( Client ), c->name, Client_ID( Origin ), Reason );
+			/* User was KICKed: inform other servers and all users in channel */
+			if( InformServer )
+				IRC_WriteStrServersPrefix( Client_NextHop( Origin ),
+					Origin, "KICK %s %s :%s", c->name, Client_ID( Client ), Reason);
+			IRC_WriteStrChannelPrefix(Client, c, Origin, false, "KICK %s %s :%s",
+							c->name, Client_ID( Client ), Reason );
+			if ((Client_Conn(Client) > NONE) &&
+					(Client_Type(Client) == CLIENT_USER))
+			{
+				IRC_WriteStrClientPrefix(Client, Origin, "KICK %s %s :%s",
+								c->name, Client_ID( Client ), Reason);
+			}
+			LogDebug("User \"%s\" has been kicked of \"%s\" by \"%s\": %s.",
+				Client_Mask( Client ), c->name, Client_ID(Origin), Reason);
 			break;
-		default:
-			/* PART */
-			if( InformServer ) IRC_WriteStrServersPrefix( Origin, Client, "PART %s :%s", c->name, Reason );
-			IRC_WriteStrChannelPrefix( Origin, c, Client, false, "PART %s :%s", c->name, Reason );
-			if(( Client_Conn( Origin ) > NONE ) && ( Client_Type( Origin ) == CLIENT_USER )) IRC_WriteStrClientPrefix( Origin, Client, "PART %s :%s", c->name, Reason );
-			Log( LOG_DEBUG, "User \"%s\" left channel \"%s\" (%s).", Client_Mask( Client ), c->name, Reason );
+		default: /* PART */
+			if (InformServer)
+				IRC_WriteStrServersPrefix(Origin, Client, "PART %s :%s", c->name, Reason);
+
+			IRC_WriteStrChannelPrefix(Origin, c, Client, false, "PART %s :%s",
+									c->name, Reason);
+
+			if ((Client_Conn(Origin) > NONE) &&
+					(Client_Type(Origin) == CLIENT_USER))
+			{
+				IRC_WriteStrClientPrefix( Origin, Client, "PART %s :%s", c->name, Reason);
+				LogDebug("User \"%s\" left channel \"%s\" (%s).",
+					Client_Mask(Client), c->name, Reason);
+			}
 	}
 
 	/* Wenn Channel nun leer und nicht pre-defined: loeschen */

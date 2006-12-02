@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-server.c,v 1.39 2006/04/30 21:31:43 alex Exp $";
+static char UNUSED id[] = "$Id: irc-server.c,v 1.39.2.1 2006/12/02 14:21:26 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -41,6 +41,10 @@ static char UNUSED id[] = "$Id: irc-server.c,v 1.39 2006/04/30 21:31:43 alex Exp
 #include "irc-server.h"
 
 
+/**
+ * Handler for the IRC command "SERVER".
+ * See RFC 2813 section 4.1.2.
+ */
 GLOBAL bool
 IRC_SERVER( CLIENT *Client, REQUEST *Req )
 {
@@ -55,13 +59,16 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	/* Fehler liefern, wenn kein lokaler Client */
-	if( Client_Conn( Client ) <= NONE ) return IRC_WriteStrClient( Client, ERR_UNKNOWNCOMMAND_MSG, Client_ID( Client ), Req->command );
+	/* Return an error if this is not a local client */
+	if (Client_Conn(Client) <= NONE)
+		return IRC_WriteStrClient(Client, ERR_UNKNOWNCOMMAND_MSG,
+					  Client_ID(Client), Req->command);
 
-	if( Client_Type( Client ) == CLIENT_GOTPASSSERVER )
-	{
-		/* Verbindung soll als Server-Server-Verbindung registriert werden */
-		Log( LOG_DEBUG, "Connection %d: got SERVER command (new server link) ...", Client_Conn( Client ));
+	if (Client_Type(Client) == CLIENT_GOTPASSSERVER) {
+		/* We got a PASS command from the peer, and now a SERVER
+		 * command: the peer tries to register itself as a server. */
+		LogDebug("Connection %d: got SERVER command (new server link) ...",
+			Client_Conn(Client));
 
 		/* Falsche Anzahl Parameter? */
 		if(( Req->argc != 2 ) && ( Req->argc != 3 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
@@ -207,7 +214,13 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 					else
 					{
 						/* "CHANINFO <chan> +<modes> <key> <limit> :<topic>" */
-						if( ! IRC_WriteStrClient( Client, "CHANINFO %s +%s %s %ld :%s", Channel_Name( chan ), modes, strchr( Channel_Modes( chan ), 'k' ) ? Channel_Key( chan ) : "*", strchr( Channel_Modes( chan ), 'l' ) ? Channel_MaxUsers( chan ) : 0L, topic )) return DISCONNECTED;
+						if( ! IRC_WriteStrClient( Client, "CHANINFO %s +%s %s %lu :%s",
+							Channel_Name( chan ), modes,
+							strchr( Channel_Modes( chan ), 'k' ) ? Channel_Key( chan ) : "*",
+							strchr( Channel_Modes( chan ), 'l' ) ? Channel_MaxUsers( chan ) : 0UL, topic ))
+						{
+							return DISCONNECTED;
+						}
 					}
 				}
 			}

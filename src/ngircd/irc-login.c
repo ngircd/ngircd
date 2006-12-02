@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-login.c,v 1.49 2005/09/01 10:51:24 alex Exp $";
+static char UNUSED id[] = "$Id: irc-login.c,v 1.49.2.1 2006/12/02 13:54:10 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -44,22 +44,28 @@ static char UNUSED id[] = "$Id: irc-login.c,v 1.49 2005/09/01 10:51:24 alex Exp 
 static bool Hello_User PARAMS(( CLIENT *Client ));
 static void Kill_Nick PARAMS(( char *Nick, char *Reason ));
 
-
+/**
+ * Handler for the IRC command "PASS".
+ * See RFC 2813 section 4.1.1, and RFC 2812 section 3.1.1.
+ */
 GLOBAL bool
 IRC_PASS( CLIENT *Client, REQUEST *Req )
 {
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	/* Fehler liefern, wenn kein lokaler Client */
-	if( Client_Conn( Client ) <= NONE ) return IRC_WriteStrClient( Client, ERR_UNKNOWNCOMMAND_MSG, Client_ID( Client ), Req->command );
+	/* Return an error if this is not a local client */
+	if (Client_Conn(Client) <= NONE)
+		return IRC_WriteStrClient(Client, ERR_UNKNOWNCOMMAND_MSG,
+					Client_ID(Client), Req->command);
 	
-	if(( Client_Type( Client ) == CLIENT_UNKNOWN ) && ( Req->argc == 1))
-	{
-		/* noch nicht registrierte unbekannte Verbindung */
-		Log( LOG_DEBUG, "Connection %d: got PASS command ...", Client_Conn( Client ));
+	if (Client_Type(Client) == CLIENT_UNKNOWN && Req->argc == 1) {
+		/* Not yet registered "unknown" connection, PASS with one
+		 * argument: either a regular client, service, or server
+		 * using the old RFC 1459 section 4.1.1 syntax. */
+		LogDebug("Connection %d: got PASS command ...",
+			 Client_Conn(Client));
 
-		/* Passwort speichern */
 		Client_SetPassword( Client, Req->argv[0] );
 
 		Client_SetType( Client, CLIENT_GOTPASS );
@@ -102,31 +108,32 @@ IRC_PASS( CLIENT *Client, REQUEST *Req )
 
 		/* Implementation, Version und ngIRCd-Flags */
 		impl = Req->argv[2];
-		ptr = strchr( impl, '|' );
-		if( ptr ) *ptr = '\0';
+		ptr = strchr(impl, '|');
+		if (ptr)
+			*ptr = '\0';
 
-		if( type && ( strcmp( type, PROTOIRCPLUS ) == 0 ))
-		{
-			/* auf der anderen Seite laeuft ein Server, der
-			 * ebenfalls das IRC+-Protokoll versteht */
+		if (type && (strcmp( type, PROTOIRCPLUS ) == 0)) {
+			/* The peer seems to be a server which supports the
+			 * IRC+ protocol (see doc/Protocol.txt). */
 			serverver = ptr + 1;
-			flags = strchr( serverver, ':' );
-			if( flags )
-			{
+			flags = strchr(serverver, ':');
+			if (flags) {
 				*flags = '\0';
 				flags++;
-			}
-			else flags = "";
-			Log( LOG_INFO, "Peer announces itself as %s-%s using protocol %d.%d/IRC+ (flags: \"%s\").", impl, serverver, protohigh, protolow, flags );
-		}
-		else
-		{
-			/* auf der anderen Seite laeuft ein Server, der
-			 * nur das Originalprotokoll unterstuetzt */
+			} else
+				flags = "";
+			Log(LOG_INFO,
+			"Peer announces itself as %s-%s using protocol %d.%d/IRC+ (flags: \"%s\").", impl, serverver, protohigh, protolow, flags );
+		} else {
+			/* The peer seems to be a server supporting the
+			 * "original" IRC protocol (RFC 2813). */
 			serverver = "";
-			if( strchr( ircflags, 'Z' )) flags = "Z";
-			else flags = "";
-			Log( LOG_INFO, "Peer announces itself as \"%s\" using protocol %d.%d (flags: \"%s\").", impl, protohigh, protolow, flags );
+			if (strchr(ircflags, 'Z' ))
+				flags = "Z";
+			else
+				flags = "";
+			Log(LOG_INFO,
+				"Peer announces itself as \"%s\" using protocol %d.%d (flags: \"%s\").", impl, protohigh, protolow, flags );
 		}
 
 		Client_SetType( Client, CLIENT_GOTPASSSERVER );
@@ -268,13 +275,13 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 						   "NICK :%s", Req->argv[0] );
 			IRC_WriteStrRelatedPrefix( target, target, false,
 						   "NICK :%s", Req->argv[0] );
-			
+
 			/* Register old nickname for WHOWAS queries */
 			Client_RegisterWhowas( target );
-				
+
 			/* Save new nickname */
 			Client_SetID( target, Req->argv[0] );
-			
+
 			IRC_SetPenalty( target, 2 );
 		}
 
@@ -598,7 +605,8 @@ Hello_User( CLIENT *Client )
 	if( ! IRC_WriteStrClient( Client, RPL_MYINFO_MSG, Client_ID( Client ), Client_ID( Client_ThisServer( )), PACKAGE_VERSION, USERMODES, CHANMODES )) return false;
 #endif
 
-	/* Features */
+	/* Features supported by this server (005 numeric, ISUPPORT),
+	 * see <http://www.irc.org/tech_docs/005.html> for details. */
 	if( ! IRC_WriteStrClient( Client, RPL_ISUPPORT_MSG, Client_ID( Client ), CLIENT_NICK_LEN - 1,
 			COMMAND_LEN - 23, CLIENT_AWAY_LEN - 1, Conf_MaxJoins )) return DISCONNECTED;
 

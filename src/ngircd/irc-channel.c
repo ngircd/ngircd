@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-channel.c,v 1.35.2.1 2006/10/05 18:30:47 fw Exp $";
+static char UNUSED id[] = "$Id: irc-channel.c,v 1.35.2.2 2006/12/02 13:33:52 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -78,8 +78,17 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 		chan = NULL; flags = NULL;
 
 		/* wird der Channel neu angelegt? */
-		if( Channel_Search( channame )) is_new_chan = false;
-		else is_new_chan = true;
+		if( Channel_Search( channame )) {
+			is_new_chan = false;
+		} else {
+			if (Conf_PredefChannelsOnly) { /* this server does not allow creation of channels */
+				IRC_WriteStrClient( Client, ERR_BANNEDFROMCHAN_MSG, Client_ID( Client ), channame );
+				/* Try next name, if any */
+				channame = strchr(channame, ',');
+				continue;
+			}
+			is_new_chan = true;
+		}
 
 		/* Hat ein Server Channel-User-Modes uebergeben? */
 		if( Client_Type( Client ) == CLIENT_SERVER )
@@ -134,7 +143,7 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 					IRC_WriteStrClient( Client, ERR_INVITEONLYCHAN_MSG, Client_ID( Client ), channame );
 
 					/* Try next name, if any */
-					channame = strtok( NULL, "," );
+					channame = strchr(channame, ',');
 					continue;
 				}
 
@@ -491,7 +500,7 @@ IRC_CHANINFO( CLIENT *Client, REQUEST *Req )
 			{
 				if( *ptr == 'l' )
 				{
-					snprintf( l, sizeof( l ), " %ld", Channel_MaxUsers( chan ));
+					snprintf( l, sizeof( l ), " %lu", Channel_MaxUsers( chan ));
 					strlcat( modes_add, l, sizeof( modes_add ));
 				}
 				if( *ptr == 'k' )

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-server.c,v 1.41 2006/10/06 21:32:58 fw Exp $";
+static char UNUSED id[] = "$Id: irc-server.c,v 1.42 2006/12/02 14:10:48 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -67,9 +67,8 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 	if (Client_Type(Client) == CLIENT_GOTPASS) {
 		/* We got a PASS command from the peer, and now a SERVER
 		 * command: the peer tries to register itself as a server. */
-		Log(LOG_DEBUG,
-		    "Connection %d: got SERVER command (new server link) ...",
-		    Client_Conn(Client));
+		LogDebug("Connection %d: got SERVER command (new server link) ...",
+			Client_Conn(Client));
 
 		/* Falsche Anzahl Parameter? */
 		if(( Req->argc != 2 ) && ( Req->argc != 3 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );

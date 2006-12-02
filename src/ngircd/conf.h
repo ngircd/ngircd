@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conf.h,v 1.40 2006/05/10 21:24:01 alex Exp $
+ * $Id: conf.h,v 1.40.2.1 2006/12/02 13:10:43 fw Exp $
  *
  * Configuration management (header)
  */
@@ -110,6 +110,8 @@ GLOBAL CONF_SERVER Conf_Server[MAX_SERVERS];
 /* Pre-defined channels */
 GLOBAL CONF_CHANNEL Conf_Channel[MAX_DEFCHANNELS];
 GLOBAL unsigned int Conf_Channel_Count;
+/* Pre-defined channels only */
+GLOBAL bool Conf_PredefChannelsOnly;
 
 /* Are IRC operators allowed to always use MODE? */
 GLOBAL bool Conf_OperCanMode;

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: log.c,v 1.61 2006/07/23 23:23:45 alex Exp $";
+static char UNUSED id[] = "$Id: log.c,v 1.61.2.1 2006/12/02 13:02:07 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -166,25 +166,21 @@ Log_Exit( void )
  * Log function for debug messages.
  * This function is only functional when the program is compiled with debug
  * code enabled; otherwise it is an empty function which the compiler will
- * hopefully mangle down to "nothing". Therefore you should use LogDebug(...)
- * in favor to Log(LOG_DEBUG, ...).
+ * hopefully mangle down to "nothing" (see log.h). Therefore you should use
+ * LogDebug(...) in favor to Log(LOG_DEBUG, ...).
  * @param Format Format string like printf().
  * @param ... Further arguments.
  */
+#ifdef DEBUG
 # ifdef PROTOTYPES
 GLOBAL void
-#ifdef DEBUG
 LogDebug( const char *Format, ... )
-#else
-LogDebug( UNUSED const char *Format, ... )
-#endif /* DEBUG */
 # else
 GLOBAL void
 LogDebug( Format, va_alist )
 const char *Format;
 va_dcl
 # endif /* PROTOTYPES */
-#ifdef DEBUG
 {
 	char msg[MAX_LOG_MSG_LEN];
 	va_list ap;
@@ -199,14 +195,9 @@ va_dcl
 	va_end( ap );
 	Log(LOG_DEBUG, "%s", msg);
 }
-#else
-{
-	/* Do nothing.
-	 * The compiler should optimize this out, please ;-) */
-}
 #endif	/* DEBUG */
 
-	
+
 /**
  * Logging function of ngIRCd.
  * This function logs messages to the console and/or syslog, whichever is

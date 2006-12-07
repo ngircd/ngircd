@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: client.c,v 1.93 2006/10/07 10:40:52 fw Exp $";
+static char UNUSED id[] = "$Id: client.c,v 1.94 2006/12/07 22:24:14 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -369,10 +369,10 @@ GLOBAL void
 Client_SetHostname( CLIENT *Client, char *Hostname )
 {
 	/* Hostname eines Clients setzen */
-	
+
 	assert( Client != NULL );
 	assert( Hostname != NULL );
-	
+
 	strlcpy( Client->host, Hostname, sizeof( Client->host ));
 } /* Client_SetHostname */
 
@@ -661,8 +661,7 @@ GLOBAL char *
 Client_User( CLIENT *Client )
 {
 	assert( Client != NULL );
-	if( Client->user[0] ) return Client->user;
-	else return "~";
+	return Client->user[0] ? Client->user : "~";
 } /* Client_User */
 
 
@@ -916,9 +915,8 @@ GLOBAL unsigned long
 Client_MyServerCount( void )
 {
 	CLIENT *c;
-	unsigned long cnt;
+	unsigned long cnt = 0;
 
-	cnt = 0;
 	c = My_Clients;
 	while( c )
 	{
@@ -933,9 +931,8 @@ GLOBAL unsigned long
 Client_OperCount( void )
 {
 	CLIENT *c;
-	unsigned long cnt;
+	unsigned long cnt = 0;
 
-	cnt = 0;
 	c = My_Clients;
 	while( c )
 	{

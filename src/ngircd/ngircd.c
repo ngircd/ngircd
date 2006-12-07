@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.113 2006/07/23 12:07:33 alex Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.114 2006/12/07 17:57:20 fw Exp $";
 
 /**
  * @file
@@ -271,7 +271,6 @@ main( int argc, const char *argv[] )
 
 		/* Initialize modules, part II: these functions are eventually
 		 * called with already dropped privileges ... */
-		Lists_Init( );
 		Channel_Init( );
 		Client_Init( );
 #ifdef ZEROCONF
@@ -328,7 +327,6 @@ main( int argc, const char *argv[] )
 #endif
 		Client_Exit( );
 		Channel_Exit( );
-		Lists_Exit( );
 		Log_Exit( );
 	}
 	Pidfile_Delete( );

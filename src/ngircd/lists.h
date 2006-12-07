@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: lists.h,v 1.12 2005/03/19 18:43:49 fw Exp $
+ * $Id: lists.h,v 1.13 2006/12/07 17:57:20 fw Exp $
  *
  * Management of IRC lists: ban, invite, ... (header)
  */
@@ -16,31 +16,31 @@
 
 #ifndef __lists_h__
 #define __lists_h__
+#include "portab.h"
+#include "client.h"
+
+struct list_elem;
+
+struct list_head {
+	struct list_elem *first;
+};
 
 
-GLOBAL void Lists_Init PARAMS(( void ));
-GLOBAL void Lists_Exit PARAMS(( void ));
+GLOBAL struct list_elem *Lists_GetFirst PARAMS((const struct list_head *));
+GLOBAL struct list_elem *Lists_GetNext PARAMS((const struct list_elem *));
 
-GLOBAL bool Lists_CheckInvited PARAMS(( CLIENT *Client, CHANNEL *Chan ));
-GLOBAL bool Lists_AddInvited PARAMS(( char *Mask, CHANNEL *Chan, bool OnlyOnce ));
-GLOBAL void Lists_DelInvited PARAMS(( char *Mask, CHANNEL *Chan ));
-GLOBAL bool Lists_ShowInvites PARAMS(( CLIENT *Client, CHANNEL *Channel ));
-GLOBAL bool Lists_SendInvites PARAMS(( CLIENT *Client ));
-GLOBAL bool Lists_IsInviteEntry PARAMS(( char *Mask, CHANNEL *Chan ));
+GLOBAL bool Lists_Check PARAMS((struct list_head *head, CLIENT *client ));
+GLOBAL bool Lists_CheckDupeMask PARAMS((const struct list_head *head, const char *mask ));
 
-GLOBAL bool Lists_CheckBanned PARAMS(( CLIENT *Client, CHANNEL *Chan ));
-GLOBAL bool Lists_AddBanned PARAMS(( char *Mask, CHANNEL *Chan ));
-GLOBAL void Lists_DelBanned PARAMS(( char *Mask, CHANNEL *Chan ));
-GLOBAL bool Lists_ShowBans PARAMS(( CLIENT *Client, CHANNEL *Channel ));
-GLOBAL bool Lists_SendBans PARAMS(( CLIENT *Client ));
-GLOBAL bool Lists_IsBanEntry PARAMS(( char *Mask, CHANNEL *Chan ));
+GLOBAL bool Lists_Add PARAMS((struct list_head *header, const char *Mask, bool OnlyOnce ));
+GLOBAL void Lists_Del PARAMS((struct list_head *head, const char *Mask ));
 
-GLOBAL void Lists_DeleteChannel PARAMS(( CHANNEL *Chan ));
+GLOBAL bool Lists_AlreadyRegistered PARAMS(( const struct list_head *head, const char *Mask));
+
+GLOBAL void Lists_Free PARAMS(( struct list_head *head ));
 
 GLOBAL char *Lists_MakeMask PARAMS(( char *Pattern ));
-
+GLOBAL const char *Lists_GetMask PARAMS(( const struct list_elem *e ));
 
 #endif
-
-
 /* -eof- */

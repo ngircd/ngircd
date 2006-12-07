@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-server.c,v 1.42 2006/12/02 14:10:48 fw Exp $";
+static char UNUSED id[] = "$Id: irc-server.c,v 1.43 2006/12/07 17:57:20 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -39,6 +39,50 @@ static char UNUSED id[] = "$Id: irc-server.c,v 1.42 2006/12/02 14:10:48 fw Exp $
 
 #include "exp.h"
 #include "irc-server.h"
+
+
+#ifdef IRCPLUS
+static bool
+Synchronize_Lists( CLIENT *Client )
+{
+	CHANNEL *c;
+	struct list_head *head;
+	struct list_elem *elem;
+
+	assert( Client != NULL );
+
+	c = Channel_First();
+
+	while (c) {
+		head = Channel_GetListBans(c);
+
+		elem = Lists_GetFirst(head);
+		while (elem) {
+			if( ! IRC_WriteStrClient( Client, "MODE %s +b %s",
+					Channel_Name(c), Lists_GetMask(elem)))
+			{
+				return false;
+			}
+			elem = Lists_GetNext(elem);
+		}
+
+		head = Channel_GetListInvites(c);
+		elem = Lists_GetFirst(head);
+		while (elem) {
+			if( ! IRC_WriteStrClient( Client, "MODE %s +I %s",
+					Channel_Name( c ), Lists_GetMask(elem)))
+			{
+				return false;
+			}
+			elem = Lists_GetNext(elem);
+		}
+		c = Channel_Next(c);
+	}
+	return true;
+}
+#endif
+
+
 
 
 /**
@@ -268,9 +312,7 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 			    "Synchronizing INVITE- and BAN-lists ...");
 #endif
 			/* Synchronize INVITE- and BAN-lists */
-			if (! Lists_SendInvites(Client))
-				return DISCONNECTED;
-			if (! Lists_SendBans(Client))
+			if (!Synchronize_Lists(Client))
 				return DISCONNECTED;
 		}
 #endif

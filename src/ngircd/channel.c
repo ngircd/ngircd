@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: channel.c,v 1.59 2006/10/06 21:32:58 fw Exp $";
+static char UNUSED id[] = "$Id: channel.c,v 1.60 2006/12/07 17:57:20 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -68,6 +68,22 @@ Channel_Init( void )
 	My_Channels = NULL;
 	My_Cl2Chan = NULL;
 } /* Channel_Init */
+
+
+GLOBAL struct list_head *
+Channel_GetListBans(CHANNEL *c)
+{
+	assert(c != NULL);
+	return &c->list_bans;
+}
+
+
+GLOBAL struct list_head *
+Channel_GetListInvites(CHANNEL *c)
+{
+	assert(c != NULL);
+	return &c->list_invites;
+}
 
 
 GLOBAL void
@@ -716,7 +732,7 @@ Channel_Write( CHANNEL *Chan, CLIENT *From, CLIENT *Client, char *Text )
 	if( strchr( Channel_Modes( Chan ), 'm' ) && ( ! is_op ) && ( ! has_voice )) ok = false;
 
 	/* Is the client banned? */
-	if( Lists_CheckBanned( From, Chan ))
+	if( Lists_Check(&Chan->list_bans, From))
 	{
 		/* Client is banned, but is he channel operator or has voice? */
 		if(( ! has_voice ) && ( ! is_op )) ok = false;
@@ -881,6 +897,68 @@ Remove_Client( int Type, CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, char *Re
 } /* Remove_Client */
 
 
+GLOBAL bool
+Channel_AddBan(CHANNEL *c, const char *mask )
+{
+	struct list_head *h = Channel_GetListBans(c);
+	return Lists_Add(h, mask, false);
+}
+
+
+GLOBAL bool
+Channel_AddInvite(CHANNEL *c, const char *mask, bool onlyonce)
+{
+	struct list_head *h = Channel_GetListInvites(c);
+	return Lists_Add(h, mask, onlyonce);
+}
+
+
+static bool
+ShowInvitesBans(struct list_head *head, CLIENT *Client, CHANNEL *Channel, bool invite)
+{
+	struct list_elem *e;
+	char *msg = invite ? RPL_INVITELIST_MSG : RPL_BANLIST_MSG;
+	char *msg_end;
+
+	assert( Client != NULL );
+	assert( Channel != NULL );
+
+	e = Lists_GetFirst(head);
+	while (e) {
+		if( ! IRC_WriteStrClient( Client, msg, Client_ID( Client ),
+				Channel_Name( Channel ), Lists_GetMask(e) )) return DISCONNECTED;
+		e = Lists_GetNext(e);
+	}
+
+	msg_end = invite ? RPL_ENDOFINVITELIST_MSG : RPL_ENDOFBANLIST_MSG;
+	return IRC_WriteStrClient( Client, msg_end, Client_ID( Client ), Channel_Name( Channel ));
+}
+
+
+GLOBAL bool
+Channel_ShowBans( CLIENT *Client, CHANNEL *Channel )
+{
+	struct list_head *h;
+
+	assert( Channel != NULL );
+
+	h = Channel_GetListBans(Channel);
+	return ShowInvitesBans(h, Client, Channel, false);
+}
+
+
+GLOBAL bool
+Channel_ShowInvites( CLIENT *Client, CHANNEL *Channel )
+{
+	struct list_head *h;
+
+	assert( Channel != NULL );
+
+	h = Channel_GetListInvites(Channel);
+	return ShowInvitesBans(h, Client, Channel, true);
+}
+
+
 static CL2CHAN *
 Get_First_Cl2Chan( CLIENT *Client, CHANNEL *Chan )
 {
@@ -910,7 +988,7 @@ static bool
 Delete_Channel( CHANNEL *Chan )
 {
 	/* Channel-Struktur loeschen */
-	
+
 	CHANNEL *chan, *last_chan;
 
 	last_chan = NULL;
@@ -926,13 +1004,14 @@ Delete_Channel( CHANNEL *Chan )
 	Log( LOG_DEBUG, "Freed channel structure for \"%s\".", Chan->name );
 
 	/* Invite- und Ban-Lists aufraeumen */
-	Lists_DeleteChannel( chan );
+	Lists_Free( &chan->list_bans );
+	Lists_Free( &chan->list_invites );
 
 	/* Neu verketten und freigeben */
 	if( last_chan ) last_chan->next = chan->next;
 	else My_Channels = chan->next;
 	free( chan );
-		
+
 	return true;
 } /* Delete_Channel */
 

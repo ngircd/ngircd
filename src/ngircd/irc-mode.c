@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-mode.c,v 1.47 2006/10/06 21:32:58 fw Exp $";
+static char UNUSED id[] = "$Id: irc-mode.c,v 1.48 2006/12/07 17:57:20 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -477,7 +477,7 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 					Req->argv[arg_arg][0] = '\0';
 					arg_arg++;
 				}
-				else Lists_ShowInvites( Origin, Channel );
+				else Channel_ShowInvites( Origin, Channel );
 				break;
 
 			case 'b': /* Ban lists */
@@ -493,7 +493,7 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 					Req->argv[arg_arg][0] = '\0';
 					arg_arg++;
 				}
-				else Lists_ShowBans( Origin, Channel );
+				else Channel_ShowBans( Origin, Channel );
 				break;
 
 			default:
@@ -644,11 +644,13 @@ Add_Invite( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Pattern )
 
 	mask = Lists_MakeMask( Pattern );
 
-	already = Lists_IsInviteEntry( mask, Channel );
-	
-	if( ! Lists_AddInvited( mask, Channel, false )) return CONNECTED;
-	
-	if(( Client_Type( Prefix ) == CLIENT_SERVER ) && ( already == true)) return CONNECTED;
+	already = Lists_CheckDupeMask(Channel_GetListInvites(Channel), mask );
+	if (!already) {
+		if( ! Channel_AddInvite(Channel, mask, false ))
+			return CONNECTED;
+	}
+	if ( already && ( Client_Type( Prefix ) == CLIENT_SERVER ))
+		return CONNECTED;
 
 	return Send_ListChange( "+I", Prefix, Client, Channel, mask );
 } /* Add_Invite */
@@ -666,11 +668,13 @@ Add_Ban( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Pattern )
 
 	mask = Lists_MakeMask( Pattern );
 
-	already = Lists_IsBanEntry( mask, Channel );
-
-	if( ! Lists_AddBanned( mask, Channel )) return CONNECTED;
-
-	if(( Client_Type( Prefix ) == CLIENT_SERVER ) && ( already == true)) return CONNECTED;
+	already = Lists_CheckDupeMask(Channel_GetListBans(Channel), mask );
+	if (!already) {
+		if( ! Channel_AddBan(Channel, mask))
+			return CONNECTED;
+	}
+	if ( already && ( Client_Type( Prefix ) == CLIENT_SERVER ))
+		return CONNECTED;
 
 	return Send_ListChange( "+b", Prefix, Client, Channel, mask );
 } /* Add_Ban */
@@ -686,7 +690,7 @@ Del_Invite( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Pattern )
 	assert( Pattern != NULL );
 
 	mask = Lists_MakeMask( Pattern );
-	Lists_DelInvited( mask, Channel );
+	Lists_Del(Channel_GetListInvites(Channel), mask);
 	return Send_ListChange( "-I", Prefix, Client, Channel, mask );
 } /* Del_Invite */
 
@@ -701,7 +705,7 @@ Del_Ban( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Pattern )
 	assert( Pattern != NULL );
 
 	mask = Lists_MakeMask( Pattern );
-	Lists_DelBanned( mask, Channel );
+	Lists_Del(Channel_GetListBans(Channel), mask);
 	return Send_ListChange( "-b", Prefix, Client, Channel, mask );
 } /* Del_Ban */
 

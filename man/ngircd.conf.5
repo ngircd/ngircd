@@ -1,5 +1,5 @@
 .\"
-.\" $Id: ngircd.conf.5,v 1.20 2005/09/02 14:39:00 fw Exp $
+.\" $Id: ngircd.conf.5,v 1.21 2006/12/11 22:07:09 fw Exp $
 .\"
 .TH ngircd.conf 5 "August 2005" ngircd "ngIRCd Manual"
 .SH NAME
@@ -145,6 +145,11 @@ not(!) channel-operators? Default: no.
 If OperCanUseMode is enabled, this may lead the compatibility problems with
 Servers that run the ircd-irc2 Software. This Option "masks" mode requests
 by non-chanops as if they were coming from the server. Default: no.
+.TP
+\fBPredefChannelsOnly\fR
+If enabled, no new channels can be created. Useful if
+you do not want to have channels other than those defined in
+the config file.
 .TP
 \fBMaxConnections\fR
 Maximum number of simultaneous connection the server is allowed to accept

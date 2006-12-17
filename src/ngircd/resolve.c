@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: resolve.c,v 1.25 2006/08/12 11:54:23 fw Exp $";
+static char UNUSED id[] = "$Id: resolve.c,v 1.26 2006/12/17 22:50:51 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -313,7 +313,8 @@ register_callback( RES_STAT *s, void (*cbfunc)(int, short))
 			return true;
 
 	Log( LOG_CRIT, "Resolver: Could not register callback function: %s!", strerror(errno));
-	Resolve_Shutdown(s);
+	close(s->resolver_fd);
+	Resolve_Init(s);
 	return false;
 }
 
@@ -333,7 +334,7 @@ Resolve_Shutdown( RES_STAT *s)
 	return ret;
 }
 
-                
+
 /**
  * Read result of resolver sub-process from pipe
  */

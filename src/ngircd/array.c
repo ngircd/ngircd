@@ -12,7 +12,7 @@
 
 #include "array.h"
 
-static char UNUSED id[] = "$Id: array.c,v 1.11.2.1 2006/12/02 13:00:25 fw Exp $";
+static char UNUSED id[] = "$Id: array.c,v 1.11.2.2 2006/12/17 23:00:17 fw Exp $";
 
 #include <assert.h>
 
@@ -247,19 +247,21 @@ void *
 array_get(array * a, size_t membersize, size_t pos)
 {
 	size_t totalsize;
+	size_t posplus1 = pos + 1;
 
 	assert(membersize > 0);
 	assert(a != NULL);
 
-	if (array_UNUSABLE(a))
+	if (!posplus1 || array_UNUSABLE(a))
 		return NULL;
 
-	if (!safemult_sizet(pos, membersize, &totalsize))
+	if (!safemult_sizet(posplus1, membersize, &totalsize))
 		return NULL;
 
 	if (a->allocated < totalsize)
 		return NULL;
 
+	totalsize = pos * membersize;
 	return a->mem + totalsize;
 }
 

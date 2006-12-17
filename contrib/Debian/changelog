@@ -1,3 +1,9 @@
+ngircd (0.10.1-0ab1) unstable; urgency=low
+
+  * New "upstream" release: 0.10.1
+
+ -- Alexander Barton <alex@barton.de>  Sun, 17 Dec 2006 14:52:06 +0100
+
 ngircd (0.10.0-0ab1) unstable; urgency=low
 
   * New "upstream" release: 0.10.0

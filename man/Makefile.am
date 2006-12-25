@@ -9,12 +9,25 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: Makefile.am,v 1.5 2002/04/04 13:02:41 alex Exp $
+# $Id: Makefile.am,v 1.6 2006/12/25 16:13:26 alex Exp $
 #
+
+TEMPLATE_MANS = ngircd.conf.5.tmpl ngircd.8.tmpl
+
+SUFFIXES = .tmpl .
+
+.tmpl:
+	sed \
+	    -e s@:SBINDIR:@${sbindir}@ \
+	    -e s@:BINDIR:@${bindir}@ \
+	    -e s@:ETCDIR:@${sysconfdir}@ \
+	    <$< >$@
 
 man_MANS = ngircd.conf.5 ngircd.8
 
-EXTRA_DIST = $(man_MANS)
+CLEANFILES = $(man_MANS)
+
+EXTRA_DIST = $(TEMPLATE_MANS)
 
 maintainer-clean-local:
 	rm -f Makefile Makefile.in

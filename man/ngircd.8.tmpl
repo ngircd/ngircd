@@ -1,5 +1,5 @@
 .\"
-.\" $Id: ngircd.8,v 1.11 2005/08/12 13:20:54 alex Exp $
+.\" $Id: ngircd.8.tmpl,v 1.1 2006/12/25 16:13:26 alex Exp $
 .\"
 .TH ngircd 8 "August 2005" ngircd "ngIRCd Manual"
 .SH NAME
@@ -55,11 +55,11 @@ Output version information and exit.
 \fB\-\-help\fR
 Display a brief help text and exit.
 .SH FILES
-.I /usr/local/etc/ngircd.conf
+.I :ETCDIR:/ngircd.conf
 .RS
 The system wide default configuration file.
 .RE
-.I /usr/local/etc/ngircd.motd
+.I :ETCDIR:/ngircd.motd
 .RS
 Default "message of the day" (MOTD).
 .RE

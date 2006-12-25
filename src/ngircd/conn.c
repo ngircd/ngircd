@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.200 2006/12/17 23:04:45 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.201 2006/12/25 01:11:12 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -995,11 +995,19 @@ New_Connection( int Sock )
 			Init_Conn_Struct(Pool_Size++);
 	}
 
+	/* register callback */
+	if (!io_event_create( new_sock, IO_WANTREAD, cb_clientserver)) {
+		Log(LOG_ALERT, "Can't accept connection: io_event_create failed!");
+		Simple_Message(new_sock, "ERROR :Internal error");
+		close(new_sock);
+		return -1;
+	}
+
 	c = Client_NewLocal( new_sock, inet_ntoa( new_addr.sin_addr ), CLIENT_UNKNOWN, false );
 	if( ! c ) {
-		Log( LOG_ALERT, "Can't accept connection: can't create client structure!" );
-		Simple_Message( new_sock, "ERROR :Internal error" );
-		close( new_sock );
+		Log(LOG_ALERT, "Can't accept connection: can't create client structure!");
+		Simple_Message(new_sock, "ERROR :Internal error");
+		io_close(new_sock);
 		return -1;
 	}
 
@@ -1007,13 +1015,6 @@ New_Connection( int Sock )
 	My_Connections[new_sock].sock = new_sock;
 	My_Connections[new_sock].addr = new_addr;
 	My_Connections[new_sock].client = c;
-
-	/* register callback */
-	if (!io_event_create( new_sock, IO_WANTREAD, cb_clientserver)) {
-		Simple_Message( new_sock, "ERROR :Internal error" );
-		Conn_Close( new_sock, "io_event_create() failed", NULL, false );
-		return -1;
-	}
 
 	Log( LOG_INFO, "Accepted connection %d from %s:%d on socket %d.", new_sock,
 			inet_ntoa( new_addr.sin_addr ), ntohs( new_addr.sin_port), Sock );

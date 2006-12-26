@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: io.c,v 1.22 2006/12/16 22:48:34 fw Exp $";
+static char UNUSED id[] = "$Id: io.c,v 1.23 2006/12/26 16:00:46 alex Exp $";
 
 #include <assert.h>
 #include <stdlib.h>
@@ -34,33 +34,40 @@ typedef struct {
  short what;
 } io_event;
 
-#define INIT_IOEVENT    { NULL, -1, 0, NULL }
-#define IO_ERROR        4
+#define INIT_IOEVENT		{ NULL, -1, 0, NULL }
+#define IO_ERROR		4
 
 #ifdef HAVE_EPOLL_CREATE
-#define IO_USE_EPOLL    1
+#  define IO_USE_EPOLL		1
+#  ifdef HAVE_SELECT
+#    define IO_USE_SELECT	1
+#  endif
 #else
-# ifdef HAVE_KQUEUE
-#define IO_USE_KQUEUE   1
-# else
-#  ifdef HAVE_SYS_DEVPOLL_H
-#define IO_USE_DEVPOLL  1
-#   else
-#    ifdef HAVE_POLL
-#define IO_USE_POLL     1
+#  ifdef HAVE_KQUEUE
+#    define IO_USE_KQUEUE	1
+#  else
+#    ifdef HAVE_SYS_DEVPOLL_H
+#      define IO_USE_DEVPOLL	1
+#    else
+#      ifdef HAVE_POLL
+#        define IO_USE_POLL	1
+#      else
+#        ifdef HAVE_SELECT
+#          define IO_USE_SELECT	1
 #        else
-#define IO_USE_SELECT   1
+#          error "no IO API available!?"
+#        endif /* HAVE_SELECT */
 #      endif /* HAVE_POLL */
 #    endif /* HAVE_SYS_DEVPOLL_H */
-# endif /* HAVE_KQUEUE */
+#  endif /* HAVE_KQUEUE */
 #endif /* HAVE_EPOLL_CREATE */
 
-static bool library_initialized;
+static bool library_initialized = false;
 
 #ifdef IO_USE_EPOLL
 #include <sys/epoll.h>
 
-static int io_masterfd;
+static int io_masterfd = -1;
 static bool io_event_change_epoll(int fd, short what, const int action);
 static int io_dispatch_epoll(struct timeval *tv);
 #endif
@@ -101,7 +108,11 @@ static fd_set readers;
 static fd_set writers;
 static int select_maxfd;		/* the select() interface sucks badly */
 static int io_dispatch_select(struct timeval *tv);
+
+#ifndef IO_USE_EPOLL
+#define io_masterfd -1
 #endif
+#endif /* IO_USE_SELECT */
 
 static array io_events;
 
@@ -187,11 +198,12 @@ io_library_init_epoll(unsigned int eventsize)
 	if (ecreate_hint <= 0)
 		ecreate_hint = 128;
 	io_masterfd = epoll_create(ecreate_hint);
-	Log(LOG_INFO,
-	    "IO subsystem: epoll (hint size %d, initial maxfd %u, masterfd %d).",
-	    ecreate_hint, eventsize, io_masterfd);
-	if (io_masterfd >= 0)
+	if (io_masterfd >= 0) {
 		library_initialized = true;
+		Log(LOG_INFO,
+		    "IO subsystem: epoll (hint size %d, initial maxfd %u, masterfd %d).",
+		    ecreate_hint, eventsize, io_masterfd);
+	}
 }
 #endif
 
@@ -229,6 +241,10 @@ io_library_init(unsigned int eventsize)
 		eventsize = 0;
 #ifdef IO_USE_EPOLL
 	io_library_init_epoll(eventsize);
+#ifdef IO_USE_SELECT
+	if (io_masterfd < 0)
+		Log(LOG_INFO, "Can't initialize epoll() IO interface, falling back to select() ...");
+#endif
 #endif
 #ifdef IO_USE_KQUEUE
 	io_library_init_kqueue(eventsize);
@@ -240,7 +256,8 @@ io_library_init(unsigned int eventsize)
 	io_library_init_poll(eventsize);
 #endif
 #ifdef IO_USE_SELECT
-	io_library_init_select(eventsize);
+	if (! library_initialized)
+		io_library_init_select(eventsize);
 #endif
 	return library_initialized;
 }
@@ -254,7 +271,8 @@ io_library_shutdown(void)
 	FD_ZERO(&writers);
 #endif
 #ifdef IO_USE_EPOLL
-	close(io_masterfd);
+	if (io_masterfd >= 0)
+		close(io_masterfd);
 	io_masterfd = -1;
 #endif
 #ifdef IO_USE_KQUEUE
@@ -316,7 +334,8 @@ io_event_create(int fd, short what, void (*cbfunc) (int, short))
 	ret = io_event_change_kqueue(fd, what, EV_ADD|EV_ENABLE);
 #endif
 #ifdef IO_USE_SELECT
-	ret = io_event_add(fd, what);
+	if (io_masterfd < 0)
+		ret = io_event_add(fd, what);
 #endif
 	if (ret) i->what = what;
 	return ret;
@@ -450,7 +469,8 @@ io_event_add(int fd, short what)
 #endif
 	i->what |= what;
 #ifdef IO_USE_EPOLL
-	return io_event_change_epoll(fd, i->what, EPOLL_CTL_MOD);
+	if (io_masterfd >= 0)
+		return io_event_change_epoll(fd, i->what, EPOLL_CTL_MOD);
 #endif
 
 #ifdef IO_USE_KQUEUE
@@ -535,6 +555,10 @@ static void
 io_close_select(int fd)
 {
 	io_event *i;
+
+	if (io_masterfd >= 0)	/* Are we using epoll()? */
+		return;
+
 	FD_CLR(fd, &writers);
 	FD_CLR(fd, &readers);
 
@@ -606,7 +630,8 @@ io_event_del(int fd, short what)
 	return io_event_change_poll(fd, i->what);
 #endif
 #ifdef IO_USE_EPOLL
-	return io_event_change_epoll(fd, i->what, EPOLL_CTL_MOD);
+	if (io_masterfd >= 0)
+		return io_event_change_epoll(fd, i->what, EPOLL_CTL_MOD);
 #endif
 
 #ifdef IO_USE_KQUEUE
@@ -857,6 +882,10 @@ io_dispatch_kqueue(struct timeval *tv)
 int
 io_dispatch(struct timeval *tv)
 {
+#ifdef IO_USE_EPOLL
+	if (io_masterfd >= 0)
+		return io_dispatch_epoll(tv);
+#endif
 #ifdef IO_USE_SELECT
 	return io_dispatch_select(tv);
 #endif
@@ -868,9 +897,6 @@ io_dispatch(struct timeval *tv)
 #endif
 #ifdef IO_USE_POLL
 	return io_dispatch_poll(tv);
-#endif
-#ifdef IO_USE_EPOLL
-	return io_dispatch_epoll(tv);
 #endif
 }
 

@@ -2,8 +2,19 @@
 #
 # ngIRCd start and stop script for Debian-based systems
 #
-# $Id: ngircd.init,v 1.6 2005/07/26 19:37:18 alex Exp $
+# $Id: ngircd.init,v 1.7 2006/12/26 14:43:46 alex Exp $
 #
+
+### BEGIN INIT INFO
+# Provides:		ircd
+# Required-Start:	$local_fs
+# Required-Stop:	$local_fs
+# Should-Start:		$syslog $network
+# Should-Stop:		$syslog $network
+# Default-Start:	2 3 4 5
+# Default-Stop:		0 1 6
+# Short-Description:	Next Generation IRC Server
+### END INIT INFO
 
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 DAEMON=/usr/sbin/ngircd

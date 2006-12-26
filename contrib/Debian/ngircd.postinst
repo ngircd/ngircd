@@ -1,13 +1,20 @@
 #!/bin/sh
 #
 # Debian post-installation script
-# $Id: ngircd.postinst,v 1.1 2003/12/31 17:20:11 alex Exp $
+# $Id: ngircd.postinst,v 1.2 2006/12/26 14:44:40 alex Exp $
 #
 
-if [ -f /etc/ngircd/ngircd.conf ]; then
-	# make sure that configuration file is not world readable
-	chmod o= /etc/ngircd/ngircd.conf
-fi
+set -e
+
+case "$1" in
+	configure)
+		if [ -f /etc/ngircd/ngircd.conf ]; then
+			# make sure that the configuration file is not
+			# world-readable, it contains passwords!
+			chmod o= /etc/ngircd/ngircd.conf
+		fi
+		;;
+esac
 
 #DEBHELPER#
 

@@ -8,14 +8,14 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: Makefile.am,v 1.2 2006/04/08 16:35:03 alex Exp $
+# $Id: Makefile.am,v 1.3 2006/12/28 14:04:28 alex Exp $
 #
 
 maintainer-clean-local:
 	rm -f Makefile Makefile.in
 
 distclean-local:
-	rm -f html
+	rm -rf html
 
 srcdoc:
 	@doxygen --version >/dev/null 2>&1 \

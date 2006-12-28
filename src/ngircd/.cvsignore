@@ -1,0 +1,8 @@
+Makefile
+Makefile.in
+.deps
+check-help
+check-version
+cvs-version.h
+cvs-version.new
+ngircd

@@ -1,0 +1,7 @@
+Makefile
+Makefile.in
+T-ngircd
+logs
+ngircd-test.log
+ngircd-test.motd
+tests

@@ -12,7 +12,7 @@
 
 #include "array.h"
 
-static char UNUSED id[] = "$Id: array.c,v 1.13 2006/12/17 22:52:43 fw Exp $";
+static char UNUSED id[] = "$Id: array.c,v 1.14 2006/12/28 12:53:41 alex Exp $";
 
 #include <assert.h>
 
@@ -270,7 +270,7 @@ void
 array_free(array * a)
 {
 	assert(a != NULL);
-#ifdef DEBUG
+#ifdef DEBUG_ARRAY
 	Log(LOG_DEBUG,
 	    "array_free(): %u bytes free'd (%u bytes still used at time of free()).",
 	    a->allocated, a->used);

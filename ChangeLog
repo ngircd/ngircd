@@ -12,6 +12,8 @@
 
 ngIRCd HEAD
 
+  - Predefined Channel configuration now allows specification of channel key
+    (mode k) and maximum user count (mode l).
   - When using epoll() IO interface, compile in the select() interface as
     well and fall back to it when epoll() isn't available on runtime.
   - New configure option "--without-select" to disable select() IO API
@@ -682,4 +684,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.312 2006/12/26 16:00:45 alex Exp $
+$Id: ChangeLog,v 1.313 2006/12/29 14:09:48 fw Exp $

@@ -1,5 +1,5 @@
 .\"
-.\" $Id: ngircd.conf.5.tmpl,v 1.1 2006/12/25 16:13:26 alex Exp $
+.\" $Id: ngircd.conf.5.tmpl,v 1.2 2006/12/29 14:09:49 fw Exp $
 .\"
 .TH ngircd.conf 5 "August 2005" ngircd "ngIRCd Manual"
 .SH NAME
@@ -235,6 +235,12 @@ Topic for this channel
 .TP
 \fBModes\fR
 Initial channel modes.
+.TP
+\fBKey\fR
+Sets initial channel key (only relevant if mode k is set)
+.TP
+\fBMaxUsers\fR
+Set maximum user limit for this channel (only relevant if mode l is set)
 .SH HINTS
 It's wise to use "ngircd --configtest" to validate the configuration file
 after changing it. See

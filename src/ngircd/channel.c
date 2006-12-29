@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: channel.c,v 1.61 2006/12/07 22:23:39 fw Exp $";
+static char UNUSED id[] = "$Id: channel.c,v 1.62 2006/12/29 14:09:50 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -131,6 +131,9 @@ Channel_InitPredefined( void )
 			while (*c)
 				Channel_ModeAdd(chan, *c++);
 
+			Channel_SetKey(chan, Conf_Channel[i].key);
+			Channel_SetMaxUsers(chan, Conf_Channel[i].maxusers);
+
 			Log(LOG_INFO, "Created pre-defined channel \"%s\".",
 							Conf_Channel[i].name );
 		}
@@ -145,7 +148,7 @@ Channel_Exit( void )
 {
 	CHANNEL *c, *c_next;
 	CL2CHAN *cl2chan, *cl2chan_next;
-	
+
 	/* Channel-Strukturen freigeben */
 	c = My_Channels;
 	while( c )

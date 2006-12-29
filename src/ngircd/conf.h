@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conf.h,v 1.41 2006/11/05 13:03:48 fw Exp $
+ * $Id: conf.h,v 1.42 2006/12/29 14:09:50 fw Exp $
  *
  * Configuration management (header)
  */
@@ -49,6 +49,8 @@ typedef struct _Conf_Channel
 {
 	char name[CHANNEL_NAME_LEN];	/* Name of the channel */
 	char modes[CHANNEL_MODE_LEN];	/* Initial channel modes */
+	char key[CLIENT_PASS_LEN];      /* Channel key ("password", mode "k" ) */
+	unsigned long maxusers;		/* maximum usercount for this channel, mode "l" */
 	array topic;			/* Initial topic */
 } CONF_CHANNEL;
 

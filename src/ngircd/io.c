@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: io.c,v 1.23 2006/12/26 16:00:46 alex Exp $";
+static char UNUSED id[] = "$Id: io.c,v 1.24 2007/01/18 00:25:26 fw Exp $";
 
 #include <assert.h>
 #include <stdlib.h>
@@ -463,7 +463,9 @@ io_event_add(int fd, short what)
 	io_event *i = io_event_get(fd);
 
 	if (!i) return false;
-	if (i->what == what) return true;
+
+	if ((i->what & what) == what) /* event type is already registered */
+		return true;
 #ifdef DEBUG_IO
 	Log(LOG_DEBUG, "io_event_add(): fd %d (arg: %d), what %d.", i->fd, fd, what);
 #endif

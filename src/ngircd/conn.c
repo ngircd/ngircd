@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.201 2006/12/25 01:11:12 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.202 2007/01/23 16:07:19 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -123,7 +123,6 @@ cb_connserver(int sock, UNUSED short what)
 {
 	int res, err;
 	socklen_t sock_len;
-	CLIENT *c;
 	CONN_ID idx = Socket2Index( sock );
 	if (idx <= NONE) {
 		LogDebug("cb_connserver wants to write on unknown socket?!");
@@ -150,14 +149,7 @@ cb_connserver(int sock, UNUSED short what)
  			    Conf_Server[Conf_GetServer(idx)].port,
  			    idx, strerror(err));
 
-		/* Clean up the CLIENT structure (to avoid silly log
- 		 * messages) and call Conn_Close() to do the rest. */
- 		c = Conn_GetClient(idx);
- 		if (c)
-			Client_DestroyNow(c);
- 
- 		Conn_Close(idx, "Can't connect!", NULL, false);
- 
+		Conn_Close(idx, "Can't connect!", NULL, false);
 		return;
 	}
 

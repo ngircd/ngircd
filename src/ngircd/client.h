@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: client.h,v 1.45 2006/10/07 10:40:52 fw Exp $
+ * $Id: client.h,v 1.46 2007/01/23 16:07:19 alex Exp $
  *
  * Client management (header)
  */
@@ -80,9 +80,6 @@ GLOBAL CLIENT *Client_NewRemoteServer PARAMS(( CLIENT *Introducer, char *Hostnam
 GLOBAL CLIENT *Client_NewRemoteUser PARAMS(( CLIENT *Introducer, char *Nick, int Hops, char *User, char *Hostname, int Token, char *Modes, char *Info, bool Idented ));
 
 GLOBAL void Client_Destroy PARAMS(( CLIENT *Client, char *LogMsg, char *FwdMsg, bool SendQuit ));
-#ifdef CONN_MODULE
-GLOBAL void Client_DestroyNow PARAMS(( CLIENT *Client ));
-#endif
 
 GLOBAL CLIENT *Client_ThisServer PARAMS(( void ));
 

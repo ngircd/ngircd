@@ -7,10 +7,10 @@
  *
  * I/O abstraction interface header
  *
- * $Id: io.h,v 1.3 2005/07/14 09:15:58 alex Exp $
+ * $Id: io.h,v 1.3.2.1 2007/04/03 22:08:52 fw Exp $
  */
 
-#ifndef io_H_inclucded
+#ifndef io_H_included
 #define io_H_included
 
 #include "portab.h"

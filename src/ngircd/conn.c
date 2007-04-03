@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.198.2.2 2006/12/17 23:06:29 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.198.2.3 2007/04/03 22:08:52 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -123,7 +123,6 @@ cb_connserver(int sock, UNUSED short what)
 {
 	int res, err;
 	socklen_t sock_len;
-	CLIENT *c;
 	CONN_ID idx = Socket2Index( sock );
 	if (idx <= NONE) {
 		LogDebug("cb_connserver wants to write on unknown socket?!");
@@ -150,14 +149,7 @@ cb_connserver(int sock, UNUSED short what)
  			    Conf_Server[Conf_GetServer(idx)].port,
  			    idx, strerror(err));
 
-		/* Clean up the CLIENT structure (to avoid silly log
- 		 * messages) and call Conn_Close() to do the rest. */
- 		c = Conn_GetClient(idx);
- 		if (c)
-			Client_DestroyNow(c);
- 
- 		Conn_Close(idx, "Can't connect!", NULL, false);
- 
+		Conn_Close(idx, "Can't connect!", NULL, false);
 		return;
 	}
 
@@ -384,7 +376,7 @@ NewListener( const UINT16 Port )
 	if( ! Init_Socket( sock )) return -1;
 
 	if (bind(sock, (struct sockaddr *)&addr, (socklen_t)sizeof(addr)) != 0) {
-		Log( LOG_CRIT, "Can't bind socket: %s!", strerror( errno ));
+		Log( LOG_CRIT, "Can't bind socket (port %d) : %s!", Port, strerror( errno ));
 		close( sock );
 		return -1;
 	}
@@ -995,11 +987,19 @@ New_Connection( int Sock )
 			Init_Conn_Struct(Pool_Size++);
 	}
 
+	/* register callback */
+	if (!io_event_create( new_sock, IO_WANTREAD, cb_clientserver)) {
+		Log(LOG_ALERT, "Can't accept connection: io_event_create failed!");
+		Simple_Message(new_sock, "ERROR :Internal error");
+		close(new_sock);
+		return -1;
+	}
+
 	c = Client_NewLocal( new_sock, inet_ntoa( new_addr.sin_addr ), CLIENT_UNKNOWN, false );
 	if( ! c ) {
-		Log( LOG_ALERT, "Can't accept connection: can't create client structure!" );
-		Simple_Message( new_sock, "ERROR :Internal error" );
-		close( new_sock );
+		Log(LOG_ALERT, "Can't accept connection: can't create client structure!");
+		Simple_Message(new_sock, "ERROR :Internal error");
+		io_close(new_sock);
 		return -1;
 	}
 
@@ -1007,13 +1007,6 @@ New_Connection( int Sock )
 	My_Connections[new_sock].sock = new_sock;
 	My_Connections[new_sock].addr = new_addr;
 	My_Connections[new_sock].client = c;
-
-	/* register callback */
-	if (!io_event_create( new_sock, IO_WANTREAD, cb_clientserver)) {
-		Simple_Message( new_sock, "ERROR :Internal error" );
-		Conn_Close( new_sock, "io_event_create() failed", NULL, false );
-		return -1;
-	}
 
 	Log( LOG_INFO, "Accepted connection %d from %s:%d on socket %d.", new_sock,
 			inet_ntoa( new_addr.sin_addr ), ntohs( new_addr.sin_port), Sock );

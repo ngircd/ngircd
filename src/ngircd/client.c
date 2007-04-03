@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: client.c,v 1.91.2.1 2006/12/02 14:00:00 fw Exp $";
+static char UNUSED id[] = "$Id: client.c,v 1.91.2.2 2007/04/03 22:08:52 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -67,10 +67,6 @@ static void Adjust_Counters PARAMS(( CLIENT *Client ));
 static CLIENT *Init_New_Client PARAMS((CONN_ID Idx, CLIENT *Introducer,
  CLIENT *TopServer, int Type, char *ID, char *User, char *Hostname,
  char *Info, int Hops, int Token, char *Modes, bool Idented));
-
-#ifndef Client_DestroyNow
-GLOBAL void Client_DestroyNow PARAMS((CLIENT *Client ));
-#endif
 
 
 long Max_Users = 0, My_Max_Users = 0;
@@ -337,42 +333,13 @@ Client_Destroy( CLIENT *Client, char *LogMsg, char *FwdMsg, bool SendQuit )
 
 
 GLOBAL void
-Client_DestroyNow( CLIENT *Client )
-{
-	/* Destroy client structure immediately. This function is only
-	 * intended for the connection layer to remove client structures
-	 * of connections that can't be established! */
-
-	CLIENT *last, *c;
-
-	assert( Client != NULL );
-
-	last = NULL;
-	c = My_Clients;
-	while( c )
-	{
-		if( c == Client )
-		{
-			/* Wir haben den Client gefunden: entfernen */
-			if( last ) last->next = c->next;
-			else My_Clients = (CLIENT *)c->next;
-			free( c );
-			break;
-		}
-		last = c;
-		c = (CLIENT *)c->next;
-	}
-} /* Client_DestroyNow */
-
-
-GLOBAL void
 Client_SetHostname( CLIENT *Client, char *Hostname )
 {
 	/* Hostname eines Clients setzen */
-	
+
 	assert( Client != NULL );
 	assert( Hostname != NULL );
-	
+
 	strlcpy( Client->host, Hostname, sizeof( Client->host ));
 } /* Client_SetHostname */
 
@@ -661,8 +628,7 @@ GLOBAL char *
 Client_User( CLIENT *Client )
 {
 	assert( Client != NULL );
-	if( Client->user[0] ) return Client->user;
-	else return "~";
+	return Client->user[0] ? Client->user : "~";
 } /* Client_User */
 
 
@@ -916,9 +882,8 @@ GLOBAL unsigned long
 Client_MyServerCount( void )
 {
 	CLIENT *c;
-	unsigned long cnt;
+	unsigned long cnt = 0;
 
-	cnt = 0;
 	c = My_Clients;
 	while( c )
 	{
@@ -933,9 +898,8 @@ GLOBAL unsigned long
 Client_OperCount( void )
 {
 	CLIENT *c;
-	unsigned long cnt;
+	unsigned long cnt = 0;
 
-	cnt = 0;
 	c = My_Clients;
 	while( c )
 	{

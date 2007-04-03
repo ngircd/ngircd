@@ -11,6 +11,14 @@
 
 
 ngIRCd 0.10.2
+
+  - Predefined Channel configuration now allows specification of channel key
+    (mode k) and maximum user count (mode l).
+  - When using epoll() IO interface, compile in the select() interface as
+    well and fall back to it when epoll() isn't available on runtime.
+  - New configure option "--without-select" to disable select() IO API
+    (even when using epoll(), see above).
+  - Added support for IO APIs "poll()" and "/dev/poll".
   - Reorganized internal handling of invite and ban lists.
 
 ngIRCd 0.10.1 (2006-12-17)
@@ -676,4 +684,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.302.2.10 2007/04/03 20:23:30 fw Exp $
+$Id: ChangeLog,v 1.302.2.11 2007/04/03 22:08:50 fw Exp $

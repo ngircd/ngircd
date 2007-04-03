@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: lists.c,v 1.18.2.2 2007/04/03 20:23:31 fw Exp $";
+static char UNUSED id[] = "$Id: lists.c,v 1.18.2.3 2007/04/03 22:08:52 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -80,7 +80,7 @@ Lists_Add(struct list_head *header, const char *Mask, bool OnlyOnce )
 	newelem = malloc(sizeof(struct list_elem));
 	if( ! newelem ) {
 		Log( LOG_EMERG, "Can't allocate memory for new Ban/Invite entry!" );
-		return NULL;
+		return false;
 	}
 
 	strlcpy( newelem->mask, Mask, sizeof( newelem->mask ));

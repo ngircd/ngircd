@@ -149,14 +149,20 @@ standard locations.
   The Z compression library ("libz") is required for this option.
   
 * IO Backend (autodetected by default):
+  --with-select[=<path>] / --without-select
+  --with-poll[=<path>] / --without-poll
+  --with-devpoll[=<path>] / --without-devpoll
   --with-epoll[=<path>] / --without-epoll
   --with-kqueue[=<path>] / --without-kqueue  
 
-  ngIRCd can use three different IO "backends": the "old school" select()
+  ngIRCd can use different IO "backends": the "old school" select() and poll()
   API which should be supported by most UNIX-like operating systems, or the
-  more efficient and flexible epoll() (Linux 2.6) or kqueue() (BSD) APIs.
+  more efficient and flexible epoll() (Linux >=2.6), kqueue() (BSD) and
+  /dev/poll APIs.
   By default the IO backend is autodetected, but you can use "--without-xxx"
-  to disable a more enhanced API and force the daemon to use select().
+  to disable a more enhanced API.
+  When using the epoll() API, support for select() is compiled in as well by
+  default to enable the binary to run on older Linux kernels (<2.6), too.
 
 * IDENT-Support:
   --with-ident[=<path>]
@@ -241,4 +247,4 @@ number. In both cases the server exits after the output.
 
 
 -- 
-$Id: INSTALL,v 1.23.2.1 2006/08/02 08:19:38 alex Exp $
+$Id: INSTALL,v 1.23.2.2 2007/04/03 22:08:50 fw Exp $

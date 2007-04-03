@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.92.2.3 2006/12/02 13:10:43 fw Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.92.2.4 2007/04/03 22:08:52 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -240,6 +240,8 @@ Conf_Test( void )
 		puts( "[CHANNEL]" );
 		printf( "  Name = %s\n", Conf_Channel[i].name );
 		printf( "  Modes = %s\n", Conf_Channel[i].modes );
+		printf( "  Key = %s\n", Conf_Channel[i].key );
+		printf( "  MaxUsers = %lu\n", Conf_Channel[i].maxusers );
 
 		topic = (char*)array_start(&Conf_Channel[i].topic);
 		printf( "  Topic = %s\n\n", topic ? topic : "");
@@ -555,6 +557,8 @@ Read_Config( void )
 					/* Initialize new channel structure */
 					strcpy( Conf_Channel[Conf_Channel_Count].name, "" );
 					strcpy( Conf_Channel[Conf_Channel_Count].modes, "" );
+					strcpy( Conf_Channel[Conf_Channel_Count].key, "" );
+					Conf_Channel[Conf_Channel_Count].maxusers = 0;
 					array_free(&Conf_Channel[Conf_Channel_Count].topic);
 					Conf_Channel_Count++;
 				}
@@ -965,6 +969,22 @@ Handle_CHANNEL( int Line, char *Var, char *Arg )
 		/* Initial topic */
 		if (!array_copys( &Conf_Channel[chancount].topic, Arg))
 			Config_Error_TooLong( Line, Var );
+		return;
+	}
+
+	if( strcasecmp( Var, "Key" ) == 0 ) {
+		/* Initial Channel Key (mode k) */
+		len = strlcpy(Conf_Channel[chancount].key, Arg, sizeof(Conf_Channel[chancount].key));
+		if (len >= sizeof( Conf_Channel[chancount].key ))
+			Config_Error_TooLong(Line, Var);
+		return;
+	}
+
+	if( strcasecmp( Var, "MaxUsers" ) == 0 ) {
+		/* maximum user limit, mode l */
+		Conf_Channel[chancount].maxusers = (unsigned long) atol(Arg);
+		if (Conf_Channel[chancount].maxusers == 0)
+			Config_Error_NaN(Line, Var);
 		return;
 	}
 

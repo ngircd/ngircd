@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-op.c,v 1.15.4.1 2006/12/02 14:21:26 fw Exp $";
+static char UNUSED id[] = "$Id: irc-op.c,v 1.15.4.2 2007/04/03 20:23:31 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -99,11 +99,12 @@ IRC_INVITE( CLIENT *Client, REQUEST *Req )
 		if( Channel_IsMemberOf( chan, target )) return IRC_WriteStrClient( from, ERR_USERONCHANNEL_MSG, Client_ID( from ), Req->argv[0], Req->argv[1] );
 
 		/* If the target user is banned on that channel: remember invite */
-		if( Lists_CheckBanned( target, chan )) remember = true;
+		if( Lists_Check(Channel_GetListBans(chan), target )) remember = true;
 
 		if (remember) {
 			/* We must remember this invite */
-			if( ! Lists_AddInvited( Client_Mask( target ), chan, true)) return CONNECTED;
+			if( ! Channel_AddInvite(chan, Client_Mask( target ), true))
+				return CONNECTED;
 		}
 	}
 

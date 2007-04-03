@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-channel.c,v 1.35.2.2 2006/12/02 13:33:52 fw Exp $";
+static char UNUSED id[] = "$Id: irc-channel.c,v 1.35.2.3 2007/04/03 20:23:31 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -122,8 +122,8 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 				chan = Channel_Search( channame );
 				assert( chan != NULL );
 
-				is_banned = Lists_CheckBanned( target, chan );
-				is_invited = Lists_CheckInvited( target, chan );
+				is_banned = Lists_Check(Channel_GetListBans(chan), target );
+				is_invited = Lists_Check(Channel_GetListInvites(chan), target );
 
 				/* Testen, ob Client gebanned ist */
 				if(( is_banned == true) &&  ( is_invited == false ))
@@ -178,7 +178,7 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 			 * commands) in this list become deleted when a user
 			 * joins a channel this way. */
 			chan = Channel_Search( channame );
-			if( chan != NULL ) (void)Lists_CheckInvited( target, chan );
+			if( chan != NULL ) (void)Lists_Check(Channel_GetListInvites(chan), target);
 		}
 
 		/* Channel joinen (und ggf. anlegen) */

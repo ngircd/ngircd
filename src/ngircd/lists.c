@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: lists.c,v 1.18.2.1 2006/12/02 13:05:38 fw Exp $";
+static char UNUSED id[] = "$Id: lists.c,v 1.18.2.2 2007/04/03 20:23:31 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -35,326 +35,131 @@ static char UNUSED id[] = "$Id: lists.c,v 1.18.2.1 2006/12/02 13:05:38 fw Exp $"
 #include "exp.h"
 #include "lists.h"
 
-
 #define MASK_LEN	(2*CLIENT_HOST_LEN)
 
-
-typedef struct _C2C
-{
-	struct _C2C *next;
+struct list_elem {
+	struct list_elem *next;
 	char mask[MASK_LEN];
-	CHANNEL *channel;
 	bool onlyonce;
-} C2C;
+};
 
 
-static C2C *My_Invites, *My_Bans;
-
-
-static C2C *New_C2C PARAMS(( char *Mask, CHANNEL *Chan, bool OnlyOnce ));
-
-static bool Check_List PARAMS(( C2C **Cl2Chan, CLIENT *Client, CHANNEL *Chan ));
-static bool Already_Registered PARAMS(( C2C *Cl2Chan, char *Mask, CHANNEL *Chan ));
-
-
-
-GLOBAL void
-Lists_Init( void )
+GLOBAL const char *
+Lists_GetMask(const struct list_elem *e)
 {
-	/* Modul initialisieren */
-
-	My_Invites = My_Bans = NULL;
-} /* Lists_Init */
+	return e->mask;
+}
 
 
-GLOBAL void
-Lists_Exit( void )
+GLOBAL struct list_elem*
+Lists_GetFirst(const struct list_head *h)
 {
-	/* Modul abmelden */
-
-	C2C *c2c, *next;
-
-	/* Invite-Lists freigeben */
-	c2c = My_Invites;
-	while( c2c )
-	{
-		next = c2c->next;
-		free( c2c );
-		c2c = next;
-	}
-
-	/* Ban-Lists freigeben */
-	c2c = My_Bans;
-	while( c2c )
-	{
-		next = c2c->next;
-		free( c2c );
-		c2c = next;
-	}
-} /* Lists_Exit */
+	return h->first;
+}
 
 
-GLOBAL bool
-Lists_CheckInvited( CLIENT *Client, CHANNEL *Chan )
+GLOBAL struct list_elem*
+Lists_GetNext(const struct list_elem *e)
 {
-	return Check_List( &My_Invites, Client, Chan );
-} /* Lists_CheckInvited */
+	return e->next;
+}
 
 
-GLOBAL bool
-Lists_IsInviteEntry( char *Mask, CHANNEL *Chan )
+bool
+Lists_Add(struct list_head *header, const char *Mask, bool OnlyOnce )
 {
+	struct list_elem *e, *newelem;
+
+	assert( header != NULL );
 	assert( Mask != NULL );
-	assert( Chan != NULL );
 
-	return Already_Registered( My_Invites, Mask, Chan );
-} /* Lists_IsInviteEntry */
+	if (Lists_CheckDupeMask(header, Mask )) return true;
 
+	e = Lists_GetFirst(header);
 
-GLOBAL bool
-Lists_AddInvited( char *Mask, CHANNEL *Chan, bool OnlyOnce )
-{
-	C2C *c2c;
-
-	assert( Mask != NULL );
-	assert( Chan != NULL );
-
-	if( Already_Registered( My_Invites, Mask, Chan )) return true;
-	
-	c2c = New_C2C( Mask, Chan, OnlyOnce );
-	if( ! c2c )
-	{
-		Log( LOG_ERR, "Can't add new invite list entry!" );
-		return false;
+	newelem = malloc(sizeof(struct list_elem));
+	if( ! newelem ) {
+		Log( LOG_EMERG, "Can't allocate memory for new Ban/Invite entry!" );
+		return NULL;
 	}
 
-	/* verketten */
-	c2c->next = My_Invites;
-	My_Invites = c2c;
+	strlcpy( newelem->mask, Mask, sizeof( newelem->mask ));
+	newelem->onlyonce = OnlyOnce;
+	newelem->next = e;
+	header->first = newelem;
 
-	Log( LOG_DEBUG, "Added \"%s\" to invite list for \"%s\".", Mask, Channel_Name( Chan ));
+	LogDebug("Added \"%s\" to invite list", Mask);
 	return true;
-} /* Lists_AddInvited */
+}
+
+
+static void
+Lists_Unlink(struct list_head *header, struct list_elem *p, struct list_elem *victim)
+{
+	assert(victim != NULL);
+	assert(header != NULL);
+
+	if (p) p->next = victim->next;
+	else header->first = victim->next;
+
+	free(victim);
+}
 
 
 GLOBAL void
-Lists_DelInvited( char *Mask, CHANNEL *Chan )
+Lists_Del(struct list_head *header, const char *Mask)
 {
-	C2C *c2c, *last, *next;
+	struct list_elem *e, *last, *victim;
 
+	assert( header != NULL );
 	assert( Mask != NULL );
-	assert( Chan != NULL );
 
 	last = NULL;
-	c2c = My_Invites;
-	while( c2c )
-	{
-		next = c2c->next;
-		if(( c2c->channel == Chan ) && ( strcasecmp( c2c->mask, Mask ) == 0 ))
-		{
-			/* dieser Eintrag muss geloescht werden */
-			Log( LOG_DEBUG, "Deleted \"%s\" from invite list for \"%s\"." , c2c->mask, Channel_Name( Chan ));
-			if( last ) last->next = next;
-			else My_Invites = next;
-			free( c2c );
+	e = Lists_GetFirst(header);
+	while( e ) {
+		if(strcasecmp( e->mask, Mask ) == 0 ) {
+			LogDebug("Deleted \"%s\" from list", e->mask);
+			victim = e;
+			e = victim->next;
+			Lists_Unlink(header, last, victim);
+			continue;
 		}
-		else last = c2c;
-		c2c = next;
+		last = e;
+		e = e->next;
 	}
-} /* Lists_DelInvited */
-
-
-GLOBAL bool
-Lists_ShowInvites( CLIENT *Client, CHANNEL *Channel )
-{
-	C2C *c2c;
-
-	assert( Client != NULL );
-	assert( Channel != NULL );
-
-	c2c = My_Invites;
-	while( c2c )
-	{
-		if( c2c->channel == Channel )
-		{
-			/* Eintrag fuer Channel gefunden; ausgeben: */
-			if( ! IRC_WriteStrClient( Client, RPL_INVITELIST_MSG, Client_ID( Client ), Channel_Name( Channel ), c2c->mask )) return DISCONNECTED;
-		}
-		c2c = c2c->next;
-	}
-	return IRC_WriteStrClient( Client, RPL_ENDOFINVITELIST_MSG, Client_ID( Client ), Channel_Name( Channel ));
-} /* Lists_ShowInvites */
-
-
-GLOBAL bool
-Lists_SendInvites( CLIENT *Client )
-{
-	C2C *c2c;
-	
-	assert( Client != NULL );
-	
-	c2c = My_Invites;
-	while( c2c )
-	{
-		if( ! IRC_WriteStrClient( Client, "MODE %s +I %s", Channel_Name( c2c->channel ), c2c->mask )) return DISCONNECTED;
-		c2c = c2c->next;
-	}
-	return CONNECTED;
-} /* Lists_SendInvites */
-
-
-GLOBAL bool
-Lists_SendBans( CLIENT *Client )
-{
-	C2C *c2c;
-	
-	assert( Client != NULL );
-	
-	c2c = My_Bans;
-	while( c2c )
-	{
-		if( ! IRC_WriteStrClient( Client, "MODE %s +b %s", Channel_Name( c2c->channel ), c2c->mask )) return DISCONNECTED;
-		c2c = c2c->next;
-	}
-	return CONNECTED;
-} /* Lists_SendBans */
-
-
-GLOBAL bool
-Lists_CheckBanned( CLIENT *Client, CHANNEL *Chan )
-{
-	return Check_List( &My_Bans, Client, Chan );
-} /* Lists_CheckBanned */
-
-
-GLOBAL bool
-Lists_IsBanEntry( char *Mask, CHANNEL *Chan )
-{
-	assert( Mask != NULL );
-	assert( Chan != NULL );
-	
-	return Already_Registered( My_Bans, Mask, Chan );
-} /* Lists_IsBanEntry */
-
-
-GLOBAL bool
-Lists_AddBanned( char *Mask, CHANNEL *Chan )
-{
-	C2C *c2c;
-
-	assert( Mask != NULL );
-	assert( Chan != NULL );
-
-	if( Already_Registered( My_Bans, Mask, Chan )) return true;
-
-	c2c = New_C2C( Mask, Chan, false );
-	if( ! c2c )
-	{
-		Log( LOG_ERR, "Can't add new ban list entry!" );
-		return false;
-	}
-
-	/* verketten */
-	c2c->next = My_Bans;
-	My_Bans = c2c;
-
-	Log( LOG_DEBUG, "Added \"%s\" to ban list for \"%s\".", Mask, Channel_Name( Chan ));
-	return true;
-} /* Lists_AddBanned */
+}
 
 
 GLOBAL void
-Lists_DelBanned( char *Mask, CHANNEL *Chan )
+Lists_Free(struct list_head *head)
 {
-	C2C *c2c, *last, *next;
+	struct list_elem *e, *victim;
 
-	assert( Mask != NULL );
-	assert( Chan != NULL );
+	assert(head != NULL);
 
-	last = NULL;
-	c2c = My_Bans;
-	while( c2c )
-	{
-		next = c2c->next;
-		if(( c2c->channel == Chan ) && ( strcasecmp( c2c->mask, Mask ) == 0 ))
-		{
-			/* dieser Eintrag muss geloescht werden */
-			Log( LOG_DEBUG, "Deleted \"%s\" from ban list for \"%s\"." , c2c->mask, Channel_Name( Chan ));
-			if( last ) last->next = next;
-			else My_Bans = next;
-			free( c2c );
-		}
-		else last = c2c;
-		c2c = next;
+	e = head->first;
+	head->first = NULL;
+	while (e) {
+		LogDebug("Deleted \"%s\" from invite list" , e->mask);
+		victim = e;
+		e = e->next;
+		free( victim );
 	}
-} /* Lists_DelBanned */
+}
 
 
 GLOBAL bool
-Lists_ShowBans( CLIENT *Client, CHANNEL *Channel )
+Lists_CheckDupeMask(const struct list_head *h, const char *Mask )
 {
-	C2C *c2c;
-
-	assert( Client != NULL );
-	assert( Channel != NULL );
-
-	c2c = My_Bans;
-	while( c2c )
-	{
-		if( c2c->channel == Channel )
-		{
-			/* Eintrag fuer Channel gefunden; ausgeben: */
-			if( ! IRC_WriteStrClient( Client, RPL_BANLIST_MSG, Client_ID( Client ), Channel_Name( Channel ), c2c->mask )) return DISCONNECTED;
-		}
-		c2c = c2c->next;
+	struct list_elem *e;
+	e = h->first;
+	while (e) {
+		if (strcasecmp( e->mask, Mask ) == 0 )
+			return true;
+		e = e->next;
 	}
-	return IRC_WriteStrClient( Client, RPL_ENDOFBANLIST_MSG, Client_ID( Client ), Channel_Name( Channel ));
-} /* Lists_ShowBans */
-
-
-GLOBAL void
-Lists_DeleteChannel( CHANNEL *Chan )
-{
-	/* Channel wurde geloescht, Invite- und Ban-Lists aufraeumen */
-
-	C2C *c2c, *last, *next;
-
-	/* Invite-List */
-	last = NULL;
-	c2c = My_Invites;
-	while( c2c )
-	{
-		next = c2c->next;
-		if( c2c->channel == Chan )
-		{
-			/* dieser Eintrag muss geloescht werden */
-			Log( LOG_DEBUG, "Deleted \"%s\" from invite list for \"%s\"." , c2c->mask, Channel_Name( Chan ));
-			if( last ) last->next = next;
-			else My_Invites = next;
-			free( c2c );
-		}
-		else last = c2c;
-		c2c = next;
-	}
-
-	/* Ban-List */
-	last = NULL;
-	c2c = My_Bans;
-	while( c2c )
-	{
-		next = c2c->next;
-		if( c2c->channel == Chan )
-		{
-			/* dieser Eintrag muss geloescht werden */
-			Log( LOG_DEBUG, "Deleted \"%s\" from ban list for \"%s\"." , c2c->mask, Channel_Name( Chan ));
-			if( last ) last->next = next;
-			else My_Bans = next;
-			free( c2c );
-		}
-		else last = c2c;
-		c2c = next;
-	}
-} /* Lists_DeleteChannel */
+	return false;
+}
 
 
 GLOBAL char *
@@ -407,82 +212,30 @@ Lists_MakeMask( char *Pattern )
 } /* Lists_MakeMask */
 
 
-static C2C *
-New_C2C( char *Mask, CHANNEL *Chan, bool OnlyOnce )
+
+bool
+Lists_Check( struct list_head *header, CLIENT *Client)
 {
-	C2C *c2c;
-	
-	assert( Mask != NULL );
-	assert( Chan != NULL );
+	struct list_elem *e, *last;
 
-	/* Speicher fuer Eintrag anfordern */
-	c2c = (C2C *)malloc( sizeof( C2C ));
-	if( ! c2c )
-	{
-		Log( LOG_EMERG, "Can't allocate memory! [New_C2C]" );
-		return NULL;
-	}
+	assert( header != NULL );
 
-	strlcpy( c2c->mask, Mask, sizeof( c2c->mask ));
-	c2c->channel = Chan;
-	c2c->onlyonce = OnlyOnce;
-
-	return c2c;
-} /* New_C2C */
-
-
-static bool
-Check_List( C2C **Cl2Chan, CLIENT *Client, CHANNEL *Chan )
-{
-	C2C *c2c, *last;
-
-	assert( Cl2Chan != NULL );
-	assert( Client != NULL );
-	assert( Chan != NULL );
-
-	c2c = *Cl2Chan;
+	e = header->first;
 	last = NULL;
 
-	while( c2c )
-	{
-		if( c2c->channel == Chan )
-		{
-			/* Ok, richtiger Channel. Passt die Maske? */
-			if( Match( c2c->mask, Client_Mask( Client )))
-			{
-				/* Treffer! */
-				if( c2c->onlyonce )
-				{
-					/* Eintrag loeschen */
-					Log( LOG_DEBUG, "Deleted \"%s\" from %s list for \"%s\".", c2c->mask, *Cl2Chan == My_Invites ? "invite" : "ban", Channel_Name( Chan ));
-					if( last ) last->next = c2c->next;
-					else *Cl2Chan = c2c->next;
-					free( c2c );
-				}
-				return true;
+	while( e ) {
+		if( Match( e->mask, Client_Mask( Client ))) {
+			if( e->onlyonce ) { /* delete entry */
+				LogDebug("Deleted \"%s\" from list", e->mask);
+				Lists_Unlink(header, last, e);
 			}
+			return true;
 		}
-		last = c2c;
-		c2c = c2c->next;
+		last = e;
+		e = e->next;
 	}
 
 	return false;
-} /* Check_List */
-
-
-static bool
-Already_Registered( C2C *List, char *Mask, CHANNEL *Chan )
-{
-	C2C *c2c;
-
-	c2c = List;
-	while( c2c )
-	{
-		if(( c2c->channel == Chan ) && ( strcasecmp( c2c->mask, Mask ) == 0 )) return true;
-		c2c = c2c->next;
-	}
-	return false;
-} /* Already_Registered */
-
+}
 
 /* -eof- */

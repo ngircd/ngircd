@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: channel.h,v 1.29.2.1 2006/12/02 13:08:02 fw Exp $
+ * $Id: channel.h,v 1.29.2.2 2007/04/03 20:23:31 fw Exp $
  *
  * Channel management (header)
  */
@@ -20,6 +20,7 @@
 
 #if defined(__channel_c__) | defined(S_SPLINT_S)
 
+#include "lists.h"
 #include "defines.h"
 #include "array.h"
 
@@ -36,6 +37,8 @@ typedef struct _CHANNEL
 #endif
 	char key[CLIENT_PASS_LEN];	/* Channel key ("password", mode "k" ) */
 	unsigned long maxusers;		/* Maximum number of members (mode "l") */
+	struct list_head list_bans;	/* list head of banned users */
+	struct list_head list_invites;	/* list head of invited users */
 } CHANNEL;
 
 typedef struct _CLIENT2CHAN
@@ -53,6 +56,8 @@ typedef POINTER CL2CHAN;
 
 #endif
 
+GLOBAL struct list_head *Channel_GetListBans PARAMS((CHANNEL *c));
+GLOBAL struct list_head *Channel_GetListInvites PARAMS((CHANNEL *c));
 
 GLOBAL void Channel_Init PARAMS(( void ));
 GLOBAL void Channel_InitPredefined PARAMS((  void ));
@@ -68,7 +73,6 @@ GLOBAL void Channel_Kick PARAMS((  CLIENT *Client, CLIENT *Origin, char *Name, c
 GLOBAL unsigned long Channel_Count PARAMS(( void ));
 GLOBAL unsigned long Channel_MemberCount PARAMS(( CHANNEL *Chan ));
 GLOBAL int Channel_CountForUser PARAMS(( CLIENT *Client ));
-GLOBAL int Channel_PCount PARAMS(( void ));
 
 GLOBAL const char *Channel_Name PARAMS(( const CHANNEL *Chan ));
 GLOBAL char *Channel_Modes PARAMS(( CHANNEL *Chan ));
@@ -114,8 +118,10 @@ GLOBAL unsigned int Channel_TopicTime PARAMS(( CHANNEL *Chan ));
 GLOBAL char *Channel_TopicWho PARAMS(( CHANNEL *Chan ));
 #endif
 
+GLOBAL bool Channel_AddInvite PARAMS((CHANNEL *c, const char *Mask, bool OnlyOnce ));
+GLOBAL bool Channel_AddBan PARAMS((CHANNEL *c, const char *Mask ));
 
+GLOBAL bool Channel_ShowBans PARAMS((CLIENT *client, CHANNEL *c));
+GLOBAL bool Channel_ShowInvites PARAMS((CLIENT *client, CHANNEL *c));
 #endif
-
-
 /* -eof- */

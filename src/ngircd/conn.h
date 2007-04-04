@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conn.h,v 1.42 2006/05/10 21:24:01 alex Exp $
+ * $Id: conn.h,v 1.43 2007/04/04 21:52:12 fw Exp $
  *
  * Connection management (header)
  */
@@ -83,7 +83,7 @@ GLOBAL long WCounter;
 GLOBAL void Conn_Init PARAMS((void ));
 GLOBAL void Conn_Exit PARAMS(( void ));
 
-GLOBAL int Conn_InitListeners PARAMS(( void ));
+GLOBAL unsigned int Conn_InitListeners PARAMS(( void ));
 GLOBAL void Conn_ExitListeners PARAMS(( void ));
 
 GLOBAL void Conn_Handler PARAMS(( void ));

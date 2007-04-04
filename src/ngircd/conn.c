@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.203 2007/02/21 11:06:06 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.204 2007/04/04 21:52:12 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -259,10 +259,10 @@ Conn_Exit( void )
 } /* Conn_Exit */
 
 
-static int
+static unsigned int
 ports_initlisteners(array *a, void (*func)(int,short))
 {
-	int created = 0;
+	unsigned int created = 0;
 	size_t len;
 	int fd;
 	UINT16 *port;
@@ -290,12 +290,12 @@ ports_initlisteners(array *a, void (*func)(int,short))
 }
 
 
-GLOBAL int
+GLOBAL unsigned int
 Conn_InitListeners( void )
 {
 	/* Initialize ports on which the server should accept connections */
 
-	int created;
+	unsigned int created;
 
 	if (!io_library_init(CONNECTION_POOL)) {
 		Log(LOG_EMERG, "Cannot initialize IO routines: %s", strerror(errno));
@@ -692,7 +692,7 @@ Conn_Close( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool InformClient )
 
 	/* Mark link as "closing" */
 	Conn_OPTION_ADD( &My_Connections[Idx], CONN_ISCLOSING );
-		
+
 	if (LogMsg)
 		txt = LogMsg;
 	else
@@ -720,7 +720,6 @@ Conn_Close( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool InformClient )
 			 (double)My_Connections[Idx].bytes_out / 1024);
 		}
 #endif
-
 		/* Send ERROR to client (see RFC!) */
 		if (FwdMsg)
 			Conn_WriteStr(Idx, "ERROR :%s", FwdMsg);
@@ -1632,9 +1631,9 @@ Conn_GetClient( CONN_ID Idx )
 	assert( Idx >= 0 );
 
 	c = array_get(&My_ConnArray, sizeof (CONNECTION), (size_t)Idx);
-	
+
 	assert(c != NULL);
-	
+
 	return c ? c->client : NULL;
 }
 

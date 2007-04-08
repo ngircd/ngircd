@@ -1,7 +1,7 @@
 
                      ngIRCd - Next Generation IRC Server
 
-                        (c)2001-2006 Alexander Barton,
+                        (c)2001-2007 Alexander Barton,
                     alex@barton.de, http://www.barton.de/
 
                ngIRCd is free software and published under the
@@ -9,6 +9,14 @@
 
                                   -- NEWS --
 
+
+ngIRCd HEAD
+
+  - Predefined channel configuration now allows specification of channel key
+    (mode k) and maximum user count (mode l): variables "Key" and "MaxUsers".
+  - When using the epoll() IO interface, compile in the select() interface as
+    well and fall back to it when epoll() isn't available on runtime.
+  - Added support for IO APIs "poll()" and "/dev/poll".
 
 ngIRCd 0.10.1 (2006-12-17)
 
@@ -229,4 +237,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.78 2006/12/17 21:00:30 alex Exp $
+$Id: NEWS,v 1.79 2007/04/08 11:39:08 alex Exp $

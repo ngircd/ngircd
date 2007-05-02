@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.204 2007/04/04 21:52:12 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.205 2007/05/02 12:34:31 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -1099,8 +1099,7 @@ Read_Request( CONN_ID Idx )
 	} else
 #endif
 	{
-		readbuf[len] = 0;
-		if (!array_cats( &My_Connections[Idx].rbuf, readbuf )) {
+		if (!array_catb( &My_Connections[Idx].rbuf, readbuf, len)) {
 			Log( LOG_ERR, "Could not append recieved data to input buffer (connn %d): %d bytes!", Idx, len );
 			Conn_Close( Idx, "Receive buffer overflow!", NULL, false );
 		}

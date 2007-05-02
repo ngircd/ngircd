@@ -12,6 +12,7 @@
 
 ngIRCd HEAD
 
+  - fix compressed server links (broken since 0.10.0)
   - Adjust path names in manual pages according to "./configure" settings.
   - Predefined channel configuration now allows specification of channel key
     (mode k) and maximum user count (mode l): variables "Key" and "MaxUsers".
@@ -685,4 +686,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.314 2007/04/08 11:39:08 alex Exp $
+$Id: ChangeLog,v 1.315 2007/05/02 12:34:30 fw Exp $

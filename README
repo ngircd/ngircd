@@ -1,7 +1,7 @@
 
                      ngIRCd - Next Generation IRC Server
 
-                        (c)2001-2006 Alexander Barton,
+                        (c)2001-2007 Alexander Barton,
                     alex@barton.de, http://www.barton.de/
 
                ngIRCd is free software and published under the
@@ -18,6 +18,8 @@ is developed and published under the terms of the GNU General Public
 Licence (URL: http://www.gnu.org/licenses/gpl.html). ngIRCd means "next
 generation IRC daemon", it's written from scratch and not deduced from the
 "grandfather of IRC daemons", the daemon of the IRCNet.
+
+Please see the INSTALL document for installation and upgrade information!
 
 
 II. Status
@@ -84,4 +86,4 @@ mail to <alex@barton.de>.
 
 
 -- 
-$Id: README,v 1.21.2.1 2006/08/02 08:19:38 alex Exp $
+$Id: README,v 1.21.2.2 2007/05/05 20:25:20 alex Exp $

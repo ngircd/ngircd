@@ -1,7 +1,7 @@
 
                      ngIRCd - Next Generation IRC Server
 
-                        (c)2001-2006 Alexander Barton,
+                        (c)2001-2007 Alexander Barton,
                     alex@barton.de, http://www.barton.de/
 
                ngIRCd is free software and published under the
@@ -685,4 +685,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.302.2.12 2007/05/02 12:22:43 fw Exp $
+$Id: ChangeLog,v 1.302.2.13 2007/05/05 20:25:19 alex Exp $

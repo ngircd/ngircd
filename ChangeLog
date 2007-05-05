@@ -10,9 +10,9 @@
                                -- ChangeLog --
 
 
-ngIRCd 0.10.2
+ngIRCd 0.10.2 (2007-05-05)
 
-  - fix compressed server links (broken since 0.10.0)
+  - Fix compressed server links (broken since 0.10.0).
   - Predefined Channel configuration now allows specification of channel key
     (mode k) and maximum user count (mode l).
   - When using epoll() IO interface, compile in the select() interface as
@@ -685,4 +685,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.302.2.13 2007/05/05 20:25:19 alex Exp $
+$Id: ChangeLog,v 1.302.2.14 2007/05/05 20:43:11 alex Exp $

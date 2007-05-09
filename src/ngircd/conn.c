@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.206 2007/05/09 08:55:14 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.207 2007/05/09 13:21:11 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -83,6 +83,7 @@ static char UNUSED id[] = "$Id: conn.c,v 1.206 2007/05/09 08:55:14 fw Exp $";
 
 
 static bool Handle_Write PARAMS(( CONN_ID Idx ));
+static bool Conn_Write PARAMS(( CONN_ID Idx, char *Data, size_t Len ));
 static int New_Connection PARAMS(( int Sock ));
 static CONN_ID Socket2Index PARAMS(( int Sock ));
 static void Read_Request PARAMS(( CONN_ID Idx ));
@@ -607,12 +608,16 @@ va_dcl
 } /* Conn_WriteStr */
 
 
-GLOBAL bool
+/**
+ * Append Data to outbound write buf.
+ * @param Idx Index fo the connection.
+ * @param Data pointer to data
+ * @param Len length of Data
+ * @return true on success, false otherwise.
+ */
+static bool
 Conn_Write( CONN_ID Idx, char *Data, size_t Len )
 {
-	/* Daten in Socket schreiben. Bei "fatalen" Fehlern wird
-	 * der Client disconnectiert und false geliefert. */
-
 	CLIENT *c;
 	size_t writebuf_limit = WRITEBUFFER_LEN;
 	assert( Idx > NONE );
@@ -623,21 +628,19 @@ Conn_Write( CONN_ID Idx, char *Data, size_t Len )
 	assert( c != NULL);
 	if (Client_Type(c) == CLIENT_SERVER)
 		writebuf_limit = WRITEBUFFER_LEN * 10;
-	/* Ist der entsprechende Socket ueberhaupt noch offen? In einem
-	 * "Handler-Durchlauf" kann es passieren, dass dem nicht mehr so
-	 * ist, wenn einer von mehreren Conn_Write()'s fehlgeschlagen ist.
-	 * In diesem Fall wird hier einfach ein Fehler geliefert. */
+	/* Is the socket still open? A previous call to Conn_Write()
+	 * may have closed the connection due to a fatal error.
+	 * In this case it is sufficient to return an error */
 	if( My_Connections[Idx].sock <= NONE ) {
 		LogDebug("Skipped write on closed socket (connection %d).", Idx );
 		return false;
 	}
 
-	/* Pruefen, ob im Schreibpuffer genuegend Platz ist. Ziel ist es,
-	 * moeglichts viel im Puffer zu haben und _nicht_ gleich alles auf den
-	 * Socket zu schreiben (u.a. wg. Komprimierung). */
+	/* check if outbound buffer has enough space for data.
+	 * the idea is to keep data buffered  before sending, e.g. to improve
+	 * compression */
 	if (array_bytes(&My_Connections[Idx].wbuf) >= writebuf_limit) {
-		/* Der Puffer ist dummerweise voll. Jetzt versuchen, den Puffer
-		 * zu schreiben, wenn das nicht klappt, haben wir ein Problem ... */
+		/* Buffer is full, flush. Handle_Write deals with low-level errors, if any. */
 		if( ! Handle_Write( Idx )) return false;
 
 		/* check again: if our writebuf is twice als large as the initial limit: Kill connection */
@@ -651,13 +654,13 @@ Conn_Write( CONN_ID Idx, char *Data, size_t Len )
 
 #ifdef ZLIB
 	if ( Conn_OPTION_ISSET( &My_Connections[Idx], CONN_ZIP )) {
-		/* Daten komprimieren und in Puffer kopieren */
+		/* compress and move data to write buffer */
 		if( ! Zip_Buffer( Idx, Data, Len )) return false;
 	}
 	else
 #endif
 	{
-		/* Daten in Puffer kopieren */
+		/* copy data to write buffer */
 		if (!array_catb( &My_Connections[Idx].wbuf, Data, Len ))
 			return false;
 

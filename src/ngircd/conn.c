@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.205 2007/05/02 12:34:31 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.206 2007/05/09 08:55:14 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -613,10 +613,16 @@ Conn_Write( CONN_ID Idx, char *Data, size_t Len )
 	/* Daten in Socket schreiben. Bei "fatalen" Fehlern wird
 	 * der Client disconnectiert und false geliefert. */
 
+	CLIENT *c;
+	size_t writebuf_limit = WRITEBUFFER_LEN;
 	assert( Idx > NONE );
 	assert( Data != NULL );
 	assert( Len > 0 );
 
+	c = Conn_GetClient(Idx);
+	assert( c != NULL);
+	if (Client_Type(c) == CLIENT_SERVER)
+		writebuf_limit = WRITEBUFFER_LEN * 10;
 	/* Ist der entsprechende Socket ueberhaupt noch offen? In einem
 	 * "Handler-Durchlauf" kann es passieren, dass dem nicht mehr so
 	 * ist, wenn einer von mehreren Conn_Write()'s fehlgeschlagen ist.
@@ -629,14 +635,15 @@ Conn_Write( CONN_ID Idx, char *Data, size_t Len )
 	/* Pruefen, ob im Schreibpuffer genuegend Platz ist. Ziel ist es,
 	 * moeglichts viel im Puffer zu haben und _nicht_ gleich alles auf den
 	 * Socket zu schreiben (u.a. wg. Komprimierung). */
-	if( array_bytes(&My_Connections[Idx].wbuf) >= WRITEBUFFER_LEN) {
+	if (array_bytes(&My_Connections[Idx].wbuf) >= writebuf_limit) {
 		/* Der Puffer ist dummerweise voll. Jetzt versuchen, den Puffer
 		 * zu schreiben, wenn das nicht klappt, haben wir ein Problem ... */
 		if( ! Handle_Write( Idx )) return false;
 
 		/* check again: if our writebuf is twice als large as the initial limit: Kill connection */
-		if( array_bytes(&My_Connections[Idx].wbuf) >= (WRITEBUFFER_LEN*2)) {
-			Log( LOG_NOTICE, "Write buffer overflow (connection %d)!", Idx );
+		if (array_bytes(&My_Connections[Idx].wbuf) >= (writebuf_limit*2)) {
+			Log(LOG_NOTICE, "Write buffer overflow (connection %d, size %lu byte)!", Idx,
+					(unsigned long) array_bytes(&My_Connections[Idx].wbuf));
 			Conn_Close( Idx, "Write buffer overflow!", NULL, false );
 			return false;
 		}
@@ -1048,18 +1055,22 @@ Read_Request( CONN_ID Idx )
 	/* Daten von Socket einlesen und entsprechend behandeln.
 	 * Tritt ein Fehler auf, so wird der Socket geschlossen. */
 
+	size_t readbuf_limit = READBUFFER_LEN;
 	ssize_t len;
-	char readbuf[1024];
+	char readbuf[READBUFFER_LEN];
 	CLIENT *c;
-
 	assert( Idx > NONE );
 	assert( My_Connections[Idx].sock > NONE );
 
+	c = Conn_GetClient(Idx);
+	assert ( c != NULL);
+	if (Client_Type(c) == CLIENT_SERVER)
+		readbuf_limit = READBUFFER_LEN * 10;
 #ifdef ZLIB
-	if (( array_bytes(&My_Connections[Idx].rbuf) >= READBUFFER_LEN ) ||
-		( array_bytes(&My_Connections[Idx].zip.rbuf) >= ZREADBUFFER_LEN ))
+	if ((array_bytes(&My_Connections[Idx].rbuf) >= readbuf_limit) ||
+		(array_bytes(&My_Connections[Idx].zip.rbuf) >= readbuf_limit))
 #else
-	if ( array_bytes(&My_Connections[Idx].rbuf) >= READBUFFER_LEN )
+	if (array_bytes(&My_Connections[Idx].rbuf) >= readbuf_limit)
 #endif
 	{
 		/* Der Lesepuffer ist voll */
@@ -1069,7 +1080,7 @@ Read_Request( CONN_ID Idx )
 		return;
 	}
 
-	len = read( My_Connections[Idx].sock, readbuf, sizeof readbuf -1 );
+	len = read(My_Connections[Idx].sock, readbuf, sizeof(readbuf));
 	if( len == 0 ) {
 		Log( LOG_INFO, "%s:%d (%s) is closing the connection ...",
 			My_Connections[Idx].host, ntohs( My_Connections[Idx].addr.sin_port),
@@ -1218,11 +1229,6 @@ Handle_Buffer( CONN_ID Idx )
 			/* The last Command activated Socket-Compression.
 			 * Data that was read after that needs to be copied to Unzip-buf
 			 * for decompression */
-			if( array_bytes(&My_Connections[Idx].rbuf)> ZREADBUFFER_LEN ) {
-				Log( LOG_ALERT, "Connection %d: No space left in unzip buf (need %u bytes)!",
-								Idx, array_bytes(&My_Connections[Idx].rbuf ));
-				return false;
-			}
 			if (!array_copy( &My_Connections[Idx].zip.rbuf, &My_Connections[Idx].rbuf ))
 				return false;
 

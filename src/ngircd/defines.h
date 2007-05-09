@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: defines.h,v 1.58 2006/06/15 20:28:15 alex Exp $
+ * $Id: defines.h,v 1.59 2007/05/09 08:55:14 fw Exp $
  */
 
 
@@ -66,17 +66,10 @@
 #define COMMAND_LEN 513			/* Max. IRC command length, see. RFC
 					   2812 section 3.2 */
 
-#define READBUFFER_LEN 2048		/* Size of the read buffer of a
+#define READBUFFER_LEN 4096		/* Size of the read buffer of a
 					   connection in bytes. */
 #define WRITEBUFFER_LEN 4096		/* Size of the write buffer of a
 					   connection in bytes. */
-
-#ifdef ZLIB
-#define ZREADBUFFER_LEN 1024		/* Size of the compressed read buffer
-					   of a connection in bytes. */
-#define ZWRITEBUFFER_LEN 4096		/* Size of the compressed write buffer
-					   of a connection in bytes. */
-#endif
 
 #define PROTOVER "0210"			/* Implemented IRC protocol version,
 					   see RFC 2813 section 4.1.1. */

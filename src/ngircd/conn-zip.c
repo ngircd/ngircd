@@ -22,7 +22,7 @@
 /* enable more zlib related debug messages: */
 /* #define DEBUG_ZLIB */
 
-static char UNUSED id[] = "$Id: conn-zip.c,v 1.11 2006/07/23 15:19:20 alex Exp $";
+static char UNUSED id[] = "$Id: conn-zip.c,v 1.12 2007/05/09 08:55:14 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -85,22 +85,23 @@ Zip_InitConn( CONN_ID Idx )
 GLOBAL bool
 Zip_Buffer( CONN_ID Idx, char *Data, size_t Len )
 {
-	/* Daten zum Komprimieren im "Kompressions-Puffer" sammeln.
-	* Es wird true bei Erfolg, sonst false geliefert. */
+	size_t buflen;
 
 	assert( Idx > NONE );
 	assert( Data != NULL );
 	assert( Len > 0 );
-	assert( Len <= ZWRITEBUFFER_LEN );
 
-	if (Len > ZWRITEBUFFER_LEN)
-		return false;
-
-	if ( array_bytes( &My_Connections[Idx].zip.wbuf ) >= ZWRITEBUFFER_LEN ) {
+	buflen = array_bytes(&My_Connections[Idx].zip.wbuf);
+	if (buflen >= WRITEBUFFER_LEN) {
 		/* compression buffer is full, flush */
 		if( ! Zip_Flush( Idx )) return false;
 	}
 
+	/* check again; if zip buf is still too large do not append data:
+	 * otherwise the zip wbuf would grow too large */
+	buflen = array_bytes(&My_Connections[Idx].zip.wbuf);
+	if (buflen >= WRITEBUFFER_LEN)
+		return false;
 	return array_catb(&My_Connections[Idx].zip.wbuf, Data, Len);
 } /* Zip_Buffer */
 
@@ -140,6 +141,7 @@ Zip_Flush( CONN_ID Idx )
 	}
 
 	assert(out->avail_out <= WRITEBUFFER_LEN);
+	assert(out->avail_out > 0); /* 0 might indicate not all data was compressed... */
 	zipbuf_used = WRITEBUFFER_LEN - out->avail_out;
 #ifdef DEBUG_ZIP
 	Log(LOG_DEBUG, "zipbuf_used: %d", zipbuf_used);

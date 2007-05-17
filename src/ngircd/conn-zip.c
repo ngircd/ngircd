@@ -22,7 +22,7 @@
 /* enable more zlib related debug messages: */
 /* #define DEBUG_ZLIB */
 
-static char UNUSED id[] = "$Id: conn-zip.c,v 1.13 2007/05/17 13:49:49 alex Exp $";
+static char UNUSED id[] = "$Id: conn-zip.c,v 1.14 2007/05/17 14:46:14 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -122,13 +122,12 @@ Zip_Flush( CONN_ID Idx )
 
 	out = &My_Connections[Idx].zip.out;
 
-	out->next_in = array_start(&My_Connections[Idx].zip.wbuf);
-	if (!out->next_in)
-		return false;
-
 	out->avail_in = (uInt)array_bytes(&My_Connections[Idx].zip.wbuf);
 	if (!out->avail_in)
 		return true;	/* nothing to do. */
+
+	out->next_in = array_start(&My_Connections[Idx].zip.wbuf);
+	assert(out->next_in != NULL);
 
 	out->next_out = zipbuf;
 	out->avail_out = (uInt)sizeof zipbuf;
@@ -193,10 +192,9 @@ Unzip_Buffer( CONN_ID Idx )
 		return true;
 
 	in = &My_Connections[Idx].zip.in;
-	
+
 	in->next_in = array_start(&My_Connections[Idx].zip.rbuf);
-	if (!in->next_in)
-		return false;
+	assert(in->next_in != NULL);
 
 	in->avail_in = z_rdatalen;
 	in->next_out = unzipbuf;

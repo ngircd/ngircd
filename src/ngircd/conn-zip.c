@@ -22,7 +22,7 @@
 /* enable more zlib related debug messages: */
 /* #define DEBUG_ZLIB */
 
-static char UNUSED id[] = "$Id: conn-zip.c,v 1.12 2007/05/09 08:55:14 fw Exp $";
+static char UNUSED id[] = "$Id: conn-zip.c,v 1.13 2007/05/17 13:49:49 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -106,12 +106,15 @@ Zip_Buffer( CONN_ID Idx, char *Data, size_t Len )
 } /* Zip_Buffer */
 
 
+/**
+ * Compress data in ZIP buffer and move result to the write buffer of
+ * the connection.
+ * @param Idx Connection handle.
+ * @retrun true on success, false otherwise.
+ */
 GLOBAL bool
 Zip_Flush( CONN_ID Idx )
 {
-	/* Daten komprimieren und in Schreibpuffer kopieren.
-	* Es wird true bei Erfolg, sonst false geliefert. */
-
 	int result;
 	unsigned char zipbuf[WRITEBUFFER_LEN];
 	int zipbuf_used = 0;
@@ -124,6 +127,8 @@ Zip_Flush( CONN_ID Idx )
 		return false;
 
 	out->avail_in = (uInt)array_bytes(&My_Connections[Idx].zip.wbuf);
+	if (!out->avail_in)
+		return true;	/* nothing to do. */
 
 	out->next_out = zipbuf;
 	out->avail_out = (uInt)sizeof zipbuf;
@@ -140,8 +145,16 @@ Zip_Flush( CONN_ID Idx )
 		return false;
 	}
 
+	if (out->avail_out <= 0) {
+		/* Not all data was compressed, because data became
+		 * bigger while compressing it. */
+		Log (LOG_ALERT, "Compression error: buffer overvlow!?");
+		Conn_Close(Idx, "Compression error!", NULL, false);
+		return false;
+	}
+
 	assert(out->avail_out <= WRITEBUFFER_LEN);
-	assert(out->avail_out > 0); /* 0 might indicate not all data was compressed... */
+
 	zipbuf_used = WRITEBUFFER_LEN - out->avail_out;
 #ifdef DEBUG_ZIP
 	Log(LOG_DEBUG, "zipbuf_used: %d", zipbuf_used);

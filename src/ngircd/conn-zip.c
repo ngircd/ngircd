@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2006 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2007 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 /* enable more zlib related debug messages: */
 /* #define DEBUG_ZLIB */
 
-static char UNUSED id[] = "$Id: conn-zip.c,v 1.15 2007/05/17 15:16:47 alex Exp $";
+static char UNUSED id[] = "$Id: conn-zip.c,v 1.16 2007/05/17 23:34:24 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -82,6 +82,16 @@ Zip_InitConn( CONN_ID Idx )
 } /* Zip_InitConn */
 
 
+/**
+ * Copy data to the compression buffer of a connection. We do collect
+ * some data there until it's full so that we can achieve better
+ * compression ratios.
+ * If the (pre-)compression buffer is full, we try to flush it ("actually
+ * compress some data") and to add the new (uncompressed) data afterwards.
+ * @param Idx Connection handle.
+ * @param Data Pointer to the data.
+ * @param Len Length of the data to add.
+ * @return true on success, false otherwise. */
 GLOBAL bool
 Zip_Buffer( CONN_ID Idx, char *Data, size_t Len )
 {
@@ -92,7 +102,7 @@ Zip_Buffer( CONN_ID Idx, char *Data, size_t Len )
 	assert( Len > 0 );
 
 	buflen = array_bytes(&My_Connections[Idx].zip.wbuf);
-	if (buflen >= WRITEBUFFER_LEN) {
+	if (buflen + Len >= WRITEBUFFER_SLINK_LEN) {
 		/* compression buffer is full, flush */
 		if( ! Zip_Flush( Idx )) return false;
 	}
@@ -100,8 +110,9 @@ Zip_Buffer( CONN_ID Idx, char *Data, size_t Len )
 	/* check again; if zip buf is still too large do not append data:
 	 * otherwise the zip wbuf would grow too large */
 	buflen = array_bytes(&My_Connections[Idx].zip.wbuf);
-	if (buflen >= WRITEBUFFER_LEN)
+	if (buflen + Len >= WRITEBUFFER_SLINK_LEN)
 		return false;
+
 	return array_catb(&My_Connections[Idx].zip.wbuf, Data, Len);
 } /* Zip_Buffer */
 
@@ -116,7 +127,7 @@ GLOBAL bool
 Zip_Flush( CONN_ID Idx )
 {
 	int result;
-	unsigned char zipbuf[WRITEBUFFER_LEN];
+	unsigned char zipbuf[WRITEBUFFER_SLINK_LEN];
 	int zipbuf_used = 0;
 	z_stream *out;
 
@@ -152,9 +163,9 @@ Zip_Flush( CONN_ID Idx )
 		return false;
 	}
 
-	assert(out->avail_out <= WRITEBUFFER_LEN);
+	assert(out->avail_out <= WRITEBUFFER_SLINK_LEN);
 
-	zipbuf_used = WRITEBUFFER_LEN - out->avail_out;
+	zipbuf_used = WRITEBUFFER_SLINK_LEN - out->avail_out;
 #ifdef DEBUG_ZIP
 	Log(LOG_DEBUG, "zipbuf_used: %d", zipbuf_used);
 #endif

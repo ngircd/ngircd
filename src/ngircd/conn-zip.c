@@ -22,7 +22,7 @@
 /* enable more zlib related debug messages: */
 /* #define DEBUG_ZLIB */
 
-static char UNUSED id[] = "$Id: conn-zip.c,v 1.14 2007/05/17 14:46:14 fw Exp $";
+static char UNUSED id[] = "$Id: conn-zip.c,v 1.15 2007/05/17 15:16:47 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -159,8 +159,11 @@ Zip_Flush( CONN_ID Idx )
 	Log(LOG_DEBUG, "zipbuf_used: %d", zipbuf_used);
 #endif
 	if (!array_catb(&My_Connections[Idx].wbuf,
-			(char *)zipbuf, (size_t) zipbuf_used))
+			(char *)zipbuf, (size_t) zipbuf_used)) {
+		Log (LOG_ALERT, "Compression error: can't copy data!?");
+		Conn_Close(Idx, "Compression error!", NULL, false);
 		return false;
+	}
 
 	My_Connections[Idx].bytes_out += zipbuf_used;
 	My_Connections[Idx].zip.bytes_out += array_bytes(&My_Connections[Idx].zip.wbuf); 

@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.207 2007/05/09 13:21:11 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.208 2007/05/17 12:39:25 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -1058,22 +1058,17 @@ Read_Request( CONN_ID Idx )
 	/* Daten von Socket einlesen und entsprechend behandeln.
 	 * Tritt ein Fehler auf, so wird der Socket geschlossen. */
 
-	size_t readbuf_limit = READBUFFER_LEN;
 	ssize_t len;
 	char readbuf[READBUFFER_LEN];
 	CLIENT *c;
 	assert( Idx > NONE );
 	assert( My_Connections[Idx].sock > NONE );
 
-	c = Conn_GetClient(Idx);
-	assert ( c != NULL);
-	if (Client_Type(c) == CLIENT_SERVER)
-		readbuf_limit = READBUFFER_LEN * 10;
 #ifdef ZLIB
-	if ((array_bytes(&My_Connections[Idx].rbuf) >= readbuf_limit) ||
-		(array_bytes(&My_Connections[Idx].zip.rbuf) >= readbuf_limit))
+	if ((array_bytes(&My_Connections[Idx].rbuf) >= READBUFFER_LEN) ||
+		(array_bytes(&My_Connections[Idx].zip.rbuf) >= READBUFFER_LEN))
 #else
-	if (array_bytes(&My_Connections[Idx].rbuf) >= readbuf_limit)
+	if (array_bytes(&My_Connections[Idx].rbuf) >= READBUFFER_LEN)
 #endif
 	{
 		/* Der Lesepuffer ist voll */

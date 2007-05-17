@@ -12,7 +12,8 @@
 
 ngIRCd HEAD
 
-  - fix compressed server links (broken since 0.10.0)
+  - Server links are allowed to use larger write buffers now (up to 50 KB).
+  - Fix compressed server links (broken since 0.10.0)
   - Adjust path names in manual pages according to "./configure" settings.
   - Predefined channel configuration now allows specification of channel key
     (mode k) and maximum user count (mode l): variables "Key" and "MaxUsers".
@@ -686,4 +687,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.315 2007/05/02 12:34:30 fw Exp $
+$Id: ChangeLog,v 1.316 2007/05/17 23:38:14 alex Exp $

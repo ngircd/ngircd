@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2005 Alexander Barton <alex@barton.de>
+ * Copyright (c)2001-2007 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.198.2.5 2007/05/09 13:21:38 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.198.2.6 2007/05/18 22:11:19 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -609,54 +609,73 @@ va_dcl
 
 
 /**
- * Append Data to outbound write buf.
- * @param Idx Index fo the connection.
- * @param Data pointer to data
- * @param Len length of Data
+ * Append Data to the outbound write buffer of a connection.
+ * @param Idx Index of the connection.
+ * @param Data pointer to the data.
+ * @param Len length of Data.
  * @return true on success, false otherwise.
  */
 static bool
 Conn_Write( CONN_ID Idx, char *Data, size_t Len )
 {
-
+	CLIENT *c;
+	size_t writebuf_limit = WRITEBUFFER_LEN;
 	assert( Idx > NONE );
 	assert( Data != NULL );
 	assert( Len > 0 );
 
+	c = Conn_GetClient(Idx);
+	assert( c != NULL);
+
+	/* Servers do get special write buffer limits, so they can generate
+	 * all the messages that are required while peering. */
+	if (Client_Type(c) == CLIENT_SERVER)
+		writebuf_limit = WRITEBUFFER_SLINK_LEN;
+
 	/* Is the socket still open? A previous call to Conn_Write()
 	 * may have closed the connection due to a fatal error.
-	 * In this case it is sufficient to return an error */
+	 * In this case it is sufficient to return an error, as well. */
 	if( My_Connections[Idx].sock <= NONE ) {
-		LogDebug("Skipped write on closed socket (connection %d).", Idx );
+		LogDebug("Skipped write on closed socket (connection %d).", Idx);
 		return false;
-	}
-
-	/* check if outbound buffer has enough space for data.
-	 * the idea is to keep data buffered  before sending, e.g. to improve
-	 * compression */
-	if( array_bytes(&My_Connections[Idx].wbuf) >= WRITEBUFFER_LEN) {
-		/* Buffer is full, flush. Handle_Write deals with low-level errors, if any. */
-		if( ! Handle_Write( Idx )) return false;
-
-		/* check again: if our writebuf is twice als large as the initial limit: Kill connection */
-		if( array_bytes(&My_Connections[Idx].wbuf) >= (WRITEBUFFER_LEN*2)) {
-			Log(LOG_NOTICE, "Write buffer overflow (connection %d, size %lu byte)!", Idx,
-					(unsigned long) array_bytes(&My_Connections[Idx].wbuf));
-			Conn_Close( Idx, "Write buffer overflow!", NULL, false );
-			return false;
-		}
 	}
 
 #ifdef ZLIB
 	if ( Conn_OPTION_ISSET( &My_Connections[Idx], CONN_ZIP )) {
-		/* compress and move data to write buffer */
-		if( ! Zip_Buffer( Idx, Data, Len )) return false;
+		/* Compressed link:
+		 * Zip_Buffer() does all the dirty work for us: it flushes
+		 * the (pre-)compression buffers if required and handles
+		 * all error conditions. */
+		if (!Zip_Buffer(Idx, Data, Len))
+			return false;
 	}
 	else
 #endif
 	{
-		/* copy data to write buffer */
-		if (!array_catb( &My_Connections[Idx].wbuf, Data, Len ))
+		/* Uncompressed link:
+		 * Check if outbound buffer has enough space for the data. */
+		if (array_bytes(&My_Connections[Idx].wbuf) + Len >=
+		    writebuf_limit) {
+			/* Buffer is full, flush it. Handle_Write deals with
+			 * low-level errors, if any. */
+			if (!Handle_Write(Idx))
+				return false;
+		}
+
+		/* When the write buffer is still too big after flushing it,
+		 * the connection will be killed. */
+		if (array_bytes(&My_Connections[Idx].wbuf) + Len >=
+		    writebuf_limit) {
+			Log(LOG_NOTICE,
+			    "Write buffer overflow (connection %d, size %lu byte)!",
+			    Idx,
+			    (unsigned long)array_bytes(&My_Connections[Idx].wbuf));
+			Conn_Close(Idx, "Write buffer overflow!", NULL, false);
+			return false;
+		}
+
+		/* Copy data to write buffer */
+		if (!array_catb(&My_Connections[Idx].wbuf, Data, Len))
 			return false;
 
 		My_Connections[Idx].bytes_out += Len;
@@ -868,24 +887,23 @@ Handle_Write( CONN_ID Idx )
 	wdatalen = array_bytes(&My_Connections[Idx].wbuf );
 
 #ifdef ZLIB
-	if (wdatalen == 0 && !array_bytes(&My_Connections[Idx].zip.wbuf)) {
-		io_event_del(My_Connections[Idx].sock, IO_WANTWRITE );
-		return true;
-	}
-
-	/* write buffer empty, but not compression buffer?
-         * -> flush compression buffer! */
-	if (wdatalen == 0)
-		Zip_Flush(Idx);
-#else
 	if (wdatalen == 0) {
-		io_event_del(My_Connections[Idx].sock, IO_WANTWRITE );
-		return true;
+		/* Write buffer is empty, so we try to flush the compression
+		 * buffer and get some data to work with from there :-) */
+		if (!Zip_Flush(Idx))
+			return false;
+
+		/* Now the write buffer most probably has changed: */
+		wdatalen = array_bytes(&My_Connections[Idx].wbuf);
 	}
 #endif
 
-	/* Zip_Flush() may have changed the write buffer ... */
-	wdatalen = array_bytes(&My_Connections[Idx].wbuf);
+	if (wdatalen == 0) {
+		/* Still no data, fine. */
+		io_event_del(My_Connections[Idx].sock, IO_WANTWRITE );
+		return true;
+	}
+
 	LogDebug
 	    ("Handle_Write() called for connection %d, %ld bytes pending ...",
 	     Idx, wdatalen);
@@ -1047,47 +1065,52 @@ Socket2Index( int Sock )
 } /* Socket2Index */
 
 
+/**
+ * Read data from the network to the read buffer. If an error occures,
+ * the socket of this connection will be shut down.
+ */
 static void
 Read_Request( CONN_ID Idx )
 {
-	/* Daten von Socket einlesen und entsprechend behandeln.
-	 * Tritt ein Fehler auf, so wird der Socket geschlossen. */
-
 	ssize_t len;
-	char readbuf[1024];
+	char readbuf[READBUFFER_LEN];
 	CLIENT *c;
-
 	assert( Idx > NONE );
 	assert( My_Connections[Idx].sock > NONE );
 
 #ifdef ZLIB
-	if (( array_bytes(&My_Connections[Idx].rbuf) >= READBUFFER_LEN ) ||
-		( array_bytes(&My_Connections[Idx].zip.rbuf) >= ZREADBUFFER_LEN ))
+	if ((array_bytes(&My_Connections[Idx].rbuf) >= READBUFFER_LEN) ||
+		(array_bytes(&My_Connections[Idx].zip.rbuf) >= READBUFFER_LEN))
 #else
-	if ( array_bytes(&My_Connections[Idx].rbuf) >= READBUFFER_LEN )
+	if (array_bytes(&My_Connections[Idx].rbuf) >= READBUFFER_LEN)
 #endif
 	{
-		/* Der Lesepuffer ist voll */
-		Log( LOG_ERR, "Receive buffer overflow (connection %d): %d bytes!", Idx,
-						array_bytes(&My_Connections[Idx].rbuf));
+		/* Read buffer is full */
+		Log(LOG_ERR,
+		    "Receive buffer overflow (connection %d): %d bytes!",
+		    Idx, array_bytes(&My_Connections[Idx].rbuf));
 		Conn_Close( Idx, "Receive buffer overflow!", NULL, false );
 		return;
 	}
 
-	len = read( My_Connections[Idx].sock, readbuf, sizeof readbuf -1 );
-	if( len == 0 ) {
-		Log( LOG_INFO, "%s:%d (%s) is closing the connection ...",
-			My_Connections[Idx].host, ntohs( My_Connections[Idx].addr.sin_port),
-					inet_ntoa( My_Connections[Idx].addr.sin_addr ));
-		Conn_Close( Idx, "Socket closed!", "Client closed connection", false );
+	len = read(My_Connections[Idx].sock, readbuf, sizeof(readbuf));
+	if (len == 0) {
+		Log(LOG_INFO, "%s:%d (%s) is closing the connection ...",
+		    My_Connections[Idx].host,
+		    ntohs(My_Connections[Idx].addr.sin_port),
+		    inet_ntoa( My_Connections[Idx].addr.sin_addr));
+		Conn_Close(Idx,
+			   "Socket closed!", "Client closed connection",
+			   false);
 		return;
 	}
 
-	if( len < 0 ) {
+	if (len < 0) {
 		if( errno == EAGAIN ) return;
-		Log( LOG_ERR, "Read error on connection %d (socket %d): %s!", Idx,
-					My_Connections[Idx].sock, strerror( errno ));
-		Conn_Close( Idx, "Read error!", "Client closed connection", false );
+		Log(LOG_ERR, "Read error on connection %d (socket %d): %s!",
+		    Idx, My_Connections[Idx].sock, strerror(errno));
+		Conn_Close(Idx, "Read error!", "Client closed connection",
+			   false);
 		return;
 	}
 #ifdef ZLIB
@@ -1223,11 +1246,6 @@ Handle_Buffer( CONN_ID Idx )
 			/* The last Command activated Socket-Compression.
 			 * Data that was read after that needs to be copied to Unzip-buf
 			 * for decompression */
-			if( array_bytes(&My_Connections[Idx].rbuf)> ZREADBUFFER_LEN ) {
-				Log( LOG_ALERT, "Connection %d: No space left in unzip buf (need %u bytes)!",
-								Idx, array_bytes(&My_Connections[Idx].rbuf ));
-				return false;
-			}
 			if (!array_copy( &My_Connections[Idx].zip.rbuf, &My_Connections[Idx].rbuf ))
 				return false;
 

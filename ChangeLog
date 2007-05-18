@@ -10,8 +10,11 @@
                                -- ChangeLog --
 
 
-ngIRCd 0.10.2 (2007-05-05)
+ngIRCd 0.10.2
 
+  - Server links are allowed to use larger write buffers now (up to 50 KB).
+
+  ngIRCd 0.10.2-pre1 (2007-05-05)
   - Fix compressed server links (broken since 0.10.0).
   - Predefined Channel configuration now allows specification of channel key
     (mode k) and maximum user count (mode l).
@@ -685,4 +688,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.302.2.14 2007/05/05 20:43:11 alex Exp $
+$Id: ChangeLog,v 1.302.2.15 2007/05/18 22:11:18 alex Exp $

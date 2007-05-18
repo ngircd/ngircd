@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2005 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2007 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: defines.h,v 1.58 2006/06/15 20:28:15 alex Exp $
+ * $Id: defines.h,v 1.58.2.1 2007/05/18 22:11:19 alex Exp $
  */
 
 
@@ -70,13 +70,8 @@
 					   connection in bytes. */
 #define WRITEBUFFER_LEN 4096		/* Size of the write buffer of a
 					   connection in bytes. */
-
-#ifdef ZLIB
-#define ZREADBUFFER_LEN 1024		/* Size of the compressed read buffer
-					   of a connection in bytes. */
-#define ZWRITEBUFFER_LEN 4096		/* Size of the compressed write buffer
-					   of a connection in bytes. */
-#endif
+#define WRITEBUFFER_SLINK_LEN 51200	/* Size of the write buffer of a
+					   server link connection in bytes. */
 
 #define PROTOVER "0210"			/* Implemented IRC protocol version,
 					   see RFC 2813 section 4.1.1. */

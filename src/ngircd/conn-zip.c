@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2006 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2007 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 /* enable more zlib related debug messages: */
 /* #define DEBUG_ZLIB */
 
-static char UNUSED id[] = "$Id: conn-zip.c,v 1.11 2006/07/23 15:19:20 alex Exp $";
+static char UNUSED id[] = "$Id: conn-zip.c,v 1.11.2.1 2007/05/18 22:11:19 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -82,47 +82,63 @@ Zip_InitConn( CONN_ID Idx )
 } /* Zip_InitConn */
 
 
+/**
+ * Copy data to the compression buffer of a connection. We do collect
+ * some data there until it's full so that we can achieve better
+ * compression ratios.
+ * If the (pre-)compression buffer is full, we try to flush it ("actually
+ * compress some data") and to add the new (uncompressed) data afterwards.
+ * @param Idx Connection handle.
+ * @param Data Pointer to the data.
+ * @param Len Length of the data to add.
+ * @return true on success, false otherwise. */
 GLOBAL bool
 Zip_Buffer( CONN_ID Idx, char *Data, size_t Len )
 {
-	/* Daten zum Komprimieren im "Kompressions-Puffer" sammeln.
-	* Es wird true bei Erfolg, sonst false geliefert. */
+	size_t buflen;
 
 	assert( Idx > NONE );
 	assert( Data != NULL );
 	assert( Len > 0 );
-	assert( Len <= ZWRITEBUFFER_LEN );
 
-	if (Len > ZWRITEBUFFER_LEN)
-		return false;
-
-	if ( array_bytes( &My_Connections[Idx].zip.wbuf ) >= ZWRITEBUFFER_LEN ) {
+	buflen = array_bytes(&My_Connections[Idx].zip.wbuf);
+	if (buflen + Len >= WRITEBUFFER_SLINK_LEN) {
 		/* compression buffer is full, flush */
 		if( ! Zip_Flush( Idx )) return false;
 	}
+
+	/* check again; if zip buf is still too large do not append data:
+	 * otherwise the zip wbuf would grow too large */
+	buflen = array_bytes(&My_Connections[Idx].zip.wbuf);
+	if (buflen + Len >= WRITEBUFFER_SLINK_LEN)
+		return false;
 
 	return array_catb(&My_Connections[Idx].zip.wbuf, Data, Len);
 } /* Zip_Buffer */
 
 
+/**
+ * Compress data in ZIP buffer and move result to the write buffer of
+ * the connection.
+ * @param Idx Connection handle.
+ * @retrun true on success, false otherwise.
+ */
 GLOBAL bool
 Zip_Flush( CONN_ID Idx )
 {
-	/* Daten komprimieren und in Schreibpuffer kopieren.
-	* Es wird true bei Erfolg, sonst false geliefert. */
-
 	int result;
-	unsigned char zipbuf[WRITEBUFFER_LEN];
+	unsigned char zipbuf[WRITEBUFFER_SLINK_LEN];
 	int zipbuf_used = 0;
 	z_stream *out;
 
 	out = &My_Connections[Idx].zip.out;
 
-	out->next_in = array_start(&My_Connections[Idx].zip.wbuf);
-	if (!out->next_in)
-		return false;
-
 	out->avail_in = (uInt)array_bytes(&My_Connections[Idx].zip.wbuf);
+	if (!out->avail_in)
+		return true;	/* nothing to do. */
+
+	out->next_in = array_start(&My_Connections[Idx].zip.wbuf);
+	assert(out->next_in != NULL);
 
 	out->next_out = zipbuf;
 	out->avail_out = (uInt)sizeof zipbuf;
@@ -139,14 +155,26 @@ Zip_Flush( CONN_ID Idx )
 		return false;
 	}
 
-	assert(out->avail_out <= WRITEBUFFER_LEN);
-	zipbuf_used = WRITEBUFFER_LEN - out->avail_out;
+	if (out->avail_out <= 0) {
+		/* Not all data was compressed, because data became
+		 * bigger while compressing it. */
+		Log (LOG_ALERT, "Compression error: buffer overvlow!?");
+		Conn_Close(Idx, "Compression error!", NULL, false);
+		return false;
+	}
+
+	assert(out->avail_out <= WRITEBUFFER_SLINK_LEN);
+
+	zipbuf_used = WRITEBUFFER_SLINK_LEN - out->avail_out;
 #ifdef DEBUG_ZIP
 	Log(LOG_DEBUG, "zipbuf_used: %d", zipbuf_used);
 #endif
 	if (!array_catb(&My_Connections[Idx].wbuf,
-			(char *)zipbuf, (size_t) zipbuf_used))
+			(char *)zipbuf, (size_t) zipbuf_used)) {
+		Log (LOG_ALERT, "Compression error: can't copy data!?");
+		Conn_Close(Idx, "Compression error!", NULL, false);
 		return false;
+	}
 
 	My_Connections[Idx].bytes_out += zipbuf_used;
 	My_Connections[Idx].zip.bytes_out += array_bytes(&My_Connections[Idx].zip.wbuf); 
@@ -178,10 +206,9 @@ Unzip_Buffer( CONN_ID Idx )
 		return true;
 
 	in = &My_Connections[Idx].zip.in;
-	
+
 	in->next_in = array_start(&My_Connections[Idx].zip.rbuf);
-	if (!in->next_in)
-		return false;
+	assert(in->next_in != NULL);
 
 	in->avail_in = z_rdatalen;
 	in->next_out = unzipbuf;

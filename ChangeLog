@@ -12,6 +12,7 @@
 
 ngIRCd 0.10.2
 
+  ngIRCd 0.10.2-pre2 (2007-05-19)
   - Server links are allowed to use larger write buffers now (up to 50 KB).
 
   ngIRCd 0.10.2-pre1 (2007-05-05)
@@ -688,4 +689,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.302.2.15 2007/05/18 22:11:18 alex Exp $
+$Id: ChangeLog,v 1.302.2.16 2007/05/19 14:22:40 alex Exp $

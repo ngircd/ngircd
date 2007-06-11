@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: channel.c,v 1.62 2006/12/29 14:09:50 fw Exp $";
+static char UNUSED id[] = "$Id: channel.c,v 1.63 2007/06/11 20:06:46 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -602,7 +602,7 @@ Channel_IsMemberOf( CHANNEL *Chan, CLIENT *Client )
 
 	assert( Chan != NULL );
 	assert( Client != NULL );
-	return Get_Cl2Chan(Chan, Client);
+	return Get_Cl2Chan(Chan, Client) != NULL;
 } /* Channel_IsMemberOf */
 
 

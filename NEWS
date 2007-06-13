@@ -12,6 +12,8 @@
 
 ngIRCd HEAD
 
+ngIRCd 0.10.2 (2007-06-08)
+
   - Predefined channel configuration now allows specification of channel key
     (mode k) and maximum user count (mode l): variables "Key" and "MaxUsers".
   - When using the epoll() IO interface, compile in the select() interface as
@@ -237,4 +239,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.79 2007/04/08 11:39:08 alex Exp $
+$Id: NEWS,v 1.80 2007/06/13 14:32:13 alex Exp $

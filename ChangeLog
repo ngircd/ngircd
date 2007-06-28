@@ -16,6 +16,8 @@ ngIRCd HEAD
   - Adjust path names in manual pages according to "./configure" settings.
   - Add new server config option to disable automatic connect. (Similar to -p
     option to ngircd, but only for the specified server) (Tassilo Schweyer)
+  - Don't connect to a server if a connection to another server within the same group
+  is in progress.
 
 ngIRCd 0.10.2 (2007-06-08)
 
@@ -696,4 +698,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.318 2007/06/28 05:15:12 fw Exp $
+$Id: ChangeLog,v 1.319 2007/06/28 15:13:38 fw Exp $

@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.209 2007/05/17 23:34:24 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.210 2007/06/28 15:13:39 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -1333,7 +1333,7 @@ Check_Servers( void )
 		if( Conf_Server[i].group > NONE ) {
 			for (n = 0; n < MAX_SERVERS; n++) {
 				if (n == i) continue;
-				if ((Conf_Server[n].conn_id > NONE) &&
+				if ((Conf_Server[n].conn_id != NONE) &&
 					(Conf_Server[n].group == Conf_Server[i].group))
 						break;
 			}
@@ -1346,7 +1346,7 @@ Check_Servers( void )
 			continue;
 
 		/* Okay, try to connect now */
-		Conf_Server[i].lasttry = time_now;
+		Conf_Server[i].conn_id = SERVER_WAIT;
 		assert(Resolve_Getfd(&Conf_Server[i].res_stat) < 0);
 		Resolve_Name(&Conf_Server[i].res_stat, Conf_Server[i].host, cb_Connect_to_Server);
 	}

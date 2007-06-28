@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-oper.c,v 1.27 2006/07/23 15:43:18 alex Exp $";
+static char UNUSED id[] = "$Id: irc-oper.c,v 1.28 2007/06/28 05:15:18 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -191,12 +191,12 @@ IRC_CONNECT(CLIENT * Client, REQUEST * Req)
 					  Client_ID(Client));
 
 	/* Bad number of parameters? */
-	if ((Req->argc != 2) && (Req->argc != 5))
+	if ((Req->argc != 1) && (Req->argc != 2) && (Req->argc != 5))
 		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 					  Client_ID(Client), Req->command);
 
 	/* Invalid port number? */
-	if (atoi(Req->argv[1]) < 1)
+	if ((Req->argc > 1) && atoi(Req->argv[1]) < 1)
 		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 					  Client_ID(Client), Req->command);
 
@@ -204,14 +204,22 @@ IRC_CONNECT(CLIENT * Client, REQUEST * Req)
 	    "Got CONNECT command from \"%s\" for \"%s\".", Client_Mask(Client),
 	    Req->argv[0]);
 
-	if (Req->argc == 2) {
+	switch (Req->argc) {
+	case 1:
+		if (!Conf_EnablePassiveServer(Req->argv[0]))
+			return IRC_WriteStrClient(Client, ERR_NOSUCHSERVER_MSG,
+						  Client_ID(Client),
+						  Req->argv[0]);
+	break;
+	case 2:
 		/* Connect configured server */
 		if (!Conf_EnableServer
 		    (Req->argv[0], (UINT16) atoi(Req->argv[1])))
 			return IRC_WriteStrClient(Client, ERR_NOSUCHSERVER_MSG,
 						  Client_ID(Client),
 						  Req->argv[0]);
-	} else {
+	break;
+	default:
 		/* Add server */
 		if (!Conf_AddServer
 		    (Req->argv[0], (UINT16) atoi(Req->argv[1]), Req->argv[2],

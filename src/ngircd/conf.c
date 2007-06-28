@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.97 2006/12/29 14:09:50 fw Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.98 2007/06/28 05:15:18 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -230,7 +230,8 @@ Conf_Test( void )
 		printf( "  Port = %u\n", (unsigned int)Conf_Server[i].port );
 		printf( "  MyPassword = %s\n", Conf_Server[i].pwd_in );
 		printf( "  PeerPassword = %s\n", Conf_Server[i].pwd_out );
-		printf( "  Group = %d\n\n", Conf_Server[i].group );
+		printf( "  Group = %d\n", Conf_Server[i].group );
+		printf( "  Passive = %s\n\n", Conf_Server[i].flags & CONF_SFLAG_DISABLED ? "yes" : "no");
 	}
 
 	for( i = 0; i < Conf_Channel_Count; i++ ) {
@@ -334,6 +335,24 @@ Conf_EnableServer( char *Name, UINT16 Port )
 	}
 	return false;
 } /* Conf_EnableServer */
+
+
+GLOBAL bool
+Conf_EnablePassiveServer(const char *Name)
+{
+	/* Enable specified server */
+	int i;
+
+	assert( Name != NULL );
+	for (i = 0; i < MAX_SERVERS; i++) {
+		if ((strcasecmp( Conf_Server[i].name, Name ) == 0) && (Conf_Server[i].port > 0)) {
+			/* BINGO! Enable server */
+			Conf_Server[i].flags &= ~CONF_SFLAG_DISABLED;
+			return true;
+		}
+	}
+	return false;
+} /* Conf_EnablePassiveServer */
 
 
 GLOBAL bool
@@ -918,6 +937,11 @@ Handle_SERVER( int Line, char *Var, char *Arg )
 		else
 #endif
 		New_Server.group = atoi( Arg );
+		return;
+	}
+	if( strcasecmp( Var, "Passive" ) == 0 ) {
+		if (Check_ArgIsTrue(Arg))
+			New_Server.flags |= CONF_SFLAG_DISABLED;
 		return;
 	}
 	

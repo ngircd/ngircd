@@ -14,6 +14,8 @@ ngIRCd HEAD
 
   - Fixed code that prevented GCC 2.95 to compile ngIRCd.
   - Adjust path names in manual pages according to "./configure" settings.
+  - Add new server config option to disable automatic connect. (Similar to -p
+    option to ngircd, but only for the specified server) (Tassilo Schweyer)
 
 ngIRCd 0.10.2 (2007-06-08)
 
@@ -694,4 +696,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.317 2007/06/13 14:32:13 alex Exp $
+$Id: ChangeLog,v 1.318 2007/06/28 05:15:12 fw Exp $

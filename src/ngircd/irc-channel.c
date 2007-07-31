@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-channel.c,v 1.39 2006/12/07 17:57:20 fw Exp $";
+static char UNUSED id[] = "$Id: irc-channel.c,v 1.40 2007/07/31 18:56:14 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -52,7 +52,9 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 	assert( Req != NULL );
 
 	/* Bad number of arguments? */
-	if(( Req->argc > 2 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	if (Req->argc < 1 || Req->argc > 2)
+		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+					  Client_ID(Client), Req->command);
 
 	/* Who is the sender? */
 	if( Client_Type( Client ) == CLIENT_SERVER ) target = Client_Search( Req->prefix );

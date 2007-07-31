@@ -10,6 +10,11 @@
                                -- ChangeLog --
 
 
+ngIRCd 0.10.3 (2007-08-01)
+
+  - SECURITY: Fixed a severe bug in handling JOIN commands, which could
+    cause the server to crash. Thanks to Sebastian Vesper, <net@veoson.net>.
+
 ngIRCd 0.10.2 (2007-06-08)
 
   ngIRCd 0.10.2-pre2 (2007-05-19)
@@ -689,4 +694,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.302.2.17 2007/06/08 09:05:23 alex Exp $
+$Id: ChangeLog,v 1.302.2.18 2007/07/31 18:54:26 alex Exp $

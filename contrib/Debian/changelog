@@ -1,3 +1,9 @@
+ngircd (0.10.3-0ab1) unstable; urgency=high
+
+  * New "upstream" release: 0.10.3 - fixing a security bug.
+
+ -- Alexander Barton <alex@barton.de>  Tue, 31 Jul 2007 21:02:52 +0200
+
 ngircd (0.10.2-0ab1) unstable; urgency=low
 
   * New "upstream" release: 0.10.2

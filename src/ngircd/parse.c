@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: parse.c,v 1.67 2006/04/23 10:37:27 fw Exp $";
+static char UNUSED id[] = "$Id: parse.c,v 1.68 2007/08/02 10:14:26 fw Exp $";
 
 /**
  * @file
@@ -93,6 +93,7 @@ COMMAND My_Commands[] =
 	{ "USER", IRC_USER, 0xFFFF, 0, 0, 0 },
 	{ "USERHOST", IRC_USERHOST, CLIENT_USER, 0, 0, 0 },
 	{ "VERSION", IRC_VERSION, CLIENT_USER|CLIENT_SERVER, 0, 0, 0 },
+	{ "WALLOPS", IRC_WALLOPS, CLIENT_USER|CLIENT_SERVER, 0, 0, 0 },
 	{ "WHO", IRC_WHO, CLIENT_USER, 0, 0, 0 },
 	{ "WHOIS", IRC_WHOIS, CLIENT_USER|CLIENT_SERVER, 0, 0, 0 },
 	{ "WHOWAS", IRC_WHOWAS, CLIENT_USER|CLIENT_SERVER, 0, 0, 0 },

@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: irc-oper.h,v 1.11 2005/03/19 18:43:48 fw Exp $
+ * $Id: irc-oper.h,v 1.12 2007/08/02 10:14:26 fw Exp $
  *
  * IRC operator commands (header)
  */
@@ -24,6 +24,7 @@ GLOBAL bool IRC_REHASH PARAMS((CLIENT *Client, REQUEST *Req ));
 GLOBAL bool IRC_RESTART PARAMS((CLIENT *Client, REQUEST *Req ));
 GLOBAL bool IRC_CONNECT PARAMS((CLIENT *Client, REQUEST *Req ));
 GLOBAL bool IRC_DISCONNECT PARAMS((CLIENT *Client, REQUEST *Req ));
+GLOBAL bool IRC_WALLOPS PARAMS(( CLIENT *Client, REQUEST *Req ));
 
 
 #endif

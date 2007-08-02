@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: defines.h,v 1.60 2007/05/17 23:34:25 alex Exp $
+ * $Id: defines.h,v 1.61 2007/08/02 10:14:26 fw Exp $
  */
 
 
@@ -54,7 +54,7 @@
 					   see RFC 2812, section 1.2.1 */
 #define CLIENT_NAME_LEN 32		/* Max. length of "real names" */
 #define CLIENT_HOST_LEN 64		/* Max. host name length */
-#define CLIENT_MODE_LEN 8		/* Max. lenth of all client modes */
+#define CLIENT_MODE_LEN 9		/* Max. lenth of all client modes */
 #define CLIENT_INFO_LEN 64		/* Max. length of server info texts */
 #define CLIENT_AWAY_LEN 128		/* Max. length of away messages */
 #define CLIENT_FLAGS_LEN 100		/* Max. length of client flags */

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-oper.c,v 1.28 2007/06/28 05:15:18 fw Exp $";
+static char UNUSED id[] = "$Id: irc-oper.c,v 1.29 2007/08/02 10:14:26 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -261,6 +261,56 @@ IRC_DISCONNECT(CLIENT *Client, REQUEST *Req )
 	if( Conn_GetClient( my_conn )) return CONNECTED;
 	else return DISCONNECTED;
 } /* IRC_CONNECT */
+
+
+GLOBAL bool
+IRC_WALLOPS( CLIENT *Client, REQUEST *Req )
+{
+	CLIENT *to, *from;
+	int client_type;
+
+	assert( Client != NULL );
+	assert( Req != NULL );
+
+	if (Req->argc != 1)
+		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG, Client_ID(Client), Req->command);
+
+	client_type = Client_Type(Client);
+	switch (client_type) {
+	case CLIENT_USER:
+		if (!Client_OperByMe(Client))
+			return IRC_WriteStrClient(Client, ERR_NOPRIVILEGES_MSG, Client_ID(Client));
+		from = Client;
+		break;
+	case CLIENT_SERVER:
+		from = Client_Search(Req->prefix);
+		break;
+	default:
+		return CONNECTED;
+	}
+
+	if (!from)
+		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG, Client_ID(Client), Req->prefix);
+
+	for (to=Client_First(); to != NULL; to=Client_Next(to)) {
+		if (Client_Conn(to) < 0) /* no local connection or WALLOPS origin */
+			continue;
+
+		client_type = Client_Type(to);
+		switch (client_type) {
+		case CLIENT_USER:
+			if (Client_HasMode(to, 'w'))
+				IRC_WriteStrClientPrefix(to, from, "WALLOPS :%s", Req->argv[0]);
+			break;
+		case CLIENT_SERVER:
+			if (to != Client)
+				IRC_WriteStrClientPrefix(to, from, "WALLOPS :%s", Req->argv[0]);
+			break;
+		}
+	}
+	return CONNECTED;
+}
+
 
 
 /* -eof- */

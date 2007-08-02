@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-mode.c,v 1.48 2006/12/07 17:57:20 fw Exp $";
+static char UNUSED id[] = "$Id: irc-mode.c,v 1.49 2007/08/02 10:14:26 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -164,6 +164,7 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 		{
 			case 'i': /* Invisible */
 			case 's': /* Server messages */
+			case 'w': /* Wallops messages */
 				x[0] = *mode_ptr;
 				break;
 

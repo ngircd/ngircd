@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conn-func.h,v 1.6 2007/04/03 22:08:10 fw Exp $
+ * $Id: conn-func.h,v 1.7 2007/10/04 15:03:56 alex Exp $
  *
  * Connection management: Global functions (header)
  */
@@ -27,6 +27,7 @@
 
 
 GLOBAL void Conn_UpdateIdle PARAMS(( CONN_ID Idx ));
+GLOBAL time_t Conn_GetSignon PARAMS((CONN_ID Idx));
 GLOBAL time_t Conn_GetIdle PARAMS(( CONN_ID Idx ));
 GLOBAL time_t Conn_LastPing PARAMS(( CONN_ID Idx ));
 GLOBAL time_t Conn_StartTime PARAMS(( CONN_ID Idx ));

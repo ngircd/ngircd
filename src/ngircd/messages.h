@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: messages.h,v 1.72 2006/12/02 14:24:36 fw Exp $
+ * $Id: messages.h,v 1.73 2007/10/04 15:03:56 alex Exp $
  *
  * IRC numerics (Header)
  */
@@ -55,7 +55,7 @@
 #define RPL_WHOISOPERATOR_MSG		"313 %s %s :is an IRC operator"
 #define RPL_WHOWASUSER_MSG		"314 %s %s %s %s * :%s"
 #define RPL_ENDOFWHO_MSG		"315 %s %s :End of WHO list"
-#define RPL_WHOISIDLE_MSG		"317 %s %s %ld :seconds idle"
+#define RPL_WHOISIDLE_MSG		"317 %s %s %lu %lu :seconds idle, signon time"
 #define RPL_ENDOFWHOIS_MSG		"318 %s %s :End of WHOIS list"
 #define RPL_WHOISCHANNELS_MSG		"319 %s %s :"
 #define RPL_LIST_MSG			"322 %s %s %ld :%s"

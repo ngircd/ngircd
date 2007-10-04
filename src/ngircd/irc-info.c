@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-info.c,v 1.37 2006/10/07 10:40:52 fw Exp $";
+static char UNUSED id[] = "$Id: irc-info.c,v 1.38 2007/10/04 15:03:56 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -707,10 +707,13 @@ IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 		if( ! IRC_WriteStrClient( from, RPL_WHOISOPERATOR_MSG, Client_ID( from ), Client_ID( c ))) return DISCONNECTED;
 	}
 
-	/* Idle (only local clients) */
-	if( Client_Conn( c ) > NONE )
-	{
-		if( ! IRC_WriteStrClient( from, RPL_WHOISIDLE_MSG, Client_ID( from ), Client_ID( c ), Conn_GetIdle( Client_Conn ( c )))) return DISCONNECTED;
+	/* Idle and signon time (local clients only!) */
+	if (Client_Conn(c) > NONE ) {
+		if (! IRC_WriteStrClient(from, RPL_WHOISIDLE_MSG,
+			Client_ID(from), Client_ID(c),
+			(unsigned long)Conn_GetIdle(Client_Conn(c)),
+			(unsigned long)Conn_GetSignon(Client_Conn(c))))
+				return DISCONNECTED;
 	}
 
 	/* Away? */

@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conn.h,v 1.44 2007/05/09 13:21:11 fw Exp $
+ * $Id: conn.h,v 1.45 2007/10/04 15:03:56 alex Exp $
  *
  * Connection management (header)
  */
@@ -59,6 +59,7 @@ typedef struct _Connection
 	char host[HOST_LEN];		/* Hostname */
 	array rbuf;			/* Read buffer */
 	array wbuf;			/* Write buffer */
+	time_t signon;			/* Signon ("connect") time */
 	time_t lastdata;		/* Last activity */
 	time_t lastping;		/* Last PING */
 	time_t lastprivmsg;		/* Last PRIVMSG */

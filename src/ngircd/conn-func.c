@@ -16,7 +16,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn-func.c,v 1.10 2006/05/10 21:24:01 alex Exp $";
+static char UNUSED id[] = "$Id: conn-func.c,v 1.11 2007/10/04 15:03:56 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -38,6 +38,16 @@ Conn_UpdateIdle( CONN_ID Idx )
 	My_Connections[Idx].lastprivmsg = time( NULL );
 }
 
+
+/*
+ * Get signon time of a connection.
+ */
+GLOBAL time_t
+Conn_GetSignon(CONN_ID Idx)
+{
+	assert(Idx > NONE);
+	return My_Connections[Idx].signon;
+}
 
 GLOBAL time_t
 Conn_GetIdle( CONN_ID Idx )

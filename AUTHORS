@@ -10,9 +10,16 @@
                        -- AUTHORS and CONTRIBUTORS --
 
 
+Note: If you have critics, patches or something else, please feel free to
+post a mail to the ngIRCd mailing list: <ngircd-ml@arthur.ath.cx> (please see
+<http://ngircd.barton.de/#ml> for details). Don't mail the contributors
+directly, if possible!
+
+
 Main Authors
 ~~~~~~~~~~~~
 Alexander Barton, <alex@barton.de> (alex)
+Florian Westphal, <westphal@foo.fh-furtwangen.de> (fw)
 
 
 Contributors
@@ -21,7 +28,6 @@ Goetz Hoffart, <goetz@hoffart.de> (goetz)
 Ilja Osthoff, <i.osthoff@gmx.net> (ilja)
 Benjamin Pineau, <ben@zouh.org>
 Sean Reifschneider, <jafo-rpms@tummy.com>
-Florian Westphal, <westphal@foo.fh-furtwangen.de> (fw)
 
 
 Code snippets
@@ -32,4 +38,4 @@ Andrew Tridgell & Martin Pool: strl{cpy|cat}()-functions
 
 
 -- 
-$Id: AUTHORS,v 1.12 2007/04/08 11:39:08 alex Exp $
+$Id: AUTHORS,v 1.13 2007/10/04 15:18:48 alex Exp $

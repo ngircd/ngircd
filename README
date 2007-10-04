@@ -37,7 +37,8 @@ Implemented IRC-commands are:
 ADMIN, AWAY, CHANINFO, CONNECT, DIE, DISCONNECT, ERROR, HELP, INVITE, ISON,
 JOIN, KICK, KILL, LINKS, LIST, LUSERS, MODE, MOTD, NAMES, NICK, NJOIN, NOTICE,
 OPER, PART, PASS, PING, PONG, PRIVMSG, QUIT, REHASH, RESTART, SERVER, SQUIT,
-STATS, TIME, TOPIC, TRACE, USER, USERHOST, VERSION, WHO, WHOIS, WHOWAS.
+STATS, TIME, TOPIC, TRACE, USER, USERHOST, VERSION, WALLOPS, WHO, WHOIS,
+WHOWAS.
 
 
 III. Features (or: why use ngIRCd?)
@@ -82,8 +83,9 @@ them at the following URL:
 There you can read about known bugs and limitations, too.
 
 If you have critics, patches or something else, please feel free to post a
-mail to <alex@barton.de>.
+mail to the ngIRCd mailing list: <ngircd-ml@arthur.ath.cx> (please see
+<http://ngircd.barton.de/#ml> for details).
 
 
 -- 
-$Id: README,v 1.24 2007/05/20 22:37:05 alex Exp $
+$Id: README,v 1.25 2007/10/04 15:18:48 alex Exp $

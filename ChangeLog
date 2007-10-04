@@ -14,11 +14,12 @@ ngIRCd HEAD
 
   - Fixed code that prevented GCC 2.95 to compile ngIRCd.
   - Adjust path names in manual pages according to "./configure" settings.
-  - Add new server config option to disable automatic connect. (Similar to -p
-    option to ngircd, but only for the specified server) (Tassilo Schweyer)
+  - Added new server configuration option "Passive" for "Server" blocks to
+    disable automatic outgoing connections (similar to -p option to ngircd,
+    but only for the specified server). (Tassilo Schweyer)
   - Don't connect to a server if a connection to another server within the
-    same group is in progress.
-  - Add support for the /WALLOPS command. Usage is restricted to irc
+    same group is already in progress.
+  - Added support for the WALLOPS command. Usage is restricted to IRC
     operators.
 
 ngIRCd 0.10.3 (2007-08-01)
@@ -705,4 +706,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.321 2007/08/02 10:16:28 fw Exp $
+$Id: ChangeLog,v 1.322 2007/10/04 10:14:52 alex Exp $

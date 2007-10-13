@@ -1,5 +1,5 @@
 .\"
-.\" $Id: ngircd.conf.5.tmpl,v 1.3 2007/06/28 05:15:14 fw Exp $
+.\" $Id: ngircd.conf.5.tmpl,v 1.4 2007/10/13 20:45:12 fw Exp $
 .\"
 .TH ngircd.conf 5 "August 2005" ngircd "ngIRCd Manual"
 .SH NAME
@@ -153,15 +153,15 @@ the config file.
 .TP
 \fBMaxConnections\fR
 Maximum number of simultaneous connection the server is allowed to accept
-(<=0: unlimited). Default: -1.
+(0: unlimited). Default: 0.
 .TP
 \fBMaxConnectionsIP\fR
 Maximum number of simultaneous connections from a single IP address that
-the server will accept (<=0: unlimited). This configuration options lowers
+the server will accept (0: unlimited). This configuration options lowers
 the risk of denial of service attacks (DoS). Default: 5.
 .TP
 \fBMaxJoins\fR
-Maximum number of channels a user can be member of (<=0: no limit).
+Maximum number of channels a user can be member of (0: no limit).
 Default: 10.
 .SH [OPERATOR]
 .I [Operator]

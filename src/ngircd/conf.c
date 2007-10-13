@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.98 2007/06/28 05:15:18 fw Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.99 2007/10/13 19:11:06 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -794,7 +794,7 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 		return;
 	}
 	if( strcasecmp( Var, "MaxConnections" ) == 0 ) {
-		/* Maximum number of connections. Values <= 0 are equal to "no limit". */
+		/* Maximum number of connections. 0 -> "no limit". */
 #ifdef HAVE_ISDIGIT
 		if( ! isdigit( (int)*Arg )) Config_Error_NaN( Line, Var);
 		else
@@ -803,7 +803,7 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 		return;
 	}
 	if( strcasecmp( Var, "MaxConnectionsIP" ) == 0 ) {
-		/* Maximum number of simultaneous connections from one IP. Values <= 0 -> "no limit" */
+		/* Maximum number of simultaneous connections from one IP. 0 -> "no limit" */
 #ifdef HAVE_ISDIGIT
 		if( ! isdigit( (int)*Arg )) Config_Error_NaN( Line, Var );
 		else
@@ -812,7 +812,7 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 		return;
 	}
 	if( strcasecmp( Var, "MaxJoins" ) == 0 ) {
-		/* Maximum number of channels a user can join. Values <= 0 are equal to "no limit". */
+		/* Maximum number of channels a user can join. 0 -> "no limit". */
 #ifdef HAVE_ISDIGIT
 		if( ! isdigit( (int)*Arg )) Config_Error_NaN( Line, Var );
 		else

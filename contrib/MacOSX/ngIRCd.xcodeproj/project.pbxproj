@@ -75,25 +75,6 @@
 		FADE2CC205F152780081A16E /* tool.h in Headers */ = {isa = PBXBuildFile; fileRef = FADE2B7905F14B530081A16E /* tool.h */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXBuildStyle section */
-		014CEA520018CE5811CA2923 /* Development */ = {
-			isa = PBXBuildStyle;
-			buildSettings = {
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				ZERO_LINK = YES;
-			};
-			name = Development;
-		};
-		FA2002770807EE21005A2F4C /* Deployment */ = {
-			isa = PBXBuildStyle;
-			buildSettings = {
-			};
-			name = Deployment;
-		};
-/* End PBXBuildStyle section */
-
 /* Begin PBXCopyFilesBuildPhase section */
 		8DD76FAF0486AB0100D96B5E /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -575,17 +556,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				GCC_PREPROCESSOR_DEFINITIONS = "SYSCONFDIR='\"/opt/ngircd/etc\"'";
-				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
-				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
-				GCC_WARN_UNUSED_LABEL = YES;
-				GCC_WARN_UNUSED_PARAMETER = YES;
-				GCC_WARN_UNUSED_VALUE = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				PRODUCT_NAME = ngIRCd;
-				WARNING_CFLAGS = "-Wall";
-			};
 			dependencies = (
 			);
 			name = ngIRCd;
@@ -606,16 +576,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
-				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
-				GCC_WARN_UNUSED_LABEL = YES;
-				GCC_WARN_UNUSED_PARAMETER = YES;
-				GCC_WARN_UNUSED_VALUE = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				PRODUCT_NAME = portabtest;
-				WARNING_CFLAGS = "-Wall";
-			};
 			dependencies = (
 			);
 			name = portabtest;
@@ -630,12 +590,6 @@
 		08FB7793FE84155DC02AAC07 /* Project object */ = {
 			isa = PBXProject;
 			buildConfigurationList = FA8B5E9D08C9DB5600B781D4 /* Build configuration list for PBXProject "ngIRCd" */;
-			buildSettings = {
-			};
-			buildStyles = (
-				014CEA520018CE5811CA2923 /* Development */,
-				FA2002770807EE21005A2F4C /* Deployment */,
-			);
 			hasScannedForEncodings = 1;
 			mainGroup = 08FB7794FE84155DC02AAC07 /* ngIRCd */;
 			projectDirPath = "";
@@ -714,11 +668,12 @@
 		FA8B5E9608C9DB5600B781D4 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				PREBINDING = NO;
 				PRODUCT_NAME = ngIRCd;
-				ZERO_LINK = YES;
+				ZERO_LINK = NO;
 			};
 			name = Development;
 		};
@@ -728,6 +683,7 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_OPTIMIZATION_LEVEL = 2;
+				PREBINDING = NO;
 				PRODUCT_NAME = ngIRCd;
 				ZERO_LINK = NO;
 			};
@@ -736,12 +692,13 @@
 		FA8B5E9A08C9DB5600B781D4 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
+				PREBINDING = NO;
 				PRODUCT_NAME = portabtest;
-				ZERO_LINK = YES;
+				ZERO_LINK = NO;
 			};
 			name = Development;
 		};
@@ -752,6 +709,7 @@
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_OPTIMIZATION_LEVEL = 2;
 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
+				PREBINDING = NO;
 				PRODUCT_NAME = portabtest;
 				ZERO_LINK = NO;
 			};
@@ -762,16 +720,17 @@
 			buildSettings = {
 				GCC_PREPROCESSOR_DEFINITIONS = "SYSCONFDIR='\"/opt/ngircd/etc\"'";
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
 				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
 				GCC_WARN_MISSING_PARENTHESES = YES;
 				GCC_WARN_PEDANTIC = YES;
 				GCC_WARN_SHADOW = YES;
 				GCC_WARN_SIGN_COMPARE = YES;
 				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = NO;
 				GCC_WARN_UNKNOWN_PRAGMAS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_LABEL = YES;
@@ -787,16 +746,17 @@
 			buildSettings = {
 				GCC_PREPROCESSOR_DEFINITIONS = "SYSCONFDIR='\"/opt/ngircd/etc\"'";
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
 				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
 				GCC_WARN_MISSING_PARENTHESES = YES;
 				GCC_WARN_PEDANTIC = YES;
 				GCC_WARN_SHADOW = YES;
 				GCC_WARN_SIGN_COMPARE = YES;
 				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = NO;
 				GCC_WARN_UNKNOWN_PRAGMAS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_LABEL = YES;

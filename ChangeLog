@@ -12,6 +12,7 @@
 
 ngIRCd HEAD
 
+  - Fixed propagation of channel mode 'P' on server links.
   - Numeric 317: implemented "signon time" (displayed in WHOIS result).
   - Fixed code that prevented GCC 2.95 to compile ngIRCd.
   - Adjust path names in manual pages according to "./configure" settings.
@@ -707,4 +708,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.323 2007/10/04 15:03:55 alex Exp $
+$Id: ChangeLog,v 1.324 2007/10/14 12:09:04 alex Exp $

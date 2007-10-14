@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-mode.c,v 1.49 2007/08/02 10:14:26 fw Exp $";
+static char UNUSED id[] = "$Id: irc-mode.c,v 1.50 2007/10/14 12:08:57 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -432,16 +432,21 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 				break;
 
 			case 'P': /* Persistent channel */
-				if( modeok )
-				{
-					if( set && ( ! Client_OperByMe( Client )))
-					{
-						/* Only IRC operators are allowed to set P mode */
-						ok = IRC_WriteStrClient( Origin, ERR_NOPRIVILEGES_MSG, Client_ID( Origin ));
-					}
-					else x[0] = 'P';
-				}
-				else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
+				if (modeok) {
+					/* Only IRC operators are allowed to
+					 * set the 'P' channel mode! */
+					if (set && ! (Client_OperByMe(Client)
+					    || Client_Type(Client) == CLIENT_SERVER)) {
+						ok = IRC_WriteStrClient(Origin,
+							ERR_NOPRIVILEGES_MSG,
+							Client_ID(Origin));
+					} else
+						x[0] = 'P';
+				} else
+					ok = IRC_WriteStrClient(Origin,
+						ERR_CHANOPRIVSNEEDED_MSG,
+						Client_ID(Origin),
+						Channel_Name(Channel));
 				break;
 
 			/* --- Channel user modes --- */

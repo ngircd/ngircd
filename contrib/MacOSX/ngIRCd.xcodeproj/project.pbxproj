@@ -119,6 +119,8 @@
 		FA232A0A08C9E8EC0093207B /* README */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = README; path = ../README; sourceTree = SOURCE_ROOT; };
 		FA232A0B08C9E8EC0093207B /* systrace.policy */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = systrace.policy; path = ../systrace.policy; sourceTree = SOURCE_ROOT; };
 		FA83332A0627391D00A909F0 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = /usr/lib/libz.dylib; sourceTree = "<absolute>"; };
+		FA8962980CC232D3000E8B5D /* ngircd.conf.5.tmpl */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = ngircd.conf.5.tmpl; path = ../../man/ngircd.conf.5.tmpl; sourceTree = SOURCE_ROOT; };
+		FA8962990CC232D3000E8B5D /* ngircd.8.tmpl */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = ngircd.8.tmpl; path = ../../man/ngircd.8.tmpl; sourceTree = SOURCE_ROOT; };
 		FA8B5EFD08C9E4C900B781D4 /* SSL.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = SSL.txt; path = ../../doc/SSL.txt; sourceTree = SOURCE_ROOT; };
 		FA8B5EFE08C9E4C900B781D4 /* Zeroconf.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = Zeroconf.txt; path = ../../doc/Zeroconf.txt; sourceTree = SOURCE_ROOT; };
 		FAC0DF4A05F25A150024C8CE /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Makefile.am; sourceTree = SOURCE_ROOT; };
@@ -141,8 +143,6 @@
 		FADE2ABF05F149C50081A16E /* Platforms.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = Platforms.txt; path = ../../doc/Platforms.txt; sourceTree = SOURCE_ROOT; };
 		FADE2AC905F149D70081A16E /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = Makefile.am; path = ../../Makefile.am; sourceTree = SOURCE_ROOT; };
 		FADE2ACB05F149EA0081A16E /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = Makefile.am; path = ../../man/Makefile.am; sourceTree = SOURCE_ROOT; };
-		FADE2ACC05F149EA0081A16E /* ngircd.conf.5 */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = ngircd.conf.5; path = ../../man/ngircd.conf.5; sourceTree = SOURCE_ROOT; };
-		FADE2ACD05F149EA0081A16E /* ngircd.8 */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = ngircd.8; path = ../../man/ngircd.8; sourceTree = SOURCE_ROOT; };
 		FADE2AD305F14A0B0081A16E /* copyright */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = copyright; path = ../Debian/copyright; sourceTree = SOURCE_ROOT; };
 		FADE2AD405F14A0B0081A16E /* rules */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = rules; path = ../Debian/rules; sourceTree = SOURCE_ROOT; };
 		FADE2AD505F14A0B0081A16E /* ngircd.postinst */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; name = ngircd.postinst; path = ../Debian/ngircd.postinst; sourceTree = SOURCE_ROOT; };
@@ -333,8 +333,8 @@
 			isa = PBXGroup;
 			children = (
 				FADE2ACB05F149EA0081A16E /* Makefile.am */,
-				FADE2ACC05F149EA0081A16E /* ngircd.conf.5 */,
-				FADE2ACD05F149EA0081A16E /* ngircd.8 */,
+				FA8962980CC232D3000E8B5D /* ngircd.conf.5.tmpl */,
+				FA8962990CC232D3000E8B5D /* ngircd.8.tmpl */,
 			);
 			name = man;
 			sourceTree = "<group>";

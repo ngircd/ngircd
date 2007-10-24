@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.99 2007/10/13 19:11:06 fw Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.100 2007/10/24 00:48:41 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -205,9 +205,9 @@ Conf_Test( void )
 	printf( "  OperCanUseMode = %s\n", Conf_OperCanMode == true ? "yes" : "no" );
 	printf( "  OperServerMode = %s\n", Conf_OperServerMode == true? "yes" : "no" );
 	printf( "  PredefChannelsOnly = %s\n", Conf_PredefChannelsOnly == true ? "yes" : "no" );
-	printf( "  MaxConnections = %ld\n", Conf_MaxConnections>0 ? Conf_MaxConnections : -1);
-	printf( "  MaxConnectionsIP = %d\n", Conf_MaxConnectionsIP>0 ? Conf_MaxConnectionsIP : -1);
-	printf( "  MaxJoins = %d\n\n", Conf_MaxJoins>0 ? Conf_MaxJoins : -1);
+	printf( "  MaxConnections = %ld\n", Conf_MaxConnections);
+	printf( "  MaxConnectionsIP = %d\n", Conf_MaxConnectionsIP);
+	printf( "  MaxJoins = %d\n\n", Conf_MaxJoins);
 
 	for( i = 0; i < Conf_Oper_Count; i++ ) {
 		if( ! Conf_Oper[i].name[0] ) continue;
@@ -447,7 +447,7 @@ Set_Defaults( bool InitServers )
 	Conf_PredefChannelsOnly = false;
 	Conf_OperServerMode = false;
 
-	Conf_MaxConnections = -1;
+	Conf_MaxConnections = 0;
 	Conf_MaxConnectionsIP = 5;
 	Conf_MaxJoins = 10;
 

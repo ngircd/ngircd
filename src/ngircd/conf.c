@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.100 2007/10/24 00:48:41 fw Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.101 2007/10/25 11:01:19 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -205,6 +205,7 @@ Conf_Test( void )
 	printf( "  OperCanUseMode = %s\n", Conf_OperCanMode == true ? "yes" : "no" );
 	printf( "  OperServerMode = %s\n", Conf_OperServerMode == true? "yes" : "no" );
 	printf( "  PredefChannelsOnly = %s\n", Conf_PredefChannelsOnly == true ? "yes" : "no" );
+	printf( "  NoDNS = %s\n", Conf_NoDNS ? "yes" : "no");
 	printf( "  MaxConnections = %ld\n", Conf_MaxConnections);
 	printf( "  MaxConnectionsIP = %d\n", Conf_MaxConnectionsIP);
 	printf( "  MaxJoins = %d\n\n", Conf_MaxJoins);
@@ -444,6 +445,7 @@ Set_Defaults( bool InitServers )
 	Conf_Channel_Count = 0;
 
 	Conf_OperCanMode = false;
+	Conf_NoDNS = false;
 	Conf_PredefChannelsOnly = false;
 	Conf_OperServerMode = false;
 
@@ -781,6 +783,11 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 	if( strcasecmp( Var, "PredefChannelsOnly" ) == 0 ) {
 		/* Should we only allow pre-defined-channels? (i.e. users cannot create their own channels) */
 		Conf_PredefChannelsOnly = Check_ArgIsTrue( Arg );
+		return;
+	}
+	if( strcasecmp( Var, "NoDNS" ) == 0 ) {
+		/* don't do reverse dns lookups when clients connect? */
+		Conf_NoDNS = Check_ArgIsTrue( Arg );
 		return;
 	}
 	if( strcasecmp( Var, "OperCanUseMode" ) == 0 ) {

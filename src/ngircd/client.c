@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: client.c,v 1.95 2007/01/23 16:07:19 alex Exp $";
+static char UNUSED id[] = "$Id: client.c,v 1.96 2007/10/25 11:01:19 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -94,9 +94,10 @@ Client_Init( void )
 	This_Server->hops = 0;
 
 	gethostname( This_Server->host, CLIENT_HOST_LEN );
-	h = gethostbyname( This_Server->host );
-	if( h ) strlcpy( This_Server->host, h->h_name, sizeof( This_Server->host ));
-
+	if (!Conf_NoDNS) {
+		h = gethostbyname( This_Server->host );
+		if (h) strlcpy(This_Server->host, h->h_name, sizeof(This_Server->host));
+	}
 	Client_SetID( This_Server, Conf_ServerName );
 	Client_SetInfo( This_Server, Conf_ServerInfo );
 

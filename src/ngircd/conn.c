@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.212 2007/10/04 15:03:56 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.213 2007/10/25 11:01:19 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -1039,11 +1039,11 @@ New_Connection( int Sock )
 
 	Client_SetHostname( c, My_Connections[new_sock].host );
 
-	Resolve_Addr(&My_Connections[new_sock].res_stat, &new_addr,
-		My_Connections[new_sock].sock, cb_Read_Resolver_Result);
+	if (!Conf_NoDNS)
+		Resolve_Addr(&My_Connections[new_sock].res_stat, &new_addr,
+			My_Connections[new_sock].sock, cb_Read_Resolver_Result);
 
-	/* Penalty-Zeit setzen */
-	Conn_SetPenalty( new_sock, 4 );
+	Conn_SetPenalty(new_sock, 4);
 	return new_sock;
 } /* New_Connection */
 

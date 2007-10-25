@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conf.h,v 1.43 2007/06/28 05:15:18 fw Exp $
+ * $Id: conf.h,v 1.44 2007/10/25 11:01:19 fw Exp $
  *
  * Configuration management (header)
  */
@@ -117,6 +117,9 @@ GLOBAL bool Conf_PredefChannelsOnly;
 
 /* Are IRC operators allowed to always use MODE? */
 GLOBAL bool Conf_OperCanMode;
+
+/* Disable all DNS functions? */
+GLOBAL bool Conf_NoDNS;
 
 /* If an IRC op gives chanop privileges without being a chanop,
  * ircd2 will ignore the command. This enables a workaround:

@@ -1,5 +1,5 @@
 .\"
-.\" $Id: ngircd.conf.5.tmpl,v 1.4 2007/10/13 20:45:12 fw Exp $
+.\" $Id: ngircd.conf.5.tmpl,v 1.5 2007/10/25 11:01:19 fw Exp $
 .\"
 .TH ngircd.conf 5 "August 2005" ngircd "ngIRCd Manual"
 .SH NAME
@@ -150,6 +150,13 @@ by non-chanops as if they were coming from the server. Default: no.
 If enabled, no new channels can be created. Useful if
 you do not want to have channels other than those defined in
 the config file.
+Default: No.
+.TP
+\fBNoDNS\fR
+If enabled, ngircd will not make DNS lookups when clients connect.
+If you configure ngircd to connect to other servers, ngircd may still
+perform a DNS lookup if required.
+Default: No.
 .TP
 \fBMaxConnections\fR
 Maximum number of simultaneous connection the server is allowed to accept

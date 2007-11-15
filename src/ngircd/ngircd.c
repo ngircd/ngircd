@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.115 2007/04/09 01:24:05 alex Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.116 2007/11/15 01:03:01 fw Exp $";
 
 /**
  * @file
@@ -797,7 +797,7 @@ NGIRCd_Init( bool NGIRCd_NoDaemon )
 			if( chdir( pwd->pw_dir ) == 0 ) 
 				Log( LOG_DEBUG, "Changed working directory to \"%s\" ...", pwd->pw_dir );
 			else 
-				Log( LOG_ERR, "Can't change working directory to \"%s\": %s",
+				Log( LOG_INFO, "Notice: Can't change working directory to \"%s\": %s",
 								pwd->pw_dir, strerror( errno ));
 		}
 	} else {

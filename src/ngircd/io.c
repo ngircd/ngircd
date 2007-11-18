@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: io.c,v 1.25 2007/01/19 13:52:54 fw Exp $";
+static char UNUSED id[] = "$Id: io.c,v 1.26 2007/11/18 15:05:35 alex Exp $";
 
 #include <assert.h>
 #include <stdlib.h>
@@ -30,7 +30,11 @@ static char UNUSED id[] = "$Id: io.c,v 1.25 2007/01/19 13:52:54 fw Exp $";
 /* #define DEBUG_IO */
 
 typedef struct {
+#ifdef PROTOTYPES
  void (*callback)(int, short);
+#else
+ void (*callback)();
+#endif
  short what;
 } io_event;
 
@@ -88,7 +92,7 @@ static bool io_event_change_kqueue(int, short, const int action);
 static array pollfds;
 static int poll_maxfd;
 
-static bool io_event_change_poll(int fd, short what);
+static bool io_event_change_poll PARAMS((int fd, short what));
 #endif
 
 #ifdef IO_USE_DEVPOLL
@@ -524,7 +528,11 @@ io_close_devpoll(int fd)
 	write(io_masterfd, &p, sizeof p);
 }
 #else
-static inline void io_close_devpoll(int UNUSED x) { /* NOTHING */ }
+static inline void
+io_close_devpoll(int UNUSED x)
+{ 
+	/* NOTHING */
+}
 #endif
 
 
@@ -576,7 +584,11 @@ io_close_select(int fd)
 	}
 }
 #else
-static inline void io_close_select(int UNUSED x) { /* NOTHING */ }
+static inline void
+io_close_select(int UNUSED x)
+{ 
+	/* NOTHING */
+}
 #endif
 
 

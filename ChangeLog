@@ -12,6 +12,7 @@
 
 ngIRCd HEAD
 
+  - Fix code to compile using K&R C compiler and ansi2kr again.
   - New config option NoDNS: Disables DNS lookups when clients connect.
   - Fixed propagation of channel mode 'P' on server links.
   - Numeric 317: implemented "signon time" (displayed in WHOIS result).
@@ -709,4 +710,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.325 2007/10/25 11:03:02 fw Exp $
+$Id: ChangeLog,v 1.326 2007/11/18 15:05:35 alex Exp $

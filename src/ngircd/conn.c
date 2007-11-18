@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.213 2007/10/25 11:01:19 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.214 2007/11/18 15:05:35 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -349,7 +349,7 @@ NewListener( const UINT16 Port )
 	/* Server-"Listen"-Socket initialisieren */
 	memset( &addr, 0, sizeof( addr ));
 	memset( &inaddr, 0, sizeof( inaddr ));
-	addr.sin_family = (sa_family_t)AF_INET;
+	addr.sin_family = AF_INET;
 	addr.sin_port = htons( Port );
 	if( Conf_ListenAddress[0] )
 	{
@@ -1383,7 +1383,7 @@ New_Server( int Server )
 	}
 
 	memset( &new_addr, 0, sizeof( new_addr ));
-	new_addr.sin_family = (sa_family_t)AF_INET;
+	new_addr.sin_family = AF_INET;
 	new_addr.sin_addr = inaddr;
 	new_addr.sin_port = htons( Conf_Server[Server].port );
 

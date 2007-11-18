@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-info.c,v 1.38 2007/10/04 15:03:56 alex Exp $";
+static char UNUSED id[] = "$Id: irc-info.c,v 1.39 2007/11/18 15:05:35 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -885,18 +885,21 @@ IRC_Send_LUSERS( CLIENT *Client )
 } /* IRC_Send_LUSERS */
 
 
-static bool Show_MOTD_Start(CLIENT *Client)
+static bool
+Show_MOTD_Start(CLIENT *Client)
 {
 	return IRC_WriteStrClient(Client, RPL_MOTDSTART_MSG,
 		Client_ID( Client ), Client_ID( Client_ThisServer( )));
 }
 
-static bool Show_MOTD_Sendline(CLIENT *Client, const char *msg)
+static bool
+Show_MOTD_Sendline(CLIENT *Client, const char *msg)
 {
 	return IRC_WriteStrClient(Client, RPL_MOTD_MSG, Client_ID( Client ), msg);
 }
 
-static bool Show_MOTD_End(CLIENT *Client)
+static bool
+Show_MOTD_End(CLIENT *Client)
 {
 	return IRC_WriteStrClient( Client, RPL_ENDOFMOTD_MSG, Client_ID( Client ));
 }

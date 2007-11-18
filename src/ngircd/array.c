@@ -12,7 +12,7 @@
 
 #include "array.h"
 
-static char UNUSED id[] = "$Id: array.c,v 1.14 2006/12/28 12:53:41 alex Exp $";
+static char UNUSED id[] = "$Id: array.c,v 1.15 2007/11/18 15:05:35 alex Exp $";
 
 #include <assert.h>
 
@@ -28,9 +28,9 @@ static char UNUSED id[] = "$Id: array.c,v 1.14 2006/12/28 12:53:41 alex Exp $";
 
 #define array_UNUSABLE(x)	( !(x)->mem || (0 == (x)->allocated) )
 
-#define ALIGN_32U(x)            (((x)+31U  ) & ~(31U))
-#define ALIGN_1024U(x)          (((x)+1023U) & ~(1023U))
-#define ALIGN_4096U(x)          (((x)+4095U) & ~(4095U))
+#define ALIGN_32U(x)            (((x)+(unsigned)31  ) & ~((unsigned)31))
+#define ALIGN_1024U(x)          (((x)+(unsigned)1023) & ~((unsigned)1023))
+#define ALIGN_4096U(x)          (((x)+(unsigned)4095) & ~((unsigned)4095))
 
 
 static bool

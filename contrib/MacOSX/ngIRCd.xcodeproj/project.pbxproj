@@ -3,76 +3,37 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 42;
+	objectVersion = 44;
 	objects = {
 
 /* Begin PBXBuildFile section */
-		FA2329EE08C9E7A30093207B /* array.c in Sources */ = {isa = PBXBuildFile; fileRef = FA2329EC08C9E7A30093207B /* array.c */; };
-		FA2329EF08C9E7A30093207B /* array.h in Headers */ = {isa = PBXBuildFile; fileRef = FA2329ED08C9E7A30093207B /* array.h */; };
-		FA2329F208C9E7C40093207B /* io.c in Sources */ = {isa = PBXBuildFile; fileRef = FA2329F008C9E7C40093207B /* io.c */; };
-		FA2329F308C9E7C40093207B /* io.h in Headers */ = {isa = PBXBuildFile; fileRef = FA2329F108C9E7C40093207B /* io.h */; };
-		FA2329F508C9E8070093207B /* strdup.c in Sources */ = {isa = PBXBuildFile; fileRef = FA2329F408C9E8070093207B /* strdup.c */; };
-		FA2329F708C9E81A0093207B /* portab.h in Headers */ = {isa = PBXBuildFile; fileRef = FADE2B5705F14AB40081A16E /* portab.h */; };
-		FA232A7D08C9F0480093207B /* config.h in Headers */ = {isa = PBXBuildFile; fileRef = FADE2B8F05F14C6C0081A16E /* config.h */; };
-		FA83332B0627391D00A909F0 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FA83332A0627391D00A909F0 /* libz.dylib */; };
-		FADE2B2305F14A960081A16E /* irc-server.h in Headers */ = {isa = PBXBuildFile; fileRef = FADE2AF205F14A960081A16E /* irc-server.h */; };
-		FADE2B2405F14A960081A16E /* irc-op.c in Sources */ = {isa = PBXBuildFile; fileRef = FADE2AF305F14A960081A16E /* irc-op.c */; };
-		FADE2B2505F14A960081A16E /* irc-login.c in Sources */ = {isa = PBXBuildFile; fileRef = FADE2AF405F14A960081A16E /* irc-login.c */; };
-		FADE2B2605F14A960081A16E /* conn-zip.h in Headers */ = {isa = PBXBuildFile; fileRef = FADE2AF505F14A960081A16E /* conn-zip.h */; };
-		FADE2B2705F14A960081A16E /* match.h in Headers */ = {isa = PBXBuildFile; fileRef = FADE2AF605F14A960081A16E /* match.h */; };
-		FADE2B2805F14A960081A16E /* irc-oper.c in Sources */ = {isa = PBXBuildFile; fileRef = FADE2AF705F14A960081A16E /* irc-oper.c */; };
-		FADE2B2905F14A960081A16E /* irc-mode.c in Sources */ = {isa = PBXBuildFile; fileRef = FADE2AF805F14A960081A16E /* irc-mode.c */; };
-		FADE2B2A05F14A960081A16E /* conn.h in Headers */ = {isa = PBXBuildFile; fileRef = FADE2AF905F14A960081A16E /* conn.h */; };
-		FADE2B2B05F14A960081A16E /* messages.h in Headers */ = {isa = PBXBuildFile; fileRef = FADE2AFA05F14A960081A16E /* messages.h */; };
-		FADE2B2C05F14A960081A16E /* irc.h in Headers */ = {isa = PBXBuildFile; fileRef = FADE2AFB05F14A960081A16E /* irc.h */; };
-		FADE2B2D05F14A960081A16E /* conf.c in Sources */ = {isa = PBXBuildFile; fileRef = FADE2AFC05F14A960081A16E /* conf.c */; };
-		FADE2B2E05F14A960081A16E /* irc.c in Sources */ = {isa = PBXBuildFile; fileRef = FADE2AFD05F14A960081A16E /* irc.c */; };
-		FADE2B2F05F14A960081A16E /* hash.h in Headers */ = {isa = PBXBuildFile; fileRef = FADE2AFE05F14A960081A16E /* hash.h */; };
-		FADE2B3005F14A960081A16E /* parse.c in Sources */ = {isa = PBXBuildFile; fileRef = FADE2AFF05F14A960081A16E /* parse.c */; };
-		FADE2B3105F14A960081A16E /* resolve.c in Sources */ = {isa = PBXBuildFile; fileRef = FADE2B0005F14A960081A16E /* resolve.c */; };
-		FADE2B3205F14A960081A16E /* channel.c in Sources */ = {isa = PBXBuildFile; fileRef = FADE2B0105F14A960081A16E /* channel.c */; };
-		FADE2B3305F14A960081A16E /* defines.h in Headers */ = {isa = PBXBuildFile; fileRef = FADE2B0205F14A960081A16E /* defines.h */; };
-		FADE2B3405F14A960081A16E /* conf.h in Headers */ = {isa = PBXBuildFile; fileRef = FADE2B0305F14A960081A16E /* conf.h */; };
-		FADE2B3505F14A960081A16E /* rendezvous.c in Sources */ = {isa = PBXBuildFile; fileRef = FADE2B0405F14A960081A16E /* rendezvous.c */; };
-		FADE2B3605F14A960081A16E /* lists.h in Headers */ = {isa = PBXBuildFile; fileRef = FADE2B0505F14A960081A16E /* lists.h */; };
-		FADE2B3705F14A960081A16E /* ngircd.h in Headers */ = {isa = PBXBuildFile; fileRef = FADE2B0605F14A960081A16E /* ngircd.h */; };
-		FADE2B3805F14A960081A16E /* irc-channel.h in Headers */ = {isa = PBXBuildFile; fileRef = FADE2B0705F14A960081A16E /* irc-channel.h */; };
-		FADE2B3905F14A960081A16E /* channel.h in Headers */ = {isa = PBXBuildFile; fileRef = FADE2B0805F14A960081A16E /* channel.h */; };
-		FADE2B3A05F14A960081A16E /* irc-server.c in Sources */ = {isa = PBXBuildFile; fileRef = FADE2B0905F14A960081A16E /* irc-server.c */; };
-		FADE2B3B05F14A960081A16E /* log.h in Headers */ = {isa = PBXBuildFile; fileRef = FADE2B0A05F14A960081A16E /* log.h */; };
-		FADE2B3C05F14A960081A16E /* irc-mode.h in Headers */ = {isa = PBXBuildFile; fileRef = FADE2B0B05F14A960081A16E /* irc-mode.h */; };
-		FADE2B3D05F14A960081A16E /* irc-info.h in Headers */ = {isa = PBXBuildFile; fileRef = FADE2B0C05F14A960081A16E /* irc-info.h */; };
-		FADE2B3E05F14A960081A16E /* conn-zip.c in Sources */ = {isa = PBXBuildFile; fileRef = FADE2B0D05F14A960081A16E /* conn-zip.c */; };
-		FADE2B3F05F14A960081A16E /* irc-write.c in Sources */ = {isa = PBXBuildFile; fileRef = FADE2B0E05F14A960081A16E /* irc-write.c */; };
-		FADE2B4005F14A960081A16E /* match.c in Sources */ = {isa = PBXBuildFile; fileRef = FADE2B0F05F14A960081A16E /* match.c */; };
-		FADE2B4105F14A960081A16E /* irc-op.h in Headers */ = {isa = PBXBuildFile; fileRef = FADE2B1005F14A960081A16E /* irc-op.h */; };
-		FADE2B4205F14A960081A16E /* irc-login.h in Headers */ = {isa = PBXBuildFile; fileRef = FADE2B1105F14A960081A16E /* irc-login.h */; };
-		FADE2B4305F14A960081A16E /* conn.c in Sources */ = {isa = PBXBuildFile; fileRef = FADE2B1205F14A960081A16E /* conn.c */; };
-		FADE2B4405F14A960081A16E /* client.h in Headers */ = {isa = PBXBuildFile; fileRef = FADE2B1305F14A960081A16E /* client.h */; };
-		FADE2B4505F14A960081A16E /* irc-write.h in Headers */ = {isa = PBXBuildFile; fileRef = FADE2B1405F14A960081A16E /* irc-write.h */; };
-		FADE2B4605F14A960081A16E /* irc-oper.h in Headers */ = {isa = PBXBuildFile; fileRef = FADE2B1505F14A960081A16E /* irc-oper.h */; };
-		FADE2B4705F14A960081A16E /* rendezvous.h in Headers */ = {isa = PBXBuildFile; fileRef = FADE2B1605F14A960081A16E /* rendezvous.h */; };
-		FADE2B4805F14A960081A16E /* ngircd.c in Sources */ = {isa = PBXBuildFile; fileRef = FADE2B1705F14A960081A16E /* ngircd.c */; };
-		FADE2B4905F14A960081A16E /* irc-channel.c in Sources */ = {isa = PBXBuildFile; fileRef = FADE2B1805F14A960081A16E /* irc-channel.c */; };
-		FADE2B4A05F14A960081A16E /* parse.h in Headers */ = {isa = PBXBuildFile; fileRef = FADE2B1905F14A960081A16E /* parse.h */; };
-		FADE2B4B05F14A960081A16E /* lists.c in Sources */ = {isa = PBXBuildFile; fileRef = FADE2B1A05F14A960081A16E /* lists.c */; };
-		FADE2B4C05F14A960081A16E /* resolve.h in Headers */ = {isa = PBXBuildFile; fileRef = FADE2B1B05F14A960081A16E /* resolve.h */; };
-		FADE2B4D05F14A960081A16E /* hash.c in Sources */ = {isa = PBXBuildFile; fileRef = FADE2B1C05F14A960081A16E /* hash.c */; };
-		FADE2B4E05F14A960081A16E /* irc-info.c in Sources */ = {isa = PBXBuildFile; fileRef = FADE2B1D05F14A960081A16E /* irc-info.c */; };
-		FADE2B4F05F14A960081A16E /* conn-func.c in Sources */ = {isa = PBXBuildFile; fileRef = FADE2B1E05F14A960081A16E /* conn-func.c */; };
-		FADE2B5005F14A960081A16E /* log.c in Sources */ = {isa = PBXBuildFile; fileRef = FADE2B1F05F14A960081A16E /* log.c */; };
-		FADE2B5105F14A960081A16E /* client.c in Sources */ = {isa = PBXBuildFile; fileRef = FADE2B2005F14A960081A16E /* client.c */; };
-		FADE2B5205F14A960081A16E /* conn-func.h in Headers */ = {isa = PBXBuildFile; fileRef = FADE2B2105F14A960081A16E /* conn-func.h */; };
-		FADE2BBD05F14DEF0081A16E /* exp.h in Headers */ = {isa = PBXBuildFile; fileRef = FADE2B5805F14AB40081A16E /* exp.h */; };
-		FADE2BBF05F14DEF0081A16E /* imp.h in Headers */ = {isa = PBXBuildFile; fileRef = FADE2B5405F14AB40081A16E /* imp.h */; };
-		FADE2BC105F14DF10081A16E /* portab.h in Headers */ = {isa = PBXBuildFile; fileRef = FADE2B5705F14AB40081A16E /* portab.h */; };
-		FADE2BC305F14DF40081A16E /* strlcpy.c in Sources */ = {isa = PBXBuildFile; fileRef = FADE2B5905F14AB40081A16E /* strlcpy.c */; };
-		FADE2BC505F14DF50081A16E /* vsnprintf.c in Sources */ = {isa = PBXBuildFile; fileRef = FADE2B5C05F14AB40081A16E /* vsnprintf.c */; };
-		FADE2CB205F151490081A16E /* exp.h in Headers */ = {isa = PBXBuildFile; fileRef = FADE2B5805F14AB40081A16E /* exp.h */; };
-		FADE2CB305F151490081A16E /* imp.h in Headers */ = {isa = PBXBuildFile; fileRef = FADE2B5405F14AB40081A16E /* imp.h */; };
-		FADE2CB405F151490081A16E /* portabtest.c in Sources */ = {isa = PBXBuildFile; fileRef = FADE2B5A05F14AB40081A16E /* portabtest.c */; };
-		FADE2CC005F152770081A16E /* tool.c in Sources */ = {isa = PBXBuildFile; fileRef = FADE2B7805F14B530081A16E /* tool.c */; };
-		FADE2CC205F152780081A16E /* tool.h in Headers */ = {isa = PBXBuildFile; fileRef = FADE2B7905F14B530081A16E /* tool.h */; };
+		FA322D350CEF74B1001761B3 /* array.c in Sources */ = {isa = PBXBuildFile; fileRef = FA322CD90CEF74B1001761B3 /* array.c */; };
+		FA322D360CEF74B1001761B3 /* channel.c in Sources */ = {isa = PBXBuildFile; fileRef = FA322CDB0CEF74B1001761B3 /* channel.c */; };
+		FA322D370CEF74B1001761B3 /* client.c in Sources */ = {isa = PBXBuildFile; fileRef = FA322CDD0CEF74B1001761B3 /* client.c */; };
+		FA322D380CEF74B1001761B3 /* conf.c in Sources */ = {isa = PBXBuildFile; fileRef = FA322CDF0CEF74B1001761B3 /* conf.c */; };
+		FA322D390CEF74B1001761B3 /* conn-func.c in Sources */ = {isa = PBXBuildFile; fileRef = FA322CE10CEF74B1001761B3 /* conn-func.c */; };
+		FA322D3A0CEF74B1001761B3 /* conn-zip.c in Sources */ = {isa = PBXBuildFile; fileRef = FA322CE30CEF74B1001761B3 /* conn-zip.c */; };
+		FA322D3B0CEF74B1001761B3 /* conn.c in Sources */ = {isa = PBXBuildFile; fileRef = FA322CE50CEF74B1001761B3 /* conn.c */; };
+		FA322D3C0CEF74B1001761B3 /* hash.c in Sources */ = {isa = PBXBuildFile; fileRef = FA322CE80CEF74B1001761B3 /* hash.c */; };
+		FA322D3D0CEF74B1001761B3 /* io.c in Sources */ = {isa = PBXBuildFile; fileRef = FA322CEA0CEF74B1001761B3 /* io.c */; };
+		FA322D3E0CEF74B1001761B3 /* irc-channel.c in Sources */ = {isa = PBXBuildFile; fileRef = FA322CEC0CEF74B1001761B3 /* irc-channel.c */; };
+		FA322D3F0CEF74B1001761B3 /* irc-info.c in Sources */ = {isa = PBXBuildFile; fileRef = FA322CEE0CEF74B1001761B3 /* irc-info.c */; };
+		FA322D400CEF74B1001761B3 /* irc-login.c in Sources */ = {isa = PBXBuildFile; fileRef = FA322CF00CEF74B1001761B3 /* irc-login.c */; };
+		FA322D410CEF74B1001761B3 /* irc-mode.c in Sources */ = {isa = PBXBuildFile; fileRef = FA322CF20CEF74B1001761B3 /* irc-mode.c */; };
+		FA322D420CEF74B1001761B3 /* irc-op.c in Sources */ = {isa = PBXBuildFile; fileRef = FA322CF40CEF74B1001761B3 /* irc-op.c */; };
+		FA322D430CEF74B1001761B3 /* irc-oper.c in Sources */ = {isa = PBXBuildFile; fileRef = FA322CF60CEF74B1001761B3 /* irc-oper.c */; };
+		FA322D440CEF74B1001761B3 /* irc-server.c in Sources */ = {isa = PBXBuildFile; fileRef = FA322CF80CEF74B1001761B3 /* irc-server.c */; };
+		FA322D450CEF74B1001761B3 /* irc-write.c in Sources */ = {isa = PBXBuildFile; fileRef = FA322CFA0CEF74B1001761B3 /* irc-write.c */; };
+		FA322D460CEF74B1001761B3 /* irc.c in Sources */ = {isa = PBXBuildFile; fileRef = FA322CFC0CEF74B1001761B3 /* irc.c */; };
+		FA322D470CEF74B1001761B3 /* lists.c in Sources */ = {isa = PBXBuildFile; fileRef = FA322CFE0CEF74B1001761B3 /* lists.c */; };
+		FA322D480CEF74B1001761B3 /* log.c in Sources */ = {isa = PBXBuildFile; fileRef = FA322D000CEF74B1001761B3 /* log.c */; };
+		FA322D490CEF74B1001761B3 /* match.c in Sources */ = {isa = PBXBuildFile; fileRef = FA322D030CEF74B1001761B3 /* match.c */; };
+		FA322D4A0CEF74B1001761B3 /* ngircd.c in Sources */ = {isa = PBXBuildFile; fileRef = FA322D060CEF74B1001761B3 /* ngircd.c */; };
+		FA322D4B0CEF74B1001761B3 /* parse.c in Sources */ = {isa = PBXBuildFile; fileRef = FA322D080CEF74B1001761B3 /* parse.c */; };
+		FA322D4C0CEF74B1001761B3 /* rendezvous.c in Sources */ = {isa = PBXBuildFile; fileRef = FA322D0A0CEF74B1001761B3 /* rendezvous.c */; };
+		FA322D4D0CEF74B1001761B3 /* resolve.c in Sources */ = {isa = PBXBuildFile; fileRef = FA322D0C0CEF74B1001761B3 /* resolve.c */; };
+		FA322DBE0CEF7766001761B3 /* tool.c in Sources */ = {isa = PBXBuildFile; fileRef = FA322D330CEF74B1001761B3 /* tool.c */; };
+		FA322DC10CEF77CB001761B3 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FA322DC00CEF77CB001761B3 /* libz.dylib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -85,152 +46,173 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
-		FADE2C9805F1511B0081A16E /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 8;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 1;
-		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		FA2329E908C9E74D0093207B /* config.guess */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; name = config.guess; path = ../../config.guess; sourceTree = SOURCE_ROOT; };
-		FA2329EA08C9E74D0093207B /* config.sub */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; name = config.sub; path = ../../config.sub; sourceTree = SOURCE_ROOT; };
-		FA2329EC08C9E7A30093207B /* array.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; name = array.c; path = ../../src/ngircd/array.c; sourceTree = SOURCE_ROOT; };
-		FA2329ED08C9E7A30093207B /* array.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; name = array.h; path = ../../src/ngircd/array.h; sourceTree = SOURCE_ROOT; };
-		FA2329F008C9E7C40093207B /* io.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; name = io.c; path = ../../src/ngircd/io.c; sourceTree = SOURCE_ROOT; };
-		FA2329F108C9E7C40093207B /* io.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; name = io.h; path = ../../src/ngircd/io.h; sourceTree = SOURCE_ROOT; };
-		FA2329F408C9E8070093207B /* strdup.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; name = strdup.c; path = ../../src/portab/strdup.c; sourceTree = SOURCE_ROOT; };
-		FA2329FA08C9E8450093207B /* functions.inc */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; name = functions.inc; path = ../../src/testsuite/functions.inc; sourceTree = SOURCE_ROOT; };
-		FA2329FB08C9E85D0093207B /* README */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = README; path = ../../src/testsuite/README; sourceTree = SOURCE_ROOT; };
-		FA2329FC08C9E8700093207B /* test-loop.sh */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; name = "test-loop.sh"; path = "../../src/testsuite/test-loop.sh"; sourceTree = SOURCE_ROOT; };
-		FA2329FD08C9E87B0093207B /* wait-tests.sh */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; name = "wait-tests.sh"; path = "../../src/testsuite/wait-tests.sh"; sourceTree = SOURCE_ROOT; };
-		FA232A0108C9E8BF0093207B /* Doxyfile */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = Doxyfile; path = ../../doc/src/Doxyfile; sourceTree = SOURCE_ROOT; };
-		FA232A0208C9E8BF0093207B /* footer.inc.html */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.html; name = footer.inc.html; path = ../../doc/src/footer.inc.html; sourceTree = SOURCE_ROOT; };
-		FA232A0308C9E8BF0093207B /* header.inc.html */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.html; name = header.inc.html; path = ../../doc/src/header.inc.html; sourceTree = SOURCE_ROOT; };
-		FA232A0408C9E8BF0093207B /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = Makefile.am; path = ../../doc/src/Makefile.am; sourceTree = SOURCE_ROOT; };
-		FA232A0508C9E8BF0093207B /* ngircd-doc.css */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = "ngircd-doc.css"; path = "../../doc/src/ngircd-doc.css"; sourceTree = SOURCE_ROOT; };
-		FA232A0708C9E8EC0093207B /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = Makefile.am; path = ../Makefile.am; sourceTree = SOURCE_ROOT; };
-		FA232A0808C9E8EC0093207B /* ngircd.sh */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; name = ngircd.sh; path = ../ngircd.sh; sourceTree = SOURCE_ROOT; };
-		FA232A0908C9E8EC0093207B /* ngircd.spec */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = ngircd.spec; path = ../ngircd.spec; sourceTree = SOURCE_ROOT; };
-		FA232A0A08C9E8EC0093207B /* README */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = README; path = ../README; sourceTree = SOURCE_ROOT; };
-		FA232A0B08C9E8EC0093207B /* systrace.policy */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = systrace.policy; path = ../systrace.policy; sourceTree = SOURCE_ROOT; };
-		FA83332A0627391D00A909F0 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = /usr/lib/libz.dylib; sourceTree = "<absolute>"; };
-		FA8962980CC232D3000E8B5D /* ngircd.conf.5.tmpl */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = ngircd.conf.5.tmpl; path = ../../man/ngircd.conf.5.tmpl; sourceTree = SOURCE_ROOT; };
-		FA8962990CC232D3000E8B5D /* ngircd.8.tmpl */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = ngircd.8.tmpl; path = ../../man/ngircd.8.tmpl; sourceTree = SOURCE_ROOT; };
-		FA8B5EFD08C9E4C900B781D4 /* SSL.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = SSL.txt; path = ../../doc/SSL.txt; sourceTree = SOURCE_ROOT; };
-		FA8B5EFE08C9E4C900B781D4 /* Zeroconf.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = Zeroconf.txt; path = ../../doc/Zeroconf.txt; sourceTree = SOURCE_ROOT; };
-		FAC0DF4A05F25A150024C8CE /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Makefile.am; sourceTree = SOURCE_ROOT; };
-		FADE2AA705F1499A0081A16E /* autogen.sh */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; name = autogen.sh; path = ../../autogen.sh; sourceTree = SOURCE_ROOT; };
-		FADE2AA805F1499A0081A16E /* COPYING */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = COPYING; path = ../../COPYING; sourceTree = SOURCE_ROOT; };
-		FADE2AA905F1499A0081A16E /* NEWS */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = NEWS; path = ../../NEWS; sourceTree = SOURCE_ROOT; };
-		FADE2AAA05F1499A0081A16E /* README */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = README; path = ../../README; sourceTree = SOURCE_ROOT; };
-		FADE2AAB05F1499A0081A16E /* configure.in */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = configure.in; path = ../../configure.in; sourceTree = SOURCE_ROOT; };
-		FADE2AAC05F1499A0081A16E /* ChangeLog */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = ChangeLog; path = ../../ChangeLog; sourceTree = SOURCE_ROOT; };
-		FADE2AAD05F1499A0081A16E /* INSTALL */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = INSTALL; path = ../../INSTALL; sourceTree = SOURCE_ROOT; };
-		FADE2AAE05F1499A0081A16E /* AUTHORS */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = AUTHORS; path = ../../AUTHORS; sourceTree = SOURCE_ROOT; };
-		FADE2AB705F149C50081A16E /* README-BeOS.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = "README-BeOS.txt"; path = "../../doc/README-BeOS.txt"; sourceTree = SOURCE_ROOT; };
-		FADE2AB805F149C50081A16E /* FAQ.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = FAQ.txt; path = ../../doc/FAQ.txt; sourceTree = SOURCE_ROOT; };
-		FADE2AB905F149C50081A16E /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = Makefile.am; path = ../../doc/Makefile.am; sourceTree = SOURCE_ROOT; };
-		FADE2ABA05F149C50081A16E /* README-AUX.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = "README-AUX.txt"; path = "../../doc/README-AUX.txt"; sourceTree = SOURCE_ROOT; };
-		FADE2ABB05F149C50081A16E /* sample-ngircd.conf */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = "sample-ngircd.conf"; path = "../../doc/sample-ngircd.conf"; sourceTree = SOURCE_ROOT; };
-		FADE2ABC05F149C50081A16E /* RFC.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = RFC.txt; path = ../../doc/RFC.txt; sourceTree = SOURCE_ROOT; };
-		FADE2ABD05F149C50081A16E /* Protocol.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = Protocol.txt; path = ../../doc/Protocol.txt; sourceTree = SOURCE_ROOT; };
-		FADE2ABE05F149C50081A16E /* CVS.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = CVS.txt; path = ../../doc/CVS.txt; sourceTree = SOURCE_ROOT; };
-		FADE2ABF05F149C50081A16E /* Platforms.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = Platforms.txt; path = ../../doc/Platforms.txt; sourceTree = SOURCE_ROOT; };
-		FADE2AC905F149D70081A16E /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = Makefile.am; path = ../../Makefile.am; sourceTree = SOURCE_ROOT; };
-		FADE2ACB05F149EA0081A16E /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = Makefile.am; path = ../../man/Makefile.am; sourceTree = SOURCE_ROOT; };
-		FADE2AD305F14A0B0081A16E /* copyright */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = copyright; path = ../Debian/copyright; sourceTree = SOURCE_ROOT; };
-		FADE2AD405F14A0B0081A16E /* rules */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = rules; path = ../Debian/rules; sourceTree = SOURCE_ROOT; };
-		FADE2AD505F14A0B0081A16E /* ngircd.postinst */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; name = ngircd.postinst; path = ../Debian/ngircd.postinst; sourceTree = SOURCE_ROOT; };
-		FADE2AD605F14A0B0081A16E /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = Makefile.am; path = ../Debian/Makefile.am; sourceTree = SOURCE_ROOT; };
-		FADE2AD705F14A0B0081A16E /* control */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = control; path = ../Debian/control; sourceTree = SOURCE_ROOT; };
-		FADE2AD805F14A0B0081A16E /* ngircd.init */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; name = ngircd.init; path = ../Debian/ngircd.init; sourceTree = SOURCE_ROOT; };
-		FADE2AD905F14A0B0081A16E /* compat */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = compat; path = ../Debian/compat; sourceTree = SOURCE_ROOT; };
-		FADE2ADA05F14A0B0081A16E /* ngircd.default */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = ngircd.default; path = ../Debian/ngircd.default; sourceTree = SOURCE_ROOT; };
-		FADE2ADB05F14A0B0081A16E /* changelog */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = changelog; path = ../Debian/changelog; sourceTree = SOURCE_ROOT; };
-		FADE2AF105F14A960081A16E /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = Makefile.am; path = ../../src/ngircd/Makefile.am; sourceTree = SOURCE_ROOT; };
-		FADE2AF205F14A960081A16E /* irc-server.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; name = "irc-server.h"; path = "../../src/ngircd/irc-server.h"; sourceTree = SOURCE_ROOT; };
-		FADE2AF305F14A960081A16E /* irc-op.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; name = "irc-op.c"; path = "../../src/ngircd/irc-op.c"; sourceTree = SOURCE_ROOT; };
-		FADE2AF405F14A960081A16E /* irc-login.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; name = "irc-login.c"; path = "../../src/ngircd/irc-login.c"; sourceTree = SOURCE_ROOT; };
-		FADE2AF505F14A960081A16E /* conn-zip.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; name = "conn-zip.h"; path = "../../src/ngircd/conn-zip.h"; sourceTree = SOURCE_ROOT; };
-		FADE2AF605F14A960081A16E /* match.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; name = match.h; path = ../../src/ngircd/match.h; sourceTree = SOURCE_ROOT; };
-		FADE2AF705F14A960081A16E /* irc-oper.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; name = "irc-oper.c"; path = "../../src/ngircd/irc-oper.c"; sourceTree = SOURCE_ROOT; };
-		FADE2AF805F14A960081A16E /* irc-mode.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; name = "irc-mode.c"; path = "../../src/ngircd/irc-mode.c"; sourceTree = SOURCE_ROOT; };
-		FADE2AF905F14A960081A16E /* conn.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; name = conn.h; path = ../../src/ngircd/conn.h; sourceTree = SOURCE_ROOT; };
-		FADE2AFA05F14A960081A16E /* messages.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; name = messages.h; path = ../../src/ngircd/messages.h; sourceTree = SOURCE_ROOT; };
-		FADE2AFB05F14A960081A16E /* irc.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; name = irc.h; path = ../../src/ngircd/irc.h; sourceTree = SOURCE_ROOT; };
-		FADE2AFC05F14A960081A16E /* conf.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; name = conf.c; path = ../../src/ngircd/conf.c; sourceTree = SOURCE_ROOT; };
-		FADE2AFD05F14A960081A16E /* irc.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; name = irc.c; path = ../../src/ngircd/irc.c; sourceTree = SOURCE_ROOT; };
-		FADE2AFE05F14A960081A16E /* hash.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; name = hash.h; path = ../../src/ngircd/hash.h; sourceTree = SOURCE_ROOT; };
-		FADE2AFF05F14A960081A16E /* parse.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; name = parse.c; path = ../../src/ngircd/parse.c; sourceTree = SOURCE_ROOT; };
-		FADE2B0005F14A960081A16E /* resolve.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; name = resolve.c; path = ../../src/ngircd/resolve.c; sourceTree = SOURCE_ROOT; };
-		FADE2B0105F14A960081A16E /* channel.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; name = channel.c; path = ../../src/ngircd/channel.c; sourceTree = SOURCE_ROOT; };
-		FADE2B0205F14A960081A16E /* defines.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; name = defines.h; path = ../../src/ngircd/defines.h; sourceTree = SOURCE_ROOT; };
-		FADE2B0305F14A960081A16E /* conf.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; name = conf.h; path = ../../src/ngircd/conf.h; sourceTree = SOURCE_ROOT; };
-		FADE2B0405F14A960081A16E /* rendezvous.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; name = rendezvous.c; path = ../../src/ngircd/rendezvous.c; sourceTree = SOURCE_ROOT; };
-		FADE2B0505F14A960081A16E /* lists.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; name = lists.h; path = ../../src/ngircd/lists.h; sourceTree = SOURCE_ROOT; };
-		FADE2B0605F14A960081A16E /* ngircd.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; name = ngircd.h; path = ../../src/ngircd/ngircd.h; sourceTree = SOURCE_ROOT; };
-		FADE2B0705F14A960081A16E /* irc-channel.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; name = "irc-channel.h"; path = "../../src/ngircd/irc-channel.h"; sourceTree = SOURCE_ROOT; };
-		FADE2B0805F14A960081A16E /* channel.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; name = channel.h; path = ../../src/ngircd/channel.h; sourceTree = SOURCE_ROOT; };
-		FADE2B0905F14A960081A16E /* irc-server.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; name = "irc-server.c"; path = "../../src/ngircd/irc-server.c"; sourceTree = SOURCE_ROOT; };
-		FADE2B0A05F14A960081A16E /* log.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; name = log.h; path = ../../src/ngircd/log.h; sourceTree = SOURCE_ROOT; };
-		FADE2B0B05F14A960081A16E /* irc-mode.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; name = "irc-mode.h"; path = "../../src/ngircd/irc-mode.h"; sourceTree = SOURCE_ROOT; };
-		FADE2B0C05F14A960081A16E /* irc-info.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; name = "irc-info.h"; path = "../../src/ngircd/irc-info.h"; sourceTree = SOURCE_ROOT; };
-		FADE2B0D05F14A960081A16E /* conn-zip.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; name = "conn-zip.c"; path = "../../src/ngircd/conn-zip.c"; sourceTree = SOURCE_ROOT; };
-		FADE2B0E05F14A960081A16E /* irc-write.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; name = "irc-write.c"; path = "../../src/ngircd/irc-write.c"; sourceTree = SOURCE_ROOT; };
-		FADE2B0F05F14A960081A16E /* match.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; name = match.c; path = ../../src/ngircd/match.c; sourceTree = SOURCE_ROOT; };
-		FADE2B1005F14A960081A16E /* irc-op.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; name = "irc-op.h"; path = "../../src/ngircd/irc-op.h"; sourceTree = SOURCE_ROOT; };
-		FADE2B1105F14A960081A16E /* irc-login.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; name = "irc-login.h"; path = "../../src/ngircd/irc-login.h"; sourceTree = SOURCE_ROOT; };
-		FADE2B1205F14A960081A16E /* conn.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; name = conn.c; path = ../../src/ngircd/conn.c; sourceTree = SOURCE_ROOT; };
-		FADE2B1305F14A960081A16E /* client.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; name = client.h; path = ../../src/ngircd/client.h; sourceTree = SOURCE_ROOT; };
-		FADE2B1405F14A960081A16E /* irc-write.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; name = "irc-write.h"; path = "../../src/ngircd/irc-write.h"; sourceTree = SOURCE_ROOT; };
-		FADE2B1505F14A960081A16E /* irc-oper.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; name = "irc-oper.h"; path = "../../src/ngircd/irc-oper.h"; sourceTree = SOURCE_ROOT; };
-		FADE2B1605F14A960081A16E /* rendezvous.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; name = rendezvous.h; path = ../../src/ngircd/rendezvous.h; sourceTree = SOURCE_ROOT; };
-		FADE2B1705F14A960081A16E /* ngircd.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; name = ngircd.c; path = ../../src/ngircd/ngircd.c; sourceTree = SOURCE_ROOT; };
-		FADE2B1805F14A960081A16E /* irc-channel.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; name = "irc-channel.c"; path = "../../src/ngircd/irc-channel.c"; sourceTree = SOURCE_ROOT; };
-		FADE2B1905F14A960081A16E /* parse.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; name = parse.h; path = ../../src/ngircd/parse.h; sourceTree = SOURCE_ROOT; };
-		FADE2B1A05F14A960081A16E /* lists.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; name = lists.c; path = ../../src/ngircd/lists.c; sourceTree = SOURCE_ROOT; };
-		FADE2B1B05F14A960081A16E /* resolve.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; name = resolve.h; path = ../../src/ngircd/resolve.h; sourceTree = SOURCE_ROOT; };
-		FADE2B1C05F14A960081A16E /* hash.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; name = hash.c; path = ../../src/ngircd/hash.c; sourceTree = SOURCE_ROOT; };
-		FADE2B1D05F14A960081A16E /* irc-info.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; name = "irc-info.c"; path = "../../src/ngircd/irc-info.c"; sourceTree = SOURCE_ROOT; };
-		FADE2B1E05F14A960081A16E /* conn-func.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; name = "conn-func.c"; path = "../../src/ngircd/conn-func.c"; sourceTree = SOURCE_ROOT; };
-		FADE2B1F05F14A960081A16E /* log.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; name = log.c; path = ../../src/ngircd/log.c; sourceTree = SOURCE_ROOT; };
-		FADE2B2005F14A960081A16E /* client.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; name = client.c; path = ../../src/ngircd/client.c; sourceTree = SOURCE_ROOT; };
-		FADE2B2105F14A960081A16E /* conn-func.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; name = "conn-func.h"; path = "../../src/ngircd/conn-func.h"; sourceTree = SOURCE_ROOT; };
-		FADE2B5305F14AB40081A16E /* splint.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; name = splint.h; path = ../../src/portab/splint.h; sourceTree = SOURCE_ROOT; };
-		FADE2B5405F14AB40081A16E /* imp.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; name = imp.h; path = ../../src/portab/imp.h; sourceTree = SOURCE_ROOT; };
-		FADE2B5505F14AB40081A16E /* ansi2knr.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; name = ansi2knr.c; path = ../../src/portab/ansi2knr.c; sourceTree = SOURCE_ROOT; };
-		FADE2B5605F14AB40081A16E /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = Makefile.am; path = ../../src/portab/Makefile.am; sourceTree = SOURCE_ROOT; };
-		FADE2B5705F14AB40081A16E /* portab.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; name = portab.h; path = ../../src/portab/portab.h; sourceTree = SOURCE_ROOT; };
-		FADE2B5805F14AB40081A16E /* exp.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; name = exp.h; path = ../../src/portab/exp.h; sourceTree = SOURCE_ROOT; };
-		FADE2B5905F14AB40081A16E /* strlcpy.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; name = strlcpy.c; path = ../../src/portab/strlcpy.c; sourceTree = SOURCE_ROOT; };
-		FADE2B5A05F14AB40081A16E /* portabtest.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; name = portabtest.c; path = ../../src/portab/portabtest.c; sourceTree = SOURCE_ROOT; };
-		FADE2B5B05F14AB40081A16E /* ansi2knr.1 */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.man; name = ansi2knr.1; path = ../../src/portab/ansi2knr.1; sourceTree = SOURCE_ROOT; };
-		FADE2B5C05F14AB40081A16E /* vsnprintf.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; name = vsnprintf.c; path = ../../src/portab/vsnprintf.c; sourceTree = SOURCE_ROOT; };
-		FADE2B6805F14B300081A16E /* tests.sh */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; name = tests.sh; path = ../../src/testsuite/tests.sh; sourceTree = SOURCE_ROOT; };
-		FADE2B6905F14B300081A16E /* stress-server.sh */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; name = "stress-server.sh"; path = "../../src/testsuite/stress-server.sh"; sourceTree = SOURCE_ROOT; };
-		FADE2B6A05F14B300081A16E /* channel-test.e */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = "channel-test.e"; path = "../../src/testsuite/channel-test.e"; sourceTree = SOURCE_ROOT; };
-		FADE2B6B05F14B300081A16E /* stop-server.sh */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; name = "stop-server.sh"; path = "../../src/testsuite/stop-server.sh"; sourceTree = SOURCE_ROOT; };
-		FADE2B6C05F14B300081A16E /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = Makefile.am; path = ../../src/testsuite/Makefile.am; sourceTree = SOURCE_ROOT; };
-		FADE2B6D05F14B300081A16E /* getpid.sh */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; name = getpid.sh; path = ../../src/testsuite/getpid.sh; sourceTree = SOURCE_ROOT; };
-		FADE2B6E05F14B300081A16E /* connect-test.e */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = "connect-test.e"; path = "../../src/testsuite/connect-test.e"; sourceTree = SOURCE_ROOT; };
-		FADE2B6F05F14B300081A16E /* check-idle.e */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = "check-idle.e"; path = "../../src/testsuite/check-idle.e"; sourceTree = SOURCE_ROOT; };
-		FADE2B7005F14B300081A16E /* ngircd-test.conf */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = "ngircd-test.conf"; path = "../../src/testsuite/ngircd-test.conf"; sourceTree = SOURCE_ROOT; };
-		FADE2B7105F14B300081A16E /* stress-A.e */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = "stress-A.e"; path = "../../src/testsuite/stress-A.e"; sourceTree = SOURCE_ROOT; };
-		FADE2B7205F14B300081A16E /* stress-B.e */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = "stress-B.e"; path = "../../src/testsuite/stress-B.e"; sourceTree = SOURCE_ROOT; };
-		FADE2B7305F14B300081A16E /* mode-test.e */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = "mode-test.e"; path = "../../src/testsuite/mode-test.e"; sourceTree = SOURCE_ROOT; };
-		FADE2B7405F14B300081A16E /* start-server.sh */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; name = "start-server.sh"; path = "../../src/testsuite/start-server.sh"; sourceTree = SOURCE_ROOT; };
-		FADE2B7705F14B530081A16E /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = Makefile.am; path = ../../src/tool/Makefile.am; sourceTree = SOURCE_ROOT; };
-		FADE2B7805F14B530081A16E /* tool.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; name = tool.c; path = ../../src/tool/tool.c; sourceTree = SOURCE_ROOT; };
-		FADE2B7905F14B530081A16E /* tool.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; name = tool.h; path = ../../src/tool/tool.h; sourceTree = SOURCE_ROOT; };
-		FADE2B7B05F14B9F0081A16E /* ngIRCd */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ngIRCd; sourceTree = BUILT_PRODUCTS_DIR; };
-		FADE2B8F05F14C6C0081A16E /* config.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; name = config.h; path = ../../src/config.h; sourceTree = SOURCE_ROOT; };
-		FADE2B9005F14C6C0081A16E /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = Makefile.am; path = ../../src/Makefile.am; sourceTree = SOURCE_ROOT; };
-		FADE2C9905F1511B0081A16E /* portabtest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = portabtest; sourceTree = BUILT_PRODUCTS_DIR; };
+		FA322BBA0CEF72E4001761B3 /* ngIRCd */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ngIRCd; sourceTree = BUILT_PRODUCTS_DIR; };
+		FA322CD50CEF74B1001761B3 /* .cvsignore */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = .cvsignore; sourceTree = "<group>"; };
+		FA322CD60CEF74B1001761B3 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
+		FA322CD80CEF74B1001761B3 /* .cvsignore */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = .cvsignore; sourceTree = "<group>"; };
+		FA322CD90CEF74B1001761B3 /* array.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = array.c; sourceTree = "<group>"; };
+		FA322CDA0CEF74B1001761B3 /* array.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = array.h; sourceTree = "<group>"; };
+		FA322CDB0CEF74B1001761B3 /* channel.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = channel.c; sourceTree = "<group>"; };
+		FA322CDC0CEF74B1001761B3 /* channel.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = channel.h; sourceTree = "<group>"; };
+		FA322CDD0CEF74B1001761B3 /* client.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = client.c; sourceTree = "<group>"; };
+		FA322CDE0CEF74B1001761B3 /* client.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = client.h; sourceTree = "<group>"; };
+		FA322CDF0CEF74B1001761B3 /* conf.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = conf.c; sourceTree = "<group>"; };
+		FA322CE00CEF74B1001761B3 /* conf.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = conf.h; sourceTree = "<group>"; };
+		FA322CE10CEF74B1001761B3 /* conn-func.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = "conn-func.c"; sourceTree = "<group>"; };
+		FA322CE20CEF74B1001761B3 /* conn-func.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = "conn-func.h"; sourceTree = "<group>"; };
+		FA322CE30CEF74B1001761B3 /* conn-zip.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = "conn-zip.c"; sourceTree = "<group>"; };
+		FA322CE40CEF74B1001761B3 /* conn-zip.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = "conn-zip.h"; sourceTree = "<group>"; };
+		FA322CE50CEF74B1001761B3 /* conn.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = conn.c; sourceTree = "<group>"; };
+		FA322CE60CEF74B1001761B3 /* conn.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = conn.h; sourceTree = "<group>"; };
+		FA322CE70CEF74B1001761B3 /* defines.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = defines.h; sourceTree = "<group>"; };
+		FA322CE80CEF74B1001761B3 /* hash.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = hash.c; sourceTree = "<group>"; };
+		FA322CE90CEF74B1001761B3 /* hash.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = hash.h; sourceTree = "<group>"; };
+		FA322CEA0CEF74B1001761B3 /* io.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = io.c; sourceTree = "<group>"; };
+		FA322CEB0CEF74B1001761B3 /* io.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = io.h; sourceTree = "<group>"; };
+		FA322CEC0CEF74B1001761B3 /* irc-channel.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = "irc-channel.c"; sourceTree = "<group>"; };
+		FA322CED0CEF74B1001761B3 /* irc-channel.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = "irc-channel.h"; sourceTree = "<group>"; };
+		FA322CEE0CEF74B1001761B3 /* irc-info.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = "irc-info.c"; sourceTree = "<group>"; };
+		FA322CEF0CEF74B1001761B3 /* irc-info.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = "irc-info.h"; sourceTree = "<group>"; };
+		FA322CF00CEF74B1001761B3 /* irc-login.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = "irc-login.c"; sourceTree = "<group>"; };
+		FA322CF10CEF74B1001761B3 /* irc-login.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = "irc-login.h"; sourceTree = "<group>"; };
+		FA322CF20CEF74B1001761B3 /* irc-mode.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = "irc-mode.c"; sourceTree = "<group>"; };
+		FA322CF30CEF74B1001761B3 /* irc-mode.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = "irc-mode.h"; sourceTree = "<group>"; };
+		FA322CF40CEF74B1001761B3 /* irc-op.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = "irc-op.c"; sourceTree = "<group>"; };
+		FA322CF50CEF74B1001761B3 /* irc-op.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = "irc-op.h"; sourceTree = "<group>"; };
+		FA322CF60CEF74B1001761B3 /* irc-oper.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = "irc-oper.c"; sourceTree = "<group>"; };
+		FA322CF70CEF74B1001761B3 /* irc-oper.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = "irc-oper.h"; sourceTree = "<group>"; };
+		FA322CF80CEF74B1001761B3 /* irc-server.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = "irc-server.c"; sourceTree = "<group>"; };
+		FA322CF90CEF74B1001761B3 /* irc-server.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = "irc-server.h"; sourceTree = "<group>"; };
+		FA322CFA0CEF74B1001761B3 /* irc-write.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = "irc-write.c"; sourceTree = "<group>"; };
+		FA322CFB0CEF74B1001761B3 /* irc-write.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = "irc-write.h"; sourceTree = "<group>"; };
+		FA322CFC0CEF74B1001761B3 /* irc.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = irc.c; sourceTree = "<group>"; };
+		FA322CFD0CEF74B1001761B3 /* irc.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = irc.h; sourceTree = "<group>"; };
+		FA322CFE0CEF74B1001761B3 /* lists.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = lists.c; sourceTree = "<group>"; };
+		FA322CFF0CEF74B1001761B3 /* lists.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = lists.h; sourceTree = "<group>"; };
+		FA322D000CEF74B1001761B3 /* log.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = log.c; sourceTree = "<group>"; };
+		FA322D010CEF74B1001761B3 /* log.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = log.h; sourceTree = "<group>"; };
+		FA322D020CEF74B1001761B3 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
+		FA322D030CEF74B1001761B3 /* match.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = match.c; sourceTree = "<group>"; };
+		FA322D040CEF74B1001761B3 /* match.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = match.h; sourceTree = "<group>"; };
+		FA322D050CEF74B1001761B3 /* messages.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = messages.h; sourceTree = "<group>"; };
+		FA322D060CEF74B1001761B3 /* ngircd.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = ngircd.c; sourceTree = "<group>"; };
+		FA322D070CEF74B1001761B3 /* ngircd.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = ngircd.h; sourceTree = "<group>"; };
+		FA322D080CEF74B1001761B3 /* parse.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = parse.c; sourceTree = "<group>"; };
+		FA322D090CEF74B1001761B3 /* parse.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = parse.h; sourceTree = "<group>"; };
+		FA322D0A0CEF74B1001761B3 /* rendezvous.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = rendezvous.c; sourceTree = "<group>"; };
+		FA322D0B0CEF74B1001761B3 /* rendezvous.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = rendezvous.h; sourceTree = "<group>"; };
+		FA322D0C0CEF74B1001761B3 /* resolve.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = resolve.c; sourceTree = "<group>"; };
+		FA322D0D0CEF74B1001761B3 /* resolve.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = resolve.h; sourceTree = "<group>"; };
+		FA322D0F0CEF74B1001761B3 /* .cvsignore */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = .cvsignore; sourceTree = "<group>"; };
+		FA322D100CEF74B1001761B3 /* ansi2knr.1 */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.man; path = ansi2knr.1; sourceTree = "<group>"; };
+		FA322D110CEF74B1001761B3 /* ansi2knr.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = ansi2knr.c; sourceTree = "<group>"; };
+		FA322D120CEF74B1001761B3 /* exp.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = exp.h; sourceTree = "<group>"; };
+		FA322D130CEF74B1001761B3 /* imp.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = imp.h; sourceTree = "<group>"; };
+		FA322D140CEF74B1001761B3 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
+		FA322D150CEF74B1001761B3 /* portab.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = portab.h; sourceTree = "<group>"; };
+		FA322D160CEF74B1001761B3 /* portabtest.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = portabtest.c; sourceTree = "<group>"; };
+		FA322D170CEF74B1001761B3 /* splint.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = splint.h; sourceTree = "<group>"; };
+		FA322D180CEF74B1001761B3 /* strdup.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = strdup.c; sourceTree = "<group>"; };
+		FA322D190CEF74B1001761B3 /* strlcpy.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = strlcpy.c; sourceTree = "<group>"; };
+		FA322D1A0CEF74B1001761B3 /* vsnprintf.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = vsnprintf.c; sourceTree = "<group>"; };
+		FA322D1C0CEF74B1001761B3 /* .cvsignore */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = .cvsignore; sourceTree = "<group>"; };
+		FA322D1D0CEF74B1001761B3 /* channel-test.e */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = "channel-test.e"; sourceTree = "<group>"; };
+		FA322D1E0CEF74B1001761B3 /* check-idle.e */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = "check-idle.e"; sourceTree = "<group>"; };
+		FA322D1F0CEF74B1001761B3 /* connect-test.e */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = "connect-test.e"; sourceTree = "<group>"; };
+		FA322D200CEF74B1001761B3 /* functions.inc */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.pascal; path = functions.inc; sourceTree = "<group>"; };
+		FA322D210CEF74B1001761B3 /* getpid.sh */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; path = getpid.sh; sourceTree = "<group>"; };
+		FA322D220CEF74B1001761B3 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
+		FA322D230CEF74B1001761B3 /* mode-test.e */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = "mode-test.e"; sourceTree = "<group>"; };
+		FA322D240CEF74B1001761B3 /* ngircd-test.conf */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = "ngircd-test.conf"; sourceTree = "<group>"; };
+		FA322D250CEF74B1001761B3 /* README */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
+		FA322D260CEF74B1001761B3 /* start-server.sh */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; path = "start-server.sh"; sourceTree = "<group>"; };
+		FA322D270CEF74B1001761B3 /* stop-server.sh */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; path = "stop-server.sh"; sourceTree = "<group>"; };
+		FA322D280CEF74B1001761B3 /* stress-A.e */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = "stress-A.e"; sourceTree = "<group>"; };
+		FA322D290CEF74B1001761B3 /* stress-B.e */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = "stress-B.e"; sourceTree = "<group>"; };
+		FA322D2A0CEF74B1001761B3 /* stress-server.sh */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; path = "stress-server.sh"; sourceTree = "<group>"; };
+		FA322D2B0CEF74B1001761B3 /* test-loop.sh */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; path = "test-loop.sh"; sourceTree = "<group>"; };
+		FA322D2C0CEF74B1001761B3 /* tests.sh */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; path = tests.sh; sourceTree = "<group>"; };
+		FA322D2D0CEF74B1001761B3 /* wait-tests.sh */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; path = "wait-tests.sh"; sourceTree = "<group>"; };
+		FA322D2F0CEF74B1001761B3 /* .cvsignore */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = .cvsignore; sourceTree = "<group>"; };
+		FA322D300CEF74B1001761B3 /* ansi2knr.1 */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.man; path = ansi2knr.1; sourceTree = "<group>"; };
+		FA322D310CEF74B1001761B3 /* ansi2knr.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = ansi2knr.c; sourceTree = "<group>"; };
+		FA322D320CEF74B1001761B3 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
+		FA322D330CEF74B1001761B3 /* tool.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = tool.c; sourceTree = "<group>"; };
+		FA322D340CEF74B1001761B3 /* tool.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = tool.h; sourceTree = "<group>"; };
+		FA322D5A0CEF750F001761B3 /* AUTHORS */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = AUTHORS; path = ../../AUTHORS; sourceTree = SOURCE_ROOT; };
+		FA322D5B0CEF750F001761B3 /* autogen.sh */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; name = autogen.sh; path = ../../autogen.sh; sourceTree = SOURCE_ROOT; };
+		FA322D5C0CEF750F001761B3 /* ChangeLog */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = ChangeLog; path = ../../ChangeLog; sourceTree = SOURCE_ROOT; };
+		FA322D5E0CEF750F001761B3 /* config.guess */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; name = config.guess; path = ../../config.guess; sourceTree = SOURCE_ROOT; };
+		FA322D5F0CEF750F001761B3 /* config.sub */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; name = config.sub; path = ../../config.sub; sourceTree = SOURCE_ROOT; };
+		FA322D600CEF750F001761B3 /* configure.in */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = configure.in; path = ../../configure.in; sourceTree = SOURCE_ROOT; };
+		FA322D610CEF750F001761B3 /* COPYING */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = COPYING; path = ../../COPYING; sourceTree = SOURCE_ROOT; };
+		FA322D620CEF750F001761B3 /* INSTALL */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = INSTALL; path = ../../INSTALL; sourceTree = SOURCE_ROOT; };
+		FA322D630CEF750F001761B3 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = Makefile.am; path = ../../Makefile.am; sourceTree = SOURCE_ROOT; };
+		FA322D640CEF750F001761B3 /* NEWS */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = NEWS; path = ../../NEWS; sourceTree = SOURCE_ROOT; };
+		FA322D650CEF750F001761B3 /* README */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = README; path = ../../README; sourceTree = SOURCE_ROOT; };
+		FA322D670CEF7523001761B3 /* .cvsignore */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = .cvsignore; sourceTree = "<group>"; };
+		FA322D690CEF7523001761B3 /* .cvsignore */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = .cvsignore; sourceTree = "<group>"; };
+		FA322D6A0CEF7523001761B3 /* changelog */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = changelog; sourceTree = "<group>"; };
+		FA322D6B0CEF7523001761B3 /* compat */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = compat; sourceTree = "<group>"; };
+		FA322D6C0CEF7523001761B3 /* control */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = control; sourceTree = "<group>"; };
+		FA322D6D0CEF7523001761B3 /* copyright */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = copyright; sourceTree = "<group>"; };
+		FA322D6E0CEF7523001761B3 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
+		FA322D6F0CEF7523001761B3 /* ngircd.default */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = ngircd.default; sourceTree = "<group>"; };
+		FA322D700CEF7523001761B3 /* ngircd.init */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; path = ngircd.init; sourceTree = "<group>"; };
+		FA322D710CEF7523001761B3 /* ngircd.postinst */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; path = ngircd.postinst; sourceTree = "<group>"; };
+		FA322D720CEF7523001761B3 /* rules */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = rules; sourceTree = "<group>"; };
+		FA322D740CEF7523001761B3 /* .cvsignore */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = .cvsignore; sourceTree = "<group>"; };
+		FA322D790CEF7523001761B3 /* ngIRCd.hmap */ = {isa = PBXFileReference; lastKnownFileType = file; path = ngIRCd.hmap; sourceTree = "<group>"; };
+		FA322D7C0CEF7523001761B3 /* ngIRCd.LinkFileList */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = ngIRCd.LinkFileList; sourceTree = "<group>"; };
+		FA322D7E0CEF7523001761B3 /* ngIRCd.LinkFileList */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = ngIRCd.LinkFileList; sourceTree = "<group>"; };
+		FA322D800CEF7523001761B3 /* categories.pbxbtree */ = {isa = PBXFileReference; lastKnownFileType = file; path = categories.pbxbtree; sourceTree = "<group>"; };
+		FA322D810CEF7523001761B3 /* cdecls.pbxbtree */ = {isa = PBXFileReference; lastKnownFileType = file; path = cdecls.pbxbtree; sourceTree = "<group>"; };
+		FA322D820CEF7523001761B3 /* decls.pbxbtree */ = {isa = PBXFileReference; lastKnownFileType = file; path = decls.pbxbtree; sourceTree = "<group>"; };
+		FA322D830CEF7523001761B3 /* files.pbxbtree */ = {isa = PBXFileReference; lastKnownFileType = file; path = files.pbxbtree; sourceTree = "<group>"; };
+		FA322D840CEF7523001761B3 /* imports.pbxbtree */ = {isa = PBXFileReference; lastKnownFileType = file; path = imports.pbxbtree; sourceTree = "<group>"; };
+		FA322D850CEF7523001761B3 /* pbxindex.header */ = {isa = PBXFileReference; lastKnownFileType = file; path = pbxindex.header; sourceTree = "<group>"; };
+		FA322D860CEF7523001761B3 /* protocols.pbxbtree */ = {isa = PBXFileReference; lastKnownFileType = file; path = protocols.pbxbtree; sourceTree = "<group>"; };
+		FA322D870CEF7523001761B3 /* refs.pbxbtree */ = {isa = PBXFileReference; lastKnownFileType = file; path = refs.pbxbtree; sourceTree = "<group>"; };
+		FA322D890CEF7523001761B3 /* control */ = {isa = PBXFileReference; lastKnownFileType = file; path = control; sourceTree = "<group>"; };
+		FA322D8A0CEF7523001761B3 /* strings */ = {isa = PBXFileReference; lastKnownFileType = file; path = strings; sourceTree = "<group>"; };
+		FA322D8B0CEF7523001761B3 /* subclasses.pbxbtree */ = {isa = PBXFileReference; lastKnownFileType = file; path = subclasses.pbxbtree; sourceTree = "<group>"; };
+		FA322D8C0CEF7523001761B3 /* symbols0.pbxsymbols */ = {isa = PBXFileReference; lastKnownFileType = file; path = symbols0.pbxsymbols; sourceTree = "<group>"; };
+		FA322D8D0CEF7523001761B3 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
+		FA322D8E0CEF7523001761B3 /* ngIRCd.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = ngIRCd.xcodeproj; sourceTree = "<group>"; };
+		FA322D910CEF7523001761B3 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
+		FA322D920CEF7523001761B3 /* ngindent */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = ngindent; sourceTree = "<group>"; };
+		FA322D930CEF7523001761B3 /* ngircd.sh */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; path = ngircd.sh; sourceTree = "<group>"; };
+		FA322D940CEF7523001761B3 /* ngircd.spec */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = ngircd.spec; sourceTree = "<group>"; };
+		FA322D950CEF7523001761B3 /* README */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
+		FA322D960CEF7523001761B3 /* systrace.policy */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = systrace.policy; sourceTree = "<group>"; };
+		FA322D980CEF752C001761B3 /* .cvsignore */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = .cvsignore; sourceTree = "<group>"; };
+		FA322D990CEF752C001761B3 /* CVS.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = CVS.txt; sourceTree = "<group>"; };
+		FA322D9A0CEF752C001761B3 /* FAQ.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = FAQ.txt; sourceTree = "<group>"; };
+		FA322D9B0CEF752C001761B3 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
+		FA322D9C0CEF752C001761B3 /* Platforms.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Platforms.txt; sourceTree = "<group>"; };
+		FA322D9D0CEF752C001761B3 /* Protocol.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Protocol.txt; sourceTree = "<group>"; };
+		FA322D9E0CEF752C001761B3 /* README-AUX.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = "README-AUX.txt"; sourceTree = "<group>"; };
+		FA322D9F0CEF752C001761B3 /* README-BeOS.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = "README-BeOS.txt"; sourceTree = "<group>"; };
+		FA322DA00CEF752C001761B3 /* RFC.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = RFC.txt; sourceTree = "<group>"; };
+		FA322DA10CEF752C001761B3 /* sample-ngircd.conf */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = "sample-ngircd.conf"; sourceTree = "<group>"; };
+		FA322DA30CEF752C001761B3 /* .cvsignore */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = .cvsignore; sourceTree = "<group>"; };
+		FA322DA40CEF752C001761B3 /* Doxyfile */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Doxyfile; sourceTree = "<group>"; };
+		FA322DA50CEF752C001761B3 /* footer.inc.html */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.html; path = footer.inc.html; sourceTree = "<group>"; };
+		FA322DA60CEF752C001761B3 /* header.inc.html */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.html; path = header.inc.html; sourceTree = "<group>"; };
+		FA322DA70CEF752C001761B3 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
+		FA322DA80CEF752C001761B3 /* ngircd-doc.css */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.css; path = "ngircd-doc.css"; sourceTree = "<group>"; };
+		FA322DA90CEF752C001761B3 /* SSL.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = SSL.txt; sourceTree = "<group>"; };
+		FA322DAA0CEF752C001761B3 /* Zeroconf.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Zeroconf.txt; sourceTree = "<group>"; };
+		FA322DAC0CEF7538001761B3 /* .cvsignore */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = .cvsignore; sourceTree = "<group>"; };
+		FA322DAD0CEF7538001761B3 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
+		FA322DAE0CEF7538001761B3 /* ngircd.8.tmpl */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = ngircd.8.tmpl; sourceTree = "<group>"; };
+		FA322DAF0CEF7538001761B3 /* ngircd.conf.5.tmpl */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = ngircd.conf.5.tmpl; sourceTree = "<group>"; };
+		FA322DB10CEF7565001761B3 /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
+		FA322DBB0CEF773C001761B3 /* cvs-version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "cvs-version.h"; sourceTree = "<group>"; };
+		FA322DC00CEF77CB001761B3 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = /usr/lib/libz.dylib; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -238,14 +220,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FA83332B0627391D00A909F0 /* libz.dylib in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		FADE2C9605F1511B0081A16E /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
+				FA322DC10CEF77CB001761B3 /* libz.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -255,303 +230,362 @@
 		08FB7794FE84155DC02AAC07 /* ngIRCd */ = {
 			isa = PBXGroup;
 			children = (
-				08FB7795FE84155DC02AAC07 /* src */,
-				C6A0FF2B0290797F04C91782 /* doc */,
-				FADE2AA505F149580081A16E /* man */,
-				FADE2AA605F1495F0081A16E /* contrib */,
-				FADE2AC905F149D70081A16E /* Makefile.am */,
-				FADE2AAE05F1499A0081A16E /* AUTHORS */,
-				FADE2AAC05F1499A0081A16E /* ChangeLog */,
-				FADE2AA805F1499A0081A16E /* COPYING */,
-				FADE2AAD05F1499A0081A16E /* INSTALL */,
-				FADE2AA905F1499A0081A16E /* NEWS */,
-				FADE2AAA05F1499A0081A16E /* README */,
-				FADE2AA705F1499A0081A16E /* autogen.sh */,
-				FADE2AAB05F1499A0081A16E /* configure.in */,
-				FA2329E908C9E74D0093207B /* config.guess */,
-				FA2329EA08C9E74D0093207B /* config.sub */,
+				FA322D970CEF752C001761B3 /* doc */,
+				FA322D660CEF7523001761B3 /* contrib */,
+				FA322DAB0CEF7538001761B3 /* man */,
+				FA322CD40CEF74B0001761B3 /* src */,
+				FA322D5A0CEF750F001761B3 /* AUTHORS */,
+				FA322D610CEF750F001761B3 /* COPYING */,
+				FA322D620CEF750F001761B3 /* INSTALL */,
+				FA322D640CEF750F001761B3 /* NEWS */,
+				FA322D650CEF750F001761B3 /* README */,
+				FA322D5B0CEF750F001761B3 /* autogen.sh */,
+				FA322D5C0CEF750F001761B3 /* ChangeLog */,
+				FA322D5E0CEF750F001761B3 /* config.guess */,
+				FA322D5F0CEF750F001761B3 /* config.sub */,
+				FA322D600CEF750F001761B3 /* configure.in */,
+				FA322D630CEF750F001761B3 /* Makefile.am */,
 				1AB674ADFE9D54B511CA2CBB /* Products */,
+				FA322DC00CEF77CB001761B3 /* libz.dylib */,
 			);
 			name = ngIRCd;
-			sourceTree = "<group>";
-		};
-		08FB7795FE84155DC02AAC07 /* src */ = {
-			isa = PBXGroup;
-			children = (
-				FADE2B9005F14C6C0081A16E /* Makefile.am */,
-				FADE2AED05F14A6A0081A16E /* ngircd */,
-				FADE2AEE05F14A700081A16E /* portab */,
-				FADE2AEF05F14A760081A16E /* testsuite */,
-				FADE2AF005F14A840081A16E /* tool */,
-				FADE2B8F05F14C6C0081A16E /* config.h */,
-			);
-			name = src;
 			sourceTree = "<group>";
 		};
 		1AB674ADFE9D54B511CA2CBB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				FADE2B7B05F14B9F0081A16E /* ngIRCd */,
-				FADE2C9905F1511B0081A16E /* portabtest */,
-				FA83332A0627391D00A909F0 /* libz.dylib */,
+				FA322BBA0CEF72E4001761B3 /* ngIRCd */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		C6A0FF2B0290797F04C91782 /* doc */ = {
+		FA322CD40CEF74B0001761B3 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				FA2329FF08C9E8AC0093207B /* src */,
-				FADE2AB905F149C50081A16E /* Makefile.am */,
-				FADE2ABE05F149C50081A16E /* CVS.txt */,
-				FADE2AB805F149C50081A16E /* FAQ.txt */,
-				FADE2ABF05F149C50081A16E /* Platforms.txt */,
-				FADE2ABD05F149C50081A16E /* Protocol.txt */,
-				FADE2AB705F149C50081A16E /* README-BeOS.txt */,
-				FADE2ABA05F149C50081A16E /* README-AUX.txt */,
-				FADE2ABC05F149C50081A16E /* RFC.txt */,
-				FA8B5EFD08C9E4C900B781D4 /* SSL.txt */,
-				FA8B5EFE08C9E4C900B781D4 /* Zeroconf.txt */,
-				FADE2ABB05F149C50081A16E /* sample-ngircd.conf */,
-			);
-			name = doc;
-			sourceTree = "<group>";
-		};
-		FA2329FF08C9E8AC0093207B /* src */ = {
-			isa = PBXGroup;
-			children = (
-				FA232A0408C9E8BF0093207B /* Makefile.am */,
-				FA232A0108C9E8BF0093207B /* Doxyfile */,
-				FA232A0208C9E8BF0093207B /* footer.inc.html */,
-				FA232A0308C9E8BF0093207B /* header.inc.html */,
-				FA232A0508C9E8BF0093207B /* ngircd-doc.css */,
+				FA322CD70CEF74B1001761B3 /* ngircd */,
+				FA322D0E0CEF74B1001761B3 /* portab */,
+				FA322D1B0CEF74B1001761B3 /* testsuite */,
+				FA322D2E0CEF74B1001761B3 /* tool */,
+				FA322CD50CEF74B1001761B3 /* .cvsignore */,
+				FA322CD60CEF74B1001761B3 /* Makefile.am */,
 			);
 			name = src;
-			sourceTree = "<group>";
+			path = ../../src;
+			sourceTree = SOURCE_ROOT;
 		};
-		FADE2AA505F149580081A16E /* man */ = {
+		FA322CD70CEF74B1001761B3 /* ngircd */ = {
 			isa = PBXGroup;
 			children = (
-				FADE2ACB05F149EA0081A16E /* Makefile.am */,
-				FA8962980CC232D3000E8B5D /* ngircd.conf.5.tmpl */,
-				FA8962990CC232D3000E8B5D /* ngircd.8.tmpl */,
+				FA322CD80CEF74B1001761B3 /* .cvsignore */,
+				FA322CD90CEF74B1001761B3 /* array.c */,
+				FA322CDA0CEF74B1001761B3 /* array.h */,
+				FA322CDB0CEF74B1001761B3 /* channel.c */,
+				FA322CDC0CEF74B1001761B3 /* channel.h */,
+				FA322CDD0CEF74B1001761B3 /* client.c */,
+				FA322CDE0CEF74B1001761B3 /* client.h */,
+				FA322CDF0CEF74B1001761B3 /* conf.c */,
+				FA322CE00CEF74B1001761B3 /* conf.h */,
+				FA322CE10CEF74B1001761B3 /* conn-func.c */,
+				FA322CE20CEF74B1001761B3 /* conn-func.h */,
+				FA322CE30CEF74B1001761B3 /* conn-zip.c */,
+				FA322CE40CEF74B1001761B3 /* conn-zip.h */,
+				FA322CE50CEF74B1001761B3 /* conn.c */,
+				FA322CE60CEF74B1001761B3 /* conn.h */,
+				FA322CE70CEF74B1001761B3 /* defines.h */,
+				FA322CE80CEF74B1001761B3 /* hash.c */,
+				FA322CE90CEF74B1001761B3 /* hash.h */,
+				FA322CEA0CEF74B1001761B3 /* io.c */,
+				FA322CEB0CEF74B1001761B3 /* io.h */,
+				FA322CEC0CEF74B1001761B3 /* irc-channel.c */,
+				FA322CED0CEF74B1001761B3 /* irc-channel.h */,
+				FA322CEE0CEF74B1001761B3 /* irc-info.c */,
+				FA322CEF0CEF74B1001761B3 /* irc-info.h */,
+				FA322CF00CEF74B1001761B3 /* irc-login.c */,
+				FA322CF10CEF74B1001761B3 /* irc-login.h */,
+				FA322CF20CEF74B1001761B3 /* irc-mode.c */,
+				FA322CF30CEF74B1001761B3 /* irc-mode.h */,
+				FA322CF40CEF74B1001761B3 /* irc-op.c */,
+				FA322CF50CEF74B1001761B3 /* irc-op.h */,
+				FA322CF60CEF74B1001761B3 /* irc-oper.c */,
+				FA322CF70CEF74B1001761B3 /* irc-oper.h */,
+				FA322CF80CEF74B1001761B3 /* irc-server.c */,
+				FA322CF90CEF74B1001761B3 /* irc-server.h */,
+				FA322CFA0CEF74B1001761B3 /* irc-write.c */,
+				FA322CFB0CEF74B1001761B3 /* irc-write.h */,
+				FA322CFC0CEF74B1001761B3 /* irc.c */,
+				FA322CFD0CEF74B1001761B3 /* irc.h */,
+				FA322CFE0CEF74B1001761B3 /* lists.c */,
+				FA322CFF0CEF74B1001761B3 /* lists.h */,
+				FA322D000CEF74B1001761B3 /* log.c */,
+				FA322D010CEF74B1001761B3 /* log.h */,
+				FA322D020CEF74B1001761B3 /* Makefile.am */,
+				FA322D030CEF74B1001761B3 /* match.c */,
+				FA322D040CEF74B1001761B3 /* match.h */,
+				FA322D050CEF74B1001761B3 /* messages.h */,
+				FA322D060CEF74B1001761B3 /* ngircd.c */,
+				FA322D070CEF74B1001761B3 /* ngircd.h */,
+				FA322D080CEF74B1001761B3 /* parse.c */,
+				FA322D090CEF74B1001761B3 /* parse.h */,
+				FA322D0A0CEF74B1001761B3 /* rendezvous.c */,
+				FA322D0B0CEF74B1001761B3 /* rendezvous.h */,
+				FA322D0C0CEF74B1001761B3 /* resolve.c */,
+				FA322D0D0CEF74B1001761B3 /* resolve.h */,
 			);
-			name = man;
+			path = ngircd;
 			sourceTree = "<group>";
 		};
-		FADE2AA605F1495F0081A16E /* contrib */ = {
+		FA322D0E0CEF74B1001761B3 /* portab */ = {
 			isa = PBXGroup;
 			children = (
-				FA232A0708C9E8EC0093207B /* Makefile.am */,
-				FADE2AD205F149FD0081A16E /* Mac OS X */,
-				FADE2AD105F149F70081A16E /* Debian */,
-				FA232A0808C9E8EC0093207B /* ngircd.sh */,
-				FA232A0908C9E8EC0093207B /* ngircd.spec */,
-				FA232A0A08C9E8EC0093207B /* README */,
-				FA232A0B08C9E8EC0093207B /* systrace.policy */,
+				FA322D0F0CEF74B1001761B3 /* .cvsignore */,
+				FA322D100CEF74B1001761B3 /* ansi2knr.1 */,
+				FA322D110CEF74B1001761B3 /* ansi2knr.c */,
+				FA322D120CEF74B1001761B3 /* exp.h */,
+				FA322D130CEF74B1001761B3 /* imp.h */,
+				FA322D140CEF74B1001761B3 /* Makefile.am */,
+				FA322D150CEF74B1001761B3 /* portab.h */,
+				FA322D160CEF74B1001761B3 /* portabtest.c */,
+				FA322D170CEF74B1001761B3 /* splint.h */,
+				FA322D180CEF74B1001761B3 /* strdup.c */,
+				FA322D190CEF74B1001761B3 /* strlcpy.c */,
+				FA322D1A0CEF74B1001761B3 /* vsnprintf.c */,
+			);
+			path = portab;
+			sourceTree = "<group>";
+		};
+		FA322D1B0CEF74B1001761B3 /* testsuite */ = {
+			isa = PBXGroup;
+			children = (
+				FA322D1C0CEF74B1001761B3 /* .cvsignore */,
+				FA322D1D0CEF74B1001761B3 /* channel-test.e */,
+				FA322D1E0CEF74B1001761B3 /* check-idle.e */,
+				FA322D1F0CEF74B1001761B3 /* connect-test.e */,
+				FA322D200CEF74B1001761B3 /* functions.inc */,
+				FA322D210CEF74B1001761B3 /* getpid.sh */,
+				FA322D220CEF74B1001761B3 /* Makefile.am */,
+				FA322D230CEF74B1001761B3 /* mode-test.e */,
+				FA322D240CEF74B1001761B3 /* ngircd-test.conf */,
+				FA322D250CEF74B1001761B3 /* README */,
+				FA322D260CEF74B1001761B3 /* start-server.sh */,
+				FA322D270CEF74B1001761B3 /* stop-server.sh */,
+				FA322D280CEF74B1001761B3 /* stress-A.e */,
+				FA322D290CEF74B1001761B3 /* stress-B.e */,
+				FA322D2A0CEF74B1001761B3 /* stress-server.sh */,
+				FA322D2B0CEF74B1001761B3 /* test-loop.sh */,
+				FA322D2C0CEF74B1001761B3 /* tests.sh */,
+				FA322D2D0CEF74B1001761B3 /* wait-tests.sh */,
+			);
+			path = testsuite;
+			sourceTree = "<group>";
+		};
+		FA322D2E0CEF74B1001761B3 /* tool */ = {
+			isa = PBXGroup;
+			children = (
+				FA322D2F0CEF74B1001761B3 /* .cvsignore */,
+				FA322D300CEF74B1001761B3 /* ansi2knr.1 */,
+				FA322D310CEF74B1001761B3 /* ansi2knr.c */,
+				FA322D320CEF74B1001761B3 /* Makefile.am */,
+				FA322D330CEF74B1001761B3 /* tool.c */,
+				FA322D340CEF74B1001761B3 /* tool.h */,
+			);
+			path = tool;
+			sourceTree = "<group>";
+		};
+		FA322D660CEF7523001761B3 /* contrib */ = {
+			isa = PBXGroup;
+			children = (
+				FA322D670CEF7523001761B3 /* .cvsignore */,
+				FA322D680CEF7523001761B3 /* Debian */,
+				FA322D730CEF7523001761B3 /* MacOSX */,
+				FA322D910CEF7523001761B3 /* Makefile.am */,
+				FA322D920CEF7523001761B3 /* ngindent */,
+				FA322D930CEF7523001761B3 /* ngircd.sh */,
+				FA322D940CEF7523001761B3 /* ngircd.spec */,
+				FA322D950CEF7523001761B3 /* README */,
+				FA322D960CEF7523001761B3 /* systrace.policy */,
 			);
 			name = contrib;
-			sourceTree = "<group>";
+			path = ..;
+			sourceTree = SOURCE_ROOT;
 		};
-		FADE2AD105F149F70081A16E /* Debian */ = {
+		FA322D680CEF7523001761B3 /* Debian */ = {
 			isa = PBXGroup;
 			children = (
-				FADE2AD605F14A0B0081A16E /* Makefile.am */,
-				FADE2ADB05F14A0B0081A16E /* changelog */,
-				FADE2AD905F14A0B0081A16E /* compat */,
-				FADE2AD705F14A0B0081A16E /* control */,
-				FADE2AD305F14A0B0081A16E /* copyright */,
-				FADE2ADA05F14A0B0081A16E /* ngircd.default */,
-				FADE2AD805F14A0B0081A16E /* ngircd.init */,
-				FADE2AD505F14A0B0081A16E /* ngircd.postinst */,
-				FADE2AD405F14A0B0081A16E /* rules */,
+				FA322D690CEF7523001761B3 /* .cvsignore */,
+				FA322D6A0CEF7523001761B3 /* changelog */,
+				FA322D6B0CEF7523001761B3 /* compat */,
+				FA322D6C0CEF7523001761B3 /* control */,
+				FA322D6D0CEF7523001761B3 /* copyright */,
+				FA322D6E0CEF7523001761B3 /* Makefile.am */,
+				FA322D6F0CEF7523001761B3 /* ngircd.default */,
+				FA322D700CEF7523001761B3 /* ngircd.init */,
+				FA322D710CEF7523001761B3 /* ngircd.postinst */,
+				FA322D720CEF7523001761B3 /* rules */,
 			);
-			name = Debian;
+			path = Debian;
 			sourceTree = "<group>";
 		};
-		FADE2AD205F149FD0081A16E /* Mac OS X */ = {
+		FA322D730CEF7523001761B3 /* MacOSX */ = {
 			isa = PBXGroup;
 			children = (
-				FAC0DF4A05F25A150024C8CE /* Makefile.am */,
+				FA322D740CEF7523001761B3 /* .cvsignore */,
+				FA322D750CEF7523001761B3 /* build */,
+				FA322D8D0CEF7523001761B3 /* Makefile.am */,
+				FA322D8E0CEF7523001761B3 /* ngIRCd.xcodeproj */,
+				FA322DB10CEF7565001761B3 /* config.h */,
+				FA322DBB0CEF773C001761B3 /* cvs-version.h */,
 			);
-			name = "Mac OS X";
+			path = MacOSX;
 			sourceTree = "<group>";
 		};
-		FADE2AED05F14A6A0081A16E /* ngircd */ = {
+		FA322D750CEF7523001761B3 /* build */ = {
 			isa = PBXGroup;
 			children = (
-				FADE2AF105F14A960081A16E /* Makefile.am */,
-				FA2329EC08C9E7A30093207B /* array.c */,
-				FA2329ED08C9E7A30093207B /* array.h */,
-				FADE2B0105F14A960081A16E /* channel.c */,
-				FADE2B0805F14A960081A16E /* channel.h */,
-				FADE2B2005F14A960081A16E /* client.c */,
-				FADE2B1305F14A960081A16E /* client.h */,
-				FADE2AFC05F14A960081A16E /* conf.c */,
-				FADE2B0305F14A960081A16E /* conf.h */,
-				FADE2B1E05F14A960081A16E /* conn-func.c */,
-				FADE2B2105F14A960081A16E /* conn-func.h */,
-				FADE2B0D05F14A960081A16E /* conn-zip.c */,
-				FADE2AF505F14A960081A16E /* conn-zip.h */,
-				FADE2B1205F14A960081A16E /* conn.c */,
-				FADE2AF905F14A960081A16E /* conn.h */,
-				FADE2B0205F14A960081A16E /* defines.h */,
-				FADE2B1C05F14A960081A16E /* hash.c */,
-				FADE2AFE05F14A960081A16E /* hash.h */,
-				FA2329F008C9E7C40093207B /* io.c */,
-				FA2329F108C9E7C40093207B /* io.h */,
-				FADE2B1805F14A960081A16E /* irc-channel.c */,
-				FADE2B0705F14A960081A16E /* irc-channel.h */,
-				FADE2B1D05F14A960081A16E /* irc-info.c */,
-				FADE2B0C05F14A960081A16E /* irc-info.h */,
-				FADE2AF405F14A960081A16E /* irc-login.c */,
-				FADE2B1105F14A960081A16E /* irc-login.h */,
-				FADE2AF805F14A960081A16E /* irc-mode.c */,
-				FADE2B0B05F14A960081A16E /* irc-mode.h */,
-				FADE2AF305F14A960081A16E /* irc-op.c */,
-				FADE2B1005F14A960081A16E /* irc-op.h */,
-				FADE2AF705F14A960081A16E /* irc-oper.c */,
-				FADE2B1505F14A960081A16E /* irc-oper.h */,
-				FADE2B0905F14A960081A16E /* irc-server.c */,
-				FADE2AF205F14A960081A16E /* irc-server.h */,
-				FADE2B0E05F14A960081A16E /* irc-write.c */,
-				FADE2B1405F14A960081A16E /* irc-write.h */,
-				FADE2AFD05F14A960081A16E /* irc.c */,
-				FADE2AFB05F14A960081A16E /* irc.h */,
-				FADE2B1A05F14A960081A16E /* lists.c */,
-				FADE2B0505F14A960081A16E /* lists.h */,
-				FADE2B1F05F14A960081A16E /* log.c */,
-				FADE2B0A05F14A960081A16E /* log.h */,
-				FADE2B0F05F14A960081A16E /* match.c */,
-				FADE2AF605F14A960081A16E /* match.h */,
-				FADE2AFA05F14A960081A16E /* messages.h */,
-				FADE2B1705F14A960081A16E /* ngircd.c */,
-				FADE2B0605F14A960081A16E /* ngircd.h */,
-				FADE2AFF05F14A960081A16E /* parse.c */,
-				FADE2B1905F14A960081A16E /* parse.h */,
-				FADE2B0405F14A960081A16E /* rendezvous.c */,
-				FADE2B1605F14A960081A16E /* rendezvous.h */,
-				FADE2B0005F14A960081A16E /* resolve.c */,
-				FADE2B1B05F14A960081A16E /* resolve.h */,
+				FA322D760CEF7523001761B3 /* ngIRCd.build */,
 			);
-			name = ngircd;
+			path = build;
 			sourceTree = "<group>";
 		};
-		FADE2AEE05F14A700081A16E /* portab */ = {
+		FA322D760CEF7523001761B3 /* ngIRCd.build */ = {
 			isa = PBXGroup;
 			children = (
-				FADE2B5605F14AB40081A16E /* Makefile.am */,
-				FADE2B5B05F14AB40081A16E /* ansi2knr.1 */,
-				FADE2B5505F14AB40081A16E /* ansi2knr.c */,
-				FADE2B5805F14AB40081A16E /* exp.h */,
-				FADE2B5405F14AB40081A16E /* imp.h */,
-				FADE2B5705F14AB40081A16E /* portab.h */,
-				FADE2B5A05F14AB40081A16E /* portabtest.c */,
-				FADE2B5305F14AB40081A16E /* splint.h */,
-				FA2329F408C9E8070093207B /* strdup.c */,
-				FADE2B5905F14AB40081A16E /* strlcpy.c */,
-				FADE2B5C05F14AB40081A16E /* vsnprintf.c */,
+				FA322D770CEF7523001761B3 /* Default */,
+				FA322D7F0CEF7523001761B3 /* ngIRCd.pbxindex */,
 			);
-			name = portab;
+			path = ngIRCd.build;
 			sourceTree = "<group>";
 		};
-		FADE2AEF05F14A760081A16E /* testsuite */ = {
+		FA322D770CEF7523001761B3 /* Default */ = {
 			isa = PBXGroup;
 			children = (
-				FADE2B6C05F14B300081A16E /* Makefile.am */,
-				FA2329FB08C9E85D0093207B /* README */,
-				FADE2B6A05F14B300081A16E /* channel-test.e */,
-				FADE2B6F05F14B300081A16E /* check-idle.e */,
-				FADE2B6E05F14B300081A16E /* connect-test.e */,
-				FA2329FA08C9E8450093207B /* functions.inc */,
-				FADE2B6D05F14B300081A16E /* getpid.sh */,
-				FADE2B7305F14B300081A16E /* mode-test.e */,
-				FADE2B7005F14B300081A16E /* ngircd-test.conf */,
-				FADE2B7405F14B300081A16E /* start-server.sh */,
-				FADE2B6B05F14B300081A16E /* stop-server.sh */,
-				FADE2B7105F14B300081A16E /* stress-A.e */,
-				FADE2B7205F14B300081A16E /* stress-B.e */,
-				FADE2B6905F14B300081A16E /* stress-server.sh */,
-				FA2329FC08C9E8700093207B /* test-loop.sh */,
-				FADE2B6805F14B300081A16E /* tests.sh */,
-				FA2329FD08C9E87B0093207B /* wait-tests.sh */,
+				FA322D780CEF7523001761B3 /* ngIRCd.build */,
 			);
-			name = testsuite;
+			path = Default;
 			sourceTree = "<group>";
 		};
-		FADE2AF005F14A840081A16E /* tool */ = {
+		FA322D780CEF7523001761B3 /* ngIRCd.build */ = {
 			isa = PBXGroup;
 			children = (
-				FADE2B7705F14B530081A16E /* Makefile.am */,
-				FADE2B7805F14B530081A16E /* tool.c */,
-				FADE2B7905F14B530081A16E /* tool.h */,
+				FA322D790CEF7523001761B3 /* ngIRCd.hmap */,
+				FA322D7A0CEF7523001761B3 /* Objects-normal */,
 			);
-			name = tool;
+			path = ngIRCd.build;
 			sourceTree = "<group>";
+		};
+		FA322D7A0CEF7523001761B3 /* Objects-normal */ = {
+			isa = PBXGroup;
+			children = (
+				FA322D7B0CEF7523001761B3 /* i386 */,
+				FA322D7D0CEF7523001761B3 /* ppc */,
+			);
+			path = "Objects-normal";
+			sourceTree = "<group>";
+		};
+		FA322D7B0CEF7523001761B3 /* i386 */ = {
+			isa = PBXGroup;
+			children = (
+				FA322D7C0CEF7523001761B3 /* ngIRCd.LinkFileList */,
+			);
+			path = i386;
+			sourceTree = "<group>";
+		};
+		FA322D7D0CEF7523001761B3 /* ppc */ = {
+			isa = PBXGroup;
+			children = (
+				FA322D7E0CEF7523001761B3 /* ngIRCd.LinkFileList */,
+			);
+			path = ppc;
+			sourceTree = "<group>";
+		};
+		FA322D7F0CEF7523001761B3 /* ngIRCd.pbxindex */ = {
+			isa = PBXGroup;
+			children = (
+				FA322D800CEF7523001761B3 /* categories.pbxbtree */,
+				FA322D810CEF7523001761B3 /* cdecls.pbxbtree */,
+				FA322D820CEF7523001761B3 /* decls.pbxbtree */,
+				FA322D830CEF7523001761B3 /* files.pbxbtree */,
+				FA322D840CEF7523001761B3 /* imports.pbxbtree */,
+				FA322D850CEF7523001761B3 /* pbxindex.header */,
+				FA322D860CEF7523001761B3 /* protocols.pbxbtree */,
+				FA322D870CEF7523001761B3 /* refs.pbxbtree */,
+				FA322D880CEF7523001761B3 /* strings.pbxstrings */,
+				FA322D8B0CEF7523001761B3 /* subclasses.pbxbtree */,
+				FA322D8C0CEF7523001761B3 /* symbols0.pbxsymbols */,
+			);
+			path = ngIRCd.pbxindex;
+			sourceTree = "<group>";
+		};
+		FA322D880CEF7523001761B3 /* strings.pbxstrings */ = {
+			isa = PBXGroup;
+			children = (
+				FA322D890CEF7523001761B3 /* control */,
+				FA322D8A0CEF7523001761B3 /* strings */,
+			);
+			path = strings.pbxstrings;
+			sourceTree = "<group>";
+		};
+		FA322D8F0CEF7523001761B3 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		FA322D970CEF752C001761B3 /* doc */ = {
+			isa = PBXGroup;
+			children = (
+				FA322D980CEF752C001761B3 /* .cvsignore */,
+				FA322D990CEF752C001761B3 /* CVS.txt */,
+				FA322D9A0CEF752C001761B3 /* FAQ.txt */,
+				FA322D9B0CEF752C001761B3 /* Makefile.am */,
+				FA322D9C0CEF752C001761B3 /* Platforms.txt */,
+				FA322D9D0CEF752C001761B3 /* Protocol.txt */,
+				FA322D9E0CEF752C001761B3 /* README-AUX.txt */,
+				FA322D9F0CEF752C001761B3 /* README-BeOS.txt */,
+				FA322DA00CEF752C001761B3 /* RFC.txt */,
+				FA322DA10CEF752C001761B3 /* sample-ngircd.conf */,
+				FA322DA20CEF752C001761B3 /* src */,
+				FA322DA90CEF752C001761B3 /* SSL.txt */,
+				FA322DAA0CEF752C001761B3 /* Zeroconf.txt */,
+			);
+			name = doc;
+			path = ../../doc;
+			sourceTree = SOURCE_ROOT;
+		};
+		FA322DA20CEF752C001761B3 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				FA322DA30CEF752C001761B3 /* .cvsignore */,
+				FA322DA40CEF752C001761B3 /* Doxyfile */,
+				FA322DA50CEF752C001761B3 /* footer.inc.html */,
+				FA322DA60CEF752C001761B3 /* header.inc.html */,
+				FA322DA70CEF752C001761B3 /* Makefile.am */,
+				FA322DA80CEF752C001761B3 /* ngircd-doc.css */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		FA322DAB0CEF7538001761B3 /* man */ = {
+			isa = PBXGroup;
+			children = (
+				FA322DAC0CEF7538001761B3 /* .cvsignore */,
+				FA322DAD0CEF7538001761B3 /* Makefile.am */,
+				FA322DAE0CEF7538001761B3 /* ngircd.8.tmpl */,
+				FA322DAF0CEF7538001761B3 /* ngircd.conf.5.tmpl */,
+			);
+			name = man;
+			path = ../../man;
+			sourceTree = SOURCE_ROOT;
 		};
 /* End PBXGroup section */
-
-/* Begin PBXHeadersBuildPhase section */
-		8DD76FAA0486AB0100D96B5E /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				FADE2B2305F14A960081A16E /* irc-server.h in Headers */,
-				FADE2B2605F14A960081A16E /* conn-zip.h in Headers */,
-				FADE2B2705F14A960081A16E /* match.h in Headers */,
-				FADE2B2A05F14A960081A16E /* conn.h in Headers */,
-				FADE2B2B05F14A960081A16E /* messages.h in Headers */,
-				FADE2B2C05F14A960081A16E /* irc.h in Headers */,
-				FADE2B2F05F14A960081A16E /* hash.h in Headers */,
-				FADE2B3305F14A960081A16E /* defines.h in Headers */,
-				FADE2B3405F14A960081A16E /* conf.h in Headers */,
-				FADE2B3605F14A960081A16E /* lists.h in Headers */,
-				FADE2B3705F14A960081A16E /* ngircd.h in Headers */,
-				FADE2B3805F14A960081A16E /* irc-channel.h in Headers */,
-				FADE2B3905F14A960081A16E /* channel.h in Headers */,
-				FADE2B3B05F14A960081A16E /* log.h in Headers */,
-				FADE2B3C05F14A960081A16E /* irc-mode.h in Headers */,
-				FADE2B3D05F14A960081A16E /* irc-info.h in Headers */,
-				FADE2B4105F14A960081A16E /* irc-op.h in Headers */,
-				FADE2B4205F14A960081A16E /* irc-login.h in Headers */,
-				FADE2B4405F14A960081A16E /* client.h in Headers */,
-				FADE2B4505F14A960081A16E /* irc-write.h in Headers */,
-				FADE2B4605F14A960081A16E /* irc-oper.h in Headers */,
-				FADE2B4705F14A960081A16E /* rendezvous.h in Headers */,
-				FADE2B4A05F14A960081A16E /* parse.h in Headers */,
-				FADE2B4C05F14A960081A16E /* resolve.h in Headers */,
-				FADE2B5205F14A960081A16E /* conn-func.h in Headers */,
-				FADE2BBD05F14DEF0081A16E /* exp.h in Headers */,
-				FADE2BBF05F14DEF0081A16E /* imp.h in Headers */,
-				FADE2BC105F14DF10081A16E /* portab.h in Headers */,
-				FADE2CC205F152780081A16E /* tool.h in Headers */,
-				FA2329EF08C9E7A30093207B /* array.h in Headers */,
-				FA2329F308C9E7C40093207B /* io.h in Headers */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		FADE2C5F05F1511B0081A16E /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				FADE2CB205F151490081A16E /* exp.h in Headers */,
-				FADE2CB305F151490081A16E /* imp.h in Headers */,
-				FA2329F708C9E81A0093207B /* portab.h in Headers */,
-				FA232A7D08C9F0480093207B /* config.h in Headers */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
 		8DD76FA90486AB0100D96B5E /* ngIRCd */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = FA8B5E9508C9DB5600B781D4 /* Build configuration list for PBXNativeTarget "ngIRCd" */;
+			buildConfigurationList = 1DEB928508733DD80010E9CD /* Build configuration list for PBXNativeTarget "ngIRCd" */;
 			buildPhases = (
-				8DD76FAA0486AB0100D96B5E /* Headers */,
 				8DD76FAB0486AB0100D96B5E /* Sources */,
 				8DD76FAD0486AB0100D96B5E /* Frameworks */,
-				8DD76FAE0486AB0100D96B5E /* Rez */,
 				8DD76FAF0486AB0100D96B5E /* CopyFiles */,
 			);
 			buildRules = (
@@ -561,27 +595,7 @@
 			name = ngIRCd;
 			productInstallPath = "$(HOME)/bin";
 			productName = ngIRCd;
-			productReference = FADE2B7B05F14B9F0081A16E /* ngIRCd */;
-			productType = "com.apple.product-type.tool";
-		};
-		FADE2C5E05F1511B0081A16E /* portabtest */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = FA8B5E9908C9DB5600B781D4 /* Build configuration list for PBXNativeTarget "portabtest" */;
-			buildPhases = (
-				FADE2C5F05F1511B0081A16E /* Headers */,
-				FADE2C7C05F1511B0081A16E /* Sources */,
-				FADE2C9605F1511B0081A16E /* Frameworks */,
-				FADE2C9705F1511B0081A16E /* Rez */,
-				FADE2C9805F1511B0081A16E /* CopyFiles */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = portabtest;
-			productInstallPath = "$(HOME)/bin";
-			productName = ngIRCd;
-			productReference = FADE2C9905F1511B0081A16E /* portabtest */;
+			productReference = FA322BBA0CEF72E4001761B3 /* ngIRCd */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -589,213 +603,103 @@
 /* Begin PBXProject section */
 		08FB7793FE84155DC02AAC07 /* Project object */ = {
 			isa = PBXProject;
-			buildConfigurationList = FA8B5E9D08C9DB5600B781D4 /* Build configuration list for PBXProject "ngIRCd" */;
+			buildConfigurationList = 1DEB928908733DD80010E9CD /* Build configuration list for PBXProject "ngIRCd" */;
+			compatibilityVersion = "Xcode 3.0";
 			hasScannedForEncodings = 1;
 			mainGroup = 08FB7794FE84155DC02AAC07 /* ngIRCd */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = FA322D8F0CEF7523001761B3 /* Products */;
+					ProjectRef = FA322D8E0CEF7523001761B3 /* ngIRCd.xcodeproj */;
+				},
+			);
+			projectRoot = "";
 			targets = (
 				8DD76FA90486AB0100D96B5E /* ngIRCd */,
-				FADE2C5E05F1511B0081A16E /* portabtest */,
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXRezBuildPhase section */
-		8DD76FAE0486AB0100D96B5E /* Rez */ = {
-			isa = PBXRezBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		FADE2C9705F1511B0081A16E /* Rez */ = {
-			isa = PBXRezBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXRezBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		8DD76FAB0486AB0100D96B5E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FADE2B2405F14A960081A16E /* irc-op.c in Sources */,
-				FADE2B2505F14A960081A16E /* irc-login.c in Sources */,
-				FADE2B2805F14A960081A16E /* irc-oper.c in Sources */,
-				FADE2B2905F14A960081A16E /* irc-mode.c in Sources */,
-				FADE2B2D05F14A960081A16E /* conf.c in Sources */,
-				FADE2B2E05F14A960081A16E /* irc.c in Sources */,
-				FADE2B3005F14A960081A16E /* parse.c in Sources */,
-				FADE2B3105F14A960081A16E /* resolve.c in Sources */,
-				FADE2B3205F14A960081A16E /* channel.c in Sources */,
-				FADE2B3505F14A960081A16E /* rendezvous.c in Sources */,
-				FADE2B3A05F14A960081A16E /* irc-server.c in Sources */,
-				FADE2B3E05F14A960081A16E /* conn-zip.c in Sources */,
-				FADE2B3F05F14A960081A16E /* irc-write.c in Sources */,
-				FADE2B4005F14A960081A16E /* match.c in Sources */,
-				FADE2B4305F14A960081A16E /* conn.c in Sources */,
-				FADE2B4805F14A960081A16E /* ngircd.c in Sources */,
-				FADE2B4905F14A960081A16E /* irc-channel.c in Sources */,
-				FADE2B4B05F14A960081A16E /* lists.c in Sources */,
-				FADE2B4D05F14A960081A16E /* hash.c in Sources */,
-				FADE2B4E05F14A960081A16E /* irc-info.c in Sources */,
-				FADE2B4F05F14A960081A16E /* conn-func.c in Sources */,
-				FADE2B5005F14A960081A16E /* log.c in Sources */,
-				FADE2B5105F14A960081A16E /* client.c in Sources */,
-				FADE2BC305F14DF40081A16E /* strlcpy.c in Sources */,
-				FADE2BC505F14DF50081A16E /* vsnprintf.c in Sources */,
-				FADE2CC005F152770081A16E /* tool.c in Sources */,
-				FA2329EE08C9E7A30093207B /* array.c in Sources */,
-				FA2329F208C9E7C40093207B /* io.c in Sources */,
-				FA2329F508C9E8070093207B /* strdup.c in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		FADE2C7C05F1511B0081A16E /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				FADE2CB405F151490081A16E /* portabtest.c in Sources */,
+				FA322D350CEF74B1001761B3 /* array.c in Sources */,
+				FA322D360CEF74B1001761B3 /* channel.c in Sources */,
+				FA322D370CEF74B1001761B3 /* client.c in Sources */,
+				FA322D380CEF74B1001761B3 /* conf.c in Sources */,
+				FA322D390CEF74B1001761B3 /* conn-func.c in Sources */,
+				FA322D3A0CEF74B1001761B3 /* conn-zip.c in Sources */,
+				FA322D3B0CEF74B1001761B3 /* conn.c in Sources */,
+				FA322D3C0CEF74B1001761B3 /* hash.c in Sources */,
+				FA322D3D0CEF74B1001761B3 /* io.c in Sources */,
+				FA322D3E0CEF74B1001761B3 /* irc-channel.c in Sources */,
+				FA322D3F0CEF74B1001761B3 /* irc-info.c in Sources */,
+				FA322D400CEF74B1001761B3 /* irc-login.c in Sources */,
+				FA322D410CEF74B1001761B3 /* irc-mode.c in Sources */,
+				FA322D420CEF74B1001761B3 /* irc-op.c in Sources */,
+				FA322D430CEF74B1001761B3 /* irc-oper.c in Sources */,
+				FA322D440CEF74B1001761B3 /* irc-server.c in Sources */,
+				FA322D450CEF74B1001761B3 /* irc-write.c in Sources */,
+				FA322D460CEF74B1001761B3 /* irc.c in Sources */,
+				FA322D470CEF74B1001761B3 /* lists.c in Sources */,
+				FA322D480CEF74B1001761B3 /* log.c in Sources */,
+				FA322D490CEF74B1001761B3 /* match.c in Sources */,
+				FA322D4A0CEF74B1001761B3 /* ngircd.c in Sources */,
+				FA322D4B0CEF74B1001761B3 /* parse.c in Sources */,
+				FA322D4C0CEF74B1001761B3 /* rendezvous.c in Sources */,
+				FA322D4D0CEF74B1001761B3 /* resolve.c in Sources */,
+				FA322DBE0CEF7766001761B3 /* tool.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		FA8B5E9608C9DB5600B781D4 /* Development */ = {
+		1DEB928708733DD80010E9CD /* Default */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				PREBINDING = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = /usr/local/bin;
 				PRODUCT_NAME = ngIRCd;
-				ZERO_LINK = NO;
 			};
-			name = Development;
+			name = Default;
 		};
-		FA8B5E9708C9DB5600B781D4 /* Deployment */ = {
+		1DEB928B08733DD80010E9CD /* Default */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				GCC_OPTIMIZATION_LEVEL = 2;
-				PREBINDING = NO;
-				PRODUCT_NAME = ngIRCd;
-				ZERO_LINK = NO;
-			};
-			name = Deployment;
-		};
-		FA8B5E9A08C9DB5600B781D4 /* Development */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
-				PREBINDING = NO;
-				PRODUCT_NAME = portabtest;
-				ZERO_LINK = NO;
-			};
-			name = Development;
-		};
-		FA8B5E9B08C9DB5600B781D4 /* Deployment */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				GCC_OPTIMIZATION_LEVEL = 2;
-				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
-				PREBINDING = NO;
-				PRODUCT_NAME = portabtest;
-				ZERO_LINK = NO;
-			};
-			name = Deployment;
-		};
-		FA8B5E9E08C9DB5600B781D4 /* Development */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				GCC_PREPROCESSOR_DEFINITIONS = "SYSCONFDIR='\"/opt/ngircd/etc\"'";
-				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
-				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
-				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				ARCHS = (
+					ppc,
+					i386,
+				);
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
-				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
-				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
-				GCC_WARN_MISSING_PARENTHESES = YES;
-				GCC_WARN_PEDANTIC = YES;
-				GCC_WARN_SHADOW = YES;
-				GCC_WARN_SIGN_COMPARE = YES;
-				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
-				GCC_WARN_UNKNOWN_PRAGMAS = YES;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_LABEL = YES;
-				GCC_WARN_UNUSED_PARAMETER = YES;
-				GCC_WARN_UNUSED_VALUE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				WARNING_CFLAGS = "-Wall";
+				PREBINDING = NO;
+				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.5.sdk";
 			};
-			name = Development;
-		};
-		FA8B5E9F08C9DB5600B781D4 /* Deployment */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				GCC_PREPROCESSOR_DEFINITIONS = "SYSCONFDIR='\"/opt/ngircd/etc\"'";
-				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
-				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
-				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
-				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
-				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
-				GCC_WARN_MISSING_PARENTHESES = YES;
-				GCC_WARN_PEDANTIC = YES;
-				GCC_WARN_SHADOW = YES;
-				GCC_WARN_SIGN_COMPARE = YES;
-				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
-				GCC_WARN_UNKNOWN_PRAGMAS = YES;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_LABEL = YES;
-				GCC_WARN_UNUSED_PARAMETER = YES;
-				GCC_WARN_UNUSED_VALUE = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				WARNING_CFLAGS = "-Wall";
-			};
-			name = Deployment;
+			name = Default;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		FA8B5E9508C9DB5600B781D4 /* Build configuration list for PBXNativeTarget "ngIRCd" */ = {
+		1DEB928508733DD80010E9CD /* Build configuration list for PBXNativeTarget "ngIRCd" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				FA8B5E9608C9DB5600B781D4 /* Development */,
-				FA8B5E9708C9DB5600B781D4 /* Deployment */,
+				1DEB928708733DD80010E9CD /* Default */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Development;
+			defaultConfigurationName = Default;
 		};
-		FA8B5E9908C9DB5600B781D4 /* Build configuration list for PBXNativeTarget "portabtest" */ = {
+		1DEB928908733DD80010E9CD /* Build configuration list for PBXProject "ngIRCd" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				FA8B5E9A08C9DB5600B781D4 /* Development */,
-				FA8B5E9B08C9DB5600B781D4 /* Deployment */,
+				1DEB928B08733DD80010E9CD /* Default */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Development;
-		};
-		FA8B5E9D08C9DB5600B781D4 /* Build configuration list for PBXProject "ngIRCd" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				FA8B5E9E08C9DB5600B781D4 /* Development */,
-				FA8B5E9F08C9DB5600B781D4 /* Deployment */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Development;
+			defaultConfigurationName = Default;
 		};
 /* End XCConfigurationList section */
 	};

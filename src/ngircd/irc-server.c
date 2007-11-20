@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2006 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2007 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-server.c,v 1.44 2007/11/18 15:05:35 alex Exp $";
+static char UNUSED id[] = "$Id: irc-server.c,v 1.45 2007/11/20 20:02:41 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -81,8 +81,6 @@ Synchronize_Lists( CLIENT *Client )
 	return true;
 }
 #endif
-
-
 
 
 /**
@@ -209,8 +207,13 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 						if( ! IRC_WriteStrClient( c, "SERVER %s %d %d :%s", Client_ID( Client ), Client_Hops( Client ) + 1, Client_MyToken( Client ), Client_Info( Client ))) return DISCONNECTED;
 					}
 					
-					/* Den neuen Server ueber den alten informieren */
-					if( ! IRC_WriteStrClientPrefix( Client, Client_Hops( c ) == 1 ? Client_ThisServer( ) : Client_Introducer( c ), "SERVER %s %d %d :%s", Client_ID( c ), Client_Hops( c ) + 1, Client_MyToken( c ), Client_Info( c ))) return DISCONNECTED;
+					/* Inform the new server about this one */
+					if (! IRC_WriteStrClientPrefix(Client,
+							Client_Hops(c) == 1 ? Client_ThisServer() : Client_TopServer(c),
+							"SERVER %s %d %d :%s",
+							Client_ID(c), Client_Hops(c) + 1,
+							Client_MyToken(c), Client_Info(c)))
+						return DISCONNECTED;
 				}
 				c = Client_Next( c );
 			}

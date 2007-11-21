@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-info.c,v 1.39 2007/11/18 15:05:35 alex Exp $";
+static char UNUSED id[] = "$Id: irc-info.c,v 1.40 2007/11/21 12:16:36 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -1048,6 +1048,24 @@ IRC_Send_WHO( CLIENT *Client, CHANNEL *Chan, bool OnlyOps )
 	}
 	return CONNECTED;
 } /* IRC_Send_WHO */
+
+
+/**
+ * Send the ISUPPORT numeric (005).
+ * This numeric indicates the features that are supported by this server.
+ * See <http://www.irc.org/tech_docs/005.html> for details.
+ */
+GLOBAL bool
+IRC_Send_ISUPPORT PARAMS((CLIENT * Client))
+{
+	if (!IRC_WriteStrClient(Client, RPL_ISUPPORT1_MSG, Client_ID(Client),
+				Conf_MaxJoins))
+		return DISCONNECTED;
+	return IRC_WriteStrClient(Client, RPL_ISUPPORT2_MSG, Client_ID(Client),
+				  CHANNEL_NAME_LEN - 1, Conf_MaxNickLength - 1,
+				  COMMAND_LEN - 23, CLIENT_AWAY_LEN - 1,
+				  COMMAND_LEN - 113);
+} /* IRC_Send_ISUPPORT */
 
 
 /* -eof- */

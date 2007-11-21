@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.116 2007/11/15 01:03:01 fw Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.117 2007/11/21 12:16:36 alex Exp $";
 
 /**
  * @file
@@ -422,6 +422,7 @@ GLOBAL void
 NGIRCd_Rehash( void )
 {
 	char old_name[CLIENT_ID_LEN];
+	unsigned old_nicklen;
 
 	Log( LOG_NOTICE|LOG_snotice, "Re-reading configuration NOW!" );
 	NGIRCd_SignalRehash = false;
@@ -429,17 +430,22 @@ NGIRCd_Rehash( void )
 	/* Close down all listening sockets */
 	Conn_ExitListeners( );
 
-	/* Remember old server name */
+	/* Remember old server name and nick name length */
 	strlcpy( old_name, Conf_ServerName, sizeof old_name );
+	old_nicklen = Conf_MaxNickLength;
 
 	/* Re-read configuration ... */
 	Conf_Rehash( );
 
-	/* Recover old server name: it can't be changed during run-time */
-	if( strcmp( old_name, Conf_ServerName ) != 0 )
-	{
-		strlcpy( Conf_ServerName, old_name, sizeof Conf_ServerName );
-		Log( LOG_ERR, "Can't change \"ServerName\" on runtime! Ignored new name." );
+	/* Recover old server name and nick name length: these values can't
+	 * be changed during run-time */
+	if (strcmp(old_name, Conf_ServerName) != 0 ) {
+		strlcpy(Conf_ServerName, old_name, sizeof Conf_ServerName);
+		Log(LOG_ERR, "Can't change \"ServerName\" on runtime! Ignored new name.");
+	}
+	if (old_nicklen != Conf_MaxNickLength) {
+		Conf_MaxNickLength = old_nicklen;
+		Log(LOG_ERR, "Can't change \"MaxNickLength\" on runtime! Ignored new value.");
 	}
 
 	/* Create new pre-defined channels */

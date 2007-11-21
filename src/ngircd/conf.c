@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.101 2007/10/25 11:01:19 fw Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.102 2007/11/21 12:16:36 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -208,7 +208,8 @@ Conf_Test( void )
 	printf( "  NoDNS = %s\n", Conf_NoDNS ? "yes" : "no");
 	printf( "  MaxConnections = %ld\n", Conf_MaxConnections);
 	printf( "  MaxConnectionsIP = %d\n", Conf_MaxConnectionsIP);
-	printf( "  MaxJoins = %d\n\n", Conf_MaxJoins);
+	printf( "  MaxJoins = %d\n", Conf_MaxJoins>0 ? Conf_MaxJoins : -1);
+	printf( "  MaxNickLength = %u\n\n", Conf_MaxNickLength - 1);
 
 	for( i = 0; i < Conf_Oper_Count; i++ ) {
 		if( ! Conf_Oper[i].name[0] ) continue;
@@ -452,6 +453,7 @@ Set_Defaults( bool InitServers )
 	Conf_MaxConnections = 0;
 	Conf_MaxConnectionsIP = 5;
 	Conf_MaxJoins = 10;
+	Conf_MaxNickLength = CLIENT_NICK_LEN_DEFAULT;
 
 	/* Initialize server configuration structures */
 	if( InitServers ) for( i = 0; i < MAX_SERVERS; Init_Server_Struct( &Conf_Server[i++] ));
@@ -636,6 +638,27 @@ Check_ArgIsTrue( const char *Arg )
 
 	return false;
 } /* Check_ArgIsTrue */
+
+
+static unsigned int Handle_MaxNickLength(int Line, const char *Arg)
+{
+	unsigned new;
+
+	new = (unsigned) atoi(Arg) + 1;
+	if (new > CLIENT_NICK_LEN) {
+		Config_Error(LOG_WARNING,
+			     "%s, line %d: Value of \"MaxNickLength\" exceeds %u!",
+			     NGIRCd_ConfFile, Line, CLIENT_NICK_LEN - 1);
+		return CLIENT_NICK_LEN;
+	}
+	if (new < 2) {
+		Config_Error(LOG_WARNING,
+			     "%s, line %d: Value of \"MaxNickLength\" must be at least 1!",
+			     NGIRCd_ConfFile, Line);
+		return 2;
+	}
+	return new;
+} /* Handle_MaxNickLength */
 
 
 static void
@@ -827,6 +850,13 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 		Conf_MaxJoins = atoi( Arg );
 		return;
 	}
+	if( strcasecmp( Var, "MaxNickLength" ) == 0 ) {
+		/* Maximum length of a nick name; must be same on all servers
+		 * within the IRC network! */
+		Conf_MaxNickLength = Handle_MaxNickLength(Line, Arg);
+		return;
+	}
+
 	if( strcasecmp( Var, "Listen" ) == 0 ) {
 		/* IP-Address to bind sockets */
 		len = strlcpy( Conf_ListenAddress, Arg, sizeof( Conf_ListenAddress ));

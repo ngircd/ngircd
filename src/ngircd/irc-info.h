@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: irc-info.h,v 1.3 2005/03/19 18:43:48 fw Exp $
+ * $Id: irc-info.h,v 1.4 2007/11/21 12:16:36 alex Exp $
  *
  * IRC info commands (header)
  */
@@ -36,6 +36,7 @@ GLOBAL bool IRC_Send_LUSERS PARAMS(( CLIENT *Client ));
 GLOBAL bool IRC_Send_NAMES PARAMS(( CLIENT *Client, CHANNEL *Chan ));
 GLOBAL bool IRC_Show_MOTD PARAMS(( CLIENT *Client ));
 GLOBAL bool IRC_Send_WHO PARAMS(( CLIENT *Client, CHANNEL *Chan, bool OnlyOps ));
+GLOBAL bool IRC_Send_ISUPPORT PARAMS(( CLIENT *Client ));
 
 
 #endif

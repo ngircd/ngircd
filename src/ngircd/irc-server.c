@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-server.c,v 1.45 2007/11/20 20:02:41 alex Exp $";
+static char UNUSED id[] = "$Id: irc-server.c,v 1.46 2007/11/21 12:16:36 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -35,52 +35,12 @@ static char UNUSED id[] = "$Id: irc-server.c,v 1.45 2007/11/20 20:02:41 alex Exp
 #include "log.h"
 #include "messages.h"
 #include "parse.h"
+#include "numeric.h"
 #include "ngircd.h"
+#include "irc-info.h"
 
 #include "exp.h"
 #include "irc-server.h"
-
-
-#ifdef IRCPLUS
-static bool
-Synchronize_Lists( CLIENT *Client )
-{
-	CHANNEL *c;
-	struct list_head *head;
-	struct list_elem *elem;
-
-	assert( Client != NULL );
-
-	c = Channel_First();
-
-	while (c) {
-		head = Channel_GetListBans(c);
-
-		elem = Lists_GetFirst(head);
-		while (elem) {
-			if( ! IRC_WriteStrClient( Client, "MODE %s +b %s",
-					Channel_Name(c), Lists_GetMask(elem)))
-			{
-				return false;
-			}
-			elem = Lists_GetNext(elem);
-		}
-
-		head = Channel_GetListInvites(c);
-		elem = Lists_GetFirst(head);
-		while (elem) {
-			if( ! IRC_WriteStrClient( Client, "MODE %s +I %s",
-					Channel_Name( c ), Lists_GetMask(elem)))
-			{
-				return false;
-			}
-			elem = Lists_GetNext(elem);
-		}
-		c = Channel_Next(c);
-	}
-	return true;
-}
-#endif
 
 
 /**
@@ -90,12 +50,10 @@ Synchronize_Lists( CLIENT *Client )
 GLOBAL bool
 IRC_SERVER( CLIENT *Client, REQUEST *Req )
 {
-	char str[LINE_LEN], *ptr, *modes, *topic;
-	CLIENT *from, *c, *cl;
-	CL2CHAN *cl2chan;
-	int max_hops, i;
-	CHANNEL *chan;
+	char str[LINE_LEN], *ptr;
+	CLIENT *from, *c;
 	bool ok;
+	int i;
 	CONN_ID con;
 	
 	assert( Client != NULL );
@@ -164,10 +122,10 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 			Client_SetToken( Client, atoi( Req->argv[1] ));
 		}
 
-		Log( LOG_NOTICE|LOG_snotice, "Server \"%s\" registered (connection %d, 1 hop - direct link).", Client_ID( Client ), con );
-
-		Client_SetType( Client, CLIENT_SERVER );
-		Conf_SetServer( i, con );
+		/* Mark this connection as belonging to an configured server */
+		Conf_SetServer(i, con);
+		
+		Client_SetType(Client, CLIENT_UNKNOWNSERVER);
 
 #ifdef ZLIB
 		/* Kompression initialisieren, wenn erforderlich */
@@ -182,145 +140,23 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 		}
 #endif
 
-		/* maximalen Hop Count ermitteln */
-		max_hops = 0;
-		c = Client_First( );
-		while( c )
-		{
-			if( Client_Hops( c ) > max_hops ) max_hops = Client_Hops( c );
-			c = Client_Next( c );
-		}
-		
-		/* Alle bisherigen Server dem neuen Server bekannt machen,
-		 * die bisherigen Server ueber den neuen informierenn */
-		for( i = 0; i < ( max_hops + 1 ); i++ )
-		{
-			c = Client_First( );
-			while( c )
-			{
-				if(( Client_Type( c ) == CLIENT_SERVER ) && ( c != Client ) && ( c != Client_ThisServer( )) && ( Client_Hops( c ) == i ))
-				{
-					if( Client_Conn( c ) > NONE )
-					{
-						/* Dem gefundenen Server gleich den neuen
-						 * Server bekannt machen */
-						if( ! IRC_WriteStrClient( c, "SERVER %s %d %d :%s", Client_ID( Client ), Client_Hops( Client ) + 1, Client_MyToken( Client ), Client_Info( Client ))) return DISCONNECTED;
-					}
-					
-					/* Inform the new server about this one */
-					if (! IRC_WriteStrClientPrefix(Client,
-							Client_Hops(c) == 1 ? Client_ThisServer() : Client_TopServer(c),
-							"SERVER %s %d %d :%s",
-							Client_ID(c), Client_Hops(c) + 1,
-							Client_MyToken(c), Client_Info(c)))
-						return DISCONNECTED;
-				}
-				c = Client_Next( c );
-			}
-		}
-
-		/* alle User dem neuen Server bekannt machen */
-		c = Client_First( );
-		while( c )
-		{
-			if( Client_Type( c ) == CLIENT_USER )
-			{
-				/* User an neuen Server melden */
-				if( ! IRC_WriteStrClient( Client, "NICK %s %d %s %s %d +%s :%s", Client_ID( c ), Client_Hops( c ) + 1, Client_User( c ), Client_Hostname( c ), Client_MyToken( Client_Introducer( c )), Client_Modes( c ), Client_Info( c ))) return DISCONNECTED;
-			}
-			c = Client_Next( c );
-		}
-
-		/* Channels dem neuen Server bekannt machen */
-		chan = Channel_First( );
-		while( chan )
-		{
 #ifdef IRCPLUS
-			/* Send CHANINFO if the peer supports it */
-			if( strchr( Client_Flags( Client ), 'C' ))
-			{
-#ifdef DEBUG
-				Log( LOG_DEBUG, "Sending CHANINFO commands ..." );
-#endif
-				modes = Channel_Modes( chan );
-				topic = Channel_Topic( chan );
-
-				if( *modes || *topic )
-				{
-					/* send CHANINFO */
-					if(( ! strchr( Channel_Modes( chan ), 'k' )) && ( ! strchr( Channel_Modes( chan ), 'l' )) && ( ! *topic ))
-					{
-						/* "CHANINFO <chan> +<modes>" */
-						if( ! IRC_WriteStrClient( Client, "CHANINFO %s +%s", Channel_Name( chan ), modes )) return DISCONNECTED;
-					}
-					else if(( ! strchr( Channel_Modes( chan ), 'k' )) && ( ! strchr( Channel_Modes( chan ), 'l' )))
-					{
-						/* "CHANINFO <chan> +<modes> :<topic>" */
-						if( ! IRC_WriteStrClient( Client, "CHANINFO %s +%s :%s", Channel_Name( chan ), modes, topic )) return DISCONNECTED;
-					}
-					else
-					{
-						/* "CHANINFO <chan> +<modes> <key> <limit> :<topic>" */
-						if( ! IRC_WriteStrClient( Client, "CHANINFO %s +%s %s %lu :%s",
-							Channel_Name( chan ), modes,
-							strchr( Channel_Modes( chan ), 'k' ) ? Channel_Key( chan ) : "*",
-							strchr( Channel_Modes( chan ), 'l' ) ? Channel_MaxUsers( chan ) : 0, topic ))
-						{
-							return DISCONNECTED;
-						}
-					}
-				}
-			}
-#endif
-
-			/* alle Member suchen */
-			cl2chan = Channel_FirstMember( chan );
-			snprintf( str, sizeof( str ), "NJOIN %s :", Channel_Name( chan ));
-			while( cl2chan )
-			{
-				cl = Channel_GetClient( cl2chan );
-				assert( cl != NULL );
-
-				/* Nick, ggf. mit Modes, anhaengen */
-				if( str[strlen( str ) - 1] != ':' ) strlcat( str, ",", sizeof( str ));
-				if( strchr( Channel_UserModes( chan, cl ), 'v' )) strlcat( str, "+", sizeof( str ));
-				if( strchr( Channel_UserModes( chan, cl ), 'o' )) strlcat( str, "@", sizeof( str ));
-				strlcat( str, Client_ID( cl ), sizeof( str ));
-
-				if( strlen( str ) > ( LINE_LEN - CLIENT_NICK_LEN - 8 ))
-				{
-					/* Zeile senden */
-					if( ! IRC_WriteStrClient( Client, "%s", str )) return DISCONNECTED;
-					snprintf( str, sizeof( str ), "NJOIN %s :", Channel_Name( chan ));
-				}
-				
-				cl2chan = Channel_NextMember( chan, cl2chan );
-			}
-
-			/* noch Daten da? */
-			if( str[strlen( str ) - 1] != ':')
-			{
-				/* Ja; Also senden ... */
-				if( ! IRC_WriteStrClient( Client, "%s", str )) return DISCONNECTED;
-			}
-
-			/* Get next channel ... */
-			chan = Channel_Next(chan);
-		}
-
-#ifdef IRCPLUS
-		if (strchr(Client_Flags(Client), 'L')) {
-#ifdef DEBUG
-			Log(LOG_DEBUG,
-			    "Synchronizing INVITE- and BAN-lists ...");
-#endif
-			/* Synchronize INVITE- and BAN-lists */
-			if (!Synchronize_Lists(Client))
+		if (strchr(Client_Flags(Client), 'H')) {
+			LogDebug("Peer supports IRC+ extended server handshake ...");
+			if (!IRC_Send_ISUPPORT(Client))
 				return DISCONNECTED;
+			return IRC_WriteStrClient(Client, RPL_ENDOFMOTD_MSG,
+						  Client_ID(Client));
+		} else {
+#endif
+			if (Conf_MaxNickLength != CLIENT_NICK_LEN_DEFAULT)
+				Log(LOG_CRIT,
+				    "Attention: this server uses a non-standard nick length, but the peer doesn't support the IRC+ extended server handshake!");
+#ifdef IRCPLUS
 		}
 #endif
 
-		return CONNECTED;
+		return IRC_Num_ENDOFMOTD(Client, Req);
 	}
 	else if( Client_Type( Client ) == CLIENT_SERVER )
 	{
@@ -364,8 +200,9 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 		IRC_WriteStrServersPrefix( Client, from, "SERVER %s %d %d :%s", Client_ID( c ), Client_Hops( c ) + 1, Client_MyToken( c ), Client_Info( c ));
 
 		return CONNECTED;
-	}
-	else return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	} else
+		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+					  Client_ID(Client), Req->command);
 } /* IRC_SERVER */
 
 

@@ -12,6 +12,8 @@
 
 ngIRCd HEAD
 
+  - New configuration option "MaxNickLength" to specify the allowed maximum
+    length of user nick names. Note: must be unique in an IRC network!
   - Numeric 317: implemented "signon time" (displayed in WHOIS result).
   - Added new server configuration option "Passive" for "Server" blocks to
     disable automatic outgoing connections (similar to -p option to ngircd,
@@ -246,4 +248,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.81 2007/10/14 14:17:32 alex Exp $
+$Id: NEWS,v 1.82 2007/11/21 12:16:33 alex Exp $

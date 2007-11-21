@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conf.h,v 1.44 2007/10/25 11:01:19 fw Exp $
+ * $Id: conf.h,v 1.45 2007/11/21 12:16:36 alex Exp $
  *
  * Configuration management (header)
  */
@@ -135,6 +135,8 @@ GLOBAL int Conf_MaxJoins;
 /* Maximum number of connections per IP address */
 GLOBAL int Conf_MaxConnectionsIP;
 
+/* Maximum length of a nick name */
+GLOBAL unsigned int Conf_MaxNickLength;
 
 GLOBAL void Conf_Init PARAMS((void));
 GLOBAL void Conf_Rehash PARAMS((void));

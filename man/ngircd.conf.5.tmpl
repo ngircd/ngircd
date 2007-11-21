@@ -1,5 +1,5 @@
 .\"
-.\" $Id: ngircd.conf.5.tmpl,v 1.5 2007/10/25 11:01:19 fw Exp $
+.\" $Id: ngircd.conf.5.tmpl,v 1.6 2007/11/21 12:16:36 alex Exp $
 .\"
 .TH ngircd.conf 5 "August 2005" ngircd "ngIRCd Manual"
 .SH NAME
@@ -170,6 +170,11 @@ the risk of denial of service attacks (DoS). Default: 5.
 \fBMaxJoins\fR
 Maximum number of channels a user can be member of (0: no limit).
 Default: 10.
+.TP
+\fBMaxNickLength\fR
+Maximum length of an user nick name (Default: 9, as in RFC 2812). Please
+note that all servers in an IRC network MUST use the same maximum nick name
+length!
 .SH [OPERATOR]
 .I [Operator]
 sections are used to define IRC Operators. There may be more than one

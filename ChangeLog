@@ -12,6 +12,11 @@
 
 ngIRCd HEAD
 
+  - New configuration option "MaxNickLength" to specify the allowed maximum
+    length of user nick names. Note: must be unique in an IRC network!
+  - Enhanced the IRC+ protocol to support an enhanced "server handshake" and
+    enable server to recognice numeric 005 (ISUPPORT) and 376 (ENDOFMOTD).
+    See doc/Protocol.txt for details.
   - Re-added doc/SSL.txt to distribution -- got lost somewhere!?
   - Fixes the wrong logging output when nested servers are introduced
     to the network as well as the wrong output of the LINKS command.
@@ -713,4 +718,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.328 2007/11/20 21:39:35 alex Exp $
+$Id: ChangeLog,v 1.329 2007/11/21 12:16:33 alex Exp $

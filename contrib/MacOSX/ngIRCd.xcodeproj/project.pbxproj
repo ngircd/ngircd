@@ -34,6 +34,7 @@
 		FA322D4D0CEF74B1001761B3 /* resolve.c in Sources */ = {isa = PBXBuildFile; fileRef = FA322D0C0CEF74B1001761B3 /* resolve.c */; };
 		FA322DBE0CEF7766001761B3 /* tool.c in Sources */ = {isa = PBXBuildFile; fileRef = FA322D330CEF74B1001761B3 /* tool.c */; };
 		FA322DC10CEF77CB001761B3 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FA322DC00CEF77CB001761B3 /* libz.dylib */; };
+		FAE5CC2E0CF2308A007D69B6 /* numeric.c in Sources */ = {isa = PBXBuildFile; fileRef = FAE5CC2D0CF2308A007D69B6 /* numeric.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -198,6 +199,8 @@
 		FA322DB10CEF7565001761B3 /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
 		FA322DBB0CEF773C001761B3 /* cvs-version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "cvs-version.h"; sourceTree = "<group>"; };
 		FA322DC00CEF77CB001761B3 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = /usr/lib/libz.dylib; sourceTree = "<absolute>"; };
+		FAE5CC2C0CF2308A007D69B6 /* numeric.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = numeric.h; sourceTree = "<group>"; };
+		FAE5CC2D0CF2308A007D69B6 /* numeric.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = numeric.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -309,6 +312,8 @@
 				FA322D050CEF74B1001761B3 /* messages.h */,
 				FA322D060CEF74B1001761B3 /* ngircd.c */,
 				FA322D070CEF74B1001761B3 /* ngircd.h */,
+				FAE5CC2D0CF2308A007D69B6 /* numeric.c */,
+				FAE5CC2C0CF2308A007D69B6 /* numeric.h */,
 				FA322D080CEF74B1001761B3 /* parse.c */,
 				FA322D090CEF74B1001761B3 /* parse.h */,
 				FA322D0A0CEF74B1001761B3 /* rendezvous.c */,
@@ -622,6 +627,7 @@
 				FA322D4C0CEF74B1001761B3 /* rendezvous.c in Sources */,
 				FA322D4D0CEF74B1001761B3 /* resolve.c in Sources */,
 				FA322DBE0CEF7766001761B3 /* tool.c in Sources */,
+				FAE5CC2E0CF2308A007D69B6 /* numeric.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

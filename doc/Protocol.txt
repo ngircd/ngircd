@@ -1,7 +1,7 @@
 
                      ngIRCd - Next Generation IRC Server
 
-                      (c)2001-2003 by Alexander Barton,
+                        (c)2001-2007 Alexander Barton,
                     alex@barton.de, http://www.barton.de/
 
                ngIRCd is free software and published under the
@@ -79,6 +79,9 @@ The following <serverflags> are defined at the moment:
      peer understands this flag, it will send "MODE +I" and "MODE +b"
      commands after the server link has been established.
 
+- H: The server supports the "enhanced server handshake", see section II.2
+     for a detailed description.
+
 - o: IRC operators are allowed to change channel- and channel-user-modes
      even if they aren't channel-operator of the affected channel.
 
@@ -90,7 +93,50 @@ The optional parameter <options> is used to propagate server options as
 defined in RFC 2813, section 4.1.1.
 
 
-II.2 Exchange channel-modes, topics, and persistent channels
+II.2 Enhanced Server Handshake
+
+The "enhanced server handshake" is used when both servers support this IRC+
+extension, which is indicated by the 'H' flag in the <serverflags> sent with
+the PASS command, see section II.1.
+
+It basically means, that after exchanging the PASS and SERVER commands the
+server is not registered in the network (as usual), but that IRC numerics
+are exchanged until the numeric 376 (ENDOFMOTD) is received. Afterwards the
+peer is registered in the network as with the regular IRC protocol.
+
+A server implementing the enhanced server handshake (and indicating this
+using 'H' in the <serverflags>) MUST ignore all unknown numerics to it
+silently.
+
+In addition, such a server should at least send the numeric 005 (ISUPPORT)
+to its peer, containing the following information. Syntax: <key>=<value>,
+one token per IRC parameter. If the server has to send more than 12 token
+it must send separate ISUPPORT numerics (this is a limitation of the IRC
+protocol which allows at max 15 arguments per command).
+
+ - NICKLEN: Maximum nickname length. Default: 9.
+ - CASEMAPPING: Case mapping used for nick- and channel name comparing.
+   Default: "ascii", the chars [a-z] are lowercase of [A-Z].
+ - PREFIX: List of channel modes a person can get and the respective prefix
+   a channel or nickname will get in case the person has it. The order of the
+   modes goes from most powerful to least powerful. Default: "(ov)@+"
+ - CHANTYPES: Supported channel prefixes. Default: "#".
+ - CHANMODES: List of channel modes for 4 types, separated by comma (","):
+   Mode that adds or removes a nick or address to a list, mode that changes
+   a setting (both have always has a parameter), mode that changes a setting
+   and only has a parameter when set, and mode that changes a setting and
+   never has a parameter. For example "bI,k,l,imnPst".
+ - CHANLIMIT: Maximum number of channels allowed to join by channel prefix,
+   for example "#:10".
+
+Please see <http://www.irc.org/tech_docs/005.html> for details.
+
+The information exchanged using ISUPPORT can be used to detect configuration
+incompatibilities (different maximum nick name length, for example) and
+therefore to disconnect the peer prior to registering it in the network.
+
+
+II.3 Exchange channel-modes, topics, and persistent channels
 
      Command: CHANINFO
   Parameters: <channel> +<modes> <key> <limit> [<topic>]
@@ -115,4 +161,4 @@ channel mode). In this case <limit> should be "0".
 
 
 -- 
-$Id: Protocol.txt,v 1.13 2005/08/27 19:00:06 alex Exp $
+$Id: Protocol.txt,v 1.14 2007/11/21 12:16:35 alex Exp $

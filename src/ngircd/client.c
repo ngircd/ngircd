@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: client.c,v 1.96 2007/10/25 11:01:19 fw Exp $";
+static char UNUSED id[] = "$Id: client.c,v 1.97 2007/11/21 12:16:36 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -609,7 +609,8 @@ Client_ID( CLIENT *Client )
 	assert( Client != NULL );
 
 #ifdef DEBUG
-	if( Client->type == CLIENT_USER ) assert( strlen( Client->id ) < CLIENT_NICK_LEN );
+	if(Client->type == CLIENT_USER)
+		assert(strlen(Client->id) < Conf_MaxNickLength);
 #endif
 						   
 	if( Client->id[0] ) return Client->id;
@@ -952,7 +953,7 @@ Client_IsValidNick( const char *Nick )
 
 	if( Nick[0] == '#' ) return false;
 	if( strchr( goodchars, Nick[0] )) return false;
-	if( strlen( Nick ) >= CLIENT_NICK_LEN ) return false;
+	if( strlen( Nick ) >= Conf_MaxNickLength) return false;
 
 	ptr = Nick;
 	while( *ptr )

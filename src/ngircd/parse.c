@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: parse.c,v 1.68 2007/08/02 10:14:26 fw Exp $";
+static char UNUSED id[] = "$Id: parse.c,v 1.69 2007/11/21 12:16:36 alex Exp $";
 
 /**
  * @file
@@ -48,6 +48,7 @@ static char UNUSED id[] = "$Id: parse.c,v 1.68 2007/08/02 10:14:26 fw Exp $";
 #include "irc-oper.h"
 #include "irc-server.h"
 #include "irc-write.h"
+#include "numeric.h"
 
 #include "exp.h"
 
@@ -101,6 +102,13 @@ COMMAND My_Commands[] =
 	{ "CHANINFO", IRC_CHANINFO, CLIENT_SERVER, 0, 0, 0 },
 #endif
 	{ NULL, NULL, 0x0, 0, 0, 0 } /* Ende-Marke */
+};
+
+NUMERIC My_Numerics[] =
+{
+	{ 005, IRC_Num_ISUPPORT },
+	{ 376, IRC_Num_ENDOFMOTD },
+	{ 0, NULL } /* end marker */
 };
 
 
@@ -349,6 +357,7 @@ Handle_Request( CONN_ID Idx, REQUEST *Req )
 	char str[LINE_LEN];
 	bool result;
 	COMMAND *cmd;
+	NUMERIC *num;
 	int i;
 
 	assert( Idx >= 0 );
@@ -358,25 +367,45 @@ Handle_Request( CONN_ID Idx, REQUEST *Req )
 	client = Conn_GetClient( Idx );
 	assert( client != NULL );
 
-	/* Statuscode? */
-	if(( Client_Type( client ) == CLIENT_SERVER ) && ( strlen( Req->command ) == 3 ) && ( atoi( Req->command ) > 100 ))
-	{
-		/* Command is a status code from an other server */
+	/* Numeric? */
+	if ((Client_Type(client) == CLIENT_SERVER ||
+	     Client_Type(client) == CLIENT_UNKNOWNSERVER)
+	    && strlen(Req->command) == 3 && atoi(Req->command) > 1) {
+		/* Command is a status code ("numeric") from an other server */
 
 		/* Determine target */
-		if( Req->argc > 0 ) target = Client_Search( Req->argv[0] );
-		else target = NULL;
-		if( ! target )
-		{
+		if (Req->argc > 0)
+			target = Client_Search( Req->argv[0] );
+		else
+			target = NULL;
+		if (!target) {
 			/* Status code without target!? */
-			if( Req->argc > 0 ) Log( LOG_WARNING, "Unknown target for status code %s: \"%s\"", Req->command, Req->argv[0] );
-			else Log( LOG_WARNING, "Unknown target for status code %s!", Req->command );
+			if (Req->argc > 0)
+				Log(LOG_WARNING,
+				    "Unknown target for status code %s: \"%s\"",
+				    Req->command, Req->argv[0]);
+			else
+				Log(LOG_WARNING,
+				    "Unknown target for status code %s!",
+				    Req->command);
 			return true;
 		}
-		if( target == Client_ThisServer( ))
-		{
-			/* This server is the target, ignore it */
-			Log( LOG_DEBUG, "Ignored status code %s from \"%s\".", Req->command, Client_ID( client ));
+		if (target == Client_ThisServer()) {
+			/* This server is the target of the numeric */
+			i = atoi(Req->command);
+
+			num = My_Numerics;
+			while (num->numeric > 0) {
+				if (i != num->numeric) {
+					num++;
+					continue;
+				}
+				result = (num->function)(client, Req);
+				return result;
+			}
+			
+			LogDebug("Ignored status code %s from \"%s\".",
+				 Req->command, Client_ID(client));
 			return true;
 		}
 

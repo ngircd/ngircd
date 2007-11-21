@@ -8,7 +8,7 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: Makefile.am,v 1.49 2006/03/11 01:48:50 alex Exp $
+# $Id: Makefile.am,v 1.50 2007/11/21 12:16:36 alex Exp $
 #
 
 AUTOMAKE_OPTIONS = ../portab/ansi2knr
@@ -23,7 +23,7 @@ sbin_PROGRAMS = ngircd
 ngircd_SOURCES = ngircd.c array.c channel.c client.c conf.c conn.c conn-func.c \
 	conn-zip.c hash.c io.c irc.c irc-channel.c irc-info.c irc-login.c \
 	irc-mode.c irc-op.c irc-oper.c irc-server.c irc-write.c lists.c log.c \
-	match.c parse.c rendezvous.c resolve.c
+	match.c numeric.c parse.c rendezvous.c resolve.c
 
 ngircd_LDFLAGS = -L../portab -L../tool
 
@@ -32,7 +32,7 @@ ngircd_LDADD = -lngportab -lngtool
 noinst_HEADERS = ngircd.h array.h channel.h client.h conf.h conn.h conn-func.h \
 	conn-zip.h hash.h io.h irc.h irc-channel.h irc-info.h irc-login.h \
 	irc-mode.h irc-op.h irc-oper.h irc-server.h irc-write.h lists.h log.h \
-	match.h parse.h rendezvous.h resolve.h \
+	match.h numeric.h parse.h rendezvous.h resolve.h \
 	defines.h messages.h
 
 clean-local:

@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: defines.h,v 1.61 2007/08/02 10:14:26 fw Exp $
+ * $Id: defines.h,v 1.62 2007/11/21 12:16:36 alex Exp $
  */
 
 
@@ -47,8 +47,9 @@
 
 #define CLIENT_ID_LEN 64		/* Max. length of an IRC ID; see RFC
 					   RFC 2812 section 1.1 and 1.2.1 */
-#define CLIENT_NICK_LEN 10		/* Max. nick length, see. RFC 2812
-					   section 1.2.1 */
+#define CLIENT_NICK_LEN_DEFAULT 10	/* Default nick length, see. RFC 2812
+					 * section 1.2.1 */
+#define CLIENT_NICK_LEN 32		/* Maximum nick name length */
 #define CLIENT_PASS_LEN 21		/* Max. password length */
 #define CLIENT_USER_LEN 10		/* Max. length of user name ("login")
 					   see RFC 2812, section 1.2.1 */
@@ -81,7 +82,7 @@
 					   protocol, see doc/Protocol.txt */
 
 #ifdef IRCPLUS
-# define IRCPLUSFLAGS "CL"		/* Standard IRC+ flags */
+# define IRCPLUSFLAGS "CHL"		/* Standard IRC+ flags */
 #endif
 
 #define STARTUP_DELAY 1			/* Delay outgoing connections n seconds

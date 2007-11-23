@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.102 2007/11/21 12:16:36 alex Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.103 2007/11/23 16:26:04 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -937,6 +937,14 @@ Handle_SERVER( int Line, char *Var, char *Arg )
 			Config_Error_TooLong( Line, Var );
 		return;
 	}
+	if (strcasecmp(Var, "Bind") == 0) {
+		if (ngt_IPStrToBin(Arg, &New_Server.bind_addr))
+			return;
+
+		Config_Error(LOG_ERR, "%s, line %d (section \"Server\"): Can't parse IP address \"%s\"",
+				NGIRCd_ConfFile, Line, Arg);
+		return;
+	}
 	if( strcasecmp( Var, "MyPassword" ) == 0 ) {
 		/* Password of this server which is sent to the peer */
 		if (*Arg == ':') {
@@ -1205,6 +1213,7 @@ Init_Server_Struct( CONF_SERVER *Server )
 
 	Resolve_Init(&Server->res_stat);
 	Server->conn_id = NONE;
+	Server->bind_addr.s_addr = htonl(INADDR_ANY);
 } /* Init_Server_Struct */
 
 

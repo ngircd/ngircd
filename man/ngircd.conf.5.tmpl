@@ -1,5 +1,5 @@
 .\"
-.\" $Id: ngircd.conf.5.tmpl,v 1.6 2007/11/21 12:16:36 alex Exp $
+.\" $Id: ngircd.conf.5.tmpl,v 1.7 2007/11/23 16:26:03 fw Exp $
 .\"
 .TH ngircd.conf 5 "August 2005" ngircd "ngIRCd Manual"
 .SH NAME
@@ -211,6 +211,10 @@ IRC name of the server
 .TP
 \fBHost\fR
 Internet host name of the peer
+.TP
+\fBBind\fR
+IP address to use as source IP for the outgoing connection. Default ist
+to let the operating system decide.
 .TP
 \fBPort\fR
 Port of the server to which the ngIRCd should connect. If you assign no port

@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conf.h,v 1.45 2007/11/21 12:16:36 alex Exp $
+ * $Id: conf.h,v 1.46 2007/11/23 16:26:04 fw Exp $
  *
  * Configuration management (header)
  */
@@ -43,6 +43,7 @@ typedef struct _Conf_Server
 	RES_STAT res_stat;		/* Status of the resolver */
 	int flags;			/* Flags */
 	CONN_ID conn_id;		/* ID of server connection or NONE */
+	struct in_addr bind_addr;	/* source address to use for outgoing connections */
 } CONF_SERVER;
 
 typedef struct _Conf_Channel

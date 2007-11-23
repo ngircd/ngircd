@@ -14,13 +14,18 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: tool.c,v 1.6 2006/04/09 12:53:07 alex Exp $";
+static char UNUSED id[] = "$Id: tool.c,v 1.7 2007/11/23 16:26:05 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
+
+#include <netinet/in.h>
+#ifdef HAVE_ARPA_INET_H
+# include <arpa/inet.h>
+#endif
 
 #include "exp.h"
 #include "tool.h"
@@ -103,6 +108,24 @@ ngt_TrimLastChr( char *String, const char Chr)
 
 	if( String[len] == Chr ) String[len] = '\0';
 } /* ngt_TrimLastChr */
+
+
+GLOBAL bool
+ngt_IPStrToBin(const char *ip_str, struct in_addr *inaddr)
+{
+	/* AF is always AF_INET for now */
+#ifdef HAVE_INET_ATON
+	if (inet_aton(ip_str, inaddr) == 0)
+		return false;
+#else
+	inaddr->s_addr = inet_addr(ip_str);
+	if (inaddr->s_addr == (unsigned)-1)
+		return false;
+#endif
+	return true;
+}
+
+
 
 
 /* -eof- */

@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.214 2007/11/18 15:05:35 alex Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.215 2007/11/23 16:26:04 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -333,6 +333,42 @@ Conn_ExitListeners( void )
 } /* Conn_ExitListeners */
 
 
+static void
+InitSinaddr(struct sockaddr_in *addr, UINT16 Port)
+{
+	struct in_addr inaddr;
+
+	memset(addr, 0, sizeof(*addr));
+	memset( &inaddr, 0, sizeof(inaddr));
+
+	addr->sin_family = AF_INET;
+	addr->sin_port = htons(Port);
+	inaddr.s_addr = htonl(INADDR_ANY);
+	addr->sin_addr = inaddr;
+}
+
+
+static bool
+InitSinaddrListenAddr(struct sockaddr_in *addr, UINT16 Port)
+{
+	struct in_addr inaddr;
+
+	InitSinaddr(addr, Port);
+
+	if (!Conf_ListenAddress[0])
+		return true;
+
+	if (!ngt_IPStrToBin(Conf_ListenAddress, &inaddr)) {
+		Log( LOG_CRIT, "Can't bind to %s:%u: can't convert ip address \"%s\"",
+				Conf_ListenAddress, Port, Conf_ListenAddress);
+		return false;
+	}
+
+	addr->sin_addr = inaddr;
+	return true;
+}
+
+
 /* return new listening port file descriptor or -1 on failure */
 static int
 NewListener( const UINT16 Port )
@@ -340,33 +376,15 @@ NewListener( const UINT16 Port )
 	/* Create new listening socket on specified port */
 
 	struct sockaddr_in addr;
-	struct in_addr inaddr;
 	int sock;
 #ifdef ZEROCONF
 	char name[CLIENT_ID_LEN], *info;
 #endif
 
-	/* Server-"Listen"-Socket initialisieren */
-	memset( &addr, 0, sizeof( addr ));
-	memset( &inaddr, 0, sizeof( inaddr ));
+	InitSinaddrListenAddr(&addr, Port);
+
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons( Port );
-	if( Conf_ListenAddress[0] )
-	{
-#ifdef HAVE_INET_ATON
-		if( inet_aton( Conf_ListenAddress, &inaddr ) == 0 )
-#else
-		inaddr.s_addr = inet_addr( Conf_ListenAddress );
-		if( inaddr.s_addr == (unsigned)-1 )
-#endif
-		{
-			Log( LOG_CRIT, "Can't listen on %s:%u: can't convert ip address %s!",
-					Conf_ListenAddress, Port, Conf_ListenAddress );
-			return -1;
-		}
-	}
-	else inaddr.s_addr = htonl( INADDR_ANY );
-	addr.sin_addr = inaddr;
 
 	sock = socket( PF_INET, SOCK_STREAM, 0);
 	if( sock < 0 ) {
@@ -1358,7 +1376,7 @@ static void
 New_Server( int Server )
 {
 	/* Establish new server link */
-
+	struct sockaddr_in local_addr;
 	struct sockaddr_in new_addr;
 	struct in_addr inaddr;
 	int res, new_sock;
@@ -1382,10 +1400,11 @@ New_Server( int Server )
 		return;
 	}
 
-	memset( &new_addr, 0, sizeof( new_addr ));
+	memset(&new_addr, 0, sizeof( new_addr ));
 	new_addr.sin_family = AF_INET;
 	new_addr.sin_addr = inaddr;
 	new_addr.sin_port = htons( Conf_Server[Server].port );
+
 
 	new_sock = socket( PF_INET, SOCK_STREAM, 0 );
 	if ( new_sock < 0 ) {
@@ -1395,6 +1414,12 @@ New_Server( int Server )
 
 	if( ! Init_Socket( new_sock )) return;
 
+	/* if we fail to bind, just continue and let connect() pick a source address */
+	InitSinaddr(&local_addr, 0);
+	local_addr.sin_addr = Conf_Server[Server].bind_addr;
+	if (bind(new_sock, (struct sockaddr *)&local_addr, (socklen_t)sizeof(local_addr)))
+		Log(LOG_WARNING, "Can't bind socket to %s!", Conf_ListenAddress, strerror( errno ));
+
 	res = connect(new_sock, (struct sockaddr *)&new_addr,
 			(socklen_t)sizeof(new_addr));
 	if(( res != 0 ) && ( errno != EINPROGRESS )) {
@@ -1402,7 +1427,7 @@ New_Server( int Server )
 		close( new_sock );
 		return;
 	}
-	
+
 	if (!array_alloc(&My_ConnArray, sizeof(CONNECTION), (size_t)new_sock)) {
 		Log(LOG_ALERT,
 		    "Cannot allocate memory for server connection (socket %d)",

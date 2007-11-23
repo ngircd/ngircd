@@ -12,6 +12,8 @@
 
 ngIRCd HEAD
 
+  - New [Server] configuration Option "Bind" allows to specify
+    the source ip adress to use when connecting to remote server.
   - New configuration option "MaxNickLength" to specify the allowed maximum
     length of user nick names. Note: must be unique in an IRC network!
   - Enhanced the IRC+ protocol to support an enhanced "server handshake" and
@@ -718,4 +720,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.329 2007/11/21 12:16:33 alex Exp $
+$Id: ChangeLog,v 1.330 2007/11/23 16:28:05 fw Exp $

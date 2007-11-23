@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conf.h,v 1.46 2007/11/23 16:26:04 fw Exp $
+ * $Id: conf.h,v 1.47 2007/11/23 16:28:37 fw Exp $
  *
  * Configuration management (header)
  */
@@ -33,7 +33,6 @@ typedef struct _Conf_Oper
 typedef struct _Conf_Server
 {
 	char host[HOST_LEN];		/* Hostname */
-	char ip[16];			/* IP address (Resolver) */
 	char name[CLIENT_ID_LEN];	/* IRC-Client-ID */
 	char pwd_in[CLIENT_PASS_LEN];	/* Password which must be received */
 	char pwd_out[CLIENT_PASS_LEN];	/* Password to send to peer */

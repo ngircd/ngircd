@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.215 2007/11/23 16:26:04 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.216 2007/11/23 16:28:37 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -92,7 +92,7 @@ static void Check_Connections PARAMS(( void ));
 static void Check_Servers PARAMS(( void ));
 static void Init_Conn_Struct PARAMS(( CONN_ID Idx ));
 static bool Init_Socket PARAMS(( int Sock ));
-static void New_Server PARAMS(( int Server ));
+static void New_Server PARAMS(( int Server, struct in_addr *dest));
 static void Simple_Message PARAMS(( int Sock, const char *Msg ));
 static int Count_Connections PARAMS(( struct sockaddr_in addr ));
 static int NewListener PARAMS(( const UINT16 Port ));
@@ -1373,38 +1373,20 @@ Check_Servers( void )
 
 
 static void
-New_Server( int Server )
+New_Server( int Server , struct in_addr *dest)
 {
 	/* Establish new server link */
 	struct sockaddr_in local_addr;
 	struct sockaddr_in new_addr;
-	struct in_addr inaddr;
 	int res, new_sock;
 	CLIENT *c;
 
 	assert( Server > NONE );
 
-	Log( LOG_INFO, "Establishing connection to \"%s\", %s, port %d ... ", Conf_Server[Server].host,
-							Conf_Server[Server].ip, Conf_Server[Server].port );
-
-#ifdef HAVE_INET_ATON
-	if( inet_aton( Conf_Server[Server].ip, &inaddr ) == 0 )
-#else
-	memset( &inaddr, 0, sizeof( inaddr ));
-	inaddr.s_addr = inet_addr( Conf_Server[Server].ip );
-	if( inaddr.s_addr == (unsigned)-1 )
-#endif
-	{
-		Log( LOG_ERR, "Can't connect to \"%s\": can't convert ip address %s!",
-				Conf_Server[Server].host, Conf_Server[Server].ip );
-		return;
-	}
-
 	memset(&new_addr, 0, sizeof( new_addr ));
 	new_addr.sin_family = AF_INET;
-	new_addr.sin_addr = inaddr;
+	new_addr.sin_addr = *dest;
 	new_addr.sin_port = htons( Conf_Server[Server].port );
-
 
 	new_sock = socket( PF_INET, SOCK_STREAM, 0 );
 	if ( new_sock < 0 ) {
@@ -1534,6 +1516,7 @@ cb_Connect_to_Server(int fd, UNUSED short events)
 	/* Read result of resolver sub-process from pipe and start connection */
 	int i;
 	size_t len;
+	struct in_addr dest_addr;
 	char readbuf[HOST_LEN + 1];
 
 	LogDebug("Resolver: Got forward lookup callback on fd %d, events %d", fd, events);
@@ -1542,7 +1525,7 @@ cb_Connect_to_Server(int fd, UNUSED short events)
 		  if (Resolve_Getfd(&Conf_Server[i].res_stat) == fd )
 			  break;
 	}
-	
+
 	if( i >= MAX_SERVERS) {
 		/* Ops, no matching server found?! */
 		io_close( fd );
@@ -1551,16 +1534,23 @@ cb_Connect_to_Server(int fd, UNUSED short events)
 	}
 
 	/* Read result from pipe */
-	len = Resolve_Read(&Conf_Server[i].res_stat, readbuf, sizeof readbuf -1);
+	len = Resolve_Read(&Conf_Server[i].res_stat, readbuf, sizeof(readbuf)-1);
 	if (len == 0)
 		return;
-	
+
 	readbuf[len] = '\0';
 	LogDebug("Got result from resolver: \"%s\" (%u bytes read).", readbuf, len);
-	strlcpy( Conf_Server[i].ip, readbuf, sizeof( Conf_Server[i].ip ));
 
+	if (!ngt_IPStrToBin(readbuf, &dest_addr)) {
+		Log(LOG_ERR, "Can't connect to \"%s\": can't convert ip address %s!",
+						Conf_Server[i].host, readbuf);
+		return;
+	}
+
+	Log( LOG_INFO, "Establishing connection to \"%s\", %s, port %d ... ",
+			Conf_Server[i].host, readbuf, Conf_Server[i].port );
 	/* connect() */
-	New_Server(i);
+	New_Server(i, &dest_addr);
 } /* cb_Read_Forward_Lookup */
 
 

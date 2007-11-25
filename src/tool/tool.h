@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: tool.h,v 1.4 2007/11/23 16:26:05 fw Exp $
+ * $Id: tool.h,v 1.5 2007/11/25 18:42:38 fw Exp $
  *
  * Tool functions (Header)
  */
@@ -17,6 +17,12 @@
 #ifndef __tool_h__
 #define __tool_h__
 #include "portab.h"
+
+#ifdef HAVE_ARPA_INET_H
+# include <arpa/inet.h>
+#else
+# define PF_INET AF_INET
+#endif
 
 GLOBAL void ngt_TrimLastChr PARAMS((char *String, const char Chr ));
 

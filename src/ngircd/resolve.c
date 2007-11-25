@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: resolve.c,v 1.26 2006/12/17 22:50:51 fw Exp $";
+static char UNUSED id[] = "$Id: resolve.c,v 1.27 2007/11/25 18:42:37 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -24,7 +24,6 @@ static char UNUSED id[] = "$Id: resolve.c,v 1.26 2006/12/17 22:50:51 fw Exp $";
 #include <unistd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <arpa/inet.h>
 #include <netdb.h>
 
 #ifdef IDENTAUTH
@@ -36,6 +35,7 @@ static char UNUSED id[] = "$Id: resolve.c,v 1.26 2006/12/17 22:50:51 fw Exp $";
 #include "conn.h"
 #include "defines.h"
 #include "log.h"
+#include "tool.h"
 
 #include "exp.h"
 #include "resolve.h"

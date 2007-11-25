@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.216 2007/11/23 16:28:37 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.217 2007/11/25 18:42:37 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -39,12 +39,6 @@ static char UNUSED id[] = "$Id: conn.c,v 1.216 2007/11/23 16:28:37 fw Exp $";
 
 #ifdef HAVE_NETINET_IP_H
 # include <netinet/ip.h>
-#endif
-
-#ifdef HAVE_ARPA_INET_H
-# include <arpa/inet.h>
-#else
-# define PF_INET AF_INET
 #endif
 
 #ifdef HAVE_STDINT_H

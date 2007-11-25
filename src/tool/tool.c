@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: tool.c,v 1.7 2007/11/23 16:26:05 fw Exp $";
+static char UNUSED id[] = "$Id: tool.c,v 1.8 2007/11/25 18:42:38 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -23,9 +23,6 @@ static char UNUSED id[] = "$Id: tool.c,v 1.7 2007/11/23 16:26:05 fw Exp $";
 #include <string.h>
 
 #include <netinet/in.h>
-#ifdef HAVE_ARPA_INET_H
-# include <arpa/inet.h>
-#endif
 
 #include "exp.h"
 #include "tool.h"

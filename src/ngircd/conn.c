@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.217 2007/11/25 18:42:37 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.218 2007/12/07 21:19:01 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -1611,10 +1611,10 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 #ifdef IDENTAUTH
 		++identptr;
 		if (*identptr) {
-			Log( LOG_INFO, "IDENT lookup for connection %ld: \"%s\".", i, identptr);
-			Client_SetUser( c, identptr, true );
+			Log(LOG_INFO, "IDENT lookup for connection %d: \"%s\".", i, identptr);
+			Client_SetUser(c, identptr, true);
 		} else {
-			Log( LOG_INFO, "IDENT lookup for connection %ld: no result.", i );
+			Log(LOG_INFO, "IDENT lookup for connection %d: no result.", i);
 		}
 #endif
 	}

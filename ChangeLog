@@ -12,6 +12,7 @@
 
 ngIRCd HEAD
 
+  - Add support for /STAT u (server uptime) command.
   - New [Server] configuration Option "Bind" allows to specify
     the source ip adress to use when connecting to remote server.
   - New configuration option "MaxNickLength" to specify the allowed maximum
@@ -720,4 +721,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.330 2007/11/23 16:28:05 fw Exp $
+$Id: ChangeLog,v 1.331 2007/12/11 11:29:43 fw Exp $

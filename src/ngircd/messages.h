@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: messages.h,v 1.73 2007/10/04 15:03:56 alex Exp $
+ * $Id: messages.h,v 1.74 2007/12/11 11:29:44 fw Exp $
  *
  * IRC numerics (Header)
  */
@@ -32,6 +32,7 @@
 #define RPL_STATSCOMMANDS_MSG		"212 %s %s %ld %ld %ld"
 #define RPL_ENDOFSTATS_MSG		"219 %s %c :End of STATS report"
 #define RPL_UMODEIS_MSG			"221 %s +%s"
+#define RPL_STATSUPTIME			"242 %s :Server Up %u days %u:%02u:%02u"
 #define RPL_LUSERCLIENT_MSG		"251 %s :There are %ld users and %ld services on %ld servers"
 #define RPL_LUSEROP_MSG			"252 %s %lu :operator(s) online"
 #define RPL_LUSERUNKNOWN_MSG		"253 %s %lu :unknown connection(s)"

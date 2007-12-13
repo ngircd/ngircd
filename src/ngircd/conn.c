@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.219 2007/12/13 01:05:01 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.220 2007/12/13 01:30:16 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -1394,7 +1394,7 @@ New_Server( int Server , struct in_addr *dest)
 	InitSinaddr(&local_addr, 0);
 	local_addr.sin_addr = Conf_Server[Server].bind_addr;
 	if (bind(new_sock, (struct sockaddr *)&local_addr, (socklen_t)sizeof(local_addr)))
-		Log(LOG_WARNING, "Can't bind socket to %s: %s!", Conf_ListenAddress, strerror( errno ));
+		Log(LOG_WARNING, "Can't bind socket to %s: %s!", inet_ntoa(Conf_Server[Server].bind_addr), strerror( errno ));
 
 	res = connect(new_sock, (struct sockaddr *)&new_addr,
 			(socklen_t)sizeof(new_addr));

@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: io.c,v 1.26 2007/11/18 15:05:35 alex Exp $";
+static char UNUSED id[] = "$Id: io.c,v 1.27 2007/12/27 18:25:26 fw Exp $";
 
 #include <assert.h>
 #include <stdlib.h>
@@ -842,15 +842,9 @@ io_dispatch_kqueue(struct timeval *tv)
 		newevents_len = (int) array_length(&io_evcache, sizeof (struct kevent));
 		newevents = (newevents_len > 0) ? array_start(&io_evcache) : NULL;
 		assert(newevents_len >= 0);
-		if (newevents_len < 0)
-			newevents_len = 0;
-#ifdef DEBUG
-		if (newevents_len)
-			assert(newevents != NULL);
-#endif
-		ret = kevent(io_masterfd, newevents, newevents_len, kev,
-			     100, &ts);
-		if ((newevents_len>0) && ret != -1)
+
+		ret = kevent(io_masterfd, newevents, newevents_len, kev, 100, &ts);
+		if (newevents && ret != -1)
 			array_trunc(&io_evcache);
 
 		total += ret;
@@ -858,30 +852,31 @@ io_dispatch_kqueue(struct timeval *tv)
 			return total;
 
 		for (i = 0; i < ret; i++) {
-			if (kev[i].flags & EV_EOF) {
-#ifdef DEBUG
-				LogDebug("kev.flag has EV_EOF set, setting IO_ERROR",
-					kev[i].filter, kev[i].ident);
+#ifdef DEBUG_IO
+			LogDebug("fd %d, kev.flags: %x", (int)kev[i].ident, kev[i].flags);
 #endif
+			if (kev[i].flags & (EV_EOF|EV_ERROR)) {
+				if (kev[i].flags & EV_ERROR)
+					Log(LOG_ERR, "kevent fd %d: EV_ERROR (%s)",
+						(int)kev[i].ident, strerror((int)kev[i].data));
 				io_docallback((int)kev[i].ident, IO_ERROR);
 				continue;
 			}
 
 			switch (kev[i].filter) {
-				case EVFILT_READ:
-					io_docallback((int)kev[i].ident, IO_WANTREAD);
-					break;
-				case EVFILT_WRITE:
-					io_docallback((int)kev[i].ident, IO_WANTWRITE);
-					break;
-				default:
-#ifdef DEBUG
-					LogDebug("Unknown kev.filter number %d for fd %d",
-						kev[i].filter, kev[i].ident); /* Fall through */
-#endif
-				case EV_ERROR:
-					io_docallback((int)kev[i].ident, IO_ERROR);
-					break;
+			case EVFILT_READ:
+				io_docallback((int)kev[i].ident, IO_WANTREAD);
+				break;
+			case EVFILT_WRITE:
+				io_docallback((int)kev[i].ident, IO_WANTWRITE);
+				break;
+			default:
+				LogDebug("Unknown kev.filter number %d for fd %d",
+					kev[i].filter, kev[i].ident);
+				/* Fall through */
+			case EV_ERROR:
+				io_docallback((int)kev[i].ident, IO_ERROR);
+				break;
 			}
 		}
 		ts.tv_sec = 0;

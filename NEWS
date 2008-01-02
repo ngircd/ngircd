@@ -1,7 +1,7 @@
 
                      ngIRCd - Next Generation IRC Server
 
-                        (c)2001-2007 Alexander Barton,
+                        (c)2001-2008 Alexander Barton,
                     alex@barton.de, http://www.barton.de/
 
                ngIRCd is free software and published under the
@@ -12,6 +12,9 @@
 
 ngIRCd HEAD
 
+  - Add support for /STAT u (server uptime) command.
+  - New [Server] configuration Option "Bind" allows to specify
+    the source ip adress to use when connecting to remote server.
   - New configuration option "MaxNickLength" to specify the allowed maximum
     length of user nick names. Note: must be unique in an IRC network!
   - Numeric 317: implemented "signon time" (displayed in WHOIS result).
@@ -248,4 +251,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.82 2007/11/21 12:16:33 alex Exp $
+$Id: NEWS,v 1.83 2008/01/02 11:31:48 alex Exp $

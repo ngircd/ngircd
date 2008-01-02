@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: io.c,v 1.27 2007/12/27 18:25:26 fw Exp $";
+static char UNUSED id[] = "$Id: io.c,v 1.28 2008/01/02 10:29:51 fw Exp $";
 
 #include <assert.h>
 #include <stdlib.h>
@@ -634,6 +634,9 @@ io_event_del(int fd, short what)
 	Log(LOG_DEBUG, "io_event_del(): trying to delete eventtype %d on fd %d", what, fd);
 #endif
 	if (!i) return false;
+
+	if (!(i->what & what)) /* event is already disabled */
+		return true;
 
 	i->what &= ~what;
 

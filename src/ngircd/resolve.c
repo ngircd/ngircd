@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: resolve.c,v 1.27 2007/11/25 18:42:37 fw Exp $";
+static char UNUSED id[] = "$Id: resolve.c,v 1.28 2008/01/02 11:03:29 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -153,8 +153,8 @@ Do_ResolveAddr( struct sockaddr_in *Addr, int identsock, int w_fd )
 	/* Resolver sub-process: resolve IP address and write result into
 	 * pipe to parent. */
 
-	char hostname[HOST_LEN];
-	char ipstr[HOST_LEN];
+	char hostname[CLIENT_HOST_LEN];
+	char ipstr[CLIENT_HOST_LEN];
 	struct hostent *h;
 	size_t len;
 	struct in_addr *addr;
@@ -169,7 +169,7 @@ Do_ResolveAddr( struct sockaddr_in *Addr, int identsock, int w_fd )
 	Log_Resolver( LOG_DEBUG, "Now resolving %s ...", inet_ntoa( Addr->sin_addr ));
 #endif
 	h = gethostbyaddr( (char *)&Addr->sin_addr, sizeof( Addr->sin_addr ), AF_INET );
-	if (!h) {
+	if (!h || strlen(h->h_name) >= sizeof(hostname)) {
 #ifdef h_errno
 		Log_Resolver( LOG_WARNING, "Can't resolve address \"%s\": %s!", inet_ntoa( Addr->sin_addr ), Get_Error( h_errno ));
 #else

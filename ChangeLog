@@ -10,7 +10,7 @@
                                -- ChangeLog --
 
 
-ngIRCd HEAD
+ngIRCd 0.11.0-pre1 (2008-01-02)
 
   - Use dotted-decimal IP address if hostname is >= 64.
   - Add support for /STAT u (server uptime) command.
@@ -724,4 +724,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.332 2008/01/02 11:31:48 alex Exp $
+$Id: ChangeLog,v 1.332.2.2 2008/01/02 21:39:59 alex Exp $

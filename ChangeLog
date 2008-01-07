@@ -12,8 +12,12 @@
 
 ngIRCd HEAD
 
+ngIRCd 0.11.0-pre2 (2008-01-07)
+
   - SECURITY: IRC_PART could reference invalid memory, causing
-    ngircd to crash.
+    ngircd to crash [from HEAD].
+  
+  ngIRCd 0.11.0-pre1 (2008-01-02)
   - Use dotted-decimal IP address if hostname is >= 64.
   - Add support for /STAT u (server uptime) command.
   - New [Server] configuration Option "Bind" allows to specify
@@ -42,6 +46,11 @@ ngIRCd HEAD
   - Added support for the WALLOPS command. Usage is restricted to IRC
     operators.
 
+ngIRCd 0.10.4 (2008-01-07)
+
+  - SECURITY: IRC_PART could reference invalid memory, causing
+    ngircd to crash [from HEAD].
+  
 ngIRCd 0.10.3 (2007-08-01)
 
   - SECURITY: Fixed a severe bug in handling JOIN commands, which could
@@ -726,4 +735,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.333 2008/01/07 11:42:00 fw Exp $
+$Id: ChangeLog,v 1.334 2008/01/07 23:08:14 alex Exp $

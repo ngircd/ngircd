@@ -12,6 +12,8 @@
 
 ngIRCd 0.11.0-pre1 (2008-01-02)
 
+  - SECURITY: IRC_PART could reference invalid memory, causing
+    ngircd to crash [from HEAD].
   - Use dotted-decimal IP address if hostname is >= 64.
   - Add support for /STAT u (server uptime) command.
   - New [Server] configuration Option "Bind" allows to specify
@@ -724,4 +726,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.332.2.2 2008/01/02 21:39:59 alex Exp $
+$Id: ChangeLog,v 1.332.2.3 2008/01/07 11:42:13 fw Exp $

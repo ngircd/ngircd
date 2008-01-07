@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-channel.c,v 1.40 2007/07/31 18:56:14 alex Exp $";
+static char UNUSED id[] = "$Id: irc-channel.c,v 1.40.2.1 2008/01/07 11:42:14 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -269,8 +269,9 @@ IRC_PART( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	/* Falsche Anzahl Parameter? */
-	if(( Req->argc > 2 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	if (Req->argc < 1 || Req->argc > 2)
+		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+					Client_ID(Client), Req->command);
 
 	/* Wer ist der Absender? */
 	if( Client_Type( Client ) == CLIENT_SERVER ) target = Client_Search( Req->prefix );
@@ -278,18 +279,11 @@ IRC_PART( CLIENT *Client, REQUEST *Req )
 	if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
 
 	/* Channel-Namen durchgehen */
-	chan = strtok( Req->argv[0], "," );
-	while( chan )
-	{
-		if( ! Channel_Part( target, Client, chan, Req->argc > 1 ? Req->argv[1] : Client_ID( target )))
-		{
-			/* naechsten Namen ermitteln */
-			chan = strtok( NULL, "," );
-			continue;
-		}
+	chan = strtok(Req->argv[0], ",");
+	while (chan) {
+		Channel_Part(target, Client, chan, Req->argc > 1 ? Req->argv[1] : Client_ID(target));
 
-		/* naechsten Namen ermitteln */
-		chan = strtok( NULL, "," );
+		chan = strtok(NULL, ",");
 	}
 	return CONNECTED;
 } /* IRC_PART */

@@ -1,6 +1,6 @@
 #
 # ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001-2007 Alexander Barton <alex@barton.de>
+# Copyright (c)2001-2008 Alexander Barton <alex@barton.de>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -8,13 +8,13 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: configure.in,v 1.118.2.13 2007/07/31 19:07:59 alex Exp $
+# $Id: configure.in,v 1.118.2.14 2008/01/07 20:57:39 alex Exp $
 #
 
 # -- Initialisation --
 
 AC_PREREQ(2.50)
-AC_INIT(ngircd, 0.10.3)
+AC_INIT(ngircd, 0.10.4)
 AC_CONFIG_SRCDIR(src/ngircd/ngircd.c)
 AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE(1.6)

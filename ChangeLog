@@ -9,6 +9,10 @@
 
                                -- ChangeLog --
 
+ngIRCd 0.10.4 (2008-01-07)
+
+  - SECURITY: IRC_PART could reference invalid memory, causing
+    ngircd to crash.
 
 ngIRCd 0.10.3 (2007-07-31)
 
@@ -694,4 +698,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.302.2.19 2007/07/31 19:33:51 alex Exp $
+$Id: ChangeLog,v 1.302.2.20 2008/01/07 11:41:43 fw Exp $

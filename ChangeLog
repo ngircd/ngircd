@@ -44,6 +44,11 @@ ngIRCd 0.11.0-pre2 (2008-01-07)
   - Added support for the WALLOPS command. Usage is restricted to IRC
     operators.
 
+ngIRCd 0.10.4 (2008-01-07)
+
+  - SECURITY: IRC_PART could reference invalid memory, causing
+    ngircd to crash [from HEAD].
+  
 ngIRCd 0.10.3 (2007-08-01)
 
   - SECURITY: Fixed a severe bug in handling JOIN commands, which could
@@ -728,4 +733,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.332.2.4 2008/01/07 21:25:35 alex Exp $
+$Id: ChangeLog,v 1.332.2.5 2008/01/07 23:09:25 alex Exp $

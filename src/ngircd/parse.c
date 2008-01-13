@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: parse.c,v 1.69 2007/11/21 12:16:36 alex Exp $";
+static char UNUSED id[] = "$Id: parse.c,v 1.70 2008/01/13 16:12:49 fw Exp $";
 
 /**
  * @file
@@ -52,8 +52,13 @@ static char UNUSED id[] = "$Id: parse.c,v 1.69 2007/11/21 12:16:36 alex Exp $";
 
 #include "exp.h"
 
+struct _NUMERIC {
+	int numeric;
+	bool (*function) PARAMS(( CLIENT *Client, REQUEST *Request ));
+};
 
-COMMAND My_Commands[] =
+
+static COMMAND My_Commands[] =
 {
 	{ "ADMIN", IRC_ADMIN, CLIENT_USER|CLIENT_SERVER, 0, 0, 0 },
 	{ "AWAY", IRC_AWAY, CLIENT_USER, 0, 0, 0 },
@@ -104,14 +109,6 @@ COMMAND My_Commands[] =
 	{ NULL, NULL, 0x0, 0, 0, 0 } /* Ende-Marke */
 };
 
-NUMERIC My_Numerics[] =
-{
-	{ 005, IRC_Num_ISUPPORT },
-	{ 376, IRC_Num_ENDOFMOTD },
-	{ 0, NULL } /* end marker */
-};
-
-
 static void Init_Request PARAMS(( REQUEST *Req ));
 
 static bool Validate_Prefix PARAMS(( CONN_ID Idx, REQUEST *Req, bool *Closed ));
@@ -120,6 +117,7 @@ static bool Validate_Args PARAMS(( CONN_ID Idx, REQUEST *Req, bool *Closed ));
 
 static bool Handle_Request PARAMS(( CONN_ID Idx, REQUEST *Req ));
 
+#define ARRAY_SIZE(x)	(sizeof(x)/sizeof((x)[0]))
 
 /**
  * Return the pointer to the global "IRC command structure".
@@ -347,18 +345,83 @@ Validate_Args( UNUSED CONN_ID Idx, UNUSED REQUEST *Req, bool *Closed )
 } /* Validate_Args */
 
 
+/* Command is a status code ("numeric") from another server */
+static bool
+Handle_Numeric(CLIENT *client, REQUEST *Req)
+{
+	static const struct _NUMERIC Numerics[] = {
+		{ 005, IRC_Num_ISUPPORT },
+		{ 376, IRC_Num_ENDOFMOTD }
+	};
+	int i, num;
+	char str[LINE_LEN];
+	CLIENT *prefix, *target = NULL;
+
+	/* Determine target */
+	if (Req->argc > 0)
+		target = Client_Search(Req->argv[0]);
+
+	if (!target) {
+		/* Status code without target!? */
+		if (Req->argc > 0)
+			Log(LOG_WARNING,
+			    "Unknown target for status code %s: \"%s\"",
+			    Req->command, Req->argv[0]);
+		else
+			Log(LOG_WARNING,
+			    "Unknown target for status code %s!",
+			    Req->command);
+		return true;
+	}
+	if (target == Client_ThisServer()) {
+		/* This server is the target of the numeric */
+		num = atoi(Req->command);
+
+		for (i = 0; i < (int) ARRAY_SIZE(Numerics); i++) {
+			if (num == Numerics[i].numeric)
+				return Numerics[i].function(client, Req);
+		}
+
+		LogDebug("Ignored status code %s from \"%s\".",
+			 Req->command, Client_ID(client));
+		return true;
+	}
+
+	/* Determine source */
+	if (! Req->prefix[0]) {
+		/* Oops, no prefix!? */
+		Log(LOG_WARNING, "Got status code %s from \"%s\" without prefix!?",
+						Req->command, Client_ID(client));
+		return true;
+	}
+
+	prefix = Client_Search(Req->prefix);
+	if (! prefix) { /* Oops, unknown prefix!? */
+		Log(LOG_WARNING, "Got status code %s from unknown source: \"%s\"", Req->command, Req->prefix);
+		return true;
+	}
+
+	/* Forward status code */
+	strlcpy(str, Req->command, sizeof(str));
+	for (i = 0; i < Req->argc; i++) {
+		if (i < Req->argc - 1)
+			strlcat(str, " ", sizeof(str));
+		else
+			strlcat(str, " :", sizeof(str));
+		strlcat(str, Req->argv[i], sizeof(str));
+	}
+	return IRC_WriteStrClientPrefix(target, prefix, "%s", str);
+}
+
+
 static bool
 Handle_Request( CONN_ID Idx, REQUEST *Req )
 {
 	/* Client-Request verarbeiten. Bei einem schwerwiegenden Fehler
 	 * wird die Verbindung geschlossen und false geliefert. */
-
-	CLIENT *client, *target, *prefix;
-	char str[LINE_LEN];
-	bool result;
+	CLIENT *client;
+	bool result = true;
 	COMMAND *cmd;
-	NUMERIC *num;
-	int i;
 
 	assert( Idx >= 0 );
 	assert( Req != NULL );
@@ -370,107 +433,40 @@ Handle_Request( CONN_ID Idx, REQUEST *Req )
 	/* Numeric? */
 	if ((Client_Type(client) == CLIENT_SERVER ||
 	     Client_Type(client) == CLIENT_UNKNOWNSERVER)
-	    && strlen(Req->command) == 3 && atoi(Req->command) > 1) {
-		/* Command is a status code ("numeric") from an other server */
-
-		/* Determine target */
-		if (Req->argc > 0)
-			target = Client_Search( Req->argv[0] );
-		else
-			target = NULL;
-		if (!target) {
-			/* Status code without target!? */
-			if (Req->argc > 0)
-				Log(LOG_WARNING,
-				    "Unknown target for status code %s: \"%s\"",
-				    Req->command, Req->argv[0]);
-			else
-				Log(LOG_WARNING,
-				    "Unknown target for status code %s!",
-				    Req->command);
-			return true;
-		}
-		if (target == Client_ThisServer()) {
-			/* This server is the target of the numeric */
-			i = atoi(Req->command);
-
-			num = My_Numerics;
-			while (num->numeric > 0) {
-				if (i != num->numeric) {
-					num++;
-					continue;
-				}
-				result = (num->function)(client, Req);
-				return result;
-			}
-			
-			LogDebug("Ignored status code %s from \"%s\".",
-				 Req->command, Client_ID(client));
-			return true;
-		}
-
-		/* Determine source */
-		if( ! Req->prefix[0] )
-		{
-			/* Oops, no prefix!? */
-			Log( LOG_WARNING, "Got status code %s from \"%s\" without prefix!?", Req->command, Client_ID( client ));
-			return true;
-		}
-		else prefix = Client_Search( Req->prefix );
-		if( ! prefix )
-		{
-			/* Oops, unknown prefix!? */
-			Log( LOG_WARNING, "Got status code %s from unknown source: \"%s\"", Req->command, Req->prefix );
-			return true;
-		}
-
-		/* Forward status code */
-		strlcpy( str, Req->command, sizeof( str ));
-		for( i = 0; i < Req->argc; i++ )
-		{
-			if( i < Req->argc - 1 ) strlcat( str, " ", sizeof( str ));
-			else strlcat( str, " :", sizeof( str ));
-			strlcat( str, Req->argv[i], sizeof( str ));
-		}
-		return IRC_WriteStrClientPrefix( target, prefix, "%s", str );
-	}
+	    && strlen(Req->command) == 3 && atoi(Req->command) > 1)
+		return Handle_Numeric(client, Req);
 
 	cmd = My_Commands;
-	while( cmd->name )
-	{
+	while (cmd->name) {
 		/* Befehl suchen */
-		if( strcasecmp( Req->command, cmd->name ) != 0 )
-		{
-			cmd++; continue;
+		if (strcasecmp(Req->command, cmd->name) != 0) {
+			cmd++;
+			continue;
 		}
 
-		if( Client_Type( client ) & cmd->type )
-		{
-			/* Command is allowed for this client: call it and count produced bytes */
-			Conn_ResetWCounter( );
-			result = (cmd->function)( client, Req );
-			cmd->bytes += Conn_WCounter( );
+		if (!(Client_Type(client) & cmd->type))
+			return IRC_WriteStrClient(client, ERR_NOTREGISTERED_MSG, Client_ID(client));
 
-			/* Adjust counters */
-			if( Client_Type( client ) != CLIENT_SERVER ) cmd->lcount++;
-			else cmd->rcount++;
+		/* Command is allowed for this client: call it and count produced bytes */
+		Conn_ResetWCounter();
+		result = (cmd->function)(client, Req);
+		cmd->bytes += Conn_WCounter();
 
-			return result;
-		}
+		/* Adjust counters */
+		if (Client_Type(client) != CLIENT_SERVER)
+			cmd->lcount++;
 		else
-		{
-			/* Befehl ist fuer diesen Client-Typ nicht erlaubt! */
-			return IRC_WriteStrClient( client, ERR_NOTREGISTERED_MSG, Client_ID( client ));
-		}
+			cmd->rcount++;
+		return result;
 	}
 
-	if( Client_Type( client ) != CLIENT_USER &&
+	if (Client_Type( client ) != CLIENT_USER &&
 	    Client_Type( client ) != CLIENT_SERVER &&
 	    Client_Type( client ) != CLIENT_SERVICE )
 		return true;
-	
+
 	/* Unknown command and registered connection: generate error: */
-	Log( LOG_DEBUG, "Connection %d: Unknown command \"%s\", %d %s,%s prefix.",
+	LogDebug("Connection %d: Unknown command \"%s\", %d %s,%s prefix.",
 			Client_Conn( client ), Req->command, Req->argc,
 			Req->argc == 1 ? "parameter" : "parameters",
 			Req->prefix ? "" : " no" );
@@ -479,10 +475,8 @@ Handle_Request( CONN_ID Idx, REQUEST *Req )
 		result = IRC_WriteStrClient(client, ERR_UNKNOWNCOMMAND_MSG,
 				Client_ID(client), Req->command);
 		Conn_SetPenalty(Idx, 1);
-		return result;
 	}
-
-	return true;
+	return result;
 } /* Handle_Request */
 
 

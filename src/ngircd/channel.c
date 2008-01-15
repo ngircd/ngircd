@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: channel.c,v 1.63 2007/06/11 20:06:46 fw Exp $";
+static char UNUSED id[] = "$Id: channel.c,v 1.64 2008/01/15 22:28:14 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -695,38 +695,66 @@ Channel_SetMaxUsers(CHANNEL *Chan, unsigned long Count)
 } /* Channel_SetMaxUsers */
 
 
-GLOBAL bool
-Channel_Write( CHANNEL *Chan, CLIENT *From, CLIENT *Client, char *Text )
+static bool
+Can_Send_To_Channel(CHANNEL *Chan, CLIENT *From)
 {
-	bool is_member, has_voice, is_op, ok;
+	bool is_member, has_voice, is_op;
 
-	/* Okay, target is a channel */
 	is_member = has_voice = is_op = false;
-	if( Channel_IsMemberOf( Chan, From ))
-	{
+
+	if (Channel_IsMemberOf(Chan, From)) {
 		is_member = true;
-		if( strchr( Channel_UserModes( Chan, From ), 'v' )) has_voice = true;
-		if( strchr( Channel_UserModes( Chan, From ), 'o' )) is_op = true;
+		if (strchr(Channel_UserModes(Chan, From), 'v'))
+			has_voice = true;
+		if (strchr(Channel_UserModes(Chan, From), 'o'))
+			is_op = true;
 	}
 
-	/* Is the client allowed to write to channel? */
-	ok = true;
-	if( strchr( Channel_Modes( Chan ), 'n' ) && ( ! is_member )) ok = false;
-	if( strchr( Channel_Modes( Chan ), 'm' ) && ( ! is_op ) && ( ! has_voice )) ok = false;
+	/*
+	 * Is the client allowed to write to channel?
+	 *
+	 * If channel mode n set: non-members cannot send to channel.
+	 * If channel mode m set: need voice.
+	 */
+	if (strchr(Channel_Modes(Chan), 'n') && !is_member)
+		return false;
 
-	/* Is the client banned? */
-	if( Lists_Check(&Chan->list_bans, From))
-	{
-		/* Client is banned, but is he channel operator or has voice? */
-		if(( ! has_voice ) && ( ! is_op )) ok = false;
-	}
+	if (is_op || has_voice)
+		return true;
 
-	if( ! ok ) return IRC_WriteStrClient( From, ERR_CANNOTSENDTOCHAN_MSG, Client_ID( From ), Channel_Name( Chan ));
+	if (strchr(Channel_Modes(Chan), 'm'))
+		return false;
 
-	/* Send text */
-	if( Client_Conn( From ) > NONE ) Conn_UpdateIdle( Client_Conn( From ));
-	return IRC_WriteStrChannelPrefix( Client, Chan, From, true, "PRIVMSG %s :%s", Channel_Name( Chan ), Text );
-} /* Channel_Write */
+	return !Lists_Check(&Chan->list_bans, From);
+}
+
+
+GLOBAL bool
+Channel_Write(CHANNEL *Chan, CLIENT *From, CLIENT *Client, const char *Text)
+{
+	if (!Can_Send_To_Channel(Chan, From))
+		return IRC_WriteStrClient(From, ERR_CANNOTSENDTOCHAN_MSG, Client_ID(From), Channel_Name(Chan));
+
+	if (Client_Conn(From) > NONE)
+		Conn_UpdateIdle(Client_Conn(From));
+
+	return IRC_WriteStrChannelPrefix(Client, Chan, From, true,
+			"PRIVMSG %s :%s", Channel_Name(Chan), Text);
+}
+
+
+GLOBAL bool
+Channel_Notice(CHANNEL *Chan, CLIENT *From, CLIENT *Client, const char *Text)
+{
+	if (!Can_Send_To_Channel(Chan, From))
+		return true; /* no error, see RFC 2812 */
+
+	if (Client_Conn(From) > NONE)
+		Conn_UpdateIdle(Client_Conn(From));
+
+	return IRC_WriteStrChannelPrefix(Client, Chan, From, true,
+			"NOTICE %s :%s", Channel_Name(Chan), Text);
+}
 
 
 GLOBAL CHANNEL *

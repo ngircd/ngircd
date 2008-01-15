@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: channel.h,v 1.33 2006/12/07 22:23:39 fw Exp $
+ * $Id: channel.h,v 1.34 2008/01/15 22:28:14 fw Exp $
  *
  * Channel management (header)
  */
@@ -109,7 +109,8 @@ GLOBAL char *Channel_UserModes PARAMS(( CHANNEL *Chan, CLIENT *Client ));
 
 GLOBAL bool Channel_IsMemberOf PARAMS(( CHANNEL *Chan, CLIENT *Client ));
 
-GLOBAL bool Channel_Write PARAMS(( CHANNEL *Chan, CLIENT *From, CLIENT *Client, char *Text ));
+GLOBAL bool Channel_Write PARAMS(( CHANNEL *Chan, CLIENT *From, CLIENT *Client, const char *Text ));
+GLOBAL bool Channel_Notice PARAMS(( CHANNEL *Chan, CLIENT *From, CLIENT *Client, const char *Text));
 
 GLOBAL CHANNEL *Channel_Create PARAMS(( char *Name ));
 

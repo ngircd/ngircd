@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc.c,v 1.131 2006/07/23 14:55:40 alex Exp $";
+static char UNUSED id[] = "$Id: irc.c,v 1.132 2008/01/15 22:28:14 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -170,6 +170,7 @@ GLOBAL bool
 IRC_NOTICE( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *to, *from;
+	CHANNEL *chan;
 
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -189,7 +190,14 @@ IRC_NOTICE( CLIENT *Client, REQUEST *Req )
 		/* Okay, Ziel ist ein User */
 		return IRC_WriteStrClientPrefix( to, from, "NOTICE %s :%s", Client_ID( to ), Req->argv[1] );
 	}
-	else return CONNECTED;
+	else
+	{
+		chan = Channel_Search(Req->argv[0]);
+		if (chan)
+			return Channel_Notice(chan, from, Client, Req->argv[1]);
+	}
+
+	return CONNECTED;
 } /* IRC_NOTICE */
 
 

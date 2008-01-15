@@ -10,7 +10,7 @@
                                   -- NEWS --
 
 
-ngIRCd HEAD
+ngIRCd 0.11.0 (2008-01-15)
 
   - Add support for /STAT u (server uptime) command.
   - New [Server] configuration Option "Bind" allows to specify
@@ -251,4 +251,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.83 2008/01/02 11:31:48 alex Exp $
+$Id: NEWS,v 1.83.2.2 2008/01/15 20:45:52 alex Exp $

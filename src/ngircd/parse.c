@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: parse.c,v 1.70 2008/01/13 16:12:49 fw Exp $";
+static char UNUSED id[] = "$Id: parse.c,v 1.71 2008/02/05 13:07:14 fw Exp $";
 
 /**
  * @file
@@ -421,6 +421,7 @@ Handle_Request( CONN_ID Idx, REQUEST *Req )
 	 * wird die Verbindung geschlossen und false geliefert. */
 	CLIENT *client;
 	bool result = true;
+	int client_type;
 	COMMAND *cmd;
 
 	assert( Idx >= 0 );
@@ -431,8 +432,9 @@ Handle_Request( CONN_ID Idx, REQUEST *Req )
 	assert( client != NULL );
 
 	/* Numeric? */
-	if ((Client_Type(client) == CLIENT_SERVER ||
-	     Client_Type(client) == CLIENT_UNKNOWNSERVER)
+	client_type = Client_Type(client);
+	if ((client_type == CLIENT_SERVER ||
+	     client_type == CLIENT_UNKNOWNSERVER)
 	    && strlen(Req->command) == 3 && atoi(Req->command) > 1)
 		return Handle_Numeric(client, Req);
 
@@ -444,7 +446,7 @@ Handle_Request( CONN_ID Idx, REQUEST *Req )
 			continue;
 		}
 
-		if (!(Client_Type(client) & cmd->type))
+		if (!(client_type & cmd->type))
 			return IRC_WriteStrClient(client, ERR_NOTREGISTERED_MSG, Client_ID(client));
 
 		/* Command is allowed for this client: call it and count produced bytes */
@@ -453,16 +455,16 @@ Handle_Request( CONN_ID Idx, REQUEST *Req )
 		cmd->bytes += Conn_WCounter();
 
 		/* Adjust counters */
-		if (Client_Type(client) != CLIENT_SERVER)
+		if (client_type != CLIENT_SERVER)
 			cmd->lcount++;
 		else
 			cmd->rcount++;
 		return result;
 	}
 
-	if (Client_Type( client ) != CLIENT_USER &&
-	    Client_Type( client ) != CLIENT_SERVER &&
-	    Client_Type( client ) != CLIENT_SERVICE )
+	if (client_type != CLIENT_USER &&
+	    client_type != CLIENT_SERVER &&
+	    client_type != CLIENT_SERVICE )
 		return true;
 
 	/* Unknown command and registered connection: generate error: */

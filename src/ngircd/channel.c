@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: channel.c,v 1.64 2008/01/15 22:28:14 fw Exp $";
+static char UNUSED id[] = "$Id: channel.c,v 1.65 2008/02/05 16:31:35 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -56,7 +56,7 @@ static CL2CHAN *My_Cl2Chan;
 
 static CL2CHAN *Get_Cl2Chan PARAMS(( CHANNEL *Chan, CLIENT *Client ));
 static CL2CHAN *Add_Client PARAMS(( CHANNEL *Chan, CLIENT *Client ));
-static bool Remove_Client PARAMS(( int Type, CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, char *Reason, bool InformServer ));
+static bool Remove_Client PARAMS(( int Type, CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, const char *Reason, bool InformServer ));
 static CL2CHAN *Get_First_Cl2Chan PARAMS(( CLIENT *Client, CHANNEL *Chan ));
 static CL2CHAN *Get_Next_Cl2Chan PARAMS(( CL2CHAN *Start, CLIENT *Client, CHANNEL *Chan ));
 static bool Delete_Channel PARAMS(( CHANNEL *Chan ));
@@ -202,7 +202,7 @@ Channel_Join( CLIENT *Client, char *Name )
 
 
 GLOBAL bool
-Channel_Part( CLIENT *Client, CLIENT *Origin, char *Name, char *Reason )
+Channel_Part( CLIENT *Client, CLIENT *Origin, const char *Name, const char *Reason )
 {
 	CHANNEL *chan;
 
@@ -388,7 +388,7 @@ Channel_Next( CHANNEL *Chan )
 
 
 GLOBAL CHANNEL *
-Channel_Search( char *Name )
+Channel_Search( const char *Name )
 {
 	/* Channel-Struktur suchen */
 	
@@ -829,7 +829,7 @@ Add_Client( CHANNEL *Chan, CLIENT *Client )
 
 
 static bool
-Remove_Client( int Type, CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, char *Reason, bool InformServer )
+Remove_Client( int Type, CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, const char *Reason, bool InformServer )
 {
 	CL2CHAN *cl2chan, *last_cl2chan;
 	CHANNEL *c;
@@ -903,7 +903,7 @@ Remove_Client( int Type, CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, char *Re
 	{
 		if( ! Get_First_Cl2Chan( NULL, Chan )) Delete_Channel( Chan );
 	}
-		
+
 	return true;
 } /* Remove_Client */
 

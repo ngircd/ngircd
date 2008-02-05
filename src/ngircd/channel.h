@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: channel.h,v 1.34 2008/01/15 22:28:14 fw Exp $
+ * $Id: channel.h,v 1.35 2008/02/05 16:31:35 fw Exp $
  *
  * Channel management (header)
  */
@@ -64,7 +64,7 @@ GLOBAL void Channel_InitPredefined PARAMS((  void ));
 GLOBAL void Channel_Exit PARAMS(( void ));
 
 GLOBAL bool Channel_Join PARAMS(( CLIENT *Client, char *Name ));
-GLOBAL bool Channel_Part PARAMS(( CLIENT *Client, CLIENT *Origin, char *Name, char *Reason ));
+GLOBAL bool Channel_Part PARAMS(( CLIENT *Client, CLIENT *Origin, const char *Name, const char *Reason ));
 
 GLOBAL void Channel_Quit PARAMS(( CLIENT *Client, char *Reason ));
 
@@ -85,7 +85,7 @@ GLOBAL void Channel_SetModes PARAMS(( CHANNEL *Chan, char *Modes ));
 GLOBAL void Channel_SetKey PARAMS(( CHANNEL *Chan, char *Key ));
 GLOBAL void Channel_SetMaxUsers PARAMS(( CHANNEL *Chan, unsigned long Count ));
 
-GLOBAL CHANNEL *Channel_Search PARAMS(( char *Name ));
+GLOBAL CHANNEL *Channel_Search PARAMS(( const char *Name ));
 
 GLOBAL CHANNEL *Channel_First PARAMS(( void ));
 GLOBAL CHANNEL *Channel_Next PARAMS(( CHANNEL *Chan ));

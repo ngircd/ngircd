@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: parse.c,v 1.67 2006/04/23 10:37:27 fw Exp $";
+static char UNUSED id[] = "$Id: parse.c,v 1.67.2.1 2008/02/05 13:15:05 fw Exp $";
 
 /**
  * @file
@@ -348,7 +348,7 @@ Handle_Request( CONN_ID Idx, REQUEST *Req )
 	char str[LINE_LEN];
 	bool result;
 	COMMAND *cmd;
-	int i;
+	int i, client_type;
 
 	assert( Idx >= 0 );
 	assert( Req != NULL );
@@ -406,6 +406,7 @@ Handle_Request( CONN_ID Idx, REQUEST *Req )
 	}
 
 	cmd = My_Commands;
+	client_type = Client_Type( client );
 	while( cmd->name )
 	{
 		/* Befehl suchen */
@@ -414,7 +415,7 @@ Handle_Request( CONN_ID Idx, REQUEST *Req )
 			cmd++; continue;
 		}
 
-		if( Client_Type( client ) & cmd->type )
+		if( client_type & cmd->type )
 		{
 			/* Command is allowed for this client: call it and count produced bytes */
 			Conn_ResetWCounter( );
@@ -422,7 +423,7 @@ Handle_Request( CONN_ID Idx, REQUEST *Req )
 			cmd->bytes += Conn_WCounter( );
 
 			/* Adjust counters */
-			if( Client_Type( client ) != CLIENT_SERVER ) cmd->lcount++;
+			if( client_type != CLIENT_SERVER ) cmd->lcount++;
 			else cmd->rcount++;
 
 			return result;

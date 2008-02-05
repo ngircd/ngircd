@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-channel.c,v 1.41 2008/01/07 11:42:00 fw Exp $";
+static char UNUSED id[] = "$Id: irc-channel.c,v 1.42 2008/02/05 13:31:50 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -40,6 +40,32 @@ static char UNUSED id[] = "$Id: irc-channel.c,v 1.41 2008/01/07 11:42:00 fw Exp 
 #include "irc-channel.h"
 
 
+/*
+ * RFC 2812, (3.2.1 Join message Command):
+ *  Note that this message
+ *  accepts a special argument ("0"), which is a special request to leave all
+ *  channels the user is currently a member of. The server will process this
+ *  message as if the user had sent a PART command (See Section 3.2.2) for
+ *  each channel he is a member of.
+ */
+static bool
+part_from_all_channels(CLIENT* client, CLIENT *target)
+{
+	CL2CHAN *cl2chan = Channel_FirstChannelOf(target);
+	CHANNEL *chan;
+
+	while (cl2chan) {
+		chan = Channel_GetChannel(cl2chan);
+		assert( chan != NULL );
+		Channel_Part(target, client, Channel_Name(chan), Client_ID(target));
+
+		/* next */
+		cl2chan = Channel_FirstChannelOf(target);
+	}
+	return CONNECTED;
+}
+
+
 GLOBAL bool
 IRC_JOIN( CLIENT *Client, REQUEST *Req )
 {
@@ -47,7 +73,7 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 	bool is_new_chan, is_invited, is_banned;
 	CLIENT *target;
 	CHANNEL *chan;
-	
+
 	assert( Client != NULL );
 	assert( Req != NULL );
 
@@ -60,6 +86,10 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 	if( Client_Type( Client ) == CLIENT_SERVER ) target = Client_Search( Req->prefix );
 	else target = Client;
 	if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
+
+	/* Is argument "0"? */
+	if (Req->argc == 1 && !strncmp("0", Req->argv[0], 2))
+		return part_from_all_channels(Client, target);
 
 	/* Are channel keys given? */
 	if (Req->argc > 1) {

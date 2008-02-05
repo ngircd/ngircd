@@ -12,6 +12,9 @@
 
 ngIRCd HEAD
 
+  - implement RFC 2812 handling of "0" argument to 'JOIN':
+    must be treated as if the user had sent PART commands
+    for all channels the user is a member of. (Dana Dahlstrom)
   - allow NOTICEs to be sent to a channel. (Fabian Schlager)
 
 ngIRCd 0.11.0 (2008-01-15)
@@ -738,4 +741,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.335 2008/01/15 22:28:15 fw Exp $
+$Id: ChangeLog,v 1.336 2008/02/05 13:31:50 fw Exp $

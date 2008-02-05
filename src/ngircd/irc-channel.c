@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-channel.c,v 1.42 2008/02/05 13:31:50 fw Exp $";
+static char UNUSED id[] = "$Id: irc-channel.c,v 1.43 2008/02/05 19:00:52 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -51,16 +51,13 @@ static char UNUSED id[] = "$Id: irc-channel.c,v 1.42 2008/02/05 13:31:50 fw Exp 
 static bool
 part_from_all_channels(CLIENT* client, CLIENT *target)
 {
-	CL2CHAN *cl2chan = Channel_FirstChannelOf(target);
+	CL2CHAN *cl2chan;
 	CHANNEL *chan;
 
-	while (cl2chan) {
+	while ((cl2chan = Channel_FirstChannelOf(target))) {
 		chan = Channel_GetChannel(cl2chan);
 		assert( chan != NULL );
 		Channel_Part(target, client, Channel_Name(chan), Client_ID(target));
-
-		/* next */
-		cl2chan = Channel_FirstChannelOf(target);
 	}
 	return CONNECTED;
 }

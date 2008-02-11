@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-info.c,v 1.41 2007/12/11 11:29:44 fw Exp $";
+static char UNUSED id[] = "$Id: irc-info.c,v 1.42 2008/02/11 11:06:31 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -35,6 +35,7 @@ static char UNUSED id[] = "$Id: irc-info.c,v 1.41 2007/12/11 11:29:44 fw Exp $";
 #include "defines.h"
 #include "log.h"
 #include "messages.h"
+#include "match.h"
 #include "tool.h"
 #include "parse.h"
 #include "irc-write.h"
@@ -592,12 +593,87 @@ IRC_VERSION( CLIENT *Client, REQUEST *Req )
 } /* IRC_VERSION */
 
 
+
+static bool
+write_whoreply(CLIENT *Client, CLIENT *c, const char *channelname, const char *flags)
+{
+	return IRC_WriteStrClient(Client, RPL_WHOREPLY_MSG, Client_ID(Client), channelname,
+			Client_User(c), Client_Hostname(c), Client_ID(Client_Introducer(c)), Client_ID(c),
+			flags, Client_Hops(c), Client_Info(c));
+}
+
+
+static bool
+IRC_Send_WHO(CLIENT *Client, CHANNEL *Chan, bool OnlyOps)
+{
+	bool is_visible, is_member, is_ircop;
+	CL2CHAN *cl2chan;
+	const char *client_modes;
+	const char *chan_user_modes;
+	char flags[8];
+	CLIENT *c;
+
+	assert( Client != NULL );
+	assert( Chan != NULL );
+
+	is_member = Channel_IsMemberOf(Chan, Client);
+
+	/* Secret channel? */
+	if (!is_member && strchr(Channel_Modes(Chan), 's'))
+		return CONNECTED;
+
+	cl2chan = Channel_FirstMember(Chan);
+	for (; cl2chan ; cl2chan = Channel_NextMember(Chan, cl2chan)) {
+		c = Channel_GetClient(cl2chan);
+
+		client_modes = Client_Modes(c);
+		is_ircop = strchr(client_modes, 'o') != NULL;
+		if (OnlyOps && !is_ircop)
+			continue;
+
+		is_visible = strchr(client_modes, 'i') == NULL;
+		if (is_member || is_visible) {
+			if (strchr(client_modes, 'a'))
+				strcpy(flags, "G"); /* away */
+			else
+				strcpy(flags, "H");
+			if (is_ircop)
+				strlcat(flags, "*", sizeof(flags));
+
+			chan_user_modes = Channel_UserModes(Chan, c);
+			if (strchr(chan_user_modes, 'o'))
+				strlcat(flags, "@", sizeof(flags));
+			else if (strchr(chan_user_modes, 'v'))
+				strlcat(flags, "+", sizeof(flags));
+
+			if (!write_whoreply(Client, c, Channel_Name(Chan), flags))
+				return DISCONNECTED;
+		}
+	}
+	return IRC_WriteStrClient(Client, RPL_ENDOFWHO_MSG, Client_ID(Client), Channel_Name(Chan));
+} /* IRC_Send_WHO */
+
+
+static bool
+MatchCaseInsensitive(const char *pattern, const char *searchme)
+{
+	char haystack[COMMAND_LEN];
+
+	strlcpy(haystack, searchme, sizeof(haystack));
+
+	ngt_LowerStr(haystack);
+
+	return Match(pattern, haystack);
+}
+
+
 GLOBAL bool
 IRC_WHO( CLIENT *Client, REQUEST *Req )
 {
-	bool ok, only_ops;
-	char flags[8];
-	const char *ptr;
+	bool only_ops, have_arg, client_match;
+	const char *channelname, *client_modes;
+	char pattern[COMMAND_LEN];
+	char flags[4];
 	CL2CHAN *cl2chan;
 	CHANNEL *chan, *cn;
 	CLIENT *c;
@@ -605,78 +681,101 @@ IRC_WHO( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	/* Falsche Anzahl Parameter? */
-	if(( Req->argc > 2 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	if (Req->argc > 2)
+		return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
 	only_ops = false;
-	chan = NULL;
+	have_arg = false;
 
-	if( Req->argc == 2 )
-	{
-		/* Nur OPs anzeigen? */
-		if( strcmp( Req->argv[1], "o" ) == 0 ) only_ops = true;
+	if (Req->argc == 2) {
+		if (strcmp(Req->argv[1], "o") == 0)
+			only_ops = true;
 #ifdef STRICT_RFC
-		else return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+		else return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG, Client_ID(Client), Req->command);
 #endif
 	}
 
-	if( Req->argc >= 1 )
-	{
-		/* wurde ein Channel oder Nick-Mask angegeben? */
-		chan = Channel_Search( Req->argv[0] );
+	IRC_SetPenalty(Client, 1);
+	if (Req->argc >= 1) { /* Channel or Mask. */
+		chan = Channel_Search(Req->argv[0]);
+		if (chan)
+			return IRC_Send_WHO(Client, chan, only_ops);
+		if (strcmp(Req->argv[0], "0") != 0) { /* RFC stupidity, same as no arguments */
+			have_arg = true;
+			strlcpy(pattern, Req->argv[0], sizeof(pattern));
+			ngt_LowerStr(pattern);
+			IRC_SetPenalty(Client, 3);
+		}
 	}
 
-	if( chan )
-	{
-		/* User eines Channels ausgeben */
-		if( ! IRC_Send_WHO( Client, chan, only_ops )) return DISCONNECTED;
-	}
+	for (c = Client_First(); c != NULL; c = Client_Next(c)) {
+		if (Client_Type(c) != CLIENT_USER)
+			continue;
+		 /*
+		  * RFC 2812, 3.6.1:
+		  * In the absence of the parameter, all visible (users who aren't
+		  * invisible (user mode +i) and who don't have a common channel
+		  * with the requesting client) are listed.
+		  *
+		  * The same result can be achieved by using a [sic] of "0"
+		  * or any wildcard which will end up matching every visible user.
+		  *
+		  * The [sic] passed to WHO is matched against users' host, server, real name and
+		  * nickname if the channel cannot be found.
+		  */
+		client_modes = Client_Modes(c);
+		if (strchr(client_modes, 'i'))
+			continue;
 
-	c = Client_First( );
-	while( c )
-	{
-		if(( Client_Type( c ) == CLIENT_USER ) && ( ! strchr( Client_Modes( c ), 'i' )))
-		{
-			ok = false;
-			if( Req->argc == 0 ) ok = true;
-			else
-			{
-				if( strcasecmp( Req->argv[0], Client_ID( c )) == 0 ) ok = true;
-				else if( strcmp( Req->argv[0], "0" ) == 0 ) ok = true;
-			}
+		if (only_ops && !strchr(client_modes, 'o'))
+			continue;
 
-			if( ok && (( ! only_ops ) || ( strchr( Client_Modes( c ), 'o' ))))
-			{
-				/* Get flags */
-				strcpy( flags, "H" );
-				if( strchr( Client_Modes( c ), 'o' )) strlcat( flags, "*", sizeof( flags ));
+		if (have_arg) { /* match pattern against user host/server/name/nick */
+			client_match = MatchCaseInsensitive(pattern, Client_Hostname(c)); /* user's host */
+			if (!client_match)
+				client_match = MatchCaseInsensitive(pattern, Client_ID(Client_Introducer(c))); /* server */
+			if (!client_match)
+				client_match = Match(Req->argv[0], Client_Info(c)); /* realname */
+			if (!client_match)
+				client_match = MatchCaseInsensitive(pattern, Client_ID(c)); /* nick name */
 
-				/* Search suitable channel */
-				cl2chan = Channel_FirstChannelOf( c );
-				while( cl2chan )
-				{
-					cn = Channel_GetChannel( cl2chan );
-					if( Channel_IsMemberOf( cn, Client ) ||
-					    ! strchr( Channel_Modes( cn ), 's' ))
-					{
-						ptr = Channel_Name( cn );
-						break;
-					}
-					cl2chan = Channel_NextChannelOf( c, cl2chan );
-				}
-				if( ! cl2chan ) ptr = "*";
-
-				if( ! IRC_WriteStrClient( Client, RPL_WHOREPLY_MSG, Client_ID( Client ), ptr, Client_User( c ), Client_Hostname( c ), Client_ID( Client_Introducer( c )), Client_ID( c ), flags, Client_Hops( c ), Client_Info( c ))) return DISCONNECTED;
-			}
+			if (!client_match) /* This isn't the client you're looking for */
+				continue;
 		}
 
-		/* naechster Client */
-		c = Client_Next( c );
+		if (strchr(client_modes, 'a'))
+			strcpy(flags, "G"); /* user is away */
+		else
+			strcpy(flags, "H");
+
+		if (only_ops) /* this client is an operator */
+			strlcat(flags, "*", sizeof(flags));
+
+		/* Search suitable channel */
+		cl2chan = Channel_FirstChannelOf(c);
+		while (cl2chan) {
+			cn = Channel_GetChannel(cl2chan);
+			if (Channel_IsMemberOf(cn, Client) ||
+				    !strchr(Channel_Modes(cn), 's'))
+			{
+				channelname = Channel_Name(cn);
+				break;
+			}
+			cl2chan = Channel_NextChannelOf(c, cl2chan);
+		}
+		if (!cl2chan)
+			channelname = "*";
+
+		if (!write_whoreply(Client, c, channelname, flags))
+			return DISCONNECTED;
 	}
 
-	if( chan ) return IRC_WriteStrClient( Client, RPL_ENDOFWHO_MSG, Client_ID( Client ), Channel_Name( chan ));
-	else if( Req->argc == 0 ) return IRC_WriteStrClient( Client, RPL_ENDOFWHO_MSG, Client_ID( Client ), "*" );
-	else return IRC_WriteStrClient( Client, RPL_ENDOFWHO_MSG, Client_ID( Client ), Req->argv[0] );
+	if (Req->argc > 0)
+		channelname = Req->argv[0];
+	else
+		channelname = "*";
+
+	return IRC_WriteStrClient(Client, RPL_ENDOFWHO_MSG, Client_ID(Client), channelname);
 } /* IRC_WHO */
 
 
@@ -1055,53 +1154,6 @@ IRC_Send_NAMES( CLIENT *Client, CHANNEL *Chan )
 	return CONNECTED;
 } /* IRC_Send_NAMES */
 
-
-GLOBAL bool
-IRC_Send_WHO( CLIENT *Client, CHANNEL *Chan, bool OnlyOps )
-{
-	bool is_visible, is_member;
-	CL2CHAN *cl2chan;
-	char flags[8];
-	CLIENT *c;
-
-	assert( Client != NULL );
-	assert( Chan != NULL );
-
-	if( Channel_IsMemberOf( Chan, Client )) is_member = true;
-	else is_member = false;
-
-	/* Secret channel? */
-	if( ! is_member && strchr( Channel_Modes( Chan ), 's' )) return CONNECTED;
-
-	/* Alle Mitglieder suchen */
-	cl2chan = Channel_FirstMember( Chan );
-	while( cl2chan )
-	{
-		c = Channel_GetClient( cl2chan );
-
-		if( strchr( Client_Modes( c ), 'i' )) is_visible = false;
-		else is_visible = true;
-
-		if( is_member || is_visible )
-		{
-			/* Flags zusammenbasteln */
-			strcpy( flags, "H" );
-			if( strchr( Client_Modes( c ), 'o' )) strlcat( flags, "*", sizeof( flags ));
-			if( strchr( Channel_UserModes( Chan, c ), 'o' )) strlcat( flags, "@", sizeof( flags ));
-			else if( strchr( Channel_UserModes( Chan, c ), 'v' )) strlcat( flags, "+", sizeof( flags ));
-
-			/* ausgeben */
-			if(( ! OnlyOps ) || ( strchr( Client_Modes( c ), 'o' )))
-			{
-				if( ! IRC_WriteStrClient( Client, RPL_WHOREPLY_MSG, Client_ID( Client ), Channel_Name( Chan ), Client_User( c ), Client_Hostname( c ), Client_ID( Client_Introducer( c )), Client_ID( c ), flags, Client_Hops( c ), Client_Info( c ))) return DISCONNECTED;
-			}
-		}
-
-		/* naechstes Mitglied suchen */
-		cl2chan = Channel_NextMember( Chan, cl2chan );
-	}
-	return CONNECTED;
-} /* IRC_Send_WHO */
 
 
 /**

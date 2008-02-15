@@ -166,14 +166,12 @@ main( int argc, const char *argv[] )
 			{
 				ok = false;
 #ifdef DEBUG
-				if( argv[i][n] == 'd' )
-				{
+				if (argv[i][n] == 'd') {
 					NGIRCd_Debug = true;
 					ok = true;
 				}
 #endif
-				if( argv[i][n] == 'f' )
-				{
+				if (argv[i][n] == 'f') {
 					if(( ! argv[i][n + 1] ) && ( i + 1 < argc ))
 					{
 						/* Ok, next character is a blank */
@@ -185,31 +183,38 @@ main( int argc, const char *argv[] )
 						ok = true;
 					}
 				}
-				if( argv[i][n] == 'n' )
-				{
+
+				if (argv[i][n] == 'h') {
+					Show_Version();
+					puts(""); Show_Help(); puts("");
+					exit(1);
+				}
+
+				if (argv[i][n] == 'n') {
 					NGIRCd_NoDaemon = true;
 					ok = true;
 				}
-				if( argv[i][n] == 'p' )
-				{
+				if (argv[i][n] == 'p') {
 					NGIRCd_Passive = true;
 					ok = true;
 				}
 #ifdef SNIFFER
-				if( argv[i][n] == 's' )
-				{
+				if (argv[i][n] == 's') {
 					NGIRCd_Sniffer = true;
 					ok = true;
 				}
 #endif
-				if( argv[i][n] == 't' )
-				{
+				if (argv[i][n] == 't') {
 					configtest = true;
 					ok = true;
 				}
 
-				if( ! ok )
-				{
+				if (argv[i][n] == 'V') {
+					Show_Version();
+					exit(1);
+				}
+
+				if (! ok) {
 					printf( "%s: invalid option \"-%c\"!\n", PACKAGE_NAME, argv[i][n] );
 					printf( "Try \"%s --help\" for more information.\n", PACKAGE_NAME );
 					exit( 1 );
@@ -577,8 +582,8 @@ Show_Help( void )
 	puts( "  -s, --sniffer      enable network sniffer and display all IRC traffic" );
 #endif
 	puts( "  -t, --configtest   read, validate and display configuration; then exit" );
- 	puts( "      --version      output version information and exit" );
-	puts( "      --help         display this help and exit" );
+	puts( "  -V, --version      output version information and exit" );
+	puts( "  -h, --help         display this help and exit" );
 } /* Show_Help */
 
 

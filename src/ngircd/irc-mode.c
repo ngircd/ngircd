@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-mode.c,v 1.50 2007/10/14 12:08:57 alex Exp $";
+static char UNUSED id[] = "$Id: irc-mode.c,v 1.50.2.1 2008/02/16 11:26:12 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -317,7 +317,7 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 	/* Prepare reply string */
 	if( set ) strcpy( the_modes, "+" );
 	else strcpy( the_modes, "-" );
-	strcpy( the_args, " " );
+	the_args[0] = '\0';
 
 	x[1] = '\0';
 	ok = CONNECTED;
@@ -528,8 +528,8 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 				/* Channel-User-Mode */
 				if( Channel_UserModeAdd( Channel, client, x[0] ))
 				{
-					strlcat( the_args, Client_ID( client ), sizeof( the_args ));
 					strlcat( the_args, " ", sizeof( the_args ));
+					strlcat( the_args, Client_ID( client ), sizeof( the_args ));
 					strlcat( the_modes, x, sizeof( the_modes ));
 					Log( LOG_DEBUG, "User \"%s\": Mode change on %s, now \"%s\"", Client_Mask( client ), Channel_Name( Channel ), Channel_UserModes( Channel, client ));
 				}
@@ -552,8 +552,8 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 				/* Channel-User-Mode */
 				if( Channel_UserModeDel( Channel, client, x[0] ))
 				{
-					strlcat( the_args, Client_ID( client ), sizeof( the_args ));
 					strlcat( the_args, " ", sizeof( the_args ));
+					strlcat( the_args, Client_ID( client ), sizeof( the_args ));
 					strlcat( the_modes, x, sizeof( the_modes ));
 					Log( LOG_DEBUG, "User \"%s\": Mode change on %s, now \"%s\"", Client_Mask( client ), Channel_Name( Channel ), Channel_UserModes( Channel, client ));
 				}
@@ -572,8 +572,7 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 		/* Are there additional arguments to add? */
 		if( argadd[0] )
 		{
-			len = strlen( the_args ) - 1;
-			if( the_args[len] != ' ' ) strlcat( the_args, " ", sizeof( the_args ));
+			strlcat( the_args, " ", sizeof( the_args ));
 			strlcat( the_args, argadd, sizeof( the_args ));
 		}
 	}
@@ -585,9 +584,6 @@ chan_exit:
 		/* Clean up mode string */
 		len = strlen( the_modes ) - 1;
 		if(( the_modes[len] == '+' ) || ( the_modes[len] == '-' )) the_modes[len] = '\0';
-
-		/* Clean up argument string if there are none */
-		if( ! the_args[1] ) the_args[0] = '\0';
 
 		if( Client_Type( Client ) == CLIENT_SERVER )
 		{

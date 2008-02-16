@@ -8,7 +8,10 @@
                    terms of the GNU General Public License.
 
                                -- ChangeLog --
+ngIRCd 0.11.1
 
+ - Under some circumstances ngIRCd issued
+ channel MODE message with a trailing space. (Dana Dahlstrom) [from HEAD]
 
 ngIRCd 0.11.0 (2008-01-15)
 
@@ -734,4 +737,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.332.2.6 2008/01/15 20:45:52 alex Exp $
+$Id: ChangeLog,v 1.332.2.7 2008/02/16 11:26:11 fw Exp $

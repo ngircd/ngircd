@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-channel.c,v 1.43 2008/02/05 19:00:52 fw Exp $";
+static char UNUSED id[] = "$Id: irc-channel.c,v 1.44 2008/02/16 11:21:33 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -63,11 +63,121 @@ part_from_all_channels(CLIENT* client, CLIENT *target)
 }
 
 
+static bool
+join_allowed(CLIENT *Client, CLIENT *target, CHANNEL *chan,
+			const char *channame, const char *key)
+{
+	bool is_invited, is_banned;
+	const char *channel_modes;
+
+	is_banned = Lists_Check(Channel_GetListBans(chan), target);
+	is_invited = Lists_Check(Channel_GetListInvites(chan), target);
+
+	if (is_banned && !is_invited) {
+		IRC_WriteStrClient(Client, ERR_BANNEDFROMCHAN_MSG, Client_ID(Client), channame);
+		return false;
+	}
+
+	channel_modes = Channel_Modes(chan);
+	if ((strchr(channel_modes, 'i')) && !is_invited) {
+		/* Channel is "invite-only" (and Client wasn't invited) */
+		IRC_WriteStrClient(Client, ERR_INVITEONLYCHAN_MSG, Client_ID(Client), channame);
+		return false;
+	}
+
+	/* Is the channel protected by a key? */
+	if (strchr(channel_modes, 'k') &&
+		strcmp(Channel_Key(chan), key ? key : ""))
+	{
+		IRC_WriteStrClient(Client, ERR_BADCHANNELKEY_MSG, Client_ID(Client), channame);
+		return false;
+	}
+	/* Are there already too many members? */
+	if ((strchr(channel_modes, 'l')) && (Channel_MaxUsers(chan) <= Channel_MemberCount(chan))) {
+		IRC_WriteStrClient(Client, ERR_CHANNELISFULL_MSG, Client_ID(Client), channame);
+		return false;
+	}
+	return true;
+}
+
+
+static void
+join_set_channelmodes(CHANNEL *chan, CLIENT *target, const char *flags)
+{
+	if (flags) {
+		while (*flags) {
+			Channel_UserModeAdd(chan, target, *flags);
+			flags++;
+		}
+	}
+
+	/* If channel persistent and client is ircop: make client chanop */
+	if (strchr(Channel_Modes(chan), 'P') && strchr(Client_Modes(target), 'o'))
+		Channel_UserModeAdd(chan, target, 'o');
+}
+
+
+static void
+join_forward(CLIENT *Client, CLIENT *target, CHANNEL *chan,
+					const char *channame)
+{
+	char modes[8];
+
+	strlcpy(&modes[1], Channel_UserModes(chan, target), sizeof(modes) - 1);
+
+	if (modes[1])
+		modes[0] = 0x7;
+	else
+		modes[0] = '\0';
+	/* forward to other servers */
+	IRC_WriteStrServersPrefix(Client, target, "JOIN :%s%s", channame, modes);
+
+	/* tell users in this channel about the new client */
+	IRC_WriteStrChannelPrefix(Client, chan, target, false, "JOIN :%s", channame);
+	if (modes[1])
+		IRC_WriteStrChannelPrefix(Client, chan, target, false, "MODE %s +%s %s",
+						channame, &modes[1], Client_ID(target));
+}
+
+
+static bool
+join_send_topic(CLIENT *Client, CLIENT *target, CHANNEL *chan,
+					const char *channame)
+{
+	const char *topic;
+
+	if (Client_Type(Client) != CLIENT_USER)
+		return true;
+	/* acknowledge join */
+	if (!IRC_WriteStrClientPrefix(Client, target, "JOIN :%s", channame))
+		return false;
+
+	/* Send topic to client, if any */
+	topic = Channel_Topic(chan);
+	assert(topic != NULL);
+	if (*topic) {
+		if (!IRC_WriteStrClient(Client, RPL_TOPIC_MSG,
+			Client_ID(Client), channame, topic))
+				return false;
+#ifndef STRICT_RFC
+		if (!IRC_WriteStrClient(Client, RPL_TOPICSETBY_MSG,
+			Client_ID(Client), channame,
+			Channel_TopicWho(chan),
+			Channel_TopicTime(chan)))
+				return false;
+#endif
+	}
+	/* send list of channel members to client */
+	if (!IRC_Send_NAMES(Client, chan))
+		return false;
+	return IRC_WriteStrClient(Client, RPL_ENDOFNAMES_MSG, Client_ID(Client), Channel_Name(chan));
+}
+
+
 GLOBAL bool
 IRC_JOIN( CLIENT *Client, REQUEST *Req )
 {
-	char *channame, *channame_ptr, *key, *key_ptr, *flags, *topic, modes[8];
-	bool is_new_chan, is_invited, is_banned;
+	char *channame, *channame_ptr, *key, *key_ptr, *flags;
 	CLIENT *target;
 	CHANNEL *chan;
 
@@ -80,9 +190,13 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 					  Client_ID(Client), Req->command);
 
 	/* Who is the sender? */
-	if( Client_Type( Client ) == CLIENT_SERVER ) target = Client_Search( Req->prefix );
-	else target = Client;
-	if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
+	if (Client_Type(Client) == CLIENT_SERVER)
+		target = Client_Search(Req->prefix);
+	else
+		target = Client;
+
+	if (!target)
+		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG, Client_ID(Client), Req->prefix);
 
 	/* Is argument "0"? */
 	if (Req->argc == 1 && !strncmp("0", Req->argv[0], 2))
@@ -93,181 +207,66 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 		key = Req->argv[1];
 		key_ptr = strchr(key, ',');
 		if (key_ptr) *key_ptr = '\0';
-	}
-	else
+	} else {
 		key = key_ptr = NULL;
-
+	}
 	channame = Req->argv[0];
 	channame_ptr = strchr(channame, ',');
 	if (channame_ptr) *channame_ptr = '\0';
 
-	/* Channel-Namen durchgehen */
-	while (channame)
-	{
-		chan = NULL; flags = NULL;
+	while (channame) {
+		flags = NULL;
 
-		/* wird der Channel neu angelegt? */
-		if( Channel_Search( channame )) {
-			is_new_chan = false;
-		} else {
-			if (Conf_PredefChannelsOnly) { /* this server does not allow creation of channels */
-				IRC_WriteStrClient( Client, ERR_BANNEDFROMCHAN_MSG, Client_ID( Client ), channame );
-				/* Try next name, if any */
-				channame = strchr(channame, ',');
-				continue;
-			}
-			is_new_chan = true;
+		chan = Channel_Search(channame);
+		if (!chan && Conf_PredefChannelsOnly) {
+			 /* channel must be created, but server does not allow this */
+			IRC_WriteStrClient(Client, ERR_BANNEDFROMCHAN_MSG, Client_ID(Client), channame);
+			break;
 		}
 
-		/* Hat ein Server Channel-User-Modes uebergeben? */
-		if( Client_Type( Client ) == CLIENT_SERVER )
-		{
-			/* Channel-Flags extrahieren */
-			flags = strchr( channame, 0x7 );
-			if( flags )
-			{
+		/* Did the server include channel-user-modes? */
+		if (Client_Type(Client) == CLIENT_SERVER) {
+			flags = strchr(channame, 0x7);
+			if (flags) {
 				*flags = '\0';
 				flags++;
 			}
 		}
 
 		/* Local client? */
-		if( Client_Type( Client ) == CLIENT_USER )
-		{
+		if (Client_Type(Client) == CLIENT_USER) {
 			/* Test if the user has reached his maximum channel count */
-			if(( Conf_MaxJoins > 0 ) && ( Channel_CountForUser( Client ) >= Conf_MaxJoins ))
-				return IRC_WriteStrClient( Client, ERR_TOOMANYCHANNELS_MSG,
-							Client_ID( Client ), channame );
-
-			/* Existiert der Channel bereits, oder wird er im Moment neu erzeugt? */
-			if( is_new_chan )
-			{
-				/* Erster User im Channel: Operator-Flag setzen */
+			if ((Conf_MaxJoins > 0) && (Channel_CountForUser(Client) >= Conf_MaxJoins))
+				return IRC_WriteStrClient(Client, ERR_TOOMANYCHANNELS_MSG,
+							Client_ID(Client), channame);
+			if (!chan) /* New Channel: first user will be channel operator */
 				flags = "o";
-			}
 			else
-			{
-				/* Existierenden Channel suchen */
-				chan = Channel_Search( channame );
-				assert( chan != NULL );
-
-				is_banned = Lists_Check(Channel_GetListBans(chan), target );
-				is_invited = Lists_Check(Channel_GetListInvites(chan), target );
-
-				/* Testen, ob Client gebanned ist */
-				if(( is_banned == true) &&  ( is_invited == false ))
-				{
-					/* Client ist gebanned (und nicht invited): */
-					IRC_WriteStrClient( Client, ERR_BANNEDFROMCHAN_MSG, Client_ID( Client ), channame );
-
-					/* Try next name, if any */
-					channame = strchr(channame, ',');
-					continue;
-				}
-
-				/* Ist der Channel "invite-only"? */
-				if(( strchr( Channel_Modes( chan ), 'i' )) && ( is_invited == false ))
-				{
-					/* Channel ist "invite-only" und Client wurde nicht invited: */
-					IRC_WriteStrClient( Client, ERR_INVITEONLYCHAN_MSG, Client_ID( Client ), channame );
-
-					/* Try next name, if any */
-					channame = strchr(channame, ',');
-					continue;
-				}
-
-				/* Is the channel protected by a key? */
-				if(( strchr( Channel_Modes( chan ), 'k' )) && ( strcmp( Channel_Key( chan ), key ? key : "" ) != 0 ))
-				{
-					/* Bad channel key! */
-					IRC_WriteStrClient( Client, ERR_BADCHANNELKEY_MSG, Client_ID( Client ), channame );
-
-					/* Try next name, if any */
-					channame = strchr(channame, ',');
-					continue;
-				}
-
-				/* Are there already too many members? */
-				if(( strchr( Channel_Modes( chan ), 'l' )) && ( Channel_MaxUsers( chan ) <= Channel_MemberCount( chan )))
-				{
-					/* Bad channel key! */
-					IRC_WriteStrClient( Client, ERR_CHANNELISFULL_MSG, Client_ID( Client ), channame );
-
-					/* Try next name, if any */
-					channame = strchr(channame, ',');
-					continue;
-				}
-			}
-		}
-		else
-		{
+				if (!join_allowed(Client, target, chan, channame, key))
+					break;
+		} else {
 			/* Remote server: we don't need to know whether the
 			 * client is invited or not, but we have to make sure
 			 * that the "one shot" entries (generated by INVITE
 			 * commands) in this list become deleted when a user
 			 * joins a channel this way. */
-			chan = Channel_Search( channame );
-			if( chan != NULL ) (void)Lists_Check(Channel_GetListInvites(chan), target);
+			if (chan) (void)Lists_Check(Channel_GetListInvites(chan), target);
 		}
 
-		/* Channel joinen (und ggf. anlegen) */
-		if( ! Channel_Join( target, channame ))
-		{
-			/* naechsten Namen ermitteln */
-			channame = strchr(channame, ',');
-			continue;
-		}
-		if( ! chan ) chan = Channel_Search( channame );
-		assert( chan != NULL );
+		/* Join channel (and create channel if it doesn't exist) */
+		if (!Channel_Join(target, channame))
+			break;
 
-		/* Modes setzen (wenn vorhanden) */
-		while( flags && *flags )
-		{
-			Channel_UserModeAdd( chan, target, *flags );
-			flags++;
-		}
+		if (!chan) /* channel is new; it has been created above */
+			chan = Channel_Search(channame);
+		assert(chan != NULL);
 
-		/* Wenn persistenter Channel und IRC-Operator: zum Channel-OP machen */
-		if(( strchr( Channel_Modes( chan ), 'P' )) && ( strchr( Client_Modes( target ), 'o' ))) Channel_UserModeAdd( chan, target, 'o' );
+		join_set_channelmodes(chan, target, flags);
 
-		/* Muessen Modes an andere Server gemeldet werden? */
-		strlcpy( &modes[1], Channel_UserModes( chan, target ), sizeof( modes ) - 1 );
-		if( modes[1] ) modes[0] = 0x7;
-		else modes[0] = '\0';
+		join_forward(Client, target, chan, channame);
 
-		/* An andere Server weiterleiten */
-		IRC_WriteStrServersPrefix( Client, target, "JOIN :%s%s", channame, modes );
-
-		/* im Channel bekannt machen */
-		IRC_WriteStrChannelPrefix( Client, chan, target, false, "JOIN :%s", channame );
-		if( modes[1] )
-		{
-			/* Modes im Channel bekannt machen */
-			IRC_WriteStrChannelPrefix( Client, chan, target, false, "MODE %s +%s %s", channame, &modes[1], Client_ID( target ));
-		}
-
-		if( Client_Type( Client ) == CLIENT_USER )
-		{
-			/* an Client bestaetigen */
-			IRC_WriteStrClientPrefix( Client, target, "JOIN :%s", channame );
-
-			/* Send topic to client, if any */
-			topic = Channel_Topic(chan);
-			if (*topic) {
-				IRC_WriteStrClient(Client, RPL_TOPIC_MSG,
-					Client_ID(Client), channame, topic);
-#ifndef STRICT_RFC
-				IRC_WriteStrClient(Client, RPL_TOPICSETBY_MSG,
-					Client_ID(Client), channame,
-					Channel_TopicWho(chan),
-					Channel_TopicTime(chan));
-#endif
-			}
-
-			/* Mitglieder an Client Melden */
-			IRC_Send_NAMES( Client, chan );
-			IRC_WriteStrClient( Client, RPL_ENDOFNAMES_MSG, Client_ID( Client ), Channel_Name( chan ));
-		}
+		if (!join_send_topic(Client, target, chan, channame))
+			break; /* write error */
 
 		/* next channel? */
 		channame = channame_ptr;

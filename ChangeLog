@@ -11,6 +11,8 @@
 
 
 ngIRCd HEAD
+  - Under some circumstances ngIRCd issued
+  channel MODE messages with a trailing space. (Dana Dahlstrom)
   - IRC_WHO now supports search patterns and will test this
     against user nickname/servername/hostname, etc. as required by
     RFC 2812, Section 3.6.1. (reported by Dana Dahlstrom)
@@ -744,4 +746,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.337 2008/02/11 11:06:33 fw Exp $
+$Id: ChangeLog,v 1.338 2008/02/16 11:27:48 fw Exp $

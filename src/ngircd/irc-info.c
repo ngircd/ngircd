@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-info.c,v 1.42 2008/02/11 11:06:31 fw Exp $";
+static char UNUSED id[] = "$Id: irc-info.c,v 1.43 2008/02/17 00:00:12 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -603,6 +603,26 @@ write_whoreply(CLIENT *Client, CLIENT *c, const char *channelname, const char *f
 }
 
 
+static const char *
+who_flags_status(const char *client_modes)
+{
+	if (strchr(client_modes, 'a'))
+		return "G"; /* away */
+	return "H";
+}
+
+
+static const char *
+who_flags_qualifier(const char *chan_user_modes)
+{
+	if (strchr(chan_user_modes, 'o'))
+		return "@";
+	else if (strchr(chan_user_modes, 'v'))
+		return "+";
+	return "";
+}
+
+
 static bool
 IRC_Send_WHO(CLIENT *Client, CHANNEL *Chan, bool OnlyOps)
 {
@@ -633,18 +653,12 @@ IRC_Send_WHO(CLIENT *Client, CHANNEL *Chan, bool OnlyOps)
 
 		is_visible = strchr(client_modes, 'i') == NULL;
 		if (is_member || is_visible) {
-			if (strchr(client_modes, 'a'))
-				strcpy(flags, "G"); /* away */
-			else
-				strcpy(flags, "H");
+			strcpy(flags, who_flags_status(client_modes));
 			if (is_ircop)
 				strlcat(flags, "*", sizeof(flags));
 
 			chan_user_modes = Channel_UserModes(Chan, c);
-			if (strchr(chan_user_modes, 'o'))
-				strlcat(flags, "@", sizeof(flags));
-			else if (strchr(chan_user_modes, 'v'))
-				strlcat(flags, "+", sizeof(flags));
+			strlcat(flags, who_flags_qualifier(chan_user_modes), sizeof(flags));
 
 			if (!write_whoreply(Client, c, Channel_Name(Chan), flags))
 				return DISCONNECTED;
@@ -652,6 +666,7 @@ IRC_Send_WHO(CLIENT *Client, CHANNEL *Chan, bool OnlyOps)
 	}
 	return IRC_WriteStrClient(Client, RPL_ENDOFWHO_MSG, Client_ID(Client), Channel_Name(Chan));
 } /* IRC_Send_WHO */
+
 
 
 static bool
@@ -671,7 +686,7 @@ GLOBAL bool
 IRC_WHO( CLIENT *Client, REQUEST *Req )
 {
 	bool only_ops, have_arg, client_match;
-	const char *channelname, *client_modes;
+	const char *channelname, *client_modes, *chan_user_modes;
 	char pattern[COMMAND_LEN];
 	char flags[4];
 	CL2CHAN *cl2chan;
@@ -743,12 +758,9 @@ IRC_WHO( CLIENT *Client, REQUEST *Req )
 				continue;
 		}
 
-		if (strchr(client_modes, 'a'))
-			strcpy(flags, "G"); /* user is away */
-		else
-			strcpy(flags, "H");
+		strcpy(flags, who_flags_status(client_modes));
 
-		if (only_ops) /* this client is an operator */
+		if (strchr(client_modes, 'o')) /* this client is an operator */
 			strlcat(flags, "*", sizeof(flags));
 
 		/* Search suitable channel */
@@ -763,7 +775,11 @@ IRC_WHO( CLIENT *Client, REQUEST *Req )
 			}
 			cl2chan = Channel_NextChannelOf(c, cl2chan);
 		}
-		if (!cl2chan)
+		if (cl2chan) {
+			chan = Channel_GetChannel(cl2chan);
+			chan_user_modes = Channel_UserModes(chan, c);
+			strlcat(flags, who_flags_qualifier(chan_user_modes), sizeof(flags));
+		} else
 			channelname = "*";
 
 		if (!write_whoreply(Client, c, channelname, flags))

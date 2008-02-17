@@ -9,7 +9,7 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: Makefile.am,v 1.17 2008/02/17 00:00:13 fw Exp $
+# $Id: Makefile.am,v 1.18 2008/02/17 13:26:42 alex Exp $
 #
 
 AUTOMAKE_OPTIONS = ../portab/ansi2knr
@@ -20,9 +20,8 @@ EXTRA_DIST = \
 	README functions.inc getpid.sh \
 	start-server.sh stop-server.sh tests.sh stress-server.sh \
 	test-loop.sh wait-tests.sh \
-	connect-test.e channel-test.e mode-test.e \
-	who-test.e
-	stress-A.e stress-B.e check-idle.e \
+	channel-test.e connect-test.e check-idle.e misc-test.e mode-test.e \
+	who-test.e stress-A.e stress-B.e \
 	ngircd-test.conf
 
 all:
@@ -52,6 +51,10 @@ who-test: tests.sh
 	rm -f who-test
 	ln -s $(srcdir)/tests.sh who-test
 
+misc-test: tests.sh
+	rm -f misc-test
+	ln -s $(srcdir)/tests.sh misc-test
+
 mode-test: tests.sh
 	rm -f mode-test
 	ln -s $(srcdir)/tests.sh mode-test
@@ -59,8 +62,9 @@ mode-test: tests.sh
 TESTS = start-server.sh \
 	connect-test \
 	channel-test \
-	who-test \
+	misc-test \
 	mode-test \
+	who-test \
 	stress-server.sh \
 	stop-server.sh
 

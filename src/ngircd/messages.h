@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: messages.h,v 1.74 2007/12/11 11:29:44 fw Exp $
+ * $Id: messages.h,v 1.75 2008/02/17 13:26:42 alex Exp $
  *
  * IRC numerics (Header)
  */
@@ -77,6 +77,8 @@
 #define RPL_BANLIST_MSG			"367 %s %s %s"
 #define RPL_ENDOFBANLIST_MSG		"368 %s %s :End of channel ban list"
 #define RPL_ENDOFWHOWAS_MSG		"369 %s %s :End of WHOWAS list"
+#define RPL_INFO_MSG    		"371 %s :%s"
+#define RPL_ENDOFINFO_MSG    		"374 %s :End of INFO list"
 #define RPL_MOTD_MSG			"372 %s :- %s"
 #define RPL_MOTDSTART_MSG		"375 %s :- %s message of the day"
 #define RPL_ENDOFMOTD_MSG		"376 %s :End of MOTD command"
@@ -100,6 +102,8 @@
 #define ERR_USERNOTINCHANNEL_MSG	"441 %s %s %s :They aren't on that channel"
 #define ERR_NOTONCHANNEL_MSG		"442 %s %s :You are not on that channel"
 #define ERR_USERONCHANNEL_MSG		"443 %s %s %s :is already on channel"
+#define ERR_SUMMONDISABLED_MSG		"445 %s %s :SUMMON has been disabled"
+#define ERR_USERSDISABLED_MSG		"446 %s %s :USERS has been disabled"
 #define ERR_NOTREGISTERED_MSG		"451 %s :Connection not registered"
 #define ERR_NOTREGISTEREDSERVER_MSG	"451 %s :Connection not registered as server link"
 #define ERR_NEEDMOREPARAMS_MSG		"461 %s %s :Syntax error"

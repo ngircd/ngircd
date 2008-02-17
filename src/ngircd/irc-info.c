@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-info.c,v 1.43 2008/02/17 00:00:12 fw Exp $";
+static char UNUSED id[] = "$Id: irc-info.c,v 1.44 2008/02/17 13:26:42 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -83,6 +83,71 @@ IRC_ADMIN(CLIENT *Client, REQUEST *Req )
 	IRC_SetPenalty( Client, 1 );
 	return CONNECTED;
 } /* IRC_ADMIN */
+
+
+/**
+ * Handler for the IRC command "INFO".
+ * See RFC 2812 section 3.4.10.
+ */
+GLOBAL bool
+IRC_INFO(CLIENT * Client, REQUEST * Req)
+{
+	CLIENT *target, *prefix;
+	char msg[510];
+
+	assert(Client != NULL);
+	assert(Req != NULL);
+
+	/* Wrong number of parameters? */
+	if (Req->argc > 1)
+		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+					  Client_ID(Client), Req->command);
+
+	/* Determine prefix */
+	if (Client_Type(Client) == CLIENT_SERVER)
+		prefix = Client_Search(Req->prefix);
+	else
+		prefix = Client;
+	if (!prefix)
+		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
+					  Client_ID(Client), Req->prefix);
+
+	/* Look for a target */
+	if (Req->argc > 0)
+		target = Client_Search(Req->argv[0]);
+	else
+		target = Client_ThisServer();
+	
+	/* Make sure that the target is a server */
+	if (target && Client_Type(target) != CLIENT_SERVER)
+		target = Client_Introducer(target);
+
+	if (!target)
+		return IRC_WriteStrClient(prefix, ERR_NOSUCHSERVER_MSG,
+					  Client_ID(prefix), Req->argv[0]);
+
+	/* Pass on to another server? */
+	if (target != Client_ThisServer()) {
+		IRC_WriteStrClientPrefix(target, prefix, "INFO %s",
+					 Req->argv[0]);
+		return CONNECTED;
+	}
+
+	if (!IRC_WriteStrClient(Client, RPL_INFO_MSG, Client_ID(prefix),
+				NGIRCd_Version))
+		return DISCONNECTED;
+	
+	strlcpy(msg, "Server has been started ", sizeof(msg));
+	strlcat(msg, NGIRCd_StartStr, sizeof(msg));
+	if (!IRC_WriteStrClient(Client, RPL_INFO_MSG, Client_ID(prefix), msg))
+		return DISCONNECTED;
+
+	if (!IRC_WriteStrClient(Client, RPL_ENDOFINFO_MSG, Client_ID(prefix)))
+		return DISCONNECTED;
+
+	IRC_SetPenalty(Client, 2);
+	return CONNECTED;
+} /* IRC_INFO */
 
 
 GLOBAL bool
@@ -469,6 +534,19 @@ IRC_STATS( CLIENT *Client, REQUEST *Req )
 } /* IRC_STATS */
 
 
+/**
+ * Handler for the IRC command "SUMMON".
+ * See RFC 2812 section 4.5. ngIRCd doesn't implement this functionality and
+ * therefore answers with ERR_SUMMONDISABLED.
+ */
+GLOBAL bool
+IRC_SUMMON(CLIENT * Client, REQUEST * Req)
+{
+	return IRC_WriteStrClient(Client, ERR_SUMMONDISABLED_MSG,
+				  Client_ID(Client), Req->command);
+} /* IRC_SUMMON */
+
+
 GLOBAL bool
 IRC_TIME( CLIENT *Client, REQUEST *Req )
 {
@@ -544,6 +622,18 @@ IRC_USERHOST( CLIENT *Client, REQUEST *Req )
 
 	return IRC_WriteStrClient( Client, rpl, Client_ID( Client ) );
 } /* IRC_USERHOST */
+
+
+/**
+ * Handler for the IRC command "USERS".
+ * See RFC 2812 section 4.6. As suggested there the command is disabled.
+ */
+GLOBAL bool
+IRC_USERS(CLIENT * Client, REQUEST * Req)
+{
+	return IRC_WriteStrClient(Client, ERR_USERSDISABLED_MSG,
+				  Client_ID(Client), Req->command);
+} /* IRC_USERS */
 
 
 GLOBAL bool

@@ -11,13 +11,16 @@
 
 
 ngIRCd HEAD
+
+  - Implemented IRC commands INFO, SUMMON (dummy), and USERS (dummy) and
+    enhanced test suite to check these commands. (Dana Dahlstrom)
   - IRC_WHO now supports search patterns and will test this
     against user nickname/servername/hostname, etc. as required by
-    RFC 2812, Section 3.6.1.
-  - implement RFC 2812 handling of "0" argument to 'JOIN':
-    must be treated as if the user had sent PART commands
-    for all channels the user is a member of. (Dana Dahlstrom)
-  - allow NOTICEs to be sent to a channel. (Fabian Schlager)
+    RFC 2812, Section 3.6.1. (reported by Dana Dahlstrom)
+  - Implement RFC 2812 handling of "0" argument to 'JOIN': must be treated
+    as if the user had sent PART commands for all channels the user is a
+    member of. (Dana Dahlstrom)
+  - Allow NOTICEs to be sent to a channel. (Fabian Schlager)
 
 ngIRCd 0.11.0 (2008-01-15)
 
@@ -260,4 +263,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.86 2008/02/11 11:06:33 fw Exp $
+$Id: NEWS,v 1.87 2008/02/17 13:26:41 alex Exp $

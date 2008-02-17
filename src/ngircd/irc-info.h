@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: irc-info.h,v 1.5 2008/02/11 11:06:31 fw Exp $
+ * $Id: irc-info.h,v 1.6 2008/02/17 13:26:42 alex Exp $
  *
  * IRC info commands (header)
  */
@@ -19,14 +19,17 @@
 
 
 GLOBAL bool IRC_ADMIN PARAMS(( CLIENT *Client, REQUEST *Req ));
+GLOBAL bool IRC_INFO PARAMS(( CLIENT *Client, REQUEST *Req ));
 GLOBAL bool IRC_ISON PARAMS(( CLIENT *Client, REQUEST *Req ));
 GLOBAL bool IRC_LINKS PARAMS(( CLIENT *Client, REQUEST *Req ));
 GLOBAL bool IRC_LUSERS PARAMS(( CLIENT *Client, REQUEST *Req ));
 GLOBAL bool IRC_MOTD PARAMS(( CLIENT *Client, REQUEST *Req ));
 GLOBAL bool IRC_NAMES PARAMS(( CLIENT *Client, REQUEST *Req ));
 GLOBAL bool IRC_STATS PARAMS(( CLIENT *Client, REQUEST *Req ));
+GLOBAL bool IRC_SUMMON PARAMS(( CLIENT *Client, REQUEST *Req ));
 GLOBAL bool IRC_TIME PARAMS(( CLIENT *Client, REQUEST *Req ));
 GLOBAL bool IRC_USERHOST PARAMS(( CLIENT *Client, REQUEST *Req ));
+GLOBAL bool IRC_USERS PARAMS(( CLIENT *Client, REQUEST *Req ));
 GLOBAL bool IRC_VERSION PARAMS(( CLIENT *Client, REQUEST *Req ));
 GLOBAL bool IRC_WHO PARAMS(( CLIENT *Client, REQUEST *Req ));
 GLOBAL bool IRC_WHOIS PARAMS(( CLIENT *Client, REQUEST *Req ));

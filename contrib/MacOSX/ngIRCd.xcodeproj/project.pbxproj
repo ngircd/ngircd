@@ -50,6 +50,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		FA1A6BBC0D6857BB00AA8F71 /* misc-test.e */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = "misc-test.e"; sourceTree = "<group>"; };
+		FA1A6BBD0D6857D900AA8F71 /* who-test.e */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = "who-test.e"; sourceTree = "<group>"; };
 		FA322BBA0CEF72E4001761B3 /* ngIRCd */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ngIRCd; sourceTree = BUILT_PRODUCTS_DIR; };
 		FA322CD50CEF74B1001761B3 /* .cvsignore */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = .cvsignore; sourceTree = "<group>"; };
 		FA322CD60CEF74B1001761B3 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
@@ -353,6 +355,7 @@
 				FA322D200CEF74B1001761B3 /* functions.inc */,
 				FA322D210CEF74B1001761B3 /* getpid.sh */,
 				FA322D220CEF74B1001761B3 /* Makefile.am */,
+				FA1A6BBC0D6857BB00AA8F71 /* misc-test.e */,
 				FA322D230CEF74B1001761B3 /* mode-test.e */,
 				FA322D240CEF74B1001761B3 /* ngircd-test.conf */,
 				FA322D250CEF74B1001761B3 /* README */,
@@ -364,6 +367,7 @@
 				FA322D2B0CEF74B1001761B3 /* test-loop.sh */,
 				FA322D2C0CEF74B1001761B3 /* tests.sh */,
 				FA322D2D0CEF74B1001761B3 /* wait-tests.sh */,
+				FA1A6BBD0D6857D900AA8F71 /* who-test.e */,
 			);
 			path = testsuite;
 			sourceTree = "<group>";

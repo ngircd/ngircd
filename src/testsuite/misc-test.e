@@ -1,4 +1,4 @@
-# $Id: misc-test.e,v 1.1 2008/02/17 13:26:42 alex Exp $
+# $Id: misc-test.e,v 1.2 2008/02/17 13:51:00 alex Exp $
 
 spawn telnet localhost 6789
 expect {
@@ -33,12 +33,6 @@ expect {
 expect {
 	timeout { exit 1 }
 	"374"
-}
-
-send "squit\r"
-expect {
-	timeout { exit 1 }
-	"481"
 }
 
 send "quit\r"

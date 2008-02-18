@@ -1,6 +1,6 @@
 #
 # ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001-2008 Alexander Barton (alex@barton.de)
+# Copyright (c)2001-2011 Alexander Barton (alex@barton.de) and Contributors.
 #
 # Dieses Programm ist freie Software. Sie koennen es unter den Bedingungen
 # der GNU General Public License (GPL), wie von der Free Software Foundation
@@ -85,6 +85,10 @@ who-test: tests.sh
 	rm -f who-test
 	ln -s $(srcdir)/tests.sh who-test
 
+whois-test: tests.sh
+	rm -f whois-test
+	ln -s $(srcdir)/tests.sh whois-test
+
 TESTS = start-server1 \
 	connect-test \
 	start-server2 \
@@ -97,6 +101,7 @@ TESTS = start-server1 \
 	mode-test \
 	opless-channel-test \
 	who-test \
+	whois-test \
 	server-link-test \
 	stop-server2 \
 	stress-server.sh \

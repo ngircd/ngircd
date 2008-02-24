@@ -12,6 +12,8 @@
 
 ngIRCd HEAD
 
+  - Fix sending of JOINs between servers when remote server appended mode
+  flags. (Rolf Eike Beer)
   - Install a LaunchDaemon script to start/stop ngIRCd on Mac OS X.
   - Implemented IRC commands INFO, SUMMON (dummy), and USERS (dummy) and
     enhanced test suite to check these commands. (Dana Dahlstrom)
@@ -752,4 +754,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: ChangeLog,v 1.341 2008/02/17 15:31:14 alex Exp $
+$Id: ChangeLog,v 1.342 2008/02/24 18:57:38 fw Exp $

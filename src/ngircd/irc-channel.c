@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-channel.c,v 1.44 2008/02/16 11:21:33 fw Exp $";
+static char UNUSED id[] = "$Id: irc-channel.c,v 1.45 2008/02/24 18:57:38 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -217,13 +217,6 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 	while (channame) {
 		flags = NULL;
 
-		chan = Channel_Search(channame);
-		if (!chan && Conf_PredefChannelsOnly) {
-			 /* channel must be created, but server does not allow this */
-			IRC_WriteStrClient(Client, ERR_BANNEDFROMCHAN_MSG, Client_ID(Client), channame);
-			break;
-		}
-
 		/* Did the server include channel-user-modes? */
 		if (Client_Type(Client) == CLIENT_SERVER) {
 			flags = strchr(channame, 0x7);
@@ -231,6 +224,13 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 				*flags = '\0';
 				flags++;
 			}
+		}
+
+		chan = Channel_Search(channame);
+		if (!chan && Conf_PredefChannelsOnly) {
+			 /* channel must be created, but server does not allow this */
+			IRC_WriteStrClient(Client, ERR_BANNEDFROMCHAN_MSG, Client_ID(Client), channame);
+			break;
 		}
 
 		/* Local client? */

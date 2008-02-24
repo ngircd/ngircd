@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-mode.c,v 1.51 2008/02/16 11:27:49 fw Exp $";
+static char UNUSED id[] = "$Id: irc-mode.c,v 1.52 2008/02/24 18:44:41 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -243,122 +243,139 @@ client_exit:
 
 
 static bool
+Channel_Mode_Answer_Request(CLIENT *Origin, CHANNEL *Channel)
+{
+	char the_modes[COMMAND_LEN], the_args[COMMAND_LEN], argadd[CLIENT_PASS_LEN];
+	const char *mode_ptr;
+
+	/* Member or not? -- That's the question! */
+	if (!Channel_IsMemberOf(Channel, Origin))
+		return IRC_WriteStrClient(Origin, RPL_CHANNELMODEIS_MSG,
+			Client_ID(Origin), Channel_Name(Channel), Channel_Modes(Channel));
+
+	/* The sender is a member: generate extended reply */
+	strlcpy(the_modes, Channel_Modes(Channel), sizeof(the_modes));
+	mode_ptr = the_modes;
+	the_args[0] = '\0';
+
+	while(*mode_ptr) {
+		switch(*mode_ptr) {
+		case 'l':
+			snprintf(argadd, sizeof(argadd), " %lu", Channel_MaxUsers(Channel));
+			strlcat(the_args, argadd, sizeof(the_args));
+			break;
+		case 'k':
+			strlcat(the_args, " ", sizeof(the_args));
+			strlcat(the_args, Channel_Key(Channel), sizeof(the_args));
+			break;
+		}
+		mode_ptr++;
+	}
+	if (the_args[0])
+		strlcat(the_modes, the_args, sizeof(the_modes));
+
+	return IRC_WriteStrClient(Origin, RPL_CHANNELMODEIS_MSG,
+		Client_ID(Origin), Channel_Name(Channel), the_modes);
+}
+
+
+static bool
 Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 {
 	/* Handle channel and channel-user modes */
 
 	char the_modes[COMMAND_LEN], the_args[COMMAND_LEN], x[2], argadd[CLIENT_PASS_LEN], *mode_ptr;
-	bool ok, set, modeok = false, skiponce, use_servermode = false;
+	bool ok, set, modeok = true, skiponce, use_servermode = false;
 	int mode_arg, arg_arg;
 	CLIENT *client;
 	long l;
 	size_t len;
 
 	/* Mode request: let's answer it :-) */
-	if( Req->argc == 1 )
-	{
-		/* Member or not? -- That's the question! */
-		if( ! Channel_IsMemberOf( Channel, Origin )) return IRC_WriteStrClient( Origin, RPL_CHANNELMODEIS_MSG, Client_ID( Origin ), Channel_Name( Channel ), Channel_Modes( Channel ));
-
-		/* The sender is a member: generate extended reply */
-		strlcpy( the_modes, Channel_Modes( Channel ), sizeof( the_modes ));
-		mode_ptr = the_modes;
-		the_args[0] = '\0';
-		while( *mode_ptr )
-		{
-			switch( *mode_ptr )
-			{
-				case 'l':
-					snprintf( argadd, sizeof( argadd ), " %lu", Channel_MaxUsers( Channel ));
-					strlcat( the_args, argadd, sizeof( the_args ));
-					break;
-				case 'k':
-					strlcat( the_args, " ", sizeof( the_args ));
-					strlcat( the_args, Channel_Key( Channel ), sizeof( the_args ));
-					break;
-			}
-			mode_ptr++;
-		}
-		if( the_args[0] ) strlcat( the_modes, the_args, sizeof( the_modes ));
-
-		return IRC_WriteStrClient( Origin, RPL_CHANNELMODEIS_MSG, Client_ID( Origin ), Channel_Name( Channel ), the_modes );
-	}
+	if (Req->argc <= 1)
+		return Channel_Mode_Answer_Request(Origin, Channel);
 
 	/* Is the user allowed to change modes? */
-	if( Client_Type( Client ) == CLIENT_USER )
-	{
+	if (Client_Type(Client) == CLIENT_USER) {
 		/* Is the originating user on that channel? */
-		if( ! Channel_IsMemberOf( Channel, Origin )) return IRC_WriteStrClient( Origin, ERR_NOTONCHANNEL_MSG, Client_ID( Origin ), Channel_Name( Channel ));
-
-		/* Is he channel operator? */
-		if( strchr( Channel_UserModes( Channel, Origin ), 'o' )) modeok = true;
-		else if( Conf_OperCanMode )
-		{
+		if (!Channel_IsMemberOf(Channel, Origin))
+			return IRC_WriteStrClient(Origin, ERR_NOTONCHANNEL_MSG,
+				Client_ID(Origin), Channel_Name(Channel));
+		modeok = false;
+		/* channel operator? */
+		if (strchr(Channel_UserModes(Channel, Origin), 'o'))
+			modeok = true;
+		else if(Conf_OperCanMode) {
 			/* IRC-Operators can use MODE as well */
-			if( Client_OperByMe( Origin )) {
+			if (Client_OperByMe(Origin)) {
 				modeok = true;
-				if ( Conf_OperServerMode ) use_servermode = true; /* Change Origin to Server */
+				if (Conf_OperServerMode)
+					use_servermode = true; /* Change Origin to Server */
 			}
 		}
 	}
-	else modeok = true;
 
 	mode_arg = 1;
 	mode_ptr = Req->argv[mode_arg];
-	if( Req->argc > mode_arg + 1 ) arg_arg = mode_arg + 1;
-	else arg_arg = -1;
+	if (Req->argc > mode_arg + 1)
+		arg_arg = mode_arg + 1;
+	else
+		arg_arg = -1;
 
 	/* Initial state: set or unset modes? */
 	skiponce = false;
-	if( *mode_ptr == '-' ) set = false;
-	else if( *mode_ptr == '+' ) set = true;
-	else set = skiponce = true;
+	switch (*mode_ptr) {
+	case '-': set = false; break;
+	case '+': set = true; break;
+	default:
+		set = true;
+		skiponce = true;
+	}
 
 	/* Prepare reply string */
-	if( set ) strcpy( the_modes, "+" );
-	else strcpy( the_modes, "-" );
+	strcpy(the_modes, set ? "+" : "-");
 	the_args[0] = '\0';
 
 	x[1] = '\0';
 	ok = CONNECTED;
-	while( mode_ptr )
-	{
-		if( ! skiponce ) mode_ptr++;
-		if( ! *mode_ptr )
-		{
+	while (mode_ptr) {
+		if (! skiponce)
+			mode_ptr++;
+		if (!*mode_ptr) {
 			/* Try next argument if there's any */
-			if( arg_arg > mode_arg ) mode_arg = arg_arg;
-			else mode_arg++;
-			if( mode_arg < Req->argc ) mode_ptr = Req->argv[mode_arg];
-			else break;
-			if( Req->argc > mode_arg + 1 ) arg_arg = mode_arg + 1;
-			else arg_arg = -1;
+			if (arg_arg > mode_arg)
+				mode_arg = arg_arg;
+			else
+				mode_arg++;
+
+			if (mode_arg >= Req->argc)
+				break;
+			mode_ptr = Req->argv[mode_arg];
+
+			if (Req->argc > mode_arg + 1)
+				arg_arg = mode_arg + 1;
+			else
+				arg_arg = -1;
 		}
 		skiponce = false;
 
-		switch( *mode_ptr )
-		{
-			case '+':
-			case '-':
-				if((( *mode_ptr == '+' ) && ( ! set )) || (( *mode_ptr == '-' ) && ( set )))
-				{
-					/* Action modifier ("+"/"-") must be changed ... */
-					len = strlen( the_modes ) - 1;
-					if(( the_modes[len] == '+' ) || ( the_modes[len] == '-' ))
-					{
-						/* Adjust last action modifier in result */
-						the_modes[len] = *mode_ptr;
-					}
-					else
-					{
-						/* Append modifier character to result string */
-						x[0] = *mode_ptr;
-						strlcat( the_modes, x, sizeof( the_modes ));
-					}
-					if( *mode_ptr == '+' ) set = true;
-					else set = false;
+		switch (*mode_ptr) {
+		case '+':
+		case '-':
+			if (((*mode_ptr == '+') && !set) || ((*mode_ptr == '-') && set)) {
+				/* Action modifier ("+"/"-") must be changed ... */
+				len = strlen( the_modes ) - 1;
+				if ((the_modes[len] == '+') || (the_modes[len] == '-')) {
+					/* Adjust last action modifier in result */
+					the_modes[len] = *mode_ptr;
+				} else {
+					/* Append modifier character to result string */
+					x[0] = *mode_ptr;
+					strlcat(the_modes, x, sizeof(the_modes));
 				}
-				continue;
+				set = *mode_ptr == '+';
+			}
+			continue;
 		}
 
 		/* Are there arguments left? */
@@ -579,22 +596,19 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 chan_exit:
 
 	/* Are there changed modes? */
-	if( the_modes[1] )
-	{
+	if (the_modes[1]) {
 		/* Clean up mode string */
-		len = strlen( the_modes ) - 1;
-		if(( the_modes[len] == '+' ) || ( the_modes[len] == '-' )) the_modes[len] = '\0';
+		len = strlen(the_modes) - 1;
+		if ((the_modes[len] == '+') || (the_modes[len] == '-'))
+			the_modes[len] = '\0';
 
-		if( Client_Type( Client ) == CLIENT_SERVER )
-		{
+		if (Client_Type(Client) == CLIENT_SERVER) {
 			/* Forward mode changes to channel users and other servers */
-			IRC_WriteStrServersPrefix( Client, Origin, "MODE %s %s%s", Channel_Name( Channel ), the_modes, the_args );
-			IRC_WriteStrChannelPrefix( Client, Channel, Origin, false, "MODE %s %s%s", Channel_Name( Channel ), the_modes, the_args );
-		}
-		else
-		{
-			if ( use_servermode ) Origin = Client_ThisServer();
-
+			IRC_WriteStrServersPrefix(Client, Origin, "MODE %s %s%s", Channel_Name( Channel ), the_modes, the_args);
+			IRC_WriteStrChannelPrefix(Client, Channel, Origin, false, "MODE %s %s%s", Channel_Name( Channel ), the_modes, the_args);
+		} else {
+			if (use_servermode)
+				Origin = Client_ThisServer();
 			/* Send reply to client and inform other servers and channel users */
 			ok = IRC_WriteStrClientPrefix( Client, Origin, "MODE %s %s%s", Channel_Name( Channel ), the_modes, the_args );
 			IRC_WriteStrServersPrefix( Client, Origin, "MODE %s %s%s", Channel_Name( Channel ), the_modes, the_args );

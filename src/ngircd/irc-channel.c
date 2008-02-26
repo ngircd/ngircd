@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-channel.c,v 1.40.2.1 2008/01/07 11:42:14 fw Exp $";
+static char UNUSED id[] = "$Id: irc-channel.c,v 1.40.2.2 2008/02/26 12:07:41 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -79,6 +79,14 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 	{
 		chan = NULL; flags = NULL;
 
+		if (Client_Type(Client) == CLIENT_SERVER) {
+			flags = strchr( channame, 0x7 );
+			if( flags ) {
+				*flags = '\0';
+				flags++;
+			}
+		}
+
 		/* wird der Channel neu angelegt? */
 		if( Channel_Search( channame )) {
 			is_new_chan = false;
@@ -90,18 +98,6 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 				continue;
 			}
 			is_new_chan = true;
-		}
-
-		/* Hat ein Server Channel-User-Modes uebergeben? */
-		if( Client_Type( Client ) == CLIENT_SERVER )
-		{
-			/* Channel-Flags extrahieren */
-			flags = strchr( channame, 0x7 );
-			if( flags )
-			{
-				*flags = '\0';
-				flags++;
-			}
 		}
 
 		/* Local client? */

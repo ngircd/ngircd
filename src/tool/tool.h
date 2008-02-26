@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: tool.h,v 1.5 2007/11/25 18:42:38 fw Exp $
+ * $Id: tool.h,v 1.6 2008/02/26 22:04:18 fw Exp $
  *
  * Tool functions (Header)
  */
@@ -29,8 +29,6 @@ GLOBAL void ngt_TrimLastChr PARAMS((char *String, const char Chr ));
 GLOBAL void ngt_TrimStr PARAMS((char *String ));
 
 GLOBAL char *ngt_LowerStr PARAMS((char *String ));
-
-GLOBAL bool ngt_IPStrToBin PARAMS((const char *ip_str, struct in_addr *inaddr));
 #endif
 
 

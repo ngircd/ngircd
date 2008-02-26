@@ -8,10 +8,10 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: Makefile.am,v 1.7 2005/07/22 21:01:03 alex Exp $
+# $Id: Makefile.am,v 1.8 2008/02/26 22:04:15 fw Exp $
 #
 
-SUBDIRS = portab tool ngircd testsuite
+SUBDIRS = portab tool ipaddr ngircd testsuite
 
 maintainer-clean-local:
 	rm -f Makefile Makefile.in config.h config.h.in stamp-h.in

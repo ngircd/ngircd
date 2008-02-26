@@ -8,12 +8,12 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: Makefile.am,v 1.50 2007/11/21 12:16:36 alex Exp $
+# $Id: Makefile.am,v 1.51 2008/02/26 22:04:17 fw Exp $
 #
 
 AUTOMAKE_OPTIONS = ../portab/ansi2knr
 
-INCLUDES = -I$(srcdir)/../portab -I$(srcdir)/../tool
+INCLUDES = -I$(srcdir)/../portab -I$(srcdir)/../tool -I$(srcdir)/../ipaddr
 
 LINTARGS = -weak -warnunixlib +unixlib -booltype BOOLEAN \
  -varuse -retvalother -emptyret -unrecog
@@ -25,9 +25,9 @@ ngircd_SOURCES = ngircd.c array.c channel.c client.c conf.c conn.c conn-func.c \
 	irc-mode.c irc-op.c irc-oper.c irc-server.c irc-write.c lists.c log.c \
 	match.c numeric.c parse.c rendezvous.c resolve.c
 
-ngircd_LDFLAGS = -L../portab -L../tool
+ngircd_LDFLAGS = -L../portab -L../tool -L../ipaddr
 
-ngircd_LDADD = -lngportab -lngtool
+ngircd_LDADD = -lngportab -lngtool -lngipaddr
 
 noinst_HEADERS = ngircd.h array.h channel.h client.h conf.h conn.h conn-func.h \
 	conn-zip.h hash.h io.h irc.h irc-channel.h irc-info.h irc-login.h \

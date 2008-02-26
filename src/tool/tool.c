@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: tool.c,v 1.8 2007/11/25 18:42:38 fw Exp $";
+static char UNUSED id[] = "$Id: tool.c,v 1.9 2008/02/26 22:04:18 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -105,24 +105,5 @@ ngt_TrimLastChr( char *String, const char Chr)
 
 	if( String[len] == Chr ) String[len] = '\0';
 } /* ngt_TrimLastChr */
-
-
-GLOBAL bool
-ngt_IPStrToBin(const char *ip_str, struct in_addr *inaddr)
-{
-	/* AF is always AF_INET for now */
-#ifdef HAVE_INET_ATON
-	if (inet_aton(ip_str, inaddr) == 0)
-		return false;
-#else
-	inaddr->s_addr = inet_addr(ip_str);
-	if (inaddr->s_addr == (unsigned)-1)
-		return false;
-#endif
-	return true;
-}
-
-
-
 
 /* -eof- */

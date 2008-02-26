@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conf.h,v 1.47 2007/11/23 16:28:37 fw Exp $
+ * $Id: conf.h,v 1.48 2008/02/26 22:04:17 fw Exp $
  *
  * Configuration management (header)
  */
@@ -22,6 +22,8 @@
 #include "defines.h"
 #include "array.h"
 #include "portab.h"
+#include "tool.h"
+#include "ng_ipaddr.h"
 
 typedef struct _Conf_Oper
 {
@@ -42,7 +44,8 @@ typedef struct _Conf_Server
 	RES_STAT res_stat;		/* Status of the resolver */
 	int flags;			/* Flags */
 	CONN_ID conn_id;		/* ID of server connection or NONE */
-	struct in_addr bind_addr;	/* source address to use for outgoing connections */
+	ng_ipaddr_t bind_addr;		/* source address to use for outgoing connections */
+	ng_ipaddr_t dst_addr[2];	/* list of addresses to connect to */
 } CONF_SERVER;
 
 typedef struct _Conf_Channel
@@ -120,6 +123,12 @@ GLOBAL bool Conf_OperCanMode;
 
 /* Disable all DNS functions? */
 GLOBAL bool Conf_NoDNS;
+
+/* don't listen for incoming ipv6 connections, even if OS supports it? */
+GLOBAL bool Conf_NoListenIpv6;
+
+/* don't connect to remote systems unsign ipv6? */
+GLOBAL bool Conf_NoConnectIpv6;
 
 /* If an IRC op gives chanop privileges without being a chanop,
  * ircd2 will ignore the command. This enables a workaround:

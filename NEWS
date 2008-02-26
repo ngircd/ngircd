@@ -12,6 +12,7 @@
 
 ngIRCd HEAD
 
+  - Added IPv6 support.
   - Implemented IRC commands INFO, SUMMON (dummy), and USERS (dummy) and
     enhanced test suite to check these commands. (Dana Dahlstrom)
   - IRC_WHO now supports search patterns and will test this
@@ -263,4 +264,4 @@ ngIRCd 0.0.1, 31.12.2001
 
 
 -- 
-$Id: NEWS,v 1.87 2008/02/17 13:26:41 alex Exp $
+$Id: NEWS,v 1.88 2008/02/26 22:05:42 fw Exp $

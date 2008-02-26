@@ -8,7 +8,7 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: conn.h,v 1.45 2007/10/04 15:03:56 alex Exp $
+ * $Id: conn.h,v 1.46 2008/02/26 22:04:17 fw Exp $
  *
  * Connection management (header)
  */
@@ -38,6 +38,8 @@ typedef int CONN_ID;
 #include "defines.h"
 #include "resolve.h"
 #include "array.h"
+#include "tool.h"
+#include "ng_ipaddr.h"
 
 #ifdef ZLIB
 #include <zlib.h>
@@ -54,7 +56,7 @@ typedef struct _ZipData
 typedef struct _Connection
 {
 	int sock;			/* Socket handle */
-	struct sockaddr_in addr;	/* Client address */
+	ng_ipaddr_t addr;		/* Client address */
 	RES_STAT res_stat;		/* Status of resolver process */
 	char host[HOST_LEN];		/* Hostname */
 	array rbuf;			/* Read buffer */

@@ -17,7 +17,7 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.220 2007/12/13 01:30:16 fw Exp $";
+static char UNUSED id[] = "$Id: conn.c,v 1.221 2008/02/26 22:04:17 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -86,10 +86,9 @@ static void Check_Connections PARAMS(( void ));
 static void Check_Servers PARAMS(( void ));
 static void Init_Conn_Struct PARAMS(( CONN_ID Idx ));
 static bool Init_Socket PARAMS(( int Sock ));
-static void New_Server PARAMS(( int Server, struct in_addr *dest));
+static void New_Server PARAMS(( int Server, ng_ipaddr_t *dest ));
 static void Simple_Message PARAMS(( int Sock, const char *Msg ));
-static int Count_Connections PARAMS(( struct sockaddr_in addr ));
-static int NewListener PARAMS(( const UINT16 Port ));
+static int NewListener PARAMS(( int af, const UINT16 Port ));
 
 static array My_Listeners;
 static array My_ConnArray;
@@ -144,10 +143,28 @@ cb_connserver(int sock, UNUSED short what)
  			    Conf_Server[Conf_GetServer(idx)].port,
  			    idx, strerror(err));
 
+		res = Conf_GetServer(idx);
+		assert(res >= 0);
+
 		Conn_Close(idx, "Can't connect!", NULL, false);
+
+		if (res < 0)
+			return;
+		if (ng_ipaddr_af(&Conf_Server[res].dst_addr[0])) {
+			/* more addresses to try... */
+			New_Server(res, &Conf_Server[res].dst_addr[0]);
+			/* connection to dst_addr[0] in progress, remove this address... */
+			Conf_Server[res].dst_addr[0] = Conf_Server[res].dst_addr[1];
+
+			memset(&Conf_Server[res].dst_addr[1], 0, sizeof(&Conf_Server[res].dst_addr[1]));
+		}
 		return;
 	}
 
+	res = Conf_GetServer(idx);
+	assert(res >= 0);
+	if (res >= 0) /* connect succeeded, remove all additional addresses */
+		memset(&Conf_Server[res].dst_addr, 0, sizeof(&Conf_Server[res].dst_addr));
 	Conn_OPTION_DEL( &My_Connections[idx], CONN_ISCONNECTING );
 	server_login(idx);
 }
@@ -255,7 +272,7 @@ Conn_Exit( void )
 
 
 static unsigned int
-ports_initlisteners(array *a, void (*func)(int,short))
+ports_initlisteners(array *a, int af, void (*func)(int,short))
 {
 	unsigned int created = 0;
 	size_t len;
@@ -265,7 +282,7 @@ ports_initlisteners(array *a, void (*func)(int,short))
 	len = array_length(a, sizeof (UINT16));
 	port = array_start(a);
 	while(len--) {
-		fd = NewListener( *port );
+		fd = NewListener(af, *port);
 		if (fd < 0) {
 			port++;
 			continue;
@@ -290,14 +307,18 @@ Conn_InitListeners( void )
 {
 	/* Initialize ports on which the server should accept connections */
 
-	unsigned int created;
+	unsigned int created = 0;
 
 	if (!io_library_init(CONNECTION_POOL)) {
 		Log(LOG_EMERG, "Cannot initialize IO routines: %s", strerror(errno));
 		return -1;
 	}
 
-	created = ports_initlisteners(&Conf_ListenPorts, cb_listen);
+#ifdef WANT_IPV6
+	if (!Conf_NoListenIpv6)
+		created = ports_initlisteners(&Conf_ListenPorts, AF_INET6, cb_listen);
+#endif
+	created += ports_initlisteners(&Conf_ListenPorts, AF_INET, cb_listen);
 
 	return created;
 } /* Conn_InitListeners */
@@ -327,68 +348,75 @@ Conn_ExitListeners( void )
 } /* Conn_ExitListeners */
 
 
-static void
-InitSinaddr(struct sockaddr_in *addr, UINT16 Port)
+static bool
+InitSinaddrListenAddr(int af, ng_ipaddr_t *addr, UINT16 Port)
 {
-	struct in_addr inaddr;
+	bool ret;
+	const char *listen_addrstr = NULL;
+#ifdef WANT_IPV6
+	if (af == AF_INET)
+		listen_addrstr = "0.0.0.0";
+#else
+	(void)af;
+#endif
+	if (Conf_ListenAddress[0]) /* overrides V4/V6 atm */
+		listen_addrstr = Conf_ListenAddress;
 
-	memset(addr, 0, sizeof(*addr));
-	memset( &inaddr, 0, sizeof(inaddr));
-
-	addr->sin_family = AF_INET;
-	addr->sin_port = htons(Port);
-	inaddr.s_addr = htonl(INADDR_ANY);
-	addr->sin_addr = inaddr;
+	ret = ng_ipaddr_init(addr, listen_addrstr, Port);
+	if (!ret) {
+		if (!listen_addrstr)
+			listen_addrstr = "";
+		Log(LOG_CRIT, "Can't bind to %s:%u: can't convert ip address \"%s\"",
+					listen_addrstr, Port, listen_addrstr);
+	}
+	return ret;
 }
 
 
-static bool
-InitSinaddrListenAddr(struct sockaddr_in *addr, UINT16 Port)
+static void
+set_v6_only(int af, int sock)
 {
-	struct in_addr inaddr;
+#if defined(IPV6_V6ONLY) && defined(WANT_IPV6)
+	int on = 1;
 
-	InitSinaddr(addr, Port);
+	if (af != AF_INET6)
+		return;
 
-	if (!Conf_ListenAddress[0])
-		return true;
-
-	if (!ngt_IPStrToBin(Conf_ListenAddress, &inaddr)) {
-		Log( LOG_CRIT, "Can't bind to %s:%u: can't convert ip address \"%s\"",
-				Conf_ListenAddress, Port, Conf_ListenAddress);
-		return false;
-	}
-
-	addr->sin_addr = inaddr;
-	return true;
+	if (setsockopt(sock, IPPROTO_IPV6, IPV6_V6ONLY, &on, sizeof(on)))
+		Log(LOG_ERR, "Could not set IPV6_V6ONLY: %s", strerror(errno));
+#else
+	(void)af;
+	(void)sock;
+#endif
 }
 
 
 /* return new listening port file descriptor or -1 on failure */
 static int
-NewListener( const UINT16 Port )
+NewListener(int af, const UINT16 Port)
 {
 	/* Create new listening socket on specified port */
-
-	struct sockaddr_in addr;
+	ng_ipaddr_t addr;
 	int sock;
 #ifdef ZEROCONF
 	char name[CLIENT_ID_LEN], *info;
 #endif
+	if (!InitSinaddrListenAddr(af, &addr, Port))
+		return -1;
 
-	InitSinaddrListenAddr(&addr, Port);
-
-	addr.sin_family = AF_INET;
-	addr.sin_port = htons( Port );
-
-	sock = socket( PF_INET, SOCK_STREAM, 0);
+	sock = socket(ng_ipaddr_af(&addr), SOCK_STREAM, 0);
 	if( sock < 0 ) {
 		Log( LOG_CRIT, "Can't create socket: %s!", strerror( errno ));
 		return -1;
 	}
 
+	af = ng_ipaddr_af(&addr);
+
+	set_v6_only(af, sock);
+
 	if( ! Init_Socket( sock )) return -1;
 
-	if (bind(sock, (struct sockaddr *)&addr, (socklen_t)sizeof(addr)) != 0) {
+	if (bind(sock, (struct sockaddr *)&addr, ng_ipaddr_salen(&addr)) != 0) {
 		Log( LOG_CRIT, "Can't bind socket (port %d) : %s!", Port, strerror( errno ));
 		close( sock );
 		return -1;
@@ -407,8 +435,12 @@ NewListener( const UINT16 Port )
 		return -1;
 	}
 
-	if( Conf_ListenAddress[0]) Log( LOG_INFO, "Now listening on %s:%d (socket %d).", Conf_ListenAddress, Port, sock );
-	else Log( LOG_INFO, "Now listening on 0.0.0.0:%d (socket %d).", Port, sock );
+#ifdef WANT_IPV6
+	if (af == AF_INET6)
+		Log(LOG_INFO, "Now listening on [%s]:%d (socket %d).", ng_ipaddr_tostr(&addr), Port, sock);
+	else
+#endif
+		Log(LOG_INFO, "Now listening on %s:%d (socket %d).", ng_ipaddr_tostr(&addr), Port, sock);
 
 #ifdef ZEROCONF
 	/* Get best server description text */
@@ -709,6 +741,7 @@ Conn_Close( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool InformClient )
 	CLIENT *c;
 	char *txt;
 	double in_k, out_k;
+	UINT16 port;
 #ifdef ZLIB
 	double in_z_k, out_z_k;
 	int in_p, out_p;
@@ -736,9 +769,9 @@ Conn_Close( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool InformClient )
 	if (! txt)
 		txt = "Reason unknown";
 
+	port = ng_ipaddr_getport(&My_Connections[Idx].addr);
 	Log(LOG_INFO, "Shutting down connection %d (%s) with %s:%d ...", Idx,
-	    LogMsg ? LogMsg : FwdMsg, My_Connections[Idx].host,
-	    ntohs(My_Connections[Idx].addr.sin_port));
+	    LogMsg ? LogMsg : FwdMsg, My_Connections[Idx].host, port);
 
 	/* Search client, if any */
 	c = Conn_GetClient( Idx );
@@ -778,7 +811,7 @@ Conn_Close( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool InformClient )
 		Log(LOG_CRIT,
 		    "Error closing connection %d (socket %d) with %s:%d - %s! (ignored)",
 		    Idx, My_Connections[Idx].sock, My_Connections[Idx].host,
-		    ntohs(My_Connections[Idx].addr.sin_port), strerror(errno));
+		    port, strerror(errno));
 	}
 
 	/* Mark socket as invalid: */
@@ -807,8 +840,7 @@ Conn_Close( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool InformClient )
 		out_p = (int)(( out_k * 100 ) / out_z_k );
 		Log(LOG_INFO,
 		    "Connection %d with %s:%d closed (in: %.1fk/%.1fk/%d%%, out: %.1fk/%.1fk/%d%%).",
-		    Idx, My_Connections[Idx].host,
-		    ntohs(My_Connections[Idx].addr.sin_port),
+		    Idx, My_Connections[Idx].host, port,
 		    in_k, in_z_k, in_p, out_k, out_z_k, out_p);
 	}
 	else
@@ -816,8 +848,7 @@ Conn_Close( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool InformClient )
 	{
 		Log(LOG_INFO,
 		    "Connection %d with %s:%d closed (in: %.1fk, out: %.1fk).",
-		    Idx, My_Connections[Idx].host,
-		    ntohs(My_Connections[Idx].addr.sin_port),
+		    Idx, My_Connections[Idx].host, port,
 		    in_k, out_k);
 	}
 
@@ -941,6 +972,22 @@ Handle_Write( CONN_ID Idx )
 
 
 static int
+Count_Connections(ng_ipaddr_t *a)
+{
+	int i, cnt;
+
+	cnt = 0;
+	for (i = 0; i < Pool_Size; i++) {
+		if (My_Connections[i].sock <= NONE)
+			continue;
+		if (ng_ipaddr_ipequal(&My_Connections[i].addr, a))
+			cnt++;
+	}
+	return cnt;
+} /* Count_Connections */
+
+
+static int
 New_Connection( int Sock )
 {
 	/* Neue Client-Verbindung von Listen-Socket annehmen und
@@ -949,14 +996,16 @@ New_Connection( int Sock )
 #ifdef TCPWRAP
 	struct request_info req;
 #endif
-	struct sockaddr_in new_addr;
+	ng_ipaddr_t new_addr;
+	char ip_str[NG_INET_ADDRSTRLEN];
 	int new_sock, new_sock_len, new_Pool_Size;
 	CLIENT *c;
 	long cnt;
 
 	assert( Sock > NONE );
 	/* Connection auf Listen-Socket annehmen */
-	new_sock_len = (int)sizeof new_addr;
+	new_sock_len = (int)sizeof(new_addr);
+
 	new_sock = accept(Sock, (struct sockaddr *)&new_addr,
 			  (socklen_t *)&new_sock_len);
 	if (new_sock < 0) {
@@ -964,14 +1013,18 @@ New_Connection( int Sock )
 		return -1;
 	}
 
+	if (!ng_ipaddr_tostr_r(&new_addr, ip_str)) {
+		Log(LOG_CRIT, "fd %d: Can't convert IP address!", new_sock);
+		Simple_Message(new_sock, "ERROR :Internal Server Error");
+		close(new_sock);
+	}
+
 #ifdef TCPWRAP
 	/* Validate socket using TCP Wrappers */
 	request_init( &req, RQ_DAEMON, PACKAGE_NAME, RQ_FILE, new_sock, RQ_CLIENT_SIN, &new_addr, NULL );
 	fromhost(&req);
-	if( ! hosts_access( &req ))
-	{
-		/* Access denied! */
-		Log( deny_severity, "Refused connection from %s (by TCP Wrappers)!", inet_ntoa( new_addr.sin_addr ));
+	if (!hosts_access(&req)) {
+		Log (deny_severity, "Refused connection from %s (by TCP Wrappers)!", ip_str);
 		Simple_Message( new_sock, "ERROR :Connection refused" );
 		close( new_sock );
 		return -1;
@@ -981,13 +1034,12 @@ New_Connection( int Sock )
 	/* Socket initialisieren */
 	if (!Init_Socket( new_sock ))
 		return -1;
-	
+
 	/* Check IP-based connection limit */
-	cnt = Count_Connections( new_addr );
-	if(( Conf_MaxConnectionsIP > 0 ) && ( cnt >= Conf_MaxConnectionsIP ))
-	{
+	cnt = Count_Connections(&new_addr);
+	if ((Conf_MaxConnectionsIP > 0) && (cnt >= Conf_MaxConnectionsIP)) {
 		/* Access denied, too many connections from this IP address! */
-		Log( LOG_ERR, "Refused connection from %s: too may connections (%ld) from this IP address!", inet_ntoa( new_addr.sin_addr ), cnt);
+		Log( LOG_ERR, "Refused connection from %s: too may connections (%ld) from this IP address!", ip_str, cnt);
 		Simple_Message( new_sock, "ERROR :Connection refused, too many connections from your IP address!" );
 		close( new_sock );
 		return -1;
@@ -1029,7 +1081,7 @@ New_Connection( int Sock )
 		return -1;
 	}
 
-	c = Client_NewLocal( new_sock, inet_ntoa( new_addr.sin_addr ), CLIENT_UNKNOWN, false );
+	c = Client_NewLocal(new_sock, ip_str, CLIENT_UNKNOWN, false );
 	if( ! c ) {
 		Log(LOG_ALERT, "Can't accept connection: can't create client structure!");
 		Simple_Message(new_sock, "ERROR :Internal error");
@@ -1043,13 +1095,12 @@ New_Connection( int Sock )
 	My_Connections[new_sock].client = c;
 
 	Log( LOG_INFO, "Accepted connection %d from %s:%d on socket %d.", new_sock,
-			inet_ntoa( new_addr.sin_addr ), ntohs( new_addr.sin_port), Sock );
+			ip_str, ng_ipaddr_getport(&new_addr), Sock);
 
 	/* Hostnamen ermitteln */
-	strlcpy( My_Connections[new_sock].host, inet_ntoa( new_addr.sin_addr ),
-						sizeof( My_Connections[new_sock].host ));
+	strlcpy(My_Connections[new_sock].host, ip_str, sizeof(My_Connections[new_sock].host));
 
-	Client_SetHostname( c, My_Connections[new_sock].host );
+	Client_SetHostname(c, My_Connections[new_sock].host);
 
 	if (!Conf_NoDNS)
 		Resolve_Addr(&My_Connections[new_sock].res_stat, &new_addr,
@@ -1107,10 +1158,10 @@ Read_Request( CONN_ID Idx )
 
 	len = read(My_Connections[Idx].sock, readbuf, sizeof(readbuf));
 	if (len == 0) {
-		Log(LOG_INFO, "%s:%d (%s) is closing the connection ...",
-		    My_Connections[Idx].host,
-		    ntohs(My_Connections[Idx].addr.sin_port),
-		    inet_ntoa( My_Connections[Idx].addr.sin_addr));
+		Log(LOG_INFO, "%s:%u (%s) is closing the connection ...",
+				My_Connections[Idx].host,
+				(unsigned int) ng_ipaddr_getport(&My_Connections[Idx].addr),
+				ng_ipaddr_tostr(&My_Connections[Idx].addr));
 		Conn_Close(Idx,
 			   "Socket closed!", "Client closed connection",
 			   false);
@@ -1367,37 +1418,44 @@ Check_Servers( void )
 
 
 static void
-New_Server( int Server , struct in_addr *dest)
+New_Server( int Server , ng_ipaddr_t *dest)
 {
 	/* Establish new server link */
-	struct sockaddr_in local_addr;
-	struct sockaddr_in new_addr;
-	int res, new_sock;
+	char ip_str[NG_INET_ADDRSTRLEN];
+	int af_dest, res, new_sock;
 	CLIENT *c;
 
 	assert( Server > NONE );
 
-	memset(&new_addr, 0, sizeof( new_addr ));
-	new_addr.sin_family = AF_INET;
-	new_addr.sin_addr = *dest;
-	new_addr.sin_port = htons( Conf_Server[Server].port );
+	if (!ng_ipaddr_tostr_r(dest, ip_str)) {
+		Log(LOG_WARNING, "New_Server: Could not convert IP to string");
+		return;
+	}
 
-	new_sock = socket( PF_INET, SOCK_STREAM, 0 );
-	if ( new_sock < 0 ) {
+	Log( LOG_INFO, "Establishing connection to \"%s\", %s, port %d ... ",
+			Conf_Server[Server].host, ip_str, Conf_Server[Server].port );
+
+	af_dest = ng_ipaddr_af(dest);
+	new_sock = socket(af_dest, SOCK_STREAM, 0);
+	if (new_sock < 0) {
 		Log( LOG_CRIT, "Can't create socket: %s!", strerror( errno ));
 		return;
 	}
 
-	if( ! Init_Socket( new_sock )) return;
+	if (!Init_Socket(new_sock))
+		return;
 
-	/* if we fail to bind, just continue and let connect() pick a source address */
-	InitSinaddr(&local_addr, 0);
-	local_addr.sin_addr = Conf_Server[Server].bind_addr;
-	if (bind(new_sock, (struct sockaddr *)&local_addr, (socklen_t)sizeof(local_addr)))
-		Log(LOG_WARNING, "Can't bind socket to %s: %s!", inet_ntoa(Conf_Server[Server].bind_addr), strerror( errno ));
-
-	res = connect(new_sock, (struct sockaddr *)&new_addr,
-			(socklen_t)sizeof(new_addr));
+	/* is a bind address configured? */
+	res = ng_ipaddr_af(&Conf_Server[Server].bind_addr);
+	/* if yes, bind now. If it fails, warn and let connect() pick a source address */
+	if (res && bind(new_sock, (struct sockaddr *) &Conf_Server[Server].bind_addr,
+				ng_ipaddr_salen(&Conf_Server[Server].bind_addr)))
+	{
+		ng_ipaddr_tostr_r(&Conf_Server[Server].bind_addr, ip_str);
+		Log(LOG_WARNING, "Can't bind socket to %s: %s!", ip_str, strerror(errno));
+	}
+	ng_ipaddr_setport(dest, Conf_Server[Server].port);
+	res = connect(new_sock, (struct sockaddr *) dest, ng_ipaddr_salen(dest));
 	if(( res != 0 ) && ( errno != EINPROGRESS )) {
 		Log( LOG_CRIT, "Can't connect socket: %s!", strerror( errno ));
 		close( new_sock );
@@ -1418,8 +1476,9 @@ New_Server( int Server , struct in_addr *dest)
 
 	Init_Conn_Struct(new_sock);
 
-	c = Client_NewLocal( new_sock, inet_ntoa( new_addr.sin_addr ), CLIENT_UNKNOWNSERVER, false );
-	if( ! c ) {
+	ng_ipaddr_tostr_r(dest, ip_str);
+	c = Client_NewLocal(new_sock, ip_str, CLIENT_UNKNOWNSERVER, false);
+	if (!c) {
 		Log( LOG_ALERT, "Can't establish connection: can't create client structure!" );
 		close( new_sock );
 		return;
@@ -1431,7 +1490,7 @@ New_Server( int Server , struct in_addr *dest)
 	/* Register connection */
 	Conf_Server[Server].conn_id = new_sock;
 	My_Connections[new_sock].sock = new_sock;
-	My_Connections[new_sock].addr = new_addr;
+	My_Connections[new_sock].addr = *dest;
 	My_Connections[new_sock].client = c;
 	strlcpy( My_Connections[new_sock].host, Conf_Server[Server].host,
 				sizeof(My_Connections[new_sock].host ));
@@ -1510,8 +1569,9 @@ cb_Connect_to_Server(int fd, UNUSED short events)
 	/* Read result of resolver sub-process from pipe and start connection */
 	int i;
 	size_t len;
-	struct in_addr dest_addr;
-	char readbuf[HOST_LEN + 1];
+	ng_ipaddr_t dest_addrs[4];	/* we can handle at most 3; but we read up to
+					   four so we can log the 'more than we can handle'
+					   condition */
 
 	LogDebug("Resolver: Got forward lookup callback on fd %d, events %d", fd, events);
 
@@ -1528,23 +1588,28 @@ cb_Connect_to_Server(int fd, UNUSED short events)
 	}
 
 	/* Read result from pipe */
-	len = Resolve_Read(&Conf_Server[i].res_stat, readbuf, sizeof(readbuf)-1);
+	len = Resolve_Read(&Conf_Server[i].res_stat, dest_addrs, sizeof(dest_addrs));
 	if (len == 0)
 		return;
 
-	readbuf[len] = '\0';
-	LogDebug("Got result from resolver: \"%s\" (%u bytes read).", readbuf, len);
+	assert((len % sizeof(ng_ipaddr_t)) == 0);
 
-	if (!ngt_IPStrToBin(readbuf, &dest_addr)) {
-		Log(LOG_ERR, "Can't connect to \"%s\": can't convert ip address %s!",
-						Conf_Server[i].host, readbuf);
-		return;
+	LogDebug("Got result from resolver: %u structs (%u bytes).", len/sizeof(ng_ipaddr_t), len);
+
+	memset(&Conf_Server[i].dst_addr, 0, sizeof(&Conf_Server[i].dst_addr));
+	if (len > sizeof(ng_ipaddr_t)) {
+		/* more than one address for this hostname, remember them
+		 * in case first address is unreachable/not available */
+		len -= sizeof(ng_ipaddr_t);
+		if (len > sizeof(&Conf_Server[i].dst_addr)) {
+			len = sizeof(&Conf_Server[i].dst_addr);
+			Log(LOG_NOTICE, "Notice: Resolver returned more IP Addresses for host than we can handle,"
+					" additional addresses dropped");
+		}
+		memcpy(&Conf_Server[i].dst_addr, &dest_addrs[1], len);
 	}
-
-	Log( LOG_INFO, "Establishing connection to \"%s\", %s, port %d ... ",
-			Conf_Server[i].host, readbuf, Conf_Server[i].port );
 	/* connect() */
-	New_Server(i, &dest_addr);
+	New_Server(i, dest_addrs);
 } /* cb_Read_Forward_Lookup */
 
 
@@ -1641,19 +1706,6 @@ Simple_Message( int Sock, const char *Msg )
 	len = strlcat( buf, "\r\n", sizeof buf);
 	(void)write(Sock, buf, len);
 } /* Simple_Error */
-
-
-static int
-Count_Connections( struct sockaddr_in addr_in )
-{
-	int i, cnt;
-	
-	cnt = 0;
-	for( i = 0; i < Pool_Size; i++ ) {
-		if(( My_Connections[i].sock > NONE ) && ( My_Connections[i].addr.sin_addr.s_addr == addr_in.sin_addr.s_addr )) cnt++;
-	}
-	return cnt;
-} /* Count_Connections */
 
 
 GLOBAL CLIENT *

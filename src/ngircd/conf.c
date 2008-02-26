@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.103 2007/11/23 16:26:04 fw Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.104 2008/02/26 22:04:17 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -938,7 +938,7 @@ Handle_SERVER( int Line, char *Var, char *Arg )
 		return;
 	}
 	if (strcasecmp(Var, "Bind") == 0) {
-		if (ngt_IPStrToBin(Arg, &New_Server.bind_addr))
+		if (ng_ipaddr_init(&New_Server.bind_addr, Arg, 0))
 			return;
 
 		Config_Error(LOG_ERR, "%s, line %d (section \"Server\"): Can't parse IP address \"%s\"",
@@ -1213,7 +1213,7 @@ Init_Server_Struct( CONF_SERVER *Server )
 
 	Resolve_Init(&Server->res_stat);
 	Server->conn_id = NONE;
-	Server->bind_addr.s_addr = htonl(INADDR_ANY);
+	memset(&Server->bind_addr, 0, sizeof(&Server->bind_addr));
 } /* Init_Server_Struct */
 
 

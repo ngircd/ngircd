@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.117 2007/11/21 12:16:36 alex Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.118 2008/02/26 22:04:17 fw Exp $";
 
 /**
  * @file
@@ -397,7 +397,12 @@ Fill_Version( void )
 
 	strlcat( NGIRCd_VersionAddition, "IRCPLUS", sizeof NGIRCd_VersionAddition );
 #endif
+#ifdef WANT_IPV6
+	if (NGIRCd_VersionAddition[0])
+		strlcat(NGIRCd_VersionAddition, "+", sizeof(NGIRCd_VersionAddition));
 
+	strlcat(NGIRCd_VersionAddition, "IPv6", sizeof(NGIRCd_VersionAddition));
+#endif
 	if( NGIRCd_VersionAddition[0] )
 		strlcat( NGIRCd_VersionAddition, "-", sizeof( NGIRCd_VersionAddition ));
 

@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-info.c,v 1.41 2007/12/11 11:29:44 fw Exp $";
+static char UNUSED id[] = "$Id: irc-info.c,v 1.41.2.1 2008/02/26 12:06:57 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -648,7 +648,11 @@ IRC_WHO( CLIENT *Client, REQUEST *Req )
 			if( ok && (( ! only_ops ) || ( strchr( Client_Modes( c ), 'o' ))))
 			{
 				/* Get flags */
-				strcpy( flags, "H" );
+				if (strchr(Client_Modes( c ), 'a'))
+					strcpy(flags, "G"); /* away */
+				else
+					strcpy(flags, "H");
+
 				if( strchr( Client_Modes( c ), 'o' )) strlcat( flags, "*", sizeof( flags ));
 
 				/* Search suitable channel */
@@ -1082,10 +1086,12 @@ IRC_Send_WHO( CLIENT *Client, CHANNEL *Chan, bool OnlyOps )
 		if( strchr( Client_Modes( c ), 'i' )) is_visible = false;
 		else is_visible = true;
 
-		if( is_member || is_visible )
-		{
-			/* Flags zusammenbasteln */
-			strcpy( flags, "H" );
+		if( is_member || is_visible ) {
+			if (strchr(Client_Modes( c ), 'a'))
+				strcpy(flags, "G"); /* away */
+			else
+				strcpy(flags, "H");
+
 			if( strchr( Client_Modes( c ), 'o' )) strlcat( flags, "*", sizeof( flags ));
 			if( strchr( Channel_UserModes( Chan, c ), 'o' )) strlcat( flags, "@", sizeof( flags ));
 			else if( strchr( Channel_UserModes( Chan, c ), 'v' )) strlcat( flags, "+", sizeof( flags ));

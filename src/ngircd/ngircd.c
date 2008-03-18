@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: ngircd.c,v 1.118 2008/02/26 22:04:17 fw Exp $";
+static char UNUSED id[] = "$Id: ngircd.c,v 1.119 2008/03/18 20:12:47 fw Exp $";
 
 /**
  * @file
@@ -432,15 +432,16 @@ NGIRCd_Rehash( void )
 	Log( LOG_NOTICE|LOG_snotice, "Re-reading configuration NOW!" );
 	NGIRCd_SignalRehash = false;
 
-	/* Close down all listening sockets */
-	Conn_ExitListeners( );
-
 	/* Remember old server name and nick name length */
 	strlcpy( old_name, Conf_ServerName, sizeof old_name );
 	old_nicklen = Conf_MaxNickLength;
 
 	/* Re-read configuration ... */
-	Conf_Rehash( );
+	if (!Conf_Rehash( ))
+		return;
+
+	/* Close down all listening sockets */
+	Conn_ExitListeners( );
 
 	/* Recover old server name and nick name length: these values can't
 	 * be changed during run-time */

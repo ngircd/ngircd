@@ -14,7 +14,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conf.c,v 1.104 2008/02/26 22:04:17 fw Exp $";
+static char UNUSED id[] = "$Id: conf.c,v 1.105 2008/03/18 20:12:47 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -57,7 +57,7 @@ static int New_Server_Idx;
 
 
 static void Set_Defaults PARAMS(( bool InitServers ));
-static void Read_Config PARAMS(( void ));
+static bool Read_Config PARAMS(( bool ngircd_starting ));
 static void Validate_Config PARAMS(( bool TestOnly, bool Rehash ));
 
 static void Handle_GLOBAL PARAMS(( int Line, char *Var, char *Arg ));
@@ -134,21 +134,21 @@ ports_parse(array *a, int Line, char *Arg)
 GLOBAL void
 Conf_Init( void )
 {
-	Set_Defaults( true );
-	Read_Config( );
+	Read_Config( true );
 	Validate_Config(false, false);
 } /* Config_Init */
 
 
-GLOBAL void
+GLOBAL bool
 Conf_Rehash( void )
 {
-	Set_Defaults( false );
-	Read_Config( );
+	if (!Read_Config(false))
+		return false;
 	Validate_Config(false, true);
 
 	/* Update CLIENT structure of local server */
 	Client_SetInfo(Client_ThisServer(), Conf_ServerInfo);
+	return true;
 } /* Config_Rehash */
 
 
@@ -163,9 +163,8 @@ Conf_Test( void )
 	char *topic;
 
 	Use_Log = false;
-	Set_Defaults( true );
 
-	Read_Config( );
+	Read_Config( true );
 	Validate_Config(true, false);
 
 	/* If stdin and stdout ("you can read our nice message and we can
@@ -460,8 +459,8 @@ Set_Defaults( bool InitServers )
 } /* Set_Defaults */
 
 
-static void
-Read_Config( void )
+static bool
+Read_Config( bool ngircd_starting )
 {
 	/* Read configuration file. */
 
@@ -476,9 +475,13 @@ Read_Config( void )
 		/* No configuration file found! */
 		Config_Error( LOG_ALERT, "Can't read configuration \"%s\": %s",
 					NGIRCd_ConfFile, strerror( errno ));
+		if (!ngircd_starting)
+			return false;
 		Config_Error( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE_NAME );
 		exit( 1 );
 	}
+
+	Set_Defaults( ngircd_starting );
 
 	Config_Error( LOG_INFO, "Reading configuration from \"%s\" ...", NGIRCd_ConfFile );
 
@@ -626,6 +629,7 @@ Read_Config( void )
 			exit( 1 );
 		}
 	}
+	return true;
 } /* Read_Config */
 
 

@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: io.c,v 1.28 2008/01/02 10:29:51 fw Exp $";
+static char UNUSED id[] = "$Id: io.c,v 1.29 2008/03/27 15:47:21 fw Exp $";
 
 #include <assert.h>
 #include <stdlib.h>
@@ -122,6 +122,15 @@ static array io_events;
 
 static void io_docallback PARAMS((int fd, short what));
 
+#ifdef DEBUG_IO
+static void io_debug(const char *s, int fd, int what)
+{
+	Log(LOG_DEBUG, "%s: %d, %d\n", s, fd, what);
+}
+#else
+static inline void io_debug(const char UNUSED *s,int UNUSED a, int UNUSED b) {/*NOTHING*/}
+#endif
+
 static io_event *
 io_event_get(int fd)
 {
@@ -135,572 +144,6 @@ io_event_get(int fd)
 
 	return i;
 }
-
-
-#ifdef IO_USE_DEVPOLL
-static void
-io_library_init_devpoll(unsigned int eventsize)
-{
-	io_masterfd = open("/dev/poll", O_RDWR);
-	if (io_masterfd >= 0)
-		library_initialized = true;
-	Log(LOG_INFO, "IO subsystem: /dev/poll (initial maxfd %u, masterfd %d).",
-		eventsize, io_masterfd);
-}
-#endif
-
-
-#ifdef IO_USE_POLL
-static void
-io_library_init_poll(unsigned int eventsize)
-{
-	struct pollfd *p;
-	array_init(&pollfds);
-	poll_maxfd = 0;
-	Log(LOG_INFO, "IO subsystem: poll (initial maxfd %u).",
-	    eventsize);
-	p = array_alloc(&pollfds, sizeof(struct pollfd), eventsize);
-	if (p) {
-		unsigned i;
-		p = array_start(&pollfds);
-		for (i = 0; i < eventsize; i++)
-			p[i].fd = -1;
-
-		library_initialized = true;
-	}
-}
-#endif
-
-
-#ifdef IO_USE_SELECT
-static void
-io_library_init_select(unsigned int eventsize)
-{
-	Log(LOG_INFO, "IO subsystem: select (initial maxfd %u).",
-	    eventsize);
-	FD_ZERO(&readers);
-	FD_ZERO(&writers);
-#ifdef FD_SETSIZE
-	if (Conf_MaxConnections >= (int)FD_SETSIZE) {
-		Log(LOG_WARNING,
-		    "MaxConnections (%d) exceeds limit (%u), changed MaxConnections to %u.",
-		    Conf_MaxConnections, FD_SETSIZE, FD_SETSIZE - 1);
-
-		Conf_MaxConnections = FD_SETSIZE - 1;
-	}
-#endif /* FD_SETSIZE */
-	library_initialized = true;
-}
-#endif /* SELECT */
-
-
-#ifdef IO_USE_EPOLL
-static void
-io_library_init_epoll(unsigned int eventsize)
-{
-	int ecreate_hint = (int)eventsize;
-	if (ecreate_hint <= 0)
-		ecreate_hint = 128;
-	io_masterfd = epoll_create(ecreate_hint);
-	if (io_masterfd >= 0) {
-		library_initialized = true;
-		Log(LOG_INFO,
-		    "IO subsystem: epoll (hint size %d, initial maxfd %u, masterfd %d).",
-		    ecreate_hint, eventsize, io_masterfd);
-	}
-}
-#endif
-
-
-#ifdef IO_USE_KQUEUE
-static void
-io_library_init_kqueue(unsigned int eventsize)
-{
-	io_masterfd = kqueue();
-
-	Log(LOG_INFO,
-	    "IO subsystem: kqueue (initial maxfd %u, masterfd %d)",
-	    eventsize, io_masterfd);
-	if (io_masterfd >= 0)
-		library_initialized = true;
-}
-#endif
-
-
-bool
-io_library_init(unsigned int eventsize)
-{
-	if (library_initialized)
-		return true;
-#ifdef IO_USE_SELECT
-#ifndef FD_SETSIZE
-	Log(LOG_WARNING,
-	    "FD_SETSIZE undefined, don't know how many descriptors select() can handle on your platform ...");
-#else
-	if (eventsize >= FD_SETSIZE)
-		eventsize = FD_SETSIZE - 1;
-#endif /* FD_SETSIZE */
-#endif /* IO_USE_SELECT */
-	if ((eventsize > 0) && !array_alloc(&io_events, sizeof(io_event), (size_t)eventsize))
-		eventsize = 0;
-#ifdef IO_USE_EPOLL
-	io_library_init_epoll(eventsize);
-#ifdef IO_USE_SELECT
-	if (io_masterfd < 0)
-		Log(LOG_INFO, "Can't initialize epoll() IO interface, falling back to select() ...");
-#endif
-#endif
-#ifdef IO_USE_KQUEUE
-	io_library_init_kqueue(eventsize);
-#endif
-#ifdef IO_USE_DEVPOLL
-	io_library_init_devpoll(eventsize);
-#endif
-#ifdef IO_USE_POLL
-	io_library_init_poll(eventsize);
-#endif
-#ifdef IO_USE_SELECT
-	if (! library_initialized)
-		io_library_init_select(eventsize);
-#endif
-	return library_initialized;
-}
-
-
-void
-io_library_shutdown(void)
-{
-#ifdef IO_USE_SELECT
-	FD_ZERO(&readers);
-	FD_ZERO(&writers);
-#endif
-#ifdef IO_USE_EPOLL
-	if (io_masterfd >= 0)
-		close(io_masterfd);
-	io_masterfd = -1;
-#endif
-#ifdef IO_USE_KQUEUE
-	close(io_masterfd);
-	io_masterfd = -1;
-	array_free(&io_evcache);
-#endif
-	library_initialized = false;
-}
-
-
-bool
-io_event_setcb(int fd, void (*cbfunc) (int, short))
-{
-	io_event *i = io_event_get(fd);
-	if (!i)
-		return false;
-
-	i->callback = cbfunc;
-	return true;
-}
-
-
-bool
-io_event_create(int fd, short what, void (*cbfunc) (int, short))
-{
-	bool ret;
-	io_event *i;
-
-	assert(fd >= 0);
-#if defined(IO_USE_SELECT) && defined(FD_SETSIZE)
-	if (fd >= FD_SETSIZE) {
-		Log(LOG_ERR,
-		    "fd %d exceeds FD_SETSIZE (%u) (select can't handle more file descriptors)",
-		    fd, FD_SETSIZE);
-		return false;
-	}
-#endif
-	i = (io_event *) array_alloc(&io_events, sizeof(io_event), (size_t) fd);
-	if (!i) {
-		Log(LOG_WARNING,
-		    "array_alloc failed: could not allocate space for %d io_event structures",
-		    fd);
-		return false;
-	}
-
-	i->callback = cbfunc;
-	i->what = 0;
-#ifdef IO_USE_DEVPOLL
-	ret = io_event_change_devpoll(fd, what);
-#endif
-#ifdef IO_USE_POLL
-	ret = io_event_change_poll(fd, what);
-#endif
-#ifdef IO_USE_EPOLL
-	ret = io_event_change_epoll(fd, what, EPOLL_CTL_ADD);
-#endif
-#ifdef IO_USE_KQUEUE
-	ret = io_event_change_kqueue(fd, what, EV_ADD|EV_ENABLE);
-#endif
-#ifdef IO_USE_SELECT
-	if (io_masterfd < 0)
-		ret = io_event_add(fd, what);
-#endif
-	if (ret) i->what = what;
-	return ret;
-}
-
-
-#ifdef IO_USE_DEVPOLL
-static bool
-io_event_change_devpoll(int fd, short what)
-{
-	struct pollfd p;
-
-	p.events = 0;
-
-	if (what & IO_WANTREAD)
-		p.events = POLLIN | POLLPRI;
-	if (what & IO_WANTWRITE)
-		p.events |= POLLOUT;
-
-	p.fd = fd;
-	return write(io_masterfd, &p, sizeof p) == (ssize_t)sizeof p;
-}
-#endif
-
-
-
-#ifdef IO_USE_POLL
-static bool
-io_event_change_poll(int fd, short what)
-{
-	struct pollfd *p;
-	short events = 0;
-
-	if (what & IO_WANTREAD)
-		events = POLLIN | POLLPRI;
-	if (what & IO_WANTWRITE)
-		events |= POLLOUT;
-
-	p = array_alloc(&pollfds, sizeof *p, fd);
-	if (p) {
-		p->events = events;
-		p->fd = fd;
-		if (fd > poll_maxfd)
-			poll_maxfd = fd;
-	}
-	return p != NULL;
-}
-#endif
-
-#ifdef IO_USE_EPOLL
-static bool
-io_event_change_epoll(int fd, short what, const int action)
-{
-	struct epoll_event ev = { 0, {0} };
-	ev.data.fd = fd;
-
-	if (what & IO_WANTREAD)
-		ev.events = EPOLLIN | EPOLLPRI;
-	if (what & IO_WANTWRITE)
-		ev.events |= EPOLLOUT;
-
-	return epoll_ctl(io_masterfd, action, fd, &ev) == 0;
-}
-#endif
-
-#ifdef IO_USE_KQUEUE
-static bool
-io_event_kqueue_commit_cache(void)
-{
-	struct kevent *events;
-	bool ret;
-	int len = (int) array_length(&io_evcache, sizeof (struct kevent));
-
-	if (!len) /* nothing to do */
-		return true;
-
-	assert(len>0);
-
-	if (len < 0) {
-		array_free(&io_evcache);
-		return false;
-	}
-
-	events = array_start(&io_evcache);
-
-	assert(events != NULL);
-
-	ret = kevent(io_masterfd, events, len, NULL, 0, NULL) == 0;
-	if (ret)
-		array_trunc(&io_evcache);
-	return ret;
-}
-
-
-static bool
-io_event_change_kqueue(int fd, short what, const int action)
-{
-	struct kevent kev;
-	bool ret = true;
-
-	if (what & IO_WANTREAD) {
-		EV_SET(&kev, fd, EVFILT_READ, action, 0, 0, 0);
-		ret = array_catb(&io_evcache, (char*) &kev, sizeof (kev));
-		if (!ret)
-			ret = kevent(io_masterfd, &kev,1, NULL, 0, NULL) == 0;
-	}
-
-	if (ret && (what & IO_WANTWRITE)) {
-		EV_SET(&kev, fd, EVFILT_WRITE, action, 0, 0, 0);
-		ret = array_catb(&io_evcache, (char*) &kev, sizeof (kev));
-		if (!ret)
-			ret = kevent(io_masterfd, &kev, 1, NULL, 0, NULL) == 0;
-	}
-
-	if (array_length(&io_evcache, sizeof kev) >= 100)
-		io_event_kqueue_commit_cache();
-	return ret;
-}
-#endif
-
-
-bool
-io_event_add(int fd, short what)
-{
-	io_event *i = io_event_get(fd);
-
-	if (!i) return false;
-
-	if ((i->what & what) == what) /* event type is already registered */
-		return true;
-#ifdef DEBUG_IO
-	Log(LOG_DEBUG, "io_event_add(): fd %d, what %d.", fd, what);
-#endif
-	i->what |= what;
-#ifdef IO_USE_EPOLL
-	if (io_masterfd >= 0)
-		return io_event_change_epoll(fd, i->what, EPOLL_CTL_MOD);
-#endif
-
-#ifdef IO_USE_KQUEUE
-	return io_event_change_kqueue(fd, what, EV_ADD | EV_ENABLE);
-#endif
-#ifdef IO_USE_DEVPOLL
-	return io_event_change_devpoll(fd, i->what);
-#endif
-#ifdef IO_USE_POLL
-	return io_event_change_poll(fd, i->what);
-#endif
-#ifdef IO_USE_SELECT
-	if (fd > select_maxfd)
-		select_maxfd = fd;
-
-	if (what & IO_WANTREAD)
-		FD_SET(fd, &readers);
-	if (what & IO_WANTWRITE)
-		FD_SET(fd, &writers);
-
-	return true;
-#endif
-}
-
-
-bool
-io_setnonblock(int fd)
-{
-	int flags = fcntl(fd, F_GETFL);
-	if (flags == -1)
-		return false;
-
-#ifndef O_NONBLOCK
-#define O_NONBLOCK O_NDELAY
-#endif
-	flags |= O_NONBLOCK;
-
-	return fcntl(fd, F_SETFL, flags) == 0;
-}
-
-
-#ifdef IO_USE_DEVPOLL
-static void
-io_close_devpoll(int fd)
-{
-	struct pollfd p;
-	p.events = POLLREMOVE;
-	p.fd = fd;
-	write(io_masterfd, &p, sizeof p);
-}
-#else
-static inline void
-io_close_devpoll(int UNUSED x)
-{ 
-	/* NOTHING */
-}
-#endif
-
-
-
-#ifdef IO_USE_POLL
-static void
-io_close_poll(int fd)
-{
-	struct pollfd *p;
-	p = array_get(&pollfds, sizeof *p, fd);
-	if (!p) return;
-
-	p->fd = -1;
-	if (fd == poll_maxfd) {
-		while (poll_maxfd > 0) {
-			--poll_maxfd;
-			p = array_get(&pollfds, sizeof *p, poll_maxfd);
-			if (p && p->fd >= 0)
-				break;
-		}
-	}
-}
-#else
-static inline void io_close_poll(int UNUSED x) { /* NOTHING */ }
-#endif
-
-
-#ifdef IO_USE_SELECT
-static void
-io_close_select(int fd)
-{
-	io_event *i;
-
-	if (io_masterfd >= 0)	/* Are we using epoll()? */
-		return;
-
-	FD_CLR(fd, &writers);
-	FD_CLR(fd, &readers);
-
-	i = io_event_get(fd);
-	if (!i) return;
-
-	if (fd == select_maxfd) {
-		while (select_maxfd>0) {
-			--select_maxfd; /* find largest fd */
-			i = io_event_get(select_maxfd);
-			if (i && i->callback) break;
-		}
-	}
-}
-#else
-static inline void
-io_close_select(int UNUSED x)
-{ 
-	/* NOTHING */
-}
-#endif
-
-
-bool
-io_close(int fd)
-{
-	io_event *i;
-
-	i = io_event_get(fd);
-#ifdef IO_USE_KQUEUE
-	if (array_length(&io_evcache, sizeof (struct kevent)))	/* pending data in cache? */
-		io_event_kqueue_commit_cache();
-
-	/* both kqueue and epoll remove fd from all sets automatically on the last close
-	 * of the descriptor. since we don't know if this is the last close we'll have
-	 * to remove the set explicitly. */
-	if (i) {
-		io_event_change_kqueue(fd, i->what, EV_DELETE);
-		io_event_kqueue_commit_cache();
-	}
-#endif
-
-	io_close_devpoll(fd);
-	io_close_poll(fd);
-	io_close_select(fd);
-
-#ifdef IO_USE_EPOLL
-	io_event_change_epoll(fd, 0, EPOLL_CTL_DEL);
-#endif
-	if (i) {
-		i->callback = NULL;
-		i->what = 0;
-	}
-	return close(fd) == 0;
-}
-
-
-bool
-io_event_del(int fd, short what)
-{
-	io_event *i = io_event_get(fd);
-#ifdef DEBUG_IO
-	Log(LOG_DEBUG, "io_event_del(): trying to delete eventtype %d on fd %d", what, fd);
-#endif
-	if (!i) return false;
-
-	if (!(i->what & what)) /* event is already disabled */
-		return true;
-
-	i->what &= ~what;
-
-#ifdef IO_USE_DEVPOLL
-	return io_event_change_devpoll(fd, i->what);
-#endif
-#ifdef IO_USE_POLL
-	return io_event_change_poll(fd, i->what);
-#endif
-#ifdef IO_USE_EPOLL
-	if (io_masterfd >= 0)
-		return io_event_change_epoll(fd, i->what, EPOLL_CTL_MOD);
-#endif
-
-#ifdef IO_USE_KQUEUE
-	return io_event_change_kqueue(fd, what, EV_DISABLE);
-#endif
-#ifdef IO_USE_SELECT
-	if (what & IO_WANTWRITE)
-		FD_CLR(fd, &writers);
-
-	if (what & IO_WANTREAD)
-		FD_CLR(fd, &readers);
-
-	return true;
-#endif
-}
-
-
-#ifdef IO_USE_SELECT
-static int
-io_dispatch_select(struct timeval *tv)
-{
-	fd_set readers_tmp = readers;
-	fd_set writers_tmp = writers;
-	short what;
-	int ret, i;
-	int fds_ready;
-	ret = select(select_maxfd + 1, &readers_tmp, &writers_tmp, NULL, tv);
-	if (ret <= 0)
-		return ret;
-
-	fds_ready = ret;
-
-	for (i = 0; i <= select_maxfd; i++) {
-		what = 0;
-		if (FD_ISSET(i, &readers_tmp)) {
-			what = IO_WANTREAD;
-			fds_ready--;
-		}
-
-		if (FD_ISSET(i, &writers_tmp)) {
-			what |= IO_WANTWRITE;
-			fds_ready--;
-		}
-		if (what)
-			io_docallback(i, what);
-		if (fds_ready <= 0)
-			break;
-	}
-
-	return ret;
-}
-#endif
 
 
 #ifdef IO_USE_DEVPOLL
@@ -743,6 +186,45 @@ io_dispatch_devpoll(struct timeval *tv)
 
 	return total;
 }
+
+
+static bool
+io_event_change_devpoll(int fd, short what)
+{
+	struct pollfd p;
+
+	p.events = 0;
+
+	if (what & IO_WANTREAD)
+		p.events = POLLIN | POLLPRI;
+	if (what & IO_WANTWRITE)
+		p.events |= POLLOUT;
+
+	p.fd = fd;
+	return write(io_masterfd, &p, sizeof p) == (ssize_t)sizeof p;
+}
+
+static void
+io_close_devpoll(int fd)
+{
+	struct pollfd p;
+	p.events = POLLREMOVE;
+	p.fd = fd;
+	write(io_masterfd, &p, sizeof p);
+}
+
+static void
+io_library_init_devpoll(unsigned int eventsize)
+{
+	io_masterfd = open("/dev/poll", O_RDWR);
+	if (io_masterfd >= 0)
+		library_initialized = true;
+	Log(LOG_INFO, "IO subsystem: /dev/poll (initial maxfd %u, masterfd %d).",
+		eventsize, io_masterfd);
+}
+#else
+static inline void io_close_devpoll(int UNUSED x) {/* NOTHING */}
+static inline void io_library_init_devpoll(unsigned int UNUSED ev) {/*NOTHING*/}
 #endif
 
 
@@ -786,10 +268,169 @@ io_dispatch_poll(struct timeval *tv)
 
 	return ret;
 }
+
+static bool
+io_event_change_poll(int fd, short what)
+{
+	struct pollfd *p;
+	short events = 0;
+
+	if (what & IO_WANTREAD)
+		events = POLLIN | POLLPRI;
+	if (what & IO_WANTWRITE)
+		events |= POLLOUT;
+
+	p = array_alloc(&pollfds, sizeof *p, fd);
+	if (p) {
+		p->events = events;
+		p->fd = fd;
+		if (fd > poll_maxfd)
+			poll_maxfd = fd;
+	}
+	return p != NULL;
+}
+
+static void
+io_close_poll(int fd)
+{
+	struct pollfd *p;
+	p = array_get(&pollfds, sizeof *p, fd);
+	if (!p) return;
+
+	p->fd = -1;
+	if (fd == poll_maxfd) {
+		while (poll_maxfd > 0) {
+			--poll_maxfd;
+			p = array_get(&pollfds, sizeof *p, poll_maxfd);
+			if (p && p->fd >= 0)
+				break;
+		}
+	}
+}
+
+static void
+io_library_init_poll(unsigned int eventsize)
+{
+	struct pollfd *p;
+	array_init(&pollfds);
+	poll_maxfd = 0;
+	Log(LOG_INFO, "IO subsystem: poll (initial maxfd %u).",
+	    eventsize);
+	p = array_alloc(&pollfds, sizeof(struct pollfd), eventsize);
+	if (p) {
+		unsigned i;
+		p = array_start(&pollfds);
+		for (i = 0; i < eventsize; i++)
+			p[i].fd = -1;
+
+		library_initialized = true;
+	}
+}
+#else
+static inline void io_close_poll(int UNUSED x) {/* NOTHING */}
+static inline void io_library_init_poll(unsigned int UNUSED ev) {/*NOTHING*/}
 #endif
 
 
+#ifdef IO_USE_SELECT
+static int
+io_dispatch_select(struct timeval *tv)
+{
+	fd_set readers_tmp = readers;
+	fd_set writers_tmp = writers;
+	short what;
+	int ret, i;
+	int fds_ready;
+	ret = select(select_maxfd + 1, &readers_tmp, &writers_tmp, NULL, tv);
+	if (ret <= 0)
+		return ret;
+
+	fds_ready = ret;
+
+	for (i = 0; i <= select_maxfd; i++) {
+		what = 0;
+		if (FD_ISSET(i, &readers_tmp)) {
+			what = IO_WANTREAD;
+			fds_ready--;
+		}
+
+		if (FD_ISSET(i, &writers_tmp)) {
+			what |= IO_WANTWRITE;
+			fds_ready--;
+		}
+		if (what)
+			io_docallback(i, what);
+		if (fds_ready <= 0)
+			break;
+	}
+
+	return ret;
+}
+
+static void
+io_library_init_select(unsigned int eventsize)
+{
+	if (library_initialized)
+		return;
+	Log(LOG_INFO, "IO subsystem: select (initial maxfd %u).",
+	    eventsize);
+	FD_ZERO(&readers);
+	FD_ZERO(&writers);
+#ifdef FD_SETSIZE
+	if (Conf_MaxConnections >= (int)FD_SETSIZE) {
+		Log(LOG_WARNING,
+		    "MaxConnections (%d) exceeds limit (%u), changed MaxConnections to %u.",
+		    Conf_MaxConnections, FD_SETSIZE, FD_SETSIZE - 1);
+
+		Conf_MaxConnections = FD_SETSIZE - 1;
+	}
+#endif /* FD_SETSIZE */
+	library_initialized = true;
+}
+
+static void
+io_close_select(int fd)
+{
+	io_event *i;
+
+	if (io_masterfd >= 0)	/* Are we using epoll()? */
+		return;
+
+	FD_CLR(fd, &writers);
+	FD_CLR(fd, &readers);
+
+	i = io_event_get(fd);
+	if (!i) return;
+
+	if (fd == select_maxfd) {
+		while (select_maxfd>0) {
+			--select_maxfd; /* find largest fd */
+			i = io_event_get(select_maxfd);
+			if (i && i->callback) break;
+		}
+	}
+}
+#else
+static inline void io_library_init_select(int UNUSED x) {/* NOTHING */}
+static inline void io_close_select(int UNUSED x) {/* NOTHING */}
+#endif /* SELECT */
+
+
 #ifdef IO_USE_EPOLL
+static bool
+io_event_change_epoll(int fd, short what, const int action)
+{
+	struct epoll_event ev = { 0, {0} };
+	ev.data.fd = fd;
+
+	if (what & IO_WANTREAD)
+		ev.events = EPOLLIN | EPOLLPRI;
+	if (what & IO_WANTWRITE)
+		ev.events |= EPOLLOUT;
+
+	return epoll_ctl(io_masterfd, action, fd, &ev) == 0;
+}
+
 static int
 io_dispatch_epoll(struct timeval *tv)
 {
@@ -826,10 +467,83 @@ io_dispatch_epoll(struct timeval *tv)
 
 	return total;
 }
+
+static void
+io_library_init_epoll(unsigned int eventsize)
+{
+	int ecreate_hint = (int)eventsize;
+	if (ecreate_hint <= 0)
+		ecreate_hint = 128;
+	io_masterfd = epoll_create(ecreate_hint);
+	if (io_masterfd >= 0) {
+		library_initialized = true;
+		Log(LOG_INFO,
+		    "IO subsystem: epoll (hint size %d, initial maxfd %u, masterfd %d).",
+		    ecreate_hint, eventsize, io_masterfd);
+		return;
+	}
+#ifdef IO_USE_SELECT
+	Log(LOG_INFO, "Can't initialize epoll() IO interface, falling back to select() ...");
 #endif
+}
+#else
+static inline void io_library_init_epoll(unsigned int UNUSED ev) {/* NOTHING */}
+#endif /* IO_USE_EPOLL */
 
 
 #ifdef IO_USE_KQUEUE
+static bool
+io_event_kqueue_commit_cache(void)
+{
+	struct kevent *events;
+	bool ret;
+	int len = (int) array_length(&io_evcache, sizeof (struct kevent));
+
+	if (!len) /* nothing to do */
+		return true;
+
+	assert(len>0);
+
+	if (len < 0) {
+		array_free(&io_evcache);
+		return false;
+	}
+
+	events = array_start(&io_evcache);
+
+	assert(events != NULL);
+
+	ret = kevent(io_masterfd, events, len, NULL, 0, NULL) == 0;
+	if (ret)
+		array_trunc(&io_evcache);
+	return ret;
+}
+
+static bool
+io_event_change_kqueue(int fd, short what, const int action)
+{
+	struct kevent kev;
+	bool ret = true;
+
+	if (what & IO_WANTREAD) {
+		EV_SET(&kev, fd, EVFILT_READ, action, 0, 0, 0);
+		ret = array_catb(&io_evcache, (char*) &kev, sizeof (kev));
+		if (!ret)
+			ret = kevent(io_masterfd, &kev,1, NULL, 0, NULL) == 0;
+	}
+
+	if (ret && (what & IO_WANTWRITE)) {
+		EV_SET(&kev, fd, EVFILT_WRITE, action, 0, 0, 0);
+		ret = array_catb(&io_evcache, (char*) &kev, sizeof (kev));
+		if (!ret)
+			ret = kevent(io_masterfd, &kev, 1, NULL, 0, NULL) == 0;
+	}
+
+	if (array_length(&io_evcache, sizeof kev) >= 100)
+		io_event_kqueue_commit_cache();
+	return ret;
+}
+
 static int
 io_dispatch_kqueue(struct timeval *tv)
 {
@@ -855,9 +569,7 @@ io_dispatch_kqueue(struct timeval *tv)
 			return total;
 
 		for (i = 0; i < ret; i++) {
-#ifdef DEBUG_IO
-			LogDebug("fd %d, kev.flags: %x", (int)kev[i].ident, kev[i].flags);
-#endif
+			io_debug("dispatch_kqueue: fd, kev.flags", (int)kev[i].ident, kev[i].flags);
 			if (kev[i].flags & (EV_EOF|EV_ERROR)) {
 				if (kev[i].flags & EV_ERROR)
 					Log(LOG_ERR, "kevent fd %d: EV_ERROR (%s)",
@@ -888,7 +600,260 @@ io_dispatch_kqueue(struct timeval *tv)
 
 	return total;
 }
+
+static void
+io_library_init_kqueue(unsigned int eventsize)
+{
+	io_masterfd = kqueue();
+
+	Log(LOG_INFO,
+	    "IO subsystem: kqueue (initial maxfd %u, masterfd %d)",
+	    eventsize, io_masterfd);
+	if (io_masterfd >= 0)
+		library_initialized = true;
+}
+#else
+static inline void io_library_init_kqueue(unsigned int UNUSED ev) {/* NOTHING */}
 #endif
+
+
+bool
+io_library_init(unsigned int eventsize)
+{
+	if (library_initialized)
+		return true;
+#ifdef IO_USE_SELECT
+#ifndef FD_SETSIZE
+	Log(LOG_WARNING,
+	    "FD_SETSIZE undefined, don't know how many descriptors select() can handle on your platform ...");
+#else
+	if (eventsize >= FD_SETSIZE)
+		eventsize = FD_SETSIZE - 1;
+#endif /* FD_SETSIZE */
+#endif /* IO_USE_SELECT */
+	if ((eventsize > 0) && !array_alloc(&io_events, sizeof(io_event), (size_t)eventsize))
+		eventsize = 0;
+
+	io_library_init_epoll(eventsize);
+	io_library_init_kqueue(eventsize);
+	io_library_init_devpoll(eventsize);
+	io_library_init_poll(eventsize);
+	io_library_init_select(eventsize);
+
+	return library_initialized;
+}
+
+
+void
+io_library_shutdown(void)
+{
+#ifdef IO_USE_SELECT
+	FD_ZERO(&readers);
+	FD_ZERO(&writers);
+#endif
+#if defined(IO_USE_EPOLL) || defined(IO_USE_KQUEUE) || defined(IO_USE_DEVPOLL)
+	if (io_masterfd >= 0)
+		close(io_masterfd);
+	io_masterfd = -1;
+#endif
+#ifdef IO_USE_KQUEUE
+	array_free(&io_evcache);
+#endif
+	library_initialized = false;
+}
+
+
+bool
+io_event_setcb(int fd, void (*cbfunc) (int, short))
+{
+	io_event *i = io_event_get(fd);
+	if (!i)
+		return false;
+
+	i->callback = cbfunc;
+	return true;
+}
+
+
+static bool
+backend_create_ev(int fd, short what)
+{
+	bool ret;
+#ifdef IO_USE_DEVPOLL
+	ret = io_event_change_devpoll(fd, what);
+#endif
+#ifdef IO_USE_POLL
+	ret = io_event_change_poll(fd, what);
+#endif
+#ifdef IO_USE_EPOLL
+	ret = io_event_change_epoll(fd, what, EPOLL_CTL_ADD);
+#endif
+#ifdef IO_USE_KQUEUE
+	ret = io_event_change_kqueue(fd, what, EV_ADD|EV_ENABLE);
+#endif
+#ifdef IO_USE_SELECT
+	if (io_masterfd < 0)
+		ret = io_event_add(fd, what);
+#endif
+	return ret;
+}
+
+
+bool
+io_event_create(int fd, short what, void (*cbfunc) (int, short))
+{
+	bool ret;
+	io_event *i;
+
+	assert(fd >= 0);
+#if defined(IO_USE_SELECT) && defined(FD_SETSIZE)
+	if (fd >= FD_SETSIZE) {
+		Log(LOG_ERR,
+		    "fd %d exceeds FD_SETSIZE (%u) (select can't handle more file descriptors)",
+		    fd, FD_SETSIZE);
+		return false;
+	}
+#endif
+	i = (io_event *) array_alloc(&io_events, sizeof(io_event), (size_t) fd);
+	if (!i) {
+		Log(LOG_WARNING,
+		    "array_alloc failed: could not allocate space for %d io_event structures",
+		    fd);
+		return false;
+	}
+
+	i->callback = cbfunc;
+	i->what = 0;
+	ret = backend_create_ev(fd, what);
+	if (ret)
+		i->what = what;
+	return ret;
+}
+
+
+bool
+io_event_add(int fd, short what)
+{
+	io_event *i = io_event_get(fd);
+
+	if (!i) return false;
+
+	if ((i->what & what) == what) /* event type is already registered */
+		return true;
+
+	io_debug("io_event_add: fd, what", fd, what);
+
+	i->what |= what;
+#ifdef IO_USE_EPOLL
+	if (io_masterfd >= 0)
+		return io_event_change_epoll(fd, i->what, EPOLL_CTL_MOD);
+#endif
+#ifdef IO_USE_KQUEUE
+	return io_event_change_kqueue(fd, what, EV_ADD | EV_ENABLE);
+#endif
+#ifdef IO_USE_DEVPOLL
+	return io_event_change_devpoll(fd, i->what);
+#endif
+#ifdef IO_USE_POLL
+	return io_event_change_poll(fd, i->what);
+#endif
+#ifdef IO_USE_SELECT
+	if (fd > select_maxfd)
+		select_maxfd = fd;
+
+	if (what & IO_WANTREAD)
+		FD_SET(fd, &readers);
+	if (what & IO_WANTWRITE)
+		FD_SET(fd, &writers);
+
+	return true;
+#endif
+	return false;
+}
+
+
+bool
+io_setnonblock(int fd)
+{
+	int flags = fcntl(fd, F_GETFL);
+	if (flags == -1)
+		return false;
+#ifndef O_NONBLOCK
+#define O_NONBLOCK O_NDELAY
+#endif
+	flags |= O_NONBLOCK;
+
+	return fcntl(fd, F_SETFL, flags) == 0;
+}
+
+
+bool
+io_close(int fd)
+{
+	io_event *i;
+
+	i = io_event_get(fd);
+#ifdef IO_USE_KQUEUE
+	if (array_length(&io_evcache, sizeof (struct kevent)))	/* pending data in cache? */
+		io_event_kqueue_commit_cache();
+
+	/* both kqueue and epoll remove fd from all sets automatically on the last close
+	 * of the descriptor. since we don't know if this is the last close we'll have
+	 * to remove the set explicitly. */
+	if (i) {
+		io_event_change_kqueue(fd, i->what, EV_DELETE);
+		io_event_kqueue_commit_cache();
+	}
+#endif
+	io_close_devpoll(fd);
+	io_close_poll(fd);
+	io_close_select(fd);
+#ifdef IO_USE_EPOLL
+	io_event_change_epoll(fd, 0, EPOLL_CTL_DEL);
+#endif
+	if (i) {
+		i->callback = NULL;
+		i->what = 0;
+	}
+	return close(fd) == 0;
+}
+
+
+bool
+io_event_del(int fd, short what)
+{
+	io_event *i = io_event_get(fd);
+
+	io_debug("io_event_del: trying to delete eventtype; fd, what", fd, what);
+	if (!i) return false;
+
+	if (!(i->what & what)) /* event is already disabled */
+		return true;
+
+	i->what &= ~what;
+#ifdef IO_USE_DEVPOLL
+	return io_event_change_devpoll(fd, i->what);
+#endif
+#ifdef IO_USE_POLL
+	return io_event_change_poll(fd, i->what);
+#endif
+#ifdef IO_USE_EPOLL
+	if (io_masterfd >= 0)
+		return io_event_change_epoll(fd, i->what, EPOLL_CTL_MOD);
+#endif
+#ifdef IO_USE_KQUEUE
+	return io_event_change_kqueue(fd, what, EV_DISABLE);
+#endif
+#ifdef IO_USE_SELECT
+	if (what & IO_WANTWRITE)
+		FD_CLR(fd, &writers);
+
+	if (what & IO_WANTREAD)
+		FD_CLR(fd, &readers);
+	return true;
+#endif
+	return false;
+}
 
 
 int
@@ -910,6 +875,7 @@ io_dispatch(struct timeval *tv)
 #ifdef IO_USE_POLL
 	return io_dispatch_poll(tv);
 #endif
+	return -1;
 }
 
 
@@ -917,11 +883,9 @@ io_dispatch(struct timeval *tv)
 static void
 io_docallback(int fd, short what)
 {
-	io_event *i;
-#ifdef DEBUG_IO
-	Log(LOG_DEBUG, "doing callback for fd %d, what %d", fd, what);
-#endif
-	i = io_event_get(fd);
+	io_event *i = io_event_get(fd);
+
+	io_debug("io_docallback; fd, what", fd, what);
 
 	if (i->callback) {	/* callback might be NULL if a previous callback function
 				   called io_close on this fd */

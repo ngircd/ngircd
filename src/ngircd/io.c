@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: io.c,v 1.29 2008/03/27 15:47:21 fw Exp $";
+static char UNUSED id[] = "$Id: io.c,v 1.30 2008/04/03 14:17:42 fw Exp $";
 
 #include <assert.h>
 #include <stdlib.h>
@@ -707,7 +707,7 @@ io_event_create(int fd, short what, void (*cbfunc) (int, short))
 
 	assert(fd >= 0);
 #if defined(IO_USE_SELECT) && defined(FD_SETSIZE)
-	if (fd >= FD_SETSIZE) {
+	if (io_masterfd < 0 && fd >= FD_SETSIZE) {
 		Log(LOG_ERR,
 		    "fd %d exceeds FD_SETSIZE (%u) (select can't handle more file descriptors)",
 		    fd, FD_SETSIZE);

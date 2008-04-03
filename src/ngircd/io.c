@@ -12,7 +12,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: io.c,v 1.30 2008/04/03 14:17:42 fw Exp $";
+static char UNUSED id[] = "$Id: io.c,v 1.31 2008/04/03 20:56:44 fw Exp $";
 
 #include <assert.h>
 #include <stdlib.h>
@@ -110,7 +110,11 @@ static bool io_event_change_devpoll(int fd, short what);
 
 static fd_set readers;
 static fd_set writers;
-static int select_maxfd;		/* the select() interface sucks badly */
+/*
+ * this is the first argument for select(), i.e.
+ * the largest fd registered, plus one.
+ */
+static int select_maxfd;
 static int io_dispatch_select(struct timeval *tv);
 
 #ifndef IO_USE_EPOLL
@@ -384,6 +388,9 @@ io_library_init_select(unsigned int eventsize)
 
 		Conf_MaxConnections = FD_SETSIZE - 1;
 	}
+#else
+	Log(LOG_WARNING,
+	    "FD_SETSIZE undefined, don't know how many descriptors select() can handle on your platform ...");
 #endif /* FD_SETSIZE */
 	library_initialized = true;
 }
@@ -622,15 +629,7 @@ io_library_init(unsigned int eventsize)
 {
 	if (library_initialized)
 		return true;
-#ifdef IO_USE_SELECT
-#ifndef FD_SETSIZE
-	Log(LOG_WARNING,
-	    "FD_SETSIZE undefined, don't know how many descriptors select() can handle on your platform ...");
-#else
-	if (eventsize >= FD_SETSIZE)
-		eventsize = FD_SETSIZE - 1;
-#endif /* FD_SETSIZE */
-#endif /* IO_USE_SELECT */
+
 	if ((eventsize > 0) && !array_alloc(&io_events, sizeof(io_event), (size_t)eventsize))
 		eventsize = 0;
 

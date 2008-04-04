@@ -17,7 +17,7 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: client.c,v 1.97 2007/11/21 12:16:36 alex Exp $";
+static char UNUSED id[] = "$Id: client.c,v 1.98 2008/04/04 19:30:01 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -55,6 +55,7 @@ static char GetID_Buffer[GETID_LEN];
 
 static WHOWAS My_Whowas[MAX_WHOWAS];
 static int Last_Whowas = -1;
+static long Max_Users, My_Max_Users;
 
 
 static unsigned long Count PARAMS(( CLIENT_TYPE Type ));
@@ -67,9 +68,6 @@ static void Adjust_Counters PARAMS(( CLIENT *Client ));
 static CLIENT *Init_New_Client PARAMS((CONN_ID Idx, CLIENT *Introducer,
  CLIENT *TopServer, int Type, char *ID, char *User, char *Hostname,
  char *Info, int Hops, int Token, char *Modes, bool Idented));
-
-
-long Max_Users = 0, My_Max_Users = 0;
 
 
 GLOBAL void

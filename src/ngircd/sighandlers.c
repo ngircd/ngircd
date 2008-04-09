@@ -36,6 +36,22 @@
 
 static int signalpipe[2];
 
+
+#ifdef DEBUG
+
+static void
+Dump_State(void)
+{
+	Log(LOG_DEBUG, "--- Internal server state: ---");
+	Log(LOG_DEBUG, "time()=%ld", time(NULL));
+	Conf_DebugDump();
+	Client_DebugDump();
+	Log(LOG_DEBUG, "--- End of state dump ---");
+} /* Dump_State */
+
+#endif
+
+
 static void Signal_Block(int sig)
 {
 #ifdef HAVE_SIGPROCMASK
@@ -140,6 +156,30 @@ static void Signal_Handler(int Signal)
 		while (waitpid( -1, NULL, WNOHANG) > 0)
 			;
 		return;
+#ifdef DEBUG
+	case SIGUSR1:
+		if (! NGIRCd_Debug) {
+			Log(LOG_INFO|LOG_snotice,
+			    "Got SIGUSR1, debug mode activated.");
+#ifdef SNIFFER
+			strcpy(NGIRCd_DebugLevel, "2");
+			NGIRCd_Debug = true;
+			NGIRCd_Sniffer = true;
+#else
+			strcpy(NGIRCd_DebugLevel, "1");
+			NGIRCd_Debug = true;
+#endif /* SNIFFER */
+		} else {
+			Log(LOG_INFO|LOG_snotice,
+			    "Got SIGUSR1, debug mode deactivated.");
+			strcpy(NGIRCd_DebugLevel, "");
+			NGIRCd_Debug = false;
+#ifdef SNIFFER
+			NGIRCd_Sniffer = false;
+#endif /* SNIFFER */
+		}
+		return;
+#endif
 	}
 
 	/*
@@ -169,6 +209,10 @@ static void Signal_Handler_BH(int Signal)
 		NGIRCd_Rehash();
 		break;
 #ifdef DEBUG
+	case SIGUSR2:
+		if (NGIRCd_Debug)
+			Dump_State();
+		break;
 	default:
 		Log(LOG_DEBUG, "Got signal %d! Ignored.", Signal);
 #endif

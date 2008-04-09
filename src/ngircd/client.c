@@ -1274,4 +1274,26 @@ Destroy_UserOrService(CLIENT *Client, const char *Txt, const char *FwdMsg, bool 
 } /* Destroy_UserOrService */
 
 
+#ifdef DEBUG
+
+GLOBAL void
+Client_DebugDump(void)
+{
+	CLIENT *c;
+
+	Log(LOG_DEBUG, "Client status:");
+	c = My_Clients;
+	while (c) {
+		Log(LOG_DEBUG,
+		    " - %s, type=%d, host=%s, user=%s, conn=%d, start=%ld, flags=%s",
+                   Client_ID(c), Client_Type(c), Client_Hostname(c),
+                   Client_User(c), Client_Conn(c), Client_StartTime(c),
+                   Client_Flags(c));
+		c = (CLIENT *)c->next;
+	}
+} /* Client_DumpClients */
+
+#endif
+
+
 /* -eof- */

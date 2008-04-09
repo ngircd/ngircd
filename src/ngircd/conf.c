@@ -1524,6 +1524,29 @@ va_dcl
 } /* Config_Error */
 
 
+#ifdef DEBUG
+
+GLOBAL void
+Conf_DebugDump(void)
+{
+	int i;
+
+	Log(LOG_DEBUG, "Configured servers:");
+	for (i = 0; i < MAX_SERVERS; i++) {
+		if (! Conf_Server[i].name[0])
+			continue;
+		Log(LOG_DEBUG,
+		    " - %s: %s:%d, last=%ld, group=%d, flags=%d, conn=%d",
+		    Conf_Server[i].name, Conf_Server[i].host,
+		    Conf_Server[i].port, Conf_Server[i].lasttry,
+		    Conf_Server[i].group, Conf_Server[i].flags,
+		    Conf_Server[i].conn_id);
+	}
+} /* Conf_DebugDump */
+
+#endif
+
+
 static void
 Init_Server_Struct( CONF_SERVER *Server )
 {

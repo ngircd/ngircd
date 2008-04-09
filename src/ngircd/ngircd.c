@@ -69,6 +69,7 @@ static void Setup_FDStreams PARAMS(( int fd ));
 
 static bool NGIRCd_Init PARAMS(( bool ));
 
+
 /**
  * The main() function of ngIRCd.
  * Here all starts: this function is called by the operating system loader,
@@ -722,5 +723,6 @@ NGIRCd_Init( bool NGIRCd_NoDaemon )
 		close(fd);
 	return false;
 }
+
 
 /* -eof- */

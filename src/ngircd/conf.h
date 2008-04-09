@@ -191,6 +191,10 @@ GLOBAL bool Conf_IsService PARAMS((int ConfServer, const char *Nick));
 /* Password required by WEBIRC command */
 GLOBAL char Conf_WebircPwd[CLIENT_PASS_LEN];
 
+#ifdef DEBUG
+GLOBAL void Conf_DebugDump PARAMS((void));
+#endif
+
 
 #endif
 

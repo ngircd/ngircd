@@ -11,6 +11,8 @@
 # $Id: Makefile.am,v 1.3 2008/02/17 15:31:15 alex Exp $
 #
 
+SUBDIRS = ngIRCd.xcodeproj
+
 EXTRA_DIST = de.barton.ngircd.plist.tmpl config.h cvs-version.h
 
 SUFFIXES = .tmpl .

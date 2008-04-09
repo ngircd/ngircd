@@ -12,6 +12,7 @@
 
 ngIRCd HEAD
 
+  - Include Mac OS X Xcode project in distribution archives.
   - Do not exit on SIGHUP or /REHASH if the config file cannot opened.
   - Add IPv6 support.
   - Install a LaunchDaemon script to start/stop ngIRCd on Mac OS X.

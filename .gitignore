@@ -1,0 +1,17 @@
+Makefile
+Makefile.in
+aclocal.m4
+ansi2knr.1
+ansi2knr.c
+ansi2knr.h
+autom4te.cache
+config.log
+config.status
+configure
+configure.lineno
+depcomp
+install-sh
+missing
+.deps
+*.a
+*.o

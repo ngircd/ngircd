@@ -1,0 +1,10 @@
+T-ngircd
+channel-test
+connect-test
+misc-test
+mode-test
+who-test
+ngircd-test.log
+ngircd-test.motd
+logs
+tests

@@ -266,44 +266,55 @@ IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 } /* IRC_NJOIN */
 
 
+/**
+ * Handler for the IRC command "SQUIT".
+ * See RFC 2813 section 4.1.2 and RFC 2812 section 3.1.8.
+ */
 GLOBAL bool
-IRC_SQUIT( CLIENT *Client, REQUEST *Req )
+IRC_SQUIT(CLIENT * Client, REQUEST * Req)
 {
 	CLIENT *target;
 	char msg[LINE_LEN + 64];
 
-	assert( Client != NULL );
-	assert( Req != NULL );
+	assert(Client != NULL);
+	assert(Req != NULL);
 
-	if( Req->argc != 2 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	/* Bad number of arguments? */
+	if (Req->argc != 2)
+		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+					  Client_ID(Client), Req->command);
 
-	Log( LOG_DEBUG, "Got SQUIT from %s for \"%s\": \"%s\" ...", Client_ID( Client ), Req->argv[0], Req->argv[1] );
+	Log(LOG_DEBUG, "Got SQUIT from %s for \"%s\": \"%s\" ...",
+	    Client_ID(Client), Req->argv[0], Req->argv[1]);
 
-	target = Client_Search( Req->argv[0] );
-	if( ! target )
-	{
-		Log( LOG_WARNING, "Got SQUIT from %s for unknown server \"%s\"!?", Client_ID( Client ), Req->argv[0] );
+	target = Client_Search(Req->argv[0]);
+	if (!target) {
+		/* The server is (already) unknown */
+		Log(LOG_WARNING,
+		    "Got SQUIT from %s for unknown server \"%s\"!?",
+		    Client_ID(Client), Req->argv[0]);
 		return CONNECTED;
 	}
 
-	if( Req->argv[1][0] )
-	{
-		if( strlen( Req->argv[1] ) > LINE_LEN ) Req->argv[1][LINE_LEN] = '\0';
-		snprintf( msg, sizeof( msg ), "%s (SQUIT from %s).", Req->argv[1], Client_ID( Client ));
-	}
-	else snprintf( msg, sizeof( msg ), "Got SQUIT from %s.", Client_ID( Client ));
+	if (Req->argv[1][0]) {
+		if (strlen(Req->argv[1]) > LINE_LEN)
+			Req->argv[1][LINE_LEN] = '\0';
+		snprintf(msg, sizeof(msg), "%s (SQUIT from %s).", Req->argv[1],
+			 Client_ID(Client));
+	} else
+		snprintf(msg, sizeof(msg), "Got SQUIT from %s.",
+			 Client_ID(Client));
 
-	if( Client_Conn( target ) > NONE )
-	{
-		/* This server has the connection */
-		if( Req->argv[1][0] ) Conn_Close( Client_Conn( target ), msg, Req->argv[1], true);
-		else Conn_Close( Client_Conn( target ), msg, NULL, true);
+	if (Client_Conn(target) > NONE) {
+		/* We are directly connected to this server */
+		if (Req->argv[1][0])
+			Conn_Close(Client_Conn(target), msg, Req->argv[1],
+				   true);
+		else
+			Conn_Close(Client_Conn(target), msg, NULL, true);
 		return DISCONNECTED;
-	}
-	else
-	{
-		/* connection was on another server */
-		Client_Destroy( target, msg, Req->argv[1], false );
+	} else {
+		Client_Destroy(target, msg, Req->argv[1], false);
 		return CONNECTED;
 	}
 } /* IRC_SQUIT */

@@ -34,6 +34,7 @@
 		FA322D4D0CEF74B1001761B3 /* resolve.c in Sources */ = {isa = PBXBuildFile; fileRef = FA322D0C0CEF74B1001761B3 /* resolve.c */; };
 		FA322DBE0CEF7766001761B3 /* tool.c in Sources */ = {isa = PBXBuildFile; fileRef = FA322D330CEF74B1001761B3 /* tool.c */; };
 		FA322DC10CEF77CB001761B3 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FA322DC00CEF77CB001761B3 /* libz.dylib */; };
+		FA407F2E0DB159F400271AF1 /* ng_ipaddr.c in Sources */ = {isa = PBXBuildFile; fileRef = FA407F2C0DB159F400271AF1 /* ng_ipaddr.c */; };
 		FAE5CC2E0CF2308A007D69B6 /* numeric.c in Sources */ = {isa = PBXBuildFile; fileRef = FAE5CC2D0CF2308A007D69B6 /* numeric.c */; };
 /* End PBXBuildFile section */
 
@@ -53,9 +54,7 @@
 		FA1A6BBC0D6857BB00AA8F71 /* misc-test.e */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = "misc-test.e"; sourceTree = "<group>"; };
 		FA1A6BBD0D6857D900AA8F71 /* who-test.e */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = "who-test.e"; sourceTree = "<group>"; };
 		FA322BBA0CEF72E4001761B3 /* ngIRCd */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ngIRCd; sourceTree = BUILT_PRODUCTS_DIR; };
-		FA322CD50CEF74B1001761B3 /* .cvsignore */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = .cvsignore; sourceTree = "<group>"; };
 		FA322CD60CEF74B1001761B3 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
-		FA322CD80CEF74B1001761B3 /* .cvsignore */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = .cvsignore; sourceTree = "<group>"; };
 		FA322CD90CEF74B1001761B3 /* array.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = array.c; sourceTree = "<group>"; };
 		FA322CDA0CEF74B1001761B3 /* array.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = array.h; sourceTree = "<group>"; };
 		FA322CDB0CEF74B1001761B3 /* channel.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = channel.c; sourceTree = "<group>"; };
@@ -109,7 +108,6 @@
 		FA322D0B0CEF74B1001761B3 /* rendezvous.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = rendezvous.h; sourceTree = "<group>"; };
 		FA322D0C0CEF74B1001761B3 /* resolve.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = resolve.c; sourceTree = "<group>"; };
 		FA322D0D0CEF74B1001761B3 /* resolve.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = resolve.h; sourceTree = "<group>"; };
-		FA322D0F0CEF74B1001761B3 /* .cvsignore */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = .cvsignore; sourceTree = "<group>"; };
 		FA322D100CEF74B1001761B3 /* ansi2knr.1 */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.man; path = ansi2knr.1; sourceTree = "<group>"; };
 		FA322D110CEF74B1001761B3 /* ansi2knr.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = ansi2knr.c; sourceTree = "<group>"; };
 		FA322D120CEF74B1001761B3 /* exp.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = exp.h; sourceTree = "<group>"; };
@@ -121,7 +119,6 @@
 		FA322D180CEF74B1001761B3 /* strdup.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = strdup.c; sourceTree = "<group>"; };
 		FA322D190CEF74B1001761B3 /* strlcpy.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = strlcpy.c; sourceTree = "<group>"; };
 		FA322D1A0CEF74B1001761B3 /* vsnprintf.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = vsnprintf.c; sourceTree = "<group>"; };
-		FA322D1C0CEF74B1001761B3 /* .cvsignore */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = .cvsignore; sourceTree = "<group>"; };
 		FA322D1D0CEF74B1001761B3 /* channel-test.e */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = "channel-test.e"; sourceTree = "<group>"; };
 		FA322D1E0CEF74B1001761B3 /* check-idle.e */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = "check-idle.e"; sourceTree = "<group>"; };
 		FA322D1F0CEF74B1001761B3 /* connect-test.e */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = "connect-test.e"; sourceTree = "<group>"; };
@@ -139,7 +136,6 @@
 		FA322D2B0CEF74B1001761B3 /* test-loop.sh */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; path = "test-loop.sh"; sourceTree = "<group>"; };
 		FA322D2C0CEF74B1001761B3 /* tests.sh */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; path = tests.sh; sourceTree = "<group>"; };
 		FA322D2D0CEF74B1001761B3 /* wait-tests.sh */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; path = "wait-tests.sh"; sourceTree = "<group>"; };
-		FA322D2F0CEF74B1001761B3 /* .cvsignore */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = .cvsignore; sourceTree = "<group>"; };
 		FA322D300CEF74B1001761B3 /* ansi2knr.1 */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.man; path = ansi2knr.1; sourceTree = "<group>"; };
 		FA322D310CEF74B1001761B3 /* ansi2knr.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = ansi2knr.c; sourceTree = "<group>"; };
 		FA322D320CEF74B1001761B3 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
@@ -156,8 +152,6 @@
 		FA322D630CEF750F001761B3 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = Makefile.am; path = ../../Makefile.am; sourceTree = SOURCE_ROOT; };
 		FA322D640CEF750F001761B3 /* NEWS */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = NEWS; path = ../../NEWS; sourceTree = SOURCE_ROOT; };
 		FA322D650CEF750F001761B3 /* README */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = README; path = ../../README; sourceTree = SOURCE_ROOT; };
-		FA322D670CEF7523001761B3 /* .cvsignore */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = .cvsignore; sourceTree = "<group>"; };
-		FA322D690CEF7523001761B3 /* .cvsignore */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = .cvsignore; sourceTree = "<group>"; };
 		FA322D6A0CEF7523001761B3 /* changelog */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = changelog; sourceTree = "<group>"; };
 		FA322D6B0CEF7523001761B3 /* compat */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = compat; sourceTree = "<group>"; };
 		FA322D6C0CEF7523001761B3 /* control */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = control; sourceTree = "<group>"; };
@@ -167,7 +161,6 @@
 		FA322D700CEF7523001761B3 /* ngircd.init */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; path = ngircd.init; sourceTree = "<group>"; };
 		FA322D710CEF7523001761B3 /* ngircd.postinst */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; path = ngircd.postinst; sourceTree = "<group>"; };
 		FA322D720CEF7523001761B3 /* rules */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = rules; sourceTree = "<group>"; };
-		FA322D740CEF7523001761B3 /* .cvsignore */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = .cvsignore; sourceTree = "<group>"; };
 		FA322D8D0CEF7523001761B3 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
 		FA322D8E0CEF7523001761B3 /* ngIRCd.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = ngIRCd.xcodeproj; sourceTree = "<group>"; };
 		FA322D910CEF7523001761B3 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
@@ -176,8 +169,6 @@
 		FA322D940CEF7523001761B3 /* ngircd.spec */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = ngircd.spec; sourceTree = "<group>"; };
 		FA322D950CEF7523001761B3 /* README */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
 		FA322D960CEF7523001761B3 /* systrace.policy */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = systrace.policy; sourceTree = "<group>"; };
-		FA322D980CEF752C001761B3 /* .cvsignore */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = .cvsignore; sourceTree = "<group>"; };
-		FA322D990CEF752C001761B3 /* CVS.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = CVS.txt; sourceTree = "<group>"; };
 		FA322D9A0CEF752C001761B3 /* FAQ.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = FAQ.txt; sourceTree = "<group>"; };
 		FA322D9B0CEF752C001761B3 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
 		FA322D9C0CEF752C001761B3 /* Platforms.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Platforms.txt; sourceTree = "<group>"; };
@@ -186,7 +177,6 @@
 		FA322D9F0CEF752C001761B3 /* README-BeOS.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = "README-BeOS.txt"; sourceTree = "<group>"; };
 		FA322DA00CEF752C001761B3 /* RFC.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = RFC.txt; sourceTree = "<group>"; };
 		FA322DA10CEF752C001761B3 /* sample-ngircd.conf */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = "sample-ngircd.conf"; sourceTree = "<group>"; };
-		FA322DA30CEF752C001761B3 /* .cvsignore */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = .cvsignore; sourceTree = "<group>"; };
 		FA322DA40CEF752C001761B3 /* Doxyfile */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Doxyfile; sourceTree = "<group>"; };
 		FA322DA50CEF752C001761B3 /* footer.inc.html */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.html; path = footer.inc.html; sourceTree = "<group>"; };
 		FA322DA60CEF752C001761B3 /* header.inc.html */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.html; path = header.inc.html; sourceTree = "<group>"; };
@@ -194,13 +184,16 @@
 		FA322DA80CEF752C001761B3 /* ngircd-doc.css */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.css; path = "ngircd-doc.css"; sourceTree = "<group>"; };
 		FA322DA90CEF752C001761B3 /* SSL.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = SSL.txt; sourceTree = "<group>"; };
 		FA322DAA0CEF752C001761B3 /* Zeroconf.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Zeroconf.txt; sourceTree = "<group>"; };
-		FA322DAC0CEF7538001761B3 /* .cvsignore */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = .cvsignore; sourceTree = "<group>"; };
 		FA322DAD0CEF7538001761B3 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
 		FA322DAE0CEF7538001761B3 /* ngircd.8.tmpl */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = ngircd.8.tmpl; sourceTree = "<group>"; };
 		FA322DAF0CEF7538001761B3 /* ngircd.conf.5.tmpl */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = ngircd.conf.5.tmpl; sourceTree = "<group>"; };
 		FA322DB10CEF7565001761B3 /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
 		FA322DBB0CEF773C001761B3 /* cvs-version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "cvs-version.h"; sourceTree = "<group>"; };
 		FA322DC00CEF77CB001761B3 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = /usr/lib/libz.dylib; sourceTree = "<absolute>"; };
+		FA407F2B0DB159F400271AF1 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = Makefile.am; path = ipaddr/Makefile.am; sourceTree = "<group>"; };
+		FA407F2C0DB159F400271AF1 /* ng_ipaddr.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; name = ng_ipaddr.c; path = ipaddr/ng_ipaddr.c; sourceTree = "<group>"; };
+		FA407F2D0DB159F400271AF1 /* ng_ipaddr.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; name = ng_ipaddr.h; path = ipaddr/ng_ipaddr.h; sourceTree = "<group>"; };
+		FA407F380DB15AC700271AF1 /* GIT.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = GIT.txt; sourceTree = "<group>"; };
 		FAE5CC2C0CF2308A007D69B6 /* numeric.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = numeric.h; sourceTree = "<group>"; };
 		FAE5CC2D0CF2308A007D69B6 /* numeric.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = numeric.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -253,10 +246,10 @@
 			isa = PBXGroup;
 			children = (
 				FA322CD70CEF74B1001761B3 /* ngircd */,
+				FA407F270DB1598D00271AF1 /* ipaddr */,
 				FA322D0E0CEF74B1001761B3 /* portab */,
 				FA322D1B0CEF74B1001761B3 /* testsuite */,
 				FA322D2E0CEF74B1001761B3 /* tool */,
-				FA322CD50CEF74B1001761B3 /* .cvsignore */,
 				FA322CD60CEF74B1001761B3 /* Makefile.am */,
 			);
 			name = src;
@@ -266,7 +259,6 @@
 		FA322CD70CEF74B1001761B3 /* ngircd */ = {
 			isa = PBXGroup;
 			children = (
-				FA322CD80CEF74B1001761B3 /* .cvsignore */,
 				FA322CD90CEF74B1001761B3 /* array.c */,
 				FA322CDA0CEF74B1001761B3 /* array.h */,
 				FA322CDB0CEF74B1001761B3 /* channel.c */,
@@ -329,7 +321,6 @@
 		FA322D0E0CEF74B1001761B3 /* portab */ = {
 			isa = PBXGroup;
 			children = (
-				FA322D0F0CEF74B1001761B3 /* .cvsignore */,
 				FA322D100CEF74B1001761B3 /* ansi2knr.1 */,
 				FA322D110CEF74B1001761B3 /* ansi2knr.c */,
 				FA322D120CEF74B1001761B3 /* exp.h */,
@@ -348,7 +339,6 @@
 		FA322D1B0CEF74B1001761B3 /* testsuite */ = {
 			isa = PBXGroup;
 			children = (
-				FA322D1C0CEF74B1001761B3 /* .cvsignore */,
 				FA322D1D0CEF74B1001761B3 /* channel-test.e */,
 				FA322D1E0CEF74B1001761B3 /* check-idle.e */,
 				FA322D1F0CEF74B1001761B3 /* connect-test.e */,
@@ -375,7 +365,6 @@
 		FA322D2E0CEF74B1001761B3 /* tool */ = {
 			isa = PBXGroup;
 			children = (
-				FA322D2F0CEF74B1001761B3 /* .cvsignore */,
 				FA322D300CEF74B1001761B3 /* ansi2knr.1 */,
 				FA322D310CEF74B1001761B3 /* ansi2knr.c */,
 				FA322D320CEF74B1001761B3 /* Makefile.am */,
@@ -388,7 +377,6 @@
 		FA322D660CEF7523001761B3 /* contrib */ = {
 			isa = PBXGroup;
 			children = (
-				FA322D670CEF7523001761B3 /* .cvsignore */,
 				FA322D680CEF7523001761B3 /* Debian */,
 				FA322D730CEF7523001761B3 /* MacOSX */,
 				FA322D910CEF7523001761B3 /* Makefile.am */,
@@ -405,7 +393,6 @@
 		FA322D680CEF7523001761B3 /* Debian */ = {
 			isa = PBXGroup;
 			children = (
-				FA322D690CEF7523001761B3 /* .cvsignore */,
 				FA322D6A0CEF7523001761B3 /* changelog */,
 				FA322D6B0CEF7523001761B3 /* compat */,
 				FA322D6C0CEF7523001761B3 /* control */,
@@ -422,7 +409,6 @@
 		FA322D730CEF7523001761B3 /* MacOSX */ = {
 			isa = PBXGroup;
 			children = (
-				FA322D740CEF7523001761B3 /* .cvsignore */,
 				FA322D750CEF7523001761B3 /* build */,
 				FA322D8D0CEF7523001761B3 /* Makefile.am */,
 				FA322D8E0CEF7523001761B3 /* ngIRCd.xcodeproj */,
@@ -513,8 +499,7 @@
 		FA322D970CEF752C001761B3 /* doc */ = {
 			isa = PBXGroup;
 			children = (
-				FA322D980CEF752C001761B3 /* .cvsignore */,
-				FA322D990CEF752C001761B3 /* CVS.txt */,
+				FA407F380DB15AC700271AF1 /* GIT.txt */,
 				FA322D9A0CEF752C001761B3 /* FAQ.txt */,
 				FA322D9B0CEF752C001761B3 /* Makefile.am */,
 				FA322D9C0CEF752C001761B3 /* Platforms.txt */,
@@ -534,7 +519,6 @@
 		FA322DA20CEF752C001761B3 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				FA322DA30CEF752C001761B3 /* .cvsignore */,
 				FA322DA40CEF752C001761B3 /* Doxyfile */,
 				FA322DA50CEF752C001761B3 /* footer.inc.html */,
 				FA322DA60CEF752C001761B3 /* header.inc.html */,
@@ -547,7 +531,6 @@
 		FA322DAB0CEF7538001761B3 /* man */ = {
 			isa = PBXGroup;
 			children = (
-				FA322DAC0CEF7538001761B3 /* .cvsignore */,
 				FA322DAD0CEF7538001761B3 /* Makefile.am */,
 				FA322DAE0CEF7538001761B3 /* ngircd.8.tmpl */,
 				FA322DAF0CEF7538001761B3 /* ngircd.conf.5.tmpl */,
@@ -555,6 +538,16 @@
 			name = man;
 			path = ../../man;
 			sourceTree = SOURCE_ROOT;
+		};
+		FA407F270DB1598D00271AF1 /* ipaddr */ = {
+			isa = PBXGroup;
+			children = (
+				FA407F2B0DB159F400271AF1 /* Makefile.am */,
+				FA407F2C0DB159F400271AF1 /* ng_ipaddr.c */,
+				FA407F2D0DB159F400271AF1 /* ng_ipaddr.h */,
+			);
+			name = ipaddr;
+			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
@@ -632,6 +625,7 @@
 				FA322D4D0CEF74B1001761B3 /* resolve.c in Sources */,
 				FA322DBE0CEF7766001761B3 /* tool.c in Sources */,
 				FAE5CC2E0CF2308A007D69B6 /* numeric.c in Sources */,
+				FA407F2E0DB159F400271AF1 /* ng_ipaddr.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -35,14 +35,19 @@
 #include "irc-oper.h"
 
 
+/**
+ * Handle invalid received OPER command.
+ * Log OPER attempt and send error message to client.
+ */
 static bool
 Bad_OperPass(CLIENT *Client, char *errtoken, char *errmsg)
 {
-	Log( LOG_WARNING, "Got invalid OPER from \"%s\": \"%s\" -- %s", Client_Mask( Client ),
-										errtoken, errmsg);
+	Log(LOG_WARNING, "Got invalid OPER from \"%s\": \"%s\" -- %s",
+	    Client_Mask(Client), errtoken, errmsg);
 	IRC_SetPenalty(Client, 3);
-	return IRC_WriteStrClient( Client, ERR_PASSWDMISMATCH_MSG, Client_ID( Client ));
-}
+	return IRC_WriteStrClient(Client, ERR_PASSWDMISMATCH_MSG,
+				  Client_ID(Client));
+} /* Bad_OperPass */
 
 
 GLOBAL bool
@@ -63,7 +68,7 @@ IRC_OPER( CLIENT *Client, REQUEST *Req )
 		return Bad_OperPass(Client, Req->argv[0], "not configured");
 
 	if( strcmp( Conf_Oper[i].pwd, Req->argv[1] ) != 0 )
-		return Bad_OperPass(Client, Conf_Oper[i].name, "Bad password");
+		return Bad_OperPass(Client, Conf_Oper[i].name, "bad password");
 
 	if( Conf_Oper[i].mask && (! Match( Conf_Oper[i].mask, Client_Mask( Client ) )))
 		return Bad_OperPass(Client, Conf_Oper[i].mask, "hostmask check failed" );

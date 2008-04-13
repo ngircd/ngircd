@@ -263,7 +263,6 @@ Conf_Test( void )
 	printf( "  PidFile = %s\n", Conf_PidFile);
 	printf("  Listen = %s\n", Conf_ListenAddress);
 	fputs("  Ports = ", stdout);
-
 	ports_puts(&Conf_ListenPorts);
 #ifdef SSL_SUPPORT
 	fputs("  SSLPorts = ", stdout);
@@ -272,29 +271,34 @@ Conf_Test( void )
 		config_valid = false;
 #endif
 
-	pwd = getpwuid( Conf_UID );
-	if( pwd ) printf( "  ServerUID = %s\n", pwd->pw_name );
-	else printf( "  ServerUID = %ld\n", (long)Conf_UID );
-	grp = getgrgid( Conf_GID );
-	if( grp ) printf( "  ServerGID = %s\n", grp->gr_name );
-	else printf( "  ServerGID = %ld\n", (long)Conf_GID );
-	printf( "  PingTimeout = %d\n", Conf_PingTimeout );
-	printf( "  PongTimeout = %d\n", Conf_PongTimeout );
-	printf( "  ConnectRetry = %d\n", Conf_ConnectRetry );
-	printf( "  OperCanUseMode = %s\n", yesno_to_str(Conf_OperCanMode));
-	printf( "  OperServerMode = %s\n", yesno_to_str(Conf_OperServerMode));
-	printf( "  PredefChannelsOnly = %s\n", yesno_to_str(Conf_PredefChannelsOnly));
-	printf( "  NoDNS = %s\n", yesno_to_str(Conf_NoDNS));
-	printf( "  NoIdent = %s\n", yesno_to_str(Conf_NoIdent));
+	pwd = getpwuid(Conf_UID);
+	if (pwd)
+		printf("  ServerUID = %s\n", pwd->pw_name);
+	else
+		printf("  ServerUID = %ld\n", (long)Conf_UID);
+	grp = getgrgid(Conf_GID);
+	if (grp)
+		printf("  ServerGID = %s\n", grp->gr_name);
+	else
+		printf("  ServerGID = %ld\n", (long)Conf_GID);
+	printf("  PingTimeout = %d\n", Conf_PingTimeout);
+	printf("  PongTimeout = %d\n", Conf_PongTimeout);
+	printf("  ConnectRetry = %d\n", Conf_ConnectRetry);
+	printf("  OperCanUseMode = %s\n", yesno_to_str(Conf_OperCanMode));
+	printf("  OperServerMode = %s\n", yesno_to_str(Conf_OperServerMode));
+	printf("  AllowRemoteOper = %s\n", yesno_to_str(Conf_AllowRemoteOper));
+	printf("  PredefChannelsOnly = %s\n", yesno_to_str(Conf_PredefChannelsOnly));
+	printf("  NoDNS = %s\n", yesno_to_str(Conf_NoDNS));
+	printf("  NoIdent = %s\n", yesno_to_str(Conf_NoIdent));
 
 #ifdef WANT_IPV6
 	printf("  ConnectIPv4 = %s\n", yesno_to_str(Conf_ConnectIPv6));
 	printf("  ConnectIPv6 = %s\n", yesno_to_str(Conf_ConnectIPv4));
 #endif
-	printf( "  MaxConnections = %ld\n", Conf_MaxConnections);
-	printf( "  MaxConnectionsIP = %d\n", Conf_MaxConnectionsIP);
-	printf( "  MaxJoins = %d\n", Conf_MaxJoins>0 ? Conf_MaxJoins : -1);
-	printf( "  MaxNickLength = %u\n\n", Conf_MaxNickLength - 1);
+	printf("  MaxConnections = %ld\n", Conf_MaxConnections);
+	printf("  MaxConnectionsIP = %d\n", Conf_MaxConnectionsIP);
+	printf("  MaxJoins = %d\n", Conf_MaxJoins > 0 ? Conf_MaxJoins : -1);
+	printf("  MaxNickLength = %u\n\n", Conf_MaxNickLength - 1);
 
 	for( i = 0; i < Conf_Oper_Count; i++ ) {
 		if( ! Conf_Oper[i].name[0] ) continue;
@@ -511,47 +515,47 @@ Conf_IsService(int ConfServer, const char *Nick)
 } /* Conf_IsService */
 
 
+/**
+ * Initialize configuration settings with their default values.
+ */
 static void
-Set_Defaults( bool InitServers )
+Set_Defaults(bool InitServers)
 {
-	/* Initialize configuration variables with default values. */
-
 	int i;
 
-	strcpy( Conf_ServerName, "" );
-	snprintf( Conf_ServerInfo, sizeof Conf_ServerInfo, "%s %s", PACKAGE_NAME, PACKAGE_VERSION );
-	strcpy( Conf_ServerPwd, "" );
+	strcpy(Conf_ServerName, "");
+	snprintf(Conf_ServerInfo, sizeof Conf_ServerInfo, "%s %s",
+		 PACKAGE_NAME, PACKAGE_VERSION);
+	strcpy(Conf_ServerPwd, "");
 
-	strcpy( Conf_ServerAdmin1, "" );
-	strcpy( Conf_ServerAdmin2, "" );
-	strcpy( Conf_ServerAdminMail, "" );
+	strcpy(Conf_ServerAdmin1, "");
+	strcpy(Conf_ServerAdmin2, "");
+	strcpy(Conf_ServerAdminMail, "");
 
-	strlcpy( Conf_MotdFile, SYSCONFDIR, sizeof( Conf_MotdFile ));
-	strlcat( Conf_MotdFile, MOTD_FILE, sizeof( Conf_MotdFile ));
+	strlcpy(Conf_MotdFile, SYSCONFDIR, sizeof(Conf_MotdFile));
+	strlcat(Conf_MotdFile, MOTD_FILE, sizeof(Conf_MotdFile));
+	strlcpy(Conf_MotdPhrase, MOTD_PHRASE, sizeof(Conf_MotdPhrase));
 
-	strlcpy( Conf_MotdPhrase, MOTD_PHRASE, sizeof( Conf_MotdPhrase ));
-
-	strlcpy( Conf_Chroot, CHROOT_DIR, sizeof( Conf_Chroot ));
-
-	strlcpy( Conf_PidFile, PID_FILE, sizeof( Conf_PidFile ));
+	Conf_UID = Conf_GID = 0;
+	strlcpy(Conf_Chroot, CHROOT_DIR, sizeof(Conf_Chroot));
+	strlcpy(Conf_PidFile, PID_FILE, sizeof(Conf_PidFile));
 
 	free(Conf_ListenAddress);
 	Conf_ListenAddress = NULL;
-	Conf_UID = Conf_GID = 0;
 
 	Conf_PingTimeout = 120;
 	Conf_PongTimeout = 20;
-
 	Conf_ConnectRetry = 60;
+	Conf_NoDNS = false;
+	Conf_NoIdent = false;
 
 	Conf_Oper_Count = 0;
 	Conf_Channel_Count = 0;
 
 	Conf_OperCanMode = false;
-	Conf_NoDNS = false;
-	Conf_NoIdent = false;
-	Conf_PredefChannelsOnly = false;
 	Conf_OperServerMode = false;
+	Conf_AllowRemoteOper = false;
+	Conf_PredefChannelsOnly = false;
 
 	Conf_ConnectIPv4 = true;
 	Conf_ConnectIPv6 = true;
@@ -562,7 +566,10 @@ Set_Defaults( bool InitServers )
 	Conf_MaxNickLength = CLIENT_NICK_LEN_DEFAULT;
 
 	/* Initialize server configuration structures */
-	if( InitServers ) for( i = 0; i < MAX_SERVERS; Init_Server_Struct( &Conf_Server[i++] ));
+	if (InitServers) {
+		for (i = 0; i < MAX_SERVERS;
+		     Init_Server_Struct(&Conf_Server[i++]));
+	}
 } /* Set_Defaults */
 
 
@@ -972,6 +979,11 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 	if( strcasecmp( Var, "OperServerMode" ) == 0 ) {
 		/* Mask IRC operator as if coming from the server? (ircd-irc2 compat hack) */
 		Conf_OperServerMode = Check_ArgIsTrue( Arg );
+		return;
+	}
+	if(strcasecmp(Var, "AllowRemoteOper") == 0) {
+		/* Are remote IRC operators allowed to control this server? */
+		Conf_AllowRemoteOper = Check_ArgIsTrue(Arg);
 		return;
 	}
 	if( strcasecmp( Var, "MaxConnections" ) == 0 ) {

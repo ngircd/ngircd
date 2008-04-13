@@ -140,6 +140,14 @@ GLOBAL bool Conf_PredefChannelsOnly;
 /* Are IRC operators allowed to always use MODE? */
 GLOBAL bool Conf_OperCanMode;
 
+/* If an IRC op gives chanop privileges without being a chanop,
+ * ircd2 will ignore the command. This enables a workaround:
+ * It masks the command as coming from the server */
+GLOBAL bool Conf_OperServerMode;
+
+/* Are remote IRC operators allowed to manage this server? */
+GLOBAL bool Conf_AllowRemoteOper;
+
 /* Disable all DNS functions? */
 GLOBAL bool Conf_NoDNS;
 
@@ -154,11 +162,6 @@ GLOBAL bool Conf_ConnectIPv6;
 
 /* same as above, but for ipv4 hosts, default: yes  */
 GLOBAL bool Conf_ConnectIPv4;
-
-/* If an IRC op gives chanop privileges without being a chanop,
- * ircd2 will ignore the command. This enables a workaround:
- * It masks the command as coming from the server */
-GLOBAL bool Conf_OperServerMode;
 
 /* Maximum number of connections to this server */
 GLOBAL long Conf_MaxConnections;

@@ -179,6 +179,11 @@ If \fBOperCanUseMode\fR is enabled, this may lead the compatibility problems wit
 Servers that run the ircd-irc2 Software. This Option "masks" mode requests
 by non-chanops as if they were coming from the server. Default: no.
 .TP
+\fBAllowRemoteOper\fR
+Are IRC operators connected to remote servers allowed to control this server,
+e. g. are they allowed to use administrative commands like CONNECT, DIE,
+SQUIT, ... that affect this server? Default: no.
+.TP
 \fBPredefChannelsOnly\fR
 If enabled, no new channels can be created. Useful if
 you do not want to have channels other than those defined in

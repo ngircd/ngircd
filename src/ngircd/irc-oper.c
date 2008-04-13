@@ -50,6 +50,35 @@ Bad_OperPass(CLIENT *Client, char *errtoken, char *errmsg)
 } /* Bad_OperPass */
 
 
+/**
+ * Check that the client is an IRC operator allowed to administer this server.
+ */
+static bool
+Check_Oper(CLIENT * Client)
+{
+	if (!Client_HasMode(Client, 'o'))
+		return false;
+	if (!Client_OperByMe(Client) && !Conf_AllowRemoteOper)
+		return false;
+	/* The client is an local IRC operator, or this server is configured
+	 * to trust remote operators. */
+	return true;
+} /* CheckOper */
+
+
+/**
+ * Return and log a "no privileges" message.
+ */
+static bool
+No_Privileges(CLIENT * Client, REQUEST * Req)
+{
+	Log(LOG_NOTICE, "No privileges: client \"%s\", command \"%s\"",
+	    Client_Mask(Client), Req->command);
+	return IRC_WriteStrClient(Client, ERR_NOPRIVILEGES_MSG,
+				  Client_ID(Client));
+} /* PermissionDenied */
+
+
 GLOBAL bool
 IRC_OPER( CLIENT *Client, REQUEST *Req )
 {
@@ -98,10 +127,8 @@ IRC_DIE(CLIENT * Client, REQUEST * Req)
 	assert(Client != NULL);
 	assert(Req != NULL);
 
-	/* Not a local IRC operator? */
-	if ((!Client_HasMode(Client, 'o')) || (!Client_OperByMe(Client)))
-		return IRC_WriteStrClient(Client, ERR_NOPRIVILEGES_MSG,
-					  Client_ID(Client));
+	if (!Check_Oper(Client))
+		return No_Privileges(Client, Req);
 
 	/* Bad number of parameters? */
 #ifdef STRICT_RFC
@@ -140,8 +167,8 @@ IRC_REHASH( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	/* Not a local IRC operator? */
-	if(( ! Client_HasMode( Client, 'o' )) || ( ! Client_OperByMe( Client ))) return IRC_WriteStrClient( Client, ERR_NOPRIVILEGES_MSG, Client_ID( Client ));
+	if (!Check_Oper(Client))
+		return No_Privileges(Client, Req);
 
 	/* Bad number of parameters? */
 	if( Req->argc != 0 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
@@ -161,8 +188,8 @@ IRC_RESTART( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	/* Not a local IRC operator? */
-	if(( ! Client_HasMode( Client, 'o' )) || ( ! Client_OperByMe( Client ))) return IRC_WriteStrClient( Client, ERR_NOPRIVILEGES_MSG, Client_ID( Client ));
+	if (!Check_Oper(Client))
+		return No_Privileges(Client, Req);
 
 	/* Bad number of parameters? */
 	if( Req->argc != 0 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
@@ -183,10 +210,8 @@ IRC_CONNECT(CLIENT * Client, REQUEST * Req)
 	assert(Client != NULL);
 	assert(Req != NULL);
 
-	/* Not a local IRC operator? */
-	if ((!Client_HasMode(Client, 'o')) || (!Client_OperByMe(Client)))
-		return IRC_WriteStrClient(Client, ERR_NOPRIVILEGES_MSG,
-					  Client_ID(Client));
+	if (!Check_Oper(Client))
+		return No_Privileges(Client, Req);
 
 	/* Bad number of parameters? */
 	if ((Req->argc != 1) && (Req->argc != 2) && (Req->argc != 5))
@@ -241,8 +266,8 @@ IRC_DISCONNECT(CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	/* Not a local IRC operator? */
-	if(( ! Client_HasMode( Client, 'o' )) || ( ! Client_OperByMe( Client ))) return IRC_WriteStrClient( Client, ERR_NOPRIVILEGES_MSG, Client_ID( Client ));
+	if (!Check_Oper(Client))
+		return No_Privileges(Client, Req);
 
 	/* Bad number of parameters? */
 	if( Req->argc != 1 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );

@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2008 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -256,34 +256,43 @@ IRC_CONNECT(CLIENT * Client, REQUEST * Req)
 } /* IRC_CONNECT */
 
 
+/**
+ * Disconnect (and disable) configured server.
+ */
 GLOBAL bool
-IRC_DISCONNECT(CLIENT *Client, REQUEST *Req )
+IRC_DISCONNECT(CLIENT * Client, REQUEST * Req)
 {
-	/* Disconnect and disable configured server */
-
 	CONN_ID my_conn;
 
-	assert( Client != NULL );
-	assert( Req != NULL );
+	assert(Client != NULL);
+	assert(Req != NULL);
 
 	if (!Check_Oper(Client))
 		return No_Privileges(Client, Req);
 
 	/* Bad number of parameters? */
-	if( Req->argc != 1 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	if (Req->argc != 1)
+		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+					  Client_ID(Client), Req->command);
 
-	Log( LOG_NOTICE|LOG_snotice, "Got DISCONNECT command from \"%s\" for0 \"%s\".", Client_Mask( Client ), Req->argv[0]);
+	Log(LOG_NOTICE | LOG_snotice,
+	    "Got DISCONNECT command from \"%s\" for \"%s\".",
+	    Client_Mask(Client), Req->argv[0]);
 
 	/* Save ID of this connection */
-	my_conn = Client_Conn( Client );
+	my_conn = Client_Conn(Client);
 
-	/* Connect configured server */
-	if( ! Conf_DisableServer( Req->argv[0] )) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->argv[0] );
+	/* Disconnect configured server */
+	if (!Conf_DisableServer(Req->argv[0]))
+		return IRC_WriteStrClient(Client, ERR_NOSUCHSERVER_MSG,
+					  Client_ID(Client), Req->argv[0]);
 
 	/* Are we still connected or were we killed, too? */
-	if( Conn_GetClient( my_conn )) return CONNECTED;
-	else return DISCONNECTED;
-} /* IRC_CONNECT */
+	if (Conn_GetClient(my_conn))
+		return CONNECTED;
+	else
+		return DISCONNECTED;
+} /* IRC_DISCONNECT */
 
 
 GLOBAL bool

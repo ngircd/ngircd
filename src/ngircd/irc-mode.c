@@ -41,13 +41,12 @@ static char UNUSED id[] = "$Id: irc-mode.c,v 1.52 2008/02/24 18:44:41 fw Exp $";
 static bool Client_Mode PARAMS(( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target ));
 static bool Channel_Mode PARAMS(( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel ));
 
-static bool Add_Invite PARAMS(( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Pattern ));
-static bool Add_Ban PARAMS(( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Pattern ));
+static bool Add_Ban_Invite PARAMS((int what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Pattern ));
 
 static bool Del_Invite PARAMS(( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Pattern ));
 static bool Del_Ban PARAMS(( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Pattern ));
 
-static bool Send_ListChange PARAMS(( char *Mode, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Mask ));
+static bool Send_ListChange PARAMS(( char *Mode, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, const char *Mask ));
 
 
 GLOBAL bool
@@ -493,7 +492,7 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 					/* modify list */
 					if( modeok )
 					{
-						if( set ) Add_Invite( Origin, Client, Channel, Req->argv[arg_arg] );
+						if( set ) Add_Ban_Invite(*mode_ptr, Origin, Client, Channel, Req->argv[arg_arg] );
 						else Del_Invite( Origin, Client, Channel, Req->argv[arg_arg] );
 					}
 					else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
@@ -509,7 +508,7 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 					/* modify list */
 					if( modeok )
 					{
-						if( set ) Add_Ban( Origin, Client, Channel, Req->argv[arg_arg] );
+						if( set ) Add_Ban_Invite(*mode_ptr, Origin, Client, Channel, Req->argv[arg_arg] );
 						else Del_Ban( Origin, Client, Channel, Req->argv[arg_arg] );
 					}
 					else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
@@ -649,51 +648,35 @@ IRC_AWAY( CLIENT *Client, REQUEST *Req )
 
 
 static bool
-Add_Invite( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Pattern )
+Add_Ban_Invite(int what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Pattern )
 {
-	char *mask;
+	const char *mask;
 	bool already;
+	bool ret;
 
 	assert( Client != NULL );
 	assert( Channel != NULL );
 	assert( Pattern != NULL );
+	assert(what == 'I' || what == 'b');
 
-	mask = Lists_MakeMask( Pattern );
+	mask = Lists_MakeMask(Pattern);
 
-	already = Lists_CheckDupeMask(Channel_GetListInvites(Channel), mask );
+	already = Lists_CheckDupeMask(Channel_GetListInvites(Channel), mask);
 	if (!already) {
-		if( ! Channel_AddInvite(Channel, mask, false ))
+		if (what == 'I')
+			ret = Channel_AddInvite(Channel, mask, false);
+		else
+			ret = Channel_AddBan(Channel, mask);
+		if (!ret)
 			return CONNECTED;
 	}
-	if ( already && ( Client_Type( Prefix ) == CLIENT_SERVER ))
+	if (already && (Client_Type(Prefix) == CLIENT_SERVER))
 		return CONNECTED;
 
-	return Send_ListChange( "+I", Prefix, Client, Channel, mask );
-} /* Add_Invite */
-
-
-static bool
-Add_Ban( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Pattern )
-{
-	char *mask;
-	bool already;
-
-	assert( Client != NULL );
-	assert( Channel != NULL );
-	assert( Pattern != NULL );
-
-	mask = Lists_MakeMask( Pattern );
-
-	already = Lists_CheckDupeMask(Channel_GetListBans(Channel), mask );
-	if (!already) {
-		if( ! Channel_AddBan(Channel, mask))
-			return CONNECTED;
-	}
-	if ( already && ( Client_Type( Prefix ) == CLIENT_SERVER ))
-		return CONNECTED;
-
-	return Send_ListChange( "+b", Prefix, Client, Channel, mask );
-} /* Add_Ban */
+	if (what == 'I')
+		return Send_ListChange("+I", Prefix, Client, Channel, mask);
+	return Send_ListChange("+b", Prefix, Client, Channel, mask);
+}
 
 
 static bool
@@ -727,7 +710,7 @@ Del_Ban( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Pattern )
 
 
 static bool
-Send_ListChange( char *Mode, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Mask )
+Send_ListChange( char *Mode, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, const char *Mask )
 {
 	/* Bestaetigung an Client schicken & andere Server sowie Channel-User informieren */
 

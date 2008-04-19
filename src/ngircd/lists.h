@@ -8,8 +8,6 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: lists.h,v 1.13 2006/12/07 17:57:20 fw Exp $
- *
  * Management of IRC lists: ban, invite, ... (header)
  */
 
@@ -39,7 +37,7 @@ GLOBAL bool Lists_AlreadyRegistered PARAMS(( const struct list_head *head, const
 
 GLOBAL void Lists_Free PARAMS(( struct list_head *head ));
 
-GLOBAL char *Lists_MakeMask PARAMS(( char *Pattern ));
+GLOBAL const char *Lists_MakeMask PARAMS((const char *Pattern));
 GLOBAL const char *Lists_GetMask PARAMS(( const struct list_elem *e ));
 
 #endif

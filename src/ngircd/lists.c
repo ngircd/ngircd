@@ -14,8 +14,6 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: lists.c,v 1.21 2007/01/29 21:13:26 fw Exp $";
-
 #include "imp.h"
 #include <assert.h>
 
@@ -162,8 +160,8 @@ Lists_CheckDupeMask(const struct list_head *h, const char *Mask )
 }
 
 
-GLOBAL char *
-Lists_MakeMask( char *Pattern )
+GLOBAL const char *
+Lists_MakeMask(const char *Pattern)
 {
 	/* This function generats a valid IRC mask of "any" string. This
 	 * mask is only valid until the next call to Lists_MakeMask(),

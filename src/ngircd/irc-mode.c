@@ -517,10 +517,9 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 			continue;
 		}
 
-		if (set) {
-			/* Set mode */
-			if (client) {
-				/* Channel-User-Mode */
+		if (client) {
+			/* Channel-User-Mode */
+			if (set) {
 				if (Channel_UserModeAdd(Channel, client, x[0])) {
 					strlcat(the_args, " ", sizeof(the_args));
 					strlcat(the_args, Client_ID(client), sizeof(the_args));
@@ -529,22 +528,20 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 						Client_Mask(client), Channel_Name(Channel), Channel_UserModes(Channel, client));
 				}
 			} else {
-				/* Channel-Mode */
-				if (Channel_ModeAdd( Channel, x[0])) {
-					strlcat(the_modes, x, sizeof(the_modes));
-					Log(LOG_DEBUG, "Channel %s: Mode change, now \"%s\".", Channel_Name(Channel), Channel_Modes(Channel));
-				}
-			}
-		} else {
-			/* Unset mode */
-			if (client) {
-				/* Channel-User-Mode */
 				if (Channel_UserModeDel(Channel, client, x[0])) {
 					strlcat(the_args, " ", sizeof(the_args));
 					strlcat(the_args, Client_ID(client), sizeof(the_args));
 					strlcat(the_modes, x, sizeof(the_modes));
 					Log(LOG_DEBUG, "User \"%s\": Mode change on %s, now \"%s\"",
 						Client_Mask(client), Channel_Name(Channel), Channel_UserModes(Channel, client));
+				}
+			}
+		} else {
+			/* Channel-Mode */
+			if (set) {
+				if (Channel_ModeAdd( Channel, x[0])) {
+					strlcat(the_modes, x, sizeof(the_modes));
+					Log(LOG_DEBUG, "Channel %s: Mode change, now \"%s\".", Channel_Name(Channel), Channel_Modes(Channel));
 				}
 			} else {
 				/* Channel-Mode */

@@ -280,7 +280,7 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 	/* Handle channel and channel-user modes */
 
 	char the_modes[COMMAND_LEN], the_args[COMMAND_LEN], x[2], argadd[CLIENT_PASS_LEN], *mode_ptr;
-	bool ok, set, modeok = true, skiponce, use_servermode = false;
+	bool ok, set, modeok = true, skiponce, use_servermode = false, retval;
 	int mode_arg, arg_arg;
 	CLIENT *client;
 	long l;
@@ -519,37 +519,20 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 
 		if (client) {
 			/* Channel-User-Mode */
-			if (set) {
-				if (Channel_UserModeAdd(Channel, client, x[0])) {
-					strlcat(the_args, " ", sizeof(the_args));
-					strlcat(the_args, Client_ID(client), sizeof(the_args));
-					strlcat(the_modes, x, sizeof(the_modes));
-					Log(LOG_DEBUG, "User \"%s\": Mode change on %s, now \"%s\"",
-						Client_Mask(client), Channel_Name(Channel), Channel_UserModes(Channel, client));
-				}
-			} else {
-				if (Channel_UserModeDel(Channel, client, x[0])) {
-					strlcat(the_args, " ", sizeof(the_args));
-					strlcat(the_args, Client_ID(client), sizeof(the_args));
-					strlcat(the_modes, x, sizeof(the_modes));
-					Log(LOG_DEBUG, "User \"%s\": Mode change on %s, now \"%s\"",
-						Client_Mask(client), Channel_Name(Channel), Channel_UserModes(Channel, client));
-				}
+			retval = set ? Channel_UserModeAdd(Channel, client, x[0]) : Channel_UserModeDel(Channel, client, x[0]);
+			if (retval) {
+				strlcat(the_args, " ", sizeof(the_args));
+				strlcat(the_args, Client_ID(client), sizeof(the_args));
+				strlcat(the_modes, x, sizeof(the_modes));
+				Log(LOG_DEBUG, "User \"%s\": Mode change on %s, now \"%s\"",
+					Client_Mask(client), Channel_Name(Channel), Channel_UserModes(Channel, client));
 			}
 		} else {
 			/* Channel-Mode */
-			if (set) {
-				if (Channel_ModeAdd( Channel, x[0])) {
-					strlcat(the_modes, x, sizeof(the_modes));
-					Log(LOG_DEBUG, "Channel %s: Mode change, now \"%s\".", Channel_Name(Channel), Channel_Modes(Channel));
-				}
-			} else {
-				/* Channel-Mode */
-				if (Channel_ModeDel(Channel, x[0])) {
-					strlcat(the_modes, x, sizeof(the_modes));
-					Log(LOG_DEBUG, "Channel %s: Mode change, now \"%s\".",
-						Channel_Name(Channel), Channel_Modes(Channel));
-				}
+			retval = set ? Channel_ModeAdd(Channel, x[0]) : Channel_ModeDel(Channel, x[0]);
+			if (retval) {
+				strlcat(the_modes, x, sizeof(the_modes));
+				Log(LOG_DEBUG, "Channel %s: Mode change, now \"%s\".", Channel_Name(Channel), Channel_Modes(Channel));
 			}
 		}
 

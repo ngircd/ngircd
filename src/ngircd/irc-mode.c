@@ -14,8 +14,6 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-mode.c,v 1.52 2008/02/24 18:44:41 fw Exp $";
-
 #include "imp.h"
 #include <assert.h>
 #include <stdio.h>
@@ -41,10 +39,8 @@ static char UNUSED id[] = "$Id: irc-mode.c,v 1.52 2008/02/24 18:44:41 fw Exp $";
 static bool Client_Mode PARAMS(( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target ));
 static bool Channel_Mode PARAMS(( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel ));
 
-static bool Add_Ban_Invite PARAMS((int what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Pattern ));
-
-static bool Del_Invite PARAMS(( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Pattern ));
-static bool Del_Ban PARAMS(( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Pattern ));
+static bool Add_Ban_Invite PARAMS((int what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, const char *Pattern));
+static bool Del_Ban_Invite PARAMS((int what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, const char *Pattern));
 
 static bool Send_ListChange PARAMS(( char *Mode, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, const char *Mask ));
 
@@ -493,7 +489,7 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 					if( modeok )
 					{
 						if( set ) Add_Ban_Invite(*mode_ptr, Origin, Client, Channel, Req->argv[arg_arg] );
-						else Del_Invite( Origin, Client, Channel, Req->argv[arg_arg] );
+						else Del_Ban_Invite(*mode_ptr, Origin, Client, Channel, Req->argv[arg_arg] );
 					}
 					else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
 					Req->argv[arg_arg][0] = '\0';
@@ -508,8 +504,8 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 					/* modify list */
 					if( modeok )
 					{
-						if( set ) Add_Ban_Invite(*mode_ptr, Origin, Client, Channel, Req->argv[arg_arg] );
-						else Del_Ban( Origin, Client, Channel, Req->argv[arg_arg] );
+						if( set ) Add_Ban_Invite(*mode_ptr, Origin, Client, Channel, Req->argv[arg_arg]);
+						else Del_Ban_Invite(*mode_ptr, Origin, Client, Channel, Req->argv[arg_arg]);
 					}
 					else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
 					Req->argv[arg_arg][0] = '\0';
@@ -648,7 +644,7 @@ IRC_AWAY( CLIENT *Client, REQUEST *Req )
 
 
 static bool
-Add_Ban_Invite(int what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Pattern )
+Add_Ban_Invite(int what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, const char *Pattern)
 {
 	const char *mask;
 	bool already;
@@ -680,33 +676,28 @@ Add_Ban_Invite(int what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char 
 
 
 static bool
-Del_Invite( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Pattern )
+Del_Ban_Invite(int what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, const char *Pattern)
 {
-	char *mask;
+	const char *mask;
+	struct list_head *list;
 
 	assert( Client != NULL );
 	assert( Channel != NULL );
 	assert( Pattern != NULL );
+	assert(what == 'I' || what == 'b');
 
 	mask = Lists_MakeMask( Pattern );
-	Lists_Del(Channel_GetListInvites(Channel), mask);
-	return Send_ListChange( "-I", Prefix, Client, Channel, mask );
-} /* Del_Invite */
 
+	if (what == 'I')
+		list = Channel_GetListInvites(Channel);
+	else
+		list = Channel_GetListBans(Channel);
 
-static bool
-Del_Ban( CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, char *Pattern )
-{
-	char *mask;
-
-	assert( Client != NULL );
-	assert( Channel != NULL );
-	assert( Pattern != NULL );
-
-	mask = Lists_MakeMask( Pattern );
-	Lists_Del(Channel_GetListBans(Channel), mask);
+	Lists_Del(list, mask);
+	if (what == 'I')
+		return Send_ListChange( "-I", Prefix, Client, Channel, mask );
 	return Send_ListChange( "-b", Prefix, Client, Channel, mask );
-} /* Del_Ban */
+}
 
 
 static bool

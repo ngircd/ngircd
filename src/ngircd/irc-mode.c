@@ -481,39 +481,28 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 				break;
 
 			/* --- Channel lists --- */
-
 			case 'I': /* Invite lists */
-				if( arg_arg > mode_arg )
-				{
-					/* modify list */
-					if( modeok )
-					{
-						if( set ) Add_Ban_Invite(*mode_ptr, Origin, Client, Channel, Req->argv[arg_arg] );
-						else Del_Ban_Invite(*mode_ptr, Origin, Client, Channel, Req->argv[arg_arg] );
-					}
-					else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
-					Req->argv[arg_arg][0] = '\0';
-					arg_arg++;
-				}
-				else Channel_ShowInvites( Origin, Channel );
-				break;
-
 			case 'b': /* Ban lists */
-				if( arg_arg > mode_arg )
-				{
+				if (arg_arg > mode_arg) {
 					/* modify list */
-					if( modeok )
-					{
-						if( set ) Add_Ban_Invite(*mode_ptr, Origin, Client, Channel, Req->argv[arg_arg]);
-						else Del_Ban_Invite(*mode_ptr, Origin, Client, Channel, Req->argv[arg_arg]);
+					if (modeok) {
+						if (set)
+							Add_Ban_Invite(*mode_ptr, Origin, Client, Channel, Req->argv[arg_arg]);
+						else
+							Del_Ban_Invite(*mode_ptr, Origin, Client, Channel, Req->argv[arg_arg]);
+					} else {
+						ok = IRC_WriteStrClient(Origin, ERR_CHANOPRIVSNEEDED_MSG,
+								Client_ID(Origin), Channel_Name(Channel));
 					}
-					else ok = IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Channel_Name( Channel ));
 					Req->argv[arg_arg][0] = '\0';
 					arg_arg++;
+				} else {
+					if (*mode_ptr == 'I')
+						Channel_ShowInvites(Origin, Channel);
+					else
+						Channel_ShowBans(Origin, Channel);
 				}
-				else Channel_ShowBans( Origin, Channel );
 				break;
-
 			default:
 				Log( LOG_DEBUG, "Unknown mode \"%c%c\" from \"%s\" on %s!?", set ? '+' : '-', *mode_ptr, Client_ID( Origin ), Channel_Name( Channel ));
 				if( Client_Type( Client ) != CLIENT_SERVER ) ok = IRC_WriteStrClient( Origin, ERR_UMODEUNKNOWNFLAG2_MSG, Client_ID( Origin ), set ? '+' : '-', *mode_ptr );

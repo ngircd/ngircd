@@ -486,10 +486,8 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 				if (arg_arg > mode_arg) {
 					/* modify list */
 					if (modeok) {
-						if (set)
-							Add_Ban_Invite(*mode_ptr, Origin, Client, Channel, Req->argv[arg_arg]);
-						else
-							Del_Ban_Invite(*mode_ptr, Origin, Client, Channel, Req->argv[arg_arg]);
+						ok = set ? Add_Ban_Invite(*mode_ptr, Origin, Client, Channel, Req->argv[arg_arg])
+							 : Del_Ban_Invite(*mode_ptr, Origin, Client, Channel, Req->argv[arg_arg]);
 					} else {
 						ok = IRC_WriteStrClient(Origin, ERR_CHANOPRIVSNEEDED_MSG,
 								Client_ID(Origin), Channel_Name(Channel));

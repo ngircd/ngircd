@@ -22,6 +22,9 @@ maintainer-clean-local:
 	rm -f mkinstalldirs missing depcomp install-sh
 	rm -f config.log debian
 
+testsuite:
+	make -C src/testsuite check
+
 lint:
 	make -C src/ngircd lint
 

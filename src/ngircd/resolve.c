@@ -45,6 +45,10 @@ static void Do_ResolveAddr PARAMS(( const ng_ipaddr_t *Addr, int Sock, int w_fd 
 static void Do_ResolveName PARAMS(( const char *Host, int w_fd ));
 static bool register_callback PARAMS((RES_STAT *s, void (*cbfunc)(int, short)));
 
+#ifdef WANT_IPV6
+extern bool Conf_ConnectIPv4;
+extern bool Conf_ConnectIPv6;
+#endif
 
 static pid_t
 Resolver_fork(int *pipefds)
@@ -270,7 +274,7 @@ ForwardLookup(const char *hostname, array *IpAddr)
 #ifdef HAVE_GETADDRINFO
 	int res;
 	struct addrinfo *a, *ai_results;
-	static const struct addrinfo hints = {
+	static struct addrinfo hints = {
 #ifndef WANT_IPV6
 		.ai_family = AF_INET,
 #endif
@@ -280,6 +284,14 @@ ForwardLookup(const char *hostname, array *IpAddr)
 		.ai_socktype = SOCK_STREAM,
 		.ai_protocol = IPPROTO_TCP
 	};
+#ifdef WANT_IPV6
+	assert(Conf_ConnectIPv6 || Conf_ConnectIPv4);
+
+	if (!Conf_ConnectIPv6)
+		hints.ai_family = AF_INET;
+	if (!Conf_ConnectIPv4)
+		hints.ai_family = AF_INET6;
+#endif
 	res = getaddrinfo(hostname, NULL, &hints, &ai_results);
 	switch (res) {
 	case 0:	break;

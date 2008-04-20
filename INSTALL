@@ -51,9 +51,9 @@ on modern UNIX-like systems that are supported by GNU autoconf and GNU
 automake ("configure") should be no problem.
 
 The normal installation procedure after getting (and expanding) the source
-files (using a distribution archive or CVS) is as following:
+files (using a distribution archive or GIT) is as following:
 
-  1) ./autogen.sh	[only necessary when using CVS]
+  1) ./autogen.sh	[only necessary when using GIT]
   2) ./configure
   3) make
   4) make install
@@ -77,7 +77,7 @@ doc/ directory: sample-ngircd.conf.
 
 The first step, autogen.sh, is only necessary if the configure-script isn't
 already generated. This never happens in official ("stable") releases in
-tar.gz-archives, but when using CVS.
+tar.gz-archives, but when using GIT.
 
 This step is therefore only interesting for developers.
 
@@ -244,7 +244,3 @@ These parameters could be passed to the ngIRCd:
 Use "--help" to see a short help text describing all available parameters
 the server understands, with "--version" the ngIRCd shows its version
 number. In both cases the server exits after the output.
-
-
--- 
-$Id: INSTALL,v 1.26 2007/04/08 11:39:08 alex Exp $

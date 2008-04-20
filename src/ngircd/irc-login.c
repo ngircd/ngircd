@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2008 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,8 +13,6 @@
 
 
 #include "portab.h"
-
-static char UNUSED id[] = "$Id: irc-login.c,v 1.55 2008/02/05 11:46:55 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -35,7 +33,6 @@ static char UNUSED id[] = "$Id: irc-login.c,v 1.55 2008/02/05 11:46:55 fw Exp $"
 #include "irc.h"
 #include "irc-info.h"
 #include "irc-write.h"
-#include "cvs-version.h"
 
 #include "exp.h"
 #include "irc-login.h"
@@ -507,7 +504,7 @@ IRC_PING(CLIENT *Client, REQUEST *Req)
 		Client_ID(from), Client_ID(Client));
 #else
 	/* Some clients depend on the argument being returned in the PONG
-         * reply (not mentioned in any RFC, though) */
+	 * reply (not mentioned in any RFC, though) */
 	return IRC_WriteStrClient(Client, "PONG %s :%s",
 		Client_ID(from), Req->argv[0]);
 #endif
@@ -573,61 +570,60 @@ IRC_PONG(CLIENT *Client, REQUEST *Req)
 
 
 static bool
-Hello_User( CLIENT *Client )
+Hello_User(CLIENT * Client)
 {
-#ifdef CVSDATE
-	char ver[12], vertxt[30];
-#endif
-
-	assert( Client != NULL );
+	assert(Client != NULL);
 
 	/* Check password ... */
-	if( strcmp( Client_Password( Client ), Conf_ServerPwd ) != 0 )
-	{
+	if (strcmp(Client_Password(Client), Conf_ServerPwd) != 0) {
 		/* Bad password! */
-		Log( LOG_ERR, "User \"%s\" rejected (connection %d): Bad password!", Client_Mask( Client ), Client_Conn( Client ));
-		Conn_Close( Client_Conn( Client ), NULL, "Bad password", true);
+		Log(LOG_ERR,
+		    "User \"%s\" rejected (connection %d): Bad password!",
+		    Client_Mask(Client), Client_Conn(Client));
+		Conn_Close(Client_Conn(Client), NULL, "Bad password", true);
 		return DISCONNECTED;
 	}
 
-	Log( LOG_NOTICE, "User \"%s\" registered (connection %d).", Client_Mask( Client ), Client_Conn( Client ));
+	Log(LOG_NOTICE, "User \"%s\" registered (connection %d).",
+	    Client_Mask(Client), Client_Conn(Client));
 
 	/* Inform other servers */
-	IRC_WriteStrServers( NULL, "NICK %s 1 %s %s 1 +%s :%s", Client_ID( Client ), Client_User( Client ), Client_Hostname( Client ), Client_Modes( Client ), Client_Info( Client ));
+	IRC_WriteStrServers(NULL, "NICK %s 1 %s %s 1 +%s :%s",
+			    Client_ID(Client), Client_User(Client),
+			    Client_Hostname(Client), Client_Modes(Client),
+			    Client_Info(Client));
 
-	/* Welcome :-) */
-	if( ! IRC_WriteStrClient( Client, RPL_WELCOME_MSG, Client_ID( Client ), Client_Mask( Client ))) return false;
-
-	/* Version and system type */
-#ifdef CVSDATE
-	strlcpy( ver, CVSDATE, sizeof( ver ));
-	memmove( ver + 4, ver + 5, 2 );
-	memmove( ver + 6, ver + 8, 3 );
-	snprintf( vertxt, sizeof( vertxt ), "%s(%s)", PACKAGE_VERSION, ver );
-	if( ! IRC_WriteStrClient( Client, RPL_YOURHOST_MSG, Client_ID( Client ), Client_ID( Client_ThisServer( )), vertxt, TARGET_CPU, TARGET_VENDOR, TARGET_OS )) return false;
-#else
-	if( ! IRC_WriteStrClient( Client, RPL_YOURHOST_MSG, Client_ID( Client ), Client_ID( Client_ThisServer( )), PACKAGE_VERSION, TARGET_CPU, TARGET_VENDOR, TARGET_OS )) return false;
-#endif
-
-	if( ! IRC_WriteStrClient( Client, RPL_CREATED_MSG, Client_ID( Client ), NGIRCd_StartStr )) return false;
-#ifdef CVSDATE
-	if( ! IRC_WriteStrClient( Client, RPL_MYINFO_MSG, Client_ID( Client ), Client_ID( Client_ThisServer( )), vertxt, USERMODES, CHANMODES )) return false;	
-#else
-	if( ! IRC_WriteStrClient( Client, RPL_MYINFO_MSG, Client_ID( Client ), Client_ID( Client_ThisServer( )), PACKAGE_VERSION, USERMODES, CHANMODES )) return false;
-#endif
+	if (!IRC_WriteStrClient
+	    (Client, RPL_WELCOME_MSG, Client_ID(Client), Client_Mask(Client)))
+		return false;
+	if (!IRC_WriteStrClient
+	    (Client, RPL_YOURHOST_MSG, Client_ID(Client),
+	     Client_ID(Client_ThisServer()), PACKAGE_VERSION, TARGET_CPU,
+	     TARGET_VENDOR, TARGET_OS))
+		return false;
+	if (!IRC_WriteStrClient
+	    (Client, RPL_CREATED_MSG, Client_ID(Client), NGIRCd_StartStr))
+		return false;
+	if (!IRC_WriteStrClient
+	    (Client, RPL_MYINFO_MSG, Client_ID(Client),
+	     Client_ID(Client_ThisServer()), PACKAGE_VERSION, USERMODES,
+	     CHANMODES))
+		return false;
 
 	/* Features supported by this server (005 numeric, ISUPPORT),
 	 * see <http://www.irc.org/tech_docs/005.html> for details. */
-	if (! IRC_Send_ISUPPORT(Client))
+	if (!IRC_Send_ISUPPORT(Client))
 		return DISCONNECTED;
 
-	Client_SetType( Client, CLIENT_USER );
+	Client_SetType(Client, CLIENT_USER);
 
-	if( ! IRC_Send_LUSERS( Client )) return DISCONNECTED;
-	if( ! IRC_Show_MOTD( Client )) return DISCONNECTED;
+	if (!IRC_Send_LUSERS(Client))
+		return DISCONNECTED;
+	if (!IRC_Show_MOTD(Client))
+		return DISCONNECTED;
 
 	/* Suspend the client for a second ... */
-	IRC_SetPenalty( Client, 1 );
+	IRC_SetPenalty(Client, 1);
 
 	return CONNECTED;
 } /* Hello_User */

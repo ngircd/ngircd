@@ -40,7 +40,6 @@
 #include "client.h"
 #include "channel.h"
 #include "conf.h"
-#include "cvs-version.h"
 #include "lists.h"
 #include "log.h"
 #include "parse.h"
@@ -410,12 +409,9 @@ Fill_Version( void )
 	strlcat( NGIRCd_VersionAddition, "/", sizeof( NGIRCd_VersionAddition ));
 	strlcat( NGIRCd_VersionAddition, TARGET_OS, sizeof( NGIRCd_VersionAddition ));
 
-#ifdef CVSDATE
-	snprintf( NGIRCd_Version, sizeof NGIRCd_Version,"%s %s(%s)-%s", PACKAGE_NAME, PACKAGE_VERSION, CVSDATE, NGIRCd_VersionAddition);
-#else
-	snprintf( NGIRCd_Version, sizeof NGIRCd_Version, "%s %s-%s", PACKAGE_NAME, PACKAGE_VERSION, NGIRCd_VersionAddition);
-#endif
-} /* Fill_Version */
+	snprintf(NGIRCd_Version, sizeof NGIRCd_Version, "%s %s-%s",
+		 PACKAGE_NAME, PACKAGE_VERSION, NGIRCd_VersionAddition);
+	} /* Fill_Version */
 
 
 /**

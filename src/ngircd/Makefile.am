@@ -36,7 +36,7 @@ noinst_HEADERS = ngircd.h array.h channel.h client.h conf.h conn.h conn-func.h \
 	defines.h messages.h
 
 clean-local:
-	rm -f check-version check-help lint.out cvs-version.*
+	rm -f check-version check-help lint.out
 
 maintainer-clean-local:
 	rm -f Makefile Makefile.in
@@ -76,23 +76,6 @@ lint:
 	 && echo "Result: $$warnings warning(s) in $$files file(s)!" \
 	 || echo "Result: no warnings found."; \
 	echo; [ $$warnings -gt 0 ] && exit 1
-
-ngircd.c: cvs-version.h
-
-irc-login.c: cvs-version.h
-
-irc-info.c: cvs-version.h
-
-cvs-version.h: cvs-date
-
-cvs-date:
-	grep VERSION ../config.h | grep "CVS" \
-	 && echo "#define CVSDATE \"$$( grep "\$$Id" $(srcdir)/*.c \
-	    | $(AWK) "{ print \$$9 }" | sort | tail -1 \
-	    | sed -e "s/\//-/g" )\"" > cvs-version.new \
-	 || echo "" > cvs-version.new
-	diff cvs-version.h cvs-version.new 2>/dev/null \
-	 || cp cvs-version.new cvs-version.h
 
 TESTS = check-version check-help
 

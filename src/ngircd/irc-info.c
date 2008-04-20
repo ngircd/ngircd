@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2005 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2008 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-info.c,v 1.44 2008/02/17 13:26:42 alex Exp $";
-
 #include "imp.h"
 #include <assert.h>
 #include <errno.h>
@@ -25,7 +23,6 @@ static char UNUSED id[] = "$Id: irc-info.c,v 1.44 2008/02/17 13:26:42 alex Exp $
 #include <strings.h>
 
 #include "ngircd.h"
-#include "cvs-version.h"
 #include "conn-func.h"
 #include "conn-zip.h"
 #include "client.h"
@@ -640,9 +637,6 @@ GLOBAL bool
 IRC_VERSION( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *target, *prefix;
-#ifdef CVSDATE
-	char ver[12], vertxt[30];
-#endif
 
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -669,19 +663,13 @@ IRC_VERSION( CLIENT *Client, REQUEST *Req )
 		return CONNECTED;
 	}
 
-	/* mit Versionsinfo antworten */
-	IRC_SetPenalty( Client, 1 );
-#ifdef CVSDATE
-	strlcpy( ver, CVSDATE, sizeof( ver ));
-	strncpy( ver + 4, ver + 5, 2 );
-	strncpy( ver + 6, ver + 8, 3 );
-	snprintf( vertxt, sizeof( vertxt ), "%s(%s)", PACKAGE_VERSION, ver );
-	return IRC_WriteStrClient( Client, RPL_VERSION_MSG, Client_ID( prefix ), PACKAGE_NAME, vertxt, NGIRCd_DebugLevel, Conf_ServerName, NGIRCd_VersionAddition );
-#else
-	return IRC_WriteStrClient( Client, RPL_VERSION_MSG, Client_ID( prefix ), PACKAGE_NAME, PACKAGE_VERSION, NGIRCd_DebugLevel, Conf_ServerName, NGIRCd_VersionAddition );
-#endif
+	/* send version information */
+	IRC_SetPenalty(Client, 1);
+	return IRC_WriteStrClient(Client, RPL_VERSION_MSG, Client_ID(prefix),
+				  PACKAGE_NAME, PACKAGE_VERSION,
+				  NGIRCd_DebugLevel, Conf_ServerName,
+				  NGIRCd_VersionAddition);
 } /* IRC_VERSION */
-
 
 
 static bool

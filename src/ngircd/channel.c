@@ -218,8 +218,13 @@ Channel_Part(CLIENT * Client, CLIENT * Origin, const char *Name, const char *Rea
 	assert(Reason != NULL);
 
 	chan = Channel_Search(Name);
-	if ((!chan) || (!Get_Cl2Chan(chan, Client))) {
+	if (!chan) {
 		IRC_WriteStrClient(Client, ERR_NOSUCHCHANNEL_MSG,
+				   Client_ID(Client), Name);
+		return false;
+	}
+	if (!Get_Cl2Chan(chan, Client)) {
+		IRC_WriteStrClient(Client, ERR_NOTONCHANNEL_MSG,
 				   Client_ID(Client), Name);
 		return false;
 	}

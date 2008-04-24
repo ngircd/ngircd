@@ -201,25 +201,38 @@ Channel_Join( CLIENT *Client, char *Name )
 } /* Channel_Join */
 
 
+/**
+ * Remove client from channel.
+ * This function lets a client lead a channel. First, the function checks
+ * if the channel exists and the client is a member of it and sends out
+ * appropriate error messages if not. The real work is done by the function
+ * Remove_Client().
+ */
 GLOBAL bool
-Channel_Part( CLIENT *Client, CLIENT *Origin, const char *Name, const char *Reason )
+Channel_Part(CLIENT * Client, CLIENT * Origin, const char *Name, const char *Reason)
 {
 	CHANNEL *chan;
 
-	assert( Client != NULL );
-	assert( Name != NULL );
-	assert( Reason != NULL );
+	assert(Client != NULL);
+	assert(Name != NULL);
+	assert(Reason != NULL);
 
-	chan = Channel_Search( Name );
-	if(( ! chan ) || ( ! Get_Cl2Chan( chan, Client )))
-	{
-		IRC_WriteStrClient( Client, ERR_NOSUCHCHANNEL_MSG, Client_ID( Client ), Name );
+	chan = Channel_Search(Name);
+	if (!chan) {
+		IRC_WriteStrClient(Client, ERR_NOSUCHCHANNEL_MSG,
+				   Client_ID(Client), Name);
+		return false;
+	}
+	if (!Get_Cl2Chan(chan, Client)) {
+		IRC_WriteStrClient(Client, ERR_NOTONCHANNEL_MSG,
+				   Client_ID(Client), Name);
 		return false;
 	}
 
-	/* User aus Channel entfernen */
-	if( ! Remove_Client( REMOVE_PART, chan, Client, Origin, Reason, true)) return false;
-	else return true;
+	if (!Remove_Client(REMOVE_PART, chan, Client, Origin, Reason, true))
+		return false;
+	else
+		return true;
 } /* Channel_Part */
 
 

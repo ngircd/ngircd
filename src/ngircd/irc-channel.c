@@ -286,29 +286,36 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 } /* IRC_JOIN */
 
 
+/**
+ * Handler for the IRC "PART" command.
+ */
 GLOBAL bool
-IRC_PART( CLIENT *Client, REQUEST *Req )
+IRC_PART(CLIENT * Client, REQUEST * Req)
 {
 	CLIENT *target;
 	char *chan;
 
-	assert( Client != NULL );
-	assert( Req != NULL );
+	assert(Client != NULL);
+	assert(Req != NULL);
 
 	if (Req->argc < 1 || Req->argc > 2)
 		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
-					Client_ID(Client), Req->command);
+					  Client_ID(Client), Req->command);
 
-	/* Wer ist der Absender? */
-	if( Client_Type( Client ) == CLIENT_SERVER ) target = Client_Search( Req->prefix );
-	else target = Client;
-	if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
+	/* Get the sender */
+	if (Client_Type(Client) == CLIENT_SERVER)
+		target = Client_Search(Req->prefix);
+	else
+		target = Client;
+	if (!target)
+		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
+					  Client_ID(Client), Req->prefix);
 
-	/* Channel-Namen durchgehen */
+	/* Loop over all the given channel names */
 	chan = strtok(Req->argv[0], ",");
 	while (chan) {
-		Channel_Part(target, Client, chan, Req->argc > 1 ? Req->argv[1] : Client_ID(target));
-
+		Channel_Part(target, Client, chan,
+			     Req->argc > 1 ? Req->argv[1] : Client_ID(target));
 		chan = strtok(NULL, ",");
 	}
 	return CONNECTED;

@@ -218,7 +218,7 @@ Conf_Test( void )
 #ifdef WANT_IPV6
 	printf("  ListenIPv6 = %s\n", yesno_to_str(Conf_ListenIPv6));
 	printf("  ListenIPv4 = %s\n", yesno_to_str(Conf_ListenIPv4));
-	printf("  ConnectIPv4= %s\n", yesno_to_str(Conf_ConnectIPv6));
+	printf("  ConnectIPv4 = %s\n", yesno_to_str(Conf_ConnectIPv6));
 	printf("  ConnectIPv6 = %s\n", yesno_to_str(Conf_ConnectIPv4));
 #endif
 	printf( "  MaxConnections = %ld\n", Conf_MaxConnections);

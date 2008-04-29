@@ -315,10 +315,11 @@ Conn_InitListeners( void )
 	}
 
 #ifdef WANT_IPV6
-	if (!Conf_NoListenIpv6)
+	if (Conf_ListenIPv6)
 		created = ports_initlisteners(&Conf_ListenPorts, AF_INET6, cb_listen);
 #endif
-	created += ports_initlisteners(&Conf_ListenPorts, AF_INET, cb_listen);
+	if (Conf_ListenIPv4)
+		created += ports_initlisteners(&Conf_ListenPorts, AF_INET, cb_listen);
 
 	return created;
 } /* Conn_InitListeners */

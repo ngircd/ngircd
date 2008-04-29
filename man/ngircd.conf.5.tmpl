@@ -158,6 +158,24 @@ If you configure ngircd to connect to other servers, ngircd may still
 perform a DNS lookup if required.
 Default: No.
 .TP
+\fBListenIPv4\fR
+Set this to no if you do not want ngircd to accept clients using the standard internet protocol, ipv4.
+This allows use of ngircd in ipv6-only setups.
+Default: Yes.
+.TP
+\fBListenIPv6\fR
+Set this to no if you do not want ngircd to accept clients using the new internet protocol, ipv6.
+Default: Yes.
+.TP
+\fBConnectIPv4\fR
+Set this to no if you do not want ngircd to connect to other irc servers using ipv4.
+This allows use of ngircd in ipv6-only setups.
+Default: Yes.
+.TP
+\fBConnectIPv6\fR
+Set this to no if you do not want ngircd to connect to other irc servers using ipv6.
+Default: Yes.
+.TP
 \fBMaxConnections\fR
 Maximum number of simultaneous connection the server is allowed to accept
 (0: unlimited). Default: 0.

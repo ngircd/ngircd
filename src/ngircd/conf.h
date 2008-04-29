@@ -124,11 +124,20 @@ GLOBAL bool Conf_OperCanMode;
 /* Disable all DNS functions? */
 GLOBAL bool Conf_NoDNS;
 
-/* don't listen for incoming ipv6 connections, even if OS supports it? */
-GLOBAL bool Conf_NoListenIpv6;
+/* listen for incoming ipv6 connections if OS supports it (default: yes)? */
+GLOBAL bool Conf_ListenIPv6;
 
-/* don't connect to remote systems unsign ipv6? */
-GLOBAL bool Conf_NoConnectIpv6;
+/* listen for incoming ipv4 connections if OS supports it (default: yes)? */
+GLOBAL bool Conf_ListenIPv4;
+
+/*
+ * try to connect to remote systems using the ipv6 protocol,
+ * if they have an ipv6 address? (default yes)
+ */
+GLOBAL bool Conf_ConnectIPv6;
+
+/* same as above, but for ipv4 hosts, default: yes  */
+GLOBAL bool Conf_ConnectIPv4;
 
 /* If an IRC op gives chanop privileges without being a chanop,
  * ircd2 will ignore the command. This enables a workaround:

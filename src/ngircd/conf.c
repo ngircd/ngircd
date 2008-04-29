@@ -152,6 +152,15 @@ Conf_Rehash( void )
 } /* Config_Rehash */
 
 
+static const char*
+yesno_to_str(int boolean_value)
+{
+	if (boolean_value)
+		return "yes";
+	return "no";
+}
+
+
 GLOBAL int
 Conf_Test( void )
 {
@@ -201,10 +210,17 @@ Conf_Test( void )
 	printf( "  PingTimeout = %d\n", Conf_PingTimeout );
 	printf( "  PongTimeout = %d\n", Conf_PongTimeout );
 	printf( "  ConnectRetry = %d\n", Conf_ConnectRetry );
-	printf( "  OperCanUseMode = %s\n", Conf_OperCanMode == true ? "yes" : "no" );
-	printf( "  OperServerMode = %s\n", Conf_OperServerMode == true? "yes" : "no" );
-	printf( "  PredefChannelsOnly = %s\n", Conf_PredefChannelsOnly == true ? "yes" : "no" );
-	printf( "  NoDNS = %s\n", Conf_NoDNS ? "yes" : "no");
+	printf( "  OperCanUseMode = %s\n", yesno_to_str(Conf_OperCanMode));
+	printf( "  OperServerMode = %s\n", yesno_to_str(Conf_OperServerMode));
+	printf( "  PredefChannelsOnly = %s\n", yesno_to_str(Conf_PredefChannelsOnly));
+	printf( "  NoDNS = %s\n", yesno_to_str(Conf_NoDNS));
+
+#ifdef WANT_IPV6
+	printf("  ListenIPv6 = %s\n", yesno_to_str(Conf_ListenIPv6));
+	printf("  ListenIPv4 = %s\n", yesno_to_str(Conf_ListenIPv4));
+	printf("  ConnectIPv4 = %s\n", yesno_to_str(Conf_ConnectIPv6));
+	printf("  ConnectIPv6 = %s\n", yesno_to_str(Conf_ConnectIPv4));
+#endif
 	printf( "  MaxConnections = %ld\n", Conf_MaxConnections);
 	printf( "  MaxConnectionsIP = %d\n", Conf_MaxConnectionsIP);
 	printf( "  MaxJoins = %d\n", Conf_MaxJoins>0 ? Conf_MaxJoins : -1);
@@ -448,6 +464,11 @@ Set_Defaults( bool InitServers )
 	Conf_NoDNS = false;
 	Conf_PredefChannelsOnly = false;
 	Conf_OperServerMode = false;
+
+	Conf_ConnectIPv4 = true;
+	Conf_ListenIPv4 = true;
+	Conf_ConnectIPv6 = true;
+	Conf_ListenIPv6 = true;
 
 	Conf_MaxConnections = 0;
 	Conf_MaxConnectionsIP = 5;
@@ -817,6 +838,33 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 		Conf_NoDNS = Check_ArgIsTrue( Arg );
 		return;
 	}
+#ifdef WANT_IPV6
+	/* the default setting for all the WANT_IPV6 special options is 'true' */
+	if( strcasecmp( Var, "ListenIPv6" ) == 0 ) {
+		/* listen on ipv6 sockets, if available? */
+		Conf_ListenIPv6 = Check_ArgIsTrue( Arg );
+		return;
+	}
+	if( strcasecmp( Var, "ListenIPv4" ) == 0 ) {
+		/*
+		 * listen on ipv4 sockets, if available?
+		 * this allows "ipv6-only" setups.
+		 */
+		Conf_ListenIPv4 = Check_ArgIsTrue( Arg );
+		return;
+	}
+	if( strcasecmp( Var, "ConnectIPv6" ) == 0 ) {
+		/* connect to other hosts using ipv6, if they have an AAAA record? */
+		Conf_ConnectIPv6 = Check_ArgIsTrue( Arg );
+		return;
+	}
+	if( strcasecmp( Var, "ConnectIPv4" ) == 0 ) {
+		/* connect to other hosts using ipv4.
+		 * again, this can be used for ipv6-only setups */
+		Conf_ConnectIPv4 = Check_ArgIsTrue( Arg );
+		return;
+	}
+#endif
 	if( strcasecmp( Var, "OperCanUseMode" ) == 0 ) {
 		/* Are IRC operators allowed to use MODE in channels they aren't Op in? */
 		Conf_OperCanMode = Check_ArgIsTrue( Arg );
@@ -1137,6 +1185,16 @@ Validate_Config(bool Configtest, bool Rehash)
 		Config_Error(LOG_WARNING,
 			     "No administrative information configured but required by RFC!");
 	}
+
+#ifdef WANT_IPV6
+	if (!Conf_ListenIPv4 && !Conf_ListenIPv6)
+		Config_Error(LOG_ALERT,
+			"Both \"ListenIPv4\" and \"ListenIPv6\" are set to 'no'; no network protocol available!");
+
+	if (!Conf_ConnectIPv4 && !Conf_ConnectIPv6)
+		Config_Error(LOG_ALERT,
+			"Both \"ConnectIPv4\" and \"ConnectIPv6\" are set to 'no'; ngircd will fail to connect to other irc servers");
+#endif
 
 #ifdef DEBUG
 	servers = servers_once = 0;

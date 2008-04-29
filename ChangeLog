@@ -10,8 +10,16 @@
                                -- ChangeLog --
 
 
-ngIRCd 0.12.0-pre1 (2008-04-20)
+ngIRCd 0.12.0-pre2 (2008-04-29)
 
+  - IPv6: Add config options to disabe ipv4/ipv6 support.
+  - Don't include doc/CVS.txt in distribution archive, use doc/GIT.txt now!
+  - Documentation: get rid of some more references to CVS, switch to GIT.
+  - Get rid of cvs-version.* and CVSDATE definition.
+  - Report ERR_NOTONCHANNEL when trying to part a channel one is not member of.
+  - Testsuite: remove erroneous ConfUID setting in config file.
+
+  ngIRCd 0.12.0-pre1 (2008-04-20)
   - Include Mac OS X Xcode project in distribution archives.
   - Do not exit on SIGHUP or /REHASH if the config file cannot opened.
   - Add IPv6 support.

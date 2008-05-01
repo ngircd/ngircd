@@ -114,6 +114,7 @@
 #define ERR_INVITEONLYCHAN_MSG		"473 %s %s :Cannot join channel (+i)"
 #define ERR_BANNEDFROMCHAN_MSG		"474 %s %s :Cannot join channel (+b)"
 #define ERR_BADCHANNELKEY_MSG		"475 %s %s :Cannot join channel (+k)"
+#define ERR_NOCHANMODES_MSG		"477 %s %s :Channel doesn't support modes"
 #define ERR_NOPRIVILEGES_MSG		"481 %s :Permission denied"
 #define ERR_CHANOPRIVSNEEDED_MSG	"482 %s %s :You are not channel operator"
 #define ERR_CANTKILLSERVER_MSG		"483 %s :You can't kill a server!"

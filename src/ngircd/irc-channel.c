@@ -239,9 +239,15 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 			if ((Conf_MaxJoins > 0) && (Channel_CountForUser(Client) >= Conf_MaxJoins))
 				return IRC_WriteStrClient(Client, ERR_TOOMANYCHANNELS_MSG,
 							Client_ID(Client), channame);
-			if (!chan) /* New Channel: first user will be channel operator */
-				flags = "o";
-			else
+			if (!chan) {
+				/*
+				 * New Channel: first user will be channel operator
+				 * unless this is a modeless channel... */
+#ifndef STRICT_RFC
+				if (*channame != '+')
+#endif
+					flags = "o";
+			} else
 				if (!join_allowed(Client, target, chan, channame, key))
 					break;
 		} else {
@@ -257,8 +263,14 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 		if (!Channel_Join(target, channame))
 			break;
 
-		if (!chan) /* channel is new; it has been created above */
+		if (!chan) { /* channel is new; it has been created above */
 			chan = Channel_Search(channame);
+			assert(chan != NULL);
+			if (*channame == '+') { /* modeless channel... */
+				Channel_ModeAdd(chan, 't'); /* /TOPIC not allowed */
+				Channel_ModeAdd(chan, 'n'); /* no external msgs */
+			}
+		}
 		assert(chan != NULL);
 
 		join_set_channelmodes(chan, target, flags);
@@ -333,8 +345,8 @@ IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	/* Falsche Anzahl Parameter? */
-	if(( Req->argc < 1 ) || ( Req->argc > 2 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	if ((Req->argc < 1) || (Req->argc > 2))
+		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG, Client_ID(Client), Req->command);
 
 	if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_Search( Req->prefix );
 	else from = Client;

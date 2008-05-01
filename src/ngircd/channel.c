@@ -480,7 +480,16 @@ Channel_IsValidName( const char *Name )
 {
 	assert( Name != NULL );
 
-	if(( Name[0] != '#' ) || ( strlen( Name ) >= CHANNEL_NAME_LEN )) return false;
+	switch (Name[0]) {
+		case '#': break;
+#ifndef STRICT_RFC
+		case '+': /* modeless channel */
+		break;
+#endif
+		default: return false;
+	}
+	if (strlen(Name) >= CHANNEL_NAME_LEN)
+		return false;
 
 	return Name[strcspn(Name, " ,:\007")] == 0;
 } /* Channel_IsValidName */
@@ -892,7 +901,7 @@ Remove_Client( int Type, CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, const ch
 				IRC_WriteStrClientPrefix(Client, Origin, "KICK %s %s :%s",
 								c->name, Client_ID( Client ), Reason);
 			}
-			LogDebug("User \"%s\" has been kicked of \"%s\" by \"%s\": %s.",
+			LogDebug("User \"%s\" has been kicked off \"%s\" by \"%s\": %s.",
 				Client_Mask( Client ), c->name, Client_ID(Origin), Reason);
 			break;
 		default: /* PART */

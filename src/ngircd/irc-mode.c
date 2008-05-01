@@ -286,12 +286,11 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 	long l;
 	size_t len;
 
-#ifndef STRICT_RFC
 	/* Are modes allowed on channel? */
 	if (Channel_Name(Channel)[0] == '+')
 		return IRC_WriteStrClient(Client, ERR_NOCHANMODES_MSG,
 				Client_ID(Client), Channel_Name(Channel));
-#endif
+
 	/* Mode request: let's answer it :-) */
 	if (Req->argc <= 1)
 		return Channel_Mode_Answer_Request(Origin, Channel);

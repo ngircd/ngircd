@@ -480,14 +480,8 @@ Channel_IsValidName( const char *Name )
 {
 	assert( Name != NULL );
 
-	switch (Name[0]) {
-		case '#': break;
-#ifndef STRICT_RFC
-		case '+': /* modeless channel */
-		break;
-#endif
-		default: return false;
-	}
+	if (strchr("+#", Name[0]) == NULL)
+		return false;
 	if (strlen(Name) >= CHANNEL_NAME_LEN)
 		return false;
 

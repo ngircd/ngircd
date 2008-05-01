@@ -242,10 +242,9 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 			if (!chan) {
 				/*
 				 * New Channel: first user will be channel operator
-				 * unless this is a modeless channel... */
-#ifndef STRICT_RFC
+				 * unless this is a modeless channel.
+				 */
 				if (*channame != '+')
-#endif
 					flags = "o";
 			} else
 				if (!join_allowed(Client, target, chan, channame, key))

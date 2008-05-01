@@ -3,6 +3,7 @@ channel-test
 connect-test
 misc-test
 mode-test
+opless-channel-test
 who-test
 ngircd-test.log
 ngircd-test.motd

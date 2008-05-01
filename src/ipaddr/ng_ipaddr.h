@@ -8,6 +8,8 @@
 #define NG_IPADDR_HDR
 #include "portab.h"
 
+#include <sys/socket.h>
+
 #ifdef HAVE_ARPA_INET_H
 # include <arpa/inet.h>
 #else

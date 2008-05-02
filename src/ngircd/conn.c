@@ -1218,11 +1218,13 @@ Read_Request( CONN_ID Idx )
 } /* Read_Request */
 
 
+/**
+ * Handle data in connection read-buffer.
+ * @return true if a reuqest was handled, false otherwise (and on errors).
+ */
 static bool
-Handle_Buffer( CONN_ID Idx )
+Handle_Buffer(CONN_ID Idx)
 {
-	/* Handle Data in Connections Read-Buffer.
-	 * Return true if a reuqest was handled, false otherwise (also returned on errors). */
 #ifndef STRICT_RFC
 	char *ptr1, *ptr2;
 #endif
@@ -1238,86 +1240,104 @@ Handle_Buffer( CONN_ID Idx )
 	result = false;
 	for (;;) {
 		/* Check penalty */
-		if( My_Connections[Idx].delaytime > starttime) return result;
+		if (My_Connections[Idx].delaytime > starttime)
+			return result;
 #ifdef ZLIB
-		/* unpack compressed data */
-		if ( Conn_OPTION_ISSET( &My_Connections[Idx], CONN_ZIP ))
-			if( ! Unzip_Buffer( Idx )) return false;
+		/* Unpack compressed data, if compression is in use */
+		if (Conn_OPTION_ISSET(&My_Connections[Idx], CONN_ZIP)) {
+			if (!Unzip_Buffer(Idx))
+				return false;
+		}
 #endif
 
 		if (0 == array_bytes(&My_Connections[Idx].rbuf))
 			break;
 
-		if (!array_cat0_temporary(&My_Connections[Idx].rbuf)) /* make sure buf is NULL terminated */
+		/* Make sure that the buffer is NULL terminated */
+		if (!array_cat0_temporary(&My_Connections[Idx].rbuf))
 			return false;
 
-		/* A Complete Request end with CR+LF, see RFC 2812. */
-		ptr = strstr( array_start(&My_Connections[Idx].rbuf), "\r\n" );
+		/* RFC 2812, section "2.3 Messages", 5th paragraph:
+		 * "IRC messages are always lines of characters terminated
+		 * with a CR-LF (Carriage Return - Line Feed) pair [...]". */
+		delta = 2;
+		ptr = strstr(array_start(&My_Connections[Idx].rbuf), "\r\n");
 
-		if( ptr ) delta = 2; /* complete request */
 #ifndef STRICT_RFC
-		else {
-			/* Check for non-RFC-compliant request (only CR or LF)? Unfortunately,
-			 * there are quite a few clients that do this (incl. "mIRC" :-( */
-			ptr1 = strchr( array_start(&My_Connections[Idx].rbuf), '\r' );
-			ptr2 = strchr( array_start(&My_Connections[Idx].rbuf), '\n' );
+		if (!ptr) {
+			/* Check for non-RFC-compliant request (only CR or
+			 * LF)? Unfortunately, there are quite a few clients
+			 * out there that do this -- incl. "mIRC" :-( */
 			delta = 1;
-			if( ptr1 && ptr2 ) ptr = ptr1 > ptr2 ? ptr2 : ptr1;
-			else if( ptr1 ) ptr = ptr1;
-			else if( ptr2 ) ptr = ptr2;
+			ptr1 = strchr(array_start(&My_Connections[Idx].rbuf), '\r');
+			ptr2 = strchr(array_start(&My_Connections[Idx].rbuf), '\n');
+			if (ptr1 && ptr2)
+				ptr = ptr1 > ptr2 ? ptr2 : ptr1;
+			else if (ptr1)
+				ptr = ptr1;
+			else if (ptr2)
+				ptr = ptr2;
 		}
 #endif
 
-		if( ! ptr )
+		if (!ptr)
 			break;
 
-		/* End of request found */
+		/* Complete (=line terminated) request found, handle it! */
 		*ptr = '\0';
 
-		len = ( ptr - (char*) array_start(&My_Connections[Idx].rbuf)) + delta;
+		len = ptr - (char *)array_start(&My_Connections[Idx].rbuf) + delta;
 
-		if( len > ( COMMAND_LEN - 1 )) {
-			/* Request must not exceed 512 chars (incl. CR+LF!), see
-			 * RFC 2812. Disconnect Client if this happens. */
-			Log( LOG_ERR, "Request too long (connection %d): %d bytes (max. %d expected)!",
-						Idx, array_bytes(&My_Connections[Idx].rbuf), COMMAND_LEN - 1 );
-			Conn_Close( Idx, NULL, "Request too long", true );
+		if (len > (COMMAND_LEN - 1)) {
+			/* Request must not exceed 512 chars (incl. CR+LF!),
+			 * see RFC 2812. Disconnect Client if this happens. */
+			Log(LOG_ERR,
+			    "Request too long (connection %d): %d bytes (max. %d expected)!",
+			    Idx, array_bytes(&My_Connections[Idx].rbuf),
+			    COMMAND_LEN - 1);
+			Conn_Close(Idx, NULL, "Request too long", true);
 			return false;
 		}
 
-		if (len <= 2) { /* request was empty (only '\r\n') */
-			array_moveleft(&My_Connections[Idx].rbuf, 1, delta); /* delta is either 1 or 2 */
+		if (len <= delta) {
+			/* Request is empty (only '\r\n', '\r' or '\n');
+			 * delta is 2 ('\r\n') or 1 ('\r' or '\n'), see above */
+			array_moveleft(&My_Connections[Idx].rbuf, 1, len);
 			break;
 		}
+
 #ifdef ZLIB
 		/* remember if stream is already compressed */
 		old_z = My_Connections[Idx].options & CONN_ZIP;
 #endif
 
 		My_Connections[Idx].msg_in++;
-		if (!Parse_Request(Idx, (char*)array_start(&My_Connections[Idx].rbuf) ))
+		if (!Parse_Request
+		    (Idx, (char *)array_start(&My_Connections[Idx].rbuf)))
 			return false;
 
 		result = true;
 
 		array_moveleft(&My_Connections[Idx].rbuf, 1, len);
 		LogDebug("Connection %d: %d bytes left in read buffer.",
-		    Idx, array_bytes(&My_Connections[Idx].rbuf));
+			 Idx, array_bytes(&My_Connections[Idx].rbuf));
 #ifdef ZLIB
-		if(( ! old_z ) && ( My_Connections[Idx].options & CONN_ZIP ) &&
-				( array_bytes(&My_Connections[Idx].rbuf) > 0 ))
-		{
-			/* The last Command activated Socket-Compression.
-			 * Data that was read after that needs to be copied to Unzip-buf
-			 * for decompression */
-			if (!array_copy( &My_Connections[Idx].zip.rbuf, &My_Connections[Idx].rbuf ))
+		if ((!old_z) && (My_Connections[Idx].options & CONN_ZIP) &&
+		    (array_bytes(&My_Connections[Idx].rbuf) > 0)) {
+			/* The last command activated socket compression.
+			 * Data that was read after that needs to be copied
+			 * to the unzip buffer for decompression: */
+			if (!array_copy
+			    (&My_Connections[Idx].zip.rbuf,
+			     &My_Connections[Idx].rbuf))
 				return false;
 
 			array_trunc(&My_Connections[Idx].rbuf);
-			LogDebug("Moved already received data (%u bytes) to uncompression buffer.",
-								array_bytes(&My_Connections[Idx].zip.rbuf));
+			LogDebug
+			    ("Moved already received data (%u bytes) to uncompression buffer.",
+			     array_bytes(&My_Connections[Idx].zip.rbuf));
 		}
-#endif /* ZLIB */
+#endif
 	}
 	return result;
 } /* Handle_Buffer */

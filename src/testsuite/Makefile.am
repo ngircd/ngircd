@@ -21,7 +21,7 @@ EXTRA_DIST = \
 	start-server.sh stop-server.sh tests.sh stress-server.sh \
 	test-loop.sh wait-tests.sh \
 	channel-test.e connect-test.e check-idle.e misc-test.e mode-test.e \
-	kick-test.e \
+	join-test.e kick-test.e \
 	opless-channel-test.e \
 	who-test.e stress-A.e stress-B.e \
 	ngircd-test.conf
@@ -49,6 +49,10 @@ channel-test: tests.sh
 	rm -f channel-test
 	ln -s $(srcdir)/tests.sh channel-test
 
+join-test: tests.sh
+	rm -f join-test
+	ln -s $(srcdir)/tests.sh join-test
+
 kick-test: tests.sh
 	rm -f kick-test
 	ln -s $(srcdir)/tests.sh kick-test
@@ -72,11 +76,12 @@ mode-test: tests.sh
 TESTS = start-server.sh \
 	connect-test \
 	channel-test \
+	join-test \
 	kick-test \
 	misc-test \
 	mode-test \
-	who-test \
 	opless-channel-test \
+	who-test \
 	stress-server.sh \
 	stop-server.sh
 

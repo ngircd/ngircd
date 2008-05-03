@@ -530,7 +530,7 @@ Client_ModeDel( CLIENT *Client, char Mode )
 
 
 GLOBAL CLIENT *
-Client_Search( char *Nick )
+Client_Search( const char *Nick )
 {
 	/* return Client-Structure that has the corresponding Nick.
 	 * If none is found, return NULL.

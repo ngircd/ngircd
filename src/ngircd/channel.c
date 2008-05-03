@@ -237,7 +237,7 @@ Channel_Part(CLIENT * Client, CLIENT * Origin, const char *Name, const char *Rea
 
 
 GLOBAL void
-Channel_Kick( CLIENT *Client, CLIENT *Origin, char *Name, char *Reason )
+Channel_Kick( CLIENT *Client, CLIENT *Origin, const char *Name, const char *Reason )
 {
 	CHANNEL *chan;
 

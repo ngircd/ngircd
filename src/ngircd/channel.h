@@ -68,7 +68,7 @@ GLOBAL bool Channel_Part PARAMS(( CLIENT *Client, CLIENT *Origin, const char *Na
 
 GLOBAL void Channel_Quit PARAMS(( CLIENT *Client, char *Reason ));
 
-GLOBAL void Channel_Kick PARAMS((  CLIENT *Client, CLIENT *Origin, char *Name, char *Reason ));
+GLOBAL void Channel_Kick PARAMS((  CLIENT *Client, CLIENT *Origin, const char *Name, const char *Reason ));
 
 GLOBAL unsigned long Channel_Count PARAMS(( void ));
 GLOBAL unsigned long Channel_MemberCount PARAMS(( CHANNEL *Chan ));

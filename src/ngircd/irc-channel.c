@@ -70,6 +70,10 @@ join_allowed(CLIENT *Client, CLIENT *target, CHANNEL *chan,
 	bool is_invited, is_banned;
 	const char *channel_modes;
 
+	/* Allow IRC operators to overwrite channel limits */
+	if (strchr(Client_Modes(Client), 'o'))
+		return true;
+
 	is_banned = Lists_Check(Channel_GetListBans(chan), target);
 	is_invited = Lists_Check(Channel_GetListInvites(chan), target);
 

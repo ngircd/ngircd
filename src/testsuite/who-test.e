@@ -14,7 +14,7 @@ expect {
 send "who\r"
 expect {
 	timeout { exit 1 }
-	":ngircd.test.server 352 nick \* ~user localhost ngircd.test.server nick H :0 Real Name"
+	":ngircd.test.server 352 nick \* * localhost ngircd.test.server nick H :0 Real Name"
 }
 
 send "join #channel\r"
@@ -26,7 +26,7 @@ expect {
 send "who 0\r"
 expect {
 	timeout { exit 1 }
-	":ngircd.test.server 352 nick #channel ~user localhost ngircd.test.server nick H@ :0 Real Name"
+	":ngircd.test.server 352 nick #channel * localhost ngircd.test.server nick H@ :0 Real Name"
 }
 
 send "away :testing\r"
@@ -38,7 +38,7 @@ expect {
 send "who *\r"
 expect {
 	timeout { exit 1 }
-	":ngircd.test.server 352 nick #channel ~user localhost ngircd.test.server nick G@ :0 Real Name"
+	":ngircd.test.server 352 nick #channel * localhost ngircd.test.server nick G@ :0 Real Name"
 }
 
 send "mode #channel +v nick\r"
@@ -50,7 +50,7 @@ expect {
 send "who localhost\r"
 expect {
 	timeout { exit 1 }
-	":ngircd.test.server 352 nick #channel ~user localhost ngircd.test.server nick G@ :0 Real Name"
+	":ngircd.test.server 352 nick #channel * localhost ngircd.test.server nick G@ :0 Real Name"
 }
 
 send "mode #channel -o nick\r"
@@ -62,7 +62,7 @@ expect {
 send "who ngircd.test.server\r"
 expect {
 	timeout { exit 1 }
-	":ngircd.test.server 352 nick #channel ~user localhost ngircd.test.server nick G+ :0 Real Name"
+	":ngircd.test.server 352 nick #channel * localhost ngircd.test.server nick G+ :0 Real Name"
 }
 
 send "part #channel\r"
@@ -74,7 +74,7 @@ expect {
 send "who Real?Name\r"
 expect {
 	timeout { exit 1 }
-	":ngircd.test.server 352 nick \* ~user localhost ngircd.test.server nick G :0 Real Name"
+	":ngircd.test.server 352 nick \* * localhost ngircd.test.server nick G :0 Real Name"
 }
 
 send "oper TestOp 123\r"
@@ -90,7 +90,7 @@ expect {
 send "who 0 o\r"
 expect {
 	timeout { exit 1 }
-	":ngircd.test.server 352 nick \* ~user localhost ngircd.test.server nick G* :0 Real Name"
+	":ngircd.test.server 352 nick \* * localhost ngircd.test.server nick G\* :0 Real Name"
 }
 
 send "away\r"
@@ -102,7 +102,7 @@ expect {
 send "who *cal*ho??\r"
 expect {
 	timeout { exit 1 }
-	":ngircd.test.server 352 nick \* ~user localhost ngircd.test.server nick H* :0 Real Name"
+	":ngircd.test.server 352 nick \* * localhost ngircd.test.server nick H\* :0 Real Name"
 }
 
 send "join #opers\r"
@@ -114,7 +114,7 @@ expect {
 send "who #opers\r"
 expect {
 	timeout { exit 1 }
-	":ngircd.test.server 352 nick #opers ~user localhost ngircd.test.server nick H*@ :0 Real Name"
+	":ngircd.test.server 352 nick #opers * localhost ngircd.test.server nick H\*@ :0 Real Name"
 }
 
 send "mode #opers -o nick\r"
@@ -126,7 +126,7 @@ expect {
 send "who *.server\r"
 expect {
 	timeout { exit 1 }
-	":ngircd.test.server 352 nick #opers ~user localhost ngircd.test.server nick H* :0 Real Name"
+	":ngircd.test.server 352 nick #opers * localhost ngircd.test.server nick H\* :0 Real Name"
 }
 
 send "mode #opers +v nick\r"
@@ -138,7 +138,7 @@ expect {
 send "who Real*me\r"
 expect {
 	timeout { exit 1 }
-	":ngircd.test.server 352 nick #opers ~user localhost ngircd.test.server nick H*+ :0 Real Name"
+	":ngircd.test.server 352 nick #opers * localhost ngircd.test.server nick H\*+ :0 Real Name"
 }
 
 send "mode #opers +s\r"
@@ -150,7 +150,7 @@ expect {
 send "who n?c?\r"
 expect {
 	timeout { exit 1 }
-	":ngircd.test.server 352 nick \* ~user localhost ngircd.test.server nick H* :0 Real Name"
+	":ngircd.test.server 352 nick \* * localhost ngircd.test.server nick H\* :0 Real Name"
 }
 
 send "quit\r"

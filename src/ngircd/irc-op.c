@@ -60,7 +60,7 @@ IRC_KICK( CLIENT *Client, REQUEST *Req )
 
 
 GLOBAL bool
-IRC_INVITE( CLIENT *Client, REQUEST *Req )
+IRC_INVITE(CLIENT *Client, REQUEST *Req)
 {
 	CHANNEL *chan;
 	CLIENT *target, *from;
@@ -69,41 +69,51 @@ IRC_INVITE( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	/* Wrong number of parameters? */
-	if( Req->argc != 2 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	if (Req->argc != 2)
+		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+					Client_ID(Client), Req->command);
 
-	if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_Search( Req->prefix );
-	else from = Client;
-	if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
-	
+	if (Client_Type(Client) == CLIENT_SERVER)
+		from = Client_Search(Req->prefix);
+	else
+		from = Client;
+	if (!from)
+		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
+					Client_ID(Client), Req->prefix);
+
 	/* Search user */
-	target = Client_Search( Req->argv[0] );
-	if(( ! target ) || ( Client_Type( target ) != CLIENT_USER )) return IRC_WriteStrClient( from, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->argv[0] );
+	target = Client_Search(Req->argv[0]);
+	if (!target || (Client_Type(target) != CLIENT_USER))
+		return IRC_WriteStrClient(from, ERR_NOSUCHNICK_MSG,
+				Client_ID(Client), Req->argv[0]);
 
-	chan = Channel_Search( Req->argv[1] );
-
-	if( chan )
-	{
+	chan = Channel_Search(Req->argv[1]);
+	if (chan) {
 		/* Channel exists. Is the user a valid member of the channel? */
-		if( ! Channel_IsMemberOf( chan, from )) return IRC_WriteStrClient( from, ERR_NOTONCHANNEL_MSG, Client_ID( Client ), Req->argv[1] );
+		if (!Channel_IsMemberOf(chan, from))
+			return IRC_WriteStrClient(from, ERR_NOTONCHANNEL_MSG, Client_ID(Client), Req->argv[1]);
 
 		/* Is the channel "invite-only"? */
-		if( strchr( Channel_Modes( chan ), 'i' ))
-		{
+		if (strchr(Channel_Modes(chan), 'i')) {
 			/* Yes. The user must be channel operator! */
-			if( ! strchr( Channel_UserModes( chan, from ), 'o' )) return IRC_WriteStrClient( from, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( from ), Channel_Name( chan ));
+			if (!strchr(Channel_UserModes(chan, from), 'o'))
+				return IRC_WriteStrClient(from, ERR_CHANOPRIVSNEEDED_MSG,
+						Client_ID(from), Channel_Name(chan));
 			remember = true;
 		}
 
 		/* Is the target user already member of the channel? */
-		if( Channel_IsMemberOf( chan, target )) return IRC_WriteStrClient( from, ERR_USERONCHANNEL_MSG, Client_ID( from ), Req->argv[0], Req->argv[1] );
+		if (Channel_IsMemberOf(chan, target))
+			return IRC_WriteStrClient(from, ERR_USERONCHANNEL_MSG,
+					Client_ID(from), Req->argv[0], Req->argv[1]);
 
 		/* If the target user is banned on that channel: remember invite */
-		if( Lists_Check(Channel_GetListBans(chan), target )) remember = true;
+		if (Lists_Check(Channel_GetListBans(chan), target))
+			remember = true;
 
 		if (remember) {
 			/* We must remember this invite */
-			if( ! Channel_AddInvite(chan, Client_Mask( target ), true))
+			if (!Channel_AddInvite(chan, Client_Mask(target), true))
 				return CONNECTED;
 		}
 	}
@@ -111,14 +121,13 @@ IRC_INVITE( CLIENT *Client, REQUEST *Req )
 	LogDebug("User \"%s\" invites \"%s\" to \"%s\" ...", Client_Mask(from), Req->argv[0], Req->argv[1]);
 
 	/* Inform target client */
-	IRC_WriteStrClientPrefix( target, from, "INVITE %s %s", Req->argv[0], Req->argv[1] );
+	IRC_WriteStrClientPrefix(target, from, "INVITE %s %s", Req->argv[0], Req->argv[1]);
 
-	if( Client_Conn( target ) > NONE )
-	{
+	if (Client_Conn(target) > NONE) {
 		/* The target user is local, so we have to send the status code */
-		if( ! IRC_WriteStrClientPrefix( from, target, RPL_INVITING_MSG, Client_ID( from ), Req->argv[0], Req->argv[1] )) return DISCONNECTED;
+		if (!IRC_WriteStrClientPrefix(from, target, RPL_INVITING_MSG, Client_ID(from), Req->argv[0], Req->argv[1]))
+			return DISCONNECTED;
 	}
-	
 	return CONNECTED;
 } /* IRC_INVITE */
 

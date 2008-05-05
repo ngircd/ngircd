@@ -12,6 +12,8 @@
 
 ngIRCd-dev
 
+  - Implemented IRC commands SERVICE, SERVLIST, and SQUERY as dummy functions
+    to be even more RFC-compliant. Closes bug 74.
   - Fixed Bug 75: KICK now handles comma-delimited lists.
     (Brandon Beresini, Bryan Caldwell)
   - Fixed Bug 83: ngIRCd chokes on 1-character messages.

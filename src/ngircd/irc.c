@@ -37,7 +37,8 @@ static char UNUSED id[] = "$Id: irc.c,v 1.132 2008/01/15 22:28:14 fw Exp $";
 #include "irc.h"
 
 
-static char *Option_String PARAMS(( CONN_ID Idx ));
+static char *Option_String PARAMS((CONN_ID Idx));
+static bool Send_Message PARAMS((CLIENT *Client, REQUEST *Req, int ForceType));
 
 
 GLOBAL bool
@@ -201,47 +202,24 @@ IRC_NOTICE( CLIENT *Client, REQUEST *Req )
 } /* IRC_NOTICE */
 
 
+/**
+ * Handler for the IRC command PRIVMSG.
+ */
 GLOBAL bool
-IRC_PRIVMSG( CLIENT *Client, REQUEST *Req )
+IRC_PRIVMSG(CLIENT *Client, REQUEST *Req)
 {
-	CLIENT *cl, *from;
-	CHANNEL *chan;
-	
-	assert( Client != NULL );
-	assert( Req != NULL );
-
-	/* Falsche Anzahl Parameter? */
-	if( Req->argc == 0 ) return IRC_WriteStrClient( Client, ERR_NORECIPIENT_MSG, Client_ID( Client ), Req->command );
-	if( Req->argc == 1 ) return IRC_WriteStrClient( Client, ERR_NOTEXTTOSEND_MSG, Client_ID( Client ));
-	if( Req->argc > 2 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
-
-	if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_Search( Req->prefix );
-	else from = Client;
-	if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
-
-	cl = Client_Search( Req->argv[0] );
-	if( cl )
-	{
-		/* Okay, Ziel ist ein Client. Aber ist es auch ein User? */
-		if( Client_Type( cl ) != CLIENT_USER ) return IRC_WriteStrClient( from, ERR_NOSUCHNICK_MSG, Client_ID( from ), Req->argv[0] );
-
-		/* Okay, Ziel ist ein User */
-		if(( Client_Type( Client ) != CLIENT_SERVER ) && ( strchr( Client_Modes( cl ), 'a' )))
-		{
-			/* Ziel-User ist AWAY: Meldung verschicken */
-			if( ! IRC_WriteStrClient( from, RPL_AWAY_MSG, Client_ID( from ), Client_ID( cl ), Client_Away( cl ))) return DISCONNECTED;
-		}
-
-		/* Text senden */
-		if( Client_Conn( from ) > NONE ) Conn_UpdateIdle( Client_Conn( from ));
-		return IRC_WriteStrClientPrefix( cl, from, "PRIVMSG %s :%s", Client_ID( cl ), Req->argv[1] );
-	}
-
-	chan = Channel_Search( Req->argv[0] );
-	if( chan ) return Channel_Write( chan, from, Client, Req->argv[1] );
-
-	return IRC_WriteStrClient( from, ERR_NOSUCHNICK_MSG, Client_ID( from ), Req->argv[0] );
+	return Send_Message(Client, Req, CLIENT_USER);
 } /* IRC_PRIVMSG */
+
+
+/**
+ * Handler for the IRC command SQUERY.
+ */
+GLOBAL bool
+IRC_SQUERY(CLIENT *Client, REQUEST *Req)
+{
+	return Send_Message(Client, Req, CLIENT_SERVICE);
+} /* IRC_SQUERY */
 
 
 GLOBAL bool
@@ -349,6 +327,65 @@ Option_String( CONN_ID Idx )
 
 	return option_txt;
 } /* Option_String */
+
+
+static bool
+Send_Message(CLIENT * Client, REQUEST * Req, int ForceType)
+{
+	CLIENT *cl, *from;
+	CHANNEL *chan;
+
+	assert(Client != NULL);
+	assert(Req != NULL);
+
+	if (Req->argc == 0)
+		return IRC_WriteStrClient(Client, ERR_NORECIPIENT_MSG,
+					  Client_ID(Client), Req->command);
+	if (Req->argc == 1)
+		return IRC_WriteStrClient(Client, ERR_NOTEXTTOSEND_MSG,
+					  Client_ID(Client));
+	if (Req->argc > 2)
+		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+					  Client_ID(Client), Req->command);
+
+	if (Client_Type(Client) == CLIENT_SERVER)
+		from = Client_Search(Req->prefix);
+	else
+		from = Client;
+	if (!from)
+		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
+					  Client_ID(Client), Req->prefix);
+
+	cl = Client_Search(Req->argv[0]);
+	if (cl) {
+		/* Target is a user, enforce type */
+		if (Client_Type(cl) != ForceType)
+			return IRC_WriteStrClient(from, ERR_NOSUCHNICK_MSG,
+						  Client_ID(from),
+						  Req->argv[0]);
+
+		if ((Client_Type(Client) != CLIENT_SERVER)
+		    && (strchr(Client_Modes(cl), 'a'))) {
+			/* Target is away */
+			if (!IRC_WriteStrClient
+			    (from, RPL_AWAY_MSG, Client_ID(from), Client_ID(cl),
+			     Client_Away(cl)))
+				return DISCONNECTED;
+		}
+
+		if (Client_Conn(from) > NONE)
+			Conn_UpdateIdle(Client_Conn(from));
+		return IRC_WriteStrClientPrefix(cl, from, "PRIVMSG %s :%s",
+						Client_ID(cl), Req->argv[1]);
+	}
+
+	chan = Channel_Search(Req->argv[0]);
+	if (chan)
+		return Channel_Write(chan, from, Client, Req->argv[1]);
+
+	return IRC_WriteStrClient(from, ERR_NOSUCHNICK_MSG,
+				  Client_ID(from), Req->argv[0]);
+} /* Send_Message */
 
 
 /* -eof- */

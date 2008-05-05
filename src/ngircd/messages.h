@@ -32,6 +32,8 @@
 #define RPL_STATSCOMMANDS_MSG		"212 %s %s %ld %ld %ld"
 #define RPL_ENDOFSTATS_MSG		"219 %s %c :End of STATS report"
 #define RPL_UMODEIS_MSG			"221 %s +%s"
+#define RPL_SERVLISTEND_MSG		"235 %s %s %s :End of service listing"
+
 #define RPL_STATSUPTIME			"242 %s :Server Up %u days %u:%02u:%02u"
 #define RPL_LUSERCLIENT_MSG		"251 %s :There are %ld users and %ld services on %ld servers"
 #define RPL_LUSEROP_MSG			"252 %s %lu :operator(s) online"

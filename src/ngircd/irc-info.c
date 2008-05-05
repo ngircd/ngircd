@@ -269,6 +269,26 @@ IRC_LUSERS( CLIENT *Client, REQUEST *Req )
 } /* IRC_LUSERS */
 
 
+/**
+ * List registered services.
+ * This function is a dummy that immediately returns RPL_SERVLISTEND.
+ */
+GLOBAL bool
+IRC_SERVLIST(CLIENT *Client, REQUEST *Req)
+{
+	assert(Client != NULL);
+	assert(Req != NULL);
+
+	if (Req->argc > 2)
+		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+					  Client_ID(Client), Req->command);
+
+	return IRC_WriteStrClient(Client, RPL_SERVLISTEND_MSG, Client_ID(Client),
+				  Req->argc > 0 ? Req->argv[0] : "*",
+				  Req->argc > 1 ? Req->argv[1] : "0");
+} /* IRC_SERVLIST */
+
+
 GLOBAL bool
 IRC_MOTD( CLIENT *Client, REQUEST *Req )
 {

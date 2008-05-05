@@ -393,6 +393,30 @@ IRC_USER( CLIENT *Client, REQUEST *Req )
 } /* IRC_USER */
 
 
+/**
+ * Service registration.
+ * ngIRCd does not support services at the moment, so this function is a
+ * dummy that returns ERR_ERRONEUSNICKNAME on each call.
+ */
+GLOBAL bool
+IRC_SERVICE(CLIENT *Client, REQUEST *Req)
+{
+	assert(Client != NULL);
+	assert(Req != NULL);
+
+	if (Client_Type(Client) != CLIENT_GOTPASS)
+		return IRC_WriteStrClient(Client, ERR_ALREADYREGISTRED_MSG,
+					  Client_ID(Client));
+
+	if (Req->argc != 6)
+		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+					  Client_ID(Client), Req->command);
+
+	return IRC_WriteStrClient(Client, ERR_ERRONEUSNICKNAME_MSG,
+				  Client_ID(Client), Req->argv[0]);
+} /* IRC_SERVICE */
+
+
 GLOBAL bool
 IRC_QUIT( CLIENT *Client, REQUEST *Req )
 {

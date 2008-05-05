@@ -12,6 +12,8 @@
 
 ngIRCd-dev
 
+  - Fixed Bug 75: KICK now handles comma-delimited lists.
+    (Brandon Beresini, Bryan Caldwell)
   - Fixed Bug 83: ngIRCd chokes on 1-character messages.
   - Add support for modeless channels ("+channels").
     (Bryan Caldwell, Ali Shemiran)

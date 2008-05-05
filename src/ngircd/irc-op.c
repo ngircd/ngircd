@@ -14,8 +14,6 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-op.c,v 1.17 2006/12/07 17:57:20 fw Exp $";
-
 #include "imp.h"
 #include <assert.h>
 #include <string.h>
@@ -35,28 +33,96 @@ static char UNUSED id[] = "$Id: irc-op.c,v 1.17 2006/12/07 17:57:20 fw Exp $";
 #include "irc-op.h"
 
 
-GLOBAL bool
-IRC_KICK( CLIENT *Client, REQUEST *Req )
+static bool
+try_kick(CLIENT* from, const char *nick, const char *channel, const char *reason)
 {
-	CLIENT *target, *from;
-	
+	CLIENT *target = Client_Search(nick);
+
+	if (!target)
+		return IRC_WriteStrClient(from, ERR_NOSUCHNICK_MSG, Client_ID(from), nick);
+
+	Channel_Kick(target, from, channel, reason);
+	return true;
+}
+
+
+GLOBAL bool
+IRC_KICK(CLIENT *Client, REQUEST *Req)
+{
+	CLIENT *from;
+	char *itemList = Req->argv[0];
+	const char* currentNick, *currentChannel, *reason;
+	unsigned int channelCount = 1;
+	unsigned int nickCount = 1;
+
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	/* Falsche Anzahl Parameter? */
-	if(( Req->argc < 2) || ( Req->argc > 3 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	if ((Req->argc < 2) || (Req->argc > 3))
+		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+					Client_ID(Client), Req->command);
 
-	if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_Search( Req->prefix );
-	else from = Client;
-	if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
-	
-	/* Ziel-User suchen */
-	target = Client_Search( Req->argv[1] );
-	if( ! target ) return IRC_WriteStrClient( from, ERR_NOSUCHNICK_MSG, Client_ID( from ), Req->argv[1] );
+	while (*itemList) {
+		if (*itemList == ',') {
+			*itemList = '\0';
+			channelCount++;
+		}
+		itemList++;
+	}
 
-	Channel_Kick( target, from, Req->argv[0], Req->argc == 3 ? Req->argv[2] : Client_ID( from ));
-	return CONNECTED;
-} /* IRC_KICK */	
+	itemList = Req->argv[1];
+	while (*itemList) {
+		if (*itemList == ',') {
+			*itemList = '\0';
+			nickCount++;
+		}
+		itemList++;
+	}
+
+	if (Client_Type(Client) == CLIENT_SERVER)
+		from = Client_Search(Req->prefix);
+	else
+		from = Client;
+
+	if (!from)
+		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
+					Client_ID(Client), Req->prefix);
+
+	reason = Req->argc == 3 ? Req->argv[2] : Client_ID(from);
+	currentNick = Req->argv[1];
+	currentChannel = Req->argv[0];
+	if (channelCount == 1) {
+		while (nickCount > 0) {
+			if (!try_kick(from, currentNick, currentChannel, reason))
+				return false;
+
+			while (*currentNick)
+				currentNick++;
+
+			currentNick++;
+			nickCount--;
+		}
+	} else if (channelCount == nickCount) {
+		while (nickCount > 0) {
+			if (!try_kick(from, currentNick, currentChannel, reason))
+				return false;
+
+			while (*currentNick)
+				currentNick++;
+
+			while (*currentChannel)
+				currentChannel++;
+
+			currentNick++;
+			currentChannel++;
+			nickCount--;
+		}
+	} else {
+		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+					Client_ID(Client), Req->command);
+	}
+	return true;
+} /* IRC_KICK */
 
 
 GLOBAL bool

@@ -16,6 +16,7 @@
 
 #include "imp.h"
 #include <assert.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -206,6 +207,7 @@ IRC_RESTART( CLIENT *Client, REQUEST *Req )
 GLOBAL bool
 IRC_CONNECT(CLIENT * Client, REQUEST * Req)
 {
+	char msg[LINE_LEN + 64];
 
 	assert(Client != NULL);
 	assert(Req != NULL);
@@ -222,6 +224,10 @@ IRC_CONNECT(CLIENT * Client, REQUEST * Req)
 	if ((Req->argc > 1) && atoi(Req->argv[1]) < 1)
 		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 					  Client_ID(Client), Req->command);
+
+	snprintf(msg, sizeof(msg), "Received CONNECT %s from %s",
+		 Req->argv[0], Client_ID(Client));
+	IRC_SendWallops(Client_ThisServer(), Client_ThisServer(), msg);
 
 	Log(LOG_NOTICE | LOG_snotice,
 	    "Got CONNECT command from \"%s\" for \"%s\".", Client_Mask(Client),
@@ -263,6 +269,7 @@ GLOBAL bool
 IRC_DISCONNECT(CLIENT * Client, REQUEST * Req)
 {
 	CONN_ID my_conn;
+	char msg[LINE_LEN + 64];
 
 	assert(Client != NULL);
 	assert(Req != NULL);
@@ -274,6 +281,10 @@ IRC_DISCONNECT(CLIENT * Client, REQUEST * Req)
 	if (Req->argc != 1)
 		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 					  Client_ID(Client), Req->command);
+
+	snprintf(msg, sizeof(msg), "Received DISCONNECT %s from %s",
+		 Req->argv[0], Client_ID(Client));
+	IRC_SendWallops(Client_ThisServer(), Client_ThisServer(), msg);
 
 	Log(LOG_NOTICE | LOG_snotice,
 	    "Got DISCONNECT command from \"%s\" for \"%s\".",

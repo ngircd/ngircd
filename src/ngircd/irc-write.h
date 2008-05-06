@@ -35,6 +35,9 @@ GLOBAL void IRC_WriteStrServersPrefixFlag_CB PARAMS((CLIENT *ExceptOf,
 GLOBAL bool IRC_WriteStrRelatedPrefix PARAMS((CLIENT *Client, CLIENT *Prefix,
 		bool Remote, char *Format, ...));
 
+GLOBAL void IRC_SendWallops PARAMS((CLIENT *Client, CLIENT *From,
+		const char *Message));
+
 GLOBAL void IRC_SetPenalty PARAMS((CLIENT *Client, time_t Seconds));
 
 #endif

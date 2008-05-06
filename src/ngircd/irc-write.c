@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2005 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2008 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -403,6 +403,34 @@ va_dcl
 	}
 	return ok;
 } /* IRC_WriteStrRelatedPrefix */
+
+
+/**
+ * Send WALLOPS message.
+ */
+GLOBAL void
+IRC_SendWallops(CLIENT *Client, CLIENT *From, const char *Message)
+{
+	CLIENT *to;
+
+	for (to=Client_First(); to != NULL; to=Client_Next(to)) {
+		if (Client_Conn(to) == NONE) /* no local connection */
+			continue;
+
+		switch (Client_Type(to)) {
+		case CLIENT_USER:
+			if (Client_HasMode(to, 'w'))
+				IRC_WriteStrClientPrefix(to, From,
+							 "WALLOPS :%s", Message);
+				break;
+		case CLIENT_SERVER:
+			if (to != Client)
+				IRC_WriteStrClientPrefix(to, From,
+							 "WALLOPS :%s", Message);
+				break;
+		}
+	}
+} /* IRC_SendWallops */
 
 
 GLOBAL void

@@ -671,6 +671,19 @@ NGIRCd_getNobodyID(uid_t *uid, gid_t *gid )
 {
 	struct passwd *pwd;
 
+#ifdef __CYGWIN__
+	/* Cygwin kludge.
+	 * It can return EINVAL instead of EPERM
+	 * so, if we are already unprivileged,
+	 * use id of current user.
+	 */
+	if (geteuid() && getuid()) {
+		*uid = getuid();
+		*gid = getgid();
+		return true;
+	}
+#endif
+
 	pwd = getpwnam("nobody");
 	if (!pwd) return false;
 

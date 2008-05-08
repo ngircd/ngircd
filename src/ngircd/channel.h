@@ -46,7 +46,7 @@ typedef struct _CLIENT2CHAN
 	struct _CLIENT2CHAN *next;
 	CLIENT *client;
 	CHANNEL *channel;
-	char modes[CHANNEL_MODE_LEN];	/* User-Modes in dem Channel */
+	char modes[CHANNEL_MODE_LEN];	/* User-Modes in Channel */
 } CL2CHAN;
 
 #else

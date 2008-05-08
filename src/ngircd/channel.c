@@ -89,18 +89,18 @@ Channel_GetListInvites(CHANNEL *c)
 GLOBAL void
 Channel_InitPredefined( void )
 {
-	/* Vordefinierte persistente Channels erzeugen */
+	/* Generate predefined persistent channels */
 
 	CHANNEL *chan;
 	char *c;
 	unsigned int i;
-	
+
 	for( i = 0; i < Conf_Channel_Count; i++ )
 	{
-		/* Ist ein Name konfiguriert? */
+		/* Check for Name configuration */
 		if( ! Conf_Channel[i].name[0] ) continue;
 
-		/* Gueltiger Channel-Name? */
+		/* Check for invalid channel name */
 		if( ! Channel_IsValidName( Conf_Channel[i].name ))
 		{
 			Log( LOG_ERR, "Can't create pre-defined channel: invalid name: \"%s\"!", Conf_Channel[i].name );
@@ -108,7 +108,7 @@ Channel_InitPredefined( void )
 			continue;
 		}
 
-		/* Gibt es den Channel bereits? */
+		/* Check if the channel name is already in use */
 		chan = Channel_Search( Conf_Channel[i].name );
 		if( chan )
 		{
@@ -149,7 +149,7 @@ Channel_Exit( void )
 	CHANNEL *c, *c_next;
 	CL2CHAN *cl2chan, *cl2chan_next;
 
-	/* Channel-Strukturen freigeben */
+	/* free struct Channel */
 	c = My_Channels;
 	while( c )
 	{
@@ -159,7 +159,7 @@ Channel_Exit( void )
 		c = c_next;
 	}
 
-	/* Channel-Zuordnungstabelle freigeben */
+	/* Free Channel allocation table */
 	cl2chan = My_Cl2Chan;
 	while( c )
 	{
@@ -170,14 +170,23 @@ Channel_Exit( void )
 } /* Channel_Exit */
 
 
+/**
+ * Join Channel
+ * This function lets a client join a channel.  First, the function
+ * checks that the specified channel name is valid and that the client
+ * isn't already a member.  If the specified channel doesn't exist,
+ * a new channel is created.  Client is added to channel by function
+ * Add_Client().
+ */
 GLOBAL bool
 Channel_Join( CLIENT *Client, char *Name )
 {
 	CHANNEL *chan;
-	
+
 	assert( Client != NULL );
 	assert( Name != NULL );
 
+	/* Check that the channel name is valid */
 	if( ! Channel_IsValidName( Name )) {
 		IRC_WriteStrClient( Client, ERR_NOSUCHCHANNEL_MSG, Client_ID( Client ), Name );
 		return false;
@@ -185,25 +194,25 @@ Channel_Join( CLIENT *Client, char *Name )
 
 	chan = Channel_Search( Name );
 	if( chan ) {
-		/* Ist der Client bereits Mitglied? */
+		/* Check if the client is already in the channel */
 		if( Get_Cl2Chan( chan, Client )) return false;
 	}
 	else
 	{
-		/* Gibt es noch nicht? Dann neu anlegen: */
+		/* If the specified channel doesn't exist, the channel is created */
 		chan = Channel_Create( Name );
 		if (!chan) return false;
 	}
 
-	/* User dem Channel hinzufuegen */
+	/* Add user to Channel */
 	if( ! Add_Client( chan, Client )) return false;
 	else return true;
 } /* Channel_Join */
 
 
 /**
- * Remove client from channel.
- * This function lets a client lead a channel. First, the function checks
+ * Part client from channel.
+ * This function lets a client part from a channel. First, the function checks
  * if the channel exists and the client is a member of it and sends out
  * appropriate error messages if not. The real work is done by the function
  * Remove_Client().
@@ -217,18 +226,22 @@ Channel_Part(CLIENT * Client, CLIENT * Origin, const char *Name, const char *Rea
 	assert(Name != NULL);
 	assert(Reason != NULL);
 
+	/* Check that specified channel exists */
 	chan = Channel_Search(Name);
 	if (!chan) {
 		IRC_WriteStrClient(Client, ERR_NOSUCHCHANNEL_MSG,
 				   Client_ID(Client), Name);
 		return false;
 	}
+
+	/* Check that the client is in the channel */
 	if (!Get_Cl2Chan(chan, Client)) {
 		IRC_WriteStrClient(Client, ERR_NOTONCHANNEL_MSG,
 				   Client_ID(Client), Name);
 		return false;
 	}
 
+	/* Part client from channel */
 	if (!Remove_Client(REMOVE_PART, chan, Client, Origin, Reason, true))
 		return false;
 	else
@@ -236,6 +249,7 @@ Channel_Part(CLIENT * Client, CLIENT * Origin, const char *Name, const char *Rea
 } /* Channel_Part */
 
 
+/* Kick user from Channel */
 GLOBAL void
 Channel_Kick( CLIENT *Client, CLIENT *Origin, const char *Name, const char *Reason )
 {
@@ -246,6 +260,7 @@ Channel_Kick( CLIENT *Client, CLIENT *Origin, const char *Name, const char *Reas
 	assert( Name != NULL );
 	assert( Reason != NULL );
 
+	/* Check that channel exists */
 	chan = Channel_Search( Name );
 	if( ! chan )
 	{
@@ -253,26 +268,28 @@ Channel_Kick( CLIENT *Client, CLIENT *Origin, const char *Name, const char *Reas
 		return;
 	}
 
+	/* Check that user is on the specified channel */
 	if( ! Channel_IsMemberOf( chan, Origin ))
 	{
 		IRC_WriteStrClient( Origin, ERR_NOTONCHANNEL_MSG, Client_ID( Origin ), Name );
 		return;
 	}
 
-	/* Is User Channel-Operator? */
+	/* Check if user has operator status */
 	if( ! strchr( Channel_UserModes( chan, Origin ), 'o' ))
 	{
 		IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Name);
 		return;
 	}
 
-	/* Ist the kickED User member of channel? */
+	/* Check that the client to be kicked is on the specified channel */
 	if( ! Channel_IsMemberOf( chan, Client ))
 	{
 		IRC_WriteStrClient( Origin, ERR_USERNOTINCHANNEL_MSG, Client_ID( Origin ), Client_ID( Client ), Name );
 		return;
 	}
 
+	/* Kick Client from channel */
 	Remove_Client( REMOVE_KICK, chan, Client, Origin, Reason, true);
 } /* Channel_Kick */
 
@@ -302,7 +319,7 @@ Channel_Count( void )
 {
 	CHANNEL *c;
 	unsigned long count = 0;
-	
+
 	c = My_Channels;
 	while( c )
 	{
@@ -338,9 +355,9 @@ Channel_CountForUser( CLIENT *Client )
 
 	CL2CHAN *cl2chan;
 	int count = 0;
-	
+
 	assert( Client != NULL );
-	
+
 	cl2chan = My_Cl2Chan;
 	while( cl2chan )
 	{
@@ -350,7 +367,6 @@ Channel_CountForUser( CLIENT *Client )
 
 	return count;
 } /* Channel_CountForUser */
-
 
 
 GLOBAL const char *
@@ -404,7 +420,7 @@ GLOBAL CHANNEL *
 Channel_Search( const char *Name )
 {
 	/* Channel-Struktur suchen */
-	
+
 	CHANNEL *c;
 	UINT32 search_hash;
 
@@ -631,7 +647,7 @@ Channel_Topic( CHANNEL *Chan )
 	return ret ? ret : "";
 } /* Channel_Topic */
 
-	
+
 #ifndef STRICT_RFC
 
 GLOBAL unsigned int
@@ -849,7 +865,7 @@ Remove_Client( int Type, CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, const ch
 {
 	CL2CHAN *cl2chan, *last_cl2chan;
 	CHANNEL *c;
-	
+
 	assert( Chan != NULL );
 	assert( Client != NULL );
 	assert( Origin != NULL );
@@ -999,7 +1015,7 @@ Get_Next_Cl2Chan( CL2CHAN *Start, CLIENT *Client, CHANNEL *Channel )
 	CL2CHAN *cl2chan;
 
 	assert( Client != NULL || Channel != NULL );
-	
+
 	cl2chan = Start;
 	while( cl2chan )
 	{

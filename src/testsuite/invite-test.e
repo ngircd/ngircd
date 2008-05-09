@@ -73,7 +73,7 @@ send "invite nick #channel\r"
 expect {
 	timeout { exit 1 }
 	"482 nick #channel :You are not channel operator"
-	# it would be reasonable to expect 443 here instead
+	#it would be reasonable to expect 443 here instead
 }
 
 send "part #channel\r"

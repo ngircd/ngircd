@@ -718,7 +718,7 @@ IRC_Send_WHO(CLIENT *Client, CHANNEL *Chan, bool OnlyOps)
 
 	/* Secret channel? */
 	if (!is_member && strchr(Channel_Modes(Chan), 's'))
-		return CONNECTED;
+		return IRC_WriteStrClient(Client, RPL_ENDOFWHO_MSG, Client_ID(Client), Channel_Name(Chan));
 
 	cl2chan = Channel_FirstMember(Chan);
 	for (; cl2chan ; cl2chan = Channel_NextMember(Chan, cl2chan)) {

@@ -12,6 +12,8 @@
 
 ngIRCd-dev
 
+  - Fix Bug: 85: "WHO #SecretChannel" that user is not a member of now returns
+    proper RPL_ENDOFWHO_MSG instead of nothing. (Ali Shemiran)
   - Implemented IRC commands SERVICE, SERVLIST, and SQUERY as dummy functions
     to be even more RFC-compliant. Closes bug 74.
   - Fixed Bug 75: KICK now handles comma-delimited lists.

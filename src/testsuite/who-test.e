@@ -152,6 +152,16 @@ expect {
 	timeout { exit 1 }
 	":ngircd.test.server 352 nick \* * localhost ngircd.test.server nick H\* :0 Real Name"
 }
+expect {
+	timeout { exit 1 }
+	"315"
+}
+
+send "who #SecretChannel\r"
+expect {
+	timeout { exit 1 }
+	"315"
+}
 
 send "quit\r"
 expect {

@@ -20,7 +20,6 @@
 #include "array.h"
 #include "tool.h"
 #include "ng_ipaddr.h"
-#include <netinet/in.h>
 
 /* This struct must not be accessed directly */
 typedef struct _Res_Stat {

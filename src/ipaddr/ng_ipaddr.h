@@ -9,6 +9,7 @@
 #include "portab.h"
 
 #include <sys/socket.h>
+#include <netinet/in.h>
 
 #ifdef HAVE_ARPA_INET_H
 # include <arpa/inet.h>
@@ -115,3 +116,4 @@ ng_ipaddr_tostr_r(const ng_ipaddr_t *addr, char *d)
 #endif
 
 /* -eof- */
+

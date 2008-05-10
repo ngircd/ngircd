@@ -14,9 +14,6 @@
 #include <netdb.h>
 #include <sys/types.h>
 #endif
-#include <sys/socket.h>
-
-#include <netinet/in.h>
 
 #include "ng_ipaddr.h"
 

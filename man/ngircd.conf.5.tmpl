@@ -1,7 +1,7 @@
 .\"
 .\" $Id: ngircd.conf.5.tmpl,v 1.7 2007/11/23 16:26:03 fw Exp $
 .\"
-.TH ngircd.conf 5 "August 2005" ngircd "ngIRCd Manual"
+.TH ngircd.conf 5 "May 2008" ngircd "ngIRCd Manual"
 .SH NAME
 ngircd.conf \- configuration file of ngIRCd
 .SH SYNOPSIS
@@ -26,19 +26,20 @@ Sections contain parameters of the form
 .RE
 .PP
 Empty lines and any line beginning with a semicolon (';') or a hash ('#')
-character is treated as a comment and will be ignored.
+character are treated as a comment and will be ignored. Leading and trailing
+whitespaces are trimmed before any processing takes place.
 .PP
-The file format is line-based - that means, each newline-terminated line
-represents either a comment, a section name or a parameter.
+The file format is line-based - that means, each non-empty newline-terminated
+line represents either a comment, a section name, or a parameter.
 .PP
 Section and parameter names are not case sensitive.
 .SH "SECTION OVERVIEW"
 The file can contain blocks of four types: [Global], [Operator], [Server],
 and [Channel].
 .PP
-In the
+The main configuration of the server is stored in the
 .I [Global]
-section, there is the main configuration like the server name and the
+section, like the server name, administrative information and the
 ports on which the server should be listening. IRC operators of this
 server are defined in
 .I [Operator]
@@ -57,7 +58,7 @@ section is used to define the server main configuration, like the server
 name and the ports on which the server should be listening.
 .TP
 \fBName\fR
-Server name in the IRC network
+Server name in the IRC network, must contain at least one dot (".").
 .TP
 \fBInfo\fR
 Info text of the server. This will be shown by WHOIS and LINKS requests for
@@ -83,7 +84,8 @@ to all users connecting to the server.
 .TP
 \fBMotdPhrase\fR
 A simple Phrase (<256 chars) if you don't want to use a MOTD file.
-If it is set no MotdFile will be read at all.
+If it is set no MotdFile will be read at all which can be handy if the
+daemon should run inside a chroot directory.
 .TP
 \fBServerUID\fR
 User ID under which the server should run; you can use the name of the user
@@ -205,31 +207,34 @@ Example: nick!ident@*.example.com
 Other servers are configured in
 .I [Server]
 sections. If you configure a port for the connection, then this ngIRCd
-tries to connect to to the other server on the given port; if not, it waits
-for the other server to connect.
+tries to connect to to the other server on the given port (active);
+if not, it waits for the other server to connect (passive).
 .PP
-The ngIRCd allows "server groups": You can assign an "ID" to every server
-with which you want this ngIRCd to link. If a server of a group won't
-answer, the ngIRCd tries to connect to the next server in the given group.
-But ngIRCd never tries to connect to two servers with the same group ID.
+ngIRCd supports "server groups": You can assign an "ID" to every server
+with which you want this ngIRCd to link, and the daemon ensures that at
+any given time only one direct link exists to servers with the same ID.
+So if a server of a group won't answer, ngIRCd tries to connect to the next
+server in the given group (="with the same ID"), but never tries to connect
+to more than one server of this group simultaneously.
 .PP
 There may be more than one
 .I [Server]
 block.
 .TP
 \fBName\fR
-IRC name of the server
+IRC name of the remote server.
 .TP
 \fBHost\fR
-Internet host name of the peer
+Internet host name (or IP address) of the peer.
 .TP
 \fBBind\fR
 IP address to use as source IP for the outgoing connection. Default ist
 to let the operating system decide.
 .TP
 \fBPort\fR
-Port of the server to which the ngIRCd should connect. If you assign no port
-the ngIRCd waits for incoming connections.
+Port of the remote server to which ngIRCd should connect (active).
+If no port is assigned to a configured server, the daemon only waits for
+incoming connections (passive).
 .TP
 \fBMyPassword\fR
 Own password for this connection. This password has to be configured as
@@ -241,6 +246,7 @@ Foreign password for this connection. This password has to be configured as
 .TP
 \fBGroup\fR
 Group of this server (optional).
+.TP
 \fBPassive\fR
 Disable automatic connection even if port value is specified. Default: false.
 You can use the IRC Operator command CONNECT later on to create the link.
@@ -258,19 +264,19 @@ There may be more than one
 block.
 .TP
 \fBName\fR
-Name of the channel
+Name of the channel, including channel prefix ("#").
 .TP
 \fBTopic\fR
-Topic for this channel
+Topic for this channel.
 .TP
 \fBModes\fR
 Initial channel modes.
 .TP
 \fBKey\fR
-Sets initial channel key (only relevant if mode k is set)
+Sets initial channel key (only relevant if mode k is set).
 .TP
 \fBMaxUsers\fR
-Set maximum user limit for this channel (only relevant if mode l is set)
+Set maximum user limit for this channel (only relevant if mode l is set).
 .SH HINTS
 It's wise to use "ngircd --configtest" to validate the configuration file
 after changing it. See

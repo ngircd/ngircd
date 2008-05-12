@@ -415,11 +415,13 @@ NewListener(int af, const UINT16 Port)
 
 	set_v6_only(af, sock);
 
-	if( ! Init_Socket( sock )) return -1;
+	if (!Init_Socket(sock))
+		return -1;
 
 	if (bind(sock, (struct sockaddr *)&addr, ng_ipaddr_salen(&addr)) != 0) {
-		Log( LOG_CRIT, "Can't bind socket (port %d) : %s!", Port, strerror( errno ));
-		close( sock );
+		Log(LOG_CRIT, "Can't bind socket to address %s:%d - %s",
+			ng_ipaddr_tostr(&addr), Port, strerror(errno));
+		close(sock);
 		return -1;
 	}
 

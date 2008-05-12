@@ -99,6 +99,7 @@
 #define ERR_NOTEXTTOSEND_MSG		"412 %s :No text to send"
 #define ERR_UNKNOWNCOMMAND_MSG		"421 %s %s :Unknown command"
 #define ERR_NOMOTD_MSG			"422 %s :MOTD file is missing"
+#define ERR_NONICKNAMEGIVEN_MSG		"431 %s :No nickname given"
 #define ERR_ERRONEUSNICKNAME_MSG	"432 %s %s :Erroneous nickname"
 #define ERR_NICKNAMEINUSE_MSG		"433 %s %s :Nickname already in use"
 #define ERR_USERNOTINCHANNEL_MSG	"441 %s %s %s :They aren't on that channel"

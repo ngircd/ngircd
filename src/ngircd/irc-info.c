@@ -994,6 +994,22 @@ IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 } /* IRC_WHOIS */
 
 
+static bool
+WHOWAS_EntryWrite(CLIENT *prefix, WHOWAS *entry)
+{
+	char t_str[60];
+
+	(void)strftime(t_str, sizeof(t_str), "%a %b %d %H:%M:%S %Y",
+					localtime(&entry->time));
+
+	if (!IRC_WriteStrClient(prefix, RPL_WHOWASUSER_MSG, Client_ID(prefix),
+			entry->id, entry->user, entry->host, entry->info))
+				return DISCONNECTED;
+
+	return IRC_WriteStrClient(prefix, RPL_WHOISSERVER_MSG, Client_ID(prefix),
+		  entry->id, entry->server, t_str);
+}
+
 /**
  * IRC "WHOWAS" function.
  * This function implements the IRC command "WHOWHAS". It handles local
@@ -1004,40 +1020,41 @@ IRC_WHOWAS( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *target, *prefix;
 	WHOWAS *whowas;
-	int max, last, count, i;
-	char t_str[60];
-	
+	char tok_buf[COMMAND_LEN];
+	int max, last, count, i, nc;
+	const char *nick;
+
 	assert( Client != NULL );
 	assert( Req != NULL );
 
 	/* Wrong number of parameters? */
-	if(( Req->argc < 1 ) || ( Req->argc > 3 ))
-		return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG,
-					   Client_ID( Client ), Req->command );
+	if (Req->argc > 3)
+		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+					Client_ID(Client), Req->command);
+	if (Req->argc < 1)
+		return IRC_WriteStrClient(Client, ERR_NONICKNAMEGIVEN_MSG, Client_ID(Client));
 
-	/* Search taget */
-	if( Req->argc == 3 )
-		target = Client_Search( Req->argv[2] );
+	/* Search target */
+	if (Req->argc == 3)
+		target = Client_Search(Req->argv[2]);
 	else
-		target = Client_ThisServer( );
+		target = Client_ThisServer();
 
 	/* Get prefix */
-	if( Client_Type( Client ) == CLIENT_SERVER )
-		prefix = Client_Search( Req->prefix );
+	if (Client_Type(Client) == CLIENT_SERVER)
+		prefix = Client_Search(Req->prefix);
 	else
 		prefix = Client;
 
-	if( ! prefix )
-		return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG,
-					   Client_ID( Client ), Req->prefix );
+	if (!prefix)
+		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
+						Client_ID(Client), Req->prefix);
 
 	/* Forward to other server? */
-	if( target != Client_ThisServer( ))
-	{
-		if(( ! target ) || ( Client_Type( target ) != CLIENT_SERVER ))
-			return IRC_WriteStrClient( prefix, ERR_NOSUCHSERVER_MSG,
-						   Client_ID( prefix ),
-						   Req->argv[2] );
+	if (target != Client_ThisServer()) {
+		if (!target || (Client_Type(target) != CLIENT_SERVER))
+			return IRC_WriteStrClient(prefix, ERR_NOSUCHSERVER_MSG,
+					Client_ID(prefix), Req->argv[2]);
 
 		/* Forward */
 		IRC_WriteStrClientPrefix( target, prefix, "WHOWAS %s %s %s",
@@ -1045,58 +1062,52 @@ IRC_WHOWAS( CLIENT *Client, REQUEST *Req )
 					  Req->argv[2] );
 		return CONNECTED;
 	}
-	
+
 	whowas = Client_GetWhowas( );
 	last = Client_GetLastWhowasIndex( );
-	if( last < 0 ) last = 0;
-	
-	if( Req->argc > 1 )
-	{
-		max = atoi( Req->argv[1] );
-		if( max < 1 ) max = MAX_WHOWAS;
-	}
-	else
-		max = DEFAULT_WHOWAS;
-	
-	i = last;
-	count = 0;
-	do
-	{
-		/* Used entry? */
-		if( whowas[i].time > 0 &&
-		    strcasecmp( Req->argv[0], whowas[i].id ) == 0 )
-		{
-			(void)strftime( t_str, sizeof(t_str),
-					"%a %b %d %H:%M:%S %Y",
-					localtime( &whowas[i].time ));
-		
-			if( ! IRC_WriteStrClient( prefix, RPL_WHOWASUSER_MSG,
-						  Client_ID( prefix ),
-						  whowas[i].id,
-						  whowas[i].user,
-						  whowas[i].host, 
-						  whowas[i].info ))
-				return DISCONNECTED;
-		
-			if( ! IRC_WriteStrClient( prefix, RPL_WHOISSERVER_MSG,
-						  Client_ID( prefix ),
-						  whowas[i].id,
-						  whowas[i].server, t_str ))
-				return DISCONNECTED;
-		
-			count++;
-			if( count >= max ) break;
-		}
-		
-		/* previos entry */
-		i--;
+	if (last < 0)
+		last = 0;
 
-		/* "underflow", wrap around */
-		if( i < 0 ) i = MAX_WHOWAS - 1;
-	} while( i != last );
-	
-	return IRC_WriteStrClient( prefix, RPL_ENDOFWHOWAS_MSG,
-				   Client_ID( prefix ), Req->argv[0] );
+	max = DEFAULT_WHOWAS;
+	if (Req->argc > 1) {
+		max = atoi(Req->argv[1]);
+		if (max < 1)
+			max = MAX_WHOWAS;
+	}
+
+	/*
+	 * Break up the nick argument into a list of nicks, if applicable
+	 * Can't modify Req->argv[0] because we need it for RPL_ENDOFWHOWAS_MSG.
+	 */
+	strlcpy(tok_buf, Req->argv[0], sizeof(tok_buf));
+	nick = strtok(tok_buf, ",");
+
+	for (i=last, count=0; nick != NULL ; nick = strtok(NULL, ",")) {
+		nc = 0;
+		do {
+			/* Used entry? */
+			if (whowas[i].time > 0 && strcasecmp(nick, whowas[i].id) == 0) {
+				if (!WHOWAS_EntryWrite(prefix, &whowas[i]))
+					return DISCONNECTED;
+				nc++;
+				count++;
+			}
+			/* previous entry */
+			i--;
+
+			/* "underflow", wrap around */
+			if (i < 0)
+				i = MAX_WHOWAS - 1;
+
+			if (nc && count >= max)
+				break;
+		} while (i != last);
+
+		if (nc == 0 && !IRC_WriteStrClient(prefix, ERR_WASNOSUCHNICK_MSG,
+						Client_ID(prefix), nick))
+			return DISCONNECTED;
+	}
+	return IRC_WriteStrClient(prefix, RPL_ENDOFWHOWAS_MSG, Client_ID(prefix), Req->argv[0]);
 } /* IRC_WHOWAS */
 
 

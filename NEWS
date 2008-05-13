@@ -10,8 +10,9 @@
                                   -- NEWS --
 
 
-ngIRCd 0.12.0-pre2 (2008-04-29)
+ngIRCd 0.12.0 (2008-05-13)
 
+  ngIRCd 0.12.0-pre2 (2008-04-29)
   - IPv6: Add config options to disabe ipv4/ipv6 support.
 
   ngIRCd 0.12.0-pre1 (2008-04-20)

@@ -24,9 +24,16 @@ Florian Westphal, <westphal@foo.fh-furtwangen.de> (fw)
 
 Contributors
 ~~~~~~~~~~~~
-Goetz Hoffart, <goetz@hoffart.de> (goetz)
-Ilja Osthoff, <i.osthoff@gmx.net> (ilja)
+Ali Shemiran, <ashemira@ucsd.edu>
 Benjamin Pineau, <ben@zouh.org>
+Brandon Beresini, <beresini@google.com>
+Bryan Caldwell, <bcaldwel@ucsd.edu>
+Dana Dahlstrom, <dana+ngIRCd@cs.ucsd.edu>
+Eric Grunow, <egrunow@ucsd.edu>
+Goetz Hoffart, <goetz@hoffart.de>
+Ilja Osthoff, <i.osthoff@gmx.net>
+Rolf Eike Beer, <eike@sf-mail.de>
+Scott Perry, <scperry@ucsd.edu>
 Sean Reifschneider, <jafo-rpms@tummy.com>
 
 
@@ -35,7 +42,3 @@ Code snippets
 J. Kercheval: pattern matching functions
 Patrick Powell, <papowell@astart.com>: snprintf()-function
 Andrew Tridgell & Martin Pool: strl{cpy|cat}()-functions
-
-
--- 
-$Id: AUTHORS,v 1.13 2007/10/04 15:18:48 alex Exp $

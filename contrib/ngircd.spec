@@ -1,5 +1,5 @@
 %define name    ngircd
-%define version CVSHEAD
+%define version dev
 %define release 1
 %define prefix  %{_prefix}
 

@@ -12,18 +12,16 @@
 
 ngIRCd-dev
 
+  - ...
+
+ngIRCd 0.12.0 (2008-05-13)
+
   - Fix Bug: 85: "WHO #SecretChannel" that user is not a member of now returns
     proper RPL_ENDOFWHO_MSG instead of nothing. (Ali Shemiran)
-  - Implemented IRC commands SERVICE, SERVLIST, and SQUERY as dummy functions
-    to be even more RFC-compliant. Closes bug 74.
-  - Fixed Bug 75: KICK now handles comma-delimited lists.
-    (Brandon Beresini, Bryan Caldwell)
-  - Fixed Bug 83: ngIRCd chokes on 1-character messages.
-  - Add support for modeless channels ("+channels").
-    (Bryan Caldwell, Ali Shemiran)
+  - Fix complie on FreeBSD 5.4 and AIX.
+  - If bind() fails, also print ip address and not just the port number.
 
-ngIRCd 0.12.0-pre2 (2008-04-29)
-
+  ngIRCd 0.12.0-pre2 (2008-04-29)
   - IPv6: Add config options to disabe ipv4/ipv6 support.
   - Don't include doc/CVS.txt in distribution archive, use doc/GIT.txt now!
   - Documentation: get rid of some more references to CVS, switch to GIT.

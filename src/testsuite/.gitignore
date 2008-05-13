@@ -1,6 +1,9 @@
 T-ngircd
 channel-test
 connect-test
+invite-test
+join-test
+kick-test
 misc-test
 mode-test
 opless-channel-test

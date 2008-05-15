@@ -54,6 +54,10 @@ A: Most probably you are using version 1.5 of GNU automake which seems to be
 III. Runtime
 ~~~~~~~~~~~~
 
+Q: Where is the log file located?
+A: ngIRCd does not write its own log file. Instead, ngIRCd uses
+   syslog(3). Check the files in /var/log/ and/or consult the
+   documentation for your system logger daemon.
 Q: I cannot connect to remote peers when I use the chroot option, the
    following is logged: "Can't resolve example.com: unknown error!".
 A: On Linux/glibc with chroot enabled you need to put some libraries inside

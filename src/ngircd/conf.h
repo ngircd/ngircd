@@ -86,7 +86,7 @@ GLOBAL char Conf_MotdPhrase[LINE_LEN];
 GLOBAL array Conf_ListenPorts;
 
 /* Address to which the socket should be bound or empty (=all) */
-GLOBAL char Conf_ListenAddress[16];
+GLOBAL char *Conf_ListenAddress;
 
 /* User and group ID the server should run with */
 GLOBAL uid_t Conf_UID;
@@ -123,12 +123,6 @@ GLOBAL bool Conf_OperCanMode;
 
 /* Disable all DNS functions? */
 GLOBAL bool Conf_NoDNS;
-
-/* listen for incoming ipv6 connections if OS supports it (default: yes)? */
-GLOBAL bool Conf_ListenIPv6;
-
-/* listen for incoming ipv4 connections if OS supports it (default: yes)? */
-GLOBAL bool Conf_ListenIPv4;
 
 /*
  * try to connect to remote systems using the ipv6 protocol,

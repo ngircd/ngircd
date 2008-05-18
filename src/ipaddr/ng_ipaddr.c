@@ -24,18 +24,19 @@ ng_ipaddr_init(ng_ipaddr_t *addr, const char *ip_str, UINT16 port)
 	int ret;
 	char portstr[64];
 	struct addrinfo *res0;
-	struct addrinfo hints = {
-#ifndef WANT_IPV6	/* only accept v4 addresses */
-		.ai_family = AF_INET,
-#endif
-		.ai_flags = AI_NUMERICHOST
-	};
+	struct addrinfo hints;
 
-	if (ip_str == NULL)
-		hints.ai_flags |= AI_PASSIVE;
+	assert(ip_str);
+
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_flags = AI_NUMERICHOST;
+
+	/* some getaddrinfo implementations require that ai_socktype is set. */
+	hints.ai_socktype = SOCK_STREAM;
 
 	/* silly, but ngircd stores UINT16 in server config, not string */
 	snprintf(portstr, sizeof(portstr), "%u", (unsigned int) port);
+
 	ret = getaddrinfo(ip_str, portstr, &hints, &res0);
 	assert(ret == 0);
 	if (ret != 0)
@@ -49,8 +50,7 @@ ng_ipaddr_init(ng_ipaddr_t *addr, const char *ip_str, UINT16 port)
 	freeaddrinfo(res0);
 	return ret == 0;
 #else /* HAVE_GETADDRINFO */
-	if (ip_str == NULL)
-		ip_str = "0.0.0.0";
+	assert(ip_str);
 	addr->sin4.sin_family = AF_INET;
 # ifdef HAVE_INET_ATON
 	if (inet_aton(ip_str, &addr->sin4.sin_addr) == 0)

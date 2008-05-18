@@ -88,7 +88,7 @@ static void Init_Conn_Struct PARAMS(( CONN_ID Idx ));
 static bool Init_Socket PARAMS(( int Sock ));
 static void New_Server PARAMS(( int Server, ng_ipaddr_t *dest ));
 static void Simple_Message PARAMS(( int Sock, const char *Msg ));
-static int NewListener PARAMS(( int af, const UINT16 Port ));
+static int NewListener PARAMS(( const char *listen_addr, UINT16 Port ));
 
 static array My_Listeners;
 static array My_ConnArray;
@@ -272,7 +272,7 @@ Conn_Exit( void )
 
 
 static unsigned int
-ports_initlisteners(array *a, int af, void (*func)(int,short))
+ports_initlisteners(array *a, const char *listen_addr, void (*func)(int,short))
 {
 	unsigned int created = 0;
 	size_t len;
@@ -281,15 +281,15 @@ ports_initlisteners(array *a, int af, void (*func)(int,short))
 
 	len = array_length(a, sizeof (UINT16));
 	port = array_start(a);
-	while(len--) {
-		fd = NewListener(af, *port);
+	while (len--) {
+		fd = NewListener(listen_addr, *port);
 		if (fd < 0) {
 			port++;
 			continue;
 		}
 		if (!io_event_create( fd, IO_WANTREAD, func )) {
 			Log( LOG_ERR, "io_event_create(): Could not add listening fd %d (port %u): %s!",
-							fd, (unsigned int) *port, strerror(errno));
+						fd, (unsigned int) *port, strerror(errno));
 			close(fd);
 			port++;
 			continue;
@@ -297,7 +297,6 @@ ports_initlisteners(array *a, int af, void (*func)(int,short))
 		created++;
 		port++;
 	}
-
 	return created;
 }
 
@@ -306,21 +305,39 @@ GLOBAL unsigned int
 Conn_InitListeners( void )
 {
 	/* Initialize ports on which the server should accept connections */
-
 	unsigned int created = 0;
+	char *copy, *listen_addr;
 
 	if (!io_library_init(CONNECTION_POOL)) {
 		Log(LOG_EMERG, "Cannot initialize IO routines: %s", strerror(errno));
 		return -1;
 	}
 
-#ifdef WANT_IPV6
-	if (Conf_ListenIPv6)
-		created = ports_initlisteners(&Conf_ListenPorts, AF_INET6, cb_listen);
-#endif
-	if (Conf_ListenIPv4)
-		created += ports_initlisteners(&Conf_ListenPorts, AF_INET, cb_listen);
+	assert(Conf_ListenAddress);
 
+	/* can't use Conf_ListenAddress directly, see below */
+	copy = strdup(Conf_ListenAddress);
+	if (!copy) {
+		Log(LOG_CRIT, "Cannot copy %s: %s", Conf_ListenAddress, strerror(errno));
+		return 0;
+	}
+	listen_addr = strtok(copy, ",");
+
+	while (listen_addr) {
+		ngt_TrimStr(listen_addr);
+		if (*listen_addr)
+			created += ports_initlisteners(&Conf_ListenPorts, listen_addr, cb_listen);
+
+		listen_addr = strtok(NULL, ",");
+	}
+
+	/*
+	 * can't free() Conf_ListenAddress here. On /REHASH, if the config file
+	 * cannot be re-loaded, we'd end up with a NULL Conf_ListenAddress.
+	 * Instead, free() takes place in conf.c, before the config file
+	 * is being parsed.
+	 */
+	free(copy);
 	return created;
 } /* Conn_InitListeners */
 
@@ -350,25 +367,15 @@ Conn_ExitListeners( void )
 
 
 static bool
-InitSinaddrListenAddr(int af, ng_ipaddr_t *addr, UINT16 Port)
+InitSinaddrListenAddr(ng_ipaddr_t *addr, const char *listen_addrstr, UINT16 Port)
 {
 	bool ret;
-	const char *listen_addrstr = NULL;
-#ifdef WANT_IPV6
-	if (af == AF_INET)
-		listen_addrstr = "0.0.0.0";
-#else
-	(void)af;
-#endif
-	if (Conf_ListenAddress[0]) /* overrides V4/V6 atm */
-		listen_addrstr = Conf_ListenAddress;
 
 	ret = ng_ipaddr_init(addr, listen_addrstr, Port);
 	if (!ret) {
-		if (!listen_addrstr)
-			listen_addrstr = "";
-		Log(LOG_CRIT, "Can't bind to %s:%u: can't convert ip address \"%s\"",
-					listen_addrstr, Port, listen_addrstr);
+		assert(listen_addrstr);
+		Log(LOG_CRIT, "Can't bind to [%s]:%u: can't convert ip address \"%s\"",
+						listen_addrstr, Port, listen_addrstr);
 	}
 	return ret;
 }
@@ -394,24 +401,23 @@ set_v6_only(int af, int sock)
 
 /* return new listening port file descriptor or -1 on failure */
 static int
-NewListener(int af, const UINT16 Port)
+NewListener(const char *listen_addr, UINT16 Port)
 {
 	/* Create new listening socket on specified port */
 	ng_ipaddr_t addr;
-	int sock;
+	int sock, af;
 #ifdef ZEROCONF
 	char name[CLIENT_ID_LEN], *info;
 #endif
-	if (!InitSinaddrListenAddr(af, &addr, Port))
+	if (!InitSinaddrListenAddr(&addr, listen_addr, Port))
 		return -1;
-
-	sock = socket(ng_ipaddr_af(&addr), SOCK_STREAM, 0);
-	if( sock < 0 ) {
-		Log( LOG_CRIT, "Can't create socket: %s!", strerror( errno ));
-		return -1;
-	}
 
 	af = ng_ipaddr_af(&addr);
+	sock = socket(af, SOCK_STREAM, 0);
+	if( sock < 0 ) {
+		Log(LOG_CRIT, "Can't create socket (af %d) : %s!", af, strerror(errno));
+		return -1;
+	}
 
 	set_v6_only(af, sock);
 
@@ -438,12 +444,7 @@ NewListener(int af, const UINT16 Port)
 		return -1;
 	}
 
-#ifdef WANT_IPV6
-	if (af == AF_INET6)
-		Log(LOG_INFO, "Now listening on [%s]:%d (socket %d).", ng_ipaddr_tostr(&addr), Port, sock);
-	else
-#endif
-		Log(LOG_INFO, "Now listening on %s:%d (socket %d).", ng_ipaddr_tostr(&addr), Port, sock);
+	Log(LOG_INFO, "Now listening on [%s]:%d (socket %d).", ng_ipaddr_tostr(&addr), Port, sock);
 
 #ifdef ZEROCONF
 	/* Get best server description text */
@@ -1441,7 +1442,7 @@ New_Server( int Server , ng_ipaddr_t *dest)
 	af_dest = ng_ipaddr_af(dest);
 	new_sock = socket(af_dest, SOCK_STREAM, 0);
 	if (new_sock < 0) {
-		Log( LOG_CRIT, "Can't create socket: %s!", strerror( errno ));
+		Log( LOG_CRIT, "Can't create socket (af %d) : %s!", af_dest, strerror( errno ));
 		return;
 	}
 

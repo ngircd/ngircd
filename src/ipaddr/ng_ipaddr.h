@@ -84,7 +84,6 @@ ng_ipaddr_getport(const ng_ipaddr_t *a)
  * init a ng_ipaddr_t object.
  * @param addr: pointer to ng_ipaddr_t to initialize.
  * @param ip_str: ip address in dotted-decimal (ipv4) or hexadecimal (ipv6) notation
- *                if ip_str is NULL it is treated as 0.0.0.0/[::]
  * @param port: transport layer port number to use.
  */
 GLOBAL bool ng_ipaddr_init PARAMS((ng_ipaddr_t *addr, const char *ip_str, UINT16 port));

@@ -73,8 +73,10 @@ Ports on which the server should listen. There may be more than one port,
 separated with ','. Default: 6667.
 .TP
 \fBListen\fR
-The IP address on which the server should listen. Default is empty, so
-the server listens on all configured IP addresses and interfaces.
+A comma seperated list of IP address on which the server should listen.
+If unset, the defaults value is "0.0.0.0", or, if ngircd was compiled
+with IPv6 support, "::,0.0.0.0", so the server listens on all configured
+IP addresses and interfaces by default.
 .TP
 \fBMotdFile\fR
 Text file with the "message of the day" (MOTD). This message will be shown
@@ -159,15 +161,6 @@ If enabled, ngircd will not make DNS lookups when clients connect.
 If you configure ngircd to connect to other servers, ngircd may still
 perform a DNS lookup if required.
 Default: No.
-.TP
-\fBListenIPv4\fR
-Set this to no if you do not want ngircd to accept clients using the standard internet protocol, ipv4.
-This allows use of ngircd in ipv6-only setups.
-Default: Yes.
-.TP
-\fBListenIPv6\fR
-Set this to no if you do not want ngircd to accept clients using the new internet protocol, ipv6.
-Default: Yes.
 .TP
 \fBConnectIPv4\fR
 Set this to no if you do not want ngircd to connect to other irc servers using ipv4.

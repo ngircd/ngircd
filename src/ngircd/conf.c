@@ -56,6 +56,18 @@ static CONF_SERVER New_Server;
 static int New_Server_Idx;
 
 
+#ifdef WANT_IPV6
+/*
+ * these options appeared in ngircd 0.12; they are here
+ * for backwards compatibility. They should be removed
+ * in the future. Instead of setting these options,
+ * the "Listen" option should be set accordingly.
+ */
+static bool Conf_ListenIPv6;
+static bool Conf_ListenIPv4;
+#endif
+
+
 static void Set_Defaults PARAMS(( bool InitServers ));
 static bool Read_Config PARAMS(( bool ngircd_starting ));
 static void Validate_Config PARAMS(( bool TestOnly, bool Rehash ));
@@ -199,8 +211,7 @@ Conf_Test( void )
 	fputs("  Ports = ", stdout);
 
 	ports_puts(&Conf_ListenPorts);
-
-	printf( "  Listen = %s\n", Conf_ListenAddress );
+	printf("  Listen = %s\n", Conf_ListenAddress);
 	pwd = getpwuid( Conf_UID );
 	if( pwd ) printf( "  ServerUID = %s\n", pwd->pw_name );
 	else printf( "  ServerUID = %ld\n", (long)Conf_UID );
@@ -216,8 +227,11 @@ Conf_Test( void )
 	printf( "  NoDNS = %s\n", yesno_to_str(Conf_NoDNS));
 
 #ifdef WANT_IPV6
-	printf("  ListenIPv6 = %s\n", yesno_to_str(Conf_ListenIPv6));
-	printf("  ListenIPv4 = %s\n", yesno_to_str(Conf_ListenIPv4));
+	/* both are deprecated, only mention them if their default value changed. */
+	if (!Conf_ListenIPv6)
+		puts("  ListenIPv6 = no");
+	if (!Conf_ListenIPv4)
+		puts("  ListenIPv4 = no");
 	printf("  ConnectIPv4 = %s\n", yesno_to_str(Conf_ConnectIPv6));
 	printf("  ConnectIPv6 = %s\n", yesno_to_str(Conf_ConnectIPv4));
 #endif
@@ -448,8 +462,8 @@ Set_Defaults( bool InitServers )
 
 	strlcpy( Conf_PidFile, PID_FILE, sizeof( Conf_PidFile ));
 
-	strcpy( Conf_ListenAddress, "" );
-
+	free(Conf_ListenAddress);
+	Conf_ListenAddress = NULL;
 	Conf_UID = Conf_GID = 0;
 
 	Conf_PingTimeout = 120;
@@ -650,6 +664,23 @@ Read_Config( bool ngircd_starting )
 			exit( 1 );
 		}
 	}
+
+	if (!Conf_ListenAddress) {
+		/* no Listen addresses configured, use default */
+#ifdef WANT_IPV6
+		/* Conf_ListenIPv6/4 should no longer be used */
+		if (Conf_ListenIPv6 && Conf_ListenIPv4)
+			Conf_ListenAddress = strdup_warn("::,0.0.0.0");
+		else if (Conf_ListenIPv6)
+			Conf_ListenAddress = strdup_warn("::");
+		else
+#endif
+		Conf_ListenAddress = strdup_warn("0.0.0.0");
+	}
+	if (!Conf_ListenAddress) {
+		Config_Error(LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE_NAME);
+		exit(1);
+	}
 	return true;
 } /* Read_Config */
 
@@ -840,17 +871,25 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 	}
 #ifdef WANT_IPV6
 	/* the default setting for all the WANT_IPV6 special options is 'true' */
-	if( strcasecmp( Var, "ListenIPv6" ) == 0 ) {
-		/* listen on ipv6 sockets, if available? */
+	if (strcasecmp(Var, "ListenIPv6") == 0) { /* DEPRECATED, option appeared in 0.12.0 */
+		/*
+		 * listen on ipv6 sockets, if available?
+		 * Deprecated use "Listen = 0.0.0.0" (or, rather, do not list "::")
+		 */
 		Conf_ListenIPv6 = Check_ArgIsTrue( Arg );
+		Config_Error(LOG_WARNING, "%s, line %d: %s=%s is deprecated, %sinclude '::' in \"Listen =\" option instead",
+				NGIRCd_ConfFile, Line, Var, yesno_to_str(Conf_ListenIPv6), Conf_ListenIPv6 ? " ":"do not ");
 		return;
 	}
-	if( strcasecmp( Var, "ListenIPv4" ) == 0 ) {
+	if (strcasecmp(Var, "ListenIPv4") == 0) { /* DEPRECATED, option appeared in 0.12.0 */
 		/*
 		 * listen on ipv4 sockets, if available?
-		 * this allows "ipv6-only" setups.
+		 * this allows "ipv6-only" setups
+		 * Deprecated use "Listen = ::" (or, rather, do not list "0.0.0.0")
 		 */
 		Conf_ListenIPv4 = Check_ArgIsTrue( Arg );
+		Config_Error(LOG_WARNING, "%s, line %d: %s=%s is deprecated, %sinclude '0.0.0.0' in \"Listen =\" option instead",
+				NGIRCd_ConfFile, Line, Var, yesno_to_str(Conf_ListenIPv4), Conf_ListenIPv4 ? " ":"do not ");
 		return;
 	}
 	if( strcasecmp( Var, "ConnectIPv6" ) == 0 ) {
@@ -911,14 +950,24 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 
 	if( strcasecmp( Var, "Listen" ) == 0 ) {
 		/* IP-Address to bind sockets */
-		len = strlcpy( Conf_ListenAddress, Arg, sizeof( Conf_ListenAddress ));
-		if (len >= sizeof( Conf_ListenAddress ))
-			Config_Error_TooLong( Line, Var );
+		if (Conf_ListenAddress) {
+			Config_Error(LOG_ERR, "Multiple Listen= options, ignoring: %s", Arg);
+			return;
+		}
+		Conf_ListenAddress = strdup_warn(Arg);
+		/*
+		 * if allocation fails, we're in trouble:
+		 * we cannot ignore the error -- otherwise ngircd
+		 * would listen on all interfaces.
+		 */
+		if (!Conf_ListenAddress) {
+			Config_Error(LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE_NAME);
+			exit(1);
+		}
 		return;
 	}
-
-	Config_Error( LOG_ERR, "%s, line %d (section \"Global\"): Unknown variable \"%s\"!",
-								NGIRCd_ConfFile, Line, Var );
+	Config_Error(LOG_ERR, "%s, line %d (section \"Global\"): Unknown variable \"%s\"!",
+								NGIRCd_ConfFile, Line, Var);
 } /* Handle_GLOBAL */
 
 
@@ -1185,16 +1234,6 @@ Validate_Config(bool Configtest, bool Rehash)
 		Config_Error(LOG_WARNING,
 			     "No administrative information configured but required by RFC!");
 	}
-
-#ifdef WANT_IPV6
-	if (!Conf_ListenIPv4 && !Conf_ListenIPv6)
-		Config_Error(LOG_ALERT,
-			"Both \"ListenIPv4\" and \"ListenIPv6\" are set to 'no'; no network protocol available!");
-
-	if (!Conf_ConnectIPv4 && !Conf_ConnectIPv6)
-		Config_Error(LOG_ALERT,
-			"Both \"ConnectIPv4\" and \"ConnectIPv6\" are set to 'no'; ngircd will fail to connect to other irc servers");
-#endif
 
 #ifdef DEBUG
 	servers = servers_once = 0;

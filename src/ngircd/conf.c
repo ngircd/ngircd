@@ -480,10 +480,11 @@ Set_Defaults( bool InitServers )
 	Conf_OperServerMode = false;
 
 	Conf_ConnectIPv4 = true;
-	Conf_ListenIPv4 = true;
 	Conf_ConnectIPv6 = true;
+#ifdef WANT_IPV6
+	Conf_ListenIPv4 = true;
 	Conf_ListenIPv6 = true;
-
+#endif
 	Conf_MaxConnections = 0;
 	Conf_MaxConnectionsIP = 5;
 	Conf_MaxJoins = 10;

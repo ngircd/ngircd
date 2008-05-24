@@ -256,13 +256,13 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 		else
 		{
 			/* Nickname change */
-			if( Client_Conn( target ) > NONE )
-			{
+			if (Client_Conn(target) > NONE) {
 				/* Local client */
-				Log( LOG_INFO,
-				     "User \"%s\" changed nick (connection %d): \"%s\" -> \"%s\".",
-				     Client_Mask( target ), Client_Conn( target ),
-				     Client_ID( target ), Req->argv[0] );
+				Log(LOG_INFO,
+				    "User \"%s\" changed nick (connection %d): \"%s\" -> \"%s\".",
+				    Client_Mask(target), Client_Conn(target),
+				    Client_ID(target), Req->argv[0]);
+				Conn_UpdateIdle(Client_Conn(target));
 			}
 			else
 			{

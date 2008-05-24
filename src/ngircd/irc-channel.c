@@ -26,6 +26,7 @@ static char UNUSED id[] = "$Id: irc-channel.c,v 1.45 2008/02/24 18:57:38 fw Exp 
 #include "conn.h"
 #include "client.h"
 #include "channel.h"
+#include "conn-func.h"
 #include "lists.h"
 #include "log.h"
 #include "match.h"
@@ -253,6 +254,9 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 			} else
 				if (!join_allowed(Client, target, chan, channame, key))
 					break;
+
+			/* Local client: update idle time */
+			Conn_UpdateIdle(Client_Conn(Client));
 		} else {
 			/* Remote server: we don't need to know whether the
 			 * client is invited or not, but we have to make sure
@@ -333,6 +337,11 @@ IRC_PART(CLIENT * Client, REQUEST * Req)
 			     Req->argc > 1 ? Req->argv[1] : Client_ID(target));
 		chan = strtok(NULL, ",");
 	}
+
+	/* Update idle time, if local client */
+	if (Client_Conn(Client) > NONE)
+		Conn_UpdateIdle(Client_Conn(Client));
+
 	return CONNECTED;
 } /* IRC_PART */
 

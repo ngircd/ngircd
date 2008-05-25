@@ -136,9 +136,8 @@ AC_FUNC_FORK
 AC_FUNC_STRFTIME
 
 AC_CHECK_FUNCS([ \
-	bind gethostbyaddr gethostbyname gethostname inet_ntoa malloc memmove \
-	memset realloc setsid setsockopt socket strcasecmp strchr strcspn strerror \
-	strstr waitpid],,AC_MSG_ERROR([required function missing!]))
+	bind gethostbyaddr gethostbyname gethostname inet_ntoa \
+	setsid setsockopt socket strcasecmp waitpid],,AC_MSG_ERROR([required function missing!]))
 
 AC_CHECK_FUNCS(inet_aton isdigit sigaction snprintf vsnprintf strdup strlcpy strlcat)
 

@@ -9,14 +9,12 @@
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
-# $Id: Makefile.am,v 1.8 2005/04/16 09:23:01 fw Exp $
-#
 
 AUTOMAKE_OPTIONS = ansi2knr
 
 noinst_LIBRARIES = libngportab.a
 
-libngportab_a_SOURCES = strlcpy.c strdup.c vsnprintf.c
+libngportab_a_SOURCES = strdup.c strlcpy.c strtok_r.c vsnprintf.c
 
 check_PROGRAMS = portabtest
 

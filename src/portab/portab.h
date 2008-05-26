@@ -148,6 +148,10 @@ extern size_t strlcpy PARAMS(( char *dst, const char *src, size_t size ));
 extern char * strdup PARAMS(( const char *s ));
 #endif
 
+#ifndef HAVE_STRTOK_R
+extern char * strtok_r PARAMS((char *str, const char *delim, char **saveptr));
+#endif
+
 #ifndef HAVE_VSNPRINTF
 #include <stdarg.h>
 extern int vsnprintf PARAMS(( char *str, size_t count, const char *fmt, va_list args ));

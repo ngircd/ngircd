@@ -182,7 +182,7 @@ join_send_topic(CLIENT *Client, CLIENT *target, CHANNEL *chan,
 GLOBAL bool
 IRC_JOIN( CLIENT *Client, REQUEST *Req )
 {
-	char *channame, *channame_ptr, *key, *key_ptr, *flags;
+	char *channame, *key = NULL, *flags, *lastkey, *lastchan;
 	CLIENT *target;
 	CHANNEL *chan;
 
@@ -208,16 +208,11 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 		return part_from_all_channels(Client, target);
 
 	/* Are channel keys given? */
-	if (Req->argc > 1) {
-		key = Req->argv[1];
-		key_ptr = strchr(key, ',');
-		if (key_ptr) *key_ptr = '\0';
-	} else {
-		key = key_ptr = NULL;
-	}
+	if (Req->argc > 1)
+		key = strtok_r(Req->argv[1], ",", &lastkey);
+
 	channame = Req->argv[0];
-	channame_ptr = strchr(channame, ',');
-	if (channame_ptr) *channame_ptr = '\0';
+	channame = strtok_r(channame, ",", &lastchan);
 
 	while (channame) {
 		flags = NULL;
@@ -288,18 +283,9 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 			break; /* write error */
 
 		/* next channel? */
-		channame = channame_ptr;
-		if (channame) {
-			channame++;
-			channame_ptr = strchr(channame, ',');
-			if (channame_ptr) *channame_ptr = '\0';
-
-			if (key_ptr) {
-				key = ++key_ptr;
-				key_ptr = strchr(key, ',');
-				if (key_ptr) *key_ptr = '\0';
-			}
-		}
+		channame = strtok_r(NULL, ",", &lastchan);
+		if (channame && key)
+			key = strtok_r(NULL, ",", &lastkey);
 	}
 	return CONNECTED;
 } /* IRC_JOIN */

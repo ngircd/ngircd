@@ -17,8 +17,6 @@
 #include "portab.h"
 #include "io.h"
 
-static char UNUSED id[] = "$Id: conn.c,v 1.221 2008/02/26 22:04:17 fw Exp $";
-
 #include "imp.h"
 #include <assert.h>
 #ifdef PROTOTYPES
@@ -81,7 +79,7 @@ static bool Conn_Write PARAMS(( CONN_ID Idx, char *Data, size_t Len ));
 static int New_Connection PARAMS(( int Sock ));
 static CONN_ID Socket2Index PARAMS(( int Sock ));
 static void Read_Request PARAMS(( CONN_ID Idx ));
-static bool Handle_Buffer PARAMS(( CONN_ID Idx ));
+static void Handle_Buffer PARAMS(( CONN_ID Idx ));
 static void Check_Connections PARAMS(( void ));
 static void Check_Servers PARAMS(( void ));
 static void Init_Conn_Struct PARAMS(( CONN_ID Idx ));
@@ -1232,10 +1230,11 @@ Read_Request( CONN_ID Idx )
 
 
 /**
- * Handle data in connection read-buffer.
- * @return true if a reuqest was handled, false otherwise (and on errors).
+ * Handle all data in the connection read-buffer.
+ * All data is precessed until no complete command is left. When a fatal
+ * error occurs, the connection is shut down.
  */
-static bool
+static void
 Handle_Buffer(CONN_ID Idx)
 {
 #ifndef STRICT_RFC
@@ -1243,32 +1242,36 @@ Handle_Buffer(CONN_ID Idx)
 #endif
 	char *ptr;
 	size_t len, delta;
-	bool result;
 	time_t starttime;
 #ifdef ZLIB
 	bool old_z;
 #endif
 
 	starttime = time(NULL);
-	result = false;
 	for (;;) {
 		/* Check penalty */
 		if (My_Connections[Idx].delaytime > starttime)
-			return result;
+			return;
 #ifdef ZLIB
 		/* Unpack compressed data, if compression is in use */
 		if (Conn_OPTION_ISSET(&My_Connections[Idx], CONN_ZIP)) {
+			/* When unzipping fails, Unzip_Buffer() shuts
+			 * down the connection itself */
 			if (!Unzip_Buffer(Idx))
-				return false;
+				return;
 		}
 #endif
 
 		if (0 == array_bytes(&My_Connections[Idx].rbuf))
-			break;
+			return;
 
 		/* Make sure that the buffer is NULL terminated */
-		if (!array_cat0_temporary(&My_Connections[Idx].rbuf))
-			return false;
+		if (!array_cat0_temporary(&My_Connections[Idx].rbuf)) {
+			Conn_Close(Idx, NULL,
+				   "Can't allocate memory [Handle_Buffer]",
+				   true);
+			return;
+		}
 
 		/* RFC 2812, section "2.3 Messages", 5th paragraph:
 		 * "IRC messages are always lines of characters terminated
@@ -1294,7 +1297,7 @@ Handle_Buffer(CONN_ID Idx)
 #endif
 
 		if (!ptr)
-			break;
+			return;
 
 		/* Complete (=line terminated) request found, handle it! */
 		*ptr = '\0';
@@ -1309,14 +1312,14 @@ Handle_Buffer(CONN_ID Idx)
 			    Idx, array_bytes(&My_Connections[Idx].rbuf),
 			    COMMAND_LEN - 1);
 			Conn_Close(Idx, NULL, "Request too long", true);
-			return false;
+			return;
 		}
 
 		if (len <= delta) {
 			/* Request is empty (only '\r\n', '\r' or '\n');
 			 * delta is 2 ('\r\n') or 1 ('\r' or '\n'), see above */
 			array_moveleft(&My_Connections[Idx].rbuf, 1, len);
-			break;
+			return;
 		}
 
 #ifdef ZLIB
@@ -1327,9 +1330,7 @@ Handle_Buffer(CONN_ID Idx)
 		My_Connections[Idx].msg_in++;
 		if (!Parse_Request
 		    (Idx, (char *)array_start(&My_Connections[Idx].rbuf)))
-			return false;
-
-		result = true;
+			return;
 
 		array_moveleft(&My_Connections[Idx].rbuf, 1, len);
 		LogDebug("Connection %d: %d bytes left in read buffer.",
@@ -1342,8 +1343,12 @@ Handle_Buffer(CONN_ID Idx)
 			 * to the unzip buffer for decompression: */
 			if (!array_copy
 			    (&My_Connections[Idx].zip.rbuf,
-			     &My_Connections[Idx].rbuf))
-				return false;
+			     &My_Connections[Idx].rbuf)) {
+				Conn_Close(Idx, NULL,
+					   "Can't allocate memory [Handle_Buffer]",
+					   true);
+				return;
+			}
 
 			array_trunc(&My_Connections[Idx].rbuf);
 			LogDebug
@@ -1352,7 +1357,6 @@ Handle_Buffer(CONN_ID Idx)
 		}
 #endif
 	}
-	return result;
 } /* Handle_Buffer */
 
 

@@ -480,104 +480,114 @@ NewListener(const char *listen_addr, UINT16 Port)
 } /* NewListener */
 
 
+/**
+ * "Main Loop": Loop until shutdown or restart is signalled.
+ * This function loops until a shutdown or restart of ngIRCd is signalled and
+ * calls io_dispatch() to check for readable and writable sockets every second.
+ * It checks for status changes on pending connections (e. g. when a hostname
+ * has been resolved), checks for "penalties" and timeouts, and handles the
+ * input buffers.
+ */
 GLOBAL void
-Conn_Handler( void )
+Conn_Handler(void)
 {
-	/* "Main Loop.": Loop until a signal (for shutdown or restart) arrives.
-	 * Call io_dispatch() to check for read/writeable sockets every second
-	 * Wait for status change on pending connections (e.g: when the hostname has been resolved)
-	 * check for penalty/timeouts
-	 * handle input buffers
-	 */
 	int i;
 	unsigned int wdatalen;
 	struct timeval tv;
 	time_t t;
-	bool timeout;
 
-	while(( ! NGIRCd_SignalQuit ) && ( ! NGIRCd_SignalRestart )) {
-		timeout = true;
+	while (!NGIRCd_SignalQuit && !NGIRCd_SignalRestart) {
+		t = time(NULL);
 
 #ifdef ZEROCONF
-		Rendezvous_Handler( );
+		Rendezvous_Handler();
 #endif
 
 		/* Should the configuration be reloaded? */
-		if (NGIRCd_SignalRehash) {
-			NGIRCd_Rehash( );
-		}
+		if (NGIRCd_SignalRehash)
+			NGIRCd_Rehash();
 
 		/* Check configured servers and established links */
-		Check_Servers( );
-		Check_Connections( );
+		Check_Servers();
+		Check_Connections();
 
-		t = time( NULL );
-
-		/* noch volle Lese-Buffer suchen */
-		for( i = 0; i < Pool_Size; i++ ) {
-			if(( My_Connections[i].sock > NONE ) && ( array_bytes(&My_Connections[i].rbuf) > 0 ) &&
-			 ( My_Connections[i].delaytime < t ))
-			{
-				/* Kann aus dem Buffer noch ein Befehl extrahiert werden? */
-				if (Handle_Buffer( i )) timeout = false;
+		/* Look for non-empty read buffers ... */
+		for (i = 0; i < Pool_Size; i++) {
+			if ((My_Connections[i].sock > NONE)
+			    && (array_bytes(&My_Connections[i].rbuf) > 0)
+			    && (My_Connections[i].delaytime < t)) {
+				/* ... and try to handle the received data */
+				Handle_Buffer(i);
 			}
 		}
 
-		/* noch volle Schreib-Puffer suchen */
-		for( i = 0; i < Pool_Size; i++ ) {
-			if ( My_Connections[i].sock <= NONE )
+		/* Look for non-empty write buffers ... */
+		for (i = 0; i < Pool_Size; i++) {
+			if (My_Connections[i].sock <= NONE)
 				continue;
 
 			wdatalen = (unsigned int)array_bytes(&My_Connections[i].wbuf);
-
 #ifdef ZLIB
-			if (( wdatalen > 0 ) || ( array_bytes(&My_Connections[i].zip.wbuf)> 0 ))
+			if (wdatalen > 0 ||
+			    array_bytes(&My_Connections[i].zip.wbuf) > 0)
 #else
-			if ( wdatalen > 0 )
+			if (wdatalen > 0)
 #endif
 			{
-				/* Socket der Verbindung in Set aufnehmen */
-				io_event_add( My_Connections[i].sock, IO_WANTWRITE );
+				/* Set the "WANTWRITE" flag on this socket */
+				io_event_add(My_Connections[i].sock,
+					     IO_WANTWRITE);
 			}
 		}
 
-		/* von welchen Sockets koennte gelesen werden? */
-		for (i = 0; i < Pool_Size; i++ ) {
-			if ( My_Connections[i].sock <= NONE )
+		/* Check from which sockets we possibly could read ... */
+		for (i = 0; i < Pool_Size; i++) {
+			if (My_Connections[i].sock <= NONE)
 				continue;
 
 			if (Resolve_INPROGRESS(&My_Connections[i].res_stat)) {
-				/* wait for completion of Resolver Sub-Process */
-				io_event_del( My_Connections[i].sock, IO_WANTREAD );
+				/* Wait for completion of resolver sub-process ... */
+				io_event_del(My_Connections[i].sock,
+					     IO_WANTREAD);
 				continue;
 			}
 
-			if ( Conn_OPTION_ISSET( &My_Connections[i], CONN_ISCONNECTING ))
-				continue;	/* wait for completion of connect() */
+			if (Conn_OPTION_ISSET(&My_Connections[i], CONN_ISCONNECTING))
+				/* Wait for completion of connect() ... */
+				continue;
 
-			if( My_Connections[i].delaytime > t ) {
-				/* Fuer die Verbindung ist eine "Penalty-Zeit" gesetzt */
-				io_event_del( My_Connections[i].sock, IO_WANTREAD );
+			if (My_Connections[i].delaytime > t) {
+				/* There is a "penalty time" set: ignore socket! */
+				io_event_del(My_Connections[i].sock,
+					     IO_WANTREAD);
 				continue;
 			}
-			io_event_add( My_Connections[i].sock, IO_WANTREAD );
+			io_event_add(My_Connections[i].sock, IO_WANTREAD);
 		}
 
-		/* (re-)set timeout - tv_sec/usec are undefined after io_dispatch() returns */
+		/* Set the timeout for reading from the network to 1 second,
+		 * which is the granularity with witch we handle "penalty
+		 * times" for example.
+		 * Note: tv_sec/usec are undefined(!) after io_dispatch()
+		 * returns, so we have to set it beforce each call to it! */
 		tv.tv_usec = 0;
-		tv.tv_sec = timeout ? 1 : 0;
+		tv.tv_sec = 1;
 
-		/* wait for activity */
-		i = io_dispatch( &tv );
-		if (i == -1 && errno != EINTR ) {
-			Log(LOG_EMERG, "Conn_Handler(): io_dispatch(): %s!", strerror(errno));
-			Log(LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE_NAME);
-			exit( 1 );
+		/* Wait for activity ... */
+		i = io_dispatch(&tv);
+		if (i == -1 && errno != EINTR) {
+			Log(LOG_EMERG, "Conn_Handler(): io_dispatch(): %s!",
+			    strerror(errno));
+			Log(LOG_ALERT, "%s exiting due to fatal errors!",
+			    PACKAGE_NAME);
+			exit(1);
 		}
 	}
 
-	if( NGIRCd_SignalQuit ) Log( LOG_NOTICE|LOG_snotice, "Server going down NOW!" );
-	else if( NGIRCd_SignalRestart ) Log( LOG_NOTICE|LOG_snotice, "Server restarting NOW!" );
+	if (NGIRCd_SignalQuit)
+		Log(LOG_NOTICE | LOG_snotice, "Server going down NOW!");
+	else if (NGIRCd_SignalRestart)
+		Log(LOG_NOTICE | LOG_snotice, "Server restarting NOW!");
 } /* Conn_Handler */
 
 

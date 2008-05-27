@@ -2,15 +2,13 @@
 #
 # ngIRCd start and stop script for Debian-based systems
 #
-# $Id: ngircd.init,v 1.7 2006/12/26 14:43:46 alex Exp $
-#
 
 ### BEGIN INIT INFO
 # Provides:		ircd
-# Required-Start:	$local_fs
-# Required-Stop:	$local_fs
-# Should-Start:		$syslog $network
-# Should-Stop:		$syslog $network
+# Required-Start:	$remote_fs
+# Required-Stop:	$remote_fs
+# Should-Start:		$syslog
+# Should-Stop:		$syslog
 # Default-Start:	2 3 4 5
 # Default-Stop:		0 1 6
 # Short-Description:	Next Generation IRC Server
@@ -25,54 +23,71 @@ PARAMS=""
 test -h "$0" && me=`readlink $0` || me="$0"
 BASENAME=`basename $me`
 
-test -f /etc/default/$BASENAME && . /etc/default/$BASENAME
+test -r /etc/default/$BASENAME && . /etc/default/$BASENAME
 
 test -x $DAEMON || exit 0
+
+log_daemon_msg() {
+	echo -n "$*"
+}
+log_end_msg() {
+	[ "$1" == "0" ] && echo "." || echo " failed!"
+}
+log_failure_msg() {
+	echo "$*"
+}
+
+test -r /lib/lsb/init-functions && . /lib/lsb/init-functions
 
 Check_Config()
 {
 	$DAEMON --configtest >/dev/null 2>&1
 	if [ $? -ne 0 ]; then
-		echo "Configuration of $NAME is not valide, won't (re)start!"
-		echo "Please run \"$DAEMON --configtest\" manually and fix it up ..."
+		log_failure_msg "Configuration of $NAME is not valid, won't (re)start!"
+		log_failure_msg "Run \"$DAEMON --configtest\" and fix it up ..."
 		exit 1
 	fi
-}
-
-Try_Start()
-{
-	[ ! -d /var/run/ircd ] || chown irc:irc /var/run/ircd
-	start-stop-daemon --start --quiet --exec $DAEMON -- $PARAMS
-	if [ $? -ne 0 ]; then
-		echo "$NAME failed!"
-		exit 1
+	if [ ! -d /var/run/ircd ]; then
+		mkdir -p /var/run/ircd
+		chown irc:irc /var/run/ircd
 	fi
-	echo "$NAME."
 }
 
 case "$1" in
   start)
 	Check_Config
-	echo -n "Starting $DESC: "
-	Try_Start
+	log_daemon_msg "Starting $DESC" "$NAME"
+	start-stop-daemon --start \
+		--quiet --exec $DAEMON -- $PARAMS
+	log_end_msg $?
 	;;
   stop)
-	echo -n "Stopping $DESC: "
-	start-stop-daemon --stop --quiet --pidfile /var/run/ircd/ngircd.pid --exec $DAEMON \
-	  && echo "$NAME." \
-	  || echo "(none running)"
+	log_daemon_msg "Stopping $DESC" "$NAME"
+	[ -r /var/run/ircd/ngircd.pid ] \
+		&& PIDFILE="--pidfile /var/run/ircd/ngircd.pid" \
+		|| PIDFILE=""
+	start-stop-daemon --stop \
+		--quiet --oknodo --exec $DAEMON $PIDFILE
+	log_end_msg $?
 	;;
   reload|force-reload)
 	Check_Config
-	echo "Reloading $DESC configuration files."
+	log_daemon_msg "Reloading $DESC" "$NAME"
 	start-stop-daemon --stop --signal 1 --quiet --exec $DAEMON
+	log_end_msg $?
 	;;
   restart)
 	Check_Config
-	echo -n "Restarting $DESC: "
-	start-stop-daemon --stop --quiet --oknodo --exec $DAEMON
+	log_daemon_msg "Restarting $DESC" "$NAME"
+	[ -r /var/run/ircd/ngircd.pid ] \
+		&& PIDFILE="--pidfile /var/run/ircd/ngircd.pid" \
+		|| PIDFILE=""
+	start-stop-daemon --stop \
+		--quiet --oknodo --exec $DAEMON $PIDFILE
 	sleep 1
-	Try_Start
+	start-stop-daemon --start \
+		--quiet --exec $DAEMON -- $PARAMS
+	log_end_msg $?
 	;;
   *)
 	N=/etc/init.d/$NAME

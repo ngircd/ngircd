@@ -70,7 +70,7 @@ static bool Conf_ListenIPv4;
 
 static void Set_Defaults PARAMS(( bool InitServers ));
 static bool Read_Config PARAMS(( bool ngircd_starting ));
-static void Validate_Config PARAMS(( bool TestOnly, bool Rehash ));
+static bool Validate_Config PARAMS(( bool TestOnly, bool Rehash ));
 
 static void Handle_GLOBAL PARAMS(( int Line, char *Var, char *Arg ));
 static void Handle_OPERATOR PARAMS(( int Line, char *Var, char *Arg ));
@@ -182,11 +182,14 @@ Conf_Test( void )
 	struct group *grp;
 	unsigned int i;
 	char *topic;
+	bool config_valid;
 
 	Use_Log = false;
 
-	Read_Config( true );
-	Validate_Config(true, false);
+	if (! Read_Config(true))
+		return 1;
+
+	config_valid = Validate_Config(true, false);
 
 	/* If stdin and stdout ("you can read our nice message and we can
 	 * read in your keypress") are valid tty's, wait for a key: */
@@ -279,7 +282,7 @@ Conf_Test( void )
 		printf( "  Topic = %s\n\n", topic ? topic : "");
 	}
 
-	return 0;
+	return (config_valid ? 0 : 1);
 } /* Conf_Test */
 
 
@@ -1164,7 +1167,7 @@ Handle_CHANNEL( int Line, char *Var, char *Arg )
 } /* Handle_CHANNEL */
 
 
-static void
+static bool
 Validate_Config(bool Configtest, bool Rehash)
 {
 	/* Validate configuration settings. */
@@ -1172,6 +1175,7 @@ Validate_Config(bool Configtest, bool Rehash)
 #ifdef DEBUG
 	int i, servers, servers_once;
 #endif
+	bool config_valid = true;
 	char *ptr;
 
 	/* Validate configured server name, see RFC 2812 section 2.3.1 */
@@ -1190,6 +1194,7 @@ Validate_Config(bool Configtest, bool Rehash)
 
 	if (!Conf_ServerName[0]) {
 		/* No server name configured! */
+		config_valid = false;
 		Config_Error(LOG_ALERT,
 			     "No (valid) server name configured in \"%s\" (section 'Global': 'Name')!",
 			     NGIRCd_ConfFile);
@@ -1203,6 +1208,7 @@ Validate_Config(bool Configtest, bool Rehash)
 
 	if (Conf_ServerName[0] && !strchr(Conf_ServerName, '.')) {
 		/* No dot in server name! */
+		config_valid = false;
 		Config_Error(LOG_ALERT,
 			     "Invalid server name configured in \"%s\" (section 'Global': 'Name'): Dot missing!",
 			     NGIRCd_ConfFile);
@@ -1217,6 +1223,7 @@ Validate_Config(bool Configtest, bool Rehash)
 #ifdef STRICT_RFC
 	if (!Conf_ServerAdminMail[0]) {
 		/* No administrative contact configured! */
+		config_valid = false;
 		Config_Error(LOG_ALERT,
 			     "No administrator email address configured in \"%s\" ('AdminEMail')!",
 			     NGIRCd_ConfFile);
@@ -1249,6 +1256,8 @@ Validate_Config(bool Configtest, bool Rehash)
 	    "Configuration: Operators=%d, Servers=%d[%d], Channels=%d",
 	    Conf_Oper_Count, servers, servers_once, Conf_Channel_Count);
 #endif
+
+	return config_valid;
 } /* Validate_Config */
 
 

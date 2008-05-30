@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2008 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -9,10 +9,7 @@
  * Please read the file COPYING, README and AUTHORS for more information.
  */
 
-
 #include "portab.h"
-
-static char UNUSED id[] = "$Id: parse.c,v 1.72 2008/02/17 13:26:42 alex Exp $";
 
 /**
  * @file
@@ -341,12 +338,25 @@ Validate_Command( UNUSED CONN_ID Idx, UNUSED REQUEST *Req, bool *Closed )
 
 
 static bool
-Validate_Args( UNUSED CONN_ID Idx, UNUSED REQUEST *Req, bool *Closed )
+Validate_Args(CONN_ID Idx, REQUEST *Req, bool *Closed)
 {
+	int i;
+
 	assert( Idx >= 0 );
 	assert( Req != NULL );
 	*Closed = false;
 
+	for (i = 0; i < Req->argc; i++) {
+		if (strchr(Req->argv[i], '\r') || strchr(Req->argv[i], '\n')) {
+			Log(LOG_ERR,
+			    "Invalid character(s) in parameter (connection %d, command %s)!?",
+			    Idx, Req->command);
+			if (!Conn_WriteStr(Idx,
+					   "ERROR :Invalid character(s) in parameter!"))
+				*Closed = true;
+			return false;
+		}
+	}
 	return true;
 } /* Validate_Args */
 

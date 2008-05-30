@@ -10,6 +10,19 @@
                                -- ChangeLog --
 
 
+ngIRCd 0.12.1
+
+  - Don't allow stray \r or \n in command parameters
+  - --configtest: return non-zero exit code if there are errors
+  - Update ngIRCd manual pages
+  - Add option aliases -V (for --version) and -h (for --help).
+  - Fix 'no-ipv6' compile error.
+  - Make Listen parameter a comma-seperated list of addresses. This also
+    obsoletes ListenIPv4 and ListenIPv6 options. If Listen is unset, it
+    is treated as Listen="::,0.0.0.0".
+    Note: ListenIPv4 and ListenIPv6 options are still recognized,
+    but ngircd will print a warning if they are used in the config file.
+
 ngIRCd 0.12.0 (2008-05-13)
 
   - Fix Bug: 85: "WHO #SecretChannel" that user is not a member of now returns

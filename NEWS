@@ -10,6 +10,15 @@
                                   -- NEWS --
 
 
+ngIRCd 0.12.1
+
+  - Add option aliases -V (for --version) and -h (for --help).
+  - Make Listen parameter a comma-seperated list of addresses. This also
+    obsoletes ListenIPv4 and ListenIPv6 options. If Listen is unset, it
+    is treated as Listen="::,0.0.0.0".
+    Note: ListenIPv4 and ListenIPv6 options are still recognized,
+    but ngircd will print a warning if they are used in the config file.
+
 ngIRCd 0.12.0 (2008-05-13)
 
   ngIRCd 0.12.0-pre2 (2008-04-29)

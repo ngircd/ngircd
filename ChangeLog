@@ -12,6 +12,7 @@
 
 ngIRCd 0.12.1
 
+  - Allow mixed line terminations (CR+LF/CR/LF) in non-RFC-compliant mode
   - Don't allow stray \r or \n in command parameters
   - --configtest: return non-zero exit code if there are errors
   - Update ngIRCd manual pages

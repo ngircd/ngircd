@@ -1227,7 +1227,7 @@ Handle_Buffer( CONN_ID Idx )
 	/* Handle Data in Connections Read-Buffer.
 	 * Return true if a reuqest was handled, false otherwise (also returned on errors). */
 #ifndef STRICT_RFC
-	char *ptr1, *ptr2;
+	char *ptr1, *ptr2, *first_eol;
 #endif
 	char *ptr;
 	size_t len, delta;
@@ -1255,19 +1255,32 @@ Handle_Buffer( CONN_ID Idx )
 			return false;
 
 		/* A Complete Request end with CR+LF, see RFC 2812. */
+		delta = 2;
 		ptr = strstr( array_start(&My_Connections[Idx].rbuf), "\r\n" );
 
-		if( ptr ) delta = 2; /* complete request */
 #ifndef STRICT_RFC
-		else {
-			/* Check for non-RFC-compliant request (only CR or LF)? Unfortunately,
-			 * there are quite a few clients that do this (incl. "mIRC" :-( */
-			ptr1 = strchr( array_start(&My_Connections[Idx].rbuf), '\r' );
-			ptr2 = strchr( array_start(&My_Connections[Idx].rbuf), '\n' );
+		/* Check for non-RFC-compliant request (only CR or LF)?
+		 * Unfortunately, there are quite a few clients out there
+		 * that do this -- e. g. mIRC, BitchX, and Trillian :-( */
+		ptr1 = strchr(array_start(&My_Connections[Idx].rbuf), '\r');
+		ptr2 = strchr(array_start(&My_Connections[Idx].rbuf), '\n');
+		if (ptr) {
+			/* Check if there is a single CR or LF _before_ the
+			 * corerct CR+LF line terminator:  */
+			first_eol = ptr1 < ptr2 ? ptr1 : ptr2;
+			if (first_eol < ptr) {
+				/* Single CR or LF before CR+LF found */
+				ptr = first_eol;
+				delta = 1;
+			}
+		} else if (ptr1 || ptr2) {
+			/* No CR+LF terminated command found, but single
+			 * CR or LF found ... */
+			if (ptr1 && ptr2)
+				ptr = ptr1 < ptr2 ? ptr1 : ptr2;
+			else
+				ptr = ptr1 ? ptr1 : ptr2;
 			delta = 1;
-			if( ptr1 && ptr2 ) ptr = ptr1 > ptr2 ? ptr2 : ptr1;
-			else if( ptr1 ) ptr = ptr1;
-			else if( ptr2 ) ptr = ptr2;
 		}
 #endif
 

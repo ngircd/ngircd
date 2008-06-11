@@ -340,12 +340,20 @@ Validate_Command( UNUSED CONN_ID Idx, UNUSED REQUEST *Req, bool *Closed )
 static bool
 Validate_Args(CONN_ID Idx, REQUEST *Req, bool *Closed)
 {
+#ifdef STRICT_RFC
 	int i;
+#endif
 
 	assert( Idx >= 0 );
 	assert( Req != NULL );
 	*Closed = false;
 
+#ifdef STRICT_RFC
+	/* CR and LF are never allowed in command parameters.
+	 * But since we do accept lines terminated only with CR or LF in
+	 * "non-RFC-compliant mode" (besides the correct CR+LF combination),
+	 * this check can only trigger in "strict RFC" mode; therefore we
+	 * optimize it away otherwise ... */
 	for (i = 0; i < Req->argc; i++) {
 		if (strchr(Req->argv[i], '\r') || strchr(Req->argv[i], '\n')) {
 			Log(LOG_ERR,
@@ -357,6 +365,8 @@ Validate_Args(CONN_ID Idx, REQUEST *Req, bool *Closed)
 			return false;
 		}
 	}
+#endif
+
 	return true;
 } /* Validate_Args */
 

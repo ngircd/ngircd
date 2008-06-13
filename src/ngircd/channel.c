@@ -419,7 +419,7 @@ Channel_Next( CHANNEL *Chan )
 GLOBAL CHANNEL *
 Channel_Search( const char *Name )
 {
-	/* Channel-Struktur suchen */
+	/* Search channel structure */
 
 	CHANNEL *c;
 	UINT32 search_hash;
@@ -432,7 +432,7 @@ Channel_Search( const char *Name )
 	{
 		if( search_hash == c->hash )
 		{
-			/* lt. Hash-Wert: Treffer! */
+			/* hash hit */
 			if( strcasecmp( Name, c->name ) == 0 ) return c;
 		}
 		c = c->next;
@@ -839,7 +839,7 @@ Add_Client( CHANNEL *Chan, CLIENT *Client )
 	assert( Chan != NULL );
 	assert( Client != NULL );
 
-	/* neue CL2CHAN-Struktur anlegen */
+	/* Create new CL2CHAN structure */
 	cl2chan = (CL2CHAN *)malloc( sizeof( CL2CHAN ));
 	if( ! cl2chan )
 	{
@@ -850,7 +850,7 @@ Add_Client( CHANNEL *Chan, CLIENT *Client )
 	cl2chan->client = Client;
 	strcpy( cl2chan->modes, "" );
 
-	/* Verketten */
+	/* concatenate */
 	cl2chan->next = My_Cl2Chan;
 	My_Cl2Chan = cl2chan;
 
@@ -884,7 +884,7 @@ Remove_Client( int Type, CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, const ch
 	c = cl2chan->channel;
 	assert( c != NULL );
 
-	/* Aus Verkettung loesen und freigeben */
+	/* maintain cl2chan list */
 	if( last_cl2chan ) last_cl2chan->next = cl2chan->next;
 	else My_Cl2Chan = cl2chan->next;
 	free( cl2chan );
@@ -930,7 +930,7 @@ Remove_Client( int Type, CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, const ch
 			}
 	}
 
-	/* Wenn Channel nun leer und nicht pre-defined: loeschen */
+	/* When channel is empty and is not pre-defined, delete */
 	if( ! strchr( Channel_Modes( Chan ), 'P' ))
 	{
 		if( ! Get_First_Cl2Chan( NULL, Chan )) Delete_Channel( Chan );
@@ -1030,7 +1030,7 @@ Get_Next_Cl2Chan( CL2CHAN *Start, CLIENT *Client, CHANNEL *Channel )
 static bool
 Delete_Channel( CHANNEL *Chan )
 {
-	/* Channel-Struktur loeschen */
+	/* delete channel structure */
 
 	CHANNEL *chan, *last_chan;
 
@@ -1046,11 +1046,11 @@ Delete_Channel( CHANNEL *Chan )
 
 	Log( LOG_DEBUG, "Freed channel structure for \"%s\".", Chan->name );
 
-	/* Invite- und Ban-Lists aufraeumen */
+	/* free invite and ban lists */
 	Lists_Free( &chan->list_bans );
 	Lists_Free( &chan->list_invites );
 
-	/* Neu verketten und freigeben */
+	/* maintain channel list */
 	if( last_chan ) last_chan->next = chan->next;
 	else My_Channels = chan->next;
 	free( chan );

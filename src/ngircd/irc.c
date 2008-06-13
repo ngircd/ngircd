@@ -41,7 +41,6 @@ static char UNUSED id[] = "$Id: irc.c,v 1.132 2008/01/15 22:28:14 fw Exp $";
 static char *Option_String PARAMS((CONN_ID Idx));
 static bool Send_Message PARAMS((CLIENT *Client, REQUEST *Req, int ForceType, bool SendErrors));
 static bool Send_Message_Mask PARAMS((CLIENT *from, char *targetMask, char *message, bool SendErrors));
-static bool MatchCaseInsensitive PARAMS((const char *pattern, const char *searchme));
 
 
 GLOBAL bool
@@ -309,12 +308,11 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 {
 	CLIENT *cl, *from;
 	CHANNEL *chan;
-	char *targetList = Req->argv[0];
 	char *currentTarget = Req->argv[0];
-	unsigned int targetCount = 1;
+	char *lastCurrentTarget;
 
-	assert( Client != NULL );
-	assert( Req != NULL );
+	assert(Client != NULL);
+	assert(Req != NULL);
 
 	if (Req->argc == 0) {
 		if (!SendErrors)
@@ -344,28 +342,35 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 					  Client_ID(Client), Req->prefix);
 	}
 
-	while (*targetList) {
-		if (*targetList == ',') {
-			*targetList = '\0';
-			targetCount++;
-		}
-		targetList++;
-	}
+	/* handle msgtarget = msgto *("," msgto) */
+	currentTarget = strtok_r(currentTarget, ",", &lastCurrentTarget);
 
-	while (targetCount > 0) {
+	while (currentTarget) {
+		/* Check for and handle valid <msgto> of form:
+		 * RFC 2812 2.3.1:
+		 *   msgto =  channel / ( user [ "%" host ] "@" servername )
+		 *   msgto =/ ( user "%" host ) / targetmask
+		 *   msgto =/ nickname / ( nickname "!" user "@" host )
+		 */
 		if (strchr(currentTarget, '!') == NULL)
+			/* nickname */
 			cl = Client_Search(currentTarget);
 		else
 			cl = NULL;
+
 		if (cl == NULL) {
-			char target[513]; // max mesage length plus null terminator
+			/* If currentTarget isn't a nickname check for:
+			 * user ["%" host] "@" servername
+			 * user "%" host
+			 * nickname "!" user "@" host
+			 */
+			char target[COMMAND_LEN];
 			char * nick = NULL;
 			char * user = NULL;
 			char * host = NULL;
 			char * server = NULL;
 
-			strncpy(target, currentTarget, 512);
-			target[512] = '\0';
+			strlcpy(target, currentTarget, COMMAND_LEN);
 			server = strchr(target, '@');
 			if (server) {
 				*server = '\0';
@@ -378,32 +383,34 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 			}
 			user = strchr(target, '!');
 			if (user) {
+				/* msgto form: nick!user@host */
 				*user = '\0';
 				user++;
 				nick = target;
-				host = server; // <msgto> form: nick!user@host
+				host = server; /* not "@server" but "@host" */
 			} else {
 				user = target;
 			}
 
-			if (user != NULL) {
-				for (cl = Client_First(); cl != NULL; cl = Client_Next(cl)) {
-					if (Client_Type(cl) != CLIENT_USER)
+			for (cl = Client_First(); cl != NULL; cl = Client_Next(cl)) {
+				if (Client_Type(cl) != CLIENT_USER)
+					continue;
+				if (nick != NULL) {
+					if (strcmp(nick, Client_ID(cl)) == 0 &&
+							strcmp(user, Client_User(cl)) == 0 &&
+							strcasecmp(host, Client_Hostname(cl)) == 0)
+						break;
+					else
 						continue;
-					if (nick != NULL) {
-						if (strcmp(nick, Client_ID(cl)) == 0 && strcmp(user, Client_User(cl)) == 0 && strcasecmp(host, Client_Hostname(cl)) == 0)
-							break;
-						else
-							continue;
-					}
-					if (strcasecmp(user, Client_User(cl)) != 0)
-						continue;
-					if (host != NULL && strcasecmp(host, Client_Hostname(cl)) != 0)
-						continue;
-					if (server != NULL && strcasecmp(server, Client_ID(Client_Introducer(cl))) != 0)
-						continue;
-					break;
 				}
+				if (strcasecmp(user, Client_User(cl)) != 0)
+					continue;
+				if (host != NULL && strcasecmp(host, Client_Hostname(cl)) != 0)
+					continue;
+				if (server != NULL && strcasecmp(server,
+				 		Client_ID(Client_Introducer(cl))) != 0)
+					continue;
+				break;
 			}
 		}
 
@@ -416,8 +423,8 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 							  Client_ID(from),
 							  currentTarget))
 					return false;
-			} else if ((Client_Type(Client) != CLIENT_SERVER
-						&& (strchr(Client_Modes(cl), 'a')))) {
+			} else if (SendErrors && (Client_Type(Client) != CLIENT_SERVER)
+						&& strchr(Client_Modes(cl), 'a')) {
 				/* Target is away */
 				if (!SendErrors)
 					return true;
@@ -425,18 +432,22 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 				    (from, RPL_AWAY_MSG, Client_ID(from), Client_ID(cl),
 				     Client_Away(cl)))
 					return DISCONNECTED;
-			}	if (Client_Conn(from) > NONE) {
+			}
+			if (Client_Conn(from) > NONE) {
 				Conn_UpdateIdle(Client_Conn(from));
 			}
 			if (!IRC_WriteStrClientPrefix(cl, from, "PRIVMSG %s :%s",
 						Client_ID(cl), Req->argv[1]))
 				return false;
 		} else if (strchr("$#", currentTarget[0]) && strchr(currentTarget, '.')) {
-			if (!Send_Message_Mask(from, currentTarget, Req->argv[1], SendErrors))
+			/* targetmask */
+			if (!Send_Message_Mask(from, currentTarget, Req->argv[1],
+			 		SendErrors))
 				return false;
 		} else if ((chan = Channel_Search(currentTarget))) {
-				if (!Channel_Write(chan, from, Client, Req->argv[1]))
-					return false;
+			/* channel */
+			if (!Channel_Write(chan, from, Client, Req->argv[1]))
+				return false;
 		} else {
 			if (!SendErrors)
 				return true;
@@ -445,11 +456,7 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 				return false;
 		}
 
-		while (*currentTarget)
-			currentTarget++;
-
-		currentTarget++;
-		targetCount--;
+		currentTarget = strtok_r(NULL, ",", &lastCurrentTarget);
 	}
 
 	return CONNECTED;
@@ -478,33 +485,24 @@ Send_Message_Mask(CLIENT * from, char * targetMask, char * message, bool SendErr
 				continue;
 			client_match = MatchCaseInsensitive(mask, Client_Hostname(cl));
 			if (client_match)
-				if (!IRC_WriteStrClientPrefix(cl, from, "PRIVMSG %s :%s", Client_ID(cl), message))
+				if (!IRC_WriteStrClientPrefix(cl, from, "PRIVMSG %s :%s",
+				 		Client_ID(cl), message))
 					return false;
 		}
 	} else {
 		for (cl = Client_First(); cl != NULL; cl = Client_Next(cl)) {
 			if (Client_Type(cl) != CLIENT_USER)
 				continue;
-			client_match = MatchCaseInsensitive(mask, Client_ID(Client_Introducer(cl)));
+			client_match = MatchCaseInsensitive(mask,
+			 		Client_ID(Client_Introducer(cl)));
 			if (client_match)
-				if (!IRC_WriteStrClientPrefix(cl, from, "PRIVMSG %s :%s", Client_ID(cl), message))
+				if (!IRC_WriteStrClientPrefix(cl, from, "PRIVMSG %s :%s",
+				 		Client_ID(cl), message))
 					return false;
 		}
 	}
 	return CONNECTED;
 } /* Send_Message_Mask */
 
-
-static bool
-MatchCaseInsensitive(const char *pattern, const char *searchme)
-{
-	char haystack[COMMAND_LEN];
-
-	strlcpy(haystack, searchme, sizeof(haystack));
-
-	ngt_LowerStr(haystack);
-
-	return Match(pattern, haystack);
-}
 
 /* -eof- */

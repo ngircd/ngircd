@@ -1,5 +1,3 @@
-# $Id: mode-test.e,v 1.7 2008/02/16 11:27:49 fw Exp $
-
 spawn telnet localhost 6789
 expect {
 	timeout { exit 1 }
@@ -43,12 +41,29 @@ expect {
 	"@* PRIVMSG nick :test\r*401*@* PRIVMSG nick :test"
 }
 
-send "JOIN #testChannel\r"
-
 send "privmsg doesnotexist :test\r"
 expect {
 	timeout { exit 1 }
 	"401"
+}
+
+send "privmsg ~user@ngircd.test.server :test\r"
+expect {
+	timeout { exit 1 }
+	"@* PRIVMSG nick :test"
+}
+
+
+send "privmsg ~user\%localhost :test\r"
+expect {
+	timeout { exit 1 }
+	"@* PRIVMSG nick :test"
+}
+
+send "privmsg nick!~user@localhost :test\r"
+expect {
+	timeout { exit 1 }
+	"@* PRIVMSG nick :test"
 }
 
 send "away :away\r"

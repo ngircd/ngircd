@@ -22,6 +22,8 @@ static char UNUSED id[] = "$Id: match.c,v 1.5 2006/10/06 21:23:47 fw Exp $";
 
 #include "exp.h"
 #include "match.h"
+#include "defines.h"
+#include "tool.h"
 
 
 /*
@@ -51,6 +53,19 @@ Match( const char *Pattern, const char *String )
 	if( Matche( Pattern, String ) == MATCH_VALID ) return true;
 	else return false;
 } /* Match */
+
+
+GLOBAL bool
+MatchCaseInsensitive(const char *pattern, const char *searchme)
+{
+	char haystack[COMMAND_LEN];
+
+	strlcpy(haystack, searchme, sizeof(haystack));
+
+	ngt_LowerStr(haystack);
+
+	return Match(pattern, haystack);
+} /* MatchCaseInsensitive */
 
 
 static int

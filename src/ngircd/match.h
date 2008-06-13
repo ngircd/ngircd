@@ -19,6 +19,7 @@
 
 
 GLOBAL bool Match PARAMS(( const char *Pattern, const char *String ));
+GLOBAL bool MatchCaseInsensitive PARAMS(( const char *Pattern, const char *searchme ));
 
 
 #endif

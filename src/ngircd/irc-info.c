@@ -766,20 +766,6 @@ IRC_Send_WHO(CLIENT *Client, CHANNEL *Chan, bool OnlyOps)
 } /* IRC_Send_WHO */
 
 
-
-static bool
-MatchCaseInsensitive(const char *pattern, const char *searchme)
-{
-	char haystack[COMMAND_LEN];
-
-	strlcpy(haystack, searchme, sizeof(haystack));
-
-	ngt_LowerStr(haystack);
-
-	return Match(pattern, haystack);
-}
-
-
 GLOBAL bool
 IRC_WHO( CLIENT *Client, REQUEST *Req )
 {

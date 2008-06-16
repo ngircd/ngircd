@@ -182,7 +182,7 @@ join_send_topic(CLIENT *Client, CLIENT *target, CHANNEL *chan,
 GLOBAL bool
 IRC_JOIN( CLIENT *Client, REQUEST *Req )
 {
-	char *channame, *key = NULL, *flags, *lastkey, *lastchan;
+	char *channame, *key = NULL, *flags, *lastkey = NULL, *lastchan = NULL;
 	CLIENT *target;
 	CHANNEL *chan;
 

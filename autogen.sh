@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001-2004 Alexander Barton <alex@barton.de>
+# Copyright (c)2001-2008 Alexander Barton <alex@barton.de>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -9,11 +9,8 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: autogen.sh,v 1.15 2007/10/07 13:02:15 alex Exp $
-#
-
-#
-# Usage: [VAR=<value>] ./autogen.sh [<configure-args>]
+# Usage:
+#   [VAR=<value>] ./autogen.sh [<configure-args>]
 #
 # This script generates the ./configure script using GNU automake and
 # GNU autoconf. It tries to be smart in finding the correct/usable/available
@@ -124,20 +121,6 @@ if [ -z "$EXIST" ]; then
 fi
 [ "$VERBOSE" = "1" ] && echo "Using \"$EXIST\" to test for tools."
 
-# We want to use GNU automake 1.9, if available (WANT_AUTOMAKE is used by
-# the wrapper scripts of Gentoo Linux, AUTOMAKE_VERSION is used by OpenBSD);
-# same applies for GNU autoconf, we want to use version 2.59. -- But only
-# set these preferences if not already set!
-if [ -z "$AUTOMAKE_VERSION" -a -z "$WANT_AUTOMAKE" ]; then
-	AUTOMAKE_VERSION=1.9
-	WANT_AUTOMAKE=1.9
-fi
-if [ -z "$AUTOCONF_VERSION" -a -z "$WANT_AUTOCONF" ]; then
-	AUTOCONF_VERSION=2.59
-	WANT_AUTOCONF=2.59
-fi
-export AUTOMAKE_VERSION WANT_AUTOMAKE AUTOCONF_VERSION WANT_AUTOCONF
-
 # Try to detect the needed tools when no environment variable already
 # specifies one:
 echo "Searching tools ..."
@@ -155,12 +138,12 @@ echo "Searching tools ..."
 [ -z "$GO" -a $# -gt 0 ] && GO=1
 
 # Verify that all tools have been found
-[ -z "$AUTOCONF" ] && Notfound autoconf
+[ -z "$ACLOCAL" ] && Notfound aclocal
 [ -z "$AUTOHEADER" ] && Notfound autoheader
 [ -z "$AUTOMAKE" ] && Notfound automake
 [ -z "$AUTOCONF" ] && Notfound autoconf
 
-export AUTOCONF AUTOHEADER AUTOMAKE AUTOCONF
+export ACLOCAL AUTOHEADER AUTOMAKE AUTOCONF
 
 # Generate files
 echo "Generating files ..."

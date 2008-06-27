@@ -121,20 +121,6 @@ if [ -z "$EXIST" ]; then
 fi
 [ "$VERBOSE" = "1" ] && echo "Using \"$EXIST\" to test for tools."
 
-# We want to use GNU automake 1.9, if available (WANT_AUTOMAKE is used by
-# the wrapper scripts of Gentoo Linux, AUTOMAKE_VERSION is used by OpenBSD);
-# same applies for GNU autoconf, we want to use version 2.59. -- But only
-# set these preferences if not already set!
-if [ -z "$AUTOMAKE_VERSION" -a -z "$WANT_AUTOMAKE" ]; then
-	AUTOMAKE_VERSION=1.9
-	WANT_AUTOMAKE=1.9
-fi
-if [ -z "$AUTOCONF_VERSION" -a -z "$WANT_AUTOCONF" ]; then
-	AUTOCONF_VERSION=2.59
-	WANT_AUTOCONF=2.59
-fi
-export AUTOMAKE_VERSION WANT_AUTOMAKE AUTOCONF_VERSION WANT_AUTOCONF
-
 # Try to detect the needed tools when no environment variable already
 # specifies one:
 echo "Searching tools ..."

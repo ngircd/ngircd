@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001-2004 Alexander Barton <alex@barton.de>
+# Copyright (c)2001-2008 Alexander Barton <alex@barton.de>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -9,11 +9,8 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: autogen.sh,v 1.15 2007/10/07 13:02:15 alex Exp $
-#
-
-#
-# Usage: [VAR=<value>] ./autogen.sh [<configure-args>]
+# Usage:
+#   [VAR=<value>] ./autogen.sh [<configure-args>]
 #
 # This script generates the ./configure script using GNU automake and
 # GNU autoconf. It tries to be smart in finding the correct/usable/available
@@ -155,12 +152,12 @@ echo "Searching tools ..."
 [ -z "$GO" -a $# -gt 0 ] && GO=1
 
 # Verify that all tools have been found
-[ -z "$AUTOCONF" ] && Notfound autoconf
+[ -z "$ACLOCAL" ] && Notfound aclocal
 [ -z "$AUTOHEADER" ] && Notfound autoheader
 [ -z "$AUTOMAKE" ] && Notfound automake
 [ -z "$AUTOCONF" ] && Notfound autoconf
 
-export AUTOCONF AUTOHEADER AUTOMAKE AUTOCONF
+export ACLOCAL AUTOHEADER AUTOMAKE AUTOCONF
 
 # Generate files
 echo "Generating files ..."

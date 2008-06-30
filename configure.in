@@ -125,10 +125,7 @@ AC_TYPE_SIZE_T
 
 
 # -- Libraries --
-
-AC_CHECK_LIB(UTIL,memmove)
 AC_CHECK_LIB(socket,bind)
-AC_CHECK_LIB(nsl,gethostent)
 
 # -- Functions --
 

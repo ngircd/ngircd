@@ -10,7 +10,7 @@
                                -- ChangeLog --
 
 
-ngIRCd 0.12.1
+ngIRCd 0.12.1 (2008-07-09)
 
   - Allow mixed line terminations (CR+LF/CR/LF) in non-RFC-compliant mode
   - Don't allow stray \r or \n in command parameters

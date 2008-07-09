@@ -10,7 +10,7 @@
                                   -- NEWS --
 
 
-ngIRCd 0.12.1
+ngIRCd 0.12.1 (2008-07-09)
 
   - Add option aliases -V (for --version) and -h (for --help).
   - Make Listen parameter a comma-seperated list of addresses. This also

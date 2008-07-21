@@ -1,7 +1,7 @@
 
                      ngIRCd - Next Generation IRC Server
 
-                        (c)2001-2006 Alexander Barton
+                        (c)2001-2008 Alexander Barton
                     alex@barton.de, http://www.barton.de/
 
                ngIRCd is free software and published under the
@@ -30,19 +30,26 @@ alpha/unknown/netbsd3.0     gcc 3.3.3    CVSHEAD    06-05-07 fw     Y Y Y Y (3)
 hppa/unknown/openbsd3.5     gcc 2.95.3   CVSHEAD    04-05-25 alex   Y Y Y Y
 hppa1.1/unknown/linux-gnu   gcc 3.3.3    0.8.0      04-05-30 alex   Y Y Y Y
 hppa2.0/unknown/linux-gnu   gcc 3.3.5    0.9.x-CVS  05-06-27 alex   Y Y Y Y
+i386/apple/darwin9.4.0      gcc 4.0.1    0.12.1     08-07-21 alex   Y Y Y Y (3)
 i386/pc/solaris2.9          gcc 3.2.2    CVSHEAD    04-02-24 alex   Y Y Y Y
 i386/pc/solaris2.11         gcc 3.4.3    CVSHEAD    06-08-04 alex   Y Y Y Y
+i386/pc/solaris2.11         gcc 3.4.3    0.12.1     08-07-21 alex   Y Y Y Y (4)
 i386/unknown/freebsd5.2.1   gcc 3.3.3    0.8.0      04-05-30 alex   Y Y Y Y
 i386/unknown/freebsd6.0     gcc 3.4.4    0.10.0-p1  06-08-04 alex   Y Y Y Y (3)
 i386/unknown/freebsd6.1     gcc 3.4.4    CVSHEAD    06-05-07 fw     Y Y Y Y (3)
+i386/unknown/freebsd7.0     gcc 4.2.1    0.12.1     08-07-21 alex   Y Y Y Y (3)
 i386/unknown/gnu0.3         gcc 3.3.3    0.8.0      04-05-30 alex   Y Y n Y
 i386/unknown/netbsdelf1.6.1 gcc 2.95.3   CVSHEAD    04-02-24 alex   Y Y Y Y
 i386/unknown/netbsdelf3.0.1 gcc 3.3.3    0.10.0-p1  06-08-30 alex   Y Y Y Y (3)
+i386/unknown/netbsdelf4.0   gcc 4.1.2    0.12.1     08-07-21 alex   Y Y Y Y (3)
 i386/unknown/openbsd3.9     gcc 3.3.5    0.10.0-p1  06-08-30 alex   Y Y Y Y (3)
+i386/unknown/openbsd4.1     gcc 3.3.5    0.12.1     08-07-21 alex   Y Y n Y (3)
+i386/unknown/openbsd4.1     gcc 3.3.5    master     08-07-21 alex   Y Y Y Y (3)
 i686/pc/cygwin              gcc 3.3.1    0.8.0      04-05-30 alex   Y Y n Y
 i686/pc/linux-gnu           gcc 2.95.4   0.8.0      04-05-30 alex   Y Y Y Y (1)
 i686/pc/linux-gnu           gcc 3.3.3    0.8.0      04-05-30 alex   Y Y Y Y (1)
 i386/pc/linux-gnu           gcc 4.1.2    0.10.0-p1  06-08-30 alex   Y Y Y Y (1)
+i386/pc/linux-gnu           gcc 4.3.1    0.12.1     08-07-21 alex   Y Y Y Y (1)
 m68k/apple/aux3.1.1         Orig. A/UX   0.7.x-CVS  03-04-22 alex   Y Y Y Y (2)
 m68k/hp/hp-ux9.10           Orig. HPUX   0.7.x-CVS  03-04-30 goetz  Y Y Y Y
 m88k/dg/dgux5.4R3.10        gcc 2.5.8    CVSHEAD    04-03-15 alex   Y Y ? ?
@@ -64,7 +71,7 @@ Notes
     ngIRCd has been tested with various Linux distributions, such as SuSE,
     RedHat, Debian, and Gentoo using Kernels 2.2.x, 2.4.x and 2.6.x with
     various versions of the GNU C compiler (starting with 2.95.x and up to
-    version 4.1.x). The eldest glibc used was glibc-2.0.7. ngIRCd compiled
+    version 4.3.x). The eldest glibc used was glibc-2.0.7. ngIRCd compiled
     and run on all these systems without problems.
     Actual Linux kernels (2.6.x) and glic's support the epoll() IO interface.
 
@@ -73,5 +80,5 @@ Notes
 
 (3) Using the kqueue() IO interface.
 
--- 
-$Id: Platforms.txt,v 1.18 2006/10/08 14:09:16 alex Exp $
+(4) Using the /dev/poll IO interface.
+

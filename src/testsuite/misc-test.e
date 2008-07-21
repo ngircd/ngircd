@@ -129,7 +129,7 @@ expect {
 send "userhost nick\r"
 expect {
 	timeout { exit 1 }
-	-re ":ngircd.test.server 302 nick :?nick=+.*@(localhost|127.0.0.1)"
+	-re ":ngircd.test.server 302 nick :?nick=+.*@(localhos.*|127.0.0.1)"
 }
 
 send "userhost doesnotexist\r"
@@ -141,7 +141,7 @@ expect {
 send "userhost nick doesnotexist nick doesnotexist\r"
 expect {
 	timeout { exit 1 }
-	-re ":ngircd.test.server 302 nick :nick=+.*@(localhost|127.0.0.1) nick=+.*@(localhost|127.0.0.1)"
+	-re ":ngircd.test.server 302 nick :nick=+.*@(localhos.*|127.0.0.1) nick=+.*@(localhos.*|127.0.0.1)"
 }
 
 send "away :testing\r"
@@ -153,7 +153,7 @@ expect {
 send "userhost nick nick nick nick nick nick\r"
 expect {
 	timeout { exit 1 }
-	-re ":ngircd.test.server 302 nick :nick=-.*@(localhost|127.0.0.1) nick=-.*@(localhost|127.0.0.1) nick=-.*@(localhost|127.0.0.1) nick=-.*@(localhost|127.0.0.1) nick=-.*@(localhost|127.0.0.1)\r"
+	-re ":ngircd.test.server 302 nick :nick=-.*@(localhos.*|127.0.0.1) nick=-.*@(localhos.*|127.0.0.1) nick=-.*@(localhos.*|127.0.0.1) nick=-.*@(localhos.*|127.0.0.1) nick=-.*@(localhos.*|127.0.0.1)\r"
 }
 
 send "quit\r"

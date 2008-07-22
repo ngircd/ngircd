@@ -207,8 +207,6 @@ IRC_RESTART( CLIENT *Client, REQUEST *Req )
 GLOBAL bool
 IRC_CONNECT(CLIENT * Client, REQUEST * Req)
 {
-	char msg[LINE_LEN + 64];
-
 	assert(Client != NULL);
 	assert(Req != NULL);
 
@@ -225,9 +223,9 @@ IRC_CONNECT(CLIENT * Client, REQUEST * Req)
 		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 					  Client_ID(Client), Req->command);
 
-	snprintf(msg, sizeof(msg), "Received CONNECT %s from %s",
-		 Req->argv[0], Client_ID(Client));
-	IRC_SendWallops(Client_ThisServer(), Client_ThisServer(), msg);
+	IRC_SendWallops(Client_ThisServer(), Client_ThisServer(),
+			"Received CONNECT %s from %s",
+			Req->argv[0], Client_ID(Client));
 
 	Log(LOG_NOTICE | LOG_snotice,
 	    "Got CONNECT command from \"%s\" for \"%s\".", Client_Mask(Client),
@@ -269,7 +267,6 @@ GLOBAL bool
 IRC_DISCONNECT(CLIENT * Client, REQUEST * Req)
 {
 	CONN_ID my_conn;
-	char msg[LINE_LEN + 64];
 
 	assert(Client != NULL);
 	assert(Req != NULL);
@@ -282,9 +279,9 @@ IRC_DISCONNECT(CLIENT * Client, REQUEST * Req)
 		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 					  Client_ID(Client), Req->command);
 
-	snprintf(msg, sizeof(msg), "Received DISCONNECT %s from %s",
-		 Req->argv[0], Client_ID(Client));
-	IRC_SendWallops(Client_ThisServer(), Client_ThisServer(), msg);
+	IRC_SendWallops(Client_ThisServer(), Client_ThisServer(),
+			"Received DISCONNECT %s from %s",
+			Req->argv[0], Client_ID(Client));
 
 	Log(LOG_NOTICE | LOG_snotice,
 	    "Got DISCONNECT command from \"%s\" for \"%s\".",
@@ -333,7 +330,7 @@ IRC_WALLOPS( CLIENT *Client, REQUEST *Req )
 	if (!from)
 		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG, Client_ID(Client), Req->prefix);
 
-	IRC_SendWallops(Client, from, Req->argv[0]);
+	IRC_SendWallops(Client, from, "%s", Req->argv[0]);
 	return CONNECTED;
 } /* IRC_WALLOPS */
 

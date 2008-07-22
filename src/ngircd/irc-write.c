@@ -408,10 +408,29 @@ va_dcl
 /**
  * Send WALLOPS message.
  */
+#ifdef PROTOTYPES
 GLOBAL void
-IRC_SendWallops(CLIENT *Client, CLIENT *From, const char *Message)
+IRC_SendWallops(CLIENT *Client, CLIENT *From, const char *Format, ...)
+#else
+GLOBAL void
+IRC_SendWallops(Client, From, Format, va_alist )
+CLIENT *Client;
+CLIENT *From;
+char *Format;
+va_dcl
+#endif
 {
+	va_list ap;
+	char msg[1000];
 	CLIENT *to;
+
+#ifdef PROTOTYPES
+	va_start(ap, Format);
+#else
+	va_start(ap);
+#endif
+	vsnprintf(msg, 1000, Format, ap);
+	va_end(ap);
 
 	for (to=Client_First(); to != NULL; to=Client_Next(to)) {
 		if (Client_Conn(to) == NONE) /* no local connection */
@@ -421,12 +440,12 @@ IRC_SendWallops(CLIENT *Client, CLIENT *From, const char *Message)
 		case CLIENT_USER:
 			if (Client_HasMode(to, 'w'))
 				IRC_WriteStrClientPrefix(to, From,
-							 "WALLOPS :%s", Message);
+							 "WALLOPS :%s", msg);
 				break;
 		case CLIENT_SERVER:
 			if (to != Client)
 				IRC_WriteStrClientPrefix(to, From,
-							 "WALLOPS :%s", Message);
+							 "WALLOPS :%s", msg);
 				break;
 		}
 	}

@@ -214,6 +214,11 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 	channame = Req->argv[0];
 	channame = strtok_r(channame, ",", &lastchan);
 
+	/* Make sure that "channame" is not the empty string ("JOIN :") */
+	if (! channame)
+		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+					  Client_ID(Client), Req->command);
+
 	while (channame) {
 		flags = NULL;
 
@@ -318,6 +323,12 @@ IRC_PART(CLIENT * Client, REQUEST * Req)
 
 	/* Loop over all the given channel names */
 	chan = strtok(Req->argv[0], ",");
+
+	/* Make sure that "chan" is not the empty string ("PART :") */
+	if (! chan)
+		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+					  Client_ID(Client), Req->command);
+
 	while (chan) {
 		Channel_Part(target, Client, chan,
 			     Req->argc > 1 ? Req->argv[1] : Client_ID(target));

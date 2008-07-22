@@ -55,11 +55,22 @@ Bad_OperPass(CLIENT *Client, char *errtoken, char *errmsg)
  * Check that the client is an IRC operator allowed to administer this server.
  */
 static bool
-Check_Oper(CLIENT * Client)
+Check_Oper(CLIENT * Client, REQUEST * Req)
 {
-	if (!Client_HasMode(Client, 'o'))
+	CLIENT *c;
+
+	assert(Client != NULL);
+	assert(Req != NULL);
+
+	if (Client_Type(Client) == CLIENT_SERVER && Req->prefix)
+		c = Client_Search(Req->prefix);
+	else
+		c = Client;
+	if (!c)
 		return false;
-	if (!Client_OperByMe(Client) && !Conf_AllowRemoteOper)
+	if (!Client_HasMode(c, 'o'))
+		return false;
+	if (!Client_OperByMe(c) && !Conf_AllowRemoteOper)
 		return false;
 	/* The client is an local IRC operator, or this server is configured
 	 * to trust remote operators. */
@@ -140,7 +151,7 @@ IRC_DIE(CLIENT * Client, REQUEST * Req)
 	assert(Client != NULL);
 	assert(Req != NULL);
 
-	if (!Check_Oper(Client))
+	if (!Check_Oper(Client, Req))
 		return No_Privileges(Client, Req);
 
 	/* Bad number of parameters? */
@@ -180,7 +191,7 @@ IRC_REHASH( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	if (!Check_Oper(Client))
+	if (!Check_Oper(Client, Req))
 		return No_Privileges(Client, Req);
 
 	/* Bad number of parameters? */
@@ -201,7 +212,7 @@ IRC_RESTART( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	if (!Check_Oper(Client))
+	if (!Check_Oper(Client, Req))
 		return No_Privileges(Client, Req);
 
 	/* Bad number of parameters? */
@@ -222,7 +233,7 @@ IRC_CONNECT(CLIENT * Client, REQUEST * Req)
 	assert(Client != NULL);
 	assert(Req != NULL);
 
-	if (!Check_Oper(Client))
+	if (!Check_Oper(Client, Req))
 		return No_Privileges(Client, Req);
 
 	/* Bad number of parameters? */
@@ -283,7 +294,7 @@ IRC_DISCONNECT(CLIENT * Client, REQUEST * Req)
 	assert(Client != NULL);
 	assert(Req != NULL);
 
-	if (!Check_Oper(Client))
+	if (!Check_Oper(Client, Req))
 		return No_Privileges(Client, Req);
 
 	/* Bad number of parameters? */

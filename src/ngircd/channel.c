@@ -500,6 +500,10 @@ Channel_IsValidName( const char *Name )
 {
 	assert( Name != NULL );
 
+#ifdef STRICT_RFC
+	if (strlen(Name) <= 1)
+		return false;
+#endif
 	if (strchr("+#", Name[0]) == NULL)
 		return false;
 	if (strlen(Name) >= CHANNEL_NAME_LEN)

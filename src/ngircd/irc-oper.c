@@ -230,6 +230,8 @@ IRC_RESTART( CLIENT *Client, REQUEST *Req )
 GLOBAL bool
 IRC_CONNECT(CLIENT * Client, REQUEST * Req)
 {
+	CLIENT *from, *target;
+
 	assert(Client != NULL);
 	assert(Req != NULL);
 
@@ -237,7 +239,8 @@ IRC_CONNECT(CLIENT * Client, REQUEST * Req)
 		return No_Privileges(Client, Req);
 
 	/* Bad number of parameters? */
-	if ((Req->argc != 1) && (Req->argc != 2) && (Req->argc != 5))
+	if (Req->argc != 1 && Req->argc != 2 && Req->argc != 3 &&
+	    Req->argc != 5 && Req->argc != 6)
 		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 					  Client_ID(Client), Req->command);
 
@@ -246,36 +249,68 @@ IRC_CONNECT(CLIENT * Client, REQUEST * Req)
 		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 					  Client_ID(Client), Req->command);
 
-	IRC_SendWallops(Client_ThisServer(), Client_ThisServer(),
-			"Received CONNECT %s from %s",
-			Req->argv[0], Client_ID(Client));
+	from = Client;
+	target = Client_ThisServer();
+
+	if (Req->argc == 3 || Req->argc == 6) {
+		/* This CONNECT has a target parameter */
+		if (Client_Type(Client) == CLIENT_SERVER)
+			from = Client_Search(Req->prefix);
+		if (! from)
+			return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
+					Client_ID(Client), Req->prefix);
+
+		target = (Req->argc == 3) ? Client_Search(Req->argv[2])
+					  : Client_Search(Req->argv[5]);
+		if (! target || Client_Type(target) != CLIENT_SERVER)
+			return IRC_WriteStrClient(from, ERR_NOSUCHSERVER_MSG,
+					Client_ID(from), Req->argv[0]);
+	}
+
+	if (target != Client_ThisServer()) {
+		/* Forward CONNECT command ... */
+		if (Req->argc == 3)
+			IRC_WriteStrClientPrefix(target, from,
+				 "CONNECT %s %s :%s", Req->argv[0],
+				 Req->argv[1], Req->argv[2]);
+		else
+			IRC_WriteStrClientPrefix(target, from,
+				"CONNECT %s %s %s %s %s :%s", Req->argv[0],
+				Req->argv[1], Req->argv[2], Req->argv[3],
+				Req->argv[4], Req->argv[5]);
+		return CONNECTED;
+	}
 
 	Log(LOG_NOTICE | LOG_snotice,
-	    "Got CONNECT command from \"%s\" for \"%s\".", Client_Mask(Client),
+	    "Got CONNECT command from \"%s\" for \"%s\".", Client_Mask(from),
 	    Req->argv[0]);
+	IRC_SendWallops(Client_ThisServer(), Client_ThisServer(),
+			"Received CONNECT %s from %s",
+			Req->argv[0], Client_ID(from));
 
 	switch (Req->argc) {
 	case 1:
 		if (!Conf_EnablePassiveServer(Req->argv[0]))
-			return IRC_WriteStrClient(Client, ERR_NOSUCHSERVER_MSG,
-						  Client_ID(Client),
+			return IRC_WriteStrClient(from, ERR_NOSUCHSERVER_MSG,
+						  Client_ID(from),
 						  Req->argv[0]);
-	break;
+		break;
 	case 2:
+	case 3:
 		/* Connect configured server */
 		if (!Conf_EnableServer
 		    (Req->argv[0], (UINT16) atoi(Req->argv[1])))
-			return IRC_WriteStrClient(Client, ERR_NOSUCHSERVER_MSG,
-						  Client_ID(Client),
+			return IRC_WriteStrClient(from, ERR_NOSUCHSERVER_MSG,
+						  Client_ID(from),
 						  Req->argv[0]);
-	break;
+		break;
 	default:
 		/* Add server */
 		if (!Conf_AddServer
 		    (Req->argv[0], (UINT16) atoi(Req->argv[1]), Req->argv[2],
 		     Req->argv[3], Req->argv[4]))
-			return IRC_WriteStrClient(Client, ERR_NOSUCHSERVER_MSG,
-						  Client_ID(Client),
+			return IRC_WriteStrClient(from, ERR_NOSUCHSERVER_MSG,
+						  Client_ID(from),
 						  Req->argv[0]);
 	}
 

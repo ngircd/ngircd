@@ -183,30 +183,34 @@ Channel_Join( CLIENT *Client, char *Name )
 {
 	CHANNEL *chan;
 
-	assert( Client != NULL );
-	assert( Name != NULL );
+	assert(Client != NULL);
+	assert(Name != NULL);
 
 	/* Check that the channel name is valid */
-	if( ! Channel_IsValidName( Name )) {
-		IRC_WriteStrClient( Client, ERR_NOSUCHCHANNEL_MSG, Client_ID( Client ), Name );
+	if (! Channel_IsValidName(Name)) {
+		IRC_WriteStrClient(Client, ERR_NOSUCHCHANNEL_MSG,
+				   Client_ID(Client), Name);
 		return false;
 	}
 
-	chan = Channel_Search( Name );
-	if( chan ) {
+	chan = Channel_Search(Name);
+	if(chan) {
 		/* Check if the client is already in the channel */
-		if( Get_Cl2Chan( chan, Client )) return false;
-	}
-	else
-	{
-		/* If the specified channel doesn't exist, the channel is created */
-		chan = Channel_Create( Name );
-		if (!chan) return false;
+		if (Get_Cl2Chan(chan, Client))
+			return false;
+	} else {
+		/* If the specified channel does not exist, the channel
+		 * is now created */
+		chan = Channel_Create(Name);
+		if (!chan)
+			return false;
 	}
 
 	/* Add user to Channel */
-	if( ! Add_Client( chan, Client )) return false;
-	else return true;
+	if (! Add_Client(chan, Client))
+		return false;
+
+	return true;
 } /* Channel_Join */
 
 

@@ -312,7 +312,7 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 	CLIENT *cl, *from;
 	CHANNEL *chan;
 	char *currentTarget = Req->argv[0];
-	char *lastCurrentTarget;
+	char *lastCurrentTarget = NULL;
 
 	assert(Client != NULL);
 	assert(Req != NULL);

@@ -169,8 +169,11 @@ IRC_KILL( CLIENT *Client, REQUEST *Req )
 } /* IRC_KILL */
 
 
+/**
+ * Handler for the IRC command NOTICE.
+ */
 GLOBAL bool
-IRC_NOTICE( CLIENT *Client, REQUEST *Req )
+IRC_NOTICE(CLIENT *Client, REQUEST *Req)
 {
 	return Send_Message(Client, Req, CLIENT_USER, false);
 } /* IRC_NOTICE */
@@ -337,10 +340,9 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 		from = Client_Search(Req->prefix);
 	else
 		from = Client;
-	if (!from) {
+	if (!from)
 		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
 					  Client_ID(Client), Req->prefix);
-	}
 
 	/* handle msgtarget = msgto *("," msgto) */
 	currentTarget = strtok_r(currentTarget, ",", &lastCurrentTarget);
@@ -397,18 +399,19 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 					continue;
 				if (nick != NULL) {
 					if (strcmp(nick, Client_ID(cl)) == 0 &&
-							strcmp(user, Client_User(cl)) == 0 &&
-							strcasecmp(host, Client_Hostname(cl)) == 0)
+					    strcmp(user, Client_User(cl)) == 0 &&
+					    strcasecmp(host, Client_Hostname(cl)) == 0)
 						break;
 					else
 						continue;
 				}
 				if (strcasecmp(user, Client_User(cl)) != 0)
 					continue;
-				if (host != NULL && strcasecmp(host, Client_Hostname(cl)) != 0)
+				if (host != NULL && strcasecmp(host,
+						Client_Hostname(cl)) != 0)
 					continue;
 				if (server != NULL && strcasecmp(server,
-				 		Client_ID(Client_Introducer(cl))) != 0)
+						Client_ID(Client_Introducer(cl))) != 0)
 					continue;
 				break;
 			}
@@ -423,14 +426,15 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 							  Client_ID(from),
 							  currentTarget))
 					return false;
-			} else if (SendErrors && (Client_Type(Client) != CLIENT_SERVER)
-						&& strchr(Client_Modes(cl), 'a')) {
+			} else if (SendErrors
+				   && (Client_Type(Client) != CLIENT_SERVER)
+				   && strchr(Client_Modes(cl), 'a')) {
 				/* Target is away */
 				if (!SendErrors)
 					return true;
 				if (!IRC_WriteStrClient
-				    (from, RPL_AWAY_MSG, Client_ID(from), Client_ID(cl),
-				     Client_Away(cl)))
+				    (from, RPL_AWAY_MSG, Client_ID(from),
+				     Client_ID(cl), Client_Away(cl)))
 					return DISCONNECTED;
 			}
 			if (Client_Conn(from) > NONE) {
@@ -439,10 +443,11 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 			if (!IRC_WriteStrClientPrefix(cl, from, "PRIVMSG %s :%s",
 						Client_ID(cl), Req->argv[1]))
 				return false;
-		} else if (strchr("$#", currentTarget[0]) && strchr(currentTarget, '.')) {
+		} else if (strchr("$#", currentTarget[0])
+			   && strchr(currentTarget, '.')) {
 			/* targetmask */
-			if (!Send_Message_Mask(from, currentTarget, Req->argv[1],
-			 		SendErrors))
+			if (!Send_Message_Mask(from, currentTarget,
+					       Req->argv[1], SendErrors))
 				return false;
 		} else if ((chan = Channel_Search(currentTarget))) {
 			/* channel */
@@ -460,7 +465,6 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 	}
 
 	return CONNECTED;
-
 } /* Send_Message */
 
 
@@ -476,7 +480,8 @@ Send_Message_Mask(CLIENT * from, char * targetMask, char * message, bool SendErr
 	if (strchr(Client_Modes(from), 'o') == NULL) {
 		if (!SendErrors)
 			return true;
-		return IRC_WriteStrClient(from, ERR_NOPRIVILEGES_MSG, Client_ID(from));
+		return IRC_WriteStrClient(from, ERR_NOPRIVILEGES_MSG,
+					  Client_ID(from));
 	}
 
 	if (targetMask[0] == '#') {
@@ -486,7 +491,7 @@ Send_Message_Mask(CLIENT * from, char * targetMask, char * message, bool SendErr
 			client_match = MatchCaseInsensitive(mask, Client_Hostname(cl));
 			if (client_match)
 				if (!IRC_WriteStrClientPrefix(cl, from, "PRIVMSG %s :%s",
-				 		Client_ID(cl), message))
+							Client_ID(cl), message))
 					return false;
 		}
 	} else {
@@ -494,10 +499,10 @@ Send_Message_Mask(CLIENT * from, char * targetMask, char * message, bool SendErr
 			if (Client_Type(cl) != CLIENT_USER)
 				continue;
 			client_match = MatchCaseInsensitive(mask,
-			 		Client_ID(Client_Introducer(cl)));
+					Client_ID(Client_Introducer(cl)));
 			if (client_match)
 				if (!IRC_WriteStrClientPrefix(cl, from, "PRIVMSG %s :%s",
-				 		Client_ID(cl), message))
+							Client_ID(cl), message))
 					return false;
 		}
 	}

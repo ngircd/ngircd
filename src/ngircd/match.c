@@ -61,10 +61,7 @@ MatchCaseInsensitive(const char *pattern, const char *searchme)
 	char haystack[COMMAND_LEN];
 
 	strlcpy(haystack, searchme, sizeof(haystack));
-
-	ngt_LowerStr(haystack);
-
-	return Match(pattern, haystack);
+	return Match(pattern, ngt_LowerStr(haystack));
 } /* MatchCaseInsensitive */
 
 

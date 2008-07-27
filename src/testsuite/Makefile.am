@@ -20,10 +20,9 @@ EXTRA_DIST = \
 	README functions.inc getpid.sh \
 	start-server.sh stop-server.sh tests.sh stress-server.sh \
 	test-loop.sh wait-tests.sh \
-	channel-test.e connect-test.e check-idle.e misc-test.e mode-test.e \
-	invite-test.e join-test.e kick-test.e \
-	opless-channel-test.e \
-	who-test.e stress-A.e stress-B.e \
+	channel-test.e connect-test.e check-idle.e invite-test.e \
+	join-test.e kick-test.e message-test.e misc-test.e mode-test.e \
+	opless-channel-test.e who-test.e stress-A.e stress-B.e \
 	ngircd-test.conf
 
 all:
@@ -61,13 +60,9 @@ kick-test: tests.sh
 	rm -f kick-test
 	ln -s $(srcdir)/tests.sh kick-test
 
-opless-channel-test: tests.sh
-	rm -f opless-channel-test
-	ln -s $(srcdir)/tests.sh opless-channel-test
-
-who-test: tests.sh
-	rm -f who-test
-	ln -s $(srcdir)/tests.sh who-test
+message-test: tests.sh
+	rm -f message-test
+	ln -s $(srcdir)/tests.sh message-test
 
 misc-test: tests.sh
 	rm -f misc-test
@@ -77,12 +72,21 @@ mode-test: tests.sh
 	rm -f mode-test
 	ln -s $(srcdir)/tests.sh mode-test
 
+opless-channel-test: tests.sh
+	rm -f opless-channel-test
+	ln -s $(srcdir)/tests.sh opless-channel-test
+
+who-test: tests.sh
+	rm -f who-test
+	ln -s $(srcdir)/tests.sh who-test
+
 TESTS = start-server.sh \
 	connect-test \
 	channel-test \
 	invite-test \
 	join-test \
 	kick-test \
+	message-test \
 	misc-test \
 	mode-test \
 	opless-channel-test \

@@ -4,6 +4,7 @@ connect-test
 invite-test
 join-test
 kick-test
+message-test
 misc-test
 mode-test
 opless-channel-test

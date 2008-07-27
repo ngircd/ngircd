@@ -419,13 +419,12 @@ IRC_NAMES( CLIENT *Client, REQUEST *Req )
 
 
 static unsigned int
-t_diff(time_t *t, const time_t div)
+t_diff(time_t *t, const time_t d)
 {
 	time_t diff, remain;
 
-	diff = *t / div;
-
-	remain = diff * div;
+	diff = *t / d;
+	remain = diff * d;
 	*t -= remain;
 
 	return diff;

@@ -53,18 +53,24 @@ expect {
 	"@* PRIVMSG nick :test"
 }
 
-
-send "privmsg ~user\%localhost :test\r"
-expect {
-	timeout { exit 1 }
-	"@* PRIVMSG nick :test"
-}
-
-send "privmsg nick!~user@localhost :test\r"
-expect {
-	timeout { exit 1 }
-	"@* PRIVMSG nick :test"
-}
+# The following two tests using "localhost" as host name
+# had to be disabled, because there are operating systems
+# out there, that use "localhost.<domain>" as host name
+# for 127.0.0.1 instead of just "localhost".
+# (for example OpenBSD 4, OpenSolaris, ...)
+#
+#send "privmsg ~user\%localhost :test\r"
+#expect {
+#	timeout { exit 1 }
+#	"@* PRIVMSG nick :test"
+#}
+#
+#send "privmsg nick!~user@localhost :test\r"
+#expect {
+#	timeout { exit 1 }
+#	"@* PRIVMSG nick :test"
+#	"401"
+#}
 
 send "away :away\r"
 expect {

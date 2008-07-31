@@ -65,7 +65,14 @@ A: On Linux/glibc with chroot enabled you need to put some libraries inside
    linking ngircd statically does not help this. The only known workaround
    is to either disable chroot support or to link against dietlibc instead
    of glibc. (tnx to Sebastian Siewior)
-
+Q: I have added an [Oper] section, how do i log on as IRC operator?
+A: You can use the /OPER command in your IRC client to become an IRC operator.
+   ngIRCd will also log all OPER requests (using syslog), if OPER fails you
+   can look there to determine why it did not work (bad password, unauthorized
+   host mask, etc.)
+Q: I am an IRC operator, but MODE doesn't work!
+A: You need to set 'OperCanUseMode = yes' in ngircd.conf to enable MODE for IRC
+   operators.
 
 IV. Bugs!?
 ~~~~~~~~~~

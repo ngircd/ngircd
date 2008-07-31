@@ -36,7 +36,9 @@ install-sys-darwin:
 	fi
 
 install-sys-darwin-root: de.barton.ngircd.plist
-	install -c -m 644 -b -o root -g wheel de.barton.ngircd.plist /Library/LaunchDaemons/de.barton.ngircd.plist
+	install -d -m 755 -o root -g wheel $(DESTDIR)/Library/LaunchDaemons
+	install -c -m 644 -b -o root -g wheel de.barton.ngircd.plist \
+	 $(DESTDIR)/Library/LaunchDaemons/de.barton.ngircd.plist
 	@echo
 	@echo " ** \"/Library/LaunchDaemons/de.barton.ngircd.plist\" has been installed,"
 	@echo " ** but is disabled. Use launchctl(8) to enable/run ngIRCd on Darwin/Mac OS X."

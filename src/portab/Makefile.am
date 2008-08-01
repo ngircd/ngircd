@@ -14,7 +14,7 @@ AUTOMAKE_OPTIONS = ansi2knr
 
 noinst_LIBRARIES = libngportab.a
 
-libngportab_a_SOURCES = strdup.c strlcpy.c strtok_r.c vsnprintf.c
+libngportab_a_SOURCES = strdup.c strlcpy.c strtok_r.c vsnprintf.c waitpid.c
 
 check_PROGRAMS = portabtest
 

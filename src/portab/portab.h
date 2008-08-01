@@ -99,6 +99,14 @@ typedef unsigned char bool;
 #endif
 #endif
 
+#ifdef NeXT
+#define S_IRUSR 0000400		/* read permission, owner */
+#define S_IWUSR 0000200		/* write permission, owner */
+#define S_IRGRP 0000040		/* read permission, group */
+#define S_IROTH 0000004		/* read permission, other */
+#define ssize_t int
+#endif
+
 #undef GLOBAL
 #define GLOBAL
 

@@ -784,7 +784,11 @@ NGIRCd_Init( bool NGIRCd_NoDaemon )
 		}
 
 		/* New child process */
+#ifndef NeXT
 		(void)setsid( );
+#else
+		setpgrp(0, getpid());
+#endif
 		chdir( "/" );
 
 		/* Detach stdin, stdout and stderr */

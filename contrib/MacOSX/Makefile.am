@@ -46,6 +46,7 @@ install-sys-darwin-root: de.barton.ngircd.plist
 
 clean-local:
 	rm -rf build
+	rm -f de.barton.ngircd.plist
 
 maintainer-clean-local:
 	rm -f Makefile Makefile.in

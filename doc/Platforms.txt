@@ -39,6 +39,7 @@ i386/unknown/freebsd6.0     gcc 3.4.4    0.10.0-p1  06-08-04 alex   Y Y Y Y (3)
 i386/unknown/freebsd6.1     gcc 3.4.4    CVSHEAD    06-05-07 fw     Y Y Y Y (3)
 i386/unknown/freebsd7.0     gcc 4.2.1    0.12.1     08-07-21 alex   Y Y Y Y (3)
 i386/unknown/gnu0.3         gcc 3.3.3    0.8.0      04-05-30 alex   Y Y n Y
+i686/unknown/gnu0.3         gcc 4.3.1    0.12.1     08-08-10 alex   Y Y Y Y
 i386/unknown/netbsdelf1.6.1 gcc 2.95.3   CVSHEAD    04-02-24 alex   Y Y Y Y
 i386/unknown/netbsdelf3.0.1 gcc 3.3.3    0.10.0-p1  06-08-30 alex   Y Y Y Y (3)
 i386/unknown/netbsdelf4.0   gcc 4.1.2    0.12.1     08-07-21 alex   Y Y Y Y (3)

@@ -8,12 +8,10 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: Makefile.am,v 1.3 2008/02/17 15:31:15 alex Exp $
-#
 
 SUBDIRS = ngIRCd.xcodeproj
 
-EXTRA_DIST = de.barton.ngircd.plist.tmpl config.h cvs-version.h
+EXTRA_DIST = de.barton.ngircd.plist.tmpl config.h
 
 SUFFIXES = .tmpl .
 

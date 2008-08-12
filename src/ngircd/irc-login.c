@@ -59,7 +59,7 @@ IRC_PASS( CLIENT *Client, REQUEST *Req )
 	if (Client_Conn(Client) <= NONE)
 		return IRC_WriteStrClient(Client, ERR_UNKNOWNCOMMAND_MSG,
 					  Client_ID(Client), Req->command);
-	
+
 	if (Client_Type(Client) == CLIENT_UNKNOWN && Req->argc == 1) {
 		/* Not yet registered "unknown" connection, PASS with one
 		 * argument: either a regular client, service, or server
@@ -99,7 +99,7 @@ IRC_PASS( CLIENT *Client, REQUEST *Req )
 		protolow = atoi(&Req->argv[1][2]);
 		Req->argv[1][2] = '\0';
 		protohigh = atoi(Req->argv[1]);
-			
+
 		Req->argv[1][2] = c2;
 		Req->argv[1][4] = c4;
 	} else
@@ -110,7 +110,7 @@ IRC_PASS( CLIENT *Client, REQUEST *Req )
 		type = &Req->argv[1][4];
 	else
 		type = NULL;
-	
+
 	/* Protocol flags/options */
 	if (Req->argc >= 4)
 		orig_flags = Req->argv[3];
@@ -422,10 +422,10 @@ IRC_QUIT( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *target;
 	char quitmsg[LINE_LEN];
-	
+
 	assert( Client != NULL );
 	assert( Req != NULL );
-		
+
 	/* Wrong number of arguments? */
 	if( Req->argc > 1 )
 		return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
@@ -459,7 +459,7 @@ IRC_QUIT( CLIENT *Client, REQUEST *Req )
 
 		/* User, Service, oder noch nicht registriert */
 		Conn_Close( Client_Conn( Client ), "Got QUIT command.", Req->argc == 1 ? quitmsg : NULL, true);
-		
+
 		return DISCONNECTED;
 	}
 } /* IRC_QUIT */

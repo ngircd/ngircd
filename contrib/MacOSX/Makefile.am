@@ -9,7 +9,7 @@
 # Please read the file COPYING, README and AUTHORS for more information.
 #
 
-SUBDIRS = ngIRCd.xcodeproj
+SUBDIRS = ngIRCd.xcodeproj ngIRCd.pmdoc
 
 EXTRA_DIST = de.barton.ngircd.plist.tmpl config.h
 

@@ -497,6 +497,7 @@ AC_OUTPUT([ \
 	contrib/Debian/Makefile \
 	contrib/MacOSX/Makefile \
 	contrib/MacOSX/ngIRCd.xcodeproj/Makefile \
+	contrib/MacOSX/ngIRCd.pmdoc/Makefile \
 ])
 
 type dpkg >/dev/null 2>&1

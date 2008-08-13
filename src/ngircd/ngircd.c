@@ -84,6 +84,12 @@ main( int argc, const char *argv[] )
 	int i;
 	size_t n;
 
+#if defined(DEBUG) && defined(HAVE_MTRACE)
+	/* enable GNU libc memory tracing when running in debug mode
+	 * and functionality available */
+	mtrace();
+#endif
+
 	umask( 0077 );
 
 	NGIRCd_SignalQuit = NGIRCd_SignalRestart = NGIRCd_SignalRehash = false;

@@ -168,7 +168,8 @@ GLOBAL bool
 IRC_NICK( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *intr_c, *target, *c;
-	char *modes;
+	char *nick, *user, *hostname, *modes, *info;
+	int token, hops;
 
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -294,18 +295,36 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 		}
 
 		return CONNECTED;
-	}
-	else if( Client_Type( Client ) == CLIENT_SERVER )
-	{
-		/* Server introduces new client */
+	} else if(Client_Type(Client) == CLIENT_SERVER ||
+		  Client_Type(Client) == CLIENT_SERVICE) {
+		/* Server or service introduces new client */
 
-		/* Falsche Anzahl Parameter? */
-		if( Req->argc != 7 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+		/* Bad number of parameters? */
+		if (Req->argc != 2 && Req->argc != 7)
+			return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+						  Client_ID(Client), Req->command);
+
+		if (Req->argc >= 7) {
+			nick = Req->argv[0];
+			hops = atoi(Req->argv[1]);
+			user = Req->argv[2];
+			hostname = Req->argv[3];
+			token = atoi(Req->argv[4]);
+			modes = Req->argv[5] + 1;
+			info = Req->argv[6];
+		} else {
+			nick = Req->argv[0];
+			hops = 1;
+			user = Req->argv[0];
+			hostname = Client_ID(Client);
+			token = atoi(Req->argv[1]);
+			modes = "";
+			info = Req->argv[0];
+		}
 
 		/* Nick ueberpruefen */
-		c = Client_Search( Req->argv[0] );
-		if( c )
-		{
+		c = Client_Search(nick);
+		if(c) {
 			/* Der neue Nick ist auf diesem Server bereits registriert:
 			 * sowohl der neue, als auch der alte Client muessen nun
 			 * disconnectiert werden. */
@@ -315,7 +334,7 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 		}
 
 		/* Server, zu dem der Client connectiert ist, suchen */
-		intr_c = Client_GetFromToken( Client, atoi( Req->argv[4] ));
+		intr_c = Client_GetFromToken(Client, token);
 		if( ! intr_c )
 		{
 			Log( LOG_ERR, "Server %s introduces nick \"%s\" on unknown server!?", Client_ID( Client ), Req->argv[0] );
@@ -324,7 +343,8 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 		}
 
 		/* Neue Client-Struktur anlegen */
-		c = Client_NewRemoteUser( intr_c, Req->argv[0], atoi( Req->argv[1] ), Req->argv[2], Req->argv[3], atoi( Req->argv[4] ), Req->argv[5] + 1, Req->argv[6], true);
+		c = Client_NewRemoteUser(intr_c, nick, hops, user, hostname,
+					 token, modes, info, true);
 		if( ! c )
 		{
 			/* Eine neue Client-Struktur konnte nicht angelegt werden.

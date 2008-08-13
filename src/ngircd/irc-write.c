@@ -39,7 +39,9 @@ static char UNUSED id[] = "$Id: irc-write.c,v 1.21 2006/08/12 11:56:24 fw Exp $"
 #define SEND_TO_SERVER 2
 
 
-static char *Get_Prefix PARAMS(( CLIENT *Target, CLIENT *Client ));
+static char *Get_Prefix PARAMS((CLIENT *Target, CLIENT *Client));
+static void cb_writeStrServersPrefixFlag PARAMS((CLIENT *Client,
+					 CLIENT *Prefix, void *Buffer));
 
 
 #ifdef PROTOTYPES
@@ -187,7 +189,7 @@ va_dcl
 			else if( Client_Type( c ) == CLIENT_SERVER ) c = NULL;
 		}
 		if( c ) c = Client_NextHop( c );
-			
+
 		if( c && ( c != Client ))
 		{
 			/* Ok, anderer Client */
@@ -272,7 +274,7 @@ va_dcl
 
 	IRC_WriteStrServersPrefixFlag( ExceptOf, Prefix, '\0', "%s", buffer );
 } /* IRC_WriteStrServersPrefix */
-	
+
 
 #ifdef PROTOTYPES
 GLOBAL void
@@ -288,9 +290,8 @@ va_dcl
 #endif
 {
 	char buffer[1000];
-	CLIENT *c;
 	va_list ap;
-	
+
 	assert( Format != NULL );
 	assert( Prefix != NULL );
 
@@ -301,16 +302,27 @@ va_dcl
 #endif
 	vsnprintf( buffer, 1000, Format, ap );
 	va_end( ap );
-	
-	c = Client_First( );
-	while( c )
-	{
-		if(( Client_Type( c ) == CLIENT_SERVER ) && ( Client_Conn( c ) > NONE ) && ( c != Client_ThisServer( )) && ( c != ExceptOf ))
-		{
-			/* Ziel-Server gefunden. Nun noch pruefen, ob Flags stimmen */
-			if(( Flag == '\0' ) || ( strchr( Client_Flags( c ), Flag ) != NULL )) IRC_WriteStrClientPrefix( c, Prefix, "%s", buffer );
+
+	IRC_WriteStrServersPrefixFlag_CB(ExceptOf, Prefix, Flag,
+					 cb_writeStrServersPrefixFlag, buffer);
+} /* IRC_WriteStrServersPrefixFlag */
+
+
+GLOBAL void
+IRC_WriteStrServersPrefixFlag_CB(CLIENT *ExceptOf, CLIENT *Prefix, char Flag,
+		void (*callback)(CLIENT *, CLIENT *, void *), void *cb_data)
+{
+	CLIENT *c;
+
+	c = Client_First();
+	while(c) {
+		if (Client_Type(c) == CLIENT_SERVER && Client_Conn(c) > NONE &&
+		    c != Client_ThisServer() && c != ExceptOf) {
+			/* Found a target server, do the flags match? */
+			if (Flag == '\0' || strchr(Client_Flags(c), Flag))
+				callback(c, Prefix, cb_data);
 		}
-		c = Client_Next( c );
+		c = Client_Next(c);
 	}
 } /* IRC_WriteStrServersPrefixFlag */
 
@@ -424,6 +436,13 @@ Get_Prefix( CLIENT *Target, CLIENT *Client )
 	if( Client_Type( Target ) == CLIENT_SERVER ) return Client_ID( Client );
 	else return Client_Mask( Client );
 } /* Get_Prefix */
+
+
+static void
+cb_writeStrServersPrefixFlag(CLIENT *Client, CLIENT *Prefix, void *Buffer)
+{
+	IRC_WriteStrClientPrefix(Client, Prefix, "%s", Buffer);
+} /* cb_writeStrServersPrefixFlag */
 
 
 /* -eof- */

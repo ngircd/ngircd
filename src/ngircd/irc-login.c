@@ -40,6 +40,10 @@
 
 static bool Hello_User PARAMS(( CLIENT *Client ));
 static void Kill_Nick PARAMS(( char *Nick, char *Reason ));
+static void Introduce_Client PARAMS(( CLIENT *From, const char *Nick,
+				     const int HopCount, const char *User,
+				     const char *Host, const int Token,
+				     const char *Mode, const char *Name ));
 
 
 /**
@@ -371,8 +375,11 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 		if( *modes ) Log( LOG_DEBUG, "User \"%s\" (+%s) registered (via %s, on %s, %d hop%s).", Client_Mask( c ), modes, Client_ID( Client ), Client_ID( intr_c ), Client_Hops( c ), Client_Hops( c ) > 1 ? "s": "" );
 		else Log( LOG_DEBUG, "User \"%s\" registered (via %s, on %s, %d hop%s).", Client_Mask( c ), Client_ID( Client ), Client_ID( intr_c ), Client_Hops( c ), Client_Hops( c ) > 1 ? "s": "" );
 
-		/* Andere Server, ausser dem Introducer, informieren */
-		IRC_WriteStrServersPrefix( Client, Client, "NICK %s %d %s %s %d %s :%s", Req->argv[0], atoi( Req->argv[1] ) + 1, Req->argv[2], Req->argv[3], Client_MyToken( intr_c ), Req->argv[5], Req->argv[6] );
+		/* Inform other servers about the new client */
+		Introduce_Client(Client, Req->argv[0], atoi(Req->argv[1]) + 1,
+				 Req->argv[2], Req->argv[3],
+				 Client_MyToken(intr_c), Req->argv[5],
+				 Req->argv[6]);
 
 		return CONNECTED;
 	}
@@ -668,6 +675,8 @@ IRC_PONG(CLIENT *Client, REQUEST *Req)
 static bool
 Hello_User(CLIENT * Client)
 {
+	char modes[CLIENT_MODE_LEN + 1] = "+";
+
 	assert(Client != NULL);
 
 	/* Check password ... */
@@ -684,10 +693,9 @@ Hello_User(CLIENT * Client)
 	    Client_Mask(Client), Client_Conn(Client));
 
 	/* Inform other servers */
-	IRC_WriteStrServers(NULL, "NICK %s 1 %s %s 1 +%s :%s",
-			    Client_ID(Client), Client_User(Client),
-			    Client_Hostname(Client), Client_Modes(Client),
-			    Client_Info(Client));
+	strlcat(modes, Client_Modes(Client), sizeof(modes));
+	Introduce_Client(NULL, Client_ID(Client), 1, Client_User(Client),
+			 Client_Hostname(Client), 1, modes, Client_Info(Client));
 
 	if (!IRC_WriteStrClient
 	    (Client, RPL_WELCOME_MSG, Client_ID(Client), Client_Mask(Client)))
@@ -741,6 +749,18 @@ Kill_Nick( char *Nick, char *Reason )
 	Log( LOG_ERR, "User(s) with nick \"%s\" will be disconnected: %s", Nick, Reason );
 	IRC_KILL( Client_ThisServer( ), &r );
 } /* Kill_Nick */
+
+
+static void
+Introduce_Client(CLIENT *From, const char *Nick, const int HopCount,
+const char *User, const char *Host, const int Token, const char *Mode,
+const char *Name)
+{
+	IRC_WriteStrServersPrefix(From,
+				  From != NULL ? From : Client_ThisServer(),
+				  "NICK %s %d %s %s %d %s :%s",
+				  Nick, HopCount, User, Host, Token, Mode, Name);
+} /* Introduce_Client */
 
 
 /* -eof- */

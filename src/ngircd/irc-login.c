@@ -368,48 +368,88 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 } /* IRC_NICK */
 
 
+/**
+ * Handler for the IRC command "USER".
+ */
 GLOBAL bool
-IRC_USER( CLIENT *Client, REQUEST *Req )
+IRC_USER(CLIENT * Client, REQUEST * Req)
 {
+	CLIENT *c;
 #ifdef IDENTAUTH
 	char *ptr;
 #endif
 
-	assert( Client != NULL );
-	assert( Req != NULL );
+	assert(Client != NULL);
+	assert(Req != NULL);
 
+	if (Client_Type(Client) == CLIENT_GOTNICK ||
 #ifndef STRICT_RFC
-	if( Client_Type( Client ) == CLIENT_GOTNICK || Client_Type( Client ) == CLIENT_GOTPASS || Client_Type( Client ) == CLIENT_UNKNOWN )
-#else
-	if( Client_Type( Client ) == CLIENT_GOTNICK || Client_Type( Client ) == CLIENT_GOTPASS )
+	    Client_Type(Client) == CLIENT_UNKNOWN ||
 #endif
+	    Client_Type(Client) == CLIENT_GOTPASS)
 	{
-		/* Wrong number of parameters? */
-		if( Req->argc != 4 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+		/* New connection */
+		if (Req->argc != 4)
+			return IRC_WriteStrClient(Client,
+						  ERR_NEEDMOREPARAMS_MSG,
+						  Client_ID(Client),
+						  Req->command);
 
 		/* User name */
 #ifdef IDENTAUTH
-		ptr = Client_User( Client );
-		if( ! ptr || ! *ptr || *ptr == '~' ) Client_SetUser( Client, Req->argv[0], false );
+		ptr = Client_User(Client);
+		if (!ptr || !*ptr || *ptr == '~')
+			Client_SetUser(Client, Req->argv[0], false);
 #else
-		Client_SetUser( Client, Req->argv[0], false );
+		Client_SetUser(Client, Req->argv[0], false);
 #endif
 
-		/* "Real name" or user info text: Don't set it to the empty string, the original ircd
-		 * can't deal with such "real names" (e. g. "USER user * * :") ... */
-		if( *Req->argv[3] ) Client_SetInfo( Client, Req->argv[3] );
-		else Client_SetInfo( Client, "-" );
+		/* "Real name" or user info text: Don't set it to the empty
+		 * string, the original ircd can't deal with such "real names"
+		 * (e. g. "USER user * * :") ... */
+		if (*Req->argv[3])
+			Client_SetInfo(Client, Req->argv[3]);
+		else
+			Client_SetInfo(Client, "-");
 
-		Log( LOG_DEBUG, "Connection %d: got valid USER command ...", Client_Conn( Client ));
-		if( Client_Type( Client ) == CLIENT_GOTNICK ) return Hello_User( Client );
-		else Client_SetType( Client, CLIENT_GOTUSER );
+		LogDebug("Connection %d: got valid USER command ...",
+		    Client_Conn(Client));
+		if (Client_Type(Client) == CLIENT_GOTNICK)
+			return Hello_User(Client);
+		else
+			Client_SetType(Client, CLIENT_GOTUSER);
 		return CONNECTED;
+
+	} else if (Client_Type(Client) == CLIENT_SERVER ||
+		   Client_Type(Client) == CLIENT_SERVICE) {
+		/* Server/service updating an user */
+		if (Req->argc != 4)
+			return IRC_WriteStrClient(Client,
+						  ERR_NEEDMOREPARAMS_MSG,
+						  Client_ID(Client),
+						  Req->command);
+		c = Client_Search(Req->prefix);
+		if (!c)
+			return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
+						  Client_ID(Client),
+						  Req->prefix);
+
+		Client_SetUser(c, Req->argv[0], true);
+		Client_SetHostname(c, Req->argv[1]);
+		Client_SetInfo(c, Req->argv[3]);
+
+		LogDebug("Connection %d: got valid USER command for \"%s\".",
+			 Client_Conn(Client), Client_Mask(c));
+		return CONNECTED;
+	} else if (Client_Type(Client) == CLIENT_USER) {
+		/* Already registered connection */
+		return IRC_WriteStrClient(Client, ERR_ALREADYREGISTRED_MSG,
+					  Client_ID(Client));
+	} else {
+		/* Unexpected/invalid connection state? */
+		return IRC_WriteStrClient(Client, ERR_NOTREGISTERED_MSG,
+					  Client_ID(Client));
 	}
-	else if( Client_Type( Client ) == CLIENT_USER || Client_Type( Client ) == CLIENT_SERVER || Client_Type( Client ) == CLIENT_SERVICE )
-	{
-		return IRC_WriteStrClient( Client, ERR_ALREADYREGISTRED_MSG, Client_ID( Client ));
-	}
-	else return IRC_WriteStrClient( Client, ERR_NOTREGISTERED_MSG, Client_ID( Client ));
 } /* IRC_USER */
 
 

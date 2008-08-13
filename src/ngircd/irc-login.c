@@ -38,12 +38,25 @@
 #include "irc-login.h"
 
 
+typedef struct _INTRO_INFO {
+	char *nick;		/* Nick name */
+	int hopcount;		/* Hop count */
+	char *user;		/* User name */
+	char *host;		/* Host name */
+	CLIENT *server;		/* Server the client is connected to */
+	char *mode;		/* User modes */
+	char *name;		/* Real name */
+} INTRO_INFO;
+
+
 static bool Hello_User PARAMS(( CLIENT *Client ));
 static void Kill_Nick PARAMS(( char *Nick, char *Reason ));
-static void Introduce_Client PARAMS(( CLIENT *From, const char *Nick,
-				     const int HopCount, const char *User,
-				     const char *Host, const int Token,
-				     const char *Mode, const char *Name ));
+static void Introduce_Client PARAMS((CLIENT *From, char *Nick,
+				     const int HopCount, char *User,
+				     char *Host, CLIENT *Server,
+				     char *Mode, char *Name ));
+static void cb_introduceClient PARAMS((CLIENT *Client, CLIENT *Prefix,
+				       void *i));
 
 
 /**
@@ -371,15 +384,25 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 			return CONNECTED;
 		}
 
-		modes = Client_Modes( c );
-		if( *modes ) Log( LOG_DEBUG, "User \"%s\" (+%s) registered (via %s, on %s, %d hop%s).", Client_Mask( c ), modes, Client_ID( Client ), Client_ID( intr_c ), Client_Hops( c ), Client_Hops( c ) > 1 ? "s": "" );
-		else Log( LOG_DEBUG, "User \"%s\" registered (via %s, on %s, %d hop%s).", Client_Mask( c ), Client_ID( Client ), Client_ID( intr_c ), Client_Hops( c ), Client_Hops( c ) > 1 ? "s": "" );
+		/* RFC 2813: client is now fully registered, inform all the
+		 * other servers about the new user.
+		 * RFC 1459: announce the new client only after receiving the
+		 * USER command, first we need more information! */
+		if (Req->argc >= 7) {
+			modes = Client_Modes(c);
+			LogDebug("User \"%s\" (+%s) registered (via %s, on %s, %d hop%s).",
+				Client_Mask(c), modes, Client_ID(Client),
+				Client_ID(intr_c), Client_Hops(c),
+				Client_Hops(c) > 1 ? "s": "");
 
-		/* Inform other servers about the new client */
-		Introduce_Client(Client, Req->argv[0], atoi(Req->argv[1]) + 1,
-				 Req->argv[2], Req->argv[3],
-				 Client_MyToken(intr_c), Req->argv[5],
-				 Req->argv[6]);
+			Introduce_Client(Client, Req->argv[0],
+				atoi(Req->argv[1]) + 1, Req->argv[2],
+				Req->argv[3], intr_c, Req->argv[5], Req->argv[6]);
+		} else {
+			LogDebug("User \"%s\" is beeing registered (RFC 1459) ...",
+				 Client_Mask(c));
+			Client_SetType(c, CLIENT_GOTNICK);
+		}
 
 		return CONNECTED;
 	}
@@ -394,6 +417,7 @@ GLOBAL bool
 IRC_USER(CLIENT * Client, REQUEST * Req)
 {
 	CLIENT *c;
+	char modes[CLIENT_MODE_LEN + 1] = "+";
 #ifdef IDENTAUTH
 	char *ptr;
 #endif
@@ -459,6 +483,21 @@ IRC_USER(CLIENT * Client, REQUEST * Req)
 
 		LogDebug("Connection %d: got valid USER command for \"%s\".",
 			 Client_Conn(Client), Client_Mask(c));
+
+		/* RFC 1459 style user registration? Inform other servers! */
+		if (Client_Type(c) == CLIENT_GOTNICK) {
+			strlcat(modes, Client_Modes(c), sizeof(modes));
+			Introduce_Client(Client, Client_ID(c), Client_Hops(c),
+					 Client_User(c), Client_Hostname(c),
+					 Client_Introducer(c), modes,
+					 Client_Info(c));
+			LogDebug("User \"%s\" (%s) registered (via %s, on %s, %d hop%s).",
+				 Client_Mask(c), modes, Client_ID(Client),
+				 Client_ID(Client_Introducer(c)), Client_Hops(c),
+				 Client_Hops(c) > 1 ? "s": "");
+			Client_SetType(c, CLIENT_USER);
+		}
+
 		return CONNECTED;
 	} else if (Client_Type(Client) == CLIENT_USER) {
 		/* Already registered connection */
@@ -695,7 +734,8 @@ Hello_User(CLIENT * Client)
 	/* Inform other servers */
 	strlcat(modes, Client_Modes(Client), sizeof(modes));
 	Introduce_Client(NULL, Client_ID(Client), 1, Client_User(Client),
-			 Client_Hostname(Client), 1, modes, Client_Info(Client));
+			 Client_Hostname(Client), NULL, modes,
+			 Client_Info(Client));
 
 	if (!IRC_WriteStrClient
 	    (Client, RPL_WELCOME_MSG, Client_ID(Client), Client_Mask(Client)))
@@ -752,15 +792,47 @@ Kill_Nick( char *Nick, char *Reason )
 
 
 static void
-Introduce_Client(CLIENT *From, const char *Nick, const int HopCount,
-const char *User, const char *Host, const int Token, const char *Mode,
-const char *Name)
+Introduce_Client(CLIENT *From, char *Nick, const int HopCount, char *User,
+		 char *Host, CLIENT *Server, char *Mode, char *Name)
 {
-	IRC_WriteStrServersPrefix(From,
-				  From != NULL ? From : Client_ThisServer(),
-				  "NICK %s %d %s %s %d %s :%s",
-				  Nick, HopCount, User, Host, Token, Mode, Name);
+	INTRO_INFO i;
+
+	i.nick = Nick;
+	i.hopcount = HopCount;
+	i.user = User ? User : "-";
+	i.host = Host ? Host : "-";
+	i.server = Server ? Server : Client_ThisServer();
+	i.mode = Mode ? Mode : "+";
+	i.name = Name ? Name : "";
+
+	IRC_WriteStrServersPrefixFlag_CB(From,
+				From != NULL ? From : Client_ThisServer(),
+				'\0', cb_introduceClient, (void *)(&i));
 } /* Introduce_Client */
+
+
+static void
+cb_introduceClient(CLIENT *Client, CLIENT *Prefix, void *data)
+{
+	INTRO_INFO *i = (INTRO_INFO *)data;
+	CONN_ID conn;
+
+	conn = Client_Conn(Client);
+	if (Conn_Options(conn) & CONN_RFC1459) {
+		/* RFC 1459 mode: separate NICK and USER commands */
+		Conn_WriteStr(conn, "NICK %s :%d", i->nick, i->hopcount);
+		Conn_WriteStr(conn, ":%s USER %s %s %s :%s",
+			      i->nick, i->user, i->host,
+			      Client_ID(i->server), i->name);
+	} else {
+		/* RFC 2813 mode: one combined NICK command */
+		IRC_WriteStrClientPrefix(Client, Prefix,
+					 "NICK %s %d %s %s %d %s :%s",
+					 i->nick, i->hopcount, i->user, i->host,
+					 Client_MyToken(i->server), i->mode,
+					 i->name);
+	}
+} /* cb_introduceClient */
 
 
 /* -eof- */

@@ -1,14 +1,12 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2008 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
- *
- * $Id: conn-func.h,v 1.7 2007/10/04 15:03:56 alex Exp $
  *
  * Connection management: Global functions (header)
  */
@@ -22,7 +20,11 @@
  * containing connection handling functions. So other modules must only
  * include this conn-func.h header. */
 #ifndef CONN_MODULE
-#	include "conn.h"
+#include "conn.h"
+#else
+#define Conn_OPTION_ADD( x, opt )   ( (x)->options |= (opt) )
+#define Conn_OPTION_DEL( x, opt )   ( (x)->options &= ~(opt) )
+#define Conn_OPTION_ISSET( x, opt ) ( ((x)->options & (opt)) != 0)
 #endif
 
 
@@ -49,13 +51,10 @@ GLOBAL CONN_ID Conn_First PARAMS(( void ));
 GLOBAL CONN_ID Conn_Next PARAMS(( CONN_ID Idx ));
 
 GLOBAL UINT16 Conn_Options PARAMS(( CONN_ID Idx ));
+GLOBAL void Conn_SetOption PARAMS(( CONN_ID Idx, int Option ));
 
 GLOBAL void Conn_ResetWCounter PARAMS(( void ));
 GLOBAL long Conn_WCounter PARAMS(( void ));
-
-#define Conn_OPTION_ADD( x, opt )   ( (x)->options |= (opt) )
-#define Conn_OPTION_DEL( x, opt )   ( (x)->options &= ~(opt) )
-#define Conn_OPTION_ISSET( x, opt ) ( ((x)->options & (opt)) != 0)
 
 #endif
 

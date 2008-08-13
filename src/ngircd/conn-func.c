@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2008 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -173,6 +173,17 @@ Conn_Options( CONN_ID Idx )
 	assert( Idx > NONE );
 	return My_Connections[Idx].options;
 } /* Conn_Options */
+
+
+/**
+ * Set connection option.
+ */
+GLOBAL void
+Conn_SetOption(CONN_ID Idx, int Option)
+{
+	assert(Idx > NONE);
+	Conn_OPTION_ADD(&My_Connections[Idx], Option);
+} /* Conn_SetOption */
 
 
 /**

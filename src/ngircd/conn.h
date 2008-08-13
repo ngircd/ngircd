@@ -1,14 +1,12 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2008 by Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
- *
- * $Id: conn.h,v 1.46 2008/02/26 22:04:17 fw Exp $
  *
  * Connection management (header)
  */
@@ -23,9 +21,9 @@
 
 #define CONN_ISCLOSING		1	/* Conn_Close() already called */
 #define CONN_ISCONNECTING	2	/* connect() in progress */
-
+#define CONN_RFC1459		4	/* RFC 1459 compatibility mode */
 #ifdef ZLIB
-#define CONN_ZIP		4	/* zlib compressed link */
+#define CONN_ZIP		8	/* zlib compressed link */
 #endif
 
 #include "conf-ssl.h"

@@ -168,6 +168,7 @@ GLOBAL bool
 IRC_NICK( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *intr_c, *target, *c;
+	CONN_ID conn;
 	char *nick, *user, *hostname, *modes, *info;
 	int token, hops;
 
@@ -305,6 +306,7 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 						  Client_ID(Client), Req->command);
 
 		if (Req->argc >= 7) {
+			/* RFC 2813 compatible syntax */
 			nick = Req->argv[0];
 			hops = atoi(Req->argv[1]);
 			user = Req->argv[2];
@@ -313,6 +315,7 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 			modes = Req->argv[5] + 1;
 			info = Req->argv[6];
 		} else {
+			/* RFC 1459 compatible syntax */
 			nick = Req->argv[0];
 			hops = 1;
 			user = Req->argv[0];
@@ -320,6 +323,15 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 			token = atoi(Req->argv[1]);
 			modes = "";
 			info = Req->argv[0];
+
+			conn = Client_Conn(Client);
+			if (conn != NONE &&
+			    !(Conn_Options(conn) & CONN_RFC1459)) {
+				Log(LOG_INFO,
+				    "Switching connection %d (\"%s\") to RFC 1459 compatibility mode.",
+				    conn, Client_ID(Client));
+				Conn_SetOption(conn, CONN_RFC1459);
+			}
 		}
 
 		/* Nick ueberpruefen */

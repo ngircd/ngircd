@@ -78,17 +78,27 @@ static bool
 Announce_User(CLIENT * Client, CLIENT * User)
 {
 	CONN_ID conn;
+	char *modes;
+
 	conn = Client_Conn(Client);
 	if (Conn_Options(conn) & CONN_RFC1459) {
 		/* RFC 1459 mode: separate NICK and USER commands */
 		if (! Conn_WriteStr(conn, "NICK %s :%d",
 				    Client_ID(User), Client_Hops(User) + 1))
 			return DISCONNECTED;
-		return Conn_WriteStr(conn, ":%s USER %s %s %s :%s",
+		if (! Conn_WriteStr(conn, ":%s USER %s %s %s :%s",
 				     Client_ID(User), Client_User(User),
 				     Client_Hostname(User),
 				     Client_ID(Client_Introducer(User)),
-				     Client_Info(User));
+				     Client_Info(User)))
+			return DISCONNECTED;
+		modes = Client_Modes(User);
+		if (modes[0]) {
+			return Conn_WriteStr(conn, ":%s MODE %s +%s",
+				     Client_ID(User), Client_ID(User),
+				     modes);
+		}
+		return CONNECTED;
 	} else {
 		/* RFC 2813 mode: one combined NICK command */
 		return IRC_WriteStrClient(Client, "NICK %s %d %s %s %d +%s :%s",

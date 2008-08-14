@@ -26,6 +26,7 @@
 #define CLIENT_SERVER 32		/* client is a server */
 #define CLIENT_SERVICE 64		/* client is a service */
 #define CLIENT_UNKNOWNSERVER 128	/* unregistered server connection */
+#define CLIENT_GOTPASS_2813 256		/* client did send PASS, RFC 2813 style */
 
 #define CLIENT_TYPE int
 

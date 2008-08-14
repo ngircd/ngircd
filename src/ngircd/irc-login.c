@@ -81,7 +81,7 @@ IRC_PASS( CLIENT *Client, REQUEST *Req )
 		/* Not yet registered "unknown" connection, PASS with one
 		 * argument: either a regular client, service, or server
 		 * using the old RFC 1459 section 4.1.1 syntax. */
-		LogDebug("Connection %d: got PASS command ...",
+		LogDebug("Connection %d: got PASS command (RFC 1459) ...",
 			 Client_Conn(Client));
 	} else if ((Client_Type(Client) == CLIENT_UNKNOWN ||
 		    Client_Type(Client) == CLIENT_UNKNOWNSERVER) &&
@@ -89,7 +89,7 @@ IRC_PASS( CLIENT *Client, REQUEST *Req )
 		/* Not yet registered "unknown" connection or outgoing server
 		 * link, PASS with three or four argument: server using the
 		 * RFC 2813 section 4.1.1 syntax. */
-		LogDebug("Connection %d: got PASS command (new server link) ...",
+		LogDebug("Connection %d: got PASS command (RFC 2813, new server link) ...",
 			 Client_Conn(Client));
 	} else if (Client_Type(Client) == CLIENT_UNKNOWN ||
 		   Client_Type(Client) == CLIENT_UNKNOWNSERVER) {
@@ -103,7 +103,6 @@ IRC_PASS( CLIENT *Client, REQUEST *Req )
 	}
 
 	Client_SetPassword(Client, Req->argv[0]);
-	Client_SetType(Client, CLIENT_GOTPASS);
 
 	/* Protocol version */
 	if (Req->argc >= 2 && strlen(Req->argv[1]) >= 4) {
@@ -119,8 +118,12 @@ IRC_PASS( CLIENT *Client, REQUEST *Req )
 
 		Req->argv[1][2] = c2;
 		Req->argv[1][4] = c4;
-	} else
+
+		Client_SetType(Client, CLIENT_GOTPASS_2813);
+	} else {
 		protohigh = protolow = 0;
+		Client_SetType(Client, CLIENT_GOTPASS);
+	}
 
 	/* Protocol type, see doc/Protocol.txt */
 	if (Req->argc >= 2 && strlen(Req->argv[1]) > 4)
@@ -185,7 +188,6 @@ GLOBAL bool
 IRC_NICK( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *intr_c, *target, *c;
-	CONN_ID conn;
 	char *nick, *user, *hostname, *modes, *info;
 	int token, hops;
 
@@ -340,15 +342,6 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 			token = atoi(Req->argv[1]);
 			modes = "";
 			info = Req->argv[0];
-
-			conn = Client_Conn(Client);
-			if (conn != NONE &&
-			    !(Conn_Options(conn) & CONN_RFC1459)) {
-				Log(LOG_INFO,
-				    "Switching connection %d (\"%s\") to RFC 1459 compatibility mode.",
-				    conn, Client_ID(Client));
-				Conn_SetOption(conn, CONN_RFC1459);
-			}
 		}
 
 		/* Nick ueberpruefen */

@@ -14,8 +14,6 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-server.c,v 1.46 2007/11/21 12:16:36 alex Exp $";
-
 #include "imp.h"
 #include <assert.h>
 #include <stdio.h>
@@ -26,6 +24,7 @@ static char UNUSED id[] = "$Id: irc-server.c,v 1.46 2007/11/21 12:16:36 alex Exp
 #include "defines.h"
 #include "resolve.h"
 #include "conn.h"
+#include "conn-func.h"
 #include "conn-zip.h"
 #include "conf.h"
 #include "client.h"
@@ -64,7 +63,8 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 		return IRC_WriteStrClient(Client, ERR_UNKNOWNCOMMAND_MSG,
 					  Client_ID(Client), Req->command);
 
-	if (Client_Type(Client) == CLIENT_GOTPASS) {
+	if (Client_Type(Client) == CLIENT_GOTPASS ||
+	    Client_Type(Client) == CLIENT_GOTPASS_2813) {
 		/* We got a PASS command from the peer, and now a SERVER
 		 * command: the peer tries to register itself as a server. */
 		LogDebug("Connection %d: got SERVER command (new server link) ...",
@@ -124,7 +124,18 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 
 		/* Mark this connection as belonging to an configured server */
 		Conf_SetServer(i, con);
-		
+
+		/* Check protocol level */
+		if (Client_Type(Client) == CLIENT_GOTPASS) {
+			/* We got a "simple" PASS command, so the peer is
+			 * using the protocol as defined in RFC 1459. */
+			if (! (Conn_Options(con) & CONN_RFC1459))
+				Log(LOG_INFO,
+				    "Switching connection %d (\"%s\") to RFC 1459 compatibility mode.",
+				    con, Client_ID(Client));
+			Conn_SetOption(con, CONN_RFC1459);
+		}
+
 		Client_SetType(Client, CLIENT_UNKNOWNSERVER);
 
 #ifdef ZLIB

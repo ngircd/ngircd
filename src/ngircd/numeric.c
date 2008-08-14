@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2007 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2008 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,8 +13,6 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: numeric.c,v 1.1 2007/11/21 12:20:32 alex Exp $";
-
 #include "imp.h"
 #include <assert.h>
 #include <stdio.h>
@@ -26,6 +24,7 @@ static char UNUSED id[] = "$Id: numeric.c,v 1.1 2007/11/21 12:20:32 alex Exp $";
 #include "conn.h"
 #include "conf.h"
 #include "conn.h"
+#include "conn-func.h"
 #include "client.h"
 #include "channel.h"
 #include "irc-write.h"
@@ -78,10 +77,27 @@ Announce_Server(CLIENT * Client, CLIENT * Server)
 static bool
 Announce_User(CLIENT * Client, CLIENT * User)
 {
-	return IRC_WriteStrClient(Client, "NICK %s %d %s %s %d +%s :%s",
-		Client_ID(User), Client_Hops(User) + 1, Client_User(User),
-		Client_Hostname(User), Client_MyToken(Client_Introducer(User)),
-		Client_Modes(User), Client_Info(User));
+	CONN_ID conn;
+	conn = Client_Conn(Client);
+	if (Conn_Options(conn) & CONN_RFC1459) {
+		/* RFC 1459 mode: separate NICK and USER commands */
+		if (! Conn_WriteStr(conn, "NICK %s :%d",
+				    Client_ID(User), Client_Hops(User) + 1))
+			return DISCONNECTED;
+		return Conn_WriteStr(conn, ":%s USER %s %s %s :%s",
+				     Client_ID(User), Client_User(User),
+				     Client_Hostname(User),
+				     Client_ID(Client_Introducer(User)),
+				     Client_Info(User));
+		
+	} else {
+		/* RFC 2813 mode: one combined NICK command */
+		return IRC_WriteStrClient(Client, "NICK %s %d %s %s %d +%s :%s",
+				Client_ID(User), Client_Hops(User) + 1,
+				Client_User(User), Client_Hostname(User),
+				Client_MyToken(Client_Introducer(User)),
+				Client_Modes(User), Client_Info(User));
+	}
 } /* Announce_User */
 
 

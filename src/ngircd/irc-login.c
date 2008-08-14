@@ -390,7 +390,7 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 
 			Introduce_Client(Client, Req->argv[0],
 				atoi(Req->argv[1]) + 1, Req->argv[2],
-				Req->argv[3], intr_c, Req->argv[5], Req->argv[6]);
+				Req->argv[3], intr_c, modes, Req->argv[6]);
 		} else {
 			LogDebug("User \"%s\" is beeing registered (RFC 1459) ...",
 				 Client_Mask(c));
@@ -410,7 +410,6 @@ GLOBAL bool
 IRC_USER(CLIENT * Client, REQUEST * Req)
 {
 	CLIENT *c;
-	char modes[CLIENT_MODE_LEN + 1] = "+";
 #ifdef IDENTAUTH
 	char *ptr;
 #endif
@@ -479,13 +478,12 @@ IRC_USER(CLIENT * Client, REQUEST * Req)
 
 		/* RFC 1459 style user registration? Inform other servers! */
 		if (Client_Type(c) == CLIENT_GOTNICK) {
-			strlcat(modes, Client_Modes(c), sizeof(modes));
 			Introduce_Client(Client, Client_ID(c), Client_Hops(c),
 					 Client_User(c), Client_Hostname(c),
-					 Client_Introducer(c), modes,
+					 Client_Introducer(c), Client_Modes(c),
 					 Client_Info(c));
-			LogDebug("User \"%s\" (%s) registered (via %s, on %s, %d hop%s).",
-				 Client_Mask(c), modes, Client_ID(Client),
+			LogDebug("User \"%s\" (+%s) registered (via %s, on %s, %d hop%s).",
+				 Client_Mask(c), Client_Modes(c), Client_ID(Client),
 				 Client_ID(Client_Introducer(c)), Client_Hops(c),
 				 Client_Hops(c) > 1 ? "s": "");
 			Client_SetType(c, CLIENT_USER);
@@ -817,10 +815,13 @@ cb_introduceClient(CLIENT *Client, CLIENT *Prefix, void *data)
 		Conn_WriteStr(conn, ":%s USER %s %s %s :%s",
 			      i->nick, i->user, i->host,
 			      Client_ID(i->server), i->name);
+		if (i->mode[0])
+			Conn_WriteStr(conn, ":%s MODE %s +%s",
+				      i->nick, i->nick, i->mode);
 	} else {
 		/* RFC 2813 mode: one combined NICK command */
 		IRC_WriteStrClientPrefix(Client, Prefix,
-					 "NICK %s %d %s %s %d %s :%s",
+					 "NICK %s %d %s %s %d +%s :%s",
 					 i->nick, i->hopcount, i->user, i->host,
 					 Client_MyToken(i->server), i->mode,
 					 i->name);

@@ -89,7 +89,6 @@ Announce_User(CLIENT * Client, CLIENT * User)
 				     Client_Hostname(User),
 				     Client_ID(Client_Introducer(User)),
 				     Client_Info(User));
-		
 	} else {
 		/* RFC 2813 mode: one combined NICK command */
 		return IRC_WriteStrClient(Client, "NICK %s %d %s %s %d +%s :%s",
@@ -158,20 +157,20 @@ Send_CHANINFO(CLIENT * Client, CHANNEL * Chan)
 {
 	char *modes, *topic;
 	bool has_k, has_l;
-	
+
 #ifdef DEBUG
 	Log(LOG_DEBUG, "Sending CHANINFO commands ...");
 #endif
-	
+
 	modes = Channel_Modes(Chan);
 	topic = Channel_Topic(Chan);
-	
+
 	if (!*modes && !*topic)
 		return CONNECTED;
-	
+
 	has_k = strchr(modes, 'k') != NULL;
 	has_l = strchr(modes, 'l') != NULL;
-	
+
 	/* send CHANINFO */
 	if (!has_k && !has_l) {
 		if (!*topic) {

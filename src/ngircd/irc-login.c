@@ -38,23 +38,9 @@
 #include "irc-login.h"
 
 
-typedef struct _INTRO_INFO {
-	char *nick;		/* Nick name */
-	int hopcount;		/* Hop count */
-	char *user;		/* User name */
-	char *host;		/* Host name */
-	CLIENT *server;		/* Server the client is connected to */
-	char *mode;		/* User modes */
-	char *name;		/* Real name */
-} INTRO_INFO;
-
-
 static bool Hello_User PARAMS(( CLIENT *Client ));
 static void Kill_Nick PARAMS(( char *Nick, char *Reason ));
-static void Introduce_Client PARAMS((CLIENT *From, char *Nick,
-				     const int HopCount, char *User,
-				     char *Host, CLIENT *Server,
-				     char *Mode, char *Name ));
+static void Introduce_Client PARAMS((CLIENT *To, CLIENT *Client));
 static void cb_introduceClient PARAMS((CLIENT *Client, CLIENT *Prefix,
 				       void *i));
 
@@ -387,10 +373,7 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 				Client_Mask(c), modes, Client_ID(Client),
 				Client_ID(intr_c), Client_Hops(c),
 				Client_Hops(c) > 1 ? "s": "");
-
-			Introduce_Client(Client, Req->argv[0],
-				atoi(Req->argv[1]) + 1, Req->argv[2],
-				Req->argv[3], intr_c, modes, Req->argv[6]);
+			Introduce_Client(Client, c);
 		} else {
 			LogDebug("User \"%s\" is beeing registered (RFC 1459) ...",
 				 Client_Mask(c));
@@ -478,15 +461,12 @@ IRC_USER(CLIENT * Client, REQUEST * Req)
 
 		/* RFC 1459 style user registration? Inform other servers! */
 		if (Client_Type(c) == CLIENT_GOTNICK) {
-			Introduce_Client(Client, Client_ID(c), Client_Hops(c),
-					 Client_User(c), Client_Hostname(c),
-					 Client_Introducer(c), Client_Modes(c),
-					 Client_Info(c));
 			LogDebug("User \"%s\" (+%s) registered (via %s, on %s, %d hop%s).",
 				 Client_Mask(c), Client_Modes(c), Client_ID(Client),
 				 Client_ID(Client_Introducer(c)), Client_Hops(c),
 				 Client_Hops(c) > 1 ? "s": "");
 			Client_SetType(c, CLIENT_USER);
+			Introduce_Client(Client, c);
 		}
 
 		return CONNECTED;
@@ -705,8 +685,6 @@ IRC_PONG(CLIENT *Client, REQUEST *Req)
 static bool
 Hello_User(CLIENT * Client)
 {
-	char modes[CLIENT_MODE_LEN + 1] = "+";
-
 	assert(Client != NULL);
 
 	/* Check password ... */
@@ -719,14 +697,12 @@ Hello_User(CLIENT * Client)
 		return DISCONNECTED;
 	}
 
+	Client_SetType(Client, CLIENT_USER);
 	Log(LOG_NOTICE, "User \"%s\" registered (connection %d).",
 	    Client_Mask(Client), Client_Conn(Client));
 
 	/* Inform other servers */
-	strlcat(modes, Client_Modes(Client), sizeof(modes));
-	Introduce_Client(NULL, Client_ID(Client), 1, Client_User(Client),
-			 Client_Hostname(Client), NULL, modes,
-			 Client_Info(Client));
+	Introduce_Client(NULL, Client);
 
 	if (!IRC_WriteStrClient
 	    (Client, RPL_WELCOME_MSG, Client_ID(Client), Client_Mask(Client)))
@@ -749,8 +725,6 @@ Hello_User(CLIENT * Client)
 	 * see <http://www.irc.org/tech_docs/005.html> for details. */
 	if (!IRC_Send_ISUPPORT(Client))
 		return DISCONNECTED;
-
-	Client_SetType(Client, CLIENT_USER);
 
 	if (!IRC_Send_LUSERS(Client))
 		return DISCONNECTED;
@@ -783,48 +757,44 @@ Kill_Nick( char *Nick, char *Reason )
 
 
 static void
-Introduce_Client(CLIENT *From, char *Nick, const int HopCount, char *User,
-		 char *Host, CLIENT *Server, char *Mode, char *Name)
+Introduce_Client(CLIENT *From, CLIENT *Client)
 {
-	INTRO_INFO i;
-
-	i.nick = Nick;
-	i.hopcount = HopCount;
-	i.user = User ? User : "-";
-	i.host = Host ? Host : "-";
-	i.server = Server ? Server : Client_ThisServer();
-	i.mode = Mode ? Mode : "+";
-	i.name = Name ? Name : "";
-
 	IRC_WriteStrServersPrefixFlag_CB(From,
 				From != NULL ? From : Client_ThisServer(),
-				'\0', cb_introduceClient, (void *)(&i));
+				'\0', cb_introduceClient, (void *)Client);
 } /* Introduce_Client */
 
 
 static void
-cb_introduceClient(CLIENT *Client, CLIENT *Prefix, void *data)
+cb_introduceClient(CLIENT *To, CLIENT *Prefix, void *data)
 {
-	INTRO_INFO *i = (INTRO_INFO *)data;
+	CLIENT *c = (CLIENT *)data;
 	CONN_ID conn;
+	char *modes, *user, *host;
 
-	conn = Client_Conn(Client);
+	modes = Client_Modes(c);
+	user = Client_User(c) ? Client_User(c) : "-";
+	host = Client_Hostname(c) ? Client_Hostname(c) : "-";
+
+	conn = Client_Conn(To);
 	if (Conn_Options(conn) & CONN_RFC1459) {
 		/* RFC 1459 mode: separate NICK and USER commands */
-		Conn_WriteStr(conn, "NICK %s :%d", i->nick, i->hopcount);
+		Conn_WriteStr(conn, "NICK %s :%d", Client_ID(c),
+			      Client_Hops(c) + 1);
 		Conn_WriteStr(conn, ":%s USER %s %s %s :%s",
-			      i->nick, i->user, i->host,
-			      Client_ID(i->server), i->name);
-		if (i->mode[0])
+			      Client_ID(c), user, host,
+			      Client_ID(Client_Introducer(c)), Client_Info(c));
+		if (modes[0])
 			Conn_WriteStr(conn, ":%s MODE %s +%s",
-				      i->nick, i->nick, i->mode);
+				      Client_ID(c), Client_ID(c), modes);
 	} else {
 		/* RFC 2813 mode: one combined NICK command */
-		IRC_WriteStrClientPrefix(Client, Prefix,
+		IRC_WriteStrClientPrefix(To, Prefix,
 					 "NICK %s %d %s %s %d +%s :%s",
-					 i->nick, i->hopcount, i->user, i->host,
-					 Client_MyToken(i->server), i->mode,
-					 i->name);
+					 Client_ID(c), Client_Hops(c) + 1,
+					 user, host,
+					 Client_MyToken(Client_Introducer(c)),
+					 modes, Client_Info(c));
 	}
 } /* cb_introduceClient */
 

@@ -367,18 +367,12 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 		 * other servers about the new user.
 		 * RFC 1459: announce the new client only after receiving the
 		 * USER command, first we need more information! */
-		if (Req->argc >= 7) {
-			modes = Client_Modes(c);
-			LogDebug("User \"%s\" (+%s) registered (via %s, on %s, %d hop%s).",
-				Client_Mask(c), modes, Client_ID(Client),
-				Client_ID(intr_c), Client_Hops(c),
-				Client_Hops(c) > 1 ? "s": "");
-			Introduce_Client(Client, c);
-		} else {
+		if (Req->argc < 7) {
 			LogDebug("User \"%s\" is beeing registered (RFC 1459) ...",
 				 Client_Mask(c));
 			Client_SetType(c, CLIENT_GOTNICK);
-		}
+		} else
+			Introduce_Client(Client, c);
 
 		return CONNECTED;
 	}
@@ -459,15 +453,10 @@ IRC_USER(CLIENT * Client, REQUEST * Req)
 		LogDebug("Connection %d: got valid USER command for \"%s\".",
 			 Client_Conn(Client), Client_Mask(c));
 
-		/* RFC 1459 style user registration? Inform other servers! */
-		if (Client_Type(c) == CLIENT_GOTNICK) {
-			LogDebug("User \"%s\" (+%s) registered (via %s, on %s, %d hop%s).",
-				 Client_Mask(c), Client_Modes(c), Client_ID(Client),
-				 Client_ID(Client_Introducer(c)), Client_Hops(c),
-				 Client_Hops(c) > 1 ? "s": "");
-			Client_SetType(c, CLIENT_USER);
+		/* RFC 1459 style user registration?
+		 * Introduce client to network: */
+		if (Client_Type(c) == CLIENT_GOTNICK)
 			Introduce_Client(Client, c);
-		}
 
 		return CONNECTED;
 	} else if (Client_Type(Client) == CLIENT_USER) {
@@ -697,11 +686,6 @@ Hello_User(CLIENT * Client)
 		return DISCONNECTED;
 	}
 
-	Client_SetType(Client, CLIENT_USER);
-	Log(LOG_NOTICE, "User \"%s\" registered (connection %d).",
-	    Client_Mask(Client), Client_Conn(Client));
-
-	/* Inform other servers */
 	Introduce_Client(NULL, Client);
 
 	if (!IRC_WriteStrClient
@@ -759,6 +743,18 @@ Kill_Nick( char *Nick, char *Reason )
 static void
 Introduce_Client(CLIENT *From, CLIENT *Client)
 {
+	Client_SetType(Client, CLIENT_USER);
+
+	if (From) {
+		LogDebug("User \"%s\" (+%s) registered (via %s, on %s, %d hop%s).",
+			 Client_Mask(Client), Client_Modes(Client),
+			 Client_ID(From), Client_ID(Client_Introducer(Client)),
+			 Client_Hops(Client), Client_Hops(Client) > 1 ? "s": "");
+	} else
+		Log(LOG_NOTICE, "User \"%s\" registered (connection %d).",
+		    Client_Mask(Client), Client_Conn(Client));
+
+	/* Inform other servers */
 	IRC_WriteStrServersPrefixFlag_CB(From,
 				From != NULL ? From : Client_ThisServer(),
 				'\0', cb_introduceClient, (void *)Client);

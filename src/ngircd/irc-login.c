@@ -368,7 +368,7 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 		 * RFC 1459: announce the new client only after receiving the
 		 * USER command, first we need more information! */
 		if (Req->argc < 7) {
-			LogDebug("User \"%s\" is beeing registered (RFC 1459) ...",
+			LogDebug("Client \"%s\" is beeing registered (RFC 1459) ...",
 				 Client_Mask(c));
 			Client_SetType(c, CLIENT_GOTNICK);
 		} else
@@ -743,11 +743,17 @@ Kill_Nick( char *Nick, char *Reason )
 static void
 Introduce_Client(CLIENT *From, CLIENT *Client)
 {
+	char *type;
+
 	Client_SetType(Client, CLIENT_USER);
 
 	if (From) {
-		LogDebug("User \"%s\" (+%s) registered (via %s, on %s, %d hop%s).",
-			 Client_Mask(Client), Client_Modes(Client),
+		if (Conf_IsService(Conf_GetServer(Client_Conn(From)), Client_ID(Client))) {
+			type = "Service";
+		} else
+			type = "User";
+		LogDebug("%s \"%s\" (+%s) registered (via %s, on %s, %d hop%s).",
+			 type, Client_Mask(Client), Client_Modes(Client),
 			 Client_ID(From), Client_ID(Client_Introducer(Client)),
 			 Client_Hops(Client), Client_Hops(Client) > 1 ? "s": "");
 	} else

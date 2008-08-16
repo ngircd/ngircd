@@ -42,6 +42,7 @@
 #include "client.h"
 #include "defines.h"
 #include "log.h"
+#include "match.h"
 #include "resolve.h"
 #include "tool.h"
 
@@ -292,6 +293,7 @@ Conf_Test( void )
 #endif
 		printf( "  MyPassword = %s\n", Conf_Server[i].pwd_in );
 		printf( "  PeerPassword = %s\n", Conf_Server[i].pwd_out );
+		printf( "  ServiceMask = %s\n", Conf_Server[i].svs_mask);
 		printf( "  Group = %d\n", Conf_Server[i].group );
 		printf( "  Passive = %s\n\n", Conf_Server[i].flags & CONF_SFLAG_DISABLED ? "yes" : "no");
 	}
@@ -467,6 +469,16 @@ Conf_AddServer( char *Name, UINT16 Port, char *Host, char *MyPwd, char *PeerPwd 
 
 	return true;
 } /* Conf_AddServer */
+
+
+/**
+ * Check if the given nick name is an service
+ */
+GLOBAL bool
+Conf_IsService(int ConfServer, char *Nick)
+{
+	return MatchCaseInsensitive(Conf_Server[ConfServer].svs_mask, Nick);
+} /* Conf_IsService */
 
 
 static void
@@ -1126,6 +1138,13 @@ Handle_SERVER( int Line, char *Var, char *Arg )
 	if( strcasecmp( Var, "Passive" ) == 0 ) {
 		if (Check_ArgIsTrue(Arg))
 			New_Server.flags |= CONF_SFLAG_DISABLED;
+		return;
+	}
+	if (strcasecmp(Var, "ServiceMask") == 0) {
+		len = strlcpy(New_Server.svs_mask, ngt_LowerStr(Arg),
+			      sizeof(New_Server.svs_mask));
+		if (len >= sizeof(New_Server.svs_mask))
+			Config_Error_TooLong(Line, Var);
 		return;
 	}
 	

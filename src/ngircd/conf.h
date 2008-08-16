@@ -1,14 +1,12 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2008 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
- *
- * $Id: conf.h,v 1.49 2008/03/18 20:12:47 fw Exp $
  *
  * Configuration management (header)
  */
@@ -47,11 +45,14 @@ typedef struct _Conf_Server
 	RES_STAT res_stat;		/* Status of the resolver */
 	int flags;			/* Flags */
 	CONN_ID conn_id;		/* ID of server connection or NONE */
-	ng_ipaddr_t bind_addr;		/* source address to use for outgoing connections */
+	ng_ipaddr_t bind_addr;		/* source address to use for outgoing
+					   connections */
 	ng_ipaddr_t dst_addr[2];	/* list of addresses to connect to */
 #ifdef SSL_SUPPORT
 	bool SSLConnect;		/* connect() using SSL? */
 #endif
+	char svs_mask[CLIENT_ID_LEN];	/* Mask of nick names that are
+					   services */
 } CONF_SERVER;
 
 
@@ -180,6 +181,8 @@ GLOBAL bool Conf_EnableServer PARAMS(( char *Name, UINT16 Port ));
 GLOBAL bool Conf_EnablePassiveServer PARAMS((const char *Name));
 GLOBAL bool Conf_DisableServer PARAMS(( char *Name ));
 GLOBAL bool Conf_AddServer PARAMS(( char *Name, UINT16 Port, char *Host, char *MyPwd, char *PeerPwd ));
+
+GLOBAL bool Conf_IsService PARAMS((int ConfServer, char *Nick));
 
 
 #endif

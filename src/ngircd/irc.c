@@ -39,8 +39,11 @@ static char UNUSED id[] = "$Id: irc.c,v 1.132 2008/01/15 22:28:14 fw Exp $";
 
 
 static char *Option_String PARAMS((CONN_ID Idx));
-static bool Send_Message PARAMS((CLIENT *Client, REQUEST *Req, int ForceType, bool SendErrors));
-static bool Send_Message_Mask PARAMS((CLIENT *from, char *targetMask, char *message, bool SendErrors));
+static bool Send_Message PARAMS((CLIENT *Client, REQUEST *Req, int ForceType,
+				 bool SendErrors));
+static bool Send_Message_Mask PARAMS((CLIENT *from, char *command,
+				      char *targetMask, char *message,
+				      bool SendErrors));
 
 
 GLOBAL bool
@@ -445,13 +448,14 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 			if (Client_Conn(from) > NONE) {
 				Conn_UpdateIdle(Client_Conn(from));
 			}
-			if (!IRC_WriteStrClientPrefix(cl, from, "PRIVMSG %s :%s",
-						Client_ID(cl), Req->argv[1]))
+			if (!IRC_WriteStrClientPrefix(cl, from, "%s %s :%s",
+						      Req->command, Client_ID(cl),
+						      Req->argv[1]))
 				return DISCONNECTED;
 		} else if (strchr("$#", currentTarget[0])
 			   && strchr(currentTarget, '.')) {
 			/* targetmask */
-			if (!Send_Message_Mask(from, currentTarget,
+			if (!Send_Message_Mask(from, Req->command, currentTarget,
 					       Req->argv[1], SendErrors))
 				return DISCONNECTED;
 		} else if ((chan = Channel_Search(currentTarget))) {
@@ -474,7 +478,8 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 
 
 static bool
-Send_Message_Mask(CLIENT * from, char * targetMask, char * message, bool SendErrors)
+Send_Message_Mask(CLIENT * from, char * command, char * targetMask,
+		  char * message, bool SendErrors)
 {
 	CLIENT *cl;
 	bool client_match;
@@ -495,8 +500,8 @@ Send_Message_Mask(CLIENT * from, char * targetMask, char * message, bool SendErr
 				continue;
 			client_match = MatchCaseInsensitive(mask, Client_Hostname(cl));
 			if (client_match)
-				if (!IRC_WriteStrClientPrefix(cl, from, "PRIVMSG %s :%s",
-							Client_ID(cl), message))
+				if (!IRC_WriteStrClientPrefix(cl, from, "%s %s :%s",
+						command, Client_ID(cl), message))
 					return false;
 		}
 	} else {
@@ -506,8 +511,8 @@ Send_Message_Mask(CLIENT * from, char * targetMask, char * message, bool SendErr
 			client_match = MatchCaseInsensitive(mask,
 					Client_ID(Client_Introducer(cl)));
 			if (client_match)
-				if (!IRC_WriteStrClientPrefix(cl, from, "PRIVMSG %s :%s",
-							Client_ID(cl), message))
+				if (!IRC_WriteStrClientPrefix(cl, from, "%s %s :%s",
+						command, Client_ID(cl), message))
 					return false;
 		}
 	}

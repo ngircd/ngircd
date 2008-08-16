@@ -180,22 +180,17 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-#ifndef STRICT_RFC
 	/* Some IRC clients, for example BitchX, send the NICK and USER
 	 * commands in the wrong order ... */
-	if( Client_Type( Client ) == CLIENT_UNKNOWN
-	    || Client_Type( Client ) == CLIENT_GOTPASS
-	    || Client_Type( Client ) == CLIENT_GOTNICK
-	    || Client_Type( Client ) == CLIENT_GOTUSER
-	    || Client_Type( Client ) == CLIENT_USER
-	    || ( Client_Type( Client ) == CLIENT_SERVER && Req->argc == 1 ))
-#else
-	if( Client_Type( Client ) == CLIENT_UNKNOWN
-	    || Client_Type( Client ) == CLIENT_GOTPASS
-	    || Client_Type( Client ) == CLIENT_GOTNICK
-	    || Client_Type( Client ) == CLIENT_USER
-	    || ( Client_Type( Client ) == CLIENT_SERVER && Req->argc == 1 ))
+	if(Client_Type(Client) == CLIENT_UNKNOWN
+	    || Client_Type(Client) == CLIENT_GOTPASS
+	    || Client_Type(Client) == CLIENT_GOTNICK
+#ifndef STRICT_RFC
+	    || Client_Type(Client) == CLIENT_GOTUSER
 #endif
+	    || Client_Type(Client) == CLIENT_USER
+	    || Client_Type(Client) == CLIENT_SERVICE
+	    || (Client_Type(Client) == CLIENT_SERVER && Req->argc == 1))
 	{
 		/* User registration or change of nickname */
 
@@ -243,9 +238,9 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 				return CONNECTED;
 		}
 
-		if(( Client_Type( target ) != CLIENT_USER )
-		   && ( Client_Type( target ) != CLIENT_SERVER ))
-		{
+		if (Client_Type(target) != CLIENT_USER &&
+		    Client_Type(target) != CLIENT_SERVICE &&
+		    Client_Type(target) != CLIENT_SERVER) {
 			/* New client */
 			Log( LOG_DEBUG, "Connection %d: got valid NICK command ...", 
 			     Client_Conn( Client ));
@@ -259,25 +254,22 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 				return Hello_User( Client );
 			else
 				Client_SetType( Client, CLIENT_GOTNICK );
-		}
-		else
-		{
+		} else {
 			/* Nickname change */
 			if (Client_Conn(target) > NONE) {
 				/* Local client */
 				Log(LOG_INFO,
-				    "User \"%s\" changed nick (connection %d): \"%s\" -> \"%s\".",
-				    Client_Mask(target), Client_Conn(target),
-				    Client_ID(target), Req->argv[0]);
+				    "%s \"%s\" changed nick (connection %d): \"%s\" -> \"%s\".",
+				    Client_TypeText(target), Client_Mask(target),
+				    Client_Conn(target), Client_ID(target),
+				    Req->argv[0]);
 				Conn_UpdateIdle(Client_Conn(target));
-			}
-			else
-			{
+			} else {
 				/* Remote client */
-				Log( LOG_DEBUG,
-				     "User \"%s\" changed nick: \"%s\" -> \"%s\".",
-				     Client_Mask( target ), Client_ID( target ),
-				     Req->argv[0] );
+				LogDebug("%s \"%s\" changed nick: \"%s\" -> \"%s\".",
+					 Client_TypeText(target),
+					 Client_Mask(target), Client_ID(target),
+					 Req->argv[0]);
 			}
 
 			/* Inform all users and servers (which have to know)

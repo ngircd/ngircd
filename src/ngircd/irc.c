@@ -319,19 +319,19 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 
 	if (Req->argc == 0) {
 		if (!SendErrors)
-			return true;
+			return CONNECTED;
 		return IRC_WriteStrClient(Client, ERR_NORECIPIENT_MSG,
 					  Client_ID(Client), Req->command);
 	}
 	if (Req->argc == 1) {
 		if (!SendErrors)
-			return true;
+			return CONNECTED;
 		return IRC_WriteStrClient(Client, ERR_NOTEXTTOSEND_MSG,
 					  Client_ID(Client));
 	}
 	if (Req->argc > 2) {
 		if (!SendErrors)
-			return true;
+			return CONNECTED;
 		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 					  Client_ID(Client), Req->command);
 	}
@@ -421,20 +421,18 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 			/* Target is a user, enforce type */
 			if (Client_Type(cl) != ForceType) {
 				if (!SendErrors)
-					return true;
-				if (!IRC_WriteStrClient(from, ERR_NOSUCHNICK_MSG,
+					return CONNECTED;
+				return IRC_WriteStrClient(from, ERR_NOSUCHNICK_MSG,
 							  Client_ID(from),
-							  currentTarget))
-					return false;
-			} else if (SendErrors
-				   && (Client_Type(Client) != CLIENT_SERVER)
-				   && strchr(Client_Modes(cl), 'a')) {
+							  currentTarget);
+			}
+			if (SendErrors && (Client_Type(Client) != CLIENT_SERVER)
+			    && strchr(Client_Modes(cl), 'a')) {
 				/* Target is away */
-				if (!SendErrors)
-					return true;
-				if (!IRC_WriteStrClient
-				    (from, RPL_AWAY_MSG, Client_ID(from),
-				     Client_ID(cl), Client_Away(cl)))
+				if (!IRC_WriteStrClient(from, RPL_AWAY_MSG,
+							Client_ID(from),
+							Client_ID(cl),
+							Client_Away(cl)))
 					return DISCONNECTED;
 			}
 			if (Client_Conn(from) > NONE) {
@@ -442,23 +440,23 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 			}
 			if (!IRC_WriteStrClientPrefix(cl, from, "PRIVMSG %s :%s",
 						Client_ID(cl), Req->argv[1]))
-				return false;
+				return DISCONNECTED;
 		} else if (strchr("$#", currentTarget[0])
 			   && strchr(currentTarget, '.')) {
 			/* targetmask */
 			if (!Send_Message_Mask(from, currentTarget,
 					       Req->argv[1], SendErrors))
-				return false;
+				return DISCONNECTED;
 		} else if ((chan = Channel_Search(currentTarget))) {
 			/* channel */
 			if (!Channel_Write(chan, from, Client, Req->argv[1]))
-				return false;
+				return DISCONNECTED;
 		} else {
 			if (!SendErrors)
-				return true;
+				return CONNECTED;
 			if (!IRC_WriteStrClient(from, ERR_NOSUCHNICK_MSG,
 						Client_ID(from), currentTarget))
-				return false;
+				return DISCONNECTED;
 		}
 
 		currentTarget = strtok_r(NULL, ",", &lastCurrentTarget);

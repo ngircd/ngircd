@@ -419,7 +419,14 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 
 		if (cl) {
 			/* Target is a user, enforce type */
+#ifndef STRICT_RFC
+			if (Client_Type(cl) != ForceType &&
+			    !(ForceType == CLIENT_USER &&
+			      (Client_Type(cl) == CLIENT_USER ||
+			       Client_Type(cl) == CLIENT_SERVICE))) {
+#else
 			if (Client_Type(cl) != ForceType) {
+#endif
 				if (!SendErrors)
 					return CONNECTED;
 				return IRC_WriteStrClient(from, ERR_NOSUCHNICK_MSG,

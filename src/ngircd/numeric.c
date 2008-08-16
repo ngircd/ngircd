@@ -252,7 +252,8 @@ IRC_Num_ENDOFMOTD(CLIENT * Client, UNUSED REQUEST * Req)
 	/* Announce all the users to the new server */
 	c = Client_First();
 	while (c) {
-		if (Client_Type(c) == CLIENT_USER) {
+		if (Client_Type(c) == CLIENT_USER ||
+		    Client_Type(c) == CLIENT_SERVICE) {
 			if (!Announce_User(Client, c))
 				return DISCONNECTED;
 		}

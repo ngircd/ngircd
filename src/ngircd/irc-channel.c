@@ -396,9 +396,9 @@ IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 
 	/* Set new topic */
 	Channel_SetTopic(chan, from, Req->argv[1]);
-	Log(LOG_DEBUG, "User \"%s\" set topic on \"%s\": %s",
-		Client_Mask(from), Channel_Name(chan),
-		Req->argv[1][0] ? Req->argv[1] : "<none>");
+	LogDebug("%s \"%s\" set topic on \"%s\": %s",
+		 Client_TypeText(from), Client_Mask(from), Channel_Name(chan),
+		 Req->argv[1][0] ? Req->argv[1] : "<none>");
 
 	/* im Channel bekannt machen und an Server weiterleiten */
 	IRC_WriteStrServersPrefix( Client, from, "TOPIC %s :%s", Req->argv[0], Req->argv[1] );

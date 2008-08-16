@@ -402,7 +402,8 @@ Client_SetAway( CLIENT *Client, char *Txt )
 	assert( Txt != NULL );
 
 	strlcpy( Client->away, Txt, sizeof( Client->away ));
-	Log( LOG_DEBUG, "User \"%s\" is away: %s", Client_Mask( Client ), Txt );
+	LogDebug("%s \"%s\" is away: %s", Client_TypeText(Client),
+		 Client_Mask(Client), Txt);
 } /* Client_SetAway */
 
 

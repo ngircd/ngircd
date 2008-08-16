@@ -672,7 +672,7 @@ Hello_User(CLIENT * Client)
 	if (strcmp(Client_Password(Client), Conf_ServerPwd) != 0) {
 		/* Bad password! */
 		Log(LOG_ERR,
-		    "User \"%s\" rejected (connection %d): Bad password!",
+		    "Client \"%s\" rejected (connection %d): Bad password!",
 		    Client_Mask(Client), Client_Conn(Client));
 		Conn_Close(Client_Conn(Client), NULL, "Bad password", true);
 		return DISCONNECTED;
@@ -742,6 +742,7 @@ Introduce_Client(CLIENT *From, CLIENT *Client)
 	if (From) {
 		if (Conf_IsService(Conf_GetServer(Client_Conn(From)), Client_ID(Client))) {
 			type = "Service";
+			Client_SetType(Client, CLIENT_SERVICE);
 		} else
 			type = "User";
 		LogDebug("%s \"%s\" (+%s) registered (via %s, on %s, %d hop%s).",

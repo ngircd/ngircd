@@ -229,7 +229,9 @@ client_exit:
 			ok = IRC_WriteStrClientPrefix( Client, Origin, "MODE %s :%s", Client_ID( Target ), the_modes );
 			IRC_WriteStrServersPrefix( Client, Origin, "MODE %s :%s", Client_ID( Target ), the_modes );
 		}
-		Log( LOG_DEBUG, "User \"%s\": Mode change, now \"%s\".", Client_Mask( Target ), Client_Modes( Target ));
+		LogDebug("%s \"%s\": Mode change, now \"%s\".",
+			 Client_TypeText(Target), Client_Mask(Target),
+			 Client_Modes(Target));
 	}
 	
 	IRC_SetPenalty( Client, 1 );	

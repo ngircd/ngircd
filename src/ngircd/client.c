@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2005 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2008 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,8 +16,6 @@
 
 
 #include "portab.h"
-
-static char UNUSED id[] = "$Id: client.c,v 1.98 2008/04/04 19:30:01 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -66,8 +64,13 @@ static void Generate_MyToken PARAMS(( CLIENT *Client ));
 static void Adjust_Counters PARAMS(( CLIENT *Client ));
 
 static CLIENT *Init_New_Client PARAMS((CONN_ID Idx, CLIENT *Introducer,
- CLIENT *TopServer, int Type, char *ID, char *User, char *Hostname,
- char *Info, int Hops, int Token, char *Modes, bool Idented));
+				       CLIENT *TopServer, int Type, char *ID,
+				       char *User, char *Hostname, char *Info,
+				       int Hops, int Token, char *Modes,
+				       bool Idented));
+
+static void Destroy_UserOrService PARAMS((CLIENT *Client, char *Txt, char *FwdMsg,
+					bool SendQuit));
 
 
 GLOBAL void
@@ -260,41 +263,8 @@ Client_Destroy( CLIENT *Client, char *LogMsg, char *FwdMsg, bool SendQuit )
 			if( last ) last->next = c->next;
 			else My_Clients = (CLIENT *)c->next;
 
-			if( c->type == CLIENT_USER )
-			{
-				if( c->conn_id != NONE )
-				{
-					/* Ein lokaler User */
-					Log( LOG_NOTICE, "User \"%s\" unregistered (connection %d): %s", Client_Mask( c ), c->conn_id, txt );
-
-					if( SendQuit )
-					{
-						/* Alle andere Server informieren! */
-						if( FwdMsg ) IRC_WriteStrServersPrefix( NULL, c, "QUIT :%s", FwdMsg );
-						else IRC_WriteStrServersPrefix( NULL, c, "QUIT :" );
-					}
-				}
-				else
-				{
-					/* Remote User */
-					Log( LOG_DEBUG, "User \"%s\" unregistered: %s", Client_Mask( c ), txt );
-
-					if( SendQuit )
-					{
-						/* Andere Server informieren, ausser denen, die "in
-						 * Richtung dem liegen", auf dem der User registriert
-						 * ist. Von denen haben wir das QUIT ja wohl bekommen. */
-						if( FwdMsg ) IRC_WriteStrServersPrefix( Client_NextHop( c ), c, "QUIT :%s", FwdMsg );
-						else IRC_WriteStrServersPrefix( Client_NextHop( c ), c, "QUIT :" );
-					}
-				}
-
-				/* Unregister client from channels */
-				Channel_Quit( c, FwdMsg ? FwdMsg : c->id );
-				
-				/* Register client in My_Whowas structure */
-				Client_RegisterWhowas( c );
-			}
+			if(c->type == CLIENT_USER || c->type == CLIENT_SERVICE)
+				Destroy_UserOrService(c, txt, FwdMsg, SendQuit);
 			else if( c->type == CLIENT_SERVER )
 			{
 				if( c != This_Server )
@@ -1140,6 +1110,73 @@ Client_RegisterWhowas( CLIENT *Client )
 
 	Last_Whowas = slot;
 } /* Client_RegisterWhowas */
+
+
+GLOBAL char *
+Client_TypeText(CLIENT *Client)
+{
+	assert(Client != NULL);
+	switch (Client_Type(Client)) {
+		case CLIENT_USER:
+			return "User";
+			break;
+		case CLIENT_SERVICE:
+			return "Service";
+			break;
+		case CLIENT_SERVER:
+			return "Server";
+			break;
+		default:
+			return "Client";
+	}
+} /* Client_TypeText */
+
+
+/**
+ * Destroy user or service client.
+ */
+static void
+Destroy_UserOrService(CLIENT *Client, char *Txt, char *FwdMsg, bool SendQuit)
+{
+	if(Client->conn_id != NONE) {
+		/* Local (directly connected) client */
+		Log(LOG_NOTICE,
+		    "%s \"%s\" unregistered (connection %d): %s",
+		    Client_TypeText(Client), Client_Mask(Client),
+		    Client->conn_id, Txt);
+
+		if (SendQuit) {
+			/* Inforam all the other servers */
+			if (FwdMsg)
+				IRC_WriteStrServersPrefix(NULL,
+						Client, "QUIT :%s", FwdMsg );
+			else
+				IRC_WriteStrServersPrefix(NULL,
+						Client, "QUIT :");
+		}
+	} else {
+		/* Remote client */
+		LogDebug("%s \"%s\" unregistered: %s",
+			 Client_TypeText(Client), Client_Mask(Client), Txt);
+
+		if(SendQuit) {
+			/* Inform all the other servers, but the ones in the
+			 * direction we got the QUIT from */
+			if(FwdMsg)
+				IRC_WriteStrServersPrefix(Client_NextHop(Client),
+						Client, "QUIT :%s", FwdMsg );
+			else
+				IRC_WriteStrServersPrefix(Client_NextHop(Client),
+						Client, "QUIT :" );
+		}
+	}
+
+	/* Unregister client from channels */
+	Channel_Quit(Client, FwdMsg ? FwdMsg : Client->id);
+
+	/* Register client in My_Whowas structure */
+	Client_RegisterWhowas(Client);
+} /* Destroy_UserOrService */
 
 
 /* -eof- */

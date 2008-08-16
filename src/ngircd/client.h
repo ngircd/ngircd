@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2008 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,15 +8,11 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: client.h,v 1.46 2007/01/23 16:07:19 alex Exp $
- *
  * Client management (header)
  */
 
-
 #ifndef __client_h__
 #define __client_h__
-
 
 #define CLIENT_UNKNOWN 1		/* connection of unknown type */
 #define CLIENT_GOTPASS 2		/* client did send PASS */
@@ -150,8 +146,8 @@ GLOBAL int Client_GetLastWhowasIndex PARAMS(( void ));
 
 GLOBAL void Client_RegisterWhowas PARAMS(( CLIENT *Client ));
 
+GLOBAL char * Client_TypeText PARAMS((CLIENT *Client));
 
 #endif
-
 
 /* -eof- */

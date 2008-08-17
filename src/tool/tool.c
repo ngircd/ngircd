@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2005 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2008 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,8 +13,6 @@
 
 
 #include "portab.h"
-
-static char UNUSED id[] = "$Id: tool.c,v 1.9 2008/02/26 22:04:18 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -65,25 +63,40 @@ ngt_TrimStr(char *String)
 } /* ngt_TrimStr */
 
 
+/**
+ * Convert a string to uppercase letters.
+ */
 GLOBAL char *
-ngt_LowerStr( char *String )
+ngt_UpperStr(char *String)
 {
-	/* String in Kleinbuchstaben konvertieren. Der uebergebene
-	 * Speicherbereich wird durch das Ergebnis ersetzt, zusaetzlich
-	 * wird dieser auch als Pointer geliefert. */
-
 	char *ptr;
 
-	assert( String != NULL );
+	assert(String != NULL);
 
-	/* Zeichen konvertieren */
 	ptr = String;
-	while( *ptr )
-	{
-		*ptr = tolower( *ptr );
+	while(*ptr) {
+		*ptr = toupper(*ptr);
 		ptr++;
 	}
-	
+	return String;
+} /* ngt_UpperStr */
+
+
+/**
+ * Convert a string to lowercase letters.
+ */
+GLOBAL char *
+ngt_LowerStr(char *String)
+{
+	char *ptr;
+
+	assert(String != NULL);
+
+	ptr = String;
+	while(*ptr) {
+		*ptr = tolower(*ptr);
+		ptr++;
+	}
 	return String;
 } /* ngt_LowerStr */
 

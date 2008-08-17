@@ -397,7 +397,7 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 			for (cl = Client_First(); cl != NULL; cl = Client_Next(cl)) {
 				if (Client_Type(cl) != CLIENT_USER)
 					continue;
-				if (nick != NULL) {
+				if (nick != NULL && host != NULL) {
 					if (strcmp(nick, Client_ID(cl)) == 0 &&
 					    strcmp(user, Client_User(cl)) == 0 &&
 					    strcasecmp(host, Client_Hostname(cl)) == 0)

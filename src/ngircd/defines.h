@@ -82,7 +82,7 @@
 					   protocol, see doc/Protocol.txt */
 
 #ifdef IRCPLUS
-# define IRCPLUSFLAGS "CHL"		/* Standard IRC+ flags */
+# define IRCPLUSFLAGS "CHLS"		/* Standard IRC+ flags */
 #endif
 
 #define STARTUP_DELAY 1			/* Delay outgoing connections n seconds

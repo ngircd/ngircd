@@ -464,17 +464,25 @@ IRC_USER(CLIENT * Client, REQUEST * Req)
 
 
 /**
- * Service registration.
- * ngIRCd does not support services at the moment, so this function is a
- * dummy that returns ERR_ERRONEUSNICKNAME on each call.
+ * Handler for the IRC command "SERVICE".
+ * This function implements IRC Services registration using the SERVICE command
+ * defined in RFC 2812 3.1.6 and RFC 2813 4.1.4.
+ * At the moment ngIRCd doesn't support directly linked services, so this
+ * function returns ERR_ERRONEUSNICKNAME when the SERVICE command has not been
+ * received from a peer server.
  */
 GLOBAL bool
 IRC_SERVICE(CLIENT *Client, REQUEST *Req)
 {
+	CLIENT *c, *intr_c;
+	char *nick, *user, *host, *info, *modes, *ptr;
+	int token, hops;
+
 	assert(Client != NULL);
 	assert(Req != NULL);
 
-	if (Client_Type(Client) != CLIENT_GOTPASS)
+	if (Client_Type(Client) != CLIENT_GOTPASS &&
+	    Client_Type(Client) != CLIENT_SERVER)
 		return IRC_WriteStrClient(Client, ERR_ALREADYREGISTRED_MSG,
 					  Client_ID(Client));
 
@@ -482,8 +490,74 @@ IRC_SERVICE(CLIENT *Client, REQUEST *Req)
 		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 					  Client_ID(Client), Req->command);
 
-	return IRC_WriteStrClient(Client, ERR_ERRONEUSNICKNAME_MSG,
+	if (Client_Type(Client) != CLIENT_SERVER)
+		return IRC_WriteStrClient(Client, ERR_ERRONEUSNICKNAME_MSG,
 				  Client_ID(Client), Req->argv[0]);
+
+	/* Bad number of parameters? */
+	if (Req->argc != 6)
+		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+					  Client_ID(Client), Req->command);
+
+	nick = Req->argv[0];
+	user = NULL; host = NULL;
+	token = atoi(Req->argv[1]);
+	hops = atoi(Req->argv[4]);
+	info = Req->argv[5];
+
+	/* Validate service name ("nick name") */
+	c = Client_Search(nick);
+	if(c) {
+		/* Nick name collission: disconnect (KILL) both clients! */
+		Log(LOG_ERR, "Server %s introduces already registered service \"%s\"!",
+		    Client_ID(Client), nick);
+		Kill_Nick(nick, "Nick collision");
+		return CONNECTED;
+	}
+
+	/* Get the server to which the service is connected */
+	intr_c = Client_GetFromToken(Client, token);
+	if (! intr_c) {
+		Log(LOG_ERR, "Server %s introduces service \"%s\" on unknown server!?",
+		    Client_ID(Client), nick);
+		Kill_Nick(nick, "Unknown server");
+		return CONNECTED;
+	}
+
+	/* Get user and host name */
+	ptr = strchr(nick, '@');
+	if (ptr) {
+		*ptr = '\0';
+		host = ++ptr;
+	}
+	if (!host)
+		host = Client_Hostname(intr_c);
+	ptr = strchr(nick, '!');
+	if (ptr) {
+		*ptr = '\0';
+		user = ++ptr;
+	}
+	if (!user)
+		user = nick;
+
+	/* According to RFC 2812/2813 parameter 4 <type> "is currently reserved
+	 * for future usage"; but we use it to transfer the modes and check
+	 * that the first character is a '+' sign and ignore it otherwise. */
+	modes = (Req->argv[3][0] == '+') ? ++Req->argv[3] : "";
+
+	c = Client_NewRemoteUser(intr_c, nick, hops, user, host,
+				 token, modes, info, true);
+	if (! c) {
+		/* Couldn't create client structure, so KILL the service to
+		 * keep network status consistent ... */
+		Log(LOG_ALERT, "Can't create client structure! (on connection %d)",
+		    Client_Conn(Client));
+		Kill_Nick(nick, "Server error");
+		return CONNECTED;
+	}
+
+	Introduce_Client(Client, c, CLIENT_SERVICE);
+	return CONNECTED;
 } /* IRC_SERVICE */
 
 
@@ -782,8 +856,17 @@ cb_introduceClient(CLIENT *To, CLIENT *Prefix, void *data)
 			Conn_WriteStr(conn, ":%s MODE %s +%s",
 				      Client_ID(c), Client_ID(c), modes);
 	} else {
-		/* RFC 2813 mode: one combined NICK command */
-		IRC_WriteStrClientPrefix(To, Prefix,
+		/* RFC 2813 mode: one combined NICK or SERVICE command */
+		if (Client_Type(c) == CLIENT_SERVICE
+		    && strchr(Client_Flags(To), 'S'))
+			IRC_WriteStrClientPrefix(To, Prefix,
+					 "SERVICE %s %d * +%s %d :%s",
+					 Client_Mask(c),
+					 Client_MyToken(Client_Introducer(c)),
+					 Client_Modes(c), Client_Hops(c) + 1,
+					 Client_Info(c));
+		else
+			IRC_WriteStrClientPrefix(To, Prefix,
 					 "NICK %s %d %s %s %d +%s :%s",
 					 Client_ID(c), Client_Hops(c) + 1,
 					 user, host,

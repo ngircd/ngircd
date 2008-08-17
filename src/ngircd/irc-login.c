@@ -40,7 +40,7 @@
 
 static bool Hello_User PARAMS(( CLIENT *Client ));
 static void Kill_Nick PARAMS(( char *Nick, char *Reason ));
-static void Introduce_Client PARAMS((CLIENT *To, CLIENT *Client));
+static void Introduce_Client PARAMS((CLIENT *To, CLIENT *Client, int Type));
 static void cb_introduceClient PARAMS((CLIENT *Client, CLIENT *Prefix,
 				       void *i));
 
@@ -364,7 +364,7 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 				 Client_Mask(c));
 			Client_SetType(c, CLIENT_GOTNICK);
 		} else
-			Introduce_Client(Client, c);
+			Introduce_Client(Client, c, CLIENT_USER);
 
 		return CONNECTED;
 	}
@@ -448,7 +448,7 @@ IRC_USER(CLIENT * Client, REQUEST * Req)
 		/* RFC 1459 style user registration?
 		 * Introduce client to network: */
 		if (Client_Type(c) == CLIENT_GOTNICK)
-			Introduce_Client(Client, c);
+			Introduce_Client(Client, c, CLIENT_USER);
 
 		return CONNECTED;
 	} else if (Client_Type(Client) == CLIENT_USER) {
@@ -678,7 +678,7 @@ Hello_User(CLIENT * Client)
 		return DISCONNECTED;
 	}
 
-	Introduce_Client(NULL, Client);
+	Introduce_Client(NULL, Client, CLIENT_USER);
 
 	if (!IRC_WriteStrClient
 	    (Client, RPL_WELCOME_MSG, Client_ID(Client), Client_Mask(Client)))
@@ -733,25 +733,24 @@ Kill_Nick( char *Nick, char *Reason )
 
 
 static void
-Introduce_Client(CLIENT *From, CLIENT *Client)
+Introduce_Client(CLIENT *From, CLIENT *Client, int Type)
 {
-	char *type;
-
-	Client_SetType(Client, CLIENT_USER);
+	/* Set client type (user or service) */
+	Client_SetType(Client, Type);
 
 	if (From) {
-		if (Conf_IsService(Conf_GetServer(Client_Conn(From)), Client_ID(Client))) {
-			type = "Service";
+		if (Conf_IsService(Conf_GetServer(Client_Conn(From)),
+				   Client_ID(Client)))
 			Client_SetType(Client, CLIENT_SERVICE);
-		} else
-			type = "User";
 		LogDebug("%s \"%s\" (+%s) registered (via %s, on %s, %d hop%s).",
-			 type, Client_Mask(Client), Client_Modes(Client),
-			 Client_ID(From), Client_ID(Client_Introducer(Client)),
+			 Client_TypeText(Client), Client_Mask(Client),
+			 Client_Modes(Client), Client_ID(From),
+			 Client_ID(Client_Introducer(Client)),
 			 Client_Hops(Client), Client_Hops(Client) > 1 ? "s": "");
 	} else
-		Log(LOG_NOTICE, "User \"%s\" registered (connection %d).",
-		    Client_Mask(Client), Client_Conn(Client));
+		Log(LOG_NOTICE, "%s \"%s\" registered (connection %d).",
+		    Client_TypeText(Client), Client_Mask(Client),
+		    Client_Conn(Client));
 
 	/* Inform other servers */
 	IRC_WriteStrServersPrefixFlag_CB(From,

@@ -438,6 +438,17 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 							  Client_ID(from),
 							  currentTarget);
 			}
+
+#ifndef STRICT_RFC
+			if (ForceType == CLIENT_SERVICE &&
+			    (Conn_Options(Client_Conn(Client_NextHop(cl)))
+			     & CONN_RFC1459)) {
+				/* SQUERY command but RFC 1459 link: convert
+				 * request to PRIVMSG command */
+				Req->command = "PRIVMSG";
+			}
+#endif
+
 			if (SendErrors && (Client_Type(Client) != CLIENT_SERVER)
 			    && strchr(Client_Modes(cl), 'a')) {
 				/* Target is away */

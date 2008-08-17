@@ -38,6 +38,77 @@
 
 
 /**
+ * Announce a channel and its users in the network.
+ */
+static bool
+Announce_Channel(CLIENT *Client, CHANNEL *Chan)
+{
+	CL2CHAN *cl2chan;
+	CLIENT *cl;
+	char str[LINE_LEN], *ptr;
+	bool njoin;
+
+	if (Conn_Options(Client_Conn(Client)) & CONN_RFC1459)
+		njoin = false;
+	else
+		njoin = true;
+
+	/* Get all the members of this channel */
+	cl2chan = Channel_FirstMember(Chan);
+	snprintf(str, sizeof(str), "NJOIN %s :", Channel_Name(Chan));
+	while (cl2chan) {
+		cl = Channel_GetClient(cl2chan);
+		assert(cl != NULL);
+
+		if (njoin) {
+			/* RFC 2813: send NJOIN with nick names and modes
+			 * (if user is channel operator or has voice) */
+			if (str[strlen(str) - 1] != ':')
+				strlcat(str, ",", sizeof(str));
+			if (strchr(Channel_UserModes(Chan, cl), 'v'))
+				strlcat(str, "+", sizeof(str));
+			if (strchr(Channel_UserModes(Chan, cl), 'o'))
+				strlcat(str, "@", sizeof(str));
+			strlcat(str, Client_ID(cl), sizeof(str));
+
+			/* Send the data if the buffer is "full" */
+			if (strlen(str) > (LINE_LEN - CLIENT_NICK_LEN - 8)) {
+				if (!IRC_WriteStrClient(Client, "%s", str))
+					return DISCONNECTED;
+				snprintf(str, sizeof(str), "NJOIN %s :",
+					 Channel_Name(Chan));
+			}
+		} else {
+			/* RFC 1459: no NJOIN, send JOIN and MODE */
+			if (!IRC_WriteStrClientPrefix(Client, cl, "JOIN %s",
+						Channel_Name(Chan)))
+				return DISCONNECTED;
+			ptr = Channel_UserModes(Chan, cl);
+			while (*ptr) {
+				if (!IRC_WriteStrClientPrefix(Client, cl,
+						   "MODE %s +%c %s",
+						   Channel_Name(Chan), ptr[0],
+						   Client_ID(cl)))
+					return DISCONNECTED;
+				ptr++;
+			}
+		}
+
+		cl2chan = Channel_NextMember(Chan, cl2chan);
+	}
+
+	/* Data left in the buffer? */
+	if (str[strlen(str) - 1] != ':') {
+		/* Yes, send it ... */
+		if (!IRC_WriteStrClient(Client, "%s", str))
+			return DISCONNECTED;
+	}
+
+	return CONNECTED;
+} /* Announce_Channel */
+
+
+/**
  * Announce new server in the network
  * @param Client New server
  * @param Server Existing server in the network
@@ -219,11 +290,9 @@ Send_CHANINFO(CLIENT * Client, CHANNEL * Chan)
 GLOBAL bool
 IRC_Num_ENDOFMOTD(CLIENT * Client, UNUSED REQUEST * Req)
 {
-	char str[LINE_LEN];
 	int max_hops, i;
-	CLIENT *c, *cl;
+	CLIENT *c;
 	CHANNEL *chan;
-	CL2CHAN *cl2chan;
 
 	Client_SetType(Client, CLIENT_SERVER);
 
@@ -280,39 +349,8 @@ IRC_Num_ENDOFMOTD(CLIENT * Client, UNUSED REQUEST * Req)
 		}
 #endif
 
-		/* Get all the members of this channel */
-		cl2chan = Channel_FirstMember(chan);
-		snprintf(str, sizeof(str), "NJOIN %s :", Channel_Name(chan));
-		while (cl2chan) {
-			cl = Channel_GetClient(cl2chan);
-			assert(cl != NULL);
-
-			/* Nick name, with modes (if applicable) */
-			if (str[strlen(str) - 1] != ':')
-				strlcat(str, ",", sizeof(str));
-			if (strchr(Channel_UserModes(chan, cl), 'v'))
-				strlcat(str, "+", sizeof(str));
-			if (strchr(Channel_UserModes(chan, cl), 'o'))
-				strlcat(str, "@", sizeof(str));
-			strlcat(str, Client_ID(cl), sizeof(str));
-
-			/* Send the data if the buffer is "full" */
-			if (strlen(str) > (LINE_LEN - CLIENT_NICK_LEN - 8)) {
-				if (!IRC_WriteStrClient(Client, "%s", str))
-					return DISCONNECTED;
-				snprintf(str, sizeof(str), "NJOIN %s :",
-					 Channel_Name(chan));
-			}
-
-			cl2chan = Channel_NextMember(chan, cl2chan);
-		}
-
-		/* Data left in the buffer? */
-		if (str[strlen(str) - 1] != ':') {
-			/* Yes, send it ... */
-			if (!IRC_WriteStrClient(Client, "%s", str))
-				return DISCONNECTED;
-		}
+		if (!Announce_Channel(Client, chan))
+			return DISCONNECTED;
 
 		/* Get next channel ... */
 		chan = Channel_Next(chan);

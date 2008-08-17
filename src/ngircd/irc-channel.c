@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2008 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,8 +13,6 @@
 
 
 #include "portab.h"
-
-static char UNUSED id[] = "$Id: irc-channel.c,v 1.45 2008/02/24 18:57:38 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -123,19 +121,44 @@ join_set_channelmodes(CHANNEL *chan, CLIENT *target, const char *flags)
 
 
 static void
+cb_join_forward(CLIENT *To, CLIENT *Prefix, void *Data)
+{
+	CONN_ID conn;
+	char str[COMMAND_LEN], *ptr = NULL;
+
+	strlcpy(str, (char *)Data, sizeof(str));
+	conn = Client_Conn(To);
+
+	if (Conn_Options(conn) & CONN_RFC1459) {
+		/* RFC 1459 compatibility mode, appended modes are NOT
+		 * supported, so strip them off! */
+		ptr = strchr(str, 0x7);
+		if (ptr)
+			*ptr++ = '\0';
+	}
+
+	IRC_WriteStrClientPrefix(To, Prefix, "JOIN %s", str);
+	if (ptr && *ptr)
+		IRC_WriteStrClientPrefix(To, Prefix, "MODE %s +%s %s", str, ptr,
+					 Client_ID(Prefix));
+} /* cb_join_forward */
+
+
+static void
 join_forward(CLIENT *Client, CLIENT *target, CHANNEL *chan,
 					const char *channame)
 {
-	char modes[8];
+	char modes[CHANNEL_MODE_LEN], str[COMMAND_LEN];
 
 	strlcpy(&modes[1], Channel_UserModes(chan, target), sizeof(modes) - 1);
-
 	if (modes[1])
 		modes[0] = 0x7;
 	else
 		modes[0] = '\0';
+
 	/* forward to other servers */
-	IRC_WriteStrServersPrefix(Client, target, "JOIN :%s%s", channame, modes);
+	snprintf(str, sizeof(str), "%s%s", channame, modes);
+	IRC_WriteStrServersPrefixFlag_CB(Client, target, '\0', cb_join_forward, str);
 
 	/* tell users in this channel about the new client */
 	IRC_WriteStrChannelPrefix(Client, chan, target, false, "JOIN :%s", channame);
@@ -460,7 +483,7 @@ IRC_LIST( CLIENT *Client, REQUEST *Req )
 					Req->argv[1] );
 		}
 	}
-	
+
 	while( pattern )
 	{
 		/* Loop through all the channels */
@@ -484,14 +507,14 @@ IRC_LIST( CLIENT *Client, REQUEST *Req )
 			}
 			chan = Channel_Next( chan );
 		}
-		
+
 		/* Get next name ... */
 		if( Req->argc > 0 )
 			pattern = strtok( NULL, "," );
 		else
 			pattern = NULL;
 	}
-	
+
 	return IRC_WriteStrClient( from, RPL_LISTEND_MSG, Client_ID( from ));
 } /* IRC_LIST */
 
@@ -560,7 +583,7 @@ IRC_CHANINFO( CLIENT *Client, REQUEST *Req )
 				}
 	     			ptr++;
 			}
-			
+
 			/* Inform members of this channel */
 			IRC_WriteStrChannelPrefix( Client, chan, from, false, "MODE %s +%s%s", Req->argv[0], Channel_Modes( chan ), modes_add );
 		}

@@ -1,14 +1,12 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2008 by Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
- *
- * $Id: channel.h,v 1.35 2008/02/05 16:31:35 fw Exp $
  *
  * Channel management (header)
  */
@@ -109,8 +107,9 @@ GLOBAL char *Channel_UserModes PARAMS(( CHANNEL *Chan, CLIENT *Client ));
 
 GLOBAL bool Channel_IsMemberOf PARAMS(( CHANNEL *Chan, CLIENT *Client ));
 
-GLOBAL bool Channel_Write PARAMS(( CHANNEL *Chan, CLIENT *From, CLIENT *Client, const char *Text ));
-GLOBAL bool Channel_Notice PARAMS(( CHANNEL *Chan, CLIENT *From, CLIENT *Client, const char *Text));
+GLOBAL bool Channel_Write PARAMS((CHANNEL *Chan, CLIENT *From, CLIENT *Client,
+				  const char *Command, bool SendErrors,
+				  const char *Text));
 
 GLOBAL CHANNEL *Channel_Create PARAMS(( char *Name ));
 

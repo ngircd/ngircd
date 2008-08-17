@@ -33,6 +33,7 @@ static char UNUSED id[] = "$Id: irc.c,v 1.132 2008/01/15 22:28:14 fw Exp $";
 #include "match.h"
 #include "messages.h"
 #include "parse.h"
+#include "tool.h"
 
 #include "exp.h"
 #include "irc.h"
@@ -349,6 +350,7 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 
 	/* handle msgtarget = msgto *("," msgto) */
 	currentTarget = strtok_r(currentTarget, ",", &lastCurrentTarget);
+	ngt_UpperStr(Req->command);
 
 	while (currentTarget) {
 		/* Check for and handle valid <msgto> of form:
@@ -460,8 +462,9 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 				return DISCONNECTED;
 		} else if ((chan = Channel_Search(currentTarget))) {
 			/* channel */
-			if (!Channel_Write(chan, from, Client, Req->argv[1]))
-				return DISCONNECTED;
+			if (!Channel_Write(chan, from, Client, Req->command,
+					   SendErrors, Req->argv[1]))
+					return DISCONNECTED;
 		} else {
 			if (!SendErrors)
 				return CONNECTED;

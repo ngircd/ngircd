@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2005 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2008 by Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,8 +16,6 @@
 
 
 #include "portab.h"
-
-static char UNUSED id[] = "$Id: channel.c,v 1.65 2008/02/05 16:31:35 fw Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -770,30 +768,21 @@ Can_Send_To_Channel(CHANNEL *Chan, CLIENT *From)
 
 
 GLOBAL bool
-Channel_Write(CHANNEL *Chan, CLIENT *From, CLIENT *Client, const char *Text)
+Channel_Write(CHANNEL *Chan, CLIENT *From, CLIENT *Client, const char *Command,
+	      bool SendErrors, const char *Text)
 {
-	if (!Can_Send_To_Channel(Chan, From))
-		return IRC_WriteStrClient(From, ERR_CANNOTSENDTOCHAN_MSG, Client_ID(From), Channel_Name(Chan));
+	if (!Can_Send_To_Channel(Chan, From)) {
+		if (! SendErrors)
+			return CONNECTED;	/* no error, see RFC 2812 */
+		return IRC_WriteStrClient(From, ERR_CANNOTSENDTOCHAN_MSG,
+					  Client_ID(From), Channel_Name(Chan));
+	}
 
 	if (Client_Conn(From) > NONE)
 		Conn_UpdateIdle(Client_Conn(From));
 
 	return IRC_WriteStrChannelPrefix(Client, Chan, From, true,
-			"PRIVMSG %s :%s", Channel_Name(Chan), Text);
-}
-
-
-GLOBAL bool
-Channel_Notice(CHANNEL *Chan, CLIENT *From, CLIENT *Client, const char *Text)
-{
-	if (!Can_Send_To_Channel(Chan, From))
-		return true; /* no error, see RFC 2812 */
-
-	if (Client_Conn(From) > NONE)
-		Conn_UpdateIdle(Client_Conn(From));
-
-	return IRC_WriteStrChannelPrefix(Client, Chan, From, true,
-			"NOTICE %s :%s", Channel_Name(Chan), Text);
+			"%s %s :%s", Command, Channel_Name(Chan), Text);
 }
 
 

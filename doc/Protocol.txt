@@ -1,7 +1,7 @@
 
                      ngIRCd - Next Generation IRC Server
 
-                        (c)2001-2007 Alexander Barton,
+                        (c)2001-2008 Alexander Barton,
                     alex@barton.de, http://www.barton.de/
 
                ngIRCd is free software and published under the
@@ -85,6 +85,8 @@ The following <serverflags> are defined at the moment:
 - o: IRC operators are allowed to change channel- and channel-user-modes
      even if they aren't channel-operator of the affected channel.
 
+- S: The server supports the SERVICE command (on this link).
+
 - Z: Compressed server links are supported by the server.
 
 Example for a complete <flags> string: "ngircd|0.7.5:CZ".
@@ -159,6 +161,3 @@ and therefore can't be omitted. The parameter <limit> must be ignored when
 a channel has no user limit (the parameter <modes> doesn't list the "l"
 channel mode). In this case <limit> should be "0".
 
-
--- 
-$Id: Protocol.txt,v 1.14 2007/11/21 12:16:35 alex Exp $

@@ -34,6 +34,10 @@
 #include <pwd.h>
 #include <grp.h>
 
+#if defined(DEBUG) && defined(HAVE_MTRACE)
+#include <mcheck.h>
+#endif
+
 #include "defines.h"
 #include "resolve.h"
 #include "conn.h"

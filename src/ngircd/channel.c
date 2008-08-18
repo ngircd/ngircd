@@ -251,16 +251,20 @@ Channel_Part(CLIENT * Client, CLIENT * Origin, const char *Name, const char *Rea
 } /* Channel_Part */
 
 
-/* Kick user from Channel */
+/**
+ * Kick user from Channel
+ */
 GLOBAL void
-Channel_Kick( CLIENT *Client, CLIENT *Origin, const char *Name, const char *Reason )
+Channel_Kick(CLIENT *Peer, CLIENT *Target, CLIENT *Origin, const char *Name,
+	     const char *Reason )
 {
 	CHANNEL *chan;
 
-	assert( Client != NULL );
-	assert( Origin != NULL );
-	assert( Name != NULL );
-	assert( Reason != NULL );
+	assert(Peer != NULL);
+	assert(Target != NULL);
+	assert(Origin != NULL);
+	assert(Name != NULL);
+	assert(Reason != NULL);
 
 	/* Check that channel exists */
 	chan = Channel_Search( Name );
@@ -270,29 +274,32 @@ Channel_Kick( CLIENT *Client, CLIENT *Origin, const char *Name, const char *Reas
 		return;
 	}
 
-	/* Check that user is on the specified channel */
-	if( ! Channel_IsMemberOf( chan, Origin ))
-	{
-		IRC_WriteStrClient( Origin, ERR_NOTONCHANNEL_MSG, Client_ID( Origin ), Name );
-		return;
-	}
+	if (Client_Type(Peer) != CLIENT_SERVER &&
+	    Client_Type(Origin) != CLIENT_SERVICE) {
+		/* Check that user is on the specified channel */
+		if (!Channel_IsMemberOf(chan, Origin)) {
+			IRC_WriteStrClient( Origin, ERR_NOTONCHANNEL_MSG,
+					   Client_ID(Origin), Name);
+			return;
+		}
 
-	/* Check if user has operator status */
-	if( ! strchr( Channel_UserModes( chan, Origin ), 'o' ))
-	{
-		IRC_WriteStrClient( Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( Origin ), Name);
-		return;
+		/* Check if user has operator status */
+		if (!strchr(Channel_UserModes(chan, Origin), 'o')) {
+			IRC_WriteStrClient(Origin, ERR_CHANOPRIVSNEEDED_MSG,
+					   Client_ID(Origin), Name);
+			return;
+		}
 	}
 
 	/* Check that the client to be kicked is on the specified channel */
-	if( ! Channel_IsMemberOf( chan, Client ))
-	{
-		IRC_WriteStrClient( Origin, ERR_USERNOTINCHANNEL_MSG, Client_ID( Origin ), Client_ID( Client ), Name );
+	if (!Channel_IsMemberOf(chan, Target)) {
+		IRC_WriteStrClient(Origin, ERR_USERNOTINCHANNEL_MSG,
+				   Client_ID(Origin), Client_ID(Target), Name );
 		return;
 	}
 
 	/* Kick Client from channel */
-	Remove_Client( REMOVE_KICK, chan, Client, Origin, Reason, true);
+	Remove_Client( REMOVE_KICK, chan, Target, Origin, Reason, true);
 } /* Channel_Kick */
 
 

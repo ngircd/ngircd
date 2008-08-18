@@ -34,14 +34,15 @@
 
 
 static bool
-try_kick(CLIENT* from, const char *nick, const char *channel, const char *reason)
+try_kick(CLIENT *peer, CLIENT* from, const char *nick, const char *channel,
+	 const char *reason)
 {
 	CLIENT *target = Client_Search(nick);
 
 	if (!target)
 		return IRC_WriteStrClient(from, ERR_NOSUCHNICK_MSG, Client_ID(from), nick);
 
-	Channel_Kick(target, from, channel, reason);
+	Channel_Kick(peer, target, from, channel, reason);
 	return true;
 }
 
@@ -93,7 +94,8 @@ IRC_KICK(CLIENT *Client, REQUEST *Req)
 	currentChannel = Req->argv[0];
 	if (channelCount == 1) {
 		while (nickCount > 0) {
-			if (!try_kick(from, currentNick, currentChannel, reason))
+			if (!try_kick(Client, from, currentNick,
+				      currentChannel, reason))
 				return false;
 
 			while (*currentNick)
@@ -104,7 +106,8 @@ IRC_KICK(CLIENT *Client, REQUEST *Req)
 		}
 	} else if (channelCount == nickCount) {
 		while (nickCount > 0) {
-			if (!try_kick(from, currentNick, currentChannel, reason))
+			if (!try_kick(Client, from, currentNick,
+				      currentChannel, reason))
 				return false;
 
 			while (*currentNick)

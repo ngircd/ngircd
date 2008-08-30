@@ -92,6 +92,7 @@ static int NewListener PARAMS(( const char *listen_addr, UINT16 Port ));
 
 static array My_Listeners;
 static array My_ConnArray;
+static size_t NumConnections;
 
 #ifdef TCPWRAP
 int allow_severity = LOG_INFO;
@@ -108,7 +109,8 @@ static void
 cb_listen(int sock, short irrelevant)
 {
 	(void) irrelevant;
-	New_Connection( sock );
+	if (New_Connection( sock ) >= 0)
+		NumConnections++;
 }
 
 
@@ -214,12 +216,10 @@ Conn_Init( void )
 
 	/* Speicher fuer Verbindungs-Pool anfordern */
 	Pool_Size = CONNECTION_POOL;
-	if( Conf_MaxConnections > 0 )
-	{
-		/* konfiguriertes Limit beachten */
-		if( Pool_Size > Conf_MaxConnections ) Pool_Size = Conf_MaxConnections;
-	}
-	
+	if ((Conf_MaxConnections > 0) &&
+		(Pool_Size > Conf_MaxConnections))
+			Pool_Size = Conf_MaxConnections;
+
 	if (!array_alloc(&My_ConnArray, sizeof(CONNECTION), (size_t)Pool_Size)) {
 		Log( LOG_EMERG, "Can't allocate memory! [Conn_Init]" );
 		exit( 1 );
@@ -879,7 +879,10 @@ Conn_Close( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool InformClient )
 	/* Clean up connection structure (=free it) */
 	Init_Conn_Struct( Idx );
 
-	LogDebug("Shutdown of connection %d completed.", Idx );
+	assert(NumConnections > 0);
+	if (NumConnections)
+		NumConnections--;
+	LogDebug("Shutdown of connection %d completed", Idx );
 } /* Conn_Close */
 
 
@@ -1002,7 +1005,7 @@ New_Connection( int Sock )
 #endif
 	ng_ipaddr_t new_addr;
 	char ip_str[NG_INET_ADDRSTRLEN];
-	int new_sock, new_sock_len, new_Pool_Size;
+	int new_sock, new_sock_len;
 	CLIENT *c;
 	long cnt;
 
@@ -1021,6 +1024,7 @@ New_Connection( int Sock )
 		Log(LOG_CRIT, "fd %d: Can't convert IP address!", new_sock);
 		Simple_Message(new_sock, "ERROR :Internal Server Error");
 		close(new_sock);
+		return -1;
 	}
 
 #ifdef TCPWRAP
@@ -1049,18 +1053,16 @@ New_Connection( int Sock )
 		return -1;
 	}
 
-	if( new_sock >= Pool_Size ) {
-		new_Pool_Size = new_sock + 1;
-		/* No free Connection Structures, check if we may accept further connections */
-		if ((( Conf_MaxConnections > 0) && Pool_Size >= Conf_MaxConnections) ||
-			(new_Pool_Size < Pool_Size))
-		{
-			Log( LOG_ALERT, "Can't accept connection: limit (%d) reached!", Pool_Size );
-			Simple_Message( new_sock, "ERROR :Connection limit reached" );
-			close( new_sock );
-			return -1;
-		}
+	if ((Conf_MaxConnections > 0) &&
+		(NumConnections >= (size_t) Conf_MaxConnections))
+	{
+		Log( LOG_ALERT, "Can't accept connection: limit (%d) reached!", Conf_MaxConnections);
+		Simple_Message( new_sock, "ERROR :Connection limit reached" );
+		close( new_sock );
+		return -1;
+	}
 
+	if( new_sock >= Pool_Size ) {
 		if (!array_alloc(&My_ConnArray, sizeof(CONNECTION),
 				 (size_t)new_sock)) {
 			Log( LOG_EMERG, "Can't allocate memory! [New_Connection]" );
@@ -1073,7 +1075,7 @@ New_Connection( int Sock )
 
 		/* Adjust pointer to new block */
 		My_Connections = array_start(&My_ConnArray);
-		while (Pool_Size < new_Pool_Size)
+		while (Pool_Size <= new_sock)
 			Init_Conn_Struct(Pool_Size++);
 	}
 

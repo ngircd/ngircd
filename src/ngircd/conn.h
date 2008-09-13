@@ -28,7 +28,14 @@
 #define CONN_ZIP		4	/* zlib compressed link */
 #endif
 
+#include "conf-ssl.h"
 
+#ifdef SSL_SUPPORT
+#define CONN_SSL_CONNECT	8	/* wait for ssl connect to finish */
+#define CONN_SSL		16	/* this connection is SSL encrypted */
+#define CONN_SSL_WANT_WRITE	32	/* SSL/TLS library needs to write protocol data */
+#define CONN_SSL_WANT_READ	64	/* SSL/TLS library needs to read protocol data */
+#endif
 typedef int CONN_ID;
 
 #include "client.h"
@@ -74,6 +81,9 @@ typedef struct _Connection
 #ifdef ZLIB
 	ZIPDATA zip;			/* Compression information */
 #endif  /* ZLIB */
+#ifdef SSL_SUPPORT
+	struct ConnSSL_State	ssl_state;	/* SSL/GNUTLS state information */
+#endif
 } CONNECTION;
 
 GLOBAL CONNECTION *My_Connections;
@@ -98,6 +108,12 @@ GLOBAL void Conn_Close PARAMS(( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool In
 GLOBAL void Conn_SyncServerStruct PARAMS(( void ));
 
 GLOBAL CLIENT* Conn_GetClient PARAMS((CONN_ID i));
+#ifdef SSL_SUPPORT
+GLOBAL bool Conn_GetCipherInfo PARAMS((CONN_ID Idx, char *buf, size_t len));
+GLOBAL bool Conn_UsesSSL PARAMS((CONN_ID Idx));
+#else
+static inline bool Conn_UsesSSL(UNUSED CONN_ID Idx) { return false; }
+#endif
 #endif
 
 /* -eof- */

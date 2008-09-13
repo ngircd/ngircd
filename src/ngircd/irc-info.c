@@ -1167,6 +1167,23 @@ Show_MOTD_End(CLIENT *Client)
 	return IRC_WriteStrClient( Client, RPL_ENDOFMOTD_MSG, Client_ID( Client ));
 }
 
+#ifdef SSL_SUPPORT
+static bool Show_MOTD_SSLInfo(CLIENT *Client)
+{
+	bool ret = true;
+	char buf[COMMAND_LEN] = "Connected using Cipher ";
+
+	if (!Conn_GetCipherInfo(Client_Conn(Client), buf + 23, sizeof buf - 23))
+		return true;
+
+	if (!Show_MOTD_Sendline(Client, buf))
+		ret = false;
+
+	return ret;
+}
+#else
+static inline bool Show_MOTD_SSLInfo(UNUSED CLIENT *c) { return true; }
+#endif
 
 GLOBAL bool
 IRC_Show_MOTD( CLIENT *Client )
@@ -1181,13 +1198,17 @@ IRC_Show_MOTD( CLIENT *Client )
 			return DISCONNECTED;
 		if (!Show_MOTD_Sendline(Client, Conf_MotdPhrase))
 			return DISCONNECTED;
-
-		return Show_MOTD_End(Client);
+		goto out;
 	}
 
 	fd = fopen( Conf_MotdFile, "r" );
 	if( ! fd ) {
 		Log( LOG_WARNING, "Can't read MOTD file \"%s\": %s", Conf_MotdFile, strerror( errno ));
+		if (Conn_UsesSSL(Client_Conn(Client))) {
+			if (!Show_MOTD_Start(Client))
+				return DISCONNECTED;
+			goto out;
+		}
 		return IRC_WriteStrClient( Client, ERR_NOMOTD_MSG, Client_ID( Client ) );
 	}
 
@@ -1205,6 +1226,9 @@ IRC_Show_MOTD( CLIENT *Client )
 		}
 	}
 	fclose(fd);
+out:
+	if (!Show_MOTD_SSLInfo(Client))
+		return DISCONNECTED;
 	return Show_MOTD_End(Client);
 } /* IRC_Show_MOTD */
 

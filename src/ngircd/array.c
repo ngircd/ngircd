@@ -281,6 +281,14 @@ array_free(array * a)
 	a->used = 0;
 }
 
+void
+array_free_wipe(array *a)
+{
+	size_t bytes = a->allocated;
+	if (bytes)
+		memset(a->mem, 0, bytes);
+	array_free(a);
+}
 
 void *
 array_start(const array * const a)

@@ -309,6 +309,52 @@ if test "$x_io_backend" = "none"; then
 	AC_MSG_ERROR([No useabe IO API activated/found!?])
 fi
 
+# use SSL?
+
+AC_ARG_WITH(openssl,
+	[  --with-openssl          enable SSL support using OpenSSL],
+	[	if test "$withval" = "yes"; then
+			if test "$withval" != "yes"; then
+				CFLAGS="-I$withval/include $CFLAGS"
+				CPPFLAGS="-I$withval/include $CPPFLAGS"
+				LDFLAGS="-L$withval/lib $LDFLAGS"
+			fi
+			AC_CHECK_LIB(crypto, BIO_s_mem)
+			AC_CHECK_LIB(ssl, SSL_library_init)
+			AC_CHECK_FUNCS(SSL_library_init, x_ssl_openssl=yes,
+				AC_MSG_ERROR([Can't enable openssl])
+			)
+		fi
+	]
+)
+
+AC_ARG_WITH(gnutls,
+	[  --with-gnutls           enable SSL support using gnutls],
+	[	if test "$withval" = "yes"; then
+			if test "$withval" != "yes"; then
+				CFLAGS="-I$withval/include $CFLAGS"
+				CPPFLAGS="-I$withval/include $CPPFLAGS"
+				LDFLAGS="-L$withval/lib $LDFLAGS"
+			fi
+			AC_CHECK_LIB(gnutls, gnutls_global_init)
+			AC_CHECK_FUNCS(gnutls_global_init, x_ssl_gnutls=yes,
+				AC_MSG_ERROR([Can't enable gnutls])
+			)
+		fi
+	]
+)
+
+x_ssl_lib="no"
+if test "$x_ssl_gnutls" = "yes"; then
+	if test "$x_ssl_openssl" = "yes";then
+		AC_MSG_ERROR([Cannot enable both gnutls and openssl])
+	fi
+	x_ssl_lib=gnutls
+fi
+if test "$x_ssl_openssl" = "yes"; then
+	x_ssl_lib=openssl
+fi
+
 # use TCP wrappers?
 
 x_tcpwrap_on=no
@@ -588,7 +634,11 @@ echo $ECHO_N "        I/O backend: $ECHO_C"
 	echo "\"$x_io_backend\""
 
 echo $ECHO_N "      IPv6 protocol: $ECHO_C"
-echo "$x_ipv6_on"
+echo $ECHO_N "$x_ipv6_on    $ECHO_C"
+
+echo $ECHO_N "        SSL support: $ECHO_C"
+echo "$x_ssl_lib"
+
 echo
 
 # -eof-

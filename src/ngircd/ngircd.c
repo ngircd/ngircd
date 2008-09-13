@@ -41,6 +41,7 @@
 #include "defines.h"
 #include "resolve.h"
 #include "conn.h"
+#include "conf-ssl.h"
 #include "client.h"
 #include "channel.h"
 #include "conf.h"
@@ -367,6 +368,10 @@ Fill_Version( void )
 
 	strlcat( NGIRCd_VersionAddition, "ZLIB", sizeof NGIRCd_VersionAddition );
 #endif
+#ifdef SSL_SUPPORT
+	if ( NGIRCd_VersionAddition[0] ) strlcat( NGIRCd_VersionAddition, "+", sizeof NGIRCd_VersionAddition );
+	strlcat( NGIRCd_VersionAddition, "SSL", sizeof NGIRCd_VersionAddition );
+#endif
 #ifdef TCPWRAP
 	if( NGIRCd_VersionAddition[0] )
 			strlcat( NGIRCd_VersionAddition, "+", sizeof NGIRCd_VersionAddition );
@@ -465,7 +470,10 @@ NGIRCd_Rehash( void )
 
 	/* Create new pre-defined channels */
 	Channel_InitPredefined( );
-	
+
+	if (!ConnSSL_InitLibrary())
+		Log(LOG_WARNING, "Re-Initializing SSL failed, using old keys");
+
 	/* Start listening on sockets */
 	Conn_InitListeners( );
 
@@ -725,6 +733,9 @@ NGIRCd_Init( bool NGIRCd_NoDaemon )
 
 	if (initialized)
 		return true;
+
+	if (!ConnSSL_InitLibrary())
+		Log(LOG_WARNING, "Warning: Error during SSL initialization, continuing");
 
 	if( Conf_Chroot[0] ) {
 		if( chdir( Conf_Chroot ) != 0 ) {

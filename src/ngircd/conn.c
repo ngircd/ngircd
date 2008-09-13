@@ -15,6 +15,7 @@
 #define CONN_MODULE
 
 #include "portab.h"
+#include "conf-ssl.h"
 #include "io.h"
 
 #include "imp.h"
@@ -58,6 +59,7 @@
 #include "ngircd.h"
 #include "client.h"
 #include "conf.h"
+#include "conn-ssl.h"
 #include "conn-zip.h"
 #include "conn-func.h"
 #include "log.h"
@@ -99,6 +101,11 @@ int deny_severity = LOG_ERR;
 
 static void server_login PARAMS((CONN_ID idx));
 
+#ifdef SSL_SUPPORT
+extern struct SSLOptions Conf_SSLOptions;
+static void cb_connserver_login_ssl PARAMS((int sock, short what));
+static void cb_clientserver_ssl PARAMS((int sock, short what));
+#endif
 static void cb_Read_Resolver_Result PARAMS(( int sock, UNUSED short what));
 static void cb_Connect_to_Server PARAMS(( int sock, UNUSED short what));
 static void cb_clientserver PARAMS((int sock, short what));
@@ -110,6 +117,22 @@ cb_listen(int sock, short irrelevant)
 	if (New_Connection( sock ) >= 0)
 		NumConnections++;
 }
+
+
+#ifdef SSL_SUPPORT
+static void
+cb_listen_ssl(int sock, short irrelevant)
+{
+	int fd;
+	(void) irrelevant;
+	fd = New_Connection(sock);
+	if (fd < 0)
+		return;
+
+	NumConnections++;
+	io_event_setcb(My_Connections[fd].sock, cb_clientserver_ssl);
+}
+#endif
 
 
 static void
@@ -166,6 +189,13 @@ cb_connserver(int sock, UNUSED short what)
 	if (res >= 0) /* connect succeeded, remove all additional addresses */
 		memset(&Conf_Server[res].dst_addr, 0, sizeof(&Conf_Server[res].dst_addr));
 	Conn_OPTION_DEL( &My_Connections[idx], CONN_ISCONNECTING );
+#ifdef SSL_SUPPORT
+	if ( Conn_OPTION_ISSET( &My_Connections[idx], CONN_SSL_CONNECT )) {
+		io_event_setcb( sock, cb_connserver_login_ssl );
+		io_event_add( sock, IO_WANTWRITE|IO_WANTREAD );
+		return;
+	}
+#endif
 	server_login(idx);
 }
 
@@ -185,24 +215,88 @@ server_login(CONN_ID idx)
 }
 
 
+#ifdef SSL_SUPPORT
+static void
+cb_connserver_login_ssl(int sock, short unused)
+{
+	CONN_ID idx = Socket2Index(sock);
+
+	assert(idx >= 0);
+	if (idx < 0) {
+		io_close(sock);
+		return;
+	}
+	(void) unused;
+	switch (ConnSSL_Connect( &My_Connections[idx])) {
+	case 1: break;
+	case 0: LogDebug("ConnSSL_Connect: not ready");
+		return;
+	case -1:
+		Log(LOG_INFO, "SSL connection on socket %d failed", sock);
+		Conn_Close(idx, "Can't connect!", NULL, false);
+		return;
+	}
+
+	Log( LOG_INFO, "SSL Connection %d with \"%s:%d\" established.", idx,
+			My_Connections[idx].host, Conf_Server[Conf_GetServer( idx )].port );
+
+	server_login(idx);
+}
+#endif
+
+
 static void
 cb_clientserver(int sock, short what)
 {
-	CONN_ID idx = Socket2Index( sock );
-	if (idx <= NONE) {
-#ifdef DEBUG
-		Log(LOG_WARNING, "WTF: cb_clientserver wants to write on unknown socket?!");
+	CONN_ID idx = Socket2Index(sock);
+
+	assert(idx >= 0);
+
+	if (idx < 0) {
+		io_close(sock);
+		return;
+	}
+#ifdef SSL_SUPPORT
+	if (what & IO_WANTREAD || (Conn_OPTION_ISSET(&My_Connections[idx], CONN_SSL_WANT_WRITE)))
+		Read_Request( idx ); /* if TLS layer needs to write additional data, call Read_Request instead so SSL/TLS can continue */
+#else
+	if (what & IO_WANTREAD)
+		Read_Request( idx );
 #endif
+	if (what & IO_WANTWRITE)
+		Handle_Write( idx );
+}
+
+
+#ifdef SSL_SUPPORT
+static void
+cb_clientserver_ssl(int sock, short what)
+{
+	CONN_ID idx = Socket2Index(sock);
+
+	assert(idx >= 0);
+
+	if (idx < 0) {
 		io_close(sock);
 		return;
 	}
 
+	switch (ConnSSL_Accept(&My_Connections[idx])) {
+		case 1: break;	/* OK */
+		case 0: return; /* EAGAIN: this callback will be invoked again by the io layer */
+		default:
+			Conn_Close( idx, "Socket closed!", "SSL accept error", false );
+			return;
+	}
 	if (what & IO_WANTREAD)
-		Read_Request( idx );
+		Read_Request(idx);
 
 	if (what & IO_WANTWRITE)
-		Handle_Write( idx );
+		Handle_Write(idx);
+
+	io_event_setcb(sock, cb_clientserver);	/* SSL handshake completed */
 }
+#endif
 
 
 GLOBAL void
@@ -323,8 +417,12 @@ Conn_InitListeners( void )
 
 	while (listen_addr) {
 		ngt_TrimStr(listen_addr);
-		if (*listen_addr)
+		if (*listen_addr) {
 			created += ports_initlisteners(&Conf_ListenPorts, listen_addr, cb_listen);
+#ifdef SSL_SUPPORT
+			created += ports_initlisteners(&Conf_SSLOptions.ListenPorts, listen_addr, cb_listen_ssl);
+#endif
+		}
 
 		listen_addr = strtok(NULL, ",");
 	}
@@ -477,6 +575,44 @@ NewListener(const char *listen_addr, UINT16 Port)
 	return sock;
 } /* NewListener */
 
+#ifdef SSL_SUPPORT
+/*
+ * SSL/TLS connections require extra treatment:
+ * When either CONN_SSL_WANT_WRITE or CONN_SSL_WANT_READ is set, we
+ * need to take care of that first, before checking read/write buffers.
+ * For instance, while we might have data in our write buffer, the
+ * TLS/SSL protocol might need to read internal data first for TLS/SSL
+ * writes to succeed.
+ *
+ * If this function returns true, such a condition is met and we have
+ * to reverse the condition (check for read even if we've data to write,
+ * do not check for read but writeability even if write-buffer is empty).
+ */
+static bool
+SSL_WantRead(const CONNECTION *c)
+{
+	if (Conn_OPTION_ISSET(c, CONN_SSL_WANT_READ)) {
+		io_event_add(c->sock, IO_WANTREAD);
+		return true;
+	}
+	return false;
+}
+static bool
+SSL_WantWrite(const CONNECTION *c)
+{
+	if (Conn_OPTION_ISSET(c, CONN_SSL_WANT_WRITE)) {
+		io_event_add(c->sock, IO_WANTWRITE);
+		return true;
+	}
+	return false;
+}
+#else
+static inline bool
+SSL_WantRead(UNUSED const CONNECTION *c) { return false; }
+static inline bool
+SSL_WantWrite(UNUSED const CONNECTION *c) { return false; }
+#endif
+
 
 /**
  * "Main Loop": Loop until shutdown or restart is signalled.
@@ -532,7 +668,8 @@ Conn_Handler(void)
 			if (wdatalen > 0)
 #endif
 			{
-				/* Set the "WANTWRITE" flag on this socket */
+				if (SSL_WantRead(&My_Connections[i]))
+					continue;
 				io_event_add(My_Connections[i].sock,
 					     IO_WANTWRITE);
 			}
@@ -542,7 +679,10 @@ Conn_Handler(void)
 		for (i = 0; i < Pool_Size; i++) {
 			if (My_Connections[i].sock <= NONE)
 				continue;
-
+#ifdef SSL_SUPPORT
+			if (SSL_WantWrite(&My_Connections[i]))
+				continue; /* TLS/SSL layer needs to write data; deal with this first */
+#endif
 			if (Resolve_INPROGRESS(&My_Connections[i].res_stat)) {
 				/* Wait for completion of resolver sub-process ... */
 				io_event_del(My_Connections[i].sock,
@@ -816,7 +956,12 @@ Conn_Close( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool InformClient )
 
 	/* Search client, if any (re-check!) */
 	c = Conn_GetClient( Idx );
-
+#ifdef SSL_SUPPORT
+	if ( Conn_OPTION_ISSET( &My_Connections[Idx], CONN_SSL )) {
+		Log( LOG_INFO, "SSL Connection %d shutting down", Idx );
+		ConnSSL_Free(&My_Connections[Idx]);
+	}
+#endif
 	/* Shut down socket */
 	if (! io_close(My_Connections[Idx].sock)) {
 		/* Oops, we can't close the socket!? This is ... ugly! */
@@ -966,9 +1111,15 @@ Handle_Write( CONN_ID Idx )
 	    ("Handle_Write() called for connection %d, %ld bytes pending ...",
 	     Idx, wdatalen);
 
-	len = write(My_Connections[Idx].sock,
-	            array_start(&My_Connections[Idx].wbuf), wdatalen );
-
+#ifdef SSL_SUPPORT
+	if ( Conn_OPTION_ISSET( &My_Connections[Idx], CONN_SSL )) {
+		len = ConnSSL_Write(&My_Connections[Idx], array_start(&My_Connections[Idx].wbuf), wdatalen);
+	} else
+#endif
+	{
+		len = write(My_Connections[Idx].sock,
+			    array_start(&My_Connections[Idx].wbuf), wdatalen );
+	}
 	if( len < 0 ) {
 		if (errno == EAGAIN || errno == EINTR)
 			return true;
@@ -1170,6 +1321,11 @@ Read_Request( CONN_ID Idx )
 		return;
 	}
 
+#ifdef SSL_SUPPORT
+	if (Conn_OPTION_ISSET(&My_Connections[Idx], CONN_SSL))
+		len = ConnSSL_Read( &My_Connections[Idx], readbuf, sizeof(readbuf));
+	else
+#endif
 	len = read(My_Connections[Idx].sock, readbuf, sizeof(readbuf));
 	if (len == 0) {
 		Log(LOG_INFO, "%s:%u (%s) is closing the connection ...",
@@ -1551,7 +1707,16 @@ New_Server( int Server , ng_ipaddr_t *dest)
 		Init_Conn_Struct( new_sock );
 		Conf_Server[Server].conn_id = NONE;
 	}
-
+#ifdef SSL_SUPPORT
+	if (Conf_Server[Server].SSLConnect && !ConnSSL_PrepareConnect( &My_Connections[new_sock],
+								&Conf_Server[Server] ))
+	{
+		Log(LOG_ALERT, "Could not initialize SSL for outgoing connection");
+		Conn_Close( new_sock, "Could not initialize SSL for outgoing connection", NULL, false );
+		Init_Conn_Struct( new_sock );
+		Conf_Server[Server].conn_id = NONE;
+	}
+#endif
 	LogDebug("Registered new connection %d on socket %d.",
 				new_sock, My_Connections[new_sock].sock );
 	Conn_OPTION_ADD( &My_Connections[new_sock], CONN_ISCONNECTING );
@@ -1773,4 +1938,19 @@ Conn_GetClient( CONN_ID Idx )
 	return c ? c->client : NULL;
 }
 
+#ifdef SSL_SUPPORT
+/* we cannot access My_Connections in irc-info.c */
+GLOBAL bool
+Conn_GetCipherInfo(CONN_ID Idx, char *buf, size_t len)
+{
+	return ConnSSL_GetCipherInfo(&My_Connections[Idx], buf, len);
+}
+
+
+GLOBAL bool
+Conn_UsesSSL(CONN_ID Idx)
+{
+	return Conn_OPTION_ISSET(&My_Connections[Idx], CONN_SSL);
+}
+#endif
 /* -eof- */

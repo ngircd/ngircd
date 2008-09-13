@@ -24,6 +24,9 @@
 #include "portab.h"
 #include "tool.h"
 #include "ng_ipaddr.h"
+#include "resolve.h"
+#include "conf-ssl.h"
+
 
 typedef struct _Conf_Oper
 {
@@ -46,7 +49,22 @@ typedef struct _Conf_Server
 	CONN_ID conn_id;		/* ID of server connection or NONE */
 	ng_ipaddr_t bind_addr;		/* source address to use for outgoing connections */
 	ng_ipaddr_t dst_addr[2];	/* list of addresses to connect to */
+#ifdef SSL_SUPPORT
+	bool SSLConnect;		/* connect() using SSL? */
+#endif
 } CONF_SERVER;
+
+
+#ifdef SSL_SUPPORT
+struct SSLOptions {
+	char *KeyFile;
+	char *CertFile;
+	char *DHFile;
+	array ListenPorts;
+	array KeyFilePassword;
+};
+#endif
+
 
 typedef struct _Conf_Channel
 {

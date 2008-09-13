@@ -76,6 +76,39 @@ static void Init_Server_Struct PARAMS(( CONF_SERVER *Server ));
 #define DEFAULT_LISTEN_ADDRSTR "0.0.0.0"
 #endif
 
+#ifdef SSL_SUPPORT
+struct SSLOptions Conf_SSLOptions;
+
+static void
+ConfSSL_Init(void)
+{
+	free(Conf_SSLOptions.KeyFile);
+	Conf_SSLOptions.KeyFile = NULL;
+
+	free(Conf_SSLOptions.CertFile);
+	Conf_SSLOptions.CertFile = NULL;
+
+	free(Conf_SSLOptions.DHFile);
+	Conf_SSLOptions.DHFile = NULL;
+	array_free_wipe(&Conf_SSLOptions.KeyFilePassword);
+}
+
+
+static void
+ConfSSL_Puts(void)
+{
+	if (Conf_SSLOptions.KeyFile)
+		printf( "  SSLKeyFile = %s\n", Conf_SSLOptions.KeyFile);
+	if (Conf_SSLOptions.CertFile)
+		printf( "  SSLCertFile = %s\n", Conf_SSLOptions.CertFile);
+	if (Conf_SSLOptions.DHFile)
+		printf( "  SSLDHFile = %s\n", Conf_SSLOptions.DHFile);
+	if (array_bytes(&Conf_SSLOptions.KeyFilePassword))
+		puts("  SSLKeyFilePassword = <secret>"  );
+	array_free_wipe(&Conf_SSLOptions.KeyFilePassword);
+}
+#endif
+
 static char *
 strdup_warn(const char *str)
 {
@@ -202,10 +235,16 @@ Conf_Test( void )
 	printf( "  MotdPhrase = %s\n", Conf_MotdPhrase );
 	printf( "  ChrootDir = %s\n", Conf_Chroot );
 	printf( "  PidFile = %s\n", Conf_PidFile);
+	printf("  Listen = %s\n", Conf_ListenAddress);
 	fputs("  Ports = ", stdout);
 
 	ports_puts(&Conf_ListenPorts);
-	printf("  Listen = %s\n", Conf_ListenAddress);
+#ifdef SSL_SUPPORT
+	fputs("  SSLPorts = ", stdout);
+	ports_puts(&Conf_SSLOptions.ListenPorts);
+	ConfSSL_Puts();
+#endif
+
 	pwd = getpwuid( Conf_UID );
 	if( pwd ) printf( "  ServerUID = %s\n", pwd->pw_name );
 	else printf( "  ServerUID = %ld\n", (long)Conf_UID );
@@ -248,6 +287,9 @@ Conf_Test( void )
 		printf( "  Name = %s\n", Conf_Server[i].name );
 		printf( "  Host = %s\n", Conf_Server[i].host );
 		printf( "  Port = %u\n", (unsigned int)Conf_Server[i].port );
+#ifdef SSL_SUPPORT
+		printf( "  SSLConnect = %s\n", Conf_Server[i].SSLConnect?"yes":"no");
+#endif
 		printf( "  MyPassword = %s\n", Conf_Server[i].pwd_in );
 		printf( "  PeerPassword = %s\n", Conf_Server[i].pwd_out );
 		printf( "  Group = %d\n", Conf_Server[i].group );
@@ -543,7 +585,9 @@ Read_Config( bool ngircd_starting )
 	strcpy( section, "" );
 	Init_Server_Struct( &New_Server );
 	New_Server_Idx = NONE;
-
+#ifdef SSL_SUPPORT
+	ConfSSL_Init();
+#endif
 	/* Read configuration file */
 	while( true ) {
 		if( ! fgets( str, LINE_LEN, fd )) break;
@@ -923,6 +967,37 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 		}
 		return;
 	}
+
+#ifdef SSL_SUPPORT
+	if( strcasecmp( Var, "SSLPorts" ) == 0 ) {
+		ports_parse(&Conf_SSLOptions.ListenPorts, Line, Arg);
+		return;
+	}
+
+	if( strcasecmp( Var, "SSLKeyFile" ) == 0 ) {
+		assert(Conf_SSLOptions.KeyFile == NULL );
+		Conf_SSLOptions.KeyFile = strdup_warn(Arg);
+		return;
+	}
+	if( strcasecmp( Var, "SSLCertFile" ) == 0 ) {
+		assert(Conf_SSLOptions.CertFile == NULL );
+		Conf_SSLOptions.CertFile = strdup_warn(Arg);
+		return;
+	}
+
+	if( strcasecmp( Var, "SSLKeyFilePassword" ) == 0 ) {
+		assert(array_bytes(&Conf_SSLOptions.KeyFilePassword) == 0);
+		if (!array_copys(&Conf_SSLOptions.KeyFilePassword, Arg))
+			Config_Error( LOG_ERR, "%s, line %d (section \"Global\"): Could not copy %s: %s!",
+								NGIRCd_ConfFile, Line, Var, strerror(errno));
+		return;
+	}
+	if( strcasecmp( Var, "SSLDHFile" ) == 0 ) {
+		assert(Conf_SSLOptions.DHFile == NULL);
+		Conf_SSLOptions.DHFile = strdup_warn( Arg );
+                return;
+        }
+#endif
 	Config_Error(LOG_ERR, "%s, line %d (section \"Global\"): Unknown variable \"%s\"!",
 								NGIRCd_ConfFile, Line, Var);
 } /* Handle_GLOBAL */
@@ -1032,6 +1107,12 @@ Handle_SERVER( int Line, char *Var, char *Arg )
 										NGIRCd_ConfFile, Line, port );
 		return;
 	}
+#ifdef SSL_SUPPORT
+	if( strcasecmp( Var, "SSLConnect" ) == 0 ) {
+		New_Server.SSLConnect = Check_ArgIsTrue(Arg);
+		return;
+        }
+#endif
 	if( strcasecmp( Var, "Group" ) == 0 ) {
 		/* Server group */
 #ifdef HAVE_ISDIGIT

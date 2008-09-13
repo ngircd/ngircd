@@ -72,6 +72,27 @@ command.
 Ports on which the server should listen. There may be more than one port,
 separated with ','. Default: 6667.
 .TP
+\fBSSLPorts\fR
+Same as \fBPorts\fR , except that ngircd will expect incoming connections
+to be SSL/TLS encrypted. Default: None
+.TP
+\fBSSLKeyFile\fR
+Filename of SSL Server Key to be used for SSL connections. This is required for
+SSL/TLS support.
+.TP
+\fBSSLKeyFilePassword\fR
+(OpenSSL only:) Password to decrypt private key.
+.TP
+\fBSSLCertFile\fR
+Certificate of the private key
+.TP
+\fBSSLDHFile\fR
+Name of the Diffie-Hellman Parameter file.  Can be created with gnutls "certtool --generate-dh-params" or "openssl dhparam".
+If this file is not present, it will be generated on startup when ngircd
+was compiled with gnutls support (this may take some time). If ngircd
+was compiled with OpenSSL, then (Ephemeral)-Diffie-Hellman Key Exchanges and several
+Cipher Suites will not be available.
+.TP
 \fBListen\fR
 A comma seperated list of IP address on which the server should listen.
 If unset, the defaults value is "0.0.0.0", or, if ngircd was compiled
@@ -188,6 +209,8 @@ Default: 10.
 Maximum length of an user nick name (Default: 9, as in RFC 2812). Please
 note that all servers in an IRC network MUST use the same maximum nick name
 length!
+\fBSSLConnect\fR
+Connect to the remote server using TLS/SSL (Default: false)
 .SH [OPERATOR]
 .I [Operator]
 sections are used to define IRC Operators. There may be more than one

@@ -10,9 +10,31 @@
                                  -- SSL.txt --
 
 
-ngIRCd actually doesn't support secure connections for client-server or
-server-server links using SSL, the Secure Socket Layer, by itself. But you can
-use the stunnel(8) command to make this work.
+ngIRCd supports SSL/TLSv1 encrypted connections using the
+OpenSSL or gnutls library.
+Both encryped server <-> client and server <-> server links should work.
+
+BEWARE! The Code is mostly untested, use at your own risk!
+
+Example that creates a self-signed certificate and key (using OpenSSL):
+openssl req -newkey rsa:2048 -x509 -keyout server-key.pem \
+		-out server-cert.pem -days 1461
+
+Example that creates DH parameters (optional):
+openssl dhparam -2 -out dhparams.pem 2048
+
+Example that creates a self-signed certificate
+and key (using gnutls):
+
+certtool --generate-privkey --bits 2048 --outfile server-key.pem
+certtool --generate-self-signed --load-privkey server-key.pem \
+		 --outfile server-cert.pem
+
+Example that creates DH parameters (optional):
+certtool  --generate-dh-params --bits 2048 --outfile dhparams.pem
+
+Alternatively, you may use external programs/tools like stunnel to
+make it work:
 
   <http://stunnel.mirt.net/>
   <http://www.stunnel.org/>
@@ -51,7 +73,6 @@ short "how-to", thanks Stefan!
 === snip ===
 
 
-Probably ngIRCd will include support for SSL in the future ...
 
 
 -- 

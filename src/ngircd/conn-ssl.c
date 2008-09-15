@@ -670,12 +670,20 @@ bool
 ConnSSL_GetCipherInfo(CONNECTION *c, char *buf, size_t len)
 {
 #ifdef HAVE_LIBSSL
+	char *nl;
+
 	SSL *ssl;
 	assert(c != NULL);
 	assert(len >= 128);
 	ssl = c->ssl_state.ssl;
-	if (!ssl) return false;
-	return SSL_CIPHER_description(SSL_get_current_cipher(ssl), buf, len) != NULL;
+	if (!ssl)
+		return false;
+	*buf = 0;
+	SSL_CIPHER_description(SSL_get_current_cipher(ssl), buf, len);
+	nl = strchr(buf, '\n');
+	if (nl)
+		*nl = 0;
+	return true;
 #endif
 #ifdef HAVE_LIBGNUTLS
 	assert(c != NULL);
@@ -692,7 +700,7 @@ ConnSSL_GetCipherInfo(CONNECTION *c, char *buf, size_t len)
 		name_proto = gnutls_protocol_get_name(gnutls_protocol_get_version(sess));
 		name_keyexchange = gnutls_kx_get_name(gnutls_kx_get(sess));
 
-		return snprintf(buf, len, "%s-%s%15s Kx=%s      Enc=%s(%u) Mac=%s\n",
+		return snprintf(buf, len, "%s-%s%15s Kx=%s      Enc=%s(%u) Mac=%s",
 			name_cipher, name_mac, name_proto, name_keyexchange, name_cipher, keysize, name_mac) > 0;
 	}
 	return false;

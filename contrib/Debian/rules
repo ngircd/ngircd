@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 #
 # ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001-2003 by Alexander Barton (alex@barton.de)
+# Copyright (c)2001-2008 Alexander Barton <alex@barton.de>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -10,8 +10,6 @@
 # Please read the file COPYING, README and AUTHORS for more information.
 #
 # debian/rules for ngIRCd
-#
-# $Id: rules,v 1.3 2005/02/07 23:09:31 alex Exp $
 #
 # Based on the sample debian/rules that uses debhelper,
 # GNU copyright 1997 to 1999 by Joey Hess.
@@ -54,7 +52,9 @@ configure-ngircd-full: configure
 	  --prefix=/usr \
 	  --sysconfdir=/etc/ngircd \
 	  --mandir=\$${prefix}/share/man \
-	  --with-syslog --with-zlib --with-tcp-wrappers --with-ident
+	  --with-syslog --with-zlib \
+	  --with-gnutls --with-ident --with-tcp-wrappers \
+	  --enable-ipv6
 
 build:
 	dh_clean -k

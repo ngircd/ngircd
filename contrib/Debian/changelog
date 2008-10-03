@@ -1,3 +1,30 @@
+ngircd (0.12.1-0ab1+dev) unstable; urgency=low
+
+  * Update package for testing the new "upstream" features:
+     - Support for IRC services (see http://www.ircservices.za.net),
+     - Encrypted connections using GNU TLS (ngircd-full),
+     - Support for the IPv6 protocol (ngircd-full).
+
+ -- Alexander Barton <alex@barton.de>  Fri, 03 Oct 2008 16:22:55 +0200
+
+ngircd (0.12.1-0ab1) unstable; urgency=low
+
+  * New "upstream" release ngIRCd 0.12.1.
+
+ -- Alexander Barton <alex@barton.de>  Wed,  9 Jul 2008 11:27:00 +0200
+
+ngircd (0.12.0-0ab1) unstable; urgency=low
+
+  * New "upstream" release ngIRCd 0.12.0.
+
+ -- Alexander Barton <alex@barton.de>  Tue, 13 May 2008 12:30:31 +0200
+
+ngircd (0.12.0-0ab0-pre2) unstable; urgency=low
+
+  * Second prerelease of upcoming new "upstrem" release 0.12.0-pre1.
+
+ -- Alexander Barton <alex@barton.de>  Tue, 29 Apr 2008 23:06:14 +0200
+
 ngircd (0.12.0-0ab0-pre1) unstable; urgency=low
 
   * Prereloease of upcoming new "upstrem" release 0.12.0-pre1.

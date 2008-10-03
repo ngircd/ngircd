@@ -1,0 +1,9 @@
+*.log
+*.debhelper
+*.substvars
+files
+ngircd/
+ngircd-full/
+ngircd-full.default
+ngircd-full.init
+ngircd-full.postinst

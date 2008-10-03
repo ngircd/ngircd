@@ -15,3 +15,5 @@ missing
 .deps
 *.a
 *.o
+debian
+build-stamp-ngircd*

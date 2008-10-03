@@ -1,6 +1,7 @@
 #!/bin/sh
 #
 # ngIRCd start and stop script for Debian-based systems
+# Copyright 2008 Alexander Barton <alex@barton.de>
 #
 
 ### BEGIN INIT INFO
@@ -27,6 +28,8 @@ test -r /etc/default/$BASENAME && . /etc/default/$BASENAME
 
 test -x $DAEMON || exit 0
 
+# LSB compatibility functions that become used if there is no local
+# include file available.
 log_daemon_msg() {
 	echo -n "$*"
 }
@@ -37,20 +40,23 @@ log_failure_msg() {
 	echo "$*"
 }
 
+# Include LSB functions, if available:
 test -r /lib/lsb/init-functions && . /lib/lsb/init-functions
 
 Check_Config()
 {
+	# Make sure that the configuration of ngIRCd is valid:
 	$DAEMON --configtest >/dev/null 2>&1
 	if [ $? -ne 0 ]; then
 		log_failure_msg "Configuration of $NAME is not valid, won't (re)start!"
 		log_failure_msg "Run \"$DAEMON --configtest\" and fix it up ..."
 		exit 1
 	fi
+	# Make sure the PID file directory exists and is writable:
 	if [ ! -d /var/run/ircd ]; then
 		mkdir -p /var/run/ircd
-		chown irc:irc /var/run/ircd
 	fi
+	chown irc:irc /var/run/ircd
 }
 
 case "$1" in

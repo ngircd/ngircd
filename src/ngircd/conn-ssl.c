@@ -539,7 +539,6 @@ ConnSSL_LogCertInfo( CONNECTION *c )
 		SSL_get_version(ssl), SSL_get_cipher(ssl), c->sock);
 #endif
 #ifdef HAVE_LIBGNUTLS
-	gnutls_credentials_type_t cred;
 	gnutls_session_t sess = c->ssl_state.gnutls_session;
 	gnutls_cipher_algorithm_t cipher = gnutls_cipher_get(sess);
 

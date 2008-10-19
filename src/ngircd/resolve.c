@@ -271,19 +271,21 @@ static bool
 ForwardLookup(const char *hostname, array *IpAddr)
 {
 	ng_ipaddr_t addr;
+
 #ifdef HAVE_GETADDRINFO
 	int res;
 	struct addrinfo *a, *ai_results;
-	static struct addrinfo hints = {
+	static struct addrinfo hints;
+
 #ifndef WANT_IPV6
-		.ai_family = AF_INET,
+	hints.ai_family = AF_INET;
 #endif
 #ifdef AI_ADDRCONFIG	/* glibc has this, but not e.g. netbsd 4.0 */
-		.ai_flags = AI_ADDRCONFIG,
+	hints.ai_flags = AI_ADDRCONFIG;
 #endif
-		.ai_socktype = SOCK_STREAM,
-		.ai_protocol = IPPROTO_TCP
-	};
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_protocol = IPPROTO_TCP;
+
 #ifdef WANT_IPV6
 	assert(Conf_ConnectIPv6 || Conf_ConnectIPv4);
 

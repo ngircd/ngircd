@@ -400,7 +400,13 @@ ConnSSL_Init_SSL(CONNECTION *c)
 		Log(LOG_ERR, "gnutls_set_default_priority: %s", gnutls_strerror(ret));
 		ConnSSL_Free(c);
 	}
-	gnutls_transport_set_ptr(c->ssl_state.gnutls_session, (gnutls_transport_ptr_t) c->sock);
+	/*
+	 * The intermediate (long) cast is here to avoid a warning like:
+	 * "cast to pointer from integer of different size" on 64-bit platforms.
+	 * There doesn't seem to be an alternate GNUTLS API we could use instead, see e.g.
+	 * http://www.mail-archive.com/help-gnutls@gnu.org/msg00286.html
+	 */
+	gnutls_transport_set_ptr(c->ssl_state.gnutls_session, (gnutls_transport_ptr_t) (long) c->sock);
 	ret = gnutls_credentials_set(c->ssl_state.gnutls_session, GNUTLS_CRD_CERTIFICATE, x509_cred);
 	if (ret < 0) {
 		Log(LOG_ERR, "gnutls_credentials_set: %s", gnutls_strerror(ret));

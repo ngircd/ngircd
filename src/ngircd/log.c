@@ -334,11 +334,11 @@ va_dcl
 	vsnprintf( msg, MAX_LOG_MSG_LEN, Format, ap );
 	va_end( ap );
 
-	if( ! Is_Daemon )
-	{
+	if (!Is_Daemon) {
 		/* Output to console */
-		fprintf( stdout, "[%d:%d] %s\n", (int)getpid( ), Level, msg );
-		fflush( stdout );
+		fprintf(stdout, "[%d:%d %4ld] %s\n", (int)getpid( ), Level,
+			time(NULL) - NGIRCd_Start, msg);
+		fflush(stdout);
 	}
 #ifdef SYSLOG
 	else syslog( Level, "%s", msg );

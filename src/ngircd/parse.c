@@ -381,7 +381,8 @@ static bool
 Handle_Numeric(CLIENT *client, REQUEST *Req)
 {
 	static const struct _NUMERIC Numerics[] = {
-		{ 005, IRC_Num_ISUPPORT },
+		{   5, IRC_Num_ISUPPORT },
+		{  20, NULL },
 		{ 376, IRC_Num_ENDOFMOTD }
 	};
 	int i, num;
@@ -389,8 +390,12 @@ Handle_Numeric(CLIENT *client, REQUEST *Req)
 	CLIENT *prefix, *target = NULL;
 
 	/* Determine target */
-	if (Req->argc > 0)
-		target = Client_Search(Req->argv[0]);
+	if (Req->argc > 0) {
+		if (strcmp(Req->argv[0], "*") != 0)
+			target = Client_Search(Req->argv[0]);
+		else
+			target = Client_ThisServer();
+	}
 
 	if (!target) {
 		/* Status code without target!? */
@@ -409,8 +414,11 @@ Handle_Numeric(CLIENT *client, REQUEST *Req)
 		num = atoi(Req->command);
 
 		for (i = 0; i < (int) ARRAY_SIZE(Numerics); i++) {
-			if (num == Numerics[i].numeric)
+			if (num == Numerics[i].numeric) {
+				if (!Numerics[i].function)
+					return CONNECTED;
 				return Numerics[i].function(client, Req);
+			}
 		}
 
 		LogDebug("Ignored status code %s from \"%s\".",

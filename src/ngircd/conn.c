@@ -116,6 +116,7 @@ cb_listen(int sock, short irrelevant)
 	(void) irrelevant;
 	if (New_Connection( sock ) >= 0)
 		NumConnections++;
+	LogDebug("Total number of connections now %ld.", NumConnections);
 }
 
 
@@ -130,6 +131,7 @@ cb_listen_ssl(int sock, short irrelevant)
 		return;
 
 	NumConnections++;
+	LogDebug("Total number of connections now %ld.", NumConnections);
 	io_event_setcb(My_Connections[fd].sock, cb_clientserver_ssl);
 }
 #endif
@@ -1035,7 +1037,8 @@ Conn_Close( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool InformClient )
 	assert(NumConnections > 0);
 	if (NumConnections)
 		NumConnections--;
-	LogDebug("Shutdown of connection %d completed", Idx );
+	LogDebug("Shutdown of connection %d completed, %ld connection%s left.",
+		 Idx, NumConnections, NumConnections != 1 ? "s" : "");
 } /* Conn_Close */
 
 
@@ -1717,8 +1720,9 @@ New_Server( int Server , ng_ipaddr_t *dest)
 		Conf_Server[Server].conn_id = NONE;
 	}
 #endif
-	LogDebug("Registered new connection %d on socket %d.",
-				new_sock, My_Connections[new_sock].sock );
+	NumConnections++;
+	LogDebug("Registered new connection %d on socket %d (%ld in total).",
+		 new_sock, My_Connections[new_sock].sock, NumConnections);
 	Conn_OPTION_ADD( &My_Connections[new_sock], CONN_ISCONNECTING );
 } /* New_Server */
 

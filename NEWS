@@ -10,6 +10,35 @@
                                   -- NEWS --
 
 
+ngIRCd-dev
+
+  - New version numer scheme :-)
+  - Initial support for IRC services, using a RFC1459 styel interface,
+    tested with IRCServices (http://www.ircservices.za.net/) version 5.1.13.
+    For this to work, ngIRCd now supports server-server links conforming
+    to RFC 1459. New ngircd.conf(5) option: ServiceMask.
+  - Support for SSL-encrypted server-server and client-server links using
+    OpenSSL (configure: --with-openssl) or GNUTLS (configure: --with-gnutls).
+    New ngircd.conf(5) options: SSLPorts, SSLKeyFile, SSLKeyFilePassword,
+    SSLCertFile, SSLDHFile, and SSLConnect.
+  - New make target "osxpkg" to build a Mac OS X installer package.
+  - Debug mode: enable support for GNU libc memory tracing (see mtrace(3)).
+  - SysV init script: use LSB logging functions, if available.
+  - Added some more FAQ entries (regarding logging and IRC operators).
+  - Allow IRC operators to overwrite channel limits.
+  - Support for enhanced PRIVMSG and NOTICE message targets.
+  - More tests have been added to the test-suite ("make check").
+  - Added a timestamp to log messages to the console.
+
+ngIRCd 0.12.1 (2008-07-09)
+
+  - Add option aliases -V (for --version) and -h (for --help).
+  - Make Listen parameter a comma-seperated list of addresses. This also
+    obsoletes ListenIPv4 and ListenIPv6 options. If Listen is unset, it
+    is treated as Listen="::,0.0.0.0".
+    Note: ListenIPv4 and ListenIPv6 options are still recognized,
+    but ngircd will print a warning if they are used in the config file.
+
 ngIRCd 0.12.0 (2008-05-13)
 
   ngIRCd 0.12.0-pre2 (2008-04-29)

@@ -10,9 +10,19 @@
                                -- ChangeLog --
 
 
-ngIRCd-dev
+ngIRCd 0.12.1 (2008-07-09)
 
-  - ...
+  - Allow mixed line terminations (CR+LF/CR/LF) in non-RFC-compliant mode
+  - Don't allow stray \r or \n in command parameters
+  - --configtest: return non-zero exit code if there are errors
+  - Update ngIRCd manual pages
+  - Add option aliases -V (for --version) and -h (for --help).
+  - Fix 'no-ipv6' compile error.
+  - Make Listen parameter a comma-seperated list of addresses. This also
+    obsoletes ListenIPv4 and ListenIPv6 options. If Listen is unset, it
+    is treated as Listen="::,0.0.0.0".
+    Note: ListenIPv4 and ListenIPv6 options are still recognized,
+    but ngircd will print a warning if they are used in the config file.
 
 ngIRCd 0.12.0 (2008-05-13)
 
@@ -59,7 +69,7 @@ ngIRCd 0.11.0 (2008-01-15)
 
   ngIRCd 0.11.0-pre2 (2008-01-07)
   - SECURITY: IRC_PART could reference invalid memory, causing
-    ngircd to crash [from HEAD]. (CVE-2008-0285)
+    ngircd to crash [from HEAD].
   
   ngIRCd 0.11.0-pre1 (2008-01-02)
   - Use dotted-decimal IP address if hostname is >= 64.
@@ -93,13 +103,12 @@ ngIRCd 0.11.0 (2008-01-15)
 ngIRCd 0.10.4 (2008-01-07)
 
   - SECURITY: IRC_PART could reference invalid memory, causing
-    ngircd to crash [from HEAD]. (CVE-2008-0285)
+    ngircd to crash [from HEAD].
   
 ngIRCd 0.10.3 (2007-08-01)
 
   - SECURITY: Fixed a severe bug in handling JOIN commands, which could
     cause the server to crash. Thanks to Sebastian Vesper, <net@veoson.net>.
-    (CVE-2007-6062)
 
 ngIRCd 0.10.2 (2007-06-08)
 
@@ -234,13 +243,13 @@ ngIRCd 0.8.3 (2005-02-03)
   - Fixed a bug that could case a root exploit when the daemon is compiled
     to do IDENT lookups and is logging to syslog. Bug discovered by CoKi,
     <coki@nosystem.com.ar>, thanks a lot!
-    (CVE-2005-0226; http://www.nosystem.com.ar/advisories/advisory-11.txt)
+    (http://www.nosystem.com.ar/advisories/advisory-11.txt)
 
 ngIRCd 0.8.2 (2005-01-26)
 
   - Added doc/SSL.txt to distribution.
   - Fixed a buffer overflow that could cause the daemon to crash. Bug found
-    by Florian Westphal, <westphal@foo.fh-furtwangen.de>. (CVE-2005-0199)
+    by Florian Westphal, <westphal@foo.fh-furtwangen.de>.
   - Fixed a possible buffer underrun when reading the MOTD file. Thanks
     to Florian Westphal, <westphal@foo.fh-furtwangen.de>.
   - Fixed detection of IRC lines which are too long to send. Detected by

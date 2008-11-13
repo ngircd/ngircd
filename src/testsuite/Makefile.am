@@ -1,6 +1,6 @@
 #
 # ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
+# Copyright (c)2001-2008 Alexander Barton (alex@barton.de)
 #
 # Dieses Programm ist freie Software. Sie koennen es unter den Bedingungen
 # der GNU General Public License (GPL), wie von der Free Software Foundation
@@ -8,8 +8,6 @@
 # der Lizenz oder (wenn Sie es wuenschen) jeder spaeteren Version.
 # Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
-#
-# $Id: Makefile.am,v 1.18 2008/02/17 13:26:42 alex Exp $
 #
 
 AUTOMAKE_OPTIONS = ../portab/ansi2knr
@@ -22,14 +20,16 @@ EXTRA_DIST = \
 	test-loop.sh wait-tests.sh \
 	channel-test.e connect-test.e check-idle.e invite-test.e \
 	join-test.e kick-test.e message-test.e misc-test.e mode-test.e \
-	opless-channel-test.e who-test.e stress-A.e stress-B.e \
-	ngircd-test.conf
+	opless-channel-test.e server-link-test.e who-test.e \
+	stress-A.e stress-B.e \
+	start-server1 stop-server1 ngircd-test1.conf \
+	start-server2 stop-server2 ngircd-test2.conf
 
 all:
 
 clean-local:
-	rm -rf logs tests *-test ngircd-test.log ngircd-test.motd \
-	 T-ngircd procs.tmp 
+	rm -rf logs tests *-test ngircd-test*.log procs.tmp \
+	 T-ngircd1 ngircd-test1.motd T-ngircd2 ngircd-test2.motd
 
 maintainer-clean-local:
 	rm -f Makefile Makefile.in
@@ -37,7 +37,8 @@ maintainer-clean-local:
 check_SCRIPTS = ngircd-TEST-Binary tests.sh
 
 ngircd-TEST-Binary:
-	cp ../ngircd/ngircd T-ngircd
+	cp ../ngircd/ngircd T-ngircd1
+	cp ../ngircd/ngircd T-ngircd2
 	[ -f getpid.sh ] || ln -s $(srcdir)/getpid.sh .
 
 connect-test: tests.sh
@@ -76,12 +77,17 @@ opless-channel-test: tests.sh
 	rm -f opless-channel-test
 	ln -s $(srcdir)/tests.sh opless-channel-test
 
+server-link-test: tests.sh
+	rm -f server-link-test
+	ln -s $(srcdir)/tests.sh server-link-test
+
 who-test: tests.sh
 	rm -f who-test
 	ln -s $(srcdir)/tests.sh who-test
 
-TESTS = start-server.sh \
+TESTS = start-server1 \
 	connect-test \
+	start-server2 \
 	channel-test \
 	invite-test \
 	join-test \
@@ -91,7 +97,9 @@ TESTS = start-server.sh \
 	mode-test \
 	opless-channel-test \
 	who-test \
+	server-link-test \
+	stop-server2 \
 	stress-server.sh \
-	stop-server.sh
+	stop-server1
 
 # -eof-

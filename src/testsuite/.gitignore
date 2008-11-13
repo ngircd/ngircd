@@ -1,4 +1,5 @@
-T-ngircd
+T-ngircd1
+T-ngircd2
 channel-test
 connect-test
 invite-test
@@ -8,8 +9,11 @@ message-test
 misc-test
 mode-test
 opless-channel-test
+server-link-test
 who-test
-ngircd-test.log
-ngircd-test.motd
+ngircd-test1.log
+ngircd-test2.log
+ngircd-test1.motd
+ngircd-test2.motd
 logs
 tests

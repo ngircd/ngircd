@@ -1,16 +1,21 @@
 #!/bin/sh
 # ngIRCd Test Suite
-# $Id: stop-server.sh,v 1.13 2004/09/06 22:04:06 alex Exp $
 
 [ -z "$srcdir" ] && srcdir=`dirname $0`
 
 # read in functions
 . ${srcdir}/functions.inc
 
-echo_n "      stopping server ..."
+if [ -n "$1" ]; then
+	id="$1"; shift
+else
+	id="1"
+fi
+
+echo_n "      stopping server ${id} ..."
 
 # stop test-server ...
-pid=`./getpid.sh T-ngircd`
+pid=`./getpid.sh T-ngircd${id}`
 if [ -z "$pid" ]; then
   echo " failure: no running server found!?"
   exit 1
@@ -26,7 +31,7 @@ for i in 1 2 3 4 5; do
   fi
   sleep 1
 done
-echo " failure: server still running!?"
+echo " failure: server ${id} still running!?"
 exit 1
 
 # -eof-

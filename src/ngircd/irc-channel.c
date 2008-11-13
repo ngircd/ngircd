@@ -156,16 +156,24 @@ join_forward(CLIENT *Client, CLIENT *target, CHANNEL *chan,
 	else
 		modes[0] = '\0';
 
-	/* forward to other servers */
-	snprintf(str, sizeof(str), "%s%s", channame, modes);
-	IRC_WriteStrServersPrefixFlag_CB(Client, target, '\0', cb_join_forward, str);
+	/* forward to other servers (if it is not a local channel) */
+	if (!Channel_IsLocal(chan)) {
+		snprintf(str, sizeof(str), "%s%s", channame, modes);
+		IRC_WriteStrServersPrefixFlag_CB(Client, target, '\0',
+						 cb_join_forward, str);
+	}
 
 	/* tell users in this channel about the new client */
-	IRC_WriteStrChannelPrefix(Client, chan, target, false, "JOIN :%s", channame);
-	if (modes[1])
-		IRC_WriteStrChannelPrefix(Client, chan, target, false, "MODE %s +%s %s",
-						channame, &modes[1], Client_ID(target));
-}
+	IRC_WriteStrChannelPrefix(Client, chan, target, false,
+				  "JOIN :%s",  channame);
+
+	/* syncronize channel modes */
+	if (modes[1]) {
+		IRC_WriteStrChannelPrefix(Client, chan, target, false,
+					  "MODE %s +%s %s", channame,
+					  &modes[1], Client_ID(target));
+	}
+} /* join_forward */
 
 
 static bool
@@ -423,12 +431,18 @@ IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 		 Client_TypeText(from), Client_Mask(from), Channel_Name(chan),
 		 Req->argv[1][0] ? Req->argv[1] : "<none>");
 
-	/* im Channel bekannt machen und an Server weiterleiten */
-	IRC_WriteStrServersPrefix( Client, from, "TOPIC %s :%s", Req->argv[0], Req->argv[1] );
-	IRC_WriteStrChannelPrefix( Client, chan, from, false, "TOPIC %s :%s", Req->argv[0], Req->argv[1] );
+	/* Update channel and forward new topic to other servers */
+	if (!Channel_IsLocal(chan))
+		IRC_WriteStrServersPrefix(Client, from, "TOPIC %s :%s",
+					  Req->argv[0], Req->argv[1]);
+	IRC_WriteStrChannelPrefix(Client, chan, from, false, "TOPIC %s :%s",
+				  Req->argv[0], Req->argv[1]);
 
-	if( Client_Type( Client ) == CLIENT_USER ) return IRC_WriteStrClientPrefix( Client, Client, "TOPIC %s :%s", Req->argv[0], Req->argv[1] );
-	else return CONNECTED;
+	if (Client_Type(Client) == CLIENT_USER)
+		return IRC_WriteStrClientPrefix(Client, Client, "TOPIC %s :%s",
+						Req->argv[0], Req->argv[1]);
+	else
+		return CONNECTED;
 } /* IRC_TOPIC */
 
 

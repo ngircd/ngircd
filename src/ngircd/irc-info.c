@@ -932,7 +932,14 @@ IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 		cl2chan = Channel_NextChannelOf( c, cl2chan );
 
 		/* Secret channel? */
-		if( strchr( Channel_Modes( chan ), 's' ) && ! Channel_IsMemberOf( chan, Client )) continue;
+		if (strchr(Channel_Modes(chan), 's')
+		    && !Channel_IsMemberOf(chan, Client))
+			continue;
+
+		/* Local channel and request is not from a user? */
+		if (Client_Type(Client) == CLIENT_SERVER
+		    && Channel_IsLocal(chan))
+			continue;
 
 		/* Concatenate channel names */
 		if( str[strlen( str ) - 1] != ':' ) strlcat( str, " ", sizeof( str ));

@@ -341,6 +341,10 @@ IRC_Num_ENDOFMOTD(CLIENT * Client, UNUSED REQUEST * Req)
 	/* Announce all channels to the new server */
 	chan = Channel_First();
 	while (chan) {
+		if (Channel_IsLocal(chan)) {
+			chan = Channel_Next(chan);
+			continue;
+		}
 #ifdef IRCPLUS
 		/* Send CHANINFO if the peer supports it */
 		if (strchr(Client_Flags(Client), 'C')) {

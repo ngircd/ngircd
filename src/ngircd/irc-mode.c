@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2005 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2008 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -558,7 +558,15 @@ chan_exit:
 			the_modes[len] = '\0';
 
 		if (Client_Type(Client) == CLIENT_SERVER) {
-			/* Forward mode changes to channel users and other servers */
+			/* MODE requests for local channels from other servers
+			 * are definitely invalid! */
+			if (Channel_IsLocal(Channel)) {
+				Log(LOG_ALERT, "Got remote MODE command for local channel!? Ignored.");
+				return CONNECTED;
+			}
+
+			/* Forward mode changes to channel users and all the
+			 * other remote servers: */
 			IRC_WriteStrServersPrefix(Client, Origin, "MODE %s %s%s", Channel_Name( Channel ), the_modes, the_args);
 			IRC_WriteStrChannelPrefix(Client, Channel, Origin, false, "MODE %s %s%s", Channel_Name(Channel), the_modes, the_args);
 		} else {
@@ -567,10 +575,14 @@ chan_exit:
 			/* Send reply to client and inform other servers and channel users */
 			ok = IRC_WriteStrClientPrefix(Client, Origin, "MODE %s %s%s",
 					Channel_Name(Channel), the_modes, the_args);
-			IRC_WriteStrServersPrefix(Client, Origin, "MODE %s %s%s",
-					Channel_Name(Channel), the_modes, the_args);
-			IRC_WriteStrChannelPrefix(Client, Channel, Origin, false, "MODE %s %s%s",
-						Channel_Name(Channel), the_modes, the_args);
+			/* Only forward requests for non-local channels */
+			if (!Channel_IsLocal(Channel))
+				IRC_WriteStrServersPrefix(Client, Origin,
+					"MODE %s %s%s", Channel_Name(Channel),
+					the_modes, the_args);
+			IRC_WriteStrChannelPrefix(Client, Channel, Origin,
+				false, "MODE %s %s%s", Channel_Name(Channel),
+				the_modes, the_args);
 		}
 	}
 

@@ -509,7 +509,7 @@ Channel_IsValidName( const char *Name )
 	if (strlen(Name) <= 1)
 		return false;
 #endif
-	if (strchr("+#", Name[0]) == NULL)
+	if (strchr("#&+", Name[0]) == NULL)
 		return false;
 	if (strlen(Name) >= CHANNEL_NAME_LEN)
 		return false;
@@ -875,6 +875,11 @@ Remove_Client( int Type, CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, const ch
 	assert( Origin != NULL );
 	assert( Reason != NULL );
 
+	/* Do not inform other servers if the channel is local to this server,
+	 * regardless of what the caller requested! */
+	if(InformServer)
+		InformServer = !Channel_IsLocal(Chan);
+
 	last_cl2chan = NULL;
 	cl2chan = My_Cl2Chan;
 	while( cl2chan )
@@ -896,14 +901,16 @@ Remove_Client( int Type, CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, const ch
 	switch( Type )
 	{
 		case REMOVE_QUIT:
-			/* QUIT: other servers have already been notified, see Client_Destroy();
-			 * so only inform other clients in same channel. */
+			/* QUIT: other servers have already been notified, 
+			 * see Client_Destroy(); so only inform other clients
+			 * in same channel. */
 			assert( InformServer == false );
 			LogDebug("User \"%s\" left channel \"%s\" (%s).",
 					Client_Mask( Client ), c->name, Reason );
 			break;
 		case REMOVE_KICK:
-			/* User was KICKed: inform other servers and all users in channel */
+			/* User was KICKed: inform other servers (public
+			 * channels) and all users in the channel */
 			if( InformServer )
 				IRC_WriteStrServersPrefix( Client_NextHop( Origin ),
 					Origin, "KICK %s %s :%s", c->name, Client_ID( Client ), Reason);
@@ -1061,6 +1068,5 @@ Delete_Channel( CHANNEL *Chan )
 
 	return true;
 } /* Delete_Channel */
-
 
 /* -eof- */

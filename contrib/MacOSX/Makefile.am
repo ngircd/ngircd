@@ -11,7 +11,7 @@
 
 SUBDIRS = ngIRCd.xcodeproj ngIRCd.pmdoc
 
-EXTRA_DIST = de.barton.ngircd.plist.tmpl config.h
+EXTRA_DIST = de.barton.ngircd.plist.tmpl config.h preinstall.sh postinstall.sh
 
 SUFFIXES = .tmpl .
 

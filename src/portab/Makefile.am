@@ -24,7 +24,7 @@ portabtest_LDFLAGS = -L.
 
 portabtest_LDADD = -lngportab
 
-noinst_HEADERS = imp.h exp.h portab.h
+noinst_HEADERS = imp.h exp.h portab.h splint.h
 
 maintainer-clean-local:
 	rm -f Makefile Makefile.in

@@ -63,8 +63,16 @@ static bool Delete_Channel PARAMS(( CHANNEL *Chan ));
 GLOBAL void
 Channel_Init( void )
 {
+	CHANNEL *sc;
+
 	My_Channels = NULL;
 	My_Cl2Chan = NULL;
+
+	sc = Channel_Create("&SERVER");
+	if (sc) {
+		Channel_SetModes(sc, "mnPt");
+		Channel_SetTopic(sc, Client_ThisServer(), "Server Messages");
+	}
 } /* Channel_Init */
 
 
@@ -747,6 +755,10 @@ Can_Send_To_Channel(CHANNEL *Chan, CLIENT *From)
 
 	is_member = has_voice = is_op = false;
 
+	/* The server itself always can send messages :-) */
+	if (Client_ThisServer() == From)
+		return true;
+
 	if (Channel_IsMemberOf(Chan, From)) {
 		is_member = true;
 		if (strchr(Channel_UserModes(Chan, From), 'v'))
@@ -1011,6 +1023,26 @@ Channel_ShowInvites( CLIENT *Client, CHANNEL *Channel )
 	h = Channel_GetListInvites(Channel);
 	return ShowInvitesBans(h, Client, Channel, true);
 }
+
+
+/**
+ * Log a message to the local &SERVER channel, if it exists.
+ */
+GLOBAL void
+Channel_LogServer(char *msg)
+{
+	CHANNEL *sc;
+	CLIENT *c;
+
+	assert(msg != NULL);
+
+	sc = Channel_Search("&SERVER");
+	if (!sc)
+		return;
+
+	c = Client_ThisServer();
+	Channel_Write(sc, c, c, "PRIVMSG", false, msg);
+} /* Channel_LogServer */
 
 
 static CL2CHAN *

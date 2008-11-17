@@ -61,7 +61,7 @@ Log_Init( bool Daemon_Mode )
 	Is_Daemon = Daemon_Mode;
 	
 #ifdef SYSLOG
-#ifndef LOG_CONS	/* Kludge: mips-dec-ultrix4.5 has no LOG_CONS/LOG_LOCAL5 */
+#ifndef LOG_CONS     /* Kludge: mips-dec-ultrix4.5 has no LOG_CONS/LOG_LOCAL5 */
 #define LOG_CONS 0
 #endif
 #ifndef LOG_LOCAL5
@@ -202,6 +202,8 @@ va_dcl
  * Logging function of ngIRCd.
  * This function logs messages to the console and/or syslog, whichever is
  * suitable for the mode ngIRCd is running in (daemon vs. non-daemon).
+ * If LOG_snotice is set, the log messages goes to all user with the mode +s
+ * set and the local &SERVER channel, too.
  * Please note: you sould use LogDebug(...) for debug messages!
  * @param Level syslog level (LOG_xxx)
  * @param Format Format string like printf().
@@ -218,7 +220,6 @@ const char *Format;
 va_dcl
 #endif
 {
-	/* Eintrag in Logfile(s) schreiben */
 	char msg[MAX_LOG_MSG_LEN];
 	bool snotice;
 	va_list ap;
@@ -239,7 +240,6 @@ va_dcl
 	if( Level == LOG_DEBUG ) return;
 #endif
 
-	/* String mit variablen Argumenten zusammenbauen ... */
 #ifdef PROTOTYPES
 	va_start( ap, Format );
 #else
@@ -269,10 +269,11 @@ va_dcl
 		fflush( stderr );
 	}
 
-	if( snotice )
-	{
-		/* NOTICE an lokale User mit "s"-Mode */
-		Wall_ServerNotice( msg );
+	if (snotice) {
+		/* Send NOTICE to all local users with mode +s and to the
+		 * local &SERVER channel */
+		Wall_ServerNotice(msg);
+		Channel_LogServer(msg);
 	}
 } /* Log */
 

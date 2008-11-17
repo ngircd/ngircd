@@ -125,6 +125,8 @@ GLOBAL bool Channel_AddBan PARAMS((CHANNEL *c, const char *Mask ));
 GLOBAL bool Channel_ShowBans PARAMS((CLIENT *client, CHANNEL *c));
 GLOBAL bool Channel_ShowInvites PARAMS((CLIENT *client, CHANNEL *c));
 
+GLOBAL void Channel_LogServer PARAMS((char *msg));
+
 #define Channel_IsLocal(c) (Channel_Name(c)[0] == '&')
 
 

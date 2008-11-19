@@ -21,14 +21,11 @@ ngIRCd-dev
     OpenSSL (configure: --with-openssl) or GNUTLS (configure: --with-gnutls).
     New ngircd.conf(5) options: SSLPorts, SSLKeyFile, SSLKeyFilePassword,
     SSLCertFile, SSLDHFile, and SSLConnect.
+  - Server local channels have been implemented, prefix "&", that are only
+    visible to users of the same server and are not visible in the network.
+    In addition ngIRCd creates a "special" channel &SERVER on startup and logs
+    all the messages to it that a user with mode +s receives.
   - New make target "osxpkg" to build a Mac OS X installer package.
-  - Debug mode: enable support for GNU libc memory tracing (see mtrace(3)).
-  - SysV init script: use LSB logging functions, if available.
-  - Added some more FAQ entries (regarding logging and IRC operators).
-  - Allow IRC operators to overwrite channel limits.
-  - Support for enhanced PRIVMSG and NOTICE message targets.
-  - More tests have been added to the test-suite ("make check").
-  - Added a timestamp to log messages to the console.
 
 ngIRCd 0.12.1 (2008-07-09)
 

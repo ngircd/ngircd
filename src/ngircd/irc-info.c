@@ -270,18 +270,36 @@ IRC_LUSERS( CLIENT *Client, REQUEST *Req )
 
 
 /**
- * List registered services.
- * This function is a dummy that immediately returns RPL_SERVLISTEND.
+ * Handler for the IRC command "SERVLIST".
+ * List registered services, see RFC 2811, section 3.5.1: the syntax is
+ * "SERVLIST [<mask> [<type>]]".
  */
 GLOBAL bool
 IRC_SERVLIST(CLIENT *Client, REQUEST *Req)
 {
+	CLIENT *c;
+
 	assert(Client != NULL);
 	assert(Req != NULL);
 
 	if (Req->argc > 2)
 		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 					  Client_ID(Client), Req->command);
+
+	if (Req->argc < 2 || strcmp(Req->argv[1], "0") == 0) {
+		for (c = Client_First(); c!= NULL; c = Client_Next(c)) {
+			if (Client_Type(c) != CLIENT_SERVICE)
+				continue;
+			if (Req->argc > 0 && !MatchCaseInsensitive(Req->argv[0],
+								  Client_ID(c)))
+				continue;
+			if (!IRC_WriteStrClient(Client, RPL_SERVLIST_MSG,
+					Client_ID(Client), Client_Mask(c),
+					Client_Mask(Client_Introducer(c)), "*",
+					0, Client_Hops(c), Client_Info(c)))
+				return DISCONNECTED;
+		}
+	}
 
 	return IRC_WriteStrClient(Client, RPL_SERVLISTEND_MSG, Client_ID(Client),
 				  Req->argc > 0 ? Req->argv[0] : "*",

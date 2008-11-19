@@ -30,6 +30,7 @@
 #define RPL_STATSCOMMANDS_MSG		"212 %s %s %ld %ld %ld"
 #define RPL_ENDOFSTATS_MSG		"219 %s %c :End of STATS report"
 #define RPL_UMODEIS_MSG			"221 %s +%s"
+#define RPL_SERVLIST_MSG		"234 %s %s %s %s %d %d :%s"
 #define RPL_SERVLISTEND_MSG		"235 %s %s %s :End of service listing"
 
 #define RPL_STATSUPTIME			"242 %s :Server Up %u days %u:%02u:%02u"

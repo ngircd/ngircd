@@ -259,6 +259,7 @@ Conf_Test( void )
 	printf( "  OperServerMode = %s\n", yesno_to_str(Conf_OperServerMode));
 	printf( "  PredefChannelsOnly = %s\n", yesno_to_str(Conf_PredefChannelsOnly));
 	printf( "  NoDNS = %s\n", yesno_to_str(Conf_NoDNS));
+	printf( "  NoIdent = %s\n", yesno_to_str(Conf_NoIdent));
 
 #ifdef WANT_IPV6
 	printf("  ConnectIPv4 = %s\n", yesno_to_str(Conf_ConnectIPv6));
@@ -519,6 +520,7 @@ Set_Defaults( bool InitServers )
 
 	Conf_OperCanMode = false;
 	Conf_NoDNS = false;
+	Conf_NoIdent = false;
 	Conf_PredefChannelsOnly = false;
 	Conf_OperServerMode = false;
 
@@ -901,6 +903,19 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 	if( strcasecmp( Var, "NoDNS" ) == 0 ) {
 		/* don't do reverse dns lookups when clients connect? */
 		Conf_NoDNS = Check_ArgIsTrue( Arg );
+		return;
+	}
+	if (strcasecmp(Var, "NoIdent") == 0) {
+		/* don't do IDENT lookups when clients connect? */
+		Conf_NoIdent = Check_ArgIsTrue(Arg);
+#ifndef IDENTAUTH
+		if (!Conf_NoIdent) {
+			/* user has enabled ident lookups explicitly, but ... */
+			Config_Error(LOG_WARNING,
+				"%s: line %d: NoIdent=False, but ngircd was built without IDENT support",
+				NGIRCd_ConfFile, Line);
+		}
+#endif
 		return;
 	}
 #ifdef WANT_IPV6

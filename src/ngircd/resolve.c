@@ -175,13 +175,12 @@ Do_IdentQuery(int identsock, array *resolved_addr)
 #ifdef IDENTAUTH
 	char *res;
 
-	assert(identsock >= 0);
+	if (identsock < 0)
+		return;
 
 #ifdef DEBUG
 	Log_Resolver(LOG_DEBUG, "Doing IDENT lookup on socket %d ...", identsock);
 #endif
-	if (identsock < 0)
-		return;
 	res = ident_id( identsock, 10 );
 #ifdef DEBUG
 	Log_Resolver(LOG_DEBUG, "Ok, IDENT lookup on socket %d done: \"%s\"",

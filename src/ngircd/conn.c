@@ -1167,7 +1167,7 @@ New_Connection( int Sock )
 #endif
 	ng_ipaddr_t new_addr;
 	char ip_str[NG_INET_ADDRSTRLEN];
-	int new_sock, new_sock_len;
+	int new_sock, new_sock_len, identsock;
 	CLIENT *c;
 	long cnt;
 
@@ -1270,10 +1270,14 @@ New_Connection( int Sock )
 
 	Client_SetHostname(c, My_Connections[new_sock].host);
 
+	identsock = new_sock;
+#ifdef IDENTAUTH
+	if (Conf_NoIdent)
+		identsock = -1;
+#endif
 	if (!Conf_NoDNS)
 		Resolve_Addr(&My_Connections[new_sock].res_stat, &new_addr,
-			My_Connections[new_sock].sock, cb_Read_Resolver_Result);
-
+			     identsock, cb_Read_Resolver_Result);
 	Conn_SetPenalty(new_sock, 4);
 	return new_sock;
 } /* New_Connection */

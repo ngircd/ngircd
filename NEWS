@@ -26,6 +26,8 @@ ngIRCd-dev
     In addition ngIRCd creates a "special" channel &SERVER on startup and logs
     all the messages to it that a user with mode +s receives.
   - New make target "osxpkg" to build a Mac OS X installer package.
+  - New configuration option "NoIdent" to disable IDENT lookups even if the
+    daemon is compiled with IDENT support.
 
 ngIRCd 0.12.1 (2008-07-09)
 

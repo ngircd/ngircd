@@ -178,10 +178,15 @@ the config file.
 Default: No.
 .TP
 \fBNoDNS\fR
-If enabled, ngircd will not make DNS lookups when clients connect.
+If set to true, ngircd will not make DNS lookups when clients connect.
 If you configure ngircd to connect to other servers, ngircd may still
 perform a DNS lookup if required.
-Default: No.
+Default: false.
+.TP
+\fBNoIdent\fR
+If ngircd is compiled with IDENT support this can be used to disable IDENT
+lookups at run time.
+Default: false.
 .TP
 \fBConnectIPv4\fR
 Set this to no if you do not want ngircd to connect to other irc servers using ipv4.

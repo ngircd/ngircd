@@ -34,6 +34,8 @@ ngIRCd-dev
   - More tests have been added to the test-suite ("make check"), and two
     servers are started for testing server-server linking.
   - Added a timestamp to log messages to the console.
+  - New configuration option "NoIdent" to disable IDENT lookups even if the
+    daemon is compiled with IDENT support.
 
 ngIRCd 0.12.1 (2008-07-09)
 

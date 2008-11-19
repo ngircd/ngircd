@@ -143,6 +143,9 @@ GLOBAL bool Conf_OperCanMode;
 /* Disable all DNS functions? */
 GLOBAL bool Conf_NoDNS;
 
+/* Disable IDENT lookups, even when compiled with support for it */
+GLOBAL bool Conf_NoIdent;
+
 /*
  * try to connect to remote systems using the ipv6 protocol,
  * if they have an ipv6 address? (default yes)

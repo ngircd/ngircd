@@ -735,7 +735,8 @@ NGIRCd_Init( bool NGIRCd_NoDaemon )
 		return true;
 
 	if (!ConnSSL_InitLibrary())
-		Log(LOG_WARNING, "Warning: Error during SSL initialization, continuing");
+		Log(LOG_WARNING,
+		    "Warning: Error during SSL initialization, continuing ...");
 
 	if( Conf_Chroot[0] ) {
 		if( chdir( Conf_Chroot ) != 0 ) {
@@ -831,12 +832,12 @@ NGIRCd_Init( bool NGIRCd_NoDaemon )
 				pwd ? pwd->pw_name : "unknown", Conf_UID,
 				grp ? grp->gr_name : "unknown", Conf_GID, pid);
 
-	if ( chrooted ) {
-		Log( LOG_INFO, "Running chrooted, chrootdir \"%s\".",  Conf_Chroot );
+	if (chrooted) {
+		Log(LOG_INFO, "Running with root directory \"%s\".",
+		    Conf_Chroot );
 		return true;
-	} else {
-		Log( LOG_INFO, "Not running chrooted." );
-	}
+	} else
+		Log(LOG_INFO, "Not running with changed root directory.");
 
 	/* Change working directory to home directory of the user
 	 * we are running as (only when running in daemon mode and not in chroot) */

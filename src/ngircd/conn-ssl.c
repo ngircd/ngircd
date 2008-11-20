@@ -151,7 +151,7 @@ Load_DH_params(void)
 	bool ret = true;
 
 	if (!Conf_SSLOptions.DHFile) {
-		Log(LOG_NOTICE, "Configuration option \"SSLDHFile\" not set");
+		Log(LOG_NOTICE, "Configuration option \"SSLDHFile\" not set!");
 		return false;
 	}
 	fp = fopen(Conf_SSLOptions.DHFile, "r");
@@ -161,7 +161,8 @@ Load_DH_params(void)
 	}
 	dh_params = PEM_read_DHparams(fp, NULL, NULL, NULL);
 	if (!dh_params) {
-		Log(LOG_ERR, "%s: PEM_read_DHparams failed", Conf_SSLOptions.DHFile);
+		Log(LOG_ERR, "%s: PEM_read_DHparams failed!",
+		    Conf_SSLOptions.DHFile);
 		ret = false;
 	}
 	fclose(fp);
@@ -194,7 +195,9 @@ Load_DH_params(void)
 		}
 	}
 	if (need_dhgenerate) {
-		Log(LOG_WARNING, "SSLDHFile not set, generating %u bit DH parameters. This may take a while...", DH_BITS);
+		Log(LOG_WARNING,
+		    "SSLDHFile not set, generating %u bit DH parameters. This may take a while ...",
+		    DH_BITS);
 		err = gnutls_dh_params_generate2(tmp_dh_params, DH_BITS);
 		if (err < 0) {
 			Log(LOG_ERR, "gnutls_dh_params_generate2: %s", gnutls_strerror(err));
@@ -263,7 +266,7 @@ ConnSSL_InitLibrary( void )
 	SSL_CTX_set_mode(newctx, SSL_MODE_ENABLE_PARTIAL_WRITE);
 	SSL_CTX_free(ssl_ctx);
 	ssl_ctx = newctx;
-	Log(LOG_INFO, "%s initialized", SSLeay_version(SSLEAY_VERSION));
+	Log(LOG_INFO, "%s initialized.", SSLeay_version(SSLEAY_VERSION));
 	return true;
 out:
 	SSL_CTX_free(newctx);
@@ -282,7 +285,7 @@ out:
 	}
 	if (!ConnSSL_LoadServerKey_gnutls())
 		return false;
-	Log(LOG_INFO, "gnutls %s initialized", gnutls_check_version(NULL));
+	Log(LOG_INFO, "gnutls %s initialized.", gnutls_check_version(NULL));
 	initialized = true;
 	return true;
 #endif
@@ -304,12 +307,13 @@ ConnSSL_LoadServerKey_gnutls(void)
 
 	cert_file = Conf_SSLOptions.CertFile ? Conf_SSLOptions.CertFile:Conf_SSLOptions.KeyFile;
 	if (!cert_file) {
-		Log(LOG_ERR, "Neither Key nor certificate File set");
+		Log(LOG_NOTICE, "No SSL server key configured, SSL disabled.");
 		return false;
 	}
 
 	if (array_bytes(&Conf_SSLOptions.KeyFilePassword))
-		Log(LOG_WARNING, "Ignoring KeyFilePassword: Not supported by GNUTLS");
+		Log(LOG_WARNING,
+		    "Ignoring KeyFilePassword: Not supported by GNUTLS.");
 
 	if (!Load_DH_params())
 		return false;
@@ -334,7 +338,7 @@ ConnSSL_LoadServerKey_openssl(SSL_CTX *ctx)
 
 	assert(ctx);
 	if (!Conf_SSLOptions.KeyFile) {
-		Log(LOG_NOTICE, "No SSL Server Key configured, ssl disabled");
+		Log(LOG_NOTICE, "No SSL server key configured, SSL disabled.");
 		return false;
 	}
 
@@ -544,16 +548,17 @@ ConnSSL_LogCertInfo( CONNECTION *c )
 	assert( c );
 	assert( ssl );
 
-	Log( LOG_INFO, "New %s connection using cipher %s on socket %d",
+	Log(LOG_INFO, "New %s connection using cipher %s on socket %d.",
 		SSL_get_version(ssl), SSL_get_cipher(ssl), c->sock);
 #endif
 #ifdef HAVE_LIBGNUTLS
 	gnutls_session_t sess = c->ssl_state.gnutls_session;
 	gnutls_cipher_algorithm_t cipher = gnutls_cipher_get(sess);
 
-	Log( LOG_INFO, "New %s connection using cipher %s-%s on socket %d",
-                gnutls_protocol_get_name(gnutls_protocol_get_version(sess)),
-		gnutls_cipher_get_name(cipher), gnutls_mac_get_name(gnutls_mac_get(sess)), c->sock);
+	Log(LOG_INFO, "New %s connection using cipher %s-%s on socket %d.",
+	    gnutls_protocol_get_name(gnutls_protocol_get_version(sess)),
+	    gnutls_cipher_get_name(cipher),
+	    gnutls_mac_get_name(gnutls_mac_get(sess)), c->sock);
 #endif
 }
 

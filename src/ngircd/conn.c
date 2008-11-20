@@ -234,12 +234,12 @@ cb_connserver_login_ssl(int sock, short unused)
 	case 0: LogDebug("ConnSSL_Connect: not ready");
 		return;
 	case -1:
-		Log(LOG_INFO, "SSL connection on socket %d failed", sock);
+		Log(LOG_ERR, "SSL connection on socket %d failed!", sock);
 		Conn_Close(idx, "Can't connect!", NULL, false);
 		return;
 	}
 
-	Log( LOG_INFO, "SSL Connection %d with \"%s:%d\" established.", idx,
+	Log( LOG_INFO, "SSL connection %d with \"%s:%d\" established.", idx,
 			My_Connections[idx].host, Conf_Server[Conf_GetServer( idx )].port );
 
 	server_login(idx);
@@ -346,11 +346,9 @@ Conn_Exit( void )
 
 	CONN_ID idx;
 
-	LogDebug("Shutting down all connections ..." );
-
 	Conn_ExitListeners();
 
-	/* Sockets schliessen */
+	LogDebug("Shutting down all connections ..." );
 	for( idx = 0; idx < Pool_Size; idx++ ) {
 		if( My_Connections[idx].sock > NONE ) {
 			Conn_Close( idx, NULL, NGIRCd_SignalRestart ?
@@ -451,7 +449,8 @@ Conn_ExitListeners( void )
 #endif
 
 	arraylen = array_length(&My_Listeners, sizeof (int));
-	Log( LOG_INFO, "Shutting down all listening sockets (%d total)...", arraylen );
+	Log(LOG_INFO,
+	    "Shutting down all listening sockets (%d total) ...", arraylen);
 	fd = array_start(&My_Listeners);
 	while(arraylen--) {
 		assert(fd != NULL);
@@ -960,7 +959,7 @@ Conn_Close( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool InformClient )
 	c = Conn_GetClient( Idx );
 #ifdef SSL_SUPPORT
 	if ( Conn_OPTION_ISSET( &My_Connections[Idx], CONN_SSL )) {
-		Log( LOG_INFO, "SSL Connection %d shutting down", Idx );
+		Log(LOG_INFO, "SSL connection %d shutting down ...", Idx);
 		ConnSSL_Free(&My_Connections[Idx]);
 	}
 #endif
@@ -1825,8 +1824,8 @@ cb_Connect_to_Server(int fd, UNUSED short events)
 		len -= sizeof(ng_ipaddr_t);
 		if (len > sizeof(&Conf_Server[i].dst_addr)) {
 			len = sizeof(&Conf_Server[i].dst_addr);
-			Log(LOG_NOTICE, "Notice: Resolver returned more IP Addresses for host than we can handle,"
-					" additional addresses dropped");
+			Log(LOG_NOTICE,
+				"Notice: Resolver returned more IP Addresses for host than we can handle, additional addresses dropped.");
 		}
 		memcpy(&Conf_Server[i].dst_addr, &dest_addrs[1], len);
 	}

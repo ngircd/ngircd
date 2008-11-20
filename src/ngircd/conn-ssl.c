@@ -123,7 +123,10 @@ pem_passwd_cb(char *buf, int size, int rwflag, void *password)
 {
 	array *pass = password;
 	int passlen;
-	assert(rwflag == 0); /* 0 -> callback used for decryption. See SSL_CTX_set_default_passwd_cb(3) */
+
+	(void)rwflag;		/* rwflag is unused if DEBUG is not set. */
+	assert(rwflag == 0);	/* 0 -> callback used for decryption.
+				 * See SSL_CTX_set_default_passwd_cb(3) */
 
 	passlen = (int) array_bytes(pass);
 

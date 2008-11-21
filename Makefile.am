@@ -44,7 +44,7 @@ rpm: distcheck
 
 deb:
 	[ -f debian/rules ] || ln -s contrib/Debian debian
-	dpkg-buildpackage -rfakeroot
+	dpkg-buildpackage -rfakeroot -i
 
 osxpkg:
 	@packagemaker >/dev/null 2>&1; [ $$? -ge 1 ] \

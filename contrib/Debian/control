@@ -3,7 +3,7 @@ Section: net
 Priority: optional
 Maintainer: Alexander Barton <alex@barton.de>
 Build-Depends: debhelper (>> 4.0.0), libz-dev, libwrap0-dev, libident-dev, libgnutls-dev
-Standards-Version: 3.7.2.1
+Standards-Version: 3.8.0
 
 Package: ngircd
 Architecture: any

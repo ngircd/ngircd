@@ -10,8 +10,9 @@
                                -- ChangeLog --
 
 
-ngIRCd-dev
+ngIRCd Release 13
 
+  ngIRCd 13~rc1 (2008-11-21):
   - New version numer scheme :-)
   - Initial support for IRC services, using a RFC1459 styel interface,
     tested with IRCServices (http://www.ircservices.za.net/) version 5.1.13.

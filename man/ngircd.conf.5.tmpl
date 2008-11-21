@@ -87,7 +87,8 @@ SSL/TLS support.
 Certificate of the private key
 .TP
 \fBSSLDHFile\fR
-Name of the Diffie-Hellman Parameter file.  Can be created with gnutls "certtool --generate-dh-params" or "openssl dhparam".
+Name of the Diffie-Hellman Parameter file. Can be created with gnutls
+"certtool \-\-generate-dh-params" or "openssl dhparam".
 If this file is not present, it will be generated on startup when ngircd
 was compiled with gnutls support (this may take some time). If ngircd
 was compiled with OpenSSL, then (Ephemeral)-Diffie-Hellman Key Exchanges and several
@@ -316,7 +317,7 @@ Sets initial channel key (only relevant if mode k is set).
 \fBMaxUsers\fR
 Set maximum user limit for this channel (only relevant if mode l is set).
 .SH HINTS
-It's wise to use "ngircd --configtest" to validate the configuration file
+It's wise to use "ngircd \-\-configtest" to validate the configuration file
 after changing it. See
 .BR ngircd (8)
 for details.

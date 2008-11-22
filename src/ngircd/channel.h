@@ -79,9 +79,9 @@ GLOBAL char *Channel_Topic PARAMS(( CHANNEL *Chan ));
 GLOBAL char *Channel_Key PARAMS(( CHANNEL *Chan ));
 GLOBAL unsigned long Channel_MaxUsers PARAMS(( CHANNEL *Chan ));
 
-GLOBAL void Channel_SetTopic PARAMS(( CHANNEL *Chan, CLIENT *Client, char *Topic ));
+GLOBAL void Channel_SetTopic PARAMS(( CHANNEL *Chan, CLIENT *Client, const char *Topic ));
 GLOBAL void Channel_SetModes PARAMS(( CHANNEL *Chan, char *Modes ));
-GLOBAL void Channel_SetKey PARAMS(( CHANNEL *Chan, char *Key ));
+GLOBAL void Channel_SetKey PARAMS(( CHANNEL *Chan, const char *Key ));
 GLOBAL void Channel_SetMaxUsers PARAMS(( CHANNEL *Chan, unsigned long Count ));
 
 GLOBAL CHANNEL *Channel_Search PARAMS(( const char *Name ));
@@ -112,7 +112,7 @@ GLOBAL bool Channel_Write PARAMS((CHANNEL *Chan, CLIENT *From, CLIENT *Client,
 				  const char *Command, bool SendErrors,
 				  const char *Text));
 
-GLOBAL CHANNEL *Channel_Create PARAMS(( char *Name ));
+GLOBAL CHANNEL *Channel_Create PARAMS(( const char *Name ));
 
 #ifndef STRICT_RFC
 GLOBAL unsigned int Channel_TopicTime PARAMS(( CHANNEL *Chan ));

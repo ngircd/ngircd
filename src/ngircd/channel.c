@@ -690,7 +690,7 @@ Channel_TopicWho(CHANNEL *Chan)
 
 
 GLOBAL void
-Channel_SetTopic(CHANNEL *Chan, CLIENT *Client, char *Topic)
+Channel_SetTopic(CHANNEL *Chan, CLIENT *Client, const char *Topic)
 {
 	size_t len;
 	assert( Chan != NULL );
@@ -728,7 +728,7 @@ Channel_SetModes( CHANNEL *Chan, char *Modes )
 
 
 GLOBAL void
-Channel_SetKey( CHANNEL *Chan, char *Key )
+Channel_SetKey( CHANNEL *Chan, const char *Key )
 {
 	assert( Chan != NULL );
 	assert( Key != NULL );
@@ -806,7 +806,7 @@ Channel_Write(CHANNEL *Chan, CLIENT *From, CLIENT *Client, const char *Command,
 
 
 GLOBAL CHANNEL *
-Channel_Create( char *Name )
+Channel_Create( const char *Name )
 {
 	/* Create new CHANNEL structure and add it to linked list */
 	CHANNEL *c;

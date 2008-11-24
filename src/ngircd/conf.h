@@ -67,14 +67,13 @@ struct SSLOptions {
 #endif
 
 
-typedef struct _Conf_Channel
-{
+struct Conf_Channel {
 	char name[CHANNEL_NAME_LEN];	/* Name of the channel */
 	char modes[CHANNEL_MODE_LEN];	/* Initial channel modes */
 	char key[CLIENT_PASS_LEN];      /* Channel key ("password", mode "k" ) */
+	char topic[COMMAND_LEN];	/* Initial topic */
 	unsigned long maxusers;		/* maximum usercount for this channel, mode "l" */
-	array topic;			/* Initial topic */
-} CONF_CHANNEL;
+};
 
 
 #define CONF_SFLAG_ONCE	1		/* Delete this entry after next disconnect */
@@ -132,8 +131,8 @@ GLOBAL unsigned int Conf_Oper_Count;
 GLOBAL CONF_SERVER Conf_Server[MAX_SERVERS];
 
 /* Pre-defined channels */
-GLOBAL CONF_CHANNEL Conf_Channel[MAX_DEFCHANNELS];
-GLOBAL unsigned int Conf_Channel_Count;
+GLOBAL array Conf_Channels;
+
 /* Pre-defined channels only */
 GLOBAL bool Conf_PredefChannelsOnly;
 

@@ -97,55 +97,52 @@ Channel_InitPredefined( void )
 {
 	/* Generate predefined persistent channels */
 
-	CHANNEL *chan;
-	char *c;
-	unsigned int i;
+	CHANNEL *new_chan;
+	const struct Conf_Channel *conf_chan;
+	const char *c;
+	size_t i, channel_count = array_length(&Conf_Channels, sizeof(*conf_chan));
 
-	for( i = 0; i < Conf_Channel_Count; i++ )
-	{
-		/* Check for Name configuration */
-		if( ! Conf_Channel[i].name[0] ) continue;
+	conf_chan = array_start(&Conf_Channels);
 
-		/* Check for invalid channel name */
-		if( ! Channel_IsValidName( Conf_Channel[i].name ))
-		{
-			Log( LOG_ERR, "Can't create pre-defined channel: invalid name: \"%s\"!", Conf_Channel[i].name );
-			array_free(&Conf_Channel[i].topic);
+	assert(channel_count == 0 || conf_chan != NULL);
+
+	for (i = 0; i < channel_count; i++, conf_chan++) {
+		if (!conf_chan->name[0] || !Channel_IsValidName(conf_chan->name)) {
+			Log(LOG_ERR, "Can't create pre-defined channel: invalid name: \"%s\"",
+									conf_chan->name);
 			continue;
 		}
 
-		/* Check if the channel name is already in use */
-		chan = Channel_Search( Conf_Channel[i].name );
-		if( chan )
-		{
-			Log( LOG_INFO, "Can't create pre-defined channel \"%s\": name already in use.", Conf_Channel[i].name );
-			array_free(&Conf_Channel[i].topic);
+		new_chan = Channel_Search(conf_chan->name);
+		if (new_chan) {
+			Log(LOG_INFO, "Can't create pre-defined channel \"%s\": name already in use.",
+										conf_chan->name);
 			continue;
 		}
 
-		/* Create channel */
-		chan = Channel_Create(Conf_Channel[i].name);
-		if (chan) {
-			Channel_ModeAdd(chan, 'P');
-
-			if (array_start(&Conf_Channel[i].topic) != NULL)
-				Channel_SetTopic(chan, NULL,
-					 array_start(&Conf_Channel[i].topic));
-			array_free(&Conf_Channel[i].topic);
-
-			c = Conf_Channel[i].modes;
-			while (*c)
-				Channel_ModeAdd(chan, *c++);
-
-			Channel_SetKey(chan, Conf_Channel[i].key);
-			Channel_SetMaxUsers(chan, Conf_Channel[i].maxusers);
-
-			Log(LOG_INFO, "Created pre-defined channel \"%s\".",
-							Conf_Channel[i].name );
+		new_chan = Channel_Create(conf_chan->name);
+		if (!new_chan) {
+			Log(LOG_ERR, "Can't create pre-defined channel \"%s\"",
+							conf_chan->name);
+			continue;
 		}
-		else Log(LOG_ERR, "Can't create pre-defined channel \"%s\"!",
-							Conf_Channel[i].name );
+
+		Channel_ModeAdd(new_chan, 'P');
+
+		if (conf_chan->topic[0])
+			Channel_SetTopic(new_chan, NULL, conf_chan->topic);
+
+		c = conf_chan->modes;
+		while (*c)
+			Channel_ModeAdd(new_chan, *c++);
+
+		Channel_SetKey(new_chan, conf_chan->key);
+		Channel_SetMaxUsers(new_chan, conf_chan->maxusers);
+		Log(LOG_INFO, "Created pre-defined channel \"%s\"",
+						conf_chan->name);
 	}
+	if (channel_count)
+		array_free(&Conf_Channels);
 } /* Channel_InitPredefined */
 
 

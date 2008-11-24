@@ -36,8 +36,6 @@
 
 #define MAX_SERVERS 16			/* Max. count of configurable servers */
 
-#define MAX_DEFCHANNELS 16		/* Max. count of predefined channels */
-
 #define MAX_SERVICES 8			/* Max. count of services */
 
 #define MAX_WHOWAS 64			/* Max. number of WHOWAS items */

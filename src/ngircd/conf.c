@@ -54,7 +54,7 @@ static bool Use_Log = true;
 static CONF_SERVER New_Server;
 static int New_Server_Idx;
 
-
+static size_t Conf_Channel_Count;
 static void Set_Defaults PARAMS(( bool InitServers ));
 static bool Read_Config PARAMS(( bool ngircd_starting ));
 static bool Validate_Config PARAMS(( bool TestOnly, bool Rehash ));
@@ -206,8 +206,9 @@ Conf_Test( void )
 	struct passwd *pwd;
 	struct group *grp;
 	unsigned int i;
-	char *topic;
 	bool config_valid;
+	size_t predef_channel_count;
+	struct Conf_Channel *predef_chan;
 
 	Use_Log = false;
 
@@ -299,18 +300,20 @@ Conf_Test( void )
 		printf( "  Passive = %s\n\n", Conf_Server[i].flags & CONF_SFLAG_DISABLED ? "yes" : "no");
 	}
 
-	for( i = 0; i < Conf_Channel_Count; i++ ) {
-		if( ! Conf_Channel[i].name[0] ) continue;
+	predef_channel_count = array_length(&Conf_Channels, sizeof(*predef_chan));
+	predef_chan = array_start(&Conf_Channels);
+
+	for (i = 0; i < predef_channel_count; i++, predef_chan++) {
+		if (!predef_chan->name[0])
+			continue;
 
 		/* Valid "Channel" section */
 		puts( "[CHANNEL]" );
-		printf( "  Name = %s\n", Conf_Channel[i].name );
-		printf( "  Modes = %s\n", Conf_Channel[i].modes );
-		printf( "  Key = %s\n", Conf_Channel[i].key );
-		printf( "  MaxUsers = %lu\n", Conf_Channel[i].maxusers );
-
-		topic = (char*)array_start(&Conf_Channel[i].topic);
-		printf( "  Topic = %s\n\n", topic ? topic : "");
+		printf("  Name = %s\n", predef_chan->name);
+		printf("  Modes = %s\n", predef_chan->modes);
+		printf("  Key = %s\n", predef_chan->key);
+		printf("  MaxUsers = %lu\n", predef_chan->maxusers);
+		printf("  Topic = %s\n\n", predef_chan->topic);
 	}
 
 	return (config_valid ? 0 : 1);
@@ -656,20 +659,11 @@ Read_Config( bool ngircd_starting )
 				else New_Server_Idx = i;
 				continue;
 			}
-			if( strcasecmp( section, "[CHANNEL]" ) == 0 ) {
-				if( Conf_Channel_Count + 1 > MAX_DEFCHANNELS ) {
-					Config_Error( LOG_ERR, "Too many pre-defined channels configured." );
-				} else {
-					/* Initialize new channel structure */
-					strcpy( Conf_Channel[Conf_Channel_Count].name, "" );
-					strcpy( Conf_Channel[Conf_Channel_Count].modes, "" );
-					strcpy( Conf_Channel[Conf_Channel_Count].key, "" );
-					Conf_Channel[Conf_Channel_Count].maxusers = 0;
-					array_free(&Conf_Channel[Conf_Channel_Count].topic);
-					Conf_Channel_Count++;
-				}
+			if (strcasecmp(section, "[CHANNEL]") == 0) {
+				Conf_Channel_Count++;
 				continue;
 			}
+
 			Config_Error( LOG_ERR, "%s, line %d: Unknown section \"%s\"!", NGIRCd_ConfFile, line, section );
 			section[0] = 0x1;
 		}
@@ -1162,18 +1156,22 @@ Handle_SERVER( int Line, char *Var, char *Arg )
 			Config_Error_TooLong(Line, Var);
 		return;
 	}
-	
+
 	Config_Error( LOG_ERR, "%s, line %d (section \"Server\"): Unknown variable \"%s\"!",
 								NGIRCd_ConfFile, Line, Var );
 } /* Handle_SERVER */
 
 
 static bool
-Handle_Channelname(size_t chancount, const char *name)
+Handle_Channelname(struct Conf_Channel *new_chan, const char *name)
 {
-	size_t size = sizeof( Conf_Channel[chancount].name );
-	char *dest = Conf_Channel[chancount].name;
+	size_t size = sizeof(new_chan->name);
+	char *dest = new_chan->name;
 
+	/*
+	 * channels must begin with &, +, or '#', if it is
+	 * missing, add a '#'. This is only here for user convenience.
+	 */
 	if (*name && *name != '#') {
 		*dest = '#';
 		--size;
@@ -1184,48 +1182,54 @@ Handle_Channelname(size_t chancount, const char *name)
 
 
 static void
-Handle_CHANNEL( int Line, char *Var, char *Arg )
+Handle_CHANNEL(int Line, char *Var, char *Arg)
 {
 	size_t len;
-	size_t chancount = 0;
+	size_t chancount;
+	struct Conf_Channel *chan;
 
 	assert( Line > 0 );
 	assert( Var != NULL );
 	assert( Arg != NULL );
-	if (Conf_Channel_Count > 0)
-		chancount = Conf_Channel_Count - 1;
+	assert(Conf_Channel_Count > 0);
 
-	if( strcasecmp( Var, "Name" ) == 0 ) {
-		if (!Handle_Channelname(chancount, Arg))
-			Config_Error_TooLong( Line, Var );
+	chancount = Conf_Channel_Count - 1;
+
+	chan = array_alloc(&Conf_Channels, sizeof(*chan), chancount);
+	if (!chan) {
+		Config_Error(LOG_ERR, "Could not allocate memory for predefined channel (%d:%s = %s)", Line, Var, Arg);
 		return;
 	}
-	if( strcasecmp( Var, "Modes" ) == 0 ) {
+	if (strcasecmp(Var, "Name") == 0) {
+		if (!Handle_Channelname(chan, Arg))
+			Config_Error_TooLong(Line, Var);
+		return;
+	}
+	if (strcasecmp(Var, "Modes") == 0) {
 		/* Initial modes */
-		len = strlcpy( Conf_Channel[chancount].modes, Arg, sizeof( Conf_Channel[chancount].modes ));
-		if (len >= sizeof( Conf_Channel[chancount].modes ))
+		len = strlcpy(chan->modes, Arg, sizeof(chan->modes));
+		if (len >= sizeof(chan->modes))
 			Config_Error_TooLong( Line, Var );
 		return;
 	}
 	if( strcasecmp( Var, "Topic" ) == 0 ) {
 		/* Initial topic */
-		if (!array_copys( &Conf_Channel[chancount].topic, Arg))
+		len = strlcpy(chan->topic, Arg, sizeof(chan->topic));
+		if (len >= sizeof(chan->topic))
 			Config_Error_TooLong( Line, Var );
 		return;
 	}
-
 	if( strcasecmp( Var, "Key" ) == 0 ) {
 		/* Initial Channel Key (mode k) */
-		len = strlcpy(Conf_Channel[chancount].key, Arg, sizeof(Conf_Channel[chancount].key));
-		if (len >= sizeof( Conf_Channel[chancount].key ))
+		len = strlcpy(chan->key, Arg, sizeof(chan->key));
+		if (len >= sizeof(chan->key))
 			Config_Error_TooLong(Line, Var);
 		return;
 	}
-
 	if( strcasecmp( Var, "MaxUsers" ) == 0 ) {
 		/* maximum user limit, mode l */
-		Conf_Channel[chancount].maxusers = (unsigned long) atol(Arg);
-		if (Conf_Channel[chancount].maxusers == 0)
+		chan->maxusers = (unsigned long) atol(Arg);
+		if (chan->maxusers == 0)
 			Config_Error_NaN(Line, Var);
 		return;
 	}

@@ -45,6 +45,6 @@ pid=`./getpid.sh T-ngircd${id}`
 [ -n "$pid" ] && kill -0 $pid > /dev/null 2>&1; r=$?
 
 [ $r -eq 0 ] && echo " ok." || echo " failure!"
-exit 
+exit $r
 
 # -eof-

@@ -7,12 +7,14 @@
 
 # detect flags for "ps" and "head"
 UNAME=`uname`
-if [ $UNAME = "FreeBSD" -o $UNAME = "SunOS" ]; then
+if [ $UNAME = "FreeBSD" ]; then
   PS_FLAGS="-a"; PS_PIDCOL="1"; HEAD_FLAGS="-n 1"
 elif [ $UNAME = "A/UX" ]; then
   PS_FLAGS="-ae"; PS_PIDCOL="1"; HEAD_FLAGS="-1"
 elif [ $UNAME = "GNU" ]; then
   PS_FLAGS="-ax"; PS_PIDCOL="2"; HEAD_FLAGS="-n 1"
+elif [ $UNAME = "SunOS" ]; then
+  PS_FLAGS="-af"; PS_PIDCOL=2; HEAD_FLAGS="-n 1"
 else
   PS_FLAGS="-f"; PS_PIDCOL="2"; HEAD_FLAGS="-n 1"
   ps $PS_FLAGS > /dev/null 2>&1

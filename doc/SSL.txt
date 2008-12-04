@@ -1,7 +1,7 @@
 
                      ngIRCd - Next Generation IRC Server
 
-                      (c)2001-2004 by Alexander Barton,
+                        (c)2001-2008 Alexander Barton,
                     alex@barton.de, http://www.barton.de/
 
                ngIRCd is free software and published under the
@@ -10,38 +10,69 @@
                                  -- SSL.txt --
 
 
-ngIRCd supports SSL/TLSv1 encrypted connections using the
-OpenSSL or gnutls library.
-Both encryped server <-> client and server <-> server links should work.
+ngIRCd supports SSL/TLSv1 encrypted connections using the OpenSSL or GnuTLS
+libraries. Both encrypted server-server links as well as client-server links
+are supported.
 
-BEWARE! The Code is mostly untested, use at your own risk!
+SSL is a compile-time option which is disabled by default. Use one of these
+options of the ./configure script to enable it:
 
-Example that creates a self-signed certificate and key (using OpenSSL):
-openssl req -newkey rsa:2048 -x509 -keyout server-key.pem \
-		-out server-cert.pem -days 1461
+  --with-openssl     enable SSL support using OpenSSL
+  --with-gnutls      enable SSL support using GnuTLS
 
-Example that creates DH parameters (optional):
-openssl dhparam -2 -out dhparams.pem 2048
+You need a SSL certificate, see below for how to create a self-signed one.
 
-Example that creates a self-signed certificate
-and key (using gnutls):
 
-certtool --generate-privkey --bits 2048 --outfile server-key.pem
-certtool --generate-self-signed --load-privkey server-key.pem \
-		 --outfile server-cert.pem
+Configuration
+~~~~~~~~~~~~~
 
-Example that creates DH parameters (optional):
-certtool  --generate-dh-params --bits 2048 --outfile dhparams.pem
+To enable SSL connections a separate port must be configured: it is NOT
+possible to handle unencrypted and encrypted connections on the same port!
+This is a limitation of the IRC protocol ...
 
-Alternatively, you may use external programs/tools like stunnel to
-make it work:
+You have to set (at least) the following configuration variables in the
+[GLOBAL] section of ngircd.conf(5): SSLPorts, SSLKeyFile, and SSLCertFile.
+
+Now IRC clients are able to connect using SSL on the configured port(s).
+(Using port 6697 for encrypted connections is common.)
+
+To enable encrypted server-server links, you have to additionally set
+SSLConnect to "yes" in the corresponding [SERVER] section.
+
+
+Creating a self-signed certificate
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+OpenSSL:
+
+Creating a self-signed certificate and key:
+ $ openssl req -newkey rsa:2048 -x509 -keyout server-key.pem \
+	-out server-cert.pem -days 1461
+Create DH parameters (optional):
+ $ openssl dhparam -2 -out dhparams.pem 2048
+
+GnuTLS:
+
+Creating a self-signed certificate and key:
+ $ certtool --generate-privkey --bits 2048 --outfile server-key.pem
+ $ certtool --generate-self-signed --load-privkey server-key.pem \
+	 --outfile server-cert.pem
+Create DH parameters (optional):
+ $ certtool  --generate-dh-params --bits 2048 --outfile dhparams.pem
+
+
+Alternate approach using stunnel(1)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Alternatively (or if you are using ngIRCd without compiled without support
+for GnuTLS/OpenSSL), you can use external programs/tools like stunnel(1) to
+get SSL encrypted connections:
 
   <http://stunnel.mirt.net/>
   <http://www.stunnel.org/>
 
-Stefan Sperling (stefan at binarchy dot net) mailed me the following text as a
+Stefan Sperling (stefan at binarchy dot net) mailed the following text as a
 short "how-to", thanks Stefan!
-
 
 === snip ===
     ! This guide applies to stunnel 4.x !
@@ -71,9 +102,3 @@ short "how-to", thanks Stefan!
     That's it.
     Don't forget to activate ssl support in your irc client ;)
 === snip ===
-
-
-
-
--- 
-$Id: SSL.txt,v 1.2 2004/12/27 01:11:40 alex Exp $

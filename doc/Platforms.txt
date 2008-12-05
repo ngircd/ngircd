@@ -62,6 +62,7 @@ powerpc/unknown/openbsd3.6  gcc 2.95.3   0.10.0     06-10-08 alex   Y Y n Y
 sparc/sun/solaris2.6        gcc 2.95.3   0.7.x-CVS  03-04-22 alex   Y Y Y Y
 sparc/sun/solaris2.7        gcc 3.3      0.8.0      04-05-30 alex   Y Y Y Y
 sparc/unkn./netbsdelf1.6.1  gcc 2.95.3   0.8.0      04-05-30 alex   Y Y Y Y
+x86_64/unknown/linux-gnu    4.3.2        13~rc1     08-12-05 alex   Y Y Y Y (5)
 
 
 Notes
@@ -82,3 +83,4 @@ Notes
 
 (4) Using the /dev/poll IO interface.
 
+(5) Using the epoll() IO interface.

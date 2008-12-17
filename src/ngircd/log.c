@@ -14,8 +14,6 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: log.c,v 1.62 2006/08/05 09:16:21 fw Exp $";
-
 #include "imp.h"
 #include <assert.h>
 #include <errno.h>
@@ -53,6 +51,22 @@ static char Error_File[FNAME_LEN];
 
 
 static void Wall_ServerNotice PARAMS(( char *Msg ));
+
+static void
+Log_Message(int Level, const char *msg)
+{
+	if (!Is_Daemon) {
+		/* log to console */
+		fprintf(stdout, "[%ld:%d %4ld] %s\n", (long)getpid(), Level,
+				(long)time(NULL) - NGIRCd_Start, msg);
+		fflush(stdout);
+	}
+#ifdef SYSLOG
+	else {
+		syslog(Level, "%s", msg);
+	}
+#endif
+}
 
 
 GLOBAL void
@@ -248,25 +262,12 @@ va_dcl
 	vsnprintf( msg, MAX_LOG_MSG_LEN, Format, ap );
 	va_end( ap );
 
-	if (!Is_Daemon) {
-		/* log to console */
-		fprintf(stdout, "[%d:%d %4ld] %s\n", (int)getpid( ), Level,
-			time(NULL) - NGIRCd_Start, msg);
-		fflush(stdout);
-	}
-#ifdef SYSLOG
-	else
-	{
-		/* Syslog */
-		syslog( Level, "%s", msg );
-	}
-#endif
+	Log_Message(Level, msg);
 
-	if( Level <= LOG_CRIT )
-	{
+	if (Level <= LOG_CRIT) {
 		/* log critical messages to stderr */
-		fprintf( stderr, "%s\n", msg );
-		fflush( stderr );
+		fprintf(stderr, "%s\n", msg);
+		fflush(stderr);
 	}
 
 	if (snotice) {
@@ -285,7 +286,7 @@ Log_Init_Resolver( void )
 	openlog( PACKAGE_NAME, LOG_CONS|LOG_PID, LOG_LOCAL5 );
 #endif
 #ifdef DEBUG
-	Log_Resolver( LOG_DEBUG, "Resolver sub-process starting, PID %d.", getpid( ));
+	Log_Resolver(LOG_DEBUG, "Resolver sub-process starting, PID %ld.", (long)getpid());
 #endif
 } /* Log_Init_Resolver */
 
@@ -294,7 +295,7 @@ GLOBAL void
 Log_Exit_Resolver( void )
 {
 #ifdef DEBUG
-	Log_Resolver( LOG_DEBUG, "Resolver sub-process %d done.", getpid( ));
+	Log_Resolver(LOG_DEBUG, "Resolver sub-process %ld done.", (long)getpid());
 #endif
 #ifdef SYSLOG
 	closelog( );
@@ -335,15 +336,7 @@ va_dcl
 	vsnprintf( msg, MAX_LOG_MSG_LEN, Format, ap );
 	va_end( ap );
 
-	if (!Is_Daemon) {
-		/* Output to console */
-		fprintf(stdout, "[%d:%d %4ld] %s\n", (int)getpid( ), Level,
-			time(NULL) - NGIRCd_Start, msg);
-		fflush(stdout);
-	}
-#ifdef SYSLOG
-	else syslog( Level, "%s", msg );
-#endif
+	Log_Message(Level, msg);
 } /* Log_Resolver */
 
 

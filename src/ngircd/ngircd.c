@@ -828,9 +828,9 @@ NGIRCd_Init( bool NGIRCd_NoDaemon )
 	pwd = getpwuid( Conf_UID );
 	grp = getgrgid( Conf_GID );
 
-	Log( LOG_INFO, "Running as user %s(%ld), group %s(%ld), with PID %ld.",
-				pwd ? pwd->pw_name : "unknown", Conf_UID,
-				grp ? grp->gr_name : "unknown", Conf_GID, pid);
+	Log(LOG_INFO, "Running as user %s(%ld), group %s(%ld), with PID %ld.",
+				pwd ? pwd->pw_name : "unknown", (long)Conf_UID,
+				grp ? grp->gr_name : "unknown", (long)Conf_GID, (long)pid);
 
 	if (chrooted) {
 		Log(LOG_INFO, "Running with root directory \"%s\".",

@@ -10,7 +10,10 @@
                                -- ChangeLog --
 
 
-ngIRCd Release 13
+ngIRCd Release 13 (2008-12-25)
+
+  - Updated documentation, especially doc/Services.txt and doc/SSL.txt.
+  - Make the test suite work on OpenSolaris.
 
   ngIRCd 13~rc1 (2008-11-21):
   - New version numer scheme :-)

@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001,2002 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2008 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1168,11 +1168,10 @@ Handle_Channelname(struct Conf_Channel *new_chan, const char *name)
 	size_t size = sizeof(new_chan->name);
 	char *dest = new_chan->name;
 
-	/*
-	 * channels must begin with &, +, or '#', if it is
+	/* Channels names must begin with "&" or "#", if it is
 	 * missing, add a '#'. This is only here for user convenience.
 	 */
-	if (*name && *name != '#') {
+	if (*name && *name != '#' && *name != '&') {
 		*dest = '#';
 		--size;
 		++dest;

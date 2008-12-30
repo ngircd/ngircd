@@ -12,6 +12,9 @@ is the configuration file of the
 .BR ngircd (8)
 Internet Relay Chat (IRC) daemon which you should adept to your local
 preferences and needs.
+.PP
+Most variables can be modified while the ngIRCd daemon is already running:
+It will reload its configuration when a HUP signal is received.
 .SH "FILE FORMAT"
 The file consists of sections and parameters. A section begins with the name
 of the section in square brackets and continues until the next section
@@ -58,7 +61,9 @@ section is used to define the server main configuration, like the server
 name and the ports on which the server should be listening.
 .TP
 \fBName\fR
-Server name in the IRC network, must contain at least one dot (".").
+Server name in the IRC network. This is an individual name of the IRC
+server, it is not related to the DNS host name. It must be unique in the
+IRC network and must contain at least one dot (".") character.
 .TP
 \fBInfo\fR
 Info text of the server. This will be shown by WHOIS and LINKS requests for
@@ -70,11 +75,12 @@ command.
 .TP
 \fBPorts\fR
 Ports on which the server should listen. There may be more than one port,
-separated with ','. Default: 6667.
+separated with commas (","). Default: 6667.
 .TP
 \fBSSLPorts\fR
-Same as \fBPorts\fR , except that ngircd will expect incoming connections
-to be SSL/TLS encrypted. Default: None
+Same as \fBPorts\fR , except that ngIRCd will expect incoming connections
+to be SSL/TLS encrypted. Common port numbers for SSL-encrypted IRC are 6669
+and 6697. Default: none.
 .TP
 \fBSSLKeyFile\fR
 Filename of SSL Server Key to be used for SSL connections. This is required for
@@ -84,20 +90,20 @@ SSL/TLS support.
 (OpenSSL only:) Password to decrypt private key.
 .TP
 \fBSSLCertFile\fR
-Certificate of the private key
+Certificate file of the private key.
 .TP
 \fBSSLDHFile\fR
 Name of the Diffie-Hellman Parameter file. Can be created with gnutls
 "certtool \-\-generate-dh-params" or "openssl dhparam".
-If this file is not present, it will be generated on startup when ngircd
-was compiled with gnutls support (this may take some time). If ngircd
+If this file is not present, it will be generated on startup when ngIRCd
+was compiled with gnutls support (this may take some time). If ngIRCd
 was compiled with OpenSSL, then (Ephemeral)-Diffie-Hellman Key Exchanges and several
 Cipher Suites will not be available.
 .TP
 \fBListen\fR
-A comma seperated list of IP address on which the server should listen.
-If unset, the defaults value is "0.0.0.0", or, if ngircd was compiled
-with IPv6 support, "::,0.0.0.0", so the server listens on all configured
+A comma separated list of IP address on which the server should listen.
+If unset, the defaults value is "0.0.0.0" or, if nIRCcd was compiled
+with IPv6 support, "::,0.0.0.0". So the server listens on all configured
 IP addresses and interfaces by default.
 .TP
 \fBMotdFile\fR
@@ -106,8 +112,8 @@ to all users connecting to the server.
 .TP
 \fBMotdPhrase\fR
 A simple Phrase (<256 chars) if you don't want to use a MOTD file.
-If it is set no MotdFile will be read at all which can be handy if the
-daemon should run inside a chroot directory.
+If this variabke is set, no \fBMotdFile\fR will be read at all which can be
+handy if the daemon should run inside a chroot directory.
 .TP
 \fBServerUID\fR
 User ID under which the server should run; you can use the name of the user
@@ -168,35 +174,35 @@ Should IRC Operators be allowed to use the MODE command even if they are
 not(!) channel-operators? Default: no.
 .TP
 \fBOperServerMode\fR
-If OperCanUseMode is enabled, this may lead the compatibility problems with
+If \fBOperCanUseMode\fR is enabled, this may lead the compatibility problems with
 Servers that run the ircd-irc2 Software. This Option "masks" mode requests
 by non-chanops as if they were coming from the server. Default: no.
 .TP
 \fBPredefChannelsOnly\fR
 If enabled, no new channels can be created. Useful if
 you do not want to have channels other than those defined in
-the config file.
-Default: No.
+[Channel] sections in the configuration file.
+Default: no.
 .TP
 \fBNoDNS\fR
-If set to true, ngircd will not make DNS lookups when clients connect.
-If you configure ngircd to connect to other servers, ngircd may still
+If set to true, ngIRCd will not make DNS lookups when clients connect.
+If you configure the daemon to connect to other servers, ngIRCd may still
 perform a DNS lookup if required.
-Default: false.
+Default: no.
 .TP
 \fBNoIdent\fR
-If ngircd is compiled with IDENT support this can be used to disable IDENT
+If ngIRCd is compiled with IDENT support this can be used to disable IDENT
 lookups at run time.
-Default: false.
+Default: no.
 .TP
 \fBConnectIPv4\fR
-Set this to no if you do not want ngircd to connect to other irc servers using ipv4.
-This allows use of ngircd in ipv6-only setups.
-Default: Yes.
+Set this to no if you do not want ngIRCd to connect to other IRC servers using
+IPv4. This allows usage of ngIRCd in IPv6-only setups.
+Default: yes.
 .TP
 \fBConnectIPv6\fR
-Set this to no if you do not want ngircd to connect to other irc servers using ipv6.
-Default: Yes.
+Set this to no if you do not want ngIRCd to connect to other irc servers using IPv6.
+Default: yes.
 .TP
 \fBMaxConnections\fR
 Maximum number of simultaneous in- and outbound connections the server is
@@ -217,7 +223,7 @@ note that all servers in an IRC network MUST use the same maximum nick name
 length!
 .TP
 \fBSSLConnect\fR
-Connect to the remote server using TLS/SSL (Default: false)
+Connect to the remote server using TLS/SSL. Default: false.
 .SH [OPERATOR]
 .I [Operator]
 sections are used to define IRC Operators. There may be more than one
@@ -258,21 +264,21 @@ IRC name of the remote server.
 Internet host name (or IP address) of the peer.
 .TP
 \fBBind\fR
-IP address to use as source IP for the outgoing connection. Default ist
+IP address to use as source IP for the outgoing connection. Default is
 to let the operating system decide.
 .TP
 \fBPort\fR
 Port of the remote server to which ngIRCd should connect (active).
 If no port is assigned to a configured server, the daemon only waits for
-incoming connections (passive).
+incoming connections (passive, default).
 .TP
 \fBMyPassword\fR
 Own password for this connection. This password has to be configured as
-"PeerPassword" on the other server. Must not have ':' as first character.
+\fBPeerPassword\fR on the other server. Must not have ':' as first character.
 .TP
 \fBPeerPassword\fR
 Foreign password for this connection. This password has to be configured as
-"MyPassword" on the other server.
+\fBMyPassword\fR on the other server.
 .TP
 \fBGroup\fR
 Group of this server (optional).
@@ -282,13 +288,13 @@ Disable automatic connection even if port value is specified. Default: false.
 You can use the IRC Operator command CONNECT later on to create the link.
 .TP
 \fBServiceMask\fR
-Define a (case insensitive) mask matching nick names that sould be treated as
+Define a (case insensitive) mask matching nick names that should be treated as
 IRC services when introduced via this remote server. REGULAR SERVERS DON'T NEED
 this parameter, so leave it empty (which is the default).
 .PP
 .RS
 When you are connecting IRC services which mask as a IRC server and which use
-"virtual users" to communicate with, for example "NickServ" amd "ChanServ",
+"virtual users" to communicate with, for example "NickServ" and "ChanServ",
 you should set this parameter to something like "*Serv".
 .SH [CHANNEL]
 Pre-defined channels can be configured in
@@ -304,7 +310,7 @@ There may be more than one
 block.
 .TP
 \fBName\fR
-Name of the channel, including channel prefix ("#").
+Name of the channel, including channel prefix ("#" or "&").
 .TP
 \fBTopic\fR
 Topic for this channel.
@@ -316,7 +322,8 @@ Initial channel modes.
 Sets initial channel key (only relevant if mode k is set).
 .TP
 \fBMaxUsers\fR
-Set maximum user limit for this channel (only relevant if mode l is set).
+Set maximum user limit for this channel (only relevant if channel mode "l"
+is set).
 .SH HINTS
 It's wise to use "ngircd \-\-configtest" to validate the configuration file
 after changing it. See
@@ -325,12 +332,10 @@ for details.
 .SH AUTHOR
 Alexander Barton,
 .UR mailto:alex@barton.de
-alex@barton.de
 .UE
 .br
 Homepage:
 .UR http://ngircd.barton.de/
-http://ngircd.barton.de/
 .UE
 .SH "SEE ALSO"
 .BR ngircd (8)

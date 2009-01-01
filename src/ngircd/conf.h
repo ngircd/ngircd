@@ -72,6 +72,7 @@ struct Conf_Channel {
 	char modes[CHANNEL_MODE_LEN];	/* Initial channel modes */
 	char key[CLIENT_PASS_LEN];      /* Channel key ("password", mode "k" ) */
 	char topic[COMMAND_LEN];	/* Initial topic */
+	char keyfile[512];		/* Path and name of channel key file */
 	unsigned long maxusers;		/* maximum usercount for this channel, mode "l" */
 };
 

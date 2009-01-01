@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <stdio.h>
 #include <strings.h>
 
 #include "defines.h"
@@ -39,6 +40,7 @@
 #include "lists.h"
 #include "log.h"
 #include "messages.h"
+#include "match.h"
 
 #include "exp.h"
 
@@ -59,6 +61,9 @@ static CL2CHAN *Get_First_Cl2Chan PARAMS(( CLIENT *Client, CHANNEL *Chan ));
 static CL2CHAN *Get_Next_Cl2Chan PARAMS(( CL2CHAN *Start, CLIENT *Client, CHANNEL *Chan ));
 static void Delete_Channel PARAMS(( CHANNEL *Chan ));
 static void Free_Channel PARAMS(( CHANNEL *Chan ));
+static void Update_Predefined PARAMS((CHANNEL *Chan,
+				      const struct Conf_Channel *Conf_Chan));
+static void Set_Key_File PARAMS((CHANNEL *Chan, FILE *KeyFile));
 
 
 GLOBAL void
@@ -116,8 +121,10 @@ Channel_InitPredefined( void )
 
 		new_chan = Channel_Search(conf_chan->name);
 		if (new_chan) {
-			Log(LOG_INFO, "Can't create pre-defined channel \"%s\": name already in use.",
-										conf_chan->name);
+			Log(LOG_INFO,
+			    "Can't create pre-defined channel \"%s\": name already in use.",
+			    conf_chan->name);
+			Update_Predefined(new_chan, conf_chan);
 			continue;
 		}
 
@@ -127,6 +134,8 @@ Channel_InitPredefined( void )
 							conf_chan->name);
 			continue;
 		}
+		Log(LOG_INFO, "Created pre-defined channel \"%s\"",
+						conf_chan->name);
 
 		Channel_ModeAdd(new_chan, 'P');
 
@@ -139,8 +148,7 @@ Channel_InitPredefined( void )
 
 		Channel_SetKey(new_chan, conf_chan->key);
 		Channel_SetMaxUsers(new_chan, conf_chan->maxusers);
-		Log(LOG_INFO, "Created pre-defined channel \"%s\"",
-						conf_chan->name);
+		Update_Predefined(new_chan, conf_chan);
 	}
 	if (channel_count)
 		array_free(&Conf_Channels);
@@ -153,6 +161,8 @@ Free_Channel(CHANNEL *chan)
 	array_free(&chan->topic);
 	Lists_Free(&chan->list_bans);
 	Lists_Free(&chan->list_invites);
+	if (Chan->keyfile)
+		fclose(Chan->keyfile);
 
 	free(chan);
 }
@@ -1051,6 +1061,44 @@ Channel_LogServer(char *msg)
 } /* Channel_LogServer */
 
 
+GLOBAL bool
+Channel_CheckKey(CHANNEL *Chan, CLIENT *Client, const char *Key)
+{
+	char line[COMMAND_LEN], *nick, *pass;
+
+	assert(Chan != NULL);
+	assert(Client != NULL);
+	assert(Key != NULL);
+
+	if (!strchr(Chan->modes, 'k'))
+		return true;
+	if (strcmp(Chan->key, Key) == 0)
+		return true;
+	if (!Chan->keyfile)
+		return false;
+
+	Chan->keyfile = freopen(NULL, "r", Chan->keyfile);
+	while (fgets(line, sizeof(line), Chan->keyfile) != NULL) {
+		ngt_TrimStr(line);
+		if (! (nick = strchr(line, ':')))
+			continue;
+		*nick++ = '\0';
+		if (!Match(line, Client_User(Client)))
+			continue;
+		if (! (pass = strchr(nick, ':')))
+			continue;
+		*pass++ = '\0';
+		if (!Match(nick, Client_ID(Client)))
+			continue;
+		if (strcmp(Key, pass) != 0)
+			continue;
+
+		return true;
+	}
+	return false;
+} /* Channel_CheckKey */
+
+
 static CL2CHAN *
 Get_First_Cl2Chan( CLIENT *Client, CHANNEL *Chan )
 {
@@ -1106,6 +1154,38 @@ Delete_Channel(CHANNEL *Chan)
 	LogDebug("Freed channel structure for \"%s\".", Chan->name);
 	Free_Channel(Chan);
 } /* Delete_Channel */
+
+
+static void
+Update_Predefined(CHANNEL *Chan, const struct Conf_Channel *Conf_Chan)
+{
+	FILE *fd;
+
+	if (! Conf_Chan->keyfile || ! *Conf_Chan->keyfile)
+		return;
+
+	fd = fopen(Conf_Chan->keyfile, "r");
+	if (! fd)
+		Log(LOG_ERR,
+		    "Can't open channel key file for \"%s\", \"%s\": %s",
+		    Conf_Chan->name, Conf_Chan->keyfile,
+		    strerror(errno));
+	else
+		Set_Key_File(Chan, fd);
+} /* Update_Predefined */
+
+
+static void
+Set_Key_File(CHANNEL *Chan, FILE *KeyFile)
+{
+	assert(Chan != NULL);
+
+	if (Chan->keyfile)
+		fclose(Chan->keyfile);
+	Chan->keyfile = KeyFile;
+	Log(LOG_INFO|LOG_snotice,
+	    "New local channel key file for \"%s\" activated.", Chan->name);
+} /* Set_Key_File */
 
 
 /* -eof- */

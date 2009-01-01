@@ -319,7 +319,50 @@ Topic for this channel.
 Initial channel modes.
 .TP
 \fBKey\fR
-Sets initial channel key (only relevant if mode k is set).
+Sets initial channel key (only relevant if channel mode "k" is set).
+.TP
+\fBKeyFile\fR
+Path and file name of a "key file" containing individual channel keys for
+different users. The file consists of plain text lines with the following
+syntax (without spaces!):
+.PP
+.RS
+.RS
+.I user
+:
+.I nick
+:
+.I key
+.RE
+.PP
+.I user
+and
+.I nick
+can contain the wildcard character "*".
+.br
+.I key
+is an arbitrary password.
+.PP
+Valid examples are:
+.PP
+.RS
+*:*:KeY
+.br
+*:nick:123
+.br
+~user:*:xyz
+.RE
+.PP
+The key file is read on each JOIN command when this channel has a key
+(channel mode +k). Access is granted, if a) the channel key set using the
+MODE +k command or b) one of the lines in the key file match.
+.PP
+.B Please note:
+.br
+The file is not reopened on each access, so you can modify and overwrite it
+without problems, but moving or deleting the file will have not effect until
+the daemon re-reads its configuration!
+.RE
 .TP
 \fBMaxUsers\fR
 Set maximum user limit for this channel (only relevant if channel mode "l"

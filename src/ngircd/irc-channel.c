@@ -89,10 +89,9 @@ join_allowed(CLIENT *Client, CLIENT *target, CHANNEL *chan,
 	}
 
 	/* Is the channel protected by a key? */
-	if (strchr(channel_modes, 'k') &&
-		strcmp(Channel_Key(chan), key ? key : ""))
-	{
-		IRC_WriteStrClient(Client, ERR_BADCHANNELKEY_MSG, Client_ID(Client), channame);
+	if (!Channel_CheckKey(chan, target, key ? key : "")) {
+		IRC_WriteStrClient(Client, ERR_BADCHANNELKEY_MSG,
+				   Client_ID(Client), channame);
 		return false;
 	}
 	/* Are there already too many members? */

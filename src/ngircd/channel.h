@@ -37,6 +37,7 @@ typedef struct _CHANNEL
 	unsigned long maxusers;		/* Maximum number of members (mode "l") */
 	struct list_head list_bans;	/* list head of banned users */
 	struct list_head list_invites;	/* list head of invited users */
+	FILE *keyfile;			/* handle of the channel key file */
 } CHANNEL;
 
 typedef struct _CLIENT2CHAN
@@ -126,6 +127,9 @@ GLOBAL bool Channel_ShowBans PARAMS((CLIENT *client, CHANNEL *c));
 GLOBAL bool Channel_ShowInvites PARAMS((CLIENT *client, CHANNEL *c));
 
 GLOBAL void Channel_LogServer PARAMS((char *msg));
+
+GLOBAL bool Channel_CheckKey PARAMS((CHANNEL *Chan, CLIENT *Client,
+				     const char *Key));
 
 #define Channel_IsLocal(c) (Channel_Name(c)[0] == '&')
 

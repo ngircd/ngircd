@@ -313,7 +313,8 @@ Conf_Test( void )
 		printf("  Modes = %s\n", predef_chan->modes);
 		printf("  Key = %s\n", predef_chan->key);
 		printf("  MaxUsers = %lu\n", predef_chan->maxusers);
-		printf("  Topic = %s\n\n", predef_chan->topic);
+		printf("  Topic = %s\n", predef_chan->topic);
+		printf("  KeyFile = %s\n\n", predef_chan->keyfile);
 	}
 
 	return (config_valid ? 0 : 1);
@@ -1230,6 +1231,13 @@ Handle_CHANNEL(int Line, char *Var, char *Arg)
 		chan->maxusers = (unsigned long) atol(Arg);
 		if (chan->maxusers == 0)
 			Config_Error_NaN(Line, Var);
+		return;
+	}
+	if (strcasecmp(Var, "KeyFile") == 0) {
+		/* channel keys */
+		len = strlcpy(chan->keyfile, Arg, sizeof(chan->keyfile));
+		if (len >= sizeof(chan->keyfile))
+			Config_Error_TooLong(Line, Var);
 		return;
 	}
 

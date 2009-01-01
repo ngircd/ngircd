@@ -16,8 +16,8 @@ ngIRCd Release 13 (2008-12-25)
   - Make the test suite work on OpenSolaris.
 
   ngIRCd 13~rc1 (2008-11-21):
-  - New version numer scheme :-)
-  - Initial support for IRC services, using a RFC1459 styel interface,
+  - New version number scheme :-)
+  - Initial support for IRC services, using a RFC1459 style interface,
     tested with IRCServices (http://www.ircservices.za.net/) version 5.1.13.
     For this to work, ngIRCd now supports server-server links conforming
     to RFC 1459. New ngircd.conf(5) option: ServiceMask.
@@ -49,7 +49,7 @@ ngIRCd 0.12.1 (2008-07-09)
   - Update ngIRCd manual pages
   - Add option aliases -V (for --version) and -h (for --help).
   - Fix 'no-ipv6' compile error.
-  - Make Listen parameter a comma-seperated list of addresses. This also
+  - Make Listen parameter a comma-separated list of addresses. This also
     obsoletes ListenIPv4 and ListenIPv6 options. If Listen is unset, it
     is treated as Listen="::,0.0.0.0".
     Note: ListenIPv4 and ListenIPv6 options are still recognized,
@@ -59,11 +59,11 @@ ngIRCd 0.12.0 (2008-05-13)
 
   - Fix Bug: 85: "WHO #SecretChannel" that user is not a member of now returns
     proper RPL_ENDOFWHO_MSG instead of nothing. (Ali Shemiran)
-  - Fix complie on FreeBSD 5.4 and AIX.
-  - If bind() fails, also print ip address and not just the port number.
+  - Fix compile on FreeBSD 5.4 and AIX.
+  - If bind() fails, also print IP address and not just the port number.
 
   ngIRCd 0.12.0-pre2 (2008-04-29)
-  - IPv6: Add config options to disabe ipv4/ipv6 support.
+  - IPv6: Add config options to disable ipv4/ipv6 support.
   - Don't include doc/CVS.txt in distribution archive, use doc/GIT.txt now!
   - Documentation: get rid of some more references to CVS, switch to GIT.
   - Get rid of cvs-version.* and CVSDATE definition.
@@ -106,11 +106,11 @@ ngIRCd 0.11.0 (2008-01-15)
   - Use dotted-decimal IP address if hostname is >= 64.
   - Add support for /STAT u (server uptime) command.
   - New [Server] configuration Option "Bind" allows to specify
-    the source ip adress to use when connecting to remote server.
+    the source IP address to use when connecting to remote server.
   - New configuration option "MaxNickLength" to specify the allowed maximum
     length of user nick names. Note: must be unique in an IRC network!
   - Enhanced the IRC+ protocol to support an enhanced "server handshake" and
-    enable server to recognice numeric 005 (ISUPPORT) and 376 (ENDOFMOTD).
+    enable server to recognize numeric 005 (ISUPPORT) and 376 (ENDOFMOTD).
     See doc/Protocol.txt for details.
   - Re-added doc/SSL.txt to distribution -- got lost somewhere!?
   - Fixes the wrong logging output when nested servers are introduced
@@ -439,7 +439,7 @@ ngIRCd 0.7.0 (2003-05-01)
   - Better error reporting to clients on connect.
   - Enhanced manual pages ngircd(8) and ngircd.conf(5).
   - Documentation is now installed in $(datadir)/doc/ngircd.
-  - Enhanced hanling of NJOIN in case of nick collisions.
+  - Enhanced handling of NJOIN in case of nick collisions.
 
 ngIRCd 0.6.1, 2003-01-21
 

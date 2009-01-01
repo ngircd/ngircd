@@ -37,7 +37,7 @@ The following software packages are needed:
    ftp://arthur.barton.de/pub/unix/aux/libraries/libUTIL-2.1.tar.gz
 
    This library contains functions that are common on other UNIX
-   systems but not on A/UX e.g. memmove(), strerror() und strdup().
+   systems but not on A/UX e.g. memmove(), strerror() and strdup().
 
 
 After installation of these packages just do a "./configure" and "make" to
@@ -60,7 +60,7 @@ A few hints in case of errors:
    the 'config.status' script. Better rename /bin/sh to /bin/sh.AUX and
    replace it by a symbolic link to /bin/ksh (ln -s /bin/ksh /bin/sh as
    root).
-   These procedure should'nt cause you into problems and is recommended
+   These procedure shouldn't cause you into problems and is recommended
    even if you don't use ngIRCd.
 
 -- 

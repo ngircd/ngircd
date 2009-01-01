@@ -20,7 +20,7 @@ To use this features you can use one of two APIs:
      of the newer Avahi[5] library.
 
 When calling the configure script using the "--with-zeroconf" switch the
-avalable API will be autodetected and the required additional libraries will
+available API will be autodetected and the required additional libraries will
 be linked to the ngircd binary as required.
 
 ngIRCd then registers a DNS-SD service for each port it is listening on using

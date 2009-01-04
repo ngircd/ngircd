@@ -1086,9 +1086,9 @@ Delete_Channel( CHANNEL *Chan )
 
 	Log( LOG_DEBUG, "Freed channel structure for \"%s\".", Chan->name );
 
-	/* free invite and ban lists */
-	Lists_Free( &chan->list_bans );
-	Lists_Free( &chan->list_invites );
+	array_free(&chan->topic);
+	Lists_Free(&chan->list_bans);
+	Lists_Free(&chan->list_invites);
 
 	/* maintain channel list */
 	if( last_chan ) last_chan->next = chan->next;

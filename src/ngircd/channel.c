@@ -1067,35 +1067,40 @@ Get_Next_Cl2Chan( CL2CHAN *Start, CLIENT *Client, CHANNEL *Channel )
 } /* Get_Next_Cl2Chan */
 
 
+/**
+ * Remove a channel and free all of its data structures.
+ */
 static bool
-Delete_Channel( CHANNEL *Chan )
+Delete_Channel(CHANNEL *Chan)
 {
-	/* delete channel structure */
-
 	CHANNEL *chan, *last_chan;
 
 	last_chan = NULL;
 	chan = My_Channels;
-	while( chan )
-	{
-		if( chan == Chan ) break;
+	while (chan) {
+		if (chan == Chan)
+			break;
 		last_chan = chan;
 		chan = chan->next;
 	}
-	if( ! chan ) return false;
+	if (!chan)
+		return false;
 
-	Log( LOG_DEBUG, "Freed channel structure for \"%s\".", Chan->name );
+	Log(LOG_DEBUG, "Freed channel structure for \"%s\".", Chan->name);
 
 	array_free(&chan->topic);
 	Lists_Free(&chan->list_bans);
 	Lists_Free(&chan->list_invites);
 
 	/* maintain channel list */
-	if( last_chan ) last_chan->next = chan->next;
-	else My_Channels = chan->next;
-	free( chan );
+	if (last_chan)
+		last_chan->next = chan->next;
+	else
+		My_Channels = chan->next;
+	free(chan);
 
 	return true;
 } /* Delete_Channel */
+
 
 /* -eof- */

@@ -57,7 +57,8 @@ static CL2CHAN *Add_Client PARAMS(( CHANNEL *Chan, CLIENT *Client ));
 static bool Remove_Client PARAMS(( int Type, CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, const char *Reason, bool InformServer ));
 static CL2CHAN *Get_First_Cl2Chan PARAMS(( CLIENT *Client, CHANNEL *Chan ));
 static CL2CHAN *Get_Next_Cl2Chan PARAMS(( CL2CHAN *Start, CLIENT *Client, CHANNEL *Chan ));
-static bool Delete_Channel PARAMS(( CHANNEL *Chan ));
+static void Delete_Channel PARAMS(( CHANNEL *Chan ));
+static void Channel_Free PARAMS(( CHANNEL *Chan ));
 
 
 GLOBAL void
@@ -146,6 +147,17 @@ Channel_InitPredefined( void )
 } /* Channel_InitPredefined */
 
 
+static void
+Channel_Free(CHANNEL *chan)
+{
+	array_free(&chan->topic);
+	Lists_Free(&chan->list_bans);
+	Lists_Free(&chan->list_invites);
+
+	free(chan);
+}
+
+
 GLOBAL void
 Channel_Exit( void )
 {
@@ -154,11 +166,9 @@ Channel_Exit( void )
 
 	/* free struct Channel */
 	c = My_Channels;
-	while( c )
-	{
+	while (c) {
 		c_next = c->next;
-		array_free(&c->topic);
-		free( c );
+		Channel_Free(c);
 		c = c_next;
 	}
 
@@ -1070,7 +1080,7 @@ Get_Next_Cl2Chan( CL2CHAN *Start, CLIENT *Client, CHANNEL *Channel )
 /**
  * Remove a channel and free all of its data structures.
  */
-static bool
+static void
 Delete_Channel(CHANNEL *Chan)
 {
 	CHANNEL *chan, *last_chan;
@@ -1083,23 +1093,19 @@ Delete_Channel(CHANNEL *Chan)
 		last_chan = chan;
 		chan = chan->next;
 	}
+
+	assert(chan != NULL);
 	if (!chan)
-		return false;
-
-	Log(LOG_DEBUG, "Freed channel structure for \"%s\".", Chan->name);
-
-	array_free(&chan->topic);
-	Lists_Free(&chan->list_bans);
-	Lists_Free(&chan->list_invites);
+		return;
 
 	/* maintain channel list */
 	if (last_chan)
 		last_chan->next = chan->next;
 	else
 		My_Channels = chan->next;
-	free(chan);
 
-	return true;
+	LogDebug("Freed channel structure for \"%s\".", Chan->name);
+	Channel_Free(Chan);
 } /* Delete_Channel */
 
 

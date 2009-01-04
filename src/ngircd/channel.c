@@ -61,9 +61,7 @@ static CL2CHAN *Get_First_Cl2Chan PARAMS(( CLIENT *Client, CHANNEL *Chan ));
 static CL2CHAN *Get_Next_Cl2Chan PARAMS(( CL2CHAN *Start, CLIENT *Client, CHANNEL *Chan ));
 static void Delete_Channel PARAMS(( CHANNEL *Chan ));
 static void Free_Channel PARAMS(( CHANNEL *Chan ));
-static void Update_Predefined PARAMS((CHANNEL *Chan,
-				      const struct Conf_Channel *Conf_Chan));
-static void Set_Key_File PARAMS((CHANNEL *Chan, FILE *KeyFile));
+static void Set_KeyFile PARAMS((CHANNEL *Chan, const char *KeyFile));
 
 
 GLOBAL void
@@ -124,7 +122,7 @@ Channel_InitPredefined( void )
 			Log(LOG_INFO,
 			    "Can't create pre-defined channel \"%s\": name already in use.",
 			    conf_chan->name);
-			Update_Predefined(new_chan, conf_chan);
+			Set_KeyFile(new_chan, conf_chan->keyfile);
 			continue;
 		}
 
@@ -148,7 +146,7 @@ Channel_InitPredefined( void )
 
 		Channel_SetKey(new_chan, conf_chan->key);
 		Channel_SetMaxUsers(new_chan, conf_chan->maxusers);
-		Update_Predefined(new_chan, conf_chan);
+		Set_KeyFile(new_chan, conf_chan->keyfile);
 	}
 	if (channel_count)
 		array_free(&Conf_Channels);
@@ -159,10 +157,9 @@ static void
 Free_Channel(CHANNEL *chan)
 {
 	array_free(&chan->topic);
+	array_free(&chan->keyfile);
 	Lists_Free(&chan->list_bans);
 	Lists_Free(&chan->list_invites);
-	if (Chan->keyfile)
-		fclose(Chan->keyfile);
 
 	free(chan);
 }
@@ -1064,7 +1061,8 @@ Channel_LogServer(char *msg)
 GLOBAL bool
 Channel_CheckKey(CHANNEL *Chan, CLIENT *Client, const char *Key)
 {
-	char line[COMMAND_LEN], *nick, *pass;
+	char *file_name, line[COMMAND_LEN], *nick, *pass;
+	FILE *fd;
 
 	assert(Chan != NULL);
 	assert(Client != NULL);
@@ -1074,11 +1072,20 @@ Channel_CheckKey(CHANNEL *Chan, CLIENT *Client, const char *Key)
 		return true;
 	if (strcmp(Chan->key, Key) == 0)
 		return true;
-	if (!Chan->keyfile)
+	if (*Key == '\0')
 		return false;
 
-	Chan->keyfile = freopen(NULL, "r", Chan->keyfile);
-	while (fgets(line, sizeof(line), Chan->keyfile) != NULL) {
+	file_name = array_start(&Chan->keyfile);
+	if (!file_name)
+		return false;
+	fd = fopen(file_name, "r");
+	if (!fd) {
+		Log(LOG_ERR, "Can't open channek key file \"%s\" for %s: %s",
+		    file_name, Chan->name, strerror(errno));
+		return false;
+	}
+
+	while (fgets(line, sizeof(line), fd) != NULL) {
 		ngt_TrimStr(line);
 		if (! (nick = strchr(line, ':')))
 			continue;
@@ -1093,8 +1100,10 @@ Channel_CheckKey(CHANNEL *Chan, CLIENT *Client, const char *Key)
 		if (strcmp(Key, pass) != 0)
 			continue;
 
+		fclose(fd);
 		return true;
 	}
+	fclose(fd);
 	return false;
 } /* Channel_CheckKey */
 
@@ -1157,35 +1166,31 @@ Delete_Channel(CHANNEL *Chan)
 
 
 static void
-Update_Predefined(CHANNEL *Chan, const struct Conf_Channel *Conf_Chan)
+Set_KeyFile(CHANNEL *Chan, const char *KeyFile)
 {
-	FILE *fd;
+	size_t len;
 
-	if (! Conf_Chan->keyfile || ! *Conf_Chan->keyfile)
+	assert(Chan != NULL);
+	assert(KeyFile != NULL);
+
+	len = strlen(KeyFile);
+	if (len < array_bytes(&Chan->keyfile)) {
+		Log(LOG_INFO, "Channel key file of %s removed.", Chan->name);
+		array_free(&Chan->keyfile);
+	}
+
+	if (len < 1)
 		return;
 
-	fd = fopen(Conf_Chan->keyfile, "r");
-	if (! fd)
-		Log(LOG_ERR,
-		    "Can't open channel key file for \"%s\", \"%s\": %s",
-		    Conf_Chan->name, Conf_Chan->keyfile,
-		    strerror(errno));
+	if (!array_copyb(&Chan->keyfile, KeyFile, len+1))
+		Log(LOG_WARNING,
+		    "Could not set new channel key file \"%s\" for %s: %s",
+		    KeyFile, Chan->name, strerror(errno));
 	else
-		Set_Key_File(Chan, fd);
-} /* Update_Predefined */
-
-
-static void
-Set_Key_File(CHANNEL *Chan, FILE *KeyFile)
-{
-	assert(Chan != NULL);
-
-	if (Chan->keyfile)
-		fclose(Chan->keyfile);
-	Chan->keyfile = KeyFile;
-	Log(LOG_INFO|LOG_snotice,
-	    "New local channel key file for \"%s\" activated.", Chan->name);
-} /* Set_Key_File */
+		Log(LOG_INFO|LOG_snotice,
+		    "New local channel key file \"%s\" for %s activated.",
+		    KeyFile, Chan->name);
+} /* Set_KeyFile */
 
 
 /* -eof- */

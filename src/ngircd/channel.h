@@ -37,7 +37,7 @@ typedef struct _CHANNEL
 	unsigned long maxusers;		/* Maximum number of members (mode "l") */
 	struct list_head list_bans;	/* list head of banned users */
 	struct list_head list_invites;	/* list head of invited users */
-	FILE *keyfile;			/* handle of the channel key file */
+	array keyfile;			/* Name of the channel key file */
 } CHANNEL;
 
 typedef struct _CLIENT2CHAN

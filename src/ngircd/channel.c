@@ -58,7 +58,7 @@ static bool Remove_Client PARAMS(( int Type, CHANNEL *Chan, CLIENT *Client, CLIE
 static CL2CHAN *Get_First_Cl2Chan PARAMS(( CLIENT *Client, CHANNEL *Chan ));
 static CL2CHAN *Get_Next_Cl2Chan PARAMS(( CL2CHAN *Start, CLIENT *Client, CHANNEL *Chan ));
 static void Delete_Channel PARAMS(( CHANNEL *Chan ));
-static void Channel_Free PARAMS(( CHANNEL *Chan ));
+static void Free_Channel PARAMS(( CHANNEL *Chan ));
 
 
 GLOBAL void
@@ -148,7 +148,7 @@ Channel_InitPredefined( void )
 
 
 static void
-Channel_Free(CHANNEL *chan)
+Free_Channel(CHANNEL *chan)
 {
 	array_free(&chan->topic);
 	Lists_Free(&chan->list_bans);
@@ -168,7 +168,7 @@ Channel_Exit( void )
 	c = My_Channels;
 	while (c) {
 		c_next = c->next;
-		Channel_Free(c);
+		Free_Channel(c);
 		c = c_next;
 	}
 
@@ -1104,7 +1104,7 @@ Delete_Channel(CHANNEL *Chan)
 		My_Channels = chan->next;
 
 	LogDebug("Freed channel structure for \"%s\".", Chan->name);
-	Channel_Free(Chan);
+	Free_Channel(Chan);
 } /* Delete_Channel */
 
 

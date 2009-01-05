@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2008 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2009 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -174,10 +174,9 @@ Channel_Exit( void )
 
 	/* Free Channel allocation table */
 	cl2chan = My_Cl2Chan;
-	while( c )
-	{
+	while (cl2chan) {
 		cl2chan_next = cl2chan->next;
-		free( cl2chan );
+		free(cl2chan);
 		cl2chan = cl2chan_next;
 	}
 } /* Channel_Exit */

@@ -35,6 +35,7 @@
 		FA322DBE0CEF7766001761B3 /* tool.c in Sources */ = {isa = PBXBuildFile; fileRef = FA322D330CEF74B1001761B3 /* tool.c */; };
 		FA322DC10CEF77CB001761B3 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FA322DC00CEF77CB001761B3 /* libz.dylib */; };
 		FA407F2E0DB159F400271AF1 /* ng_ipaddr.c in Sources */ = {isa = PBXBuildFile; fileRef = FA407F2C0DB159F400271AF1 /* ng_ipaddr.c */; };
+		FAA3D27B0F139CDC00B2447E /* conn-ssl.c in Sources */ = {isa = PBXBuildFile; fileRef = FAA3D2790F139CDC00B2447E /* conn-ssl.c */; };
 		FAE5CC2E0CF2308A007D69B6 /* numeric.c in Sources */ = {isa = PBXBuildFile; fileRef = FAE5CC2D0CF2308A007D69B6 /* numeric.c */; };
 /* End PBXBuildFile section */
 
@@ -126,7 +127,6 @@
 		FA322D210CEF74B1001761B3 /* getpid.sh */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; path = getpid.sh; sourceTree = "<group>"; };
 		FA322D220CEF74B1001761B3 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
 		FA322D230CEF74B1001761B3 /* mode-test.e */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = "mode-test.e"; sourceTree = "<group>"; };
-		FA322D240CEF74B1001761B3 /* ngircd-test.conf */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = "ngircd-test.conf"; sourceTree = "<group>"; };
 		FA322D250CEF74B1001761B3 /* README */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
 		FA322D260CEF74B1001761B3 /* start-server.sh */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; path = "start-server.sh"; sourceTree = "<group>"; };
 		FA322D270CEF74B1001761B3 /* stop-server.sh */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; path = "stop-server.sh"; sourceTree = "<group>"; };
@@ -193,6 +193,28 @@
 		FA407F2C0DB159F400271AF1 /* ng_ipaddr.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; name = ng_ipaddr.c; path = ipaddr/ng_ipaddr.c; sourceTree = "<group>"; };
 		FA407F2D0DB159F400271AF1 /* ng_ipaddr.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; name = ng_ipaddr.h; path = ipaddr/ng_ipaddr.h; sourceTree = "<group>"; };
 		FA407F380DB15AC700271AF1 /* GIT.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = GIT.txt; sourceTree = "<group>"; };
+		FAA3D2700F139CB300B2447E /* invite-test.e */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = "invite-test.e"; sourceTree = "<group>"; };
+		FAA3D2710F139CB300B2447E /* join-test.e */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = "join-test.e"; sourceTree = "<group>"; };
+		FAA3D2720F139CB300B2447E /* kick-test.e */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = "kick-test.e"; sourceTree = "<group>"; };
+		FAA3D2730F139CB300B2447E /* message-test.e */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = "message-test.e"; sourceTree = "<group>"; };
+		FAA3D2740F139CB300B2447E /* ngircd-test1.conf */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = "ngircd-test1.conf"; sourceTree = "<group>"; };
+		FAA3D2750F139CB300B2447E /* ngircd-test2.conf */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = "ngircd-test2.conf"; sourceTree = "<group>"; };
+		FAA3D2760F139CB300B2447E /* opless-channel-test.e */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = "opless-channel-test.e"; sourceTree = "<group>"; };
+		FAA3D2770F139CB300B2447E /* server-link-test.e */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = "server-link-test.e"; sourceTree = "<group>"; };
+		FAA3D2780F139CDC00B2447E /* conf-ssl.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = "conf-ssl.h"; sourceTree = "<group>"; };
+		FAA3D2790F139CDC00B2447E /* conn-ssl.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = "conn-ssl.c"; sourceTree = "<group>"; };
+		FAA3D27A0F139CDC00B2447E /* conn-ssl.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = "conn-ssl.h"; sourceTree = "<group>"; };
+		FAA3D27C0F139CF800B2447E /* strtok_r.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = strtok_r.c; sourceTree = "<group>"; };
+		FAA3D27D0F139CF800B2447E /* waitpid.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = waitpid.c; sourceTree = "<group>"; };
+		FAA3D2800F139D1500B2447E /* Services.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Services.txt; sourceTree = "<group>"; };
+		FAA3D2820F139D2E00B2447E /* 01ngircd-contents.xml */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.xml; path = "01ngircd-contents.xml"; sourceTree = "<group>"; };
+		FAA3D2830F139D2E00B2447E /* 01ngircd.xml */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.xml; path = 01ngircd.xml; sourceTree = "<group>"; };
+		FAA3D2840F139D2E00B2447E /* 02de-contents.xml */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.xml; path = "02de-contents.xml"; sourceTree = "<group>"; };
+		FAA3D2850F139D2E00B2447E /* 02de.xml */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.xml; path = 02de.xml; sourceTree = "<group>"; };
+		FAA3D2860F139D2E00B2447E /* index.xml */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.xml; path = index.xml; sourceTree = "<group>"; };
+		FAA3D2880F139D2E00B2447E /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
+		FAA3D28A0F139D2E00B2447E /* postinstall.sh */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; path = postinstall.sh; sourceTree = "<group>"; };
+		FAA3D28B0F139D2E00B2447E /* preinstall.sh */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; path = preinstall.sh; sourceTree = "<group>"; };
 		FAE5CC2C0CF2308A007D69B6 /* numeric.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = numeric.h; sourceTree = "<group>"; };
 		FAE5CC2D0CF2308A007D69B6 /* numeric.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = numeric.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -258,6 +280,9 @@
 		FA322CD70CEF74B1001761B3 /* ngircd */ = {
 			isa = PBXGroup;
 			children = (
+				FAA3D2780F139CDC00B2447E /* conf-ssl.h */,
+				FAA3D2790F139CDC00B2447E /* conn-ssl.c */,
+				FAA3D27A0F139CDC00B2447E /* conn-ssl.h */,
 				FA322CD90CEF74B1001761B3 /* array.c */,
 				FA322CDA0CEF74B1001761B3 /* array.h */,
 				FA322CDB0CEF74B1001761B3 /* channel.c */,
@@ -320,6 +345,8 @@
 		FA322D0E0CEF74B1001761B3 /* portab */ = {
 			isa = PBXGroup;
 			children = (
+				FAA3D27C0F139CF800B2447E /* strtok_r.c */,
+				FAA3D27D0F139CF800B2447E /* waitpid.c */,
 				FA322D100CEF74B1001761B3 /* ansi2knr.1 */,
 				FA322D110CEF74B1001761B3 /* ansi2knr.c */,
 				FA322D120CEF74B1001761B3 /* exp.h */,
@@ -338,6 +365,14 @@
 		FA322D1B0CEF74B1001761B3 /* testsuite */ = {
 			isa = PBXGroup;
 			children = (
+				FAA3D2700F139CB300B2447E /* invite-test.e */,
+				FAA3D2710F139CB300B2447E /* join-test.e */,
+				FAA3D2720F139CB300B2447E /* kick-test.e */,
+				FAA3D2730F139CB300B2447E /* message-test.e */,
+				FAA3D2740F139CB300B2447E /* ngircd-test1.conf */,
+				FAA3D2750F139CB300B2447E /* ngircd-test2.conf */,
+				FAA3D2760F139CB300B2447E /* opless-channel-test.e */,
+				FAA3D2770F139CB300B2447E /* server-link-test.e */,
 				FA322D1D0CEF74B1001761B3 /* channel-test.e */,
 				FA322D1E0CEF74B1001761B3 /* check-idle.e */,
 				FA322D1F0CEF74B1001761B3 /* connect-test.e */,
@@ -346,7 +381,6 @@
 				FA322D220CEF74B1001761B3 /* Makefile.am */,
 				FA1A6BBC0D6857BB00AA8F71 /* misc-test.e */,
 				FA322D230CEF74B1001761B3 /* mode-test.e */,
-				FA322D240CEF74B1001761B3 /* ngircd-test.conf */,
 				FA322D250CEF74B1001761B3 /* README */,
 				FA322D260CEF74B1001761B3 /* start-server.sh */,
 				FA322D270CEF74B1001761B3 /* stop-server.sh */,
@@ -408,6 +442,9 @@
 		FA322D730CEF7523001761B3 /* MacOSX */ = {
 			isa = PBXGroup;
 			children = (
+				FAA3D2810F139D2E00B2447E /* ngIRCd.pmdoc */,
+				FAA3D28A0F139D2E00B2447E /* postinstall.sh */,
+				FAA3D28B0F139D2E00B2447E /* preinstall.sh */,
 				FA322D750CEF7523001761B3 /* build */,
 				FA322D8D0CEF7523001761B3 /* Makefile.am */,
 				FA322D8E0CEF7523001761B3 /* ngIRCd.xcodeproj */,
@@ -497,6 +534,7 @@
 		FA322D970CEF752C001761B3 /* doc */ = {
 			isa = PBXGroup;
 			children = (
+				FAA3D2800F139D1500B2447E /* Services.txt */,
 				FA407F380DB15AC700271AF1 /* GIT.txt */,
 				FA322D9A0CEF752C001761B3 /* FAQ.txt */,
 				FA322D9B0CEF752C001761B3 /* Makefile.am */,
@@ -545,6 +583,19 @@
 				FA407F2D0DB159F400271AF1 /* ng_ipaddr.h */,
 			);
 			name = ipaddr;
+			sourceTree = "<group>";
+		};
+		FAA3D2810F139D2E00B2447E /* ngIRCd.pmdoc */ = {
+			isa = PBXGroup;
+			children = (
+				FAA3D2820F139D2E00B2447E /* 01ngircd-contents.xml */,
+				FAA3D2830F139D2E00B2447E /* 01ngircd.xml */,
+				FAA3D2840F139D2E00B2447E /* 02de-contents.xml */,
+				FAA3D2850F139D2E00B2447E /* 02de.xml */,
+				FAA3D2860F139D2E00B2447E /* index.xml */,
+				FAA3D2880F139D2E00B2447E /* Makefile.am */,
+			);
+			path = ngIRCd.pmdoc;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -624,6 +675,7 @@
 				FA322DBE0CEF7766001761B3 /* tool.c in Sources */,
 				FAE5CC2E0CF2308A007D69B6 /* numeric.c in Sources */,
 				FA407F2E0DB159F400271AF1 /* ng_ipaddr.c in Sources */,
+				FAA3D27B0F139CDC00B2447E /* conn-ssl.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

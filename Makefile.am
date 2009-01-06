@@ -32,12 +32,21 @@ lint:
 srcdoc:
 	make -C doc srcdoc
 
-xcode:
+have-xcodebuild:
 	@xcodebuild -project contrib/MacOSX/ngIRCd.xcodeproj -list \
 	 >/dev/null 2>&1 \
 	 || ( echo; echo "Error: \"xcodebuild\" not found!"; echo; exit 1 )
+
+xcode: have-xcodebuild
+	rel=`grep AC_INIT configure.in | cut -d' ' -f2 | cut -d')' -f1`; \
+	 def="GCC_PREPROCESSOR_DEFINITIONS=\"VERSION=\\\"$$rel\\\"\""; \
+	 xcodebuild -project contrib/MacOSX/ngIRCd.xcodeproj -alltargets \
+	 -configuration Default $$def build
+
+xcode-clean: have-xcodebuild
 	xcodebuild -project contrib/MacOSX/ngIRCd.xcodeproj -alltargets \
-	 -buildstyle Development
+	 -configuration Default clean
+	rm -fr contrib/MacOSX/build
 
 rpm: distcheck
 	rpm -ta ngircd-*.tar.gz
@@ -46,7 +55,7 @@ deb:
 	[ -f debian/rules ] || ln -s contrib/Debian debian
 	dpkg-buildpackage -rfakeroot -i
 
-osxpkg:
+osxpkg: have-xcodebuild
 	@packagemaker >/dev/null 2>&1; [ $$? -ge 1 ] \
 	 || ( echo; echo "Error: \"packagemaker\" not found!"; echo; exit 2)
 	make clean

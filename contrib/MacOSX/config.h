@@ -12,7 +12,9 @@
  */
 
 #define PACKAGE_NAME "ngircd"
+#ifndef VERSION
 #define VERSION "??"
+#endif
 #define SYSCONFDIR "/etc/ngircd"
 
 #ifndef TARGET_VENDOR

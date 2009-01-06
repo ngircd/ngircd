@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2007 Alexander Barton (alex@barton.de).
+ * Copyright (c)2001-2009 Alexander Barton (alex@barton.de).
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,14 +8,17 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * $Id: config.h,v 1.1 2007/11/19 22:11:36 alex Exp $
- *
  * Static configuration file for Mac OS X Xcode project
  */
 
 #define PACKAGE_NAME "ngircd"
 #define VERSION "??"
 #define SYSCONFDIR "/etc/ngircd"
+
+#ifndef TARGET_VENDOR
+#define TARGET_VENDOR "apple"
+#define TARGET_OS "darwin"
+#endif
 
 /* -- Build options -- */
 

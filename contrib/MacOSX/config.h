@@ -48,6 +48,9 @@
 /* Define if zlib compression should be enabled */
 #define ZLIB 1
 
+/* Define if IPV6 protocol should be enabled */
+#define WANT_IPV6 1
+
 /* -- Supported features -- */
 
 /* Define if SSP C support is enabled. */
@@ -83,6 +86,12 @@
 #define HAVE_STRDUP 1
 /* Define to 1 if you have the `vsnprintf' function. */
 #define HAVE_VSNPRINTF 1
+/* Define to 1 if you have the `inet_aton' function. */
+#define HAVE_INET_ATON 1
+/* Define to 1 if you have the `getaddrinfo' function. */
+#define HAVE_GETADDRINFO 1
+/* Define to 1 if you have the `getnameinfo' function. */
+#define HAVE_GETNAMEINFO 1
 
 /* Define if socklen_t exists */
 #define HAVE_socklen_t 1

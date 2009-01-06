@@ -1,10 +1,10 @@
-<pkmkdoc spec="1.12"><properties><title>ngIRCd</title><build>/Users/alex/Desktop/ngIRCd.mpkg</build><organization>de.barton.ngircd</organization><userSees ui="both"/><min-target os="2"/><domain anywhere="true"/></properties><distribution><versions min-spec="1.000000"/><scripts></scripts></distribution><description>ngIRCd – next generation IRC (Internet Relay Chat) server daemon</description><contents><choice title="ngIRCd daemon" id="choicengircd" tooltip="ngIRCd daemon, documentation and manual pages" description="Binaries, documentation and manual pages of the ngIRCd, the next generation IRC (Internet Relay Chat) daemon. This package will be installed into /opt/ngircd." starts_selected="true" starts_enabled="true" starts_hidden="false"><customLoc>/</customLoc><pkgref id="de.barton.ngircd.daemon.pkg"/></choice><choice title="Start and stop script" id="choicelaunchscript" tooltip="LaunchDaemon start and stop script" description="Installs the ngIRCd start and stop script for the &quot;launch daemon&quot;. If this is an update/upgrade, and ngIRCd is already running, it will be automatically restarted." starts_selected="true" starts_enabled="true" starts_hidden="false"><customLoc>/Library/LaunchDaemons</customLoc><pkgref id="de.barton.ngircd.launchscript.pkg"/></choice></contents><resources bg-scale="none" bg-align="topleft"><locale lang="en"><resource mime-type="text/rtf" kind="embedded" type="license"><![CDATA[{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf330
+<pkmkdoc spec="1.12"><properties><title>ngIRCd</title><build>/Users/alex/Desktop/ngIRCd.mpkg</build><organization>de.barton.ngircd</organization><userSees ui="both"/><min-target os="2"/><domain anywhere="true"/></properties><distribution><versions min-spec="1.000000"/><scripts></scripts></distribution><description>ngIRCd – next generation IRC (Internet Relay Chat) server daemon</description><contents><choice title="ngIRCd daemon" id="choicengircd" tooltip="ngIRCd daemon, documentation and manual pages" description="Binaries, documentation and manual pages of the ngIRCd, the next generation IRC (Internet Relay Chat) daemon. This package will be installed into /opt/ngircd." starts_selected="true" starts_enabled="true" starts_hidden="false"><customLoc>/</customLoc><pkgref id="de.barton.ngircd.daemon.pkg"/></choice><choice title="Start and stop script" id="choicelaunchscript" tooltip="LaunchDaemon start and stop script" description="Installs the ngIRCd start and stop script for the &quot;launch daemon&quot;. If this is an update/upgrade, and ngIRCd is already running, it will be automatically restarted." starts_selected="true" starts_enabled="true" starts_hidden="false"><customLoc>/Library/LaunchDaemons</customLoc><pkgref id="de.barton.ngircd.launchscript.pkg"/></choice></contents><resources bg-scale="none" bg-align="topleft"><locale lang="en"><resource mime-type="text/rtf" kind="embedded" type="license"><![CDATA[{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf430
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\qc\pardirnatural
 
 \f0\i\fs24 \cf0 ngIRCd -- The Next Generation IRC Daemon\
-Copyright (c)2001-2008 Alexander Barton and Contributors.\
+Copyright (c)2001-2009 Alexander Barton and Contributors.\
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
 
 \i0 \cf0 \
@@ -151,7 +151,7 @@ Each version is given a distinguishing version number.  If the Program specifies
 11. BECAUSE THE PROGRAM IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW.  EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES PROVIDE THE PROGRAM "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.  THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM IS WITH YOU.  SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY SERVICING, REPAIR OR CORRECTION.\
 \
 12. IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR REDISTRIBUTE THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES, INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED TO LOSS OF DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS), EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.\
-}]]></resource><resource mime-type="text/rtf" kind="embedded" type="welcome"><![CDATA[{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf330
+}]]></resource><resource mime-type="text/rtf" kind="embedded" type="welcome"><![CDATA[{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf430
 {\fonttbl\f0\fnil\fcharset0 LucidaGrande;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
@@ -160,7 +160,7 @@ Each version is given a distinguishing version number.  If the Program specifies
 \
 	Homepage: http://ngircd.barton.de\
 \
-You will be guided through all steps necessary to install this software.}]]></resource><resource mime-type="text/rtf" kind="embedded" type="conclusion"><![CDATA[{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf330
+You will be guided through all steps necessary to install this software.}]]></resource><resource mime-type="text/rtf" kind="embedded" type="conclusion"><![CDATA[{\rtf1\ansi\ansicpg1252\cocoartf949\cocoasubrtf430
 {\fonttbl\f0\fnil\fcharset0 LucidaGrande;\f1\fnil\fcharset0 Monaco;}
 {\colortbl;\red255\green255\blue255;}
 {\*\listtable{\list\listtemplateid1\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc2\leveljcn2\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{hyphen\}}{\leveltext\leveltemplateid0\'02\'05.;}{\levelnumbers\'01;}}{\listname ;}\listid1}
@@ -168,7 +168,9 @@ You will be guided through all steps necessary to install this software.}]]></re
 {\*\listoverridetable{\listoverride\listid1\listoverridecount0\ls1}{\listoverride\listid2\listoverridecount0\ls2}}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
 
-\f0\fs26 \cf0 ngIRCd has been successfully installed/upgraded, and has been restarted if it was already running before and you have installed the LaunchDaemon start and stop script (which is the default).\
+\f0\fs26 \cf0 ngIRCd has been successfully installed/upgraded.\
+\
+It has been restarted if it was already running before and you have installed the LaunchDaemon start and stop script (which is the default).\
 \
 If you installed ngIRCd the first time (or had the LaunchDaemon script disabled before), you can start ngIRCd using the following terminal command:\
 \

@@ -1080,7 +1080,7 @@ Channel_CheckKey(CHANNEL *Chan, CLIENT *Client, const char *Key)
 		return false;
 	fd = fopen(file_name, "r");
 	if (!fd) {
-		Log(LOG_ERR, "Can't open channek key file \"%s\" for %s: %s",
+		Log(LOG_ERR, "Can't open channel key file \"%s\" for %s: %s",
 		    file_name, Chan->name, strerror(errno));
 		return false;
 	}

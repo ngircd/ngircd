@@ -242,7 +242,7 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 		    Client_Type(target) != CLIENT_SERVICE &&
 		    Client_Type(target) != CLIENT_SERVER) {
 			/* New client */
-			Log( LOG_DEBUG, "Connection %d: got valid NICK command ...", 
+			LogDebug("Connection %d: got valid NICK command ...",
 			     Client_Conn( Client ));
 
 			/* Register new nickname of this client */
@@ -723,7 +723,7 @@ IRC_PONG(CLIENT *Client, REQUEST *Req)
 
 	/* The connection timestamp has already been updated when the data has
 	 * been read from so socket, so we don't need to update it here. */
-
+#ifdef DEBUG
 	if (Client_Conn(Client) > NONE)
 		Log(LOG_DEBUG,
 			"Connection %d: received PONG. Lag: %ld seconds.",
@@ -732,7 +732,7 @@ IRC_PONG(CLIENT *Client, REQUEST *Req)
 	else
 		 Log(LOG_DEBUG,
 			"Connection %d: received PONG.", Client_Conn(Client));
-
+#endif
 	return CONNECTED;
 } /* IRC_PONG */
 

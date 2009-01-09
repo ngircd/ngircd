@@ -316,7 +316,7 @@ main( int argc, const char *argv[] )
 #ifdef ZLIB
 		strlcat( NGIRCd_ProtoID, "Z", sizeof NGIRCd_ProtoID );
 #endif
-		Log( LOG_DEBUG, "Protocol and server ID is \"%s\".", NGIRCd_ProtoID );
+		LogDebug("Protocol and server ID is \"%s\".", NGIRCd_ProtoID);
 
 		/* Vordefinierte Channels anlegen */
 		Channel_InitPredefined( );

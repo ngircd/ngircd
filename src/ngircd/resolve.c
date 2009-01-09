@@ -14,8 +14,6 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: resolve.c,v 1.29 2008/02/26 22:04:17 fw Exp $";
-
 #include "imp.h"
 #include <assert.h>
 #include <errno.h>
@@ -92,7 +90,7 @@ Resolve_Addr(RES_STAT * s, const ng_ipaddr_t *Addr, int identsock,
 
 	pid = Resolver_fork(pipefd);
 	if (pid > 0) {
-		Log(LOG_DEBUG, "Resolver for %s created (PID %d).", ng_ipaddr_tostr(Addr), pid);
+		LogDebug("Resolver for %s created (PID %d).", ng_ipaddr_tostr(Addr), pid);
 
 		s->pid = pid;
 		s->resolver_fd = pipefd[0];

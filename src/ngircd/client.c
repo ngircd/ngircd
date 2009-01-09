@@ -1047,7 +1047,7 @@ Generate_MyToken( CLIENT *Client )
 		else c = (CLIENT *)c->next;
 	}
 	Client->mytoken = token;
-	Log( LOG_DEBUG, "Assigned token %d to server \"%s\".", token, Client->id );
+	LogDebug("Assigned token %d to server \"%s\".", token, Client->id);
 } /* Generate_MyToken */
 
 

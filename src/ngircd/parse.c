@@ -180,7 +180,7 @@ Parse_Request( CONN_ID Idx, char *Request )
 		ptr = strchr( Request, ' ' );
 		if( ! ptr )
 		{
-			Log( LOG_DEBUG, "Connection %d: Parse error: prefix without command!?", Idx );
+			LogDebug("Connection %d: Parse error: prefix without command!?", Idx);
 			return Conn_WriteStr( Idx, "ERROR :Prefix without command!?" );
 		}
 		*ptr = '\0';

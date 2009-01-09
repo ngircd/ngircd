@@ -876,7 +876,7 @@ Add_Client( CHANNEL *Chan, CLIENT *Client )
 	cl2chan->next = My_Cl2Chan;
 	My_Cl2Chan = cl2chan;
 
-	Log( LOG_DEBUG, "User \"%s\" joined channel \"%s\".", Client_Mask( Client ), Chan->name );
+	LogDebug("User \"%s\" joined channel \"%s\".", Client_Mask(Client), Chan->name);
 
 	return cl2chan;
 } /* Add_Client */

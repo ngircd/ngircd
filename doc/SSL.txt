@@ -20,8 +20,11 @@ options of the ./configure script to enable it:
   --with-openssl     enable SSL support using OpenSSL
   --with-gnutls      enable SSL support using GnuTLS
 
-You need a SSL certificate, see below for how to create a self-signed one.
+You also need a key/certificate, see below for how to create a self-signed one.
 
+From a feature point of view, ngIRCds support for both libraries is
+comparable. The only major difference (at this time) is that ngircd with gnutls
+does not support password protected private keys.
 
 Configuration
 ~~~~~~~~~~~~~
@@ -64,7 +67,7 @@ Create DH parameters (optional):
 Alternate approach using stunnel(1)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Alternatively (or if you are using ngIRCd without compiled without support
+Alternatively (or if you are using ngIRCd compiled without support
 for GnuTLS/OpenSSL), you can use external programs/tools like stunnel(1) to
 get SSL encrypted connections:
 
@@ -101,4 +104,7 @@ short "how-to", thanks Stefan!
 
     That's it.
     Don't forget to activate ssl support in your irc client ;)
+    The main drawback of this approach compared to using builtin ssl
+    is that from ngIRCds point of view, all ssl-enabled client connections will
+    originate from the host running stunnel.
 === snip ===

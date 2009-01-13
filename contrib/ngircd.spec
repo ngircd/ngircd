@@ -7,12 +7,12 @@ Summary:      A lightweight daemon for the Internet Relay Chat (IRC)
 Name:         %{name}
 Version:      %{version}
 Release:      %{release}
-Copyright:    GPL
-Group:        Networking/Daemons
-URL:          http://arthur.ath.cx/~alex/ngircd/
+License:      GPLv2+
+Group:        System Environment/Daemons
+URL:          http://ngircd.barton.de/
 Source:       %{name}-%{version}.tar.gz
-Packager:     Sean Reifschneider <jafo-rpms@tummy.com>
-BuildRoot:    /var/tmp/%{name}-root
+BuildRoot:    %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+BuildRequires:  zlib-devel, openssl-devel
 
 %description
 ngIRCd is a free open source daemon for the Internet Relay Chat (IRC),
@@ -29,10 +29,13 @@ ngIRCd is compatible to the "original" ircd 2.10.3p3, so you can run
 mixed networks.
 
 %prep
-%setup
+%setup -q
 %build
-%configure
-make
+%configure \
+  --with-zlib \
+  --with-openssl
+
+make %{?_smp_mflags}
 
 %install
 [ -n "$RPM_BUILD_ROOT" -a "$RPM_BUILD_ROOT" != / ] && rm -rf "$RPM_BUILD_ROOT"
@@ -42,6 +45,7 @@ make
    ( cd usr/sbin; mv *-ngircd ngircd )
    ( cd usr/share/man/man5; mv *-ngircd.conf.5 ngircd.conf.5 )
    ( cd usr/share/man/man8; mv *-ngircd.8 ngircd.8 )
+   rm -fr usr/share/doc/ngircd
 )
 
 %clean
@@ -49,7 +53,8 @@ make
 
 %files
 %defattr(755,root,root)
-%doc AUTHORS  COPYING  ChangeLog  INSTALL NEWS  README
+%doc AUTHORS  COPYING  ChangeLog  INSTALL NEWS  README doc/*
 %config(noreplace) /etc
 %{_prefix}/sbin
-%{_prefix}/share/man/
+%{_mandir}/man5/ngircd.conf*
+%{_mandir}/man8/ngircd.8*

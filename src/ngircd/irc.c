@@ -467,18 +467,18 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 						      Req->argv[1]))
 				return DISCONNECTED;
 		} else if (ForceType != CLIENT_SERVICE
+			   && (chan = Channel_Search(currentTarget))) {
+			/* channel */
+			if (!Channel_Write(chan, from, Client, Req->command,
+					   SendErrors, Req->argv[1]))
+					return DISCONNECTED;
+		} else if (ForceType != CLIENT_SERVICE
 			   && strchr("$#", currentTarget[0])
 			   && strchr(currentTarget, '.')) {
 			/* targetmask */
 			if (!Send_Message_Mask(from, Req->command, currentTarget,
 					       Req->argv[1], SendErrors))
 				return DISCONNECTED;
-		} else if (ForceType != CLIENT_SERVICE
-			   && (chan = Channel_Search(currentTarget))) {
-			/* channel */
-			if (!Channel_Write(chan, from, Client, Req->command,
-					   SendErrors, Req->argv[1]))
-					return DISCONNECTED;
 		} else {
 			if (!SendErrors)
 				return CONNECTED;

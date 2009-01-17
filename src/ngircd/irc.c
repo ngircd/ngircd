@@ -468,11 +468,11 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 				return DISCONNECTED;
 		} else if (ForceType != CLIENT_SERVICE
 			   && (chan = Channel_Search(currentTarget))) {
-			/* channel */
 			if (!Channel_Write(chan, from, Client, Req->command,
 					   SendErrors, Req->argv[1]))
 					return DISCONNECTED;
 		} else if (ForceType != CLIENT_SERVICE
+			/* $#: server/target mask, RFC 2812, sec. 3.3.1 */
 			   && strchr("$#", currentTarget[0])
 			   && strchr(currentTarget, '.')) {
 			/* targetmask */
@@ -501,6 +501,7 @@ Send_Message_Mask(CLIENT * from, char * command, char * targetMask,
 	CLIENT *cl;
 	bool client_match;
 	char *mask = targetMask + 1;
+	const char *check_wildcards;
 
 	cl = NULL;
 
@@ -511,6 +512,21 @@ Send_Message_Mask(CLIENT * from, char * command, char * targetMask,
 					  Client_ID(from));
 	}
 
+	/*
+	 * RFC 2812, sec. 3.3.1 requires that targetMask have at least one
+	 * dot (".") and no wildcards ("*", "?") following the last one.
+	 */
+	check_wildcards = strchr(targetMask, '.');
+	assert(check_wildcards != NULL);
+	if (check_wildcards &&
+		check_wildcards[strcspn(check_wildcards, "*?")])
+	{
+		if (!SendErrors)
+			return true;
+		return IRC_WriteStrClient(from, ERR_WILDTOPLEVEL, targetMask);
+	}
+
+	/* #: hostmask, see RFC 2812, sec. 3.3.1 */
 	if (targetMask[0] == '#') {
 		for (cl = Client_First(); cl != NULL; cl = Client_Next(cl)) {
 			if (Client_Type(cl) != CLIENT_USER)
@@ -522,6 +538,7 @@ Send_Message_Mask(CLIENT * from, char * command, char * targetMask,
 					return false;
 		}
 	} else {
+		assert(targetMask[0] == '$'); /* $: server mask, see RFC 2812, sec. 3.3.1 */
 		for (cl = Client_First(); cl != NULL; cl = Client_Next(cl)) {
 			if (Client_Type(cl) != CLIENT_USER)
 				continue;

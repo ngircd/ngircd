@@ -96,6 +96,7 @@
 #define ERR_NOORIGIN_MSG		"409 %s :No origin specified"
 #define ERR_NORECIPIENT_MSG		"411 %s :No receipient given (%s)"
 #define ERR_NOTEXTTOSEND_MSG		"412 %s :No text to send"
+#define ERR_WILDTOPLEVEL		"414 %s :Wildcard in toplevel domain"
 #define ERR_UNKNOWNCOMMAND_MSG		"421 %s %s :Unknown command"
 #define ERR_NOMOTD_MSG			"422 %s :MOTD file is missing"
 #define ERR_NONICKNAMEGIVEN_MSG		"431 %s :No nickname given"

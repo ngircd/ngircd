@@ -516,7 +516,7 @@ Send_Message_Mask(CLIENT * from, char * command, char * targetMask,
 	 * RFC 2812, sec. 3.3.1 requires that targetMask have at least one
 	 * dot (".") and no wildcards ("*", "?") following the last one.
 	 */
-	check_wildcards = strchr(targetMask, '.');
+	check_wildcards = strrchr(targetMask, '.');
 	assert(check_wildcards != NULL);
 	if (check_wildcards &&
 		check_wildcards[strcspn(check_wildcards, "*?")])

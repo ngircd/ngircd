@@ -18,7 +18,13 @@
 
 #include <time.h>			/* for time_t, see below */
 
-
+/*
+ * connection state flags. this is a bitmask -- all values must
+ * be unique and a power of two.
+ *
+ * If you introduce new ones in between, make sure to adjust all
+ * remaining ones.
+ */
 #define CONN_ISCLOSING		1	/* Conn_Close() already called */
 #define CONN_ISCONNECTING	2	/* connect() in progress */
 #define CONN_RFC1459		4	/* RFC 1459 compatibility mode */
@@ -29,10 +35,10 @@
 #include "conf-ssl.h"
 
 #ifdef SSL_SUPPORT
-#define CONN_SSL_CONNECT	8	/* wait for ssl connect to finish */
-#define CONN_SSL		16	/* this connection is SSL encrypted */
-#define CONN_SSL_WANT_WRITE	32	/* SSL/TLS library needs to write protocol data */
-#define CONN_SSL_WANT_READ	64	/* SSL/TLS library needs to read protocol data */
+#define CONN_SSL_CONNECT	16	/* wait for ssl connect to finish */
+#define CONN_SSL		32	/* this connection is SSL encrypted */
+#define CONN_SSL_WANT_WRITE	64	/* SSL/TLS library needs to write protocol data */
+#define CONN_SSL_WANT_READ	128	/* SSL/TLS library needs to read protocol data */
 #endif
 typedef int CONN_ID;
 

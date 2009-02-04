@@ -228,7 +228,8 @@ void ConnSSL_Free(CONNECTION *c)
 	}
 #endif
 	assert(Conn_OPTION_ISSET(c, CONN_SSL));
-	Conn_OPTION_DEL(c, (CONN_SSL_CONNECT|CONN_SSL|CONN_SSL_WANT_WRITE));
+	/* can't just set bitmask to 0 -- there are other, non-ssl related flags, e.g. CONN_ZIP. */
+	Conn_OPTION_DEL(c, CONN_SSL_FLAGS_ALL);
 }
 
 

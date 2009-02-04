@@ -9,7 +9,12 @@
 
                                -- ChangeLog --
 
+ngIRCd-dev
 
+  - Fix memory leak when a encrypted and compressed server link goes down.
+    (Bug #95, reported by Christoph, fiesh@fiesh.homeip.net)
+  - Fix handling of channels containing dots (Bug #93, reported by
+    gonosz csiga)
 ngIRCd Release 13 (2008-12-25)
 
   - Updated documentation, especially doc/Services.txt and doc/SSL.txt.

@@ -484,8 +484,8 @@ ConnSSL_HandleError( CONNECTION *c, const int code, const char *fname )
 		Conn_OPTION_ADD(c, CONN_SSL_WANT_WRITE); /* fall through */
 	case SSL_ERROR_NONE:
 		return 0;	/* try again later */
-	case SSL_ERROR_ZERO_RETURN:	/* TLS/SSL Connection was shut down */
-		LogOpenSSLError("TLS/SSL Connection shutdown", fname);
+	case SSL_ERROR_ZERO_RETURN:
+		LogDebug("TLS/SSL connection shut down normally");
 		break;
 	/*
 	SSL_ERROR_WANT_CONNECT, SSL_ERROR_WANT_ACCEPT, SSL_ERROR_WANT_X509_LOOKUP

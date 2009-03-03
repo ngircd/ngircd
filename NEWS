@@ -1,7 +1,7 @@
 
                      ngIRCd - Next Generation IRC Server
 
-                        (c)2001-2008 Alexander Barton,
+                        (c)2001-2009 Alexander Barton,
                     alex@barton.de, http://www.barton.de/
 
                ngIRCd is free software and published under the
@@ -9,6 +9,16 @@
 
                                   -- NEWS --
 
+
+ngIRCd Release 14~rc1
+
+  - Support individual channel keys for pre-defined channels: introduce
+    new configuration variable "KeyFile" in [Channel] sections in ngircd.conf,
+    here a file can be configured for each pre-defined channel which contains
+    individual channel keys for different users.
+  - Remove limit on maximum number of predefined channels in ngircd.conf.
+  - Implement pre-defined server local channels ("&") and write some
+    server-specific messages to &SERVER.
 
 ngIRCd Release 13 (2008-12-25)
 

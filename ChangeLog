@@ -1,7 +1,7 @@
 
                      ngIRCd - Next Generation IRC Server
 
-                        (c)2001-2008 Alexander Barton,
+                        (c)2001-2009 Alexander Barton,
                     alex@barton.de, http://www.barton.de/
 
                ngIRCd is free software and published under the
@@ -9,12 +9,27 @@
 
                                -- ChangeLog --
 
-ngIRCd-dev
 
+ngIRCd Release 14~rc1
+
+  - Spell check and enhance ngIRCd manual pages.
+  - Channel mode changes: break on syntax errors in MODE command.
+  - Support individual channel keys for pre-defined channels: introduce
+    new configuration variable "KeyFile" in [Channel] sections in ngircd.conf,
+    here a file can be configured for each pre-defined channel which contains
+    individual channel keys for different users.
+  - Remove limit on maximum number of predefined channels in ngircd.conf.
+  - Updated ngircd.spec file for building RPM packages.
+  - Add new and missing files to Mac OS X Xcode project, and update project.
+  - Implement pre-defined server local channels ("&") and write some
+    server-specific messages to &SERVER.
+  - Reject masks with wildcard after last dot.
+  - TLS/SSL: remove useless error message when ssl connection is closed.
   - Fix memory leak when a encrypted and compressed server link goes down.
-    (Bug #95, reported by Christoph, fiesh@fiesh.homeip.net)
-  - Fix handling of channels containing dots (Bug #93, reported by
-    gonosz csiga)
+    (closes bug #95, reported by Christoph, fiesh@fiesh.homeip.net)
+  - Fix handling of channels containing dots.
+    (closes ug #93, reported by Gonosz Csiga)
+
 ngIRCd Release 13 (2008-12-25)
 
   - Updated documentation, especially doc/Services.txt and doc/SSL.txt.

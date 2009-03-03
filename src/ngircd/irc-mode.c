@@ -276,12 +276,14 @@ Channel_Mode_Answer_Request(CLIENT *Origin, CHANNEL *Channel)
 }
 
 
+/**
+ * Handle channel mode and channel-user mode changes
+ */
 static bool
-Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
+Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 {
-	/* Handle channel and channel-user modes */
-
-	char the_modes[COMMAND_LEN], the_args[COMMAND_LEN], x[2], argadd[CLIENT_PASS_LEN], *mode_ptr;
+	char the_modes[COMMAND_LEN], the_args[COMMAND_LEN], x[2],
+	    argadd[CLIENT_PASS_LEN], *mode_ptr;
 	bool ok, set, modeok = true, skiponce, use_servermode = false, retval;
 	int mode_arg, arg_arg;
 	CLIENT *client;
@@ -307,7 +309,7 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 		/* channel operator? */
 		if (strchr(Channel_UserModes(Channel, Origin), 'o'))
 			modeok = true;
-		else if(Conf_OperCanMode) {
+		else if (Conf_OperCanMode) {
 			/* IRC-Operators can use MODE as well */
 			if (Client_OperByMe(Origin)) {
 				modeok = true;
@@ -327,8 +329,12 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 	/* Initial state: set or unset modes? */
 	skiponce = false;
 	switch (*mode_ptr) {
-	case '-': set = false; break;
-	case '+': set = true; break;
+	case '-':
+		set = false;
+		break;
+	case '+':
+		set = true;
+		break;
 	default:
 		set = true;
 		skiponce = true;
@@ -341,7 +347,7 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 	x[1] = '\0';
 	ok = CONNECTED;
 	while (mode_ptr) {
-		if (! skiponce)
+		if (!skiponce)
 			mode_ptr++;
 		if (!*mode_ptr) {
 			/* Try next argument if there's any */
@@ -364,10 +370,11 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 		switch (*mode_ptr) {
 		case '+':
 		case '-':
-			if (((*mode_ptr == '+') && !set) || ((*mode_ptr == '-') && set)) {
+			if (((*mode_ptr == '+') && !set)
+			    || ((*mode_ptr == '-') && set)) {
 				/* Action modifier ("+"/"-") must be changed ... */
-				len = strlen( the_modes ) - 1;
-				if ((the_modes[len] == '+') || (the_modes[len] == '-')) {
+				len = strlen(the_modes) - 1;
+				if (the_modes[len] == '+' || the_modes[len] == '-') {
 					/* Adjust last action modifier in result */
 					the_modes[len] = *mode_ptr;
 				} else {
@@ -381,7 +388,8 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 		}
 
 		/* Are there arguments left? */
-		if( arg_arg >= Req->argc ) arg_arg = -1;
+		if (arg_arg >= Req->argc)
+			arg_arg = -1;
 
 		/* Validate modes */
 		x[0] = '\0';
@@ -397,29 +405,41 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 			if (modeok)
 				x[0] = *mode_ptr;
 			else
-				ok = IRC_WriteStrClient(Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID(Origin), Channel_Name(Channel));
+				ok = IRC_WriteStrClient(Origin,
+					ERR_CHANOPRIVSNEEDED_MSG,
+					Client_ID(Origin), Channel_Name(Channel));
 			break;
 		case 'k': /* Channel key */
-			if (! set) {
+			if (!set) {
 				if (modeok)
 					x[0] = *mode_ptr;
 				else
-					ok = IRC_WriteStrClient(Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID(Origin), Channel_Name(Channel));
+					ok = IRC_WriteStrClient(Origin,
+						ERR_CHANOPRIVSNEEDED_MSG,
+						Client_ID(Origin),
+						Channel_Name(Channel));
 				break;
 			}
 			if (arg_arg > mode_arg) {
 				if (modeok) {
 					Channel_ModeDel(Channel, 'k');
-					Channel_SetKey(Channel, Req->argv[arg_arg]);
-					strlcpy(argadd, Channel_Key(Channel), sizeof(argadd));
+					Channel_SetKey(Channel,
+						       Req->argv[arg_arg]);
+					strlcpy(argadd, Channel_Key(Channel),
+						sizeof(argadd));
 					x[0] = *mode_ptr;
 				} else {
-					ok = IRC_WriteStrClient(Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID(Origin), Channel_Name(Channel));
+					ok = IRC_WriteStrClient(Origin,
+						ERR_CHANOPRIVSNEEDED_MSG,
+						Client_ID(Origin),
+						Channel_Name(Channel));
 				}
 				Req->argv[arg_arg][0] = '\0';
 				arg_arg++;
 			} else {
-				ok = IRC_WriteStrClient(Origin, ERR_NEEDMOREPARAMS_MSG, Client_ID(Origin), Req->command);
+				ok = IRC_WriteStrClient(Origin,
+					ERR_NEEDMOREPARAMS_MSG,
+					Client_ID(Origin), Req->command);
 			}
 			break;
 		case 'l': /* Member limit */
@@ -427,7 +447,10 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 				if (modeok)
 					x[0] = *mode_ptr;
 				else
-					ok = IRC_WriteStrClient(Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID(Origin), Channel_Name(Channel));
+					ok = IRC_WriteStrClient(Origin,
+						ERR_CHANOPRIVSNEEDED_MSG,
+						Client_ID(Origin),
+						Channel_Name(Channel));
 				break;
 			}
 			if (arg_arg > mode_arg) {
@@ -436,28 +459,40 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 					if (l > 0 && l < 0xFFFF) {
 						Channel_ModeDel(Channel, 'l');
 						Channel_SetMaxUsers(Channel, l);
-						snprintf(argadd, sizeof(argadd), "%ld", l);
+						snprintf(argadd, sizeof(argadd),
+							 "%ld", l);
 						x[0] = *mode_ptr;
 					}
 				} else {
-					ok = IRC_WriteStrClient(Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID(Origin), Channel_Name(Channel));
+					ok = IRC_WriteStrClient(Origin,
+						ERR_CHANOPRIVSNEEDED_MSG,
+						Client_ID(Origin),
+						Channel_Name(Channel));
 				}
 				Req->argv[arg_arg][0] = '\0';
 				arg_arg++;
 			} else {
-				ok = IRC_WriteStrClient(Origin, ERR_NEEDMOREPARAMS_MSG, Client_ID(Origin), Req->command);
+				ok = IRC_WriteStrClient(Origin,
+					ERR_NEEDMOREPARAMS_MSG,
+					Client_ID(Origin), Req->command);
 			}
 			break;
 		case 'P': /* Persistent channel */
 			if (modeok) {
 				/* Only IRC operators are allowed to
 				 * set the 'P' channel mode! */
-				if (set && !(Client_OperByMe(Client) || Client_Type(Client) == CLIENT_SERVER))
-					ok = IRC_WriteStrClient(Origin, ERR_NOPRIVILEGES_MSG, Client_ID(Origin));
+				if (set && !(Client_OperByMe(Client)
+				    || Client_Type(Client) == CLIENT_SERVER))
+					ok = IRC_WriteStrClient(Origin,
+						ERR_NOPRIVILEGES_MSG,
+						Client_ID(Origin));
 				else
-						x[0] = 'P';
+					x[0] = 'P';
 			} else
-				ok = IRC_WriteStrClient(Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID(Origin), Channel_Name(Channel));
+				ok = IRC_WriteStrClient(Origin,
+					ERR_CHANOPRIVSNEEDED_MSG,
+					Client_ID(Origin),
+					Channel_Name(Channel));
 			break;
 		/* --- Channel user modes --- */
 		case 'o': /* Channel operator */
@@ -468,14 +503,22 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 					if (client)
 						x[0] = *mode_ptr;
 					else
-						ok = IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG, Client_ID(Client), Req->argv[arg_arg]);
+						ok = IRC_WriteStrClient(Client,
+							ERR_NOSUCHNICK_MSG,
+							Client_ID(Client),
+							Req->argv[arg_arg]);
 				} else {
-					ok = IRC_WriteStrClient(Origin, ERR_CHANOPRIVSNEEDED_MSG, Client_ID(Origin), Channel_Name(Channel));
+					ok = IRC_WriteStrClient(Origin,
+						ERR_CHANOPRIVSNEEDED_MSG,
+						Client_ID(Origin),
+						Channel_Name(Channel));
 				}
 				Req->argv[arg_arg][0] = '\0';
 				arg_arg++;
 			} else {
-				ok = IRC_WriteStrClient(Origin, ERR_NEEDMOREPARAMS_MSG, Client_ID(Origin), Req->command);
+				ok = IRC_WriteStrClient(Origin,
+					ERR_NEEDMOREPARAMS_MSG,
+					Client_ID(Origin), Req->command);
 			}
 			break;
 		/* --- Channel lists --- */
@@ -484,11 +527,18 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 			if (arg_arg > mode_arg) {
 				/* modify list */
 				if (modeok) {
-					ok = set ? Add_Ban_Invite(*mode_ptr, Origin, Client, Channel, Req->argv[arg_arg])
-						 : Del_Ban_Invite(*mode_ptr, Origin, Client, Channel, Req->argv[arg_arg]);
+					ok = set
+					   ? Add_Ban_Invite(*mode_ptr, Origin,
+						Client, Channel,
+						Req->argv[arg_arg])
+					   : Del_Ban_Invite(*mode_ptr, Origin,
+						Client, Channel,
+						Req->argv[arg_arg]);
 				} else {
-					ok = IRC_WriteStrClient(Origin, ERR_CHANOPRIVSNEEDED_MSG,
-							Client_ID(Origin), Channel_Name(Channel));
+					ok = IRC_WriteStrClient(Origin,
+						ERR_CHANOPRIVSNEEDED_MSG,
+						Client_ID(Origin),
+						Channel_Name(Channel));
 				}
 				Req->argv[arg_arg][0] = '\0';
 				arg_arg++;
@@ -500,13 +550,18 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 			}
 			break;
 		default:
-			Log(LOG_DEBUG, "Unknown mode \"%c%c\" from \"%s\" on %s!?",
-				set ? '+' : '-', *mode_ptr, Client_ID(Origin), Channel_Name(Channel));
+			Log(LOG_DEBUG,
+			    "Unknown mode \"%c%c\" from \"%s\" on %s!?",
+			    set ? '+' : '-', *mode_ptr, Client_ID(Origin),
+			    Channel_Name(Channel));
 			if (Client_Type(Client) != CLIENT_SERVER)
-				ok = IRC_WriteStrClient(Origin, ERR_UMODEUNKNOWNFLAG2_MSG, Client_ID(Origin), set ? '+' : '-', *mode_ptr);
+				ok = IRC_WriteStrClient(Origin,
+					ERR_UMODEUNKNOWNFLAG2_MSG,
+					Client_ID(Origin),
+					set ? '+' : '-', *mode_ptr);
 			x[0] = '\0';
 			goto chan_exit;
-		} /* switch() */
+		}	/* switch() */
 
 		if (!ok)
 			break;
@@ -517,29 +572,40 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 
 		/* Validate target client */
 		if (client && (!Channel_IsMemberOf(Channel, client))) {
-			if (!IRC_WriteStrClient(Origin, ERR_USERNOTINCHANNEL_MSG,
-				Client_ID(Origin), Client_ID(client), Channel_Name(Channel)))
-					break;
+			if (!IRC_WriteStrClient
+			    (Origin, ERR_USERNOTINCHANNEL_MSG,
+			     Client_ID(Origin), Client_ID(client),
+			     Channel_Name(Channel)))
+				break;
 
 			continue;
 		}
 
 		if (client) {
 			/* Channel-User-Mode */
-			retval = set ? Channel_UserModeAdd(Channel, client, x[0]) : Channel_UserModeDel(Channel, client, x[0]);
+			retval = set
+			       ? Channel_UserModeAdd(Channel, client, x[0])
+			       : Channel_UserModeDel(Channel, client, x[0]);
 			if (retval) {
 				strlcat(the_args, " ", sizeof(the_args));
-				strlcat(the_args, Client_ID(client), sizeof(the_args));
+				strlcat(the_args, Client_ID(client),
+					sizeof(the_args));
 				strlcat(the_modes, x, sizeof(the_modes));
-				LogDebug("User \"%s\": Mode change on %s, now \"%s\"",
-					Client_Mask(client), Channel_Name(Channel), Channel_UserModes(Channel, client));
+				LogDebug
+				    ("User \"%s\": Mode change on %s, now \"%s\"",
+				     Client_Mask(client), Channel_Name(Channel),
+				     Channel_UserModes(Channel, client));
 			}
 		} else {
 			/* Channel-Mode */
-			retval = set ? Channel_ModeAdd(Channel, x[0]) : Channel_ModeDel(Channel, x[0]);
+			retval = set
+			       ? Channel_ModeAdd(Channel, x[0])
+			       : Channel_ModeDel(Channel, x[0]);
 			if (retval) {
 				strlcat(the_modes, x, sizeof(the_modes));
-				LogDebug("Channel %s: Mode change, now \"%s\".", Channel_Name(Channel), Channel_Modes(Channel));
+				LogDebug("Channel %s: Mode change, now \"%s\".",
+					 Channel_Name(Channel),
+					 Channel_Modes(Channel));
 			}
 		}
 
@@ -549,7 +615,8 @@ Channel_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel )
 			strlcat(the_args, argadd, sizeof(the_args));
 		}
 	}
-chan_exit:
+
+      chan_exit:
 	/* Are there changed modes? */
 	if (the_modes[1]) {
 		/* Clean up mode string */
@@ -567,14 +634,19 @@ chan_exit:
 
 			/* Forward mode changes to channel users and all the
 			 * other remote servers: */
-			IRC_WriteStrServersPrefix(Client, Origin, "MODE %s %s%s", Channel_Name( Channel ), the_modes, the_args);
-			IRC_WriteStrChannelPrefix(Client, Channel, Origin, false, "MODE %s %s%s", Channel_Name(Channel), the_modes, the_args);
+			IRC_WriteStrServersPrefix(Client, Origin,
+				"MODE %s %s%s", Channel_Name(Channel),
+				the_modes, the_args);
+			IRC_WriteStrChannelPrefix(Client, Channel, Origin,
+				false, "MODE %s %s%s", Channel_Name(Channel),
+				the_modes, the_args);
 		} else {
 			if (use_servermode)
 				Origin = Client_ThisServer();
 			/* Send reply to client and inform other servers and channel users */
-			ok = IRC_WriteStrClientPrefix(Client, Origin, "MODE %s %s%s",
-					Channel_Name(Channel), the_modes, the_args);
+			ok = IRC_WriteStrClientPrefix(Client, Origin,
+					"MODE %s %s%s", Channel_Name(Channel),
+					the_modes, the_args);
 			/* Only forward requests for non-local channels */
 			if (!Channel_IsLocal(Channel))
 				IRC_WriteStrServersPrefix(Client, Origin,

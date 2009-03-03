@@ -440,6 +440,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 				ok = IRC_WriteStrClient(Origin,
 					ERR_NEEDMOREPARAMS_MSG,
 					Client_ID(Origin), Req->command);
+				goto chan_exit;
 			}
 			break;
 		case 'l': /* Member limit */
@@ -475,6 +476,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 				ok = IRC_WriteStrClient(Origin,
 					ERR_NEEDMOREPARAMS_MSG,
 					Client_ID(Origin), Req->command);
+				goto chan_exit;
 			}
 			break;
 		case 'P': /* Persistent channel */
@@ -519,6 +521,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 				ok = IRC_WriteStrClient(Origin,
 					ERR_NEEDMOREPARAMS_MSG,
 					Client_ID(Origin), Req->command);
+				goto chan_exit;
 			}
 			break;
 		/* --- Channel lists --- */

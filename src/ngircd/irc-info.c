@@ -133,8 +133,14 @@ IRC_INFO(CLIENT * Client, REQUEST * Req)
 	if (!IRC_WriteStrClient(Client, RPL_INFO_MSG, Client_ID(prefix),
 				NGIRCd_Version))
 		return DISCONNECTED;
-	
-	strlcpy(msg, "Server has been started ", sizeof(msg));
+
+#if defined(__DATE__) && defined(__TIME__)
+	snprintf(msg, sizeof(msg), "Birth Date: %s at %s", __DATE__, __TIME__);
+	if (!IRC_WriteStrClient(Client, RPL_INFO_MSG, Client_ID(prefix), msg))
+		return DISCONNECTED;
+#endif
+
+	strlcpy(msg, "On-line since ", sizeof(msg));
 	strlcat(msg, NGIRCd_StartStr, sizeof(msg));
 	if (!IRC_WriteStrClient(Client, RPL_INFO_MSG, Client_ID(prefix), msg))
 		return DISCONNECTED;

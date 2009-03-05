@@ -12,6 +12,7 @@
 
 ngIRCd Release 14~rc1
 
+  - The INFO command reports the compile time now (if available).
   - Spell check and enhance ngIRCd manual pages.
   - Channel mode changes: break on syntax errors in MODE command.
   - Support individual channel keys for pre-defined channels: introduce

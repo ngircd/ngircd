@@ -290,8 +290,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 	long l;
 	size_t len;
 
-	/* Are modes allowed on channel? */
-	if (Channel_Name(Channel)[0] == '+')
+	if (Channel_IsModeless(Channel))
 		return IRC_WriteStrClient(Client, ERR_NOCHANMODES_MSG,
 				Client_ID(Client), Channel_Name(Channel));
 

@@ -132,7 +132,7 @@ GLOBAL bool Channel_CheckKey PARAMS((CHANNEL *Chan, CLIENT *Client,
 				     const char *Key));
 
 #define Channel_IsLocal(c) (Channel_Name(c)[0] == '&')
-
+#define Channel_IsModeless(c) (Channel_Name(c)[0] == '+')
 
 #endif
 

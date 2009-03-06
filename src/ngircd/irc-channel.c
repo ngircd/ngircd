@@ -303,7 +303,7 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 		if (!chan) { /* channel is new; it has been created above */
 			chan = Channel_Search(channame);
 			assert(chan != NULL);
-			if (*channame == '+') { /* modeless channel... */
+			if (Channel_IsModeless(chan)) {
 				Channel_ModeAdd(chan, 't'); /* /TOPIC not allowed */
 				Channel_ModeAdd(chan, 'n'); /* no external msgs */
 			}

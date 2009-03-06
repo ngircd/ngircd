@@ -40,6 +40,7 @@
 #include "ngircd.h"
 #include "conn.h"
 #include "client.h"
+#include "channel.h"
 #include "defines.h"
 #include "log.h"
 #include "match.h"
@@ -1169,10 +1170,11 @@ Handle_Channelname(struct Conf_Channel *new_chan, const char *name)
 	size_t size = sizeof(new_chan->name);
 	char *dest = new_chan->name;
 
-	/* Channels names must begin with "&" or "#", if it is
-	 * missing, add a '#'. This is only here for user convenience.
-	 */
-	if (*name && *name != '#' && *name != '&') {
+	if (!Channel_IsValidName(name)) {
+		/*
+		 * maybe user forgot to add a '#'.
+		 * This is only here for user convenience.
+		 */
 		*dest = '#';
 		--size;
 		++dest;

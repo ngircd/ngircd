@@ -1,7 +1,7 @@
 
                      ngIRCd - Next Generation IRC Server
 
-                        (c)2001-2007 Alexander Barton,
+                        (c)2001-2009 Alexander Barton,
                     alex@barton.de, http://www.barton.de/
 
                ngIRCd is free software and published under the
@@ -25,6 +25,7 @@ Florian Westphal, <westphal@foo.fh-furtwangen.de> (fw)
 Contributors
 ~~~~~~~~~~~~
 Ali Shemiran, <ashemira@ucsd.edu>
+Ask Bjørn Hansen, <ask@develooper.com>
 Benjamin Pineau, <ben@zouh.org>
 Brandon Beresini, <beresini@google.com>
 Bryan Caldwell, <bcaldwel@ucsd.edu>
@@ -32,6 +33,7 @@ Dana Dahlstrom, <dana+ngIRCd@cs.ucsd.edu>
 Eric Grunow, <egrunow@ucsd.edu>
 Goetz Hoffart, <goetz@hoffart.de>
 Ilja Osthoff, <i.osthoff@gmx.net>
+Jari Aalto, <jari.aalto@cante.net>
 Rolf Eike Beer, <eike@sf-mail.de>
 Scott Perry, <scperry@ucsd.edu>
 Sean Reifschneider, <jafo-rpms@tummy.com>

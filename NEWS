@@ -10,8 +10,9 @@
                                   -- NEWS --
 
 
-ngIRCd Release 14~rc1
+ngIRCd Release 14
 
+  ngIRCd 14~rc1 (2009-03-29)
   - Allow creation of persistent modeless channels.
   - The INFO command reports the compile time now (if available).
   - Support individual channel keys for pre-defined channels: introduce

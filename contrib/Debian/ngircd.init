@@ -1,18 +1,19 @@
 #!/bin/sh
 #
 # ngIRCd start and stop script for Debian-based systems
-# Copyright 2008 Alexander Barton <alex@barton.de>
+# Copyright 2008,2009 Alexander Barton <alex@barton.de>
 #
 
 ### BEGIN INIT INFO
-# Provides:		ircd
-# Required-Start:	$remote_fs
-# Required-Stop:	$remote_fs
-# Should-Start:		$syslog
+# Provides:		ngircd ircd
+# Required-Start:	$network $local_fs
+# Required-Stop:
+# Should-Start:		$syslog $named
 # Should-Stop:		$syslog
 # Default-Start:	2 3 4 5
 # Default-Stop:		0 1 6
 # Short-Description:	Next Generation IRC Server
+# Description:		IRC daemon written from scratch
 ### END INIT INFO
 
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
@@ -20,13 +21,15 @@ DAEMON=/usr/sbin/ngircd
 NAME=ngIRCd
 DESC="IRC daemon"
 PARAMS=""
+STARTTIME=1
+DIETIME=10
+
+test -x $DAEMON || exit 5
 
 test -h "$0" && me=`readlink $0` || me="$0"
 BASENAME=`basename $me`
 
 test -r /etc/default/$BASENAME && . /etc/default/$BASENAME
-
-test -x $DAEMON || exit 0
 
 # LSB compatibility functions that become used if there is no local
 # include file available.
@@ -39,69 +42,134 @@ log_end_msg() {
 log_failure_msg() {
 	echo "$*"
 }
+log_warning_msg() {
+	log_failure_msg "$*"
+}
 
 # Include LSB functions, if available:
 test -r /lib/lsb/init-functions && . /lib/lsb/init-functions
 
+PIDFILE=`$DAEMON $PARAMS -t | tr -d ' ' | grep "^PidFile=" | cut -d'=' -f2`
+[ -n "$PIDFILE" ] || PIDFILE="/var/run/ircd/ngircd.pid"
+
+r=3
+
 Check_Config()
 {
 	# Make sure that the configuration of ngIRCd is valid:
-	$DAEMON --configtest >/dev/null 2>&1
-	if [ $? -ne 0 ]; then
-		log_failure_msg "Configuration of $NAME is not valid, won't (re)start!"
-		log_failure_msg "Run \"$DAEMON --configtest\" and fix it up ..."
-		exit 1
-	fi
+	$DAEMON $PARAMS --configtest >/dev/null 2>&1
+	[ $? -eq 0 ] && return 0
+	log_end_msg 1
+	log_failure_msg "Configuration of $NAME is not valid, won't (re)start!"
+	log_failure_msg "Run \"$DAEMON --configtest\" and fix it up ..."
+	exit 6
+}
+
+Prepare() {
 	# Make sure the PID file directory exists and is writable:
-	if [ ! -d /var/run/ircd ]; then
-		mkdir -p /var/run/ircd
+	user=`$DAEMON $PARAMS -t|tr -d ' '|grep "^ServerUID="|cut -d'=' -f2`
+	group=`$DAEMON $PARAMS -t|tr -d ' '|grep "^ServerGID="|cut -d'=' -f2`
+	piddir=`dirname "$PIDFILE"`
+	[ -d "$piddir" ] || mkdir -p "$piddir" 2>/dev/null
+	chown "$user:$group" "$piddir" 2>/dev/null
+	[ $? -eq 0 ] && return 0
+	log_end_msg 1
+	log_failure_msg "Failed to prepare '$piddir' for user '$user'!"
+	exit 1
+}
+
+Do_Start() {
+	if Do_Status; then
+		log_end_msg 0
+		log_warning_msg "$NAME seems to be already running, nothing to do."
+		exit 0
 	fi
-	chown irc:irc /var/run/ircd
+	start-stop-daemon --start \
+		--quiet --exec $DAEMON -- $PARAMS
+	sleep $STARTTIME
+	Do_Status || return 7
+	return 0
+}
+
+Do_Stop() {
+	if ! Do_Status; then
+		log_end_msg 0
+		log_warning_msg "$NAME seems not to be running, nothing to do."
+		exit 0
+	fi
+	Do_ForceStop
+	return $?
+}
+
+Do_ForceStop() {
+	[ -e $PIDFILE ] \
+		&& pidfile="--pidfile $PIDFILE" \
+		|| pidfile=""
+	start-stop-daemon --stop \
+		--quiet --oknodo --exec $DAEMON $pidfile
+	for i in `seq 1 $DIETIME`; do
+		Do_Status || return 0
+		sleep 1
+	done
+	return 1
+}
+
+Do_Reload() {
+	start-stop-daemon --stop --signal 1 --quiet --exec $DAEMON
+	return $?
+}
+
+Do_Status() {
+	[ -e $PIDFILE ] \
+		&& pidfile="--pidfile $PIDFILE" \
+		|| pidfile=""
+	start-stop-daemon --stop \
+		--quiet --signal 0 --exec $DAEMON $pidfile >/dev/null
+	return $?
 }
 
 case "$1" in
   start)
-	Check_Config
 	log_daemon_msg "Starting $DESC" "$NAME"
-	start-stop-daemon --start \
-		--quiet --exec $DAEMON -- $PARAMS
-	log_end_msg $?
+	Check_Config
+	Prepare
+	Do_Start; r=$?
+	log_end_msg $r
 	;;
   stop)
 	log_daemon_msg "Stopping $DESC" "$NAME"
-	[ -r /var/run/ircd/ngircd.pid ] \
-		&& PIDFILE="--pidfile /var/run/ircd/ngircd.pid" \
-		|| PIDFILE=""
-	start-stop-daemon --stop \
-		--quiet --oknodo --exec $DAEMON $PIDFILE
-	log_end_msg $?
+	Do_Stop; r=$?
+	log_end_msg $r
 	;;
   reload|force-reload)
-	Check_Config
 	log_daemon_msg "Reloading $DESC" "$NAME"
-	start-stop-daemon --stop --signal 1 --quiet --exec $DAEMON
-	log_end_msg $?
+	Check_Config
+	Do_Reload; r=$?
+	log_end_msg $r
 	;;
   restart)
-	Check_Config
 	log_daemon_msg "Restarting $DESC" "$NAME"
-	[ -r /var/run/ircd/ngircd.pid ] \
-		&& PIDFILE="--pidfile /var/run/ircd/ngircd.pid" \
-		|| PIDFILE=""
-	start-stop-daemon --stop \
-		--quiet --oknodo --exec $DAEMON $PIDFILE
-	sleep 1
-	start-stop-daemon --start \
-		--quiet --exec $DAEMON -- $PARAMS
-	log_end_msg $?
+	Check_Config
+	Prepare
+	Do_ForceStop
+	Do_Start; r=$?
+	log_end_msg $r
+	;;
+  status)
+	log_daemon_msg "Checking for $DESC" "$NAME"
+	Do_Status; r=$?
+	log_end_msg $r
+	;;
+  test)
+	Check_Config
+	echo "Configuration of $DAEMON seems to be ok."; r=0
 	;;
   *)
-	N=/etc/init.d/$NAME
-	echo "Usage: $N {start|stop|restart|reload|force-reload}" >&2
-	exit 1
+	N=/etc/init.d/$NAME; r=2
+	echo "Usage: $N {start|stop|restart|reload|force-reload|status|test}" >&2
 	;;
 esac
 
-exit 0
+exit $r
 
 # -eof-

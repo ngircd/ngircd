@@ -12,6 +12,8 @@
 
 ngIRCd Release 14~rc1
 
+  - Allow creation of persistent modeless channels.
+  - The INFO command reports the compile time now (if available).
   - Support individual channel keys for pre-defined channels: introduce
     new configuration variable "KeyFile" in [Channel] sections in ngircd.conf,
     here a file can be configured for each pre-defined channel which contains

@@ -1,6 +1,6 @@
-ngircd (14~rc1-0ab1 unstable; urgency=low
+ngircd (14~rc1-0ab1) unstable; urgency=low
 
-  * New "upstream" release candidate for 1 for ngIRCd Release 14.
+  * New "upstream" release candidate 1 for ngIRCd Release 14.
 
  -- Alexander Barton <alex@barton.de>  Sun, 29 Mar 2009 17:09:17 +0200
 

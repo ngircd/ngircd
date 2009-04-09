@@ -25,8 +25,6 @@ ngIRCd Release 14
   - Remove limit on maximum number of predefined channels in ngircd.conf.
   - Updated ngircd.spec file for building RPM packages.
   - Add new and missing files to Mac OS X Xcode project, and update project.
-  - Implement pre-defined server local channels ("&") and write some
-    server-specific messages to &SERVER.
   - Reject masks with wildcard after last dot.
   - TLS/SSL: remove useless error message when ssl connection is closed.
   - Fix memory leak when a encrypted and compressed server link goes down.

@@ -20,8 +20,6 @@ ngIRCd Release 14
     here a file can be configured for each pre-defined channel which contains
     individual channel keys for different users.
   - Remove limit on maximum number of predefined channels in ngircd.conf.
-  - Implement pre-defined server local channels ("&") and write some
-    server-specific messages to &SERVER.
 
 ngIRCd Release 13 (2008-12-25)
 

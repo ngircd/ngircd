@@ -13,7 +13,7 @@
 
 #define PACKAGE_NAME "ngircd"
 #ifndef VERSION
-#define VERSION "??"
+#define VERSION "??("__DATE__")"
 #endif
 #define SYSCONFDIR "/etc/ngircd"
 

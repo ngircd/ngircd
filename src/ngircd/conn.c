@@ -1261,13 +1261,20 @@ New_Connection( int Sock )
 	My_Connections[new_sock].addr = new_addr;
 	My_Connections[new_sock].client = c;
 
-	Log( LOG_INFO, "Accepted connection %d from %s:%d on socket %d.", new_sock,
-			ip_str, ng_ipaddr_getport(&new_addr), Sock);
-
-	/* Hostnamen ermitteln */
-	strlcpy(My_Connections[new_sock].host, ip_str, sizeof(My_Connections[new_sock].host));
+	/* Set initial hostname to IP address. This becomes overwritten when
+	 * the DNS lookup is enabled and succeeds, but is used otherwise. */
+	if (ng_ipaddr_af(&new_addr) != AF_INET)
+		snprintf(My_Connections[new_sock].host,
+			 sizeof(My_Connections[new_sock].host), "[%s]", ip_str);
+	else
+		strlcpy(My_Connections[new_sock].host, ip_str,
+			sizeof(My_Connections[new_sock].host));
 
 	Client_SetHostname(c, My_Connections[new_sock].host);
+
+	Log(LOG_INFO, "Accepted connection %d from %s:%d on socket %d.",
+	    new_sock, My_Connections[new_sock].host,
+	    ng_ipaddr_getport(&new_addr), Sock);
 
 	identsock = new_sock;
 #ifdef IDENTAUTH

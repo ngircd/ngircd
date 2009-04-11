@@ -108,7 +108,7 @@ GLOBAL void Conn_Handler PARAMS(( void ));
 
 GLOBAL bool Conn_WriteStr PARAMS(( CONN_ID Idx, char *Format, ... ));
 
-GLOBAL void Conn_Close PARAMS(( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool InformClient ));
+GLOBAL void Conn_Close PARAMS(( CONN_ID Idx, const char *LogMsg, const char *FwdMsg, bool InformClient ));
 
 GLOBAL void Conn_SyncServerStruct PARAMS(( void ));
 

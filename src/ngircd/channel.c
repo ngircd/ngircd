@@ -198,7 +198,7 @@ Channel_Exit( void )
  * Add_Client().
  */
 GLOBAL bool
-Channel_Join( CLIENT *Client, char *Name )
+Channel_Join( CLIENT *Client, const char *Name )
 {
 	CHANNEL *chan;
 
@@ -325,7 +325,7 @@ Channel_Kick(CLIENT *Peer, CLIENT *Target, CLIENT *Origin, const char *Name,
 
 
 GLOBAL void
-Channel_Quit( CLIENT *Client, char *Reason )
+Channel_Quit( CLIENT *Client, const char *Reason )
 {
 	CHANNEL *c, *next_c;
 
@@ -731,7 +731,7 @@ Channel_SetTopic(CHANNEL *Chan, CLIENT *Client, const char *Topic)
 
 
 GLOBAL void
-Channel_SetModes( CHANNEL *Chan, char *Modes )
+Channel_SetModes( CHANNEL *Chan, const char *Modes )
 {
 	assert( Chan != NULL );
 	assert( Modes != NULL );
@@ -1042,7 +1042,7 @@ Channel_ShowInvites( CLIENT *Client, CHANNEL *Channel )
  * Log a message to the local &SERVER channel, if it exists.
  */
 GLOBAL void
-Channel_LogServer(char *msg)
+Channel_LogServer(const char *msg)
 {
 	CHANNEL *sc;
 	CLIENT *c;

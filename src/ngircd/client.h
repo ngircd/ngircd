@@ -72,11 +72,11 @@ typedef struct _WHOWAS
 GLOBAL void Client_Init PARAMS(( void ));
 GLOBAL void Client_Exit PARAMS(( void ));
 
-GLOBAL CLIENT *Client_NewLocal PARAMS(( CONN_ID Idx, char *Hostname, int Type, bool Idented ));
-GLOBAL CLIENT *Client_NewRemoteServer PARAMS(( CLIENT *Introducer, char *Hostname, CLIENT *TopServer, int Hops, int Token, char *Info, bool Idented ));
-GLOBAL CLIENT *Client_NewRemoteUser PARAMS(( CLIENT *Introducer, char *Nick, int Hops, char *User, char *Hostname, int Token, char *Modes, char *Info, bool Idented ));
+GLOBAL CLIENT *Client_NewLocal PARAMS(( CONN_ID Idx, const char *Hostname, int Type, bool Idented ));
+GLOBAL CLIENT *Client_NewRemoteServer PARAMS(( CLIENT *Introducer, const char *Hostname, CLIENT *TopServer, int Hops, int Token, const char *Info, bool Idented ));
+GLOBAL CLIENT *Client_NewRemoteUser PARAMS(( CLIENT *Introducer, const char *Nick, int Hops, const char *User, const char *Hostname, int Token, const char *Modes, const char *Info, bool Idented ));
 
-GLOBAL void Client_Destroy PARAMS(( CLIENT *Client, char *LogMsg, char *FwdMsg, bool SendQuit ));
+GLOBAL void Client_Destroy PARAMS(( CLIENT *Client, const char *LogMsg, const char *FwdMsg, bool SendQuit ));
 
 GLOBAL CLIENT *Client_ThisServer PARAMS(( void ));
 
@@ -108,19 +108,19 @@ GLOBAL time_t Client_StartTime PARAMS(( CLIENT *Client ));
 
 GLOBAL bool Client_HasMode PARAMS(( CLIENT *Client, char Mode ));
 
-GLOBAL void Client_SetHostname PARAMS(( CLIENT *Client, char *Hostname ));
-GLOBAL void Client_SetID PARAMS(( CLIENT *Client, char *Nick ));
-GLOBAL void Client_SetUser PARAMS(( CLIENT *Client, char *User, bool Idented ));
-GLOBAL void Client_SetInfo PARAMS(( CLIENT *Client, char *Info ));
-GLOBAL void Client_SetPassword PARAMS(( CLIENT *Client, char *Pwd ));
+GLOBAL void Client_SetHostname PARAMS(( CLIENT *Client, const char *Hostname ));
+GLOBAL void Client_SetID PARAMS(( CLIENT *Client, const char *Nick ));
+GLOBAL void Client_SetUser PARAMS(( CLIENT *Client, const char *User, bool Idented ));
+GLOBAL void Client_SetInfo PARAMS(( CLIENT *Client, const char *Info ));
+GLOBAL void Client_SetPassword PARAMS(( CLIENT *Client, const char *Pwd ));
 GLOBAL void Client_SetType PARAMS(( CLIENT *Client, int Type ));
 GLOBAL void Client_SetHops PARAMS(( CLIENT *Client, int Hops ));
 GLOBAL void Client_SetToken PARAMS(( CLIENT *Client, int Token ));
 GLOBAL void Client_SetOperByMe PARAMS(( CLIENT *Client, bool OperByMe ));
-GLOBAL void Client_SetModes PARAMS(( CLIENT *Client, char *Modes ));
-GLOBAL void Client_SetFlags PARAMS(( CLIENT *Client, char *Flags ));
+GLOBAL void Client_SetModes PARAMS(( CLIENT *Client, const char *Modes ));
+GLOBAL void Client_SetFlags PARAMS(( CLIENT *Client, const char *Flags ));
 GLOBAL void Client_SetIntroducer PARAMS(( CLIENT *Client, CLIENT *Introducer ));
-GLOBAL void Client_SetAway PARAMS(( CLIENT *Client, char *Txt ));
+GLOBAL void Client_SetAway PARAMS(( CLIENT *Client, const char *Txt ));
 
 GLOBAL bool Client_ModeAdd PARAMS(( CLIENT *Client, char Mode ));
 GLOBAL bool Client_ModeDel PARAMS(( CLIENT *Client, char Mode ));

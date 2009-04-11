@@ -886,13 +886,13 @@ Conn_Write( CONN_ID Idx, char *Data, size_t Len )
 
 
 GLOBAL void
-Conn_Close( CONN_ID Idx, char *LogMsg, char *FwdMsg, bool InformClient )
+Conn_Close( CONN_ID Idx, const char *LogMsg, const char *FwdMsg, bool InformClient )
 {
 	/* Close connection. Open pipes of asyncronous resolver
 	 * sub-processes are closed down. */
 
 	CLIENT *c;
-	char *txt;
+	const char *txt;
 	double in_k, out_k;
 	UINT16 port;
 #ifdef ZLIB

@@ -180,12 +180,12 @@ GLOBAL void Conf_UnsetServer PARAMS(( CONN_ID Idx ));
 GLOBAL void Conf_SetServer PARAMS(( int ConfServer, CONN_ID Idx ));
 GLOBAL int Conf_GetServer PARAMS(( CONN_ID Idx ));
 
-GLOBAL bool Conf_EnableServer PARAMS(( char *Name, UINT16 Port ));
+GLOBAL bool Conf_EnableServer PARAMS(( const char *Name, UINT16 Port ));
 GLOBAL bool Conf_EnablePassiveServer PARAMS((const char *Name));
-GLOBAL bool Conf_DisableServer PARAMS(( char *Name ));
-GLOBAL bool Conf_AddServer PARAMS(( char *Name, UINT16 Port, char *Host, char *MyPwd, char *PeerPwd ));
+GLOBAL bool Conf_DisableServer PARAMS(( const char *Name ));
+GLOBAL bool Conf_AddServer PARAMS(( const char *Name, UINT16 Port, const char *Host, const char *MyPwd, const char *PeerPwd ));
 
-GLOBAL bool Conf_IsService PARAMS((int ConfServer, char *Nick));
+GLOBAL bool Conf_IsService PARAMS((int ConfServer, const char *Nick));
 
 
 #endif

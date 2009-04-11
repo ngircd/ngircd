@@ -387,7 +387,7 @@ Conf_GetServer( CONN_ID Idx )
 
 
 GLOBAL bool
-Conf_EnableServer( char *Name, UINT16 Port )
+Conf_EnableServer( const char *Name, UINT16 Port )
 {
 	/* Enable specified server and adjust port */
 
@@ -426,7 +426,7 @@ Conf_EnablePassiveServer(const char *Name)
 
 
 GLOBAL bool
-Conf_DisableServer( char *Name )
+Conf_DisableServer( const char *Name )
 {
 	/* Enable specified server and adjust port */
 
@@ -447,7 +447,7 @@ Conf_DisableServer( char *Name )
 
 
 GLOBAL bool
-Conf_AddServer( char *Name, UINT16 Port, char *Host, char *MyPwd, char *PeerPwd )
+Conf_AddServer( const char *Name, UINT16 Port, const char *Host, const char *MyPwd, const char *PeerPwd )
 {
 	/* Add new server to configuration */
 
@@ -481,7 +481,7 @@ Conf_AddServer( char *Name, UINT16 Port, char *Host, char *MyPwd, char *PeerPwd 
  * Check if the given nick name is an service
  */
 GLOBAL bool
-Conf_IsService(int ConfServer, char *Nick)
+Conf_IsService(int ConfServer, const char *Nick)
 {
 	return MatchCaseInsensitive(Conf_Server[ConfServer].svs_mask, Nick);
 } /* Conf_IsService */

@@ -22,7 +22,7 @@
 
 GLOBAL bool Zip_InitConn PARAMS(( CONN_ID Idx ));
 
-GLOBAL bool Zip_Buffer PARAMS(( CONN_ID Idx, char *Data, size_t Len ));
+GLOBAL bool Zip_Buffer PARAMS(( CONN_ID Idx, const char *Data, size_t Len ));
 GLOBAL bool Zip_Flush PARAMS(( CONN_ID Idx ));
 GLOBAL bool Unzip_Buffer PARAMS(( CONN_ID Idx ));
 

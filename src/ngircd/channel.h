@@ -62,10 +62,10 @@ GLOBAL void Channel_Init PARAMS(( void ));
 GLOBAL void Channel_InitPredefined PARAMS((  void ));
 GLOBAL void Channel_Exit PARAMS(( void ));
 
-GLOBAL bool Channel_Join PARAMS(( CLIENT *Client, char *Name ));
+GLOBAL bool Channel_Join PARAMS(( CLIENT *Client, const char *Name ));
 GLOBAL bool Channel_Part PARAMS(( CLIENT *Client, CLIENT *Origin, const char *Name, const char *Reason ));
 
-GLOBAL void Channel_Quit PARAMS(( CLIENT *Client, char *Reason ));
+GLOBAL void Channel_Quit PARAMS(( CLIENT *Client, const char *Reason ));
 
 GLOBAL void Channel_Kick PARAMS((CLIENT *Peer, CLIENT *Target, CLIENT *Origin,
 				 const char *Name, const char *Reason));
@@ -81,7 +81,7 @@ GLOBAL char *Channel_Key PARAMS(( CHANNEL *Chan ));
 GLOBAL unsigned long Channel_MaxUsers PARAMS(( CHANNEL *Chan ));
 
 GLOBAL void Channel_SetTopic PARAMS(( CHANNEL *Chan, CLIENT *Client, const char *Topic ));
-GLOBAL void Channel_SetModes PARAMS(( CHANNEL *Chan, char *Modes ));
+GLOBAL void Channel_SetModes PARAMS(( CHANNEL *Chan, const char *Modes ));
 GLOBAL void Channel_SetKey PARAMS(( CHANNEL *Chan, const char *Key ));
 GLOBAL void Channel_SetMaxUsers PARAMS(( CHANNEL *Chan, unsigned long Count ));
 
@@ -126,7 +126,7 @@ GLOBAL bool Channel_AddBan PARAMS((CHANNEL *c, const char *Mask ));
 GLOBAL bool Channel_ShowBans PARAMS((CLIENT *client, CHANNEL *c));
 GLOBAL bool Channel_ShowInvites PARAMS((CLIENT *client, CHANNEL *c));
 
-GLOBAL void Channel_LogServer PARAMS((char *msg));
+GLOBAL void Channel_LogServer PARAMS((const char *msg));
 
 GLOBAL bool Channel_CheckKey PARAMS((CHANNEL *Chan, CLIENT *Client,
 				     const char *Key));

@@ -93,7 +93,7 @@ Zip_InitConn( CONN_ID Idx )
  * @param Len Length of the data to add.
  * @return true on success, false otherwise. */
 GLOBAL bool
-Zip_Buffer( CONN_ID Idx, char *Data, size_t Len )
+Zip_Buffer( CONN_ID Idx, const char *Data, size_t Len )
 {
 	size_t buflen;
 

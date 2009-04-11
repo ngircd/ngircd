@@ -64,12 +64,12 @@ static void Generate_MyToken PARAMS(( CLIENT *Client ));
 static void Adjust_Counters PARAMS(( CLIENT *Client ));
 
 static CLIENT *Init_New_Client PARAMS((CONN_ID Idx, CLIENT *Introducer,
-				       CLIENT *TopServer, int Type, char *ID,
-				       char *User, char *Hostname, char *Info,
-				       int Hops, int Token, char *Modes,
+				       CLIENT *TopServer, int Type, const char *ID,
+				       const char *User, const char *Hostname, const char *Info,
+				       int Hops, int Token, const char *Modes,
 				       bool Idented));
 
-static void Destroy_UserOrService PARAMS((CLIENT *Client, char *Txt, char *FwdMsg,
+static void Destroy_UserOrService PARAMS((CLIENT *Client,const char *Txt, const char *FwdMsg,
 					bool SendQuit));
 
 
@@ -142,7 +142,7 @@ Client_ThisServer( void )
  * @return New CLIENT structure.
  */
 GLOBAL CLIENT *
-Client_NewLocal(CONN_ID Idx, char *Hostname, int Type, bool Idented)
+Client_NewLocal(CONN_ID Idx, const char *Hostname, int Type, bool Idented)
 {
 	return Init_New_Client(Idx, This_Server, NULL, Type, NULL, NULL,
 		Hostname, NULL, 0, 0, NULL, Idented);
@@ -154,8 +154,8 @@ Client_NewLocal(CONN_ID Idx, char *Hostname, int Type, bool Idented)
  * @return New CLIENT structure.
  */
 GLOBAL CLIENT *
-Client_NewRemoteServer(CLIENT *Introducer, char *Hostname, CLIENT *TopServer,
- int Hops, int Token, char *Info, bool Idented)
+Client_NewRemoteServer(CLIENT *Introducer, const char *Hostname, CLIENT *TopServer,
+ int Hops, int Token, const char *Info, bool Idented)
 {
 	return Init_New_Client(NONE, Introducer, TopServer, CLIENT_SERVER,
 		Hostname, NULL, Hostname, Info, Hops, Token, NULL, Idented);
@@ -167,8 +167,8 @@ Client_NewRemoteServer(CLIENT *Introducer, char *Hostname, CLIENT *TopServer,
  * @return New CLIENT structure.
  */
 GLOBAL CLIENT *
-Client_NewRemoteUser(CLIENT *Introducer, char *Nick, int Hops, char *User,
- char *Hostname, int Token, char *Modes, char *Info, bool Idented)
+Client_NewRemoteUser(CLIENT *Introducer, const char *Nick, int Hops, const char *User,
+ const char *Hostname, int Token, const char *Modes, const char *Info, bool Idented)
 {
 	return Init_New_Client(NONE, Introducer, NULL, CLIENT_USER, Nick,
 		User, Hostname, Info, Hops, Token, Modes, Idented);
@@ -182,8 +182,8 @@ Client_NewRemoteUser(CLIENT *Introducer, char *Nick, int Hops, char *User,
  */
 static CLIENT *
 Init_New_Client(CONN_ID Idx, CLIENT *Introducer, CLIENT *TopServer,
- int Type, char *ID, char *User, char *Hostname, char *Info, int Hops,
- int Token, char *Modes, bool Idented)
+ int Type, const char *ID, const char *User, const char *Hostname, const char *Info, int Hops,
+ int Token, const char *Modes, bool Idented)
 {
 	CLIENT *client;
 
@@ -224,12 +224,13 @@ Init_New_Client(CONN_ID Idx, CLIENT *Introducer, CLIENT *TopServer,
 
 
 GLOBAL void
-Client_Destroy( CLIENT *Client, char *LogMsg, char *FwdMsg, bool SendQuit )
+Client_Destroy( CLIENT *Client, const char *LogMsg, const char *FwdMsg, bool SendQuit )
 {
 	/* Client entfernen. */
 	
 	CLIENT *last, *c;
-	char msg[LINE_LEN], *txt;
+	char msg[LINE_LEN];
+	const char *txt;
 
 	assert( Client != NULL );
 
@@ -302,7 +303,7 @@ Client_Destroy( CLIENT *Client, char *LogMsg, char *FwdMsg, bool SendQuit )
 
 
 GLOBAL void
-Client_SetHostname( CLIENT *Client, char *Hostname )
+Client_SetHostname( CLIENT *Client, const char *Hostname )
 {
 	/* Hostname eines Clients setzen */
 
@@ -314,7 +315,7 @@ Client_SetHostname( CLIENT *Client, char *Hostname )
 
 
 GLOBAL void
-Client_SetID( CLIENT *Client, char *ID )
+Client_SetID( CLIENT *Client, const char *ID )
 {
 	/* Hostname eines Clients setzen, Hash-Wert berechnen */
 
@@ -329,7 +330,7 @@ Client_SetID( CLIENT *Client, char *ID )
 
 
 GLOBAL void
-Client_SetUser( CLIENT *Client, char *User, bool Idented )
+Client_SetUser( CLIENT *Client, const char *User, bool Idented )
 {
 	/* Username eines Clients setzen */
 
@@ -346,7 +347,7 @@ Client_SetUser( CLIENT *Client, char *User, bool Idented )
 
 
 GLOBAL void
-Client_SetInfo( CLIENT *Client, char *Info )
+Client_SetInfo( CLIENT *Client, const char *Info )
 {
 	/* Hostname eines Clients setzen */
 
@@ -358,7 +359,7 @@ Client_SetInfo( CLIENT *Client, char *Info )
 
 
 GLOBAL void
-Client_SetModes( CLIENT *Client, char *Modes )
+Client_SetModes( CLIENT *Client, const char *Modes )
 {
 	/* Modes eines Clients setzen */
 
@@ -370,7 +371,7 @@ Client_SetModes( CLIENT *Client, char *Modes )
 
 
 GLOBAL void
-Client_SetFlags( CLIENT *Client, char *Flags )
+Client_SetFlags( CLIENT *Client, const char *Flags )
 {
 	/* Flags eines Clients setzen */
 
@@ -382,7 +383,7 @@ Client_SetFlags( CLIENT *Client, char *Flags )
 
 
 GLOBAL void
-Client_SetPassword( CLIENT *Client, char *Pwd )
+Client_SetPassword( CLIENT *Client, const char *Pwd )
 {
 	/* Von einem Client geliefertes Passwort */
 
@@ -394,7 +395,7 @@ Client_SetPassword( CLIENT *Client, char *Pwd )
 
 
 GLOBAL void
-Client_SetAway( CLIENT *Client, char *Txt )
+Client_SetAway( CLIENT *Client, const char *Txt )
 {
 	/* Set AWAY reason of client */
 
@@ -1137,7 +1138,7 @@ Client_TypeText(CLIENT *Client)
  * Destroy user or service client.
  */
 static void
-Destroy_UserOrService(CLIENT *Client, char *Txt, char *FwdMsg, bool SendQuit)
+Destroy_UserOrService(CLIENT *Client, const char *Txt, const char *FwdMsg, bool SendQuit)
 {
 	if(Client->conn_id != NONE) {
 		/* Local (directly connected) client */

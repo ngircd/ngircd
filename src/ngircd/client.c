@@ -49,7 +49,6 @@
 
 
 static CLIENT *This_Server, *My_Clients;
-static char GetID_Buffer[GETID_LEN];
 
 static WHOWAS My_Whowas[MAX_WHOWAS];
 static int Last_Whowas = -1;
@@ -305,8 +304,6 @@ Client_Destroy( CLIENT *Client, const char *LogMsg, const char *FwdMsg, bool Sen
 GLOBAL void
 Client_SetHostname( CLIENT *Client, const char *Hostname )
 {
-	/* Hostname eines Clients setzen */
-
 	assert( Client != NULL );
 	assert( Hostname != NULL );
 
@@ -317,8 +314,6 @@ Client_SetHostname( CLIENT *Client, const char *Hostname )
 GLOBAL void
 Client_SetID( CLIENT *Client, const char *ID )
 {
-	/* Hostname eines Clients setzen, Hash-Wert berechnen */
-
 	assert( Client != NULL );
 	assert( ID != NULL );
 	
@@ -332,16 +327,16 @@ Client_SetID( CLIENT *Client, const char *ID )
 GLOBAL void
 Client_SetUser( CLIENT *Client, const char *User, bool Idented )
 {
-	/* Username eines Clients setzen */
+	/* set clients username */
 
 	assert( Client != NULL );
 	assert( User != NULL );
 
-	if( Idented ) strlcpy( Client->user, User, sizeof( Client->user ));
-	else
-	{
+	if (Idented) {
+		strlcpy(Client->user, User, sizeof(Client->user));
+	} else {
 		Client->user[0] = '~';
-		strlcpy( Client->user + 1, User, sizeof( Client->user ) - 1 );
+		strlcpy(Client->user + 1, User, sizeof(Client->user) - 1);
 	}
 } /* Client_SetUser */
 
@@ -349,48 +344,44 @@ Client_SetUser( CLIENT *Client, const char *User, bool Idented )
 GLOBAL void
 Client_SetInfo( CLIENT *Client, const char *Info )
 {
-	/* Hostname eines Clients setzen */
+	/* set client hostname */
 
 	assert( Client != NULL );
 	assert( Info != NULL );
 
-	strlcpy( Client->info, Info, sizeof( Client->info ));
+	strlcpy(Client->info, Info, sizeof(Client->info));
 } /* Client_SetInfo */
 
 
 GLOBAL void
 Client_SetModes( CLIENT *Client, const char *Modes )
 {
-	/* Modes eines Clients setzen */
-
 	assert( Client != NULL );
 	assert( Modes != NULL );
 
-	strlcpy( Client->modes, Modes, sizeof( Client->modes ));
+	strlcpy(Client->modes, Modes, sizeof( Client->modes ));
 } /* Client_SetModes */
 
 
 GLOBAL void
 Client_SetFlags( CLIENT *Client, const char *Flags )
 {
-	/* Flags eines Clients setzen */
-
 	assert( Client != NULL );
 	assert( Flags != NULL );
 
-	strlcpy( Client->flags, Flags, sizeof( Client->flags ));
+	strlcpy(Client->flags, Flags, sizeof(Client->flags));
 } /* Client_SetFlags */
 
 
 GLOBAL void
 Client_SetPassword( CLIENT *Client, const char *Pwd )
 {
-	/* Von einem Client geliefertes Passwort */
+	/* set password sent by client */
 
 	assert( Client != NULL );
 	assert( Pwd != NULL );
 
-	strlcpy( Client->pwd, Pwd, sizeof( Client->pwd ));
+	strlcpy(Client->pwd, Pwd, sizeof(Client->pwd));
 } /* Client_SetPassword */
 
 
@@ -464,9 +455,7 @@ Client_ModeAdd( CLIENT *Client, char Mode )
 	assert( Client != NULL );
 
 	x[0] = Mode; x[1] = '\0';
-	if( ! strchr( Client->modes, x[0] ))
-	{
-		/* Client hat den Mode noch nicht -> setzen */
+	if (!strchr( Client->modes, x[0])) {
 		strlcat( Client->modes, x, sizeof( Client->modes ));
 		return true;
 	}
@@ -519,16 +508,12 @@ Client_Search( const char *Nick )
 	ptr = strchr( search_id, '!' );
 	if( ptr ) *ptr = '\0';
 
-	search_hash = Hash( search_id );
+	search_hash = Hash(search_id);
 
 	c = My_Clients;
-	while( c )
-	{
-		if( c->hash == search_hash )
-		{
-			/* lt. Hash-Wert: Treffer! */
-			if( strcasecmp( c->id, search_id ) == 0 ) return c;
-		}
+	while (c) {
+		if (c->hash == search_hash && strcasecmp(c->id, search_id) == 0)
+			return c;
 		c = (CLIENT *)c->next;
 	}
 	return NULL;
@@ -548,9 +533,10 @@ Client_GetFromToken( CLIENT *Client, int Token )
 	assert( Token > 0 );
 
 	c = My_Clients;
-	while( c )
-	{
-		if(( c->type == CLIENT_SERVER ) && ( c->introducer == Client ) && ( c->token == Token )) return c;
+	while (c) {
+		if ((c->type == CLIENT_SERVER) && (c->introducer == Client) &&
+			(c->token == Token))
+				return c;
 		c = (CLIENT *)c->next;
 	}
 	return NULL;
@@ -683,17 +669,20 @@ Client_NextHop( CLIENT *Client )
 } /* Client_NextHop */
 
 
+/**
+ * return Client-ID ("client!user@host"), this ID is needed for e.g.
+ * prefixes.  Returnes pointer to static buffer.
+ */
 GLOBAL char *
 Client_Mask( CLIENT *Client )
 {
-	/* Client-"ID" liefern, wie sie z.B. fuer
-	 * Prefixe benoetigt wird. */
+	static char GetID_Buffer[GETID_LEN];
 
 	assert( Client != NULL );
 
 	if( Client->type == CLIENT_SERVER ) return Client->id;
 
-	snprintf( GetID_Buffer, GETID_LEN, "%s!%s@%s", Client->id, Client->user, Client->host );
+	snprintf(GetID_Buffer, GETID_LEN, "%s!%s@%s", Client->id, Client->user, Client->host);
 	return GetID_Buffer;
 } /* Client_Mask */
 
@@ -725,8 +714,6 @@ Client_HasMode( CLIENT *Client, char Mode )
 GLOBAL char *
 Client_Away( CLIENT *Client )
 {
-	/* AWAY-Text liefern */
-
 	assert( Client != NULL );
 	return Client->away;
 } /* Client_Away */
@@ -738,7 +725,7 @@ Client_CheckNick( CLIENT *Client, char *Nick )
 	assert( Client != NULL );
 	assert( Nick != NULL );
 
-	if( ! Client_IsValidNick( Nick ))
+	if (! Client_IsValidNick( Nick ))
 	{
 		IRC_WriteStrClient( Client, ERR_ERRONEUSNICKNAME_MSG, Client_ID( Client ), Nick );
 		return false;
@@ -759,8 +746,6 @@ Client_CheckNick( CLIENT *Client, char *Nick )
 GLOBAL bool
 Client_CheckID( CLIENT *Client, char *ID )
 {
-	/* Nick ueberpruefen */
-
 	char str[COMMAND_LEN];
 	CLIENT *c;
 
@@ -768,24 +753,22 @@ Client_CheckID( CLIENT *Client, char *ID )
 	assert( Client->conn_id > NONE );
 	assert( ID != NULL );
 
-	/* Nick zu lang? */
-	if( strlen( ID ) > CLIENT_ID_LEN )
-	{
-		IRC_WriteStrClient( Client, ERR_ERRONEUSNICKNAME_MSG, Client_ID( Client ), ID );
+	/* Nick too long? */
+	if (strlen(ID) > CLIENT_ID_LEN) {
+		IRC_WriteStrClient(Client, ERR_ERRONEUSNICKNAME_MSG, Client_ID(Client), ID);
 		return false;
 	}
 
-	/* ID bereits vergeben? */
+	/* does ID already exist? */
 	c = My_Clients;
-	while( c )
-	{
-		if( strcasecmp( c->id, ID ) == 0 )
-		{
-			/* die Server-ID gibt es bereits */
-			snprintf( str, sizeof( str ), "ID \"%s\" already registered", ID );
-			if( Client->conn_id != c->conn_id ) Log( LOG_ERR, "%s (on connection %d)!", str, c->conn_id );
-			else Log( LOG_ERR, "%s (via network)!", str );
-			Conn_Close( Client->conn_id, str, str, true);
+	while (c) {
+		if (strcasecmp(c->id, ID) == 0) {
+			snprintf(str, sizeof(str), "ID \"%s\" already registered", ID);
+			if (Client->conn_id != c->conn_id)
+				Log(LOG_ERR, "%s (on connection %d)!", str, c->conn_id);
+			else
+				Log(LOG_ERR, "%s (via network)!", str);
+			Conn_Close(Client->conn_id, str, str, true);
 			return false;
 		}
 		c = (CLIENT *)c->next;
@@ -798,8 +781,6 @@ Client_CheckID( CLIENT *Client, char *ID )
 GLOBAL CLIENT *
 Client_First( void )
 {
-	/* Ersten Client liefern. */
-
 	return My_Clients;
 } /* Client_First */
 
@@ -807,9 +788,6 @@ Client_First( void )
 GLOBAL CLIENT *
 Client_Next( CLIENT *c )
 {
-	/* Naechsten Client liefern. Existiert keiner,
-	 * so wird NULL geliefert. */
-
 	assert( c != NULL );
 	return (CLIENT *)c->next;
 } /* Client_Next */

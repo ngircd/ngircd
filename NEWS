@@ -10,7 +10,7 @@
                                   -- NEWS --
 
 
-ngIRCd Release 14
+ngIRCd Release 14 (2009-04-20)
 
   ngIRCd 14~rc1 (2009-03-29)
   - Allow creation of persistent modeless channels.

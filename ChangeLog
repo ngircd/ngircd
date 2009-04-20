@@ -10,7 +10,9 @@
                                -- ChangeLog --
 
 
-ngIRCd Release 14
+ngIRCd Release 14 (2009-04-20)
+
+  - Display IPv6 addresses as "[<addr>]" when accepting connections.
 
   ngIRCd 14~rc1 (2009-03-29)
   - Updated Debian/Linux init script (see contrib/Debian/ngircd.init).

@@ -80,10 +80,12 @@ Zip_InitConn( CONN_ID Idx )
  * compression ratios.
  * If the (pre-)compression buffer is full, we try to flush it ("actually
  * compress some data") and to add the new (uncompressed) data afterwards.
+ * This function closes the connection on error.
  * @param Idx Connection handle.
  * @param Data Pointer to the data.
  * @param Len Length of the data to add.
- * @return true on success, false otherwise. */
+ * @return true on success, false otherwise.
+ */
 GLOBAL bool
 Zip_Buffer( CONN_ID Idx, const char *Data, size_t Len )
 {
@@ -102,9 +104,11 @@ Zip_Buffer( CONN_ID Idx, const char *Data, size_t Len )
 	/* check again; if zip buf is still too large do not append data:
 	 * otherwise the zip wbuf would grow too large */
 	buflen = array_bytes(&My_Connections[Idx].zip.wbuf);
-	if (buflen + Len >= WRITEBUFFER_SLINK_LEN)
+	if (buflen + Len >= WRITEBUFFER_SLINK_LEN) {
+		Log(LOG_ALERT, "Zip Write Buffer overflow: %lu bytes\n", buflen + Len);
+		Conn_Close(Idx, "Zip Write buffer overflow", NULL, false);
 		return false;
-
+	}
 	return array_catb(&My_Connections[Idx].zip.wbuf, Data, Len);
 } /* Zip_Buffer */
 
@@ -112,6 +116,7 @@ Zip_Buffer( CONN_ID Idx, const char *Data, size_t Len )
 /**
  * Compress data in ZIP buffer and move result to the write buffer of
  * the connection.
+ * This function closes the connection on error.
  * @param Idx Connection handle.
  * @return true on success, false otherwise.
  */
@@ -180,6 +185,7 @@ Zip_Flush( CONN_ID Idx )
  * uncompress data and copy it to read buffer.
  * Returns true if data has been unpacked or no
  * compressed data is currently pending in the zread buffer.
+ * This function closes the connection on error.
  * @param Idx Connection handle.
  * @return true on success, false otherwise.
  */
@@ -230,9 +236,11 @@ Unzip_Buffer( CONN_ID Idx )
 #endif
 	assert(unzipbuf_used <= READBUFFER_LEN);
 	if (!array_catb(&My_Connections[Idx].rbuf, (char*) unzipbuf,
-			(size_t)unzipbuf_used))
+			(size_t)unzipbuf_used)) {
+		Log (LOG_ALERT, "Decompression error: can't copy data!?");
+		Conn_Close(Idx, "Decompression error!", NULL, false);
 		return false;
-
+	}
 	if( in->avail_in > 0 ) {
 		array_moveleft(&My_Connections[Idx].zip.rbuf, 1, in_len );
 	} else {

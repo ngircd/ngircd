@@ -322,18 +322,18 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 			info = Req->argv[0];
 		}
 
-		/* Nick ueberpruefen */
 		c = Client_Search(nick);
 		if(c) {
-			/* Der neue Nick ist auf diesem Server bereits registriert:
-			 * sowohl der neue, als auch der alte Client muessen nun
-			 * disconnectiert werden. */
+			/*
+			 * the new nick is already present on this server:
+			 * the new and the old one have to be disconnected now.
+			 */
 			Log( LOG_ERR, "Server %s introduces already registered nick \"%s\"!", Client_ID( Client ), Req->argv[0] );
 			Kill_Nick( Req->argv[0], "Nick collision" );
 			return CONNECTED;
 		}
 
-		/* Server, zu dem der Client connectiert ist, suchen */
+		/* Find the Server this client is connected to */
 		intr_c = Client_GetFromToken(Client, token);
 		if( ! intr_c )
 		{
@@ -342,14 +342,11 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 			return CONNECTED;
 		}
 
-		/* Neue Client-Struktur anlegen */
 		c = Client_NewRemoteUser(intr_c, nick, hops, user, hostname,
 					 token, modes, info, true);
 		if( ! c )
 		{
-			/* Eine neue Client-Struktur konnte nicht angelegt werden.
-			 * Der Client muss disconnectiert werden, damit der Netz-
-			 * status konsistent bleibt. */
+			/* out of memory, need to disconnect client to keep network state consistent */
 			Log( LOG_ALERT, "Can't create client structure! (on connection %d)", Client_Conn( Client ));
 			Kill_Nick( Req->argv[0], "Server error" );
 			return CONNECTED;
@@ -583,7 +580,6 @@ IRC_QUIT( CLIENT *Client, REQUEST *Req )
 		target = Client_Search( Req->prefix );
 		if( ! target )
 		{
-			/* Den Client kennen wir nicht (mehr), also nichts zu tun. */
 			Log( LOG_WARNING, "Got QUIT from %s for unknown client!?", Client_ID( Client ));
 			return CONNECTED;
 		}
@@ -601,7 +597,7 @@ IRC_QUIT( CLIENT *Client, REQUEST *Req )
 			strlcat(quitmsg, "\"", sizeof quitmsg );
 		}
 
-		/* User, Service, oder noch nicht registriert */
+		/* User, Service, or not yet registered */
 		Conn_Close( Client_Conn( Client ), "Got QUIT command.", Req->argc == 1 ? quitmsg : NULL, true);
 
 		return DISCONNECTED;
@@ -617,7 +613,6 @@ IRC_PING(CLIENT *Client, REQUEST *Req)
 	assert(Client != NULL);
 	assert(Req != NULL);
 
-	/* Wrong number of arguments? */
 	if (Req->argc < 1)
 		return IRC_WriteStrClient(Client, ERR_NOORIGIN_MSG,
 					  Client_ID(Client));

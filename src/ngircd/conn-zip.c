@@ -11,18 +11,14 @@
  * Connection compression using ZLIB
  */
 
-
 #include "portab.h"
 
 #define CONN_MODULE
-
 
 #ifdef ZLIB
 
 /* enable more zlib related debug messages: */
 /* #define DEBUG_ZLIB */
-
-static char UNUSED id[] = "$Id: conn-zip.c,v 1.16 2007/05/17 23:34:24 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -41,7 +37,7 @@ static char UNUSED id[] = "$Id: conn-zip.c,v 1.16 2007/05/17 23:34:24 alex Exp $
 GLOBAL bool
 Zip_InitConn( CONN_ID Idx )
 {
-	/* Kompression fuer Link initialisieren */
+	/* initialize zlib compression on this link */
 
 	assert( Idx > NONE );
 
@@ -52,10 +48,8 @@ Zip_InitConn( CONN_ID Idx )
 	My_Connections[Idx].zip.in.zfree = NULL;
 	My_Connections[Idx].zip.in.data_type = Z_ASCII;
 
-	if( inflateInit( &My_Connections[Idx].zip.in ) != Z_OK )
-	{
-		/* Fehler! */
-		Log( LOG_ALERT, "Can't initialize compression on connection %d (zlib inflate)!", Idx );
+	if (inflateInit( &My_Connections[Idx].zip.in ) != Z_OK) {
+		Log(LOG_ALERT, "Can't initialize compression on connection %d (zlib inflate)!", Idx);
 		return false;
 	}
 
@@ -65,17 +59,15 @@ Zip_InitConn( CONN_ID Idx )
 	My_Connections[Idx].zip.out.zfree = NULL;
 	My_Connections[Idx].zip.out.data_type = Z_ASCII;
 
-	if( deflateInit( &My_Connections[Idx].zip.out, Z_DEFAULT_COMPRESSION ) != Z_OK )
-	{
-		/* Fehler! */
-		Log( LOG_ALERT, "Can't initialize compression on connection %d (zlib deflate)!", Idx );
+	if (deflateInit( &My_Connections[Idx].zip.out, Z_DEFAULT_COMPRESSION ) != Z_OK) {
+		Log(LOG_ALERT, "Can't initialize compression on connection %d (zlib deflate)!", Idx);
 		return false;
 	}
 
 	My_Connections[Idx].zip.bytes_in = My_Connections[Idx].bytes_in;
 	My_Connections[Idx].zip.bytes_out = My_Connections[Idx].bytes_out;
 
-	Log( LOG_INFO, "Enabled link compression (zlib) on connection %d.", Idx );
+	Log(LOG_INFO, "Enabled link compression (zlib) on connection %d.", Idx);
 	Conn_OPTION_ADD( &My_Connections[Idx], CONN_ZIP );
 
 	return true;
@@ -121,7 +113,7 @@ Zip_Buffer( CONN_ID Idx, const char *Data, size_t Len )
  * Compress data in ZIP buffer and move result to the write buffer of
  * the connection.
  * @param Idx Connection handle.
- * @retrun true on success, false otherwise.
+ * @return true on success, false otherwise.
  */
 GLOBAL bool
 Zip_Flush( CONN_ID Idx )
@@ -184,13 +176,16 @@ Zip_Flush( CONN_ID Idx )
 } /* Zip_Flush */
 
 
+/**
+ * uncompress data and copy it to read buffer.
+ * Returns true if data has been unpacked or no
+ * compressed data is currently pending in the zread buffer.
+ * @param Idx Connection handle.
+ * @return true on success, false otherwise.
+ */
 GLOBAL bool
 Unzip_Buffer( CONN_ID Idx )
 {
-	/* Daten entpacken und in Lesepuffer kopieren. Bei Fehlern
-	* wird false geliefert, ansonsten true. Der Fall, dass keine
-	* Daten mehr zu entpacken sind, ist _kein_ Fehler! */
-
 	int result;
 	unsigned char unzipbuf[READBUFFER_LEN];
 	int unzipbuf_used = 0;
@@ -221,8 +216,8 @@ Unzip_Buffer( CONN_ID Idx )
 	result = inflate( in, Z_SYNC_FLUSH );
 	if( result != Z_OK )
 	{
-		Log( LOG_ALERT, "Decompression error: %s (code=%d, ni=%d, ai=%d, no=%d, ao=%d)!?", in->msg, result, in->next_in, in->avail_in, in->next_out, in->avail_out );
-		Conn_Close( Idx, "Decompression error!", NULL, false );
+		Log(LOG_ALERT, "Decompression error: %s (code=%d, ni=%d, ai=%d, no=%d, ao=%d)!?", in->msg, result, in->next_in, in->avail_in, in->next_out, in->avail_out);
+		Conn_Close(Idx, "Decompression error!", NULL, false);
 		return false;
 	}
 
@@ -249,21 +244,25 @@ Unzip_Buffer( CONN_ID Idx )
 } /* Unzip_Buffer */
 
 
+/**
+ * @param Idx Connection handle.
+ * @return amount of sent (compressed) bytes
+ */
 GLOBAL long
 Zip_SendBytes( CONN_ID Idx )
 {
-	/* Anzahl gesendeter Bytes (komprimiert!) liefern */
-
 	assert( Idx > NONE );
 	return My_Connections[Idx].zip.bytes_out;
 } /* Zip_SendBytes */
 
 
+/**
+ * @param Idx Connection handle.
+ * @return amount of received (compressed) bytes
+ */
 GLOBAL long
 Zip_RecvBytes( CONN_ID Idx )
 {
-	/* Anzahl gesendeter Bytes (komprimiert!) liefern */
-
 	assert( Idx > NONE );
 	return My_Connections[Idx].zip.bytes_in;
 } /* Zip_RecvBytes */

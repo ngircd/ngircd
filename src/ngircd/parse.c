@@ -169,13 +169,12 @@ Parse_Request( CONN_ID Idx, char *Request )
 
 	Init_Request( &req );
 
-	/* Fuehrendes und folgendes "Geraffel" verwerfen */
+	/* remove leading & trailing whitespace */
 	ngt_TrimStr( Request );
 
-	/* gibt es ein Prefix? */
 	if( Request[0] == ':' )
 	{
-		/* Prefix vorhanden */
+		/* Prefix */
 		req.prefix = Request + 1;
 		ptr = strchr( Request, ' ' );
 		if( ! ptr )
@@ -185,35 +184,30 @@ Parse_Request( CONN_ID Idx, char *Request )
 		}
 		*ptr = '\0';
 #ifndef STRICT_RFC
-		/* multiple Leerzeichen als Trenner zwischen
-		 * Prefix und Befehl ignorieren */
+		/* ignore multiple spaces between prefix and command */
 		while( *(ptr + 1) == ' ' ) ptr++;
 #endif
 		start = ptr + 1;
 	}
 	else start = Request;
 
-	/* Befehl */
 	ptr = strchr( start, ' ' );
 	if( ptr )
 	{
 		*ptr = '\0';
 #ifndef STRICT_RFC
-		/* multiple Leerzeichen als Trenner vor
-		 * Parametern ignorieren */
+		/* ignore multiple spaces between parameters */
 		while( *(ptr + 1) == ' ' ) ptr++;
 #endif
 	}
 	req.command = start;
 
-	/* Argumente, Parameter */
+	/* Arguments, Parameters */
 	if( ptr )
 	{
-		/* Prinzipiell gibt es welche :-) */
 		start = ptr + 1;
 		while( start )
 		{
-			/* Parameter-String "zerlegen" */
 			if( start[0] == ':' )
 			{
 				req.argv[req.argc] = start + 1;
@@ -227,8 +221,6 @@ Parse_Request( CONN_ID Idx, char *Request )
 				{
 					*ptr = '\0';
 #ifndef STRICT_RFC
-					/* multiple Leerzeichen als
-					 * Parametertrenner ignorieren */
 					while( *(ptr + 1) == ' ' ) ptr++;
 #endif
 				}
@@ -244,7 +236,6 @@ Parse_Request( CONN_ID Idx, char *Request )
 		}
 	}
 
-	/* Daten validieren */
 	if( ! Validate_Prefix( Idx, &req, &closed )) return ! closed;
 	if( ! Validate_Command( Idx, &req, &closed )) return ! closed;
 	if( ! Validate_Args( Idx, &req, &closed )) return ! closed;
@@ -283,39 +274,32 @@ Validate_Prefix( CONN_ID Idx, REQUEST *Req, bool *Closed )
 
 	*Closed = false;
 
-	/* ist ueberhaupt ein Prefix vorhanden? */
 	if( ! Req->prefix ) return true;
 
-	/* Client-Struktur der Connection ermitteln */
 	client = Conn_GetClient( Idx );
 	assert( client != NULL );
 
-	/* nur validieren, wenn bereits registrierte Verbindung */
+	/* only validate if this connection is already registered */
 	if(( Client_Type( client ) != CLIENT_USER ) && ( Client_Type( client ) != CLIENT_SERVER ) && ( Client_Type( client ) != CLIENT_SERVICE ))
 	{
-		/* noch nicht registrierte Verbindung.
-		 * Das Prefix wird ignoriert. */
+		/* not registered, ignore prefix */
 		Req->prefix = NULL;
 		return true;
 	}
 
-	/* pruefen, ob der im Prefix angegebene Client bekannt ist */
+	/* check if client in prefix is known */
 	c = Client_Search( Req->prefix );
 	if( ! c )
 	{
-		/* im Prefix angegebener Client ist nicht bekannt */
 		Log( LOG_ERR, "Invalid prefix \"%s\", client not known (connection %d, command %s)!?", Req->prefix, Idx, Req->command );
 		if( ! Conn_WriteStr( Idx, "ERROR :Invalid prefix \"%s\", client not known!?", Req->prefix )) *Closed = true;
 		return false;
 	}
 
-	/* pruefen, ob der Client mit dem angegebenen Prefix in Richtung
-	 * des Senders liegt, d.h. sicherstellen, dass das Prefix nicht
-	 * gefaelscht ist */
+	/* check if the client named in the prefix is expected
+	 * to come from that direction */
 	if( Client_NextHop( c ) != client )
 	{
-		/* das angegebene Prefix ist aus dieser Richtung, also
-		 * aus der gegebenen Connection, ungueltig! */
 		Log( LOG_ERR, "Spoofed prefix \"%s\" from \"%s\" (connection %d, command %s)!", Req->prefix, Client_Mask( Conn_GetClient( Idx )), Idx, Req->command );
 		Conn_Close( Idx, NULL, "Spoofed prefix", true);
 		*Closed = true;
@@ -456,8 +440,6 @@ Handle_Numeric(CLIENT *client, REQUEST *Req)
 static bool
 Handle_Request( CONN_ID Idx, REQUEST *Req )
 {
-	/* Client-Request verarbeiten. Bei einem schwerwiegenden Fehler
-	 * wird die Verbindung geschlossen und false geliefert. */
 	CLIENT *client;
 	bool result = true;
 	int client_type;
@@ -479,7 +461,6 @@ Handle_Request( CONN_ID Idx, REQUEST *Req )
 
 	cmd = My_Commands;
 	while (cmd->name) {
-		/* Befehl suchen */
 		if (strcasecmp(Req->command, cmd->name) != 0) {
 			cmd++;
 			continue;

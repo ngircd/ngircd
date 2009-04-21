@@ -81,14 +81,12 @@ Log_Init( bool Daemon_Mode )
 #ifndef LOG_LOCAL5
 #define LOG_LOCAL5 0
 #endif
-	/* Syslog initialisieren */
 	openlog( PACKAGE_NAME, LOG_CONS|LOG_PID, LOG_LOCAL5 );
 #endif
 
-	/* Hello World! */
 	Log( LOG_NOTICE, "%s started.", NGIRCd_Version );
 	  
-	/* Informationen uebern den "Operation Mode" */
+	/* Information about "Operation Mode" */
 	Init_Txt[0] = '\0';
 #ifdef DEBUG
 	if( NGIRCd_Debug )
@@ -122,17 +120,11 @@ Log_Init( bool Daemon_Mode )
 
 
 #ifdef DEBUG
-
 GLOBAL void
 Log_InitErrorfile( void )
 {
-	/* "Error-Log" initialisieren: stderr in Datei umlenken. Dort
-	 * landen z.B. alle Ausgaben von assert()-Aufrufen. */
-
-	/* Dateiname zusammen bauen */
 	snprintf( Error_File, sizeof Error_File, "%s/%s-%ld.err", ERROR_DIR, PACKAGE_NAME, (long)getpid( ));
 
-	/* stderr umlenken */
 	fflush( stderr );
 	if( ! freopen( Error_File, "w", stderr ))
 	{
@@ -140,17 +132,13 @@ Log_InitErrorfile( void )
 		return;
 	}
 
-	/* Einige Infos in das Error-File schreiben */
 	fputs( ctime( &NGIRCd_Start ), stderr );
 	fprintf( stderr, "%s started.\n", NGIRCd_Version );
 	fprintf( stderr, "Activating: %s\n\n", Init_Txt[0] ? Init_Txt : "-" );
 	fflush( stderr );
 
-#ifdef DEBUG
-	Log( LOG_DEBUG, "Redirected stderr to \"%s\".", Error_File );
-#endif
+	Log(LOG_DEBUG, "Redirected stderr to \"%s\".", Error_File);
 } /* Log_InitErrfile */
-
 #endif
 
 
@@ -170,8 +158,7 @@ Log_Exit( void )
 #endif
 
 #ifdef SYSLOG
-	/* syslog abmelden */
-	closelog( );
+	closelog();
 #endif
 } /* Log_Exit */
 

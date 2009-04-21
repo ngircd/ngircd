@@ -110,14 +110,13 @@ main( int argc, const char *argv[] )
 
 	Fill_Version( );
 
-	/* Kommandozeile parsen */
+	/* parse conmmand line */
 	for( i = 1; i < argc; i++ )
 	{
 		ok = false;
 		if(( argv[i][0] == '-' ) && ( argv[i][1] == '-' ))
 		{
-			/* Lange Option */
-
+			/* long option */
 			if( strcmp( argv[i], "--config" ) == 0 )
 			{
 				if( i + 1 < argc )
@@ -172,7 +171,7 @@ main( int argc, const char *argv[] )
 		}
 		else if(( argv[i][0] == '-' ) && ( argv[i][1] != '-' ))
 		{
-			/* Kurze Option */
+			/* short option */
 			for( n = 1; n < strlen( argv[i] ); n++ )
 			{
 				ok = false;
@@ -241,7 +240,7 @@ main( int argc, const char *argv[] )
 		}
 	}
 
-	/* Debug-Level (fuer IRC-Befehl "VERSION") ermitteln */
+	/* Debug-Level (for IRCs "VERSION" command) */
 	NGIRCd_DebugLevel[0] = '\0';
 #ifdef DEBUG
 	if( NGIRCd_Debug ) strcpy( NGIRCd_DebugLevel, "1" );
@@ -254,7 +253,6 @@ main( int argc, const char *argv[] )
 	}
 #endif
 
-	/* Soll nur die Konfigurations ueberprueft und ausgegeben werden? */
 	if( configtest )
 	{
 		Show_Version( ); puts( "" );
@@ -297,12 +295,13 @@ main( int argc, const char *argv[] )
 		if( ! NGIRCd_NoDaemon ) Log_InitErrorfile( );
 #endif
 
-		/* Signal-Handler initialisieren */
 		Initialize_Signal_Handler( );
 
-		/* Protokoll- und Server-Identifikation erzeugen. Die vom ngIRCd
-		 * beim PASS-Befehl verwendete Syntax sowie die erweiterten Flags
-		 * sind in doc/Protocol.txt beschrieben. */
+		/*
+		 * create protocol and server identification.
+		 * The syntax used by ngIRCd in PASS commands and the extended flags
+		 * are described in doc/Protocol.txt
+		 */
 #ifdef IRCPLUS
 		snprintf( NGIRCd_ProtoID, sizeof NGIRCd_ProtoID, "%s%s %s|%s:%s", PROTOVER, PROTOIRCPLUS, PACKAGE_NAME, PACKAGE_VERSION, IRCPLUSFLAGS );
 #ifdef ZLIB
@@ -318,10 +317,8 @@ main( int argc, const char *argv[] )
 #endif
 		LogDebug("Protocol and server ID is \"%s\".", NGIRCd_ProtoID);
 
-		/* Vordefinierte Channels anlegen */
 		Channel_InitPredefined( );
 
-		/* Listen-Ports initialisieren */
 		if( Conn_InitListeners( ) < 1 )
 		{
 			Log( LOG_ALERT, "Server isn't listening on a single port!" );
@@ -490,15 +487,9 @@ NGIRCd_Rehash( void )
 static void
 Initialize_Signal_Handler( void )
 {
-	/* Signal-Handler initialisieren: einige Signale
-	 * werden ignoriert, andere speziell behandelt. */
-
 #ifdef HAVE_SIGACTION
-	/* sigaction() ist vorhanden */
-
 	struct sigaction saction;
 
-	/* Signal-Struktur initialisieren */
 	memset( &saction, 0, sizeof( saction ));
 	saction.sa_handler = Signal_Handler;
 #ifdef SA_RESTART
@@ -508,27 +499,22 @@ Initialize_Signal_Handler( void )
 	saction.sa_flags |= SA_NOCLDWAIT;
 #endif
 
-	/* Signal-Handler einhaengen */
 	sigaction(SIGINT, &saction, NULL);
 	sigaction(SIGQUIT, &saction, NULL);
 	sigaction(SIGTERM, &saction, NULL);
 	sigaction(SIGHUP, &saction, NULL);
 	sigaction(SIGCHLD, &saction, NULL);
 
-	/* einige Signale ignorieren */
+	/* we handle write errors properly; ignore SIGPIPE */
 	saction.sa_handler = SIG_IGN;
 	sigaction(SIGPIPE, &saction, NULL);
 #else
-	/* kein sigaction() vorhanden */
-
-	/* Signal-Handler einhaengen */
 	signal(SIGINT, Signal_Handler);
 	signal(SIGQUIT, Signal_Handler);
 	signal(SIGTERM, Signal_Handler);
 	signal(SIGHUP, Signal_Handler);
 	signal(SIGCHLD, Signal_Handler);
 
-	/* einige Signale ignorieren */
 	signal(SIGPIPE, SIG_IGN);
 #endif
 } /* Initialize_Signal_Handler */
@@ -548,16 +534,17 @@ Signal_Handler( int Signal )
 		case SIGTERM:
 		case SIGINT:
 		case SIGQUIT:
-			/* wir soll(t)en uns wohl beenden ... */
+			/* shut down sever */
 			NGIRCd_SignalQuit = true;
 			break;
 		case SIGHUP:
-			/* Konfiguration neu einlesen: */
+			/* re-read configuration */
 			NGIRCd_SignalRehash = true;
 			break;
 		case SIGCHLD:
-			/* Child-Prozess wurde beendet. Zombies vermeiden: */
-			while( waitpid( -1, NULL, WNOHANG ) > 0);
+			/* child-process exited, avoid zombies */
+			while (waitpid( -1, NULL, WNOHANG) > 0)
+				;
 			break;
 #ifdef DEBUG
 		default:

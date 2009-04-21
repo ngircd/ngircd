@@ -304,8 +304,6 @@ cb_clientserver_ssl(int sock, short what)
 GLOBAL void
 Conn_Init( void )
 {
-	/* Modul initialisieren: statische Strukturen "ausnullen". */
-
 	CONN_ID i;
 
 	/* Speicher fuer Verbindungs-Pool anfordern */
@@ -341,9 +339,6 @@ Conn_Init( void )
 GLOBAL void
 Conn_Exit( void )
 {
-	/* Modul abmelden: alle noch offenen Connections
-	 * schliessen und freigeben. */
-
 	CONN_ID idx;
 
 	Conn_ExitListeners();
@@ -1292,13 +1287,11 @@ New_Connection( int Sock )
 static CONN_ID
 Socket2Index( int Sock )
 {
-	/* zum Socket passende Connection suchen */
-
 	assert( Sock >= 0 );
 
 	if( Sock >= Pool_Size || My_Connections[Sock].sock != Sock ) {
-		/* die Connection wurde vermutlich (wegen eines
-		 * Fehlers) bereits wieder abgebaut ... */
+		/* the Connection was already closed again, likely due to
+		 * an error. */
 		LogDebug("Socket2Index: can't get connection for socket %d!", Sock);
 		return NONE;
 	}

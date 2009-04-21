@@ -14,8 +14,6 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-write.c,v 1.21 2006/08/12 11:56:24 fw Exp $";
-
 #include "imp.h"
 #include <assert.h>
 #ifdef PROTOTYPES
@@ -70,7 +68,7 @@ va_dcl
 	vsnprintf( buffer, 1000, Format, ap );
 	va_end( ap );
 
-	/* an den Client selber */
+	/* to the client itself */
 	ok = IRC_WriteStrClientPrefix( Client, Client_ThisServer( ), "%s", buffer );
 
 	return ok;
@@ -89,7 +87,7 @@ char *Format;
 va_dcl
 #endif
 {
-	/* Text an Clients, lokal bzw. remote, senden. */
+	/* send text to local and remote clients */
 
 	char buffer[1000];
 	va_list ap;
@@ -141,6 +139,11 @@ va_dcl
 } /* IRC_WriteStrChannel */
 
 
+
+/**
+ * send message to all clients in the same channel, but only send message
+ * once per remote server.
+ */
 #ifdef PROTOTYPES
 GLOBAL bool
 IRC_WriteStrChannelPrefix( CLIENT *Client, CHANNEL *Chan, CLIENT *Prefix, bool Remote, char *Format, ... )
@@ -177,8 +180,6 @@ va_dcl
 
 	Conn_ClearFlags( );
 
-	/* An alle Clients, die in den selben Channels sind.
-	 * Dabei aber nur einmal je Remote-Server */
 	cl2chan = Channel_FirstMember( Chan );
 	while( cl2chan )
 	{
@@ -192,7 +193,7 @@ va_dcl
 
 		if( c && ( c != Client ))
 		{
-			/* Ok, anderer Client */
+			/* Ok, another Client */
 			conn = Client_Conn( c );
 			if( Client_Type( c ) == CLIENT_SERVER )	Conn_SetFlag( conn, SEND_TO_SERVER );
 			else Conn_SetFlag( conn, SEND_TO_USER );
@@ -200,16 +201,14 @@ va_dcl
 		cl2chan = Channel_NextMember( Chan, cl2chan );
 	}
 
-	/* Senden: alle Verbindungen durchgehen ... */
 	conn = Conn_First( );
 	while( conn != NONE )
 	{
-		/* muessen Daten ueber diese Verbindung verschickt werden? */
+		/* do we need to send data via this connection? */
 		if( Conn_Flag( conn ) == SEND_TO_SERVER) ok = Conn_WriteStr( conn, ":%s %s", Client_ID( Prefix ), buffer );
 		else if( Conn_Flag( conn ) == SEND_TO_USER ) ok = Conn_WriteStr( conn, ":%s %s", Client_Mask( Prefix ), buffer );
 		if( ! ok ) break;
 
-		/* naechste Verbindung testen */
 		conn = Conn_Next( conn );
 	}
 
@@ -241,7 +240,6 @@ va_dcl
 	vsnprintf( buffer, 1000, Format, ap );
 	va_end( ap );
 
-	/* an den Client selber */
 	IRC_WriteStrServersPrefix( ExceptOf, Client_ThisServer( ), "%s", buffer );
 } /* IRC_WriteStrServers */
 
@@ -327,6 +325,10 @@ IRC_WriteStrServersPrefixFlag_CB(CLIENT *ExceptOf, CLIENT *Prefix, char Flag,
 } /* IRC_WriteStrServersPrefixFlag */
 
 
+/**
+ * send message to all clients that are in the same channels as the client sending this message.
+ * only send message once per reote server.
+ */
 #ifdef PROTOTYPES
 GLOBAL bool
 IRC_WriteStrRelatedPrefix( CLIENT *Client, CLIENT *Prefix, bool Remote, char *Format, ... )
@@ -360,15 +362,11 @@ va_dcl
 	vsnprintf( buffer, 1000, Format, ap );
 	va_end( ap );
 
-	/* initialisieren */
 	Conn_ClearFlags( );
 
-	/* An alle Clients, die in einem Channel mit dem "Ausloeser" sind,
-	 * den Text schicken. An Remote-Server aber jeweils nur einmal. */
 	chan_cl2chan = Channel_FirstChannelOf( Client );
 	while( chan_cl2chan )
 	{
-		/* Channel des Users durchsuchen */
 		chan = Channel_GetChannel( chan_cl2chan );
 		cl2chan = Channel_FirstMember( chan );
 		while( cl2chan )
@@ -383,7 +381,6 @@ va_dcl
 
 			if( c && ( c != Client ))
 			{
-				/* Ok, anderer Client */
 				conn = Client_Conn( c );
 				if( Client_Type( c ) == CLIENT_SERVER ) Conn_SetFlag( conn, SEND_TO_SERVER );
 				else Conn_SetFlag( conn, SEND_TO_USER );
@@ -391,20 +388,17 @@ va_dcl
 			cl2chan = Channel_NextMember( chan, cl2chan );
 		}
 
-		/* naechsten Channel */
 		chan_cl2chan = Channel_NextChannelOf( Client, chan_cl2chan );
 	}
 
-	/* Senden: alle Verbindungen durchgehen ... */
 	conn = Conn_First( );
 	while( conn != NONE )
 	{
-		/* muessen ueber diese Verbindung Daten gesendet werden? */
+		/* send data via this connection? */
 		if( Conn_Flag( conn ) == SEND_TO_SERVER ) ok = Conn_WriteStr( conn, ":%s %s", Client_ID( Prefix ), buffer );
 		else if( Conn_Flag( conn ) == SEND_TO_USER ) ok = Conn_WriteStr( conn, ":%s %s", Client_Mask( Prefix ), buffer );
 		if( ! ok ) break;
 
-		/* naechste Verbindung testen */
 		conn = Conn_Next( conn );
 	}
 	return ok;

@@ -193,7 +193,6 @@ Init_New_Client(CONN_ID Idx, CLIENT *Introducer, CLIENT *TopServer,
 	client = New_Client_Struct( );
 	if( ! client ) return NULL;
 
-	/* Initialisieren */
 	client->starttime = time(NULL);
 	client->conn_id = Idx;
 	client->introducer = Introducer;
@@ -211,11 +210,9 @@ Init_New_Client(CONN_ID Idx, CLIENT *Introducer, CLIENT *TopServer,
 	if( strchr( client->modes, 'a' ))
 		strlcpy( client->away, DEFAULT_AWAY_MSG, sizeof( client->away ));
 
-	/* Verketten */
 	client->next = (POINTER *)My_Clients;
 	My_Clients = client;
 
-	/* Adjust counters */
 	Adjust_Counters( client );
 
 	return client;
@@ -225,7 +222,7 @@ Init_New_Client(CONN_ID Idx, CLIENT *Introducer, CLIENT *TopServer,
 GLOBAL void
 Client_Destroy( CLIENT *Client, const char *LogMsg, const char *FwdMsg, bool SendQuit )
 {
-	/* Client entfernen. */
+	/* remove a client */
 	
 	CLIENT *last, *c;
 	char msg[LINE_LEN];
@@ -237,7 +234,7 @@ Client_Destroy( CLIENT *Client, const char *LogMsg, const char *FwdMsg, bool Sen
 	else txt = FwdMsg;
 	if( ! txt ) txt = "Reason unknown.";
 
-	/* Netz-Split-Nachricht vorbereiten (noch nicht optimal) */
+	/* netsplit message */
 	if( Client->type == CLIENT_SERVER ) {
 		strlcpy(msg, This_Server->id, sizeof (msg));
 		strlcat(msg, " ", sizeof (msg));
@@ -250,8 +247,16 @@ Client_Destroy( CLIENT *Client, const char *LogMsg, const char *FwdMsg, bool Sen
 	{
 		if(( Client->type == CLIENT_SERVER ) && ( c->introducer == Client ) && ( c != Client ))
 		{
-			/* der Client, der geloescht wird ist ein Server. Der Client, den wir gerade
-			 * pruefen, ist ein Child von diesem und muss daher auch entfernt werden */
+			/*
+			 * The client that is about to be removed is a server,
+			 * the client we are checking right now is a child of that
+			 * server and thus has to be removed, too.
+			 *
+			 * Call Client_Destroy() recursively with the server as the
+			 * new "object to be removed". This starts the cycle again, until
+			 * all servers that are linked via the original server have been
+			 * removed.
+			 */
 			Client_Destroy( c, NULL, msg, false );
 			last = NULL;
 			c = My_Clients;
@@ -259,7 +264,7 @@ Client_Destroy( CLIENT *Client, const char *LogMsg, const char *FwdMsg, bool Sen
 		}
 		if( c == Client )
 		{
-			/* Wir haben den Client gefunden: entfernen */
+			/* found  the client: remove it */
 			if( last ) last->next = c->next;
 			else My_Clients = (CLIENT *)c->next;
 
@@ -273,7 +278,7 @@ Client_Destroy( CLIENT *Client, const char *LogMsg, const char *FwdMsg, bool Sen
 					else Log( LOG_NOTICE|LOG_snotice, "Server \"%s\" unregistered: %s", c->id, txt );
 				}
 
-				/* andere Server informieren */
+				/* inform other servers */
 				if( ! NGIRCd_SignalQuit )
 				{
 					if( FwdMsg ) IRC_WriteStrServersPrefix( Client_NextHop( c ), c, "SQUIT %s :%s", c->id, FwdMsg );

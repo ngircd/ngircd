@@ -16,8 +16,6 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: conn-func.c,v 1.12 2008/03/11 14:05:27 alex Exp $";
-
 #include "imp.h"
 #include <assert.h>
 #include <string.h>
@@ -33,8 +31,6 @@ static char UNUSED id[] = "$Id: conn-func.c,v 1.12 2008/03/11 14:05:27 alex Exp 
 GLOBAL void
 Conn_UpdateIdle( CONN_ID Idx )
 {
-	/* Idle-Timer zuruecksetzen */
-
 	assert( Idx > NONE );
 	My_Connections[Idx].lastprivmsg = time( NULL );
 }
@@ -53,8 +49,7 @@ Conn_GetSignon(CONN_ID Idx)
 GLOBAL time_t
 Conn_GetIdle( CONN_ID Idx )
 {
-	/* Idle-Time einer Verbindung liefern (in Sekunden) */
-
+	/* Return Idle-Timer of a connetion */
 	assert( Idx > NONE );
 	return time( NULL ) - My_Connections[Idx].lastprivmsg;
 } /* Conn_GetIdle */
@@ -63,8 +58,6 @@ Conn_GetIdle( CONN_ID Idx )
 GLOBAL time_t
 Conn_LastPing( CONN_ID Idx )
 {
-	/* Zeitpunkt des letzten PING liefern */
-
 	assert( Idx > NONE );
 	return My_Connections[Idx].lastping;
 } /* Conn_LastPing */
@@ -73,11 +66,11 @@ Conn_LastPing( CONN_ID Idx )
 GLOBAL void
 Conn_SetPenalty( CONN_ID Idx, time_t Seconds )
 {
-	/* Penalty-Delay fuer eine Verbindung (in Sekunden) setzen;
-	 * waehrend dieser Zeit wird der entsprechende Socket vom Server
-	 * bei Lese-Operationen komplett ignoriert. Der Delay kann mit
-	 * dieser Funktion nur erhoeht, nicht aber verringert werden. */
-	
+	/* set Penalty-Delay for a socket.
+	 * during the penalty, the socket is ignored completely, no new
+	 * data is read. This function only increases the penalty, it is
+	 * not possible to decrease the penalty time.
+	 */
 	time_t t;
 	
 	assert( Idx > NONE );
@@ -105,8 +98,6 @@ Conn_ResetPenalty( CONN_ID Idx )
 GLOBAL void
 Conn_ClearFlags( void )
 {
-	/* Alle Connection auf "nicht-markiert" setzen */
-
 	CONN_ID i;
 
 	for( i = 0; i < Pool_Size; i++ ) My_Connections[i].flag = 0;
@@ -116,8 +107,6 @@ Conn_ClearFlags( void )
 GLOBAL int
 Conn_Flag( CONN_ID Idx )
 {
-	/* Ist eine Connection markiert (true) oder nicht? */
-
 	assert( Idx > NONE );
 	return My_Connections[Idx].flag;
 } /* Conn_Flag */
@@ -206,12 +195,12 @@ Conn_StartTime( CONN_ID Idx )
 	return 0;
 } /* Conn_StartTime */
 
-
+/**
+ * return number of bytes queued for writing
+ */
 GLOBAL size_t
 Conn_SendQ( CONN_ID Idx )
 {
-	/* Laenge der Daten im Schreibbuffer liefern */
-
 	assert( Idx > NONE );
 #ifdef ZLIB
 	if( My_Connections[Idx].options & CONN_ZIP )
@@ -222,31 +211,36 @@ Conn_SendQ( CONN_ID Idx )
 } /* Conn_SendQ */
 
 
+/**
+ * return number of messages sent on this connection so far
+ */
 GLOBAL long
 Conn_SendMsg( CONN_ID Idx )
 {
-	/* Anzahl gesendeter Nachrichten liefern */
 
 	assert( Idx > NONE );
 	return My_Connections[Idx].msg_out;
 } /* Conn_SendMsg */
 
 
+/**
+ * return number of (uncompressed) bytes sent
+ * on this connection so far
+ */
 GLOBAL long
 Conn_SendBytes( CONN_ID Idx )
 {
-	/* Anzahl gesendeter Bytes (unkomprimiert) liefern */
-
 	assert( Idx > NONE );
 	return My_Connections[Idx].bytes_out;
 } /* Conn_SendBytes */
 
 
+/**
+ * return number of bytes pending in read buffer
+ */
 GLOBAL size_t
 Conn_RecvQ( CONN_ID Idx )
 {
-	/* Laenge der Daten im Lesebuffer liefern */
-
 	assert( Idx > NONE );
 #ifdef ZLIB
 	if( My_Connections[Idx].options & CONN_ZIP )
@@ -257,21 +251,24 @@ Conn_RecvQ( CONN_ID Idx )
 } /* Conn_RecvQ */
 
 
+/**
+ * return number of messages received on this connection so far
+ */
 GLOBAL long
 Conn_RecvMsg( CONN_ID Idx )
 {
-	/* Anzahl empfangener Nachrichten liefern */
-
 	assert( Idx > NONE );
 	return My_Connections[Idx].msg_in;
 } /* Conn_RecvMsg */
 
 
+/**
+ * return number of (uncompressed) bytes received on this
+ * connection so far
+ */
 GLOBAL long
 Conn_RecvBytes( CONN_ID Idx )
 {
-	/* Anzahl empfangener Bytes (unkomprimiert) liefern */
-
 	assert( Idx > NONE );
 	return My_Connections[Idx].bytes_in;
 } /* Conn_RecvBytes */

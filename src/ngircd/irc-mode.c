@@ -671,12 +671,10 @@ IRC_AWAY( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	/* Falsche Anzahl Parameter? */
 	if( Req->argc > 1 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
 	if(( Req->argc == 1 ) && (Req->argv[0][0] ))
 	{
-		/* AWAY setzen */
 		Client_SetAway( Client, Req->argv[0] );
 		Client_ModeAdd( Client, 'a' );
 		IRC_WriteStrServersPrefix( Client, Client, "MODE %s :+a", Client_ID( Client ));
@@ -684,7 +682,6 @@ IRC_AWAY( CLIENT *Client, REQUEST *Req )
 	}
 	else
 	{
-		/* AWAY loeschen */
 		Client_ModeDel( Client, 'a' );
 		IRC_WriteStrServersPrefix( Client, Client, "MODE %s :-a", Client_ID( Client ));
 		return IRC_WriteStrClient( Client, RPL_UNAWAY_MSG, Client_ID( Client ));
@@ -752,21 +749,19 @@ Del_Ban_Invite(int what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, const
 static bool
 Send_ListChange( char *Mode, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, const char *Mask )
 {
-	/* Bestaetigung an Client schicken & andere Server sowie Channel-User informieren */
-
 	bool ok;
 
 	if( Client_Type( Client ) == CLIENT_USER )
 	{
-		/* Bestaetigung an Client */
+		/* send confirmation to client */
 		ok = IRC_WriteStrClientPrefix( Client, Prefix, "MODE %s %s %s", Channel_Name( Channel ), Mode, Mask );
 	}
 	else ok = true;
 
-	/* an andere Server */
+	/* to other servers */
 	IRC_WriteStrServersPrefix( Client, Prefix, "MODE %s %s %s", Channel_Name( Channel ), Mode, Mask );
 
-	/* und lokale User im Channel */
+	/* and local users in channel */
 	IRC_WriteStrChannelPrefix( Client, Channel, Prefix, false, "MODE %s %s %s", Channel_Name( Channel ), Mode, Mask );
 	
 	return ok;

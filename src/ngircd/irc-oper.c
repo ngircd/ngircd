@@ -14,8 +14,6 @@
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc-oper.c,v 1.29 2007/08/02 10:14:26 fw Exp $";
-
 #include "imp.h"
 #include <assert.h>
 #include <stdlib.h>
@@ -55,10 +53,8 @@ IRC_OPER( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	/* Falsche Anzahl Parameter? */
 	if( Req->argc != 2 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
-	/* Operator suchen */
 	for( i = 0; i < Conf_Oper_Count; i++)
 	{
 		if( Conf_Oper[i].name[0] && Conf_Oper[i].pwd[0] && ( strcmp( Conf_Oper[i].name, Req->argv[0] ) == 0 )) break;
@@ -66,17 +62,14 @@ IRC_OPER( CLIENT *Client, REQUEST *Req )
 	if( i >= Conf_Oper_Count )
 		return Bad_OperPass(Client, Req->argv[0], "not configured");
 
-	/* Stimmt das Passwort? */
 	if( strcmp( Conf_Oper[i].pwd, Req->argv[1] ) != 0 )
 		return Bad_OperPass(Client, Conf_Oper[i].name, "Bad password");
 
-	/* Authorized Mask? */
 	if( Conf_Oper[i].mask && (! Match( Conf_Oper[i].mask, Client_Mask( Client ) )))
 		return Bad_OperPass(Client, Conf_Oper[i].mask, "hostmask check failed" );
 
 	if( ! Client_HasMode( Client, 'o' ))
 	{
-		/* noch kein o-Mode gesetzt */
 		Client_ModeAdd( Client, 'o' );
 		if( ! IRC_WriteStrClient( Client, "MODE %s :+o", Client_ID( Client ))) return DISCONNECTED;
 		IRC_WriteStrServersPrefix( NULL, Client, "MODE %s :+o", Client_ID( Client ));

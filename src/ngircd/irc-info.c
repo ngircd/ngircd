@@ -49,24 +49,23 @@ IRC_ADMIN(CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	/* Falsche Anzahl Parameter? */
 	if(( Req->argc > 1 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
-	/* Ziel suchen */
+	/* find target ... */
 	if( Req->argc == 1 ) target = Client_Search( Req->argv[0] );
 	else target = Client_ThisServer( );
 
-	/* Prefix ermitteln */
+	/* find Prefix */
 	if( Client_Type( Client ) == CLIENT_SERVER ) prefix = Client_Search( Req->prefix );
 	else prefix = Client;
 	if( ! prefix ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
 
-	/* An anderen Server weiterleiten? */
+	/* forwad message to another server? */
 	if( target != Client_ThisServer( ))
 	{
 		if(( ! target ) || ( Client_Type( target ) != CLIENT_SERVER )) return IRC_WriteStrClient( prefix, ERR_NOSUCHSERVER_MSG, Client_ID( prefix ), Req->argv[0] );
 
-		/* forwarden */
+		/* forward */
 		IRC_WriteStrClientPrefix( target, prefix, "ADMIN %s", Req->argv[0] );
 		return CONNECTED;
 	}
@@ -199,7 +198,6 @@ IRC_LINKS( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	/* Falsche Anzahl Parameter? */
 	if(( Req->argc > 2 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
 	/* Server-Mask ermitteln */
@@ -247,7 +245,6 @@ IRC_LUSERS( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	/* Falsche Anzahl Parameter? */
 	if(( Req->argc > 2 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
 	/* Absender ermitteln */
@@ -321,7 +318,6 @@ IRC_MOTD( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	/* Falsche Anzahl Parameter? */
 	if( Req->argc > 1 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
 	/* From aus Prefix ermitteln */
@@ -331,7 +327,7 @@ IRC_MOTD( CLIENT *Client, REQUEST *Req )
 
 	if( Req->argc == 1 )
 	{
-		/* an anderen Server forwarden */
+		/* forward? */
 		target = Client_Search( Req->argv[0] );
 		if(( ! target ) || ( Client_Type( target ) != CLIENT_SERVER )) return IRC_WriteStrClient( from, ERR_NOSUCHSERVER_MSG, Client_ID( from ), Req->argv[0] );
 
@@ -357,23 +353,21 @@ IRC_NAMES( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	/* Falsche Anzahl Parameter? */
 	if( Req->argc > 2 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
-	/* From aus Prefix ermitteln */
+	/* use prefix to determine "From" */
 	if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_Search( Req->prefix );
 	else from = Client;
 	if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
 
 	if( Req->argc == 2 )
 	{
-		/* an anderen Server forwarden */
+		/* forward to another server? */
 		target = Client_Search( Req->argv[1] );
 		if(( ! target ) || ( Client_Type( target ) != CLIENT_SERVER )) return IRC_WriteStrClient( from, ERR_NOSUCHSERVER_MSG, Client_ID( from ), Req->argv[1] );
 
-		if( target != Client_ThisServer( ))
-		{
-			/* Ok, anderer Server ist das Ziel: forwarden */
+		if( target != Client_ThisServer( )) {
+			/* target is another server, forward */
 			return IRC_WriteStrClientPrefix( target, from, "NAMES %s :%s", Req->argv[0], Req->argv[1] );
 		}
 	}
@@ -387,53 +381,48 @@ IRC_NAMES( CLIENT *Client, REQUEST *Req )
 			chan = Channel_Search( ptr );
 			if( chan )
 			{
-				/* Namen ausgeben */
+				/* print name */
 				if( ! IRC_Send_NAMES( from, chan )) return DISCONNECTED;
 			}
 			if( ! IRC_WriteStrClient( from, RPL_ENDOFNAMES_MSG, Client_ID( from ), ptr )) return DISCONNECTED;
 
-			/* naechsten Namen ermitteln */
+			/* get next channel name */
 			ptr = strtok( NULL, "," );
 		}
 		return CONNECTED;
 	}
 
-	/* alle Channels durchgehen */
 	chan = Channel_First( );
 	while( chan )
 	{
-		/* Namen ausgeben */
 		if( ! IRC_Send_NAMES( from, chan )) return DISCONNECTED;
 
-		/* naechster Channel */
 		chan = Channel_Next( chan );
 	}
 
-	/* Nun noch alle Clients ausgeben, die in keinem Channel sind */
+	/* Now print all clients which are not in any channel */
 	c = Client_First( );
 	snprintf( rpl, sizeof( rpl ), RPL_NAMREPLY_MSG, Client_ID( from ), "*", "*" );
 	while( c )
 	{
 		if(( Client_Type( c ) == CLIENT_USER ) && ( Channel_FirstChannelOf( c ) == NULL ) && ( ! strchr( Client_Modes( c ), 'i' )))
 		{
-			/* Okay, das ist ein User: anhaengen */
+			/* its a user, concatenate ... */
 			if( rpl[strlen( rpl ) - 1] != ':' ) strlcat( rpl, " ", sizeof( rpl ));
 			strlcat( rpl, Client_ID( c ), sizeof( rpl ));
 
 			if( strlen( rpl ) > ( LINE_LEN - CLIENT_NICK_LEN - 4 ))
 			{
-				/* Zeile wird zu lang: senden! */
+				/* Line is gwoing too long, send now */
 				if( ! IRC_WriteStrClient( from, "%s", rpl )) return DISCONNECTED;
 				snprintf( rpl, sizeof( rpl ), RPL_NAMREPLY_MSG, Client_ID( from ), "*", "*" );
 			}
 		}
 
-		/* naechster Client */
 		c = Client_Next( c );
 	}
 	if( rpl[strlen( rpl ) - 1] != ':')
 	{
-		/* es wurden User gefunden */
 		if( ! IRC_WriteStrClient( from, "%s", rpl )) return DISCONNECTED;
 	}
 
@@ -489,11 +478,10 @@ IRC_STATS( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	/* Falsche Anzahl Parameter? */
 	if (Req->argc > 2)
 		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG, Client_ID(Client), Req->command);
 
-	/* From aus Prefix ermitteln */
+	/* use prefix to determine "From" */
 	if (Client_Type(Client) == CLIENT_SERVER)
 		from = Client_Search(Req->prefix);
 	else
@@ -503,13 +491,13 @@ IRC_STATS( CLIENT *Client, REQUEST *Req )
 		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix);
 
 	if (Req->argc == 2) {
-		/* an anderen Server forwarden */
+		/* forward to another server? */
 		target = Client_Search( Req->argv[1] );
 		if(( ! target ) || ( Client_Type( target ) != CLIENT_SERVER ))
 			return IRC_WriteStrClient( from, ERR_NOSUCHSERVER_MSG, Client_ID( from ), Req->argv[1] );
 
 		if( target != Client_ThisServer()) {
-			/* Ok, anderer Server ist das Ziel: forwarden */
+			/* forward to another server */
 			return IRC_WriteStrClientPrefix( target, from, "STATS %s %s", Req->argv[0], Req->argv[1] );
 		}
 	}
@@ -597,23 +585,19 @@ IRC_TIME( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	/* Falsche Anzahl Parameter? */
 	if( Req->argc > 1 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
-	/* From aus Prefix ermitteln */
 	if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_Search( Req->prefix );
 	else from = Client;
 	if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
 
 	if( Req->argc == 1 )
 	{
-		/* an anderen Server forwarden */
 		target = Client_Search( Req->argv[0] );
 		if(( ! target ) || ( Client_Type( target ) != CLIENT_SERVER )) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->argv[0] );
 
 		if( target != Client_ThisServer( ))
 		{
-			/* Ok, anderer Server ist das Ziel: forwarden */
 			return IRC_WriteStrClientPrefix( target, from, "TIME %s", Req->argv[0] );
 		}
 	}
@@ -634,7 +618,6 @@ IRC_USERHOST( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	/* Falsche Anzahl Parameter? */
 	if(( Req->argc < 1 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
 	if( Req->argc > 5 ) max = 5;
@@ -646,7 +629,7 @@ IRC_USERHOST( CLIENT *Client, REQUEST *Req )
 		c = Client_Search( Req->argv[i] );
 		if( c && ( Client_Type( c ) == CLIENT_USER ))
 		{
-			/* Dieser Nick ist "online" */
+			/* This Nick is "online" */
 			strlcat( rpl, Client_ID( c ), sizeof( rpl ));
 			if( Client_HasMode( c, 'o' )) strlcat( rpl, "*", sizeof( rpl ));
 			strlcat( rpl, "=", sizeof( rpl ));
@@ -684,7 +667,6 @@ IRC_VERSION( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	/* Falsche Anzahl Parameter? */
 	if(( Req->argc > 1 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
 	/* Ziel suchen */

@@ -23,7 +23,7 @@ sbin_PROGRAMS = ngircd
 ngircd_SOURCES = ngircd.c array.c channel.c client.c conf.c conn.c conn-func.c \
 	conn-ssl.c conn-zip.c hash.c io.c irc.c irc-channel.c irc-info.c irc-login.c \
 	irc-mode.c irc-op.c irc-oper.c irc-server.c irc-write.c lists.c log.c \
-	match.c numeric.c parse.c rendezvous.c resolve.c
+	match.c op.c numeric.c parse.c rendezvous.c resolve.c
 
 ngircd_LDFLAGS = -L../portab -L../tool -L../ipaddr
 
@@ -32,7 +32,7 @@ ngircd_LDADD = -lngportab -lngtool -lngipaddr
 noinst_HEADERS = ngircd.h array.h channel.h client.h conf.h conf-ssl.h conn.h \
 	conn-func.h conn-ssl.h conn-zip.h hash.h io.h irc.h irc-channel.h \
 	irc-info.h irc-login.h irc-mode.h irc-op.h irc-oper.h irc-server.h \
-	irc-write.h lists.h log.h match.h numeric.h parse.h rendezvous.h \
+	irc-write.h lists.h log.h match.h numeric.h op.h parse.h rendezvous.h \
 	resolve.h defines.h messages.h
 
 clean-local:

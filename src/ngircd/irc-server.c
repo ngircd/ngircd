@@ -49,7 +49,7 @@
 GLOBAL bool
 IRC_SERVER( CLIENT *Client, REQUEST *Req )
 {
-	char str[LINE_LEN], *ptr;
+	char str[LINE_LEN];
 	CLIENT *from, *c;
 	bool ok;
 	int i;
@@ -168,10 +168,6 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 		/* check for existing server with same ID */
 		if( ! Client_CheckID( Client, Req->argv[0] )) return DISCONNECTED;
 
-		/* remove superfluous hostnames from Info-Text */
-		ptr = strchr( Req->argv[3] + 2, '[' );
-		if( ! ptr ) ptr = Req->argv[3];
-
 		from = Client_Search( Req->prefix );
 		if( ! from )
 		{
@@ -181,7 +177,7 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 			return DISCONNECTED;
 		}
 
-		c = Client_NewRemoteServer( Client, Req->argv[0], from, atoi( Req->argv[1] ), atoi( Req->argv[2] ), ptr, true);
+		c = Client_NewRemoteServer(Client, Req->argv[0], from, atoi(Req->argv[1]), atoi(Req->argv[2]), Req->argv[3], true);
 		if (!c) {
 			Log( LOG_ALERT, "Can't create client structure for server! (on connection %d)", Client_Conn( Client ));
 			Conn_Close( Client_Conn( Client ), NULL, "Can't allocate client structure for remote server", true);

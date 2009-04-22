@@ -31,6 +31,7 @@
 #include "match.h"
 #include "messages.h"
 #include "parse.h"
+#include "op.h"
 
 #include <exp.h>
 #include "irc-oper.h"
@@ -49,58 +50,6 @@ Bad_OperPass(CLIENT *Client, char *errtoken, char *errmsg)
 	return IRC_WriteStrClient(Client, ERR_PASSWDMISMATCH_MSG,
 				  Client_ID(Client));
 } /* Bad_OperPass */
-
-
-/**
- * Check that the client is an IRC operator allowed to administer this server.
- */
-static bool
-Check_Oper(CLIENT * Client, REQUEST * Req)
-{
-	CLIENT *c;
-
-	assert(Client != NULL);
-	assert(Req != NULL);
-
-	if (Client_Type(Client) == CLIENT_SERVER && Req->prefix)
-		c = Client_Search(Req->prefix);
-	else
-		c = Client;
-	if (!c)
-		return false;
-	if (!Client_HasMode(c, 'o'))
-		return false;
-	if (!Client_OperByMe(c) && !Conf_AllowRemoteOper)
-		return false;
-	/* The client is an local IRC operator, or this server is configured
-	 * to trust remote operators. */
-	return true;
-} /* CheckOper */
-
-
-/**
- * Return and log a "no privileges" message.
- */
-static bool
-No_Privileges(CLIENT * Client, REQUEST * Req)
-{
-	CLIENT *from = NULL;
-
-	if (Req->prefix) 
-		from = Client_Search(Req->prefix);
-
-	if (from) {
-		Log(LOG_NOTICE, "No privileges: client \"%s\" (%s), command \"%s\"",
-		    Req->prefix, Client_Mask(Client), Req->command);
-		return IRC_WriteStrClient(from, ERR_NOPRIVILEGES_MSG,
-					  Client_ID(from));
-	} else {
-		Log(LOG_NOTICE, "No privileges: client \"%s\", command \"%s\"",
-		    Client_Mask(Client), Req->command);
-		return IRC_WriteStrClient(Client, ERR_NOPRIVILEGES_MSG,
-					  Client_ID(Client));
-	}
-} /* PermissionDenied */
 
 
 GLOBAL bool
@@ -151,8 +100,8 @@ IRC_DIE(CLIENT * Client, REQUEST * Req)
 	assert(Client != NULL);
 	assert(Req != NULL);
 
-	if (!Check_Oper(Client, Req))
-		return No_Privileges(Client, Req);
+	if (!Op_Check(Client, Req))
+		return Op_NoPrivileges(Client, Req);
 
 	/* Bad number of parameters? */
 #ifdef STRICT_RFC
@@ -191,8 +140,8 @@ IRC_REHASH( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	if (!Check_Oper(Client, Req))
-		return No_Privileges(Client, Req);
+	if (!Op_Check(Client, Req))
+		return Op_NoPrivileges(Client, Req);
 
 	/* Bad number of parameters? */
 	if( Req->argc != 0 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
@@ -212,8 +161,8 @@ IRC_RESTART( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	if (!Check_Oper(Client, Req))
-		return No_Privileges(Client, Req);
+	if (!Op_Check(Client, Req))
+		return Op_NoPrivileges(Client, Req);
 
 	/* Bad number of parameters? */
 	if( Req->argc != 0 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
@@ -235,8 +184,8 @@ IRC_CONNECT(CLIENT * Client, REQUEST * Req)
 	assert(Client != NULL);
 	assert(Req != NULL);
 
-	if (!Check_Oper(Client, Req))
-		return No_Privileges(Client, Req);
+	if (!Op_Check(Client, Req))
+		return Op_NoPrivileges(Client, Req);
 
 	/* Bad number of parameters? */
 	if (Req->argc != 1 && Req->argc != 2 && Req->argc != 3 &&
@@ -329,8 +278,8 @@ IRC_DISCONNECT(CLIENT * Client, REQUEST * Req)
 	assert(Client != NULL);
 	assert(Req != NULL);
 
-	if (!Check_Oper(Client, Req))
-		return No_Privileges(Client, Req);
+	if (!Op_Check(Client, Req))
+		return Op_NoPrivileges(Client, Req);
 
 	/* Bad number of parameters? */
 	if (Req->argc != 1)

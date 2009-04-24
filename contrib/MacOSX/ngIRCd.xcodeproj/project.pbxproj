@@ -35,6 +35,7 @@
 		FA322DBE0CEF7766001761B3 /* tool.c in Sources */ = {isa = PBXBuildFile; fileRef = FA322D330CEF74B1001761B3 /* tool.c */; };
 		FA322DC10CEF77CB001761B3 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FA322DC00CEF77CB001761B3 /* libz.dylib */; };
 		FA407F2E0DB159F400271AF1 /* ng_ipaddr.c in Sources */ = {isa = PBXBuildFile; fileRef = FA407F2C0DB159F400271AF1 /* ng_ipaddr.c */; };
+		FA85178C0FA061EC006A1F5A /* op.c in Sources */ = {isa = PBXBuildFile; fileRef = FA85178B0FA061EC006A1F5A /* op.c */; };
 		FAA3D27B0F139CDC00B2447E /* conn-ssl.c in Sources */ = {isa = PBXBuildFile; fileRef = FAA3D2790F139CDC00B2447E /* conn-ssl.c */; };
 		FAE5CC2E0CF2308A007D69B6 /* numeric.c in Sources */ = {isa = PBXBuildFile; fileRef = FAE5CC2D0CF2308A007D69B6 /* numeric.c */; };
 /* End PBXBuildFile section */
@@ -193,6 +194,8 @@
 		FA407F2C0DB159F400271AF1 /* ng_ipaddr.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; name = ng_ipaddr.c; path = ipaddr/ng_ipaddr.c; sourceTree = "<group>"; };
 		FA407F2D0DB159F400271AF1 /* ng_ipaddr.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; name = ng_ipaddr.h; path = ipaddr/ng_ipaddr.h; sourceTree = "<group>"; };
 		FA407F380DB15AC700271AF1 /* GIT.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = GIT.txt; sourceTree = "<group>"; };
+		FA85178A0FA061EC006A1F5A /* op.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = op.h; sourceTree = "<group>"; };
+		FA85178B0FA061EC006A1F5A /* op.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = op.c; sourceTree = "<group>"; };
 		FAA3D2700F139CB300B2447E /* invite-test.e */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = "invite-test.e"; sourceTree = "<group>"; };
 		FAA3D2710F139CB300B2447E /* join-test.e */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = "join-test.e"; sourceTree = "<group>"; };
 		FAA3D2720F139CB300B2447E /* kick-test.e */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = "kick-test.e"; sourceTree = "<group>"; };
@@ -332,6 +335,8 @@
 				FA322D070CEF74B1001761B3 /* ngircd.h */,
 				FAE5CC2D0CF2308A007D69B6 /* numeric.c */,
 				FAE5CC2C0CF2308A007D69B6 /* numeric.h */,
+				FA85178A0FA061EC006A1F5A /* op.h */,
+				FA85178B0FA061EC006A1F5A /* op.c */,
 				FA322D080CEF74B1001761B3 /* parse.c */,
 				FA322D090CEF74B1001761B3 /* parse.h */,
 				FA322D0A0CEF74B1001761B3 /* rendezvous.c */,
@@ -676,6 +681,7 @@
 				FAE5CC2E0CF2308A007D69B6 /* numeric.c in Sources */,
 				FA407F2E0DB159F400271AF1 /* ng_ipaddr.c in Sources */,
 				FAA3D27B0F139CDC00B2447E /* conn-ssl.c in Sources */,
+				FA85178C0FA061EC006A1F5A /* op.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

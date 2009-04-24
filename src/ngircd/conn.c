@@ -1540,6 +1540,7 @@ Check_Connections(void)
 	 * if this doesn't help either, disconnect client. */
 	CLIENT *c;
 	CONN_ID i;
+	char msg[64];
 
 	for (i = 0; i < Pool_Size; i++) {
 		if (My_Connections[i].sock < 0)
@@ -1559,8 +1560,8 @@ Check_Connections(void)
 					LogDebug
 					    ("Connection %d: Ping timeout: %d seconds.",
 					     i, Conf_PongTimeout);
-					Conn_Close(i, NULL, "Ping timeout",
-						   true);
+					snprintf(msg, sizeof(msg), "Ping timeout: %d seconds", Conf_PongTimeout);
+					Conn_Close(i, NULL, msg, true);
 				}
 			} else if (My_Connections[i].lastdata <
 				   time(NULL) - Conf_PingTimeout) {

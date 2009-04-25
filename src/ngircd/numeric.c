@@ -131,7 +131,7 @@ Announce_Server(CLIENT * Client, CLIENT * Server)
 	if (Client_Hops(Server) == 1)
 		c = Client_ThisServer();
 	else
-		c = Client_Introducer(Server);
+		c = Client_TopServer(Server);
 
 	/* Inform new server about the one already registered in the network */
 	return IRC_WriteStrClientPrefix(Client, c, "SERVER %s %d %d :%s",

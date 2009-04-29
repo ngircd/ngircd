@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 #
 # ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001-2008 Alexander Barton <alex@barton.de>
+# Copyright (c)2001-2009 Alexander Barton <alex@barton.de>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@ endif
 
 configure-ngircd: configure
 	dh_testdir
-	
+
 	# configure "standard" variant:
 	./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) \
 	  --prefix=/usr \
@@ -46,7 +46,7 @@ configure-ngircd: configure
 
 configure-ngircd-full: configure
 	dh_testdir
-	
+
 	# configure "full" variant:
 	./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) \
 	  --prefix=/usr \
@@ -63,17 +63,17 @@ build-ngircd: build-stamp-ngircd
 build-stamp-ngircd: configure-ngircd
 	dh_testdir
 	rm -f build-stamp-*
-	
+
 	# Add here commands to compile the "standard" package:
 	$(MAKE)
-	
+
 	touch build-stamp-ngircd
 
 build-ngircd-full: build-stamp-ngircd-full
 build-stamp-ngircd-full: configure-ngircd-full
 	dh_testdir
 	rm -f build-stamp-*
-	
+
 	# Add here commands to compile the "full" package:
 	$(MAKE)
 	
@@ -89,7 +89,7 @@ clean:
 	
 	# Add here commands to clean up after the build process:
 	[ ! -f Makefile ] || $(MAKE) distclean
-	
+
 ifneq "$(wildcard /usr/share/misc/config.sub)" ""
 	cp -f /usr/share/misc/config.sub config.sub
 endif
@@ -104,7 +104,7 @@ install-ngircd: build-ngircd
 	dh_testdir
 	dh_testroot
 	dh_installdirs
-	
+
 	# Add here commands to install the "standard" package into debian/ngircd:
 	$(MAKE) install DESTDIR=$(CURDIR)/debian/ngircd
 	rm $(CURDIR)/debian/ngircd/usr/share/doc/ngircd/INSTALL*
@@ -122,7 +122,7 @@ install-ngircd-full: build-ngircd-full
 	dh_testdir
 	dh_testroot
 	dh_installdirs
-	
+
 	# Add here commands to install the "full" package into debian/ngircd-full:
 	$(MAKE) install DESTDIR=$(CURDIR)/debian/ngircd-full
 	rm $(CURDIR)/debian/ngircd-full/usr/share/doc/ngircd/INSTALL*

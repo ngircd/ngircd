@@ -1,6 +1,6 @@
 #
 # ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001-2008 Alexander Barton (alex@barton.de)
+# Copyright (c)2001-2009 Alexander Barton (alex@barton.de)
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,7 +20,10 @@ clean-local:
 	 ngircd.prerm.debhelper ngircd.substvars
 	rm -f ngircd-full.postinst.debhelper ngircd-full.postrm.debhelper \
 	 ngircd-full.prerm.debhelper ngircd-full.substvars
-	rm -rf ngircd ngircd-full
+	rm -f ngircd-full-dbg.postinst.debhelper \
+	 ngircd-full-dbg.postrm.debhelper ngircd-full-dbg.prerm.debhelper \
+	 ngircd-full-dbg.substvars
+	rm -rf ngircd ngircd-full ngircd-full-dbg
 	rm -f files
 
 # -eof-

@@ -1,3 +1,10 @@
+ngircd (14-0ab2) unstable; urgency=low
+
+  * Add new "ngircd-full-dbg" package including degug code and both
+    the --debug and --sniffer options, and containing debug symbols.
+
+ -- Alexander Barton <alex@barton.de>  Wed, 29 Apr 2009 01:13:03 +0200
+
 ngircd (14-0ab1) unstable; urgency=low
 
   * New "upstream" release: ngIRCd 14.

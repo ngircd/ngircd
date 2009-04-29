@@ -7,3 +7,7 @@ ngircd-full/
 ngircd-full.default
 ngircd-full.init
 ngircd-full.postinst
+ngircd-full-dbg/
+ngircd-full-dbg.default
+ngircd-full-dbg.init
+ngircd-full-dbg.postinst

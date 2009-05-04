@@ -1951,6 +1951,9 @@ Conn_GetClient( CONN_ID Idx )
 GLOBAL bool
 Conn_GetCipherInfo(CONN_ID Idx, char *buf, size_t len)
 {
+	if (Idx < 0)
+		return false;
+	assert(Idx < (int) array_length(&My_ConnArray, sizeof(CONNECTION)));
 	return ConnSSL_GetCipherInfo(&My_Connections[Idx], buf, len);
 }
 
@@ -1958,6 +1961,9 @@ Conn_GetCipherInfo(CONN_ID Idx, char *buf, size_t len)
 GLOBAL bool
 Conn_UsesSSL(CONN_ID Idx)
 {
+	if (Idx < 0)
+		return false;
+	assert(Idx < (int) array_length(&My_ConnArray, sizeof(CONNECTION)));
 	return Conn_OPTION_ISSET(&My_Connections[Idx], CONN_SSL);
 }
 #endif

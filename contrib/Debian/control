@@ -32,7 +32,7 @@ Package: ngircd-full
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Provides: ircd
-Conflicts: ngircd ngircd-dbg
+Conflicts: ngircd, ngircd-dbg
 Description: A lightweight daemon for the Internet Relay Chat (IRC)
  ngIRCd is a free open source daemon for the Internet Relay Chat (IRC)
  network. It is written from scratch and is not based upon the original
@@ -55,7 +55,7 @@ Package: ngircd-full-dbg
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Provides: ircd
-Conflicts: ngircd ngircd-full
+Conflicts: ngircd, ngircd-full
 Description: A lightweight daemon for the Internet Relay Chat (IRC)
  ngIRCd is a free open source daemon for the Internet Relay Chat (IRC)
  network. It is written from scratch and is not based upon the original

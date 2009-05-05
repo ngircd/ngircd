@@ -10,6 +10,19 @@
                                -- ChangeLog --
 
 
+ngIRCd Release 14.1 (2009-05-05)
+
+  - Security: fix remotely triggerable crash in SSL/TLS code.
+  - BSD start script contrib/ngircd.sh has been renamed to ngircd-bsd.sh.
+  - New start/stop script for RedHat-based distributions:
+    contrib/ngircd-redhat.init, thanks to Naoya Nakazawa <naoya@sanow.net>.
+  - Doxygen: update source code repository link to GIT.
+  - Debian: build ngircd-full-dbg package.
+  - Allow ping timeout quit messages to show the timeout value.
+  - Fix error handling on compressed links.
+  - Fix server list announcement.
+  - Do not remove hostnames from info text.
+
 ngIRCd Release 14 (2009-04-20)
 
   - Display IPv6 addresses as "[<addr>]" when accepting connections.

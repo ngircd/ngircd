@@ -10,6 +10,12 @@
                                   -- NEWS --
 
 
+ngIRCd Release 14.1 (2009-05-05)
+
+  - Security: fix remotely triggerable crash in SSL/TLS code.
+  - Debian: build ngircd-full-dbg package.
+  - Allow ping timeout quit messages to show the timeout value.
+
 ngIRCd Release 14 (2009-04-20)
 
   ngIRCd 14~rc1 (2009-03-29)

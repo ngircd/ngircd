@@ -1,0 +1,119 @@
+#!/bin/sh
+#
+# ngIRCd start and stop script for RedHat based distributions.
+# Written by Naoya Nakazawa <naoya@sanow.net> for CentOS 5.2, 2009.
+#
+# chkconfig: 2345 01
+# description: ngIRCd is an Open Source server for \
+#              the Internet Relay Chat (IRC), which \
+#              is developed and published under \
+#              the terms of the GNU General Public
+#              Licence (URL: http://www.gnu.org/licenses/gpl.html). \
+#              ngIRCd means "next generation IRC daemon", \
+#              it's written from scratch and not deduced from the \
+#              "grandfather of IRC daemons", the daemon of the IRCNet.
+#
+# processname: /usr/sbin/ngircd
+# config: /etc/ngircd
+# pidfile: /var/run/ngircd.pid
+
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+DAEMON=/usr/sbin/ngircd
+NAME=ngIRCd
+BASENAME=ngircd
+CONF=/etc/$BASENAME.conf
+DESC="IRC daemon"
+PARAMS="-f $CONF"
+
+# Source function library.
+. /etc/init.d/functions
+
+# Get config.
+test -f /etc/sysconfig/network && . /etc/sysconfig/network
+test -f /etc/sysconfig/makuosan && . /etc/sysconfig/makuosan
+
+# Check that networking is up.
+[ "${NETWORKING}" = "yes" ] || exit 0
+
+[ -x $DAEMON ] || exit 1
+[ -f $CONF ] || exit 2
+
+RETVAL=0
+
+start(){
+    echo -n $"Starting $NAME: "
+    daemon $DAEMON $PARAMS
+    RETVAL=$?
+    [ $RETVAL -eq 0 ] && touch /var/lock/subsys/$BASENAME
+    echo
+    return $RETVAL
+}
+
+stop(){
+    echo -n $"Stopping $NAME: "
+    killproc $DAEMON
+    RETVAL=$?
+    if [ $RETVAL -eq 0 ] ; then
+        rm -f /var/lock/subsys/$BASENAME
+    fi
+    echo
+    return $RETVAL
+}
+
+reload(){
+    echo -n $"Reloading configuration: "
+    killproc $DAEMON -HUP
+    RETVAL=$?
+    echo
+    return $RETVAL
+}
+
+restart(){
+    stop
+    start
+}
+
+condrestart(){
+    [ -e /var/lock/subsys/$BASENAME ] && restart
+    return 0
+}
+
+check_config(){
+     $DAEMON $PARAMS --configtest >/dev/null 2>&1
+     [ $? -eq 0 ] && return 0
+
+     echo -n $"Configuration of $NAME is not valid, won't (re)start!"
+     echo -n $"Run \"$DAEMON --configtest\" and fix it up ..."
+     exit 6
+}
+
+# See how we were called.
+case "$1" in
+    start)
+        check_config
+	start
+	;;
+    stop)
+	stop
+	;;
+    status)
+	status $NAME
+	;;
+    restart)
+	restart
+	;;
+    reload)
+	reload
+	;;
+    condrestart)
+	condrestart
+	;;
+    test)
+        check_config
+        ;;
+    *)
+	echo $"Usage: $0 {start|stop|status|restart|condrestart|reload|test}"
+	RETVAL=1
+esac
+
+exit $RETVAL

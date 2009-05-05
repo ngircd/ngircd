@@ -11,7 +11,8 @@
 
 SUBDIRS = Debian MacOSX
 
-EXTRA_DIST = README ngircd.spec systrace.policy ngindent ngircd-bsd.sh
+EXTRA_DIST = README ngircd.spec systrace.policy ngindent ngircd-bsd.sh \
+	ngircd-redhat.init
 
 maintainer-clean-local:
 	rm -f Makefile Makefile.in

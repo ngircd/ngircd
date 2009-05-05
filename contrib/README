@@ -22,6 +22,9 @@ ngindent
 ngircd-bsd.sh
  - Start script for FreeBSD.
 
+ngircd-redhat.init
+ - Start/stop script for RedHat-based distributions (like CentOS).
+
 ngircd.spec
  - RPM "spec" file.
 

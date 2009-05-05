@@ -1,7 +1,7 @@
 
                      ngIRCd - Next Generation IRC Server
 
-                        (c)2001-2005 Alexander Barton,
+                        (c)2001-2009 Alexander Barton,
                     alex@barton.de, http://www.barton.de/
 
                ngIRCd is free software and published under the
@@ -19,7 +19,7 @@ MacOSX/
 ngindent
  - Script to indent the code of ngIRCd in the "standard way".
 
-ngircd.sh
+ngircd-bsd.sh
  - Start script for FreeBSD.
 
 ngircd.spec
@@ -27,7 +27,3 @@ ngircd.spec
 
 systrace.policy
  - Systrace policy file for OpenBSD (and probably NetBSD).
-
-
---
-$Id: README,v 1.3 2006/07/23 11:34:32 alex Exp $

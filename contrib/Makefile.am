@@ -1,6 +1,6 @@
 #
 # ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001-2008 Alexander Barton (alex@barton.de)
+# Copyright (c)2001-2009 Alexander Barton (alex@barton.de)
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -11,7 +11,7 @@
 
 SUBDIRS = Debian MacOSX
 
-EXTRA_DIST = README ngircd.spec systrace.policy ngindent ngircd.sh
+EXTRA_DIST = README ngircd.spec systrace.policy ngindent ngircd-bsd.sh
 
 maintainer-clean-local:
 	rm -f Makefile Makefile.in

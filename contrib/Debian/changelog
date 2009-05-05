@@ -1,3 +1,9 @@
+ngircd (14.1-0ab1) unstable; urgency=high
+
+  * New "upstream" release ngIRCd 14.1, fixing a security-related bug.
+
+ -- Alexander Barton <alex@barton.de>  Tue,  5 May 2009 13:13:38 +0200
+
 ngircd (14-0ab3) unstable; urgency=low
 
   * Fixed "Conflicts:" line in debian/control: missing comma.

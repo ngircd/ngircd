@@ -518,15 +518,14 @@ ConnSSL_HandleError( CONNECTION *c, const int code, const char *fname )
 	switch (code) {
 	case GNUTLS_E_AGAIN:
 	case GNUTLS_E_INTERRUPTED:
-	if (gnutls_record_get_direction(c->ssl_state.gnutls_session)) { /* need write */
-		io_event_del(c->sock, IO_WANTREAD);
-		Conn_OPTION_ADD(c, CONN_SSL_WANT_WRITE); /* fall through */
+		if (gnutls_record_get_direction(c->ssl_state.gnutls_session)) {
+			Conn_OPTION_ADD(c, CONN_SSL_WANT_WRITE);
+			io_event_del(c->sock, IO_WANTREAD);
+		} else {
+			Conn_OPTION_ADD(c, CONN_SSL_WANT_READ);
+			io_event_del(c->sock, IO_WANTWRITE);
+		}
 		break;
-	} else { /* need read */
-		io_event_del(c->sock, IO_WANTWRITE);
-		Conn_OPTION_ADD(c, CONN_SSL_WANT_READ);
-		break;
-	}
 	default:
 		assert(code < 0);
 		if (gnutls_error_is_fatal(code)) {

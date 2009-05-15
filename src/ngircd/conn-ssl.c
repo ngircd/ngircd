@@ -383,7 +383,6 @@ ConnSSL_Init_SSL(CONNECTION *c)
 	int ret;
 	assert(c != NULL);
 #ifdef HAVE_LIBSSL
-	assert(ssl_ctx);
 	if (!ssl_ctx)	/* NULL when library initialization failed */
 		return false;
 
@@ -433,10 +432,7 @@ ConnSSL_PrepareConnect(CONNECTION *c, UNUSED CONF_SERVER *s)
 	bool ret;
 #ifdef HAVE_LIBGNUTLS
 	int err;
-#endif
-	assert(c != NULL);
-	assert(s != NULL);
-#ifdef HAVE_LIBGNUTLS
+
 	err = gnutls_init(&c->ssl_state.gnutls_session, GNUTLS_CLIENT);
 	if (err) {
 		Log(LOG_ERR, "gnutls_init: %s", gnutls_strerror(err));
@@ -470,8 +466,6 @@ ConnSSL_HandleError( CONNECTION *c, const int code, const char *fname )
 	int ret = SSL_ERROR_SYSCALL;
 	unsigned long sslerr;
 	int real_errno = errno;
-
-	assert( fname );
 
 	ret = SSL_get_error(c->ssl_state.ssl, code);
 	switch (ret) {
@@ -545,8 +539,7 @@ ConnSSL_LogCertInfo( CONNECTION *c )
 #ifdef HAVE_LIBSSL
 	SSL *ssl = c->ssl_state.ssl;
 
-	assert( c );
-	assert( ssl );
+	assert(ssl);
 
 	Log(LOG_INFO, "New %s connection using cipher %s on socket %d.",
 		SSL_get_version(ssl), SSL_get_cipher(ssl), c->sock);
@@ -574,11 +567,8 @@ int
 ConnSSL_Accept( CONNECTION *c )
 {
 	assert(c != NULL);
-#ifdef HAVE_LIBSSL
-	if (!c->ssl_state.ssl) {
-#endif
-#ifdef HAVE_LIBGNUTLS
 	if (!Conn_OPTION_ISSET(c, CONN_SSL)) {
+#ifdef HAVE_LIBGNUTLS
 		int err = gnutls_init(&c->ssl_state.gnutls_session, GNUTLS_SERVER);
 		if (err) {
 			Log(LOG_ERR, "gnutls_init: %s", gnutls_strerror(err));
@@ -600,9 +590,7 @@ ConnSSL_Connect( CONNECTION *c )
 #ifdef HAVE_LIBSSL
 	assert(c->ssl_state.ssl);
 #endif
-#ifdef HAVE_LIBGNUTLS
 	assert(Conn_OPTION_ISSET(c, CONN_SSL));
-#endif
 	return ConnectAccept(c, true);
 }
 
@@ -622,7 +610,6 @@ ConnectAccept( CONNECTION *c, bool connect)
 #endif
 #ifdef HAVE_LIBGNUTLS
 	(void) connect;
-	assert(Conn_OPTION_ISSET(c, CONN_SSL));
 	ret = gnutls_handshake(c->ssl_state.gnutls_session);
 	if (ret)
 		return ConnSSL_HandleError(c, ret, "gnutls_handshake");
@@ -647,7 +634,8 @@ ConnSSL_Write(CONNECTION *c, const void *buf, size_t count)
 #ifdef HAVE_LIBGNUTLS
 	bw = gnutls_write(c->ssl_state.gnutls_session, buf, count);
 #endif
-	if ( bw > 0 ) return bw;
+	if (bw > 0)
+		return bw;
 	if (ConnSSL_HandleError( c, bw, "ConnSSL_Write") == 0)
 		errno = EAGAIN; /* try again */
 	return -1;
@@ -684,11 +672,8 @@ ConnSSL_GetCipherInfo(CONNECTION *c, char *buf, size_t len)
 {
 #ifdef HAVE_LIBSSL
 	char *nl;
+	SSL *ssl = c->ssl_state.ssl;
 
-	SSL *ssl;
-	assert(c != NULL);
-	assert(len >= 128);
-	ssl = c->ssl_state.ssl;
 	if (!ssl)
 		return false;
 	*buf = 0;
@@ -699,8 +684,6 @@ ConnSSL_GetCipherInfo(CONNECTION *c, char *buf, size_t len)
 	return true;
 #endif
 #ifdef HAVE_LIBGNUTLS
-	assert(c != NULL);
-	assert(len >= 128);
 	if (Conn_OPTION_ISSET(c, CONN_SSL)) {
 		const char *name_cipher, *name_mac, *name_proto, *name_keyexchange;
 		unsigned keysize;

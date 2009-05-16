@@ -221,9 +221,6 @@ Default: 10.
 Maximum length of an user nick name (Default: 9, as in RFC 2812). Please
 note that all servers in an IRC network MUST use the same maximum nick name
 length!
-.TP
-\fBSSLConnect\fR
-Connect to the remote server using TLS/SSL. Default: false.
 .SH [OPERATOR]
 .I [Operator]
 sections are used to define IRC Operators. There may be more than one
@@ -286,6 +283,9 @@ Group of this server (optional).
 \fBPassive\fR
 Disable automatic connection even if port value is specified. Default: false.
 You can use the IRC Operator command CONNECT later on to create the link.
+.TP
+\fBSSLConnect\fR
+Connect to the remote server using TLS/SSL. Default: false.
 .TP
 \fBServiceMask\fR
 Define a (case insensitive) mask matching nick names that should be treated as

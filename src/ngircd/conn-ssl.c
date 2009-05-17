@@ -406,6 +406,7 @@ ConnSSL_Init_SSL(CONNECTION *c)
 	if (ret < 0) {
 		Log(LOG_ERR, "gnutls_set_default_priority: %s", gnutls_strerror(ret));
 		ConnSSL_Free(c);
+		return false;
 	}
 	/*
 	 * The intermediate (long) cast is here to avoid a warning like:
@@ -418,6 +419,7 @@ ConnSSL_Init_SSL(CONNECTION *c)
 	if (ret < 0) {
 		Log(LOG_ERR, "gnutls_credentials_set: %s", gnutls_strerror(ret));
 		ConnSSL_Free(c);
+		return false;
 	}
 	gnutls_dh_set_prime_bits(c->ssl_state.gnutls_session, DH_BITS);
 #endif

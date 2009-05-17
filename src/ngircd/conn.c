@@ -1696,6 +1696,8 @@ New_Server( int Server , ng_ipaddr_t *dest)
 		return;
 	}
 
+	/* Conn_Close() decrements this counter again */
+	NumConnections++;
 	Client_SetIntroducer( c, c );
 	Client_SetToken( c, TOKEN_OUTBOUND );
 
@@ -1725,7 +1727,6 @@ New_Server( int Server , ng_ipaddr_t *dest)
 		return;
 	}
 #endif
-	NumConnections++;
 	LogDebug("Registered new connection %d on socket %d (%ld in total).",
 		 new_sock, My_Connections[new_sock].sock, NumConnections);
 	Conn_OPTION_ADD( &My_Connections[new_sock], CONN_ISCONNECTING );

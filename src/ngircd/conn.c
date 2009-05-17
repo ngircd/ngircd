@@ -1722,6 +1722,7 @@ New_Server( int Server , ng_ipaddr_t *dest)
 		Conn_Close( new_sock, "Could not initialize SSL for outgoing connection", NULL, false );
 		Init_Conn_Struct( new_sock );
 		Conf_Server[Server].conn_id = NONE;
+		return;
 	}
 #endif
 	NumConnections++;

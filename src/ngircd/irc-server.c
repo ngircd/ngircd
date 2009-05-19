@@ -332,6 +332,10 @@ IRC_SQUIT(CLIENT * Client, REQUEST * Req)
 		/* We are directly connected to the target server, so we
 		 * have to tear down the connection and to inform all the
 		 * other remaining servers in the network */
+		IRC_SendWallops(Client_ThisServer(), Client_ThisServer(),
+				"Received SQUIT %s from %s: %s",
+				Req->argv[0], Client_ID(from),
+				Req->argv[1][0] ? Req->argv[1] : "-");
 		Conn_Close(con, NULL, msg, true);
 		if (con == Client_Conn(Client))
 			return DISCONNECTED;

@@ -82,6 +82,7 @@ typedef struct _Connection
 	long msg_in, msg_out;		/* Received and sent IRC messages */
 	int flag;			/* Flag (see "irc-write" module) */
 	UINT16 options;			/* Link options / connection state */
+	UINT16 bps;			/* bytes processed within last second */
 	CLIENT *client;			/* pointer to client structure */
 #ifdef ZLIB
 	ZIPDATA zip;			/* Compression information */

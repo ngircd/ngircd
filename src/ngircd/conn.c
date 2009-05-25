@@ -75,13 +75,16 @@
 
 #define SERVER_WAIT (NONE - 1)
 
+#define MAX_COMMANDS 3
+#define MAX_COMMANDS_SERVER 10
+
 
 static bool Handle_Write PARAMS(( CONN_ID Idx ));
 static bool Conn_Write PARAMS(( CONN_ID Idx, char *Data, size_t Len ));
 static int New_Connection PARAMS(( int Sock ));
 static CONN_ID Socket2Index PARAMS(( int Sock ));
 static void Read_Request PARAMS(( CONN_ID Idx ));
-static void Handle_Buffer PARAMS(( CONN_ID Idx ));
+static unsigned int Handle_Buffer PARAMS(( CONN_ID Idx ));
 static void Check_Connections PARAMS(( void ));
 static void Check_Servers PARAMS(( void ));
 static void Init_Conn_Struct PARAMS(( CONN_ID Idx ));
@@ -622,7 +625,7 @@ GLOBAL void
 Conn_Handler(void)
 {
 	int i;
-	unsigned int wdatalen;
+	unsigned int wdatalen, bytes_processed;
 	struct timeval tv;
 	time_t t;
 
@@ -645,9 +648,19 @@ Conn_Handler(void)
 		for (i = 0; i < Pool_Size; i++) {
 			if ((My_Connections[i].sock > NONE)
 			    && (array_bytes(&My_Connections[i].rbuf) > 0)
-			    && (My_Connections[i].delaytime < t)) {
+			    && (My_Connections[i].delaytime <= t)) {
 				/* ... and try to handle the received data */
-				Handle_Buffer(i);
+				bytes_processed = Handle_Buffer(i);
+				/* if we processed data, and there might be
+				 * more commands in the input buffer, do not
+				 * try to read any more data now */
+				if (bytes_processed &&
+				    array_bytes(&My_Connections[i].rbuf) > 2) {
+					LogDebug
+					    ("Throttling connection %d: command limit reached!",
+					     i);
+					Conn_SetPenalty(i, 1);
+				}
 			}
 		}
 
@@ -1307,7 +1320,9 @@ static void
 Read_Request( CONN_ID Idx )
 {
 	ssize_t len;
+	static const unsigned int maxbps = COMMAND_LEN / 2;
 	char readbuf[READBUFFER_LEN];
+	time_t t;
 	CLIENT *c;
 	assert( Idx > NONE );
 	assert( My_Connections[Idx].sock > NONE );
@@ -1384,21 +1399,34 @@ Read_Request( CONN_ID Idx )
 	if (c && (Client_Type(c) == CLIENT_USER
 		  || Client_Type(c) == CLIENT_SERVER
 		  || Client_Type(c) == CLIENT_SERVICE)) {
-		My_Connections[Idx].lastdata = time(NULL);
+		t = time(NULL);
+		if (My_Connections[Idx].lastdata != t)
+			My_Connections[Idx].bps = 0;
+
+		My_Connections[Idx].lastdata = t;
 		My_Connections[Idx].lastping = My_Connections[Idx].lastdata;
 	}
 
 	/* Look at the data in the (read-) buffer of this connection */
-	Handle_Buffer(Idx);
+	My_Connections[Idx].bps += Handle_Buffer(Idx);
+	if (Client_Type(c) != CLIENT_SERVER
+	    && My_Connections[Idx].bps >= maxbps) {
+		LogDebug("Throttling connection %d: BPS exceeded! (%u >= %u)",
+			 Idx, My_Connections[Idx].bps, maxbps);
+		Conn_SetPenalty(Idx, 1);
+	}
 } /* Read_Request */
 
 
 /**
  * Handle all data in the connection read-buffer.
- * All data is precessed until no complete command is left. When a fatal
- * error occurs, the connection is shut down.
+ * Data is processed until no complete command is left in the read buffer,
+ * or MAX_COMMANDS[_SERVER] commands were processed.
+ * When a fatal error occurs, the connection is shut down.
+ * @param Idx Index of the connection.
+ * @return number of bytes processed.
  */
-static void
+static unsigned int
 Handle_Buffer(CONN_ID Idx)
 {
 #ifndef STRICT_RFC
@@ -1410,31 +1438,41 @@ Handle_Buffer(CONN_ID Idx)
 #ifdef ZLIB
 	bool old_z;
 #endif
+	unsigned int i, maxcmd = MAX_COMMANDS, len_processed = 0;
+	CLIENT *c;
+
+	c = Conn_GetClient(Idx);
+	assert( c != NULL);
+
+	/* Servers do get special command limits, so they can process
+	 * all the messages that are required while peering. */
+	if (Client_Type(c) == CLIENT_SERVER)
+		maxcmd = MAX_COMMANDS_SERVER;
 
 	starttime = time(NULL);
-	for (;;) {
+	for (i=0; i < maxcmd; i++) {
 		/* Check penalty */
 		if (My_Connections[Idx].delaytime > starttime)
-			return;
+			return 0;
 #ifdef ZLIB
 		/* Unpack compressed data, if compression is in use */
 		if (Conn_OPTION_ISSET(&My_Connections[Idx], CONN_ZIP)) {
 			/* When unzipping fails, Unzip_Buffer() shuts
 			 * down the connection itself */
 			if (!Unzip_Buffer(Idx))
-				return;
+				return 0;
 		}
 #endif
 
 		if (0 == array_bytes(&My_Connections[Idx].rbuf))
-			return;
+			break;
 
 		/* Make sure that the buffer is NULL terminated */
 		if (!array_cat0_temporary(&My_Connections[Idx].rbuf)) {
 			Conn_Close(Idx, NULL,
 				   "Can't allocate memory [Handle_Buffer]",
 				   true);
-			return;
+			return 0;
 		}
 
 		/* RFC 2812, section "2.3 Messages", 5th paragraph:
@@ -1470,7 +1508,7 @@ Handle_Buffer(CONN_ID Idx)
 #endif
 
 		if (!ptr)
-			return;
+			break;
 
 		/* Complete (=line terminated) request found, handle it! */
 		*ptr = '\0';
@@ -1485,16 +1523,16 @@ Handle_Buffer(CONN_ID Idx)
 			    Idx, array_bytes(&My_Connections[Idx].rbuf),
 			    COMMAND_LEN - 1);
 			Conn_Close(Idx, NULL, "Request too long", true);
-			return;
+			return 0;
 		}
 
+		len_processed += len;
 		if (len <= delta) {
 			/* Request is empty (only '\r\n', '\r' or '\n');
 			 * delta is 2 ('\r\n') or 1 ('\r' or '\n'), see above */
 			array_moveleft(&My_Connections[Idx].rbuf, 1, len);
-			return;
+			continue;
 		}
-
 #ifdef ZLIB
 		/* remember if stream is already compressed */
 		old_z = My_Connections[Idx].options & CONN_ZIP;
@@ -1503,7 +1541,7 @@ Handle_Buffer(CONN_ID Idx)
 		My_Connections[Idx].msg_in++;
 		if (!Parse_Request
 		    (Idx, (char *)array_start(&My_Connections[Idx].rbuf)))
-			return;
+			return 0; /* error -> connection has been closed */
 
 		array_moveleft(&My_Connections[Idx].rbuf, 1, len);
 		LogDebug("Connection %d: %d bytes left in read buffer.",
@@ -1520,7 +1558,7 @@ Handle_Buffer(CONN_ID Idx)
 				Conn_Close(Idx, NULL,
 					   "Can't allocate memory [Handle_Buffer]",
 					   true);
-				return;
+				return 0;
 			}
 
 			array_trunc(&My_Connections[Idx].rbuf);
@@ -1530,6 +1568,7 @@ Handle_Buffer(CONN_ID Idx)
 		}
 #endif
 	}
+	return len_processed;
 } /* Handle_Buffer */
 
 

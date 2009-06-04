@@ -950,7 +950,7 @@ Conn_Close( CONN_ID Idx, const char *LogMsg, const char *FwdMsg, bool InformClie
 			 (double)My_Connections[Idx].bytes_out / 1024);
 		}
 #endif
-		/* Send ERROR to client (see RFC!) */
+		/* Send ERROR to client (see RFC 2812, section 3.1.7) */
 		if (FwdMsg)
 			Conn_WriteStr(Idx, "ERROR :%s", FwdMsg);
 		else

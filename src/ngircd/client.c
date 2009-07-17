@@ -758,18 +758,18 @@ Client_CheckID( CLIENT *Client, char *ID )
 	assert( Client->conn_id > NONE );
 	assert( ID != NULL );
 
-	/* Nick too long? */
+	/* ID too long? */
 	if (strlen(ID) > CLIENT_ID_LEN) {
 		IRC_WriteStrClient(Client, ERR_ERRONEUSNICKNAME_MSG, Client_ID(Client), ID);
 		return false;
 	}
 
-	/* does ID already exist? */
+	/* ID already in use? */
 	c = My_Clients;
 	while (c) {
 		if (strcasecmp(c->id, ID) == 0) {
 			snprintf(str, sizeof(str), "ID \"%s\" already registered", ID);
-			if (Client->conn_id != c->conn_id)
+			if (c->conn_id != NONE)
 				Log(LOG_ERR, "%s (on connection %d)!", str, c->conn_id);
 			else
 				Log(LOG_ERR, "%s (via network)!", str);

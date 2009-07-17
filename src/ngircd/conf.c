@@ -400,7 +400,7 @@ Conf_EnableServer( const char *Name, UINT16 Port )
 			/* Gotcha! Set port and enable server: */
 			Conf_Server[i].port = Port;
 			Conf_Server[i].flags &= ~CONF_SFLAG_DISABLED;
-			return true;
+			return (Conf_Server[i].port && Conf_Server[i].host[0]);
 		}
 	}
 	return false;

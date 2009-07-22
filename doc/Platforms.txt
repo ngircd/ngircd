@@ -30,6 +30,7 @@ alpha/unknown/netbsd3.0     gcc 3.3.3    CVSHEAD    06-05-07 fw     Y Y Y Y (3)
 hppa/unknown/openbsd3.5     gcc 2.95.3   CVSHEAD    04-05-25 alex   Y Y Y Y
 hppa1.1/unknown/linux-gnu   gcc 3.3.3    0.8.0      04-05-30 alex   Y Y Y Y
 hppa2.0/unknown/linux-gnu   gcc 3.3.5    13~rc1     08-12-02 alex   Y Y Y Y
+hppa2.0w-hp-hpux11.11       gcc 4.2.3    14.1       09-07-22 goetz  Y Y Y Y
 i386/apple/darwin9.5.1      gcc 4.0.1    13~rc1     08-12-02 alex   Y Y Y Y (3)
 i386/pc/solaris2.9          gcc 3.2.2    CVSHEAD    04-02-24 alex   Y Y Y Y
 i386/pc/solaris2.11         gcc 3.4.3    13~rc1     08-12-03 alex   Y Y Y Y (4)
@@ -74,7 +75,7 @@ Notes
     various versions of the GNU C compiler (starting with 2.95.x and up to
     version 4.3.x). The eldest glibc used was glibc-2.0.7. ngIRCd compiled
     and run on all these systems without problems.
-    Actual Linux kernels (2.6.x) and glic's support the epoll() IO interface.
+    Actual Linux kernels (2.6.x) and glibc's support the epoll() IO interface.
 
 (2) This compiler is an pre-ANSI C compiler, therefore the source code is
     automatically converted using the included ansi2knr tool while building.

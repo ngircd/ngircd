@@ -28,5 +28,8 @@ ngircd-redhat.init
 ngircd.spec
  - RPM "spec" file.
 
+platformtest.sh
+ - Build ngIRCd and output a "result line" suitable for doc/Platforms.txt.
+
 systrace.policy
  - Systrace policy file for OpenBSD (and probably NetBSD).

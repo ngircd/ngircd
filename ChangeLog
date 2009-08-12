@@ -10,6 +10,18 @@
                                -- ChangeLog --
 
 
+ngIRCd Release 14.2
+
+  - Updated doc/Platforms.txt and include new script contrib/platformtest.sh
+    to ease generating platform reports.
+  - Fix connection information for already registered connections.
+  - Enforce upper limit on maximum number of handled commands. This implements
+    a throttling scheme: an IRC client can send up to 3 commands or 256 bytes
+    per second before a one second pause is enforced.
+  - Fix connection counter.
+  - Fix a few error handling glitches for SSL/TLS connections.
+  - Minor fixes to manual pages and documentation.
+
 ngIRCd Release 14.1 (2009-05-05)
 
   - Security: fix remotely triggerable crash in SSL/TLS code.

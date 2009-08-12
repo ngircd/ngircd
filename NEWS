@@ -10,6 +10,12 @@
                                   -- NEWS --
 
 
+ngIRCd Release 14.2
+
+  - Enforce upper limit on maximum number of handled commands. This implements
+    a throttling scheme: an IRC client can send up to 3 commands or 256 bytes
+    per second before a one second pause is enforced.
+
 ngIRCd Release 14.1 (2009-05-05)
 
   - Security: fix remotely triggerable crash in SSL/TLS code.

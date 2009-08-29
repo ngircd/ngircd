@@ -5,8 +5,8 @@
 #
 
 ### BEGIN INIT INFO
-# Provides:		ngircd ircd
-# Required-Start:	$network $local_fs
+# Provides:		ngircd
+# Required-Start:	$network $remote_fs
 # Required-Stop:
 # Should-Start:		$syslog $named
 # Should-Stop:		$syslog

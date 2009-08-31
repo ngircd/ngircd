@@ -543,6 +543,16 @@ Set_Defaults( bool InitServers )
 
 
 static bool
+no_listenports(void)
+{
+	unsigned int cnt = array_bytes(&Conf_ListenPorts);
+#ifdef SSL_SUPPORT
+	cnt += array_bytes(&Conf_SSLOptions.ListenPorts);
+#endif
+	return cnt == 0;
+}
+
+static bool
 Read_Config( bool ngircd_starting )
 {
 	/* Read configuration file. */
@@ -698,12 +708,14 @@ Read_Config( bool ngircd_starting )
 		Conf_Server[New_Server_Idx] = New_Server;
 	}
 
-	if (0 == array_length(&Conf_ListenPorts, sizeof(UINT16))) {
-		if (!array_copyb(&Conf_ListenPorts, (char*) &defaultport, sizeof defaultport)) {
-			Config_Error( LOG_ALERT, "Could not add default listening Port %u: %s",
-							(unsigned int) defaultport, strerror(errno));
-			exit( 1 );
-		}
+	/* not a single listening port? Add default. */
+	if (no_listenports() &&
+		!array_copyb(&Conf_ListenPorts, (char*) &defaultport, sizeof defaultport))
+	{
+		Config_Error(LOG_ALERT, "Could not add default listening Port %u: %s",
+					(unsigned int) defaultport, strerror(errno));
+
+		exit(1);
 	}
 
 	if (!Conf_ListenAddress)

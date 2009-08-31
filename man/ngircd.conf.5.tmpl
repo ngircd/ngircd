@@ -75,7 +75,8 @@ command.
 .TP
 \fBPorts\fR
 Ports on which the server should listen. There may be more than one port,
-separated with commas (","). Default: 6667.
+separated with commas (","). Default: 6667, unless \fBSSL_Ports\fR are also
+specified.
 .TP
 \fBSSLPorts\fR
 Same as \fBPorts\fR , except that ngIRCd will expect incoming connections

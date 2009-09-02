@@ -315,7 +315,7 @@ fi
 
 AC_ARG_WITH(openssl,
 	[  --with-openssl          enable SSL support using OpenSSL],
-	[	if test "$withval" = "yes"; then
+	[	if test "$withval" != "no"; then
 			if test "$withval" != "yes"; then
 				CFLAGS="-I$withval/include $CFLAGS"
 				CPPFLAGS="-I$withval/include $CPPFLAGS"
@@ -332,7 +332,7 @@ AC_ARG_WITH(openssl,
 
 AC_ARG_WITH(gnutls,
 	[  --with-gnutls           enable SSL support using gnutls],
-	[	if test "$withval" = "yes"; then
+	[	if test "$withval" != "no"; then
 			if test "$withval" != "yes"; then
 				CFLAGS="-I$withval/include $CFLAGS"
 				CPPFLAGS="-I$withval/include $CPPFLAGS"

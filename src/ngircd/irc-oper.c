@@ -184,7 +184,8 @@ IRC_CONNECT(CLIENT * Client, REQUEST * Req)
 	assert(Client != NULL);
 	assert(Req != NULL);
 
-	if (!Op_Check(Client, Req))
+	if (Client_Type(Client) != CLIENT_SERVER
+	    && !Client_HasMode(Client, 'o'))
 		return Op_NoPrivileges(Client, Req);
 
 	/* Bad number of parameters? */
@@ -203,7 +204,7 @@ IRC_CONNECT(CLIENT * Client, REQUEST * Req)
 
 	if (Req->argc == 3 || Req->argc == 6) {
 		/* This CONNECT has a target parameter */
-		if (Client_Type(Client) == CLIENT_SERVER)
+		if (Client_Type(Client) == CLIENT_SERVER && Req->prefix)
 			from = Client_Search(Req->prefix);
 		if (! from)
 			return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
@@ -230,12 +231,8 @@ IRC_CONNECT(CLIENT * Client, REQUEST * Req)
 		return CONNECTED;
 	}
 
-	Log(LOG_NOTICE | LOG_snotice,
-	    "Got CONNECT command from \"%s\" for \"%s\".", Client_Mask(from),
-	    Req->argv[0]);
-	IRC_SendWallops(Client_ThisServer(), Client_ThisServer(),
-			"Received CONNECT %s from %s",
-			Req->argv[0], Client_ID(from));
+	if (!Op_Check(from, Req))
+		return Op_NoPrivileges(Client, Req);
 
 	switch (Req->argc) {
 	case 1:
@@ -262,6 +259,13 @@ IRC_CONNECT(CLIENT * Client, REQUEST * Req)
 						  Client_ID(from),
 						  Req->argv[0]);
 	}
+
+	Log(LOG_NOTICE | LOG_snotice,
+	    "Got CONNECT command from \"%s\" for \"%s\".", Client_Mask(from),
+	    Req->argv[0]);
+	IRC_SendWallops(Client_ThisServer(), Client_ThisServer(),
+			"Received CONNECT %s from %s",
+			Req->argv[0], Client_ID(from));
 
 	return CONNECTED;
 } /* IRC_CONNECT */

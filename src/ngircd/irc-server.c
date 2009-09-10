@@ -51,7 +51,6 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 {
 	char str[LINE_LEN];
 	CLIENT *from, *c;
-	bool ok;
 	int i;
 	CONN_ID con;
 	
@@ -97,25 +96,25 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 
 		/* Is this server registering on our side, or are we connecting to
 		 * a remote server? */
-		con = Client_Conn( Client );
-		if( Client_Token( Client ) != TOKEN_OUTBOUND )
-		{
+		con = Client_Conn(Client);
+		if (Client_Token(Client) != TOKEN_OUTBOUND) {
 			/* Incoming connection, send user/pass */
-			ok = true;
-			if( ! IRC_WriteStrClient( Client, "PASS %s %s", Conf_Server[i].pwd_out, NGIRCd_ProtoID )) ok = false;
-			else ok = IRC_WriteStrClient( Client, "SERVER %s 1 :%s", Conf_ServerName, Conf_ServerInfo );
-			if( ! ok )
-			{
-				Conn_Close( con, "Unexpected server behavior!", NULL, false );
-				return DISCONNECTED;
+			if (!IRC_WriteStrClient(Client, "PASS %s %s",
+						Conf_Server[i].pwd_out,
+						NGIRCd_ProtoID)
+			    || !IRC_WriteStrClient(Client, "SERVER %s 1 :%s",
+						   Conf_ServerName,
+						   Conf_ServerInfo)) {
+				    Conn_Close(con, "Unexpected server behavior!",
+					       NULL, false);
+				    return DISCONNECTED;
 			}
-			Client_SetIntroducer( Client, Client );
-			Client_SetToken( Client, 1 );
-		}
-		else
-		{
-			/* outgoing connect, we already sent SERVER and PASS to the peer */
-			Client_SetToken( Client, atoi( Req->argv[1] ));
+			Client_SetIntroducer(Client, Client);
+			Client_SetToken(Client, 1);
+		} else {
+			/* outgoing connect, we already sent a SERVER and PASS
+			 * command to the peer */
+			Client_SetToken(Client, atoi(Req->argv[1]));
 		}
 
 		/* Mark this connection as belonging to an configured server */

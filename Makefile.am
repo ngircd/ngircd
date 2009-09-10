@@ -56,7 +56,7 @@ deb:
 	dpkg-buildpackage -rfakeroot -i
 
 osxpkg: have-xcodebuild
-	@packagemaker >/dev/null 2>&1; [ $$? -ge 1 ] \
+	@packagemaker >/dev/null 2>&1; [ $$? -le 1 ] \
 	 || ( echo; echo "Error: \"packagemaker\" not found!"; echo; exit 2)
 	make clean
 	./configure --prefix=/opt/ngircd

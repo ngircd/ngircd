@@ -148,7 +148,6 @@ IRC_PASS( CLIENT *Client, REQUEST *Req )
 		} else {
 			/* The peer seems to be a server supporting the
 			 * "original" IRC protocol (RFC 2813). */
-			serverver = "";
 			if (strchr(orig_flags, 'Z'))
 				flags = "Z";
 			else

@@ -900,7 +900,6 @@ Conn_Close( CONN_ID Idx, const char *LogMsg, const char *FwdMsg, bool InformClie
 	 * sub-processes are closed down. */
 
 	CLIENT *c;
-	const char *txt;
 	double in_k, out_k;
 	UINT16 port;
 #ifdef ZLIB
@@ -922,13 +921,6 @@ Conn_Close( CONN_ID Idx, const char *LogMsg, const char *FwdMsg, bool InformClie
 
 	/* Mark link as "closing" */
 	Conn_OPTION_ADD( &My_Connections[Idx], CONN_ISCLOSING );
-
-	if (LogMsg)
-		txt = LogMsg;
-	else
-		txt = FwdMsg;
-	if (! txt)
-		txt = "Reason unknown";
 
 	port = ng_ipaddr_getport(&My_Connections[Idx].addr);
 	Log(LOG_INFO, "Shutting down connection %d (%s) with %s:%d ...", Idx,

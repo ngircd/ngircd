@@ -284,7 +284,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 {
 	char the_modes[COMMAND_LEN], the_args[COMMAND_LEN], x[2],
 	    argadd[CLIENT_PASS_LEN], *mode_ptr;
-	bool ok, set, modeok = true, skiponce, use_servermode = false, retval;
+	bool connected, set, modeok = true, skiponce, use_servermode = false, retval;
 	int mode_arg, arg_arg;
 	CLIENT *client;
 	long l;
@@ -344,7 +344,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 	the_args[0] = '\0';
 
 	x[1] = '\0';
-	ok = CONNECTED;
+	connected = CONNECTED;
 	while (mode_ptr) {
 		if (!skiponce)
 			mode_ptr++;
@@ -404,7 +404,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 			if (modeok)
 				x[0] = *mode_ptr;
 			else
-				ok = IRC_WriteStrClient(Origin,
+				connected = IRC_WriteStrClient(Origin,
 					ERR_CHANOPRIVSNEEDED_MSG,
 					Client_ID(Origin), Channel_Name(Channel));
 			break;
@@ -413,7 +413,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 				if (modeok)
 					x[0] = *mode_ptr;
 				else
-					ok = IRC_WriteStrClient(Origin,
+					connected = IRC_WriteStrClient(Origin,
 						ERR_CHANOPRIVSNEEDED_MSG,
 						Client_ID(Origin),
 						Channel_Name(Channel));
@@ -428,7 +428,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 						sizeof(argadd));
 					x[0] = *mode_ptr;
 				} else {
-					ok = IRC_WriteStrClient(Origin,
+					connected = IRC_WriteStrClient(Origin,
 						ERR_CHANOPRIVSNEEDED_MSG,
 						Client_ID(Origin),
 						Channel_Name(Channel));
@@ -436,7 +436,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 				Req->argv[arg_arg][0] = '\0';
 				arg_arg++;
 			} else {
-				ok = IRC_WriteStrClient(Origin,
+				connected = IRC_WriteStrClient(Origin,
 					ERR_NEEDMOREPARAMS_MSG,
 					Client_ID(Origin), Req->command);
 				goto chan_exit;
@@ -447,7 +447,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 				if (modeok)
 					x[0] = *mode_ptr;
 				else
-					ok = IRC_WriteStrClient(Origin,
+					connected = IRC_WriteStrClient(Origin,
 						ERR_CHANOPRIVSNEEDED_MSG,
 						Client_ID(Origin),
 						Channel_Name(Channel));
@@ -464,7 +464,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 						x[0] = *mode_ptr;
 					}
 				} else {
-					ok = IRC_WriteStrClient(Origin,
+					connected = IRC_WriteStrClient(Origin,
 						ERR_CHANOPRIVSNEEDED_MSG,
 						Client_ID(Origin),
 						Channel_Name(Channel));
@@ -472,7 +472,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 				Req->argv[arg_arg][0] = '\0';
 				arg_arg++;
 			} else {
-				ok = IRC_WriteStrClient(Origin,
+				connected = IRC_WriteStrClient(Origin,
 					ERR_NEEDMOREPARAMS_MSG,
 					Client_ID(Origin), Req->command);
 				goto chan_exit;
@@ -484,13 +484,13 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 				 * set the 'P' channel mode! */
 				if (set && !(Client_OperByMe(Client)
 				    || Client_Type(Client) == CLIENT_SERVER))
-					ok = IRC_WriteStrClient(Origin,
+					connected = IRC_WriteStrClient(Origin,
 						ERR_NOPRIVILEGES_MSG,
 						Client_ID(Origin));
 				else
 					x[0] = 'P';
 			} else
-				ok = IRC_WriteStrClient(Origin,
+				connected = IRC_WriteStrClient(Origin,
 					ERR_CHANOPRIVSNEEDED_MSG,
 					Client_ID(Origin),
 					Channel_Name(Channel));
@@ -504,12 +504,12 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 					if (client)
 						x[0] = *mode_ptr;
 					else
-						ok = IRC_WriteStrClient(Client,
+						connected = IRC_WriteStrClient(Client,
 							ERR_NOSUCHNICK_MSG,
 							Client_ID(Client),
 							Req->argv[arg_arg]);
 				} else {
-					ok = IRC_WriteStrClient(Origin,
+					connected = IRC_WriteStrClient(Origin,
 						ERR_CHANOPRIVSNEEDED_MSG,
 						Client_ID(Origin),
 						Channel_Name(Channel));
@@ -517,7 +517,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 				Req->argv[arg_arg][0] = '\0';
 				arg_arg++;
 			} else {
-				ok = IRC_WriteStrClient(Origin,
+				connected = IRC_WriteStrClient(Origin,
 					ERR_NEEDMOREPARAMS_MSG,
 					Client_ID(Origin), Req->command);
 				goto chan_exit;
@@ -529,7 +529,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 			if (arg_arg > mode_arg) {
 				/* modify list */
 				if (modeok) {
-					ok = set
+					connected = set
 					   ? Add_Ban_Invite(*mode_ptr, Origin,
 						Client, Channel,
 						Req->argv[arg_arg])
@@ -537,7 +537,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 						Client, Channel,
 						Req->argv[arg_arg]);
 				} else {
-					ok = IRC_WriteStrClient(Origin,
+					connected = IRC_WriteStrClient(Origin,
 						ERR_CHANOPRIVSNEEDED_MSG,
 						Client_ID(Origin),
 						Channel_Name(Channel));
@@ -557,7 +557,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 			    set ? '+' : '-', *mode_ptr, Client_ID(Origin),
 			    Channel_Name(Channel));
 			if (Client_Type(Client) != CLIENT_SERVER)
-				ok = IRC_WriteStrClient(Origin,
+				connected = IRC_WriteStrClient(Origin,
 					ERR_UMODEUNKNOWNFLAG2_MSG,
 					Client_ID(Origin),
 					set ? '+' : '-', *mode_ptr);
@@ -565,7 +565,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 			goto chan_exit;
 		}	/* switch() */
 
-		if (!ok)
+		if (!connected)
 			break;
 
 		/* Is there a valid mode change? */
@@ -646,7 +646,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 			if (use_servermode)
 				Origin = Client_ThisServer();
 			/* Send reply to client and inform other servers and channel users */
-			ok = IRC_WriteStrClientPrefix(Client, Origin,
+			connected = IRC_WriteStrClientPrefix(Client, Origin,
 					"MODE %s %s%s", Channel_Name(Channel),
 					the_modes, the_args);
 			/* Only forward requests for non-local channels */
@@ -661,7 +661,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 	}
 
 	IRC_SetPenalty(Client, 1);
-	return CONNECTED;
+	return connected;
 } /* Channel_Mode */
 
 

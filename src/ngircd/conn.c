@@ -184,7 +184,7 @@ cb_connserver(int sock, UNUSED short what)
 			/* connection to dst_addr[0] in progress, remove this address... */
 			Conf_Server[res].dst_addr[0] = Conf_Server[res].dst_addr[1];
 
-			memset(&Conf_Server[res].dst_addr[1], 0, sizeof(&Conf_Server[res].dst_addr[1]));
+			memset(&Conf_Server[res].dst_addr[1], 0, sizeof(Conf_Server[res].dst_addr[1]));
 		}
 		return;
 	}
@@ -192,7 +192,7 @@ cb_connserver(int sock, UNUSED short what)
 	res = Conf_GetServer(idx);
 	assert(res >= 0);
 	if (res >= 0) /* connect succeeded, remove all additional addresses */
-		memset(&Conf_Server[res].dst_addr, 0, sizeof(&Conf_Server[res].dst_addr));
+		memset(&Conf_Server[res].dst_addr, 0, sizeof(Conf_Server[res].dst_addr));
 	Conn_OPTION_DEL( &My_Connections[idx], CONN_ISCONNECTING );
 #ifdef SSL_SUPPORT
 	if ( Conn_OPTION_ISSET( &My_Connections[idx], CONN_SSL_CONNECT )) {

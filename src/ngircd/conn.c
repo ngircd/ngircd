@@ -1826,7 +1826,8 @@ cb_Connect_to_Server(int fd, UNUSED short events)
 	size_t len;
 	ng_ipaddr_t dest_addrs[4];	/* we can handle at most 3; but we read up to
 					   four so we can log the 'more than we can handle'
-					   condition */
+					   condition. First result is tried immediately, rest
+					   is saved for later if needed. */
 
 	LogDebug("Resolver: Got forward lookup callback on fd %d, events %d", fd, events);
 
@@ -1851,13 +1852,13 @@ cb_Connect_to_Server(int fd, UNUSED short events)
 
 	LogDebug("Got result from resolver: %u structs (%u bytes).", len/sizeof(ng_ipaddr_t), len);
 
-	memset(&Conf_Server[i].dst_addr, 0, sizeof(&Conf_Server[i].dst_addr));
+	memset(&Conf_Server[i].dst_addr, 0, sizeof(Conf_Server[i].dst_addr));
 	if (len > sizeof(ng_ipaddr_t)) {
 		/* more than one address for this hostname, remember them
 		 * in case first address is unreachable/not available */
 		len -= sizeof(ng_ipaddr_t);
-		if (len > sizeof(&Conf_Server[i].dst_addr)) {
-			len = sizeof(&Conf_Server[i].dst_addr);
+		if (len > sizeof(Conf_Server[i].dst_addr)) {
+			len = sizeof(Conf_Server[i].dst_addr);
 			Log(LOG_NOTICE,
 				"Notice: Resolver returned more IP Addresses for host than we can handle, additional addresses dropped.");
 		}

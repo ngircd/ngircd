@@ -291,6 +291,8 @@ ForwardLookup(const char *hostname, array *IpAddr)
 	if (!Conf_ConnectIPv4)
 		hints.ai_family = AF_INET6;
 #endif
+	memset(&addr, 0, sizeof(addr));
+
 	res = getaddrinfo(hostname, NULL, &hints, &ai_results);
 	switch (res) {
 	case 0:	break;

@@ -143,21 +143,33 @@ cb_listen_ssl(int sock, short irrelevant)
 static void
 cb_connserver(int sock, UNUSED short what)
 {
-	int res, err;
+	int res, err, server;
 	socklen_t sock_len;
 	CONN_ID idx = Socket2Index( sock );
+
 	if (idx <= NONE) {
 		LogDebug("cb_connserver wants to write on unknown socket?!");
 		io_close(sock);
 		return;
 	}
 
-	assert( what & IO_WANTWRITE);
+	assert(what & IO_WANTWRITE);
+
+	/* Make sure that the server is still configured; it could have been
+	 * removed in the meantime! */
+	server = Conf_GetServer(idx);
+	if (server < 0) {
+		Log(LOG_ERR, "Connection on socket %d to \"%s\" aborted!",
+		    sock, My_Connections[idx].host);
+		Conn_Close(idx, "Connection aborted!", NULL, false);
+		return;
+	}
 
 	/* connect() finished, get result. */
 	sock_len = (socklen_t)sizeof(err);
-	res = getsockopt( My_Connections[idx].sock, SOL_SOCKET, SO_ERROR, &err, &sock_len );
-	assert( sock_len == sizeof( err ));
+	res = getsockopt(My_Connections[idx].sock, SOL_SOCKET, SO_ERROR,
+			 &err, &sock_len );
+	assert(sock_len == sizeof(err));
 
 	/* Error while connecting? */
  	if ((res != 0) || (err != 0)) {
@@ -167,32 +179,28 @@ cb_connserver(int sock, UNUSED short what)
  		else
  			Log(LOG_CRIT,
  			    "Can't connect socket to \"%s:%d\" (connection %d): %s!",
- 			    My_Connections[idx].host,
- 			    Conf_Server[Conf_GetServer(idx)].port,
+			    My_Connections[idx].host, Conf_Server[server].port,
  			    idx, strerror(err));
-
-		res = Conf_GetServer(idx);
-		assert(res >= 0);
 
 		Conn_Close(idx, "Can't connect!", NULL, false);
 
-		if (res < 0)
-			return;
-		if (ng_ipaddr_af(&Conf_Server[res].dst_addr[0])) {
+		if (ng_ipaddr_af(&Conf_Server[server].dst_addr[0])) {
 			/* more addresses to try... */
-			New_Server(res, &Conf_Server[res].dst_addr[0]);
-			/* connection to dst_addr[0] in progress, remove this address... */
-			Conf_Server[res].dst_addr[0] = Conf_Server[res].dst_addr[1];
-
-			memset(&Conf_Server[res].dst_addr[1], 0, sizeof(Conf_Server[res].dst_addr[1]));
+			New_Server(res, &Conf_Server[server].dst_addr[0]);
+			/* connection to dst_addr[0] is now in progress, so
+			 * remove this address... */
+			Conf_Server[server].dst_addr[0] =
+				Conf_Server[server].dst_addr[1];
+			memset(&Conf_Server[server].dst_addr[1], 0,
+			       sizeof(Conf_Server[server].dst_addr[1]));
 		}
 		return;
 	}
 
-	res = Conf_GetServer(idx);
-	assert(res >= 0);
-	if (res >= 0) /* connect succeeded, remove all additional addresses */
-		memset(&Conf_Server[res].dst_addr, 0, sizeof(Conf_Server[res].dst_addr));
+	/* connect() succeeded, remove all additional addresses */
+	memset(&Conf_Server[server].dst_addr, 0,
+	       sizeof(Conf_Server[server].dst_addr));
+
 	Conn_OPTION_DEL( &My_Connections[idx], CONN_ISCONNECTING );
 #ifdef SSL_SUPPORT
 	if ( Conn_OPTION_ISSET( &My_Connections[idx], CONN_SSL_CONNECT )) {

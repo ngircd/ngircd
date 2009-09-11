@@ -58,10 +58,10 @@ ng_ipaddr_salen(const ng_ipaddr_t *a)
 #ifdef WANT_IPV6
 	assert(a->sa.sa_family == AF_INET || a->sa.sa_family == AF_INET6);
 	if (a->sa.sa_family == AF_INET6)
-		return sizeof(a->sin6);
+		return (socklen_t)sizeof(a->sin6);
 #endif
 	assert(a->sin4.sin_family == AF_INET);
-	return sizeof(a->sin4);
+	return (socklen_t)sizeof(a->sin4);
 }
 
 
@@ -115,4 +115,3 @@ ng_ipaddr_tostr_r(const ng_ipaddr_t *addr, char *d)
 #endif
 
 /* -eof- */
-

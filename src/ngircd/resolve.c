@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2003 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2009 by Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -218,7 +218,7 @@ ReverseLookup(const ng_ipaddr_t *IpAddr, char *resbuf, size_t reslen)
 	*resbuf = 0;
 
 	res = getnameinfo((struct sockaddr *) IpAddr, ng_ipaddr_salen(IpAddr),
-				resbuf, reslen, NULL, 0, NI_NAMEREQD);
+			  resbuf, (socklen_t)reslen, NULL, 0, NI_NAMEREQD);
 	if (res == 0)
 		return true;
 
@@ -540,5 +540,6 @@ Resolve_Read( RES_STAT *s, void* readbuf, size_t buflen)
 	Resolve_Shutdown(s);
 	return (size_t)bytes_read;
 }
-/* -eof- */
 
+
+/* -eof- */

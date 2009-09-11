@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2008 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2009 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -107,16 +107,19 @@ ngt_TrimLastChr( char *String, const char Chr)
 	/* If last character in the string matches Chr, remove it.
 	 * Empty strings are handled correctly. */
 
-        unsigned int len;
+	size_t len;
 
-	assert( String != NULL );
+	assert(String != NULL);
 
-	len = strlen( String );
-	if( len == 0 ) return;
+	len = strlen(String);
+	if(len == 0)
+		return;
 
 	len--;
 
-	if( String[len] == Chr ) String[len] = '\0';
+	if(String[len] == Chr)
+		String[len] = '\0';
 } /* ngt_TrimLastChr */
+
 
 /* -eof- */

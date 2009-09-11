@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2008 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2009 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -440,7 +440,7 @@ t_diff(time_t *t, const time_t d)
 	remain = diff * d;
 	*t -= remain;
 
-	return diff;
+	return (unsigned int)diff;
 }
 
 

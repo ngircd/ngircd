@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2008 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2009 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -152,8 +152,8 @@ ports_parse(array *a, int Line, char *Arg)
 	 * must be separated by "," */
 	ptr = strtok( Arg, "," );
 	while (ptr) {
-		ngt_TrimStr( ptr );
-		port = atol( ptr );
+		ngt_TrimStr(ptr);
+		port = atoi(ptr);
 		if (port > 0 && port < 0xFFFF) {
 			port16 = (UINT16) port;
 			if (!array_catb(a, (char*)&port16, sizeof port16))
@@ -545,7 +545,7 @@ Set_Defaults( bool InitServers )
 static bool
 no_listenports(void)
 {
-	unsigned int cnt = array_bytes(&Conf_ListenPorts);
+	size_t cnt = array_bytes(&Conf_ListenPorts);
 #ifdef SSL_SUPPORT
 	cnt += array_bytes(&Conf_SSLOptions.ListenPorts);
 #endif

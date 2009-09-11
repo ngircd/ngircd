@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2007 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2009 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -155,7 +155,7 @@ cb_connserver(int sock, UNUSED short what)
 	assert( what & IO_WANTWRITE);
 
 	/* connect() finished, get result. */
-	sock_len = sizeof( err );
+	sock_len = (socklen_t)sizeof(err);
 	res = getsockopt( My_Connections[idx].sock, SOL_SOCKET, SO_ERROR, &err, &sock_len );
 	assert( sock_len == sizeof( err ));
 
@@ -485,7 +485,7 @@ set_v6_only(int af, int sock)
 	if (af != AF_INET6)
 		return;
 
-	if (setsockopt(sock, IPPROTO_IPV6, IPV6_V6ONLY, &on, sizeof(on)))
+	if (setsockopt(sock, IPPROTO_IPV6, IPV6_V6ONLY, &on, (socklen_t)sizeof(on)))
 		Log(LOG_ERR, "Could not set IPV6_V6ONLY: %s", strerror(errno));
 #else
 	(void)af;
@@ -1518,7 +1518,7 @@ Handle_Buffer(CONN_ID Idx)
 			return 0;
 		}
 
-		len_processed += len;
+		len_processed += (unsigned int)len;
 		if (len <= delta) {
 			/* Request is empty (only '\r\n', '\r' or '\n');
 			 * delta is 2 ('\r\n') or 1 ('\r' or '\n'), see above */
@@ -2000,4 +2000,6 @@ Conn_UsesSSL(CONN_ID Idx)
 	return Conn_OPTION_ISSET(&My_Connections[Idx], CONN_SSL);
 }
 #endif
+
+
 /* -eof- */

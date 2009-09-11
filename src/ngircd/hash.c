@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2009 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,8 +37,9 @@ Hash( const char *String )
 
 	char buffer[LINE_LEN];
 
-	strlcpy( buffer, String, sizeof( buffer ));
-	return jenkins_hash( (UINT8 *)ngt_LowerStr( buffer ), strlen( buffer ), 42 );
+	strlcpy(buffer, String, sizeof(buffer));
+	return jenkins_hash((UINT8 *)ngt_LowerStr(buffer),
+			    (UINT32)strlen(buffer), 42);
 } /* Hash */
 
 

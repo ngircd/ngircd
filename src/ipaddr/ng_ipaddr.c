@@ -151,7 +151,8 @@ ng_ipaddr_tostr_r(const ng_ipaddr_t *addr, char *str)
 	if (*str == ':') {
 		char tmp[NG_INET_ADDRSTRLEN] = "0";
 		ret = getnameinfo(sa, ng_ipaddr_salen(addr),
-				tmp+1, sizeof(tmp) -1, NULL, 0, NI_NUMERICHOST);
+				  tmp + 1, (socklen_t)sizeof(tmp) - 1,
+				  NULL, 0, NI_NUMERICHOST);
 		if (ret == 0)
 			strlcpy(str, tmp, NG_INET_ADDRSTRLEN);
 	}

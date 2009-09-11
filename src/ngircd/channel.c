@@ -1085,7 +1085,7 @@ Channel_CheckKey(CHANNEL *Chan, CLIENT *Client, const char *Key)
 		return false;
 	}
 
-	while (fgets(line, sizeof(line), fd) != NULL) {
+	while (fgets(line, (int)sizeof(line), fd) != NULL) {
 		ngt_TrimStr(line);
 		if (! (nick = strchr(line, ':')))
 			continue;

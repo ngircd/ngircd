@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2008 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2009 by Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@
 #define CONN_SSL_WANT_READ	128	/* SSL/TLS library needs to read protocol data */
 #define CONN_SSL_FLAGS_ALL	(CONN_SSL_CONNECT|CONN_SSL|CONN_SSL_WANT_WRITE|CONN_SSL_WANT_READ)
 #endif
-typedef int CONN_ID;
+typedef long CONN_ID;
 
 #include "client.h"
 
@@ -121,5 +121,6 @@ GLOBAL bool Conn_UsesSSL PARAMS((CONN_ID Idx));
 static inline bool Conn_UsesSSL(UNUSED CONN_ID Idx) { return false; }
 #endif
 #endif
+
 
 /* -eof- */

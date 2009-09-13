@@ -51,6 +51,10 @@ ng_ipaddr_init(ng_ipaddr_t *addr, const char *ip_str, UINT16 port)
 	return ret == 0;
 #else /* HAVE_GETADDRINFO */
 	assert(ip_str);
+	memset(addr, 0, sizeof *addr);
+#ifdef HAVE_sockaddr_in_len
+	addr->sin4.sin_len = sizeof(addr->sin4);
+#endif
 	addr->sin4.sin_family = AF_INET;
 # ifdef HAVE_INET_ATON
 	if (inet_aton(ip_str, &addr->sin4.sin_addr) == 0)

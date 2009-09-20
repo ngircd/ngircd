@@ -95,19 +95,42 @@ ConfSSL_Init(void)
 	array_free_wipe(&Conf_SSLOptions.KeyFilePassword);
 }
 
+static bool
+can_open(const char *name, const char *file)
+{
+	FILE *fp = fopen(file, "r");
+	if (fp)
+		fclose(fp);
+	else
+		fprintf(stderr, "ERROR: %s \"%s\": %s\n",
+			name, file, strerror(errno));
+	return fp != NULL;
+}
 
-static void
+static bool
 ConfSSL_Puts(void)
 {
-	if (Conf_SSLOptions.KeyFile)
+	bool ret = true;
+
+	if (Conf_SSLOptions.KeyFile) {
 		printf( "  SSLKeyFile = %s\n", Conf_SSLOptions.KeyFile);
-	if (Conf_SSLOptions.CertFile)
+		ret = can_open("SSLKeyFile", Conf_SSLOptions.KeyFile);
+	}
+	if (Conf_SSLOptions.CertFile) {
 		printf( "  SSLCertFile = %s\n", Conf_SSLOptions.CertFile);
-	if (Conf_SSLOptions.DHFile)
+		if (!can_open("SSLCertFile", Conf_SSLOptions.CertFile))
+			ret = false;
+	}
+	if (Conf_SSLOptions.DHFile) {
 		printf( "  SSLDHFile = %s\n", Conf_SSLOptions.DHFile);
+		if (!can_open("SSLDHFile", Conf_SSLOptions.DHFile))
+			ret = false;
+	}
 	if (array_bytes(&Conf_SSLOptions.KeyFilePassword))
 		puts("  SSLKeyFilePassword = <secret>"  );
 	array_free_wipe(&Conf_SSLOptions.KeyFilePassword);
+
+	return ret;
 }
 #endif
 
@@ -245,7 +268,8 @@ Conf_Test( void )
 #ifdef SSL_SUPPORT
 	fputs("  SSLPorts = ", stdout);
 	ports_puts(&Conf_SSLOptions.ListenPorts);
-	ConfSSL_Puts();
+	if (!ConfSSL_Puts())
+		config_valid = false;
 #endif
 
 	pwd = getpwuid( Conf_UID );

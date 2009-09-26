@@ -30,6 +30,9 @@ ng_ipaddr_init(ng_ipaddr_t *addr, const char *ip_str, UINT16 port)
 
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_flags = AI_NUMERICHOST;
+#ifndef WANT_IPV6	/* do not convert ipv6 addresses */
+	hints.ai_family = AF_INET;
+#endif
 
 	/* some getaddrinfo implementations require that ai_socktype is set. */
 	hints.ai_socktype = SOCK_STREAM;
@@ -38,7 +41,6 @@ ng_ipaddr_init(ng_ipaddr_t *addr, const char *ip_str, UINT16 port)
 	snprintf(portstr, sizeof(portstr), "%u", (unsigned int) port);
 
 	ret = getaddrinfo(ip_str, portstr, &hints, &res0);
-	assert(ret == 0);
 	if (ret != 0)
 		return false;
 

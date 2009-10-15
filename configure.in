@@ -12,7 +12,7 @@
 # -- Initialisation --
 
 AC_PREREQ(2.50)
-AC_INIT(ngircd, 14.1)
+AC_INIT(ngircd, 15~rc1)
 AC_CONFIG_SRCDIR(src/ngircd/ngircd.c)
 AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE(1.6)

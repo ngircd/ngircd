@@ -12,6 +12,7 @@
 
 ngIRCd Release 15
 
+  ngIRCd 15~rc1 (2009-10-15)
   - Do not add default listening port (6667) if SSL ports were specified, so
     ngIRCd can be configured to only accept SSL-encrypted connections now.
   - Enable IRC operators to use the IRC command SQUIT (insted of the already

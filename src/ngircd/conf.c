@@ -96,38 +96,42 @@ ConfSSL_Init(void)
 }
 
 static bool
-can_open(const char *name, const char *file)
+ssl_print_configvar(const char *name, const char *file)
 {
-	FILE *fp = fopen(file, "r");
+	FILE *fp;
+
+	if (!file) {
+		printf("  %s =\n", name);
+		return true;
+	}
+
+	fp = fopen(file, "r");
 	if (fp)
 		fclose(fp);
 	else
 		fprintf(stderr, "ERROR: %s \"%s\": %s\n",
 			name, file, strerror(errno));
+
+	printf("  %s = %s\n", name, file);
 	return fp != NULL;
 }
 
 static bool
 ConfSSL_Puts(void)
 {
-	bool ret = true;
+	bool ret;
 
-	if (Conf_SSLOptions.KeyFile) {
-		printf( "  SSLKeyFile = %s\n", Conf_SSLOptions.KeyFile);
-		ret = can_open("SSLKeyFile", Conf_SSLOptions.KeyFile);
-	}
-	if (Conf_SSLOptions.CertFile) {
-		printf( "  SSLCertFile = %s\n", Conf_SSLOptions.CertFile);
-		if (!can_open("SSLCertFile", Conf_SSLOptions.CertFile))
-			ret = false;
-	}
-	if (Conf_SSLOptions.DHFile) {
-		printf( "  SSLDHFile = %s\n", Conf_SSLOptions.DHFile);
-		if (!can_open("SSLDHFile", Conf_SSLOptions.DHFile))
-			ret = false;
-	}
+	ret = ssl_print_configvar("SSLKeyFile", Conf_SSLOptions.KeyFile);
+
+	if (!ssl_print_configvar("SSLCertFile", Conf_SSLOptions.CertFile))
+		ret = false;
+
+	if (!ssl_print_configvar("SSLDHFile", Conf_SSLOptions.DHFile))
+		ret = false;
+
 	if (array_bytes(&Conf_SSLOptions.KeyFilePassword))
-		puts("  SSLKeyFilePassword = <secret>"  );
+		puts("  SSLKeyFilePassword = <secret>");
+
 	array_free_wipe(&Conf_SSLOptions.KeyFilePassword);
 
 	return ret;

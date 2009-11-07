@@ -10,7 +10,7 @@
                                   -- NEWS --
 
 
-ngIRCd Release 15
+ngIRCd Release 15 (2009-11-07)
 
   ngIRCd 15~rc1 (2009-10-15)
   - Do not add default listening port (6667) if SSL ports were specified, so

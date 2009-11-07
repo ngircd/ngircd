@@ -1,3 +1,9 @@
+ngircd (15-0ab1) unstable; urgency=low
+
+  * New "upstream" release: ngIRCd 15.
+
+ -- Alexander Barton <alex@barton.de>  Thu,  7 Nov 2009 12:07:08 +0200
+
 ngircd (15~rc1-0ab1) unstable; urgency=low
 
   * New "upstream" release candidate 1 for ngIRCd Release 15.

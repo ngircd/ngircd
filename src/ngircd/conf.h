@@ -26,12 +26,11 @@
 #include "conf-ssl.h"
 
 
-typedef struct _Conf_Oper
-{
+struct Conf_Oper {
 	char name[CLIENT_PASS_LEN];	/* Name (ID) of IRC operator */
 	char pwd[CLIENT_PASS_LEN];	/* Password */
-	char *mask;
-} CONF_OPER;
+	char *mask;			/* allowed host mask */
+};
 
 typedef struct _Conf_Server
 {
@@ -125,8 +124,7 @@ GLOBAL int Conf_PongTimeout;
 GLOBAL int Conf_ConnectRetry;
 
 /* Operators */
-GLOBAL CONF_OPER Conf_Oper[MAX_OPERATORS];
-GLOBAL unsigned int Conf_Oper_Count;
+GLOBAL array Conf_Opers;
 
 /* Servers */
 GLOBAL CONF_SERVER Conf_Server[MAX_SERVERS];

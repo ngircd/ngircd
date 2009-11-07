@@ -55,25 +55,26 @@ Bad_OperPass(CLIENT *Client, char *errtoken, char *errmsg)
 GLOBAL bool
 IRC_OPER( CLIENT *Client, REQUEST *Req )
 {
-	unsigned int i;
+	struct Conf_Oper *op;
+	size_t len, i;
 
 	assert( Client != NULL );
 	assert( Req != NULL );
 
 	if( Req->argc != 2 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
-	for( i = 0; i < Conf_Oper_Count; i++)
-	{
-		if( Conf_Oper[i].name[0] && Conf_Oper[i].pwd[0] && ( strcmp( Conf_Oper[i].name, Req->argv[0] ) == 0 )) break;
-	}
-	if( i >= Conf_Oper_Count )
+	len = array_length(&Conf_Opers, sizeof(*op));
+	op = array_start(&Conf_Opers);
+	for (i = 0; i < len && strcmp(op[i].name, Req->argv[0]); i++)
+		;
+	if (i >= len)
 		return Bad_OperPass(Client, Req->argv[0], "not configured");
 
-	if( strcmp( Conf_Oper[i].pwd, Req->argv[1] ) != 0 )
-		return Bad_OperPass(Client, Conf_Oper[i].name, "bad password");
+	if (strcmp(op[i].pwd, Req->argv[1]) != 0)
+		return Bad_OperPass(Client, op[i].name, "bad password");
 
-	if( Conf_Oper[i].mask && (! Match( Conf_Oper[i].mask, Client_Mask( Client ) )))
-		return Bad_OperPass(Client, Conf_Oper[i].mask, "hostmask check failed" );
+	if (op[i].mask && (!Match(op[i].mask, Client_Mask(Client))))
+		return Bad_OperPass(Client, op[i].mask, "hostmask check failed");
 
 	if( ! Client_HasMode( Client, 'o' ))
 	{

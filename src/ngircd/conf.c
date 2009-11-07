@@ -55,6 +55,7 @@ static bool Use_Log = true;
 static CONF_SERVER New_Server;
 static int New_Server_Idx;
 
+static size_t Conf_Oper_Count;
 static size_t Conf_Channel_Count;
 static void Set_Defaults PARAMS(( bool InitServers ));
 static bool Read_Config PARAMS(( bool ngircd_starting ));
@@ -226,6 +227,41 @@ yesno_to_str(int boolean_value)
 }
 
 
+static void
+opers_free(void)
+{
+	struct Conf_Oper *op;
+	size_t len;
+	
+	len = array_length(&Conf_Opers, sizeof(*op));
+	op = array_start(&Conf_Opers);
+	while (len--) {
+		free(op->mask);
+		op++;
+	}
+	array_free(&Conf_Opers);
+}
+
+static void
+opers_puts(void)
+{
+	struct Conf_Oper *op;
+	size_t len;
+	
+	len = array_length(&Conf_Opers, sizeof(*op));
+	op = array_start(&Conf_Opers);
+	while (len--) {
+		assert(op->name[0]);
+
+		puts("[OPERATOR]");
+		printf("  Name = %s\n", op->name);
+		printf("  Password = %s\n", op->pwd);
+		printf("  Mask = %s\n\n", op->mask ? op->mask : "");
+		op++;
+	}
+}
+
+
 GLOBAL int
 Conf_Test( void )
 {
@@ -304,16 +340,7 @@ Conf_Test( void )
 	printf("  MaxJoins = %d\n", Conf_MaxJoins > 0 ? Conf_MaxJoins : -1);
 	printf("  MaxNickLength = %u\n\n", Conf_MaxNickLength - 1);
 
-	for( i = 0; i < Conf_Oper_Count; i++ ) {
-		if( ! Conf_Oper[i].name[0] ) continue;
-
-		/* Valid "Operator" section */
-		puts( "[OPERATOR]" );
-		printf( "  Name = %s\n", Conf_Oper[i].name );
-		printf( "  Password = %s\n", Conf_Oper[i].pwd );
-		if ( Conf_Oper[i].mask ) printf( "  Mask = %s\n", Conf_Oper[i].mask );
-		puts( "" );
-	}
+	opers_puts();
 
 	for( i = 0; i < MAX_SERVERS; i++ ) {
 		if( ! Conf_Server[i].name[0] ) continue;
@@ -609,6 +636,7 @@ Read_Config( bool ngircd_starting )
 		exit( 1 );
 	}
 
+	opers_free();
 	Set_Defaults( ngircd_starting );
 
 	Config_Error( LOG_INFO, "Reading configuration from \"%s\" ...", NGIRCd_ConfFile );
@@ -667,21 +695,6 @@ Read_Config( bool ngircd_starting )
 			if( strcasecmp( section, "[GLOBAL]" ) == 0 )
 				continue;
 
-			if( strcasecmp( section, "[OPERATOR]" ) == 0 ) {
-				if( Conf_Oper_Count + 1 > MAX_OPERATORS )
-					Config_Error( LOG_ERR, "Too many operators configured.");
-				else {
-					/* Initialize new operator structure */
-					Conf_Oper[Conf_Oper_Count].name[0] = '\0';
-					Conf_Oper[Conf_Oper_Count].pwd[0] = '\0';
-					if (Conf_Oper[Conf_Oper_Count].mask) {
-						free(Conf_Oper[Conf_Oper_Count].mask );
-						Conf_Oper[Conf_Oper_Count].mask = NULL;
-					}
-					Conf_Oper_Count++;
-				}
-				continue;
-			}
 			if( strcasecmp( section, "[SERVER]" ) == 0 ) {
 				/* Check if there is already a server to add */
 				if( New_Server.name[0] ) {
@@ -708,6 +721,10 @@ Read_Config( bool ngircd_starting )
 			}
 			if (strcasecmp(section, "[CHANNEL]") == 0) {
 				Conf_Channel_Count++;
+				continue;
+			}
+			if (strcasecmp(section, "[OPERATOR]") == 0) {
+				Conf_Oper_Count++;
 				continue;
 			}
 
@@ -1081,36 +1098,38 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 static void
 Handle_OPERATOR( int Line, char *Var, char *Arg )
 {
-	unsigned int opercount;
 	size_t len;
+	struct Conf_Oper *op;
+
 	assert( Line > 0 );
 	assert( Var != NULL );
 	assert( Arg != NULL );
 	assert( Conf_Oper_Count > 0 );
 
-	if ( Conf_Oper_Count == 0 )
+	op = array_alloc(&Conf_Opers, sizeof(*op), Conf_Oper_Count - 1);
+	if (!op) {
+		Config_Error(LOG_ERR, "Could not allocate memory for operator (%d:%s = %s)", Line, Var, Arg);
 		return;
+	}
 
-	opercount = Conf_Oper_Count - 1;
-
-	if( strcasecmp( Var, "Name" ) == 0 ) {
+	if (strcasecmp(Var, "Name") == 0) {
 		/* Name of IRC operator */
-		len = strlcpy( Conf_Oper[opercount].name, Arg, sizeof( Conf_Oper[opercount].name ));
-		if (len >= sizeof( Conf_Oper[opercount].name ))
-				Config_Error_TooLong( Line, Var );
+		len = strlcpy(op->name, Arg, sizeof(op->name));
+		if (len >= sizeof(op->name))
+				Config_Error_TooLong(Line, Var);
 		return;
 	}
-	if( strcasecmp( Var, "Password" ) == 0 ) {
+	if (strcasecmp(Var, "Password") == 0) {
 		/* Password of IRC operator */
-		len = strlcpy( Conf_Oper[opercount].pwd, Arg, sizeof( Conf_Oper[opercount].pwd ));
-		if (len >= sizeof( Conf_Oper[opercount].pwd ))
-				Config_Error_TooLong( Line, Var );
+		len = strlcpy(op->pwd, Arg, sizeof(op->pwd));
+		if (len >= sizeof(op->pwd))
+				Config_Error_TooLong(Line, Var);
 		return;
 	}
-	if( strcasecmp( Var, "Mask" ) == 0 ) {
-		if (Conf_Oper[opercount].mask) return; /* Hostname already configured */
-
-		Conf_Oper[opercount].mask = strdup_warn( Arg );
+	if (strcasecmp(Var, "Mask") == 0) {
+		if (op->mask)
+			return; /* Hostname already configured */
+		op->mask = strdup_warn( Arg );
 		return;
 	}
 	Config_Error( LOG_ERR, "%s, line %d (section \"Operator\"): Unknown variable \"%s\"!",

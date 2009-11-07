@@ -30,8 +30,6 @@
 #define HOST_LEN 256			/* Max. lenght of fully qualified host
 					   names (e. g. "abc.domain.tld") */
 
-#define MAX_OPERATORS 16		/* Max. count of configurable IRC Ops */
-
 #define MAX_SERVERS 16			/* Max. count of configurable servers */
 
 #define MAX_WHOWAS 64			/* Max. number of WHOWAS items */

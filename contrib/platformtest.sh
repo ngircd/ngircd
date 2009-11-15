@@ -105,7 +105,7 @@ fi
 # Get ngIRCd version information
 if [ -d ".git" ]; then
 	VERSION=`git log --abbrev-commit --pretty=oneline HEAD~1.. \
-	 | cut -d' ' -f1 | tr -d '.'`
+	 | head -1 | cut -d' ' -f1 | tr -d '.'`
 elif [ -r "Makefile" ]; then
 	eval $(grep "^VERSION = " Makefile | sed -e 's/ //g')
 fi

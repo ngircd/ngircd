@@ -124,9 +124,7 @@ static void
 cb_listen(int sock, short irrelevant)
 {
 	(void) irrelevant;
-	if (New_Connection( sock ) >= 0)
-		NumConnections++;
-	LogDebug("Total number of connections now %ld.", NumConnections);
+	(void) New_Connection(sock);
 }
 
 
@@ -146,9 +144,6 @@ cb_listen_ssl(int sock, short irrelevant)
 	fd = New_Connection(sock);
 	if (fd < 0)
 		return;
-
-	NumConnections++;
-	LogDebug("Total number of connections now %ld.", NumConnections);
 	io_event_setcb(My_Connections[fd].sock, cb_clientserver_ssl);
 }
 #endif
@@ -1361,6 +1356,9 @@ New_Connection(int Sock)
 	 * DNS and IDENT resolver subprocess using the "penalty" mechanism.
 	 * If there are results earlier, the delay is aborted. */
 	Conn_SetPenalty(new_sock, 4);
+
+	NumConnections++;
+	LogDebug("Total number of connections now %ld.", NumConnections);
 	return new_sock;
 } /* New_Connection */
 

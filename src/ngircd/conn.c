@@ -113,6 +113,13 @@ static void cb_Read_Resolver_Result PARAMS((int sock, UNUSED short what));
 static void cb_Connect_to_Server PARAMS((int sock, UNUSED short what));
 static void cb_clientserver PARAMS((int sock, short what));
 
+
+/**
+ * IO callback for listening sockets: handle new connections. This callback
+ * gets called when a new non-SSL connection should be accepted.
+ * @param sock Socket descriptor
+ * @param irrelevant (ignored IO specification)
+ */
 static void
 cb_listen(int sock, short irrelevant)
 {
@@ -124,6 +131,12 @@ cb_listen(int sock, short irrelevant)
 
 
 #ifdef SSL_SUPPORT
+/**
+ * IO callback for listening SSL sockets: handle new connections. This callback
+ * gets called when a new SSL-enabled connection should be accepted.
+ * @param sock Socket descriptor
+ * @param irrelevant (ignored IO specification)
+ */
 static void
 cb_listen_ssl(int sock, short irrelevant)
 {
@@ -141,6 +154,11 @@ cb_listen_ssl(int sock, short irrelevant)
 #endif
 
 
+/**
+ * IO callback for new outgoing non-SSL server connections.
+ * @param sock Socket descriptor
+ * @param what IO specification (IO_WANTREAD/IO_WANTWRITE/...)
+ */
 static void
 cb_connserver(int sock, UNUSED short what)
 {
@@ -214,6 +232,10 @@ cb_connserver(int sock, UNUSED short what)
 }
 
 
+/**
+ * Login to a remote server.
+ * @param idx Connection index
+ */
 static void
 server_login(CONN_ID idx)
 {
@@ -230,6 +252,11 @@ server_login(CONN_ID idx)
 
 
 #ifdef SSL_SUPPORT
+/**
+ * IO callback for new outgoing SSL-enabled server connections.
+ * @param sock Socket descriptor
+ * @param what IO specification (IO_WANTREAD/IO_WANTWRITE/...)
+ */
 static void
 cb_connserver_login_ssl(int sock, short unused)
 {
@@ -259,6 +286,11 @@ cb_connserver_login_ssl(int sock, short unused)
 #endif
 
 
+/**
+ * IO callback for established non-SSL client and server connections.
+ * @param sock Socket descriptor
+ * @param what IO specification (IO_WANTREAD/IO_WANTWRITE/...)
+ */
 static void
 cb_clientserver(int sock, short what)
 {
@@ -287,6 +319,11 @@ cb_clientserver(int sock, short what)
 
 
 #ifdef SSL_SUPPORT
+/**
+ * IO callback for established SSL-enabled client and server connections.
+ * @param sock Socket descriptor
+ * @param what IO specification (IO_WANTREAD/IO_WANTWRITE/...)
+ */
 static void
 cb_clientserver_ssl(int sock, short what)
 {
@@ -319,6 +356,9 @@ cb_clientserver_ssl(int sock, short what)
 #endif
 
 
+/**
+ * Initialite connecion module.
+ */
 GLOBAL void
 Conn_Init( void )
 {
@@ -354,6 +394,9 @@ Conn_Init( void )
 } /* Conn_Init */
 
 
+/**
+ * Clean up connection module.
+ */
 GLOBAL void
 Conn_Exit( void )
 {
@@ -406,6 +449,10 @@ ports_initlisteners(array *a, const char *listen_addr, void (*func)(int,short))
 }
 
 
+/**
+ * Initialize all listening sockets.
+ * @return Number of created listening sockets
+ */
 GLOBAL unsigned int
 Conn_InitListeners( void )
 {
@@ -1170,12 +1217,14 @@ Count_Connections(ng_ipaddr_t *a)
 } /* Count_Connections */
 
 
+/**
+ * Initialize new client connection on a listening socket.
+ * @param Sock Listening socket descriptor
+ * @return Accepted socket descriptor or -1 on error
+ */
 static int
 New_Connection(int Sock)
 {
-	/* Neue Client-Verbindung von Listen-Socket annehmen und
-	 * CLIENT-Struktur anlegen. */
-
 #ifdef TCPWRAP
 	struct request_info req;
 #endif
@@ -1990,12 +2039,16 @@ Simple_Message( int Sock, const char *Msg )
 } /* Simple_Error */
 
 
+/**
+ * Get CLIENT structure that belongs to a local connection identified by its
+ * index number. Each connection belongs to a client by definition, so it is
+ * not required that the caller checks for NULL return values.
+ * @param Idx Connection index number
+ * @return Pointer to CLIENT structure
+ */
 GLOBAL CLIENT *
 Conn_GetClient( CONN_ID Idx ) 
 {
-	/* return Client-Structure that belongs to the local Connection Idx.
-	 * If none is found, return NULL.
-	 */
 	CONNECTION *c;
 
 	assert(Idx >= 0);
@@ -2006,7 +2059,14 @@ Conn_GetClient( CONN_ID Idx )
 
 
 #ifdef SSL_SUPPORT
-/* we cannot access My_Connections in irc-info.c */
+
+/**
+ * Get information about used SSL chiper.
+ * @param Idx Connection index number
+ * @param buf Buffer for returned information text
+ * @param len Size of return buffer "buf"
+ * @return true on success, false otherwise
+ */
 GLOBAL bool
 Conn_GetCipherInfo(CONN_ID Idx, char *buf, size_t len)
 {
@@ -2017,6 +2077,11 @@ Conn_GetCipherInfo(CONN_ID Idx, char *buf, size_t len)
 }
 
 
+/**
+ * Check if a connection is SSL-enabled or not.
+ * @param Idx Connection index number
+ * @return true if connection is SSL-enabled, false otherwise.
+ */
 GLOBAL bool
 Conn_UsesSSL(CONN_ID Idx)
 {

@@ -105,7 +105,8 @@ AC_CHECK_HEADERS([ \
 	strings.h sys/socket.h sys/time.h unistd.h \
 	],,AC_MSG_ERROR([required C header missing!]))
 
-AC_CHECK_HEADERS([arpa/inet.h ctype.h malloc.h stdbool.h stddef.h varargs.h])
+AC_CHECK_HEADERS([ \
+	arpa/inet.h ctype.h malloc.h netinet/ip.h stdbool.h stddef.h varargs.h])
 
 # -- Datatypes --
 

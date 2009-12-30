@@ -71,6 +71,8 @@
 #define HAVE_STDBOOL_H 1
 /* Define to 1 if you have the <arpa/inet.h> header file. */
 #define HAVE_ARPA_INET_H 1
+/* Define to 1 if you have the <netinet/ip.h> header file. */
+#define HAVE_NETINET_IP_H 1
 
 /* Define to 1 if you have the `kqueue' function. */
 #define HAVE_KQUEUE 1

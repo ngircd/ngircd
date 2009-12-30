@@ -203,7 +203,7 @@ Do_IdentQuery(int identsock, array *resolved_addr)
  * the IP address in resbuf and returns false.
  * @param IpAddr ip address to resolve
  * @param resbuf result buffer to store DNS name/string representation of ip address
- * @reslen size of result buffer (must be >= NGT_INET_ADDRSTRLEN)
+ * @param reslen size of result buffer (must be >= NGT_INET_ADDRSTRLEN)
  * @return true if reverse lookup successful, false otherwise
  */
 static bool

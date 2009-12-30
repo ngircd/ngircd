@@ -1877,12 +1877,13 @@ Init_Socket( int Sock )
 	}
 
 	/* Set type of service (TOS) */
-#if defined(IP_TOS) && defined(IPTOS_LOWDELAY)
+#if defined(IPPROTO_IP) && defined(IPTOS_LOWDELAY)
 	value = IPTOS_LOWDELAY;
-	LogDebug("Setting option IP_TOS on socket %d to IPTOS_LOWDELAY (%d).", Sock, value );
-	if( setsockopt( Sock, SOL_IP, IP_TOS, &value, (socklen_t)sizeof( value )) != 0 )
-	{
-		Log( LOG_ERR, "Can't set socket option IP_TOS: %s!", strerror( errno ));
+	LogDebug("Setting IP_TOS on socket %d to IPTOS_LOWDELAY.", Sock);
+	if (setsockopt(Sock, IPPROTO_IP, IP_TOS, &value,
+		       (socklen_t) sizeof(value))) {
+		Log(LOG_ERR, "Can't set socket option IP_TOS: %s!",
+		    strerror(errno));
 		/* ignore this error */
 	}
 #endif

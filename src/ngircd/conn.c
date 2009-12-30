@@ -109,8 +109,8 @@ extern struct SSLOptions Conf_SSLOptions;
 static void cb_connserver_login_ssl PARAMS((int sock, short what));
 static void cb_clientserver_ssl PARAMS((int sock, short what));
 #endif
-static void cb_Read_Resolver_Result PARAMS(( int sock, UNUSED short what));
-static void cb_Connect_to_Server PARAMS(( int sock, UNUSED short what));
+static void cb_Read_Resolver_Result PARAMS((int sock, UNUSED short what));
+static void cb_Connect_to_Server PARAMS((int sock, UNUSED short what));
 static void cb_clientserver PARAMS((int sock, short what));
 
 static void
@@ -128,6 +128,7 @@ static void
 cb_listen_ssl(int sock, short irrelevant)
 {
 	int fd;
+
 	(void) irrelevant;
 	fd = New_Connection(sock);
 	if (fd < 0)
@@ -270,14 +271,18 @@ cb_clientserver(int sock, short what)
 		return;
 	}
 #ifdef SSL_SUPPORT
-	if (what & IO_WANTREAD || (Conn_OPTION_ISSET(&My_Connections[idx], CONN_SSL_WANT_WRITE)))
-		Read_Request( idx ); /* if TLS layer needs to write additional data, call Read_Request instead so SSL/TLS can continue */
+	if (what & IO_WANTREAD
+	    || (Conn_OPTION_ISSET(&My_Connections[idx], CONN_SSL_WANT_WRITE))) {
+		/* if TLS layer needs to write additional data, call
+		 * Read_Request() instead so that SSL/TLS can continue */
+		Read_Request(idx);
+	}
 #else
 	if (what & IO_WANTREAD)
-		Read_Request( idx );
+		Read_Request(idx);
 #endif
 	if (what & IO_WANTWRITE)
-		Handle_Write( idx );
+		Handle_Write(idx);
 }
 
 
@@ -295,11 +300,13 @@ cb_clientserver_ssl(int sock, short what)
 	}
 
 	switch (ConnSSL_Accept(&My_Connections[idx])) {
-		case 1: break;	/* OK */
-		case 0: return; /* EAGAIN: this callback will be invoked again by the io layer */
-		default:
-			Conn_Close( idx, "Socket closed!", "SSL accept error", false );
-			return;
+	case 1:
+		break;	/* OK */
+	case 0:
+		return;	/* EAGAIN: callback will be invoked again by IO layer */
+	default:
+		Conn_Close(idx, "Socket closed!", "SSL accept error", false);
+		return;
 	}
 	if (what & IO_WANTREAD)
 		Read_Request(idx);
@@ -433,13 +440,12 @@ Conn_InitListeners( void )
 		listen_addr = strtok(NULL, ",");
 	}
 
-	/*
-	 * can't free() Conf_ListenAddress here. On /REHASH, if the config file
+	/* Can't free() Conf_ListenAddress here: on REHASH, if the config file
 	 * cannot be re-loaded, we'd end up with a NULL Conf_ListenAddress.
 	 * Instead, free() takes place in conf.c, before the config file
-	 * is being parsed.
-	 */
+	 * is being parsed. */
 	free(copy);
+
 	return created;
 } /* Conn_InitListeners */
 
@@ -581,6 +587,7 @@ NewListener(const char *listen_addr, UINT16 Port)
 #endif
 	return sock;
 } /* NewListener */
+
 
 #ifdef SSL_SUPPORT
 /*
@@ -1164,7 +1171,7 @@ Count_Connections(ng_ipaddr_t *a)
 
 
 static int
-New_Connection( int Sock )
+New_Connection(int Sock)
 {
 	/* Neue Client-Verbindung von Listen-Socket annehmen und
 	 * CLIENT-Struktur anlegen. */
@@ -1178,10 +1185,9 @@ New_Connection( int Sock )
 	CLIENT *c;
 	long cnt;
 
-	assert( Sock > NONE );
-	/* Connection auf Listen-Socket annehmen */
-	new_sock_len = (int)sizeof(new_addr);
+	assert(Sock > NONE);
 
+	new_sock_len = (int)sizeof(new_addr);
 	new_sock = accept(Sock, (struct sockaddr *)&new_addr,
 			  (socklen_t *)&new_sock_len);
 	if (new_sock < 0) {
@@ -1198,49 +1204,56 @@ New_Connection( int Sock )
 
 #ifdef TCPWRAP
 	/* Validate socket using TCP Wrappers */
-	request_init( &req, RQ_DAEMON, PACKAGE_NAME, RQ_FILE, new_sock, RQ_CLIENT_SIN, &new_addr, NULL );
+	request_init(&req, RQ_DAEMON, PACKAGE_NAME, RQ_FILE, new_sock,
+		     RQ_CLIENT_SIN, &new_addr, NULL);
 	fromhost(&req);
 	if (!hosts_access(&req)) {
-		Log (deny_severity, "Refused connection from %s (by TCP Wrappers)!", ip_str);
-		Simple_Message( new_sock, "ERROR :Connection refused" );
-		close( new_sock );
+		Log(deny_severity,
+		    "Refused connection from %s (by TCP Wrappers)!", ip_str);
+		Simple_Message(new_sock, "ERROR :Connection refused");
+		close(new_sock);
 		return -1;
 	}
 #endif
 
-	/* Socket initialisieren */
-	if (!Init_Socket( new_sock ))
+	if (!Init_Socket(new_sock))
 		return -1;
+
+	/* Check global connection limit */
+	if ((Conf_MaxConnections > 0) &&
+	    (NumConnections >= (size_t) Conf_MaxConnections)) {
+		Log(LOG_ALERT, "Can't accept connection: limit (%d) reached!",
+		    Conf_MaxConnections);
+		Simple_Message(new_sock, "ERROR :Connection limit reached");
+		close(new_sock);
+		return -1;
+	}
 
 	/* Check IP-based connection limit */
 	cnt = Count_Connections(&new_addr);
 	if ((Conf_MaxConnectionsIP > 0) && (cnt >= Conf_MaxConnectionsIP)) {
 		/* Access denied, too many connections from this IP address! */
-		Log( LOG_ERR, "Refused connection from %s: too may connections (%ld) from this IP address!", ip_str, cnt);
-		Simple_Message( new_sock, "ERROR :Connection refused, too many connections from your IP address!" );
-		close( new_sock );
+		Log(LOG_ERR,
+		    "Refused connection from %s: too may connections (%ld) from this IP address!",
+		    ip_str, cnt);
+		Simple_Message(new_sock,
+			       "ERROR :Connection refused, too many connections from your IP address!");
+		close(new_sock);
 		return -1;
 	}
 
-	if ((Conf_MaxConnections > 0) &&
-		(NumConnections >= (size_t) Conf_MaxConnections))
-	{
-		Log( LOG_ALERT, "Can't accept connection: limit (%d) reached!", Conf_MaxConnections);
-		Simple_Message( new_sock, "ERROR :Connection limit reached" );
-		close( new_sock );
-		return -1;
-	}
-
-	if( new_sock >= Pool_Size ) {
+	if (new_sock >= Pool_Size) {
 		if (!array_alloc(&My_ConnArray, sizeof(CONNECTION),
-				 (size_t)new_sock)) {
-			Log( LOG_EMERG, "Can't allocate memory! [New_Connection]" );
-			Simple_Message( new_sock, "ERROR: Internal error" );
-			close( new_sock );
+				 (size_t) new_sock)) {
+			Log(LOG_EMERG,
+			    "Can't allocate memory! [New_Connection]");
+			Simple_Message(new_sock, "ERROR: Internal error");
+			close(new_sock);
 			return -1;
 		}
 		LogDebug("Bumped connection pool to %ld items (internal: %ld items, %ld bytes)",
-			new_sock, array_length(&My_ConnArray, sizeof(CONNECTION)), array_bytes(&My_ConnArray));
+			 new_sock, array_length(&My_ConnArray,
+			 sizeof(CONNECTION)), array_bytes(&My_ConnArray));
 
 		/* Adjust pointer to new block */
 		My_Connections = array_start(&My_ConnArray);
@@ -1249,22 +1262,24 @@ New_Connection( int Sock )
 	}
 
 	/* register callback */
-	if (!io_event_create( new_sock, IO_WANTREAD, cb_clientserver)) {
-		Log(LOG_ALERT, "Can't accept connection: io_event_create failed!");
+	if (!io_event_create(new_sock, IO_WANTREAD, cb_clientserver)) {
+		Log(LOG_ALERT,
+		    "Can't accept connection: io_event_create failed!");
 		Simple_Message(new_sock, "ERROR :Internal error");
 		close(new_sock);
 		return -1;
 	}
 
-	c = Client_NewLocal(new_sock, ip_str, CLIENT_UNKNOWN, false );
-	if( ! c ) {
-		Log(LOG_ALERT, "Can't accept connection: can't create client structure!");
+	c = Client_NewLocal(new_sock, ip_str, CLIENT_UNKNOWN, false);
+	if (!c) {
+		Log(LOG_ALERT,
+		    "Can't accept connection: can't create client structure!");
 		Simple_Message(new_sock, "ERROR :Internal error");
 		io_close(new_sock);
 		return -1;
 	}
 
-	Init_Conn_Struct( new_sock );
+	Init_Conn_Struct(new_sock);
 	My_Connections[new_sock].sock = new_sock;
 	My_Connections[new_sock].addr = new_addr;
 	My_Connections[new_sock].client = c;
@@ -1292,6 +1307,10 @@ New_Connection( int Sock )
 	if (!Conf_NoDNS)
 		Resolve_Addr(&My_Connections[new_sock].res_stat, &new_addr,
 			     identsock, cb_Read_Resolver_Result);
+
+	/* ngIRCd waits up to 4 seconds for the result of the asynchronous
+	 * DNS and IDENT resolver subprocess using the "penalty" mechanism.
+	 * If there are results earlier, the delay is aborted. */
 	Conn_SetPenalty(new_sock, 4);
 	return new_sock;
 } /* New_Connection */
@@ -1825,7 +1844,6 @@ Init_Socket( int Sock )
 } /* Init_Socket */
 
 
-
 static void
 cb_Connect_to_Server(int fd, UNUSED short events)
 {
@@ -1979,14 +1997,13 @@ Conn_GetClient( CONN_ID Idx )
 	 * If none is found, return NULL.
 	 */
 	CONNECTION *c;
-	assert( Idx >= 0 );
 
+	assert(Idx >= 0);
 	c = array_get(&My_ConnArray, sizeof (CONNECTION), (size_t)Idx);
-
 	assert(c != NULL);
-
 	return c ? c->client : NULL;
 }
+
 
 #ifdef SSL_SUPPORT
 /* we cannot access My_Connections in irc-info.c */
@@ -2008,6 +2025,7 @@ Conn_UsesSSL(CONN_ID Idx)
 	assert(Idx < (int) array_length(&My_ConnArray, sizeof(CONNECTION)));
 	return Conn_OPTION_ISSET(&My_Connections[Idx], CONN_SSL);
 }
+
 #endif
 
 

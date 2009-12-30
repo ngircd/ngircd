@@ -88,7 +88,7 @@ typedef struct _Connection
 	ZIPDATA zip;			/* Compression information */
 #endif  /* ZLIB */
 #ifdef SSL_SUPPORT
-	struct ConnSSL_State	ssl_state;	/* SSL/GNUTLS state information */
+	struct ConnSSL_State ssl_state;	/* SSL/GNUTLS state information */
 #endif
 } CONNECTION;
 

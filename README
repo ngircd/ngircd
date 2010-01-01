@@ -78,10 +78,10 @@ VI. Bugs
 If you find bugs in the ngIRCd (which might be there :-), please report
 them at the following URL:
 
-<http://ngircd.barton.de/#bugs>
+<http://ngircd.barton.de/bugtracker.php>
 
 There you can read about known bugs and limitations, too.
 
 If you have critics, patches or something else, please feel free to post a
 mail to the ngIRCd mailing list: <ngircd-ml@arthur.ath.cx> (please see
-<http://ngircd.barton.de/#ml> for details).
+<http://ngircd.barton.de/support.php#ml> for details).

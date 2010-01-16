@@ -465,6 +465,10 @@ uptime_mins(time_t *now)
 }
 
 
+/**
+ * Handler for the IRC command "STATS".
+ * See RFC 2812 section 3.4.4.
+ */
 GLOBAL bool
 IRC_STATS( CLIENT *Client, REQUEST *Req )
 {
@@ -475,11 +479,12 @@ IRC_STATS( CLIENT *Client, REQUEST *Req )
 	time_t time_now;
 	unsigned int days, hrs, mins;
 
-	assert( Client != NULL );
-	assert( Req != NULL );
+	assert(Client != NULL);
+	assert(Req != NULL);
 
 	if (Req->argc > 2)
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG, Client_ID(Client), Req->command);
+		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+					  Client_ID(Client), Req->command);
 
 	/* use prefix to determine "From" */
 	if (Client_Type(Client) == CLIENT_SERVER)
@@ -487,18 +492,21 @@ IRC_STATS( CLIENT *Client, REQUEST *Req )
 	else
 		from = Client;
 
-	if (! from)
-		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix);
+	if (!from)
+		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
+					  Client_ID(Client), Req->prefix);
 
 	if (Req->argc == 2) {
 		/* forward to another server? */
-		target = Client_Search( Req->argv[1] );
-		if(( ! target ) || ( Client_Type( target ) != CLIENT_SERVER ))
-			return IRC_WriteStrClient( from, ERR_NOSUCHSERVER_MSG, Client_ID( from ), Req->argv[1] );
+		target = Client_Search(Req->argv[1]);
+		if ((!target) || (Client_Type(target) != CLIENT_SERVER))
+			return IRC_WriteStrClient(from, ERR_NOSUCHSERVER_MSG,
+						 Client_ID(from), Req->argv[1]);
 
-		if( target != Client_ThisServer()) {
+		if (target != Client_ThisServer()) {
 			/* forward to another server */
-			return IRC_WriteStrClientPrefix( target, from, "STATS %s %s", Req->argv[0], Req->argv[1] );
+			return IRC_WriteStrClientPrefix(target, from,
+				     "STATS %s %s", Req->argv[0], Req->argv[1]);
 		}
 	}
 
@@ -508,57 +516,70 @@ IRC_STATS( CLIENT *Client, REQUEST *Req )
 		query = '*';
 
 	switch (query) {
-		case 'l':	/* Links */
-		case 'L':
-			time_now = time(NULL);
-			for (con = Conn_First(); con != NONE ;con = Conn_Next(con)) {
-				cl = Conn_GetClient(con);
-				if (!cl)
-					continue;
-				if ((Client_Type(cl) == CLIENT_SERVER) || (cl == Client)) {
-					/* Server link or our own connection */
+	case 'l':	/* Link status (servers and own link) */
+	case 'L':
+		time_now = time(NULL);
+		for (con = Conn_First(); con != NONE; con = Conn_Next(con)) {
+			cl = Conn_GetClient(con);
+			if (!cl)
+				continue;
+			if ((Client_Type(cl) == CLIENT_SERVER)
+			    || (cl == Client)) {
+				/* Server link or our own connection */
 #ifdef ZLIB
-					if (Conn_Options(con) & CONN_ZIP) {
-						if (!IRC_WriteStrClient(from, RPL_STATSLINKINFOZIP_MSG,
-							Client_ID(from), Client_Mask(cl), Conn_SendQ(con),
-							Conn_SendMsg(con), Zip_SendBytes(con), Conn_SendBytes(con),
-							Conn_RecvMsg(con), Zip_RecvBytes(con), Conn_RecvBytes(con), (long)(time_now - Conn_StartTime(con))))
-								return DISCONNECTED;
-						continue;
-					}
-#endif
-					if (!IRC_WriteStrClient(from, RPL_STATSLINKINFO_MSG, Client_ID(from),
-						Client_Mask(cl), Conn_SendQ(con), Conn_SendMsg(con), Conn_SendBytes(con),
-						Conn_RecvMsg(con), Conn_RecvBytes(con), (long)(time_now - Conn_StartTime(con))))
-							return DISCONNECTED;
-				}
-			}
-			break;
-		case 'm':	/* IRC-Commands */
-		case 'M':
-			cmd = Parse_GetCommandStruct( );
-			for (; cmd->name ; cmd++) {
-				if (cmd->lcount == 0 && cmd->rcount == 0)
-					continue;
-				if (!IRC_WriteStrClient(from, RPL_STATSCOMMANDS_MSG, Client_ID(from),
-						cmd->name, cmd->lcount, cmd->bytes, cmd->rcount))
-							return DISCONNECTED;
-			}
-			break;
-		case 'u':	/* server uptime */
-		case 'U':
-			time_now = time(NULL) - NGIRCd_Start;
-			days = uptime_days(&time_now);
-			hrs = uptime_hrs(&time_now);
-			mins = uptime_mins(&time_now);
-			if (!IRC_WriteStrClient(from, RPL_STATSUPTIME, Client_ID(from),
-					days, hrs, mins, (unsigned int) time_now))
+				if (Conn_Options(con) & CONN_ZIP) {
+					if (!IRC_WriteStrClient
+					    (from, RPL_STATSLINKINFOZIP_MSG,
+					     Client_ID(from), Client_Mask(cl),
+					     Conn_SendQ(con), Conn_SendMsg(con),
+					     Zip_SendBytes(con),
+					     Conn_SendBytes(con),
+					     Conn_RecvMsg(con),
+					     Zip_RecvBytes(con),
+					     Conn_RecvBytes(con),
+					     (long)(time_now - Conn_StartTime(con))))
 						return DISCONNECTED;
-			break;
+					continue;
+				}
+#endif
+				if (!IRC_WriteStrClient
+				    (from, RPL_STATSLINKINFO_MSG,
+				     Client_ID(from), Client_Mask(cl),
+				     Conn_SendQ(con), Conn_SendMsg(con),
+				     Conn_SendBytes(con), Conn_RecvMsg(con),
+				     Conn_RecvBytes(con),
+				     (long)(time_now - Conn_StartTime(con))))
+					return DISCONNECTED;
+			}
+		}
+		break;
+	case 'm':	/* IRC command status (usage count) */
+	case 'M':
+		cmd = Parse_GetCommandStruct();
+		for (; cmd->name; cmd++) {
+			if (cmd->lcount == 0 && cmd->rcount == 0)
+				continue;
+			if (!IRC_WriteStrClient
+			    (from, RPL_STATSCOMMANDS_MSG, Client_ID(from),
+			     cmd->name, cmd->lcount, cmd->bytes, cmd->rcount))
+				return DISCONNECTED;
+		}
+		break;
+	case 'u':	/* Server uptime */
+	case 'U':
+		time_now = time(NULL) - NGIRCd_Start;
+		days = uptime_days(&time_now);
+		hrs = uptime_hrs(&time_now);
+		mins = uptime_mins(&time_now);
+		if (!IRC_WriteStrClient(from, RPL_STATSUPTIME, Client_ID(from),
+				       days, hrs, mins, (unsigned int)time_now))
+			return DISCONNECTED;
+		break;
 	}
 
 	IRC_SetPenalty(from, 2);
-	return IRC_WriteStrClient(from, RPL_ENDOFSTATS_MSG, Client_ID(from), query);
+	return IRC_WriteStrClient(from, RPL_ENDOFSTATS_MSG,
+				  Client_ID(from), query);
 } /* IRC_STATS */
 
 

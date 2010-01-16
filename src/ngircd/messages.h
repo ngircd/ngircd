@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2008 Alexander Barton <alex@barton.de>
+ * Copyright (c)2001-2010 Alexander Barton <alex@barton.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 #define RPL_YOURHOST_MSG		"002 %s :Your host is %s, running version ngircd-%s (%s/%s/%s)"
 #define RPL_CREATED_MSG			"003 %s :This server has been started %s"
 #define RPL_MYINFO_MSG			"004 %s %s ngircd-%s %s %s"
-#define RPL_ISUPPORT1_MSG		"005 %s RFC2812 CASEMAPPING=ascii PREFIX=(ov)@+ CHANTYPES=#&+ CHANMODES=bI,k,l,imnPst CHANLIMIT=#&+:%d :are supported on this server"
+#define RPL_ISUPPORT1_MSG		"005 %s RFC2812 IRCD=ngIRCd CASEMAPPING=ascii PREFIX=(ov)@+ CHANTYPES=#&+ CHANMODES=bI,k,l,imnPst CHANLIMIT=#&+:%d :are supported on this server"
 #define RPL_ISUPPORT2_MSG		"005 %s CHANNELLEN=%d NICKLEN=%d TOPICLEN=%d AWAYLEN=%d KICKLEN=%d PENALTY :are supported on this server"
 
 #define RPL_TRACELINK_MSG		"200 %s Link %s-%s %s %s V%s %ld %d %d"

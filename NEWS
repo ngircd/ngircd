@@ -1,7 +1,7 @@
 
                      ngIRCd - Next Generation IRC Server
 
-                        (c)2001-2009 Alexander Barton,
+                        (c)2001-2010 Alexander Barton,
                     alex@barton.de, http://www.barton.de/
 
                ngIRCd is free software and published under the
@@ -9,6 +9,16 @@
 
                                   -- NEWS --
 
+
+ngIRCd Release 16
+
+  - A new channel mode "secure connections only" (+z) has been implemented:
+    Only clients using a SSL encrypted connection to the server are allowed
+    to join such a channel.
+    But please note three things: a) already joined clients are not checked
+    when setting this mode, b) IRC operators are always allowed to join
+    every channel, and c) remote clients using a server not supporting this
+    mode are not checked either and therefore always allowed to join.
 
 ngIRCd Release 15 (2009-11-07)
 

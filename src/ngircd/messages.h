@@ -113,6 +113,7 @@
 #define ERR_ALREADYREGISTRED_MSG	"462 %s :Connection already registered"
 #define ERR_PASSWDMISMATCH_MSG		"464 %s :Invalid password"
 #define ERR_CHANNELISFULL_MSG		"471 %s %s :Cannot join channel (+l)"
+#define ERR_SECURECHANNEL_MSG		"471 %s %s :Cannot join channel (+z)"
 #define ERR_UNKNOWNMODE_MSG		"472 %s: %c :is unknown mode char for %s"
 #define ERR_INVITEONLYCHAN_MSG		"473 %s %s :Cannot join channel (+i)"
 #define ERR_BANNEDFROMCHAN_MSG		"474 %s %s :Cannot join channel (+b)"

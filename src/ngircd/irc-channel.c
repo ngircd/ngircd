@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2008 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2010 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -93,7 +93,7 @@ join_allowed(CLIENT *Client, CHANNEL *chan, const char *channame,
 	}
 
 	channel_modes = Channel_Modes(chan);
-	if ((strchr(channel_modes, 'i')) && !is_invited) {
+	if (strchr(channel_modes, 'i') && !is_invited) {
 		/* Channel is "invite-only" and client is not on invite list */
 		IRC_WriteStrClient(Client, ERR_INVITEONLYCHAN_MSG,
 				   Client_ID(Client), channame);
@@ -108,10 +108,18 @@ join_allowed(CLIENT *Client, CHANNEL *chan, const char *channame,
 		return false;
 	}
 
-	if ((strchr(channel_modes, 'l')) &&
+	if (strchr(channel_modes, 'l') &&
 	    (Channel_MaxUsers(chan) <= Channel_MemberCount(chan))) {
 		/* There are more clints joined to this channel than allowed */
 		IRC_WriteStrClient(Client, ERR_CHANNELISFULL_MSG,
+				   Client_ID(Client), channame);
+		return false;
+	}
+
+	if (strchr(channel_modes, 'z') && !Conn_UsesSSL(Client_Conn(Client))) {
+		/* Only "secure" clients are allowed, but clients doesn't
+		 * use SSL encryption */
+		IRC_WriteStrClient(Client, ERR_SECURECHANNEL_MSG,
 				   Client_ID(Client), channame);
 		return false;
 	}

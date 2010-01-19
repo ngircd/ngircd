@@ -53,8 +53,12 @@ IRC_ERROR( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	if( Req->argc < 1 ) Log( LOG_NOTICE, "Got ERROR from \"%s\"!", Client_Mask( Client ));
-	else Log( LOG_NOTICE, "Got ERROR from \"%s\": %s!", Client_Mask( Client ), Req->argv[0] );
+	if (Req->argc < 1)
+		Log(LOG_NOTICE, "Got ERROR from \"%s\"!",
+		    Client_Mask(Client));
+	else
+		Log(LOG_NOTICE, "Got ERROR from \"%s\": \"%s\"!",
+		    Client_Mask(Client), Req->argv[0]);
 
 	return CONNECTED;
 } /* IRC_ERROR */

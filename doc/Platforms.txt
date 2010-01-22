@@ -49,6 +49,7 @@ i386/unknown/netbsdelf3.0.1 gcc 3.3.3    0.10.0-p1  06-08-30 alex   Y Y Y Y (3)
 i386/unknown/netbsdelf4.0   gcc 4.1.2    14.1       09-07-28 alex   Y Y Y Y (3)
 i386/unknown/openbsd3.9     gcc 3.3.5    0.10.0-p1  06-08-30 alex   Y Y Y Y (3)
 i386/unknown/openbsd4.1     gcc 3.3.5    14.1       09-07-28 alex   Y Y Y Y (3)
+i586/pc/interix3.5          gcc 3.3      15         10-01-22 alex   Y Y N Y
 i686/pc/cygwin              gcc 3.3.1    0.8.0      04-05-30 alex   Y Y n Y
 i686/pc/linux-gnu           gcc 2.95.4   0.8.0      04-05-30 alex   Y Y Y Y (1)
 i686/pc/linux-gnu           gcc 3.3.5    14.1       09-08-04 alex   Y Y Y Y (1)

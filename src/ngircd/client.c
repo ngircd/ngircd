@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2008 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2010 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -181,39 +181,46 @@ Client_NewRemoteUser(CLIENT *Introducer, const char *Nick, int Hops, const char 
  */
 static CLIENT *
 Init_New_Client(CONN_ID Idx, CLIENT *Introducer, CLIENT *TopServer,
- int Type, const char *ID, const char *User, const char *Hostname, const char *Info, int Hops,
- int Token, const char *Modes, bool Idented)
+  int Type, const char *ID, const char *User, const char *Hostname,
+  const char *Info, int Hops, int Token, const char *Modes, bool Idented)
 {
 	CLIENT *client;
 
-	assert( Idx >= NONE );
-	assert( Introducer != NULL );
-	assert( Hostname != NULL );
+	assert(Idx >= NONE);
+	assert(Introducer != NULL);
+	assert(Hostname != NULL);
 
-	client = New_Client_Struct( );
-	if( ! client ) return NULL;
+	client = New_Client_Struct();
+	if (!client)
+		return NULL;
 
 	client->starttime = time(NULL);
 	client->conn_id = Idx;
 	client->introducer = Introducer;
 	client->topserver = TopServer;
 	client->type = Type;
-	if( ID ) Client_SetID( client, ID );
-	if( User ) Client_SetUser( client, User, Idented );
-	if( Hostname ) Client_SetHostname( client, Hostname );
-	if( Info ) Client_SetInfo( client, Info );
+	if (ID)
+		Client_SetID(client, ID);
+	if (User)
+		Client_SetUser(client, User, Idented);
+	if (Hostname)
+		Client_SetHostname(client, Hostname);
+	if (Info)
+		Client_SetInfo(client, Info);
 	client->hops = Hops;
 	client->token = Token;
-	if( Modes ) Client_SetModes( client, Modes );
-	if( Type == CLIENT_SERVER ) Generate_MyToken( client );
+	if (Modes)
+		Client_SetModes(client, Modes);
+	if (Type == CLIENT_SERVER)
+		Generate_MyToken(client);
 
-	if( strchr( client->modes, 'a' ))
-		strlcpy( client->away, DEFAULT_AWAY_MSG, sizeof( client->away ));
+	if (strchr(client->modes, 'a'))
+		strlcpy(client->away, DEFAULT_AWAY_MSG, sizeof(client->away));
 
 	client->next = (POINTER *)My_Clients;
 	My_Clients = client;
 
-	Adjust_Counters( client );
+	Adjust_Counters(client);
 
 	return client;
 } /* Init_New_Client */

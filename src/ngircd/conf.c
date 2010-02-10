@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2009 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2010 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -291,16 +291,17 @@ Conf_Test( void )
 	}
 
 	puts( "[GLOBAL]" );
-	printf( "  Name = %s\n", Conf_ServerName );
-	printf( "  Info = %s\n", Conf_ServerInfo );
-	printf( "  Password = %s\n", Conf_ServerPwd );
-	printf( "  AdminInfo1 = %s\n", Conf_ServerAdmin1 );
-	printf( "  AdminInfo2 = %s\n", Conf_ServerAdmin2 );
-	printf( "  AdminEMail = %s\n", Conf_ServerAdminMail );
-	printf( "  MotdFile = %s\n", Conf_MotdFile );
-	printf( "  MotdPhrase = %s\n", Conf_MotdPhrase );
-	printf( "  ChrootDir = %s\n", Conf_Chroot );
-	printf( "  PidFile = %s\n", Conf_PidFile);
+	printf("  Name = %s\n", Conf_ServerName);
+	printf("  Info = %s\n", Conf_ServerInfo);
+	printf("  Password = %s\n", Conf_ServerPwd);
+	printf("  WebircPassword = %s\n", Conf_WebircPwd);
+	printf("  AdminInfo1 = %s\n", Conf_ServerAdmin1);
+	printf("  AdminInfo2 = %s\n", Conf_ServerAdmin2);
+	printf("  AdminEMail = %s\n", Conf_ServerAdminMail);
+	printf("  MotdFile = %s\n", Conf_MotdFile);
+	printf("  MotdPhrase = %s\n", Conf_MotdPhrase);
+	printf("  ChrootDir = %s\n", Conf_Chroot);
+	printf("  PidFile = %s\n", Conf_PidFile);
 	printf("  Listen = %s\n", Conf_ListenAddress);
 	fputs("  Ports = ", stdout);
 	ports_puts(&Conf_ListenPorts);
@@ -843,6 +844,13 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 		len = strlcpy( Conf_ServerPwd, Arg, sizeof( Conf_ServerPwd ));
 		if (len >= sizeof( Conf_ServerPwd ))
 			Config_Error_TooLong( Line, Var );
+		return;
+	}
+	if (strcasecmp(Var, "WebircPassword") == 0) {
+		/* Password required for WEBIRC command */
+		len = strlcpy(Conf_WebircPwd, Arg, sizeof(Conf_WebircPwd));
+		if (len >= sizeof(Conf_WebircPwd))
+			Config_Error_TooLong(Line, Var);
 		return;
 	}
 	if( strcasecmp( Var, "AdminInfo1" ) == 0 ) {

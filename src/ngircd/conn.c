@@ -1999,10 +1999,14 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 	c = Conn_GetClient( i );
 	assert( c != NULL );
 
-	/* Only update client information of unregistered clients */
-	if( Client_Type( c ) == CLIENT_UNKNOWN ) {
-		strlcpy(My_Connections[i].host, readbuf, sizeof( My_Connections[i].host));
-		Client_SetHostname( c, readbuf);
+	/* Only update client information of unregistered clients.
+	 * Note: user commands (e. g. WEBIRC) are always read _after_ reading
+	 * the resolver results, so we don't have to worry to override settings
+	 * from these commands here. */
+	if(Client_Type(c) == CLIENT_UNKNOWN) {
+		strlcpy(My_Connections[i].host, readbuf,
+			sizeof(My_Connections[i].host));
+		Client_SetHostname(c, readbuf);
 #ifdef IDENTAUTH
 		++identptr;
 		if (*identptr) {

@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2008 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2010 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -103,6 +103,7 @@ static COMMAND My_Commands[] =
 	{ "USERS", IRC_USERS, CLIENT_USER|CLIENT_SERVER, 0, 0, 0 },
 	{ "VERSION", IRC_VERSION, CLIENT_USER|CLIENT_SERVER, 0, 0, 0 },
 	{ "WALLOPS", IRC_WALLOPS, CLIENT_USER|CLIENT_SERVER, 0, 0, 0 },
+	{ "WEBIRC", IRC_WEBIRC, CLIENT_UNKNOWN, 0, 0, 0 },
 	{ "WHO", IRC_WHO, CLIENT_USER, 0, 0, 0 },
 	{ "WHOIS", IRC_WHOIS, CLIENT_USER|CLIENT_SERVER, 0, 0, 0 },
 	{ "WHOWAS", IRC_WHOWAS, CLIENT_USER|CLIENT_SERVER, 0, 0, 0 },

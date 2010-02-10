@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2008 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2010 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -187,6 +187,9 @@ GLOBAL bool Conf_DisableServer PARAMS(( const char *Name ));
 GLOBAL bool Conf_AddServer PARAMS(( const char *Name, UINT16 Port, const char *Host, const char *MyPwd, const char *PeerPwd ));
 
 GLOBAL bool Conf_IsService PARAMS((int ConfServer, const char *Nick));
+
+/* Password required by WEBIRC command */
+GLOBAL char Conf_WebircPwd[CLIENT_PASS_LEN];
 
 
 #endif

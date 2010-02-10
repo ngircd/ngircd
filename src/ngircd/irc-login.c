@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2008 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2010 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -555,6 +555,31 @@ IRC_SERVICE(CLIENT *Client, REQUEST *Req)
 	Introduce_Client(Client, c, CLIENT_SERVICE);
 	return CONNECTED;
 } /* IRC_SERVICE */
+
+
+/**
+ * Handler for the IRC command "WEBIRC".
+ * Syntax: WEBIRC <password> <username> <real-hostname> <real-IP-address>
+ */
+GLOBAL bool
+IRC_WEBIRC(CLIENT *Client, REQUEST *Req)
+{
+	/* Exactly 4 parameters are requited */
+	if (Req->argc != 4)
+		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+					  Client_ID(Client), Req->command);
+
+	if (!Conf_WebircPwd[0] || strcmp(Req->argv[0], Conf_WebircPwd) != 0)
+		return IRC_WriteStrClient(Client, ERR_PASSWDMISMATCH_MSG,
+					  Client_ID(Client));
+
+	LogDebug("Connection %d: got valid WEBIRC command: user=%s, host=%s, ip=%s",
+		 Client_Conn(Client), Req->argv[1], Req->argv[2], Req->argv[3]);
+
+	Client_SetUser(Client, Req->argv[1], true);
+	Client_SetHostname(Client, Req->argv[2]);
+	return CONNECTED;
+} /* IRC_WEBIRC */
 
 
 GLOBAL bool

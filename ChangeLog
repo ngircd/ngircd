@@ -10,6 +10,32 @@
                                -- ChangeLog --
 
 
+ngIRCd Release 16
+
+  ngIRCd 16~rc1 (2010-03-25)
+  - Various fixes to the build system and code cleanups.
+  - contrib/platformtest.sh: Only show latest commit.
+  - Updatet doc/Platforms.txt, added new README-Interix.txt documenting
+    how to tun ngIRCd on Microsoft Services for UNIX (MS SFU, MS SUA).
+  - Updated links to the ngIRCd homepage (bug tracker, mailing list).
+  - Added missing modes to USERMODES #define
+  - Show our name (IRCD=ngIRCd) in ISUPPORT (005) numeric
+  - Quote received messages of ERROR commands in log output.
+  - ngircd.conf manual page: document missing "Password" variable.
+  - Implement WEBIRC command used by some Web-IRC frontends. The password
+    required to secure this command must be configured using the new
+    "WebircPassword" variable in the ngircd.conf file.
+  - Don't use port 6668 as example for both "Ports" and "SSLPorts".
+  - Remove limit on max number of configured irc operators.
+  - Only link "nsl" library when really needed.
+  - A new channel mode "secure connections only" (+z) has been implemented:
+    Only clients using a SSL encrypted connection to the server are allowed
+    to join such a channel.
+    But please note three things: a) already joined clients are not checked
+    when setting this mode, b) IRC operators are always allowed to join
+    every channel, and c) remote clients using a server not supporting this
+    mode are not checked either and therefore always allowed to join.
+
 ngIRCd Release 15 (2009-11-07)
 
   - "ngircd --configtest": print SSL configuration options even when unset.

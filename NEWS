@@ -12,6 +12,11 @@
 
 ngIRCd Release 16
 
+  ngIRCd 16~rc1 (2010-03-25)
+  - Implement WEBIRC command used by some Web-IRC frontends. The password
+    required to secure this command must be configured using the new
+    "WebircPassword" variable in the ngircd.conf file.
+  - Remove limit on max number of configured irc operators.
   - A new channel mode "secure connections only" (+z) has been implemented:
     Only clients using a SSL encrypted connection to the server are allowed
     to join such a channel.

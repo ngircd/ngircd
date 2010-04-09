@@ -2025,20 +2025,32 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 } /* cb_Read_Resolver_Result */
 
 
+/**
+ * Write a "simple" (error) message to a socket.
+ * The message is sent without using the connection write buffers, without
+ * compression/encryption, and even without any error reporting. It is
+ * designed for error messages of e.g. New_Connection(). */
 static void
-Simple_Message( int Sock, const char *Msg )
+Simple_Message(int Sock, const char *Msg)
 {
 	char buf[COMMAND_LEN];
 	size_t len;
-	/* Write "simple" message to socket, without using compression
-	 * or even the connection write buffers. Used e.g. for error
-	 * messages by New_Connection(). */
-	assert( Sock > NONE );
-	assert( Msg != NULL );
 
-	strlcpy( buf, Msg, sizeof buf - 2);
-	len = strlcat( buf, "\r\n", sizeof buf);
-	(void)write(Sock, buf, len);
+	assert(Sock > NONE);
+	assert(Msg != NULL);
+
+	strlcpy(buf, Msg, sizeof buf - 2);
+	len = strlcat(buf, "\r\n", sizeof buf);
+	if (write(Sock, buf, len) < 0) {
+		/* Because this function most probably got called to log
+		 * an error message, any write error is ignored here to
+		 * avoid an endless loop. But casting the result of write()
+		 * to "void" doesn't satisfy the GNU C code attribute
+		 * "warn_unused_result" which is used by some versions of
+		 * glibc (e.g. 2.11.1), therefore this silly error
+		 * "handling" code here :-( */
+		return;
+	}
 } /* Simple_Error */
 
 

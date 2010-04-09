@@ -798,7 +798,9 @@ NGIRCd_Init( bool NGIRCd_NoDaemon )
 #else
 		setpgrp(0, getpid());
 #endif
-		chdir( "/" );
+		if (chdir( "/" ) != 0)
+			Log(LOG_ERR, "Can't change directory to '/': %s",
+				     strerror(errno));
 
 		/* Detach stdin, stdout and stderr */
 		Setup_FDStreams( );

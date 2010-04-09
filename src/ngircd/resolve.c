@@ -144,8 +144,8 @@ Resolve_Init(RES_STAT *s)
 }
 
 
-#ifndef WANT_IPV6
-#ifdef h_errno
+#if !defined(HAVE_GETADDRINFO) || !defined(HAVE_GETNAMEINFO)
+#if !defined(WANT_IPV6) && defined(h_errno)
 static char *
 Get_Error( int H_Error )
 {
@@ -162,8 +162,8 @@ Get_Error( int H_Error )
 	}
 	return "unknown error";
 }
-#endif /* h_errno */
-#endif /* WANT_IPV6 */
+#endif
+#endif
 
 
 /* Do "IDENT" (aka "AUTH") lookup and append result to resolved_addr array */

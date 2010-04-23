@@ -146,8 +146,8 @@ GLOBAL void
 Log_Exit( void )
 {
 	/* Good Bye! */
-	if( NGIRCd_SignalRestart ) Log( LOG_NOTICE, "%s done (restarting).", PACKAGE_NAME );
-	else Log( LOG_NOTICE, "%s done.", PACKAGE_NAME );
+	Log(LOG_NOTICE, "%s done%s, served %lu connections.", PACKAGE_NAME,
+	    NGIRCd_SignalRestart ? " (restarting)" : "", Conn_CountAccepted());
 
 #ifdef DEBUG
 	if( Error_File[0] )

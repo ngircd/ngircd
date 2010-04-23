@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2009 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2010 Alexander Barton <alex@barton.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1175,6 +1175,10 @@ IRC_Send_LUSERS( CLIENT *Client )
 	max = Client_MaxUserCount();
 	if(! IRC_WriteStrClient(Client, RPL_NETUSERS_MSG, Client_ID(Client),
 			cnt, max, cnt, max))
+		return DISCONNECTED;
+	/* Connection counters */
+	if (! IRC_WriteStrClient(Client, RPL_STATSCONN_MSG, Client_ID(Client),
+			Conn_CountMax(), Conn_CountAccepted()))
 		return DISCONNECTED;
 #endif
 	

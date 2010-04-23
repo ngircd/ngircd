@@ -95,10 +95,12 @@ static bool Init_Socket PARAMS(( int Sock ));
 static void New_Server PARAMS(( int Server, ng_ipaddr_t *dest ));
 static void Simple_Message PARAMS(( int Sock, const char *Msg ));
 static int NewListener PARAMS(( const char *listen_addr, UINT16 Port ));
+static void Account_Connection PARAMS((void));
+
 
 static array My_Listeners;
 static array My_ConnArray;
-static size_t NumConnections;
+static size_t NumConnections, NumConnectionsMax, NumConnectionsAccepted;
 
 #ifdef TCPWRAP
 int allow_severity = LOG_INFO;
@@ -388,7 +390,8 @@ Conn_Init( void )
 	for (i = 0; i < Pool_Size; i++)
 		Init_Conn_Struct(i);
 
-	/* Global write counter */
+	/* Initialize global counters (required after RESTART command!) */
+	NumConnections = NumConnectionsMax = NumConnectionsAccepted = 0;
 	WCounter = 0;
 } /* Conn_Init */
 
@@ -1102,6 +1105,27 @@ Conn_Close( CONN_ID Idx, const char *LogMsg, const char *FwdMsg, bool InformClie
 } /* Conn_Close */
 
 
+GLOBAL long
+Conn_Count(void)
+{
+	return NumConnections;
+} /* Conn_Count */
+
+
+GLOBAL long
+Conn_CountMax(void)
+{
+	return NumConnectionsMax;
+} /* Conn_CountMax */
+
+
+GLOBAL long
+Conn_CountAccepted(void)
+{
+	return NumConnectionsAccepted;
+} /* Conn_CountAccepted */
+
+
 GLOBAL void
 Conn_SyncServerStruct( void )
 {
@@ -1242,6 +1266,7 @@ New_Connection(int Sock)
 		Log(LOG_CRIT, "Can't accept connection: %s!", strerror(errno));
 		return -1;
 	}
+	NumConnectionsAccepted++;
 
 	if (!ng_ipaddr_tostr_r(&new_addr, ip_str)) {
 		Log(LOG_CRIT, "fd %d: Can't convert IP address!", new_sock);
@@ -1361,10 +1386,20 @@ New_Connection(int Sock)
 	 * If there are results earlier, the delay is aborted. */
 	Conn_SetPenalty(new_sock, 4);
 
-	NumConnections++;
-	LogDebug("Total number of connections now %ld.", NumConnections);
+	Account_Connection();
 	return new_sock;
 } /* New_Connection */
+
+
+static void
+Account_Connection(void)
+{
+	NumConnections++;
+	if (NumConnections > NumConnectionsMax)
+		NumConnectionsMax = NumConnections;
+	LogDebug("Total number of connections now %lu (max %lu).",
+		 NumConnections, NumConnectionsMax);
+} /* Account_Connection */
 
 
 static CONN_ID
@@ -1806,7 +1841,7 @@ New_Server( int Server , ng_ipaddr_t *dest)
 	}
 
 	/* Conn_Close() decrements this counter again */
-	NumConnections++;
+	Account_Connection();
 	Client_SetIntroducer( c, c );
 	Client_SetToken( c, TOKEN_OUTBOUND );
 

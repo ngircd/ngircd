@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2009 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2010 Alexander Barton <alex@barton.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -369,8 +369,8 @@ Conn_Init( void )
 			Pool_Size = Conf_MaxConnections;
 
 	if (!array_alloc(&My_ConnArray, sizeof(CONNECTION), (size_t)Pool_Size)) {
-		Log( LOG_EMERG, "Can't allocate memory! [Conn_Init]" );
-		exit( 1 );
+		Log(LOG_EMERG, "Can't allocate memory! [Conn_Init]");
+		exit(1);
 	}
 
 	/* FIXME: My_Connetions/Pool_Size is needed by other parts of the
@@ -378,14 +378,15 @@ Conn_Init( void )
 	My_Connections = (CONNECTION*) array_start(&My_ConnArray);
 
 	LogDebug("Allocated connection pool for %d items (%ld bytes).",
-		array_length(&My_ConnArray, sizeof( CONNECTION )), array_bytes(&My_ConnArray));
+		array_length(&My_ConnArray, sizeof(CONNECTION)),
+		array_bytes(&My_ConnArray));
 
-	assert( array_length(&My_ConnArray, sizeof( CONNECTION )) >= (size_t) Pool_Size);
+	assert(array_length(&My_ConnArray, sizeof(CONNECTION)) >= (size_t)Pool_Size);
 	
 	array_free( &My_Listeners );
 
-	/* Connection-Struktur initialisieren */
-	for( i = 0; i < Pool_Size; i++ ) Init_Conn_Struct( i );
+	for (i = 0; i < Pool_Size; i++)
+		Init_Conn_Struct(i);
 
 	/* Global write counter */
 	WCounter = 0;

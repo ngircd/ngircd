@@ -12,6 +12,18 @@
 
 ngIRCd Release 16
 
+  ngIRCd 16~rc2 (2010-04-25)
+  - Updated some more copyright notices, it's 2010 already :-)
+  - Only compile in Get_Error() if really needed
+  - Fix gcc warning "ignoring return value of ..."
+  - Include netinet/in_systm.h alongside netinet/ip.h
+  - Include netinet/{in.h, in_systm.h} when checking for netinet/ip.h
+  - Only include <netinet/in_systm.h> if it exists
+  - Updated doc/Platforms.txt
+  - Enhace connection statistics counters: display total number of served
+    connections on daemon shutdown and when a new client connects using
+    the new numeric RPL_STATSCONN (250).
+
   ngIRCd 16~rc1 (2010-03-25)
   - Various fixes to the build system and code cleanups.
   - contrib/platformtest.sh: Only show latest commit.

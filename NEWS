@@ -12,6 +12,11 @@
 
 ngIRCd Release 16
 
+  ngIRCd 16~rc2 (2010-04-25)
+  - Enhace connection statistics counters: display total number of served
+    connections on daemon shutdown and when a new client connects using
+    the new numeric RPL_STATSCONN (250).
+
   ngIRCd 16~rc1 (2010-03-25)
   - Implement WEBIRC command used by some Web-IRC frontends. The password
     required to secure this command must be configured using the new

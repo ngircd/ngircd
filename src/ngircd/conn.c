@@ -389,10 +389,6 @@ Conn_Init( void )
 
 	for (i = 0; i < Pool_Size; i++)
 		Init_Conn_Struct(i);
-
-	/* Initialize global counters (required after RESTART command!) */
-	NumConnections = NumConnectionsMax = NumConnectionsAccepted = 0;
-	WCounter = 0;
 } /* Conn_Init */
 
 

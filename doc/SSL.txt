@@ -49,8 +49,7 @@ Creating a self-signed certificate
 OpenSSL:
 
 Creating a self-signed certificate and key:
- $ openssl req -newkey rsa:2048 -x509 -keyout server-key.pem \
-	-out server-cert.pem -days 1461
+ $ openssl req -newkey rsa:2048 -x509 -keyout server-key.pem -out server-cert.pem -days 1461
 Create DH parameters (optional):
  $ openssl dhparam -2 -out dhparams.pem 2048
 
@@ -58,8 +57,7 @@ GnuTLS:
 
 Creating a self-signed certificate and key:
  $ certtool --generate-privkey --bits 2048 --outfile server-key.pem
- $ certtool --generate-self-signed --load-privkey server-key.pem \
-	 --outfile server-cert.pem
+ $ certtool --generate-self-signed --load-privkey server-key.pem --outfile server-cert.pem
 Create DH parameters (optional):
  $ certtool  --generate-dh-params --bits 2048 --outfile dhparams.pem
 

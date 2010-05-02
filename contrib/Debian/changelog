@@ -1,3 +1,9 @@
+ngircd (16-0ab1) unstable; urgency=low
+
+  * New "upstream" release: ngIRCd 16.
+
+ -- Alexander Barton <alex@barton.de>  Sun, 02 May 2010 13:32:41 +0200
+
 ngircd (16~rc2-0ab1) unstable; urgency=low
 
   * New "upstream" release candidate 2 for ngIRCd Release 16.

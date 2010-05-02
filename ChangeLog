@@ -10,7 +10,9 @@
                                -- ChangeLog --
 
 
-ngIRCd Release 16
+ngIRCd Release 16 (2010-05-02)
+
+  - doc/SSL: remove line continuation marker
 
   ngIRCd 16~rc2 (2010-04-25)
   - Updated some more copyright notices, it's 2010 already :-)

@@ -10,7 +10,7 @@
                                   -- NEWS --
 
 
-ngIRCd Release 16
+ngIRCd Release 16 (2010-05-02)
 
   ngIRCd 16~rc2 (2010-04-25)
   - Enhace connection statistics counters: display total number of served

@@ -383,9 +383,10 @@ ConnSSL_Init_SSL(CONNECTION *c)
 	int ret;
 	assert(c != NULL);
 #ifdef HAVE_LIBSSL
-	if (!ssl_ctx)	/* NULL when library initialization failed */
+	if (!ssl_ctx) {
+		Log(LOG_ERR, "Cannot init ssl_ctx: OpenSSL initialization failed at startup");
 		return false;
-
+	}
 	assert(c->ssl_state.ssl == NULL);
 
 	c->ssl_state.ssl = SSL_new(ssl_ctx);

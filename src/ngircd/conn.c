@@ -342,7 +342,7 @@ cb_clientserver_ssl(int sock, short what)
 	case 0:
 		return;	/* EAGAIN: callback will be invoked again by IO layer */
 	default:
-		Conn_Close(idx, "Socket closed!", "SSL accept error", false);
+		Conn_Close(idx, "SSL accept error, closing socket", "SSL accept error", false);
 		return;
 	}
 	if (what & IO_WANTREAD)

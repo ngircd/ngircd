@@ -297,7 +297,8 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 {
 	char the_modes[COMMAND_LEN], the_args[COMMAND_LEN], x[2],
 	    argadd[CLIENT_PASS_LEN], *mode_ptr;
-	bool connected, set, modeok = true, skiponce, use_servermode = false, retval;
+	bool connected, set, skiponce, retval, onchannel;
+	bool modeok = true, use_servermode = false;
 	int mode_arg, arg_arg;
 	CLIENT *client;
 	long l;
@@ -314,14 +315,13 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 	/* Is the user allowed to change modes? */
 	if (Client_Type(Client) == CLIENT_USER) {
 		/* Is the originating user on that channel? */
-		if (!Channel_IsMemberOf(Channel, Origin))
-			return IRC_WriteStrClient(Origin, ERR_NOTONCHANNEL_MSG,
-				Client_ID(Origin), Channel_Name(Channel));
+		onchannel = Channel_IsMemberOf(Channel, Origin);
 		modeok = false;
 		/* channel operator? */
-		if (strchr(Channel_UserModes(Channel, Origin), 'o'))
+		if (onchannel &&
+		    strchr(Channel_UserModes(Channel, Origin), 'o')) {
 			modeok = true;
-		else if (Conf_OperCanMode) {
+		} else if (Conf_OperCanMode) {
 			/* IRC-Operators can use MODE as well */
 			if (Client_OperByMe(Origin)) {
 				modeok = true;
@@ -329,6 +329,10 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 					use_servermode = true; /* Change Origin to Server */
 			}
 		}
+
+		if (!onchannel && !use_servermode)
+			return IRC_WriteStrClient(Origin, ERR_NOTONCHANNEL_MSG,
+				Client_ID(Origin), Channel_Name(Channel));
 	}
 
 	mode_arg = 1;

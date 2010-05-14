@@ -70,7 +70,7 @@ IRC_ERROR( CLIENT *Client, REQUEST *Req )
  * disconnect clients. It can be used by IRC operators and servers, for example
  * to "solve" nick collisions after netsplits.
  * Please note that this function is also called internally, without a real
- * KILL command beeing received over the network! Client is Client_ThisServer()
+ * KILL command being received over the network! Client is Client_ThisServer()
  * in this case. */
 GLOBAL bool
 IRC_KILL( CLIENT *Client, REQUEST *Req )

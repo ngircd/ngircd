@@ -356,7 +356,7 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 		 * RFC 1459: announce the new client only after receiving the
 		 * USER command, first we need more information! */
 		if (Req->argc < 7) {
-			LogDebug("Client \"%s\" is beeing registered (RFC 1459) ...",
+			LogDebug("Client \"%s\" is being registered (RFC 1459) ...",
 				 Client_Mask(c));
 			Client_SetType(c, CLIENT_GOTNICK);
 		} else

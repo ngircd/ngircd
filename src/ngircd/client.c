@@ -35,7 +35,6 @@
 #include <imp.h>
 #include "ngircd.h"
 #include "channel.h"
-#include "resolve.h"
 #include "conf.h"
 #include "hash.h"
 #include "irc-write.h"

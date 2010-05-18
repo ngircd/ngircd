@@ -20,7 +20,6 @@
 #include <string.h>
 
 #include "defines.h"
-#include "resolve.h"
 #include "conn.h"
 #include "conf.h"
 #include "conn.h"

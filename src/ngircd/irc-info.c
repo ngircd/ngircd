@@ -27,7 +27,6 @@
 #include "conn-zip.h"
 #include "client.h"
 #include "channel.h"
-#include "resolve.h"
 #include "conf.h"
 #include "defines.h"
 #include "log.h"

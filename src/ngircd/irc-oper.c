@@ -21,7 +21,6 @@
 #include <string.h>
 
 #include "ngircd.h"
-#include "resolve.h"
 #include "conn-func.h"
 #include "conf.h"
 #include "client.h"

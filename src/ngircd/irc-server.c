@@ -22,7 +22,6 @@
 #include <strings.h>
 
 #include "defines.h"
-#include "resolve.h"
 #include "conn.h"
 #include "conn-func.h"
 #include "conn-zip.h"

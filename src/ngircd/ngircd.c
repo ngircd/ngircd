@@ -39,7 +39,6 @@
 #endif
 
 #include "defines.h"
-#include "resolve.h"
 #include "conn.h"
 #include "conf-ssl.h"
 #include "client.h"

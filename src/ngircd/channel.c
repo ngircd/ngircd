@@ -34,7 +34,6 @@
 
 #include "imp.h"
 #include "irc-write.h"
-#include "resolve.h"
 #include "conf.h"
 #include "hash.h"
 #include "lists.h"

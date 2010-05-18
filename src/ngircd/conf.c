@@ -44,7 +44,6 @@
 #include "defines.h"
 #include "log.h"
 #include "match.h"
-#include "resolve.h"
 #include "tool.h"
 
 #include "exp.h"

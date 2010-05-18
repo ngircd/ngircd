@@ -29,7 +29,6 @@
 #include "log.h"
 #include "parse.h"
 #include "messages.h"
-#include "resolve.h"
 #include "conf.h"
 
 #include "exp.h"

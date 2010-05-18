@@ -32,7 +32,6 @@
 #include "parse.h"
 #include "irc-info.h"
 #include "irc-write.h"
-#include "resolve.h"
 #include "conf.h"
 
 #include "exp.h"

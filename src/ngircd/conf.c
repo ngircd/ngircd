@@ -1481,7 +1481,7 @@ Init_Server_Struct( CONF_SERVER *Server )
 
 	if( NGIRCd_Passive ) Server->flags = CONF_SFLAG_DISABLED;
 
-	Resolve_Init(&Server->res_stat);
+	Proc_InitStruct(&Server->res_stat);
 	Server->conn_id = NONE;
 	memset(&Server->bind_addr, 0, sizeof(&Server->bind_addr));
 } /* Init_Server_Struct */

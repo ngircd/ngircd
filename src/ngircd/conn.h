@@ -48,7 +48,7 @@ typedef long CONN_ID;
 #ifdef CONN_MODULE
 
 #include "defines.h"
-#include "resolve.h"
+#include "proc.h"
 #include "array.h"
 #include "tool.h"
 #include "ng_ipaddr.h"
@@ -69,7 +69,7 @@ typedef struct _Connection
 {
 	int sock;			/* Socket handle */
 	ng_ipaddr_t addr;		/* Client address */
-	RES_STAT res_stat;		/* Status of resolver process */
+	PROC_STAT res_stat;		/* Status of resolver process */
 	char host[HOST_LEN];		/* Hostname */
 	array rbuf;			/* Read buffer */
 	array wbuf;			/* Write buffer */

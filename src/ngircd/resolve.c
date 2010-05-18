@@ -30,9 +30,12 @@
 #endif
 #endif
 
+#include "array.h"
 #include "conn.h"
 #include "defines.h"
 #include "log.h"
+#include "ng_ipaddr.h"
+#include "proc.h"
 
 #include "exp.h"
 #include "resolve.h"
@@ -41,46 +44,18 @@
 
 static void Do_ResolveAddr PARAMS(( const ng_ipaddr_t *Addr, int Sock, int w_fd ));
 static void Do_ResolveName PARAMS(( const char *Host, int w_fd ));
-static bool register_callback PARAMS((RES_STAT *s, void (*cbfunc)(int, short)));
 
 #ifdef WANT_IPV6
 extern bool Conf_ConnectIPv4;
 extern bool Conf_ConnectIPv6;
 #endif
 
-static pid_t
-Resolver_fork(int *pipefds)
-{
-	pid_t pid;
-
-	if (pipe(pipefds) != 0) {
-                Log( LOG_ALERT, "Resolver: Can't create output pipe: %s!", strerror( errno ));
-                return -1;
-	}
-
-	pid = fork();
-	switch(pid) {
-		case -1:
-			Log( LOG_CRIT, "Resolver: Can't fork: %s!", strerror( errno ));
-			close(pipefds[0]);
-			close(pipefds[1]);
-			return -1;
-		case 0: /* child */
-			close(pipefds[0]);
-			Log_Init_Resolver( );
-			return 0;
-	}
-	/* parent */
-	close(pipefds[1]);
-	return pid; 
-}
-
 
 /**
  * Resolve IP (asynchronous!).
  */
 GLOBAL bool
-Resolve_Addr(RES_STAT * s, const ng_ipaddr_t *Addr, int identsock,
+Resolve_Addr(PROC_STAT * s, const ng_ipaddr_t *Addr, int identsock,
 	     void (*cbfunc) (int, short))
 {
 	int pipefd[2];
@@ -88,15 +63,13 @@ Resolve_Addr(RES_STAT * s, const ng_ipaddr_t *Addr, int identsock,
 
 	assert(s != NULL);
 
-	pid = Resolver_fork(pipefd);
+	pid = Proc_Fork(s, pipefd, cbfunc);
 	if (pid > 0) {
 		LogDebug("Resolver for %s created (PID %d).", ng_ipaddr_tostr(Addr), pid);
-
-		s->pid = pid;
-		s->resolver_fd = pipefd[0];
-		return register_callback(s, cbfunc);
+		return true;
 	} else if( pid == 0 ) {
 		/* Sub process */
+		Log_Init_Resolver();
 		Do_ResolveAddr( Addr, identsock, pipefd[1]);
 		Log_Exit_Resolver( );
 		exit(0);
@@ -109,39 +82,29 @@ Resolve_Addr(RES_STAT * s, const ng_ipaddr_t *Addr, int identsock,
  * Resolve hostname (asynchronous!).
  */
 GLOBAL bool
-Resolve_Name( RES_STAT *s, const char *Host, void (*cbfunc)(int, short))
+Resolve_Name( PROC_STAT *s, const char *Host, void (*cbfunc)(int, short))
 {
 	int pipefd[2];
 	pid_t pid;
 
 	assert(s != NULL);
 
-	pid = Resolver_fork(pipefd);
+	pid = Proc_Fork(s, pipefd, cbfunc);
 	if (pid > 0) {
 		/* Main process */
 #ifdef DEBUG
 		Log( LOG_DEBUG, "Resolver for \"%s\" created (PID %d).", Host, pid );
 #endif
-		s->pid = pid;
-		s->resolver_fd = pipefd[0];
-		return register_callback(s, cbfunc);
+		return true;
 	} else if( pid == 0 ) {
 		/* Sub process */
+		Log_Init_Resolver();
 		Do_ResolveName(Host, pipefd[1]);
 		Log_Exit_Resolver( );
 		exit(0);
 	}
 	return false;
 } /* Resolve_Name */
-
-
-GLOBAL void
-Resolve_Init(RES_STAT *s)
-{
-	assert(s != NULL);
-	s->resolver_fd = -1;
-	s->pid = 0;
-}
 
 
 #if !defined(HAVE_GETADDRINFO) || !defined(HAVE_GETNAMEINFO)
@@ -482,52 +445,18 @@ Do_ResolveName( const char *Host, int w_fd )
 } /* Do_ResolveName */
 
 
-static bool
-register_callback( RES_STAT *s, void (*cbfunc)(int, short))
-{
-	assert(cbfunc != NULL);
-	assert(s != NULL);
-	assert(s->resolver_fd >= 0);
-
-	if (io_setnonblock(s->resolver_fd) &&
-		io_event_create(s->resolver_fd, IO_WANTREAD, cbfunc))
-			return true;
-
-	Log( LOG_CRIT, "Resolver: Could not register callback function: %s!", strerror(errno));
-	close(s->resolver_fd);
-	Resolve_Init(s);
-	return false;
-}
-
-
-GLOBAL bool
-Resolve_Shutdown( RES_STAT *s)
-{
-	bool ret = false;
-
-	assert(s != NULL);
-	assert(s->resolver_fd >= 0);
-
-	if (s->resolver_fd >= 0)
-		ret = io_close(s->resolver_fd);
-
-	Resolve_Init(s);
-	return ret;
-}
-
-
 /**
  * Read result of resolver sub-process from pipe
  */
 GLOBAL size_t
-Resolve_Read( RES_STAT *s, void* readbuf, size_t buflen)
+Resolve_Read( PROC_STAT *s, void* readbuf, size_t buflen)
 {
 	ssize_t bytes_read;
 
 	assert(buflen > 0);
 
 	/* Read result from pipe */
-	bytes_read = read(s->resolver_fd, readbuf, buflen);
+	bytes_read = read(Proc_GetPipeFd(s), readbuf, buflen);
 	if (bytes_read < 0) {
 		if (errno == EAGAIN)
 			return 0;
@@ -539,7 +468,7 @@ Resolve_Read( RES_STAT *s, void* readbuf, size_t buflen)
 	else if (bytes_read == 0)
 		Log( LOG_DEBUG, "Resolver: Can't read result: EOF");
 #endif
-	Resolve_Shutdown(s);
+	Proc_Kill(s);
 	return (size_t)bytes_read;
 }
 

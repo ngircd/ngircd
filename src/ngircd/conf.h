@@ -22,7 +22,7 @@
 #include "portab.h"
 #include "tool.h"
 #include "ng_ipaddr.h"
-#include "resolve.h"
+#include "proc.h"
 #include "conf-ssl.h"
 
 
@@ -41,7 +41,7 @@ typedef struct _Conf_Server
 	UINT16 port;			/* Server port */
 	int group;			/* Group of server */
 	time_t lasttry;			/* Last connect attempt */
-	RES_STAT res_stat;		/* Status of the resolver */
+	PROC_STAT res_stat;		/* Status of the resolver */
 	int flags;			/* Flags */
 	CONN_ID conn_id;		/* ID of server connection or NONE */
 	ng_ipaddr_t bind_addr;		/* source address to use for outgoing

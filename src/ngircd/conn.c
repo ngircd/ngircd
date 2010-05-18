@@ -21,9 +21,9 @@
 #include "imp.h"
 #include <assert.h>
 #ifdef PROTOTYPES
-#	include <stdarg.h>
+# include <stdarg.h>
 #else
-#	include <varargs.h>
+# include <varargs.h>
 #endif
 #include <stdio.h>
 #include <stdlib.h>
@@ -53,20 +53,23 @@
 
 #include "array.h"
 #include "defines.h"
-#include "resolve.h"
 
 #include "exp.h"
 #include "conn.h"
 
 #include "imp.h"
 #include "ngircd.h"
+#include "array.h"
 #include "client.h"
 #include "conf.h"
 #include "conn-ssl.h"
 #include "conn-zip.h"
 #include "conn-func.h"
 #include "log.h"
+#include "ng_ipaddr.h"
 #include "parse.h"
+#include "proc.h"
+#include "resolve.h"
 #include "tool.h"
 
 #ifdef ZEROCONF
@@ -752,7 +755,7 @@ Conn_Handler(void)
 			if (SSL_WantWrite(&My_Connections[i]))
 				continue; /* TLS/SSL layer needs to write data; deal with this first */
 #endif
-			if (Resolve_INPROGRESS(&My_Connections[i].res_stat)) {
+			if (Proc_InProgress(&My_Connections[i].res_stat)) {
 				/* Wait for completion of resolver sub-process ... */
 				io_event_del(My_Connections[i].sock,
 					     IO_WANTREAD);
@@ -1071,8 +1074,8 @@ Conn_Close( CONN_ID Idx, const char *LogMsg, const char *FwdMsg, bool InformClie
 	}
 
 	/* cancel running resolver */
-	if (Resolve_INPROGRESS(&My_Connections[Idx].res_stat))
-		Resolve_Shutdown(&My_Connections[Idx].res_stat);
+	if (Proc_InProgress(&My_Connections[Idx].res_stat))
+		Proc_Kill(&My_Connections[Idx].res_stat);
 
 	/* Servers: Modify time of next connect attempt? */
 	Conf_UnsetServer( Idx );
@@ -1763,7 +1766,7 @@ Check_Servers( void )
 		/* Okay, try to connect now */
 		Conf_Server[i].lasttry = time_now;
 		Conf_Server[i].conn_id = SERVER_WAIT;
-		assert(Resolve_Getfd(&Conf_Server[i].res_stat) < 0);
+		assert(Proc_GetPipeFd(&Conf_Server[i].res_stat) < 0);
 		Resolve_Name(&Conf_Server[i].res_stat, Conf_Server[i].host, cb_Connect_to_Server);
 	}
 } /* Check_Servers */
@@ -1886,7 +1889,7 @@ Init_Conn_Struct(CONN_ID Idx)
 	My_Connections[Idx].signon = now;
 	My_Connections[Idx].lastdata = now;
 	My_Connections[Idx].lastprivmsg = now;
-	Resolve_Init(&My_Connections[Idx].res_stat);
+	Proc_InitStruct(&My_Connections[Idx].res_stat);
 } /* Init_Conn_Struct */
 
 
@@ -1941,7 +1944,7 @@ cb_Connect_to_Server(int fd, UNUSED short events)
 	LogDebug("Resolver: Got forward lookup callback on fd %d, events %d", fd, events);
 
 	for (i=0; i < MAX_SERVERS; i++) {
-		  if (Resolve_Getfd(&Conf_Server[i].res_stat) == fd )
+		  if (Proc_GetPipeFd(&Conf_Server[i].res_stat) == fd )
 			  break;
 	}
 
@@ -2000,7 +2003,7 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 	/* Search associated connection ... */
 	for( i = 0; i < Pool_Size; i++ ) {
 		if(( My_Connections[i].sock != NONE )
-		  && ( Resolve_Getfd(&My_Connections[i].res_stat) == r_fd ))
+		  && (Proc_GetPipeFd(&My_Connections[i].res_stat) == r_fd))
 			break;
 	}
 	if( i >= Pool_Size ) {

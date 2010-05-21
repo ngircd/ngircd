@@ -69,7 +69,7 @@ typedef struct _Connection
 {
 	int sock;			/* Socket handle */
 	ng_ipaddr_t addr;		/* Client address */
-	PROC_STAT res_stat;		/* Status of resolver process */
+	PROC_STAT proc_stat;		/* Status of resolver process */
 	char host[HOST_LEN];		/* Hostname */
 	array rbuf;			/* Read buffer */
 	array wbuf;			/* Write buffer */

@@ -755,7 +755,7 @@ Conn_Handler(void)
 			if (SSL_WantWrite(&My_Connections[i]))
 				continue; /* TLS/SSL layer needs to write data; deal with this first */
 #endif
-			if (Proc_InProgress(&My_Connections[i].res_stat)) {
+			if (Proc_InProgress(&My_Connections[i].proc_stat)) {
 				/* Wait for completion of resolver sub-process ... */
 				io_event_del(My_Connections[i].sock,
 					     IO_WANTREAD);
@@ -1074,8 +1074,8 @@ Conn_Close( CONN_ID Idx, const char *LogMsg, const char *FwdMsg, bool InformClie
 	}
 
 	/* cancel running resolver */
-	if (Proc_InProgress(&My_Connections[Idx].res_stat))
-		Proc_Kill(&My_Connections[Idx].res_stat);
+	if (Proc_InProgress(&My_Connections[Idx].proc_stat))
+		Proc_Kill(&My_Connections[Idx].proc_stat);
 
 	/* Servers: Modify time of next connect attempt? */
 	Conf_UnsetServer( Idx );
@@ -1377,7 +1377,7 @@ New_Connection(int Sock)
 		identsock = -1;
 #endif
 	if (!Conf_NoDNS)
-		Resolve_Addr(&My_Connections[new_sock].res_stat, &new_addr,
+		Resolve_Addr(&My_Connections[new_sock].proc_stat, &new_addr,
 			     identsock, cb_Read_Resolver_Result);
 
 	/* ngIRCd waits up to 4 seconds for the result of the asynchronous
@@ -1889,7 +1889,7 @@ Init_Conn_Struct(CONN_ID Idx)
 	My_Connections[Idx].signon = now;
 	My_Connections[Idx].lastdata = now;
 	My_Connections[Idx].lastprivmsg = now;
-	Proc_InitStruct(&My_Connections[Idx].res_stat);
+	Proc_InitStruct(&My_Connections[Idx].proc_stat);
 } /* Init_Conn_Struct */
 
 
@@ -2003,7 +2003,7 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 	/* Search associated connection ... */
 	for( i = 0; i < Pool_Size; i++ ) {
 		if(( My_Connections[i].sock != NONE )
-		  && (Proc_GetPipeFd(&My_Connections[i].res_stat) == r_fd))
+		  && (Proc_GetPipeFd(&My_Connections[i].proc_stat) == r_fd))
 			break;
 	}
 	if( i >= Pool_Size ) {
@@ -2015,7 +2015,7 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 	}
 
 	/* Read result from pipe */
-	len = Resolve_Read(&My_Connections[i].res_stat, readbuf, sizeof readbuf -1);
+	len = Resolve_Read(&My_Connections[i].proc_stat, readbuf, sizeof readbuf -1);
 	if (len == 0)
 		return;
 

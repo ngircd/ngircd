@@ -756,7 +756,8 @@ Conn_Handler(void)
 				continue; /* TLS/SSL layer needs to write data; deal with this first */
 #endif
 			if (Proc_InProgress(&My_Connections[i].proc_stat)) {
-				/* Wait for completion of resolver sub-process ... */
+				/* Wait for completion of forked subprocess
+				 * and ignore the socket in the meantime ... */
 				io_event_del(My_Connections[i].sock,
 					     IO_WANTREAD);
 				continue;
@@ -772,6 +773,7 @@ Conn_Handler(void)
 					     IO_WANTREAD);
 				continue;
 			}
+
 			io_event_add(My_Connections[i].sock, IO_WANTREAD);
 		}
 
@@ -1073,7 +1075,7 @@ Conn_Close( CONN_ID Idx, const char *LogMsg, const char *FwdMsg, bool InformClie
 		    in_k, out_k);
 	}
 
-	/* cancel running resolver */
+	/* Kill possibly running subprocess */
 	if (Proc_InProgress(&My_Connections[Idx].proc_stat))
 		Proc_Kill(&My_Connections[Idx].proc_stat);
 

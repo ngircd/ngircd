@@ -1382,11 +1382,6 @@ New_Connection(int Sock)
 		Resolve_Addr(&My_Connections[new_sock].proc_stat, &new_addr,
 			     identsock, cb_Read_Resolver_Result);
 
-	/* ngIRCd waits up to 4 seconds for the result of the asynchronous
-	 * DNS and IDENT resolver subprocess using the "penalty" mechanism.
-	 * If there are results earlier, the delay is aborted. */
-	Conn_SetPenalty(new_sock, 4);
-
 	Account_Connection();
 	return new_sock;
 } /* New_Connection */

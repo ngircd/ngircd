@@ -172,6 +172,16 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 				else ok = IRC_WriteStrClient( Origin, ERR_NOPRIVILEGES_MSG, Client_ID( Origin ));
 				break;
 
+			case 'c': /* Receive connect notices
+				   * (only settable by IRC operators!) */
+				if(!set || Client_OperByMe(Origin)
+				   || Client_Type(Client) == CLIENT_SERVER)
+					x[0] = 'c';
+				else
+					ok = IRC_WriteStrClient(Origin,
+							ERR_NOPRIVILEGES_MSG,
+							Client_ID(Origin));
+				break;
 			case 'o': /* IRC operator (only unsettable!) */
 				if(( ! set ) || ( Client_Type( Client ) == CLIENT_SERVER ))
 				{

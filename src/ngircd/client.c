@@ -1136,6 +1136,9 @@ Destroy_UserOrService(CLIENT *Client, const char *Txt, const char *FwdMsg, bool 
 		    "%s \"%s\" unregistered (connection %d): %s",
 		    Client_TypeText(Client), Client_Mask(Client),
 		    Client->conn_id, Txt);
+		Log_ServerNotice('c', "Client exiting: %s (%s@%s) [%s]",
+			         Client_ID(Client), Client_User(Client),
+				 Client_Hostname(Client), Txt);
 
 		if (SendQuit) {
 			/* Inforam all the other servers */

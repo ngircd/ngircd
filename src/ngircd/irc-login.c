@@ -840,10 +840,16 @@ Introduce_Client(CLIENT *From, CLIENT *Client, int Type)
 			 Client_Modes(Client), Client_ID(From),
 			 Client_ID(Client_Introducer(Client)),
 			 Client_Hops(Client), Client_Hops(Client) > 1 ? "s": "");
-	} else
+	} else {
 		Log(LOG_NOTICE, "%s \"%s\" registered (connection %d).",
 		    Client_TypeText(Client), Client_Mask(Client),
 		    Client_Conn(Client));
+		Log_ServerNotice('c', "Client connecting: %s (%s@%s) [%s] - %s",
+			         Client_ID(Client), Client_User(Client),
+				 Client_Hostname(Client),
+				 Conn_IPA(Client_Conn(Client)),
+				 Client_TypeText(Client));
+	}
 
 	/* Inform other servers */
 	IRC_WriteStrServersPrefixFlag_CB(From,

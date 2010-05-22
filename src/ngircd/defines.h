@@ -80,7 +80,7 @@
 #define RECONNECT_DELAY 3		/* Time to delay re-connect attempts
 					   in seconds. */
 
-#define USERMODES "aiorsw"		/* Supported user modes. */
+#define USERMODES "aciorsw"		/* Supported user modes. */
 #define CHANMODES "biIklmnoPstvz"	/* Supported channel modes. */
 
 #define CONNECTED true			/* Internal status codes. */

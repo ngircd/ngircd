@@ -273,6 +273,16 @@ Conn_RecvBytes( CONN_ID Idx )
 	return My_Connections[Idx].bytes_in;
 } /* Conn_RecvBytes */
 
+/**
+ * Return the remote IP address of this connection as string.
+ */
+GLOBAL const char *
+Conn_IPA(CONN_ID Idx)
+{
+	assert (Idx > NONE);
+	return ng_ipaddr_tostr(&My_Connections[Idx].addr);
+}
+
 
 GLOBAL void
 Conn_ResetWCounter( void )

@@ -160,11 +160,15 @@ IRC_KILL( CLIENT *Client, REQUEST *Req )
 			     Client_Type( c ), Req->argv[0] );
 		}
 
-		/* Kill client NOW! */
+		/* Kill the client NOW:
+		 *  - Close the local connection (if there is one),
+		 *  - Destroy the CLIENT structure for remote clients.
+		 * Note: Conn_Close() removes the CLIENT structure as well. */
 		conn = Client_Conn( c );
-		Client_Destroy( c, NULL, reason, false );
-		if( conn > NONE )
-			Conn_Close( conn, NULL, reason, true );
+		if(conn > NONE)
+			Conn_Close(conn, NULL, reason, true);
+		else
+			Client_Destroy(c, NULL, reason, false);
 	}
 	else
 		Log( LOG_NOTICE, "Client with nick \"%s\" is unknown here.", Req->argv[0] );

@@ -1,14 +1,12 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2010 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
- *
- * $Id: log.h,v 1.20 2006/08/05 09:16:21 fw Exp $
  *
  * Logging functions (header)
  */
@@ -40,12 +38,13 @@ GLOBAL void Log_Exit PARAMS(( void ));
 
 GLOBAL void Log PARAMS(( int Level, const char *Format, ... ));
 
+GLOBAL void Log_ServerNotice PARAMS((char UserMode, const char *Format, ...));
+
 #ifdef DEBUG
 GLOBAL void LogDebug PARAMS(( const char *Format, ... ));
 #else
 static inline void LogDebug PARAMS(( UNUSED const char *Format, ... )){/* Do nothing. The compiler should optimize this out, please ;-) */}
 #endif
-
 
 GLOBAL void Log_Init_Resolver PARAMS(( void ));
 GLOBAL void Log_Exit_Resolver PARAMS(( void ));

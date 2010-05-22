@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2005 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2010 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,8 +49,6 @@ static bool Is_Daemon;
 static char Error_File[FNAME_LEN];
 #endif
 
-
-static void Wall_ServerNotice PARAMS(( char *Msg ));
 
 static void
 Log_Message(int Level, const char *msg)
@@ -260,7 +258,7 @@ va_dcl
 	if (snotice) {
 		/* Send NOTICE to all local users with mode +s and to the
 		 * local &SERVER channel */
-		Wall_ServerNotice(msg);
+		Log_ServerNotice('s', "%s", msg);
 		Channel_LogServer(msg);
 	}
 } /* Log */
@@ -328,25 +326,41 @@ va_dcl
 
 
 /**
- * Send log messages to users flagged with the "s" mode.
- * @param Msg The message to send.
+ * Send a log message to all local users flagged with the given user mode.
+ * @param UserMode User mode which the target user must have set,
+ * @param Format The format string.
  */
-static void
-Wall_ServerNotice( char *Msg )
+#ifdef PROTOTYPES
+GLOBAL void
+Log_ServerNotice(const char UserMode, const char *Format, ... )
+#else
+GLOBAL void
+Log_ServerNotice(UserMode, Format, va_alist)
+const char UserMode;
+const char *Format;
+va_dcl
+#endif
 {
 	CLIENT *c;
+	char msg[MAX_LOG_MSG_LEN];
+	va_list ap;
 
-	assert( Msg != NULL );
+	assert(Format != NULL);
 
-	c = Client_First( );
-	while(c) {
-		if (Client_Conn(c) > NONE && Client_HasMode(c, 's'))
+#ifdef PROTOTYPES
+	va_start(ap, Format);
+#else
+	va_start(ap);
+#endif
+	vsnprintf(msg, MAX_LOG_MSG_LEN, Format, ap);
+	va_end(ap);
+
+	for(c=Client_First(); c != NULL; c=Client_Next(c)) {
+		if (Client_Conn(c) > NONE && Client_HasMode(c, UserMode))
 			IRC_WriteStrClient(c, "NOTICE %s :%s%s", Client_ID(c),
-							NOTICE_TXTPREFIX, Msg);
-
-		c = Client_Next( c );
+							NOTICE_TXTPREFIX, msg);
 	}
-} /* Wall_ServerNotice */
+} /* Log_ServerNotice */
 
 
 /* -eof- */

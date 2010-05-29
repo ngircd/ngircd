@@ -542,7 +542,6 @@ AC_DEFINE_UNQUOTED(TARGET_OS, "$target_os" )
 
 # Add additional CFLAGS, eventually specified on the command line, but after
 # running this configure script. Useful for "-Werror" for example.
-test "$GCC" = "yes" && CFLAGS="$CFLAGS -Werror=implicit-function-declaration"
 test -n "$CFLAGS_END" && CFLAGS="$CFLAGS $CFLAGS_END"
 
 # -- Generate files --

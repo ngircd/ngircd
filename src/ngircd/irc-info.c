@@ -993,6 +993,13 @@ IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 		if( ! IRC_WriteStrClient( from, RPL_WHOISOPERATOR_MSG, Client_ID( from ), Client_ID( c ))) return DISCONNECTED;
 	}
 
+	/* Connected using SSL? */
+	if (Conn_UsesSSL(Client_Conn(c))) {
+		if (!IRC_WriteStrClient
+		    (from, RPL_WHOISSSL_MSG, Client_ID(from), Client_ID(c)))
+			return DISCONNECTED;
+	}
+
 	/* Idle and signon time (local clients only!) */
 	if (Client_Conn(c) > NONE ) {
 		if (! IRC_WriteStrClient(from, RPL_WHOISIDLE_MSG,

@@ -47,6 +47,7 @@
 #define RPL_LOCALUSERS_MSG		"265 %s %lu %lu :Current local users: %lu, Max: %lu"
 #define RPL_NETUSERS_MSG		"266 %s %lu %lu :Current global users: %lu, Max: %lu"
 #define RPL_STATSCONN_MSG		"250 %s :Highest connection count: %lu (%lu connections received)"
+#define RPL_WHOISSSL_MSG		"275 %s %s :is connected via SSL (secure link)"
 
 #define RPL_AWAY_MSG			"301 %s %s :%s"
 #define RPL_USERHOST_MSG		"302 %s :"

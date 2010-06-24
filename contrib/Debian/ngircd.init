@@ -1,13 +1,13 @@
 #!/bin/sh
 #
 # ngIRCd start and stop script for Debian-based systems
-# Copyright 2008,2009 Alexander Barton <alex@barton.de>
+# Copyright 2008-2010 Alexander Barton <alex@barton.de>
 #
 
 ### BEGIN INIT INFO
 # Provides:		ngircd
 # Required-Start:	$network $remote_fs
-# Required-Stop:
+# Required-Stop:	$network $remote_fs
 # Should-Start:		$syslog $named
 # Should-Stop:		$syslog
 # Default-Start:	2 3 4 5

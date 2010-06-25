@@ -809,12 +809,12 @@ Conn_Handler(void)
  */
 #ifdef PROTOTYPES
 GLOBAL bool
-Conn_WriteStr( CONN_ID Idx, char *Format, ... )
+Conn_WriteStr(CONN_ID Idx, const char *Format, ...)
 #else
 GLOBAL bool 
-Conn_WriteStr( Idx, Format, va_alist )
+Conn_WriteStr(Idx, Format, va_alist)
 CONN_ID Idx;
-char *Format;
+const char *Format;
 va_dcl
 #endif
 {

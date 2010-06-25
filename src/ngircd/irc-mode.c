@@ -36,13 +36,18 @@
 #include "irc-mode.h"
 
 
-static bool Client_Mode PARAMS(( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target ));
-static bool Channel_Mode PARAMS(( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel ));
+static bool Client_Mode PARAMS(( CLIENT *Client, REQUEST *Req, CLIENT *Origin,
+	CLIENT *Target ));
+static bool Channel_Mode PARAMS(( CLIENT *Client, REQUEST *Req, CLIENT *Origin,
+	CHANNEL *Channel ));
 
-static bool Add_Ban_Invite PARAMS((int what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, const char *Pattern));
-static bool Del_Ban_Invite PARAMS((int what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, const char *Pattern));
+static bool Add_Ban_Invite PARAMS((int what, CLIENT *Prefix, CLIENT *Client,
+	CHANNEL *Channel, const char *Pattern));
+static bool Del_Ban_Invite PARAMS((int what, CLIENT *Prefix, CLIENT *Client,
+	CHANNEL *Channel, const char *Pattern));
 
-static bool Send_ListChange PARAMS(( char *Mode, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, const char *Mask ));
+static bool Send_ListChange PARAMS((const char *Mode, CLIENT *Prefix,
+	CLIENT *Client, CHANNEL *Channel, const char *Mask));
 
 
 GLOBAL bool
@@ -758,7 +763,8 @@ Del_Ban_Invite(int what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, const
 
 
 static bool
-Send_ListChange( char *Mode, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, const char *Mask )
+Send_ListChange(const char *Mode, CLIENT *Prefix, CLIENT *Client,
+		CHANNEL *Channel, const char *Mask)
 {
 	bool ok;
 

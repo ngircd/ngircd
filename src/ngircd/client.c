@@ -1104,7 +1104,7 @@ Client_RegisterWhowas( CLIENT *Client )
 } /* Client_RegisterWhowas */
 
 
-GLOBAL char *
+GLOBAL const char *
 Client_TypeText(CLIENT *Client)
 {
 	assert(Client != NULL);

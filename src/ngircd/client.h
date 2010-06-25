@@ -146,7 +146,7 @@ GLOBAL int Client_GetLastWhowasIndex PARAMS(( void ));
 
 GLOBAL void Client_RegisterWhowas PARAMS(( CLIENT *Client ));
 
-GLOBAL char * Client_TypeText PARAMS((CLIENT *Client));
+GLOBAL const char *Client_TypeText PARAMS((CLIENT *Client));
 
 #endif
 

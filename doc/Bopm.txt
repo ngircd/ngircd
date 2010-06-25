@@ -1,0 +1,53 @@
+
+                     ngIRCd - Next Generation IRC Server
+
+                        (c)2001-2010 Alexander Barton,
+                    alex@barton.de, http://www.barton.de/
+
+               ngIRCd is free software and published under the
+                   terms of the GNU General Public License.
+
+                                -- BOPM.txt --
+
+
+I. Introduction
+~~~~~~~~~~~~~~~~
+
+Citing <http://wiki.blitzed.org/BOPM>: "BOPM is an open source open proxy
+monitor, designed for use with hybrid-based ircds, although it can be used
+with slight modification on any server which has the ability to show connects
+to opers and that supports KLINEs."
+
+And starting with Release 17, ngIRCd supports all required log messages that
+BOPM requires to be useful.
+
+II. Installation
+~~~~~~~~~~~~~~~~~
+
+Install BOPM as usual, please see the BOPM documentation for details.
+Afterwards adjust the following configuration parameters that are important
+for ngIRCd:
+
+a) BOPM "IRC" section:
+
+  1) Set "server" and "port" accordingly,
+
+  2) adjust the "oper" line to match an [Operator] block in ngircd.conf,
+
+  3) change "mode" to "+ci" or "+c".
+
+  4) Set "connregex" to the following string, everything in one line(!):
+     "\\*\\*\\* Notice -- Client connecting: ([^ ]+) \\(([^@]+)@([^\\)]+)\\) \\[([0-9\\.]+)\\].*";
+     and comment all the other "connregex" examples (prepend a "#" character).
+
+  5) Set "kline" to "KILL %n :Open proxy found on your host!"; for example,
+     and comment all the other "kline" examples.
+
+b) BOPM "scanner" section:
+
+  Make sure you configure a valid "target_ip" and "target_port" for the
+  configured scanners to test. And please note that you CAN'T USE the port
+  of ngIRCd, because ngIRCd doesn't send any banner message by default!
+
+  So you need a service what sends a banner, so for example POP3, SMTP,
+  IMAP, or SSH daemons should work ...

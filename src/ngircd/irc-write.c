@@ -37,19 +37,19 @@
 #define SEND_TO_SERVER 2
 
 
-static char *Get_Prefix PARAMS((CLIENT *Target, CLIENT *Client));
+static const char *Get_Prefix PARAMS((CLIENT *Target, CLIENT *Client));
 static void cb_writeStrServersPrefixFlag PARAMS((CLIENT *Client,
 					 CLIENT *Prefix, void *Buffer));
 
 
 #ifdef PROTOTYPES
 GLOBAL bool
-IRC_WriteStrClient( CLIENT *Client, char *Format, ... )
+IRC_WriteStrClient( CLIENT *Client, const char *Format, ... )
 #else
 GLOBAL bool
 IRC_WriteStrClient( Client, Format, va_alist )
 CLIENT *Client;
-char *Format;
+const char *Format;
 va_dcl
 #endif
 {
@@ -77,13 +77,13 @@ va_dcl
 
 #ifdef PROTOTYPES
 GLOBAL bool
-IRC_WriteStrClientPrefix( CLIENT *Client, CLIENT *Prefix, char *Format, ... )
+IRC_WriteStrClientPrefix(CLIENT *Client, CLIENT *Prefix, const char *Format, ...)
 #else
 GLOBAL bool
-IRC_WriteStrClientPrefix( Client, Prefix, Format, va_alist )
+IRC_WriteStrClientPrefix(Client, Prefix, Format, va_alist)
 CLIENT *Client;
 CLIENT *Prefix;
-char *Format;
+const char *Format;
 va_dcl
 #endif
 {
@@ -110,14 +110,15 @@ va_dcl
 
 #ifdef PROTOTYPES
 GLOBAL bool
-IRC_WriteStrChannel( CLIENT *Client, CHANNEL *Chan, bool Remote, char *Format, ... )
+IRC_WriteStrChannel(CLIENT *Client, CHANNEL *Chan, bool Remote,
+		    const char *Format, ...)
 #else
 GLOBAL bool
-IRC_WriteStrChannel( Client, Chan, Remote, Format, va_alist )
+IRC_WriteStrChannel(Client, Chan, Remote, Format, va_alist)
 CLIENT *Client;
 CHANNEL *Chan;
 bool Remote;
-char *Format;
+const char *Format;
 va_dcl
 #endif
 {
@@ -146,15 +147,16 @@ va_dcl
  */
 #ifdef PROTOTYPES
 GLOBAL bool
-IRC_WriteStrChannelPrefix( CLIENT *Client, CHANNEL *Chan, CLIENT *Prefix, bool Remote, char *Format, ... )
+IRC_WriteStrChannelPrefix(CLIENT *Client, CHANNEL *Chan, CLIENT *Prefix,
+			  bool Remote, const char *Format, ...)
 #else
 GLOBAL bool
-IRC_WriteStrChannelPrefix( Client, Chan, Prefix, Remote, Format, va_alist )
+IRC_WriteStrChannelPrefix(Client, Chan, Prefix, Remote, Format, va_alist)
 CLIENT *Client;
 CHANNEL *Chan;
 CLIENT *Prefix;
 bool Remote;
-char *Format;
+const char *Format;
 va_dcl
 #endif
 {
@@ -218,12 +220,12 @@ va_dcl
 
 #ifdef PROTOTYPES
 GLOBAL void
-IRC_WriteStrServers( CLIENT *ExceptOf, char *Format, ... )
+IRC_WriteStrServers(CLIENT *ExceptOf, const char *Format, ...)
 #else
 GLOBAL void
-IRC_WriteStrServers( ExceptOf, Format, va_alist )
+IRC_WriteStrServers(ExceptOf, Format, va_alist)
 CLIENT *ExceptOf;
-char *Format;
+const char *Format;
 va_dcl
 #endif
 {
@@ -246,13 +248,14 @@ va_dcl
 
 #ifdef PROTOTYPES
 GLOBAL void
-IRC_WriteStrServersPrefix( CLIENT *ExceptOf, CLIENT *Prefix, char *Format, ... )
+IRC_WriteStrServersPrefix(CLIENT *ExceptOf, CLIENT *Prefix,
+			  const char *Format, ...)
 #else
 GLOBAL void
-IRC_WriteStrServersPrefix( ExceptOf, Prefix, Format, va_alist )
+IRC_WriteStrServersPrefix(ExceptOf, Prefix, Format, va_alist)
 CLIENT *ExceptOf;
 CLIENT *Prefix;
-char *Format;
+const char *Format;
 va_dcl
 #endif
 {
@@ -276,14 +279,15 @@ va_dcl
 
 #ifdef PROTOTYPES
 GLOBAL void
-IRC_WriteStrServersPrefixFlag( CLIENT *ExceptOf, CLIENT *Prefix, char Flag, char *Format, ... )
+IRC_WriteStrServersPrefixFlag(CLIENT *ExceptOf, CLIENT *Prefix, char Flag,
+			      const char *Format, ...)
 #else
 GLOBAL void
-IRC_WriteStrServersPrefixFlag( ExceptOf, Prefix, Flag, Format, va_alist )
+IRC_WriteStrServersPrefixFlag(ExceptOf, Prefix, Flag, Format, va_alist)
 CLIENT *ExceptOf;
 CLIENT *Prefix;
 char Flag;
-char *Format;
+const char *Format;
 va_dcl
 #endif
 {
@@ -331,14 +335,15 @@ IRC_WriteStrServersPrefixFlag_CB(CLIENT *ExceptOf, CLIENT *Prefix, char Flag,
  */
 #ifdef PROTOTYPES
 GLOBAL bool
-IRC_WriteStrRelatedPrefix( CLIENT *Client, CLIENT *Prefix, bool Remote, char *Format, ... )
+IRC_WriteStrRelatedPrefix(CLIENT *Client, CLIENT *Prefix, bool Remote,
+			  const char *Format, ...)
 #else
 GLOBAL bool
-IRC_WriteStrRelatedPrefix( Client, Prefix, Remote, Format, va_alist )
+IRC_WriteStrRelatedPrefix(Client, Prefix, Remote, Format, va_alist)
 CLIENT *Client;
 CLIENT *Prefix;
 bool Remote;
-char *Format;
+const char *Format;
 va_dcl
 #endif
 {
@@ -416,7 +421,7 @@ GLOBAL void
 IRC_SendWallops(Client, From, Format, va_alist )
 CLIENT *Client;
 CLIENT *From;
-char *Format;
+const char *Format;
 va_dcl
 #endif
 {
@@ -468,7 +473,7 @@ IRC_SetPenalty( CLIENT *Client, time_t Seconds )
 } /* IRC_SetPenalty */
 
 
-static char *
+static const char *
 Get_Prefix( CLIENT *Target, CLIENT *Client )
 {
 	assert( Target != NULL );

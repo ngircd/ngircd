@@ -14,26 +14,27 @@
 #ifndef __irc_write_h__
 #define __irc_write_h__
 
-GLOBAL bool IRC_WriteStrClient PARAMS((CLIENT *Client, char *Format, ...));
+GLOBAL bool IRC_WriteStrClient PARAMS((CLIENT *Client, const char *Format, ...));
 GLOBAL bool IRC_WriteStrClientPrefix PARAMS((CLIENT *Client, CLIENT *Prefix,
-		char *Format, ...));
+		const char *Format, ...));
 
 GLOBAL bool IRC_WriteStrChannel PARAMS((CLIENT *Client, CHANNEL *Chan,
-		bool Remote, char *Format, ...));
+		bool Remote, const char *Format, ...));
 GLOBAL bool IRC_WriteStrChannelPrefix PARAMS((CLIENT *Client, CHANNEL *Chan,
-		CLIENT *Prefix, bool Remote, char *Format, ...));
+		CLIENT *Prefix, bool Remote, const char *Format, ...));
 
-GLOBAL void IRC_WriteStrServers PARAMS((CLIENT *ExceptOf, char *Format, ...));
+GLOBAL void IRC_WriteStrServers PARAMS((CLIENT *ExceptOf,
+		const char *Format, ...));
 GLOBAL void IRC_WriteStrServersPrefix PARAMS((CLIENT *ExceptOf, CLIENT *Prefix,
-		char *Format, ...));
+		const char *Format, ...));
 GLOBAL void IRC_WriteStrServersPrefixFlag PARAMS((CLIENT *ExceptOf,
-		CLIENT *Prefix, char Flag, char *Format, ...));
+		CLIENT *Prefix, char Flag, const char *Format, ...));
 GLOBAL void IRC_WriteStrServersPrefixFlag_CB PARAMS((CLIENT *ExceptOf,
 		CLIENT *Prefix, char Flag,
 		void (*callback)(CLIENT *, CLIENT *, void *), void *cb_data));
 
 GLOBAL bool IRC_WriteStrRelatedPrefix PARAMS((CLIENT *Client, CLIENT *Prefix,
-		bool Remote, char *Format, ...));
+		bool Remote, const char *Format, ...));
 
 GLOBAL void IRC_SendWallops PARAMS((CLIENT *Client, CLIENT *From,
 		const char *Format, ...));

@@ -30,7 +30,7 @@ typedef struct _REQUEST			/* vgl. RFC 2812, 2.3 */
 
 typedef struct _COMMAND
 {
-	char *name;			/* command name */
+	const char *name;		/* command name */
 	bool (*function) PARAMS(( CLIENT *Client, REQUEST *Request ));
 	CLIENT_TYPE type;		/* valid client types (bit mask) */
 	long lcount, rcount;		/* number of local and remote calls */

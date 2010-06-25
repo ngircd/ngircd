@@ -120,11 +120,12 @@ GLOBAL bool Conn_UsesSSL PARAMS((CONN_ID Idx));
 #else
 static inline bool Conn_UsesSSL(UNUSED CONN_ID Idx) { return false; }
 #endif
-#endif
 
 GLOBAL long Conn_Count PARAMS((void));
 GLOBAL long Conn_CountMax PARAMS((void));
 GLOBAL long Conn_CountAccepted PARAMS((void));
+
+#endif
 
 
 /* -eof- */

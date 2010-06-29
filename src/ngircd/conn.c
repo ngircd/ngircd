@@ -1986,7 +1986,7 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 	 * IDENT user name.*/
 
 	CLIENT *c;
-	int i;
+	CONN_ID i;
 	size_t len;
 	char *identptr;
 #ifdef IDENTAUTH
@@ -1996,14 +1996,8 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 #endif
 
 	LogDebug("Resolver: Got callback on fd %d, events %d", r_fd, events );
-
-	/* Search associated connection ... */
-	for( i = 0; i < Pool_Size; i++ ) {
-		if(( My_Connections[i].sock != NONE )
-		  && (Proc_GetPipeFd(&My_Connections[i].proc_stat) == r_fd))
-			break;
-	}
-	if( i >= Pool_Size ) {
+	i = Conn_GetFromProc(r_fd);
+	if (i == NONE) {
 		/* Ops, none found? Probably the connection has already
 		 * been closed!? We'll ignore that ... */
 		io_close( r_fd );
@@ -2106,6 +2100,26 @@ Conn_GetClient( CONN_ID Idx )
 	assert(c != NULL);
 	return c ? c->client : NULL;
 }
+
+
+/**
+ * Get CONN_ID from file descriptor associated to a subprocess structure.
+ * @param fd File descriptor
+ * @return CONN_ID or NONE (-1)
+ */
+GLOBAL CONN_ID
+Conn_GetFromProc(int fd)
+{
+	int i;
+
+	assert(fd > 0);
+	for (i = 0; i < Pool_Size; i++) {
+		if ((My_Connections[i].sock != NONE)
+		    && (Proc_GetPipeFd(&My_Connections[i].proc_stat) == fd))
+			return i;
+	}
+	return NONE;
+} /* Conn_GetFromProc */
 
 
 #ifdef SSL_SUPPORT

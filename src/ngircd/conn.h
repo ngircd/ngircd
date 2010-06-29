@@ -113,6 +113,7 @@ GLOBAL void Conn_Close PARAMS(( CONN_ID Idx, const char *LogMsg, const char *Fwd
 
 GLOBAL void Conn_SyncServerStruct PARAMS(( void ));
 
+GLOBAL CONN_ID Conn_GetFromProc PARAMS((int fd));
 GLOBAL CLIENT* Conn_GetClient PARAMS((CONN_ID i));
 #ifdef SSL_SUPPORT
 GLOBAL bool Conn_GetCipherInfo PARAMS((CONN_ID Idx, char *buf, size_t len));

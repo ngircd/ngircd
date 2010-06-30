@@ -264,64 +264,65 @@ va_dcl
 
 
 GLOBAL void
-Log_Init_Resolver( void )
+Log_Init_Subprocess(char *Name)
 {
 #ifdef SYSLOG
 	openlog( PACKAGE_NAME, LOG_CONS|LOG_PID, LOG_LOCAL5 );
 #endif
 #ifdef DEBUG
-	Log_Resolver(LOG_DEBUG, "Resolver sub-process starting, PID %ld.", (long)getpid());
+	Log_Subprocess(LOG_DEBUG, "%s sub-process starting, PID %ld.",
+		     Name, (long)getpid());
 #endif
-} /* Log_Init_Resolver */
+}
 
 
 GLOBAL void
-Log_Exit_Resolver( void )
+Log_Exit_Subprocess(char *Name)
 {
 #ifdef DEBUG
-	Log_Resolver(LOG_DEBUG, "Resolver sub-process %ld done.", (long)getpid());
+	Log_Subprocess(LOG_DEBUG, "%s sub-process %ld done.",
+		     Name, (long)getpid());
 #endif
 #ifdef SYSLOG
 	closelog( );
 #endif
-} /* Log_Exit_Resolver */
+}
 
 
 #ifdef PROTOTYPES
 GLOBAL void
-Log_Resolver( const int Level, const char *Format, ... )
+Log_Subprocess(const int Level, const char *Format, ...)
 #else
 GLOBAL void
-Log_Resolver( Level, Format, va_alist )
+Log_Subprocess(Level, Format, va_alist)
 const int Level;
 const char *Format;
 va_dcl
 #endif
 {
-	/* Eintrag des Resolver in Logfile(s) schreiben */
-
 	char msg[MAX_LOG_MSG_LEN];
 	va_list ap;
 
-	assert( Format != NULL );
+	assert(Format != NULL);
 
 #ifdef DEBUG
-	if(( Level == LOG_DEBUG ) && ( ! NGIRCd_Debug )) return;
+	if ((Level == LOG_DEBUG) && (!NGIRCd_Debug))
+		return;
 #else
-	if( Level == LOG_DEBUG ) return;
+	if (Level == LOG_DEBUG)
+		return;
 #endif
 
-	/* String mit variablen Argumenten zusammenbauen ... */
 #ifdef PROTOTYPES
-	va_start( ap, Format );
+	va_start(ap, Format);
 #else
-	va_start( ap );
+	va_start(ap);
 #endif
-	vsnprintf( msg, MAX_LOG_MSG_LEN, Format, ap );
-	va_end( ap );
+	vsnprintf(msg, MAX_LOG_MSG_LEN, Format, ap);
+	va_end(ap);
 
 	Log_Message(Level, msg);
-} /* Log_Resolver */
+}
 
 
 /**

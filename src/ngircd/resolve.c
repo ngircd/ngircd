@@ -72,7 +72,7 @@ Resolve_Addr(PROC_STAT * s, const ng_ipaddr_t *Addr, int identsock,
 		/* Sub process */
 		Init_Subprocess();
 		Do_ResolveAddr( Addr, identsock, pipefd[1]);
-		Log_Exit_Resolver( );
+		Log_Exit_Subprocess("Resolver");
 		exit(0);
 	}
 	return false;
@@ -101,7 +101,7 @@ Resolve_Name( PROC_STAT *s, const char *Host, void (*cbfunc)(int, short))
 		/* Sub process */
 		Init_Subprocess();
 		Do_ResolveName(Host, pipefd[1]);
-		Log_Exit_Resolver( );
+		Log_Exit_Subprocess("Resolver");
 		exit(0);
 	}
 	return false;
@@ -117,7 +117,7 @@ Signal_Handler(int Signal)
 	switch(Signal) {
 	case SIGTERM:
 #ifdef DEBUG
-		Log_Resolver(LOG_DEBUG, "Resolver: Got TERM signal, exiting.");
+		Log_Subprocess(LOG_DEBUG, "Resolver: Got TERM signal, exiting.");
 #endif
 		exit(1);
 	}
@@ -131,7 +131,7 @@ static void
 Init_Subprocess(void)
 {
 	signal(SIGTERM, Signal_Handler);
-	Log_Init_Resolver();
+	Log_Init_Subprocess("Resolver");
 }
 
 
@@ -168,17 +168,20 @@ Do_IdentQuery(int identsock, array *resolved_addr)
 		return;
 
 #ifdef DEBUG
-	Log_Resolver(LOG_DEBUG, "Doing IDENT lookup on socket %d ...", identsock);
+	Log_Subprocess(LOG_DEBUG, "Doing IDENT lookup on socket %d ...",
+		       identsock);
 #endif
 	res = ident_id( identsock, 10 );
 #ifdef DEBUG
-	Log_Resolver(LOG_DEBUG, "Ok, IDENT lookup on socket %d done: \"%s\"",
-						identsock, res ? res : "(NULL)" );
+	Log_Subprocess(LOG_DEBUG, "Ok, IDENT lookup on socket %d done: \"%s\"",
+		       identsock, res ? res : "(NULL)");
 #endif
 	if (!res) /* no result */
 		return;
 	if (!array_cats(resolved_addr, res))
-		Log_Resolver(LOG_WARNING, "Resolver: Cannot copy IDENT result: %s!", strerror(errno));
+		Log_Subprocess(LOG_WARNING,
+			       "Resolver: Cannot copy IDENT result: %s!",
+			       strerror(errno));
 
 	free(res);
 #else
@@ -240,7 +243,7 @@ ReverseLookup(const ng_ipaddr_t *IpAddr, char *resbuf, size_t reslen)
 	assert(reslen >= NG_INET_ADDRSTRLEN);
 	ng_ipaddr_tostr_r(IpAddr, tmp_ip_str);
 
-	Log_Resolver(LOG_WARNING, "%s: Can't resolve address \"%s\": %s",
+	Log_Subprocess(LOG_WARNING, "%s: Can't resolve address \"%s\": %s",
 				funcname, tmp_ip_str, errmsg);
 	strlcpy(resbuf, tmp_ip_str, reslen);
 	return false;
@@ -288,10 +291,10 @@ ForwardLookup(const char *hostname, array *IpAddr)
 	switch (res) {
 	case 0:	break;
 	case EAI_SYSTEM:
-		Log_Resolver(LOG_WARNING, "Can't resolve \"%s\": %s", hostname, strerror(errno));
+		Log_Subprocess(LOG_WARNING, "Can't resolve \"%s\": %s", hostname, strerror(errno));
 		return false;
 	default:
-		Log_Resolver(LOG_WARNING, "Can't resolve \"%s\": %s", hostname, gai_strerror(res));
+		Log_Subprocess(LOG_WARNING, "Can't resolve \"%s\": %s", hostname, gai_strerror(res));
 		return false;
 	}
 
@@ -314,9 +317,10 @@ ForwardLookup(const char *hostname, array *IpAddr)
 
 	if (!h) {
 #ifdef h_errno
-		Log_Resolver(LOG_WARNING, "Can't resolve \"%s\": %s", hostname, Get_Error(h_errno));
+		Log_Subprocess(LOG_WARNING, "Can't resolve \"%s\": %s",
+			       hostname, Get_Error(h_errno));
 #else
-		Log_Resolver(LOG_WARNING, "Can't resolve \"%s\"", hostname);
+		Log_Subprocess(LOG_WARNING, "Can't resolve \"%s\"", hostname);
 #endif
 		return false;
 	}
@@ -352,7 +356,7 @@ Addr_in_list(const array *resolved_addr, const ng_ipaddr_t *Addr)
 	tmpAddrs = array_start(resolved_addr);
 
 	while (len > 0) {
-		Log_Resolver(LOG_WARNING, "Address mismatch: %s != %s",
+		Log_Subprocess(LOG_WARNING, "Address mismatch: %s != %s",
 			tmp_ip_str, ng_ipaddr_tostr(tmpAddrs));
 		tmpAddrs++;
 		len--;
@@ -365,14 +369,14 @@ Addr_in_list(const array *resolved_addr, const ng_ipaddr_t *Addr)
 static void
 Log_Forgery_NoIP(const char *ip, const char *host)
 {
-	Log_Resolver(LOG_WARNING, "Possible forgery: %s resolved to %s "
+	Log_Subprocess(LOG_WARNING, "Possible forgery: %s resolved to %s "
 		"(which has no ip address)", ip, host);
 }
 
 static void
 Log_Forgery_WrongIP(const char *ip, const char *host)
 {
-	Log_Resolver(LOG_WARNING,"Possible forgery: %s resolved to %s "
+	Log_Subprocess(LOG_WARNING,"Possible forgery: %s resolved to %s "
 		"(which points to different address)", ip, host);
 }
 
@@ -386,7 +390,7 @@ ArrayWrite(int fd, const array *a)
 	assert(data);
 
 	if( (size_t)write(fd, data, len) != len )
-		Log_Resolver( LOG_CRIT, "Resolver: Can't write to parent: %s!",
+		Log_Subprocess( LOG_CRIT, "Resolver: Can't write to parent: %s!",
 							strerror(errno));
 }
 
@@ -404,7 +408,7 @@ Do_ResolveAddr(const ng_ipaddr_t *Addr, int identsock, int w_fd)
 	array_init(&resolved_addr);
 	ng_ipaddr_tostr_r(Addr, tmp_ip_str);
 #ifdef DEBUG
-	Log_Resolver(LOG_DEBUG, "Now resolving %s ...", tmp_ip_str);
+	Log_Subprocess(LOG_DEBUG, "Now resolving %s ...", tmp_ip_str);
 #endif
 	if (!ReverseLookup(Addr, hostname, sizeof(hostname)))
 		goto dns_done;
@@ -419,13 +423,15 @@ Do_ResolveAddr(const ng_ipaddr_t *Addr, int identsock, int w_fd)
 		strlcpy(hostname, tmp_ip_str, sizeof(hostname));
 	}
 #ifdef DEBUG
-	Log_Resolver(LOG_DEBUG, "Ok, translated %s to \"%s\".", tmp_ip_str, hostname);
+	Log_Subprocess(LOG_DEBUG, "Ok, translated %s to \"%s\".", tmp_ip_str, hostname);
 #endif
  dns_done:
 	len = strlen(hostname);
 	hostname[len] = '\n';
 	if (!array_copyb(&resolved_addr, hostname, ++len)) {
-		Log_Resolver(LOG_CRIT, "Resolver: Can't copy resolved name: %s!", strerror(errno));
+		Log_Subprocess(LOG_CRIT,
+			       "Resolver: Can't copy resolved name: %s!",
+			       strerror(errno));
 		array_free(&resolved_addr);
 		return;
 	}
@@ -448,7 +454,7 @@ Do_ResolveName( const char *Host, int w_fd )
 	ng_ipaddr_t *addr;
 	size_t len;
 #endif
-	Log_Resolver(LOG_DEBUG, "Now resolving \"%s\" ...", Host);
+	Log_Subprocess(LOG_DEBUG, "Now resolving \"%s\" ...", Host);
 
 	array_init(&IpAddrs);
 	/* Resolve hostname */
@@ -462,7 +468,7 @@ Do_ResolveName( const char *Host, int w_fd )
 	addr = array_start(&IpAddrs);
 	assert(addr);
 	for (; len > 0; --len,addr++) {
-		Log_Resolver(LOG_DEBUG, "translated \"%s\" to %s.",
+		Log_Subprocess(LOG_DEBUG, "translated \"%s\" to %s.",
 					Host, ng_ipaddr_tostr(addr));
 	}
 #endif

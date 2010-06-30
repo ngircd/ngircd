@@ -46,10 +46,10 @@ GLOBAL void LogDebug PARAMS(( const char *Format, ... ));
 static inline void LogDebug PARAMS(( UNUSED const char *Format, ... )){/* Do nothing. The compiler should optimize this out, please ;-) */}
 #endif
 
-GLOBAL void Log_Init_Resolver PARAMS(( void ));
-GLOBAL void Log_Exit_Resolver PARAMS(( void ));
+GLOBAL void Log_Init_Subprocess PARAMS((char *Name));
+GLOBAL void Log_Exit_Subprocess PARAMS((char *Name));
 
-GLOBAL void Log_Resolver PARAMS(( const int Level, const char *Format, ... ));
+GLOBAL void Log_Subprocess PARAMS((const int Level, const char *Format, ...));
 
 #ifdef DEBUG
 GLOBAL void Log_InitErrorfile PARAMS(( void ));

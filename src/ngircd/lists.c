@@ -19,7 +19,6 @@
 
 #include "defines.h"
 #include "conn.h"
-#include "client.h"
 #include "channel.h"
 #include "log.h"
 #include "match.h"

@@ -26,7 +26,6 @@
 
 #include "defines.h"
 #include "conn-func.h"
-#include "client.h"
 #include "channel.h"
 
 #include "exp.h"

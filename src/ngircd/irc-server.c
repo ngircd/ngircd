@@ -26,7 +26,6 @@
 #include "conn-func.h"
 #include "conn-zip.h"
 #include "conf.h"
-#include "client.h"
 #include "channel.h"
 #include "irc-write.h"
 #include "lists.h"

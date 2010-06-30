@@ -24,7 +24,6 @@ static char UNUSED id[] = "$Id: irc.c,v 1.132 2008/01/15 22:28:14 fw Exp $";
 #include "ngircd.h"
 #include "conn-func.h"
 #include "conf.h"
-#include "client.h"
 #include "channel.h"
 #include "defines.h"
 #include "irc-write.h"

@@ -34,7 +34,6 @@
 #include "ngircd.h"
 #include "defines.h"
 #include "conn.h"
-#include "client.h"
 #include "channel.h"
 #include "irc-write.h"
 

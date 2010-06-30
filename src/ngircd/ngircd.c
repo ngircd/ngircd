@@ -41,7 +41,6 @@
 #include "defines.h"
 #include "conn.h"
 #include "conf-ssl.h"
-#include "client.h"
 #include "channel.h"
 #include "conf.h"
 #include "lists.h"

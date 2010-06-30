@@ -39,7 +39,6 @@
 #include "array.h"
 #include "ngircd.h"
 #include "conn.h"
-#include "client.h"
 #include "channel.h"
 #include "defines.h"
 #include "log.h"

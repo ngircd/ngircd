@@ -24,7 +24,6 @@
 #include "conf.h"
 #include "conn.h"
 #include "conn-func.h"
-#include "client.h"
 #include "channel.h"
 #include "irc-write.h"
 #include "lists.h"

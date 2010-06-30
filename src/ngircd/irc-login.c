@@ -24,7 +24,6 @@
 #include "ngircd.h"
 #include "conn-func.h"
 #include "conf.h"
-#include "client.h"
 #include "channel.h"
 #include "log.h"
 #include "messages.h"

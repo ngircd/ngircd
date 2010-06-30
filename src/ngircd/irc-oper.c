@@ -23,7 +23,6 @@
 #include "ngircd.h"
 #include "conn-func.h"
 #include "conf.h"
-#include "client.h"
 #include "channel.h"
 #include "irc-write.h"
 #include "log.h"

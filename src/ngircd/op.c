@@ -19,7 +19,6 @@
 #include <string.h>
 
 #include "conn.h"
-#include "client.h"
 #include "channel.h"
 #include "conf.h"
 #include "log.h"

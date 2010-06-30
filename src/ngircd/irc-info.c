@@ -25,7 +25,6 @@
 #include "ngircd.h"
 #include "conn-func.h"
 #include "conn-zip.h"
-#include "client.h"
 #include "channel.h"
 #include "conf.h"
 #include "defines.h"

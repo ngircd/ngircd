@@ -30,6 +30,8 @@ GLOBAL pid_t Proc_Fork PARAMS((PROC_STAT *proc, int *pipefds,
 
 GLOBAL void Proc_Kill PARAMS((PROC_STAT *proc));
 
+GLOBAL void Proc_GenericSignalHandler PARAMS((int Signal));
+
 #endif
 
 /* -eof- */

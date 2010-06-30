@@ -109,28 +109,12 @@ Resolve_Name( PROC_STAT *s, const char *Host, void (*cbfunc)(int, short))
 
 
 /**
- * Signal handler for the forked resolver subprocess.
- */
-static void
-Signal_Handler(int Signal)
-{
-	switch(Signal) {
-	case SIGTERM:
-#ifdef DEBUG
-		Log_Subprocess(LOG_DEBUG, "Resolver: Got TERM signal, exiting.");
-#endif
-		exit(1);
-	}
-}
-
-
-/**
  * Initialize forked resolver subprocess.
  */
 static void
 Init_Subprocess(void)
 {
-	signal(SIGTERM, Signal_Handler);
+	signal(SIGTERM, Proc_GenericSignalHandler);
 	Log_Init_Subprocess("Resolver");
 }
 

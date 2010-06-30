@@ -18,6 +18,7 @@
 #include <errno.h>
 #include <signal.h>
 #include <string.h>
+#include <stdlib.h>
 #include <unistd.h>
 
 #include "log.h"
@@ -97,6 +98,21 @@ Proc_Kill(PROC_STAT *proc)
 	io_close(proc->pipe_fd);
 	kill(proc->pid, SIGTERM);
 	Proc_InitStruct(proc);
+}
+
+/**
+ * Generic signal handler for forked child processes.
+ */
+GLOBAL void
+Proc_GenericSignalHandler(int Signal)
+{
+	switch(Signal) {
+	case SIGTERM:
+#ifdef DEBUG
+		Log_Subprocess(LOG_DEBUG, "Child got TERM signal, exiting.");
+#endif
+		exit(1);
+	}
 }
 
 /* -eof- */

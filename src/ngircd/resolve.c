@@ -35,7 +35,6 @@
 #include "defines.h"
 #include "log.h"
 #include "ng_ipaddr.h"
-#include "proc.h"
 
 #include "exp.h"
 #include "resolve.h"

@@ -44,11 +44,11 @@
 typedef long CONN_ID;
 
 #include "client.h"
+#include "proc.h"
 
 #ifdef CONN_MODULE
 
 #include "defines.h"
-#include "proc.h"
 #include "array.h"
 #include "tool.h"
 #include "ng_ipaddr.h"
@@ -115,6 +115,7 @@ GLOBAL void Conn_SyncServerStruct PARAMS(( void ));
 
 GLOBAL CONN_ID Conn_GetFromProc PARAMS((int fd));
 GLOBAL CLIENT* Conn_GetClient PARAMS((CONN_ID i));
+GLOBAL PROC_STAT* Conn_GetProcStat PARAMS((CONN_ID i));
 #ifdef SSL_SUPPORT
 GLOBAL bool Conn_GetCipherInfo PARAMS((CONN_ID Idx, char *buf, size_t len));
 GLOBAL bool Conn_UsesSSL PARAMS((CONN_ID Idx));

@@ -68,7 +68,6 @@
 #include "log.h"
 #include "ng_ipaddr.h"
 #include "parse.h"
-#include "proc.h"
 #include "resolve.h"
 #include "tool.h"
 
@@ -2098,6 +2097,22 @@ Conn_GetClient( CONN_ID Idx )
 	assert(c != NULL);
 	return c ? c->client : NULL;
 }
+
+/**
+ * Get PROC_STAT sub-process structure of a connection.
+ * @param Idx Connection index number
+ * @return PROC_STAT structure
+ */
+GLOBAL PROC_STAT *
+Conn_GetProcStat(CONN_ID Idx)
+{
+	CONNECTION *c;
+
+	assert(Idx >= 0);
+	c = array_get(&My_ConnArray, sizeof (CONNECTION), (size_t)Idx);
+	assert(c != NULL);
+	return &c->proc_stat;
+} /* Conn_GetProcStat */
 
 
 /**

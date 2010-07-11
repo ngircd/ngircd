@@ -2049,8 +2049,6 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 #ifdef DEBUG
 		else Log( LOG_DEBUG, "Resolver: discarding result for already registered connection %d.", i );
 #endif
-	/* Reset penalty time */
-	Conn_ResetPenalty( i );
 } /* cb_Read_Resolver_Result */
 
 

@@ -200,8 +200,10 @@ Init_New_Client(CONN_ID Idx, CLIENT *Introducer, CLIENT *TopServer,
 	client->type = Type;
 	if (ID)
 		Client_SetID(client, ID);
-	if (User)
+	if (User) {
 		Client_SetUser(client, User, Idented);
+		Client_SetOrigUser(client, User);
+	}
 	if (Hostname)
 		Client_SetHostname(client, Hostname);
 	if (Info)
@@ -350,6 +352,25 @@ Client_SetUser( CLIENT *Client, const char *User, bool Idented )
 		strlcpy(Client->user + 1, User, sizeof(Client->user) - 1);
 	}
 } /* Client_SetUser */
+
+
+/**
+ * Set "original" user name of a client.
+ * This function saves the "original" user name, the user name specified by
+ * the peer using the USER command, into the CLIENT structure. This user
+ * name may be used for authentication, for example.
+ * @param Client The client.
+ * @param User User name to set.
+ */
+GLOBAL void
+Client_SetOrigUser(CLIENT *Client, const char *User) {
+	assert(Client != NULL);
+	assert(User != NULL);
+
+#ifdef PAM & IDENTAUTH
+	strlcpy(Client->orig_user, User, sizeof(Client->orig_user));
+#endif
+} /* Client_SetOrigUser */
 
 
 GLOBAL void
@@ -599,6 +620,31 @@ Client_User( CLIENT *Client )
 	assert( Client != NULL );
 	return Client->user[0] ? Client->user : "~";
 } /* Client_User */
+
+
+#ifdef PAM
+
+/**
+ * Get the "original" user name as supplied by the USER command.
+ * The user name as given by the client is used for authentication instead
+ * of the one detected using IDENT requests.
+ * @param Client The client.
+ * @return Original user name.
+ */
+GLOBAL char *
+Client_OrigUser(CLIENT *Client) {
+#ifndef IDENTAUTH
+	char *user = Client->user;
+
+	if (user[0] == '~')
+		user++;
+	return user;
+#else
+	return Client->orig_user;
+#endif
+} /* Client_OrigUser */
+
+#endif
 
 
 GLOBAL char *

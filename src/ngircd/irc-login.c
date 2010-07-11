@@ -401,6 +401,7 @@ IRC_USER(CLIENT * Client, REQUEST * Req)
 #else
 		Client_SetUser(Client, Req->argv[0], false);
 #endif
+		Client_SetOrigUser(Client, Req->argv[0]);
 
 		/* "Real name" or user info text: Don't set it to the empty
 		 * string, the original ircd can't deal with such "real names"
@@ -433,6 +434,7 @@ IRC_USER(CLIENT * Client, REQUEST * Req)
 						  Req->prefix);
 
 		Client_SetUser(c, Req->argv[0], true);
+		Client_SetOrigUser(c, Req->argv[0]);
 		Client_SetHostname(c, Req->argv[1]);
 		Client_SetInfo(c, Req->argv[3]);
 
@@ -575,6 +577,7 @@ IRC_WEBIRC(CLIENT *Client, REQUEST *Req)
 		 Client_Conn(Client), Req->argv[1], Req->argv[2], Req->argv[3]);
 
 	Client_SetUser(Client, Req->argv[1], true);
+	Client_SetOrigUser(Client, Req->argv[1]);
 	Client_SetHostname(Client, Req->argv[2]);
 	return CONNECTED;
 } /* IRC_WEBIRC */

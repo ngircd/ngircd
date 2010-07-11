@@ -43,6 +43,9 @@ typedef struct _CLIENT
 	char pwd[CLIENT_PASS_LEN];	/* password received of the client */
 	char host[CLIENT_HOST_LEN];	/* hostname of the client */
 	char user[CLIENT_USER_LEN];	/* user name ("login") */
+#ifdef PAM & IDENTAUTH
+	char orig_user[CLIENT_USER_LEN];/* user name supplied by USER command */
+#endif
 	char info[CLIENT_INFO_LEN];	/* long user name (user) / info text (server) */
 	char modes[CLIENT_MODE_LEN];	/* client modes */
 	int hops, token, mytoken;	/* "hops" and "Token" (see SERVER command) */
@@ -92,6 +95,9 @@ GLOBAL char *Client_ID PARAMS(( CLIENT *Client ));
 GLOBAL char *Client_Mask PARAMS(( CLIENT *Client ));
 GLOBAL char *Client_Info PARAMS(( CLIENT *Client ));
 GLOBAL char *Client_User PARAMS(( CLIENT *Client ));
+#ifdef PAM
+GLOBAL char *Client_OrigUser PARAMS(( CLIENT *Client ));
+#endif
 GLOBAL char *Client_Hostname PARAMS(( CLIENT *Client ));
 GLOBAL char *Client_Password PARAMS(( CLIENT *Client ));
 GLOBAL char *Client_Modes PARAMS(( CLIENT *Client ));
@@ -111,6 +117,7 @@ GLOBAL bool Client_HasMode PARAMS(( CLIENT *Client, char Mode ));
 GLOBAL void Client_SetHostname PARAMS(( CLIENT *Client, const char *Hostname ));
 GLOBAL void Client_SetID PARAMS(( CLIENT *Client, const char *Nick ));
 GLOBAL void Client_SetUser PARAMS(( CLIENT *Client, const char *User, bool Idented ));
+GLOBAL void Client_SetOrigUser PARAMS(( CLIENT *Client, const char *User ));
 GLOBAL void Client_SetInfo PARAMS(( CLIENT *Client, const char *Info ));
 GLOBAL void Client_SetPassword PARAMS(( CLIENT *Client, const char *Pwd ));
 GLOBAL void Client_SetType PARAMS(( CLIENT *Client, int Type ));

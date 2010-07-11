@@ -33,6 +33,7 @@ AH_TEMPLATE([IRCPLUS], [Define if IRC+ protocol should be used])
 AH_TEMPLATE([WANT_IPV6], [Define if IPV6 protocol should be enabled])
 AH_TEMPLATE([ZEROCONF], [Define if support for Zeroconf should be included])
 AH_TEMPLATE([IDENTAUTH], [Define if the server should do IDENT requests])
+AH_TEMPLATE([PAM], [Define if PAM should be used])
 AH_TEMPLATE([HAVE_sockaddr_in_len], [Define if sockaddr_in.sin_len exists])
 
 AH_TEMPLATE([TARGET_OS], [Target operating system name])
@@ -479,6 +480,33 @@ if test "$x_identauth_on" = "yes"; then
 	AC_CHECK_HEADERS(ident.h,,AC_MSG_ERROR([required C header missing!]))
 fi
 
+# compile in PAM support?
+
+x_pam_on=no
+AC_ARG_WITH(pam,
+	[  --with-pam              enable user authentication using PAM],
+	[	if test "$withval" != "no"; then
+			if test "$withval" != "yes"; then
+				CFLAGS="-I$withval/include $CFLAGS"
+				CPPFLAGS="-I$withval/include $CPPFLAGS"
+				LDFLAGS="-L$withval/lib $LDFLAGS"
+			fi
+			AC_CHECK_LIB(pam, pam_authenticate)
+			AC_CHECK_FUNCS(pam_authenticate, x_pam_on=yes,
+				AC_MSG_ERROR([Can't enable PAM support!])
+			)
+		fi
+	]
+)
+if test "$x_pam_on" = "yes"; then
+	AC_DEFINE(PAM, 1)
+	AC_CHECK_HEADERS(security/pam_appl.h,pam_ok=yes)
+	if test "$pam_ok" != "yes"; then
+		AC_CHECK_HEADERS(pam/pam_appl.h,pam_ok=yes,
+			AC_MSG_ERROR([required C header missing!]))
+	fi
+fi
+
 # compile in IRC+ protocol support?
 
 x_ircplus_on=yes
@@ -657,9 +685,13 @@ echo $ECHO_N "        I/O backend: $ECHO_C"
 
 echo $ECHO_N "      IPv6 protocol: $ECHO_C"
 echo $ECHO_N "$x_ipv6_on    $ECHO_C"
-
 echo $ECHO_N "        SSL support: $ECHO_C"
 echo "$x_ssl_lib"
+
+echo $ECHO_N "        PAM support: $ECHO_C"
+test "$x_pam_on" = "yes" \
+	&& echo "yes" \
+	|| echo "no"
 
 echo
 

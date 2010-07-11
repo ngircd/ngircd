@@ -184,6 +184,12 @@ standard locations.
   to the daemon, for example by using "/etc/hosts.{allow|deny}".
   The "libwrap" is required for this option.
 
+* PAM:
+  --with-pam[=<path>]
+
+  Enable support for PAM, the Pluggable Authentication Modules library.
+  See doc/PAM.txt for details.
+
 
 IV. Useful make-targets
 ~~~~~~~~~~~~~~~~~~~~~~~

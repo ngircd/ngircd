@@ -360,7 +360,6 @@ Fill_Version( void )
 #ifdef ZLIB
 	if( NGIRCd_VersionAddition[0] )
 		strlcat( NGIRCd_VersionAddition, "+", sizeof NGIRCd_VersionAddition );
-
 	strlcat( NGIRCd_VersionAddition, "ZLIB", sizeof NGIRCd_VersionAddition );
 #endif
 #ifdef SSL_SUPPORT
@@ -370,49 +369,46 @@ Fill_Version( void )
 #ifdef TCPWRAP
 	if( NGIRCd_VersionAddition[0] )
 			strlcat( NGIRCd_VersionAddition, "+", sizeof NGIRCd_VersionAddition );
-
 	strlcat( NGIRCd_VersionAddition, "TCPWRAP", sizeof NGIRCd_VersionAddition );
 #endif
 #ifdef ZEROCONF
 	if( NGIRCd_VersionAddition[0] )
 		strlcat( NGIRCd_VersionAddition, "+", sizeof NGIRCd_VersionAddition );
-
 	strlcat( NGIRCd_VersionAddition, "ZEROCONF", sizeof NGIRCd_VersionAddition );
 #endif
 #ifdef IDENTAUTH
 	if( NGIRCd_VersionAddition[0] )
 		strlcat( NGIRCd_VersionAddition, "+", sizeof NGIRCd_VersionAddition );
-
 	strlcat( NGIRCd_VersionAddition, "IDENT", sizeof NGIRCd_VersionAddition );
+#endif
+#ifdef PAM
+	if (NGIRCd_VersionAddition[0])
+		strlcat(NGIRCd_VersionAddition, "+", sizeof NGIRCd_VersionAddition);
+	strlcat(NGIRCd_VersionAddition, "PAM", sizeof NGIRCd_VersionAddition);
 #endif
 #ifdef DEBUG
 	if( NGIRCd_VersionAddition[0] )
 		strlcat( NGIRCd_VersionAddition, "+", sizeof NGIRCd_VersionAddition );
-
 	strlcat( NGIRCd_VersionAddition, "DEBUG", sizeof NGIRCd_VersionAddition );
 #endif
 #ifdef SNIFFER
 	if( NGIRCd_VersionAddition[0] )
 		strlcat( NGIRCd_VersionAddition, "+", sizeof NGIRCd_VersionAddition );
-
 	strlcat( NGIRCd_VersionAddition, "SNIFFER", sizeof NGIRCd_VersionAddition );
 #endif
 #ifdef STRICT_RFC
 	if( NGIRCd_VersionAddition[0] )
 		strlcat( NGIRCd_VersionAddition, "+", sizeof NGIRCd_VersionAddition );
-
 	strlcat( NGIRCd_VersionAddition, "RFC", sizeof NGIRCd_VersionAddition );
 #endif
 #ifdef IRCPLUS
 	if( NGIRCd_VersionAddition[0] )
 		strlcat( NGIRCd_VersionAddition, "+", sizeof NGIRCd_VersionAddition );
-
 	strlcat( NGIRCd_VersionAddition, "IRCPLUS", sizeof NGIRCd_VersionAddition );
 #endif
 #ifdef WANT_IPV6
 	if (NGIRCd_VersionAddition[0])
 		strlcat(NGIRCd_VersionAddition, "+", sizeof(NGIRCd_VersionAddition));
-
 	strlcat(NGIRCd_VersionAddition, "IPv6", sizeof(NGIRCd_VersionAddition));
 #endif
 	if( NGIRCd_VersionAddition[0] )

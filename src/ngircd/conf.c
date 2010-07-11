@@ -291,7 +291,9 @@ Conf_Test( void )
 	puts( "[GLOBAL]" );
 	printf("  Name = %s\n", Conf_ServerName);
 	printf("  Info = %s\n", Conf_ServerInfo);
+#ifndef PAM
 	printf("  Password = %s\n", Conf_ServerPwd);
+#endif
 	printf("  WebircPassword = %s\n", Conf_WebircPwd);
 	printf("  AdminInfo1 = %s\n", Conf_ServerAdmin1);
 	printf("  AdminInfo2 = %s\n", Conf_ServerAdmin2);
@@ -1400,6 +1402,12 @@ Validate_Config(bool Configtest, bool Rehash)
 		Config_Error(LOG_WARNING,
 			     "No administrative information configured but required by RFC!");
 	}
+
+#ifdef PAM
+	if (Conf_ServerPwd[0])
+		Config_Error(LOG_ERR,
+			     "This server uses PAM, \"Password\" will be ignored!");
+#endif
 
 #ifdef DEBUG
 	servers = servers_once = 0;

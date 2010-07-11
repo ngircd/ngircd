@@ -1952,7 +1952,7 @@ cb_Connect_to_Server(int fd, UNUSED short events)
 	}
 
 	/* Read result from pipe */
-	len = Resolve_Read(&Conf_Server[i].res_stat, dest_addrs, sizeof(dest_addrs));
+	len = Proc_Read(&Conf_Server[i].res_stat, dest_addrs, sizeof(dest_addrs));
 	if (len == 0)
 		return;
 
@@ -2005,7 +2005,7 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 	}
 
 	/* Read result from pipe */
-	len = Resolve_Read(&My_Connections[i].proc_stat, readbuf, sizeof readbuf -1);
+	len = Proc_Read(&My_Connections[i].proc_stat, readbuf, sizeof readbuf -1);
 	if (len == 0)
 		return;
 

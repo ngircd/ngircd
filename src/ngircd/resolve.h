@@ -18,7 +18,6 @@ GLOBAL bool Resolve_Addr PARAMS((PROC_STAT * s, const ng_ipaddr_t * Addr,
 				 int identsock, void (*cbfunc) (int, short)));
 GLOBAL bool Resolve_Name PARAMS((PROC_STAT * s, const char *Host,
 				 void (*cbfunc) (int, short)));
-GLOBAL size_t Resolve_Read PARAMS((PROC_STAT * s, void *buf, size_t buflen));
 
 #endif
 

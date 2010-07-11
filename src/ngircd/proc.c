@@ -116,4 +116,31 @@ Proc_GenericSignalHandler(int Signal)
 	}
 }
 
+/**
+ * Read bytes from a pipe of a forked child process.
+ */
+GLOBAL size_t
+Proc_Read(PROC_STAT *proc, void *buffer, size_t buflen)
+{
+	ssize_t bytes_read = 0;
+
+	assert(buffer != NULL);
+	assert(buflen > 0);
+
+	bytes_read = read(proc->pipe_fd, buffer, buflen);
+	if (bytes_read < 0) {
+		if (errno == EAGAIN)
+			return 0;
+		Log(LOG_CRIT, "Can't read from child process %ld: %s",
+		    proc->pid, strerror(errno));
+		bytes_read = 0;
+	}
+#if DEBUG
+	else if (bytes_read == 0)
+		LogDebug("Can't read from child process %ld: EOF", proc->pid);
+#endif
+	Proc_Kill(proc);
+	return (size_t)bytes_read;
+}
+
 /* -eof- */

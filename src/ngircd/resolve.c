@@ -462,32 +462,4 @@ Do_ResolveName( const char *Host, int w_fd )
 } /* Do_ResolveName */
 
 
-/**
- * Read result of resolver sub-process from pipe
- */
-GLOBAL size_t
-Resolve_Read( PROC_STAT *s, void* readbuf, size_t buflen)
-{
-	ssize_t bytes_read;
-
-	assert(buflen > 0);
-
-	/* Read result from pipe */
-	bytes_read = read(Proc_GetPipeFd(s), readbuf, buflen);
-	if (bytes_read < 0) {
-		if (errno == EAGAIN)
-			return 0;
-
-		Log( LOG_CRIT, "Resolver: Can't read result: %s!", strerror(errno));
-		bytes_read = 0;
-	}
-#ifdef DEBUG
-	else if (bytes_read == 0)
-		Log( LOG_DEBUG, "Resolver: Can't read result: EOF");
-#endif
-	Proc_Kill(s);
-	return (size_t)bytes_read;
-}
-
-
 /* -eof- */

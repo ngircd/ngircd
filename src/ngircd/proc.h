@@ -32,6 +32,8 @@ GLOBAL void Proc_Kill PARAMS((PROC_STAT *proc));
 
 GLOBAL void Proc_GenericSignalHandler PARAMS((int Signal));
 
+GLOBAL size_t Proc_Read PARAMS((PROC_STAT *proc, void *buffer, size_t buflen));
+
 #endif
 
 /* -eof- */

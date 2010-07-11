@@ -93,10 +93,11 @@ GLOBAL void
 Proc_Kill(PROC_STAT *proc)
 {
 	assert(proc != NULL);
-	assert(proc->pipe_fd >= 0);
 
-	io_close(proc->pipe_fd);
-	kill(proc->pid, SIGTERM);
+	if (proc->pipe_fd > 0)
+		io_close(proc->pipe_fd);
+	if (proc->pid > 0)
+		kill(proc->pid, SIGTERM);
 	Proc_InitStruct(proc);
 }
 

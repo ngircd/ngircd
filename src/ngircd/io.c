@@ -105,6 +105,7 @@ static bool io_event_change_devpoll(int fd, short what);
 #ifdef IO_USE_SELECT
 #include "defines.h"	/* for conn.h */
 #include "proc.h"	/* for PROC_STAT (needed by conf.h) */
+#include "conn.h"	/* for CONN_ID (needed by conf.h) */
 #include "conf.h"	/* for Conf_MaxConnections */
 
 static fd_set readers;

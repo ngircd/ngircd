@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FA2D564A11EA158B00D37A35 /* pam.c in Sources */ = {isa = PBXBuildFile; fileRef = FA2D564911EA158B00D37A35 /* pam.c */; };
+		FA2D567B11EA1AB300D37A35 /* libpam.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FA2D567A11EA1AB300D37A35 /* libpam.dylib */; };
 		FA322D350CEF74B1001761B3 /* array.c in Sources */ = {isa = PBXBuildFile; fileRef = FA322CD90CEF74B1001761B3 /* array.c */; };
 		FA322D360CEF74B1001761B3 /* channel.c in Sources */ = {isa = PBXBuildFile; fileRef = FA322CDB0CEF74B1001761B3 /* channel.c */; };
 		FA322D370CEF74B1001761B3 /* client.c in Sources */ = {isa = PBXBuildFile; fileRef = FA322CDD0CEF74B1001761B3 /* client.c */; };
@@ -56,6 +58,9 @@
 /* Begin PBXFileReference section */
 		FA1A6BBC0D6857BB00AA8F71 /* misc-test.e */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = "misc-test.e"; sourceTree = "<group>"; };
 		FA1A6BBD0D6857D900AA8F71 /* who-test.e */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = "who-test.e"; sourceTree = "<group>"; };
+		FA2D564811EA158B00D37A35 /* pam.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pam.h; sourceTree = "<group>"; };
+		FA2D564911EA158B00D37A35 /* pam.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pam.c; sourceTree = "<group>"; };
+		FA2D567A11EA1AB300D37A35 /* libpam.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libpam.dylib; path = usr/lib/libpam.dylib; sourceTree = SDKROOT; };
 		FA322BBA0CEF72E4001761B3 /* ngIRCd */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ngIRCd; sourceTree = BUILT_PRODUCTS_DIR; };
 		FA322CD60CEF74B1001761B3 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
 		FA322CD90CEF74B1001761B3 /* array.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = array.c; sourceTree = "<group>"; };
@@ -231,6 +236,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FA322DC10CEF77CB001761B3 /* libz.dylib in Frameworks */,
+				FA2D567B11EA1AB300D37A35 /* libpam.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -257,6 +263,7 @@
 				FA322D630CEF750F001761B3 /* Makefile.am */,
 				1AB674ADFE9D54B511CA2CBB /* Products */,
 				FA322DC00CEF77CB001761B3 /* libz.dylib */,
+				FA2D567A11EA1AB300D37A35 /* libpam.dylib */,
 			);
 			name = ngIRCd;
 			sourceTree = "<group>";
@@ -348,6 +355,8 @@
 				FA322D0B0CEF74B1001761B3 /* rendezvous.h */,
 				FA322D0C0CEF74B1001761B3 /* resolve.c */,
 				FA322D0D0CEF74B1001761B3 /* resolve.h */,
+				FA2D564811EA158B00D37A35 /* pam.h */,
+				FA2D564911EA158B00D37A35 /* pam.c */,
 			);
 			path = ngircd;
 			sourceTree = "<group>";
@@ -688,6 +697,7 @@
 				FAA3D27B0F139CDC00B2447E /* conn-ssl.c in Sources */,
 				FA85178C0FA061EC006A1F5A /* op.c in Sources */,
 				FA99428C10E82A27007F27ED /* proc.c in Sources */,
+				FA2D564A11EA158B00D37A35 /* pam.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

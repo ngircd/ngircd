@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2009 Alexander Barton (alex@barton.de).
+ * Copyright (c)2001-2010 Alexander Barton (alex@barton.de).
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,6 +50,9 @@
 
 /* Define if IPV6 protocol should be enabled */
 #define WANT_IPV6 1
+
+/* Define if PAM should be used */
+#define PAM 1
 
 /* -- Supported features -- */
 
@@ -103,6 +106,13 @@
 #define HAVE_DNSSERVICEDISCOVERY_DNSSERVICEDISCOVERY_H 1
 /* Define to 1 if you have the `DNSServiceRegistrationCreate' function. */
 #define HAVE_DNSSERVICEREGISTRATIONCREATE 1
+#endif
+
+#ifdef PAM
+/* Define to 1 if you have the `pam_authenticate' function. */
+#define HAVE_PAM_AUTHENTICATE 1
+/* Define to 1 if you have the <pam/pam_appl.h> header file. */
+#define HAVE_PAM_PAM_APPL_H 1
 #endif
 
 /* -eof- */

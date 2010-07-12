@@ -1,0 +1,36 @@
+
+                     ngIRCd - Next Generation IRC Server
+
+                        (c)2001-2010 Alexander Barton,
+                    alex@barton.de, http://www.barton.de/
+
+               ngIRCd is free software and published under the
+                   terms of the GNU General Public License.
+
+                                 -- PAM.txt --
+
+
+ngIRCd can optionally be compiled to use PAM, the Pluggable Authentication
+Modules library, for user authentication. When compiled with PAM support,
+ngIRCd will authenticate all users connecting to the daemon using the
+configured PAM modules in an asynchronous child process.
+
+To enable PAM, you have to pass the command line parameter "--with-pam" to
+the "configure" script. Please see the PAM documentation ("man 7 pam") for
+details and information about configuring PAM and its individual modules.
+
+A very simple -- and quite useless ;-) -- example would be:
+
+	/etc/pam.d/ngircd:
+	  auth  required  pam_debug.so
+
+Here the "pam_debug" module will be called each time a client connects to
+the ngIRCd and has sent its PASS, NICK, and USER commands.
+
+Please note ONE VERY IMPORTANT THING:
+
+All the PAM modules are executed with the privileges of the user ngIRCd
+is running as. Therefore a lot of PAM modules aren't working as expected,
+because they need root privileges ("pam_unix", for example)!
+Only PAM modules not(!) requiring root privileges (such as "pam_pgsql",
+"pam_mysql", "pam_opendirectory" ...) can be used in conjunction with ngIRCd.

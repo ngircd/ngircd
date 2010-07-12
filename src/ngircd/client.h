@@ -43,7 +43,7 @@ typedef struct _CLIENT
 	char pwd[CLIENT_PASS_LEN];	/* password received of the client */
 	char host[CLIENT_HOST_LEN];	/* hostname of the client */
 	char user[CLIENT_USER_LEN];	/* user name ("login") */
-#ifdef PAM & IDENTAUTH
+#if defined(PAM) && defined(IDENTAUTH)
 	char orig_user[CLIENT_USER_LEN];/* user name supplied by USER command */
 #endif
 	char info[CLIENT_INFO_LEN];	/* long user name (user) / info text (server) */

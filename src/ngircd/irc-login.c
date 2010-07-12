@@ -20,13 +20,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
+#include <unistd.h>
 
 #include "ngircd.h"
 #include "conn-func.h"
 #include "conf.h"
 #include "channel.h"
+#include "io.h"
 #include "log.h"
 #include "messages.h"
+#include "pam.h"
 #include "parse.h"
 #include "irc.h"
 #include "irc-info.h"
@@ -37,11 +40,17 @@
 
 
 static bool Hello_User PARAMS(( CLIENT *Client ));
+static bool Hello_User_PostAuth PARAMS(( CLIENT *Client ));
 static void Kill_Nick PARAMS(( char *Nick, char *Reason ));
 static void Introduce_Client PARAMS((CLIENT *To, CLIENT *Client, int Type));
+static void Reject_Client PARAMS((CLIENT *Client));
+
 static void cb_introduceClient PARAMS((CLIENT *Client, CLIENT *Prefix,
 				       void *i));
 
+#ifdef PAM
+static void cb_Read_Auth_Result PARAMS((int r_fd, UNUSED short events));
+#endif
 
 /**
  * Handler for the IRC command "PASS".
@@ -760,18 +769,105 @@ IRC_PONG(CLIENT *Client, REQUEST *Req)
 static bool
 Hello_User(CLIENT * Client)
 {
+#ifdef PAM
+	int pipefd[2], result;
+	CONN_ID conn;
+	pid_t pid;
+
+	assert(Client != NULL);
+	conn = Client_Conn(Client);
+
+	pid = Proc_Fork(Conn_GetProcStat(conn), pipefd, cb_Read_Auth_Result);
+	if (pid > 0) {
+		LogDebug("Authenticator for connection %d created (PID %d).",
+			 conn, pid);
+		return CONNECTED;
+	} else {
+		/* Sub process */
+		signal(SIGTERM, Proc_GenericSignalHandler);
+		Log_Init_Subprocess("Auth");
+		result = PAM_Authenticate(Client);
+		write(pipefd[1], &result, sizeof(result));
+		Log_Exit_Subprocess("Auth");
+		exit(0);
+	}
+#else
 	assert(Client != NULL);
 
-	/* Check password ... */
+	/* Check global server password ... */
 	if (strcmp(Client_Password(Client), Conf_ServerPwd) != 0) {
 		/* Bad password! */
-		Log(LOG_ERR,
-		    "Client \"%s\" rejected (connection %d): Bad password!",
-		    Client_Mask(Client), Client_Conn(Client));
-		Conn_Close(Client_Conn(Client), NULL, "Bad password", true);
+		Reject_Client(Client);
 		return DISCONNECTED;
 	}
+	return Hello_User_PostAuth(Client);
+#endif
+}
 
+
+#ifdef PAM
+
+/**
+ * Read result of the authenticatior sub-process from pipe
+ */
+static void
+cb_Read_Auth_Result(int r_fd, UNUSED short events)
+{
+	CONN_ID conn;
+	CLIENT *client;
+	int result;
+	size_t len;
+	PROC_STAT *proc;
+
+	LogDebug("Auth: Got callback on fd %d, events %d", r_fd, events);
+	conn = Conn_GetFromProc(r_fd);
+	if (conn == NONE) {
+		/* Ops, none found? Probably the connection has already
+		 * been closed!? We'll ignore that ... */
+		io_close(r_fd);
+		LogDebug("Auth: Got callback for unknown connection!?");
+		return;
+	}
+	proc = Conn_GetProcStat(conn);
+	client = Conn_GetClient(conn);
+
+	/* Read result from pipe */
+	len = Proc_Read(proc, &result, sizeof(result));
+	if (len == 0)
+		return;
+
+	/* Make sure authenticator sub-process is dead now ... */
+	Proc_Kill(proc);
+
+	if (len != sizeof(result)) {
+		Log(LOG_CRIT, "Auth: Got malformed result!");
+		Reject_Client(client);
+		return;
+	}
+
+	if (result == true)
+		(void)Hello_User_PostAuth(client);
+	else
+		Reject_Client(client);
+}
+
+#endif
+
+
+static void
+Reject_Client(CLIENT *Client)
+{
+	Log(LOG_ERR,
+	    "User \"%s\" rejected (connection %d): Access denied!",
+	    Client_Mask(Client), Client_Conn(Client));
+	Conn_Close(Client_Conn(Client), NULL,
+		   "Access denied! Bad password?", true);
+}
+
+
+static bool
+Hello_User_PostAuth(CLIENT *Client)
+{
 	Introduce_Client(NULL, Client, CLIENT_USER);
 
 	if (!IRC_WriteStrClient
@@ -805,7 +901,7 @@ Hello_User(CLIENT * Client)
 	IRC_SetPenalty(Client, 1);
 
 	return CONNECTED;
-} /* Hello_User */
+}
 
 
 static void

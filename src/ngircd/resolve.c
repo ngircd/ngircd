@@ -23,6 +23,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <signal.h>
 
 #ifdef IDENTAUTH
 #ifdef HAVE_IDENT_H

@@ -119,6 +119,8 @@ Proc_GenericSignalHandler(int Signal)
 
 /**
  * Read bytes from a pipe of a forked child process.
+ * In addition, this function makes sure that the child process is dead
+ * after all data has been read or a fatal error occurred.
  */
 GLOBAL size_t
 Proc_Read(PROC_STAT *proc, void *buffer, size_t buflen)

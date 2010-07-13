@@ -847,9 +847,6 @@ cb_Read_Auth_Result(int r_fd, UNUSED short events)
 	if (len == 0)
 		return;
 
-	/* Make sure authenticator sub-process is dead now ... */
-	Proc_Kill(proc);
-
 	if (len != sizeof(result)) {
 		Log(LOG_CRIT, "Auth: Got malformed result!");
 		Reject_Client(client);

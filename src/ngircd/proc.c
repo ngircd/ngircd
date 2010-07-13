@@ -66,6 +66,7 @@ Proc_Fork(PROC_STAT *proc, int *pipefds, void (*cbfunc)(int, short))
 		return -1;
 	case 0:
 		/* New child process: */
+		signal(SIGTERM, Proc_GenericSignalHandler);
 		close(pipefds[0]);
 		return 0;
 	}

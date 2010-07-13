@@ -42,7 +42,6 @@
 #include "io.h"
 
 
-static void Init_Subprocess PARAMS(( void ));
 static void Do_ResolveAddr PARAMS(( const ng_ipaddr_t *Addr, int Sock, int w_fd ));
 static void Do_ResolveName PARAMS(( const char *Host, int w_fd ));
 
@@ -70,7 +69,7 @@ Resolve_Addr(PROC_STAT * s, const ng_ipaddr_t *Addr, int identsock,
 		return true;
 	} else if( pid == 0 ) {
 		/* Sub process */
-		Init_Subprocess();
+		Log_Init_Subprocess("Resolver");
 		Do_ResolveAddr( Addr, identsock, pipefd[1]);
 		Log_Exit_Subprocess("Resolver");
 		exit(0);
@@ -99,24 +98,13 @@ Resolve_Name( PROC_STAT *s, const char *Host, void (*cbfunc)(int, short))
 		return true;
 	} else if( pid == 0 ) {
 		/* Sub process */
-		Init_Subprocess();
+		Log_Init_Subprocess("Resolver");
 		Do_ResolveName(Host, pipefd[1]);
 		Log_Exit_Subprocess("Resolver");
 		exit(0);
 	}
 	return false;
 } /* Resolve_Name */
-
-
-/**
- * Initialize forked resolver subprocess.
- */
-static void
-Init_Subprocess(void)
-{
-	signal(SIGTERM, Proc_GenericSignalHandler);
-	Log_Init_Subprocess("Resolver");
-}
 
 
 #if !defined(HAVE_GETADDRINFO) || !defined(HAVE_GETNAMEINFO)

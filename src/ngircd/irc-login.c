@@ -785,7 +785,6 @@ Hello_User(CLIENT * Client)
 		return CONNECTED;
 	} else {
 		/* Sub process */
-		signal(SIGTERM, Proc_GenericSignalHandler);
 		Log_Init_Subprocess("Auth");
 		if (Conf_NoPAM) {
 			result = (Client_Password(Client)[0] == '\0');

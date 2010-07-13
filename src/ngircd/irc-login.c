@@ -787,7 +787,10 @@ Hello_User(CLIENT * Client)
 		/* Sub process */
 		signal(SIGTERM, Proc_GenericSignalHandler);
 		Log_Init_Subprocess("Auth");
-		result = PAM_Authenticate(Client);
+		if (Conf_NoPAM) {
+			result = (Client_Password(Client)[0] == '\0');
+		} else
+			result = PAM_Authenticate(Client);
 		write(pipefd[1], &result, sizeof(result));
 		Log_Exit_Subprocess("Auth");
 		exit(0);

@@ -210,6 +210,12 @@ If ngIRCd is compiled with IDENT support this can be used to disable IDENT
 lookups at run time.
 Default: no.
 .TP
+\fBNoPAM\fR
+If ngIRCd is compiled with PAM support this can be used to disable all calls
+to the PAM library at runtime; all users connecting without password are
+allowed to connect, all passwords given will fail.
+Default: no.
+.TP
 \fBConnectIPv4\fR
 Set this to no if you do not want ngIRCd to connect to other IRC servers using
 IPv4. This allows usage of ngIRCd in IPv6-only setups.

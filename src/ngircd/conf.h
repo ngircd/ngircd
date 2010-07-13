@@ -152,6 +152,9 @@ GLOBAL bool Conf_NoDNS;
 /* Disable IDENT lookups, even when compiled with support for it */
 GLOBAL bool Conf_NoIdent;
 
+/* Disable all usage of PAM, even when compiled with support for it */
+GLOBAL bool Conf_NoPAM;
+
 /*
  * try to connect to remote systems using the ipv6 protocol,
  * if they have an ipv6 address? (default yes)

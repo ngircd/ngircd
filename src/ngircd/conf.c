@@ -331,6 +331,7 @@ Conf_Test( void )
 	printf("  PredefChannelsOnly = %s\n", yesno_to_str(Conf_PredefChannelsOnly));
 	printf("  NoDNS = %s\n", yesno_to_str(Conf_NoDNS));
 	printf("  NoIdent = %s\n", yesno_to_str(Conf_NoIdent));
+	printf("  NoPAM = %s\n", yesno_to_str(Conf_NoPAM));
 
 #ifdef WANT_IPV6
 	printf("  ConnectIPv4 = %s\n", yesno_to_str(Conf_ConnectIPv6));
@@ -580,6 +581,7 @@ Set_Defaults(bool InitServers)
 	Conf_ConnectRetry = 60;
 	Conf_NoDNS = false;
 	Conf_NoIdent = false;
+	Conf_NoPAM = false;
 
 	Conf_Oper_Count = 0;
 	Conf_Channel_Count = 0;
@@ -984,6 +986,11 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 				NGIRCd_ConfFile, Line);
 		}
 #endif
+		return;
+	}
+	if(strcasecmp(Var, "NoPAM") == 0) {
+		/* don't use PAM library to authenticate users */
+		Conf_NoPAM = Check_ArgIsTrue(Arg);
 		return;
 	}
 #ifdef WANT_IPV6

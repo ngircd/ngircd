@@ -363,7 +363,7 @@ Client_SetUser( CLIENT *Client, const char *User, bool Idented )
  * @param User User name to set.
  */
 GLOBAL void
-Client_SetOrigUser(CLIENT *Client, const char *User) {
+Client_SetOrigUser(CLIENT UNUSED *Client, const char UNUSED *User) {
 	assert(Client != NULL);
 	assert(User != NULL);
 

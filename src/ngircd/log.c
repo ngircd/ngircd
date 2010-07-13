@@ -264,7 +264,7 @@ va_dcl
 
 
 GLOBAL void
-Log_Init_Subprocess(char *Name)
+Log_Init_Subprocess(char UNUSED *Name)
 {
 #ifdef SYSLOG
 	openlog( PACKAGE_NAME, LOG_CONS|LOG_PID, LOG_LOCAL5 );
@@ -277,7 +277,7 @@ Log_Init_Subprocess(char *Name)
 
 
 GLOBAL void
-Log_Exit_Subprocess(char *Name)
+Log_Exit_Subprocess(char UNUSED *Name)
 {
 #ifdef DEBUG
 	Log_Subprocess(LOG_DEBUG, "%s sub-process %ld done.",

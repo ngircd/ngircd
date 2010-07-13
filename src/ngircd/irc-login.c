@@ -778,6 +778,17 @@ Hello_User(CLIENT * Client)
 	assert(Client != NULL);
 	conn = Client_Conn(Client);
 
+	if (Conf_NoPAM) {
+		/* Don't do any PAM authentication at all, instead emulate
+		 * the beahiour of the daemon compiled without PAM support:
+		 * because there can't be any "server password", all
+		 * passwords supplied are classified as "wrong". */
+		if(Client_Password(Client)[0] == '\0')
+			return Hello_User_PostAuth(Client);
+		Reject_Client(Client);
+		return DISCONNECTED;
+	}
+
 	pid = Proc_Fork(Conn_GetProcStat(conn), pipefd, cb_Read_Auth_Result);
 	if (pid > 0) {
 		LogDebug("Authenticator for connection %d created (PID %d).",
@@ -786,10 +797,7 @@ Hello_User(CLIENT * Client)
 	} else {
 		/* Sub process */
 		Log_Init_Subprocess("Auth");
-		if (Conf_NoPAM) {
-			result = (Client_Password(Client)[0] == '\0');
-		} else
-			result = PAM_Authenticate(Client);
+		result = PAM_Authenticate(Client);
 		write(pipefd[1], &result, sizeof(result));
 		Log_Exit_Subprocess("Auth");
 		exit(0);

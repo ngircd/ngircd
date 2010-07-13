@@ -853,9 +853,10 @@ cb_Read_Auth_Result(int r_fd, UNUSED short events)
 		return;
 	}
 
-	if (result == true)
+	if (result == true) {
+		Client_SetUser(client, Client_OrigUser(client), true);
 		(void)Hello_User_PostAuth(client);
-	else
+	} else
 		Reject_Client(client);
 }
 

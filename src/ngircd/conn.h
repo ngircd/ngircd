@@ -102,6 +102,8 @@ GLOBAL long WCounter;
 GLOBAL void Conn_Init PARAMS((void ));
 GLOBAL void Conn_Exit PARAMS(( void ));
 
+GLOBAL void Conn_CloseAllSockets PARAMS((void));
+
 GLOBAL unsigned int Conn_InitListeners PARAMS(( void ));
 GLOBAL void Conn_ExitListeners PARAMS(( void ));
 

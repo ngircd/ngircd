@@ -419,6 +419,23 @@ Conn_Exit( void )
 } /* Conn_Exit */
 
 
+/**
+ * Close all sockets (file descriptors) of open connections.
+ * This is useful in forked child processes, for example, to make sure that
+ * they don't hold connections open that the main process wants to close.
+ */
+GLOBAL void
+Conn_CloseAllSockets(void)
+{
+	CONN_ID idx;
+
+	for(idx = 0; idx < Pool_Size; idx++) {
+		if(My_Connections[idx].sock > NONE)
+			close(My_Connections[idx].sock);
+	}
+}
+
+
 static unsigned int
 ports_initlisteners(array *a, const char *listen_addr, void (*func)(int,short))
 {

@@ -1091,10 +1091,6 @@ Conn_Close( CONN_ID Idx, const char *LogMsg, const char *FwdMsg, bool InformClie
 		    in_k, out_k);
 	}
 
-	/* Kill possibly running subprocess */
-	if (Proc_InProgress(&My_Connections[Idx].proc_stat))
-		Proc_Kill(&My_Connections[Idx].proc_stat);
-
 	/* Servers: Modify time of next connect attempt? */
 	Conf_UnsetServer( Idx );
 

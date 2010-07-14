@@ -26,9 +26,7 @@ typedef struct _Proc_Stat {
 GLOBAL void Proc_InitStruct PARAMS((PROC_STAT *proc));
 
 GLOBAL pid_t Proc_Fork PARAMS((PROC_STAT *proc, int *pipefds,
-			       void (*cbfunc)(int, short)));
-
-GLOBAL void Proc_Kill PARAMS((PROC_STAT *proc));
+			       void (*cbfunc)(int, short), int timeout));
 
 GLOBAL void Proc_GenericSignalHandler PARAMS((int Signal));
 

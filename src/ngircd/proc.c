@@ -23,6 +23,7 @@
 
 #include "log.h"
 #include "io.h"
+#include "conn.h"
 
 #include "exp.h"
 #include "proc.h"
@@ -42,7 +43,7 @@ Proc_InitStruct (PROC_STAT *proc)
  * Fork a child process.
  */
 GLOBAL pid_t
-Proc_Fork(PROC_STAT *proc, int *pipefds, void (*cbfunc)(int, short))
+Proc_Fork(PROC_STAT *proc, int *pipefds, void (*cbfunc)(int, short), int timeout)
 {
 	pid_t pid;
 
@@ -67,7 +68,10 @@ Proc_Fork(PROC_STAT *proc, int *pipefds, void (*cbfunc)(int, short))
 	case 0:
 		/* New child process: */
 		signal(SIGTERM, Proc_GenericSignalHandler);
+		signal(SIGALRM, Proc_GenericSignalHandler);
 		close(pipefds[0]);
+		alarm(timeout);
+		Conn_CloseAllSockets();
 		return 0;
 	}
 
@@ -88,21 +92,6 @@ Proc_Fork(PROC_STAT *proc, int *pipefds, void (*cbfunc)(int, short))
 }
 
 /**
- * Kill forked child process.
- */
-GLOBAL void
-Proc_Kill(PROC_STAT *proc)
-{
-	assert(proc != NULL);
-
-	if (proc->pipe_fd > 0)
-		io_close(proc->pipe_fd);
-	if (proc->pid > 0)
-		kill(proc->pid, SIGTERM);
-	Proc_InitStruct(proc);
-}
-
-/**
  * Generic signal handler for forked child processes.
  */
 GLOBAL void
@@ -114,12 +103,17 @@ Proc_GenericSignalHandler(int Signal)
 		Log_Subprocess(LOG_DEBUG, "Child got TERM signal, exiting.");
 #endif
 		exit(1);
+	case SIGALRM:
+#ifdef DEBUG
+		Log_Subprocess(LOG_DEBUG, "Child got ALARM signal, exiting.");
+#endif
+		exit(1);
 	}
 }
 
 /**
  * Read bytes from a pipe of a forked child process.
- * In addition, this function makes sure that the child process is dead
+ * In addition, this function makes sure that the child process is ignored
  * after all data has been read or a fatal error occurred.
  */
 GLOBAL size_t
@@ -142,7 +136,7 @@ Proc_Read(PROC_STAT *proc, void *buffer, size_t buflen)
 	else if (bytes_read == 0)
 		LogDebug("Can't read from child process %ld: EOF", proc->pid);
 #endif
-	Proc_Kill(proc);
+	Proc_InitStruct(proc);
 	return (size_t)bytes_read;
 }
 

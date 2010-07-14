@@ -12,6 +12,8 @@
  */
 
 
+#define RESOLVER_TIMEOUT (Conf_PongTimeout*3)/4
+
 #include "portab.h"
 
 #include "imp.h"
@@ -33,6 +35,7 @@
 
 #include "array.h"
 #include "conn.h"
+#include "conf.h"
 #include "defines.h"
 #include "log.h"
 #include "ng_ipaddr.h"
@@ -63,7 +66,7 @@ Resolve_Addr(PROC_STAT * s, const ng_ipaddr_t *Addr, int identsock,
 
 	assert(s != NULL);
 
-	pid = Proc_Fork(s, pipefd, cbfunc);
+	pid = Proc_Fork(s, pipefd, cbfunc, RESOLVER_TIMEOUT);
 	if (pid > 0) {
 		LogDebug("Resolver for %s created (PID %d).", ng_ipaddr_tostr(Addr), pid);
 		return true;
@@ -89,7 +92,7 @@ Resolve_Name( PROC_STAT *s, const char *Host, void (*cbfunc)(int, short))
 
 	assert(s != NULL);
 
-	pid = Proc_Fork(s, pipefd, cbfunc);
+	pid = Proc_Fork(s, pipefd, cbfunc, RESOLVER_TIMEOUT);
 	if (pid > 0) {
 		/* Main process */
 #ifdef DEBUG

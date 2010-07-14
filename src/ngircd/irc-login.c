@@ -789,7 +789,10 @@ Hello_User(CLIENT * Client)
 		return DISCONNECTED;
 	}
 
-	pid = Proc_Fork(Conn_GetProcStat(conn), pipefd, cb_Read_Auth_Result);
+	/* Fork child process for PAM authentication; and make sure that the
+	 * process timeout is set higher than the login timeout! */
+	pid = Proc_Fork(Conn_GetProcStat(conn), pipefd,
+			cb_Read_Auth_Result, Conf_PongTimeout + 1);
 	if (pid > 0) {
 		LogDebug("Authenticator for connection %d created (PID %d).",
 			 conn, pid);

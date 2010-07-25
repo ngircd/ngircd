@@ -330,7 +330,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 			}
 		}
 
-		if (!onchannel && !use_servermode)
+		if (!onchannel && !modeok)
 			return IRC_WriteStrClient(Origin, ERR_NOTONCHANNEL_MSG,
 				Client_ID(Origin), Channel_Name(Channel));
 	}

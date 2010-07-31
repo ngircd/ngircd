@@ -67,7 +67,7 @@ static void Pidfile_Delete PARAMS(( void ));
 
 static void Fill_Version PARAMS(( void ));
 
-static void Setup_FDStreams PARAMS(( void ));
+static void Setup_FDStreams PARAMS(( int fd ));
 
 static bool NGIRCd_Init PARAMS(( bool ));
 
@@ -646,27 +646,16 @@ Pidfile_Create(pid_t pid)
  * Redirect stdin, stdout and stderr to apropriate file handles.
  */
 static void
-Setup_FDStreams( void )
+Setup_FDStreams(int fd)
 {
-	int fd;
-
-	/* Test if we can open /dev/null for reading and writing. If not
-	 * we are most probably chrooted already and the server has been
-	 * restarted. So we simply don't try to redirect stdXXX ... */
-	fd = open( "/dev/null", O_RDWR );
-	if ( fd < 0 ) {
-		Log(LOG_WARNING, "Could not open /dev/null: %s", strerror(errno));	
+	if (fd < 0)
 		return;
-	} 
 
 	fflush(stdout);
 	fflush(stderr);
 
 	/* Create new stdin(0), stdout(1) and stderr(2) descriptors */
 	dup2( fd, 0 ); dup2( fd, 1 ); dup2( fd, 2 );
-
-	/* Close newly opened file descriptor if not stdin/out/err */
-	if( fd > 2 ) close( fd );
 } /* Setup_FDStreams */
 
 
@@ -709,11 +698,18 @@ NGIRCd_Init( bool NGIRCd_NoDaemon )
 	bool chrooted = false;
 	struct passwd *pwd;
 	struct group *grp;
-	int real_errno;
+	int real_errno, fd = -1;
 	pid_t pid;
 
 	if (initialized)
 		return true;
+
+	if (!NGIRCd_NoDaemon) {
+		/* open /dev/null before chroot() */
+		fd = open( "/dev/null", O_RDWR);
+		if (fd < 0)
+			Log(LOG_WARNING, "Could not open /dev/null: %s", strerror(errno));
+	}
 
 	if (!ConnSSL_InitLibrary())
 		Log(LOG_WARNING,
@@ -722,15 +718,14 @@ NGIRCd_Init( bool NGIRCd_NoDaemon )
 	if( Conf_Chroot[0] ) {
 		if( chdir( Conf_Chroot ) != 0 ) {
 			Log( LOG_ERR, "Can't chdir() in ChrootDir (%s): %s", Conf_Chroot, strerror( errno ));
-			return false;
+			goto out;
 		}
 
 		if( chroot( Conf_Chroot ) != 0 ) {
 			if (errno != EPERM) {
 				Log( LOG_ERR, "Can't change root directory to \"%s\": %s",
 								Conf_Chroot, strerror( errno ));
-
-				return false;
+				goto out;
 			}
 		} else {
 			chrooted = true;
@@ -744,7 +739,7 @@ NGIRCd_Init( bool NGIRCd_NoDaemon )
   		if (! NGIRCd_getNobodyID(&Conf_UID, &Conf_GID)) {
 			Log(LOG_WARNING, "Could not get user/group ID of user \"nobody\": %s",
 					errno ? strerror(errno) : "not found" );
-			return false;
+			goto out;
 		}
 	}
 
@@ -754,7 +749,7 @@ NGIRCd_Init( bool NGIRCd_NoDaemon )
 			real_errno = errno;
 			Log( LOG_ERR, "Can't change group ID to %u: %s", Conf_GID, strerror( errno ));
 			if (real_errno != EPERM) 
-				return false;
+				goto out;
 		}
 	}
 
@@ -764,7 +759,7 @@ NGIRCd_Init( bool NGIRCd_NoDaemon )
 			real_errno = errno;
 			Log(LOG_ERR, "Can't change user ID to %u: %s", Conf_UID, strerror(errno));
 			if (real_errno != EPERM) 
-				return false;
+				goto out;
 		}
 	}
 
@@ -797,7 +792,11 @@ NGIRCd_Init( bool NGIRCd_NoDaemon )
 				     strerror(errno));
 
 		/* Detach stdin, stdout and stderr */
-		Setup_FDStreams( );
+		Setup_FDStreams(fd);
+		if (fd > 2) {
+			close(fd);
+			fd = -1;
+		}
 	}
 	pid = getpid();
 
@@ -824,8 +823,8 @@ NGIRCd_Init( bool NGIRCd_NoDaemon )
 
 	/* Change working directory to home directory of the user
 	 * we are running as (only when running in daemon mode and not in chroot) */
-	
-	if ( pwd ) {
+
+	if (pwd) {
 		if (!NGIRCd_NoDaemon ) {
 			if( chdir( pwd->pw_dir ) == 0 ) 
 				Log( LOG_DEBUG, "Changed working directory to \"%s\" ...", pwd->pw_dir );
@@ -837,7 +836,11 @@ NGIRCd_Init( bool NGIRCd_NoDaemon )
 		Log( LOG_ERR, "Can't get user informaton for UID %d!?", Conf_UID );
 	}
 
-return true;
+	return true;
+ out:
+	if (fd > 2)
+		close(fd);
+	return false;
 }
 
 /* -eof- */

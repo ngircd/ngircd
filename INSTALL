@@ -9,10 +9,14 @@
 
                                 -- INSTALL --
 
-                         
 
 I. Upgrade Information
 ~~~~~~~~~~~~~~~~~~~~~~
+
+Differences to version 16
+
+- Changes to the "MotdFile" specified in ngircd.conf now require a ngircd configuration
+  reload to take effect.
 
 Differences to version 0.9.x
 

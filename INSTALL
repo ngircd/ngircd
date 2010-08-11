@@ -194,6 +194,18 @@ standard locations.
   Enable support for PAM, the Pluggable Authentication Modules library.
   See doc/PAM.txt for details.
 
+* SSL:
+  --with-openssl[=<path>]
+  --with-gnutls[=<path>]
+
+  Enable support for SSL/TLS using OpenSSL or gnutls libraries.
+  See doc/SSL.txt for details.
+
+* IPv6:
+  --enable-ipv6
+
+  Adds support for version 6 of the Internet Protocol.
+
 
 IV. Useful make-targets
 ~~~~~~~~~~~~~~~~~~~~~~~

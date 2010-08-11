@@ -118,12 +118,11 @@ IP addresses and interfaces by default.
 .TP
 \fBMotdFile\fR
 Text file with the "message of the day" (MOTD). This message will be shown
-to all users connecting to the server.
+to all users connecting to the server. Changes made to this file
+take effect when ngircd is instructed to re-read its configuration file.
 .TP
 \fBMotdPhrase\fR
 A simple Phrase (<256 chars) if you don't want to use a MOTD file.
-If this variable is set, no \fBMotdFile\fR will be read at all which can be
-handy if the daemon should run inside a chroot directory.
 .TP
 \fBServerUID\fR
 User ID under which the server should run; you can use the name of the user

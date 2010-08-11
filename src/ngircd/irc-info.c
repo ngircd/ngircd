@@ -1231,45 +1231,30 @@ static inline bool Show_MOTD_SSLInfo(UNUSED CLIENT *c) { return true; }
 GLOBAL bool
 IRC_Show_MOTD( CLIENT *Client )
 {
-	char line[127];
-	FILE *fd;
+	const char *line;
+	size_t len_tot, len_str;
 
 	assert( Client != NULL );
 
-	if (Conf_MotdPhrase[0]) {
-		if (!Show_MOTD_Start(Client))
+	len_tot = array_bytes(&Conf_Motd);
+	if (len_tot == 0 && !Conn_UsesSSL(Client_Conn(Client)))
+		return IRC_WriteStrClient(Client, ERR_NOMOTD_MSG, Client_ID(Client));
+
+	if (!Show_MOTD_Start(Client))
+		return DISCONNECTED;
+
+	line = array_start(&Conf_Motd);
+	while (len_tot > 0) {
+		len_str = strlen(line) + 1;
+
+		assert(len_tot >= len_str);
+		len_tot -= len_str;
+
+		if (!Show_MOTD_Sendline(Client, line))
 			return DISCONNECTED;
-		if (!Show_MOTD_Sendline(Client, Conf_MotdPhrase))
-			return DISCONNECTED;
-		goto out;
+		line += len_str;
 	}
 
-	fd = fopen( Conf_MotdFile, "r" );
-	if( ! fd ) {
-		Log( LOG_WARNING, "Can't read MOTD file \"%s\": %s", Conf_MotdFile, strerror( errno ));
-		if (Conn_UsesSSL(Client_Conn(Client))) {
-			if (!Show_MOTD_Start(Client))
-				return DISCONNECTED;
-			goto out;
-		}
-		return IRC_WriteStrClient( Client, ERR_NOMOTD_MSG, Client_ID( Client ) );
-	}
-
-	if (!Show_MOTD_Start( Client )) {
-		fclose(fd);
-		return false;
-	}
-
-	while (fgets( line, (int)sizeof line, fd )) {
-		ngt_TrimLastChr( line, '\n');
-
-		if( ! Show_MOTD_Sendline( Client, line)) {
-			fclose( fd );
-			return false;
-		}
-	}
-	fclose(fd);
-out:
 	if (!Show_MOTD_SSLInfo(Client))
 		return DISCONNECTED;
 	return Show_MOTD_End(Client);

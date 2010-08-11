@@ -93,7 +93,6 @@
 
 #define CONFIG_FILE "/ngircd.conf"	/* Configuration file name. */
 #define MOTD_FILE "/ngircd.motd"	/* Name of the MOTD file. */
-#define MOTD_PHRASE ""			/* Default MOTD phrase string. */
 #define CHROOT_DIR ""			/* Default chroot() directory. */
 #define PID_FILE ""			/* Default file for the process ID. */
 

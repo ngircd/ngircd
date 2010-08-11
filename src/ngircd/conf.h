@@ -94,11 +94,8 @@ GLOBAL char Conf_ServerAdmin1[CLIENT_INFO_LEN];
 GLOBAL char Conf_ServerAdmin2[CLIENT_INFO_LEN];
 GLOBAL char Conf_ServerAdminMail[CLIENT_INFO_LEN];
 
-/* File with MOTD text */
-GLOBAL char Conf_MotdFile[FNAME_LEN];
-
-/* Phrase with MOTD text */
-GLOBAL char Conf_MotdPhrase[LINE_LEN];
+/* Message of the Day */
+GLOBAL array Conf_Motd;
 
 /* Ports the server should listen on */
 GLOBAL array Conf_ListenPorts;

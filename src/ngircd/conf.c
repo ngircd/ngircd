@@ -55,6 +55,8 @@ static int New_Server_Idx;
 
 static size_t Conf_Oper_Count;
 static size_t Conf_Channel_Count;
+static char Conf_MotdFile[FNAME_LEN];
+
 static void Set_Defaults PARAMS(( bool InitServers ));
 static bool Read_Config PARAMS(( bool ngircd_starting ));
 static bool Validate_Config PARAMS(( bool TestOnly, bool Rehash ));
@@ -299,7 +301,7 @@ Conf_Test( void )
 	printf("  AdminInfo2 = %s\n", Conf_ServerAdmin2);
 	printf("  AdminEMail = %s\n", Conf_ServerAdminMail);
 	printf("  MotdFile = %s\n", Conf_MotdFile);
-	printf("  MotdPhrase = %s\n", Conf_MotdPhrase);
+	printf("  MotdPhrase = %.32s\n", array_bytes(&Conf_Motd) ? (const char*) array_start(&Conf_Motd) : "");
 	printf("  ChrootDir = %s\n", Conf_Chroot);
 	printf("  PidFile = %s\n", Conf_PidFile);
 	printf("  Listen = %s\n", Conf_ListenAddress);
@@ -567,7 +569,6 @@ Set_Defaults(bool InitServers)
 
 	strlcpy(Conf_MotdFile, SYSCONFDIR, sizeof(Conf_MotdFile));
 	strlcat(Conf_MotdFile, MOTD_FILE, sizeof(Conf_MotdFile));
-	strlcpy(Conf_MotdPhrase, MOTD_PHRASE, sizeof(Conf_MotdPhrase));
 
 	Conf_UID = Conf_GID = 0;
 	strlcpy(Conf_Chroot, CHROOT_DIR, sizeof(Conf_Chroot));
@@ -615,6 +616,36 @@ no_listenports(void)
 	cnt += array_bytes(&Conf_SSLOptions.ListenPorts);
 #endif
 	return cnt == 0;
+}
+
+static void
+Read_Motd(const char *filename)
+{
+	char line[127];
+	FILE *fp;
+
+	if (*filename == '\0')
+		return;
+
+	fp = fopen(filename, "r");
+	if (!fp) {
+		Log(LOG_WARNING, "Can't read MOTD file \"%s\": %s",
+					filename, strerror(errno));
+		return;
+	}
+
+	array_free(&Conf_Motd);
+
+	while (fgets(line, (int)sizeof line, fp)) {
+		ngt_TrimLastChr( line, '\n');
+
+		/* add text including \0 */
+		if (!array_catb(&Conf_Motd, line, strlen(line) + 1)) {
+			Log(LOG_WARNING, "Cannot add MOTD text: %s", strerror(errno));
+			break;
+		}
+	}
+	fclose(fp);
 }
 
 static bool
@@ -780,6 +811,10 @@ Read_Config( bool ngircd_starting )
 		Config_Error(LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE_NAME);
 		exit(1);
 	}
+
+	/* No MOTD phrase configured? (re)try motd file. */
+	if (array_bytes(&Conf_Motd) == 0)
+		Read_Motd(Conf_MotdFile);
 	return true;
 } /* Read_Config */
 
@@ -814,6 +849,7 @@ static unsigned int Handle_MaxNickLength(int Line, const char *Arg)
 	}
 	return new;
 } /* Handle_MaxNickLength */
+
 
 
 static void
@@ -882,17 +918,24 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 		return;
 	}
 	if( strcasecmp( Var, "MotdFile" ) == 0 ) {
-		/* "Message of the day" (MOTD) file */
 		len = strlcpy( Conf_MotdFile, Arg, sizeof( Conf_MotdFile ));
 		if (len >= sizeof( Conf_MotdFile ))
 			Config_Error_TooLong( Line, Var );
+		Read_Motd(Arg);
 		return;
 	}
 	if( strcasecmp( Var, "MotdPhrase" ) == 0 ) {
 		/* "Message of the day" phrase (instead of file) */
-		len = strlcpy( Conf_MotdPhrase, Arg, sizeof( Conf_MotdPhrase ));
-		if (len >= sizeof( Conf_MotdPhrase ))
+		len = strlen(Arg);
+		if (len == 0)
+			return;
+		if (len >= LINE_LEN) {
 			Config_Error_TooLong( Line, Var );
+			return;
+		}
+		if (!array_copyb(&Conf_Motd, Arg, len + 1))
+			Config_Error(LOG_WARNING, "%s, line %d: Could not append MotdPhrase: %s",
+							NGIRCd_ConfFile, Line, strerror(errno));
 		return;
 	}
 	if( strcasecmp( Var, "ChrootDir" ) == 0 ) {

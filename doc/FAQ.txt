@@ -1,7 +1,7 @@
 
                      ngIRCd - Next Generation IRC Server
 
-                      (c)2001-2003 by Alexander Barton,
+                      (c)2001-2010 by Alexander Barton,
                     alex@barton.de, http://www.barton.de/
 
                ngIRCd is free software and published under the
@@ -12,9 +12,11 @@
 
 I. General
 ~~~~~~~~~~
+
 Q: Is it possible to link the ngIRCd with non-ngIRCd servers?
 A: Yes. ngIRCd is compatible to the original ircd used by IRCNet. Actually
-   this is being tested with version 2.10.3p3.
+   this is being tested with version 2.10.3p3. Please note that newer
+   versions (2.11.x) aren't compatible any more!
 
 Q: Is there a homepage with further information and downloads?
 A: Yes. Please visit <http://ngircd.barton.de/>.
@@ -26,6 +28,7 @@ A: ngIRCd offers several benefits: no problems with dynamic IPs, easy to
 
 II. Compilation
 ~~~~~~~~~~~~~~~
+
 Q: I did a "CVS checkout" but can't execute ./configure because the script
    is missing in the generated directory!?
 A: When using development versions via CVS, the configure script as well as
@@ -55,27 +58,33 @@ III. Runtime
 ~~~~~~~~~~~~
 
 Q: Where is the log file located?
-A: ngIRCd does not write its own log file. Instead, ngIRCd uses
-   syslog(3). Check the files in /var/log/ and/or consult the
-   documentation for your system logger daemon.
+A: ngIRCd does not write its own log file. Instead, ngIRCd uses syslog(3).
+   Check the files in /var/log/ and/or consult the documentation for your
+   system logger daemon.
+
 Q: I cannot connect to remote peers when I use the chroot option, the
    following is logged: "Can't resolve example.com: unknown error!".
 A: On Linux/glibc with chroot enabled you need to put some libraries inside
    the chroot as well, notably libnss_dns; maybe others. Unfortunately, even
-   linking ngircd statically does not help this. The only known workaround
+   linking ngIRCd statically does not help this. The only known workaround
    is to either disable chroot support or to link against dietlibc instead
    of glibc. (tnx to Sebastian Siewior)
+
 Q: I have added an [Oper] section, how do i log on as IRC operator?
 A: You can use the /OPER command in your IRC client to become an IRC operator.
    ngIRCd will also log all OPER requests (using syslog), if OPER fails you
    can look there to determine why it did not work (bad password, unauthorized
    host mask, etc.)
+
 Q: I am an IRC operator, but MODE doesn't work!
-A: You need to set 'OperCanUseMode = yes' in ngircd.conf to enable MODE for IRC
-   operators.
+A: You need to set 'OperCanUseMode = yes' in ngircd.conf, then IRC operators
+   can use the MODE command for changing modes even when they are not joined
+   to the specific channel.
+
 
 IV. Bugs!?
 ~~~~~~~~~~
+
 Q: Is there a list of known bugs and desired feature enhancements?
 A: Yes. Have a look at the bug tracking system (Bugzilla) for ngIRCd located
    at <http://ngircd.barton.de/bugzilla/index.cgi>. There you can file bug
@@ -85,6 +94,3 @@ Q: What should I do if I found a bug?
 A: Please file a bug report at <http://ngircd.barton.de/bugzilla/index.cgi>!
    The author of the particular component will be notified automagically :-)
 
-
--- 
-$Id: FAQ.txt,v 1.12 2008/01/02 22:47:58 alex Exp $

@@ -39,6 +39,7 @@
 static const char *Get_Prefix PARAMS((CLIENT *Target, CLIENT *Client));
 static void cb_writeStrServersPrefixFlag PARAMS((CLIENT *Client,
 					 CLIENT *Prefix, void *Buffer));
+static bool Send_Marked_Connections PARAMS((CLIENT *Prefix, const char *Buffer));
 
 
 #ifdef PROTOTYPES
@@ -159,7 +160,6 @@ const char *Format;
 va_dcl
 #endif
 {
-	bool ok = CONNECTED;
 	char buffer[1000];
 	CL2CHAN *cl2chan;
 	CONN_ID conn;
@@ -201,19 +201,7 @@ va_dcl
 		}
 		cl2chan = Channel_NextMember( Chan, cl2chan );
 	}
-
-	conn = Conn_First( );
-	while( conn != NONE )
-	{
-		/* do we need to send data via this connection? */
-		if( Conn_Flag( conn ) == SEND_TO_SERVER) ok = Conn_WriteStr( conn, ":%s %s", Client_ID( Prefix ), buffer );
-		else if( Conn_Flag( conn ) == SEND_TO_USER ) ok = Conn_WriteStr( conn, ":%s %s", Client_Mask( Prefix ), buffer );
-		if( ! ok ) break;
-
-		conn = Conn_Next( conn );
-	}
-
-	return ok;
+	return Send_Marked_Connections(Prefix, buffer);
 } /* IRC_WriteStrChannelPrefix */
 
 
@@ -346,7 +334,6 @@ const char *Format;
 va_dcl
 #endif
 {
-	bool ok = CONNECTED;
 	CL2CHAN *chan_cl2chan, *cl2chan;
 	char buffer[1000];
 	CHANNEL *chan;
@@ -394,18 +381,7 @@ va_dcl
 
 		chan_cl2chan = Channel_NextChannelOf( Client, chan_cl2chan );
 	}
-
-	conn = Conn_First( );
-	while( conn != NONE )
-	{
-		/* send data via this connection? */
-		if( Conn_Flag( conn ) == SEND_TO_SERVER ) ok = Conn_WriteStr( conn, ":%s %s", Client_ID( Prefix ), buffer );
-		else if( Conn_Flag( conn ) == SEND_TO_USER ) ok = Conn_WriteStr( conn, ":%s %s", Client_Mask( Prefix ), buffer );
-		if( ! ok ) break;
-
-		conn = Conn_Next( conn );
-	}
-	return ok;
+	return Send_Marked_Connections(Prefix, buffer);
 } /* IRC_WriteStrRelatedPrefix */
 
 
@@ -488,6 +464,31 @@ cb_writeStrServersPrefixFlag(CLIENT *Client, CLIENT *Prefix, void *Buffer)
 {
 	IRC_WriteStrClientPrefix(Client, Prefix, "%s", Buffer);
 } /* cb_writeStrServersPrefixFlag */
+
+
+static bool
+Send_Marked_Connections(CLIENT *Prefix, const char *Buffer)
+{
+	CONN_ID conn;
+	bool ok = CONNECTED;
+
+	assert(Prefix != NULL);
+	assert(Buffer != NULL);
+
+	conn = Conn_First();
+	while (conn != NONE) {
+		if (Conn_Flag(conn) == SEND_TO_SERVER)
+			ok = Conn_WriteStr(conn, ":%s %s",
+					   Client_ID(Prefix), Buffer);
+		else if (Conn_Flag(conn) == SEND_TO_USER)
+			ok = Conn_WriteStr(conn, ":%s %s",
+					   Client_MaskCloaked(Prefix), Buffer);
+		if (!ok)
+			break;
+		conn = Conn_Next( conn );
+	}
+	return ok;
+}
 
 
 /* -eof- */

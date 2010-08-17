@@ -728,9 +728,11 @@ IRC_VERSION( CLIENT *Client, REQUEST *Req )
 static bool
 write_whoreply(CLIENT *Client, CLIENT *c, const char *channelname, const char *flags)
 {
-	return IRC_WriteStrClient(Client, RPL_WHOREPLY_MSG, Client_ID(Client), channelname,
-			Client_User(c), Client_Hostname(c), Client_ID(Client_Introducer(c)), Client_ID(c),
-			flags, Client_Hops(c), Client_Info(c));
+	return IRC_WriteStrClient(Client, RPL_WHOREPLY_MSG, Client_ID(Client),
+				  channelname, Client_User(c),
+				  Client_HostnameCloaked(c),
+				  Client_ID(Client_Introducer(c)), Client_ID(c),
+				  flags, Client_Hops(c), Client_Info(c));
 }
 
 
@@ -1327,7 +1329,6 @@ IRC_Send_NAMES( CLIENT *Client, CHANNEL *Chan )
 
 	return CONNECTED;
 } /* IRC_Send_NAMES */
-
 
 
 /**

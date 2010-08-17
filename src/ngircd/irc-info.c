@@ -627,42 +627,51 @@ IRC_TIME( CLIENT *Client, REQUEST *Req )
 } /* IRC_TIME */
 
 
+/**
+ * Handler for the IRC command "USERHOST".
+ * See RFC 2812 section 4.8.
+ */
 GLOBAL bool
-IRC_USERHOST( CLIENT *Client, REQUEST *Req )
+IRC_USERHOST(CLIENT *Client, REQUEST *Req)
 {
 	char rpl[COMMAND_LEN];
 	CLIENT *c;
 	int max, i;
 
-	assert( Client != NULL );
-	assert( Req != NULL );
+	assert(Client != NULL);
+	assert(Req != NULL);
 
-	if(( Req->argc < 1 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	if ((Req->argc < 1))
+		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+					  Client_ID(Client), Req->command);
 
-	if( Req->argc > 5 ) max = 5;
-	else max = Req->argc;
+	if (Req->argc > 5)
+		max = 5;
+	else
+		max = Req->argc;
 
-	strlcpy( rpl, RPL_USERHOST_MSG, sizeof rpl );
-	for( i = 0; i < max; i++ )
-	{
-		c = Client_Search( Req->argv[i] );
-		if( c && ( Client_Type( c ) == CLIENT_USER ))
-		{
+	strlcpy(rpl, RPL_USERHOST_MSG, sizeof rpl);
+	for (i = 0; i < max; i++) {
+		c = Client_Search(Req->argv[i]);
+		if (c && (Client_Type(c) == CLIENT_USER)) {
 			/* This Nick is "online" */
-			strlcat( rpl, Client_ID( c ), sizeof( rpl ));
-			if( Client_HasMode( c, 'o' )) strlcat( rpl, "*", sizeof( rpl ));
-			strlcat( rpl, "=", sizeof( rpl ));
-			if( Client_HasMode( c, 'a' )) strlcat( rpl, "-", sizeof( rpl ));
-			else strlcat( rpl, "+", sizeof( rpl ));
-			strlcat( rpl, Client_User( c ), sizeof( rpl ));
-			strlcat( rpl, "@", sizeof( rpl ));
-			strlcat( rpl, Client_Hostname( c ), sizeof( rpl ));
-			strlcat( rpl, " ", sizeof( rpl ));
+			strlcat(rpl, Client_ID(c), sizeof(rpl));
+			if (Client_HasMode(c, 'o'))
+				strlcat(rpl, "*", sizeof(rpl));
+			strlcat(rpl, "=", sizeof(rpl));
+			if (Client_HasMode(c, 'a'))
+				strlcat(rpl, "-", sizeof(rpl));
+			else
+				strlcat(rpl, "+", sizeof(rpl));
+			strlcat(rpl, Client_User(c), sizeof(rpl));
+			strlcat(rpl, "@", sizeof(rpl));
+			strlcat(rpl, Client_Hostname(c), sizeof(rpl));
+			strlcat(rpl, " ", sizeof(rpl));
 		}
 	}
-	ngt_TrimLastChr( rpl, ' ');
+	ngt_TrimLastChr(rpl, ' ');
 
-	return IRC_WriteStrClient( Client, rpl, Client_ID( Client ) );
+	return IRC_WriteStrClient(Client, rpl, Client_ID(Client));
 } /* IRC_USERHOST */
 
 

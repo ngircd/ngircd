@@ -616,7 +616,7 @@ B=`eval echo ${bindir}` ; B=`eval echo ${B}`
 S=`eval echo ${sbindir}` ; S=`eval echo ${S}`
 C=`eval echo ${sysconfdir}` ; C=`eval echo ${C}`
 M=`eval echo ${mandir}` ; M=`eval echo ${M}`
-D=`eval echo ${datadir}/doc/${PACKAGE}` ; D=`eval echo ${D}`
+D=`eval echo ${docdir}` ; D=`eval echo ${D}`
 
 echo "             Target: ${target}"
 test "$target" != "$host" && echo "               Host: ${host}"

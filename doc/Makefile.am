@@ -19,7 +19,7 @@ EXTRA_DIST = FAQ.txt GIT.txt Protocol.txt Platforms.txt README-AUX.txt \
 maintainer-clean-local:
 	rm -f Makefile Makefile.in
 
-docdir = $(datadir)/doc/$(PACKAGE)
+docdir ?= $(datadir)/doc/$(PACKAGE)
 
 documents = $(EXTRA_DIST) ../AUTHORS ../COPYING ../ChangeLog ../INSTALL \
 	../NEWS ../README

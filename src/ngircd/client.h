@@ -93,12 +93,14 @@ GLOBAL int Client_Type PARAMS(( CLIENT *Client ));
 GLOBAL CONN_ID Client_Conn PARAMS(( CLIENT *Client ));
 GLOBAL char *Client_ID PARAMS(( CLIENT *Client ));
 GLOBAL char *Client_Mask PARAMS(( CLIENT *Client ));
+GLOBAL char *Client_MaskCloaked PARAMS(( CLIENT *Client ));
 GLOBAL char *Client_Info PARAMS(( CLIENT *Client ));
 GLOBAL char *Client_User PARAMS(( CLIENT *Client ));
 #ifdef PAM
 GLOBAL char *Client_OrigUser PARAMS(( CLIENT *Client ));
 #endif
 GLOBAL char *Client_Hostname PARAMS(( CLIENT *Client ));
+GLOBAL char *Client_HostnameCloaked PARAMS(( CLIENT *Client ));
 GLOBAL char *Client_Password PARAMS(( CLIENT *Client ));
 GLOBAL char *Client_Modes PARAMS(( CLIENT *Client ));
 GLOBAL char *Client_Flags PARAMS(( CLIENT *Client ));

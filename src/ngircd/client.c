@@ -660,6 +660,23 @@ Client_Hostname(CLIENT *Client)
 } /* Client_Hostname */
 
 
+/**
+ * Get potentially cloaked hostname of a client.
+ * If the client has not enabled cloaking, the real hostname is used.
+ * @param Client Pointer to client structure
+ * @return Pointer to client hostname
+ */
+GLOBAL char *
+Client_HostnameCloaked(CLIENT *Client)
+{
+	assert(Client != NULL);
+	if (Client_HasMode(Client, 'x'))
+		return Client_ID(Client->introducer);
+	else
+		return Client_Hostname(Client);
+} /* Client_HostnameCloaked */
+
+
 GLOBAL char *
 Client_Password( CLIENT *Client )
 {
@@ -754,6 +771,32 @@ Client_Mask( CLIENT *Client )
 		 Client->id, Client->user, Client->host);
 	return Mask_Buffer;
 } /* Client_Mask */
+
+
+/**
+ * Return ID of a client with cloaked hostname: "client!user@server-name"
+ * This client ID is used for IRC prefixes, for example.
+ * Please note that this function uses a global static buffer, so you can't
+ * nest invocations without overwriting erlier results!
+ * If the client has not enabled cloaking, the real hostname is used.
+ * @param Client Pointer to client structure
+ * @return Pointer to global buffer containing the client ID
+ */
+GLOBAL char *
+Client_MaskCloaked(CLIENT *Client)
+{
+	static char Mask_Buffer[GETID_LEN];
+
+	assert (Client != NULL);
+
+	/* Is the client using cloaking at all? */
+	if (!Client_HasMode(Client, 'x'))
+	    return Client_Mask(Client);
+
+	snprintf(Mask_Buffer, GETID_LEN, "%s!%s@%s",
+		 Client->id, Client->user, Client_ID(Client->introducer));
+	return Mask_Buffer;
+} /* Client_MaskCloaked */
 
 
 GLOBAL CLIENT *

@@ -647,10 +647,15 @@ Client_OrigUser(CLIENT *Client) {
 #endif
 
 
+/**
+ * Return the hostname of a client.
+ * @param Client Pointer to client structure
+ * @return Pointer to client hostname
+ */
 GLOBAL char *
-Client_Hostname( CLIENT *Client )
+Client_Hostname(CLIENT *Client)
 {
-	assert( Client != NULL );
+	assert (Client != NULL);
 	return Client->host;
 } /* Client_Hostname */
 
@@ -727,20 +732,27 @@ Client_NextHop( CLIENT *Client )
 
 
 /**
- * return Client-ID ("client!user@host"), this ID is needed for e.g.
- * prefixes.  Returnes pointer to static buffer.
+ * Return ID of a client: "client!user@host"
+ * This client ID is used for IRC prefixes, for example.
+ * Please note that this function uses a global static buffer, so you can't
+ * nest invocations without overwriting erlier results!
+ * @param Client Pointer to client structure
+ * @return Pointer to global buffer containing the client ID
  */
 GLOBAL char *
 Client_Mask( CLIENT *Client )
 {
-	static char GetID_Buffer[GETID_LEN];
+	static char Mask_Buffer[GETID_LEN];
 
-	assert( Client != NULL );
+	assert (Client != NULL);
 
-	if( Client->type == CLIENT_SERVER ) return Client->id;
+	/* Servers: return name only, there is no "mask" */
+	if (Client->type == CLIENT_SERVER)
+		return Client->id;
 
-	snprintf(GetID_Buffer, GETID_LEN, "%s!%s@%s", Client->id, Client->user, Client->host);
-	return GetID_Buffer;
+	snprintf(Mask_Buffer, GETID_LEN, "%s!%s@%s",
+		 Client->id, Client->user, Client->host);
+	return Mask_Buffer;
 } /* Client_Mask */
 
 

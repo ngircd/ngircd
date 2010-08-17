@@ -104,7 +104,8 @@ va_dcl
 	vsnprintf( buffer, 1000, Format, ap );
 	va_end( ap );
 
-	return Conn_WriteStr( Client_Conn( Client_NextHop( Client )), ":%s %s", Get_Prefix( Client_NextHop( Client ), Prefix ), buffer );
+	return Conn_WriteStr(Client_Conn(Client_NextHop(Client)), ":%s %s",
+			Get_Prefix(Client_NextHop(Client), Prefix), buffer);
 } /* IRC_WriteStrClientPrefix */
 
 
@@ -449,13 +450,15 @@ IRC_SetPenalty( CLIENT *Client, time_t Seconds )
 
 
 static const char *
-Get_Prefix( CLIENT *Target, CLIENT *Client )
+Get_Prefix(CLIENT *Target, CLIENT *Client)
 {
-	assert( Target != NULL );
-	assert( Client != NULL );
+	assert (Target != NULL);
+	assert (Client != NULL);
 
-	if( Client_Type( Target ) == CLIENT_SERVER ) return Client_ID( Client );
-	else return Client_Mask( Client );
+	if (Client_Type(Target) == CLIENT_SERVER)
+		return Client_ID(Client);
+	else
+		return Client_MaskCloaked(Client);
 } /* Get_Prefix */
 
 

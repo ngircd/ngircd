@@ -1193,7 +1193,7 @@ Client_RegisterWhowas( CLIENT *Client )
 		 sizeof( My_Whowas[slot].id ));
 	strlcpy( My_Whowas[slot].user, Client_User( Client ),
 		 sizeof( My_Whowas[slot].user ));
-	strlcpy( My_Whowas[slot].host, Client_Hostname( Client ),
+	strlcpy( My_Whowas[slot].host, Client_HostnameCloaked( Client ),
 		 sizeof( My_Whowas[slot].host ));
 	strlcpy( My_Whowas[slot].info, Client_Info( Client ),
 		 sizeof( My_Whowas[slot].info ));

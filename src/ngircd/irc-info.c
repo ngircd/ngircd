@@ -939,8 +939,11 @@ IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 
 	if(( Client_NextHop( target ) != Client_ThisServer( )) && ( Client_Type( Client_NextHop( target )) == CLIENT_SERVER )) return IRC_WriteStrClientPrefix( target, from, "WHOIS %s :%s", Req->argv[0], Req->argv[1] );
 
-	/* Nick, user and name */
-	if( ! IRC_WriteStrClient( from, RPL_WHOISUSER_MSG, Client_ID( from ), Client_ID( c ), Client_User( c ), Client_Hostname( c ), Client_Info( c ))) return DISCONNECTED;
+	/* Nick, user, hostname and client info */
+	if (!IRC_WriteStrClient(from, RPL_WHOISUSER_MSG, Client_ID(from),
+				Client_ID(c), Client_User(c),
+				Client_HostnameCloaked(c), Client_Info(c)))
+		return DISCONNECTED;
 
 	/* Server */
 	if( ! IRC_WriteStrClient( from, RPL_WHOISSERVER_MSG, Client_ID( from ), Client_ID( c ), Client_ID( Client_Introducer( c )), Client_Info( Client_Introducer( c )))) return DISCONNECTED;

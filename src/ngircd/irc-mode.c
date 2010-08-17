@@ -185,6 +185,7 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 							ERR_NOPRIVILEGES_MSG,
 							Client_ID(Origin));
 				break;
+
 			case 'o': /* IRC operator (only unsettable!) */
 				if(( ! set ) || ( Client_Type( Client ) == CLIENT_SERVER ))
 				{
@@ -197,6 +198,15 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 			case 'r': /* Restricted (only settable) */
 				if(( set ) || ( Client_Type( Client ) == CLIENT_SERVER )) x[0] = 'r';
 				else ok = IRC_WriteStrClient( Origin, ERR_RESTRICTED_MSG, Client_ID( Origin ));
+				break;
+
+			case 'x': /* Cloak hostname */
+				if (Client_HasMode(Client, 'r'))
+					IRC_WriteStrClient(Origin,
+							   ERR_RESTRICTED_MSG,
+							   Client_ID(Origin));
+				else
+					x[0] = 'x';
 				break;
 
 			default:

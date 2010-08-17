@@ -412,7 +412,7 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 				if (nick != NULL && host != NULL) {
 					if (strcmp(nick, Client_ID(cl)) == 0 &&
 					    strcmp(user, Client_User(cl)) == 0 &&
-					    strcasecmp(host, Client_Hostname(cl)) == 0)
+					    strcasecmp(host, Client_HostnameCloaked(cl)) == 0)
 						break;
 					else
 						continue;
@@ -420,7 +420,7 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 				if (strcasecmp(user, Client_User(cl)) != 0)
 					continue;
 				if (host != NULL && strcasecmp(host,
-						Client_Hostname(cl)) != 0)
+						Client_HostnameCloaked(cl)) != 0)
 					continue;
 				if (server != NULL && strcasecmp(server,
 						Client_ID(Client_Introducer(cl))) != 0)

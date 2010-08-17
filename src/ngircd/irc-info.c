@@ -665,7 +665,7 @@ IRC_USERHOST(CLIENT *Client, REQUEST *Req)
 				strlcat(rpl, "+", sizeof(rpl));
 			strlcat(rpl, Client_User(c), sizeof(rpl));
 			strlcat(rpl, "@", sizeof(rpl));
-			strlcat(rpl, Client_Hostname(c), sizeof(rpl));
+			strlcat(rpl, Client_HostnameCloaked(c), sizeof(rpl));
 			strlcat(rpl, " ", sizeof(rpl));
 		}
 	}

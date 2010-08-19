@@ -1507,7 +1507,7 @@ Read_Request( CONN_ID Idx )
 	 * registered as a user, server or service connection. Don't update
 	 * otherwise, so users have at least Conf_PongTimeout seconds time to
 	 * register with the IRC server -- see Check_Connections().
-	 * Set "lastping", too, so we can handle time shifts backwards ... */
+	 * Update "lastping", too, if time shifted backwards ... */
 	c = Conn_GetClient(Idx);
 	if (c && (Client_Type(c) == CLIENT_USER
 		  || Client_Type(c) == CLIENT_SERVER
@@ -1517,7 +1517,8 @@ Read_Request( CONN_ID Idx )
 			My_Connections[Idx].bps = 0;
 
 		My_Connections[Idx].lastdata = t;
-		My_Connections[Idx].lastping = My_Connections[Idx].lastdata;
+		if (My_Connections[Idx].lastping > t)
+			My_Connections[Idx].lastping = t;
 	}
 
 	/* Look at the data in the (read-) buffer of this connection */

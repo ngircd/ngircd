@@ -10,6 +10,21 @@
                                   -- NEWS --
 
 
+ngIRCd Release 17
+
+  - Implement user mode "x": hostname cloaking (closes: #102).
+  - Change MOTD file handling: ngIRCd now caches the contens of the MOTD
+    file, so the daemon now requires a HUP signal or REHASH command to
+    re-read the MOTD file when its content changed.
+  - Allow IRC ops to change channel modes even without OperServerMode set.
+  - Allow IRC operators to use MODE command on any channel (closes: #100).
+  - New configuration option "NoPAM" to disable PAM.
+  - Implement asynchronous user authentication using PAM, please see the
+    file doc/PAM.txt for details.
+  - Implement user mode "c": receive connect/disconnect NOTICEs. Note that
+    this new mode requires the user to be an IRC operator.
+  - Show SSL status in WHOIS output, numeric 275.
+
 ngIRCd Release 16 (2010-05-02)
 
   ngIRCd 16~rc2 (2010-04-25)

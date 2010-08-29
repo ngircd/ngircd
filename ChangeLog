@@ -10,6 +10,39 @@
                                -- ChangeLog --
 
 
+ngIRCd Release 17
+
+  - configure script: correctly indent IPv6 yes/no summary output.
+  - Don't reset My_Connections[Idx].lastping when reading data, so the
+    client lag debug-output is working again.
+  - Implement user mode "x": hostname cloaking (closes: #102).
+  - Make configure switch "--docdir" work (closes: #108).
+  - Reformat and update FAQ.txt a little bit.
+  - INSTALL: mention SSL, IPv6, and changed handling of MotdFile.
+  - Change MOTD file handling: ngIRCd now caches the contens of the MOTD
+    file, so the daemon now requires a HUP signal or REHASH command to
+    re-read the MOTD file when its content changed.
+  - Startup: open /dev/null before chroot'ing the daemon.
+  - Allow IRC ops to change channel modes even without OperServerMode set.
+  - Allow IRC operators to use MODE command on any channel (closes: #100).
+  - Added mailmap file for git-[short]log and git-blame.
+  - Authenticated users should be registered without the "~" mark.
+  - Set NoPAM=yes in configuration files used for the testsuite.
+  - New configuration option "NoPAM" to disable PAM.
+  - Implement asynchronous user authentication using PAM, please see the
+    file doc/PAM.txt for details.
+  - Resolver: Implement signal handler and catch TERM signals.
+  - Don't set a penalty time when doing DNS lookups.
+  - Add some documentation for using BOPM with ngIRCd, see doc/Bopm.txt.
+  - Implement user mode "c": receive connect/disconnect NOTICEs. Note that
+    this new mode requires the user to be an IRC operator.
+  - ngircd.init: require "$network" and "$remote_fs" when stopping ngircd.
+  - Show SSL status in WHOIS output, numeric 275.
+  - Include correct header files when testing for arpa/inet.h (Closes: #105).
+  - Don't access already freed memory in IRC_KILL().
+  - Fix "beeing" typo ...
+  - SSL/TLS: fix bogus "socket closed" error message.
+
 ngIRCd Release 16 (2010-05-02)
 
   - doc/SSL: remove line continuation marker

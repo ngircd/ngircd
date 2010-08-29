@@ -1,7 +1,7 @@
 
                      ngIRCd - Next Generation IRC Server
 
-                        (c)2001-2007 Alexander Barton,
+                        (c)2001-2010 Alexander Barton,
                     alex@barton.de, http://www.barton.de/
 
                ngIRCd is free software and published under the
@@ -15,8 +15,8 @@ I. Upgrade Information
 
 Differences to version 16
 
-- Changes to the "MotdFile" specified in ngircd.conf now require a ngircd configuration
-  reload to take effect.
+- Changes to the "MotdFile" specified in ngircd.conf now require a ngircd
+  configuration reload to take effect (HUP signal, REHASH command).
 
 Differences to version 0.9.x
 

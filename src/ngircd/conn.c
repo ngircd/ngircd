@@ -1758,8 +1758,8 @@ Check_Servers(void)
 
 	/* Check all configured servers */
 	for (i = 0; i < MAX_SERVERS; i++) {
-		if (Conf_Server[i].conn_id > NONE)
-			continue;	/* Already connected */
+		if (Conf_Server[i].conn_id != NONE)
+			continue;	/* Already establishing or connected */
 		if (!Conf_Server[i].host[0] || !Conf_Server[i].port > 0)
 			continue;	/* No host and/or port configured */
 		if (Conf_Server[i].flags & CONF_SFLAG_DISABLED)

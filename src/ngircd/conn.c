@@ -1686,11 +1686,14 @@ Handle_Buffer(CONN_ID Idx)
 } /* Handle_Buffer */
 
 
+/**
+ * Check whether established connections are still alive or not.
+ * If not, play PING-PONG first; and if that doesn't help either,
+ * disconnect the respective peer.
+ */
 static void
 Check_Connections(void)
 {
-	/* check if connections are alive. if not, play PING-PONG first.
-	 * if this doesn't help either, disconnect client. */
 	CLIENT *c;
 	CONN_ID i;
 	char msg[64];
@@ -1742,42 +1745,47 @@ Check_Connections(void)
 } /* Check_Connections */
 
 
+/**
+ * Check if further server links should be established.
+ */
 static void
-Check_Servers( void )
+Check_Servers(void)
 {
-	/* Check if we can establish further server links */
-
 	int i, n;
 	time_t time_now;
 
+	time_now = time(NULL);
+
 	/* Check all configured servers */
-	for( i = 0; i < MAX_SERVERS; i++ ) {
-		/* Valid outgoing server which isn't already connected or disabled? */
-		if(( ! Conf_Server[i].host[0] ) || ( ! Conf_Server[i].port > 0 ) ||
-			( Conf_Server[i].conn_id > NONE ) || ( Conf_Server[i].flags & CONF_SFLAG_DISABLED ))
-				continue;
+	for (i = 0; i < MAX_SERVERS; i++) {
+		if (Conf_Server[i].conn_id > NONE)
+			continue;	/* Already connected */
+		if (!Conf_Server[i].host[0] || !Conf_Server[i].port > 0)
+			continue;	/* No host and/or port configured */
+		if (Conf_Server[i].flags & CONF_SFLAG_DISABLED)
+			continue;	/* Disabled configuration entry */
+		if (Conf_Server[i].lasttry > (time_now - Conf_ConnectRetry))
+			continue;	/* We have to wait a little bit ... */
 
 		/* Is there already a connection in this group? */
-		if( Conf_Server[i].group > NONE ) {
+		if (Conf_Server[i].group > NONE) {
 			for (n = 0; n < MAX_SERVERS; n++) {
-				if (n == i) continue;
+				if (n == i)
+					continue;
 				if ((Conf_Server[n].conn_id != NONE) &&
-					(Conf_Server[n].group == Conf_Server[i].group))
-						break;
+				    (Conf_Server[n].group == Conf_Server[i].group))
+					break;
 			}
-			if (n < MAX_SERVERS) continue;
+			if (n < MAX_SERVERS)
+				continue;
 		}
-
-		/* Check last connect attempt? */
-		time_now = time(NULL);
-		if( Conf_Server[i].lasttry > (time_now - Conf_ConnectRetry))
-			continue;
 
 		/* Okay, try to connect now */
 		Conf_Server[i].lasttry = time_now;
 		Conf_Server[i].conn_id = SERVER_WAIT;
 		assert(Proc_GetPipeFd(&Conf_Server[i].res_stat) < 0);
-		Resolve_Name(&Conf_Server[i].res_stat, Conf_Server[i].host, cb_Connect_to_Server);
+		Resolve_Name(&Conf_Server[i].res_stat, Conf_Server[i].host,
+			     cb_Connect_to_Server);
 	}
 } /* Check_Servers */
 

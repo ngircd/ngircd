@@ -1139,32 +1139,32 @@ Conn_CountAccepted(void)
 } /* Conn_CountAccepted */
 
 
+/**
+ * Synchronize established connections and configured server structures
+ * after a configuration update and store the correct connection IDs, if any.
+ */
 GLOBAL void
-Conn_SyncServerStruct( void )
+Conn_SyncServerStruct(void)
 {
-	/* Synchronize server structures (connection IDs):
-	 * connections <-> configuration */
-
 	CLIENT *client;
 	CONN_ID i;
 	int c;
 
-	for( i = 0; i < Pool_Size; i++ ) {
-		/* Established connection? */
-		if (My_Connections[i].sock < 0)
+	for (i = 0; i < Pool_Size; i++) {
+		if (My_Connections[i].sock == NONE)
 			continue;
 
-		/* Server connection? */
-		client = Conn_GetClient( i );
-		if(( ! client ) || ( Client_Type( client ) != CLIENT_SERVER )) continue;
+		/* Server link? */
+		client = Conn_GetClient(i);
+		if (!client || Client_Type(client) != CLIENT_SERVER)
+			continue;
 
-		for( c = 0; c < MAX_SERVERS; c++ )
-		{
+		for (c = 0; c < MAX_SERVERS; c++) {
 			/* Configured server? */
-			if( ! Conf_Server[c].host[0] ) continue;
+			if (!Conf_Server[c].host[0])
+				continue;
 
-			/* Duplicate? */
-			if( strcmp( Conf_Server[c].name, Client_ID( client )) == 0 )
+			if (strcasecmp(Conf_Server[c].name, Client_ID(client)) == 0)
 				Conf_Server[c].conn_id = i;
 		}
 	}

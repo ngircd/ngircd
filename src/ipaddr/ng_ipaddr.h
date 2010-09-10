@@ -8,6 +8,7 @@
 #define NG_IPADDR_HDR
 #include "portab.h"
 
+#include <assert.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 

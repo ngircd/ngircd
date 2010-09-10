@@ -21,6 +21,8 @@
 
 #include "defines.h"
 
+#define C_ARRAY_SIZE(x)	(sizeof(x)/sizeof((x)[0]))
+
 
 GLOBAL time_t NGIRCd_Start;		/* Startzeitpunkt des Daemon */
 GLOBAL char NGIRCd_StartStr[64];

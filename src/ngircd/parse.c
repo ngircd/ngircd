@@ -120,8 +120,6 @@ static bool Validate_Args PARAMS(( CONN_ID Idx, REQUEST *Req, bool *Closed ));
 
 static bool Handle_Request PARAMS(( CONN_ID Idx, REQUEST *Req ));
 
-#define ARRAY_SIZE(x)	(sizeof(x)/sizeof((x)[0]))
-
 /**
  * Return the pointer to the global "IRC command structure".
  * This structure, an array of type "COMMAND" describes all the IRC commands
@@ -397,7 +395,7 @@ Handle_Numeric(CLIENT *client, REQUEST *Req)
 		/* This server is the target of the numeric */
 		num = atoi(Req->command);
 
-		for (i = 0; i < (int) ARRAY_SIZE(Numerics); i++) {
+		for (i = 0; i < (int) C_ARRAY_SIZE(Numerics); i++) {
 			if (num == Numerics[i].numeric) {
 				if (!Numerics[i].function)
 					return CONNECTED;

@@ -26,6 +26,7 @@
 #include "conn.h"
 
 #include "exp.h"
+#include "sighandlers.h"
 #include "proc.h"
 
 /**
@@ -67,6 +68,7 @@ Proc_Fork(PROC_STAT *proc, int *pipefds, void (*cbfunc)(int, short), int timeout
 		return -1;
 	case 0:
 		/* New child process: */
+		Signals_Exit();
 		signal(SIGTERM, Proc_GenericSignalHandler);
 		signal(SIGALRM, Proc_GenericSignalHandler);
 		close(pipefds[0]);

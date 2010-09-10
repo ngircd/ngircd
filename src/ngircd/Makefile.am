@@ -21,7 +21,7 @@ sbin_PROGRAMS = ngircd
 ngircd_SOURCES = ngircd.c array.c channel.c client.c conf.c conn.c conn-func.c \
 	conn-ssl.c conn-zip.c hash.c io.c irc.c irc-channel.c irc-info.c irc-login.c \
 	irc-mode.c irc-op.c irc-oper.c irc-server.c irc-write.c lists.c log.c \
-	match.c op.c numeric.c pam.c parse.c proc.c rendezvous.c resolve.c
+	match.c op.c numeric.c pam.c parse.c proc.c rendezvous.c resolve.c sighandlers.c
 
 ngircd_LDFLAGS = -L../portab -L../tool -L../ipaddr
 

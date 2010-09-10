@@ -29,7 +29,6 @@
 #include <time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <sys/wait.h>
 #include <fcntl.h>
 #include <pwd.h>
 #include <grp.h>
@@ -46,6 +45,8 @@
 #include "lists.h"
 #include "log.h"
 #include "parse.h"
+#include "sighandlers.h"
+#include "io.h"
 #include "irc.h"
 
 #ifdef ZEROCONF
@@ -55,9 +56,6 @@
 #include "exp.h"
 #include "ngircd.h"
 
-
-static void Initialize_Signal_Handler PARAMS(( void ));
-static void Signal_Handler PARAMS(( int Signal ));
 
 static void Show_Version PARAMS(( void ));
 static void Show_Help PARAMS(( void ));
@@ -292,8 +290,15 @@ main( int argc, const char *argv[] )
 		 * when not running in "no daemon" mode: */
 		if( ! NGIRCd_NoDaemon ) Log_InitErrorfile( );
 #endif
+		if (!io_library_init(CONNECTION_POOL)) {
+			Log(LOG_ALERT, "Fatal: Cannot initialize IO routines: %s", strerror(errno));
+			exit(1);
+		}
 
-		Initialize_Signal_Handler( );
+		if (!Signals_Init()) {
+			Log(LOG_ALERT, "Fatal: Could not set up signal handlers: %s", strerror(errno));
+			exit(1);
+		}
 
 		/*
 		 * create protocol and server identification.
@@ -473,80 +478,6 @@ NGIRCd_Rehash( void )
 
 	Log( LOG_NOTICE|LOG_snotice, "Re-reading of configuration done." );
 } /* NGIRCd_Rehash */
-
-
-/**
- * Initialize the signal handler.
- */
-static void
-Initialize_Signal_Handler( void )
-{
-#ifdef HAVE_SIGACTION
-	struct sigaction saction;
-
-	memset( &saction, 0, sizeof( saction ));
-	saction.sa_handler = Signal_Handler;
-#ifdef SA_RESTART
-	saction.sa_flags |= SA_RESTART;
-#endif
-#ifdef SA_NOCLDWAIT
-	saction.sa_flags |= SA_NOCLDWAIT;
-#endif
-
-	sigaction(SIGINT, &saction, NULL);
-	sigaction(SIGQUIT, &saction, NULL);
-	sigaction(SIGTERM, &saction, NULL);
-	sigaction(SIGHUP, &saction, NULL);
-	sigaction(SIGCHLD, &saction, NULL);
-
-	/* we handle write errors properly; ignore SIGPIPE */
-	saction.sa_handler = SIG_IGN;
-	sigaction(SIGPIPE, &saction, NULL);
-#else
-	signal(SIGINT, Signal_Handler);
-	signal(SIGQUIT, Signal_Handler);
-	signal(SIGTERM, Signal_Handler);
-	signal(SIGHUP, Signal_Handler);
-	signal(SIGCHLD, Signal_Handler);
-
-	signal(SIGPIPE, SIG_IGN);
-#endif
-} /* Initialize_Signal_Handler */
-
-
-/**
- * Signal handler of ngIRCd.
- * This function is called whenever ngIRCd catches a signal sent by the
- * user and/or the system to it. For example SIGTERM and SIGHUP.
- * @param Signal Number of the signal to handle.
- */
-static void
-Signal_Handler( int Signal )
-{
-	switch( Signal )
-	{
-		case SIGTERM:
-		case SIGINT:
-		case SIGQUIT:
-			/* shut down sever */
-			NGIRCd_SignalQuit = true;
-			break;
-		case SIGHUP:
-			/* re-read configuration */
-			NGIRCd_SignalRehash = true;
-			break;
-		case SIGCHLD:
-			/* child-process exited, avoid zombies */
-			while (waitpid( -1, NULL, WNOHANG) > 0)
-				;
-			break;
-#ifdef DEBUG
-		default:
-			/* unbekanntes bzw. unbehandeltes Signal */
-			Log( LOG_DEBUG, "Got signal %d! Ignored.", Signal );
-#endif
-	}
-} /* Signal_Handler */
 
 
 /**

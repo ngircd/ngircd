@@ -159,7 +159,7 @@ AC_CHECK_FUNCS([ \
 	bind gethostbyaddr gethostbyname gethostname inet_ntoa \
 	setsid setsockopt socket strcasecmp waitpid],,AC_MSG_ERROR([required function missing!]))
 
-AC_CHECK_FUNCS(getaddrinfo getnameinfo inet_aton isdigit sigaction snprintf \
+AC_CHECK_FUNCS(getaddrinfo getnameinfo inet_aton isdigit sigaction sigprocmask snprintf \
  vsnprintf strdup strlcpy strlcat strtok_r)
 
 # -- Configuration options --

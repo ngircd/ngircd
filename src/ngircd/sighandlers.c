@@ -1,0 +1,220 @@
+/*
+ * ngIRCd -- The Next Generation IRC Daemon
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * Please read the file COPYING, README and AUTHORS for more information.
+ */
+
+#include "portab.h"
+
+/**
+ * @file
+ * Signal Handlers: Actions to be performed when the program
+ * receives a signal.
+ */
+
+#include <errno.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
+#include "imp.h"
+#include "io.h"
+#include "log.h"
+#include "ngircd.h"
+#include "sighandlers.h"
+
+static int signalpipe[2];
+
+static void Signal_Block(int sig)
+{
+#ifdef HAVE_SIGPROCMASK
+	sigset_t set;
+
+	sigemptyset(&set);
+	sigaddset(&set, sig);
+
+	sigprocmask(SIG_BLOCK, &set, NULL);
+#endif
+}
+
+
+static void Signal_Unblock(int sig)
+{
+#ifdef HAVE_SIGPROCMASK
+	sigset_t set;
+
+	sigemptyset(&set);
+	sigaddset(&set, sig);
+
+	sigprocmask(SIG_UNBLOCK, &set, NULL);
+#endif
+}
+
+
+/**
+ * Signal handler of ngIRCd.
+ * This function is called whenever ngIRCd catches a signal sent by the
+ * user and/or the system to it. For example SIGTERM and SIGHUP.
+ *
+ * It blocks the signal and queues it for later execution by Signal_Handler_BH.
+ * @param Signal Number of the signal to handle.
+ */
+static void Signal_Handler(int Signal)
+{
+	switch (Signal) {
+	case SIGTERM:
+	case SIGINT:
+	case SIGQUIT:
+		/* shut down sever */
+		NGIRCd_SignalQuit = true;
+		return;
+	case SIGHUP:
+		/* re-read configuration */
+		NGIRCd_SignalRehash = true;
+		return;
+	case SIGCHLD:
+		/* child-process exited, avoid zombies */
+		while (waitpid( -1, NULL, WNOHANG) > 0)
+			;
+		return;
+	}
+
+	/*
+	 * other signal: queue for later execution.
+	 * This has the advantage that we are not restricted
+	 * to functions that can be called safely from signal handlers.
+	 */
+	if (write(signalpipe[1], &Signal, sizeof(Signal)) != -1)
+		Signal_Block(Signal);
+} /* Signal_Handler */
+
+
+/**
+ * Signal processing handler of ngIRCd.
+ * This function is called from the main conn event loop in (io_dispatch)
+ * whenever ngIRCd has queued a signal.
+ *
+ * This function runs in normal context, not from the real signal handler,
+ * thus its not necessary to only use functions that are signal safe.
+ * @param Signal Number of the signal that was queued.
+ */
+static void Signal_Handler_BH(int Signal)
+{
+	switch (Signal) {
+#ifdef DEBUG
+	default:
+		Log(LOG_DEBUG, "Got signal %d! Ignored.", Signal);
+#endif
+	}
+	Signal_Unblock(Signal);
+}
+
+static void Sig_callback(int fd, short UNUSED what)
+{
+	int sig, ret;
+	(void) what;
+
+	do {
+		ret = read(fd, &sig, sizeof(sig));
+		if (ret == sizeof(int))
+			Signal_Handler_BH(sig);
+	} while (ret == sizeof(int));
+
+	if (ret == -1) {
+		if (errno == EAGAIN || errno == EINTR)
+			return;
+
+		Log(LOG_EMERG, "read from signal pipe: %s", strerror(errno));
+		exit(1);
+	}
+
+	Log(LOG_EMERG, "EOF on signal pipe");
+	exit(1);
+}
+
+
+static const int signals_catch[] = { SIGINT, SIGQUIT, SIGTERM, SIGHUP, SIGCHLD, SIGUSR1, SIGUSR2 };
+/**
+ * Initialize the signal handlers, catch
+ * those signals we are interested in and sets SIGPIPE to be ignored.
+ * @return true if initialization was sucessful.
+ */
+bool Signals_Init(void)
+{
+	size_t i;
+#ifdef HAVE_SIGACTION
+	struct sigaction saction;
+#endif
+
+	if (pipe(signalpipe))
+		return false;
+
+	if (!io_setnonblock(signalpipe[0]) ||
+	    !io_setnonblock(signalpipe[1]))
+		return false;
+	if (!io_setcloexec(signalpipe[0]) ||
+	    !io_setcloexec(signalpipe[1]))
+		return false;
+#ifdef HAVE_SIGACTION
+	memset( &saction, 0, sizeof( saction ));
+	saction.sa_handler = Signal_Handler;
+#ifdef SA_RESTART
+	saction.sa_flags |= SA_RESTART;
+#endif
+#ifdef SA_NOCLDWAIT
+	saction.sa_flags |= SA_NOCLDWAIT;
+#endif
+
+	for (i=0; i < C_ARRAY_SIZE(signals_catch) ; i++)
+		sigaction(signals_catch[i], &saction, NULL);
+
+	/* we handle write errors properly; ignore SIGPIPE */
+	saction.sa_handler = SIG_IGN;
+	sigaction(SIGPIPE, &saction, NULL);
+#else
+	for (i=0; i < C_ARRAY_SIZE(signals_catch) ; i++)
+		signal(signals_catch[i], Signal_Handler);
+
+	signal(SIGPIPE, SIG_IGN);
+#endif
+	return io_event_create(signalpipe[0], IO_WANTREAD,
+					Sig_callback);
+} /* Initialize_Signal_Handler */
+
+
+/**
+ * Restores signals to their default behaviour.
+ *
+ * This should be called after a fork() in the new
+ * child prodcess, especially when we are about to call
+ * 3rd party code (e.g. PAM).
+ */
+void Signals_Exit(void)
+{
+	size_t i;
+#ifdef HAVE_SIGACTION
+	struct sigaction saction;
+
+	memset(&saction, 0, sizeof(saction));
+	saction.sa_handler = SIG_DFL;
+
+	for (i=0; i < C_ARRAY_SIZE(signals_catch) ; i++)
+		sigaction(signals_catch[i], &saction, NULL);
+	sigaction(SIGPIPE, &saction, NULL);
+#else
+	for (i=0; i < C_ARRAY_SIZE(signals_catch) ; i++)
+		sigaction(signals_catch[i], &saction, NULL);
+	signal(SIGPIPE, SIG_DFL);
+#endif
+	close(signalpipe[1]);
+	close(signalpipe[0]);
+}
+
+/* -eof- */

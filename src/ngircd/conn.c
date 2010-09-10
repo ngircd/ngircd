@@ -477,11 +477,6 @@ Conn_InitListeners( void )
 	unsigned int created = 0;
 	char *copy, *listen_addr;
 
-	if (!io_library_init(CONNECTION_POOL)) {
-		Log(LOG_EMERG, "Cannot initialize IO routines: %s", strerror(errno));
-		return -1;
-	}
-
 	assert(Conf_ListenAddress);
 
 	/* can't use Conf_ListenAddress directly, see below */

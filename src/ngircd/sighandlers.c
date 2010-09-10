@@ -42,7 +42,8 @@ static int signalpipe[2];
 static void
 Dump_State(void)
 {
-	Log(LOG_DEBUG, "--- Internal server state: ---");
+	Log(LOG_DEBUG, "--- Internal server state: %s ---",
+	    Client_ID(Client_ThisServer()));
 	Log(LOG_DEBUG, "time()=%ld", time(NULL));
 	Conf_DebugDump();
 	Client_DebugDump();

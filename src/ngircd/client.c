@@ -1285,7 +1285,7 @@ Client_DebugDump(void)
 	c = My_Clients;
 	while (c) {
 		Log(LOG_DEBUG,
-		    " - %s, type=%d, host=%s, user=%s, conn=%d, start=%ld, flags=%s",
+		    " - %s: type=%d, host=%s, user=%s, conn=%d, start=%ld, flags=%s",
                    Client_ID(c), Client_Type(c), Client_Hostname(c),
                    Client_User(c), Client_Conn(c), Client_StartTime(c),
                    Client_Flags(c));

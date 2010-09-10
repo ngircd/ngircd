@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
 
 #include "ngircd.h"
 #include "conn-func.h"
@@ -146,8 +147,8 @@ IRC_REHASH( CLIENT *Client, REQUEST *Req )
 	if( Req->argc != 0 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
 
 	Log( LOG_NOTICE|LOG_snotice, "Got REHASH command from \"%s\" ...", Client_Mask( Client ));
-	NGIRCd_SignalRehash = true;
-	
+	raise(SIGHUP);
+
 	return CONNECTED;
 } /* IRC_REHASH */
 

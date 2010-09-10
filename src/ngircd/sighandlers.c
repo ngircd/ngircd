@@ -25,6 +25,10 @@
 #include <sys/wait.h>
 
 #include "imp.h"
+#include "conn.h"
+#include "conf-ssl.h"
+#include "channel.h"
+#include "conf.h"
 #include "io.h"
 #include "log.h"
 #include "ngircd.h"
@@ -57,6 +61,55 @@ static void Signal_Unblock(int sig)
 #endif
 }
 
+/**
+ * Reload the server configuration file.
+ */
+static void
+NGIRCd_Rehash( void )
+{
+	char old_name[CLIENT_ID_LEN];
+	unsigned old_nicklen;
+
+	Log( LOG_NOTICE|LOG_snotice, "Re-reading configuration NOW!" );
+
+	/* Remember old server name and nick name length */
+	strlcpy( old_name, Conf_ServerName, sizeof old_name );
+	old_nicklen = Conf_MaxNickLength;
+
+	/* Re-read configuration ... */
+	if (!Conf_Rehash( ))
+		return;
+
+	/* Close down all listening sockets */
+	Conn_ExitListeners( );
+
+	/* Recover old server name and nick name length: these values can't
+	 * be changed during run-time */
+	if (strcmp(old_name, Conf_ServerName) != 0 ) {
+		strlcpy(Conf_ServerName, old_name, sizeof Conf_ServerName);
+		Log(LOG_ERR, "Can't change \"ServerName\" on runtime! Ignored new name.");
+	}
+	if (old_nicklen != Conf_MaxNickLength) {
+		Conf_MaxNickLength = old_nicklen;
+		Log(LOG_ERR, "Can't change \"MaxNickLength\" on runtime! Ignored new value.");
+	}
+
+	/* Create new pre-defined channels */
+	Channel_InitPredefined( );
+
+	if (!ConnSSL_InitLibrary())
+		Log(LOG_WARNING, "Re-Initializing SSL failed, using old keys");
+
+	/* Start listening on sockets */
+	Conn_InitListeners( );
+
+	/* Sync configuration with established connections */
+	Conn_SyncServerStruct( );
+
+	Log( LOG_NOTICE|LOG_snotice, "Re-reading of configuration done." );
+} /* NGIRCd_Rehash */
+
+
 
 /**
  * Signal handler of ngIRCd.
@@ -76,9 +129,7 @@ static void Signal_Handler(int Signal)
 		NGIRCd_SignalQuit = true;
 		return;
 	case SIGHUP:
-		/* re-read configuration */
-		NGIRCd_SignalRehash = true;
-		return;
+		break;
 	case SIGCHLD:
 		/* child-process exited, avoid zombies */
 		while (waitpid( -1, NULL, WNOHANG) > 0)
@@ -108,6 +159,10 @@ static void Signal_Handler(int Signal)
 static void Signal_Handler_BH(int Signal)
 {
 	switch (Signal) {
+	case SIGHUP:
+		/* re-read configuration */
+		NGIRCd_Rehash();
+		break;
 #ifdef DEBUG
 	default:
 		Log(LOG_DEBUG, "Got signal %d! Ignored.", Signal);

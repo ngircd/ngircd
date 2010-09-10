@@ -93,7 +93,7 @@ main( int argc, const char *argv[] )
 
 	umask( 0077 );
 
-	NGIRCd_SignalQuit = NGIRCd_SignalRestart = NGIRCd_SignalRehash = false;
+	NGIRCd_SignalQuit = NGIRCd_SignalRestart = false;
 	NGIRCd_Passive = false;
 #ifdef DEBUG
 	NGIRCd_Debug = false;
@@ -261,7 +261,6 @@ main( int argc, const char *argv[] )
 		NGIRCd_Start = time( NULL );
 		(void)strftime( NGIRCd_StartStr, 64, "%a %b %d %Y at %H:%M:%S (%Z)", localtime( &NGIRCd_Start ));
 
-		NGIRCd_SignalRehash = false;
 		NGIRCd_SignalRestart = false;
 		NGIRCd_SignalQuit = false;
 
@@ -428,56 +427,6 @@ Fill_Version( void )
 	snprintf(NGIRCd_Version, sizeof NGIRCd_Version, "%s %s-%s",
 		 PACKAGE_NAME, PACKAGE_VERSION, NGIRCd_VersionAddition);
 	} /* Fill_Version */
-
-
-/**
- * Reload the server configuration file.
- */
-GLOBAL void
-NGIRCd_Rehash( void )
-{
-	char old_name[CLIENT_ID_LEN];
-	unsigned old_nicklen;
-
-	Log( LOG_NOTICE|LOG_snotice, "Re-reading configuration NOW!" );
-	NGIRCd_SignalRehash = false;
-
-	/* Remember old server name and nick name length */
-	strlcpy( old_name, Conf_ServerName, sizeof old_name );
-	old_nicklen = Conf_MaxNickLength;
-
-	/* Re-read configuration ... */
-	if (!Conf_Rehash( ))
-		return;
-
-	/* Close down all listening sockets */
-	Conn_ExitListeners( );
-
-	/* Recover old server name and nick name length: these values can't
-	 * be changed during run-time */
-	if (strcmp(old_name, Conf_ServerName) != 0 ) {
-		strlcpy(Conf_ServerName, old_name, sizeof Conf_ServerName);
-		Log(LOG_ERR, "Can't change \"ServerName\" on runtime! Ignored new name.");
-	}
-	if (old_nicklen != Conf_MaxNickLength) {
-		Conf_MaxNickLength = old_nicklen;
-		Log(LOG_ERR, "Can't change \"MaxNickLength\" on runtime! Ignored new value.");
-	}
-
-	/* Create new pre-defined channels */
-	Channel_InitPredefined( );
-
-	if (!ConnSSL_InitLibrary())
-		Log(LOG_WARNING, "Re-Initializing SSL failed, using old keys");
-
-	/* Start listening on sockets */
-	Conn_InitListeners( );
-
-	/* Sync configuration with established connections */
-	Conn_SyncServerStruct( );
-
-	Log( LOG_NOTICE|LOG_snotice, "Re-reading of configuration done." );
-} /* NGIRCd_Rehash */
 
 
 /**

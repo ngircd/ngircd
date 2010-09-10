@@ -41,16 +41,12 @@ GLOBAL bool NGIRCd_Passive;		/* nicht zu anderen Servern connecten */
 
 GLOBAL bool NGIRCd_SignalQuit;	/* true: quit server*/
 GLOBAL bool NGIRCd_SignalRestart;	/* true: restart server */
-GLOBAL bool NGIRCd_SignalRehash;	/* true: reload configuration */
 
 GLOBAL char NGIRCd_DebugLevel[2];	/* Debug-Level fuer IRC_VERSION() */
 
 GLOBAL char NGIRCd_ConfFile[FNAME_LEN];	/* Konfigurationsdatei */
 
 GLOBAL char NGIRCd_ProtoID[COMMAND_LEN];/* Protokoll- und Server-Identifikation */
-
-
-GLOBAL void NGIRCd_Rehash PARAMS(( void ));
 
 
 #endif

@@ -710,10 +710,6 @@ Conn_Handler(void)
 		Rendezvous_Handler();
 #endif
 
-		/* Should the configuration be reloaded? */
-		if (NGIRCd_SignalRehash)
-			NGIRCd_Rehash();
-
 		/* Check configured servers and established links */
 		Check_Servers();
 		Check_Connections();

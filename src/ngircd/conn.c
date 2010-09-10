@@ -2184,4 +2184,28 @@ Conn_UsesSSL(CONN_ID Idx)
 #endif
 
 
+#ifdef DEBUG
+
+GLOBAL void
+Conn_DebugDump(void)
+{
+	int i;
+
+	Log(LOG_DEBUG, "Connection status:");
+	for (i = 0; i < Pool_Size; i++) {
+		if (My_Connections[i].sock == NONE)
+			continue;
+		Log(LOG_DEBUG,
+		    " - %d: host=%s, lastdata=%ld, lastping=%ld, delaytime=%ld, flag=%d, options=%d, bps=%d, client=%s",
+		    My_Connections[i].sock, My_Connections[i].host,
+		    My_Connections[i].lastdata, My_Connections[i].lastping,
+		    My_Connections[i].delaytime, My_Connections[i].flag,
+		    My_Connections[i].options, My_Connections[i].bps,
+		    My_Connections[i].client ? Client_ID(My_Connections[i].client) : "-");
+	}
+} /* Conn_DumpClients */
+
+#endif
+
+
 /* -eof- */

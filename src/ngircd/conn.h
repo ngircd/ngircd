@@ -129,6 +129,10 @@ GLOBAL long Conn_Count PARAMS((void));
 GLOBAL long Conn_CountMax PARAMS((void));
 GLOBAL long Conn_CountAccepted PARAMS((void));
 
+#ifdef DEBUG
+GLOBAL void Conn_DebugDump PARAMS((void));
+#endif
+
 #endif
 
 

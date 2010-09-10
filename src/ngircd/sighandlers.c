@@ -46,6 +46,7 @@ Dump_State(void)
 	    Client_ID(Client_ThisServer()));
 	Log(LOG_DEBUG, "time()=%ld", time(NULL));
 	Conf_DebugDump();
+	Conn_DebugDump();
 	Client_DebugDump();
 	Log(LOG_DEBUG, "--- End of state dump ---");
 } /* Dump_State */

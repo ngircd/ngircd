@@ -12,6 +12,12 @@
 
 ngIRCd Release 17
 
+  - Dump the "internal server state" (configured servers, established
+    connections and known clients) to the console or syslog when receiving
+    the SIGUSR2 signal and debug mode is enabled.
+  - Enable the daemon to disable and enable "debug mode" on runtime using
+    signal SIGUSR1, when debug code is compiled in, not only on startup
+    using the command line parameters.
   - Implement user mode "x": hostname cloaking (closes: #102).
   - Change MOTD file handling: ngIRCd now caches the contens of the MOTD
     file, so the daemon now requires a HUP signal or REHASH command to

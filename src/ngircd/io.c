@@ -785,6 +785,16 @@ io_setnonblock(int fd)
 	return fcntl(fd, F_SETFL, flags) == 0;
 }
 
+bool
+io_setcloexec(int fd)
+{
+	int flags = fcntl(fd, F_GETFD);
+	if (flags == -1)
+		return false;
+	flags |= FD_CLOEXEC;
+
+	return fcntl(fd, F_SETFD, flags) == 0;
+}
 
 bool
 io_close(int fd)

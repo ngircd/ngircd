@@ -45,6 +45,9 @@ bool io_close PARAMS((int fd));
 /* set O_NONBLOCK */
 bool io_setnonblock PARAMS((int fd));
 
+/* set O_CLOEXEC */
+bool io_setcloexec PARAMS((int fd));
+
 /* watch fds for activity */
 int io_dispatch PARAMS((struct timeval *tv));
 

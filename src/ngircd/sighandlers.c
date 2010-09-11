@@ -45,6 +45,8 @@ static void Signal_Block(int sig)
 	sigaddset(&set, sig);
 
 	sigprocmask(SIG_BLOCK, &set, NULL);
+#else
+	sigblock(sig);
 #endif
 }
 
@@ -58,6 +60,9 @@ static void Signal_Unblock(int sig)
 	sigaddset(&set, sig);
 
 	sigprocmask(SIG_UNBLOCK, &set, NULL);
+#else
+	int old = sigblock(0) & ~sig;
+	sigsetmask(old);
 #endif
 }
 

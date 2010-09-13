@@ -36,6 +36,10 @@
 
 static int signalpipe[2];
 
+static const int signals_catch[] = {
+       SIGINT, SIGQUIT, SIGTERM, SIGHUP, SIGCHLD, SIGUSR1, SIGUSR2
+};
+
 
 #ifdef DEBUG
 
@@ -86,11 +90,12 @@ Signal_Unblock(int sig)
 #endif
 }
 
+
 /**
  * Reload the server configuration file.
  */
 static void
-NGIRCd_Rehash( void )
+Rehash(void)
 {
 	char old_name[CLIENT_ID_LEN];
 	unsigned old_nicklen;
@@ -132,8 +137,7 @@ NGIRCd_Rehash( void )
 	Conn_SyncServerStruct( );
 
 	Log( LOG_NOTICE|LOG_snotice, "Re-reading of configuration done." );
-} /* NGIRCd_Rehash */
-
+} /* Rehash */
 
 
 /**
@@ -154,8 +158,6 @@ Signal_Handler(int Signal)
 		/* shut down sever */
 		NGIRCd_SignalQuit = true;
 		return;
-	case SIGHUP:
-		break;
 	case SIGCHLD:
 		/* child-process exited, avoid zombies */
 		while (waitpid( -1, NULL, WNOHANG) > 0)
@@ -212,7 +214,7 @@ Signal_Handler_BH(int Signal)
 	switch (Signal) {
 	case SIGHUP:
 		/* re-read configuration */
-		NGIRCd_Rehash();
+		Rehash();
 		break;
 #ifdef DEBUG
 	case SIGUSR2:
@@ -252,7 +254,6 @@ Signal_Callback(int fd, short UNUSED what)
 }
 
 
-static const int signals_catch[] = { SIGINT, SIGQUIT, SIGTERM, SIGHUP, SIGCHLD, SIGUSR1, SIGUSR2 };
 /**
  * Initialize the signal handlers, catch
  * those signals we are interested in and sets SIGPIPE to be ignored.

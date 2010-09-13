@@ -18,6 +18,10 @@ ngIRCd Release 17
   - Enable the daemon to disable and enable "debug mode" on runtime using
     signal SIGUSR1, when debug code is compiled in, not only on startup
     using the command line parameters.
+  - Signal handler: added new 'delayed' signal handlers, including fallback
+    to deprecated sysv API. And removed global NGIRCd_SignalRehash variable.
+  - IO: add io_cloexec() to set close-on-exec flag.
+  - ng_ipaddr.h: include required assert.h header.
   - Conn_SyncServerStruct(): test all connections; and work case insensitive
   - configure script: correctly indent IPv6 yes/no summary output.
   - Don't reset My_Connections[Idx].lastping when reading data, so the

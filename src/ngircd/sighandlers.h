@@ -11,8 +11,7 @@
 
 #include "portab.h"
 
-bool Signals_Init(void);
-void Signals_Exit(void);
-
+bool Signals_Init PARAMS((void));
+void Signals_Exit PARAMS((void));
 
 #endif

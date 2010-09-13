@@ -54,7 +54,8 @@ Dump_State(void)
 #endif
 
 
-static void Signal_Block(int sig)
+static void
+Signal_Block(int sig)
 {
 #ifdef HAVE_SIGPROCMASK
 	sigset_t set;
@@ -69,7 +70,8 @@ static void Signal_Block(int sig)
 }
 
 
-static void Signal_Unblock(int sig)
+static void
+Signal_Unblock(int sig)
 {
 #ifdef HAVE_SIGPROCMASK
 	sigset_t set;
@@ -142,7 +144,8 @@ NGIRCd_Rehash( void )
  * It blocks the signal and queues it for later execution by Signal_Handler_BH.
  * @param Signal Number of the signal to handle.
  */
-static void Signal_Handler(int Signal)
+static void
+Signal_Handler(int Signal)
 {
 	switch (Signal) {
 	case SIGTERM:
@@ -203,7 +206,8 @@ static void Signal_Handler(int Signal)
  * thus its not necessary to only use functions that are signal safe.
  * @param Signal Number of the signal that was queued.
  */
-static void Signal_Handler_BH(int Signal)
+static void
+Signal_Handler_BH(int Signal)
 {
 	switch (Signal) {
 	case SIGHUP:
@@ -222,7 +226,9 @@ static void Signal_Handler_BH(int Signal)
 	Signal_Unblock(Signal);
 }
 
-static void Sig_callback(int fd, short UNUSED what)
+
+static void
+Signal_Callback(int fd, short UNUSED what)
 {
 	int sig, ret;
 	(void) what;
@@ -252,7 +258,8 @@ static const int signals_catch[] = { SIGINT, SIGQUIT, SIGTERM, SIGHUP, SIGCHLD, 
  * those signals we are interested in and sets SIGPIPE to be ignored.
  * @return true if initialization was sucessful.
  */
-bool Signals_Init(void)
+bool
+Signals_Init(void)
 {
 	size_t i;
 #ifdef HAVE_SIGACTION
@@ -290,9 +297,8 @@ bool Signals_Init(void)
 
 	signal(SIGPIPE, SIG_IGN);
 #endif
-	return io_event_create(signalpipe[0], IO_WANTREAD,
-					Sig_callback);
-} /* Initialize_Signal_Handler */
+	return io_event_create(signalpipe[0], IO_WANTREAD, Signal_Callback);
+} /* Signals_Init */
 
 
 /**
@@ -302,7 +308,8 @@ bool Signals_Init(void)
  * child prodcess, especially when we are about to call
  * 3rd party code (e.g. PAM).
  */
-void Signals_Exit(void)
+void
+Signals_Exit(void)
 {
 	size_t i;
 #ifdef HAVE_SIGACTION

@@ -266,6 +266,8 @@ Signals_Init(void)
 #ifdef HAVE_SIGACTION
 	struct sigaction saction;
 #endif
+	if (signalpipe[0] > 0 || signalpipe[1] > 0)
+		return true;
 
 	if (pipe(signalpipe))
 		return false;

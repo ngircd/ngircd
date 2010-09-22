@@ -40,6 +40,7 @@
 		FA85178C0FA061EC006A1F5A /* op.c in Sources */ = {isa = PBXBuildFile; fileRef = FA85178B0FA061EC006A1F5A /* op.c */; };
 		FA99428C10E82A27007F27ED /* proc.c in Sources */ = {isa = PBXBuildFile; fileRef = FA99428B10E82A27007F27ED /* proc.c */; };
 		FAA3D27B0F139CDC00B2447E /* conn-ssl.c in Sources */ = {isa = PBXBuildFile; fileRef = FAA3D2790F139CDC00B2447E /* conn-ssl.c */; };
+		FAA97C57124A271400D5BBA9 /* sighandlers.c in Sources */ = {isa = PBXBuildFile; fileRef = FAA97C55124A271400D5BBA9 /* sighandlers.c */; };
 		FAE5CC2E0CF2308A007D69B6 /* numeric.c in Sources */ = {isa = PBXBuildFile; fileRef = FAE5CC2D0CF2308A007D69B6 /* numeric.c */; };
 /* End PBXBuildFile section */
 
@@ -226,6 +227,8 @@
 		FAA3D2880F139D2E00B2447E /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
 		FAA3D28A0F139D2E00B2447E /* postinstall.sh */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; path = postinstall.sh; sourceTree = "<group>"; };
 		FAA3D28B0F139D2E00B2447E /* preinstall.sh */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; path = preinstall.sh; sourceTree = "<group>"; };
+		FAA97C55124A271400D5BBA9 /* sighandlers.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = sighandlers.c; sourceTree = "<group>"; };
+		FAA97C56124A271400D5BBA9 /* sighandlers.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = sighandlers.h; sourceTree = "<group>"; };
 		FAE5CC2C0CF2308A007D69B6 /* numeric.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = numeric.h; sourceTree = "<group>"; };
 		FAE5CC2D0CF2308A007D69B6 /* numeric.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = numeric.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -355,6 +358,8 @@
 				FA322D0B0CEF74B1001761B3 /* rendezvous.h */,
 				FA322D0C0CEF74B1001761B3 /* resolve.c */,
 				FA322D0D0CEF74B1001761B3 /* resolve.h */,
+				FAA97C55124A271400D5BBA9 /* sighandlers.c */,
+				FAA97C56124A271400D5BBA9 /* sighandlers.h */,
 				FA2D564811EA158B00D37A35 /* pam.h */,
 				FA2D564911EA158B00D37A35 /* pam.c */,
 			);
@@ -698,6 +703,7 @@
 				FA85178C0FA061EC006A1F5A /* op.c in Sources */,
 				FA99428C10E82A27007F27ED /* proc.c in Sources */,
 				FA2D564A11EA158B00D37A35 /* pam.c in Sources */,
+				FAA97C57124A271400D5BBA9 /* sighandlers.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

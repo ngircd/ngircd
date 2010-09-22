@@ -326,7 +326,7 @@ Signals_Exit(void)
 	sigaction(SIGPIPE, &saction, NULL);
 #else
 	for (i=0; i < C_ARRAY_SIZE(signals_catch) ; i++)
-		sigaction(signals_catch[i], &saction, NULL);
+		signal(signals_catch[i], SIG_DFL);
 	signal(SIGPIPE, SIG_DFL);
 #endif
 	close(signalpipe[1]);

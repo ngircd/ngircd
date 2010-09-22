@@ -236,7 +236,7 @@ Signal_Callback(int fd, short UNUSED what)
 	(void) what;
 
 	do {
-		ret = read(fd, &sig, sizeof(sig));
+		ret = (int)read(fd, &sig, sizeof(sig));
 		if (ret == sizeof(int))
 			Signal_Handler_BH(sig);
 	} while (ret == sizeof(int));

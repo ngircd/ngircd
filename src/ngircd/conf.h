@@ -173,6 +173,13 @@ GLOBAL int Conf_MaxConnectionsIP;
 /* Maximum length of a nick name */
 GLOBAL unsigned int Conf_MaxNickLength;
 
+#ifdef SYSLOG
+
+/* Syslog "facility" */
+GLOBAL int Conf_SyslogFacility;
+
+#endif
+
 GLOBAL void Conf_Init PARAMS((void));
 GLOBAL bool Conf_Rehash PARAMS((void));
 GLOBAL int Conf_Test PARAMS((void));

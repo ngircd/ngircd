@@ -12,6 +12,11 @@
 
 ngIRCd Release 17
 
+  - New configuration option "SyslogFacility" to define the syslog "facility"
+    (the "target"), to which ngIRCd should send its log messages.
+    Possible values are system dependant, but most probably "auth", "daemon",
+    "user" and "local1" through "local7" are possible values; see syslog(3).
+    Default is "local5" for historical reasons.
   - Dump the "internal server state" (configured servers, established
     connections and known clients) to the console or syslog when receiving
     the SIGUSR2 signal and debug mode is enabled.

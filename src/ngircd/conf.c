@@ -324,6 +324,10 @@ Conf_Test( void )
 		printf("  ServerGID = %s\n", grp->gr_name);
 	else
 		printf("  ServerGID = %ld\n", (long)Conf_GID);
+#ifdef SYSLOG
+	printf("  SyslogFacility = %s\n",
+	       ngt_SyslogFacilityName(Conf_SyslogFacility));
+#endif
 	printf("  PingTimeout = %d\n", Conf_PingTimeout);
 	printf("  PongTimeout = %d\n", Conf_PongTimeout);
 	printf("  ConnectRetry = %d\n", Conf_ConnectRetry);
@@ -599,6 +603,14 @@ Set_Defaults(bool InitServers)
 	Conf_MaxConnectionsIP = 5;
 	Conf_MaxJoins = 10;
 	Conf_MaxNickLength = CLIENT_NICK_LEN_DEFAULT;
+
+#ifdef SYSLOG
+#ifdef LOG_LOCAL5
+	Conf_SyslogFacility = LOG_LOCAL5;
+#else
+	Conf_SyslogFacility = 0;
+#endif
+#endif
 
 	/* Initialize server configuration structures */
 	if (InitServers) {
@@ -1147,6 +1159,13 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 		Conf_SSLOptions.DHFile = strdup_warn( Arg );
                 return;
         }
+#endif
+#ifdef SYSLOG
+	if (strcasecmp(Var, "SyslogFacility") == 0) {
+		Conf_SyslogFacility = ngt_SyslogFacilityID(Arg,
+							   Conf_SyslogFacility);
+		return;
+	}
 #endif
 	Config_Error(LOG_ERR, "%s, line %d (section \"Global\"): Unknown variable \"%s\"!",
 								NGIRCd_ConfFile, Line, Var);

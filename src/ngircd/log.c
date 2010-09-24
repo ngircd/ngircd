@@ -36,6 +36,7 @@
 #include "conn.h"
 #include "channel.h"
 #include "irc-write.h"
+#include "conf.h"
 
 #include "exp.h"
 #include "log.h"
@@ -72,13 +73,10 @@ Log_Init( bool Daemon_Mode )
 	Is_Daemon = Daemon_Mode;
 	
 #ifdef SYSLOG
-#ifndef LOG_CONS     /* Kludge: mips-dec-ultrix4.5 has no LOG_CONS/LOG_LOCAL5 */
+#ifndef LOG_CONS     /* Kludge: mips-dec-ultrix4.5 has no LOG_CONS */
 #define LOG_CONS 0
 #endif
-#ifndef LOG_LOCAL5
-#define LOG_LOCAL5 0
-#endif
-	openlog( PACKAGE_NAME, LOG_CONS|LOG_PID, LOG_LOCAL5 );
+	openlog(PACKAGE_NAME, LOG_CONS|LOG_PID, Conf_SyslogFacility);
 #endif
 
 	Log( LOG_NOTICE, "%s started.", NGIRCd_Version );
@@ -267,7 +265,7 @@ GLOBAL void
 Log_Init_Subprocess(char UNUSED *Name)
 {
 #ifdef SYSLOG
-	openlog( PACKAGE_NAME, LOG_CONS|LOG_PID, LOG_LOCAL5 );
+	openlog(PACKAGE_NAME, LOG_CONS|LOG_PID, Conf_SyslogFacility);
 #endif
 #ifdef DEBUG
 	Log_Subprocess(LOG_DEBUG, "%s sub-process starting, PID %ld.",

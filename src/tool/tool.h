@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2008 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2010 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +28,11 @@ GLOBAL void ngt_TrimStr PARAMS((char *String ));
 
 GLOBAL char *ngt_UpperStr PARAMS((char *String ));
 GLOBAL char *ngt_LowerStr PARAMS((char *String ));
+
+#ifdef SYSLOG
+GLOBAL char *ngt_SyslogFacilityName PARAMS((int Facility));
+GLOBAL int ngt_SyslogFacilityID PARAMS((char *Name, int DefaultFacility));
+#endif
 
 #endif
 

@@ -31,7 +31,7 @@ noinst_HEADERS = ngircd.h array.h channel.h client.h conf.h conf-ssl.h conn.h \
 	conn-func.h conn-ssl.h conn-zip.h hash.h io.h irc.h irc-channel.h \
 	irc-info.h irc-login.h irc-mode.h irc-op.h irc-oper.h irc-server.h \
 	irc-write.h lists.h log.h match.h numeric.h op.h pam.h parse.h proc.h \
-	rendezvous.h resolve.h defines.h messages.h
+	rendezvous.h resolve.h sighandlers.h defines.h messages.h
 
 clean-local:
 	rm -f check-version check-help lint.out

@@ -30,7 +30,7 @@ GLOBAL char *ngt_UpperStr PARAMS((char *String ));
 GLOBAL char *ngt_LowerStr PARAMS((char *String ));
 
 #ifdef SYSLOG
-GLOBAL char *ngt_SyslogFacilityName PARAMS((int Facility));
+GLOBAL const char *ngt_SyslogFacilityName PARAMS((int Facility));
 GLOBAL int ngt_SyslogFacilityID PARAMS((char *Name, int DefaultFacility));
 #endif
 

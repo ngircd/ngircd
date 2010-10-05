@@ -186,7 +186,7 @@ CODE facilitynames[] = {
 #endif
 
 
-GLOBAL char
+GLOBAL const char
 *ngt_SyslogFacilityName(int Facility)
 {
 	int i = 0;

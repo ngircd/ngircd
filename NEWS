@@ -12,6 +12,7 @@
 
 ngIRCd Release 17
 
+  ngIRCd 17~rc1 (2010-10-11)
   - New configuration option "NoZeroConf" to disable service registration at
     runtime even if ngIRCd is compiled with support for ZeroConf (e.g. using
     Howl, Avahi or on Mac OS X).
@@ -35,6 +36,7 @@ ngIRCd Release 17
   - New configuration option "NoPAM" to disable PAM.
   - Implement asynchronous user authentication using PAM, please see the
     file doc/PAM.txt for details.
+  - Add some documentation for using BOPM with ngIRCd, see doc/Bopm.txt.
   - Implement user mode "c": receive connect/disconnect NOTICEs. Note that
     this new mode requires the user to be an IRC operator.
   - Show SSL status in WHOIS output, numeric 275.

@@ -1,5 +1,5 @@
 %define name    ngircd
-%define version 16
+%define version 17~rc1
 %define release 1
 %define prefix  %{_prefix}
 

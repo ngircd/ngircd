@@ -12,6 +12,9 @@
 
 ngIRCd Release 17
 
+  - New configuration option "NoZeroConf" to disable service registration at
+    runtime even if ngIRCd is compiled with support for ZeroConf (e.g. using
+    Howl, Avahi or on Mac OS X).
   - New configuration option "SyslogFacility" to define the syslog "facility"
     (the "target"), to which ngIRCd should send its log messages.
     Possible values are system dependant, but most probably "auth", "daemon",

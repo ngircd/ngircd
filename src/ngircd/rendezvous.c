@@ -144,11 +144,15 @@ GLOBAL void Rendezvous_Exit( void )
 } /* Rendezvous_Exit */
 
 
+/**
+ * Register ZeroConf service
+ */
 GLOBAL bool Rendezvous_Register( char *Name, char *Type, UINT16 Port )
 {
-	/* Register new service */
-
 	int i;
+
+	if (Conf_NoZeroConf)
+		return;
 
 	/* Search free port structure */
 	for( i = 0; i < MAX_RENDEZVOUS; i++ ) if( ! My_Rendezvous[i].Desc[0] ) break;

@@ -222,6 +222,12 @@ to the PAM library at runtime; all users connecting without password are
 allowed to connect, all passwords given will fail.
 Default: no.
 .TP
+\fBNoZeroConf\fR
+If ngIRCd is compiled to register its services using ZeroConf (e.g. using
+Howl, Avahi or on Mac OS X) this parameter can be used to disable service
+registration at runtime.
+Default: no.
+.TP
 \fBConnectIPv4\fR
 Set this to no if you do not want ngIRCd to connect to other IRC servers using
 IPv4. This allows usage of ngIRCd in IPv6-only setups.

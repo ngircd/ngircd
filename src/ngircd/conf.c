@@ -338,6 +338,7 @@ Conf_Test( void )
 	printf("  NoDNS = %s\n", yesno_to_str(Conf_NoDNS));
 	printf("  NoIdent = %s\n", yesno_to_str(Conf_NoIdent));
 	printf("  NoPAM = %s\n", yesno_to_str(Conf_NoPAM));
+	printf("  NoZeroConf = %s\n", yesno_to_str(Conf_NoZeroConf));
 
 #ifdef WANT_IPV6
 	printf("  ConnectIPv4 = %s\n", yesno_to_str(Conf_ConnectIPv6));
@@ -587,6 +588,7 @@ Set_Defaults(bool InitServers)
 	Conf_NoDNS = false;
 	Conf_NoIdent = false;
 	Conf_NoPAM = false;
+	Conf_NoZeroConf = false;
 
 	Conf_Oper_Count = 0;
 	Conf_Channel_Count = 0;
@@ -1046,6 +1048,11 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 	if(strcasecmp(Var, "NoPAM") == 0) {
 		/* don't use PAM library to authenticate users */
 		Conf_NoPAM = Check_ArgIsTrue(Arg);
+		return;
+	}
+	if(strcasecmp(Var, "NoZeroConf") == 0) {
+		/* don't register services using ZeroConf */
+		Conf_NoZeroConf = Check_ArgIsTrue(Arg);
 		return;
 	}
 #ifdef WANT_IPV6

@@ -791,7 +791,9 @@ io_setcloexec(int fd)
 	int flags = fcntl(fd, F_GETFD);
 	if (flags == -1)
 		return false;
+#ifdef FD_CLOEXEC
 	flags |= FD_CLOEXEC;
+#endif
 
 	return fcntl(fd, F_SETFD, flags) == 0;
 }

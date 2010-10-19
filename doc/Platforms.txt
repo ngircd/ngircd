@@ -57,6 +57,7 @@ i686/pc/linux-gnu           gcc 2.95.4   0.8.0      04-05-30 alex   Y Y Y Y (1)
 i686/pc/linux-gnu           gcc 3.3.5    14.1       09-08-04 alex   Y Y Y Y (1)
 i386/pc/linux-gnu           gcc 4.1.2    13~rc1     08-12-05 alex   Y Y Y Y (1)
 i686/pc/linux-gnu           gcc 4.3.2    14.1       09-08-04 alex   Y Y Y Y (1)
+m68k/apple/aux3.0.1         gcc 2.7.2    17~rc1     10-10-12 alex   Y Y Y Y
 m68k/apple/aux3.1.1         Orig. A/UX   0.7.x-CVS  03-04-22 alex   Y Y Y Y (2)
 m68k/hp/hp-ux9.10           Orig. HPUX   0.7.x-CVS  03-04-30 goetz  Y Y Y Y
 m88k/dg/dgux5.4R3.10        gcc 2.5.8    CVSHEAD    04-03-15 alex   Y Y ? ?

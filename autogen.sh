@@ -150,20 +150,23 @@ echo "Generating files ..."
 $ACLOCAL && \
 	$AUTOHEADER && \
 	$AUTOMAKE --add-missing && \
-	$AUTOCONF
+	$AUTOCONF --force
 
 if [ $? -eq 0 -a -x ./configure ]; then
 	# Success: if we got some parameters we call ./configure and pass
 	# all of them to it.
+	NAME=`grep PACKAGE_STRING= configure | cut -d"'" -f2`
 	if [ "$GO" = "1" ]; then
 		[ -n "$PREFIX" ] && p=" --prefix=$PREFIX" || p=""
 		[ -n "$*" ] && a=" $*" || a=""
 		c="./configure${p}${a}"
+		echo "Okay, autogen.sh for $NAME done."
 		echo "Calling \"$c\" ..."
 		$c
 		exit $?
 	else
-		echo "Okay, autogen.sh done; now run the \"configure\" script."
+		echo "Okay, autogen.sh for $NAME done."
+		echo "Now run the \"./configure\" script."
 		exit 0
 	fi
 else

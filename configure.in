@@ -9,10 +9,12 @@
 # Please read the file COPYING, README and AUTHORS for more information.
 #
 
+define(VERSION_ID,esyscmd(git describe|sed -e 's/rel-//g'|sed -e 's/-/~/'|tr -d \\n))
+
 # -- Initialisation --
 
 AC_PREREQ(2.50)
-AC_INIT(ngircd, 17~rc1)
+AC_INIT(ngircd, VERSION_ID)
 AC_CONFIG_SRCDIR(src/ngircd/ngircd.c)
 AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE(1.6)

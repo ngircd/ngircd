@@ -1337,7 +1337,7 @@ IRC_Send_NAMES( CLIENT *Client, CHANNEL *Chan )
  * See <http://www.irc.org/tech_docs/005.html> for details.
  */
 GLOBAL bool
-IRC_Send_ISUPPORT PARAMS((CLIENT * Client))
+IRC_Send_ISUPPORT(CLIENT * Client)
 {
 	if (!IRC_WriteStrClient(Client, RPL_ISUPPORT1_MSG, Client_ID(Client),
 				Conf_MaxJoins))

@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2004 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2010 by Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,8 +20,6 @@
 
 #ifdef ZEROCONF
 
-
-static char UNUSED id[] = "$Id: rendezvous.c,v 1.8 2006/05/10 21:24:01 alex Exp $";
 
 #include "imp.h"
 #include <assert.h>
@@ -43,6 +41,8 @@ static char UNUSED id[] = "$Id: rendezvous.c,v 1.8 2006/05/10 21:24:01 alex Exp 
 #endif
 
 #include "defines.h"
+#include "conn.h"
+#include "conf.h"
 #include "log.h"
 
 #include "exp.h"
@@ -152,7 +152,7 @@ GLOBAL bool Rendezvous_Register( char *Name, char *Type, UINT16 Port )
 	int i;
 
 	if (Conf_NoZeroConf)
-		return;
+		return true;
 
 	/* Search free port structure */
 	for( i = 0; i < MAX_RENDEZVOUS; i++ ) if( ! My_Rendezvous[i].Desc[0] ) break;

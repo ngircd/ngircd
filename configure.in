@@ -43,6 +43,7 @@ AH_TEMPLATE([TARGET_CPU], [Target CPU name])
 # -- C Compiler --
 
 AC_PROG_CC
+AC_PROG_CC_STDC
 AC_C_PROTOTYPES
 
 # -- Helper programs --

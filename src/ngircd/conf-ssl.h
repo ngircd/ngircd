@@ -39,7 +39,8 @@ bool
 ConnSSL_InitLibrary(void);
 #else
 static inline bool
-ConnSSL_InitLibrary(void) { return true; }
+ConnSSL_InitLibrary(void)
+{ return true; }
 #endif /* SSL_SUPPORT */
 
 #endif /* conf_ssl_h */

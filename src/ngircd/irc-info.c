@@ -1239,7 +1239,9 @@ static bool Show_MOTD_SSLInfo(CLIENT *Client)
 	return ret;
 }
 #else
-static inline bool Show_MOTD_SSLInfo(UNUSED CLIENT *c) { return true; }
+static inline bool
+Show_MOTD_SSLInfo(UNUSED CLIENT *c)
+{ return true; }
 #endif
 
 GLOBAL bool

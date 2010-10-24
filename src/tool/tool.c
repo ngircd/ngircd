@@ -186,8 +186,8 @@ CODE facilitynames[] = {
 #endif
 
 
-GLOBAL const char
-*ngt_SyslogFacilityName(int Facility)
+GLOBAL const char*
+ngt_SyslogFacilityName(int Facility)
 {
 	int i = 0;
 	while(facilitynames[i].c_name) {

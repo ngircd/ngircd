@@ -681,9 +681,11 @@ SSL_WantWrite(const CONNECTION *c)
 }
 #else
 static inline bool
-SSL_WantRead(UNUSED const CONNECTION *c) { return false; }
+SSL_WantRead(UNUSED const CONNECTION *c)
+{ return false; }
 static inline bool
-SSL_WantWrite(UNUSED const CONNECTION *c) { return false; }
+SSL_WantWrite(UNUSED const CONNECTION *c)
+{ return false; }
 #endif
 
 

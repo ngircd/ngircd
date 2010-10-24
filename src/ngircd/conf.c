@@ -844,7 +844,8 @@ Check_ArgIsTrue( const char *Arg )
 } /* Check_ArgIsTrue */
 
 
-static unsigned int Handle_MaxNickLength(int Line, const char *Arg)
+static unsigned int
+Handle_MaxNickLength(int Line, const char *Arg)
 {
 	unsigned new;
 

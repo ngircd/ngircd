@@ -115,7 +115,7 @@ static fd_set writers;
  * the largest fd registered, plus one.
  */
 static int select_maxfd;
-static int io_dispatch_select(struct timeval *tv);
+static int io_dispatch_select PARAMS((struct timeval *tv));
 
 #ifndef IO_USE_EPOLL
 #define io_masterfd -1
@@ -127,12 +127,15 @@ static array io_events;
 static void io_docallback PARAMS((int fd, short what));
 
 #ifdef DEBUG_IO
-static void io_debug(const char *s, int fd, int what)
+static void
+io_debug(const char *s, int fd, int what)
 {
 	Log(LOG_DEBUG, "%s: %d, %d\n", s, fd, what);
 }
 #else
-static inline void io_debug(const char UNUSED *s,int UNUSED a, int UNUSED b) {/*NOTHING*/}
+static inline void
+io_debug(const char UNUSED *s,int UNUSED a, int UNUSED b)
+{ /* NOTHING */ }
 #endif
 
 static io_event *
@@ -227,8 +230,12 @@ io_library_init_devpoll(unsigned int eventsize)
 		eventsize, io_masterfd);
 }
 #else
-static inline void io_close_devpoll(int UNUSED x) {/* NOTHING */}
-static inline void io_library_init_devpoll(unsigned int UNUSED ev) {/*NOTHING*/}
+static inline void
+io_close_devpoll(int UNUSED x)
+{ /* NOTHING */ }
+static inline void
+io_library_init_devpoll(unsigned int UNUSED ev)
+{ /* NOTHING */ }
 #endif
 
 
@@ -331,8 +338,12 @@ io_library_init_poll(unsigned int eventsize)
 	}
 }
 #else
-static inline void io_close_poll(int UNUSED x) {/* NOTHING */}
-static inline void io_library_init_poll(unsigned int UNUSED ev) {/*NOTHING*/}
+static inline void
+io_close_poll(int UNUSED x)
+{ /* NOTHING */ }
+static inline void
+io_library_init_poll(unsigned int UNUSED ev)
+{ /* NOTHING */ }
 #endif
 
 
@@ -340,11 +351,15 @@ static inline void io_library_init_poll(unsigned int UNUSED ev) {/*NOTHING*/}
 static int
 io_dispatch_select(struct timeval *tv)
 {
-	fd_set readers_tmp = readers;
-	fd_set writers_tmp = writers;
+	fd_set readers_tmp;
+	fd_set writers_tmp;
 	short what;
 	int ret, i;
 	int fds_ready;
+
+	readers_tmp = readers;
+	writers_tmp = writers;
+
 	ret = select(select_maxfd + 1, &readers_tmp, &writers_tmp, NULL, tv);
 	if (ret <= 0)
 		return ret;
@@ -418,8 +433,12 @@ io_close_select(int fd)
 	}
 }
 #else
-static inline void io_library_init_select(int UNUSED x) {/* NOTHING */}
-static inline void io_close_select(int UNUSED x) {/* NOTHING */}
+static inline void
+io_library_init_select(int UNUSED x)
+{ /* NOTHING */ }
+static inline void
+io_close_select(int UNUSED x)
+{ /* NOTHING */ }
 #endif /* SELECT */
 
 
@@ -494,7 +513,9 @@ io_library_init_epoll(unsigned int eventsize)
 #endif
 }
 #else
-static inline void io_library_init_epoll(unsigned int UNUSED ev) {/* NOTHING */}
+static inline void
+io_library_init_epoll(unsigned int UNUSED ev)
+{ /* NOTHING */ }
 #endif /* IO_USE_EPOLL */
 
 
@@ -620,7 +641,9 @@ io_library_init_kqueue(unsigned int eventsize)
 		library_initialized = true;
 }
 #else
-static inline void io_library_init_kqueue(unsigned int UNUSED ev) {/* NOTHING */}
+static inline void
+io_library_init_kqueue(unsigned int UNUSED ev)
+{ /* NOTHING */ }
 #endif
 
 

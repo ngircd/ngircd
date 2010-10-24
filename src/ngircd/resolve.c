@@ -344,15 +344,15 @@ Addr_in_list(const array *resolved_addr, const ng_ipaddr_t *Addr)
 static void
 Log_Forgery_NoIP(const char *ip, const char *host)
 {
-	Log_Subprocess(LOG_WARNING, "Possible forgery: %s resolved to %s "
-		"(which has no ip address)", ip, host);
+	Log_Subprocess(LOG_WARNING,
+		"Possible forgery: %s resolved to %s (which has no ip address)", ip, host);
 }
 
 static void
 Log_Forgery_WrongIP(const char *ip, const char *host)
 {
-	Log_Subprocess(LOG_WARNING,"Possible forgery: %s resolved to %s "
-		"(which points to different address)", ip, host);
+	Log_Subprocess(LOG_WARNING,
+		"Possible forgery: %s resolved to %s (which points to different address)", ip, host);
 }
 
 

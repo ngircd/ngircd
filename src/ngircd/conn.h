@@ -122,7 +122,9 @@ GLOBAL PROC_STAT* Conn_GetProcStat PARAMS((CONN_ID i));
 GLOBAL bool Conn_GetCipherInfo PARAMS((CONN_ID Idx, char *buf, size_t len));
 GLOBAL bool Conn_UsesSSL PARAMS((CONN_ID Idx));
 #else
-static inline bool Conn_UsesSSL(UNUSED CONN_ID Idx) { return false; }
+static inline bool
+Conn_UsesSSL(UNUSED CONN_ID Idx)
+{ return false; }
 #endif
 
 GLOBAL long Conn_Count PARAMS((void));

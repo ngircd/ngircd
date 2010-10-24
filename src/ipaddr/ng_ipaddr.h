@@ -103,8 +103,11 @@ GLOBAL const char *ng_ipaddr_tostr PARAMS((const ng_ipaddr_t *addr));
 /* convert struct sockaddr to string. dest must be NG_INET_ADDRSTRLEN bytes long */
 GLOBAL bool ng_ipaddr_tostr_r PARAMS((const ng_ipaddr_t *addr, char *dest));
 #else
-static inline const char *
-ng_ipaddr_tostr(const ng_ipaddr_t *addr) { return inet_ntoa(addr->sin4.sin_addr); }
+static inline const char*
+ng_ipaddr_tostr(const ng_ipaddr_t *addr)
+{
+	return inet_ntoa(addr->sin4.sin_addr);
+}
 
 static inline bool
 ng_ipaddr_tostr_r(const ng_ipaddr_t *addr, char *d)

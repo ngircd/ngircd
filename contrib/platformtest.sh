@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001-2009 Alexander Barton <alex@barton.de>
+# Copyright (c)2001-2010 Alexander Barton <alex@barton.de>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -51,9 +51,9 @@ if [ $? -ne 0 ]; then
 	cd ..
 fi
 
-echo "$NAME: Checking for ./configure script ..."
-if [ ! -e ./configure ]; then
-	echo "$NAME: Not found. Running ./autogen.sh ..."
+echo "$NAME: Checking for ./autogen.sh script ..."
+if [ -e ./autogen.sh ]; then
+	echo "$NAME: Running ./autogen.sh ..."
 	[ -n "$VERBOSE" ] && ./autogen.sh || ./autogen.sh >/dev/null
 fi
 
@@ -93,7 +93,7 @@ fi
 
 # Get compiler information
 if [ -r "Makefile" ]; then
-	eval $(grep "^CC = " Makefile | sed -e 's/ //g')
+	CC=$(grep "^CC = " Makefile | cut -d' ' -f3)
 	$CC --version 2>&1 | grep -i "GCC" >/dev/null
 	if [ $? -eq 0 ]; then
 		COMPILER=$($CC --version | head -n 1 | awk "{ print \$3 }" \
@@ -103,12 +103,12 @@ if [ -r "Makefile" ]; then
 fi
 
 # Get ngIRCd version information
-if [ -d ".git" ]; then
-	VERSION=`git log --abbrev-commit --pretty=oneline HEAD~1.. \
-	 | head -1 | cut -d' ' -f1 | tr -d '.'`
-elif [ -r "Makefile" ]; then
-	eval $(grep "^VERSION = " Makefile | sed -e 's/ //g')
-fi
+eval $(grep "^VERSION = " Makefile | sed -e 's/ //g')
+case "$VERSION" in
+	*-*-*)
+		VERSION=`echo "$VERSION" | cut -d'-' -f3 | cut -b2-`
+		;;
+esac
 [ -n "$VERSION" ] || VERSION="unknown"
 
 # Get IO interface information

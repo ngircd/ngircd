@@ -12,6 +12,19 @@
 
 ngIRCd Release 17
 
+  ngIRCd 17~rc2 (2010-10-25)
+  - ZeroConf: include header files missing since commit a988bbc86a.
+  - Generate ngIRCd version number from GIT tag.
+  - Make sourcecode compatible with ansi2knr again. This allows to compile
+    ngIRCd using a pre-ANSI K&R C compiler again.
+  - ./configure: check if C compiler can compile ISO Standard C.
+  - ./configure: check support for C prototypes again.
+  - Don't use PARAMS() macro for function implementations.
+  - Added m68k/apple/aux3.0.1 (gcc 2.7.2) to doc/Platforms.txt.
+  - Only try to set FD_CLOEXEC if this flag is defined.
+  - Only use "__attribute__ ((unused))" if GCC >=2.8 is used.
+  - doc/Makefile.am: don't set docdir, automake handles it already.
+
   ngIRCd 17~rc1 (2010-10-11)
   - New configuration option "NoZeroConf" to disable service registration at
     runtime even if ngIRCd is compiled with support for ZeroConf (e.g. using

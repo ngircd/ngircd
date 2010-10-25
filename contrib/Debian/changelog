@@ -1,3 +1,9 @@
+ngircd (17~rc2-0ab1) unstable; urgency=low
+
+  * New "upstream" release candidate 2 for ngIRCd Release 17.
+
+ -- Alexander Barton <alex@barton.de>  Mon, 25 Oct 2010 18:51:15 +0200
+
 ngircd (17~rc1-0ab1) unstable; urgency=low
 
   * New "upstream" release candidate 1 for ngIRCd Release 17.

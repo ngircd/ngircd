@@ -1,6 +1,6 @@
 #
 # ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001-2008 Alexander Barton (alex@barton.de)
+# Copyright (c)2001-2010 Alexander Barton (alex@barton.de)
 #
 # Dieses Programm ist freie Software. Sie koennen es unter den Bedingungen
 # der GNU General Public License (GPL), wie von der Free Software Foundation
@@ -14,7 +14,7 @@ SUBDIRS = src
 
 EXTRA_DIST = FAQ.txt GIT.txt Protocol.txt Platforms.txt README-AUX.txt \
 	README-BeOS.txt RFC.txt Services.txt SSL.txt Zeroconf.txt \
-	sample-ngircd.conf
+	HowToRelease.txt sample-ngircd.conf
 
 maintainer-clean-local:
 	rm -f Makefile Makefile.in

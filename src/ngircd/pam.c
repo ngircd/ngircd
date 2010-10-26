@@ -111,7 +111,7 @@ PAM_Authenticate(CLIENT *Client) {
 
 	pam_set_item(pam, PAM_RUSER, Client_User(Client));
 	pam_set_item(pam, PAM_RHOST, Client_Hostname(Client));
-#ifdef HAVE_PAM_FAIL_DELAY
+#if defined(HAVE_PAM_FAIL_DELAY) && !defined(NO_PAM_FAIL_DELAY)
 	pam_fail_delay(pam, 0);
 #endif
 

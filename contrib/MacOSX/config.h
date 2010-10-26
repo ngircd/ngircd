@@ -115,6 +115,8 @@
 #define HAVE_PAM_AUTHENTICATE 1
 /* Define to 1 if you have the <pam/pam_appl.h> header file. */
 #define HAVE_PAM_PAM_APPL_H 1
+/* Mac OS X <10.6 doesn't have pam_fail_delay() */
+#define NO_PAM_FAIL_DELAY 1
 #endif
 
 /* -eof- */

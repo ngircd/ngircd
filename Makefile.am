@@ -1,6 +1,6 @@
 #
 # ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001-2008 Alexander Barton (alex@barton.de)
+# Copyright (c)2001-2010 Alexander Barton (alex@barton.de)
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@ have-xcodebuild:
 	 || ( echo; echo "Error: \"xcodebuild\" not found!"; echo; exit 1 )
 
 xcode: have-xcodebuild
-	rel=`grep AC_INIT configure.in | cut -d' ' -f2 | cut -d')' -f1`; \
+	rel=`git describe|sed -e 's/rel-//g'|sed -e 's/-/~/'`; \
 	 def="GCC_PREPROCESSOR_DEFINITIONS=\"VERSION=\\\"$$rel\\\"\""; \
 	 xcodebuild -project contrib/MacOSX/ngIRCd.xcodeproj -alltargets \
 	 -configuration Default $$def build

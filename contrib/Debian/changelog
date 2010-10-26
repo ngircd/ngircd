@@ -1,3 +1,10 @@
+ngircd (17~rc2-0ab2) unstable; urgency=low
+
+  * Install /etc/pam.d/ngircd including "auth required pam_permit.so" when
+    installing -full or -full-dbg variant to keep backwards compatibility.
+
+ -- Alexander Barton <alex@barton.de>  Tue, 26 Oct 2010 23:34:56 +0200
+
 ngircd (17~rc2-0ab1) unstable; urgency=low
 
   * New "upstream" release candidate 2 for ngIRCd Release 17.

@@ -1,6 +1,6 @@
 #
 # ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001-2009 Alexander Barton (alex@barton.de)
+# Copyright (c)2001-2010 Alexander Barton (alex@barton.de)
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -10,7 +10,7 @@
 #
 
 EXTRA_DIST = rules changelog compat control copyright \
-	ngircd.init ngircd.default ngircd.postinst
+	ngircd.init ngircd.default ngircd.pam ngircd.postinst
 
 maintainer-clean-local:
 	rm -f Makefile Makefile.in

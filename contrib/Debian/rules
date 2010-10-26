@@ -163,6 +163,8 @@ install-ngircd-full: build-ngircd-full
 	 sed -e "s/;PidFile = \/var\/run\/ngircd\/ngircd.pid/PidFile = \/var\/run\/ircd\/ngircd.pid/g" \
 	 >$(CURDIR)/debian/ngircd-full/etc/ngircd/ngircd.conf
 	touch $(CURDIR)/debian/ngircd-full/etc/ngircd/ngircd.motd
+	mkdir -p $(CURDIR)/debian/ngircd-full/etc/pam.d
+	cp $(CURDIR)/debian/ngircd.pam $(CURDIR)/debian/ngircd-full/etc/pam.d/ngircd
 
 install-ngircd-full-dbg: build-ngircd-full-dbg
 	dh_testdir
@@ -183,6 +185,8 @@ install-ngircd-full-dbg: build-ngircd-full-dbg
 	 sed -e "s/;PidFile = \/var\/run\/ngircd\/ngircd.pid/PidFile = \/var\/run\/ircd\/ngircd.pid/g" \
 	 >$(CURDIR)/debian/ngircd-full-dbg/etc/ngircd/ngircd.conf
 	touch $(CURDIR)/debian/ngircd-full-dbg/etc/ngircd/ngircd.motd
+	mkdir -p $(CURDIR)/debian/ngircd-full-dbg/etc/pam.d
+	cp $(CURDIR)/debian/ngircd.pam $(CURDIR)/debian/ngircd-full-dbg/etc/pam.d/ngircd
 
 # Build architecture-independent files here.
 binary-indep:

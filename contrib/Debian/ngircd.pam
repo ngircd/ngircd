@@ -1,0 +1,4 @@
+# /etc/pam.d/ngircd
+
+# allow all connections to ngIRCd
+auth required pam_permit.so

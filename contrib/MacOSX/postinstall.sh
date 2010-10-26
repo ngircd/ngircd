@@ -19,6 +19,20 @@ else
 fi
 chmod o-rwx /opt/ngircd/etc/ngircd.conf
 
+if [ ! -e /opt/ngircd/etc/ngircd.pam ]; then
+	echo "Creating default PAM configuration: /opt/ngircd/etc/ngircd.pam"
+	echo "# PAM configuration for ngIRCd" >/opt/ngircd/etc/ngircd.pam
+	echo "" >>/opt/ngircd/etc/ngircd.pam
+	echo "auth required pam_permit.so" >>/opt/ngircd/etc/ngircd.pam
+	echo "#auth required pam_opendirectory.so" >>/opt/ngircd/etc/ngircd.pam
+fi
+chmod 644 /opt/ngircd/etc/ngircd.pam
+
+if [ ! -e /etc/pam.d/ngircd ]; then
+	echo "Linkint /opt/ngircd/etc/ngircd.pam to /etc/pam.d/ngircd"
+	ln -s /opt/ngircd/etc/ngircd.pam /etc/pam.d/ngircd || exit 1
+fi
+
 if [ -f "$LDPLIST" ]; then
 	echo "Fixing ownership and permissions of LaunchDaemon script ..."
 	chown root:wheel "$LDPLIST" || exit 1

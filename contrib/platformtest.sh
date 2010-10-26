@@ -52,15 +52,15 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "$NAME: Checking for ./autogen.sh script ..."
-if [ -e ./autogen.sh ]; then
+if [ -r ./autogen.sh ]; then
 	echo "$NAME: Running ./autogen.sh ..."
 	[ -n "$VERBOSE" ] && ./autogen.sh || ./autogen.sh >/dev/null
 fi
 
-if [ -e ./configure ]; then
+if [ -r ./configure ]; then
 	echo "$NAME: Running \"./configure\" script ..."
 	[ -n "$VERBOSE" ] && ./configure || ./configure >/dev/null
-	if [ $? -eq 0 -a -e ./Makefile ]; then
+	if [ $? -eq 0 -a -r ./Makefile ]; then
 		CONFIGURE=1
 		echo "$NAME: Running \"make\" ..."
 		[ -n "$VERBOSE" ] && make || make >/dev/null
@@ -96,9 +96,16 @@ if [ -r "Makefile" ]; then
 	CC=$(grep "^CC = " Makefile | cut -d' ' -f3)
 	$CC --version 2>&1 | grep -i "GCC" >/dev/null
 	if [ $? -eq 0 ]; then
-		COMPILER=$($CC --version | head -n 1 | awk "{ print \$3 }" \
+		COMPILER=$($CC --version | head -1 | awk "{ print \$3 }" \
 		 | cut -d'-' -f1)
 		COMPILER="gcc $COMPILER"
+	else
+		case "$CC" in
+		  gcc*)
+			v="`$CC --version 2>/dev/null | head -1`"
+			[ -n "$v" ] && COMPILER="gcc $v"
+			;;
+		esac
 	fi
 fi
 
@@ -137,7 +144,13 @@ echo "                                                ./configure works --+ | | 
 echo "                                                                    | | | |"
 echo "Platform                    Compiler     ngIRCd     Date     Tester C M T R See"
 echo "--------------------------- ------------ ---------- -------- ------ - - - - ---"
-printf "%-27s %-12s %-10s %s %-6s %s %s %s %s%s" \
- "$PLATFORM" "$COMPILER" "$VERSION" "$DATE" "$USER" \
- "$C" "$M" "$T" "$R" "$COMMENT"
+type printf >/dev/null 2>&1
+if [ $? -eq 0 ]; then
+	printf "%-27s %-12s %-10s %s %-6s %s %s %s %s%s" \
+	 "$PLATFORM" "$COMPILER" "$VERSION" "$DATE" "$USER" \
+	 "$C" "$M" "$T" "$R" "$COMMENT"
+else
+	echo "$PLATFORM $COMPILER $VERSION $DATE $USER" \
+	 "$C" "$M" "$T" "$R" "$COMMENT"
+fi
 echo; echo

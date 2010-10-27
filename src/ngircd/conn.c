@@ -207,7 +207,7 @@ cb_connserver(int sock, UNUSED short what)
 
 		if (ng_ipaddr_af(&Conf_Server[server].dst_addr[0])) {
 			/* more addresses to try... */
-			New_Server(res, &Conf_Server[server].dst_addr[0]);
+			New_Server(server, &Conf_Server[server].dst_addr[0]);
 			/* connection to dst_addr[0] is now in progress, so
 			 * remove this address... */
 			Conf_Server[server].dst_addr[0] =

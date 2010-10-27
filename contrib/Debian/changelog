@@ -1,3 +1,9 @@
+ngircd (17~rc3-0ab1) unstable; urgency=low
+
+  * New "upstream" release candidate 3 for ngIRCd Release 17.
+
+ -- Alexander Barton <alex@barton.de>  Wed, 27 Oct 2010 22:30:08 +0200
+
 ngircd (17~rc2-0ab2) unstable; urgency=low
 
   * Install /etc/pam.d/ngircd including "auth required pam_permit.so" when

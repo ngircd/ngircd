@@ -12,6 +12,16 @@
 
 ngIRCd Release 17
 
+  ngIRCd 17~rc3 (2010-10-27)
+  - Xcode builds: detect version number correctly, updateed project file
+    to use the Mac OS X 10.5.x SDK, disable pam_fail_delay() because it
+    is only available starting with Mac OS X 10.6, and generate a default
+    PAM configuration for the Mac OS X Installer.app package of ngIRCd.
+  - Debian: updated standards version to 3.9.1, added libpam0g-dev to the
+    dependencies, and install a default /etc/pam.d/ngircd allowing all logins.
+  - Make contrib/platformtest.sh more portable.
+  - Fix connect attempts to further IP addresses of outgoing server links.
+
   ngIRCd 17~rc2 (2010-10-25)
   - ZeroConf: include header files missing since commit a988bbc86a.
   - Generate ngIRCd version number from GIT tag.

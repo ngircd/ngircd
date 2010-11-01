@@ -10,6 +10,13 @@
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
 
+.tmpl:
+	sed \
+	    -e s@:ETCDIR:@${sysconfdir}@ \
+	    <$< >$@
+
+SUFFIXES = .tmpl
+
 SUBDIRS = src
 
 EXTRA_DIST = FAQ.txt GIT.txt Protocol.txt Platforms.txt README-AUX.txt \
@@ -22,7 +29,7 @@ maintainer-clean-local:
 documents = $(EXTRA_DIST) ../AUTHORS ../COPYING ../ChangeLog ../INSTALL \
 	../NEWS ../README
 
-install-data-hook:
+install-data-hook: $(documents)
 	$(mkinstalldirs) $(DESTDIR)$(sysconfdir)
 	if [ ! -f $(DESTDIR)$(sysconfdir)/ngircd.conf ]; then \
 	  $(INSTALL) -m 600 -c $(srcdir)/sample-ngircd.conf $(DESTDIR)$(sysconfdir)/ngircd.conf; \

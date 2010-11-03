@@ -17,26 +17,38 @@
 
 SUFFIXES = .tmpl
 
+static_docs = FAQ.txt GIT.txt Protocol.txt Platforms.txt README-AUX.txt \
+	README-BeOS.txt RFC.txt Services.txt SSL.txt Zeroconf.txt \
+	HowToRelease.txt
+
+doc_templates = sample-ngircd.conf.tmpl
+
+generated_docs = sample-ngircd.conf
+
+toplevel_docs = ../AUTHORS ../COPYING ../ChangeLog ../INSTALL ../NEWS ../README
+
 SUBDIRS = src
 
-EXTRA_DIST = FAQ.txt GIT.txt Protocol.txt Platforms.txt README-AUX.txt \
-	README-BeOS.txt RFC.txt Services.txt SSL.txt Zeroconf.txt \
-	HowToRelease.txt sample-ngircd.conf
+EXTRA_DIST = $(static_docs) $(doc_templates)
+
+CLEANFILES = $(generated_docs)
 
 maintainer-clean-local:
 	rm -f Makefile Makefile.in
 
-documents = $(EXTRA_DIST) ../AUTHORS ../COPYING ../ChangeLog ../INSTALL \
-	../NEWS ../README
+all: $(generated_docs)
 
-install-data-hook: $(documents)
+install-data-hook: $(static_docs) $(toplevel_docs) $(generated_docs)
 	$(mkinstalldirs) $(DESTDIR)$(sysconfdir)
 	if [ ! -f $(DESTDIR)$(sysconfdir)/ngircd.conf ]; then \
-	  $(INSTALL) -m 600 -c $(srcdir)/sample-ngircd.conf $(DESTDIR)$(sysconfdir)/ngircd.conf; \
+	  $(INSTALL) -m 600 -c sample-ngircd.conf $(DESTDIR)$(sysconfdir)/ngircd.conf; \
 	 fi
 	$(mkinstalldirs) $(DESTDIR)$(docdir)
-	for f in $(documents); do \
+	for f in $(static_docs) $(toplevel_docs); do \
 	  $(INSTALL) -m 644 -c $(srcdir)/$$f $(DESTDIR)$(docdir)/; \
+	 done
+	for f in $(generated_docs); do \
+	  $(INSTALL) -m 644 -c $$f $(DESTDIR)$(docdir)/; \
 	 done
 
 uninstall-hook:

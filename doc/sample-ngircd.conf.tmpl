@@ -51,16 +51,16 @@
 	;SSLPorts = 6697, 9999
 
 	# SSL Server Key
-	;SSLKeyFile = :ETCDIR:ssl/server-key.pem
+	;SSLKeyFile = :ETCDIR:/ssl/server-key.pem
 
 	# password to decrypt SSLKeyFile (OpenSSL only)
 	;SSLKeyFilePassword = secret
 
 	# SSL Server Key Certificate
-	;SSLCertFile = :ETCDIR:ssl/server-cert.pem
+	;SSLCertFile = :ETCDIR:/ssl/server-cert.pem
 
 	# Diffie-Hellman parameters
-	;SSLDHFile = :ETCDIR:ssl/dhparams.pem
+	;SSLDHFile = :ETCDIR:/ssl/dhparams.pem
 
 	# comma separated list of IP addresses on which the server should
 	# listen. Default values are:
@@ -77,7 +77,7 @@
 
 	# Text file with the "message of the day" (MOTD). This message will
 	# be shown to all users connecting to the server:
-	;MotdFile = :ETCDIR:ngircd.motd
+	;MotdFile = :ETCDIR:/ngircd.motd
 
 	# A simple Phrase (<256 chars) if you don't want to use a motd file.
 	;MotdPhrase = "Hello world!"
@@ -270,7 +270,7 @@
 
 	# Key file, syntax for each line: "<user>:<nick>:<key>".
 	# Default: none.
-	;KeyFile = :ETCDIR:#chan.key
+	;KeyFile = :ETCDIR:/#chan.key
 
 	# maximum users per channel (mode l)
 	;MaxUsers = 23

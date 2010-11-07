@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # ngIRCd start and stop script for RedHat based distributions.
-# Written by Naoya Nakazawa <naoya@sanow.net> for CentOS 5.2, 2009.
+# Written by Naoya Nakazawa <naoya.n@gmail.com> for CentOS 5.2, 2009.
 #
 # chkconfig: 2345 01
 # description: ngIRCd is an Open Source server for \

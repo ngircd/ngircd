@@ -10,7 +10,12 @@
                                -- ChangeLog --
 
 
-ngIRCd Release 17
+ngIRCd Release 17 (2010-11-07)
+
+  - doc: change path names in sample-ngircd.conf depending on sysconfdir
+  - Fix up generation and distribution of sample-ngircd.conf
+  - contrib/ngircd-redhat.init: updated email address of Naoya Nakazawa
+  - contrib/platformtest.sh: make command name quoting consistent
 
   ngIRCd 17~rc3 (2010-10-27)
   - Xcode builds: detect version number correctly, updateed project file

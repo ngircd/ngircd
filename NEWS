@@ -10,7 +10,9 @@
                                   -- NEWS --
 
 
-ngIRCd Release 17
+ngIRCd Release 17 (2010-11-07)
+
+  - doc: change path names in sample-ngircd.conf depending on sysconfdir
 
   ngIRCd 17~rc2 (2010-10-25)
   - Generate ngIRCd version number from GIT tag.

@@ -32,48 +32,42 @@ hppa1.1/unknown/linux-gnu   gcc 3.3.3    0.8.0      04-05-30 alex   Y Y Y Y
 hppa2.0/unknown/linux-gnu   gcc 3.3.5    13~rc1     08-12-02 alex   Y Y Y Y
 hppa2.0w-hp-hpux11.11       gcc 4.2.3    14.1       09-07-22 goetz  Y Y Y Y
 i386/apple/darwin9.7.0      gcc 4.0.1    14.1       09-08-04 alex   Y Y Y Y (3)
-i386/apple/darwin10.4.0     gcc 4.2.1    17-dev     10-10-05 alex   Y Y Y Y (3)
+i386/apple/darwin10.4.0     gcc 4.2.1    17         10-11-07 alex   Y Y Y Y (3)
 i386/pc/solaris2.9          gcc 3.2.2    CVSHEAD    04-02-24 alex   Y Y Y Y
-i386/pc/solaris2.11         gcc 3.4.3    14.1       09-08-03 alex   Y Y Y Y (4)
+i386/pc/solaris2.11         gcc 3.4.3    17         10-11-07 alex   Y Y N Y (4)
 i386/unknown/freebsd5.2.1   gcc 3.3.3    0.8.0      04-05-30 alex   Y Y Y Y
-i386/unknown/freebsd6.0     gcc 3.4.4    0.10.0-p1  06-08-04 alex   Y Y Y Y (3)
-i386/unknown/freebsd6.1     gcc 3.4.4    CVSHEAD    06-05-07 fw     Y Y Y Y (3)
-i386/unknown/freebsd6.2     gcc 3.4.6    17-dev     10-10-05 alex   Y Y Y Y (3)
-i386/unknown/freebsd7.0     gcc 4.2.1    14.1       09-07-28 alex   Y Y Y Y (3)
-i386/unknown/freebsd7.2     gcc 4.2.1    14.1       09-08-03 alex   Y Y Y Y (3)
-i386/unknown/freebsd7.3     gcc 4.2.1    17-dev     10-10-05 alex   Y Y Y Y (3)
-i386/unknown/gnu0.3         gcc 3.3.3    0.8.0      04-05-30 alex   Y Y n Y
-i686/unknown/gnu0.3         gcc 4.3.1    14.1       09-07-28 alex   Y Y Y Y
+i386/unknown/freebsd6.2     gcc 3.4.6    17         10-11-07 alex   Y Y Y Y (3)
+i386/unknown/freebsd7.3     gcc 4.2.1    17         10-11-07 alex   Y Y Y Y (3)
+i686/unknown/gnu0.3         gcc 4.4.5    17         10-11-07 alex   Y Y Y Y
 i686/unkn./kfreebsd7.2-gnu  gcc 4.3.4    15         09-12-02 alex   Y Y Y Y (3)
 i386/unknown/netbsdelf1.6.1 gcc 2.95.3   CVSHEAD    04-02-24 alex   Y Y Y Y
 i386/unknown/netbsdelf3.0.1 gcc 3.3.3    0.10.0-p1  06-08-30 alex   Y Y Y Y (3)
-i386/unknown/netbsdelf4.0   gcc 4.1.2    17-dev     10-10-05 alex   Y Y Y Y (3)
-i386/unknown/netbsdelf5.0.2 gcc 4.1.3    17-dev     10-10-07 alex   Y Y Y Y (3)
+i386/unknown/netbsdelf4.0   gcc 4.1.2    17         10-11-07 alex   Y Y Y Y (3)
+i386/unknown/netbsdelf5.0.2 gcc 4.1.3    17         10-11-07 alex   Y Y Y Y (3)
 i386/unknown/openbsd3.9     gcc 3.3.5    0.10.0-p1  06-08-30 alex   Y Y Y Y (3)
 i386/unknown/openbsd4.1     gcc 3.3.5    16         10-04-11 alex   Y Y Y Y (3)
 i586/pc/interix3.5          gcc 3.3      15         10-01-22 alex   Y Y N Y
-i686/pc/cygwin              gcc 3.3.1    0.8.0      04-05-30 alex   Y Y n Y
+i686/pc/cygwin              gcc 3.3.1    0.8.0      04-05-30 alex   Y Y N Y
 i686/pc/linux-gnu           gcc 2.95.4   0.8.0      04-05-30 alex   Y Y Y Y (1)
 i686/pc/linux-gnu           gcc 3.3.5    14.1       09-08-04 alex   Y Y Y Y (1)
 i386/pc/linux-gnu           gcc 4.1.2    13~rc1     08-12-05 alex   Y Y Y Y (1)
 i686/pc/linux-gnu           gcc 4.3.2    14.1       09-08-04 alex   Y Y Y Y (1)
-m68k/apple/aux3.0.1         gcc 2.7.2    17~rc1     10-10-12 alex   Y Y Y Y
+m68k/apple/aux3.0.1         gcc 2.7.2    17         10-11-07 alex   Y Y N Y
+m68k/apple/aux3.0.1         Orig. A/UX   17         10-11-07 alex   Y Y N Y (2)
 m68k/apple/aux3.1.1         Orig. A/UX   0.7.x-CVS  03-04-22 alex   Y Y Y Y (2)
 m68k/hp/hp-ux9.10           Orig. HPUX   0.7.x-CVS  03-04-30 goetz  Y Y Y Y
 m88k/dg/dgux5.4R3.10        gcc 2.5.8    CVSHEAD    04-03-15 alex   Y Y ? ?
 powerpc/apple/darwin6.5     gcc 3.1      0.7.x-CVS  03-04-23 alex   Y Y Y Y
-powerpc/apple/darwin7.4.0   gcc 3.3      0.8.0      04-05-30 alex   Y Y Y Y
 powerpc/apple/darwin7.9.0   gcc 3.3      CVSHEAD    06-05-07 fw     Y Y Y Y (3)
 powerpc/apple/darwin8.1.0   gcc 4.0      0.9.x-CVS  05-06-27 alex   Y Y Y Y
 powerpc/unknown/linux-gnu   gcc 3.3.3    0.8.0      04-05-30 alex   Y Y Y Y
-powerpc/unknown/openbsd3.6  gcc 2.95.3   0.10.0     06-10-08 alex   Y Y n Y
+powerpc/unknown/openbsd3.6  gcc 2.95.3   0.10.0     06-10-08 alex   Y Y N Y
 sparc/sun/solaris2.6        gcc 2.95.3   0.7.x-CVS  03-04-22 alex   Y Y Y Y
 sparc/sun/solaris2.7        gcc 3.3      0.8.0      04-05-30 alex   Y Y Y Y
 sparc/unkn./netbsdelf1.6.1  gcc 2.95.3   0.8.0      04-05-30 alex   Y Y Y Y
-x86_64/unknown/freebsd8.0   gcc 4.2.1    16         10-04-23 alex   Y Y Y Y (3)
-x86_64/unknown/freebsd8.1   gcc 4.2.1    17-dev     10-10-05 alex   Y Y Y Y (3)
-x86_64/unknown/linux-gnu    gcc 4.3.2    17-dev     10-10-05 alex   Y Y Y Y (1)
-x86_64/unknown/openbsd4.7   gcc 3.3.5    17-dev     10-10-05 alex   Y Y Y Y (3)
+x86_64/unknown/freebsd8.1   gcc 4.2.1    17         10-11-07 alex   Y Y Y Y (3)
+x86_64/unknown/linux-gnu    gcc 4.3.2    17         10-11-07 alex   Y Y Y Y (1)
+x86_64/unknown/openbsd4.7   gcc 3.3.5    17         10-11-07 alex   Y Y Y Y (3)
 
 
 Notes

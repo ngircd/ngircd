@@ -697,6 +697,14 @@ Channel_TopicWho(CHANNEL *Chan)
 	return Chan->topic_who;
 } /* Channel_TopicWho */
 
+
+GLOBAL unsigned int
+Channel_CreationTime(CHANNEL *Chan)
+{
+	assert(Chan != NULL);
+	return (unsigned int) Chan->creation_time;
+} /* Channel_CreationTime */
+
 #endif
 
 
@@ -834,6 +842,9 @@ Channel_Create( const char *Name )
 	strlcpy( c->name, Name, sizeof( c->name ));
 	c->hash = Hash( c->name );
 	c->next = My_Channels;
+#ifndef STRICT_RFC
+	c->creation_time = time(NULL);
+#endif
 	My_Channels = c;
 	LogDebug("Created new channel structure for \"%s\".", Name);
 	return c;

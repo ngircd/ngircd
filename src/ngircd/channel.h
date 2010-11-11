@@ -30,6 +30,7 @@ typedef struct _CHANNEL
 	char modes[CHANNEL_MODE_LEN];	/* Channel modes */
 	array topic;			/* Topic of the channel */
 #ifndef STRICT_RFC
+	time_t creation_time;		/* Channel creation time */
 	time_t topic_time;		/* Time when topic was set */
 	char topic_who[CLIENT_NICK_LEN];/* Nickname of user that set topic */
 #endif
@@ -118,6 +119,7 @@ GLOBAL CHANNEL *Channel_Create PARAMS(( const char *Name ));
 #ifndef STRICT_RFC
 GLOBAL unsigned int Channel_TopicTime PARAMS(( CHANNEL *Chan ));
 GLOBAL char *Channel_TopicWho PARAMS(( CHANNEL *Chan ));
+GLOBAL unsigned int Channel_CreationTime PARAMS(( CHANNEL *Chan ));
 #endif
 
 GLOBAL bool Channel_AddInvite PARAMS((CHANNEL *c, const char *Mask, bool OnlyOnce ));

@@ -294,8 +294,17 @@ Channel_Mode_Answer_Request(CLIENT *Origin, CHANNEL *Channel)
 	if (the_args[0])
 		strlcat(the_modes, the_args, sizeof(the_modes));
 
-	return IRC_WriteStrClient(Origin, RPL_CHANNELMODEIS_MSG,
-		Client_ID(Origin), Channel_Name(Channel), the_modes);
+	if (!IRC_WriteStrClient(Origin, RPL_CHANNELMODEIS_MSG,
+				Client_ID(Origin), Channel_Name(Channel),
+				the_modes))
+		return DISCONNECTED;
+#ifndef STRICT_RFC
+	if (!IRC_WriteStrClient(Origin, RPL_CREATIONTIME_MSG,
+				  Client_ID(Origin), Channel_Name(Channel),
+				  Channel_CreationTime(Channel)))
+		return DISCONNECTED;
+#endif
+	return CONNECTED;
 }
 
 

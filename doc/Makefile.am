@@ -19,7 +19,7 @@ SUFFIXES = .tmpl
 
 static_docs = FAQ.txt GIT.txt Protocol.txt Platforms.txt README-AUX.txt \
 	README-BeOS.txt RFC.txt Services.txt SSL.txt Zeroconf.txt \
-	HowToRelease.txt
+	HowToRelease.txt PAM.txt
 
 doc_templates = sample-ngircd.conf.tmpl
 

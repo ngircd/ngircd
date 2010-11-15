@@ -65,6 +65,7 @@
 #define RPL_LIST_MSG			"322 %s %s %ld :%s"
 #define RPL_LISTEND_MSG			"323 %s :End of LIST"
 #define RPL_CHANNELMODEIS_MSG		"324 %s %s +%s"
+#define RPL_CREATIONTIME_MSG		"329 %s %s %ld"
 #define RPL_NOTOPIC_MSG			"331 %s %s :No topic is set"
 #define RPL_TOPIC_MSG			"332 %s %s :%s"
 #define RPL_TOPICSETBY_MSG		"333 %s %s %s %u"

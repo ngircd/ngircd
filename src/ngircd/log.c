@@ -45,10 +45,6 @@
 static char Init_Txt[127];
 static bool Is_Daemon;
 
-#ifdef DEBUG
-static char Error_File[FNAME_LEN];
-#endif
-
 
 static void
 Log_Message(int Level, const char *msg)
@@ -107,51 +103,14 @@ Log_Init( bool Daemon_Mode )
 	}
 #endif
 	if( Init_Txt[0] ) Log( LOG_INFO, "Activating: %s.", Init_Txt );
-
-#ifdef DEBUG
-	Error_File[0] = '\0';
-#endif
 } /* Log_Init */
-
-
-#ifdef DEBUG
-GLOBAL void
-Log_InitErrorfile( void )
-{
-	snprintf( Error_File, sizeof Error_File, "%s/%s-%ld.err", ERROR_DIR, PACKAGE_NAME, (long)getpid( ));
-
-	fflush( stderr );
-	if( ! freopen( Error_File, "w", stderr ))
-	{
-		Log( LOG_ERR, "Can't reopen stderr (\"%s\"): %s", Error_File, strerror( errno ));
-		return;
-	}
-
-	fputs( ctime( &NGIRCd_Start ), stderr );
-	fprintf( stderr, "%s started.\n", NGIRCd_Version );
-	fprintf( stderr, "Activating: %s\n\n", Init_Txt[0] ? Init_Txt : "-" );
-	fflush( stderr );
-
-	Log(LOG_DEBUG, "Redirected stderr to \"%s\".", Error_File);
-} /* Log_InitErrfile */
-#endif
 
 
 GLOBAL void
 Log_Exit( void )
 {
-	/* Good Bye! */
 	Log(LOG_NOTICE, "%s done%s, served %lu connections.", PACKAGE_NAME,
 	    NGIRCd_SignalRestart ? " (restarting)" : "", Conn_CountAccepted());
-
-#ifdef DEBUG
-	if( Error_File[0] )
-	{
-		/* Error-File (stderr) loeschen */
-		if( unlink( Error_File ) != 0 ) Log( LOG_ERR, "Can't delete \"%s\": %s", Error_File, strerror( errno ));
-	}
-#endif
-
 #ifdef SYSLOG
 	closelog();
 #endif

@@ -285,11 +285,6 @@ main( int argc, const char *argv[] )
 #endif
 		Conn_Init( );
 
-#ifdef DEBUG
-		/* Redirect stderr handle to "error file" for debugging
-		 * when not running in "no daemon" mode: */
-		if( ! NGIRCd_NoDaemon ) Log_InitErrorfile( );
-#endif
 		if (!io_library_init(CONNECTION_POOL)) {
 			Log(LOG_ALERT, "Fatal: Cannot initialize IO routines: %s", strerror(errno));
 			exit(1);

@@ -49,7 +49,7 @@
 #include "conf.h"
 
 
-static bool Use_Log = true;
+static bool Use_Log = true, Using_MotdFile = true;
 static CONF_SERVER New_Server;
 static int New_Server_Idx;
 
@@ -300,8 +300,14 @@ Conf_Test( void )
 	printf("  AdminInfo1 = %s\n", Conf_ServerAdmin1);
 	printf("  AdminInfo2 = %s\n", Conf_ServerAdmin2);
 	printf("  AdminEMail = %s\n", Conf_ServerAdminMail);
-	printf("  MotdFile = %s\n", Conf_MotdFile);
-	printf("  MotdPhrase = %.32s\n", array_bytes(&Conf_Motd) ? (const char*) array_start(&Conf_Motd) : "");
+	if (Using_MotdFile) {
+		printf("  MotdFile = %s\n", Conf_MotdFile);
+		printf("  MotdPhrase =\n");
+	} else {
+		printf("  MotdFile = \n");
+		printf("  MotdPhrase = %s\n", array_bytes(&Conf_Motd)
+		       ? (const char*) array_start(&Conf_Motd) : "");
+	}
 	printf("  ChrootDir = %s\n", Conf_Chroot);
 	printf("  PidFile = %s\n", Conf_PidFile);
 	printf("  Listen = %s\n", Conf_ListenAddress);
@@ -649,6 +655,7 @@ Read_Motd(const char *filename)
 	}
 
 	array_free(&Conf_Motd);
+	Using_MotdFile = true;
 
 	while (fgets(line, (int)sizeof line, fp)) {
 		ngt_TrimLastChr( line, '\n');
@@ -951,6 +958,7 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 		if (!array_copyb(&Conf_Motd, Arg, len + 1))
 			Config_Error(LOG_WARNING, "%s, line %d: Could not append MotdPhrase: %s",
 							NGIRCd_ConfFile, Line, strerror(errno));
+		Using_MotdFile = false;
 		return;
 	}
 	if( strcasecmp( Var, "ChrootDir" ) == 0 ) {

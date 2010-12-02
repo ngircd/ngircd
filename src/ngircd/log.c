@@ -205,12 +205,6 @@ va_dcl
 
 	Log_Message(Level, msg);
 
-	if (Level <= LOG_CRIT) {
-		/* log critical messages to stderr */
-		fprintf(stderr, "%s\n", msg);
-		fflush(stderr);
-	}
-
 	if (snotice) {
 		/* Send NOTICE to all local users with mode +s and to the
 		 * local &SERVER channel */

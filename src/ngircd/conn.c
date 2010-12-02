@@ -1774,6 +1774,9 @@ Check_Servers(void)
 		}
 
 		/* Okay, try to connect now */
+		Log(LOG_NOTICE,
+		    "Preparing to establish a new server link for \"%s\" ...",
+		    Conf_Server[i].name);
 		Conf_Server[i].lasttry = time_now;
 		Conf_Server[i].conn_id = SERVER_WAIT;
 		assert(Proc_GetPipeFd(&Conf_Server[i].res_stat) < 0);
@@ -1798,8 +1801,9 @@ New_Server( int Server , ng_ipaddr_t *dest)
 		return;
 	}
 
-	Log( LOG_INFO, "Establishing connection to \"%s\", %s, port %d ... ",
-			Conf_Server[Server].host, ip_str, Conf_Server[Server].port );
+	Log(LOG_INFO, "Establishing connection for \"%s\" to \"%s\" (%s) port %d ... ",
+	    Conf_Server[Server].name, Conf_Server[Server].host, ip_str,
+	    Conf_Server[Server].port);
 
 	af_dest = ng_ipaddr_af(dest);
 	new_sock = socket(af_dest, SOCK_STREAM, 0);
@@ -1931,8 +1935,8 @@ Init_Socket( int Sock )
 	LogDebug("Setting IP_TOS on socket %d to IPTOS_LOWDELAY.", Sock);
 	if (setsockopt(Sock, IPPROTO_IP, IP_TOS, &value,
 		       (socklen_t) sizeof(value))) {
-		Log(LOG_ERR, "Can't set socket option IP_TOS: %s!",
-		    strerror(errno));
+		LogDebug("Can't set socket option IP_TOS: %s!",
+			 strerror(errno));
 		/* ignore this error */
 	}
 #endif

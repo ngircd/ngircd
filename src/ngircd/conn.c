@@ -1968,8 +1968,11 @@ cb_Connect_to_Server(int fd, UNUSED short events)
 
 	/* Read result from pipe */
 	len = Proc_Read(&Conf_Server[i].res_stat, dest_addrs, sizeof(dest_addrs));
-	if (len == 0)
+	if (len == 0) {
+		/* Error resolving hostname: reset server structure */
+		Conf_Server[i].conn_id = NONE;
 		return;
+	}
 
 	assert((len % sizeof(ng_ipaddr_t)) == 0);
 

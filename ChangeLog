@@ -10,6 +10,22 @@
                                -- ChangeLog --
 
 
+ngIRCd Release 17.1 (2010-12-19)
+
+  - --configtest: remember if MOTD is configured by file or phrase
+  - Enhance log messages when establishing server links a little bit
+  - Reset ID of outgoing server link on DNS error correctly
+  - Don't log critical (or worse) messages to stderr
+  - Manual page ngircd(8): add SIGNALS section
+  - Manual pages: update and simplyfy AUTHORS section
+  - Remove "error file" when compiled with debug code enabled
+  - README: Updated list of implemented commands
+  - add doc/README-Interix.txt and doc/Bopm.txt to distribution tarball
+  - Merge branch 'numeric-329'
+  - add doc/PAM.txt to distribution tarball
+  - New numeric 329: get channel creation time on "MODE #chan" commands
+  - Save channel creation time; new function Channel_CreationTime()
+
 ngIRCd Release 17 (2010-11-07)
 
   - doc: change path names in sample-ngircd.conf depending on sysconfdir

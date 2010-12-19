@@ -10,6 +10,12 @@
                                   -- NEWS --
 
 
+ngIRCd Release 17.1 (2010-12-19)
+
+  - Don't log critical (or worse) messages to stderr
+  - Remove "error file" when compiled with debug code enabled
+  - New numeric 329: get channel creation time on "MODE #chan" commands
+
 ngIRCd Release 17 (2010-11-07)
 
   - doc: change path names in sample-ngircd.conf depending on sysconfdir

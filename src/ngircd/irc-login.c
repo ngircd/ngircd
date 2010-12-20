@@ -693,6 +693,14 @@ IRC_QUIT( CLIENT *Client, REQUEST *Req )
  * @returns		CONNECTED or DISCONNECTED.
  */
 GLOBAL bool
+IRC_QUIT_HTTP( CLIENT *Client, REQUEST *Req )
+{
+	Req->argc = 0;
+	return IRC_QUIT(Client, Req);
+}
+
+
+GLOBAL bool
 IRC_PING(CLIENT *Client, REQUEST *Req)
 {
 	CLIENT *target, *from;

@@ -296,6 +296,7 @@ Conf_Test( void )
 	puts( "[GLOBAL]" );
 	printf("  Name = %s\n", Conf_ServerName);
 	printf("  ClientHost = %s\n", Conf_ClientHost);
+	printf("  ClientUserNick = %s\n", yesno_to_str(Conf_ClientUserNick));
 	printf("  Info = %s\n", Conf_ServerInfo);
 #ifndef PAM
 	printf("  Password = %s\n", Conf_ServerPwd);
@@ -592,6 +593,7 @@ Set_Defaults(bool InitServers)
 
 	strcpy(Conf_ServerName, "");
 	strcpy(Conf_ClientHost, "");
+	Conf_ClientUserNick = false;
 	snprintf(Conf_ServerInfo, sizeof Conf_ServerInfo, "%s %s",
 		 PACKAGE_NAME, PACKAGE_VERSION);
 	strcpy(Conf_ServerPwd, "");
@@ -977,6 +979,11 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 		len = strlcpy( Conf_ClientHost, Arg, sizeof( Conf_ClientHost ));
 		if (len >= sizeof( Conf_ClientHost ))
 			Config_Error_TooLong( Line, Var );
+		return;
+	}
+	if( strcasecmp( Var, "ClientUserNick" ) == 0 ) {
+		/* Use client nick name as user name */
+		Conf_ClientUserNick = Check_ArgIsTrue( Arg );
 		return;
 	}
 	if( strcasecmp( Var, "Info" ) == 0 ) {

@@ -335,6 +335,9 @@ Client_SetID( CLIENT *Client, const char *ID )
 	
 	strlcpy( Client->id, ID, sizeof( Client->id ));
 
+	if (Conf_ClientUserNick)
+		strlcpy( Client->user, ID, sizeof( Client->user ));
+
 	/* Hash */
 	Client->hash = Hash( Client->id );
 } /* Client_SetID */
@@ -347,6 +350,8 @@ Client_SetUser( CLIENT *Client, const char *User, bool Idented )
 
 	assert( Client != NULL );
 	assert( User != NULL );
+
+	if (Conf_ClientUserNick) return;
 
 	if (Idented) {
 		strlcpy(Client->user, User, sizeof(Client->user));

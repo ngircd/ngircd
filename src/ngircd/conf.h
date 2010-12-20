@@ -99,6 +99,7 @@ GLOBAL char Conf_ServerName[CLIENT_ID_LEN];
 
 /** Hostname of the clients */
 GLOBAL char Conf_ClientHost[CLIENT_ID_LEN];
+GLOBAL bool Conf_ClientUserNick;
 
 /** Server info text */
 GLOBAL char Conf_ServerInfo[CLIENT_INFO_LEN];

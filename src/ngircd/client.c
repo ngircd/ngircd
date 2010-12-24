@@ -553,17 +553,19 @@ Client_Search( const char *Nick )
 } /* Client_Search */
 
 
+/**
+ * Get client structure ("introducer") identfied by a server token.
+ * @return CLIENT structure or NULL if none could be found.
+ */
 GLOBAL CLIENT *
 Client_GetFromToken( CLIENT *Client, int Token )
 {
-	/* Client-Struktur, die den entsprechenden Introducer (=Client)
-	 * und das gegebene Token hat, liefern. Wird keine gefunden,
-	 * so wird NULL geliefert. */
-
 	CLIENT *c;
 
 	assert( Client != NULL );
-	assert( Token > 0 );
+
+	if (!Token)
+		return NULL;
 
 	c = My_Clients;
 	while (c) {

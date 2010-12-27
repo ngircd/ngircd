@@ -159,6 +159,6 @@ GENERATE_PERLMOD       = NO
 # undefined via #undef or recursively expanded use the := operator 
 # instead of the = operator.
 
-PREDEFINED             = DEBUG CONN_MODULE __client_c__
+PREDEFINED             = DEBUG ZLIB PAM ZEROCONF CONN_MODULE __client_c__
 
 # -eof-

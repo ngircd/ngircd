@@ -26,15 +26,18 @@
 #include "exp.h"
 #include "hash.h"
 
+static UINT32 jenkins_hash PARAMS((register UINT8 *k, register UINT32 length,
+				   register UINT32 initval));
 
-static UINT32 jenkins_hash PARAMS(( register UINT8 *k, register UINT32 length, register UINT32 initval ));
-
-
+/**
+ * Calculate hash value for a given string.
+ *
+ * @param String Input string
+ * @return 32 bit hash value
+ */
 GLOBAL UINT32
 Hash( const char *String )
 {
-	/* Hash-Wert ueber String berechnen */
-
 	char buffer[LINE_LEN];
 
 	strlcpy(buffer, String, sizeof(buffer));
@@ -43,15 +46,15 @@ Hash( const char *String )
 } /* Hash */
 
 /*
- * Die hier verwendete Hash-Funktion stammt aus lookup2.c von Bob Jenkins
- * (URL: <http://burtleburtle.net/bob/c/lookup2.c>). Aus dem Header:
+ * This hash function originates from lookup2.c of Bob Jenkins
+ * (URL: <http://burtleburtle.net/bob/c/lookup2.c>):
  * --------------------------------------------------------------------
  * lookup2.c, by Bob Jenkins, December 1996, Public Domain.
  * hash(), hash2(), hash3, and mix() are externally useful functions.
  * Routines to test the hash are included if SELF_TEST is defined.
  * You can use this free for any purpose.  It has no warranty.
  * --------------------------------------------------------------------
- * nicht alle seiner Funktionen werden hier genutzt.
+ * Not all of his functions are used here.
  */
 
 #define hashsize(n) ((UINT32)1<<(n))

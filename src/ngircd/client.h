@@ -164,8 +164,6 @@ GLOBAL const char *Client_TypeText PARAMS((CLIENT *Client));
 GLOBAL void Client_DebugDump PARAMS((void));
 #endif
 
-
 #endif
-
 
 /* -eof- */

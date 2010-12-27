@@ -9,7 +9,6 @@
  * Please read the file COPYING, README and AUTHORS for more information.
  */
 
-
 #include "portab.h"
 
 /**
@@ -31,6 +30,7 @@
 
 #include <exp.h>
 #include "op.h"
+
 
 /**
  * Return and log a "no privileges" message.
@@ -82,3 +82,6 @@ Op_Check(CLIENT * Client, REQUEST * Req)
 	 * to trust remote operators. */
 	return true;
 } /* Op_Check */
+
+
+/* -eof- */

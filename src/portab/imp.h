@@ -18,5 +18,4 @@
 #undef GLOBAL
 #define GLOBAL extern
 
-
 /* -eof- */

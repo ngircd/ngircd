@@ -9,7 +9,6 @@
  * Please read the file COPYING, README and AUTHORS for more information.
  */
 
-
 #ifndef __tool_h__
 #define __tool_h__
 
@@ -39,6 +38,5 @@ GLOBAL int ngt_SyslogFacilityID PARAMS((char *Name, int DefaultFacility));
 #endif
 
 #endif
-
 
 /* -eof- */

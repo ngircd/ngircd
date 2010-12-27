@@ -9,7 +9,6 @@
  * Please read the file COPYING, README and AUTHORS for more information.
  */
 
-
 #ifndef __conn_func_h__
 #define __conn_func_h__
 

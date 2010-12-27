@@ -9,7 +9,6 @@
  * Please read the file COPYING, README and AUTHORS for more information.
  */
 
-
 #ifndef __defines_h__
 #define __defines_h__
 
@@ -112,6 +111,5 @@
 					   have been shortened and cut off. */
 
 #endif
-
 
 /* -eof- */

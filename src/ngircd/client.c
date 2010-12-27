@@ -9,9 +9,7 @@
  * Please read the file COPYING, README and AUTHORS for more information.
  */
 
-
 #define __client_c__
-
 
 #include "portab.h"
 
@@ -46,9 +44,7 @@
 
 #include <exp.h>
 
-
 #define GETID_LEN (CLIENT_NICK_LEN-1) + 1 + (CLIENT_USER_LEN-1) + 1 + (CLIENT_HOST_LEN-1) + 1
-
 
 static CLIENT *This_Server, *My_Clients;
 

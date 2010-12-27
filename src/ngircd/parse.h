@@ -9,7 +9,6 @@
  * Please read the file COPYING, README and AUTHORS for more information.
  */
 
-
 #ifndef __parse_h__
 #define __parse_h__
 
@@ -38,12 +37,10 @@ typedef struct _COMMAND
 	long bytes;			/* number of bytes created */
 } COMMAND;
 
-
 GLOBAL bool Parse_Request PARAMS((CONN_ID Idx, char *Request ));
 
 GLOBAL COMMAND *Parse_GetCommandStruct PARAMS(( void ));
 
 #endif
-
 
 /* -eof- */

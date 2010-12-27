@@ -9,7 +9,6 @@
  * Please read the file COPYING, README and AUTHORS for more information.
  */
 
-
 #ifndef __match_h__
 #define __match_h__
 
@@ -21,8 +20,6 @@
 GLOBAL bool Match PARAMS(( const char *Pattern, const char *String ));
 GLOBAL bool MatchCaseInsensitive PARAMS(( const char *Pattern, const char *searchme ));
 
-
 #endif
-
 
 /* -eof- */

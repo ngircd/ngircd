@@ -9,7 +9,6 @@
  * Please read the file COPYING, README and AUTHORS for more information.
  */
 
-
 #ifdef ZLIB
 
 #ifndef __conn_zip_h__
@@ -29,10 +28,8 @@ GLOBAL bool Unzip_Buffer PARAMS(( CONN_ID Idx ));
 GLOBAL long Zip_SendBytes PARAMS(( CONN_ID Idx ));
 GLOBAL long Zip_RecvBytes PARAMS(( CONN_ID Idx ));
 
-
 #endif /* __conn_zip_h__ */
 
 #endif /* ZLIB */
-
 
 /* -eof- */

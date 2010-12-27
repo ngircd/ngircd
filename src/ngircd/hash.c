@@ -9,7 +9,6 @@
  * Please read the file COPYING, README and AUTHORS for more information.
  */
 
-
 #include "portab.h"
 
 /**
@@ -43,7 +42,6 @@ Hash( const char *String )
 			    (UINT32)strlen(buffer), 42);
 } /* Hash */
 
-
 /*
  * Die hier verwendete Hash-Funktion stammt aus lookup2.c von Bob Jenkins
  * (URL: <http://burtleburtle.net/bob/c/lookup2.c>). Aus dem Header:
@@ -55,7 +53,6 @@ Hash( const char *String )
  * --------------------------------------------------------------------
  * nicht alle seiner Funktionen werden hier genutzt.
  */
-
 
 #define hashsize(n) ((UINT32)1<<(n))
 #define hashmask(n) (hashsize(n)-1)
@@ -72,7 +69,6 @@ Hash( const char *String )
 	b -= c; b -= a; b ^= (a<<10); \
 	c -= a; c -= b; c ^= (b>>15); \
 } /* mix */
-
 
 static UINT32
 jenkins_hash( register UINT8 *k, register UINT32 length, register UINT32 initval )
@@ -122,6 +118,5 @@ jenkins_hash( register UINT8 *k, register UINT32 length, register UINT32 initval
 	/* report the result */
 	return c;
 } /* jenkins_hash */
-
 
 /* -eof- */

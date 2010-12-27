@@ -9,9 +9,7 @@
  * Please read the file COPYING, README and AUTHORS for more information.
  */
 
-
 #define __channel_c__
-
 
 #include "portab.h"
 

@@ -13,7 +13,6 @@
  * Prototypes of the "main module".
  */
 
-
 #ifndef __ngircd_h__
 #define __ngircd_h__
 
@@ -50,6 +49,5 @@ GLOBAL char NGIRCd_ProtoID[COMMAND_LEN];/* Protokoll- und Server-Identifikation 
 
 
 #endif
-
 
 /* -eof- */

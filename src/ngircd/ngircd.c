@@ -9,7 +9,6 @@
  * Please read the file COPYING, README and AUTHORS for more information.
  */
 
-
 #include "portab.h"
 
 /**
@@ -407,7 +406,7 @@ Fill_Version( void )
 
 	snprintf(NGIRCd_Version, sizeof NGIRCd_Version, "%s %s-%s",
 		 PACKAGE_NAME, PACKAGE_VERSION, NGIRCd_VersionAddition);
-	} /* Fill_Version */
+} /* Fill_Version */
 
 
 /**
@@ -548,8 +547,8 @@ NGIRCd_getNobodyID(uid_t *uid, gid_t *gid )
 	*gid = pwd->pw_gid;
 	endpwent();
 
-	return true;	
-}
+	return true;
+} /* NGIRCd_getNobodyID */
 
 
 static bool
@@ -702,7 +701,7 @@ NGIRCd_Init( bool NGIRCd_NoDaemon )
 	if (fd > 2)
 		close(fd);
 	return false;
-}
+} /* NGIRCd_Init */
 
 
 /* -eof- */

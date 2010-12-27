@@ -9,7 +9,6 @@
  * Please read the file COPYING, README and AUTHORS for more information.
  */
 
-
 #ifndef __irc_info_h__
 #define __irc_info_h__
 
@@ -41,8 +40,6 @@ GLOBAL bool IRC_Send_NAMES PARAMS(( CLIENT *Client, CHANNEL *Chan ));
 GLOBAL bool IRC_Show_MOTD PARAMS(( CLIENT *Client ));
 GLOBAL bool IRC_Send_ISUPPORT PARAMS(( CLIENT *Client ));
 
-
 #endif
-
 
 /* -eof- */

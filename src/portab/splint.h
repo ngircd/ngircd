@@ -10,7 +10,6 @@
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
  */
 
-
 #ifndef __splint__
 #define __splint__
 
@@ -37,8 +36,6 @@
 
 #define WNOHANG 0
 
-
 #endif
-
 
 /* -eof- */

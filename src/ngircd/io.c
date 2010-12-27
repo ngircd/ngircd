@@ -6,7 +6,6 @@
  * Please read the file COPYING, README and AUTHORS for more information.
  *
  * Copyright (c) 2005 Florian Westphal (westphal@foo.fh-furtwangen.de)
- *
  */
 
 #include "portab.h"

@@ -17,7 +17,6 @@
 #include "array.h"
 
 #include <assert.h>
-
 #include <stdlib.h>
 #include <string.h>
 
@@ -26,9 +25,9 @@
 /* Enable more Debug messages in alloc / append / memmove code. */
 /* #define DEBUG_ARRAY */
 
-
-
 #define array_UNUSABLE(x)	( !(x)->mem )
+
+
 static bool
 safemult_sizet(size_t a, size_t b, size_t *res)
 {

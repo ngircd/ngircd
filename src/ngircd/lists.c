@@ -9,7 +9,6 @@
  * Please read the file COPYING, README and AUTHORS for more information.
  */
 
-
 #include "portab.h"
 
 /**
@@ -209,7 +208,6 @@ Lists_MakeMask(const char *Pattern)
 	strlcpy( TheMask, Pattern, sizeof( TheMask ));
 	return TheMask;
 } /* Lists_MakeMask */
-
 
 
 bool

@@ -9,7 +9,6 @@
  * Please read the file COPYING, README and AUTHORS for more information.
  */
 
-
 #ifndef __irc_mode_h__
 #define __irc_mode_h__
 
@@ -21,8 +20,6 @@
 GLOBAL bool IRC_MODE PARAMS((CLIENT *Client, REQUEST *Req ));
 GLOBAL bool IRC_AWAY PARAMS((CLIENT *Client, REQUEST *Req ));
 
-
 #endif
-
 
 /* -eof- */

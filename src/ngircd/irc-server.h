@@ -9,7 +9,6 @@
  * Please read the file COPYING, README and AUTHORS for more information.
  */
 
-
 #ifndef __irc_server_h__
 #define __irc_server_h__
 
@@ -24,8 +23,6 @@ GLOBAL bool IRC_SQUIT PARAMS((CLIENT *Client, REQUEST *Req ));
 
 GLOBAL bool IRC_ENDOFMOTD_Server PARAMS((CLIENT *Client));
 
-
 #endif
-
 
 /* -eof- */

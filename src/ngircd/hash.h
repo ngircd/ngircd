@@ -9,7 +9,6 @@
  * Please read the file COPYING, README and AUTHORS for more information.
  */
 
-
 #ifndef __hash_h__
 #define __hash_h__
 
@@ -21,6 +20,5 @@
 GLOBAL UINT32 Hash PARAMS((const char *String ));
 
 #endif
-
 
 /* -eof- */

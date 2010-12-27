@@ -9,7 +9,6 @@
  * Please read the file COPYING, README and AUTHORS for more information.
  */
 
-
 #define RESOLVER_TIMEOUT (Conf_PongTimeout*3)/4
 
 #include "portab.h"

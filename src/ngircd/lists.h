@@ -9,7 +9,6 @@
  * Please read the file COPYING, README and AUTHORS for more information.
  */
 
-
 #ifndef __lists_h__
 #define __lists_h__
 
@@ -26,7 +25,6 @@ struct list_elem;
 struct list_head {
 	struct list_elem *first;
 };
-
 
 GLOBAL struct list_elem *Lists_GetFirst PARAMS((const struct list_head *));
 GLOBAL struct list_elem *Lists_GetNext PARAMS((const struct list_elem *));
@@ -45,4 +43,5 @@ GLOBAL const char *Lists_MakeMask PARAMS((const char *Pattern));
 GLOBAL const char *Lists_GetMask PARAMS(( const struct list_elem *e ));
 
 #endif
+
 /* -eof- */

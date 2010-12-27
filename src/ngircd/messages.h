@@ -9,7 +9,6 @@
  * Please read the file COPYING, README and AUTHORS for more information.
  */
 
-
 #ifndef __messages_h__
 #define __messages_h__
 
@@ -139,8 +138,6 @@
 #define RPL_STATSLINKINFOZIP_MSG	"211 %s %s %d %ld %ld/%ld %ld %ld/%ld :%ld"
 #endif
 
-
 #endif
-
 
 /* -eof- */

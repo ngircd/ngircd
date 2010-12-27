@@ -13,7 +13,6 @@
  * Channel operator commands (header)
  */
 
-
 #ifndef __irc_op_h__
 #define __irc_op_h__
 
@@ -21,8 +20,6 @@
 GLOBAL bool IRC_KICK PARAMS(( CLIENT *Client, REQUEST *Req ));
 GLOBAL bool IRC_INVITE PARAMS(( CLIENT *Client, REQUEST *Req ));
 
-
 #endif
-
 
 /* -eof- */

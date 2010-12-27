@@ -9,7 +9,6 @@
  * Please read the file COPYING, README and AUTHORS for more information.
  */
 
-
 #ifndef __irc_login_h__
 #define __irc_login_h__
 
@@ -28,6 +27,5 @@ GLOBAL bool IRC_PONG PARAMS((CLIENT *Client, REQUEST *Req));
 GLOBAL bool IRC_QUIT PARAMS((CLIENT *Client, REQUEST *Req));
 
 #endif
-
 
 /* -eof- */

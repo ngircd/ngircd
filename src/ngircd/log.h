@@ -9,7 +9,6 @@
  * Please read the file COPYING, README and AUTHORS for more information.
  */
 
-
 #ifndef __log_h__
 #define __log_h__
 
@@ -31,9 +30,7 @@
 #	define LOG_DEBUG 7
 #endif
 
-
 #define LOG_snotice 1024
-
 
 GLOBAL void Log_Init PARAMS(( bool Daemon_Mode ));
 GLOBAL void Log_Exit PARAMS(( void ));
@@ -57,8 +54,6 @@ GLOBAL void Log_Subprocess PARAMS((const int Level, const char *Format, ...));
 GLOBAL void Log_InitErrorfile PARAMS(( void ));
 #endif
 
-
 #endif
-
 
 /* -eof- */

@@ -22,3 +22,5 @@ bool Signals_Init PARAMS((void));
 void Signals_Exit PARAMS((void));
 
 #endif
+
+/* -eof- */

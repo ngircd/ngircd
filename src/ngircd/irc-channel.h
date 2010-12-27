@@ -9,7 +9,6 @@
  * Please read the file COPYING, README and AUTHORS for more information.
  */
 
-
 #ifndef __irc_channel_h__
 #define __irc_channel_h__
 
@@ -26,8 +25,6 @@ GLOBAL bool IRC_LIST PARAMS((CLIENT *Client, REQUEST *Req ));
 
 GLOBAL bool IRC_CHANINFO PARAMS((CLIENT *Client, REQUEST *Req ));
 
-
 #endif
-
 
 /* -eof- */

@@ -9,7 +9,6 @@
  * Please read the file COPYING, README and AUTHORS for more information.
  */
 
-
 #ifndef __conn_h__
 #define __conn_h__
 
@@ -138,6 +137,5 @@ GLOBAL void Conn_DebugDump PARAMS((void));
 #endif
 
 #endif
-
 
 /* -eof- */

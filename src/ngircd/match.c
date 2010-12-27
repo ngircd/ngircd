@@ -27,10 +27,9 @@
 
 
 /*
- * Die Pattern-Matching-Funkionen [Matche(), Matche_After_Star()] basieren
- * auf Versionen von J. Kercheval. Die Version 1.1 wurde am 12.03.1991 als
- * "public domain" freigegeben:
- * <http://www.snippets.org/snippets/portable/MATCH+C.php3>
+ * The pattern matching functions [Matche(), Matche_After_Star()] are based
+ * on code of J. Kercheval. Version 1.1 has been released on 1991-03-12 as
+ * "public domain": <http://c.snippets.org/snip_lister.php?fname=match.c>
  */
 
 
@@ -38,14 +37,21 @@ static int Matche PARAMS(( const char *p, const char *t ));
 static int Matche_After_Star PARAMS(( const char *p, const char *t ));
 
 
-#define MATCH_PATTERN	6	/* bad pattern */
-#define MATCH_LITERAL	5	/* match failure on literal match */
-#define MATCH_RANGE	4	/* match failure on [..] construct */
-#define MATCH_ABORT	3	/* premature end of text string */
-#define MATCH_END	2	/* premature end of pattern string */
-#define MATCH_VALID	1	/* valid match */
+#define MATCH_PATTERN	6	/**< bad pattern */
+#define MATCH_LITERAL	5	/**< match failure on literal match */
+#define MATCH_RANGE	4	/**< match failure on [..] construct */
+#define MATCH_ABORT	3	/**< premature end of text string */
+#define MATCH_END	2	/**< premature end of pattern string */
+#define MATCH_VALID	1	/**< valid match */
 
 
+/**
+ * Match string with pattern.
+ *
+ * @param Pattern	Pattern to match with
+ * @param String	Input string
+ * @return		true if pattern matches
+ */
 GLOBAL bool
 Match( const char *Pattern, const char *String )
 {
@@ -55,6 +61,13 @@ Match( const char *Pattern, const char *String )
 } /* Match */
 
 
+/**
+ * Match string with pattern case-insensitive.
+ *
+ * @param pattern	Pattern to match with
+ * @param searchme	Input string, at most COMMAND_LEN-1 characters long
+ * @return		true if pattern matches
+ */
 GLOBAL bool
 MatchCaseInsensitive(const char *pattern, const char *searchme)
 {

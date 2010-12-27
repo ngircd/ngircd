@@ -67,11 +67,13 @@ static bool NGIRCd_Init PARAMS(( bool ));
 
 /**
  * The main() function of ngIRCd.
+ *
  * Here all starts: this function is called by the operating system loader,
  * it is the first portion of code executed of ngIRCd.
- * @param argc The number of arguments passed to ngIRCd on the command line.
- * @param argv An array containing all the arguments passed to ngIRCd.
- * @return Global exit code of ngIRCd, zero on success.
+ *
+ * @param argc	The number of arguments passed to ngIRCd on the command line.
+ * @param argv	An array containing all the arguments passed to ngIRCd.
+ * @return	Global exit code of ngIRCd, zero on success.
  */
 GLOBAL int
 main( int argc, const char *argv[] )
@@ -232,7 +234,7 @@ main( int argc, const char *argv[] )
 		}
 	}
 
-	/* Debug-Level (for IRCs "VERSION" command) */
+	/* Debug level for "VERSION" command */
 	NGIRCd_DebugLevel[0] = '\0';
 #ifdef DEBUG
 	if( NGIRCd_Debug ) strcpy( NGIRCd_DebugLevel, "1" );
@@ -287,11 +289,9 @@ main( int argc, const char *argv[] )
 			exit(1);
 		}
 
-		/*
-		 * create protocol and server identification.
-		 * The syntax used by ngIRCd in PASS commands and the extended flags
-		 * are described in doc/Protocol.txt
-		 */
+		/* Create protocol and server identification. The syntax
+		 * used by ngIRCd in PASS commands and the known "extended
+		 * flags" are described in doc/Protocol.txt. */
 #ifdef IRCPLUS
 		snprintf( NGIRCd_ProtoID, sizeof NGIRCd_ProtoID, "%s%s %s|%s:%s", PROTOVER, PROTOIRCPLUS, PACKAGE_NAME, PACKAGE_VERSION, IRCPLUSFLAGS );
 #ifdef ZLIB
@@ -316,11 +316,10 @@ main( int argc, const char *argv[] )
 			Pidfile_Delete( );
 			exit( 1 );
 		}
-		
-		/* Hauptschleife */
+
+		/* Main Run Loop */
 		Conn_Handler( );
 
-		/* Alles abmelden */
 		Conn_Exit( );
 		Client_Exit( );
 		Channel_Exit( );
@@ -333,10 +332,12 @@ main( int argc, const char *argv[] )
 
 
 /**
- * Generate ngIRCd "version string".
- * This string is generated once and then stored in NGIRCd_Version for
- * further usage, for example by the IRC command VERSION and the --version
- * command line switch.
+ * Generate ngIRCd "version strings".
+ *
+ * The ngIRCd version information is generated once and then stored in the
+ * NGIRCd_Version and NGIRCd_VersionAddition string variables for further
+ * usage, for example by the IRC command "VERSION" and the --version command
+ * line switch.
  */
 static void
 Fill_Version( void )
@@ -466,7 +467,8 @@ Pidfile_Delete( void )
 
 /**
  * Create the file containing the process ID of ngIRCd ("PID file").
- * @param pid The process ID to be stored in this file.
+ *
+ * @param pid	The process ID to be stored in this file.
  */
 static void
 Pidfile_Create(pid_t pid)
@@ -504,6 +506,8 @@ Pidfile_Create(pid_t pid)
 
 /**
  * Redirect stdin, stdout and stderr to apropriate file handles.
+ *
+ * @param fd	The file handle stdin, stdout and stderr should be redirected to.
  */
 static void
 Setup_FDStreams(int fd)
@@ -519,6 +523,13 @@ Setup_FDStreams(int fd)
 } /* Setup_FDStreams */
 
 
+/**
+ * Get user and group ID of unprivileged "nobody" user.
+ *
+ * @param uid	User ID
+ * @param gid	Group ID
+ * @return	true on success.
+ */
 static bool
 NGIRCd_getNobodyID(uid_t *uid, gid_t *gid )
 {
@@ -543,7 +554,7 @@ NGIRCd_getNobodyID(uid_t *uid, gid_t *gid )
 	if ( !pwd->pw_uid || !pwd->pw_gid)
 		return false;
 
-	*uid = pwd->pw_uid;	
+	*uid = pwd->pw_uid;
 	*gid = pwd->pw_gid;
 	endpwent();
 
@@ -551,6 +562,13 @@ NGIRCd_getNobodyID(uid_t *uid, gid_t *gid )
 } /* NGIRCd_getNobodyID */
 
 
+/**
+ * Initialize ngIRCd daemon.
+ *
+ * @param NGIRCd_NoDaemon	Set to true if ngIRCd should run in the
+ *				foreground and not as a daemon.
+ * @return			true on success.
+ */
 static bool
 NGIRCd_Init( bool NGIRCd_NoDaemon ) 
 {

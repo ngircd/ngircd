@@ -7,14 +7,15 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
- *
- * $Id: ngircd.h,v 1.22 2005/06/24 19:20:56 fw Exp $
- *
- * Prototypes of the "main module".
  */
 
 #ifndef __ngircd_h__
 #define __ngircd_h__
+
+/**
+ * @file
+ * Global variables of ngIRCd.
+ */
 
 #include <time.h>
 

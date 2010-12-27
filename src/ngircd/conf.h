@@ -27,54 +27,66 @@
 #include "proc.h"
 #include "conf-ssl.h"
 
-
+/**
+ * Configured IRC operator.
+ * Please note the the name of the IRC operaor and his nick have nothing to
+ * do with each other! The IRC operator is only identified by the name and
+ * password configured in this structure.
+ */
 struct Conf_Oper {
-	char name[CLIENT_PASS_LEN];	/* Name (ID) of IRC operator */
-	char pwd[CLIENT_PASS_LEN];	/* Password */
-	char *mask;			/* allowed host mask */
+	char name[CLIENT_PASS_LEN];	/**< Name (ID) */
+	char pwd[CLIENT_PASS_LEN];	/**< Password */
+	char *mask;			/**< Allowed host mask */
 };
 
+/**
+ * Configured server.
+ * Peers to which this daemon should establish an outgoing server link must
+ * have set a port number; all other servers are allowed to connect to this one.
+ */
 typedef struct _Conf_Server
 {
-	char host[HOST_LEN];		/* Hostname */
-	char name[CLIENT_ID_LEN];	/* IRC-Client-ID */
-	char pwd_in[CLIENT_PASS_LEN];	/* Password which must be received */
-	char pwd_out[CLIENT_PASS_LEN];	/* Password to send to peer */
-	UINT16 port;			/* Server port */
-	int group;			/* Group of server */
-	time_t lasttry;			/* Last connect attempt */
-	PROC_STAT res_stat;		/* Status of the resolver */
-	int flags;			/* Flags */
-	CONN_ID conn_id;		/* ID of server connection or NONE */
-	ng_ipaddr_t bind_addr;		/* source address to use for outgoing
-					   connections */
-	ng_ipaddr_t dst_addr[2];	/* list of addresses to connect to */
+	char host[HOST_LEN];		/**< Hostname */
+	char name[CLIENT_ID_LEN];	/**< IRC client ID */
+	char pwd_in[CLIENT_PASS_LEN];	/**< Password which must be received */
+	char pwd_out[CLIENT_PASS_LEN];	/**< Password to send to the peer */
+	UINT16 port;			/**< Server port to connect to */
+	int group;			/**< Group ID of this server */
+	time_t lasttry;			/**< Time of last connection attempt */
+	PROC_STAT res_stat;		/**< Status of the resolver */
+	int flags;			/**< Server flags */
+	CONN_ID conn_id;		/**< ID of server connection or NONE */
+	ng_ipaddr_t bind_addr;		/**< Source address to use for outgoing
+					     connections */
+	ng_ipaddr_t dst_addr[2];	/**< List of addresses to connect to */
 #ifdef SSL_SUPPORT
-	bool SSLConnect;		/* connect() using SSL? */
+	bool SSLConnect;		/**< Establish connection using SSL? */
 #endif
-	char svs_mask[CLIENT_ID_LEN];	/* Mask of nick names that are
-					   services */
+	char svs_mask[CLIENT_ID_LEN];	/**< Mask of nick names that should be
+					     treated and counted as services */
 } CONF_SERVER;
 
 
 #ifdef SSL_SUPPORT
+/** Configuration options required for SSL support */
 struct SSLOptions {
-	char *KeyFile;
-	char *CertFile;
-	char *DHFile;
-	array ListenPorts;
-	array KeyFilePassword;
+	char *KeyFile;			/**< SSL key file */
+	char *CertFile;			/**< SSL certificate file */
+	char *DHFile;			/**< File containing DH parameters */
+	array ListenPorts;		/**< Array of listening SSL ports */
+	array KeyFilePassword;		/**< Key file password */
 };
 #endif
 
 
+/** Pre-defined channels */
 struct Conf_Channel {
-	char name[CHANNEL_NAME_LEN];	/* Name of the channel */
-	char modes[CHANNEL_MODE_LEN];	/* Initial channel modes */
-	char key[CLIENT_PASS_LEN];      /* Channel key ("password", mode "k" ) */
-	char topic[COMMAND_LEN];	/* Initial topic */
-	char keyfile[512];		/* Path and name of channel key file */
-	unsigned long maxusers;		/* maximum usercount for this channel, mode "l" */
+	char name[CHANNEL_NAME_LEN];	/**< Name of the channel */
+	char modes[CHANNEL_MODE_LEN];	/**< Initial channel modes */
+	char key[CLIENT_PASS_LEN];      /**< Channel key ("password", mode "k" ) */
+	char topic[COMMAND_LEN];	/**< Initial topic */
+	char keyfile[512];		/**< Path and name of channel key file */
+	unsigned long maxusers;		/**< User limit for this channel, mode "l" */
 };
 
 
@@ -82,76 +94,82 @@ struct Conf_Channel {
 #define CONF_SFLAG_DISABLED 2		/* This server configuration entry is disabled */
 
 
-/* Name ("Nick") of the servers */
+/** Name (ID, "nick") of this server */
 GLOBAL char Conf_ServerName[CLIENT_ID_LEN];
 
-/* Server info text */
+/** Server info text */
 GLOBAL char Conf_ServerInfo[CLIENT_INFO_LEN];
 
-/* Global server passwort */
+/** Global server passwort */
 GLOBAL char Conf_ServerPwd[CLIENT_PASS_LEN];
 
-/* Administrative information */
+/** Administrative information */
 GLOBAL char Conf_ServerAdmin1[CLIENT_INFO_LEN];
 GLOBAL char Conf_ServerAdmin2[CLIENT_INFO_LEN];
 GLOBAL char Conf_ServerAdminMail[CLIENT_INFO_LEN];
 
-/* Message of the Day */
+/** Message of the day (MOTD) of this server */
 GLOBAL array Conf_Motd;
 
-/* Ports the server should listen on */
+/** Array of ports this server should listen on */
 GLOBAL array Conf_ListenPorts;
 
-/* Address to which the socket should be bound or empty (=all) */
+/** Address to which sockets should be bound to or empty (=all) */
 GLOBAL char *Conf_ListenAddress;
 
-/* User and group ID the server should run with */
+/** User and group ID this daemon should run with */
 GLOBAL uid_t Conf_UID;
 GLOBAL gid_t Conf_GID;
 
-/* A directory to chroot() in */
+/** The directory to chroot() into */
 GLOBAL char Conf_Chroot[FNAME_LEN];
 
-/* File with PID of daemon */
+/** Full path and name of a file to which the PID of daemon should be written */
 GLOBAL char Conf_PidFile[FNAME_LEN];
 
-/* Timeouts for PING and PONG */
+/** Timeout (in seconds) for PING commands */
 GLOBAL int Conf_PingTimeout;
+
+/** Timeout (in seconds) for PONG replies */
 GLOBAL int Conf_PongTimeout;
 
-/* Seconds between connect attempts to other servers */
+/** Seconds between connection attempts to other servers */
 GLOBAL int Conf_ConnectRetry;
 
-/* Operators */
+/** Array of configured IRC operators */
 GLOBAL array Conf_Opers;
 
-/* Servers */
+/** Array of configured IRC servers */
 GLOBAL CONF_SERVER Conf_Server[MAX_SERVERS];
 
-/* Pre-defined channels */
+/** Array of pre-defined channels */
 GLOBAL array Conf_Channels;
 
-/* Pre-defined channels only */
+/** Flag indicating if only pre-defined channels are allowed (true) or not */
 GLOBAL bool Conf_PredefChannelsOnly;
 
-/* Are IRC operators allowed to always use MODE? */
+/** Flag indicating if IRC operators are allowed to always use MODE (true) */
 GLOBAL bool Conf_OperCanMode;
 
-/* If an IRC op gives chanop privileges without being a chanop,
- * ircd2 will ignore the command. This enables a workaround:
- * It masks the command as coming from the server */
+/**
+ * If true, mask channel MODE commands of IRC operators to the server.
+ * Background: ircd2 will ignore channel MODE commands if an IRC operator
+ * gives chanel operator privileges to someone without being a channel operator
+ * himself. This enables a workaround: it masks the MODE command as coming
+ * from the IRC server and not the IRC operator.
+ */
 GLOBAL bool Conf_OperServerMode;
 
-/* Are remote IRC operators allowed to manage this server? */
+/** Flag indicating if remote IRC operators are allowed to manage this server */
 GLOBAL bool Conf_AllowRemoteOper;
 
-/* Enable all DNS functions? */
+/** Enable all DNS functions? */
 GLOBAL bool Conf_DNS;
 
-/* Enable IDENT lookups, even when compiled with support for it */
+/** Enable IDENT lookups, even when compiled with support for it */
 GLOBAL bool Conf_Ident;
 
-/* Enable all usage of PAM, even when compiled with support for it */
+/** Enable all usage of PAM, even when compiled with support for it */
 GLOBAL bool Conf_PAM;
 
 /*
@@ -160,19 +178,19 @@ GLOBAL bool Conf_PAM;
  */
 GLOBAL bool Conf_ConnectIPv6;
 
-/* same as above, but for ipv4 hosts, default: yes  */
+/** Try to connect to remote systems using the IPv4 protocol (true) */
 GLOBAL bool Conf_ConnectIPv4;
 
-/* Maximum number of connections to this server */
+/** Maximum number of simultaneous connections to this server */
 GLOBAL long Conf_MaxConnections;
 
-/* Maximum number of channels a user can join */
+/** Maximum number of channels a user can join */
 GLOBAL int Conf_MaxJoins;
 
-/* Maximum number of connections per IP address */
+/** Maximum number of connections per IP address */
 GLOBAL int Conf_MaxConnectionsIP;
 
-/* Maximum length of a nick name */
+/** Maximum length of a nick name */
 GLOBAL unsigned int Conf_MaxNickLength;
 
 #ifdef SYSLOG

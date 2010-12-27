@@ -7,14 +7,15 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
- *
- * IRC commands
  */
 
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: irc.c,v 1.132 2008/01/15 22:28:14 fw Exp $";
+/**
+ * @file
+ * IRC commands
+ */
 
 #include "imp.h"
 #include <assert.h>

@@ -7,12 +7,15 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
- *
- * Client management (header)
  */
 
 #ifndef __client_h__
 #define __client_h__
+
+/**
+ * @file
+ * Client management (header)
+ */
 
 #define CLIENT_UNKNOWN 1		/* connection of unknown type */
 #define CLIENT_GOTPASS 2		/* client did send PASS */

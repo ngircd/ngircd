@@ -7,12 +7,15 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
- *
- * IRC commands for mode changes (MODE, AWAY, ...)
  */
 
 
 #include "portab.h"
+
+/**
+ * @file
+ * IRC commands for mode changes (like MODE, AWAY, etc.)
+ */
 
 #include "imp.h"
 #include <assert.h>

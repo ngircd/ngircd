@@ -7,12 +7,15 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
- *
- * Management of IRC lists: ban, invite, ...
  */
 
 
 #include "portab.h"
+
+/**
+ * @file
+ * Management of IRC lists: ban, invite, etc.
+ */
 
 #include "imp.h"
 #include <assert.h>

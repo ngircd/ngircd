@@ -7,16 +7,16 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
- *
- * $Id: irc-oper.h,v 1.12 2007/08/02 10:14:26 fw Exp $
- *
- * IRC operator commands (header)
  */
 
 
 #ifndef __irc_oper_h__
 #define __irc_oper_h__
 
+/**
+ * @file
+ * IRC operator commands (header)
+ */
 
 GLOBAL bool IRC_OPER PARAMS((CLIENT *Client, REQUEST *Req ));
 GLOBAL bool IRC_DIE PARAMS((CLIENT *Client, REQUEST *Req ));

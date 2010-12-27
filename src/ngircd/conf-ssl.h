@@ -1,10 +1,14 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * SSL defines.
  */
 
 #ifndef conf_ssl_h
 #define conf_ssl_h
+
+/**
+ * @file
+ * SSL related definitions
+ */
 
 #ifdef HAVE_LIBSSL
 #define SSL_SUPPORT

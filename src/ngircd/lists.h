@@ -7,13 +7,17 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
- *
- * Management of IRC lists: ban, invite, ... (header)
  */
 
 
 #ifndef __lists_h__
 #define __lists_h__
+
+/**
+ * @file
+ * Management of IRC lists (header)
+ */
+
 #include "portab.h"
 #include "client.h"
 

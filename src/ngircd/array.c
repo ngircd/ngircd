@@ -5,9 +5,13 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * functions to dynamically allocate arrays.
+ * libarray - dynamically allocate arrays.
  * Copyright (c) 2005 Florian Westphal (westphal@foo.fh-furtwangen.de)
- *
+ */
+
+/**
+ * @file
+ * Functions to dynamically allocate arrays.
  */
 
 #include "array.h"

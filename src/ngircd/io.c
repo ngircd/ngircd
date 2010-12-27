@@ -5,14 +5,16 @@
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
  *
- * I/O abstraction interface.
  * Copyright (c) 2005 Florian Westphal (westphal@foo.fh-furtwangen.de)
  *
  */
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: io.c,v 1.31 2008/04/03 20:56:44 fw Exp $";
+/**
+ * @file
+ * I/O abstraction interface.
+ */
 
 #include <assert.h>
 #include <stdlib.h>

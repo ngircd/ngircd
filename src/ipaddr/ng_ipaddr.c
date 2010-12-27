@@ -1,10 +1,13 @@
 /*
- * Functions for AF_ agnostic ipv4/ipv6 handling.
- *
  * (c) 2008 Florian Westphal <fw@strlen.de>, public domain.
  */
 
 #include "portab.h"
+
+/**
+ * @file
+ * Functions for AF_ agnostic ipv4/ipv6 handling.
+ */
 
 #include <assert.h>
 #include <stdio.h>

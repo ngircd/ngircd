@@ -4,14 +4,15 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
- *
- * I/O abstraction interface header
- *
- * $Id: io.h,v 1.4 2006/12/25 22:53:52 alex Exp $
  */
 
 #ifndef io_H_included
 #define io_H_included
+
+/**
+ * @file
+ * I/O abstraction interface (header)
+ */
 
 #include "portab.h"
 #include <sys/time.h>

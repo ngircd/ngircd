@@ -1,12 +1,16 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- *
- * waitpid() implementation. Public domain.
- * Written by Steven D. Blackford for the NeXT system.
- *
  */
 
 #include "portab.h"
+
+/**
+ * @file
+ * waitpid() implementation. Public domain.
+ * Written by Steven D. Blackford for the NeXT system.
+ */
+
+#ifndef HAVE_WAITPID
 
 #include "imp.h"
 #include <string.h>
@@ -14,8 +18,6 @@
 #include <sys/types.h>
 
 #include "exp.h"
-
-#ifndef HAVE_WAITPID
 
 GLOBAL int
 waitpid(pid, stat_loc, options)

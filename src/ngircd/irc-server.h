@@ -7,16 +7,16 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
- *
- * $Id: irc-server.h,v 1.6 2007/11/21 12:16:36 alex Exp $
- *
- * IRC commands for server links (header)
  */
 
 
 #ifndef __irc_server_h__
 #define __irc_server_h__
 
+/**
+ * @file
+ * IRC commands for server links (header)
+ */
 
 GLOBAL bool IRC_SERVER PARAMS((CLIENT *Client, REQUEST *Req ));
 GLOBAL bool IRC_NJOIN PARAMS((CLIENT *Client, REQUEST *Req ));

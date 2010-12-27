@@ -8,19 +8,20 @@
  * der Lizenz oder (wenn Sie es wuenschen) jeder spaeteren Version.
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
- *
- * $Id: splint.h,v 1.1 2002/03/25 19:13:19 alex Exp $
- *
- * splint.h: spezieller Header fuer SPLint Code-Check
- *
- * Dieser Header wird von portab.h nur dann includiert, wenn ein Code-Check
- * mit SPLint laeufr (d.h. S_SPLINT_S definiert ist).
  */
 
 
 #ifndef __splint__
 #define __splint__
 
+/**
+ * @file
+ * Header file which is included for SPLint code checks
+ *
+ * This header is only included by portab.h if a SPLint code check is
+ * running (when S_SPLINT_S is defined). It makes some definitions to
+ * prevent SPLint from issuing false warnings.
+ */
 
 #define SYSCONFDIR "/"
 #define LOCALSTATEDIR "/"

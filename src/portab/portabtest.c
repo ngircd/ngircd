@@ -7,14 +7,15 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
- *
- * test program for portab.h and friends ;-)
  */
 
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: portabtest.c,v 1.13 2005/07/31 20:13:11 alex Exp $";
+/**
+ * @file
+ * Test program for portab.h and friends ;-)
+ */
 
 #include "imp.h"
 #include <stdarg.h>

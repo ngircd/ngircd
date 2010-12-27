@@ -7,14 +7,16 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
- *
- * IRC numerics (Header)
  */
 
 
 #ifndef __messages_h__
 #define __messages_h__
 
+/**
+ * @file
+ * IRC numerics (Header)
+ */
 
 #define RPL_WELCOME_MSG			"001 %s :Welcome to the Internet Relay Network %s"
 #define RPL_YOURHOST_MSG		"002 %s :Your host is %s, running version ngircd-%s (%s/%s/%s)"

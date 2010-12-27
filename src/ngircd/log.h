@@ -7,14 +7,16 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
- *
- * Logging functions (header)
  */
 
 
 #ifndef __log_h__
 #define __log_h__
 
+/**
+ * @file
+ * Logging functions (header)
+ */
 
 #ifdef SYSLOG
 #	include <syslog.h>

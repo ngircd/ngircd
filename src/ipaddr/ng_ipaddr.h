@@ -1,12 +1,15 @@
 /*
- * Functions for AF_ agnostic ipv4/ipv6 handling.
- *
  * (c) 2008 Florian Westphal <fw@strlen.de>, public domain.
  */
 
 #ifndef NG_IPADDR_HDR
 #define NG_IPADDR_HDR
 #include "portab.h"
+
+/**
+ * @file
+ * Functions for AF_ agnostic ipv4/ipv6 handling (header).
+ */
 
 #include <assert.h>
 #include <sys/socket.h>

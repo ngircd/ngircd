@@ -7,15 +7,16 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
- *
- * $Id: parse.h,v 1.13 2008/01/13 16:12:49 fw Exp $
- *
- * IRC command parser and validator (header)
  */
 
 
 #ifndef __parse_h__
 #define __parse_h__
+
+/**
+ * @file
+ * IRC command parser and validator (header)
+ */
 
 #include "portab.h"
 

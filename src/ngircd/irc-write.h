@@ -7,12 +7,15 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
- *
- * Sending IRC commands over the network (header)
  */
 
 #ifndef __irc_write_h__
 #define __irc_write_h__
+
+/**
+ * @file
+ * Sending IRC commands over the network (header)
+ */
 
 GLOBAL bool IRC_WriteStrClient PARAMS((CLIENT *Client, const char *Format, ...));
 GLOBAL bool IRC_WriteStrClientPrefix PARAMS((CLIENT *Client, CLIENT *Prefix,

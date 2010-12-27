@@ -7,14 +7,17 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
- *
- * Asynchronous resolver
  */
 
 
 #define RESOLVER_TIMEOUT (Conf_PongTimeout*3)/4
 
 #include "portab.h"
+
+/**
+ * @file
+ * Asynchronous resolver
+ */
 
 #include "imp.h"
 #include <assert.h>

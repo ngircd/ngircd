@@ -7,14 +7,17 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
- *
- * Process management (header)
  */
 
 #ifndef __proc_h__
 #define __proc_h__
 
-/* This struct must not be accessed directly! */
+/**
+ * @file
+ * Process management (header)
+ */
+
+/** Process status. This struct must not be accessed directly! */
 typedef struct _Proc_Stat {
 	pid_t pid;	/* PID of the child process or 0 if none */
 	int pipe_fd;	/* Pipe file descriptor or -1 if none */

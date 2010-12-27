@@ -7,19 +7,20 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
- *
+ */
+
+#include "portab.h"
+
+/**
+ * @file
  * strlcpy() and strlcat() replacement functions.
+ *
  * See <http://www.openbsd.org/papers/strlcpy-paper.ps> for details.
  *
  * Code partially borrowed from compat.c of rsync, written by Andrew
  * Tridgell (1998) and Martin Pool (2002):
  * <http://cvs.samba.org/cgi-bin/cvsweb/rsync/lib/compat.c>
  */
-
-
-#include "portab.h"
-
-static char UNUSED id[] = "$Id: strlcpy.c,v 1.5 2005/03/19 18:43:50 fw Exp $";
 
 #include "imp.h"
 #include <string.h>

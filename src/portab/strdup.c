@@ -1,12 +1,15 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- *
- * strdup() implementation.  Public domain.
- *
- * $Id: strdup.c,v 1.1 2005/04/16 09:20:53 fw Exp $
  */
 
 #include "portab.h"
+
+/**
+ * @file
+ * strdup() implementation. Public domain.
+ */
+
+#ifndef HAVE_STRDUP
 
 #include "imp.h"
 #include <string.h>
@@ -14,8 +17,6 @@
 #include <sys/types.h>
 
 #include "exp.h"
-
-#ifndef HAVE_STRDUP
 
 GLOBAL char *
 strdup( const char *s )

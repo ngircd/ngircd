@@ -1,10 +1,14 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * SSL wrapper functions. (header)
  */
 
 #ifndef conn_ssl_h
 #define conn_ssl_h
+
+/**
+ * @file
+ * SSL wrapper functions (header)
+ */
 
 #include "conf-ssl.h"
 #include "conn.h"

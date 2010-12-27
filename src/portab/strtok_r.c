@@ -1,7 +1,17 @@
+/*
+ * ngIRCd -- The Next Generation IRC Daemon
+ */
+
 #include "portab.h"
-#include <string.h>
+
+/**
+ * @file
+ * Implementation of strtok_r()
+ */
 
 #ifndef HAVE_STRTOK_R
+
+#include <string.h>
 
 char *
 strtok_r(char *str, const char *delim, char **saveptr)

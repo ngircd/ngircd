@@ -7,13 +7,17 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
- *
- * Tool functions (Header)
  */
 
 
 #ifndef __tool_h__
 #define __tool_h__
+
+/**
+ * @file
+ * Tool functions (Header)
+ */
+
 #include "portab.h"
 
 #ifdef HAVE_ARPA_INET_H

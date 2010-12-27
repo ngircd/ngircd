@@ -1,11 +1,15 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- *
- * SSL wrapper functions.
  * Copyright (c) 2005-2008 Florian Westphal <fw@strlen.de>
  */
 
 #include "portab.h"
+
+/**
+ * @file
+ * SSL wrapper functions
+ */
+
 #include "imp.h"
 #include "conf-ssl.h"
 

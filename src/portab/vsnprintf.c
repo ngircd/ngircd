@@ -7,19 +7,15 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
- *
- * snprintf() and vsnprintf() replacement functions
  */
 
 
 #include "portab.h"
 
-static char UNUSED id[] = "$Id: vsnprintf.c,v 1.5 2003/04/21 10:53:38 alex Exp $";
-
-#include "imp.h"
-
-#include "exp.h"
-
+/**
+ * @file
+ * snprintf() and vsnprintf() replacement functions
+ */
 
 /*
  * snprintf.c: Copyright Patrick Powell 1995

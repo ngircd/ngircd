@@ -7,12 +7,15 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
- *
- * Asynchronous resolver (header)
  */
 
 #ifndef __resolve_h__
 #define __resolve_h__
+
+/**
+ * @file
+ * Asynchronous resolver (header)
+ */
 
 GLOBAL bool Resolve_Addr PARAMS((PROC_STAT * s, const ng_ipaddr_t * Addr,
 				 int identsock, void (*cbfunc) (int, short)));

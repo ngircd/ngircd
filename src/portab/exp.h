@@ -8,12 +8,12 @@
  * der Lizenz oder (wenn Sie es wuenschen) jeder spaeteren Version.
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
- *
- * $Id: exp.h,v 1.1 2002/03/12 14:36:44 alex Exp $
- *
- * exp.h: "Export Header"
  */
 
+/**
+ * @file
+ * "Export Header" which makes sure, that global functions are not "extern".
+ */
 
 #undef GLOBAL
 #define GLOBAL

@@ -7,16 +7,16 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
- *
- * $Id: irc-info.h,v 1.6 2008/02/17 13:26:42 alex Exp $
- *
- * IRC info commands (header)
  */
 
 
 #ifndef __irc_info_h__
 #define __irc_info_h__
 
+/**
+ * @file
+ * IRC info commands (header)
+ */
 
 GLOBAL bool IRC_ADMIN PARAMS(( CLIENT *Client, REQUEST *Req ));
 GLOBAL bool IRC_INFO PARAMS(( CLIENT *Client, REQUEST *Req ));

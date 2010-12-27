@@ -8,12 +8,12 @@
  * der Lizenz oder (wenn Sie es wuenschen) jeder spaeteren Version.
  * Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
  * der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
- *
- * $Id: imp.h,v 1.1 2002/03/12 14:36:44 alex Exp $
- *
- * imp.h: "Import Header"
  */
 
+/**
+ * @file
+ * "Import Header" which makes sure that global functions are defined "extern".
+ */
 
 #undef GLOBAL
 #define GLOBAL extern

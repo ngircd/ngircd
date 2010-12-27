@@ -7,10 +7,6 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
- *
- * $Id: conn-zip.h,v 1.4 2006/05/10 21:24:01 alex Exp $
- *
- * Connection compression using ZLIB (header)
  */
 
 
@@ -19,6 +15,10 @@
 #ifndef __conn_zip_h__
 #define __conn_zip_h__
 
+/**
+ * @file
+ * Connection compression using ZLIB (header)
+ */
 
 GLOBAL bool Zip_InitConn PARAMS(( CONN_ID Idx ));
 

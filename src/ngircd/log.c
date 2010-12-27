@@ -7,12 +7,15 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
- *
- * Logging functions
  */
 
 
 #include "portab.h"
+
+/**
+ * @file
+ * Logging functions
+ */
 
 #include "imp.h"
 #include <assert.h>

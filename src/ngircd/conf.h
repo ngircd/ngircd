@@ -7,13 +7,16 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
- *
- * Configuration management (header)
  */
 
 
 #ifndef __conf_h__
 #define __conf_h__
+
+/**
+ * @file
+ * Configuration management (header)
+ */
 
 #include <time.h>
 

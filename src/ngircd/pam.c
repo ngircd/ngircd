@@ -7,13 +7,16 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
- *
- * PAM User Authentification
  */
 
 #include "portab.h"
 
 #ifdef PAM
+
+/**
+ * @file
+ * PAM User Authentification
+ */
 
 #include "imp.h"
 #include <assert.h>

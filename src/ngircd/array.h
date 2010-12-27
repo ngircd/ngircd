@@ -7,12 +7,15 @@
  *
  * libarray - dynamically allocate arrays.
  * Copyright (c) 2005 Florian Westphal (westphal@foo.fh-furtwangen.de)
- *
- * $Id: array.h,v 1.4 2005/08/30 13:36:32 fw Exp $
  */
 
 #ifndef array_h_included
 #define array_h_included
+
+/**
+ * @file
+ * Functions to dynamically allocate arrays (header).
+ */
 
 #include "portab.h"
 

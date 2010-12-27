@@ -7,11 +7,14 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
- *
- * Connection compression using ZLIB
  */
 
 #include "portab.h"
+
+/**
+ * @file
+ * Connection compression using ZLIB
+ */
 
 #define CONN_MODULE
 

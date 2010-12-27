@@ -11,6 +11,11 @@
 #ifndef signals_included_
 #define signals_included_
 
+/**
+ * @file
+ * Signal Handlers (header).
+ */
+
 #include "portab.h"
 
 bool Signals_Init PARAMS((void));

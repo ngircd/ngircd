@@ -7,14 +7,16 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
- *
- * Portability functions and declarations (header for libngbportab).
  */
 
 
 #ifndef __PORTAB__
 #define __PORTAB__
 
+/**
+ * @file
+ * Portability functions and declarations (header)
+ */
 
 #include "config.h"
 

@@ -7,13 +7,16 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  * Please read the file COPYING, README and AUTHORS for more information.
- *
- * Login and logout (header)
  */
 
 
 #ifndef __irc_login_h__
 #define __irc_login_h__
+
+/**
+ * @file
+ * Login and logout (header)
+ */
 
 GLOBAL bool IRC_PASS PARAMS((CLIENT *Client, REQUEST *Req));
 GLOBAL bool IRC_NICK PARAMS((CLIENT *Client, REQUEST *Req));

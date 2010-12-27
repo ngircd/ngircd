@@ -19,11 +19,14 @@
 
 /** Process status. This struct must not be accessed directly! */
 typedef struct _Proc_Stat {
-	pid_t pid;	/* PID of the child process or 0 if none */
-	int pipe_fd;	/* Pipe file descriptor or -1 if none */
+	pid_t pid;	/**< PID of the child process or 0 if none */
+	int pipe_fd;	/**< Pipe file descriptor or -1 if none */
 } PROC_STAT;
 
+/** Return true if sub-process is still running */
 #define Proc_InProgress(x)	((x)->pid != 0)
+
+/** Return file descriptor of pipe to sub-process (or -1 if none open) */
 #define Proc_GetPipeFd(x)	((x)->pipe_fd)
 
 GLOBAL void Proc_InitStruct PARAMS((PROC_STAT *proc));

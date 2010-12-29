@@ -82,6 +82,7 @@
 
 #define MAX_COMMANDS 3
 #define MAX_COMMANDS_SERVER 10
+#define MAX_COMMANDS_SERVICE MAX_COMMANDS_SERVER
 
 
 static bool Handle_Write PARAMS(( CONN_ID Idx ));
@@ -1530,7 +1531,7 @@ Read_Request( CONN_ID Idx )
 /**
  * Handle all data in the connection read-buffer.
  * Data is processed until no complete command is left in the read buffer,
- * or MAX_COMMANDS[_SERVER] commands were processed.
+ * or MAX_COMMANDS[_SERVER|_SERVICE] commands were processed.
  * When a fatal error occurs, the connection is shut down.
  * @param Idx Index of the connection.
  * @return number of bytes processed.
@@ -1555,8 +1556,12 @@ Handle_Buffer(CONN_ID Idx)
 
 	/* Servers do get special command limits, so they can process
 	 * all the messages that are required while peering. */
-	if (Client_Type(c) == CLIENT_SERVER)
-		maxcmd = MAX_COMMANDS_SERVER;
+	switch (Client_Type(c)) {
+	    case CLIENT_SERVER:
+		maxcmd = MAX_COMMANDS_SERVER; break;
+	    case CLIENT_SERVICE:
+		maxcmd = MAX_COMMANDS_SERVICE; break;
+	}
 
 	starttime = time(NULL);
 	for (i=0; i < maxcmd; i++) {

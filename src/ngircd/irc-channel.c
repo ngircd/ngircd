@@ -39,13 +39,18 @@
 #include "irc-channel.h"
 
 
-/*
+/**
+ * Part from all channels.
+ *
  * RFC 2812, (3.2.1 Join message Command):
- *  Note that this message
- *  accepts a special argument ("0"), which is a special request to leave all
- *  channels the user is currently a member of. The server will process this
- *  message as if the user had sent a PART command (See Section 3.2.2) for
- *  each channel he is a member of.
+ *  Note that this message accepts a special argument ("0"), which is a
+ *  special request to leave all channels the user is currently a member of.
+ *  The server will process this message as if the user had sent a PART
+ *  command (See Section 3.2.2) for each channel he is a member of.
+ *
+ * @param client	Client that initiated the part request
+ * @param target	Client that should part all joined channels
+ * @returns		CONNECTED or DISCONNECTED
  */
 static bool
 part_from_all_channels(CLIENT* client, CLIENT *target)
@@ -59,17 +64,18 @@ part_from_all_channels(CLIENT* client, CLIENT *target)
 		Channel_Part(target, client, Channel_Name(chan), Client_ID(target));
 	}
 	return CONNECTED;
-}
+} /* part_from_all_channels */
 
 
 /**
  * Check weather a local client is allowed to join an already existing
  * channel or not.
- * @param Client Client that sent the JOIN command
- * @param chan Channel to check
- * @param channame Name of the channel
- * @param key Provided channel key (or NULL if none has been provided)
- * @return true if client is allowed to join channel, false otherwise
+ *
+ * @param Client	Client that sent the JOIN command
+ * @param chan		Channel to check
+ * @param channame	Name of the channel
+ * @param key		Provided channel key (or NULL)
+ * @returns		true if client is allowed to join, false otherwise
  */
 static bool
 join_allowed(CLIENT *Client, CHANNEL *chan, const char *channame,
@@ -132,9 +138,16 @@ join_allowed(CLIENT *Client, CHANNEL *chan, const char *channame,
 	}
 
 	return true;
-}
+} /* join_allowed */
 
 
+/**
+ * Set user channel modes.
+ *
+ * @param chan		Channel
+ * @param target	User to set modes for
+ * @param flags		Channel modes to add
+ */
 static void
 join_set_channelmodes(CHANNEL *chan, CLIENT *target, const char *flags)
 {
@@ -148,9 +161,22 @@ join_set_channelmodes(CHANNEL *chan, CLIENT *target, const char *flags)
 	/* If channel persistent and client is ircop: make client chanop */
 	if (strchr(Channel_Modes(chan), 'P') && strchr(Client_Modes(target), 'o'))
 		Channel_UserModeAdd(chan, target, 'o');
-}
+} /* join_set_channelmodes */
 
 
+/**
+ * Forward JOIN command to a specific server
+ *
+ * This function diffentiates between servers using RFC 2813 mode that
+ * support the JOIN command with appended ASCII 7 character and channel
+ * modes, and servers using RFC 1459 protocol which require separate JOIN
+ * and MODE commands.
+ *
+ * @param To		Forward JOIN (and MODE) command to this peer server
+ * @param Prefix	Client used to prefix the genrated commands
+ * @param Data		Parameters of JOIN command to forward, probably
+ *			containing channel modes separated by ASCII 7.
+ */
 static void
 cb_join_forward(CLIENT *To, CLIENT *Prefix, void *Data)
 {
@@ -175,12 +201,25 @@ cb_join_forward(CLIENT *To, CLIENT *Prefix, void *Data)
 } /* cb_join_forward */
 
 
+/**
+ * Forward JOIN command to all servers
+ *
+ * This function calls cb_join_forward(), which differentiates between
+ * protocol implementations (e.g. RFC 2812, RFC 1459).
+ *
+ * @param Client	Client used to prefix the genrated commands
+ * @param target	Forward JOIN (and MODE) command to this peer server
+ * @param chan		Channel structure
+ * @param channame	Channel name
+ */
 static void
 join_forward(CLIENT *Client, CLIENT *target, CHANNEL *chan,
 					const char *channame)
 {
 	char modes[CHANNEL_MODE_LEN], str[COMMAND_LEN];
 
+	/* RFC 2813, 4.2.1: channel modes are separated from the channel
+	 * name with ASCII 7, if any, and not spaces: */
 	strlcpy(&modes[1], Channel_UserModes(chan, target), sizeof(modes) - 1);
 	if (modes[1])
 		modes[0] = 0x7;
@@ -207,6 +246,14 @@ join_forward(CLIENT *Client, CLIENT *target, CHANNEL *chan,
 } /* join_forward */
 
 
+/**
+ * Aknowledge user JOIN request and send "channel info" numerics.
+ *
+ * @param Client	Client used to prefix the genrated commands
+ * @param target	Forward commands/numerics to this user
+ * @param chan		Channel structure
+ * @param channame	Channel name
+ */
 static bool
 join_send_topic(CLIENT *Client, CLIENT *target, CHANNEL *chan,
 					const char *channame)
@@ -237,10 +284,20 @@ join_send_topic(CLIENT *Client, CLIENT *target, CHANNEL *chan,
 	/* send list of channel members to client */
 	if (!IRC_Send_NAMES(Client, chan))
 		return false;
-	return IRC_WriteStrClient(Client, RPL_ENDOFNAMES_MSG, Client_ID(Client), Channel_Name(chan));
-}
+	return IRC_WriteStrClient(Client, RPL_ENDOFNAMES_MSG, Client_ID(Client),
+				  Channel_Name(chan));
+} /* join_send_topic */
 
 
+/**
+ * Handler for the IRC "JOIN" command.
+ *
+ * See RFC 2812, 3.2.1 "Join message"; RFC 2813, 4.2.1 "Join message".
+ *
+ * @param Client	The client from which this command has been received
+ * @param Req		Request structure with prefix and all parameters
+ * @returns		CONNECTED or DISCONNECTED
+ */
 GLOBAL bool
 IRC_JOIN( CLIENT *Client, REQUEST *Req )
 {
@@ -365,6 +422,12 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 
 /**
  * Handler for the IRC "PART" command.
+ *
+ * See RFC 2812, 3.2.2: "Part message".
+ *
+ * @param Client	The client from which this command has been received
+ * @param Req		Request structure with prefix and all parameters
+ * @returns		CONNECTED or DISCONNECTED
  */
 GLOBAL bool
 IRC_PART(CLIENT * Client, REQUEST * Req)
@@ -410,6 +473,15 @@ IRC_PART(CLIENT * Client, REQUEST * Req)
 } /* IRC_PART */
 
 
+/**
+ * Handler for the IRC "TOPIC" command.
+ *
+ * See RFC 2812, 3.2.4 "Topic message".
+ *
+ * @param Client	The client from which this command has been received
+ * @param Req		Request structure with prefix and all parameters
+ * @returns		CONNECTED or DISCONNECTED
+ */
 GLOBAL bool
 IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 {
@@ -502,8 +574,15 @@ IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 
 /**
  * Handler for the IRC "LIST" command.
+ *
+ * See RFC 2812, 3.2.6 "List message".
+ *
  * This implementation handles the local case as well as the forwarding of the
  * LIST command to other servers in the IRC network.
+ *
+ * @param Client	The client from which this command has been received
+ * @param Req		Request structure with prefix and all parameters
+ * @returns		CONNECTED or DISCONNECTED
  */
 GLOBAL bool
 IRC_LIST( CLIENT *Client, REQUEST *Req )
@@ -587,6 +666,16 @@ IRC_LIST( CLIENT *Client, REQUEST *Req )
 } /* IRC_LIST */
 
 
+/**
+ * Handler for the IRC+ command "CHANINFO".
+ *
+ * See doc/Protocol.txt, section II.3:
+ * "Exchange channel-modes, topics, and persistent channels".
+ *
+ * @param Client	The client from which this command has been received
+ * @param Req		Request structure with prefix and all parameters
+ * @returns		CONNECTED or DISCONNECTED
+ */
 GLOBAL bool
 IRC_CHANINFO( CLIENT *Client, REQUEST *Req )
 {

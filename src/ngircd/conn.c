@@ -123,8 +123,9 @@ static void cb_clientserver PARAMS((int sock, short what));
 /**
  * IO callback for listening sockets: handle new connections. This callback
  * gets called when a new non-SSL connection should be accepted.
- * @param sock Socket descriptor
- * @param irrelevant (ignored IO specification)
+ *
+ * @param sock		Socket descriptor.
+ * @param irrelevant	(ignored IO specification)
  */
 static void
 cb_listen(int sock, short irrelevant)
@@ -138,8 +139,9 @@ cb_listen(int sock, short irrelevant)
 /**
  * IO callback for listening SSL sockets: handle new connections. This callback
  * gets called when a new SSL-enabled connection should be accepted.
- * @param sock Socket descriptor
- * @param irrelevant (ignored IO specification)
+ *
+ * @param sock		Socket descriptor.
+ * @param irrelevant	(ignored IO specification)
  */
 static void
 cb_listen_ssl(int sock, short irrelevant)
@@ -157,8 +159,9 @@ cb_listen_ssl(int sock, short irrelevant)
 
 /**
  * IO callback for new outgoing non-SSL server connections.
- * @param sock Socket descriptor
- * @param what IO specification (IO_WANTREAD/IO_WANTWRITE/...)
+ *
+ * @param sock	Socket descriptor.
+ * @param what	IO specification (IO_WANTREAD/IO_WANTWRITE/...).
  */
 static void
 cb_connserver(int sock, UNUSED short what)
@@ -235,7 +238,8 @@ cb_connserver(int sock, UNUSED short what)
 
 /**
  * Login to a remote server.
- * @param idx Connection index
+ *
+ * @param idx	Connection index.
  */
 static void
 server_login(CONN_ID idx)
@@ -257,8 +261,9 @@ server_login(CONN_ID idx)
 #ifdef SSL_SUPPORT
 /**
  * IO callback for new outgoing SSL-enabled server connections.
- * @param sock Socket descriptor
- * @param what IO specification (IO_WANTREAD/IO_WANTWRITE/...)
+ *
+ * @param sock		Socket descriptor.
+ * @param unused	(ignored IO specification)
  */
 static void
 cb_connserver_login_ssl(int sock, short unused)
@@ -291,8 +296,9 @@ cb_connserver_login_ssl(int sock, short unused)
 
 /**
  * IO callback for established non-SSL client and server connections.
- * @param sock Socket descriptor
- * @param what IO specification (IO_WANTREAD/IO_WANTWRITE/...)
+ *
+ * @param sock	Socket descriptor.
+ * @param what	IO specification (IO_WANTREAD/IO_WANTWRITE/...).
  */
 static void
 cb_clientserver(int sock, short what)
@@ -324,8 +330,9 @@ cb_clientserver(int sock, short what)
 #ifdef SSL_SUPPORT
 /**
  * IO callback for established SSL-enabled client and server connections.
- * @param sock Socket descriptor
- * @param what IO specification (IO_WANTREAD/IO_WANTWRITE/...)
+ *
+ * @param sock	Socket descriptor.
+ * @param what	IO specification (IO_WANTREAD/IO_WANTWRITE/...).
  */
 static void
 cb_clientserver_ssl(int sock, short what)
@@ -437,6 +444,14 @@ Conn_CloseAllSockets(void)
 }
 
 
+/**
+ * Initialize listening ports.
+ *
+ * @param a		Array containing the ports the daemon should listen on.
+ * @param listen_addr	Address the socket should listen on (can be "0.0.0.0").
+ * @param func		IO callback function to register.
+ * @returns		Number of listening sockets created.
+ */
 static unsigned int
 ports_initlisteners(array *a, const char *listen_addr, void (*func)(int,short))
 {
@@ -469,7 +484,8 @@ ports_initlisteners(array *a, const char *listen_addr, void (*func)(int,short))
 
 /**
  * Initialize all listening sockets.
- * @return Number of created listening sockets
+ *
+ * @returns	Number of created listening sockets
  */
 GLOBAL unsigned int
 Conn_InitListeners( void )
@@ -510,6 +526,9 @@ Conn_InitListeners( void )
 } /* Conn_InitListeners */
 
 
+/**
+ * Shut down all listening sockets.
+ */
 GLOBAL void
 Conn_ExitListeners( void )
 {
@@ -532,6 +551,14 @@ Conn_ExitListeners( void )
 } /* Conn_ExitListeners */
 
 
+/**
+ * Bind a socket to a specific (source) address.
+ *
+ * @param addr			Address structure.
+ * @param listen_addrstr	Source address as string.
+ * @param Port			Port number.
+ * @returns			true on success, false otherwise.
+ */
 static bool
 InitSinaddrListenAddr(ng_ipaddr_t *addr, const char *listen_addrstr, UINT16 Port)
 {
@@ -547,6 +574,14 @@ InitSinaddrListenAddr(ng_ipaddr_t *addr, const char *listen_addrstr, UINT16 Port
 }
 
 
+/**
+ * Set a socket to "IPv6 only". If the given socket doesn't belong to the
+ * AF_INET6 family, or the operating system doesn't support this functionality,
+ * this function retruns silently.
+ *
+ * @param af	Address family of the socket.
+ * @param sock	Socket handle.
+ */
 static void
 set_v6_only(int af, int sock)
 {
@@ -565,7 +600,13 @@ set_v6_only(int af, int sock)
 }
 
 
-/* return new listening port file descriptor or -1 on failure */
+/**
+ * Initialize new listening port.
+ *
+ * @param listen_addr	Local address to bind the socet to (can be 0.0.0.0).
+ * @param Port		Port number on which the new socket should be listening.
+ * @returns		file descriptor of the socket or -1 on failure.
+ */
 static int
 NewListener(const char *listen_addr, UINT16 Port)
 {
@@ -615,7 +656,10 @@ NewListener(const char *listen_addr, UINT16 Port)
 
 
 #ifdef SSL_SUPPORT
-/*
+
+/**
+ * Check if SSL library needs to read SSL-protocol related data.
+ *
  * SSL/TLS connections require extra treatment:
  * When either CONN_SSL_WANT_WRITE or CONN_SSL_WANT_READ is set, we
  * need to take care of that first, before checking read/write buffers.
@@ -626,6 +670,9 @@ NewListener(const char *listen_addr, UINT16 Port)
  * If this function returns true, such a condition is met and we have
  * to reverse the condition (check for read even if we've data to write,
  * do not check for read but writeability even if write-buffer is empty).
+ *
+ * @param c	Connection to check.
+ * @returns	true if SSL-library has to read protocol data.
  */
 static bool
 SSL_WantRead(const CONNECTION *c)
@@ -636,6 +683,15 @@ SSL_WantRead(const CONNECTION *c)
 	}
 	return false;
 }
+
+/**
+ * Check if SSL library needs to write SSL-protocol related data.
+ *
+ * Please see description of SSL_WantRead() for full description!
+ *
+ * @param c	Connection to check.
+ * @returns	true if SSL-library has to write protocol data.
+ */
 static bool
 SSL_WantWrite(const CONNECTION *c)
 {
@@ -645,18 +701,23 @@ SSL_WantWrite(const CONNECTION *c)
 	}
 	return false;
 }
+
 #else
+
 static inline bool
 SSL_WantRead(UNUSED const CONNECTION *c)
 { return false; }
+
 static inline bool
 SSL_WantWrite(UNUSED const CONNECTION *c)
 { return false; }
+
 #endif
 
 
 /**
  * "Main Loop": Loop until shutdown or restart is signalled.
+ *
  * This function loops until a shutdown or restart of ngIRCd is signalled and
  * calls io_dispatch() to check for readable and writable sockets every second.
  * It checks for status changes on pending connections (e. g. when a hostname
@@ -776,12 +837,14 @@ Conn_Handler(void)
 
 /**
  * Write a text string into the socket of a connection.
+ *
  * This function automatically appends CR+LF to the string and validates that
  * the result is a valid IRC message (oversized messages are shortened, for
  * example). Then it calls the Conn_Write() function to do the actual sending.
- * @param Idx Index fo the connection.
- * @param Format Format string, see printf().
- * @return true on success, false otherwise.
+ *
+ * @param Idx		Index fo the connection.
+ * @param Format	Format string, see printf().
+ * @returns		true on success, false otherwise.
  */
 #ifdef PROTOTYPES
 GLOBAL bool
@@ -851,10 +914,11 @@ va_dcl
 
 /**
  * Append Data to the outbound write buffer of a connection.
- * @param Idx Index of the connection.
- * @param Data pointer to the data.
- * @param Len length of Data.
- * @return true on success, false otherwise.
+ *
+ * @param Idx	Index of the connection.
+ * @param Data	pointer to the data.
+ * @param Len	length of Data.
+ * @returns	true on success, false otherwise.
  */
 static bool
 Conn_Write( CONN_ID Idx, char *Data, size_t Len )
@@ -929,6 +993,17 @@ Conn_Write( CONN_ID Idx, char *Data, size_t Len )
 } /* Conn_Write */
 
 
+/**
+ * Shut down a connection.
+ *
+ * @param Idx		Connection index.
+ * @param LogMsg	Message to write to the log or NULL. If no LogMsg
+ *			is given, the FwdMsg is logged.
+ * @param FwdMsg	Message to forward to remote servers.
+ * @param InformClient	If true, inform the client on the connection which is
+ *			to be shut down of the reason (FwdMsg) and send
+ *			connection statistics before disconnecting it.
+ */
 GLOBAL void
 Conn_Close( CONN_ID Idx, const char *LogMsg, const char *FwdMsg, bool InformClient )
 {
@@ -1073,6 +1148,11 @@ Conn_Close( CONN_ID Idx, const char *LogMsg, const char *FwdMsg, bool InformClie
 } /* Conn_Close */
 
 
+/**
+ * Get current number of connections.
+ *
+ * @returns	Number of current connections.
+ */
 GLOBAL long
 Conn_Count(void)
 {
@@ -1080,6 +1160,11 @@ Conn_Count(void)
 } /* Conn_Count */
 
 
+/**
+ * Get number of maximum simultaneous connections.
+ *
+ * @returns	Number of maximum simultaneous connections.
+ */
 GLOBAL long
 Conn_CountMax(void)
 {
@@ -1087,6 +1172,11 @@ Conn_CountMax(void)
 } /* Conn_CountMax */
 
 
+/**
+ * Get number of connections accepted since the daemon startet.
+ *
+ * @returns	Number of connections accepted.
+ */
 GLOBAL long
 Conn_CountAccepted(void)
 {
@@ -1128,6 +1218,9 @@ Conn_SyncServerStruct(void)
 
 /**
  * Send out data of write buffer; connect new sockets.
+ *
+ * @param Idx	Connection index.
+ * @returns	true on success, false otherwise.
  */
 static bool
 Handle_Write( CONN_ID Idx )
@@ -1192,6 +1285,11 @@ Handle_Write( CONN_ID Idx )
 } /* Handle_Write */
 
 
+/**
+ * Count established connections to a specific IP address.
+ *
+ * @returns	Number of established connections.
+ */
 static int
 Count_Connections(ng_ipaddr_t *a)
 {
@@ -1210,8 +1308,9 @@ Count_Connections(ng_ipaddr_t *a)
 
 /**
  * Initialize new client connection on a listening socket.
- * @param Sock Listening socket descriptor
- * @return Accepted socket descriptor or -1 on error
+ *
+ * @param Sock	Listening socket descriptor.
+ * @returns	Accepted socket descriptor or -1 on error.
  */
 static int
 New_Connection(int Sock)
@@ -1354,6 +1453,9 @@ New_Connection(int Sock)
 } /* New_Connection */
 
 
+/**
+ * Update global connection counters.
+ */
 static void
 Account_Connection(void)
 {
@@ -1365,6 +1467,12 @@ Account_Connection(void)
 } /* Account_Connection */
 
 
+/**
+ * Translate socket handle into connection index.
+ *
+ * @param Sock	Socket handle.
+ * @returns	Connecion index or NONE, if no connection could be found.
+ */
 static CONN_ID
 Socket2Index( int Sock )
 {
@@ -1383,6 +1491,8 @@ Socket2Index( int Sock )
 /**
  * Read data from the network to the read buffer. If an error occures,
  * the socket of this connection will be shut down.
+ *
+ * @param Idx	Connection index.
  */
 static void
 Read_Request( CONN_ID Idx )
@@ -1495,11 +1605,13 @@ Read_Request( CONN_ID Idx )
 
 /**
  * Handle all data in the connection read-buffer.
+ *
  * Data is processed until no complete command is left in the read buffer,
  * or MAX_COMMANDS[_SERVER|_SERVICE] commands were processed.
  * When a fatal error occurs, the connection is shut down.
- * @param Idx Index of the connection.
- * @return number of bytes processed.
+ *
+ * @param Idx	Index of the connection.
+ * @returns	Number of bytes processed.
  */
 static unsigned int
 Handle_Buffer(CONN_ID Idx)
@@ -1758,6 +1870,12 @@ Check_Servers(void)
 } /* Check_Servers */
 
 
+/**
+ * Establish a new outgoing server connection.
+ *
+ * @param Server	Configuration index of the server.
+ * @param dest		Destination IP address to connect to.
+ */
 static void
 New_Server( int Server , ng_ipaddr_t *dest)
 {
@@ -1868,6 +1986,8 @@ New_Server( int Server , ng_ipaddr_t *dest)
 
 /**
  * Initialize connection structure.
+ *
+ * @param Idx	Connection index.
  */
 static void
 Init_Conn_Struct(CONN_ID Idx)
@@ -1883,11 +2003,17 @@ Init_Conn_Struct(CONN_ID Idx)
 } /* Init_Conn_Struct */
 
 
+/**
+ * Initialize options of a new socket.
+ *
+ * For example, we try to set socket options SO_REUSEADDR and IPTOS_LOWDELAY.
+ * Errors shouldn't be fatal and therefore are ignored.
+ *
+ * @param Sock	Socket handle.
+ */
 static bool
 Init_Socket( int Sock )
 {
-	/* Initialize socket (set options) */
-
 	int value;
 
 	if (!io_setnonblock(Sock)) {
@@ -1920,6 +2046,13 @@ Init_Socket( int Sock )
 } /* Init_Socket */
 
 
+/**
+ * Read results of a resolver sub-process and try to initiate a new server
+ * connection.
+ *
+ * @param fd		File descriptor of the pipe to the sub-process.
+ * @param events	(ignored IO specification)
+ */
 static void
 cb_Connect_to_Server(int fd, UNUSED short events)
 {
@@ -1974,13 +2107,16 @@ cb_Connect_to_Server(int fd, UNUSED short events)
 } /* cb_Read_Forward_Lookup */
 
 
+/**
+ * Read results of a resolver sub-process from the pipe and update the
+ * apropriate connection/client structure(s): hostname and/or IDENT user name.
+ *
+ * @param r_fd		File descriptor of the pipe to the sub-process.
+ * @param events	(ignored IO specification)
+ */
 static void
 cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 {
-	/* Read result of resolver sub-process from pipe and update the
-	 * apropriate connection/client structure(s): hostname and/or
-	 * IDENT user name.*/
-
 	CLIENT *c;
 	CONN_ID i;
 	size_t len;
@@ -2050,9 +2186,14 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 
 /**
  * Write a "simple" (error) message to a socket.
+ *
  * The message is sent without using the connection write buffers, without
  * compression/encryption, and even without any error reporting. It is
- * designed for error messages of e.g. New_Connection(). */
+ * designed for error messages of e.g. New_Connection().
+ *
+ * @param Sock	Socket handle.
+ * @param Msg	Message string to send.
+ */
 static void
 Simple_Message(int Sock, const char *Msg)
 {
@@ -2081,8 +2222,9 @@ Simple_Message(int Sock, const char *Msg)
  * Get CLIENT structure that belongs to a local connection identified by its
  * index number. Each connection belongs to a client by definition, so it is
  * not required that the caller checks for NULL return values.
- * @param Idx Connection index number
- * @return Pointer to CLIENT structure
+ *
+ * @param Idx	Connection index number.
+ * @returns	Pointer to CLIENT structure.
  */
 GLOBAL CLIENT *
 Conn_GetClient( CONN_ID Idx ) 
@@ -2097,8 +2239,9 @@ Conn_GetClient( CONN_ID Idx )
 
 /**
  * Get PROC_STAT sub-process structure of a connection.
- * @param Idx Connection index number
- * @return PROC_STAT structure
+ *
+ * @param Idx	Connection index number.
+ * @returns	PROC_STAT structure.
  */
 GLOBAL PROC_STAT *
 Conn_GetProcStat(CONN_ID Idx)
@@ -2114,8 +2257,9 @@ Conn_GetProcStat(CONN_ID Idx)
 
 /**
  * Get CONN_ID from file descriptor associated to a subprocess structure.
- * @param fd File descriptor
- * @return CONN_ID or NONE (-1)
+ *
+ * @param fd	File descriptor.
+ * @returns	CONN_ID or NONE (-1).
  */
 GLOBAL CONN_ID
 Conn_GetFromProc(int fd)
@@ -2136,10 +2280,11 @@ Conn_GetFromProc(int fd)
 
 /**
  * Get information about used SSL chiper.
- * @param Idx Connection index number
- * @param buf Buffer for returned information text
- * @param len Size of return buffer "buf"
- * @return true on success, false otherwise
+ *
+ * @param Idx	Connection index number.
+ * @param buf	Buffer for returned information text.
+ * @param len	Size of return buffer "buf".
+ * @returns	true on success, false otherwise.
  */
 GLOBAL bool
 Conn_GetCipherInfo(CONN_ID Idx, char *buf, size_t len)
@@ -2153,8 +2298,9 @@ Conn_GetCipherInfo(CONN_ID Idx, char *buf, size_t len)
 
 /**
  * Check if a connection is SSL-enabled or not.
- * @param Idx Connection index number
- * @return true if connection is SSL-enabled, false otherwise.
+ *
+ * @param Idx	Connection index number.
+ * @return	true if connection is SSL-enabled, false otherwise.
  */
 GLOBAL bool
 Conn_UsesSSL(CONN_ID Idx)
@@ -2170,6 +2316,9 @@ Conn_UsesSSL(CONN_ID Idx)
 
 #ifdef DEBUG
 
+/**
+ * Dump internal state of the "connection module".
+ */
 GLOBAL void
 Conn_DebugDump(void)
 {

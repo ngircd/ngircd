@@ -596,8 +596,14 @@ IRC_SERVICE(CLIENT *Client, REQUEST *Req)
 
 
 /**
- * Handler for the IRC command "WEBIRC".
- * Syntax: WEBIRC <password> <username> <real-hostname> <real-IP-address>
+ * Handler for the IRC "WEBIRC" command.
+ *
+ * See doc/Protocol.txt, section II.4:
+ * "Update webchat/proxy client information".
+ *
+ * @param Client	The client from which this command has been received.
+ * @param Req		Request structure with prefix and all parameters.
+ * @returns		CONNECTED or DISCONNECTED.
  */
 GLOBAL bool
 IRC_WEBIRC(CLIENT *Client, REQUEST *Req)

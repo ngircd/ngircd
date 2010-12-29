@@ -161,3 +161,17 @@ and therefore can't be omitted. The parameter <limit> must be ignored when
 a channel has no user limit (the parameter <modes> doesn't list the "l"
 channel mode). In this case <limit> should be "0".
 
+
+II.4 Update webchat/proxy client information
+
+     Command: WEBIRC
+  Parameters: <password> <username> <hostname> <ip-address>
+     Used by: unregistered clients only
+
+The WEBIRC command is used by some Web-to-IRC gateways to set the correct
+user name and host name of users instead of their own. It must be the very
+first command sent to the server, even before USER and NICK commands!
+
+The <password> must be set in the server configuration file to prevent
+unauthorized clients to fake their identity; it is an arbitrary string.
+

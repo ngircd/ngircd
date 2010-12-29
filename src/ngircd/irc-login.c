@@ -56,8 +56,13 @@ static void cb_Read_Auth_Result PARAMS((int r_fd, UNUSED short events));
 #endif
 
 /**
- * Handler for the IRC command "PASS".
+ * Handler for the IRC "PASS" command.
+ *
  * See RFC 2813 section 4.1.1, and RFC 2812 section 3.1.1.
+ *
+ * @param Client	The client from which this command has been received.
+ * @param Req		Request structure with prefix and all parameters.
+ * @returns		CONNECTED or DISCONNECTED.
  */
 GLOBAL bool
 IRC_PASS( CLIENT *Client, REQUEST *Req )
@@ -176,10 +181,17 @@ IRC_PASS( CLIENT *Client, REQUEST *Req )
 
 
 /**
- * IRC "NICK" command.
+ * Handler for the IRC "NICK" command.
+ *
+ * See RFC 2812, 3.1.2 "Nick message", and RFC 2813, 4.1.3 "Nick".
+ *
  * This function implements the IRC command "NICK" which is used to register
  * with the server, to change already registered nicknames and to introduce
  * new users which are connected to other servers.
+ *
+ * @param Client	The client from which this command has been received.
+ * @param Req		Request structure with prefix and all parameters.
+ * @returns		CONNECTED or DISCONNECTED.
  */
 GLOBAL bool
 IRC_NICK( CLIENT *Client, REQUEST *Req )
@@ -381,7 +393,13 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 
 
 /**
- * Handler for the IRC command "USER".
+ * Handler for the IRC "USER" command.
+ *
+ * See RFC 2812, 3.1.3 "User message".
+ *
+ * @param Client	The client from which this command has been received.
+ * @param Req		Request structure with prefix and all parameters.
+ * @returns		CONNECTED or DISCONNECTED.
  */
 GLOBAL bool
 IRC_USER(CLIENT * Client, REQUEST * Req)
@@ -474,12 +492,18 @@ IRC_USER(CLIENT * Client, REQUEST * Req)
 
 
 /**
- * Handler for the IRC command "SERVICE".
+ * Handler for the IRC "SERVICE" command.
+ *
  * This function implements IRC Services registration using the SERVICE command
  * defined in RFC 2812 3.1.6 and RFC 2813 4.1.4.
+ *
  * At the moment ngIRCd doesn't support directly linked services, so this
  * function returns ERR_ERRONEUSNICKNAME when the SERVICE command has not been
  * received from a peer server.
+ *
+ * @param Client	The client from which this command has been received.
+ * @param Req		Request structure with prefix and all parameters.
+ * @returns		CONNECTED or DISCONNECTED..
  */
 GLOBAL bool
 IRC_SERVICE(CLIENT *Client, REQUEST *Req)
@@ -597,6 +621,15 @@ IRC_WEBIRC(CLIENT *Client, REQUEST *Req)
 } /* IRC_WEBIRC */
 
 
+/**
+ * Handler for the IRC "QUIT" command.
+ *
+ * See RFC 2812, 3.1.7 "Quit", and RFC 2813, 4.1.5 "Quit".
+ *
+ * @param Client	The client from which this command has been received.
+ * @param Req		Request structure with prefix and all parameters.
+ * @returns		CONNECTED or DISCONNECTED.
+ */
 GLOBAL bool
 IRC_QUIT( CLIENT *Client, REQUEST *Req )
 {
@@ -644,6 +677,15 @@ IRC_QUIT( CLIENT *Client, REQUEST *Req )
 } /* IRC_QUIT */
 
 
+/**
+ * Handler for the IRC "PING" command.
+ *
+ * See RFC 2812, 3.7.2 "Ping message".
+ *
+ * @param Client	The client from which this command has been received.
+ * @param Req		Request structure with prefix and all parameters.
+ * @returns		CONNECTED or DISCONNECTED.
+ */
 GLOBAL bool
 IRC_PING(CLIENT *Client, REQUEST *Req)
 {
@@ -713,6 +755,15 @@ IRC_PING(CLIENT *Client, REQUEST *Req)
 } /* IRC_PING */
 
 
+/**
+ * Handler for the IRC "PONG" command.
+ *
+ * See RFC 2812, 3.7.3 "Pong message".
+ *
+ * @param Client	The client from which this command has been received.
+ * @param Req		Request structure with prefix and all parameters.
+ * @returns		CONNECTED or DISCONNECTED.
+ */
 GLOBAL bool
 IRC_PONG(CLIENT *Client, REQUEST *Req)
 {
@@ -771,6 +822,17 @@ IRC_PONG(CLIENT *Client, REQUEST *Req)
 } /* IRC_PONG */
 
 
+/**
+ * Initiate client registration.
+ *
+ * This function is called after the daemon received the required NICK and
+ * USER commands of a new client. If the daemon is compiled with support for
+ * PAM, the authentication sub-processs is forked; otherwise the global server
+ * password is checked.
+ *
+ * @param Client	The client logging in.
+ * @returns		CONNECTED or DISCONNECTED.
+ */
 static bool
 Hello_User(CLIENT * Client)
 {
@@ -827,6 +889,9 @@ Hello_User(CLIENT * Client)
 
 /**
  * Read result of the authenticatior sub-process from pipe
+ *
+ * @param r_fd		File descriptor of the pipe.
+ * @param events	(ignored IO specification)
  */
 static void
 cb_Read_Auth_Result(int r_fd, UNUSED short events)
@@ -870,6 +935,14 @@ cb_Read_Auth_Result(int r_fd, UNUSED short events)
 #endif
 
 
+/**
+ * Reject a client because of wrong password.
+ *
+ * This function is called either when the global server password or a password
+ * checked using PAM has been wrong.
+ *
+ * @param Client	The client to reject.
+ */
 static void
 Reject_Client(CLIENT *Client)
 {
@@ -881,6 +954,15 @@ Reject_Client(CLIENT *Client)
 }
 
 
+/**
+ * Finish client registration.
+ *
+ * Introduce the new client to the network and send all "hello messages"
+ * to it after authentication has been succeeded.
+ *
+ * @param Client	The client logging in.
+ * @returns		CONNECTED or DISCONNECTED.
+ */
 static bool
 Hello_User_PostAuth(CLIENT *Client)
 {
@@ -920,6 +1002,12 @@ Hello_User_PostAuth(CLIENT *Client)
 }
 
 
+/**
+ * Kill all users with a specific nick name in the network.
+ *
+ * @param Nick		Nick name.
+ * @param Reason	Reason for the KILL.
+ */
 static void
 Kill_Nick( char *Nick, char *Reason )
 {
@@ -938,6 +1026,13 @@ Kill_Nick( char *Nick, char *Reason )
 } /* Kill_Nick */
 
 
+/**
+ * Introduce a new user or service client in the network.
+ *
+ * @param From		Remote server introducing the client or NULL (local).
+ * @param Client	New client.
+ * @param Type		Type of the client (CLIENT_USER or CLIENT_SERVICE).
+ */
 static void
 Introduce_Client(CLIENT *From, CLIENT *Client, int Type)
 {
@@ -971,6 +1066,16 @@ Introduce_Client(CLIENT *From, CLIENT *Client, int Type)
 } /* Introduce_Client */
 
 
+/**
+ * Introduce a new user or service client to a remote server.
+ *
+ * This function differentiates between RFC1459 and RFC2813 server links and
+ * generates the appropriate commands to register the new user or service.
+ *
+ * @param To		The remote server to inform.
+ * @param Prefix	Prefix for the generated commands.
+ * @param data		CLIENT structure of the new client.
+ */
 static void
 cb_introduceClient(CLIENT *To, CLIENT *Prefix, void *data)
 {

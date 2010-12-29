@@ -1517,6 +1517,8 @@ Read_Request( CONN_ID Idx )
 	/* Look at the data in the (read-) buffer of this connection */
 	My_Connections[Idx].bps += Handle_Buffer(Idx);
 	if (Client_Type(c) != CLIENT_SERVER
+	    && Client_Type(c) != CLIENT_UNKNOWNSERVER
+	    && Client_Type(c) != CLIENT_SERVICE
 	    && My_Connections[Idx].bps >= maxbps) {
 		LogDebug("Throttling connection %d: BPS exceeded! (%u >= %u)",
 			 Idx, My_Connections[Idx].bps, maxbps);

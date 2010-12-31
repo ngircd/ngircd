@@ -85,7 +85,6 @@ Lists_Add(struct list_head *header, const char *Mask, bool OnlyOnce )
 	newelem->next = e;
 	header->first = newelem;
 
-	LogDebug("Added \"%s\" to invite list", Mask);
 	return true;
 }
 

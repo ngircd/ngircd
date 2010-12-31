@@ -989,6 +989,7 @@ GLOBAL bool
 Channel_AddBan(CHANNEL *c, const char *mask )
 {
 	struct list_head *h = Channel_GetListBans(c);
+	LogDebug("Adding \"%s\" to \"%s\" %s list", mask, Channel_Name(c), "ban");
 	return Lists_Add(h, mask, false);
 }
 
@@ -997,6 +998,7 @@ GLOBAL bool
 Channel_AddInvite(CHANNEL *c, const char *mask, bool onlyonce)
 {
 	struct list_head *h = Channel_GetListInvites(c);
+	LogDebug("Adding \"%s\" to \"%s\" %s list", mask, Channel_Name(c), "invite");
 	return Lists_Add(h, mask, onlyonce);
 }
 

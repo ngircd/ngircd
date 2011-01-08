@@ -143,17 +143,17 @@ GLOBAL bool Conf_OperServerMode;
 /* Are remote IRC operators allowed to manage this server? */
 GLOBAL bool Conf_AllowRemoteOper;
 
-/* Disable all DNS functions? */
-GLOBAL bool Conf_NoDNS;
+/* Enable all DNS functions? */
+GLOBAL bool Conf_DNS;
 
-/* Disable IDENT lookups, even when compiled with support for it */
-GLOBAL bool Conf_NoIdent;
+/* Enable IDENT lookups, even when compiled with support for it */
+GLOBAL bool Conf_Ident;
 
-/* Disable all usage of PAM, even when compiled with support for it */
-GLOBAL bool Conf_NoPAM;
+/* Enable all usage of PAM, even when compiled with support for it */
+GLOBAL bool Conf_PAM;
 
-/* Disable service registration using "ZeroConf" */
-GLOBAL bool Conf_NoZeroConf;
+/* Enable service registration using "ZeroConf" */
+GLOBAL bool Conf_ZeroConf;
 
 /*
  * try to connect to remote systems using the ipv6 protocol,

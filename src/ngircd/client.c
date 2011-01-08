@@ -93,7 +93,7 @@ Client_Init( void )
 	This_Server->hops = 0;
 
 	gethostname( This_Server->host, CLIENT_HOST_LEN );
-	if (!Conf_NoDNS) {
+	if (Conf_DNS) {
 		h = gethostbyname( This_Server->host );
 		if (h) strlcpy(This_Server->host, h->h_name, sizeof(This_Server->host));
 	}

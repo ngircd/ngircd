@@ -151,7 +151,7 @@ GLOBAL bool Rendezvous_Register( char *Name, char *Type, UINT16 Port )
 {
 	int i;
 
-	if (Conf_NoZeroConf)
+	if (!Conf_ZeroConf)
 		return true;
 
 	/* Search free port structure */

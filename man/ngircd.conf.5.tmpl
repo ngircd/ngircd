@@ -205,28 +205,28 @@ you do not want to have channels other than those defined in
 [Channel] sections in the configuration file.
 Default: no.
 .TP
-\fBNoDNS\fR
-If set to true, ngIRCd will not make DNS lookups when clients connect.
+\fBDNS\fR
+If set to false, ngIRCd will not make DNS lookups when clients connect.
 If you configure the daemon to connect to other servers, ngIRCd may still
 perform a DNS lookup if required.
-Default: no.
+Default: yes.
 .TP
-\fBNoIdent\fR
+\fBIdent\fR
 If ngIRCd is compiled with IDENT support this can be used to disable IDENT
 lookups at run time.
-Default: no.
+Default: yes.
 .TP
-\fBNoPAM\fR
+\fBPAM\fR
 If ngIRCd is compiled with PAM support this can be used to disable all calls
 to the PAM library at runtime; all users connecting without password are
 allowed to connect, all passwords given will fail.
-Default: no.
+Default: yes.
 .TP
-\fBNoZeroConf\fR
+\fBZeroConf\fR
 If ngIRCd is compiled to register its services using ZeroConf (e.g. using
 Howl, Avahi or on Mac OS X) this parameter can be used to disable service
 registration at runtime.
-Default: no.
+Default: yes.
 .TP
 \fBConnectIPv4\fR
 Set this to no if you do not want ngIRCd to connect to other IRC servers using

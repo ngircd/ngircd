@@ -341,10 +341,10 @@ Conf_Test( void )
 	printf("  OperServerMode = %s\n", yesno_to_str(Conf_OperServerMode));
 	printf("  AllowRemoteOper = %s\n", yesno_to_str(Conf_AllowRemoteOper));
 	printf("  PredefChannelsOnly = %s\n", yesno_to_str(Conf_PredefChannelsOnly));
-	printf("  NoDNS = %s\n", yesno_to_str(Conf_NoDNS));
-	printf("  NoIdent = %s\n", yesno_to_str(Conf_NoIdent));
-	printf("  NoPAM = %s\n", yesno_to_str(Conf_NoPAM));
-	printf("  NoZeroConf = %s\n", yesno_to_str(Conf_NoZeroConf));
+	printf("  DNS = %s\n", yesno_to_str(Conf_DNS));
+	printf("  Ident = %s\n", yesno_to_str(Conf_Ident));
+	printf("  PAM = %s\n", yesno_to_str(Conf_PAM));
+	printf("  ZeroConf = %s\n", yesno_to_str(Conf_ZeroConf));
 
 #ifdef WANT_IPV6
 	printf("  ConnectIPv4 = %s\n", yesno_to_str(Conf_ConnectIPv6));
@@ -561,6 +561,27 @@ Conf_IsService(int ConfServer, const char *Nick)
 } /* Conf_IsService */
 
 
+static void
+Set_Defaults_Optional(void)
+{
+#ifdef IDENTAUTH
+	Conf_Ident = true;
+#else
+	Conf_Ident = false;
+#endif
+#ifdef PAM
+	Conf_PAM = true;
+#else
+	Conf_PAM = false;
+#endif
+#ifdef ZEROCONF
+	Conf_ZeroConf = true;
+#else
+	Conf_ZeroConf = false;
+#endif
+}
+
+
 /**
  * Initialize configuration settings with their default values.
  */
@@ -591,10 +612,7 @@ Set_Defaults(bool InitServers)
 	Conf_PingTimeout = 120;
 	Conf_PongTimeout = 20;
 	Conf_ConnectRetry = 60;
-	Conf_NoDNS = false;
-	Conf_NoIdent = false;
-	Conf_NoPAM = false;
-	Conf_NoZeroConf = false;
+	Conf_DNS = true;
 
 	Conf_Oper_Count = 0;
 	Conf_Channel_Count = 0;
@@ -619,6 +637,7 @@ Set_Defaults(bool InitServers)
 	Conf_SyslogFacility = 0;
 #endif
 #endif
+	Set_Defaults_Optional();
 
 	/* Initialize server configuration structures */
 	if (InitServers) {
@@ -873,6 +892,53 @@ Handle_MaxNickLength(int Line, const char *Arg)
 } /* Handle_MaxNickLength */
 
 
+static void
+WarnIdent(int Line)
+{
+#ifndef IDENTAUTH
+	if (Conf_Ident) {
+		/* user has enabled ident lookups explicitly, but ... */
+		Config_Error(LOG_WARNING,
+			"%s: line %d: Ident=True, but ngircd was built without IDENT support",
+			NGIRCd_ConfFile, Line);
+	}
+#endif
+}
+
+static bool
+CheckLegacyNoOption(const char *Var, const char *Arg)
+{
+	if( strcasecmp( Var, "NoDNS" ) == 0 ) {
+		Conf_DNS = !Check_ArgIsTrue( Arg );
+		return true;
+	}
+	if (strcasecmp(Var, "NoIdent") == 0) {
+		Conf_Ident = !Check_ArgIsTrue(Arg);
+		return true;
+	}
+	if(strcasecmp(Var, "NoPAM") == 0) {
+		Conf_PAM = !Check_ArgIsTrue(Arg);
+		return true;
+	}
+	if(strcasecmp(Var, "NoZeroConf") == 0) {
+		Conf_ZeroConf = !Check_ArgIsTrue(Arg);
+		return true;
+	}
+	return false;
+}
+
+const char *
+NoNo(const char *str)
+{
+	assert(strncasecmp("no", str, 2) == 0 && str[2]);
+	return str + 2;
+}
+
+static const char *
+InvertArg(const char *arg)
+{
+	return yesno_to_str(!Check_ArgIsTrue(arg));
+}
 
 static void
 Handle_GLOBAL( int Line, char *Var, char *Arg )
@@ -1036,32 +1102,34 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 		Conf_PredefChannelsOnly = Check_ArgIsTrue( Arg );
 		return;
 	}
-	if( strcasecmp( Var, "NoDNS" ) == 0 ) {
-		/* don't do reverse dns lookups when clients connect? */
-		Conf_NoDNS = Check_ArgIsTrue( Arg );
+
+	if (CheckLegacyNoOption(Var, Arg)) {
+		Config_Error(LOG_WARNING, "%s, line %d: \"No\"-Prefix has been removed, use "
+				"\"%s = %s\" instead",
+					NGIRCd_ConfFile, Line, NoNo(Var), InvertArg(Arg));
+		if (strcasecmp(Var, "NoIdent") == 0)
+			WarnIdent(Line);
 		return;
 	}
-	if (strcasecmp(Var, "NoIdent") == 0) {
-		/* don't do IDENT lookups when clients connect? */
-		Conf_NoIdent = Check_ArgIsTrue(Arg);
-#ifndef IDENTAUTH
-		if (!Conf_NoIdent) {
-			/* user has enabled ident lookups explicitly, but ... */
-			Config_Error(LOG_WARNING,
-				"%s: line %d: NoIdent=False, but ngircd was built without IDENT support",
-				NGIRCd_ConfFile, Line);
-		}
-#endif
+	if( strcasecmp( Var, "DNS" ) == 0 ) {
+		/* do reverse dns lookups when clients connect? */
+		Conf_DNS = Check_ArgIsTrue( Arg );
 		return;
 	}
-	if(strcasecmp(Var, "NoPAM") == 0) {
-		/* don't use PAM library to authenticate users */
-		Conf_NoPAM = Check_ArgIsTrue(Arg);
+	if (strcasecmp(Var, "Ident") == 0) {
+		/* do IDENT lookups when clients connect? */
+		Conf_Ident = Check_ArgIsTrue(Arg);
+		WarnIdent(Line);
 		return;
 	}
-	if(strcasecmp(Var, "NoZeroConf") == 0) {
-		/* don't register services using ZeroConf */
-		Conf_NoZeroConf = Check_ArgIsTrue(Arg);
+	if(strcasecmp(Var, "PAM") == 0) {
+		/* use PAM library to authenticate users */
+		Conf_PAM = Check_ArgIsTrue(Arg);
+		return;
+	}
+	if(strcasecmp(Var, "ZeroConf") == 0) {
+		/* register services using ZeroConf */
+		Conf_ZeroConf = Check_ArgIsTrue(Arg);
 		return;
 	}
 #ifdef WANT_IPV6

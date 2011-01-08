@@ -1381,10 +1381,10 @@ New_Connection(int Sock)
 
 	identsock = new_sock;
 #ifdef IDENTAUTH
-	if (Conf_NoIdent)
+	if (!Conf_Ident)
 		identsock = -1;
 #endif
-	if (!Conf_NoDNS)
+	if (Conf_DNS)
 		Resolve_Addr(&My_Connections[new_sock].proc_stat, &new_addr,
 			     identsock, cb_Read_Resolver_Result);
 

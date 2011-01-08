@@ -778,7 +778,7 @@ Hello_User(CLIENT * Client)
 	assert(Client != NULL);
 	conn = Client_Conn(Client);
 
-	if (Conf_NoPAM) {
+	if (!Conf_PAM) {
 		/* Don't do any PAM authentication at all, instead emulate
 		 * the beahiour of the daemon compiled without PAM support:
 		 * because there can't be any "server password", all

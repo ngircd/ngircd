@@ -134,19 +134,18 @@
 	# Allow Pre-Defined Channels only (see Section [Channels])
 	;PredefChannelsOnly = no
 
-	# Don't do any DNS lookups when a client connects to the server.
-	;NoDNS = no
+	# Do any DNS lookups when a client connects to the server.
+	;DNS = yes
 
-	# Don't do any IDENT lookups, even if ngIRCd has been compiled
-	# with support for it.
-	;NoIdent = no
+	# Do any IDENT lookups if ngIRCd has been compiled with support for it.
+	;Ident = yes
 
-	# Don't use PAM, even if ngIRCd has been compiled with support for it.
-	;NoPAM = no
+	# Use PAM if ngIRCd has been compiled with support for it.
+	;PAM = no
 
-	# Don't use ZeroConf service registration, even if ngIRCd has been
+	# Use ZeroConf service registration if ngIRCd has been
 	# compiled with support for it (e.g. Howl, Avahi, Mac OS X).
-	;NoZeroConf = no
+	;ZeroConf = no
 
 	# try to connect to other irc servers using ipv4 and ipv6, if possible
 	;ConnectIPv6 = yes

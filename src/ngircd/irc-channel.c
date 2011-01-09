@@ -412,44 +412,56 @@ IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	if ((Req->argc < 1) || (Req->argc > 2))
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG, Client_ID(Client), Req->command);
+	if (Req->argc < 1 || Req->argc > 2)
+		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+					  Client_ID(Client), Req->command);
 
-	if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_Search( Req->prefix );
-	else from = Client;
-	if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
+	if (Client_Type(Client) == CLIENT_SERVER)
+		from = Client_Search(Req->prefix);
+	else
+		from = Client;
 
-	/* Welcher Channel? */
-	chan = Channel_Search( Req->argv[0] );
-	if( ! chan ) return IRC_WriteStrClient( from, ERR_NOSUCHCHANNEL_MSG, Client_ID( from ), Req->argv[0] );
+	if (!from)
+		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
+					  Client_ID(Client), Req->prefix);
 
-	/* Ist der User Mitglied in dem Channel? */
-	if( ! Channel_IsMemberOf( chan, from )) return IRC_WriteStrClient( from, ERR_NOTONCHANNEL_MSG, Client_ID( from ), Req->argv[0] );
+	chan = Channel_Search(Req->argv[0]);
+	if (!chan)
+		return IRC_WriteStrClient(from, ERR_NOSUCHCHANNEL_MSG,
+					  Client_ID(from), Req->argv[0]);
 
-	if( Req->argc == 1 )
-	{
+	if (!Channel_IsMemberOf(chan, from))
+		return IRC_WriteStrClient(from, ERR_NOTONCHANNEL_MSG,
+					  Client_ID(from), Req->argv[0]);
+
+	if (Req->argc == 1) {
 		/* Request actual topic */
 		topic = Channel_Topic(chan);
 		if (*topic) {
 			r = IRC_WriteStrClient(from, RPL_TOPIC_MSG,
-				Client_ID(Client), Channel_Name(chan), topic);
+					       Client_ID(Client),
+					       Channel_Name(chan), topic);
 #ifndef STRICT_RFC
 			r = IRC_WriteStrClient(from, RPL_TOPICSETBY_MSG,
-				Client_ID(Client), Channel_Name(chan),
-				Channel_TopicWho(chan),
-				Channel_TopicTime(chan));
+					       Client_ID(Client),
+					       Channel_Name(chan),
+					       Channel_TopicWho(chan),
+					       Channel_TopicTime(chan));
 #endif
 			return r;
 		}
 		else
-			 return IRC_WriteStrClient(from, RPL_NOTOPIC_MSG,
-					Client_ID(from), Channel_Name(chan));
+			return IRC_WriteStrClient(from, RPL_NOTOPIC_MSG,
+						  Client_ID(from),
+						  Channel_Name(chan));
 	}
 
-	if( strchr( Channel_Modes( chan ), 't' ))
-	{
-		/* Topic Lock. Ist der User ein Channel Operator? */
-		if( ! strchr( Channel_UserModes( chan, from ), 'o' )) return IRC_WriteStrClient( from, ERR_CHANOPRIVSNEEDED_MSG, Client_ID( from ), Channel_Name( chan ));
+	if (strchr(Channel_Modes(chan), 't')) {
+		/* Topic Lock. Is the user a channel operator? */
+		if (!strchr(Channel_UserModes(chan, from), 'o'))
+			return IRC_WriteStrClient(from, ERR_CHANOPRIVSNEEDED_MSG,
+						  Client_ID(from),
+						  Channel_Name(chan));
 	}
 
 	/* Set new topic */

@@ -27,12 +27,6 @@ static char UNUSED id[] = "$Id: array.c,v 1.15 2007/11/18 15:05:35 alex Exp $";
 
 
 #define array_UNUSABLE(x)	( !(x)->mem || (0 == (x)->allocated) )
-
-#define ALIGN_32U(x)            (((x)+(unsigned)31  ) & ~((unsigned)31))
-#define ALIGN_1024U(x)          (((x)+(unsigned)1023) & ~((unsigned)1023))
-#define ALIGN_4096U(x)          (((x)+(unsigned)4095) & ~((unsigned)4095))
-
-
 static bool
 safemult_sizet(size_t a, size_t b, size_t *res)
 {
@@ -61,7 +55,6 @@ void *
 array_alloc(array * a, size_t size, size_t pos)
 {
 	size_t alloc, pos_plus1 = pos + 1;
-	size_t aligned = 0;
 	char *tmp;
 
 	assert(size > 0);
@@ -70,43 +63,22 @@ array_alloc(array * a, size_t size, size_t pos)
 		return NULL;
 
 	if (a->allocated < alloc) {
-		if (alloc < 128) {
-			aligned = ALIGN_32U(alloc);
-		} else {
-			if (alloc < 4096) {
-				aligned = ALIGN_1024U(alloc);
-			} else {
-				aligned = ALIGN_4096U(alloc);
-			}
-		}
-#ifdef DEBUG_ARRAY
-		Log(LOG_DEBUG, "array_alloc(): rounded %u to %u bytes.", alloc, aligned);
-#endif
-
-		assert(aligned >= alloc);
-
-		if (aligned < alloc)	/* rounding overflow */
-			return NULL;
-
-		alloc = aligned;
 #ifdef DEBUG_ARRAY
 		Log(LOG_DEBUG, "array_alloc(): changing size from %u to %u bytes.",
-		    a->allocated, aligned);
+		    a->allocated, alloc);
 #endif
-
 		tmp = realloc(a->mem, alloc);
 		if (!tmp)
 			return NULL;
 
 		a->mem = tmp;
 		a->allocated = alloc;
-
-		assert(a->allocated > a->used);
-
 		memset(a->mem + a->used, 0, a->allocated - a->used);
-
 		a->used = alloc;
 	}
+
+	assert(a->allocated >= a->used);
+
 	return a->mem + (pos * size);
 }
 

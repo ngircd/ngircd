@@ -12,8 +12,6 @@
 
 #include "array.h"
 
-static char UNUSED id[] = "$Id: array.c,v 1.15 2007/11/18 15:05:35 alex Exp $";
-
 #include <assert.h>
 
 #include <stdlib.h>
@@ -26,7 +24,7 @@ static char UNUSED id[] = "$Id: array.c,v 1.15 2007/11/18 15:05:35 alex Exp $";
 
 
 
-#define array_UNUSABLE(x)	( !(x)->mem || (0 == (x)->allocated) )
+#define array_UNUSABLE(x)	( !(x)->mem )
 static bool
 safemult_sizet(size_t a, size_t b, size_t *res)
 {
@@ -93,6 +91,7 @@ array_length(const array * const a, size_t membersize)
 	if (array_UNUSABLE(a))
 		return 0;
 
+	assert(a->allocated);
 	return membersize ? a->used / membersize : 0;
 }
 
@@ -104,6 +103,7 @@ array_copy(array * dest, const array * const src)
 	if (array_UNUSABLE(src))
 		return false;
 
+	assert(src->allocated);
 	return array_copyb(dest, src->mem, src->used);
 }
 

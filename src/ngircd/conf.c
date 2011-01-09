@@ -899,8 +899,20 @@ WarnIdent(int UNUSED Line)
 	if (Conf_Ident) {
 		/* user has enabled ident lookups explicitly, but ... */
 		Config_Error(LOG_WARNING,
-			"%s: line %d: Ident=True, but ngircd was built without IDENT support",
-			NGIRCd_ConfFile, Line);
+			"%s: line %d: %s=True, but ngircd was built without support",
+			NGIRCd_ConfFile, Line, "Ident");
+	}
+#endif
+}
+
+static void
+WarnPAM(int UNUSED Line)
+{
+#ifndef PAM
+	if (Conf_PAM) {
+		Config_Error(LOG_WARNING,
+			"%s: line %d: %s=True, but ngircd was built without support",
+			NGIRCd_ConfFile, Line, "PAM");
 	}
 #endif
 }
@@ -1109,6 +1121,8 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 					NGIRCd_ConfFile, Line, NoNo(Var), InvertArg(Arg));
 		if (strcasecmp(Var, "NoIdent") == 0)
 			WarnIdent(Line);
+		else if (strcasecmp(Var, "NoPam") == 0)
+			WarnPAM(Line);
 		return;
 	}
 	if( strcasecmp( Var, "DNS" ) == 0 ) {
@@ -1125,6 +1139,7 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 	if(strcasecmp(Var, "PAM") == 0) {
 		/* use PAM library to authenticate users */
 		Conf_PAM = Check_ArgIsTrue(Arg);
+		WarnPAM(Line);
 		return;
 	}
 	if(strcasecmp(Var, "ZeroConf") == 0) {

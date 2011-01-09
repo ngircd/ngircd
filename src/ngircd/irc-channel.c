@@ -407,7 +407,7 @@ IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 	CHANNEL *chan;
 	CLIENT *from;
 	char *topic;
-	bool r;
+	bool onchannel, topicok, use_servermode, r;
 
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -430,7 +430,10 @@ IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 		return IRC_WriteStrClient(from, ERR_NOSUCHCHANNEL_MSG,
 					  Client_ID(from), Req->argv[0]);
 
-	if (!Channel_IsMemberOf(chan, from))
+	Channel_CheckAdminRights(chan, Client, from,
+				 &onchannel, &topicok, &use_servermode);
+
+	if (!onchannel && !topicok)
 		return IRC_WriteStrClient(from, ERR_NOTONCHANNEL_MSG,
 					  Client_ID(from), Req->argv[0]);
 
@@ -457,8 +460,8 @@ IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 	}
 
 	if (strchr(Channel_Modes(chan), 't')) {
-		/* Topic Lock. Is the user a channel operator? */
-		if (!strchr(Channel_UserModes(chan, from), 'o'))
+		/* Topic Lock. Is the user a channel or IRC operator? */
+		if (!topicok)
 			return IRC_WriteStrClient(from, ERR_CHANOPRIVSNEEDED_MSG,
 						  Client_ID(from),
 						  Channel_Name(chan));
@@ -469,6 +472,9 @@ IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 	LogDebug("%s \"%s\" set topic on \"%s\": %s",
 		 Client_TypeText(from), Client_Mask(from), Channel_Name(chan),
 		 Req->argv[1][0] ? Req->argv[1] : "<none>");
+
+	if (use_servermode)
+		from = Client_ThisServer();
 
 	/* Update channel and forward new topic to other servers */
 	if (!Channel_IsLocal(chan))

@@ -769,7 +769,8 @@ Read_Config( bool ngircd_starting )
 		/* Is this the beginning of a new section? */
 		if(( str[0] == '[' ) && ( str[strlen( str ) - 1] == ']' )) {
 			strlcpy( section, str, sizeof( section ));
-			if( strcasecmp( section, "[GLOBAL]" ) == 0 )
+			if (strcasecmp( section, "[GLOBAL]" ) == 0 ||
+			    strcasecmp( section, "[FEATURES]") == 0)
 				continue;
 
 			if( strcasecmp( section, "[SERVER]" ) == 0 ) {

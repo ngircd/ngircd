@@ -134,19 +134,6 @@
 	# Allow Pre-Defined Channels only (see Section [Channels])
 	;PredefChannelsOnly = no
 
-	# Do any DNS lookups when a client connects to the server.
-	;DNS = yes
-
-	# Do any IDENT lookups if ngIRCd has been compiled with support for it.
-	;Ident = yes
-
-	# Use PAM if ngIRCd has been compiled with support for it.
-	;PAM = no
-
-	# Use ZeroConf service registration if ngIRCd has been
-	# compiled with support for it (e.g. Howl, Avahi, Mac OS X).
-	;ZeroConf = no
-
 	# try to connect to other irc servers using ipv4 and ipv6, if possible
 	;ConnectIPv6 = yes
 	;ConnectIPv4 = yes
@@ -166,6 +153,20 @@
 	# Please note that all servers in an IRC network MUST use the same
 	# maximum nick name length!
 	;MaxNickLength = 9
+
+[Features]
+	# Do any DNS lookups when a client connects to the server.
+	;DNS = yes
+
+	# Do any IDENT lookups if ngIRCd has been compiled with support for it.
+	;Ident = yes
+
+	# Use PAM if ngIRCd has been compiled with support for it.
+	;PAM = no
+
+	# Use ZeroConf service registration if ngIRCd has been
+	# compiled with support for it (e.g. Howl, Avahi, Mac OS X).
+	;ZeroConf = no
 
 [Operator]
 	# [Operator] sections are used to define IRC Operators. There may be

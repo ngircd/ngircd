@@ -62,6 +62,7 @@ static bool Read_Config PARAMS(( bool ngircd_starting ));
 static bool Validate_Config PARAMS(( bool TestOnly, bool Rehash ));
 
 static void Handle_GLOBAL PARAMS(( int Line, char *Var, char *Arg ));
+static void Handle_FEATURES PARAMS(( int Line, char *Var, char *Arg ));
 static void Handle_OPERATOR PARAMS(( int Line, char *Var, char *Arg ));
 static void Handle_SERVER PARAMS(( int Line, char *Var, char *Arg ));
 static void Handle_CHANNEL PARAMS(( int Line, char *Var, char *Arg ));
@@ -232,7 +233,7 @@ opers_free(void)
 {
 	struct Conf_Oper *op;
 	size_t len;
-	
+
 	len = array_length(&Conf_Opers, sizeof(*op));
 	op = array_start(&Conf_Opers);
 	while (len--) {
@@ -247,7 +248,7 @@ opers_puts(void)
 {
 	struct Conf_Oper *op;
 	size_t len;
-	
+
 	len = array_length(&Conf_Opers, sizeof(*op));
 	op = array_start(&Conf_Opers);
 	while (len--) {
@@ -341,11 +342,6 @@ Conf_Test( void )
 	printf("  OperServerMode = %s\n", yesno_to_str(Conf_OperServerMode));
 	printf("  AllowRemoteOper = %s\n", yesno_to_str(Conf_AllowRemoteOper));
 	printf("  PredefChannelsOnly = %s\n", yesno_to_str(Conf_PredefChannelsOnly));
-	printf("  DNS = %s\n", yesno_to_str(Conf_DNS));
-	printf("  Ident = %s\n", yesno_to_str(Conf_Ident));
-	printf("  PAM = %s\n", yesno_to_str(Conf_PAM));
-	printf("  ZeroConf = %s\n", yesno_to_str(Conf_ZeroConf));
-
 #ifdef WANT_IPV6
 	printf("  ConnectIPv4 = %s\n", yesno_to_str(Conf_ConnectIPv6));
 	printf("  ConnectIPv6 = %s\n", yesno_to_str(Conf_ConnectIPv4));
@@ -354,6 +350,13 @@ Conf_Test( void )
 	printf("  MaxConnectionsIP = %d\n", Conf_MaxConnectionsIP);
 	printf("  MaxJoins = %d\n", Conf_MaxJoins > 0 ? Conf_MaxJoins : -1);
 	printf("  MaxNickLength = %u\n\n", Conf_MaxNickLength - 1);
+
+	puts("[FEATURES]");
+	printf("  DNS = %s\n", yesno_to_str(Conf_DNS));
+	printf("  Ident = %s\n", yesno_to_str(Conf_Ident));
+	printf("  PAM = %s\n", yesno_to_str(Conf_PAM));
+	printf("  ZeroConf = %s\n", yesno_to_str(Conf_ZeroConf));
+	puts("");
 
 	opers_puts();
 
@@ -818,6 +821,7 @@ Read_Config( bool ngircd_starting )
 		arg = ptr + 1; ngt_TrimStr( arg );
 
 		if( strcasecmp( section, "[GLOBAL]" ) == 0 ) Handle_GLOBAL( line, var, arg );
+		else if( strcasecmp( section, "[FEATURES]" ) == 0 ) Handle_FEATURES( line, var, arg );
 		else if( strcasecmp( section, "[OPERATOR]" ) == 0 ) Handle_OPERATOR( line, var, arg );
 		else if( strcasecmp( section, "[SERVER]" ) == 0 ) Handle_SERVER( line, var, arg );
 		else if( strcasecmp( section, "[CHANNEL]" ) == 0 ) Handle_CHANNEL( line, var, arg );
@@ -1117,34 +1121,12 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 
 	if (CheckLegacyNoOption(Var, Arg)) {
 		Config_Error(LOG_WARNING, "%s, line %d: \"No\"-Prefix has been removed, use "
-				"\"%s = %s\" instead",
+				"\"%s = %s\" in [FEATURES] section instead",
 					NGIRCd_ConfFile, Line, NoNo(Var), InvertArg(Arg));
 		if (strcasecmp(Var, "NoIdent") == 0)
 			WarnIdent(Line);
 		else if (strcasecmp(Var, "NoPam") == 0)
 			WarnPAM(Line);
-		return;
-	}
-	if( strcasecmp( Var, "DNS" ) == 0 ) {
-		/* do reverse dns lookups when clients connect? */
-		Conf_DNS = Check_ArgIsTrue( Arg );
-		return;
-	}
-	if (strcasecmp(Var, "Ident") == 0) {
-		/* do IDENT lookups when clients connect? */
-		Conf_Ident = Check_ArgIsTrue(Arg);
-		WarnIdent(Line);
-		return;
-	}
-	if(strcasecmp(Var, "PAM") == 0) {
-		/* use PAM library to authenticate users */
-		Conf_PAM = Check_ArgIsTrue(Arg);
-		WarnPAM(Line);
-		return;
-	}
-	if(strcasecmp(Var, "ZeroConf") == 0) {
-		/* register services using ZeroConf */
-		Conf_ZeroConf = Check_ArgIsTrue(Arg);
 		return;
 	}
 #ifdef WANT_IPV6
@@ -1270,6 +1252,37 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 								NGIRCd_ConfFile, Line, Var);
 } /* Handle_GLOBAL */
 
+
+static void
+Handle_FEATURES(int Line, char *Var, char *Arg)
+{
+	assert( Line > 0 );
+	assert( Var != NULL );
+	assert( Arg != NULL );
+
+	if( strcasecmp( Var, "DNS" ) == 0 ) {
+		/* do reverse dns lookups when clients connect? */
+		Conf_DNS = Check_ArgIsTrue( Arg );
+		return;
+	}
+	if (strcasecmp(Var, "Ident") == 0) {
+		/* do IDENT lookups when clients connect? */
+		Conf_Ident = Check_ArgIsTrue(Arg);
+		WarnIdent(Line);
+		return;
+	}
+	if(strcasecmp(Var, "PAM") == 0) {
+		/* use PAM library to authenticate users */
+		Conf_PAM = Check_ArgIsTrue(Arg);
+		WarnPAM(Line);
+		return;
+	}
+	if(strcasecmp(Var, "ZeroConf") == 0) {
+		/* register services using ZeroConf */
+		Conf_ZeroConf = Check_ArgIsTrue(Arg);
+		return;
+	}
+}
 
 static void
 Handle_OPERATOR( int Line, char *Var, char *Arg )

@@ -47,13 +47,18 @@ ports on which the server should be listening. IRC operators of this
 server are defined in
 .I [Operator]
 blocks.
+.I [Features]
+can be used to disable compile-time features at run time, e.g. if ngircd
+was built to support ident lookups, but you do not want ngircd to perform
+ident lookups you can disable them here.
+This section is optional.
 .I [Server]
 is the section where server links are configured. And
 .I [Channel]
 blocks are used to configure pre-defined ("persistent") IRC channels.
 .PP
 There can be more than one [Operator], [Server] and [Channel] sections
-per configuration file, but only one [Global] section.
+per configuration file, but only one [Global] and one [Features] section.
 .SH [GLOBAL]
 The
 .I [Global]
@@ -205,29 +210,6 @@ you do not want to have channels other than those defined in
 [Channel] sections in the configuration file.
 Default: no.
 .TP
-\fBDNS\fR
-If set to false, ngIRCd will not make DNS lookups when clients connect.
-If you configure the daemon to connect to other servers, ngIRCd may still
-perform a DNS lookup if required.
-Default: yes.
-.TP
-\fBIdent\fR
-If ngIRCd is compiled with IDENT support this can be used to disable IDENT
-lookups at run time.
-Default: yes.
-.TP
-\fBPAM\fR
-If ngIRCd is compiled with PAM support this can be used to disable all calls
-to the PAM library at runtime; all users connecting without password are
-allowed to connect, all passwords given will fail.
-Default: yes.
-.TP
-\fBZeroConf\fR
-If ngIRCd is compiled to register its services using ZeroConf (e.g. using
-Howl, Avahi or on Mac OS X) this parameter can be used to disable service
-registration at runtime.
-Default: yes.
-.TP
 \fBConnectIPv4\fR
 Set this to no if you do not want ngIRCd to connect to other IRC servers using
 IPv4. This allows usage of ngIRCd in IPv6-only setups.
@@ -269,6 +251,33 @@ Password of the IRC operator.
 \fBMask\fR
 Mask that is to be checked before an /OPER for this account is accepted.
 Example: nick!ident@*.example.com
+.SH [FEATURES]
+An optional section that can be used to disable features at
+run-time. A feature is enabled by default if if ngircd was built with
+support for it.
+\fBDNS\fR
+If set to false, ngIRCd will not make DNS lookups when clients connect.
+If you configure the daemon to connect to other servers, ngIRCd may still
+perform a DNS lookup if required.
+Default: yes.
+.TP
+\fBIdent\fR
+If ngIRCd is compiled with IDENT support this can be used to disable IDENT
+lookups at run time.
+Default: yes.
+.TP
+\fBPAM\fR
+If ngIRCd is compiled with PAM support this can be used to disable all calls
+to the PAM library at runtime; all users connecting without password are
+allowed to connect, all passwords given will fail.
+Default: yes.
+.TP
+\fBZeroConf\fR
+If ngIRCd is compiled to register its services using ZeroConf (e.g. using
+Howl, Avahi or on Mac OS X) this parameter can be used to disable service
+registration at runtime.
+Default: yes.
+.TP
 .SH [SERVER]
 Other servers are configured in
 .I [Server]

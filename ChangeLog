@@ -1,14 +1,26 @@
 
                      ngIRCd - Next Generation IRC Server
+                           http://ngircd.barton.de/
 
-                        (c)2001-2010 Alexander Barton,
-                    alex@barton.de, http://www.barton.de/
-
+               (c)2001-2011 Alexander Barton and Contributors.
                ngIRCd is free software and published under the
                    terms of the GNU General Public License.
 
                                -- ChangeLog --
 
+
+ngIRCd
+
+  - Make [No]ZeroConf configuration option work with Howl.
+  - Deprecate NoXX-Options in ngircd.conf: 'NoDNS=no' => 'DNS=yes',
+    'NoIdent=no' => 'Ident=yes', 'NoPAM=no' => 'PAM=yes', and
+    'NoZeroConf=no' => 'ZeroConf=yes' (and vice-versa).
+    The defaults are adjusted accordingly and the old variables are still
+    accepted, so there is no functional change.
+  - Fix confusing "adding to invite list" debug messages.
+  - Don't throttle services and servers beeing registered.
+  - Xcode: correctly sort files
+  - Don't assert() when serching a client for an invalid server token.
 
 ngIRCd Release 17.1 (2010-12-19)
 

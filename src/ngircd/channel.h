@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2008 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2011 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -132,6 +132,10 @@ GLOBAL void Channel_LogServer PARAMS((const char *msg));
 
 GLOBAL bool Channel_CheckKey PARAMS((CHANNEL *Chan, CLIENT *Client,
 				     const char *Key));
+
+GLOBAL void Channel_CheckAdminRights PARAMS((CHANNEL *Chan, CLIENT *Client,
+					     CLIENT *Origin, bool *OnChannel,
+					     bool *AdminOk, bool *UseServerMode));
 
 #define Channel_IsLocal(c) (Channel_Name(c)[0] == '&')
 #define Channel_IsModeless(c) (Channel_Name(c)[0] == '+')

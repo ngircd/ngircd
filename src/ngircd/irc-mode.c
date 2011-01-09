@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2010 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2011 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -316,8 +316,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 {
 	char the_modes[COMMAND_LEN], the_args[COMMAND_LEN], x[2],
 	    argadd[CLIENT_PASS_LEN], *mode_ptr;
-	bool connected, set, skiponce, retval, onchannel;
-	bool modeok = true, use_servermode = false;
+	bool connected, set, skiponce, retval, onchannel, modeok, use_servermode;
 	int mode_arg, arg_arg;
 	CLIENT *client;
 	long l;
@@ -331,28 +330,13 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 	if (Req->argc <= 1)
 		return Channel_Mode_Answer_Request(Origin, Channel);
 
-	/* Is the user allowed to change modes? */
-	if (Client_Type(Client) == CLIENT_USER) {
-		/* Is the originating user on that channel? */
-		onchannel = Channel_IsMemberOf(Channel, Origin);
-		modeok = false;
-		/* channel operator? */
-		if (onchannel &&
-		    strchr(Channel_UserModes(Channel, Origin), 'o')) {
-			modeok = true;
-		} else if (Conf_OperCanMode) {
-			/* IRC-Operators can use MODE as well */
-			if (Client_OperByMe(Origin)) {
-				modeok = true;
-				if (Conf_OperServerMode)
-					use_servermode = true; /* Change Origin to Server */
-			}
-		}
+	Channel_CheckAdminRights(Channel, Client, Origin,
+				 &onchannel, &modeok, &use_servermode);
 
-		if (!onchannel && !modeok)
-			return IRC_WriteStrClient(Origin, ERR_NOTONCHANNEL_MSG,
-				Client_ID(Origin), Channel_Name(Channel));
-	}
+	if (!onchannel && !modeok)
+		return IRC_WriteStrClient(Origin, ERR_NOTONCHANNEL_MSG,
+					  Client_ID(Origin),
+					  Channel_Name(Channel));
 
 	mode_arg = 1;
 	mode_ptr = Req->argv[mode_arg];

@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2009 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2011 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1117,6 +1117,64 @@ Channel_CheckKey(CHANNEL *Chan, CLIENT *Client, const char *Key)
 	fclose(fd);
 	return false;
 } /* Channel_CheckKey */
+
+
+/**
+ * Check wether a client is allowed to administer a channel or not.
+ *
+ * @param Chan		The channel to test.
+ * @param Client	The client from which the command has been received.
+ * @param Origin	The originator of the command (or NULL).
+ * @param OnChannel	Set to true if the originator is member of the channel.
+ * @param AdminOk	Set to true if the client is allowed to do
+ *			administrative tasks on this channel.
+ * @param UseServerMode	Set to true if ngIRCd should emulate "server mode",
+ *			that is send commands as if originating from a server
+ *			and not the originator of the command.
+ */
+GLOBAL void
+Channel_CheckAdminRights(CHANNEL *Chan, CLIENT *Client, CLIENT *Origin,
+			 bool *OnChannel, bool *AdminOk, bool *UseServerMode)
+{
+	assert (Chan != NULL);
+	assert (Client != NULL);
+	assert (OnChannel != NULL);
+	assert (AdminOk != NULL);
+	assert (UseServerMode != NULL);
+
+	/* Use the client as origin, if no origin has been given (no prefix?) */
+	if (!Origin)
+		Origin = Client;
+
+	*OnChannel = false;
+	*AdminOk = false;
+	*UseServerMode = false;
+
+	if (Client_Type(Client) != CLIENT_USER
+	    && Client_Type(Client) != CLIENT_SERVER
+	    && Client_Type(Client) != CLIENT_SERVICE)
+		return;
+
+	/* Allow channel administration if the client is a server or service */
+	if (Client_Type(Client) != CLIENT_USER) {
+		*AdminOk = true;
+		return;
+	}
+
+	*OnChannel = Channel_IsMemberOf(Chan, Origin);
+
+	if (*OnChannel && strchr(Channel_UserModes(Chan, Origin), 'o')) {
+		/* User is a channel operator */
+		*AdminOk = true;
+	} else if (Conf_OperCanMode) {
+		/* IRC operators are allowed to administer channels as well */
+		if (Client_OperByMe(Origin)) {
+			*AdminOk = true;
+			if (Conf_OperServerMode)
+				*UseServerMode = true;
+		}
+	}
+} /* Channel_CheckAdminRights */
 
 
 static CL2CHAN *

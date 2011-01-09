@@ -42,9 +42,6 @@
 /* Define if TCP wrappers should be used */
 /*#define TCPWRAP 1*/
 
-/* Define if support for Zeroconf should be included */
-/*#define ZEROCONF 1*/
-
 /* Define if zlib compression should be enabled */
 #define ZLIB 1
 
@@ -102,13 +99,6 @@
 
 /* Define if socklen_t exists */
 #define HAVE_socklen_t 1
-
-#ifdef ZEROCONF
-/* Define to 1 if you have the <DNSServiceDiscovery/DNSServiceDiscovery.h> header file. */
-#define HAVE_DNSSERVICEDISCOVERY_DNSSERVICEDISCOVERY_H 1
-/* Define to 1 if you have the `DNSServiceRegistrationCreate' function. */
-#define HAVE_DNSSERVICEREGISTRATIONCREATE 1
-#endif
 
 #ifdef PAM
 /* Define to 1 if you have the `pam_authenticate' function. */

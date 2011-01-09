@@ -108,11 +108,6 @@
 #define CUT_TXTSUFFIX "[CUT]"		/* Suffix for oversized messages that
 					   have been shortened and cut off. */
 
-#ifdef ZEROCONF
-#define MDNS_TYPE "_ircu._tcp."		/* Service type to register with mDNS */
-#endif
-
-
 #endif
 
 

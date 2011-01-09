@@ -355,7 +355,6 @@ Conf_Test( void )
 	printf("  DNS = %s\n", yesno_to_str(Conf_DNS));
 	printf("  Ident = %s\n", yesno_to_str(Conf_Ident));
 	printf("  PAM = %s\n", yesno_to_str(Conf_PAM));
-	printf("  ZeroConf = %s\n", yesno_to_str(Conf_ZeroConf));
 	puts("");
 
 	opers_puts();
@@ -576,11 +575,6 @@ Set_Defaults_Optional(void)
 	Conf_PAM = true;
 #else
 	Conf_PAM = false;
-#endif
-#ifdef ZEROCONF
-	Conf_ZeroConf = true;
-#else
-	Conf_ZeroConf = false;
 #endif
 }
 
@@ -937,10 +931,6 @@ CheckLegacyNoOption(const char *Var, const char *Arg)
 		Conf_PAM = !Check_ArgIsTrue(Arg);
 		return true;
 	}
-	if(strcasecmp(Var, "NoZeroConf") == 0) {
-		Conf_ZeroConf = !Check_ArgIsTrue(Arg);
-		return true;
-	}
 	return false;
 }
 
@@ -1276,11 +1266,6 @@ Handle_FEATURES(int Line, char *Var, char *Arg)
 		/* use PAM library to authenticate users */
 		Conf_PAM = Check_ArgIsTrue(Arg);
 		WarnPAM(Line);
-		return;
-	}
-	if(strcasecmp(Var, "ZeroConf") == 0) {
-		/* register services using ZeroConf */
-		Conf_ZeroConf = Check_ArgIsTrue(Arg);
 		return;
 	}
 }

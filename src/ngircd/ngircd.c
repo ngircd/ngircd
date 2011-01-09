@@ -49,10 +49,6 @@
 #include "io.h"
 #include "irc.h"
 
-#ifdef ZEROCONF
-#include "rendezvous.h"
-#endif
-
 #include "exp.h"
 #include "ngircd.h"
 
@@ -280,9 +276,6 @@ main( int argc, const char *argv[] )
 		 * called with already dropped privileges ... */
 		Channel_Init( );
 		Client_Init( );
-#ifdef ZEROCONF
-		Rendezvous_Init( );
-#endif
 		Conn_Init( );
 
 		if (!io_library_init(CONNECTION_POOL)) {
@@ -330,9 +323,6 @@ main( int argc, const char *argv[] )
 
 		/* Alles abmelden */
 		Conn_Exit( );
-#ifdef ZEROCONF
-		Rendezvous_Exit( );
-#endif
 		Client_Exit( );
 		Channel_Exit( );
 		Log_Exit( );
@@ -370,11 +360,6 @@ Fill_Version( void )
 	if( NGIRCd_VersionAddition[0] )
 			strlcat( NGIRCd_VersionAddition, "+", sizeof NGIRCd_VersionAddition );
 	strlcat( NGIRCd_VersionAddition, "TCPWRAP", sizeof NGIRCd_VersionAddition );
-#endif
-#ifdef ZEROCONF
-	if( NGIRCd_VersionAddition[0] )
-		strlcat( NGIRCd_VersionAddition, "+", sizeof NGIRCd_VersionAddition );
-	strlcat( NGIRCd_VersionAddition, "ZEROCONF", sizeof NGIRCd_VersionAddition );
 #endif
 #ifdef IDENTAUTH
 	if( NGIRCd_VersionAddition[0] )

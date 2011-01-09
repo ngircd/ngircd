@@ -12,6 +12,11 @@
 I. Upgrade Information
 ~~~~~~~~~~~~~~~~~~~~~~
 
+Differences to version 17
+
+- Support for ZeroConf/Bonjour/Rendezvous service registration has been
+  removed. The configuration option "NoZeroconf" is no longer available.
+
 Differences to version 16
 
 - Changes to the "MotdFile" specified in ngircd.conf now require a ngircd
@@ -172,13 +177,6 @@ standard locations.
 
   Include support for IDENT ("AUTH") lookups. The "ident" library is
   required for this option.
-
-* ZeroConf Support:
-  --with-zeroconf[=<path>] 
-
-  Compile ngIRCd with support for ZeroConf multicast DNS service registration.
-  Either the Apple ZeroConf implementation (e. g. Mac OS X) or the Howl
-  library is required. Which one is available is autodetected.
 
 * TCP-Wrappers:
   --with-tcp-wrappers[=<path>] 

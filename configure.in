@@ -33,7 +33,6 @@ AH_TEMPLATE([ZLIB], [Define if zlib compression should be enabled])
 AH_TEMPLATE([TCPWRAP], [Define if TCP wrappers should be used])
 AH_TEMPLATE([IRCPLUS], [Define if IRC+ protocol should be used])
 AH_TEMPLATE([WANT_IPV6], [Define if IPV6 protocol should be enabled])
-AH_TEMPLATE([ZEROCONF], [Define if support for Zeroconf should be included])
 AH_TEMPLATE([IDENTAUTH], [Define if the server should do IDENT requests])
 AH_TEMPLATE([PAM], [Define if PAM should be used])
 AH_TEMPLATE([HAVE_sockaddr_in_len], [Define if sockaddr_in.sin_len exists])
@@ -411,56 +410,6 @@ int deny_severity = 0;
 	]
 )
 
-# include support for "zeroconf"?
-
-x_zeroconf_on=no
-AC_ARG_WITH(zeroconf,
-	[  --with-zeroconf         enable support for "Zeroconf"],
-	[	if test "$withval" != "no"; then
-			if test "$withval" != "yes"; then
-				CFLAGS="-I$withval/include $CFLAGS"
-				CPPFLAGS="-I$withval/include $CPPFLAGS"
-				LDFLAGS="-L$withval/lib $LDFLAGS"
-			fi
-			AC_CHECK_FUNCS(DNSServiceRegistrationCreate, x_zeroconf_on=osx,
-			[
-				AC_CHECK_LIB(pthread, pthread_mutexattr_init)
-				AC_CHECK_LIB(howl, sw_discovery_init)
-				AC_CHECK_FUNCS(sw_discovery_init, \
-				 x_zeroconf_on=howl, \
-				 AC_MSG_ERROR([Can't enable Zeroconf!]))
-			])
-		fi
-	]
-)
-if test "$x_zeroconf_on" = "osx"; then
-	AC_CHECK_HEADERS([DNSServiceDiscovery/DNSServiceDiscovery.h \
-	 mach/port.h],,AC_MSG_ERROR([required C header missing!]))
-	AC_DEFINE(ZEROCONF, 1)
-fi
-if test "$x_zeroconf_on" = "howl"; then
-	for dir in /usr/local/include /usr/local/include/howl* \
-	 /usr/include /usr/include/howl* \
-	 /usr/local/include/avahi* /usr/include/avahi*; do
-	 	test -d "$dir" || continue
-		AC_MSG_CHECKING([for Howl headers in $dir])
-		if test -f "$dir/rendezvous/rendezvous.h"; then
-			if test "$dir" != "/usr/local/include" -a \
-			 "$dir" != "/usr/include"; then
-				CFLAGS="-I$dir $CFLAGS"
-				CPPFLAGS="-I$dir $CPPFLAGS"
-			fi
-			AC_MSG_RESULT(yes)
-			break
-		else
-			AC_MSG_RESULT(no)
-		fi
-	done
-	AC_CHECK_HEADERS([rendezvous/rendezvous.h],, \
-	 AC_MSG_ERROR([required C header missing!]))
-	AC_DEFINE(ZEROCONF, 1)
-fi
-
 # do IDENT requests using libident?
 
 x_identauth_on=no
@@ -663,41 +612,28 @@ test "$x_strict_rfc_on" = "yes" \
 	&& echo "yes" \
 	|| echo "no"
 
-echo $ECHO_N "   Zeroconf support: $ECHO_C"
-case "$x_zeroconf_on" in
-	osx)
-		echo $ECHO_N "Apple $ECHO_C"
-		;;
-	howl)
-		echo $ECHO_N "Howl  $ECHO_C"
-		;;
-	*)
-		echo $ECHO_N "no    $ECHO_C"
-		;;
-esac
+echo $ECHO_N "      IDENT support: $ECHO_C"
+test "$x_identauth_on" = "yes" \
+	&& echo $ECHO_N "yes   $ECHO_C" \
+	|| echo $ECHO_N "no    $ECHO_C"
 echo $ECHO_N "      IRC+ protocol: $ECHO_C"
 test "$x_ircplus_on" = "yes" \
 	&& echo "yes" \
 	|| echo "no"
 
-echo $ECHO_N "      IDENT support: $ECHO_C"
-test "$x_identauth_on" = "yes" \
+echo $ECHO_N "      IPv6 protocol: $ECHO_C"
+test "$x_ipv6_on" = "yes" \
 	&& echo $ECHO_N "yes   $ECHO_C" \
 	|| echo $ECHO_N "no    $ECHO_C"
 echo $ECHO_N "        I/O backend: $ECHO_C"
 	echo "\"$x_io_backend\""
 
-echo $ECHO_N "      IPv6 protocol: $ECHO_C"
-test "$x_ipv6_on" = "yes" \
+echo $ECHO_N "        PAM support: $ECHO_C"
+test "$x_pam_on" = "yes" \
 	&& echo $ECHO_N "yes   $ECHO_C" \
 	|| echo $ECHO_N "no    $ECHO_C"
 echo $ECHO_N "        SSL support: $ECHO_C"
 echo "$x_ssl_lib"
-
-echo $ECHO_N "        PAM support: $ECHO_C"
-test "$x_pam_on" = "yes" \
-	&& echo "yes" \
-	|| echo "no"
 
 echo
 

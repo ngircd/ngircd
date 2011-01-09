@@ -32,7 +32,6 @@
 		FA322D490CEF74B1001761B3 /* match.c in Sources */ = {isa = PBXBuildFile; fileRef = FA322D030CEF74B1001761B3 /* match.c */; };
 		FA322D4A0CEF74B1001761B3 /* ngircd.c in Sources */ = {isa = PBXBuildFile; fileRef = FA322D060CEF74B1001761B3 /* ngircd.c */; };
 		FA322D4B0CEF74B1001761B3 /* parse.c in Sources */ = {isa = PBXBuildFile; fileRef = FA322D080CEF74B1001761B3 /* parse.c */; };
-		FA322D4C0CEF74B1001761B3 /* rendezvous.c in Sources */ = {isa = PBXBuildFile; fileRef = FA322D0A0CEF74B1001761B3 /* rendezvous.c */; };
 		FA322D4D0CEF74B1001761B3 /* resolve.c in Sources */ = {isa = PBXBuildFile; fileRef = FA322D0C0CEF74B1001761B3 /* resolve.c */; };
 		FA322DBE0CEF7766001761B3 /* tool.c in Sources */ = {isa = PBXBuildFile; fileRef = FA322D330CEF74B1001761B3 /* tool.c */; };
 		FA322DC10CEF77CB001761B3 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FA322DC00CEF77CB001761B3 /* libz.dylib */; };
@@ -113,8 +112,6 @@
 		FA322D070CEF74B1001761B3 /* ngircd.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = ngircd.h; sourceTree = "<group>"; };
 		FA322D080CEF74B1001761B3 /* parse.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = parse.c; sourceTree = "<group>"; };
 		FA322D090CEF74B1001761B3 /* parse.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = parse.h; sourceTree = "<group>"; };
-		FA322D0A0CEF74B1001761B3 /* rendezvous.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = rendezvous.c; sourceTree = "<group>"; };
-		FA322D0B0CEF74B1001761B3 /* rendezvous.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = rendezvous.h; sourceTree = "<group>"; };
 		FA322D0C0CEF74B1001761B3 /* resolve.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = resolve.c; sourceTree = "<group>"; };
 		FA322D0D0CEF74B1001761B3 /* resolve.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = resolve.h; sourceTree = "<group>"; };
 		FA322D100CEF74B1001761B3 /* ansi2knr.1 */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.man; path = ansi2knr.1; sourceTree = "<group>"; };
@@ -191,7 +188,6 @@
 		FA322DA70CEF752C001761B3 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
 		FA322DA80CEF752C001761B3 /* ngircd-doc.css */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.css; path = "ngircd-doc.css"; sourceTree = "<group>"; };
 		FA322DA90CEF752C001761B3 /* SSL.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = SSL.txt; sourceTree = "<group>"; };
-		FA322DAA0CEF752C001761B3 /* Zeroconf.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Zeroconf.txt; sourceTree = "<group>"; };
 		FA322DAD0CEF7538001761B3 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
 		FA322DAE0CEF7538001761B3 /* ngircd.8.tmpl */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = ngircd.8.tmpl; sourceTree = "<group>"; };
 		FA322DAF0CEF7538001761B3 /* ngircd.conf.5.tmpl */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = ngircd.conf.5.tmpl; sourceTree = "<group>"; };
@@ -354,8 +350,6 @@
 				FA322D090CEF74B1001761B3 /* parse.h */,
 				FA99428B10E82A27007F27ED /* proc.c */,
 				FA99428A10E82A27007F27ED /* proc.h */,
-				FA322D0A0CEF74B1001761B3 /* rendezvous.c */,
-				FA322D0B0CEF74B1001761B3 /* rendezvous.h */,
 				FA322D0C0CEF74B1001761B3 /* resolve.c */,
 				FA322D0D0CEF74B1001761B3 /* resolve.h */,
 				FAA97C55124A271400D5BBA9 /* sighandlers.c */,
@@ -570,7 +564,6 @@
 				FA322DA10CEF752C001761B3 /* sample-ngircd.conf */,
 				FA322DA20CEF752C001761B3 /* src */,
 				FA322DA90CEF752C001761B3 /* SSL.txt */,
-				FA322DAA0CEF752C001761B3 /* Zeroconf.txt */,
 			);
 			name = doc;
 			path = ../../doc;
@@ -701,7 +694,6 @@
 				FA322D490CEF74B1001761B3 /* match.c in Sources */,
 				FA322D4A0CEF74B1001761B3 /* ngircd.c in Sources */,
 				FA322D4B0CEF74B1001761B3 /* parse.c in Sources */,
-				FA322D4C0CEF74B1001761B3 /* rendezvous.c in Sources */,
 				FA322D4D0CEF74B1001761B3 /* resolve.c in Sources */,
 				FA322DBE0CEF7766001761B3 /* tool.c in Sources */,
 				FAE5CC2E0CF2308A007D69B6 /* numeric.c in Sources */,

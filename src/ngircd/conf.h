@@ -152,9 +152,6 @@ GLOBAL bool Conf_Ident;
 /* Enable all usage of PAM, even when compiled with support for it */
 GLOBAL bool Conf_PAM;
 
-/* Enable service registration using "ZeroConf" */
-GLOBAL bool Conf_ZeroConf;
-
 /*
  * try to connect to remote systems using the ipv6 protocol,
  * if they have an ipv6 address? (default yes)

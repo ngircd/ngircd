@@ -71,10 +71,6 @@
 #include "resolve.h"
 #include "tool.h"
 
-#ifdef ZEROCONF
-# include "rendezvous.h"
-#endif
-
 #include "exp.h"
 
 
@@ -516,9 +512,6 @@ Conn_ExitListeners( void )
 	/* Close down all listening sockets */
 	int *fd;
 	size_t arraylen;
-#ifdef ZEROCONF
-	Rendezvous_UnregisterListeners( );
-#endif
 
 	arraylen = array_length(&My_Listeners, sizeof (int));
 	Log(LOG_INFO,
@@ -575,9 +568,7 @@ NewListener(const char *listen_addr, UINT16 Port)
 	/* Create new listening socket on specified port */
 	ng_ipaddr_t addr;
 	int sock, af;
-#ifdef ZEROCONF
-	char name[CLIENT_ID_LEN], *info;
-#endif
+
 	if (!InitSinaddrListenAddr(&addr, listen_addr, Port))
 		return -1;
 
@@ -613,38 +604,8 @@ NewListener(const char *listen_addr, UINT16 Port)
 		return -1;
 	}
 
-	Log(LOG_INFO, "Now listening on [%s]:%d (socket %d).", ng_ipaddr_tostr(&addr), Port, sock);
-
-#ifdef ZEROCONF
-	/* Get best server description text */
-	if( ! Conf_ServerInfo[0] ) info = Conf_ServerName;
-	else
-	{
-		/* Use server info string */
-		info = NULL;
-		if( Conf_ServerInfo[0] == '[' )
-		{
-			/* Cut off leading hostname part in "[]" */
-			info = strchr( Conf_ServerInfo, ']' );
-			if( info )
-			{
-				info++;
-				while( *info == ' ' ) info++;
-			}
-		}
-		if( ! info ) info = Conf_ServerInfo;
-	}
-
-	/* Add port number to description if non-standard */
-	if (Port != 6667)
-		snprintf(name, sizeof name, "%s (port %u)", info,
-		 	 (unsigned int)Port);
-	else
-	 	strlcpy(name, info, sizeof name);
-
-	/* Register service */
-	Rendezvous_Register( name, MDNS_TYPE, Port );
-#endif
+	Log(LOG_INFO, "Now listening on [%s]:%d (socket %d).",
+	    ng_ipaddr_tostr(&addr), Port, sock);
 	return sock;
 } /* NewListener */
 
@@ -708,10 +669,6 @@ Conn_Handler(void)
 
 	while (!NGIRCd_SignalQuit && !NGIRCd_SignalRestart) {
 		t = time(NULL);
-
-#ifdef ZEROCONF
-		Rendezvous_Handler();
-#endif
 
 		/* Check configured servers and established links */
 		Check_Servers();

@@ -893,7 +893,7 @@ Handle_MaxNickLength(int Line, const char *Arg)
 
 
 static void
-WarnIdent(int Line)
+WarnIdent(int UNUSED Line)
 {
 #ifndef IDENTAUTH
 	if (Conf_Ident) {
@@ -927,7 +927,7 @@ CheckLegacyNoOption(const char *Var, const char *Arg)
 	return false;
 }
 
-const char *
+static const char *
 NoNo(const char *str)
 {
 	assert(strncasecmp("no", str, 2) == 0 && str[2]);

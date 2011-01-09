@@ -107,6 +107,12 @@ GLOBAL void Rendezvous_Init( void )
 
 	int i;
 
+	for (i = 0; i < MAX_RENDEZVOUS; i++)
+		My_Rendezvous[i].Desc[0] = '\0';
+
+	if (!Conf_ZeroConf)
+		return;
+
 #ifdef HOWL
 	if( sw_discovery_init( &My_Discovery_Session ) != SW_OKAY )
 	{
@@ -122,8 +128,6 @@ GLOBAL void Rendezvous_Init( void )
 		exit( 1 );
 	}
 #endif
-
-	for( i = 0; i < MAX_RENDEZVOUS; i++ ) My_Rendezvous[i].Desc[0] = '\0';
 } /* Rendezvous_Init */
 
 
@@ -237,6 +241,9 @@ GLOBAL void Rendezvous_Handler( void )
 {
 	/* Handle all Rendezvous stuff; this function must be called
 	 * periodically from the run loop of the main program */
+
+	if (!Conf_ZeroConf)
+		return;
 
 #ifdef APPLE
 	int i;

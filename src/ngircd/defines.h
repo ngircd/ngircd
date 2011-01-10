@@ -81,7 +81,7 @@
 					   in seconds. */
 
 #define USERMODES "aciorswx"		/* Supported user modes. */
-#define CHANMODES "biIklmnoPstvz"	/* Supported channel modes. */
+#define CHANMODES "biIklmnoOPstvz"	/* Supported channel modes. */
 
 #define CONNECTED true			/* Internal status codes. */
 #define DISCONNECTED false

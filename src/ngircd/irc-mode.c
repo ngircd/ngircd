@@ -499,6 +499,23 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 				goto chan_exit;
 			}
 			break;
+		case 'O': /* IRC operators only */
+			if (modeok) {
+				/* Only IRC operators are allowed to
+				 * set the 'O' channel mode! */
+				if (set && !(Client_OperByMe(Client)
+				    || Client_Type(Client) == CLIENT_SERVER))
+					connected = IRC_WriteStrClient(Origin,
+						ERR_NOPRIVILEGES_MSG,
+						Client_ID(Origin));
+				else
+					x[0] = 'O';
+			} else
+				connected = IRC_WriteStrClient(Origin,
+						ERR_CHANOPRIVSNEEDED_MSG,
+						Client_ID(Origin),
+						Channel_Name(Channel));
+				break;
 		case 'P': /* Persistent channel */
 			if (modeok) {
 				/* Only IRC operators are allowed to

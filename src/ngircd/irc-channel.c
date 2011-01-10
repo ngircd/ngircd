@@ -122,6 +122,13 @@ join_allowed(CLIENT *Client, CHANNEL *chan, const char *channame,
 		return false;
 	}
 
+	if (strchr(channel_modes, 'O') && !Client_OperByMe(Client)) {
+		/* Only IRC operators are allowed! */
+		IRC_WriteStrClient(Client, ERR_OPONLYCHANNEL_MSG,
+				   Client_ID(Client), channame);
+		return false;
+	}
+
 	return true;
 }
 

@@ -238,8 +238,10 @@ cb_connserver(int sock, UNUSED short what)
 static void
 server_login(CONN_ID idx)
 {
-	Log( LOG_INFO, "Connection %d with \"%s:%d\" established. Now logging in ...", idx,
-			My_Connections[idx].host, Conf_Server[Conf_GetServer( idx )].port );
+	Log(LOG_INFO,
+	    "Connection %d (socket %d) with \"%s:%d\" established. Now logging in ...",
+	    idx, My_Connections[idx].sock, My_Connections[idx].host,
+	    Conf_Server[Conf_GetServer(idx)].port);
 
 	io_event_setcb( My_Connections[idx].sock, cb_clientserver);
 	io_event_add( My_Connections[idx].sock, IO_WANTREAD|IO_WANTWRITE);
@@ -1765,14 +1767,17 @@ New_Server( int Server , ng_ipaddr_t *dest)
 		return;
 	}
 
-	Log(LOG_INFO, "Establishing connection for \"%s\" to \"%s\" (%s) port %d ... ",
-	    Conf_Server[Server].name, Conf_Server[Server].host, ip_str,
-	    Conf_Server[Server].port);
-
 	af_dest = ng_ipaddr_af(dest);
 	new_sock = socket(af_dest, SOCK_STREAM, 0);
+
+	Log(LOG_INFO,
+	    "Establishing connection for \"%s\" to \"%s:%d\" (%s), socket %d ...",
+	    Conf_Server[Server].name, Conf_Server[Server].host,
+	    Conf_Server[Server].port, ip_str, new_sock);
+
 	if (new_sock < 0) {
-		Log( LOG_CRIT, "Can't create socket (af %d) : %s!", af_dest, strerror( errno ));
+		Log(LOG_CRIT, "Can't create socket (af %d): %s!",
+		    af_dest, strerror(errno));
 		return;
 	}
 

@@ -151,8 +151,9 @@ IRC_PASS( CLIENT *Client, REQUEST *Req )
 			} else
 				flags = "";
 			Log(LOG_INFO,
-			    "Peer announces itself as %s-%s using protocol %d.%d/IRC+ (flags: \"%s\").",
-			    impl, serverver, protohigh, protolow, flags);
+			    "Peer on conenction %d announces itself as %s-%s using protocol %d.%d/IRC+ (flags: \"%s\").",
+			    Client_Conn(Client), impl, serverver,
+			    protohigh, protolow, flags);
 		} else {
 			/* The peer seems to be a server supporting the
 			 * "original" IRC protocol (RFC 2813). */
@@ -161,8 +162,9 @@ IRC_PASS( CLIENT *Client, REQUEST *Req )
 			else
 				flags = "";
 			Log(LOG_INFO,
-			    "Peer announces itself as \"%s\" using protocol %d.%d (flags: \"%s\").",
-			    impl, protohigh, protolow, flags);
+			    "Peer on connection %d announces itself as \"%s\" using protocol %d.%d (flags: \"%s\").",
+			    Client_Conn(Client), impl,
+			    protohigh, protolow, flags);
 		}
 		Client_SetFlags(Client, flags);
 	}

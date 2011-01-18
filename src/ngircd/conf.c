@@ -1361,11 +1361,12 @@ Handle_SERVER( int Line, char *Var, char *Arg )
 	if( strcasecmp( Var, "Port" ) == 0 ) {
 		/* Port to which this server should connect */
 		port = atol( Arg );
-		if( port > 0 && port < 0xFFFF )
+		if (port >= 0 && port < 0xFFFF)
 			New_Server.port = (UINT16)port;
 		else
-			Config_Error( LOG_ERR, "%s, line %d (section \"Server\"): Illegal port number %ld!",
-										NGIRCd_ConfFile, Line, port );
+			Config_Error(LOG_ERR,
+				"%s, line %d (section \"Server\"): Illegal port number %ld!",
+				NGIRCd_ConfFile, Line, port );
 		return;
 	}
 #ifdef SSL_SUPPORT

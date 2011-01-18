@@ -641,6 +641,9 @@ Set_Defaults(bool InitServers)
 		for (i = 0; i < MAX_SERVERS;
 		     Init_Server_Struct(&Conf_Server[i++]));
 	}
+
+	/* Free MOTD; this is important when reloading the configuration */
+	array_free(&Conf_Motd);
 } /* Set_Defaults */
 
 
@@ -1016,7 +1019,6 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 		len = strlcpy( Conf_MotdFile, Arg, sizeof( Conf_MotdFile ));
 		if (len >= sizeof( Conf_MotdFile ))
 			Config_Error_TooLong( Line, Var );
-		Read_Motd(Arg);
 		return;
 	}
 	if( strcasecmp( Var, "MotdPhrase" ) == 0 ) {

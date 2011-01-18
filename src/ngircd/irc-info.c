@@ -914,6 +914,15 @@ IRC_WHO( CLIENT *Client, REQUEST *Req )
 } /* IRC_WHO */
 
 
+/**
+ * Handler for the IRC "WHOIS" command.
+ *
+ * See RFC 2812, 3.6.2 "Whois query".
+ *
+ * @param Client	The client from which this command has been received.
+ * @param Req		Request structure with prefix and all parameters.
+ * @return		CONNECTED or DISCONNECTED.
+ */
 GLOBAL bool
 IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 {
@@ -926,11 +935,17 @@ IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 	assert( Req != NULL );
 
 	/* Bad number of parameters? */
-	if(( Req->argc < 1 ) || ( Req->argc > 2 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	if (Req->argc < 1 || Req->argc > 2)
+		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+					  Client_ID(Client), Req->command);
 
 	/* Search client */
-	c = Client_Search( Req->argv[Req->argc - 1] );
-	if(( ! c ) || ( Client_Type( c ) != CLIENT_USER )) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->argv[Req->argc - 1] );
+	c = Client_Search(Req->argv[Req->argc - 1]);
+	if (!c || (Client_Type(c) != CLIENT_USER
+		   && Client_Type(c) != CLIENT_SERVICE))
+		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
+					  Client_ID(Client),
+					  Req->argv[Req->argc - 1]);
 
 	/* Search sender of the WHOIS */
 	if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_Search( Req->prefix );

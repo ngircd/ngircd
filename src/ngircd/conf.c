@@ -668,7 +668,7 @@ Read_Motd(const char *filename)
 
 	fp = fopen(filename, "r");
 	if (!fp) {
-		Log(LOG_WARNING, "Can't read MOTD file \"%s\": %s",
+		Config_Error(LOG_WARNING, "Can't read MOTD file \"%s\": %s",
 					filename, strerror(errno));
 		return;
 	}

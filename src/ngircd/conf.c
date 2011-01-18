@@ -1055,11 +1055,9 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 		pwd = getpwnam( Arg );
 		if( pwd ) Conf_UID = pwd->pw_uid;
 		else {
-#ifdef HAVE_ISDIGIT
-			if( ! isdigit( (int)*Arg )) Config_Error_NaN( Line, Var );
-			else
-#endif
 			Conf_UID = (unsigned int)atoi( Arg );
+			if (!Conf_UID && strcmp(Arg, "0"))
+				Config_Error_NaN(Line, Var);
 		}
 		return;
 	}
@@ -1068,11 +1066,9 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 		grp = getgrnam( Arg );
 		if( grp ) Conf_GID = grp->gr_gid;
 		else {
-#ifdef HAVE_ISDIGIT
-			if( ! isdigit( (int)*Arg )) Config_Error_NaN( Line, Var );
-			else
-#endif
-			Conf_GID = (unsigned int)atoi( Arg );
+			Conf_GID = (unsigned int)atoi(Arg);
+			if (!Conf_GID && strcmp(Arg, "0"))
+				Config_Error_NaN( Line, Var );
 		}
 		return;
 	}
@@ -1153,29 +1149,23 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 	}
 	if( strcasecmp( Var, "MaxConnections" ) == 0 ) {
 		/* Maximum number of connections. 0 -> "no limit". */
-#ifdef HAVE_ISDIGIT
-		if( ! isdigit( (int)*Arg )) Config_Error_NaN( Line, Var);
-		else
-#endif
 		Conf_MaxConnections = atol( Arg );
+		if (!Conf_MaxConnections && strcmp(Arg, "0"))
+			Config_Error_NaN(Line, Var);
 		return;
 	}
 	if( strcasecmp( Var, "MaxConnectionsIP" ) == 0 ) {
 		/* Maximum number of simultaneous connections from one IP. 0 -> "no limit" */
-#ifdef HAVE_ISDIGIT
-		if( ! isdigit( (int)*Arg )) Config_Error_NaN( Line, Var );
-		else
-#endif
 		Conf_MaxConnectionsIP = atoi( Arg );
+		if (!Conf_MaxConnectionsIP && strcmp(Arg, "0"))
+			Config_Error_NaN(Line, Var);
 		return;
 	}
 	if( strcasecmp( Var, "MaxJoins" ) == 0 ) {
 		/* Maximum number of channels a user can join. 0 -> "no limit". */
-#ifdef HAVE_ISDIGIT
-		if( ! isdigit( (int)*Arg )) Config_Error_NaN( Line, Var );
-		else
-#endif
 		Conf_MaxJoins = atoi( Arg );
+		if (!Conf_MaxJoins && strcmp(Arg, "0"))
+			Config_Error_NaN(Line, Var);
 		return;
 	}
 	if( strcasecmp( Var, "MaxNickLength" ) == 0 ) {
@@ -1386,12 +1376,9 @@ Handle_SERVER( int Line, char *Var, char *Arg )
 #endif
 	if( strcasecmp( Var, "Group" ) == 0 ) {
 		/* Server group */
-#ifdef HAVE_ISDIGIT
-		if( ! isdigit( (int)*Arg ))
-			Config_Error_NaN( Line, Var );
-		else
-#endif
 		New_Server.group = atoi( Arg );
+		if (!New_Server.group && strcmp(Arg, "0"))
+			Config_Error_NaN(Line, Var);
 		return;
 	}
 	if( strcasecmp( Var, "Passive" ) == 0 ) {
@@ -1479,7 +1466,7 @@ Handle_CHANNEL(int Line, char *Var, char *Arg)
 	if( strcasecmp( Var, "MaxUsers" ) == 0 ) {
 		/* maximum user limit, mode l */
 		chan->maxusers = (unsigned long) atol(Arg);
-		if (chan->maxusers == 0)
+		if (!chan->maxusers && strcmp(Arg, "0"))
 			Config_Error_NaN(Line, Var);
 		return;
 	}

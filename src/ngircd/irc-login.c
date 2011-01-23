@@ -143,8 +143,8 @@ IRC_PASS( CLIENT *Client, REQUEST *Req )
 		if (type && strcmp(type, PROTOIRCPLUS) == 0) {
 			/* The peer seems to be a server which supports the
 			 * IRC+ protocol (see doc/Protocol.txt). */
-			serverver = ptr + 1;
-			flags = strchr(serverver, ':');
+			serverver = ptr ? ptr + 1 : "?";
+			flags = strchr(ptr ? serverver : impl, ':');
 			if (flags) {
 				*flags = '\0';
 				flags++;

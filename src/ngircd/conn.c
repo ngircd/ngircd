@@ -1455,16 +1455,21 @@ Read_Request( CONN_ID Idx )
 
 	/* Update connection statistics */
 	My_Connections[Idx].bytes_in += len;
+	My_Connections[Idx].bps += Handle_Buffer(Idx);
+
+	/* Make sure that there is still a valid client registered */
+	c = Conn_GetClient(Idx);
+	if (!c)
+		return;
 
 	/* Update timestamp of last data received if this connection is
 	 * registered as a user, server or service connection. Don't update
 	 * otherwise, so users have at least Conf_PongTimeout seconds time to
 	 * register with the IRC server -- see Check_Connections().
 	 * Update "lastping", too, if time shifted backwards ... */
-	c = Conn_GetClient(Idx);
-	if (c && (Client_Type(c) == CLIENT_USER
-		  || Client_Type(c) == CLIENT_SERVER
-		  || Client_Type(c) == CLIENT_SERVICE)) {
+	if (Client_Type(c) == CLIENT_USER
+	    || Client_Type(c) == CLIENT_SERVER
+	    || Client_Type(c) == CLIENT_SERVICE) {
 		t = time(NULL);
 		if (My_Connections[Idx].lastdata != t)
 			My_Connections[Idx].bps = 0;
@@ -1475,7 +1480,6 @@ Read_Request( CONN_ID Idx )
 	}
 
 	/* Look at the data in the (read-) buffer of this connection */
-	My_Connections[Idx].bps += Handle_Buffer(Idx);
 	if (Client_Type(c) != CLIENT_SERVER
 	    && Client_Type(c) != CLIENT_UNKNOWNSERVER
 	    && Client_Type(c) != CLIENT_SERVICE

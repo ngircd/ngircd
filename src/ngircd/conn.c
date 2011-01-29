@@ -980,7 +980,7 @@ Conn_Close( CONN_ID Idx, const char *LogMsg, const char *FwdMsg, bool InformClie
 		if (FwdMsg)
 			Conn_WriteStr(Idx, "ERROR :%s", FwdMsg);
 		else
-			Conn_WriteStr(Idx, "ERROR :Closing connection.");
+			Conn_WriteStr(Idx, "ERROR :Closing connection");
 	}
 
 	/* Try to write out the write buffer. Note: Handle_Write() eventually
@@ -1276,7 +1276,7 @@ New_Connection(int Sock)
 		    "Refused connection from %s: too may connections (%ld) from this IP address!",
 		    ip_str, cnt);
 		Simple_Message(new_sock,
-			       "ERROR :Connection refused, too many connections from your IP address!");
+			       "ERROR :Connection refused, too many connections from your IP address");
 		close(new_sock);
 		return -1;
 	}

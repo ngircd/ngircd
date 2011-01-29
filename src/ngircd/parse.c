@@ -178,7 +178,7 @@ Parse_Request( CONN_ID Idx, char *Request )
 		if( ! ptr )
 		{
 			LogDebug("Connection %d: Parse error: prefix without command!?", Idx);
-			return Conn_WriteStr( Idx, "ERROR :Prefix without command!?" );
+			return Conn_WriteStr(Idx, "ERROR :Prefix without command");
 		}
 		*ptr = '\0';
 #ifndef STRICT_RFC
@@ -278,8 +278,9 @@ Validate_Prefix( CONN_ID Idx, REQUEST *Req, bool *Closed )
 	assert( client != NULL );
 
 	/* only validate if this connection is already registered */
-	if(( Client_Type( client ) != CLIENT_USER ) && ( Client_Type( client ) != CLIENT_SERVER ) && ( Client_Type( client ) != CLIENT_SERVICE ))
-	{
+	if (Client_Type(client) != CLIENT_USER
+	    && Client_Type(client) != CLIENT_SERVER
+	    && Client_Type(client) != CLIENT_SERVICE) {
 		/* not registered, ignore prefix */
 		Req->prefix = NULL;
 		return true;
@@ -287,19 +288,25 @@ Validate_Prefix( CONN_ID Idx, REQUEST *Req, bool *Closed )
 
 	/* check if client in prefix is known */
 	c = Client_Search( Req->prefix );
-	if( ! c )
-	{
-		Log( LOG_ERR, "Invalid prefix \"%s\", client not known (connection %d, command %s)!?", Req->prefix, Idx, Req->command );
-		if( ! Conn_WriteStr( Idx, "ERROR :Invalid prefix \"%s\", client not known!?", Req->prefix )) *Closed = true;
+	if (!c) {
+		Log(LOG_ERR,
+		    "Invalid prefix \"%s\", client not known (connection %d, command \"%s\")!?",
+		    Req->prefix, Idx, Req->command);
+		if (!Conn_WriteStr(Idx,
+				   "ERROR :Invalid prefix \"%s\", client not known",
+				   Req->prefix))
+			*Closed = true;
 		return false;
 	}
 
 	/* check if the client named in the prefix is expected
 	 * to come from that direction */
-	if( Client_NextHop( c ) != client )
-	{
-		Log( LOG_ERR, "Spoofed prefix \"%s\" from \"%s\" (connection %d, command %s)!", Req->prefix, Client_Mask( Conn_GetClient( Idx )), Idx, Req->command );
-		Conn_Close( Idx, NULL, "Spoofed prefix", true);
+	if (Client_NextHop(c) != client) {
+		Log(LOG_ERR,
+		    "Spoofed prefix \"%s\" from \"%s\" (connection %d, command \"%s\")!",
+		    Req->prefix, Client_Mask(Conn_GetClient(Idx)), Idx,
+		    Req->command);
+		Conn_Close(Idx, NULL, "Spoofed prefix", true);
 		*Closed = true;
 		return false;
 	}

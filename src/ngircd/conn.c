@@ -858,7 +858,7 @@ static bool
 Conn_Write( CONN_ID Idx, char *Data, size_t Len )
 {
 	CLIENT *c;
-	size_t writebuf_limit = WRITEBUFFER_LEN;
+	size_t writebuf_limit = WRITEBUFFER_MAX_LEN;
 	assert( Idx > NONE );
 	assert( Data != NULL );
 	assert( Len > 0 );
@@ -894,7 +894,7 @@ Conn_Write( CONN_ID Idx, char *Data, size_t Len )
 		/* Uncompressed link:
 		 * Check if outbound buffer has enough space for the data. */
 		if (array_bytes(&My_Connections[Idx].wbuf) + Len >=
-		    writebuf_limit) {
+		    WRITEBUFFER_FLUSH_LEN) {
 			/* Buffer is full, flush it. Handle_Write deals with
 			 * low-level errors, if any. */
 			if (!Handle_Write(Idx))

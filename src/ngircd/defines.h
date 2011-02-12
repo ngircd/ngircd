@@ -59,9 +59,12 @@
 
 #define READBUFFER_LEN 2048		/* Size of the read buffer of a
 					   connection in bytes. */
-#define WRITEBUFFER_LEN 4096		/* Size of the write buffer of a
+#define WRITEBUFFER_FLUSH_LEN 4096	/* Size of a write buffer that triggers
+					   buffer flushing if more space is
+					   needed for storing data. */
+#define WRITEBUFFER_MAX_LEN 32768	/* Maximum size of the write buffer of a
 					   connection in bytes. */
-#define WRITEBUFFER_SLINK_LEN 51200	/* Size of the write buffer of a
+#define WRITEBUFFER_SLINK_LEN 65536	/* Maximum size of the write buffer of a
 					   server link connection in bytes. */
 
 #define PROTOVER "0210"			/* Implemented IRC protocol version,

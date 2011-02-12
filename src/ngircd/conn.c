@@ -906,8 +906,8 @@ Conn_Write( CONN_ID Idx, char *Data, size_t Len )
 		if (array_bytes(&My_Connections[Idx].wbuf) + Len >=
 		    writebuf_limit) {
 			Log(LOG_NOTICE,
-			    "Write buffer overflow (connection %d, size %lu byte)!",
-			    Idx,
+			    "Write buffer overflow (connection %d, limit is %lu bytes, %lu bytes new, %lu bytes pending)!",
+			    Idx, writebuf_limit, Len,
 			    (unsigned long)array_bytes(&My_Connections[Idx].wbuf));
 			Conn_Close(Idx, "Write buffer overflow!", NULL, false);
 			return false;

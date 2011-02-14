@@ -295,6 +295,7 @@ Conf_Test( void )
 
 	puts( "[GLOBAL]" );
 	printf("  Name = %s\n", Conf_ServerName);
+	printf("  ClientHost = %s\n", Conf_ClientHost);
 	printf("  Info = %s\n", Conf_ServerInfo);
 #ifndef PAM
 	printf("  Password = %s\n", Conf_ServerPwd);
@@ -590,6 +591,7 @@ Set_Defaults(bool InitServers)
 	int i;
 
 	strcpy(Conf_ServerName, "");
+	strcpy(Conf_ClientHost, "");
 	snprintf(Conf_ServerInfo, sizeof Conf_ServerInfo, "%s %s",
 		 PACKAGE_NAME, PACKAGE_VERSION);
 	strcpy(Conf_ServerPwd, "");
@@ -967,6 +969,13 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 		/* Server name */
 		len = strlcpy( Conf_ServerName, Arg, sizeof( Conf_ServerName ));
 		if (len >= sizeof( Conf_ServerName ))
+			Config_Error_TooLong( Line, Var );
+		return;
+	}
+	if( strcasecmp( Var, "ClientHost" ) == 0 ) {
+		/* Client hostname */
+		len = strlcpy( Conf_ClientHost, Arg, sizeof( Conf_ClientHost ));
+		if (len >= sizeof( Conf_ClientHost ))
 			Config_Error_TooLong( Line, Var );
 		return;
 	}

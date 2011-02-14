@@ -97,6 +97,9 @@ struct Conf_Channel {
 /** Name (ID, "nick") of this server */
 GLOBAL char Conf_ServerName[CLIENT_ID_LEN];
 
+/** Hostname of the clients */
+GLOBAL char Conf_ClientHost[CLIENT_ID_LEN];
+
 /** Server info text */
 GLOBAL char Conf_ServerInfo[CLIENT_INFO_LEN];
 

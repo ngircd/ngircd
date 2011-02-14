@@ -319,7 +319,11 @@ Client_SetHostname( CLIENT *Client, const char *Hostname )
 	assert( Client != NULL );
 	assert( Hostname != NULL );
 
-	strlcpy( Client->host, Hostname, sizeof( Client->host ));
+	if (strlen(Conf_ClientHost)) {
+		strlcpy( Client->host, Conf_ClientHost, sizeof( Client->host ));
+	} else {
+		strlcpy( Client->host, Hostname, sizeof( Client->host ));
+	}
 } /* Client_SetHostname */
 
 

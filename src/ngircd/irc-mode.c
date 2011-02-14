@@ -204,7 +204,7 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 
 			case 'x': /* Cloak hostname */
 				if (Client_HasMode(Client, 'r'))
-					IRC_WriteStrClient(Origin,
+					ok = IRC_WriteStrClient(Origin,
 							   ERR_RESTRICTED_MSG,
 							   Client_ID(Origin));
 				else

@@ -141,11 +141,17 @@ therefore to disconnect the peer prior to registering it in the network.
 II.3 Exchange channel-modes, topics, and persistent channels
 
      Command: CHANINFO
-  Parameters: <channel> +<modes> <key> <limit> [<topic>]
+  Parameters: <channel> +<modes> [[<key> <limit>] <topic>]
      Used by: servers only
 
 CHANINFO is used by servers to inform each other about a channel: its
-modes, channel key, user limits and its topic. <topic> is optional.
+modes, channel key, user limits and its topic. The parameter combination
+<key> and <limit> is optional, as well as the <topic> parameter, so that
+there are three possible forms of this command:
+
+  CHANINFO <channel> +<modes>
+  CHANINFO <channel> +<modes> <topic>
+  CHANINFO <channel> +<modes> <key> <limit> <topic>
 
 If the channel already exists on the server receiving the CHANINFO command,
 it only adopts the <modes> (or the <topic>) if there are no modes (or topic)

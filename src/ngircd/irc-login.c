@@ -873,7 +873,9 @@ Hello_User(CLIENT * Client)
 		/* Sub process */
 		Log_Init_Subprocess("Auth");
 		result = PAM_Authenticate(Client);
-		write(pipefd[1], &result, sizeof(result));
+		if (write(pipefd[1], &result, sizeof(result)) != sizeof(result))
+			Log_Subprocess(LOG_ERR,
+				       "Failed to pipe result to parent!");
 		Log_Exit_Subprocess("Auth");
 		exit(0);
 	}

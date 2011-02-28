@@ -1082,10 +1082,10 @@ Channel_CheckKey(CHANNEL *Chan, CLIENT *Client, const char *Key)
 
 	if (!strchr(Chan->modes, 'k'))
 		return true;
-	if (strcmp(Chan->key, Key) == 0)
-		return true;
 	if (*Key == '\0')
 		return false;
+	if (strcmp(Chan->key, Key) == 0)
+		return true;
 
 	file_name = array_start(&Chan->keyfile);
 	if (!file_name)

@@ -295,8 +295,6 @@ Conf_Test( void )
 
 	puts( "[GLOBAL]" );
 	printf("  Name = %s\n", Conf_ServerName);
-	printf("  ClientHost = %s\n", Conf_ClientHost);
-	printf("  ClientUserNick = %s\n", yesno_to_str(Conf_ClientUserNick));
 	printf("  Info = %s\n", Conf_ServerInfo);
 #ifndef PAM
 	printf("  Password = %s\n", Conf_ServerPwd);
@@ -353,7 +351,9 @@ Conf_Test( void )
 	printf("  MaxConnections = %ld\n", Conf_MaxConnections);
 	printf("  MaxConnectionsIP = %d\n", Conf_MaxConnectionsIP);
 	printf("  MaxJoins = %d\n", Conf_MaxJoins > 0 ? Conf_MaxJoins : -1);
-	printf("  MaxNickLength = %u\n\n", Conf_MaxNickLength - 1);
+	printf("  MaxNickLength = %u\n", Conf_MaxNickLength - 1);
+	printf("  ClientHost = %s\n", Conf_ClientHost);
+	printf("  ClientUserNick = %s\n\n", yesno_to_str(Conf_ClientUserNick));
 
 	puts("[FEATURES]");
 	printf("  DNS = %s\n", yesno_to_str(Conf_DNS));

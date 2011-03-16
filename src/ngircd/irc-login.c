@@ -686,7 +686,8 @@ IRC_QUIT( CLIENT *Client, REQUEST *Req )
 GLOBAL bool
 IRC_QUIT_HTTP( CLIENT *Client, REQUEST *Req )
 {
-	Req->argc = 0;
+	Req->argc = 1;
+	Req->argv[0] = "Oops, HTTP request received? This is IRC!";
 	return IRC_QUIT(Client, Req);
 } /* IRC_QUIT_HTTP */
 

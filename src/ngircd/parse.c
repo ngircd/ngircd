@@ -110,8 +110,8 @@ static COMMAND My_Commands[] =
 	{ "CHANINFO", IRC_CHANINFO, CLIENT_SERVER, 0, 0, 0 },
 #endif
 #ifndef STRICT_RFC
-	{ "GET",  IRC_QUIT_HTTP, 0xFFFF, 0, 0, 0 },
-	{ "POST", IRC_QUIT_HTTP, 0xFFFF, 0, 0, 0 },
+	{ "GET",  IRC_QUIT_HTTP, CLIENT_UNKNOWN, 0, 0, 0 },
+	{ "POST", IRC_QUIT_HTTP, CLIENT_UNKNOWN, 0, 0, 0 },
 #endif
 	{ NULL, NULL, 0x0, 0, 0, 0 } /* Ende-Marke */
 };

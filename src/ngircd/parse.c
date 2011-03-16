@@ -85,8 +85,6 @@ static COMMAND My_Commands[] =
 	{ "PONG", IRC_PONG, CLIENT_USER|CLIENT_SERVER, 0, 0, 0 },
 	{ "PRIVMSG", IRC_PRIVMSG, CLIENT_USER|CLIENT_SERVER, 0, 0, 0 },
 	{ "QUIT", IRC_QUIT, 0xFFFF, 0, 0, 0 },
-	{ "GET",  IRC_QUIT_HTTP, 0xFFFF, 0, 0, 0 },
-	{ "POST", IRC_QUIT_HTTP, 0xFFFF, 0, 0, 0 },
 	{ "REHASH", IRC_REHASH, CLIENT_USER, 0, 0, 0 },
 	{ "RESTART", IRC_RESTART, CLIENT_USER, 0, 0, 0 },
 	{ "SERVER", IRC_SERVER, 0xFFFF, 0, 0, 0 },
@@ -110,6 +108,10 @@ static COMMAND My_Commands[] =
 	{ "WHOWAS", IRC_WHOWAS, CLIENT_USER|CLIENT_SERVER, 0, 0, 0 },
 #ifdef IRCPLUS
 	{ "CHANINFO", IRC_CHANINFO, CLIENT_SERVER, 0, 0, 0 },
+#endif
+#ifndef STRICT_RFC
+	{ "GET",  IRC_QUIT_HTTP, 0xFFFF, 0, 0, 0 },
+	{ "POST", IRC_QUIT_HTTP, 0xFFFF, 0, 0, 0 },
 #endif
 	{ NULL, NULL, 0x0, 0, 0, 0 } /* Ende-Marke */
 };

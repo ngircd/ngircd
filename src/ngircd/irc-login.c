@@ -683,6 +683,18 @@ IRC_QUIT( CLIENT *Client, REQUEST *Req )
 } /* IRC_QUIT */
 
 
+#ifndef STRICT_RFC
+
+/**
+ * Handler for HTTP command, e.g. GET and POST
+ *
+ * We handle these commands here to avoid the quite long timeout when
+ * some user tries to access this IRC daemon using an web browser ...
+ *
+ * @param Client	The client from which this command has been received.
+ * @param Req		Request structure with prefix and all parameters.
+ * @returns		CONNECTED or DISCONNECTED.
+ */
 GLOBAL bool
 IRC_QUIT_HTTP( CLIENT *Client, REQUEST *Req )
 {
@@ -690,6 +702,8 @@ IRC_QUIT_HTTP( CLIENT *Client, REQUEST *Req )
 	Req->argv[0] = "Oops, HTTP request received? This is IRC!";
 	return IRC_QUIT(Client, Req);
 } /* IRC_QUIT_HTTP */
+
+#endif
 
 
 /**

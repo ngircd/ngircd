@@ -683,6 +683,14 @@ IRC_QUIT( CLIENT *Client, REQUEST *Req )
 } /* IRC_QUIT */
 
 
+GLOBAL bool
+IRC_QUIT_HTTP( CLIENT *Client, REQUEST *Req )
+{
+	Req->argc = 0;
+	return IRC_QUIT(Client, Req);
+} /* IRC_QUIT_HTTP */
+
+
 /**
  * Handler for the IRC "PING" command.
  *
@@ -692,14 +700,6 @@ IRC_QUIT( CLIENT *Client, REQUEST *Req )
  * @param Req		Request structure with prefix and all parameters.
  * @returns		CONNECTED or DISCONNECTED.
  */
-GLOBAL bool
-IRC_QUIT_HTTP( CLIENT *Client, REQUEST *Req )
-{
-	Req->argc = 0;
-	return IRC_QUIT(Client, Req);
-}
-
-
 GLOBAL bool
 IRC_PING(CLIENT *Client, REQUEST *Req)
 {

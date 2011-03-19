@@ -1128,8 +1128,7 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 	}
 
 	if (CheckLegacyNoOption(Var, Arg)) {
-		Config_Error(LOG_WARNING, "%s, line %d: \"No\"-Prefix has been removed, use "
-				"\"%s = %s\" in [FEATURES] section instead",
+		Config_Error(LOG_WARNING, "%s, line %d: \"No\"-Prefix has been removed, use \"%s = %s\" in [FEATURES] section instead",
 					NGIRCd_ConfFile, Line, NoNo(Var), InvertArg(Arg));
 		if (strcasecmp(Var, "NoIdent") == 0)
 			WarnIdent(Line);

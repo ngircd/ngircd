@@ -20,7 +20,7 @@ EXTRA_DIST = \
 	test-loop.sh wait-tests.sh \
 	channel-test.e connect-test.e check-idle.e invite-test.e \
 	join-test.e kick-test.e message-test.e misc-test.e mode-test.e \
-	opless-channel-test.e server-link-test.e who-test.e \
+	opless-channel-test.e server-link-test.e who-test.e whois-test.e \
 	stress-A.e stress-B.e \
 	start-server1 stop-server1 ngircd-test1.conf \
 	start-server2 stop-server2 ngircd-test2.conf

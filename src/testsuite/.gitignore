@@ -11,6 +11,7 @@ mode-test
 opless-channel-test
 server-link-test
 who-test
+whois-test
 ngircd-test1.log
 ngircd-test2.log
 ngircd-test1.motd

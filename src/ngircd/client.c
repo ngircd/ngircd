@@ -319,8 +319,8 @@ Client_SetHostname( CLIENT *Client, const char *Hostname )
 	assert( Client != NULL );
 	assert( Hostname != NULL );
 
-	if (strlen(Conf_ClientHost)) {
-		strlcpy( Client->host, Conf_ClientHost, sizeof( Client->host ));
+	if (strlen(Conf_CloakHost)) {
+		strlcpy( Client->host, Conf_CloakHost, sizeof( Client->host ));
 	} else {
 		strlcpy( Client->host, Hostname, sizeof( Client->host ));
 	}
@@ -335,7 +335,7 @@ Client_SetID( CLIENT *Client, const char *ID )
 	
 	strlcpy( Client->id, ID, sizeof( Client->id ));
 
-	if (Conf_ClientUserNick)
+	if (Conf_CloakUserToNick)
 		strlcpy( Client->user, ID, sizeof( Client->user ));
 
 	/* Hash */
@@ -351,7 +351,7 @@ Client_SetUser( CLIENT *Client, const char *User, bool Idented )
 	assert( Client != NULL );
 	assert( User != NULL );
 
-	if (Conf_ClientUserNick) return;
+	if (Conf_CloakUserToNick) return;
 
 	if (Idented) {
 		strlcpy(Client->user, User, sizeof(Client->user));

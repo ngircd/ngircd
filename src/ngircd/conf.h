@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2010 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2011 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -97,10 +97,6 @@ struct Conf_Channel {
 /** Name (ID, "nick") of this server */
 GLOBAL char Conf_ServerName[CLIENT_ID_LEN];
 
-/** Hostname of the clients */
-GLOBAL char Conf_ClientHost[CLIENT_ID_LEN];
-GLOBAL bool Conf_ClientUserNick;
-
 /** Server info text */
 GLOBAL char Conf_ServerInfo[CLIENT_INFO_LEN];
 
@@ -166,6 +162,12 @@ GLOBAL bool Conf_OperServerMode;
 
 /** Flag indicating if remote IRC operators are allowed to manage this server */
 GLOBAL bool Conf_AllowRemoteOper;
+
+/** Cloaked hostname of the clients */
+GLOBAL char Conf_CloakHost[CLIENT_ID_LEN];
+
+/** Use nick name as user name? */
+GLOBAL bool Conf_CloakUserToNick;
 
 /** Enable all DNS functions? */
 GLOBAL bool Conf_DNS;

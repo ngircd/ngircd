@@ -352,8 +352,8 @@ Conf_Test( void )
 	printf("  MaxConnectionsIP = %d\n", Conf_MaxConnectionsIP);
 	printf("  MaxJoins = %d\n", Conf_MaxJoins > 0 ? Conf_MaxJoins : -1);
 	printf("  MaxNickLength = %u\n", Conf_MaxNickLength - 1);
-	printf("  ClientHost = %s\n", Conf_ClientHost);
-	printf("  ClientUserNick = %s\n\n", yesno_to_str(Conf_ClientUserNick));
+	printf("  CloakHost = %s\n", Conf_CloakHost);
+	printf("  CloakUserToNick = %s\n\n", yesno_to_str(Conf_CloakUserToNick));
 
 	puts("[FEATURES]");
 	printf("  DNS = %s\n", yesno_to_str(Conf_DNS));
@@ -592,8 +592,6 @@ Set_Defaults(bool InitServers)
 	int i;
 
 	strcpy(Conf_ServerName, "");
-	strcpy(Conf_ClientHost, "");
-	Conf_ClientUserNick = false;
 	snprintf(Conf_ServerInfo, sizeof Conf_ServerInfo, "%s %s",
 		 PACKAGE_NAME, PACKAGE_VERSION);
 	strcpy(Conf_ServerPwd, "");
@@ -632,6 +630,9 @@ Set_Defaults(bool InitServers)
 	Conf_MaxConnectionsIP = 5;
 	Conf_MaxJoins = 10;
 	Conf_MaxNickLength = CLIENT_NICK_LEN_DEFAULT;
+
+	strcpy(Conf_CloakHost, "");
+	Conf_CloakUserToNick = false;
 
 #ifdef SYSLOG
 #ifdef LOG_LOCAL5
@@ -974,16 +975,16 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 			Config_Error_TooLong( Line, Var );
 		return;
 	}
-	if( strcasecmp( Var, "ClientHost" ) == 0 ) {
+	if( strcasecmp( Var, "CloakHost" ) == 0 ) {
 		/* Client hostname */
-		len = strlcpy( Conf_ClientHost, Arg, sizeof( Conf_ClientHost ));
-		if (len >= sizeof( Conf_ClientHost ))
+		len = strlcpy( Conf_CloakHost, Arg, sizeof( Conf_CloakHost ));
+		if (len >= sizeof( Conf_CloakHost ))
 			Config_Error_TooLong( Line, Var );
 		return;
 	}
-	if( strcasecmp( Var, "ClientUserNick" ) == 0 ) {
+	if( strcasecmp( Var, "CloakUserToNick" ) == 0 ) {
 		/* Use client nick name as user name */
-		Conf_ClientUserNick = Check_ArgIsTrue( Arg );
+		Conf_CloakUserToNick = Check_ArgIsTrue( Arg );
 		return;
 	}
 	if( strcasecmp( Var, "Info" ) == 0 ) {

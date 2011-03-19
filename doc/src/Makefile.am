@@ -1,6 +1,6 @@
 #
 # ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001-2008 Alexander Barton (alex@barton.de)
+# Copyright (c)2001-2011 Alexander Barton (alex@barton.de) and Contributors.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -9,7 +9,7 @@
 # Please read the file COPYING, README and AUTHORS for more information.
 #
 
-EXTRA_DIST = Doxyfile header.inc.html footer.inc.html ngircd-doc.css
+EXTRA_DIST = Doxyfile footer.inc.html
 
 maintainer-clean-local:
 	rm -f Makefile Makefile.in

@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2010 Alexander Barton <alex@barton.de>
+ * Copyright (c)2001-2011 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -917,55 +917,19 @@ IRC_WHO( CLIENT *Client, REQUEST *Req )
 
 
 /**
- * Handler for the IRC "WHOIS" command.
- *
- * See RFC 2812, 3.6.2 "Whois query".
+ * Generate WHOIS reply of one actual client.
  *
  * @param Client	The client from which this command has been received.
- * @param Req		Request structure with prefix and all parameters.
- * @return		CONNECTED or DISCONNECTED.
+ * @param from		The client requesting the information ("originator").
+ * @param c		The client of which information should be returned.
+ * @returns		CONNECTED or DISCONNECTED.
  */
-GLOBAL bool
-IRC_WHOIS( CLIENT *Client, REQUEST *Req )
+static bool
+IRC_WHOIS_SendReply(CLIENT *Client, CLIENT *from, CLIENT *c)
 {
-	CLIENT *from, *target, *c;
 	char str[LINE_LEN + 1];
 	CL2CHAN *cl2chan;
 	CHANNEL *chan;
-
-	assert( Client != NULL );
-	assert( Req != NULL );
-
-	/* Bad number of parameters? */
-	if (Req->argc < 1 || Req->argc > 2)
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
-					  Client_ID(Client), Req->command);
-
-	/* Search client */
-	c = Client_Search(Req->argv[Req->argc - 1]);
-	if (!c || (Client_Type(c) != CLIENT_USER
-		   && Client_Type(c) != CLIENT_SERVICE))
-		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
-					  Client_ID(Client),
-					  Req->argv[Req->argc - 1]);
-
-	/* Search sender of the WHOIS */
-	if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_Search( Req->prefix );
-	else from = Client;
-	if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
-
-	/* Forward to other server? */
-	if( Req->argc > 1 )
-	{
-		/* Search target server (can be specified as nick of that server!) */
-		target = Client_Search( Req->argv[0] );
-		if( ! target ) return IRC_WriteStrClient( from, ERR_NOSUCHSERVER_MSG, Client_ID( from ), Req->argv[0] );
-	}
-	else target = Client_ThisServer( );
-
-	assert( target != NULL );
-
-	if(( Client_NextHop( target ) != Client_ThisServer( )) && ( Client_Type( Client_NextHop( target )) == CLIENT_SERVER )) return IRC_WriteStrClientPrefix( target, from, "WHOIS %s :%s", Req->argv[0], Req->argv[1] );
 
 	/* Nick, user, hostname and client info */
 	if (!IRC_WriteStrClient(from, RPL_WHOISUSER_MSG, Client_ID(from),
@@ -974,18 +938,21 @@ IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 		return DISCONNECTED;
 
 	/* Server */
-	if( ! IRC_WriteStrClient( from, RPL_WHOISSERVER_MSG, Client_ID( from ), Client_ID( c ), Client_ID( Client_Introducer( c )), Client_Info( Client_Introducer( c )))) return DISCONNECTED;
+	if (!IRC_WriteStrClient(from, RPL_WHOISSERVER_MSG, Client_ID(from),
+				Client_ID(c), Client_ID(Client_Introducer(c)),
+				Client_Info(Client_Introducer(c))))
+		return DISCONNECTED;
 
 	/* Channels */
-	snprintf( str, sizeof( str ), RPL_WHOISCHANNELS_MSG, Client_ID( from ), Client_ID( c ));
-	cl2chan = Channel_FirstChannelOf( c );
-	while( cl2chan )
-	{
-		chan = Channel_GetChannel( cl2chan );
-		assert( chan != NULL );
+	snprintf(str, sizeof(str), RPL_WHOISCHANNELS_MSG,
+		 Client_ID(from), Client_ID(c));
+	cl2chan = Channel_FirstChannelOf(c);
+	while (cl2chan) {
+		chan = Channel_GetChannel(cl2chan);
+		assert(chan != NULL);
 
 		/* next */
-		cl2chan = Channel_NextChannelOf( c, cl2chan );
+		cl2chan = Channel_NextChannelOf(c, cl2chan);
 
 		/* Secret channel? */
 		if (strchr(Channel_Modes(chan), 's')
@@ -998,54 +965,168 @@ IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 			continue;
 
 		/* Concatenate channel names */
-		if( str[strlen( str ) - 1] != ':' ) strlcat( str, " ", sizeof( str ));
-		if( strchr( Channel_UserModes( chan, c ), 'o' )) strlcat( str, "@", sizeof( str ));
-		else if( strchr( Channel_UserModes( chan, c ), 'v' )) strlcat( str, "+", sizeof( str ));
-		strlcat( str, Channel_Name( chan ), sizeof( str ));
+		if (str[strlen(str) - 1] != ':')
+			strlcat(str, " ", sizeof(str));
 
-		if( strlen( str ) > ( LINE_LEN - CHANNEL_NAME_LEN - 4 ))
-		{
+		strlcat(str, who_flags_qualifier(Channel_UserModes(chan, c)),
+						 sizeof(str));
+		strlcat(str, Channel_Name(chan), sizeof(str));
+
+		if (strlen(str) > (LINE_LEN - CHANNEL_NAME_LEN - 4)) {
 			/* Line becomes too long: send it! */
-			if( ! IRC_WriteStrClient( Client, "%s", str )) return DISCONNECTED;
-			snprintf( str, sizeof( str ), RPL_WHOISCHANNELS_MSG, Client_ID( from ), Client_ID( c ));
+			if (!IRC_WriteStrClient(Client, "%s", str))
+				return DISCONNECTED;
+			snprintf(str, sizeof(str), RPL_WHOISCHANNELS_MSG,
+				 Client_ID(from), Client_ID(c));
 		}
 	}
-	if( str[strlen( str ) - 1] != ':')
-	{
+	if(str[strlen(str) - 1] != ':') {
 		/* There is data left to send: */
-		if( ! IRC_WriteStrClient( Client, "%s", str )) return DISCONNECTED;
-	}
-
-	/* IRC-Operator? */
-	if( Client_HasMode( c, 'o' ))
-	{
-		if( ! IRC_WriteStrClient( from, RPL_WHOISOPERATOR_MSG, Client_ID( from ), Client_ID( c ))) return DISCONNECTED;
-	}
-
-	/* Connected using SSL? */
-	if (Conn_UsesSSL(Client_Conn(c))) {
-		if (!IRC_WriteStrClient
-		    (from, RPL_WHOISSSL_MSG, Client_ID(from), Client_ID(c)))
+		if (!IRC_WriteStrClient(Client, "%s", str))
 			return DISCONNECTED;
 	}
 
+	/* IRC-Operator? */
+	if (Client_HasMode(c, 'o') &&
+		!IRC_WriteStrClient(from, RPL_WHOISOPERATOR_MSG,
+				    Client_ID(from), Client_ID(c)))
+			return DISCONNECTED;
+
+	/* Connected using SSL? */
+	if (Conn_UsesSSL(Client_Conn(c)) &&
+		!IRC_WriteStrClient(from, RPL_WHOISSSL_MSG,
+				    Client_ID(from), Client_ID(c)))
+			return DISCONNECTED;
+
 	/* Idle and signon time (local clients only!) */
-	if (Client_Conn(c) > NONE ) {
-		if (! IRC_WriteStrClient(from, RPL_WHOISIDLE_MSG,
-			Client_ID(from), Client_ID(c),
-			(unsigned long)Conn_GetIdle(Client_Conn(c)),
-			(unsigned long)Conn_GetSignon(Client_Conn(c))))
-				return DISCONNECTED;
-	}
+	if (Client_Conn(c) > NONE &&
+		!IRC_WriteStrClient(from, RPL_WHOISIDLE_MSG,
+				    Client_ID(from), Client_ID(c),
+				    (unsigned long)Conn_GetIdle(Client_Conn(c)),
+				    (unsigned long)Conn_GetSignon(Client_Conn(c))))
+			return DISCONNECTED;
 
 	/* Away? */
-	if( Client_HasMode( c, 'a' ))
-	{
-		if( ! IRC_WriteStrClient( from, RPL_AWAY_MSG, Client_ID( from ), Client_ID( c ), Client_Away( c ))) return DISCONNECTED;
-	}
+	if (Client_HasMode(c, 'a') &&
+		!IRC_WriteStrClient(from, RPL_AWAY_MSG,
+				    Client_ID(from), Client_ID(c),
+				    Client_Away(c)))
+			return DISCONNECTED;
 
-	/* End of Whois */
-	return IRC_WriteStrClient( from, RPL_ENDOFWHOIS_MSG, Client_ID( from ), Client_ID( c ));
+	return IRC_WriteStrClient(from, RPL_ENDOFWHOIS_MSG,
+				  Client_ID(from), Client_ID(c));
+} /* IRC_WHOIS_SendReply */
+
+
+/**
+ * Handler for the IRC "WHOIS" command.
+ *
+ * See RFC 2812, 3.6.2 "Whois query".
+ *
+ * @param Client	The client from which this command has been received.
+ * @param Req		Request structure with prefix and all parameters.
+ * @return		CONNECTED or DISCONNECTED.
+ */
+GLOBAL bool
+IRC_WHOIS( CLIENT *Client, REQUEST *Req )
+{
+	CLIENT *from, *target, *c;
+	unsigned int match_count = 0, found = 0;
+	bool has_wildcards, is_remote;
+	bool got_wildcard = false;
+	const char *query;
+
+	assert( Client != NULL );
+	assert( Req != NULL );
+
+	/* Bad number of parameters? */
+	if (Req->argc < 1 || Req->argc > 2)
+		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+					  Client_ID(Client), Req->command);
+
+	/* Search sender of the WHOIS */
+	if (Client_Type(Client) == CLIENT_SERVER) {
+		from = Client_Search(Req->prefix);
+	} else {
+		IRC_SetPenalty(Client, 1);
+		from = Client;
+	}
+	if (!from)
+		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
+					  Client_ID(Client), Req->prefix);
+
+	/* Get target server for this command */
+	if (Req->argc > 1) {
+		/* Search the target server, which can be specified as a
+		 * nick name on that server as well: */
+		target = Client_Search(Req->argv[0]);
+		if (!target)
+			return IRC_WriteStrClient(from, ERR_NOSUCHSERVER_MSG,
+						Client_ID(from), Req->argv[0]);
+	} else
+		target = Client_ThisServer();
+	assert(target != NULL);
+
+	/* Forward to other server? */
+	if (Client_NextHop(target) != Client_ThisServer() &&
+	    Client_Type(Client_NextHop(target)) == CLIENT_SERVER)
+		return IRC_WriteStrClientPrefix(target, from,
+						"WHOIS %s :%s",
+						Req->argv[0], Req->argv[1]);
+
+	is_remote = Client_Conn(from) < 0;
+	for (query = strtok(Req->argv[Req->argc - 1], ",");
+			query && found < 3;
+			query = strtok(NULL, ","), found++)
+	{
+		has_wildcards = query[strcspn(query, "*?")] != 0;
+		/*
+		 * follows ircd 2.10 implementation:
+		 *  - handle up to 3 targets
+		 *  - no wildcards for remote clients
+		 *  - only one wildcard target per local client
+		 *
+		 *  also, at most ten matches are returned.
+		 */
+		if (!has_wildcards || is_remote) {
+			c = Client_Search(query);
+			if (c) {
+				if (!IRC_WHOIS_SendReply(Client, from, c))
+					return DISCONNECTED;
+			} else {
+				if (!IRC_WriteStrClient(Client,
+							ERR_NOSUCHNICK_MSG,
+							Client_ID(Client),
+							query))
+					return DISCONNECTED;
+			}
+			continue;
+		}
+		if (got_wildcard) {
+			/* we already handled one wildcard query */
+			if (!IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
+			     Client_ID(Client), query))
+				return DISCONNECTED;
+			continue;
+		}
+		got_wildcard = true;
+		IRC_SetPenalty(Client, 3);
+
+		for (c = Client_First(); c && match_count < 10; c = Client_Next(c)) {
+			if (Client_Type(c) != CLIENT_USER)
+				continue;
+			if (!MatchCaseInsensitive(query, Client_ID(c)))
+				continue;
+			if (!IRC_WHOIS_SendReply(Client, from, c))
+				return DISCONNECTED;
+			match_count++;
+		}
+
+		if (match_count == 0)
+			return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
+				Client_ID(Client), Req->argv[Req->argc - 1]);
+	}
+	return CONNECTED;
 } /* IRC_WHOIS */
 
 

@@ -688,7 +688,9 @@ IRC_CHANINFO( CLIENT *Client, REQUEST *Req )
 	assert( Req != NULL );
 
 	/* Bad number of parameters? */
-	if(( Req->argc < 2 ) || ( Req->argc == 4 ) || ( Req->argc > 5 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	if (Req->argc < 2 || Req->argc == 4 || Req->argc > 5)
+		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+					  Client_ID(Client), Req->command);
 
 	/* Compatibility kludge */
 	if( Req->argc == 5 ) arg_topic = 4;

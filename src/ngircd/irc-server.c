@@ -277,6 +277,7 @@ IRC_SQUIT(CLIENT * Client, REQUEST * Req)
 	char msg[COMMAND_LEN], logmsg[COMMAND_LEN];
 	CLIENT *from, *target;
 	CONN_ID con;
+	int loglevel;
 
 	assert(Client != NULL);
 	assert(Req != NULL);
@@ -301,7 +302,11 @@ IRC_SQUIT(CLIENT * Client, REQUEST * Req)
 		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
 					  Client_ID(Client), Req->prefix);
 
-	Log(LOG_DEBUG, "Got SQUIT from %s for \"%s\": \"%s\" ...",
+	if (Client_Type(Client) == CLIENT_USER)
+		loglevel = LOG_NOTICE | LOG_snotice;
+	else
+		loglevel = LOG_DEBUG;
+	Log(loglevel, "Got SQUIT from %s for \"%s\": \"%s\" ...",
 	    Client_ID(from), Req->argv[0], Req->argv[1]);
 
 	target = Client_Search(Req->argv[0]);

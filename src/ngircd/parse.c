@@ -276,10 +276,23 @@ Validate_Prefix( CONN_ID Idx, REQUEST *Req, bool *Closed )
 
 	*Closed = false;
 
-	if( ! Req->prefix ) return true;
-
 	client = Conn_GetClient( Idx );
 	assert( client != NULL );
+
+	if (!Req->prefix && Client_Type(client) == CLIENT_SERVER
+	    && strcasecmp(Req->command, "ERROR") != 0
+	    && strcasecmp(Req->command, "PING") != 0)
+	{
+		Log(LOG_ERR,
+		    "Received command without prefix (connection %d, command \"%s\")!?",
+		    Idx, Req->command);
+		if (!Conn_WriteStr(Idx, "ERROR :Prefix missing"))
+			*Closed = true;
+		return false;
+	}
+
+	if (!Req->prefix)
+		return true;
 
 	/* only validate if this connection is already registered */
 	if (Client_Type(client) != CLIENT_USER

@@ -1629,18 +1629,25 @@ Handle_Buffer(CONN_ID Idx)
 	CLIENT *c;
 
 	c = Conn_GetClient(Idx);
-	assert( c != NULL);
+	starttime = time(NULL);
+
+	assert(c != NULL);
 
 	/* Servers do get special command limits, so they can process
 	 * all the messages that are required while peering. */
 	switch (Client_Type(c)) {
 	    case CLIENT_SERVER:
-		maxcmd = MAX_COMMANDS_SERVER; break;
+		/* Allow servers to send more commands in the first 10 secods
+		 * to speed up server login and network synchronisation. */
+		if (starttime - Client_StartTime(c) < 10)
+			maxcmd = MAX_COMMANDS_SERVER * 5;
+		else
+			maxcmd = MAX_COMMANDS_SERVER;
+		break;
 	    case CLIENT_SERVICE:
 		maxcmd = MAX_COMMANDS_SERVICE; break;
 	}
 
-	starttime = time(NULL);
 	for (i=0; i < maxcmd; i++) {
 		/* Check penalty */
 		if (My_Connections[Idx].delaytime > starttime)

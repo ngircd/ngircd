@@ -73,7 +73,8 @@ location, /usr/local/sbin/.
 
 The next step is to configure and afterwards starting the daemon. Please
 have a look at the ngircd(8) and ngircd.conf(5) manual pages for details
-and all possible options.
+and all possible options -- and don't forget to run "ngircd --configtest"
+to validate your configuration file!
 
 If no previous version of the configuration file exists (the standard name
 is /usr/local/etc/ngircd.conf), a sample configuration file containing all
@@ -128,11 +129,12 @@ the local system. Normally, root privileges are necessary to complete this
 step. If there is already an older configuration file present, it won't be
 overwritten.
 
-This files will be installed by default:
+These files and folders will be installed by default:
 
 - /usr/local/sbin/ngircd: executable server
 - /usr/local/etc/ngircd.conf: sample configuration (if not already present)
 - /usr/local/share/doc/ngircd/: documentation
+- /usr/local/share/man/: manual pages
 
 
 III. Additional features
@@ -226,19 +228,20 @@ V. Sample configuration file ngircd.conf
 In the sample configuration file, there are comments beginning with "#" OR
 ";" -- this is only for the better understanding of the file.
 
-The file is separated in four blocks: [Global], [Operator], [Server], and
-[Channel].
+The file is separated in five blocks: [Global], [Features], [Operator],
+[Server], and [Channel].
 
 In the [Global] section, there is the main configuration like the server
-name and the ports, on which the server should be listening. IRC operators
-of this server are defined in [Operator] blocks. [Server] is the section
-where server links are configured. And [Channel] blocks are used to
-configure pre-defined ("persistent") IRC channels.
+name and the ports, on which the server should be listening. Options in
+the [Features] section enable or disable functionality in the daemon.
+IRC operators of this server are defined in [Operator] blocks, remote
+servers are configured in [Server] sections, and [Channel] blocks are
+used to configure pre-defined ("persistent") IRC channels.
 
 The meaning of the variables in the configuration file is explained in the 
 "doc/sample-ngircd.conf", which is used as sample configuration file in
 /usr/local/etc after running "make install" (if you don't already have one)
-and in the "ngircd.conf" manual page.
+and in the ngircd.conf(5) manual page.
 
 
 VI. Command line options
@@ -263,3 +266,5 @@ These parameters could be passed to the ngIRCd:
 Use "--help" to see a short help text describing all available parameters
 the server understands, with "--version" the ngIRCd shows its version
 number. In both cases the server exits after the output.
+
+Please see the ngircd(8) manual page for complete details!

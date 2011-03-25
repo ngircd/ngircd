@@ -359,6 +359,7 @@ Conf_Test( void )
 	printf("  DNS = %s\n", yesno_to_str(Conf_DNS));
 	printf("  Ident = %s\n", yesno_to_str(Conf_Ident));
 	printf("  PAM = %s\n", yesno_to_str(Conf_PAM));
+	printf("  NoticeAuth = %s\n", yesno_to_str(Conf_NoticeAuth));
 	puts("");
 
 	opers_puts();
@@ -614,6 +615,7 @@ Set_Defaults(bool InitServers)
 	Conf_PongTimeout = 20;
 	Conf_ConnectRetry = 60;
 	Conf_DNS = true;
+	Conf_NoticeAuth = false;
 
 	Conf_Oper_Count = 0;
 	Conf_Channel_Count = 0;
@@ -1276,6 +1278,11 @@ Handle_FEATURES(int Line, char *Var, char *Arg)
 		/* use PAM library to authenticate users */
 		Conf_PAM = Check_ArgIsTrue(Arg);
 		WarnPAM(Line);
+		return;
+	}
+	if(strcasecmp(Var, "NoticeAuth") == 0) {
+		/* send NOTICE AUTH messages to clients on connect */
+		Conf_NoticeAuth = Check_ArgIsTrue(Arg);
 		return;
 	}
 

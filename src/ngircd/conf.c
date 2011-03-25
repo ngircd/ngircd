@@ -1278,6 +1278,10 @@ Handle_FEATURES(int Line, char *Var, char *Arg)
 		WarnPAM(Line);
 		return;
 	}
+
+	Config_Error(LOG_ERR,
+		     "%s, line %d (section \"Features\"): Unknown variable \"%s\"!",
+		     NGIRCd_ConfFile, Line, Var);
 }
 
 static void

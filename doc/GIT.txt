@@ -1,9 +1,17 @@
+
                      ngIRCd - Next Generation IRC Server
+                           http://ngircd.barton.de/
+
+               (c)2001-2011 Alexander Barton and Contributors.
+               ngIRCd is free software and published under the
+                   terms of the GNU General Public License.
 
                                  -- GIT.txt --
 
+
 The source code of ngIRCd is maintained using git, the stupid content
 tracker.
+
 
 I. Getting the source code
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -20,13 +28,15 @@ git commands will be executed from within this directory in the future.
 Please note: When checking out a fresh copy of ngIRCd using git, the
 configure script doesn't exist; you have to run the autogen.sh shell script
 (which is included in the source tree) to generate it. This requires you to
-have GNU automake and GNU autoconf installed on your system.
+have GNU automake and GNU autoconf installed on your system. Please see the
+file INSTALL for details!
 
 To update the git tree:
 
  $ git pull
 
 This retrieves all changes and merges them into the current branch.
+
 
 II. Contributing
 ~~~~~~~~~~~~~~~~
@@ -42,4 +52,3 @@ III. Write Access
 ~~~~~~~~~~~~~~~~~
 If you want to contribute a couple of patches and write access to the git
 repository would be handy, please contact Alex Barton, <alex@barton.de>.
-

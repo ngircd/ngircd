@@ -352,6 +352,7 @@ Conf_Test( void )
 	printf("  MaxConnectionsIP = %d\n", Conf_MaxConnectionsIP);
 	printf("  MaxJoins = %d\n", Conf_MaxJoins > 0 ? Conf_MaxJoins : -1);
 	printf("  MaxNickLength = %u\n", Conf_MaxNickLength - 1);
+	printf("  NoticeAuth = %s\n", yesno_to_str(Conf_NoticeAuth));
 	printf("  CloakHost = %s\n", Conf_CloakHost);
 	printf("  CloakUserToNick = %s\n\n", yesno_to_str(Conf_CloakUserToNick));
 
@@ -359,7 +360,6 @@ Conf_Test( void )
 	printf("  DNS = %s\n", yesno_to_str(Conf_DNS));
 	printf("  Ident = %s\n", yesno_to_str(Conf_Ident));
 	printf("  PAM = %s\n", yesno_to_str(Conf_PAM));
-	printf("  NoticeAuth = %s\n", yesno_to_str(Conf_NoticeAuth));
 	puts("");
 
 	opers_puts();
@@ -1194,6 +1194,11 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 		Conf_MaxNickLength = Handle_MaxNickLength(Line, Arg);
 		return;
 	}
+	if(strcasecmp(Var, "NoticeAuth") == 0) {
+		/* send NOTICE AUTH messages to clients on connect */
+		Conf_NoticeAuth = Check_ArgIsTrue(Arg);
+		return;
+	}
 
 	if( strcasecmp( Var, "Listen" ) == 0 ) {
 		/* IP-Address to bind sockets */
@@ -1278,11 +1283,6 @@ Handle_FEATURES(int Line, char *Var, char *Arg)
 		/* use PAM library to authenticate users */
 		Conf_PAM = Check_ArgIsTrue(Arg);
 		WarnPAM(Line);
-		return;
-	}
-	if(strcasecmp(Var, "NoticeAuth") == 0) {
-		/* send NOTICE AUTH messages to clients on connect */
-		Conf_NoticeAuth = Check_ArgIsTrue(Arg);
 		return;
 	}
 

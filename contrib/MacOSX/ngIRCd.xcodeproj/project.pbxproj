@@ -181,7 +181,6 @@
 		FA322D9E0CEF752C001761B3 /* README-AUX.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = "README-AUX.txt"; sourceTree = "<group>"; };
 		FA322D9F0CEF752C001761B3 /* README-BeOS.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = "README-BeOS.txt"; sourceTree = "<group>"; };
 		FA322DA00CEF752C001761B3 /* RFC.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = RFC.txt; sourceTree = "<group>"; };
-		FA322DA10CEF752C001761B3 /* sample-ngircd.conf */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = "sample-ngircd.conf"; sourceTree = "<group>"; };
 		FA322DA40CEF752C001761B3 /* Doxyfile */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Doxyfile; sourceTree = "<group>"; };
 		FA322DA50CEF752C001761B3 /* footer.inc.html */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.html; path = footer.inc.html; sourceTree = "<group>"; };
 		FA322DA60CEF752C001761B3 /* header.inc.html */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.html; path = header.inc.html; sourceTree = "<group>"; };
@@ -197,6 +196,7 @@
 		FA407F2C0DB159F400271AF1 /* ng_ipaddr.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; name = ng_ipaddr.c; path = ipaddr/ng_ipaddr.c; sourceTree = "<group>"; };
 		FA407F2D0DB159F400271AF1 /* ng_ipaddr.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; name = ng_ipaddr.h; path = ipaddr/ng_ipaddr.h; sourceTree = "<group>"; };
 		FA407F380DB15AC700271AF1 /* GIT.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = GIT.txt; sourceTree = "<group>"; };
+		FA77849A133FB9FF00740057 /* sample-ngircd.conf.tmpl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "sample-ngircd.conf.tmpl"; sourceTree = "<group>"; };
 		FA85178A0FA061EC006A1F5A /* op.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = op.h; sourceTree = "<group>"; };
 		FA85178B0FA061EC006A1F5A /* op.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = op.c; sourceTree = "<group>"; };
 		FA99428A10E82A27007F27ED /* proc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = proc.h; sourceTree = "<group>"; };
@@ -561,7 +561,7 @@
 				FA322D9E0CEF752C001761B3 /* README-AUX.txt */,
 				FA322D9F0CEF752C001761B3 /* README-BeOS.txt */,
 				FA322DA00CEF752C001761B3 /* RFC.txt */,
-				FA322DA10CEF752C001761B3 /* sample-ngircd.conf */,
+				FA77849A133FB9FF00740057 /* sample-ngircd.conf.tmpl */,
 				FA322DA20CEF752C001761B3 /* src */,
 				FA322DA90CEF752C001761B3 /* SSL.txt */,
 			);

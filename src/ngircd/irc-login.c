@@ -271,6 +271,17 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 			/* Register new nickname of this client */
 			Client_SetID( target, Req->argv[0] );
 
+#ifndef STRICT_RFC
+			if (Conf_AuthPing) {
+				Conn_SetAuthPing(Client_Conn(Client), random());
+				IRC_WriteStrClient(Client, "PING :%ld",
+					Conn_GetAuthPing(Client_Conn(Client)));
+				LogDebug("Connection %d: sent AUTH PING %ld ...",
+					Client_Conn(Client),
+					Conn_GetAuthPing(Client_Conn(Client)));
+			}
+#endif
+
 			/* If we received a valid USER command already then
 			 * register the new client! */
 			if( Client_Type( Client ) == CLIENT_GOTUSER )
@@ -797,18 +808,32 @@ GLOBAL bool
 IRC_PONG(CLIENT *Client, REQUEST *Req)
 {
 	CLIENT *target, *from;
+	CONN_ID conn;
+#ifndef STRICT_RFC
+	long auth_ping;
+#endif
 	char *s;
 
 	assert(Client != NULL);
 	assert(Req != NULL);
 
 	/* Wrong number of arguments? */
-	if (Req->argc < 1)
-		return IRC_WriteStrClient(Client, ERR_NOORIGIN_MSG,
-					  Client_ID(Client));
-	if (Req->argc > 2)
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
-					  Client_ID(Client), Req->command);
+	if (Req->argc < 1) {
+		if (Client_Type(Client) == CLIENT_USER)
+			return IRC_WriteStrClient(Client, ERR_NOORIGIN_MSG,
+						  Client_ID(Client));
+		else
+			return CONNECTED;
+	}
+	if (Req->argc > 2) {
+		if (Client_Type(Client) == CLIENT_USER)
+			return IRC_WriteStrClient(Client,
+						  ERR_NEEDMOREPARAMS_MSG,
+						  Client_ID(Client),
+						  Req->command);
+		else
+			return CONNECTED;
+	}
 
 	/* Forward? */
 	if (Req->argc == 2 && Client_Type(Client) == CLIENT_SERVER) {
@@ -837,15 +862,35 @@ IRC_PONG(CLIENT *Client, REQUEST *Req)
 
 	/* The connection timestamp has already been updated when the data has
 	 * been read from so socket, so we don't need to update it here. */
+
+	conn = Client_Conn(Client);
+
+#ifndef STRICT_RFC
+	/* Check authentication PING-PONG ... */
+	auth_ping = Conn_GetAuthPing(conn);
+	if (auth_ping) {
+		LogDebug("AUTH PONG: waiting for token \"%ld\", got \"%s\" ...",
+			 auth_ping, Req->argv[0]);
+		if (auth_ping == atoi(Req->argv[0])) {
+			Conn_SetAuthPing(conn, 0);
+			if (Client_Type(Client) == CLIENT_WAITAUTHPING)
+				Hello_User(Client);
+		} else
+			if (!IRC_WriteStrClient(Client,
+					"To connect, type /QUOTE PONG %ld",
+					auth_ping))
+				return DISCONNECTED;
+	}
+#endif
+
 #ifdef DEBUG
-	if (Client_Conn(Client) > NONE)
+	if (conn > NONE)
 		Log(LOG_DEBUG,
-			"Connection %d: received PONG. Lag: %ld seconds.",
-			Client_Conn(Client),
+			"Connection %d: received PONG. Lag: %ld seconds.", conn,
 			time(NULL) - Conn_LastPing(Client_Conn(Client)));
 	else
 		 Log(LOG_DEBUG,
-			"Connection %d: received PONG.", Client_Conn(Client));
+			"Connection %d: received PONG.", conn);
 #endif
 	return CONNECTED;
 } /* IRC_PONG */
@@ -867,12 +912,25 @@ Hello_User(CLIENT * Client)
 {
 #ifdef PAM
 	int pipefd[2], result;
-	CONN_ID conn;
 	pid_t pid;
+#endif
+	CONN_ID conn;
 
 	assert(Client != NULL);
 	conn = Client_Conn(Client);
 
+#ifndef STRICT_RFC
+	if (Conf_AuthPing) {
+		/* Did we receive the "auth PONG" already? */
+		if (Conn_GetAuthPing(conn)) {
+			Client_SetType(Client, CLIENT_WAITAUTHPING);
+			LogDebug("Connection %d: Waiting for AUTH PONG ...", conn);
+			return CONNECTED;
+		}
+	}
+#endif
+
+#ifdef PAM
 	if (!Conf_PAM) {
 		/* Don't do any PAM authentication at all, instead emulate
 		 * the beahiour of the daemon compiled without PAM support:
@@ -903,8 +961,6 @@ Hello_User(CLIENT * Client)
 		exit(0);
 	}
 #else
-	assert(Client != NULL);
-
 	/* Check global server password ... */
 	if (strcmp(Client_Password(Client), Conf_ServerPwd) != 0) {
 		/* Bad password! */

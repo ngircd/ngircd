@@ -159,6 +159,11 @@
 	# messages to clients while connecting.
 	;NoticeAuth = no
 
+	# Let ngIRCd send an "authentication PING" when a new client connects,
+	# and register this client only after receiving the corresponding
+	# "PONG" reply.
+	;RequireAuthPing = no
+
 	# Set this hostname for every client instead of the real one.
 	# Please note: don't use the percentage sign ("%"), it is reserved for
 	# future extensions!

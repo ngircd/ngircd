@@ -2303,6 +2303,25 @@ Conn_GetFromProc(int fd)
 } /* Conn_GetFromProc */
 
 
+#ifndef STRICT_RFC
+
+GLOBAL long
+Conn_GetAuthPing(CONN_ID Idx)
+{
+	assert (Idx != NONE);
+	return My_Connections[Idx].auth_ping;
+} /* Conn_GetAuthPing */
+
+GLOBAL void
+Conn_SetAuthPing(CONN_ID Idx, long ID)
+{
+	assert (Idx != NONE);
+	My_Connections[Idx].auth_ping = ID;
+} /* Conn_SetAuthPing */
+
+#endif
+
+
 #ifdef SSL_SUPPORT
 
 /**

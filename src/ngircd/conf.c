@@ -354,9 +354,12 @@ Conf_Test( void )
 	printf("  MaxNickLength = %u\n", Conf_MaxNickLength - 1);
 	printf("  NoticeAuth = %s\n", yesno_to_str(Conf_NoticeAuth));
 	printf("  CloakHost = %s\n", Conf_CloakHost);
-	printf("  CloakUserToNick = %s\n\n", yesno_to_str(Conf_CloakUserToNick));
+	printf("  CloakUserToNick = %s\n", yesno_to_str(Conf_CloakUserToNick));
+#ifndef STRICT_RFC
+	printf("  RequireAuthPing = %s\n", yesno_to_str(Conf_AuthPing));
+#endif
 
-	puts("[FEATURES]");
+	printf("\n[FEATURES]\n");
 	printf("  DNS = %s\n", yesno_to_str(Conf_DNS));
 	printf("  Ident = %s\n", yesno_to_str(Conf_Ident));
 	printf("  PAM = %s\n", yesno_to_str(Conf_PAM));
@@ -643,6 +646,11 @@ Set_Defaults(bool InitServers)
 	Conf_SyslogFacility = 0;
 #endif
 #endif
+
+#ifndef STRICT_RFC
+	Conf_AuthPing = false;
+#endif
+
 	Set_Defaults_Optional();
 
 	/* Initialize server configuration structures */
@@ -1253,6 +1261,13 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 	if (strcasecmp(Var, "SyslogFacility") == 0) {
 		Conf_SyslogFacility = ngt_SyslogFacilityID(Arg,
 							   Conf_SyslogFacility);
+		return;
+	}
+#endif
+#ifndef STRICT_RFC
+	if (strcasecmp(Var, "RequireAuthPing") == 0 ) {
+		/* Require new clients to do an "autheticatin PING-PONG" */
+		Conf_AuthPing = Check_ArgIsTrue(Arg);
 		return;
 	}
 #endif

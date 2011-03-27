@@ -91,6 +91,9 @@ typedef struct _Connection
 #ifdef SSL_SUPPORT
 	struct ConnSSL_State ssl_state;	/* SSL/GNUTLS state information */
 #endif
+#ifndef STRICT_RFC
+	long auth_ping;			/** PING response expected on login */
+#endif
 } CONNECTION;
 
 GLOBAL CONNECTION *My_Connections;
@@ -131,6 +134,11 @@ Conn_UsesSSL(UNUSED CONN_ID Idx)
 GLOBAL long Conn_Count PARAMS((void));
 GLOBAL long Conn_CountMax PARAMS((void));
 GLOBAL long Conn_CountAccepted PARAMS((void));
+
+#ifndef STRICT_RFC
+GLOBAL long Conn_GetAuthPing PARAMS((CONN_ID Idx));
+GLOBAL void Conn_SetAuthPing PARAMS((CONN_ID Idx, long ID));
+#endif
 
 #ifdef DEBUG
 GLOBAL void Conn_DebugDump PARAMS((void));

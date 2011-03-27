@@ -251,6 +251,11 @@ Maximum length of an user nick name (Default: 9, as in RFC 2812). Please
 note that all servers in an IRC network MUST use the same maximum nick name
 length!
 .TP
+\fBRequireAuthPing\fR
+Let ngIRCd send an "authentication PING" when a new client connects, and
+register this client only after receiving the corresponding "PONG" reply.
+Default: no.
+.TP
 \fBCloakHost\fR
 Set this hostname for every client instead of the real one. Default: empty,
 don't change.

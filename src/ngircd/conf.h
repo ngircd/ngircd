@@ -199,6 +199,13 @@ GLOBAL int Conf_MaxConnectionsIP;
 /** Maximum length of a nick name */
 GLOBAL unsigned int Conf_MaxNickLength;
 
+#ifndef STRICT_RFC
+
+/** Require "AUTH PING-PONG" on login */
+GLOBAL bool Conf_AuthPing;
+
+#endif
+
 #ifdef SYSLOG
 
 /* Syslog "facility" */

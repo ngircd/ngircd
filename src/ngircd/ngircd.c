@@ -289,6 +289,8 @@ main( int argc, const char *argv[] )
 			exit(1);
 		}
 
+		srandom(getpid());
+
 		/* Create protocol and server identification. The syntax
 		 * used by ngIRCd in PASS commands and the known "extended
 		 * flags" are described in doc/Protocol.txt. */

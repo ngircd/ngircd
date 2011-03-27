@@ -60,6 +60,8 @@ static void Pidfile_Delete PARAMS(( void ));
 
 static void Fill_Version PARAMS(( void ));
 
+static void Random_Init PARAMS(( void ));
+
 static void Setup_FDStreams PARAMS(( int fd ));
 
 static bool NGIRCd_Init PARAMS(( bool ));
@@ -262,6 +264,8 @@ main( int argc, const char *argv[] )
 		NGIRCd_SignalRestart = false;
 		NGIRCd_SignalQuit = false;
 
+		Random_Init();
+
 		/* Initialize modules, part I */
 		Log_Init( ! NGIRCd_NoDaemon );
 		Conf_Init( );
@@ -288,8 +292,6 @@ main( int argc, const char *argv[] )
 			Log(LOG_ALERT, "Fatal: Could not set up signal handlers: %s", strerror(errno));
 			exit(1);
 		}
-
-		srandom(getpid());
 
 		/* Create protocol and server identification. The syntax
 		 * used by ngIRCd in PASS commands and the known "extended
@@ -562,6 +564,37 @@ NGIRCd_getNobodyID(uid_t *uid, gid_t *gid )
 
 	return true;
 } /* NGIRCd_getNobodyID */
+
+
+static bool
+Random_Init_Kern(const char *file)
+{
+	unsigned int seed;
+	bool ret = false;
+	int fd = open(file, O_RDONLY);
+	if (fd >= 0) {
+		if (read(fd, &seed, sizeof(seed)) == sizeof(seed))
+			ret = true;
+		close(fd);
+		srandom(seed);
+	}
+	return ret;
+}
+
+/**
+ * Initialize libc random(3) number generator
+ */
+static void
+Random_Init(void)
+{
+	if (Random_Init_Kern("/dev/urandom"))
+		return;
+	if (Random_Init_Kern("/dev/random"))
+		return;
+	if (Random_Init_Kern("/dev/arandom"))
+		return;
+	srandom(random() ^ getpid() ^ time(NULL));
+}
 
 
 /**

@@ -50,6 +50,7 @@ GLOBAL pid_t
 Proc_Fork(PROC_STAT *proc, int *pipefds, void (*cbfunc)(int, short), int timeout)
 {
 	pid_t pid;
+	unsigned int seed;
 
 	assert(proc != NULL);
 	assert(pipefds != NULL);
@@ -61,6 +62,7 @@ Proc_Fork(PROC_STAT *proc, int *pipefds, void (*cbfunc)(int, short), int timeout
 		return -1;
 	}
 
+	seed = random();
 	pid = fork();
 	switch (pid) {
 	case -1:
@@ -71,6 +73,7 @@ Proc_Fork(PROC_STAT *proc, int *pipefds, void (*cbfunc)(int, short), int timeout
 		return -1;
 	case 0:
 		/* New child process: */
+		srandom(seed ^ time(NULL) ^ getpid());
 		Signals_Exit();
 		signal(SIGTERM, Proc_GenericSignalHandler);
 		signal(SIGALRM, Proc_GenericSignalHandler);

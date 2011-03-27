@@ -352,6 +352,7 @@ Conf_Test( void )
 	printf("  MaxConnectionsIP = %d\n", Conf_MaxConnectionsIP);
 	printf("  MaxJoins = %d\n", Conf_MaxJoins > 0 ? Conf_MaxJoins : -1);
 	printf("  MaxNickLength = %u\n", Conf_MaxNickLength - 1);
+	printf("  NoticeAuth = %s\n", yesno_to_str(Conf_NoticeAuth));
 	printf("  CloakHost = %s\n", Conf_CloakHost);
 	printf("  CloakUserToNick = %s\n\n", yesno_to_str(Conf_CloakUserToNick));
 
@@ -614,6 +615,7 @@ Set_Defaults(bool InitServers)
 	Conf_PongTimeout = 20;
 	Conf_ConnectRetry = 60;
 	Conf_DNS = true;
+	Conf_NoticeAuth = false;
 
 	Conf_Oper_Count = 0;
 	Conf_Channel_Count = 0;
@@ -1190,6 +1192,11 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 		/* Maximum length of a nick name; must be same on all servers
 		 * within the IRC network! */
 		Conf_MaxNickLength = Handle_MaxNickLength(Line, Arg);
+		return;
+	}
+	if(strcasecmp(Var, "NoticeAuth") == 0) {
+		/* send NOTICE AUTH messages to clients on connect */
+		Conf_NoticeAuth = Check_ArgIsTrue(Arg);
 		return;
 	}
 

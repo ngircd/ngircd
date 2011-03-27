@@ -251,6 +251,11 @@ Maximum length of an user nick name (Default: 9, as in RFC 2812). Please
 note that all servers in an IRC network MUST use the same maximum nick name
 length!
 .TP
+\fBNoticeAuth\fR (boolean)
+Normally ngIRCd doesn't send any messages to a client until it is registered.
+Enable this option to let the daemon send "NOTICE AUTH" messages to clients
+while connecting. Default: no.
+.TP
 \fBCloakHost\fR (string)
 Set this hostname for every client instead of the real one. Default: empty,
 don't change.

@@ -1444,9 +1444,20 @@ New_Connection(int Sock)
 	if (!Conf_Ident)
 		identsock = -1;
 #endif
-	if (Conf_DNS)
+	if (Conf_DNS) {
+		if (Conf_NoticeAuth) {
+#ifdef IDENTAUTH
+			if (Conf_Ident)
+				(void)Conn_WriteStr(new_sock,
+					"NOTICE AUTH :*** Looking up your hostname and checking ident");
+			else
+#endif
+				(void)Conn_WriteStr(new_sock,
+					"NOTICE AUTH :*** Looking up your hostname");
+		}
 		Resolve_Addr(&My_Connections[new_sock].proc_stat, &new_addr,
 			     identsock, cb_Read_Resolver_Result);
+	}
 
 	Account_Connection();
 	return new_sock;
@@ -2175,13 +2186,22 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 		strlcpy(My_Connections[i].host, readbuf,
 			sizeof(My_Connections[i].host));
 		Client_SetHostname(c, readbuf);
+		if (Conf_NoticeAuth)
+			(void)Conn_WriteStr(i,
+					"NOTICE AUTH :*** Found your hostname");
 #ifdef IDENTAUTH
 		++identptr;
 		if (*identptr) {
 			Log(LOG_INFO, "IDENT lookup for connection %d: \"%s\".", i, identptr);
 			Client_SetUser(c, identptr, true);
+			if (Conf_NoticeAuth)
+				(void)Conn_WriteStr(i,
+					"NOTICE AUTH :*** Got ident response");
 		} else {
 			Log(LOG_INFO, "IDENT lookup for connection %d: no result.", i);
+			if (Conf_NoticeAuth && Conf_Ident)
+				(void)Conn_WriteStr(i,
+					"NOTICE AUTH :*** No ident response");
 		}
 #endif
 	}

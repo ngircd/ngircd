@@ -154,6 +154,11 @@
 	# maximum nick name length!
 	;MaxNickLength = 9
 
+	# Normally ngIRCd doesn't send any messages to a client until it is
+	# registered. Enable this option to let the daemon send "NOTICE AUTH"
+	# messages to clients while connecting.
+	;NoticeAuth = no
+
 	# Set this hostname for every client instead of the real one.
 	# Please note: don't use the percentage sign ("%"), it is reserved for
 	# future extensions!

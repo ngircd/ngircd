@@ -78,15 +78,21 @@ static void Config_Error_TooLong PARAMS(( const int LINE, const char *Value ));
 
 static void Init_Server_Struct PARAMS(( CONF_SERVER *Server ));
 
+
 #ifdef WANT_IPV6
 #define DEFAULT_LISTEN_ADDRSTR "::,0.0.0.0"
 #else
 #define DEFAULT_LISTEN_ADDRSTR "0.0.0.0"
 #endif
 
+
 #ifdef SSL_SUPPORT
+
 struct SSLOptions Conf_SSLOptions;
 
+/**
+ * Initialize SSL configuration.
+ */
 static void
 ConfSSL_Init(void)
 {
@@ -101,6 +107,12 @@ ConfSSL_Init(void)
 	array_free_wipe(&Conf_SSLOptions.KeyFilePassword);
 }
 
+/**
+ * Output SSL configuration variable containing a file name.
+ * And make sure that the given file is readable.
+ *
+ * @returns true when the file is readable.
+ */
 static bool
 ssl_print_configvar(const char *name, const char *file)
 {
@@ -122,6 +134,11 @@ ssl_print_configvar(const char *name, const char *file)
 	return fp != NULL;
 }
 
+/**
+ * Output SSL-related configuration variables.
+ *
+ * @returns true when all SSL-related configuration variables are valid.
+ */
 static bool
 ConfSSL_Puts(void)
 {
@@ -142,18 +159,28 @@ ConfSSL_Puts(void)
 
 	return ret;
 }
+
 #endif
 
+
+/**
+ * Duplicate string and warn on errors.
+ *
+ * @returns Pointer to string on success, NULL otherwise.
+ */
 static char *
 strdup_warn(const char *str)
 {
 	char *ptr = strdup(str);
 	if (!ptr)
-		Config_Error(LOG_ERR, "Could not allocate mem for string: %s", str);
+		Config_Error(LOG_ERR,
+			     "Could not allocate memory for string: %s", str);
 	return ptr;
 }
 
-
+/**
+ * Output a comma separated list of ports (integer values).
+ */
 static void
 ports_puts(array *a)
 {
@@ -171,7 +198,9 @@ ports_puts(array *a)
 	putc('\n', stdout);
 }
 
-
+/**
+ * Parse a comma separated string into an array of port numbers (integers).
+ */
 static void
 ports_parse(array *a, int Line, char *Arg)
 {
@@ -181,8 +210,6 @@ ports_parse(array *a, int Line, char *Arg)
 
 	array_trunc(a);
 
-	/* Ports on that the server should listen. More port numbers
-	 * must be separated by "," */
 	ptr = strtok( Arg, "," );
 	while (ptr) {
 		ngt_TrimStr(ptr);
@@ -201,15 +228,21 @@ ports_parse(array *a, int Line, char *Arg)
 	}
 }
 
-
+/**
+ * Initialize configuration module.
+ */
 GLOBAL void
 Conf_Init( void )
 {
 	Read_Config( true );
 	Validate_Config(false, false);
-} /* Config_Init */
+}
 
-
+/**
+ * "Rehash" (reload) server configuration.
+ *
+ * @returns true if configuration has been re-read, false on errors.
+ */
 GLOBAL bool
 Conf_Rehash( void )
 {
@@ -220,9 +253,11 @@ Conf_Rehash( void )
 	/* Update CLIENT structure of local server */
 	Client_SetInfo(Client_ThisServer(), Conf_ServerInfo);
 	return true;
-} /* Config_Rehash */
+}
 
-
+/**
+ * Output a boolean value as "yes/no" string.
+ */
 static const char*
 yesno_to_str(int boolean_value)
 {
@@ -231,7 +266,9 @@ yesno_to_str(int boolean_value)
 	return "no";
 }
 
-
+/**
+ * Free all IRC operator configuration structures.
+ */
 static void
 opers_free(void)
 {
@@ -247,6 +284,9 @@ opers_free(void)
 	array_free(&Conf_Opers);
 }
 
+/**
+ * Output all IRC operator configuration structures.
+ */
 static void
 opers_puts(void)
 {
@@ -266,12 +306,18 @@ opers_puts(void)
 	}
 }
 
-
+/**
+ * Read configuration, validate and output it.
+ *
+ * This function waits for a keypress of the user when stdin/stdout are valid
+ * tty's ("you can read our nice message and we can read in your keypress").
+ *
+ * @return	0 on succes, 1 on failure(s); therefore the result code can
+ * 		directly be used by exit() when running "ngircd --configtest".
+ */
 GLOBAL int
 Conf_Test( void )
 {
-	/* Read configuration, validate and output it. */
-
 	struct passwd *pwd;
 	struct group *grp;
 	unsigned int i;
@@ -286,8 +332,7 @@ Conf_Test( void )
 
 	config_valid = Validate_Config(true, false);
 
-	/* If stdin and stdout ("you can read our nice message and we can
-	 * read in your keypress") are valid tty's, wait for a key: */
+	/* Valid tty? */
 	if( isatty( fileno( stdin )) && isatty( fileno( stdout ))) {
 		puts( "OK, press enter to see a dump of your service configuration ..." );
 		getchar( );
@@ -405,17 +450,19 @@ Conf_Test( void )
 	}
 
 	return (config_valid ? 0 : 1);
-} /* Conf_Test */
+}
 
-
+/**
+ * Remove connection information from configured server.
+ *
+ * If the server is set as "once", delete it from our configuration;
+ * otherwise set the time for the next connection attempt.
+ *
+ * Non-server connections will be silently ignored.
+ */
 GLOBAL void
 Conf_UnsetServer( CONN_ID Idx )
 {
-	/* Set next time for next connection attempt, if this is a server
-	 * link that is (still) configured here. If the server is set as
-	 * "once", delete it from our configuration.
-	 * Non-Server-Connections will be silently ignored. */
-
 	int i;
 	time_t t;
 
@@ -441,26 +488,26 @@ Conf_UnsetServer( CONN_ID Idx )
 				Conf_Server[i].lasttry = t;
 		}
 	}
-} /* Conf_UnsetServer */
+}
 
-
+/**
+ * Set connection information for specified configured server.
+ */
 GLOBAL void
 Conf_SetServer( int ConfServer, CONN_ID Idx )
 {
-	/* Set connection for specified configured server */
-
 	assert( ConfServer > NONE );
 	assert( Idx > NONE );
 
 	Conf_Server[ConfServer].conn_id = Idx;
-} /* Conf_SetServer */
+}
 
-
+/**
+ * Get index of server in configuration structure.
+ */
 GLOBAL int
 Conf_GetServer( CONN_ID Idx )
 {
-	/* Get index of server in configuration structure */
-
 	int i = 0;
 
 	assert( Idx > NONE );
@@ -469,18 +516,20 @@ Conf_GetServer( CONN_ID Idx )
 		if( Conf_Server[i].conn_id == Idx ) return i;
 	}
 	return NONE;
-} /* Conf_GetServer */
+}
 
-
+/**
+ * Enable a server by name and adjust its port number.
+ *
+ * @returns	true if a server has been enabled and now has a valid port
+ *		number and host name for outgoing connections.
+ */
 GLOBAL bool
 Conf_EnableServer( const char *Name, UINT16 Port )
 {
-	/* Enable specified server and adjust port */
-
 	int i;
 
 	assert( Name != NULL );
-
 	for( i = 0; i < MAX_SERVERS; i++ ) {
 		if( strcasecmp( Conf_Server[i].name, Name ) == 0 ) {
 			/* Gotcha! Set port and enable server: */
@@ -490,53 +539,74 @@ Conf_EnableServer( const char *Name, UINT16 Port )
 		}
 	}
 	return false;
-} /* Conf_EnableServer */
+}
 
-
+/**
+ * Enable a server by name.
+ *
+ * The server is only usable as outgoing server, if it has set a valid port
+ * number for outgoing connections!
+ * If not, you have to use Conf_EnableServer() function to make it available.
+ *
+ * @returns	true if a server has been enabled; false otherwise.
+ */
 GLOBAL bool
 Conf_EnablePassiveServer(const char *Name)
 {
-	/* Enable specified server */
 	int i;
 
 	assert( Name != NULL );
 	for (i = 0; i < MAX_SERVERS; i++) {
-		if ((strcasecmp( Conf_Server[i].name, Name ) == 0) && (Conf_Server[i].port > 0)) {
+		if ((strcasecmp( Conf_Server[i].name, Name ) == 0)
+		    && (Conf_Server[i].port > 0)) {
 			/* BINGO! Enable server */
 			Conf_Server[i].flags &= ~CONF_SFLAG_DISABLED;
 			return true;
 		}
 	}
 	return false;
-} /* Conf_EnablePassiveServer */
+}
 
-
+/**
+ * Disable a server by name.
+ * An already established connection will be disconnected.
+ *
+ * @returns	true if a server was found and has been disabled.
+ */
 GLOBAL bool
 Conf_DisableServer( const char *Name )
 {
-	/* Enable specified server and adjust port */
-
 	int i;
 
 	assert( Name != NULL );
-
 	for( i = 0; i < MAX_SERVERS; i++ ) {
 		if( strcasecmp( Conf_Server[i].name, Name ) == 0 ) {
 			/* Gotcha! Disable and disconnect server: */
 			Conf_Server[i].flags |= CONF_SFLAG_DISABLED;
-			if( Conf_Server[i].conn_id > NONE ) Conn_Close( Conf_Server[i].conn_id, NULL, "Server link terminated on operator request", true);
+			if( Conf_Server[i].conn_id > NONE )
+				Conn_Close(Conf_Server[i].conn_id, NULL,
+					   "Server link terminated on operator request",
+					   true);
 			return true;
 		}
 	}
 	return false;
-} /* Conf_DisableServer */
+}
 
-
+/**
+ * Add a new remote server to our configuration.
+ *
+ * @param Name		Name of the new server.
+ * @param Port		Port number to connect to or 0 for incoming connections.
+ * @param Host		Host name to connect to.
+ * @param MyPwd		Password that will be sent to the peer.
+ * @param PeerPwd	Password that must be received from the peer.
+ * @returns		true if the new server has been added; false otherwise.
+ */
 GLOBAL bool
-Conf_AddServer( const char *Name, UINT16 Port, const char *Host, const char *MyPwd, const char *PeerPwd )
+Conf_AddServer(const char *Name, UINT16 Port, const char *Host,
+	       const char *MyPwd, const char *PeerPwd)
 {
-	/* Add new server to configuration */
-
 	int i;
 
 	assert( Name != NULL );
@@ -560,11 +630,12 @@ Conf_AddServer( const char *Name, UINT16 Port, const char *Host, const char *MyP
 	Conf_Server[i].flags = CONF_SFLAG_ONCE;
 
 	return true;
-} /* Conf_AddServer */
-
+}
 
 /**
- * Check if the given nick name is an service
+ * Check if the given nick name is an service.
+ *
+ * @returns true if the given nick name belongs to an "IRC service".
  */
 GLOBAL bool
 Conf_IsService(int ConfServer, const char *Nick)
@@ -587,7 +658,6 @@ Set_Defaults_Optional(void)
 	Conf_PAM = false;
 #endif
 }
-
 
 /**
  * Initialize configuration settings with their default values.
@@ -663,9 +733,13 @@ Set_Defaults(bool InitServers)
 
 	/* Free MOTD; this is important when reloading the configuration */
 	array_free(&Conf_Motd);
-} /* Set_Defaults */
+}
 
-
+/**
+ * Get number of configured listening ports.
+ *
+ * @returns The number of ports (IPv4+IPv6) on which the server should listen.
+ */
 static bool
 no_listenports(void)
 {
@@ -676,6 +750,11 @@ no_listenports(void)
 	return cnt == 0;
 }
 
+/**
+ * Read MOTD ("message of the day") file.
+ *
+ * @param filename	Name of the file to read.
+ */
 static void
 Read_Motd(const char *filename)
 {
@@ -707,11 +786,19 @@ Read_Motd(const char *filename)
 	fclose(fp);
 }
 
+/**
+ * Read ngIRCd configuration file.
+ *
+ * Please note that this function uses exit(1) on fatal errors and therefore
+ * can result in ngIRCd terminating!
+ *
+ * @param ngircd_starting	Flag indicating if ngIRCd is starting or not.
+ * @returns			true when the configuration file has been read
+ *				successfully; false otherwise.
+ */
 static bool
 Read_Config( bool ngircd_starting )
 {
-	/* Read configuration file. */
-
 	char section[LINE_LEN], str[LINE_LEN], *var, *arg, *ptr;
 	const UINT16 defaultport = 6667;
 	int line, i, n;
@@ -877,9 +964,14 @@ Read_Config( bool ngircd_starting )
 	if (array_bytes(&Conf_Motd) == 0)
 		Read_Motd(Conf_MotdFile);
 	return true;
-} /* Read_Config */
+}
 
-
+/**
+ * Check whether an string argument is true or false.
+ *
+ * @param Arg	Input string.
+ * @returns	true if string has been parsed as "yes"/"true"/"on".
+ */
 static bool
 Check_ArgIsTrue( const char *Arg )
 {
@@ -888,9 +980,15 @@ Check_ArgIsTrue( const char *Arg )
 	if( atoi( Arg ) != 0 ) return true;
 
 	return false;
-} /* Check_ArgIsTrue */
+}
 
-
+/**
+ * Handle setting of "MaxNickLength".
+ *
+ * @param Line	Line number in configuration file.
+ * @raram Arg	Input string.
+ * @returns	New configured maximum nick name length.
+ */
 static unsigned int
 Handle_MaxNickLength(int Line, const char *Arg)
 {
@@ -910,9 +1008,11 @@ Handle_MaxNickLength(int Line, const char *Arg)
 		return 2;
 	}
 	return new;
-} /* Handle_MaxNickLength */
+}
 
-
+/**
+ * Output a warning messages if IDENT is configured but not compiled in.
+ */
 static void
 WarnIdent(int UNUSED Line)
 {
@@ -926,6 +1026,9 @@ WarnIdent(int UNUSED Line)
 #endif
 }
 
+/**
+ * Output a warning messages if PAM is configured but not compiled in.
+ */
 static void
 WarnPAM(int UNUSED Line)
 {
@@ -938,6 +1041,16 @@ WarnPAM(int UNUSED Line)
 #endif
 }
 
+/**
+ * Handle legacy "NoXXX" options in [GLOBAL] section.
+ *
+ * TODO: This function and support for "NoXXX" should be removed starting
+ * with ngIRCd release 19! (One release after marking it "deprecated").
+ *
+ * @param Var	Variable name.
+ * @param Arg	Argument string.
+ * @returns	true if a NoXXX option has been processed; false otherwise.
+ */
 static bool
 CheckLegacyNoOption(const char *Var, const char *Arg)
 {
@@ -956,6 +1069,15 @@ CheckLegacyNoOption(const char *Var, const char *Arg)
 	return false;
 }
 
+/**
+ * Strip "no" prefix of a string.
+ *
+ * TODO: This function and support for "NoXXX" should be removed starting
+ * with ngIRCd release 19! (One release after marking it "deprecated").
+ *
+ * @param str	Pointer to input string starting with "no".
+ * @returns	New pointer to string without "no" prefix.
+ */
 static const char *
 NoNo(const char *str)
 {
@@ -963,12 +1085,28 @@ NoNo(const char *str)
 	return str + 2;
 }
 
+/**
+ * Invert "boolean" string.
+ *
+ * TODO: This function and support for "NoXXX" should be removed starting
+ * with ngIRCd release 19! (One release after marking it "deprecated").
+ *
+ * @param arg	"Boolean" input string.
+ * @returns	Pointer to inverted "boolean string".
+ */
 static const char *
 InvertArg(const char *arg)
 {
 	return yesno_to_str(!Check_ArgIsTrue(arg));
 }
 
+/**
+ * Handle variable in [Global] configuration section.
+ *
+ * @param Line	Line numer in configuration file.
+ * @param Var	Variable name.
+ * @param Arg	Variable argument.
+ */
 static void
 Handle_GLOBAL( int Line, char *Var, char *Arg )
 {
@@ -1278,6 +1416,13 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 }
 
 
+/**
+ * Handle variable in [Features] configuration section.
+ *
+ * @param Line	Line numer in configuration file.
+ * @param Var	Variable name.
+ * @param Arg	Variable argument.
+ */
 static void
 Handle_FEATURES(int Line, char *Var, char *Arg)
 {
@@ -1306,6 +1451,13 @@ Handle_FEATURES(int Line, char *Var, char *Arg)
 	Config_Error_Section(Line, Var, "Options");
 }
 
+/**
+ * Handle variable in [Operator] configuration section.
+ *
+ * @param Line	Line numer in configuration file.
+ * @param Var	Variable name.
+ * @param Arg	Variable argument.
+ */
 static void
 Handle_OPERATOR( int Line, char *Var, char *Arg )
 {
@@ -1347,6 +1499,13 @@ Handle_OPERATOR( int Line, char *Var, char *Arg )
 	Config_Error_Section(Line, Var, "Operator");
 }
 
+/**
+ * Handle variable in [Server] configuration section.
+ *
+ * @param Line	Line numer in configuration file.
+ * @param Var	Variable name.
+ * @param Arg	Variable argument.
+ */
 static void
 Handle_SERVER( int Line, char *Var, char *Arg )
 {
@@ -1441,7 +1600,16 @@ Handle_SERVER( int Line, char *Var, char *Arg )
 	Config_Error_Section(Line, Var, "Server");
 }
 
-
+/**
+ * Copy channel name into channel structure.
+ *
+ * If the channel name is not valid because of a missing prefix ('#', '&'),
+ * a default prefix of '#' will be added.
+ *
+ * @param new_chan	New already allocated channel structure.
+ * @param name		Name of the new channel.
+ * @returns		true on success, false otherwise.
+ */
 static bool
 Handle_Channelname(struct Conf_Channel *new_chan, const char *name)
 {
@@ -1460,7 +1628,13 @@ Handle_Channelname(struct Conf_Channel *new_chan, const char *name)
 	return size > strlcpy(dest, name, size);
 }
 
-
+/**
+ * Handle variable in [Channel] configuration section.
+ *
+ * @param Line	Line numer in configuration file.
+ * @param Var	Variable name.
+ * @param Arg	Variable argument.
+ */
 static void
 Handle_CHANNEL(int Line, char *Var, char *Arg)
 {
@@ -1524,6 +1698,16 @@ Handle_CHANNEL(int Line, char *Var, char *Arg)
 	Config_Error_Section(Line, Var, "Channel");
 }
 
+/**
+ * Validate server configuration.
+ *
+ * Please note that this function uses exit(1) on fatal errors and therefore
+ * can result in ngIRCd terminating!
+ *
+ * @param Configtest	true if the daemon has been called with "--configtest".
+ * @param Rehash	true if re-reading configuration on runtime.
+ * @returns		true if configuration is valid.
+ */
 static bool
 Validate_Config(bool Configtest, bool Rehash)
 {
@@ -1621,15 +1805,27 @@ Validate_Config(bool Configtest, bool Rehash)
 #endif
 
 	return config_valid;
-} /* Validate_Config */
+}
 
-
+/**
+ * Output "line too long" warning.
+ *
+ * @param Line	Line number in configuration file.
+ * @param Item	Affected variable name.
+ */
 static void
 Config_Error_TooLong ( const int Line, const char *Item )
 {
 	Config_Error( LOG_WARNING, "%s, line %d: Value of \"%s\" too long!", NGIRCd_ConfFile, Line, Item );
 }
 
+/**
+ * Output "unknown variable" warning.
+ *
+ * @param Line		Line number in configuration file.
+ * @param Item		Affected variable name.
+ * @param Section	Section name.
+ */
 static void
 Config_Error_Section(const int Line, const char *Item, const char *Section)
 {
@@ -1637,6 +1833,12 @@ Config_Error_Section(const int Line, const char *Item, const char *Section)
 		     NGIRCd_ConfFile, Line, Section, Item);
 }
 
+/**
+ * Output "not a number" warning.
+ *
+ * @param Line	Line number in configuration file.
+ * @param Item	Affected variable name.
+ */
 static void
 Config_Error_NaN( const int Line, const char *Item )
 {
@@ -1644,6 +1846,16 @@ Config_Error_NaN( const int Line, const char *Item )
 						NGIRCd_ConfFile, Line, Item );
 }
 
+/**
+ * Output configuration error to console and/or logfile.
+ *
+ * On runtime, the normal log functions of the daemon are used. But when
+ * testing the configuration ("--configtest"), all messages go directly
+ * to the console.
+ *
+ * @param Level		Severity level of the message.
+ * @param Format	Format string; see printf() function.
+ */
 #ifdef PROTOTYPES
 static void Config_Error( const int Level, const char *Format, ... )
 #else
@@ -1653,8 +1865,6 @@ const char *Format;
 va_dcl
 #endif
 {
-	/* Error! Write to console and/or logfile. */
-
 	char msg[MAX_LOG_MSG_LEN];
 	va_list ap;
 
@@ -1668,16 +1878,15 @@ va_dcl
 	vsnprintf( msg, MAX_LOG_MSG_LEN, Format, ap );
 	va_end( ap );
 
-	/* During "normal operations" the log functions of the daemon should
-	 * be used, but during testing of the configuration file, all messages
-	 * should go directly to the console: */
 	if (Use_Log) Log( Level, "%s", msg );
 	else puts( msg );
-} /* Config_Error */
-
+}
 
 #ifdef DEBUG
 
+/**
+ * Dump internal state of the "configuration module".
+ */
 GLOBAL void
 Conf_DebugDump(void)
 {
@@ -1694,16 +1903,18 @@ Conf_DebugDump(void)
 		    Conf_Server[i].group, Conf_Server[i].flags,
 		    Conf_Server[i].conn_id);
 	}
-} /* Conf_DebugDump */
+}
 
 #endif
 
-
+/**
+ * Initialize server configuration structur to default values.
+ *
+ * @param Server	Pointer to server structure to initialize.
+ */
 static void
 Init_Server_Struct( CONF_SERVER *Server )
 {
-	/* Initialize server configuration structur to default values */
-
 	assert( Server != NULL );
 
 	memset( Server, 0, sizeof (CONF_SERVER) );
@@ -1716,7 +1927,6 @@ Init_Server_Struct( CONF_SERVER *Server )
 	Proc_InitStruct(&Server->res_stat);
 	Server->conn_id = NONE;
 	memset(&Server->bind_addr, 0, sizeof(&Server->bind_addr));
-} /* Init_Server_Struct */
-
+}
 
 /* -eof- */

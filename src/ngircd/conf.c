@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2010 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2011 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -72,6 +72,8 @@ static void Handle_CHANNEL PARAMS(( int Line, char *Var, char *Arg ));
 static void Config_Error PARAMS(( const int Level, const char *Format, ... ));
 
 static void Config_Error_NaN PARAMS(( const int LINE, const char *Value ));
+static void Config_Error_Section PARAMS(( const int Line, const char *Item,
+					  const char *Section ));
 static void Config_Error_TooLong PARAMS(( const int LINE, const char *Value ));
 
 static void Init_Server_Struct PARAMS(( CONF_SERVER *Server ));
@@ -973,11 +975,11 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 	struct passwd *pwd;
 	struct group *grp;
 	size_t len;
-	
+
 	assert( Line > 0 );
 	assert( Var != NULL );
 	assert( Arg != NULL );
-	
+
 	if( strcasecmp( Var, "Name" ) == 0 ) {
 		/* Server name */
 		len = strlcpy( Conf_ServerName, Arg, sizeof( Conf_ServerName ));
@@ -1271,9 +1273,9 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 		return;
 	}
 #endif
-	Config_Error(LOG_ERR, "%s, line %d (section \"Global\"): Unknown variable \"%s\"!",
-								NGIRCd_ConfFile, Line, Var);
-} /* Handle_GLOBAL */
+
+	Config_Error_Section(Line, Var, "Global");
+}
 
 
 static void
@@ -1301,9 +1303,7 @@ Handle_FEATURES(int Line, char *Var, char *Arg)
 		return;
 	}
 
-	Config_Error(LOG_ERR,
-		     "%s, line %d (section \"Features\"): Unknown variable \"%s\"!",
-		     NGIRCd_ConfFile, Line, Var);
+	Config_Error_Section(Line, Var, "Options");
 }
 
 static void
@@ -1343,17 +1343,16 @@ Handle_OPERATOR( int Line, char *Var, char *Arg )
 		op->mask = strdup_warn( Arg );
 		return;
 	}
-	Config_Error( LOG_ERR, "%s, line %d (section \"Operator\"): Unknown variable \"%s\"!",
-								NGIRCd_ConfFile, Line, Var );
-} /* Handle_OPERATOR */
 
+	Config_Error_Section(Line, Var, "Operator");
+}
 
 static void
 Handle_SERVER( int Line, char *Var, char *Arg )
 {
 	long port;
 	size_t len;
-	
+
 	assert( Line > 0 );
 	assert( Var != NULL );
 	assert( Arg != NULL );
@@ -1439,9 +1438,8 @@ Handle_SERVER( int Line, char *Var, char *Arg )
 		return;
 	}
 
-	Config_Error( LOG_ERR, "%s, line %d (section \"Server\"): Unknown variable \"%s\"!",
-								NGIRCd_ConfFile, Line, Var );
-} /* Handle_SERVER */
+	Config_Error_Section(Line, Var, "Server");
+}
 
 
 static bool
@@ -1523,10 +1521,8 @@ Handle_CHANNEL(int Line, char *Var, char *Arg)
 		return;
 	}
 
-	Config_Error( LOG_ERR, "%s, line %d (section \"Channel\"): Unknown variable \"%s\"!",
-								NGIRCd_ConfFile, Line, Var );
-} /* Handle_CHANNEL */
-
+	Config_Error_Section(Line, Var, "Channel");
+}
 
 static bool
 Validate_Config(bool Configtest, bool Rehash)
@@ -1634,6 +1630,12 @@ Config_Error_TooLong ( const int Line, const char *Item )
 	Config_Error( LOG_WARNING, "%s, line %d: Value of \"%s\" too long!", NGIRCd_ConfFile, Line, Item );
 }
 
+static void
+Config_Error_Section(const int Line, const char *Item, const char *Section)
+{
+	Config_Error(LOG_ERR, "%s, line %d (section \"%s\"): Unknown variable \"%s\"!",
+		     NGIRCd_ConfFile, Line, Section, Item);
+}
 
 static void
 Config_Error_NaN( const int Line, const char *Item )
@@ -1641,7 +1643,6 @@ Config_Error_NaN( const int Line, const char *Item )
 	Config_Error( LOG_WARNING, "%s, line %d: Value of \"%s\" is not a number!",
 						NGIRCd_ConfFile, Line, Item );
 }
-
 
 #ifdef PROTOTYPES
 static void Config_Error( const int Level, const char *Format, ... )
@@ -1666,7 +1667,7 @@ va_dcl
 #endif
 	vsnprintf( msg, MAX_LOG_MSG_LEN, Format, ap );
 	va_end( ap );
-	
+
 	/* During "normal operations" the log functions of the daemon should
 	 * be used, but during testing of the configuration file, all messages
 	 * should go directly to the console: */

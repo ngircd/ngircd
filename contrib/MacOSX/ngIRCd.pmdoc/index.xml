@@ -1,10 +1,11 @@
-<pkmkdoc spec="1.12"><properties><title>ngIRCd</title><build>/Users/alex/Desktop/ngIRCd.mpkg</build><organization>de.barton.ngircd</organization><userSees ui="both"/><min-target os="2"/><domain anywhere="true"/></properties><distribution><versions min-spec="1.000000"/><scripts></scripts></distribution><description>ngIRCd – next generation Internet Relay Chat (IRC) server daemon</description><contents><choice title="ngIRCd daemon" id="choicengircd" tooltip="ngIRCd daemon, documentation and manual pages" description="Binaries, documentation and manual pages of the ngIRCd, the next generation IRC (Internet Relay Chat) daemon. This package will be installed into /opt/ngircd." starts_selected="true" starts_enabled="true" starts_hidden="false"><customLoc>/</customLoc><pkgref id="de.barton.ngircd.daemon.pkg"/></choice><choice title="Start and stop script" id="choicelaunchscript" tooltip="LaunchDaemon start and stop script" description="Installs the ngIRCd start and stop script for the &quot;launch daemon&quot;. If this is an update/upgrade, and ngIRCd is already running, it will be automatically restarted." starts_selected="true" starts_enabled="true" starts_hidden="false"><customLoc>/Library/LaunchDaemons</customLoc><pkgref id="de.barton.ngircd.launchscript.pkg"/></choice></contents><resources bg-scale="none" bg-align="bottomleft"><locale lang="en"><resource relative="true" type="background">../ngIRCd-Logo.gif</resource><resource mime-type="text/rtf" kind="embedded" type="license"><![CDATA[{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf350
+<pkmkdoc spec="1.12"><properties><title>ngIRCd</title><build>/Users/alex/Desktop/ngIRCd.mpkg</build><organization>de.barton.ngircd</organization><userSees ui="both"/><min-target os="2"/><domain system="true"/></properties><distribution><versions min-spec="1.000000"/><scripts></scripts></distribution><description>ngIRCd – next generation Internet Relay Chat (IRC) server
+  daemon</description><contents><choice title="ngIRCd daemon" id="choicengircd" tooltip="ngIRCd daemon, documentation and manual pages" description="Binaries, documentation and manual pages of the ngIRCd, the next generation IRC (Internet Relay Chat) daemon. This package will be installed into /opt/ngircd." starts_selected="true" starts_enabled="true" starts_hidden="false"><pkgref id="de.barton.ngircd.daemon.pkg"/></choice><choice title="Start and stop script" id="choicelaunchscript" tooltip="LaunchDaemon start and stop script" description="Installs the ngIRCd start and stop script for the &quot;launch daemon&quot;. If this is an update/upgrade, and ngIRCd is already running, it will be automatically restarted." starts_selected="true" starts_enabled="true" starts_hidden="false"><pkgref id="de.barton.ngircd.launchscript.pkg"/></choice></contents><resources bg-scale="none" bg-align="bottomleft"><locale lang="en"><resource type="background">/Users/alex/Develop/ngircd/alex.git/contrib/ngIRCd-Logo.gif</resource><resource mime-type="text/rtf" kind="embedded" type="license"><![CDATA[{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf350
 {\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\qc\pardirnatural
 
 \f0\i\fs24 \cf0 ngIRCd -- The Next Generation IRC Daemon\
-Copyright (c)2001-2010 Alexander Barton and Contributors.\
+Copyright (c)2001-2011 Alexander Barton and Contributors.\
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\ql\qnatural\pardirnatural
 
 \i0 \cf0 \
@@ -150,8 +151,7 @@ Each version is given a distinguishing version number.  If the Program specifies
 \cf0 \
 11. BECAUSE THE PROGRAM IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW.  EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES PROVIDE THE PROGRAM "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.  THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM IS WITH YOU.  SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY SERVICING, REPAIR OR CORRECTION.\
 \
-12. IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR REDISTRIBUTE THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES, INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED TO LOSS OF DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS), EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.\
-}]]></resource><resource mime-type="text/rtf" kind="embedded" type="readme"><![CDATA[{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf350
+12. IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR REDISTRIBUTE THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES, INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED TO LOSS OF DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS), EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.}]]></resource><resource mime-type="text/rtf" kind="embedded" type="readme"><![CDATA[{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf350
 {\fonttbl\f0\fnil\fcharset0 LucidaGrande;\f1\fmodern\fcharset0 Courier;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
@@ -182,8 +182,7 @@ ngIRCd becomes installed in the (newly created) /opt/ngircd directory on your sy
 \f0  \'96 documentation\
 \'95	
 \f1 /opt/ngircd/share/mac/\'85
-\f0  \'96 manual pages\
-}]]></resource><resource mime-type="text/rtf" kind="embedded" type="welcome"><![CDATA[{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf350
+\f0  \'96 manual pages}]]></resource><resource mime-type="text/rtf" kind="embedded" type="welcome"><![CDATA[{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf350
 {\fonttbl\f0\fnil\fcharset0 LucidaGrande;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
@@ -236,4 +235,4 @@ But don\'92t forget to
 \fs18 \cf0 \
 \pard\tx220\tx720\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\li720\fi-720\ql\qnatural\pardirnatural
 
-\f1\fs26 \cf0 	/opt/ngircd/etc/ngircd.conf}]]></resource></locale></resources><flags/><item type="file">01ngircd.xml</item><item type="file">02de.xml</item><mod>properties.title</mod><mod>properties.customizeOption</mod><mod>description</mod><mod>properties.anywhereDomain</mod><mod>properties.systemDomain</mod></pkmkdoc>
+\f1\fs26 \cf0 	/opt/ngircd/etc/ngircd.conf}]]></resource></locale></resources><flags/><extra-files/><item type="file">02de.xml</item><item type="file">01ngircd.xml</item><mod>extraFiles</mod><mod>properties.title</mod><mod>properties.customizeOption</mod><mod>description</mod><mod>properties.anywhereDomain</mod><mod>properties.systemDomain</mod></pkmkdoc>

@@ -236,7 +236,7 @@ ReverseLookup(const ng_ipaddr_t *IpAddr, char *resbuf, size_t reslen)
  * @return true if lookup successful, false if domain name not found
  */
 static bool
-ForwardLookup(const char *hostname, array *IpAddr)
+ForwardLookup(const char *hostname, array *IpAddr, int af)
 {
 	ng_ipaddr_t addr;
 
@@ -245,23 +245,13 @@ ForwardLookup(const char *hostname, array *IpAddr)
 	struct addrinfo *a, *ai_results;
 	static struct addrinfo hints;
 
-#ifndef WANT_IPV6
-	hints.ai_family = AF_INET;
-#endif
 #ifdef AI_ADDRCONFIG	/* glibc has this, but not e.g. netbsd 4.0 */
 	hints.ai_flags = AI_ADDRCONFIG;
 #endif
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_protocol = IPPROTO_TCP;
+	hints.ai_family = af;
 
-#ifdef WANT_IPV6
-	assert(Conf_ConnectIPv6 || Conf_ConnectIPv4);
-
-	if (!Conf_ConnectIPv6)
-		hints.ai_family = AF_INET;
-	if (!Conf_ConnectIPv4)
-		hints.ai_family = AF_INET6;
-#endif
 	memset(&addr, 0, sizeof(addr));
 
 	res = getaddrinfo(hostname, NULL, &hints, &ai_results);
@@ -390,7 +380,7 @@ Do_ResolveAddr(const ng_ipaddr_t *Addr, int identsock, int w_fd)
 	if (!ReverseLookup(Addr, hostname, sizeof(hostname)))
 		goto dns_done;
 
-	if (ForwardLookup(hostname, &resolved_addr)) {
+	if (ForwardLookup(hostname, &resolved_addr, AF_UNSPEC)) {
 		if (!Addr_in_list(&resolved_addr, Addr)) {
 			Log_Forgery_WrongIP(tmp_ip_str, hostname);
 			strlcpy(hostname, tmp_ip_str, sizeof(hostname));
@@ -427,6 +417,7 @@ Do_ResolveName( const char *Host, int w_fd )
 	/* Resolver sub-process: resolve name and write result into pipe
 	 * to parent. */
 	array IpAddrs;
+	int af;
 #ifdef DEBUG
 	ng_ipaddr_t *addr;
 	size_t len;
@@ -434,8 +425,19 @@ Do_ResolveName( const char *Host, int w_fd )
 	Log_Subprocess(LOG_DEBUG, "Now resolving \"%s\" ...", Host);
 
 	array_init(&IpAddrs);
-	/* Resolve hostname */
-	if (!ForwardLookup(Host, &IpAddrs)) {
+
+#ifdef WANT_IPV6
+	af = AF_UNSPEC;
+	assert(Conf_ConnectIPv6 || Conf_ConnectIPv4);
+
+	if (!Conf_ConnectIPv6)
+		af = AF_INET;
+	if (!Conf_ConnectIPv4)
+		af = AF_INET6;
+#else
+	af = AF_INET;
+#endif
+	if (!ForwardLookup(Host, &IpAddrs, af)) {
 		close(w_fd);
 		return;
 	}

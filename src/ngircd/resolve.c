@@ -380,7 +380,7 @@ Do_ResolveAddr(const ng_ipaddr_t *Addr, int identsock, int w_fd)
 	if (!ReverseLookup(Addr, hostname, sizeof(hostname)))
 		goto dns_done;
 
-	if (ForwardLookup(hostname, &resolved_addr, AF_UNSPEC)) {
+	if (ForwardLookup(hostname, &resolved_addr, ng_ipaddr_af(Addr))) {
 		if (!Addr_in_list(&resolved_addr, Addr)) {
 			Log_Forgery_WrongIP(tmp_ip_str, hostname);
 			strlcpy(hostname, tmp_ip_str, sizeof(hostname));

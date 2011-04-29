@@ -108,8 +108,8 @@ Zip_Buffer( CONN_ID Idx, const char *Data, size_t Len )
 	 * otherwise the zip wbuf would grow too large */
 	buflen = array_bytes(&My_Connections[Idx].zip.wbuf);
 	if (buflen + Len >= WRITEBUFFER_SLINK_LEN) {
-		Log(LOG_ALERT, "Zip Write Buffer overflow: %lu bytes\n", buflen + Len);
-		Conn_Close(Idx, "Zip Write buffer overflow", NULL, false);
+		Log(LOG_ALERT, "Zip Write buffer space exhausted: %lu bytes", buflen + Len);
+		Conn_Close(Idx, "Zip Write buffer space exhausted", NULL, false);
 		return false;
 	}
 	return array_catb(&My_Connections[Idx].zip.wbuf, Data, Len);
@@ -158,7 +158,7 @@ Zip_Flush( CONN_ID Idx )
 	if (out->avail_out <= 0) {
 		/* Not all data was compressed, because data became
 		 * bigger while compressing it. */
-		Log (LOG_ALERT, "Compression error: buffer overvlow!?");
+		Log(LOG_ALERT, "Compression error: buffer overflow!?");
 		Conn_Close(Idx, "Compression error!", NULL, false);
 		return false;
 	}

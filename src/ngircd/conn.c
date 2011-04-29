@@ -972,10 +972,10 @@ Conn_Write( CONN_ID Idx, char *Data, size_t Len )
 		if (array_bytes(&My_Connections[Idx].wbuf) + Len >=
 		    writebuf_limit) {
 			Log(LOG_NOTICE,
-			    "Write buffer overflow (connection %d, limit is %lu bytes, %lu bytes new, %lu bytes pending)!",
+			    "Write buffer space exhausted (connection %d, limit is %lu bytes, %lu bytes new, %lu bytes pending)",
 			    Idx, writebuf_limit, Len,
 			    (unsigned long)array_bytes(&My_Connections[Idx].wbuf));
-			Conn_Close(Idx, "Write buffer overflow!", NULL, false);
+			Conn_Close(Idx, "Write buffer space exhausted", NULL, false);
 			return false;
 		}
 
@@ -1525,9 +1525,9 @@ Read_Request( CONN_ID Idx )
 	{
 		/* Read buffer is full */
 		Log(LOG_ERR,
-		    "Receive buffer overflow (connection %d): %d bytes!",
+		    "Receive buffer space exhausted (connection %d): %d bytes",
 		    Idx, array_bytes(&My_Connections[Idx].rbuf));
-		Conn_Close( Idx, "Receive buffer overflow!", NULL, false );
+		Conn_Close(Idx, "Receive buffer space exhausted", NULL, false);
 		return;
 	}
 
@@ -1563,7 +1563,7 @@ Read_Request( CONN_ID Idx )
 			Log(LOG_ERR,
 			    "Could not append recieved data to zip input buffer (connn %d): %d bytes!",
 			    Idx, len);
-			Conn_Close(Idx, "Receive buffer overflow!", NULL,
+			Conn_Close(Idx, "Receive buffer space exhausted", NULL,
 				   false);
 			return;
 		}
@@ -1572,7 +1572,7 @@ Read_Request( CONN_ID Idx )
 	{
 		if (!array_catb( &My_Connections[Idx].rbuf, readbuf, len)) {
 			Log( LOG_ERR, "Could not append recieved data to input buffer (connn %d): %d bytes!", Idx, len );
-			Conn_Close( Idx, "Receive buffer overflow!", NULL, false );
+			Conn_Close(Idx, "Receive buffer space exhausted", NULL, false );
 		}
 	}
 

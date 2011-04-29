@@ -280,6 +280,7 @@ Validate_Prefix( CONN_ID Idx, REQUEST *Req, bool *Closed )
 	assert( client != NULL );
 
 	if (!Req->prefix && Client_Type(client) == CLIENT_SERVER
+	    && !Conn_Options(Idx) & CONN_RFC1459
 	    && strcasecmp(Req->command, "ERROR") != 0
 	    && strcasecmp(Req->command, "PING") != 0)
 	{

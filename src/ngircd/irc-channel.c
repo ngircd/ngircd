@@ -526,6 +526,8 @@ IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 					       Client_ID(Client),
 					       Channel_Name(chan), topic);
 #ifndef STRICT_RFC
+			if (!r)
+				return r;
 			r = IRC_WriteStrClient(from, RPL_TOPICSETBY_MSG,
 					       Client_ID(Client),
 					       Channel_Name(chan),

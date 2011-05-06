@@ -706,10 +706,8 @@ NGIRCd_Init( bool NGIRCd_NoDaemon )
 
 		/* Detach stdin, stdout and stderr */
 		Setup_FDStreams(fd);
-		if (fd > 2) {
+		if (fd > 2)
 			close(fd);
-			fd = -1;
-		}
 	}
 	pid = getpid();
 

@@ -1,6 +1,6 @@
 #
 # ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001-2010 Alexander Barton (alex@barton.de)
+# Copyright (c)2001-2011 Alexander Barton (alex@barton.de) and Contributors
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -37,6 +37,10 @@ have-xcodebuild:
 	 >/dev/null 2>&1 \
 	 || ( echo; echo "Error: \"xcodebuild\" not found!"; echo; exit 1 )
 
+have-packagemaker:
+	@packagemaker >/dev/null 2>&1; [ $$? -le 1 ] \
+	 || ( echo; echo "Error: \"packagemaker\" not found!"; echo; exit 2)
+
 xcode: have-xcodebuild
 	rel=`git describe|sed -e 's/rel-//g'|sed -e 's/-/~/'`; \
 	 def="GCC_PREPROCESSOR_DEFINITIONS=\"VERSION=\\\"$$rel\\\"\""; \
@@ -55,10 +59,15 @@ deb:
 	[ -f debian/rules ] || ln -s contrib/Debian debian
 	dpkg-buildpackage -rfakeroot -i
 
-osxpkg: have-xcodebuild
-	@packagemaker >/dev/null 2>&1; [ $$? -le 1 ] \
-	 || ( echo; echo "Error: \"packagemaker\" not found!"; echo; exit 2)
-	make clean
+osxpkg: have-packagemaker osxpkg-dest
+	cd contrib/MacOSX && packagemaker \
+	 --doc ngIRCd.pmdoc \
+	 --out ../../$(distdir).mpkg
+	rm -f $(distdir).mpkg.zip
+	zip -ro9 $(distdir).mpkg.zip $(distdir).mpkg
+	rm -rf ngircd.dest $(distdir).mpkg
+
+osxpkg-dest: have-xcodebuild clean
 	./configure --prefix=/opt/ngircd
 	make xcode
 	make -C contrib/MacOSX de.barton.ngircd.plist
@@ -71,11 +80,8 @@ osxpkg: have-xcodebuild
 	rm ngircd.dest/opt/ngircd/etc/ngircd.conf
 	echo "Have a nice day IRCing!" >ngircd.dest/opt/ngircd/etc/ngircd.motd
 	chmod -R a-s,og-w,a+rX ngircd.dest
-	cd contrib/MacOSX && packagemaker \
-	 --doc ngIRCd.pmdoc \
-	 --out ../../$(distdir).mpkg
-	rm -f $(distdir).mpkg.zip
-	zip -ro9 $(distdir).mpkg.zip $(distdir).mpkg
-	rm -rf ngircd.dest $(distdir).mpkg
+
+.PHONY: deb have-packagemaker have-xcodebuild lint osxpkg osxpkg-dest rpm \
+	srcdoc testsuite xcode xcode-clean
 
 # -eof-

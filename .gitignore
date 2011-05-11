@@ -15,6 +15,7 @@ debian
 depcomp
 install-sh
 missing
+ngircd.dest
 .deps
 *.a
 *.o

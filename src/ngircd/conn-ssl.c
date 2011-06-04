@@ -51,7 +51,7 @@ static bool ConnSSL_LoadServerKey_openssl PARAMS(( SSL_CTX *c ));
 #include <unistd.h>
 #include <gnutls/x509.h>
 
-#define DH_BITS 1024
+#define DH_BITS 2048
 static gnutls_certificate_credentials_t x509_cred;
 static gnutls_dh_params_t dh_params;
 

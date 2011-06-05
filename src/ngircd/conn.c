@@ -1951,6 +1951,12 @@ New_Server( int Server , ng_ipaddr_t *dest)
 		return;
 	}
 
+	if (!io_event_create( new_sock, IO_WANTWRITE, cb_connserver)) {
+		Log(LOG_ALERT, "io_event_create(): could not add fd %d", strerror(errno));
+		close(new_sock);
+		return;
+	}
+
 	My_Connections = array_start(&My_ConnArray);
 
 	assert(My_Connections[new_sock].sock <= 0);
@@ -1961,7 +1967,7 @@ New_Server( int Server , ng_ipaddr_t *dest)
 	c = Client_NewLocal(new_sock, ip_str, CLIENT_UNKNOWNSERVER, false);
 	if (!c) {
 		Log( LOG_ALERT, "Can't establish connection: can't create client structure!" );
-		close( new_sock );
+		io_close(new_sock);
 		return;
 	}
 
@@ -1978,13 +1984,6 @@ New_Server( int Server , ng_ipaddr_t *dest)
 	strlcpy( My_Connections[new_sock].host, Conf_Server[Server].host,
 				sizeof(My_Connections[new_sock].host ));
 
-	/* Register new socket */
-	if (!io_event_create( new_sock, IO_WANTWRITE, cb_connserver)) {
-		Log( LOG_ALERT, "io_event_create(): could not add fd %d", strerror(errno));
-		Conn_Close( new_sock, "io_event_create() failed", NULL, false );
-		Init_Conn_Struct( new_sock );
-		Conf_Server[Server].conn_id = NONE;
-	}
 #ifdef SSL_SUPPORT
 	if (Conf_Server[Server].SSLConnect && !ConnSSL_PrepareConnect( &My_Connections[new_sock],
 								&Conf_Server[Server] ))
@@ -2025,9 +2024,10 @@ Init_Conn_Struct(CONN_ID Idx)
  * Initialize options of a new socket.
  *
  * For example, we try to set socket options SO_REUSEADDR and IPTOS_LOWDELAY.
- * Errors shouldn't be fatal and therefore are ignored.
+ * The socket is automatically closed if a fatal error is encountered.
  *
  * @param Sock	Socket handle.
+ * @returns false if socket was closed due to fatal error.
  */
 static bool
 Init_Socket( int Sock )

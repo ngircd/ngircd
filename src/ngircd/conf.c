@@ -374,6 +374,7 @@ Conf_Test( void )
 #ifndef STRICT_RFC
 	printf("  RequireAuthPing = %s\n", yesno_to_str(Conf_AuthPing));
 #endif
+	printf("  ScrubCTCP = %s\n", yesno_to_str(Conf_ScrubCTCP));
 #ifdef SSL_SUPPORT
 	printf("  SSLCertFile = %s\n", Conf_SSLOptions.CertFile);
 	printf("  SSLDHFile = %s\n", Conf_SSLOptions.DHFile);
@@ -687,6 +688,7 @@ Set_Defaults(bool InitServers)
 #endif
 	Conf_PredefChannelsOnly = false;
 #ifdef SYSLOG
+	Conf_ScrubCTCP = false;
 #ifdef LOG_LOCAL5
 	Conf_SyslogFacility = LOG_LOCAL5;
 #else
@@ -1459,6 +1461,10 @@ Handle_OPTIONS(int Line, char *Var, char *Arg)
 		return;
 	}
 #endif
+	if (strcasecmp(Var, "ScrubCTCP") == 0) {
+		Conf_ScrubCTCP = Check_ArgIsTrue(Arg);
+		return;
+	}
 #ifdef SSL_SUPPORT
 	if (strcasecmp(Var, "SSLCertFile") == 0) {
 		assert(Conf_SSLOptions.CertFile == NULL);

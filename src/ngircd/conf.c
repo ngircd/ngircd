@@ -364,6 +364,7 @@ Conf_Test( void )
 #ifdef IDENT
 	printf("  Ident = %s\n", yesno_to_str(Conf_Ident));
 #endif
+	printf("  MorePrivacy = %s\n", yesno_to_str(Conf_MorePrivacy));
 	printf("  NoticeAuth = %s\n", yesno_to_str(Conf_NoticeAuth));
 	printf("  OperCanUseMode = %s\n", yesno_to_str(Conf_OperCanMode));
 	printf("  OperServerMode = %s\n", yesno_to_str(Conf_OperServerMode));
@@ -677,6 +678,7 @@ Set_Defaults(bool InitServers)
 #else
 	Conf_Ident = false;
 #endif
+	Conf_MorePrivacy = false;
 	Conf_NoticeAuth = false;
 	Conf_OperCanMode = false;
 	Conf_OperServerMode = false;
@@ -1430,6 +1432,10 @@ Handle_OPTIONS(int Line, char *Var, char *Arg)
 	if (strcasecmp(Var, "Ident") == 0) {
 		Conf_Ident = Check_ArgIsTrue(Arg);
 		WarnIdent(Line);
+		return;
+	}
+	if (strcasecmp(Var, "MorePrivacy") == 0) {
+		Conf_MorePrivacy = Check_ArgIsTrue(Arg);
 		return;
 	}
 	if (strcasecmp(Var, "NoticeAuth") == 0) {

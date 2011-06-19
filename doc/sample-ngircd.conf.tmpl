@@ -141,6 +141,10 @@
 	# Do IDENT lookups if ngIRCd has been compiled with support for it.
 	;Ident = yes
 
+	# Enhance user privacy slightly (useful for IRC server on TOR or I2P)
+	# by censoring some information like idle time, logon time, etc.
+	;MorePrivacy = no
+
 	# Normally ngIRCd doesn't send any messages to a client until it is
 	# registered. Enable this option to let the daemon send "NOTICE AUTH"
 	# messages to clients while connecting.

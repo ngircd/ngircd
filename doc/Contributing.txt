@@ -1,0 +1,54 @@
+
+                     ngIRCd - Next Generation IRC Server
+                           http://ngircd.barton.de/
+
+               (c)2001-2011 Alexander Barton and Contributors.
+               ngIRCd is free software and published under the
+                   terms of the GNU General Public License.
+
+                            -- Contributing.txt --
+
+
+If you want to contribute to ngIRCd, please read the following paragraphs to
+get an idea of how to do it the best :-)
+
+ - Use GIT
+
+   The source code of ngIRCd is maintained using GIT, see doc/GIT.txt. So if
+   remotely possible, use GIT for your work, too. It makes your and our lifes
+   much easier ;-)
+
+ - Don't forget to include documentation
+
+   When adding features and new configuration options, don't forget to not
+   only code the features but to describe them in doc/sample-ngircd.conf,
+   man/ngircd.8.tmp and/or man/ngircd.conf.5.tmpl as well!
+
+ - Be present on IRC
+
+   If you intend to code some new features or do some code cleanups or better
+   documentation, please be present on <irc://irc.barton.de/#ngircd> and
+   discuss your plans early! So other developers have an idea on what others
+   are working on, can offer help, and can synchronize their own work.
+
+ - Check and validate your work!
+
+   Use "make check" to validate your work, and use "make distcheck" to
+   validate the resulting archives, especially when adding/removing files!
+
+ - Send patches in "unified diff" format
+
+   Please send patches in "unified" format, that is, use "diff -u".
+   Or even better: use GIT ("git diff"), see above.
+
+ - Send patches to the mailing list
+
+   If you have some code to present, send the patch(es) and/or pointers to
+   your GIT repository to the official ngIRCd mailing list for review, not
+   only to #ngircd: so it becomes archived and more people have a chance to
+   review your patch.
+
+   Sure it is a good idea to post some notes to #ngircd, too! :-)
+
+   And this is open source, your work must not be 100% finished and perfect,
+   work in progress is interesting, too: "release early, release often"!

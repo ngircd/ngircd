@@ -17,8 +17,8 @@ Differences to version 17
 - Support for ZeroConf/Bonjour/Rendezvous service registration has been
   removed. The configuration option "NoZeroconf" is no longer available.
 
-- The structure of ngircd.conf has been cleaned up and two new configuration
-  sections have been introduced: [Limits] and [Options].
+- The structure of ngircd.conf has been cleaned up and three new configuration
+  sections have been introduced: [Limits], [Options], and [SSL].
   Lots of configuration variables stored in the [Global] section are now
   deprecated there and should be stored in one of these new sections (but
   still work in [Global]):
@@ -39,11 +39,11 @@ Differences to version 17
     "PingTimeout"        -> [Limits]
     "PongTimeout"        -> [Limits]
     "PredefChannelsOnly" -> [Options]
-    "SSLCertFile"        -> [Options]
-    "SSLDHFile"          -> [Options]
-    "SSLKeyFile"         -> [Options]
-    "SSLKeyFilePassword" -> [Options]
-    "SSLPorts"           -> [Options]
+    "SSLCertFile"        -> [SSL], and renamed to "CertFile"
+    "SSLDHFile"          -> [SSL], and renamed to "DHFile"
+    "SSLKeyFile"         -> [SSL], and renamed to "KeyFile"
+    "SSLKeyFilePassword" -> [SSL], and renamed to "KeyFilePassword"
+    "SSLPorts"           -> [SSL], and renamed to "Ports"
     "SyslogFacility"     -> [Options]
     "WebircPassword"     -> [Options]
   You should adjust your ngircd.conf and run "ngircd --configtest" to make

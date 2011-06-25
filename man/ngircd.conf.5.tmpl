@@ -52,8 +52,8 @@ for numbers all decimal integer values are valid.
 In addition, some string or numerical variables accept lists of values,
 separated by commas (",").
 .SH "SECTION OVERVIEW"
-The file can contain blocks of four types: [Global], [Limits], [Options],
-[Operator], [Server], and [Channel].
+The file can contain blocks of seven types: [Global], [Limits], [Options],
+[SSL], [Operator], [Server], and [Channel].
 .PP
 The main configuration of the server is stored in the
 .I [Global]
@@ -68,8 +68,10 @@ block are used to tweak different limits and timeouts of the daemon, like the
 maximum number of clients allowed to connect to this server. Variables in the
 .I [Options]
 section can be used to enable or disable specific features of ngIRCd, like
-support for IDENT, PAM, IPv6, SSL, and protocol and cloaking features. These
-two sections are both optional.
+support for IDENT, PAM, IPv6, and protocol and cloaking features. The
+.I [SSL]
+block contains all SSL-related configuration variables. These three sections
+are all optional.
 .PP
 IRC operators of this server are defined in
 .I [Operator]
@@ -81,7 +83,7 @@ blocks are used to configure pre-defined ("persistent") IRC channels.
 .PP
 There can be more than one [Operator], [Server] and [Channel] section per
 configuration file (one for each operator, server, and channel), but only
-exactly one [Global], one [Limits], and one [Options] section.
+exactly one [Global], one [Limits], one [Options], and one [SSL] section.
 .SH [GLOBAL]
 The
 .I [Global]
@@ -276,6 +278,23 @@ Let ngIRCd send an "authentication PING" when a new client connects, and
 register this client only after receiving the corresponding "PONG" reply.
 Default: no.
 .TP
+\fBSyslogFacility\fR (string)
+Syslog "facility" to which ngIRCd should send log messages. Possible
+values are system dependent, but most probably "auth", "daemon", "user"
+and "local1" through "local7" are possible values; see syslog(3).
+Default is "local5" for historical reasons, you probably want to
+change this to "daemon", for example.
+.TP
+\fBWebircPassword\fR (string)
+Password required for using the WEBIRC command used by some Web-to-IRC
+gateways. If not set or empty, the WEBIRC command can't be used.
+Default: not set.
+.SH [SSL]
+All SSL-related configuration variables are located in the
+.I [SSL]
+section. Please note that this whole section is only recognized by ngIRCd
+when it is compiled with support for SSL using OpenSSL or GnuTLS!
+.TP
 \fBSSLCertFile\fR (string)
 SSL Certificate file of the private server key.
 .TP
@@ -298,18 +317,6 @@ OpenSSL only: Password to decrypt the private key file.
 Same as \fBPorts\fR , except that ngIRCd will expect incoming connections
 to be SSL/TLS encrypted. Common port numbers for SSL-encrypted IRC are 6669
 and 6697. Default: none.
-.TP
-\fBSyslogFacility\fR (string)
-Syslog "facility" to which ngIRCd should send log messages. Possible
-values are system dependent, but most probably "auth", "daemon", "user"
-and "local1" through "local7" are possible values; see syslog(3).
-Default is "local5" for historical reasons, you probably want to
-change this to "daemon", for example.
-.TP
-\fBWebircPassword\fR (string)
-Password required for using the WEBIRC command used by some Web-to-IRC
-gateways. If not set or empty, the WEBIRC command can't be used.
-Default: not set.
 .SH [OPERATOR]
 .I [Operator]
 sections are used to define IRC Operators. There may be more than one

@@ -89,6 +89,8 @@ static void Init_Server_Struct PARAMS(( CONF_SERVER *Server ));
 
 #ifdef SSL_SUPPORT
 
+static void Handle_SSL PARAMS(( int Line, char *Var, char *Ark ));
+
 struct SSLOptions Conf_SSLOptions;
 
 /**
@@ -377,24 +379,30 @@ Conf_Test( void )
 #ifndef STRICT_RFC
 	printf("  RequireAuthPing = %s\n", yesno_to_str(Conf_AuthPing));
 #endif
-#ifdef SSL_SUPPORT
-	printf("  SSLCertFile = %s\n", Conf_SSLOptions.CertFile);
-	printf("  SSLDHFile = %s\n", Conf_SSLOptions.DHFile);
-	printf("  SSLKeyFile = %s\n", Conf_SSLOptions.KeyFile);
-	if (array_bytes(&Conf_SSLOptions.KeyFilePassword))
-		puts("  SSLKeyFilePassword = <secret>");
-	else
-		puts("  SSLKeyFilePassword = ");
-	array_free_wipe(&Conf_SSLOptions.KeyFilePassword);
-	printf("  SSLPorts = ");
-	ports_puts(&Conf_SSLOptions.ListenPorts);
-#endif
 #ifdef SYSLOG
 	printf("  SyslogFacility = %s\n",
 	       ngt_SyslogFacilityName(Conf_SyslogFacility));
 #endif
 	printf("  WebircPassword = %s\n", Conf_WebircPwd);
 	puts("");
+
+#ifdef SSL_SUPPORT
+	puts("[SSL]");
+	printf("  CertFile = %s\n", Conf_SSLOptions.CertFile
+					? Conf_SSLOptions.CertFile : "");
+	printf("  DHFile = %s\n", Conf_SSLOptions.DHFile
+					? Conf_SSLOptions.DHFile : "");
+	printf("  KeyFile = %s\n", Conf_SSLOptions.KeyFile
+					? Conf_SSLOptions.KeyFile : "");
+	if (array_bytes(&Conf_SSLOptions.KeyFilePassword))
+		puts("  KeyFilePassword = <secret>");
+	else
+		puts("  KeyFilePassword = ");
+	array_free_wipe(&Conf_SSLOptions.KeyFilePassword);
+	printf("  Ports = ");
+	ports_puts(&Conf_SSLOptions.ListenPorts);
+	puts("");
+#endif
 
 	opers_puts();
 
@@ -847,7 +855,8 @@ Read_Config( bool ngircd_starting )
 			strlcpy( section, str, sizeof( section ));
 			if (strcasecmp(section, "[GLOBAL]") == 0 ||
 			    strcasecmp(section, "[LIMITS]") == 0 ||
-			    strcasecmp(section, "[OPTIONS]") == 0)
+			    strcasecmp(section, "[OPTIONS]") == 0 ||
+			    strcasecmp(section, "[SSL]") == 0)
 				continue;
 
 			if( strcasecmp( section, "[SERVER]" ) == 0 ) {
@@ -906,6 +915,10 @@ Read_Config( bool ngircd_starting )
 			Handle_LIMITS(line, var, arg);
 		else if(strcasecmp(section, "[OPTIONS]") == 0)
 			Handle_OPTIONS(line, var, arg);
+#ifdef SSL_SUPPORT
+		else if(strcasecmp(section, "[SSL]") == 0)
+			Handle_SSL(line, var, arg);
+#endif
 		else if(strcasecmp(section, "[OPERATOR]") == 0)
 			Handle_OPERATOR(line, var, arg);
 		else if(strcasecmp(section, "[SERVER]") == 0)
@@ -952,9 +965,9 @@ Read_Config( bool ngircd_starting )
 
 #ifdef SSL_SUPPORT
 	/* Make sure that all SSL-related files are readable */
-	CheckFileReadable("SSLCertFile", Conf_SSLOptions.CertFile);
-	CheckFileReadable("SSLDHFile", Conf_SSLOptions.DHFile);
-	CheckFileReadable("SSLKeyFile", Conf_SSLOptions.KeyFile);
+	CheckFileReadable("CertFile", Conf_SSLOptions.CertFile);
+	CheckFileReadable("DHFile", Conf_SSLOptions.DHFile);
+	CheckFileReadable("KeyFile", Conf_SSLOptions.KeyFile);
 #endif
 
 	return true;
@@ -1100,13 +1113,6 @@ CheckLegacyGlobalOption(int Line, char *Var, char *Arg)
 	    || strcasecmp(Var, "OperCanUseMode") == 0
 	    || strcasecmp(Var, "OperServerMode") == 0
 	    || strcasecmp(Var, "PredefChannelsOnly") == 0
-#ifdef SSL_SUPPORT
-	    || strcasecmp(Var, "SSLCertFile") == 0
-	    || strcasecmp(Var, "SSLDHFile") == 0
-	    || strcasecmp(Var, "SSLKeyFile") == 0
-	    || strcasecmp(Var, "SSLKeyFilePassword") == 0
-	    || strcasecmp(Var, "SSLPorts") == 0
-#endif
 	    || strcasecmp(Var, "SyslogFacility") == 0
 	    || strcasecmp(Var, "WebircPassword") == 0) {
 		Handle_OPTIONS(Line, Var, Arg);
@@ -1122,6 +1128,16 @@ CheckLegacyGlobalOption(int Line, char *Var, char *Arg)
 		Handle_LIMITS(Line, Var, Arg);
 		return "[Limits]";
 	}
+#ifdef SSL_SUPPORT
+	if (strcasecmp(Var, "SSLCertFile") == 0
+	    || strcasecmp(Var, "SSLDHFile") == 0
+	    || strcasecmp(Var, "SSLKeyFile") == 0
+	    || strcasecmp(Var, "SSLKeyFilePassword") == 0
+	    || strcasecmp(Var, "SSLPorts") == 0) {
+		Handle_SSL(Line, Var + 3, Arg);
+		return "[SSL]";
+	}
+#endif
 
 	return NULL;
 }
@@ -1302,9 +1318,16 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 		/** TODO: This function and support for these options in the
 		 * [Global] section could be removed starting with ngIRCd
 		 * release 19 (one release after marking it "deprecated"). */
-		Config_Error(LOG_WARNING,
-			     "%s, line %d (section \"Global\"): \"%s\" is deprecated here, move it to %s!",
-			     NGIRCd_ConfFile, Line, Var, section);
+		if (strncasecmp(Var, "SSL", 3) == 0) {
+			Config_Error(LOG_WARNING,
+				     "%s, line %d (section \"Global\"): \"%s\" is deprecated here, move it to %s and rename to \"%s\"!",
+				     NGIRCd_ConfFile, Line, Var, section,
+				     Var + 3);
+		} else {
+			Config_Error(LOG_WARNING,
+				     "%s, line %d (section \"Global\"): \"%s\" is deprecated here, move it to %s!",
+				     NGIRCd_ConfFile, Line, Var, section);
+		}
 		return;
 	}
 
@@ -1462,36 +1485,6 @@ Handle_OPTIONS(int Line, char *Var, char *Arg)
 		return;
 	}
 #endif
-#ifdef SSL_SUPPORT
-	if (strcasecmp(Var, "SSLCertFile") == 0) {
-		assert(Conf_SSLOptions.CertFile == NULL);
-		Conf_SSLOptions.CertFile = strdup_warn(Arg);
-		return;
-	}
-	if (strcasecmp(Var, "SSLDHFile") == 0) {
-		assert(Conf_SSLOptions.DHFile == NULL);
-		Conf_SSLOptions.DHFile = strdup_warn(Arg);
-		return;
-	}
-	if (strcasecmp(Var, "SSLKeyFile") == 0) {
-		assert(Conf_SSLOptions.KeyFile == NULL);
-		Conf_SSLOptions.KeyFile = strdup_warn(Arg);
-		return;
-	}
-	if (strcasecmp(Var, "SSLKeyFilePassword") == 0) {
-		assert(array_bytes(&Conf_SSLOptions.KeyFilePassword) == 0);
-		if (!array_copys(&Conf_SSLOptions.KeyFilePassword, Arg))
-			Config_Error(LOG_ERR,
-				     "%s, line %d (section \"Global\"): Could not copy %s: %s!",
-				     NGIRCd_ConfFile, Line, Var,
-				     strerror(errno));
-		return;
-	}
-	if (strcasecmp(Var, "SSLPorts") == 0) {
-		ports_parse(&Conf_SSLOptions.ListenPorts, Line, Arg);
-		return;
-	}
-#endif
 #ifdef SYSLOG
 	if (strcasecmp(Var, "SyslogFacility") == 0) {
 		Conf_SyslogFacility = ngt_SyslogFacilityID(Arg,
@@ -1508,6 +1501,56 @@ Handle_OPTIONS(int Line, char *Var, char *Arg)
 
 	Config_Error_Section(Line, Var, "Options");
 }
+
+#ifdef SSL_SUPPORT
+
+/**
+ * Handle variable in [SSL] configuration section.
+ *
+ * @param Line	Line numer in configuration file.
+ * @param Var	Variable name.
+ * @param Arg	Variable argument.
+ */
+static void
+Handle_SSL(int Line, char *Var, char *Arg)
+{
+	assert(Line > 0);
+	assert(Var != NULL);
+	assert(Arg != NULL);
+
+	if (strcasecmp(Var, "CertFile") == 0) {
+		assert(Conf_SSLOptions.CertFile == NULL);
+		Conf_SSLOptions.CertFile = strdup_warn(Arg);
+		return;
+	}
+	if (strcasecmp(Var, "DHFile") == 0) {
+		assert(Conf_SSLOptions.DHFile == NULL);
+		Conf_SSLOptions.DHFile = strdup_warn(Arg);
+		return;
+	}
+	if (strcasecmp(Var, "KeyFile") == 0) {
+		assert(Conf_SSLOptions.KeyFile == NULL);
+		Conf_SSLOptions.KeyFile = strdup_warn(Arg);
+		return;
+	}
+	if (strcasecmp(Var, "KeyFilePassword") == 0) {
+		assert(array_bytes(&Conf_SSLOptions.KeyFilePassword) == 0);
+		if (!array_copys(&Conf_SSLOptions.KeyFilePassword, Arg))
+			Config_Error(LOG_ERR,
+				     "%s, line %d (section \"SSL\"): Could not copy %s: %s!",
+				     NGIRCd_ConfFile, Line, Var,
+				     strerror(errno));
+		return;
+	}
+	if (strcasecmp(Var, "Ports") == 0) {
+		ports_parse(&Conf_SSLOptions.ListenPorts, Line, Arg);
+		return;
+	}
+
+	Config_Error_Section(Line, Var, "SSL");
+}
+
+#endif
 
 /**
  * Handle variable in [Operator] configuration section.

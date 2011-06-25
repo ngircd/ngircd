@@ -12,7 +12,8 @@
 # Use "ngircd --configtest" (see manual page ngircd(8)) to validate that the
 # server interprets the configuration file as expected!
 #
-# Please see ngircd.conf(5) for a complete list of configuration options.
+# Please see ngircd.conf(5) for a complete list of configuration options
+# and their descriptions.
 #
 
 [Global]
@@ -165,6 +166,23 @@
 	# "PONG" reply.
 	;RequireAuthPing = no
 
+	# Syslog "facility" to which ngIRCd should send log messages.
+	# Possible values are system dependent, but most probably auth, daemon,
+	# user and local1 through local7 are possible values; see syslog(3).
+	# Default is "local5" for historical reasons, you probably want to
+	# change this to "daemon", for example.
+	SyslogFacility = local1
+
+	# Password required for using the WEBIRC command used by some
+	# Web-to-IRC gateways. If not set/empty, the WEBIRC command can't
+	# be used. (Default: not set)
+	;WebircPassword = xyz
+
+;[SSL]
+	# SSL-related configuration options. Please note that this section
+	# is only available when ngIRCd is compiled with support for SSL!
+	# So don't forget to remove the ";" above if this is the case ...
+
 	# SSL Server Key Certificate
 	;SSLCertFile = :ETCDIR:/ssl/server-cert.pem
 
@@ -179,18 +197,6 @@
 
 	# Additional Listen Ports that expect SSL/TLS encrypted connections
 	;SSLPorts = 6697, 9999
-
-	# Syslog "facility" to which ngIRCd should send log messages.
-	# Possible values are system dependent, but most probably auth, daemon,
-	# user and local1 through local7 are possible values; see syslog(3).
-	# Default is "local5" for historical reasons, you probably want to
-	# change this to "daemon", for example.
-	SyslogFacility = local1
-
-	# Password required for using the WEBIRC command used by some
-	# Web-to-IRC gateways. If not set/empty, the WEBIRC command can't
-	# be used. (Default: not set)
-	;WebircPassword = xyz
 
 [Operator]
 	# [Operator] sections are used to define IRC Operators. There may be

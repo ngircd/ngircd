@@ -1933,8 +1933,13 @@ va_dcl
 	vsnprintf( msg, MAX_LOG_MSG_LEN, Format, ap );
 	va_end( ap );
 
-	if (Use_Log) Log( Level, "%s", msg );
-	else puts( msg );
+	if (!Use_Log) {
+		if (Level <= LOG_WARNING)
+			printf(" - %s\n", msg);
+		else
+			puts(msg);
+	} else
+		Log(Level, "%s", msg);
 }
 
 #ifdef DEBUG

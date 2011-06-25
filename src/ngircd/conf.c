@@ -302,12 +302,11 @@ Conf_Test( void )
 	config_valid = Validate_Config(true, false);
 
 	/* Valid tty? */
-	if( isatty( fileno( stdin )) && isatty( fileno( stdout ))) {
-		puts( "OK, press enter to see a dump of your service configuration ..." );
-		getchar( );
-	} else {
-		puts( "Ok, dump of your server configuration follows:\n" );
-	}
+	if(isatty(fileno(stdin)) && isatty(fileno(stdout))) {
+		puts("OK, press enter to see a dump of your server configuration ...");
+		getchar();
+	} else
+		puts("Ok, dump of your server configuration follows:\n");
 
 	puts("[GLOBAL]");
 	printf("  Name = %s\n", Conf_ServerName);
@@ -881,7 +880,9 @@ Read_Config( bool ngircd_starting )
 				continue;
 			}
 
-			Config_Error( LOG_ERR, "%s, line %d: Unknown section \"%s\"!", NGIRCd_ConfFile, line, section );
+			Config_Error(LOG_ERR,
+				     "%s, line %d: Unknown section \"%s\"!",
+				     NGIRCd_ConfFile, line, section);
 			section[0] = 0x1;
 		}
 		if( section[0] == 0x1 ) continue;
@@ -1050,8 +1051,8 @@ WarnPAM(int UNUSED Line)
 /**
  * Handle legacy "NoXXX" options in [GLOBAL] section.
  *
- * TODO: This function and support for "NoXXX" should be removed starting
- * with ngIRCd release 19! (One release after marking it "deprecated").
+ * TODO: This function and support for "NoXXX" could be removed starting
+ * with ngIRCd release 19 (one release after marking it "deprecated").
  *
  * @param Var	Variable name.
  * @param Arg	Argument string.
@@ -1060,7 +1061,7 @@ WarnPAM(int UNUSED Line)
 static bool
 CheckLegacyNoOption(const char *Var, const char *Arg)
 {
-	if( strcasecmp( Var, "NoDNS" ) == 0 ) {
+	if(strcasecmp(Var, "NoDNS") == 0) {
 		Conf_DNS = !Check_ArgIsTrue( Arg );
 		return true;
 	}
@@ -1168,9 +1169,9 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 	size_t len;
 	const char *section;
 
-	assert( Line > 0 );
-	assert( Var != NULL );
-	assert( Arg != NULL );
+	assert(Line > 0);
+	assert(Var != NULL);
+	assert(Arg != NULL);
 
 	if (strcasecmp(Var, "Name") == 0) {
 		len = strlcpy(Conf_ServerName, Arg, sizeof(Conf_ServerName));
@@ -1232,12 +1233,13 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 		if (len == 0)
 			return;
 		if (len >= LINE_LEN) {
-			Config_Error_TooLong( Line, Var );
+			Config_Error_TooLong(Line, Var);
 			return;
 		}
 		if (!array_copyb(&Conf_Motd, Arg, len + 1))
-			Config_Error(LOG_WARNING, "%s, line %d: Could not append MotdPhrase: %s",
-							NGIRCd_ConfFile, Line, strerror(errno));
+			Config_Error(LOG_WARNING,
+				     "%s, line %d: Could not append MotdPhrase: %s",
+				     NGIRCd_ConfFile, Line, strerror(errno));
 		Using_MotdFile = false;
 		return;
 	}
@@ -1281,8 +1283,12 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 	}
 
 	if (CheckLegacyNoOption(Var, Arg)) {
-		Config_Error(LOG_WARNING, "%s, line %d: \"No\"-Prefix has been removed, use \"%s = %s\" in [FEATURES] section instead",
-					NGIRCd_ConfFile, Line, NoNo(Var), InvertArg(Arg));
+		/* TODO: This function and support for "NoXXX" could be
+		 * be removed starting with ngIRCd release 19 (one release
+		 * after marking it "deprecated"). */
+		Config_Error(LOG_WARNING,
+			     "%s, line %d (section \"Global\"): \"No\"-Prefix is deprecated, use \"%s = %s\" in [Options] section!",
+			     NGIRCd_ConfFile, Line, NoNo(Var), InvertArg(Arg));
 		if (strcasecmp(Var, "NoIdent") == 0)
 			WarnIdent(Line);
 		else if (strcasecmp(Var, "NoPam") == 0)

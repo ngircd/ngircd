@@ -1842,7 +1842,7 @@ Validate_Config(bool Configtest, bool Rehash)
 #ifdef PAM
 	if (Conf_ServerPwd[0])
 		Config_Error(LOG_ERR,
-			     "This server uses PAM, \"Password\" will be ignored!");
+			     "This server uses PAM, \"Password\" in [Global] section will be ignored!");
 #endif
 
 #ifdef DEBUG

@@ -109,56 +109,24 @@ ConfSSL_Init(void)
 }
 
 /**
- * Output SSL configuration variable containing a file name.
- * And make sure that the given file is readable.
+ * Make sure that a configured file is readable.
  *
- * @returns true when the file is readable.
+ * Currently, this function is only used for SSL-related options ...
+ *
+ * @param Var Configuration variable
+ * @param Filename Configured filename
  */
-static bool
-ssl_print_configvar(const char *name, const char *file)
+static void
+CheckFileReadable(const char *Var, const char *Filename)
 {
 	FILE *fp;
 
-	if (!file) {
-		printf("  %s =\n", name);
-		return true;
-	}
-
-	fp = fopen(file, "r");
+	fp = fopen(Filename, "r");
 	if (fp)
 		fclose(fp);
 	else
-		fprintf(stderr, "ERROR: %s \"%s\": %s\n",
-			name, file, strerror(errno));
-
-	printf("  %s = %s\n", name, file);
-	return fp != NULL;
-}
-
-/**
- * Output SSL-related configuration variables.
- *
- * @returns true when all SSL-related configuration variables are valid.
- */
-static bool
-ConfSSL_Puts(void)
-{
-	bool ret;
-
-	ret = ssl_print_configvar("SSLKeyFile", Conf_SSLOptions.KeyFile);
-
-	if (!ssl_print_configvar("SSLCertFile", Conf_SSLOptions.CertFile))
-		ret = false;
-
-	if (!ssl_print_configvar("SSLDHFile", Conf_SSLOptions.DHFile))
-		ret = false;
-
-	if (array_bytes(&Conf_SSLOptions.KeyFilePassword))
-		puts("  SSLKeyFilePassword = <secret>");
-
-	array_free_wipe(&Conf_SSLOptions.KeyFilePassword);
-
-	return ret;
+		Config_Error(LOG_ERR, "Can't read \"%s\" (\"%s\"): %s",
+			     Filename, Var, strerror(errno));
 }
 
 #endif
@@ -977,6 +945,14 @@ Read_Config( bool ngircd_starting )
 	/* No MOTD phrase configured? (re)try motd file. */
 	if (array_bytes(&Conf_Motd) == 0)
 		Read_Motd(Conf_MotdFile);
+
+#ifdef SSL_SUPPORT
+	/* Make sure that all SSL-related files are readable */
+	CheckFileReadable("SSLCertFile", Conf_SSLOptions.CertFile);
+	CheckFileReadable("SSLDHFile", Conf_SSLOptions.DHFile);
+	CheckFileReadable("SSLKeyFile", Conf_SSLOptions.KeyFile);
+#endif
+
 	return true;
 }
 

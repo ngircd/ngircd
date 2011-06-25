@@ -64,7 +64,8 @@ static bool Read_Config PARAMS(( bool ngircd_starting ));
 static bool Validate_Config PARAMS(( bool TestOnly, bool Rehash ));
 
 static void Handle_GLOBAL PARAMS(( int Line, char *Var, char *Arg ));
-static void Handle_FEATURES PARAMS(( int Line, char *Var, char *Arg ));
+static void Handle_LIMITS PARAMS(( int Line, char *Var, char *Arg ));
+static void Handle_OPTIONS PARAMS(( int Line, char *Var, char *Arg ));
 static void Handle_OPERATOR PARAMS(( int Line, char *Var, char *Arg ));
 static void Handle_SERVER PARAMS(( int Line, char *Var, char *Arg ));
 static void Handle_CHANNEL PARAMS(( int Line, char *Var, char *Arg ));
@@ -340,16 +341,13 @@ Conf_Test( void )
 		puts( "Ok, dump of your server configuration follows:\n" );
 	}
 
-	puts( "[GLOBAL]" );
+	puts("[GLOBAL]");
 	printf("  Name = %s\n", Conf_ServerName);
-	printf("  Info = %s\n", Conf_ServerInfo);
-#ifndef PAM
-	printf("  Password = %s\n", Conf_ServerPwd);
-#endif
-	printf("  WebircPassword = %s\n", Conf_WebircPwd);
 	printf("  AdminInfo1 = %s\n", Conf_ServerAdmin1);
 	printf("  AdminInfo2 = %s\n", Conf_ServerAdmin2);
 	printf("  AdminEMail = %s\n", Conf_ServerAdminMail);
+	printf("  Info = %s\n", Conf_ServerInfo);
+	printf("  Listen = %s\n", Conf_ListenAddress);
 	if (Using_MotdFile) {
 		printf("  MotdFile = %s\n", Conf_MotdFile);
 		printf("  MotdPhrase =\n");
@@ -358,58 +356,74 @@ Conf_Test( void )
 		printf("  MotdPhrase = %s\n", array_bytes(&Conf_Motd)
 		       ? (const char*) array_start(&Conf_Motd) : "");
 	}
-	printf("  ChrootDir = %s\n", Conf_Chroot);
-	printf("  PidFile = %s\n", Conf_PidFile);
-	printf("  Listen = %s\n", Conf_ListenAddress);
-	fputs("  Ports = ", stdout);
-	ports_puts(&Conf_ListenPorts);
-#ifdef SSL_SUPPORT
-	fputs("  SSLPorts = ", stdout);
-	ports_puts(&Conf_SSLOptions.ListenPorts);
-	if (!ConfSSL_Puts())
-		config_valid = false;
+#ifndef PAM
+	printf("  Password = %s\n", Conf_ServerPwd);
 #endif
-
-	pwd = getpwuid(Conf_UID);
-	if (pwd)
-		printf("  ServerUID = %s\n", pwd->pw_name);
-	else
-		printf("  ServerUID = %ld\n", (long)Conf_UID);
+	printf("  PidFile = %s\n", Conf_PidFile);
+	printf("  Ports = ");
+	ports_puts(&Conf_ListenPorts);
 	grp = getgrgid(Conf_GID);
 	if (grp)
 		printf("  ServerGID = %s\n", grp->gr_name);
 	else
 		printf("  ServerGID = %ld\n", (long)Conf_GID);
-#ifdef SYSLOG
-	printf("  SyslogFacility = %s\n",
-	       ngt_SyslogFacilityName(Conf_SyslogFacility));
-#endif
-	printf("  PingTimeout = %d\n", Conf_PingTimeout);
-	printf("  PongTimeout = %d\n", Conf_PongTimeout);
+	pwd = getpwuid(Conf_UID);
+	if (pwd)
+		printf("  ServerUID = %s\n", pwd->pw_name);
+	else
+		printf("  ServerUID = %ld\n", (long)Conf_UID);
+	puts("");
+
+	puts("[LIMITS]");
 	printf("  ConnectRetry = %d\n", Conf_ConnectRetry);
-	printf("  OperCanUseMode = %s\n", yesno_to_str(Conf_OperCanMode));
-	printf("  OperServerMode = %s\n", yesno_to_str(Conf_OperServerMode));
-	printf("  AllowRemoteOper = %s\n", yesno_to_str(Conf_AllowRemoteOper));
-	printf("  PredefChannelsOnly = %s\n", yesno_to_str(Conf_PredefChannelsOnly));
-#ifdef WANT_IPV6
-	printf("  ConnectIPv4 = %s\n", yesno_to_str(Conf_ConnectIPv6));
-	printf("  ConnectIPv6 = %s\n", yesno_to_str(Conf_ConnectIPv4));
-#endif
 	printf("  MaxConnections = %ld\n", Conf_MaxConnections);
 	printf("  MaxConnectionsIP = %d\n", Conf_MaxConnectionsIP);
 	printf("  MaxJoins = %d\n", Conf_MaxJoins > 0 ? Conf_MaxJoins : -1);
 	printf("  MaxNickLength = %u\n", Conf_MaxNickLength - 1);
-	printf("  NoticeAuth = %s\n", yesno_to_str(Conf_NoticeAuth));
+	printf("  PingTimeout = %d\n", Conf_PingTimeout);
+	printf("  PongTimeout = %d\n", Conf_PongTimeout);
+	puts("");
+
+	puts("[OPTIONS]");
+	printf("  AllowRemoteOper = %s\n", yesno_to_str(Conf_AllowRemoteOper));
+	printf("  ChrootDir = %s\n", Conf_Chroot);
 	printf("  CloakHost = %s\n", Conf_CloakHost);
 	printf("  CloakUserToNick = %s\n", yesno_to_str(Conf_CloakUserToNick));
+#ifdef WANT_IPV6
+	printf("  ConnectIPv4 = %s\n", yesno_to_str(Conf_ConnectIPv6));
+	printf("  ConnectIPv6 = %s\n", yesno_to_str(Conf_ConnectIPv4));
+#endif
+	printf("  DNS = %s\n", yesno_to_str(Conf_DNS));
+#ifdef IDENT
+	printf("  Ident = %s\n", yesno_to_str(Conf_Ident));
+#endif
+	printf("  NoticeAuth = %s\n", yesno_to_str(Conf_NoticeAuth));
+	printf("  OperCanUseMode = %s\n", yesno_to_str(Conf_OperCanMode));
+	printf("  OperServerMode = %s\n", yesno_to_str(Conf_OperServerMode));
+#ifdef PAM
+	printf("  PAM = %s\n", yesno_to_str(Conf_PAM));
+#endif
+	printf("  PredefChannelsOnly = %s\n", yesno_to_str(Conf_PredefChannelsOnly));
 #ifndef STRICT_RFC
 	printf("  RequireAuthPing = %s\n", yesno_to_str(Conf_AuthPing));
 #endif
-
-	printf("\n[FEATURES]\n");
-	printf("  DNS = %s\n", yesno_to_str(Conf_DNS));
-	printf("  Ident = %s\n", yesno_to_str(Conf_Ident));
-	printf("  PAM = %s\n", yesno_to_str(Conf_PAM));
+#ifdef SSL_SUPPORT
+	printf("  SSLCertFile = %s\n", Conf_SSLOptions.CertFile);
+	printf("  SSLDHFile = %s\n", Conf_SSLOptions.DHFile);
+	printf("  SSLKeyFile = %s\n", Conf_SSLOptions.KeyFile);
+	if (array_bytes(&Conf_SSLOptions.KeyFilePassword))
+		puts("  SSLKeyFilePassword = <secret>");
+	else
+		puts("  SSLKeyFilePassword = ");
+	array_free_wipe(&Conf_SSLOptions.KeyFilePassword);
+	printf("  SSLPorts = ");
+	ports_puts(&Conf_SSLOptions.ListenPorts);
+#endif
+#ifdef SYSLOG
+	printf("  SyslogFacility = %s\n",
+	       ngt_SyslogFacilityName(Conf_SyslogFacility));
+#endif
+	printf("  WebircPassword = %s\n", Conf_WebircPwd);
 	puts("");
 
 	opers_puts();
@@ -641,22 +655,6 @@ GLOBAL bool
 Conf_IsService(int ConfServer, const char *Nick)
 {
 	return MatchCaseInsensitive(Conf_Server[ConfServer].svs_mask, Nick);
-} /* Conf_IsService */
-
-
-static void
-Set_Defaults_Optional(void)
-{
-#ifdef IDENTAUTH
-	Conf_Ident = true;
-#else
-	Conf_Ident = false;
-#endif
-#ifdef PAM
-	Conf_PAM = true;
-#else
-	Conf_PAM = false;
-#endif
 }
 
 /**
@@ -667,50 +665,60 @@ Set_Defaults(bool InitServers)
 {
 	int i;
 
+	/* Global */
 	strcpy(Conf_ServerName, "");
-	snprintf(Conf_ServerInfo, sizeof Conf_ServerInfo, "%s %s",
-		 PACKAGE_NAME, PACKAGE_VERSION);
-	strcpy(Conf_ServerPwd, "");
-
 	strcpy(Conf_ServerAdmin1, "");
 	strcpy(Conf_ServerAdmin2, "");
 	strcpy(Conf_ServerAdminMail, "");
-
-	strlcpy(Conf_MotdFile, SYSCONFDIR, sizeof(Conf_MotdFile));
-	strlcat(Conf_MotdFile, MOTD_FILE, sizeof(Conf_MotdFile));
-
-	Conf_UID = Conf_GID = 0;
-	strlcpy(Conf_Chroot, CHROOT_DIR, sizeof(Conf_Chroot));
-	strlcpy(Conf_PidFile, PID_FILE, sizeof(Conf_PidFile));
-
+	snprintf(Conf_ServerInfo, sizeof Conf_ServerInfo, "%s %s",
+		 PACKAGE_NAME, PACKAGE_VERSION);
 	free(Conf_ListenAddress);
 	Conf_ListenAddress = NULL;
+	array_free(&Conf_Motd);
+	strlcpy(Conf_MotdFile, SYSCONFDIR, sizeof(Conf_MotdFile));
+	strlcat(Conf_MotdFile, MOTD_FILE, sizeof(Conf_MotdFile));
+	strcpy(Conf_ServerPwd, "");
+	strlcpy(Conf_PidFile, PID_FILE, sizeof(Conf_PidFile));
+	Conf_UID = Conf_GID = 0;
 
-	Conf_PingTimeout = 120;
-	Conf_PongTimeout = 20;
+	/* Limits */
 	Conf_ConnectRetry = 60;
-	Conf_DNS = true;
-	Conf_NoticeAuth = false;
-
-	Conf_Oper_Count = 0;
-	Conf_Channel_Count = 0;
-
-	Conf_OperCanMode = false;
-	Conf_OperServerMode = false;
-	Conf_AllowRemoteOper = false;
-	Conf_PredefChannelsOnly = false;
-
-	Conf_ConnectIPv4 = true;
-	Conf_ConnectIPv6 = true;
-
 	Conf_MaxConnections = 0;
 	Conf_MaxConnectionsIP = 5;
 	Conf_MaxJoins = 10;
 	Conf_MaxNickLength = CLIENT_NICK_LEN_DEFAULT;
+	Conf_PingTimeout = 120;
+	Conf_PongTimeout = 20;
 
+	/* Options */
+	Conf_AllowRemoteOper = false;
+#ifndef STRICT_RFC
+	Conf_AuthPing = false;
+#endif
+	strlcpy(Conf_Chroot, CHROOT_DIR, sizeof(Conf_Chroot));
 	strcpy(Conf_CloakHost, "");
 	Conf_CloakUserToNick = false;
-
+	Conf_ConnectIPv4 = true;
+#ifdef WANT_IPV6
+	Conf_ConnectIPv6 = true;
+#else
+	Conf_ConnectIPv6 = false;
+#endif
+	Conf_DNS = true;
+#ifdef IDENTAUTH
+	Conf_Ident = true;
+#else
+	Conf_Ident = false;
+#endif
+	Conf_NoticeAuth = false;
+	Conf_OperCanMode = false;
+	Conf_OperServerMode = false;
+#ifdef PAM
+	Conf_PAM = true;
+#else
+	Conf_PAM = false;
+#endif
+	Conf_PredefChannelsOnly = false;
 #ifdef SYSLOG
 #ifdef LOG_LOCAL5
 	Conf_SyslogFacility = LOG_LOCAL5;
@@ -719,20 +727,15 @@ Set_Defaults(bool InitServers)
 #endif
 #endif
 
-#ifndef STRICT_RFC
-	Conf_AuthPing = false;
-#endif
-
-	Set_Defaults_Optional();
+	/* Initialize IRC operators and channels */
+	Conf_Oper_Count = 0;
+	Conf_Channel_Count = 0;
 
 	/* Initialize server configuration structures */
 	if (InitServers) {
 		for (i = 0; i < MAX_SERVERS;
 		     Init_Server_Struct(&Conf_Server[i++]));
 	}
-
-	/* Free MOTD; this is important when reloading the configuration */
-	array_free(&Conf_Motd);
 }
 
 /**
@@ -872,8 +875,9 @@ Read_Config( bool ngircd_starting )
 		/* Is this the beginning of a new section? */
 		if(( str[0] == '[' ) && ( str[strlen( str ) - 1] == ']' )) {
 			strlcpy( section, str, sizeof( section ));
-			if (strcasecmp( section, "[GLOBAL]" ) == 0 ||
-			    strcasecmp( section, "[FEATURES]") == 0)
+			if (strcasecmp(section, "[GLOBAL]") == 0 ||
+			    strcasecmp(section, "[LIMITS]") == 0 ||
+			    strcasecmp(section, "[OPTIONS]") == 0)
 				continue;
 
 			if( strcasecmp( section, "[SERVER]" ) == 0 ) {
@@ -924,12 +928,22 @@ Read_Config( bool ngircd_starting )
 		var = str; ngt_TrimStr( var );
 		arg = ptr + 1; ngt_TrimStr( arg );
 
-		if( strcasecmp( section, "[GLOBAL]" ) == 0 ) Handle_GLOBAL( line, var, arg );
-		else if( strcasecmp( section, "[FEATURES]" ) == 0 ) Handle_FEATURES( line, var, arg );
-		else if( strcasecmp( section, "[OPERATOR]" ) == 0 ) Handle_OPERATOR( line, var, arg );
-		else if( strcasecmp( section, "[SERVER]" ) == 0 ) Handle_SERVER( line, var, arg );
-		else if( strcasecmp( section, "[CHANNEL]" ) == 0 ) Handle_CHANNEL( line, var, arg );
-		else Config_Error( LOG_ERR, "%s, line %d: Variable \"%s\" outside section!", NGIRCd_ConfFile, line, var );
+		if(strcasecmp(section, "[GLOBAL]") == 0)
+			Handle_GLOBAL(line, var, arg);
+		else if(strcasecmp(section, "[LIMITS]") == 0)
+			Handle_LIMITS(line, var, arg);
+		else if(strcasecmp(section, "[OPTIONS]") == 0)
+			Handle_OPTIONS(line, var, arg);
+		else if(strcasecmp(section, "[OPERATOR]") == 0)
+			Handle_OPERATOR(line, var, arg);
+		else if(strcasecmp(section, "[SERVER]") == 0)
+			Handle_SERVER(line, var, arg);
+		else if(strcasecmp(section, "[CHANNEL]") == 0)
+			Handle_CHANNEL(line, var, arg);
+		else
+			Config_Error(LOG_ERR,
+				     "%s, line %d: Variable \"%s\" outside section!",
+				     NGIRCd_ConfFile, line, var);
 	}
 
 	/* Close configuration file */
@@ -1020,8 +1034,24 @@ WarnIdent(int UNUSED Line)
 	if (Conf_Ident) {
 		/* user has enabled ident lookups explicitly, but ... */
 		Config_Error(LOG_WARNING,
-			"%s: line %d: %s=True, but ngircd was built without support",
-			NGIRCd_ConfFile, Line, "Ident");
+			"%s: line %d: \"Ident = yes\", but ngircd was built without IDENT support!",
+			NGIRCd_ConfFile, Line);
+	}
+#endif
+}
+
+/**
+ * Output a warning messages if IPv6 is configured but not compiled in.
+ */
+static void
+WarnIPv6(int UNUSED Line)
+{
+#ifndef WANT_IPV6
+	if (Conf_ConnectIPv6) {
+		/* user has enabled IPv6 explicitly, but ... */
+		Config_Error(LOG_WARNING,
+			"%s: line %d: \"ConnectIPv6 = yes\", but ngircd was built without IPv6 support!",
+			NGIRCd_ConfFile, Line);
 	}
 #endif
 }
@@ -1035,8 +1065,8 @@ WarnPAM(int UNUSED Line)
 #ifndef PAM
 	if (Conf_PAM) {
 		Config_Error(LOG_WARNING,
-			"%s: line %d: %s=True, but ngircd was built without support",
-			NGIRCd_ConfFile, Line, "PAM");
+			"%s: line %d: \"PAM = yes\", but ngircd was built without PAM support!",
+			NGIRCd_ConfFile, Line);
 	}
 #endif
 }
@@ -1067,6 +1097,53 @@ CheckLegacyNoOption(const char *Var, const char *Arg)
 		return true;
 	}
 	return false;
+}
+
+/**
+ * Handle deprecated legacy options in [GLOBAL] section.
+ *
+ * TODO: This function and support for these options in the [Global] section
+ * could be removed starting with ngIRCd release 19 (one release after
+ * marking it "deprecated").
+ *
+ * @param Var	Variable name.
+ * @param Arg	Argument string.
+ * @returns	true if a legacy option has been processed; false otherwise.
+ */
+static const char*
+CheckLegacyGlobalOption(int Line, char *Var, char *Arg)
+{
+	if (strcasecmp(Var, "AllowRemoteOper") == 0
+	    || strcasecmp(Var, "ChrootDir") == 0
+	    || strcasecmp(Var, "ConnectIPv4") == 0
+	    || strcasecmp(Var, "ConnectIPv6") == 0
+	    || strcasecmp(Var, "OperCanUseMode") == 0
+	    || strcasecmp(Var, "OperServerMode") == 0
+	    || strcasecmp(Var, "PredefChannelsOnly") == 0
+#ifdef SSL_SUPPORT
+	    || strcasecmp(Var, "SSLCertFile") == 0
+	    || strcasecmp(Var, "SSLDHFile") == 0
+	    || strcasecmp(Var, "SSLKeyFile") == 0
+	    || strcasecmp(Var, "SSLKeyFilePassword") == 0
+	    || strcasecmp(Var, "SSLPorts") == 0
+#endif
+	    || strcasecmp(Var, "SyslogFacility") == 0
+	    || strcasecmp(Var, "WebircPassword") == 0) {
+		Handle_OPTIONS(Line, Var, Arg);
+		return "[Options]";
+	}
+	if (strcasecmp(Var, "ConnectRetry") == 0
+	    || strcasecmp(Var, "MaxConnections") == 0
+	    || strcasecmp(Var, "MaxConnectionsIP") == 0
+	    || strcasecmp(Var, "MaxJoins") == 0
+	    || strcasecmp(Var, "MaxNickLength") == 0
+	    || strcasecmp(Var, "PingTimeout") == 0
+	    || strcasecmp(Var, "PongTimeout") == 0) {
+		Handle_LIMITS(Line, Var, Arg);
+		return "[Limits]";
+	}
+
+	return NULL;
 }
 
 /**
@@ -1113,85 +1190,68 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 	struct passwd *pwd;
 	struct group *grp;
 	size_t len;
+	const char *section;
 
 	assert( Line > 0 );
 	assert( Var != NULL );
 	assert( Arg != NULL );
 
-	if( strcasecmp( Var, "Name" ) == 0 ) {
-		/* Server name */
-		len = strlcpy( Conf_ServerName, Arg, sizeof( Conf_ServerName ));
-		if (len >= sizeof( Conf_ServerName ))
-			Config_Error_TooLong( Line, Var );
-		return;
-	}
-	if( strcasecmp( Var, "CloakHost" ) == 0 ) {
-		/* Client hostname */
-		len = strlcpy( Conf_CloakHost, Arg, sizeof( Conf_CloakHost ));
-		if (len >= sizeof( Conf_CloakHost ))
-			Config_Error_TooLong( Line, Var );
-		return;
-	}
-	if( strcasecmp( Var, "CloakUserToNick" ) == 0 ) {
-		/* Use client nick name as user name */
-		Conf_CloakUserToNick = Check_ArgIsTrue( Arg );
-		return;
-	}
-	if( strcasecmp( Var, "Info" ) == 0 ) {
-		/* Info text of server */
-		len = strlcpy( Conf_ServerInfo, Arg, sizeof( Conf_ServerInfo ));
-		if (len >= sizeof( Conf_ServerInfo ))
-			Config_Error_TooLong ( Line, Var );
-		return;
-	}
-	if( strcasecmp( Var, "Password" ) == 0 ) {
-		/* Global server password */
-		len = strlcpy( Conf_ServerPwd, Arg, sizeof( Conf_ServerPwd ));
-		if (len >= sizeof( Conf_ServerPwd ))
-			Config_Error_TooLong( Line, Var );
-		return;
-	}
-	if (strcasecmp(Var, "WebircPassword") == 0) {
-		/* Password required for WEBIRC command */
-		len = strlcpy(Conf_WebircPwd, Arg, sizeof(Conf_WebircPwd));
-		if (len >= sizeof(Conf_WebircPwd))
+	if (strcasecmp(Var, "Name") == 0) {
+		len = strlcpy(Conf_ServerName, Arg, sizeof(Conf_ServerName));
+		if (len >= sizeof(Conf_ServerName))
 			Config_Error_TooLong(Line, Var);
 		return;
 	}
-	if( strcasecmp( Var, "AdminInfo1" ) == 0 ) {
-		/* Administrative info #1 */
-		len = strlcpy( Conf_ServerAdmin1, Arg, sizeof( Conf_ServerAdmin1 ));
-		if (len >= sizeof( Conf_ServerAdmin1 ))
-			Config_Error_TooLong ( Line, Var );
+	if (strcasecmp(Var, "AdminInfo1") == 0) {
+		len = strlcpy(Conf_ServerAdmin1, Arg, sizeof(Conf_ServerAdmin1));
+		if (len >= sizeof(Conf_ServerAdmin1))
+			Config_Error_TooLong(Line, Var);
 		return;
 	}
-	if( strcasecmp( Var, "AdminInfo2" ) == 0 ) {
-		/* Administrative info #2 */
-		len = strlcpy( Conf_ServerAdmin2, Arg, sizeof( Conf_ServerAdmin2 ));
-		if (len >= sizeof( Conf_ServerAdmin2 ))
-			Config_Error_TooLong ( Line, Var );
+	if (strcasecmp(Var, "AdminInfo2") == 0) {
+		len = strlcpy(Conf_ServerAdmin2, Arg, sizeof(Conf_ServerAdmin2));
+		if (len >= sizeof(Conf_ServerAdmin2))
+			Config_Error_TooLong(Line, Var);
 		return;
 	}
-	if( strcasecmp( Var, "AdminEMail" ) == 0 ) {
-		/* Administrative email contact */
-		len = strlcpy( Conf_ServerAdminMail, Arg, sizeof( Conf_ServerAdminMail ));
-		if (len >= sizeof( Conf_ServerAdminMail ))
-			Config_Error_TooLong( Line, Var );
+	if (strcasecmp(Var, "AdminEMail") == 0) {
+		len = strlcpy(Conf_ServerAdminMail, Arg,
+			sizeof(Conf_ServerAdminMail));
+		if (len >= sizeof(Conf_ServerAdminMail))
+			Config_Error_TooLong(Line, Var);
 		return;
 	}
-
-	if( strcasecmp( Var, "Ports" ) == 0 ) {
-		ports_parse(&Conf_ListenPorts, Line, Arg);
+	if (strcasecmp(Var, "Info") == 0) {
+		len = strlcpy(Conf_ServerInfo, Arg, sizeof(Conf_ServerInfo));
+		if (len >= sizeof(Conf_ServerInfo))
+			Config_Error_TooLong(Line, Var);
 		return;
 	}
-	if( strcasecmp( Var, "MotdFile" ) == 0 ) {
-		len = strlcpy( Conf_MotdFile, Arg, sizeof( Conf_MotdFile ));
-		if (len >= sizeof( Conf_MotdFile ))
-			Config_Error_TooLong( Line, Var );
+	if (strcasecmp(Var, "Listen") == 0) {
+		if (Conf_ListenAddress) {
+			Config_Error(LOG_ERR,
+				     "Multiple Listen= options, ignoring: %s",
+				     Arg);
+			return;
+		}
+		Conf_ListenAddress = strdup_warn(Arg);
+		/* If allocation fails, we're in trouble: we cannot ignore the
+		 * error -- otherwise ngircd would listen on all interfaces. */
+		if (!Conf_ListenAddress) {
+			Config_Error(LOG_ALERT,
+				     "%s exiting due to fatal errors!",
+				     PACKAGE_NAME);
+			exit(1);
+		}
 		return;
 	}
-	if( strcasecmp( Var, "MotdPhrase" ) == 0 ) {
-		/* "Message of the day" phrase (instead of file) */
+	if (strcasecmp(Var, "MotdFile") == 0) {
+		len = strlcpy(Conf_MotdFile, Arg, sizeof(Conf_MotdFile));
+		if (len >= sizeof(Conf_MotdFile))
+			Config_Error_TooLong(Line, Var);
+		return;
+	}
+	if (strcasecmp(Var, "MotdPhrase") == 0) {
 		len = strlen(Arg);
 		if (len == 0)
 			return;
@@ -1205,75 +1265,42 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 		Using_MotdFile = false;
 		return;
 	}
-	if( strcasecmp( Var, "ChrootDir" ) == 0 ) {
-		/* directory for chroot() */
-		len = strlcpy( Conf_Chroot, Arg, sizeof( Conf_Chroot ));
-		if (len >= sizeof( Conf_Chroot ))
-			Config_Error_TooLong( Line, Var );
+	if(strcasecmp(Var, "Password") == 0) {
+		len = strlcpy(Conf_ServerPwd, Arg, sizeof(Conf_ServerPwd));
+		if (len >= sizeof(Conf_ServerPwd))
+			Config_Error_TooLong(Line, Var);
 		return;
 	}
-	if ( strcasecmp( Var, "PidFile" ) == 0 ) {
-		/* name of pidfile */
-		len = strlcpy( Conf_PidFile, Arg, sizeof( Conf_PidFile ));
-		if (len >= sizeof( Conf_PidFile ))
-			Config_Error_TooLong( Line, Var );
+	if (strcasecmp(Var, "PidFile") == 0) {
+		len = strlcpy(Conf_PidFile, Arg, sizeof(Conf_PidFile));
+		if (len >= sizeof(Conf_PidFile))
+			Config_Error_TooLong(Line, Var);
 		return;
 	}
-	if( strcasecmp( Var, "ServerUID" ) == 0 ) {
-		/* UID the daemon should switch to */
-		pwd = getpwnam( Arg );
-		if( pwd ) Conf_UID = pwd->pw_uid;
+	if (strcasecmp(Var, "Ports") == 0) {
+		ports_parse(&Conf_ListenPorts, Line, Arg);
+		return;
+	}
+	if (strcasecmp(Var, "ServerGID") == 0) {
+		grp = getgrnam(Arg);
+		if (grp)
+			Conf_GID = grp->gr_gid;
 		else {
-			Conf_UID = (unsigned int)atoi( Arg );
-			if (!Conf_UID && strcmp(Arg, "0"))
+			Conf_GID = (unsigned int)atoi(Arg);
+			if (!Conf_GID && strcmp(Arg, "0"))
 				Config_Error_NaN(Line, Var);
 		}
 		return;
 	}
-	if( strcasecmp( Var, "ServerGID" ) == 0 ) {
-		/* GID the daemon should use */
-		grp = getgrnam( Arg );
-		if( grp ) Conf_GID = grp->gr_gid;
+	if (strcasecmp(Var, "ServerUID") == 0) {
+		pwd = getpwnam(Arg);
+		if (pwd)
+			Conf_UID = pwd->pw_uid;
 		else {
-			Conf_GID = (unsigned int)atoi(Arg);
-			if (!Conf_GID && strcmp(Arg, "0"))
-				Config_Error_NaN( Line, Var );
+			Conf_UID = (unsigned int)atoi(Arg);
+			if (!Conf_UID && strcmp(Arg, "0"))
+				Config_Error_NaN(Line, Var);
 		}
-		return;
-	}
-	if( strcasecmp( Var, "PingTimeout" ) == 0 ) {
-		/* PING timeout */
-		Conf_PingTimeout = atoi( Arg );
-		if( Conf_PingTimeout < 5 ) {
-			Config_Error( LOG_WARNING, "%s, line %d: Value of \"PingTimeout\" too low!",
-									NGIRCd_ConfFile, Line );
-			Conf_PingTimeout = 5;
-		}
-		return;
-	}
-	if( strcasecmp( Var, "PongTimeout" ) == 0 ) {
-		/* PONG timeout */
-		Conf_PongTimeout = atoi( Arg );
-		if( Conf_PongTimeout < 5 ) {
-			Config_Error( LOG_WARNING, "%s, line %d: Value of \"PongTimeout\" too low!",
-									NGIRCd_ConfFile, Line );
-			Conf_PongTimeout = 5;
-		}
-		return;
-	}
-	if( strcasecmp( Var, "ConnectRetry" ) == 0 ) {
-		/* Seconds between connection attempts to other servers */
-		Conf_ConnectRetry = atoi( Arg );
-		if( Conf_ConnectRetry < 5 ) {
-			Config_Error( LOG_WARNING, "%s, line %d: Value of \"ConnectRetry\" too low!",
-									NGIRCd_ConfFile, Line );
-			Conf_ConnectRetry = 5;
-		}
-		return;
-	}
-	if( strcasecmp( Var, "PredefChannelsOnly" ) == 0 ) {
-		/* Should we only allow pre-defined-channels? (i.e. users cannot create their own channels) */
-		Conf_PredefChannelsOnly = Check_ArgIsTrue( Arg );
 		return;
 	}
 
@@ -1286,116 +1313,199 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 			WarnPAM(Line);
 		return;
 	}
-#ifdef WANT_IPV6
-	/* the default setting for all the WANT_IPV6 special options is 'true' */
-	if( strcasecmp( Var, "ConnectIPv6" ) == 0 ) {
-		/* connect to other hosts using ipv6, if they have an AAAA record? */
-		Conf_ConnectIPv6 = Check_ArgIsTrue( Arg );
+	if ((section = CheckLegacyGlobalOption(Line, Var, Arg))) {
+		/** TODO: This function and support for these options in the
+		 * [Global] section could be removed starting with ngIRCd
+		 * release 19 (one release after marking it "deprecated"). */
+		Config_Error(LOG_WARNING,
+			     "%s, line %d (section \"Global\"): \"%s\" is deprecated here, move it to %s!",
+			     NGIRCd_ConfFile, Line, Var, section);
 		return;
 	}
-	if( strcasecmp( Var, "ConnectIPv4" ) == 0 ) {
-		/* connect to other hosts using ipv4.
-		 * again, this can be used for ipv6-only setups */
-		Conf_ConnectIPv4 = Check_ArgIsTrue( Arg );
+
+	Config_Error_Section(Line, Var, "Global");
+}
+
+/**
+ * Handle variable in [Limits] configuration section.
+ *
+ * @param Line	Line numer in configuration file.
+ * @param Var	Variable name.
+ * @param Arg	Variable argument.
+ */
+static void
+Handle_LIMITS(int Line, char *Var, char *Arg)
+{
+	assert(Line > 0);
+	assert(Var != NULL);
+	assert(Arg != NULL);
+
+	if (strcasecmp(Var, "ConnectRetry") == 0) {
+		Conf_ConnectRetry = atoi(Arg);
+		if (Conf_ConnectRetry < 5) {
+			Config_Error(LOG_WARNING,
+				     "%s, line %d: Value of \"ConnectRetry\" too low!",
+				     NGIRCd_ConfFile, Line);
+			Conf_ConnectRetry = 5;
+		}
 		return;
 	}
-#endif
-	if( strcasecmp( Var, "OperCanUseMode" ) == 0 ) {
-		/* Are IRC operators allowed to use MODE in channels they aren't Op in? */
-		Conf_OperCanMode = Check_ArgIsTrue( Arg );
-		return;
-	}
-	if( strcasecmp( Var, "OperServerMode" ) == 0 ) {
-		/* Mask IRC operator as if coming from the server? (ircd-irc2 compat hack) */
-		Conf_OperServerMode = Check_ArgIsTrue( Arg );
-		return;
-	}
-	if(strcasecmp(Var, "AllowRemoteOper") == 0) {
-		/* Are remote IRC operators allowed to control this server? */
-		Conf_AllowRemoteOper = Check_ArgIsTrue(Arg);
-		return;
-	}
-	if( strcasecmp( Var, "MaxConnections" ) == 0 ) {
-		/* Maximum number of connections. 0 -> "no limit". */
-		Conf_MaxConnections = atol( Arg );
+	if (strcasecmp(Var, "MaxConnections") == 0) {
+		Conf_MaxConnections = atol(Arg);
 		if (!Conf_MaxConnections && strcmp(Arg, "0"))
 			Config_Error_NaN(Line, Var);
 		return;
 	}
-	if( strcasecmp( Var, "MaxConnectionsIP" ) == 0 ) {
-		/* Maximum number of simultaneous connections from one IP. 0 -> "no limit" */
-		Conf_MaxConnectionsIP = atoi( Arg );
+	if (strcasecmp(Var, "MaxConnectionsIP") == 0) {
+		Conf_MaxConnectionsIP = atoi(Arg);
 		if (!Conf_MaxConnectionsIP && strcmp(Arg, "0"))
 			Config_Error_NaN(Line, Var);
 		return;
 	}
-	if( strcasecmp( Var, "MaxJoins" ) == 0 ) {
-		/* Maximum number of channels a user can join. 0 -> "no limit". */
-		Conf_MaxJoins = atoi( Arg );
+	if (strcasecmp(Var, "MaxJoins") == 0) {
+		Conf_MaxJoins = atoi(Arg);
 		if (!Conf_MaxJoins && strcmp(Arg, "0"))
 			Config_Error_NaN(Line, Var);
 		return;
 	}
-	if( strcasecmp( Var, "MaxNickLength" ) == 0 ) {
-		/* Maximum length of a nick name; must be same on all servers
-		 * within the IRC network! */
+	if (strcasecmp(Var, "MaxNickLength") == 0) {
 		Conf_MaxNickLength = Handle_MaxNickLength(Line, Arg);
 		return;
 	}
-	if(strcasecmp(Var, "NoticeAuth") == 0) {
-		/* send NOTICE AUTH messages to clients on connect */
+	if (strcasecmp(Var, "PingTimeout") == 0) {
+		Conf_PingTimeout = atoi(Arg);
+		if (Conf_PingTimeout < 5) {
+			Config_Error(LOG_WARNING,
+				     "%s, line %d: Value of \"PingTimeout\" too low!",
+				     NGIRCd_ConfFile, Line);
+			Conf_PingTimeout = 5;
+		}
+		return;
+	}
+	if (strcasecmp(Var, "PongTimeout") == 0) {
+		Conf_PongTimeout = atoi(Arg);
+		if (Conf_PongTimeout < 5) {
+			Config_Error(LOG_WARNING,
+				     "%s, line %d: Value of \"PongTimeout\" too low!",
+				     NGIRCd_ConfFile, Line);
+			Conf_PongTimeout = 5;
+		}
+		return;
+	}
+
+	Config_Error_Section(Line, Var, "Limits");
+}
+
+/**
+ * Handle variable in [Options] configuration section.
+ *
+ * @param Line	Line numer in configuration file.
+ * @param Var	Variable name.
+ * @param Arg	Variable argument.
+ */
+static void
+Handle_OPTIONS(int Line, char *Var, char *Arg)
+{
+	size_t len;
+
+	assert(Line > 0);
+	assert(Var != NULL);
+	assert(Arg != NULL);
+
+	if (strcasecmp(Var, "AllowRemoteOper") == 0) {
+		Conf_AllowRemoteOper = Check_ArgIsTrue(Arg);
+		return;
+	}
+	if (strcasecmp(Var, "ChrootDir") == 0) {
+		len = strlcpy(Conf_Chroot, Arg, sizeof(Conf_Chroot));
+		if (len >= sizeof(Conf_Chroot))
+			Config_Error_TooLong(Line, Var);
+		return;
+	}
+	if (strcasecmp(Var, "CloakHost") == 0) {
+		len = strlcpy(Conf_CloakHost, Arg, sizeof(Conf_CloakHost));
+		if (len >= sizeof(Conf_CloakHost))
+			Config_Error_TooLong(Line, Var);
+		return;
+	}
+	if (strcasecmp(Var, "CloakUserToNick") == 0) {
+		Conf_CloakUserToNick = Check_ArgIsTrue(Arg);
+		return;
+	}
+	if (strcasecmp(Var, "ConnectIPv6") == 0) {
+		Conf_ConnectIPv6 = Check_ArgIsTrue(Arg);
+		WarnIPv6(Line);
+		return;
+	}
+	if (strcasecmp(Var, "ConnectIPv4") == 0) {
+		Conf_ConnectIPv4 = Check_ArgIsTrue(Arg);
+		return;
+	}
+	if (strcasecmp(Var, "DNS") == 0) {
+		Conf_DNS = Check_ArgIsTrue(Arg);
+		return;
+	}
+	if (strcasecmp(Var, "Ident") == 0) {
+		Conf_Ident = Check_ArgIsTrue(Arg);
+		WarnIdent(Line);
+		return;
+	}
+	if (strcasecmp(Var, "NoticeAuth") == 0) {
 		Conf_NoticeAuth = Check_ArgIsTrue(Arg);
 		return;
 	}
-
-	if( strcasecmp( Var, "Listen" ) == 0 ) {
-		/* IP-Address to bind sockets */
-		if (Conf_ListenAddress) {
-			Config_Error(LOG_ERR, "Multiple Listen= options, ignoring: %s", Arg);
-			return;
-		}
-		Conf_ListenAddress = strdup_warn(Arg);
-		/*
-		 * if allocation fails, we're in trouble:
-		 * we cannot ignore the error -- otherwise ngircd
-		 * would listen on all interfaces.
-		 */
-		if (!Conf_ListenAddress) {
-			Config_Error(LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE_NAME);
-			exit(1);
-		}
+	if (strcasecmp(Var, "OperCanUseMode") == 0) {
+		Conf_OperCanMode = Check_ArgIsTrue(Arg);
 		return;
 	}
-
+	if (strcasecmp(Var, "OperServerMode") == 0) {
+		Conf_OperServerMode = Check_ArgIsTrue(Arg);
+		return;
+	}
+	if (strcasecmp(Var, "PAM") == 0) {
+		Conf_PAM = Check_ArgIsTrue(Arg);
+		WarnPAM(Line);
+		return;
+	}
+	if (strcasecmp(Var, "PredefChannelsOnly") == 0) {
+		Conf_PredefChannelsOnly = Check_ArgIsTrue(Arg);
+		return;
+	}
+#ifndef STRICT_RFC
+	if (strcasecmp(Var, "RequireAuthPing") == 0) {
+		Conf_AuthPing = Check_ArgIsTrue(Arg);
+		return;
+	}
+#endif
 #ifdef SSL_SUPPORT
-	if( strcasecmp( Var, "SSLPorts" ) == 0 ) {
-		ports_parse(&Conf_SSLOptions.ListenPorts, Line, Arg);
-		return;
-	}
-
-	if( strcasecmp( Var, "SSLKeyFile" ) == 0 ) {
-		assert(Conf_SSLOptions.KeyFile == NULL );
-		Conf_SSLOptions.KeyFile = strdup_warn(Arg);
-		return;
-	}
-	if( strcasecmp( Var, "SSLCertFile" ) == 0 ) {
-		assert(Conf_SSLOptions.CertFile == NULL );
+	if (strcasecmp(Var, "SSLCertFile") == 0) {
+		assert(Conf_SSLOptions.CertFile == NULL);
 		Conf_SSLOptions.CertFile = strdup_warn(Arg);
 		return;
 	}
-
-	if( strcasecmp( Var, "SSLKeyFilePassword" ) == 0 ) {
-		assert(array_bytes(&Conf_SSLOptions.KeyFilePassword) == 0);
-		if (!array_copys(&Conf_SSLOptions.KeyFilePassword, Arg))
-			Config_Error( LOG_ERR, "%s, line %d (section \"Global\"): Could not copy %s: %s!",
-								NGIRCd_ConfFile, Line, Var, strerror(errno));
+	if (strcasecmp(Var, "SSLDHFile") == 0) {
+		assert(Conf_SSLOptions.DHFile == NULL);
+		Conf_SSLOptions.DHFile = strdup_warn(Arg);
 		return;
 	}
-	if( strcasecmp( Var, "SSLDHFile" ) == 0 ) {
-		assert(Conf_SSLOptions.DHFile == NULL);
-		Conf_SSLOptions.DHFile = strdup_warn( Arg );
-                return;
-        }
+	if (strcasecmp(Var, "SSLKeyFile") == 0) {
+		assert(Conf_SSLOptions.KeyFile == NULL);
+		Conf_SSLOptions.KeyFile = strdup_warn(Arg);
+		return;
+	}
+	if (strcasecmp(Var, "SSLKeyFilePassword") == 0) {
+		assert(array_bytes(&Conf_SSLOptions.KeyFilePassword) == 0);
+		if (!array_copys(&Conf_SSLOptions.KeyFilePassword, Arg))
+			Config_Error(LOG_ERR,
+				     "%s, line %d (section \"Global\"): Could not copy %s: %s!",
+				     NGIRCd_ConfFile, Line, Var,
+				     strerror(errno));
+		return;
+	}
+	if (strcasecmp(Var, "SSLPorts") == 0) {
+		ports_parse(&Conf_SSLOptions.ListenPorts, Line, Arg);
+		return;
+	}
 #endif
 #ifdef SYSLOG
 	if (strcasecmp(Var, "SyslogFacility") == 0) {
@@ -1404,47 +1514,10 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 		return;
 	}
 #endif
-#ifndef STRICT_RFC
-	if (strcasecmp(Var, "RequireAuthPing") == 0 ) {
-		/* Require new clients to do an "autheticatin PING-PONG" */
-		Conf_AuthPing = Check_ArgIsTrue(Arg);
-		return;
-	}
-#endif
-
-	Config_Error_Section(Line, Var, "Global");
-}
-
-
-/**
- * Handle variable in [Features] configuration section.
- *
- * @param Line	Line numer in configuration file.
- * @param Var	Variable name.
- * @param Arg	Variable argument.
- */
-static void
-Handle_FEATURES(int Line, char *Var, char *Arg)
-{
-	assert( Line > 0 );
-	assert( Var != NULL );
-	assert( Arg != NULL );
-
-	if( strcasecmp( Var, "DNS" ) == 0 ) {
-		/* do reverse dns lookups when clients connect? */
-		Conf_DNS = Check_ArgIsTrue( Arg );
-		return;
-	}
-	if (strcasecmp(Var, "Ident") == 0) {
-		/* do IDENT lookups when clients connect? */
-		Conf_Ident = Check_ArgIsTrue(Arg);
-		WarnIdent(Line);
-		return;
-	}
-	if(strcasecmp(Var, "PAM") == 0) {
-		/* use PAM library to authenticate users */
-		Conf_PAM = Check_ArgIsTrue(Arg);
-		WarnPAM(Line);
+	if (strcasecmp(Var, "WebircPassword") == 0) {
+		len = strlcpy(Conf_WebircPwd, Arg, sizeof(Conf_WebircPwd));
+		if (len >= sizeof(Conf_WebircPwd))
+			Config_Error_TooLong(Line, Var);
 		return;
 	}
 

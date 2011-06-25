@@ -1,7 +1,7 @@
 .\"
 .\" ngircd.conf(5) manual page template
 .\"
-.TH ngircd.conf 5 "Mar 2011" ngircd "ngIRCd Manual"
+.TH ngircd.conf 5 "Jun 2011" ngircd "ngIRCd Manual"
 .SH NAME
 ngircd.conf \- configuration file of ngIRCd
 .SH SYNOPSIS
@@ -10,11 +10,12 @@ ngircd.conf \- configuration file of ngIRCd
 .BR ngircd.conf
 is the configuration file of the
 .BR ngircd (8)
-Internet Relay Chat (IRC) daemon which you should adept to your local
+Internet Relay Chat (IRC) daemon, which must be customized to the local
 preferences and needs.
 .PP
 Most variables can be modified while the ngIRCd daemon is already running:
-It will reload its configuration when a HUP signal is received.
+It will reload its configuration file when a HUP signal or REHASH command
+is received.
 .SH "FILE FORMAT"
 The file consists of sections and parameters. A section begins with the name
 of the section in square brackets and continues until the next section
@@ -45,89 +46,62 @@ and
 Boolean values are
 .I true
 if they are "yes", "true", or any non-null integer. Text strings are used 1:1
-without leading and following spaces; there is not way to quote strings. And
+without leading and following spaces; there is no way to quote strings. And
 for numbers all decimal integer values are valid.
 .PP
 In addition, some string or numerical variables accept lists of values,
 separated by commas (",").
 .SH "SECTION OVERVIEW"
-The file can contain blocks of four types: [Global], [Operator], [Server],
-and [Channel].
+The file can contain blocks of four types: [Global], [Limits], [Options],
+[Operator], [Server], and [Channel].
 .PP
 The main configuration of the server is stored in the
 .I [Global]
-section, like the server name, administrative information and the
-ports on which the server should be listening. IRC operators of this
-server are defined in
+section, like the server name, administrative information and the ports on
+which the server should be listening. The variables in this section have to be
+adjusted to the local requirements most of the time, whereas all the variables
+in the other sections can be left on there defaults very often.
+.PP
+Options in the
+.I [Limits]
+block are used to tweak different limits and timeouts of the daemon, like the
+maximum number of clients allowed to connect to this server. Variables in the
+.I [Options]
+section can be used to enable or disable specific features of ngIRCd, like
+support for IDENT, PAM, IPv6, SSL, and protocol and cloaking features. These
+two sections are both optional.
+.PP
+IRC operators of this server are defined in
 .I [Operator]
-blocks.
-.I [Features]
-can be used to disable compile-time features at run time, e.g. if ngircd
-was built to support ident lookups, but you do not want ngircd to perform
-ident lookups you can disable them here.
-This section is optional.
+blocks. Links to remote servers are configured in
 .I [Server]
-is the section where server links are configured. And
+sections. And
 .I [Channel]
 blocks are used to configure pre-defined ("persistent") IRC channels.
 .PP
-There can be more than one [Operator], [Server] and [Channel] sections
-per configuration file, but only one [Global] and one [Features] section.
+There can be more than one [Operator], [Server] and [Channel] section per
+configuration file (one for each operator, server, and channel), but only
+exactly one [Global], one [Limits], and one [Options] section.
 .SH [GLOBAL]
 The
 .I [Global]
-section is used to define the server main configuration, like the server
-name and the ports on which the server should be listening.
+section of this file is used to define the main configuration of the server,
+like the server name and the ports on which the server should be listening.
+These settings depend on your personal preferences, so you should make sure
+that they correspond to your installation and setup!
 .TP
-\fBName\fR (string)
+\fBName\fR (string; required)
 Server name in the IRC network. This is an individual name of the IRC
 server, it is not related to the DNS host name. It must be unique in the
 IRC network and must contain at least one dot (".") character.
 .TP
+\fBAdminInfo1\fR, \fBAdminInfo2\fR, \fBAdminEMail\fR (string)
+Information about the server and the administrator, used by the ADMIN
+command. This information is not required by the server but by RFC!
+.TP
 \fBInfo\fR (string)
 Info text of the server. This will be shown by WHOIS and LINKS requests for
 example.
-.TP
-\fBPassword\fR (string)
-Global password for all users needed to connect to the server. The default
-is empty, so no password is required.
-.TP
-\fBWebircPassword\fR (string)
-Password required for using the WEBIRC command used by some Web-to-IRC
-gateways. If not set or empty, the WEBIRC command can't be used.
-Default: not set.
-.TP
-\fBAdminInfo1\fR, \fBAdminInfo2\fR, \fBAdminEMail\fR (string)
-Information about the server and the administrator, used by the ADMIN
-command.
-.TP
-\fBPorts\fR (list of numbers)
-Ports on which the server should listen. There may be more than one port,
-separated with commas (","). Default: 6667, unless \fBSSL_Ports\fR are also
-specified.
-.TP
-\fBSSLPorts\fR (list of numbers)
-Same as \fBPorts\fR , except that ngIRCd will expect incoming connections
-to be SSL/TLS encrypted. Common port numbers for SSL-encrypted IRC are 6669
-and 6697. Default: none.
-.TP
-\fBSSLKeyFile\fR (string)
-Filename of SSL Server Key to be used for SSL connections. This is required for
-SSL/TLS support.
-.TP
-\fBSSLKeyFilePassword\fR (string)
-(OpenSSL only:) Password to decrypt private key.
-.TP
-\fBSSLCertFile\fR (string)
-Certificate file of the private key.
-.TP
-\fBSSLDHFile\fR (string)
-Name of the Diffie-Hellman Parameter file. Can be created with gnutls
-"certtool \-\-generate-dh-params" or "openssl dhparam".
-If this file is not present, it will be generated on startup when ngIRCd
-was compiled with gnutls support (this may take some time). If ngIRCd
-was compiled with OpenSSL, then (Ephemeral)-Diffie-Hellman Key Exchanges and several
-Cipher Suites will not be available.
 .TP
 \fBListen\fR (list of strings)
 A comma separated list of IP address on which the server should listen.
@@ -135,32 +109,30 @@ If unset, the defaults value is "0.0.0.0" or, if ngIRCd was compiled
 with IPv6 support, "::,0.0.0.0". So the server listens on all configured
 IP addresses and interfaces by default.
 .TP
-\fBSyslogFacility\fR (string)
-Syslog "facility" to which ngIRCd should send log messages. Possible
-values are system dependant, but most probably "auth", "daemon", "user"
-and "local1" through "local7" are possible values; see syslog(3).
-Default is "local5" for historical reasons, you probably want to
-change this to "daemon", for example.
-.TP
 \fBMotdFile\fR (string)
-Text file with the "message of the day" (MOTD). This message will be shown
-to all users connecting to the server. Changes made to this file
-take effect when ngircd is instructed to re-read its configuration file.
+Text file with the "message of the day" (MOTD). This message will be shown to
+all users connecting to the server. Please note: Changes made to this file
+take effect when ngircd starts up or is instructed to re-read its
+configuration file.
 .TP
 \fBMotdPhrase\fR (string)
 A simple Phrase (<256 chars) if you don't want to use a MOTD file.
 .TP
-\fBServerUID\fR (string or number)
-User ID under which the server should run; you can use the name of the user
-or the numerical ID.
-.PP
-.RS
-.B Attention:
-.br
-For this to work the server must have been
-started with root privileges! In addition, the configuration and MOTD files
-must be readable by this user, otherwise RESTART and REHASH won't work!
-.RE
+\fBPassword\fR (string)
+Global password for all users needed to connect to the server. The default is
+empty, so no password is required. Please note: This feature is not available
+if ngIRCd is using PAM!
+.TP
+\fBPidFile\fR (string)
+This tells ngIRCd to write its current process ID to a file. Note that the
+pidfile is written AFTER chroot and switching the user ID, e.g. the directory
+the pidfile resides in must be writeable by the ngIRCd user and exist in the
+chroot directory (if configured, see above).
+.TP
+\fBPorts\fR (list of numbers)
+Ports on which the server should listen. There may be more than one port,
+separated with commas (","). Default: 6667, unless \fBSSL_Ports\fR are also
+specified.
 .TP
 \fBServerGID\fR (string or number)
 Group ID under which the ngIRCd should run; you can use the name of the
@@ -169,69 +141,27 @@ group or the numerical ID.
 .RS
 .B Attention:
 .br
-For this to work the server must have
-been started with root privileges!
+For this to work the server must have been started with root privileges!
 .RE
 .TP
-\fBChrootDir\fR (string)
-A directory to chroot in when everything is initialized. It doesn't need
-to be populated if ngIRCd is compiled as a static binary. By default ngIRCd
-won't use the chroot() feature.
+\fBServerUID\fR (string or number)
+User ID under which the server should run; you can use the name of the user
+or the numerical ID.
 .PP
 .RS
 .B Attention:
 .br
-For this to work the server must have
-been started with root privileges!
+For this to work the server must have been started with root privileges! In
+addition, the configuration and MOTD files must be readable by this user,
+otherwise RESTART and REHASH won't work!
 .RE
-.TP
-\fBPidFile\fR (string)
-This tells ngIRCd to write its current process ID to a file. Note that the
-pidfile is written AFTER chroot and switching the user ID, i. e. the
-directory the pidfile resides in must be writeable by the ngIRCd user and
-exist in the chroot directory (if configured, see above).
-.RE
-.TP
-\fBPingTimeout\fR (number)
-After <PingTimeout> seconds of inactivity the server will send a PING to
-the peer to test whether it is alive or not. Default: 120.
-.TP
-\fBPongTimeout\fR (number)
-If a client fails to answer a PING with a PONG within <PongTimeout>
-seconds, it will be disconnected by the server. Default: 20.
+.SH [LIMITS]
+Define some limits and timeouts for this ngIRCd instance. Default values
+should be safe, but it is wise to double-check :-)
 .TP
 \fBConnectRetry\fR (number)
 The server tries every <ConnectRetry> seconds to establish a link to not yet
 (or no longer) connected servers. Default: 60.
-.TP
-\fBOperCanUseMode\fR (boolean)
-Should IRC Operators be allowed to use the MODE command even if they are
-not(!) channel-operators? Default: no.
-.TP
-\fBOperServerMode\fR (boolean)
-If \fBOperCanUseMode\fR is enabled, this may lead the compatibility problems with
-Servers that run the ircd-irc2 Software. This Option "masks" mode requests
-by non-chanops as if they were coming from the server. Default: no.
-.TP
-\fBAllowRemoteOper\fR (boolean)
-Are IRC operators connected to remote servers allowed to control this server,
-e. g. are they allowed to use administrative commands like CONNECT, DIE,
-SQUIT, ... that affect this server? Default: no.
-.TP
-\fBPredefChannelsOnly\fR (boolean)
-If enabled, no new channels can be created. Useful if
-you do not want to have channels other than those defined in
-[Channel] sections in the configuration file.
-Default: no.
-.TP
-\fBConnectIPv4\fR (boolean)
-Set this to no if you do not want ngIRCd to connect to other IRC servers using
-IPv4. This allows usage of ngIRCd in IPv6-only setups.
-Default: yes.
-.TP
-\fBConnectIPv6\fR (boolean)
-Set this to no if you do not want ngIRCd to connect to other irc servers using IPv6.
-Default: yes.
 .TP
 \fBMaxConnections\fR (number)
 Maximum number of simultaneous in- and outbound connections the server is
@@ -251,15 +181,33 @@ Maximum length of an user nick name (Default: 9, as in RFC 2812). Please
 note that all servers in an IRC network MUST use the same maximum nick name
 length!
 .TP
-\fBNoticeAuth\fR (boolean)
-Normally ngIRCd doesn't send any messages to a client until it is registered.
-Enable this option to let the daemon send "NOTICE AUTH" messages to clients
-while connecting. Default: no.
+\fBPingTimeout\fR (number)
+After <PingTimeout> seconds of inactivity the server will send a PING to
+the peer to test whether it is alive or not. Default: 120.
 .TP
-\fBRequireAuthPing\fR (boolean)
-Let ngIRCd send an "authentication PING" when a new client connects, and
-register this client only after receiving the corresponding "PONG" reply.
-Default: no.
+\fBPongTimeout\fR (number)
+If a client fails to answer a PING with a PONG within <PongTimeout>
+seconds, it will be disconnected by the server. Default: 20.
+.SH [OPTIONS]
+Optional features and configuration options to further tweak the behavior of
+ngIRCd. If you wan't to get started quickly, you most probably don't have to
+make changes here -- they are all optional.
+.TP
+\fBAllowRemoteOper\fR (boolean)
+Are IRC operators connected to remote servers allowed to control this server,
+e.g. are they allowed to use administrative commands like CONNECT, DIE,
+SQUIT, ... that affect this server? Default: no.
+.TP
+\fBChrootDir\fR (string)
+A directory to chroot in when everything is initialized. It doesn't need
+to be populated if ngIRCd is compiled as a static binary. By default ngIRCd
+won't use the chroot() feature.
+.PP
+.RS
+.B Attention:
+.br
+For this to work the server must have been started with root privileges!
+.RE
 .TP
 \fBCloakHost\fR (string)
 Set this hostname for every client instead of the real one. Default: empty,
@@ -274,6 +222,94 @@ Don't use the percentage sign ("%"), it is reserved for future extensions!
 \fBCloakUserToNick\fR (boolean)
 Set every clients' user name to their nick name and hide the one supplied
 by the IRC client. Default: no.
+.TP
+\fBConnectIPv4\fR (boolean)
+Set this to no if you do not want ngIRCd to connect to other IRC servers using
+the IPv4 protocol. This allows the usage of ngIRCd in IPv6-only setups.
+Default: yes.
+.TP
+\fBConnectIPv6\fR (boolean)
+Set this to no if you do not want ngIRCd to connect to other IRC servers using
+the IPv6 protocol.
+Default: yes.
+.TP
+\fBDNS\fR (boolean)
+If set to false, ngIRCd will not make any DNS lookups when clients connect.
+If you configure the daemon to connect to other servers, ngIRCd may still
+perform a DNS lookup if required.
+Default: yes.
+.TP
+\fBIdent\fR (boolean)
+If ngIRCd is compiled with IDENT support this can be used to disable IDENT
+lookups at run time.
+Default: yes.
+.TP
+\fBNoticeAuth\fR (boolean)
+Normally ngIRCd doesn't send any messages to a client until it is registered.
+Enable this option to let the daemon send "NOTICE AUTH" messages to clients
+while connecting. Default: no.
+.TP
+\fBOperCanUseMode\fR (boolean)
+Should IRC Operators be allowed to use the MODE command even if they are
+not(!) channel-operators? Default: no.
+.TP
+\fBOperServerMode\fR (boolean)
+If \fBOperCanUseMode\fR is enabled, this may lead the compatibility problems
+with Servers that run the ircd-irc2 Software. This Option "masks" mode
+requests by non-chanops as if they were coming from the server. Default: no;
+only enable it if you have ircd-irc2 servers in your IRC network.
+.TP
+\fBPAM\fR (boolean)
+If ngIRCd is compiled with PAM support this can be used to disable all calls
+to the PAM library at runtime; all users connecting without password are
+allowed to connect, all passwords given will fail.
+Default: yes.
+.TP
+\fBPredefChannelsOnly\fR (boolean)
+If enabled, no new channels can be created. Useful if you do not want to have
+other channels than those defined in [Channel] sections in the configuration
+file on this server.
+Default: no.
+.TP
+\fBRequireAuthPing\fR (boolean)
+Let ngIRCd send an "authentication PING" when a new client connects, and
+register this client only after receiving the corresponding "PONG" reply.
+Default: no.
+.TP
+\fBSSLCertFile\fR (string)
+SSL Certificate file of the private server key.
+.TP
+\fBSSLDHFile\fR (string)
+Name of the Diffie-Hellman Parameter file. Can be created with GnuTLS
+"certtool \-\-generate-dh-params" or "openssl dhparam". If this file is not
+present, it will be generated on startup when ngIRCd was compiled with GnuTLS
+support (this may take some time). If ngIRCd was compiled with OpenSSL, then
+(Ephemeral)-Diffie-Hellman Key Exchanges and several Cipher Suites will not be
+available.
+.TP
+\fBSSLKeyFile\fR (string)
+Filename of SSL Server Key to be used for SSL connections. This is required
+for SSL/TLS support.
+.TP
+\fBSSLKeyFilePassword\fR (string)
+OpenSSL only: Password to decrypt the private key file.
+.TP
+\fBSSLPorts\fR (list of numbers)
+Same as \fBPorts\fR , except that ngIRCd will expect incoming connections
+to be SSL/TLS encrypted. Common port numbers for SSL-encrypted IRC are 6669
+and 6697. Default: none.
+.TP
+\fBSyslogFacility\fR (string)
+Syslog "facility" to which ngIRCd should send log messages. Possible
+values are system dependent, but most probably "auth", "daemon", "user"
+and "local1" through "local7" are possible values; see syslog(3).
+Default is "local5" for historical reasons, you probably want to
+change this to "daemon", for example.
+.TP
+\fBWebircPassword\fR (string)
+Password required for using the WEBIRC command used by some Web-to-IRC
+gateways. If not set or empty, the WEBIRC command can't be used.
+Default: not set.
 .SH [OPERATOR]
 .I [Operator]
 sections are used to define IRC Operators. There may be more than one
@@ -293,23 +329,6 @@ Example: nick!ident@*.example.com
 An optional section that can be used to disable features at
 run-time. A feature is enabled by default if if ngircd was built with
 support for it.
-.TP
-\fBDNS\fR (boolean)
-If set to false, ngIRCd will not make DNS lookups when clients connect.
-If you configure the daemon to connect to other servers, ngIRCd may still
-perform a DNS lookup if required.
-Default: yes.
-.TP
-\fBIdent\fR (boolean)
-If ngIRCd is compiled with IDENT support this can be used to disable IDENT
-lookups at run time.
-Default: yes.
-.TP
-\fBPAM\fR (boolean)
-If ngIRCd is compiled with PAM support this can be used to disable all calls
-to the PAM library at runtime; all users connecting without password are
-allowed to connect, all passwords given will fail.
-Default: yes.
 .SH [SERVER]
 Other servers are configured in
 .I [Server]

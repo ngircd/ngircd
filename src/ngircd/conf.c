@@ -121,6 +121,9 @@ CheckFileReadable(const char *Var, const char *Filename)
 {
 	FILE *fp;
 
+	if (!Filename)
+		return;
+
 	fp = fopen(Filename, "r");
 	if (fp)
 		fclose(fp);

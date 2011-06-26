@@ -178,6 +178,9 @@ GLOBAL bool Conf_Ident;
 /** Enable all usage of PAM, even when compiled with support for it */
 GLOBAL bool Conf_PAM;
 
+/** Disable all CTCP commands except for /me ? */
+GLOBAL bool Conf_ScrubCTCP;
+
 /** Enable NOTICE AUTH messages on connect */
 GLOBAL bool Conf_NoticeAuth;
 

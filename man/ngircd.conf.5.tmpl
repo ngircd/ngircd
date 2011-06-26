@@ -278,6 +278,16 @@ Let ngIRCd send an "authentication PING" when a new client connects, and
 register this client only after receiving the corresponding "PONG" reply.
 Default: no.
 .TP
+\fBScrubCTCP\fR (boolean)
+If set to true, ngIRCd will silently drop all CTCP requests sent to it from
+both clients and servers. It will also not forward CTCP requests to any
+other servers. CTCP requests can be used to query user clients about which
+software they are using and which versions said softare is. CTCP can also be
+used to reveal clients IP numbers. ACTION CTCP requests are not blocked,
+this means that /me commands will not be dropped, but please note that
+blocking CTCP will disable file sharing between users!
+Default: no.
+.TP
 \fBSyslogFacility\fR (string)
 Syslog "facility" to which ngIRCd should send log messages. Possible
 values are system dependent, but most probably "auth", "daemon", "user"

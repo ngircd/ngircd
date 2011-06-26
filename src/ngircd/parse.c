@@ -47,6 +47,7 @@
 #include "numeric.h"
 
 #include "exp.h"
+#include "conf.h"
 
 struct _NUMERIC {
 	int numeric;
@@ -124,6 +125,8 @@ static bool Validate_Args PARAMS(( CONN_ID Idx, REQUEST *Req, bool *Closed ));
 
 static bool Handle_Request PARAMS(( CONN_ID Idx, REQUEST *Req ));
 
+static bool ScrubCTCP PARAMS((char *Request));
+
 /**
  * Return the pointer to the global "IRC command structure".
  * This structure, an array of type "COMMAND" describes all the IRC commands
@@ -174,8 +177,10 @@ Parse_Request( CONN_ID Idx, char *Request )
 	/* remove leading & trailing whitespace */
 	ngt_TrimStr( Request );
 
-	if( Request[0] == ':' )
-	{
+	if (Conf_ScrubCTCP && ScrubCTCP(Request))
+		return true;
+
+	if (Request[0] == ':') {
 		/* Prefix */
 		req.prefix = Request + 1;
 		ptr = strchr( Request, ' ' );
@@ -459,7 +464,6 @@ Handle_Numeric(CLIENT *client, REQUEST *Req)
 	return IRC_WriteStrClientPrefix(target, prefix, "%s", str);
 }
 
-
 static bool
 Handle_Request( CONN_ID Idx, REQUEST *Req )
 {
@@ -524,5 +528,40 @@ Handle_Request( CONN_ID Idx, REQUEST *Req )
 	return result;
 } /* Handle_Request */
 
+
+/**
+ * Check if incoming messages contains CTCP commands and should be dropped.
+ *
+ * @param Request NULL terminated incoming command.
+ * @returns true, when the message should be dropped.
+ */
+static bool
+ScrubCTCP(char *Request)
+{
+	static const char me_cmd[] = "ACTION ";
+	static const char ctcp_char = 0x1;
+	bool dropCommand = false;
+	char *ptr = Request;
+	char *ptrEnd = strchr(Request, '\0');
+
+	if (Request[0] == ':' && ptrEnd > ptr)
+		ptr++;
+
+	while (ptr != ptrEnd && *ptr != ':')
+		ptr++;
+
+	if ((ptrEnd - ptr) > 1) {
+		ptr++;
+		if (*ptr == ctcp_char) {
+			dropCommand = true;
+			ptr++;
+			/* allow /me commands */
+			if ((size_t)(ptrEnd - ptr) >= strlen(me_cmd)
+			    && !strncmp(ptr, me_cmd, strlen(me_cmd)))
+				dropCommand = false;
+		}
+	}
+	return dropCommand;
+}
 
 /* -eof- */

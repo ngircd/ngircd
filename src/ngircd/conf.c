@@ -379,6 +379,7 @@ Conf_Test( void )
 #ifndef STRICT_RFC
 	printf("  RequireAuthPing = %s\n", yesno_to_str(Conf_AuthPing));
 #endif
+	printf("  ScrubCTCP = %s\n", yesno_to_str(Conf_ScrubCTCP));
 #ifdef SYSLOG
 	printf("  SyslogFacility = %s\n",
 	       ngt_SyslogFacilityName(Conf_SyslogFacility));
@@ -698,6 +699,7 @@ Set_Defaults(bool InitServers)
 #endif
 	Conf_PredefChannelsOnly = false;
 #ifdef SYSLOG
+	Conf_ScrubCTCP = false;
 #ifdef LOG_LOCAL5
 	Conf_SyslogFacility = LOG_LOCAL5;
 #else
@@ -1485,6 +1487,10 @@ Handle_OPTIONS(int Line, char *Var, char *Arg)
 		return;
 	}
 #endif
+	if (strcasecmp(Var, "ScrubCTCP") == 0) {
+		Conf_ScrubCTCP = Check_ArgIsTrue(Arg);
+		return;
+	}
 #ifdef SYSLOG
 	if (strcasecmp(Var, "SyslogFacility") == 0) {
 		Conf_SyslogFacility = ngt_SyslogFacilityID(Arg,

@@ -273,7 +273,7 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 
 #ifndef STRICT_RFC
 			if (Conf_AuthPing) {
-				Conn_SetAuthPing(Client_Conn(Client), random());
+				Conn_SetAuthPing(Client_Conn(Client), rand());
 				IRC_WriteStrClient(Client, "PING :%ld",
 					Conn_GetAuthPing(Client_Conn(Client)));
 				LogDebug("Connection %d: sent AUTH PING %ld ...",

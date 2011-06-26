@@ -576,13 +576,13 @@ Random_Init_Kern(const char *file)
 		if (read(fd, &seed, sizeof(seed)) == sizeof(seed))
 			ret = true;
 		close(fd);
-		srandom(seed);
+		srand(seed);
 	}
 	return ret;
 }
 
 /**
- * Initialize libc random(3) number generator
+ * Initialize libc rand(3) number generator
  */
 static void
 Random_Init(void)
@@ -593,7 +593,7 @@ Random_Init(void)
 		return;
 	if (Random_Init_Kern("/dev/arandom"))
 		return;
-	srandom(random() ^ getpid() ^ time(NULL));
+	srand(rand() ^ getpid() ^ time(NULL));
 }
 
 

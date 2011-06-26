@@ -175,14 +175,17 @@ GLOBAL bool Conf_DNS;
 /** Enable IDENT lookups, even when compiled with support for it */
 GLOBAL bool Conf_Ident;
 
+/** Enable "more privacy" mode and "censor" some user-related information */
+GLOBAL bool Conf_MorePrivacy;
+
+/** Enable NOTICE AUTH messages on connect */
+GLOBAL bool Conf_NoticeAuth;
+
 /** Enable all usage of PAM, even when compiled with support for it */
 GLOBAL bool Conf_PAM;
 
 /** Disable all CTCP commands except for /me ? */
 GLOBAL bool Conf_ScrubCTCP;
-
-/** Enable NOTICE AUTH messages on connect */
-GLOBAL bool Conf_NoticeAuth;
 
 /*
  * try to connect to remote systems using the ipv6 protocol,

@@ -335,8 +335,10 @@ Client_SetID( CLIENT *Client, const char *ID )
 	
 	strlcpy( Client->id, ID, sizeof( Client->id ));
 
-	if (Conf_CloakUserToNick)
+	if (Conf_CloakUserToNick) {
 		strlcpy( Client->user, ID, sizeof( Client->user ));
+		strlcpy( Client->info, ID, sizeof( Client->info ));
+	}
 
 	/* Hash */
 	Client->hash = Hash( Client->id );
@@ -351,9 +353,9 @@ Client_SetUser( CLIENT *Client, const char *User, bool Idented )
 	assert( Client != NULL );
 	assert( User != NULL );
 
-	if (Conf_CloakUserToNick) return;
-
-	if (Idented) {
+	if (Conf_CloakUserToNick) {
+		strlcpy(Client->user, Client->id, sizeof(Client->user));
+	} else if (Idented) {
 		strlcpy(Client->user, User, sizeof(Client->user));
 	} else {
 		Client->user[0] = '~';
@@ -390,7 +392,10 @@ Client_SetInfo( CLIENT *Client, const char *Info )
 	assert( Client != NULL );
 	assert( Info != NULL );
 
-	strlcpy(Client->info, Info, sizeof(Client->info));
+	if (Conf_CloakUserToNick)
+		strlcpy(Client->info, Client->id, sizeof(Client->info));
+	else
+		strlcpy(Client->info, Info, sizeof(Client->info));
 } /* Client_SetInfo */
 
 

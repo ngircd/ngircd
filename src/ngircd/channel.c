@@ -263,6 +263,9 @@ Channel_Part(CLIENT * Client, CLIENT * Origin, const char *Name, const char *Rea
 		return false;
 	}
 
+	if (Conf_MorePrivacy)
+		Reason = "";
+
 	/* Part client from channel */
 	if (!Remove_Client(REMOVE_PART, chan, Client, Origin, Reason, true))
 		return false;
@@ -330,6 +333,9 @@ Channel_Quit( CLIENT *Client, const char *Reason )
 
 	assert( Client != NULL );
 	assert( Reason != NULL );
+
+	if (Conf_MorePrivacy)
+		Reason = "";
 
 	IRC_WriteStrRelatedPrefix( Client, Client, false, "QUIT :%s", Reason );
 
@@ -961,6 +967,9 @@ Remove_Client( int Type, CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, const ch
 				Client_Mask( Client ), c->name, Client_ID(Origin), Reason);
 			break;
 		default: /* PART */
+			if (Conf_MorePrivacy)
+				Reason = "";
+
 			if (InformServer)
 				IRC_WriteStrServersPrefix(Origin, Client, "PART %s :%s", c->name, Reason);
 

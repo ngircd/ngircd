@@ -246,6 +246,15 @@ If ngIRCd is compiled with IDENT support this can be used to disable IDENT
 lookups at run time.
 Default: yes.
 .TP
+\fBMorePrivacy\fR (boolean)
+This will cause ngIRCd to censor user idle time, logon time as well as the
+part/quit messages (that are sometimes used to inform everyone about which
+client software is being used). WHOWAS requests are also silently ignored.
+This option is most useful when ngIRCd is being used together with
+anonymizing software such as TOR or I2P and one does not wish to make it
+too easy to collect statistics on the users.
+Default: no.
+.TP
 \fBNoticeAuth\fR (boolean)
 Normally ngIRCd doesn't send any messages to a client until it is registered.
 Enable this option to let the daemon send "NOTICE AUTH" messages to clients

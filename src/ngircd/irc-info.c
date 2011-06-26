@@ -999,7 +999,7 @@ IRC_WHOIS_SendReply(CLIENT *Client, CLIENT *from, CLIENT *c)
 			return DISCONNECTED;
 
 	/* Idle and signon time (local clients only!) */
-	if (Client_Conn(c) > NONE &&
+	if (!Conf_MorePrivacy && Client_Conn(c) > NONE &&
 		!IRC_WriteStrClient(from, RPL_WHOISIDLE_MSG,
 				    Client_ID(from), Client_ID(c),
 				    (unsigned long)Conn_GetIdle(Client_Conn(c)),
@@ -1162,6 +1162,10 @@ IRC_WHOWAS( CLIENT *Client, REQUEST *Req )
 
 	assert( Client != NULL );
 	assert( Req != NULL );
+
+	/* Do not reveal any info on disconnected users? */
+	if (Conf_MorePrivacy)
+		return CONNECTED;
 
 	/* Wrong number of parameters? */
 	if (Req->argc > 3)
@@ -1388,6 +1392,10 @@ IRC_Send_NAMES( CLIENT *Client, CHANNEL *Chan )
 
 	if( Channel_IsMemberOf( Chan, Client )) is_member = true;
 	else is_member = false;
+
+	/* Do not print info on channel memberships to anyone that is not member? */
+	if (Conf_MorePrivacy && !is_member)
+		return CONNECTED;
 
 	/* Secret channel? */
 	if( ! is_member && strchr( Channel_Modes( Chan ), 's' )) return CONNECTED;

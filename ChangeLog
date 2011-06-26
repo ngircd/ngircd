@@ -9,18 +9,102 @@
                                -- ChangeLog --
 
 
-ngIRCd
+ngIRCd Release 18
 
-  - Make [No]ZeroConf configuration option work with Howl.
-  - Deprecate NoXX-Options in ngircd.conf: 'NoDNS=no' => 'DNS=yes',
-    'NoIdent=no' => 'Ident=yes', 'NoPAM=no' => 'PAM=yes', and
-    'NoZeroConf=no' => 'ZeroConf=yes' (and vice-versa).
-    The defaults are adjusted accordingly and the old variables are still
-    accepted, so there is no functional change.
-  - Fix confusing "adding to invite list" debug messages.
+  ngIRCd 18~rc1
+  - PAM warning message: make clear which "Password" config option is ignored.
+  - New configuration opion "MorePrivacy" to "censor" some user information.
+    When enabled, signon time and idle time is censored. Part and quit
+    messages are made to look the same. WHOWAS requests are silently dropped.
+    All of this is useful if one wish to conceal users that access the ngircd
+    servers from TOR or I2P.
+  - New configuration option "ScrubCTCP" to scrub incoming CTCP commands. If
+    activated, the server silently drops incomming CTCP requests from both
+    other servers and from users. The server that scrubs CTCP will not forward
+    the CTCP requests to other servers in the network either, which can spell
+    trouble if not every oper knows about the CTCP-scrubbing. Scrubbing CTCP
+    commands also means that it is not possible to send files between users.
+    There is one exception to the CTCP scrubbing performed: ACTION ("/me
+    commands") requests are not scrubbed.
+  - Display configuration errors more prominent on "--configtest".
+  - Restructure ngIRCd configuration file: introduce new [Limits], [Options],
+    and [SSL] sections. The intention of this restructuring is to make the
+    [Global] section much cleaner, so that it only contains variables that
+    most installations must adjust to the local requirements. All the optional
+    variables are moved to [Limits], for configurable limits and timers of
+    ngIRCd, and [Options], for optional features. All SSL-related variables
+    are moved to [SSL] and the "SSL"-prefix is stripped. The old variables in
+    the [Global] section are deprecated now, but are still recognized.
+    => Don't forget to check your configuration, use "ngircd --configtest"!
+  - New documentation "how to contribute": doc/Contributing.txt.
+  - Slightly fix error handling when connecting to remote servers.
+  - GnuTLS: bump DH-bitsize to 2048: this solves the problem that some clients
+    refuse to connect to severs that only offer 1024. For interoperability it
+    would be best to just use 4096 bits, but that takes minutes, even on
+    current hardware ...
+  - contrib/platformtest.sh: fix gcc version detection.
+  - Avoid needlesly scary 'buffer overflow' messages: When the write buffer
+    space grows too large, ngIRCd has to disconnect the client to avoid
+    wasting too much memory, which is logged with a scary 'write buffer
+    overflow' message. Change this to a more descriptive wording.
+  - Require server prefixes for most commands on RFC2812 links. RFC1459 links
+    (often used by services, for example) are not affected.
+  - Mac OS X: update installer functionality, texts, and add our logo :-)
+  - New configuration option "RequireAuthPing": PING-PONG on login. When
+    enabled, this configuration option lets ngIRCd send a PING with an numeric
+    "token" to clients logging in; and it will not become registered in the
+    network until the client responds with the correct PONG.
+  - New configuration option "NoticeAuth": send NOTICE AUTH on connect. When
+    active, ngircd will send "NOTICE AUTH" messages on client connect time
+    like e.g. snircd (QuakeNet) does.
+  - Generate WALLOPS message on SQUIT from IRC operators; so SQUIT now behaves
+    like CONNECT and DISCONNECT commands, when called by an IRC operator.
+  - Allow servers to send more commands in the first 10 secods ("burst"). This
+    helps to speed up server login and network synchronisation.
+  - Add support for up to 3 targets in WHOIS queries, also allow up to one
+    wildcard query from local hosts. Follows ircd 2.10 implementation rather
+    than RFC 2812. At most 10 entries are returned per wildcard expansion.
+  - ngircd.conf(5) manual page: describe types of configuration variables
+    (booleans, text strings, integer numbers) and add type information to each
+    variable description.
+  - Don't use "the.net" in sample-ngircd.conf, use "example.net".
+  - Terminate incoming connections on HTTP commands "GET" and "POST".
+  - New configuration option "CloakHost": when set, this hostname is used for
+    every client instead of the real DNS hostname (or IP address).
+  - New configuration option "CloakUserToNick": when enabled, ngIRCd sets
+    every clients' user name to their nick name and hides the user name
+    supplied by the IRC client.
+  - doc/Protocol.txt: Update description of the CHANINFO and WEBIRC commands.
+  - Doxygen'ify (document) much more source files; code cleanup ...
+  - Make write buffers bigger, but flush early. Before this change, a client
+    got disconnected if the buffer flushing at 4k failed, now regular clients
+    can store up to 32k and servers up 64k even if flushing is not possible at
+    the moment. This enhances reliability on slow links.
+  - Don't access possibly free'd CLIENT structure. Ooops.
+  - Allow "Port = 0" in [Server] blocks. Port number 0 marks remote servers
+    that try to connect to this daemon, but where this daemon never tries to
+    establis a connection on its own: only incoming connections are allowed.
+  - Configuration: fix 'Value of "..." is not a number!' for negative values.
+  - Enable WHOIS command to return information about services.
+  - Implement channel mode 'O': "IRC operators only". This channel mode is
+    used on DALnet (bahamut), for example.
+  - Remove support for ZeroConf/Bonjour/Rendezvous service registration
+    including the "[No]ZeroConf" configuration option.
+  - TOPIC command: test for channel admin rights correctly: this enables other
+    servers, services and IRC operators to change channel topics, even when
+    the client is not joined to this channel.
+  - Deprecate NoXX-Options in ngircd.conf and move new variants into our new
+    [Options] section: 'NoDNS=no' => 'DNS=yes', 'NoIdent=no' => 'Ident=yes',
+    'NoPAM=no' => 'PAM=yes', and 'NoZeroConf=no' => 'ZeroConf=yes' (and
+    vice-versa). The defaults are adjusted accordingly and the old variables
+    in [Global] are still accepted, so there is no functional change.
+  - Fix confusing "adding to invite list" debug messages: adding entries to
+    ban list produced 'invite list' debug output ...
   - Don't throttle services and servers beeing registered.
-  - Xcode: correctly sort files
-  - Don't assert() when serching a client for an invalid server token.
+  - Xcode: correctly sort files :-)
+  - Don't assert() when serching a client for an invalid server token (this is
+    only relevant when a trusted server on a server-server link sends invalid
+    commands).
 
 ngIRCd Release 17.1 (2010-12-19)
 

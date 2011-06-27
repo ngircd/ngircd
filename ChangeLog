@@ -11,7 +11,7 @@
 
 ngIRCd Release 18
 
-  ngIRCd 18~rc1
+  ngIRCd 18~rc1 (2011-06-27)
   - PAM warning message: make clear which "Password" config option is ignored.
   - New configuration opion "MorePrivacy" to "censor" some user information.
     When enabled, signon time and idle time is censored. Part and quit

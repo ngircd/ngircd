@@ -58,7 +58,7 @@ Hash( const char *String )
  * Not all of his functions are used here.
  */
 
-#define hashsize(n) ((uint32_t)1<<(n))
+#define hashsize(n) ((UINT32)1<<(n))
 #define hashmask(n) (hashsize(n)-1)
 #define rot(x,k) (((x)<<(k)) | ((x)>>(32-(k))))
 

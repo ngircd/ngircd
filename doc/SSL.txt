@@ -34,7 +34,7 @@ possible to handle unencrypted and encrypted connections on the same port!
 This is a limitation of the IRC protocol ...
 
 You have to set (at least) the following configuration variables in the
-[GLOBAL] section of ngircd.conf(5): SSLPorts, SSLKeyFile, and SSLCertFile.
+[SSL] section of ngircd.conf(5): Ports, KeyFile, and CertFile.
 
 Now IRC clients are able to connect using SSL on the configured port(s).
 (Using port 6697 for encrypted connections is common.)

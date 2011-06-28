@@ -76,6 +76,31 @@ re-initialize the daemon.
 .SH HINTS
 It's wise to use "ngircd \-\-configtest" to validate the configuration file
 after changing it.
+.SH DEBUGGING
+When ngIRCd is compiled with debug code, that is, its source code has
+been ./configure'd with "--enable-debug" and/or "--enable-sniffer" (witch
+enables debug mode automatically as well), you can use two more command
+line options and two more signals to debug problems with the daemon itself
+or IRC clients:
+.PP
+\fBOptions:\fR
+.TP
+\fB\-d\fR, \fB\-\-debug\fR
+Enable debug mode and log extra messages.
+.TP
+\fB\-s\fR, \fB\-\-sniffer\fR
+Enable IRC protocol sniffer, which logs all sent and received IRC commands to
+the console/syslog. This option requires that ngIRCd has been ./configure'd
+with "--enable-sniffer" and enables debug mode automatically, too.
+.PP
+\fBSignals:\fR
+.TP
+\fBUSR1\fR
+Toggle debug mode on and off during runtime.
+.TP
+\fBUSR2\fR
+Dump internal server state to the console/syslog when debug mode is on (use
+command line option \-\-debug or signal USR1).
 .SH AUTHORS
 Alexander Barton, <alex@barton.de>
 .br

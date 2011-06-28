@@ -52,9 +52,10 @@ static bool ConnSSL_LoadServerKey_openssl PARAMS(( SSL_CTX *c ));
 #include <gnutls/x509.h>
 
 #define DH_BITS 2048
+#define DH_BITS_MIN 1024
+
 static gnutls_certificate_credentials_t x509_cred;
 static gnutls_dh_params_t dh_params;
-
 static bool ConnSSL_LoadServerKey_gnutls PARAMS(( void ));
 #endif
 
@@ -426,7 +427,7 @@ ConnSSL_Init_SSL(CONNECTION *c)
 		ConnSSL_Free(c);
 		return false;
 	}
-	gnutls_dh_set_prime_bits(c->ssl_state.gnutls_session, DH_BITS);
+	gnutls_dh_set_prime_bits(c->ssl_state.gnutls_session, DH_BITS_MIN);
 #endif
 	Conn_OPTION_ADD(c, CONN_SSL);
 	return true;

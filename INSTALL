@@ -134,7 +134,7 @@ Again: "end users" do not need this step!
 
 The configure-script is used to detect local system dependencies.
 
-In the perfect case, configure should recognise all needed libraries, header
+In the perfect case, configure should recognize all needed libraries, header
 files and so on. If this shouldn't work, "./configure --help" shows all
 possible options.
 

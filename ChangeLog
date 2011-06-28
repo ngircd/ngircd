@@ -13,13 +13,13 @@ ngIRCd Release 18
 
   ngIRCd 18~rc1 (2011-06-27)
   - PAM warning message: make clear which "Password" config option is ignored.
-  - New configuration opion "MorePrivacy" to "censor" some user information.
-    When enabled, signon time and idle time is censored. Part and quit
+  - New configuration option "MorePrivacy" to "censor" some user information.
+    When enabled, signon time and idle time is left out. Part and quit
     messages are made to look the same. WHOWAS requests are silently dropped.
     All of this is useful if one wish to conceal users that access the ngircd
     servers from TOR or I2P.
   - New configuration option "ScrubCTCP" to scrub incoming CTCP commands. If
-    activated, the server silently drops incomming CTCP requests from both
+    activated, the server silently drops incoming CTCP requests from both
     other servers and from users. The server that scrubs CTCP will not forward
     the CTCP requests to other servers in the network either, which can spell
     trouble if not every oper knows about the CTCP-scrubbing. Scrubbing CTCP
@@ -43,7 +43,7 @@ ngIRCd Release 18
     would be best to just use 4096 bits, but that takes minutes, even on
     current hardware ...
   - contrib/platformtest.sh: fix gcc version detection.
-  - Avoid needlesly scary 'buffer overflow' messages: When the write buffer
+  - Avoid needlessly scary 'buffer overflow' messages: When the write buffer
     space grows too large, ngIRCd has to disconnect the client to avoid
     wasting too much memory, which is logged with a scary 'write buffer
     overflow' message. Change this to a more descriptive wording.
@@ -59,8 +59,8 @@ ngIRCd Release 18
     like e.g. snircd (QuakeNet) does.
   - Generate WALLOPS message on SQUIT from IRC operators; so SQUIT now behaves
     like CONNECT and DISCONNECT commands, when called by an IRC operator.
-  - Allow servers to send more commands in the first 10 secods ("burst"). This
-    helps to speed up server login and network synchronisation.
+  - Allow servers to send more commands in the first 10 seconds ("burst"). This
+    helps to speed up server login and network synchronization.
   - Add support for up to 3 targets in WHOIS queries, also allow up to one
     wildcard query from local hosts. Follows ircd 2.10 implementation rather
     than RFC 2812. At most 10 entries are returned per wildcard expansion.
@@ -83,7 +83,7 @@ ngIRCd Release 18
   - Don't access possibly free'd CLIENT structure. Ooops.
   - Allow "Port = 0" in [Server] blocks. Port number 0 marks remote servers
     that try to connect to this daemon, but where this daemon never tries to
-    establis a connection on its own: only incoming connections are allowed.
+    establish a connection on its own: only incoming connections are allowed.
   - Configuration: fix 'Value of "..." is not a number!' for negative values.
   - Enable WHOIS command to return information about services.
   - Implement channel mode 'O': "IRC operators only". This channel mode is
@@ -100,9 +100,9 @@ ngIRCd Release 18
     in [Global] are still accepted, so there is no functional change.
   - Fix confusing "adding to invite list" debug messages: adding entries to
     ban list produced 'invite list' debug output ...
-  - Don't throttle services and servers beeing registered.
+  - Don't throttle services and servers being registered.
   - Xcode: correctly sort files :-)
-  - Don't assert() when serching a client for an invalid server token (this is
+  - Don't assert() when searching a client for an invalid server token (this is
     only relevant when a trusted server on a server-server link sends invalid
     commands).
 
@@ -113,7 +113,7 @@ ngIRCd Release 17.1 (2010-12-19)
   - Reset ID of outgoing server link on DNS error correctly
   - Don't log critical (or worse) messages to stderr
   - Manual page ngircd(8): add SIGNALS section
-  - Manual pages: update and simplyfy AUTHORS section
+  - Manual pages: update and simplify AUTHORS section
   - Remove "error file" when compiled with debug code enabled
   - README: Updated list of implemented commands
   - add doc/README-Interix.txt and doc/Bopm.txt to distribution tarball

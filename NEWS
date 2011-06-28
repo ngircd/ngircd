@@ -11,13 +11,13 @@
 ngIRCd Release 18
 
   ngIRCd 18~rc1 (2011-06-27)
-  - New configuration opion "MorePrivacy" to "censor" some user information.
-    When enabled, signon time and idle time is censored. Part and quit
+  - New configuration option "MorePrivacy" to "censor" some user information.
+    When enabled, signon time and idle time is left out. Part and quit
     messages are made to look the same. WHOWAS requests are silently dropped.
     All of this is useful if one wish to conceal users that access the ngircd
     servers from TOR or I2P.
   - New configuration option "ScrubCTCP" to scrub incoming CTCP commands. If
-    activated, the server silently drops incomming CTCP requests from both
+    activated, the server silently drops incoming CTCP requests from both
     other servers and from users. The server that scrubs CTCP will not forward
     the CTCP requests to other servers in the network either, which can spell
     trouble if not every oper knows about the CTCP-scrubbing. Scrubbing CTCP
@@ -34,7 +34,7 @@ ngIRCd Release 18
     the [Global] section are deprecated now, but are still recognized.
     => Don't forget to check your configuration, use "ngircd --configtest"!
   - New documentation "how to contribute": doc/Contributing.txt.
-  - Avoid needlesly scary 'buffer overflow' messages: When the write buffer
+  - Avoid needlessly scary 'buffer overflow' messages: When the write buffer
     space grows too large, ngIRCd has to disconnect the client to avoid
     wasting too much memory, which is logged with a scary 'write buffer
     overflow' message. Change this to a more descriptive wording.
@@ -63,7 +63,7 @@ ngIRCd Release 18
     the moment. This enhances reliability on slow links.
   - Allow "Port = 0" in [Server] blocks. Port number 0 marks remote servers
     that try to connect to this daemon, but where this daemon never tries to
-    establis a connection on its own: only incoming connections are allowed.
+    establish a connection on its own: only incoming connections are allowed.
   - Enable WHOIS command to return information about services.
   - Implement channel mode 'O': "IRC operators only". This channel mode is
     used on DALnet (bahamut), for example.

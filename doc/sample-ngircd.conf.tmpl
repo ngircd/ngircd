@@ -57,7 +57,7 @@
 	# This tells ngIRCd to write its current process ID to a file.
 	# Note that the pidfile is written AFTER chroot and switching the
 	# user ID, e.g. the directory the pidfile resides in must be
-	# writeable by the ngIRCd user and exist in the chroot directory.
+	# writable by the ngIRCd user and exist in the chroot directory.
 	;PidFile = /var/run/ngircd/ngircd.pid
 
 	# Ports on which the server should listen. There may be more than
@@ -110,7 +110,7 @@
 
 [Options]
 	# Optional features and configuration options to further tweak the
-	# behavior of ngIRCd. If you wan't to get started quickly, you most
+	# behavior of ngIRCd. If you want to get started quickly, you most
 	# probably don't have to make changes here -- they are all optional.
 
 	# Are remote IRC operators allowed to control this server, e.g.
@@ -170,7 +170,7 @@
 	# "PONG" reply.
 	;RequireAuthPing = no
 
-	# Silently drop all incomming CTCP requests.
+	# Silently drop all incoming CTCP requests.
 	;ScrubCTCP = no
 
 	# Syslog "facility" to which ngIRCd should send log messages.

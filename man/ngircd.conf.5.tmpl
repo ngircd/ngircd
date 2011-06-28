@@ -128,7 +128,7 @@ if ngIRCd is using PAM!
 \fBPidFile\fR (string)
 This tells ngIRCd to write its current process ID to a file. Note that the
 pidfile is written AFTER chroot and switching the user ID, e.g. the directory
-the pidfile resides in must be writeable by the ngIRCd user and exist in the
+the pidfile resides in must be writable by the ngIRCd user and exist in the
 chroot directory (if configured, see above).
 .TP
 \fBPorts\fR (list of numbers)
@@ -192,7 +192,7 @@ If a client fails to answer a PING with a PONG within <PongTimeout>
 seconds, it will be disconnected by the server. Default: 20.
 .SH [OPTIONS]
 Optional features and configuration options to further tweak the behavior of
-ngIRCd. If you wan't to get started quickly, you most probably don't have to
+ngIRCd. If you want to get started quickly, you most probably don't have to
 make changes here -- they are all optional.
 .TP
 \fBAllowRemoteOper\fR (boolean)
@@ -291,7 +291,7 @@ Default: no.
 If set to true, ngIRCd will silently drop all CTCP requests sent to it from
 both clients and servers. It will also not forward CTCP requests to any
 other servers. CTCP requests can be used to query user clients about which
-software they are using and which versions said softare is. CTCP can also be
+software they are using and which versions said software is. CTCP can also be
 used to reveal clients IP numbers. ACTION CTCP requests are not blocked,
 this means that /me commands will not be dropped, but please note that
 blocking CTCP will disable file sharing between users!

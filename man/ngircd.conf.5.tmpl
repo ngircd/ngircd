@@ -314,10 +314,10 @@ All SSL-related configuration variables are located in the
 section. Please note that this whole section is only recognized by ngIRCd
 when it is compiled with support for SSL using OpenSSL or GnuTLS!
 .TP
-\fBSSLCertFile\fR (string)
+\fBCertFile\fR (string)
 SSL Certificate file of the private server key.
 .TP
-\fBSSLDHFile\fR (string)
+\fBDHFile\fR (string)
 Name of the Diffie-Hellman Parameter file. Can be created with GnuTLS
 "certtool \-\-generate-dh-params" or "openssl dhparam". If this file is not
 present, it will be generated on startup when ngIRCd was compiled with GnuTLS
@@ -325,14 +325,14 @@ support (this may take some time). If ngIRCd was compiled with OpenSSL, then
 (Ephemeral)-Diffie-Hellman Key Exchanges and several Cipher Suites will not be
 available.
 .TP
-\fBSSLKeyFile\fR (string)
+\fBKeyFile\fR (string)
 Filename of SSL Server Key to be used for SSL connections. This is required
 for SSL/TLS support.
 .TP
-\fBSSLKeyFilePassword\fR (string)
+\fBKeyFilePassword\fR (string)
 OpenSSL only: Password to decrypt the private key file.
 .TP
-\fBSSLPorts\fR (list of numbers)
+\fBPorts\fR (list of numbers)
 Same as \fBPorts\fR , except that ngIRCd will expect incoming connections
 to be SSL/TLS encrypted. Common port numbers for SSL-encrypted IRC are 6669
 and 6697. Default: none.

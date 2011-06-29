@@ -11,6 +11,15 @@
 
 ngIRCd Release 18
 
+  ngIRCd 18~rc2 (2011-06-29)
+  - Update documentation, fix some wording, and use a spellchecker :-)
+  - ngircd.conf.5: strip "SSL" prefix from variables in [SSL] section.
+  - ngircd.8: document debugging options.
+  - GnuTLS: use 1024 bits as minimum size of the DH prime. This enables
+    ngIRCd to accept incoming connections from other servers and clients
+    that "only" use at least 1024 bits again, like ngIRCd 17 did (and no
+    longer requires 2048 bits for incoming connections).
+
   ngIRCd 18~rc1 (2011-06-27)
   - PAM warning message: make clear which "Password" config option is ignored.
   - New configuration option "MorePrivacy" to "censor" some user information.

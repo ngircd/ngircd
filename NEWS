@@ -10,6 +10,12 @@
 
 ngIRCd Release 18
 
+  ngIRCd 18~rc2 (2011-06-29)
+  - GnuTLS: use 1024 bits as minimum size of the DH prime. This enables
+    ngIRCd to accept incoming connections from other servers and clients
+    that "only" use at least 1024 bits again, like ngIRCd 17 did (and no
+    longer requires 2048 bits for incoming connections).
+
   ngIRCd 18~rc1 (2011-06-27)
   - New configuration option "MorePrivacy" to "censor" some user information.
     When enabled, signon time and idle time is left out. Part and quit

@@ -1,9 +1,8 @@
 
                      ngIRCd - Next Generation IRC Server
+                           http://ngircd.barton.de/
 
-                        (c)2001-2008 Alexander Barton,
-                    alex@barton.de, http://www.barton.de/
-
+               (c)2001-2011 Alexander Barton and Contributors.
                ngIRCd is free software and published under the
                    terms of the GNU General Public License.
 
@@ -14,9 +13,11 @@ At the moment, ngIRCd doesn't implement a "special IRC services interface".
 But services acting as a "regular server" are supported, either using the IRC
 protocol defined in RFC 1459 or RFC 2812.
 
-Services have been tested using "IRC Services" version 5.x by Andrew Church,
-homepage: <http://www.ircservices.za.net/>. This document describes setting up
-ngIRCd and these services.
+Support for Services has been tested using "IRC Services" version 5.x by
+Andrew Church (<http://achurch.org/services/>), and a Anope 1.9 using a
+preliminary protocol module for ngIRCd (<http://www.anope.org/>).
+
+This document describes setting up ngIRCd and these services.
 
 
 Setting up ngIRCd
@@ -34,6 +35,31 @@ Example:
      MyPassword = 123abc
      PeerPassword = 123abc
      ServiceMask = *Serv
+
+
+Setting up Anope 1.9.x
+~~~~~~~~~~~~~~~~~~~~~~
+
+Anope 1.9.4 (and above) can be used with ngIRCd using a preliminary "ngircd"
+protocol module contained in our contrib/Anope/ directory. Please see the
+file contrib/Anope/README for installation instructions!
+
+After patching and installing Anope, at least the following configuration
+variables have to be adjusted in data/services.conf, in addition to all the
+settings marked as required:
+
+  uplink
+  {
+	host = "server.irc.net"
+	port = 6667
+	password = "123abc"
+  }
+
+  serverinfo
+  {
+	name = "services.irc.net"
+	type = "ngircd"
+  }
 
 
 Setting up IRC Services 5.1.x
@@ -65,6 +91,7 @@ In modules.conf:
 
 The documentation of IRC Services can be found here:
 <http://www.ircservices.za.net/docs/>
+
 
 Please let us know if you are successfully using other IRC service packages or
 which problems you encounter, thanks!

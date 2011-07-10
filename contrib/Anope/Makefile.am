@@ -9,10 +9,10 @@
 # Please read the file COPYING, README and AUTHORS for more information.
 #
 
-SUBDIRS = Anope Debian MacOSX
-
-EXTRA_DIST = README ngircd.spec systrace.policy ngindent ngircd-bsd.sh \
-	ngIRCd-Logo.gif ngircd-redhat.init platformtest.sh
+EXTRA_DIST = \
+	README \
+	0001-Revert-Removed-ngircd.patch \
+	0002-ngircd-whitespace-fixes.patch
 
 maintainer-clean-local:
 	rm -f Makefile Makefile.in

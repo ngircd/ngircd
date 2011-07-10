@@ -1,6 +1,6 @@
 #
 # ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001-2010 Alexander Barton <alex@barton.de>
+# Copyright (c)2001-2011 Alexander Barton (alex@barton.de) and Contributors
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -544,6 +544,7 @@ AC_OUTPUT([ \
 	src/testsuite/Makefile \
 	man/Makefile \
 	contrib/Makefile \
+	contrib/Anope/Makefile \
 	contrib/Debian/Makefile \
 	contrib/MacOSX/Makefile \
 	contrib/MacOSX/ngIRCd.xcodeproj/Makefile \

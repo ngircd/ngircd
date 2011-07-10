@@ -1,3 +1,9 @@
+ngircd (18-0ab1) unstable; urgency=low
+
+  * New "upstream" release: ngIRCd 18.
+
+ -- Alexander Barton <alex@barton.de>  Sun, 10 Jul 2011 20:03:20 +0200
+
 ngircd (18~rc2-0ab1) unstable; urgency=low
 
   * New "upstream" release candidate 2 for ngIRCd Release 18.

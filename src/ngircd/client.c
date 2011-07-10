@@ -1192,6 +1192,10 @@ Client_RegisterWhowas( CLIENT *Client )
 
 	assert( Client != NULL );
 
+	/* Don't register WHOWAS information when "MorePrivacy" is enabled. */
+	if (Conf_MorePrivacy)
+		return;
+
 	now = time(NULL);
 	/* Don't register clients that were connected less than 30 seconds. */
 	if( now - Client->starttime < 30 )

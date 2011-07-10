@@ -9,7 +9,11 @@
                                -- ChangeLog --
 
 
-ngIRCd Release 18
+ngIRCd Release 18 (2011-07-10)
+
+  - Update timestamp of ngircd(8) manual page.
+  - Add preliminary ngIRCd protocol module for Anope 1.9 to contrib/Anope/.
+  - Don't register WHOWAS information when "MorePrivacy" option is in effect.
 
   ngIRCd 18~rc2 (2011-06-29)
   - Update documentation, fix some wording, and use a spellchecker :-)

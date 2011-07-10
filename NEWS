@@ -8,7 +8,9 @@
 
                                   -- NEWS --
 
-ngIRCd Release 18
+ngIRCd Release 18 (2011-07-10)
+
+  - Add preliminary ngIRCd protocol module for Anope 1.9 to contrib/Anope/.
 
   ngIRCd 18~rc2 (2011-06-29)
   - GnuTLS: use 1024 bits as minimum size of the DH prime. This enables

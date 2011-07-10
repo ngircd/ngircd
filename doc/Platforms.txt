@@ -37,7 +37,7 @@ i386/pc/solaris2.9          gcc 3.2.2    CVSHEAD    04-02-24 alex   Y Y Y Y
 i386/pc/solaris2.11         gcc 3.4.3    18         11-07-10 alex   Y Y N Y (4)
 i386/unknown/freebsd5.2.1   gcc 3.3.3    0.8.0      04-05-30 alex   Y Y Y Y
 i386/unknown/freebsd6.2     gcc 3.4.6    18         11-07-10 alex   Y Y Y Y (3)
-i386/unknown/freebsd7.3     gcc 4.2.1    18         11-07-1ß alex   Y Y Y Y (3)
+i386/unknown/freebsd7.3     gcc 4.2.1    18         11-07-10 alex   Y Y Y Y (3)
 i686/unknown/gnu0.3         gcc 4.4.5    18         11-07-10 alex   Y Y Y Y
 i686/unkn./kfreebsd7.2-gnu  gcc 4.3.4    15         09-12-02 alex   Y Y Y Y (3)
 i386/unknown/netbsdelf1.6.2 gcc 2.95.3   18         11-07-10 goetz  Y Y Y Y
@@ -75,7 +75,7 @@ x86_64/unknown/openbsd4.7   gcc 3.3.5    18         11-07-10 alex   Y Y Y Y (3)
 Notes
 ~~~~~
 
-(1) i686/pc/linux-gnu & x86_64/unknown/linux-gnu:
+(1) */*/linux-gnu (Linux platforms):
     ngIRCd has been tested with various Linux distributions, such as SuSE,
     RedHat, Debian, and Gentoo using Kernels 2.2.x, 2.4.x and 2.6.x with
     various versions of the GNU C compiler (starting with 2.95.x and up to

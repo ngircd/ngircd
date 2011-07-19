@@ -325,13 +325,21 @@ Validate_Prefix( CONN_ID Idx, REQUEST *Req, bool *Closed )
 	/* check if the client named in the prefix is expected
 	 * to come from that direction */
 	if (Client_NextHop(c) != client) {
-		Log(LOG_ERR,
-		    "Spoofed prefix \"%s\" from \"%s\" (connection %d, command \"%s\")!",
-		    Req->prefix, Client_Mask(Conn_GetClient(Idx)), Idx,
-		    Req->command);
-		Conn_Close(Idx, NULL, "Spoofed prefix", true);
-		*Closed = true;
+		if (Client_Type(c) != CLIENT_SERVER) {
+			Log(LOG_ERR,
+			    "Spoofed prefix \"%s\" from \"%s\" (connection %d, command \"%s\")!",
+			    Req->prefix, Client_Mask(Conn_GetClient(Idx)), Idx,
+			    Req->command);
+			Conn_Close(Idx, NULL, "Spoofed prefix", true);
+			*Closed = true;
+		} else {
+			Log(LOG_INFO,
+			    "Ignoring spoofed prefix \"%s\" from \"%s\" (connection %d, command \"%s\").",
+			    Req->prefix, Client_Mask(Conn_GetClient(Idx)), Idx,
+			    Req->command);
+		}
 		return false;
+
 	}
 
 	return true;

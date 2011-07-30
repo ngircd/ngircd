@@ -63,13 +63,21 @@ IRC_ERROR( CLIENT *Client, REQUEST *Req )
 
 
 /**
- * Kill client on request.
+ * Handler for the IRC "KILL" command.
+ *
  * This function implements the IRC command "KILL" wich is used to selectively
  * disconnect clients. It can be used by IRC operators and servers, for example
- * to "solve" nick collisions after netsplits.
+ * to "solve" nick collisions after netsplits. See RFC 2812 section 3.7.1.
+ *
  * Please note that this function is also called internally, without a real
  * KILL command being received over the network! Client is Client_ThisServer()
- * in this case. */
+ * in this case, and the prefix in Req is NULL.
+ *
+ * @param Client	The client from which this command has been received
+ *			or Client_ThisServer() when generated interanlly.
+ * @param Req		Request structure with prefix and all parameters.
+ * @returns		CONNECTED or DISCONNECTED.
+ */
 GLOBAL bool
 IRC_KILL( CLIENT *Client, REQUEST *Req )
 {
@@ -77,55 +85,47 @@ IRC_KILL( CLIENT *Client, REQUEST *Req )
 	char reason[COMMAND_LEN], *msg;
 	CONN_ID my_conn, conn;
 
-	assert( Client != NULL );
-	assert( Req != NULL );
+	assert (Client != NULL);
+	assert (Req != NULL);
 
-	if(( Client_Type( Client ) != CLIENT_SERVER ) &&
-	   ( ! Client_OperByMe( Client )))
-	{
-		/* The originator of the KILL is neither an IRC operator of
-		 * this server nor a server. */
-		return IRC_WriteStrClient( Client, ERR_NOPRIVILEGES_MSG,
-					   Client_ID( Client ));
-	}
+	if (Client_Type(Client) != CLIENT_SERVER && !Client_OperByMe(Client))
+		return IRC_WriteStrClient(Client, ERR_NOPRIVILEGES_MSG,
+					  Client_ID(Client));
 
-	if( Req->argc != 2 )
-	{
-		/* This command requires exactly 2 parameters! */
-		return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG,
-					   Client_ID( Client ), Req->command );
-	}
+	if (Req->argc != 2)
+		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+					  Client_ID(Client), Req->command);
 
-	if( Req->prefix ) prefix = Client_Search( Req->prefix );
-	else prefix = Client;
-	if( ! prefix )
-	{
-		Log( LOG_WARNING, "Got KILL with invalid prefix: \"%s\"!",
-		     Req->prefix );
-		prefix = Client_ThisServer( );
-	}
-
-	if( Client != Client_ThisServer( ))
-	{
-		/* This is a "real" KILL received from the network. */
-		Log( LOG_NOTICE|LOG_snotice, "Got KILL command from \"%s\" for \"%s\": %s",
-		     Client_Mask( prefix ), Req->argv[0], Req->argv[1] );
-	}
-
-	/* Build reason string */
-	if( Client_Type( Client ) == CLIENT_USER )
-	{
-		/* Prefix the "reason" if the originator is a regular user,
-		 * so users can't spoof KILLs of servers. */
-		snprintf( reason, sizeof( reason ), "KILLed by %s: %s",
-			  Client_ID( Client ), Req->argv[1] );
-	}
+	/* Get prefix (origin); use the client if no prefix is given. */
+	if (Req->prefix)
+		prefix = Client_Search(Req->prefix);
 	else
-		strlcpy( reason, Req->argv[1], sizeof( reason ));
+		prefix = Client;
+
+	/* Log a warning message and use this server as origin when the
+	 * prefix (origin) is invalid. */
+	if (!prefix) {
+		Log(LOG_WARNING, "Got KILL with invalid prefix: \"%s\"!",
+		    Req->prefix );
+		prefix = Client_ThisServer();
+	}
+
+	if (Client != Client_ThisServer())
+		Log(LOG_NOTICE|LOG_snotice,
+		    "Got KILL command from \"%s\" for \"%s\": %s",
+		    Client_Mask(prefix), Req->argv[0], Req->argv[1]);
+
+	/* Build reason string: Prefix the "reason" if the originator is a
+	 * regular user, so users can't spoof KILLs of servers. */
+	if (Client_Type(Client) == CLIENT_USER)
+		snprintf(reason, sizeof(reason), "KILLed by %s: %s",
+			 Client_ID(Client), Req->argv[1]);
+	else
+		strlcpy(reason, Req->argv[1], sizeof(reason));
 
 	/* Inform other servers */
-	IRC_WriteStrServersPrefix( Client, prefix, "KILL %s :%s",
-				   Req->argv[0], reason );
+	IRC_WriteStrServersPrefix(Client, prefix, "KILL %s :%s",
+				  Req->argv[0], reason);
 
 	/* Save ID of this connection */
 	my_conn = Client_Conn( Client );

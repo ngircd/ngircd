@@ -16,7 +16,7 @@ elif [ $UNAME = "GNU" ]; then
 elif [ $UNAME = "SunOS" ]; then
   PS_FLAGS="-af"; PS_PIDCOL=2; HEAD_FLAGS="-n 1"
 else
-  PS_FLAGS="-f"; PS_PIDCOL="2"; HEAD_FLAGS="-n 1"
+  PS_FLAGS="-af"; PS_PIDCOL="2"; HEAD_FLAGS="-n 1"
   ps $PS_FLAGS > /dev/null 2>&1
   if [ $? -ne 0 ]; then PS_FLAGS="a"; PS_PIDCOL="1"; fi
 fi

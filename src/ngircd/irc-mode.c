@@ -50,25 +50,39 @@ static bool Send_ListChange PARAMS((const char *Mode, CLIENT *Prefix,
 	CLIENT *Client, CHANNEL *Channel, const char *Mask));
 
 
+/**
+ * Handler for the IRC "MODE" command.
+ *
+ * See RFC 2812 section 3.1.5 ("user mode message") and section 3.2.3
+ * ("channel mode message"), and RFC 2811 section 4 ("channel modes").
+ *
+ * @param Client	The client from which this command has been received.
+ * @param Req		Request structure with prefix and all parameters.
+ * @returns		CONNECTED or DISCONNECTED.
+ */
 GLOBAL bool
 IRC_MODE( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *cl, *origin;
 	CHANNEL *chan;
 
-	assert( Client != NULL );
-	assert( Req != NULL );
+	assert(Client != NULL);
+	assert(Req != NULL);
 
 	/* No parameters? */
-	if( Req->argc < 1 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	if (Req->argc < 1)
+		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+					  Client_ID(Client), Req->command);
 
 	/* Origin for answers */
-	if( Client_Type( Client ) == CLIENT_SERVER )
-	{
-		origin = Client_Search( Req->prefix );
-		if( ! origin ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
-	}
-	else origin = Client;
+	if (Client_Type(Client) == CLIENT_SERVER) {
+		origin = Client_Search(Req->prefix);
+		if (!origin)
+			return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
+						  Client_ID(Client),
+						  Req->prefix);
+	} else
+		origin = Client;
 
 	/* Channel or user mode? */
 	cl = NULL; chan = NULL;
@@ -88,51 +102,65 @@ IRC_MODE( CLIENT *Client, REQUEST *Req )
 } /* IRC_MODE */
 
 
+/**
+ * Handle client mode requests
+ *
+ * @param Client	The client from which this command has been received.
+ * @param Req		Request structure with prefix and all parameters.
+ * @param Origin	The originator of the MODE command (prefix).
+ * @param Target	The target (client) of this MODE command.
+ * @returns		CONNECTED or DISCONNECTED.
+ */
 static bool
 Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 {
-	/* Handle client mode requests */
-
 	char the_modes[COMMAND_LEN], x[2], *mode_ptr;
 	bool ok, set;
 	int mode_arg;
 	size_t len;
 
 	/* Is the client allowed to request or change the modes? */
-	if( Client_Type( Client ) == CLIENT_USER )
-	{
+	if (Client_Type(Client) == CLIENT_USER) {
 		/* Users are only allowed to manipulate their own modes! */
-		if( Target != Client ) return IRC_WriteStrClient( Client, ERR_USERSDONTMATCH_MSG, Client_ID( Client ));
+		if (Target != Client)
+			return IRC_WriteStrClient(Client,
+						  ERR_USERSDONTMATCH_MSG,
+						  Client_ID(Client));
 	}
 
 	/* Mode request: let's answer it :-) */
-	if( Req->argc == 1 ) return IRC_WriteStrClient( Origin, RPL_UMODEIS_MSG, Client_ID( Origin ), Client_Modes( Target ));
+	if (Req->argc == 1)
+		return IRC_WriteStrClient(Origin, RPL_UMODEIS_MSG,
+					  Client_ID(Origin),
+					  Client_Modes(Target));
 
 	mode_arg = 1;
 	mode_ptr = Req->argv[mode_arg];
 
 	/* Initial state: set or unset modes? */
-	if( *mode_ptr == '+' ) set = true;
-	else if( *mode_ptr == '-' ) set = false;
-	else return IRC_WriteStrClient( Origin, ERR_UMODEUNKNOWNFLAG_MSG, Client_ID( Origin ));
-
-	/* Prepare reply string */
-	if( set ) strcpy( the_modes, "+" );
-	else strcpy( the_modes, "-" );
+	if (*mode_ptr == '+') {
+		set = true;
+		strcpy(the_modes, "+");
+	} else if (*mode_ptr == '-') {
+		set = false;
+		strcpy(the_modes, "-");
+	} else
+		return IRC_WriteStrClient(Origin, ERR_UMODEUNKNOWNFLAG_MSG,
+					  Client_ID(Origin));
 
 	x[1] = '\0';
 	ok = CONNECTED;
-	while( mode_ptr )
-	{
+	while (mode_ptr) {
 		mode_ptr++;
-		if( ! *mode_ptr )
-		{
+		if (!*mode_ptr) {
 			/* Try next argument if there's any */
 			mode_arg++;
-			if( mode_arg < Req->argc ) mode_ptr = Req->argv[mode_arg];
-			else break;
+			if (mode_arg < Req->argc)
+				mode_ptr = Req->argv[mode_arg];
+			else
+				break;
 		}
-		
+
 		switch( *mode_ptr )
 		{
 			case '+':
@@ -217,49 +245,53 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 				x[0] = '\0';
 				goto client_exit;
 		}
-		if( ! ok ) break;
+		if (!ok)
+			break;
 
 		/* Is there a valid mode change? */
-		if( ! x[0] ) continue;
+		if (!x[0])
+			continue;
 
-		if( set )
-		{
-			/* Set mode */
-			if( Client_ModeAdd( Target, x[0] )) strlcat( the_modes, x, sizeof( the_modes ));
-
+		if (set) {
+			if (Client_ModeAdd(Target, x[0]))
+				strlcat(the_modes, x, sizeof(the_modes));
+		} else {
+			if (Client_ModeDel(Target, x[0]))
+				strlcat(the_modes, x, sizeof(the_modes));
 		}
-		else
-		{
-			/* Unset mode */
-			if( Client_ModeDel( Target, x[0] )) strlcat( the_modes, x, sizeof( the_modes ));
-		}		
 	}
 client_exit:
-	
-	/* Are there changed modes? */
-	if( the_modes[1] )
-	{
-		/* Remoce needless action modifier characters */
-		len = strlen( the_modes ) - 1;
-		if(( the_modes[len] == '+' ) || ( the_modes[len] == '-' )) the_modes[len] = '\0';
 
-		if( Client_Type( Client ) == CLIENT_SERVER )
-		{
+	/* Are there changed modes? */
+	if (the_modes[1]) {
+		/* Remoce needless action modifier characters */
+		len = strlen(the_modes) - 1;
+		if (the_modes[len] == '+' || the_modes[len] == '-')
+			the_modes[len] = '\0';
+
+		if (Client_Type(Client) == CLIENT_SERVER) {
 			/* Forward modes to other servers */
-			IRC_WriteStrServersPrefix( Client, Origin, "MODE %s :%s", Client_ID( Target ), the_modes );
-		}
-		else
-		{
+			IRC_WriteStrServersPrefix(Client, Origin,
+						  "MODE %s :%s",
+						  Client_ID(Target),
+						  the_modes);
+		} else {
 			/* Send reply to client and inform other servers */
-			ok = IRC_WriteStrClientPrefix( Client, Origin, "MODE %s :%s", Client_ID( Target ), the_modes );
-			IRC_WriteStrServersPrefix( Client, Origin, "MODE %s :%s", Client_ID( Target ), the_modes );
+			ok = IRC_WriteStrClientPrefix(Client, Origin,
+						      "MODE %s :%s",
+						      Client_ID(Target),
+						      the_modes);
+			IRC_WriteStrServersPrefix(Client, Origin,
+						  "MODE %s :%s",
+						  Client_ID(Target),
+						  the_modes);
 		}
 		LogDebug("%s \"%s\": Mode change, now \"%s\".",
 			 Client_TypeText(Target), Client_Mask(Target),
 			 Client_Modes(Target));
 	}
-	
-	IRC_SetPenalty( Client, 1 );	
+
+	IRC_SetPenalty(Client, 1);
 	return ok;
 } /* Client_Mode */
 

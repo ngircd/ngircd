@@ -242,16 +242,25 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 				x[0] = 'x';
 			break;
 		default:
-			Log(LOG_DEBUG, "Unknown mode \"%c%c\" from \"%s\"!?",
-			    set ? '+' : '-', *mode_ptr, Client_ID(Origin));
-			if (Client_Type(Client) != CLIENT_SERVER)
+			if (Client_Type(Client) != CLIENT_SERVER) {
+				Log(LOG_DEBUG,
+				    "Unknown mode \"%c%c\" from \"%s\"!?",
+				    set ? '+' : '-', *mode_ptr,
+				    Client_ID(Origin));
 				ok = IRC_WriteStrClient(Origin,
 							ERR_UMODEUNKNOWNFLAG2_MSG,
 							Client_ID(Origin),
 							set ? '+' : '-',
 							*mode_ptr);
-			x[0] = '\0';
-			goto client_exit;
+				x[0] = '\0';
+				goto client_exit;
+			} else {
+				Log(LOG_DEBUG,
+				    "Handling unknown mode \"%c%c\" from \"%s\" for \"%s\" ...",
+				    set ? '+' : '-', *mode_ptr,
+				    Client_ID(Origin), Client_ID(Target));
+				x[0] = *mode_ptr;
+			}
 		}
 
 		if (!ok)

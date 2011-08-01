@@ -653,32 +653,37 @@ IRC_QUIT( CLIENT *Client, REQUEST *Req )
 	CLIENT *target;
 	char quitmsg[LINE_LEN];
 
-	assert( Client != NULL );
-	assert( Req != NULL );
+	assert(Client != NULL);
+	assert(Req != NULL);
 
 	/* Wrong number of arguments? */
-	if( Req->argc > 1 )
-		return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	if (Req->argc > 1)
+		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+					  Client_ID(Client), Req->command);
 
 	if (Req->argc == 1)
 		strlcpy(quitmsg, Req->argv[0], sizeof quitmsg);
 
-	if ( Client_Type( Client ) == CLIENT_SERVER )
-	{
+	if (Client_Type(Client) == CLIENT_SERVER) {
 		/* Server */
-		target = Client_Search( Req->prefix );
-		if( ! target )
-		{
-			Log( LOG_WARNING, "Got QUIT from %s for unknown client!?", Client_ID( Client ));
+		target = Client_Search(Req->prefix);
+		if (!target) {
+			Log(LOG_WARNING,
+			    "Got QUIT from %s for unknown client!?",
+			    Client_ID(Client));
 			return CONNECTED;
 		}
 
-		Client_Destroy( target, "Got QUIT command.", Req->argc == 1 ? quitmsg : NULL, true);
-
-		return CONNECTED;
-	}
-	else
-	{
+		if (target != Client) {
+			Client_Destroy(target, "Got QUIT command.",
+				       Req->argc == 1 ? quitmsg : NULL, true);
+			return CONNECTED;
+		} else {
+			Conn_Close(Client_Conn(Client), "Got QUIT command.",
+				   Req->argc == 1 ? quitmsg : NULL, true);
+			return DISCONNECTED;
+		}
+	} else {
 		if (Req->argc == 1 && quitmsg[0] != '\"') {
 			/* " " to avoid confusion */
 			strlcpy(quitmsg, "\"", sizeof quitmsg);
@@ -687,7 +692,8 @@ IRC_QUIT( CLIENT *Client, REQUEST *Req )
 		}
 
 		/* User, Service, or not yet registered */
-		Conn_Close( Client_Conn( Client ), "Got QUIT command.", Req->argc == 1 ? quitmsg : NULL, true);
+		Conn_Close(Client_Conn(Client), "Got QUIT command.",
+			   Req->argc == 1 ? quitmsg : NULL, true);
 
 		return DISCONNECTED;
 	}

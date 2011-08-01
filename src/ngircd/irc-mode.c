@@ -650,18 +650,25 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 			}
 			break;
 		default:
-			Log(LOG_DEBUG,
-			    "Unknown mode \"%c%c\" from \"%s\" on %s!?",
-			    set ? '+' : '-', *mode_ptr, Client_ID(Origin),
-			    Channel_Name(Channel));
-			if (Client_Type(Client) != CLIENT_SERVER)
+			if (Client_Type(Client) != CLIENT_SERVER) {
+				Log(LOG_DEBUG,
+				    "Unknown mode \"%c%c\" from \"%s\" on %s!?",
+				    set ? '+' : '-', *mode_ptr,
+				    Client_ID(Origin), Channel_Name(Channel));
 				connected = IRC_WriteStrClient(Origin,
 					ERR_UMODEUNKNOWNFLAG2_MSG,
 					Client_ID(Origin),
 					set ? '+' : '-', *mode_ptr);
-			x[0] = '\0';
-			goto chan_exit;
-		}	/* switch() */
+				x[0] = '\0';
+				goto chan_exit;
+			} else {
+				Log(LOG_DEBUG,
+				    "Handling unknown mode \"%c%c\" from \"%s\" on %s ...",
+				    set ? '+' : '-', *mode_ptr,
+				    Client_ID(Origin), Channel_Name(Channel));
+				x[0] = *mode_ptr;
+			}
+		}
 
 		if (!connected)
 			break;

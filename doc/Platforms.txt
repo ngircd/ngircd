@@ -58,7 +58,7 @@ m68k/apple/aux3.1.1         gcc 2.7.2    18         11-07-02 alex   Y Y N Y
 m68k/apple/aux3.1.1         Orig. A/UX   18         11-07-02 alex   Y Y N Y (2)
 m68k/hp/hp-ux9.10           Orig. HPUX   0.7.x-CVS  03-04-30 goetz  Y Y Y Y
 m88k/dg/dgux5.4R3.10        gcc 2.5.8    CVSHEAD    04-03-15 alex   Y Y ? ?
-mipsel/unknown/linux-gnu    gcc 4.1.2    18         11-07-05 goetz  Y Y N Y (1)
+mipsel/unknown/linux-gnu    gcc 4.4.5    18         11-07-30 goetz  Y Y Y Y (1)
 powerpc/apple/darwin6.5     gcc 3.1      0.7.x-CVS  03-04-23 alex   Y Y Y Y
 powerpc/apple/darwin7.9.0   gcc 3.3      CVSHEAD    06-05-07 fw     Y Y Y Y (3)
 powerpc/apple/darwin8.11.0  gcc 4.0.1    18         11-07-02 goetz  Y Y Y Y (3)

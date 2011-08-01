@@ -4,6 +4,7 @@ INDENTARGS="-kr -i8 -ts8 -l80 -c3 -cd41 -ss -ncs -psl"
 
 # check if indent(1) is available
 type indent >/dev/null 2>&1 && INDENT="indent"
+type gindent >/dev/null 2>&1 && INDENT="gindent"
 type gnuindent >/dev/null 2>&1 && INDENT="gnuindent"
 
 if [ -z "$INDENT" ]; then

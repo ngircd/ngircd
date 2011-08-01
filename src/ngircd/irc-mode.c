@@ -271,6 +271,14 @@ client_exit:
 
 		if (Client_Type(Client) == CLIENT_SERVER) {
 			/* Forward modes to other servers */
+			if (Client_Conn(Target) != NONE) {
+				/* Remote server (service?) changed modes
+				 * for one of our clients. Inform it! */
+				IRC_WriteStrClientPrefix(Target, Origin,
+							 "MODE %s :%s",
+							 Client_ID(Target),
+							 the_modes);
+			}
 			IRC_WriteStrServersPrefix(Client, Origin,
 						  "MODE %s :%s",
 						  Client_ID(Target),

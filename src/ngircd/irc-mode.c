@@ -161,90 +161,99 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 				break;
 		}
 
-		switch( *mode_ptr )
-		{
-			case '+':
-			case '-':
-				if((( *mode_ptr == '+' ) && ( ! set )) || (( *mode_ptr == '-' ) && ( set )))
-				{
-					/* Action modifier ("+"/"-") must be changed ... */
-					len = strlen( the_modes ) - 1;
-					if(( the_modes[len] == '+' ) || ( the_modes[len] == '-' ))
-					{
-						/* Adjust last action modifier in result */
-						the_modes[len] = *mode_ptr;
-					}
-					else
-					{
-						/* Append modifier character to result string */
-						x[0] = *mode_ptr;
-						strlcat( the_modes, x, sizeof( the_modes ));
-					}
-					if( *mode_ptr == '+' ) set = true;
-					else set = false;
+		switch(*mode_ptr) {
+		  case '+':
+		  case '-':
+			if ((*mode_ptr == '+' && !set)
+			    || (*mode_ptr == '-' && set)) {
+				/* Action modifier ("+"/"-") must be changed */
+				len = strlen(the_modes) - 1;
+				if (the_modes[len] == '+'
+				    || the_modes[len] == '-') {
+					/* Last character in the "result
+					 * string" was an "action", so just
+					 * overwrite it with the new action */
+					the_modes[len] = *mode_ptr;
+				} else {
+					/* Append new modifier character to
+					 * the resulting mode string */
+					x[0] = *mode_ptr;
+					strlcat(the_modes, x,
+						sizeof(the_modes));
 				}
-				continue;
+				if (*mode_ptr == '+')
+					set = true;
+				else
+					set = false;
+			}
+			continue;
 		}
-		
+
 		/* Validate modes */
 		x[0] = '\0';
-		switch( *mode_ptr )
-		{
-			case 'i': /* Invisible */
-			case 's': /* Server messages */
-			case 'w': /* Wallops messages */
-				x[0] = *mode_ptr;
-				break;
-
-			case 'a': /* Away */
-				if( Client_Type( Client ) == CLIENT_SERVER )
-				{
-					x[0] = 'a';
-					Client_SetAway( Origin, DEFAULT_AWAY_MSG );
-				}
-				else ok = IRC_WriteStrClient( Origin, ERR_NOPRIVILEGES_MSG, Client_ID( Origin ));
-				break;
-
-			case 'c': /* Receive connect notices
-				   * (only settable by IRC operators!) */
-				if(!set || Client_OperByMe(Origin)
-				   || Client_Type(Client) == CLIENT_SERVER)
-					x[0] = 'c';
-				else
-					ok = IRC_WriteStrClient(Origin,
+		switch (*mode_ptr) {
+		case 'i': /* Invisible */
+		case 's': /* Server messages */
+		case 'w': /* Wallops messages */
+			x[0] = *mode_ptr;
+			break;
+		case 'a': /* Away */
+			if (Client_Type(Client) == CLIENT_SERVER) {
+				x[0] = 'a';
+				Client_SetAway(Origin, DEFAULT_AWAY_MSG);
+			} else
+				ok = IRC_WriteStrClient(Origin,
 							ERR_NOPRIVILEGES_MSG,
 							Client_ID(Origin));
-				break;
-
-			case 'o': /* IRC operator (only unsettable!) */
-				if(( ! set ) || ( Client_Type( Client ) == CLIENT_SERVER ))
-				{
-					Client_SetOperByMe( Target, false );
-					x[0] = 'o';
-				}
-				else ok = IRC_WriteStrClient( Origin, ERR_NOPRIVILEGES_MSG, Client_ID( Origin ));
-				break;
-
-			case 'r': /* Restricted (only settable) */
-				if(( set ) || ( Client_Type( Client ) == CLIENT_SERVER )) x[0] = 'r';
-				else ok = IRC_WriteStrClient( Origin, ERR_RESTRICTED_MSG, Client_ID( Origin ));
-				break;
-
-			case 'x': /* Cloak hostname */
-				if (Client_HasMode(Client, 'r'))
-					ok = IRC_WriteStrClient(Origin,
-							   ERR_RESTRICTED_MSG,
-							   Client_ID(Origin));
-				else
-					x[0] = 'x';
-				break;
-
-			default:
-				Log( LOG_DEBUG, "Unknown mode \"%c%c\" from \"%s\"!?", set ? '+' : '-', *mode_ptr, Client_ID( Origin ));
-				if( Client_Type( Client ) != CLIENT_SERVER ) ok = IRC_WriteStrClient( Origin, ERR_UMODEUNKNOWNFLAG2_MSG, Client_ID( Origin ), set ? '+' : '-', *mode_ptr );
-				x[0] = '\0';
-				goto client_exit;
+			break;
+		case 'c': /* Receive connect notices
+			   * (only settable by IRC operators!) */
+			if (!set || Client_Type(Client) == CLIENT_SERVER
+			    || Client_OperByMe(Origin))
+				x[0] = 'c';
+			else
+				ok = IRC_WriteStrClient(Origin,
+							ERR_NOPRIVILEGES_MSG,
+							Client_ID(Origin));
+			break;
+		case 'o': /* IRC operator (only unsettable!) */
+			if (!set || Client_Type(Client) == CLIENT_SERVER) {
+				Client_SetOperByMe(Target, false);
+				x[0] = 'o';
+			} else
+				ok = IRC_WriteStrClient(Origin,
+							ERR_NOPRIVILEGES_MSG,
+							Client_ID(Origin));
+			break;
+		case 'r': /* Restricted (only settable) */
+			if (set || Client_Type(Client) == CLIENT_SERVER)
+				x[0] = 'r';
+			else
+				ok = IRC_WriteStrClient(Origin,
+							ERR_RESTRICTED_MSG,
+							Client_ID(Origin));
+			break;
+		case 'x': /* Cloak hostname */
+			if (Client_HasMode(Client, 'r'))
+				ok = IRC_WriteStrClient(Origin,
+							ERR_RESTRICTED_MSG,
+							Client_ID(Origin));
+			else
+				x[0] = 'x';
+			break;
+		default:
+			Log(LOG_DEBUG, "Unknown mode \"%c%c\" from \"%s\"!?",
+			    set ? '+' : '-', *mode_ptr, Client_ID(Origin));
+			if (Client_Type(Client) != CLIENT_SERVER)
+				ok = IRC_WriteStrClient(Origin,
+							ERR_UMODEUNKNOWNFLAG2_MSG,
+							Client_ID(Origin),
+							set ? '+' : '-',
+							*mode_ptr);
+			x[0] = '\0';
+			goto client_exit;
 		}
+
 		if (!ok)
 			break;
 

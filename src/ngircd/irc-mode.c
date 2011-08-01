@@ -594,6 +594,16 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 					Channel_Name(Channel));
 			break;
 		/* --- Channel user modes --- */
+		case 'a':
+		case 'h':
+		case 'q':
+			if (Client_Type(Client) != CLIENT_SERVER) {
+				connected = IRC_WriteStrClient(Origin,
+					ERR_CHANOPRIVSNEEDED_MSG,
+					Client_ID(Origin),
+					Channel_Name(Channel));
+				goto chan_exit;
+			}
 		case 'o': /* Channel operator */
 		case 'v': /* Voice */
 			if (arg_arg > mode_arg) {

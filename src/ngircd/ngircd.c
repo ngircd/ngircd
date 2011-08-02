@@ -593,7 +593,7 @@ Random_Init(void)
 		return;
 	if (Random_Init_Kern("/dev/arandom"))
 		return;
-	srand(rand() ^ getpid() ^ time(NULL));
+	srand(rand() ^ (unsigned)getpid() ^ (unsigned)time(NULL));
 }
 
 

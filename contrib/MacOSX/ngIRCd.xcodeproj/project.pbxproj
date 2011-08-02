@@ -170,7 +170,6 @@
 		FA322D8E0CEF7523001761B3 /* ngIRCd.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = ngIRCd.xcodeproj; sourceTree = "<group>"; };
 		FA322D910CEF7523001761B3 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
 		FA322D920CEF7523001761B3 /* ngindent */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = ngindent; sourceTree = "<group>"; };
-		FA322D930CEF7523001761B3 /* ngircd.sh */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; path = ngircd.sh; sourceTree = "<group>"; };
 		FA322D940CEF7523001761B3 /* ngircd.spec */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = ngircd.spec; sourceTree = "<group>"; };
 		FA322D950CEF7523001761B3 /* README */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
 		FA322D960CEF7523001761B3 /* systrace.policy */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = systrace.policy; sourceTree = "<group>"; };
@@ -196,6 +195,10 @@
 		FA407F2C0DB159F400271AF1 /* ng_ipaddr.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; name = ng_ipaddr.c; path = ipaddr/ng_ipaddr.c; sourceTree = "<group>"; };
 		FA407F2D0DB159F400271AF1 /* ng_ipaddr.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; name = ng_ipaddr.h; path = ipaddr/ng_ipaddr.h; sourceTree = "<group>"; };
 		FA407F380DB15AC700271AF1 /* GIT.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = GIT.txt; sourceTree = "<group>"; };
+		FA4B08E513E7F8FB00765BA3 /* ngircd-bsd.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "ngircd-bsd.sh"; sourceTree = "<group>"; };
+		FA4B08E613E7F91700765BA3 /* ngIRCd-Logo.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = "ngIRCd-Logo.gif"; sourceTree = "<group>"; };
+		FA4B08E713E7F91700765BA3 /* ngircd-redhat.init */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "ngircd-redhat.init"; sourceTree = "<group>"; };
+		FA4B08E813E7F91C00765BA3 /* platformtest.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = platformtest.sh; sourceTree = "<group>"; };
 		FA77849A133FB9FF00740057 /* sample-ngircd.conf.tmpl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "sample-ngircd.conf.tmpl"; sourceTree = "<group>"; };
 		FA85178A0FA061EC006A1F5A /* op.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = op.h; sourceTree = "<group>"; };
 		FA85178B0FA061EC006A1F5A /* op.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = op.c; sourceTree = "<group>"; };
@@ -432,8 +435,11 @@
 				FA322D730CEF7523001761B3 /* MacOSX */,
 				FA322D910CEF7523001761B3 /* Makefile.am */,
 				FA322D920CEF7523001761B3 /* ngindent */,
-				FA322D930CEF7523001761B3 /* ngircd.sh */,
+				FA4B08E513E7F8FB00765BA3 /* ngircd-bsd.sh */,
+				FA4B08E613E7F91700765BA3 /* ngIRCd-Logo.gif */,
+				FA4B08E713E7F91700765BA3 /* ngircd-redhat.init */,
 				FA322D940CEF7523001761B3 /* ngircd.spec */,
+				FA4B08E813E7F91C00765BA3 /* platformtest.sh */,
 				FA322D950CEF7523001761B3 /* README */,
 				FA322D960CEF7523001761B3 /* systrace.policy */,
 			);

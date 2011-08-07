@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2010 Alexander Barton (alex@barton.de).
+ * Copyright (c)2001-2011 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -103,10 +103,15 @@
 #ifdef PAM
 /* Define to 1 if you have the `pam_authenticate' function. */
 #define HAVE_PAM_AUTHENTICATE 1
+#if (__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__ < 1060)
 /* Define to 1 if you have the <pam/pam_appl.h> header file. */
 #define HAVE_PAM_PAM_APPL_H 1
 /* Mac OS X <10.6 doesn't have pam_fail_delay() */
 #define NO_PAM_FAIL_DELAY 1
+#else
+/* Define to 1 if you have the <security/pam_appl.h> header file. */
+#define HAVE_SECURITY_PAM_APPL_H 1
+#endif
 #endif
 
 /* -eof- */

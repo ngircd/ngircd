@@ -1102,20 +1102,22 @@ Hello_User_PostAuth(CLIENT *Client)
  * @param Reason	Reason for the KILL.
  */
 static void
-Kill_Nick( char *Nick, char *Reason )
+Kill_Nick(char *Nick, char *Reason)
 {
 	REQUEST r;
 
-	assert( Nick != NULL );
-	assert( Reason != NULL );
+	assert (Nick != NULL);
+	assert (Reason != NULL);
 
-	r.prefix = (char *)Client_ThisServer( );
+	r.prefix = NULL;
 	r.argv[0] = Nick;
 	r.argv[1] = Reason;
 	r.argc = 2;
 
-	Log( LOG_ERR, "User(s) with nick \"%s\" will be disconnected: %s", Nick, Reason );
-	IRC_KILL( Client_ThisServer( ), &r );
+	Log(LOG_ERR, "User(s) with nick \"%s\" will be disconnected: %s",
+	    Nick, Reason);
+
+	IRC_KILL(Client_ThisServer(), &r);
 } /* Kill_Nick */
 
 

@@ -864,8 +864,13 @@ Client_CheckNick(CLIENT *Client, char *Nick)
 	assert(Nick != NULL);
 
 	if (!Client_IsValidNick(Nick)) {
-		IRC_WriteStrClient(Client, ERR_ERRONEUSNICKNAME_MSG,
-				   Client_ID(Client), Nick);
+		if (strlen(Nick ) >= Conf_MaxNickLength)
+			IRC_WriteStrClient(Client, ERR_NICKNAMETOOLONG_MSG,
+					   Client_ID(Client), Nick,
+					   Conf_MaxNickLength - 1);
+		else
+			IRC_WriteStrClient(Client, ERR_ERRONEUSNICKNAME_MSG,
+					   Client_ID(Client), Nick);
 		return false;
 	}
 

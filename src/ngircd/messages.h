@@ -105,6 +105,7 @@
 #define ERR_NOMOTD_MSG			"422 %s :MOTD file is missing"
 #define ERR_NONICKNAMEGIVEN_MSG		"431 %s :No nickname given"
 #define ERR_ERRONEUSNICKNAME_MSG	"432 %s %s :Erroneous nickname"
+#define ERR_NICKNAMETOOLONG_MSG		"432 %s %s :Nickname too long, max. %u characters"
 #define ERR_NICKNAMEINUSE_MSG		"433 %s %s :Nickname already in use"
 #define ERR_USERNOTINCHANNEL_MSG	"441 %s %s %s :They aren't on that channel"
 #define ERR_NOTONCHANNEL_MSG		"442 %s %s :You are not on that channel"

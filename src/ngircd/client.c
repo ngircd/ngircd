@@ -847,23 +847,32 @@ Client_Away( CLIENT *Client )
 } /* Client_Away */
 
 
+/**
+ * Make sure that a given nickname is valid.
+ *
+ * If the nickname is not valid for the given client, this function sends back
+ * the appropriate error messages.
+ *
+ * @param	Client Client that wants to change the nickname.
+ * @param	Nick New nick name.
+ * @returns	true if nickname is valid, false otherwise.
+ */
 GLOBAL bool
-Client_CheckNick( CLIENT *Client, char *Nick )
+Client_CheckNick(CLIENT *Client, char *Nick)
 {
-	assert( Client != NULL );
-	assert( Nick != NULL );
+	assert(Client != NULL);
+	assert(Nick != NULL);
 
-	if (! Client_IsValidNick( Nick ))
-	{
-		IRC_WriteStrClient( Client, ERR_ERRONEUSNICKNAME_MSG, Client_ID( Client ), Nick );
+	if (!Client_IsValidNick(Nick)) {
+		IRC_WriteStrClient(Client, ERR_ERRONEUSNICKNAME_MSG,
+				   Client_ID(Client), Nick);
 		return false;
 	}
 
-	/* Nick bereits vergeben? */
-	if( Client_Search( Nick ))
-	{
-		/* den Nick gibt es bereits */
-		IRC_WriteStrClient( Client, ERR_NICKNAMEINUSE_MSG, Client_ID( Client ), Nick );
+	/* Nickname already registered? */
+	if (Client_Search(Nick)) {
+		IRC_WriteStrClient(Client, ERR_NICKNAMEINUSE_MSG,
+			Client_ID(Client), Nick);
 		return false;
 	}
 
@@ -1019,23 +1028,31 @@ Client_MyMaxUserCount( void )
 } /* Client_MyMaxUserCount */
 
 
+/**
+ * Check that a given nickname is valid.
+ *
+ * @param	Nick the nickname to check.
+ * @returns	true if nickname is valid, false otherwise.
+ */
 GLOBAL bool
-Client_IsValidNick( const char *Nick )
+Client_IsValidNick(const char *Nick)
 {
 	const char *ptr;
 	static const char goodchars[] = ";0123456789-";
 
-	assert( Nick != NULL );
+	assert (Nick != NULL);
 
-	if( Nick[0] == '#' ) return false;
-	if( strchr( goodchars, Nick[0] )) return false;
-	if( strlen( Nick ) >= Conf_MaxNickLength) return false;
+	if (strchr(goodchars, Nick[0]))
+		return false;
+	if (strlen(Nick ) >= Conf_MaxNickLength)
+		return false;
 
 	ptr = Nick;
-	while( *ptr )
-	{
-		if (( *ptr < 'A' ) && ( ! strchr( goodchars, *ptr ))) return false;
-		if ( *ptr > '}' ) return false;
+	while (*ptr) {
+		if (*ptr < 'A' && !strchr(goodchars, *ptr ))
+			return false;
+		if (*ptr > '}')
+			return false;
 		ptr++;
 	}
 

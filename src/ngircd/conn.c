@@ -2107,6 +2107,7 @@ cb_Connect_to_Server(int fd, UNUSED short events)
 
 	/* Read result from pipe */
 	len = Proc_Read(&Conf_Server[i].res_stat, dest_addrs, sizeof(dest_addrs));
+	Proc_Close(&Conf_Server[i].res_stat);
 	if (len == 0) {
 		/* Error resolving hostname: reset server structure */
 		Conf_Server[i].conn_id = NONE;
@@ -2166,6 +2167,7 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 
 	/* Read result from pipe */
 	len = Proc_Read(&My_Connections[i].proc_stat, readbuf, sizeof readbuf -1);
+	Proc_Close(&My_Connections[i].proc_stat);
 	if (len == 0)
 		return;
 

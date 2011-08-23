@@ -1009,6 +1009,7 @@ cb_Read_Auth_Result(int r_fd, UNUSED short events)
 
 	/* Read result from pipe */
 	len = Proc_Read(proc, &result, sizeof(result));
+	Proc_Close(proc);
 	if (len == 0)
 		return;
 

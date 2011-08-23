@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2010 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2011 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -146,6 +146,16 @@ Proc_Read(PROC_STAT *proc, void *buffer, size_t buflen)
 #endif
 	Proc_InitStruct(proc);
 	return (size_t)bytes_read;
+}
+
+/**
+ * Close pipe to a forked child process.
+ */
+GLOBAL void
+Proc_Close(PROC_STAT *proc)
+{
+	io_close(proc->pipe_fd);
+	Proc_InitStruct(proc);
 }
 
 /* -eof- */

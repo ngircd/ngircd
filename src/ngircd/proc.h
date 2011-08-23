@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2010 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2011 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,6 +37,9 @@ GLOBAL pid_t Proc_Fork PARAMS((PROC_STAT *proc, int *pipefds,
 GLOBAL void Proc_GenericSignalHandler PARAMS((int Signal));
 
 GLOBAL size_t Proc_Read PARAMS((PROC_STAT *proc, void *buffer, size_t buflen));
+
+GLOBAL void Proc_Close PARAMS((PROC_STAT *proc));
+
 
 #endif
 

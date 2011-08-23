@@ -9,6 +9,8 @@
  * Please read the file COPYING, README and AUTHORS for more information.
  */
 
+#undef DEBUG_BUFFER
+
 #define CONN_MODULE
 
 #include "portab.h"
@@ -1255,9 +1257,11 @@ Handle_Write( CONN_ID Idx )
 		return true;
 	}
 
+#ifdef DEBUG_BUFFER
 	LogDebug
 	    ("Handle_Write() called for connection %d, %ld bytes pending ...",
 	     Idx, wdatalen);
+#endif
 
 #ifdef SSL_SUPPORT
 	if ( Conn_OPTION_ISSET( &My_Connections[Idx], CONN_SSL )) {
@@ -1325,6 +1329,8 @@ New_Connection(int Sock)
 	long cnt;
 
 	assert(Sock > NONE);
+
+	LogDebug("Accepting new connection on socket %d ...", Sock);
 
 	new_sock_len = (int)sizeof(new_addr);
 	new_sock = accept(Sock, (struct sockaddr *)&new_addr,
@@ -1753,8 +1759,10 @@ Handle_Buffer(CONN_ID Idx)
 			return 0; /* error -> connection has been closed */
 
 		array_moveleft(&My_Connections[Idx].rbuf, 1, len);
+#ifdef DEBUG_BUFFER
 		LogDebug("Connection %d: %d bytes left in read buffer.",
 			 Idx, array_bytes(&My_Connections[Idx].rbuf));
+#endif
 #ifdef ZLIB
 		if ((!old_z) && (My_Connections[Idx].options & CONN_ZIP) &&
 		    (array_bytes(&My_Connections[Idx].rbuf) > 0)) {
@@ -2051,13 +2059,14 @@ Init_Socket( int Sock )
 	/* Set type of service (TOS) */
 #if defined(IPPROTO_IP) && defined(IPTOS_LOWDELAY)
 	value = IPTOS_LOWDELAY;
-	LogDebug("Setting IP_TOS on socket %d to IPTOS_LOWDELAY.", Sock);
 	if (setsockopt(Sock, IPPROTO_IP, IP_TOS, &value,
 		       (socklen_t) sizeof(value))) {
 		LogDebug("Can't set socket option IP_TOS: %s!",
 			 strerror(errno));
 		/* ignore this error */
-	}
+	} else
+		LogDebug("IP_TOS on socket %d has been set to IPTOS_LOWDELAY.",
+			 Sock);
 #endif
 
 	return true;

@@ -1,13 +1,12 @@
 #
 # ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001-2010 Alexander Barton (alex@barton.de)
+# Copyright (c)2001-2011 Alexander Barton (alex@barton.de) and Contributors
 #
-# Dieses Programm ist freie Software. Sie koennen es unter den Bedingungen
-# der GNU General Public License (GPL), wie von der Free Software Foundation
-# herausgegeben, weitergeben und/oder modifizieren, entweder unter Version 2
-# der Lizenz oder (wenn Sie es wuenschen) jeder spaeteren Version.
-# Naehere Informationen entnehmen Sie bitter der Datei COPYING. Eine Liste
-# der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# Please read the file COPYING, README and AUTHORS for more information.
 #
 
 .tmpl:
@@ -17,9 +16,9 @@
 
 SUFFIXES = .tmpl
 
-static_docs = Bopm.txt FAQ.txt GIT.txt HowToRelease.txt PAM.txt Platforms.txt \
-	Protocol.txt README-AUX.txt README-BeOS.txt README-Interix.txt RFC.txt \
-	SSL.txt Services.txt
+static_docs = Bopm.txt FAQ.txt GIT.txt HowToRelease.txt Modes.txt PAM.txt \
+	Platforms.txt Protocol.txt README-AUX.txt README-BeOS.txt \
+	README-Interix.txt RFC.txt SSL.txt Services.txt
 
 doc_templates = sample-ngircd.conf.tmpl
 

@@ -1,0 +1,67 @@
+
+                     ngIRCd - Next Generation IRC Server
+                           http://ngircd.barton.de/
+
+               (c)2001-2011 Alexander Barton and Contributors.
+               ngIRCd is free software and published under the
+                   terms of the GNU General Public License.
+
+                               -- Modes.txt --
+
+
+This document lists the different user modes, channel modes, and channel
+user modes that ngIRCd supports.
+
+
+I. User Modes
+~~~~~~~~~~~~~
+
+User modes are attributes a user has in the network, regardless of the
+channels he is using at the moment.
+
+  mode	since	description
+
+  a	0.3.0	User is away.
+  c	17	IRC operator wants to receive connect/disconnect NOTICEs.
+  i	0.0.1	User is "invisible".
+  o	0.0.1	User is IRC operator.
+  r	0.0.1	User is restricted.
+  R	19	User is registered (e.g. by NickServ).
+  s	0.4.0	User wants to receive server notices.
+  w	0.11.0	User wants to receive WALLOPS messages.
+  x	17	Hostname of this user is "cloaked".
+
+II. Channel Modes
+~~~~~~~~~~~~~~~~~
+
+Channel modes are attributes of specific channels which are valid for all
+users joined (or trying to join) to this channel. Some modes add and remove
+users to lists (e.g. "invite list", "ban list"), others have parameters
+(like "channel key"), most are simple flags (like "moderated").
+
+  mode	since	description
+
+  b	0.5.0	Add/remove a host mask to the ban list.
+  i	0.5.0	Channel is "invite only".
+  I	0.5.0	Add/remove a host mask to the invite list.
+  k	0.6.0	Channel has a "key" (a password).
+  l	0.6.0	Channel has a user limit.
+  m	0.3.0	Channel is moderated, only "voiced" users can send messages.
+  n	0.3.0	Channel doesn't allow messages of users not being members.
+  O	18	Only IRC operators are allowed to join this channel.
+  P	0.5.0	Channel is "persistent".
+  R	19	Only registered users are allowed to join this channel.
+  s	0.9.0	Channel is "secret".
+  t	0.3.0	Only ChanOps are allowed to modify the channel topic.
+  z	16	Only users connected via SSL are allowed to join the channel.
+
+III. Channel User Modes
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Channel user modes are attributes that a particular user has in a specific
+channel of which he is a member.
+
+  mode	since	description
+
+  o	0.2.0	User is channel operator and can op/kick/... other members.
+  v	0.2.0	User is "voiced" and can speak even if channel is moderated.

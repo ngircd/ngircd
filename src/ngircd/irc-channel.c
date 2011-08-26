@@ -137,6 +137,13 @@ join_allowed(CLIENT *Client, CHANNEL *chan, const char *channame,
 		return false;
 	}
 
+	if (strchr(channel_modes, 'R') && !strchr(Client_Modes(Client), 'R')) {
+		/* Only registered users are allowed! */
+		IRC_WriteStrClient(Client, ERR_REGONLYCHANNEL_MSG,
+				   Client_ID(Client), channame);
+		return false;
+	}
+
 	return true;
 } /* join_allowed */
 

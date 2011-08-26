@@ -479,6 +479,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 		case 'i': /* Invite only */
 		case 'm': /* Moderated */
 		case 'n': /* Only members can write */
+		case 'R': /* Registered users only */
 		case 's': /* Secret channel */
 		case 't': /* Topic locked */
 		case 'z': /* Secure connections only */

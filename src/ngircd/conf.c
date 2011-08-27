@@ -55,8 +55,6 @@ static bool Use_Log = true, Using_MotdFile = true;
 static CONF_SERVER New_Server;
 static int New_Server_Idx;
 
-static size_t Conf_Oper_Count;
-static size_t Conf_Channel_Count;
 static char Conf_MotdFile[FNAME_LEN];
 
 static void Set_Defaults PARAMS(( bool InitServers ));
@@ -265,18 +263,18 @@ static void
 opers_puts(void)
 {
 	struct Conf_Oper *op;
-	size_t len;
+	size_t count, i;
 
-	len = array_length(&Conf_Opers, sizeof(*op));
+	count = array_length(&Conf_Opers, sizeof(*op));
 	op = array_start(&Conf_Opers);
-	while (len--) {
-		assert(op->name[0]);
+	for (i = 0; i < count; i++, op++) {
+		if (!op->name[0])
+			continue;
 
 		puts("[OPERATOR]");
 		printf("  Name = %s\n", op->name);
 		printf("  Password = %s\n", op->pwd);
 		printf("  Mask = %s\n\n", op->mask ? op->mask : "");
-		op++;
 	}
 }
 
@@ -709,10 +707,6 @@ Set_Defaults(bool InitServers)
 #endif
 #endif
 
-	/* Initialize IRC operators and channels */
-	Conf_Oper_Count = 0;
-	Conf_Channel_Count = 0;
-
 	/* Initialize server configuration structures */
 	if (InitServers) {
 		for (i = 0; i < MAX_SERVERS;
@@ -787,6 +781,7 @@ Read_Config( bool ngircd_starting )
 	char section[LINE_LEN], str[LINE_LEN], *var, *arg, *ptr;
 	const UINT16 defaultport = 6667;
 	int line, i, n;
+	size_t count;
 	FILE *fd;
 
 	/* Open configuration file */
@@ -887,12 +882,30 @@ Read_Config( bool ngircd_starting )
 				else New_Server_Idx = i;
 				continue;
 			}
+
 			if (strcasecmp(section, "[CHANNEL]") == 0) {
-				Conf_Channel_Count++;
+				count = array_length(&Conf_Channels,
+						     sizeof(struct Conf_Channel));
+				if (!array_alloc(&Conf_Channels,
+						 sizeof(struct Conf_Channel),
+						 count)) {
+					Config_Error(LOG_ERR,
+						     "Could not allocate memory for new operator (line %d)",
+						     line);
+				}
 				continue;
 			}
+
 			if (strcasecmp(section, "[OPERATOR]") == 0) {
-				Conf_Oper_Count++;
+				count = array_length(&Conf_Opers,
+						     sizeof(struct Conf_Oper));
+				if (!array_alloc(&Conf_Opers,
+						 sizeof(struct Conf_Oper),
+						 count)) {
+					Config_Error(LOG_ERR,
+						     "Could not allocate memory for new channel (line &d)",
+						     line);
+				}
 				continue;
 			}
 
@@ -1584,13 +1597,11 @@ Handle_OPERATOR( int Line, char *Var, char *Arg )
 	assert( Line > 0 );
 	assert( Var != NULL );
 	assert( Arg != NULL );
-	assert( Conf_Oper_Count > 0 );
 
-	op = array_alloc(&Conf_Opers, sizeof(*op), Conf_Oper_Count - 1);
-	if (!op) {
-		Config_Error(LOG_ERR, "Could not allocate memory for operator (%d:%s = %s)", Line, Var, Arg);
+	op = array_get(&Conf_Opers, sizeof(*op),
+			 array_length(&Conf_Opers, sizeof(*op)) - 1);
+	if (!op)
 		return;
-	}
 
 	if (strcasecmp(Var, "Name") == 0) {
 		/* Name of IRC operator */
@@ -1756,21 +1767,17 @@ static void
 Handle_CHANNEL(int Line, char *Var, char *Arg)
 {
 	size_t len;
-	size_t chancount;
 	struct Conf_Channel *chan;
 
 	assert( Line > 0 );
 	assert( Var != NULL );
 	assert( Arg != NULL );
-	assert(Conf_Channel_Count > 0);
 
-	chancount = Conf_Channel_Count - 1;
-
-	chan = array_alloc(&Conf_Channels, sizeof(*chan), chancount);
-	if (!chan) {
-		Config_Error(LOG_ERR, "Could not allocate memory for predefined channel (%d:%s = %s)", Line, Var, Arg);
+	chan = array_get(&Conf_Channels, sizeof(*chan),
+			 array_length(&Conf_Channels, sizeof(*chan)) - 1);
+	if (!chan)
 		return;
-	}
+
 	if (strcasecmp(Var, "Name") == 0) {
 		if (!Handle_Channelname(chan, Arg))
 			Config_Error_TooLong(Line, Var);
@@ -1917,8 +1924,10 @@ Validate_Config(bool Configtest, bool Rehash)
 		}
 	}
 	Log(LOG_DEBUG,
-	    "Configuration: Operators=%d, Servers=%d[%d], Channels=%d",
-	    Conf_Oper_Count, servers, servers_once, Conf_Channel_Count);
+	    "Configuration: Operators=%ld, Servers=%d[%d], Channels=%ld",
+	    array_length(&Conf_Opers, sizeof(struct Conf_Oper)),
+	    servers, servers_once,
+	    array_length(&Conf_Channels, sizeof(struct Conf_Channel)));
 #endif
 
 	return config_valid;

@@ -9,13 +9,23 @@
                                  -- GIT.txt --
 
 
-The source code of ngIRCd is maintained using git, the stupid content
-tracker.
+The source code of ngIRCd is maintained using GIT, an distributed version
+control system. Homepage including documentation: <http://git-scm.com/>.
 
 
-I. Getting the source code
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-To access the source tree anonymously, run:
+I. Viewing the source code online
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ngIRCd "GITweb" interface allows you to browse the GIT repository and
+to see all individual files, tags, branches, commits etc.:
+
+ <http://arthur.barton.de/cgi-bin/gitweb.cgi?p=ngircd.git>
+
+
+II. Getting the source code
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To access (copy, clone) the source tree repository anonymously, run:
 
  $ git clone git://ngircd.barton.de/ngircd.git
 
@@ -23,23 +33,23 @@ Thereby a new folder "ngircd" will be created containing all the individual
 source files.
 
 The newly created directory ("ngircd") is the "working directory", all
-git commands will be executed from within this directory in the future.
+GIT commands will be executed from within this directory in the future.
 
-Please note: When checking out a fresh copy of ngIRCd using git, the
+Please note: When checking out a fresh copy of ngIRCd using GIT, the
 configure script doesn't exist; you have to run the autogen.sh shell script
 (which is included in the source tree) to generate it. This requires you to
 have GNU automake and GNU autoconf installed on your system. Please see the
 file INSTALL for details!
 
-To update the git tree:
+To update the local GIT repository:
 
  $ git pull
 
 This retrieves all changes and merges them into the current branch.
 
 
-II. Contributing
-~~~~~~~~~~~~~~~~
+III. Contributing
+~~~~~~~~~~~~~~~~~
 
 Patches should be sent to the ngircd mailing list. List homepage:
 http://arthur.barton.de/mailman/listinfo/ngircd-ml
@@ -48,7 +58,8 @@ If you do not want to send them to the list, you can also mail them
 to Alex Barton, <alex@barton.de>.
 
 
-III. Write Access
-~~~~~~~~~~~~~~~~~
-If you want to contribute a couple of patches and write access to the git
+IV. Write Access
+~~~~~~~~~~~~~~~~
+
+If you want to contribute a couple of patches and write access to the GIT
 repository would be handy, please contact Alex Barton, <alex@barton.de>.

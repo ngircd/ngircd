@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2010 Alexander Barton <alex@barton.de>
+ * Copyright (c)2001-2011 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -106,7 +106,7 @@ GLOBAL long WCounter;
 GLOBAL void Conn_Init PARAMS((void ));
 GLOBAL void Conn_Exit PARAMS(( void ));
 
-GLOBAL void Conn_CloseAllSockets PARAMS((void));
+GLOBAL void Conn_CloseAllSockets PARAMS((int ExceptOf));
 
 GLOBAL unsigned int Conn_InitListeners PARAMS(( void ));
 GLOBAL void Conn_ExitListeners PARAMS(( void ));

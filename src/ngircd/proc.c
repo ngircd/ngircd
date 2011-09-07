@@ -79,7 +79,6 @@ Proc_Fork(PROC_STAT *proc, int *pipefds, void (*cbfunc)(int, short), int timeout
 		signal(SIGALRM, Proc_GenericSignalHandler);
 		close(pipefds[0]);
 		alarm(timeout);
-		Conn_CloseAllSockets();
 		return 0;
 	}
 

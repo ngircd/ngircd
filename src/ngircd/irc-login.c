@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2010 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2011 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -959,6 +959,7 @@ Hello_User(CLIENT * Client)
 	} else {
 		/* Sub process */
 		Log_Init_Subprocess("Auth");
+		Conn_CloseAllSockets(NONE);
 		result = PAM_Authenticate(Client);
 		if (write(pipefd[1], &result, sizeof(result)) != sizeof(result))
 			Log_Subprocess(LOG_ERR,

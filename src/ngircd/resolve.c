@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2009 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2011 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -75,7 +75,8 @@ Resolve_Addr(PROC_STAT * s, const ng_ipaddr_t *Addr, int identsock,
 	} else if( pid == 0 ) {
 		/* Sub process */
 		Log_Init_Subprocess("Resolver");
-		Do_ResolveAddr( Addr, identsock, pipefd[1]);
+		Conn_CloseAllSockets(identsock);
+		Do_ResolveAddr(Addr, identsock, pipefd[1]);
 		Log_Exit_Subprocess("Resolver");
 		exit(0);
 	}
@@ -104,6 +105,7 @@ Resolve_Name( PROC_STAT *s, const char *Host, void (*cbfunc)(int, short))
 	} else if( pid == 0 ) {
 		/* Sub process */
 		Log_Init_Subprocess("Resolver");
+		Conn_CloseAllSockets(NONE);
 		Do_ResolveName(Host, pipefd[1]);
 		Log_Exit_Subprocess("Resolver");
 		exit(0);

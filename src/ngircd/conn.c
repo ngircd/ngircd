@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2010 Alexander Barton <alex@barton.de>
+ * Copyright (c)2001-2011 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -435,12 +435,13 @@ Conn_Exit( void )
  * they don't hold connections open that the main process wants to close.
  */
 GLOBAL void
-Conn_CloseAllSockets(void)
+Conn_CloseAllSockets(int ExceptOf)
 {
 	CONN_ID idx;
 
 	for(idx = 0; idx < Pool_Size; idx++) {
-		if(My_Connections[idx].sock > NONE)
+		if(My_Connections[idx].sock > NONE &&
+		   My_Connections[idx].sock != ExceptOf)
 			close(My_Connections[idx].sock);
 	}
 }

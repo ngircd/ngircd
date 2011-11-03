@@ -978,17 +978,21 @@ Read_Config( bool ngircd_starting )
 }
 
 /**
- * Check whether an string argument is true or false.
+ * Check whether a string argument is "true" or "false".
  *
  * @param Arg	Input string.
- * @returns	true if string has been parsed as "yes"/"true"/"on".
+ * @returns	true if the input string has been parsed as "yes", "true"
+ *		(case insensitive) or a non-zero integer value.
  */
 static bool
-Check_ArgIsTrue( const char *Arg )
+Check_ArgIsTrue(const char *Arg)
 {
-	if( strcasecmp( Arg, "yes" ) == 0 ) return true;
-	if( strcasecmp( Arg, "true" ) == 0 ) return true;
-	if( atoi( Arg ) != 0 ) return true;
+	if (strcasecmp(Arg, "yes") == 0)
+		return true;
+	if (strcasecmp(Arg, "true") == 0)
+		return true;
+	if (atoi(Arg) != 0)
+		return true;
 
 	return false;
 }

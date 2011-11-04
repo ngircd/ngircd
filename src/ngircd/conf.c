@@ -2048,7 +2048,7 @@ Init_Server_Struct( CONF_SERVER *Server )
 
 	Proc_InitStruct(&Server->res_stat);
 	Server->conn_id = NONE;
-	memset(&Server->bind_addr, 0, sizeof(&Server->bind_addr));
+	memset(&Server->bind_addr, 0, sizeof(Server->bind_addr));
 }
 
 /* -eof- */

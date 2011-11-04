@@ -44,7 +44,7 @@
 					   see RFC 2812, section 1.2.1 */
 #define CLIENT_NAME_LEN 32		/* Max. length of "real names" */
 #define CLIENT_HOST_LEN 64		/* Max. host name length */
-#define CLIENT_MODE_LEN 16		/* Max. lenth of all client modes */
+#define CLIENT_MODE_LEN 16		/* Max. length of all client modes */
 #define CLIENT_INFO_LEN 64		/* Max. length of server info texts */
 #define CLIENT_AWAY_LEN 128		/* Max. length of away messages */
 #define CLIENT_FLAGS_LEN 16		/* Max. length of client flags */

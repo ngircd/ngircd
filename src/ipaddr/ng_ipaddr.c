@@ -32,7 +32,9 @@ ng_ipaddr_init(ng_ipaddr_t *addr, const char *ip_str, UINT16 port)
 	assert(ip_str);
 
 	memset(&hints, 0, sizeof(hints));
+#ifdef AI_NUMERICHOST
 	hints.ai_flags = AI_NUMERICHOST;
+#endif
 #ifndef WANT_IPV6	/* do not convert ipv6 addresses */
 	hints.ai_family = AF_INET;
 #endif

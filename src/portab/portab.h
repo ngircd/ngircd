@@ -164,6 +164,10 @@ extern char * strtok_r PARAMS((char *str, const char *delim, char **saveptr));
 extern int vsnprintf PARAMS(( char *str, size_t count, const char *fmt, va_list args ));
 #endif
 
+#ifndef HAVE_GAI_STRERROR
+#define gai_strerror(r) "unknown error"
+#endif
+
 #ifndef PACKAGE_NAME
 #define PACKAGE_NAME PACKAGE
 #endif

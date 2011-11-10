@@ -17,31 +17,31 @@ expect {
 send "whois nick\r"
 expect {
 	timeout { exit 1 }
-	"311 nick nick ~user localhost \* :Real Name\r"
+	"311 nick nick ~user localhost* \* :Real Name\r"
 }
 
 send "whois *\r"
 expect {
 	timeout { exit 1 }
-	"311 nick nick ~user localhost \* :Real Name\r"
+	"311 nick nick ~user localhost* \* :Real Name\r"
 }
 
 send "whois n*\r"
 expect {
 	timeout { exit 1 }
-	"311 nick nick ~user localhost \* :Real Name\r"
+	"311 nick nick ~user localhost* \* :Real Name\r"
 }
 
 send "whois ?ick\r"
 expect {
 	timeout { exit 1 }
-	"311 nick nick ~user localhost \* :Real Name\r"
+	"311 nick nick ~user localhost* \* :Real Name\r"
 }
 
 send "whois ????,n?*k\r"
 expect {
 	timeout { exit 1 }
-	"311 nick nick ~user localhost \* :Real Name\r"
+	"311 nick nick ~user localhost* \* :Real Name\r"
 }
 
 send "quit\r"

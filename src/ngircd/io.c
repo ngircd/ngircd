@@ -54,7 +54,7 @@ typedef struct {
 #    ifdef HAVE_SYS_DEVPOLL_H
 #      define IO_USE_DEVPOLL	1
 #    else
-#      ifdef HAVE_POLL
+#      if defined(HAVE_POLL) && defined(HAVE_POLL_H)
 #        define IO_USE_POLL	1
 #      else
 #        ifdef HAVE_SELECT

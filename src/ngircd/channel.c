@@ -110,9 +110,12 @@ Channel_InitPredefined( void )
 	assert(channel_count == 0 || conf_chan != NULL);
 
 	for (i = 0; i < channel_count; i++, conf_chan++) {
-		if (!conf_chan->name[0] || !Channel_IsValidName(conf_chan->name)) {
-			Log(LOG_ERR, "Can't create pre-defined channel: invalid name: \"%s\"",
-									conf_chan->name);
+		if (!conf_chan->name[0])
+			continue;
+		if (!Channel_IsValidName(conf_chan->name)) {
+			Log(LOG_ERR,
+			    "Can't create pre-defined channel: invalid name: \"%s\"",
+			    conf_chan->name);
 			continue;
 		}
 

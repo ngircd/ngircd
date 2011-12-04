@@ -252,22 +252,21 @@ AC_ARG_WITH(poll,
 				CPPFLAGS="-I$withval/include $CPPFLAGS"
 				LDFLAGS="-L$withval/lib $LDFLAGS"
 			fi
-			AC_CHECK_FUNCS(poll,
+			AC_CHECK_FUNCS(poll, [
 				AC_CHECK_HEADERS(poll.h,
 					x_io_backend=poll\(\),
-						AC_MSG_ERROR(
-						[Can't enable poll IO support!])
-					,
 					AC_MSG_ERROR(
-						[Can't enable poll IO support!])
+					     [Can't enable poll IO support!])
 				)
-			)
+			], [
+				AC_MSG_ERROR([Can't enable poll IO support!])
+			])
 		fi
 	],
 	[
-		AC_CHECK_FUNCS(poll,
+		AC_CHECK_FUNCS(poll, [
 			AC_CHECK_HEADERS(poll.h, x_io_backend=poll\(\))
-		)
+		])
 	]
 )
 

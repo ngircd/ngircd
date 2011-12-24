@@ -40,6 +40,7 @@
 		FA99428C10E82A27007F27ED /* proc.c in Sources */ = {isa = PBXBuildFile; fileRef = FA99428B10E82A27007F27ED /* proc.c */; };
 		FAA3D27B0F139CDC00B2447E /* conn-ssl.c in Sources */ = {isa = PBXBuildFile; fileRef = FAA3D2790F139CDC00B2447E /* conn-ssl.c */; };
 		FAA97C57124A271400D5BBA9 /* sighandlers.c in Sources */ = {isa = PBXBuildFile; fileRef = FAA97C55124A271400D5BBA9 /* sighandlers.c */; };
+		FAACD5F514A6099C006ED74F /* class.c in Sources */ = {isa = PBXBuildFile; fileRef = FAACD5F314A6099C006ED74F /* class.c */; };
 		FAE5CC2E0CF2308A007D69B6 /* numeric.c in Sources */ = {isa = PBXBuildFile; fileRef = FAE5CC2D0CF2308A007D69B6 /* numeric.c */; };
 /* End PBXBuildFile section */
 
@@ -228,6 +229,8 @@
 		FAA3D28B0F139D2E00B2447E /* preinstall.sh */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; path = preinstall.sh; sourceTree = "<group>"; };
 		FAA97C55124A271400D5BBA9 /* sighandlers.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = sighandlers.c; sourceTree = "<group>"; };
 		FAA97C56124A271400D5BBA9 /* sighandlers.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = sighandlers.h; sourceTree = "<group>"; };
+		FAACD5F314A6099C006ED74F /* class.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = class.c; sourceTree = "<group>"; };
+		FAACD5F414A6099C006ED74F /* class.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = class.h; sourceTree = "<group>"; };
 		FAE5CC2C0CF2308A007D69B6 /* numeric.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = numeric.h; sourceTree = "<group>"; };
 		FAE5CC2D0CF2308A007D69B6 /* numeric.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = numeric.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -295,17 +298,19 @@
 		FA322CD70CEF74B1001761B3 /* ngircd */ = {
 			isa = PBXGroup;
 			children = (
-				FAA3D2780F139CDC00B2447E /* conf-ssl.h */,
 				FAA3D2790F139CDC00B2447E /* conn-ssl.c */,
 				FAA3D27A0F139CDC00B2447E /* conn-ssl.h */,
 				FA322CD90CEF74B1001761B3 /* array.c */,
 				FA322CDA0CEF74B1001761B3 /* array.h */,
 				FA322CDB0CEF74B1001761B3 /* channel.c */,
 				FA322CDC0CEF74B1001761B3 /* channel.h */,
+				FAACD5F314A6099C006ED74F /* class.c */,
+				FAACD5F414A6099C006ED74F /* class.h */,
 				FA322CDD0CEF74B1001761B3 /* client.c */,
 				FA322CDE0CEF74B1001761B3 /* client.h */,
 				FA322CDF0CEF74B1001761B3 /* conf.c */,
 				FA322CE00CEF74B1001761B3 /* conf.h */,
+				FAA3D2780F139CDC00B2447E /* conf-ssl.h */,
 				FA322CE10CEF74B1001761B3 /* conn-func.c */,
 				FA322CE20CEF74B1001761B3 /* conn-func.h */,
 				FA322CE30CEF74B1001761B3 /* conn-zip.c */,
@@ -712,6 +717,7 @@
 				FA99428C10E82A27007F27ED /* proc.c in Sources */,
 				FA2D564A11EA158B00D37A35 /* pam.c in Sources */,
 				FAA97C57124A271400D5BBA9 /* sighandlers.c in Sources */,
+				FAACD5F514A6099C006ED74F /* class.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

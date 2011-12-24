@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2005 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2011 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@
 struct list_elem {
 	struct list_elem *next;
 	char mask[MASK_LEN];
-	bool onlyonce;
+	time_t valid_until;	/** 0: unlimited; 1: once; t(>1): until t */
 };
 
 
@@ -65,7 +65,7 @@ Lists_GetNext(const struct list_elem *e)
 
 
 bool
-Lists_Add(struct list_head *header, const char *Mask, bool OnlyOnce )
+Lists_Add(struct list_head *header, const char *Mask, time_t ValidUntil )
 {
 	struct list_elem *e, *newelem;
 
@@ -83,7 +83,7 @@ Lists_Add(struct list_head *header, const char *Mask, bool OnlyOnce )
 	}
 
 	strlcpy( newelem->mask, Mask, sizeof( newelem->mask ));
-	newelem->onlyonce = OnlyOnce;
+	newelem->valid_until = ValidUntil;
 	newelem->next = e;
 	header->first = newelem;
 
@@ -213,23 +213,34 @@ Lists_MakeMask(const char *Pattern)
 bool
 Lists_Check( struct list_head *header, CLIENT *Client)
 {
-	struct list_elem *e, *last;
+	struct list_elem *e, *last, *next;
 
 	assert( header != NULL );
 
 	e = header->first;
 	last = NULL;
 
-	while( e ) {
-		if( Match( e->mask, Client_Mask( Client ))) {
-			if( e->onlyonce ) { /* delete entry */
-				LogDebug("Deleted \"%s\" from list", e->mask);
+	while (e) {
+		next = e->next;
+		if (e->valid_until > 1 && e->valid_until < time(NULL)) {
+			/* Entry is expired, delete it */
+			LogDebug("Deleted \"%s\" from list (expired).",
+				 e->mask);
+			Lists_Unlink(header, last, e);
+			e = next;
+			continue;
+		}
+		if (Match(e->mask, Client_Mask(Client))) {
+			if (e->valid_until == 1 ) {
+				/* Entry is valid only once, delete it */
+				LogDebug("Deleted \"%s\" from list (used).",
+					 e->mask);
 				Lists_Unlink(header, last, e);
 			}
 			return true;
 		}
 		last = e;
-		e = e->next;
+		e = next;
 	}
 
 	return false;

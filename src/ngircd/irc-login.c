@@ -27,6 +27,7 @@
 
 #include "ngircd.h"
 #include "conn-func.h"
+#include "class.h"
 #include "conf.h"
 #include "channel.h"
 #include "io.h"
@@ -935,6 +936,12 @@ Hello_User(CLIENT * Client)
 		}
 	}
 #endif
+
+	if (Class_IsMember(CLASS_GLINE, Client) ||
+	    Class_IsMember(CLASS_KLINE, Client)) {
+		Reject_Client(Client);
+		return DISCONNECTED;
+	}
 
 #ifdef PAM
 	if (!Conf_PAM) {

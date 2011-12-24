@@ -38,6 +38,7 @@
 
 #include "defines.h"
 #include "conn.h"
+#include "class.h"
 #include "conf-ssl.h"
 #include "channel.h"
 #include "conf.h"
@@ -282,6 +283,7 @@ main( int argc, const char *argv[] )
 		Channel_Init( );
 		Client_Init( );
 		Conn_Init( );
+		Class_Init( );
 
 		if (!io_library_init(CONNECTION_POOL)) {
 			Log(LOG_ALERT, "Fatal: Cannot initialize IO routines: %s", strerror(errno));
@@ -327,6 +329,7 @@ main( int argc, const char *argv[] )
 		Conn_Exit( );
 		Client_Exit( );
 		Channel_Exit( );
+		Class_Exit( );
 		Log_Exit( );
 	}
 	Pidfile_Delete( );

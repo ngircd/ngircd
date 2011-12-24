@@ -349,6 +349,8 @@
 				FAE5CC2C0CF2308A007D69B6 /* numeric.h */,
 				FA85178B0FA061EC006A1F5A /* op.c */,
 				FA85178A0FA061EC006A1F5A /* op.h */,
+				FA2D564911EA158B00D37A35 /* pam.c */,
+				FA2D564811EA158B00D37A35 /* pam.h */,
 				FA322D080CEF74B1001761B3 /* parse.c */,
 				FA322D090CEF74B1001761B3 /* parse.h */,
 				FA99428B10E82A27007F27ED /* proc.c */,
@@ -357,8 +359,6 @@
 				FA322D0D0CEF74B1001761B3 /* resolve.h */,
 				FAA97C55124A271400D5BBA9 /* sighandlers.c */,
 				FAA97C56124A271400D5BBA9 /* sighandlers.h */,
-				FA2D564811EA158B00D37A35 /* pam.h */,
-				FA2D564911EA158B00D37A35 /* pam.c */,
 			);
 			path = ngircd;
 			sourceTree = "<group>";
@@ -648,7 +648,7 @@
 		08FB7793FE84155DC02AAC07 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0410;
+				LastUpgradeCheck = 0420;
 			};
 			buildConfigurationList = 1DEB928908733DD80010E9CD /* Build configuration list for PBXProject "ngIRCd" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -722,6 +722,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
@@ -765,7 +766,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = "";
+				SDKROOT = macosx;
 			};
 			name = Debug;
 		};
@@ -773,6 +774,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;

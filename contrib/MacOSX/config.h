@@ -74,6 +74,8 @@
 /* Define to 1 if you have the <netinet/ip.h> header file. */
 #define HAVE_NETINET_IP_H 1
 
+/* Define to 1 if you have the `gai_strerror' function. */
+#define HAVE_GAI_STRERROR 1
 /* Define to 1 if you have the `kqueue' function. */
 #define HAVE_KQUEUE 1
 /* Define to 1 if you have the `inet_ntoa' function. */

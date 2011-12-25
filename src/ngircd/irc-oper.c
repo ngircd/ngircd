@@ -27,6 +27,7 @@
 #include "conn-func.h"
 #include "conf.h"
 #include "channel.h"
+#include "class.h"
 #include "irc-write.h"
 #include "log.h"
 #include "match.h"
@@ -414,5 +415,75 @@ IRC_WALLOPS( CLIENT *Client, REQUEST *Req )
 	return CONNECTED;
 } /* IRC_WALLOPS */
 
+/**
+ * Handle <?>LINE commands (GLINE, KLINE).
+ *
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
+ */
+GLOBAL bool
+IRC_xLINE(CLIENT *Client, REQUEST *Req)
+{
+	CLIENT *from;
+	int class;
+	char class_c;
+
+	assert(Client != NULL);
+	assert(Req != NULL);
+
+	from = Op_Check(Client, Req);
+	if (!from)
+		return Op_NoPrivileges(Client, Req);
+
+	/* Bad number of parameters? */
+	if (Req->argc != 1 && Req->argc != 3)
+		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+					  Client_ID(Client), Req->command);
+
+	switch(Req->command[0]) {
+		case 'g':
+		case 'G':
+			class = CLASS_GLINE; class_c = 'G';
+			break;
+		case 'k':
+		case 'K':
+			class = CLASS_KLINE; class_c = 'K';
+			break;
+	}
+
+	if (Req->argc == 1) {
+		/* Delete mask from list */
+		Class_DeleteMask(class, Req->argv[0]);
+		Log(LOG_NOTICE|LOG_snotice,
+		    "\"%s\" deleted \"%s\" from %c-Line list.",
+		    Client_Mask(from), Req->argv[0], class_c);
+		if (class == CLASS_GLINE) {
+			/* Inform other servers */
+			IRC_WriteStrServersPrefix(Client, from, "%s %s",
+						  Req->command, Req->argv[0]);
+
+		}
+	} else {
+		/* Add new mask to list */
+		if (Class_AddMask(class, Req->argv[0],
+				  time(NULL) + atol(Req->argv[1]),
+				  Req->argv[2])) {
+			Log(LOG_NOTICE|LOG_snotice,
+			    "\"%s\" added \"%s\" to %c-Line list: \"%s\" (%ld seconds).",
+			    Client_Mask(from), Req->argv[0], class_c,
+			    Req->argv[2], atol(Req->argv[1]));
+			if (class == CLASS_GLINE) {
+				/* Inform other servers */
+				IRC_WriteStrServersPrefix(Client, from,
+						"%s %s %s :%s", Req->command,
+						Req->argv[0], Req->argv[1],
+						Req->argv[2]);
+			}
+		}
+	}
+
+	return CONNECTED;
+}
 
 /* -eof- */

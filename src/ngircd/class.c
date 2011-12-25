@@ -75,4 +75,12 @@ Class_DeleteMask(const int Class, const char *Mask)
 	Lists_Del(&My_Classes[Class], Mask);
 }
 
+GLOBAL struct list_head
+Class_GetList(const int Class)
+{
+	assert(Class < CLASS_COUNT);
+
+	return My_Classes[Class];
+}
+
 /* -eof- */

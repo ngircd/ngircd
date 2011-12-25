@@ -126,8 +126,19 @@ Lists_Add(struct list_head *h, const char *Mask, time_t ValidUntil,
 	assert(h != NULL);
 	assert(Mask != NULL);
 
-	if (Lists_CheckDupeMask(h, Mask))
+	e = Lists_CheckDupeMask(h, Mask);
+	if (e) {
+		e->valid_until = ValidUntil;
+		if (e->reason)
+			free(e->reason);
+		e->reason = malloc(strlen(Reason) + 1);
+		if (e->reason)
+			strlcpy(e->reason, Reason, strlen(Reason) + 1);
+		else
+			Log(LOG_EMERG,
+			    "Can't allocate memory for new list reason text!");
 		return true;
+	}
 
 	e = Lists_GetFirst(h);
 

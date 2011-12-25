@@ -480,7 +480,7 @@ IRC_STATS( CLIENT *Client, REQUEST *Req )
 	COMMAND *cmd;
 	time_t time_now;
 	unsigned int days, hrs, mins;
-	struct list_head list;
+	struct list_head *list;
 	struct list_elem *list_item;
 
 	assert(Client != NULL);
@@ -531,7 +531,7 @@ IRC_STATS( CLIENT *Client, REQUEST *Req )
 			list = Class_GetList(CLASS_GLINE);
 		else
 			list = Class_GetList(CLASS_KLINE);
-			list_item = Lists_GetFirst(&list);
+			list_item = Lists_GetFirst(list);
 			while (list_item) {
 				if (!IRC_WriteStrClient(from, RPL_STATSXLINE_MSG,
 						Client_ID(from), query,

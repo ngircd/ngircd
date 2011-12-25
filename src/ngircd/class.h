@@ -31,7 +31,7 @@ GLOBAL void Class_DeleteMask PARAMS((const int Class, const char *Mask));
 
 GLOBAL bool Class_IsMember PARAMS((const int Class, CLIENT *Client));
 
-GLOBAL struct list_head Class_GetList PARAMS((const int Class));
+GLOBAL struct list_head *Class_GetList PARAMS((const int Class));
 
 GLOBAL void Class_Expire PARAMS((void));
 

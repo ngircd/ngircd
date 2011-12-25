@@ -1003,7 +1003,7 @@ Channel_AddBan(CHANNEL *c, const char *mask )
 {
 	struct list_head *h = Channel_GetListBans(c);
 	LogDebug("Adding \"%s\" to \"%s\" %s list", mask, Channel_Name(c), "ban");
-	return Lists_Add(h, mask, false);
+	return Lists_Add(h, mask, false, NULL);
 }
 
 
@@ -1012,7 +1012,7 @@ Channel_AddInvite(CHANNEL *c, const char *mask, bool onlyonce)
 {
 	struct list_head *h = Channel_GetListInvites(c);
 	LogDebug("Adding \"%s\" to \"%s\" %s list", mask, Channel_Name(c), "invite");
-	return Lists_Add(h, mask, onlyonce);
+	return Lists_Add(h, mask, onlyonce, NULL);
 }
 
 

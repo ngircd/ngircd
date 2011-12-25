@@ -56,12 +56,14 @@ Class_IsMember(const int Class, CLIENT *Client)
 }
 
 GLOBAL bool
-Class_AddMask(const int Class, const char *Mask, time_t ValidUntil)
+Class_AddMask(const int Class, const char *Mask, time_t ValidUntil,
+	      const char *Reason)
 {
 	assert(Class < CLASS_COUNT);
 	assert(Mask != NULL);
+	assert(Reason != NULL);
 
-	return Lists_Add(&My_Classes[Class], Mask, ValidUntil);
+	return Lists_Add(&My_Classes[Class], Mask, ValidUntil, Reason);
 }
 
 GLOBAL void

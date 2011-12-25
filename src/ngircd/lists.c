@@ -39,6 +39,7 @@
 struct list_elem {
 	struct list_elem *next;
 	char mask[MASK_LEN];
+	char *reason;
 	time_t valid_until;	/** 0: unlimited; 1: once; t(>1): until t */
 };
 
@@ -49,6 +50,19 @@ Lists_GetMask(const struct list_elem *e)
 	return e->mask;
 }
 
+GLOBAL const char *
+Lists_GetReason(const struct list_elem *e)
+{
+	assert(e != NULL);
+	return e->reason;
+}
+
+GLOBAL time_t
+Lists_GetValidity(const struct list_elem *e)
+{
+	assert(e != NULL);
+	return e->valid_until;
+}
 
 GLOBAL struct list_elem*
 Lists_GetFirst(const struct list_head *h)
@@ -63,9 +77,18 @@ Lists_GetNext(const struct list_elem *e)
 	return e->next;
 }
 
-
+/**
+ * Add a new mask to a list.
+ *
+ * @param header List head.
+ * @param Mask The IRC mask to add to the list.
+ * @param ValidUntil 0: unlimited, 1: only once, t>1: until given time_t.
+ * @param Reason Reason string or NULL, if no reason should be saved.
+ * @return true on success, false otherwise.
+ */
 bool
-Lists_Add(struct list_head *header, const char *Mask, time_t ValidUntil )
+Lists_Add(struct list_head *header, const char *Mask, time_t ValidUntil,
+	  const char *Reason)
 {
 	struct list_elem *e, *newelem;
 
@@ -82,7 +105,17 @@ Lists_Add(struct list_head *header, const char *Mask, time_t ValidUntil )
 		return false;
 	}
 
-	strlcpy( newelem->mask, Mask, sizeof( newelem->mask ));
+	strlcpy(newelem->mask, Mask, sizeof(newelem->mask));
+	if (Reason) {
+		newelem->reason = malloc(strlen(Reason) + 1);
+		if (newelem->reason)
+			strlcpy(newelem->reason, Reason, strlen(Reason) + 1);
+		else
+			Log(LOG_EMERG,
+			    "Can't allocate memory for new list reason text!");
+	}
+	else
+		newelem->reason = NULL;
 	newelem->valid_until = ValidUntil;
 	newelem->next = e;
 	header->first = newelem;
@@ -100,6 +133,8 @@ Lists_Unlink(struct list_head *header, struct list_elem *p, struct list_elem *vi
 	if (p) p->next = victim->next;
 	else header->first = victim->next;
 
+	if (victim->reason)
+		free(victim->reason);
 	free(victim);
 }
 
@@ -141,7 +176,9 @@ Lists_Free(struct list_head *head)
 		LogDebug("Deleted \"%s\" from invite list" , e->mask);
 		victim = e;
 		e = e->next;
-		free( victim );
+		if (victim->reason)
+			free(victim->reason);
+		free(victim);
 	}
 }
 

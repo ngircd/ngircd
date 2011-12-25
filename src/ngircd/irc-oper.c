@@ -450,6 +450,11 @@ IRC_xLINE(CLIENT *Client, REQUEST *Req)
 		case 'K':
 			class = CLASS_KLINE; class_c = 'K';
 			break;
+		default:
+			Log(LOG_CRIT,
+			    "IRC_xLINE() called for unknown line: %c!? Ignored.",
+			    Req->command[0]);
+			return CONNECTED;
 	}
 
 	if (Req->argc == 1) {

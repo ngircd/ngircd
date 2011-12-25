@@ -240,17 +240,17 @@ Lists_Free(struct list_head *head)
  * @param Mask IRC mask to test.
  * @return true if mask is already stored in the list, false otherwise.
  */
-GLOBAL bool
+GLOBAL struct list_elem *
 Lists_CheckDupeMask(const struct list_head *h, const char *Mask )
 {
 	struct list_elem *e;
 	e = h->first;
 	while (e) {
 		if (strcasecmp(e->mask, Mask) == 0)
-			return true;
+			return e;
 		e = e->next;
 	}
-	return false;
+	return NULL;
 }
 
 /**

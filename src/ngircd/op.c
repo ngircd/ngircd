@@ -81,6 +81,9 @@ Op_Check(CLIENT * Client, REQUEST * Req)
 
 	if (!c)
 		return NULL;
+	if (Client_Type(Client) == CLIENT_SERVER
+	    && Client_Type(c) == CLIENT_SERVER)
+		return c;
 	if (!Client_HasMode(c, 'o'))
 		return NULL;
 	if (!Client_OperByMe(c) && !Conf_AllowRemoteOper)

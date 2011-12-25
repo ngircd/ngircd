@@ -937,12 +937,6 @@ Hello_User(CLIENT * Client)
 	}
 #endif
 
-	if (Class_IsMember(CLASS_GLINE, Client) ||
-	    Class_IsMember(CLASS_KLINE, Client)) {
-		Reject_Client(Client);
-		return DISCONNECTED;
-	}
-
 #ifdef PAM
 	if (!Conf_PAM) {
 		/* Don't do any PAM authentication at all, instead emulate
@@ -1068,6 +1062,12 @@ Reject_Client(CLIENT *Client)
 static bool
 Hello_User_PostAuth(CLIENT *Client)
 {
+	if (Class_IsMember(CLASS_GLINE, Client) ||
+	    Class_IsMember(CLASS_KLINE, Client)) {
+		Reject_Client(Client);
+		return DISCONNECTED;
+	}
+
 	Introduce_Client(NULL, Client, CLIENT_USER);
 
 	if (!IRC_WriteStrClient

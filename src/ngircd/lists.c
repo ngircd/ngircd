@@ -37,19 +37,31 @@
 #define MASK_LEN	(2*CLIENT_HOST_LEN)
 
 struct list_elem {
-	struct list_elem *next;
-	char mask[MASK_LEN];
-	char *reason;
+	struct list_elem *next;	/** pointer to next list element */
+	char mask[MASK_LEN];	/** IRC mask */
+	char *reason;		/** Optional "reason" text */
 	time_t valid_until;	/** 0: unlimited; 1: once; t(>1): until t */
 };
 
-
+/**
+ * Get IRC mask stored in list element.
+ *
+ * @param list_elem List element.
+ * @return Pointer to IRC mask
+ */
 GLOBAL const char *
 Lists_GetMask(const struct list_elem *e)
 {
+	assert(e != NULL);
 	return e->mask;
 }
 
+/**
+ * Get optional "reason" text stored in list element.
+ *
+ * @param list_elem List element.
+ * @return Pointer to "reason" text or NULL.
+ */
 GLOBAL const char *
 Lists_GetReason(const struct list_elem *e)
 {
@@ -57,6 +69,12 @@ Lists_GetReason(const struct list_elem *e)
 	return e->reason;
 }
 
+/**
+ * Get "validity" value stored in list element.
+ *
+ * @param list_elem List element.
+ * @return Validity: 0=unlimited, 1=once, >1 until this time stamp.
+ */
 GLOBAL time_t
 Lists_GetValidity(const struct list_elem *e)
 {
@@ -64,44 +82,59 @@ Lists_GetValidity(const struct list_elem *e)
 	return e->valid_until;
 }
 
+/**
+ * Get first list element of a list.
+ *
+ * @param h List head.
+ * @return Pointer to first list element.
+ */
 GLOBAL struct list_elem*
 Lists_GetFirst(const struct list_head *h)
 {
+	assert(h != NULL);
 	return h->first;
 }
 
-
+/**
+ * Get next list element of a list.
+ *
+ * @param e Current list element.
+ * @return Pointer to next list element.
+ */
 GLOBAL struct list_elem*
 Lists_GetNext(const struct list_elem *e)
 {
+	assert(e != NULL);
 	return e->next;
 }
 
 /**
  * Add a new mask to a list.
  *
- * @param header List head.
+ * @param h List head.
  * @param Mask The IRC mask to add to the list.
  * @param ValidUntil 0: unlimited, 1: only once, t>1: until given time_t.
  * @param Reason Reason string or NULL, if no reason should be saved.
  * @return true on success, false otherwise.
  */
 bool
-Lists_Add(struct list_head *header, const char *Mask, time_t ValidUntil,
+Lists_Add(struct list_head *h, const char *Mask, time_t ValidUntil,
 	  const char *Reason)
 {
 	struct list_elem *e, *newelem;
 
-	assert( header != NULL );
-	assert( Mask != NULL );
+	assert(h != NULL);
+	assert(Mask != NULL);
 
-	if (Lists_CheckDupeMask(header, Mask )) return true;
+	if (Lists_CheckDupeMask(h, Mask))
+		return true;
 
-	e = Lists_GetFirst(header);
+	e = Lists_GetFirst(h);
 
 	newelem = malloc(sizeof(struct list_elem));
-	if( ! newelem ) {
-		Log( LOG_EMERG, "Can't allocate memory for new Ban/Invite entry!" );
+	if (!newelem) {
+		Log(LOG_EMERG,
+		    "Can't allocate memory for new list entry!");
 		return false;
 	}
 
@@ -118,43 +151,57 @@ Lists_Add(struct list_head *header, const char *Mask, time_t ValidUntil,
 		newelem->reason = NULL;
 	newelem->valid_until = ValidUntil;
 	newelem->next = e;
-	header->first = newelem;
+	h->first = newelem;
 
 	return true;
 }
 
-
+/**
+ * Delete a list element from a list.
+ *
+ * @param h List head.
+ * @param p Pointer to previous list element or NULL, if there is none.
+ * @param victim List element to delete.
+ */
 static void
-Lists_Unlink(struct list_head *header, struct list_elem *p, struct list_elem *victim)
+Lists_Unlink(struct list_head *h, struct list_elem *p, struct list_elem *victim)
 {
 	assert(victim != NULL);
-	assert(header != NULL);
+	assert(h != NULL);
 
-	if (p) p->next = victim->next;
-	else header->first = victim->next;
+	if (p)
+		p->next = victim->next;
+	else
+		h->first = victim->next;
 
 	if (victim->reason)
 		free(victim->reason);
+
 	free(victim);
 }
 
-
+/**
+ * Delete a given IRC mask from a list.
+ *
+ * @param h List head.
+ * @param Mask IRC mask to delete from the list.
+ */
 GLOBAL void
-Lists_Del(struct list_head *header, const char *Mask)
+Lists_Del(struct list_head *h, const char *Mask)
 {
 	struct list_elem *e, *last, *victim;
 
-	assert( header != NULL );
-	assert( Mask != NULL );
+	assert(h != NULL);
+	assert(Mask != NULL);
 
 	last = NULL;
-	e = Lists_GetFirst(header);
-	while( e ) {
-		if(strcasecmp( e->mask, Mask ) == 0 ) {
+	e = Lists_GetFirst(h);
+	while (e) {
+		if (strcasecmp(e->mask, Mask) == 0) {
 			LogDebug("Deleted \"%s\" from list", e->mask);
 			victim = e;
 			e = victim->next;
-			Lists_Unlink(header, last, victim);
+			Lists_Unlink(h, last, victim);
 			continue;
 		}
 		last = e;
@@ -162,7 +209,11 @@ Lists_Del(struct list_head *header, const char *Mask)
 	}
 }
 
-
+/**
+ * Free a complete list.
+ *
+ * @param head List head.
+ */
 GLOBAL void
 Lists_Free(struct list_head *head)
 {
@@ -173,7 +224,7 @@ Lists_Free(struct list_head *head)
 	e = head->first;
 	head->first = NULL;
 	while (e) {
-		LogDebug("Deleted \"%s\" from invite list" , e->mask);
+		LogDebug("Deleted \"%s\" from list" , e->mask);
 		victim = e;
 		e = e->next;
 		if (victim->reason)
@@ -182,79 +233,93 @@ Lists_Free(struct list_head *head)
 	}
 }
 
-
+/**
+ * Check if an IRC mask is already contained in a list.
+ *
+ * @param h List head.
+ * @param Mask IRC mask to test.
+ * @return true if mask is already stored in the list, false otherwise.
+ */
 GLOBAL bool
 Lists_CheckDupeMask(const struct list_head *h, const char *Mask )
 {
 	struct list_elem *e;
 	e = h->first;
 	while (e) {
-		if (strcasecmp( e->mask, Mask ) == 0 )
+		if (strcasecmp(e->mask, Mask) == 0)
 			return true;
 		e = e->next;
 	}
 	return false;
 }
 
-
+/**
+ * Generate a valid IRC mask from "any" string given.
+ *
+ * Attention: This mask is only valid until the next call to Lists_MakeMask(),
+ * because a single global buffer ist used! You have to copy the generated
+ * mask to some sane location yourself!
+ *
+ * @param Pattern Source string to generate an IRC mask for.
+ * @return Pointer to global result buffer.
+ */
 GLOBAL const char *
 Lists_MakeMask(const char *Pattern)
 {
-	/* This function generats a valid IRC mask of "any" string. This
-	 * mask is only valid until the next call to Lists_MakeMask(),
-	 * because a single global buffer is used. You have to copy the
-	 * generated mask to some sane location yourself! */
-
 	static char TheMask[MASK_LEN];
 	char *excl, *at;
 
-	assert( Pattern != NULL );
+	assert(Pattern != NULL);
 
-	excl = strchr( Pattern, '!' );
-	at = strchr( Pattern, '@' );
+	excl = strchr(Pattern, '!');
+	at = strchr(Pattern, '@');
 
-	if(( at ) && ( at < excl )) excl = NULL;
+	if (at && at < excl)
+		excl = NULL;
 
-	if(( ! at ) && ( ! excl ))
-	{
+	if (!at && !excl) {
 		/* Neither "!" nor "@" found: use string as nick name */
-		strlcpy( TheMask, Pattern, sizeof( TheMask ) - 5 );
-		strlcat( TheMask, "!*@*", sizeof( TheMask ));
+		strlcpy(TheMask, Pattern, sizeof(TheMask) - 5);
+		strlcat(TheMask, "!*@*", sizeof(TheMask));
 		return TheMask;
 	}
 
-	if(( ! at ) && ( excl ))
-	{
+	if (!at && excl) {
 		/* Domain part is missing */
-		strlcpy( TheMask, Pattern, sizeof( TheMask ) - 3 );
-		strlcat( TheMask, "@*", sizeof( TheMask ));
+		strlcpy(TheMask, Pattern, sizeof(TheMask) - 3);
+		strlcat(TheMask, "@*", sizeof(TheMask));
 		return TheMask;
 	}
 
-	if(( at ) && ( ! excl ))
-	{
+	if (at && !excl) {
 		/* User name is missing */
 		*at = '\0'; at++;
-		strlcpy( TheMask, Pattern, sizeof( TheMask ) - 5 );
-		strlcat( TheMask, "!*@", sizeof( TheMask ));
-		strlcat( TheMask, at, sizeof( TheMask ));
+		strlcpy(TheMask, Pattern, sizeof(TheMask) - 5);
+		strlcat(TheMask, "!*@", sizeof(TheMask));
+		strlcat(TheMask, at, sizeof(TheMask));
 		return TheMask;
 	}
 
 	/* All parts (nick, user and domain name) are given */
-	strlcpy( TheMask, Pattern, sizeof( TheMask ));
+	strlcpy(TheMask, Pattern, sizeof(TheMask));
 	return TheMask;
 } /* Lists_MakeMask */
 
-
+/**
+ * Check if a client is listed in a list.
+ *
+ * @param h List head.
+ * @param Client Client to check.
+ * @return true if client is listed, false if not.
+ */
 bool
-Lists_Check( struct list_head *header, CLIENT *Client)
+Lists_Check( struct list_head *h, CLIENT *Client)
 {
 	struct list_elem *e, *last, *next;
 
-	assert( header != NULL );
+	assert(h != NULL);
 
-	e = header->first;
+	e = h->first;
 	last = NULL;
 
 	while (e) {
@@ -263,16 +328,16 @@ Lists_Check( struct list_head *header, CLIENT *Client)
 			/* Entry is expired, delete it */
 			LogDebug("Deleted \"%s\" from list (expired).",
 				 e->mask);
-			Lists_Unlink(header, last, e);
+			Lists_Unlink(h, last, e);
 			e = next;
 			continue;
 		}
 		if (Match(e->mask, Client_Mask(Client))) {
-			if (e->valid_until == 1 ) {
+			if (e->valid_until == 1) {
 				/* Entry is valid only once, delete it */
 				LogDebug("Deleted \"%s\" from list (used).",
 					 e->mask);
-				Lists_Unlink(header, last, e);
+				Lists_Unlink(h, last, e);
 			}
 			return true;
 		}

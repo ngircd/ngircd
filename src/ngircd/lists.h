@@ -29,16 +29,18 @@ struct list_head {
 GLOBAL struct list_elem *Lists_GetFirst PARAMS((const struct list_head *));
 GLOBAL struct list_elem *Lists_GetNext PARAMS((const struct list_elem *));
 
-GLOBAL bool Lists_Check PARAMS((struct list_head *head, CLIENT *client ));
-GLOBAL bool Lists_CheckDupeMask PARAMS((const struct list_head *head, const char *mask ));
+GLOBAL bool Lists_Check PARAMS((struct list_head *head, CLIENT *client));
+GLOBAL bool Lists_CheckDupeMask PARAMS((const struct list_head *head,
+					const char *mask));
 
-GLOBAL bool Lists_Add PARAMS((struct list_head *header, const char *Mask,
+GLOBAL bool Lists_Add PARAMS((struct list_head *h, const char *Mask,
 			      time_t ValidUntil, const char *Reason));
-GLOBAL void Lists_Del PARAMS((struct list_head *head, const char *Mask ));
+GLOBAL void Lists_Del PARAMS((struct list_head *head, const char *Mask));
 
-GLOBAL bool Lists_AlreadyRegistered PARAMS(( const struct list_head *head, const char *Mask));
+GLOBAL bool Lists_AlreadyRegistered PARAMS((const struct list_head *head,
+					    const char *Mask));
 
-GLOBAL void Lists_Free PARAMS(( struct list_head *head ));
+GLOBAL void Lists_Free PARAMS((struct list_head *head));
 
 GLOBAL const char *Lists_MakeMask PARAMS((const char *Pattern));
 GLOBAL const char *Lists_GetMask PARAMS((const struct list_elem *e));

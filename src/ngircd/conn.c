@@ -65,6 +65,7 @@
 #include "ngircd.h"
 #include "array.h"
 #include "client.h"
+#include "class.h"
 #include "conf.h"
 #include "conn-ssl.h"
 #include "conn-zip.h"
@@ -741,6 +742,9 @@ Conn_Handler(void)
 		/* Check configured servers and established links */
 		Check_Servers();
 		Check_Connections();
+
+		/* Expire outdated class/list items */
+		Class_Expire();
 
 		/* Look for non-empty read buffers ... */
 		for (i = 0; i < Pool_Size; i++) {

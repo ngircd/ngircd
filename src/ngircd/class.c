@@ -83,4 +83,11 @@ Class_GetList(const int Class)
 	return My_Classes[Class];
 }
 
+GLOBAL void
+Class_Expire(void)
+{
+	Lists_Expire(&My_Classes[CLASS_GLINE], "G-Line");
+	Lists_Expire(&My_Classes[CLASS_KLINE], "K-Line");
+}
+
 /* -eof- */

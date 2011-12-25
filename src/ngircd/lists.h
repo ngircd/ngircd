@@ -47,6 +47,8 @@ GLOBAL const char *Lists_GetMask PARAMS((const struct list_elem *e));
 GLOBAL const char *Lists_GetReason PARAMS((const struct list_elem *e));
 GLOBAL time_t Lists_GetValidity PARAMS((const struct list_elem *e));
 
+GLOBAL void Lists_Expire PARAMS((struct list_head *h, const char *ListName));
+
 #endif
 
 /* -eof- */

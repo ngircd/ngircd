@@ -316,22 +316,16 @@ bool
 Lists_Check( struct list_head *h, CLIENT *Client)
 {
 	struct list_elem *e, *last, *next;
+	time_t now;
 
 	assert(h != NULL);
 
 	e = h->first;
 	last = NULL;
+	now = time(NULL);
 
 	while (e) {
 		next = e->next;
-		if (e->valid_until > 1 && e->valid_until < time(NULL)) {
-			/* Entry is expired, delete it */
-			LogDebug("Deleted \"%s\" from list (expired).",
-				 e->mask);
-			Lists_Unlink(h, last, e);
-			e = next;
-			continue;
-		}
 		if (Match(e->mask, Client_Mask(Client))) {
 			if (e->valid_until == 1) {
 				/* Entry is valid only once, delete it */
@@ -346,6 +340,44 @@ Lists_Check( struct list_head *h, CLIENT *Client)
 	}
 
 	return false;
+}
+
+/**
+ * Check list and purge expired entries.
+ *
+ * @param h List head.
+ */
+GLOBAL void
+Lists_Expire(struct list_head *h, const char *ListName)
+{
+	struct list_elem *e, *last, *next;
+	time_t now;
+
+	assert(h != NULL);
+
+	e = h->first;
+	last = NULL;
+	now = time(NULL);
+
+	while (e) {
+		next = e->next;
+		if (e->valid_until > 1 && e->valid_until < now) {
+			/* Entry is expired, delete it */
+			if (e->reason)
+				Log(LOG_INFO,
+				    "Deleted \"%s\" (\"%s\") from %s list (expired).",
+				    e->mask, e->reason, ListName);
+			else
+				Log(LOG_INFO,
+				    "Deleted \"%s\" from %s list (expired).",
+				    e->mask, ListName);
+			Lists_Unlink(h, last, e);
+			e = next;
+			continue;
+		}
+		last = e;
+		e = next;
+	}
 }
 
 /* -eof- */

@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2008 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2011 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,7 +37,6 @@
 #include <exp.h>
 #include "irc-oper.h"
 
-
 /**
  * Handle invalid received OPER command.
  * Log OPER attempt and send error message to client.
@@ -52,7 +51,15 @@ Bad_OperPass(CLIENT *Client, char *errtoken, char *errmsg)
 				  Client_ID(Client));
 } /* Bad_OperPass */
 
-
+/**
+ * Handler for the IRC "OPER" command.
+ *
+ * See RFC 2812, 3.1.4 "Oper message".
+ *
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
+ */
 GLOBAL bool
 IRC_OPER( CLIENT *Client, REQUEST *Req )
 {
@@ -62,7 +69,9 @@ IRC_OPER( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	if( Req->argc != 2 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	if (Req->argc != 2)
+		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+					  Client_ID(Client), Req->command);
 
 	len = array_length(&Conf_Opers, sizeof(*op));
 	op = array_start(&Conf_Opers);
@@ -77,20 +86,33 @@ IRC_OPER( CLIENT *Client, REQUEST *Req )
 	if (op[i].mask && (!Match(op[i].mask, Client_Mask(Client))))
 		return Bad_OperPass(Client, op[i].mask, "hostmask check failed");
 
-	if( ! Client_HasMode( Client, 'o' ))
-	{
-		Client_ModeAdd( Client, 'o' );
-		if( ! IRC_WriteStrClient( Client, "MODE %s :+o", Client_ID( Client ))) return DISCONNECTED;
-		IRC_WriteStrServersPrefix( NULL, Client, "MODE %s :+o", Client_ID( Client ));
+	if (!Client_HasMode(Client, 'o')) {
+		Client_ModeAdd(Client, 'o');
+		if (!IRC_WriteStrClient(Client, "MODE %s :+o",
+					Client_ID(Client)))
+			return DISCONNECTED;
+		IRC_WriteStrServersPrefix(NULL, Client, "MODE %s :+o",
+					  Client_ID(Client));
 	}
 
-	if( ! Client_OperByMe( Client )) Log( LOG_NOTICE|LOG_snotice, "Got valid OPER from \"%s\", user is an IRC operator now.", Client_Mask( Client ));
+	if (!Client_OperByMe(Client))
+		Log(LOG_NOTICE|LOG_snotice,
+		    "Got valid OPER from \"%s\", user is an IRC operator now.",
+		    Client_Mask(Client));
 
-	Client_SetOperByMe( Client, true);
-	return IRC_WriteStrClient( Client, RPL_YOUREOPER_MSG, Client_ID( Client ));
+	Client_SetOperByMe(Client, true);
+	return IRC_WriteStrClient(Client, RPL_YOUREOPER_MSG, Client_ID(Client));
 } /* IRC_OPER */
 
-
+/**
+ * Handler for the IRC "DIE" command.
+ *
+ * See RFC 2812, 4.3 "Die message".
+ *
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
+ */
 GLOBAL bool
 IRC_DIE(CLIENT * Client, REQUEST * Req)
 {
@@ -133,7 +155,15 @@ IRC_DIE(CLIENT * Client, REQUEST * Req)
 	return CONNECTED;
 } /* IRC_DIE */
 
-
+/**
+ * Handler for the IRC "REHASH" command.
+ *
+ * See RFC 2812, 4.2 "Rehash message".
+ *
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
+ */
 GLOBAL bool
 IRC_REHASH( CLIENT *Client, REQUEST *Req )
 {
@@ -146,15 +176,26 @@ IRC_REHASH( CLIENT *Client, REQUEST *Req )
 		return Op_NoPrivileges(Client, Req);
 
 	/* Bad number of parameters? */
-	if( Req->argc != 0 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	if (Req->argc != 0)
+		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+					  Client_ID(Client), Req->command );
 
-	Log( LOG_NOTICE|LOG_snotice, "Got REHASH command from \"%s\" ...", Client_Mask( Client ));
+	Log(LOG_NOTICE|LOG_snotice, "Got REHASH command from \"%s\" ...",
+	    Client_Mask(Client));
 	raise(SIGHUP);
 
 	return CONNECTED;
 } /* IRC_REHASH */
 
-
+/**
+ * Handler for the IRC "RESTART" command.
+ *
+ * See RFC 2812, 4.4 "Restart message".
+ *
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
+ */
 GLOBAL bool
 IRC_RESTART( CLIENT *Client, REQUEST *Req )
 {
@@ -167,16 +208,25 @@ IRC_RESTART( CLIENT *Client, REQUEST *Req )
 		return Op_NoPrivileges(Client, Req);
 
 	/* Bad number of parameters? */
-	if( Req->argc != 0 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	if (Req->argc != 0)
+		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+					  Client_ID(Client), Req->command);
 
-	Log( LOG_NOTICE|LOG_snotice, "Got RESTART command from \"%s\" ...", Client_Mask( Client ));
+	Log(LOG_NOTICE|LOG_snotice, "Got RESTART command from \"%s\" ...",
+	    Client_Mask(Client));
 	NGIRCd_SignalRestart = true;
+
 	return CONNECTED;
 } /* IRC_RESTART */
 
-
 /**
- * Connect configured or new server.
+ * Handler for the IRC "CONNECT" command.
+ *
+ * See RFC 2812, 3.4.7 "Connect message".
+ *
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
  */
 GLOBAL bool
 IRC_CONNECT(CLIENT * Client, REQUEST * Req)
@@ -272,9 +322,15 @@ IRC_CONNECT(CLIENT * Client, REQUEST * Req)
 	return CONNECTED;
 } /* IRC_CONNECT */
 
-
 /**
- * Disconnect (and disable) configured server.
+ * Handler for the IRC "DISCONNECT" command.
+ *
+ * This command is not specified in the IRC RFCs, it is an extension
+ * of ngIRCd: it shuts down and disables a configured server connection.
+ *
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
  */
 GLOBAL bool
 IRC_DISCONNECT(CLIENT * Client, REQUEST * Req)
@@ -315,7 +371,15 @@ IRC_DISCONNECT(CLIENT * Client, REQUEST * Req)
 		return DISCONNECTED;
 } /* IRC_DISCONNECT */
 
-
+/**
+ * Handler for the IRC "WALLOPS" command.
+ *
+ * See RFC 2812, 4.7 "Operwall message".
+ *
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
+ */
 GLOBAL bool
 IRC_WALLOPS( CLIENT *Client, REQUEST *Req )
 {
@@ -325,12 +389,14 @@ IRC_WALLOPS( CLIENT *Client, REQUEST *Req )
 	assert( Req != NULL );
 
 	if (Req->argc != 1)
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG, Client_ID(Client), Req->command);
+		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+					  Client_ID(Client), Req->command);
 
 	switch (Client_Type(Client)) {
 	case CLIENT_USER:
 		if (!Client_OperByMe(Client))
-			return IRC_WriteStrClient(Client, ERR_NOPRIVILEGES_MSG, Client_ID(Client));
+			return IRC_WriteStrClient(Client, ERR_NOPRIVILEGES_MSG,
+						  Client_ID(Client));
 		from = Client;
 		break;
 	case CLIENT_SERVER:
@@ -341,7 +407,8 @@ IRC_WALLOPS( CLIENT *Client, REQUEST *Req )
 	}
 
 	if (!from)
-		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG, Client_ID(Client), Req->prefix);
+		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
+					  Client_ID(Client), Req->prefix);
 
 	IRC_SendWallops(Client, from, "%s", Req->argv[0]);
 	return CONNECTED;

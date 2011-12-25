@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2009 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2011 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  */
 
 GLOBAL bool Op_NoPrivileges PARAMS((CLIENT * Client, REQUEST * Req));
-GLOBAL bool Op_Check PARAMS((CLIENT * Client, REQUEST * Req));
+GLOBAL CLIENT *Op_Check PARAMS((CLIENT * Client, REQUEST * Req));
 
 #endif
 

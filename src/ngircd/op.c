@@ -58,9 +58,15 @@ Op_NoPrivileges(CLIENT * Client, REQUEST * Req)
 
 
 /**
- * Check that the client is an IRC operator allowed to administer this server.
+ * Check that the originator of a request is an IRC operator and allowed
+ * to administer this server.
+ *
+ * @param CLient Client from which the command has been received.
+ * @param Req Request structure.
+ * @return CLIENT structure of the client that initiated the command or
+ *	   NULL if client is not allowed to execute operator commands.
  */
-GLOBAL bool
+GLOBAL CLIENT *
 Op_Check(CLIENT * Client, REQUEST * Req)
 {
 	CLIENT *c;
@@ -72,15 +78,17 @@ Op_Check(CLIENT * Client, REQUEST * Req)
 		c = Client_Search(Req->prefix);
 	else
 		c = Client;
+
 	if (!c)
-		return false;
+		return NULL;
 	if (!Client_HasMode(c, 'o'))
-		return false;
+		return NULL;
 	if (!Client_OperByMe(c) && !Conf_AllowRemoteOper)
-		return false;
+		return NULL;
+
 	/* The client is an local IRC operator, or this server is configured
 	 * to trust remote operators. */
-	return true;
+	return c;
 } /* Op_Check */
 
 

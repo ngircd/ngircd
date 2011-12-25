@@ -28,6 +28,7 @@
 #include "conn.h"
 #include "conn-func.h"
 #include "channel.h"
+#include "class.h"
 #include "irc-write.h"
 #include "lists.h"
 #include "log.h"
@@ -194,8 +195,10 @@ Announce_User(CLIENT * Client, CLIENT * User)
 #ifdef IRCPLUS
 
 /**
- * Synchronize invite and ban lists between servers
- * @param Client New server
+ * Synchronize invite, ban, G- and K-Line lists between servers.
+ *
+ * @param Client New server.
+ * @return CONNECTED or DISCONNECTED.
  */
 static bool
 Synchronize_Lists(CLIENT * Client)
@@ -205,6 +208,18 @@ Synchronize_Lists(CLIENT * Client)
 	struct list_elem *elem;
 
 	assert(Client != NULL);
+
+	/* g-lines */
+	head = Class_GetList(CLASS_GLINE);
+	elem = Lists_GetFirst(head);
+	while (elem) {
+		if (!IRC_WriteStrClient(Client, "GLINE %s %ld :%s",
+					Lists_GetMask(elem),
+					Lists_GetValidity(elem) - time(NULL),
+					Lists_GetReason(elem)))
+			return DISCONNECTED;
+		elem = Lists_GetNext(elem);
+	}
 
 	c = Channel_First();
 	while (c) {

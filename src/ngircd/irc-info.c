@@ -28,8 +28,10 @@
 #include "conn-func.h"
 #include "conn-zip.h"
 #include "channel.h"
+#include "class.h"
 #include "conf.h"
 #include "defines.h"
+#include "lists.h"
 #include "log.h"
 #include "messages.h"
 #include "match.h"
@@ -478,6 +480,8 @@ IRC_STATS( CLIENT *Client, REQUEST *Req )
 	COMMAND *cmd;
 	time_t time_now;
 	unsigned int days, hrs, mins;
+	struct list_head list;
+	struct list_elem *list_item;
 
 	assert(Client != NULL);
 	assert(Req != NULL);
@@ -516,6 +520,28 @@ IRC_STATS( CLIENT *Client, REQUEST *Req )
 		query = '*';
 
 	switch (query) {
+	case 'g':	/* Network-wide bans ("G-Lines") */
+	case 'G':
+	case 'k':	/* Server-local bans ("K-Lines") */
+	case 'K':
+		if (!Client_HasMode(from, 'o'))
+		    return IRC_WriteStrClient(from, ERR_NOPRIVILEGES_MSG,
+					      Client_ID(from));
+		if (query == 'g' || query == 'G')
+			list = Class_GetList(CLASS_GLINE);
+		else
+			list = Class_GetList(CLASS_KLINE);
+			list_item = Lists_GetFirst(&list);
+			while (list_item) {
+				if (!IRC_WriteStrClient(from, RPL_STATSXLINE_MSG,
+						Client_ID(from), query,
+						Lists_GetMask(list_item),
+						Lists_GetValidity(list_item),
+						Lists_GetReason(list_item)))
+					return DISCONNECTED;
+				list_item = Lists_GetNext(list_item);
+			}
+		break;
 	case 'l':	/* Link status (servers and own link) */
 	case 'L':
 		time_now = time(NULL);

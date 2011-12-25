@@ -29,6 +29,7 @@
 #define RPL_TRACESERVER_MSG		"206 %s Serv 1 0S 0C %s[%s@%s] *!*@%s :V%s"
 #define RPL_STATSLINKINFO_MSG		"211 %s %s %d %ld %ld %ld %ld :%ld"
 #define RPL_STATSCOMMANDS_MSG		"212 %s %s %ld %ld %ld"
+#define RPL_STATSXLINE_MSG		"216 %s %c %s %ld :%s"
 #define RPL_ENDOFSTATS_MSG		"219 %s %c :End of STATS report"
 #define RPL_UMODEIS_MSG			"221 %s +%s"
 #define RPL_SERVLIST_MSG		"234 %s %s %s %s %d %d :%s"

@@ -1277,38 +1277,54 @@ IRC_WHOWAS( CLIENT *Client, REQUEST *Req )
 } /* IRC_WHOWAS */
 
 
+/**
+ * Send LUSERS reply to a client.
+ *
+ * @param Client The receipient of the information.
+ * @return CONNECTED or DISCONNECTED.
+ */
 GLOBAL bool
-IRC_Send_LUSERS( CLIENT *Client )
+IRC_Send_LUSERS(CLIENT *Client)
 {
 	unsigned long cnt;
 #ifndef STRICT_RFC
 	unsigned long max;
 #endif
 
-	assert( Client != NULL );
+	assert(Client != NULL);
 
 	/* Users, services and serevers in the network */
-	if( ! IRC_WriteStrClient( Client, RPL_LUSERCLIENT_MSG, Client_ID( Client ), Client_UserCount( ), Client_ServiceCount( ), Client_ServerCount( ))) return DISCONNECTED;
+	if (!IRC_WriteStrClient(Client, RPL_LUSERCLIENT_MSG, Client_ID(Client),
+				Client_UserCount(), Client_ServiceCount(),
+				Client_ServerCount()))
+		return DISCONNECTED;
 
 	/* Number of IRC operators */
 	cnt = Client_OperCount( );
-	if( cnt > 0 )
-	{
-		if( ! IRC_WriteStrClient( Client, RPL_LUSEROP_MSG, Client_ID( Client ), cnt )) return DISCONNECTED;
+	if (cnt > 0) {
+		if (!IRC_WriteStrClient(Client, RPL_LUSEROP_MSG,
+					Client_ID(Client), cnt))
+			return DISCONNECTED;
 	}
 
 	/* Unknown connections */
 	cnt = Client_UnknownCount( );
-	if( cnt > 0 )
-	{
-		if( ! IRC_WriteStrClient( Client, RPL_LUSERUNKNOWN_MSG, Client_ID( Client ), cnt )) return DISCONNECTED;
+	if (cnt > 0) {
+		if (!IRC_WriteStrClient(Client, RPL_LUSERUNKNOWN_MSG,
+					Client_ID(Client), cnt))
+			return DISCONNECTED;
 	}
 
 	/* Number of created channels */
-	if( ! IRC_WriteStrClient( Client, RPL_LUSERCHANNELS_MSG, Client_ID( Client ), Channel_Count( ))) return DISCONNECTED;
+	if (!IRC_WriteStrClient(Client, RPL_LUSERCHANNELS_MSG,
+				Client_ID(Client), Channel_Count()))
+		return DISCONNECTED;
 
 	/* Number of local users, services and servers */
-	if( ! IRC_WriteStrClient( Client, RPL_LUSERME_MSG, Client_ID( Client ), Client_MyUserCount( ), Client_MyServiceCount( ), Client_MyServerCount( ))) return DISCONNECTED;
+	if (!IRC_WriteStrClient(Client, RPL_LUSERME_MSG, Client_ID(Client),
+				Client_MyUserCount(), Client_MyServiceCount(),
+				Client_MyServerCount()))
+		return DISCONNECTED;
 
 #ifndef STRICT_RFC
 	/* Maximum number of local users */

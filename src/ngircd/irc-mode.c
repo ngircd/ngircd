@@ -253,7 +253,6 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 							set ? '+' : '-',
 							*mode_ptr);
 				x[0] = '\0';
-				goto client_exit;
 			} else {
 				Log(LOG_DEBUG,
 				    "Handling unknown mode \"%c%c\" from \"%s\" for \"%s\" ...",
@@ -278,7 +277,6 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 				strlcat(the_modes, x, sizeof(the_modes));
 		}
 	}
-client_exit:
 
 	/* Are there changed modes? */
 	if (the_modes[1]) {
@@ -671,7 +669,6 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 					Client_ID(Origin),
 					set ? '+' : '-', *mode_ptr);
 				x[0] = '\0';
-				goto chan_exit;
 			} else {
 				Log(LOG_DEBUG,
 				    "Handling unknown mode \"%c%c\" from \"%s\" on %s ...",

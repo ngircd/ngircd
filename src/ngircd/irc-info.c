@@ -1317,7 +1317,8 @@ IRC_Send_LUSERS(CLIENT *Client)
 
 	/* Number of created channels */
 	if (!IRC_WriteStrClient(Client, RPL_LUSERCHANNELS_MSG,
-				Client_ID(Client), Channel_Count()))
+				Client_ID(Client),
+				Channel_CountVisible(Client)))
 		return DISCONNECTED;
 
 	/* Number of local users, services and servers */

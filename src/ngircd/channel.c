@@ -352,20 +352,31 @@ Channel_Quit( CLIENT *Client, const char *Reason )
 } /* Channel_Quit */
 
 
+/**
+ * Get number of channels this server knows and that are "visible" to
+ * the given client. If no client is given, all channels will be counted.
+ *
+ * @param Client The client to check or NULL.
+ * @return Number of channels visible to the client.
+ */
 GLOBAL unsigned long
-Channel_Count( void )
+Channel_CountVisible (CLIENT *Client)
 {
 	CHANNEL *c;
 	unsigned long count = 0;
 
 	c = My_Channels;
-	while( c )
-	{
-		count++;
+	while(c) {
+		if (Client) {
+			if (!strchr(Channel_Modes(c), 's')
+			    || Channel_IsMemberOf(c, Client))
+				count++;
+		} else
+			count++;
 		c = c->next;
 	}
 	return count;
-} /* Channel_Count */
+}
 
 
 GLOBAL unsigned long

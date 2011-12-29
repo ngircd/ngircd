@@ -154,7 +154,7 @@ GLOBAL bool Conf_OperCanMode;
 /**
  * If true, mask channel MODE commands of IRC operators to the server.
  * Background: ircd2 will ignore channel MODE commands if an IRC operator
- * gives chanel operator privileges to someone without being a channel operator
+ * gives channel operator privileges to someone without being a channel operator
  * himself. This enables a workaround: it masks the MODE command as coming
  * from the IRC server and not the IRC operator.
  */

@@ -370,7 +370,7 @@ cb_clientserver_ssl(int sock, short what)
 
 
 /**
- * Initialite connecion module.
+ * Initialize connecion module.
  */
 GLOBAL void
 Conn_Init( void )
@@ -1014,7 +1014,7 @@ Conn_Write( CONN_ID Idx, char *Data, size_t Len )
 GLOBAL void
 Conn_Close( CONN_ID Idx, const char *LogMsg, const char *FwdMsg, bool InformClient )
 {
-	/* Close connection. Open pipes of asyncronous resolver
+	/* Close connection. Open pipes of asynchronous resolver
 	 * sub-processes are closed down. */
 
 	CLIENT *c;

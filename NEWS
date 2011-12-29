@@ -351,7 +351,7 @@ ngIRCd 0.6.0, 2002-12-24
     ausgehende Verbindung zu diesem auufzubauen. Dadurch kann nun auf beiden
     Servern in der Konfiguration ein Port fuer den Connect konfiguriert
     werden (beide Server versuchen sich dann gegenseitig zu connectieren).
-  - Server identifizieren sich nun mit asyncronen Passwoertern, d.h. das
+  - Server identifizieren sich nun mit asynchronen Passwoertern, d.h. das
     Passwort, welches A an B schickt, kann ein anderes sein als das, welches
     B als Antwort an A sendet. In der Konfig.-Datei, Abschnitt "Server",
     wurde "Password" dazu durch "MyPassword" und "PeerPassword" ersetzt.
@@ -377,7 +377,7 @@ ngIRCd 0.5.0, 20.09.2002
     Konfiguration "sample-ngircd.conf") und bleiben auch dann bestehen,
     wenn kein User mehr im Channel ist.
   - neue IRC-Befehle: KICK, INVITE, ADMIN, CHANINFO; LIST wurde erweitert.
-    Mit dem neuen Befehl CHANINFO syncronisieren Server, die das IRC+-
+    Mit dem neuen Befehl CHANINFO synchronisieren Server, die das IRC+-
     Protokoll unterstuetzen, Channel-Modes und Topics. Fuer den ADMIN-Befehl
     gibt es neue Konfigurationsoptionen (Sektion "Global"): "AdminInfo1",
     "AdminInfo2" und "AdminEMail".

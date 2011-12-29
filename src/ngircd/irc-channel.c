@@ -244,7 +244,7 @@ join_forward(CLIENT *Client, CLIENT *target, CHANNEL *chan,
 	IRC_WriteStrChannelPrefix(Client, chan, target, false,
 				  "JOIN :%s",  channame);
 
-	/* syncronize channel modes */
+	/* synchronize channel modes */
 	if (modes[1]) {
 		IRC_WriteStrChannelPrefix(Client, chan, target, false,
 					  "MODE %s +%s %s", channame,

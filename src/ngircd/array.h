@@ -84,7 +84,7 @@ extern void* array_get PARAMS((array* a, size_t membersize, size_t pos));
 /* free the contents of this array. */
 extern void array_free PARAMS((array* a));
 
-/* overwrite array with zeroes before free */
+/* overwrite array with zeros before free */
 extern void array_free_wipe PARAMS((array* a));
 
 /* return pointer to first element in this array */

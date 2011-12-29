@@ -768,7 +768,7 @@ Client_NextHop( CLIENT *Client )
  * Return ID of a client: "client!user@host"
  * This client ID is used for IRC prefixes, for example.
  * Please note that this function uses a global static buffer, so you can't
- * nest invocations without overwriting erlier results!
+ * nest invocations without overwriting earlier results!
  * @param Client Pointer to client structure
  * @return Pointer to global buffer containing the client ID
  */
@@ -793,7 +793,7 @@ Client_Mask( CLIENT *Client )
  * Return ID of a client with cloaked hostname: "client!user@server-name"
  * This client ID is used for IRC prefixes, for example.
  * Please note that this function uses a global static buffer, so you can't
- * nest invocations without overwriting erlier results!
+ * nest invocations without overwriting earlier results!
  * If the client has not enabled cloaking, the real hostname is used.
  * @param Client Pointer to client structure
  * @return Pointer to global buffer containing the client ID

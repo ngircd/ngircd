@@ -797,7 +797,7 @@ ngIRCd 0.6.0, 2002-12-24
     werden (beide Server versuchen sich dann gegenseitig zu connectieren).
   - Test-Suite und Dokumentation an A/UX angepasst.
   - unter HP-UX definiert das configure-Script nun _XOPEN_SOURCE_EXTENDED.
-  - Server identifizieren sich nun mit asyncronen Passwoertern, d.h. das
+  - Server identifizieren sich nun mit asynchronen Passwoertern, d.h. das
     Passwort, welches A an B schickt, kann ein anderes sein als das, welches
     B als Antwort an A sendet. In der Konfig.-Datei, Abschnitt "Server",
     wurde "Password" dazu durch "MyPassword" und "PeerPassword" ersetzt.
@@ -927,7 +927,7 @@ ngIRCd 0.5.0, 20.09.2002
   - Protokoll- und Server-ID bei PASS-Befehlen auf neues Format umgestellt;
     bei empfangenen PASS-Befehlen werden diese zudem nun auch ausgewertet.
     Die unterstuetzten Flags sind in doc/Protocol.txt beschrieben.
-  - mit dem neuen Befehl CHANINFO syncronisieren Server, die das IRC+-
+  - mit dem neuen Befehl CHANINFO synchronisieren Server, die das IRC+-
     Protokoll unterstuetzen, Channel-Modes und Topics.
   - neue Option "--disable-ircplus" fuer das configure-Script, um das
     IRC+-Protokoll abzuschalten (per Default ist es aktiviert).
@@ -1032,7 +1032,7 @@ ngIRCd 0.3.0, 02.03.2002
   - PRIVMSG beachtet nun die Channel-Modes "n" und "m".
   - AWAY implementiert. PRIVMSG, MODE, USERHOST und WHOIS angepasst.
   - der ngIRCd unterstuetzt nun Channel-Topics (TOPIC-Befehl).
-  - ausgehende Server-Verbindungen werden nun asyncron connectiert und
+  - ausgehende Server-Verbindungen werden nun asynchron connectiert und
     blockieren nicht mehr den ganzen Server, wenn die Gegenseite nicht
     erreicht werden kann (bis zum Timeout konnten Minuten vergehen!).
   - Wert der Konfigurations-Variable "ConnectRetry" wird besser beachtet.
@@ -1111,7 +1111,7 @@ ngIRCd 0.0.2, 06.01.2002
   - NICK kann nun die Gross- und Kleinschreibung eines Nicks aendern.
   - ein Server-Passwort ist nun konfigurierbar.
   - neue Befehle: ERROR, SERVER, NJOIN (nur als "Fake"), SQUIT.
-  - Asyncroner Resolver Hostname->IP implementiert.
+  - Asynchroner Resolver Hostname->IP implementiert.
   - Server-Links teilweise implementiert: bisher kann der ngIRCd jedoch
     nur "leafed server" sein, d.h. keine "Client-Server" haben. Einige
     Befehle sind auch noch nicht (optimal) angepasst: PRIVMSG funktioniert

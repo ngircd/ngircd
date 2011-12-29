@@ -340,7 +340,7 @@ else
 fi
 
 if test "$x_io_backend" = "none"; then
-	AC_MSG_ERROR([No useabe IO API activated/found!?])
+	AC_MSG_ERROR([No useable IO API activated/found!?])
 fi
 
 # use SSL?

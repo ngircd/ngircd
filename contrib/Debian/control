@@ -2,7 +2,15 @@ Source: ngircd
 Section: net
 Priority: optional
 Maintainer: Alexander Barton <alex@barton.de>
-Build-Depends: debhelper (>> 4.0.0), libz-dev, libwrap0-dev, libident-dev, libgnutls-dev, libpam0g-dev
+Build-Depends: debhelper (>> 4.0.0),
+    autotools-dev,
+    expect,
+    libz-dev,
+    libwrap0-dev,
+    libident-dev,
+    libgnutls-dev,
+    libpam0g-dev,
+    telnet,
 Standards-Version: 3.9.1
 
 Package: ngircd

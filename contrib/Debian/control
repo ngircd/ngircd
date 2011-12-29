@@ -9,57 +9,45 @@ Package: ngircd
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Provides: ircd
-Description: A lightweight daemon for the Internet Relay Chat (IRC)
- ngIRCd is a free open source daemon for the Internet Relay Chat (IRC)
- network. It is written from scratch and is not based upon the original
- IRCd like many others.
+Description: lightweight Internet Relay Chat server
+ This package provides ngIRCd, a lightweight Internet Relay Chat
+ server for small or private networks. It is simple to configure, can
+ cope with dynamic IP addresses, and supports IPv6 as well as SSL. It
+ is written from scratch, not based on the original IRCd and quite
+ portable.
  .
  This package contains the "standard distribution", including support for
  syslog logging and compressed server-links using zlib. Please have a look
  at the "ngircd-full" package if you need advanced functionality like support
  for IPv6 or SSL.
- .
- Advantages of ngIRCd:
-  - no problems with servers using changing/non-static IP addresses.
-  - small and lean configuration file.
-  - free, modern and open source C code.
-  - still under active development.
- .
- ngIRCd is compatible to the "original" ircd 2.10.3p3, so you can run
- mixed networks.
 
 Package: ngircd-full
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Provides: ircd
 Conflicts: ngircd, ngircd-dbg
-Description: A lightweight daemon for the Internet Relay Chat (IRC)
- ngIRCd is a free open source daemon for the Internet Relay Chat (IRC)
- network. It is written from scratch and is not based upon the original
- IRCd like many others.
+Description: lightweight Internet Relay Chat server
+ This package provides ngIRCd, a lightweight Internet Relay Chat
+ server for small or private networks. It is simple to configure, can
+ cope with dynamic IP addresses, and supports IPv6 as well as SSL. It
+ is written from scratch, not based on the original IRCd and quite
+ portable.
  .
  In addition to the features of the "standard package", this package
  includes support for TCP wrappers, IDENT requests, the IPv6 protocol and
  SSL encrypted client and server links.
- .
- Advantages of ngIRCd:
-  - no problems with servers using changing/non-static IP addresses.
-  - small and lean configuration file.
-  - free, modern and open source C code.
-  - still under active development.
- .
- ngIRCd is compatible to the "original" ircd 2.10.3p3, so you can run
- mixed networks.
 
 Package: ngircd-full-dbg
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Provides: ircd
 Conflicts: ngircd, ngircd-full
-Description: A lightweight daemon for the Internet Relay Chat (IRC)
- ngIRCd is a free open source daemon for the Internet Relay Chat (IRC)
- network. It is written from scratch and is not based upon the original
- IRCd like many others.
+Description: lightweight Internet Relay Chat server
+ This package provides ngIRCd, a lightweight Internet Relay Chat
+ server for small or private networks. It is simple to configure, can
+ cope with dynamic IP addresses, and supports IPv6 as well as SSL. It
+ is written from scratch, not based on the original IRCd and quite
+ portable.
  .
  In addition to the features of the "standard package", this package
  includes support for TCP wrappers, IDENT requests, the IPv6 protocol and
@@ -67,12 +55,3 @@ Description: A lightweight daemon for the Internet Relay Chat (IRC)
  .
  And in addition to the "full" variant, the binaries contained in this
  package are build with debug code and contain debug symbols.
- .
- Advantages of ngIRCd:
-  - no problems with servers using changing/non-static IP addresses.
-  - small and lean configuration file.
-  - free, modern and open source C code.
-  - still under active development.
- .
- ngIRCd is compatible to the "original" ircd 2.10.3p3, so you can run
- mixed networks.

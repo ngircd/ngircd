@@ -327,13 +327,11 @@ bool
 Lists_Check( struct list_head *h, CLIENT *Client)
 {
 	struct list_elem *e, *last, *next;
-	time_t now;
 
 	assert(h != NULL);
 
 	e = h->first;
 	last = NULL;
-	now = time(NULL);
 
 	while (e) {
 		next = e->next;

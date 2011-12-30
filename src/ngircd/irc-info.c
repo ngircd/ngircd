@@ -784,8 +784,16 @@ who_flags_qualifier(const char *chan_user_modes)
 }
 
 
+/**
+ * Send WHO reply for a "channel target" ("WHO #channel").
+ *
+ * @param Client Client requesting the information.
+ * @param Chan Channel being requested.
+ * @param OnlyOps Only display IRC operators.
+ * @return CONNECTED or DISCONNECTED.
+ */
 static bool
-IRC_Send_WHO(CLIENT *Client, CHANNEL *Chan, bool OnlyOps)
+IRC_WHO_Channel(CLIENT *Client, CHANNEL *Chan, bool OnlyOps)
 {
 	bool is_visible, is_member, is_ircop;
 	CL2CHAN *cl2chan;
@@ -801,7 +809,8 @@ IRC_Send_WHO(CLIENT *Client, CHANNEL *Chan, bool OnlyOps)
 
 	/* Secret channel? */
 	if (!is_member && strchr(Channel_Modes(Chan), 's'))
-		return IRC_WriteStrClient(Client, RPL_ENDOFWHO_MSG, Client_ID(Client), Channel_Name(Chan));
+		return IRC_WriteStrClient(Client, RPL_ENDOFWHO_MSG,
+					  Client_ID(Client), Channel_Name(Chan));
 
 	cl2chan = Channel_FirstMember(Chan);
 	for (; cl2chan ; cl2chan = Channel_NextMember(Chan, cl2chan)) {
@@ -819,32 +828,120 @@ IRC_Send_WHO(CLIENT *Client, CHANNEL *Chan, bool OnlyOps)
 				strlcat(flags, "*", sizeof(flags));
 
 			chan_user_modes = Channel_UserModes(Chan, c);
-			strlcat(flags, who_flags_qualifier(chan_user_modes), sizeof(flags));
+			strlcat(flags, who_flags_qualifier(chan_user_modes),
+				sizeof(flags));
 
-			if (!write_whoreply(Client, c, Channel_Name(Chan), flags))
+			if (!write_whoreply(Client, c, Channel_Name(Chan),
+					    flags))
 				return DISCONNECTED;
 		}
 	}
-	return IRC_WriteStrClient(Client, RPL_ENDOFWHO_MSG, Client_ID(Client), Channel_Name(Chan));
-} /* IRC_Send_WHO */
+	return IRC_WriteStrClient(Client, RPL_ENDOFWHO_MSG, Client_ID(Client),
+				  Channel_Name(Chan));
+}
 
 
-GLOBAL bool
-IRC_WHO( CLIENT *Client, REQUEST *Req )
+/**
+ * Send WHO reply for a "mask target" ("WHO m*sk").
+ *
+ * @param Client Client requesting the information.
+ * @param Mask Mask being requested or NULL for "all" clients.
+ * @param OnlyOps Only display IRC operators.
+ * @return CONNECTED or DISCONNECTED.
+ */
+static bool
+IRC_WHO_Mask(CLIENT *Client, char *Mask, bool OnlyOps)
 {
-	bool only_ops, have_arg, client_match;
-	const char *channelname, *client_modes, *chan_user_modes;
-	char pattern[COMMAND_LEN];
-	char flags[4];
-	CL2CHAN *cl2chan;
-	CHANNEL *chan, *cn;
 	CLIENT *c;
+	CL2CHAN *cl2chan;
+	CHANNEL *chan;
+	bool client_match, is_visible;
+	char flags[4];
 
-	assert( Client != NULL );
-	assert( Req != NULL );
+	assert (Client != NULL);
+
+	if (Mask)
+		ngt_LowerStr(Mask);
+
+	for (c = Client_First(); c != NULL; c = Client_Next(c)) {
+		if (Client_Type(c) != CLIENT_USER)
+			continue;
+
+		if (OnlyOps && !Client_HasMode(c, 'o'))
+			continue;
+
+		if (Mask) {
+			/* Match pattern against user host/server/name/nick */
+			client_match = MatchCaseInsensitive(Mask,
+						Client_Hostname(c));
+			if (!client_match)
+				client_match = MatchCaseInsensitive(Mask,
+						Client_ID(Client_Introducer(c)));
+			if (!client_match)
+				client_match = MatchCaseInsensitive(Mask,
+						Client_Info(c));
+			if (!client_match)
+				client_match = MatchCaseInsensitive(Mask,
+						Client_ID(c));
+			if (!client_match)
+				continue;	/* no match: skip this client */
+		}
+
+		is_visible = !Client_HasMode(c, 'i');
+
+		/* Target client is invisible, but mask matches exactly? */
+		if (!is_visible && Mask && strcasecmp(Client_ID(c), Mask) == 0)
+			is_visible = true;
+
+		/* Target still invisible, but are both on the same channel? */
+		if (!is_visible) {
+			cl2chan = Channel_FirstChannelOf(Client);
+			while (cl2chan && !is_visible) {
+				chan = Channel_GetChannel(cl2chan);
+				if (Channel_IsMemberOf(chan, c))
+					is_visible = true;
+				cl2chan = Channel_NextChannelOf(Client, cl2chan);
+			}
+		}
+
+		if (!is_visible)	/* target user is not visible */
+			continue;
+
+		strcpy(flags, who_flags_status(Client_Modes(c)));
+		if (strchr(Client_Modes(c), 'o'))
+			strlcat(flags, "*", sizeof(flags));
+
+		if (!write_whoreply(Client, c, "*", flags))
+			return DISCONNECTED;
+
+	}
+
+	return IRC_WriteStrClient(Client, RPL_ENDOFWHO_MSG, Client_ID(Client),
+				  Mask ? Mask : "*");
+}
+
+
+/**
+ * Handler for the IRC "WHO" command.
+ *
+ * See RFC 2812, 3.6.1 "Who query".
+ *
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
+ */
+GLOBAL bool
+IRC_WHO(CLIENT *Client, REQUEST *Req)
+{
+	bool only_ops, have_arg;
+	CHANNEL *chan;
+
+	assert (Client != NULL);
+	assert (Req != NULL);
 
 	if (Req->argc > 2)
-		return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+					  Client_ID(Client), Req->command);
 
 	only_ops = false;
 	have_arg = false;
@@ -853,92 +950,34 @@ IRC_WHO( CLIENT *Client, REQUEST *Req )
 		if (strcmp(Req->argv[1], "o") == 0)
 			only_ops = true;
 #ifdef STRICT_RFC
-		else return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG, Client_ID(Client), Req->command);
+		else
+			return IRC_WriteStrClient(Client,
+						  ERR_NEEDMOREPARAMS_MSG,
+						  Client_ID(Client),
+						  Req->command);
 #endif
 	}
 
 	IRC_SetPenalty(Client, 1);
-	if (Req->argc >= 1) { /* Channel or Mask. */
+	if (Req->argc >= 1) {
+		/* Channel or mask given */
 		chan = Channel_Search(Req->argv[0]);
-		if (chan)
-			return IRC_Send_WHO(Client, chan, only_ops);
-		if (strcmp(Req->argv[0], "0") != 0) { /* RFC stupidity, same as no arguments */
-			have_arg = true;
-			strlcpy(pattern, Req->argv[0], sizeof(pattern));
-			ngt_LowerStr(pattern);
+		if (chan) {
+			/* Members of a channel have been requested */
+			IRC_SetPenalty(Client, 1);
+			return IRC_WHO_Channel(Client, chan, only_ops);
+		}
+		if (strcmp(Req->argv[0], "0") != 0) {
+			/* A mask has been given. But please note this RFC
+			 * stupidity: "0" is same as no arguments ... */
 			IRC_SetPenalty(Client, 3);
+			return IRC_WHO_Mask(Client, Req->argv[0], only_ops);
 		}
 	}
 
-	for (c = Client_First(); c != NULL; c = Client_Next(c)) {
-		if (Client_Type(c) != CLIENT_USER)
-			continue;
-		 /*
-		  * RFC 2812, 3.6.1:
-		  * In the absence of the parameter, all visible (users who aren't
-		  * invisible (user mode +i) and who don't have a common channel
-		  * with the requesting client) are listed.
-		  *
-		  * The same result can be achieved by using a [sic] of "0"
-		  * or any wildcard which will end up matching every visible user.
-		  *
-		  * The [sic] passed to WHO is matched against users' host, server, real name and
-		  * nickname if the channel cannot be found.
-		  */
-		client_modes = Client_Modes(c);
-		if (strchr(client_modes, 'i'))
-			continue;
-
-		if (only_ops && !strchr(client_modes, 'o'))
-			continue;
-
-		if (have_arg) { /* match pattern against user host/server/name/nick */
-			client_match = MatchCaseInsensitive(pattern, Client_Hostname(c)); /* user's host */
-			if (!client_match)
-				client_match = MatchCaseInsensitive(pattern, Client_ID(Client_Introducer(c))); /* server */
-			if (!client_match)
-				client_match = Match(Req->argv[0], Client_Info(c)); /* realname */
-			if (!client_match)
-				client_match = MatchCaseInsensitive(pattern, Client_ID(c)); /* nick name */
-
-			if (!client_match) /* This isn't the client you're looking for */
-				continue;
-		}
-
-		strcpy(flags, who_flags_status(client_modes));
-
-		if (strchr(client_modes, 'o')) /* this client is an operator */
-			strlcat(flags, "*", sizeof(flags));
-
-		/* Search suitable channel */
-		cl2chan = Channel_FirstChannelOf(c);
-		while (cl2chan) {
-			cn = Channel_GetChannel(cl2chan);
-			if (Channel_IsMemberOf(cn, Client) ||
-				    !strchr(Channel_Modes(cn), 's'))
-			{
-				channelname = Channel_Name(cn);
-				break;
-			}
-			cl2chan = Channel_NextChannelOf(c, cl2chan);
-		}
-		if (cl2chan) {
-			chan = Channel_GetChannel(cl2chan);
-			chan_user_modes = Channel_UserModes(chan, c);
-			strlcat(flags, who_flags_qualifier(chan_user_modes), sizeof(flags));
-		} else
-			channelname = "*";
-
-		if (!write_whoreply(Client, c, channelname, flags))
-			return DISCONNECTED;
-	}
-
-	if (Req->argc > 0)
-		channelname = Req->argv[0];
-	else
-		channelname = "*";
-
-	return IRC_WriteStrClient(Client, RPL_ENDOFWHO_MSG, Client_ID(Client), channelname);
+	/* No channel or (valid) mask given */
+	IRC_SetPenalty(Client, 2);
+	return IRC_WHO_Mask(Client, NULL, only_ops);
 } /* IRC_WHO */
 
 

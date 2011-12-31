@@ -26,7 +26,7 @@ channels he is using at the moment.
   i	0.0.1	User is "invisible".
   o	0.0.1	User is IRC operator.
   r	0.0.1	User is restricted.
-  R	19	User is registered (e.g. by NickServ).
+  R (1)	19	User is registered (e.g. by NickServ).
   s	0.4.0	User wants to receive server notices.
   w	0.11.0	User wants to receive WALLOPS messages.
   x	17	Hostname of this user is "cloaked".
@@ -50,6 +50,7 @@ users to lists (e.g. "invite list", "ban list"), others have parameters
   n	0.3.0	Channel doesn't allow messages of users not being members.
   O	18	Only IRC operators are allowed to join this channel.
   P	0.5.0	Channel is "persistent".
+  r (1)	19	Channel is "registered" (e.g. by ChanServ).
   R	19	Only registered users are allowed to join this channel.
   s	0.9.0	Channel is "secret".
   t	0.3.0	Only ChanOps are allowed to modify the channel topic.
@@ -65,3 +66,10 @@ channel of which he is a member.
 
   o	0.2.0	User is channel operator and can op/kick/... other members.
   v	0.2.0	User is "voiced" and can speak even if channel is moderated.
+
+
+Notes
+~~~~~
+
+(1) This mode is not set by ngIRCd itself but by services. ngIRCd handles
+    the mode transparently and possibly adjusts its behaviour.

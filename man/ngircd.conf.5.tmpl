@@ -132,9 +132,8 @@ the pidfile resides in must be writable by the ngIRCd user and exist in the
 chroot directory (if configured, see above).
 .TP
 \fBPorts\fR (list of numbers)
-Ports on which the server should listen. There may be more than one port,
-separated with commas (","). Default: 6667, unless \fBSSL_Ports\fR are also
-specified.
+Ports on which the server should listen for unencrypted connections. There
+may be more than one port, separated with commas (","). Default: 6667.
 .TP
 \fBServerGID\fR (string or number)
 Group ID under which the ngIRCd should run; you can use the name of the

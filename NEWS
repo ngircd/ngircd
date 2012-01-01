@@ -8,6 +8,50 @@
 
                                   -- NEWS --
 
+ngIRCd Release 19
+
+  - New configuration option "PAMIsOptional": when set, clients not
+    sending a password are still allowed to connect: they won't become
+    "identified" and keep the "~" character prepended to their supplied
+    user name. See "man 5 ngircd.conf" for details.
+  - Fixed handling of WHO commands. This fixes two bugs: "WHO <nick>"
+    returned nothing at all if the user was "+i" (reported by Cahata,
+    thanks) and "WHO <nick|nickmask>" returned channel names instead
+    of "*" when the user was member of a (visible) channel.
+  - LUSERS reply: only count channels that are visible to the requesting
+    client, so the existence of secret channels is no longer revealed by
+    using LUSERS. Reported by Cahata, thanks!
+  - Unknown user and channel modes no longer stop the mode parser, but
+    are simply ignored. Therefore modes after the unknown one are now
+    handled. This is how ircd2.10/ircd2.11/ircd-seven behave, at least.
+    Reported by Cahata, thanks!
+  - Implement IRC commands "GLINE" and "KLINE" to ban users. G-Lines are
+    synchronized between server on peering, K-Lines are local only.
+  - Xcode: update project file for Xcode 4.2.
+  - Only close "unrelated" sockets in forked child processes: This fixes
+    the problem that ngIRCd can't do any IDENT lookups because of the
+    socket has already been closed in the child process.
+    The bug has been introduced starting with ngIRCd 17 ... :-(
+    (commit ID 6ebb31ab35e)
+  - Added doc/Modes.txt: document modes supported by ngIRCd.
+  - Implement user mode "R": indicates that the nick name of this user
+    is "registered". This mode isn't handled by ngIRCd itself, but must
+    be set and unset by IRC services like Anope.
+  - Implement channel mode "R": only registered users (having the user
+    mode "R" set) are allowed to join this channel.
+  - Test suite: bind to loopback (127.0.0.1) interface only.
+  - Disconnect directly linked servers sending QUIT. Without this,
+    the server becomes removed from the network and the client list,
+    but the connection isn't shut down at all ...
+  - Handle unknown user and channel modes: these modes are saved and
+    forwarded to other servers, but ignored otherwise.
+  - Handle channel user modes 'a', 'h', and 'q' from remote servers.
+    These channel user modes aren't used for anything at the moment,
+    but ngIRCd knows that these three modes are "channel user modes"
+    and not "channel modes", that is that these modes take an "nick name"
+    argument. Like unknown user and channel modes, these modes are saved
+    and forwarded to other servers, but ignored otherwise.
+
 ngIRCd Release 18 (2011-07-10)
 
   - Add preliminary ngIRCd protocol module for Anope 1.9 to contrib/Anope/.

@@ -9,6 +9,79 @@
                                -- ChangeLog --
 
 
+ngIRCd Release 19
+
+  - New configuration option "PAMIsOptional": when set, clients not
+    sending a password are still allowed to connect: they won't become
+    "identified" and keep the "~" character prepended to their supplied
+    user name. See "man 5 ngircd.conf" for details.
+  - Fixed handling of WHO commands. This fixes two bugs: "WHO <nick>"
+    returned nothing at all if the user was "+i" (reported by Cahata,
+    thanks) and "WHO <nick|nickmask>" returned channel names instead
+    of "*" when the user was member of a (visible) channel.
+  - Fixed some spelling errors in documentation and code comments
+    (Thanks to Christoph Biedl).
+  - contrib/Debian/control: Update and complete "Build-Depends" and
+    update our Debian package descriptions with "official" ones.
+  - Fixed typo in two error messages.
+  - LUSERS reply: only count channels that are visible to the requesting
+    client, so the existence of secret channels is no longer revealed by
+    using LUSERS. Reported by Cahata, thanks!
+  - Unknown user and channel modes no longer stop the mode parser, but
+    are simply ignored. Therefore modes after the unknown one are now
+    handled. This is how ircd2.10/ircd2.11/ircd-seven behave, at least.
+    Reported by Cahata, thanks!
+  - README: Update list of implemented commands.
+  - Log better error messages when rejecting clients.
+  - Implement IRC commands "GLINE" and "KLINE" to ban users. G-Lines are
+    synchronized between server on peering, K-Lines are local only.
+  - Xcode: update project file for Xcode 4.2 and define HAVE_GAI_STRERROR
+    for Mac OS X Xcode builds.
+  - ./configure: Fix logic and quoting of poll() detection code: only use
+    poll() when poll.h exists as well.
+  - Suppress 'Can't create pre-defined channel: invalid name: ""' message.
+  - whois-test: handle local hostname = "localhost.localdomain" using the
+    pattern "localhost*" for valid local hostnames.
+  - sample-ngircd.conf: show correct default for "PAM" variable: The
+    default of "PAM" is "yes" when ngIRCd has been configured to use it,
+    so show the correct default value in the sample configuration file.
+    (Closes #119)
+  - Update GPL 2 license text to current version.
+  - Only close "unrelated" sockets in forked child processes: This fixes
+    the problem that ngIRCd can't do any IDENT lookups because of the
+    socket has already been closed in the child process.
+    The bug has been introduced starting with ngIRCd 17 ... :-(
+    (commit ID 6ebb31ab35e)
+  - Added doc/Modes.txt: document modes supported by ngIRCd.
+  - Implement user mode "R": indicates that the nick name of this user
+    is "registered". This mode isn't handled by ngIRCd itself, but must
+    be set and unset by IRC services like Anope.
+  - Implement channel mode "R": only registered users (having the user
+    mode "R" set) are allowed to join this channel.
+  - Test suite: bind to loopback (127.0.0.1) interface only.
+  - New 2nd message "Nickname too long" for error code 432.
+  - Xcode: Mac OS X config.h: support 10.5 as well as 10.6/10.7 SDK.
+  - Xcode: exclude more Xcode 4 specific directories in ".gitignore".
+  - Disconnect directly linked servers sending QUIT. Without this,
+    the server becomes removed from the network and the client list,
+    but the connection isn't shut down at all ...
+  - contrib/ngindent: detect "gindent" as GNU indent.
+  - Handle unknown user and channel modes: these modes are saved and
+    forwarded to other servers, but ignored otherwise.
+  - Handle channel user modes 'a', 'h', and 'q' from remote servers.
+    These channel user modes aren't used for anything at the moment,
+    but ngIRCd knows that these three modes are "channel user modes"
+    and not "channel modes", that is that these modes take an "nick name"
+    argument. Like unknown user and channel modes, these modes are saved
+    and forwarded to other servers, but ignored otherwise.
+  - Correctly inform clients when other servers change their user modes.
+    This is required for some services to work correctly.
+  - Test suite: make getpid.sh work even when run as root.
+  - Spoofed prefixes: close connection on non-server links only.
+    On server-links, spoofed prefixes can happen because of the
+    asynchronous nature of the IRC protocol. So don't break server-
+    links, only log a message and ignore the command. (Closes #113)
+
 ngIRCd Release 18 (2011-07-10)
 
   - Update timestamp of ngircd(8) manual page.

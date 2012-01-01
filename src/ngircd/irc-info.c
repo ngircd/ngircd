@@ -933,7 +933,7 @@ IRC_WHO_Mask(CLIENT *Client, char *Mask, bool OnlyOps)
 GLOBAL bool
 IRC_WHO(CLIENT *Client, REQUEST *Req)
 {
-	bool only_ops, have_arg;
+	bool only_ops;
 	CHANNEL *chan;
 
 	assert (Client != NULL);
@@ -944,7 +944,6 @@ IRC_WHO(CLIENT *Client, REQUEST *Req)
 					  Client_ID(Client), Req->command);
 
 	only_ops = false;
-	have_arg = false;
 
 	if (Req->argc == 2) {
 		if (strcmp(Req->argv[1], "o") == 0)

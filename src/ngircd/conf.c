@@ -373,6 +373,7 @@ Conf_Test( void )
 	printf("  OperServerMode = %s\n", yesno_to_str(Conf_OperServerMode));
 #ifdef PAM
 	printf("  PAM = %s\n", yesno_to_str(Conf_PAM));
+	printf("  PAMIsOptional = %s\n", yesno_to_str(Conf_PAMIsOptional));
 #endif
 	printf("  PredefChannelsOnly = %s\n", yesno_to_str(Conf_PredefChannelsOnly));
 #ifndef STRICT_RFC
@@ -697,6 +698,7 @@ Set_Defaults(bool InitServers)
 #else
 	Conf_PAM = false;
 #endif
+	Conf_PAMIsOptional = false;
 	Conf_PredefChannelsOnly = false;
 #ifdef SYSLOG
 	Conf_ScrubCTCP = false;
@@ -1498,6 +1500,10 @@ Handle_OPTIONS(int Line, char *Var, char *Arg)
 	if (strcasecmp(Var, "PAM") == 0) {
 		Conf_PAM = Check_ArgIsTrue(Arg);
 		WarnPAM(Line);
+		return;
+	}
+	if (strcasecmp(Var, "PAMIsOptional") == 0 ) {
+		Conf_PAMIsOptional = Check_ArgIsTrue(Arg);
 		return;
 	}
 	if (strcasecmp(Var, "PredefChannelsOnly") == 0) {

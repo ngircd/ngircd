@@ -949,6 +949,15 @@ Hello_User(CLIENT * Client)
 		return DISCONNECTED;
 	}
 
+	if (Conf_PAMIsOptional && strcmp(Client_Password(Client), "") == 0) {
+		/* Clients are not required to send a password and to be PAM-
+		 * authenticated at all. If not, they won't become "identified"
+		 * and keep the "~" in their supplied user name.
+		 * Therefore it is sensible to either set Conf_PAMisOptional or
+		 * to enable IDENT lookups -- not both. */
+		return Hello_User_PostAuth(Client);
+	}
+
 	/* Fork child process for PAM authentication; and make sure that the
 	 * process timeout is set higher than the login timeout! */
 	pid = Proc_Fork(Conn_GetProcStat(conn), pipefd,

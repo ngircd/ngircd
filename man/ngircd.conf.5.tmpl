@@ -244,6 +244,8 @@ Default: yes.
 \fBIdent\fR (boolean)
 If ngIRCd is compiled with IDENT support this can be used to disable IDENT
 lookups at run time.
+Users identified using IDENT are registered without the "~" character
+prepended to their user name.
 Default: yes.
 .TP
 \fBMorePrivacy\fR (boolean)
@@ -274,7 +276,22 @@ only enable it if you have ircd-irc2 servers in your IRC network.
 If ngIRCd is compiled with PAM support this can be used to disable all calls
 to the PAM library at runtime; all users connecting without password are
 allowed to connect, all passwords given will fail.
+Users identified using PAM are registered without the "~" character
+prepended to their user name.
 Default: yes.
+.TP
+\fBPAMIsOptional\fR (boolean)
+When PAM is enabled, all clients are required to be authenticated using PAM;
+connecting to the server without successful PAM authentication isn't possible.
+If this option is set, clients not sending a password are still allowed to
+connect: they won't become "identified" and keep the "~" character prepended
+to their supplied user name.
+Please note:
+To make some use of this behavior, it most probably isn't useful to enable
+"Ident", "PAM" and "PAMIsOptional" at the same time, because you wouldn't be
+able to distinguish between Ident'ified and PAM-authenticated users: both
+don't have a "~" character prepended to their respective user names!
+Default: no.
 .TP
 \fBPredefChannelsOnly\fR (boolean)
 If enabled, no new channels can be created. Useful if you do not want to have

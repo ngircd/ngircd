@@ -184,6 +184,9 @@ GLOBAL bool Conf_NoticeAuth;
 /** Enable all usage of PAM, even when compiled with support for it */
 GLOBAL bool Conf_PAM;
 
+/** Don't require all clients to send a password an to be PAM authenticated */
+GLOBAL bool Conf_PAMIsOptional;
+
 /** Disable all CTCP commands except for /me ? */
 GLOBAL bool Conf_ScrubCTCP;
 

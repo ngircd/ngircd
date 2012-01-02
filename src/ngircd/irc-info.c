@@ -188,7 +188,7 @@ IRC_ISON( CLIENT *Client, REQUEST *Req )
 			ngt_TrimStr(ptr);
 			c = Client_Search(ptr);
 			if (c && Client_Type(c) == CLIENT_USER) {
-				strlcat(rpl, ptr, sizeof(rpl));
+				strlcat(rpl, Client_ID(c), sizeof(rpl));
 				strlcat(rpl, " ", sizeof(rpl));
 			}
 			ptr = strtok(NULL, " ");

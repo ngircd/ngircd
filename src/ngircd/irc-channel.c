@@ -401,7 +401,7 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 
 		/* Join channel (and create channel if it doesn't exist) */
 		if (!Channel_Join(target, channame))
-			break;
+			goto join_next;
 
 		if (!chan) { /* channel is new; it has been created above */
 			chan = Channel_Search(channame);
@@ -420,6 +420,7 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 		if (!join_send_topic(Client, target, chan, channame))
 			break; /* write error */
 
+	join_next:
 		/* next channel? */
 		channame = strtok_r(NULL, ",", &lastchan);
 		if (channame && key)

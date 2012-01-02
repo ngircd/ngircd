@@ -301,9 +301,9 @@ join_send_topic(CLIENT *Client, CLIENT *target, CHANNEL *chan,
  *
  * See RFC 2812, 3.2.1 "Join message"; RFC 2813, 4.2.1 "Join message".
  *
- * @param Client	The client from which this command has been received
- * @param Req		Request structure with prefix and all parameters
- * @returns		CONNECTED or DISCONNECTED
+ * @param Client The client from which this command has been received
+ * @param Req Request structure with prefix and all parameters
+ * @returns CONNECTED or DISCONNECTED
  */
 GLOBAL bool
 IRC_JOIN( CLIENT *Client, REQUEST *Req )
@@ -312,8 +312,8 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 	CLIENT *target;
 	CHANNEL *chan;
 
-	assert( Client != NULL );
-	assert( Req != NULL );
+	assert (Client != NULL);
+	assert (Req != NULL);
 
 	/* Bad number of arguments? */
 	if (Req->argc < 1 || Req->argc > 2)
@@ -327,7 +327,8 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 		target = Client;
 
 	if (!target)
-		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG, Client_ID(Client), Req->prefix);
+		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
+					  Client_ID(Client), Req->prefix);
 
 	/* Is argument "0"? */
 	if (Req->argc == 1 && !strncmp("0", Req->argv[0], 2))
@@ -359,8 +360,9 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 
 		chan = Channel_Search(channame);
 		if (!chan && Conf_PredefChannelsOnly) {
-			 /* channel must be created, but server does not allow this */
-			IRC_WriteStrClient(Client, ERR_BANNEDFROMCHAN_MSG, Client_ID(Client), channame);
+			 /* channel must be created, but forbidden by config */
+			IRC_WriteStrClient(Client, ERR_BANNEDFROMCHAN_MSG,
+					   Client_ID(Client), channame);
 			break;
 		}
 

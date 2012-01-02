@@ -60,13 +60,13 @@ Lists_GetMask(const struct list_elem *e)
  * Get optional "reason" text stored in list element.
  *
  * @param list_elem List element.
- * @return Pointer to "reason" text or NULL.
+ * @return Pointer to "reason" text or empty string ("").
  */
 GLOBAL const char *
 Lists_GetReason(const struct list_elem *e)
 {
 	assert(e != NULL);
-	return e->reason;
+	return e->reason ? e->reason : "";
 }
 
 /**
@@ -129,14 +129,10 @@ Lists_Add(struct list_head *h, const char *Mask, time_t ValidUntil,
 	e = Lists_CheckDupeMask(h, Mask);
 	if (e) {
 		e->valid_until = ValidUntil;
-		if (e->reason)
+		if (Reason) {
 			free(e->reason);
-		e->reason = malloc(strlen(Reason) + 1);
-		if (e->reason)
-			strlcpy(e->reason, Reason, strlen(Reason) + 1);
-		else
-			Log(LOG_EMERG,
-			    "Can't allocate memory for new list reason text!");
+			e->reason = strdup(Reason);
+		}
 		return true;
 	}
 

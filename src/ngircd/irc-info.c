@@ -154,6 +154,15 @@ IRC_INFO(CLIENT * Client, REQUEST * Req)
 } /* IRC_INFO */
 
 
+/**
+ * Handler for the IRC "ISON" command.
+ *
+ * See RFC 2812, 4.9 "Ison message".
+ *
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
+ */
 GLOBAL bool
 IRC_ISON( CLIENT *Client, REQUEST *Req )
 {
@@ -162,32 +171,32 @@ IRC_ISON( CLIENT *Client, REQUEST *Req )
 	char *ptr;
 	int i;
 
-	assert( Client != NULL );
-	assert( Req != NULL );
+	assert(Client != NULL);
+	assert(Req != NULL);
 
-	/* Falsche Anzahl Parameter? */
-	if(( Req->argc < 1 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	/* Bad number of arguments? */
+	if (Req->argc < 1)
+		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+					  Client_ID(Client), Req->command);
 
-	strlcpy( rpl, RPL_ISON_MSG, sizeof rpl );
-	for( i = 0; i < Req->argc; i++ )
-	{
-		ptr = strtok( Req->argv[i], " " );
-		while( ptr )
-		{
-			ngt_TrimStr( ptr );
-			c = Client_Search( ptr );
-			if( c && ( Client_Type( c ) == CLIENT_USER ))
-			{
-				/* Dieser Nick ist "online" */
-				strlcat( rpl, ptr, sizeof( rpl ));
-				strlcat( rpl, " ", sizeof( rpl ));
+	strlcpy(rpl, RPL_ISON_MSG, sizeof rpl);
+	for (i = 0; i < Req->argc; i++) {
+		/* "All" ircd even parse ":<x> <y> ..." arguments and split
+		 * them up; so we do the same ... */
+		ptr = strtok(Req->argv[i], " ");
+		while (ptr) {
+			ngt_TrimStr(ptr);
+			c = Client_Search(ptr);
+			if (c && Client_Type(c) == CLIENT_USER) {
+				strlcat(rpl, ptr, sizeof(rpl));
+				strlcat(rpl, " ", sizeof(rpl));
 			}
-			ptr = strtok( NULL, " " );
+			ptr = strtok(NULL, " ");
 		}
 	}
 	ngt_TrimLastChr(rpl, ' ');
 
-	return IRC_WriteStrClient( Client, rpl, Client_ID( Client ) );
+	return IRC_WriteStrClient(Client, rpl, Client_ID(Client));
 } /* IRC_ISON */
 
 

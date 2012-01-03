@@ -602,12 +602,12 @@ Random_Init(void)
 /**
  * Initialize ngIRCd daemon.
  *
- * @param NGIRCd_NoDaemon	Set to true if ngIRCd should run in the
- *				foreground and not as a daemon.
- * @return			true on success.
+ * @param NGIRCd_NoDaemon Set to true if ngIRCd should run in the
+ *		foreground (and not as a daemon).
+ * @return true on success.
  */
 static bool
-NGIRCd_Init( bool NGIRCd_NoDaemon ) 
+NGIRCd_Init(bool NGIRCd_NoDaemon)
 {
 	static bool initialized;
 	bool chrooted = false;
@@ -623,57 +623,70 @@ NGIRCd_Init( bool NGIRCd_NoDaemon )
 		/* open /dev/null before chroot() */
 		fd = open( "/dev/null", O_RDWR);
 		if (fd < 0)
-			Log(LOG_WARNING, "Could not open /dev/null: %s", strerror(errno));
+			Log(LOG_WARNING, "Could not open /dev/null: %s",
+			    strerror(errno));
 	}
 
+	/* SSL initialization */
 	if (!ConnSSL_InitLibrary())
 		Log(LOG_WARNING,
 		    "Warning: Error during SSL initialization, continuing ...");
 
-	if( Conf_Chroot[0] ) {
-		if( chdir( Conf_Chroot ) != 0 ) {
-			Log( LOG_ERR, "Can't chdir() in ChrootDir (%s): %s", Conf_Chroot, strerror( errno ));
+	/* Change root */
+	if (Conf_Chroot[0]) {
+		if (chdir(Conf_Chroot) != 0) {
+			Log(LOG_ERR, "Can't chdir() in ChrootDir (%s): %s",
+			    Conf_Chroot, strerror(errno));
 			goto out;
 		}
 
-		if( chroot( Conf_Chroot ) != 0 ) {
+		if (chroot(Conf_Chroot) != 0) {
 			if (errno != EPERM) {
-				Log( LOG_ERR, "Can't change root directory to \"%s\": %s",
-								Conf_Chroot, strerror( errno ));
+				Log(LOG_ERR,
+				    "Can't change root directory to \"%s\": %s",
+				    Conf_Chroot, strerror(errno));
 				goto out;
 			}
 		} else {
 			chrooted = true;
-			Log( LOG_INFO, "Changed root and working directory to \"%s\".", Conf_Chroot );
+			Log(LOG_INFO,
+			    "Changed root and working directory to \"%s\".",
+			    Conf_Chroot);
 		}
 	}
 
+	/* Check user ID */
 	if (Conf_UID == 0) {
-		Log(LOG_INFO, "ServerUID must not be 0, using \"nobody\" instead.", Conf_UID);
+		Log(LOG_INFO,
+		    "ServerUID must not be 0, using \"nobody\" instead.",
+		    Conf_UID);
 
-  		if (! NGIRCd_getNobodyID(&Conf_UID, &Conf_GID)) {
-			Log(LOG_WARNING, "Could not get user/group ID of user \"nobody\": %s",
-					errno ? strerror(errno) : "not found" );
+		if (!NGIRCd_getNobodyID(&Conf_UID, &Conf_GID)) {
+			Log(LOG_WARNING,
+			    "Could not get user/group ID of user \"nobody\": %s",
+			    errno ? strerror(errno) : "not found" );
 			goto out;
 		}
 	}
 
+	/* Change group ID */
 	if (getgid() != Conf_GID) {
-		/* Change group ID */
 		if (setgid(Conf_GID) != 0) {
 			real_errno = errno;
-			Log( LOG_ERR, "Can't change group ID to %u: %s", Conf_GID, strerror( errno ));
+			Log(LOG_ERR, "Can't change group ID to %u: %s",
+			    Conf_GID, strerror(errno));
 			if (real_errno != EPERM) 
 				goto out;
 		}
 	}
 
+	/* Change user ID */
 	if (getuid() != Conf_UID) {
-		/* Change user ID */
 		if (setuid(Conf_UID) != 0) {
 			real_errno = errno;
-			Log(LOG_ERR, "Can't change user ID to %u: %s", Conf_UID, strerror(errno));
-			if (real_errno != EPERM) 
+			Log(LOG_ERR, "Can't change user ID to %u: %s",
+			    Conf_UID, strerror(errno));
+			if (real_errno != EPERM)
 				goto out;
 		}
 	}
@@ -683,26 +696,27 @@ NGIRCd_Init( bool NGIRCd_NoDaemon )
 	/* Normally a child process is forked which isn't any longer
 	 * connected to ther controlling terminal. Use "--nodaemon"
 	 * to disable this "daemon mode" (useful for debugging). */
-	if ( ! NGIRCd_NoDaemon ) {
-		pid = fork( );
-		if( pid > 0 ) {
+	if (!NGIRCd_NoDaemon) {
+		pid = fork();
+		if (pid > 0) {
 			/* "Old" process: exit. */
-			exit( 0 );
+			exit(0);
 		}
-		if( pid < 0 ) {
+		if (pid < 0) {
 			/* Error!? */
-			fprintf( stderr, "%s: Can't fork: %s!\nFatal error, exiting now ...\n",
-								PACKAGE_NAME, strerror( errno ));
-			exit( 1 );
+			fprintf(stderr,
+				"%s: Can't fork: %s!\nFatal error, exiting now ...\n",
+				PACKAGE_NAME, strerror(errno));
+			exit(1);
 		}
 
 		/* New child process */
 #ifndef NeXT
-		(void)setsid( );
+		(void)setsid();
 #else
 		setpgrp(0, getpid());
 #endif
-		if (chdir( "/" ) != 0)
+		if (chdir("/") != 0)
 			Log(LOG_ERR, "Can't change directory to '/': %s",
 				     strerror(errno));
 
@@ -713,19 +727,19 @@ NGIRCd_Init( bool NGIRCd_NoDaemon )
 	}
 	pid = getpid();
 
-	Pidfile_Create( pid );
+	Pidfile_Create(pid);
 
 	/* Check UID/GID we are running as, can be different from values
 	 * configured (e. g. if we were already started with a UID>0. */
 	Conf_UID = getuid();
 	Conf_GID = getgid();
 
-	pwd = getpwuid( Conf_UID );
-	grp = getgrgid( Conf_GID );
+	pwd = getpwuid(Conf_UID);
+	grp = getgrgid(Conf_GID);
 
 	Log(LOG_INFO, "Running as user %s(%ld), group %s(%ld), with PID %ld.",
-				pwd ? pwd->pw_name : "unknown", (long)Conf_UID,
-				grp ? grp->gr_name : "unknown", (long)Conf_GID, (long)pid);
+	    pwd ? pwd->pw_name : "unknown", (long)Conf_UID,
+	    grp ? grp->gr_name : "unknown", (long)Conf_GID, (long)pid);
 
 	if (chrooted) {
 		Log(LOG_INFO, "Running with root directory \"%s\".",
@@ -734,20 +748,23 @@ NGIRCd_Init( bool NGIRCd_NoDaemon )
 	} else
 		Log(LOG_INFO, "Not running with changed root directory.");
 
-	/* Change working directory to home directory of the user
-	 * we are running as (only when running in daemon mode and not in chroot) */
+	/* Change working directory to home directory of the user we are
+	 * running as (only when running in daemon mode and not in chroot) */
+
+	if (NGIRCd_NoDaemon)
+		return true;
 
 	if (pwd) {
-		if (!NGIRCd_NoDaemon ) {
-			if( chdir( pwd->pw_dir ) == 0 ) 
-				Log( LOG_DEBUG, "Changed working directory to \"%s\" ...", pwd->pw_dir );
-			else 
-				Log( LOG_INFO, "Notice: Can't change working directory to \"%s\": %s",
-								pwd->pw_dir, strerror( errno ));
-		}
-	} else {
-		Log( LOG_ERR, "Can't get user informaton for UID %d!?", Conf_UID );
-	}
+		if (chdir(pwd->pw_dir) == 0)
+			Log(LOG_DEBUG,
+			    "Changed working directory to \"%s\" ...",
+			    pwd->pw_dir);
+		else
+			Log(LOG_INFO,
+			    "Notice: Can't change working directory to \"%s\": %s",
+			    pwd->pw_dir, strerror(errno));
+	} else
+		Log(LOG_ERR, "Can't get user informaton for UID %d!?", Conf_UID);
 
 	return true;
  out:

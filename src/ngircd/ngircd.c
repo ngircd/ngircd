@@ -74,12 +74,12 @@ static bool NGIRCd_Init PARAMS(( bool ));
  * Here all starts: this function is called by the operating system loader,
  * it is the first portion of code executed of ngIRCd.
  *
- * @param argc	The number of arguments passed to ngIRCd on the command line.
- * @param argv	An array containing all the arguments passed to ngIRCd.
- * @return	Global exit code of ngIRCd, zero on success.
+ * @param argc The number of arguments passed to ngIRCd on the command line.
+ * @param argv An array containing all the arguments passed to ngIRCd.
+ * @return Global exit code of ngIRCd, zero on success.
  */
 GLOBAL int
-main( int argc, const char *argv[] )
+main(int argc, const char *argv[])
 {
 	bool ok, configtest = false;
 	bool NGIRCd_NoDaemon = false;
@@ -92,7 +92,7 @@ main( int argc, const char *argv[] )
 	mtrace();
 #endif
 
-	umask( 0077 );
+	umask(0077);
 
 	NGIRCd_SignalQuit = NGIRCd_SignalRestart = false;
 	NGIRCd_Passive = false;
@@ -102,75 +102,62 @@ main( int argc, const char *argv[] )
 #ifdef SNIFFER
 	NGIRCd_Sniffer = false;
 #endif
-	strlcpy( NGIRCd_ConfFile, SYSCONFDIR, sizeof( NGIRCd_ConfFile ));
-	strlcat( NGIRCd_ConfFile, CONFIG_FILE, sizeof( NGIRCd_ConfFile ));
+	strlcpy(NGIRCd_ConfFile, SYSCONFDIR, sizeof(NGIRCd_ConfFile));
+	strlcat(NGIRCd_ConfFile, CONFIG_FILE, sizeof(NGIRCd_ConfFile));
 
-	Fill_Version( );
+	Fill_Version();
 
 	/* parse conmmand line */
-	for( i = 1; i < argc; i++ )
-	{
+	for (i = 1; i < argc; i++) {
 		ok = false;
-		if(( argv[i][0] == '-' ) && ( argv[i][1] == '-' ))
-		{
+		if (argv[i][0] == '-' && argv[i][1] == '-') {
 			/* long option */
-			if( strcmp( argv[i], "--config" ) == 0 )
-			{
-				if( i + 1 < argc )
-				{
+			if (strcmp(argv[i], "--config") == 0) {
+				if (i + 1 < argc) {
 					/* Ok, there's an parameter left */
-					strlcpy( NGIRCd_ConfFile, argv[i + 1], sizeof( NGIRCd_ConfFile ));
-
+					strlcpy(NGIRCd_ConfFile, argv[i+1],
+						sizeof(NGIRCd_ConfFile));
 					/* next parameter */
 					i++; ok = true;
 				}
 			}
-			if( strcmp( argv[i], "--configtest" ) == 0 )
-			{
+			if (strcmp(argv[i], "--configtest") == 0) {
 				configtest = true;
 				ok = true;
 			}
 #ifdef DEBUG
-			if( strcmp( argv[i], "--debug" ) == 0 )
-			{
+			if (strcmp(argv[i], "--debug") == 0) {
 				NGIRCd_Debug = true;
 				ok = true;
 			}
 #endif
-			if( strcmp( argv[i], "--help" ) == 0 )
-			{
-				Show_Version( );
-				puts( "" ); Show_Help( ); puts( "" );
-				exit( 1 );
+			if (strcmp(argv[i], "--help") == 0) {
+				Show_Version();
+				puts(""); Show_Help( ); puts( "" );
+				exit(1);
 			}
-			if( strcmp( argv[i], "--nodaemon" ) == 0 )
-			{
+			if (strcmp(argv[i], "--nodaemon") == 0) {
 				NGIRCd_NoDaemon = true;
 				ok = true;
 			}
-			if( strcmp( argv[i], "--passive" ) == 0 )
-			{
+			if (strcmp(argv[i], "--passive") == 0) {
 				NGIRCd_Passive = true;
 				ok = true;
 			}
 #ifdef SNIFFER
-			if( strcmp( argv[i], "--sniffer" ) == 0 )
-			{
+			if (strcmp(argv[i], "--sniffer") == 0) {
 				NGIRCd_Sniffer = true;
 				ok = true;
 			}
 #endif
-			if( strcmp( argv[i], "--version" ) == 0 )
-			{
-				Show_Version( );
-				exit( 1 );
+			if (strcmp(argv[i], "--version") == 0) {
+				Show_Version();
+				exit(1);
 			}
 		}
-		else if(( argv[i][0] == '-' ) && ( argv[i][1] != '-' ))
-		{
+		else if(argv[i][0] == '-' && argv[i][1] != '-') {
 			/* short option */
-			for( n = 1; n < strlen( argv[i] ); n++ )
-			{
+			for (n = 1; n < strlen(argv[i]); n++) {
 				ok = false;
 #ifdef DEBUG
 				if (argv[i][n] == 'd') {
@@ -179,14 +166,14 @@ main( int argc, const char *argv[] )
 				}
 #endif
 				if (argv[i][n] == 'f') {
-					if(( ! argv[i][n + 1] ) && ( i + 1 < argc ))
-					{
+					if (!argv[i][n+1] && i+1 < argc) {
 						/* Ok, next character is a blank */
-						strlcpy( NGIRCd_ConfFile, argv[i + 1], sizeof( NGIRCd_ConfFile ));
+						strlcpy(NGIRCd_ConfFile, argv[i+1],
+							sizeof(NGIRCd_ConfFile));
 
 						/* go to the following parameter */
 						i++;
-						n = strlen( argv[i] );
+						n = strlen(argv[i]);
 						ok = true;
 					}
 				}
@@ -221,46 +208,49 @@ main( int argc, const char *argv[] )
 					exit(1);
 				}
 
-				if (! ok) {
-					printf( "%s: invalid option \"-%c\"!\n", PACKAGE_NAME, argv[i][n] );
-					printf( "Try \"%s --help\" for more information.\n", PACKAGE_NAME );
-					exit( 1 );
+				if (!ok) {
+					printf("%s: invalid option \"-%c\"!\n",
+					       PACKAGE_NAME, argv[i][n]);
+					printf("Try \"%s --help\" for more information.\n",
+					       PACKAGE_NAME);
+					exit(1);
 				}
 			}
 
 		}
-		if( ! ok )
-		{
-			printf( "%s: invalid option \"%s\"!\n", PACKAGE_NAME, argv[i] );
-			printf( "Try \"%s --help\" for more information.\n", PACKAGE_NAME );
-			exit( 1 );
+		if (!ok) {
+			printf("%s: invalid option \"%s\"!\n",
+			       PACKAGE_NAME, argv[i]);
+			printf("Try \"%s --help\" for more information.\n",
+			       PACKAGE_NAME);
+			exit(1);
 		}
 	}
 
 	/* Debug level for "VERSION" command */
 	NGIRCd_DebugLevel[0] = '\0';
 #ifdef DEBUG
-	if( NGIRCd_Debug ) strcpy( NGIRCd_DebugLevel, "1" );
+	if (NGIRCd_Debug)
+		strcpy(NGIRCd_DebugLevel, "1");
 #endif
 #ifdef SNIFFER
-	if( NGIRCd_Sniffer )
-	{
+	if (NGIRCd_Sniffer) {
 		NGIRCd_Debug = true;
-		strcpy( NGIRCd_DebugLevel, "2" );
+		strcpy(NGIRCd_DebugLevel, "2");
 	}
 #endif
 
-	if( configtest )
-	{
-		Show_Version( ); puts( "" );
-		exit( Conf_Test( ));
+	if (configtest) {
+		Show_Version(); puts("");
+		exit(Conf_Test());
 	}
-	
-	while( ! NGIRCd_SignalQuit )
-	{
+
+	while (!NGIRCd_SignalQuit) {
 		/* Initialize global variables */
-		NGIRCd_Start = time( NULL );
-		(void)strftime( NGIRCd_StartStr, 64, "%a %b %d %Y at %H:%M:%S (%Z)", localtime( &NGIRCd_Start ));
+		NGIRCd_Start = time(NULL);
+		(void)strftime(NGIRCd_StartStr, 64,
+			       "%a %b %d %Y at %H:%M:%S (%Z)",
+			       localtime(&NGIRCd_Start));
 
 		NGIRCd_SignalRestart = false;
 		NGIRCd_SignalQuit = false;
@@ -268,8 +258,8 @@ main( int argc, const char *argv[] )
 		Random_Init();
 
 		/* Initialize modules, part I */
-		Log_Init( ! NGIRCd_NoDaemon );
-		Conf_Init( );
+		Log_Init(!NGIRCd_NoDaemon);
+		Conf_Init();
 
 		/* Initialize the "main program": chroot environment, user and
 		 * group ID, ... */
@@ -280,18 +270,22 @@ main( int argc, const char *argv[] )
 
 		/* Initialize modules, part II: these functions are eventually
 		 * called with already dropped privileges ... */
-		Channel_Init( );
-		Client_Init( );
-		Conn_Init( );
-		Class_Init( );
+		Channel_Init();
+		Client_Init();
+		Conn_Init();
+		Class_Init();
 
 		if (!io_library_init(CONNECTION_POOL)) {
-			Log(LOG_ALERT, "Fatal: Cannot initialize IO routines: %s", strerror(errno));
+			Log(LOG_ALERT,
+			    "Fatal: Could not initialize IO routines: %s",
+			    strerror(errno));
 			exit(1);
 		}
 
 		if (!Signals_Init()) {
-			Log(LOG_ALERT, "Fatal: Could not set up signal handlers: %s", strerror(errno));
+			Log(LOG_ALERT,
+			    "Fatal: Could not set up signal handlers: %s",
+			    strerror(errno));
 			exit(1);
 		}
 
@@ -299,40 +293,45 @@ main( int argc, const char *argv[] )
 		 * used by ngIRCd in PASS commands and the known "extended
 		 * flags" are described in doc/Protocol.txt. */
 #ifdef IRCPLUS
-		snprintf( NGIRCd_ProtoID, sizeof NGIRCd_ProtoID, "%s%s %s|%s:%s", PROTOVER, PROTOIRCPLUS, PACKAGE_NAME, PACKAGE_VERSION, IRCPLUSFLAGS );
+		snprintf(NGIRCd_ProtoID, sizeof NGIRCd_ProtoID, "%s%s %s|%s:%s",
+			 PROTOVER, PROTOIRCPLUS, PACKAGE_NAME, PACKAGE_VERSION,
+			 IRCPLUSFLAGS);
 #ifdef ZLIB
-		strcat( NGIRCd_ProtoID, "Z" );
+		strcat(NGIRCd_ProtoID, "Z");
 #endif
-		if( Conf_OperCanMode ) strcat( NGIRCd_ProtoID, "o" );
-#else
-		snprintf( NGIRCd_ProtoID, sizeof NGIRCd_ProtoID, "%s%s %s|%s", PROTOVER, PROTOIRC, PACKAGE_NAME, PACKAGE_VERSION );
-#endif
-		strlcat( NGIRCd_ProtoID, " P", sizeof NGIRCd_ProtoID );
+		if (Conf_OperCanMode)
+			strcat(NGIRCd_ProtoID, "o");
+#else /* IRCPLUS */
+		snprintf(NGIRCd_ProtoID, sizeof NGIRCd_ProtoID, "%s%s %s|%s",
+			 PROTOVER, PROTOIRC, PACKAGE_NAME, PACKAGE_VERSION);
+#endif /* IRCPLUS */
+		strlcat(NGIRCd_ProtoID, " P", sizeof NGIRCd_ProtoID);
 #ifdef ZLIB
-		strlcat( NGIRCd_ProtoID, "Z", sizeof NGIRCd_ProtoID );
+		strlcat(NGIRCd_ProtoID, "Z", sizeof NGIRCd_ProtoID);
 #endif
 		LogDebug("Protocol and server ID is \"%s\".", NGIRCd_ProtoID);
 
-		Channel_InitPredefined( );
+		Channel_InitPredefined();
 
-		if( Conn_InitListeners( ) < 1 )
-		{
-			Log( LOG_ALERT, "Server isn't listening on a single port!" );
-			Log( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE_NAME );
-			Pidfile_Delete( );
-			exit( 1 );
+		if (Conn_InitListeners() < 1) {
+			Log(LOG_ALERT,
+			    "Server isn't listening on a single port!" );
+			Log(LOG_ALERT,
+			    "%s exiting due to fatal errors!", PACKAGE_NAME);
+			Pidfile_Delete();
+			exit(1);
 		}
 
 		/* Main Run Loop */
-		Conn_Handler( );
+		Conn_Handler();
 
-		Conn_Exit( );
-		Client_Exit( );
-		Channel_Exit( );
-		Class_Exit( );
-		Log_Exit( );
+		Conn_Exit();
+		Client_Exit();
+		Channel_Exit();
+		Class_Exit();
+		Log_Exit();
 	}
-	Pidfile_Delete( );
+	Pidfile_Delete();
 
 	return 0;
 } /* main */

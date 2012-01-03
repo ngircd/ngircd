@@ -555,9 +555,10 @@ NGIRCd_getNobodyID(uid_t *uid, gid_t *gid )
 #endif
 
 	pwd = getpwnam("nobody");
-	if (!pwd) return false;
+	if (!pwd)
+		return false;
 
-	if ( !pwd->pw_uid || !pwd->pw_gid)
+	if (!pwd->pw_uid || !pwd->pw_gid)
 		return false;
 
 	*uid = pwd->pw_uid;

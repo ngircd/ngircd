@@ -658,10 +658,10 @@ NGIRCd_Init(bool NGIRCd_NoDaemon)
 
 	/* Check user ID */
 	if (Conf_UID == 0) {
+		pwd = getpwuid(0);
 		Log(LOG_INFO,
-		    "ServerUID must not be 0, using \"nobody\" instead.",
-		    Conf_UID);
-
+		    "ServerUID must not be %s(0), using \"nobody\" instead.",
+		    pwd ? pwd->pw_name : "?");
 		if (!NGIRCd_getNobodyID(&Conf_UID, &Conf_GID)) {
 			Log(LOG_WARNING,
 			    "Could not get user/group ID of user \"nobody\": %s",
@@ -674,8 +674,10 @@ NGIRCd_Init(bool NGIRCd_NoDaemon)
 	if (getgid() != Conf_GID) {
 		if (setgid(Conf_GID) != 0) {
 			real_errno = errno;
-			Log(LOG_ERR, "Can't change group ID to %u: %s",
-			    Conf_GID, strerror(errno));
+			grp = getgrgid(Conf_GID);
+			Log(LOG_ERR, "Can't change group ID to %s(%u): %s",
+			    grp ? grp->gr_name : "?", Conf_GID,
+			    strerror(errno));
 			if (real_errno != EPERM) 
 				goto out;
 		}
@@ -685,8 +687,10 @@ NGIRCd_Init(bool NGIRCd_NoDaemon)
 	if (getuid() != Conf_UID) {
 		if (setuid(Conf_UID) != 0) {
 			real_errno = errno;
-			Log(LOG_ERR, "Can't change user ID to %u: %s",
-			    Conf_UID, strerror(errno));
+			pwd = getpwuid(Conf_UID);
+			Log(LOG_ERR, "Can't change user ID to %s(%u): %s",
+			    pwd ? pwd->pw_name : "?", Conf_UID,
+			    strerror(errno));
 			if (real_errno != EPERM)
 				goto out;
 		}

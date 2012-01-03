@@ -1308,7 +1308,9 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 		else {
 			Conf_GID = (unsigned int)atoi(Arg);
 			if (!Conf_GID && strcmp(Arg, "0"))
-				Config_Error_NaN(Line, Var);
+				Config_Error(LOG_WARNING,
+					     "%s, line %d: Value of \"%s\" is not a valid group name or ID!",
+					     NGIRCd_ConfFile, Line, Var);
 		}
 		return;
 	}
@@ -1319,7 +1321,9 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 		else {
 			Conf_UID = (unsigned int)atoi(Arg);
 			if (!Conf_UID && strcmp(Arg, "0"))
-				Config_Error_NaN(Line, Var);
+				Config_Error(LOG_WARNING,
+					     "%s, line %d: Value of \"%s\" is not a valid user name or ID!",
+					     NGIRCd_ConfFile, Line, Var);
 		}
 		return;
 	}

@@ -254,7 +254,8 @@ IRC_LINKS(CLIENT *Client, REQUEST *Req)
 
 	c = Client_First();
 	while (c) {
-		if (Client_Type(c) == CLIENT_SERVER) {
+		if (Client_Type(c) == CLIENT_SERVER
+		    && MatchCaseInsensitive(mask, Client_ID(c))) {
 			if (!IRC_WriteStrClient(from, RPL_LINKS_MSG,
 					Client_ID(from), Client_ID(c),
 					Client_ID(Client_TopServer(c)

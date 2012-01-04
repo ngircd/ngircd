@@ -1109,8 +1109,7 @@ IRC_WHOIS_SendReply(CLIENT *Client, CLIENT *from, CLIENT *c)
 				    Client_Away(c)))
 			return DISCONNECTED;
 
-	return IRC_WriteStrClient(from, RPL_ENDOFWHOIS_MSG,
-				  Client_ID(from), Client_ID(c));
+	return CONNECTED;
 } /* IRC_WHOIS_SendReply */
 
 
@@ -1219,10 +1218,12 @@ IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 		}
 
 		if (match_count == 0)
-			return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
-				Client_ID(Client), Req->argv[Req->argc - 1]);
+			IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
+					   Client_ID(Client),
+					   Req->argv[Req->argc - 1]);
 	}
-	return CONNECTED;
+	return IRC_WriteStrClient(from, RPL_ENDOFWHOIS_MSG,
+				  Client_ID(from), Req->argv[Req->argc - 1]);
 } /* IRC_WHOIS */
 
 

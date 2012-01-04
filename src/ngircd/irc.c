@@ -494,6 +494,8 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 		}
 
 		currentTarget = strtok_r(NULL, ",", &lastCurrentTarget);
+		if (currentTarget)
+			Conn_SetPenalty(Client_Conn(Client), 1);
 	}
 
 	return CONNECTED;

@@ -1129,7 +1129,7 @@ IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 	unsigned int match_count = 0, found = 0;
 	bool has_wildcards, is_remote;
 	bool got_wildcard = false;
-	const char *query;
+	char mask[COMMAND_LEN], *query;
 
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -1170,7 +1170,8 @@ IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 						Req->argv[0], Req->argv[1]);
 
 	is_remote = Client_Conn(from) < 0;
-	for (query = strtok(Req->argv[Req->argc - 1], ",");
+	strlcpy(mask, Req->argv[Req->argc - 1], sizeof(mask));
+	for (query = strtok(ngt_LowerStr(mask), ",");
 			query && found < 3;
 			query = strtok(NULL, ","), found++)
 	{

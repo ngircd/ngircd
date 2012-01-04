@@ -1185,7 +1185,7 @@ IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 		 */
 		if (!has_wildcards || is_remote) {
 			c = Client_Search(query);
-			if (c) {
+			if (c && Client_Type(c) == CLIENT_USER) {
 				if (!IRC_WHOIS_SendReply(Client, from, c))
 					return DISCONNECTED;
 			} else {

@@ -44,12 +44,14 @@ WHOIS, WHOWAS.
 III. Features (or: why use ngIRCd?)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- no problems with servers which have dynamic IP addresses
-- simple, easy understandable configuration file,
-- freely published open-source C source code,
-- ngIRCd will be developed on in the future.
+- well arranged (lean) configuration file
+- simple to build/install, configure and maintain
+- supports IPv6 and SSL
+- no problems with servers that have dynamic IP addresses
+- freely available, modern, portable and tidy C-source
 - wide field of supported platforms, including AIX, A/UX, FreeBSD, HP-UX,
   IRIX, Linux, Mac OS X, NetBSD, OpenBSD, Solaris, and Windows with Cygwin.
+- ngIRCd is being actively developed since 2001.
 
 
 IV. Documentation

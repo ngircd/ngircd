@@ -65,35 +65,56 @@ Conn_LastPing( CONN_ID Idx )
 } /* Conn_LastPing */
 
 
+/**
+ * Add "penalty time" for a connection.
+ *
+ * During the "penalty time" the socket is ignored completely, no new data
+ * is read. This function only increases the penalty, it is not possible to
+ * decrease the penalty time.
+ *
+ * @param Idex Connection index.
+ * @param Seconds Seconds to add.
+ * @see Conn_ResetPenalty
+ */
 GLOBAL void
-Conn_SetPenalty( CONN_ID Idx, time_t Seconds )
+Conn_SetPenalty(CONN_ID Idx, time_t Seconds)
 {
-	/* set Penalty-Delay for a socket.
-	 * during the penalty, the socket is ignored completely, no new
-	 * data is read. This function only increases the penalty, it is
-	 * not possible to decrease the penalty time.
-	 */
 	time_t t;
-	
-	assert( Idx > NONE );
-	assert( Seconds >= 0 );
 
-	t = time( NULL ) + Seconds;
-	if (t > My_Connections[Idx].delaytime)
+	assert(Idx > NONE);
+	assert(Seconds >= 0);
+
+	t = time(NULL);
+	if (My_Connections[Idx].delaytime < t)
 		My_Connections[Idx].delaytime = t;
 
+	My_Connections[Idx].delaytime += Seconds;
+
 #ifdef DEBUG
-	Log(LOG_DEBUG, "Add penalty time on connection %d: %ld second(s).",
-			Idx, (long)Seconds);
+	Log(LOG_DEBUG,
+	    "Add penalty time on connection %d: %ld second%s, total %ld second%s.",
+	    Idx, (long)Seconds, Seconds != 1 ? "s" : "",
+	    My_Connections[Idx].delaytime - t,
+	    My_Connections[Idx].delaytime - t != 1 ? "s" : "");
 #endif
 } /* Conn_SetPenalty */
 
 
+/**
+ * Reset the "penalty time" for one connection.
+ *
+ * @param Idx Connection index.
+ * @see Conn_SetPenalty
+ */
 GLOBAL void
-Conn_ResetPenalty( CONN_ID Idx )
+Conn_ResetPenalty(CONN_ID Idx)
 {
-	assert( Idx > NONE );
+	assert(Idx > NONE);
+
 	My_Connections[Idx].delaytime = 0;
+#ifdef DEBUG
+	Log(LOG_DEBUG, "Penalty time on connection %d has been reset.");
+#endif
 } /* Conn_ResetPenalty */
 
 

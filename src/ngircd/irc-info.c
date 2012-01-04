@@ -200,51 +200,73 @@ IRC_ISON( CLIENT *Client, REQUEST *Req )
 } /* IRC_ISON */
 
 
+/**
+ * Handler for the IRC "LINKS" command.
+ *
+ * See RFC 2812, 3.4.5 "Links message".
+ *
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
+ */
 GLOBAL bool
-IRC_LINKS( CLIENT *Client, REQUEST *Req )
+IRC_LINKS(CLIENT *Client, REQUEST *Req)
 {
 	CLIENT *target, *from, *c;
 	char *mask;
 
-	assert( Client != NULL );
-	assert( Req != NULL );
+	assert(Client != NULL);
+	assert(Req != NULL);
 
-	if(( Req->argc > 2 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	IRC_SetPenalty(Client, 1);
 
-	/* Server-Mask ermitteln */
-	if( Req->argc > 0 ) mask = Req->argv[Req->argc - 1];
-	else mask = "*";
+	if (Req->argc > 2)
+		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+					  Client_ID(Client), Req->command);
 
-	/* Absender ermitteln */
-	if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_Search( Req->prefix );
-	else from = Client;
-	if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
+	/* Get pointer to server mask or "*", if none given */
+	if (Req->argc > 0)
+		mask = Req->argv[Req->argc - 1];
+	else
+		mask = "*";
 
-	/* An anderen Server forwarden? */
-	if( Req->argc == 2 )
-	{
-		target = Client_Search( Req->argv[0] );
-		if(( ! target ) || ( Client_Type( target ) != CLIENT_SERVER )) return IRC_WriteStrClient( from, ERR_NOSUCHSERVER_MSG, Client_ID( from ), Req->argv[0] );
-		else if( target != Client_ThisServer( )) return IRC_WriteStrClientPrefix( target, from, "LINKS %s %s", Req->argv[0], Req->argv[1] );
+	if (Client_Type(Client) == CLIENT_SERVER)
+		from = Client_Search(Req->prefix);
+	else
+		from = Client;
+	if (!from)
+		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
+					  Client_ID(Client), Req->prefix);
+
+	/* Forward? */
+	if (Req->argc == 2) {
+		target = Client_Search(Req->argv[0]);
+		if (! target || Client_Type(target) != CLIENT_SERVER)
+			return IRC_WriteStrClient(from, ERR_NOSUCHSERVER_MSG,
+						  Client_ID(from),
+						  Req->argv[0] );
+		else
+			if (target != Client_ThisServer())
+				return IRC_WriteStrClientPrefix(target, from,
+						"LINKS %s %s", Req->argv[0],
+						Req->argv[1]);
 	}
 
-	/* Wer ist der Absender? */
-	if( Client_Type( Client ) == CLIENT_SERVER ) target = Client_Search( Req->prefix );
-	else target = Client;
-	if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
-
-	c = Client_First( );
-	while( c )
-	{
-		if( Client_Type( c ) == CLIENT_SERVER )
-		{
-			if( ! IRC_WriteStrClient( target, RPL_LINKS_MSG, Client_ID( target ), Client_ID( c ), Client_ID( Client_TopServer( c ) ? Client_TopServer( c ) : Client_ThisServer( )), Client_Hops( c ), Client_Info( c ))) return DISCONNECTED;
+	c = Client_First();
+	while (c) {
+		if (Client_Type(c) == CLIENT_SERVER) {
+			if (!IRC_WriteStrClient(from, RPL_LINKS_MSG,
+					Client_ID(from), Client_ID(c),
+					Client_ID(Client_TopServer(c)
+						  ? Client_TopServer(c)
+						  : Client_ThisServer()),
+					Client_Hops(c), Client_Info(c)))
+				return DISCONNECTED;
 		}
-		c = Client_Next( c );
+		c = Client_Next(c);
 	}
-	
-	IRC_SetPenalty( target, 1 );
-	return IRC_WriteStrClient( target, RPL_ENDOFLINKS_MSG, Client_ID( target ), mask );
+	return IRC_WriteStrClient(from, RPL_ENDOFLINKS_MSG,
+				  Client_ID(from), mask);
 } /* IRC_LINKS */
 
 

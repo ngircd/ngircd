@@ -645,10 +645,12 @@ IRC_LIST( CLIENT *Client, REQUEST *Req )
 
 	while (pattern) {
 		/* Loop through all the channels */
+		if (Req->argc > 0)
+			ngt_LowerStr(pattern);
 		chan = Channel_First();
 		while (chan) {
 			/* Check search pattern */
-			if (Match(pattern, Channel_Name(chan))) {
+			if (MatchCaseInsensitive(pattern, Channel_Name(chan))) {
 				/* Gotcha! */
 				if (!strchr(Channel_Modes(chan), 's')
 				    || Channel_IsMemberOf(chan, from)) {

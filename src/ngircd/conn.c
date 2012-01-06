@@ -936,21 +936,24 @@ Conn_Write( CONN_ID Idx, char *Data, size_t Len )
 	assert( Data != NULL );
 	assert( Len > 0 );
 
-	c = Conn_GetClient(Idx);
-	assert( c != NULL);
-
-	/* Servers do get special write buffer limits, so they can generate
-	 * all the messages that are required while peering. */
-	if (Client_Type(c) == CLIENT_SERVER)
-		writebuf_limit = WRITEBUFFER_SLINK_LEN;
-
 	/* Is the socket still open? A previous call to Conn_Write()
 	 * may have closed the connection due to a fatal error.
 	 * In this case it is sufficient to return an error, as well. */
-	if( My_Connections[Idx].sock <= NONE ) {
+	if (My_Connections[Idx].sock <= NONE) {
 		LogDebug("Skipped write on closed socket (connection %d).", Idx);
 		return false;
 	}
+
+	/* Make sure that there still exists a CLIENT structure associated
+	 * with this connection and check if this is a server or not: */
+	c = Conn_GetClient(Idx);
+	if (c) {
+		/* Servers do get special write buffer limits, so they can
+		 * generate all the messages that are required while peering. */
+		if (Client_Type(c) == CLIENT_SERVER)
+			writebuf_limit = WRITEBUFFER_SLINK_LEN;
+	} else
+		LogDebug("Write on socket without client (connection %d)!?", Idx);
 
 #ifdef ZLIB
 	if ( Conn_OPTION_ISSET( &My_Connections[Idx], CONN_ZIP )) {

@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2011 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2012 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1568,7 +1568,7 @@ IRC_Send_ISUPPORT(CLIENT * Client)
 	return IRC_WriteStrClient(Client, RPL_ISUPPORT2_MSG, Client_ID(Client),
 				  CHANNEL_NAME_LEN - 1, Conf_MaxNickLength - 1,
 				  COMMAND_LEN - 23, CLIENT_AWAY_LEN - 1,
-				  COMMAND_LEN - 113);
+				  COMMAND_LEN - 113, MAX_CMODES_ARG);
 } /* IRC_Send_ISUPPORT */
 
 

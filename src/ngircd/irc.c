@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2004 Alexander Barton <alex@barton.de>
+ * Copyright (c)2001-2012 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,6 +43,35 @@ static bool Send_Message PARAMS((CLIENT *Client, REQUEST *Req, int ForceType,
 static bool Send_Message_Mask PARAMS((CLIENT *from, char *command,
 				      char *targetMask, char *message,
 				      bool SendErrors));
+
+
+/**
+ * Check if a list limit is reached and inform client accordingly.
+ *
+ * @param From The client.
+ * @param Count Reply item count.
+ * @param Limit Reply limit.
+ * @param Name Name of the list.
+ * @return true if list limit has been reached; false otherwise.
+ */
+GLOBAL bool
+IRC_CheckListTooBig(CLIENT *From, const int Count, const int Limit,
+		    const char *Name)
+{
+	assert(From != NULL);
+	assert(Count >= 0);
+	assert(Limit > 0);
+	assert(Name != NULL);
+
+	if (Count < Limit)
+		return false;
+
+	(void)IRC_WriteStrClient(From,
+				 "NOTICE %s :%s list limit (%d) reached!",
+				 Client_ID(From), Name, Limit);
+	IRC_SetPenalty(From, 2);
+	return true;
+}
 
 
 GLOBAL bool

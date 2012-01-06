@@ -375,7 +375,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 	char the_modes[COMMAND_LEN], the_args[COMMAND_LEN], x[2],
 	    argadd[CLIENT_PASS_LEN], *mode_ptr;
 	bool connected, set, skiponce, retval, onchannel, modeok, use_servermode;
-	int mode_arg, arg_arg;
+	int mode_arg, arg_arg, mode_arg_count = 0;
 	CLIENT *client;
 	long l;
 	size_t len;
@@ -491,6 +491,8 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 					Client_ID(Origin), Channel_Name(Channel));
 			break;
 		case 'k': /* Channel key */
+			if (mode_arg_count++ >= MAX_CMODES_ARG)
+				break;
 			if (!set) {
 				if (modeok)
 					x[0] = *mode_ptr;
@@ -525,6 +527,8 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 			}
 			break;
 		case 'l': /* Member limit */
+			if (mode_arg_count++ >= MAX_CMODES_ARG)
+				break;
 			if (!set) {
 				if (modeok)
 					x[0] = *mode_ptr;
@@ -635,6 +639,8 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 		/* --- Channel lists --- */
 		case 'I': /* Invite lists */
 		case 'b': /* Ban lists */
+			if (mode_arg_count++ >= MAX_CMODES_ARG)
+				break;
 			if (arg_arg > mode_arg) {
 				/* modify list */
 				if (modeok) {

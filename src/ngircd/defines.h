@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2010 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2012 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +31,9 @@
 
 #define MAX_WHOWAS 64			/* Max. number of WHOWAS items */
 #define DEFAULT_WHOWAS 5		/* default count for WHOWAS command */
+
+#define MAX_CMODES_ARG 5		/* Max. number of channel modes with
+					 * arguments per MODE command */
 
 #define CONNECTION_POOL 100		/* Size of default connection pool */
 

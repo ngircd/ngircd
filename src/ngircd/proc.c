@@ -154,7 +154,10 @@ Proc_Read(PROC_STAT *proc, void *buffer, size_t buflen)
 GLOBAL void
 Proc_Close(PROC_STAT *proc)
 {
-	io_close(proc->pipe_fd);
+	/* Close socket, if it exists */
+	if (proc->pipe_fd >= 0)
+		io_close(proc->pipe_fd);
+
 	Proc_InitStruct(proc);
 }
 

@@ -179,10 +179,10 @@
 /* Defaults and limits for IRC commands */
 
 /** Default count of WHOWAS command replies */
-#define DEFAULT_WHOWAS 5
+#define DEF_RPL_WHOWAS 5
 
 /** Max. number of channel modes with arguments per MODE command */
-#define MAX_CMODES_ARG 5
+#define MAX_HNDL_MODES_ARG 5
 
 
 #endif

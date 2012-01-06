@@ -1306,7 +1306,7 @@ IRC_WHOWAS( CLIENT *Client, REQUEST *Req )
 	if (last < 0)
 		last = 0;
 
-	max = DEFAULT_WHOWAS;
+	max = DEF_RPL_WHOWAS;
 	if (Req->argc > 1) {
 		max = atoi(Req->argv[1]);
 		if (max < 1)
@@ -1568,7 +1568,7 @@ IRC_Send_ISUPPORT(CLIENT * Client)
 	return IRC_WriteStrClient(Client, RPL_ISUPPORT2_MSG, Client_ID(Client),
 				  CHANNEL_NAME_LEN - 1, Conf_MaxNickLength - 1,
 				  COMMAND_LEN - 23, CLIENT_AWAY_LEN - 1,
-				  COMMAND_LEN - 113, MAX_CMODES_ARG);
+				  COMMAND_LEN - 113, MAX_HNDL_MODES_ARG);
 } /* IRC_Send_ISUPPORT */
 
 

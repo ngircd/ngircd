@@ -491,7 +491,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 					Client_ID(Origin), Channel_Name(Channel));
 			break;
 		case 'k': /* Channel key */
-			if (mode_arg_count++ >= MAX_CMODES_ARG)
+			if (mode_arg_count++ >= MAX_HNDL_MODES_ARG)
 				goto chan_exit;
 			if (!set) {
 				if (modeok)
@@ -527,7 +527,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 			}
 			break;
 		case 'l': /* Member limit */
-			if (mode_arg_count++ >= MAX_CMODES_ARG)
+			if (mode_arg_count++ >= MAX_HNDL_MODES_ARG)
 				goto chan_exit;
 			if (!set) {
 				if (modeok)
@@ -639,7 +639,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 		/* --- Channel lists --- */
 		case 'I': /* Invite lists */
 		case 'b': /* Ban lists */
-			if (mode_arg_count++ >= MAX_CMODES_ARG)
+			if (mode_arg_count++ >= MAX_HNDL_MODES_ARG)
 				goto chan_exit;
 			if (arg_arg > mode_arg) {
 				/* modify list */

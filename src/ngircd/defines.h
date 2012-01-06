@@ -178,11 +178,23 @@
 
 /* Defaults and limits for IRC commands */
 
-/** Default count of WHOWAS command replies */
+/** Max. number of LIST replies. */
+#define MAX_RPL_LIST 100
+
+/** Max. number of channel modes with arguments per MODE command. */
+#define MAX_HNDL_MODES_ARG 5
+
+/** Max. number of WHO replies. */
+#define MAX_RPL_WHO 25
+
+/** Max. number of WHOIS replies. */
+#define MAX_RPL_WHOIS 10
+
+/** Default count of WHOWAS command replies. */
 #define DEF_RPL_WHOWAS 5
 
-/** Max. number of channel modes with arguments per MODE command */
-#define MAX_HNDL_MODES_ARG 5
+/** Max count of WHOWAS command replies. */
+#define MAX_RPL_WHOWAS 25
 
 
 #endif

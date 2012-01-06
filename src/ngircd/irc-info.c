@@ -37,6 +37,7 @@
 #include "match.h"
 #include "tool.h"
 #include "parse.h"
+#include "irc.h"
 #include "irc-write.h"
 
 #include "exp.h"
@@ -833,6 +834,7 @@ IRC_WHO_Channel(CLIENT *Client, CHANNEL *Chan, bool OnlyOps)
 	const char *chan_user_modes;
 	char flags[8];
 	CLIENT *c;
+	int count = 0;
 
 	assert( Client != NULL );
 	assert( Chan != NULL );
@@ -855,6 +857,9 @@ IRC_WHO_Channel(CLIENT *Client, CHANNEL *Chan, bool OnlyOps)
 
 		is_visible = strchr(client_modes, 'i') == NULL;
 		if (is_member || is_visible) {
+			if (IRC_CheckListTooBig(Client, count, MAX_RPL_WHO, "WHO"))
+				break;
+
 			strcpy(flags, who_flags_status(client_modes));
 			if (is_ircop)
 				strlcat(flags, "*", sizeof(flags));
@@ -866,6 +871,7 @@ IRC_WHO_Channel(CLIENT *Client, CHANNEL *Chan, bool OnlyOps)
 			if (!write_whoreply(Client, c, Channel_Name(Chan),
 					    flags))
 				return DISCONNECTED;
+			count++;
 		}
 	}
 	return IRC_WriteStrClient(Client, RPL_ENDOFWHO_MSG, Client_ID(Client),
@@ -889,6 +895,7 @@ IRC_WHO_Mask(CLIENT *Client, char *Mask, bool OnlyOps)
 	CHANNEL *chan;
 	bool client_match, is_visible;
 	char flags[4];
+	int count = 0;
 
 	assert (Client != NULL);
 
@@ -939,13 +946,16 @@ IRC_WHO_Mask(CLIENT *Client, char *Mask, bool OnlyOps)
 		if (!is_visible)	/* target user is not visible */
 			continue;
 
+		if (IRC_CheckListTooBig(Client, count, MAX_RPL_WHO, "WHO"))
+			break;
+
 		strcpy(flags, who_flags_status(Client_Modes(c)));
 		if (strchr(Client_Modes(c), 'o'))
 			strlcat(flags, "*", sizeof(flags));
 
 		if (!write_whoreply(Client, c, "*", flags))
 			return DISCONNECTED;
-
+		count++;
 	}
 
 	return IRC_WriteStrClient(Client, RPL_ENDOFWHO_MSG, Client_ID(Client),
@@ -1182,7 +1192,7 @@ IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 		 *  - no wildcards for remote clients
 		 *  - only one wildcard target per local client
 		 *
-		 *  also, at most ten matches are returned.
+		 *  Also, at most MAX_RPL_WHOIS matches are returned.
 		 */
 		if (!has_wildcards || is_remote) {
 			c = Client_Search(query);
@@ -1208,13 +1218,18 @@ IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 		got_wildcard = true;
 		IRC_SetPenalty(Client, 3);
 
-		for (c = Client_First(); c && match_count < 10; c = Client_Next(c)) {
+		for (c = Client_First(); c; c = Client_Next(c)) {
+			if (IRC_CheckListTooBig(Client, match_count,
+					    MAX_RPL_WHOIS, "WHOIS"))
+				break;
+
 			if (Client_Type(c) != CLIENT_USER)
 				continue;
 			if (!MatchCaseInsensitive(query, Client_ID(c)))
 				continue;
 			if (!IRC_WHOIS_SendReply(Client, from, c))
 				return DISCONNECTED;
+
 			match_count++;
 		}
 
@@ -1310,7 +1325,7 @@ IRC_WHOWAS( CLIENT *Client, REQUEST *Req )
 	if (Req->argc > 1) {
 		max = atoi(Req->argv[1]);
 		if (max < 1)
-			max = MAX_WHOWAS;
+			max = MAX_RPL_WHOWAS;
 	}
 
 	/*

@@ -31,6 +31,7 @@
 #include "match.h"
 #include "messages.h"
 #include "parse.h"
+#include "irc.h"
 #include "irc-info.h"
 #include "irc-write.h"
 #include "conf.h"
@@ -602,6 +603,7 @@ IRC_LIST( CLIENT *Client, REQUEST *Req )
 	char *pattern;
 	CHANNEL *chan;
 	CLIENT *from, *target;
+	int count = 0;
 
 	assert(Client != NULL);
 	assert(Req != NULL);
@@ -654,12 +656,17 @@ IRC_LIST( CLIENT *Client, REQUEST *Req )
 				/* Gotcha! */
 				if (!strchr(Channel_Modes(chan), 's')
 				    || Channel_IsMemberOf(chan, from)) {
+					if (IRC_CheckListTooBig(from, count,
+								 MAX_RPL_LIST,
+								 "LIST"))
+						break;
 					if (!IRC_WriteStrClient(from,
 					     RPL_LIST_MSG, Client_ID(from),
 					     Channel_Name(chan),
 					     Channel_MemberCount(chan),
 					     Channel_Topic( chan )))
 						return DISCONNECTED;
+					count++;
 				}
 			}
 			chan = Channel_Next(chan);
@@ -672,6 +679,7 @@ IRC_LIST( CLIENT *Client, REQUEST *Req )
 			pattern = NULL;
 	}
 
+	IRC_SetPenalty(from, 2);
 	return IRC_WriteStrClient(from, RPL_LISTEND_MSG, Client_ID(from));
 } /* IRC_LIST */
 

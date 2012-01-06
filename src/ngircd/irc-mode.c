@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2011 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2012 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -280,7 +280,7 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 
 	/* Are there changed modes? */
 	if (the_modes[1]) {
-		/* Remoce needless action modifier characters */
+		/* Remove needless action modifier characters */
 		len = strlen(the_modes) - 1;
 		if (the_modes[len] == '+' || the_modes[len] == '-')
 			the_modes[len] = '\0';
@@ -428,6 +428,8 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 			mode_ptr++;
 		if (!*mode_ptr) {
 			/* Try next argument if there's any */
+			if (arg_arg < 0)
+				break;
 			if (arg_arg > mode_arg)
 				mode_arg = arg_arg;
 			else

@@ -673,9 +673,9 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 				    set ? '+' : '-', *mode_ptr,
 				    Client_ID(Origin), Channel_Name(Channel));
 				connected = IRC_WriteStrClient(Origin,
-					ERR_UMODEUNKNOWNFLAG2_MSG,
-					Client_ID(Origin),
-					set ? '+' : '-', *mode_ptr);
+					ERR_UNKNOWNMODE_MSG,
+					Client_ID(Origin), *mode_ptr,
+					Channel_Name(Channel));
 				x[0] = '\0';
 			} else {
 				Log(LOG_DEBUG,

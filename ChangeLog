@@ -11,6 +11,42 @@
 
 ngIRCd Release 19
 
+  - MODE command: correctly return ERR_UNKNOWNMODE(472) numeric for
+    unknown channel modes, instead of ERR_UMODEUNKNOWNFLAG(501).
+  - ISUPPORT(005) numeric: add "O", "R", and "z" modes to "CHANMODES".
+  - Limit the number of list items in the reply of LIST (100), WHO (25),
+    WHOIS (10), and WHOWAS (25) commands.
+  - LIST command: compare pattern case insensitive.
+  - Limit the MODE command to handle a maximum number of 5 channel modes
+    that require an argument (+Ibkl) per call and report this number
+    in the ISUPPORT(005) numeric: "MODES=5".
+  - Fix handling of channel mode sequence with/without arguments.
+    For example, don't generate wrong error messages when handling
+    "MODE #chan +IIIIItn *!aa@b *!bb@c *!cc@d *!dd@e *!ee@f".
+  - When sending data on a connection, only try to get the type of
+    the client if there still is one assigned. This could trigger an
+    assertion and end the daemon in some error paths.
+  - Don't try to close already closed/invalid sockets to forked child
+    processes. This could potentially crash the daemon in some cases
+    with IDENT lookups enabled.
+  - WHOIS command: make sure that the reply ends with RPL_ENDOFWHOIS,
+    don't answer queries for IRC servers, make sure mask matching is
+    case-insensitive, and that RPL_ENDOFWHOIS numeric is sent with the
+    unmodified mask (like it has been received from the client).
+  - LINKS command: support <mask> parameter to limit the reply.
+  - Add 1 second penalty for every further target on PRIVMSG/NOTICE
+    commands: this reduces the possibility of flooding channels with
+    commands like "PRIVMSG/NOTICE #a,#n,#c,... :message" a little bit.
+    Problem noticed by Cahata, thanks!
+  - Display correct error message when "Server{UID|GID}" variabe in the
+    configuration file is invalid (not a number and no existing user).
+  - Update Copyright notices for 2012 :-)
+  - JOIN command: don't stop handling of channel lists when a single
+    channel cannot be joined (because of bad name, wrong key or channel
+    limit reached), but report an error and continue. And don't check
+    the channel limit and don't report with "too many channels" when
+    trying to join a channel that the client already is a member of.
+  - ISON command: reply with the correct upper-/lowercase nick names.
   - New configuration option "PAMIsOptional": when set, clients not
     sending a password are still allowed to connect: they won't become
     "identified" and keep the "~" character prepended to their supplied

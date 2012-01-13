@@ -10,6 +10,16 @@
 
 ngIRCd Release 19
 
+  - Limit the number of list items in the reply of LIST (100), WHO (25),
+    WHOIS (10), and WHOWAS (25) commands.
+  - Limit the MODE command to handle a maximum number of 5 channel modes
+    that require an argument (+Ibkl) per call and report this number
+    in the ISUPPORT(005) numeric: "MODES=5".
+  - LINKS command: support <mask> parameter to limit the reply.
+  - Add 1 second penalty for every further target on PRIVMSG/NOTICE
+    commands: this reduces the possibility of flooding channels with
+    commands like "PRIVMSG/NOTICE #a,#n,#c,... :message" a little bit.
+    Problem noticed by Cahata, thanks!
   - New configuration option "PAMIsOptional": when set, clients not
     sending a password are still allowed to connect: they won't become
     "identified" and keep the "~" character prepended to their supplied

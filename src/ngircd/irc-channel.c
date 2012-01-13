@@ -364,7 +364,7 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 			 /* channel must be created, but forbidden by config */
 			IRC_WriteStrClient(Client, ERR_BANNEDFROMCHAN_MSG,
 					   Client_ID(Client), channame);
-			break;
+			goto join_next;
 		}
 
 		/* Local client? */
@@ -377,15 +377,19 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 
 			/* Test if the user has reached the channel limit */
 			if ((Conf_MaxJoins > 0) &&
-			    (Channel_CountForUser(Client) >= Conf_MaxJoins))
-				return IRC_WriteStrClient(Client,
+			    (Channel_CountForUser(Client) >= Conf_MaxJoins)) {
+				if (!IRC_WriteStrClient(Client,
 						ERR_TOOMANYCHANNELS_MSG,
-						Client_ID(Client), channame);
+						Client_ID(Client), channame))
+					return DISCONNECTED;
+				goto join_next;
+			}
+
 			if (chan) {
 				/* Already existing channel: check if the
 				 * client is allowed to join */
 				if (!join_allowed(Client, chan, channame, key))
-					break;
+					goto join_next;
 			} else {
 				/* New channel: first user will become channel
 				 * operator unless this is a modeless channel */

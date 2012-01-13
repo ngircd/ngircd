@@ -369,6 +369,12 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 
 		/* Local client? */
 		if (Client_Type(Client) == CLIENT_USER) {
+			if (chan) {
+				/* Already existing channel: already member? */
+				if (Channel_IsMemberOf(chan, Client))
+				    goto join_next;
+			}
+
 			/* Test if the user has reached the channel limit */
 			if ((Conf_MaxJoins > 0) &&
 			    (Channel_CountForUser(Client) >= Conf_MaxJoins))

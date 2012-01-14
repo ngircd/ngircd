@@ -71,7 +71,7 @@ releases there.
 If you are interested in the latest development versions (which are not
 always stable), then please read the section about "GIT" on the homepage and
 the file "doc/GIT.txt" which describes the use of GIT, the version control
-system used by ngIRCd (homepage: http://git.or.cz/).
+system used by ngIRCd (homepage: http://git-scm.com/).
 
 
 VI. Bugs
@@ -85,5 +85,6 @@ them at the following URL:
 There you can read about known bugs and limitations, too.
 
 If you have critics, patches or something else, please feel free to post a
-mail to the ngIRCd mailing list: <ngircd-ml@arthur.ath.cx> (please see
-<http://ngircd.barton.de/support.php#ml> for details).
+mail to the ngIRCd mailing list: <ngircd-ml@arthur.barton.de> (please see
+<http://ngircd.barton.de/support.php#ml> for details) or join the ngIRCd
+IRC channel: <irc://irc.barton.de/ngircd>.

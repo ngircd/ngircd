@@ -36,18 +36,19 @@
 #include "irc-mode.h"
 
 
-static bool Client_Mode PARAMS(( CLIENT *Client, REQUEST *Req, CLIENT *Origin,
-	CLIENT *Target ));
-static bool Channel_Mode PARAMS(( CLIENT *Client, REQUEST *Req, CLIENT *Origin,
-	CHANNEL *Channel ));
+static bool Client_Mode PARAMS((CLIENT *Client, REQUEST *Req, CLIENT *Origin,
+				CLIENT *Target));
+static bool Channel_Mode PARAMS((CLIENT *Client, REQUEST *Req, CLIENT *Origin,
+				 CHANNEL *Channel));
 
-static bool Add_Ban_Invite PARAMS((int what, CLIENT *Prefix, CLIENT *Client,
-	CHANNEL *Channel, const char *Pattern));
-static bool Del_Ban_Invite PARAMS((int what, CLIENT *Prefix, CLIENT *Client,
-	CHANNEL *Channel, const char *Pattern));
+static bool Add_Ban_Invite PARAMS((char what, CLIENT *Prefix, CLIENT *Client,
+				   CHANNEL *Channel, const char *Pattern));
+static bool Del_Ban_Invite PARAMS((char what, CLIENT *Prefix, CLIENT *Client,
+				   CHANNEL *Channel, const char *Pattern));
 
-static bool Send_ListChange PARAMS((const char *Mode, CLIENT *Prefix,
-	CLIENT *Client, CHANNEL *Channel, const char *Mask));
+static bool Send_ListChange PARAMS((const bool IsAdd, const char ModeChar,
+				    CLIENT *Prefix, CLIENT *Client,
+				    CHANNEL *Channel, const char *Mask));
 
 
 /**
@@ -842,10 +843,11 @@ IRC_AWAY( CLIENT *Client, REQUEST *Req )
  * @return CONNECTED or DISCONNECTED.
  */
 static bool
-Add_Ban_Invite(int what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel,
+Add_Ban_Invite(char what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel,
 	       const char *Pattern)
 {
 	const char *mask;
+	struct list_head *list;
 
 	assert(Client != NULL);
 	assert(Channel != NULL);
@@ -854,19 +856,22 @@ Add_Ban_Invite(int what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel,
 
 	mask = Lists_MakeMask(Pattern);
 
+	if (what == 'I')
+		list = Channel_GetListInvites(Channel);
+	else
+		list = Channel_GetListBans(Channel);
+
+	if (Lists_CheckDupeMask(list, mask))
+		return CONNECTED;
+
 	if (what == 'I') {
-		if (Lists_CheckDupeMask(Channel_GetListInvites(Channel), mask))
-			return CONNECTED;
 		if (!Channel_AddInvite(Channel, mask, false))
 			return CONNECTED;
-		return Send_ListChange("+I", Prefix, Client, Channel, mask);
 	} else {
-		if (Lists_CheckDupeMask(Channel_GetListBans(Channel), mask))
-			return CONNECTED;
 		if (!Channel_AddBan(Channel, mask))
 			return CONNECTED;
-		return Send_ListChange("+b", Prefix, Client, Channel, mask);
 	}
+	return Send_ListChange(true, what, Prefix, Client, Channel, mask);
 }
 
 
@@ -881,10 +886,11 @@ Add_Ban_Invite(int what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel,
  * @return CONNECTED or DISCONNECTED.
  */
 static bool
-Del_Ban_Invite(int what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel,
+Del_Ban_Invite(char what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel,
 	       const char *Pattern)
 {
 	const char *mask;
+	struct list_head *list;
 
 	assert(Client != NULL);
 	assert(Channel != NULL);
@@ -893,40 +899,53 @@ Del_Ban_Invite(int what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel,
 
 	mask = Lists_MakeMask(Pattern);
 
-	if (what == 'I') {
-		if (!Lists_CheckDupeMask(Channel_GetListInvites(Channel), mask))
-			return CONNECTED;
-		Lists_Del(Channel_GetListInvites(Channel), mask);
-		return Send_ListChange( "-I", Prefix, Client, Channel, mask );
-	} else {
-		if (!Lists_CheckDupeMask(Channel_GetListBans(Channel), mask))
-			return CONNECTED;
-		Lists_Del(Channel_GetListBans(Channel), mask);
-		return Send_ListChange( "-b", Prefix, Client, Channel, mask );
-	}
+	if (what == 'I')
+		list = Channel_GetListInvites(Channel);
+	else
+		list = Channel_GetListBans(Channel);
 
+	if (!Lists_CheckDupeMask(list, mask))
+		return CONNECTED;
+	Lists_Del(list, mask);
+
+	return Send_ListChange(false, what, Prefix, Client, Channel, mask);
 }
 
 
+/**
+ * Send information about changed channel ban/invite lists to clients.
+ *
+ * @param IsAdd true if the list item has been added, false otherwise.
+ * @param ModeChar The mode to use (e. g. 'b' or 'I')
+ * @param Prefix The originator of the mode list change.
+ * @param Client The sender of the command.
+ * @param Channel The channel of which the list has been modified.
+ * @param Mask The mask which has been added or removed.
+ * @return CONNECTED or DISCONNECTED.
+ */
 static bool
-Send_ListChange(const char *Mode, CLIENT *Prefix, CLIENT *Client,
-		CHANNEL *Channel, const char *Mask)
+Send_ListChange(const bool IsAdd, const char ModeChar, CLIENT *Prefix,
+		CLIENT *Client, CHANNEL *Channel, const char *Mask)
 {
-	bool ok;
+	bool ok = true;
 
-	if( Client_Type( Client ) == CLIENT_USER )
-	{
-		/* send confirmation to client */
-		ok = IRC_WriteStrClientPrefix( Client, Prefix, "MODE %s %s %s", Channel_Name( Channel ), Mode, Mask );
-	}
-	else ok = true;
+	/* Send confirmation to the client */
+	if (Client_Type(Client) == CLIENT_USER)
+		ok = IRC_WriteStrClientPrefix(Client, Prefix, "MODE %s %c%c %s",
+					      Channel_Name(Channel),
+					      IsAdd ? '+' : '-',
+					      ModeChar, Mask);
 
 	/* to other servers */
-	IRC_WriteStrServersPrefix( Client, Prefix, "MODE %s %s %s", Channel_Name( Channel ), Mode, Mask );
+	IRC_WriteStrServersPrefix(Client, Prefix, "MODE %s %c%c %s",
+				  Channel_Name(Channel), IsAdd ? '+' : '-',
+				  ModeChar, Mask);
 
 	/* and local users in channel */
-	IRC_WriteStrChannelPrefix( Client, Channel, Prefix, false, "MODE %s %s %s", Channel_Name( Channel ), Mode, Mask );
-	
+	IRC_WriteStrChannelPrefix(Client, Channel, Prefix, false,
+				  "MODE %s %c%c %s", Channel_Name(Channel),
+				  IsAdd ? '+' : '-', ModeChar, Mask );
+
 	return ok;
 } /* Send_ListChange */
 

@@ -831,60 +831,80 @@ IRC_AWAY( CLIENT *Client, REQUEST *Req )
 } /* IRC_AWAY */
 
 
+/**
+ * Add entries to channel ban and invite lists.
+ *
+ * @param what Can be 'I' for invite or 'b' for ban list.
+ * @param Prefix The originator of the command.
+ * @param Client The sender of the command.
+ * @param Channel The channel of which the list should be modified.
+ * @param Pattern The pattern to add to the list.
+ * @return CONNECTED or DISCONNECTED.
+ */
 static bool
-Add_Ban_Invite(int what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, const char *Pattern)
+Add_Ban_Invite(int what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel,
+	       const char *Pattern)
 {
 	const char *mask;
-	bool already;
-	bool ret;
 
-	assert( Client != NULL );
-	assert( Channel != NULL );
-	assert( Pattern != NULL );
+	assert(Client != NULL);
+	assert(Channel != NULL);
+	assert(Pattern != NULL);
 	assert(what == 'I' || what == 'b');
 
 	mask = Lists_MakeMask(Pattern);
 
-	already = Lists_CheckDupeMask(Channel_GetListInvites(Channel), mask);
-	if (!already) {
-		if (what == 'I')
-			ret = Channel_AddInvite(Channel, mask, false);
-		else
-			ret = Channel_AddBan(Channel, mask);
-		if (!ret)
+	if (what == 'I') {
+		if (Lists_CheckDupeMask(Channel_GetListInvites(Channel), mask))
 			return CONNECTED;
-	}
-	if (already && (Client_Type(Prefix) == CLIENT_SERVER))
-		return CONNECTED;
-
-	if (what == 'I')
+		if (!Channel_AddInvite(Channel, mask, false))
+			return CONNECTED;
 		return Send_ListChange("+I", Prefix, Client, Channel, mask);
-	return Send_ListChange("+b", Prefix, Client, Channel, mask);
+	} else {
+		if (Lists_CheckDupeMask(Channel_GetListBans(Channel), mask))
+			return CONNECTED;
+		if (!Channel_AddBan(Channel, mask))
+			return CONNECTED;
+		return Send_ListChange("+b", Prefix, Client, Channel, mask);
+	}
 }
 
 
+/**
+ * Delete entries from channel ban and invite lists.
+ *
+ * @param what Can be 'I' for invite or 'b' for ban list.
+ * @param Prefix The originator of the command.
+ * @param Client The sender of the command.
+ * @param Channel The channel of which the list should be modified.
+ * @param Pattern The pattern to add to the list.
+ * @return CONNECTED or DISCONNECTED.
+ */
 static bool
-Del_Ban_Invite(int what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel, const char *Pattern)
+Del_Ban_Invite(int what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel,
+	       const char *Pattern)
 {
 	const char *mask;
-	struct list_head *list;
 
-	assert( Client != NULL );
-	assert( Channel != NULL );
-	assert( Pattern != NULL );
+	assert(Client != NULL);
+	assert(Channel != NULL);
+	assert(Pattern != NULL);
 	assert(what == 'I' || what == 'b');
 
-	mask = Lists_MakeMask( Pattern );
+	mask = Lists_MakeMask(Pattern);
 
-	if (what == 'I')
-		list = Channel_GetListInvites(Channel);
-	else
-		list = Channel_GetListBans(Channel);
-
-	Lists_Del(list, mask);
-	if (what == 'I')
+	if (what == 'I') {
+		if (!Lists_CheckDupeMask(Channel_GetListInvites(Channel), mask))
+			return CONNECTED;
+		Lists_Del(Channel_GetListInvites(Channel), mask);
 		return Send_ListChange( "-I", Prefix, Client, Channel, mask );
-	return Send_ListChange( "-b", Prefix, Client, Channel, mask );
+	} else {
+		if (!Lists_CheckDupeMask(Channel_GetListBans(Channel), mask))
+			return CONNECTED;
+		Lists_Del(Channel_GetListBans(Channel), mask);
+		return Send_ListChange( "-b", Prefix, Client, Channel, mask );
+	}
+
 }
 
 

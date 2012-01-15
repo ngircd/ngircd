@@ -103,6 +103,27 @@ IRC_MODE( CLIENT *Client, REQUEST *Req )
 
 
 /**
+ * Check if the "mode limit" for a client has been reached.
+ *
+ * This limit doesn't apply for servers or services!
+ *
+ * @param Client The client to check.
+ * @param Count The number of modes already handled.
+ * @return true if the limit has been reached.
+ */
+static bool
+Mode_Limit_Reached(CLIENT *Client, int Count)
+{
+	if (Client_Type(Client) == CLIENT_SERVER
+	    || Client_Type(Client) == CLIENT_SERVICE)
+		return false;
+	if (Count < MAX_HNDL_MODES_ARG)
+		return false;
+	return true;
+}
+
+
+/**
  * Handle client mode requests
  *
  * @param Client	The client from which this command has been received.
@@ -491,7 +512,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 					Client_ID(Origin), Channel_Name(Channel));
 			break;
 		case 'k': /* Channel key */
-			if (mode_arg_count++ >= MAX_HNDL_MODES_ARG)
+			if (Mode_Limit_Reached(Client, mode_arg_count++))
 				goto chan_exit;
 			if (!set) {
 				if (modeok)
@@ -527,7 +548,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 			}
 			break;
 		case 'l': /* Member limit */
-			if (mode_arg_count++ >= MAX_HNDL_MODES_ARG)
+			if (Mode_Limit_Reached(Client, mode_arg_count++))
 				goto chan_exit;
 			if (!set) {
 				if (modeok)
@@ -639,7 +660,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 		/* --- Channel lists --- */
 		case 'I': /* Invite lists */
 		case 'b': /* Ban lists */
-			if (mode_arg_count++ >= MAX_HNDL_MODES_ARG)
+			if (Mode_Limit_Reached(Client, mode_arg_count++))
 				goto chan_exit;
 			if (arg_arg > mode_arg) {
 				/* modify list */

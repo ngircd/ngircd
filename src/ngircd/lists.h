@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2011 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2012 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,9 +36,6 @@ GLOBAL struct list_elem *Lists_CheckDupeMask PARAMS((const struct list_head *hea
 GLOBAL bool Lists_Add PARAMS((struct list_head *h, const char *Mask,
 			      time_t ValidUntil, const char *Reason));
 GLOBAL void Lists_Del PARAMS((struct list_head *head, const char *Mask));
-
-GLOBAL bool Lists_AlreadyRegistered PARAMS((const struct list_head *head,
-					    const char *Mask));
 
 GLOBAL void Lists_Free PARAMS((struct list_head *head));
 

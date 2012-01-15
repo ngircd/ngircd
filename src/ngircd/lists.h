@@ -36,6 +36,7 @@ GLOBAL struct list_elem *Lists_CheckDupeMask PARAMS((const struct list_head *hea
 GLOBAL bool Lists_Add PARAMS((struct list_head *h, const char *Mask,
 			      time_t ValidUntil, const char *Reason));
 GLOBAL void Lists_Del PARAMS((struct list_head *head, const char *Mask));
+GLOBAL unsigned long Lists_Count PARAMS((struct list_head *h));
 
 GLOBAL void Lists_Free PARAMS((struct list_head *head));
 

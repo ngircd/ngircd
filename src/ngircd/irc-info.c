@@ -1583,7 +1583,8 @@ IRC_Send_ISUPPORT(CLIENT * Client)
 	return IRC_WriteStrClient(Client, RPL_ISUPPORT2_MSG, Client_ID(Client),
 				  CHANNEL_NAME_LEN - 1, Conf_MaxNickLength - 1,
 				  COMMAND_LEN - 23, CLIENT_AWAY_LEN - 1,
-				  COMMAND_LEN - 113, MAX_HNDL_MODES_ARG);
+				  COMMAND_LEN - 113, MAX_HNDL_MODES_ARG,
+				  MAX_HNDL_CHANNEL_LISTS);
 } /* IRC_Send_ISUPPORT */
 
 

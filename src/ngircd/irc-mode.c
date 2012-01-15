@@ -863,6 +863,12 @@ Add_Ban_Invite(char what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel,
 
 	if (Lists_CheckDupeMask(list, mask))
 		return CONNECTED;
+	if (Client_Type(Client) == CLIENT_USER &&
+	    Lists_Count(list) >= MAX_HNDL_CHANNEL_LISTS)
+		return IRC_WriteStrClient(Client, ERR_LISTFULL_MSG,
+					  Client_ID(Client),
+					  Channel_Name(Channel), mask,
+					  MAX_HNDL_CHANNEL_LISTS);
 
 	if (what == 'I') {
 		if (!Channel_AddInvite(Channel, mask, false))

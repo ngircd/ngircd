@@ -385,4 +385,26 @@ Lists_Expire(struct list_head *h, const char *ListName)
 	}
 }
 
+/**
+ * Return the number of entries of a list.
+ *
+ * @param h List head.
+ * @return Number of items.
+ */
+GLOBAL unsigned long
+Lists_Count(struct list_head *h)
+{
+	struct list_elem *e;
+	unsigned long count = 0;
+
+	assert(h != NULL);
+
+	e = h->first;
+	while (e) {
+		count++;
+		e = e->next;
+	}
+	return count;
+}
+
 /* -eof- */

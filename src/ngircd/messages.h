@@ -22,7 +22,7 @@
 #define RPL_CREATED_MSG			"003 %s :This server has been started %s"
 #define RPL_MYINFO_MSG			"004 %s %s ngircd-%s %s %s"
 #define RPL_ISUPPORT1_MSG		"005 %s RFC2812 IRCD=ngIRCd CASEMAPPING=ascii PREFIX=(ov)@+ CHANTYPES=#&+ CHANMODES=bI,k,l,imnOPRstz CHANLIMIT=#&+:%d :are supported on this server"
-#define RPL_ISUPPORT2_MSG		"005 %s CHANNELLEN=%d NICKLEN=%d TOPICLEN=%d AWAYLEN=%d KICKLEN=%d MODES=%d PENALTY :are supported on this server"
+#define RPL_ISUPPORT2_MSG		"005 %s CHANNELLEN=%d NICKLEN=%d TOPICLEN=%d AWAYLEN=%d KICKLEN=%d MODES=%d MAXLIST=bI:%d PENALTY :are supported on this server"
 
 #define RPL_TRACELINK_MSG		"200 %s Link %s-%s %s %s V%s %ld %d %d"
 #define RPL_TRACEOPERATOR_MSG		"204 %s Oper 2 :%s"
@@ -127,6 +127,7 @@
 #define ERR_BANNEDFROMCHAN_MSG		"474 %s %s :Cannot join channel (+b)"
 #define ERR_BADCHANNELKEY_MSG		"475 %s %s :Cannot join channel (+k)"
 #define ERR_NOCHANMODES_MSG		"477 %s %s :Channel doesn't support modes"
+#define ERR_LISTFULL_MSG		"478 %s %s %s: Channel list is full (%d)"
 #define ERR_NOPRIVILEGES_MSG		"481 %s :Permission denied"
 #define ERR_CHANOPRIVSNEEDED_MSG	"482 %s %s :You are not channel operator"
 #define ERR_CANTKILLSERVER_MSG		"483 %s :You can't kill a server!"

@@ -1025,10 +1025,10 @@ IRC_WHO(CLIENT *Client, REQUEST *Req)
 /**
  * Generate WHOIS reply of one actual client.
  *
- * @param Client	The client from which this command has been received.
- * @param from		The client requesting the information ("originator").
- * @param c		The client of which information should be returned.
- * @returns		CONNECTED or DISCONNECTED.
+ * @param Client The client from which this command has been received.
+ * @param from The client requesting the information ("originator").
+ * @param c The client of which information should be returned.
+ * @return CONNECTED or DISCONNECTED.
  */
 static bool
 IRC_WHOIS_SendReply(CLIENT *Client, CLIENT *from, CLIENT *c)
@@ -1036,6 +1036,10 @@ IRC_WHOIS_SendReply(CLIENT *Client, CLIENT *from, CLIENT *c)
 	char str[LINE_LEN + 1];
 	CL2CHAN *cl2chan;
 	CHANNEL *chan;
+
+	assert(Client != NULL);
+	assert(from != NULL);
+	assert(c != NULL);
 
 	/* Nick, user, hostname and client info */
 	if (!IRC_WriteStrClient(from, RPL_WHOISUSER_MSG, Client_ID(from),
@@ -1094,30 +1098,29 @@ IRC_WHOIS_SendReply(CLIENT *Client, CLIENT *from, CLIENT *c)
 
 	/* IRC-Operator? */
 	if (Client_HasMode(c, 'o') &&
-		!IRC_WriteStrClient(from, RPL_WHOISOPERATOR_MSG,
-				    Client_ID(from), Client_ID(c)))
-			return DISCONNECTED;
+	    !IRC_WriteStrClient(from, RPL_WHOISOPERATOR_MSG,
+				Client_ID(from), Client_ID(c)))
+		return DISCONNECTED;
 
 	/* Connected using SSL? */
 	if (Conn_UsesSSL(Client_Conn(c)) &&
-		!IRC_WriteStrClient(from, RPL_WHOISSSL_MSG,
-				    Client_ID(from), Client_ID(c)))
-			return DISCONNECTED;
+	    !IRC_WriteStrClient(from, RPL_WHOISSSL_MSG, Client_ID(from),
+				Client_ID(c)))
+		return DISCONNECTED;
 
 	/* Idle and signon time (local clients only!) */
 	if (!Conf_MorePrivacy && Client_Conn(c) > NONE &&
-		!IRC_WriteStrClient(from, RPL_WHOISIDLE_MSG,
-				    Client_ID(from), Client_ID(c),
-				    (unsigned long)Conn_GetIdle(Client_Conn(c)),
-				    (unsigned long)Conn_GetSignon(Client_Conn(c))))
-			return DISCONNECTED;
+	    !IRC_WriteStrClient(from, RPL_WHOISIDLE_MSG,
+				Client_ID(from), Client_ID(c),
+				(unsigned long)Conn_GetIdle(Client_Conn(c)),
+				(unsigned long)Conn_GetSignon(Client_Conn(c))))
+		return DISCONNECTED;
 
 	/* Away? */
 	if (Client_HasMode(c, 'a') &&
-		!IRC_WriteStrClient(from, RPL_AWAY_MSG,
-				    Client_ID(from), Client_ID(c),
-				    Client_Away(c)))
-			return DISCONNECTED;
+	    !IRC_WriteStrClient(from, RPL_AWAY_MSG,
+				Client_ID(from), Client_ID(c), Client_Away(c)))
+		return DISCONNECTED;
 
 	return CONNECTED;
 } /* IRC_WHOIS_SendReply */

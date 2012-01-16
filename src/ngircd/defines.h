@@ -158,7 +158,7 @@
 #endif
 
 /** Supported user modes. */
-#define USERMODES "aciorRswx"
+#define USERMODES "acCiorRswx"
 
 /** Supported channel modes. */
 #define CHANMODES "biIklmnoOPRstvz"

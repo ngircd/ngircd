@@ -23,6 +23,7 @@ channels he is using at the moment.
 
   a	0.3.0	User is away.
   c	17	IRC operator wants to receive connect/disconnect NOTICEs.
+  C	19	Only users that share a channel are allowed to send messages.
   i	0.0.1	User is "invisible".
   o	0.0.1	User is IRC operator.
   r	0.0.1	User is restricted.

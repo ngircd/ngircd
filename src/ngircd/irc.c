@@ -349,6 +349,7 @@ static bool
 Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 {
 	CLIENT *cl, *from;
+	CL2CHAN *cl2chan;
 	CHANNEL *chan;
 	char *currentTarget = Req->argv[0];
 	char *lastCurrentTarget = NULL;
@@ -485,6 +486,23 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 			}
 #endif
 
+			if (Client_HasMode(cl, 'C')) {
+				cl2chan = Channel_FirstChannelOf(cl);
+				while (cl2chan) {
+					chan = Channel_GetChannel(cl2chan);
+					if (Channel_IsMemberOf(chan, from))
+						break;
+					cl2chan = Channel_NextChannelOf(cl, cl2chan);
+				}
+				if (!cl2chan) {
+					if (SendErrors && !IRC_WriteStrClient(
+					    from, ERR_NOTONSAMECHANNEL_MSG,
+					    Client_ID(from), Client_ID(cl)))
+						return DISCONNECTED;
+					goto send_next_target;
+				}
+			}
+
 			if (SendErrors && (Client_Type(Client) != CLIENT_SERVER)
 			    && strchr(Client_Modes(cl), 'a')) {
 				/* Target is away */
@@ -522,6 +540,7 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 				return DISCONNECTED;
 		}
 
+	send_next_target:
 		currentTarget = strtok_r(NULL, ",", &lastCurrentTarget);
 		if (currentTarget)
 			Conn_SetPenalty(Client_Conn(Client), 1);

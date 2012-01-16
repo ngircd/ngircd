@@ -134,6 +134,7 @@
 #define ERR_CANTKILLSERVER_MSG		"483 %s :You can't kill a server!"
 #define ERR_RESTRICTED_MSG		"484 %s :Your connection is restricted"
 #define ERR_NOOPERHOST_MSG		"491 %s :Not configured for your host"
+#define ERR_NOTONSAMECHANNEL_MSG	"493 %s :You must share a common channel with %s"
 
 #define ERR_UMODEUNKNOWNFLAG_MSG	"501 %s :Unknown mode"
 #define ERR_UMODEUNKNOWNFLAG2_MSG	"501 %s :Unknown mode \"%c%c\""

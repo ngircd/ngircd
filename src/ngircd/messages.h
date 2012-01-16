@@ -56,6 +56,7 @@
 #define RPL_ISON_MSG			"303 %s :"
 #define RPL_UNAWAY_MSG			"305 %s :You are no longer marked as being away"
 #define RPL_NOWAWAY_MSG			"306 %s :You have been marked as being away"
+#define RPL_WHOISREGNICK_MSG		"307 %s %s :is a registered nick"
 #define RPL_WHOISUSER_MSG		"311 %s %s %s %s * :%s"
 #define RPL_WHOISSERVER_MSG		"312 %s %s %s :%s"
 #define RPL_WHOISOPERATOR_MSG		"313 %s %s :is an IRC operator"

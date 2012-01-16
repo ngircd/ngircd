@@ -1108,6 +1108,12 @@ IRC_WHOIS_SendReply(CLIENT *Client, CLIENT *from, CLIENT *c)
 				Client_ID(c)))
 		return DISCONNECTED;
 
+	/* Registered nick name? */
+	if (Client_HasMode(c, 'R') &&
+	    !IRC_WriteStrClient(from, RPL_WHOISREGNICK_MSG,
+				Client_ID(from), Client_ID(c)))
+		return DISCONNECTED;
+
 	/* Idle and signon time (local clients only!) */
 	if (!Conf_MorePrivacy && Client_Conn(c) > NONE &&
 	    !IRC_WriteStrClient(from, RPL_WHOISIDLE_MSG,

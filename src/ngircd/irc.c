@@ -469,11 +469,11 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 #else
 			if (Client_Type(cl) != ForceType) {
 #endif
-				if (!SendErrors)
-					return CONNECTED;
-				return IRC_WriteStrClient(from, ERR_NOSUCHNICK_MSG,
-							  Client_ID(from),
-							  currentTarget);
+				if (SendErrors && !IRC_WriteStrClient(
+				    from, ERR_NOSUCHNICK_MSG,Client_ID(from),
+				    currentTarget))
+					return DISCONNECTED;
+				goto send_next_target;
 			}
 
 #ifndef STRICT_RFC

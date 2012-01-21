@@ -1028,24 +1028,25 @@ Channel_AddInvite(CHANNEL *c, const char *mask, bool onlyonce)
 
 
 static bool
-ShowInvitesBans(struct list_head *head, CLIENT *Client, CHANNEL *Channel, bool invite)
+ShowChannelList(struct list_head *head, CLIENT *Client, CHANNEL *Channel,
+		char *msg, char *msg_end)
 {
 	struct list_elem *e;
-	char *msg = invite ? RPL_INVITELIST_MSG : RPL_BANLIST_MSG;
-	char *msg_end;
 
-	assert( Client != NULL );
-	assert( Channel != NULL );
+	assert (Client != NULL);
+	assert (Channel != NULL);
 
 	e = Lists_GetFirst(head);
 	while (e) {
-		if( ! IRC_WriteStrClient( Client, msg, Client_ID( Client ),
-				Channel_Name( Channel ), Lists_GetMask(e) )) return DISCONNECTED;
+		if (!IRC_WriteStrClient(Client, msg, Client_ID(Client),
+					Channel_Name(Channel),
+					Lists_GetMask(e)))
+			return DISCONNECTED;
 		e = Lists_GetNext(e);
 	}
 
-	msg_end = invite ? RPL_ENDOFINVITELIST_MSG : RPL_ENDOFBANLIST_MSG;
-	return IRC_WriteStrClient( Client, msg_end, Client_ID( Client ), Channel_Name( Channel ));
+	return IRC_WriteStrClient(Client, msg_end, Client_ID(Client),
+				  Channel_Name(Channel));
 }
 
 
@@ -1057,7 +1058,8 @@ Channel_ShowBans( CLIENT *Client, CHANNEL *Channel )
 	assert( Channel != NULL );
 
 	h = Channel_GetListBans(Channel);
-	return ShowInvitesBans(h, Client, Channel, false);
+	return ShowChannelList(h, Client, Channel, RPL_BANLIST_MSG,
+			       RPL_ENDOFBANLIST_MSG);
 }
 
 
@@ -1069,7 +1071,8 @@ Channel_ShowInvites( CLIENT *Client, CHANNEL *Channel )
 	assert( Channel != NULL );
 
 	h = Channel_GetListInvites(Channel);
-	return ShowInvitesBans(h, Client, Channel, true);
+	return ShowChannelList(h, Client, Channel, RPL_INVITELIST_MSG,
+			       RPL_ENDOFINVITELIST_MSG);
 }
 
 

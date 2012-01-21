@@ -41,10 +41,10 @@ static bool Client_Mode PARAMS((CLIENT *Client, REQUEST *Req, CLIENT *Origin,
 static bool Channel_Mode PARAMS((CLIENT *Client, REQUEST *Req, CLIENT *Origin,
 				 CHANNEL *Channel));
 
-static bool Add_Ban_Invite PARAMS((char what, CLIENT *Prefix, CLIENT *Client,
-				   CHANNEL *Channel, const char *Pattern));
-static bool Del_Ban_Invite PARAMS((char what, CLIENT *Prefix, CLIENT *Client,
-				   CHANNEL *Channel, const char *Pattern));
+static bool Add_To_List PARAMS((char what, CLIENT *Prefix, CLIENT *Client,
+				CHANNEL *Channel, const char *Pattern));
+static bool Del_From_List PARAMS((char what, CLIENT *Prefix, CLIENT *Client,
+				  CHANNEL *Channel, const char *Pattern));
 
 static bool Send_ListChange PARAMS((const bool IsAdd, const char ModeChar,
 				    CLIENT *Prefix, CLIENT *Client,
@@ -668,10 +668,10 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 				/* modify list */
 				if (modeok) {
 					connected = set
-					   ? Add_Ban_Invite(*mode_ptr, Origin,
+					   ? Add_To_List(*mode_ptr, Origin,
 						Client, Channel,
 						Req->argv[arg_arg])
-					   : Del_Ban_Invite(*mode_ptr, Origin,
+					   : Del_From_List(*mode_ptr, Origin,
 						Client, Channel,
 						Req->argv[arg_arg]);
 				} else {
@@ -834,7 +834,7 @@ IRC_AWAY( CLIENT *Client, REQUEST *Req )
 
 
 /**
- * Add entries to channel ban and invite lists.
+ * Add entries to channel invite, ban and exception lists.
  *
  * @param what Can be 'I' for invite or 'b' for ban list.
  * @param Prefix The originator of the command.
@@ -844,8 +844,8 @@ IRC_AWAY( CLIENT *Client, REQUEST *Req )
  * @return CONNECTED or DISCONNECTED.
  */
 static bool
-Add_Ban_Invite(char what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel,
-	       const char *Pattern)
+Add_To_List(char what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel,
+	    const char *Pattern)
 {
 	const char *mask;
 	struct list_head *list;
@@ -857,10 +857,14 @@ Add_Ban_Invite(char what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel,
 
 	mask = Lists_MakeMask(Pattern);
 
-	if (what == 'I')
-		list = Channel_GetListInvites(Channel);
-	else
-		list = Channel_GetListBans(Channel);
+	switch(what) {
+		case 'I':
+			list = Channel_GetListInvites(Channel);
+			break;
+		case 'b':
+			list = Channel_GetListBans(Channel);
+			break;
+	}
 
 	if (Lists_CheckDupeMask(list, mask))
 		return CONNECTED;
@@ -871,19 +875,22 @@ Add_Ban_Invite(char what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel,
 					  Channel_Name(Channel), mask,
 					  MAX_HNDL_CHANNEL_LISTS);
 
-	if (what == 'I') {
-		if (!Channel_AddInvite(Channel, mask, false))
-			return CONNECTED;
-	} else {
-		if (!Channel_AddBan(Channel, mask))
-			return CONNECTED;
+	switch (what) {
+		case 'I':
+			if (!Channel_AddInvite(Channel, mask, false))
+				return CONNECTED;
+			break;
+		case 'b':
+			if (!Channel_AddBan(Channel, mask))
+				return CONNECTED;
+			break;
 	}
 	return Send_ListChange(true, what, Prefix, Client, Channel, mask);
 }
 
 
 /**
- * Delete entries from channel ban and invite lists.
+ * Delete entries from channel invite, ban and exeption lists.
  *
  * @param what Can be 'I' for invite or 'b' for ban list.
  * @param Prefix The originator of the command.
@@ -893,8 +900,8 @@ Add_Ban_Invite(char what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel,
  * @return CONNECTED or DISCONNECTED.
  */
 static bool
-Del_Ban_Invite(char what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel,
-	       const char *Pattern)
+Del_From_List(char what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel,
+	      const char *Pattern)
 {
 	const char *mask;
 	struct list_head *list;
@@ -906,10 +913,14 @@ Del_Ban_Invite(char what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel,
 
 	mask = Lists_MakeMask(Pattern);
 
-	if (what == 'I')
-		list = Channel_GetListInvites(Channel);
-	else
-		list = Channel_GetListBans(Channel);
+	switch (what) {
+		case 'I':
+			list = Channel_GetListInvites(Channel);
+			break;
+		case 'b':
+			list = Channel_GetListBans(Channel);
+			break;
+	}
 
 	if (!Lists_CheckDupeMask(list, mask))
 		return CONNECTED;

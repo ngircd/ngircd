@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2011 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2012 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -88,6 +88,14 @@ Channel_GetListBans(CHANNEL *c)
 
 
 GLOBAL struct list_head *
+Channel_GetListExcepts(CHANNEL *c)
+{
+	assert(c != NULL);
+	return &c->list_excepts;
+}
+
+
+GLOBAL struct list_head *
 Channel_GetListInvites(CHANNEL *c)
 {
 	assert(c != NULL);
@@ -161,6 +169,7 @@ Free_Channel(CHANNEL *chan)
 	array_free(&chan->topic);
 	array_free(&chan->keyfile);
 	Lists_Free(&chan->list_bans);
+	Lists_Free(&chan->list_excepts);
 	Lists_Free(&chan->list_invites);
 
 	free(chan);
@@ -788,6 +797,13 @@ Channel_SetMaxUsers(CHANNEL *Chan, unsigned long Count)
 } /* Channel_SetMaxUsers */
 
 
+/**
+ * Check if a client is allowed to send to a specific channel.
+ *
+ * @param Chan The channel to check.
+ * @param From The client that wants to send.
+ * @return true if the client is allowed to send, false otherwise.
+ */
 static bool
 Can_Send_To_Channel(CHANNEL *Chan, CLIENT *From)
 {
@@ -821,6 +837,9 @@ Can_Send_To_Channel(CHANNEL *Chan, CLIENT *From)
 
 	if (strchr(Channel_Modes(Chan), 'm'))
 		return false;
+
+	if (Lists_Check(&Chan->list_excepts, From))
+		return true;
 
 	return !Lists_Check(&Chan->list_bans, From);
 }
@@ -1013,7 +1032,16 @@ GLOBAL bool
 Channel_AddBan(CHANNEL *c, const char *mask )
 {
 	struct list_head *h = Channel_GetListBans(c);
-	LogDebug("Adding \"%s\" to \"%s\" %s list", mask, Channel_Name(c), "ban");
+	LogDebug("Adding \"%s\" to \"%s\" ban list", mask, Channel_Name(c));
+	return Lists_Add(h, mask, false, NULL);
+}
+
+
+GLOBAL bool
+Channel_AddExcept(CHANNEL *c, const char *mask )
+{
+	struct list_head *h = Channel_GetListExcepts(c);
+	LogDebug("Adding \"%s\" to \"%s\" exception list", mask, Channel_Name(c));
 	return Lists_Add(h, mask, false, NULL);
 }
 
@@ -1022,7 +1050,7 @@ GLOBAL bool
 Channel_AddInvite(CHANNEL *c, const char *mask, bool onlyonce)
 {
 	struct list_head *h = Channel_GetListInvites(c);
-	LogDebug("Adding \"%s\" to \"%s\" %s list", mask, Channel_Name(c), "invite");
+	LogDebug("Adding \"%s\" to \"%s\" invite list", mask, Channel_Name(c));
 	return Lists_Add(h, mask, onlyonce, NULL);
 }
 
@@ -1060,6 +1088,19 @@ Channel_ShowBans( CLIENT *Client, CHANNEL *Channel )
 	h = Channel_GetListBans(Channel);
 	return ShowChannelList(h, Client, Channel, RPL_BANLIST_MSG,
 			       RPL_ENDOFBANLIST_MSG);
+}
+
+
+GLOBAL bool
+Channel_ShowExcepts( CLIENT *Client, CHANNEL *Channel )
+{
+	struct list_head *h;
+
+	assert( Channel != NULL );
+
+	h = Channel_GetListExcepts(Channel);
+	return ShowChannelList(h, Client, Channel, RPL_EXCEPTLIST_MSG,
+			       RPL_ENDOFEXCEPTLIST_MSG);
 }
 
 

@@ -82,7 +82,7 @@ static bool
 join_allowed(CLIENT *Client, CHANNEL *chan, const char *channame,
 	     const char *key)
 {
-	bool is_invited, is_banned;
+	bool is_invited, is_banned, is_exception;;
 	const char *channel_modes;
 
 	/* Allow IRC operators to overwrite channel limits */
@@ -90,9 +90,10 @@ join_allowed(CLIENT *Client, CHANNEL *chan, const char *channame,
 		return true;
 
 	is_banned = Lists_Check(Channel_GetListBans(chan), Client);
+	is_exception = Lists_Check(Channel_GetListExcepts(chan), Client);
 	is_invited = Lists_Check(Channel_GetListInvites(chan), Client);
 
-	if (is_banned && !is_invited) {
+	if (is_banned && !is_invited && !is_exception) {
 		/* Client is banned from channel (and not on invite list) */
 		IRC_WriteStrClient(Client, ERR_BANNEDFROMCHAN_MSG,
 				   Client_ID(Client), channame);

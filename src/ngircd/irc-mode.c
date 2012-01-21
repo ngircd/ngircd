@@ -662,6 +662,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 		/* --- Channel lists --- */
 		case 'I': /* Invite lists */
 		case 'b': /* Ban lists */
+		case 'e': /* Channel exception lists */
 			if (Mode_Limit_Reached(Client, mode_arg_count++))
 				goto chan_exit;
 			if (arg_arg > mode_arg) {
@@ -683,10 +684,17 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 				Req->argv[arg_arg][0] = '\0';
 				arg_arg++;
 			} else {
-				if (*mode_ptr == 'I')
+				switch (*mode_ptr) {
+				case 'I':
 					Channel_ShowInvites(Origin, Channel);
-				else
+					break;
+				case 'b':
 					Channel_ShowBans(Origin, Channel);
+					break;
+				case 'e':
+					Channel_ShowExcepts(Origin, Channel);
+					break;
+				}
 			}
 			break;
 		default:
@@ -836,7 +844,7 @@ IRC_AWAY( CLIENT *Client, REQUEST *Req )
 /**
  * Add entries to channel invite, ban and exception lists.
  *
- * @param what Can be 'I' for invite or 'b' for ban list.
+ * @param what Can be 'I' for invite, 'b' for ban, and 'e' for exception list.
  * @param Prefix The originator of the command.
  * @param Client The sender of the command.
  * @param Channel The channel of which the list should be modified.
@@ -853,7 +861,7 @@ Add_To_List(char what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel,
 	assert(Client != NULL);
 	assert(Channel != NULL);
 	assert(Pattern != NULL);
-	assert(what == 'I' || what == 'b');
+	assert(what == 'I' || what == 'b' || what == 'e');
 
 	mask = Lists_MakeMask(Pattern);
 
@@ -863,6 +871,9 @@ Add_To_List(char what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel,
 			break;
 		case 'b':
 			list = Channel_GetListBans(Channel);
+			break;
+		case 'e':
+			list = Channel_GetListExcepts(Channel);
 			break;
 	}
 
@@ -884,6 +895,10 @@ Add_To_List(char what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel,
 			if (!Channel_AddBan(Channel, mask))
 				return CONNECTED;
 			break;
+		case 'e':
+			if (!Channel_AddExcept(Channel, mask))
+				return CONNECTED;
+			break;
 	}
 	return Send_ListChange(true, what, Prefix, Client, Channel, mask);
 }
@@ -892,7 +907,7 @@ Add_To_List(char what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel,
 /**
  * Delete entries from channel invite, ban and exeption lists.
  *
- * @param what Can be 'I' for invite or 'b' for ban list.
+ * @param what Can be 'I' for invite, 'b' for ban, and 'e' for exception list.
  * @param Prefix The originator of the command.
  * @param Client The sender of the command.
  * @param Channel The channel of which the list should be modified.
@@ -909,7 +924,7 @@ Del_From_List(char what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel,
 	assert(Client != NULL);
 	assert(Channel != NULL);
 	assert(Pattern != NULL);
-	assert(what == 'I' || what == 'b');
+	assert(what == 'I' || what == 'b' || what == 'e');
 
 	mask = Lists_MakeMask(Pattern);
 
@@ -919,6 +934,9 @@ Del_From_List(char what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel,
 			break;
 		case 'b':
 			list = Channel_GetListBans(Channel);
+			break;
+		case 'e':
+			list = Channel_GetListExcepts(Channel);
 			break;
 	}
 
@@ -931,7 +949,7 @@ Del_From_List(char what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel,
 
 
 /**
- * Send information about changed channel ban/invite lists to clients.
+ * Send information about changed channel invite/ban/exception lists to clients.
  *
  * @param IsAdd true if the list item has been added, false otherwise.
  * @param ModeChar The mode to use (e. g. 'b' or 'I')

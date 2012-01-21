@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2011 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2012 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,6 +38,7 @@ typedef struct _CHANNEL
 	char key[CLIENT_PASS_LEN];	/* Channel key ("password", mode "k" ) */
 	unsigned long maxusers;		/* Maximum number of members (mode "l") */
 	struct list_head list_bans;	/* list head of banned users */
+	struct list_head list_excepts;	/* list head of (ban) exception list */
 	struct list_head list_invites;	/* list head of invited users */
 	array keyfile;			/* Name of the channel key file */
 } CHANNEL;
@@ -58,6 +59,7 @@ typedef POINTER CL2CHAN;
 #endif
 
 GLOBAL struct list_head *Channel_GetListBans PARAMS((CHANNEL *c));
+GLOBAL struct list_head *Channel_GetListExcepts PARAMS((CHANNEL *c));
 GLOBAL struct list_head *Channel_GetListInvites PARAMS((CHANNEL *c));
 
 GLOBAL void Channel_Init PARAMS(( void ));
@@ -123,10 +125,13 @@ GLOBAL char *Channel_TopicWho PARAMS(( CHANNEL *Chan ));
 GLOBAL unsigned int Channel_CreationTime PARAMS(( CHANNEL *Chan ));
 #endif
 
-GLOBAL bool Channel_AddInvite PARAMS((CHANNEL *c, const char *Mask, bool OnlyOnce ));
-GLOBAL bool Channel_AddBan PARAMS((CHANNEL *c, const char *Mask ));
+GLOBAL bool Channel_AddBan PARAMS((CHANNEL *c, const char *Mask));
+GLOBAL bool Channel_AddExcept PARAMS((CHANNEL *c, const char *Mask));
+GLOBAL bool Channel_AddInvite PARAMS((CHANNEL *c, const char *Mask,
+				      bool OnlyOnce));
 
 GLOBAL bool Channel_ShowBans PARAMS((CLIENT *client, CHANNEL *c));
+GLOBAL bool Channel_ShowExcepts PARAMS((CLIENT *client, CHANNEL *c));
 GLOBAL bool Channel_ShowInvites PARAMS((CLIENT *client, CHANNEL *c));
 
 GLOBAL void Channel_LogServer PARAMS((const char *msg));

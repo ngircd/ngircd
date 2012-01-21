@@ -35,7 +35,7 @@ expect {
 	"@* PRIVMSG nick :test\r*@* PRIVMSG nick :test"
 }
 
-send "privmsg nick,#testChannel,nick :test\r"
+send "privmsg Nick,#testChannel,nick :test\r"
 expect {
 	timeout { exit 1 }
 	"@* PRIVMSG nick :test\r*401*@* PRIVMSG nick :test"
@@ -47,7 +47,7 @@ expect {
 	"401"
 }
 
-send "privmsg ~user@ngircd.test.server :test\r"
+send "privmsg ~UsEr@ngIRCd.Test.Server :test\r"
 expect {
 	timeout { exit 1 }
 	"@* PRIVMSG nick :test"
@@ -65,7 +65,7 @@ expect {
 #	"@* PRIVMSG nick :test"
 #}
 #
-#send "privmsg nick!~user@localhost :test\r"
+#send "privmsg Nick!~User@LocalHost :test\r"
 #expect {
 #	timeout { exit 1 }
 #	"@* PRIVMSG nick :test"

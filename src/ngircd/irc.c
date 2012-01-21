@@ -440,8 +440,8 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 				    Client_Type(cl) != CLIENT_SERVICE)
 					continue;
 				if (nick != NULL && host != NULL) {
-					if (strcmp(nick, Client_ID(cl)) == 0 &&
-					    strcmp(user, Client_User(cl)) == 0 &&
+					if (strcasecmp(nick, Client_ID(cl)) == 0 &&
+					    strcasecmp(user, Client_User(cl)) == 0 &&
 					    strcasecmp(host, Client_HostnameCloaked(cl)) == 0)
 						break;
 					else

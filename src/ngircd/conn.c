@@ -1227,6 +1227,20 @@ Conn_SyncServerStruct(void)
 
 
 /**
+ * Get IP address string of a connection.
+ *
+ * @param Idx Connection index.
+ * @return Pointer to a global buffer containing the IP address as string.
+ */
+GLOBAL const char *
+Conn_GetIPAInfo(CONN_ID Idx)
+{
+	assert(Idx > NONE);
+	return ng_ipaddr_tostr(&My_Connections[Idx].addr);
+}
+
+
+/**
  * Send out data of write buffer; connect new sockets.
  *
  * @param Idx	Connection index.

@@ -131,6 +131,8 @@ Conn_UsesSSL(UNUSED CONN_ID Idx)
 { return false; }
 #endif
 
+GLOBAL const char *Conn_GetIPAInfo PARAMS((CONN_ID Idx));
+
 GLOBAL long Conn_Count PARAMS((void));
 GLOBAL long Conn_CountMax PARAMS((void));
 GLOBAL long Conn_CountAccepted PARAMS((void));

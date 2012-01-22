@@ -2225,6 +2225,7 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 					"NOTICE AUTH :*** No ident response");
 		}
 #endif
+		Class_HandleServerBans(c);
 	}
 #ifdef DEBUG
 		else Log( LOG_DEBUG, "Resolver: discarding result for already registered connection %d.", i );

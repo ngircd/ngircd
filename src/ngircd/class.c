@@ -112,7 +112,8 @@ Class_AddMask(const int Class, const char *Mask, time_t ValidUntil,
 	assert(Mask != NULL);
 	assert(Reason != NULL);
 
-	return Lists_Add(&My_Classes[Class], Mask, ValidUntil, Reason);
+	return Lists_Add(&My_Classes[Class], Lists_MakeMask(Mask),
+			 ValidUntil, Reason);
 }
 
 GLOBAL void
@@ -121,7 +122,7 @@ Class_DeleteMask(const int Class, const char *Mask)
 	assert(Class < CLASS_COUNT);
 	assert(Mask != NULL);
 
-	Lists_Del(&My_Classes[Class], Mask);
+	Lists_Del(&My_Classes[Class], Lists_MakeMask(Mask));
 }
 
 GLOBAL struct list_head *

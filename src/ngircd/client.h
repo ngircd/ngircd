@@ -163,6 +163,9 @@ GLOBAL void Client_RegisterWhowas PARAMS(( CLIENT *Client ));
 
 GLOBAL const char *Client_TypeText PARAMS((CLIENT *Client));
 
+GLOBAL void Client_Reject PARAMS((CLIENT *Client, const char *Reason,
+				  bool InformClient));
+
 #ifdef DEBUG
 GLOBAL void Client_DebugDump PARAMS((void));
 #endif

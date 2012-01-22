@@ -1097,6 +1097,39 @@ Client_StartTime(CLIENT *Client)
 } /* Client_Uptime */
 
 
+/**
+ * Reject a client when logging in.
+ *
+ * This function is called when a client isn't allowed to connect to this
+ * server. Possible reasons are bad server password, bad PAM password,
+ * or that the client is G/K-Line'd.
+ *
+ * After calling this function, the client isn't connected any more.
+ *
+ * @param Client The client to reject.
+ * @param Reason The reason why the client has been rejected.
+ * @param InformClient If true, send the exact reason to the client.
+ */
+GLOBAL void
+Client_Reject(CLIENT *Client, const char *Reason, bool InformClient)
+{
+	char info[COMMAND_LEN];
+
+	assert(Client != NULL);
+	assert(Reason != NULL);
+
+	if (InformClient)
+		snprintf(info, sizeof(info), "Access denied: %s", Reason);
+	else
+		strcpy(info, "Access denied: Bad password?");
+
+	Log(LOG_ERR,
+	    "User \"%s\" rejected (connection %d): %s!",
+	    Client_Mask(Client), Client_Conn(Client), Reason);
+	Conn_Close(Client_Conn(Client), Reason, info, true);
+}
+
+
 static unsigned long
 Count( CLIENT_TYPE Type )
 {

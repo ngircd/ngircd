@@ -47,7 +47,6 @@ static bool Hello_User PARAMS(( CLIENT *Client ));
 static bool Hello_User_PostAuth PARAMS(( CLIENT *Client ));
 static void Kill_Nick PARAMS(( char *Nick, char *Reason ));
 static void Introduce_Client PARAMS((CLIENT *To, CLIENT *Client, int Type));
-static void Reject_Client PARAMS((CLIENT *Client, const char *InternalReason));
 
 static void cb_introduceClient PARAMS((CLIENT *Client, CLIENT *Prefix,
 				       void *i));
@@ -945,7 +944,7 @@ Hello_User(CLIENT * Client)
 		 * passwords supplied are classified as "wrong". */
 		if(Client_Password(Client)[0] == '\0')
 			return Hello_User_PostAuth(Client);
-		Reject_Client(Client, "non-empty password");
+		Client_Reject(Client, "Non-empty password", false);
 		return DISCONNECTED;
 	}
 
@@ -981,7 +980,7 @@ Hello_User(CLIENT * Client)
 	/* Check global server password ... */
 	if (strcmp(Client_Password(Client), Conf_ServerPwd) != 0) {
 		/* Bad password! */
-		Reject_Client(Client, "bad server password");
+		Client_Reject(Client, "Bad server password", false);
 		return DISCONNECTED;
 	}
 	return Hello_User_PostAuth(Client);
@@ -1026,7 +1025,7 @@ cb_Read_Auth_Result(int r_fd, UNUSED short events)
 
 	if (len != sizeof(result)) {
 		Log(LOG_CRIT, "Auth: Got malformed result!");
-		Reject_Client(client, "internal error");
+		Client_Reject(client, "Internal error", false);
 		return;
 	}
 
@@ -1034,29 +1033,10 @@ cb_Read_Auth_Result(int r_fd, UNUSED short events)
 		Client_SetUser(client, Client_OrigUser(client), true);
 		(void)Hello_User_PostAuth(client);
 	} else
-		Reject_Client(client, "bad password");
+		Client_Reject(client, "Bad password", false);
 }
 
 #endif
-
-
-/**
- * Reject a client because of wrong password.
- *
- * This function is called either when the global server password or a password
- * checked using PAM has been wrong.
- *
- * @param Client	The client to reject.
- */
-static void
-Reject_Client(CLIENT *Client, const char *InternalReason)
-{
-	Log(LOG_ERR,
-	    "User \"%s\" rejected (connection %d): %s!",
-	    Client_Mask(Client), Client_Conn(Client), InternalReason);
-	Conn_Close(Client_Conn(Client), InternalReason,
-		   "Access denied! Bad password?", true);
-}
 
 
 /**
@@ -1071,14 +1051,10 @@ Reject_Client(CLIENT *Client, const char *InternalReason)
 static bool
 Hello_User_PostAuth(CLIENT *Client)
 {
-	if (Class_IsMember(CLASS_GLINE, Client)) {
-		Reject_Client(Client, "G-Line'd");
+	assert(Client != NULL);
+
+	if (Class_HandleServerBans(Client) != CONNECTED)
 		return DISCONNECTED;
-	}
-	if (Class_IsMember(CLASS_KLINE, Client)) {
-		Reject_Client(Client, "K-Line'd");
-		return DISCONNECTED;
-	}
 
 	Introduce_Client(NULL, Client, CLIENT_USER);
 

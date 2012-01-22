@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2011 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2012 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,8 @@ GLOBAL bool Class_AddMask PARAMS((const int Class, const char *Mask,
 				  const time_t ValidUntil, const char *Reason));
 GLOBAL void Class_DeleteMask PARAMS((const int Class, const char *Mask));
 
-GLOBAL bool Class_IsMember PARAMS((const int Class, CLIENT *Client));
+GLOBAL char *Class_GetMemberReason PARAMS((const int Class, CLIENT *Client));
+GLOBAL bool Class_HandleServerBans PARAMS((CLIENT *Client));
 
 GLOBAL struct list_head *Class_GetList PARAMS((const int Class));
 

@@ -10,6 +10,19 @@
 
 ngIRCd Release 19
 
+  - Implement channel exception list (mode 'e'). This allows a channel
+    operator to define exception masks that allow users to join the
+    channel even when a "ban" would match and prevent them from joining:
+    the exception list (e) overrides the ban list (b).
+  - Implement user mode 'C': If the target user of a PRIVMSG or NOTICE
+    command has the user mode 'C' set, it is required that both sender
+    and receiver are on the same channel. This prevents private flooding
+    by completely unknown clients.
+  - New RPL_WHOISREGNICK_MSG(307) numeric in WHOIS command replies: it
+    indicates if a nick name is registered (if user mode 'R' set).
+  - Limit channel invite, ban, and exception lists to 50 entries and fix
+    duplicate check and error messages when adding already listed entries
+    or deleting no (longer) existing ones.
   - Limit the number of list items in the reply of LIST (100), WHO (25),
     WHOIS (10), and WHOWAS (25) commands.
   - Limit the MODE command to handle a maximum number of 5 channel modes
@@ -37,12 +50,6 @@ ngIRCd Release 19
     Reported by Cahata, thanks!
   - Implement IRC commands "GLINE" and "KLINE" to ban users. G-Lines are
     synchronized between server on peering, K-Lines are local only.
-  - Xcode: update project file for Xcode 4.2.
-  - Only close "unrelated" sockets in forked child processes: This fixes
-    the problem that ngIRCd can't do any IDENT lookups because of the
-    socket has already been closed in the child process.
-    The bug has been introduced starting with ngIRCd 17 ... :-(
-    (commit ID 6ebb31ab35e)
   - Added doc/Modes.txt: document modes supported by ngIRCd.
   - Implement user mode "R": indicates that the nick name of this user
     is "registered". This mode isn't handled by ngIRCd itself, but must
@@ -50,9 +57,6 @@ ngIRCd Release 19
   - Implement channel mode "R": only registered users (having the user
     mode "R" set) are allowed to join this channel.
   - Test suite: bind to loopback (127.0.0.1) interface only.
-  - Disconnect directly linked servers sending QUIT. Without this,
-    the server becomes removed from the network and the client list,
-    but the connection isn't shut down at all ...
   - Handle unknown user and channel modes: these modes are saved and
     forwarded to other servers, but ignored otherwise.
   - Handle channel user modes 'a', 'h', and 'q' from remote servers.
@@ -517,7 +521,3 @@ ngIRCd 0.0.2, 06.01.2002
 ngIRCd 0.0.1, 31.12.2001
 
   - erste oeffentliche Version von ngIRCd als "public preview" :-)
-
-
--- 
-$Id: NEWS,v 1.88 2008/02/26 22:05:42 fw Exp $

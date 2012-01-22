@@ -2,7 +2,7 @@
                      ngIRCd - Next Generation IRC Server
                            http://ngircd.barton.de/
 
-               (c)2001-2011 Alexander Barton and Contributors.
+               (c)2001-2012 Alexander Barton and Contributors.
                ngIRCd is free software and published under the
                    terms of the GNU General Public License.
 
@@ -11,6 +11,21 @@
 
 ngIRCd Release 19
 
+  - Implement channel exception list (mode 'e'). This allows a channel
+    operator to define exception masks that allow users to join the
+    channel even when a "ban" would match and prevent them from joining:
+    the exception list (e) overrides the ban list (b).
+  - PRIVMSG and NOTICE: Handle nick!user@host masks case-insensitive.
+  - Implement user mode 'C': If the target user of a PRIVMSG or NOTICE
+    command has the user mode 'C' set, it is required that both sender
+    and receiver are on the same channel. This prevents private flooding
+    by completely unknown clients.
+  - New RPL_WHOISREGNICK_MSG(307) numeric in WHOIS command replies: it
+    indicates if a nick name is registered (if user mode 'R' set).
+  - Limit channel invite, ban, and exception lists to 50 entries and fix
+    duplicate check and error messages when adding already listed entries
+    or deleting no (longer) existing ones.
+  - Fix both ERR_SUMMONDISABLED(445) and ERR_USERSDISABLED(446) replies.
   - MODE command: correctly return ERR_UNKNOWNMODE(472) numeric for
     unknown channel modes, instead of ERR_UMODEUNKNOWNFLAG(501).
   - ISUPPORT(005) numeric: add "O", "R", and "z" modes to "CHANMODES".

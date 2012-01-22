@@ -648,10 +648,10 @@ IRC_STATS( CLIENT *Client, REQUEST *Req )
  * therefore answers with ERR_SUMMONDISABLED.
  */
 GLOBAL bool
-IRC_SUMMON(CLIENT * Client, REQUEST * Req)
+IRC_SUMMON(CLIENT * Client, UNUSED REQUEST * Req)
 {
 	return IRC_WriteStrClient(Client, ERR_SUMMONDISABLED_MSG,
-				  Client_ID(Client), Req->command);
+				  Client_ID(Client));
 } /* IRC_SUMMON */
 
 
@@ -741,10 +741,10 @@ IRC_USERHOST(CLIENT *Client, REQUEST *Req)
  * See RFC 2812 section 4.6. As suggested there the command is disabled.
  */
 GLOBAL bool
-IRC_USERS(CLIENT * Client, REQUEST * Req)
+IRC_USERS(CLIENT * Client, UNUSED REQUEST * Req)
 {
 	return IRC_WriteStrClient(Client, ERR_USERSDISABLED_MSG,
-				  Client_ID(Client), Req->command);
+				  Client_ID(Client));
 } /* IRC_USERS */
 
 

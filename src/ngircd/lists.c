@@ -320,7 +320,20 @@ Lists_MakeMask(const char *Pattern)
  * @return true if client is listed, false if not.
  */
 bool
-Lists_Check( struct list_head *h, CLIENT *Client)
+Lists_Check(struct list_head *h, CLIENT *Client)
+{
+	return Lists_CheckReason(h, Client) != NULL;
+}
+
+/**
+ * Check if a client is listed in a list and return the "reason".
+ *
+ * @param h List head.
+ * @param Client Client to check.
+ * @return true if client is listed, false if not.
+ */
+char *
+Lists_CheckReason(struct list_head *h, CLIENT *Client)
 {
 	struct list_elem *e, *last, *next;
 
@@ -338,13 +351,13 @@ Lists_Check( struct list_head *h, CLIENT *Client)
 					 e->mask);
 				Lists_Unlink(h, last, e);
 			}
-			return true;
+			return e->reason ? e->reason : "";
 		}
 		last = e;
 		e = next;
 	}
 
-	return false;
+	return NULL;
 }
 
 /**

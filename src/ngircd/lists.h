@@ -30,6 +30,7 @@ GLOBAL struct list_elem *Lists_GetFirst PARAMS((const struct list_head *));
 GLOBAL struct list_elem *Lists_GetNext PARAMS((const struct list_elem *));
 
 GLOBAL bool Lists_Check PARAMS((struct list_head *head, CLIENT *client));
+GLOBAL char *Lists_CheckReason PARAMS((struct list_head *head, CLIENT *client));
 GLOBAL struct list_elem *Lists_CheckDupeMask PARAMS((const struct list_head *head,
 					const char *mask));
 

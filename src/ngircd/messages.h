@@ -91,6 +91,7 @@
 #define RPL_MOTD_MSG			"372 %s :- %s"
 #define RPL_MOTDSTART_MSG		"375 %s :- %s message of the day"
 #define RPL_ENDOFMOTD_MSG		"376 %s :End of MOTD command"
+#define RPL_WHOISHOST_MSG		"378 %s %s :is connecting from *@%s %s"
 #define RPL_YOUREOPER_MSG		"381 %s :You are now an IRC Operator"
 #define RPL_YOURESERVICE_MSG		"383 %s :You are service %s"
 #define RPL_TIME_MSG			"391 %s %s :%s"

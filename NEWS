@@ -10,6 +10,9 @@
 
 ngIRCd Release 19
 
+  - New numeric RPL_WHOISHOST_MSG(378), which returns the DNS hostname
+    (if available) and the IP address of a client in the WHOIS reply.
+    Only the user itself and local IRC operators get this numeric.
   - Implement channel exception list (mode 'e'). This allows a channel
     operator to define exception masks that allow users to join the
     channel even when a "ban" would match and prevent them from joining:
@@ -50,6 +53,10 @@ ngIRCd Release 19
     Reported by Cahata, thanks!
   - Implement IRC commands "GLINE" and "KLINE" to ban users. G-Lines are
     synchronized between server on peering, K-Lines are local only.
+    If you use "*!<user>@<host>" or "*!*@<host>" masks, these connections
+    are blocked even before the user is fully logged in (before PASS,
+    NICK, and USER commands have been processed) and before the child
+    processes for authentication are forked, so resource usage is smaller.
   - Added doc/Modes.txt: document modes supported by ngIRCd.
   - Implement user mode "R": indicates that the nick name of this user
     is "registered". This mode isn't handled by ngIRCd itself, but must

@@ -22,7 +22,7 @@
 #define RPL_CREATED_MSG			"003 %s :This server has been started %s"
 #define RPL_MYINFO_MSG			"004 %s %s ngircd-%s %s %s"
 #define RPL_ISUPPORT1_MSG		"005 %s RFC2812 IRCD=ngIRCd CASEMAPPING=ascii PREFIX=(ov)@+ CHANTYPES=#&+ CHANMODES=beI,k,l,imnOPRstz CHANLIMIT=#&+:%d :are supported on this server"
-#define RPL_ISUPPORT2_MSG		"005 %s CHANNELLEN=%d NICKLEN=%d TOPICLEN=%d AWAYLEN=%d KICKLEN=%d MODES=%d MAXLIST=beI:%d PENALTY :are supported on this server"
+#define RPL_ISUPPORT2_MSG		"005 %s CHANNELLEN=%d NICKLEN=%d TOPICLEN=%d AWAYLEN=%d KICKLEN=%d MODES=%d MAXLIST=beI:%d EXCEPTS=e INVEX=I PENALTY :are supported on this server"
 
 #define RPL_TRACELINK_MSG		"200 %s Link %s-%s %s %s V%s %ld %d %d"
 #define RPL_TRACEOPERATOR_MSG		"204 %s Oper 2 :%s"

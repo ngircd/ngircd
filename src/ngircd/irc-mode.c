@@ -857,6 +857,7 @@ Add_To_List(char what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel,
 {
 	const char *mask;
 	struct list_head *list;
+	long int current_count;
 
 	assert(Client != NULL);
 	assert(Channel != NULL);
@@ -864,6 +865,9 @@ Add_To_List(char what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel,
 	assert(what == 'I' || what == 'b' || what == 'e');
 
 	mask = Lists_MakeMask(Pattern);
+	current_count = Lists_Count(Channel_GetListInvites(Channel))
+			+ Lists_Count(Channel_GetListExcepts(Channel))
+			+ Lists_Count(Channel_GetListBans(Channel));
 
 	switch(what) {
 		case 'I':
@@ -880,7 +884,7 @@ Add_To_List(char what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel,
 	if (Lists_CheckDupeMask(list, mask))
 		return CONNECTED;
 	if (Client_Type(Client) == CLIENT_USER &&
-	    Lists_Count(list) >= MAX_HNDL_CHANNEL_LISTS)
+	    current_count >= MAX_HNDL_CHANNEL_LISTS)
 		return IRC_WriteStrClient(Client, ERR_LISTFULL_MSG,
 					  Client_ID(Client),
 					  Channel_Name(Channel), mask,

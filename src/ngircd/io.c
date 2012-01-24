@@ -160,39 +160,34 @@ io_dispatch_devpoll(struct timeval *tv)
 {
 	struct dvpoll dvp;
 	time_t sec = tv->tv_sec * 1000;
-	int i, total, ret, timeout = tv->tv_usec + sec;
+	int i, ret, timeout = tv->tv_usec + sec;
 	short what;
 	struct pollfd p[100];
 
 	if (timeout < 0)
 		timeout = 1000;
 
-	total = 0;
-	do {
-		dvp.dp_timeout = timeout;
-		dvp.dp_nfds = 100;
-		dvp.dp_fds = p;
-		ret = ioctl(io_masterfd, DP_POLL, &dvp);
-		total += ret;
-		if (ret <= 0)
-			return total;
-		for (i=0; i < ret ; i++) {
-			what = 0;
-			if (p[i].revents & (POLLIN|POLLPRI))
-				what = IO_WANTREAD;
+	dvp.dp_timeout = timeout;
+	dvp.dp_nfds = 100;
+	dvp.dp_fds = p;
+	ret = ioctl(io_masterfd, DP_POLL, &dvp);
 
-			if (p[i].revents & POLLOUT)
-				what |= IO_WANTWRITE;
+	for (i=0; i < ret ; i++) {
+		what = 0;
+		if (p[i].revents & (POLLIN|POLLPRI))
+			what = IO_WANTREAD;
 
-			if (p[i].revents && !what) {
-				/* other flag is set, probably POLLERR */
-				what = IO_ERROR;
-			}
-			io_docallback(p[i].fd, what);
+		if (p[i].revents & POLLOUT)
+			what |= IO_WANTWRITE;
+
+		if (p[i].revents && !what) {
+			/* other flag is set, probably POLLERR */
+			what = IO_ERROR;
 		}
-	} while (ret == 100);
+		io_docallback(p[i].fd, what);
+	}
 
-	return total;
+	return ret;
 }
 
 
@@ -462,37 +457,30 @@ static int
 io_dispatch_epoll(struct timeval *tv)
 {
 	time_t sec = tv->tv_sec * 1000;
-	int i, total = 0, ret, timeout = tv->tv_usec + sec;
+	int i, ret, timeout = tv->tv_usec + sec;
 	struct epoll_event epoll_ev[100];
 	short type;
 
 	if (timeout < 0)
 		timeout = 1000;
 
-	do {
-		ret = epoll_wait(io_masterfd, epoll_ev, 100, timeout);
-		total += ret;
-		if (ret <= 0)
-			return total;
+	ret = epoll_wait(io_masterfd, epoll_ev, 100, timeout);
 
-		for (i = 0; i < ret; i++) {
-			type = 0;
-			if (epoll_ev[i].events & (EPOLLERR | EPOLLHUP))
-				type = IO_ERROR;
+	for (i = 0; i < ret; i++) {
+		type = 0;
+		if (epoll_ev[i].events & (EPOLLERR | EPOLLHUP))
+			type = IO_ERROR;
 
-			if (epoll_ev[i].events & (EPOLLIN | EPOLLPRI))
-				type |= IO_WANTREAD;
+		if (epoll_ev[i].events & (EPOLLIN | EPOLLPRI))
+			type |= IO_WANTREAD;
 
-			if (epoll_ev[i].events & EPOLLOUT)
-				type |= IO_WANTWRITE;
+		if (epoll_ev[i].events & EPOLLOUT)
+			type |= IO_WANTWRITE;
 
-			io_docallback(epoll_ev[i].data.fd, type);
-		}
+		io_docallback(epoll_ev[i].data.fd, type);
+	}
 
-		timeout = 0;
-	} while (ret == 100);
-
-	return total;
+	return ret;
 }
 
 static void
@@ -576,7 +564,7 @@ io_event_change_kqueue(int fd, short what, const int action)
 static int
 io_dispatch_kqueue(struct timeval *tv)
 {
-	int i, total = 0, ret;
+	int i, ret;
 	struct kevent kev[100];
 	struct kevent *newevents;
 	struct timespec ts;
@@ -584,50 +572,42 @@ io_dispatch_kqueue(struct timeval *tv)
 	ts.tv_sec = tv->tv_sec;
 	ts.tv_nsec = tv->tv_usec * 1000;
 
-	do {
-		newevents_len = (int) array_length(&io_evcache, sizeof (struct kevent));
-		newevents = (newevents_len > 0) ? array_start(&io_evcache) : NULL;
-		assert(newevents_len >= 0);
+	newevents_len = (int) array_length(&io_evcache, sizeof (struct kevent));
+	newevents = (newevents_len > 0) ? array_start(&io_evcache) : NULL;
+	assert(newevents_len >= 0);
 
-		ret = kevent(io_masterfd, newevents, newevents_len, kev, 100, &ts);
-		if (newevents && ret != -1)
-			array_trunc(&io_evcache);
+	ret = kevent(io_masterfd, newevents, newevents_len, kev, 100, &ts);
+	if (newevents && ret != -1)
+		array_trunc(&io_evcache);
 
-		total += ret;
-		if (ret <= 0)
-			return total;
-
-		for (i = 0; i < ret; i++) {
-			io_debug("dispatch_kqueue: fd, kev.flags", (int)kev[i].ident, kev[i].flags);
-			if (kev[i].flags & (EV_EOF|EV_ERROR)) {
-				if (kev[i].flags & EV_ERROR)
-					Log(LOG_ERR, "kevent fd %d: EV_ERROR (%s)",
-						(int)kev[i].ident, strerror((int)kev[i].data));
-				io_docallback((int)kev[i].ident, IO_ERROR);
-				continue;
-			}
-
-			switch (kev[i].filter) {
-			case EVFILT_READ:
-				io_docallback((int)kev[i].ident, IO_WANTREAD);
-				break;
-			case EVFILT_WRITE:
-				io_docallback((int)kev[i].ident, IO_WANTWRITE);
-				break;
-			default:
-				LogDebug("Unknown kev.filter number %d for fd %d",
-					kev[i].filter, kev[i].ident);
-				/* Fall through */
-			case EV_ERROR:
-				io_docallback((int)kev[i].ident, IO_ERROR);
-				break;
-			}
+	for (i = 0; i < ret; i++) {
+		io_debug("dispatch_kqueue: fd, kev.flags", (int)kev[i].ident, kev[i].flags);
+		if (kev[i].flags & (EV_EOF|EV_ERROR)) {
+			if (kev[i].flags & EV_ERROR)
+				Log(LOG_ERR, "kevent fd %d: EV_ERROR (%s)",
+					(int)kev[i].ident, strerror((int)kev[i].data));
+			io_docallback((int)kev[i].ident, IO_ERROR);
+			continue;
 		}
-		ts.tv_sec = 0;
-		ts.tv_nsec = 0;
-	} while (ret == 100);
 
-	return total;
+		switch (kev[i].filter) {
+		case EVFILT_READ:
+			io_docallback((int)kev[i].ident, IO_WANTREAD);
+			break;
+		case EVFILT_WRITE:
+			io_docallback((int)kev[i].ident, IO_WANTWRITE);
+			break;
+		default:
+			LogDebug("Unknown kev.filter number %d for fd %d",
+				kev[i].filter, kev[i].ident);
+			/* Fall through */
+		case EV_ERROR:
+			io_docallback((int)kev[i].ident, IO_ERROR);
+			break;
+		}
+	}
+
+	return ret;
 }
 
 static void

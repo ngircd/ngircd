@@ -43,6 +43,17 @@ Conn_UpdateIdle(CONN_ID Idx)
 	My_Connections[Idx].lastprivmsg = time(NULL);
 }
 
+/**
+ * Update "ping timestamp", the time of the last outgoing PING request.
+ *
+ * @param Idx Connection index.
+ */
+GLOBAL void
+Conn_UpdatePing(CONN_ID Idx)
+{
+	assert(Idx > NONE);
+	My_Connections[Idx].lastping = time(NULL);
+}
 
 /*
  * Get signon time of a connection.

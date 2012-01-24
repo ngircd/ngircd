@@ -1850,7 +1850,7 @@ Check_Connections(void)
 				   time(NULL) - Conf_PingTimeout) {
 				/* We need to send a PING ... */
 				LogDebug("Connection %d: sending PING ...", i);
-				My_Connections[i].lastping = time(NULL);
+				Conn_UpdatePing(i);
 				Conn_WriteStr(i, "PING :%s",
 					      Client_ID(Client_ThisServer()));
 			}

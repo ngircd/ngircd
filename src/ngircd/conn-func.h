@@ -29,7 +29,9 @@
 #endif
 
 
-GLOBAL void Conn_UpdateIdle PARAMS(( CONN_ID Idx ));
+GLOBAL void Conn_UpdateIdle PARAMS((CONN_ID Idx));
+GLOBAL void Conn_UpdatePing PARAMS((CONN_ID Idx));
+
 GLOBAL time_t Conn_GetSignon PARAMS((CONN_ID Idx));
 GLOBAL time_t Conn_GetIdle PARAMS(( CONN_ID Idx ));
 GLOBAL time_t Conn_LastPing PARAMS(( CONN_ID Idx ));

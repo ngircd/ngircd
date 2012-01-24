@@ -384,6 +384,10 @@ IRC_Num_ENDOFMOTD(CLIENT * Client, UNUSED REQUEST * Req)
 	}
 #endif
 
+	if (!IRC_WriteStrClient(Client, "PING :%s",
+	    Client_ID(Client_ThisServer())))
+		return DISCONNECTED;
+
 	return CONNECTED;
 } /* IRC_Num_ENDOFMOTD */
 

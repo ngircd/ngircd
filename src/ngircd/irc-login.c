@@ -889,15 +889,16 @@ IRC_PONG(CLIENT *Client, REQUEST *Req)
 	}
 #endif
 
-#ifdef DEBUG
-	if (conn > NONE)
-		Log(LOG_DEBUG,
-			"Connection %d: received PONG. Lag: %ld seconds.", conn,
-			time(NULL) - Conn_LastPing(Client_Conn(Client)));
-	else
-		 Log(LOG_DEBUG,
-			"Connection %d: received PONG.", conn);
-#endif
+	if (Client_Type(Client) == CLIENT_SERVER && Conn_LastPing(conn) == 0) {
+		Log(LOG_INFO,
+		    "Synchronization with \"%s\" done (connection %d): %ld seconds [%ld users, %ld channels]",
+		    Client_ID(Client), conn, time(NULL) - Conn_GetSignon(conn),
+		    Client_UserCount(), Channel_CountVisible(NULL));
+		Conn_UpdatePing(conn);
+	} else
+		LogDebug("Connection %d: received PONG. Lag: %ld seconds.",
+			 conn, time(NULL) - Conn_LastPing(conn));
+
 	return CONNECTED;
 } /* IRC_PONG */
 

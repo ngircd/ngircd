@@ -30,11 +30,17 @@
 #include "conn-func.h"
 
 
+/**
+ * Update "idle timestamp", the time of the last visible user action
+ * (e. g. like sending messages, joining or leaving channels).
+ *
+ * @param Idx Connection index.
+ */
 GLOBAL void
-Conn_UpdateIdle( CONN_ID Idx )
+Conn_UpdateIdle(CONN_ID Idx)
 {
-	assert( Idx > NONE );
-	My_Connections[Idx].lastprivmsg = time( NULL );
+	assert(Idx > NONE);
+	My_Connections[Idx].lastprivmsg = time(NULL);
 }
 
 

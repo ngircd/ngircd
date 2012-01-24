@@ -41,6 +41,7 @@ typedef struct {
 
 #define INIT_IOEVENT		{ NULL, -1, 0, NULL }
 #define IO_ERROR		4
+#define MAX_EVENTS		100
 
 #ifdef HAVE_EPOLL_CREATE
 #  define IO_USE_EPOLL		1
@@ -162,13 +163,13 @@ io_dispatch_devpoll(struct timeval *tv)
 	time_t sec = tv->tv_sec * 1000;
 	int i, ret, timeout = tv->tv_usec + sec;
 	short what;
-	struct pollfd p[100];
+	struct pollfd p[MAX_EVENTS];
 
 	if (timeout < 0)
 		timeout = 1000;
 
 	dvp.dp_timeout = timeout;
-	dvp.dp_nfds = 100;
+	dvp.dp_nfds = MAX_EVENTS;
 	dvp.dp_fds = p;
 	ret = ioctl(io_masterfd, DP_POLL, &dvp);
 
@@ -458,13 +459,13 @@ io_dispatch_epoll(struct timeval *tv)
 {
 	time_t sec = tv->tv_sec * 1000;
 	int i, ret, timeout = tv->tv_usec + sec;
-	struct epoll_event epoll_ev[100];
+	struct epoll_event epoll_ev[MAX_EVENTS];
 	short type;
 
 	if (timeout < 0)
 		timeout = 1000;
 
-	ret = epoll_wait(io_masterfd, epoll_ev, 100, timeout);
+	ret = epoll_wait(io_masterfd, epoll_ev, MAX_EVENTS, timeout);
 
 	for (i = 0; i < ret; i++) {
 		type = 0;
@@ -565,7 +566,7 @@ static int
 io_dispatch_kqueue(struct timeval *tv)
 {
 	int i, ret;
-	struct kevent kev[100];
+	struct kevent kev[MAX_EVENTS];
 	struct kevent *newevents;
 	struct timespec ts;
 	int newevents_len;
@@ -576,7 +577,7 @@ io_dispatch_kqueue(struct timeval *tv)
 	newevents = (newevents_len > 0) ? array_start(&io_evcache) : NULL;
 	assert(newevents_len >= 0);
 
-	ret = kevent(io_masterfd, newevents, newevents_len, kev, 100, &ts);
+	ret = kevent(io_masterfd, newevents, newevents_len, kev, MAX_EVENTS, &ts);
 	if (newevents && ret != -1)
 		array_trunc(&io_evcache);
 

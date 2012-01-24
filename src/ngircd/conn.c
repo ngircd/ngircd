@@ -82,8 +82,8 @@
 #define SERVER_WAIT (NONE - 1)
 
 #define MAX_COMMANDS 3
-#define MAX_COMMANDS_SERVER 10
-#define MAX_COMMANDS_SERVICE MAX_COMMANDS_SERVER
+#define MAX_COMMANDS_SERVER_MIN 10
+#define MAX_COMMANDS_SERVICE 10
 
 
 static bool Handle_Write PARAMS(( CONN_ID Idx ));
@@ -1674,16 +1674,15 @@ Handle_Buffer(CONN_ID Idx)
 
 	assert(c != NULL);
 
-	/* Servers do get special command limits, so they can process
-	 * all the messages that are required while peering. */
+	/* Servers get special command limits that depend on the user count */
 	switch (Client_Type(c)) {
 	    case CLIENT_SERVER:
-		/* Allow servers to send more commands in the first 10 secods
+		maxcmd = (int)(Client_UserCount() / 5)
+		       + MAX_COMMANDS_SERVER_MIN;
+		/* Allow servers to handle even more commands while peering
 		 * to speed up server login and network synchronisation. */
-		if (starttime - Client_StartTime(c) < 10)
-			maxcmd = MAX_COMMANDS_SERVER * 5;
-		else
-			maxcmd = MAX_COMMANDS_SERVER;
+		if (Conn_LastPing(Idx) == 0)
+			maxcmd *= 5;
 		break;
 	    case CLIENT_SERVICE:
 		maxcmd = MAX_COMMANDS_SERVICE; break;

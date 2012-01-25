@@ -1438,7 +1438,7 @@ New_Connection(int Sock)
 		return -1;
 	}
 
-	c = Client_NewLocal(new_sock, ip_str, CLIENT_UNKNOWN, false);
+	c = Client_NewLocal(new_sock, NULL, CLIENT_UNKNOWN, false);
 	if (!c) {
 		Log(LOG_ALERT,
 		    "Can't accept connection: can't create client structure!");

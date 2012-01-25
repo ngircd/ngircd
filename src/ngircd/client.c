@@ -186,7 +186,6 @@ Init_New_Client(CONN_ID Idx, CLIENT *Introducer, CLIENT *TopServer,
 
 	assert(Idx >= NONE);
 	assert(Introducer != NULL);
-	assert(Hostname != NULL);
 
 	client = New_Client_Struct();
 	if (!client)

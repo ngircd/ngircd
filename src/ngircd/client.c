@@ -313,16 +313,29 @@ Client_Destroy( CLIENT *Client, const char *LogMsg, const char *FwdMsg, bool Sen
 } /* Client_Destroy */
 
 
+/**
+ * Set client hostname.
+ *
+ * If global hostname cloaking is in effect, don't set the real hostname
+ * but the configured one.
+ *
+ * @param Client The client of which the hostname should be set.
+ * @param Hostname The new hostname.
+ */
 GLOBAL void
 Client_SetHostname( CLIENT *Client, const char *Hostname )
 {
-	assert( Client != NULL );
-	assert( Hostname != NULL );
+	assert(Client != NULL);
+	assert(Hostname != NULL);
 
 	if (strlen(Conf_CloakHost)) {
-		strlcpy( Client->host, Conf_CloakHost, sizeof( Client->host ));
+		LogDebug("Updating hostname of \"%s\": \"%s\" -> \"%s\"",
+			 Client_ID(Client), Client->host, Conf_CloakHost);
+		strlcpy(Client->host, Conf_CloakHost, sizeof(Client->host));
 	} else {
-		strlcpy( Client->host, Hostname, sizeof( Client->host ));
+		LogDebug("Updating hostname of \"%s\": \"%s\" -> \"%s\"",
+			 Client_ID(Client), Client->host, Hostname);
+		strlcpy(Client->host, Hostname, sizeof(Client->host));
 	}
 } /* Client_SetHostname */
 

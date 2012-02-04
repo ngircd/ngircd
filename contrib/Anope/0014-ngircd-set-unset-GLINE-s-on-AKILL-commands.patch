@@ -1,0 +1,35 @@
+From acc24a7f4488f6ef0fb240a76766db4220b62d53 Mon Sep 17 00:00:00 2001
+From: Alexander Barton <alex@barton.de>
+Date: Sun, 22 Jan 2012 19:05:28 +0100
+Subject: [PATCH 14/16] ngircd: set/unset GLINE's on AKILL commands
+
+---
+ modules/protocol/ngircd.cpp |   10 ++++++++--
+ 1 files changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/modules/protocol/ngircd.cpp b/modules/protocol/ngircd.cpp
+index 024c61d..3bc3812 100644
+--- a/modules/protocol/ngircd.cpp
++++ b/modules/protocol/ngircd.cpp
+@@ -48,10 +48,16 @@ class ngIRCdProto : public IRCDProto
+ {
+ 	void SendAkill(User *u, const XLine *x)
+ 	{
+-		// TODO: ADD SOME CODE
++		// Calculate the time left before this would expire, capping it at 2 days
++		time_t timeleft = x->Expires - Anope::CurTime;
++		if (timeleft > 172800 || !x->Expires)
++			timeleft = 172800;
++		UplinkSocket::Message(Config->ServerName) << "GLINE " << x->Mask << " " << timeleft << " :" << x->Reason << " (" << x->By << ")";
+ 	}
+ 
+-	void SendAkillDel(const XLine*) { }
++	void SendAkillDel(const XLine *x) {
++		UplinkSocket::Message(Config->ServerName) << "GLINE " << x->Mask;
++	}
+ 
+ 	void SendGlobopsInternal(const BotInfo *source, const Anope::string &buf)
+ 	{
+-- 
+1.7.8.3
+

@@ -1,0 +1,35 @@
+From a7c48fcf47af757cf1b4eeaa6bcc96f4ae1f7410 Mon Sep 17 00:00:00 2001
+From: Alexander Barton <alex@barton.de>
+Date: Sat, 4 Feb 2012 11:13:36 +0100
+Subject: [PATCH 16/16] ngircd: support SQUERY command
+
+Thanks to DukePyrolator for explaining these changes to me.
+---
+ modules/protocol/ngircd.cpp |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/modules/protocol/ngircd.cpp b/modules/protocol/ngircd.cpp
+index 0f87cbd..530686e 100644
+--- a/modules/protocol/ngircd.cpp
++++ b/modules/protocol/ngircd.cpp
+@@ -487,7 +487,7 @@ bool event_376(const Anope::string &source, const std::vector<Anope::string> &pa
+ class ProtongIRCd : public Module
+ {
+ 	Message message_kick, message_pass, message_njoin, message_chaninfo, message_005,
+-		message_442, message_376, message_pong;
++		message_442, message_376, message_pong, message_squery;
+ 
+ 	ngIRCdProto ircd_proto;
+ 	ngIRCdIRCdMessage ircd_message;
+@@ -532,7 +532,7 @@ class ProtongIRCd : public Module
+ 		message_kick("KICK", event_kick), message_pass("PASS", event_pass),
+ 		message_njoin("NJOIN", event_njoin), message_chaninfo("CHANINFO", event_chaninfo),
+ 		message_005("005", event_005), message_442("442", event_442), message_376("376", event_376),
+-		message_pong("PONG", event_pong)
++		message_pong("PONG", event_pong), message_squery("SQUERY", ::OnPrivmsg)
+ 	{
+ 		this->SetAuthor("Anope");
+ 
+-- 
+1.7.8.3
+

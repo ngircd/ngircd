@@ -1,0 +1,128 @@
+From d8eddbeaadc7d161865b5342d59748b80266533c Mon Sep 17 00:00:00 2001
+From: DukePyrolator <DukePyrolator@anope.org>
+Date: Mon, 22 Aug 2011 14:53:37 +0200
+Subject: [PATCH 03/16] Update ngIRCd protocol module for current Anope 1.9
+ GIT
+
+---
+ modules/protocol/ngircd.cpp |   37 ++++++++++++++++++-------------------
+ 1 files changed, 18 insertions(+), 19 deletions(-)
+
+diff --git a/modules/protocol/ngircd.cpp b/modules/protocol/ngircd.cpp
+index e546d05..790b8f4 100644
+--- a/modules/protocol/ngircd.cpp
++++ b/modules/protocol/ngircd.cpp
+@@ -11,6 +11,8 @@
+ 
+ #include "services.h"
+ #include "modules.h"
++#include "nickserv.h"
++#include "oper.h"
+ 
+ IRCDVar myIrcd[] = {
+ 	{"ngIRCd",	/* ircd name */
+@@ -45,14 +47,7 @@ class ngIRCdProto : public IRCDProto
+ {
+ 	void SendAkill(User *u, const XLine *x)
+ 	{
+-		if (SGLine && u == NULL)
+-			for (Anope::insensitive_map<User *>::iterator it = UserListByNick.begin(); it != UserListByNick.end();)
+-			{
+-				u = it->second;
+-				++it;
+-				if (SGLine->Check(u) != NULL)
+-					break;
+-			}
++		// TODO: ADD SOME CODE
+ 	}
+ 
+ 	void SendAkillDel(const XLine*) { }
+@@ -62,13 +57,16 @@ class ngIRCdProto : public IRCDProto
+ 		send_cmd(source ? source->nick : Config->ServerName, "WALLOPS :%s", buf.c_str());
+ 	}
+ 
+-	void SendJoin(BotInfo *user, Channel *c, const ChannelStatus *status)
++	void SendJoin(User *user, Channel *c, const ChannelStatus *status)
+ 	{
+ 		send_cmd(user->nick, "JOIN %s", c->name.c_str());
+ 		if (status)
++		{
++			BotInfo *setter = findbot(user->nick);
+ 			for (unsigned i = 0; i < ModeManager::ChannelModes.size(); ++i)
+ 				if (status->HasFlag(ModeManager::ChannelModes[i]->Name))
+-					c->SetMode(user, ModeManager::ChannelModes[i], user->nick, false);
++					c->SetMode(setter, ModeManager::ChannelModes[i], user->nick, false);
++		}
+ 	}
+ 
+ 	void SendSVSKillInternal(const BotInfo *source, const User *user, const Anope::string &buf)
+@@ -84,7 +82,7 @@ class ngIRCdProto : public IRCDProto
+ 
+ 	void SendConnect()
+ 	{
+-		send_cmd("", "PASS %s 0210-IRC+ Anope|%s:CLHSo P", uplink_server->password.c_str(), Anope::VersionShort().c_str());
++		send_cmd("", "PASS %s 0210-IRC+ Anope|%s:CLHSo P", Config->Uplinks[CurrentUplink]->password.c_str(), Anope::VersionShort().c_str());
+ 		/* Make myself known to myself in the serverlist */
+ 		SendServer(Me);
+ 		/* finish the enhanced server handshake and register the connection */
+@@ -92,9 +90,11 @@ class ngIRCdProto : public IRCDProto
+ 	}
+ 
+ 	// Received: :dev.anope.de NICK DukeP 1 ~DukePyro p57ABF9C9.dip.t-dialin.net 1 +i :DukePyrolator
+-	void SendClientIntroduction(const User *u, const Anope::string &modes)
++	void SendClientIntroduction(const User *u)
+ 	{
+-		EnforceQlinedNick(u->nick, "");
++		Anope::string modes = "+" + u->GetModes();
++		XLine x(u->nick, "Reserved for services");
++		ircdproto->SendSQLine(NULL, &x);
+ 		send_cmd(Config->ServerName, "NICK %s 1 %s %s 1 %s :%s", u->nick.c_str(), u->GetIdent().c_str(), u->host.c_str(), modes.c_str(), u->realname.c_str());
+ 	}
+ 
+@@ -126,7 +126,7 @@ class ngIRCdProto : public IRCDProto
+ 
+ 	void SendNoticeChanopsInternal(const BotInfo *source, const Channel *dest, const Anope::string &buf)
+ 	{
+-		send_cmd(source ? source->nick : Config->s_ChanServ, "NOTICE @%s :%s", dest->name.c_str(), buf.c_str());
++		send_cmd(source->nick, "NOTICE @%s :%s", dest->name.c_str(), buf.c_str());
+ 	}
+ 
+ 	/* INVITE */
+@@ -196,8 +196,8 @@ class ngIRCdIRCdMessage : public IRCdMessage
+ 		{
+ 			// a new user is connecting to the network
+ 			User *user = do_nick("", params[0], params[2], params[3], source, params[6], Anope::CurTime, "", "", "", params[5]);
+-			if (user)
+-				validate_user(user);
++			if (user && nickserv)
++				nickserv->Validate(user);
+ 		}
+ 		else
+ 		{
+@@ -433,7 +433,7 @@ class ProtongIRCd : public Module
+ 		ModeManager::AddUserMode(new UserMode(UMODE_CLOAK, 'x'));
+ 
+ 		/* b/e/I */
+-		ModeManager::AddChannelMode(new ChannelModeBan(CMODE_BAN, 'b'));
++		ModeManager::AddChannelMode(new ChannelModeList(CMODE_BAN, 'b'));
+ 		ModeManager::AddChannelMode(new ChannelModeList(CMODE_INVITEOVERRIDE, 'I'));
+ 
+ 		/* v/h/o/a/q */
+@@ -454,13 +454,12 @@ class ProtongIRCd : public Module
+ 	}
+ 
+  public:
+-	ProtongIRCd(const Anope::string &modname, const Anope::string &creator) : Module(modname, creator),
++	ProtongIRCd(const Anope::string &modname, const Anope::string &creator) : Module(modname, creator, PROTOCOL),
+ 		message_kick("KICK", event_kick), message_pass("PASS", event_pass),
+ 		message_njoin("NJOIN", event_njoin), message_chaninfo("CHANINFO", event_chaninfo),
+ 		message_005("005", event_005), message_442("442", event_442), message_376("376", event_376)
+ 	{
+ 		this->SetAuthor("Anope");
+-		this->SetType(PROTOCOL);
+ 
+ 		Capab.SetFlag(CAPAB_QS);
+ 
+-- 
+1.7.8.3
+

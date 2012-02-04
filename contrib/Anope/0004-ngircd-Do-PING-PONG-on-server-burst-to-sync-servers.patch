@@ -1,0 +1,93 @@
+From 88b2b14a76b8ee053b1f6ea64139350260590043 Mon Sep 17 00:00:00 2001
+From: DukePyrolator <DukePyrolator@anope.org>
+Date: Mon, 22 Aug 2011 14:55:07 +0200
+Subject: [PATCH 04/16] ngircd: Do PING-PONG on server burst to "sync servers"
+
+Imagine we had three servers, A, B & C linked like so: A<->B<->C:
+
+If Anope is linked to A and B splits from A and then reconnects B
+introduces itself, introduces C, sends EOS for C, introduces B's clients
+introduces C's clients, sends EOS for B. This causes all of C's clients
+to be introduced with their server "not syncing".
+
+We now send a PING immediately when receiving a new server and then
+finish sync once we get a pong back from that server.
+---
+ modules/protocol/ngircd.cpp |   28 ++++++++++++++++++++++++++--
+ 1 files changed, 26 insertions(+), 2 deletions(-)
+
+diff --git a/modules/protocol/ngircd.cpp b/modules/protocol/ngircd.cpp
+index 790b8f4..89aecfd 100644
+--- a/modules/protocol/ngircd.cpp
++++ b/modules/protocol/ngircd.cpp
+@@ -108,11 +108,13 @@ class ngIRCdProto : public IRCDProto
+ 
+ 	void SendModeInternal(const BotInfo *bi, const Channel *dest, const Anope::string &buf)
+ 	{
++Log(LOG_DEBUG) << "SendModeInternal 1";
+ 		send_cmd(bi ? bi->nick : Config->ServerName, "MODE %s %s", dest->name.c_str(), buf.c_str());
+ 	}
+ 
+ 	void SendModeInternal(const BotInfo *bi, const User *u, const Anope::string &buf)
+ 	{
++Log(LOG_DEBUG) << "SendModeInternal 2";
+ 		send_cmd(bi ? bi->nick : Config->ServerName, "MODE %s %s", u->nick.c_str(), buf.c_str());
+ 	}
+ 
+@@ -212,6 +214,8 @@ class ngIRCdIRCdMessage : public IRCdMessage
+ 			do_server("", params[0], 0, params[2], params[1]);
+ 		else
+ 			do_server(source, params[0], params[1].is_pos_number_only() ? convertTo<unsigned>(params[1]) : 0, params[3], params[2]);
++
++		ircdproto->SendPing(Config->ServerName, params[0]);
+ 		return true;
+ 	}
+ 
+@@ -253,6 +257,25 @@ class ngIRCdIRCdMessage : public IRCdMessage
+ 	}
+ };
+ 
++/** This is here because:
++ *
++ * If we had three servers, A, B & C linked like so: A<->B<->C
++ * If Anope is linked to A and B splits from A and then reconnects
++ * B introduces itself, introduces C, sends EOS for C, introduces Bs clients
++ * introduces Cs clients, sends EOS for B. This causes all of Cs clients to be introduced
++ * with their server "not syncing". We now send a PING immediately when receiving a new server
++ * and then finish sync once we get a pong back from that server.
++ */
++bool event_pong(const Anope::string &source, const std::vector<Anope::string> &params)
++{
++	Server *s = Server::Find(source);
++	if (s && !s->IsSynced())
++		s->Sync(false);
++	return true;
++}
++
++
++
+ /*
+  * CHANINFO <chan> +<modes>
+  * CHANINFO <chan> +<modes> :<topic>
+@@ -416,7 +439,7 @@ bool event_376(const Anope::string &source, const std::vector<Anope::string> &pa
+ class ProtongIRCd : public Module
+ {
+ 	Message message_kick, message_pass, message_njoin, message_chaninfo, message_005,
+-		message_442, message_376;
++		message_442, message_376, message_pong;
+ 
+ 	ngIRCdProto ircd_proto;
+ 	ngIRCdIRCdMessage ircd_message;
+@@ -457,7 +480,8 @@ class ProtongIRCd : public Module
+ 	ProtongIRCd(const Anope::string &modname, const Anope::string &creator) : Module(modname, creator, PROTOCOL),
+ 		message_kick("KICK", event_kick), message_pass("PASS", event_pass),
+ 		message_njoin("NJOIN", event_njoin), message_chaninfo("CHANINFO", event_chaninfo),
+-		message_005("005", event_005), message_442("442", event_442), message_376("376", event_376)
++		message_005("005", event_005), message_442("442", event_442), message_376("376", event_376),
++		message_pong("PONG", event_pong)
+ 	{
+ 		this->SetAuthor("Anope");
+ 
+-- 
+1.7.8.3
+

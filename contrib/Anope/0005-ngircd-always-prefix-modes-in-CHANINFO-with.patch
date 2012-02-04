@@ -1,0 +1,29 @@
+From 0d83f8f9ca0de651d664eca6f467f36df0417f7d Mon Sep 17 00:00:00 2001
+From: Alexander Barton <alex@barton.de>
+Date: Mon, 22 Aug 2011 14:59:49 +0200
+Subject: [PATCH 05/16] ngircd: always prefix modes in CHANINFO with "+"
+
+---
+ modules/protocol/ngircd.cpp |    6 ++----
+ 1 files changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/modules/protocol/ngircd.cpp b/modules/protocol/ngircd.cpp
+index 89aecfd..3e5beb3 100644
+--- a/modules/protocol/ngircd.cpp
++++ b/modules/protocol/ngircd.cpp
+@@ -139,10 +139,8 @@ Log(LOG_DEBUG) << "SendModeInternal 2";
+ 
+ 	void SendChannel(Channel *c)
+ 	{
+-		Anope::string mlock_modes = get_mlock_modes(c->ci, true);
+-		if (mlock_modes.empty())
+-			mlock_modes = "+";
+-		send_cmd(Config->ServerName, "CHANINFO %s %s", c->name.c_str(), mlock_modes.c_str());
++		Anope::string modes = c->GetModes(true, true);
++		send_cmd(Config->ServerName, "CHANINFO %s +%s", c->name.c_str(), modes.c_str());
+ 	}
+ 	void SendTopic(BotInfo *bi, Channel *c)
+ 	{
+-- 
+1.7.8.3
+

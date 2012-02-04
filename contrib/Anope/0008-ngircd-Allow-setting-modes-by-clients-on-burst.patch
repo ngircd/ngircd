@@ -1,0 +1,38 @@
+From d363ebd841ea7e1db3c62730023759d69520e0d8 Mon Sep 17 00:00:00 2001
+From: Alexander Barton <alex@barton.de>
+Date: Tue, 27 Sep 2011 15:08:09 +0200
+Subject: [PATCH 08/16] ngircd: Allow setting modes by clients on burst
+
+This change is required by commit 43201ead9575a for the ngIRCd protocol
+module as well.
+---
+ modules/protocol/ngircd.cpp |    7 +++++--
+ 1 files changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/modules/protocol/ngircd.cpp b/modules/protocol/ngircd.cpp
+index 3024fdd..2774168 100644
+--- a/modules/protocol/ngircd.cpp
++++ b/modules/protocol/ngircd.cpp
+@@ -57,14 +57,17 @@ class ngIRCdProto : public IRCDProto
+ 		send_cmd(source ? source->nick : Config->ServerName, "WALLOPS :%s", buf.c_str());
+ 	}
+ 
+-	void SendJoin(User *user, Channel *c, const ChannelStatus *status)
++	void SendJoin(User *user, Channel *c, ChannelStatus *status)
+ 	{
+ 		send_cmd(user->nick, "JOIN %s", c->name.c_str());
+ 		if (status)
+ 		{
++			ChannelStatus cs = *status;
++			status->ClearFlags();
++
+ 			BotInfo *setter = findbot(user->nick);
+ 			for (unsigned i = 0; i < ModeManager::ChannelModes.size(); ++i)
+-				if (status->HasFlag(ModeManager::ChannelModes[i]->Name))
++				if (cs.HasFlag(ModeManager::ChannelModes[i]->Name))
+ 					c->SetMode(setter, ModeManager::ChannelModes[i], user->nick, false);
+ 		}
+ 	}
+-- 
+1.7.8.3
+

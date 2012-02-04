@@ -1,0 +1,29 @@
+From 4dc5a3d3e2fbb218461d9459bff1c0a392a75881 Mon Sep 17 00:00:00 2001
+From: Alexander Barton <alex@barton.de>
+Date: Sat, 31 Dec 2011 16:12:52 +0100
+Subject: [PATCH 11/16] ngircd: Update protocol module for current Anope 1.9
+ GIT
+
+This changes are rquired by:
+
+ - 150831c1a: Made capab management a bit simplier
+---
+ modules/protocol/ngircd.cpp |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/modules/protocol/ngircd.cpp b/modules/protocol/ngircd.cpp
+index 5fd62db..9c26ec8 100644
+--- a/modules/protocol/ngircd.cpp
++++ b/modules/protocol/ngircd.cpp
+@@ -527,7 +527,7 @@ class ProtongIRCd : public Module
+ 	{
+ 		this->SetAuthor("Anope");
+ 
+-		Capab.SetFlag(CAPAB_QS);
++		Capab.insert("QS");
+ 
+ 		pmodule_ircd_var(myIrcd);
+ 		pmodule_ircd_proto(&this->ircd_proto);
+-- 
+1.7.8.3
+

@@ -651,7 +651,7 @@ IRC_LIST( CLIENT *Client, REQUEST *Req )
 			/* Target is indeed an other server, forward it! */
 			return IRC_WriteStrClientPrefix(target, from,
 							"LIST %s :%s",
-							Client_ID(from),
+							Req->argv[0],
 							Req->argv[1]);
 		}
 	}

@@ -11,6 +11,12 @@
 
 ngIRCd Release 19
 
+  - Enhance command limits for server links: the limit now is dependent
+    on the number of users connected in the network and higher while
+    servers are joining the network to make the login of servers faster.
+  - Log more information about server synchronization.
+  - Update preliminary ngIRCd protocol module for Anope 1.9.6, which now
+    is the only supported version.
   - New numeric RPL_WHOISHOST_MSG(378), which returns the DNS hostname
     (if available) and the IP address of a client in the WHOIS reply.
     Only the user itself and local IRC operators get this numeric.
@@ -31,7 +37,8 @@ ngIRCd Release 19
   - Fix both ERR_SUMMONDISABLED(445) and ERR_USERSDISABLED(446) replies.
   - MODE command: correctly return ERR_UNKNOWNMODE(472) numeric for
     unknown channel modes, instead of ERR_UMODEUNKNOWNFLAG(501).
-  - ISUPPORT(005) numeric: add "O", "R", and "z" modes to "CHANMODES".
+  - ISUPPORT(005) numeric: add "O", "R", and "z" modes to "CHANMODES",
+    add "EXCEPTS=e" and "INVEX=I", add "MAXLIST=beI:50".
   - Limit the number of list items in the reply of LIST (100), WHO (25),
     WHOIS (10), and WHOWAS (25) commands.
   - LIST command: compare pattern case insensitive.

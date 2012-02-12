@@ -10,6 +10,8 @@
 
 ngIRCd Release 19
 
+  - Update preliminary ngIRCd protocol module for Anope 1.9.6, which now
+    is the only supported version.
   - New numeric RPL_WHOISHOST_MSG(378), which returns the DNS hostname
     (if available) and the IP address of a client in the WHOIS reply.
     Only the user itself and local IRC operators get this numeric.

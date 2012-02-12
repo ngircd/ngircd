@@ -15,18 +15,19 @@ BuildRoot:    %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:  zlib-devel, openssl-devel
 
 %description
-ngIRCd is a free open source daemon for the Internet Relay Chat (IRC),
-developed under the GNU General Public License (GPL). It's written from
-scratch and is not based upon the original IRCd like many others.
+This package provides ngIRCd, a lightweight Internet Relay Chat
+server for small or private networks. It is simple to configure, can
+cope with dynamic IP addresses, and supports IPv6 as well as SSL. It
+is written from scratch, not based on the original IRCd and quite
+portable.
 
 Advantages:
- - no problems with servers using changing/non-static IP addresses.
- - small and lean configuration file.
- - free, modern and open source C code.
- - still under active development.
-
-ngIRCd is compatible to the "original" ircd 2.10.3p3, so you can run
-mixed networks.
+ - well arranged (lean) configuration file
+ - simple to build/install, configure and maintain
+ - supports IPv6 and SSL
+ - no problems with servers that have dynamic IP addresses
+ - freely available, modern, portable and tidy C-source
+ - ngIRCd is being actively developed since 11 years.
 
 %prep
 %setup -q

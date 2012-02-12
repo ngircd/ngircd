@@ -11,6 +11,7 @@
 
 ngIRCd Release 19
 
+  ngIRCd 19~rc1 (2012-02-12)
   - Enhance command limits for server links: the limit now is dependent
     on the number of users connected in the network and higher while
     servers are joining the network to make the login of servers faster.

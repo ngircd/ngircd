@@ -10,6 +10,7 @@
 
 ngIRCd Release 19
 
+  ngIRCd 19~rc1 (2012-02-12)
   - Update preliminary ngIRCd protocol module for Anope 1.9.6, which now
     is the only supported version.
   - New numeric RPL_WHOISHOST_MSG(378), which returns the DNS hostname

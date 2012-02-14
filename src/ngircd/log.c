@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2010 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2012 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,7 +44,6 @@
 #include "log.h"
 
 
-static char Init_Txt[127];
 static bool Is_Daemon;
 
 
@@ -66,10 +65,10 @@ Log_Message(int Level, const char *msg)
 
 
 GLOBAL void
-Log_Init( bool Daemon_Mode )
+Log_Init(bool Daemon_Mode)
 {
 	Is_Daemon = Daemon_Mode;
-	
+
 #ifdef SYSLOG
 #ifndef LOG_CONS     /* Kludge: mips-dec-ultrix4.5 has no LOG_CONS */
 #define LOG_CONS 0
@@ -77,34 +76,7 @@ Log_Init( bool Daemon_Mode )
 	openlog(PACKAGE_NAME, LOG_CONS|LOG_PID, Conf_SyslogFacility);
 #endif
 
-	Log( LOG_NOTICE, "%s started.", NGIRCd_Version );
-	  
-	/* Information about "Operation Mode" */
-	Init_Txt[0] = '\0';
-#ifdef DEBUG
-	if( NGIRCd_Debug )
-	{
-		strlcpy( Init_Txt, "debug-mode", sizeof Init_Txt );
-	}
-#endif
-	if( ! Is_Daemon )
-	{
-		if( Init_Txt[0] ) strlcat( Init_Txt, ", ", sizeof Init_Txt );
-		strlcat( Init_Txt, "no-daemon-mode", sizeof Init_Txt );
-	}
-	if( NGIRCd_Passive )
-	{
-		if( Init_Txt[0] ) strlcat( Init_Txt, ", ", sizeof Init_Txt );
-		strlcat( Init_Txt, "passive-mode", sizeof Init_Txt );
-	}
-#ifdef SNIFFER
-	if( NGIRCd_Sniffer )
-	{
-		if( Init_Txt[0] ) strlcat( Init_Txt, ", ", sizeof Init_Txt );
-		strlcat( Init_Txt, "network sniffer", sizeof Init_Txt );
-	}
-#endif
-	if( Init_Txt[0] ) Log( LOG_INFO, "Activating: %s.", Init_Txt );
+	Log(LOG_NOTICE, "%s started.", NGIRCd_Version);
 } /* Log_Init */
 
 

@@ -64,6 +64,12 @@ Log_Message(int Level, const char *msg)
 }
 
 
+/**
+ * Initialitze logging.
+ * This function is called before the configuration file is read in.
+ *
+ * @param Daemon_Mode Set to true if ngIRCd is running as daemon.
+ */
 GLOBAL void
 Log_Init(bool Daemon_Mode)
 {
@@ -78,6 +84,23 @@ Log_Init(bool Daemon_Mode)
 
 	Log(LOG_NOTICE, "%s started.", NGIRCd_Version);
 } /* Log_Init */
+
+
+/**
+ * Re-init logging after reading the configuration file.
+ */
+GLOBAL void
+Log_ReInit(void)
+{
+#ifdef SYSLOG
+#ifndef LOG_CONS     /* Kludge: mips-dec-ultrix4.5 has no LOG_CONS */
+#define LOG_CONS 0
+#endif
+	closelog();
+	openlog(PACKAGE_NAME, LOG_CONS|LOG_PID, Conf_SyslogFacility);
+#endif
+	Log(LOG_NOTICE, "%s started.", NGIRCd_Version);
+}
 
 
 GLOBAL void

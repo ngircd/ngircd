@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2010 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2012 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,6 +36,7 @@ GLOBAL void Log_Init PARAMS(( bool Daemon_Mode ));
 GLOBAL void Log_Exit PARAMS(( void ));
 
 GLOBAL void Log PARAMS(( int Level, const char *Format, ... ));
+GLOBAL void Log_ReInit PARAMS((void));
 
 GLOBAL void Log_ServerNotice PARAMS((char UserMode, const char *Format, ...));
 

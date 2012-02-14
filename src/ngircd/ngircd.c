@@ -255,11 +255,11 @@ main(int argc, const char *argv[])
 		NGIRCd_SignalRestart = false;
 		NGIRCd_SignalQuit = false;
 
-		Random_Init();
-
 		/* Initialize modules, part I */
 		Log_Init(!NGIRCd_NoDaemon);
+		Random_Init();
 		Conf_Init();
+		Log_ReInit();
 
 		/* Initialize the "main program": chroot environment, user and
 		 * group ID, ... */

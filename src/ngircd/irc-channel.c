@@ -82,7 +82,7 @@ static bool
 join_allowed(CLIENT *Client, CHANNEL *chan, const char *channame,
 	     const char *key)
 {
-	bool is_invited, is_banned, is_exception;;
+	bool is_invited, is_banned, is_exception;
 	const char *channel_modes;
 
 	/* Allow IRC operators to overwrite channel limits */

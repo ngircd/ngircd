@@ -854,10 +854,13 @@ Read_Config( bool ngircd_starting )
 		/* Is this the beginning of a new section? */
 		if(( str[0] == '[' ) && ( str[strlen( str ) - 1] == ']' )) {
 			strlcpy( section, str, sizeof( section ));
-			if (strcasecmp(section, "[GLOBAL]") == 0 ||
-			    strcasecmp(section, "[LIMITS]") == 0 ||
-			    strcasecmp(section, "[OPTIONS]") == 0 ||
-			    strcasecmp(section, "[SSL]") == 0)
+			if (strcasecmp(section, "[GLOBAL]") == 0
+			    || strcasecmp(section, "[LIMITS]") == 0
+			    || strcasecmp(section, "[OPTIONS]") == 0
+#ifdef SSL_SUPPORT
+			    || strcasecmp(section, "[SSL]") == 0
+#endif
+			    )
 				continue;
 
 			if( strcasecmp( section, "[SERVER]" ) == 0 ) {

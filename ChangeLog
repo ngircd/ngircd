@@ -9,7 +9,18 @@
                                -- ChangeLog --
 
 
-ngIRCd Release 19
+ngIRCd Release 19 (2012-02-29)
+
+  - Update build system: bump config.guess and config.sub files used by
+    GNU autoconf/automake to recent versions.
+  - Fix configuration file parser: don't accept "[SSL]" blocks in the
+    configuration file when no SSL support is built in ngIRCd.
+  - Fix building ngIRCd with old gcc versions (e. g. 2.7.2).
+  - Correctly re-open syslog logging after reading of configuration
+    file: Syslog logging has been initialized before reading the
+    configuraton, so ngIRCd always used the default facility and ignored
+    the "SyslogFacility" configuration option ...
+    Thanks to Patrik Schindler for reporting this issue!
 
   ngIRCd 19~rc1 (2012-02-12)
   - Enhance command limits for server links: the limit now is dependent

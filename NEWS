@@ -8,7 +8,8 @@
 
                                   -- NEWS --
 
-ngIRCd Release 19
+
+ngIRCd Release 19 (2012-02-29)
 
   ngIRCd 19~rc1 (2012-02-12)
   - Update preliminary ngIRCd protocol module for Anope 1.9.6, which now

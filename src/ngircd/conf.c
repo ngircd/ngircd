@@ -58,7 +58,7 @@ static int New_Server_Idx;
 static char Conf_MotdFile[FNAME_LEN];
 
 static void Set_Defaults PARAMS(( bool InitServers ));
-static bool Read_Config PARAMS(( bool ngircd_starting ));
+static bool Read_Config PARAMS(( bool TestOnly, bool IsStarting ));
 static bool Validate_Config PARAMS(( bool TestOnly, bool Rehash ));
 
 static void Handle_GLOBAL PARAMS(( int Line, char *Var, char *Arg ));
@@ -206,7 +206,7 @@ ports_parse(array *a, int Line, char *Arg)
 GLOBAL void
 Conf_Init( void )
 {
-	Read_Config( true );
+	Read_Config(false, true);
 	Validate_Config(false, false);
 }
 
@@ -218,7 +218,7 @@ Conf_Init( void )
 GLOBAL bool
 Conf_Rehash( void )
 {
-	if (!Read_Config(false))
+	if (!Read_Config(false, false))
 		return false;
 	Validate_Config(false, true);
 
@@ -299,7 +299,7 @@ Conf_Test( void )
 
 	Use_Log = false;
 
-	if (! Read_Config(true))
+	if (!Read_Config(true, true))
 		return 1;
 
 	config_valid = Validate_Config(true, false);
@@ -778,7 +778,7 @@ Read_Motd(const char *filename)
  *				successfully; false otherwise.
  */
 static bool
-Read_Config( bool ngircd_starting )
+Read_Config(bool TestOnly, bool IsStarting)
 {
 	char section[LINE_LEN], str[LINE_LEN], *var, *arg, *ptr;
 	const UINT16 defaultport = 6667;
@@ -792,16 +792,19 @@ Read_Config( bool ngircd_starting )
 		/* No configuration file found! */
 		Config_Error( LOG_ALERT, "Can't read configuration \"%s\": %s",
 					NGIRCd_ConfFile, strerror( errno ));
-		if (!ngircd_starting)
+		if (!IsStarting)
 			return false;
 		Config_Error( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE_NAME );
 		exit( 1 );
 	}
 
 	opers_free();
-	Set_Defaults( ngircd_starting );
+	Set_Defaults(IsStarting);
 
-	Config_Error( LOG_INFO, "Reading configuration from \"%s\" ...", NGIRCd_ConfFile );
+	if (TestOnly)
+		Config_Error(LOG_INFO,
+			     "Reading configuration from \"%s\" ...",
+			     NGIRCd_ConfFile );
 
 	/* Clean up server configuration structure: mark all already
 	 * configured servers as "once" so that they are deleted

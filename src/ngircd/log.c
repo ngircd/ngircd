@@ -79,10 +79,12 @@ Log_Init(bool Daemon_Mode)
 #ifndef LOG_CONS     /* Kludge: mips-dec-ultrix4.5 has no LOG_CONS */
 #define LOG_CONS 0
 #endif
-	openlog(PACKAGE_NAME, LOG_CONS|LOG_PID, Conf_SyslogFacility);
+#ifdef LOG_DAEMON
+	openlog(PACKAGE_NAME, LOG_CONS|LOG_PID, LOG_DAEMON);
+#else
+	openlog(PACKAGE_NAME, LOG_CONS|LOG_PID, 0);
 #endif
-
-	Log(LOG_NOTICE, "%s started.", NGIRCd_Version);
+#endif
 } /* Log_Init */
 
 
@@ -100,6 +102,7 @@ Log_ReInit(void)
 	openlog(PACKAGE_NAME, LOG_CONS|LOG_PID, Conf_SyslogFacility);
 #endif
 	Log(LOG_NOTICE, "%s started.", NGIRCd_Version);
+	Log(LOG_INFO, "Using configuration file \"%s\" ...", NGIRCd_ConfFile);
 }
 
 

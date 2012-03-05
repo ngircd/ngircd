@@ -9,6 +9,13 @@
                                -- ChangeLog --
 
 
+ngIRCd Release 19.1
+
+  - Really include _all_ patchtes to build the Anope module into the
+    distribution archive ... ooops!
+  - getpid.sh: Fix testcase error for Debian using sbuild(1).
+  - Don't log "ngIRCd hello message" two times when starting up.
+
 ngIRCd Release 19 (2012-02-29)
 
   - Update build system: bump config.guess and config.sub files used by

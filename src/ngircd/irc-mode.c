@@ -856,7 +856,7 @@ Add_To_List(char what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel,
 	    const char *Pattern)
 {
 	const char *mask;
-	struct list_head *list;
+	struct list_head *list = NULL;
 	long int current_count;
 
 	assert(Client != NULL);
@@ -923,7 +923,7 @@ Del_From_List(char what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel,
 	      const char *Pattern)
 {
 	const char *mask;
-	struct list_head *list;
+	struct list_head *list = NULL;
 
 	assert(Client != NULL);
 	assert(Channel != NULL);

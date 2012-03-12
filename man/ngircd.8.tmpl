@@ -1,7 +1,7 @@
 .\"
 .\" ngircd(8) manual page template
 .\"
-.TH ngircd 8 "Jul 2011" ngircd "ngIRCd Manual"
+.TH ngircd 8 "Mar 2012" ngircd "ngIRCd Manual"
 .SH NAME
 ngIRCd \- the next generation IRC daemon
 .SH SYNOPSIS
@@ -78,7 +78,7 @@ It's wise to use "ngircd \-\-configtest" to validate the configuration file
 after changing it.
 .SH DEBUGGING
 When ngIRCd is compiled with debug code, that is, its source code has
-been ./configure'd with "--enable-debug" and/or "--enable-sniffer" (witch
+been ./configure'd with "\-\-enable\-debug" and/or "\-\-enable\-sniffer" (witch
 enables debug mode automatically as well), you can use two more command
 line options and two more signals to debug problems with the daemon itself
 or IRC clients:
@@ -91,7 +91,7 @@ Enable debug mode and log extra messages.
 \fB\-s\fR, \fB\-\-sniffer\fR
 Enable IRC protocol sniffer, which logs all sent and received IRC commands to
 the console/syslog. This option requires that ngIRCd has been ./configure'd
-with "--enable-sniffer" and enables debug mode automatically, too.
+with "\-\-enable\-sniffer" and enables debug mode automatically, too.
 .PP
 \fBSignals:\fR
 .TP

@@ -1589,7 +1589,7 @@ Read_Request( CONN_ID Idx )
 		if (!array_catb(&My_Connections[Idx].zip.rbuf, readbuf,
 				(size_t) len)) {
 			Log(LOG_ERR,
-			    "Could not append recieved data to zip input buffer (connection %d): %d bytes!",
+			    "Could not append received data to zip input buffer (connection %d): %d bytes!",
 			    Idx, len);
 			Conn_Close(Idx, "Receive buffer space exhausted", NULL,
 				   false);
@@ -1600,7 +1600,7 @@ Read_Request( CONN_ID Idx )
 	{
 		if (!array_catb( &My_Connections[Idx].rbuf, readbuf, len)) {
 			Log(LOG_ERR,
-			    "Could not append recieved data to input buffer (connection %d): %d bytes!",
+			    "Could not append received data to input buffer (connection %d): %d bytes!",
 			    Idx, len);
 			Conn_Close(Idx, "Receive buffer space exhausted", NULL, false );
 		}

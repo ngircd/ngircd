@@ -11,6 +11,9 @@
 
 ngIRCd Release 19.1
 
+  - Fix gcc warning (v4.6.3), initialize "list" variable to NULL.
+  - Fix typos: "recieved" -> "received", "Please not" -> "Please note",
+    and fix lintian(1) warning ""hyphen-used-as-minus-sign", too.
   - Really include _all_ patchtes to build the Anope module into the
     distribution archive ... ooops!
   - getpid.sh: Fix testcase error for Debian using sbuild(1).

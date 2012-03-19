@@ -9,7 +9,7 @@
                                   -- NEWS --
 
 
-ngIRCd Release 19.1
+ngIRCd Release 19.1 (2012-03-19)
 
   - Really include _all_ patchtes to build the Anope module into the
     distribution archive ... ooops!

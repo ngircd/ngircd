@@ -9,7 +9,7 @@
                                -- ChangeLog --
 
 
-ngIRCd Release 19.1
+ngIRCd Release 19.1 (2012-03-19)
 
   - Fix gcc warning (v4.6.3), initialize "list" variable to NULL.
   - Fix typos: "recieved" -> "received", "Please not" -> "Please note",

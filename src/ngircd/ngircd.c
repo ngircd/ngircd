@@ -642,12 +642,10 @@ NGIRCd_Init(bool NGIRCd_NoDaemon)
 		}
 
 		if (chroot(Conf_Chroot) != 0) {
-			if (errno != EPERM) {
-				Log(LOG_ERR,
-				    "Can't change root directory to \"%s\": %s",
-				    Conf_Chroot, strerror(errno));
-				goto out;
-			}
+			Log(LOG_ERR,
+			    "Can't change root directory to \"%s\": %s",
+			    Conf_Chroot, strerror(errno));
+			goto out;
 		} else {
 			chrooted = true;
 			Log(LOG_INFO,

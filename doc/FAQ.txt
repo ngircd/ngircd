@@ -64,11 +64,19 @@ A: ngIRCd does not write its own log file. Instead, ngIRCd uses syslog(3).
 
 Q: I cannot connect to remote peers when I use the chroot option, the
    following is logged: "Can't resolve example.com: unknown error!".
+A: see next question blow ...
+
+Q: When running ngIRCd inside a chroot, no IP addresses can be translated
+   in DNS names, errors like "Name or service not known" are logged.
 A: On Linux/glibc with chroot enabled you need to put some libraries inside
    the chroot as well, notably libnss_dns; maybe others. Unfortunately, even
-   linking ngIRCd statically does not help this. The only known workaround
-   is to either disable chroot support or to link against dietlibc instead
-   of glibc. (tnx to Sebastian Siewior)
+   linking ngIRCd statically does not help this. So you can either copy
+   all the required files into the chroot directory:
+     $ mkdir -p ./chroot/etc ./chroot/lib
+     $ cp -a /etc/hosts /etc/resolv.conf /etc/nsswitch.conf ./chroot/etc/
+     $ cp -a /lib/libresolv* /lib/libnss_* ./chroot/lib/
+   Or you can try to link ngIRCd against an other C library (like dietlibc)
+   that doesn't depend on NSS modules and/or these files.
 
 Q: I have added an [Oper] section, how do i log on as IRC operator?
 A: You can use the /OPER command in your IRC client to become an IRC operator.

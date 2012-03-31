@@ -34,7 +34,7 @@
 
 #include "defines.h"
 
-#if defined(__client_c__) | defined(S_SPLINT_S)
+#if defined(__client_c__) | defined(__client_cap_c__) | defined(S_SPLINT_S)
 
 typedef struct _CLIENT
 {
@@ -58,6 +58,7 @@ typedef struct _CLIENT
 	bool oper_by_me;		/* client is local IRC operator on this server? */
 	char away[CLIENT_AWAY_LEN];	/* AWAY text (valid if mode 'a' is set) */
 	char flags[CLIENT_FLAGS_LEN];	/* flags of the client */
+	int capabilities;		/* enabled IRC capabilities */
 } CLIENT;
 
 #else

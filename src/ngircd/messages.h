@@ -103,6 +103,7 @@
 #define ERR_TOOMANYCHANNELS_MSG		"405 %s %s :You have joined too many channels"
 #define ERR_WASNOSUCHNICK_MSG		"406 %s %s :There was no such nickname"
 #define ERR_NOORIGIN_MSG		"409 %s :No origin specified"
+#define ERR_INVALIDCAP_MSG		"410 %s %s :Invalid CAP subcommand"
 #define ERR_NORECIPIENT_MSG		"411 %s :No recipient given (%s)"
 #define ERR_NOTEXTTOSEND_MSG		"412 %s :No text to send"
 #define ERR_WILDTOPLEVEL		"414 %s :Wildcard in toplevel domain"

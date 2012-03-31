@@ -26,6 +26,7 @@
 #include "conn.h"
 #include "class.h"
 #include "client.h"
+#include "client-cap.h"
 #include "channel.h"
 #include "conf.h"
 #include "io.h"
@@ -77,6 +78,10 @@ Login_User(CLIENT * Client)
 		}
 	}
 #endif
+
+	/* Still waiting for "CAP END" command? */
+	if (Client_Cap(Client) & CLIENT_CAP_PENDING)
+		return CONNECTED;
 
 #ifdef PAM
 	if (!Conf_PAM) {

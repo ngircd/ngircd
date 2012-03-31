@@ -231,6 +231,12 @@
 		FAA97C56124A271400D5BBA9 /* sighandlers.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = sighandlers.h; sourceTree = "<group>"; };
 		FAACD5F314A6099C006ED74F /* class.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = class.c; sourceTree = "<group>"; };
 		FAACD5F414A6099C006ED74F /* class.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = class.h; sourceTree = "<group>"; };
+		FAE22BD215270EA300F1A5AB /* Bopm.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = Bopm.txt; sourceTree = "<group>"; };
+		FAE22BD415270EA300F1A5AB /* Contributing.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = Contributing.txt; sourceTree = "<group>"; };
+		FAE22BD515270EB500F1A5AB /* HowToRelease.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = HowToRelease.txt; sourceTree = "<group>"; };
+		FAE22BD615270EB500F1A5AB /* Modes.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = Modes.txt; sourceTree = "<group>"; };
+		FAE22BD715270EB500F1A5AB /* PAM.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = PAM.txt; sourceTree = "<group>"; };
+		FAE22BD815270EC400F1A5AB /* README-Interix.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "README-Interix.txt"; sourceTree = "<group>"; };
 		FAE5CC2C0CF2308A007D69B6 /* numeric.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = numeric.h; sourceTree = "<group>"; };
 		FAE5CC2D0CF2308A007D69B6 /* numeric.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = numeric.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -298,6 +304,7 @@
 		FA322CD70CEF74B1001761B3 /* ngircd */ = {
 			isa = PBXGroup;
 			children = (
+				FA322D020CEF74B1001761B3 /* Makefile.am */,
 				FAA3D2790F139CDC00B2447E /* conn-ssl.c */,
 				FAA3D27A0F139CDC00B2447E /* conn-ssl.h */,
 				FA322CD90CEF74B1001761B3 /* array.c */,
@@ -344,7 +351,6 @@
 				FA322CFF0CEF74B1001761B3 /* lists.h */,
 				FA322D000CEF74B1001761B3 /* log.c */,
 				FA322D010CEF74B1001761B3 /* log.h */,
-				FA322D020CEF74B1001761B3 /* Makefile.am */,
 				FA322D030CEF74B1001761B3 /* match.c */,
 				FA322D040CEF74B1001761B3 /* match.h */,
 				FA322D050CEF74B1001761B3 /* messages.h */,
@@ -563,18 +569,24 @@
 		FA322D970CEF752C001761B3 /* doc */ = {
 			isa = PBXGroup;
 			children = (
-				FAA3D2800F139D1500B2447E /* Services.txt */,
-				FA407F380DB15AC700271AF1 /* GIT.txt */,
-				FA322D9A0CEF752C001761B3 /* FAQ.txt */,
 				FA322D9B0CEF752C001761B3 /* Makefile.am */,
+				FAE22BD215270EA300F1A5AB /* Bopm.txt */,
+				FAE22BD415270EA300F1A5AB /* Contributing.txt */,
+				FA322D9A0CEF752C001761B3 /* FAQ.txt */,
+				FA407F380DB15AC700271AF1 /* GIT.txt */,
+				FAE22BD515270EB500F1A5AB /* HowToRelease.txt */,
+				FAE22BD615270EB500F1A5AB /* Modes.txt */,
+				FAE22BD715270EB500F1A5AB /* PAM.txt */,
 				FA322D9C0CEF752C001761B3 /* Platforms.txt */,
 				FA322D9D0CEF752C001761B3 /* Protocol.txt */,
 				FA322D9E0CEF752C001761B3 /* README-AUX.txt */,
 				FA322D9F0CEF752C001761B3 /* README-BeOS.txt */,
+				FAE22BD815270EC400F1A5AB /* README-Interix.txt */,
 				FA322DA00CEF752C001761B3 /* RFC.txt */,
+				FAA3D2800F139D1500B2447E /* Services.txt */,
+				FA322DA90CEF752C001761B3 /* SSL.txt */,
 				FA77849A133FB9FF00740057 /* sample-ngircd.conf.tmpl */,
 				FA322DA20CEF752C001761B3 /* src */,
-				FA322DA90CEF752C001761B3 /* SSL.txt */,
 			);
 			name = doc;
 			path = ../../doc;

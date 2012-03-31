@@ -1,6 +1,6 @@
 #
 # ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001-2010 Alexander Barton (alex@barton.de)
+# Copyright (c)2001-2012 Alexander Barton (alex@barton.de)
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,21 +18,78 @@ LINTARGS = -weak -warnunixlib +unixlib -booltype BOOLEAN \
 
 sbin_PROGRAMS = ngircd
 
-ngircd_SOURCES = ngircd.c array.c channel.c class.c client.c conf.c conn.c \
-	conn-func.c conn-ssl.c conn-zip.c hash.c io.c irc.c irc-channel.c \
-	irc-info.c irc-login.c irc-mode.c irc-op.c irc-oper.c irc-server.c \
-	irc-write.c lists.c log.c match.c op.c numeric.c pam.c parse.c \
-	proc.c resolve.c sighandlers.c
+ngircd_SOURCES = \
+	ngircd.c \
+	array.c \
+	channel.c \
+	class.c \
+	client.c \
+	conf.c \
+	conn.c \
+	conn-func.c \
+	conn-ssl.c \
+	conn-zip.c \
+	hash.c \
+	io.c \
+	irc.c \
+	irc-channel.c \
+	irc-info.c \
+	irc-login.c \
+	irc-mode.c \
+	irc-op.c \
+	irc-oper.c \
+	irc-server.c \
+	irc-write.c \
+	lists.c \
+	log.c \
+	match.c \
+	numeric.c \
+	op.c \
+	pam.c \
+	parse.c \
+	proc.c \
+	resolve.c \
+	sighandlers.c
 
 ngircd_LDFLAGS = -L../portab -L../tool -L../ipaddr
 
 ngircd_LDADD = -lngportab -lngtool -lngipaddr
 
-noinst_HEADERS = ngircd.h array.h channel.h class.h client.h conf.h \
-	conf-ssl.h conn.h conn-func.h conn-ssl.h conn-zip.h hash.h io.h \
-	irc.h irc-channel.h irc-info.h irc-login.h irc-mode.h irc-op.h \
-	irc-oper.h irc-server.h irc-write.h lists.h log.h match.h numeric.h \
-	op.h pam.h parse.h proc.h resolve.h sighandlers.h defines.h messages.h
+noinst_HEADERS = \
+	ngircd.h \
+	array.h \
+	channel.h \
+	class.h \
+	client.h \
+	conf.h \
+	conf-ssl.h \
+	conn.h \
+	conn-func.h \
+	conn-ssl.h \
+	conn-zip.h \
+	defines.h \
+	hash.h \
+	io.h \
+	irc.h \
+	irc-channel.h \
+	irc-info.h \
+	irc-login.h \
+	irc-mode.h \
+	irc-op.h \
+	irc-oper.h \
+	irc-server.h \
+	irc-write.h \
+	lists.h \
+	log.h \
+	match.h \
+	messages.h \
+	numeric.h \
+	op.h \
+	pam.h \
+	parse.h \
+	proc.h \
+	resolve.h \
+	sighandlers.h
 
 clean-local:
 	rm -f check-version check-help lint.out

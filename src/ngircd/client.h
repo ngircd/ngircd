@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2008 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2012 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -165,6 +165,8 @@ GLOBAL const char *Client_TypeText PARAMS((CLIENT *Client));
 
 GLOBAL void Client_Reject PARAMS((CLIENT *Client, const char *Reason,
 				  bool InformClient));
+GLOBAL void Client_Introduce PARAMS((CLIENT *From, CLIENT *Client, int Type));
+
 
 #ifdef DEBUG
 GLOBAL void Client_DebugDump PARAMS((void));

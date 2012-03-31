@@ -46,11 +46,6 @@
 static bool Hello_User PARAMS(( CLIENT *Client ));
 static bool Hello_User_PostAuth PARAMS(( CLIENT *Client ));
 static void Kill_Nick PARAMS(( char *Nick, char *Reason ));
-static void Introduce_Client PARAMS((CLIENT *To, CLIENT *Client, int Type));
-
-static void cb_introduceClient PARAMS((CLIENT *Client, CLIENT *Prefix,
-				       void *i));
-
 #ifdef PAM
 static void cb_Read_Auth_Result PARAMS((int r_fd, UNUSED short events));
 #endif
@@ -395,7 +390,7 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 				 Client_Mask(c));
 			Client_SetType(c, CLIENT_GOTNICK);
 		} else
-			Introduce_Client(Client, c, CLIENT_USER);
+			Client_Introduce(Client, c, CLIENT_USER);
 
 		return CONNECTED;
 	}
@@ -487,7 +482,7 @@ IRC_USER(CLIENT * Client, REQUEST * Req)
 		/* RFC 1459 style user registration?
 		 * Introduce client to network: */
 		if (Client_Type(c) == CLIENT_GOTNICK)
-			Introduce_Client(Client, c, CLIENT_USER);
+			Client_Introduce(Client, c, CLIENT_USER);
 
 		return CONNECTED;
 	} else if (Client_Type(Client) == CLIENT_USER) {
@@ -601,7 +596,7 @@ IRC_SERVICE(CLIENT *Client, REQUEST *Req)
 		return CONNECTED;
 	}
 
-	Introduce_Client(Client, c, CLIENT_SERVICE);
+	Client_Introduce(Client, c, CLIENT_SERVICE);
 	return CONNECTED;
 } /* IRC_SERVICE */
 
@@ -1057,7 +1052,7 @@ Hello_User_PostAuth(CLIENT *Client)
 	if (Class_HandleServerBans(Client) != CONNECTED)
 		return DISCONNECTED;
 
-	Introduce_Client(NULL, Client, CLIENT_USER);
+	Client_Introduce(NULL, Client, CLIENT_USER);
 
 	if (!IRC_WriteStrClient
 	    (Client, RPL_WELCOME_MSG, Client_ID(Client), Client_Mask(Client)))
@@ -1117,99 +1112,6 @@ Kill_Nick(char *Nick, char *Reason)
 
 	IRC_KILL(Client_ThisServer(), &r);
 } /* Kill_Nick */
-
-
-/**
- * Introduce a new user or service client in the network.
- *
- * @param From		Remote server introducing the client or NULL (local).
- * @param Client	New client.
- * @param Type		Type of the client (CLIENT_USER or CLIENT_SERVICE).
- */
-static void
-Introduce_Client(CLIENT *From, CLIENT *Client, int Type)
-{
-	/* Set client type (user or service) */
-	Client_SetType(Client, Type);
-
-	if (From) {
-		if (Conf_IsService(Conf_GetServer(Client_Conn(From)),
-				   Client_ID(Client)))
-			Client_SetType(Client, CLIENT_SERVICE);
-		LogDebug("%s \"%s\" (+%s) registered (via %s, on %s, %d hop%s).",
-			 Client_TypeText(Client), Client_Mask(Client),
-			 Client_Modes(Client), Client_ID(From),
-			 Client_ID(Client_Introducer(Client)),
-			 Client_Hops(Client), Client_Hops(Client) > 1 ? "s": "");
-	} else {
-		Log(LOG_NOTICE, "%s \"%s\" registered (connection %d).",
-		    Client_TypeText(Client), Client_Mask(Client),
-		    Client_Conn(Client));
-		Log_ServerNotice('c', "Client connecting: %s (%s@%s) [%s] - %s",
-			         Client_ID(Client), Client_User(Client),
-				 Client_Hostname(Client),
-				 Conn_IPA(Client_Conn(Client)),
-				 Client_TypeText(Client));
-	}
-
-	/* Inform other servers */
-	IRC_WriteStrServersPrefixFlag_CB(From,
-				From != NULL ? From : Client_ThisServer(),
-				'\0', cb_introduceClient, (void *)Client);
-} /* Introduce_Client */
-
-
-/**
- * Introduce a new user or service client to a remote server.
- *
- * This function differentiates between RFC1459 and RFC2813 server links and
- * generates the appropriate commands to register the new user or service.
- *
- * @param To		The remote server to inform.
- * @param Prefix	Prefix for the generated commands.
- * @param data		CLIENT structure of the new client.
- */
-static void
-cb_introduceClient(CLIENT *To, CLIENT *Prefix, void *data)
-{
-	CLIENT *c = (CLIENT *)data;
-	CONN_ID conn;
-	char *modes, *user, *host;
-
-	modes = Client_Modes(c);
-	user = Client_User(c) ? Client_User(c) : "-";
-	host = Client_Hostname(c) ? Client_Hostname(c) : "-";
-
-	conn = Client_Conn(To);
-	if (Conn_Options(conn) & CONN_RFC1459) {
-		/* RFC 1459 mode: separate NICK and USER commands */
-		Conn_WriteStr(conn, "NICK %s :%d", Client_ID(c),
-			      Client_Hops(c) + 1);
-		Conn_WriteStr(conn, ":%s USER %s %s %s :%s",
-			      Client_ID(c), user, host,
-			      Client_ID(Client_Introducer(c)), Client_Info(c));
-		if (modes[0])
-			Conn_WriteStr(conn, ":%s MODE %s +%s",
-				      Client_ID(c), Client_ID(c), modes);
-	} else {
-		/* RFC 2813 mode: one combined NICK or SERVICE command */
-		if (Client_Type(c) == CLIENT_SERVICE
-		    && strchr(Client_Flags(To), 'S'))
-			IRC_WriteStrClientPrefix(To, Prefix,
-					 "SERVICE %s %d * +%s %d :%s",
-					 Client_Mask(c),
-					 Client_MyToken(Client_Introducer(c)),
-					 Client_Modes(c), Client_Hops(c) + 1,
-					 Client_Info(c));
-		else
-			IRC_WriteStrClientPrefix(To, Prefix,
-					 "NICK %s %d %s %s %d +%s :%s",
-					 Client_ID(c), Client_Hops(c) + 1,
-					 user, host,
-					 Client_MyToken(Client_Introducer(c)),
-					 modes, Client_Info(c));
-	}
-} /* cb_introduceClient */
 
 
 /* -eof- */

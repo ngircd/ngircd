@@ -37,6 +37,7 @@
 #include "ngircd.h"
 #include "channel.h"
 #include "conf.h"
+#include "conn-func.h"
 #include "hash.h"
 #include "irc-write.h"
 #include "log.h"
@@ -69,6 +70,8 @@ static CLIENT *Init_New_Client PARAMS((CONN_ID Idx, CLIENT *Introducer,
 static void Destroy_UserOrService PARAMS((CLIENT *Client,const char *Txt, const char *FwdMsg,
 					bool SendQuit));
 
+static void cb_introduceClient PARAMS((CLIENT *Client, CLIENT *Prefix,
+				       void *i));
 
 GLOBAL void
 Client_Init( void )
@@ -1142,6 +1145,46 @@ Client_Reject(CLIENT *Client, const char *Reason, bool InformClient)
 }
 
 
+/**
+ * Introduce a new user or service client in the network.
+ *
+ * @param From Remote server introducing the client or NULL (local).
+ * @param Client New client.
+ * @param Type Type of the client (CLIENT_USER or CLIENT_SERVICE).
+ */
+GLOBAL void
+Client_Introduce(CLIENT *From, CLIENT *Client, int Type)
+{
+	/* Set client type (user or service) */
+	Client_SetType(Client, Type);
+
+	if (From) {
+		if (Conf_IsService(Conf_GetServer(Client_Conn(From)),
+				   Client_ID(Client)))
+			Client_SetType(Client, CLIENT_SERVICE);
+		LogDebug("%s \"%s\" (+%s) registered (via %s, on %s, %d hop%s).",
+			 Client_TypeText(Client), Client_Mask(Client),
+			 Client_Modes(Client), Client_ID(From),
+			 Client_ID(Client_Introducer(Client)),
+			 Client_Hops(Client), Client_Hops(Client) > 1 ? "s": "");
+	} else {
+		Log(LOG_NOTICE, "%s \"%s\" registered (connection %d).",
+		    Client_TypeText(Client), Client_Mask(Client),
+		    Client_Conn(Client));
+		Log_ServerNotice('c', "Client connecting: %s (%s@%s) [%s] - %s",
+			         Client_ID(Client), Client_User(Client),
+				 Client_Hostname(Client),
+				 Conn_IPA(Client_Conn(Client)),
+				 Client_TypeText(Client));
+	}
+
+	/* Inform other servers */
+	IRC_WriteStrServersPrefixFlag_CB(From,
+				From != NULL ? From : Client_ThisServer(),
+				'\0', cb_introduceClient, (void *)Client);
+} /* Client_Introduce */
+
+
 static unsigned long
 Count( CLIENT_TYPE Type )
 {
@@ -1359,6 +1402,59 @@ Destroy_UserOrService(CLIENT *Client, const char *Txt, const char *FwdMsg, bool 
 	/* Register client in My_Whowas structure */
 	Client_RegisterWhowas(Client);
 } /* Destroy_UserOrService */
+
+
+/**
+ * Introduce a new user or service client to a remote server.
+ *
+ * This function differentiates between RFC1459 and RFC2813 server links and
+ * generates the appropriate commands to register the new user or service.
+ *
+ * @param To		The remote server to inform.
+ * @param Prefix	Prefix for the generated commands.
+ * @param data		CLIENT structure of the new client.
+ */
+static void
+cb_introduceClient(CLIENT *To, CLIENT *Prefix, void *data)
+{
+	CLIENT *c = (CLIENT *)data;
+	CONN_ID conn;
+	char *modes, *user, *host;
+
+	modes = Client_Modes(c);
+	user = Client_User(c) ? Client_User(c) : "-";
+	host = Client_Hostname(c) ? Client_Hostname(c) : "-";
+
+	conn = Client_Conn(To);
+	if (Conn_Options(conn) & CONN_RFC1459) {
+		/* RFC 1459 mode: separate NICK and USER commands */
+		Conn_WriteStr(conn, "NICK %s :%d", Client_ID(c),
+			      Client_Hops(c) + 1);
+		Conn_WriteStr(conn, ":%s USER %s %s %s :%s",
+			      Client_ID(c), user, host,
+			      Client_ID(Client_Introducer(c)), Client_Info(c));
+		if (modes[0])
+			Conn_WriteStr(conn, ":%s MODE %s +%s",
+				      Client_ID(c), Client_ID(c), modes);
+	} else {
+		/* RFC 2813 mode: one combined NICK or SERVICE command */
+		if (Client_Type(c) == CLIENT_SERVICE
+		    && strchr(Client_Flags(To), 'S'))
+			IRC_WriteStrClientPrefix(To, Prefix,
+						 "SERVICE %s %d * +%s %d :%s",
+						 Client_Mask(c),
+						 Client_MyToken(Client_Introducer(c)),
+						 Client_Modes(c), Client_Hops(c) + 1,
+						 Client_Info(c));
+		else
+			IRC_WriteStrClientPrefix(To, Prefix,
+						 "NICK %s %d %s %s %d +%s :%s",
+						 Client_ID(c), Client_Hops(c) + 1,
+						 user, host,
+						 Client_MyToken(Client_Introducer(c)),
+						 modes, Client_Info(c));
+	}
+} /* cb_introduceClient */
 
 
 #ifdef DEBUG

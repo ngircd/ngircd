@@ -42,6 +42,7 @@ ngircd_SOURCES = \
 	irc-write.c \
 	lists.c \
 	log.c \
+	login.c \
 	match.c \
 	numeric.c \
 	op.c \
@@ -81,6 +82,7 @@ noinst_HEADERS = \
 	irc-write.h \
 	lists.h \
 	log.h \
+	login.h \
 	match.h \
 	messages.h \
 	numeric.h \

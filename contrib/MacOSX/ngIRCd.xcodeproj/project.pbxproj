@@ -41,6 +41,7 @@
 		FAA3D27B0F139CDC00B2447E /* conn-ssl.c in Sources */ = {isa = PBXBuildFile; fileRef = FAA3D2790F139CDC00B2447E /* conn-ssl.c */; };
 		FAA97C57124A271400D5BBA9 /* sighandlers.c in Sources */ = {isa = PBXBuildFile; fileRef = FAA97C55124A271400D5BBA9 /* sighandlers.c */; };
 		FAACD5F514A6099C006ED74F /* class.c in Sources */ = {isa = PBXBuildFile; fileRef = FAACD5F314A6099C006ED74F /* class.c */; };
+		FAD5853815272C2600328741 /* login.c in Sources */ = {isa = PBXBuildFile; fileRef = FAD5853615272C2500328741 /* login.c */; };
 		FAE5CC2E0CF2308A007D69B6 /* numeric.c in Sources */ = {isa = PBXBuildFile; fileRef = FAE5CC2D0CF2308A007D69B6 /* numeric.c */; };
 /* End PBXBuildFile section */
 
@@ -231,6 +232,8 @@
 		FAA97C56124A271400D5BBA9 /* sighandlers.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = sighandlers.h; sourceTree = "<group>"; };
 		FAACD5F314A6099C006ED74F /* class.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = class.c; sourceTree = "<group>"; };
 		FAACD5F414A6099C006ED74F /* class.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = class.h; sourceTree = "<group>"; };
+		FAD5853615272C2500328741 /* login.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = login.c; sourceTree = "<group>"; };
+		FAD5853715272C2500328741 /* login.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = login.h; sourceTree = "<group>"; };
 		FAE22BD215270EA300F1A5AB /* Bopm.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = Bopm.txt; sourceTree = "<group>"; };
 		FAE22BD415270EA300F1A5AB /* Contributing.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = Contributing.txt; sourceTree = "<group>"; };
 		FAE22BD515270EB500F1A5AB /* HowToRelease.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = HowToRelease.txt; sourceTree = "<group>"; };
@@ -351,6 +354,8 @@
 				FA322CFF0CEF74B1001761B3 /* lists.h */,
 				FA322D000CEF74B1001761B3 /* log.c */,
 				FA322D010CEF74B1001761B3 /* log.h */,
+				FAD5853615272C2500328741 /* login.c */,
+				FAD5853715272C2500328741 /* login.h */,
 				FA322D030CEF74B1001761B3 /* match.c */,
 				FA322D040CEF74B1001761B3 /* match.h */,
 				FA322D050CEF74B1001761B3 /* messages.h */,
@@ -730,6 +735,7 @@
 				FA2D564A11EA158B00D37A35 /* pam.c in Sources */,
 				FAA97C57124A271400D5BBA9 /* sighandlers.c in Sources */,
 				FAACD5F514A6099C006ED74F /* class.c in Sources */,
+				FAD5853815272C2600328741 /* login.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

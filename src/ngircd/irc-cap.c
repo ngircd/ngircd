@@ -180,7 +180,7 @@ Handle_CAP_END(CLIENT *Client)
 		/* User is still logging in ... */
 		Client_CapDel(Client, CLIENT_CAP_PENDING);
 
-		if (Client_Type(Client) == CLIENT_GOTUSER) {
+		if (Client_Type(Client) == CLIENT_WAITCAPEND) {
 			/* Only "CAP END" was missing: log in! */
 			return Login_User(Client);
 		}

@@ -29,6 +29,7 @@
 #ifndef STRICT_RFC
 # define CLIENT_WAITAUTHPING 512	/* waiting for AUTH PONG from client */
 #endif
+#define CLIENT_WAITCAPEND 1024		/* waiting for "CAP END" command */
 
 #define CLIENT_TYPE int
 

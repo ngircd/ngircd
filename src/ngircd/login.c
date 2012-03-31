@@ -80,8 +80,11 @@ Login_User(CLIENT * Client)
 #endif
 
 	/* Still waiting for "CAP END" command? */
-	if (Client_Cap(Client) & CLIENT_CAP_PENDING)
+	if (Client_Cap(Client) & CLIENT_CAP_PENDING) {
+		Client_SetType(Client, CLIENT_WAITCAPEND);
+		LogDebug("Connection %d: Waiting for CAP END ...", conn);
 		return CONNECTED;
+	}
 
 #ifdef PAM
 	if (!Conf_PAM) {

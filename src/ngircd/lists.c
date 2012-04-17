@@ -149,7 +149,8 @@ Lists_Add(struct list_head *h, const char *Mask, time_t ValidUntil,
 	if (Reason) {
 		newelem->reason = malloc(strlen(Reason) + 1);
 		if (newelem->reason)
-			strlcpy(newelem->reason, Reason, strlen(Reason) + 1);
+			strlcpy(newelem->reason, Reason,
+				sizeof(newelem->reason));
 		else
 			Log(LOG_EMERG,
 			    "Can't allocate memory for new list reason text!");

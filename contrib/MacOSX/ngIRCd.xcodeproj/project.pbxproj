@@ -305,8 +305,6 @@
 			isa = PBXGroup;
 			children = (
 				FA322D020CEF74B1001761B3 /* Makefile.am */,
-				FAA3D2790F139CDC00B2447E /* conn-ssl.c */,
-				FAA3D27A0F139CDC00B2447E /* conn-ssl.h */,
 				FA322CD90CEF74B1001761B3 /* array.c */,
 				FA322CDA0CEF74B1001761B3 /* array.h */,
 				FA322CDB0CEF74B1001761B3 /* channel.c */,
@@ -324,6 +322,8 @@
 				FA322CE40CEF74B1001761B3 /* conn-zip.h */,
 				FA322CE50CEF74B1001761B3 /* conn.c */,
 				FA322CE60CEF74B1001761B3 /* conn.h */,
+				FAA3D2790F139CDC00B2447E /* conn-ssl.c */,
+				FAA3D27A0F139CDC00B2447E /* conn-ssl.h */,
 				FA322CE70CEF74B1001761B3 /* defines.h */,
 				FA322CE80CEF74B1001761B3 /* hash.c */,
 				FA322CE90CEF74B1001761B3 /* hash.h */,

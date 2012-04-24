@@ -96,9 +96,14 @@ if [ -r "Makefile" ]; then
 	CC=$(grep "^CC = " Makefile | cut -d' ' -f3)
 	$CC --version 2>&1 | grep -i "GCC" >/dev/null
 	if [ $? -eq 0 ]; then
-		COMPILER=$($CC --version | head -1 \
-		  | cut -d')' -f2 | cut -d' ' -f2)
-		COMPILER="gcc $COMPILER"
+		$CC --version 2>&1 | grep -i "Open64" >/dev/null
+		if [ $? -eq 0 ]; then
+			COMPILER="Open64"
+		else
+			COMPILER=$($CC --version | head -1 \
+			  | cut -d')' -f2 | cut -d' ' -f2)
+			COMPILER="gcc $COMPILER"
+		fi
 	else
 		case "$CC" in
 		  gcc*)

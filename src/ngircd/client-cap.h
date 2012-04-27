@@ -22,6 +22,7 @@
 
 GLOBAL int Client_Cap PARAMS((CLIENT *Client));
 
+GLOBAL void Client_CapSet PARAMS((CLIENT *Client, int Cap));
 GLOBAL void Client_CapAdd PARAMS((CLIENT *Client, int Cap));
 GLOBAL void Client_CapDel PARAMS((CLIENT *Client, int Cap));
 

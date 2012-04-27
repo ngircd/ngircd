@@ -38,6 +38,17 @@ Client_Cap(CLIENT *Client)
 }
 
 GLOBAL void
+Client_CapSet(CLIENT *Client, int Cap)
+{
+	assert(Client != NULL);
+	assert(Cap >= 0);
+
+	Client->capabilities = Cap;
+	LogDebug("Set new capability of \"%s\" to %d.",
+		 Client_ID(Client), Client->capabilities);
+}
+
+GLOBAL void
 Client_CapAdd(CLIENT *Client, int Cap)
 {
 	assert(Client != NULL);

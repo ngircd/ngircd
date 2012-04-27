@@ -42,6 +42,8 @@ bool Handle_CAP_END PARAMS((CLIENT *Client));
 
 void Set_CAP_Negotiation PARAMS((CLIENT *Client));
 
+int Parse_CAP PARAMS((int Capabilities, char *Args));
+char *Get_CAP_String PARAMS((int Capabilities));
 
 /**
  * Handler for the IRCv3 "CAP" command.
@@ -101,7 +103,9 @@ Handle_CAP_LS(CLIENT *Client, UNUSED char *Arg)
 
 	Set_CAP_Negotiation(Client);
 
-	return IRC_WriteStrClient(Client, "CAP %s LS :", Client_ID(Client));
+	return IRC_WriteStrClient(Client,
+				  "CAP %s LS :multi-prefix",
+				  Client_ID(Client));
 }
 
 /**
@@ -116,7 +120,8 @@ Handle_CAP_LIST(CLIENT *Client, UNUSED char *Arg)
 {
 	assert(Client != NULL);
 
-	return IRC_WriteStrClient(Client, "CAP %s LIST :", Client_ID(Client));
+	return IRC_WriteStrClient(Client, "CAP %s LIST :%s", Client_ID(Client),
+				  Get_CAP_String(Client_Cap(Client)));
 }
 
 /**
@@ -129,12 +134,21 @@ Handle_CAP_LIST(CLIENT *Client, UNUSED char *Arg)
 bool
 Handle_CAP_REQ(CLIENT *Client, char *Arg)
 {
+	int new_cap;
+
 	assert(Client != NULL);
 	assert(Arg != NULL);
 
 	Set_CAP_Negotiation(Client);
 
-	return IRC_WriteStrClient(Client, "CAP %s NAK :%s",
+	new_cap = Parse_CAP(Client_Cap(Client), Arg);
+
+	if (new_cap < 0)
+		return IRC_WriteStrClient(Client, "CAP %s NAK :%s",
+					  Client_ID(Client), Arg);
+
+	Client_CapSet(Client, new_cap);
+	return IRC_WriteStrClient(Client, "CAP %s ACK :%s",
 				  Client_ID(Client), Arg);
 }
 
@@ -163,9 +177,16 @@ Handle_CAP_ACK(CLIENT *Client, char *Arg)
 bool
 Handle_CAP_CLEAR(CLIENT *Client)
 {
+	int cap_old;
+
 	assert(Client != NULL);
 
-	return IRC_WriteStrClient(Client, "CAP %s ACK :", Client_ID(Client));
+	cap_old = Client_Cap(Client);
+	if (cap_old & CLIENT_CAP_MULTI_PREFIX)
+		Client_CapDel(Client, CLIENT_CAP_MULTI_PREFIX);
+
+	return IRC_WriteStrClient(Client, "CAP %s ACK :%s", Client_ID(Client),
+				  Get_CAP_String(cap_old));
 }
 
 /**
@@ -205,6 +226,66 @@ Set_CAP_Negotiation(CLIENT *Client)
 	if (Client_Type(Client) != CLIENT_USER)
 		Client_CapAdd(Client, CLIENT_CAP_PENDING);
 	Client_CapAdd(Client, CLIENT_CAP_SUPPORTED);
+}
+
+/**
+ * Parse capability string and return numeric flag value.
+ *
+ * @param Args The string containing space-separated capability names.
+ * @return Changed capability flags or 0 on error.
+ */
+int
+Parse_CAP(int Capabilities, char *Args)
+{
+	static char tmp[COMMAND_LEN];
+	char *ptr;
+
+	assert(Args != NULL);
+
+	strlcpy(tmp, Args, sizeof(tmp));
+
+	ptr = strtok(tmp, " ");
+	while (ptr) {
+		if (*ptr == '-') {
+			/* drop capabilities */
+			ptr++;
+			if (strcmp(ptr, "multi-prefix") == 0)
+				Capabilities &= ~CLIENT_CAP_MULTI_PREFIX;
+			else
+				return -1;
+		} else {
+			/* request capabilities */
+			if (strcmp(ptr, "multi-prefix") == 0)
+				Capabilities |= CLIENT_CAP_MULTI_PREFIX;
+			else
+				return -1;
+		}
+		ptr = strtok(NULL, " ");
+	}
+
+	return Capabilities;
+}
+
+/**
+ * Return textual representation of capability flags.
+ *
+ * Please note: this function returns a pointer to a global buffer and
+ * therefore isn't thread safe!
+ *
+ * @param Capabilities Capability flags (bitmask).
+ * @return Pointer to textual representation.
+ */
+char
+*Get_CAP_String(int Capabilities)
+{
+	static char txt[COMMAND_LEN];
+
+	txt[0] = '\0';
+
+	if (Capabilities & CLIENT_CAP_MULTI_PREFIX)
+		strlcat(txt, "multi-prefix ", sizeof(txt));
+
+	return txt;
 }
 
 /* -eof- */

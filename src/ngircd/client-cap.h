@@ -20,6 +20,8 @@
 #define CLIENT_CAP_PENDING 1		/* Capability negotiation pending */
 #define CLIENT_CAP_SUPPORTED 2		/* Client supports IRC capabilities */
 
+#define CLIENT_CAP_MULTI_PREFIX 4	/* multi-prefix */
+
 GLOBAL int Client_Cap PARAMS((CLIENT *Client));
 
 GLOBAL void Client_CapSet PARAMS((CLIENT *Client, int Cap));

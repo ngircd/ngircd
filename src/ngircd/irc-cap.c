@@ -40,6 +40,9 @@ bool Handle_CAP_ACK PARAMS((CLIENT *Client, char *Arg));
 bool Handle_CAP_CLEAR PARAMS((CLIENT *Client));
 bool Handle_CAP_END PARAMS((CLIENT *Client));
 
+void Set_CAP_Negotiation PARAMS((CLIENT *Client));
+
+
 /**
  * Handler for the IRCv3 "CAP" command.
  *
@@ -96,10 +99,8 @@ Handle_CAP_LS(CLIENT *Client, UNUSED char *Arg)
 {
 	assert(Client != NULL);
 
-	if (Client_Type(Client) != CLIENT_USER)
-		Client_CapAdd(Client, CLIENT_CAP_PENDING);
+	Set_CAP_Negotiation(Client);
 
-	Client_CapAdd(Client, CLIENT_CAP_SUPPORTED);
 	return IRC_WriteStrClient(Client, "CAP %s LS :", Client_ID(Client));
 }
 
@@ -130,6 +131,8 @@ Handle_CAP_REQ(CLIENT *Client, char *Arg)
 {
 	assert(Client != NULL);
 	assert(Arg != NULL);
+
+	Set_CAP_Negotiation(Client);
 
 	return IRC_WriteStrClient(Client, "CAP %s NAK :%s",
 				  Client_ID(Client), Arg);
@@ -187,6 +190,21 @@ Handle_CAP_END(CLIENT *Client)
 	}
 
 	return CONNECTED;
+}
+
+/**
+ * Set CAP negotiation status and mark client as "supports capabilities".
+ *
+ * @param Client The client to handle.
+ */
+void
+Set_CAP_Negotiation(CLIENT *Client)
+{
+	assert(Client != NULL);
+
+	if (Client_Type(Client) != CLIENT_USER)
+		Client_CapAdd(Client, CLIENT_CAP_PENDING);
+	Client_CapAdd(Client, CLIENT_CAP_SUPPORTED);
 }
 
 /* -eof- */

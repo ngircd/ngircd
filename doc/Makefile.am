@@ -18,6 +18,7 @@ SUFFIXES = .tmpl
 
 static_docs = \
 	Bopm.txt \
+	Capabilities.txt \
 	FAQ.txt \
 	GIT.txt \
 	HowToRelease.txt \

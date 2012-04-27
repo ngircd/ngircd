@@ -1,0 +1,23 @@
+
+                     ngIRCd - Next Generation IRC Server
+                           http://ngircd.barton.de/
+
+               (c)2001-2012 Alexander Barton and Contributors.
+               ngIRCd is free software and published under the
+                   terms of the GNU General Public License.
+
+                            -- Capabilities.txt --
+
+
+This document lists and describes the "IRC capabilities" that ngIRCd supports
+and can be requested by a IRC/IRCv3 client that supports the "CAP" command.
+
+ngIRCd implements the "IRC Client Capabilities Extension" as described here:
+<http://www.leeh.co.uk/draft-mitchell-irc-capabilities-02.html>
+
+
+I. Supported Capabilities
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+None. At the moment, ngIRCd supports the "CAP" command and its sub-commands
+but offers no capabilities that could be requested by a client.

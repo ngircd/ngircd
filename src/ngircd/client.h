@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2008 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2012 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,12 +29,13 @@
 #ifndef STRICT_RFC
 # define CLIENT_WAITAUTHPING 512	/* waiting for AUTH PONG from client */
 #endif
+#define CLIENT_WAITCAPEND 1024		/* waiting for "CAP END" command */
 
 #define CLIENT_TYPE int
 
 #include "defines.h"
 
-#if defined(__client_c__) | defined(S_SPLINT_S)
+#if defined(__client_c__) | defined(__client_cap_c__) | defined(S_SPLINT_S)
 
 typedef struct _CLIENT
 {
@@ -58,6 +59,7 @@ typedef struct _CLIENT
 	bool oper_by_me;		/* client is local IRC operator on this server? */
 	char away[CLIENT_AWAY_LEN];	/* AWAY text (valid if mode 'a' is set) */
 	char flags[CLIENT_FLAGS_LEN];	/* flags of the client */
+	int capabilities;		/* enabled IRC capabilities */
 } CLIENT;
 
 #else
@@ -165,6 +167,8 @@ GLOBAL const char *Client_TypeText PARAMS((CLIENT *Client));
 
 GLOBAL void Client_Reject PARAMS((CLIENT *Client, const char *Reason,
 				  bool InformClient));
+GLOBAL void Client_Introduce PARAMS((CLIENT *From, CLIENT *Client, int Type));
+
 
 #ifdef DEBUG
 GLOBAL void Client_DebugDump PARAMS((void));

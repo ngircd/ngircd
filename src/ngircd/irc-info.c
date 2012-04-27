@@ -39,6 +39,7 @@
 #include "parse.h"
 #include "irc.h"
 #include "irc-write.h"
+#include "client-cap.h"
 
 #include "exp.h"
 #include "irc-info.h"
@@ -807,8 +808,16 @@ who_flags_status(const char *client_modes)
 
 
 static const char *
-who_flags_qualifier(const char *chan_user_modes)
+who_flags_qualifier(CLIENT *Client, const char *chan_user_modes)
 {
+	assert(Client != NULL);
+
+	if (Client_Cap(Client) & CLIENT_CAP_MULTI_PREFIX) {
+		if (strchr(chan_user_modes, 'o') &&
+		    strchr(chan_user_modes, 'v'))
+			return "@+";
+	}
+
 	if (strchr(chan_user_modes, 'o'))
 		return "@";
 	else if (strchr(chan_user_modes, 'v'))
@@ -865,7 +874,7 @@ IRC_WHO_Channel(CLIENT *Client, CHANNEL *Chan, bool OnlyOps)
 				strlcat(flags, "*", sizeof(flags));
 
 			chan_user_modes = Channel_UserModes(Chan, c);
-			strlcat(flags, who_flags_qualifier(chan_user_modes),
+			strlcat(flags, who_flags_qualifier(c, chan_user_modes),
 				sizeof(flags));
 
 			if (!write_whoreply(Client, c, Channel_Name(Chan),
@@ -1078,7 +1087,7 @@ IRC_WHOIS_SendReply(CLIENT *Client, CLIENT *from, CLIENT *c)
 		if (str[strlen(str) - 1] != ':')
 			strlcat(str, " ", sizeof(str));
 
-		strlcat(str, who_flags_qualifier(Channel_UserModes(chan, c)),
+		strlcat(str, who_flags_qualifier(c, Channel_UserModes(chan, c)),
 						 sizeof(str));
 		strlcat(str, Channel_Name(chan), sizeof(str));
 
@@ -1569,10 +1578,16 @@ IRC_Send_NAMES(CLIENT * Client, CHANNEL * Chan)
 		if (is_member || is_visible) {
 			if (str[strlen(str) - 1] != ':')
 				strlcat(str, " ", sizeof(str));
-			if (strchr(Channel_UserModes(Chan, cl), 'o'))
-				strlcat(str, "@", sizeof(str));
-			else if (strchr(Channel_UserModes(Chan, cl), 'v'))
-				strlcat(str, "+", sizeof(str));
+			if (Client_Cap(cl) & CLIENT_CAP_MULTI_PREFIX) {
+				if (strchr(Channel_UserModes(Chan, cl), 'o') &&
+				    strchr(Channel_UserModes(Chan, cl), 'v'))
+					strlcat(str, "@+", sizeof(str));
+			} else {
+				if (strchr(Channel_UserModes(Chan, cl), 'o'))
+					strlcat(str, "@", sizeof(str));
+				else if (strchr(Channel_UserModes(Chan, cl), 'v'))
+					strlcat(str, "+", sizeof(str));
+			}
 			strlcat(str, Client_ID(cl), sizeof(str));
 
 			if (strlen(str) > (LINE_LEN - CLIENT_NICK_LEN - 4)) {

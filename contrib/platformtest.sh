@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001-2010 Alexander Barton <alex@barton.de>
+# Copyright (c)2001-2011 Alexander Barton (alex@barton.de) and Contributors
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,12 +21,15 @@ PLATFORM=
 COMPILER="unknown"
 VERSION="unknown"
 DATE=`date "+%y-%m-%d"`
-
-CONFIGURE=
-MAKE=
-CHECK=
-RUN=
 COMMENT=
+
+R_CONFIGURE=
+R_MAKE=
+R_CHECK=
+R_RUN=
+
+[ -n "$MAKE" ] || MAKE="make"
+export MAKE CC
 
 while [ $# -gt 0 ]; do
 	case "$1" in
@@ -61,20 +64,20 @@ if [ -r ./configure ]; then
 	echo "$NAME: Running \"./configure\" script ..."
 	[ -n "$VERBOSE" ] && ./configure || ./configure >/dev/null
 	if [ $? -eq 0 -a -r ./Makefile ]; then
-		CONFIGURE=1
-		echo "$NAME: Running \"make\" ..."
-		[ -n "$VERBOSE" ] && make || make >/dev/null
+		R_CONFIGURE=1
+		echo "$NAME: Running \"$MAKE\" ..."
+		[ -n "$VERBOSE" ] && "$MAKE" || "$MAKE" >/dev/null
 		if [ $? -eq 0 -a -x src/ngircd/ngircd ]; then
-			MAKE=1
-			echo "$NAME: Running \"make check\" ..."
-			[ -n "$VERBOSE" ] && make check || make check >/dev/null
+			R_MAKE=1
+			echo "$NAME: Running \"$MAKE check\" ..."
+			[ -n "$VERBOSE" ] && "$MAKE" check || "$MAKE" check >/dev/null
 			if [ $? -eq 0 ]; then
-				CHECK=1
-				RUN=$CHECK
+				R_CHECK=1
+				R_RUN=$R_CHECK
 			else
 				./src/ngircd/ngircd --help 2>/dev/null \
 				 | grep "^ngircd" >/dev/null
-				[ $? -eq 0 ] && RUN=1
+				[ $? -eq 0 ] && R_RUN=1
 			fi
 		fi
 	fi
@@ -135,10 +138,10 @@ else
 	[ $? -eq 0 ] && COMMENT="(3)"
 fi
 
-[ -n "$CONFIGURE" ] && C="Y" || C="N"
-[ -n "$MAKE" ] && M="Y" || M="N"
-[ -n "$CHECK" ] && T="Y" || T="N"
-[ -n "$RUN" ] && R="Y" || R="N"
+[ -n "$R_CONFIGURE" ] && C="Y" || C="N"
+[ -n "$R_MAKE" ] && M="Y" || M="N"
+[ -n "$R_CHECK" ] && T="Y" || T="N"
+[ -n "$R_RUN" ] && R="Y" || R="N"
 [ -n "$COMMENT" ] && COMMENT=" $COMMENT"
 
 echo

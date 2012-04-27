@@ -39,6 +39,7 @@
 #include "parse.h"
 #include "irc.h"
 #include "irc-write.h"
+#include "client-cap.h"
 
 #include "exp.h"
 #include "irc-info.h"
@@ -807,8 +808,16 @@ who_flags_status(const char *client_modes)
 
 
 static const char *
-who_flags_qualifier(const char *chan_user_modes)
+who_flags_qualifier(CLIENT *Client, const char *chan_user_modes)
 {
+	assert(Client != NULL);
+
+	if (Client_Cap(Client) & CLIENT_CAP_MULTI_PREFIX) {
+		if (strchr(chan_user_modes, 'o') &&
+		    strchr(chan_user_modes, 'v'))
+			return "@+";
+	}
+
 	if (strchr(chan_user_modes, 'o'))
 		return "@";
 	else if (strchr(chan_user_modes, 'v'))
@@ -865,7 +874,7 @@ IRC_WHO_Channel(CLIENT *Client, CHANNEL *Chan, bool OnlyOps)
 				strlcat(flags, "*", sizeof(flags));
 
 			chan_user_modes = Channel_UserModes(Chan, c);
-			strlcat(flags, who_flags_qualifier(chan_user_modes),
+			strlcat(flags, who_flags_qualifier(c, chan_user_modes),
 				sizeof(flags));
 
 			if (!write_whoreply(Client, c, Channel_Name(Chan),
@@ -1078,7 +1087,7 @@ IRC_WHOIS_SendReply(CLIENT *Client, CLIENT *from, CLIENT *c)
 		if (str[strlen(str) - 1] != ':')
 			strlcat(str, " ", sizeof(str));
 
-		strlcat(str, who_flags_qualifier(Channel_UserModes(chan, c)),
+		strlcat(str, who_flags_qualifier(c, Channel_UserModes(chan, c)),
 						 sizeof(str));
 		strlcat(str, Channel_Name(chan), sizeof(str));
 
@@ -1524,60 +1533,77 @@ IRC_Show_MOTD( CLIENT *Client )
 } /* IRC_Show_MOTD */
 
 
+/**
+ * Send NAMES reply for a specific client and channel.
+ *
+ * @param Client The client requesting the NAMES information.
+ * @param Chan The channel
+ * @return CONNECTED or DISCONNECTED.
+ */
 GLOBAL bool
-IRC_Send_NAMES( CLIENT *Client, CHANNEL *Chan )
+IRC_Send_NAMES(CLIENT * Client, CHANNEL * Chan)
 {
 	bool is_visible, is_member;
 	char str[LINE_LEN + 1];
 	CL2CHAN *cl2chan;
 	CLIENT *cl;
 
-	assert( Client != NULL );
-	assert( Chan != NULL );
+	assert(Client != NULL);
+	assert(Chan != NULL);
 
-	if( Channel_IsMemberOf( Chan, Client )) is_member = true;
-	else is_member = false;
+	if (Channel_IsMemberOf(Chan, Client))
+		is_member = true;
+	else
+		is_member = false;
 
 	/* Do not print info on channel memberships to anyone that is not member? */
 	if (Conf_MorePrivacy && !is_member)
 		return CONNECTED;
 
 	/* Secret channel? */
-	if( ! is_member && strchr( Channel_Modes( Chan ), 's' )) return CONNECTED;
+	if (!is_member && strchr(Channel_Modes(Chan), 's'))
+		return CONNECTED;
 
-	/* Alle Mitglieder suchen */
-	snprintf( str, sizeof( str ), RPL_NAMREPLY_MSG, Client_ID( Client ), "=", Channel_Name( Chan ));
-	cl2chan = Channel_FirstMember( Chan );
-	while( cl2chan )
-	{
-		cl = Channel_GetClient( cl2chan );
+	snprintf(str, sizeof(str), RPL_NAMREPLY_MSG, Client_ID(Client), "=",
+		 Channel_Name(Chan));
+	cl2chan = Channel_FirstMember(Chan);
+	while (cl2chan) {
+		cl = Channel_GetClient(cl2chan);
 
-		if( strchr( Client_Modes( cl ), 'i' )) is_visible = false;
-		else is_visible = true;
+		if (strchr(Client_Modes(cl), 'i'))
+			is_visible = false;
+		else
+			is_visible = true;
 
-		if( is_member || is_visible )
-		{
-			/* Nick anhaengen */
-			if( str[strlen( str ) - 1] != ':' ) strlcat( str, " ", sizeof( str ));
-			if( strchr( Channel_UserModes( Chan, cl ), 'o' )) strlcat( str, "@", sizeof( str ));
-			else if( strchr( Channel_UserModes( Chan, cl ), 'v' )) strlcat( str, "+", sizeof( str ));
-			strlcat( str, Client_ID( cl ), sizeof( str ));
+		if (is_member || is_visible) {
+			if (str[strlen(str) - 1] != ':')
+				strlcat(str, " ", sizeof(str));
+			if (Client_Cap(cl) & CLIENT_CAP_MULTI_PREFIX) {
+				if (strchr(Channel_UserModes(Chan, cl), 'o') &&
+				    strchr(Channel_UserModes(Chan, cl), 'v'))
+					strlcat(str, "@+", sizeof(str));
+			} else {
+				if (strchr(Channel_UserModes(Chan, cl), 'o'))
+					strlcat(str, "@", sizeof(str));
+				else if (strchr(Channel_UserModes(Chan, cl), 'v'))
+					strlcat(str, "+", sizeof(str));
+			}
+			strlcat(str, Client_ID(cl), sizeof(str));
 
-			if( strlen( str ) > ( LINE_LEN - CLIENT_NICK_LEN - 4 ))
-			{
-				/* Zeile wird zu lang: senden! */
-				if( ! IRC_WriteStrClient( Client, "%s", str )) return DISCONNECTED;
-				snprintf( str, sizeof( str ), RPL_NAMREPLY_MSG, Client_ID( Client ), "=", Channel_Name( Chan ));
+			if (strlen(str) > (LINE_LEN - CLIENT_NICK_LEN - 4)) {
+				if (!IRC_WriteStrClient(Client, "%s", str))
+					return DISCONNECTED;
+				snprintf(str, sizeof(str), RPL_NAMREPLY_MSG,
+					 Client_ID(Client), "=",
+					 Channel_Name(Chan));
 			}
 		}
 
-		/* naechstes Mitglied suchen */
-		cl2chan = Channel_NextMember( Chan, cl2chan );
+		cl2chan = Channel_NextMember(Chan, cl2chan);
 	}
-	if( str[strlen( str ) - 1] != ':')
-	{
-		/* Es sind noch Daten da, die gesendet werden muessen */
-		if( ! IRC_WriteStrClient( Client, "%s", str )) return DISCONNECTED;
+	if (str[strlen(str) - 1] != ':') {
+		if (!IRC_WriteStrClient(Client, "%s", str))
+			return DISCONNECTED;
 	}
 
 	return CONNECTED;

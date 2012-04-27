@@ -18,22 +18,16 @@
 
 #include "imp.h"
 #include <assert.h>
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <strings.h>
-#include <signal.h>
-#include <unistd.h>
 
-#include "ngircd.h"
 #include "conn-func.h"
 #include "class.h"
 #include "conf.h"
 #include "channel.h"
-#include "io.h"
 #include "log.h"
+#include "login.h"
 #include "messages.h"
-#include "pam.h"
 #include "parse.h"
 #include "irc.h"
 #include "irc-info.h"
@@ -42,18 +36,7 @@
 #include "exp.h"
 #include "irc-login.h"
 
-
-static bool Hello_User PARAMS(( CLIENT *Client ));
-static bool Hello_User_PostAuth PARAMS(( CLIENT *Client ));
 static void Kill_Nick PARAMS(( char *Nick, char *Reason ));
-static void Introduce_Client PARAMS((CLIENT *To, CLIENT *Client, int Type));
-
-static void cb_introduceClient PARAMS((CLIENT *Client, CLIENT *Prefix,
-				       void *i));
-
-#ifdef PAM
-static void cb_Read_Auth_Result PARAMS((int r_fd, UNUSED short events));
-#endif
 
 /**
  * Handler for the IRC "PASS" command.
@@ -285,7 +268,7 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 			/* If we received a valid USER command already then
 			 * register the new client! */
 			if( Client_Type( Client ) == CLIENT_GOTUSER )
-				return Hello_User( Client );
+				return Login_User( Client );
 			else
 				Client_SetType( Client, CLIENT_GOTNICK );
 		} else {
@@ -395,7 +378,7 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 				 Client_Mask(c));
 			Client_SetType(c, CLIENT_GOTNICK);
 		} else
-			Introduce_Client(Client, c, CLIENT_USER);
+			Client_Introduce(Client, c, CLIENT_USER);
 
 		return CONNECTED;
 	}
@@ -457,7 +440,7 @@ IRC_USER(CLIENT * Client, REQUEST * Req)
 		LogDebug("Connection %d: got valid USER command ...",
 		    Client_Conn(Client));
 		if (Client_Type(Client) == CLIENT_GOTNICK)
-			return Hello_User(Client);
+			return Login_User(Client);
 		else
 			Client_SetType(Client, CLIENT_GOTUSER);
 		return CONNECTED;
@@ -487,7 +470,7 @@ IRC_USER(CLIENT * Client, REQUEST * Req)
 		/* RFC 1459 style user registration?
 		 * Introduce client to network: */
 		if (Client_Type(c) == CLIENT_GOTNICK)
-			Introduce_Client(Client, c, CLIENT_USER);
+			Client_Introduce(Client, c, CLIENT_USER);
 
 		return CONNECTED;
 	} else if (Client_Type(Client) == CLIENT_USER) {
@@ -601,7 +584,7 @@ IRC_SERVICE(CLIENT *Client, REQUEST *Req)
 		return CONNECTED;
 	}
 
-	Introduce_Client(Client, c, CLIENT_SERVICE);
+	Client_Introduce(Client, c, CLIENT_SERVICE);
 	return CONNECTED;
 } /* IRC_SERVICE */
 
@@ -880,7 +863,7 @@ IRC_PONG(CLIENT *Client, REQUEST *Req)
 		if (auth_ping == atoi(Req->argv[0])) {
 			Conn_SetAuthPing(conn, 0);
 			if (Client_Type(Client) == CLIENT_WAITAUTHPING)
-				Hello_User(Client);
+				Login_User(Client);
 		} else
 			if (!IRC_WriteStrClient(Client,
 					"To connect, type /QUOTE PONG %ld",
@@ -901,196 +884,6 @@ IRC_PONG(CLIENT *Client, REQUEST *Req)
 
 	return CONNECTED;
 } /* IRC_PONG */
-
-
-/**
- * Initiate client registration.
- *
- * This function is called after the daemon received the required NICK and
- * USER commands of a new client. If the daemon is compiled with support for
- * PAM, the authentication sub-processs is forked; otherwise the global server
- * password is checked.
- *
- * @param Client	The client logging in.
- * @returns		CONNECTED or DISCONNECTED.
- */
-static bool
-Hello_User(CLIENT * Client)
-{
-#ifdef PAM
-	int pipefd[2], result;
-	pid_t pid;
-#endif
-	CONN_ID conn;
-
-	assert(Client != NULL);
-	conn = Client_Conn(Client);
-
-#ifndef STRICT_RFC
-	if (Conf_AuthPing) {
-		/* Did we receive the "auth PONG" already? */
-		if (Conn_GetAuthPing(conn)) {
-			Client_SetType(Client, CLIENT_WAITAUTHPING);
-			LogDebug("Connection %d: Waiting for AUTH PONG ...", conn);
-			return CONNECTED;
-		}
-	}
-#endif
-
-#ifdef PAM
-	if (!Conf_PAM) {
-		/* Don't do any PAM authentication at all, instead emulate
-		 * the beahiour of the daemon compiled without PAM support:
-		 * because there can't be any "server password", all
-		 * passwords supplied are classified as "wrong". */
-		if(Client_Password(Client)[0] == '\0')
-			return Hello_User_PostAuth(Client);
-		Client_Reject(Client, "Non-empty password", false);
-		return DISCONNECTED;
-	}
-
-	if (Conf_PAMIsOptional && strcmp(Client_Password(Client), "") == 0) {
-		/* Clients are not required to send a password and to be PAM-
-		 * authenticated at all. If not, they won't become "identified"
-		 * and keep the "~" in their supplied user name.
-		 * Therefore it is sensible to either set Conf_PAMisOptional or
-		 * to enable IDENT lookups -- not both. */
-		return Hello_User_PostAuth(Client);
-	}
-
-	/* Fork child process for PAM authentication; and make sure that the
-	 * process timeout is set higher than the login timeout! */
-	pid = Proc_Fork(Conn_GetProcStat(conn), pipefd,
-			cb_Read_Auth_Result, Conf_PongTimeout + 1);
-	if (pid > 0) {
-		LogDebug("Authenticator for connection %d created (PID %d).",
-			 conn, pid);
-		return CONNECTED;
-	} else {
-		/* Sub process */
-		Log_Init_Subprocess("Auth");
-		Conn_CloseAllSockets(NONE);
-		result = PAM_Authenticate(Client);
-		if (write(pipefd[1], &result, sizeof(result)) != sizeof(result))
-			Log_Subprocess(LOG_ERR,
-				       "Failed to pipe result to parent!");
-		Log_Exit_Subprocess("Auth");
-		exit(0);
-	}
-#else
-	/* Check global server password ... */
-	if (strcmp(Client_Password(Client), Conf_ServerPwd) != 0) {
-		/* Bad password! */
-		Client_Reject(Client, "Bad server password", false);
-		return DISCONNECTED;
-	}
-	return Hello_User_PostAuth(Client);
-#endif
-}
-
-
-#ifdef PAM
-
-/**
- * Read result of the authenticatior sub-process from pipe
- *
- * @param r_fd		File descriptor of the pipe.
- * @param events	(ignored IO specification)
- */
-static void
-cb_Read_Auth_Result(int r_fd, UNUSED short events)
-{
-	CONN_ID conn;
-	CLIENT *client;
-	int result;
-	size_t len;
-	PROC_STAT *proc;
-
-	LogDebug("Auth: Got callback on fd %d, events %d", r_fd, events);
-	conn = Conn_GetFromProc(r_fd);
-	if (conn == NONE) {
-		/* Ops, none found? Probably the connection has already
-		 * been closed!? We'll ignore that ... */
-		io_close(r_fd);
-		LogDebug("Auth: Got callback for unknown connection!?");
-		return;
-	}
-	proc = Conn_GetProcStat(conn);
-	client = Conn_GetClient(conn);
-
-	/* Read result from pipe */
-	len = Proc_Read(proc, &result, sizeof(result));
-	Proc_Close(proc);
-	if (len == 0)
-		return;
-
-	if (len != sizeof(result)) {
-		Log(LOG_CRIT, "Auth: Got malformed result!");
-		Client_Reject(client, "Internal error", false);
-		return;
-	}
-
-	if (result == true) {
-		Client_SetUser(client, Client_OrigUser(client), true);
-		(void)Hello_User_PostAuth(client);
-	} else
-		Client_Reject(client, "Bad password", false);
-}
-
-#endif
-
-
-/**
- * Finish client registration.
- *
- * Introduce the new client to the network and send all "hello messages"
- * to it after authentication has been succeeded.
- *
- * @param Client	The client logging in.
- * @returns		CONNECTED or DISCONNECTED.
- */
-static bool
-Hello_User_PostAuth(CLIENT *Client)
-{
-	assert(Client != NULL);
-
-	if (Class_HandleServerBans(Client) != CONNECTED)
-		return DISCONNECTED;
-
-	Introduce_Client(NULL, Client, CLIENT_USER);
-
-	if (!IRC_WriteStrClient
-	    (Client, RPL_WELCOME_MSG, Client_ID(Client), Client_Mask(Client)))
-		return false;
-	if (!IRC_WriteStrClient
-	    (Client, RPL_YOURHOST_MSG, Client_ID(Client),
-	     Client_ID(Client_ThisServer()), PACKAGE_VERSION, TARGET_CPU,
-	     TARGET_VENDOR, TARGET_OS))
-		return false;
-	if (!IRC_WriteStrClient
-	    (Client, RPL_CREATED_MSG, Client_ID(Client), NGIRCd_StartStr))
-		return false;
-	if (!IRC_WriteStrClient
-	    (Client, RPL_MYINFO_MSG, Client_ID(Client),
-	     Client_ID(Client_ThisServer()), PACKAGE_VERSION, USERMODES,
-	     CHANMODES))
-		return false;
-
-	/* Features supported by this server (005 numeric, ISUPPORT),
-	 * see <http://www.irc.org/tech_docs/005.html> for details. */
-	if (!IRC_Send_ISUPPORT(Client))
-		return DISCONNECTED;
-
-	if (!IRC_Send_LUSERS(Client))
-		return DISCONNECTED;
-	if (!IRC_Show_MOTD(Client))
-		return DISCONNECTED;
-
-	/* Suspend the client for a second ... */
-	IRC_SetPenalty(Client, 1);
-
-	return CONNECTED;
-}
 
 
 /**
@@ -1117,99 +910,6 @@ Kill_Nick(char *Nick, char *Reason)
 
 	IRC_KILL(Client_ThisServer(), &r);
 } /* Kill_Nick */
-
-
-/**
- * Introduce a new user or service client in the network.
- *
- * @param From		Remote server introducing the client or NULL (local).
- * @param Client	New client.
- * @param Type		Type of the client (CLIENT_USER or CLIENT_SERVICE).
- */
-static void
-Introduce_Client(CLIENT *From, CLIENT *Client, int Type)
-{
-	/* Set client type (user or service) */
-	Client_SetType(Client, Type);
-
-	if (From) {
-		if (Conf_IsService(Conf_GetServer(Client_Conn(From)),
-				   Client_ID(Client)))
-			Client_SetType(Client, CLIENT_SERVICE);
-		LogDebug("%s \"%s\" (+%s) registered (via %s, on %s, %d hop%s).",
-			 Client_TypeText(Client), Client_Mask(Client),
-			 Client_Modes(Client), Client_ID(From),
-			 Client_ID(Client_Introducer(Client)),
-			 Client_Hops(Client), Client_Hops(Client) > 1 ? "s": "");
-	} else {
-		Log(LOG_NOTICE, "%s \"%s\" registered (connection %d).",
-		    Client_TypeText(Client), Client_Mask(Client),
-		    Client_Conn(Client));
-		Log_ServerNotice('c', "Client connecting: %s (%s@%s) [%s] - %s",
-			         Client_ID(Client), Client_User(Client),
-				 Client_Hostname(Client),
-				 Conn_IPA(Client_Conn(Client)),
-				 Client_TypeText(Client));
-	}
-
-	/* Inform other servers */
-	IRC_WriteStrServersPrefixFlag_CB(From,
-				From != NULL ? From : Client_ThisServer(),
-				'\0', cb_introduceClient, (void *)Client);
-} /* Introduce_Client */
-
-
-/**
- * Introduce a new user or service client to a remote server.
- *
- * This function differentiates between RFC1459 and RFC2813 server links and
- * generates the appropriate commands to register the new user or service.
- *
- * @param To		The remote server to inform.
- * @param Prefix	Prefix for the generated commands.
- * @param data		CLIENT structure of the new client.
- */
-static void
-cb_introduceClient(CLIENT *To, CLIENT *Prefix, void *data)
-{
-	CLIENT *c = (CLIENT *)data;
-	CONN_ID conn;
-	char *modes, *user, *host;
-
-	modes = Client_Modes(c);
-	user = Client_User(c) ? Client_User(c) : "-";
-	host = Client_Hostname(c) ? Client_Hostname(c) : "-";
-
-	conn = Client_Conn(To);
-	if (Conn_Options(conn) & CONN_RFC1459) {
-		/* RFC 1459 mode: separate NICK and USER commands */
-		Conn_WriteStr(conn, "NICK %s :%d", Client_ID(c),
-			      Client_Hops(c) + 1);
-		Conn_WriteStr(conn, ":%s USER %s %s %s :%s",
-			      Client_ID(c), user, host,
-			      Client_ID(Client_Introducer(c)), Client_Info(c));
-		if (modes[0])
-			Conn_WriteStr(conn, ":%s MODE %s +%s",
-				      Client_ID(c), Client_ID(c), modes);
-	} else {
-		/* RFC 2813 mode: one combined NICK or SERVICE command */
-		if (Client_Type(c) == CLIENT_SERVICE
-		    && strchr(Client_Flags(To), 'S'))
-			IRC_WriteStrClientPrefix(To, Prefix,
-					 "SERVICE %s %d * +%s %d :%s",
-					 Client_Mask(c),
-					 Client_MyToken(Client_Introducer(c)),
-					 Client_Modes(c), Client_Hops(c) + 1,
-					 Client_Info(c));
-		else
-			IRC_WriteStrClientPrefix(To, Prefix,
-					 "NICK %s %d %s %s %d +%s :%s",
-					 Client_ID(c), Client_Hops(c) + 1,
-					 user, host,
-					 Client_MyToken(Client_Introducer(c)),
-					 modes, Client_Info(c));
-	}
-} /* cb_introduceClient */
 
 
 /* -eof- */

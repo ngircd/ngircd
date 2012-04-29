@@ -160,7 +160,7 @@ Handle_CAP_REQ(CLIENT *Client, char *Arg)
  * @returns CONNECTED or DISCONNECTED.
  */
 bool
-Handle_CAP_ACK(CLIENT *Client, char *Arg)
+Handle_CAP_ACK(UNUSED CLIENT *Client, UNUSED char *Arg)
 {
 	assert(Client != NULL);
 	assert(Arg != NULL);

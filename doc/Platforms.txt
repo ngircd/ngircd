@@ -26,6 +26,7 @@ list can be updated. Thanks for your help!
 Platform                    Compiler     ngIRCd     Date     Tester C M T R See
 --------------------------- ------------ ---------- -------- ------ - - - - ---
 alpha/unknown/netbsd3.0     gcc 3.3.3    CVSHEAD    06-05-07 fw     Y Y Y Y (3)
+armv7l/unkn./linux-gnueabi  gcc 4.4.3    19.1       12-04-29 goetz  Y Y Y Y (5)
 hppa/unknown/openbsd3.5     gcc 2.95.3   CVSHEAD    04-05-25 alex   Y Y Y Y
 hppa1.1/unknown/linux-gnu   gcc 3.3.3    0.8.0      04-05-30 alex   Y Y Y Y
 hppa2.0/unknown/linux-gnu   gcc 3.3.5    13~rc1     08-12-02 alex   Y Y Y Y

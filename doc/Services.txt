@@ -14,8 +14,9 @@ But services acting as a "regular server" are supported, either using the IRC
 protocol defined in RFC 1459 or RFC 2812.
 
 Support for Services has been tested using "IRC Services" version 5.x by
-Andrew Church (<http://achurch.org/services/>), and a Anope 1.9 using a
-preliminary protocol module for ngIRCd (<http://www.anope.org/>).
+Andrew Church (<http://achurch.org/services/>), Anope 1.9 using a
+preliminary protocol module for ngIRCd (<http://www.anope.org/>), and
+Atheme 7.0.2 or later.
 
 This document describes setting up ngIRCd and these services.
 
@@ -91,6 +92,25 @@ In modules.conf:
 
 The documentation of IRC Services can be found here:
 <http://www.ircservices.za.net/docs/>
+
+
+Setting up Atheme 7.0.2 or later
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Atheme 7.0.2 or later may be used with ngIRCd using the "ngircd" protocol
+module.
+
+The following settings need to be in atheme.conf:
+
+loadmodule "modules/protocol/ngircd";
+
+uplink "server.irc.net" {
+	password = "123abc";
+	port = 6667;
+};
+
+The documentation of Atheme can be found in the doc/ directory of the
+Atheme source distribution.
 
 
 Please let us know if you are successfully using other IRC service packages or

@@ -43,6 +43,7 @@ users to lists (e.g. "invite list", "ban list"), others have parameters
   mode	since	description
 
   b	0.5.0	Add/remove a host mask to the ban list.
+  e	19	Add/remove a host mask to the exception list.
   i	0.5.0	Channel is "invite only".
   I	0.5.0	Add/remove a host mask to the invite list.
   k	0.6.0	Channel has a "key" (a password).

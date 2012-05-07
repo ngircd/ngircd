@@ -11,7 +11,7 @@
 
 ngIRCd Release 19.1 (2012-03-19)
 
-  - Really include _all_ patchtes to build the Anope module into the
+  - Really include _all_ patches to build the Anope module into the
     distribution archive ... ooops!
 
 ngIRCd Release 19 (2012-02-29)
@@ -19,7 +19,7 @@ ngIRCd Release 19 (2012-02-29)
   ngIRCd 19~rc1 (2012-02-12)
   - Update preliminary ngIRCd protocol module for Anope 1.9.6, which now
     is the only supported version.
-  - New numeric RPL_WHOISHOST_MSG(378), which returns the DNS hostname
+  - New numeric RPL_WHOISHOST_MSG(378), which returns the DNS host name
     (if available) and the IP address of a client in the WHOIS reply.
     Only the user itself and local IRC operators get this numeric.
   - Implement channel exception list (mode 'e'). This allows a channel
@@ -134,8 +134,8 @@ ngIRCd Release 18 (2011-07-10)
     (booleans, text strings, integer numbers) and add type information to each
     variable description.
   - Terminate incoming connections on HTTP commands "GET" and "POST".
-  - New configuration option "CloakHost": when set, this hostname is used for
-    every client instead of the real DNS hostname (or IP address).
+  - New configuration option "CloakHost": when set, this host name is used for
+    every client instead of the real DNS host name (or IP address).
   - New configuration option "CloakUserToNick": when enabled, ngIRCd sets
     every clients' user name to their nick name and hides the user name
     supplied by the IRC client.
@@ -187,7 +187,7 @@ ngIRCd Release 17 (2010-11-07)
   - Enable the daemon to disable and enable "debug mode" on runtime using
     signal SIGUSR1, when debug code is compiled in, not only on startup
     using the command line parameters.
-  - Implement user mode "x": hostname cloaking (closes: #102).
+  - Implement user mode "x": host name cloaking (closes: #102).
   - Change MOTD file handling: ngIRCd now caches the contens of the MOTD
     file, so the daemon now requires a HUP signal or REHASH command to
     re-read the MOTD file when its content changed.
@@ -292,7 +292,7 @@ ngIRCd 0.12.0 (2008-05-13)
   - Implemented IRC commands INFO, SUMMON (dummy), and USERS (dummy) and
     enhanced test suite to check these commands. (Dana Dahlstrom)
   - IRC_WHO now supports search patterns and will test this against user
-    nickname/servername/hostname, etc. as required by RFC 2812, Section 3.6.1.
+    nickname/server name/host name, etc. as required by RFC 2812, Section 3.6.1.
     (reported by Dana Dahlstrom)
   - Implement RFC 2812 handling of "0" argument to 'JOIN': must be treated
     as if the user had sent PART commands for all channels the user is a

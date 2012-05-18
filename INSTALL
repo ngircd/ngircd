@@ -93,7 +93,8 @@ automake ("configure") should be no problem.
 The normal installation procedure after getting (and expanding) the source
 files (using a distribution archive or GIT) is as following:
 
-  1) ./autogen.sh	[only necessary when using GIT]
+  0) Satisfy prerequisites
+  1) ./autogen.sh  [only necessary when using GIT]
   2) ./configure
   3) make
   4) make install
@@ -112,6 +113,30 @@ If no previous version of the configuration file exists (the standard name
 is /usr/local/etc/ngircd.conf), a sample configuration file containing all
 possible options will be installed there. You'll find its template in the
 doc/ directory: sample-ngircd.conf.
+
+
+0): Satisfy prerequisites
+
+When building from source, you'll need some other software to build ngIRCd:
+for example a working C compiler, make tool, GNU automake and autoconf (only
+when not using a distribution archive), and a few libraries depending on the
+features you want to compile in (like IDENT support, SSL, and PAM).
+
+If you are using one of the "big" operating systems or Linux distributions,
+you can use the following commands to install all the required packages to
+build the sources including all optional features and to run the test suite:
+
+* RedHat / Fedora based distributions:
+
+  yum install \
+    autoconf automake expect gcc glibc-devel gnutls-devel \
+    libident-devel make pam-devel tcp_wrappers-devel telnet zlib-devel
+
+* Debian / Ubuntu based distributions:
+
+  apt-get install \
+    autoconf automake build-essential expect libgnutls-dev \
+    libident-dev libpam-dev libwrap0-dev libz-dev telnet
 
 
 1): "autogen.sh"

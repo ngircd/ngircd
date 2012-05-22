@@ -498,7 +498,8 @@ Pidfile_Create(pid_t pid)
 
 	len = snprintf(pidbuf, sizeof pidbuf, "%ld\n", (long)pid);
 	if (len < 0 || len >= (int)sizeof pidbuf) {
-		Log( LOG_ERR, "Error converting pid");
+		Log(LOG_ERR, "Error converting pid");
+		close(pidfd);
 		return;
 	}
 	

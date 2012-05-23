@@ -549,17 +549,18 @@ ConnSSL_LogCertInfo( CONNECTION *c )
 
 	assert(ssl);
 
-	Log(LOG_INFO, "New %s connection using cipher %s on socket %d.",
-		SSL_get_version(ssl), SSL_get_cipher(ssl), c->sock);
+	Log(LOG_INFO, "Connection %d: initialized %s using cipher %s.",
+		c->sock, SSL_get_version(ssl), SSL_get_cipher(ssl));
 #endif
 #ifdef HAVE_LIBGNUTLS
 	gnutls_session_t sess = c->ssl_state.gnutls_session;
 	gnutls_cipher_algorithm_t cipher = gnutls_cipher_get(sess);
 
-	Log(LOG_INFO, "New %s connection using cipher %s-%s on socket %d.",
+	Log(LOG_INFO, "Connection %d: initialized %s using cipher %s-%s.",
+	    c->sock,
 	    gnutls_protocol_get_name(gnutls_protocol_get_version(sess)),
 	    gnutls_cipher_get_name(cipher),
-	    gnutls_mac_get_name(gnutls_mac_get(sess)), c->sock);
+	    gnutls_mac_get_name(gnutls_mac_get(sess)));
 #endif
 }
 

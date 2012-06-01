@@ -2249,7 +2249,7 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 			if (Conf_NoticeAuth) {
 				(void)Conn_WriteStr(i,
 					"NOTICE AUTH :*** Got %sident response",
-					*ptr == NULL ? "" : "invalid ");
+					*ptr ? "invalid " : "");
 			}
 		} else {
 			Log(LOG_INFO, "IDENT lookup for connection %d: no result.", i);

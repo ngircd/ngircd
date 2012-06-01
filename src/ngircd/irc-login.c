@@ -400,9 +400,7 @@ GLOBAL bool
 IRC_USER(CLIENT * Client, REQUEST * Req)
 {
 	CLIENT *c;
-#ifdef IDENTAUTH
 	char *ptr;
-#endif
 
 	assert(Client != NULL);
 	assert(Req != NULL);
@@ -420,7 +418,19 @@ IRC_USER(CLIENT * Client, REQUEST * Req)
 						  Client_ID(Client),
 						  Req->command);
 
-		/* User name */
+		/* User name: only alphanumeric characters are allowed! */
+		ptr = Req->argv[0];
+		while (*ptr) {
+			if ((*ptr < '0' || *ptr > '9') &&
+			    (*ptr < 'A' || *ptr > 'Z') &&
+			    (*ptr < 'a' || *ptr > 'z')) {
+				Conn_Close(Client_Conn(Client), NULL,
+					   "Invalid user name", true);
+				return DISCONNECTED;
+			}
+			ptr++;
+		}
+
 #ifdef IDENTAUTH
 		ptr = Client_User(Client);
 		if (!ptr || !*ptr || *ptr == '~')

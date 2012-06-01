@@ -2174,6 +2174,7 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 	char *identptr;
 #ifdef IDENTAUTH
 	char readbuf[HOST_LEN + 2 + CLIENT_USER_LEN];
+	char *ptr;
 #else
 	char readbuf[HOST_LEN + 1];
 #endif
@@ -2226,11 +2227,30 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 #ifdef IDENTAUTH
 		++identptr;
 		if (*identptr) {
-			Log(LOG_INFO, "IDENT lookup for connection %d: \"%s\".", i, identptr);
-			Client_SetUser(c, identptr, true);
-			if (Conf_NoticeAuth)
+			ptr = identptr;
+			while (*ptr) {
+				if ((*ptr < '0' || *ptr > '9') &&
+				    (*ptr < 'A' || *ptr > 'Z') &&
+				    (*ptr < 'a' || *ptr > 'z'))
+					break;
+				ptr++;
+			}
+			if (*ptr) {
+				/* Erroneous IDENT reply */
+				Log(LOG_NOTICE,
+				    "Got invalid IDENT reply for connection %d! Ignored.",
+				    i);
+			} else {
+				Log(LOG_INFO,
+				    "IDENT lookup for connection %d: \"%s\".",
+				    i, identptr);
+				Client_SetUser(c, identptr, true);
+			}
+			if (Conf_NoticeAuth) {
 				(void)Conn_WriteStr(i,
-					"NOTICE AUTH :*** Got ident response");
+					"NOTICE AUTH :*** Got %sident response",
+					*ptr == NULL ? "" : "invalid ");
+			}
 		} else {
 			Log(LOG_INFO, "IDENT lookup for connection %d: no result.", i);
 			if (Conf_NoticeAuth && Conf_Ident)

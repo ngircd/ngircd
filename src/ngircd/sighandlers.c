@@ -218,8 +218,11 @@ Signal_Handler_BH(int Signal)
 		break;
 #ifdef DEBUG
 	case SIGUSR2:
-		if (NGIRCd_Debug)
+		if (NGIRCd_Debug) {
+			Log(LOG_INFO|LOG_snotice,
+			    "Got SIGUSR2, dumping internal state ...");
 			Dump_State();
+		}
 		break;
 	default:
 		Log(LOG_DEBUG, "Got signal %d! Ignored.", Signal);

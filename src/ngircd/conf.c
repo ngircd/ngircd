@@ -358,6 +358,7 @@ Conf_Test( void )
 	printf("  AllowRemoteOper = %s\n", yesno_to_str(Conf_AllowRemoteOper));
 	printf("  ChrootDir = %s\n", Conf_Chroot);
 	printf("  CloakHost = %s\n", Conf_CloakHost);
+	printf("  CloakModeHost = %s\n", Conf_CloakModeHost);
 	printf("  CloakUserToNick = %s\n", yesno_to_str(Conf_CloakUserToNick));
 #ifdef WANT_IPV6
 	printf("  ConnectIPv4 = %s\n", yesno_to_str(Conf_ConnectIPv6));
@@ -684,6 +685,7 @@ Set_Defaults(bool InitServers)
 #endif
 	strlcpy(Conf_Chroot, CHROOT_DIR, sizeof(Conf_Chroot));
 	strcpy(Conf_CloakHost, "");
+	strcpy(Conf_CloakModeHost, "");
 	Conf_CloakUserToNick = false;
 	Conf_ConnectIPv4 = true;
 #ifdef WANT_IPV6
@@ -1474,6 +1476,12 @@ Handle_OPTIONS(int Line, char *Var, char *Arg)
 	if (strcasecmp(Var, "CloakHost") == 0) {
 		len = strlcpy(Conf_CloakHost, Arg, sizeof(Conf_CloakHost));
 		if (len >= sizeof(Conf_CloakHost))
+			Config_Error_TooLong(Line, Var);
+		return;
+	}
+	if (strcasecmp(Var, "CloakModeHost") == 0) {
+		len = strlcpy(Conf_CloakModeHost, Arg, sizeof(Conf_CloakModeHost));
+		if (len >= sizeof(Conf_CloakModeHost))
 			Config_Error_TooLong(Line, Var);
 		return;
 	}

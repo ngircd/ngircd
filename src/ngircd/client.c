@@ -825,7 +825,8 @@ Client_MaskCloaked(CLIENT *Client)
 	    return Client_Mask(Client);
 
 	snprintf(Mask_Buffer, GETID_LEN, "%s!%s@%s",
-		 Client->id, Client->user, Client_ID(Client->introducer));
+		 Client->id, Client->user,
+		 *Conf_CloakModeHost ? Conf_CloakModeHost : Client_ID(Client->introducer));
 	return Mask_Buffer;
 } /* Client_MaskCloaked */
 

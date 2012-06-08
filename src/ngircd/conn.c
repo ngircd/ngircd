@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2011 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2012 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1935,6 +1935,14 @@ New_Server( int Server , ng_ipaddr_t *dest)
 
 	assert( Server > NONE );
 
+	/* Make sure that the remote server hasn't re-linked to this server
+	 * asynchronously on its own */
+	if (Conf_Server[Server].conn_id > NONE) {
+		Log(LOG_INFO,
+			"Connection to \"%s\" meanwhile re-established, aborting preparation.");
+		return;
+	}
+
 	if (!ng_ipaddr_tostr_r(dest, ip_str)) {
 		Log(LOG_WARNING, "New_Server: Could not convert IP to string");
 		return;
@@ -2008,7 +2016,7 @@ New_Server( int Server , ng_ipaddr_t *dest)
 	Client_SetToken( c, TOKEN_OUTBOUND );
 
 	/* Register connection */
-	Conf_Server[Server].conn_id = new_sock;
+	Conf_SetServer(Server, new_sock);
 	My_Connections[new_sock].sock = new_sock;
 	My_Connections[new_sock].addr = *dest;
 	My_Connections[new_sock].client = c;

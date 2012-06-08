@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2011 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2012 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -492,6 +492,14 @@ Conf_SetServer( int ConfServer, CONN_ID Idx )
 	assert( ConfServer > NONE );
 	assert( Idx > NONE );
 
+	if (Conf_Server[ConfServer].conn_id > NONE &&
+	    Conf_Server[ConfServer].conn_id != Idx) {
+		Log(LOG_ALERT,
+			"Trying to update connection index for already registered server \"%s\": %d/%d - ignored.",
+			Conf_Server[ConfServer].name,
+			Conf_Server[ConfServer].conn_id, Idx);
+		return;
+	}
 	Conf_Server[ConfServer].conn_id = Idx;
 }
 

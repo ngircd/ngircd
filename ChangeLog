@@ -9,6 +9,29 @@
                                -- ChangeLog --
 
 
+ngIRCd-dev
+
+  - Correctly handle asynchronously re-established server links: a race
+    condition could let the daemon loose track of an already re-established
+    incoming server link while preparing its own outgoing connection.
+    Peers that both try to connect each other could have been affected.
+  - Log a debug message when SIGUSR2 is handled in debug mode.
+  - Only allow alphanumeric characters in user-supplied user names of
+    USER command and IDENT replies.
+  - Change wording of "TLS initialized" message to make it more consistent.
+  - Don't leak file descriptors on error path when creating "PID files".
+  - Add missing mode "r" to CHANMODES in 005 "ISUPPORT" numeric.
+  - Update doc/Modes.txt and doc/Platforms.txt documents.
+  - contrib/platformtest.sh: correctly detect Open64 C compiler and handle
+    "CC=xxx MAKE=yyy ./platformtest.sh" calling convention.
+  - Add instructions for setting up Atheme IRC services.
+  - Implement support for IRC capability handling, the new "CAP" command,
+    and capablity "multi-prefix" which allows both the NAME and	WHO command
+    handlers to return more than one "class prefix" to the client.
+  - Update Xcode project files: reference missing documentation files.
+  - Fix: Don't ignore "permission denied" errors when enabling chroot.
+  - FAQ: enhance description of chroot setup.
+
 ngIRCd Release 19.1 (2012-03-19)
 
   - Fix gcc warning (v4.6.3), initialize "list" variable to NULL.

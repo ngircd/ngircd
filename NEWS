@@ -9,6 +9,13 @@
                                   -- NEWS --
 
 
+ngIRCd-dev
+
+  - Add instructions for setting up Atheme IRC services.
+  - Implement support for IRC capability handling, the new "CAP" command,
+    and capablity "multi-prefix" which allows both the NAME and	WHO command
+    handlers to return more than one "class prefix" to the client.
+
 ngIRCd Release 19.1 (2012-03-19)
 
   - Really include _all_ patches to build the Anope module into the

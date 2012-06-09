@@ -127,7 +127,13 @@
 	# Set this hostname for every client instead of the real one.
 	# Please note: don't use the percentage sign ("%"), it is reserved for
 	# future extensions!
-	;CloakHost = irc.example.net
+	;CloakHost = cloaked.host
+
+	# Use this hostname for hostname cloaking on clients that have the
+	# user mode "+x" set, instead of the name of the server.
+	# Please note: don't use the percentage sign ("%"), it is reserved for
+	# future extensions!
+	;CloakHostModeX = cloaked.user
 
 	# Set every clients' user name to their nick name
 	;CloakUserToNick = yes

@@ -19,5 +19,10 @@ ngIRCd implements the "IRC Client Capabilities Extension" as described here:
 I. Supported Capabilities
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-None. At the moment, ngIRCd supports the "CAP" command and its sub-commands
-but offers no capabilities that could be requested by a client.
+* "multi-prefix"
+
+   When requested, the multi-prefix client capability will cause the IRC
+   server to send all possible prefixes which apply to a user in NAMES and
+   WHO output.
+
+   See <http://ircv3.atheme.org/extensions/multi-prefix-3.1>.

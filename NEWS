@@ -9,8 +9,13 @@
                                   -- NEWS --
 
 
-ngIRCd-dev
+ngIRCd Release 19.2
 
+  ngIRCd 19.2~rc1 (2012-06-13)
+  - New configuration option "CloakHostModeX" to configure the hostname
+    that gets used for IRC clients which have user mode "+x" enabled.
+    Up to now, the name of the IRC server itself has been used for this,
+    which still is the default when "CloakHostModeX" isn't set.
   - Add instructions for setting up Atheme IRC services.
   - Implement support for IRC capability handling, the new "CAP" command,
     and capablity "multi-prefix" which allows both the NAME and	WHO command

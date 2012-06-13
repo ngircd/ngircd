@@ -9,8 +9,13 @@
                                -- ChangeLog --
 
 
-ngIRCd-dev
+ngIRCd Release 19.2
 
+  ngIRCd 19.2~rc1 (2012-06-13)
+  - New configuration option "CloakHostModeX" to configure the hostname
+    that gets used for IRC clients which have user mode "+x" enabled.
+    Up to now, the name of the IRC server itself has been used for this,
+    which still is the default when "CloakHostModeX" isn't set.
   - Correctly handle asynchronously re-established server links: a race
     condition could let the daemon loose track of an already re-established
     incoming server link while preparing its own outgoing connection.

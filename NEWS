@@ -9,7 +9,7 @@
                                   -- NEWS --
 
 
-ngIRCd Release 19.2
+ngIRCd Release 19.2 (2012-06-19)
 
   ngIRCd 19.2~rc1 (2012-06-13)
   - New configuration option "CloakHostModeX" to configure the hostname

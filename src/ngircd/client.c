@@ -331,9 +331,15 @@ Client_SetHostname( CLIENT *Client, const char *Hostname )
 	assert(Hostname != NULL);
 
 	if (strlen(Conf_CloakHost)) {
+		char cloak[GETID_LEN];
+
+		strlcpy(cloak, Hostname, GETID_LEN);
+		strlcat(cloak, Conf_CloakHostSalt, GETID_LEN);
+		snprintf(cloak, GETID_LEN, Conf_CloakHost, Hash(cloak));
+
 		LogDebug("Updating hostname of \"%s\": \"%s\" -> \"%s\"",
-			 Client_ID(Client), Client->host, Conf_CloakHost);
-		strlcpy(Client->host, Conf_CloakHost, sizeof(Client->host));
+			Client_ID(Client), Client->host, cloak);
+		strlcpy(Client->host, cloak, sizeof(Client->host));
 	} else {
 		LogDebug("Updating hostname of \"%s\": \"%s\" -> \"%s\"",
 			 Client_ID(Client), Client->host, Hostname);
@@ -826,8 +832,9 @@ Client_MaskCloaked(CLIENT *Client)
 		return Client_Mask(Client);
 
 	if(*Conf_CloakHostModeX) {
-		snprintf(Mask_Buffer, GETID_LEN, "%s%s", Client->host, Conf_CloakHostModeXSalt);
-		snprintf(Cloak_Buffer, GETID_LEN, Conf_CloakHostModeX, Hash(Mask_Buffer));
+		strlcpy(Cloak_Buffer, Client->host, GETID_LEN);
+		strlcat(Cloak_Buffer, Conf_CloakHostSalt, GETID_LEN);
+		snprintf(Cloak_Buffer, GETID_LEN, Conf_CloakHostModeX, Hash(Cloak_Buffer));
 	} else {
 		strncpy(Cloak_Buffer, Client_ID(Client->introducer), GETID_LEN);
 	}

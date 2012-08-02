@@ -125,17 +125,17 @@
 	;ChrootDir = /var/empty
 
 	# Set this hostname for every client instead of the real one.
-	# Please note: don't use the percentage sign ("%"), it is reserved for
-	# future extensions!
+	# Use %x to add the hashed value of the original hostname.
 	;CloakHost = cloaked.host
 
 	# Use this hostname for hostname cloaking on clients that have the
 	# user mode "+x" set, instead of the name of the server.
-	# Use %x to add the hashed value of the original hostname
+	# Use %x to add the hashed value of the original hostname.
 	;CloakHostModeX = cloaked.user
 
-	# The Salt for cloaked hostname hashing
-	;CloakHostModeXSalt = abcdefghijklmnopqrstuvwxyz
+	# The Salt for cloaked hostname hashing. When undefined a random
+	# hash is generated after each server start.
+	;CloakHostSalt = abcdefghijklmnopqrstuvwxyz
 
 	# Set every clients' user name to their nick name
 	;CloakUserToNick = yes

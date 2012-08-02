@@ -20,7 +20,9 @@
 #include <assert.h>
 #include <ctype.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
 
 #include <netinet/in.h>
 
@@ -127,6 +129,34 @@ ngt_TrimLastChr( char *String, const char Chr)
 	if(String[len] == Chr)
 		String[len] = '\0';
 } /* ngt_TrimLastChr */
+
+
+/**
+ * Fill a String with random chars
+ */
+GLOBAL char *
+ngt_RandomStr( char *String, const size_t len)
+{
+	assert(String != NULL);
+
+	static const char chars[] = 
+		"0123456789ABCDEFGHIJKLMNO"
+		"PQRSTUVWXYZabcdefghijklmn"
+		"opqrstuvwxyz!\"#$&'()*+,-"
+		"./:;<=>?@[\\]^_`";
+
+	struct timeval t;
+	gettimeofday(&t, NULL);
+	srand(t.tv_usec * t.tv_sec);
+
+	for (size_t i = 0; i < len; ++i) {
+		String[i] = chars[rand() % (sizeof(chars) - 1)];
+	}
+
+	String[len] = '\0';
+
+	return String;
+} /* ngt_RandomStr */
 
 
 #ifdef SYSLOG

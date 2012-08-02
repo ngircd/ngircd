@@ -359,6 +359,7 @@ Conf_Test( void )
 	printf("  ChrootDir = %s\n", Conf_Chroot);
 	printf("  CloakHost = %s\n", Conf_CloakHost);
 	printf("  CloakHostModeX = %s\n", Conf_CloakHostModeX);
+	printf("  CloakHostModeXSalt = %s\n", Conf_CloakHostModeXSalt);
 	printf("  CloakUserToNick = %s\n", yesno_to_str(Conf_CloakUserToNick));
 #ifdef WANT_IPV6
 	printf("  ConnectIPv4 = %s\n", yesno_to_str(Conf_ConnectIPv6));
@@ -652,6 +653,7 @@ static void
 Set_Defaults(bool InitServers)
 {
 	int i;
+	char random[RANDOM_SALT_LEN];
 
 	/* Global */
 	strcpy(Conf_ServerName, "");
@@ -686,6 +688,7 @@ Set_Defaults(bool InitServers)
 	strlcpy(Conf_Chroot, CHROOT_DIR, sizeof(Conf_Chroot));
 	strcpy(Conf_CloakHost, "");
 	strcpy(Conf_CloakHostModeX, "");
+	strcpy(Conf_CloakHostModeXSalt,ngt_RandomStr(random,RANDOM_SALT_LEN));
 	Conf_CloakUserToNick = false;
 	Conf_ConnectIPv4 = true;
 #ifdef WANT_IPV6
@@ -1481,6 +1484,12 @@ Handle_OPTIONS(int Line, char *Var, char *Arg)
 	}
 	if (strcasecmp(Var, "CloakHostModeX") == 0) {
 		len = strlcpy(Conf_CloakHostModeX, Arg, sizeof(Conf_CloakHostModeX));
+		if (len >= sizeof(Conf_CloakHostModeX))
+			Config_Error_TooLong(Line, Var);
+		return;
+	}
+	if (strcasecmp(Var, "CloakHostModeXSalt") == 0) {
+		len = strlcpy(Conf_CloakHostModeXSalt, Arg, sizeof(Conf_CloakHostModeXSalt));
 		if (len >= sizeof(Conf_CloakHostModeX))
 			Config_Error_TooLong(Line, Var);
 		return;

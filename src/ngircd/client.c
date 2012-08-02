@@ -817,17 +817,24 @@ GLOBAL char *
 Client_MaskCloaked(CLIENT *Client)
 {
 	static char Mask_Buffer[GETID_LEN];
+	char Cloak_Buffer[GETID_LEN];
 
 	assert (Client != NULL);
 
 	/* Is the client using cloaking at all? */
 	if (!Client_HasMode(Client, 'x'))
-	    return Client_Mask(Client);
+		return Client_Mask(Client);
+
+	if(*Conf_CloakHostModeX) {
+		snprintf(Mask_Buffer, GETID_LEN, "%s%s", Client->host, Conf_CloakHostModeXSalt);
+		snprintf(Cloak_Buffer, GETID_LEN, Conf_CloakHostModeX, Hash(Mask_Buffer));
+	} else {
+		strncpy(Cloak_Buffer, Client_ID(Client->introducer), GETID_LEN);
+	}
 
 	snprintf(Mask_Buffer, GETID_LEN, "%s!%s@%s",
-		 Client->id, Client->user,
-		 *Conf_CloakHostModeX ? Conf_CloakHostModeX
-				      : Client_ID(Client->introducer));
+		Client->id, Client->user, Cloak_Buffer);
+
 	return Mask_Buffer;
 } /* Client_MaskCloaked */
 

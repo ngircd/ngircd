@@ -169,6 +169,9 @@ GLOBAL char Conf_CloakHost[CLIENT_ID_LEN];
 /** Cloaked hostname for clients that did +x */
 GLOBAL char Conf_CloakHostModeX[CLIENT_ID_LEN];
 
+/** Salt for hostname hash for clients that did +x */
+GLOBAL char Conf_CloakHostModeXSalt[CLIENT_ID_LEN];
+
 /** Use nick name as user name? */
 GLOBAL bool Conf_CloakUserToNick;
 

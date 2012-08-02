@@ -32,6 +32,8 @@ GLOBAL void ngt_TrimStr PARAMS((char *String ));
 GLOBAL char *ngt_UpperStr PARAMS((char *String ));
 GLOBAL char *ngt_LowerStr PARAMS((char *String ));
 
+GLOBAL char *ngt_RandomStr PARAMS((char *String, const size_t len));
+
 #ifdef SYSLOG
 GLOBAL const char *ngt_SyslogFacilityName PARAMS((int Facility));
 GLOBAL int ngt_SyslogFacilityID PARAMS((char *Name, int DefaultFacility));

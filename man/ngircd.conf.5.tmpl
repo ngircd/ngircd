@@ -223,13 +223,10 @@ Don't use the percentage sign ("%"), it is reserved for future extensions!
 \fBCloakHostModeX\fR (string)
 Use this hostname for hostname cloaking on clients that have the user mode
 "+x" set, instead of the name of the server. Default: empty, use the name
-of the server.
-.PP
-.RS
-.B Please note:
-.br
-Don't use the percentage sign ("%"), it is reserved for future extensions!
-.RE
+of the server. Use %x to add the hashed value of the original hostname
+.TP
+\fBCloakHostModeXSalt\fR (string)
+The Salt for cloaked hostname hashing
 .TP
 \fBCloakUserToNick\fR (boolean)
 Set every clients' user name to their nick name and hide the one supplied

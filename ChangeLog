@@ -9,6 +9,15 @@
                                -- ChangeLog --
 
 
+ngIRCd
+
+  - Implemented hashed cloaked hostnames for both the "CloakHost" and
+    "CloakHostModeX" configuration options: now the admin can use the new
+    '%x' placeholder to insert a hashed version of the clients hostname,
+    and the new configuration option "CloakHostSalt" defines the salt for
+    the hash function. When "CloakHostSalt" is not set (the default), a
+    random salt will be generated after each server restart.
+
 ngIRCd Release 19.2 (2012-06-19)
 
   - doc/Capabilities.txt: document "multi-prefix" capability

@@ -396,12 +396,15 @@ static bool
 Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 {
 	char the_modes[COMMAND_LEN], the_args[COMMAND_LEN], x[2],
-	    argadd[CLIENT_PASS_LEN], *mode_ptr;
-	bool connected, set, skiponce, retval, onchannel, modeok, use_servermode;
+	    argadd[CLIENT_PASS_LEN], *mode_ptr, *o_mode_ptr;
+	bool connected, set, skiponce, retval, use_servermode,
+	     is_halfop, is_op, is_admin, is_owner, is_machine, is_oper;
 	int mode_arg, arg_arg, mode_arg_count = 0;
 	CLIENT *client;
 	long l;
 	size_t len;
+
+	is_halfop = is_op = is_admin = is_owner = is_machine = is_oper = false;
 
 	if (Channel_IsModeless(Channel))
 		return IRC_WriteStrClient(Client, ERR_NOCHANMODES_MSG,
@@ -411,10 +414,20 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 	if (Req->argc <= 1)
 		return Channel_Mode_Answer_Request(Origin, Channel);
 
-	Channel_CheckAdminRights(Channel, Client, Origin,
-				 &onchannel, &modeok, &use_servermode);
+	/* Check if origin is oper and opers can use mode */
+	use_servermode = Conf_OperServerMode;
+	if(Client_OperByMe(Client) && Conf_OperCanMode) {
+		is_oper = true;
+	}
+	
+	/* Check if client is a server/service */
+	if(Client_Type(Client) == CLIENT_SERVER ||
+	   Client_Type(Client) == CLIENT_SERVICE) {
+		is_machine = true;
+	}
 
-	if (!onchannel && !modeok)
+	/* Check if client is member of channel or an oper or an server/service */
+	if(!Channel_IsMemberOf(Channel, Client) && !is_oper && !is_machine)
 		return IRC_WriteStrClient(Origin, ERR_NOTONCHANNEL_MSG,
 					  Client_ID(Origin),
 					  Channel_Name(Channel));
@@ -492,6 +505,21 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 		/* Are there arguments left? */
 		if (arg_arg >= Req->argc)
 			arg_arg = -1;
+        
+		if(!is_machine) {
+			o_mode_ptr = Channel_UserModes(Channel, Client);
+			while( *o_mode_ptr ) {
+				if ( *o_mode_ptr == 'q')
+					is_owner = true;
+				if ( *o_mode_ptr == 'a')
+					is_admin = true;
+				if ( *o_mode_ptr == 'o')
+					is_op = true;
+				if ( *o_mode_ptr == 'h')
+					is_halfop = true;
+				o_mode_ptr++;
+			}
+		}
 
 		/* Validate modes */
 		x[0] = '\0';
@@ -499,14 +527,22 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 		client = NULL;
 		switch (*mode_ptr) {
 		/* --- Channel modes --- */
+		case 'R': /* Registered users only */
+		case 's': /* Secret channel */
+		case 'z': /* Secure connections only */
+			if(!is_oper && !is_machine && !is_owner &&
+			   !is_admin && !is_op) {
+				connected = IRC_WriteStrClient(Origin,
+					ERR_CHANOPRIVSNEEDED_MSG,
+					Client_ID(Origin), Channel_Name(Channel));
+				goto chan_exit;
+			}
 		case 'i': /* Invite only */
 		case 'm': /* Moderated */
 		case 'n': /* Only members can write */
-		case 'R': /* Registered users only */
-		case 's': /* Secret channel */
 		case 't': /* Topic locked */
-		case 'z': /* Secure connections only */
-			if (modeok)
+			if(is_oper || is_machine || is_owner ||
+			   is_admin || is_op || is_halfop)
 				x[0] = *mode_ptr;
 			else
 				connected = IRC_WriteStrClient(Origin,
@@ -517,7 +553,8 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 			if (Mode_Limit_Reached(Client, mode_arg_count++))
 				goto chan_exit;
 			if (!set) {
-				if (modeok)
+				if (is_oper || is_machine || is_owner ||
+				    is_admin || is_op || is_halfop)
 					x[0] = *mode_ptr;
 				else
 					connected = IRC_WriteStrClient(Origin,
@@ -527,7 +564,8 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 				break;
 			}
 			if (arg_arg > mode_arg) {
-				if (modeok) {
+				if (is_oper || is_machine || is_owner ||
+				    is_admin || is_op || is_halfop) {
 					Channel_ModeDel(Channel, 'k');
 					Channel_SetKey(Channel,
 						       Req->argv[arg_arg]);
@@ -553,7 +591,8 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 			if (Mode_Limit_Reached(Client, mode_arg_count++))
 				goto chan_exit;
 			if (!set) {
-				if (modeok)
+				if (is_oper || is_machine || is_owner ||
+				    is_admin || is_op || is_halfop)
 					x[0] = *mode_ptr;
 				else
 					connected = IRC_WriteStrClient(Origin,
@@ -563,7 +602,8 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 				break;
 			}
 			if (arg_arg > mode_arg) {
-				if (modeok) {
+				if (is_oper || is_machine || is_owner ||
+				    is_admin || is_op || is_halfop) {
 					l = atol(Req->argv[arg_arg]);
 					if (l > 0 && l < 0xFFFF) {
 						Channel_ModeDel(Channel, 'l');
@@ -588,44 +628,47 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 			}
 			break;
 		case 'O': /* IRC operators only */
-			if (modeok) {
+			if (set) {
 				/* Only IRC operators are allowed to
 				 * set the 'O' channel mode! */
-				if (set && !(Client_OperByMe(Client)
-				    || Client_Type(Client) == CLIENT_SERVER))
+				if(is_oper || is_machine)
+					x[0] = 'O';
+				else
 					connected = IRC_WriteStrClient(Origin,
 						ERR_NOPRIVILEGES_MSG,
 						Client_ID(Origin));
-				else
-					x[0] = 'O';
-			} else
+			} else if(is_oper || is_machine || is_owner ||
+				  is_admin || is_op)
+				x[0] = 'O';
+			else
 				connected = IRC_WriteStrClient(Origin,
-						ERR_CHANOPRIVSNEEDED_MSG,
-						Client_ID(Origin),
-						Channel_Name(Channel));
-				break;
+					ERR_CHANOPRIVSNEEDED_MSG,
+					Client_ID(Origin),
+					Channel_Name(Channel));
+			break;
 		case 'P': /* Persistent channel */
-			if (modeok) {
+			if (set) {
 				/* Only IRC operators are allowed to
 				 * set the 'P' channel mode! */
-				if (set && !(Client_OperByMe(Client)
-				    || Client_Type(Client) == CLIENT_SERVER))
+				if(is_oper || is_machine)
+					x[0] = 'P';
+				else
 					connected = IRC_WriteStrClient(Origin,
 						ERR_NOPRIVILEGES_MSG,
 						Client_ID(Origin));
-				else
-					x[0] = 'P';
-			} else
+			} else if(is_oper || is_machine || is_owner ||
+				  is_admin || is_op)
+				x[0] = 'P';
+			else
 				connected = IRC_WriteStrClient(Origin,
 					ERR_CHANOPRIVSNEEDED_MSG,
 					Client_ID(Origin),
 					Channel_Name(Channel));
 			break;
 		/* --- Channel user modes --- */
-		case 'a':
-		case 'h':
-		case 'q':
-			if (Client_Type(Client) != CLIENT_SERVER) {
+		case 'q': /* Owner */
+		case 'a': /* Channel admin */
+			if(!is_oper && !is_machine && !is_owner) {
 				connected = IRC_WriteStrClient(Origin,
 					ERR_CHANOPRIVSNEEDED_MSG,
 					Client_ID(Origin),
@@ -633,16 +676,34 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 				goto chan_exit;
 			}
 		case 'o': /* Channel operator */
+			if(!is_oper && !is_machine && !is_owner &&
+			   !is_admin && !is_op) {
+				connected = IRC_WriteStrClient(Origin,
+					ERR_CHANOPRIVSNEEDED_MSG,
+					Client_ID(Origin),
+					Channel_Name(Channel));
+				goto chan_exit;
+			}
+		case 'h': /* Half Op */
+			if(!is_oper && !is_machine && !is_owner &&
+			   !is_admin && !is_op) {
+				connected = IRC_WriteStrClient(Origin,
+					ERR_CHANOPRIVSNEEDED_MSG,
+					Client_ID(Origin),
+					Channel_Name(Channel));
+				goto chan_exit;
+			}
 		case 'v': /* Voice */
 			if (arg_arg > mode_arg) {
-				if (modeok) {
+				if (is_oper || is_machine || is_owner ||
+				    is_admin || is_op || is_halfop) {
 					client = Client_Search(Req->argv[arg_arg]);
 					if (client)
 						x[0] = *mode_ptr;
 					else
-						connected = IRC_WriteStrClient(Client,
+						connected = IRC_WriteStrClient(Origin,
 							ERR_NOSUCHNICK_MSG,
-							Client_ID(Client),
+							Client_ID(Origin),
 							Req->argv[arg_arg]);
 				} else {
 					connected = IRC_WriteStrClient(Origin,
@@ -667,7 +728,8 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 				goto chan_exit;
 			if (arg_arg > mode_arg) {
 				/* modify list */
-				if (modeok) {
+				if (is_oper || is_machine || is_owner ||
+				    is_admin || is_op || is_halfop) {
 					connected = set
 					   ? Add_To_List(*mode_ptr, Origin,
 						Client, Channel,

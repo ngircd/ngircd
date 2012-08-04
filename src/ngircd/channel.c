@@ -294,6 +294,8 @@ Channel_Kick(CLIENT *Peer, CLIENT *Target, CLIENT *Origin, const char *Name,
 	     const char *Reason )
 {
 	CHANNEL *chan;
+	char *ptr, *target_modes;
+	bool can_kick = false;
 
 	assert(Peer != NULL);
 	assert(Target != NULL);
@@ -314,14 +316,51 @@ Channel_Kick(CLIENT *Peer, CLIENT *Target, CLIENT *Origin, const char *Name,
 		/* Check that user is on the specified channel */
 		if (!Channel_IsMemberOf(chan, Origin)) {
 			IRC_WriteStrClient( Origin, ERR_NOTONCHANNEL_MSG,
-					   Client_ID(Origin), Name);
+					    Client_ID(Origin), Name);
 			return;
 		}
+	}
 
-		/* Check if user has operator status */
-		if (!strchr(Channel_UserModes(chan, Origin), 'o')) {
-			IRC_WriteStrClient(Origin, ERR_CHANOPRIVSNEEDED_MSG,
-					   Client_ID(Origin), Name);
+	if(Client_Type(Peer) == CLIENT_USER) {
+		/* Check if client has the rights to kick target */
+		ptr = Channel_UserModes(chan, Peer);
+		target_modes = Channel_UserModes(chan, Target);
+		while(*ptr) {
+			/* Owner can kick everyone */
+			if ( *ptr == 'q') {
+				can_kick = true;
+				break;
+			}
+			/* Admin can't kick owner */
+			if ( *ptr == 'a' ) {
+				if (!strchr(target_modes, 'q')) {
+					can_kick = true;
+					break;
+				}
+			}
+			/* Op can't kick owner | admin */
+			if ( *ptr == 'o' ) {
+				if (!strchr(target_modes, 'q') &&
+				    !strchr(target_modes, 'a')) {
+					can_kick = true;
+					break;
+				}
+			}
+			/* Half Op can't kick owner | admin | op */ 
+			if ( *ptr == 'h' ) {
+				if (!strchr(target_modes, 'q') &&
+				    !strchr(target_modes, 'a') &&
+				    !strchr(target_modes, 'o')) {
+					can_kick = true;
+					break;
+				}
+			}
+			ptr++;
+		}
+		
+		if(!can_kick) {
+			IRC_WriteStrClient(Origin, ERR_CHANOPPRIVTOLOW_MSG,
+				Client_ID(Origin), Name);
 			return;
 		}
 	}
@@ -807,9 +846,9 @@ Channel_SetMaxUsers(CHANNEL *Chan, unsigned long Count)
 static bool
 Can_Send_To_Channel(CHANNEL *Chan, CLIENT *From)
 {
-	bool is_member, has_voice, is_op;
+	bool is_member, has_voice, is_halfop, is_op, is_chanadmin, is_owner;
 
-	is_member = has_voice = is_op = false;
+	is_member = has_voice = is_halfop = is_op = is_chanadmin = is_owner = false;
 
 	/* The server itself always can send messages :-) */
 	if (Client_ThisServer() == From)
@@ -819,8 +858,14 @@ Can_Send_To_Channel(CHANNEL *Chan, CLIENT *From)
 		is_member = true;
 		if (strchr(Channel_UserModes(Chan, From), 'v'))
 			has_voice = true;
+		if (strchr(Channel_UserModes(Chan, From), 'h'))
+			is_halfop = true;
 		if (strchr(Channel_UserModes(Chan, From), 'o'))
 			is_op = true;
+		if (strchr(Channel_UserModes(Chan, From), 'a'))
+			is_chanadmin = true;
+		if (strchr(Channel_UserModes(Chan, From), 'q'))
+			is_owner = true;
 	}
 
 	/*
@@ -832,7 +877,7 @@ Can_Send_To_Channel(CHANNEL *Chan, CLIENT *From)
 	if (strchr(Channel_Modes(Chan), 'n') && !is_member)
 		return false;
 
-	if (is_op || has_voice)
+	if (has_voice || is_halfop || is_op || is_chanadmin || is_owner)
 		return true;
 
 	if (strchr(Channel_Modes(Chan), 'm'))
@@ -1185,64 +1230,6 @@ Channel_CheckKey(CHANNEL *Chan, CLIENT *Client, const char *Key)
 	fclose(fd);
 	return false;
 } /* Channel_CheckKey */
-
-
-/**
- * Check wether a client is allowed to administer a channel or not.
- *
- * @param Chan		The channel to test.
- * @param Client	The client from which the command has been received.
- * @param Origin	The originator of the command (or NULL).
- * @param OnChannel	Set to true if the originator is member of the channel.
- * @param AdminOk	Set to true if the client is allowed to do
- *			administrative tasks on this channel.
- * @param UseServerMode	Set to true if ngIRCd should emulate "server mode",
- *			that is send commands as if originating from a server
- *			and not the originator of the command.
- */
-GLOBAL void
-Channel_CheckAdminRights(CHANNEL *Chan, CLIENT *Client, CLIENT *Origin,
-			 bool *OnChannel, bool *AdminOk, bool *UseServerMode)
-{
-	assert (Chan != NULL);
-	assert (Client != NULL);
-	assert (OnChannel != NULL);
-	assert (AdminOk != NULL);
-	assert (UseServerMode != NULL);
-
-	/* Use the client as origin, if no origin has been given (no prefix?) */
-	if (!Origin)
-		Origin = Client;
-
-	*OnChannel = false;
-	*AdminOk = false;
-	*UseServerMode = false;
-
-	if (Client_Type(Client) != CLIENT_USER
-	    && Client_Type(Client) != CLIENT_SERVER
-	    && Client_Type(Client) != CLIENT_SERVICE)
-		return;
-
-	/* Allow channel administration if the client is a server or service */
-	if (Client_Type(Client) != CLIENT_USER) {
-		*AdminOk = true;
-		return;
-	}
-
-	*OnChannel = Channel_IsMemberOf(Chan, Origin);
-
-	if (*OnChannel && strchr(Channel_UserModes(Chan, Origin), 'o')) {
-		/* User is a channel operator */
-		*AdminOk = true;
-	} else if (Conf_OperCanMode) {
-		/* IRC operators are allowed to administer channels as well */
-		if (Client_OperByMe(Origin)) {
-			*AdminOk = true;
-			if (Conf_OperServerMode)
-				*UseServerMode = true;
-		}
-	}
-} /* Channel_CheckAdminRights */
 
 
 static CL2CHAN *

@@ -510,7 +510,7 @@ IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 	CHANNEL *chan;
 	CLIENT *from;
 	char *topic;
-	bool onchannel, topicok, use_servermode, r;
+	bool r, is_oper;
 
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -533,10 +533,9 @@ IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 		return IRC_WriteStrClient(from, ERR_NOSUCHCHANNEL_MSG,
 					  Client_ID(from), Req->argv[0]);
 
-	Channel_CheckAdminRights(chan, Client, from,
-				 &onchannel, &topicok, &use_servermode);
-
-	if (!onchannel && !topicok)
+	/* Only IRC opers and channel members allowed */
+	is_oper = Client_OperByMe(from);
+	if (!Channel_IsMemberOf(chan, from) && !is_oper)
 		return IRC_WriteStrClient(from, ERR_NOTONCHANNEL_MSG,
 					  Client_ID(from), Req->argv[0]);
 
@@ -565,8 +564,12 @@ IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 	}
 
 	if (strchr(Channel_Modes(chan), 't')) {
-		/* Topic Lock. Is the user a channel or IRC operator? */
-		if (!topicok)
+		/* Topic Lock. Is the user a channel op or IRC operator? */
+		if(!strchr(Channel_UserModes(chan, from), 'h') &&
+		   !strchr(Channel_UserModes(chan, from), 'o') &&
+		   !strchr(Channel_UserModes(chan, from), 'a') &&
+		   !strchr(Channel_UserModes(chan, from), 'q') &&
+		   !is_oper)
 			return IRC_WriteStrClient(from, ERR_CHANOPRIVSNEEDED_MSG,
 						  Client_ID(from),
 						  Channel_Name(chan));
@@ -578,7 +581,7 @@ IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 		 Client_TypeText(from), Client_Mask(from), Channel_Name(chan),
 		 Req->argv[1][0] ? Req->argv[1] : "<none>");
 
-	if (use_servermode)
+	if (Conf_OperServerMode)
 		from = Client_ThisServer();
 
 	/* Update channel and forward new topic to other servers */

@@ -327,12 +327,18 @@ IRC_HELP( CLIENT *Client, REQUEST *Req )
 
 
 static char *
-Option_String( CONN_ID Idx )
+#ifdef ZLIB
+Option_String(CONN_ID Idx)
+#else
+Option_String(UNUSED CONN_ID Idx)
+#endif
 {
 	static char option_txt[8];
+#ifdef ZLIB
 	UINT16 options;
 
 	options = Conn_Options(Idx);
+#endif
 
 	strcpy(option_txt, "F");	/* No idea what this means, but the
 					 * original ircd sends it ... */

@@ -653,7 +653,7 @@ static void
 Set_Defaults(bool InitServers)
 {
 	int i;
-	char random[RANDOM_SALT_LEN];
+	char random[RANDOM_SALT_LEN + 1];
 
 	/* Global */
 	strcpy(Conf_ServerName, "");

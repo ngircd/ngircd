@@ -1,0 +1,11 @@
+[Unit]
+Description=Next Generation IRC Daemon
+After=network.target
+
+[Service]
+# don't daemonize to simplify stuff
+ExecStart=/usr/sbin/ngircd -n
+ExecReload=/bin/kill -HUP $MAINPID
+
+[Install]
+WantedBy=multi-user.target

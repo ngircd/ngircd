@@ -52,8 +52,8 @@ all: $(generated_docs)
 
 install-data-hook: $(static_docs) $(toplevel_docs) $(generated_docs)
 	$(mkinstalldirs) $(DESTDIR)$(sysconfdir)
-	if [ ! -f $(DESTDIR)$(sysconfdir)/ngircd.conf ]; then \
-	  $(INSTALL) -m 600 -c sample-ngircd.conf $(DESTDIR)$(sysconfdir)/ngircd.conf; \
+	@if [ ! -f $(DESTDIR)$(sysconfdir)/ngircd.conf ]; then \
+	  make install-config; \
 	 fi
 	$(mkinstalldirs) $(DESTDIR)$(docdir)
 	for f in $(static_docs) $(toplevel_docs); do \
@@ -63,10 +63,30 @@ install-data-hook: $(static_docs) $(toplevel_docs) $(generated_docs)
 	  $(INSTALL) -m 644 -c $$f $(DESTDIR)$(docdir)/; \
 	 done
 
+install-config:
+	$(INSTALL) -m 600 -c sample-ngircd.conf $(DESTDIR)$(sysconfdir)/ngircd.conf
+	@echo; \
+	 echo " ** NOTE: Installed sample configuration file:"; \
+	 echo " ** \"$(DESTDIR)$(sysconfdir)/ngircd.conf\""; \
+	 echo
+
 uninstall-hook:
 	rm -rf $(DESTDIR)$(docdir)
+	@if cmp --silent sample-ngircd.conf $(DESTDIR)$(sysconfdir)/ngircd.conf; then \
+	  make uninstall-config; \
+	 else \
+	  echo; \
+	  echo " ** NOTE: Not uninstalling changed configuration file:"; \
+	  echo " ** \"$(DESTDIR)$(sysconfdir)/ngircd.conf\""; \
+	  echo; \
+	 fi
+
+uninstall-config:
+	rm -f $(DESTDIR)$(sysconfdir)/ngircd.conf
 
 srcdoc:
 	make -C src srcdoc
+
+.PHONY: install-config uninstall-config srcdoc
 
 # -eof-

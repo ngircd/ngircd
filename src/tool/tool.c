@@ -147,7 +147,7 @@ ngt_RandomStr( char *String, const size_t len)
 
 	struct timeval t;
 	gettimeofday(&t, NULL);
-	srand(t.tv_usec * t.tv_sec);
+	srand((unsigned)(t.tv_usec * t.tv_sec));
 
 	for (size_t i = 0; i < len; ++i) {
 		String[i] = chars[rand() % (sizeof(chars) - 1)];

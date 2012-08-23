@@ -500,6 +500,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 		switch (*mode_ptr) {
 		/* --- Channel modes --- */
 		case 'i': /* Invite only */
+		case 'M': /* Only identified nicks can write */
 		case 'm': /* Moderated */
 		case 'n': /* Only members can write */
 		case 'R': /* Registered users only */

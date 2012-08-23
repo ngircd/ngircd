@@ -845,6 +845,22 @@ Can_Send_To_Channel(CHANNEL *Chan, CLIENT *From)
 }
 
 
+static bool
+Can_Send_To_Channel_Identified(CHANNEL *Chan, CLIENT *From)
+{
+	if ((Client_ThisServer() == From) || Client_HasMode(From, 'o'))
+		return true;
+
+	if (strchr(Channel_Modes(Chan), 'M') && !Client_HasMode(From, 'R'))
+		return false;
+
+	if (Lists_Check(&Chan->list_excepts, From))
+		return true;
+
+	return !Lists_Check(&Chan->list_bans, From);
+}
+
+
 GLOBAL bool
 Channel_Write(CHANNEL *Chan, CLIENT *From, CLIENT *Client, const char *Command,
 	      bool SendErrors, const char *Text)
@@ -852,6 +868,13 @@ Channel_Write(CHANNEL *Chan, CLIENT *From, CLIENT *Client, const char *Command,
 	if (!Can_Send_To_Channel(Chan, From)) {
 		if (! SendErrors)
 			return CONNECTED;	/* no error, see RFC 2812 */
+		return IRC_WriteStrClient(From, ERR_CANNOTSENDTOCHAN_MSG,
+					  Client_ID(From), Channel_Name(Chan));
+	}
+
+	if (!Can_Send_To_Channel_Identified(Chan, From)) {
+		if (! SendErrors)
+			return CONNECTED;
 		return IRC_WriteStrClient(From, ERR_CANNOTSENDTOCHAN_MSG,
 					  Client_ID(From), Channel_Name(Chan));
 	}

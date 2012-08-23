@@ -229,6 +229,14 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 							ERR_NOPRIVILEGES_MSG,
 							Client_ID(Origin));
 			break;
+		case 'B': /* Bot */
+			if (Client_HasMode(Client, 'r'))
+				ok = IRC_WriteStrClient(Origin,
+							ERR_RESTRICTED_MSG,
+							Client_ID(Origin));
+			else
+				x[0] = 'B';
+			break;
 		case 'c': /* Receive connect notices
 			   * (only settable by IRC operators!) */
 			if (!set || Client_Type(Client) == CLIENT_SERVER

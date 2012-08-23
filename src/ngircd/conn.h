@@ -116,7 +116,7 @@ GLOBAL void Conn_Handler PARAMS(( void ));
 
 GLOBAL bool Conn_WriteStr PARAMS(( CONN_ID Idx, const char *Format, ... ));
 
-GLOBAL const char* Conn_Password PARAMS(( CONN_ID Idx ));
+GLOBAL char* Conn_Password PARAMS(( CONN_ID Idx ));
 GLOBAL void Conn_SetPassword PARAMS(( CONN_ID Idx, const char *Pwd ));
 
 GLOBAL void Conn_Close PARAMS(( CONN_ID Idx, const char *LogMsg, const char *FwdMsg, bool InformClient ));

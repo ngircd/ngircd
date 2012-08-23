@@ -918,7 +918,7 @@ va_dcl
 	return ok;
 } /* Conn_WriteStr */
 
-GLOBAL const char*
+GLOBAL char*
 Conn_Password( CONN_ID Idx )
 {
   assert( Idx > NONE );

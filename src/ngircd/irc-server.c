@@ -80,7 +80,8 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 			Conn_Close( Client_Conn( Client ), NULL, "Server not configured here", true);
 			return DISCONNECTED;
 		}
-		if( strcmp( Conn_Password( Client_Conn( Client ) ), Conf_Server[i].pwd_in ) != 0 )
+		if( strcmp( Conn_Password( Client_Conn( Client ) ),
+			    Conf_Server[i].pwd_in ) != 0 )
 		{
 			/* wrong password */
 			Log( LOG_ERR, "Connection %d: Got bad password from server \"%s\"!", Client_Conn( Client ), Req->argv[0] );

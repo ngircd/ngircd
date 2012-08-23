@@ -256,6 +256,15 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 							ERR_RESTRICTED_MSG,
 							Client_ID(Origin));
 			break;
+		case 'R': /* Registered (only unsettable) */
+			if (!set || Client_Type(Client) == CLIENT_SERVICE
+				 || Client_Type(Client) == CLIENT_SERVER)
+				x[0] = 'R';
+			else
+				ok = IRC_WriteStrClient(Origin,
+							ERR_NICKREGISTER_MSG,
+							Client_ID(Origin));
+			break;
 		case 'x': /* Cloak hostname */
 			if (Client_HasMode(Client, 'r'))
 				ok = IRC_WriteStrClient(Origin,

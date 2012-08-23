@@ -72,7 +72,7 @@ typedef struct _Connection
 	ng_ipaddr_t addr;		/* Client address */
 	PROC_STAT proc_stat;		/* Status of resolver process */
 	char host[HOST_LEN];		/* Hostname */
-	char pwd[CLIENT_PASS_LEN];	/* password received of the client */
+	char *pwd;			/* password received of the client */
 	array rbuf;			/* Read buffer */
 	array wbuf;			/* Write buffer */
 	time_t signon;			/* Signon ("connect") time */

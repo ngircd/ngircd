@@ -929,8 +929,12 @@ GLOBAL void
 Conn_SetPassword( CONN_ID Idx, const char *Pwd )
 {
   assert( Idx > NONE );
-  strlcpy( My_Connections[Idx].pwd, Pwd,
-	   sizeof(My_Connections[Idx].pwd) );
+  My_Connections[Idx].pwd = calloc(strlen(Pwd) + 1, sizeof(char));
+  if (My_Connections[Idx].pwd == NULL) {
+    Log(LOG_EMERG, "Can't allocate memory! [Conn_SetPassword]");
+    exit(1);
+  }
+  strcpy( My_Connections[Idx].pwd, Pwd );
 } /* Conn_SetPassword */
 
 /**
@@ -1160,6 +1164,8 @@ Conn_Close( CONN_ID Idx, const char *LogMsg, const char *FwdMsg, bool InformClie
 
 	array_free(&My_Connections[Idx].rbuf);
 	array_free(&My_Connections[Idx].wbuf);
+	if (My_Connections[Idx].pwd != NULL)
+	  free(My_Connections[Idx].pwd);
 
 	/* Clean up connection structure (=free it) */
 	Init_Conn_Struct( Idx );

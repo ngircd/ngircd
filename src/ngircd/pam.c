@@ -102,8 +102,8 @@ PAM_Authenticate(CLIENT *Client) {
 	/* Set supplied client password */
 	if (password)
 		free(password);
-	password = strdup(Client_Password(Client));
-	conv.appdata_ptr = Client_Password(Client);
+	password = strdup(Conn_Password(Client_Conn(Client)));
+	conv.appdata_ptr = Conn_Password(Client_Conn(Client));
 
 	/* Initialize PAM */
 	retval = pam_start("ngircd", Client_OrigUser(Client), &conv, &pam);

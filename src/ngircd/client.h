@@ -47,7 +47,6 @@ typedef struct _CLIENT
 	CONN_ID conn_id;		/* ID of the connection (if local) or NONE (remote) */
 	struct _CLIENT *introducer;	/* ID of the servers which the client is connected to */
 	struct _CLIENT *topserver;	/* toplevel servers (only valid if client is a server) */
-	char pwd[CLIENT_PASS_LEN];	/* password received of the client */
 	char host[CLIENT_HOST_LEN];	/* hostname of the client */
 	char user[CLIENT_USER_LEN];	/* user name ("login") */
 #if defined(PAM) && defined(IDENTAUTH)
@@ -109,7 +108,6 @@ GLOBAL char *Client_OrigUser PARAMS(( CLIENT *Client ));
 #endif
 GLOBAL char *Client_Hostname PARAMS(( CLIENT *Client ));
 GLOBAL char *Client_HostnameCloaked PARAMS(( CLIENT *Client ));
-GLOBAL char *Client_Password PARAMS(( CLIENT *Client ));
 GLOBAL char *Client_Modes PARAMS(( CLIENT *Client ));
 GLOBAL char *Client_Flags PARAMS(( CLIENT *Client ));
 GLOBAL CLIENT *Client_Introducer PARAMS(( CLIENT *Client ));
@@ -129,7 +127,6 @@ GLOBAL void Client_SetID PARAMS(( CLIENT *Client, const char *Nick ));
 GLOBAL void Client_SetUser PARAMS(( CLIENT *Client, const char *User, bool Idented ));
 GLOBAL void Client_SetOrigUser PARAMS(( CLIENT *Client, const char *User ));
 GLOBAL void Client_SetInfo PARAMS(( CLIENT *Client, const char *Info ));
-GLOBAL void Client_SetPassword PARAMS(( CLIENT *Client, const char *Pwd ));
 GLOBAL void Client_SetType PARAMS(( CLIENT *Client, int Type ));
 GLOBAL void Client_SetHops PARAMS(( CLIENT *Client, int Hops ));
 GLOBAL void Client_SetToken PARAMS(( CLIENT *Client, int Token ));

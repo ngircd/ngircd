@@ -918,6 +918,20 @@ va_dcl
 	return ok;
 } /* Conn_WriteStr */
 
+GLOBAL const char*
+Conn_Password( CONN_ID Idx )
+{
+  assert( Idx > NONE );
+  return My_Connections[Idx].pwd;
+} /* Conn_Password */
+
+GLOBAL void
+Conn_SetPassword( CONN_ID Idx, const char *Pwd )
+{
+  assert( Idx > NONE );
+  strlcpy( My_Connections[Idx].pwd, Pwd,
+	   sizeof(My_Connections[Idx].pwd) );
+} /* Conn_SetPassword */
 
 /**
  * Append Data to the outbound write buffer of a connection.

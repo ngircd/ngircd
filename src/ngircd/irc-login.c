@@ -87,7 +87,7 @@ IRC_PASS( CLIENT *Client, REQUEST *Req )
 					  Client_ID(Client));
 	}
 
-	Client_SetPassword(Client, Req->argv[0]);
+	Conn_SetPassword(Client_Conn(Client), Req->argv[0]);
 
 	/* Protocol version */
 	if (Req->argc >= 2 && strlen(Req->argv[1]) >= 4) {

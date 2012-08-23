@@ -922,19 +922,21 @@ GLOBAL const char*
 Conn_Password( CONN_ID Idx )
 {
   assert( Idx > NONE );
-  return My_Connections[Idx].pwd;
+  if (My_Connections[Idx].pwd == NULL)
+    return (char*)"\0";
+  else
+    return My_Connections[Idx].pwd;
 } /* Conn_Password */
 
 GLOBAL void
 Conn_SetPassword( CONN_ID Idx, const char *Pwd )
 {
   assert( Idx > NONE );
-  My_Connections[Idx].pwd = calloc(strlen(Pwd) + 1, sizeof(char));
+  My_Connections[Idx].pwd = strdup(Pwd);
   if (My_Connections[Idx].pwd == NULL) {
     Log(LOG_EMERG, "Can't allocate memory! [Conn_SetPassword]");
     exit(1);
   }
-  strcpy( My_Connections[Idx].pwd, Pwd );
 } /* Conn_SetPassword */
 
 /**

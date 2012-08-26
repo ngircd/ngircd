@@ -1839,10 +1839,10 @@ Check_Connections(void)
 				if (My_Connections[i].lastping <
 				    time(NULL) - Conf_PongTimeout) {
 					/* Timeout */
-					LogDebug
-					    ("Connection %d: Ping timeout: %d seconds.",
-					     i, Conf_PongTimeout);
-					snprintf(msg, sizeof(msg), "Ping timeout: %d seconds", Conf_PongTimeout);
+					snprintf(msg, sizeof(msg),
+						 "Ping timeout: %d seconds",
+						 Conf_PongTimeout);
+					LogDebug("Connection %d: %s.", i, msg);
 					Conn_Close(i, NULL, msg, true);
 				}
 			} else if (My_Connections[i].lastdata <

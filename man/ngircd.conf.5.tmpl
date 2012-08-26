@@ -422,14 +422,16 @@ You can use the IRC Operator command CONNECT later on to create the link.
 Connect to the remote server using TLS/SSL. Default: false.
 .TP
 \fBServiceMask\fR (string)
-Define a (case insensitive) mask matching nick names that should be treated as
-IRC services when introduced via this remote server. REGULAR SERVERS DON'T NEED
-this parameter, so leave it empty (which is the default).
+Define a (case insensitive) list of masks matching nick names that should be
+treated as IRC services when introduced via this remote server, separated
+by commas (","). REGULAR SERVERS DON'T NEED this parameter, so leave it empty
+(which is the default).
 .PP
 .RS
 When you are connecting IRC services which mask as a IRC server and which use
 "virtual users" to communicate with, for example "NickServ" and "ChanServ",
-you should set this parameter to something like "*Serv".
+you should set this parameter to something like "*Serv", "*Serv,OtherNick",
+or "NickServ,ChanServ,XyzServ".
 .SH [CHANNEL]
 Pre-defined channels can be configured in
 .I [Channel]

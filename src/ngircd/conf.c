@@ -648,7 +648,8 @@ Conf_NickIsService(int ConfServer, const char *Nick)
 	assert (ConfServer >= 0);
 	assert (ConfServer < MAX_SERVERS);
 
-	return MatchCaseInsensitive(Conf_Server[ConfServer].svs_mask, Nick);
+	return MatchCaseInsensitiveList(Conf_Server[ConfServer].svs_mask,
+					Nick, ",");
 }
 
 /**

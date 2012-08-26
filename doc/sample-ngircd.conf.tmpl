@@ -297,15 +297,16 @@
 	# Connect to the remote server using TLS/SSL (Default: false)
 	;SSLConnect = yes
 
-	# Define a (case insensitive) mask matching nick names that should be
-	# treated as IRC services when introduced via this remote server.
+	# Define a (case insensitive) list of masks matching nick names that
+	# should be treated as IRC services when introduced via this remote
+	# server, separated by commas (",").
 	# REGULAR SERVERS DON'T NEED this parameter, so leave it empty
 	# (which is the default).
 	# When you are connecting IRC services which mask as a IRC server
 	# and which use "virtual users" to communicate with, for example
 	# "NickServ" and "ChanServ", you should set this parameter to
-	# something like "*Serv".
-	;ServiceMask = *Serv
+	# something like "*Serv" or "NickServ,ChanServ,XyzServ".
+	;ServiceMask = *Serv,Global
 
 [Server]
 	# More [Server] sections, if you like ...

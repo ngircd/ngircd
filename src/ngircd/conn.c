@@ -932,6 +932,10 @@ GLOBAL void
 Conn_SetPassword( CONN_ID Idx, const char *Pwd )
 {
 	assert( Idx > NONE );
+
+	if (My_Connections[Idx].pwd)
+		free(My_Connections[Idx].pwd);
+
 	My_Connections[Idx].pwd = strdup(Pwd);
 	if (My_Connections[Idx].pwd == NULL) {
 		Log(LOG_EMERG, "Can't allocate memory! [Conn_SetPassword]");

@@ -2,7 +2,7 @@
                      ngIRCd - Next Generation IRC Server
                            http://ngircd.barton.de/
 
-               (c)2001-2011 Alexander Barton and Contributors.
+               (c)2001-2012 Alexander Barton and Contributors.
                ngIRCd is free software and published under the
                    terms of the GNU General Public License.
 
@@ -22,6 +22,7 @@ channels he is using at the moment.
   mode	since	description
 
   a	0.3.0	User is away.
+  B	20	User is flagged as a "bot".
   c	17	IRC operator wants to receive connect/disconnect NOTICEs.
   C	19	Only users that share a channel are allowed to send messages.
   i	0.0.1	User is "invisible".

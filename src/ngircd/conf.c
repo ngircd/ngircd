@@ -652,6 +652,27 @@ Conf_NickIsService(int ConfServer, const char *Nick)
 }
 
 /**
+ * Check if the given nick name is blocked for "normal client" use.
+ *
+ * @param ConfServer The server index or NONE to check all configured servers.
+ * @param Nick The nick name to check.
+ * @returns true if the given nick name belongs to an "IRC service".
+ */
+GLOBAL bool
+Conf_NickIsBlocked(const char *Nick)
+{
+	int i;
+
+	for(i = 0; i < MAX_SERVERS; i++) {
+		if (!Conf_Server[i].name[0])
+			continue;
+		if (Conf_NickIsService(i, Nick))
+			return true;
+	}
+	return false;
+}
+
+/**
  * Initialize configuration settings with their default values.
  */
 static void

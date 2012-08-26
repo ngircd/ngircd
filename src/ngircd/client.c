@@ -905,6 +905,16 @@ Client_CheckNick(CLIENT *Client, char *Nick)
 		return false;
 	}
 
+	if (Client_Type(Client) != CLIENT_SERVER
+	    && Client_Type(Client) != CLIENT_SERVICE) {
+		/* Make sure that this isn't a restricted/forbidden nick name */
+		if (Conf_NickIsBlocked(Nick)) {
+			IRC_WriteStrClient(Client, ERR_FORBIDDENNICKNAME_MSG,
+					   Client_ID(Client), Nick);
+			return false;
+		}
+	}
+
 	/* Nickname already registered? */
 	if (Client_Search(Nick)) {
 		IRC_WriteStrClient(Client, ERR_NICKNAMEINUSE_MSG,

@@ -132,7 +132,6 @@
 #define ERR_INVITEONLYCHAN_MSG		"473 %s %s :Cannot join channel (+i) -- Invited users only"
 #define ERR_BANNEDFROMCHAN_MSG		"474 %s %s :Cannot join channel (+b) -- You are banned"
 #define ERR_BADCHANNELKEY_MSG		"475 %s %s :Cannot join channel (+k) -- Wrong channel key"
-#define ERR_CANNOTSENDTOCHAN2_MSG	"477 %s %s :Cannot send to channel (+M) -- Registered/Identified nicks only"
 #define ERR_NOCHANMODES_MSG		"477 %s %s :Channel doesn't support modes"
 #define ERR_LISTFULL_MSG		"478 %s %s %s: Channel list is full (%d)"
 #define ERR_NOPRIVILEGES_MSG		"481 %s :Permission denied"

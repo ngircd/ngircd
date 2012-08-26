@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2012 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,9 +48,9 @@ static int Matche_After_Star PARAMS(( const char *p, const char *t ));
 /**
  * Match string with pattern.
  *
- * @param Pattern	Pattern to match with
- * @param String	Input string
- * @return		true if pattern matches
+ * @param Pattern Pattern to match with
+ * @param String Input string
+ * @return true if pattern matches
  */
 GLOBAL bool
 Match( const char *Pattern, const char *String )
@@ -64,17 +64,46 @@ Match( const char *Pattern, const char *String )
 /**
  * Match string with pattern case-insensitive.
  *
- * @param pattern	Pattern to match with
- * @param searchme	Input string, at most COMMAND_LEN-1 characters long
- * @return		true if pattern matches
+ * @param Pattern Pattern to match with
+ * @param String Input string, at most COMMAND_LEN-1 characters long
+ * @return true if pattern matches
  */
 GLOBAL bool
-MatchCaseInsensitive(const char *pattern, const char *searchme)
+MatchCaseInsensitive(const char *Pattern, const char *String)
 {
 	char haystack[COMMAND_LEN];
 
-	strlcpy(haystack, searchme, sizeof(haystack));
-	return Match(pattern, ngt_LowerStr(haystack));
+	strlcpy(haystack, String, sizeof(haystack));
+	return Match(Pattern, ngt_LowerStr(haystack));
+} /* MatchCaseInsensitive */
+
+
+/**
+ * Match string with pattern case-insensitive.
+ *
+ * @param pattern Pattern to match with
+ * @param String Input string, at most COMMAND_LEN-1 characters long
+ * @param Separator Character separating the individual patterns in the list
+ * @return true if pattern matches
+ */
+GLOBAL bool
+MatchCaseInsensitiveList(const char *Pattern, const char *String,
+		     const char *Separator)
+{
+	char tmp_pattern[COMMAND_LEN], haystack[COMMAND_LEN], *ptr;
+
+	strlcpy(tmp_pattern, Pattern, sizeof(tmp_pattern));
+	strlcpy(haystack, String, sizeof(haystack));
+	ngt_LowerStr(haystack);
+
+	ptr = strtok(tmp_pattern, Separator);
+	while (ptr) {
+		ngt_TrimStr(ptr);
+		if (Match(ptr, haystack))
+			return true;
+		ptr = strtok(NULL, Separator);
+	}
+	return false;
 } /* MatchCaseInsensitive */
 
 

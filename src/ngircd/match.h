@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2012 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,14 @@
  * Wildcard pattern matching (header)
  */
 
-GLOBAL bool Match PARAMS(( const char *Pattern, const char *String ));
-GLOBAL bool MatchCaseInsensitive PARAMS(( const char *Pattern, const char *searchme ));
+GLOBAL bool Match PARAMS((const char *Pattern, const char *String));
+
+GLOBAL bool MatchCaseInsensitive PARAMS((const char *Pattern,
+					 const char *String));
+
+GLOBAL bool MatchCaseInsensitiveList PARAMS((const char *Pattern,
+					     const char *String,
+					     const char *Separator));
 
 #endif
 

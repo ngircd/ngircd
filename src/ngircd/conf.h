@@ -244,7 +244,7 @@ GLOBAL bool Conf_EnablePassiveServer PARAMS((const char *Name));
 GLOBAL bool Conf_DisableServer PARAMS(( const char *Name ));
 GLOBAL bool Conf_AddServer PARAMS(( const char *Name, UINT16 Port, const char *Host, const char *MyPwd, const char *PeerPwd ));
 
-GLOBAL bool Conf_IsService PARAMS((int ConfServer, const char *Nick));
+GLOBAL bool Conf_NickIsService PARAMS((int ConfServer, const char *Nick));
 
 /* Password required by WEBIRC command */
 GLOBAL char Conf_WebircPwd[CLIENT_PASS_LEN];

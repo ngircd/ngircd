@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2010 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2012 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1175,7 +1175,7 @@ Client_Introduce(CLIENT *From, CLIENT *Client, int Type)
 	Client_SetType(Client, Type);
 
 	if (From) {
-		if (Conf_IsService(Conf_GetServer(Client_Conn(From)),
+		if (Conf_NickIsService(Conf_GetServer(Client_Conn(From)),
 				   Client_ID(Client)))
 			Client_SetType(Client, CLIENT_SERVICE);
 		LogDebug("%s \"%s\" (+%s) registered (via %s, on %s, %d hop%s).",

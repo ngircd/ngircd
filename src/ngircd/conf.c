@@ -636,13 +636,18 @@ Conf_AddServer(const char *Name, UINT16 Port, const char *Host,
 }
 
 /**
- * Check if the given nick name is an service.
+ * Check if the given nick name is reserved for services on a particular server.
  *
+ * @param ConfServer The server index to check.
+ * @param Nick The nick name to check.
  * @returns true if the given nick name belongs to an "IRC service".
  */
 GLOBAL bool
-Conf_IsService(int ConfServer, const char *Nick)
+Conf_NickIsService(int ConfServer, const char *Nick)
 {
+	assert (ConfServer >= 0);
+	assert (ConfServer < MAX_SERVERS);
+
 	return MatchCaseInsensitive(Conf_Server[ConfServer].svs_mask, Nick);
 }
 

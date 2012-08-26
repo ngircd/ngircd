@@ -441,18 +441,6 @@ Client_SetFlags( CLIENT *Client, const char *Flags )
 
 
 GLOBAL void
-Client_SetPassword( CLIENT *Client, const char *Pwd )
-{
-	/* set password sent by client */
-
-	assert( Client != NULL );
-	assert( Pwd != NULL );
-
-	strlcpy(Client->pwd, Pwd, sizeof(Client->pwd));
-} /* Client_SetPassword */
-
-
-GLOBAL void
 Client_SetAway( CLIENT *Client, const char *Txt )
 {
 	/* Set AWAY reason of client */
@@ -712,14 +700,6 @@ Client_HostnameCloaked(CLIENT *Client)
 	else
 		return Client_Hostname(Client);
 } /* Client_HostnameCloaked */
-
-
-GLOBAL char *
-Client_Password( CLIENT *Client )
-{
-	assert( Client != NULL );
-	return Client->pwd;
-} /* Client_Password */
 
 
 GLOBAL char *

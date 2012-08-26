@@ -93,13 +93,14 @@ Login_User(CLIENT * Client)
 		 * the beahiour of the daemon compiled without PAM support:
 		 * because there can't be any "server password", all
 		 * passwords supplied are classified as "wrong". */
-		if(Client_Password(Client)[0] == '\0')
+		if(Conn_Password(conn)[0] == '\0')
 			return Login_User_PostAuth(Client);
 		Client_Reject(Client, "Non-empty password", false);
 		return DISCONNECTED;
 	}
 
-	if (Conf_PAMIsOptional && strcmp(Client_Password(Client), "") == 0) {
+	if (Conf_PAMIsOptional &&
+	    strcmp(Conn_Password(conn), "") == 0) {
 		/* Clients are not required to send a password and to be PAM-
 		 * authenticated at all. If not, they won't become "identified"
 		 * and keep the "~" in their supplied user name.
@@ -129,7 +130,7 @@ Login_User(CLIENT * Client)
 	}
 #else
 	/* Check global server password ... */
-	if (strcmp(Client_Password(Client), Conf_ServerPwd) != 0) {
+	if (strcmp(Conn_Password(conn), Conf_ServerPwd) != 0) {
 		/* Bad password! */
 		Client_Reject(Client, "Bad server password", false);
 		return DISCONNECTED;

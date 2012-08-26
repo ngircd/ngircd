@@ -918,6 +918,30 @@ va_dcl
 	return ok;
 } /* Conn_WriteStr */
 
+GLOBAL char*
+Conn_Password( CONN_ID Idx )
+{
+	assert( Idx > NONE );
+	if (My_Connections[Idx].pwd == NULL)
+		return (char*)"\0";
+	else
+		return My_Connections[Idx].pwd;
+} /* Conn_Password */
+
+GLOBAL void
+Conn_SetPassword( CONN_ID Idx, const char *Pwd )
+{
+	assert( Idx > NONE );
+
+	if (My_Connections[Idx].pwd)
+		free(My_Connections[Idx].pwd);
+
+	My_Connections[Idx].pwd = strdup(Pwd);
+	if (My_Connections[Idx].pwd == NULL) {
+		Log(LOG_EMERG, "Can't allocate memory! [Conn_SetPassword]");
+		exit(1);
+	}
+} /* Conn_SetPassword */
 
 /**
  * Append Data to the outbound write buffer of a connection.
@@ -1146,6 +1170,8 @@ Conn_Close( CONN_ID Idx, const char *LogMsg, const char *FwdMsg, bool InformClie
 
 	array_free(&My_Connections[Idx].rbuf);
 	array_free(&My_Connections[Idx].wbuf);
+	if (My_Connections[Idx].pwd != NULL)
+		free(My_Connections[Idx].pwd);
 
 	/* Clean up connection structure (=free it) */
 	Init_Conn_Struct( Idx );

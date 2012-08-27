@@ -275,8 +275,8 @@ Parse_CAP(int Capabilities, char *Args)
  * @param Capabilities Capability flags (bitmask).
  * @return Pointer to textual representation.
  */
-char
-*Get_CAP_String(int Capabilities)
+char *
+Get_CAP_String(int Capabilities)
 {
 	static char txt[COMMAND_LEN];
 

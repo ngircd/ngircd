@@ -135,24 +135,20 @@ ngt_TrimLastChr( char *String, const char Chr)
  * Fill a String with random chars
  */
 GLOBAL char *
-ngt_RandomStr( char *String, const size_t len)
+ngt_RandomStr(char *String, const size_t len)
 {
+	static const char chars[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!\"#$&'()*+,-./:;<=>?@[\\]^_`";
+	struct timeval t;
+	size_t i;
+
 	assert(String != NULL);
 
-	static const char chars[] = 
-		"0123456789ABCDEFGHIJKLMNO"
-		"PQRSTUVWXYZabcdefghijklmn"
-		"opqrstuvwxyz!\"#$&'()*+,-"
-		"./:;<=>?@[\\]^_`";
-
-	struct timeval t;
 	gettimeofday(&t, NULL);
 	srand((unsigned)(t.tv_usec * t.tv_sec));
 
-	for (size_t i = 0; i < len; ++i) {
+	for (i = 0; i < len; ++i) {
 		String[i] = chars[rand() % (sizeof(chars) - 1)];
 	}
-
 	String[len] = '\0';
 
 	return String;

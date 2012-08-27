@@ -138,7 +138,7 @@
 #define ERR_CHANOPRIVSNEEDED_MSG	"482 %s %s :You are not channel operator"
 #define ERR_CANTKILLSERVER_MSG		"483 %s :You can't kill a server!"
 #define ERR_RESTRICTED_MSG		"484 %s :Your connection is restricted"
-#define ERR_NICKREGISTER_MSG		"484 %s :Cannot set user mode (+R) -- Use IRC services"
+#define ERR_NICKREGISTER_MSG		"484 %s :Cannot modify user mode (+R) -- Use IRC services"
 #define ERR_NOOPERHOST_MSG		"491 %s :Not configured for your host"
 #define ERR_NOTONSAMECHANNEL_MSG	"493 %s :You must share a common channel with %s"
 

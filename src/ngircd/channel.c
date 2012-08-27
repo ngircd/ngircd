@@ -832,6 +832,10 @@ Can_Send_To_Channel(CHANNEL *Chan, CLIENT *From)
 	if (strchr(Channel_Modes(Chan), 'n') && !is_member)
 		return false;
 
+	if (strchr(Channel_Modes(Chan), 'M') && !Client_HasMode(From, 'R')
+	    && !Client_HasMode(From, 'o'))
+		return false;
+
 	if (is_op || has_voice)
 		return true;
 

@@ -2257,7 +2257,8 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 		Client_SetHostname(c, readbuf);
 		if (Conf_NoticeAuth)
 			(void)Conn_WriteStr(i,
-					"NOTICE AUTH :*** Found your hostname");
+					"NOTICE AUTH :*** Found your hostname: %s",
+					My_Connections[i].host);
 #ifdef IDENTAUTH
 		++identptr;
 		if (*identptr) {
@@ -2282,8 +2283,10 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 			}
 			if (Conf_NoticeAuth) {
 				(void)Conn_WriteStr(i,
-					"NOTICE AUTH :*** Got %sident response",
-					*ptr ? "invalid " : "");
+					"NOTICE AUTH :*** Got %sident response%s%s",
+					*ptr ? "invalid " : "",
+					*ptr ? "" : ": ",
+					*ptr ? "" : identptr);
 			}
 		} else {
 			Log(LOG_INFO, "IDENT lookup for connection %d: no result.", i);

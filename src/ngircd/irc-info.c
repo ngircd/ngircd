@@ -1111,6 +1111,12 @@ IRC_WHOIS_SendReply(CLIENT *Client, CLIENT *from, CLIENT *c)
 				Client_ID(from), Client_ID(c)))
 		return DISCONNECTED;
 
+	/* IRC-Bot? */
+	if (Client_HasMode(c, 'B') &&
+	    !IRC_WriteStrClient(from, RPL_WHOISBOT_MSG,
+				Client_ID(from), Client_ID(c)))
+		return DISCONNECTED;
+
 	/* Connected using SSL? */
 	if (Conn_UsesSSL(Client_Conn(c)) &&
 	    !IRC_WriteStrClient(from, RPL_WHOISSSL_MSG, Client_ID(from),

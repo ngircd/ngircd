@@ -49,6 +49,7 @@ users to lists (e.g. "invite list", "ban list"), others have parameters
   k	0.6.0	Channel has a "key" (a password).
   l	0.6.0	Channel has a user limit.
   m	0.3.0	Channel is moderated, only "voiced" users can send messages.
+  M	20	Only registered users (and IRC Ops) can send messages.
   n	0.3.0	Channel doesn't allow messages of users not being members.
   O	18	Only IRC operators are allowed to join this channel.
   P	0.5.0	Channel is "persistent".

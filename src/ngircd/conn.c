@@ -1508,6 +1508,7 @@ New_Connection(int Sock)
 #endif
 				(void)Conn_WriteStr(new_sock,
 					"NOTICE AUTH :*** Looking up your hostname");
+			(void)Handle_Write(new_sock);
 		}
 		Resolve_Addr(&My_Connections[new_sock].proc_stat, &new_addr,
 			     identsock, cb_Read_Resolver_Result);
@@ -2295,6 +2296,10 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 					"NOTICE AUTH :*** No ident response");
 		}
 #endif
+
+		if (Conf_NoticeAuth)
+			(void)Handle_Write(i);
+
 		Class_HandleServerBans(c);
 	}
 #ifdef DEBUG

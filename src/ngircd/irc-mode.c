@@ -138,6 +138,7 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 {
 	char the_modes[COMMAND_LEN], x[2], *mode_ptr;
 	bool ok, set;
+	bool send_RPL_HOSTHIDDEN_MSG = false;
 	int mode_arg;
 	size_t len;
 
@@ -279,6 +280,7 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 							Client_ID(Origin));
 			else
 				x[0] = 'x';
+				send_RPL_HOSTHIDDEN_MSG = true;
 			break;
 		default:
 			if (Client_Type(Client) != CLIENT_SERVER) {
@@ -348,6 +350,10 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 						  "MODE %s :%s",
 						  Client_ID(Target),
 						  the_modes);
+			if (send_RPL_HOSTHIDDEN_MSG)
+				IRC_WriteStrClient(Client, RPL_HOSTHIDDEN_MSG,
+						   Client_ID(Client),
+						   Client_HostnameCloaked(Client));
 		}
 		LogDebug("%s \"%s\": Mode change, now \"%s\".",
 			 Client_TypeText(Target), Client_Mask(Target),

@@ -1483,7 +1483,15 @@ Show_MOTD_Sendline(CLIENT *Client, const char *msg)
 static bool
 Show_MOTD_End(CLIENT *Client)
 {
-	return IRC_WriteStrClient( Client, RPL_ENDOFMOTD_MSG, Client_ID( Client ));
+	if (!IRC_WriteStrClient(Client, RPL_ENDOFMOTD_MSG, Client_ID(Client)))
+		return DISCONNECTED;
+
+	if (*Conf_CloakHost)
+		return IRC_WriteStrClient(Client, RPL_HOSTHIDDEN_MSG,
+					  Client_ID(Client),
+					  Client_Hostname(Client));
+
+	return CONNECTED;
 }
 
 #ifdef SSL_SUPPORT

@@ -96,6 +96,7 @@
 #define RPL_YOUREOPER_MSG		"381 %s :You are now an IRC Operator"
 #define RPL_YOURESERVICE_MSG		"383 %s :You are service %s"
 #define RPL_TIME_MSG			"391 %s %s :%s"
+#define RPL_HOSTHIDDEN_MSG		"396 %s %s :is your displayed hostname now"
 
 #define ERR_NOSUCHNICK_MSG		"401 %s %s :No such nick or channel name"
 #define ERR_NOSUCHSERVER_MSG		"402 %s %s :No such server"

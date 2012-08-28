@@ -687,18 +687,35 @@ Client_Hostname(CLIENT *Client)
 
 /**
  * Get potentially cloaked hostname of a client.
+ *
  * If the client has not enabled cloaking, the real hostname is used.
+ * Please note that this function uses a global static buffer, so you can't
+ * nest invocations without overwriting earlier results!
+ *
  * @param Client Pointer to client structure
  * @return Pointer to client hostname
  */
 GLOBAL char *
 Client_HostnameCloaked(CLIENT *Client)
 {
+	static char Cloak_Buffer[CLIENT_HOST_LEN];
+
 	assert(Client != NULL);
-	if (Client_HasMode(Client, 'x'))
-		return Client_ID(Client->introducer);
-	else
+
+	if (!Client_HasMode(Client, 'x'))
 		return Client_Hostname(Client);
+
+	/* Do simple mapping to the server ID? */
+	if (!*Conf_CloakHostModeX)
+		return Client_ID(Client->introducer);
+
+	strlcpy(Cloak_Buffer, Client->host, CLIENT_HOST_LEN);
+	strlcat(Cloak_Buffer, Conf_CloakHostSalt, CLIENT_HOST_LEN);
+
+	snprintf(Cloak_Buffer, CLIENT_HOST_LEN, Conf_CloakHostModeX,
+		 Hash(Cloak_Buffer));
+
+	return Cloak_Buffer;
 } /* Client_HostnameCloaked */
 
 
@@ -792,10 +809,12 @@ Client_Mask( CLIENT *Client )
 
 /**
  * Return ID of a client with cloaked hostname: "client!user@server-name"
+ *
  * This client ID is used for IRC prefixes, for example.
  * Please note that this function uses a global static buffer, so you can't
  * nest invocations without overwriting earlier results!
  * If the client has not enabled cloaking, the real hostname is used.
+ *
  * @param Client Pointer to client structure
  * @return Pointer to global buffer containing the client ID
  */
@@ -803,7 +822,6 @@ GLOBAL char *
 Client_MaskCloaked(CLIENT *Client)
 {
 	static char Mask_Buffer[GETID_LEN];
-	char Cloak_Buffer[GETID_LEN];
 
 	assert (Client != NULL);
 
@@ -811,16 +829,8 @@ Client_MaskCloaked(CLIENT *Client)
 	if (!Client_HasMode(Client, 'x'))
 		return Client_Mask(Client);
 
-	if(*Conf_CloakHostModeX) {
-		strlcpy(Cloak_Buffer, Client->host, GETID_LEN);
-		strlcat(Cloak_Buffer, Conf_CloakHostSalt, GETID_LEN);
-		snprintf(Cloak_Buffer, GETID_LEN, Conf_CloakHostModeX, Hash(Cloak_Buffer));
-	} else {
-		strncpy(Cloak_Buffer, Client_ID(Client->introducer), GETID_LEN);
-	}
-
-	snprintf(Mask_Buffer, GETID_LEN, "%s!%s@%s",
-		Client->id, Client->user, Cloak_Buffer);
+	snprintf(Mask_Buffer, GETID_LEN, "%s!%s@%s", Client->id, Client->user,
+		 Client_HostnameCloaked(Client));
 
 	return Mask_Buffer;
 } /* Client_MaskCloaked */

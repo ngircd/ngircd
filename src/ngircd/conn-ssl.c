@@ -625,6 +625,8 @@ ConnectAccept( CONNECTION *c, bool connect)
 #endif /* _GNUTLS */
 	Conn_OPTION_DEL(c, (CONN_SSL_WANT_WRITE|CONN_SSL_WANT_READ|CONN_SSL_CONNECT));
 	ConnSSL_LogCertInfo(c);
+
+	Conn_StartLogin(CONNECTION2ID(c));
 	return 1;
 }
 

@@ -101,6 +101,8 @@ GLOBAL CONNECTION *My_Connections;
 GLOBAL CONN_ID Pool_Size;
 GLOBAL long WCounter;
 
+#define CONNECTION2ID(x) (long)(x - My_Connections)
+
 #endif /* CONN_MODULE */
 
 
@@ -111,6 +113,8 @@ GLOBAL void Conn_CloseAllSockets PARAMS((int ExceptOf));
 
 GLOBAL unsigned int Conn_InitListeners PARAMS(( void ));
 GLOBAL void Conn_ExitListeners PARAMS(( void ));
+
+GLOBAL void Conn_StartLogin PARAMS((CONN_ID Idx));
 
 GLOBAL void Conn_Handler PARAMS(( void ));
 

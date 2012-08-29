@@ -88,7 +88,7 @@
 
 static bool Handle_Write PARAMS(( CONN_ID Idx ));
 static bool Conn_Write PARAMS(( CONN_ID Idx, char *Data, size_t Len ));
-static int New_Connection PARAMS(( int Sock ));
+static int New_Connection PARAMS(( int Sock, bool IsSSL ));
 static CONN_ID Socket2Index PARAMS(( int Sock ));
 static void Read_Request PARAMS(( CONN_ID Idx ));
 static unsigned int Handle_Buffer PARAMS(( CONN_ID Idx ));
@@ -134,7 +134,7 @@ static void
 cb_listen(int sock, short irrelevant)
 {
 	(void) irrelevant;
-	(void) New_Connection(sock);
+	(void) New_Connection(sock, false);
 }
 
 
@@ -152,7 +152,7 @@ cb_listen_ssl(int sock, short irrelevant)
 	int fd;
 
 	(void) irrelevant;
-	fd = New_Connection(sock);
+	fd = New_Connection(sock, true);
 	if (fd < 0)
 		return;
 	io_event_setcb(My_Connections[fd].sock, cb_clientserver_ssl);
@@ -1362,17 +1362,18 @@ Count_Connections(ng_ipaddr_t *a)
  * Initialize new client connection on a listening socket.
  *
  * @param Sock	Listening socket descriptor.
+ * @param IsSSL	true if this socket expects SSL-encrypted data.
  * @returns	Accepted socket descriptor or -1 on error.
  */
 static int
-New_Connection(int Sock)
+New_Connection(int Sock, bool IsSSL)
 {
 #ifdef TCPWRAP
 	struct request_info req;
 #endif
 	ng_ipaddr_t new_addr;
 	char ip_str[NG_INET_ADDRSTRLEN];
-	int new_sock, new_sock_len, identsock;
+	int new_sock, new_sock_len;
 	CLIENT *c;
 	long cnt;
 
@@ -1492,31 +1493,56 @@ New_Connection(int Sock)
 	Log(LOG_INFO, "Accepted connection %d from %s:%d on socket %d.",
 	    new_sock, My_Connections[new_sock].host,
 	    ng_ipaddr_getport(&new_addr), Sock);
-
-	identsock = new_sock;
-#ifdef IDENTAUTH
-	if (!Conf_Ident)
-		identsock = -1;
-#endif
-	if (Conf_DNS) {
-		if (Conf_NoticeAuth) {
-#ifdef IDENTAUTH
-			if (Conf_Ident)
-				(void)Conn_WriteStr(new_sock,
-					"NOTICE AUTH :*** Looking up your hostname and checking ident");
-			else
-#endif
-				(void)Conn_WriteStr(new_sock,
-					"NOTICE AUTH :*** Looking up your hostname");
-			(void)Handle_Write(new_sock);
-		}
-		Resolve_Addr(&My_Connections[new_sock].proc_stat, &new_addr,
-			     identsock, cb_Read_Resolver_Result);
-	}
-
 	Account_Connection();
+
+#ifdef SSL_SUPPORT
+	/* Delay connection initalization until SSL handshake is finished */
+	if (!IsSSL)
+#endif
+		Conn_StartLogin(new_sock);
+
 	return new_sock;
 } /* New_Connection */
+
+
+/**
+ * Finish connection initialization, start resolver subprocess.
+ *
+ * @param Idx Connection index.
+ */
+GLOBAL void
+Conn_StartLogin(CONN_ID Idx)
+{
+	int ident_sock = -1;
+
+	assert(Idx >= 0);
+
+	/* Nothing to do if DNS (and resolver subprocess) is disabled */
+	if (!Conf_DNS)
+		return;
+
+#ifdef IDENTAUTH
+	/* Should we make an IDENT request? */
+	if (Conf_Ident)
+		ident_sock = My_Connections[Idx].sock;
+#endif
+
+	if (Conf_NoticeAuth) {
+		/* Send "NOTICE AUTH" messages to the client */
+#ifdef IDENTAUTH
+		if (Conf_Ident)
+			(void)Conn_WriteStr(Idx,
+				"NOTICE AUTH :*** Looking up your hostname and checking ident");
+		else
+#endif
+			(void)Conn_WriteStr(Idx,
+				"NOTICE AUTH :*** Looking up your hostname");
+		(void)Handle_Write(Idx);
+	}
+
+	Resolve_Addr(&My_Connections[Idx].proc_stat, &My_Connections[Idx].addr,
+		     ident_sock, cb_Read_Resolver_Result);
+}
 
 
 /**

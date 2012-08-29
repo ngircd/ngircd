@@ -206,7 +206,7 @@ GLOBAL bool Conf_ConnectIPv6;
 GLOBAL bool Conf_ConnectIPv4;
 
 /** Maximum number of simultaneous connections to this server */
-GLOBAL long Conf_MaxConnections;
+GLOBAL int Conf_MaxConnections;
 
 /** Maximum number of channels a user can join */
 GLOBAL int Conf_MaxJoins;

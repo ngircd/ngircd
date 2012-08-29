@@ -42,7 +42,7 @@
 #define CONN_SSL_WANT_READ	128	/* SSL/TLS library needs to read protocol data */
 #define CONN_SSL_FLAGS_ALL	(CONN_SSL_CONNECT|CONN_SSL|CONN_SSL_WANT_WRITE|CONN_SSL_WANT_READ)
 #endif
-typedef long CONN_ID;
+typedef int CONN_ID;
 
 #include "client.h"
 #include "proc.h"
@@ -126,6 +126,7 @@ GLOBAL void Conn_SyncServerStruct PARAMS(( void ));
 GLOBAL CONN_ID Conn_GetFromProc PARAMS((int fd));
 GLOBAL CLIENT* Conn_GetClient PARAMS((CONN_ID i));
 GLOBAL PROC_STAT* Conn_GetProcStat PARAMS((CONN_ID i));
+
 #ifdef SSL_SUPPORT
 GLOBAL bool Conn_GetCipherInfo PARAMS((CONN_ID Idx, char *buf, size_t len));
 GLOBAL bool Conn_UsesSSL PARAMS((CONN_ID Idx));

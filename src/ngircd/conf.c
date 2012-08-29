@@ -346,7 +346,7 @@ Conf_Test( void )
 
 	puts("[LIMITS]");
 	printf("  ConnectRetry = %d\n", Conf_ConnectRetry);
-	printf("  MaxConnections = %ld\n", Conf_MaxConnections);
+	printf("  MaxConnections = %d\n", Conf_MaxConnections);
 	printf("  MaxConnectionsIP = %d\n", Conf_MaxConnectionsIP);
 	printf("  MaxJoins = %d\n", Conf_MaxJoins > 0 ? Conf_MaxJoins : -1);
 	printf("  MaxNickLength = %u\n", Conf_MaxNickLength - 1);
@@ -1432,7 +1432,7 @@ Handle_LIMITS(int Line, char *Var, char *Arg)
 		return;
 	}
 	if (strcasecmp(Var, "MaxConnections") == 0) {
-		Conf_MaxConnections = atol(Arg);
+		Conf_MaxConnections = atoi(Arg);
 		if (!Conf_MaxConnections && strcmp(Arg, "0"))
 			Config_Error_NaN(Line, Var);
 		return;

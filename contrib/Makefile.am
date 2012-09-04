@@ -16,7 +16,7 @@ EXTRA_DIST = README \
 	ngircd-bsd.sh \
 	ngIRCd-Logo.gif \
 	ngircd-redhat.init \
-	ngircd.service
+	ngircd.service \
 	ngircd.spec \
 	platformtest.sh \
 	systrace.policy

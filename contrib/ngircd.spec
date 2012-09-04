@@ -15,11 +15,11 @@ BuildRoot:    %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:  zlib-devel, openssl-devel
 
 %description
-This package provides ngIRCd, a lightweight Internet Relay Chat
-server for small or private networks. It is simple to configure, can
-cope with dynamic IP addresses, and supports IPv6 as well as SSL. It
-is written from scratch, not based on the original IRCd and quite
-portable.
+This package provides ngIRCd, a portable and lightweight Internet Relay
+Chat server for small or private networks, developed under the GNU
+General Public License (GPL). It is simple to configure, can cope with
+dynamic IP addresses, and supports IPv6 as well as SSL. It is written
+from scratch and not based on the original IRCd.
 
 Advantages:
  - well arranged (lean) configuration file

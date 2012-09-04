@@ -18,11 +18,11 @@ Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Provides: ircd
 Description: lightweight Internet Relay Chat server
- This package provides ngIRCd, a lightweight Internet Relay Chat
- server for small or private networks. It is simple to configure, can
- cope with dynamic IP addresses, and supports IPv6 as well as SSL. It
- is written from scratch, not based on the original IRCd and quite
- portable.
+ This package provides ngIRCd, a portable and lightweight Internet Relay
+ Chat server for small or private networks, developed under the GNU
+ General Public License (GPL). It is simple to configure, can cope with
+ dynamic IP addresses, and supports IPv6 as well as SSL. It is written
+ from scratch and not based on the original IRCd.
  .
  This package contains the "standard distribution", including support for
  syslog logging and compressed server-links using zlib. Please have a look
@@ -35,11 +35,11 @@ Depends: ${shlibs:Depends}, ${misc:Depends}
 Provides: ircd
 Conflicts: ngircd, ngircd-dbg
 Description: lightweight Internet Relay Chat server
- This package provides ngIRCd, a lightweight Internet Relay Chat
- server for small or private networks. It is simple to configure, can
- cope with dynamic IP addresses, and supports IPv6 as well as SSL. It
- is written from scratch, not based on the original IRCd and quite
- portable.
+ This package provides ngIRCd, a portable and lightweight Internet Relay
+ Chat server for small or private networks, developed under the GNU
+ General Public License (GPL). It is simple to configure, can cope with
+ dynamic IP addresses, and supports IPv6 as well as SSL. It is written
+ from scratch and not based on the original IRCd.
  .
  In addition to the features of the "standard package", this package
  includes support for TCP wrappers, IDENT requests, the IPv6 protocol and
@@ -51,11 +51,11 @@ Depends: ${shlibs:Depends}, ${misc:Depends}
 Provides: ircd
 Conflicts: ngircd, ngircd-full
 Description: lightweight Internet Relay Chat server
- This package provides ngIRCd, a lightweight Internet Relay Chat
- server for small or private networks. It is simple to configure, can
- cope with dynamic IP addresses, and supports IPv6 as well as SSL. It
- is written from scratch, not based on the original IRCd and quite
- portable.
+ This package provides ngIRCd, a portable and lightweight Internet Relay
+ Chat server for small or private networks, developed under the GNU
+ General Public License (GPL). It is simple to configure, can cope with
+ dynamic IP addresses, and supports IPv6 as well as SSL. It is written
+ from scratch and not based on the original IRCd.
  .
  In addition to the features of the "standard package", this package
  includes support for TCP wrappers, IDENT requests, the IPv6 protocol and

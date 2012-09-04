@@ -86,6 +86,20 @@ static int io_masterfd;
 
 static int io_dispatch_kqueue(struct timeval *tv);
 static bool io_event_change_kqueue(int, short, const int action);
+
+#ifndef EV_SET
+/* Taken from /usr/include/sys/event.h of FreeBSD 8.1 and required by all
+ * platforms that have kqueue but lack EV_SET() -- for example FreeBSD 4. */
+#define EV_SET(kevp, a, b, c, d, e, f) do {	\
+	struct kevent *__kevp__ = (kevp);	\
+	__kevp__->ident = (a);			\
+	__kevp__->filter = (b);			\
+	__kevp__->flags = (c);			\
+	__kevp__->fflags = (d);			\
+	__kevp__->data = (e);			\
+	__kevp__->udata = (f);			\
+} while(0)
+#endif
 #endif
 
 #ifdef IO_USE_POLL

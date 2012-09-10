@@ -848,6 +848,8 @@ IRC_WHO_Channel(CLIENT *Client, CHANNEL *Chan, bool OnlyOps)
 	assert( Client != NULL );
 	assert( Chan != NULL );
 
+	IRC_SetPenalty(Client, 1);
+
 	is_member = Channel_IsMemberOf(Chan, Client);
 
 	/* Secret channel? */
@@ -866,9 +868,6 @@ IRC_WHO_Channel(CLIENT *Client, CHANNEL *Chan, bool OnlyOps)
 
 		is_visible = strchr(client_modes, 'i') == NULL;
 		if (is_member || is_visible) {
-			if (IRC_CheckListTooBig(Client, count, MAX_RPL_WHO, "WHO"))
-				break;
-
 			strcpy(flags, who_flags_status(client_modes));
 			if (is_ircop)
 				strlcat(flags, "*", sizeof(flags));
@@ -883,6 +882,11 @@ IRC_WHO_Channel(CLIENT *Client, CHANNEL *Chan, bool OnlyOps)
 			count++;
 		}
 	}
+
+	/* If there are a lot of clients, augment penalty a bit */
+	if (count > MAX_RPL_WHO)
+		IRC_SetPenalty(Client, 1);
+
 	return IRC_WriteStrClient(Client, RPL_ENDOFWHO_MSG, Client_ID(Client),
 				  Channel_Name(Chan));
 }
@@ -911,6 +915,7 @@ IRC_WHO_Mask(CLIENT *Client, char *Mask, bool OnlyOps)
 	if (Mask)
 		ngt_LowerStr(Mask);
 
+	IRC_SetPenalty(Client, 3);
 	for (c = Client_First(); c != NULL; c = Client_Next(c)) {
 		if (Client_Type(c) != CLIENT_USER)
 			continue;
@@ -1014,13 +1019,11 @@ IRC_WHO(CLIENT *Client, REQUEST *Req)
 		chan = Channel_Search(Req->argv[0]);
 		if (chan) {
 			/* Members of a channel have been requested */
-			IRC_SetPenalty(Client, 1);
 			return IRC_WHO_Channel(Client, chan, only_ops);
 		}
 		if (strcmp(Req->argv[0], "0") != 0) {
 			/* A mask has been given. But please note this RFC
 			 * stupidity: "0" is same as no arguments ... */
-			IRC_SetPenalty(Client, 3);
 			return IRC_WHO_Mask(Client, Req->argv[0], only_ops);
 		}
 	}

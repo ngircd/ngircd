@@ -66,16 +66,8 @@ static void Set_KeyFile PARAMS((CHANNEL *Chan, const char *KeyFile));
 GLOBAL void
 Channel_Init( void )
 {
-	CHANNEL *sc;
-
 	My_Channels = NULL;
 	My_Cl2Chan = NULL;
-
-	sc = Channel_Create("&SERVER");
-	if (sc) {
-		Channel_SetModes(sc, "mnPt");
-		Channel_SetTopic(sc, Client_ThisServer(), "Server Messages");
-	}
 } /* Channel_Init */
 
 
@@ -103,11 +95,12 @@ Channel_GetListInvites(CHANNEL *c)
 }
 
 
+/**
+ * Generate predefined persistent channels and &SERVER
+ */
 GLOBAL void
 Channel_InitPredefined( void )
 {
-	/* Generate predefined persistent channels */
-
 	CHANNEL *new_chan;
 	const struct Conf_Channel *conf_chan;
 	const char *c;
@@ -160,6 +153,18 @@ Channel_InitPredefined( void )
 	}
 	if (channel_count)
 		array_free(&Conf_Channels);
+
+	/* Make sure the local &SERVER channel exists */
+	if (!Channel_Search("&SERVER")) {
+		new_chan = Channel_Create("&SERVER");
+		if (new_chan) {
+			Channel_SetModes(new_chan, "mnPt");
+			Channel_SetTopic(new_chan, Client_ThisServer(),
+					 "Server Messages");
+		} else
+			Log(LOG_ERR, "Failed to create \"&SERVER\" channel!");
+	} else
+		LogDebug("Required channel \"&SERVER\" already exists, ok.");
 } /* Channel_InitPredefined */
 
 

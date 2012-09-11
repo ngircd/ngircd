@@ -1595,10 +1595,10 @@ IRC_Send_NAMES(CLIENT * Client, CHANNEL * Chan)
 		if (is_member || is_visible) {
 			if (str[strlen(str) - 1] != ':')
 				strlcat(str, " ", sizeof(str));
-			if (Client_Cap(cl) & CLIENT_CAP_MULTI_PREFIX) {
-				if (strchr(Channel_UserModes(Chan, cl), 'o') &&
-				    strchr(Channel_UserModes(Chan, cl), 'v'))
-					strlcat(str, "@+", sizeof(str));
+			if (Client_Cap(Client) & CLIENT_CAP_MULTI_PREFIX && 
+					strchr(Channel_UserModes(Chan, cl), 'o') &&
+					strchr(Channel_UserModes(Chan, cl), 'v')) {
+				strlcat(str, "@+", sizeof(str));
 			} else {
 				if (strchr(Channel_UserModes(Chan, cl), 'o'))
 					strlcat(str, "@", sizeof(str));

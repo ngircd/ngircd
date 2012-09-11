@@ -330,6 +330,7 @@ main(int argc, const char *argv[])
 		Channel_Exit();
 		Class_Exit();
 		Log_Exit();
+		Signals_Exit();
 	}
 	Pidfile_Delete();
 

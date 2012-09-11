@@ -334,6 +334,7 @@ Signals_Exit(void)
 #endif
 	close(signalpipe[1]);
 	close(signalpipe[0]);
+	signalpipe[0] = signalpipe[1] = 0;
 }
 
 /* -eof- */

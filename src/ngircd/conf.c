@@ -1911,6 +1911,13 @@ Validate_Config(bool Configtest, bool Rehash)
 	bool config_valid = true;
 	char *ptr;
 
+	/* Emit a warning when the config file is not a full path name */
+	if (NGIRCd_ConfFile[0] && NGIRCd_ConfFile[0] != '/') {
+		Config_Error(LOG_WARNING,
+			"Not specifying a full path name to \"%s\" can cause problems when rehashing the server!",
+			NGIRCd_ConfFile);
+	}
+
 	/* Validate configured server name, see RFC 2812 section 2.3.1 */
 	ptr = Conf_ServerName;
 	do {

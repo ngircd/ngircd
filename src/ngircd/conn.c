@@ -47,10 +47,6 @@
 # include <netinet/ip.h>
 #endif
 
-#ifdef HAVE_STDINT_H
-# include <stdint.h>			/* e.g. for Mac OS X */
-#endif
-
 #ifdef TCPWRAP
 # include <tcpd.h>			/* for TCP Wrappers */
 #endif

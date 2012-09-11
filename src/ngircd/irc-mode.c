@@ -441,7 +441,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 	if(Client_OperByMe(Client) && Conf_OperCanMode) {
 		is_oper = true;
 	}
-	
+
 	/* Check if client is a server/service */
 	if(Client_Type(Client) == CLIENT_SERVER ||
 	   Client_Type(Client) == CLIENT_SERVICE) {
@@ -527,7 +527,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 		/* Are there arguments left? */
 		if (arg_arg >= Req->argc)
 			arg_arg = -1;
-        
+
 		if(!is_machine) {
 			o_mode_ptr = Channel_UserModes(Channel, Client);
 			while( *o_mode_ptr ) {

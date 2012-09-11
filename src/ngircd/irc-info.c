@@ -117,7 +117,7 @@ IRC_INFO(CLIENT * Client, REQUEST * Req)
 		target = Client_Search(Req->argv[0]);
 	else
 		target = Client_ThisServer();
-	
+
 	/* Make sure that the target is a server */
 	if (target && Client_Type(target) != CLIENT_SERVER)
 		target = Client_Introducer(target);
@@ -811,8 +811,8 @@ static char *
 who_flags_qualifier(CLIENT *Client, const char *chan_user_modes, char *str, size_t len)
 {
 	assert(Client != NULL);
-    
-	if (Client_Cap(Client) & CLIENT_CAP_MULTI_PREFIX) {		
+
+	if (Client_Cap(Client) & CLIENT_CAP_MULTI_PREFIX) {
 		if (strchr(chan_user_modes, 'q'))
 			strlcat(str, "~", len);
 		if (strchr(chan_user_modes, 'a'))
@@ -823,10 +823,10 @@ who_flags_qualifier(CLIENT *Client, const char *chan_user_modes, char *str, size
 			strlcat(str, "&", len);
 		if (strchr(chan_user_modes, 'v'))
 			strlcat(str, "+", len);
-		
+
 		return str;
 	}
-	
+
 	if (strchr(chan_user_modes, 'q'))
 		strlcat(str, "~", len);
 	else if (strchr(chan_user_modes, 'a'))
@@ -837,7 +837,7 @@ who_flags_qualifier(CLIENT *Client, const char *chan_user_modes, char *str, size
 		strlcat(str, "%", len);
 	else if (strchr(chan_user_modes, 'v'))
 		strlcat(str, "+", len);
-	
+
 	return str;
 }
 
@@ -890,7 +890,7 @@ IRC_WHO_Channel(CLIENT *Client, CHANNEL *Chan, bool OnlyOps)
 
 			chan_user_modes = Channel_UserModes(Chan, c);
 			who_flags_qualifier(c, chan_user_modes, flags, sizeof(flags));
- 
+
 			if (!write_whoreply(Client, c, Channel_Name(Chan),
 					    flags))
 				return DISCONNECTED;
@@ -1479,7 +1479,7 @@ IRC_Send_LUSERS(CLIENT *Client)
 			Conn_CountMax(), Conn_CountAccepted()))
 		return DISCONNECTED;
 #endif
-	
+
 	return CONNECTED;
 } /* IRC_Send_LUSERS */
 
@@ -1609,7 +1609,7 @@ IRC_Send_NAMES(CLIENT * Client, CHANNEL * Chan)
 		if (is_member || is_visible) {
 			if (str[strlen(str) - 1] != ':')
 				strlcat(str, " ", sizeof(str));
-			
+
 			who_flags_qualifier(cl,	Channel_UserModes(Chan, cl), str, sizeof(str));
 			strlcat(str, Client_ID(cl), sizeof(str));
 

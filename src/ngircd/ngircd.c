@@ -715,7 +715,7 @@ NGIRCd_Init(bool NGIRCd_NoDaemon)
 		}
 
 		/* New child process */
-#ifndef NeXT
+#ifdef HAVE_SETSID
 		(void)setsid();
 #else
 		setpgrp(0, getpid());

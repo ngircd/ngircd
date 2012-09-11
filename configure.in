@@ -25,17 +25,17 @@ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 # -- Templates for config.h --
 
 AH_TEMPLATE([DEBUG], [Define if debug-mode should be enabled])
+AH_TEMPLATE([HAVE_sockaddr_in_len], [Define if sockaddr_in.sin_len exists])
 AH_TEMPLATE([HAVE_socklen_t], [Define if socklen_t exists])
+AH_TEMPLATE([IDENTAUTH], [Define if the server should do IDENT requests])
+AH_TEMPLATE([IRCPLUS], [Define if IRC+ protocol should be used])
+AH_TEMPLATE([PAM], [Define if PAM should be used])
 AH_TEMPLATE([SNIFFER], [Define if IRC sniffer should be enabled])
 AH_TEMPLATE([STRICT_RFC], [Define if ngIRCd should behave strict RFC compliant])
 AH_TEMPLATE([SYSLOG], [Define if syslog should be used for logging])
-AH_TEMPLATE([ZLIB], [Define if zlib compression should be enabled])
 AH_TEMPLATE([TCPWRAP], [Define if TCP wrappers should be used])
-AH_TEMPLATE([IRCPLUS], [Define if IRC+ protocol should be used])
 AH_TEMPLATE([WANT_IPV6], [Define if IPV6 protocol should be enabled])
-AH_TEMPLATE([IDENTAUTH], [Define if the server should do IDENT requests])
-AH_TEMPLATE([PAM], [Define if PAM should be used])
-AH_TEMPLATE([HAVE_sockaddr_in_len], [Define if sockaddr_in.sin_len exists])
+AH_TEMPLATE([ZLIB], [Define if zlib compression should be enabled])
 
 AH_TEMPLATE([TARGET_OS], [Target operating system name])
 AH_TEMPLATE([TARGET_VENDOR], [Target system vendor])
@@ -57,9 +57,9 @@ AC_PROG_RANLIB
 
 # -- Compiler Features --
 
-AM_C_PROTOTYPES
 AC_C_CONST
 AC_C_INLINE
+AM_C_PROTOTYPES
 
 # -- Hard coded system and compiler dependencies/features/options ... --
 
@@ -101,8 +101,8 @@ CFLAGS="$CFLAGS -DSYSCONFDIR='\"\$(sysconfdir)\"'"
 # -- Headers --
 
 AC_HEADER_STDC
-AC_HEADER_TIME
 AC_HEADER_SYS_WAIT
+AC_HEADER_TIME
 
 AC_CHECK_HEADERS([ \
 	ctype.h errno.h fcntl.h netdb.h netinet/in.h netinet/in_systm.h \
@@ -544,21 +544,21 @@ test -n "$CFLAGS_END" && CFLAGS="$CFLAGS $CFLAGS_END"
 
 AC_OUTPUT([ \
 	Makefile \
-	doc/Makefile \
-	doc/src/Makefile \
-	src/Makefile \
-	src/portab/Makefile \
-	src/ipaddr/Makefile \
-	src/tool/Makefile \
-	src/ngircd/Makefile \
-	src/testsuite/Makefile \
-	man/Makefile \
-	contrib/Makefile \
 	contrib/Anope/Makefile \
 	contrib/Debian/Makefile \
 	contrib/MacOSX/Makefile \
-	contrib/MacOSX/ngIRCd.xcodeproj/Makefile \
 	contrib/MacOSX/ngIRCd.pmdoc/Makefile \
+	contrib/MacOSX/ngIRCd.xcodeproj/Makefile \
+	contrib/Makefile \
+	doc/Makefile \
+	doc/src/Makefile \
+	man/Makefile \
+	src/ipaddr/Makefile \
+	src/Makefile \
+	src/ngircd/Makefile \
+	src/portab/Makefile \
+	src/testsuite/Makefile \
+	src/tool/Makefile \
 ])
 
 type dpkg >/dev/null 2>&1

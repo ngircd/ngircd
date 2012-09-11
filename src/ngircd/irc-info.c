@@ -807,22 +807,38 @@ who_flags_status(const char *client_modes)
 }
 
 
-static const char *
-who_flags_qualifier(CLIENT *Client, const char *chan_user_modes)
+static char *
+who_flags_qualifier(CLIENT *Client, const char *chan_user_modes, char *str, size_t len)
 {
 	assert(Client != NULL);
-
-	if (Client_Cap(Client) & CLIENT_CAP_MULTI_PREFIX) {
-		if (strchr(chan_user_modes, 'o') &&
-		    strchr(chan_user_modes, 'v'))
-			return "@+";
+    
+	if (Client_Cap(Client) & CLIENT_CAP_MULTI_PREFIX) {		
+		if (strchr(chan_user_modes, 'q'))
+			strlcat(str, "~", len);
+		if (strchr(chan_user_modes, 'a'))
+			strlcat(str, "&", len);
+		if (strchr(chan_user_modes, 'o'))
+			strlcat(str, "@", len);
+		if (strchr(chan_user_modes, 'h'))
+			strlcat(str, "&", len);
+		if (strchr(chan_user_modes, 'v'))
+			strlcat(str, "+", len);
+		
+		return str;
 	}
-
-	if (strchr(chan_user_modes, 'o'))
-		return "@";
+	
+	if (strchr(chan_user_modes, 'q'))
+		strlcat(str, "~", len);
+	else if (strchr(chan_user_modes, 'a'))
+		strlcat(str, "&", len);
+	else if (strchr(chan_user_modes, 'o'))
+		strlcat(str, "@", len);
+	else if (strchr(chan_user_modes, 'h'))
+		strlcat(str, "%", len);
 	else if (strchr(chan_user_modes, 'v'))
-		return "+";
-	return "";
+		strlcat(str, "+", len);
+	
+	return str;
 }
 
 
@@ -841,7 +857,7 @@ IRC_WHO_Channel(CLIENT *Client, CHANNEL *Chan, bool OnlyOps)
 	CL2CHAN *cl2chan;
 	const char *client_modes;
 	const char *chan_user_modes;
-	char flags[8];
+	char flags[10];
 	CLIENT *c;
 	int count = 0;
 
@@ -873,9 +889,8 @@ IRC_WHO_Channel(CLIENT *Client, CHANNEL *Chan, bool OnlyOps)
 				strlcat(flags, "*", sizeof(flags));
 
 			chan_user_modes = Channel_UserModes(Chan, c);
-			strlcat(flags, who_flags_qualifier(c, chan_user_modes),
-				sizeof(flags));
-
+			who_flags_qualifier(c, chan_user_modes, flags, sizeof(flags));
+ 
 			if (!write_whoreply(Client, c, Channel_Name(Chan),
 					    flags))
 				return DISCONNECTED;
@@ -1090,8 +1105,7 @@ IRC_WHOIS_SendReply(CLIENT *Client, CLIENT *from, CLIENT *c)
 		if (str[strlen(str) - 1] != ':')
 			strlcat(str, " ", sizeof(str));
 
-		strlcat(str, who_flags_qualifier(c, Channel_UserModes(chan, c)),
-						 sizeof(str));
+		who_flags_qualifier(c, Channel_UserModes(chan, c), str, sizeof(str));
 		strlcat(str, Channel_Name(chan), sizeof(str));
 
 		if (strlen(str) > (LINE_LEN - CHANNEL_NAME_LEN - 4)) {
@@ -1595,16 +1609,8 @@ IRC_Send_NAMES(CLIENT * Client, CHANNEL * Chan)
 		if (is_member || is_visible) {
 			if (str[strlen(str) - 1] != ':')
 				strlcat(str, " ", sizeof(str));
-			if (Client_Cap(cl) & CLIENT_CAP_MULTI_PREFIX) {
-				if (strchr(Channel_UserModes(Chan, cl), 'o') &&
-				    strchr(Channel_UserModes(Chan, cl), 'v'))
-					strlcat(str, "@+", sizeof(str));
-			} else {
-				if (strchr(Channel_UserModes(Chan, cl), 'o'))
-					strlcat(str, "@", sizeof(str));
-				else if (strchr(Channel_UserModes(Chan, cl), 'v'))
-					strlcat(str, "+", sizeof(str));
-			}
+			
+			who_flags_qualifier(cl,	Channel_UserModes(Chan, cl), str, sizeof(str));
 			strlcat(str, Client_ID(cl), sizeof(str));
 
 			if (strlen(str) > (LINE_LEN - CLIENT_NICK_LEN - 4)) {

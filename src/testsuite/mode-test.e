@@ -31,6 +31,46 @@ expect {
 	"@* MODE nick :-i"
 }
 
+send "join #usermode\r"
+expect {
+	timeout { exit 1 }
+	"@* JOIN :#usermode"
+}
+expect {
+	timeout { exit 1 }
+	"366"
+}
+
+send "mode #usermode +v nick\r"
+expect {
+	timeout { exit 1 }
+	"@* MODE #usermode +v nick\r"
+}
+
+send "mode #usermode +h nick\r"
+expect {
+	timeout { exit 1 }
+	"@* MODE #usermode +h nick\r"
+}
+
+send "mode #usermode +a nick\r"
+expect {
+	timeout { exit 1 }
+	"482 nick"
+}
+
+send "mode #usermode +q nick\r"
+expect {
+	timeout { exit 1 }
+	"482 nick"
+}
+
+send "mode #usermode -vho nick nick nick\r"
+expect {
+	timeout { exit 1 }
+	"@* MODE #usermode -vho nick nick nick"
+}
+
 send "oper TestOp 123\r"
 expect {
 	timeout { exit 1 }
@@ -45,6 +85,34 @@ send "mode nick\r"
 expect {
 	timeout { exit 1 }
 	"221 nick +o"
+}
+
+send "mode #usermode +a nick\r"
+expect {
+	timeout { exit 1 }
+	"@* MODE #usermode +a nick"
+}
+
+send "mode #usermode +q nick\r"
+expect {
+	timeout { exit 1 }
+	"@* MODE #usermode +q nick"
+}
+
+send "names #usermode\r"
+expect {
+	timeout { exit 1 }
+	"353 nick = #usermode :~nick"
+}
+expect {
+	timeout { exit 1 }
+	"366 nick #usermode"
+}
+
+send "part #usermode\r"
+expect {
+	timeout { exit 1 }
+	"@* PART #usermode"
 }
 
 send "join #channel\r"

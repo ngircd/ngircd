@@ -67,10 +67,17 @@ Announce_Channel(CLIENT *Client, CHANNEL *Chan)
 			 * (if user is channel operator or has voice) */
 			if (str[strlen(str) - 1] != ':')
 				strlcat(str, ",", sizeof(str));
-			if (strchr(Channel_UserModes(Chan, cl), 'v'))
-				strlcat(str, "+", sizeof(str));
+			if (strchr(Channel_UserModes(Chan, cl), 'q'))
+				strlcat(str, "~", sizeof(str));
+			if (strchr(Channel_UserModes(Chan, cl), 'a'))
+				strlcat(str, "&", sizeof(str));
 			if (strchr(Channel_UserModes(Chan, cl), 'o'))
 				strlcat(str, "@", sizeof(str));
+			if (strchr(Channel_UserModes(Chan, cl), 'h'))
+				strlcat(str, "%", sizeof(str));
+			if (strchr(Channel_UserModes(Chan, cl), 'v'))
+				strlcat(str, "+", sizeof(str));
+
 			strlcat(str, Client_ID(cl), sizeof(str));
 
 			/* Send the data if the buffer is "full" */

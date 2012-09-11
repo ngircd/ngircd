@@ -203,7 +203,7 @@ GLOBAL bool
 IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 {
 	char nick_in[COMMAND_LEN], nick_out[COMMAND_LEN], *channame, *ptr, modes[8];
-	bool is_op, is_voiced;
+	bool is_owner, is_chanadmin, is_op, is_halfop, is_voiced;
 	CHANNEL *chan;
 	CLIENT *c;
 	
@@ -222,9 +222,13 @@ IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 		is_op = is_voiced = false;
 		
 		/* cut off prefixes */
-		while(( *ptr == '@' ) || ( *ptr == '+' ))
-		{
+		while(( *ptr == '~') || ( *ptr == '&' ) || ( *ptr == '@' ) ||
+			( *ptr == '%') || ( *ptr == '+' ))
+		{	
+			if( *ptr == '~' ) is_owner = true;
+			if( *ptr == '&' ) is_chanadmin = true;
 			if( *ptr == '@' ) is_op = true;
+			if( *ptr == 'h' ) is_halfop = true;
 			if( *ptr == '+' ) is_voiced = true;
 			ptr++;
 		}
@@ -236,7 +240,10 @@ IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 			chan = Channel_Search( channame );
 			assert( chan != NULL );
 			
+			if( is_owner ) Channel_UserModeAdd( chan, c, 'q' );
+			if( is_chanadmin ) Channel_UserModeAdd( chan, c, 'a' );
 			if( is_op ) Channel_UserModeAdd( chan, c, 'o' );
+			if( is_halfop ) Channel_UserModeAdd( chan, c, 'h' );
 			if( is_voiced ) Channel_UserModeAdd( chan, c, 'v' );
 
 			/* announce to channel... */
@@ -251,7 +258,10 @@ IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 			}
 
 			if( nick_out[0] != '\0' ) strlcat( nick_out, ",", sizeof( nick_out ));
+			if( is_owner ) strlcat( nick_out, "~", sizeof( nick_out ));
+			if( is_chanadmin ) strlcat( nick_out, "&", sizeof( nick_out ));
 			if( is_op ) strlcat( nick_out, "@", sizeof( nick_out ));
+			if( is_halfop ) strlcat( nick_out, "%", sizeof( nick_out ));
 			if( is_voiced ) strlcat( nick_out, "+", sizeof( nick_out ));
 			strlcat( nick_out, ptr, sizeof( nick_out ));
 		}

@@ -1366,7 +1366,7 @@ Count_Connections(ng_ipaddr_t *a)
  * @returns	Accepted socket descriptor or -1 on error.
  */
 static int
-New_Connection(int Sock, bool IsSSL)
+New_Connection(int Sock, UNUSED bool IsSSL)
 {
 #ifdef TCPWRAP
 	struct request_info req;

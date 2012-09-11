@@ -548,7 +548,7 @@ test -n "$CFLAGS_END" && CFLAGS="$CFLAGS $CFLAGS_END"
 
 # -- Generate files --
 
-AC_OUTPUT([ \
+AC_CONFIG_FILES([ \
 	Makefile \
 	contrib/Anope/Makefile \
 	contrib/Debian/Makefile \
@@ -566,6 +566,8 @@ AC_OUTPUT([ \
 	src/testsuite/Makefile \
 	src/tool/Makefile \
 ])
+
+AC_OUTPUT
 
 type dpkg >/dev/null 2>&1
 if test $? -eq 0; then

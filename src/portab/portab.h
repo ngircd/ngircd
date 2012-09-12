@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2010 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2012 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -120,16 +120,16 @@ typedef unsigned char bool;
 
 /* target constants  */
 
-#ifndef TARGET_OS
-#define TARGET_OS "unknown"
+#ifndef HOST_OS
+#define HOST_OS "unknown"
 #endif
 
-#ifndef TARGET_CPU
-#define TARGET_CPU "unknown"
+#ifndef HOST_CPU
+#define HOST_CPU "unknown"
 #endif
 
-#ifndef TARGET_VENDOR
-#define TARGET_VENDOR "unknown"
+#ifndef HOST_VENDOR
+#define HOST_VENDOR "unknown"
 #endif
 
 

@@ -405,11 +405,11 @@ Fill_Version( void )
 	if( NGIRCd_VersionAddition[0] )
 		strlcat( NGIRCd_VersionAddition, "-", sizeof( NGIRCd_VersionAddition ));
 
-	strlcat( NGIRCd_VersionAddition, TARGET_CPU, sizeof( NGIRCd_VersionAddition ));
+	strlcat( NGIRCd_VersionAddition, HOST_CPU, sizeof( NGIRCd_VersionAddition ));
 	strlcat( NGIRCd_VersionAddition, "/", sizeof( NGIRCd_VersionAddition ));
-	strlcat( NGIRCd_VersionAddition, TARGET_VENDOR, sizeof( NGIRCd_VersionAddition ));
+	strlcat( NGIRCd_VersionAddition, HOST_VENDOR, sizeof( NGIRCd_VersionAddition ));
 	strlcat( NGIRCd_VersionAddition, "/", sizeof( NGIRCd_VersionAddition ));
-	strlcat( NGIRCd_VersionAddition, TARGET_OS, sizeof( NGIRCd_VersionAddition ));
+	strlcat( NGIRCd_VersionAddition, HOST_OS, sizeof( NGIRCd_VersionAddition ));
 
 	snprintf(NGIRCd_Version, sizeof NGIRCd_Version, "%s %s-%s",
 		 PACKAGE_NAME, PACKAGE_VERSION, NGIRCd_VersionAddition);

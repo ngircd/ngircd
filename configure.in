@@ -179,7 +179,8 @@ AC_CHECK_FUNCS([ \
 
 x_syslog_on=no
 AC_ARG_WITH(syslog,
-	[  --without-syslog        disable syslog (autodetected by default)],
+	AS_HELP_STRING([--without-syslog],
+		       [disable syslog (autodetected by default)]),
 	[	if test "$withval" != "no"; then
 			if test "$withval" != "yes"; then
 				CFLAGS="-I$withval/include $CFLAGS"
@@ -206,7 +207,8 @@ fi
 
 x_zlib_on=no
 AC_ARG_WITH(zlib,
-	[  --without-zlib          disable zlib compression (autodetected by default)],
+	AS_HELP_STRING([--without-zlib],
+		       [disable zlib compression (autodetected by default)]),
 	[	if test "$withval" != "no"; then
 			if test "$withval" != "yes"; then
 				CFLAGS="-I$withval/include $CFLAGS"
@@ -233,7 +235,8 @@ fi
 x_io_backend=none
 
 AC_ARG_WITH(select,
-	[  --without-select        disable select IO support (autodetected by default)],
+	AS_HELP_STRING([--without-select],
+		       [disable select IO support (autodetected by default)]),
 	[	if test "$withval" != "no"; then
 			if test "$withval" != "yes"; then
 				CFLAGS="-I$withval/include $CFLAGS"
@@ -251,7 +254,8 @@ AC_ARG_WITH(select,
 )
 
 AC_ARG_WITH(poll,
-	[  --without-poll          disable poll support (autodetected by default)],
+	AS_HELP_STRING([--without-poll],
+		       [disable poll support (autodetected by default)]),
 	[	if test "$withval" != "no"; then
 			if test "$withval" != "yes"; then
 				CFLAGS="-I$withval/include $CFLAGS"
@@ -277,7 +281,8 @@ AC_ARG_WITH(poll,
 )
 
 AC_ARG_WITH(devpoll,
-	[  --without-devpoll       disable /dev/poll IO support (autodetected by default)],
+	AS_HELP_STRING([--without-devpoll],
+		       [disable /dev/poll IO support (autodetected by default)]),
 	[	if test "$withval" != "no"; then
 			if test "$withval" != "yes"; then
 				CFLAGS="-I$withval/include $CFLAGS"
@@ -294,7 +299,8 @@ AC_ARG_WITH(devpoll,
 )
 
 AC_ARG_WITH(epoll,
-	[  --without-epoll         disable epoll IO support (autodetected by default)],
+	AS_HELP_STRING([--without-epoll],
+		       [disable epoll IO support (autodetected by default)]),
 	[	if test "$withval" != "no"; then
 			if test "$withval" != "yes"; then
 				CFLAGS="-I$withval/include $CFLAGS"
@@ -312,7 +318,8 @@ AC_ARG_WITH(epoll,
 )
 
 AC_ARG_WITH(kqueue,
-	[  --without-kqueue        disable kqueue IO support (autodetected by default)],
+	AS_HELP_STRING([--without-kqueue],
+		       [disable kqueue IO support (autodetected by default)]),
 	[	if test "$withval" != "no"; then
 			if test "$withval" != "yes"; then
 				CFLAGS="-I$withval/include $CFLAGS"
@@ -352,7 +359,8 @@ fi
 # use SSL?
 
 AC_ARG_WITH(openssl,
-	[  --with-openssl          enable SSL support using OpenSSL],
+	AS_HELP_STRING([--with-openssl],
+		       [enable SSL support using OpenSSL]),
 	[	if test "$withval" != "no"; then
 			if test "$withval" != "yes"; then
 				CFLAGS="-I$withval/include $CFLAGS"
@@ -369,7 +377,8 @@ AC_ARG_WITH(openssl,
 )
 
 AC_ARG_WITH(gnutls,
-	[  --with-gnutls           enable SSL support using gnutls],
+	AS_HELP_STRING([--with-gnutls],
+		       [enable SSL support using gnutls]),
 	[	if test "$withval" != "no"; then
 			if test "$withval" != "yes"; then
 				CFLAGS="-I$withval/include $CFLAGS"
@@ -399,7 +408,8 @@ fi
 
 x_tcpwrap_on=no
 AC_ARG_WITH(tcp-wrappers,
-	[  --with-tcp-wrappers     enable TCP wrappers support],
+	AS_HELP_STRING([--with-tcp-wrappers],
+		       [enable TCP wrappers support]),
 	[	if test "$withval" != "no"; then
 			if test "$withval" != "yes"; then
 				CFLAGS="-I$withval/include $CFLAGS"
@@ -430,7 +440,8 @@ int deny_severity = 0;
 
 x_identauth_on=no
 AC_ARG_WITH(ident,
-	[  --with-ident            enable "IDENT" ("AUTH") protocol support],
+	AS_HELP_STRING([--with-ident],
+		       [enable "IDENT" ("AUTH") protocol support]),
 	[	if test "$withval" != "no"; then
 			if test "$withval" != "yes"; then
 				CFLAGS="-I$withval/include $CFLAGS"
@@ -453,7 +464,8 @@ fi
 
 x_pam_on=no
 AC_ARG_WITH(pam,
-	[  --with-pam              enable user authentication using PAM],
+	AS_HELP_STRING([--with-pam],
+		       [enable user authentication using PAM]),
 	[	if test "$withval" != "no"; then
 			if test "$withval" != "yes"; then
 				CFLAGS="-I$withval/include $CFLAGS"
@@ -480,7 +492,8 @@ fi
 
 x_ircplus_on=yes
 AC_ARG_ENABLE(ircplus,
-	[  --disable-ircplus       disable IRC+ protocol],
+	AS_HELP_STRING([--disable-ircplus],
+		       [disable IRC+ protocol]),
 	if test "$enableval" = "no"; then x_ircplus_on=no; fi
 )
 if test "$x_ircplus_on" = "yes"; then
@@ -490,7 +503,8 @@ fi
 # enable support for IPv6?
 x_ipv6_on=no
 AC_ARG_ENABLE(ipv6,
-	[  --enable-ipv6           enable IPv6 protocol support],
+	AS_HELP_STRING([--enable-ipv6],
+		       [enable IPv6 protocol support]),
 	if test "$enableval" = "yes"; then x_ipv6_on=yes; fi
 )
 if test "$x_ipv6_on" = "yes"; then
@@ -506,7 +520,8 @@ fi
 
 x_sniffer_on=no; x_debug_on=no
 AC_ARG_ENABLE(sniffer,
-	[  --enable-sniffer        enable IRC traffic sniffer (enables debug mode)],
+	AS_HELP_STRING([--enable-sniffer],
+		       [enable IRC traffic sniffer (enables debug mode)]),
 	if test "$enableval" = "yes"; then
 		AC_DEFINE(SNIFFER, 1)
 		x_sniffer_on=yes; x_debug_on=yes
@@ -516,7 +531,8 @@ AC_ARG_ENABLE(sniffer,
 # enable additional debugging code?
 
 AC_ARG_ENABLE(debug,
-	[  --enable-debug          show additional debug output],
+	AS_HELP_STRING([--enable-debug],
+		       [show additional debug output]),
 	if test "$enableval" = "yes"; then x_debug_on=yes; fi
 )
 if test "$x_debug_on" = "yes"; then
@@ -529,7 +545,8 @@ fi
 
 x_strict_rfc_on=no
 AC_ARG_ENABLE(strict-rfc,
-	[  --enable-strict-rfc     strict RFC conformance -- may break clients!],
+	AS_HELP_STRING([--enable-strict-rfc],
+		       [strict RFC conformance -- may break clients!]),
 	if test "$enableval" = "yes"; then
 		AC_DEFINE(STRICT_RFC, 1)
 		x_strict_rfc_on=yes

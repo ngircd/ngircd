@@ -113,7 +113,7 @@ AC_CHECK_HEADERS([ \
 	],,AC_MSG_ERROR([required C header missing!]))
 
 # Optional header files
-AC_CHECK_HEADERS([ \
+AC_CHECK_HEADERS_ONCE([ \
 	arpa/inet.h inttypes.h malloc.h netinet/ip.h stdbool.h stddef.h \
 	stdint.h varargs.h \
 	])
@@ -176,7 +176,7 @@ AC_CHECK_FUNCS([ \
 	AC_MSG_ERROR([required function missing!]))
 
 # Optional functions
-AC_CHECK_FUNCS([ \
+AC_CHECK_FUNCS_ONCE([ \
 	gai_strerror getaddrinfo getnameinfo inet_aton sigaction sigprocmask \
 	snprintf vsnprintf strdup strlcpy strlcat strtok_r waitpid])
 

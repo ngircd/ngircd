@@ -147,11 +147,18 @@ AC_CHECK_MEMBER([struct sockaddr_in.sin_len], AC_DEFINE(HAVE_sockaddr_in_len),,
 
 # -- Libraries --
 
-# A/UX needs this.
-AC_CHECK_LIB(UTIL,memmove)
-# needed on solaris. GNU libc also has a libnsl, but we do not need it.
-AC_SEARCH_LIBS(gethostbyname,nsl)
-AC_CHECK_LIB(socket,bind)
+# memmove: A/UX libUTIL
+AC_SEARCH_LIBS([memmove], [UTIL], [], [
+	AC_MSG_ERROR([unable to find the memmove() function])
+])
+# gethostbyname: Solaris libnsl
+AC_SEARCH_LIBS([gethostbyname], [nsl], [], [
+	AC_MSG_ERROR([unable to find the gethostbyname() function])
+])
+# bind: SVR4 libsocket
+AC_SEARCH_LIBS([bind], [socket], [], [
+	AC_MSG_ERROR([unable to find the bind() function])
+])
 
 # -- Functions --
 
@@ -187,15 +194,12 @@ AC_ARG_WITH(syslog,
 				CPPFLAGS="-I$withval/include $CPPFLAGS"
 				LDFLAGS="-L$withval/lib $LDFLAGS"
 			fi
-			AC_CHECK_LIB(be, syslog)
-			AC_CHECK_FUNCS(syslog, x_syslog_on=yes,
+			AC_SEARCH_LIBS([syslog], [be], [x_syslog_on=yes], [
 				AC_MSG_ERROR([Can't enable syslog!])
-			)
+			])
 		fi
 	],
-	[
-		AC_CHECK_LIB(be, syslog)
-		AC_CHECK_FUNCS(syslog, x_syslog_on=yes)
+	[	AC_SEARCH_LIBS([syslog], [be], [x_syslog_on=yes])
 	]
 )
 if test "$x_syslog_on" = "yes"; then

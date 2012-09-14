@@ -418,12 +418,15 @@ IRC_USER(CLIENT * Client, REQUEST * Req)
 						  Client_ID(Client),
 						  Req->command);
 
-		/* User name: only alphanumeric characters are allowed! */
+		/* User name: only alphanumeric characters and limited
+		   punctuation is allowed.*/
 		ptr = Req->argv[0];
 		while (*ptr) {
 			if ((*ptr < '0' || *ptr > '9') &&
 			    (*ptr < 'A' || *ptr > 'Z') &&
-			    (*ptr < 'a' || *ptr > 'z')) {
+			    (*ptr < 'a' || *ptr > 'z') &&
+			    (*ptr != '+') && (*ptr != '-') &&
+			    (*ptr != '.') && (*ptr != '_')) {
 				Conn_Close(Client_Conn(Client), NULL,
 					   "Invalid user name", true);
 				return DISCONNECTED;

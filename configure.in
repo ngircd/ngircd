@@ -163,8 +163,6 @@ AC_SEARCH_LIBS([bind], [socket], [], [
 # -- Functions --
 
 AC_FUNC_FORK
-AC_FUNC_MALLOC
-AC_FUNC_REALLOC
 AC_FUNC_STRFTIME
 
 # Required functions

@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2011 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2012 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,6 +51,9 @@
 /* Define if PAM should be used */
 #define PAM 1
 
+/* Define if libiconv can be used, e.g. for CHARCONV */
+#define ICONV 1
+
 /* -- Supported features -- */
 
 /* Define if SSP C support is enabled. */
@@ -76,6 +79,8 @@
 
 /* Define to 1 if you have the `gai_strerror' function. */
 #define HAVE_GAI_STRERROR 1
+/* Define to 1 if you have the `iconv_open' function. */
+#define HAVE_ICONV_OPEN 1
 /* Define to 1 if you have the `kqueue' function. */
 #define HAVE_KQUEUE 1
 /* Define to 1 if you have the `inet_ntoa' function. */

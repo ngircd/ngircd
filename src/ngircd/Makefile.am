@@ -27,6 +27,7 @@ ngircd_SOURCES = \
 	client-cap.c \
 	conf.c \
 	conn.c \
+	conn-encoding.c \
 	conn-func.c \
 	conn-ssl.c \
 	conn-zip.c \
@@ -35,6 +36,7 @@ ngircd_SOURCES = \
 	irc.c \
 	irc-cap.c \
 	irc-channel.c \
+	irc-encoding.c \
 	irc-info.c \
 	irc-login.c \
 	irc-mode.c \
@@ -68,6 +70,7 @@ noinst_HEADERS = \
 	conf.h \
 	conf-ssl.h \
 	conn.h \
+	conn-encoding.h \
 	conn-func.h \
 	conn-ssl.h \
 	conn-zip.h \
@@ -77,6 +80,7 @@ noinst_HEADERS = \
 	irc.h \
 	irc-cap.h \
 	irc-channel.h \
+	irc-encoding.h \
 	irc-info.h \
 	irc-login.h \
 	irc-mode.h \

@@ -54,6 +54,10 @@ typedef int CONN_ID;
 #include "tool.h"
 #include "ng_ipaddr.h"
 
+#ifdef ICONV
+# include <iconv.h>
+#endif
+
 #ifdef ZLIB
 #include <zlib.h>
 typedef struct _ZipData
@@ -94,6 +98,10 @@ typedef struct _Connection
 #endif
 #ifndef STRICT_RFC
 	long auth_ping;			/** PING response expected on login */
+#endif
+#ifdef ICONV
+	iconv_t iconv_from;		/** iconv: convert from client to server */
+	iconv_t iconv_to;		/** iconv: convert from server to client */
 #endif
 } CONNECTION;
 

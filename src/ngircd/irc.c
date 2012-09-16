@@ -25,6 +25,7 @@
 #include "conn-func.h"
 #include "conf.h"
 #include "channel.h"
+#include "conn-encoding.h"
 #include "defines.h"
 #include "irc-write.h"
 #include "log.h"
@@ -359,6 +360,7 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 	CHANNEL *chan;
 	char *currentTarget = Req->argv[0];
 	char *lastCurrentTarget = NULL;
+	char *message = NULL;
 
 	assert(Client != NULL);
 	assert(Req != NULL);
@@ -389,6 +391,13 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 	if (!from)
 		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
 					  Client_ID(Client), Req->prefix);
+
+#ifdef ICONV
+	if (Client_Conn(Client) > NONE)
+		message = Conn_EncodingFrom(Client_Conn(Client), Req->argv[1]);
+	else
+#endif
+		message = Req->argv[1];
 
 	/* handle msgtarget = msgto *("," msgto) */
 	currentTarget = strtok_r(currentTarget, ",", &lastCurrentTarget);
@@ -523,12 +532,12 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 			}
 			if (!IRC_WriteStrClientPrefix(cl, from, "%s %s :%s",
 						      Req->command, Client_ID(cl),
-						      Req->argv[1]))
+						      message))
 				return DISCONNECTED;
 		} else if (ForceType != CLIENT_SERVICE
 			   && (chan = Channel_Search(currentTarget))) {
 			if (!Channel_Write(chan, from, Client, Req->command,
-					   SendErrors, Req->argv[1]))
+					   SendErrors, message))
 					return DISCONNECTED;
 		} else if (ForceType != CLIENT_SERVICE
 			/* $#: server/target mask, RFC 2812, sec. 3.3.1 */
@@ -536,7 +545,7 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 			   && strchr(currentTarget, '.')) {
 			/* targetmask */
 			if (!Send_Message_Mask(from, Req->command, currentTarget,
-					       Req->argv[1], SendErrors))
+					       message, SendErrors))
 				return DISCONNECTED;
 		} else {
 			if (!SendErrors)

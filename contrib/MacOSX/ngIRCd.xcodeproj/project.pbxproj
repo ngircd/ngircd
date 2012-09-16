@@ -36,6 +36,9 @@
 		FA322DBE0CEF7766001761B3 /* tool.c in Sources */ = {isa = PBXBuildFile; fileRef = FA322D330CEF74B1001761B3 /* tool.c */; };
 		FA322DC10CEF77CB001761B3 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FA322DC00CEF77CB001761B3 /* libz.dylib */; };
 		FA407F2E0DB159F400271AF1 /* ng_ipaddr.c in Sources */ = {isa = PBXBuildFile; fileRef = FA407F2C0DB159F400271AF1 /* ng_ipaddr.c */; };
+		FA6BBC631605F0AC0004247A /* conn-encoding.c in Sources */ = {isa = PBXBuildFile; fileRef = FA6BBC5F1605F0AB0004247A /* conn-encoding.c */; };
+		FA6BBC641605F0AC0004247A /* irc-encoding.c in Sources */ = {isa = PBXBuildFile; fileRef = FA6BBC611605F0AC0004247A /* irc-encoding.c */; };
+		FA6BBC661605F6D60004247A /* libiconv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FA6BBC651605F6D60004247A /* libiconv.dylib */; };
 		FA85178C0FA061EC006A1F5A /* op.c in Sources */ = {isa = PBXBuildFile; fileRef = FA85178B0FA061EC006A1F5A /* op.c */; };
 		FA99428C10E82A27007F27ED /* proc.c in Sources */ = {isa = PBXBuildFile; fileRef = FA99428B10E82A27007F27ED /* proc.c */; };
 		FAA3D27B0F139CDC00B2447E /* conn-ssl.c in Sources */ = {isa = PBXBuildFile; fileRef = FAA3D2790F139CDC00B2447E /* conn-ssl.c */; };
@@ -203,6 +206,11 @@
 		FA4B08E613E7F91700765BA3 /* ngIRCd-Logo.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = "ngIRCd-Logo.gif"; sourceTree = "<group>"; };
 		FA4B08E713E7F91700765BA3 /* ngircd-redhat.init */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "ngircd-redhat.init"; sourceTree = "<group>"; };
 		FA4B08E813E7F91C00765BA3 /* platformtest.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = platformtest.sh; sourceTree = "<group>"; };
+		FA6BBC5F1605F0AB0004247A /* conn-encoding.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "conn-encoding.c"; sourceTree = "<group>"; };
+		FA6BBC601605F0AC0004247A /* conn-encoding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "conn-encoding.h"; sourceTree = "<group>"; };
+		FA6BBC611605F0AC0004247A /* irc-encoding.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "irc-encoding.c"; sourceTree = "<group>"; };
+		FA6BBC621605F0AC0004247A /* irc-encoding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "irc-encoding.h"; sourceTree = "<group>"; };
+		FA6BBC651605F6D60004247A /* libiconv.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libiconv.dylib; path = ../../../../../../../usr/lib/libiconv.dylib; sourceTree = "<group>"; };
 		FA77849A133FB9FF00740057 /* sample-ngircd.conf.tmpl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "sample-ngircd.conf.tmpl"; sourceTree = "<group>"; };
 		FA85178A0FA061EC006A1F5A /* op.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = op.h; sourceTree = "<group>"; };
 		FA85178B0FA061EC006A1F5A /* op.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = op.c; sourceTree = "<group>"; };
@@ -258,6 +266,7 @@
 			files = (
 				FA322DC10CEF77CB001761B3 /* libz.dylib in Frameworks */,
 				FA2D567B11EA1AB300D37A35 /* libpam.dylib in Frameworks */,
+				FA6BBC661605F6D60004247A /* libiconv.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -283,8 +292,9 @@
 				FA322D600CEF750F001761B3 /* configure.in */,
 				FA322D630CEF750F001761B3 /* Makefile.am */,
 				1AB674ADFE9D54B511CA2CBB /* Products */,
-				FA322DC00CEF77CB001761B3 /* libz.dylib */,
+				FA6BBC651605F6D60004247A /* libiconv.dylib */,
 				FA2D567A11EA1AB300D37A35 /* libpam.dylib */,
+				FA322DC00CEF77CB001761B3 /* libz.dylib */,
 			);
 			name = ngIRCd;
 			sourceTree = "<group>";
@@ -328,12 +338,14 @@
 				FA322CDF0CEF74B1001761B3 /* conf.c */,
 				FA322CE00CEF74B1001761B3 /* conf.h */,
 				FAA3D2780F139CDC00B2447E /* conf-ssl.h */,
+				FA322CE50CEF74B1001761B3 /* conn.c */,
+				FA322CE60CEF74B1001761B3 /* conn.h */,
+				FA6BBC5F1605F0AB0004247A /* conn-encoding.c */,
+				FA6BBC601605F0AC0004247A /* conn-encoding.h */,
 				FA322CE10CEF74B1001761B3 /* conn-func.c */,
 				FA322CE20CEF74B1001761B3 /* conn-func.h */,
 				FA322CE30CEF74B1001761B3 /* conn-zip.c */,
 				FA322CE40CEF74B1001761B3 /* conn-zip.h */,
-				FA322CE50CEF74B1001761B3 /* conn.c */,
-				FA322CE60CEF74B1001761B3 /* conn.h */,
 				FAA3D2790F139CDC00B2447E /* conn-ssl.c */,
 				FAA3D27A0F139CDC00B2447E /* conn-ssl.h */,
 				FA322CE70CEF74B1001761B3 /* defines.h */,
@@ -341,10 +353,14 @@
 				FA322CE90CEF74B1001761B3 /* hash.h */,
 				FA322CEA0CEF74B1001761B3 /* io.c */,
 				FA322CEB0CEF74B1001761B3 /* io.h */,
+				FA322CFC0CEF74B1001761B3 /* irc.c */,
+				FA322CFD0CEF74B1001761B3 /* irc.h */,
 				FAD5853315271AB800328741 /* irc-cap.c */,
 				FAD5853415271AB800328741 /* irc-cap.h */,
 				FA322CEC0CEF74B1001761B3 /* irc-channel.c */,
 				FA322CED0CEF74B1001761B3 /* irc-channel.h */,
+				FA6BBC611605F0AC0004247A /* irc-encoding.c */,
+				FA6BBC621605F0AC0004247A /* irc-encoding.h */,
 				FA322CEE0CEF74B1001761B3 /* irc-info.c */,
 				FA322CEF0CEF74B1001761B3 /* irc-info.h */,
 				FA322CF00CEF74B1001761B3 /* irc-login.c */,
@@ -359,8 +375,6 @@
 				FA322CF90CEF74B1001761B3 /* irc-server.h */,
 				FA322CFA0CEF74B1001761B3 /* irc-write.c */,
 				FA322CFB0CEF74B1001761B3 /* irc-write.h */,
-				FA322CFC0CEF74B1001761B3 /* irc.c */,
-				FA322CFD0CEF74B1001761B3 /* irc.h */,
 				FA322CFE0CEF74B1001761B3 /* lists.c */,
 				FA322CFF0CEF74B1001761B3 /* lists.h */,
 				FA322D000CEF74B1001761B3 /* log.c */,
@@ -750,6 +764,8 @@
 				FAD5853215271AAB00328741 /* client-cap.c in Sources */,
 				FAD5853515271AB800328741 /* irc-cap.c in Sources */,
 				FAD5853815272C2600328741 /* login.c in Sources */,
+				FA6BBC631605F0AC0004247A /* conn-encoding.c in Sources */,
+				FA6BBC641605F0AC0004247A /* irc-encoding.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

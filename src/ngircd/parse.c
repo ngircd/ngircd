@@ -38,6 +38,7 @@
 #include "irc.h"
 #include "irc-cap.h"
 #include "irc-channel.h"
+#include "irc-encoding.h"
 #include "irc-info.h"
 #include "irc-login.h"
 #include "irc-mode.h"
@@ -114,6 +115,9 @@ static COMMAND My_Commands[] =
 
 #ifdef IRCPLUS
 	{ "CHANINFO", IRC_CHANINFO, CLIENT_SERVER, 0, 0, 0 },
+# ifdef ICONV
+	{ "CHARCONV", IRC_CHARCONV, CLIENT_USER, 0, 0, 0 },
+# endif
 #endif
 
 #ifndef STRICT_RFC

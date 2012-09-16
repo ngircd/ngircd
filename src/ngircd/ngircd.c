@@ -347,70 +347,99 @@ main(int argc, const char *argv[])
  * line switch.
  */
 static void
-Fill_Version( void )
+Fill_Version(void)
 {
 	NGIRCd_VersionAddition[0] = '\0';
 
-#ifdef SYSLOG
-	strlcpy( NGIRCd_VersionAddition, "SYSLOG", sizeof NGIRCd_VersionAddition );
-#endif
-#ifdef ZLIB
-	if( NGIRCd_VersionAddition[0] )
-		strlcat( NGIRCd_VersionAddition, "+", sizeof NGIRCd_VersionAddition );
-	strlcat( NGIRCd_VersionAddition, "ZLIB", sizeof NGIRCd_VersionAddition );
-#endif
-#ifdef SSL_SUPPORT
-	if ( NGIRCd_VersionAddition[0] ) strlcat( NGIRCd_VersionAddition, "+", sizeof NGIRCd_VersionAddition );
-	strlcat( NGIRCd_VersionAddition, "SSL", sizeof NGIRCd_VersionAddition );
-#endif
-#ifdef TCPWRAP
-	if( NGIRCd_VersionAddition[0] )
-			strlcat( NGIRCd_VersionAddition, "+", sizeof NGIRCd_VersionAddition );
-	strlcat( NGIRCd_VersionAddition, "TCPWRAP", sizeof NGIRCd_VersionAddition );
+#ifdef DEBUG
+	if (NGIRCd_VersionAddition[0])
+		strlcat(NGIRCd_VersionAddition, "+",
+			sizeof NGIRCd_VersionAddition);
+	strlcat(NGIRCd_VersionAddition, "DEBUG",
+		sizeof NGIRCd_VersionAddition);
 #endif
 #ifdef IDENTAUTH
-	if( NGIRCd_VersionAddition[0] )
-		strlcat( NGIRCd_VersionAddition, "+", sizeof NGIRCd_VersionAddition );
-	strlcat( NGIRCd_VersionAddition, "IDENT", sizeof NGIRCd_VersionAddition );
-#endif
-#ifdef PAM
 	if (NGIRCd_VersionAddition[0])
-		strlcat(NGIRCd_VersionAddition, "+", sizeof NGIRCd_VersionAddition);
-	strlcat(NGIRCd_VersionAddition, "PAM", sizeof NGIRCd_VersionAddition);
-#endif
-#ifdef DEBUG
-	if( NGIRCd_VersionAddition[0] )
-		strlcat( NGIRCd_VersionAddition, "+", sizeof NGIRCd_VersionAddition );
-	strlcat( NGIRCd_VersionAddition, "DEBUG", sizeof NGIRCd_VersionAddition );
-#endif
-#ifdef SNIFFER
-	if( NGIRCd_VersionAddition[0] )
-		strlcat( NGIRCd_VersionAddition, "+", sizeof NGIRCd_VersionAddition );
-	strlcat( NGIRCd_VersionAddition, "SNIFFER", sizeof NGIRCd_VersionAddition );
-#endif
-#ifdef STRICT_RFC
-	if( NGIRCd_VersionAddition[0] )
-		strlcat( NGIRCd_VersionAddition, "+", sizeof NGIRCd_VersionAddition );
-	strlcat( NGIRCd_VersionAddition, "RFC", sizeof NGIRCd_VersionAddition );
-#endif
-#ifdef IRCPLUS
-	if( NGIRCd_VersionAddition[0] )
-		strlcat( NGIRCd_VersionAddition, "+", sizeof NGIRCd_VersionAddition );
-	strlcat( NGIRCd_VersionAddition, "IRCPLUS", sizeof NGIRCd_VersionAddition );
+		strlcat(NGIRCd_VersionAddition, "+",
+			sizeof NGIRCd_VersionAddition);
+	strlcat(NGIRCd_VersionAddition, "IDENT",
+		sizeof NGIRCd_VersionAddition);
 #endif
 #ifdef WANT_IPV6
 	if (NGIRCd_VersionAddition[0])
-		strlcat(NGIRCd_VersionAddition, "+", sizeof(NGIRCd_VersionAddition));
-	strlcat(NGIRCd_VersionAddition, "IPv6", sizeof(NGIRCd_VersionAddition));
+		strlcat(NGIRCd_VersionAddition, "+",
+			sizeof(NGIRCd_VersionAddition));
+	strlcat(NGIRCd_VersionAddition, "IPv6",
+		sizeof(NGIRCd_VersionAddition));
 #endif
-	if( NGIRCd_VersionAddition[0] )
-		strlcat( NGIRCd_VersionAddition, "-", sizeof( NGIRCd_VersionAddition ));
+#ifdef IRCPLUS
+	if (NGIRCd_VersionAddition[0])
+		strlcat(NGIRCd_VersionAddition, "+",
+			sizeof NGIRCd_VersionAddition);
+	strlcat(NGIRCd_VersionAddition, "IRCPLUS",
+		sizeof NGIRCd_VersionAddition);
+#endif
+#ifdef PAM
+	if (NGIRCd_VersionAddition[0])
+		strlcat(NGIRCd_VersionAddition, "+",
+			sizeof NGIRCd_VersionAddition);
+	strlcat(NGIRCd_VersionAddition, "PAM",
+		sizeof NGIRCd_VersionAddition);
+#endif
+#ifdef STRICT_RFC
+	if (NGIRCd_VersionAddition[0])
+		strlcat(NGIRCd_VersionAddition, "+",
+			sizeof NGIRCd_VersionAddition);
+	strlcat(NGIRCd_VersionAddition, "RFC",
+		sizeof NGIRCd_VersionAddition);
+#endif
+#ifdef SNIFFER
+	if (NGIRCd_VersionAddition[0])
+		strlcat(NGIRCd_VersionAddition, "+",
+			sizeof NGIRCd_VersionAddition);
+	strlcat(NGIRCd_VersionAddition, "SNIFFER",
+		sizeof NGIRCd_VersionAddition);
+#endif
+#ifdef SSL_SUPPORT
+	if (NGIRCd_VersionAddition[0])
+		strlcat(NGIRCd_VersionAddition, "+",
+			sizeof NGIRCd_VersionAddition);
+	strlcat(NGIRCd_VersionAddition, "SSL",
+		sizeof NGIRCd_VersionAddition);
+#endif
+#ifdef SYSLOG
+	if (NGIRCd_VersionAddition[0])
+		strlcat(NGIRCd_VersionAddition, "+",
+			sizeof NGIRCd_VersionAddition);
+	strlcat(NGIRCd_VersionAddition, "SYSLOG",
+		sizeof NGIRCd_VersionAddition);
+#endif
+#ifdef TCPWRAP
+	if (NGIRCd_VersionAddition[0])
+		strlcat(NGIRCd_VersionAddition, "+",
+			sizeof NGIRCd_VersionAddition);
+	strlcat(NGIRCd_VersionAddition, "TCPWRAP",
+		sizeof NGIRCd_VersionAddition);
+#endif
+#ifdef ZLIB
+	if (NGIRCd_VersionAddition[0])
+		strlcat(NGIRCd_VersionAddition, "+",
+			sizeof NGIRCd_VersionAddition);
+	strlcat(NGIRCd_VersionAddition, "ZLIB",
+		sizeof NGIRCd_VersionAddition);
+#endif
+	if (NGIRCd_VersionAddition[0])
+		strlcat(NGIRCd_VersionAddition, "-",
+			sizeof(NGIRCd_VersionAddition));
 
-	strlcat( NGIRCd_VersionAddition, HOST_CPU, sizeof( NGIRCd_VersionAddition ));
-	strlcat( NGIRCd_VersionAddition, "/", sizeof( NGIRCd_VersionAddition ));
-	strlcat( NGIRCd_VersionAddition, HOST_VENDOR, sizeof( NGIRCd_VersionAddition ));
-	strlcat( NGIRCd_VersionAddition, "/", sizeof( NGIRCd_VersionAddition ));
-	strlcat( NGIRCd_VersionAddition, HOST_OS, sizeof( NGIRCd_VersionAddition ));
+	strlcat(NGIRCd_VersionAddition, HOST_CPU,
+		sizeof(NGIRCd_VersionAddition));
+	strlcat(NGIRCd_VersionAddition, "/", sizeof(NGIRCd_VersionAddition));
+	strlcat(NGIRCd_VersionAddition, HOST_VENDOR,
+		sizeof(NGIRCd_VersionAddition));
+	strlcat(NGIRCd_VersionAddition, "/", sizeof(NGIRCd_VersionAddition));
+	strlcat(NGIRCd_VersionAddition, HOST_OS,
+		sizeof(NGIRCd_VersionAddition));
 
 	snprintf(NGIRCd_Version, sizeof NGIRCd_Version, "%s %s-%s",
 		 PACKAGE_NAME, PACKAGE_VERSION, NGIRCd_VersionAddition);

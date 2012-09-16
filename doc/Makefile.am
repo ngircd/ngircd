@@ -10,7 +10,7 @@
 #
 
 .tmpl:
-	sed \
+	$(AM_V_GEN)sed \
 	    -e s@:ETCDIR:@${sysconfdir}@ \
 	    <$< >$@
 

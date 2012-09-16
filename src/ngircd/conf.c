@@ -18,6 +18,7 @@
 
 #include "imp.h"
 #include <assert.h>
+#include <ctype.h>
 #include <errno.h>
 #ifdef PROTOTYPES
 #	include <stdarg.h>
@@ -34,9 +35,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#ifdef HAVE_CTYPE_H
-# include <ctype.h>
-#endif
 
 #include "array.h"
 #include "ngircd.h"

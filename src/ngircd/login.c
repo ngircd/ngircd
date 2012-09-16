@@ -163,8 +163,8 @@ Login_User_PostAuth(CLIENT *Client)
 		return false;
 	if (!IRC_WriteStrClient
 	    (Client, RPL_YOURHOST_MSG, Client_ID(Client),
-	     Client_ID(Client_ThisServer()), PACKAGE_VERSION, TARGET_CPU,
-	     TARGET_VENDOR, TARGET_OS))
+	     Client_ID(Client_ThisServer()), PACKAGE_VERSION, HOST_CPU,
+	     HOST_VENDOR, HOST_OS))
 		return false;
 	if (!IRC_WriteStrClient
 	    (Client, RPL_CREATED_MSG, Client_ID(Client), NGIRCd_StartStr))

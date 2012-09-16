@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001-2008 Alexander Barton <alex@barton.de>
+# Copyright (c)2001-2012 Alexander Barton (alex@barton.de) and Contributors
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -98,6 +98,12 @@ Notfound()
 	exit 1
 }
 
+Run()
+{
+	[ "$VERBOSE" = "1" ] && echo " - running \"$@\" ..."
+	$@
+}
+
 # Reset locale settings to suppress warning messages of Perl
 unset LC_ALL
 unset LANG
@@ -125,13 +131,13 @@ fi
 # specifies one:
 echo "Searching tools ..."
 [ -z "$ACLOCAL" ] && ACLOCAL=`Search aclocal 1`
-[ "$VERBOSE" = "1" ] && echo "ACLOCAL=$ACLOCAL"
+[ "$VERBOSE" = "1" ] && echo " - ACLOCAL=$ACLOCAL"
 [ -z "$AUTOHEADER" ] && AUTOHEADER=`Search autoheader 2`
-[ "$VERBOSE" = "1" ] && echo "AUTOHEADER=$AUTOHEADER"
+[ "$VERBOSE" = "1" ] && echo " - AUTOHEADER=$AUTOHEADER"
 [ -z "$AUTOMAKE" ] && AUTOMAKE=`Search automake 1`
-[ "$VERBOSE" = "1" ] && echo "AUTOMAKE=$AUTOMAKE"
+[ "$VERBOSE" = "1" ] && echo " - AUTOMAKE=$AUTOMAKE"
 [ -z "$AUTOCONF" ] && AUTOCONF=`Search autoconf 2`
-[ "$VERBOSE" = "1" ] && echo "AUTOCONF=$AUTOCONF"
+[ "$VERBOSE" = "1" ] && echo " - AUTOCONF=$AUTOCONF"
 
 # Call ./configure when parameters have been passed to this script and
 # GO isn't already defined.
@@ -147,10 +153,10 @@ export ACLOCAL AUTOHEADER AUTOMAKE AUTOCONF
 
 # Generate files
 echo "Generating files ..."
-$ACLOCAL && \
-	$AUTOHEADER && \
-	$AUTOMAKE --add-missing && \
-	$AUTOCONF --force
+Run $ACLOCAL && \
+	Run $AUTOCONF && \
+	Run $AUTOHEADER && \
+	Run $AUTOMAKE --add-missing --no-force
 
 if [ $? -eq 0 -a -x ./configure ]; then
 	# Success: if we got some parameters we call ./configure and pass

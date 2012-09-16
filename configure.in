@@ -13,39 +13,41 @@ define(VERSION_ID,esyscmd(git describe|sed -e 's/rel-//g'|sed -e 's/-/~/'|tr -d 
 
 # -- Initialisation --
 
-AC_PREREQ(2.50)
-AC_INIT(ngircd, VERSION_ID)
-AC_CONFIG_SRCDIR(src/ngircd/ngircd.c)
-AC_CANONICAL_TARGET
-AM_INIT_AUTOMAKE(1.6)
-AC_CONFIG_HEADER(src/config.h)
+AC_PREREQ([2.67])
+AC_INIT([ngIRCd], VERSION_ID,
+	[ngircd-ml@ngircd.barton.de], [ngircd], [http://ngircd.barton.de/])
+
+AC_CONFIG_SRCDIR([src/ngircd/ngircd.c])
+AC_CONFIG_HEADER([src/config.h])
+AC_CANONICAL_HOST
+
+AM_INIT_AUTOMAKE([1.11])
 
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 # -- Templates for config.h --
 
 AH_TEMPLATE([DEBUG], [Define if debug-mode should be enabled])
+AH_TEMPLATE([HAVE_sockaddr_in_len], [Define if sockaddr_in.sin_len exists])
 AH_TEMPLATE([HAVE_socklen_t], [Define if socklen_t exists])
+AH_TEMPLATE([IDENTAUTH], [Define if the server should do IDENT requests])
+AH_TEMPLATE([IRCPLUS], [Define if IRC+ protocol should be used])
+AH_TEMPLATE([PAM], [Define if PAM should be used])
 AH_TEMPLATE([SNIFFER], [Define if IRC sniffer should be enabled])
 AH_TEMPLATE([STRICT_RFC], [Define if ngIRCd should behave strict RFC compliant])
 AH_TEMPLATE([SYSLOG], [Define if syslog should be used for logging])
-AH_TEMPLATE([ZLIB], [Define if zlib compression should be enabled])
 AH_TEMPLATE([TCPWRAP], [Define if TCP wrappers should be used])
-AH_TEMPLATE([IRCPLUS], [Define if IRC+ protocol should be used])
 AH_TEMPLATE([WANT_IPV6], [Define if IPV6 protocol should be enabled])
-AH_TEMPLATE([IDENTAUTH], [Define if the server should do IDENT requests])
-AH_TEMPLATE([PAM], [Define if PAM should be used])
-AH_TEMPLATE([HAVE_sockaddr_in_len], [Define if sockaddr_in.sin_len exists])
+AH_TEMPLATE([ZLIB], [Define if zlib compression should be enabled])
 
-AH_TEMPLATE([TARGET_OS], [Target operating system name])
-AH_TEMPLATE([TARGET_VENDOR], [Target system vendor])
-AH_TEMPLATE([TARGET_CPU], [Target CPU name])
+AH_TEMPLATE([HOST_OS], [Target operating system name])
+AH_TEMPLATE([HOST_VENDOR], [Target system vendor])
+AH_TEMPLATE([HOST_CPU], [Target CPU name])
 
 # -- C Compiler --
 
 AC_PROG_CC
 AC_PROG_CC_STDC
-AC_C_PROTOTYPES
 
 # -- Helper programs --
 
@@ -57,9 +59,9 @@ AC_PROG_RANLIB
 
 # -- Compiler Features --
 
-AM_C_PROTOTYPES
 AC_C_CONST
 AC_C_INLINE
+AM_C_PROTOTYPES
 
 # -- Hard coded system and compiler dependencies/features/options ... --
 
@@ -85,7 +87,7 @@ if test "$GCC" = "yes"; then
 	GCC_STACK_PROTECT_CC
 fi
 
-case "$target_os" in
+case "$host_os" in
 	hpux*)
 		# This is HP/UX, we need to define _XOPEN_SOURCE_EXTENDED
 		# (tested with HP/UX 11.11)
@@ -101,28 +103,20 @@ CFLAGS="$CFLAGS -DSYSCONFDIR='\"\$(sysconfdir)\"'"
 # -- Headers --
 
 AC_HEADER_STDC
-AC_HEADER_TIME
 AC_HEADER_SYS_WAIT
+AC_HEADER_TIME
 
+# Required header files
 AC_CHECK_HEADERS([ \
-	ctype.h errno.h fcntl.h netdb.h netinet/in.h netinet/in_systm.h \
-	stdlib.h string.h strings.h sys/socket.h sys/time.h unistd.h \
+	fcntl.h netdb.h netinet/in.h netinet/in_systm.h stdlib.h string.h \
+	strings.h sys/socket.h sys/time.h unistd.h \
 	],,AC_MSG_ERROR([required C header missing!]))
 
-AC_CHECK_HEADERS([ \
-	arpa/inet.h ctype.h malloc.h netinet/ip.h stdbool.h stddef.h varargs.h \
-	],[],[],[[
-	#ifdef HAVE_SYS_TYPES_H
-		#include <sys/types.h>
-	#endif
-	#ifdef HAVE_SYS_SOCKET_H
-		#include <sys/socket.h>
-	#endif
-	#ifdef HAVE_NETINET_IN_H
-		#include <netinet/in.h>
-	#endif
-	]]
-)
+# Optional header files
+AC_CHECK_HEADERS_ONCE([ \
+	arpa/inet.h inttypes.h malloc.h netinet/ip.h stdbool.h stddef.h \
+	stdint.h varargs.h \
+	])
 
 # -- Datatypes --
 
@@ -139,33 +133,50 @@ AC_TRY_COMPILE([
 	AC_MSG_RESULT(no)
 ])
 
+AC_TYPE_PID_T
 AC_TYPE_SIGNAL
 AC_TYPE_SIZE_T
+AC_TYPE_SSIZE_T
+AC_TYPE_UID_T
+AC_TYPE_UINT16_T
+AC_TYPE_UINT32_T
+AC_TYPE_UINT8_T
 
 AC_CHECK_MEMBER([struct sockaddr_in.sin_len], AC_DEFINE(HAVE_sockaddr_in_len),,
  [#include <arpa/inet.h>])
 
 # -- Libraries --
 
-# A/UX needs this.
-AC_CHECK_LIB(UTIL,memmove)
-# needed on solaris. GNU libc also has a libnsl, but we do not need it.
-AC_SEARCH_LIBS(gethostbyname,nsl)
-AC_CHECK_LIB(socket,bind)
+# memmove: A/UX libUTIL
+AC_SEARCH_LIBS([memmove], [UTIL], [], [
+	AC_MSG_ERROR([unable to find the memmove() function])
+])
+# gethostbyname: Solaris libnsl
+AC_SEARCH_LIBS([gethostbyname], [nsl], [], [
+	AC_MSG_ERROR([unable to find the gethostbyname() function])
+])
+# bind: SVR4 libsocket
+AC_SEARCH_LIBS([bind], [socket], [], [
+	AC_MSG_ERROR([unable to find the bind() function])
+])
 
 # -- Functions --
 
 AC_FUNC_FORK
 AC_FUNC_STRFTIME
 
+# Required functions
 AC_CHECK_FUNCS([ \
-	bind gethostbyaddr gethostbyname gethostname inet_ntoa \
-	setsid setsockopt socket strcasecmp waitpid],,
+	alarm dup2 endpwent gethostbyaddr gethostbyname gethostname \
+	gettimeofday inet_ntoa memmove memset setsid socket strcasecmp \
+	strchr strcspn strerror strncasecmp strrchr strspn strstr \
+	],,
 	AC_MSG_ERROR([required function missing!]))
 
-AC_CHECK_FUNCS([ \
-	gai_strerror getaddrinfo getnameinfo inet_aton sigaction \
-	sigprocmask snprintf vsnprintf strdup strlcpy strlcat strtok_r])
+# Optional functions
+AC_CHECK_FUNCS_ONCE([ \
+	gai_strerror getaddrinfo getnameinfo inet_aton sigaction sigprocmask \
+	snprintf vsnprintf strdup strlcpy strlcat strtok_r waitpid])
 
 # -- Configuration options --
 
@@ -173,22 +184,20 @@ AC_CHECK_FUNCS([ \
 
 x_syslog_on=no
 AC_ARG_WITH(syslog,
-	[  --without-syslog        disable syslog (autodetected by default)],
+	AS_HELP_STRING([--without-syslog],
+		       [disable syslog (autodetected by default)]),
 	[	if test "$withval" != "no"; then
 			if test "$withval" != "yes"; then
 				CFLAGS="-I$withval/include $CFLAGS"
 				CPPFLAGS="-I$withval/include $CPPFLAGS"
 				LDFLAGS="-L$withval/lib $LDFLAGS"
 			fi
-			AC_CHECK_LIB(be, syslog)
-			AC_CHECK_FUNCS(syslog, x_syslog_on=yes,
+			AC_SEARCH_LIBS([syslog], [be], [x_syslog_on=yes], [
 				AC_MSG_ERROR([Can't enable syslog!])
-			)
+			])
 		fi
 	],
-	[
-		AC_CHECK_LIB(be, syslog)
-		AC_CHECK_FUNCS(syslog, x_syslog_on=yes)
+	[	AC_SEARCH_LIBS([syslog], [be], [x_syslog_on=yes])
 	]
 )
 if test "$x_syslog_on" = "yes"; then
@@ -200,7 +209,8 @@ fi
 
 x_zlib_on=no
 AC_ARG_WITH(zlib,
-	[  --without-zlib          disable zlib compression (autodetected by default)],
+	AS_HELP_STRING([--without-zlib],
+		       [disable zlib compression (autodetected by default)]),
 	[	if test "$withval" != "no"; then
 			if test "$withval" != "yes"; then
 				CFLAGS="-I$withval/include $CFLAGS"
@@ -227,7 +237,8 @@ fi
 x_io_backend=none
 
 AC_ARG_WITH(select,
-	[  --without-select        disable select IO support (autodetected by default)],
+	AS_HELP_STRING([--without-select],
+		       [disable select IO support (autodetected by default)]),
 	[	if test "$withval" != "no"; then
 			if test "$withval" != "yes"; then
 				CFLAGS="-I$withval/include $CFLAGS"
@@ -245,7 +256,8 @@ AC_ARG_WITH(select,
 )
 
 AC_ARG_WITH(poll,
-	[  --without-poll          disable poll support (autodetected by default)],
+	AS_HELP_STRING([--without-poll],
+		       [disable poll support (autodetected by default)]),
 	[	if test "$withval" != "no"; then
 			if test "$withval" != "yes"; then
 				CFLAGS="-I$withval/include $CFLAGS"
@@ -271,7 +283,8 @@ AC_ARG_WITH(poll,
 )
 
 AC_ARG_WITH(devpoll,
-	[  --without-devpoll       disable /dev/poll IO support (autodetected by default)],
+	AS_HELP_STRING([--without-devpoll],
+		       [disable /dev/poll IO support (autodetected by default)]),
 	[	if test "$withval" != "no"; then
 			if test "$withval" != "yes"; then
 				CFLAGS="-I$withval/include $CFLAGS"
@@ -288,7 +301,8 @@ AC_ARG_WITH(devpoll,
 )
 
 AC_ARG_WITH(epoll,
-	[  --without-epoll         disable epoll IO support (autodetected by default)],
+	AS_HELP_STRING([--without-epoll],
+		       [disable epoll IO support (autodetected by default)]),
 	[	if test "$withval" != "no"; then
 			if test "$withval" != "yes"; then
 				CFLAGS="-I$withval/include $CFLAGS"
@@ -306,7 +320,8 @@ AC_ARG_WITH(epoll,
 )
 
 AC_ARG_WITH(kqueue,
-	[  --without-kqueue        disable kqueue IO support (autodetected by default)],
+	AS_HELP_STRING([--without-kqueue],
+		       [disable kqueue IO support (autodetected by default)]),
 	[	if test "$withval" != "no"; then
 			if test "$withval" != "yes"; then
 				CFLAGS="-I$withval/include $CFLAGS"
@@ -346,7 +361,8 @@ fi
 # use SSL?
 
 AC_ARG_WITH(openssl,
-	[  --with-openssl          enable SSL support using OpenSSL],
+	AS_HELP_STRING([--with-openssl],
+		       [enable SSL support using OpenSSL]),
 	[	if test "$withval" != "no"; then
 			if test "$withval" != "yes"; then
 				CFLAGS="-I$withval/include $CFLAGS"
@@ -363,7 +379,8 @@ AC_ARG_WITH(openssl,
 )
 
 AC_ARG_WITH(gnutls,
-	[  --with-gnutls           enable SSL support using gnutls],
+	AS_HELP_STRING([--with-gnutls],
+		       [enable SSL support using gnutls]),
 	[	if test "$withval" != "no"; then
 			if test "$withval" != "yes"; then
 				CFLAGS="-I$withval/include $CFLAGS"
@@ -393,7 +410,8 @@ fi
 
 x_tcpwrap_on=no
 AC_ARG_WITH(tcp-wrappers,
-	[  --with-tcp-wrappers     enable TCP wrappers support],
+	AS_HELP_STRING([--with-tcp-wrappers],
+		       [enable TCP wrappers support]),
 	[	if test "$withval" != "no"; then
 			if test "$withval" != "yes"; then
 				CFLAGS="-I$withval/include $CFLAGS"
@@ -424,7 +442,8 @@ int deny_severity = 0;
 
 x_identauth_on=no
 AC_ARG_WITH(ident,
-	[  --with-ident            enable "IDENT" ("AUTH") protocol support],
+	AS_HELP_STRING([--with-ident],
+		       [enable "IDENT" ("AUTH") protocol support]),
 	[	if test "$withval" != "no"; then
 			if test "$withval" != "yes"; then
 				CFLAGS="-I$withval/include $CFLAGS"
@@ -447,7 +466,8 @@ fi
 
 x_pam_on=no
 AC_ARG_WITH(pam,
-	[  --with-pam              enable user authentication using PAM],
+	AS_HELP_STRING([--with-pam],
+		       [enable user authentication using PAM]),
 	[	if test "$withval" != "no"; then
 			if test "$withval" != "yes"; then
 				CFLAGS="-I$withval/include $CFLAGS"
@@ -474,7 +494,8 @@ fi
 
 x_ircplus_on=yes
 AC_ARG_ENABLE(ircplus,
-	[  --disable-ircplus       disable IRC+ protocol],
+	AS_HELP_STRING([--disable-ircplus],
+		       [disable IRC+ protocol]),
 	if test "$enableval" = "no"; then x_ircplus_on=no; fi
 )
 if test "$x_ircplus_on" = "yes"; then
@@ -484,7 +505,8 @@ fi
 # enable support for IPv6?
 x_ipv6_on=no
 AC_ARG_ENABLE(ipv6,
-	[  --enable-ipv6           enable IPv6 protocol support],
+	AS_HELP_STRING([--enable-ipv6],
+		       [enable IPv6 protocol support]),
 	if test "$enableval" = "yes"; then x_ipv6_on=yes; fi
 )
 if test "$x_ipv6_on" = "yes"; then
@@ -500,7 +522,8 @@ fi
 
 x_sniffer_on=no; x_debug_on=no
 AC_ARG_ENABLE(sniffer,
-	[  --enable-sniffer        enable IRC traffic sniffer (enables debug mode)],
+	AS_HELP_STRING([--enable-sniffer],
+		       [enable IRC traffic sniffer (enables debug mode)]),
 	if test "$enableval" = "yes"; then
 		AC_DEFINE(SNIFFER, 1)
 		x_sniffer_on=yes; x_debug_on=yes
@@ -510,7 +533,8 @@ AC_ARG_ENABLE(sniffer,
 # enable additional debugging code?
 
 AC_ARG_ENABLE(debug,
-	[  --enable-debug          show additional debug output],
+	AS_HELP_STRING([--enable-debug],
+		       [show additional debug output]),
 	if test "$enableval" = "yes"; then x_debug_on=yes; fi
 )
 if test "$x_debug_on" = "yes"; then
@@ -523,7 +547,8 @@ fi
 
 x_strict_rfc_on=no
 AC_ARG_ENABLE(strict-rfc,
-	[  --enable-strict-rfc     strict RFC conformance -- may break clients!],
+	AS_HELP_STRING([--enable-strict-rfc],
+		       [strict RFC conformance -- may break clients!]),
 	if test "$enableval" = "yes"; then
 		AC_DEFINE(STRICT_RFC, 1)
 		x_strict_rfc_on=yes
@@ -532,9 +557,9 @@ AC_ARG_ENABLE(strict-rfc,
 
 # -- Definitions --
 
-AC_DEFINE_UNQUOTED(TARGET_CPU, "$target_cpu" )
-AC_DEFINE_UNQUOTED(TARGET_VENDOR, "$target_vendor" )
-AC_DEFINE_UNQUOTED(TARGET_OS, "$target_os" )
+AC_DEFINE_UNQUOTED(HOST_CPU, "$host_cpu" )
+AC_DEFINE_UNQUOTED(HOST_VENDOR, "$host_vendor" )
+AC_DEFINE_UNQUOTED(HOST_OS, "$host_os" )
 
 # Add additional CFLAGS, eventually specified on the command line, but after
 # running this configure script. Useful for "-Werror" for example.
@@ -542,24 +567,26 @@ test -n "$CFLAGS_END" && CFLAGS="$CFLAGS $CFLAGS_END"
 
 # -- Generate files --
 
-AC_OUTPUT([ \
+AC_CONFIG_FILES([ \
 	Makefile \
-	doc/Makefile \
-	doc/src/Makefile \
-	src/Makefile \
-	src/portab/Makefile \
-	src/ipaddr/Makefile \
-	src/tool/Makefile \
-	src/ngircd/Makefile \
-	src/testsuite/Makefile \
-	man/Makefile \
-	contrib/Makefile \
 	contrib/Anope/Makefile \
 	contrib/Debian/Makefile \
 	contrib/MacOSX/Makefile \
-	contrib/MacOSX/ngIRCd.xcodeproj/Makefile \
 	contrib/MacOSX/ngIRCd.pmdoc/Makefile \
+	contrib/MacOSX/ngIRCd.xcodeproj/Makefile \
+	contrib/Makefile \
+	doc/Makefile \
+	doc/src/Makefile \
+	man/Makefile \
+	src/ipaddr/Makefile \
+	src/Makefile \
+	src/ngircd/Makefile \
+	src/portab/Makefile \
+	src/testsuite/Makefile \
+	src/tool/Makefile \
 ])
+
+AC_OUTPUT
 
 type dpkg >/dev/null 2>&1
 if test $? -eq 0; then
@@ -582,8 +609,7 @@ C=`eval echo ${sysconfdir}` ; C=`eval echo ${C}`
 M=`eval echo ${mandir}` ; M=`eval echo ${M}`
 D=`eval echo ${docdir}` ; D=`eval echo ${D}`
 
-echo "             Target: ${target}"
-test "$target" != "$host" && echo "               Host: ${host}"
+echo "               Host: ${host}"
 echo "           Compiler: ${CC}"
 test -n "$CFLAGS"	&& echo "     Compiler flags: ${CFLAGS}"
 test -n "$CPPFLAGS"	&& echo " Preprocessor flags: ${CPPFLAGS}"

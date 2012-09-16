@@ -17,7 +17,7 @@ TEMPLATE_MANS = ngircd.conf.5.tmpl ngircd.8.tmpl
 SUFFIXES = .tmpl .
 
 .tmpl:
-	sed \
+	$(AM_V_GEN)sed \
 	    -e s@:SBINDIR:@${sbindir}@ \
 	    -e s@:BINDIR:@${bindir}@ \
 	    -e s@:ETCDIR:@${sysconfdir}@ \

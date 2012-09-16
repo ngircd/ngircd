@@ -351,6 +351,13 @@ Fill_Version(void)
 {
 	NGIRCd_VersionAddition[0] = '\0';
 
+#ifdef ICONV
+	if (NGIRCd_VersionAddition[0])
+		strlcat(NGIRCd_VersionAddition, "+",
+			sizeof NGIRCd_VersionAddition);
+	strlcat(NGIRCd_VersionAddition, "CHARCONV",
+		sizeof NGIRCd_VersionAddition);
+#endif
 #ifdef DEBUG
 	if (NGIRCd_VersionAddition[0])
 		strlcat(NGIRCd_VersionAddition, "+",

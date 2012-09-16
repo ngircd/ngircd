@@ -1,6 +1,6 @@
 #
 # ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
+# Copyright (c)2001-2012 Alexander Barton (alex@barton.de) and Contributors
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -8,10 +8,8 @@
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
 #
-# $Id: Makefile.am,v 1.1 2003/01/13 12:20:16 alex Exp $
-#
 
-AUTOMAKE_OPTIONS = ansi2knr
+AUTOMAKE_OPTIONS = ../portab/ansi2knr
 
 INCLUDES = -I$(srcdir)/../portab
 

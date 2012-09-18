@@ -156,7 +156,7 @@ Load_DH_params(void)
 	bool ret = true;
 
 	if (!Conf_SSLOptions.DHFile) {
-		Log(LOG_NOTICE, "Configuration option \"SSLDHFile\" not set!");
+		Log(LOG_NOTICE, "Configuration option \"DHFile\" not set!");
 		return false;
 	}
 	fp = fopen(Conf_SSLOptions.DHFile, "r");
@@ -201,7 +201,7 @@ Load_DH_params(void)
 	}
 	if (need_dhgenerate) {
 		Log(LOG_WARNING,
-		    "SSLDHFile not set, generating %u bit DH parameters. This may take a while ...",
+		    "DHFile not set, generating %u bit DH parameters. This may take a while ...",
 		    DH_BITS);
 		err = gnutls_dh_params_generate2(tmp_dh_params, DH_BITS);
 		if (err < 0) {

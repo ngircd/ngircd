@@ -723,6 +723,13 @@ ConnSSL_GetCipherInfo(CONNECTION *c, char *buf, size_t len)
 #endif
 }
 
+#else
+
+bool
+ConnSSL_InitLibrary(void)
+{
+	return true;
+}
 
 #endif /* SSL_SUPPORT */
 /* -eof- */

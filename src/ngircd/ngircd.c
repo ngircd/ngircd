@@ -662,7 +662,7 @@ NGIRCd_Init(bool NGIRCd_NoDaemon)
 	/* SSL initialization */
 	if (!ConnSSL_InitLibrary())
 		Log(LOG_WARNING,
-		    "Warning: Error during SSL initialization, continuing ...");
+		    "Error during SSL initialization, continuing without SSL ...");
 
 	/* Change root */
 	if (Conf_Chroot[0]) {

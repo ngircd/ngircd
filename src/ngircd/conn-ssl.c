@@ -241,6 +241,9 @@ void ConnSSL_Free(CONNECTION *c)
 bool
 ConnSSL_InitLibrary( void )
 {
+	if (!array_bytes(&Conf_SSLOptions.ListenPorts))
+		return true;
+
 #ifdef HAVE_LIBSSL
 	SSL_CTX *newctx;
 
@@ -256,12 +259,14 @@ ConnSSL_InitLibrary( void )
 		 * According to OpenSSL RAND_egd(3): "The automatic query of /var/run/egd-pool et al was added in OpenSSL 0.9.7";
 		 * so it makes little sense to deal with PRNGD seeding ourselves.
 		 */
+		array_free(&Conf_SSLOptions.ListenPorts);
 		return false;
 	}
 
 	newctx = SSL_CTX_new(SSLv23_method());
 	if (!newctx) {
 		LogOpenSSLError("SSL_CTX_new()", NULL);
+		array_free(&Conf_SSLOptions.ListenPorts);
 		return false;
 	}
 
@@ -276,6 +281,7 @@ ConnSSL_InitLibrary( void )
 	return true;
 out:
 	SSL_CTX_free(newctx);
+	array_free(&Conf_SSLOptions.ListenPorts);
 	return false;
 #endif
 #ifdef HAVE_LIBGNUTLS
@@ -287,10 +293,13 @@ out:
 	err = gnutls_global_init();
 	if (err) {
 		Log(LOG_ERR, "gnutls_global_init(): %s", gnutls_strerror(err));
+		array_free(&Conf_SSLOptions.ListenPorts);
 		return false;
 	}
-	if (!ConnSSL_LoadServerKey_gnutls())
+	if (!ConnSSL_LoadServerKey_gnutls()) {
+		array_free(&Conf_SSLOptions.ListenPorts);
 		return false;
+	}
 	Log(LOG_INFO, "gnutls %s initialized.", gnutls_check_version(NULL));
 	initialized = true;
 	return true;
@@ -313,7 +322,7 @@ ConnSSL_LoadServerKey_gnutls(void)
 
 	cert_file = Conf_SSLOptions.CertFile ? Conf_SSLOptions.CertFile:Conf_SSLOptions.KeyFile;
 	if (!cert_file) {
-		Log(LOG_NOTICE, "No SSL server key configured, SSL disabled.");
+		Log(LOG_ERR, "No SSL server key configured!");
 		return false;
 	}
 
@@ -344,7 +353,7 @@ ConnSSL_LoadServerKey_openssl(SSL_CTX *ctx)
 
 	assert(ctx);
 	if (!Conf_SSLOptions.KeyFile) {
-		Log(LOG_NOTICE, "No SSL server key configured, SSL disabled.");
+		Log(LOG_ERR, "No SSL server key configured!");
 		return false;
 	}
 

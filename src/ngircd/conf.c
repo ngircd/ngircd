@@ -104,6 +104,8 @@ ConfSSL_Init(void)
 	free(Conf_SSLOptions.DHFile);
 	Conf_SSLOptions.DHFile = NULL;
 	array_free_wipe(&Conf_SSLOptions.KeyFilePassword);
+
+	array_free(&Conf_SSLOptions.ListenPorts);
 }
 
 /**
@@ -689,6 +691,7 @@ Set_Defaults(bool InitServers)
 		 PACKAGE_NAME, PACKAGE_VERSION);
 	free(Conf_ListenAddress);
 	Conf_ListenAddress = NULL;
+	array_free(&Conf_ListenPorts);
 	array_free(&Conf_Motd);
 	strlcpy(Conf_MotdFile, SYSCONFDIR, sizeof(Conf_MotdFile));
 	strlcat(Conf_MotdFile, MOTD_FILE, sizeof(Conf_MotdFile));

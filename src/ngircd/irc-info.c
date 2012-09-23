@@ -820,7 +820,7 @@ who_flags_qualifier(CLIENT *Client, const char *chan_user_modes, char *str, size
 		if (strchr(chan_user_modes, 'o'))
 			strlcat(str, "@", len);
 		if (strchr(chan_user_modes, 'h'))
-			strlcat(str, "&", len);
+			strlcat(str, "%", len);
 		if (strchr(chan_user_modes, 'v'))
 			strlcat(str, "+", len);
 

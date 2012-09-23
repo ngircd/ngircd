@@ -166,8 +166,11 @@ IRC_INVITE(CLIENT *Client, REQUEST *Req)
 
 		/* Is the channel "invite-only"? */
 		if (strchr(Channel_Modes(chan), 'i')) {
-			/* Yes. The user must be channel operator! */
-			if (!strchr(Channel_UserModes(chan, from), 'o'))
+			/* Yes. The user must be channel owner/admin/operator/halfop! */
+			if (!strchr(Channel_UserModes(chan, from), 'q') &&
+			    !strchr(Channel_UserModes(chan, from), 'a') &&
+			    !strchr(Channel_UserModes(chan, from), 'o') &&
+			    !strchr(Channel_UserModes(chan, from), 'h'))
 				return IRC_WriteStrClient(from, ERR_CHANOPRIVSNEEDED_MSG,
 						Client_ID(from), Channel_Name(chan));
 			remember = true;

@@ -117,7 +117,7 @@ IRC_INFO(CLIENT * Client, REQUEST * Req)
 		target = Client_Search(Req->argv[0]);
 	else
 		target = Client_ThisServer();
-	
+
 	/* Make sure that the target is a server */
 	if (target && Client_Type(target) != CLIENT_SERVER)
 		target = Client_Introducer(target);
@@ -807,22 +807,48 @@ who_flags_status(const char *client_modes)
 }
 
 
-static const char *
-who_flags_qualifier(CLIENT *Client, const char *chan_user_modes)
+/**
+ * Return channel user mode prefix(es).
+ *
+ * @param Client The client requesting the mode prefixes.
+ * @param chan_user_modes String with channel user modes.
+ * @param str String buffer to which the prefix(es) will be appended.
+ * @param len Size of "str" buffer.
+ * @return Pointer to "str".
+ */
+static char *
+who_flags_qualifier(CLIENT *Client, const char *chan_user_modes,
+		    char *str, size_t len)
 {
 	assert(Client != NULL);
 
 	if (Client_Cap(Client) & CLIENT_CAP_MULTI_PREFIX) {
-		if (strchr(chan_user_modes, 'o') &&
-		    strchr(chan_user_modes, 'v'))
-			return "@+";
+		if (strchr(chan_user_modes, 'q'))
+			strlcat(str, "~", len);
+		if (strchr(chan_user_modes, 'a'))
+			strlcat(str, "&", len);
+		if (strchr(chan_user_modes, 'o'))
+			strlcat(str, "@", len);
+		if (strchr(chan_user_modes, 'h'))
+			strlcat(str, "%", len);
+		if (strchr(chan_user_modes, 'v'))
+			strlcat(str, "+", len);
+
+		return str;
 	}
 
-	if (strchr(chan_user_modes, 'o'))
-		return "@";
+	if (strchr(chan_user_modes, 'q'))
+		strlcat(str, "~", len);
+	else if (strchr(chan_user_modes, 'a'))
+		strlcat(str, "&", len);
+	else if (strchr(chan_user_modes, 'o'))
+		strlcat(str, "@", len);
+	else if (strchr(chan_user_modes, 'h'))
+		strlcat(str, "%", len);
 	else if (strchr(chan_user_modes, 'v'))
-		return "+";
-	return "";
+		strlcat(str, "+", len);
+
+	return str;
 }
 
 
@@ -840,8 +866,7 @@ IRC_WHO_Channel(CLIENT *Client, CHANNEL *Chan, bool OnlyOps)
 	bool is_visible, is_member, is_ircop;
 	CL2CHAN *cl2chan;
 	const char *client_modes;
-	const char *chan_user_modes;
-	char flags[8];
+	char flags[10];
 	CLIENT *c;
 	int count = 0;
 
@@ -872,9 +897,8 @@ IRC_WHO_Channel(CLIENT *Client, CHANNEL *Chan, bool OnlyOps)
 			if (is_ircop)
 				strlcat(flags, "*", sizeof(flags));
 
-			chan_user_modes = Channel_UserModes(Chan, c);
-			strlcat(flags, who_flags_qualifier(c, chan_user_modes),
-				sizeof(flags));
+			who_flags_qualifier(Client, Channel_UserModes(Chan, c),
+					    flags, sizeof(flags));
 
 			if (!write_whoreply(Client, c, Channel_Name(Chan),
 					    flags))
@@ -1090,8 +1114,8 @@ IRC_WHOIS_SendReply(CLIENT *Client, CLIENT *from, CLIENT *c)
 		if (str[strlen(str) - 1] != ':')
 			strlcat(str, " ", sizeof(str));
 
-		strlcat(str, who_flags_qualifier(c, Channel_UserModes(chan, c)),
-						 sizeof(str));
+		who_flags_qualifier(Client, Channel_UserModes(chan, c),
+				    str, sizeof(str));
 		strlcat(str, Channel_Name(chan), sizeof(str));
 
 		if (strlen(str) > (LINE_LEN - CHANNEL_NAME_LEN - 4)) {
@@ -1465,7 +1489,7 @@ IRC_Send_LUSERS(CLIENT *Client)
 			Conn_CountMax(), Conn_CountAccepted()))
 		return DISCONNECTED;
 #endif
-	
+
 	return CONNECTED;
 } /* IRC_Send_LUSERS */
 
@@ -1595,16 +1619,9 @@ IRC_Send_NAMES(CLIENT * Client, CHANNEL * Chan)
 		if (is_member || is_visible) {
 			if (str[strlen(str) - 1] != ':')
 				strlcat(str, " ", sizeof(str));
-			if (Client_Cap(Client) & CLIENT_CAP_MULTI_PREFIX && 
-					strchr(Channel_UserModes(Chan, cl), 'o') &&
-					strchr(Channel_UserModes(Chan, cl), 'v')) {
-				strlcat(str, "@+", sizeof(str));
-			} else {
-				if (strchr(Channel_UserModes(Chan, cl), 'o'))
-					strlcat(str, "@", sizeof(str));
-				else if (strchr(Channel_UserModes(Chan, cl), 'v'))
-					strlcat(str, "+", sizeof(str));
-			}
+
+			who_flags_qualifier(Client, Channel_UserModes(Chan, cl),
+					    str, sizeof(str));
 			strlcat(str, Client_ID(cl), sizeof(str));
 
 			if (strlen(str) > (LINE_LEN - CLIENT_NICK_LEN - 4)) {

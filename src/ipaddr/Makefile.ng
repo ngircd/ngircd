@@ -3,7 +3,7 @@
 # (c) 2008 Florian Westphal <fw@strlen.de>, public domain.
 #
 
-AUTOMAKE_OPTIONS = ../portab/ansi2knr
+__ng_Makefile_am_template__
 
 INCLUDES = -I$(srcdir)/../portab
 

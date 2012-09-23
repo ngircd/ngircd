@@ -10,7 +10,7 @@
 # der an ngIRCd beteiligten Autoren finden Sie in der Datei AUTHORS.
 #
 
-AUTOMAKE_OPTIONS = ../portab/ansi2knr
+__ng_Makefile_am_template__
 
 INCLUDES = -I$(srcdir)/../portab
 

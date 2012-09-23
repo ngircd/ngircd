@@ -1,3 +1,4 @@
+Makefile.am
 T-ngircd1
 T-ngircd2
 channel-test

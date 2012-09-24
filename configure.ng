@@ -9,7 +9,12 @@
 # Please read the file COPYING, README and AUTHORS for more information.
 #
 
-define(VERSION_ID,esyscmd(git describe|sed -e 's/rel-//g'|sed -e 's/-/~/'|tr -d \\n))
+define(VERSION_ID,esyscmd([
+	V=`git describe 2>/dev/null | sed -e 's/rel-//g' | sed -e 's/-/~/'`;
+	[ -z "$V" -a -r configure ] \
+		&& V=`grep "PACKAGE_STRING=" configure | cut -d"'" -f2 | cut -d' ' -f2`
+	( [ -n "$V" ] && echo "$V" || echo "??" ) | tr -d '\n';
+]))
 
 m4_ifdef([AM_SILENT_RULES],
 	[m4_define([ng_color_tests], [color-tests])],
@@ -65,7 +70,7 @@ AC_PROG_RANLIB
 
 AC_C_CONST
 AC_C_INLINE
-AM_C_PROTOTYPES
+__ng_PROTOTYPES__
 
 # -- Hard coded system and compiler dependencies/features/options ... --
 
@@ -677,5 +682,13 @@ echo $ECHO_N "        SSL support: $ECHO_C"
 echo "$x_ssl_lib"
 
 echo
+
+if ! grep "^AUTOMAKE_OPTIONS = ../portab/ansi2knr" src/ngircd/Makefile.am >/dev/null 2>&1; then
+	echo "WARNING:"
+	echo "This GNU automake generated build system does not support \"de-ANSI-fication\","
+	echo "therefore don't use it to generate \"official\" distribution archives!"
+	echo "(Most probably you want to use GNU automake 1.11.x for this purpose ...)"
+	echo
+fi
 
 # -eof-

@@ -9,7 +9,9 @@
 # Please read the file COPYING, README and AUTHORS for more information.
 #
 
-AUTOMAKE_OPTIONS = ../portab/ansi2knr
+__ng_Makefile_am_template__
+
+EXTRA_DIST = Makefile.ng
 
 AM_CPPFLAGS = -I$(srcdir)/../portab
 

@@ -1,3 +1,4 @@
+Makefile.am
 check-help
 check-version
 ngircd

@@ -16,6 +16,11 @@
 # GNU autoconf. It tries to be smart in finding the correct/usable/available
 # installed versions of these tools on your system.
 #
+# In addition, it enables or disables the "de-ANSI-fication" support of GNU
+# automake, which is supported up to autoconf 1.11.x an has been removed
+# in automake 1.12 -- make sure to use a version of automake supporting it
+# when generating distribution archives!
+#
 # The following strategy is used for each of aclocal, autoheader, automake,
 # and autoconf: first, "tool" (the regular name of the tool, e. g. "autoconf"
 # or "automake") is checked. If this fails, "tool<major><minor>" (for example
@@ -129,7 +134,7 @@ fi
 
 # Try to detect the needed tools when no environment variable already
 # specifies one:
-echo "Searching tools ..."
+echo "Searching for required tools ..."
 [ -z "$ACLOCAL" ] && ACLOCAL=`Search aclocal 1`
 [ "$VERBOSE" = "1" ] && echo " - ACLOCAL=$ACLOCAL"
 [ -z "$AUTOHEADER" ] && AUTOHEADER=`Search autoheader 2`
@@ -139,9 +144,8 @@ echo "Searching tools ..."
 [ -z "$AUTOCONF" ] && AUTOCONF=`Search autoconf 2`
 [ "$VERBOSE" = "1" ] && echo " - AUTOCONF=$AUTOCONF"
 
-# Call ./configure when parameters have been passed to this script and
-# GO isn't already defined.
-[ -z "$GO" -a $# -gt 0 ] && GO=1
+[ $# -gt 0 ] && CONFIGURE_ARGS=" $@" || CONFIGURE_ARGS=""
+[ -z "$GO" -a -n "$CONFIGURE_ARGS" ] && GO=1
 
 # Verify that all tools have been found
 [ -z "$ACLOCAL" ] && Notfound aclocal
@@ -149,10 +153,37 @@ echo "Searching tools ..."
 [ -z "$AUTOMAKE" ] && Notfound automake
 [ -z "$AUTOCONF" ] && Notfound autoconf
 
+AM_VERSION=`$AUTOMAKE --version|head -n 1|egrep -o "([1-9]\.[0-9]+(\.[0-9]+)*)"`
+ifs=$IFS; IFS="."; set $AM_VERSION; IFS=$ifs
+AM_MAJOR="$1"; AM_MINOR="$2"; AM_PATCHLEVEL="$3"
+
+AM_MAKEFILES="src/ipaddr/Makefile.ng src/ngircd/Makefile.ng src/testsuite/Makefile.ng src/tool/Makefile.ng"
+
+if [ "$AM_MAJOR" -eq "1" -a "$AM_MINOR" -lt "12" ]; then
+	# automake < 1.12 => automatic de-ANSI-fication support available
+	echo "Enabling de-ANSI-fication support (automake $AM_VERSION) ..."
+	sed -e "s|^__ng_PROTOTYPES__|AM_C_PROTOTYPES|g" configure.ng >configure.in
+	DEANSI_START=""
+	DEANSI_END=""
+else
+	# automake >= 1.12 => no de-ANSI-fication support available
+	echo "Disabling de-ANSI-fication support (automake $AM_VERSION) ..."
+	sed -e "s|^__ng_PROTOTYPES__|AC_C_PROTOTYPES|g" configure.ng >configure.in
+	DEANSI_START="#"
+	DEANSI_END="	# disabled by ./autogen.sh script"
+fi
+sed -e "s|^__ng_Makefile_am_template__|${DEANSI_START}AUTOMAKE_OPTIONS = ansi2knr${DEANSI_END}|g" \
+	src/portab/Makefile.ng >src/portab/Makefile.am
+for makefile_ng in $AM_MAKEFILES; do
+	makefile_am=`echo "$makefile_ng" | sed -e "s|\.ng\$|\.am|g"`
+	sed -e "s|^__ng_Makefile_am_template__|${DEANSI_START}AUTOMAKE_OPTIONS = ../portab/ansi2knr${DEANSI_END}|g" \
+		$makefile_ng >$makefile_am
+done
+
 export ACLOCAL AUTOHEADER AUTOMAKE AUTOCONF
 
 # Generate files
-echo "Generating files ..."
+echo "Generating files using GNU $AUTOCONF and $AUTOMAKE ..."
 Run $ACLOCAL && \
 	Run $AUTOCONF && \
 	Run $AUTOHEADER && \
@@ -164,8 +195,7 @@ if [ $? -eq 0 -a -x ./configure ]; then
 	NAME=`grep PACKAGE_STRING= configure | cut -d"'" -f2`
 	if [ "$GO" = "1" ]; then
 		[ -n "$PREFIX" ] && p=" --prefix=$PREFIX" || p=""
-		[ -n "$*" ] && a=" $*" || a=""
-		c="./configure${p}${a}"
+		c="./configure${p}${CONFIGURE_ARGS}"
 		echo "Okay, autogen.sh for $NAME done."
 		echo "Calling \"$c\" ..."
 		$c

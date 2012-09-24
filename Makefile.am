@@ -13,6 +13,8 @@ AUTOMAKE_OPTIONS = gnu
 
 SUBDIRS = doc src man contrib
 
+EXTRA_DIST = autogen.sh configure.ng .mailmap
+
 clean-local:
 	rm -f build-stamp*
 	rm -rf ngircd.dest

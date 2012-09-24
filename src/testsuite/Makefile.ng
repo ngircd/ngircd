@@ -31,7 +31,7 @@ clean-local:
 	 T-ngircd1 ngircd-test1.motd T-ngircd2 ngircd-test2.motd
 
 maintainer-clean-local:
-	rm -f Makefile Makefile.in
+	rm -f Makefile Makefile.in Makefile.am
 
 check_SCRIPTS = ngircd-TEST-Binary tests.sh
 

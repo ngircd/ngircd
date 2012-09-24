@@ -103,7 +103,7 @@ clean-local:
 	rm -f check-version check-help lint.out
 
 maintainer-clean-local:
-	rm -f Makefile Makefile.in
+	rm -f Makefile Makefile.in Makefile.am
 
 check-version: Makefile
 	echo "#!/bin/sh" > check-version

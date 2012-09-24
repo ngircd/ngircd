@@ -22,6 +22,6 @@ libngtool_a_SOURCES = tool.c
 noinst_HEADERS = tool.h
 
 maintainer-clean-local:
-	rm -f Makefile Makefile.in
+	rm -f Makefile Makefile.in Makefile.am
 
 # -eof-

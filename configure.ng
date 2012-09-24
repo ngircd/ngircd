@@ -9,7 +9,12 @@
 # Please read the file COPYING, README and AUTHORS for more information.
 #
 
-define(VERSION_ID,esyscmd(git describe|sed -e 's/rel-//g'|sed -e 's/-/~/'|tr -d \\n))
+define(VERSION_ID,esyscmd([
+	V=`git describe 2>/dev/null | sed -e 's/rel-//g' | sed -e 's/-/~/'`;
+	[ -z "$V" -a -r configure ] \
+		&& V=`grep "PACKAGE_STRING=" configure | cut -d"'" -f2 | cut -d' ' -f2`
+	( [ -n "$V" ] && echo "$V" || echo "??" ) | tr -d '\n';
+]))
 
 # -- Initialisation --
 

@@ -162,13 +162,13 @@ AM_MAKEFILES="src/ipaddr/Makefile.ng src/ngircd/Makefile.ng src/testsuite/Makefi
 if [ "$AM_MAJOR" -eq "1" -a "$AM_MINOR" -lt "12" ]; then
 	# automake < 1.12 => automatic de-ANSI-fication support available
 	echo "Enabling de-ANSI-fication support (automake $AM_VERSION) ..."
-	sed -e "s|^__ng_PROTOTYPES__|AM_C_PROTOTYPES|g" configure.ng >configure.in
+	sed -e "s|^__ng_PROTOTYPES__|AM_C_PROTOTYPES|g" configure.ng >configure.ac
 	DEANSI_START=""
 	DEANSI_END=""
 else
 	# automake >= 1.12 => no de-ANSI-fication support available
 	echo "Disabling de-ANSI-fication support (automake $AM_VERSION) ..."
-	sed -e "s|^__ng_PROTOTYPES__|AC_C_PROTOTYPES|g" configure.ng >configure.in
+	sed -e "s|^__ng_PROTOTYPES__|AC_C_PROTOTYPES|g" configure.ng >configure.ac
 	DEANSI_START="#"
 	DEANSI_END="	# disabled by ./autogen.sh script"
 fi

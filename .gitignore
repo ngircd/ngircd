@@ -10,7 +10,7 @@ build-stamp-ngircd*
 config.log
 config.status
 configure
-configure.in
+configure.ac
 configure.lineno
 cscope.out
 debian

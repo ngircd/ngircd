@@ -1,6 +1,6 @@
 #
 # ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001-2011 Alexander Barton (alex@barton.de) and Contributors
+# Copyright (c)2001-2012 Alexander Barton (alex@barton.de) and Contributors
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@ clean-local:
 
 maintainer-clean-local:
 	rm -rf autom4te.cache
-	rm -f Makefile.in Makefile aclocal.m4 configure
+	rm -f Makefile.in Makefile aclocal.m4 configure configure.ac
 	rm -f ar-lib mkinstalldirs missing depcomp install-sh
 	rm -f config.log debian
 

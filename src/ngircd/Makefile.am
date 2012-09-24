@@ -11,7 +11,7 @@
 
 AUTOMAKE_OPTIONS = ../portab/ansi2knr
 
-INCLUDES = -I$(srcdir)/../portab -I$(srcdir)/../tool -I$(srcdir)/../ipaddr
+AM_CPPFLAGS = -I$(srcdir)/../portab -I$(srcdir)/../tool -I$(srcdir)/../ipaddr
 
 LINTARGS = -weak -warnunixlib +unixlib -booltype BOOLEAN \
  -varuse -retvalother -emptyret -unrecog
@@ -120,7 +120,7 @@ lint:
 	for f in *.c; do \
 	 echo "checking $$f ..."; \
 	 splint $$f $(LINTARGS) -I$(srcdir) -I$(srcdir)/.. \
-	  $(INCLUDES) $(AM_CFLAGS) >lint.out 2>&1; \
+	  $(AM_CPPFLAGS) $(AM_CFLAGS) >lint.out 2>&1; \
 	 grep "no warnings" lint.out > /dev/null 2>&1; \
 	 if [ $$? -ne 0 ]; then \
 	  waswarning=1; \

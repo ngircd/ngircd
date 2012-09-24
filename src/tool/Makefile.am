@@ -11,7 +11,7 @@
 
 AUTOMAKE_OPTIONS = ../portab/ansi2knr
 
-INCLUDES = -I$(srcdir)/../portab
+AM_CPPFLAGS = -I$(srcdir)/../portab
 
 noinst_LIBRARIES = libngtool.a
 

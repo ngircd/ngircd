@@ -11,6 +11,8 @@
 
 __ng_Makefile_am_template__
 
+EXTRA_DIST = Makefile.ng
+
 INCLUDES = -I$(srcdir)/../portab
 
 noinst_LIBRARIES = libngtool.a

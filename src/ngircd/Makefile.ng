@@ -1,6 +1,6 @@
 #
 # ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001-2012 Alexander Barton (alex@barton.de)
+# Copyright (c)2001-2012 Alexander Barton (alex@barton.de) and Contributors
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -10,6 +10,8 @@
 #
 
 __ng_Makefile_am_template__
+
+EXTRA_DIST = Makefile.ng
 
 INCLUDES = -I$(srcdir)/../portab -I$(srcdir)/../tool -I$(srcdir)/../ipaddr
 

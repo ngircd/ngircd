@@ -27,15 +27,15 @@ name=`basename $0`
 # test for required external tools
 type expect > /dev/null 2>&1
 if [ $? -ne 0 ]; then
-  echo "      ${name}: \"expect\" not found.";  exit 77
+  echo "${name}: \"expect\" not found.";  exit 77
 fi
 type telnet > /dev/null 2>&1
 if [ $? -ne 0 ]; then
-  echo "      ${name}: \"telnet\" not found.";  exit 77
+  echo "${name}: \"telnet\" not found.";  exit 77
 fi
 
 # hello world! :-)
-echo "      stressing server with $CLIENTS clients (be patient!):"
+echo "stressing server with $CLIENTS clients (be patient!):"
 
 # read in functions
 . ${srcdir}/functions.inc
@@ -50,7 +50,7 @@ while [ ${no} -lt $CLIENTS ]; do
 done
 
 # run first script and check if it succeeds
-echo_n "      checking stress script ..."
+echo_n "checking stress script ..."
 expect tests/0.e > logs/stress-0.log 2> /dev/null
 if [ $? -ne 0 ]; then
   echo " failure!"
@@ -64,12 +64,12 @@ while [ ${no} -lt $CLIENTS ]; do
   expect tests/${no}.e > logs/stress-${no}.log 2> /dev/null &
 
   no=`expr ${no} + 1`
-  echo "      started client $no/$CLIENTS."
+  echo "started client $no/$CLIENTS."
 
   [ $MAX -gt 0 ] && $srcdir/wait-tests.sh $MAX
 done
 
-echo_n "      waiting for clients to complete: ."
+echo_n "waiting for clients to complete: ."
 touch logs/check-idle.log
 while true; do
   expect ${srcdir}/check-idle.e >> logs/check-idle.log; res=$?

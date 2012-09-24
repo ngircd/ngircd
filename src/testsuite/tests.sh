@@ -18,7 +18,7 @@ test=`echo ${name} | cut -d '.' -f 1`
 [ -d logs ] || mkdir logs
 
 if [ ! -r "$test" ]; then
-  echo "      ${name}: test \"$test\" not found!";  exit 77
+  echo "${name}: test \"$test\" not found!";  exit 77
   exit 1
 fi
 
@@ -27,14 +27,14 @@ fi
 
 type expect > /dev/null 2>&1
 if [ $? -ne 0 ]; then
-  echo "      ${name}: \"expect\" not found.";  exit 77
+  echo "${name}: \"expect\" not found.";  exit 77
 fi
 type telnet > /dev/null 2>&1
 if [ $? -ne 0 ]; then
-  echo "      ${name}: \"telnet\" not found.";  exit 77
+  echo "${name}: \"telnet\" not found.";  exit 77
 fi
 
-echo_n "      running ${test} ..."
+echo_n "running ${test} ..."
 expect ${srcdir}/${test}.e > logs/${test}.log 2>&1; r=$?
 [ $r -eq 0 ] && echo " ok." || echo " failure!"
 

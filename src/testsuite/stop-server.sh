@@ -12,7 +12,7 @@ else
 	id="1"
 fi
 
-echo_n "      stopping server ${id} ..."
+echo_n "stopping server ${id} ..."
 
 # stop test-server ...
 pid=`./getpid.sh T-ngircd${id}`

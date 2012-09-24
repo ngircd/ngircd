@@ -12,7 +12,7 @@ else
 	id="1"
 fi
 
-echo_n "      starting server ${id} ..."
+echo_n "starting server ${id} ..."
 
 # remove old logfiles, if this is the first server (ID 1)
 [ "$id" = "1" ] && rm -rf logs *.log

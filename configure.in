@@ -11,6 +11,10 @@
 
 define(VERSION_ID,esyscmd(git describe|sed -e 's/rel-//g'|sed -e 's/-/~/'|tr -d \\n))
 
+m4_ifdef([AM_SILENT_RULES],
+	[m4_define([ng_color_tests], [color-tests])],
+	[m4_define([ng_color_tests], [])])
+
 # -- Initialisation --
 
 AC_PREREQ([2.61])
@@ -21,7 +25,7 @@ AC_CONFIG_SRCDIR([src/ngircd/ngircd.c])
 AC_CONFIG_HEADER([src/config.h])
 AC_CANONICAL_HOST
 
-AM_INIT_AUTOMAKE([1.10])
+AM_INIT_AUTOMAKE([-Wall 1.10 ]ng_color_tests)
 
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 

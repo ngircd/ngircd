@@ -149,10 +149,14 @@ This step is therefore only interesting for developers.
 
 autogen.sh produces the Makefile.in's, which are necessary for the configure
 script itself, and some more files for make. To run autogen.sh you'll need
-GNU autoconf and GNU automake (use recent versions! autoconf 2.53 and
-automake 1.6.1 are known to work).
+GNU autoconf and GNU automake: at least autoconf 2.61 and automake 1.10 are
+requird, newer is better. But don't use automake 1.12 or newer for creating
+distribution archives: it will work but lack "de-ANSI-fucation" support in the
+generated Makefile's! Stick with automake 1.11.x for this purpose ...
+So automake 1.11.x and autoconf 2.67+ is recommended.
 
-Again: "end users" do not need this step!
+Again: "end users" do not need this step and neither need GNU autoconf nor GNU
+automake at all!
 
 
 2): "./configure"

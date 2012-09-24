@@ -13,7 +13,7 @@ define(VERSION_ID,esyscmd(git describe|sed -e 's/rel-//g'|sed -e 's/-/~/'|tr -d 
 
 # -- Initialisation --
 
-AC_PREREQ([2.67])
+AC_PREREQ([2.61])
 AC_INIT([ngIRCd], VERSION_ID,
 	[ngircd-ml@ngircd.barton.de], [ngircd], [http://ngircd.barton.de/])
 
@@ -21,7 +21,7 @@ AC_CONFIG_SRCDIR([src/ngircd/ngircd.c])
 AC_CONFIG_HEADER([src/config.h])
 AC_CANONICAL_HOST
 
-AM_INIT_AUTOMAKE([1.11])
+AM_INIT_AUTOMAKE([1.10])
 
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 

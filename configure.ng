@@ -60,6 +60,7 @@ AC_PROG_CC_STDC
 
 # -- Helper programs --
 
+AM_PROG_AR
 AC_PROG_AWK
 AC_PROG_INSTALL
 AC_PROG_LN_S

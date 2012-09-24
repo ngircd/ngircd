@@ -22,7 +22,7 @@ clean-local:
 maintainer-clean-local:
 	rm -rf autom4te.cache
 	rm -f Makefile.in Makefile aclocal.m4 configure
-	rm -f mkinstalldirs missing depcomp install-sh
+	rm -f ar-lib mkinstalldirs missing depcomp install-sh
 	rm -f config.log debian
 
 testsuite:

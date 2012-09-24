@@ -4,6 +4,7 @@ aclocal.m4
 ansi2knr.1
 ansi2knr.c
 ansi2knr.h
+ar-lib
 autom4te.cache
 build-stamp-ngircd*
 config.log

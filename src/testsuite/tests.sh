@@ -34,10 +34,21 @@ if [ $? -ne 0 ]; then
   echo "${name}: \"telnet\" not found.";  exit 77
 fi
 
+# prepare expect script
+e_in="${srcdir}/${test}.e"
+e_tmp="${test}.e_"
+e_exec="$e_in"
+if test -t 1 2>/dev/null; then
+	sed -e 's|^expect |puts -nonewline stderr "."; expect |g' \
+		"$e_in" >"$e_tmp"
+	[ $? -eq 0 ] && e_exec="$e_tmp"
+fi
+
 echo_n "running ${test} ..."
-expect ${srcdir}/${test}.e > logs/${test}.log 2>&1; r=$?
+expect "$e_tmp" > logs/${test}.log; r=$?
 [ $r -eq 0 ] && echo " ok." || echo " failure!"
 
+rm -f "$e_tmp"
 exit $r
 
 # -eof-

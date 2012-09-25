@@ -669,7 +669,8 @@ IRC_LIST( CLIENT *Client, REQUEST *Req )
 			if (MatchCaseInsensitive(pattern, Channel_Name(chan))) {
 				/* Gotcha! */
 				if (!strchr(Channel_Modes(chan), 's')
-				    || Channel_IsMemberOf(chan, from)) {
+				    || Channel_IsMemberOf(chan, from)
+				    || (!Conf_MorePrivacy && Client_OperByMe(Client))) {
 					if (IRC_CheckListTooBig(from, count,
 								 MAX_RPL_LIST,
 								 "LIST"))

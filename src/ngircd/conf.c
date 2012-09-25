@@ -372,6 +372,7 @@ Conf_Test( void )
 	printf("  MorePrivacy = %s\n", yesno_to_str(Conf_MorePrivacy));
 	printf("  NoticeAuth = %s\n", yesno_to_str(Conf_NoticeAuth));
 	printf("  OperCanUseMode = %s\n", yesno_to_str(Conf_OperCanMode));
+	printf("  OperChanPAutoOp = %s\n", yesno_to_str(Conf_OperChanPAutoOp));
 	printf("  OperServerMode = %s\n", yesno_to_str(Conf_OperServerMode));
 #ifdef PAM
 	printf("  PAM = %s\n", yesno_to_str(Conf_PAM));
@@ -733,6 +734,7 @@ Set_Defaults(bool InitServers)
 	Conf_MorePrivacy = false;
 	Conf_NoticeAuth = false;
 	Conf_OperCanMode = false;
+	Conf_OperChanPAutoOp = true;
 	Conf_OperServerMode = false;
 #ifdef PAM
 	Conf_PAM = true;
@@ -1181,6 +1183,7 @@ CheckLegacyGlobalOption(int Line, char *Var, char *Arg)
 	    || strcasecmp(Var, "ConnectIPv4") == 0
 	    || strcasecmp(Var, "ConnectIPv6") == 0
 	    || strcasecmp(Var, "OperCanUseMode") == 0
+	    || strcasecmp(Var, "OperChanPAutoOp") == 0
 	    || strcasecmp(Var, "OperServerMode") == 0
 	    || strcasecmp(Var, "PredefChannelsOnly") == 0
 	    || strcasecmp(Var, "SyslogFacility") == 0
@@ -1554,6 +1557,10 @@ Handle_OPTIONS(int Line, char *Var, char *Arg)
 	}
 	if (strcasecmp(Var, "OperCanUseMode") == 0) {
 		Conf_OperCanMode = Check_ArgIsTrue(Arg);
+		return;
+	}
+	if (strcasecmp(Var, "OperChanPAutoOp") == 0) {
+		Conf_OperChanPAutoOp = Check_ArgIsTrue(Arg);
 		return;
 	}
 	if (strcasecmp(Var, "OperServerMode") == 0) {

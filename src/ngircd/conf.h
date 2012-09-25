@@ -151,6 +151,9 @@ GLOBAL bool Conf_PredefChannelsOnly;
 /** Flag indicating if IRC operators are allowed to always use MODE (true) */
 GLOBAL bool Conf_OperCanMode;
 
+/** Flag indicating if IRC operators get AutoOp in persistent (+P) channels */
+GLOBAL bool Conf_OperChanPAutoOp;
+
 /**
  * If true, mask channel MODE commands of IRC operators to the server.
  * Background: ircd2 will ignore channel MODE commands if an IRC operator

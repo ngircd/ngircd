@@ -167,8 +167,10 @@ join_set_channelmodes(CHANNEL *chan, CLIENT *target, const char *flags)
 		}
 	}
 
-	/* If channel persistent and client is ircop: make client chanop */
-	if (strchr(Channel_Modes(chan), 'P') && strchr(Client_Modes(target), 'o'))
+	/* If the channel is persistent (+P) and client is an IRC op:
+	 * make client chanop, if not disabled in configuration. */
+	if (strchr(Channel_Modes(chan), 'P') && Conf_OperChanPAutoOp
+	    && strchr(Client_Modes(target), 'o'))
 		Channel_UserModeAdd(chan, target, 'o');
 } /* join_set_channelmodes */
 

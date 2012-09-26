@@ -94,6 +94,7 @@
 #define RPL_ENDOFMOTD_MSG		"376 %s :End of MOTD command"
 #define RPL_WHOISHOST_MSG		"378 %s %s :is connecting from *@%s %s"
 #define RPL_YOUREOPER_MSG		"381 %s :You are now an IRC Operator"
+#define RPL_REHASHING_MSG		"382 %s :Rehashing"
 #define RPL_YOURESERVICE_MSG		"383 %s :You are service %s"
 #define RPL_TIME_MSG			"391 %s %s :%s"
 #define RPL_HOSTHIDDEN_MSG		"396 %s %s :is your displayed hostname now"

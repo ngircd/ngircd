@@ -183,6 +183,8 @@ IRC_REHASH( CLIENT *Client, REQUEST *Req )
 
 	Log(LOG_NOTICE|LOG_snotice, "Got REHASH command from \"%s\" ...",
 	    Client_Mask(Client));
+	IRC_WriteStrClient(Client, RPL_REHASHING_MSG, Client_ID(Client));
+
 	raise(SIGHUP);
 
 	return CONNECTED;

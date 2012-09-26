@@ -1,15 +1,13 @@
 #!/bin/sh
 #
 # ngIRCd Test Suite
-# Copyright (c)2002-2004 by Alexander Barton (alex@barton.de)
+# Copyright (c)2001-2012 Alexander Barton (alex@barton.de) and Contributors.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
 # Please read the file COPYING, README and AUTHORS for more information.
-#
-# $Id: stress-server.sh,v 1.16 2005/12/30 22:13:21 alex Exp $
 #
 
 # detect source directory
@@ -23,7 +21,8 @@
 name=`basename $0`
 
 # create directories
-mkdir -p logs tests
+[ -d logs ] || mkdir logs
+[ -d tests ] || mkdir tests
 
 # test for required external tools
 type expect > /dev/null 2>&1

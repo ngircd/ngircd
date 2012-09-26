@@ -1,13 +1,21 @@
 #!/bin/sh
+#
 # ngIRCd Test Suite
-# $Id: tests.sh,v 1.7 2004/09/06 22:04:06 alex Exp $
+# Copyright (c)2001-2012 Alexander Barton (alex@barton.de) and Contributors.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# Please read the file COPYING, README and AUTHORS for more information.
+#
 
 # detect source directory
 [ -z "$srcdir" ] && srcdir=`dirname $0`
 
 name=`basename $0`
 test=`echo ${name} | cut -d '.' -f 1`
-mkdir -p logs
+[ -d logs ] || mkdir logs
 
 if [ ! -r "$test" ]; then
   echo "      ${name}: test \"$test\" not found!";  exit 77

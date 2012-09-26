@@ -278,9 +278,15 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 				ok = IRC_WriteStrClient(Origin,
 							ERR_RESTRICTED_MSG,
 							Client_ID(Origin));
-			else
+			else if (!set || Conf_CloakHostModeX[0]
+				 || Client_Type(Client) == CLIENT_SERVER
+				 || Client_OperByMe(Client)) {
 				x[0] = 'x';
 				send_RPL_HOSTHIDDEN_MSG = true;
+			} else
+				ok = IRC_WriteStrClient(Origin,
+							ERR_NOPRIVILEGES_MSG,
+							Client_ID(Origin));
 			break;
 		default:
 			if (Client_Type(Client) != CLIENT_SERVER) {

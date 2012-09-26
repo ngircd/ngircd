@@ -127,7 +127,7 @@
 #define ERR_NEEDMOREPARAMS_MSG		"461 %s %s :Syntax error"
 #define ERR_ALREADYREGISTRED_MSG	"462 %s :Connection already registered"
 #define ERR_PASSWDMISMATCH_MSG		"464 %s :Invalid password"
-#define ERR_CHANNELISFULL_MSG		"471 %s %s :Cannot join channel (+l) -- Channel is too full, try later"
+#define ERR_CHANNELISFULL_MSG		"471 %s %s :Cannot join channel (+l) -- Channel is full, try later"
 #define ERR_SECURECHANNEL_MSG		"471 %s %s :Cannot join channel (+z) -- SSL connections only"
 #define ERR_OPONLYCHANNEL_MSG		"471 %s %s :Cannot join channel (+O) -- IRC opers only"
 #define ERR_REGONLYCHANNEL_MSG		"471 %s %s :Cannot join channel (+R) -- Registered users only"

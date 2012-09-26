@@ -219,7 +219,7 @@ IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 	ptr = strtok( nick_in, "," );
 	while( ptr )
 	{
-		is_op = is_voiced = false;
+		is_owner = is_chanadmin = is_op = is_halfop = is_voiced = false;
 
 		/* cut off prefixes */
 		while(( *ptr == '~') || ( *ptr == '&' ) || ( *ptr == '@' ) ||

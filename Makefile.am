@@ -26,13 +26,13 @@ maintainer-clean-local:
 	rm -f config.log debian
 
 testsuite:
-	make -C src/testsuite check
+	cd src/testsuite && make check
 
 lint:
-	make -C src/ngircd lint
+	cd src/ngircd && make lint
 
 srcdoc:
-	make -C doc srcdoc
+	cd doc && make srcdoc
 
 have-xcodebuild:
 	@xcodebuild -project contrib/MacOSX/ngIRCd.xcodeproj -list \

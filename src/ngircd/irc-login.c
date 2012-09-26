@@ -18,6 +18,7 @@
 
 #include "imp.h"
 #include <assert.h>
+#include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
@@ -422,11 +423,9 @@ IRC_USER(CLIENT * Client, REQUEST * Req)
 		   punctuation is allowed.*/
 		ptr = Req->argv[0];
 		while (*ptr) {
-			if ((*ptr < '0' || *ptr > '9') &&
-			    (*ptr < 'A' || *ptr > 'Z') &&
-			    (*ptr < 'a' || *ptr > 'z') &&
-			    (*ptr != '+') && (*ptr != '-') &&
-			    (*ptr != '.') && (*ptr != '_')) {
+			if (!isalnum(*ptr) &&
+			    *ptr != '+' && *ptr != '-' &&
+			    *ptr != '.' && *ptr != '_') {
 				Conn_Close(Client_Conn(Client), NULL,
 					   "Invalid user name", true);
 				return DISCONNECTED;

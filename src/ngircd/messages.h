@@ -21,7 +21,7 @@
 #define RPL_YOURHOST_MSG		"002 %s :Your host is %s, running version ngircd-%s (%s/%s/%s)"
 #define RPL_CREATED_MSG			"003 %s :This server has been started %s"
 #define RPL_MYINFO_MSG			"004 %s %s ngircd-%s %s %s"
-#define RPL_ISUPPORT1_MSG		"005 %s RFC2812 IRCD=ngIRCd CASEMAPPING=ascii PREFIX=(qaohv)~&@%%+ CHANTYPES=#&+ CHANMODES=beI,k,l,imMnOPRstz CHANLIMIT=#&+:%d :are supported on this server"
+#define RPL_ISUPPORT1_MSG		"005 %s RFC2812 IRCD=ngIRCd CHARSET=UTF-8 CASEMAPPING=ascii PREFIX=(qaohv)~&@%%+ CHANTYPES=#&+ CHANMODES=beI,k,l,imMnOPRstz CHANLIMIT=#&+:%d :are supported on this server"
 #define RPL_ISUPPORT2_MSG		"005 %s CHANNELLEN=%d NICKLEN=%d TOPICLEN=%d AWAYLEN=%d KICKLEN=%d MODES=%d MAXLIST=beI:%d EXCEPTS=e INVEX=I PENALTY :are supported on this server"
 
 #define RPL_TRACELINK_MSG		"200 %s Link %s-%s %s %s V%s %ld %d %d"
@@ -34,7 +34,6 @@
 #define RPL_UMODEIS_MSG			"221 %s +%s"
 #define RPL_SERVLIST_MSG		"234 %s %s %s %s %d %d :%s"
 #define RPL_SERVLISTEND_MSG		"235 %s %s %s :End of service listing"
-
 #define RPL_STATSUPTIME			"242 %s :Server Up %u days %u:%02u:%02u"
 #define RPL_LUSERCLIENT_MSG		"251 %s :There are %ld users and %ld services on %ld servers"
 #define RPL_LUSEROP_MSG			"252 %s %lu :operator(s) online"
@@ -151,8 +150,16 @@
 #define ERR_USERSDONTMATCH_MSG		"502 %s :Can't set/get mode for other users"
 
 #ifdef ZLIB
-#define RPL_STATSLINKINFOZIP_MSG	"211 %s %s %d %ld %ld/%ld %ld %ld/%ld :%ld"
+# define RPL_STATSLINKINFOZIP_MSG	"211 %s %s %d %ld %ld/%ld %ld %ld/%ld :%ld"
 #endif
+
+#ifdef IRCPLUS
+
+# define RPL_IP_CHARCONV_MSG		"801 %s %s :Client encoding set"
+
+# define ERR_IP_CHARCONV_MSG		"851 %s :Can't initialize client encoding"
+
+#endif /* IRCPLUS */
 
 #endif
 

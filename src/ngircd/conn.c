@@ -63,6 +63,7 @@
 #include "client.h"
 #include "class.h"
 #include "conf.h"
+#include "conn-encoding.h"
 #include "conn-ssl.h"
 #include "conn-zip.h"
 #include "conn-func.h"
@@ -861,6 +862,9 @@ va_dcl
 #endif
 {
 	char buffer[COMMAND_LEN];
+#ifdef ICONV
+	char *ptr, *message;
+#endif
 	size_t len;
 	bool ok;
 	va_list ap;
@@ -900,6 +904,16 @@ va_dcl
 		strcpy (buffer + sizeof(buffer) - strlen(CUT_TXTSUFFIX) - 2 - 1,
 			CUT_TXTSUFFIX);
 	}
+
+#ifdef ICONV
+	ptr = strchr(buffer + 1, ':');
+	if (ptr) {
+		ptr++;
+		message = Conn_EncodingTo(Idx, ptr);
+		if (message != ptr)
+			strlcpy(ptr, message, sizeof(buffer) - (ptr - buffer));
+	}
+#endif
 
 #ifdef SNIFFER
 	if (NGIRCd_Sniffer)
@@ -2105,6 +2119,11 @@ Init_Conn_Struct(CONN_ID Idx)
 	My_Connections[Idx].lastdata = now;
 	My_Connections[Idx].lastprivmsg = now;
 	Proc_InitStruct(&My_Connections[Idx].proc_stat);
+
+#ifdef ICONV
+	My_Connections[Idx].iconv_from = (iconv_t)(-1);
+	My_Connections[Idx].iconv_to = (iconv_t)(-1);
+#endif
 } /* Init_Conn_Struct */
 
 

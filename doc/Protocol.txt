@@ -1,9 +1,8 @@
 
                      ngIRCd - Next Generation IRC Server
+                           http://ngircd.barton.de/
 
-                        (c)2001-2008 Alexander Barton,
-                    alex@barton.de, http://www.barton.de/
-
+               (c)2001-2012 Alexander Barton and Contributors.
                ngIRCd is free software and published under the
                    terms of the GNU General Public License.
 
@@ -181,3 +180,34 @@ first command sent to the server, even before USER and NICK commands!
 The <password> must be set in the server configuration file to prevent
 unauthorized clients to fake their identity; it is an arbitrary string.
 
+
+II.5 Client character encoding conversion
+
+     Command: CHARCONV
+  Parameters: <client-charset>
+     Used by: registered clients
+     Replies: RPL_IP_CHARCONV_MSG, ERR_IP_CHARCONV_MSG
+
+
+III. Numerics used by IRC+ Protocol
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The IRC+ protocol uses numerics in the range 800-899 which aren't used by
+RFC 2812 and hopefully don't clash with other implementations ...
+
+Numerics 800-849 are used for status and success messages, and numerics
+850-899 are failure and error messages.
+
+
+III.1 IRC+ status and success numerics
+
+800 - RPL_IP_CHARCONV_MSG
+	%1 :Client encoding set"
+
+		%1	client character set
+
+
+III.2 IRC+ failure and error numerics
+
+850 - ERR_IP_CHARCONV_MSG
+	:Can't initialize client encoding

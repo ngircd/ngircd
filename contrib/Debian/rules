@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 #
 # ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001-2009 Alexander Barton <alex@barton.de>
+# Copyright (c)2001-2012 Alexander Barton (alex@barton.de) and Contributors
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -53,7 +53,8 @@ configure-ngircd-full: configure
 	  --sysconfdir=/etc/ngircd \
 	  --mandir=\$${prefix}/share/man \
 	  --with-syslog --with-zlib \
-	  --with-gnutls --with-ident --with-tcp-wrappers --with-pam \
+	  --with-gnutls --with-iconv --with-ident --with-tcp-wrappers \
+	  --with-pam \
 	  --enable-ipv6
 
 configure-ngircd-full-dbg: configure
@@ -66,7 +67,8 @@ configure-ngircd-full-dbg: configure
 	  --mandir=\$${prefix}/share/man \
 	  --enable-debug --enable-sniffer \
 	  --with-syslog --with-zlib \
-	  --with-gnutls --with-ident --with-tcp-wrappers --with-pam \
+	  --with-gnutls --with-iconv --with-ident --with-tcp-wrappers \
+	  --with-pam \
 	  --enable-ipv6
 
 build:

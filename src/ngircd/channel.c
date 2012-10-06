@@ -327,6 +327,18 @@ Channel_Kick(CLIENT *Peer, CLIENT *Target, CLIENT *Origin, const char *Name,
 	}
 
 	if(Client_Type(Peer) == CLIENT_USER) {
+		/* Channel mode 'Q' and user mode 'q' on target: nobody but
+		 * IRC Operators and servers can kick the target user */
+		if ((strchr(Channel_Modes(chan), 'Q')
+		     || Client_HasMode(Target, 'q')
+		     || Client_Type(Target) == CLIENT_SERVICE)
+		    && !Client_HasMode(Origin, 'o')) {
+			IRC_WriteStrClient(Origin, ERR_KICKDENY_MSG,
+					   Client_ID(Origin), Name,
+					   Client_ID(Target));
+			return;
+		}
+
 		/* Check if client has the rights to kick target */
 		ptr = Channel_UserModes(chan, Peer);
 		target_modes = Channel_UserModes(chan, Target);

@@ -98,6 +98,8 @@
 #define HAVE_GETNAMEINFO 1
 /* Define to 1 if you have the `sigaction' function. */
 #define HAVE_SIGACTION 1
+/* Define to 1 if you have the `setsid' function. */
+#define HAVE_SETSID 1
 
 /* Define if socklen_t exists */
 #define HAVE_socklen_t 1

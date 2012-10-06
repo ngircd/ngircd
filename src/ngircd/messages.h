@@ -21,7 +21,7 @@
 #define RPL_YOURHOST_MSG		"002 %s :Your host is %s, running version ngircd-%s (%s/%s/%s)"
 #define RPL_CREATED_MSG			"003 %s :This server has been started %s"
 #define RPL_MYINFO_MSG			"004 %s %s ngircd-%s %s %s"
-#define RPL_ISUPPORT1_MSG		"005 %s RFC2812 IRCD=ngIRCd CHARSET=UTF-8 CASEMAPPING=ascii PREFIX=(qaohv)~&@%%+ CHANTYPES=#&+ CHANMODES=beI,k,l,imMnOPRstz CHANLIMIT=#&+:%d :are supported on this server"
+#define RPL_ISUPPORT1_MSG		"005 %s RFC2812 IRCD=ngIRCd CHARSET=UTF-8 CASEMAPPING=ascii PREFIX=(qaohv)~&@%%+ CHANTYPES=#&+ CHANMODES=beI,k,l,imMnOPRstVz CHANLIMIT=#&+:%d :are supported on this server"
 #define RPL_ISUPPORT2_MSG		"005 %s CHANNELLEN=%d NICKLEN=%d TOPICLEN=%d AWAYLEN=%d KICKLEN=%d MODES=%d MAXLIST=beI:%d EXCEPTS=e INVEX=I PENALTY :are supported on this server"
 
 #define RPL_TRACELINK_MSG		"200 %s Link %s-%s %s %s V%s %ld %d %d"
@@ -148,6 +148,7 @@
 #define ERR_UMODEUNKNOWNFLAG_MSG	"501 %s :Unknown mode"
 #define ERR_UMODEUNKNOWNFLAG2_MSG	"501 %s :Unknown mode \"%c%c\""
 #define ERR_USERSDONTMATCH_MSG		"502 %s :Can't set/get mode for other users"
+#define ERR_NOINVITE_MSG		"518 %s :Cannot invite to %s (+V)"
 
 #ifdef ZLIB
 # define RPL_STATSLINKINFOZIP_MSG	"211 %s %s %d %ld %ld/%ld %ld %ld/%ld :%ld"

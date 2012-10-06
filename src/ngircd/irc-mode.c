@@ -566,6 +566,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 				goto chan_exit;
 			}
 		case 'i': /* Invite only */
+		case 'V': /* Invite disallow */
 		case 'M': /* Only identified nicks can write */
 		case 'm': /* Moderated */
 		case 'n': /* Only members can write */

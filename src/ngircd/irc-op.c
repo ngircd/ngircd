@@ -164,6 +164,11 @@ IRC_INVITE(CLIENT *Client, REQUEST *Req)
 		if (!Channel_IsMemberOf(chan, from))
 			return IRC_WriteStrClient(from, ERR_NOTONCHANNEL_MSG, Client_ID(Client), Req->argv[1]);
 
+		/* Is the channel "invite-disallow"? */
+		if (strchr(Channel_Modes(chan), 'V'))
+			return IRC_WriteStrClient(from, ERR_NOINVITE_MSG,
+				Client_ID(from), Channel_Name(chan));
+
 		/* Is the channel "invite-only"? */
 		if (strchr(Channel_Modes(chan), 'i')) {
 			/* Yes. The user must be channel owner/admin/operator/halfop! */

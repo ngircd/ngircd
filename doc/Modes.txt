@@ -58,6 +58,7 @@ users to lists (e.g. "invite list", "ban list"), others have parameters
   R	19	Only registered users are allowed to join this channel.
   s	0.9.0	Channel is "secret".
   t	0.3.0	Only ChanOps are allowed to modify the channel topic.
+  V	20	Channel doesn't allow invites.
   z	16	Only users connected via SSL are allowed to join the channel.
 
 III. Channel User Modes

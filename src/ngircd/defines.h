@@ -164,7 +164,7 @@
 #define USERMODES "aBcCiorRswx"
 
 /** Supported channel modes. */
-#define CHANMODES "abehiIklmMnoOPqrRstvz"
+#define CHANMODES "abehiIklmMnoOPqrRstvVz"
 
 /** Away message for users connected to linked servers. */
 #define DEFAULT_AWAY_MSG "Away"

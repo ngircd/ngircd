@@ -257,6 +257,15 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 							ERR_NOPRIVILEGES_MSG,
 							Client_ID(Origin));
 			break;
+		case 'q': /* KICK-protected user */
+			if (!set || Client_Type(Client) == CLIENT_SERVER
+			    || Client_OperByMe(Origin))
+				x[0] = 'q';
+			else
+				ok = IRC_WriteStrClient(Origin,
+							ERR_NOPRIVILEGES_MSG,
+							Client_ID(Origin));
+			break;
 		case 'r': /* Restricted (only settable) */
 			if (set || Client_Type(Client) == CLIENT_SERVER)
 				x[0] = 'r';
@@ -569,6 +578,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 		case 'M': /* Only identified nicks can write */
 		case 'm': /* Moderated */
 		case 'n': /* Only members can write */
+		case 'Q': /* No kicks */
 		case 't': /* Topic locked */
 			if(is_oper || is_machine || is_owner ||
 			   is_admin || is_op || is_halfop)

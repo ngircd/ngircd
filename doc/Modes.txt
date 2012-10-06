@@ -27,6 +27,7 @@ channels he is using at the moment.
   C	19	Only users that share a channel are allowed to send messages.
   i	0.0.1	User is "invisible".
   o	0.0.1	User is IRC operator.
+  q	20	User is protected, can not be kicked from a channel.
   r	0.0.1	User is restricted.
   R (1)	19	User is registered (e.g. by NickServ).
   s	0.4.0	User wants to receive server notices.
@@ -54,6 +55,7 @@ users to lists (e.g. "invite list", "ban list"), others have parameters
   n	0.3.0	Channel doesn't allow messages of users not being members.
   O	18	Only IRC operators are allowed to join this channel.
   P	0.5.0	Channel is "persistent".
+  Q	20	Nobody can be kicked from the channel.
   r (1)	19	Channel is "registered" (e.g. by ChanServ).
   R	19	Only registered users are allowed to join this channel.
   s	0.9.0	Channel is "secret".

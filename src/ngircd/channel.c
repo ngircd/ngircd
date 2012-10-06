@@ -364,7 +364,7 @@ Channel_Kick(CLIENT *Peer, CLIENT *Target, CLIENT *Origin, const char *Name,
 		}
 
 		if(!can_kick) {
-			IRC_WriteStrClient(Origin, ERR_CHANOPPRIVTOLOW_MSG,
+			IRC_WriteStrClient(Origin, ERR_CHANOPPRIVTOOLOW_MSG,
 				Client_ID(Origin), Name);
 			return;
 		}

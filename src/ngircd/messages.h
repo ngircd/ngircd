@@ -139,7 +139,7 @@
 #define ERR_LISTFULL_MSG		"478 %s %s %s: Channel list is full (%d)"
 #define ERR_NOPRIVILEGES_MSG		"481 %s :Permission denied"
 #define ERR_CHANOPRIVSNEEDED_MSG	"482 %s %s :You are not channel operator"
-#define ERR_CHANOPPRIVTOLOW_MSG		"482 %s %s :Your privileges are to low"
+#define ERR_CHANOPPRIVTOOLOW_MSG	"482 %s %s :Your privileges are too low"
 #define ERR_CANTKILLSERVER_MSG		"483 %s :You can't kill a server!"
 #define ERR_RESTRICTED_MSG		"484 %s :Your connection is restricted"
 #define ERR_NICKREGISTER_MSG		"484 %s :Cannot modify user mode (+R) -- Use IRC services"

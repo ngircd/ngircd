@@ -1156,6 +1156,12 @@ IRC_WHOIS_SendReply(CLIENT *Client, CLIENT *from, CLIENT *c)
 				Client_ID(from), Client_ID(c)))
 		return DISCONNECTED;
 
+	if (Client_Conn(c) > NONE &&
+	    (from == c || (!Conf_MorePrivacy && Client_HasMode(from, 'o'))) &&
+	    !IRC_WriteStrClient(from, RPL_WHOISMODES_MSG, Client_ID(from),
+				Client_ID(c), Client_Modes(c)))
+		return DISCONNECTED;
+
 	if (Client_Conn(c) > NONE && (Client_OperByMe(from) || from == c) &&
 	    !IRC_WriteStrClient(from, RPL_WHOISHOST_MSG, Client_ID(from),
 				Client_ID(c), Client_Hostname(c),

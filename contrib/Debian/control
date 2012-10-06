@@ -10,7 +10,7 @@ Build-Depends: debhelper (>> 4.0.0),
     libident-dev,
     libgnutls-dev,
     libpam0g-dev,
-    telnet,
+    telnet | telnet-ssl,
 Standards-Version: 3.9.1
 
 Package: ngircd

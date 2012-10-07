@@ -102,7 +102,7 @@
 #define ERR_NOSUCHNICK_MSG		"401 %s %s :No such nick or channel name"
 #define ERR_NOSUCHSERVER_MSG		"402 %s %s :No such server"
 #define ERR_NOSUCHCHANNEL_MSG		"403 %s %s :No such channel"
-#define ERR_CANNOTSENDTOCHAN_MSG	"404 %s %s :Cannot send to channel (+m) -- Moderated"
+#define ERR_CANNOTSENDTOCHAN_MSG	"404 %s %s :Cannot send to channel"
 #define ERR_TOOMANYCHANNELS_MSG		"405 %s %s :You have joined too many channels"
 #define ERR_WASNOSUCHNICK_MSG		"406 %s %s :There was no such nickname"
 #define ERR_NOORIGIN_MSG		"409 %s :No origin specified"

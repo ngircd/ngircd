@@ -53,6 +53,22 @@ expect {
 	"@* PRIVMSG nick :test"
 }
 
+send "mode nick +b\r"
+expect {
+	timeout { exit 1 }
+	"MODE nick :+b"
+}
+send "privmsg nick :test\r"
+expect {
+	timeout { exit 1 }
+	"976"
+}
+send "mode nick -b\r"
+expect {
+	timeout { exit 1 }
+	"MODE nick :-b"
+}
+
 # The following two tests using "localhost" as host name
 # had to be disabled, because there are operating systems
 # out there, that use "localhost.<domain>" as host name

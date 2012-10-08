@@ -215,6 +215,7 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 		/* Validate modes */
 		x[0] = '\0';
 		switch (*mode_ptr) {
+		case 'b': /* Block private msgs */
 		case 'C': /* Only messages from clients sharing a channel */
 		case 'i': /* Invisible */
 		case 's': /* Server messages */

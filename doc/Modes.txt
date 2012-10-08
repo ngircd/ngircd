@@ -22,6 +22,7 @@ channels he is using at the moment.
   mode	since	description
 
   a	0.3.0	User is away.
+  b	20	User blocks private messages and notices.
   B	20	User is flagged as a "bot".
   c	17	IRC operator wants to receive connect/disconnect NOTICEs.
   C	19	Only users that share a channel are allowed to send messages.

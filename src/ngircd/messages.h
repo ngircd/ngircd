@@ -151,6 +151,7 @@
 #define ERR_UMODEUNKNOWNFLAG2_MSG	"501 %s :Unknown mode \"%c%c\""
 #define ERR_USERSDONTMATCH_MSG		"502 %s :Can't set/get mode for other users"
 #define ERR_NOINVITE_MSG		"518 %s :Cannot invite to %s (+V)"
+#define ERR_CANNOTSENDTONICK_MSG	"976 %s :Cannot send to user (+b) -- Only registered users can message %s"
 
 #ifdef ZLIB
 # define RPL_STATSLINKINFOZIP_MSG	"211 %s %s %d %ld %ld/%ld %ld %ld/%ld :%ld"

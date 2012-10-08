@@ -500,6 +500,17 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 				Req->command = "PRIVMSG";
 			}
 #endif
+			if (Client_HasMode(cl, 'b') &&
+			    !Client_HasMode(from, 'R') &&
+			    !Client_HasMode(from, 'o') &&
+			    !(Client_Type(from) == CLIENT_SERVER) &&
+			    !(Client_Type(from) == CLIENT_SERVICE)) {
+				if (SendErrors && !IRC_WriteStrClient(from,
+						ERR_CANNOTSENDTONICK_MSG,
+						Client_ID(from), Client_ID(cl)))
+					return DISCONNECTED;
+				goto send_next_target;
+			}
 
 			if (Client_HasMode(cl, 'C')) {
 				cl2chan = Channel_FirstChannelOf(cl);

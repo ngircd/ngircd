@@ -1,30 +1,35 @@
 .\"
 .\" ngircd(8) manual page template
 .\"
-.TH ngircd 8 "Mar 2012" ngircd "ngIRCd Manual"
+.TH ngircd 8 "Oct 2012" ngIRCd "ngIRCd Manual"
 .SH NAME
-ngIRCd \- the next generation IRC daemon
+ngIRCd \- the "next generation" IRC daemon
 .SH SYNOPSIS
-.B ngircd [
+.B ngircd
+[
 .I Options
-.B ]
+]
 .SH DESCRIPTION
 .BR ngIRCd
-is a free open source daemon for the Internet Relay Chat (IRC),
-developed under the GNU General Public License (GPL).
+is a free, portable and lightweight Internet Relay Chat server for small
+or private networks, developed under the GNU General Public License (GPL).
+It is easy to configure, can cope with dynamic IP addresses, and supports
+IPv6, SSL-protected connections as well as PAM for authentication.
+It is written from scratch and not based on the original IRCd.
 .PP
-It's written from scratch and is not based upon the original IRCd like
-many others. It is easy to configure, supports server links (even with
-original ircd's) and runs on hosts with changing IP addresses (such as
-dial-in networks).
+The name ngIRCd means
+.IR "next generation IRC daemon",
+which is a little bit exaggerated:
+.IR "lightweight Internet Relay Chat server"
+most probably would have been a better name :-)
 .PP
 Currently supported platforms include AIX, A/UX, FreeBSD, HP-UX, IRIX,
 Linux, Mac OS X, NetBSD, OpenBSD, Solaris, and Windows with Cygwin.
 .PP
 As ngIRCd relies on UNIX standards and uses GNU automake and GNU autoconf
 there are good chances that it also supports other UNIX-based operating
-systems as well. By default, ngIRCd writes diagnostic and informational messages using
-the syslog mechanism.
+systems as well. By default, ngIRCd writes diagnostic and informational
+messages using the syslog mechanism.
 .SH OPTIONS
 The default behavior of
 .BR ngircd

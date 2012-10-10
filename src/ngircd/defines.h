@@ -108,7 +108,7 @@
 #define CLIENT_HOST_LEN 64
 
 /** Max. length of all client modes (including NULL). */
-#define CLIENT_MODE_LEN 16
+#define CLIENT_MODE_LEN 21
 
 /** Max. length of server info texts (including NULL). */
 #define CLIENT_INFO_LEN 64
@@ -123,7 +123,7 @@
 #define CHANNEL_NAME_LEN 51
 
 /** Max. length of channel modes (including NULL). */
-#define CHANNEL_MODE_LEN 9
+#define CHANNEL_MODE_LEN 21
 
 /** Max. IRC command length (including NULL), see. RFC 2812 section 3.2. */
 #define COMMAND_LEN 513

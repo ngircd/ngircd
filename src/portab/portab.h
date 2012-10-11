@@ -112,7 +112,6 @@ typedef unsigned char bool;
 
 /* SPLint */
 
-
 #ifdef S_SPLINT_S
 #include "splint.h"
 #endif
@@ -132,6 +131,9 @@ typedef unsigned char bool;
 #define HOST_VENDOR "unknown"
 #endif
 
+#ifdef __HAIKU__
+#define SINGLE_USER_OS
+#endif
 
 /* configure options */
 

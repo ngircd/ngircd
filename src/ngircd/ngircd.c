@@ -567,6 +567,8 @@ Setup_FDStreams(int fd)
 } /* Setup_FDStreams */
 
 
+#if !defined(SINGLE_USER_OS)
+
 /**
  * Get user and group ID of unprivileged "nobody" user.
  *
@@ -605,6 +607,8 @@ NGIRCd_getNobodyID(uid_t *uid, gid_t *gid )
 
 	return true;
 } /* NGIRCd_getNobodyID */
+
+#endif
 
 
 static bool
@@ -692,6 +696,7 @@ NGIRCd_Init(bool NGIRCd_NoDaemon)
 		}
 	}
 
+#if !defined(SINGLE_USER_OS)
 	/* Check user ID */
 	if (Conf_UID == 0) {
 		pwd = getpwuid(0);
@@ -718,6 +723,7 @@ NGIRCd_Init(bool NGIRCd_NoDaemon)
 				goto out;
 		}
 	}
+#endif
 
 	/* Change user ID */
 	if (getuid() != Conf_UID) {

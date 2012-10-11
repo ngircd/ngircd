@@ -164,11 +164,11 @@ AC_SEARCH_LIBS([memmove], [UTIL], [], [
 	AC_MSG_ERROR([unable to find the memmove() function])
 ])
 # gethostbyname: Solaris libnsl
-AC_SEARCH_LIBS([gethostbyname], [nsl], [], [
+AC_SEARCH_LIBS([gethostbyname], [bind nsl network], [], [
 	AC_MSG_ERROR([unable to find the gethostbyname() function])
 ])
 # bind: SVR4 libsocket
-AC_SEARCH_LIBS([bind], [socket], [], [
+AC_SEARCH_LIBS([bind], [socket network], [], [
 	AC_MSG_ERROR([unable to find the bind() function])
 ])
 

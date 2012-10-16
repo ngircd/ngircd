@@ -365,7 +365,7 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 		chan = Channel_Search(channame);
 		if (!chan && Conf_PredefChannelsOnly) {
 			 /* channel must be created, but forbidden by config */
-			IRC_WriteStrClient(Client, ERR_BANNEDFROMCHAN_MSG,
+			IRC_WriteStrClient(Client, ERR_NOSUCHCHANNEL_MSG,
 					   Client_ID(Client), channame);
 			goto join_next;
 		}

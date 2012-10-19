@@ -918,7 +918,11 @@ Channel_Write(CHANNEL *Chan, CLIENT *From, CLIENT *Client, const char *Command,
 	if (!Can_Send_To_Channel(Chan, From)) {
 		if (! SendErrors)
 			return CONNECTED;	/* no error, see RFC 2812 */
-		return IRC_WriteStrClient(From, ERR_CANNOTSENDTOCHAN_MSG,
+		if (strchr(Channel_Modes(Chan), 'M'))
+			return IRC_WriteStrClient(From, ERR_NEEDREGGEDNICK_MSG,
+						  Client_ID(From), Channel_Name(Chan));
+		else
+			return IRC_WriteStrClient(From, ERR_CANNOTSENDTOCHAN_MSG,
 					  Client_ID(From), Channel_Name(Chan));
 	}
 

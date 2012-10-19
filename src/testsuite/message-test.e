@@ -61,7 +61,7 @@ expect {
 send "privmsg nick :test\r"
 expect {
 	timeout { exit 1 }
-	"976"
+	"486"
 }
 send "mode nick -b\r"
 expect {

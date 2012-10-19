@@ -136,6 +136,7 @@
 #define ERR_BANNEDFROMCHAN_MSG		"474 %s %s :Cannot join channel (+b) -- You are banned"
 #define ERR_BADCHANNELKEY_MSG		"475 %s %s :Cannot join channel (+k) -- Wrong channel key"
 #define ERR_NOCHANMODES_MSG		"477 %s %s :Channel doesn't support modes"
+#define ERR_NEEDREGGEDNICK_MSG		"477 %s %s :Cannot send to channel (+M) -- You need to be identified to a registered account to message this channel"
 #define ERR_LISTFULL_MSG		"478 %s %s %s: Channel list is full (%d)"
 #define ERR_NOPRIVILEGES_MSG		"481 %s :Permission denied"
 #define ERR_CHANOPRIVSNEEDED_MSG	"482 %s %s :You are not channel operator"
@@ -144,6 +145,7 @@
 #define ERR_CANTKILLSERVER_MSG		"483 %s :You can't kill a server!"
 #define ERR_RESTRICTED_MSG		"484 %s :Your connection is restricted"
 #define ERR_NICKREGISTER_MSG		"484 %s :Cannot modify user mode (+R) -- Use IRC services"
+#define ERR_NONONREG_MSG		"486 %s :Cannot send to user (+b) -- You must identify to a registered nick to private message %s"
 #define ERR_NOOPERHOST_MSG		"491 %s :Not configured for your host"
 #define ERR_NOTONSAMECHANNEL_MSG	"493 %s :You must share a common channel with %s"
 
@@ -151,7 +153,6 @@
 #define ERR_UMODEUNKNOWNFLAG2_MSG	"501 %s :Unknown mode \"%c%c\""
 #define ERR_USERSDONTMATCH_MSG		"502 %s :Can't set/get mode for other users"
 #define ERR_NOINVITE_MSG		"518 %s :Cannot invite to %s (+V)"
-#define ERR_CANNOTSENDTONICK_MSG	"976 %s :Cannot send to user (+b) -- Only registered users can message %s"
 
 #ifdef ZLIB
 # define RPL_STATSLINKINFOZIP_MSG	"211 %s %s %d %ld %ld/%ld %ld %ld/%ld :%ld"

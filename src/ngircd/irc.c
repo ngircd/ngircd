@@ -506,7 +506,7 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 			    !(Client_Type(from) == CLIENT_SERVER) &&
 			    !(Client_Type(from) == CLIENT_SERVICE)) {
 				if (SendErrors && !IRC_WriteStrClient(from,
-						ERR_CANNOTSENDTONICK_MSG,
+						ERR_NONONREG_MSG,
 						Client_ID(from), Client_ID(cl)))
 					return DISCONNECTED;
 				goto send_next_target;

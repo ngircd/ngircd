@@ -512,7 +512,7 @@ IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 	CHANNEL *chan;
 	CLIENT *from;
 	char *topic;
-	bool r, is_oper;
+	bool r, topic_power;
 
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -535,11 +535,17 @@ IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 		return IRC_WriteStrClient(from, ERR_NOSUCHCHANNEL_MSG,
 					  Client_ID(from), Req->argv[0]);
 
-	/* Only IRC opers and channel members allowed */
-	is_oper = Client_OperByMe(from);
-	if (!Channel_IsMemberOf(chan, from) && !is_oper)
-		return IRC_WriteStrClient(from, ERR_NOTONCHANNEL_MSG,
-					  Client_ID(from), Req->argv[0]);
+	/* Only remote servers and channel members are allowed to change the
+	 * channel topic, and IRC opreators when the Conf_OperCanMode option
+	 * is set in the server configuration. */
+	if (Client_Type(Client) != CLIENT_SERVER) {
+		topic_power = Client_HasMode(from, 'o');
+		if (!Channel_IsMemberOf(chan, from)
+		    && !(Conf_OperCanMode && topic_power))
+			return IRC_WriteStrClient(from, ERR_NOTONCHANNEL_MSG,
+						  Client_ID(from), Req->argv[0]);
+	} else
+		topic_power = true;
 
 	if (Req->argc == 1) {
 		/* Request actual topic */
@@ -567,11 +573,11 @@ IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 
 	if (strchr(Channel_Modes(chan), 't')) {
 		/* Topic Lock. Is the user a channel op or IRC operator? */
-		if(!strchr(Channel_UserModes(chan, from), 'h') &&
+		if(!topic_power &&
+		   !strchr(Channel_UserModes(chan, from), 'h') &&
 		   !strchr(Channel_UserModes(chan, from), 'o') &&
 		   !strchr(Channel_UserModes(chan, from), 'a') &&
-		   !strchr(Channel_UserModes(chan, from), 'q') &&
-		   !is_oper)
+		   !strchr(Channel_UserModes(chan, from), 'q'))
 			return IRC_WriteStrClient(from, ERR_CHANOPRIVSNEEDED_MSG,
 						  Client_ID(from),
 						  Channel_Name(chan));

@@ -11,12 +11,112 @@
 
 ngIRCd
 
-  - Implemented hashed cloaked hostnames for both the "CloakHost" and
+  - Implement user mode "b", "block messages": when a user has set mode "b",
+    all private messages and notices to this user are blocked if they don't
+    originate from a registered user, an IRC Op, server or service. The
+    originator gets an error numeric sent back in this case,
+    ERR_NONONREG_MSG (486), which is used by UnrealIRCd, too. (Closes #144)
+  - WHOIS: Not only show RPL_WHOISHOST_MSG to local IRC operators, but show
+    it to all IRC operators in the network. And don't show it to anybody if
+    the "more privacy" configuration option is enabled. (Closes #134)
+  - Test suite: make expect scripts more verbose displaying dots for each
+    reply of the server that it is waiting for.
+  - WHOIS: Implement numeric RPL_WHOISMODES_MSG (379) and show user modes in
+    the reply of the WHOIS command for the user himself or, if MorePrivacy
+    isn't set, for request initiated by an IRC operator. (Closes #129)
+  - Implement channel mode "V" (invite disallow): If the new channel mode
+    "V" is set, the INVITE command becomes invalid and all clients get the
+    new ERR_NOINVITE_MSG (518) reply. (Closes #143)
+  - KICK-protect IRC services.
+  - Implement channel mode "Q" and user mode "q": Both modes protect users
+    from channel kicks: only IRC operators and servers can kick users having
+    mode "q" or in channels with mode "Q". (Closes #141)
+  - Debian: require "telnet" or "telnet-ssl" for building and enable
+    CHARCONV in ngircd-full[-dbg] variants.
+  - Send RPL_REHASHING (382) numeric if a REHASH command was accepted.
+  - Fix spelling and variable names in some log messages.
+  - Allow users to "cloak" their hostname only when the configuration
+    variable "CloakHostModeX" (introduced in 19.2) is set. Otherwise, only
+    IRC operators, other servers, and services are allowed to set the user
+    mode "+x": this prevents regular users from changing their hostmask to
+    the name of the IRC server itself, which confused quite a few people ;-)
+    (Closes #133)
+  - New configuration option "OperChanPAutoOp": If disabled, IRC operators
+    don't become channel operators in persistent channels when joining.
+    Enabled by default, which has been the behavior of ngIRCd up to this
+    patch. (Closes #135)
+  - Allow IRC operators to see secret (+s) channels in LIST command as long
+    as the "MorePrivacy" configuration option isn't enabled in the
+    configuration file. (Closes #136)
+  - Enhance build system: Support new (>=1.12) and old (<=1.11) GNU automake
+    versions, update checks for required and optional features, enable
+    colored test output of automake (if available), rename configure.in to
+    more modern configure.ac, include .mailmap and all build-system files in
+    distribution archives and no longer require a GIT tree to detect the
+    correct version string.
+  - Update documentation: add doc/Contributing.txt and include version
+    numbers in doc/Modes.txt.
+  - Free all listen ports on initialization: now listen ports can be
+    reconfigured on runtime using a configuration reload.
+  - Initialize SSL when needed only, and disable SSL on errors.
+  - Implement new (optional) IRC+ "CHARCONV" command to set a client
+    character set that the server translates all messages to/from UTF-8.
+    This feature requires the "libiconv" library and must be enabled using
+    the new "--with-iconv" option of the ./configure script. See
+    doc/Protocol.txt for details. (Closes #109)
+  - Allow limited punctuation in usernames, for better PAM integration.
+  - Correctly re-initialize signal handlers on RESTART commands.
+  - Show a warning on startup if the configuration file is not a full path:
+    ngIRCd is a long-running process and changes its working directory to
+    "/" to not block mounted filesystems and the like when running as daemon
+    ("not in the foreground"); therefore the path to the configuration file
+    must be relative to "/" (or the chroot() directory), which basically is
+    "not relative", to ensure that "kill -HUP" and the "REHASH" command work
+    as expected later on. (Closes #127)
+  - Make the "&SERVER" channel definable in a [Channel] configuration block,
+    which enables server operators to overwrite the built-in topic and
+    channel modes. (Closes #131)
+  - Don't limit list size of "WHO #channel" commands, because it makes no
+    sense to not return all the users in that channel, so I removed the
+    check. But if there are more than MAX_RPL_WHO(25) replies, the client
+    requesting the list will be "penalized" one second more, then 2 in
+    total. (Closes #125)
+  - Make ngIRCd buildable using the kqueue() IO interface on FreeBSD 4.x.
+  - Fix the "NoticeAuth" configuration option when using SSL connections and
+    enhance the message to show the hostname and IDENT reply of the client.
+  - Introduce numeric RPL_HOSTHIDDEN_MSG (396): This numeric is sent to the
+    client each time it changes its displayed hostname using "MODE +/-x",
+    and if "CloakHost" is set right after the MOTD has been sent.
+  - Fix USERHOST not displaying the correctly cloaked hostname.
+  - Implement user mode "B" ("Bot flag"): it is settable and unsettable by
+    every (non-restricted) client. This is how Unreal and InspIRCd do
+    behave, and so do we :-)
+  - Dynamically allocate memory for connection passwords: This a) saves
+    memory for clients not using passwords at all and b) allows for
+    "arbitrarily" long passwords.
+  - Implement channel mode "M": Only the server, identified users and IRC
+    operators are able to talk in such a channel.
+  - Block nicknames that are reserved for services and are defined using the
+    configuration variable "ServiceMask" in "Server" blocks; And this
+    variable now can handle more than one mask separated by commas.
+  - Now "make uninstall" removes the installed "ngircd.conf" file, if it is
+    still equal to our "sample-ngircd.conf" file and therefore hasn't been
+    modified by the user. If it has been modified, it isn't removed and a
+    notice is displayed to the user. And "make install" now displays a
+    message when no ngircd.conf file exists and the "sample-ngircd.conf"
+    file will be installed as a starting point.
+  - Add contrib/ngircd.service, a systemd service file for ngircd.
+  - Implemented XOP channel user modes: "Half Op" ("+h", prefix "%") can set
+    the channel modes +imntvIbek and kick all +v and normal users; "Admin"
+    ("+a", prefix "&") can set channel modes +imntvIbekoRsz and kick all +o,
+    +h, +v and normal users; and "Owner" ("+q", prefix "~") can set channel
+    modes +imntvIbekoRsz and kick all +a, +o, +h, +v and normal users.
+  - Implement hashed cloaked hostnames for both the "CloakHost" and
     "CloakHostModeX" configuration options: now the admin can use the new
     '%x' placeholder to insert a hashed version of the clients hostname,
     and the new configuration option "CloakHostSalt" defines the salt for
     the hash function. When "CloakHostSalt" is not set (the default), a
-    random salt will be generated after each server restart.
+    random salt will be generated after each server restart. (Closes #133)
 
 ngIRCd Release 19.2 (2012-06-19)
 

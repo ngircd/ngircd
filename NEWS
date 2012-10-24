@@ -11,7 +11,49 @@
 
 ngIRCd
 
-  - Implemented hashed cloaked hostnames for both the "CloakHost" and
+  - Implement user mode "b", "block messages": when a user has set mode "b",
+    all private messages and notices to this user are blocked if they don't
+    originate from a registered user, an IRC Op, server or service. The
+    originator gets an error numeric sent back in this case,
+    ERR_NONONREG_MSG (486), which is used by UnrealIRCd, too. (Closes #144)
+  - Implement channel mode "V" (invite disallow): If the new channel mode
+    "V" is set, the INVITE command becomes invalid and all clients get the
+    new ERR_NOINVITE_MSG (518) reply. (Closes #143)
+  - Implement channel mode "Q" and user mode "q": Both modes protect users
+    from channel kicks: only IRC operators and servers can kick users having
+    mode "q" or in channels with mode "Q". (Closes #141)
+  - Allow users to "cloak" their hostname only when the configuration
+    variable "CloakHostModeX" (introduced in 19.2) is set. Otherwise, only
+    IRC operators, other servers, and services are allowed to set the user
+    mode "+x": this prevents regular users from changing their hostmask to
+    the name of the IRC server itself, which confused quite a few people ;-)
+    (Closes #133)
+  - New configuration option "OperChanPAutoOp": If disabled, IRC operators
+    don't become channel operators in persistent channels when joining.
+    Enabled by default, which has been the behavior of ngIRCd up to this
+    patch. (Closes #135)
+  - Allow IRC operators to see secret (+s) channels in LIST command as long
+    as the "MorePrivacy" configuration option isn't enabled in the
+    configuration file. (Closes #136)
+  - Implement new (optional) IRC+ "CHARCONV" command to set a client
+    character set that the server translates all messages to/from UTF-8.
+    This feature requires the "libiconv" library and must be enabled using
+    the new "--with-iconv" option of the ./configure script. See
+    doc/Protocol.txt for details. (Closes #109)
+  - Implement user mode "B" ("Bot flag"): it is settable and unsettable by
+    every (non-restricted) client. This is how Unreal and InspIRCd do
+    behave, and so do we :-)
+  - Implement channel mode "M": Only the server, identified users and IRC
+    operators are able to talk in such a channel.
+  - Block nicknames that are reserved for services and are defined using the
+    configuration variable "ServiceMask" in "Server" blocks; And this
+    variable now can handle more than one mask separated by commas.
+  - Implemented XOP channel user modes: "Half Op" ("+h", prefix "%") can set
+    the channel modes +imntvIbek and kick all +v and normal users; "Admin"
+    ("+a", prefix "&") can set channel modes +imntvIbekoRsz and kick all +o,
+    +h, +v and normal users; and "Owner" ("+q", prefix "~") can set channel
+    modes +imntvIbekoRsz and kick all +a, +o, +h, +v and normal users.
+  - Implement hashed cloaked hostnames for both the "CloakHost" and
     "CloakHostModeX" configuration options: now the admin can use the new
     '%x' placeholder to insert a hashed version of the clients hostname,
     and the new configuration option "CloakHostSalt" defines the salt for

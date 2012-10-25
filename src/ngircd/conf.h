@@ -220,6 +220,9 @@ GLOBAL int Conf_MaxConnectionsIP;
 /** Maximum length of a nick name */
 GLOBAL unsigned int Conf_MaxNickLength;
 
+/** Maximum number of channels returned to /list */
+GLOBAL int Conf_MaxListSize;
+
 #ifndef STRICT_RFC
 
 /** Require "AUTH PING-PONG" on login */

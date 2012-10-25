@@ -350,6 +350,7 @@ Conf_Test( void )
 	printf("  MaxConnectionsIP = %d\n", Conf_MaxConnectionsIP);
 	printf("  MaxJoins = %d\n", Conf_MaxJoins > 0 ? Conf_MaxJoins : -1);
 	printf("  MaxNickLength = %u\n", Conf_MaxNickLength - 1);
+	printf("  MaxListSize = %d\n", Conf_MaxListSize);
 	printf("  PingTimeout = %d\n", Conf_PingTimeout);
 	printf("  PongTimeout = %d\n", Conf_PongTimeout);
 	puts("");
@@ -706,6 +707,7 @@ Set_Defaults(bool InitServers)
 	Conf_MaxConnectionsIP = 5;
 	Conf_MaxJoins = 10;
 	Conf_MaxNickLength = CLIENT_NICK_LEN_DEFAULT;
+	Conf_MaxListSize = 100;
 	Conf_PingTimeout = 120;
 	Conf_PongTimeout = 20;
 
@@ -1455,6 +1457,12 @@ Handle_LIMITS(int Line, char *Var, char *Arg)
 	}
 	if (strcasecmp(Var, "MaxNickLength") == 0) {
 		Conf_MaxNickLength = Handle_MaxNickLength(Line, Arg);
+		return;
+	}
+	if (strcasecmp(Var, "MaxListSize") == 0) {
+		Conf_MaxListSize = atoi(Arg);
+		if (!Conf_MaxListSize && strcmp(Arg, "0"))
+			Config_Error_NaN(Line, Var);
 		return;
 	}
 	if (strcasecmp(Var, "PingTimeout") == 0) {

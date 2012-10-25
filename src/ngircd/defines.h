@@ -181,9 +181,6 @@
 
 /* Defaults and limits for IRC commands */
 
-/** Max. number of LIST replies. */
-#define MAX_RPL_LIST 100
-
 /** Max. number of elemets allowed in channel invite and ban lists. */
 #define MAX_HNDL_CHANNEL_LISTS 50
 

@@ -679,9 +679,10 @@ IRC_LIST( CLIENT *Client, REQUEST *Req )
 				if (!strchr(Channel_Modes(chan), 's')
 				    || Channel_IsMemberOf(chan, from)
 				    || (!Conf_MorePrivacy && Client_OperByMe(Client))) {
-					if (IRC_CheckListTooBig(from, count,
-								 MAX_RPL_LIST,
-								 "LIST"))
+					if ((Conf_MaxListSize > 0)
+					    && IRC_CheckListTooBig(from, count,
+								   Conf_MaxListSize,
+								   "LIST"))
 						break;
 					if (!IRC_WriteStrClient(from,
 					     RPL_LIST_MSG, Client_ID(from),

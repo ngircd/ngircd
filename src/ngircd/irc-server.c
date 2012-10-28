@@ -53,7 +53,6 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 	char str[LINE_LEN];
 	CLIENT *from, *c;
 	int i;
-	CONN_ID con;
 
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -70,27 +69,40 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 		LogDebug("Connection %d: got SERVER command (new server link) ...",
 			Client_Conn(Client));
 
-		if(( Req->argc != 2 ) && ( Req->argc != 3 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+		if (Req->argc != 2 && Req->argc != 3)
+			return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+						  Client_ID(Client),
+						  Req->command);
 
-		/* Ist this server configured on out side? */
-		for( i = 0; i < MAX_SERVERS; i++ ) if( strcasecmp( Req->argv[0], Conf_Server[i].name ) == 0 ) break;
-		if( i >= MAX_SERVERS )
-		{
-			Log( LOG_ERR, "Connection %d: Server \"%s\" not configured here!", Client_Conn( Client ), Req->argv[0] );
-			Conn_Close( Client_Conn( Client ), NULL, "Server not configured here", true);
+		/* Get configuration index of new remote server ... */
+		for (i = 0; i < MAX_SERVERS; i++)
+			if (strcasecmp(Req->argv[0], Conf_Server[i].name) == 0)
+				break;
+
+		/* Makre sure the remote server is configured here */
+		if (i >= MAX_SERVERS) {
+			Log(LOG_ERR,
+			    "Connection %d: Server \"%s\" not configured here!",
+			    Client_Conn(Client), Req->argv[0]);
+			Conn_Close(Client_Conn(Client), NULL,
+				   "Server not configured here", true);
 			return DISCONNECTED;
 		}
-		if( strcmp( Conn_Password( Client_Conn( Client ) ),
-			    Conf_Server[i].pwd_in ) != 0 )
-		{
-			/* wrong password */
-			Log( LOG_ERR, "Connection %d: Got bad password from server \"%s\"!", Client_Conn( Client ), Req->argv[0] );
-			Conn_Close( Client_Conn( Client ), NULL, "Bad password", true);
+
+		/* Check server password */
+		if (strcmp(Conn_Password(Client_Conn(Client)),
+		    Conf_Server[i].pwd_in) != 0) {
+			Log(LOG_ERR,
+			    "Connection %d: Got bad password from server \"%s\"!",
+			    Client_Conn(Client), Req->argv[0]);
+			Conn_Close(Client_Conn(Client), NULL,
+				   "Bad password", true);
 			return DISCONNECTED;
 		}
 
 		/* Is there a registered server with this ID? */
-		if( ! Client_CheckID( Client, Req->argv[0] )) return DISCONNECTED;
+		if (!Client_CheckID(Client, Req->argv[0]))
+			return DISCONNECTED;
 
 		Client_SetID( Client, Req->argv[0] );
 		Client_SetHops( Client, 1 );
@@ -98,7 +110,6 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 
 		/* Is this server registering on our side, or are we connecting to
 		 * a remote server? */
-		con = Client_Conn(Client);
 		if (Client_Token(Client) != TOKEN_OUTBOUND) {
 			/* Incoming connection, send user/pass */
 			if (!IRC_WriteStrClient(Client, "PASS %s %s",
@@ -107,7 +118,8 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 			    || !IRC_WriteStrClient(Client, "SERVER %s 1 :%s",
 						   Conf_ServerName,
 						   Conf_ServerInfo)) {
-				    Conn_Close(con, "Unexpected server behavior!",
+				    Conn_Close(Client_Conn(Client),
+					       "Unexpected server behavior!",
 					       NULL, false);
 				    return DISCONNECTED;
 			}
@@ -120,24 +132,27 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 		}
 
 		/* Mark this connection as belonging to an configured server */
-		Conf_SetServer(i, con);
+		Conf_SetServer(i, Client_Conn(Client));
 
 		/* Check protocol level */
 		if (Client_Type(Client) == CLIENT_GOTPASS) {
 			/* We got a "simple" PASS command, so the peer is
 			 * using the protocol as defined in RFC 1459. */
-			if (! (Conn_Options(con) & CONN_RFC1459))
+			if (!Conn_Options(Client_Conn(Client)) & CONN_RFC1459)
 				Log(LOG_INFO,
 				    "Switching connection %d (\"%s\") to RFC 1459 compatibility mode.",
-				    con, Client_ID(Client));
-			Conn_SetOption(con, CONN_RFC1459);
+				    Client_Conn(Client), Client_ID(Client));
+			Conn_SetOption(Client_Conn(Client), CONN_RFC1459);
 		}
 
 		Client_SetType(Client, CLIENT_UNKNOWNSERVER);
 
 #ifdef ZLIB
-		if (strchr(Client_Flags(Client), 'Z') && !Zip_InitConn(con)) {
-			Conn_Close( con, "Can't inizialize compression (zlib)!", NULL, false );
+		if (strchr(Client_Flags(Client), 'Z')
+		    && !Zip_InitConn(Client_Conn(Client))) {
+			Conn_Close(Client_Conn(Client),
+				   "Can't inizialize compression (zlib)!",
+				   NULL, false );
 			return DISCONNECTED;
 		}
 #endif

@@ -481,8 +481,12 @@ Conf_UnsetServer( CONN_ID Idx )
 				 * require the next attempt to be delayed. */
 				Conf_Server[i].lasttry =
 					t - Conf_ConnectRetry + RECONNECT_DELAY;
-			} else
-				Conf_Server[i].lasttry = t;
+			} else {
+				/* "Short" connection, enforce "ConnectRetry"
+				 * but randomize it a little bit: 15 seconds. */
+				Conf_Server[i].lasttry =
+					t + rand() / (RAND_MAX / 15);
+			}
 		}
 	}
 }

@@ -242,7 +242,7 @@ GLOBAL bool Conf_Rehash PARAMS((void));
 GLOBAL int Conf_Test PARAMS((void));
 
 GLOBAL void Conf_UnsetServer PARAMS(( CONN_ID Idx ));
-GLOBAL void Conf_SetServer PARAMS(( int ConfServer, CONN_ID Idx ));
+GLOBAL bool Conf_SetServer PARAMS(( int ConfServer, CONN_ID Idx ));
 GLOBAL int Conf_GetServer PARAMS(( CONN_ID Idx ));
 
 GLOBAL bool Conf_EnableServer PARAMS(( const char *Name, UINT16 Port ));

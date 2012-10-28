@@ -104,6 +104,10 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 		if (!Client_CheckID(Client, Req->argv[0]))
 			return DISCONNECTED;
 
+		/* Mark this connection as belonging to an configured server */
+		if (!Conf_SetServer(i, Client_Conn(Client)))
+			return DISCONNECTED;
+
 		Client_SetID( Client, Req->argv[0] );
 		Client_SetHops( Client, 1 );
 		Client_SetInfo( Client, Req->argv[Req->argc - 1] );
@@ -130,9 +134,6 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 			 * command to the peer */
 			Client_SetToken(Client, atoi(Req->argv[1]));
 		}
-
-		/* Mark this connection as belonging to an configured server */
-		Conf_SetServer(i, Client_Conn(Client));
 
 		/* Check protocol level */
 		if (Client_Type(Client) == CLIENT_GOTPASS) {

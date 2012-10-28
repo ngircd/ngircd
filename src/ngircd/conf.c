@@ -490,7 +490,7 @@ Conf_UnsetServer( CONN_ID Idx )
 /**
  * Set connection information for specified configured server.
  */
-GLOBAL void
+GLOBAL bool
 Conf_SetServer( int ConfServer, CONN_ID Idx )
 {
 	assert( ConfServer > NONE );
@@ -498,13 +498,15 @@ Conf_SetServer( int ConfServer, CONN_ID Idx )
 
 	if (Conf_Server[ConfServer].conn_id > NONE &&
 	    Conf_Server[ConfServer].conn_id != Idx) {
-		Log(LOG_ALERT,
-			"Trying to update connection index for already registered server \"%s\": %d/%d - ignored.",
-			Conf_Server[ConfServer].name,
-			Conf_Server[ConfServer].conn_id, Idx);
-		return;
+		Log(LOG_ERR,
+		    "Connection %d: Server configuration of \"%s\" already in use by connection %d!",
+		    Idx, Conf_Server[ConfServer].name,
+		    Conf_Server[ConfServer].conn_id);
+		Conn_Close(Idx, NULL, "Server configuration already in use", true);
+		return false;
 	}
 	Conf_Server[ConfServer].conn_id = Idx;
+	return true;
 }
 
 /**

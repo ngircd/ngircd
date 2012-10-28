@@ -2079,7 +2079,8 @@ New_Server( int Server , ng_ipaddr_t *dest)
 	Client_SetToken( c, TOKEN_OUTBOUND );
 
 	/* Register connection */
-	Conf_SetServer(Server, new_sock);
+	if (!Conf_SetServer(Server, new_sock))
+		return;
 	My_Connections[new_sock].sock = new_sock;
 	My_Connections[new_sock].addr = *dest;
 	My_Connections[new_sock].client = c;

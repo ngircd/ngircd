@@ -182,6 +182,9 @@ Maximum length of an user nick name (Default: 9, as in RFC 2812). Please
 note that all servers in an IRC network MUST use the same maximum nick name
 length!
 .TP
+\fBMaxListSize\fR (number)
+Maximum number of channels returned in response to a LIST command. Default: 100.
+.TP
 \fBPingTimeout\fR (number)
 After <PingTimeout> seconds of inactivity the server will send a PING to
 the peer to test whether it is alive or not. Default: 120.

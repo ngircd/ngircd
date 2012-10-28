@@ -11,6 +11,8 @@
 
 ngIRCd
 
+  - New configuration option "MaxListSize" to configure the maximum number
+    of channels returned by a LIST command. The default is 100, as before.
   - Implement user mode "b", "block messages": when a user has set mode "b",
     all private messages and notices to this user are blocked if they don't
     originate from a registered user, an IRC Op, server or service. The

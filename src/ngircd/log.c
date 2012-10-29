@@ -80,9 +80,9 @@ Log_Init(bool Daemon_Mode)
 #define LOG_CONS 0
 #endif
 #ifdef LOG_DAEMON
-	openlog(PACKAGE_NAME, LOG_CONS|LOG_PID, LOG_DAEMON);
+	openlog(PACKAGE, LOG_CONS|LOG_PID, LOG_DAEMON);
 #else
-	openlog(PACKAGE_NAME, LOG_CONS|LOG_PID, 0);
+	openlog(PACKAGE, LOG_CONS|LOG_PID, 0);
 #endif
 #endif
 } /* Log_Init */
@@ -99,7 +99,7 @@ Log_ReInit(void)
 #define LOG_CONS 0
 #endif
 	closelog();
-	openlog(PACKAGE_NAME, LOG_CONS|LOG_PID, Conf_SyslogFacility);
+	openlog(PACKAGE, LOG_CONS|LOG_PID, Conf_SyslogFacility);
 #endif
 	Log(LOG_NOTICE, "%s started.", NGIRCd_Version);
 	Log(LOG_INFO, "Using configuration file \"%s\" ...", NGIRCd_ConfFile);
@@ -218,7 +218,7 @@ GLOBAL void
 Log_Init_Subprocess(char UNUSED *Name)
 {
 #ifdef SYSLOG
-	openlog(PACKAGE_NAME, LOG_CONS|LOG_PID, Conf_SyslogFacility);
+	openlog(PACKAGE, LOG_CONS|LOG_PID, Conf_SyslogFacility);
 #endif
 #ifdef DEBUG
 	Log_Subprocess(LOG_DEBUG, "%s sub-process starting, PID %ld.",

@@ -139,7 +139,7 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 		if (Client_Type(Client) == CLIENT_GOTPASS) {
 			/* We got a "simple" PASS command, so the peer is
 			 * using the protocol as defined in RFC 1459. */
-			if (!Conn_Options(Client_Conn(Client)) & CONN_RFC1459)
+			if (! (Conn_Options(Client_Conn(Client)) & CONN_RFC1459))
 				Log(LOG_INFO,
 				    "Switching connection %d (\"%s\") to RFC 1459 compatibility mode.",
 				    Client_Conn(Client), Client_ID(Client));

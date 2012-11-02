@@ -38,7 +38,10 @@
 #include "exp.h"
 #include "irc-login.h"
 
-static void Kill_Nick PARAMS(( char *Nick, char *Reason ));
+static void Kill_Nick PARAMS((char *Nick, char *Reason));
+static void Change_Nick PARAMS((CLIENT * Origin, CLIENT * Target,
+				char *NewNick, bool RegisterWhowas));
+
 
 /**
  * Handler for the IRC "PASS" command.
@@ -275,40 +278,8 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 				Client_SetType( Client, CLIENT_GOTNICK );
 		} else {
 			/* Nickname change */
-			if (Client_Conn(target) > NONE) {
-				/* Local client */
-				Log(LOG_INFO,
-				    "%s \"%s\" changed nick (connection %d): \"%s\" -> \"%s\".",
-				    Client_TypeText(target), Client_Mask(target),
-				    Client_Conn(target), Client_ID(target),
-				    Req->argv[0]);
-				Conn_UpdateIdle(Client_Conn(target));
-			} else {
-				/* Remote client */
-				LogDebug("%s \"%s\" changed nick: \"%s\" -> \"%s\".",
-					 Client_TypeText(target),
-					 Client_Mask(target), Client_ID(target),
-					 Req->argv[0]);
-			}
-
-			/* Inform all users and servers (which have to know)
-			 * of this nickname change */
-			if( Client_Type( Client ) == CLIENT_USER )
-				IRC_WriteStrClientPrefix( Client, Client,
-							  "NICK :%s",
-							  Req->argv[0] );
-			IRC_WriteStrServersPrefix( Client, target,
-						   "NICK :%s", Req->argv[0] );
-			IRC_WriteStrRelatedPrefix( target, target, false,
-						   "NICK :%s", Req->argv[0] );
-
-			/* Register old nickname for WHOWAS queries */
-			Client_RegisterWhowas( target );
-
-			/* Save new nickname */
-			Client_SetID( target, Req->argv[0] );
-
-			IRC_SetPenalty( target, 2 );
+			Change_Nick(Client, target, Req->argv[0], true);
+			IRC_SetPenalty(target, 2);
 		}
 
 		return CONNECTED;
@@ -923,6 +894,45 @@ Kill_Nick(char *Nick, char *Reason)
 
 	IRC_KILL(Client_ThisServer(), &r);
 } /* Kill_Nick */
+
+
+/**
+ * Change the nickname of a client.
+ *
+ * @param Origin The client which caused the nickname change.
+ * @param Target The client of which the nickname should be changed.
+ * @param NewNick The new nickname.
+ */
+static void
+Change_Nick(CLIENT *Origin, CLIENT *Target, char *NewNick, bool RegisterWhowas)
+{
+	if (Client_Conn(Target) > NONE) {
+		/* Local client */
+		Log(LOG_INFO,
+		    "%s \"%s\" changed nick (connection %d): \"%s\" -> \"%s\".",
+		    Client_TypeText(Target), Client_Mask(Target),
+		    Client_Conn(Target), Client_ID(Target), NewNick);
+		Conn_UpdateIdle(Client_Conn(Target));
+	} else {
+		/* Remote client */
+		LogDebug("%s \"%s\" changed nick: \"%s\" -> \"%s\".",
+			 Client_TypeText(Target),
+			 Client_Mask(Target), Client_ID(Target), NewNick);
+	}
+
+	/* Inform all servers and users (which have to know) of the new name */
+	if (Client_Type(Origin) == CLIENT_USER)
+		IRC_WriteStrClientPrefix(Origin, Origin, "NICK :%s", NewNick);
+	IRC_WriteStrServersPrefix(Origin, Target, "NICK :%s", NewNick);
+	IRC_WriteStrRelatedPrefix(Target, Target, false, "NICK :%s", NewNick);
+
+	/* Register old nickname for WHOWAS queries, if required */
+	if (RegisterWhowas)
+		Client_RegisterWhowas(Target);
+
+	/* Save new nickname */
+	Client_SetID(Target, NewNick);
+}
 
 
 /* -eof- */

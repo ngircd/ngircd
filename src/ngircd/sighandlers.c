@@ -102,7 +102,7 @@ Rehash(void)
 
 	Log( LOG_NOTICE|LOG_snotice, "Re-reading configuration NOW!" );
 
-	/* Remember old server name and nick name length */
+	/* Remember old server name and nickname length */
 	strlcpy( old_name, Conf_ServerName, sizeof old_name );
 	old_nicklen = Conf_MaxNickLength;
 
@@ -113,7 +113,7 @@ Rehash(void)
 	/* Close down all listening sockets */
 	Conn_ExitListeners( );
 
-	/* Recover old server name and nick name length: these values can't
+	/* Recover old server name and nickname length: these values can't
 	 * be changed during run-time */
 	if (strcmp(old_name, Conf_ServerName) != 0 ) {
 		strlcpy(Conf_ServerName, old_name, sizeof Conf_ServerName);

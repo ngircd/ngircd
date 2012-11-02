@@ -62,7 +62,7 @@ typedef struct _Conf_Server
 #ifdef SSL_SUPPORT
 	bool SSLConnect;		/**< Establish connection using SSL? */
 #endif
-	char svs_mask[CLIENT_ID_LEN];	/**< Mask of nick names that should be
+	char svs_mask[CLIENT_ID_LEN];	/**< Mask of nicknames that should be
 					     treated and counted as services */
 } CONF_SERVER;
 
@@ -175,7 +175,7 @@ GLOBAL char Conf_CloakHostModeX[CLIENT_ID_LEN];
 /** Salt for hostname hash for cloaked hostnames */
 GLOBAL char Conf_CloakHostSalt[CLIENT_ID_LEN];
 
-/** Use nick name as user name? */
+/** Use nickname as user name? */
 GLOBAL bool Conf_CloakUserToNick;
 
 /** Enable all DNS functions? */
@@ -217,7 +217,7 @@ GLOBAL int Conf_MaxJoins;
 /** Maximum number of connections per IP address */
 GLOBAL int Conf_MaxConnectionsIP;
 
-/** Maximum length of a nick name */
+/** Maximum length of a nickname */
 GLOBAL unsigned int Conf_MaxNickLength;
 
 /** Maximum number of channels returned to /list */

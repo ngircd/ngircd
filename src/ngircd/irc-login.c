@@ -546,10 +546,10 @@ IRC_SERVICE(CLIENT *Client, REQUEST *Req)
 	hops = atoi(Req->argv[4]);
 	info = Req->argv[5];
 
-	/* Validate service name ("nick name") */
+	/* Validate service name ("nickname") */
 	c = Client_Search(nick);
 	if(c) {
-		/* Nick name collission: disconnect (KILL) both clients! */
+		/* Nickname collission: disconnect (KILL) both clients! */
 		Log(LOG_ERR, "Server %s introduces already registered service \"%s\"!",
 		    Client_ID(Client), nick);
 		Kill_Nick(nick, "Nick collision");
@@ -900,9 +900,9 @@ IRC_PONG(CLIENT *Client, REQUEST *Req)
 
 
 /**
- * Kill all users with a specific nick name in the network.
+ * Kill all users with a specific nickname in the network.
  *
- * @param Nick		Nick name.
+ * @param Nick		Nickname.
  * @param Reason	Reason for the KILL.
  */
 static void

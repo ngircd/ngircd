@@ -1150,7 +1150,7 @@ IRC_WHOIS_SendReply(CLIENT *Client, CLIENT *from, CLIENT *c)
 				Client_ID(c)))
 		return DISCONNECTED;
 
-	/* Registered nick name? */
+	/* Registered nickname? */
 	if (Client_HasMode(c, 'R') &&
 	    !IRC_WriteStrClient(from, RPL_WHOISREGNICK_MSG,
 				Client_ID(from), Client_ID(c)))
@@ -1228,7 +1228,7 @@ IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 	/* Get target server for this command */
 	if (Req->argc > 1) {
 		/* Search the target server, which can be specified as a
-		 * nick name on that server as well: */
+		 * nickname on that server as well: */
 		target = Client_Search(Req->argv[0]);
 		if (!target)
 			return IRC_WriteStrClient(from, ERR_NOSUCHSERVER_MSG,

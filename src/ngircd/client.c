@@ -875,7 +875,7 @@ Client_Away( CLIENT *Client )
  * the appropriate error messages.
  *
  * @param	Client Client that wants to change the nickname.
- * @param	Nick New nick name.
+ * @param	Nick New nickname.
  * @returns	true if nickname is valid, false otherwise.
  */
 GLOBAL bool
@@ -897,7 +897,7 @@ Client_CheckNick(CLIENT *Client, char *Nick)
 
 	if (Client_Type(Client) != CLIENT_SERVER
 	    && Client_Type(Client) != CLIENT_SERVICE) {
-		/* Make sure that this isn't a restricted/forbidden nick name */
+		/* Make sure that this isn't a restricted/forbidden nickname */
 		if (Conf_NickIsBlocked(Nick)) {
 			IRC_WriteStrClient(Client, ERR_FORBIDDENNICKNAME_MSG,
 					   Client_ID(Client), Nick);

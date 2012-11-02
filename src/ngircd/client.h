@@ -71,7 +71,7 @@ typedef POINTER CLIENT;
 typedef struct _WHOWAS
 {
 	time_t time;			/* time stamp of entry or 0 if unused */
-	char id[CLIENT_NICK_LEN];	/* client nick name */
+	char id[CLIENT_NICK_LEN];	/* client nickname */
 	char host[CLIENT_HOST_LEN];	/* hostname of the client */
 	char user[CLIENT_USER_LEN];	/* user name ("login") */
 	char info[CLIENT_INFO_LEN];	/* long user name */

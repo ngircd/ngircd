@@ -63,7 +63,7 @@ Announce_Channel(CLIENT *Client, CHANNEL *Chan)
 		assert(cl != NULL);
 
 		if (njoin) {
-			/* RFC 2813: send NJOIN with nick names and modes
+			/* RFC 2813: send NJOIN with nicknames and modes
 			 * (if user is channel operator or has voice) */
 			if (str[strlen(str) - 1] != ':')
 				strlcat(str, ",", sizeof(str));
@@ -420,12 +420,12 @@ IRC_Num_ISUPPORT(CLIENT * Client, REQUEST * Req)
 			if ((unsigned int)atol(value) == Conf_MaxNickLength - 1)
 				continue;
 
-			/* Nick name length settings are different! */
+			/* Nickname length settings are different! */
 			Log(LOG_ERR,
-			    "Peer uses incompatible nick name length (%d/%d)! Disconnecting ...",
+			    "Peer uses incompatible nickname length (%d/%d)! Disconnecting ...",
 			    Conf_MaxNickLength - 1, atoi(value));
 			Conn_Close(Client_Conn(Client),
-				   "Incompatible nick name length",
+				   "Incompatible nickname length",
 				   NULL, false);
 			return DISCONNECTED;
 		}

@@ -644,11 +644,11 @@ Conf_AddServer(const char *Name, UINT16 Port, const char *Host,
 }
 
 /**
- * Check if the given nick name is reserved for services on a particular server.
+ * Check if the given nickname is reserved for services on a particular server.
  *
  * @param ConfServer The server index to check.
- * @param Nick The nick name to check.
- * @returns true if the given nick name belongs to an "IRC service".
+ * @param Nick The nickname to check.
+ * @returns true if the given nickname belongs to an "IRC service".
  */
 GLOBAL bool
 Conf_NickIsService(int ConfServer, const char *Nick)
@@ -661,11 +661,11 @@ Conf_NickIsService(int ConfServer, const char *Nick)
 }
 
 /**
- * Check if the given nick name is blocked for "normal client" use.
+ * Check if the given nickname is blocked for "normal client" use.
  *
  * @param ConfServer The server index or NONE to check all configured servers.
- * @param Nick The nick name to check.
- * @returns true if the given nick name belongs to an "IRC service".
+ * @param Nick The nickname to check.
+ * @returns true if the given nickname belongs to an "IRC service".
  */
 GLOBAL bool
 Conf_NickIsBlocked(const char *Nick)
@@ -1074,7 +1074,7 @@ Check_ArgIsTrue(const char *Arg)
  *
  * @param Line	Line number in configuration file.
  * @raram Arg	Input string.
- * @returns	New configured maximum nick name length.
+ * @returns	New configured maximum nickname length.
  */
 static unsigned int
 Handle_MaxNickLength(int Line, const char *Arg)

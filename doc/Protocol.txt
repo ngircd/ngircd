@@ -133,7 +133,7 @@ protocol which allows at max 15 arguments per command).
 Please see <http://www.irc.org/tech_docs/005.html> for details.
 
 The information exchanged using ISUPPORT can be used to detect configuration
-incompatibilities (different maximum nick name length, for example) and
+incompatibilities (different maximum nickname length, for example) and
 therefore to disconnect the peer prior to registering it in the network.
 
 

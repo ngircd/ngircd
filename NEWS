@@ -96,7 +96,7 @@ ngIRCd Release 19 (2012-02-29)
     and receiver are on the same channel. This prevents private flooding
     by completely unknown clients.
   - New RPL_WHOISREGNICK_MSG(307) numeric in WHOIS command replies: it
-    indicates if a nick name is registered (if user mode 'R' set).
+    indicates if a nickname is registered (if user mode 'R' set).
   - Limit channel invite, ban, and exception lists to 50 entries and fix
     duplicate check and error messages when adding already listed entries
     or deleting no (longer) existing ones.
@@ -132,7 +132,7 @@ ngIRCd Release 19 (2012-02-29)
     NICK, and USER commands have been processed) and before the child
     processes for authentication are forked, so resource usage is smaller.
   - Added doc/Modes.txt: document modes supported by ngIRCd.
-  - Implement user mode "R": indicates that the nick name of this user
+  - Implement user mode "R": indicates that the nickname of this user
     is "registered". This mode isn't handled by ngIRCd itself, but must
     be set and unset by IRC services like Anope.
   - Implement channel mode "R": only registered users (having the user
@@ -143,7 +143,7 @@ ngIRCd Release 19 (2012-02-29)
   - Handle channel user modes 'a', 'h', and 'q' from remote servers.
     These channel user modes aren't used for anything at the moment,
     but ngIRCd knows that these three modes are "channel user modes"
-    and not "channel modes", that is that these modes take an "nick name"
+    and not "channel modes", that is that these modes take an "nickname"
     argument. Like unknown user and channel modes, these modes are saved
     and forwarded to other servers, but ignored otherwise.
 
@@ -202,7 +202,7 @@ ngIRCd Release 18 (2011-07-10)
   - New configuration option "CloakHost": when set, this host name is used for
     every client instead of the real DNS host name (or IP address).
   - New configuration option "CloakUserToNick": when enabled, ngIRCd sets
-    every clients' user name to their nick name and hides the user name
+    every clients' user name to their nickname and hides the user name
     supplied by the IRC client.
   - Make write buffers bigger, but flush early. Before this change, a client
     got disconnected if the buffer flushing at 4k failed, now regular clients
@@ -370,7 +370,7 @@ ngIRCd 0.11.0 (2008-01-15)
   - New [Server] configuration Option "Bind" allows to specify
     the source IP address to use when connecting to remote server.
   - New configuration option "MaxNickLength" to specify the allowed maximum
-    length of user nick names. Note: must be unique in an IRC network!
+    length of user nicknames. Note: must be unique in an IRC network!
   - Numeric 317: implemented "signon time" (displayed in WHOIS result).
   - Added new server configuration option "Passive" for "Server" blocks to
     disable automatic outgoing connections (similar to -p option to ngircd,

@@ -283,7 +283,7 @@ Lists_MakeMask(const char *Pattern)
 		excl = NULL;
 
 	if (!at && !excl) {
-		/* Neither "!" nor "@" found: use string as nick name */
+		/* Neither "!" nor "@" found: use string as nickname */
 		strlcpy(TheMask, Pattern, sizeof(TheMask) - 5);
 		strlcat(TheMask, "!*@*", sizeof(TheMask));
 		return TheMask;

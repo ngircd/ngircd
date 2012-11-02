@@ -92,7 +92,7 @@
 /** Default nick length (including NULL), see. RFC 2812 section 1.2.1. */
 #define CLIENT_NICK_LEN_DEFAULT 10
 
-/** Maximum nick name length (including NULL). */
+/** Maximum nickname length (including NULL). */
 #define CLIENT_NICK_LEN 32
 
 /** Max. password length (including NULL). */

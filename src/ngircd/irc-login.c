@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2011 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2012 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,8 +39,8 @@
 #include "irc-login.h"
 
 static void Kill_Nick PARAMS((char *Nick, char *Reason));
-static void Change_Nick PARAMS((CLIENT * Origin, CLIENT * Target,
-				char *NewNick, bool RegisterWhowas));
+static void Change_Nick PARAMS((CLIENT * Origin, CLIENT * Target, char *NewNick,
+				bool InformClient));
 
 
 /**
@@ -278,7 +278,8 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 				Client_SetType( Client, CLIENT_GOTNICK );
 		} else {
 			/* Nickname change */
-			Change_Nick(Client, target, Req->argv[0], true);
+			Change_Nick(Client, target, Req->argv[0],
+				    Client_Type(Client) == CLIENT_USER ? true : false);
 			IRC_SetPenalty(target, 2);
 		}
 
@@ -358,6 +359,54 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 	else return IRC_WriteStrClient( Client, ERR_ALREADYREGISTRED_MSG, Client_ID( Client ));
 } /* IRC_NICK */
 
+
+/**
+ * Handler for the IRC "SVSNICK" command.
+ *
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
+ */
+GLOBAL bool
+IRC_SVSNICK(CLIENT *Client, REQUEST *Req)
+{
+	CLIENT *from, *target;
+
+	assert(Client != NULL);
+	assert(Req != NULL);
+
+	if (Req->argc != 2)
+		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+					  Client_ID(Client), Req->command);
+
+	/* Search the originator */
+	from = Client_Search(Req->prefix);
+	if (!from)
+		from = Client;
+
+	/* Search the target */
+	target = Client_Search(Req->argv[0]);
+	if (!target || Client_Type(target) != CLIENT_USER) {
+		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
+					  Client_ID(Client), Req->argv[0]);
+	}
+
+	if (Client_Conn(target) <= NONE) {
+		/* We have to forward the message to the server handling
+		 * this user; this is required to make sure all servers
+		 * in the network do follow the nick name change! */
+		return IRC_WriteStrClientPrefix(Client_NextHop(target), from,
+						"SVSNICK %s %s",
+						Req->argv[0], Req->argv[1]);
+	}
+
+	/* Make sure that the new nickname is valid */
+	if (!Client_CheckNick(from, Req->argv[1]))
+		return CONNECTED;
+
+	Change_Nick(from, target, Req->argv[1], true);
+	return CONNECTED;
+}
 
 /**
  * Handler for the IRC "USER" command.
@@ -904,7 +953,7 @@ Kill_Nick(char *Nick, char *Reason)
  * @param NewNick The new nickname.
  */
 static void
-Change_Nick(CLIENT *Origin, CLIENT *Target, char *NewNick, bool RegisterWhowas)
+Change_Nick(CLIENT *Origin, CLIENT *Target, char *NewNick, bool InformClient)
 {
 	if (Client_Conn(Target) > NONE) {
 		/* Local client */
@@ -921,14 +970,15 @@ Change_Nick(CLIENT *Origin, CLIENT *Target, char *NewNick, bool RegisterWhowas)
 	}
 
 	/* Inform all servers and users (which have to know) of the new name */
-	if (Client_Type(Origin) == CLIENT_USER)
-		IRC_WriteStrClientPrefix(Origin, Origin, "NICK :%s", NewNick);
-	IRC_WriteStrServersPrefix(Origin, Target, "NICK :%s", NewNick);
+	if (InformClient) {
+		IRC_WriteStrClientPrefix(Target, Origin, "NICK :%s", NewNick);
+		IRC_WriteStrServersPrefix(NULL, Target, "NICK :%s", NewNick);
+	} else
+		IRC_WriteStrServersPrefix(Origin, Target, "NICK :%s", NewNick);
 	IRC_WriteStrRelatedPrefix(Target, Target, false, "NICK :%s", NewNick);
 
-	/* Register old nickname for WHOWAS queries, if required */
-	if (RegisterWhowas)
-		Client_RegisterWhowas(Target);
+	/* Register old nickname for WHOWAS queries */
+	Client_RegisterWhowas(Target);
 
 	/* Save new nickname */
 	Client_SetID(Target, NewNick);

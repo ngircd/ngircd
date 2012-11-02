@@ -11,7 +11,8 @@
  * Static configuration file for Mac OS X Xcode project
  */
 
-#define PACKAGE_NAME "ngircd"
+#define PACKAGE_NAME "ngIRCd"
+#define PACKAGE "ngircd"
 #ifndef VERSION
 #define VERSION "??("__DATE__")"
 #endif

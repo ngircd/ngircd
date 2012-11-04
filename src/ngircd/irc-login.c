@@ -971,7 +971,7 @@ Change_Nick(CLIENT *Origin, CLIENT *Target, char *NewNick, bool InformClient)
 
 	/* Inform all servers and users (which have to know) of the new name */
 	if (InformClient) {
-		IRC_WriteStrClientPrefix(Target, Origin, "NICK :%s", NewNick);
+		IRC_WriteStrClientPrefix(Target, Target, "NICK :%s", NewNick);
 		IRC_WriteStrServersPrefix(NULL, Target, "NICK :%s", NewNick);
 	} else
 		IRC_WriteStrServersPrefix(Origin, Target, "NICK :%s", NewNick);

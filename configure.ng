@@ -604,7 +604,6 @@ test -n "$CFLAGS_END" && CFLAGS="$CFLAGS $CFLAGS_END"
 
 AC_CONFIG_FILES([ \
 	Makefile \
-	contrib/Anope/Makefile \
 	contrib/Debian/Makefile \
 	contrib/MacOSX/Makefile \
 	contrib/MacOSX/ngIRCd.pmdoc/Makefile \

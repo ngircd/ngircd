@@ -9,9 +9,6 @@
                             -- Contributions --
 
 
-Anope/
- - A preliminary patch that adds a ngIRCd protocol module to Anope 1.9.
-
 Debian/
  - Various files for building Debian GNU/Linux packages (".deb's").
 

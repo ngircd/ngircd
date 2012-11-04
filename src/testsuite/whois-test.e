@@ -58,6 +58,18 @@ expect {
 	"318 nick unknown :"
 }
 
+send "whois ngircd.test.server2 nick\r"
+expect {
+	timeout { exit 1 }
+	":ngircd.test.server2 311 nick nick ~user localhost* \* :Real Name\r"
+}
+
+send "whois nosuchserver unknown\r"
+expect {
+	timeout { exit 1 }
+	"402 nick nosuchserver :"
+}
+
 send "quit\r"
 expect {
 	timeout { exit 1 }

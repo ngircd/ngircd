@@ -36,6 +36,7 @@
 		FA322DBE0CEF7766001761B3 /* tool.c in Sources */ = {isa = PBXBuildFile; fileRef = FA322D330CEF74B1001761B3 /* tool.c */; };
 		FA322DC10CEF77CB001761B3 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FA322DC00CEF77CB001761B3 /* libz.dylib */; };
 		FA407F2E0DB159F400271AF1 /* ng_ipaddr.c in Sources */ = {isa = PBXBuildFile; fileRef = FA407F2C0DB159F400271AF1 /* ng_ipaddr.c */; };
+		FA4F165A164836B100DBD011 /* irc-metadata.c in Sources */ = {isa = PBXBuildFile; fileRef = FA4F1659164836B100DBD011 /* irc-metadata.c */; };
 		FA6BBC631605F0AC0004247A /* conn-encoding.c in Sources */ = {isa = PBXBuildFile; fileRef = FA6BBC5F1605F0AB0004247A /* conn-encoding.c */; };
 		FA6BBC641605F0AC0004247A /* irc-encoding.c in Sources */ = {isa = PBXBuildFile; fileRef = FA6BBC611605F0AC0004247A /* irc-encoding.c */; };
 		FA6BBC661605F6D60004247A /* libiconv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FA6BBC651605F6D60004247A /* libiconv.dylib */; };
@@ -206,6 +207,8 @@
 		FA4B08E613E7F91700765BA3 /* ngIRCd-Logo.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = "ngIRCd-Logo.gif"; sourceTree = "<group>"; };
 		FA4B08E713E7F91700765BA3 /* ngircd-redhat.init */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "ngircd-redhat.init"; sourceTree = "<group>"; };
 		FA4B08E813E7F91C00765BA3 /* platformtest.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = platformtest.sh; sourceTree = "<group>"; };
+		FA4F1659164836B100DBD011 /* irc-metadata.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "irc-metadata.c"; sourceTree = "<group>"; };
+		FA4F165C164836BF00DBD011 /* irc-metadata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "irc-metadata.h"; sourceTree = "<group>"; };
 		FA6BBC5F1605F0AB0004247A /* conn-encoding.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "conn-encoding.c"; sourceTree = "<group>"; };
 		FA6BBC601605F0AC0004247A /* conn-encoding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "conn-encoding.h"; sourceTree = "<group>"; };
 		FA6BBC611605F0AC0004247A /* irc-encoding.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "irc-encoding.c"; sourceTree = "<group>"; };
@@ -365,6 +368,8 @@
 				FA322CEF0CEF74B1001761B3 /* irc-info.h */,
 				FA322CF00CEF74B1001761B3 /* irc-login.c */,
 				FA322CF10CEF74B1001761B3 /* irc-login.h */,
+				FA4F1659164836B100DBD011 /* irc-metadata.c */,
+				FA4F165C164836BF00DBD011 /* irc-metadata.h */,
 				FA322CF20CEF74B1001761B3 /* irc-mode.c */,
 				FA322CF30CEF74B1001761B3 /* irc-mode.h */,
 				FA322CF40CEF74B1001761B3 /* irc-op.c */,
@@ -766,6 +771,7 @@
 				FAD5853815272C2600328741 /* login.c in Sources */,
 				FA6BBC631605F0AC0004247A /* conn-encoding.c in Sources */,
 				FA6BBC641605F0AC0004247A /* irc-encoding.c in Sources */,
+				FA4F165A164836B100DBD011 /* irc-metadata.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

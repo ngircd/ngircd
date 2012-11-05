@@ -1,0 +1,94 @@
+/*
+ * ngIRCd -- The Next Generation IRC Daemon
+ * Copyright (c)2001-2012 Alexander Barton (alex@barton.de) and Contributors.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * Please read the file COPYING, README and AUTHORS for more information.
+ */
+
+#define __irc_metadata_c__
+
+#include "portab.h"
+
+/**
+ * @file
+ * IRC metadata commands
+ */
+
+#include "imp.h"
+#include <assert.h>
+#include <string.h>
+#include <stdio.h>
+
+#include "conn-func.h"
+#include "channel.h"
+#include "conn-encoding.h"
+#include "irc-write.h"
+#include "log.h"
+#include "messages.h"
+#include "parse.h"
+#include "tool.h"
+
+#include "exp.h"
+#include "irc-metadata.h"
+
+/**
+ * Handler for the IRC+ "METADATA" command.
+ *
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @returns CONNECTED or DISCONNECTED.
+ */
+GLOBAL bool
+IRC_METADATA(CLIENT *Client, REQUEST *Req)
+{
+	CLIENT *prefix, *target;
+	char new_flags[COMMAND_LEN];
+
+	assert(Client != NULL);
+	assert(Req != NULL);
+
+	if (Req->argc != 3)
+		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+					  Client_ID(Client), Req->command);
+
+	prefix = Client_Search(Req->prefix);
+	if (!prefix)
+		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
+					  Client_ID(Client), Req->prefix);
+
+	target = Client_Search(Req->argv[0]);
+	if (!target)
+		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
+					  Client_ID(Client), Req->argv[0]);
+
+	LogDebug("Got \"METADATA\" command from \"%s\" for client \"%s\": \"%s=%s\".",
+		 Client_ID(Client), Client_ID(target),
+		 Req->argv[1], Req->argv[2]);
+
+	/* Mark client: it has receiveda a METADATA command */
+	if (!strchr(Client_Flags(target), 'M')) {
+		snprintf(new_flags, sizeof new_flags, "%sM",
+			 Client_Flags(target));
+		Client_SetFlags(target, new_flags);
+	}
+
+	if (*Req->argv[2] && strcasecmp(Req->argv[1], "host") == 0)
+		Client_SetHostname(target, Req->argv[2]);
+	else if (strcasecmp(Req->argv[1], "info") == 0)
+		Client_SetInfo(target, Req->argv[2]);
+	else if (*Req->argv[2] && strcasecmp(Req->argv[1], "user") == 0)
+		Client_SetUser(target, Req->argv[2], true);
+	else
+		Log(LOG_WARNING,
+		    "Ignored metadata update from \"%s\" for client \"%s\": \"%s=%s\" - unknown key!",
+		    Client_ID(Client), Client_ID(target),
+		    Req->argv[1], Req->argv[2]);
+
+	IRC_WriteStrServersPrefixFlag(Client, prefix, 'M', "METADATA %s %s :%s",
+				Client_ID(target), Req->argv[1], Req->argv[2]);
+	return CONNECTED;
+}

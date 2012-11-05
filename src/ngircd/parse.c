@@ -41,6 +41,7 @@
 #include "irc-encoding.h"
 #include "irc-info.h"
 #include "irc-login.h"
+#include "irc-metadata.h"
 #include "irc-mode.h"
 #include "irc-op.h"
 #include "irc-oper.h"
@@ -78,6 +79,7 @@ static COMMAND My_Commands[] =
 	{ "LINKS", IRC_LINKS, CLIENT_USER|CLIENT_SERVER, 0, 0, 0 },
 	{ "LIST", IRC_LIST, CLIENT_USER|CLIENT_SERVER, 0, 0, 0 },
 	{ "LUSERS", IRC_LUSERS, CLIENT_USER|CLIENT_SERVER, 0, 0, 0 },
+	{ "METADATA", IRC_METADATA, CLIENT_SERVER, 0, 0, 0 },
 	{ "MODE", IRC_MODE, CLIENT_USER|CLIENT_SERVER, 0, 0, 0 },
 	{ "MOTD", IRC_MOTD, CLIENT_USER|CLIENT_SERVER, 0, 0, 0 },
 	{ "NAMES", IRC_NAMES, CLIENT_USER|CLIENT_SERVER, 0, 0, 0 },

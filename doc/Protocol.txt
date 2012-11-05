@@ -81,6 +81,9 @@ The following <serverflags> are defined at the moment:
 - H: The server supports the "enhanced server handshake", see section II.2
      for a detailed description.
 
+- M: Changing client "metadata" (hostname, real name, ...) using the
+     METADATA command is supported.
+
 - o: IRC operators are allowed to change channel- and channel-user-modes
      even if they aren't channel-operator of the affected channel.
 
@@ -194,11 +197,33 @@ received from the client using the set <client-charset> to the server
 encoding (UTF-8), and all message data which is to be sent to the client
 from the server encoding (UTF-8) to <client-charset>.
 
-The list of supported <client-charset>'s is implementation dependent.
+The list of supported client character sets is implementation dependent.
 
 If a client sets its <client-charset> to the server encoding (UTF-8),
 it disables all conversions; the connection behaves as if no CHARCONV
 command has been sent at all in this session.
+
+
+II.6 Update client "metadata"
+
+     Command: METADATA
+  Parameters: <target> <key> <value>
+     Used by: servers only
+
+The METADATA command is used on server-links to update "metadata" information
+of clients, like the hostname, the info text ("real name"), or the user name.
+
+The server updates its client database according to the received <key> and
+<value> parameters, and passes the METADATA command on to all the other
+servers in the network that support this command (see section II.1 "Register
+new server link", <serverflag> "M"), even if it doesn't support the given
+<key> itself: unknown <key> names are ignored silently!
+
+The following <key> names are defined:
+
+ - "host": the hostname of a client (can't be empty)
+ - "info": info text ("real name") of a client
+ - "user": the user name of a client (can't be empty)
 
 
 III. Numerics used by IRC+ Protocol

@@ -186,7 +186,19 @@ II.5 Client character encoding conversion
      Command: CHARCONV
   Parameters: <client-charset>
      Used by: registered clients
-     Replies: RPL_IP_CHARCONV_MSG, ERR_IP_CHARCONV_MSG
+     Replies: RPL_IP_CHARCONV, ERR_IP_CHARCONV
+
+A client can set its character set encoding using the CHARCONV command:
+after receiving such a command, the server translates all message data
+received from the client using the set <client-charset> to the server
+encoding (UTF-8), and all message data which is to be sent to the client
+from the server encoding (UTF-8) to <client-charset>.
+
+The list of supported <client-charset>'s is implementation dependent.
+
+If a client sets its <client-charset> to the server encoding (UTF-8),
+it disables all conversions; the connection behaves as if no CHARCONV
+command has been sent at all in this session.
 
 
 III. Numerics used by IRC+ Protocol
@@ -201,7 +213,7 @@ Numerics 800-849 are used for status and success messages, and numerics
 
 III.1 IRC+ status and success numerics
 
-800 - RPL_IP_CHARCONV_MSG
+801 - RPL_IP_CHARCONV
 	%1 :Client encoding set"
 
 		%1	client character set
@@ -209,5 +221,5 @@ III.1 IRC+ status and success numerics
 
 III.2 IRC+ failure and error numerics
 
-850 - ERR_IP_CHARCONV_MSG
+851 - ERR_IP_CHARCONV
 	:Can't initialize client encoding

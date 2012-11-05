@@ -41,6 +41,7 @@ ngircd_SOURCES = \
 	irc-encoding.c \
 	irc-info.c \
 	irc-login.c \
+	irc-metadata.c \
 	irc-mode.c \
 	irc-op.c \
 	irc-oper.c \
@@ -85,6 +86,7 @@ noinst_HEADERS = \
 	irc-encoding.h \
 	irc-info.h \
 	irc-login.h \
+	irc-metadata.h \
 	irc-mode.h \
 	irc-op.h \
 	irc-oper.h \

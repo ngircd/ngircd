@@ -36,6 +36,8 @@
 #include "irc-mode.h"
 
 
+static void Announce_Client_Hostname PARAMS((CLIENT *Origin, CLIENT *Client));
+
 static bool Client_Mode PARAMS((CLIENT *Client, REQUEST *Req, CLIENT *Origin,
 				CLIENT *Target));
 static bool Channel_Mode PARAMS((CLIENT *Client, REQUEST *Req, CLIENT *Origin,
@@ -367,9 +369,7 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 						  Client_ID(Target),
 						  the_modes);
 			if (send_RPL_HOSTHIDDEN_MSG)
-				IRC_WriteStrClient(Client, RPL_HOSTHIDDEN_MSG,
-						   Client_ID(Client),
-						   Client_HostnameCloaked(Client));
+				Announce_Client_Hostname(Origin, Client);
 		}
 		LogDebug("%s \"%s\": Mode change, now \"%s\".",
 			 Client_TypeText(Target), Client_Mask(Target),
@@ -379,6 +379,27 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 	IRC_SetPenalty(Client, 1);
 	return ok;
 } /* Client_Mode */
+
+
+/**
+ * Announce changed client hostname in the network.
+ *
+ * @param Client The client of which the hostname changed.
+ */
+static void
+Announce_Client_Hostname(CLIENT *Origin, CLIENT *Client)
+{
+	assert(Client != NULL);
+
+	/* Inform the client itself */
+	IRC_WriteStrClient(Client, RPL_HOSTHIDDEN_MSG, Client_ID(Client),
+			   Client_HostnameCloaked(Client));
+
+	/* Inform other servers in the network */
+	IRC_WriteStrServersPrefixFlag(Origin, Client_ThisServer(), 'M',
+				      "METADATA %s host :%s", Client_ID(Client),
+				      Client_HostnameCloaked(Client));
+}
 
 
 static bool

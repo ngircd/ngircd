@@ -702,7 +702,14 @@ Client_HostnameCloaked(CLIENT *Client)
 
 	assert(Client != NULL);
 
+	/* Client isn't cloaked at all, return real hostname: */
 	if (!Client_HasMode(Client, 'x'))
+		return Client_Hostname(Client);
+
+	/* Client has received METADATA command, so it got the eventually
+	 * cloaked hostname set correctly and this server doesn't need
+	 * to cloak it on its own: */
+	if (strchr(Client_Flags(Client), 'M'))
 		return Client_Hostname(Client);
 
 	/* Do simple mapping to the server ID? */

@@ -11,6 +11,23 @@
 
 ngIRCd
 
+  - Update doc/Services.txt: describe the upcoming version of Anope 1.9.8,
+    then including a protocol module for ngIRCd. And remove our own patches
+    in ./contrib/Anope because they aren't supported any more ...
+  - Implement new "METADATA" command which can be used by remote servers
+    and IRC services to update client metadata like the client info text
+    ("real name"), user name, and hostname, and use this command to
+    configure an cloaked hostname (user mode "+x") on remote servers:
+    This prevents "double cloaking" of hostnames and even cloaked
+    hostnames are in sync on all servers supporting "METADATA" now.
+  - Implement new IRC "SVSNICK" command to allow remote servers (and IRC
+    services) to change nicknames of already registered users. The SVSNICK
+    command itself doesn't change the nickname, but it becomes forwarded
+    to the server to which the user is connected to. And then this server
+    initiates the real nickname changing using regular NICK commands.
+    This allows to run mixed networks with old servers not supporting the
+    SVSNICK command, because SVSNICK commands for nicknames on such servers
+    are silently ignored and don't cause a desynchronization of the network.
   - New configuration option "MaxListSize" to configure the maximum number
     of channels returned by a LIST command. The default is 100, as before.
   - Implement user mode "b", "block messages": when a user has set mode "b",

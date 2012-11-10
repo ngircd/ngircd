@@ -89,6 +89,9 @@ The following <serverflags> are defined at the moment:
 
 - S: The server supports the SERVICE command (on this link).
 
+- X: Server supports XOP channel modes (owner, admin, halfop) and supports
+     these user prefixes in CHANINFO commands, for example.
+
 - Z: Compressed server links are supported by the server.
 
 Example for a complete <flags> string: "ngircd|0.7.5:CZ".

@@ -48,12 +48,11 @@ Announce_Channel(CLIENT *Client, CHANNEL *Chan)
 	CL2CHAN *cl2chan;
 	CLIENT *cl;
 	char str[LINE_LEN], *ptr;
-	bool njoin;
+	bool njoin, xop;
 
-	if (Conn_Options(Client_Conn(Client)) & CONN_RFC1459)
-		njoin = false;
-	else
-		njoin = true;
+	/* Check features of remote server */
+	njoin = Conn_Options(Client_Conn(Client)) & CONN_RFC1459 ? false : true;
+	xop = strchr(Client_Flags(Client), 'X') ? true : false;
 
 	/* Get all the members of this channel */
 	cl2chan = Channel_FirstMember(Chan);
@@ -67,13 +66,15 @@ Announce_Channel(CLIENT *Client, CHANNEL *Chan)
 			 * (if user is channel operator or has voice) */
 			if (str[strlen(str) - 1] != ':')
 				strlcat(str, ",", sizeof(str));
-			if (strchr(Channel_UserModes(Chan, cl), 'q'))
+
+			/* Prepare user prefix (ChanOp, voiced, ...) */
+			if (xop && strchr(Channel_UserModes(Chan, cl), 'q'))
 				strlcat(str, "~", sizeof(str));
-			if (strchr(Channel_UserModes(Chan, cl), 'a'))
+			if (xop && strchr(Channel_UserModes(Chan, cl), 'a'))
 				strlcat(str, "&", sizeof(str));
 			if (strchr(Channel_UserModes(Chan, cl), 'o'))
 				strlcat(str, "@", sizeof(str));
-			if (strchr(Channel_UserModes(Chan, cl), 'h'))
+			if (xop && strchr(Channel_UserModes(Chan, cl), 'h'))
 				strlcat(str, "%", sizeof(str));
 			if (strchr(Channel_UserModes(Chan, cl), 'v'))
 				strlcat(str, "+", sizeof(str));

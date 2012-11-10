@@ -157,7 +157,7 @@
 
 #ifdef IRCPLUS
 /** Standard IRC+ flags. */
-# define IRCPLUSFLAGS "CHLMS"
+# define IRCPLUSFLAGS "CHLMSX"
 #endif
 
 /** Supported user modes. */

@@ -40,7 +40,7 @@ a) Make sure the source tree is in a releasable state ;-)
 
 b) Make sure you have working versions of GNU autoconf and GNU automake
    installed on the system you use for generating the release:
-   as of October 2010 we are using GNU autoconf 2.61 and GNU automake 1.10.1
+   as of October 2010 we are using GNU autoconf 2.67 and GNU automake 1.11.1
    which seem to work just fine.
 
 c) Update the files describing the new release:

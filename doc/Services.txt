@@ -9,12 +9,12 @@
                               -- Services.txt --
 
 
-At the moment, ngIRCd doesn't implement a "special IRC services interface".
-But services acting as a "regular server" are supported, either using the IRC
-protocol defined in RFC 1459 or RFC 2812.
+ngIRCd doesn't implement a "special IRC services interface", but services
+acting as a "regular servers" ("pseudo servers") are supported, either
+using the IRC protocol as defined in RFC 1459 or RFC 2812.
 
 Support for Services has been tested using
- - Anope 1.9.4 or later (<http://www.anope.org/>)
+ - Anope 1.9.8 or later (<http://www.anope.org/>; unreleased!)
  - Atheme 7.0.2 or later (<http://www.atheme.net>)
  - "IRC Services" 5.1.x by Andrew Church (<http://achurch.org/services/>)
 
@@ -44,13 +44,21 @@ Example:
 Setting up Anope 1.9.x
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Anope 1.9.4 (and above) can be used with ngIRCd using a preliminary "ngircd"
-protocol module contained in our contrib/Anope/ directory. Please see the
-file contrib/Anope/README for installation instructions!
+Anope 1.9.8 or later (<http://www.anope.org/>; unreleased as of 2012-11-10)
+may be used with ngIRCd using the "ngircd" protocol module.
+Until Anope 1.9.8 is released, you have to use the sources from the Anope
+development GIT tree, see <http://sourceforge.net/projects/anope/develop/>!
 
-After patching and installing Anope, at least the following configuration
-variables have to be adjusted in data/services.conf, in addition to all the
-settings marked as required:
+At least the following settings have to be tweaked, in addition to all the
+settings marked as required by Anope:
+
+In conf/services.conf:
+
+  define
+  {
+	name = "services.host"
+	value = "services.irc.net"
+  }
 
   uplink
   {
@@ -59,10 +67,24 @@ settings marked as required:
 	password = "123abc"
   }
 
-  serverinfo
+  # Load ngIRCd protocol module
+  module { name = "ngircd" }
+
+  networkinfo
   {
-	name = "services.irc.net"
-	type = "ngircd"
+	# Must be set to the "MaxNickLength" setting of ngIRCd!
+	nicklen = 9
+
+	chanlen = 50
+  }
+
+In conf/nickserv.conf:
+
+  nickserv
+  {
+	# not required if you are running ngIRCd with a higher nickname limit
+	# ("MaxNickLength") than 11 characters, but REQUIRED by default!
+	guestnickprefix = "G-"
   }
 
 

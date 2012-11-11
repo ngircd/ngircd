@@ -33,7 +33,7 @@ struct ConnSSL_State {
 	SSL *ssl;
 #endif
 #ifdef HAVE_LIBGNUTLS
-	gnutls_session gnutls_session;
+	gnutls_session_t gnutls_session;
 	void *cookie;		/* pointer to server configuration structure
 				   (for outgoing connections), or NULL. */
 #endif

@@ -11,6 +11,7 @@
 
 ngIRCd
 
+  ngIRCd 20~rc1 (2012-11-11)
   - Update doc/Services.txt: describe the upcoming version of Anope 1.9.8,
     then including a protocol module for ngIRCd. And remove our own patches
     in ./contrib/Anope because they aren't supported any more ...

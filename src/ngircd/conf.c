@@ -725,7 +725,8 @@ Set_Defaults(bool InitServers)
 	strlcpy(Conf_Chroot, CHROOT_DIR, sizeof(Conf_Chroot));
 	strcpy(Conf_CloakHost, "");
 	strcpy(Conf_CloakHostModeX, "");
-	strcpy(Conf_CloakHostSalt, ngt_RandomStr(random, RANDOM_SALT_LEN));
+	strlcpy(Conf_CloakHostSalt, ngt_RandomStr(random, RANDOM_SALT_LEN),
+		sizeof(Conf_CloakHostSalt));
 	Conf_CloakUserToNick = false;
 	Conf_ConnectIPv4 = true;
 #ifdef WANT_IPV6

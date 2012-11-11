@@ -987,7 +987,7 @@ IRC_WHO_Mask(CLIENT *Client, char *Mask, bool OnlyOps)
 		if (IRC_CheckListTooBig(Client, count, MAX_RPL_WHO, "WHO"))
 			break;
 
-		strcpy(flags, who_flags_status(Client_Modes(c)));
+		strlcpy(flags, who_flags_status(Client_Modes(c)), sizeof(flags));
 		if (strchr(Client_Modes(c), 'o'))
 			strlcat(flags, "*", sizeof(flags));
 

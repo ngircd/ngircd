@@ -19,12 +19,6 @@
 
 #include "portab.h"
 
-#ifdef HAVE_ARPA_INET_H
-# include <arpa/inet.h>
-#else
-# define PF_INET AF_INET
-#endif
-
 GLOBAL void ngt_TrimLastChr PARAMS((char *String, const char Chr ));
 
 GLOBAL void ngt_TrimStr PARAMS((char *String ));

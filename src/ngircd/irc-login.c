@@ -443,7 +443,7 @@ IRC_USER(CLIENT * Client, REQUEST * Req)
 		   punctuation is allowed.*/
 		ptr = Req->argv[0];
 		while (*ptr) {
-			if (!isalnum(*ptr) &&
+			if (!isalnum((int)*ptr) &&
 			    *ptr != '+' && *ptr != '-' &&
 			    *ptr != '.' && *ptr != '_') {
 				Conn_Close(Client_Conn(Client), NULL,

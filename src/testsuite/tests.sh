@@ -45,7 +45,7 @@ if test -t 1 2>/dev/null; then
 fi
 
 echo_n "running ${test} ..."
-expect "$e_tmp" > logs/${test}.log; r=$?
+expect "$e_exec" > logs/${test}.log; r=$?
 [ $r -eq 0 ] && echo " ok." || echo " failure!"
 
 rm -f "$e_tmp"

@@ -54,8 +54,8 @@ if [ $? -ne 0 ]; then
 	cd ..
 fi
 
-echo "$NAME: Checking for \"./autogen.sh\" script ..."
-if [ -r ./autogen.sh ]; then
+echo "$NAME: Checking for \"./configure\" script ..."
+if [ ! -e ./configure ]; then
 	echo "$NAME: Running \"./autogen.sh\" ..."
 	[ -n "$VERBOSE" ] && ./autogen.sh || ./autogen.sh >/dev/null
 fi

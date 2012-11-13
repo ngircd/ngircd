@@ -76,7 +76,7 @@ if [ -r ./configure ]; then
 				R_RUN=$R_CHECK
 			else
 				./src/ngircd/ngircd --help 2>/dev/null \
-				 | grep "^ngircd" >/dev/null
+				 | grep "^ngIRCd" >/dev/null
 				[ $? -eq 0 ] && R_RUN=1
 			fi
 		fi
@@ -85,9 +85,9 @@ fi
 
 # Get target platform information
 if [ -r "src/config.h" ]; then
-	CPU=`grep "TARGET_CPU" "src/config.h" | cut -d'"' -f2`
-	OS=`grep "TARGET_OS" "src/config.h" | cut -d'"' -f2`
-	VENDOR=`grep "TARGET_VENDOR" "src/config.h" | cut -d'"' -f2`
+	CPU=`grep "HOST_CPU" "src/config.h" | cut -d'"' -f2`
+	OS=`grep "HOST_OS" "src/config.h" | cut -d'"' -f2`
+	VENDOR=`grep "HOST_VENDOR" "src/config.h" | cut -d'"' -f2`
 	PLATFORM="$CPU/$VENDOR/$OS"
 fi
 if [ -z "$PLATFORM" ]; then

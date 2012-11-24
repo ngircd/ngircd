@@ -671,7 +671,6 @@ Client_OrigUser(CLIENT *Client) {
 
 #endif
 
-
 /**
  * Return the hostname of a client.
  * @param Client Pointer to client structure
@@ -682,8 +681,19 @@ Client_Hostname(CLIENT *Client)
 {
 	assert (Client != NULL);
 	return Client->host;
-} /* Client_Hostname */
+}
 
+/**
+ * Return the cloaked hostname of a client, if set.
+ * @param Client Pointer to the client structure.
+ * @return Pointer to the cloaked hostname or NULL if not set.
+ */
+GLOBAL char *
+Client_HostnameCloaked(CLIENT *Client)
+{
+	assert(Client != NULL);
+	return Client->cloaked;
+}
 
 /**
  * Get (potentially cloaked) hostname of a client to display it to other users.
@@ -698,33 +708,61 @@ Client_Hostname(CLIENT *Client)
 GLOBAL char *
 Client_HostnameDisplayed(CLIENT *Client)
 {
-	static char Cloak_Buffer[CLIENT_HOST_LEN];
-
 	assert(Client != NULL);
 
 	/* Client isn't cloaked at all, return real hostname: */
 	if (!Client_HasMode(Client, 'x'))
 		return Client_Hostname(Client);
 
-	/* Client has received METADATA command, so it got the eventually
-	 * cloaked hostname set correctly and this server doesn't need
-	 * to cloak it on its own: */
-	if (strchr(Client_Flags(Client), 'M'))
-		return Client_Hostname(Client);
+	/* Use an already saved cloaked hostname, if there is one */
+	if (Client->cloaked[0])
+		return Client->cloaked;
 
-	/* Do simple mapping to the server ID? */
-	if (!*Conf_CloakHostModeX)
-		return Client_ID(Client->introducer);
+	Client_UpdateCloakedHostname(Client, NULL, NULL);
+	return Client->cloaked;
+}
 
-	strlcpy(Cloak_Buffer, Client->host, CLIENT_HOST_LEN);
-	strlcat(Cloak_Buffer, Conf_CloakHostSalt, CLIENT_HOST_LEN);
+/**
+ * Update (and generate, if necessary) the cloaked hostname of a client.
+ *
+ * The newly set cloaked hostname is announced in the network using METADATA
+ * commands to peers that support this feature.
+ *
+ * @param Client The client of which the cloaked hostname should be updated.
+ * @param Origin The originator of the hostname change, or NULL if this server.
+ * @param Hostname The new cloaked hostname, or NULL if it should be generated.
+ */
+GLOBAL void
+Client_UpdateCloakedHostname(CLIENT *Client, CLIENT *Origin,
+			     const char *Hostname)
+{
+	static char Cloak_Buffer[CLIENT_HOST_LEN];
 
-	snprintf(Cloak_Buffer, CLIENT_HOST_LEN, Conf_CloakHostModeX,
-		 Hash(Cloak_Buffer));
+	assert(Client != NULL);
+	if (!Origin)
+		Origin = Client_ThisServer();
 
-	return Cloak_Buffer;
-} /* Client_HostnameCloaked */
+	if (!Hostname) {
+		/* Generate new cloaked hostname */
+		if (*Conf_CloakHostModeX) {
+			strlcpy(Cloak_Buffer, Client->host, CLIENT_HOST_LEN);
+			strlcat(Cloak_Buffer, Conf_CloakHostSalt,
+				CLIENT_HOST_LEN);
+			snprintf(Client->cloaked, sizeof(Client->cloaked),
+				 Conf_CloakHostModeX, Hash(Cloak_Buffer));
+		} else
+			strlcpy(Client->cloaked, Client_ID(Client->introducer),
+				sizeof(Client->cloaked));
+	} else
+		strlcpy(Client->cloaked, Hostname, sizeof(Client->cloaked));
+	LogDebug("Cloaked hostname of \"%s\" updated to \"%s\"",
+		 Client_ID(Client), Client->cloaked);
 
+	/* Inform other servers in the network */
+	IRC_WriteStrServersPrefixFlag(Client_NextHop(Origin), Origin, 'M',
+				      "METADATA %s cloakhost :%s",
+				      Client_ID(Client), Client->cloaked);
+}
 
 GLOBAL char *
 Client_Modes( CLIENT *Client )

@@ -66,7 +66,7 @@ IRC_METADATA(CLIENT *Client, REQUEST *Req)
 					  Client_ID(Client), Req->argv[0]);
 
 	LogDebug("Got \"METADATA\" command from \"%s\" for client \"%s\": \"%s=%s\".",
-		 Client_ID(Client), Client_ID(target),
+		 Client_ID(prefix), Client_ID(target),
 		 Req->argv[1], Req->argv[2]);
 
 	/* Mark client: it has receiveda a METADATA command */
@@ -76,9 +76,23 @@ IRC_METADATA(CLIENT *Client, REQUEST *Req)
 		Client_SetFlags(target, new_flags);
 	}
 
-	if (*Req->argv[2] && strcasecmp(Req->argv[1], "host") == 0)
+	if (strcasecmp(Req->argv[1], "cloakhost") == 0) {
+		Client_UpdateCloakedHostname(target, prefix, Req->argv[2]);
+		if (Client_Conn(target) > NONE && Client_HasMode(target, 'x'))
+			IRC_WriteStrClientPrefix(target, prefix,
+					RPL_HOSTHIDDEN_MSG, Client_ID(target),
+					Client_HostnameDisplayed(target));
+		/* The Client_UpdateCloakedHostname() function already
+		 * forwarded the METADATA command, don't do it twice: */
+		return CONNECTED;
+	}
+	else if (*Req->argv[2] && strcasecmp(Req->argv[1], "host") == 0) {
 		Client_SetHostname(target, Req->argv[2]);
-	else if (strcasecmp(Req->argv[1], "info") == 0)
+		if (Client_Conn(target) > NONE && !Client_HasMode(target, 'x'))
+			IRC_WriteStrClientPrefix(target, prefix,
+						 RPL_HOSTHIDDEN_MSG, Client_ID(target),
+						 Client_HostnameDisplayed(target));
+	} else if (strcasecmp(Req->argv[1], "info") == 0)
 		Client_SetInfo(target, Req->argv[2]);
 	else if (*Req->argv[2] && strcasecmp(Req->argv[1], "user") == 0)
 		Client_SetUser(target, Req->argv[2], true);
@@ -88,6 +102,7 @@ IRC_METADATA(CLIENT *Client, REQUEST *Req)
 		    Client_ID(Client), Client_ID(target),
 		    Req->argv[1], Req->argv[2]);
 
+	/* Forward the METADATA command to peers that support it: */
 	IRC_WriteStrServersPrefixFlag(Client, prefix, 'M', "METADATA %s %s :%s",
 				Client_ID(target), Req->argv[1], Req->argv[2]);
 	return CONNECTED;

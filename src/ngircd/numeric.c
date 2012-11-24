@@ -179,24 +179,40 @@ Announce_User(CLIENT * Client, CLIENT * User)
 				     Client_ID(User), Client_ID(User),
 				     modes);
 		}
-		return CONNECTED;
 	} else {
 		/* RFC 2813 mode: one combined NICK or SERVICE command */
 		if (Client_Type(User) == CLIENT_SERVICE
-		    && strchr(Client_Flags(Client), 'S'))
-			return IRC_WriteStrClient(Client,
-				"SERVICE %s %d * +%s %d :%s", Client_Mask(User),
-				Client_MyToken(Client_Introducer(User)),
-				Client_Modes(User), Client_Hops(User) + 1,
-				Client_Info(User));
-		else
-			return IRC_WriteStrClient(Client,
-				"NICK %s %d %s %s %d +%s :%s",
-				Client_ID(User), Client_Hops(User) + 1,
-				Client_User(User), Client_Hostname(User),
-				Client_MyToken(Client_Introducer(User)),
-				Client_Modes(User), Client_Info(User));
+		    && strchr(Client_Flags(Client), 'S')) {
+			if (!IRC_WriteStrClient(Client,
+					"SERVICE %s %d * +%s %d :%s",
+					Client_Mask(User),
+					Client_MyToken(Client_Introducer(User)),
+					Client_Modes(User), Client_Hops(User) + 1,
+					Client_Info(User)))
+				return DISCONNECTED;
+		} else {
+			if (!IRC_WriteStrClient(Client,
+					"NICK %s %d %s %s %d +%s :%s",
+					Client_ID(User), Client_Hops(User) + 1,
+					Client_User(User), Client_Hostname(User),
+					Client_MyToken(Client_Introducer(User)),
+					Client_Modes(User), Client_Info(User)))
+				return DISCONNECTED;
+		}
 	}
+
+	if (strchr(Client_Flags(Client), 'M')) {
+		/* Synchronize metadata */
+		if (Client_HostnameCloaked(User)) {
+			if (!IRC_WriteStrClient(Client,
+						"METADATA %s cloakhost :%s",
+						Client_ID(User),
+						Client_HostnameCloaked(User)))
+				return DISCONNECTED;
+		}
+	}
+
+	return CONNECTED;
 } /* Announce_User */
 
 

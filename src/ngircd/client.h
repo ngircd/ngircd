@@ -48,6 +48,7 @@ typedef struct _CLIENT
 	struct _CLIENT *introducer;	/* ID of the servers which the client is connected to */
 	struct _CLIENT *topserver;	/* toplevel servers (only valid if client is a server) */
 	char host[CLIENT_HOST_LEN];	/* hostname of the client */
+	char cloaked[CLIENT_HOST_LEN];	/* cloaked hostname of the client */
 	char user[CLIENT_USER_LEN];	/* user name ("login") */
 #if defined(PAM) && defined(IDENTAUTH)
 	char orig_user[CLIENT_USER_LEN];/* user name supplied by USER command */
@@ -107,6 +108,7 @@ GLOBAL char *Client_User PARAMS(( CLIENT *Client ));
 GLOBAL char *Client_OrigUser PARAMS(( CLIENT *Client ));
 #endif
 GLOBAL char *Client_Hostname PARAMS(( CLIENT *Client ));
+GLOBAL char *Client_HostnameCloaked PARAMS((CLIENT *Client));
 GLOBAL char *Client_HostnameDisplayed PARAMS(( CLIENT *Client ));
 GLOBAL char *Client_Modes PARAMS(( CLIENT *Client ));
 GLOBAL char *Client_Flags PARAMS(( CLIENT *Client ));
@@ -165,6 +167,10 @@ GLOBAL const char *Client_TypeText PARAMS((CLIENT *Client));
 GLOBAL void Client_Reject PARAMS((CLIENT *Client, const char *Reason,
 				  bool InformClient));
 GLOBAL void Client_Introduce PARAMS((CLIENT *From, CLIENT *Client, int Type));
+
+GLOBAL void Client_UpdateCloakedHostname PARAMS((CLIENT *Client,
+						 CLIENT *Originator,
+						 const char *hostname));
 
 
 #ifdef DEBUG

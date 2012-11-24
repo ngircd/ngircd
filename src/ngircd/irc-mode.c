@@ -393,12 +393,12 @@ Announce_Client_Hostname(CLIENT *Origin, CLIENT *Client)
 
 	/* Inform the client itself */
 	IRC_WriteStrClient(Client, RPL_HOSTHIDDEN_MSG, Client_ID(Client),
-			   Client_HostnameCloaked(Client));
+			   Client_HostnameDisplayed(Client));
 
 	/* Inform other servers in the network */
 	IRC_WriteStrServersPrefixFlag(Origin, Client_ThisServer(), 'M',
 				      "METADATA %s host :%s", Client_ID(Client),
-				      Client_HostnameCloaked(Client));
+				      Client_HostnameDisplayed(Client));
 }
 
 

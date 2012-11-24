@@ -686,7 +686,7 @@ Client_Hostname(CLIENT *Client)
 
 
 /**
- * Get potentially cloaked hostname of a client.
+ * Get (potentially cloaked) hostname of a client to display it to other users.
  *
  * If the client has not enabled cloaking, the real hostname is used.
  * Please note that this function uses a global static buffer, so you can't
@@ -696,7 +696,7 @@ Client_Hostname(CLIENT *Client)
  * @return Pointer to client hostname
  */
 GLOBAL char *
-Client_HostnameCloaked(CLIENT *Client)
+Client_HostnameDisplayed(CLIENT *Client)
 {
 	static char Cloak_Buffer[CLIENT_HOST_LEN];
 
@@ -837,7 +837,7 @@ Client_MaskCloaked(CLIENT *Client)
 		return Client_Mask(Client);
 
 	snprintf(Mask_Buffer, GETID_LEN, "%s!%s@%s", Client->id, Client->user,
-		 Client_HostnameCloaked(Client));
+		 Client_HostnameDisplayed(Client));
 
 	return Mask_Buffer;
 } /* Client_MaskCloaked */
@@ -1346,7 +1346,7 @@ Client_RegisterWhowas( CLIENT *Client )
 		 sizeof( My_Whowas[slot].id ));
 	strlcpy( My_Whowas[slot].user, Client_User( Client ),
 		 sizeof( My_Whowas[slot].user ));
-	strlcpy( My_Whowas[slot].host, Client_HostnameCloaked( Client ),
+	strlcpy( My_Whowas[slot].host, Client_HostnameDisplayed( Client ),
 		 sizeof( My_Whowas[slot].host ));
 	strlcpy( My_Whowas[slot].info, Client_Info( Client ),
 		 sizeof( My_Whowas[slot].info ));

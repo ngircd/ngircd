@@ -107,7 +107,7 @@ GLOBAL char *Client_User PARAMS(( CLIENT *Client ));
 GLOBAL char *Client_OrigUser PARAMS(( CLIENT *Client ));
 #endif
 GLOBAL char *Client_Hostname PARAMS(( CLIENT *Client ));
-GLOBAL char *Client_HostnameCloaked PARAMS(( CLIENT *Client ));
+GLOBAL char *Client_HostnameDisplayed PARAMS(( CLIENT *Client ));
 GLOBAL char *Client_Modes PARAMS(( CLIENT *Client ));
 GLOBAL char *Client_Flags PARAMS(( CLIENT *Client ));
 GLOBAL CLIENT *Client_Introducer PARAMS(( CLIENT *Client ));

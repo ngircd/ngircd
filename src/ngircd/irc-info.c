@@ -727,7 +727,7 @@ IRC_USERHOST(CLIENT *Client, REQUEST *Req)
 				strlcat(rpl, "+", sizeof(rpl));
 			strlcat(rpl, Client_User(c), sizeof(rpl));
 			strlcat(rpl, "@", sizeof(rpl));
-			strlcat(rpl, Client_HostnameCloaked(c), sizeof(rpl));
+			strlcat(rpl, Client_HostnameDisplayed(c), sizeof(rpl));
 			strlcat(rpl, " ", sizeof(rpl));
 		}
 	}
@@ -792,7 +792,7 @@ write_whoreply(CLIENT *Client, CLIENT *c, const char *channelname, const char *f
 {
 	return IRC_WriteStrClient(Client, RPL_WHOREPLY_MSG, Client_ID(Client),
 				  channelname, Client_User(c),
-				  Client_HostnameCloaked(c),
+				  Client_HostnameDisplayed(c),
 				  Client_ID(Client_Introducer(c)), Client_ID(c),
 				  flags, Client_Hops(c), Client_Info(c));
 }
@@ -1080,7 +1080,7 @@ IRC_WHOIS_SendReply(CLIENT *Client, CLIENT *from, CLIENT *c)
 	/* Nick, user, hostname and client info */
 	if (!IRC_WriteStrClient(from, RPL_WHOISUSER_MSG, Client_ID(from),
 				Client_ID(c), Client_User(c),
-				Client_HostnameCloaked(c), Client_Info(c)))
+				Client_HostnameDisplayed(c), Client_Info(c)))
 		return DISCONNECTED;
 
 	/* Server */

@@ -156,7 +156,7 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 	/* Mode request: let's answer it :-) */
 	if (Req->argc == 1)
 		return IRC_WriteStrClient(Origin, RPL_UMODEIS_MSG,
-					  Client_ID(Origin),
+					  Client_ID(Target),
 					  Client_Modes(Target));
 
 	mode_arg = 1;

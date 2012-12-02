@@ -11,6 +11,14 @@
 
 ngIRCd
 
+  ngIRCd 20~rc2 (2012-12-02)
+  - Rework cloaked hostname handling and implement the "METADATA cloakhost"
+    subcommand: Now ngIRCd uses two fields internally, one to store the
+    "real" hostname and one to save the "cloaked" hostname. This allows
+    "foreign servers" (aka "IRC services") to alter the real and cloaked
+    hostnames of clients without problems, even when the user itself issues
+    additional "MODE +x" and "MODE -x" commands.
+
   ngIRCd 20~rc1 (2012-11-11)
   - Update doc/Services.txt: describe the upcoming version of Anope 1.9.8,
     then including a protocol module for ngIRCd. And remove our own patches

@@ -99,7 +99,11 @@
 #define CLIENT_PASS_LEN 21
 
 /** Max. length of user name ("login"; incl. NULL), RFC 2812, section 1.2.1. */
-#define CLIENT_USER_LEN 10
+#ifndef STRICT_RFC
+# define CLIENT_USER_LEN 20
+#else
+# define CLIENT_USER_LEN 10
+#endif
 
 /** Max. length of "real names" (including NULL). */
 #define CLIENT_NAME_LEN 32

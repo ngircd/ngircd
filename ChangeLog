@@ -9,7 +9,13 @@
                                -- ChangeLog --
 
 
-ngIRCd
+ngIRCd 20
+
+  - Allow user names ("INDENT") up to 20 characters when ngIRCd has not
+    been configured for "strict RFC mode". This is useful if you are using
+    external (PAM) authenticaion mechanisms that require longer user names.
+    Patch suggested by Brett Smith <brett@w3.org>, see
+    <http://arthur.barton.de/pipermail/ngircd-ml/2012-October/000579.html>.
 
   ngIRCd 20~rc2 (2012-12-02)
   - Rework cloaked hostname handling and implement the "METADATA cloakhost"

@@ -11,7 +11,7 @@
 
 .tmpl:
 	$(AM_V_GEN)sed \
-	    -e s@:ETCDIR:@${sysconfdir}@ \
+	    -e "s@:ETCDIR:@${sysconfdir}@" \
 	    <$< >$@
 
 SUFFIXES = .tmpl

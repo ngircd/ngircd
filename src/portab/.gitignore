@@ -1,2 +1,3 @@
 Makefile.am
 portabtest
+portabtest.exe

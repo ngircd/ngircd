@@ -1,6 +1,8 @@
 Makefile.am
 T-ngircd1
+T-ngircd1.exe
 T-ngircd2
+T-ngircd2.exe
 channel-test
 connect-test
 invite-test

@@ -268,7 +268,7 @@ ForwardLookup(const char *hostname, array *IpAddr, int af)
 	}
 
 	for (a = ai_results; a != NULL; a = a->ai_next) {
-		assert(a->ai_addrlen <= sizeof(addr));
+		assert((size_t)a->ai_addrlen <= sizeof(addr));
 
 		if ((size_t)a->ai_addrlen > sizeof(addr))
 			continue;

@@ -49,8 +49,8 @@ ng_ipaddr_init(ng_ipaddr_t *addr, const char *ip_str, UINT16 port)
 	if (ret != 0)
 		return false;
 
-	assert(sizeof(*addr) >= res0->ai_addrlen);
-	if (sizeof(*addr) >= res0->ai_addrlen)
+	assert(sizeof(*addr) >= (size_t)res0->ai_addrlen);
+	if (sizeof(*addr) >= (size_t)res0->ai_addrlen)
 		memcpy(addr, res0->ai_addr, res0->ai_addrlen);
 	else
 		ret = -1;

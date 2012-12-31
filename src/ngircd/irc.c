@@ -304,25 +304,35 @@ IRC_TRACE( CLIENT *Client, REQUEST *Req )
 } /* IRC_TRACE */
 
 
+/**
+ * Handler for the IRC "HELP" command.
+ *
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
+ */
 GLOBAL bool
-IRC_HELP( CLIENT *Client, REQUEST *Req )
+IRC_HELP(CLIENT *Client, REQUEST *Req)
 {
 	COMMAND *cmd;
 
-	assert( Client != NULL );
-	assert( Req != NULL );
+	assert(Client != NULL);
+	assert(Req != NULL);
 
 	/* Bad number of arguments? */
-	if( Req->argc > 0 ) return IRC_WriteStrClient( Client, ERR_NORECIPIENT_MSG, Client_ID( Client ), Req->command );
+	if (Req->argc > 0)
+		return IRC_WriteStrClient(Client, ERR_NORECIPIENT_MSG,
+					  Client_ID(Client), Req->command);
 
-	cmd = Parse_GetCommandStruct( );
-	while( cmd->name )
-	{
-		if( ! IRC_WriteStrClient( Client, "NOTICE %s :%s", Client_ID( Client ), cmd->name )) return DISCONNECTED;
+	cmd = Parse_GetCommandStruct();
+	while(cmd->name) {
+		if (!IRC_WriteStrClient(Client, "NOTICE %s :%s",
+					Client_ID(Client), cmd->name))
+			return DISCONNECTED;
 		cmd++;
 	}
-	
-	IRC_SetPenalty( Client, 2 );
+
+	IRC_SetPenalty(Client, 2);
 	return CONNECTED;
 } /* IRC_HELP */
 

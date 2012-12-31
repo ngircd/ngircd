@@ -81,6 +81,17 @@ IRC_ERROR( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
+	if (Client_Type(Client) != CLIENT_GOTPASS
+	    && Client_Type(Client) != CLIENT_GOTPASS_2813
+	    && Client_Type(Client) != CLIENT_UNKNOWNSERVER
+	    && Client_Type(Client) != CLIENT_SERVER
+	    && Client_Type(Client) != CLIENT_SERVICE) {
+		LogDebug("Ignored ERROR command from \"%s\" ...",
+			 Client_Mask(Client));
+		IRC_SetPenalty(Client, 2);
+		return CONNECTED;
+	}
+
 	if (Req->argc < 1)
 		Log(LOG_NOTICE, "Got ERROR from \"%s\"!",
 		    Client_Mask(Client));

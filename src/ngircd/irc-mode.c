@@ -550,7 +550,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 		if (arg_arg >= Req->argc)
 			arg_arg = -1;
 
-		if(!is_machine) {
+		if(!is_machine && !is_oper) {
 			o_mode_ptr = Channel_UserModes(Channel, Client);
 			while( *o_mode_ptr ) {
 				if ( *o_mode_ptr == 'q')

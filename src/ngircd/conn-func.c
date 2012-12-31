@@ -117,24 +117,6 @@ Conn_SetPenalty(CONN_ID Idx, time_t Seconds)
 } /* Conn_SetPenalty */
 
 
-/**
- * Reset the "penalty time" for one connection.
- *
- * @param Idx Connection index.
- * @see Conn_SetPenalty
- */
-GLOBAL void
-Conn_ResetPenalty(CONN_ID Idx)
-{
-	assert(Idx > NONE);
-
-	My_Connections[Idx].delaytime = 0;
-#ifdef DEBUG
-	Log(LOG_DEBUG, "Penalty time on connection %d has been reset.");
-#endif
-} /* Conn_ResetPenalty */
-
-
 GLOBAL void
 Conn_ClearFlags( void )
 {

@@ -45,7 +45,6 @@ GLOBAL long Conn_RecvBytes PARAMS(( CONN_ID Idx ));
 GLOBAL const char *Conn_IPA PARAMS(( CONN_ID Idx ));
 
 GLOBAL void Conn_SetPenalty PARAMS(( CONN_ID Idx, time_t Seconds ));
-GLOBAL void Conn_ResetPenalty PARAMS(( CONN_ID Idx ));
 
 GLOBAL void Conn_ClearFlags PARAMS(( void ));
 GLOBAL int Conn_Flag PARAMS(( CONN_ID Idx ));

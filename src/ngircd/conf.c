@@ -784,39 +784,44 @@ no_listenports(void)
 }
 
 /**
- * Read MOTD ("message of the day") file.
+ * Read contents of a text file into an array.
+ *
+ * This function is used to read the MOTD and help text file, for exampe.
  *
  * @param filename	Name of the file to read.
+ * @return		true, when the file has been read in.
  */
-static void
-Read_Motd(const char *filename)
+static bool
+Read_TextFile(const char *Filename, const char *Name, array *Destination)
 {
 	char line[127];
 	FILE *fp;
+	int line_no = 1;
 
-	if (*filename == '\0')
-		return;
+	if (*Filename == '\0')
+		return false;
 
-	fp = fopen(filename, "r");
+	fp = fopen(Filename, "r");
 	if (!fp) {
-		Config_Error(LOG_WARNING, "Can't read MOTD file \"%s\": %s",
-					filename, strerror(errno));
-		return;
+		Config_Error(LOG_WARNING, "Can't read %s file \"%s\": %s",
+					Name, Filename, strerror(errno));
+		return false;
 	}
 
-	array_free(&Conf_Motd);
-	Using_MotdFile = true;
-
+	array_free(Destination);
 	while (fgets(line, (int)sizeof line, fp)) {
-		ngt_TrimLastChr( line, '\n');
+		ngt_TrimLastChr(line, '\n');
 
 		/* add text including \0 */
-		if (!array_catb(&Conf_Motd, line, strlen(line) + 1)) {
-			Log(LOG_WARNING, "Cannot add MOTD text: %s", strerror(errno));
+		if (!array_catb(Destination, line, strlen(line) + 1)) {
+			Log(LOG_WARNING, "Cannot read/add \"%s\", line %d: %s",
+			    Filename, line_no, strerror(errno));
 			break;
 		}
+		line_no++;
 	}
 	fclose(fp);
+	return true;
 }
 
 /**
@@ -1037,8 +1042,10 @@ Read_Config(bool TestOnly, bool IsStarting)
 	}
 
 	/* No MOTD phrase configured? (re)try motd file. */
-	if (array_bytes(&Conf_Motd) == 0)
-		Read_Motd(Conf_MotdFile);
+	if (array_bytes(&Conf_Motd) == 0) {
+		if (Read_TextFile(Conf_MotdFile, "MOTD", &Conf_Motd))
+			Using_MotdFile = true;
+	}
 
 #ifdef SSL_SUPPORT
 	/* Make sure that all SSL-related files are readable */

@@ -77,6 +77,9 @@
 /** Name of the MOTD file. */
 #define MOTD_FILE "/ngircd.motd"
 
+/** Name of the help file. */
+#define HELP_FILE "/ngircd.help"
+
 /** Default chroot() directory. */
 #define CHROOT_DIR ""
 

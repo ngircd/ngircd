@@ -111,6 +111,9 @@ GLOBAL char Conf_ServerAdminMail[CLIENT_INFO_LEN];
 /** Message of the day (MOTD) of this server */
 GLOBAL array Conf_Motd;
 
+/** Help text of this server */
+GLOBAL array Conf_Helptext;
+
 /** Array of ports this server should listen on */
 GLOBAL array Conf_ListenPorts;
 

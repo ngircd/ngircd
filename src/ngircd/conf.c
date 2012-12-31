@@ -54,6 +54,7 @@ static CONF_SERVER New_Server;
 static int New_Server_Idx;
 
 static char Conf_MotdFile[FNAME_LEN];
+static char Conf_HelpFile[FNAME_LEN];
 
 static void Set_Defaults PARAMS(( bool InitServers ));
 static bool Read_Config PARAMS(( bool TestOnly, bool IsStarting ));
@@ -316,6 +317,7 @@ Conf_Test( void )
 	printf("  AdminInfo1 = %s\n", Conf_ServerAdmin1);
 	printf("  AdminInfo2 = %s\n", Conf_ServerAdmin2);
 	printf("  AdminEMail = %s\n", Conf_ServerAdminMail);
+	printf("  HelpFile = %s\n", Conf_HelpFile);
 	printf("  Info = %s\n", Conf_ServerInfo);
 	printf("  Listen = %s\n", Conf_ListenAddress);
 	if (Using_MotdFile) {
@@ -701,8 +703,11 @@ Set_Defaults(bool InitServers)
 	Conf_ListenAddress = NULL;
 	array_free(&Conf_ListenPorts);
 	array_free(&Conf_Motd);
+	array_free(&Conf_Helptext);
 	strlcpy(Conf_MotdFile, SYSCONFDIR, sizeof(Conf_MotdFile));
 	strlcat(Conf_MotdFile, MOTD_FILE, sizeof(Conf_MotdFile));
+	strlcpy(Conf_HelpFile, SYSCONFDIR, sizeof(Conf_HelpFile));
+	strlcat(Conf_HelpFile, HELP_FILE, sizeof(Conf_HelpFile));
 	strcpy(Conf_ServerPwd, "");
 	strlcpy(Conf_PidFile, PID_FILE, sizeof(Conf_PidFile));
 	Conf_UID = Conf_GID = 0;
@@ -1047,6 +1052,12 @@ Read_Config(bool TestOnly, bool IsStarting)
 			Using_MotdFile = true;
 	}
 
+	/* Try to read ngIRCd help text file. */
+	(void)Read_TextFile(Conf_HelpFile, "help text", &Conf_Helptext);
+	if (!array_bytes(&Conf_Helptext))
+		Config_Error(LOG_WARNING,
+		    "No help text available, HELP command will be of limited use.");
+
 #ifdef SSL_SUPPORT
 	/* Make sure that all SSL-related files are readable */
 	CheckFileReadable("CertFile", Conf_SSLOptions.CertFile);
@@ -1309,6 +1320,12 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 	if (strcasecmp(Var, "Info") == 0) {
 		len = strlcpy(Conf_ServerInfo, Arg, sizeof(Conf_ServerInfo));
 		if (len >= sizeof(Conf_ServerInfo))
+			Config_Error_TooLong(Line, Var);
+		return;
+	}
+	if (strcasecmp(Var, "HelpFile") == 0) {
+		len = strlcpy(Conf_HelpFile, Arg, sizeof(Conf_HelpFile));
+		if (len >= sizeof(Conf_HelpFile))
 			Config_Error_TooLong(Line, Var);
 		return;
 	}

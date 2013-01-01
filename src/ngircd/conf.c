@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2012 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2013 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -706,7 +706,7 @@ Set_Defaults(bool InitServers)
 	array_free(&Conf_Helptext);
 	strlcpy(Conf_MotdFile, SYSCONFDIR, sizeof(Conf_MotdFile));
 	strlcat(Conf_MotdFile, MOTD_FILE, sizeof(Conf_MotdFile));
-	strlcpy(Conf_HelpFile, SYSCONFDIR, sizeof(Conf_HelpFile));
+	strlcpy(Conf_HelpFile, DOCDIR, sizeof(Conf_HelpFile));
 	strlcat(Conf_HelpFile, HELP_FILE, sizeof(Conf_HelpFile));
 	strcpy(Conf_ServerPwd, "");
 	strlcpy(Conf_PidFile, PID_FILE, sizeof(Conf_PidFile));

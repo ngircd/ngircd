@@ -9,6 +9,10 @@
                                   -- NEWS --
 
 
+ngIRCd 20.1 (2013-01-02)
+
+  - This release is a bugfix release only, without new features.
+
 ngIRCd 20 (2012-12-17)
 
   - Allow user names ("INDENT") up to 20 characters when ngIRCd has not

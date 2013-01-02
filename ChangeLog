@@ -2,12 +2,26 @@
                      ngIRCd - Next Generation IRC Server
                            http://ngircd.barton.de/
 
-               (c)2001-2012 Alexander Barton and Contributors.
+               (c)2001-2013 Alexander Barton and Contributors.
                ngIRCd is free software and published under the
                    terms of the GNU General Public License.
 
                                -- ChangeLog --
 
+
+ngIRCd 20.1 (2013-01-02)
+
+  - Allow ERROR command on server and service links only, ignore them and
+    add a penalty time on all other link types.
+  - Enforced mode setting by IRC Operators: Only check the channel user
+    modes of the initiator if he is joined to the channel and not an IRC
+    operator enforcing modes (which requires the configuration option
+    "OperCanUseMode" to be enabled), because trying to check channel user
+    modes of a non-member results in an assertion when running with debug
+    code or could crash the daemon otherwise. This closes bug #147, thanks
+    to James Kirwill <james.kirwill@bk.ru> for tracking this down!
+  - Fix build system to cope with spaces in path names.
+  - Code cleanups, mostly to fix build warnings on Cygwin.
 
 ngIRCd 20 (2012-12-17)
 

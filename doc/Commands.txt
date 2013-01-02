@@ -1,0 +1,219 @@
+
+                     ngIRCd - Next Generation IRC Server
+                           http://ngircd.barton.de/
+
+               (c)2001-2013 Alexander Barton and Contributors.
+               ngIRCd is free software and published under the
+                   terms of the GNU General Public License.
+
+                              -- Commands.txt --
+
+
+This file lists all commands available on ngIRCd. It is written in a format
+that is human readable as well as machine parseable and therefore can be used
+as "help text file" of the daemon.
+
+In short, the HELP command parses this file as following when a user user
+issues a "HELP <cmd>" command:
+
+ 1. Search the file for a line "- <cmd>",
+ 2. Output all subsequent lines that start with a TAB (ASCII 9) character
+    to the client using NOTICE commands, treat lines containing a single "."
+    after the TAB as empty lines.
+ 3. Break at the first line not starting with a TAB character.
+
+This format allows to have information to each command stored in this file
+which will not be sent to an IRC user requesting help which enables us to
+have additional annotations stored here which further describe the origin,
+implementation details, or limits of the specific command.
+
+A special "Intro" block is returned to the user when the HELP command is
+used without a command name:
+
+
+- Intro
+	This is ngIRCd, a server software for Internet Relay Chat (IRC)
+	networks. You can find more information about ngIRCd on its homepage:
+		<http://ngircd.barton.de>
+	.
+	Use "HELP COMMANDS" to get a list of all available commands and
+	"HELP <command-name>" to get help for a specific IRC command, for
+	example "HELP quit" or "HELP privmsg".
+
+
+General Commands
+~~~~~~~~~~~~~~~~
+
+- AWAY
+
+- CAP
+
+- CHARCONV
+
+- HELP
+	HELP [<command>]
+	.
+	Show help information for a specific IRC <command>. The <command> name
+	is case-insensitive.
+	.
+	Use the command "HELP Commands" to get a list of all available commands.
+
+	The HELP command isn't specified by any RFC but implemented by most
+	daemons. If no help text could be read in, ngIRCd outputs a list of all
+	implemented commands when receiving a plain "HELP" command as well as
+	on "HELP Commands".
+
+	ngIRCd replies using "NOTICE" commands like ircd 2.10/2.11; other
+	implementations are using numerics 704, 705, and 706.
+
+
+- MODE
+
+- NICK
+
+- NOTICE
+
+- PASS
+
+- PING
+
+- PONG
+
+- PRIVMSG
+
+- QUIT
+	QUIT [<quit-message>]
+	.
+	End IRC session and disconnect from the server.
+	.
+	If a <quit-message> has been given, it is displayed to all the
+	channels that you are a member of when leaving.
+
+- USER
+
+- WALLOPS
+
+- WEBIRC
+
+
+Status and Informational Commands
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- INFO
+
+- ISON
+
+- LINKS
+
+- LUSERS
+
+- METADATA
+
+- MOTD
+
+- NAMES
+
+- STATS
+
+- TIME
+
+- TRACE
+
+- USERHOST
+
+- VERSION
+
+- WHO
+
+- WHOIS
+
+- WHOWAS
+
+
+Channel Commands
+~~~~~~~~~~~~~~~~
+
+- INVITE
+
+- JOIN
+
+- KICK
+
+- LIST
+
+- PART
+
+- TOPIC
+
+
+Administrative Commands
+~~~~~~~~~~~~~~~~~~~~~~~
+
+- ADMIN
+	ADMIN [<server>]
+	.
+	Show administartive information about an IRC server in the network.
+	If no server name has been given, the local server will respond.
+
+- CONNECT
+
+- DIE
+
+- DISCONNECT
+
+- GLINE
+
+- KILL
+
+- KLINE
+
+- OPER
+
+- REHASH
+
+- RESTART
+
+
+IRC Service Commands
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- SERVICE
+
+- SERVLIST
+
+- SQUERY
+
+- SVSNICK
+
+
+Server Protocol Commands
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- CHANINFO
+
+- ERROR
+	ERROR [<message> [<> [...]]]
+	.
+	Return an error message to the server. The first parameter, if given,
+	will be logged by the server, all further parameters are silently
+	ignored.
+	.
+	This command is silently ignored on non-server and non-service links.
+
+- NJOIN
+
+- SERVER
+
+- SQUIT
+
+
+Dummy Commands
+~~~~~~~~~~~~~~
+
+- SUMMON
+
+- USERS
+
+- GET
+
+- POST

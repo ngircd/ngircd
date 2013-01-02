@@ -44,6 +44,7 @@ static bool Send_Message PARAMS((CLIENT *Client, REQUEST *Req, int ForceType,
 static bool Send_Message_Mask PARAMS((CLIENT *from, char *command,
 				      char *targetMask, char *message,
 				      bool SendErrors));
+static bool Help PARAMS((CLIENT *Client, const char *Topic));
 
 
 /**
@@ -315,27 +316,114 @@ IRC_TRACE( CLIENT *Client, REQUEST *Req )
 } /* IRC_TRACE */
 
 
+/**
+ * Handler for the IRC "HELP" command.
+ *
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
+ */
 GLOBAL bool
-IRC_HELP( CLIENT *Client, REQUEST *Req )
+IRC_HELP(CLIENT *Client, REQUEST *Req)
 {
 	COMMAND *cmd;
 
-	assert( Client != NULL );
-	assert( Req != NULL );
+	assert(Client != NULL);
+	assert(Req != NULL);
 
 	/* Bad number of arguments? */
-	if( Req->argc > 0 ) return IRC_WriteStrClient( Client, ERR_NORECIPIENT_MSG, Client_ID( Client ), Req->command );
+	if (Req->argc > 1)
+		return IRC_WriteStrClient(Client, ERR_NORECIPIENT_MSG,
+					  Client_ID(Client), Req->command);
 
-	cmd = Parse_GetCommandStruct( );
-	while( cmd->name )
-	{
-		if( ! IRC_WriteStrClient( Client, "NOTICE %s :%s", Client_ID( Client ), cmd->name )) return DISCONNECTED;
+	IRC_SetPenalty(Client, 2);
+
+	if ((Req->argc == 0 && array_bytes(&Conf_Helptext) > 0)
+	    || (Req->argc >= 1 && strcasecmp(Req->argv[0], "Commands") != 0)) {
+		/* Help text available and requested */
+		if (Req->argc >= 1)
+			return Help(Client, Req->argv[0]);
+
+		if (!Help(Client, "Intro"))
+			return DISCONNECTED;
+		return CONNECTED;
+	}
+
+	cmd = Parse_GetCommandStruct();
+	while(cmd->name) {
+		if (!IRC_WriteStrClient(Client, "NOTICE %s :%s",
+					Client_ID(Client), cmd->name))
+			return DISCONNECTED;
 		cmd++;
 	}
-	
-	IRC_SetPenalty( Client, 2 );
 	return CONNECTED;
 } /* IRC_HELP */
+
+
+/**
+ * Send help for a given topic to the client.
+ *
+ * @param Client The client requesting help.
+ * @param Topoc The help topic requested.
+ * @return CONNECTED or DISCONNECTED.
+ */
+static bool
+Help(CLIENT *Client, const char *Topic)
+{
+	char *line;
+	size_t helptext_len, len_str, idx_start, lines = 0;
+	bool in_article = false;
+
+	assert(Client != NULL);
+	assert(Topic != NULL);
+
+	helptext_len = array_bytes(&Conf_Helptext);
+	line = array_start(&Conf_Helptext);
+	while (helptext_len > 0) {
+		len_str = strlen(line) + 1;
+		assert(helptext_len >= len_str);
+		helptext_len -= len_str;
+
+		if (in_article) {
+			/* The first character in each article text line must
+			 * be a TAB (ASCII 9) character which will be stripped
+			 * in the output. If it is not a TAB, the end of the
+			 * article has been reached. */
+			if (line[0] != '\t') {
+				if (lines > 0)
+					return CONNECTED;
+				else
+					break;
+			}
+
+			/* A single '.' character indicates an empty line */
+			if (line[1] == '.' && line[2] == '\0')
+				idx_start = 2;
+			else
+				idx_start = 1;
+
+			if (!IRC_WriteStrClient(Client, "NOTICE %s :%s",
+						Client_ID(Client),
+						&line[idx_start]))
+				return DISCONNECTED;
+			lines++;
+
+		} else {
+			if (line[0] == '-' && line[1] == ' '
+			    && strcasecmp(&line[2], Topic) == 0)
+				in_article = true;
+		}
+
+		line += len_str;
+	}
+
+	/* Help topic not found (or empty)! */
+	if (!IRC_WriteStrClient(Client, "NOTICE %s :No help for \"%s\" found!",
+				Client_ID(Client), Topic))
+		return DISCONNECTED;
+
+	return CONNECTED;
+}
 
 
 static char *

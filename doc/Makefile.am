@@ -1,6 +1,6 @@
 #
 # ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001-2012 Alexander Barton (alex@barton.de) and Contributors
+# Copyright (c)2001-2013 Alexander Barton (alex@barton.de) and Contributors
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -12,6 +12,7 @@
 .tmpl:
 	$(AM_V_GEN)sed \
 	    -e "s@:ETCDIR:@${sysconfdir}@" \
+	    -e "s@:DOCDIR:@${docdir}@" \
 	    <$< >$@
 
 SUFFIXES = .tmpl
@@ -19,6 +20,7 @@ SUFFIXES = .tmpl
 static_docs = \
 	Bopm.txt \
 	Capabilities.txt \
+	Commands.txt \
 	Contributing.txt \
 	FAQ.txt \
 	GIT.txt \

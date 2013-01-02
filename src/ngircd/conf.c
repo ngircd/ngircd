@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2012 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2013 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -54,6 +54,7 @@ static CONF_SERVER New_Server;
 static int New_Server_Idx;
 
 static char Conf_MotdFile[FNAME_LEN];
+static char Conf_HelpFile[FNAME_LEN];
 
 static void Set_Defaults PARAMS(( bool InitServers ));
 static bool Read_Config PARAMS(( bool TestOnly, bool IsStarting ));
@@ -316,6 +317,7 @@ Conf_Test( void )
 	printf("  AdminInfo1 = %s\n", Conf_ServerAdmin1);
 	printf("  AdminInfo2 = %s\n", Conf_ServerAdmin2);
 	printf("  AdminEMail = %s\n", Conf_ServerAdminMail);
+	printf("  HelpFile = %s\n", Conf_HelpFile);
 	printf("  Info = %s\n", Conf_ServerInfo);
 	printf("  Listen = %s\n", Conf_ListenAddress);
 	if (Using_MotdFile) {
@@ -701,8 +703,11 @@ Set_Defaults(bool InitServers)
 	Conf_ListenAddress = NULL;
 	array_free(&Conf_ListenPorts);
 	array_free(&Conf_Motd);
+	array_free(&Conf_Helptext);
 	strlcpy(Conf_MotdFile, SYSCONFDIR, sizeof(Conf_MotdFile));
 	strlcat(Conf_MotdFile, MOTD_FILE, sizeof(Conf_MotdFile));
+	strlcpy(Conf_HelpFile, DOCDIR, sizeof(Conf_HelpFile));
+	strlcat(Conf_HelpFile, HELP_FILE, sizeof(Conf_HelpFile));
 	strcpy(Conf_ServerPwd, "");
 	strlcpy(Conf_PidFile, PID_FILE, sizeof(Conf_PidFile));
 	Conf_UID = Conf_GID = 0;
@@ -784,39 +789,44 @@ no_listenports(void)
 }
 
 /**
- * Read MOTD ("message of the day") file.
+ * Read contents of a text file into an array.
+ *
+ * This function is used to read the MOTD and help text file, for exampe.
  *
  * @param filename	Name of the file to read.
+ * @return		true, when the file has been read in.
  */
-static void
-Read_Motd(const char *filename)
+static bool
+Read_TextFile(const char *Filename, const char *Name, array *Destination)
 {
 	char line[127];
 	FILE *fp;
+	int line_no = 1;
 
-	if (*filename == '\0')
-		return;
+	if (*Filename == '\0')
+		return false;
 
-	fp = fopen(filename, "r");
+	fp = fopen(Filename, "r");
 	if (!fp) {
-		Config_Error(LOG_WARNING, "Can't read MOTD file \"%s\": %s",
-					filename, strerror(errno));
-		return;
+		Config_Error(LOG_WARNING, "Can't read %s file \"%s\": %s",
+					Name, Filename, strerror(errno));
+		return false;
 	}
 
-	array_free(&Conf_Motd);
-	Using_MotdFile = true;
-
+	array_free(Destination);
 	while (fgets(line, (int)sizeof line, fp)) {
-		ngt_TrimLastChr( line, '\n');
+		ngt_TrimLastChr(line, '\n');
 
 		/* add text including \0 */
-		if (!array_catb(&Conf_Motd, line, strlen(line) + 1)) {
-			Log(LOG_WARNING, "Cannot add MOTD text: %s", strerror(errno));
+		if (!array_catb(Destination, line, strlen(line) + 1)) {
+			Log(LOG_WARNING, "Cannot read/add \"%s\", line %d: %s",
+			    Filename, line_no, strerror(errno));
 			break;
 		}
+		line_no++;
 	}
 	fclose(fp);
+	return true;
 }
 
 /**
@@ -1037,8 +1047,16 @@ Read_Config(bool TestOnly, bool IsStarting)
 	}
 
 	/* No MOTD phrase configured? (re)try motd file. */
-	if (array_bytes(&Conf_Motd) == 0)
-		Read_Motd(Conf_MotdFile);
+	if (array_bytes(&Conf_Motd) == 0) {
+		if (Read_TextFile(Conf_MotdFile, "MOTD", &Conf_Motd))
+			Using_MotdFile = true;
+	}
+
+	/* Try to read ngIRCd help text file. */
+	(void)Read_TextFile(Conf_HelpFile, "help text", &Conf_Helptext);
+	if (!array_bytes(&Conf_Helptext))
+		Config_Error(LOG_WARNING,
+		    "No help text available, HELP command will be of limited use.");
 
 #ifdef SSL_SUPPORT
 	/* Make sure that all SSL-related files are readable */
@@ -1302,6 +1320,12 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 	if (strcasecmp(Var, "Info") == 0) {
 		len = strlcpy(Conf_ServerInfo, Arg, sizeof(Conf_ServerInfo));
 		if (len >= sizeof(Conf_ServerInfo))
+			Config_Error_TooLong(Line, Var);
+		return;
+	}
+	if (strcasecmp(Var, "HelpFile") == 0) {
+		len = strlcpy(Conf_HelpFile, Arg, sizeof(Conf_HelpFile));
+		if (len >= sizeof(Conf_HelpFile))
 			Config_Error_TooLong(Line, Var);
 		return;
 	}

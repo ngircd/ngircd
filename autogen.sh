@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001-2012 Alexander Barton (alex@barton.de) and Contributors
+# Copyright (c)2001-2013 Alexander Barton (alex@barton.de) and Contributors
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -156,21 +156,23 @@ echo "Searching for required tools ..."
 AM_VERSION=`$AUTOMAKE --version|head -n 1|egrep -o "([1-9]\.[0-9]+(\.[0-9]+)*)"`
 ifs=$IFS; IFS="."; set $AM_VERSION; IFS=$ifs
 AM_MAJOR="$1"; AM_MINOR="$2"; AM_PATCHLEVEL="$3"
+echo "Detected automake $AM_VERSION ..."
 
 AM_MAKEFILES="src/ipaddr/Makefile.ng src/ngircd/Makefile.ng src/testsuite/Makefile.ng src/tool/Makefile.ng"
 
+# De-ANSI-fication?
 if [ "$AM_MAJOR" -eq "1" -a "$AM_MINOR" -lt "12" ]; then
 	# automake < 1.12 => automatic de-ANSI-fication support available
-	echo "Enabling de-ANSI-fication support (automake $AM_VERSION) ..."
+	echo " - Enabling de-ANSI-fication support."
 	sed -e "s|^__ng_PROTOTYPES__|AM_C_PROTOTYPES|g" configure.ng >configure.ac
 	DEANSI_START=""
 	DEANSI_END=""
 else
 	# automake >= 1.12 => no de-ANSI-fication support available
-	echo "Disabling de-ANSI-fication support (automake $AM_VERSION) ..."
+	echo " - Disabling de-ANSI-fication support."
 	sed -e "s|^__ng_PROTOTYPES__|AC_C_PROTOTYPES|g" configure.ng >configure.ac
 	DEANSI_START="#"
-	DEANSI_END="	# disabled by ./autogen.sh script"
+	DEANSI_END=" (disabled by ./autogen.sh script)"
 fi
 sed -e "s|^__ng_Makefile_am_template__|${DEANSI_START}AUTOMAKE_OPTIONS = ansi2knr${DEANSI_END}|g" \
 	src/portab/Makefile.ng >src/portab/Makefile.am

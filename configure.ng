@@ -711,7 +711,8 @@ echo $ECHO_N "   libiconv support: $ECHO_C"
 
 echo
 
-if ! grep "^AUTOMAKE_OPTIONS = ../portab/ansi2knr" src/ngircd/Makefile.am >/dev/null 2>&1; then
+define(_automake_regex_,[[^AUTOMAKE_OPTIONS = [a-z .\-]*/portab/ansi2knr]])
+if ! grep "_automake_regex_" src/ngircd/Makefile.am >/dev/null 2>&1; then
 	echo "WARNING:"
 	echo "This GNU automake generated build system does not support \"de-ANSI-fication\","
 	echo "therefore don't use it to generate \"official\" distribution archives!"

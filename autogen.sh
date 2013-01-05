@@ -172,11 +172,21 @@ else
 	DEANSI_START="#"
 	DEANSI_END="	# disabled by ./autogen.sh script"
 fi
-sed -e "s|^__ng_Makefile_am_template__|${DEANSI_START}AUTOMAKE_OPTIONS = ansi2knr${DEANSI_END}|g" \
+# Serial test harness?
+if [ "$AM_MAJOR" -eq "1" -a "$AM_MINOR" -ge "13" ]; then
+	# automake >= 1.13 => enforce "serial test harness"
+	echo " - Enforcing serial test harness."
+	SERIAL_TESTS="serial-tests"
+else
+	# automake < 1.13 => no new test harness, nothing to do
+	SERIAL_TEST=""
+fi
+
+sed -e "s|^__ng_Makefile_am_template__|AUTOMAKE_OPTIONS = ${SERIAL_TESTS} ${DEANSI_START}ansi2knr${DEANSI_END}|g" \
 	src/portab/Makefile.ng >src/portab/Makefile.am
 for makefile_ng in $AM_MAKEFILES; do
 	makefile_am=`echo "$makefile_ng" | sed -e "s|\.ng\$|\.am|g"`
-	sed -e "s|^__ng_Makefile_am_template__|${DEANSI_START}AUTOMAKE_OPTIONS = ../portab/ansi2knr${DEANSI_END}|g" \
+	sed -e "s|^__ng_Makefile_am_template__|AUTOMAKE_OPTIONS = ${SERIAL_TESTS} ${DEANSI_START}../portab/ansi2knr${DEANSI_END}|g" \
 		$makefile_ng >$makefile_am
 done
 

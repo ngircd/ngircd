@@ -256,6 +256,10 @@ GLOBAL bool Conf_AddServer PARAMS(( const char *Name, UINT16 Port, const char *H
 GLOBAL bool Conf_NickIsService PARAMS((int ConfServer, const char *Nick));
 GLOBAL bool Conf_NickIsBlocked PARAMS((const char *Nick));
 
+#ifdef SSL_SUPPORT
+GLOBAL bool Conf_SSLInUse PARAMS((void));
+#endif
+
 /* Password required by WEBIRC command */
 GLOBAL char Conf_WebircPwd[CLIENT_PASS_LEN];
 

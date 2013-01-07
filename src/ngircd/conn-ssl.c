@@ -241,8 +241,10 @@ void ConnSSL_Free(CONNECTION *c)
 bool
 ConnSSL_InitLibrary( void )
 {
-	if (!array_bytes(&Conf_SSLOptions.ListenPorts))
+	if (!Conf_SSLInUse()) {
+		LogDebug("SSL not in use, skipping initialization.");
 		return true;
+	}
 
 #ifdef HAVE_LIBSSL
 	SSL_CTX *newctx;

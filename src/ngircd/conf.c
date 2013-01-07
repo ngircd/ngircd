@@ -110,6 +110,28 @@ ConfSSL_Init(void)
 }
 
 /**
+ * Check if the current configuration uses/requires SSL.
+ *
+ * @returns true if SSL is used and should be initialized.
+ */
+GLOBAL bool
+Conf_SSLInUse(void)
+{
+	int i;
+
+	/* SSL listen ports configured? */
+	if (array_bytes(&Conf_SSLOptions.ListenPorts))
+		return true;
+
+	for (i = 0; i < MAX_SERVERS; i++) {
+		if (Conf_Server[i].port > 0
+		    && Conf_Server[i].SSLConnect)
+			return true;
+	}
+	return false;
+}
+
+/**
  * Make sure that a configured file is readable.
  *
  * Currently, this function is only used for SSL-related options ...

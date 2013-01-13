@@ -628,9 +628,13 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 				Req->argv[arg_arg][0] = '\0';
 				arg_arg++;
 			} else {
+#ifdef STRICT_RFC
+				/* Only send error message in "strict" mode,
+				 * this is how ircd2.11 and others behave ... */
 				connected = IRC_WriteStrClient(Origin,
 					ERR_NEEDMOREPARAMS_MSG,
 					Client_ID(Origin), Req->command);
+#endif
 				goto chan_exit;
 			}
 			break;
@@ -668,9 +672,13 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 				Req->argv[arg_arg][0] = '\0';
 				arg_arg++;
 			} else {
+#ifdef STRICT_RFC
+				/* Only send error message in "strict" mode,
+				 * this is how ircd2.11 and others behave ... */
 				connected = IRC_WriteStrClient(Origin,
 					ERR_NEEDMOREPARAMS_MSG,
 					Client_ID(Origin), Req->command);
+#endif
 				goto chan_exit;
 			}
 			break;
@@ -761,9 +769,17 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 				Req->argv[arg_arg][0] = '\0';
 				arg_arg++;
 			} else {
+#ifdef STRICT_RFC
+				/* Report an error to the client, when a user
+				 * mode should be changed but no nickname is
+				 * given. But don't do it when not in "strict"
+				 * mode, because most other servers don't do
+				 * it as well and some clients send "wired"
+				 * MODE commands like "MODE #chan -ooo nick". */
 				connected = IRC_WriteStrClient(Origin,
 					ERR_NEEDMOREPARAMS_MSG,
 					Client_ID(Origin), Req->command);
+#endif
 				goto chan_exit;
 			}
 			break;

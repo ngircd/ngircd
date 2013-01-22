@@ -3,8 +3,8 @@ Description=Next Generation IRC Daemon
 After=network.target
 
 [Service]
-# don't daemonize to simplify stuff
-ExecStart=/usr/sbin/ngircd -n
+Type=forking
+ExecStart=/usr/sbin/ngircd
 ExecReload=/bin/kill -HUP $MAINPID
 
 [Install]

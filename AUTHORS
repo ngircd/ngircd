@@ -18,29 +18,29 @@ Don't mail the people listed here directly, if possible!
 
 Main Authors
 ~~~~~~~~~~~~
-Alexander Barton, <alex@barton.de> (alex)
-Florian Westphal, <fw@strlen.de>
+Alexander Barton <alex@barton.de>
+Florian Westphal <fw@strlen.de>
 
 
 Contributors
 ~~~~~~~~~~~~
-Ali Shemiran, <ashemira@ucsd.edu>
-Ask Bjørn Hansen, <ask@develooper.com>
-Benjamin Pineau, <ben@zouh.org>
-Brandon Beresini, <beresini@google.com>
-Bryan Caldwell, <bcaldwel@ucsd.edu>
-Dana Dahlstrom, <dana+ngIRCd@cs.ucsd.edu>
-Eric Grunow, <egrunow@ucsd.edu>
-Goetz Hoffart, <goetz@hoffart.de>
-Ilja Osthoff, <i.osthoff@gmx.net>
-Jari Aalto, <jari.aalto@cante.net>
-Rolf Eike Beer, <eike@sf-mail.de>
-Scott Perry, <scperry@ucsd.edu>
-Sean Reifschneider, <jafo-rpms@tummy.com>
+Ali Shemiran <ashemira@ucsd.edu>
+Ask Bjørn Hansen <ask@develooper.com>
+Benjamin Pineau <ben@zouh.org>
+Brandon Beresini <beresini@google.com>
+Bryan Caldwell <bcaldwel@ucsd.edu>
+Dana Dahlstrom <dana+ngIRCd@cs.ucsd.edu>
+Eric Grunow <egrunow@ucsd.edu>
+Goetz Hoffart <goetz@hoffart.de>
+Ilja Osthoff <i.osthoff@gmx.net>
+Jari Aalto <jari.aalto@cante.net>
+Rolf Eike Beer <eike@sf-mail.de>
+Scott Perry <scperry@ucsd.edu>
+Sean Reifschneider <jafo-rpms@tummy.com>
 
 
 Code snippets
 ~~~~~~~~~~~~~
 J. Kercheval: pattern matching functions
-Patrick Powell, <papowell@astart.com>: snprintf()-function
+Patrick Powell <papowell@astart.com>: snprintf()-function
 Andrew Tridgell & Martin Pool: strl{cpy|cat}()-functions

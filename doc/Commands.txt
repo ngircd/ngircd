@@ -42,14 +42,38 @@ used without a command name:
 	example "HELP quit" or "HELP privmsg".
 
 
-General Commands
-~~~~~~~~~~~~~~~~
-
-- AWAY
+Connection Handling Commands
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - CAP
 
 - CHARCONV
+
+- NICK
+
+- PASS
+
+- PING
+
+- PONG
+
+- QUIT
+	QUIT [<quit-message>]
+	.
+	End IRC session and disconnect from the server.
+	.
+	If a <quit-message> has been given, it is displayed to all the
+	channels that you are a member of when leaving.
+
+- USER
+
+- WEBIRC
+
+
+General Commands
+~~~~~~~~~~~~~~~~
+
+- AWAY
 
 - HELP
 	HELP [<command>]
@@ -70,35 +94,19 @@ General Commands
 
 - MODE
 
-- NICK
-
 - NOTICE
 
-- PASS
-
-- PING
-
-- PONG
-
 - PRIVMSG
-
-- QUIT
-	QUIT [<quit-message>]
-	.
-	End IRC session and disconnect from the server.
-	.
-	If a <quit-message> has been given, it is displayed to all the
-	channels that you are a member of when leaving.
-
-- USER
-
-- WALLOPS
-
-- WEBIRC
 
 
 Status and Informational Commands
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- ADMIN
+	ADMIN [<server>]
+	.
+	Show administrative information about an IRC server in the network.
+	If no server name has been given, the local server will respond.
 
 - INFO
 
@@ -107,8 +115,6 @@ Status and Informational Commands
 - LINKS
 
 - LUSERS
-
-- METADATA
 
 - MOTD
 
@@ -150,12 +156,6 @@ Channel Commands
 Administrative Commands
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-- ADMIN
-	ADMIN [<server>]
-	.
-	Show administartive information about an IRC server in the network.
-	If no server name has been given, the local server will respond.
-
 - CONNECT
 
 - DIE
@@ -173,6 +173,8 @@ Administrative Commands
 - REHASH
 
 - RESTART
+
+- WALLOPS
 
 
 IRC Service Commands
@@ -200,6 +202,8 @@ Server Protocol Commands
 	ignored.
 	.
 	This command is silently ignored on non-server and non-service links.
+
+- METADATA
 
 - NJOIN
 

@@ -13,8 +13,8 @@ This file lists all commands available on ngIRCd. It is written in a format
 that is human readable as well as machine parseable and therefore can be used
 as "help text file" of the daemon.
 
-In short, the HELP command parses this file as following when a user user
-issues a "HELP <cmd>" command:
+In short, the daemon reads this file on startup and parses it as following
+when an user issues a "HELP <cmd>" command:
 
  1. Search the file for a line "- <cmd>",
  2. Output all subsequent lines that start with a TAB (ASCII 9) character
@@ -25,7 +25,8 @@ issues a "HELP <cmd>" command:
 This format allows to have information to each command stored in this file
 which will not be sent to an IRC user requesting help which enables us to
 have additional annotations stored here which further describe the origin,
-implementation details, or limits of the specific command.
+implementation details, or limits of the specific command which are not
+relevant to an end-user but administrators and developers.
 
 A special "Intro" block is returned to the user when the HELP command is
 used without a command name:
@@ -175,7 +176,7 @@ Administrative Commands
 
 
 IRC Service Commands
-~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
 
 - SERVICE
 

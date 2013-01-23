@@ -46,16 +46,35 @@ Connection Handling Commands
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - CAP
+	See doc/Capabilities.txt
 
 - CHARCONV
+	See doc/Protocol.txt
 
 - NICK
+	NICK <nick>
+	.
+	Change your nickname to <nick>.
 
 - PASS
+	PASS <password> <version> <flags> [<options>]
+	.
+	Set a connection <password>. This command must be sent before the
+	NICK/USER registration combination.
+	.
+	See doc/Protocol.txt for more info.
 
 - PING
+	PING <server1> [<server2>]
+	.
+	Tests the presence of a connection. A PING message results in a PONG
+	reply. If <server2> is specified, the message gets passed on to it.
 
 - PONG
+	PONG <server1> [<server2>]
+	.
+	This command is a reply to the PING command and works in much the
+	same way.
 
 - QUIT
 	QUIT [<quit-message>]
@@ -66,14 +85,28 @@ Connection Handling Commands
 	channels that you are a member of when leaving.
 
 - USER
+	USER <user> <modes> <realname>
+	.
+	This command is used at the beginning of a connection to specify the
+	<user>name, hostname, <realname> and initial user <modes> of the
+	connecting client.
+	.
+	<realname> may contain spaces, and thus must be prefixed with a colon.
 
 - WEBIRC
+	See doc/Protocol.txt
 
 
 General Commands
 ~~~~~~~~~~~~~~~~
 
 - AWAY
+	AWAY [<message>]
+	.
+	Provides the server with a message to automatically send in reply to a
+	PRIVMSG directed at the user, but not to a channel they are on.
+	.
+	If <message> is omitted, the away status is removed.
 
 - HELP
 	HELP [<command>]
@@ -93,10 +126,29 @@ General Commands
 
 
 - MODE
+	MODE <nickname> <flags> (user)
+	MODE <channel> <flags> [<args>]
+	.
+	The MODE command is dual-purpose. It can be used to set both (user) and
+	<channel> modes.
+	.
+	See doc/Modes.txt for more information.
 
 - NOTICE
+	NOTICE <target> <notice>
+	.
+	Send <notice> to <target> (nick or channel).
+	.
+	This command works similarly to PRIVMSG, except automatic replies must
+	never be sent in reply to NOTICE messages.
 
 - PRIVMSG
+	PRIVMSG <target> <message>
+	.
+	Send <message> to <target> (nick or channel).
+	.
+	Common IRC clients use MSG as PRIVMSG alias.
+	(Some clients use "QUERY <nick> [<message>]" to open a private chat.)
 
 
 Status and Informational Commands
@@ -109,72 +161,239 @@ Status and Informational Commands
 	If no server name has been given, the local server will respond.
 
 - INFO
+	INFO [<server>]
+	.
+	Show the version, birth & online time of the current IRC server.
+	If <server> has been given, it shows the INFO of the specific <server>.
 
 - ISON
+	ISON <nicknames>
+	.
+	Queries the server to see if the clients in the space-separated list
+	<nicknames> are currently on the network.
+	.
+	The server returns only the <nicknames> that are on the network in a
+	space-separated list. If none of the clients are on the network the
+	server returns an empty list.
 
 - LINKS
+	LINKS [<remote server> [<server mask>]]
+	.
+	Lists all server links matching <server mask>, if given,
+	on <remote server>, or the current server if omitted.
 
 - LUSERS
+	LUSERS [<mask> [<server>]]
+	.
+	Return statistics about the size of the network. If called with no
+	arguments, the statistics will reflect the entire network.
+	.
+	If <mask> is given, it will return only statistics reflecting the
+	masked subset of the network.
+	If <server> is given, the command will be forwarded to <server>
+	for evaluation.
 
 - MOTD
+	MOTD [<server>]
+	.
+	Show "Message Of The Day" of the current server or specified <server>.
 
 - NAMES
+	NAMES [<channels> [<server>]]
+	.
+	Returns a list of who is on the comma-separated list of <channels>,
+	by channel name.
+	.
+	If <channels> is omitted, all users are shown, grouped by channel name
+	with all users who are not on a channel being shown as part of channel
+	"*".
+	If <server> is specified, the command is sent to <server> for
+	evaluation.
 
 - STATS
+	STATS <flag> [<server>]
+	.
+	Returns statistics about the current server, or of a specified <server>.
+	.
+	STATS flags:
+	.
+	g = G-Lines (Network-wide bans)
+	k = K-Lines (Server-local bans)
+	l = Link status (Parent server and own link)
+	m = IRC command status (usage count)
+	u = Server uptime
 
 - TIME
+	TIME [<server>]
+	.
+	Show the local time of the current server, or of a specified <server>.
 
 - TRACE
+	TRACE [<server>]
+	.
+	Trace a path across the IRC network of the current server, or if given
+	of a specific <server>, in a similar method to traceroute.
 
 - USERHOST
+	USERHOST <nicknames>
+	.
+	Show the user-host of <nicknames> (seperated by space).
+	"-" means <nick> is away,
+	"+" means <nick> is available,
+	"*" indicates your connection.
 
 - VERSION
+	VERSION [<server>]
+	.
+	Show the ngIRCd version of the current server, or specified <server>.
 
 - WHO
+	WHO [<target> ["o"]]
+	.
+	Returns a list of users who match <target> (nick, hostmask or channel).
+	.
+	If the flag "o" is given, the server will only return information about
+	IRC Operators.
 
 - WHOIS
+	WHOIS [<server>] <nicknames>
+	.
+	Returns information about the comma-separated list of <nicknames>.
+	.
+	If <server> is given, the command is forwarded to it for processing.
 
 - WHOWAS
+	WHOWAS <nickname> [<count> [<server>]]
+	.
+	Used to return information about <nicknames> that are no longer in use
+	(due to client disconnection, or nickname changes).
+	.
+	If given, the server will return information from the last <count> times
+	the nickname has been used.
+	If <server> is given, the command is forwarded to it for processing.
 
 
 Channel Commands
 ~~~~~~~~~~~~~~~~
 
 - INVITE
+	INVITE <nick> <channel>
+	.
+	Invites <nick> to <channel>.
+	<channel> does not have to exist, but if it does, only members of the
+	channel are allowed to invite other clients.
+	.
+	If the <channel> mode "+i" is set, only <channel> operators may invite
+	other clients.
 
 - JOIN
+	JOIN <channels> [<channel-keys>]
+	.
+	Makes the client join the <channels> (comma-separated list), specifying
+	the passwords, if needed, in the comma-separated <channel-keys> list.
+	A <channel-key> is only needed, if the <channel> mode "+k" is set.
+	.
+	If the channel(s) do not exist, then they will be created.
 
 - KICK
+	KICK <channel> <nick> [<kick-message>]
+	.
+	Remove <nick> from <channel>, optional with a <kick-message>.
+	.
+	Only <channel> operators are able to KICK.
 
 - LIST
+	LIST [<channels> [<server>]]
+	.
+	List all visible <channels> (comma-seperated list) on the current
+	server.
+	If <server> is given, the command will be forwarded to <server> for
+	evaluation.
 
 - PART
+	PART <channels> [<part-message>]
+	.
+	Leave <channels> (comma-separated list), optional with a
+	<part-message>.
 
 - TOPIC
+	TOPIC <channel> <topic>
+	.
+	Set a <topic> for <channel>.
+	.
+	Only <channel> operators are able to set a <topic>.
 
 
 Administrative Commands
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 - CONNECT
+	CONNECT <target server> [<port> [<remote server> [<mypwd> <peerpwd>]]]
+	.
+	Instructs the current server, or <remote server> if specified,
+	to connect to <target server>.
+	.
+	To connect <remote server> you need to have remote oper status.
+	If <port> is omitted, it uses the server port of the configuration.
+	If <mypwd> and <peerpwd> is given, it uses those passwords instead
+	of the ones in the configuration.
 
 - DIE
+	DIE
+	.
+	Instructs the server to shut down.
 
 - DISCONNECT
+	DISCONNECT [<remote server>]
+	.
+	Disconnects the current server, or <remote server> if specified.
+	To disconnect a <remote server> you need to have remote oper status.
 
 - GLINE
+	GLINE <nick!user@hostmask> <seconds> :<reason>
+	.
+	This command provides timed G-Lines (Network-wide bans).
+	If a client matches a G-Line, it cannot connect to any server on
+	the IRC network. If you put 0 as <seconds>, it makes the G-Line
+	permanent.
+	.
+	To remove a G-Line, type "GLINE <nick!user@hostmask>".
+	To list the G-Lines, type "STATS g".
 
 - KILL
+	KILL <nick> <reason>
+	.
+	Forcibly removes <nick> from the IRC network with a <reason>.
 
 - KLINE
+	KLINE <nick!user@hostmask> <seconds> :<reason>
+	.
+	This command provides timed K-Lines (Server-local bans).
+	If a client matches a K-Line, it cannot connect to the issued server.
+	If you put 0 as <seconds>, it makes the K-Line permanent.
+	.
+	To remove a K-Line, type "KLINE <nick!user@hostmask>".
+	To list the K-Lines, type "STATS k".
 
 - OPER
+	OPER <user> <password>
+	.
+	Authenticates <user> as an IRC operator on the current server/network.
 
 - REHASH
+	REHASH
+	.
+	Causes the server to re-read and re-process its configuration file(s).
 
 - RESTART
+	RESTART
+	.
+	Restart the server.
 
 - WALLOPS
+	WALLOPS <message>
+	.
+	Sends <message> to all users with user mode "+w".
 
 
 IRC Service Commands
@@ -193,6 +412,12 @@ Server Protocol Commands
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 - CHANINFO
+	CHANINFO <channel> +<modes> [[<key> <limit>] <topic>]
+	.
+	CHANINFO is used by servers to inform each other about a channel:
+	its modes, channel key, user limits and its topic.
+	.
+	See doc/Protocol.txt for more information.
 
 - ERROR
 	ERROR [<message> [<> [...]]]
@@ -204,12 +429,22 @@ Server Protocol Commands
 	This command is silently ignored on non-server and non-service links.
 
 - METADATA
+	METADATA <target> <key> <value>
+	.
+	The METADATA command is used on server-links to update "metadata"
+	information of clients, like the hostname, the info text ("real name"),
+	or the user name.
+	.
+	See doc/Protocol.txt for more information.
 
 - NJOIN
 
 - SERVER
 
 - SQUIT
+	SQUIT <server>
+	.
+	Disconnects an IRC Server from the network.
 
 
 Dummy Commands

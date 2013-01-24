@@ -120,14 +120,14 @@ AC_HEADER_TIME
 
 # Required header files
 AC_CHECK_HEADERS([ \
-	fcntl.h netdb.h netinet/in.h netinet/in_systm.h stdlib.h string.h \
+	fcntl.h netdb.h netinet/in.h stdlib.h string.h \
 	strings.h sys/socket.h sys/time.h unistd.h \
 	],,AC_MSG_ERROR([required C header missing!]))
 
 # Optional header files
 AC_CHECK_HEADERS_ONCE([ \
-	arpa/inet.h inttypes.h malloc.h netinet/ip.h stdbool.h stddef.h \
-	stdint.h varargs.h \
+	arpa/inet.h inttypes.h malloc.h netinet/in_systm.h netinet/ip.h \
+	stdbool.h stddef.h stdint.h varargs.h \
 	])
 
 # -- Datatypes --

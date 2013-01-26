@@ -535,16 +535,18 @@ Pidfile_Create(pid_t pid)
 
 	len = snprintf(pidbuf, sizeof pidbuf, "%ld\n", (long)pid);
 	if (len < 0 || len >= (int)sizeof pidbuf) {
-		Log(LOG_ERR, "Error converting pid");
+		Log(LOG_ERR, "Error converting process ID!");
 		close(pidfd);
 		return;
 	}
 	
 	if (write(pidfd, pidbuf, (size_t)len) != (ssize_t)len)
-		Log( LOG_ERR, "Can't write PID file (%s): %s", Conf_PidFile, strerror( errno ));
+		Log(LOG_ERR, "Can't write PID file (%s): %s!", Conf_PidFile,
+		    strerror(errno));
 
-	if( close(pidfd) != 0 )
-		Log( LOG_ERR, "Error closing PID file (%s): %s", Conf_PidFile, strerror( errno ));
+	if (close(pidfd) != 0)
+		Log(LOG_ERR, "Error closing PID file (%s): %s!", Conf_PidFile,
+		    strerror(errno));
 } /* Pidfile_Create */
 
 
@@ -678,14 +680,14 @@ NGIRCd_Init(bool NGIRCd_NoDaemon)
 	/* Change root */
 	if (Conf_Chroot[0]) {
 		if (chdir(Conf_Chroot) != 0) {
-			Log(LOG_ERR, "Can't chdir() in ChrootDir (%s): %s",
+			Log(LOG_ERR, "Can't chdir() in ChrootDir (%s): %s!",
 			    Conf_Chroot, strerror(errno));
 			goto out;
 		}
 
 		if (chroot(Conf_Chroot) != 0) {
 			Log(LOG_ERR,
-			    "Can't change root directory to \"%s\": %s",
+			    "Can't change root directory to \"%s\": %s!",
 			    Conf_Chroot, strerror(errno));
 			goto out;
 		} else {
@@ -716,7 +718,7 @@ NGIRCd_Init(bool NGIRCd_NoDaemon)
 		if (setgid(Conf_GID) != 0) {
 			real_errno = errno;
 			grp = getgrgid(Conf_GID);
-			Log(LOG_ERR, "Can't change group ID to %s(%u): %s",
+			Log(LOG_ERR, "Can't change group ID to %s(%u): %s!",
 			    grp ? grp->gr_name : "?", Conf_GID,
 			    strerror(errno));
 			if (real_errno != EPERM) 
@@ -730,7 +732,7 @@ NGIRCd_Init(bool NGIRCd_NoDaemon)
 		if (setuid(Conf_UID) != 0) {
 			real_errno = errno;
 			pwd = getpwuid(Conf_UID);
-			Log(LOG_ERR, "Can't change user ID to %s(%u): %s",
+			Log(LOG_ERR, "Can't change user ID to %s(%u): %s!",
 			    pwd ? pwd->pw_name : "?", Conf_UID,
 			    strerror(errno));
 			if (real_errno != EPERM)
@@ -764,7 +766,7 @@ NGIRCd_Init(bool NGIRCd_NoDaemon)
 		setpgrp(0, getpid());
 #endif
 		if (chdir("/") != 0)
-			Log(LOG_ERR, "Can't change directory to '/': %s",
+			Log(LOG_ERR, "Can't change directory to '/': %s!",
 				     strerror(errno));
 
 		/* Detach stdin, stdout and stderr */
@@ -808,7 +810,7 @@ NGIRCd_Init(bool NGIRCd_NoDaemon)
 			    pwd->pw_dir);
 		else
 			Log(LOG_INFO,
-			    "Notice: Can't change working directory to \"%s\": %s",
+			    "Notice: Can't change working directory to \"%s\": %s!",
 			    pwd->pw_dir, strerror(errno));
 	} else
 		Log(LOG_ERR, "Can't get user informaton for UID %d!?", Conf_UID);

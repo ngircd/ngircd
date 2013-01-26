@@ -239,9 +239,9 @@ Client_Destroy( CLIENT *Client, const char *LogMsg, const char *FwdMsg, bool Sen
 
 	assert( Client != NULL );
 
-	if( LogMsg ) txt = LogMsg;
-	else txt = FwdMsg;
-	if( ! txt ) txt = "Reason unknown.";
+	txt = LogMsg ? LogMsg : FwdMsg;
+	if (!txt)
+		txt = "Reason unknown";
 
 	/* netsplit message */
 	if( Client->type == CLIENT_SERVER ) {
@@ -281,10 +281,15 @@ Client_Destroy( CLIENT *Client, const char *LogMsg, const char *FwdMsg, bool Sen
 				Destroy_UserOrService(c, txt, FwdMsg, SendQuit);
 			else if( c->type == CLIENT_SERVER )
 			{
-				if( c != This_Server )
-				{
-					if( c->conn_id != NONE ) Log( LOG_NOTICE|LOG_snotice, "Server \"%s\" unregistered (connection %d): %s", c->id, c->conn_id, txt );
-					else Log( LOG_NOTICE|LOG_snotice, "Server \"%s\" unregistered: %s", c->id, txt );
+				if (c != This_Server) {
+					if (c->conn_id != NONE)
+						Log(LOG_NOTICE|LOG_snotice,
+						    "Server \"%s\" unregistered (connection %d): %s.",
+						c->id, c->conn_id, txt);
+					else
+						Log(LOG_NOTICE|LOG_snotice,
+						    "Server \"%s\" unregistered: %s.",
+						    c->id, txt);
 				}
 
 				/* inform other servers */
@@ -296,13 +301,19 @@ Client_Destroy( CLIENT *Client, const char *LogMsg, const char *FwdMsg, bool Sen
 			}
 			else
 			{
-				if( c->conn_id != NONE )
-				{
-					if( c->id[0] ) Log( LOG_NOTICE, "Client \"%s\" unregistered (connection %d): %s", c->id, c->conn_id, txt );
-					else Log( LOG_NOTICE, "Client unregistered (connection %d): %s", c->conn_id, txt );
+				if (c->conn_id != NONE) {
+					if (c->id[0])
+						Log(LOG_NOTICE,
+						    "Client \"%s\" unregistered (connection %d): %s.",
+						    c->id, c->conn_id, txt);
+					else
+						Log(LOG_NOTICE,
+						    "Client unregistered (connection %d): %s.",
+						    c->conn_id, txt);
 				} else {
-					Log(LOG_WARNING, "Unregistered unknown client \"%s\": %s",
-								c->id[0] ? c->id : "(No Nick)", txt );
+					Log(LOG_WARNING,
+					    "Unregistered unknown client \"%s\": %s",
+					    c->id[0] ? c->id : "(No Nick)", txt);
 				}
 			}
 
@@ -1424,7 +1435,7 @@ Destroy_UserOrService(CLIENT *Client, const char *Txt, const char *FwdMsg, bool 
 	if(Client->conn_id != NONE) {
 		/* Local (directly connected) client */
 		Log(LOG_NOTICE,
-		    "%s \"%s\" unregistered (connection %d): %s",
+		    "%s \"%s\" unregistered (connection %d): %s.",
 		    Client_TypeText(Client), Client_Mask(Client),
 		    Client->conn_id, Txt);
 		Log_ServerNotice('c', "Client exiting: %s (%s@%s) [%s]",
@@ -1442,7 +1453,7 @@ Destroy_UserOrService(CLIENT *Client, const char *Txt, const char *FwdMsg, bool 
 		}
 	} else {
 		/* Remote client */
-		LogDebug("%s \"%s\" unregistered: %s",
+		LogDebug("%s \"%s\" unregistered: %s.",
 			 Client_TypeText(Client), Client_Mask(Client), Txt);
 
 		if(SendQuit) {

@@ -691,11 +691,11 @@ IRC_QUIT( CLIENT *Client, REQUEST *Req )
 		}
 
 		if (target != Client) {
-			Client_Destroy(target, "Got QUIT command.",
+			Client_Destroy(target, "Got QUIT command",
 				       Req->argc == 1 ? quitmsg : NULL, true);
 			return CONNECTED;
 		} else {
-			Conn_Close(Client_Conn(Client), "Got QUIT command.",
+			Conn_Close(Client_Conn(Client), "Got QUIT command",
 				   Req->argc == 1 ? quitmsg : NULL, true);
 			return DISCONNECTED;
 		}
@@ -708,7 +708,7 @@ IRC_QUIT( CLIENT *Client, REQUEST *Req )
 		}
 
 		/* User, Service, or not yet registered */
-		Conn_Close(Client_Conn(Client), "Got QUIT command.",
+		Conn_Close(Client_Conn(Client), "Got QUIT command",
 			   Req->argc == 1 ? quitmsg : NULL, true);
 
 		return DISCONNECTED;
@@ -907,8 +907,9 @@ IRC_PONG(CLIENT *Client, REQUEST *Req)
 
 	if (Client_Type(Client) == CLIENT_SERVER && Conn_LastPing(conn) == 0) {
 		Log(LOG_INFO,
-		    "Synchronization with \"%s\" done (connection %d): %ld seconds [%ld users, %ld channels]",
+		    "Synchronization with \"%s\" done (connection %d): %ld second%s [%ld users, %ld channels].",
 		    Client_ID(Client), conn, time(NULL) - Conn_GetSignon(conn),
+		    time(NULL) - Conn_GetSignon(conn) == 1 ? "" : "s",
 		    Client_UserCount(), Channel_CountVisible(NULL));
 		Conn_UpdatePing(conn);
 	} else
@@ -938,7 +939,7 @@ Kill_Nick(char *Nick, char *Reason)
 	r.argv[1] = Reason;
 	r.argc = 2;
 
-	Log(LOG_ERR, "User(s) with nick \"%s\" will be disconnected: %s",
+	Log(LOG_ERR, "User(s) with nick \"%s\" will be disconnected: %s!",
 	    Nick, Reason);
 
 	IRC_KILL(Client_ThisServer(), &r);

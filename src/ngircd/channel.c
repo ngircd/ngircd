@@ -131,11 +131,11 @@ Channel_InitPredefined( void )
 
 		new_chan = Channel_Create(conf_chan->name);
 		if (!new_chan) {
-			Log(LOG_ERR, "Can't create pre-defined channel \"%s\"",
+			Log(LOG_ERR, "Can't create pre-defined channel \"%s\"!",
 							conf_chan->name);
 			continue;
 		}
-		Log(LOG_INFO, "Created pre-defined channel \"%s\"",
+		Log(LOG_INFO, "Created pre-defined channel \"%s\".",
 						conf_chan->name);
 
 		Channel_ModeAdd(new_chan, 'P');

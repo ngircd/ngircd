@@ -352,7 +352,7 @@ IRC_SQUIT(CLIENT * Client, REQUEST * Req)
 
 	if (Req->argv[1][0])
 		if (Client_NextHop(from) != Client || con > NONE)
-			snprintf(msg, sizeof(msg), "%s (SQUIT from %s)",
+			snprintf(msg, sizeof(msg), "\"%s\" (SQUIT from %s)",
 				 Req->argv[1], Client_ID(from));
 		else
 			strlcpy(msg, Req->argv[1], sizeof(msg));
@@ -385,7 +385,7 @@ IRC_SQUIT(CLIENT * Client, REQUEST * Req)
 			logmsg[0] = '\0';
 			if (!strchr(msg, '('))
 				snprintf(logmsg, sizeof(logmsg),
-					 "%s (SQUIT from %s)", Req->argv[1],
+					 "\"%s\" (SQUIT from %s)", Req->argv[1],
 					 Client_ID(from));
 			Client_Destroy(target, logmsg[0] ? logmsg : msg,
 				       msg, false);

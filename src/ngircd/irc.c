@@ -154,7 +154,7 @@ IRC_KILL( CLIENT *Client, REQUEST *Req )
 
 	if (Client != Client_ThisServer())
 		Log(LOG_NOTICE|LOG_snotice,
-		    "Got KILL command from \"%s\" for \"%s\": %s",
+		    "Got KILL command from \"%s\" for \"%s\": \"%s\".",
 		    Client_Mask(prefix), Req->argv[0], Req->argv[1]);
 
 	/* Build reason string: Prefix the "reason" if the originator is a

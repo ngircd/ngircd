@@ -205,7 +205,7 @@ cb_connserver(int sock, UNUSED short what)
 			    My_Connections[idx].host, Conf_Server[server].port,
  			    idx, strerror(err));
 
-		Conn_Close(idx, "Can't connect!", NULL, false);
+		Conn_Close(idx, "Can't connect", NULL, false);
 
 		if (ng_ipaddr_af(&Conf_Server[server].dst_addr[0])) {
 			/* more addresses to try... */
@@ -282,7 +282,7 @@ cb_connserver_login_ssl(int sock, short unused)
 		return;
 	case -1:
 		Log(LOG_ERR, "SSL connection on socket %d failed!", sock);
-		Conn_Close(idx, "Can't connect!", NULL, false);
+		Conn_Close(idx, "Can't connect", NULL, false);
 		return;
 	}
 
@@ -568,7 +568,7 @@ InitSinaddrListenAddr(ng_ipaddr_t *addr, const char *listen_addrstr, UINT16 Port
 	ret = ng_ipaddr_init(addr, listen_addrstr, Port);
 	if (!ret) {
 		assert(listen_addrstr);
-		Log(LOG_CRIT, "Can't bind to [%s]:%u: can't convert ip address \"%s\"",
+		Log(LOG_CRIT, "Can't bind to [%s]:%u: can't convert ip address \"%s\"!",
 						listen_addrstr, Port, listen_addrstr);
 	}
 	return ret;
@@ -631,7 +631,7 @@ NewListener(const char *listen_addr, UINT16 Port)
 		return -1;
 
 	if (bind(sock, (struct sockaddr *)&addr, ng_ipaddr_salen(&addr)) != 0) {
-		Log(LOG_CRIT, "Can't bind socket to address %s:%d - %s",
+		Log(LOG_CRIT, "Can't bind socket to address %s:%d - %s!",
 			ng_ipaddr_tostr(&addr), Port, strerror(errno));
 		close(sock);
 		return -1;
@@ -1078,7 +1078,7 @@ Conn_Close( CONN_ID Idx, const char *LogMsg, const char *FwdMsg, bool InformClie
 	Conn_OPTION_ADD( &My_Connections[Idx], CONN_ISCLOSING );
 
 	port = ng_ipaddr_getport(&My_Connections[Idx].addr);
-	Log(LOG_INFO, "Shutting down connection %d (%s) with %s:%d ...", Idx,
+	Log(LOG_INFO, "Shutting down connection %d (%s) with \"%s:%d\" ...", Idx,
 	    LogMsg ? LogMsg : FwdMsg, My_Connections[Idx].host, port);
 
 	/* Search client, if any */
@@ -1152,7 +1152,7 @@ Conn_Close( CONN_ID Idx, const char *LogMsg, const char *FwdMsg, bool InformClie
 		in_p = (int)(( in_k * 100 ) / in_z_k );
 		out_p = (int)(( out_k * 100 ) / out_z_k );
 		Log(LOG_INFO,
-		    "Connection %d with %s:%d closed (in: %.1fk/%.1fk/%d%%, out: %.1fk/%.1fk/%d%%).",
+		    "Connection %d with \"%s:%d\" closed (in: %.1fk/%.1fk/%d%%, out: %.1fk/%.1fk/%d%%).",
 		    Idx, My_Connections[Idx].host, port,
 		    in_k, in_z_k, in_p, out_k, out_z_k, out_p);
 	}
@@ -1160,7 +1160,7 @@ Conn_Close( CONN_ID Idx, const char *LogMsg, const char *FwdMsg, bool InformClie
 #endif
 	{
 		Log(LOG_INFO,
-		    "Connection %d with %s:%d closed (in: %.1fk, out: %.1fk).",
+		    "Connection %d with \"%s:%d\" closed (in: %.1fk, out: %.1fk).",
 		    Idx, My_Connections[Idx].host, port,
 		    in_k, out_k);
 	}
@@ -1500,7 +1500,7 @@ New_Connection(int Sock, UNUSED bool IsSSL)
 
 	Client_SetHostname(c, My_Connections[new_sock].host);
 
-	Log(LOG_INFO, "Accepted connection %d from %s:%d on socket %d.",
+	Log(LOG_INFO, "Accepted connection %d from \"%s:%d\" on socket %d.",
 	    new_sock, My_Connections[new_sock].host,
 	    ng_ipaddr_getport(&new_addr), Sock);
 	Account_Connection();
@@ -1629,13 +1629,10 @@ Read_Request( CONN_ID Idx )
 #endif
 	len = read(My_Connections[Idx].sock, readbuf, sizeof(readbuf));
 	if (len == 0) {
-		Log(LOG_INFO, "%s:%u (%s) is closing the connection ...",
-				My_Connections[Idx].host,
-				(unsigned int) ng_ipaddr_getport(&My_Connections[Idx].addr),
-				ng_ipaddr_tostr(&My_Connections[Idx].addr));
-		Conn_Close(Idx,
-			   "Socket closed!", "Client closed connection",
-			   false);
+		LogDebug("Client \"%s:%u\" is closing connection %d ...",
+			 My_Connections[Idx].host,
+			 ng_ipaddr_tostr(&My_Connections[Idx].addr), Idx);
+		Conn_Close(Idx, NULL, "Client closed connection", false);
 		return;
 	}
 
@@ -1643,7 +1640,7 @@ Read_Request( CONN_ID Idx )
 		if( errno == EAGAIN ) return;
 		Log(LOG_ERR, "Read error on connection %d (socket %d): %s!",
 		    Idx, My_Connections[Idx].sock, strerror(errno));
-		Conn_Close(Idx, "Read error!", "Client closed connection",
+		Conn_Close(Idx, "Read error", "Client closed connection",
 			   false);
 		return;
 	}

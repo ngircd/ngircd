@@ -631,7 +631,7 @@ io_library_init_kqueue(unsigned int eventsize)
 	io_masterfd = kqueue();
 
 	Log(LOG_INFO,
-	    "IO subsystem: kqueue (initial maxfd %u, masterfd %d)",
+	    "IO subsystem: kqueue (initial maxfd %u, masterfd %d).",
 	    eventsize, io_masterfd);
 	if (io_masterfd >= 0)
 		library_initialized = true;

@@ -620,8 +620,9 @@ NewListener(const char *listen_addr, UINT16 Port)
 
 	af = ng_ipaddr_af(&addr);
 	sock = socket(af, SOCK_STREAM, 0);
-	if( sock < 0 ) {
-		Log(LOG_CRIT, "Can't create socket (af %d) : %s!", af, strerror(errno));
+	if (sock < 0) {
+		Log(LOG_CRIT, "Can't create socket (af %d) : %s!", af,
+		    strerror(errno));
 		return -1;
 	}
 
@@ -632,21 +633,22 @@ NewListener(const char *listen_addr, UINT16 Port)
 
 	if (bind(sock, (struct sockaddr *)&addr, ng_ipaddr_salen(&addr)) != 0) {
 		Log(LOG_CRIT, "Can't bind socket to address %s:%d - %s!",
-			ng_ipaddr_tostr(&addr), Port, strerror(errno));
+		    ng_ipaddr_tostr(&addr), Port, strerror(errno));
 		close(sock);
 		return -1;
 	}
 
-	if( listen( sock, 10 ) != 0 ) {
-		Log( LOG_CRIT, "Can't listen on socket: %s!", strerror( errno ));
-		close( sock );
+	if (listen(sock, 10) != 0) {
+		Log(LOG_CRIT, "Can't listen on socket: %s!", strerror(errno));
+		close(sock);
 		return -1;
 	}
 
 	/* keep fd in list so we can close it when ngircd restarts/shuts down */
-	if (!array_catb( &My_Listeners,(char*) &sock, sizeof(int) )) {
-		Log( LOG_CRIT, "Can't add socket to My_Listeners array: %s!", strerror( errno ));
-		close( sock );
+	if (!array_catb(&My_Listeners, (char *)&sock, sizeof(int))) {
+		Log(LOG_CRIT, "Can't add socket to My_Listeners array: %s!",
+		    strerror(errno));
+		close(sock);
 		return -1;
 	}
 

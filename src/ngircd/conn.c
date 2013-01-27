@@ -454,7 +454,7 @@ Conn_CloseAllSockets(int ExceptOf)
  * @returns		Number of listening sockets created.
  */
 static unsigned int
-ports_initlisteners(array *a, const char *listen_addr, void (*func)(int,short))
+Init_Listeners(array *a, const char *listen_addr, void (*func)(int,short))
 {
 	unsigned int created = 0;
 	size_t len;
@@ -470,8 +470,9 @@ ports_initlisteners(array *a, const char *listen_addr, void (*func)(int,short))
 			continue;
 		}
 		if (!io_event_create( fd, IO_WANTREAD, func )) {
-			Log( LOG_ERR, "io_event_create(): Could not add listening fd %d (port %u): %s!",
-						fd, (unsigned int) *port, strerror(errno));
+			Log(LOG_ERR,
+			    "io_event_create(): Can't add fd %d (port %u): %s!",
+			    fd, (unsigned int) *port, strerror(errno));
 			close(fd);
 			port++;
 			continue;
@@ -500,7 +501,8 @@ Conn_InitListeners( void )
 	/* can't use Conf_ListenAddress directly, see below */
 	copy = strdup(Conf_ListenAddress);
 	if (!copy) {
-		Log(LOG_CRIT, "Cannot copy %s: %s", Conf_ListenAddress, strerror(errno));
+		Log(LOG_CRIT, "Cannot copy %s: %s", Conf_ListenAddress,
+		    strerror(errno));
 		return 0;
 	}
 	listen_addr = strtok(copy, ",");
@@ -508,9 +510,11 @@ Conn_InitListeners( void )
 	while (listen_addr) {
 		ngt_TrimStr(listen_addr);
 		if (*listen_addr) {
-			created += ports_initlisteners(&Conf_ListenPorts, listen_addr, cb_listen);
+			created += Init_Listeners(&Conf_ListenPorts,
+						  listen_addr, cb_listen);
 #ifdef SSL_SUPPORT
-			created += ports_initlisteners(&Conf_SSLOptions.ListenPorts, listen_addr, cb_listen_ssl);
+			created += Init_Listeners(&Conf_SSLOptions.ListenPorts,
+						  listen_addr, cb_listen_ssl);
 #endif
 		}
 

@@ -153,7 +153,7 @@ echo "Searching for required tools ..."
 [ -z "$AUTOMAKE" ] && Notfound automake
 [ -z "$AUTOCONF" ] && Notfound autoconf
 
-AM_VERSION=`$AUTOMAKE --version|head -n 1|egrep -o "([1-9]\.[0-9]+(\.[0-9]+)*)"`
+AM_VERSION=`$AUTOMAKE --version | head -n 1 | sed -e 's/.* //g'`
 ifs=$IFS; IFS="."; set $AM_VERSION; IFS=$ifs
 AM_MAJOR="$1"; AM_MINOR="$2"; AM_PATCHLEVEL="$3"
 echo "Detected automake $AM_VERSION ..."

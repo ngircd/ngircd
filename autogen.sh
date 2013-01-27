@@ -73,8 +73,12 @@ Search()
 	for name in $searchlist; do
 		$EXIST "${name}" >/dev/null 2>&1
 		if [ $? -eq 0 ]; then
-			echo "${name}"
-			return 0
+			"${name}" --version 2>&1 \
+			 | grep -v "environment variable" >/dev/null 2>&1
+			if [ $? -eq 0 ]; then
+				echo "${name}"
+				return 0
+			fi
 		fi
 	done
 
@@ -144,6 +148,15 @@ echo "Searching for required tools ..."
 [ -z "$AUTOCONF" ] && AUTOCONF=`Search autoconf 2`
 [ "$VERBOSE" = "1" ] && echo " - AUTOCONF=$AUTOCONF"
 
+AUTOCONF_VERSION=`echo $AUTOCONF | cut -d'-' -f2-`
+[ -n "$AUTOCONF_VERSION" -a "$AUTOCONF_VERSION" != "autoconf" ] \
+	&& export AUTOCONF_VERSION || unset AUTOCONF_VERSION
+[ "$VERBOSE" = "1" ] && echo " - AUTOCONF_VERSION=$AUTOCONF_VERSION"
+AUTOMAKE_VERSION=`echo $AUTOMAKE | cut -d'-' -f2-`
+[ -n "$AUTOMAKE_VERSION" -a "$AUTOMAKE_VERSION" != "automake" ] \
+	&& export AUTOMAKE_VERSION || unset AUTOMAKE_VERSION
+[ "$VERBOSE" = "1" ] && echo " - AUTOMAKE_VERSION=$AUTOMAKE_VERSION"
+
 [ $# -gt 0 ] && CONFIGURE_ARGS=" $@" || CONFIGURE_ARGS=""
 [ -z "$GO" -a -n "$CONFIGURE_ARGS" ] && GO=1
 
@@ -195,7 +208,7 @@ done
 export ACLOCAL AUTOHEADER AUTOMAKE AUTOCONF
 
 # Generate files
-echo "Generating files using GNU $AUTOCONF and $AUTOMAKE ..."
+echo "Generating files using \"$AUTOCONF\" and \"$AUTOMAKE\" ..."
 Run $ACLOCAL && \
 	Run $AUTOCONF && \
 	Run $AUTOHEADER && \

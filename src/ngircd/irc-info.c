@@ -893,7 +893,8 @@ IRC_WHO_Channel(CLIENT *Client, CHANNEL *Chan, bool OnlyOps)
 
 		is_visible = strchr(client_modes, 'i') == NULL;
 		if (is_member || is_visible) {
-			strcpy(flags, who_flags_status(client_modes));
+			strlcpy(flags, who_flags_status(client_modes),
+				sizeof(flags));
 			if (is_ircop)
 				strlcat(flags, "*", sizeof(flags));
 

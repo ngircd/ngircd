@@ -46,7 +46,41 @@ Connection Handling Commands
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - CAP
-	See doc/Capabilities.txt
+	CAP LS
+	CAP LIST
+	CAP REQ <capabilities>
+	CAP ACK <capabilities>
+	CAP NAK <capabilities>
+	CAP CLEAR
+	CAP END
+	.
+	List, request, and clear "IRC Capabilities".
+	.
+	Using this command, an IRC client can request additional "IRC
+	capabilities" during login or later on, which influences the
+	communication between server and client. Normally, these commands
+	aren't directly used by humans, but automatically by their client
+	software. And please note that issuing such commands manually can
+	irritate the client software used, because of the "non-standard"
+	behavior of the server!
+	.
+	- CAP LS: list all available capabilities.
+	- CAP LIST: list active capabilities of this connection.
+	- CAP REQ: Request particular capabilities.
+	- CAP ACK: Acknowledge a set of capabilities to be enabled/disabled.
+	- CAP NAK: Reject a set of capabilities.
+	- CAP CLEAR: Clear all set capabilities.
+	- CAP END: Indicate end of capability negotiation during login,
+	  ignored in an fully registered session.
+
+	Please note that the <capabilities> must be given in a single
+	parameter but whitespace separated, therefore a command could look
+	like this: "CAP REQ :capability1 capability2 capability3" for example.
+
+	References:
+	 - <http://ircv3.atheme.org/specification/capability-negotiation-3.1>
+	 - <http://ngircd.barton.de/doc/Capabilities.txt>
+	 - doc/Capabilities.txt
 
 - CHARCONV
 	See doc/Protocol.txt

@@ -1133,14 +1133,20 @@ IRC_WHOIS_SendReply(CLIENT *Client, CLIENT *from, CLIENT *c)
 			return DISCONNECTED;
 	}
 
+	/* Service? */
+	if (Client_Type(c) == CLIENT_SERVICE &&
+	    !IRC_WriteStrClient(from, RPL_WHOISSERVICE_MSG,
+				Client_ID(from), Client_ID(c)))
+		return DISCONNECTED;
+
 	/* IRC-Operator? */
-	if (Client_HasMode(c, 'o') &&
+	if (Client_HasMode(c, 'o') && Client_Type(c) != CLIENT_SERVICE &&
 	    !IRC_WriteStrClient(from, RPL_WHOISOPERATOR_MSG,
 				Client_ID(from), Client_ID(c)))
 		return DISCONNECTED;
 
 	/* IRC-Bot? */
-	if (Client_HasMode(c, 'B') &&
+	if (Client_HasMode(c, 'B') && Client_Type(c) != CLIENT_SERVICE &&
 	    !IRC_WriteStrClient(from, RPL_WHOISBOT_MSG,
 				Client_ID(from), Client_ID(c)))
 		return DISCONNECTED;
@@ -1262,7 +1268,8 @@ IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 		 */
 		if (!has_wildcards || is_remote) {
 			c = Client_Search(query);
-			if (c && Client_Type(c) == CLIENT_USER) {
+			if (c && (Client_Type(c) == CLIENT_USER
+				  || Client_Type(c) == CLIENT_SERVICE)) {
 				if (!IRC_WHOIS_SendReply(Client, from, c))
 					return DISCONNECTED;
 			} else {

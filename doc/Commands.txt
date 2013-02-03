@@ -83,7 +83,22 @@ Connection Handling Commands
 	 - doc/Capabilities.txt
 
 - CHARCONV
-	See doc/Protocol.txt
+	CHARCONV <client-charset>
+	.
+	Set client character set encoding to <client-charset>.
+	.
+	After receiving such a command, the server translates all message
+	data received from the client using the set <client-charset> to the
+	server encoding (UTF-8), and all message data which is to be sent to
+	the client from the server encoding (UTF-8) to <client-charset>.
+	.
+	This enables older clients and clients using "strange" character sets
+	to transparently participate in channels and direct messages to
+	clients using UTF-8, which should be the default today.
+
+	References:
+	 - <http://ngircd.barton.de/doc/Protocol.txt>
+	 - doc/Protocol.txt
 
 - NICK
 	NICK <nick>

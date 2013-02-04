@@ -82,6 +82,8 @@
 #define MAX_COMMANDS_SERVER_MIN 10
 #define MAX_COMMANDS_SERVICE 10
 
+#define SD_LISTEN_FDS_START 3
+
 
 static bool Handle_Write PARAMS(( CONN_ID Idx ));
 static bool Conn_Write PARAMS(( CONN_ID Idx, char *Data, size_t Len ));
@@ -118,6 +120,40 @@ static void cb_clientserver_ssl PARAMS((int sock, short what));
 static void cb_Read_Resolver_Result PARAMS((int sock, UNUSED short what));
 static void cb_Connect_to_Server PARAMS((int sock, UNUSED short what));
 static void cb_clientserver PARAMS((int sock, short what));
+
+
+/**
+ * Get number of sockets available from systemd(8).
+ *
+ * ngIRCd needs to implement its own sd_listen_fds(3) function and can't
+ * use the one provided by systemd itself, becaus the sockets will be
+ * used in a forked child process with a new PID, and this would trigger
+ * an error in the standard implementation.
+ *
+ * @return Number of sockets available, -1 if sockets have already been
+ *         initialized, or 0 when no sockets have been passed.
+ */
+static int
+my_sd_listen_fds(void)
+{
+	const char *e;
+	long count;
+
+	/* Check if LISTEN_PID exists; but we ignore the result, because
+	 * normally ngircd forks a child before checking this, and therefore
+	 * the PID set in the environment is always wrong ... */
+	e = getenv("LISTEN_PID");
+	if (!e || !*e)
+		return 0;
+
+	e = getenv("LISTEN_FDS");
+	if (!e || !*e)
+		return -1;
+	count = atol(e);
+	unsetenv("LISTEN_FDS");
+
+	return count;
+}
 
 
 /**
@@ -495,8 +531,37 @@ Conn_InitListeners( void )
 	/* Initialize ports on which the server should accept connections */
 	unsigned int created = 0;
 	char *copy, *listen_addr;
+	int count, fd, i;
 
 	assert(Conf_ListenAddress);
+
+	count = my_sd_listen_fds();
+	if (count < 0) {
+		Log(LOG_INFO,
+		    "Not re-initializing listening sockets of systemd(8) ...");
+		return 0;
+	}
+	if (count > 0) {
+		/* systemd(8) passed sockets to us, so don't try to initialize
+		 * listening sockets on our own but use the passed ones */
+		LogDebug("Initializing %d systemd sockets ...", count);
+		for (i = 0; i < count; i++) {
+			fd = SD_LISTEN_FDS_START + i;
+			Init_Socket(fd);
+			if (!io_event_create(fd, IO_WANTREAD, cb_listen)) {
+				Log(LOG_ERR,
+				    "io_event_create(): Can't add fd %d: %s!",
+				    fd, strerror(errno));
+				continue;
+			}
+			Log(LOG_INFO,
+			    "Initialized socket %d from systemd.", fd);
+			created++;
+		}
+		return created;
+	}
+
+	/* not using systemd socket activation, initialize listening sockets: */
 
 	/* can't use Conf_ListenAddress directly, see below */
 	copy = strdup(Conf_ListenAddress);
@@ -541,7 +606,12 @@ Conn_ExitListeners( void )
 	int *fd;
 	size_t arraylen;
 
+	/* Get number of listening sockets to shut down. There can be none
+	 * if ngIRCd has been "socket activated" by systemd. */
 	arraylen = array_length(&My_Listeners, sizeof (int));
+	if (arraylen < 1)
+		return;
+
 	Log(LOG_INFO,
 	    "Shutting down all listening sockets (%d total) ...", arraylen);
 	fd = array_start(&My_Listeners);

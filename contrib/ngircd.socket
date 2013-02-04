@@ -1,0 +1,10 @@
+[Unit]
+Description=Next Generation IRC Daemon (Socket)
+
+[Socket]
+ListenStream=6667
+#ListenStream=6668
+IPTOS=low-delay
+
+[Install]
+WantedBy=sockets.target

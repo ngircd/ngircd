@@ -30,6 +30,9 @@ ngircd-redhat.init
 ngircd.service
  - systemd(8) service unit configuration file.
 
+ngircd.socket
+ - systemd(8) socket unit configuration file for "socket activation".
+
 ngircd.spec
  - RPM "spec" file.
 

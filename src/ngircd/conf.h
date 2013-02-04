@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2012 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2013 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -210,6 +210,9 @@ GLOBAL bool Conf_ConnectIPv6;
 
 /** Try to connect to remote systems using the IPv4 protocol (true) */
 GLOBAL bool Conf_ConnectIPv4;
+
+/** Idle timout (seconds), after which the daemon should exit */
+GLOBAL int Conf_IdleTimeout;
 
 /** Maximum number of simultaneous connections to this server */
 GLOBAL int Conf_MaxConnections;

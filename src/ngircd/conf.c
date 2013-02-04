@@ -370,6 +370,7 @@ Conf_Test( void )
 
 	puts("[LIMITS]");
 	printf("  ConnectRetry = %d\n", Conf_ConnectRetry);
+	printf("  IdleTimeout = %d\n", Conf_IdleTimeout);
 	printf("  MaxConnections = %d\n", Conf_MaxConnections);
 	printf("  MaxConnectionsIP = %d\n", Conf_MaxConnectionsIP);
 	printf("  MaxJoins = %d\n", Conf_MaxJoins > 0 ? Conf_MaxJoins : -1);
@@ -736,6 +737,7 @@ Set_Defaults(bool InitServers)
 
 	/* Limits */
 	Conf_ConnectRetry = 60;
+	Conf_IdleTimeout = 0;
 	Conf_MaxConnections = 0;
 	Conf_MaxConnectionsIP = 5;
 	Conf_MaxJoins = 10;
@@ -1241,6 +1243,7 @@ CheckLegacyGlobalOption(int Line, char *Var, char *Arg)
 		return "[Options]";
 	}
 	if (strcasecmp(Var, "ConnectRetry") == 0
+	    || strcasecmp(Var, "IdleTimeout") == 0
 	    || strcasecmp(Var, "MaxConnections") == 0
 	    || strcasecmp(Var, "MaxConnectionsIP") == 0
 	    || strcasecmp(Var, "MaxJoins") == 0
@@ -1488,6 +1491,12 @@ Handle_LIMITS(int Line, char *Var, char *Arg)
 				     NGIRCd_ConfFile, Line);
 			Conf_ConnectRetry = 5;
 		}
+		return;
+	}
+	if (strcasecmp(Var, "IdleTimeout") == 0) {
+		Conf_IdleTimeout = atoi(Arg);
+		if (!Conf_IdleTimeout && strcmp(Arg, "0"))
+			Config_Error_NaN(Line, Var);
 		return;
 	}
 	if (strcasecmp(Var, "MaxConnections") == 0) {

@@ -1,7 +1,7 @@
 .\"
 .\" ngircd.conf(5) manual page template
 .\"
-.TH ngircd.conf 5 "Nov 2012" ngIRCd "ngIRCd Manual"
+.TH ngircd.conf 5 "Feb 2013" ngIRCd "ngIRCd Manual"
 .SH NAME
 ngircd.conf \- configuration file of ngIRCd
 .SH SYNOPSIS
@@ -169,6 +169,12 @@ should be safe, but it is wise to double-check :-)
 \fBConnectRetry\fR (number)
 The server tries every <ConnectRetry> seconds to establish a link to not yet
 (or no longer) connected servers. Default: 60.
+.TP
+\fBIdleTimeout\fR (number)
+Number of seconds after which the whole daemon should shutdown when no
+connections are left active after handling at least one client (0: never). This
+can be useful for testing or when ngIRCd is started using "socket activation"
+with systemd(8), for example. Default: 0.
 .TP
 \fBMaxConnections\fR (number)
 Maximum number of simultaneous in- and outbound connections the server is

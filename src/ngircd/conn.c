@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2012 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2013 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -120,6 +120,8 @@ static void cb_clientserver_ssl PARAMS((int sock, short what));
 static void cb_Read_Resolver_Result PARAMS((int sock, UNUSED short what));
 static void cb_Connect_to_Server PARAMS((int sock, UNUSED short what));
 static void cb_clientserver PARAMS((int sock, short what));
+
+time_t idle_t = 0;
 
 
 /**
@@ -906,6 +908,15 @@ Conn_Handler(void)
 			    PACKAGE_NAME);
 			exit(1);
 		}
+
+		/* Should ngIRCd timeout when idle? */
+		if (Conf_IdleTimeout > 0 && NumConnectionsAccepted > 0
+		    && idle_t > 0 && time(NULL) - idle_t >= Conf_IdleTimeout) {
+			LogDebug("Server idle timeout reached: %d second%s. Initiating shutdown ...",
+				 Conf_IdleTimeout,
+				 Conf_IdleTimeout == 1 ? "" : "s");
+			NGIRCd_SignalQuit = true;
+		}
 	}
 
 	if (NGIRCd_SignalQuit)
@@ -1267,6 +1278,8 @@ Conn_Close( CONN_ID Idx, const char *LogMsg, const char *FwdMsg, bool InformClie
 		NumConnections--;
 	LogDebug("Shutdown of connection %d completed, %ld connection%s left.",
 		 Idx, NumConnections, NumConnections != 1 ? "s" : "");
+
+	idle_t = NumConnections > 0 ? 0 : time(NULL);
 } /* Conn_Close */
 
 
@@ -1638,6 +1651,7 @@ static void
 Account_Connection(void)
 {
 	NumConnections++;
+	idle_t = 0;
 	if (NumConnections > NumConnectionsMax)
 		NumConnectionsMax = NumConnections;
 	LogDebug("Total number of connections now %lu (max %lu).",

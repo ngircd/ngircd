@@ -951,7 +951,7 @@ IRC_WHO_Mask(CLIENT *Client, char *Mask, bool OnlyOps)
 		if (Mask) {
 			/* Match pattern against user host/server/name/nick */
 			client_match = MatchCaseInsensitive(Mask,
-						Client_Hostname(c));
+						Client_HostnameDisplayed(c));
 			if (!client_match)
 				client_match = MatchCaseInsensitive(Mask,
 						Client_ID(Client_Introducer(c)));

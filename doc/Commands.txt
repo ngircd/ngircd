@@ -13,8 +13,8 @@ This file lists all commands available on ngIRCd. It is written in a format
 that is human readable as well as machine parseable and therefore can be used
 as "help text file" of the daemon.
 
-In short, the HELP command parses this file as following when a user user
-issues a "HELP <cmd>" command:
+In short, the daemon reads this file on startup and parses it as following
+when an user issues a "HELP <cmd>" command:
 
  1. Search the file for a line "- <cmd>",
  2. Output all subsequent lines that start with a TAB (ASCII 9) character
@@ -25,7 +25,8 @@ issues a "HELP <cmd>" command:
 This format allows to have information to each command stored in this file
 which will not be sent to an IRC user requesting help which enables us to
 have additional annotations stored here which further describe the origin,
-implementation details, or limits of the specific command.
+implementation details, or limits of the specific command which are not
+relevant to an end-user but administrators and developers.
 
 A special "Intro" block is returned to the user when the HELP command is
 used without a command name:
@@ -41,14 +42,120 @@ used without a command name:
 	example "HELP quit" or "HELP privmsg".
 
 
+Connection Handling Commands
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- CAP
+	CAP LS
+	CAP LIST
+	CAP REQ <capabilities>
+	CAP ACK <capabilities>
+	CAP NAK <capabilities>
+	CAP CLEAR
+	CAP END
+	.
+	List, request, and clear "IRC Capabilities".
+	.
+	Using this command, an IRC client can request additional "IRC
+	capabilities" during login or later on, which influences the
+	communication between server and client. Normally, these commands
+	aren't directly used by humans, but automatically by their client
+	software. And please note that issuing such commands manually can
+	irritate the client software used, because of the "non-standard"
+	behavior of the server!
+	.
+	- CAP LS: list all available capabilities.
+	- CAP LIST: list active capabilities of this connection.
+	- CAP REQ: Request particular capabilities.
+	- CAP ACK: Acknowledge a set of capabilities to be enabled/disabled.
+	- CAP NAK: Reject a set of capabilities.
+	- CAP CLEAR: Clear all set capabilities.
+	- CAP END: Indicate end of capability negotiation during login,
+	  ignored in an fully registered session.
+
+	Please note that the <capabilities> must be given in a single
+	parameter but whitespace separated, therefore a command could look
+	like this: "CAP REQ :capability1 capability2 capability3" for example.
+
+	References:
+	 - <http://ircv3.atheme.org/specification/capability-negotiation-3.1>
+	 - <http://ngircd.barton.de/doc/Capabilities.txt>
+	 - doc/Capabilities.txt
+
+- CHARCONV
+	CHARCONV <client-charset>
+	.
+	Set client character set encoding to <client-charset>.
+	.
+	After receiving such a command, the server translates all message
+	data received from the client using the set <client-charset> to the
+	server encoding (UTF-8), and all message data which is to be sent to
+	the client from the server encoding (UTF-8) to <client-charset>.
+	.
+	This enables older clients and clients using "strange" character sets
+	to transparently participate in channels and direct messages to
+	clients using UTF-8, which should be the default today.
+
+	References:
+	 - <http://ngircd.barton.de/doc/Protocol.txt>
+	 - doc/Protocol.txt
+
+- NICK
+	NICK <nick>
+	.
+	Change your nickname to <nick>.
+
+- PASS
+	PASS <password> <version> <flags> [<options>]
+	.
+	Set a connection <password>. This command must be sent before the
+	NICK/USER registration combination.
+	.
+	See doc/Protocol.txt for more info.
+
+- PING
+	PING <server1> [<server2>]
+	.
+	Tests the presence of a connection. A PING message results in a PONG
+	reply. If <server2> is specified, the message gets passed on to it.
+
+- PONG
+	PONG <server1> [<server2>]
+	.
+	This command is a reply to the PING command and works in much the
+	same way.
+
+- QUIT
+	QUIT [<quit-message>]
+	.
+	End IRC session and disconnect from the server.
+	.
+	If a <quit-message> has been given, it is displayed to all the
+	channels that you are a member of when leaving.
+
+- USER
+	USER <user> <modes> <realname>
+	.
+	This command is used at the beginning of a connection to specify the
+	<user>name, hostname, <realname> and initial user <modes> of the
+	connecting client.
+	.
+	<realname> may contain spaces, and thus must be prefixed with a colon.
+
+- WEBIRC
+	See doc/Protocol.txt
+
+
 General Commands
 ~~~~~~~~~~~~~~~~
 
 - AWAY
-
-- CAP
-
-- CHARCONV
+	AWAY [<message>]
+	.
+	Provides the server with a message to automatically send in reply to a
+	PRIVMSG directed at the user, but not to a channel they are on.
+	.
+	If <message> is omitted, the away status is removed.
 
 - HELP
 	HELP [<command>]
@@ -68,118 +175,387 @@ General Commands
 
 
 - MODE
-
-- NICK
+	MODE <nickname> <flags> (user)
+	MODE <channel> <flags> [<args>]
+	.
+	The MODE command is dual-purpose. It can be used to set both (user) and
+	<channel> modes.
+	.
+	See doc/Modes.txt for more information.
 
 - NOTICE
-
-- PASS
-
-- PING
-
-- PONG
+	NOTICE <target> <notice>
+	.
+	Send <notice> to <target> (nick or channel).
+	.
+	This command works similarly to PRIVMSG, except automatic replies must
+	never be sent in reply to NOTICE messages.
 
 - PRIVMSG
-
-- QUIT
-	QUIT [<quit-message>]
+	PRIVMSG <target> <message>
 	.
-	End IRC session and disconnect from the server.
+	Send <message> to <target> (nick or channel).
 	.
-	If a <quit-message> has been given, it is displayed to all the
-	channels that you are a member of when leaving.
-
-- USER
-
-- WALLOPS
-
-- WEBIRC
+	Common IRC clients use MSG as PRIVMSG alias.
+	(Some clients use "QUERY <nick> [<message>]" to open a private chat.)
 
 
 Status and Informational Commands
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+- ADMIN
+	ADMIN [<target>]
+	.
+	Show administrative information about an IRC server in the network.
+	.
+	<target> can be a server name, the nickname of a client connected to
+	a specific server, or a mask matching a server name in the network.
+	The server of the current connecion is used when <target> is omitted.
+
+	References:
+	 - RFC 2812, 3.4.9 "Admin command"
+
 - INFO
+	INFO [<target>]
+	.
+	Show the version, birth & online time of an IRC server in the network.
+	.
+	<target> can be a server name, the nickname of a client connected to
+	a specific server, or a mask matching a server name in the network.
+	The server of the current connecion is used when <target> is omitted.
+
+	References:
+	 - RFC 2812, 3.4.10 "Info command"
 
 - ISON
+	ISON <nickname> [<nickname> [...]]
+	.
+	Query online status of a list of nicknames. The server replies with
+	a list only containing nicknes actually connected to a server in
+	the network. If no nicknames of the given list are online, an empty
+	list is returned to the client requesting the information.
+
+	Please note that "all" IRC daemons even parse separate nicknames in
+	a single parameter (like ":nick1 nick2"), and therefore ngIRCd
+	implements this behaviour, too.
+
+	References:
+	 - RFC 2812, 4.9 "Ison message"
 
 - LINKS
+	LINKS [[<target>] [<mask>]
+	.
+	List all servers currently registered in the network matching <mask>,
+	or all servers if <mask> has been omitted, as seen by the server
+	specified by <target> or the local server when <target> is omitted.
+	.
+	<target> can be a server name, the nickname of a client connected to
+	a specific server, or a mask matching a server name in the network.
+
+	References:
+	 - RFC 2812, 3.4.5 "Links message"
 
 - LUSERS
+	LUSERS [<mask> [<target>]]
+	.
+	Return statistics about the number of clients (users, servers,
+	services, ...) in the network as seen by the server <target>.
+	.
+	<target> can be a server name, the nickname of a client connected to
+	a specific server, or a mask matching a server name in the network.
+	The server of the current connecion is used when <target> is omitted.
 
-- METADATA
+	Please note that ngIRCd ignores the <mask> parameter entirely: it
+	is not possible to get information for a part of the network only.
+
+	References:
+	 - RFC 2812, 3.4.2 "Lusers message"
 
 - MOTD
+	MOTD [<target>]
+	.
+	Show the "Message of the Day" (MOTD) of an IRC server in the network.
+	.
+	<target> can be a server name, the nickname of a client connected to
+	a specific server, or a mask matching a server name in the network.
+	The server of the current connecion is used when <target> is omitted.
+
+	References:
+	 - RFC 2812, 3.4.1 "Motd message"
 
 - NAMES
+	NAMES [<channel>[,<channel>[,...]] [<target>]]
+	.
+	Show the list of users that are members of a particular <channel>
+	(and that are visible for the client requesting this information) as
+	seen by the server <target>. More than one <channel> can be given
+	separated by "," (but not whitespaces!).
+	.
+	If <channel> has been omitted, all visible users are shown, grouped
+	by channel name, and all visible users not being members of at least
+	one channel are shown as members of the pseudo channel "*".
+	.
+	<target> can be a server name, the nickname of a client connected to
+	a specific server, or a mask matching a server name in the network.
+	The server of the current connecion is used when <target> is omitted.
+
+	References:
+	 - RFC 2812, 3.2.5 "Names message"
 
 - STATS
+	STATS [<query> [<target>]]
+	.
+	Show statistics and other information of type <query> of a particular
+	IRC server in the network.
+	.
+	The following <query> types are supported (case-insensitive):
+	.
+	 - g  Network-wide bans ("G-Lines").
+	 - k  Server-local bans ("K-Lines").
+	 - l  Link status (parent server and own link only).
+	 - m  Command usage count.
+	 - u  Server uptime.
+	.
+	<target> can be a server name, the nickname of a client connected to
+	a specific server, or a mask matching a server name in the network.
+	The server of the current connecion is used when <target> is omitted.
+
+	References:
+	 - RFC 2812, 3.4.4 "Stats message"
 
 - TIME
+	TIME [<target>]
+	.
+	Show the local time of an IRC server in the network.
+	.
+	<target> can be a server name, the nickname of a client connected to
+	a specific server, or a mask matching a server name in the network.
+	The server of the current connecion is used when <target> is omitted.
+
+	References
+	 - RFC 2812, 3.4.6 "Time message"
 
 - TRACE
+	TRACE [<server>]
+	.
+	Trace a path across the IRC network of the current server, or if given
+	of a specific <server>, in a similar method to traceroute.
 
 - USERHOST
+	USERHOST <nickname> [<nickname> [...]]
+	.
+	Show flags and the hostmasks (<user>@<host>) of the <nickname>s,
+	seperated by spaces. The following flags are used:
+	.
+	 - "-"  The client is "away" (the mode "+a" is set on this client).
+	 - "+"  Client seems to be available, at least it isn't marked "away".
+	 - "*"  The client is an IRC operator (the mode "+o" is set).
+
+	References:
+	 - RFC 2812, 4.8 "Userhost message"
 
 - VERSION
+	VERSION [<target>]
+	.
+	Show version information about a particular IRC server in the network.
+	.
+	<target> can be a server name, the nickname of a client connected to
+	a specific server, or a mask matching a server name in the network.
+	The server of the current connecion is used when <target> is omitted.
+	.
+	Please note: in normal operation, the version number ends in a dot
+	(".", for example "ngIRCd-20.1."). If it ends in ".1" (for example
+	"ngIRCd-20.1.1", same version than before!), the server is running in
+	debug-mode; and if it ends in ".2", the "network sniffer" is active!
+	Keep your privacy in mind ...
+
+	References:
+	 - RFC 2812, 3.4.3 "Version message"
 
 - WHO
+	WHO [<mask> ["o"]]
+	.
+	Show a list of users who match the <mask>, or all visible users when
+	the <mask> has been omitted. (Special case: the <mask> "0" is
+	equivalent to "*")
+	.
+	If the flag "o" is given, the server will only return information about
+	IRC Operators.
+
+	References:
+	 - RFC 2812, 3.6.1 "Who query"
 
 - WHOIS
+	WHOIS [<target>] <mask>[,<mask>[,...]]
+	.
+	Query information about users matching the <mask> parameter(s) as seen
+	by the server <target>; up to 3 <masks> are supported.
+	.
+	<target> can be a server name, the nickname of a client connected to a
+	specific server, or a mask matching a server name in the network. The
+	server of the current connecion is used when <target> is omitted.
+
+	References:
+	 - RFC 2812, 3.6.2 "Whois query"
 
 - WHOWAS
+	WHOWAS <nickname>[,<nickname>[,...]] [<count> [<target>]]
+	.
+	Query information about nicknames no longer in use in the network,
+	either because of nickname changes or disconnects. The history is
+	searched backwards, returning the most recent entry first. If there
+	are multiple entries, up to <count> entries will be shown (or all of
+	them, if no <count> has been given).
+	.
+	<target> can be a server name, the nickname of a client connected to a
+	specific server, or a mask matching a server name in the network. The
+	server of the current connecion is used when <target> is omitted.
+
+	References:
+	 - RFC 2812, 3.6.3 "Whowas"
 
 
 Channel Commands
 ~~~~~~~~~~~~~~~~
 
 - INVITE
+	INVITE <nick> <channel>
+	.
+	Invites <nick> to <channel>.
+	<channel> does not have to exist, but if it does, only members of the
+	channel are allowed to invite other clients.
+	.
+	If the <channel> mode "+i" is set, only <channel> operators may invite
+	other clients.
 
 - JOIN
+	JOIN <channels> [<channel-keys>]
+	.
+	Makes the client join the <channels> (comma-separated list), specifying
+	the passwords, if needed, in the comma-separated <channel-keys> list.
+	A <channel-key> is only needed, if the <channel> mode "+k" is set.
+	.
+	If the channel(s) do not exist, then they will be created.
 
 - KICK
+	KICK <channel> <nick> [<kick-message>]
+	.
+	Remove <nick> from <channel>, optional with a <kick-message>.
+	.
+	Only <channel> operators are able to KICK.
 
 - LIST
+	LIST [<channels> [<server>]]
+	.
+	List all visible <channels> (comma-seperated list) on the current
+	server.
+	If <server> is given, the command will be forwarded to <server> for
+	evaluation.
 
 - PART
+	PART <channels> [<part-message>]
+	.
+	Leave <channels> (comma-separated list), optional with a
+	<part-message>.
 
 - TOPIC
+	TOPIC <channel> <topic>
+	.
+	Set a <topic> for <channel>.
+	.
+	Only <channel> operators are able to set a <topic>.
 
 
 Administrative Commands
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-- ADMIN
-	ADMIN [<server>]
-	.
-	Show administartive information about an IRC server in the network.
-	If no server name has been given, the local server will respond.
-
 - CONNECT
+	CONNECT <target server> [<port> [<remote server> [<mypwd> <peerpwd>]]]
+	.
+	Instructs the current server, or <remote server> if specified,
+	to connect to <target server>.
+	.
+	To connect <remote server> you need to have remote oper status.
+	If <port> is omitted, it uses the server port of the configuration.
+	If <mypwd> and <peerpwd> is given, it uses those passwords instead
+	of the ones in the configuration.
 
 - DIE
+	DIE
+	.
+	Instructs the server to shut down.
 
 - DISCONNECT
+	DISCONNECT [<remote server>]
+	.
+	Disconnects the current server, or <remote server> if specified.
+	To disconnect a <remote server> you need to have remote oper status.
 
 - GLINE
+	GLINE <nick!user@hostmask> <seconds> :<reason>
+	.
+	This command provides timed G-Lines (Network-wide bans).
+	If a client matches a G-Line, it cannot connect to any server on
+	the IRC network. If you put 0 as <seconds>, it makes the G-Line
+	permanent.
+	.
+	To remove a G-Line, type "GLINE <nick!user@hostmask>".
+	To list the G-Lines, type "STATS g".
 
 - KILL
+	KILL <nick> <reason>
+	.
+	Forcibly removes <nick> from the IRC network with a <reason>.
 
 - KLINE
+	KLINE <nick!user@hostmask> <seconds> :<reason>
+	.
+	This command provides timed K-Lines (Server-local bans).
+	If a client matches a K-Line, it cannot connect to the issued server.
+	If you put 0 as <seconds>, it makes the K-Line permanent.
+	.
+	To remove a K-Line, type "KLINE <nick!user@hostmask>".
+	To list the K-Lines, type "STATS k".
 
 - OPER
+	OPER <user> <password>
+	.
+	Authenticates <user> as an IRC operator on the current server/network.
 
 - REHASH
+	REHASH
+	.
+	Causes the server to re-read and re-process its configuration file(s).
 
 - RESTART
+	RESTART
+	.
+	Restart the server.
+
+- WALLOPS
+	WALLOPS <message>
+	.
+	Sends <message> to all users with user mode "+w".
 
 
 IRC Service Commands
-~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
 
 - SERVICE
 
 - SERVLIST
+	SERVLIST [<mask> [<type>]]
+	.
+	List all IRC services currently registered in the network.
+	.
+	The optional <mask> and <type> parameters can be used to limit the
+	listing to services matching the <mask> and that are of type <type>.
+	.
+	Please note that ngIRCd doesn't use any service types at the moment
+	and therefore all services are of type "0".
+
+	References:
+	 - RFC 2812, 3.5.1 "Servlist message"
 
 - SQUERY
 
@@ -190,6 +566,12 @@ Server Protocol Commands
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 - CHANINFO
+	CHANINFO <channel> +<modes> [[<key> <limit>] <topic>]
+	.
+	CHANINFO is used by servers to inform each other about a channel:
+	its modes, channel key, user limits and its topic.
+	.
+	See doc/Protocol.txt for more information.
 
 - ERROR
 	ERROR [<message> [<> [...]]]
@@ -200,19 +582,50 @@ Server Protocol Commands
 	.
 	This command is silently ignored on non-server and non-service links.
 
+- METADATA
+	METADATA <target> <key> <value>
+	.
+	The METADATA command is used on server-links to update "metadata"
+	information of clients, like the hostname, the info text ("real name"),
+	or the user name.
+	.
+	See doc/Protocol.txt for more information.
+
 - NJOIN
 
 - SERVER
 
 - SQUIT
+	SQUIT <server>
+	.
+	Disconnects an IRC Server from the network.
 
 
 Dummy Commands
 ~~~~~~~~~~~~~~
 
 - SUMMON
+	SUMMON <user> [<target> [<channel>]]
+	.
+	This command was intended to call people into IRC who are directly
+	connected to the terminal console of the IRC server -- but is
+	deprecated today. Therefore ngIRCd doesn't really implement this
+	command and always returns an error message, regardless of the
+	parameters given.
+
+	References:
+	 - RFC 2812, 4.5 "Summon message"
 
 - USERS
+	USERS [<target>]
+	.
+	This command was intended to list users directly logged in into the
+	console of the IRC server -- but is deprecated today. Therefore ngIRCd
+	doesn't really implement this command and always returns an error
+	message, regardless of the parameters given.
+
+	References:
+	 - RFC 2812, 4.6 "Users"
 
 - GET
 

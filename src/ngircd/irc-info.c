@@ -480,6 +480,13 @@ Show_MOTD_SSLInfo(UNUSED CLIENT *c)
 
 /* Global functions */
 
+/**
+ * Handler for the IRC command "ADMIN".
+ *
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
+ */
 GLOBAL bool
 IRC_ADMIN(CLIENT *Client, REQUEST *Req )
 {
@@ -519,10 +526,12 @@ IRC_ADMIN(CLIENT *Client, REQUEST *Req )
 	return CONNECTED;
 } /* IRC_ADMIN */
 
-
 /**
  * Handler for the IRC command "INFO".
- * See RFC 2812 section 3.4.10.
+ *
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
  */
 GLOBAL bool
 IRC_INFO(CLIENT * Client, REQUEST * Req)
@@ -590,11 +599,8 @@ IRC_INFO(CLIENT * Client, REQUEST * Req)
 	return CONNECTED;
 } /* IRC_INFO */
 
-
 /**
  * Handler for the IRC "ISON" command.
- *
- * See RFC 2812, 4.9 "Ison message".
  *
  * @param Client The client from which this command has been received.
  * @param Req Request structure with prefix and all parameters.
@@ -636,11 +642,8 @@ IRC_ISON( CLIENT *Client, REQUEST *Req )
 	return IRC_WriteStrClient(Client, rpl, Client_ID(Client));
 } /* IRC_ISON */
 
-
 /**
  * Handler for the IRC "LINKS" command.
- *
- * See RFC 2812, 3.4.5 "Links message".
  *
  * @param Client The client from which this command has been received.
  * @param Req Request structure with prefix and all parameters.
@@ -707,7 +710,13 @@ IRC_LINKS(CLIENT *Client, REQUEST *Req)
 				  Client_ID(from), mask);
 } /* IRC_LINKS */
 
-
+/**
+ * Handler for the IRC "LUSERS" command.
+ *
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
+ */
 GLOBAL bool
 IRC_LUSERS( CLIENT *Client, REQUEST *Req )
 {
@@ -742,11 +751,12 @@ IRC_LUSERS( CLIENT *Client, REQUEST *Req )
 	return CONNECTED;
 } /* IRC_LUSERS */
 
-
 /**
  * Handler for the IRC command "SERVLIST".
- * List registered services, see RFC 2811, section 3.5.1: the syntax is
- * "SERVLIST [<mask> [<type>]]".
+ *
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
  */
 GLOBAL bool
 IRC_SERVLIST(CLIENT *Client, REQUEST *Req)
@@ -780,7 +790,13 @@ IRC_SERVLIST(CLIENT *Client, REQUEST *Req)
 				  Req->argc > 1 ? Req->argv[1] : "0");
 } /* IRC_SERVLIST */
 
-
+/**
+ * Handler for the IRC command "MOTD".
+ *
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
+ */
 GLOBAL bool
 IRC_MOTD( CLIENT *Client, REQUEST *Req )
 {
@@ -813,7 +829,13 @@ IRC_MOTD( CLIENT *Client, REQUEST *Req )
 	return IRC_Show_MOTD( from );
 } /* IRC_MOTD */
 
-
+/**
+ * Handler for the IRC command "NAMES".
+ *
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
+ */
 GLOBAL bool
 IRC_NAMES( CLIENT *Client, REQUEST *Req )
 {
@@ -901,10 +923,12 @@ IRC_NAMES( CLIENT *Client, REQUEST *Req )
 	return IRC_WriteStrClient( from, RPL_ENDOFNAMES_MSG, Client_ID( from ), "*" );
 } /* IRC_NAMES */
 
-
 /**
  * Handler for the IRC command "STATS".
- * See RFC 2812 section 3.4.4.
+ *
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
  */
 GLOBAL bool
 IRC_STATS( CLIENT *Client, REQUEST *Req )
@@ -1043,11 +1067,12 @@ IRC_STATS( CLIENT *Client, REQUEST *Req )
 				  Client_ID(from), query);
 } /* IRC_STATS */
 
-
 /**
  * Handler for the IRC command "SUMMON".
- * See RFC 2812 section 4.5. ngIRCd doesn't implement this functionality and
- * therefore answers with ERR_SUMMONDISABLED.
+ *
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
  */
 GLOBAL bool
 IRC_SUMMON(CLIENT * Client, UNUSED REQUEST * Req)
@@ -1056,7 +1081,13 @@ IRC_SUMMON(CLIENT * Client, UNUSED REQUEST * Req)
 				  Client_ID(Client));
 } /* IRC_SUMMON */
 
-
+/**
+ * Handler for the IRC command "TIME".
+ *
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
+ */
 GLOBAL bool
 IRC_TIME( CLIENT *Client, REQUEST *Req )
 {
@@ -1089,10 +1120,12 @@ IRC_TIME( CLIENT *Client, REQUEST *Req )
 	return IRC_WriteStrClient( from, RPL_TIME_MSG, Client_ID( from ), Client_ID( Client_ThisServer( )), t_str );
 } /* IRC_TIME */
 
-
 /**
  * Handler for the IRC command "USERHOST".
- * See RFC 2812 section 4.8.
+ *
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
  */
 GLOBAL bool
 IRC_USERHOST(CLIENT *Client, REQUEST *Req)
@@ -1137,10 +1170,12 @@ IRC_USERHOST(CLIENT *Client, REQUEST *Req)
 	return IRC_WriteStrClient(Client, rpl, Client_ID(Client));
 } /* IRC_USERHOST */
 
-
 /**
  * Handler for the IRC command "USERS".
- * See RFC 2812 section 4.6. As suggested there the command is disabled.
+ *
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
  */
 GLOBAL bool
 IRC_USERS(CLIENT * Client, UNUSED REQUEST * Req)
@@ -1149,7 +1184,13 @@ IRC_USERS(CLIENT * Client, UNUSED REQUEST * Req)
 				  Client_ID(Client));
 } /* IRC_USERS */
 
-
+/**
+ * Handler for the IRC command "VERSION".
+ *
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
+ */
 GLOBAL bool
 IRC_VERSION( CLIENT *Client, REQUEST *Req )
 {
@@ -1187,11 +1228,8 @@ IRC_VERSION( CLIENT *Client, REQUEST *Req )
 				  NGIRCd_VersionAddition);
 } /* IRC_VERSION */
 
-
 /**
  * Handler for the IRC "WHO" command.
- *
- * See RFC 2812, 3.6.1 "Who query".
  *
  * @param Client The client from which this command has been received.
  * @param Req Request structure with prefix and all parameters.
@@ -1244,15 +1282,12 @@ IRC_WHO(CLIENT *Client, REQUEST *Req)
 	return IRC_WHO_Mask(Client, NULL, only_ops);
 } /* IRC_WHO */
 
-
 /**
  * Handler for the IRC "WHOIS" command.
  *
- * See RFC 2812, 3.6.2 "Whois query".
- *
- * @param Client	The client from which this command has been received.
- * @param Req		Request structure with prefix and all parameters.
- * @return		CONNECTED or DISCONNECTED.
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
  */
 GLOBAL bool
 IRC_WHOIS( CLIENT *Client, REQUEST *Req )
@@ -1364,11 +1399,12 @@ IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 				  Client_ID(from), Req->argv[Req->argc - 1]);
 } /* IRC_WHOIS */
 
-
 /**
- * IRC "WHOWAS" function.
- * This function implements the IRC command "WHOWHAS". It handles local
- * requests and request that should be forwarded to other servers.
+ * Handler for the IRC "WHOWAS" command.
+ *
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
  */
 GLOBAL bool
 IRC_WHOWAS( CLIENT *Client, REQUEST *Req )
@@ -1469,7 +1505,6 @@ IRC_WHOWAS( CLIENT *Client, REQUEST *Req )
 	return IRC_WriteStrClient(prefix, RPL_ENDOFWHOWAS_MSG, Client_ID(prefix), Req->argv[0]);
 } /* IRC_WHOWAS */
 
-
 /**
  * Send LUSERS reply to a client.
  *
@@ -1542,7 +1577,6 @@ IRC_Send_LUSERS(CLIENT *Client)
 	return CONNECTED;
 } /* IRC_Send_LUSERS */
 
-
 GLOBAL bool
 IRC_Show_MOTD( CLIENT *Client )
 {
@@ -1574,7 +1608,6 @@ IRC_Show_MOTD( CLIENT *Client )
 		return DISCONNECTED;
 	return Show_MOTD_End(Client);
 } /* IRC_Show_MOTD */
-
 
 /**
  * Send NAMES reply for a specific client and channel.
@@ -1645,7 +1678,6 @@ IRC_Send_NAMES(CLIENT * Client, CHANNEL * Chan)
 	return CONNECTED;
 } /* IRC_Send_NAMES */
 
-
 /**
  * Send the ISUPPORT numeric (005).
  * This numeric indicates the features that are supported by this server.
@@ -1663,6 +1695,5 @@ IRC_Send_ISUPPORT(CLIENT * Client)
 				  COMMAND_LEN - 113, MAX_HNDL_MODES_ARG,
 				  MAX_HNDL_CHANNEL_LISTS);
 } /* IRC_Send_ISUPPORT */
-
 
 /* -eof- */

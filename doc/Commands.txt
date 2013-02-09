@@ -399,14 +399,20 @@ Status and Informational Commands
 	 - RFC 2812, 3.6.2 "Whois query"
 
 - WHOWAS
-	WHOWAS <nickname> [<count> [<server>]]
+	WHOWAS <nickname>[,<nickname>[,...]] [<count> [<target>]]
 	.
-	Used to return information about <nicknames> that are no longer in use
-	(due to client disconnection, or nickname changes).
+	Query information about nicknames no longer in use in the network,
+	either because of nickname changes or disconnects. The history is
+	searched backwards, returning the most recent entry first. If there
+	are multiple entries, up to <count> entries will be shown (or all of
+	them, if no <count> has been given).
 	.
-	If given, the server will return information from the last <count> times
-	the nickname has been used.
-	If <server> is given, the command is forwarded to it for processing.
+	<target> can be a server name, the nickname of a client connected to a
+	specific server, or a mask matching a server name in the network. The
+	server of the current connecion is used when <target> is omitted.
+
+	References:
+	 - RFC 2812, 3.6.3 "Whowas"
 
 
 Channel Commands

@@ -544,6 +544,18 @@ IRC Service Commands
 - SERVICE
 
 - SERVLIST
+	SERVLIST [<mask> [<type>]]
+	.
+	List all IRC services currently registered in the network.
+	.
+	The optional <mask> and <type> parameters can be used to limit the
+	listing to services matching the <mask> and that are of type <type>.
+	.
+	Please note that ngIRCd doesn't use any service types at the moment
+	and therefore all services are of type "0".
+
+	References:
+	 - RFC 2812, 3.5.1 "Servlist message"
 
 - SQUERY
 

@@ -355,9 +355,22 @@ Status and Informational Commands
 	 - RFC 2812, 4.8 "Userhost message"
 
 - VERSION
-	VERSION [<server>]
+	VERSION [<target>]
 	.
-	Show the ngIRCd version of the current server, or specified <server>.
+	Show version information about a particular IRC server in the network.
+	.
+	<target> can be a server name, the nickname of a client connected to
+	a specific server, or a mask matching a server name in the network.
+	The server of the current connecion is used when <target> is omitted.
+	.
+	Please note: in normal operation, the version number ends in a dot
+	(".", for example "ngIRCd-20.1."). If it ends in ".1" (for example
+	"ngIRCd-20.1.1", same version than before!), the server is running in
+	debug-mode; and if it ends in ".2", the "network sniffer" is active!
+	Keep your privacy in mind ...
+
+	References:
+	 - RFC 2812, 3.4.3 "Version message"
 
 - WHO
 	WHO [<target> ["o"]]

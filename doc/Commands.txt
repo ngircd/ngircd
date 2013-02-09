@@ -605,6 +605,16 @@ Dummy Commands
 ~~~~~~~~~~~~~~
 
 - SUMMON
+	SUMMON <user> [<target> [<channel>]]
+	.
+	This command was intended to call people into IRC who are directly
+	connected to the terminal console of the IRC server -- but is
+	deprecated today. Therefore ngIRCd doesn't really implement this
+	command and always returns an error message, regardless of the
+	parameters given.
+
+	References:
+	 - RFC 2812, 4.5 "Summon message"
 
 - USERS
 

@@ -204,10 +204,16 @@ Status and Informational Commands
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - ADMIN
-	ADMIN [<server>]
+	ADMIN [<target>]
 	.
 	Show administrative information about an IRC server in the network.
-	If no server name has been given, the local server will respond.
+	.
+	<target> can be a server name, the nickname of a client connected to
+	a specific server, or a mask matching a server name in the network.
+	The server of the current connecion is used when <target> is omitted.
+
+	References:
+	 - RFC 2812, 3.4.9 "Admin command"
 
 - INFO
 	INFO [<server>]

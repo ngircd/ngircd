@@ -243,10 +243,17 @@ Status and Informational Commands
 	 - RFC 2812, 4.9 "Ison message"
 
 - LINKS
-	LINKS [<remote server> [<server mask>]]
+	LINKS [[<target>] [<mask>]
 	.
-	Lists all server links matching <server mask>, if given,
-	on <remote server>, or the current server if omitted.
+	List all servers currently registered in the network matching <mask>,
+	or all servers if <mask> has been omitted, as seen by the server
+	specified by <target> or the local server when <target> is omitted.
+	.
+	<target> can be a server name, the nickname of a client connected to
+	a specific server, or a mask matching a server name in the network.
+
+	References:
+	 - RFC 2812, 3.4.5 "Links message"
 
 - LUSERS
 	LUSERS [<mask> [<server>]]

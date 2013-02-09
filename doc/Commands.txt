@@ -284,16 +284,23 @@ Status and Informational Commands
 	 - RFC 2812, 3.4.1 "Motd message"
 
 - NAMES
-	NAMES [<channels> [<server>]]
+	NAMES [<channel>[,<channel>[,...]] [<target>]]
 	.
-	Returns a list of who is on the comma-separated list of <channels>,
-	by channel name.
+	Show the list of users that are members of a particular <channel>
+	(and that are visible for the client requesting this information) as
+	seen by the server <target>. More than one <channel> can be given
+	separated by "," (but not whitespaces!).
 	.
-	If <channels> is omitted, all users are shown, grouped by channel name
-	with all users who are not on a channel being shown as part of channel
-	"*".
-	If <server> is specified, the command is sent to <server> for
-	evaluation.
+	If <channel> has been omitted, all visible users are shown, grouped
+	by channel name, and all visible users not being members of at least
+	one channel are shown as members of the pseudo channel "*".
+	.
+	<target> can be a server name, the nickname of a client connected to
+	a specific server, or a mask matching a server name in the network.
+	The server of the current connecion is used when <target> is omitted.
+
+	References:
+	 - RFC 2812, 3.2.5 "Names message"
 
 - STATS
 	STATS <flag> [<server>]

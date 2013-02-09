@@ -373,12 +373,17 @@ Status and Informational Commands
 	 - RFC 2812, 3.4.3 "Version message"
 
 - WHO
-	WHO [<target> ["o"]]
+	WHO [<mask> ["o"]]
 	.
-	Returns a list of users who match <target> (nick, hostmask or channel).
+	Show a list of users who match the <mask>, or all visible users when
+	the <mask> has been omitted. (Special case: the <mask> "0" is
+	equivalent to "*")
 	.
 	If the flag "o" is given, the server will only return information about
 	IRC Operators.
+
+	References:
+	 - RFC 2812, 3.6.1 "Who query"
 
 - WHOIS
 	WHOIS [<server>] <nicknames>

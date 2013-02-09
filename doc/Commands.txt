@@ -303,17 +303,25 @@ Status and Informational Commands
 	 - RFC 2812, 3.2.5 "Names message"
 
 - STATS
-	STATS <flag> [<server>]
+	STATS [<query> [<target>]]
 	.
-	Returns statistics about the current server, or of a specified <server>.
+	Show statistics and other information of type <query> of a particular
+	IRC server in the network.
 	.
-	STATS flags:
+	The following <query> types are supported (case-insensitive):
 	.
-	g = G-Lines (Network-wide bans)
-	k = K-Lines (Server-local bans)
-	l = Link status (Parent server and own link)
-	m = IRC command status (usage count)
-	u = Server uptime
+	 - g  Network-wide bans ("G-Lines").
+	 - k  Server-local bans ("K-Lines").
+	 - l  Link status (parent server and own link only).
+	 - m  Command usage count.
+	 - u  Server uptime.
+	.
+	<target> can be a server name, the nickname of a client connected to
+	a specific server, or a mask matching a server name in the network.
+	The server of the current connecion is used when <target> is omitted.
+
+	References:
+	 - RFC 2812, 3.4.4 "Stats message"
 
 - TIME
 	TIME [<server>]

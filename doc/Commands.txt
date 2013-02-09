@@ -210,7 +210,7 @@ Status and Informational Commands
 	.
 	<target> can be a server name, the nickname of a client connected to
 	a specific server, or a mask matching a server name in the network.
-	The server of the current connecion is used when <target> is omitted.
+	The server of the current connection is used when <target> is omitted.
 
 	References:
 	 - RFC 2812, 3.4.9 "Admin command"
@@ -222,7 +222,7 @@ Status and Informational Commands
 	.
 	<target> can be a server name, the nickname of a client connected to
 	a specific server, or a mask matching a server name in the network.
-	The server of the current connecion is used when <target> is omitted.
+	The server of the current connection is used when <target> is omitted.
 
 	References:
 	 - RFC 2812, 3.4.10 "Info command"
@@ -231,7 +231,7 @@ Status and Informational Commands
 	ISON <nickname> [<nickname> [...]]
 	.
 	Query online status of a list of nicknames. The server replies with
-	a list only containing nicknes actually connected to a server in
+	a list only containing nicknames actually connected to a server in
 	the network. If no nicknames of the given list are online, an empty
 	list is returned to the client requesting the information.
 
@@ -263,7 +263,7 @@ Status and Informational Commands
 	.
 	<target> can be a server name, the nickname of a client connected to
 	a specific server, or a mask matching a server name in the network.
-	The server of the current connecion is used when <target> is omitted.
+	The server of the current connection is used when <target> is omitted.
 
 	Please note that ngIRCd ignores the <mask> parameter entirely: it
 	is not possible to get information for a part of the network only.
@@ -278,7 +278,7 @@ Status and Informational Commands
 	.
 	<target> can be a server name, the nickname of a client connected to
 	a specific server, or a mask matching a server name in the network.
-	The server of the current connecion is used when <target> is omitted.
+	The server of the current connection is used when <target> is omitted.
 
 	References:
 	 - RFC 2812, 3.4.1 "Motd message"
@@ -297,7 +297,7 @@ Status and Informational Commands
 	.
 	<target> can be a server name, the nickname of a client connected to
 	a specific server, or a mask matching a server name in the network.
-	The server of the current connecion is used when <target> is omitted.
+	The server of the current connection is used when <target> is omitted.
 
 	References:
 	 - RFC 2812, 3.2.5 "Names message"
@@ -318,7 +318,7 @@ Status and Informational Commands
 	.
 	<target> can be a server name, the nickname of a client connected to
 	a specific server, or a mask matching a server name in the network.
-	The server of the current connecion is used when <target> is omitted.
+	The server of the current connection is used when <target> is omitted.
 
 	References:
 	 - RFC 2812, 3.4.4 "Stats message"
@@ -330,7 +330,7 @@ Status and Informational Commands
 	.
 	<target> can be a server name, the nickname of a client connected to
 	a specific server, or a mask matching a server name in the network.
-	The server of the current connecion is used when <target> is omitted.
+	The server of the current connection is used when <target> is omitted.
 
 	References
 	 - RFC 2812, 3.4.6 "Time message"
@@ -345,7 +345,7 @@ Status and Informational Commands
 	USERHOST <nickname> [<nickname> [...]]
 	.
 	Show flags and the hostmasks (<user>@<host>) of the <nickname>s,
-	seperated by spaces. The following flags are used:
+	separated by spaces. The following flags are used:
 	.
 	 - "-"  The client is "away" (the mode "+a" is set on this client).
 	 - "+"  Client seems to be available, at least it isn't marked "away".
@@ -361,7 +361,7 @@ Status and Informational Commands
 	.
 	<target> can be a server name, the nickname of a client connected to
 	a specific server, or a mask matching a server name in the network.
-	The server of the current connecion is used when <target> is omitted.
+	The server of the current connection is used when <target> is omitted.
 	.
 	Please note: in normal operation, the version number ends in a dot
 	(".", for example "ngIRCd-20.1."). If it ends in ".1" (for example
@@ -393,7 +393,7 @@ Status and Informational Commands
 	.
 	<target> can be a server name, the nickname of a client connected to a
 	specific server, or a mask matching a server name in the network. The
-	server of the current connecion is used when <target> is omitted.
+	server of the current connection is used when <target> is omitted.
 
 	References:
 	 - RFC 2812, 3.6.2 "Whois query"
@@ -409,7 +409,7 @@ Status and Informational Commands
 	.
 	<target> can be a server name, the nickname of a client connected to a
 	specific server, or a mask matching a server name in the network. The
-	server of the current connecion is used when <target> is omitted.
+	server of the current connection is used when <target> is omitted.
 
 	References:
 	 - RFC 2812, 3.6.3 "Whowas"

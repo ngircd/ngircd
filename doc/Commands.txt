@@ -386,11 +386,17 @@ Status and Informational Commands
 	 - RFC 2812, 3.6.1 "Who query"
 
 - WHOIS
-	WHOIS [<server>] <nicknames>
+	WHOIS [<target>] <mask>[,<mask>[,...]]
 	.
-	Returns information about the comma-separated list of <nicknames>.
+	Query information about users matching the <mask> parameter(s) as seen
+	by the server <target>; up to 3 <masks> are supported.
 	.
-	If <server> is given, the command is forwarded to it for processing.
+	<target> can be a server name, the nickname of a client connected to a
+	specific server, or a mask matching a server name in the network. The
+	server of the current connecion is used when <target> is omitted.
+
+	References:
+	 - RFC 2812, 3.6.2 "Whois query"
 
 - WHOWAS
 	WHOWAS <nickname> [<count> [<server>]]

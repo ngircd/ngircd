@@ -228,14 +228,19 @@ Status and Informational Commands
 	 - RFC 2812, 3.4.10 "Info command"
 
 - ISON
-	ISON <nicknames>
+	ISON <nickname> [<nickname> [...]]
 	.
-	Queries the server to see if the clients in the space-separated list
-	<nicknames> are currently on the network.
-	.
-	The server returns only the <nicknames> that are on the network in a
-	space-separated list. If none of the clients are on the network the
-	server returns an empty list.
+	Query online status of a list of nicknames. The server replies with
+	a list only containing nicknes actually connected to a server in
+	the network. If no nicknames of the given list are online, an empty
+	list is returned to the client requesting the information.
+
+	Please note that "all" IRC daemons even parse separate nicknames in
+	a single parameter (like ":nick1 nick2"), and therefore ngIRCd
+	implements this behaviour, too.
+
+	References:
+	 - RFC 2812, 4.9 "Ison message"
 
 - LINKS
 	LINKS [<remote server> [<server mask>]]

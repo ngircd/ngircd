@@ -256,15 +256,20 @@ Status and Informational Commands
 	 - RFC 2812, 3.4.5 "Links message"
 
 - LUSERS
-	LUSERS [<mask> [<server>]]
+	LUSERS [<mask> [<target>]]
 	.
-	Return statistics about the size of the network. If called with no
-	arguments, the statistics will reflect the entire network.
+	Return statistics about the number of clients (users, servers,
+	services, ...) in the network as seen by the server <target>.
 	.
-	If <mask> is given, it will return only statistics reflecting the
-	masked subset of the network.
-	If <server> is given, the command will be forwarded to <server>
-	for evaluation.
+	<target> can be a server name, the nickname of a client connected to
+	a specific server, or a mask matching a server name in the network.
+	The server of the current connecion is used when <target> is omitted.
+
+	Please note that ngIRCd ignores the <mask> parameter entirely: it
+	is not possible to get information for a part of the network only.
+
+	References:
+	 - RFC 2812, 3.4.2 "Lusers message"
 
 - MOTD
 	MOTD [<server>]

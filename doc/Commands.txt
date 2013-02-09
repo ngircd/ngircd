@@ -617,6 +617,15 @@ Dummy Commands
 	 - RFC 2812, 4.5 "Summon message"
 
 - USERS
+	USERS [<target>]
+	.
+	This command was intended to list users directly logged in into the
+	console of the IRC server -- but is deprecated today. Therefore ngIRCd
+	doesn't really implement this command and always returns an error
+	message, regardless of the parameters given.
+
+	References:
+	 - RFC 2812, 4.6 "Users"
 
 - GET
 

@@ -272,9 +272,16 @@ Status and Informational Commands
 	 - RFC 2812, 3.4.2 "Lusers message"
 
 - MOTD
-	MOTD [<server>]
+	MOTD [<target>]
 	.
-	Show "Message Of The Day" of the current server or specified <server>.
+	Show the "Message of the Day" (MOTD) of an IRC server in the network.
+	.
+	<target> can be a server name, the nickname of a client connected to
+	a specific server, or a mask matching a server name in the network.
+	The server of the current connecion is used when <target> is omitted.
+
+	References:
+	 - RFC 2812, 3.4.1 "Motd message"
 
 - NAMES
 	NAMES [<channels> [<server>]]

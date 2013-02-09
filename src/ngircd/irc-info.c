@@ -38,6 +38,7 @@
 #include "tool.h"
 #include "parse.h"
 #include "irc.h"
+#include "irc-macros.h"
 #include "irc-write.h"
 #include "client-cap.h"
 
@@ -495,34 +496,32 @@ IRC_ADMIN(CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	if(( Req->argc > 1 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	IRC_SetPenalty(Client, 1);
 
-	/* find target ... */
-	if( Req->argc == 1 ) target = Client_Search( Req->argv[0] );
-	else target = Client_ThisServer( );
+	_IRC_ARGC_LE_OR_RETURN_(Client, Req, 1)
+	_IRC_GET_SENDER_OR_RETURN_(prefix, Req, Client)
+	_IRC_GET_TARGET_SERVER_OR_RETURN_(target, Req, 0, prefix)
 
-	/* find Prefix */
-	if( Client_Type( Client ) == CLIENT_SERVER ) prefix = Client_Search( Req->prefix );
-	else prefix = Client;
-	if( ! prefix ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
-
-	/* forwad message to another server? */
-	if( target != Client_ThisServer( ))
-	{
-		if(( ! target ) || ( Client_Type( target ) != CLIENT_SERVER )) return IRC_WriteStrClient( prefix, ERR_NOSUCHSERVER_MSG, Client_ID( prefix ), Req->argv[0] );
-
-		/* forward */
-		IRC_WriteStrClientPrefix( target, prefix, "ADMIN %s", Req->argv[0] );
+	/* Forward? */
+	if(target != Client_ThisServer()) {
+		IRC_WriteStrClientPrefix(target, prefix,
+					 "ADMIN %s", Client_ID(target));
 		return CONNECTED;
 	}
 
-	/* mit Versionsinfo antworten */
-	if( ! IRC_WriteStrClient( Client, RPL_ADMINME_MSG, Client_ID( prefix ), Conf_ServerName )) return DISCONNECTED;
-	if( ! IRC_WriteStrClient( Client, RPL_ADMINLOC1_MSG, Client_ID( prefix ), Conf_ServerAdmin1 )) return DISCONNECTED;
-	if( ! IRC_WriteStrClient( Client, RPL_ADMINLOC2_MSG, Client_ID( prefix ), Conf_ServerAdmin2 )) return DISCONNECTED;
-	if( ! IRC_WriteStrClient( Client, RPL_ADMINEMAIL_MSG, Client_ID( prefix ), Conf_ServerAdminMail )) return DISCONNECTED;
+	if (!IRC_WriteStrClient(Client, RPL_ADMINME_MSG, Client_ID(prefix),
+				Conf_ServerName))
+		return DISCONNECTED;
+	if (!IRC_WriteStrClient(Client, RPL_ADMINLOC1_MSG, Client_ID(prefix),
+				Conf_ServerAdmin1))
+		return DISCONNECTED;
+	if (!IRC_WriteStrClient(Client, RPL_ADMINLOC2_MSG, Client_ID(prefix),
+				Conf_ServerAdmin2))
+		return DISCONNECTED;
+	if (!IRC_WriteStrClient(Client, RPL_ADMINEMAIL_MSG, Client_ID(prefix),
+				Conf_ServerAdminMail))
+		return DISCONNECTED;
 
-	IRC_SetPenalty( Client, 1 );
 	return CONNECTED;
 } /* IRC_ADMIN */
 
@@ -542,38 +541,16 @@ IRC_INFO(CLIENT * Client, REQUEST * Req)
 	assert(Client != NULL);
 	assert(Req != NULL);
 
-	/* Wrong number of parameters? */
-	if (Req->argc > 1)
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
-					  Client_ID(Client), Req->command);
+	IRC_SetPenalty(Client, 2);
 
-	/* Determine prefix */
-	if (Client_Type(Client) == CLIENT_SERVER)
-		prefix = Client_Search(Req->prefix);
-	else
-		prefix = Client;
-	if (!prefix)
-		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
-					  Client_ID(Client), Req->prefix);
+	_IRC_ARGC_LE_OR_RETURN_(Client, Req, 1)
+	_IRC_GET_SENDER_OR_RETURN_(prefix, Req, Client)
+	_IRC_GET_TARGET_SERVER_OR_RETURN_(target, Req, 0, prefix)
 
-	/* Look for a target */
-	if (Req->argc > 0)
-		target = Client_Search(Req->argv[0]);
-	else
-		target = Client_ThisServer();
-
-	/* Make sure that the target is a server */
-	if (target && Client_Type(target) != CLIENT_SERVER)
-		target = Client_Introducer(target);
-
-	if (!target)
-		return IRC_WriteStrClient(prefix, ERR_NOSUCHSERVER_MSG,
-					  Client_ID(prefix), Req->argv[0]);
-
-	/* Pass on to another server? */
+	/* Forward? */
 	if (target != Client_ThisServer()) {
 		IRC_WriteStrClientPrefix(target, prefix, "INFO %s",
-					 Req->argv[0]);
+					 Client_ID(target));
 		return CONNECTED;
 	}
 
@@ -595,7 +572,6 @@ IRC_INFO(CLIENT * Client, REQUEST * Req)
 	if (!IRC_WriteStrClient(Client, RPL_ENDOFINFO_MSG, Client_ID(prefix)))
 		return DISCONNECTED;
 
-	IRC_SetPenalty(Client, 2);
 	return CONNECTED;
 } /* IRC_INFO */
 
@@ -617,10 +593,7 @@ IRC_ISON( CLIENT *Client, REQUEST *Req )
 	assert(Client != NULL);
 	assert(Req != NULL);
 
-	/* Bad number of arguments? */
-	if (Req->argc < 1)
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
-					  Client_ID(Client), Req->command);
+	_IRC_ARGC_GE_OR_RETURN_(Client, Req, 1)
 
 	strlcpy(rpl, RPL_ISON_MSG, sizeof rpl);
 	for (i = 0; i < Req->argc; i++) {
@@ -660,9 +633,8 @@ IRC_LINKS(CLIENT *Client, REQUEST *Req)
 
 	IRC_SetPenalty(Client, 1);
 
-	if (Req->argc > 2)
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
-					  Client_ID(Client), Req->command);
+	_IRC_ARGC_LE_OR_RETURN_(Client, Req, 2)
+	_IRC_GET_SENDER_OR_RETURN_(from, Req, Client)
 
 	/* Get pointer to server mask or "*", if none given */
 	if (Req->argc > 0)
@@ -670,26 +642,15 @@ IRC_LINKS(CLIENT *Client, REQUEST *Req)
 	else
 		mask = "*";
 
-	if (Client_Type(Client) == CLIENT_SERVER)
-		from = Client_Search(Req->prefix);
-	else
-		from = Client;
-	if (!from)
-		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
-					  Client_ID(Client), Req->prefix);
-
 	/* Forward? */
 	if (Req->argc == 2) {
-		target = Client_Search(Req->argv[0]);
-		if (! target || Client_Type(target) != CLIENT_SERVER)
-			return IRC_WriteStrClient(from, ERR_NOSUCHSERVER_MSG,
-						  Client_ID(from),
-						  Req->argv[0] );
-		else
-			if (target != Client_ThisServer())
-				return IRC_WriteStrClientPrefix(target, from,
-						"LINKS %s %s", Req->argv[0],
-						Req->argv[1]);
+		_IRC_GET_TARGET_SERVER_OR_RETURN_(target, Req, 0, from)
+		if (target != Client_ThisServer()) {
+			IRC_WriteStrClientPrefix(target, from,
+					"LINKS %s %s", Client_ID(target),
+					Req->argv[1]);
+			return CONNECTED;
+		}
 	}
 
 	c = Client_First();
@@ -725,30 +686,21 @@ IRC_LUSERS( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	if(( Req->argc > 2 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	IRC_SetPenalty(Client, 1);
 
-	/* Absender ermitteln */
-	if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_Search( Req->prefix );
-	else from = Client;
-	if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
+	_IRC_ARGC_LE_OR_RETURN_(Client, Req, 2)
+	_IRC_GET_SENDER_OR_RETURN_(from, Req, Client)
+	_IRC_GET_TARGET_SERVER_OR_RETURN_(target, Req, 1, from)
 
-	/* An anderen Server forwarden? */
-	if( Req->argc == 2 )
-	{
-		target = Client_Search( Req->argv[1] );
-		if(( ! target ) || ( Client_Type( target ) != CLIENT_SERVER )) return IRC_WriteStrClient( from, ERR_NOSUCHSERVER_MSG, Client_ID( from ), Req->argv[1] );
-		else if( target != Client_ThisServer( )) return IRC_WriteStrClientPrefix( target, from, "LUSERS %s %s", Req->argv[0], Req->argv[1] );
+	/* Forward? */
+	if (target != Client_ThisServer()) {
+		IRC_WriteStrClientPrefix(target, from,
+					 "LUSERS %s %s", Req->argv[0],
+					 Client_ID(target));
+		return CONNECTED;
 	}
 
-	/* Wer ist der Absender? */
-	if( Client_Type( Client ) == CLIENT_SERVER ) target = Client_Search( Req->prefix );
-	else target = Client;
-	if( ! target ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
-
-	IRC_Send_LUSERS( target );
-
-	IRC_SetPenalty( target, 1 );
-	return CONNECTED;
+	return IRC_Send_LUSERS(from);
 } /* IRC_LUSERS */
 
 /**
@@ -763,12 +715,12 @@ IRC_SERVLIST(CLIENT *Client, REQUEST *Req)
 {
 	CLIENT *c;
 
+	IRC_SetPenalty(Client, 1);
+
 	assert(Client != NULL);
 	assert(Req != NULL);
 
-	if (Req->argc > 2)
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
-					  Client_ID(Client), Req->command);
+	_IRC_ARGC_LE_OR_RETURN_(Client, Req, 2)
 
 	if (Req->argc < 2 || strcmp(Req->argv[1], "0") == 0) {
 		for (c = Client_First(); c!= NULL; c = Client_Next(c)) {
@@ -805,28 +757,20 @@ IRC_MOTD( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	if( Req->argc > 1 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	IRC_SetPenalty(Client, 3);
 
-	/* From aus Prefix ermitteln */
-	if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_Search( Req->prefix );
-	else from = Client;
-	if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
+	_IRC_ARGC_LE_OR_RETURN_(Client, Req, 1)
+	_IRC_GET_SENDER_OR_RETURN_(from, Req, Client)
+	_IRC_GET_TARGET_SERVER_OR_RETURN_(target, Req, 0, from)
 
-	if( Req->argc == 1 )
-	{
-		/* forward? */
-		target = Client_Search( Req->argv[0] );
-		if(( ! target ) || ( Client_Type( target ) != CLIENT_SERVER )) return IRC_WriteStrClient( from, ERR_NOSUCHSERVER_MSG, Client_ID( from ), Req->argv[0] );
-
-		if( target != Client_ThisServer( ))
-		{
-			/* Ok, anderer Server ist das Ziel: forwarden */
-			return IRC_WriteStrClientPrefix( target, from, "MOTD %s", Req->argv[0] );
-		}
+	/* Forward? */
+	if (target != Client_ThisServer()) {
+		IRC_WriteStrClientPrefix(target, from, "MOTD %s",
+					 Client_ID(target));
+		return CONNECTED;
 	}
 
-	IRC_SetPenalty( from, 3 );
-	return IRC_Show_MOTD( from );
+	return IRC_Show_MOTD(from);
 } /* IRC_MOTD */
 
 /**
@@ -846,81 +790,68 @@ IRC_NAMES( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	if( Req->argc > 2 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	IRC_SetPenalty(Client, 1);
 
-	/* use prefix to determine "From" */
-	if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_Search( Req->prefix );
-	else from = Client;
-	if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
+	_IRC_ARGC_LE_OR_RETURN_(Client, Req, 2)
+	_IRC_GET_SENDER_OR_RETURN_(from, Req, Client)
+	_IRC_GET_TARGET_SERVER_OR_RETURN_(target, Req, 1, from)
 
-	if( Req->argc == 2 )
-	{
-		/* forward to another server? */
-		target = Client_Search( Req->argv[1] );
-		if(( ! target ) || ( Client_Type( target ) != CLIENT_SERVER )) return IRC_WriteStrClient( from, ERR_NOSUCHSERVER_MSG, Client_ID( from ), Req->argv[1] );
-
-		if( target != Client_ThisServer( )) {
-			/* target is another server, forward */
-			return IRC_WriteStrClientPrefix( target, from, "NAMES %s :%s", Req->argv[0], Req->argv[1] );
-		}
+	/* Forward? */
+	if (target != Client_ThisServer()) {
+		IRC_WriteStrClientPrefix(target, from, "NAMES %s :%s",
+					 Req->argv[0], Client_ID(target));
+		return CONNECTED;
 	}
 
-	if( Req->argc > 0 )
-	{
-		/* bestimmte Channels durchgehen */
-		ptr = strtok( Req->argv[0], "," );
-		while( ptr )
-		{
-			chan = Channel_Search( ptr );
-			if( chan )
-			{
-				/* print name */
-				if( ! IRC_Send_NAMES( from, chan )) return DISCONNECTED;
-			}
-			if( ! IRC_WriteStrClient( from, RPL_ENDOFNAMES_MSG, Client_ID( from ), ptr )) return DISCONNECTED;
-
-			/* get next channel name */
+	if (Req->argc > 0) {
+		/* Return NAMES list for specific channels */
+		ptr = strtok(Req->argv[0], ",");
+		while(ptr) {
+			chan = Channel_Search(ptr);
+			if (chan && !IRC_Send_NAMES(from, chan))
+				return DISCONNECTED;
+			if (!IRC_WriteStrClient(from, RPL_ENDOFNAMES_MSG,
+						Client_ID(from), ptr))
+				return DISCONNECTED;
 			ptr = strtok( NULL, "," );
 		}
 		return CONNECTED;
 	}
 
-	chan = Channel_First( );
-	while( chan )
-	{
-		if( ! IRC_Send_NAMES( from, chan )) return DISCONNECTED;
-
-		chan = Channel_Next( chan );
+	chan = Channel_First();
+	while (chan) {
+		if (!IRC_Send_NAMES(from, chan))
+			return DISCONNECTED;
+		chan = Channel_Next(chan);
 	}
 
 	/* Now print all clients which are not in any channel */
-	c = Client_First( );
-	snprintf( rpl, sizeof( rpl ), RPL_NAMREPLY_MSG, Client_ID( from ), "*", "*" );
-	while( c )
-	{
-		if(( Client_Type( c ) == CLIENT_USER ) && ( Channel_FirstChannelOf( c ) == NULL ) && ( ! strchr( Client_Modes( c ), 'i' )))
+	c = Client_First();
+	snprintf(rpl, sizeof(rpl), RPL_NAMREPLY_MSG, Client_ID(from), "*", "*");
+	while (c) {
+		if (Client_Type(c) == CLIENT_USER
+		    && Channel_FirstChannelOf(c) == NULL
+		    && !strchr(Client_Modes(c), 'i'))
 		{
 			/* its a user, concatenate ... */
-			if( rpl[strlen( rpl ) - 1] != ':' ) strlcat( rpl, " ", sizeof( rpl ));
-			strlcat( rpl, Client_ID( c ), sizeof( rpl ));
+			if (rpl[strlen(rpl) - 1] != ':')
+				strlcat(rpl, " ", sizeof(rpl));
+			strlcat(rpl, Client_ID(c), sizeof(rpl));
 
-			if( strlen( rpl ) > ( LINE_LEN - CLIENT_NICK_LEN - 4 ))
-			{
+			if (strlen(rpl) > LINE_LEN - CLIENT_NICK_LEN - 4) {
 				/* Line is gwoing too long, send now */
-				if( ! IRC_WriteStrClient( from, "%s", rpl )) return DISCONNECTED;
-				snprintf( rpl, sizeof( rpl ), RPL_NAMREPLY_MSG, Client_ID( from ), "*", "*" );
+				if (!IRC_WriteStrClient(from, "%s", rpl))
+					return DISCONNECTED;
+				snprintf(rpl, sizeof(rpl), RPL_NAMREPLY_MSG,
+					 Client_ID(from), "*", "*");
 			}
 		}
-
-		c = Client_Next( c );
+		c = Client_Next(c);
 	}
-	if( rpl[strlen( rpl ) - 1] != ':')
-	{
-		if( ! IRC_WriteStrClient( from, "%s", rpl )) return DISCONNECTED;
-	}
+	if (rpl[strlen(rpl) - 1] != ':' && !IRC_WriteStrClient(from, "%s", rpl))
+		return DISCONNECTED;
 
-	IRC_SetPenalty( from, 1 );
-	return IRC_WriteStrClient( from, RPL_ENDOFNAMES_MSG, Client_ID( from ), "*" );
+	return IRC_WriteStrClient(from, RPL_ENDOFNAMES_MSG, Client_ID(from), "*");
 } /* IRC_NAMES */
 
 /**
@@ -945,32 +876,17 @@ IRC_STATS( CLIENT *Client, REQUEST *Req )
 	assert(Client != NULL);
 	assert(Req != NULL);
 
-	if (Req->argc > 2)
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
-					  Client_ID(Client), Req->command);
+	IRC_SetPenalty(Client, 2);
 
-	/* use prefix to determine "From" */
-	if (Client_Type(Client) == CLIENT_SERVER)
-		from = Client_Search(Req->prefix);
-	else
-		from = Client;
+	_IRC_ARGC_LE_OR_RETURN_(Client, Req, 2)
+	_IRC_GET_SENDER_OR_RETURN_(from, Req, Client)
+	_IRC_GET_TARGET_SERVER_OR_RETURN_(target, Req, 1, from)
 
-	if (!from)
-		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
-					  Client_ID(Client), Req->prefix);
-
-	if (Req->argc == 2) {
-		/* forward to another server? */
-		target = Client_Search(Req->argv[1]);
-		if ((!target) || (Client_Type(target) != CLIENT_SERVER))
-			return IRC_WriteStrClient(from, ERR_NOSUCHSERVER_MSG,
-						 Client_ID(from), Req->argv[1]);
-
-		if (target != Client_ThisServer()) {
-			/* forward to another server */
-			return IRC_WriteStrClientPrefix(target, from,
-				     "STATS %s %s", Req->argv[0], Req->argv[1]);
-		}
+	/* Forward? */
+	if (target != Client_ThisServer()) {
+		IRC_WriteStrClientPrefix(target, from, "STATS %s %s",
+					 Req->argv[0], Client_ID(target));
+		return CONNECTED;
 	}
 
 	if (Req->argc > 0)
@@ -1062,7 +978,6 @@ IRC_STATS( CLIENT *Client, REQUEST *Req )
 		break;
 	}
 
-	IRC_SetPenalty(from, 2);
 	return IRC_WriteStrClient(from, RPL_ENDOFSTATS_MSG,
 				  Client_ID(from), query);
 } /* IRC_STATS */
@@ -1077,6 +992,10 @@ IRC_STATS( CLIENT *Client, REQUEST *Req )
 GLOBAL bool
 IRC_SUMMON(CLIENT * Client, UNUSED REQUEST * Req)
 {
+	assert(Client != NULL);
+
+	IRC_SetPenalty(Client, 1);
+
 	return IRC_WriteStrClient(Client, ERR_SUMMONDISABLED_MSG,
 				  Client_ID(Client));
 } /* IRC_SUMMON */
@@ -1095,29 +1014,26 @@ IRC_TIME( CLIENT *Client, REQUEST *Req )
 	char t_str[64];
 	time_t t;
 
-	assert( Client != NULL );
-	assert( Req != NULL );
+	assert(Client != NULL);
+	assert(Req != NULL);
 
-	if( Req->argc > 1 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	IRC_SetPenalty(Client, 1);
 
-	if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_Search( Req->prefix );
-	else from = Client;
-	if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
+	_IRC_ARGC_LE_OR_RETURN_(Client, Req, 1)
+	_IRC_GET_SENDER_OR_RETURN_(from, Req, Client)
+	_IRC_GET_TARGET_SERVER_OR_RETURN_(target, Req, 0, from)
 
-	if( Req->argc == 1 )
-	{
-		target = Client_Search( Req->argv[0] );
-		if(( ! target ) || ( Client_Type( target ) != CLIENT_SERVER )) return IRC_WriteStrClient( Client, ERR_NOSUCHSERVER_MSG, Client_ID( Client ), Req->argv[0] );
-
-		if( target != Client_ThisServer( ))
-		{
-			return IRC_WriteStrClientPrefix( target, from, "TIME %s", Req->argv[0] );
-		}
+	/* Forward? */
+	if (target != Client_ThisServer()) {
+		IRC_WriteStrClientPrefix(target, from, "TIME %s",
+					 Client_ID(target));
+		return CONNECTED;
 	}
 
 	t = time( NULL );
-	(void)strftime( t_str, 60, "%A %B %d %Y -- %H:%M %Z", localtime( &t ));
-	return IRC_WriteStrClient( from, RPL_TIME_MSG, Client_ID( from ), Client_ID( Client_ThisServer( )), t_str );
+	(void)strftime(t_str, 60, "%A %B %d %Y -- %H:%M %Z", localtime(&t));
+	return IRC_WriteStrClient(from, RPL_TIME_MSG, Client_ID(from),
+				  Client_ID(Client_ThisServer()), t_str);
 } /* IRC_TIME */
 
 /**
@@ -1137,9 +1053,9 @@ IRC_USERHOST(CLIENT *Client, REQUEST *Req)
 	assert(Client != NULL);
 	assert(Req != NULL);
 
-	if ((Req->argc < 1))
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
-					  Client_ID(Client), Req->command);
+	IRC_SetPenalty(Client, 1);
+
+	_IRC_ARGC_GE_OR_RETURN_(Client, Req, 1)
 
 	if (Req->argc > 5)
 		max = 5;
@@ -1180,6 +1096,10 @@ IRC_USERHOST(CLIENT *Client, REQUEST *Req)
 GLOBAL bool
 IRC_USERS(CLIENT * Client, UNUSED REQUEST * Req)
 {
+	assert(Client != NULL);
+
+	IRC_SetPenalty(Client, 1);
+
 	return IRC_WriteStrClient(Client, ERR_USERSDISABLED_MSG,
 				  Client_ID(Client));
 } /* IRC_USERS */
@@ -1199,29 +1119,20 @@ IRC_VERSION( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	if(( Req->argc > 1 )) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	IRC_SetPenalty(Client, 1);
 
-	/* Ziel suchen */
-	if( Req->argc == 1 ) target = Client_Search( Req->argv[0] );
-	else target = Client_ThisServer( );
+	_IRC_ARGC_LE_OR_RETURN_(Client, Req, 1)
+	_IRC_GET_SENDER_OR_RETURN_(prefix, Req, Client)
+	_IRC_GET_TARGET_SERVER_OR_RETURN_(target, Req, 0, prefix)
 
-	/* Prefix ermitteln */
-	if( Client_Type( Client ) == CLIENT_SERVER ) prefix = Client_Search( Req->prefix );
-	else prefix = Client;
-	if( ! prefix ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
-
-	/* An anderen Server weiterleiten? */
-	if( target != Client_ThisServer( ))
-	{
-		if(( ! target ) || ( Client_Type( target ) != CLIENT_SERVER )) return IRC_WriteStrClient( prefix, ERR_NOSUCHSERVER_MSG, Client_ID( prefix ), Req->argv[0] );
-
-		/* forwarden */
-		IRC_WriteStrClientPrefix( target, prefix, "VERSION %s", Req->argv[0] );
+	/* Forward? */
+	if (target != Client_ThisServer()) {
+		IRC_WriteStrClientPrefix(target, prefix, "VERSION %s",
+					 Client_ID(target));
 		return CONNECTED;
 	}
 
 	/* send version information */
-	IRC_SetPenalty(Client, 1);
 	return IRC_WriteStrClient(Client, RPL_VERSION_MSG, Client_ID(prefix),
 				  PACKAGE_NAME, PACKAGE_VERSION,
 				  NGIRCd_DebugLevel, Conf_ServerName,
@@ -1244,12 +1155,11 @@ IRC_WHO(CLIENT *Client, REQUEST *Req)
 	assert (Client != NULL);
 	assert (Req != NULL);
 
-	if (Req->argc > 2)
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
-					  Client_ID(Client), Req->command);
+	IRC_SetPenalty(Client, 1);
+
+	_IRC_ARGC_LE_OR_RETURN_(Client, Req, 2)
 
 	only_ops = false;
-
 	if (Req->argc == 2) {
 		if (strcmp(Req->argv[1], "o") == 0)
 			only_ops = true;
@@ -1262,7 +1172,6 @@ IRC_WHO(CLIENT *Client, REQUEST *Req)
 #endif
 	}
 
-	IRC_SetPenalty(Client, 1);
 	if (Req->argc >= 1) {
 		/* Channel or mask given */
 		chan = Channel_Search(Req->argv[0]);
@@ -1301,40 +1210,29 @@ IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
+	IRC_SetPenalty(Client, 1);
+
 	/* Bad number of parameters? */
 	if (Req->argc < 1 || Req->argc > 2)
 		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 					  Client_ID(Client), Req->command);
 
-	/* Search sender of the WHOIS */
-	if (Client_Type(Client) == CLIENT_SERVER) {
-		from = Client_Search(Req->prefix);
-	} else {
-		IRC_SetPenalty(Client, 1);
-		from = Client;
-	}
-	if (!from)
-		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
-					  Client_ID(Client), Req->prefix);
+	_IRC_GET_SENDER_OR_RETURN_(from, Req, Client)
 
 	/* Get target server for this command */
 	if (Req->argc > 1) {
-		/* Search the target server, which can be specified as a
-		 * nickname on that server as well: */
-		target = Client_Search(Req->argv[0]);
-		if (!target)
-			return IRC_WriteStrClient(from, ERR_NOSUCHSERVER_MSG,
-						Client_ID(from), Req->argv[0]);
+		_IRC_GET_TARGET_SERVER_OR_RETURN_(target, Req, 0, Client)
 	} else
 		target = Client_ThisServer();
+
 	assert(target != NULL);
 
-	/* Forward to other server? */
-	if (Client_NextHop(target) != Client_ThisServer() &&
-	    Client_Type(Client_NextHop(target)) == CLIENT_SERVER)
-		return IRC_WriteStrClientPrefix(target, from,
-						"WHOIS %s :%s",
-						Req->argv[0], Req->argv[1]);
+	/* Forward? */
+	if (target != Client_ThisServer()) {
+		IRC_WriteStrClientPrefix(target, from, "WHOIS %s :%s",
+					 Req->argv[0], Req->argv[1]);
+		return CONNECTED;
+	}
 
 	is_remote = Client_Conn(from) < 0;
 	strlcpy(mask, Req->argv[Req->argc - 1], sizeof(mask));
@@ -1423,38 +1321,19 @@ IRC_WHOWAS( CLIENT *Client, REQUEST *Req )
 		return CONNECTED;
 
 	/* Wrong number of parameters? */
-	if (Req->argc > 3)
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
-					Client_ID(Client), Req->command);
 	if (Req->argc < 1)
-		return IRC_WriteStrClient(Client, ERR_NONICKNAMEGIVEN_MSG, Client_ID(Client));
+		return IRC_WriteStrClient(Client, ERR_NONICKNAMEGIVEN_MSG,
+					  Client_ID(Client));
 
-	/* Search target */
-	if (Req->argc == 3)
-		target = Client_Search(Req->argv[2]);
-	else
-		target = Client_ThisServer();
+	_IRC_ARGC_LE_OR_RETURN_(Client, Req, 3)
+	_IRC_GET_SENDER_OR_RETURN_(prefix, Req, Client)
+	_IRC_GET_TARGET_SERVER_OR_RETURN_(target, Req, 2, prefix)
 
-	/* Get prefix */
-	if (Client_Type(Client) == CLIENT_SERVER)
-		prefix = Client_Search(Req->prefix);
-	else
-		prefix = Client;
-
-	if (!prefix)
-		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
-						Client_ID(Client), Req->prefix);
-
-	/* Forward to other server? */
+	/* Forward? */
 	if (target != Client_ThisServer()) {
-		if (!target || (Client_Type(target) != CLIENT_SERVER))
-			return IRC_WriteStrClient(prefix, ERR_NOSUCHSERVER_MSG,
-					Client_ID(prefix), Req->argv[2]);
-
-		/* Forward */
-		IRC_WriteStrClientPrefix( target, prefix, "WHOWAS %s %s %s",
-					  Req->argv[0], Req->argv[1],
-					  Req->argv[2] );
+		IRC_WriteStrClientPrefix(target, prefix, "WHOWAS %s %s %s",
+					 Req->argv[0], Req->argv[1],
+					 Client_ID(target));
 		return CONNECTED;
 	}
 
@@ -1502,7 +1381,8 @@ IRC_WHOWAS( CLIENT *Client, REQUEST *Req )
 						Client_ID(prefix), nick))
 			return DISCONNECTED;
 	}
-	return IRC_WriteStrClient(prefix, RPL_ENDOFWHOWAS_MSG, Client_ID(prefix), Req->argv[0]);
+	return IRC_WriteStrClient(prefix, RPL_ENDOFWHOWAS_MSG,
+				  Client_ID(prefix), Req->argv[0]);
 } /* IRC_WHOWAS */
 
 /**

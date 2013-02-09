@@ -324,9 +324,16 @@ Status and Informational Commands
 	 - RFC 2812, 3.4.4 "Stats message"
 
 - TIME
-	TIME [<server>]
+	TIME [<target>]
 	.
-	Show the local time of the current server, or of a specified <server>.
+	Show the local time of an IRC server in the network.
+	.
+	<target> can be a server name, the nickname of a client connected to
+	a specific server, or a mask matching a server name in the network.
+	The server of the current connecion is used when <target> is omitted.
+
+	References
+	 - RFC 2812, 3.4.6 "Time message"
 
 - TRACE
 	TRACE [<server>]

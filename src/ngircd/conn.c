@@ -588,7 +588,8 @@ Conn_InitListeners( void )
 				continue;
 			}
 			Log(LOG_INFO,
-			    "Initialized socket %d from systemd.", fd);
+			    "Initialized socket %d from systemd(8): %s:%d.", fd,
+			    ng_ipaddr_tostr(&addr), ng_ipaddr_getport(&addr));
 			created++;
 		}
 		return created;

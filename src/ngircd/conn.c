@@ -532,8 +532,9 @@ Conn_InitListeners( void )
 {
 	/* Initialize ports on which the server should accept connections */
 	unsigned int created = 0;
-	char *copy, *listen_addr;
-	int count, fd, i;
+	char *af_str, *copy, *listen_addr;
+	int count, fd, i, addr_len;
+	ng_ipaddr_t addr;
 
 	assert(Conf_ListenAddress);
 
@@ -549,6 +550,36 @@ Conn_InitListeners( void )
 		LogDebug("Initializing %d systemd sockets ...", count);
 		for (i = 0; i < count; i++) {
 			fd = SD_LISTEN_FDS_START + i;
+			addr_len = (int)sizeof(addr);
+			getsockname(fd, (struct sockaddr *)&addr, (socklen_t*)&addr_len);
+#ifdef WANT_IPV6
+			if (addr.sin4.sin_family != AF_INET && addr.sin4.sin_family != AF_INET6)
+#else
+			if (addr.sin4.sin_family != AF_INET)
+#endif
+			{
+				/* Socket is of unsupported type! For example, systemd passed in
+				 * an IPv6 socket but ngIRCd isn't compiled with IPv6 support. */
+				switch (addr.sin4.sin_family)
+				{
+					case AF_UNSPEC: af_str = "AF_UNSPEC"; break;
+					case AF_UNIX: af_str = "AF_UNIX"; break;
+					case AF_INET: af_str = "AF_INET"; break;
+#ifdef AF_INET6
+					case AF_INET6: af_str = "AF_INET6"; break;
+#endif
+#ifdef AF_NETLINK
+					case AF_NETLINK: af_str = "AF_NETLINK"; break;
+#endif
+					default: af_str = "unknown"; break;
+				}
+				Log(LOG_CRIT,
+				    "Socket %d is of unsupported type \"%s\" (%d), have to ignore it!",
+				    fd, af_str, addr.sin4.sin_family);
+				close(fd);
+				continue;
+			}
+
 			Init_Socket(fd);
 			if (!io_event_create(fd, IO_WANTREAD, cb_listen)) {
 				Log(LOG_ERR,

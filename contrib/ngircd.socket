@@ -2,8 +2,9 @@
 Description=Next Generation IRC Daemon (Socket)
 
 [Socket]
-ListenStream=6667
-#ListenStream=6668
+BindIPv6Only=ipv6-only
+ListenStream=0.0.0.0:6667
+#ListenStream=[::]:6667
 IPTOS=low-delay
 
 [Install]

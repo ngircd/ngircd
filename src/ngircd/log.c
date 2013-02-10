@@ -109,7 +109,7 @@ Log_ReInit(void)
 GLOBAL void
 Log_Exit( void )
 {
-	Log(LOG_NOTICE, "%s done%s, served %lu connection%s.", PACKAGE_NAME,
+	Log(LOG_INFO, "%s done%s, served %lu connection%s.", PACKAGE_NAME,
 	    NGIRCd_SignalRestart ? " (restarting)" : "", Conn_CountAccepted(),
 	    Conn_CountAccepted() == 1 ? "" : "s");
 #ifdef SYSLOG

@@ -832,8 +832,8 @@ Read_TextFile(const char *Filename, const char *Name, array *Destination)
 
 	fp = fopen(Filename, "r");
 	if (!fp) {
-		Config_Error(LOG_WARNING, "Can't read %s file \"%s\": %s",
-					Name, Filename, strerror(errno));
+		Config_Error(LOG_ERR, "Can't read %s file \"%s\": %s",
+			     Name, Filename, strerror(errno));
 		return false;
 	}
 
@@ -843,7 +843,7 @@ Read_TextFile(const char *Filename, const char *Name, array *Destination)
 
 		/* add text including \0 */
 		if (!array_catb(Destination, line, strlen(line) + 1)) {
-			Log(LOG_WARNING, "Cannot read/add \"%s\", line %d: %s",
+			Log(LOG_ERR, "Cannot read/add \"%s\", line %d: %s",
 			    Filename, line_no, strerror(errno));
 			break;
 		}

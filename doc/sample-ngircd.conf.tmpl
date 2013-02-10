@@ -88,6 +88,13 @@
 	# to not yet (or no longer) connected servers.
 	;ConnectRetry = 60
 
+	# Number of seconds after which the whole daemon should shutdown when
+	# no connections are left active after handling at least one client
+	# (0: never, which is the default).
+	# This can be useful for testing or when ngIRCd is started using
+	# "socket activation" with systemd(8), for example.
+	;IdleTimeout = 0
+
 	# Maximum number of simultaneous in- and outbound connections the
 	# server is allowed to accept (0: unlimited):
 	;MaxConnections = 0

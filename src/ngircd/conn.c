@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2012 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2013 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -82,6 +82,8 @@
 #define MAX_COMMANDS_SERVER_MIN 10
 #define MAX_COMMANDS_SERVICE 10
 
+#define SD_LISTEN_FDS_START 3
+
 
 static bool Handle_Write PARAMS(( CONN_ID Idx ));
 static bool Conn_Write PARAMS(( CONN_ID Idx, char *Data, size_t Len ));
@@ -118,6 +120,42 @@ static void cb_clientserver_ssl PARAMS((int sock, short what));
 static void cb_Read_Resolver_Result PARAMS((int sock, UNUSED short what));
 static void cb_Connect_to_Server PARAMS((int sock, UNUSED short what));
 static void cb_clientserver PARAMS((int sock, short what));
+
+time_t idle_t = 0;
+
+
+/**
+ * Get number of sockets available from systemd(8).
+ *
+ * ngIRCd needs to implement its own sd_listen_fds(3) function and can't
+ * use the one provided by systemd itself, becaus the sockets will be
+ * used in a forked child process with a new PID, and this would trigger
+ * an error in the standard implementation.
+ *
+ * @return Number of sockets available, -1 if sockets have already been
+ *         initialized, or 0 when no sockets have been passed.
+ */
+static int
+my_sd_listen_fds(void)
+{
+	const char *e;
+	long count;
+
+	/* Check if LISTEN_PID exists; but we ignore the result, because
+	 * normally ngircd forks a child before checking this, and therefore
+	 * the PID set in the environment is always wrong ... */
+	e = getenv("LISTEN_PID");
+	if (!e || !*e)
+		return 0;
+
+	e = getenv("LISTEN_FDS");
+	if (!e || !*e)
+		return -1;
+	count = atol(e);
+	unsetenv("LISTEN_FDS");
+
+	return count;
+}
 
 
 /**
@@ -494,9 +532,70 @@ Conn_InitListeners( void )
 {
 	/* Initialize ports on which the server should accept connections */
 	unsigned int created = 0;
-	char *copy, *listen_addr;
+	char *af_str, *copy, *listen_addr;
+	int count, fd, i, addr_len;
+	ng_ipaddr_t addr;
 
 	assert(Conf_ListenAddress);
+
+	count = my_sd_listen_fds();
+	if (count < 0) {
+		Log(LOG_INFO,
+		    "Not re-initializing listening sockets of systemd(8) ...");
+		return 0;
+	}
+	if (count > 0) {
+		/* systemd(8) passed sockets to us, so don't try to initialize
+		 * listening sockets on our own but use the passed ones */
+		LogDebug("Initializing %d systemd sockets ...", count);
+		for (i = 0; i < count; i++) {
+			fd = SD_LISTEN_FDS_START + i;
+			addr_len = (int)sizeof(addr);
+			getsockname(fd, (struct sockaddr *)&addr, (socklen_t*)&addr_len);
+#ifdef WANT_IPV6
+			if (addr.sin4.sin_family != AF_INET && addr.sin4.sin_family != AF_INET6)
+#else
+			if (addr.sin4.sin_family != AF_INET)
+#endif
+			{
+				/* Socket is of unsupported type! For example, systemd passed in
+				 * an IPv6 socket but ngIRCd isn't compiled with IPv6 support. */
+				switch (addr.sin4.sin_family)
+				{
+					case AF_UNSPEC: af_str = "AF_UNSPEC"; break;
+					case AF_UNIX: af_str = "AF_UNIX"; break;
+					case AF_INET: af_str = "AF_INET"; break;
+#ifdef AF_INET6
+					case AF_INET6: af_str = "AF_INET6"; break;
+#endif
+#ifdef AF_NETLINK
+					case AF_NETLINK: af_str = "AF_NETLINK"; break;
+#endif
+					default: af_str = "unknown"; break;
+				}
+				Log(LOG_CRIT,
+				    "Socket %d is of unsupported type \"%s\" (%d), have to ignore it!",
+				    fd, af_str, addr.sin4.sin_family);
+				close(fd);
+				continue;
+			}
+
+			Init_Socket(fd);
+			if (!io_event_create(fd, IO_WANTREAD, cb_listen)) {
+				Log(LOG_ERR,
+				    "io_event_create(): Can't add fd %d: %s!",
+				    fd, strerror(errno));
+				continue;
+			}
+			Log(LOG_INFO,
+			    "Initialized socket %d from systemd(8): %s:%d.", fd,
+			    ng_ipaddr_tostr(&addr), ng_ipaddr_getport(&addr));
+			created++;
+		}
+		return created;
+	}
+
+	/* not using systemd socket activation, initialize listening sockets: */
 
 	/* can't use Conf_ListenAddress directly, see below */
 	copy = strdup(Conf_ListenAddress);
@@ -541,7 +640,12 @@ Conn_ExitListeners( void )
 	int *fd;
 	size_t arraylen;
 
+	/* Get number of listening sockets to shut down. There can be none
+	 * if ngIRCd has been "socket activated" by systemd. */
 	arraylen = array_length(&My_Listeners, sizeof (int));
+	if (arraylen < 1)
+		return;
+
 	Log(LOG_INFO,
 	    "Shutting down all listening sockets (%d total) ...", arraylen);
 	fd = array_start(&My_Listeners);
@@ -835,6 +939,15 @@ Conn_Handler(void)
 			Log(LOG_ALERT, "%s exiting due to fatal errors!",
 			    PACKAGE_NAME);
 			exit(1);
+		}
+
+		/* Should ngIRCd timeout when idle? */
+		if (Conf_IdleTimeout > 0 && NumConnectionsAccepted > 0
+		    && idle_t > 0 && time(NULL) - idle_t >= Conf_IdleTimeout) {
+			LogDebug("Server idle timeout reached: %d second%s. Initiating shutdown ...",
+				 Conf_IdleTimeout,
+				 Conf_IdleTimeout == 1 ? "" : "s");
+			NGIRCd_SignalQuit = true;
 		}
 	}
 
@@ -1197,6 +1310,8 @@ Conn_Close( CONN_ID Idx, const char *LogMsg, const char *FwdMsg, bool InformClie
 		NumConnections--;
 	LogDebug("Shutdown of connection %d completed, %ld connection%s left.",
 		 Idx, NumConnections, NumConnections != 1 ? "s" : "");
+
+	idle_t = NumConnections > 0 ? 0 : time(NULL);
 } /* Conn_Close */
 
 
@@ -1568,6 +1683,7 @@ static void
 Account_Connection(void)
 {
 	NumConnections++;
+	idle_t = 0;
 	if (NumConnections > NumConnectionsMax)
 		NumConnectionsMax = NumConnections;
 	LogDebug("Total number of connections now %lu (max %lu).",

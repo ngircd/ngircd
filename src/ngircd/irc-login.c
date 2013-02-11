@@ -444,7 +444,7 @@ IRC_USER(CLIENT * Client, REQUEST * Req)
 		ptr = Req->argv[0];
 		while (*ptr) {
 			if (!isalnum((int)*ptr) &&
-			    *ptr != '+' && *ptr != '-' &&
+			    *ptr != '+' && *ptr != '-' && *ptr != '@' &&
 			    *ptr != '.' && *ptr != '_') {
 				Conn_Close(Client_Conn(Client), NULL,
 					   "Invalid user name", true);
@@ -453,6 +453,13 @@ IRC_USER(CLIENT * Client, REQUEST * Req)
 			ptr++;
 		}
 
+		/* Save the received username for authentication, and use
+		 * it up to the first '@' as default user name (like ircd2.11,
+		 * bahamut, ircd-seven, ...), prefixed with '~', if needed: */
+		Client_SetOrigUser(Client, Req->argv[0]);
+		ptr = strchr(Req->argv[0], '@');
+		if (ptr)
+			*ptr = '\0';
 #ifdef IDENTAUTH
 		ptr = Client_User(Client);
 		if (!ptr || !*ptr || *ptr == '~')
@@ -460,7 +467,6 @@ IRC_USER(CLIENT * Client, REQUEST * Req)
 #else
 		Client_SetUser(Client, Req->argv[0], false);
 #endif
-		Client_SetOrigUser(Client, Req->argv[0]);
 
 		/* "Real name" or user info text: Don't set it to the empty
 		 * string, the original ircd can't deal with such "real names"

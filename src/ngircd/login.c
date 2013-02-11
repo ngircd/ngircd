@@ -202,6 +202,7 @@ Login_User_PostAuth(CLIENT *Client)
 static void
 cb_Read_Auth_Result(int r_fd, UNUSED short events)
 {
+	char user[CLIENT_USER_LEN], *ptr;
 	CONN_ID conn;
 	CLIENT *client;
 	int result;
@@ -233,7 +234,14 @@ cb_Read_Auth_Result(int r_fd, UNUSED short events)
 	}
 
 	if (result == true) {
-		Client_SetUser(client, Client_OrigUser(client), true);
+		/* Authentication succeeded, now set the correct user name
+		 * supplied by the client (without prepended '~' for exmaple),
+		 * but cut it at the first '@' character: */
+		strlcpy(user, Client_OrigUser(client), sizeof(user));
+		ptr = strchr(user, '@');
+		if (ptr)
+			*ptr = '\0';
+		Client_SetUser(client, user, true);
 		(void)Login_User_PostAuth(client);
 	} else
 		Client_Reject(client, "Bad password", false);

@@ -139,7 +139,7 @@ static int
 my_sd_listen_fds(void)
 {
 	const char *e;
-	long count;
+	int count;
 
 	/* Check if LISTEN_PID exists; but we ignore the result, because
 	 * normally ngircd forks a child before checking this, and therefore
@@ -151,7 +151,7 @@ my_sd_listen_fds(void)
 	e = getenv("LISTEN_FDS");
 	if (!e || !*e)
 		return -1;
-	count = atol(e);
+	count = atoi(e);
 	unsetenv("LISTEN_FDS");
 
 	return count;

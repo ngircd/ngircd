@@ -1,5 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
+ * Copyright (c)2001-2013 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,7 +41,6 @@ static const int signals_catch[] = {
        SIGINT, SIGQUIT, SIGTERM, SIGHUP, SIGCHLD, SIGUSR1, SIGUSR2
 };
 
-
 #ifdef DEBUG
 
 static void
@@ -57,7 +57,6 @@ Dump_State(void)
 
 #endif
 
-
 static void
 Signal_Block(int sig)
 {
@@ -72,7 +71,6 @@ Signal_Block(int sig)
 	sigblock(sig);
 #endif
 }
-
 
 static void
 Signal_Unblock(int sig)
@@ -89,7 +87,6 @@ Signal_Unblock(int sig)
 	sigsetmask(old);
 #endif
 }
-
 
 /**
  * Reload the server configuration file.
@@ -117,18 +114,21 @@ Rehash(void)
 	 * be changed during run-time */
 	if (strcmp(old_name, Conf_ServerName) != 0 ) {
 		strlcpy(Conf_ServerName, old_name, sizeof Conf_ServerName);
-		Log(LOG_ERR, "Can't change \"ServerName\" on runtime! Ignored new name.");
+		Log(LOG_ERR,
+		    "Can't change \"ServerName\" on runtime! Ignored new name.");
 	}
 	if (old_nicklen != Conf_MaxNickLength) {
 		Conf_MaxNickLength = old_nicklen;
-		Log(LOG_ERR, "Can't change \"MaxNickLength\" on runtime! Ignored new value.");
+		Log(LOG_ERR,
+		    "Can't change \"MaxNickLength\" on runtime! Ignored new value.");
 	}
 
 	/* Create new pre-defined channels */
 	Channel_InitPredefined( );
 
 	if (!ConnSSL_InitLibrary())
-		Log(LOG_WARNING, "Re-Initializing SSL failed, using old keys");
+		Log(LOG_WARNING,
+		    "Re-Initializing of SSL failed, using old keys!");
 
 	/* Start listening on sockets */
 	Conn_InitListeners( );
@@ -138,7 +138,6 @@ Rehash(void)
 
 	Log( LOG_NOTICE|LOG_snotice, "Re-reading of configuration done." );
 } /* Rehash */
-
 
 /**
  * Signal handler of ngIRCd.
@@ -198,7 +197,6 @@ Signal_Handler(int Signal)
 		Signal_Block(Signal);
 } /* Signal_Handler */
 
-
 /**
  * Signal processing handler of ngIRCd.
  * This function is called from the main conn event loop in (io_dispatch)
@@ -231,7 +229,6 @@ Signal_Handler_BH(int Signal)
 	Signal_Unblock(Signal);
 }
 
-
 static void
 Signal_Callback(int fd, short UNUSED what)
 {
@@ -248,14 +245,14 @@ Signal_Callback(int fd, short UNUSED what)
 		if (errno == EAGAIN || errno == EINTR)
 			return;
 
-		Log(LOG_EMERG, "read from signal pipe: %s", strerror(errno));
+		Log(LOG_EMERG, "Read from signal pipe: %s - Exiting!",
+		    strerror(errno));
 		exit(1);
 	}
 
-	Log(LOG_EMERG, "EOF on signal pipe");
+	Log(LOG_EMERG, "EOF on signal pipe!? - Exiting!");
 	exit(1);
 }
-
 
 /**
  * Initialize the signal handlers, catch
@@ -305,7 +302,6 @@ Signals_Init(void)
 #endif
 	return io_event_create(signalpipe[0], IO_WANTREAD, Signal_Callback);
 } /* Signals_Init */
-
 
 /**
  * Restores signals to their default behaviour.

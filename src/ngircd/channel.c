@@ -326,6 +326,13 @@ Channel_Kick(CLIENT *Peer, CLIENT *Target, CLIENT *Origin, const char *Name,
 		}
 	}
 
+	/* Check that the client to be kicked is on the specified channel */
+	if (!Channel_IsMemberOf(chan, Target)) {
+		IRC_WriteStrClient(Origin, ERR_USERNOTINCHANNEL_MSG,
+				   Client_ID(Origin), Client_ID(Target), Name );
+		return;
+	}
+
 	if(Client_Type(Peer) == CLIENT_USER) {
 		/* Channel mode 'Q' and user mode 'q' on target: nobody but
 		 * IRC Operators and servers can kick the target user */
@@ -380,13 +387,6 @@ Channel_Kick(CLIENT *Peer, CLIENT *Target, CLIENT *Origin, const char *Name,
 				Client_ID(Origin), Name);
 			return;
 		}
-	}
-
-	/* Check that the client to be kicked is on the specified channel */
-	if (!Channel_IsMemberOf(chan, Target)) {
-		IRC_WriteStrClient(Origin, ERR_USERNOTINCHANNEL_MSG,
-				   Client_ID(Origin), Client_ID(Target), Name );
-		return;
 	}
 
 	/* Kick Client from channel */

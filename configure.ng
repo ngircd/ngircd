@@ -519,7 +519,7 @@ if test "$x_ircplus_on" = "yes"; then
 	x_iconv_on=no
 	AC_ARG_WITH(iconv,
 		AS_HELP_STRING([--with-iconv],
-			       [enable character conversation using libiconv]),
+			       [enable character conversion using libiconv]),
 		[ if test "$withval" != "no"; then
 			if test "$withval" != "yes"; then
 				CFLAGS="-I$withval/include $CFLAGS"

@@ -41,6 +41,7 @@
 #include "hash.h"
 #include "irc-write.h"
 #include "log.h"
+#include "match.h"
 #include "messages.h"
 
 #include <exp.h>
@@ -556,13 +557,14 @@ Client_ModeDel( CLIENT *Client, char Mode )
 } /* Client_ModeDel */
 
 
+/**
+ * Search CLIENT structure of a given nick name.
+ *
+ * @return Pointer to CLIENT structure or NULL if not found.
+ */
 GLOBAL CLIENT *
 Client_Search( const char *Nick )
 {
-	/* return Client-Structure that has the corresponding Nick.
-	 * If none is found, return NULL.
-	 */
-
 	char search_id[CLIENT_ID_LEN], *ptr;
 	CLIENT *c = NULL;
 	UINT32 search_hash;
@@ -583,7 +585,39 @@ Client_Search( const char *Nick )
 		c = (CLIENT *)c->next;
 	}
 	return NULL;
-} /* Client_Search */
+}
+
+
+/**
+ * Serach first CLIENT structure matching a given mask of a server.
+ *
+ * The order of servers is arbitrary, but this function makes sure that the
+ * local server is always returned if the mask matches it.
+ *
+ * @return Pointer to CLIENT structure or NULL if no server could be found.
+ */
+GLOBAL CLIENT *
+Client_SearchServer(const char *Mask)
+{
+	CLIENT *c;
+
+	assert(Mask != NULL);
+
+	/* First check if mask matches the local server */
+	if (MatchCaseInsensitive(Mask, Client_ID(Client_ThisServer())))
+		return Client_ThisServer();
+
+	c = My_Clients;
+	while (c) {
+		if (Client_Type(c) == CLIENT_SERVER) {
+			/* This is a server: check if Mask matches */
+			if (MatchCaseInsensitive(Mask, c->id))
+				return c;
+		}
+		c = (CLIENT *)c->next;
+	}
+	return NULL;
+}
 
 
 /**

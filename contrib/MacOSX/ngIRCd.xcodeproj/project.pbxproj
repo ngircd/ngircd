@@ -66,10 +66,11 @@
 /* Begin PBXFileReference section */
 		FA1A6BBC0D6857BB00AA8F71 /* misc-test.e */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = "misc-test.e"; sourceTree = "<group>"; };
 		FA1A6BBD0D6857D900AA8F71 /* who-test.e */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = "who-test.e"; sourceTree = "<group>"; };
+		FA1DBB6716C707D200D4F838 /* irc-macros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "irc-macros.h"; sourceTree = "<group>"; };
 		FA2D564811EA158B00D37A35 /* pam.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pam.h; sourceTree = "<group>"; };
 		FA2D564911EA158B00D37A35 /* pam.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pam.c; sourceTree = "<group>"; };
 		FA2D567A11EA1AB300D37A35 /* libpam.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libpam.dylib; path = usr/lib/libpam.dylib; sourceTree = SDKROOT; };
-		FA322BBA0CEF72E4001761B3 /* ngIRCd */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ngIRCd; sourceTree = BUILT_PRODUCTS_DIR; };
+		FA322BBA0CEF72E4001761B3 /* ngIRCd */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; name = ngIRCd; path = ngircd; sourceTree = BUILT_PRODUCTS_DIR; };
 		FA322CD60CEF74B1001761B3 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
 		FA322CD90CEF74B1001761B3 /* array.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = array.c; sourceTree = "<group>"; };
 		FA322CDA0CEF74B1001761B3 /* array.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = array.h; sourceTree = "<group>"; };
@@ -368,6 +369,7 @@
 				FA322CEF0CEF74B1001761B3 /* irc-info.h */,
 				FA322CF00CEF74B1001761B3 /* irc-login.c */,
 				FA322CF10CEF74B1001761B3 /* irc-login.h */,
+				FA1DBB6716C707D200D4F838 /* irc-macros.h */,
 				FA4F1659164836B100DBD011 /* irc-metadata.c */,
 				FA4F165C164836BF00DBD011 /* irc-metadata.h */,
 				FA322CF20CEF74B1001761B3 /* irc-mode.c */,

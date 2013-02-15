@@ -86,6 +86,7 @@ noinst_HEADERS = \
 	irc-encoding.h \
 	irc-info.h \
 	irc-login.h \
+	irc-macros.h \
 	irc-metadata.h \
 	irc-mode.h \
 	irc-op.h \

@@ -528,7 +528,10 @@ if test "$x_ircplus_on" = "yes"; then
 			fi
 			AC_CHECK_LIB(iconv, iconv_open)
 			AC_CHECK_FUNCS(iconv_open, x_iconv_on=yes,
-				AC_MSG_ERROR([Can't enable libiconv support!])
+				AC_CHECK_LIB(iconv, libiconv_open)
+				AC_CHECK_FUNCS(libiconv_open, x_iconv_on=yes,
+					AC_MSG_ERROR([Can't enable libiconv support!])
+				)
 			)
 		  fi
 		]

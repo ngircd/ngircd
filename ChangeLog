@@ -9,6 +9,35 @@
                                -- ChangeLog --
 
 
+ngIRCd 20.2 (2013-02-15)
+
+  - Security: Fix a denial of service bug in the function handling KICK
+    commands that could be used by arbitrary users to to crash the daemon.
+  - WHO command: Use the currently "displayed hostname" (which can be cloaked!)
+    for hostname matching, not the real one. In other words: don't display all
+    the cloaked users on a specific real hostname!
+  - configure: The header file "netinet/in_systm.h" already is optional in
+    ngIRCd, so don't require it in the configure script. Now ngIRCd can be
+    built on Minix 3 again :-)
+  - Return better "Connection not registered as server link" errors: Now ngIRCd
+    returns a more specific error message for numeric ERR_NOTREGISTERED(451)
+    when a regular user tries to use a command that isn't allowed for users but
+    for servers.
+  - Don't report ERR_NEEDMOREPARAMS(461) when a MDOE command with more modes
+    than nicknames is handled, as well as for channel limit and key changes
+    without specifying the limit or key parameters.
+    This is how a lot (all?) other IRC servers behave, including ircd2.11,
+    InspIRCd, and ircd-seven. And because of clients (tested with Textual and
+    mIRC) sending bogus MODE commands like "MODE -ooo nick", end-users got the
+    expected result as well as correct but misleading error messages ...
+  - Correctly detect when SSL subsystem must be initialized and take
+    outgoing connections (server links!) into account, too.
+  - autogen.sh: Enforce serial test harness on GNU automake >=1.13. The
+    new parallel test harness which is enabled by default starting with
+    automake 1.13 isn't compatible with our test suite.
+    And don't use "egrep -o", insetead use "sed", because it isn't portable
+    and not available on OpenBSD, for example.
+
 ngIRCd 20.1 (2013-01-02)
 
   - Allow ERROR command on server and service links only, ignore them and

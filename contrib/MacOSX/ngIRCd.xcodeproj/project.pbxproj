@@ -64,7 +64,21 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		FA1A6BBC0D6857BB00AA8F71 /* misc-test.e */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = "misc-test.e"; sourceTree = "<group>"; };
+		FA18A63E16CEDDCE00132F66 /* configure.ng */ = {isa = PBXFileReference; lastKnownFileType = text; name = configure.ng; path = ../../configure.ng; sourceTree = "<group>"; };
+		FA18A63F16CEDE2300132F66 /* ngircd.service */ = {isa = PBXFileReference; lastKnownFileType = text; path = ngircd.service; sourceTree = "<group>"; };
+		FA18A64016CEDE2300132F66 /* ngircd.socket */ = {isa = PBXFileReference; lastKnownFileType = text; path = ngircd.socket; sourceTree = "<group>"; };
+		FA18A64116CEDE3500132F66 /* ngircd.pam */ = {isa = PBXFileReference; lastKnownFileType = text; path = ngircd.pam; sourceTree = "<group>"; };
+		FA18A64216CEDE5700132F66 /* de.barton.ngircd.plist.tmpl */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = de.barton.ngircd.plist.tmpl; sourceTree = "<group>"; };
+		FA18A64316CEDE8100132F66 /* Makefile.am */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
+		FA18A64416CEDFCE00132F66 /* Commands.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = Commands.txt; sourceTree = "<group>"; };
+		FA18A64516CEE0C700132F66 /* Makefile.ng */ = {isa = PBXFileReference; lastKnownFileType = text; name = Makefile.ng; path = ipaddr/Makefile.ng; sourceTree = "<group>"; };
+		FA18A64616CEE0DD00132F66 /* Makefile.ng */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.ng; sourceTree = "<group>"; };
+		FA18A64716CEE14900132F66 /* Makefile.ng */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.ng; sourceTree = "<group>"; };
+		FA18A64A16CEE18100132F66 /* Makefile.ng */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.ng; sourceTree = "<group>"; };
+		FA18A64C16CEE1AC00132F66 /* mode-test.e */ = {isa = PBXFileReference; lastKnownFileType = text; path = "mode-test.e"; sourceTree = "<group>"; };
+		FA18A64D16CEE1D900132F66 /* whois-test.e */ = {isa = PBXFileReference; lastKnownFileType = text; path = "whois-test.e"; sourceTree = "<group>"; };
+		FA18A64E16CEE24B00132F66 /* misc-test.e */ = {isa = PBXFileReference; lastKnownFileType = text; path = "misc-test.e"; sourceTree = "<group>"; };
+		FA18A64F16CEE27700132F66 /* Makefile.ng */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.ng; sourceTree = "<group>"; };
 		FA1A6BBD0D6857D900AA8F71 /* who-test.e */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = "who-test.e"; sourceTree = "<group>"; };
 		FA1DBB6716C707D200D4F838 /* irc-macros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "irc-macros.h"; sourceTree = "<group>"; };
 		FA2D564811EA158B00D37A35 /* pam.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pam.h; sourceTree = "<group>"; };
@@ -113,7 +127,6 @@
 		FA322CFF0CEF74B1001761B3 /* lists.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = lists.h; sourceTree = "<group>"; };
 		FA322D000CEF74B1001761B3 /* log.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = log.c; sourceTree = "<group>"; };
 		FA322D010CEF74B1001761B3 /* log.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = log.h; sourceTree = "<group>"; };
-		FA322D020CEF74B1001761B3 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
 		FA322D030CEF74B1001761B3 /* match.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = match.c; sourceTree = "<group>"; };
 		FA322D040CEF74B1001761B3 /* match.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = match.h; sourceTree = "<group>"; };
 		FA322D050CEF74B1001761B3 /* messages.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = messages.h; sourceTree = "<group>"; };
@@ -127,7 +140,6 @@
 		FA322D110CEF74B1001761B3 /* ansi2knr.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = ansi2knr.c; sourceTree = "<group>"; };
 		FA322D120CEF74B1001761B3 /* exp.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = exp.h; sourceTree = "<group>"; };
 		FA322D130CEF74B1001761B3 /* imp.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = imp.h; sourceTree = "<group>"; };
-		FA322D140CEF74B1001761B3 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
 		FA322D150CEF74B1001761B3 /* portab.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = portab.h; sourceTree = "<group>"; };
 		FA322D160CEF74B1001761B3 /* portabtest.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = portabtest.c; sourceTree = "<group>"; };
 		FA322D170CEF74B1001761B3 /* splint.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = splint.h; sourceTree = "<group>"; };
@@ -139,8 +151,6 @@
 		FA322D1F0CEF74B1001761B3 /* connect-test.e */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = "connect-test.e"; sourceTree = "<group>"; };
 		FA322D200CEF74B1001761B3 /* functions.inc */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.pascal; path = functions.inc; sourceTree = "<group>"; };
 		FA322D210CEF74B1001761B3 /* getpid.sh */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; path = getpid.sh; sourceTree = "<group>"; };
-		FA322D220CEF74B1001761B3 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
-		FA322D230CEF74B1001761B3 /* mode-test.e */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = "mode-test.e"; sourceTree = "<group>"; };
 		FA322D250CEF74B1001761B3 /* README */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
 		FA322D260CEF74B1001761B3 /* start-server.sh */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; path = "start-server.sh"; sourceTree = "<group>"; };
 		FA322D270CEF74B1001761B3 /* stop-server.sh */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; path = "stop-server.sh"; sourceTree = "<group>"; };
@@ -150,9 +160,6 @@
 		FA322D2B0CEF74B1001761B3 /* test-loop.sh */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; path = "test-loop.sh"; sourceTree = "<group>"; };
 		FA322D2C0CEF74B1001761B3 /* tests.sh */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; path = tests.sh; sourceTree = "<group>"; };
 		FA322D2D0CEF74B1001761B3 /* wait-tests.sh */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; path = "wait-tests.sh"; sourceTree = "<group>"; };
-		FA322D300CEF74B1001761B3 /* ansi2knr.1 */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.man; path = ansi2knr.1; sourceTree = "<group>"; };
-		FA322D310CEF74B1001761B3 /* ansi2knr.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = ansi2knr.c; sourceTree = "<group>"; };
-		FA322D320CEF74B1001761B3 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
 		FA322D330CEF74B1001761B3 /* tool.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = tool.c; sourceTree = "<group>"; };
 		FA322D340CEF74B1001761B3 /* tool.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = tool.h; sourceTree = "<group>"; };
 		FA322D5A0CEF750F001761B3 /* AUTHORS */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = AUTHORS; path = ../../AUTHORS; sourceTree = SOURCE_ROOT; };
@@ -160,7 +167,6 @@
 		FA322D5C0CEF750F001761B3 /* ChangeLog */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = ChangeLog; path = ../../ChangeLog; sourceTree = SOURCE_ROOT; };
 		FA322D5E0CEF750F001761B3 /* config.guess */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; name = config.guess; path = ../../config.guess; sourceTree = SOURCE_ROOT; };
 		FA322D5F0CEF750F001761B3 /* config.sub */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; name = config.sub; path = ../../config.sub; sourceTree = SOURCE_ROOT; };
-		FA322D600CEF750F001761B3 /* configure.in */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = configure.in; path = ../../configure.in; sourceTree = SOURCE_ROOT; };
 		FA322D610CEF750F001761B3 /* COPYING */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = COPYING; path = ../../COPYING; sourceTree = SOURCE_ROOT; };
 		FA322D620CEF750F001761B3 /* INSTALL */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = INSTALL; path = ../../INSTALL; sourceTree = SOURCE_ROOT; };
 		FA322D630CEF750F001761B3 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = Makefile.am; path = ../../Makefile.am; sourceTree = SOURCE_ROOT; };
@@ -175,9 +181,8 @@
 		FA322D700CEF7523001761B3 /* ngircd.init */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; path = ngircd.init; sourceTree = "<group>"; };
 		FA322D710CEF7523001761B3 /* ngircd.postinst */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; path = ngircd.postinst; sourceTree = "<group>"; };
 		FA322D720CEF7523001761B3 /* rules */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = rules; sourceTree = "<group>"; };
-		FA322D8D0CEF7523001761B3 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
+		FA322D8D0CEF7523001761B3 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = Makefile.am; path = MacOSX/Makefile.am; sourceTree = "<group>"; };
 		FA322D8E0CEF7523001761B3 /* ngIRCd.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = ngIRCd.xcodeproj; sourceTree = "<group>"; };
-		FA322D910CEF7523001761B3 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
 		FA322D920CEF7523001761B3 /* ngindent */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = ngindent; sourceTree = "<group>"; };
 		FA322D940CEF7523001761B3 /* ngircd.spec */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = ngircd.spec; sourceTree = "<group>"; };
 		FA322D950CEF7523001761B3 /* README */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
@@ -191,16 +196,13 @@
 		FA322DA00CEF752C001761B3 /* RFC.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = RFC.txt; sourceTree = "<group>"; };
 		FA322DA40CEF752C001761B3 /* Doxyfile */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Doxyfile; sourceTree = "<group>"; };
 		FA322DA50CEF752C001761B3 /* footer.inc.html */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.html; path = footer.inc.html; sourceTree = "<group>"; };
-		FA322DA60CEF752C001761B3 /* header.inc.html */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.html; path = header.inc.html; sourceTree = "<group>"; };
 		FA322DA70CEF752C001761B3 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
-		FA322DA80CEF752C001761B3 /* ngircd-doc.css */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.css; path = "ngircd-doc.css"; sourceTree = "<group>"; };
 		FA322DA90CEF752C001761B3 /* SSL.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = SSL.txt; sourceTree = "<group>"; };
 		FA322DAD0CEF7538001761B3 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
 		FA322DAE0CEF7538001761B3 /* ngircd.8.tmpl */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = ngircd.8.tmpl; sourceTree = "<group>"; };
 		FA322DAF0CEF7538001761B3 /* ngircd.conf.5.tmpl */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = ngircd.conf.5.tmpl; sourceTree = "<group>"; };
 		FA322DB10CEF7565001761B3 /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
 		FA322DC00CEF77CB001761B3 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = /usr/lib/libz.dylib; sourceTree = "<absolute>"; };
-		FA407F2B0DB159F400271AF1 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = Makefile.am; path = ipaddr/Makefile.am; sourceTree = "<group>"; };
 		FA407F2C0DB159F400271AF1 /* ng_ipaddr.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; name = ng_ipaddr.c; path = ipaddr/ng_ipaddr.c; sourceTree = "<group>"; };
 		FA407F2D0DB159F400271AF1 /* ng_ipaddr.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; name = ng_ipaddr.h; path = ipaddr/ng_ipaddr.h; sourceTree = "<group>"; };
 		FA407F380DB15AC700271AF1 /* GIT.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = GIT.txt; sourceTree = "<group>"; };
@@ -280,21 +282,21 @@
 		08FB7794FE84155DC02AAC07 /* ngIRCd */ = {
 			isa = PBXGroup;
 			children = (
-				FA322D970CEF752C001761B3 /* doc */,
+				FA322D630CEF750F001761B3 /* Makefile.am */,
 				FA322D660CEF7523001761B3 /* contrib */,
+				FA322D970CEF752C001761B3 /* doc */,
 				FA322DAB0CEF7538001761B3 /* man */,
 				FA322CD40CEF74B0001761B3 /* src */,
 				FA322D5A0CEF750F001761B3 /* AUTHORS */,
+				FA322D5C0CEF750F001761B3 /* ChangeLog */,
 				FA322D610CEF750F001761B3 /* COPYING */,
 				FA322D620CEF750F001761B3 /* INSTALL */,
 				FA322D640CEF750F001761B3 /* NEWS */,
 				FA322D650CEF750F001761B3 /* README */,
 				FA322D5B0CEF750F001761B3 /* autogen.sh */,
-				FA322D5C0CEF750F001761B3 /* ChangeLog */,
 				FA322D5E0CEF750F001761B3 /* config.guess */,
 				FA322D5F0CEF750F001761B3 /* config.sub */,
-				FA322D600CEF750F001761B3 /* configure.in */,
-				FA322D630CEF750F001761B3 /* Makefile.am */,
+				FA18A63E16CEDDCE00132F66 /* configure.ng */,
 				1AB674ADFE9D54B511CA2CBB /* Products */,
 				FA6BBC651605F6D60004247A /* libiconv.dylib */,
 				FA2D567A11EA1AB300D37A35 /* libpam.dylib */,
@@ -314,12 +316,12 @@
 		FA322CD40CEF74B0001761B3 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				FA322CD70CEF74B1001761B3 /* ngircd */,
+				FA322CD60CEF74B1001761B3 /* Makefile.am */,
 				FA407F270DB1598D00271AF1 /* ipaddr */,
+				FA322CD70CEF74B1001761B3 /* ngircd */,
 				FA322D0E0CEF74B1001761B3 /* portab */,
 				FA322D1B0CEF74B1001761B3 /* testsuite */,
 				FA322D2E0CEF74B1001761B3 /* tool */,
-				FA322CD60CEF74B1001761B3 /* Makefile.am */,
 			);
 			name = src;
 			path = ../../src;
@@ -328,7 +330,7 @@
 		FA322CD70CEF74B1001761B3 /* ngircd */ = {
 			isa = PBXGroup;
 			children = (
-				FA322D020CEF74B1001761B3 /* Makefile.am */,
+				FA18A64616CEE0DD00132F66 /* Makefile.ng */,
 				FA322CD90CEF74B1001761B3 /* array.c */,
 				FA322CDA0CEF74B1001761B3 /* array.h */,
 				FA322CDB0CEF74B1001761B3 /* channel.c */,
@@ -348,10 +350,10 @@
 				FA6BBC601605F0AC0004247A /* conn-encoding.h */,
 				FA322CE10CEF74B1001761B3 /* conn-func.c */,
 				FA322CE20CEF74B1001761B3 /* conn-func.h */,
-				FA322CE30CEF74B1001761B3 /* conn-zip.c */,
-				FA322CE40CEF74B1001761B3 /* conn-zip.h */,
 				FAA3D2790F139CDC00B2447E /* conn-ssl.c */,
 				FAA3D27A0F139CDC00B2447E /* conn-ssl.h */,
+				FA322CE30CEF74B1001761B3 /* conn-zip.c */,
+				FA322CE40CEF74B1001761B3 /* conn-zip.h */,
 				FA322CE70CEF74B1001761B3 /* defines.h */,
 				FA322CE80CEF74B1001761B3 /* hash.c */,
 				FA322CE90CEF74B1001761B3 /* hash.h */,
@@ -414,19 +416,19 @@
 		FA322D0E0CEF74B1001761B3 /* portab */ = {
 			isa = PBXGroup;
 			children = (
-				FAA3D27C0F139CF800B2447E /* strtok_r.c */,
-				FAA3D27D0F139CF800B2447E /* waitpid.c */,
+				FA18A64716CEE14900132F66 /* Makefile.ng */,
 				FA322D100CEF74B1001761B3 /* ansi2knr.1 */,
 				FA322D110CEF74B1001761B3 /* ansi2knr.c */,
 				FA322D120CEF74B1001761B3 /* exp.h */,
 				FA322D130CEF74B1001761B3 /* imp.h */,
-				FA322D140CEF74B1001761B3 /* Makefile.am */,
 				FA322D150CEF74B1001761B3 /* portab.h */,
 				FA322D160CEF74B1001761B3 /* portabtest.c */,
 				FA322D170CEF74B1001761B3 /* splint.h */,
 				FA322D180CEF74B1001761B3 /* strdup.c */,
 				FA322D190CEF74B1001761B3 /* strlcpy.c */,
+				FAA3D27C0F139CF800B2447E /* strtok_r.c */,
 				FA322D1A0CEF74B1001761B3 /* vsnprintf.c */,
+				FAA3D27D0F139CF800B2447E /* waitpid.c */,
 			);
 			path = portab;
 			sourceTree = "<group>";
@@ -434,32 +436,33 @@
 		FA322D1B0CEF74B1001761B3 /* testsuite */ = {
 			isa = PBXGroup;
 			children = (
+				FA18A64A16CEE18100132F66 /* Makefile.ng */,
+				FA322D250CEF74B1001761B3 /* README */,
+				FA322D1D0CEF74B1001761B3 /* channel-test.e */,
+				FA322D1E0CEF74B1001761B3 /* check-idle.e */,
+				FA322D1F0CEF74B1001761B3 /* connect-test.e */,
 				FAA3D2700F139CB300B2447E /* invite-test.e */,
 				FAA3D2710F139CB300B2447E /* join-test.e */,
 				FAA3D2720F139CB300B2447E /* kick-test.e */,
 				FAA3D2730F139CB300B2447E /* message-test.e */,
-				FAA3D2740F139CB300B2447E /* ngircd-test1.conf */,
-				FAA3D2750F139CB300B2447E /* ngircd-test2.conf */,
+				FA18A64E16CEE24B00132F66 /* misc-test.e */,
+				FA18A64C16CEE1AC00132F66 /* mode-test.e */,
 				FAA3D2760F139CB300B2447E /* opless-channel-test.e */,
 				FAA3D2770F139CB300B2447E /* server-link-test.e */,
-				FA322D1D0CEF74B1001761B3 /* channel-test.e */,
-				FA322D1E0CEF74B1001761B3 /* check-idle.e */,
-				FA322D1F0CEF74B1001761B3 /* connect-test.e */,
-				FA322D200CEF74B1001761B3 /* functions.inc */,
-				FA322D210CEF74B1001761B3 /* getpid.sh */,
-				FA322D220CEF74B1001761B3 /* Makefile.am */,
-				FA1A6BBC0D6857BB00AA8F71 /* misc-test.e */,
-				FA322D230CEF74B1001761B3 /* mode-test.e */,
-				FA322D250CEF74B1001761B3 /* README */,
-				FA322D260CEF74B1001761B3 /* start-server.sh */,
-				FA322D270CEF74B1001761B3 /* stop-server.sh */,
 				FA322D280CEF74B1001761B3 /* stress-A.e */,
 				FA322D290CEF74B1001761B3 /* stress-B.e */,
+				FA1A6BBD0D6857D900AA8F71 /* who-test.e */,
+				FA18A64D16CEE1D900132F66 /* whois-test.e */,
+				FA322D200CEF74B1001761B3 /* functions.inc */,
+				FAA3D2740F139CB300B2447E /* ngircd-test1.conf */,
+				FAA3D2750F139CB300B2447E /* ngircd-test2.conf */,
+				FA322D210CEF74B1001761B3 /* getpid.sh */,
+				FA322D260CEF74B1001761B3 /* start-server.sh */,
+				FA322D270CEF74B1001761B3 /* stop-server.sh */,
 				FA322D2A0CEF74B1001761B3 /* stress-server.sh */,
 				FA322D2B0CEF74B1001761B3 /* test-loop.sh */,
 				FA322D2C0CEF74B1001761B3 /* tests.sh */,
 				FA322D2D0CEF74B1001761B3 /* wait-tests.sh */,
-				FA1A6BBD0D6857D900AA8F71 /* who-test.e */,
 			);
 			path = testsuite;
 			sourceTree = "<group>";
@@ -467,9 +470,7 @@
 		FA322D2E0CEF74B1001761B3 /* tool */ = {
 			isa = PBXGroup;
 			children = (
-				FA322D300CEF74B1001761B3 /* ansi2knr.1 */,
-				FA322D310CEF74B1001761B3 /* ansi2knr.c */,
-				FA322D320CEF74B1001761B3 /* Makefile.am */,
+				FA18A64F16CEE27700132F66 /* Makefile.ng */,
 				FA322D330CEF74B1001761B3 /* tool.c */,
 				FA322D340CEF74B1001761B3 /* tool.h */,
 			);
@@ -479,16 +480,18 @@
 		FA322D660CEF7523001761B3 /* contrib */ = {
 			isa = PBXGroup;
 			children = (
+				FA322D8D0CEF7523001761B3 /* Makefile.am */,
 				FA322D680CEF7523001761B3 /* Debian */,
 				FA322D730CEF7523001761B3 /* MacOSX */,
-				FA322D910CEF7523001761B3 /* Makefile.am */,
+				FA322D950CEF7523001761B3 /* README */,
 				FA322D920CEF7523001761B3 /* ngindent */,
 				FA4B08E513E7F8FB00765BA3 /* ngircd-bsd.sh */,
 				FA4B08E613E7F91700765BA3 /* ngIRCd-Logo.gif */,
 				FA4B08E713E7F91700765BA3 /* ngircd-redhat.init */,
+				FA18A63F16CEDE2300132F66 /* ngircd.service */,
+				FA18A64016CEDE2300132F66 /* ngircd.socket */,
 				FA322D940CEF7523001761B3 /* ngircd.spec */,
 				FA4B08E813E7F91C00765BA3 /* platformtest.sh */,
-				FA322D950CEF7523001761B3 /* README */,
 				FA322D960CEF7523001761B3 /* systrace.policy */,
 			);
 			name = contrib;
@@ -498,13 +501,14 @@
 		FA322D680CEF7523001761B3 /* Debian */ = {
 			isa = PBXGroup;
 			children = (
+				FA322D6E0CEF7523001761B3 /* Makefile.am */,
 				FA322D6A0CEF7523001761B3 /* changelog */,
 				FA322D6B0CEF7523001761B3 /* compat */,
 				FA322D6C0CEF7523001761B3 /* control */,
 				FA322D6D0CEF7523001761B3 /* copyright */,
-				FA322D6E0CEF7523001761B3 /* Makefile.am */,
 				FA322D6F0CEF7523001761B3 /* ngircd.default */,
 				FA322D700CEF7523001761B3 /* ngircd.init */,
+				FA18A64116CEDE3500132F66 /* ngircd.pam */,
 				FA322D710CEF7523001761B3 /* ngircd.postinst */,
 				FA322D720CEF7523001761B3 /* rules */,
 			);
@@ -514,86 +518,15 @@
 		FA322D730CEF7523001761B3 /* MacOSX */ = {
 			isa = PBXGroup;
 			children = (
+				FA18A64316CEDE8100132F66 /* Makefile.am */,
 				FAA3D2810F139D2E00B2447E /* ngIRCd.pmdoc */,
+				FA322DB10CEF7565001761B3 /* config.h */,
+				FA18A64216CEDE5700132F66 /* de.barton.ngircd.plist.tmpl */,
+				FA322D8E0CEF7523001761B3 /* ngIRCd.xcodeproj */,
 				FAA3D28A0F139D2E00B2447E /* postinstall.sh */,
 				FAA3D28B0F139D2E00B2447E /* preinstall.sh */,
-				FA322D750CEF7523001761B3 /* build */,
-				FA322D8D0CEF7523001761B3 /* Makefile.am */,
-				FA322D8E0CEF7523001761B3 /* ngIRCd.xcodeproj */,
-				FA322DB10CEF7565001761B3 /* config.h */,
 			);
 			path = MacOSX;
-			sourceTree = "<group>";
-		};
-		FA322D750CEF7523001761B3 /* build */ = {
-			isa = PBXGroup;
-			children = (
-				FA322D760CEF7523001761B3 /* ngIRCd.build */,
-			);
-			path = build;
-			sourceTree = "<group>";
-		};
-		FA322D760CEF7523001761B3 /* ngIRCd.build */ = {
-			isa = PBXGroup;
-			children = (
-				FA322D770CEF7523001761B3 /* Default */,
-				FA322D7F0CEF7523001761B3 /* ngIRCd.pbxindex */,
-			);
-			path = ngIRCd.build;
-			sourceTree = "<group>";
-		};
-		FA322D770CEF7523001761B3 /* Default */ = {
-			isa = PBXGroup;
-			children = (
-				FA322D780CEF7523001761B3 /* ngIRCd.build */,
-			);
-			path = Default;
-			sourceTree = "<group>";
-		};
-		FA322D780CEF7523001761B3 /* ngIRCd.build */ = {
-			isa = PBXGroup;
-			children = (
-				FA322D7A0CEF7523001761B3 /* Objects-normal */,
-			);
-			path = ngIRCd.build;
-			sourceTree = "<group>";
-		};
-		FA322D7A0CEF7523001761B3 /* Objects-normal */ = {
-			isa = PBXGroup;
-			children = (
-				FA322D7B0CEF7523001761B3 /* i386 */,
-				FA322D7D0CEF7523001761B3 /* ppc */,
-			);
-			path = "Objects-normal";
-			sourceTree = "<group>";
-		};
-		FA322D7B0CEF7523001761B3 /* i386 */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = i386;
-			sourceTree = "<group>";
-		};
-		FA322D7D0CEF7523001761B3 /* ppc */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = ppc;
-			sourceTree = "<group>";
-		};
-		FA322D7F0CEF7523001761B3 /* ngIRCd.pbxindex */ = {
-			isa = PBXGroup;
-			children = (
-				FA322D880CEF7523001761B3 /* strings.pbxstrings */,
-			);
-			path = ngIRCd.pbxindex;
-			sourceTree = "<group>";
-		};
-		FA322D880CEF7523001761B3 /* strings.pbxstrings */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = strings.pbxstrings;
 			sourceTree = "<group>";
 		};
 		FA322D8F0CEF7523001761B3 /* Products */ = {
@@ -607,8 +540,10 @@
 			isa = PBXGroup;
 			children = (
 				FA322D9B0CEF752C001761B3 /* Makefile.am */,
+				FA322DA20CEF752C001761B3 /* src */,
 				FAE22BD215270EA300F1A5AB /* Bopm.txt */,
 				FAD5852F15271A7800328741 /* Capabilities.txt */,
+				FA18A64416CEDFCE00132F66 /* Commands.txt */,
 				FAE22BD415270EA300F1A5AB /* Contributing.txt */,
 				FA322D9A0CEF752C001761B3 /* FAQ.txt */,
 				FA407F380DB15AC700271AF1 /* GIT.txt */,
@@ -624,7 +559,6 @@
 				FAA3D2800F139D1500B2447E /* Services.txt */,
 				FA322DA90CEF752C001761B3 /* SSL.txt */,
 				FA77849A133FB9FF00740057 /* sample-ngircd.conf.tmpl */,
-				FA322DA20CEF752C001761B3 /* src */,
 			);
 			name = doc;
 			path = ../../doc;
@@ -633,11 +567,9 @@
 		FA322DA20CEF752C001761B3 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				FA322DA70CEF752C001761B3 /* Makefile.am */,
 				FA322DA40CEF752C001761B3 /* Doxyfile */,
 				FA322DA50CEF752C001761B3 /* footer.inc.html */,
-				FA322DA60CEF752C001761B3 /* header.inc.html */,
-				FA322DA70CEF752C001761B3 /* Makefile.am */,
-				FA322DA80CEF752C001761B3 /* ngircd-doc.css */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -656,7 +588,7 @@
 		FA407F270DB1598D00271AF1 /* ipaddr */ = {
 			isa = PBXGroup;
 			children = (
-				FA407F2B0DB159F400271AF1 /* Makefile.am */,
+				FA18A64516CEE0C700132F66 /* Makefile.ng */,
 				FA407F2C0DB159F400271AF1 /* ng_ipaddr.c */,
 				FA407F2D0DB159F400271AF1 /* ng_ipaddr.h */,
 			);
@@ -666,12 +598,12 @@
 		FAA3D2810F139D2E00B2447E /* ngIRCd.pmdoc */ = {
 			isa = PBXGroup;
 			children = (
-				FAA3D2820F139D2E00B2447E /* 01ngircd-contents.xml */,
-				FAA3D2830F139D2E00B2447E /* 01ngircd.xml */,
-				FAA3D2840F139D2E00B2447E /* 02de-contents.xml */,
-				FAA3D2850F139D2E00B2447E /* 02de.xml */,
-				FAA3D2860F139D2E00B2447E /* index.xml */,
 				FAA3D2880F139D2E00B2447E /* Makefile.am */,
+				FAA3D2860F139D2E00B2447E /* index.xml */,
+				FAA3D2830F139D2E00B2447E /* 01ngircd.xml */,
+				FAA3D2820F139D2E00B2447E /* 01ngircd-contents.xml */,
+				FAA3D2850F139D2E00B2447E /* 02de.xml */,
+				FAA3D2840F139D2E00B2447E /* 02de-contents.xml */,
 			);
 			path = ngIRCd.pmdoc;
 			sourceTree = "<group>";

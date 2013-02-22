@@ -146,7 +146,7 @@ IRC_PASS( CLIENT *Client, REQUEST *Req )
 			} else
 				flags = "";
 			Log(LOG_INFO,
-			    "Peer on conenction %d announces itself as %s-%s using protocol %d.%d/IRC+ (flags: \"%s\").",
+			    "Peer on connection %d announces itself as %s-%s using protocol %d.%d/IRC+ (flags: \"%s\").",
 			    Client_Conn(Client), impl, serverver,
 			    protohigh, protolow, flags);
 		} else {

@@ -24,6 +24,7 @@
 #include "conn.h"
 #include "channel.h"
 #include "client-cap.h"
+#include "irc-macros.h"
 #include "irc-write.h"
 #include "log.h"
 #include "login.h"
@@ -249,10 +250,7 @@ IRC_CAP(CLIENT *Client, REQUEST *Req)
 	assert(Client != NULL);
 	assert(Req != NULL);
 
-	/* Bad number of prameters? */
-	if (Req->argc < 1 || Req->argc > 2)
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
-					  Client_ID(Client), Req->command);
+	_IRC_ARGC_BETWEEN_OR_RETURN_(Client, Req, 1, 2)
 
 	LogDebug("Got \"%s %s\" command from \"%s\" ...",
 		 Req->command, Req->argv[0], Client_ID(Client));

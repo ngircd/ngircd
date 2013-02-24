@@ -441,11 +441,18 @@ Channel Commands
 	If the channel(s) do not exist, then they will be created.
 
 - KICK
-	KICK <channel> <nick> [<kick-message>]
+	KICK <channel>[,<channel>[,...]] <nickname>[,<nickname>[,...]] [<reason>]
 	.
-	Remove <nick> from <channel>, optional with a <kick-message>.
+	Remove users(s) with <nickname>(s) from <channel>(s).
 	.
-	Only <channel> operators are able to KICK.
+	There must be either exactly one <channel> parameter and multiple
+	<nickname> parameters, or as many <channel> parameters as there are
+	<nickname> parameters. The <reason> is shown to the users being
+	kicked, and the nickname of the current user is used when <reason>
+	is omitted.
+
+	References:
+	 - RFC 2812, 3.2.8 "Kick command"
 
 - LIST
 	LIST [<channels> [<server>]]

@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2005 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2013 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@
 #include "exp.h"
 #include "irc-op.h"
 
+/* Local functions */
 
 static bool
 try_kick(CLIENT *peer, CLIENT* from, const char *nick, const char *channel,
@@ -47,7 +48,15 @@ try_kick(CLIENT *peer, CLIENT* from, const char *nick, const char *channel,
 	return true;
 }
 
+/* Global functions */
 
+/**
+ * Handler for the IRC command "KICK".
+ *
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
+ */
 GLOBAL bool
 IRC_KICK(CLIENT *Client, REQUEST *Req)
 {
@@ -128,7 +137,13 @@ IRC_KICK(CLIENT *Client, REQUEST *Req)
 	return true;
 } /* IRC_KICK */
 
-
+/**
+ * Handler for the IRC command "INVITE".
+ *
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
+ */
 GLOBAL bool
 IRC_INVITE(CLIENT *Client, REQUEST *Req)
 {
@@ -197,8 +212,8 @@ IRC_INVITE(CLIENT *Client, REQUEST *Req)
 		}
 	}
 
-	LogDebug("User \"%s\" invites \"%s\" to \"%s\" ...", Client_Mask(from), Req->argv[0], Req->argv[1]);
-
+	LogDebug("User \"%s\" invites \"%s\" to \"%s\" ...", Client_Mask(from),
+		 Req->argv[0], Req->argv[1]);
 
 	/*
 	 * RFC 2812 says:
@@ -225,6 +240,5 @@ IRC_INVITE(CLIENT *Client, REQUEST *Req)
 	}
 	return CONNECTED;
 } /* IRC_INVITE */
-
 
 /* -eof- */

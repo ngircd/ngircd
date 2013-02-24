@@ -111,11 +111,11 @@ Get_CAP_String(int Capabilities)
 }
 
 /**
- * Handler for the "CAP LS" command.
+ * Handler for the IRCv3 sub-command "CAP LS".
  *
  * @param Client The client from which this command has been received.
  * @param Arg Command argument or NULL.
- * @returns CONNECTED or DISCONNECTED.
+ * @return CONNECTED or DISCONNECTED.
  */
 static bool
 Handle_CAP_LS(CLIENT *Client, UNUSED char *Arg)
@@ -130,11 +130,11 @@ Handle_CAP_LS(CLIENT *Client, UNUSED char *Arg)
 }
 
 /**
- * Handler for the "CAP LIST" command.
+ * Handler for the IRCv3 sub-command "CAP LIST".
  *
  * @param Client The client from which this command has been received.
  * @param Arg Command argument or NULL.
- * @returns CONNECTED or DISCONNECTED.
+ * @return CONNECTED or DISCONNECTED.
  */
 static bool
 Handle_CAP_LIST(CLIENT *Client, UNUSED char *Arg)
@@ -146,11 +146,11 @@ Handle_CAP_LIST(CLIENT *Client, UNUSED char *Arg)
 }
 
 /**
- * Handler for the "CAP REQ" command.
+ * Handler for the IRCv3 sub-command "CAP REQ".
  *
  * @param Client The client from which this command has been received.
  * @param Arg Command argument.
- * @returns CONNECTED or DISCONNECTED.
+ * @return CONNECTED or DISCONNECTED.
  */
 static bool
 Handle_CAP_REQ(CLIENT *Client, char *Arg)
@@ -174,11 +174,11 @@ Handle_CAP_REQ(CLIENT *Client, char *Arg)
 }
 
 /**
- * Handler for the "CAP ACK" command.
+ * Handler for the IRCv3 sub-command "CAP ACK".
  *
  * @param Client The client from which this command has been received.
  * @param Arg Command argument.
- * @returns CONNECTED or DISCONNECTED.
+ * @return CONNECTED or DISCONNECTED.
  */
 static bool
 Handle_CAP_ACK(UNUSED CLIENT *Client, UNUSED char *Arg)
@@ -190,10 +190,10 @@ Handle_CAP_ACK(UNUSED CLIENT *Client, UNUSED char *Arg)
 }
 
 /**
- * Handler for the "CAP CLEAR" command.
+ * Handler for the IRCv3 sub-command "CAP CLEAR".
  *
  * @param Client The client from which this command has been received.
- * @returns CONNECTED or DISCONNECTED.
+ * @return CONNECTED or DISCONNECTED.
  */
 static bool
 Handle_CAP_CLEAR(CLIENT *Client)
@@ -211,10 +211,10 @@ Handle_CAP_CLEAR(CLIENT *Client)
 }
 
 /**
- * Handler for the "CAP END" command.
+ * Handler for the IRCv3 sub-command "CAP END".
  *
  * @param Client The client from which this command has been received.
- * @returns CONNECTED or DISCONNECTED.
+ * @return CONNECTED or DISCONNECTED.
  */
 static bool
 Handle_CAP_END(CLIENT *Client)

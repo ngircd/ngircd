@@ -419,14 +419,17 @@ Channel Commands
 ~~~~~~~~~~~~~~~~
 
 - INVITE
-	INVITE <nick> <channel>
+	INVITE <nickname> <channel>
 	.
-	Invites <nick> to <channel>.
+	Invite <nickname> to join channel <channel>.
+	.
 	<channel> does not have to exist, but if it does, only members of the
-	channel are allowed to invite other clients.
-	.
-	If the <channel> mode "+i" is set, only <channel> operators may invite
-	other clients.
+	channel are allowed to invite other users. If the channel mode "+i"
+	is set, only channel "half-ops" (and above) may invite other clients,
+	and if channel mode "+V" is set, nobody can invite other users.
+
+	References:
+	 - RFC 2812, 3.2.7 "Invite message"
 
 - JOIN
 	JOIN <channels> [<channel-keys>]

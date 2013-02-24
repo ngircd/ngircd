@@ -24,6 +24,7 @@
 #include "defines.h"
 #include "conn.h"
 #include "channel.h"
+#include "irc-macros.h"
 #include "irc-write.h"
 #include "lists.h"
 #include "log.h"
@@ -69,9 +70,8 @@ IRC_KICK(CLIENT *Client, REQUEST *Req)
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	if ((Req->argc < 2) || (Req->argc > 3))
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
-					Client_ID(Client), Req->command);
+	_IRC_ARGC_BETWEEN_OR_RETURN_(Client, Req, 2, 3)
+	_IRC_GET_SENDER_OR_RETURN_(from, Req, Client)
 
 	while (*itemList) {
 		if (*itemList == ',') {
@@ -89,15 +89,6 @@ IRC_KICK(CLIENT *Client, REQUEST *Req)
 		}
 		itemList++;
 	}
-
-	if (Client_Type(Client) == CLIENT_SERVER)
-		from = Client_Search(Req->prefix);
-	else
-		from = Client;
-
-	if (!from)
-		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
-					Client_ID(Client), Req->prefix);
 
 	reason = Req->argc == 3 ? Req->argv[2] : Client_ID(from);
 	currentNick = Req->argv[1];
@@ -155,17 +146,8 @@ IRC_INVITE(CLIENT *Client, REQUEST *Req)
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	if (Req->argc != 2)
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
-					Client_ID(Client), Req->command);
-
-	if (Client_Type(Client) == CLIENT_SERVER)
-		from = Client_Search(Req->prefix);
-	else
-		from = Client;
-	if (!from)
-		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
-					Client_ID(Client), Req->prefix);
+	_IRC_ARGC_EQ_OR_RETURN_(Client, Req, 2)
+	_IRC_GET_SENDER_OR_RETURN_(from, Req, Client)
 
 	/* Search user */
 	target = Client_Search(Req->argv[0]);

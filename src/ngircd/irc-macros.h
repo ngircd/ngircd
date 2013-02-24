@@ -40,6 +40,17 @@ if (Req->argc < Min) \
 				  Client_ID(Client), Req->command);
 
 /**
+ * Make sure that number of passed parameters is in between Min and Max.
+ *
+ * If there aren't at least Min parameters or if there are more than Max
+ * parameters, send an error to the client and return from the function.
+ */
+#define _IRC_ARGC_BETWEEN_OR_RETURN_(Client, Req, Min, Max) \
+if (Req->argc < Min || Req->argc > Max) \
+	return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG, \
+				  Client_ID(Client), Req->command);
+
+/**
  * Get sender of an IRC command.
  *
  * The sender is either stored in the prefix if the command has been

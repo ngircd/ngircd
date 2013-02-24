@@ -18,6 +18,17 @@
  */
 
 /**
+ * Make sure that number of passed parameters is equal to Count.
+ *
+ * If there are not exactly Count parameters, send an error to the client and
+ * return from the function.
+ */
+#define _IRC_ARGC_EQ_OR_RETURN_(Client, Req, Count) \
+if (Req->argc != Count) \
+	return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG, \
+				  Client_ID(Client), Req->command);
+
+/**
  * Make sure that number of passed parameters is less or equal than Max.
  *
  * If there are more than Max parameters, send an error to the client and

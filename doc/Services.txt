@@ -44,10 +44,10 @@ Example:
 Setting up Anope 1.9.x
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Anope 1.9.8 or later (<http://www.anope.org/>; unreleased as of 2012-11-10)
+Anope 1.9.8 or later (<http://www.anope.org/>; unreleased as of 2013-02-26)
 may be used with ngIRCd using the "ngircd" protocol module.
 Until Anope 1.9.8 is released, you have to use the sources from the Anope
-development GIT tree, see <http://sourceforge.net/projects/anope/develop/>!
+development GIT tree, see <http://github.com/anope/anope>!
 
 At least the following settings have to be tweaked, in addition to all the
 settings marked as required by Anope:

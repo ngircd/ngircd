@@ -99,7 +99,7 @@
 #define CLIENT_NICK_LEN 32
 
 /** Max. password length (including NULL). */
-#define CLIENT_PASS_LEN 21
+#define CLIENT_PASS_LEN 65
 
 /** Max. length of user name ("login"; incl. NULL), RFC 2812, section 1.2.1. */
 #ifndef STRICT_RFC

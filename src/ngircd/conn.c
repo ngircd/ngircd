@@ -367,13 +367,13 @@ cb_clientserver(int sock, short what)
 
 #ifdef SSL_SUPPORT
 /**
- * IO callback for established SSL-enabled client and server connections.
+ * IO callback for new SSL-enabled client and server connections.
  *
  * @param sock	Socket descriptor.
  * @param what	IO specification (IO_WANTREAD/IO_WANTWRITE/...).
  */
 static void
-cb_clientserver_ssl(int sock, short what)
+cb_clientserver_ssl(int sock, UNUSED short what)
 {
 	CONN_ID idx = Socket2Index(sock);
 
@@ -390,14 +390,11 @@ cb_clientserver_ssl(int sock, short what)
 	case 0:
 		return;	/* EAGAIN: callback will be invoked again by IO layer */
 	default:
-		Conn_Close(idx, "SSL accept error, closing socket", "SSL accept error", false);
+		Conn_Close(idx,
+			   "SSL accept error, closing socket", "SSL accept error",
+			   false);
 		return;
 	}
-	if (what & IO_WANTREAD)
-		Read_Request(idx);
-
-	if (what & IO_WANTWRITE)
-		Handle_Write(idx);
 
 	io_event_setcb(sock, cb_clientserver);	/* SSL handshake completed */
 }

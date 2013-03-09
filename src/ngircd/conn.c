@@ -853,8 +853,7 @@ Conn_Handler(void)
 		/* Look for non-empty read buffers ... */
 		for (i = 0; i < Pool_Size; i++) {
 			if ((My_Connections[i].sock > NONE)
-			    && (array_bytes(&My_Connections[i].rbuf) > 0)
-			    && (My_Connections[i].delaytime <= t)) {
+			    && (array_bytes(&My_Connections[i].rbuf) > 0)) {
 				/* ... and try to handle the received data */
 				bytes_processed = Handle_Buffer(i);
 				/* if we processed data, and there might be

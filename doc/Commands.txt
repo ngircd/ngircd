@@ -513,9 +513,16 @@ Administrative Commands
 	To list the G-Lines, type "STATS g".
 
 - KILL
-	KILL <nick> <reason>
+	KILL <nickname> <reason>
 	.
-	Forcibly removes <nick> from the IRC network with a <reason>.
+	Forcibly remove all users with a given <nickname> from the IRC
+	network and display the given <reason> to them.
+	.
+	This command is used internally between servers, too, for example
+	to disconnect duplicate <nickname>'s after a "net split".
+
+	References:
+	 - RFC 2812, 3.7.1 "Kill message"
 
 - KLINE
 	KLINE <nick!user@hostmask> <seconds> :<reason>

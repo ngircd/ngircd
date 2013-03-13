@@ -14,7 +14,7 @@ acting as a "regular servers" ("pseudo servers") are supported, either
 using the IRC protocol as defined in RFC 1459 or RFC 2812.
 
 Support for Services has been tested using
- - Anope 1.9.8 or later (<http://www.anope.org/>; unreleased!)
+ - Anope 1.9.8 or later (<http://www.anope.org/>)
  - Atheme 7.0.2 or later (<http://www.atheme.net>)
  - "IRC Services" 5.1.x by Andrew Church (<http://achurch.org/services/>)
 
@@ -44,10 +44,8 @@ Example:
 Setting up Anope 1.9.x
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Anope 1.9.8 or later (<http://www.anope.org/>; unreleased as of 2013-02-26)
-may be used with ngIRCd using the "ngircd" protocol module.
-Until Anope 1.9.8 is released, you have to use the sources from the Anope
-development GIT tree, see <http://github.com/anope/anope>!
+Anope 1.9.8 or later (<http://www.anope.org/>) can be used with ngIRCd using
+the "ngircd" protocol module.
 
 At least the following settings have to be tweaked, in addition to all the
 settings marked as required by Anope:

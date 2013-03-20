@@ -342,7 +342,7 @@ Lists_CheckReason(struct list_head *h, CLIENT *Client)
 
 	while (e) {
 		next = e->next;
-		if (Match(e->mask, Client_Mask(Client))) {
+		if (Match(e->mask, Client_MaskCloaked(Client))) {
 			if (e->valid_until == 1) {
 				/* Entry is valid only once, delete it */
 				LogDebug("Deleted \"%s\" from list (used).",

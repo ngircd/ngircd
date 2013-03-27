@@ -12,17 +12,21 @@
  */
 
 #define PACKAGE_NAME "ngIRCd"
-#define PACKAGE "ngircd"
+# define PACKAGE "ngircd"
 #ifndef VERSION
-#define VERSION "??("__DATE__")"
+# define VERSION "??("__DATE__")"
 #endif
+
+#ifndef HOST_VENDOR
+# define HOST_VENDOR "apple"
+# define HOST_OS "darwin"
+# ifdef __x86_64
+#  define HOST_CPU "x86_64"
+# endif
+#endif
+
 #define SYSCONFDIR "/etc/ngircd"
 #define DOCDIR "/usr/share/doc/ngircd"
-
-#ifndef TARGET_VENDOR
-#define TARGET_VENDOR "apple"
-#define TARGET_OS "darwin"
-#endif
 
 /* -- Build options -- */
 

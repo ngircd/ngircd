@@ -1,6 +1,6 @@
 #
 # ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001-2012 Alexander Barton (alex@barton.de) and Contributors
+# Copyright (c)2001-2013 Alexander Barton (alex@barton.de) and Contributors
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,9 +15,8 @@ SUBDIRS = doc src man contrib
 
 EXTRA_DIST = autogen.sh configure.ng .mailmap
 
-clean-local:
+clean-local: osxpkg-clean
 	rm -f build-stamp*
-	rm -rf ngircd.dest
 
 maintainer-clean-local:
 	rm -rf autom4te.cache
@@ -62,14 +61,18 @@ deb:
 	dpkg-buildpackage -rfakeroot -i
 
 osxpkg: have-packagemaker osxpkg-dest
-	cd contrib/MacOSX && packagemaker \
+	cd contrib/MacOSX && packagemaker --no-recommend \
 	 --doc ngIRCd.pmdoc \
 	 --out ../../$(distdir).mpkg
 	rm -f $(distdir).mpkg.zip
 	zip -ro9 $(distdir).mpkg.zip $(distdir).mpkg
+	make osxpkg-clean
+
+osxpkg-clean:
+	[ ! -e ngircd.dest ] || sudo -n rm -rf ngircd.dest
 	rm -rf ngircd.dest $(distdir).mpkg
 
-osxpkg-dest: have-xcodebuild clean
+osxpkg-dest: have-xcodebuild osxpkg-clean clean
 	./configure --prefix=/opt/ngircd
 	make xcode
 	make -C contrib/MacOSX de.barton.ngircd.plist
@@ -82,8 +85,9 @@ osxpkg-dest: have-xcodebuild clean
 	rm ngircd.dest/opt/ngircd/etc/ngircd.conf
 	echo "Have a nice day IRCing!" >ngircd.dest/opt/ngircd/etc/ngircd.motd
 	chmod -R a-s,og-w,a+rX ngircd.dest
+	sudo chown -R root:wheel ngircd.dest
 
-.PHONY: deb have-packagemaker have-xcodebuild lint osxpkg osxpkg-dest rpm \
-	srcdoc testsuite xcode xcode-clean
+.PHONY: deb have-packagemaker have-xcodebuild lint osxpkg osxpkg-clean \
+	osxpkg-dest rpm srcdoc testsuite xcode xcode-clean
 
 # -eof-

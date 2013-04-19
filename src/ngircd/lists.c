@@ -311,13 +311,12 @@ Lists_Check(struct list_head *h, CLIENT *Client)
 }
 
 /**
- * Check if a client is listed in a list and store the reason if a buffer
- * is provided.
+ * Check if a client is listed in a list and store the reason.
  *
  * @param h      List head.
  * @param Client Client to check.
- * @param reason Result buffer to store the reason.
- * @param len    Size of the buffer.
+ * @param reason Buffer to store the reason.
+ * @param len    Size of the buffer if reason should be saved.
  * @return true if client is listed, false if not.
  */
 bool

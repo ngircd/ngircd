@@ -42,7 +42,7 @@ GLOBAL unsigned long Lists_Count PARAMS((struct list_head *h));
 
 GLOBAL void Lists_Free PARAMS((struct list_head *head));
 
-GLOBAL const char *Lists_MakeMask PARAMS((const char *Pattern));
+GLOBAL void Lists_MakeMask PARAMS((const char *Pattern, char *mask, size_t len));
 GLOBAL const char *Lists_GetMask PARAMS((const struct list_elem *e));
 GLOBAL const char *Lists_GetReason PARAMS((const struct list_elem *e));
 GLOBAL time_t Lists_GetValidity PARAMS((const struct list_elem *e));

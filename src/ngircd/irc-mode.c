@@ -980,7 +980,7 @@ static bool
 Add_To_List(char what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel,
 	    const char *Pattern)
 {
-	const char *mask;
+	char mask[MASK_LEN];
 	struct list_head *list = NULL;
 	long int current_count;
 
@@ -989,7 +989,7 @@ Add_To_List(char what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel,
 	assert(Pattern != NULL);
 	assert(what == 'I' || what == 'b' || what == 'e');
 
-	mask = Lists_MakeMask(Pattern);
+	Lists_MakeMask(Pattern, mask, sizeof(mask));
 	current_count = Lists_Count(Channel_GetListInvites(Channel))
 			+ Lists_Count(Channel_GetListExcepts(Channel))
 			+ Lists_Count(Channel_GetListBans(Channel));
@@ -1047,7 +1047,7 @@ static bool
 Del_From_List(char what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel,
 	      const char *Pattern)
 {
-	const char *mask;
+	char mask[MASK_LEN];
 	struct list_head *list = NULL;
 
 	assert(Client != NULL);
@@ -1055,7 +1055,7 @@ Del_From_List(char what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel,
 	assert(Pattern != NULL);
 	assert(what == 'I' || what == 'b' || what == 'e');
 
-	mask = Lists_MakeMask(Pattern);
+	Lists_MakeMask(Pattern, mask, sizeof(mask));
 
 	switch (what) {
 		case 'I':

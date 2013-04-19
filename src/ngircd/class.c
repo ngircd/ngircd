@@ -98,24 +98,30 @@ Class_HandleServerBans(CLIENT *Client)
 
 
 GLOBAL bool
-Class_AddMask(const int Class, const char *Mask, time_t ValidUntil,
+Class_AddMask(const int Class, const char *Pattern, time_t ValidUntil,
 	      const char *Reason)
 {
+	char mask[MASK_LEN];
+
 	assert(Class < CLASS_COUNT);
 	assert(Mask != NULL);
 	assert(Reason != NULL);
 
-	return Lists_Add(&My_Classes[Class], Lists_MakeMask(Mask),
+	Lists_MakeMask(Pattern, mask, sizeof(mask));
+	return Lists_Add(&My_Classes[Class], mask,
 			 ValidUntil, Reason);
 }
 
 GLOBAL void
-Class_DeleteMask(const int Class, const char *Mask)
+Class_DeleteMask(const int Class, const char *Pattern)
 {
+	char mask[MASK_LEN];
+
 	assert(Class < CLASS_COUNT);
 	assert(Mask != NULL);
 
-	Lists_Del(&My_Classes[Class], Lists_MakeMask(Mask));
+	Lists_MakeMask(Pattern, mask, sizeof(mask));
+	Lists_Del(&My_Classes[Class], mask);
 }
 
 GLOBAL struct list_head *

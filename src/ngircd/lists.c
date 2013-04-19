@@ -34,8 +34,6 @@
 #include "exp.h"
 #include "lists.h"
 
-#define MASK_LEN	(2*CLIENT_HOST_LEN)
-
 struct list_elem {
 	struct list_elem *next;	/** pointer to next list element */
 	char mask[MASK_LEN];	/** IRC mask */
@@ -262,17 +260,13 @@ Lists_CheckDupeMask(const struct list_head *h, const char *Mask )
 /**
  * Generate a valid IRC mask from "any" string given.
  *
- * Attention: This mask is only valid until the next call to Lists_MakeMask(),
- * because a single global buffer ist used! You have to copy the generated
- * mask to some sane location yourself!
- *
  * @param Pattern Source string to generate an IRC mask for.
- * @return Pointer to global result buffer.
+ * @param mask    Buffer to store the mask.
+ * @param len     Size of the buffer.
  */
-GLOBAL const char *
-Lists_MakeMask(const char *Pattern)
+GLOBAL void
+Lists_MakeMask(const char *Pattern, char *mask, size_t len)
 {
-	static char TheMask[MASK_LEN];
 	char *excl, *at;
 
 	assert(Pattern != NULL);
@@ -285,30 +279,22 @@ Lists_MakeMask(const char *Pattern)
 
 	if (!at && !excl) {
 		/* Neither "!" nor "@" found: use string as nickname */
-		strlcpy(TheMask, Pattern, sizeof(TheMask) - 5);
-		strlcat(TheMask, "!*@*", sizeof(TheMask));
-		return TheMask;
-	}
-
-	if (!at && excl) {
+		strlcpy(mask, Pattern, len);
+		strlcat(mask, "!*@*", len);
+	} else if (!at && excl) {
 		/* Domain part is missing */
-		strlcpy(TheMask, Pattern, sizeof(TheMask) - 3);
-		strlcat(TheMask, "@*", sizeof(TheMask));
-		return TheMask;
-	}
-
-	if (at && !excl) {
+		strlcpy(mask, Pattern, len);
+		strlcat(mask, "@*", len);
+	} else if (at && !excl) {
 		/* User name is missing */
 		*at = '\0'; at++;
-		strlcpy(TheMask, Pattern, sizeof(TheMask) - 5);
-		strlcat(TheMask, "!*@", sizeof(TheMask));
-		strlcat(TheMask, at, sizeof(TheMask));
-		return TheMask;
+		strlcpy(mask, Pattern, len);
+		strlcat(mask, "!*@", len);
+		strlcat(mask, at, len);
+	} else {
+		/* All parts (nick, user and domain name) are given */
+		strlcpy(mask, Pattern, len);
 	}
-
-	/* All parts (nick, user and domain name) are given */
-	strlcpy(TheMask, Pattern, sizeof(TheMask));
-	return TheMask;
 } /* Lists_MakeMask */
 
 /**

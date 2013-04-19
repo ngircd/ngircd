@@ -50,7 +50,6 @@
 /** Max. length of random salt */
 #define RANDOM_SALT_LEN 32
 
-
 /* Size of structures */
 
 /** Max. count of configurable servers. */
@@ -113,6 +112,9 @@
 
 /** Max. host name length (including NULL). */
 #define CLIENT_HOST_LEN 64
+
+/** Max. mask lenght (including NULL). */
+#define MASK_LEN (2 * CLIENT_HOST_LEN)
 
 /** Max. length of all client modes (including NULL). */
 #define CLIENT_MODE_LEN 21

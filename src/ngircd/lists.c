@@ -130,7 +130,8 @@ Lists_Add(struct list_head *h, const char *Mask, time_t ValidUntil,
 	if (e) {
 		e->valid_until = ValidUntil;
 		if (Reason) {
-			free(e->reason);
+			if (e->reason)
+				free(e->reason);
 			e->reason = strdup(Reason);
 		}
 		return true;
@@ -320,18 +321,21 @@ Lists_MakeMask(const char *Pattern)
 bool
 Lists_Check(struct list_head *h, CLIENT *Client)
 {
-	return Lists_CheckReason(h, Client) != NULL;
+	return Lists_CheckReason(h, Client, NULL, 0);
 }
 
 /**
- * Check if a client is listed in a list and return the "reason".
+ * Check if a client is listed in a list and store the reason if a buffer
+ * is provided.
  *
- * @param h List head.
+ * @param h      List head.
  * @param Client Client to check.
+ * @param reason Result buffer to store the reason.
+ * @param len    Size of the buffer.
  * @return true if client is listed, false if not.
  */
-char *
-Lists_CheckReason(struct list_head *h, CLIENT *Client)
+bool
+Lists_CheckReason(struct list_head *h, CLIENT *Client, char *reason, size_t len)
 {
 	struct list_elem *e, *last, *next;
 
@@ -343,19 +347,21 @@ Lists_CheckReason(struct list_head *h, CLIENT *Client)
 	while (e) {
 		next = e->next;
 		if (Match(e->mask, Client_MaskCloaked(Client))) {
+			if (len && e->reason)
+				strlcpy(reason, e->reason, len);
 			if (e->valid_until == 1) {
 				/* Entry is valid only once, delete it */
 				LogDebug("Deleted \"%s\" from list (used).",
 					 e->mask);
 				Lists_Unlink(h, last, e);
 			}
-			return e->reason ? e->reason : "";
+			return true;
 		}
 		last = e;
 		e = next;
 	}
 
-	return NULL;
+	return false;
 }
 
 /**

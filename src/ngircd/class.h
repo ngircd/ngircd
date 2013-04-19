@@ -29,7 +29,8 @@ GLOBAL bool Class_AddMask PARAMS((const int Class, const char *Mask,
 				  const time_t ValidUntil, const char *Reason));
 GLOBAL void Class_DeleteMask PARAMS((const int Class, const char *Mask));
 
-GLOBAL char *Class_GetMemberReason PARAMS((const int Class, CLIENT *Client));
+GLOBAL bool Class_GetMemberReason PARAMS((const int Class, CLIENT *Client,
+					  char *reason, size_t len));
 GLOBAL bool Class_HandleServerBans PARAMS((CLIENT *Client));
 
 GLOBAL struct list_head *Class_GetList PARAMS((const int Class));

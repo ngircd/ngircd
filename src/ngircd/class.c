@@ -33,8 +33,6 @@
 
 struct list_head My_Classes[CLASS_COUNT];
 
-char Reject_Reason[COMMAND_LEN];
-
 GLOBAL void
 Class_Init(void)
 {
@@ -49,32 +47,29 @@ Class_Exit(void)
 	for (i = 0; i < CLASS_COUNT; Lists_Free(&My_Classes[i++]));
 }
 
-GLOBAL char *
-Class_GetMemberReason(const int Class, CLIENT *Client)
+GLOBAL bool
+Class_GetMemberReason(const int Class, CLIENT *Client, char *reason, size_t len)
 {
-	char *reason;
+	char str[COMMAND_LEN] = "listed";
 
 	assert(Class < CLASS_COUNT);
 	assert(Client != NULL);
 
-	reason = Lists_CheckReason(&My_Classes[Class], Client);
-	if (!reason)
-		return NULL;
-
-	if (!*reason)
-		reason = "listed";
+	if (!Lists_CheckReason(&My_Classes[Class], Client, str, sizeof(str)))
+		return false;
 
 	switch(Class) {
 		case CLASS_GLINE:
-			snprintf(Reject_Reason, sizeof(Reject_Reason),
-				 "\"%s\" (G-Line)", reason);
-			return Reject_Reason;
+			snprintf(reason, len, "\"%s\" (G-Line)", str);
+			break;
 		case CLASS_KLINE:
-			snprintf(Reject_Reason, sizeof(Reject_Reason),
-				 "\"%s\" (K-Line)", reason);
-			return Reject_Reason;
+			snprintf(reason, len, "\"%s\" (K-Line)", str);
+			break;
+		default:
+			snprintf(reason, len, "%s", str);
+			break;
 	}
-	return reason;
+	return true;
 }
 
 /**
@@ -88,15 +83,13 @@ Class_GetMemberReason(const int Class, CLIENT *Client)
 GLOBAL bool
 Class_HandleServerBans(CLIENT *Client)
 {
-	char *rejectptr;
+	char reject[COMMAND_LEN];
 
 	assert(Client != NULL);
 
-	rejectptr = Class_GetMemberReason(CLASS_GLINE, Client);
-	if (!rejectptr)
-		rejectptr = Class_GetMemberReason(CLASS_KLINE, Client);
-	if (rejectptr) {
-		Client_Reject(Client, rejectptr, true);
+	if (Class_GetMemberReason(CLASS_GLINE, Client, reject, sizeof(reject)) ||
+	    Class_GetMemberReason(CLASS_KLINE, Client, reject, sizeof(reject))) {
+		Client_Reject(Client, reject, true);
 		return DISCONNECTED;
 	}
 

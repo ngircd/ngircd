@@ -279,16 +279,16 @@ Lists_MakeMask(const char *Pattern, char *mask, size_t len)
 
 	if (!at && !excl) {
 		/* Neither "!" nor "@" found: use string as nickname */
-		strlcpy(mask, Pattern, len);
+		strlcpy(mask, Pattern, len - 5);
 		strlcat(mask, "!*@*", len);
 	} else if (!at && excl) {
 		/* Domain part is missing */
-		strlcpy(mask, Pattern, len);
+		strlcpy(mask, Pattern, len - 3);
 		strlcat(mask, "@*", len);
 	} else if (at && !excl) {
 		/* User name is missing */
 		*at = '\0'; at++;
-		strlcpy(mask, Pattern, len);
+		strlcpy(mask, Pattern, len - 5);
 		strlcat(mask, "!*@", len);
 		strlcat(mask, at, len);
 	} else {

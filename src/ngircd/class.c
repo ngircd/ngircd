@@ -104,7 +104,7 @@ Class_AddMask(const int Class, const char *Pattern, time_t ValidUntil,
 	char mask[MASK_LEN];
 
 	assert(Class < CLASS_COUNT);
-	assert(Mask != NULL);
+	assert(Pattern != NULL);
 	assert(Reason != NULL);
 
 	Lists_MakeMask(Pattern, mask, sizeof(mask));
@@ -118,7 +118,7 @@ Class_DeleteMask(const int Class, const char *Pattern)
 	char mask[MASK_LEN];
 
 	assert(Class < CLASS_COUNT);
-	assert(Mask != NULL);
+	assert(Pattern != NULL);
 
 	Lists_MakeMask(Pattern, mask, sizeof(mask));
 	Lists_Del(&My_Classes[Class], mask);

@@ -947,33 +947,39 @@ Read_Config(bool TestOnly, bool IsStarting)
 	fclose(fd);
 
 	if (Conf_IncludeDir[0]) {
-		/* Include further configuration files, if any */
 		dh = opendir(Conf_IncludeDir);
-		if (dh) {
-			while ((entry = readdir(dh)) != NULL) {
-				ptr = strrchr(entry->d_name, '.');
-				if (!ptr || strcasecmp(ptr, ".conf") != 0)
-					continue;
-				snprintf(file, sizeof(file), "%s/%s",
-					 Conf_IncludeDir, entry->d_name);
-				if (TestOnly)
-					Config_Error(LOG_INFO,
-						     "Reading configuration from \"%s\" ...",
-						     file);
-				fd = fopen(file, "r");
-				if (fd) {
-					Read_Config_File(file, fd);
-					fclose(fd);
-				} else
-					Config_Error(LOG_ALERT,
-						     "Can't read configuration \"%s\": %s",
-						     file, strerror(errno));
-			}
-			closedir(dh);
-		} else
+		if (!dh)
 			Config_Error(LOG_ALERT,
 				     "Can't open include directory \"%s\": %s",
 				     Conf_IncludeDir, strerror(errno));
+	} else {
+		strlcpy(Conf_IncludeDir, SYSCONFDIR, sizeof(Conf_IncludeDir));
+		strlcat(Conf_IncludeDir, CONFIG_DIR, sizeof(Conf_IncludeDir));
+		dh = opendir(Conf_IncludeDir);
+	}
+
+	/* Include further configuration files, if IncludeDir is available */
+	if (dh) {
+		while ((entry = readdir(dh)) != NULL) {
+			ptr = strrchr(entry->d_name, '.');
+			if (!ptr || strcasecmp(ptr, ".conf") != 0)
+				continue;
+			snprintf(file, sizeof(file), "%s/%s",
+				 Conf_IncludeDir, entry->d_name);
+			if (TestOnly)
+				Config_Error(LOG_INFO,
+					     "Reading configuration from \"%s\" ...",
+					     file);
+			fd = fopen(file, "r");
+			if (fd) {
+				Read_Config_File(file, fd);
+				fclose(fd);
+			} else
+				Config_Error(LOG_ALERT,
+					     "Can't read configuration \"%s\": %s",
+					     file, strerror(errno));
+		}
+		closedir(dh);
 	}
 
 	/* Check if there is still a server to add */

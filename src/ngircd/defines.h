@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2012 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2013 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -72,6 +72,9 @@
 
 /** Configuration file name. */
 #define CONFIG_FILE "/ngircd.conf"
+
+/** Directory containing optional configuration snippets. */
+#define CONFIG_DIR "/ngircd.conf.d"
 
 /** Name of the MOTD file. */
 #define MOTD_FILE "/ngircd.motd"

@@ -58,21 +58,30 @@ static char Conf_HelpFile[FNAME_LEN];
 
 static void Set_Defaults PARAMS(( bool InitServers ));
 static bool Read_Config PARAMS(( bool TestOnly, bool IsStarting ));
+static void Read_Config_File PARAMS(( const char *File, FILE *fd ));
 static bool Validate_Config PARAMS(( bool TestOnly, bool Rehash ));
 
-static void Handle_GLOBAL PARAMS(( int Line, char *Var, char *Arg ));
-static void Handle_LIMITS PARAMS(( int Line, char *Var, char *Arg ));
-static void Handle_OPTIONS PARAMS(( int Line, char *Var, char *Arg ));
-static void Handle_OPERATOR PARAMS(( int Line, char *Var, char *Arg ));
-static void Handle_SERVER PARAMS(( int Line, char *Var, char *Arg ));
-static void Handle_CHANNEL PARAMS(( int Line, char *Var, char *Arg ));
+static void Handle_GLOBAL PARAMS((const char *File, int Line,
+				  char *Var, char *Arg ));
+static void Handle_LIMITS PARAMS((const char *File, int Line,
+				  char *Var, char *Arg ));
+static void Handle_OPTIONS PARAMS((const char *File, int Line,
+				   char *Var, char *Arg ));
+static void Handle_OPERATOR PARAMS((const char *File, int Line,
+				    char *Var, char *Arg ));
+static void Handle_SERVER PARAMS((const char *File, int Line,
+				  char *Var, char *Arg ));
+static void Handle_CHANNEL PARAMS((const char *File, int Line,
+				   char *Var, char *Arg ));
 
-static void Config_Error PARAMS(( const int Level, const char *Format, ... ));
+static void Config_Error PARAMS((const int Level, const char *Format, ...));
 
-static void Config_Error_NaN PARAMS(( const int LINE, const char *Value ));
-static void Config_Error_Section PARAMS(( const int Line, const char *Item,
-					  const char *Section ));
-static void Config_Error_TooLong PARAMS(( const int LINE, const char *Value ));
+static void Config_Error_NaN PARAMS((const char *File, const int LINE,
+				     const char *Value));
+static void Config_Error_Section PARAMS((const char *File, const int Line,
+					 const char *Item, const char *Section));
+static void Config_Error_TooLong PARAMS((const char *File, const int LINE,
+					 const char *Value));
 
 static void Init_Server_Struct PARAMS(( CONF_SERVER *Server ));
 
@@ -86,7 +95,7 @@ static void Init_Server_Struct PARAMS(( CONF_SERVER *Server ));
 
 #ifdef SSL_SUPPORT
 
-static void Handle_SSL PARAMS(( int Line, char *Var, char *Ark ));
+static void Handle_SSL PARAMS((const char *File, int Line, char *Var, char *Ark));
 
 struct SSLOptions Conf_SSLOptions;
 
@@ -866,10 +875,8 @@ Read_TextFile(const char *Filename, const char *Name, array *Destination)
 static bool
 Read_Config(bool TestOnly, bool IsStarting)
 {
-	char section[LINE_LEN], str[LINE_LEN], *var, *arg, *ptr;
 	const UINT16 defaultport = 6667;
-	int line, i, n;
-	size_t count;
+	int i, n;
 	FILE *fd;
 
 	/* Open configuration file */
@@ -924,123 +931,13 @@ Read_Config(bool TestOnly, bool IsStarting)
 	}
 
 	/* Initialize variables */
-	line = 0;
-	strcpy( section, "" );
 	Init_Server_Struct( &New_Server );
 	New_Server_Idx = NONE;
 #ifdef SSL_SUPPORT
 	ConfSSL_Init();
 #endif
-	/* Read configuration file */
-	while( true ) {
-		if( ! fgets( str, LINE_LEN, fd )) break;
-		ngt_TrimStr( str );
-		line++;
 
-		/* Skip comments and empty lines */
-		if( str[0] == ';' || str[0] == '#' || str[0] == '\0' ) continue;
-
-		/* Is this the beginning of a new section? */
-		if(( str[0] == '[' ) && ( str[strlen( str ) - 1] == ']' )) {
-			strlcpy( section, str, sizeof( section ));
-			if (strcasecmp(section, "[GLOBAL]") == 0
-			    || strcasecmp(section, "[LIMITS]") == 0
-			    || strcasecmp(section, "[OPTIONS]") == 0
-#ifdef SSL_SUPPORT
-			    || strcasecmp(section, "[SSL]") == 0
-#endif
-			    )
-				continue;
-
-			if( strcasecmp( section, "[SERVER]" ) == 0 ) {
-				/* Check if there is already a server to add */
-				if( New_Server.name[0] ) {
-					/* Copy data to "real" server structure */
-					assert( New_Server_Idx > NONE );
-					Conf_Server[New_Server_Idx] = New_Server;
-				}
-
-				/* Re-init structure for new server */
-				Init_Server_Struct( &New_Server );
-
-				/* Search unused item in server configuration structure */
-				for( i = 0; i < MAX_SERVERS; i++ ) {
-					/* Is this item used? */
-					if( ! Conf_Server[i].name[0] ) break;
-				}
-				if( i >= MAX_SERVERS ) {
-					/* Oops, no free item found! */
-					Config_Error( LOG_ERR, "Too many servers configured." );
-					New_Server_Idx = NONE;
-				}
-				else New_Server_Idx = i;
-				continue;
-			}
-
-			if (strcasecmp(section, "[CHANNEL]") == 0) {
-				count = array_length(&Conf_Channels,
-						     sizeof(struct Conf_Channel));
-				if (!array_alloc(&Conf_Channels,
-						 sizeof(struct Conf_Channel),
-						 count)) {
-					Config_Error(LOG_ERR,
-						     "Could not allocate memory for new operator (line %d)",
-						     line);
-				}
-				continue;
-			}
-
-			if (strcasecmp(section, "[OPERATOR]") == 0) {
-				count = array_length(&Conf_Opers,
-						     sizeof(struct Conf_Oper));
-				if (!array_alloc(&Conf_Opers,
-						 sizeof(struct Conf_Oper),
-						 count)) {
-					Config_Error(LOG_ERR,
-						     "Could not allocate memory for new channel (line &d)",
-						     line);
-				}
-				continue;
-			}
-
-			Config_Error(LOG_ERR,
-				     "%s, line %d: Unknown section \"%s\"!",
-				     NGIRCd_ConfFile, line, section);
-			section[0] = 0x1;
-		}
-		if( section[0] == 0x1 ) continue;
-
-		/* Split line into variable name and parameters */
-		ptr = strchr( str, '=' );
-		if( ! ptr ) {
-			Config_Error( LOG_ERR, "%s, line %d: Syntax error!", NGIRCd_ConfFile, line );
-			continue;
-		}
-		*ptr = '\0';
-		var = str; ngt_TrimStr( var );
-		arg = ptr + 1; ngt_TrimStr( arg );
-
-		if(strcasecmp(section, "[GLOBAL]") == 0)
-			Handle_GLOBAL(line, var, arg);
-		else if(strcasecmp(section, "[LIMITS]") == 0)
-			Handle_LIMITS(line, var, arg);
-		else if(strcasecmp(section, "[OPTIONS]") == 0)
-			Handle_OPTIONS(line, var, arg);
-#ifdef SSL_SUPPORT
-		else if(strcasecmp(section, "[SSL]") == 0)
-			Handle_SSL(line, var, arg);
-#endif
-		else if(strcasecmp(section, "[OPERATOR]") == 0)
-			Handle_OPERATOR(line, var, arg);
-		else if(strcasecmp(section, "[SERVER]") == 0)
-			Handle_SERVER(line, var, arg);
-		else if(strcasecmp(section, "[CHANNEL]") == 0)
-			Handle_CHANNEL(line, var, arg);
-		else
-			Config_Error(LOG_ERR,
-				     "%s, line %d: Variable \"%s\" outside section!",
-				     NGIRCd_ConfFile, line, var);
-	}
+	Read_Config_File(NGIRCd_ConfFile, fd);
 
 	/* Close configuration file */
 	fclose( fd );
@@ -1090,6 +987,137 @@ Read_Config(bool TestOnly, bool IsStarting)
 #endif
 
 	return true;
+}
+
+/**
+ * ...
+ */
+static void Read_Config_File(const char *File, FILE *fd)
+{
+	char section[LINE_LEN], str[LINE_LEN], *var, *arg, *ptr;
+	int i, line = 0;
+	size_t count;
+
+	/* Read configuration file */
+	while (true) {
+		if (!fgets(str, LINE_LEN, fd))
+			break;
+		ngt_TrimStr(str);
+		line++;
+
+		/* Skip comments and empty lines */
+		if (str[0] == ';' || str[0] == '#' || str[0] == '\0')
+			continue;
+
+		/* Is this the beginning of a new section? */
+		if ((str[0] == '[') && (str[strlen(str) - 1] == ']')) {
+			strlcpy(section, str, sizeof(section));
+			if (strcasecmp(section, "[GLOBAL]") == 0
+			    || strcasecmp(section, "[LIMITS]") == 0
+			    || strcasecmp(section, "[OPTIONS]") == 0
+#ifdef SSL_SUPPORT
+			    || strcasecmp(section, "[SSL]") == 0
+#endif
+			    )
+				continue;
+
+			if (strcasecmp(section, "[SERVER]") == 0) {
+				/* Check if there is already a server to add */
+				if (New_Server.name[0]) {
+					/* Copy data to "real" server structure */
+					assert(New_Server_Idx > NONE);
+					Conf_Server[New_Server_Idx] =
+					New_Server;
+				}
+
+				/* Re-init structure for new server */
+				Init_Server_Struct(&New_Server);
+
+				/* Search unused item in server configuration structure */
+				for (i = 0; i < MAX_SERVERS; i++) {
+					/* Is this item used? */
+					if (!Conf_Server[i].name[0])
+						break;
+				}
+				if (i >= MAX_SERVERS) {
+					/* Oops, no free item found! */
+					Config_Error(LOG_ERR,
+						     "Too many servers configured.");
+					New_Server_Idx = NONE;
+				} else
+					New_Server_Idx = i;
+				continue;
+			}
+
+			if (strcasecmp(section, "[CHANNEL]") == 0) {
+				count = array_length(&Conf_Channels,
+						     sizeof(struct
+							    Conf_Channel));
+				if (!array_alloc
+				    (&Conf_Channels,
+				     sizeof(struct Conf_Channel), count)) {
+					    Config_Error(LOG_ERR,
+							 "Could not allocate memory for new operator (line %d)",
+							 line);
+				    }
+				continue;
+			}
+
+			if (strcasecmp(section, "[OPERATOR]") == 0) {
+				count = array_length(&Conf_Opers,
+						     sizeof(struct Conf_Oper));
+				if (!array_alloc(&Conf_Opers,
+						 sizeof(struct Conf_Oper),
+						 count)) {
+					Config_Error(LOG_ERR,
+						     "Could not allocate memory for new channel (line &d)",
+						     line);
+				}
+				continue;
+			}
+
+			Config_Error(LOG_ERR,
+				     "%s, line %d: Unknown section \"%s\"!",
+				     NGIRCd_ConfFile, line, section);
+			section[0] = 0x1;
+		}
+		if (section[0] == 0x1)
+			continue;
+
+		/* Split line into variable name and parameters */
+		ptr = strchr(str, '=');
+		if (!ptr) {
+			Config_Error(LOG_ERR, "%s, line %d: Syntax error!",
+				     NGIRCd_ConfFile, line);
+			continue;
+		}
+		*ptr = '\0';
+		var = str;
+		ngt_TrimStr(var);
+		arg = ptr + 1;
+		ngt_TrimStr(arg);
+
+		if (strcasecmp(section, "[GLOBAL]") == 0)
+			Handle_GLOBAL(File, line, var, arg);
+		else if (strcasecmp(section, "[LIMITS]") == 0)
+			Handle_LIMITS(File, line, var, arg);
+		else if (strcasecmp(section, "[OPTIONS]") == 0)
+			Handle_OPTIONS(File, line, var, arg);
+#ifdef SSL_SUPPORT
+		else if (strcasecmp(section, "[SSL]") == 0)
+			Handle_SSL(File, line, var, arg);
+#endif
+		else if (strcasecmp(section, "[OPERATOR]") == 0)
+			Handle_OPERATOR(File, line, var, arg);
+		else if (strcasecmp(section, "[SERVER]") == 0)
+			Handle_SERVER(File, line, var, arg);
+		else if (strcasecmp(section, "[CHANNEL]") == 0)
+			Handle_CHANNEL(File, line, var, arg);
+		else
+			Config_Error(LOG_ERR,
+				     "%s, line %d: Variable \"%s\" outside section!",
+				     NGIRCd_ConfFile, line, var);
+	}
 }
 
 /**
@@ -1227,7 +1255,7 @@ CheckLegacyNoOption(const char *Var, const char *Arg)
  * @returns	true if a legacy option has been processed; false otherwise.
  */
 static const char*
-CheckLegacyGlobalOption(int Line, char *Var, char *Arg)
+CheckLegacyGlobalOption(const char *File, int Line, char *Var, char *Arg)
 {
 	if (strcasecmp(Var, "AllowRemoteOper") == 0
 	    || strcasecmp(Var, "ChrootDir") == 0
@@ -1239,7 +1267,7 @@ CheckLegacyGlobalOption(int Line, char *Var, char *Arg)
 	    || strcasecmp(Var, "PredefChannelsOnly") == 0
 	    || strcasecmp(Var, "SyslogFacility") == 0
 	    || strcasecmp(Var, "WebircPassword") == 0) {
-		Handle_OPTIONS(Line, Var, Arg);
+		Handle_OPTIONS(File, Line, Var, Arg);
 		return "[Options]";
 	}
 	if (strcasecmp(Var, "ConnectRetry") == 0
@@ -1250,7 +1278,7 @@ CheckLegacyGlobalOption(int Line, char *Var, char *Arg)
 	    || strcasecmp(Var, "MaxNickLength") == 0
 	    || strcasecmp(Var, "PingTimeout") == 0
 	    || strcasecmp(Var, "PongTimeout") == 0) {
-		Handle_LIMITS(Line, Var, Arg);
+		Handle_LIMITS(File, Line, Var, Arg);
 		return "[Limits]";
 	}
 #ifdef SSL_SUPPORT
@@ -1259,7 +1287,7 @@ CheckLegacyGlobalOption(int Line, char *Var, char *Arg)
 	    || strcasecmp(Var, "SSLKeyFile") == 0
 	    || strcasecmp(Var, "SSLKeyFilePassword") == 0
 	    || strcasecmp(Var, "SSLPorts") == 0) {
-		Handle_SSL(Line, Var + 3, Arg);
+		Handle_SSL(File, Line, Var + 3, Arg);
 		return "[SSL]";
 	}
 #endif
@@ -1306,13 +1334,14 @@ InvertArg(const char *arg)
  * @param Arg	Variable argument.
  */
 static void
-Handle_GLOBAL( int Line, char *Var, char *Arg )
+Handle_GLOBAL(const char *File, int Line, char *Var, char *Arg )
 {
 	struct passwd *pwd;
 	struct group *grp;
 	size_t len;
 	const char *section;
 
+	assert(File != NULL);
 	assert(Line > 0);
 	assert(Var != NULL);
 	assert(Arg != NULL);
@@ -1320,38 +1349,38 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 	if (strcasecmp(Var, "Name") == 0) {
 		len = strlcpy(Conf_ServerName, Arg, sizeof(Conf_ServerName));
 		if (len >= sizeof(Conf_ServerName))
-			Config_Error_TooLong(Line, Var);
+			Config_Error_TooLong(File, Line, Var);
 		return;
 	}
 	if (strcasecmp(Var, "AdminInfo1") == 0) {
 		len = strlcpy(Conf_ServerAdmin1, Arg, sizeof(Conf_ServerAdmin1));
 		if (len >= sizeof(Conf_ServerAdmin1))
-			Config_Error_TooLong(Line, Var);
+			Config_Error_TooLong(File, Line, Var);
 		return;
 	}
 	if (strcasecmp(Var, "AdminInfo2") == 0) {
 		len = strlcpy(Conf_ServerAdmin2, Arg, sizeof(Conf_ServerAdmin2));
 		if (len >= sizeof(Conf_ServerAdmin2))
-			Config_Error_TooLong(Line, Var);
+			Config_Error_TooLong(File, Line, Var);
 		return;
 	}
 	if (strcasecmp(Var, "AdminEMail") == 0) {
 		len = strlcpy(Conf_ServerAdminMail, Arg,
 			sizeof(Conf_ServerAdminMail));
 		if (len >= sizeof(Conf_ServerAdminMail))
-			Config_Error_TooLong(Line, Var);
+			Config_Error_TooLong(File, Line, Var);
 		return;
 	}
 	if (strcasecmp(Var, "Info") == 0) {
 		len = strlcpy(Conf_ServerInfo, Arg, sizeof(Conf_ServerInfo));
 		if (len >= sizeof(Conf_ServerInfo))
-			Config_Error_TooLong(Line, Var);
+			Config_Error_TooLong(File, Line, Var);
 		return;
 	}
 	if (strcasecmp(Var, "HelpFile") == 0) {
 		len = strlcpy(Conf_HelpFile, Arg, sizeof(Conf_HelpFile));
 		if (len >= sizeof(Conf_HelpFile))
-			Config_Error_TooLong(Line, Var);
+			Config_Error_TooLong(File, Line, Var);
 		return;
 	}
 	if (strcasecmp(Var, "Listen") == 0) {
@@ -1375,7 +1404,7 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 	if (strcasecmp(Var, "MotdFile") == 0) {
 		len = strlcpy(Conf_MotdFile, Arg, sizeof(Conf_MotdFile));
 		if (len >= sizeof(Conf_MotdFile))
-			Config_Error_TooLong(Line, Var);
+			Config_Error_TooLong(File, Line, Var);
 		return;
 	}
 	if (strcasecmp(Var, "MotdPhrase") == 0) {
@@ -1383,7 +1412,7 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 		if (len == 0)
 			return;
 		if (len >= LINE_LEN) {
-			Config_Error_TooLong(Line, Var);
+			Config_Error_TooLong(File, Line, Var);
 			return;
 		}
 		if (!array_copyb(&Conf_Motd, Arg, len + 1))
@@ -1396,13 +1425,13 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 	if(strcasecmp(Var, "Password") == 0) {
 		len = strlcpy(Conf_ServerPwd, Arg, sizeof(Conf_ServerPwd));
 		if (len >= sizeof(Conf_ServerPwd))
-			Config_Error_TooLong(Line, Var);
+			Config_Error_TooLong(File, Line, Var);
 		return;
 	}
 	if (strcasecmp(Var, "PidFile") == 0) {
 		len = strlcpy(Conf_PidFile, Arg, sizeof(Conf_PidFile));
 		if (len >= sizeof(Conf_PidFile))
-			Config_Error_TooLong(Line, Var);
+			Config_Error_TooLong(File, Line, Var);
 		return;
 	}
 	if (strcasecmp(Var, "Ports") == 0) {
@@ -1449,7 +1478,7 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 			WarnPAM(Line);
 		return;
 	}
-	if ((section = CheckLegacyGlobalOption(Line, Var, Arg))) {
+	if ((section = CheckLegacyGlobalOption(File, Line, Var, Arg))) {
 		/** TODO: This function and support for these options in the
 		 * [Global] section could be removed starting with ngIRCd
 		 * release 19 (one release after marking it "deprecated"). */
@@ -1466,7 +1495,7 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
 		return;
 	}
 
-	Config_Error_Section(Line, Var, "Global");
+	Config_Error_Section(File, Line, Var, "Global");
 }
 
 /**
@@ -1477,8 +1506,9 @@ Handle_GLOBAL( int Line, char *Var, char *Arg )
  * @param Arg	Variable argument.
  */
 static void
-Handle_LIMITS(int Line, char *Var, char *Arg)
+Handle_LIMITS(const char *File, int Line, char *Var, char *Arg)
 {
+	assert(File != NULL);
 	assert(Line > 0);
 	assert(Var != NULL);
 	assert(Arg != NULL);
@@ -1496,25 +1526,25 @@ Handle_LIMITS(int Line, char *Var, char *Arg)
 	if (strcasecmp(Var, "IdleTimeout") == 0) {
 		Conf_IdleTimeout = atoi(Arg);
 		if (!Conf_IdleTimeout && strcmp(Arg, "0"))
-			Config_Error_NaN(Line, Var);
+			Config_Error_NaN(File, Line, Var);
 		return;
 	}
 	if (strcasecmp(Var, "MaxConnections") == 0) {
 		Conf_MaxConnections = atoi(Arg);
 		if (!Conf_MaxConnections && strcmp(Arg, "0"))
-			Config_Error_NaN(Line, Var);
+			Config_Error_NaN(File, Line, Var);
 		return;
 	}
 	if (strcasecmp(Var, "MaxConnectionsIP") == 0) {
 		Conf_MaxConnectionsIP = atoi(Arg);
 		if (!Conf_MaxConnectionsIP && strcmp(Arg, "0"))
-			Config_Error_NaN(Line, Var);
+			Config_Error_NaN(File, Line, Var);
 		return;
 	}
 	if (strcasecmp(Var, "MaxJoins") == 0) {
 		Conf_MaxJoins = atoi(Arg);
 		if (!Conf_MaxJoins && strcmp(Arg, "0"))
-			Config_Error_NaN(Line, Var);
+			Config_Error_NaN(File, Line, Var);
 		return;
 	}
 	if (strcasecmp(Var, "MaxNickLength") == 0) {
@@ -1524,7 +1554,7 @@ Handle_LIMITS(int Line, char *Var, char *Arg)
 	if (strcasecmp(Var, "MaxListSize") == 0) {
 		Conf_MaxListSize = atoi(Arg);
 		if (!Conf_MaxListSize && strcmp(Arg, "0"))
-			Config_Error_NaN(Line, Var);
+			Config_Error_NaN(File, Line, Var);
 		return;
 	}
 	if (strcasecmp(Var, "PingTimeout") == 0) {
@@ -1548,7 +1578,7 @@ Handle_LIMITS(int Line, char *Var, char *Arg)
 		return;
 	}
 
-	Config_Error_Section(Line, Var, "Limits");
+	Config_Error_Section(File, Line, Var, "Limits");
 }
 
 /**
@@ -1559,10 +1589,11 @@ Handle_LIMITS(int Line, char *Var, char *Arg)
  * @param Arg	Variable argument.
  */
 static void
-Handle_OPTIONS(int Line, char *Var, char *Arg)
+Handle_OPTIONS(const char *File, int Line, char *Var, char *Arg)
 {
 	size_t len;
 
+	assert(File != NULL);
 	assert(Line > 0);
 	assert(Var != NULL);
 	assert(Arg != NULL);
@@ -1574,25 +1605,25 @@ Handle_OPTIONS(int Line, char *Var, char *Arg)
 	if (strcasecmp(Var, "ChrootDir") == 0) {
 		len = strlcpy(Conf_Chroot, Arg, sizeof(Conf_Chroot));
 		if (len >= sizeof(Conf_Chroot))
-			Config_Error_TooLong(Line, Var);
+			Config_Error_TooLong(File, Line, Var);
 		return;
 	}
 	if (strcasecmp(Var, "CloakHost") == 0) {
 		len = strlcpy(Conf_CloakHost, Arg, sizeof(Conf_CloakHost));
 		if (len >= sizeof(Conf_CloakHost))
-			Config_Error_TooLong(Line, Var);
+			Config_Error_TooLong(File, Line, Var);
 		return;
 	}
 	if (strcasecmp(Var, "CloakHostModeX") == 0) {
 		len = strlcpy(Conf_CloakHostModeX, Arg, sizeof(Conf_CloakHostModeX));
 		if (len >= sizeof(Conf_CloakHostModeX))
-			Config_Error_TooLong(Line, Var);
+			Config_Error_TooLong(File, Line, Var);
 		return;
 	}
 	if (strcasecmp(Var, "CloakHostSalt") == 0) {
 		len = strlcpy(Conf_CloakHostSalt, Arg, sizeof(Conf_CloakHostSalt));
 		if (len >= sizeof(Conf_CloakHostSalt))
-			Config_Error_TooLong(Line, Var);
+			Config_Error_TooLong(File, Line, Var);
 		return;
 	}
 	if (strcasecmp(Var, "CloakUserToNick") == 0) {
@@ -1670,11 +1701,11 @@ Handle_OPTIONS(int Line, char *Var, char *Arg)
 	if (strcasecmp(Var, "WebircPassword") == 0) {
 		len = strlcpy(Conf_WebircPwd, Arg, sizeof(Conf_WebircPwd));
 		if (len >= sizeof(Conf_WebircPwd))
-			Config_Error_TooLong(Line, Var);
+			Config_Error_TooLong(File, Line, Var);
 		return;
 	}
 
-	Config_Error_Section(Line, Var, "Options");
+	Config_Error_Section(File, Line, Var, "Options");
 }
 
 #ifdef SSL_SUPPORT
@@ -1687,8 +1718,9 @@ Handle_OPTIONS(int Line, char *Var, char *Arg)
  * @param Arg	Variable argument.
  */
 static void
-Handle_SSL(int Line, char *Var, char *Arg)
+Handle_SSL(const char *File, int Line, char *Var, char *Arg)
 {
+	assert(File != NULL);
 	assert(Line > 0);
 	assert(Var != NULL);
 	assert(Arg != NULL);
@@ -1713,8 +1745,7 @@ Handle_SSL(int Line, char *Var, char *Arg)
 		if (!array_copys(&Conf_SSLOptions.KeyFilePassword, Arg))
 			Config_Error(LOG_ERR,
 				     "%s, line %d (section \"SSL\"): Could not copy %s: %s!",
-				     NGIRCd_ConfFile, Line, Var,
-				     strerror(errno));
+				     File, Line, Var, strerror(errno));
 		return;
 	}
 	if (strcasecmp(Var, "Ports") == 0) {
@@ -1722,7 +1753,7 @@ Handle_SSL(int Line, char *Var, char *Arg)
 		return;
 	}
 
-	Config_Error_Section(Line, Var, "SSL");
+	Config_Error_Section(File, Line, Var, "SSL");
 }
 
 #endif
@@ -1735,11 +1766,12 @@ Handle_SSL(int Line, char *Var, char *Arg)
  * @param Arg	Variable argument.
  */
 static void
-Handle_OPERATOR( int Line, char *Var, char *Arg )
+Handle_OPERATOR(const char *File, int Line, char *Var, char *Arg )
 {
 	size_t len;
 	struct Conf_Oper *op;
 
+	assert( File != NULL );
 	assert( Line > 0 );
 	assert( Var != NULL );
 	assert( Arg != NULL );
@@ -1753,14 +1785,14 @@ Handle_OPERATOR( int Line, char *Var, char *Arg )
 		/* Name of IRC operator */
 		len = strlcpy(op->name, Arg, sizeof(op->name));
 		if (len >= sizeof(op->name))
-				Config_Error_TooLong(Line, Var);
+				Config_Error_TooLong(File, Line, Var);
 		return;
 	}
 	if (strcasecmp(Var, "Password") == 0) {
 		/* Password of IRC operator */
 		len = strlcpy(op->pwd, Arg, sizeof(op->pwd));
 		if (len >= sizeof(op->pwd))
-				Config_Error_TooLong(Line, Var);
+				Config_Error_TooLong(File, Line, Var);
 		return;
 	}
 	if (strcasecmp(Var, "Mask") == 0) {
@@ -1770,7 +1802,7 @@ Handle_OPERATOR( int Line, char *Var, char *Arg )
 		return;
 	}
 
-	Config_Error_Section(Line, Var, "Operator");
+	Config_Error_Section(File, Line, Var, "Operator");
 }
 
 /**
@@ -1781,11 +1813,12 @@ Handle_OPERATOR( int Line, char *Var, char *Arg )
  * @param Arg	Variable argument.
  */
 static void
-Handle_SERVER( int Line, char *Var, char *Arg )
+Handle_SERVER(const char *File, int Line, char *Var, char *Arg )
 {
 	long port;
 	size_t len;
 
+	assert( File != NULL );
 	assert( Line > 0 );
 	assert( Var != NULL );
 	assert( Arg != NULL );
@@ -1797,14 +1830,14 @@ Handle_SERVER( int Line, char *Var, char *Arg )
 		/* Hostname of the server */
 		len = strlcpy( New_Server.host, Arg, sizeof( New_Server.host ));
 		if (len >= sizeof( New_Server.host ))
-			Config_Error_TooLong ( Line, Var );
+			Config_Error_TooLong(File, Line, Var);
 		return;
 	}
 	if( strcasecmp( Var, "Name" ) == 0 ) {
 		/* Name of the server ("Nick"/"ID") */
 		len = strlcpy( New_Server.name, Arg, sizeof( New_Server.name ));
 		if (len >= sizeof( New_Server.name ))
-			Config_Error_TooLong( Line, Var );
+			Config_Error_TooLong(File, Line, Var);
 		return;
 	}
 	if (strcasecmp(Var, "Bind") == 0) {
@@ -1824,14 +1857,14 @@ Handle_SERVER( int Line, char *Var, char *Arg )
 		}
 		len = strlcpy( New_Server.pwd_in, Arg, sizeof( New_Server.pwd_in ));
 		if (len >= sizeof( New_Server.pwd_in ))
-			Config_Error_TooLong( Line, Var );
+			Config_Error_TooLong(File, Line, Var);
 		return;
 	}
 	if( strcasecmp( Var, "PeerPassword" ) == 0 ) {
 		/* Passwort of the peer which must be received */
 		len = strlcpy( New_Server.pwd_out, Arg, sizeof( New_Server.pwd_out ));
 		if (len >= sizeof( New_Server.pwd_out ))
-			Config_Error_TooLong( Line, Var );
+			Config_Error_TooLong(File, Line, Var);
 		return;
 	}
 	if( strcasecmp( Var, "Port" ) == 0 ) {
@@ -1855,7 +1888,7 @@ Handle_SERVER( int Line, char *Var, char *Arg )
 		/* Server group */
 		New_Server.group = atoi( Arg );
 		if (!New_Server.group && strcmp(Arg, "0"))
-			Config_Error_NaN(Line, Var);
+			Config_Error_NaN(File, Line, Var);
 		return;
 	}
 	if( strcasecmp( Var, "Passive" ) == 0 ) {
@@ -1867,11 +1900,11 @@ Handle_SERVER( int Line, char *Var, char *Arg )
 		len = strlcpy(New_Server.svs_mask, ngt_LowerStr(Arg),
 			      sizeof(New_Server.svs_mask));
 		if (len >= sizeof(New_Server.svs_mask))
-			Config_Error_TooLong(Line, Var);
+			Config_Error_TooLong(File, Line, Var);
 		return;
 	}
 
-	Config_Error_Section(Line, Var, "Server");
+	Config_Error_Section(File, Line, Var, "Server");
 }
 
 /**
@@ -1910,11 +1943,12 @@ Handle_Channelname(struct Conf_Channel *new_chan, const char *name)
  * @param Arg	Variable argument.
  */
 static void
-Handle_CHANNEL(int Line, char *Var, char *Arg)
+Handle_CHANNEL(const char *File, int Line, char *Var, char *Arg)
 {
 	size_t len;
 	struct Conf_Channel *chan;
 
+	assert( File != NULL );
 	assert( Line > 0 );
 	assert( Var != NULL );
 	assert( Arg != NULL );
@@ -1926,46 +1960,46 @@ Handle_CHANNEL(int Line, char *Var, char *Arg)
 
 	if (strcasecmp(Var, "Name") == 0) {
 		if (!Handle_Channelname(chan, Arg))
-			Config_Error_TooLong(Line, Var);
+			Config_Error_TooLong(File, Line, Var);
 		return;
 	}
 	if (strcasecmp(Var, "Modes") == 0) {
 		/* Initial modes */
 		len = strlcpy(chan->modes, Arg, sizeof(chan->modes));
 		if (len >= sizeof(chan->modes))
-			Config_Error_TooLong( Line, Var );
+			Config_Error_TooLong(File, Line, Var);
 		return;
 	}
 	if( strcasecmp( Var, "Topic" ) == 0 ) {
 		/* Initial topic */
 		len = strlcpy(chan->topic, Arg, sizeof(chan->topic));
 		if (len >= sizeof(chan->topic))
-			Config_Error_TooLong( Line, Var );
+			Config_Error_TooLong(File, Line, Var);
 		return;
 	}
 	if( strcasecmp( Var, "Key" ) == 0 ) {
 		/* Initial Channel Key (mode k) */
 		len = strlcpy(chan->key, Arg, sizeof(chan->key));
 		if (len >= sizeof(chan->key))
-			Config_Error_TooLong(Line, Var);
+			Config_Error_TooLong(File, Line, Var);
 		return;
 	}
 	if( strcasecmp( Var, "MaxUsers" ) == 0 ) {
 		/* maximum user limit, mode l */
 		chan->maxusers = (unsigned long) atol(Arg);
 		if (!chan->maxusers && strcmp(Arg, "0"))
-			Config_Error_NaN(Line, Var);
+			Config_Error_NaN(File, Line, Var);
 		return;
 	}
 	if (strcasecmp(Var, "KeyFile") == 0) {
 		/* channel keys */
 		len = strlcpy(chan->keyfile, Arg, sizeof(chan->keyfile));
 		if (len >= sizeof(chan->keyfile))
-			Config_Error_TooLong(Line, Var);
+			Config_Error_TooLong(File, Line, Var);
 		return;
 	}
 
-	Config_Error_Section(Line, Var, "Channel");
+	Config_Error_Section(File, Line, Var, "Channel");
 }
 
 /**
@@ -2093,9 +2127,10 @@ Validate_Config(bool Configtest, bool Rehash)
  * @param Item	Affected variable name.
  */
 static void
-Config_Error_TooLong ( const int Line, const char *Item )
+Config_Error_TooLong(const char *File, const int Line, const char *Item)
 {
-	Config_Error( LOG_WARNING, "%s, line %d: Value of \"%s\" too long!", NGIRCd_ConfFile, Line, Item );
+	Config_Error(LOG_WARNING, "%s, line %d: Value of \"%s\" too long!",
+		     File, Line, Item );
 }
 
 /**
@@ -2106,10 +2141,11 @@ Config_Error_TooLong ( const int Line, const char *Item )
  * @param Section	Section name.
  */
 static void
-Config_Error_Section(const int Line, const char *Item, const char *Section)
+Config_Error_Section(const char *File, const int Line, const char *Item,
+		     const char *Section)
 {
 	Config_Error(LOG_ERR, "%s, line %d (section \"%s\"): Unknown variable \"%s\"!",
-		     NGIRCd_ConfFile, Line, Section, Item);
+		     File, Line, Section, Item);
 }
 
 /**
@@ -2119,10 +2155,10 @@ Config_Error_Section(const int Line, const char *Item, const char *Section)
  * @param Item	Affected variable name.
  */
 static void
-Config_Error_NaN( const int Line, const char *Item )
+Config_Error_NaN(const char *File, const int Line, const char *Item )
 {
-	Config_Error( LOG_WARNING, "%s, line %d: Value of \"%s\" is not a number!",
-						NGIRCd_ConfFile, Line, Item );
+	Config_Error(LOG_WARNING, "%s, line %d: Value of \"%s\" is not a number!",
+		     File, Line, Item );
 }
 
 /**

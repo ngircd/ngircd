@@ -1684,6 +1684,12 @@ Handle_OPTIONS(const char *File, int Line, char *Var, char *Arg)
 		return;
 	}
 	if (strcasecmp(Var, "IncludeDir") == 0) {
+		if (Conf_IncludeDir[0]) {
+			Config_Error(LOG_ERR,
+				     "%s, line %d: Can't overwrite value of \"IncludeDir\" variable!",
+				     File, Line);
+			return;
+		}
 		len = strlcpy(Conf_IncludeDir, Arg, sizeof(Conf_IncludeDir));
 		if (len >= sizeof(Conf_IncludeDir))
 			Config_Error_TooLong(File, Line, Var);

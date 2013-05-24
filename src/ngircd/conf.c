@@ -34,7 +34,7 @@
 #include <grp.h>
 #include <sys/types.h>
 #include <unistd.h>
-
+#include <dirent.h>
 
 #include "array.h"
 #include "ngircd.h"
@@ -55,6 +55,7 @@ static int New_Server_Idx;
 
 static char Conf_MotdFile[FNAME_LEN];
 static char Conf_HelpFile[FNAME_LEN];
+static char Conf_IncludeDir[FNAME_LEN];
 
 static void Set_Defaults PARAMS(( bool InitServers ));
 static bool Read_Config PARAMS(( bool TestOnly, bool IsStarting ));
@@ -404,6 +405,7 @@ Conf_Test( void )
 #ifdef IDENT
 	printf("  Ident = %s\n", yesno_to_str(Conf_Ident));
 #endif
+	printf("  IncludeDir = %s\n", Conf_IncludeDir);
 	printf("  MorePrivacy = %s\n", yesno_to_str(Conf_MorePrivacy));
 	printf("  NoticeAuth = %s\n", yesno_to_str(Conf_NoticeAuth));
 	printf("  OperCanUseMode = %s\n", yesno_to_str(Conf_OperCanMode));
@@ -778,6 +780,7 @@ Set_Defaults(bool InitServers)
 #else
 	Conf_Ident = false;
 #endif
+	strcpy(Conf_IncludeDir, "");
 	Conf_MorePrivacy = false;
 	Conf_NoticeAuth = false;
 	Conf_OperCanMode = false;
@@ -876,8 +879,11 @@ static bool
 Read_Config(bool TestOnly, bool IsStarting)
 {
 	const UINT16 defaultport = 6667;
+	char *ptr, file[FNAME_LEN];
+	struct dirent *entry;
 	int i, n;
 	FILE *fd;
+	DIR *dh;
 
 	/* Open configuration file */
 	fd = fopen( NGIRCd_ConfFile, "r" );
@@ -938,9 +944,37 @@ Read_Config(bool TestOnly, bool IsStarting)
 #endif
 
 	Read_Config_File(NGIRCd_ConfFile, fd);
+	fclose(fd);
 
-	/* Close configuration file */
-	fclose( fd );
+	if (Conf_IncludeDir[0]) {
+		/* Include further configuration files, if any */
+		dh = opendir(Conf_IncludeDir);
+		if (dh) {
+			while ((entry = readdir(dh)) != NULL) {
+				ptr = strrchr(entry->d_name, '.');
+				if (!ptr || strcasecmp(ptr, ".conf") != 0)
+					continue;
+				snprintf(file, sizeof(file), "%s/%s",
+					 Conf_IncludeDir, entry->d_name);
+				if (TestOnly)
+					Config_Error(LOG_INFO,
+						     "Reading configuration from \"%s\" ...",
+						     file);
+				fd = fopen(file, "r");
+				if (fd) {
+					Read_Config_File(file, fd);
+					fclose(fd);
+				} else
+					Config_Error(LOG_ALERT,
+						     "Can't read configuration \"%s\": %s",
+						     file, strerror(errno));
+			}
+			closedir(dh);
+		} else
+			Config_Error(LOG_ALERT,
+				     "Can't open include directory \"%s\": %s",
+				     Conf_IncludeDir, strerror(errno));
+	}
 
 	/* Check if there is still a server to add */
 	if( New_Server.name[0] ) {
@@ -999,6 +1033,7 @@ static void Read_Config_File(const char *File, FILE *fd)
 	size_t count;
 
 	/* Read configuration file */
+	section[0] = '\0';
 	while (true) {
 		if (!fgets(str, LINE_LEN, fd))
 			break;
@@ -1646,6 +1681,12 @@ Handle_OPTIONS(const char *File, int Line, char *Var, char *Arg)
 	if (strcasecmp(Var, "Ident") == 0) {
 		Conf_Ident = Check_ArgIsTrue(Arg);
 		WarnIdent(Line);
+		return;
+	}
+	if (strcasecmp(Var, "IncludeDir") == 0) {
+		len = strlcpy(Conf_IncludeDir, Arg, sizeof(Conf_IncludeDir));
+		if (len >= sizeof(Conf_IncludeDir))
+			Config_Error_TooLong(File, Line, Var);
 		return;
 	}
 	if (strcasecmp(Var, "MorePrivacy") == 0) {

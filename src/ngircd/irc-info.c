@@ -298,7 +298,7 @@ IRC_WHO_Mask(CLIENT *Client, char *Mask, bool OnlyOps)
 static bool
 IRC_WHOIS_SendReply(CLIENT *Client, CLIENT *from, CLIENT *c)
 {
-	char str[LINE_LEN + 1];
+	char str[COMMAND_LEN];
 	CL2CHAN *cl2chan;
 	CHANNEL *chan;
 
@@ -347,7 +347,7 @@ IRC_WHOIS_SendReply(CLIENT *Client, CLIENT *from, CLIENT *c)
 				    str, sizeof(str));
 		strlcat(str, Channel_Name(chan), sizeof(str));
 
-		if (strlen(str) > (LINE_LEN - CHANNEL_NAME_LEN - 4)) {
+		if (strlen(str) > (COMMAND_LEN - CHANNEL_NAME_LEN - 4)) {
 			/* Line becomes too long: send it! */
 			if (!IRC_WriteStrClient(Client, "%s", str))
 				return DISCONNECTED;
@@ -838,7 +838,7 @@ IRC_NAMES( CLIENT *Client, REQUEST *Req )
 				strlcat(rpl, " ", sizeof(rpl));
 			strlcat(rpl, Client_ID(c), sizeof(rpl));
 
-			if (strlen(rpl) > LINE_LEN - CLIENT_NICK_LEN - 4) {
+			if (strlen(rpl) > COMMAND_LEN - CLIENT_NICK_LEN - 4) {
 				/* Line is gwoing too long, send now */
 				if (!IRC_WriteStrClient(from, "%s", rpl))
 					return DISCONNECTED;
@@ -1501,7 +1501,7 @@ GLOBAL bool
 IRC_Send_NAMES(CLIENT * Client, CHANNEL * Chan)
 {
 	bool is_visible, is_member;
-	char str[LINE_LEN + 1];
+	char str[COMMAND_LEN];
 	CL2CHAN *cl2chan;
 	CLIENT *cl;
 
@@ -1540,7 +1540,7 @@ IRC_Send_NAMES(CLIENT * Client, CHANNEL * Chan)
 					    str, sizeof(str));
 			strlcat(str, Client_ID(cl), sizeof(str));
 
-			if (strlen(str) > (LINE_LEN - CLIENT_NICK_LEN - 4)) {
+			if (strlen(str) > (COMMAND_LEN - CLIENT_NICK_LEN - 4)) {
 				if (!IRC_WriteStrClient(Client, "%s", str))
 					return DISCONNECTED;
 				snprintf(str, sizeof(str), RPL_NAMREPLY_MSG,

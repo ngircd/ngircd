@@ -9,11 +9,55 @@
                                   -- NEWS --
 
 
+ngIRCd 21
+
+  - Implement a new configuration option "IncludeDir" in the "[Options]"
+    section that can be used to specify a directory which can contain
+    further configuration files and configuration file snippets matching
+    the pattern "*.conf". These files are read in after the main server
+    configuration file ("ngircd.conf" by default) has been read in and
+    parsed.  The default is "$SYSCONFDIR/ngircd.conf.d", so that it is
+    possible to adjust the configuration only by placing additional files
+    into this directory. (Closes bug #157)
+  - Add Travis-CI configuration file (".travis.yml") to project.
+  - ngIRCd now accepts user names including "@" characters, saves the
+    unmodified name for authentication but stores only the part in front
+    of the "@" character as "IRC user name". And the latter is how
+    ircd2.11, Bahamut, and irc-seven behave as well. (Closes bug #155)
+  - Lots of IRC "information functions" like ADMIN, INFO, ... now accept
+    server masks and names of connected users (in addition to server names)
+    for specifying the target server of the command. (Closes bug #153)
+  - Implement a new configuration option "IdleTimeout" in the "[Limits]"
+    section of the configuration file which can be used to set a timeout
+    in seconds after which the whole daemon will shutdown when no more
+    connections are left active after handling at least one client.
+    The default is 0, "never".
+    This can be useful for testing or when ngIRCd is started using "socket
+    activation" with systemd(8), for example.
+  - Implement support for systemd(8) "socket activation".
+  - Enable WHOIS to display information about IRC Services using the new
+    numeric 310(RPL_WHOISSERVICE) This numeric is used for this purpose by
+    InspIRCd, for example -- but as usual, other numerics are in use, too,
+    like 613 in UltimateIRCd ...
+    Please note that neither the Operator (+o) not the "bot status" (+B)
+    of an IRC service id displayed in the output.
+  - Update systemd(8) example configuration files in ./contrib/ directory:
+    the "ngircd.service" file now uses the "forking" service type which
+    enhances the log messages shown by "systemctl status ngircd.service",
+    and the new "ngircd.socket" file configures a systemd socket that
+    configures a socket for ngIRCd and launches the daemon on demand.
+  - Enhance help system and the HELP command: now a "help text file" can be
+    set using the new configuration option "HelpFile" ("global" section),
+    which is read in and parsed on server startup and configuration reload,
+    and then is used to output individual help texts to specific topics.
+    Please see the file ./doc/Commands.txt for details.
+
 ngIRCd 20.2 (2013-02-15)
 
   - This release is a bugfix release only, without new features.
   - Security: Fix a denial of service bug in the function handling KICK
-    commands that could be used by arbitrary users to to crash the daemon.
+    commands that could be used by arbitrary users to to crash the daemon
+    (CVE-2013-1747).
 
 ngIRCd 20.1 (2013-01-02)
 
@@ -23,7 +67,7 @@ ngIRCd 20 (2012-12-17)
 
   - Allow user names ("INDENT") up to 20 characters when ngIRCd has not
     been configured for "strict RFC mode". This is useful if you are using
-    external (PAM) authenticaion mechanisms that require longer user names.
+    external (PAM) authentication mechanisms that require longer user names.
     Patch suggested by Brett Smith <brett@w3.org>, see
     <http://arthur.barton.de/pipermail/ngircd-ml/2012-October/000579.html>.
 

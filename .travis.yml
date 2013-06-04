@@ -1,5 +1,8 @@
 language: c
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq libident-dev libpam0g-dev libssl-dev libwrap0-dev zlib1g-dev expect telnet
 compiler:
   - gcc
   - clang
-script: ./autogen.sh && ./configure && make check
+script: ./autogen.sh && ./configure --enable-ipv6 --with-ident --with-pam --with-tcp-wrappers --with-zlib && make check

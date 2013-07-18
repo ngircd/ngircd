@@ -361,8 +361,15 @@ IRC_WHOIS_SendReply(CLIENT *Client, CLIENT *from, CLIENT *c)
 			return DISCONNECTED;
 	}
 
+	/* IRC-Services? */
+	if (Client_Type(c) == CLIENT_SERVICE &&
+	    !IRC_WriteStrClient(from, RPL_WHOISSERVICE_MSG,
+				Client_ID(from), Client_ID(c)))
+		return DISCONNECTED;
+
 	/* IRC-Operator? */
-	if (Client_HasMode(c, 'o') &&
+	if (Client_Type(c) != CLIENT_SERVICE &&
+	    Client_HasMode(c, 'o') &&
 	    !IRC_WriteStrClient(from, RPL_WHOISOPERATOR_MSG,
 				Client_ID(from), Client_ID(c)))
 		return DISCONNECTED;

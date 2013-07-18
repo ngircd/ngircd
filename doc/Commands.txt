@@ -593,11 +593,18 @@ Server Protocol Commands
 - ERROR
 	ERROR [<message> [<> [...]]]
 	.
-	Return an error message to the server. The first parameter, if given,
-	will be logged by the server, all further parameters are silently
-	ignored.
+	Inform a client or a server about an error condition. The first 
+	parameter, if given, is logged by the server receiving the message,
+	all other parameters are silently ignored.
 	.
-	This command is silently ignored on non-server and non-service links.
+	This command is silently ignored on non-server and non-service links
+	and shouldn't be used by regular IRC clients.
+	.
+	The ERROR message is also sent before terminating a regular client
+	connection.
+
+	References:
+	 - RFC 2812, 3.7.4 "Error message"
 
 - METADATA
 	METADATA <target> <key> <value>

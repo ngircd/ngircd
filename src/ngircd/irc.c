@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2012 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2013 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@
 #include "channel.h"
 #include "conn-encoding.h"
 #include "defines.h"
+#include "irc-macros.h"
 #include "irc-write.h"
 #include "log.h"
 #include "match.h"
@@ -37,7 +38,6 @@
 #include "exp.h"
 #include "irc.h"
 
-
 static char *Option_String PARAMS((CONN_ID Idx));
 static bool Send_Message PARAMS((CLIENT *Client, REQUEST *Req, int ForceType,
 				 bool SendErrors));
@@ -45,7 +45,6 @@ static bool Send_Message_Mask PARAMS((CLIENT *from, char *command,
 				      char *targetMask, char *message,
 				      bool SendErrors));
 static bool Help PARAMS((CLIENT *Client, const char *Topic));
-
 
 /**
  * Check if a list limit is reached and inform client accordingly.
@@ -75,9 +74,15 @@ IRC_CheckListTooBig(CLIENT *From, const int Count, const int Limit,
 	return true;
 }
 
-
+/**
+ * Handler for the IRC "ERROR" command.
+ *
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
+*/
 GLOBAL bool
-IRC_ERROR( CLIENT *Client, REQUEST *Req )
+IRC_ERROR(CLIENT *Client, REQUEST *Req)
 {
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -103,7 +108,6 @@ IRC_ERROR( CLIENT *Client, REQUEST *Req )
 	return CONNECTED;
 } /* IRC_ERROR */
 
-
 /**
  * Handler for the IRC "KILL" command.
  *
@@ -115,13 +119,13 @@ IRC_ERROR( CLIENT *Client, REQUEST *Req )
  * KILL command being received over the network! Client is Client_ThisServer()
  * in this case, and the prefix in Req is NULL.
  *
- * @param Client	The client from which this command has been received
- *			or Client_ThisServer() when generated interanlly.
- * @param Req		Request structure with prefix and all parameters.
- * @returns		CONNECTED or DISCONNECTED.
+ * @param Client The client from which this command has been received or
+ * Client_ThisServer() when generated interanlly.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
  */
 GLOBAL bool
-IRC_KILL( CLIENT *Client, REQUEST *Req )
+IRC_KILL(CLIENT *Client, REQUEST *Req)
 {
 	CLIENT *prefix, *c;
 	char reason[COMMAND_LEN], *msg;
@@ -134,9 +138,7 @@ IRC_KILL( CLIENT *Client, REQUEST *Req )
 		return IRC_WriteStrClient(Client, ERR_NOPRIVILEGES_MSG,
 					  Client_ID(Client));
 
-	if (Req->argc != 2)
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
-					  Client_ID(Client), Req->command);
+	_IRC_ARGC_EQ_OR_RETURN_(Client, Req, 2)
 
 	/* Get prefix (origin); use the client if no prefix is given. */
 	if (Req->prefix)
@@ -145,7 +147,8 @@ IRC_KILL( CLIENT *Client, REQUEST *Req )
 		prefix = Client;
 
 	/* Log a warning message and use this server as origin when the
-	 * prefix (origin) is invalid. */
+	 * prefix (origin) is invalid. And this is the reason why we don't
+	 * use the _IRC_GET_SENDER_OR_RETURN_ macro above! */
 	if (!prefix) {
 		Log(LOG_WARNING, "Got KILL with invalid prefix: \"%s\"!",
 		    Req->prefix );
@@ -174,30 +177,28 @@ IRC_KILL( CLIENT *Client, REQUEST *Req )
 
 	/* Do we host such a client? */
 	c = Client_Search( Req->argv[0] );
-	if( c )
-	{
-		if(( Client_Type( c ) != CLIENT_USER ) &&
-		   ( Client_Type( c ) != CLIENT_GOTNICK ))
-		{
+	if (c) {
+		if (Client_Type(c) != CLIENT_USER
+		    && Client_Type(c) != CLIENT_GOTNICK) {
 			/* Target of this KILL is not a regular user, this is
 			 * invalid! So we ignore this case if we received a
 			 * regular KILL from the network and try to kill the
 			 * client/connection anyway (but log an error!) if the
 			 * origin is the local server. */
 
-			if( Client != Client_ThisServer( ))
-			{
+			if (Client != Client_ThisServer()) {
 				/* Invalid KILL received from remote */
-				if( Client_Type( c ) == CLIENT_SERVER )
+				if (Client_Type(c) == CLIENT_SERVER)
 					msg = ERR_CANTKILLSERVER_MSG;
 				else
 					msg = ERR_NOPRIVILEGES_MSG;
-				return IRC_WriteStrClient( Client, msg,
-					Client_ID( Client ));
+				return IRC_WriteStrClient(Client, msg,
+							  Client_ID(Client));
 			}
 
-			Log( LOG_ERR, "Got KILL for invalid client type: %d, \"%s\"!",
-			     Client_Type( c ), Req->argv[0] );
+			Log(LOG_ERR,
+			    "Got KILL for invalid client type: %d, \"%s\"!",
+			    Client_Type( c ), Req->argv[0] );
 		}
 
 		/* Kill the client NOW:
@@ -211,28 +212,35 @@ IRC_KILL( CLIENT *Client, REQUEST *Req )
 			Client_Destroy(c, NULL, reason, false);
 	}
 	else
-		Log( LOG_NOTICE, "Client with nick \"%s\" is unknown here.", Req->argv[0] );
+		Log(LOG_NOTICE, "Client with nick \"%s\" is unknown here.",
+		    Req->argv[0]);
 
 	/* Are we still connected or were we killed, too? */
-	if(( my_conn > NONE ) && ( Conn_GetClient( my_conn )))
+	if (my_conn > NONE && Conn_GetClient(my_conn))
 		return CONNECTED;
 	else
 		return DISCONNECTED;
 } /* IRC_KILL */
 
-
 /**
- * Handler for the IRC command NOTICE.
- */
+ * Handler for the IRC "NOTICE" command.
+ *
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
+*/
 GLOBAL bool
 IRC_NOTICE(CLIENT *Client, REQUEST *Req)
 {
 	return Send_Message(Client, Req, CLIENT_USER, false);
 } /* IRC_NOTICE */
 
-
 /**
- * Handler for the IRC command PRIVMSG.
+ * Handler for the IRC "PRIVMSG" command.
+ *
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
  */
 GLOBAL bool
 IRC_PRIVMSG(CLIENT *Client, REQUEST *Req)
@@ -240,9 +248,12 @@ IRC_PRIVMSG(CLIENT *Client, REQUEST *Req)
 	return Send_Message(Client, Req, CLIENT_USER, true);
 } /* IRC_PRIVMSG */
 
-
 /**
- * Handler for the IRC command SQUERY.
+ * Handler for the IRC "SQUERY" command.
+ *
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
  */
 GLOBAL bool
 IRC_SQUERY(CLIENT *Client, REQUEST *Req)
@@ -250,71 +261,89 @@ IRC_SQUERY(CLIENT *Client, REQUEST *Req)
 	return Send_Message(Client, Req, CLIENT_SERVICE, true);
 } /* IRC_SQUERY */
 
-
-GLOBAL bool
-IRC_TRACE( CLIENT *Client, REQUEST *Req )
+/*
+ * Handler for the IRC "TRACE" command.
+ *
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
+ */
+ GLOBAL bool
+IRC_TRACE(CLIENT *Client, REQUEST *Req)
 {
 	CLIENT *from, *target, *c;
 	CONN_ID idx, idx2;
 	char user[CLIENT_USER_LEN];
 
-	assert( Client != NULL );
-	assert( Req != NULL );
+	assert(Client != NULL);
+	assert(Req != NULL);
+
+	IRC_SetPenalty(Client, 3);
 
 	/* Bad number of arguments? */
-	if( Req->argc > 1 ) return IRC_WriteStrClient( Client, ERR_NORECIPIENT_MSG, Client_ID( Client ), Req->command );
+	if (Req->argc > 1)
+		return IRC_WriteStrClient(Client, ERR_NORECIPIENT_MSG,
+					  Client_ID(Client), Req->command);
 
-	/* Search sender */
-	if( Client_Type( Client ) == CLIENT_SERVER ) from = Client_Search( Req->prefix );
-	else from = Client;
-	if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
+	_IRC_GET_SENDER_OR_RETURN_(from, Req, Client)
+	_IRC_GET_TARGET_SERVER_OR_RETURN_(target, Req, 0, from)
 
-	/* Search target */
-	if( Req->argc == 1 ) target = Client_Search( Req->argv[0] );
-	else target = Client_ThisServer( );
-	
 	/* Forward command to other server? */
-	if( target != Client_ThisServer( ))
-	{
-		if(( ! target ) || ( Client_Type( target ) != CLIENT_SERVER )) return IRC_WriteStrClient( from, ERR_NOSUCHSERVER_MSG, Client_ID( from ), Req->argv[0] );
-
+	if (target != Client_ThisServer()) {
 		/* Send RPL_TRACELINK back to initiator */
-		idx = Client_Conn( Client ); assert( idx > NONE );
-		idx2 = Client_Conn( Client_NextHop( target )); assert( idx2 > NONE );
-		if( ! IRC_WriteStrClient( from, RPL_TRACELINK_MSG, Client_ID( from ), PACKAGE_NAME, PACKAGE_VERSION, Client_ID( target ), Client_ID( Client_NextHop( target )), Option_String( idx2 ), time( NULL ) - Conn_StartTime( idx2 ), Conn_SendQ( idx ), Conn_SendQ( idx2 ))) return DISCONNECTED;
+		idx = Client_Conn(Client);
+		assert(idx > NONE);
+		idx2 = Client_Conn(Client_NextHop(target));
+		assert(idx2 > NONE);
+
+		if (!IRC_WriteStrClient(from, RPL_TRACELINK_MSG,
+					Client_ID(from), PACKAGE_NAME,
+					PACKAGE_VERSION, Client_ID(target),
+					Client_ID(Client_NextHop(target)),
+					Option_String(idx2),
+					time(NULL) - Conn_StartTime(idx2),
+					Conn_SendQ(idx), Conn_SendQ(idx2)))
+			return DISCONNECTED;
 
 		/* Forward command */
-		IRC_WriteStrClientPrefix( target, from, "TRACE %s", Req->argv[0] );
+		IRC_WriteStrClientPrefix(target, from, "TRACE %s", Req->argv[0]);
 		return CONNECTED;
 	}
 
 	/* Infos about all connected servers */
-	c = Client_First( );
-	while( c )
-	{
-		if( Client_Conn( c ) > NONE )
-		{
+	c = Client_First();
+	while (c) {
+		if (Client_Conn(c) > NONE) {
 			/* Local client */
-			if( Client_Type( c ) == CLIENT_SERVER )
-			{
+			if (Client_Type(c) == CLIENT_SERVER) {
 				/* Server link */
-				strlcpy( user, Client_User( c ), sizeof( user ));
-				if( user[0] == '~' ) strlcpy( user, "unknown", sizeof( user ));
-				if( ! IRC_WriteStrClient( from, RPL_TRACESERVER_MSG, Client_ID( from ), Client_ID( c ), user, Client_Hostname( c ), Client_Mask( Client_ThisServer( )), Option_String( Client_Conn( c )))) return DISCONNECTED;
+				strlcpy(user, Client_User(c), sizeof(user));
+				if (user[0] == '~')
+					strlcpy(user, "unknown", sizeof(user));
+				if (!IRC_WriteStrClient(from,
+						RPL_TRACESERVER_MSG,
+						Client_ID(from), Client_ID(c),
+						user, Client_Hostname(c),
+						Client_Mask(Client_ThisServer()),
+						Option_String(Client_Conn(c))))
+					return DISCONNECTED;
 			}
-			if(( Client_Type( c ) == CLIENT_USER ) && ( strchr( Client_Modes( c ), 'o' )))
-			{
+			if (Client_Type(c) == CLIENT_USER
+			    && strchr(Client_Modes(c), 'o')) {
 				/* IRC Operator */
-				if( ! IRC_WriteStrClient( from, RPL_TRACEOPERATOR_MSG, Client_ID( from ), Client_ID( c ))) return DISCONNECTED;
+				if (!IRC_WriteStrClient(from,
+						RPL_TRACEOPERATOR_MSG,
+						Client_ID(from), Client_ID(c)))
+					return DISCONNECTED;
 			}
 		}
 		c = Client_Next( c );
 	}
 
-	IRC_SetPenalty( Client, 3 );
-	return IRC_WriteStrClient( from, RPL_TRACEEND_MSG, Client_ID( from ), Conf_ServerName, PACKAGE_NAME, PACKAGE_VERSION, NGIRCd_DebugLevel );
+	return IRC_WriteStrClient(from, RPL_TRACEEND_MSG, Client_ID(from),
+				  Conf_ServerName, PACKAGE_NAME,
+				  PACKAGE_VERSION, NGIRCd_DebugLevel);
 } /* IRC_TRACE */
-
 
 /**
  * Handler for the IRC "HELP" command.
@@ -331,12 +360,9 @@ IRC_HELP(CLIENT *Client, REQUEST *Req)
 	assert(Client != NULL);
 	assert(Req != NULL);
 
-	/* Bad number of arguments? */
-	if (Req->argc > 1)
-		return IRC_WriteStrClient(Client, ERR_NORECIPIENT_MSG,
-					  Client_ID(Client), Req->command);
-
 	IRC_SetPenalty(Client, 2);
+
+	_IRC_ARGC_LE_OR_RETURN_(Client, Req, 1)
 
 	if ((Req->argc == 0 && array_bytes(&Conf_Helptext) > 0)
 	    || (Req->argc >= 1 && strcasecmp(Req->argv[0], "Commands") != 0)) {
@@ -358,7 +384,6 @@ IRC_HELP(CLIENT *Client, REQUEST *Req)
 	}
 	return CONNECTED;
 } /* IRC_HELP */
-
 
 /**
  * Send help for a given topic to the client.
@@ -425,7 +450,6 @@ Help(CLIENT *Client, const char *Topic)
 	return CONNECTED;
 }
 
-
 static char *
 #ifdef ZLIB
 Option_String(CONN_ID Idx)
@@ -449,7 +473,6 @@ Option_String(UNUSED CONN_ID Idx)
 
 	return option_txt;
 } /* Option_String */
-
 
 static bool
 Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
@@ -674,7 +697,6 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 	return CONNECTED;
 } /* Send_Message */
 
-
 static bool
 Send_Message_Mask(CLIENT * from, char * command, char * targetMask,
 		  char * message, bool SendErrors)
@@ -733,6 +755,5 @@ Send_Message_Mask(CLIENT * from, char * command, char * targetMask,
 	}
 	return CONNECTED;
 } /* Send_Message_Mask */
-
 
 /* -eof- */

@@ -827,7 +827,7 @@ no_listenports(void)
 /**
  * Read contents of a text file into an array.
  *
- * This function is used to read the MOTD and help text file, for exampe.
+ * This function is used to read the MOTD and help text file, for example.
  *
  * @param filename	Name of the file to read.
  * @return		true, when the file has been read in.

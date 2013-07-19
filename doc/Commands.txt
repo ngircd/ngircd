@@ -184,21 +184,60 @@ General Commands
 	See doc/Modes.txt for more information.
 
 - NOTICE
-	NOTICE <target> <notice>
+	NOTICE <target>[,<target>[,...]] <message>
 	.
-	Send <notice> to <target> (nick or channel).
+	Send a <message> to a given <target>, which can be a user or a
+	channel, but DON'T report any error.
 	.
-	This command works similarly to PRIVMSG, except automatic replies must
-	never be sent in reply to NOTICE messages.
+	The "NOTICE" command exactly behaves like the "PRIVMSG" command, but
+	doesn't report any errors it encounters (like an unknown <target>).
+	Please see the help text of the "PRIVMSG" command for a detailed
+	description of the parameters!
+
+	References:
+	 - RFC 2812, 2.3.1 "Message format in Augmented BNF"
+	 - RFC 2812, 3.3 "Sending messages"
+	 - RFC 2812, 3.3.2 "Notice"
 
 - PRIVMSG
-	PRIVMSG <target> <message>
+	PRIVMSG <target>[,<target>[,...]] <message>
 	.
-	Send <message> to <target> (nick or channel).
+	Send a <message> to a given <target>, which can be a user or a
+	channel, and report all errors.
 	.
-	Common IRC clients use MSG as PRIVMSG alias.
-	(Some clients use "QUERY <nick> [<message>]" to open a private chat.)
+	The <target> must follow one of these syntax variants:
+	.
+	 - <nickname>
+	 - <channel>
+	 - <user>[%<host>]@<server>
+	 - <user>%<host>
+	 - <nickname>!<user>@<host>
+	.
+	If the <target> is a user, a private message is sent directly to this
+	user; if it resolves to a channel name, a public message is sent
+	to all the members of that channel.
+	.
+	In addition, IRC Ops can use these two forms to specify the <target>:
+	.
+	 - #<hostmask>
+	 - #<servermask>
+	.
+	The <mask> can contain the wildcard characters "*" and "?", but must
+	contain at least one dot (".") and no wildcard after the last one.
+	Then, the <message> is sent to all users matching this <mask>.
+	.
+	All warnings and errors are reported back to the initiator using
+	numeric status codes, which is the only difference to the "NOTICE"
+	command, which doesn't report back any errors or warnings at all.
+	.
+	Please note that clients often use "MSG" as an alias to PRIVMSG, and
+	a command "QUERY <nick> [<message>]" to initiate private chats. Both
+	are command extensions of the client and never sent to the server.
 
+	References:
+	 - RFC 2812, 2.3.1 "Message format in Augmented BNF"
+	 - RFC 2812, 3.3 "Sending messages"
+	 - RFC 2812, 3.3.1 "Private messages"
 
 Status and Informational Commands
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -575,6 +614,25 @@ IRC Service Commands
 	 - RFC 2812, 3.5.1 "Servlist message"
 
 - SQUERY
+	SQUERY <target>[,<target>[,...]] <message>
+	.
+	Send a <message> to a given <target> IRC service, and report all
+	errors.
+	.
+	The "SQUERY" command exactly behaves like the "PRIVMSG" command, but
+	enforces that the <target> of the <message> is an IRC service.
+	Please see the help text of the "PRIVMSG" command for a detailed
+	description of the parameters!
+	.
+	If a user wants to interact with IRC services, he should use "SQUERY"
+	instead of "PRIVMSG" or "NOTICE": only "SQUERY makes sure that no
+	regular user, which uses the nickname of an IRC service, receives
+	the command in error, for example during a "net split"!
+
+	References:
+	 - RFC 2812, 2.3.1 "Message format in Augmented BNF"
+	 - RFC 2812, 3.3 "Sending messages"
+	 - RFC 2812, 3.3.2 "Notice"
 
 - SVSNICK
 

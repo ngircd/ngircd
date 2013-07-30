@@ -24,9 +24,11 @@
  * return from the function.
  */
 #define _IRC_ARGC_EQ_OR_RETURN_(Client, Req, Count) \
-if (Req->argc != Count) \
+if (Req->argc != Count) { \
+	IRC_SetPenalty(Client, 2); \
 	return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG, \
-				  Client_ID(Client), Req->command);
+				  Client_ID(Client), Req->command); \
+}
 
 /**
  * Make sure that number of passed parameters is less or equal than Max.
@@ -35,9 +37,11 @@ if (Req->argc != Count) \
  * return from the function.
  */
 #define _IRC_ARGC_LE_OR_RETURN_(Client, Req, Max) \
-if (Req->argc > Max) \
+if (Req->argc > Max) { \
+	IRC_SetPenalty(Client, 2); \
 	return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG, \
-				  Client_ID(Client), Req->command);
+				  Client_ID(Client), Req->command); \
+}
 
 /**
  * Make sure that number of passed parameters is greater or equal than Min.
@@ -46,9 +50,11 @@ if (Req->argc > Max) \
  * return from the function.
  */
 #define _IRC_ARGC_GE_OR_RETURN_(Client, Req, Min) \
-if (Req->argc < Min) \
+if (Req->argc < Min) { \
+	IRC_SetPenalty(Client, 2); \
 	return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG, \
-				  Client_ID(Client), Req->command);
+				  Client_ID(Client), Req->command); \
+}
 
 /**
  * Make sure that number of passed parameters is in between Min and Max.
@@ -57,9 +63,11 @@ if (Req->argc < Min) \
  * parameters, send an error to the client and return from the function.
  */
 #define _IRC_ARGC_BETWEEN_OR_RETURN_(Client, Req, Min, Max) \
-if (Req->argc < Min || Req->argc > Max) \
+if (Req->argc < Min || Req->argc > Max) { \
+	IRC_SetPenalty(Client, 2); \
 	return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG, \
-				  Client_ID(Client), Req->command);
+				  Client_ID(Client), Req->command); \
+}
 
 /**
  * Get sender of an IRC command.

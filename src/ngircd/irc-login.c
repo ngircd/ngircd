@@ -33,6 +33,7 @@
 #include "parse.h"
 #include "irc.h"
 #include "irc-info.h"
+#include "irc-macros.h"
 #include "irc-write.h"
 
 #include "exp.h"
@@ -42,15 +43,12 @@ static void Kill_Nick PARAMS((char *Nick, char *Reason));
 static void Change_Nick PARAMS((CLIENT * Origin, CLIENT * Target, char *NewNick,
 				bool InformClient));
 
-
 /**
  * Handler for the IRC "PASS" command.
  *
- * See RFC 2813 section 4.1.1, and RFC 2812 section 3.1.1.
- *
- * @param Client	The client from which this command has been received.
- * @param Req		Request structure with prefix and all parameters.
- * @returns		CONNECTED or DISCONNECTED.
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
  */
 GLOBAL bool
 IRC_PASS( CLIENT *Client, REQUEST *Req )
@@ -167,19 +165,12 @@ IRC_PASS( CLIENT *Client, REQUEST *Req )
 	return CONNECTED;
 } /* IRC_PASS */
 
-
 /**
  * Handler for the IRC "NICK" command.
  *
- * See RFC 2812, 3.1.2 "Nick message", and RFC 2813, 4.1.3 "Nick".
- *
- * This function implements the IRC command "NICK" which is used to register
- * with the server, to change already registered nicknames and to introduce
- * new users which are connected to other servers.
- *
- * @param Client	The client from which this command has been received.
- * @param Req		Request structure with prefix and all parameters.
- * @returns		CONNECTED or DISCONNECTED.
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
  */
 GLOBAL bool
 IRC_NICK( CLIENT *Client, REQUEST *Req )
@@ -204,25 +195,17 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 	    || (Client_Type(Client) == CLIENT_SERVER && Req->argc == 1))
 	{
 		/* User registration or change of nickname */
-
-		/* Wrong number of arguments? */
-		if( Req->argc != 1 )
-			return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG,
-						   Client_ID( Client ),
-						   Req->command );
+		_IRC_ARGC_EQ_OR_RETURN_(Client, Req, 1)
 
 		/* Search "target" client */
-		if( Client_Type( Client ) == CLIENT_SERVER )
-		{
-			target = Client_Search( Req->prefix );
-			if( ! target )
+		if (Client_Type(Client) == CLIENT_SERVER) {
+			target = Client_Search(Req->prefix);
+			if (!target)
 				return IRC_WriteStrClient( Client,
 							   ERR_NOSUCHNICK_MSG,
 							   Client_ID( Client ),
 							   Req->argv[0] );
-		}
-		else
-		{
+		} else {
 			/* Is this a restricted client? */
 			if( Client_HasMode( Client, 'r' ))
 				return IRC_WriteStrClient( Client,
@@ -237,15 +220,14 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 		 * do anything. This is how the original ircd behaves and some
 		 * clients (for example Snak) expect it to be like this.
 		 * But I doubt that this is "really the right thing" ... */
-		if( strcmp( Client_ID( target ), Req->argv[0] ) == 0 )
+		if (strcmp(Client_ID(target), Req->argv[0]) == 0)
 			return CONNECTED;
 #endif
 
 		/* Check that the new nickname is available. Special case:
 		 * the client only changes from/to upper to lower case. */
-		if( strcasecmp( Client_ID( target ), Req->argv[0] ) != 0 )
-		{
-			if( ! Client_CheckNick( target, Req->argv[0] ))
+		if (strcasecmp(Client_ID(target), Req->argv[0]) != 0) {
+			if (!Client_CheckNick(target, Req->argv[0]))
 				return CONNECTED;
 		}
 
@@ -326,8 +308,7 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 
 		/* Find the Server this client is connected to */
 		intr_c = Client_GetFromToken(Client, token);
-		if( ! intr_c )
-		{
+		if (!intr_c) {
 			Log( LOG_ERR, "Server %s introduces nick \"%s\" on unknown server!?", Client_ID( Client ), Req->argv[0] );
 			Kill_Nick( Req->argv[0], "Unknown server" );
 			return CONNECTED;
@@ -335,11 +316,13 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 
 		c = Client_NewRemoteUser(intr_c, nick, hops, user, hostname,
 					 token, modes, info, true);
-		if( ! c )
-		{
-			/* out of memory, need to disconnect client to keep network state consistent */
-			Log( LOG_ALERT, "Can't create client structure! (on connection %d)", Client_Conn( Client ));
-			Kill_Nick( Req->argv[0], "Server error" );
+		if (!c) {
+			/* Out of memory, we need to disconnect client to keep
+			 * network state consistent! */
+			Log(LOG_ALERT,
+			    "Can't create client structure! (on connection %d)",
+			    Client_Conn(Client));
+			Kill_Nick(Req->argv[0], "Server error");
 			return CONNECTED;
 		}
 
@@ -356,9 +339,10 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 
 		return CONNECTED;
 	}
-	else return IRC_WriteStrClient( Client, ERR_ALREADYREGISTRED_MSG, Client_ID( Client ));
+	else
+		return IRC_WriteStrClient(Client, ERR_ALREADYREGISTRED_MSG,
+					  Client_ID(Client));
 } /* IRC_NICK */
-
 
 /**
  * Handler for the IRC "SVSNICK" command.
@@ -375,9 +359,7 @@ IRC_SVSNICK(CLIENT *Client, REQUEST *Req)
 	assert(Client != NULL);
 	assert(Req != NULL);
 
-	if (Req->argc != 2)
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
-					  Client_ID(Client), Req->command);
+	_IRC_ARGC_EQ_OR_RETURN_(Client, Req, 2)
 
 	/* Search the originator */
 	from = Client_Search(Req->prefix);
@@ -411,11 +393,9 @@ IRC_SVSNICK(CLIENT *Client, REQUEST *Req)
 /**
  * Handler for the IRC "USER" command.
  *
- * See RFC 2812, 3.1.3 "User message".
- *
- * @param Client	The client from which this command has been received.
- * @param Req		Request structure with prefix and all parameters.
- * @returns		CONNECTED or DISCONNECTED.
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
  */
 GLOBAL bool
 IRC_USER(CLIENT * Client, REQUEST * Req)
@@ -433,11 +413,7 @@ IRC_USER(CLIENT * Client, REQUEST * Req)
 	    Client_Type(Client) == CLIENT_GOTPASS)
 	{
 		/* New connection */
-		if (Req->argc != 4)
-			return IRC_WriteStrClient(Client,
-						  ERR_NEEDMOREPARAMS_MSG,
-						  Client_ID(Client),
-						  Req->command);
+		_IRC_ARGC_EQ_OR_RETURN_(Client, Req, 4)
 
 		/* User name: only alphanumeric characters and limited
 		   punctuation is allowed.*/
@@ -487,11 +463,8 @@ IRC_USER(CLIENT * Client, REQUEST * Req)
 	} else if (Client_Type(Client) == CLIENT_SERVER ||
 		   Client_Type(Client) == CLIENT_SERVICE) {
 		/* Server/service updating an user */
-		if (Req->argc != 4)
-			return IRC_WriteStrClient(Client,
-						  ERR_NEEDMOREPARAMS_MSG,
-						  Client_ID(Client),
-						  Req->command);
+		_IRC_ARGC_EQ_OR_RETURN_(Client, Req, 4)
+
 		c = Client_Search(Req->prefix);
 		if (!c)
 			return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
@@ -523,20 +496,16 @@ IRC_USER(CLIENT * Client, REQUEST * Req)
 	}
 } /* IRC_USER */
 
-
 /**
  * Handler for the IRC "SERVICE" command.
- *
- * This function implements IRC Services registration using the SERVICE command
- * defined in RFC 2812 3.1.6 and RFC 2813 4.1.4.
  *
  * At the moment ngIRCd doesn't support directly linked services, so this
  * function returns ERR_ERRONEUSNICKNAME when the SERVICE command has not been
  * received from a peer server.
  *
- * @param Client	The client from which this command has been received.
- * @param Req		Request structure with prefix and all parameters.
- * @returns		CONNECTED or DISCONNECTED..
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
  */
 GLOBAL bool
 IRC_SERVICE(CLIENT *Client, REQUEST *Req)
@@ -553,18 +522,11 @@ IRC_SERVICE(CLIENT *Client, REQUEST *Req)
 		return IRC_WriteStrClient(Client, ERR_ALREADYREGISTRED_MSG,
 					  Client_ID(Client));
 
-	if (Req->argc != 6)
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
-					  Client_ID(Client), Req->command);
+	_IRC_ARGC_EQ_OR_RETURN_(Client, Req, 6)
 
 	if (Client_Type(Client) != CLIENT_SERVER)
 		return IRC_WriteStrClient(Client, ERR_ERRONEUSNICKNAME_MSG,
 				  Client_ID(Client), Req->argv[0]);
-
-	/* Bad number of parameters? */
-	if (Req->argc != 6)
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
-					  Client_ID(Client), Req->command);
 
 	nick = Req->argv[0];
 	user = NULL; host = NULL;
@@ -627,24 +589,17 @@ IRC_SERVICE(CLIENT *Client, REQUEST *Req)
 	return CONNECTED;
 } /* IRC_SERVICE */
 
-
 /**
  * Handler for the IRC "WEBIRC" command.
  *
- * See doc/Protocol.txt, section II.4:
- * "Update webchat/proxy client information".
- *
- * @param Client	The client from which this command has been received.
- * @param Req		Request structure with prefix and all parameters.
- * @returns		CONNECTED or DISCONNECTED.
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
  */
 GLOBAL bool
 IRC_WEBIRC(CLIENT *Client, REQUEST *Req)
 {
-	/* Exactly 4 parameters are requited */
-	if (Req->argc != 4)
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
-					  Client_ID(Client), Req->command);
+	_IRC_ARGC_EQ_OR_RETURN_(Client, Req, 4)
 
 	if (!Conf_WebircPwd[0] || strcmp(Req->argv[0], Conf_WebircPwd) != 0)
 		return IRC_WriteStrClient(Client, ERR_PASSWDMISMATCH_MSG,
@@ -659,15 +614,12 @@ IRC_WEBIRC(CLIENT *Client, REQUEST *Req)
 	return CONNECTED;
 } /* IRC_WEBIRC */
 
-
 /**
  * Handler for the IRC "QUIT" command.
  *
- * See RFC 2812, 3.1.7 "Quit", and RFC 2813, 4.1.5 "Quit".
- *
- * @param Client	The client from which this command has been received.
- * @param Req		Request structure with prefix and all parameters.
- * @returns		CONNECTED or DISCONNECTED.
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
  */
 GLOBAL bool
 IRC_QUIT( CLIENT *Client, REQUEST *Req )
@@ -678,10 +630,7 @@ IRC_QUIT( CLIENT *Client, REQUEST *Req )
 	assert(Client != NULL);
 	assert(Req != NULL);
 
-	/* Wrong number of arguments? */
-	if (Req->argc > 1)
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
-					  Client_ID(Client), Req->command);
+	_IRC_ARGC_LE_OR_RETURN_(Client, Req, 1)
 
 	if (Req->argc == 1)
 		strlcpy(quitmsg, Req->argv[0], sizeof quitmsg);
@@ -721,7 +670,6 @@ IRC_QUIT( CLIENT *Client, REQUEST *Req )
 	}
 } /* IRC_QUIT */
 
-
 #ifndef STRICT_RFC
 
 /**
@@ -730,9 +678,9 @@ IRC_QUIT( CLIENT *Client, REQUEST *Req )
  * We handle these commands here to avoid the quite long timeout when
  * some user tries to access this IRC daemon using an web browser ...
  *
- * @param Client	The client from which this command has been received.
- * @param Req		Request structure with prefix and all parameters.
- * @returns		CONNECTED or DISCONNECTED.
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
  */
 GLOBAL bool
 IRC_QUIT_HTTP( CLIENT *Client, REQUEST *Req )
@@ -744,15 +692,12 @@ IRC_QUIT_HTTP( CLIENT *Client, REQUEST *Req )
 
 #endif
 
-
 /**
  * Handler for the IRC "PING" command.
  *
- * See RFC 2812, 3.7.2 "Ping message".
- *
- * @param Client	The client from which this command has been received.
- * @param Req		Request structure with prefix and all parameters.
- * @returns		CONNECTED or DISCONNECTED.
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
  */
 GLOBAL bool
 IRC_PING(CLIENT *Client, REQUEST *Req)
@@ -767,9 +712,7 @@ IRC_PING(CLIENT *Client, REQUEST *Req)
 					  Client_ID(Client));
 #ifdef STRICT_RFC
 	/* Don't ignore additional arguments when in "strict" mode */
-	if (Req->argc > 2)
-		 return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
-					   Client_ID(Client), Req->command);
+	_IRC_ARGC_LE_OR_RETURN_(Client, Req, 2)
 #endif
 
 	if (Req->argc > 1) {
@@ -822,15 +765,12 @@ IRC_PING(CLIENT *Client, REQUEST *Req)
 #endif
 } /* IRC_PING */
 
-
 /**
  * Handler for the IRC "PONG" command.
  *
- * See RFC 2812, 3.7.3 "Pong message".
- *
- * @param Client	The client from which this command has been received.
- * @param Req		Request structure with prefix and all parameters.
- * @returns		CONNECTED or DISCONNECTED.
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
  */
 GLOBAL bool
 IRC_PONG(CLIENT *Client, REQUEST *Req)
@@ -853,14 +793,8 @@ IRC_PONG(CLIENT *Client, REQUEST *Req)
 		else
 			return CONNECTED;
 	}
-	if (Req->argc > 2) {
-		if (Client_Type(Client) == CLIENT_USER)
-			return IRC_WriteStrClient(Client,
-						  ERR_NEEDMOREPARAMS_MSG,
-						  Client_ID(Client),
-						  Req->command);
-		else
-			return CONNECTED;
+	if (Client_Type(Client) == CLIENT_USER) {
+		_IRC_ARGC_LE_OR_RETURN_(Client, Req, 2)
 	}
 
 	/* Forward? */
@@ -925,12 +859,11 @@ IRC_PONG(CLIENT *Client, REQUEST *Req)
 	return CONNECTED;
 } /* IRC_PONG */
 
-
 /**
  * Kill all users with a specific nickname in the network.
  *
- * @param Nick		Nickname.
- * @param Reason	Reason for the KILL.
+ * @param Nick Nickname.
+ * @param Reason Reason for the KILL.
  */
 static void
 Kill_Nick(char *Nick, char *Reason)
@@ -950,7 +883,6 @@ Kill_Nick(char *Nick, char *Reason)
 
 	IRC_KILL(Client_ThisServer(), &r);
 } /* Kill_Nick */
-
 
 /**
  * Change the nickname of a client.
@@ -990,6 +922,5 @@ Change_Nick(CLIENT *Origin, CLIENT *Target, char *NewNick, bool InformClient)
 	/* Save new nickname */
 	Client_SetID(Target, NewNick);
 }
-
 
 /* -eof- */

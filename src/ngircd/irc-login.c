@@ -81,10 +81,12 @@ IRC_PASS( CLIENT *Client, REQUEST *Req )
 	} else if (Client_Type(Client) == CLIENT_UNKNOWN ||
 		   Client_Type(Client) == CLIENT_UNKNOWNSERVER) {
 		/* Unregistered connection, but wrong number of arguments: */
+		IRC_SetPenalty(Client, 2);
 		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 					  Client_ID(Client), Req->command);
 	} else {
 		/* Registered connection, PASS command is not allowed! */
+		IRC_SetPenalty(Client, 2);
 		return IRC_WriteStrClient(Client, ERR_ALREADYREGISTRED_MSG,
 					  Client_ID(Client));
 	}
@@ -207,11 +209,12 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 							   Req->argv[0] );
 		} else {
 			/* Is this a restricted client? */
-			if( Client_HasMode( Client, 'r' ))
+			if (Client_HasMode(Client, 'r')) {
+				IRC_SetPenalty(Client, 2);
 				return IRC_WriteStrClient( Client,
 							   ERR_RESTRICTED_MSG,
 							   Client_ID( Client ));
-
+			}
 			target = Client;
 		}
 
@@ -487,10 +490,12 @@ IRC_USER(CLIENT * Client, REQUEST * Req)
 		return CONNECTED;
 	} else if (Client_Type(Client) == CLIENT_USER) {
 		/* Already registered connection */
+		IRC_SetPenalty(Client, 2);
 		return IRC_WriteStrClient(Client, ERR_ALREADYREGISTRED_MSG,
 					  Client_ID(Client));
 	} else {
 		/* Unexpected/invalid connection state? */
+		IRC_SetPenalty(Client, 2);
 		return IRC_WriteStrClient(Client, ERR_NOTREGISTERED_MSG,
 					  Client_ID(Client));
 	}
@@ -518,9 +523,11 @@ IRC_SERVICE(CLIENT *Client, REQUEST *Req)
 	assert(Req != NULL);
 
 	if (Client_Type(Client) != CLIENT_GOTPASS &&
-	    Client_Type(Client) != CLIENT_SERVER)
+	    Client_Type(Client) != CLIENT_SERVER) {
+		IRC_SetPenalty(Client, 2);
 		return IRC_WriteStrClient(Client, ERR_ALREADYREGISTRED_MSG,
 					  Client_ID(Client));
+	}
 
 	_IRC_ARGC_EQ_OR_RETURN_(Client, Req, 6)
 

@@ -101,49 +101,117 @@ Connection Handling Commands
 	 - doc/Protocol.txt
 
 - NICK
-	NICK <nick>
+	NICK <nickname>
+	NICK <nickname> [<hops>]
+	NICK <nickname> <hops> <username> <host> <servertoken> <usermodes> <realname>
 	.
-	Change your nickname to <nick>.
+	Set or change the <nickname> of a client (first form) and register
+	remote clients (second and third form; servers only).
+
+	References:
+	 - RFC 1459, 4.1.2 "Nick message" (old client and server protocol)
+	 - RFC 2812, 3.1.2 "Nick message" (client protocol)
+	 - RFC 2813, 4.1.3 "Nick" (server protocol)
 
 - PASS
+	PASS <password>
 	PASS <password> <version> <flags> [<options>]
 	.
-	Set a connection <password>. This command must be sent before the
-	NICK/USER registration combination.
+	Set a connection <password>. This command must be the first command
+	sent to the server, even before the NICK/USER or SERVER commands.
 	.
-	See doc/Protocol.txt for more info.
+	The first form is used by user sessions or (old) RFC 1459 servers,
+	the second form is used by RFC 2812 or IRC+ compliant servers and
+	enables the server to indicate its version and supported protocol
+	features.
+
+	References:
+	 - RFC 1459, 4.1.1 "Password message" (old client and server protocol)
+	 - RFC 2812, 3.1.1 "Password message" (client protocol)
+	 - RFC 2813, 4.1.1 "Password message" (server protocol)
+	 - doc/Protocol.txt
 
 - PING
-	PING <server1> [<server2>]
+	PING <token> [<target>]
 	.
-	Tests the presence of a connection. A PING message results in a PONG
-	reply. If <server2> is specified, the message gets passed on to it.
+	Tests the presence of a connection to a client or server.
+	.
+	If no <target> has been given, the local server is used. User clients
+	can only use other servers as <target>, no user clients.
+	.
+	A PING message results in a PONG reply containing the <token>, which
+	can be arbitrary text.
+
+	Please note:
+	The RFCs state that the <token> parameter is used to specify the
+	origin of the PING command when forwared in the network, but this
+	is not the case: the sender is specified using the prefix as usual,
+	and the parameter is used to identify the PONG reply in practice.
+
+	References:
+	 - RFC 2812, 3.7.2 "Ping message"
 
 - PONG
-	PONG <server1> [<server2>]
+	PONG <target> [<token>]
 	.
-	This command is a reply to the PING command and works in much the
-	same way.
+	Reply to a "PING" command, indicate that the connection is alive.
+	.
+	The <token> is the arbitrary text received in the "PING" command and
+	can be used to identify the correct PONG sent as answer.
+	.
+	When the "PONG" command is received from a user session, the <target>
+	parameter is ignored; otherwise the PONG is forwarded to this client.
+
+	References:
+	 - RFC 2812, 3.7.3 "Pong message"
 
 - QUIT
 	QUIT [<quit-message>]
 	.
-	End IRC session and disconnect from the server.
+	Terminate a user session.
 	.
-	If a <quit-message> has been given, it is displayed to all the
-	channels that you are a member of when leaving.
+	When received from a user, the server acknowledges this by sending
+	an "ERROR" message back to the client and terminates the connection.
+	.
+	When a <quit-message> has been given, it is sent to all the channels
+	that the client is a member of when leaving.
+
+	References:
+	 - RFC 2812, 3.1.7 "Quit"
+	 - RFC 2813, 4.1.5 "Quit"
 
 - USER
-	USER <user> <modes> <realname>
+	USER <username> <hostname> <unused> <realname>
 	.
-	This command is used at the beginning of a connection to specify the
-	<user>name, hostname, <realname> and initial user <modes> of the
-	connecting client.
+	Register (and authenticate) a new user session with a short <username>
+	and a human-readable <realname>.
 	.
-	<realname> may contain spaces, and thus must be prefixed with a colon.
+	The parameter <hostname> is only used when received by an other server
+	and ignored otherwise; and the parameter <unused> is always ignored.
+	But both parameters are required on each invocation by the protocol
+	and can be set to arbitrary characters/text when not used.
+	.
+	If <username> contains an "@" character, the full <username> is used
+	for authentication, but only the first part up to this character is
+	set as "user name" for this session.
+
+	References:
+	 - RFC 2812, 3.1.3 "User message"
 
 - WEBIRC
-	See doc/Protocol.txt
+	WEBIRC <password> <username> <hostname> <ip-address>
+	.
+	Allow Web-to-IRC gateway software (for example) to set the correct
+	user name and host name of users instead of their own.
+	.
+	It must be the very first command sent to the server, even before
+	USER and NICK commands!
+	.
+	The <password> must be set in the server configuration file to prevent
+	unauthorized clients to fake their identity; it is an arbitrary string.
+
+	References:
+	 - doc/Protocol.txt, II.4: "Update webchat/proxy client information"
 
 
 General Commands
@@ -598,6 +666,20 @@ IRC Service Commands
 ~~~~~~~~~~~~~~~~~~~~
 
 - SERVICE
+	SERVICE <name> <reserved1> <distribution> <type> <reserved2> <info>
+	SERVICE <name> <servertoken> <distribution> {<type>|+<modes>} <hops> <info>
+	.
+	Register a new service in the network.
+	.
+	The first form is used by directly linked services and isn't supported
+	by ngIRCd at the moment. The second form announces services connected
+	to remote "pseudo-servers" ("services hubs").
+	.
+	The <distribution> and <type> parameters are ignored by ngIRCd.
+
+	References:
+	 - RFC 2812, 3.1.6 "Service message"
+	 - RFC 2813, 4.1.4 "Service message"
 
 - SERVLIST
 	SERVLIST [<mask> [<type>]]
@@ -635,6 +717,18 @@ IRC Service Commands
 	 - RFC 2812, 3.3.2 "Notice"
 
 - SVSNICK
+	SVSNICK <oldnick> <newnick>
+	.
+	Forcefully change foreign user nicknames. This command is allowed
+	for servers only.
+	.
+	The "SVSNICK" command is forwarded to the server to which the user
+	with nickname <oldnick> is connected to, which in turn generates a
+	regular "NICK" command that then is sent to the client, so no special
+	support in the client software is required.
+
+	References:
+	 - ngIRCd GIT commit e3f300d3231f
 
 
 Server Protocol Commands

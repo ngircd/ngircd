@@ -98,8 +98,8 @@ IRC_OPER( CLIENT *Client, REQUEST *Req )
 
 	if (!Client_OperByMe(Client))
 		Log(LOG_NOTICE|LOG_snotice,
-		    "Got valid OPER from \"%s\", user is an IRC operator now.",
-		    Client_Mask(Client));
+		    "Got valid OPER for \"%s\" from \"%s\", user is an IRC operator now.",
+		    Req->argv[0], Client_Mask(Client));
 
 	Client_SetOperByMe(Client, true);
 	return IRC_WriteStrClient(Client, RPL_YOUREOPER_MSG, Client_ID(Client));

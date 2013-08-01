@@ -227,6 +227,9 @@ General Commands
 	.
 	If <message> is omitted, the away status is removed.
 
+	References:
+	 - RFC 2812, 4.1 "Away"
+
 - HELP
 	HELP [<command>]
 	.
@@ -243,15 +246,46 @@ General Commands
 	ngIRCd replies using "NOTICE" commands like ircd 2.10/2.11; other
 	implementations are using numerics 704, 705, and 706.
 
-
 - MODE
-	MODE <nickname> <flags> (user)
-	MODE <channel> <flags> [<args>]
+	MODE <nickname> [{+|-}<mode>[<mode>] [{+|-}<mode>[<mode>] [...]]]
+	MODE <channel> [{+|-}<mode>[<mode>] [<arg> [<arg> [...]]] [{+|-}<mode>[<mode>] [<arg> [<arg> [...]]] [...]]]
 	.
-	The MODE command is dual-purpose. It can be used to set both (user) and
-	<channel> modes.
+	Set and get user and channel modes.
 	.
-	See doc/Modes.txt for more information.
+	When no mode parameters are given, the currently set user or channel
+	modes are returned. Otherwise the modes are adjusted accordingly
+	and the changes will be reported back to the client.
+	.
+	All user and chnnel "modes" are indicated by single case-sensitive
+	characters.
+	.
+	Please note that a user can only get and set his own modes, and not
+	all user "levels" are allowed to change all channel modes ...
+	.
+	The mode parameters can become quite complex, especially when dealing
+	with channel modes that require additional arguments:
+	.
+	  {+|-}<mode(s}>  -- set or unset one or more modes.
+	  +<mode(s)> -<mode(s)>  -- set some modes and unset others.
+	  +<modes> <arg1> <arg2>  -- set (at least) two modes with arguments.
+	.
+	Some examples:
+	.
+	  MODE nick +i  -- set user to "invisible".
+	  MODE #chan +tn  -- set "topic lock" and "no external messages".
+	  MODE #chan -t +l 50  -- remove "topic lock", set "user limit" to 50.
+	  MODE #chan +ov nick1 nick2  -- set "channel op" and "voice" mode
+	                                 to nick1 and nick2 in channel #chan.
+	.
+	A complete list of all modes supported by ngIRCd can be found online
+	here: <http://ngircd.barton.de/doc/Modes.txt>.
+
+	References:
+	 - RFC 2811, 4. "Channel Modes"
+	 - RFC 2812, 3.1.5 "User mode message"
+	 - RFC 2812, 3.2.3 "Channel mode message"
+	 - <http://ngircd.barton.de/doc/Modes.txt>
+	 - doc/Modes.txt
 
 - NOTICE
 	NOTICE <target>[,<target>[,...]] <message>
@@ -447,8 +481,13 @@ Status and Informational Commands
 - TRACE
 	TRACE [<server>]
 	.
-	Trace a path across the IRC network of the current server, or if given
-	of a specific <server>, in a similar method to traceroute.
+	Find the route to a specific server and send information about its
+	peers. Each server that processes this command reports back to the
+	sender about it: the replies from pass-through servers form a chain
+	which shows the route to the destination.
+
+	References:
+	 - RFC 2812, 3.4.8 "Trace message"
 
 - USERHOST
 	USERHOST <nickname> [<nickname> [...]]
@@ -541,13 +580,19 @@ Channel Commands
 	 - RFC 2812, 3.2.7 "Invite message"
 
 - JOIN
-	JOIN <channels> [<channel-keys>]
+	JOIN {<channel>[,<channel>[,...]] [<key>[,<key>[,...]]] | 0}
 	.
-	Makes the client join the <channels> (comma-separated list), specifying
-	the passwords, if needed, in the comma-separated <channel-keys> list.
-	A <channel-key> is only needed, if the <channel> mode "+k" is set.
+	Makes the client join the <channel> (comma-separated list), specifying
+	the channel keys ("passwords"). A <channel-key> is only needed if the
+	<channel> has the mode "+k" set.
 	.
 	If the channel(s) do not exist, then they will be created.
+	.
+	Using "JOIN 0" parts all channels at once.
+
+	References:
+	 - RFC 2812, 3.2.1 "Join message" (client protocol)
+	 - RFC 2813, 4.2.1 "Join message" (server protocol)
 
 - KICK
 	KICK <channel>[,<channel>[,...]] <nickname>[,<nickname>[,...]] [<reason>]
@@ -564,25 +609,38 @@ Channel Commands
 	 - RFC 2812, 3.2.8 "Kick command"
 
 - LIST
-	LIST [<channels> [<server>]]
+	LIST [<channel>[,<channel>[,...]] [<server>]]
 	.
-	List all visible <channels> (comma-seperated list) on the current
-	server.
+	List all visible <channels> (comma-seperated list).
+	.
 	If <server> is given, the command will be forwarded to <server> for
 	evaluation.
 
+	References:
+	 - RFC 2812, 3.2.6 "List message"
+
 - PART
-	PART <channels> [<part-message>]
+	PART <channel>[,<channel>[,...]] [<part-message>]
 	.
-	Leave <channels> (comma-separated list), optional with a
-	<part-message>.
+	Leave <channel> (comma-separated list), optionally with sending a
+	<part-message> to all the other channel members.
+
+	References:
+	 - RFC 2812, 3.2.2 "Part message"
 
 - TOPIC
-	TOPIC <channel> <topic>
+	TOPIC <channel> [<topic>]
 	.
-	Set a <topic> for <channel>.
+	Cchange or view the topic of a channel.
 	.
-	Only <channel> operators are able to set a <topic>.
+	The topic for channel <channel> is returned if there is no <topic>
+	given. If the <topic> parameter is present, the topic for that
+	channel will be changed, if this action is allowed for the user
+	requesting it. If the <topic> parameter is an empty string, the
+	topic for that channel will be removed.
+
+	References:
+	 - RFC 2812, 3.2.4 "Topic message"
 
 
 Administrative Commands

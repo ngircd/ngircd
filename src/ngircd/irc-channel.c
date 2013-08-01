@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2010 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2013 Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,12 +33,12 @@
 #include "parse.h"
 #include "irc.h"
 #include "irc-info.h"
+#include "irc-macros.h"
 #include "irc-write.h"
 #include "conf.h"
 
 #include "exp.h"
 #include "irc-channel.h"
-
 
 /**
  * Part from all channels.
@@ -66,7 +66,6 @@ part_from_all_channels(CLIENT* client, CLIENT *target)
 	}
 	return CONNECTED;
 } /* part_from_all_channels */
-
 
 /**
  * Check weather a local client is allowed to join an already existing
@@ -149,7 +148,6 @@ join_allowed(CLIENT *Client, CHANNEL *chan, const char *channame,
 	return true;
 } /* join_allowed */
 
-
 /**
  * Set user channel modes.
  *
@@ -173,7 +171,6 @@ join_set_channelmodes(CHANNEL *chan, CLIENT *target, const char *flags)
 	    && strchr(Client_Modes(target), 'o'))
 		Channel_UserModeAdd(chan, target, 'o');
 } /* join_set_channelmodes */
-
 
 /**
  * Forward JOIN command to a specific server
@@ -210,7 +207,6 @@ cb_join_forward(CLIENT *To, CLIENT *Prefix, void *Data)
 		IRC_WriteStrClientPrefix(To, Prefix, "MODE %s +%s %s", str, ptr,
 					 Client_ID(Prefix));
 } /* cb_join_forward */
-
 
 /**
  * Forward JOIN command to all servers
@@ -256,7 +252,6 @@ join_forward(CLIENT *Client, CLIENT *target, CHANNEL *chan,
 	}
 } /* join_forward */
 
-
 /**
  * Aknowledge user JOIN request and send "channel info" numerics.
  *
@@ -299,15 +294,12 @@ join_send_topic(CLIENT *Client, CLIENT *target, CHANNEL *chan,
 				  Channel_Name(chan));
 } /* join_send_topic */
 
-
 /**
  * Handler for the IRC "JOIN" command.
  *
- * See RFC 2812, 3.2.1 "Join message"; RFC 2813, 4.2.1 "Join message".
- *
- * @param Client The client from which this command has been received
- * @param Req Request structure with prefix and all parameters
- * @returns CONNECTED or DISCONNECTED
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
  */
 GLOBAL bool
 IRC_JOIN( CLIENT *Client, REQUEST *Req )
@@ -319,20 +311,9 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 	assert (Client != NULL);
 	assert (Req != NULL);
 
-	/* Bad number of arguments? */
-	if (Req->argc < 1 || Req->argc > 2)
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
-					  Client_ID(Client), Req->command);
-
-	/* Who is the sender? */
-	if (Client_Type(Client) == CLIENT_SERVER)
-		target = Client_Search(Req->prefix);
-	else
-		target = Client;
-
-	if (!target)
-		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
-					  Client_ID(Client), Req->prefix);
+	_IRC_ARGC_GE_OR_RETURN_(Client, Req, 1)
+	_IRC_ARGC_LE_OR_RETURN_(Client, Req, 2)
+	_IRC_GET_SENDER_OR_RETURN_(target, Req, Client)
 
 	/* Is argument "0"? */
 	if (Req->argc == 1 && !strncmp("0", Req->argv[0], 2))
@@ -443,15 +424,12 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 	return CONNECTED;
 } /* IRC_JOIN */
 
-
 /**
  * Handler for the IRC "PART" command.
  *
- * See RFC 2812, 3.2.2: "Part message".
- *
- * @param Client	The client from which this command has been received
- * @param Req		Request structure with prefix and all parameters
- * @returns		CONNECTED or DISCONNECTED
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
  */
 GLOBAL bool
 IRC_PART(CLIENT * Client, REQUEST * Req)
@@ -462,18 +440,9 @@ IRC_PART(CLIENT * Client, REQUEST * Req)
 	assert(Client != NULL);
 	assert(Req != NULL);
 
-	if (Req->argc < 1 || Req->argc > 2)
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
-					  Client_ID(Client), Req->command);
-
-	/* Get the sender */
-	if (Client_Type(Client) == CLIENT_SERVER)
-		target = Client_Search(Req->prefix);
-	else
-		target = Client;
-	if (!target)
-		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
-					  Client_ID(Client), Req->prefix);
+	_IRC_ARGC_GE_OR_RETURN_(Client, Req, 1)
+	_IRC_ARGC_LE_OR_RETURN_(Client, Req, 2)
+	_IRC_GET_SENDER_OR_RETURN_(target, Req, Client)
 
 	/* Loop over all the given channel names */
 	chan = strtok(Req->argv[0], ",");
@@ -496,15 +465,12 @@ IRC_PART(CLIENT * Client, REQUEST * Req)
 	return CONNECTED;
 } /* IRC_PART */
 
-
 /**
  * Handler for the IRC "TOPIC" command.
  *
- * See RFC 2812, 3.2.4 "Topic message".
- *
- * @param Client	The client from which this command has been received
- * @param Req		Request structure with prefix and all parameters
- * @returns		CONNECTED or DISCONNECTED
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
  */
 GLOBAL bool
 IRC_TOPIC( CLIENT *Client, REQUEST *Req )
@@ -517,18 +483,11 @@ IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	if (Req->argc < 1 || Req->argc > 2)
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
-					  Client_ID(Client), Req->command);
+	IRC_SetPenalty(Client, 1);
 
-	if (Client_Type(Client) == CLIENT_SERVER)
-		from = Client_Search(Req->prefix);
-	else
-		from = Client;
-
-	if (!from)
-		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
-					  Client_ID(Client), Req->prefix);
+	_IRC_ARGC_GE_OR_RETURN_(Client, Req, 1)
+	_IRC_ARGC_LE_OR_RETURN_(Client, Req, 2)
+	_IRC_GET_SENDER_OR_RETURN_(from, Req, Client)
 
 	chan = Channel_Search(Req->argv[0]);
 	if (!chan)
@@ -606,14 +565,8 @@ IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 		return CONNECTED;
 } /* IRC_TOPIC */
 
-
 /**
  * Handler for the IRC "LIST" command.
- *
- * See RFC 2812, 3.2.6 "List message".
- *
- * This implementation handles the local case as well as the forwarding of the
- * LIST command to other servers in the IRC network.
  *
  * @param Client The client from which this command has been received.
  * @param Req Request structure with prefix and all parameters.
@@ -630,25 +583,15 @@ IRC_LIST( CLIENT *Client, REQUEST *Req )
 	assert(Client != NULL);
 	assert(Req != NULL);
 
-	/* Bad number of prameters? */
-	if (Req->argc > 2)
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
-					  Client_ID(Client), Req->command);
+	IRC_SetPenalty(Client, 2);
+
+	_IRC_ARGC_LE_OR_RETURN_(Client, Req, 2)
+	_IRC_GET_SENDER_OR_RETURN_(from, Req, Client)
 
 	if (Req->argc > 0)
 		pattern = strtok(Req->argv[0], ",");
 	else
 		pattern = "*";
-
-	/* Get sender from prefix, if any */
-	if (Client_Type(Client) == CLIENT_SERVER)
-		from = Client_Search(Req->prefix);
-	else
-		from = Client;
-
-	if (!from)
-		return IRC_WriteStrClient(Client, ERR_NOSUCHSERVER_MSG,
-					  Client_ID(Client), Req->prefix);
 
 	if (Req->argc == 2) {
 		/* Forward to other server? */
@@ -703,20 +646,15 @@ IRC_LIST( CLIENT *Client, REQUEST *Req )
 			pattern = NULL;
 	}
 
-	IRC_SetPenalty(from, 2);
 	return IRC_WriteStrClient(from, RPL_LISTEND_MSG, Client_ID(from));
 } /* IRC_LIST */
 
-
 /**
- * Handler for the IRC+ command "CHANINFO".
+ * Handler for the IRC+ "CHANINFO" command.
  *
- * See doc/Protocol.txt, section II.3:
- * "Exchange channel-modes, topics, and persistent channels".
- *
- * @param Client	The client from which this command has been received
- * @param Req		Request structure with prefix and all parameters
- * @returns		CONNECTED or DISCONNECTED
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
  */
 GLOBAL bool
 IRC_CHANINFO( CLIENT *Client, REQUEST *Req )
@@ -735,68 +673,71 @@ IRC_CHANINFO( CLIENT *Client, REQUEST *Req )
 					  Client_ID(Client), Req->command);
 
 	/* Compatibility kludge */
-	if( Req->argc == 5 ) arg_topic = 4;
-	else if( Req->argc == 3 ) arg_topic = 2;
-	else arg_topic = -1;
+	if (Req->argc == 5)
+		arg_topic = 4;
+	else if(Req->argc == 3)
+		arg_topic = 2;
+	else
+		arg_topic = -1;
 
-	/* Search origin */
-	from = Client_Search( Req->prefix );
-	if( ! from ) return IRC_WriteStrClient( Client, ERR_NOSUCHNICK_MSG, Client_ID( Client ), Req->prefix );
+	_IRC_GET_SENDER_OR_RETURN_(from, Req, Client)
 
 	/* Search or create channel */
 	chan = Channel_Search( Req->argv[0] );
-	if( ! chan ) chan = Channel_Create( Req->argv[0] );
-	if( ! chan ) return CONNECTED;
+	if (!chan)
+		chan = Channel_Create( Req->argv[0] );
+	if (!chan)
+		return CONNECTED;
 
-	if( Req->argv[1][0] == '+' )
-	{
-		ptr = Channel_Modes( chan );
-		if( ! *ptr )
-		{
-			/* OK, this channel doesn't have modes jet, set the received ones: */
-			Channel_SetModes( chan, &Req->argv[1][1] );
+	if (Req->argv[1][0] == '+') {
+		ptr = Channel_Modes(chan);
+		if (!*ptr) {
+			/* OK, this channel doesn't have modes jet,
+			 * set the received ones: */
+			Channel_SetModes(chan, &Req->argv[1][1]);
 
-			if( Req->argc == 5 )
-			{
-				if( strchr( Channel_Modes( chan ), 'k' )) Channel_SetKey( chan, Req->argv[2] );
-				if( strchr( Channel_Modes( chan ), 'l' )) Channel_SetMaxUsers( chan, atol( Req->argv[3] ));
-			}
-			else
-			{
+			if(Req->argc == 5) {
+				if(strchr(Channel_Modes(chan), 'k'))
+					Channel_SetKey(chan, Req->argv[2]);
+				if(strchr(Channel_Modes(chan), 'l'))
+					Channel_SetMaxUsers(chan, atol(Req->argv[3]));
+			} else {
 				/* Delete modes which we never want to inherit */
-				Channel_ModeDel( chan, 'l' );
-				Channel_ModeDel( chan, 'k' );
+				Channel_ModeDel(chan, 'l');
+				Channel_ModeDel(chan, 'k');
 			}
 
-			strcpy( modes_add, "" );
-			ptr = Channel_Modes( chan );
-			while( *ptr )
-			{
-				if( *ptr == 'l' )
-				{
-					snprintf( l, sizeof( l ), " %lu", Channel_MaxUsers( chan ));
-					strlcat( modes_add, l, sizeof( modes_add ));
+			strcpy(modes_add, "");
+			ptr = Channel_Modes(chan);
+			while (*ptr) {
+				if (*ptr == 'l') {
+					snprintf(l, sizeof(l), " %lu",
+						 Channel_MaxUsers(chan));
+					strlcat(modes_add, l,
+						sizeof(modes_add));
 				}
-				if( *ptr == 'k' )
-				{
-					strlcat( modes_add, " ", sizeof( modes_add ));
-					strlcat( modes_add, Channel_Key( chan ), sizeof( modes_add ));
+				if (*ptr == 'k') {
+					strlcat(modes_add, " ",
+						sizeof(modes_add));
+					strlcat(modes_add, Channel_Key(chan),
+						sizeof(modes_add));
 				}
 	     			ptr++;
 			}
 
 			/* Inform members of this channel */
-			IRC_WriteStrChannelPrefix( Client, chan, from, false, "MODE %s +%s%s", Req->argv[0], Channel_Modes( chan ), modes_add );
+			IRC_WriteStrChannelPrefix(Client, chan, from, false,
+						  "MODE %s +%s%s", Req->argv[0],
+						  Channel_Modes(chan), modes_add);
 		}
 	}
-	else Log( LOG_WARNING, "CHANINFO: invalid MODE format ignored!" );
+	else
+		Log(LOG_WARNING, "CHANINFO: invalid MODE format ignored!");
 
-	if( arg_topic > 0 )
-	{
+	if (arg_topic > 0) {
 		/* We got a topic */
 		ptr = Channel_Topic( chan );
-		if(( ! *ptr ) && ( Req->argv[arg_topic][0] ))
-		{
+		if (!*ptr && Req->argv[arg_topic][0]) {
 			/* OK, there is no topic jet */
 			Channel_SetTopic(chan, Client, Req->argv[arg_topic]);
 			IRC_WriteStrChannelPrefix(Client, chan, from, false,
@@ -805,12 +746,23 @@ IRC_CHANINFO( CLIENT *Client, REQUEST *Req )
 	}
 
 	/* Forward CHANINFO to other serevrs */
-	if( Req->argc == 5 ) IRC_WriteStrServersPrefixFlag( Client, from, 'C', "CHANINFO %s %s %s %s :%s", Req->argv[0], Req->argv[1], Req->argv[2], Req->argv[3], Req->argv[4] );
-	else if( Req->argc == 3 ) IRC_WriteStrServersPrefixFlag( Client, from, 'C', "CHANINFO %s %s :%s", Req->argv[0], Req->argv[1], Req->argv[2] );
-	else IRC_WriteStrServersPrefixFlag( Client, from, 'C', "CHANINFO %s %s", Req->argv[0], Req->argv[1] );
+	if (Req->argc == 5)
+		IRC_WriteStrServersPrefixFlag(Client, from, 'C',
+					      "CHANINFO %s %s %s %s :%s",
+					      Req->argv[0], Req->argv[1],
+					      Req->argv[2], Req->argv[3],
+					      Req->argv[4]);
+	else if (Req->argc == 3)
+		IRC_WriteStrServersPrefixFlag(Client, from, 'C',
+					      "CHANINFO %s %s :%s",
+					      Req->argv[0], Req->argv[1],
+					      Req->argv[2]);
+	else
+		IRC_WriteStrServersPrefixFlag(Client, from, 'C',
+					      "CHANINFO %s %s",
+					      Req->argv[0], Req->argv[1]);
 
 	return CONNECTED;
 } /* IRC_CHANINFO */
-
 
 /* -eof- */

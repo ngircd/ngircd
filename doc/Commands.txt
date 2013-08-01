@@ -97,8 +97,8 @@ Connection Handling Commands
 	clients using UTF-8, which should be the default today.
 
 	References:
-	 - <http://ngircd.barton.de/doc/Protocol.txt>
-	 - doc/Protocol.txt
+	 - IRC+, <http://ngircd.barton.de/doc/Protocol.txt>
+	 - IRC+, doc/Protocol.txt
 
 - NICK
 	NICK <nickname>
@@ -129,7 +129,8 @@ Connection Handling Commands
 	 - RFC 1459, 4.1.1 "Password message" (old client and server protocol)
 	 - RFC 2812, 3.1.1 "Password message" (client protocol)
 	 - RFC 2813, 4.1.1 "Password message" (server protocol)
-	 - doc/Protocol.txt
+	 - IRC+, <http://ngircd.barton.de/doc/Protocol.txt>
+	 - IRC+, doc/Protocol.txt
 
 - PING
 	PING <token> [<target>]
@@ -211,7 +212,8 @@ Connection Handling Commands
 	unauthorized clients to fake their identity; it is an arbitrary string.
 
 	References:
-	 - doc/Protocol.txt, II.4: "Update webchat/proxy client information"
+	 - IRC+, <http://ngircd.barton.de/doc/Protocol.txt>
+	 - IRC+, doc/Protocol.txt
 
 
 General Commands
@@ -739,8 +741,10 @@ Server Protocol Commands
 	.
 	CHANINFO is used by servers to inform each other about a channel:
 	its modes, channel key, user limits and its topic.
-	.
-	See doc/Protocol.txt for more information.
+
+	References:
+	 - IRC+, <http://ngircd.barton.de/doc/Protocol.txt>
+	 - IRC+, doc/Protocol.txt
 
 - ERROR
 	ERROR [<message> [<> [...]]]
@@ -764,8 +768,10 @@ Server Protocol Commands
 	The METADATA command is used on server-links to update "metadata"
 	information of clients, like the hostname, the info text ("real name"),
 	or the user name.
-	.
-	See doc/Protocol.txt for more information.
+
+	References:
+	 - IRC+, <http://ngircd.barton.de/doc/Protocol.txt>
+	 - IRC+, doc/Protocol.txt
 
 - NJOIN
 

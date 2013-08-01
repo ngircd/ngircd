@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2012 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2013 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@
 #include "defines.h"
 #include "conn.h"
 #include "channel.h"
+#include "irc-macros.h"
 #include "irc-write.h"
 #include "lists.h"
 #include "log.h"
@@ -34,7 +35,6 @@
 
 #include "exp.h"
 #include "irc-mode.h"
-
 
 static bool Client_Mode PARAMS((CLIENT *Client, REQUEST *Req, CLIENT *Origin,
 				CLIENT *Target));
@@ -50,16 +50,15 @@ static bool Send_ListChange PARAMS((const bool IsAdd, const char ModeChar,
 				    CLIENT *Prefix, CLIENT *Client,
 				    CHANNEL *Channel, const char *Mask));
 
-
 /**
  * Handler for the IRC "MODE" command.
  *
- * See RFC 2812 section 3.1.5 ("user mode message") and section 3.2.3
- * ("channel mode message"), and RFC 2811 section 4 ("channel modes").
+ * This function detects whether user or channel modes should be modified
+ * and calls the apropriate sub-functions.
  *
- * @param Client	The client from which this command has been received.
- * @param Req		Request structure with prefix and all parameters.
- * @returns		CONNECTED or DISCONNECTED.
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
  */
 GLOBAL bool
 IRC_MODE( CLIENT *Client, REQUEST *Req )
@@ -70,20 +69,8 @@ IRC_MODE( CLIENT *Client, REQUEST *Req )
 	assert(Client != NULL);
 	assert(Req != NULL);
 
-	/* No parameters? */
-	if (Req->argc < 1)
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
-					  Client_ID(Client), Req->command);
-
-	/* Origin for answers */
-	if (Client_Type(Client) == CLIENT_SERVER) {
-		origin = Client_Search(Req->prefix);
-		if (!origin)
-			return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
-						  Client_ID(Client),
-						  Req->prefix);
-	} else
-		origin = Client;
+	_IRC_ARGC_GE_OR_RETURN_(Client, Req, 1)
+	_IRC_GET_SENDER_OR_RETURN_(origin, Req, Client)
 
 	/* Channel or user mode? */
 	cl = NULL; chan = NULL;
@@ -101,7 +88,6 @@ IRC_MODE( CLIENT *Client, REQUEST *Req )
 	return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
 			Client_ID(Client), Req->argv[0]);
 } /* IRC_MODE */
-
 
 /**
  * Check if the "mode limit" for a client has been reached.
@@ -123,15 +109,14 @@ Mode_Limit_Reached(CLIENT *Client, int Count)
 	return true;
 }
 
-
 /**
  * Handle client mode requests
  *
- * @param Client	The client from which this command has been received.
- * @param Req		Request structure with prefix and all parameters.
- * @param Origin	The originator of the MODE command (prefix).
- * @param Target	The target (client) of this MODE command.
- * @returns		CONNECTED or DISCONNECTED.
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @param Origin The originator of the MODE command (prefix).
+ * @param Target The target (client) of this MODE command.
+ * @return CONNECTED or DISCONNECTED.
  */
 static bool
 Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
@@ -386,7 +371,13 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 	return ok;
 } /* Client_Mode */
 
-
+/*
+ * Reply to a channel mode request.
+ *
+ * @param Origin The originator of the MODE command (prefix).
+ * @param Channel The channel of which the modes should be sent.
+ * @return CONNECTED or DISCONNECTED.
+ */
 static bool
 Channel_Mode_Answer_Request(CLIENT *Origin, CHANNEL *Channel)
 {
@@ -432,9 +423,14 @@ Channel_Mode_Answer_Request(CLIENT *Origin, CHANNEL *Channel)
 	return CONNECTED;
 }
 
-
 /**
  * Handle channel mode and channel-user mode changes
+ *
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @param Origin The originator of the MODE command (prefix).
+ * @param Channel The target channel of this MODE command.
+ * @return CONNECTED or DISCONNECTED.
  */
 static bool
 Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
@@ -941,30 +937,36 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 	return connected;
 } /* Channel_Mode */
 
-
+/**
+ * Handler for the IRC "AWAY" command.
+ *
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
+ */
 GLOBAL bool
 IRC_AWAY( CLIENT *Client, REQUEST *Req )
 {
-	assert( Client != NULL );
-	assert( Req != NULL );
+	assert (Client != NULL);
+	assert (Req != NULL);
 
-	if( Req->argc > 1 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	_IRC_ARGC_LE_OR_RETURN_(Client, Req, 1)
 
-	if(( Req->argc == 1 ) && (Req->argv[0][0] ))
-	{
-		Client_SetAway( Client, Req->argv[0] );
-		Client_ModeAdd( Client, 'a' );
-		IRC_WriteStrServersPrefix( Client, Client, "MODE %s :+a", Client_ID( Client ));
-		return IRC_WriteStrClient( Client, RPL_NOWAWAY_MSG, Client_ID( Client ));
-	}
-	else
-	{
-		Client_ModeDel( Client, 'a' );
-		IRC_WriteStrServersPrefix( Client, Client, "MODE %s :-a", Client_ID( Client ));
-		return IRC_WriteStrClient( Client, RPL_UNAWAY_MSG, Client_ID( Client ));
+	if (Req->argc == 1 && Req->argv[0][0]) {
+		Client_SetAway(Client, Req->argv[0]);
+		Client_ModeAdd(Client, 'a');
+		IRC_WriteStrServersPrefix(Client, Client, "MODE %s :+a",
+					  Client_ID( Client));
+		return IRC_WriteStrClient(Client, RPL_NOWAWAY_MSG,
+					  Client_ID( Client));
+	} else {
+		Client_ModeDel(Client, 'a');
+		IRC_WriteStrServersPrefix(Client, Client, "MODE %s :-a",
+					  Client_ID( Client));
+		return IRC_WriteStrClient(Client, RPL_UNAWAY_MSG,
+					  Client_ID( Client));
 	}
 } /* IRC_AWAY */
-
 
 /**
  * Add entries to channel invite, ban and exception lists.
@@ -1032,7 +1034,6 @@ Add_To_List(char what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel,
 	return Send_ListChange(true, what, Prefix, Client, Channel, mask);
 }
 
-
 /**
  * Delete entries from channel invite, ban and exeption lists.
  *
@@ -1076,7 +1077,6 @@ Del_From_List(char what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel,
 	return Send_ListChange(false, what, Prefix, Client, Channel, mask);
 }
 
-
 /**
  * Send information about changed channel invite/ban/exception lists to clients.
  *
@@ -1113,6 +1113,5 @@ Send_ListChange(const bool IsAdd, const char ModeChar, CLIENT *Prefix,
 
 	return ok;
 } /* Send_ListChange */
-
 
 /* -eof- */

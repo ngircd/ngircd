@@ -2611,6 +2611,45 @@ Conn_UsesSSL(CONN_ID Idx)
 	return Conn_OPTION_ISSET(&My_Connections[Idx], CONN_SSL);
 }
 
+
+GLOBAL char *
+Conn_GetFingerprint(CONN_ID Idx)
+{
+	if (Idx < 0)
+		return NULL;
+	assert(Idx < (int) array_length(&My_ConnArray, sizeof(CONNECTION)));
+	return ConnSSL_GetFingerprint(&My_Connections[Idx]);
+}
+
+
+GLOBAL bool
+Conn_SetFingerprint(CONN_ID Idx, const char *fingerprint)
+{
+	if (Idx < 0)
+		return false;
+	assert(Idx < (int) array_length(&My_ConnArray, sizeof(CONNECTION)));
+	return ConnSSL_SetFingerprint(&My_Connections[Idx], fingerprint);
+}
+#else
+GLOBAL bool
+Conn_UsesSSL(UNUSED CONN_ID Idx)
+{
+	return false;
+}
+
+
+GLOBAL char *
+Conn_GetFingerprint(UNUSED CONN_ID Idx)
+{
+	return NULL;
+}
+
+
+GLOBAL bool
+Conn_SetFingerprint(UNUSED CONN_ID Idx, UNUSED const char *fingerprint)
+{
+	return true;
+}
 #endif
 
 

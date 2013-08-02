@@ -381,10 +381,19 @@ IRC_WHOIS_SendReply(CLIENT *Client, CLIENT *from, CLIENT *c)
 		return DISCONNECTED;
 
 	/* Connected using SSL? */
-	if (Conn_UsesSSL(Client_Conn(c)) &&
-	    !IRC_WriteStrClient(from, RPL_WHOISSSL_MSG, Client_ID(from),
-				Client_ID(c)))
-		return DISCONNECTED;
+	if (Conn_UsesSSL(Client_Conn(c))) {
+		if (!IRC_WriteStrClient(from, RPL_WHOISSSL_MSG, Client_ID(from),
+					Client_ID(c)))
+			return DISCONNECTED;
+
+		/* Certificate fingerprint? */
+		if (Conn_GetFingerprint(Client_Conn(c)) &&
+		    from == c &&
+		    !IRC_WriteStrClient(from, RPL_WHOISCERTFP_MSG,
+					Client_ID(from), Client_ID(c),
+					Conn_GetFingerprint(Client_Conn(c))))
+			return DISCONNECTED;
+	}
 
 	/* Registered nickname? */
 	if (Client_HasMode(c, 'R') &&
@@ -469,16 +478,26 @@ Show_MOTD_End(CLIENT *Client)
 #ifdef SSL_SUPPORT
 static bool Show_MOTD_SSLInfo(CLIENT *Client)
 {
-	bool ret = true;
-	char buf[COMMAND_LEN] = "Connected using Cipher ";
+	char buf[COMMAND_LEN];
+	char c_str[128];
 
-	if (!Conn_GetCipherInfo(Client_Conn(Client), buf + 23, sizeof buf - 23))
-		return true;
+	if (Conn_GetCipherInfo(Client_Conn(Client), c_str, sizeof(c_str))) {
+		snprintf(buf, sizeof(buf), "Connected using Cipher %s", c_str);
+		if (!IRC_WriteStrClient(Client, RPL_MOTD_MSG,
+					Client_ID(Client), buf))
+			return false;
+	}
 
-	if (!Show_MOTD_Sendline(Client, buf))
-		ret = false;
+	if (Conn_GetFingerprint(Client_Conn(Client))) {
+		snprintf(buf, sizeof(buf),
+			 "Your client certificate fingerprint is: %s",
+			 Conn_GetFingerprint(Client_Conn(Client)));
+		if (!IRC_WriteStrClient(Client, RPL_MOTD_MSG,
+					Client_ID(Client), buf))
+			return false;
+	}
 
-	return ret;
+	return true;
 }
 #else
 static inline bool

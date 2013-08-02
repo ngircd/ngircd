@@ -228,6 +228,7 @@ The following <key> names are defined:
  - "cloakhost": the cloaked hostname of a client
  - "info": info text ("real name") of a client
  - "user": the user name of a client (can't be empty)
+ - "certfp": the cert fingerprint of a client
 
 
 III. Numerics used by IRC+ Protocol

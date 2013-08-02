@@ -212,6 +212,14 @@ Announce_User(CLIENT * Client, CLIENT * User)
 		}
 	}
 
+	if (Conn_GetFingerprint(conn)) {
+		if (!IRC_WriteStrClient(Client,
+					"METADATA %s certfp :%s",
+					Client_ID(User),
+					Conn_GetFingerprint(conn)))
+			return DISCONNECTED;
+	}
+
 	return CONNECTED;
 } /* Announce_User */
 

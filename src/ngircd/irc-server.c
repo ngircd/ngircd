@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2007 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2013 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,6 @@
 #include "conn-zip.h"
 #include "conf.h"
 #include "channel.h"
-#include "irc-write.h"
 #include "lists.h"
 #include "log.h"
 #include "messages.h"
@@ -37,15 +36,19 @@
 #include "numeric.h"
 #include "ngircd.h"
 #include "irc-info.h"
+#include "irc-macros.h"
+#include "irc-write.h"
 #include "op.h"
 
 #include "exp.h"
 #include "irc-server.h"
 
-
 /**
- * Handler for the IRC command "SERVER".
- * See RFC 2813 section 4.1.2.
+ * Handler for the IRC "SERVER" command.
+ *
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
  */
 GLOBAL bool
 IRC_SERVER( CLIENT *Client, REQUEST *Req )
@@ -214,7 +217,13 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 					  Client_ID(Client), Req->command);
 } /* IRC_SERVER */
 
-
+/*
+ * Handler for the IRC "NJOIN" command.
+ *
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
+ */
 GLOBAL bool
 IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 {
@@ -226,7 +235,7 @@ IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	if( Req->argc != 2 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+	_IRC_ARGC_EQ_OR_RETURN_(Client, Req, 2)
 
 	strlcpy( nick_in, Req->argv[1], sizeof( nick_in ));
 	strcpy( nick_out, "" );
@@ -288,15 +297,19 @@ IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 	}
 
 	/* forward to other servers */
-	if( nick_out[0] != '\0' ) IRC_WriteStrServersPrefix( Client, Client_ThisServer( ), "NJOIN %s :%s", Req->argv[0], nick_out );
+	if (nick_out[0] != '\0')
+		IRC_WriteStrServersPrefix(Client, Client_ThisServer(),
+					  "NJOIN %s :%s", Req->argv[0], nick_out);
 
 	return CONNECTED;
 } /* IRC_NJOIN */
 
-
 /**
- * Handler for the IRC command "SQUIT".
- * See RFC 2813 section 4.1.2 and RFC 2812 section 3.1.8.
+ * Handler for the IRC "SQUIT" command.
+ *
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @return CONNECTED or DISCONNECTED.
  */
 GLOBAL bool
 IRC_SQUIT(CLIENT * Client, REQUEST * Req)
@@ -313,10 +326,7 @@ IRC_SQUIT(CLIENT * Client, REQUEST * Req)
 	    && !Client_HasMode(Client, 'o'))
 		return Op_NoPrivileges(Client, Req);
 
-	/* Bad number of arguments? */
-	if (Req->argc != 2)
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
-					  Client_ID(Client), Req->command);
+	_IRC_ARGC_EQ_OR_RETURN_(Client, Req, 2)
 
 	if (Client_Type(Client) == CLIENT_SERVER && Req->prefix) {
 		from = Client_Search(Req->prefix);

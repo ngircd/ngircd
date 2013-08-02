@@ -37,6 +37,7 @@ struct ConnSSL_State {
 	void *cookie;		/* pointer to server configuration structure
 				   (for outgoing connections), or NULL. */
 #endif
+	char *fingerprint;
 };
 
 #endif

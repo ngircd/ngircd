@@ -96,6 +96,8 @@ IRC_METADATA(CLIENT *Client, REQUEST *Req)
 		Client_SetInfo(target, Req->argv[2]);
 	else if (*Req->argv[2] && strcasecmp(Req->argv[1], "user") == 0)
 		Client_SetUser(target, Req->argv[2], true);
+	else if (*Req->argv[2] && strcasecmp(Req->argv[1], "certfp") == 0)
+		Conn_SetFingerprint(Client_Conn(target), Req->argv[2]);
 	else
 		Log(LOG_WARNING,
 		    "Ignored metadata update from \"%s\" for client \"%s\": \"%s=%s\" - unknown key!",

@@ -54,10 +54,14 @@ static bool ConnSSL_LoadServerKey_openssl PARAMS(( SSL_CTX *c ));
 #define DH_BITS 2048
 #define DH_BITS_MIN 1024
 
+#define MAX_HASH_SIZE	64	/* from gnutls-int.h */
+
 static gnutls_certificate_credentials_t x509_cred;
 static gnutls_dh_params_t dh_params;
 static bool ConnSSL_LoadServerKey_gnutls PARAMS(( void ));
 #endif
+
+#define CERTFP_LEN	(20 * 2 + 1)
 
 static bool ConnSSL_Init_SSL PARAMS(( CONNECTION *c ));
 static int ConnectAccept PARAMS(( CONNECTION *c, bool connect ));
@@ -145,6 +149,13 @@ pem_passwd_cb(char *buf, int size, int rwflag, void *password)
 	memcpy(buf, (char *)(array_start(pass)), size);
 	return size;
 }
+
+
+static int
+Verify_openssl(UNUSED int preverify_ok, UNUSED X509_STORE_CTX *x509_ctx)
+{
+	return 1;
+}
 #endif
 
 
@@ -223,6 +234,10 @@ void ConnSSL_Free(CONNECTION *c)
 		SSL_shutdown(ssl);
 		SSL_free(ssl);
 		c->ssl_state.ssl = NULL;
+		if (c->ssl_state.fingerprint) {
+			free(c->ssl_state.fingerprint);
+			c->ssl_state.fingerprint = NULL;
+		}
 	}
 #endif
 #ifdef HAVE_LIBGNUTLS
@@ -277,6 +292,7 @@ ConnSSL_InitLibrary( void )
 
 	SSL_CTX_set_options(newctx, SSL_OP_SINGLE_DH_USE|SSL_OP_NO_SSLv2);
 	SSL_CTX_set_mode(newctx, SSL_MODE_ENABLE_PARTIAL_WRITE);
+	SSL_CTX_set_verify(newctx, SSL_VERIFY_PEER|SSL_VERIFY_CLIENT_ONCE, Verify_openssl);
 	SSL_CTX_free(ssl_ctx);
 	ssl_ctx = newctx;
 	Log(LOG_INFO, "%s initialized.", SSLeay_version(SSLEAY_VERSION));
@@ -404,6 +420,7 @@ ConnSSL_Init_SSL(CONNECTION *c)
 		return false;
 	}
 	assert(c->ssl_state.ssl == NULL);
+	assert(c->ssl_state.fingerprint == NULL);
 
 	c->ssl_state.ssl = SSL_new(ssl_ctx);
 	if (!c->ssl_state.ssl) {
@@ -432,6 +449,7 @@ ConnSSL_Init_SSL(CONNECTION *c)
 	 * http://www.mail-archive.com/help-gnutls@gnu.org/msg00286.html
 	 */
 	gnutls_transport_set_ptr(c->ssl_state.gnutls_session, (gnutls_transport_ptr_t) (long) c->sock);
+	gnutls_certificate_server_set_request(c->ssl_state.gnutls_session, GNUTLS_CERT_REQUEST);
 	ret = gnutls_credentials_set(c->ssl_state.gnutls_session, GNUTLS_CRD_CERTIFICATE, x509_cred);
 	if (ret < 0) {
 		Log(LOG_ERR, "gnutls_credentials_set: %s", gnutls_strerror(ret));
@@ -614,6 +632,77 @@ ConnSSL_Connect( CONNECTION *c )
 	return ConnectAccept(c, true);
 }
 
+static int
+ConnSSL_InitFingerprint( CONNECTION *c )
+{
+	const char hex[] = "0123456789abcdef";
+	int i;
+
+#ifdef HAVE_LIBSSL
+	unsigned char digest[EVP_MAX_MD_SIZE];
+	unsigned int digest_size;
+	X509 *cert;
+
+	cert = SSL_get_peer_certificate(c->ssl_state.ssl);
+	if (!cert)
+		return 0;
+
+	if (!X509_digest(cert, EVP_sha1(), digest, &digest_size)) {
+		X509_free(cert);
+		return 0;
+	}
+
+	X509_free(cert);
+#endif /* HAVE_LIBSSL */
+#ifdef HAVE_LIBGNUTLS
+	gnutls_x509_crt_t cert;
+	unsigned int cert_list_size;
+	const gnutls_datum_t *cert_list;
+	unsigned char digest[MAX_HASH_SIZE];
+	size_t digest_size;
+
+	if (gnutls_certificate_type_get(c->ssl_state.gnutls_session) != GNUTLS_CRT_X509)
+		return 0;
+
+	if (gnutls_x509_crt_init(&cert) != GNUTLS_E_SUCCESS)
+		return 0;
+
+	cert_list_size = 0;
+	cert_list = gnutls_certificate_get_peers(c->ssl_state.gnutls_session,
+						 &cert_list_size);
+	if (!cert_list) {
+		gnutls_x509_crt_deinit(cert);
+		return 0;
+	}
+	
+	if (gnutls_x509_crt_import(cert, &cert_list[0], GNUTLS_X509_FMT_DER) != GNUTLS_E_SUCCESS) {
+		gnutls_x509_crt_deinit(cert);
+		return 0;
+	}
+
+	digest_size = sizeof(digest);
+	if (gnutls_x509_crt_get_fingerprint(cert, GNUTLS_DIG_SHA1, digest, &digest_size)) {
+		gnutls_x509_crt_deinit(cert);
+		return 0;
+	}
+
+	gnutls_x509_crt_deinit(cert);
+#endif /* HAVE_LIBGNUTLS */
+
+	assert(c->ssl_state.fingerprint == NULL);
+
+	c->ssl_state.fingerprint = malloc(CERTFP_LEN);
+	if (!c->ssl_state.fingerprint)
+		return 0;
+
+	for (i = 0; i < (int)digest_size; i++) {
+		c->ssl_state.fingerprint[i * 2] = hex[digest[i] / 16];
+		c->ssl_state.fingerprint[i * 2 + 1] = hex[digest[i] % 16];
+	}
+	c->ssl_state.fingerprint[i * 2] = '\0';
+
+	return 1;
+}
 
 /* accept/connect wrapper. if connect is true, connect to peer, otherwise wait for incoming connection */
 static int
@@ -634,6 +723,8 @@ ConnectAccept( CONNECTION *c, bool connect)
 	if (ret)
 		return ConnSSL_HandleError(c, ret, "gnutls_handshake");
 #endif /* _GNUTLS */
+	(void)ConnSSL_InitFingerprint(c);
+
 	Conn_OPTION_DEL(c, (CONN_SSL_WANT_WRITE|CONN_SSL_WANT_READ|CONN_SSL_CONNECT));
 	ConnSSL_LogCertInfo(c);
 
@@ -725,6 +816,19 @@ ConnSSL_GetCipherInfo(CONNECTION *c, char *buf, size_t len)
 #endif
 }
 
+char *
+ConnSSL_GetFingerprint(CONNECTION *c)
+{
+	return c->ssl_state.fingerprint;
+}
+
+bool
+ConnSSL_SetFingerprint(CONNECTION *c, const char *fingerprint)
+{
+	assert (c != NULL);
+	c->ssl_state.fingerprint = strdup(fingerprint);
+	return c->ssl_state.fingerprint != NULL;
+}
 #else
 
 bool

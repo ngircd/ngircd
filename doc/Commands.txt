@@ -479,12 +479,16 @@ Status and Informational Commands
 	 - RFC 2812, 3.4.6 "Time message"
 
 - TRACE
-	TRACE [<server>]
+	TRACE [<target>]
 	.
 	Find the route to a specific server and send information about its
 	peers. Each server that processes this command reports back to the
 	sender about it: the replies from pass-through servers form a chain
 	which shows the route to the destination.
+	.
+	<target> can be a server name, the nickname of a client connected to
+	a specific server, or a mask matching a server name in the network.
+	The server of the current connection is used when <target> is omitted.
 
 	References:
 	 - RFC 2812, 3.4.8 "Trace message"

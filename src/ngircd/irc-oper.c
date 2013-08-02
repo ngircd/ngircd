@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2011 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2013 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@
 #include "conf.h"
 #include "channel.h"
 #include "class.h"
+#include "irc-macros.h"
 #include "irc-write.h"
 #include "log.h"
 #include "match.h"
@@ -55,8 +56,6 @@ Bad_OperPass(CLIENT *Client, char *errtoken, char *errmsg)
 /**
  * Handler for the IRC "OPER" command.
  *
- * See RFC 2812, 3.1.4 "Oper message".
- *
  * @param Client The client from which this command has been received.
  * @param Req Request structure with prefix and all parameters.
  * @return CONNECTED or DISCONNECTED.
@@ -70,9 +69,7 @@ IRC_OPER( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	if (Req->argc != 2)
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
-					  Client_ID(Client), Req->command);
+	_IRC_ARGC_EQ_OR_RETURN_(Client, Req, 2)
 
 	len = array_length(&Conf_Opers, sizeof(*op));
 	op = array_start(&Conf_Opers);
@@ -108,8 +105,6 @@ IRC_OPER( CLIENT *Client, REQUEST *Req )
 /**
  * Handler for the IRC "DIE" command.
  *
- * See RFC 2812, 4.3 "Die message".
- *
  * @param Client The client from which this command has been received.
  * @param Req Request structure with prefix and all parameters.
  * @return CONNECTED or DISCONNECTED.
@@ -128,14 +123,11 @@ IRC_DIE(CLIENT * Client, REQUEST * Req)
 	if (!Op_Check(Client, Req))
 		return Op_NoPrivileges(Client, Req);
 
-	/* Bad number of parameters? */
 #ifdef STRICT_RFC
-	if (Req->argc != 0)
+	_IRC_ARGC_EQ_OR_RETURN_(Client, Req, 0)
 #else
-	if (Req->argc > 1)
+	_IRC_ARGC_LE_OR_RETURN_(Client, Req, 1)
 #endif
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
-					  Client_ID(Client), Req->command);
 
 	/* Is a message given? */
 	if (Req->argc > 0) {
@@ -159,8 +151,6 @@ IRC_DIE(CLIENT * Client, REQUEST * Req)
 /**
  * Handler for the IRC "REHASH" command.
  *
- * See RFC 2812, 4.2 "Rehash message".
- *
  * @param Client The client from which this command has been received.
  * @param Req Request structure with prefix and all parameters.
  * @return CONNECTED or DISCONNECTED.
@@ -176,10 +166,7 @@ IRC_REHASH( CLIENT *Client, REQUEST *Req )
 	if (!Op_Check(Client, Req))
 		return Op_NoPrivileges(Client, Req);
 
-	/* Bad number of parameters? */
-	if (Req->argc != 0)
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
-					  Client_ID(Client), Req->command );
+	_IRC_ARGC_EQ_OR_RETURN_(Client, Req, 0)
 
 	Log(LOG_NOTICE|LOG_snotice, "Got REHASH command from \"%s\" ...",
 	    Client_Mask(Client));
@@ -192,8 +179,6 @@ IRC_REHASH( CLIENT *Client, REQUEST *Req )
 
 /**
  * Handler for the IRC "RESTART" command.
- *
- * See RFC 2812, 4.4 "Restart message".
  *
  * @param Client The client from which this command has been received.
  * @param Req Request structure with prefix and all parameters.
@@ -224,8 +209,6 @@ IRC_RESTART( CLIENT *Client, REQUEST *Req )
 
 /**
  * Handler for the IRC "CONNECT" command.
- *
- * See RFC 2812, 3.4.7 "Connect message".
  *
  * @param Client The client from which this command has been received.
  * @param Req Request structure with prefix and all parameters.
@@ -377,8 +360,6 @@ IRC_DISCONNECT(CLIENT * Client, REQUEST * Req)
 /**
  * Handler for the IRC "WALLOPS" command.
  *
- * See RFC 2812, 4.7 "Operwall message".
- *
  * @param Client The client from which this command has been received.
  * @param Req Request structure with prefix and all parameters.
  * @return CONNECTED or DISCONNECTED.
@@ -391,9 +372,7 @@ IRC_WALLOPS( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	if (Req->argc != 1)
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
-					  Client_ID(Client), Req->command);
+	_IRC_ARGC_EQ_OR_RETURN_(Client, Req, 1)
 
 	switch (Client_Type(Client)) {
 	case CLIENT_USER:

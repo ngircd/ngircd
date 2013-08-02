@@ -448,35 +448,9 @@ WHOWAS_EntryWrite(CLIENT *prefix, WHOWAS *entry)
 				  entry->id, entry->server, t_str);
 }
 
-static bool
-Show_MOTD_Start(CLIENT *Client)
-{
-	return IRC_WriteStrClient(Client, RPL_MOTDSTART_MSG,
-				  Client_ID( Client ), Client_ID( Client_ThisServer( )));
-}
-
-static bool
-Show_MOTD_Sendline(CLIENT *Client, const char *msg)
-{
-	return IRC_WriteStrClient(Client, RPL_MOTD_MSG, Client_ID( Client ), msg);
-}
-
-static bool
-Show_MOTD_End(CLIENT *Client)
-{
-	if (!IRC_WriteStrClient(Client, RPL_ENDOFMOTD_MSG, Client_ID(Client)))
-		return DISCONNECTED;
-
-	if (*Conf_CloakHost)
-		return IRC_WriteStrClient(Client, RPL_HOSTHIDDEN_MSG,
-					  Client_ID(Client),
-					  Client_Hostname(Client));
-
-	return CONNECTED;
-}
-
 #ifdef SSL_SUPPORT
-static bool Show_MOTD_SSLInfo(CLIENT *Client)
+static bool
+Show_MOTD_SSLInfo(CLIENT *Client)
 {
 	char buf[COMMAND_LEN];
 	char c_str[128];
@@ -500,9 +474,11 @@ static bool Show_MOTD_SSLInfo(CLIENT *Client)
 	return true;
 }
 #else
-static inline bool
+static bool
 Show_MOTD_SSLInfo(UNUSED CLIENT *c)
-{ return true; }
+{
+	return true;
+}
 #endif
 
 /* Global functions */
@@ -1496,7 +1472,8 @@ IRC_Show_MOTD( CLIENT *Client )
 	if (len_tot == 0 && !Conn_UsesSSL(Client_Conn(Client)))
 		return IRC_WriteStrClient(Client, ERR_NOMOTD_MSG, Client_ID(Client));
 
-	if (!Show_MOTD_Start(Client))
+	if (!IRC_WriteStrClient(Client, RPL_MOTDSTART_MSG, Client_ID(Client),
+				Client_ID(Client_ThisServer())))
 		return DISCONNECTED;
 
 	line = array_start(&Conf_Motd);
@@ -1506,14 +1483,23 @@ IRC_Show_MOTD( CLIENT *Client )
 		assert(len_tot >= len_str);
 		len_tot -= len_str;
 
-		if (!Show_MOTD_Sendline(Client, line))
+		if (!IRC_WriteStrClient(Client, RPL_MOTD_MSG, Client_ID(Client), line))
 			return DISCONNECTED;
 		line += len_str;
 	}
 
 	if (!Show_MOTD_SSLInfo(Client))
 		return DISCONNECTED;
-	return Show_MOTD_End(Client);
+
+	if (!IRC_WriteStrClient(Client, RPL_ENDOFMOTD_MSG, Client_ID(Client)))
+		return DISCONNECTED;
+
+	if (*Conf_CloakHost)
+		return IRC_WriteStrClient(Client, RPL_HOSTHIDDEN_MSG,
+					  Client_ID(Client),
+					  Client_Hostname(Client));
+
+	return CONNECTED;
 } /* IRC_Show_MOTD */
 
 /**

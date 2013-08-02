@@ -651,37 +651,61 @@ Administrative Commands
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 - CONNECT
-	CONNECT <target server> [<port> [<remote server> [<mypwd> <peerpwd>]]]
+	CONNECT <server> [<port> [<remote-server> [<my-pwd> <peer-pwd>]]]
 	.
-	Instructs the current server, or <remote server> if specified,
-	to connect to <target server>.
+	Instructs the current server, or <remote-server> if specified,
+	to connect to the server named <server>, which must be configured
+	in the server configuration file.
 	.
-	To connect <remote server> you need to have remote oper status.
-	If <port> is omitted, it uses the server port of the configuration.
-	If <mypwd> and <peerpwd> is given, it uses those passwords instead
-	of the ones in the configuration.
+	To use this command, the user must be an IRC Operator. To establish
+	a connection on a <remote-server>, you must have remote IRC operator
+	privileges.
+	.
+	If <port>, <my-pwd> and <peer-pwd> are given, these values override
+	the ones specified in the server configuration file.
+
+	References:
+	 - RFC 2812, 3.4.7 "Connect message"
 
 - DIE
 	DIE
 	.
 	Instructs the server to shut down.
+	.
+	To use this command, the user must be an IRC Operator.
+
+	References:
+	 - RFC 2812, 4.3 "Die message"
 
 - DISCONNECT
-	DISCONNECT [<remote server>]
+	DISCONNECT <server>
 	.
-	Disconnects the current server, or <remote server> if specified.
-	To disconnect a <remote server> you need to have remote oper status.
+	Disconnect and disable a locally linked server.
+	.
+	To use this command, the user must be an IRC Operator.
+
+	References:
+	 - This command is not specified in the IRC RFCs, it is an extension
+	   of ngIRCd.
 
 - GLINE
-	GLINE <nick!user@hostmask> <seconds> :<reason>
+	GLINE <nick!user@hostmask> [<timeout> :<reason>]
 	.
-	This command provides timed G-Lines (Network-wide bans).
+	This command provides timed G-Lines (network-wide bans).
+	.
 	If a client matches a G-Line, it cannot connect to any server on
-	the IRC network. If you put 0 as <seconds>, it makes the G-Line
-	permanent.
+	the IRC network for <timeout> seconds. When <timoeut> is 0, it make
+	the G-Line permanent.
 	.
-	To remove a G-Line, type "GLINE <nick!user@hostmask>".
-	To list the G-Lines, type "STATS g".
+	If no <timeout> and no <reason> is given, the G-Line is removed.
+	.
+	To use this command, the user must be an IRC Operator.
+	.
+	"STATS g" can be used to list all currently active G-Lines.
+
+	References:
+	 - This command is not specified in the IRC RFCs, it is an extension
+	   of ngIRCd.
 
 - KILL
 	KILL <nickname> <reason>
@@ -691,40 +715,78 @@ Administrative Commands
 	.
 	This command is used internally between servers, too, for example
 	to disconnect duplicate <nickname>'s after a "net split".
+	.
+	To use this command, the user must be an IRC Operator.
 
 	References:
 	 - RFC 2812, 3.7.1 "Kill message"
 
 - KLINE
-	KLINE <nick!user@hostmask> <seconds> :<reason>
+	KLINE <nick!user@hostmask> [<timeout> :<reason>]
 	.
-	This command provides timed K-Lines (Server-local bans).
-	If a client matches a K-Line, it cannot connect to the issued server.
-	If you put 0 as <seconds>, it makes the K-Line permanent.
+	This command provides timed K-Lines (server-local bans).
 	.
-	To remove a K-Line, type "KLINE <nick!user@hostmask>".
-	To list the K-Lines, type "STATS k".
+	If a client matches a K-Line, it cannot connect to this server for
+	<timeout> seconds. When <timoeut> is 0, it makes the K-Line permanent.
+	.
+	If no <timeout> and no <reason> is given, the K-Line is removed.
+	.
+	To use this command, the user must be an IRC Operator.
+	.
+	"STATS k" can be used to list all currently active K-Lines.
+
+	References:
+	 - This command is not specified in the IRC RFCs, it is an extension
+	   of ngIRCd.
 
 - OPER
-	OPER <user> <password>
+	OPER <name> <password>
 	.
-	Authenticates <user> as an IRC operator on the current server/network.
+	Authenticates a user named <name> as an IRC operator on the current
+	server/network.
+	.
+	This operator <name> must be configured in the server configuration.
+	.
+	Please note that <name> is NOT related to a nickname at all!
+
+	References:
+	 - RFC 2812, 3.1.4 "Oper message"
 
 - REHASH
 	REHASH
 	.
 	Causes the server to re-read and re-process its configuration file(s).
+	.
+	While rehashing, no new connections are accepted, but all already
+	established connections stay connected.
+	.
+	To use this command, the user must be an IRC Operator.
+
+	References:
+	 - RFC 2812, 4.2 "Rehash message"
 
 - RESTART
 	RESTART
 	.
 	Restart the server.
+	.
+	While restarting, all connections are reset and no new connections
+	are accepted.
+	.
+	To use this command, the user must be an IRC Operator.
+
+	References:
+	 - RFC 2812, 4.4 "Restart message"
 
 - WALLOPS
 	WALLOPS <message>
 	.
 	Sends <message> to all users with user mode "+w".
+	.
+	To use this command, the user must be an IRC Operator.
 
+	References:
+	 - RFC 2812, 4.7 "Operwall message"
 
 IRC Service Commands
 ~~~~~~~~~~~~~~~~~~~~

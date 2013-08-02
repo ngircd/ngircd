@@ -865,6 +865,8 @@ Server Protocol Commands
 	.
 	CHANINFO is used by servers to inform each other about a channel:
 	its modes, channel key, user limits and its topic.
+	.
+	The CHANINFO command is allowed on server-links only.
 
 	References:
 	 - IRC+, <http://ngircd.barton.de/doc/Protocol.txt>
@@ -892,20 +894,50 @@ Server Protocol Commands
 	The METADATA command is used on server-links to update "metadata"
 	information of clients, like the hostname, the info text ("real name"),
 	or the user name.
+	.
+	The METADATA command is allowed on server-links only.
 
 	References:
 	 - IRC+, <http://ngircd.barton.de/doc/Protocol.txt>
 	 - IRC+, doc/Protocol.txt
 
 - NJOIN
+	NJOIN <channel> [<mode>]<nick>[,[<mode>]<nick>[,...]]
+	.
+	The NJOIN command is used on setver-links to add users with <nick>
+	and <mode> to a <channel> while peering.
+	.
+	The NJOIN command is allowed on server-links only.
+
+	References:
+	 - RFC 2813, 4.2.2 "Njoin message"
 
 - SERVER
+	SERVER <servername> <info>
+	SERVER <servername> <hopcount> <info>
+	SERVER <servername> <hopcount> <token> <info>
+	.
+	The first form registers the local connection as a new server in the
+	network, the second (RFC 1459) and third (RFC 2812) form announce a
+	new remote server in the network.
+	.
+	The SERVER command is allowed on unregistered or server-links only.
+
+	References:
+	 - RFC 1459, 4.1.4 "Server message"
+	 - RFC 2813, 4.1.2 "Server message"
 
 - SQUIT
-	SQUIT <server>
+	SQUIT <server> <comment>
 	.
 	Disconnects an IRC Server from the network.
+	.
+	This command is used on server-links, but can be used by IRC Operators
+	to forcefully disconnect servers from the network, too.
 
+	References:
+	 - RFC 2812, 3.1.8 "Squit"
+	 - RFC 2813, 4.1.6 "Server quit message"
 
 Dummy Commands
 ~~~~~~~~~~~~~~
@@ -934,5 +966,19 @@ Dummy Commands
 	 - RFC 2812, 4.6 "Users"
 
 - GET
+	GET [...]
+	.
+	Fake HTTP GET command. When received, the connection is shut down
+	immediately again to protect against crazy web browsers ...
+
+	References:
+	 - ngIRCd GIT commit 33e8c2480649
 
 - POST
+	POST [...]
+	.
+	Fake HTTP POST command. When received, the connection is shut down
+	immediately again to protect against crazy web browsers ...
+
+	References:
+	 - ngIRCd GIT commit 33e8c2480649

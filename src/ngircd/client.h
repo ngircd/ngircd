@@ -93,6 +93,8 @@ GLOBAL CLIENT *Client_ThisServer PARAMS(( void ));
 
 GLOBAL CLIENT *Client_GetFromToken PARAMS(( CLIENT *Client, int Token ));
 
+GLOBAL bool Client_Announce PARAMS(( CLIENT *Client, CLIENT *Prefix, CLIENT *User ));
+
 GLOBAL CLIENT *Client_Search PARAMS(( const char *ID ));
 GLOBAL CLIENT *Client_SearchServer PARAMS(( const char *ID ));
 GLOBAL CLIENT *Client_First PARAMS(( void ));

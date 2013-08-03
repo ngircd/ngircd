@@ -150,80 +150,6 @@ Announce_Server(CLIENT * Client, CLIENT * Server)
 } /* Announce_Server */
 
 
-/**
- * Announce existing user to a new server
- * @param Client New server
- * @param User Existing user in the network
- */
-static bool
-Announce_User(CLIENT * Client, CLIENT * User)
-{
-	CONN_ID conn;
-	char *modes;
-
-	conn = Client_Conn(Client);
-	if (Conn_Options(conn) & CONN_RFC1459) {
-		/* RFC 1459 mode: separate NICK and USER commands */
-		if (! Conn_WriteStr(conn, "NICK %s :%d",
-				    Client_ID(User), Client_Hops(User) + 1))
-			return DISCONNECTED;
-		if (! Conn_WriteStr(conn, ":%s USER %s %s %s :%s",
-				     Client_ID(User), Client_User(User),
-				     Client_Hostname(User),
-				     Client_ID(Client_Introducer(User)),
-				     Client_Info(User)))
-			return DISCONNECTED;
-		modes = Client_Modes(User);
-		if (modes[0]) {
-			return Conn_WriteStr(conn, ":%s MODE %s +%s",
-				     Client_ID(User), Client_ID(User),
-				     modes);
-		}
-	} else {
-		/* RFC 2813 mode: one combined NICK or SERVICE command */
-		if (Client_Type(User) == CLIENT_SERVICE
-		    && strchr(Client_Flags(Client), 'S')) {
-			if (!IRC_WriteStrClient(Client,
-					"SERVICE %s %d * +%s %d :%s",
-					Client_Mask(User),
-					Client_MyToken(Client_Introducer(User)),
-					Client_Modes(User), Client_Hops(User) + 1,
-					Client_Info(User)))
-				return DISCONNECTED;
-		} else {
-			if (!IRC_WriteStrClient(Client,
-					"NICK %s %d %s %s %d +%s :%s",
-					Client_ID(User), Client_Hops(User) + 1,
-					Client_User(User), Client_Hostname(User),
-					Client_MyToken(Client_Introducer(User)),
-					Client_Modes(User), Client_Info(User)))
-				return DISCONNECTED;
-		}
-	}
-
-	if (strchr(Client_Flags(Client), 'M')) {
-		/* Synchronize metadata */
-		if (Client_HostnameCloaked(User)) {
-			if (!IRC_WriteStrClient(Client,
-						"METADATA %s cloakhost :%s",
-						Client_ID(User),
-						Client_HostnameCloaked(User)))
-				return DISCONNECTED;
-		}
-	}
-
-	if (Conn_GetFingerprint(conn)) {
-		if (!IRC_WriteStrClient(Client,
-					"METADATA %s certfp :%s",
-					Client_ID(User),
-					Conn_GetFingerprint(conn)))
-			return DISCONNECTED;
-	}
-
-	return CONNECTED;
-} /* Announce_User */
-
-
 #ifdef IRCPLUS
 
 /**
@@ -380,7 +306,7 @@ IRC_Num_ENDOFMOTD(CLIENT * Client, UNUSED REQUEST * Req)
 	while (c) {
 		if (Client_Type(c) == CLIENT_USER ||
 		    Client_Type(c) == CLIENT_SERVICE) {
-			if (!Announce_User(Client, c))
+			if (!Client_Announce(Client, Client_ThisServer(), c))
 				return DISCONNECTED;
 		}
 		c = Client_Next(c);

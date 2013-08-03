@@ -1513,9 +1513,6 @@ Destroy_UserOrService(CLIENT *Client, const char *Txt, const char *FwdMsg, bool 
 /**
  * Introduce a new user or service client to a remote server.
  *
- * This function differentiates between RFC1459 and RFC2813 server links and
- * generates the appropriate commands to register the new user or service.
- *
  * @param To		The remote server to inform.
  * @param Prefix	Prefix for the generated commands.
  * @param data		CLIENT structure of the new client.
@@ -1524,43 +1521,92 @@ static void
 cb_introduceClient(CLIENT *To, CLIENT *Prefix, void *data)
 {
 	CLIENT *c = (CLIENT *)data;
+
+	(void)Client_Announce(To, Prefix, c);
+
+} /* cb_introduceClient */
+
+
+/**
+ * Announce an user or service to a server.
+ *
+ * This function differentiates between RFC1459 and RFC2813 server links and
+ * generates the appropriate commands to register the user or service.
+ *
+ * @param Client	Server
+ * @param Prefix	Prefix for the generated commands
+ * @param User		User to announce
+ */
+GLOBAL bool
+Client_Announce(CLIENT * Client, CLIENT * Prefix, CLIENT * User)
+{
 	CONN_ID conn;
 	char *modes, *user, *host;
 
-	modes = Client_Modes(c);
-	user = Client_User(c) ? Client_User(c) : "-";
-	host = Client_Hostname(c) ? Client_Hostname(c) : "-";
+	modes = Client_Modes(User);
+	user = Client_User(User) ? Client_User(User) : "-";
+	host = Client_Hostname(User) ? Client_Hostname(User) : "-";
 
-	conn = Client_Conn(To);
+	conn = Client_Conn(Client);
 	if (Conn_Options(conn) & CONN_RFC1459) {
 		/* RFC 1459 mode: separate NICK and USER commands */
-		Conn_WriteStr(conn, "NICK %s :%d", Client_ID(c),
-			      Client_Hops(c) + 1);
-		Conn_WriteStr(conn, ":%s USER %s %s %s :%s",
-			      Client_ID(c), user, host,
-			      Client_ID(Client_Introducer(c)), Client_Info(c));
-		if (modes[0])
-			Conn_WriteStr(conn, ":%s MODE %s +%s",
-				      Client_ID(c), Client_ID(c), modes);
+		if (! Conn_WriteStr(conn, "NICK %s :%d",
+				    Client_ID(User), Client_Hops(User) + 1))
+			return DISCONNECTED;
+		if (! Conn_WriteStr(conn, ":%s USER %s %s %s :%s",
+				     Client_ID(User), user, host,
+				     Client_ID(Client_Introducer(User)),
+				     Client_Info(User)))
+			return DISCONNECTED;
+		if (modes[0]) {
+			if (! Conn_WriteStr(conn, ":%s MODE %s +%s",
+				     Client_ID(User), Client_ID(User),
+				     modes))
+				return DISCONNECTED;
+		}
 	} else {
 		/* RFC 2813 mode: one combined NICK or SERVICE command */
-		if (Client_Type(c) == CLIENT_SERVICE
-		    && strchr(Client_Flags(To), 'S'))
-			IRC_WriteStrClientPrefix(To, Prefix,
-						 "SERVICE %s %d * +%s %d :%s",
-						 Client_Mask(c),
-						 Client_MyToken(Client_Introducer(c)),
-						 Client_Modes(c), Client_Hops(c) + 1,
-						 Client_Info(c));
-		else
-			IRC_WriteStrClientPrefix(To, Prefix,
-						 "NICK %s %d %s %s %d +%s :%s",
-						 Client_ID(c), Client_Hops(c) + 1,
-						 user, host,
-						 Client_MyToken(Client_Introducer(c)),
-						 modes, Client_Info(c));
+		if (Client_Type(User) == CLIENT_SERVICE
+		    && strchr(Client_Flags(Client), 'S')) {
+			if (!IRC_WriteStrClientPrefix(Client, Prefix,
+					"SERVICE %s %d * +%s %d :%s",
+					Client_Mask(User),
+					Client_MyToken(Client_Introducer(User)),
+					modes, Client_Hops(User) + 1,
+					Client_Info(User)))
+				return DISCONNECTED;
+		} else {
+			if (!IRC_WriteStrClientPrefix(Client, Prefix,
+					"NICK %s %d %s %s %d +%s :%s",
+					Client_ID(User), Client_Hops(User) + 1,
+					user, host,
+					Client_MyToken(Client_Introducer(User)),
+					modes, Client_Info(User)))
+				return DISCONNECTED;
+		}
 	}
-} /* cb_introduceClient */
+
+	if (strchr(Client_Flags(Client), 'M')) {
+		/* Synchronize metadata */
+		if (Client_HostnameCloaked(User)) {
+			if (!IRC_WriteStrClientPrefix(Client, Prefix,
+					"METADATA %s cloakhost :%s",
+					Client_ID(User),
+					Client_HostnameCloaked(User)))
+				return DISCONNECTED;
+		}
+
+		if (Conn_GetFingerprint(Client_Conn(User))) {
+			if (!IRC_WriteStrClientPrefix(Client, Prefix,
+					"METADATA %s certfp :%s",
+					Client_ID(User),
+					Conn_GetFingerprint(Client_Conn(User))))
+				return DISCONNECTED;
+		}
+	}
+
+	return CONNECTED;
+} /* Client_Announce */
 
 
 #ifdef DEBUG

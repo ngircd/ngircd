@@ -387,11 +387,11 @@ IRC_WHOIS_SendReply(CLIENT *Client, CLIENT *from, CLIENT *c)
 			return DISCONNECTED;
 
 		/* Certificate fingerprint? */
-		if (Conn_GetFingerprint(Client_Conn(c)) &&
+		if (Conn_GetCertFp(Client_Conn(c)) &&
 		    from == c &&
 		    !IRC_WriteStrClient(from, RPL_WHOISCERTFP_MSG,
 					Client_ID(from), Client_ID(c),
-					Conn_GetFingerprint(Client_Conn(c))))
+					Conn_GetCertFp(Client_Conn(c))))
 			return DISCONNECTED;
 	}
 
@@ -462,10 +462,10 @@ Show_MOTD_SSLInfo(CLIENT *Client)
 			return false;
 	}
 
-	if (Conn_GetFingerprint(Client_Conn(Client))) {
+	if (Conn_GetCertFp(Client_Conn(Client))) {
 		snprintf(buf, sizeof(buf),
 			 "Your client certificate fingerprint is: %s",
-			 Conn_GetFingerprint(Client_Conn(Client)));
+			 Conn_GetCertFp(Client_Conn(Client)));
 		if (!IRC_WriteStrClient(Client, RPL_MOTD_MSG,
 					Client_ID(Client), buf))
 			return false;

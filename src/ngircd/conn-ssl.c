@@ -633,7 +633,7 @@ ConnSSL_Connect( CONNECTION *c )
 }
 
 static int
-ConnSSL_InitFingerprint( CONNECTION *c )
+ConnSSL_InitCertFp( CONNECTION *c )
 {
 	const char hex[] = "0123456789abcdef";
 	int i;
@@ -723,7 +723,7 @@ ConnectAccept( CONNECTION *c, bool connect)
 	if (ret)
 		return ConnSSL_HandleError(c, ret, "gnutls_handshake");
 #endif /* _GNUTLS */
-	(void)ConnSSL_InitFingerprint(c);
+	(void)ConnSSL_InitCertFp(c);
 
 	Conn_OPTION_DEL(c, (CONN_SSL_WANT_WRITE|CONN_SSL_WANT_READ|CONN_SSL_CONNECT));
 	ConnSSL_LogCertInfo(c);
@@ -817,13 +817,13 @@ ConnSSL_GetCipherInfo(CONNECTION *c, char *buf, size_t len)
 }
 
 char *
-ConnSSL_GetFingerprint(CONNECTION *c)
+ConnSSL_GetCertFp(CONNECTION *c)
 {
 	return c->ssl_state.fingerprint;
 }
 
 bool
-ConnSSL_SetFingerprint(CONNECTION *c, const char *fingerprint)
+ConnSSL_SetCertFp(CONNECTION *c, const char *fingerprint)
 {
 	assert (c != NULL);
 	c->ssl_state.fingerprint = strdup(fingerprint);

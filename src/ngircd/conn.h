@@ -139,8 +139,8 @@ GLOBAL CONN_ID Conn_GetFromProc PARAMS((int fd));
 GLOBAL CLIENT* Conn_GetClient PARAMS((CONN_ID i));
 GLOBAL PROC_STAT* Conn_GetProcStat PARAMS((CONN_ID i));
 
-GLOBAL char *Conn_GetFingerprint PARAMS((CONN_ID Idx));
-GLOBAL bool Conn_SetFingerprint PARAMS((CONN_ID Idx, const char *fingerprint));
+GLOBAL char *Conn_GetCertFp PARAMS((CONN_ID Idx));
+GLOBAL bool Conn_SetCertFp PARAMS((CONN_ID Idx, const char *fingerprint));
 GLOBAL bool Conn_UsesSSL PARAMS((CONN_ID Idx));
 
 #ifdef SSL_SUPPORT

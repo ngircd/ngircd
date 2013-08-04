@@ -2613,22 +2613,22 @@ Conn_UsesSSL(CONN_ID Idx)
 
 
 GLOBAL char *
-Conn_GetFingerprint(CONN_ID Idx)
+Conn_GetCertFp(CONN_ID Idx)
 {
 	if (Idx < 0)
 		return NULL;
 	assert(Idx < (int) array_length(&My_ConnArray, sizeof(CONNECTION)));
-	return ConnSSL_GetFingerprint(&My_Connections[Idx]);
+	return ConnSSL_GetCertFp(&My_Connections[Idx]);
 }
 
 
 GLOBAL bool
-Conn_SetFingerprint(CONN_ID Idx, const char *fingerprint)
+Conn_SetCertFp(CONN_ID Idx, const char *fingerprint)
 {
 	if (Idx < 0)
 		return false;
 	assert(Idx < (int) array_length(&My_ConnArray, sizeof(CONNECTION)));
-	return ConnSSL_SetFingerprint(&My_Connections[Idx], fingerprint);
+	return ConnSSL_SetCertFp(&My_Connections[Idx], fingerprint);
 }
 #else
 GLOBAL bool
@@ -2639,14 +2639,14 @@ Conn_UsesSSL(UNUSED CONN_ID Idx)
 
 
 GLOBAL char *
-Conn_GetFingerprint(UNUSED CONN_ID Idx)
+Conn_GetCertFp(UNUSED CONN_ID Idx)
 {
 	return NULL;
 }
 
 
 GLOBAL bool
-Conn_SetFingerprint(UNUSED CONN_ID Idx, UNUSED const char *fingerprint)
+Conn_SetCertFp(UNUSED CONN_ID Idx, UNUSED const char *fingerprint)
 {
 	return true;
 }

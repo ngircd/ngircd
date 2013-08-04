@@ -1596,11 +1596,11 @@ Client_Announce(CLIENT * Client, CLIENT * Prefix, CLIENT * User)
 				return DISCONNECTED;
 		}
 
-		if (Conn_GetFingerprint(Client_Conn(User))) {
+		if (Conn_GetCertFp(Client_Conn(User))) {
 			if (!IRC_WriteStrClientPrefix(Client, Prefix,
 					"METADATA %s certfp :%s",
 					Client_ID(User),
-					Conn_GetFingerprint(Client_Conn(User))))
+					Conn_GetCertFp(Client_Conn(User))))
 				return DISCONNECTED;
 		}
 	}

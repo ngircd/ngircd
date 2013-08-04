@@ -26,8 +26,8 @@ GLOBAL ssize_t ConnSSL_Write PARAMS(( CONNECTION *c, const void *buf, size_t cou
 GLOBAL ssize_t ConnSSL_Read PARAMS(( CONNECTION *c, void *buf, size_t count));
 
 GLOBAL bool ConnSSL_GetCipherInfo PARAMS(( CONNECTION *c, char *buf, size_t len ));
-GLOBAL char *ConnSSL_GetFingerprint PARAMS(( CONNECTION *c ));
-GLOBAL bool ConnSSL_SetFingerprint PARAMS(( CONNECTION *c, const char *fingerprint ));
+GLOBAL char *ConnSSL_GetCertFp PARAMS(( CONNECTION *c ));
+GLOBAL bool ConnSSL_SetCertFp PARAMS(( CONNECTION *c, const char *fingerprint ));
 
 #endif /* SSL_SUPPORT */
 #endif /* conn_ssl_h */

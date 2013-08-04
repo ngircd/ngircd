@@ -16,7 +16,7 @@
 
 /**
  * @file
- * PAM User Authentification (header)
+ * PAM User Authentication (header)
  */
 
 GLOBAL bool PAM_Authenticate PARAMS((CLIENT *Client));

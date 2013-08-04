@@ -137,8 +137,6 @@ Conn_Flag( CONN_ID Idx )
 GLOBAL void
 Conn_SetFlag( CONN_ID Idx, int Flag )
 {
-	/* Connection markieren */
-
 	assert( Idx > NONE );
 	My_Connections[Idx].flag = Flag;
 } /* Conn_SetFlag */
@@ -147,9 +145,6 @@ Conn_SetFlag( CONN_ID Idx, int Flag )
 GLOBAL CONN_ID
 Conn_First( void )
 {
-	/* Connection-Struktur der ersten Verbindung liefern;
-	 * Ist keine Verbindung vorhanden, wird NONE geliefert. */
-
 	CONN_ID i;
 	
 	for( i = 0; i < Pool_Size; i++ )
@@ -163,9 +158,6 @@ Conn_First( void )
 GLOBAL CONN_ID
 Conn_Next( CONN_ID Idx )
 {
-	/* Naechste Verbindungs-Struktur liefern; existiert keine
-	 * weitere, so wird NONE geliefert. */
-
 	CONN_ID i = NONE;
 
 	assert( Idx > NONE );

@@ -128,7 +128,7 @@ time_t idle_t = 0;
  * Get number of sockets available from systemd(8).
  *
  * ngIRCd needs to implement its own sd_listen_fds(3) function and can't
- * use the one provided by systemd itself, becaus the sockets will be
+ * use the one provided by systemd itself, because the sockets will be
  * used in a forked child process with a new PID, and this would trigger
  * an error in the standard implementation.
  *
@@ -402,14 +402,13 @@ cb_clientserver_ssl(int sock, UNUSED short what)
 
 
 /**
- * Initialize connecion module.
+ * Initialize connection module.
  */
 GLOBAL void
 Conn_Init( void )
 {
 	CONN_ID i;
 
-	/* Speicher fuer Verbindungs-Pool anfordern */
 	Pool_Size = CONNECTION_POOL;
 	if ((Conf_MaxConnections > 0) &&
 		(Pool_Size > Conf_MaxConnections))
@@ -923,7 +922,7 @@ Conn_Handler(void)
 		 * which is the granularity with witch we handle "penalty
 		 * times" for example.
 		 * Note: tv_sec/usec are undefined(!) after io_dispatch()
-		 * returns, so we have to set it beforce each call to it! */
+		 * returns, so we have to set it before each call to it! */
 		tv.tv_usec = 0;
 		tv.tv_sec = 1;
 
@@ -1008,7 +1007,7 @@ va_dcl
 		 *
 		 * So we have a big problem here: we should send more bytes
 		 * to the network than we are allowed to and we don't know
-		 * the originator (any more). The "old" behaviour of blaming
+		 * the originator (any more). The "old" behavior of blaming
 		 * the receiver ("next hop") is a bad idea (it could be just
 		 * an other server only routing the message!), so the only
 		 * option left is to shorten the string and to hope that the
@@ -1709,7 +1708,7 @@ Socket2Index( int Sock )
 
 
 /**
- * Read data from the network to the read buffer. If an error occures,
+ * Read data from the network to the read buffer. If an error occurs,
  * the socket of this connection will be shut down.
  *
  * @param Idx	Connection index.
@@ -1858,7 +1857,7 @@ Handle_Buffer(CONN_ID Idx)
 		maxcmd = (int)(Client_UserCount() / 5)
 		       + MAX_COMMANDS_SERVER_MIN;
 		/* Allow servers to handle even more commands while peering
-		 * to speed up server login and network synchronisation. */
+		 * to speed up server login and network synchronization. */
 		if (Conn_LastPing(Idx) == 0)
 			maxcmd *= 5;
 		break;
@@ -2352,7 +2351,7 @@ cb_Connect_to_Server(int fd, UNUSED short events)
 
 /**
  * Read results of a resolver sub-process from the pipe and update the
- * apropriate connection/client structure(s): hostname and/or IDENT user name.
+ * appropriate connection/client structure(s): hostname and/or IDENT user name.
  *
  * @param r_fd		File descriptor of the pipe to the sub-process.
  * @param events	(ignored IO specification)
@@ -2579,7 +2578,7 @@ Conn_SetAuthPing(CONN_ID Idx, long ID)
 #ifdef SSL_SUPPORT
 
 /**
- * Get information about used SSL chiper.
+ * Get information about used SSL cipher.
  *
  * @param Idx	Connection index number.
  * @param buf	Buffer for returned information text.

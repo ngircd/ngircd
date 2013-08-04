@@ -111,7 +111,7 @@ IRC_ERROR(CLIENT *Client, REQUEST *Req)
 /**
  * Handler for the IRC "KILL" command.
  *
- * This function implements the IRC command "KILL" wich is used to selectively
+ * This function implements the IRC command "KILL" which is used to selectively
  * disconnect clients. It can be used by IRC operators and servers, for example
  * to "solve" nick collisions after netsplits. See RFC 2812 section 3.7.1.
  *

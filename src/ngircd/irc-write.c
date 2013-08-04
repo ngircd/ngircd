@@ -321,7 +321,7 @@ IRC_WriteStrServersPrefixFlag_CB(CLIENT *ExceptOf, CLIENT *Prefix, char Flag,
 
 /**
  * send message to all clients that are in the same channels as the client sending this message.
- * only send message once per reote server.
+ * only send message once per remote server.
  */
 #ifdef PROTOTYPES
 GLOBAL bool

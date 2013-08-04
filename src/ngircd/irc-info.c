@@ -1404,7 +1404,7 @@ IRC_Send_LUSERS(CLIENT *Client)
 
 	assert(Client != NULL);
 
-	/* Users, services and serevers in the network */
+	/* Users, services and servers in the network */
 	if (!IRC_WriteStrClient(Client, RPL_LUSERCLIENT_MSG, Client_ID(Client),
 				Client_UserCount(), Client_ServiceCount(),
 				Client_ServerCount()))

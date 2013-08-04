@@ -175,7 +175,7 @@ join_set_channelmodes(CHANNEL *chan, CLIENT *target, const char *flags)
 /**
  * Forward JOIN command to a specific server
  *
- * This function diffentiates between servers using RFC 2813 mode that
+ * This function differentiates between servers using RFC 2813 mode that
  * support the JOIN command with appended ASCII 7 character and channel
  * modes, and servers using RFC 1459 protocol which require separate JOIN
  * and MODE commands.
@@ -253,7 +253,7 @@ join_forward(CLIENT *Client, CLIENT *target, CHANNEL *chan,
 } /* join_forward */
 
 /**
- * Aknowledge user JOIN request and send "channel info" numerics.
+ * Acknowledge user JOIN request and send "channel info" numerics.
  *
  * @param Client	Client used to prefix the genrated commands
  * @param target	Forward commands/numerics to this user
@@ -495,7 +495,7 @@ IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 					  Client_ID(from), Req->argv[0]);
 
 	/* Only remote servers and channel members are allowed to change the
-	 * channel topic, and IRC opreators when the Conf_OperCanMode option
+	 * channel topic, and IRC operators when the Conf_OperCanMode option
 	 * is set in the server configuration. */
 	if (Client_Type(Client) != CLIENT_SERVER) {
 		topic_power = Client_HasMode(from, 'o');
@@ -745,7 +745,7 @@ IRC_CHANINFO( CLIENT *Client, REQUEST *Req )
 		}
 	}
 
-	/* Forward CHANINFO to other serevrs */
+	/* Forward CHANINFO to other servers */
 	if (Req->argc == 5)
 		IRC_WriteStrServersPrefixFlag(Client, from, 'C',
 					      "CHANINFO %s %s %s %s :%s",

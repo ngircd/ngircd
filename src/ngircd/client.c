@@ -87,7 +87,7 @@ Client_Init( void )
 		exit( 1 );
 	}
 
-	/* Client-Struktur dieses Servers */
+	/* Client structure for this server */
 	This_Server->next = NULL;
 	This_Server->type = CLIENT_SERVER;
 	This_Server->conn_id = NONE;
@@ -515,7 +515,7 @@ GLOBAL bool
 Client_ModeAdd( CLIENT *Client, char Mode )
 {
 	/* Set Mode.
-	 * If Client already alread had Mode, return false.
+	 * If Client already had Mode, return false.
 	 * If the Mode was newly set, return true.
 	 */
 
@@ -591,7 +591,7 @@ Client_Search( const char *Nick )
 
 
 /**
- * Serach first CLIENT structure matching a given mask of a server.
+ * Search first CLIENT structure matching a given mask of a server.
  *
  * The order of servers is arbitrary, but this function makes sure that the
  * local server is always returned if the mask matches it.
@@ -1341,8 +1341,6 @@ MyCount( CLIENT_TYPE Type )
 static CLIENT *
 New_Client_Struct( void )
 {
-	/* Neue CLIENT-Struktur pre-initialisieren */
-
 	CLIENT *c;
 
 	c = (CLIENT *)malloc( sizeof( CLIENT ));
@@ -1377,7 +1375,7 @@ Generate_MyToken( CLIENT *Client )
 	{
 		if( c->mytoken == token )
 		{
-			/* Das Token wurde bereits vergeben */
+			/* The token is already in use */
 			token++;
 			c = My_Clients;
 			continue;

@@ -160,7 +160,7 @@ va_dcl
  * suitable for the mode ngIRCd is running in (daemon vs. non-daemon).
  * If LOG_snotice is set, the log messages goes to all user with the mode +s
  * set and the local &SERVER channel, too.
- * Please note: you sould use LogDebug(...) for debug messages!
+ * Please note: you should use LogDebug(...) for debug messages!
  * @param Level syslog level (LOG_xxx)
  * @param Format Format string like printf().
  * @param ... Further arguments.

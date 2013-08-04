@@ -82,7 +82,7 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 			if (strcasecmp(Req->argv[0], Conf_Server[i].name) == 0)
 				break;
 
-		/* Makre sure the remote server is configured here */
+		/* Make sure the remote server is configured here */
 		if (i >= MAX_SERVERS) {
 			Log(LOG_ERR,
 			    "Connection %d: Server \"%s\" not configured here!",

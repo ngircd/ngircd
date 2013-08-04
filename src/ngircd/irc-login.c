@@ -544,7 +544,7 @@ IRC_SERVICE(CLIENT *Client, REQUEST *Req)
 	/* Validate service name ("nickname") */
 	c = Client_Search(nick);
 	if(c) {
-		/* Nickname collission: disconnect (KILL) both clients! */
+		/* Nickname collision: disconnect (KILL) both clients! */
 		Log(LOG_ERR, "Server %s introduces already registered service \"%s\"!",
 		    Client_ID(Client), nick);
 		Kill_Nick(nick, "Nick collision");

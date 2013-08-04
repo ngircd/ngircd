@@ -55,7 +55,6 @@ static int Matche_After_Star PARAMS(( const char *p, const char *t ));
 GLOBAL bool
 Match( const char *Pattern, const char *String )
 {
-	/* Pattern mit String vergleichen */
 	if( Matche( Pattern, String ) == MATCH_VALID ) return true;
 	else return false;
 } /* Match */

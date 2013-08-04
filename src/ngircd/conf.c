@@ -317,7 +317,7 @@ opers_puts(void)
  * This function waits for a keypress of the user when stdin/stdout are valid
  * tty's ("you can read our nice message and we can read in your keypress").
  *
- * @return	0 on succes, 1 on failure(s); therefore the result code can
+ * @return	0 on success, 1 on failure(s); therefore the result code can
  * 		directly be used by exit() when running "ngircd --configtest".
  */
 GLOBAL int
@@ -2281,7 +2281,7 @@ Conf_DebugDump(void)
 #endif
 
 /**
- * Initialize server configuration structur to default values.
+ * Initialize server configuration structure to default values.
  *
  * @param Server	Pointer to server structure to initialize.
  */

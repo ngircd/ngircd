@@ -90,7 +90,7 @@ Login_User(CLIENT * Client)
 #ifdef PAM
 	if (!Conf_PAM) {
 		/* Don't do any PAM authentication at all, instead emulate
-		 * the beahiour of the daemon compiled without PAM support:
+		 * the behavior of the daemon compiled without PAM support:
 		 * because there can't be any "server password", all
 		 * passwords supplied are classified as "wrong". */
 		if(Conn_Password(conn)[0] == '\0')
@@ -194,7 +194,7 @@ Login_User_PostAuth(CLIENT *Client)
 #ifdef PAM
 
 /**
- * Read result of the authenticatior sub-process from pipe
+ * Read result of the authenticator sub-process from pipe
  *
  * @param r_fd		File descriptor of the pipe.
  * @param events	(ignored IO specification)

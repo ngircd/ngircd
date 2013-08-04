@@ -54,7 +54,7 @@ static bool Send_ListChange PARAMS((const bool IsAdd, const char ModeChar,
  * Handler for the IRC "MODE" command.
  *
  * This function detects whether user or channel modes should be modified
- * and calls the apropriate sub-functions.
+ * and calls the appropriate sub-functions.
  *
  * @param Client The client from which this command has been received.
  * @param Req Request structure with prefix and all parameters.
@@ -354,7 +354,7 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 		}
 
 		if (send_RPL_HOSTHIDDEN_MSG && Client_Conn(Target) > NONE) {
-			/* A new (cloaked) hostname must be annoucned */
+			/* A new (cloaked) hostname must be announced */
 			IRC_WriteStrClientPrefix(Target, Origin,
 						 RPL_HOSTHIDDEN_MSG,
 						 Client_ID(Target),
@@ -1035,7 +1035,7 @@ Add_To_List(char what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel,
 }
 
 /**
- * Delete entries from channel invite, ban and exeption lists.
+ * Delete entries from channel invite, ban and exception lists.
  *
  * @param what Can be 'I' for invite, 'b' for ban, and 'e' for exception list.
  * @param Prefix The originator of the command.

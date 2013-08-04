@@ -551,7 +551,7 @@ Pidfile_Create(pid_t pid)
 
 
 /**
- * Redirect stdin, stdout and stderr to apropriate file handles.
+ * Redirect stdin, stdout and stderr to appropriate file handles.
  *
  * @param fd	The file handle stdin, stdout and stderr should be redirected to.
  */

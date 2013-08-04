@@ -127,7 +127,7 @@ static COMMAND My_Commands[] =
 	{ "GET",  IRC_QUIT_HTTP, CLIENT_UNKNOWN, 0, 0, 0 },
 	{ "POST", IRC_QUIT_HTTP, CLIENT_UNKNOWN, 0, 0, 0 },
 #endif
-	{ NULL, NULL, 0x0, 0, 0, 0 } /* Ende-Marke */
+	{ NULL, NULL, 0x0, 0, 0, 0 } /* End-Mark */
 };
 
 static void Init_Request PARAMS(( REQUEST *Req ));
@@ -157,7 +157,7 @@ Parse_GetCommandStruct( void )
  * Parse a command ("request") received from a client.
  * 
  * This function is called after the connection layer received a valid CR+LF
- * terminated line of text: we asume that this is a valid IRC command and
+ * terminated line of text: we assume that this is a valid IRC command and
  * try to do something useful with it :-)
  *
  * All errors are reported to the client from which the command has been
@@ -169,7 +169,7 @@ Parse_GetCommandStruct( void )
  * @param Idx Index of the connection from which the command has been received.
  * @param Request NULL terminated line of text (the "command").
  * @return true on success (valid command or "regular" error), false if a
- * 	fatal error occured and the connection has been shut down.
+ * 	fatal error occurred and the connection has been shut down.
  */
 GLOBAL bool
 Parse_Request( CONN_ID Idx, char *Request )
@@ -271,8 +271,6 @@ Parse_Request( CONN_ID Idx, char *Request )
 static void
 Init_Request( REQUEST *Req )
 {
-	/* Neue Request-Struktur initialisieren */
-
 	int i;
 
 	assert( Req != NULL );
@@ -367,7 +365,7 @@ Validate_Command( UNUSED CONN_ID Idx, UNUSED REQUEST *Req, bool *Closed )
 	*Closed = false;
 
 	return true;
-} /* Validate_Comman */
+} /* Validate_Command */
 
 
 static bool

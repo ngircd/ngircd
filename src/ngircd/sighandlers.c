@@ -257,7 +257,7 @@ Signal_Callback(int fd, short UNUSED what)
 /**
  * Initialize the signal handlers, catch
  * those signals we are interested in and sets SIGPIPE to be ignored.
- * @return true if initialization was sucessful.
+ * @return true if initialization was successful.
  */
 bool
 Signals_Init(void)
@@ -304,7 +304,7 @@ Signals_Init(void)
 } /* Signals_Init */
 
 /**
- * Restores signals to their default behaviour.
+ * Restores signals to their default behavior.
  *
  * This should be called after a fork() in the new
  * child prodcess, especially when we are about to call

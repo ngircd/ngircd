@@ -15,7 +15,7 @@
 
 /**
  * @file
- * PAM User Authentification
+ * PAM User Authentication
  */
 
 #include "imp.h"

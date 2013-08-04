@@ -209,6 +209,12 @@ Optional features and configuration options to further tweak the behavior of
 ngIRCd. If you want to get started quickly, you most probably don't have to
 make changes here -- they are all optional.
 .TP
+\fBAllowedChannelTypes\fR (string)
+List of allowed channel types (channel prefixes) for newly created channels
+on the local server. By default, all supported channel types are allowed.
+Set this variable to the empty string to disallow creation of new channels
+by local clients at all. Default: #&+
+.TP
 \fBAllowRemoteOper\fR (boolean)
 Are IRC operators connected to remote servers allowed to control this server,
 e.g. are they allowed to use administrative commands like CONNECT, DIE,
@@ -317,12 +323,6 @@ To make some use of this behavior, it most probably isn't useful to enable
 "Ident", "PAM" and "PAMIsOptional" at the same time, because you wouldn't be
 able to distinguish between Ident'ified and PAM-authenticated users: both
 don't have a "~" character prepended to their respective user names!
-Default: no.
-.TP
-\fBPredefChannelsOnly\fR (boolean)
-If enabled, no new channels can be created. Useful if you do not want to have
-other channels than those defined in [Channel] sections in the configuration
-file on this server.
 Default: no.
 .TP
 \fBRequireAuthPing\fR (boolean)

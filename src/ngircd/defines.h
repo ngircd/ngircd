@@ -178,6 +178,9 @@
 /** Supported channel modes. */
 #define CHANMODES "abehiIklmMnoOPqQrRstvVz"
 
+/** Supported channel types. */
+#define CHANTYPES "#&+"
+
 /** Away message for users connected to linked servers. */
 #define DEFAULT_AWAY_MSG "Away"
 

@@ -128,6 +128,12 @@
 	# behavior of ngIRCd. If you want to get started quickly, you most
 	# probably don't have to make changes here -- they are all optional.
 
+	# List of allowed channel types (channel prefixes) for newly created
+	# channels on the local server. By default, all supported channel
+	# types are allowed. Set this variable to the empty string to disallow
+	# creation of new channels by local clients at all.
+	;AllowedChannelTypes = #&+
+
 	# Are remote IRC operators allowed to control this server, e.g.
 	# use commands like CONNECT, SQUIT, DIE, ...?
 	;AllowRemoteOper = no
@@ -208,9 +214,6 @@
 	# Ident'ified and PAM-authenticated users: both don't have a "~"
 	# character prepended to their respective user names!
 	;PAMIsOptional = no
-
-	# Allow Pre-Defined Channels only (see Section [Channels])
-	;PredefChannelsOnly = no
 
 	# Let ngIRCd send an "authentication PING" when a new client connects,
 	# and register this client only after receiving the corresponding

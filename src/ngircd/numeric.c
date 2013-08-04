@@ -68,15 +68,15 @@ Announce_Channel(CLIENT *Client, CHANNEL *Chan)
 				strlcat(str, ",", sizeof(str));
 
 			/* Prepare user prefix (ChanOp, voiced, ...) */
-			if (xop && strchr(Channel_UserModes(Chan, cl), 'q'))
+			if (xop && Channel_UserHasMode(Chan, cl, 'q'))
 				strlcat(str, "~", sizeof(str));
-			if (xop && strchr(Channel_UserModes(Chan, cl), 'a'))
+			if (xop && Channel_UserHasMode(Chan, cl, 'a'))
 				strlcat(str, "&", sizeof(str));
-			if (strchr(Channel_UserModes(Chan, cl), 'o'))
+			if (Channel_UserHasMode(Chan, cl, 'o'))
 				strlcat(str, "@", sizeof(str));
-			if (xop && strchr(Channel_UserModes(Chan, cl), 'h'))
+			if (xop && Channel_UserHasMode(Chan, cl, 'h'))
 				strlcat(str, "%", sizeof(str));
-			if (strchr(Channel_UserModes(Chan, cl), 'v'))
+			if (Channel_UserHasMode(Chan, cl, 'v'))
 				strlcat(str, "+", sizeof(str));
 
 			strlcat(str, Client_ID(cl), sizeof(str));
@@ -232,8 +232,8 @@ Send_CHANINFO(CLIENT * Client, CHANNEL * Chan)
 	if (!*modes && !*topic)
 		return CONNECTED;
 
-	has_k = strchr(modes, 'k') != NULL;
-	has_l = strchr(modes, 'l') != NULL;
+	has_k = Channel_HasMode(Chan, 'k');
+	has_l = Channel_HasMode(Chan, 'l');
 
 	/* send CHANINFO */
 	if (!has_k && !has_l) {

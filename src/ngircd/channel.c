@@ -299,7 +299,6 @@ Channel_Kick(CLIENT *Peer, CLIENT *Target, CLIENT *Origin, const char *Name,
 	     const char *Reason )
 {
 	CHANNEL *chan;
-	char *ptr, *target_modes;
 	bool can_kick = false;
 
 	assert(Peer != NULL);
@@ -336,7 +335,7 @@ Channel_Kick(CLIENT *Peer, CLIENT *Target, CLIENT *Origin, const char *Name,
 	if(Client_Type(Peer) == CLIENT_USER) {
 		/* Channel mode 'Q' and user mode 'q' on target: nobody but
 		 * IRC Operators and servers can kick the target user */
-		if ((strchr(Channel_Modes(chan), 'Q')
+		if ((Channel_HasMode(chan, 'Q')
 		     || Client_HasMode(Target, 'q')
 		     || Client_Type(Target) == CLIENT_SERVICE)
 		    && !Client_HasMode(Origin, 'o')) {
@@ -347,40 +346,28 @@ Channel_Kick(CLIENT *Peer, CLIENT *Target, CLIENT *Origin, const char *Name,
 		}
 
 		/* Check if client has the rights to kick target */
-		ptr = Channel_UserModes(chan, Peer);
-		target_modes = Channel_UserModes(chan, Target);
-		while(*ptr) {
-			/* Owner can kick everyone */
-			if ( *ptr == 'q') {
-				can_kick = true;
-				break;
-			}
-			/* Admin can't kick owner */
-			if ( *ptr == 'a' ) {
-				if (!strchr(target_modes, 'q')) {
-					can_kick = true;
-					break;
-				}
-			}
-			/* Op can't kick owner | admin */
-			if ( *ptr == 'o' ) {
-				if (!strchr(target_modes, 'q') &&
-				    !strchr(target_modes, 'a')) {
-					can_kick = true;
-					break;
-				}
-			}
-			/* Half Op can't kick owner | admin | op */ 
-			if ( *ptr == 'h' ) {
-				if (!strchr(target_modes, 'q') &&
-				    !strchr(target_modes, 'a') &&
-				    !strchr(target_modes, 'o')) {
-					can_kick = true;
-					break;
-				}
-			}
-			ptr++;
-		}
+
+		/* Owner can kick everyone */
+		if (Channel_UserHasMode(chan, Peer, 'q'))
+			can_kick = true;
+
+		/* Admin can't kick owner */
+		else if (Channel_UserHasMode(chan, Peer, 'a') &&
+		    !Channel_UserHasMode(chan, Target, 'q'))
+			can_kick = true;
+
+		/* Op can't kick owner | admin */
+		else if (Channel_UserHasMode(chan, Peer, 'o') &&
+		    !Channel_UserHasMode(chan, Target, 'q') &&
+		    !Channel_UserHasMode(chan, Target, 'a'))
+			can_kick = true;
+			
+		/* Half Op can't kick owner | admin | op */ 
+		else if (Channel_UserHasMode(chan, Peer, 'h') &&
+		    !Channel_UserHasMode(chan, Target, 'q') &&
+		    !Channel_UserHasMode(chan, Target, 'a') &&
+		    !Channel_UserHasMode(chan, Target, 'o'))
+			can_kick = true;
 
 		if(!can_kick) {
 			IRC_WriteStrClient(Origin, ERR_CHANOPPRIVTOOLOW_MSG,
@@ -433,7 +420,7 @@ Channel_CountVisible (CLIENT *Client)
 	c = My_Channels;
 	while(c) {
 		if (Client) {
-			if (!strchr(Channel_Modes(c), 's')
+			if (!Channel_HasMode(c, 's')
 			    || Channel_IsMemberOf(c, Client))
 				count++;
 		} else
@@ -497,6 +484,14 @@ Channel_Modes( CHANNEL *Chan )
 	assert( Chan != NULL );
 	return Chan->modes;
 } /* Channel_Modes */
+
+
+GLOBAL bool
+Channel_HasMode( CHANNEL *Chan, char Mode )
+{
+	assert( Chan != NULL );
+	return strchr( Chan->modes, Mode ) != NULL;
+} /* Channel_HasMode */
 
 
 GLOBAL char *
@@ -636,7 +631,7 @@ Channel_ModeAdd( CHANNEL *Chan, char Mode )
 	assert( Chan != NULL );
 
 	x[0] = Mode; x[1] = '\0';
-	if( ! strchr( Chan->modes, x[0] ))
+	if( ! Channel_HasMode( Chan, x[0] ))
 	{
 		/* Channel does not have this mode yet, set it */
 		strlcat( Chan->modes, x, sizeof( Chan->modes ));
@@ -743,6 +738,13 @@ Channel_UserModes( CHANNEL *Chan, CLIENT *Client )
 
 	return cl2chan->modes;
 } /* Channel_UserModes */
+
+
+GLOBAL bool
+Channel_UserHasMode( CHANNEL *Chan, CLIENT *Client, char Mode )
+{
+	return strchr(Channel_UserModes(Chan, Client), Mode) != NULL;
+} /* Channel_UserHasMode */
 
 
 GLOBAL bool
@@ -873,15 +875,15 @@ Can_Send_To_Channel(CHANNEL *Chan, CLIENT *From)
 
 	if (Channel_IsMemberOf(Chan, From)) {
 		is_member = true;
-		if (strchr(Channel_UserModes(Chan, From), 'v'))
+		if (Channel_UserHasMode(Chan, From, 'v'))
 			has_voice = true;
-		if (strchr(Channel_UserModes(Chan, From), 'h'))
+		if (Channel_UserHasMode(Chan, From, 'h'))
 			is_halfop = true;
-		if (strchr(Channel_UserModes(Chan, From), 'o'))
+		if (Channel_UserHasMode(Chan, From, 'o'))
 			is_op = true;
-		if (strchr(Channel_UserModes(Chan, From), 'a'))
+		if (Channel_UserHasMode(Chan, From, 'a'))
 			is_chanadmin = true;
-		if (strchr(Channel_UserModes(Chan, From), 'q'))
+		if (Channel_UserHasMode(Chan, From, 'q'))
 			is_owner = true;
 	}
 
@@ -891,17 +893,17 @@ Can_Send_To_Channel(CHANNEL *Chan, CLIENT *From)
 	 * If channel mode n set: non-members cannot send to channel.
 	 * If channel mode m set: need voice.
 	 */
-	if (strchr(Channel_Modes(Chan), 'n') && !is_member)
+	if (Channel_HasMode(Chan, 'n') && !is_member)
 		return false;
 
-	if (strchr(Channel_Modes(Chan), 'M') && !Client_HasMode(From, 'R')
+	if (Channel_HasMode(Chan, 'M') && !Client_HasMode(From, 'R')
 	    && !Client_HasMode(From, 'o'))
 		return false;
 
 	if (has_voice || is_halfop || is_op || is_chanadmin || is_owner)
 		return true;
 
-	if (strchr(Channel_Modes(Chan), 'm'))
+	if (Channel_HasMode(Chan, 'm'))
 		return false;
 
 	if (Lists_Check(&Chan->list_excepts, From))
@@ -918,7 +920,7 @@ Channel_Write(CHANNEL *Chan, CLIENT *From, CLIENT *Client, const char *Command,
 	if (!Can_Send_To_Channel(Chan, From)) {
 		if (! SendErrors)
 			return CONNECTED;	/* no error, see RFC 2812 */
-		if (strchr(Channel_Modes(Chan), 'M'))
+		if (Channel_HasMode(Chan, 'M'))
 			return IRC_WriteStrClient(From, ERR_NEEDREGGEDNICK_MSG,
 						  Client_ID(From), Channel_Name(Chan));
 		else
@@ -1089,7 +1091,7 @@ Remove_Client( int Type, CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, const ch
 	}
 
 	/* When channel is empty and is not pre-defined, delete */
-	if( ! strchr( Channel_Modes( Chan ), 'P' ))
+	if( ! Channel_HasMode( Chan, 'P' ))
 	{
 		if( ! Get_First_Cl2Chan( NULL, Chan )) Delete_Channel( Chan );
 	}
@@ -1217,7 +1219,7 @@ Channel_CheckKey(CHANNEL *Chan, CLIENT *Client, const char *Key)
 	assert(Client != NULL);
 	assert(Key != NULL);
 
-	if (!strchr(Chan->modes, 'k'))
+	if (!Channel_HasMode(Chan, 'k'))
 		return true;
 	if (*Key == '\0')
 		return false;

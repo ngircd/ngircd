@@ -82,10 +82,9 @@ join_allowed(CLIENT *Client, CHANNEL *chan, const char *channame,
 	     const char *key)
 {
 	bool is_invited, is_banned, is_exception;
-	const char *channel_modes;
 
 	/* Allow IRC operators to overwrite channel limits */
-	if (strchr(Client_Modes(Client), 'o'))
+	if (Client_HasMode(Client, 'o'))
 		return true;
 
 	is_banned = Lists_Check(Channel_GetListBans(chan), Client);
@@ -99,8 +98,7 @@ join_allowed(CLIENT *Client, CHANNEL *chan, const char *channame,
 		return false;
 	}
 
-	channel_modes = Channel_Modes(chan);
-	if (strchr(channel_modes, 'i') && !is_invited) {
+	if (Channel_HasMode(chan, 'i') && !is_invited) {
 		/* Channel is "invite-only" and client is not on invite list */
 		IRC_WriteStrClient(Client, ERR_INVITEONLYCHAN_MSG,
 				   Client_ID(Client), channame);
@@ -115,7 +113,7 @@ join_allowed(CLIENT *Client, CHANNEL *chan, const char *channame,
 		return false;
 	}
 
-	if (strchr(channel_modes, 'l') &&
+	if (Channel_HasMode(chan, 'l') &&
 	    (Channel_MaxUsers(chan) <= Channel_MemberCount(chan))) {
 		/* There are more clints joined to this channel than allowed */
 		IRC_WriteStrClient(Client, ERR_CHANNELISFULL_MSG,
@@ -123,7 +121,7 @@ join_allowed(CLIENT *Client, CHANNEL *chan, const char *channame,
 		return false;
 	}
 
-	if (strchr(channel_modes, 'z') && !Conn_UsesSSL(Client_Conn(Client))) {
+	if (Channel_HasMode(chan, 'z') && !Conn_UsesSSL(Client_Conn(Client))) {
 		/* Only "secure" clients are allowed, but clients doesn't
 		 * use SSL encryption */
 		IRC_WriteStrClient(Client, ERR_SECURECHANNEL_MSG,
@@ -131,14 +129,14 @@ join_allowed(CLIENT *Client, CHANNEL *chan, const char *channame,
 		return false;
 	}
 
-	if (strchr(channel_modes, 'O') && !Client_OperByMe(Client)) {
+	if (Channel_HasMode(chan, 'O') && !Client_OperByMe(Client)) {
 		/* Only IRC operators are allowed! */
 		IRC_WriteStrClient(Client, ERR_OPONLYCHANNEL_MSG,
 				   Client_ID(Client), channame);
 		return false;
 	}
 
-	if (strchr(channel_modes, 'R') && !strchr(Client_Modes(Client), 'R')) {
+	if (Channel_HasMode(chan, 'R') && !Client_HasMode(Client, 'R')) {
 		/* Only registered users are allowed! */
 		IRC_WriteStrClient(Client, ERR_REGONLYCHANNEL_MSG,
 				   Client_ID(Client), channame);
@@ -167,8 +165,8 @@ join_set_channelmodes(CHANNEL *chan, CLIENT *target, const char *flags)
 
 	/* If the channel is persistent (+P) and client is an IRC op:
 	 * make client chanop, if not disabled in configuration. */
-	if (strchr(Channel_Modes(chan), 'P') && Conf_OperChanPAutoOp
-	    && strchr(Client_Modes(target), 'o'))
+	if (Channel_HasMode(chan, 'P') && Conf_OperChanPAutoOp
+	    && Client_HasMode(target, 'o'))
 		Channel_UserModeAdd(chan, target, 'o');
 } /* join_set_channelmodes */
 
@@ -530,13 +528,13 @@ IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 						  Channel_Name(chan));
 	}
 
-	if (strchr(Channel_Modes(chan), 't')) {
+	if (Channel_HasMode(chan, 't')) {
 		/* Topic Lock. Is the user a channel op or IRC operator? */
 		if(!topic_power &&
-		   !strchr(Channel_UserModes(chan, from), 'h') &&
-		   !strchr(Channel_UserModes(chan, from), 'o') &&
-		   !strchr(Channel_UserModes(chan, from), 'a') &&
-		   !strchr(Channel_UserModes(chan, from), 'q'))
+		   !Channel_UserHasMode(chan, from, 'h') &&
+		   !Channel_UserHasMode(chan, from, 'o') &&
+		   !Channel_UserHasMode(chan, from, 'a') &&
+		   !Channel_UserHasMode(chan, from, 'q'))
 			return IRC_WriteStrClient(from, ERR_CHANOPRIVSNEEDED_MSG,
 						  Client_ID(from),
 						  Channel_Name(chan));
@@ -619,7 +617,7 @@ IRC_LIST( CLIENT *Client, REQUEST *Req )
 			/* Check search pattern */
 			if (MatchCaseInsensitive(pattern, Channel_Name(chan))) {
 				/* Gotcha! */
-				if (!strchr(Channel_Modes(chan), 's')
+				if (!Channel_HasMode(chan, 's')
 				    || Channel_IsMemberOf(chan, from)
 				    || (!Conf_MorePrivacy && Client_OperByMe(Client))) {
 					if ((Conf_MaxListSize > 0)
@@ -697,9 +695,9 @@ IRC_CHANINFO( CLIENT *Client, REQUEST *Req )
 			Channel_SetModes(chan, &Req->argv[1][1]);
 
 			if(Req->argc == 5) {
-				if(strchr(Channel_Modes(chan), 'k'))
+				if(Channel_HasMode(chan, 'k'))
 					Channel_SetKey(chan, Req->argv[2]);
-				if(strchr(Channel_Modes(chan), 'l'))
+				if(Channel_HasMode(chan, 'l'))
 					Channel_SetMaxUsers(chan, atol(Req->argv[3]));
 			} else {
 				/* Delete modes which we never want to inherit */

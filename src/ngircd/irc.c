@@ -329,7 +329,7 @@ IRC_TRACE(CLIENT *Client, REQUEST *Req)
 					return DISCONNECTED;
 			}
 			if (Client_Type(c) == CLIENT_USER
-			    && strchr(Client_Modes(c), 'o')) {
+			    && Client_HasMode(c, 'o')) {
 				/* IRC Operator */
 				if (!IRC_WriteStrClient(from,
 						RPL_TRACEOPERATOR_MSG,
@@ -652,7 +652,7 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 			}
 
 			if (SendErrors && (Client_Type(Client) != CLIENT_SERVER)
-			    && strchr(Client_Modes(cl), 'a')) {
+			    && Client_HasMode(cl, 'a')) {
 				/* Target is away */
 				if (!IRC_WriteStrClient(from, RPL_AWAY_MSG,
 							Client_ID(from),
@@ -708,7 +708,7 @@ Send_Message_Mask(CLIENT * from, char * command, char * targetMask,
 
 	cl = NULL;
 
-	if (strchr(Client_Modes(from), 'o') == NULL) {
+	if (!Client_HasMode(from, 'o')) {
 		if (!SendErrors)
 			return true;
 		return IRC_WriteStrClient(from, ERR_NOPRIVILEGES_MSG,

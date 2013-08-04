@@ -165,7 +165,7 @@ IRC_WHO_Channel(CLIENT *Client, CHANNEL *Chan, bool OnlyOps)
 	is_member = Channel_IsMemberOf(Chan, Client);
 
 	/* Secret channel? */
-	if (!is_member && strchr(Channel_Modes(Chan), 's'))
+	if (!is_member && Channel_HasMode(Chan, 's'))
 		return IRC_WriteStrClient(Client, RPL_ENDOFWHO_MSG,
 					  Client_ID(Client), Channel_Name(Chan));
 
@@ -174,11 +174,11 @@ IRC_WHO_Channel(CLIENT *Client, CHANNEL *Chan, bool OnlyOps)
 		c = Channel_GetClient(cl2chan);
 
 		client_modes = Client_Modes(c);
-		is_ircop = strchr(client_modes, 'o') != NULL;
+		is_ircop = Client_HasMode(c, 'o');
 		if (OnlyOps && !is_ircop)
 			continue;
 
-		is_visible = strchr(client_modes, 'i') == NULL;
+		is_visible = Client_HasMode(c, 'i');
 		if (is_member || is_visible) {
 			strlcpy(flags, who_flags_status(client_modes),
 				sizeof(flags));
@@ -275,7 +275,7 @@ IRC_WHO_Mask(CLIENT *Client, char *Mask, bool OnlyOps)
 			break;
 
 		strlcpy(flags, who_flags_status(Client_Modes(c)), sizeof(flags));
-		if (strchr(Client_Modes(c), 'o'))
+		if (Client_HasMode(c, 'o'))
 			strlcat(flags, "*", sizeof(flags));
 
 		if (!write_whoreply(Client, c, "*", flags))
@@ -330,7 +330,7 @@ IRC_WHOIS_SendReply(CLIENT *Client, CLIENT *from, CLIENT *c)
 		cl2chan = Channel_NextChannelOf(c, cl2chan);
 
 		/* Secret channel? */
-		if (strchr(Channel_Modes(chan), 's')
+		if (Channel_HasMode(chan, 's')
 		    && !Channel_IsMemberOf(chan, Client))
 			continue;
 
@@ -833,7 +833,7 @@ IRC_NAMES( CLIENT *Client, REQUEST *Req )
 	while (c) {
 		if (Client_Type(c) == CLIENT_USER
 		    && Channel_FirstChannelOf(c) == NULL
-		    && !strchr(Client_Modes(c), 'i'))
+		    && !Client_HasMode(c, 'i'))
 		{
 			/* its a user, concatenate ... */
 			if (rpl[strlen(rpl) - 1] != ':')
@@ -1530,7 +1530,7 @@ IRC_Send_NAMES(CLIENT * Client, CHANNEL * Chan)
 		return CONNECTED;
 
 	/* Secret channel? */
-	if (!is_member && strchr(Channel_Modes(Chan), 's'))
+	if (!is_member && Channel_HasMode(Chan, 's'))
 		return CONNECTED;
 
 	snprintf(str, sizeof(str), RPL_NAMREPLY_MSG, Client_ID(Client), "=",
@@ -1539,7 +1539,7 @@ IRC_Send_NAMES(CLIENT * Client, CHANNEL * Chan)
 	while (cl2chan) {
 		cl = Channel_GetClient(cl2chan);
 
-		if (strchr(Client_Modes(cl), 'i'))
+		if (Client_HasMode(cl, 'i'))
 			is_visible = false;
 		else
 			is_visible = true;

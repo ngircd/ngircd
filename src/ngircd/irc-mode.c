@@ -436,7 +436,7 @@ static bool
 Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 {
 	char the_modes[COMMAND_LEN], the_args[COMMAND_LEN], x[2],
-	    argadd[CLIENT_PASS_LEN], *mode_ptr, *o_mode_ptr;
+	    argadd[CLIENT_PASS_LEN], *mode_ptr;
 	bool connected, set, skiponce, retval, use_servermode,
 	     is_halfop, is_op, is_admin, is_owner, is_machine, is_oper;
 	int mode_arg, arg_arg, mode_arg_count = 0;
@@ -547,18 +547,14 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 			arg_arg = -1;
 
 		if(!is_machine && !is_oper) {
-			o_mode_ptr = Channel_UserModes(Channel, Client);
-			while( *o_mode_ptr ) {
-				if ( *o_mode_ptr == 'q')
-					is_owner = true;
-				if ( *o_mode_ptr == 'a')
-					is_admin = true;
-				if ( *o_mode_ptr == 'o')
-					is_op = true;
-				if ( *o_mode_ptr == 'h')
-					is_halfop = true;
-				o_mode_ptr++;
-			}
+			if (Channel_UserHasMode(Channel, Client, 'q'))
+				is_owner = true;
+			if (Channel_UserHasMode(Channel, Client, 'a'))
+				is_admin = true;
+			if (Channel_UserHasMode(Channel, Client, 'o'))
+				is_op = true;
+			if (Channel_UserHasMode(Channel, Client, 'h'))
+				is_halfop = true;
 		}
 
 		/* Validate modes */

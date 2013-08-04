@@ -79,7 +79,6 @@ GLOBAL unsigned long Channel_MemberCount PARAMS(( CHANNEL *Chan ));
 GLOBAL int Channel_CountForUser PARAMS(( CLIENT *Client ));
 
 GLOBAL const char *Channel_Name PARAMS(( const CHANNEL *Chan ));
-GLOBAL char *Channel_Modes PARAMS(( CHANNEL *Chan ));
 GLOBAL char *Channel_Topic PARAMS(( CHANNEL *Chan ));
 GLOBAL char *Channel_Key PARAMS(( CHANNEL *Chan ));
 GLOBAL unsigned long Channel_MaxUsers PARAMS(( CHANNEL *Chan ));
@@ -106,9 +105,12 @@ GLOBAL bool Channel_IsValidName PARAMS(( const char *Name ));
 
 GLOBAL bool Channel_ModeAdd PARAMS(( CHANNEL *Chan, char Mode ));
 GLOBAL bool Channel_ModeDel PARAMS(( CHANNEL *Chan, char Mode ));
+GLOBAL bool Channel_HasMode PARAMS(( CHANNEL *Chan, char Mode ));
+GLOBAL char *Channel_Modes PARAMS(( CHANNEL *Chan ));
 
 GLOBAL bool Channel_UserModeAdd PARAMS(( CHANNEL *Chan, CLIENT *Client, char Mode ));
 GLOBAL bool Channel_UserModeDel PARAMS(( CHANNEL *Chan, CLIENT *Client, char Mode ));
+GLOBAL bool Channel_UserHasMode PARAMS(( CHANNEL *Chan, CLIENT *Client, char Mode ));
 GLOBAL char *Channel_UserModes PARAMS(( CHANNEL *Chan, CLIENT *Client ));
 
 GLOBAL bool Channel_IsMemberOf PARAMS(( CHANNEL *Chan, CLIENT *Client ));

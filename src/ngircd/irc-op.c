@@ -162,17 +162,17 @@ IRC_INVITE(CLIENT *Client, REQUEST *Req)
 			return IRC_WriteStrClient(from, ERR_NOTONCHANNEL_MSG, Client_ID(Client), Req->argv[1]);
 
 		/* Is the channel "invite-disallow"? */
-		if (strchr(Channel_Modes(chan), 'V'))
+		if (Channel_HasMode(chan, 'V'))
 			return IRC_WriteStrClient(from, ERR_NOINVITE_MSG,
 				Client_ID(from), Channel_Name(chan));
 
 		/* Is the channel "invite-only"? */
-		if (strchr(Channel_Modes(chan), 'i')) {
+		if (Channel_HasMode(chan, 'i')) {
 			/* Yes. The user must be channel owner/admin/operator/halfop! */
-			if (!strchr(Channel_UserModes(chan, from), 'q') &&
-			    !strchr(Channel_UserModes(chan, from), 'a') &&
-			    !strchr(Channel_UserModes(chan, from), 'o') &&
-			    !strchr(Channel_UserModes(chan, from), 'h'))
+			if (!Channel_UserHasMode(chan, from, 'q') &&
+			    !Channel_UserHasMode(chan, from, 'a') &&
+			    !Channel_UserHasMode(chan, from, 'o') &&
+			    !Channel_UserHasMode(chan, from, 'h'))
 				return IRC_WriteStrClient(from, ERR_CHANOPRIVSNEEDED_MSG,
 						Client_ID(from), Channel_Name(chan));
 			remember = true;
@@ -215,7 +215,7 @@ IRC_INVITE(CLIENT *Client, REQUEST *Req)
 			Client_ID(from), Req->argv[0], colon_if_necessary, Req->argv[1]))
 			return DISCONNECTED;
 
-		if (strchr(Client_Modes(target), 'a') &&
+		if (Client_HasMode(target, 'a') &&
 			!IRC_WriteStrClient(from, RPL_AWAY_MSG, Client_ID(from),
 					Client_ID(target), Client_Away(target)))
 				return DISCONNECTED;

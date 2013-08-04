@@ -318,6 +318,8 @@ Client_Destroy( CLIENT *Client, const char *LogMsg, const char *FwdMsg, bool Sen
 				}
 			}
 
+			if (c->cloaked)
+				free(c->cloaked);
 			free( c );
 			break;
 		}
@@ -744,8 +746,6 @@ Client_HostnameCloaked(CLIENT *Client)
  * Get (potentially cloaked) hostname of a client to display it to other users.
  *
  * If the client has not enabled cloaking, the real hostname is used.
- * Please note that this function uses a global static buffer, so you can't
- * nest invocations without overwriting earlier results!
  *
  * @param Client Pointer to client structure
  * @return Pointer to client hostname
@@ -760,7 +760,7 @@ Client_HostnameDisplayed(CLIENT *Client)
 		return Client_Hostname(Client);
 
 	/* Use an already saved cloaked hostname, if there is one */
-	if (Client->cloaked[0])
+	if (Client->cloaked)
 		return Client->cloaked;
 
 	Client_UpdateCloakedHostname(Client, NULL, NULL);
@@ -781,25 +781,32 @@ GLOBAL void
 Client_UpdateCloakedHostname(CLIENT *Client, CLIENT *Origin,
 			     const char *Hostname)
 {
-	static char Cloak_Buffer[CLIENT_HOST_LEN];
+	char Cloak_Buffer[CLIENT_HOST_LEN];
 
 	assert(Client != NULL);
 	if (!Origin)
 		Origin = Client_ThisServer();
 
+	if (!Client->cloaked) {
+		Client->cloaked = malloc(CLIENT_HOST_LEN);
+		if (!Client->cloaked)
+			return;
+	}
+
 	if (!Hostname) {
 		/* Generate new cloaked hostname */
 		if (*Conf_CloakHostModeX) {
-			strlcpy(Cloak_Buffer, Client->host, CLIENT_HOST_LEN);
+			strlcpy(Cloak_Buffer, Client->host,
+				sizeof(Cloak_Buffer));
 			strlcat(Cloak_Buffer, Conf_CloakHostSalt,
-				CLIENT_HOST_LEN);
-			snprintf(Client->cloaked, sizeof(Client->cloaked),
+				sizeof(Cloak_Buffer));
+			snprintf(Client->cloaked, CLIENT_HOST_LEN,
 				 Conf_CloakHostModeX, Hash(Cloak_Buffer));
 		} else
 			strlcpy(Client->cloaked, Client_ID(Client->introducer),
-				sizeof(Client->cloaked));
+				CLIENT_HOST_LEN);
 	} else
-		strlcpy(Client->cloaked, Hostname, sizeof(Client->cloaked));
+		strlcpy(Client->cloaked, Hostname, CLIENT_HOST_LEN);
 	LogDebug("Cloaked hostname of \"%s\" updated to \"%s\"",
 		 Client_ID(Client), Client->cloaked);
 

@@ -217,7 +217,7 @@ Init_New_Client(CONN_ID Idx, CLIENT *Introducer, CLIENT *TopServer,
 	if (Type == CLIENT_SERVER)
 		Generate_MyToken(client);
 
-	if (strchr(client->modes, 'a'))
+	if (Client_HasMode(client, 'a'))
 		strlcpy(client->away, DEFAULT_AWAY_MSG, sizeof(client->away));
 
 	client->next = (POINTER *)My_Clients;
@@ -524,7 +524,7 @@ Client_ModeAdd( CLIENT *Client, char Mode )
 	assert( Client != NULL );
 
 	x[0] = Mode; x[1] = '\0';
-	if (!strchr( Client->modes, x[0])) {
+	if (!Client_HasMode(Client, x[0])) {
 		strlcat( Client->modes, x, sizeof( Client->modes ));
 		return true;
 	}
@@ -1131,7 +1131,8 @@ Client_OperCount( void )
 	c = My_Clients;
 	while( c )
 	{
-		if( c && ( c->type == CLIENT_USER ) && ( strchr( c->modes, 'o' ))) cnt++;
+		if (c && c->type == CLIENT_USER && Client_HasMode(c, 'o' ))
+			cnt++;
 		c = (CLIENT *)c->next;
 	}
 	return cnt;
@@ -1580,7 +1581,7 @@ Client_Announce(CLIENT * Client, CLIENT * Prefix, CLIENT * User)
 	} else {
 		/* RFC 2813 mode: one combined NICK or SERVICE command */
 		if (Client_Type(User) == CLIENT_SERVICE
-		    && strchr(Client_Flags(Client), 'S')) {
+		    && Client_HasFlag(Client, 'S')) {
 			if (!IRC_WriteStrClientPrefix(Client, Prefix,
 					"SERVICE %s %d * +%s %d :%s",
 					Client_Mask(User),
@@ -1599,7 +1600,7 @@ Client_Announce(CLIENT * Client, CLIENT * Prefix, CLIENT * User)
 		}
 	}
 
-	if (strchr(Client_Flags(Client), 'M')) {
+	if (Client_HasFlag(Client, 'M')) {
 		/* Synchronize metadata */
 		if (Client_HostnameCloaked(User)) {
 			if (!IRC_WriteStrClientPrefix(Client, Prefix,

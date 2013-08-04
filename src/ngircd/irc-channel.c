@@ -657,7 +657,7 @@ IRC_LIST( CLIENT *Client, REQUEST *Req )
 GLOBAL bool
 IRC_CHANINFO( CLIENT *Client, REQUEST *Req )
 {
-	char modes_add[COMMAND_LEN], l[16], *ptr;
+	char modes_add[COMMAND_LEN], l[16];
 	CLIENT *from;
 	CHANNEL *chan;
 	int arg_topic;
@@ -688,9 +688,8 @@ IRC_CHANINFO( CLIENT *Client, REQUEST *Req )
 		return CONNECTED;
 
 	if (Req->argv[1][0] == '+') {
-		ptr = Channel_Modes(chan);
-		if (!*ptr) {
-			/* OK, this channel doesn't have modes jet,
+		if (!Channel_Modes(chan)) {
+			/* OK, this channel doesn't have modes yet,
 			 * set the received ones: */
 			Channel_SetModes(chan, &Req->argv[1][1]);
 
@@ -706,21 +705,15 @@ IRC_CHANINFO( CLIENT *Client, REQUEST *Req )
 			}
 
 			strcpy(modes_add, "");
-			ptr = Channel_Modes(chan);
-			while (*ptr) {
-				if (*ptr == 'l') {
-					snprintf(l, sizeof(l), " %lu",
-						 Channel_MaxUsers(chan));
-					strlcat(modes_add, l,
-						sizeof(modes_add));
-				}
-				if (*ptr == 'k') {
-					strlcat(modes_add, " ",
-						sizeof(modes_add));
-					strlcat(modes_add, Channel_Key(chan),
-						sizeof(modes_add));
-				}
-	     			ptr++;
+			if (Channel_HasMode(chan, 'l'))  {
+				snprintf(l, sizeof(l), " %lu",
+					 Channel_MaxUsers(chan));
+				strlcat(modes_add, l, sizeof(modes_add));
+			}
+			if (Channel_HasMode(chan, 'k'))  {
+				strlcat(modes_add, " ", sizeof(modes_add));
+				strlcat(modes_add, Channel_Key(chan),
+					sizeof(modes_add));
 			}
 
 			/* Inform members of this channel */
@@ -734,8 +727,7 @@ IRC_CHANINFO( CLIENT *Client, REQUEST *Req )
 
 	if (arg_topic > 0) {
 		/* We got a topic */
-		ptr = Channel_Topic( chan );
-		if (!*ptr && Req->argv[arg_topic][0]) {
+		if (!Channel_Topic( chan ) && Req->argv[arg_topic][0]) {
 			/* OK, there is no topic jet */
 			Channel_SetTopic(chan, Client, Req->argv[arg_topic]);
 			IRC_WriteStrChannelPrefix(Client, chan, from, false,

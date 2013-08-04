@@ -155,7 +155,7 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 		if (strchr(Client_Flags(Client), 'Z')
 		    && !Zip_InitConn(Client_Conn(Client))) {
 			Conn_Close(Client_Conn(Client),
-				   "Can't inizialize compression (zlib)!",
+				   "Can't initialize compression (zlib)!",
 				   NULL, false );
 			return DISCONNECTED;
 		}

@@ -391,6 +391,7 @@ Conf_Test( void )
 	puts("");
 
 	puts("[OPTIONS]");
+	printf("  AllowedChannelTypes = %s\n", Conf_AllowedChannelTypes);
 	printf("  AllowRemoteOper = %s\n", yesno_to_str(Conf_AllowRemoteOper));
 	printf("  ChrootDir = %s\n", Conf_Chroot);
 	printf("  CloakHost = %s\n", Conf_CloakHost);
@@ -415,7 +416,6 @@ Conf_Test( void )
 	printf("  PAM = %s\n", yesno_to_str(Conf_PAM));
 	printf("  PAMIsOptional = %s\n", yesno_to_str(Conf_PAMIsOptional));
 #endif
-	printf("  PredefChannelsOnly = %s\n", yesno_to_str(Conf_PredefChannelsOnly));
 #ifndef STRICT_RFC
 	printf("  RequireAuthPing = %s\n", yesno_to_str(Conf_AuthPing));
 #endif
@@ -758,6 +758,8 @@ Set_Defaults(bool InitServers)
 	Conf_PongTimeout = 20;
 
 	/* Options */
+	strlcpy(Conf_AllowedChannelTypes, CHANTYPES,
+		sizeof(Conf_AllowedChannelTypes));
 	Conf_AllowRemoteOper = false;
 #ifndef STRICT_RFC
 	Conf_AuthPing = false;
@@ -792,7 +794,6 @@ Set_Defaults(bool InitServers)
 	Conf_PAM = false;
 #endif
 	Conf_PAMIsOptional = false;
-	Conf_PredefChannelsOnly = false;
 #ifdef SYSLOG
 	Conf_ScrubCTCP = false;
 #ifdef LOG_LOCAL5
@@ -1633,12 +1634,37 @@ static void
 Handle_OPTIONS(const char *File, int Line, char *Var, char *Arg)
 {
 	size_t len;
+	char *p;
 
 	assert(File != NULL);
 	assert(Line > 0);
 	assert(Var != NULL);
 	assert(Arg != NULL);
 
+	if (strcasecmp(Var, "AllowedChannelTypes") == 0) {
+		p = Arg;
+		Conf_AllowedChannelTypes[0] = '\0';
+		while (*p) {
+			if (strchr(Conf_AllowedChannelTypes, *p)) {
+				/* Prefix is already included; ignore it */
+				p++;
+				continue;
+			}
+
+			if (strchr(CHANTYPES, *p)) {
+				len = strlen(Conf_AllowedChannelTypes) + 1;
+				assert(len < sizeof(Conf_AllowedChannelTypes));
+				Conf_AllowedChannelTypes[len - 1] = *p;
+				Conf_AllowedChannelTypes[len] = '\0';
+			} else {
+				Config_Error(LOG_WARNING,
+					     "%s, line %d: Unknown channel prefix \"%c\" in \"AllowedChannelTypes\"!",
+					     File, Line, *p);
+			}
+			p++;
+		}
+		return;
+	}
 	if (strcasecmp(Var, "AllowRemoteOper") == 0) {
 		Conf_AllowRemoteOper = Check_ArgIsTrue(Arg);
 		return;
@@ -1731,7 +1757,19 @@ Handle_OPTIONS(const char *File, int Line, char *Var, char *Arg)
 		return;
 	}
 	if (strcasecmp(Var, "PredefChannelsOnly") == 0) {
-		Conf_PredefChannelsOnly = Check_ArgIsTrue(Arg);
+		/*
+		 * TODO: This section and support for "PredefChannelsOnly"
+		 * could be removed starting with ngIRCd release 22 (one
+		 * release after marking it "deprecated") ...
+		 */
+		Config_Error(LOG_WARNING,
+			     "%s, line %d (section \"Options\"): \"%s\" is deprecated, please use \"AllowedChannelTypes\"!",
+			     File, Line, Var);
+		if (Check_ArgIsTrue(Arg))
+			Conf_AllowedChannelTypes[0] = '\0';
+		else
+			strlcpy(Conf_AllowedChannelTypes, CHANTYPES,
+				sizeof(Conf_AllowedChannelTypes));
 		return;
 	}
 #ifndef STRICT_RFC

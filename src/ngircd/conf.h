@@ -148,8 +148,8 @@ GLOBAL CONF_SERVER Conf_Server[MAX_SERVERS];
 /** Array of pre-defined channels */
 GLOBAL array Conf_Channels;
 
-/** Flag indicating if only pre-defined channels are allowed (true) or not */
-GLOBAL bool Conf_PredefChannelsOnly;
+/** String containing all locally allowed channel prefixes for new channels */
+GLOBAL char Conf_AllowedChannelTypes[8];
 
 /** Flag indicating if IRC operators are allowed to always use MODE (true) */
 GLOBAL bool Conf_OperCanMode;

@@ -126,6 +126,7 @@ GLOBAL char *Client_Away PARAMS(( CLIENT *Client ));
 GLOBAL time_t Client_StartTime PARAMS(( CLIENT *Client ));
 
 GLOBAL bool Client_HasMode PARAMS(( CLIENT *Client, char Mode ));
+GLOBAL bool Client_HasFlag PARAMS(( CLIENT *Client, char Flag ));
 
 GLOBAL void Client_SetHostname PARAMS(( CLIENT *Client, const char *Hostname ));
 GLOBAL void Client_SetID PARAMS(( CLIENT *Client, const char *Nick ));

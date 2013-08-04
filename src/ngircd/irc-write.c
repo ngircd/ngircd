@@ -311,7 +311,7 @@ IRC_WriteStrServersPrefixFlag_CB(CLIENT *ExceptOf, CLIENT *Prefix, char Flag,
 		if (Client_Type(c) == CLIENT_SERVER && Client_Conn(c) > NONE &&
 		    c != Client_ThisServer() && c != ExceptOf) {
 			/* Found a target server, do the flags match? */
-			if (Flag == '\0' || strchr(Client_Flags(c), Flag))
+			if (Flag == '\0' || Client_HasFlag(c, Flag))
 				callback(c, Prefix, cb_data);
 		}
 		c = Client_Next(c);

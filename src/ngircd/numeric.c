@@ -52,7 +52,7 @@ Announce_Channel(CLIENT *Client, CHANNEL *Chan)
 
 	/* Check features of remote server */
 	njoin = Conn_Options(Client_Conn(Client)) & CONN_RFC1459 ? false : true;
-	xop = strchr(Client_Flags(Client), 'X') ? true : false;
+	xop = Client_HasFlag(Client, 'X') ? true : false;
 
 	/* Get all the members of this channel */
 	cl2chan = Channel_FirstMember(Chan);
@@ -321,7 +321,7 @@ IRC_Num_ENDOFMOTD(CLIENT * Client, UNUSED REQUEST * Req)
 		}
 #ifdef IRCPLUS
 		/* Send CHANINFO if the peer supports it */
-		if (strchr(Client_Flags(Client), 'C')) {
+		if (Client_HasFlag(Client, 'C')) {
 			if (!Send_CHANINFO(Client, chan))
 				return DISCONNECTED;
 		}
@@ -335,7 +335,7 @@ IRC_Num_ENDOFMOTD(CLIENT * Client, UNUSED REQUEST * Req)
 	}
 
 #ifdef IRCPLUS
-	if (strchr(Client_Flags(Client), 'L')) {
+	if (Client_HasFlag(Client, 'L')) {
 		LogDebug("Synchronizing INVITE- and BAN-lists ...");
 		if (!Synchronize_Lists(Client))
 			return DISCONNECTED;

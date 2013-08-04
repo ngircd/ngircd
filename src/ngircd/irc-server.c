@@ -152,7 +152,7 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 		Client_SetType(Client, CLIENT_UNKNOWNSERVER);
 
 #ifdef ZLIB
-		if (strchr(Client_Flags(Client), 'Z')
+		if (Client_HasFlag(Client, 'Z')
 		    && !Zip_InitConn(Client_Conn(Client))) {
 			Conn_Close(Client_Conn(Client),
 				   "Can't initialize compression (zlib)!",
@@ -162,7 +162,7 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 #endif
 
 #ifdef IRCPLUS
-		if (strchr(Client_Flags(Client), 'H')) {
+		if (Client_HasFlag(Client, 'H')) {
 			LogDebug("Peer supports IRC+ extended server handshake ...");
 			if (!IRC_Send_ISUPPORT(Client))
 				return DISCONNECTED;

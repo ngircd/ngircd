@@ -950,6 +950,14 @@ Client_HasMode( CLIENT *Client, char Mode )
 } /* Client_HasMode */
 
 
+GLOBAL bool
+Client_HasFlag( CLIENT *Client, char Flag )
+{
+	assert( Client != NULL );
+	return strchr( Client->flags, Flag ) != NULL;
+} /* Client_HasFlag */
+
+
 GLOBAL char *
 Client_Away( CLIENT *Client )
 {

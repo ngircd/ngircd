@@ -87,14 +87,6 @@ write_whoreply(CLIENT *Client, CLIENT *c, const char *channelname, const char *f
 				  flags, Client_Hops(c), Client_Info(c));
 }
 
-static const char *
-who_flags_status(const char *client_modes)
-{
-	if (strchr(client_modes, 'a'))
-		return "G"; /* away */
-	return "H";
-}
-
 /**
  * Return channel user mode prefix(es).
  *
@@ -152,7 +144,6 @@ IRC_WHO_Channel(CLIENT *Client, CHANNEL *Chan, bool OnlyOps)
 {
 	bool is_visible, is_member, is_ircop;
 	CL2CHAN *cl2chan;
-	const char *client_modes;
 	char flags[10];
 	CLIENT *c;
 	int count = 0;
@@ -173,17 +164,21 @@ IRC_WHO_Channel(CLIENT *Client, CHANNEL *Chan, bool OnlyOps)
 	for (; cl2chan ; cl2chan = Channel_NextMember(Chan, cl2chan)) {
 		c = Channel_GetClient(cl2chan);
 
-		client_modes = Client_Modes(c);
 		is_ircop = Client_HasMode(c, 'o');
 		if (OnlyOps && !is_ircop)
 			continue;
 
 		is_visible = Client_HasMode(c, 'i');
 		if (is_member || is_visible) {
-			strlcpy(flags, who_flags_status(client_modes),
-				sizeof(flags));
+			memset(flags, 0, sizeof(flags));
+
+			if (Client_HasMode(c, 'a'))
+				flags[0] = 'G'; /* away */
+			else
+				flags[0] = 'H';
+
 			if (is_ircop)
-				strlcat(flags, "*", sizeof(flags));
+				flags[1] = '*';
 
 			who_flags_qualifier(Client, Channel_UserModes(Chan, c),
 					    flags, sizeof(flags));
@@ -218,7 +213,7 @@ IRC_WHO_Mask(CLIENT *Client, char *Mask, bool OnlyOps)
 	CL2CHAN *cl2chan;
 	CHANNEL *chan;
 	bool client_match, is_visible;
-	char flags[4];
+	char flags[3];
 	int count = 0;
 
 	assert (Client != NULL);
@@ -274,9 +269,15 @@ IRC_WHO_Mask(CLIENT *Client, char *Mask, bool OnlyOps)
 		if (IRC_CheckListTooBig(Client, count, MAX_RPL_WHO, "WHO"))
 			break;
 
-		strlcpy(flags, who_flags_status(Client_Modes(c)), sizeof(flags));
+		memset(flags, 0, sizeof(flags));
+
+		if (Client_HasMode(c, 'a'))
+			flags[0] = 'G'; /* away */
+		else
+			flags[0] = 'H';
+
 		if (Client_HasMode(c, 'o'))
-			strlcat(flags, "*", sizeof(flags));
+			flags[1] = '*';
 
 		if (!write_whoreply(Client, c, "*", flags))
 			return DISCONNECTED;

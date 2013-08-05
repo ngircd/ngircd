@@ -145,7 +145,7 @@ Connection Handling Commands
 
 	Please note:
 	The RFCs state that the <token> parameter is used to specify the
-	origin of the PING command when forwared in the network, but this
+	origin of the PING command when forwarded in the network, but this
 	is not the case: the sender is specified using the prefix as usual,
 	and the parameter is used to identify the PONG reply in practice.
 
@@ -256,7 +256,7 @@ General Commands
 	modes are returned. Otherwise the modes are adjusted accordingly
 	and the changes will be reported back to the client.
 	.
-	All user and chnnel "modes" are indicated by single case-sensitive
+	All user and channel "modes" are indicated by single case-sensitive
 	characters.
 	.
 	Please note that a user can only get and set his own modes, and not
@@ -615,7 +615,7 @@ Channel Commands
 - LIST
 	LIST [<channel>[,<channel>[,...]] [<server>]]
 	.
-	List all visible <channels> (comma-seperated list).
+	List all visible <channels> (comma-separated list).
 	.
 	If <server> is given, the command will be forwarded to <server> for
 	evaluation.
@@ -635,7 +635,7 @@ Channel Commands
 - TOPIC
 	TOPIC <channel> [<topic>]
 	.
-	Cchange or view the topic of a channel.
+	Change or view the topic of a channel.
 	.
 	The topic for channel <channel> is returned if there is no <topic>
 	given. If the <topic> parameter is present, the topic for that
@@ -694,7 +694,7 @@ Administrative Commands
 	This command provides timed G-Lines (network-wide bans).
 	.
 	If a client matches a G-Line, it cannot connect to any server on
-	the IRC network for <timeout> seconds. When <timoeut> is 0, it make
+	the IRC network for <timeout> seconds. When <timeout> is 0, it make
 	the G-Line permanent.
 	.
 	If no <timeout> and no <reason> is given, the G-Line is removed.
@@ -727,7 +727,7 @@ Administrative Commands
 	This command provides timed K-Lines (server-local bans).
 	.
 	If a client matches a K-Line, it cannot connect to this server for
-	<timeout> seconds. When <timoeut> is 0, it makes the K-Line permanent.
+	<timeout> seconds. When <timeout> is 0, it makes the K-Line permanent.
 	.
 	If no <timeout> and no <reason> is given, the K-Line is removed.
 	.
@@ -904,7 +904,7 @@ Server Protocol Commands
 - NJOIN
 	NJOIN <channel> [<mode>]<nick>[,[<mode>]<nick>[,...]]
 	.
-	The NJOIN command is used on setver-links to add users with <nick>
+	The NJOIN command is used on server-links to add users with <nick>
 	and <mode> to a <channel> while peering.
 	.
 	The NJOIN command is allowed on server-links only.

@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2012 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2013 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -991,11 +991,11 @@ Client_CheckNick(CLIENT *Client, char *Nick)
 
 	if (!Client_IsValidNick(Nick)) {
 		if (strlen(Nick ) >= Conf_MaxNickLength)
-			IRC_WriteStrClient(Client, ERR_NICKNAMETOOLONG_MSG,
+			IRC_WriteErrClient(Client, ERR_NICKNAMETOOLONG_MSG,
 					   Client_ID(Client), Nick,
 					   Conf_MaxNickLength - 1);
 		else
-			IRC_WriteStrClient(Client, ERR_ERRONEUSNICKNAME_MSG,
+			IRC_WriteErrClient(Client, ERR_ERRONEUSNICKNAME_MSG,
 					   Client_ID(Client), Nick);
 		return false;
 	}
@@ -1004,7 +1004,7 @@ Client_CheckNick(CLIENT *Client, char *Nick)
 	    && Client_Type(Client) != CLIENT_SERVICE) {
 		/* Make sure that this isn't a restricted/forbidden nickname */
 		if (Conf_NickIsBlocked(Nick)) {
-			IRC_WriteStrClient(Client, ERR_FORBIDDENNICKNAME_MSG,
+			IRC_WriteErrClient(Client, ERR_FORBIDDENNICKNAME_MSG,
 					   Client_ID(Client), Nick);
 			return false;
 		}
@@ -1012,7 +1012,7 @@ Client_CheckNick(CLIENT *Client, char *Nick)
 
 	/* Nickname already registered? */
 	if (Client_Search(Nick)) {
-		IRC_WriteStrClient(Client, ERR_NICKNAMEINUSE_MSG,
+		IRC_WriteErrClient(Client, ERR_NICKNAMEINUSE_MSG,
 			Client_ID(Client), Nick);
 		return false;
 	}
@@ -1033,7 +1033,8 @@ Client_CheckID( CLIENT *Client, char *ID )
 
 	/* ID too long? */
 	if (strlen(ID) > CLIENT_ID_LEN) {
-		IRC_WriteStrClient(Client, ERR_ERRONEUSNICKNAME_MSG, Client_ID(Client), ID);
+		IRC_WriteErrClient(Client, ERR_ERRONEUSNICKNAME_MSG,
+				   Client_ID(Client), ID);
 		return false;
 	}
 

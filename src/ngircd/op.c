@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2008 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2013 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,12 +46,12 @@ Op_NoPrivileges(CLIENT * Client, REQUEST * Req)
 	if (from) {
 		Log(LOG_NOTICE, "No privileges: client \"%s\" (%s), command \"%s\"",
 		    Req->prefix, Client_Mask(Client), Req->command);
-		return IRC_WriteStrClient(from, ERR_NOPRIVILEGES_MSG,
+		return IRC_WriteErrClient(from, ERR_NOPRIVILEGES_MSG,
 					  Client_ID(from));
 	} else {
 		Log(LOG_NOTICE, "No privileges: client \"%s\", command \"%s\"",
 		    Client_Mask(Client), Req->command);
-		return IRC_WriteStrClient(Client, ERR_NOPRIVILEGES_MSG,
+		return IRC_WriteErrClient(Client, ERR_NOPRIVILEGES_MSG,
 					  Client_ID(Client));
 	}
 } /* Op_NoPrivileges */

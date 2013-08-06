@@ -85,7 +85,7 @@ IRC_MODE( CLIENT *Client, REQUEST *Req )
 		return Channel_Mode(Client, Req, origin, chan);
 
 	/* No target found! */
-	return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
+	return IRC_WriteErrClient(Client, ERR_NOSUCHNICK_MSG,
 			Client_ID(Client), Req->argv[0]);
 } /* IRC_MODE */
 
@@ -131,7 +131,7 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 	if (Client_Type(Client) == CLIENT_USER) {
 		/* Users are only allowed to manipulate their own modes! */
 		if (Target != Client)
-			return IRC_WriteStrClient(Client,
+			return IRC_WriteErrClient(Client,
 						  ERR_USERSDONTMATCH_MSG,
 						  Client_ID(Client));
 	}
@@ -153,7 +153,7 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 		set = false;
 		strcpy(the_modes, "-");
 	} else
-		return IRC_WriteStrClient(Origin, ERR_UMODEUNKNOWNFLAG_MSG,
+		return IRC_WriteErrClient(Origin, ERR_UMODEUNKNOWNFLAG_MSG,
 					  Client_ID(Origin));
 
 	x[1] = '\0';
@@ -212,13 +212,13 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 				x[0] = 'a';
 				Client_SetAway(Origin, DEFAULT_AWAY_MSG);
 			} else
-				ok = IRC_WriteStrClient(Origin,
+				ok = IRC_WriteErrClient(Origin,
 							ERR_NOPRIVILEGES_MSG,
 							Client_ID(Origin));
 			break;
 		case 'B': /* Bot */
 			if (Client_HasMode(Client, 'r'))
-				ok = IRC_WriteStrClient(Origin,
+				ok = IRC_WriteErrClient(Origin,
 							ERR_RESTRICTED_MSG,
 							Client_ID(Origin));
 			else
@@ -230,7 +230,7 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 			    || Client_OperByMe(Origin))
 				x[0] = 'c';
 			else
-				ok = IRC_WriteStrClient(Origin,
+				ok = IRC_WriteErrClient(Origin,
 							ERR_NOPRIVILEGES_MSG,
 							Client_ID(Origin));
 			break;
@@ -239,7 +239,7 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 				Client_SetOperByMe(Target, false);
 				x[0] = 'o';
 			} else
-				ok = IRC_WriteStrClient(Origin,
+				ok = IRC_WriteErrClient(Origin,
 							ERR_NOPRIVILEGES_MSG,
 							Client_ID(Origin));
 			break;
@@ -248,7 +248,7 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 			    || Client_OperByMe(Origin))
 				x[0] = 'q';
 			else
-				ok = IRC_WriteStrClient(Origin,
+				ok = IRC_WriteErrClient(Origin,
 							ERR_NOPRIVILEGES_MSG,
 							Client_ID(Origin));
 			break;
@@ -256,7 +256,7 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 			if (set || Client_Type(Client) == CLIENT_SERVER)
 				x[0] = 'r';
 			else
-				ok = IRC_WriteStrClient(Origin,
+				ok = IRC_WriteErrClient(Origin,
 							ERR_RESTRICTED_MSG,
 							Client_ID(Origin));
 			break;
@@ -264,13 +264,13 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 			if (Client_Type(Client) == CLIENT_SERVER)
 				x[0] = 'R';
 			else
-				ok = IRC_WriteStrClient(Origin,
+				ok = IRC_WriteErrClient(Origin,
 							ERR_NICKREGISTER_MSG,
 							Client_ID(Origin));
 			break;
 		case 'x': /* Cloak hostname */
 			if (Client_HasMode(Client, 'r'))
-				ok = IRC_WriteStrClient(Origin,
+				ok = IRC_WriteErrClient(Origin,
 							ERR_RESTRICTED_MSG,
 							Client_ID(Origin));
 			else if (!set || Conf_CloakHostModeX[0]
@@ -279,7 +279,7 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 				x[0] = 'x';
 				send_RPL_HOSTHIDDEN_MSG = true;
 			} else
-				ok = IRC_WriteStrClient(Origin,
+				ok = IRC_WriteErrClient(Origin,
 							ERR_NOPRIVILEGES_MSG,
 							Client_ID(Origin));
 			break;
@@ -289,7 +289,7 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 				    "Unknown mode \"%c%c\" from \"%s\"!?",
 				    set ? '+' : '-', *mode_ptr,
 				    Client_ID(Origin));
-				ok = IRC_WriteStrClient(Origin,
+				ok = IRC_WriteErrClient(Origin,
 							ERR_UMODEUNKNOWNFLAG2_MSG,
 							Client_ID(Origin),
 							set ? '+' : '-',
@@ -447,7 +447,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 	is_halfop = is_op = is_admin = is_owner = is_machine = is_oper = false;
 
 	if (Channel_IsModeless(Channel))
-		return IRC_WriteStrClient(Client, ERR_NOCHANMODES_MSG,
+		return IRC_WriteErrClient(Client, ERR_NOCHANMODES_MSG,
 				Client_ID(Client), Channel_Name(Channel));
 
 	/* Mode request: let's answer it :-) */
@@ -468,7 +468,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 
 	/* Check if client is member of channel or an oper or an server/service */
 	if(!Channel_IsMemberOf(Channel, Client) && !is_oper && !is_machine)
-		return IRC_WriteStrClient(Origin, ERR_NOTONCHANNEL_MSG,
+		return IRC_WriteErrClient(Origin, ERR_NOTONCHANNEL_MSG,
 					  Client_ID(Origin),
 					  Channel_Name(Channel));
 
@@ -568,7 +568,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 		case 'z': /* Secure connections only */
 			if(!is_oper && !is_machine && !is_owner &&
 			   !is_admin && !is_op) {
-				connected = IRC_WriteStrClient(Origin,
+				connected = IRC_WriteErrClient(Origin,
 					ERR_CHANOPRIVSNEEDED_MSG,
 					Client_ID(Origin), Channel_Name(Channel));
 				goto chan_exit;
@@ -584,7 +584,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 			   is_admin || is_op || is_halfop)
 				x[0] = *mode_ptr;
 			else
-				connected = IRC_WriteStrClient(Origin,
+				connected = IRC_WriteErrClient(Origin,
 					ERR_CHANOPRIVSNEEDED_MSG,
 					Client_ID(Origin), Channel_Name(Channel));
 			break;
@@ -596,7 +596,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 				    is_admin || is_op || is_halfop)
 					x[0] = *mode_ptr;
 				else
-					connected = IRC_WriteStrClient(Origin,
+					connected = IRC_WriteErrClient(Origin,
 						ERR_CHANOPRIVSNEEDED_MSG,
 						Client_ID(Origin),
 						Channel_Name(Channel));
@@ -612,7 +612,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 						sizeof(argadd));
 					x[0] = *mode_ptr;
 				} else {
-					connected = IRC_WriteStrClient(Origin,
+					connected = IRC_WriteErrClient(Origin,
 						ERR_CHANOPRIVSNEEDED_MSG,
 						Client_ID(Origin),
 						Channel_Name(Channel));
@@ -623,7 +623,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 #ifdef STRICT_RFC
 				/* Only send error message in "strict" mode,
 				 * this is how ircd2.11 and others behave ... */
-				connected = IRC_WriteStrClient(Origin,
+				connected = IRC_WriteErrClient(Origin,
 					ERR_NEEDMOREPARAMS_MSG,
 					Client_ID(Origin), Req->command);
 #endif
@@ -638,7 +638,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 				    is_admin || is_op || is_halfop)
 					x[0] = *mode_ptr;
 				else
-					connected = IRC_WriteStrClient(Origin,
+					connected = IRC_WriteErrClient(Origin,
 						ERR_CHANOPRIVSNEEDED_MSG,
 						Client_ID(Origin),
 						Channel_Name(Channel));
@@ -656,7 +656,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 						x[0] = *mode_ptr;
 					}
 				} else {
-					connected = IRC_WriteStrClient(Origin,
+					connected = IRC_WriteErrClient(Origin,
 						ERR_CHANOPRIVSNEEDED_MSG,
 						Client_ID(Origin),
 						Channel_Name(Channel));
@@ -667,7 +667,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 #ifdef STRICT_RFC
 				/* Only send error message in "strict" mode,
 				 * this is how ircd2.11 and others behave ... */
-				connected = IRC_WriteStrClient(Origin,
+				connected = IRC_WriteErrClient(Origin,
 					ERR_NEEDMOREPARAMS_MSG,
 					Client_ID(Origin), Req->command);
 #endif
@@ -681,14 +681,14 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 				if(is_oper || is_machine)
 					x[0] = 'O';
 				else
-					connected = IRC_WriteStrClient(Origin,
+					connected = IRC_WriteErrClient(Origin,
 						ERR_NOPRIVILEGES_MSG,
 						Client_ID(Origin));
 			} else if(is_oper || is_machine || is_owner ||
 				  is_admin || is_op)
 				x[0] = 'O';
 			else
-				connected = IRC_WriteStrClient(Origin,
+				connected = IRC_WriteErrClient(Origin,
 					ERR_CHANOPRIVSNEEDED_MSG,
 					Client_ID(Origin),
 					Channel_Name(Channel));
@@ -700,14 +700,14 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 				if(is_oper || is_machine)
 					x[0] = 'P';
 				else
-					connected = IRC_WriteStrClient(Origin,
+					connected = IRC_WriteErrClient(Origin,
 						ERR_NOPRIVILEGES_MSG,
 						Client_ID(Origin));
 			} else if(is_oper || is_machine || is_owner ||
 				  is_admin || is_op)
 				x[0] = 'P';
 			else
-				connected = IRC_WriteStrClient(Origin,
+				connected = IRC_WriteErrClient(Origin,
 					ERR_CHANOPRIVSNEEDED_MSG,
 					Client_ID(Origin),
 					Channel_Name(Channel));
@@ -716,7 +716,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 		case 'q': /* Owner */
 		case 'a': /* Channel admin */
 			if(!is_oper && !is_machine && !is_owner && !is_admin) {
-				connected = IRC_WriteStrClient(Origin,
+				connected = IRC_WriteErrClient(Origin,
 					ERR_CHANOPPRIVTOOLOW_MSG,
 					Client_ID(Origin),
 					Channel_Name(Channel));
@@ -725,7 +725,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 		case 'o': /* Channel operator */
 			if(!is_oper && !is_machine && !is_owner &&
 			   !is_admin && !is_op) {
-				connected = IRC_WriteStrClient(Origin,
+				connected = IRC_WriteErrClient(Origin,
 					ERR_CHANOPRIVSNEEDED_MSG,
 					Client_ID(Origin),
 					Channel_Name(Channel));
@@ -734,7 +734,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 		case 'h': /* Half Op */
 			if(!is_oper && !is_machine && !is_owner &&
 			   !is_admin && !is_op) {
-				connected = IRC_WriteStrClient(Origin,
+				connected = IRC_WriteErrClient(Origin,
 					ERR_CHANOPRIVSNEEDED_MSG,
 					Client_ID(Origin),
 					Channel_Name(Channel));
@@ -748,12 +748,12 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 					if (client)
 						x[0] = *mode_ptr;
 					else
-						connected = IRC_WriteStrClient(Origin,
+						connected = IRC_WriteErrClient(Origin,
 							ERR_NOSUCHNICK_MSG,
 							Client_ID(Origin),
 							Req->argv[arg_arg]);
 				} else {
-					connected = IRC_WriteStrClient(Origin,
+					connected = IRC_WriteErrClient(Origin,
 						ERR_CHANOPRIVSNEEDED_MSG,
 						Client_ID(Origin),
 						Channel_Name(Channel));
@@ -768,7 +768,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 				 * mode, because most other servers don't do
 				 * it as well and some clients send "wired"
 				 * MODE commands like "MODE #chan -ooo nick". */
-				connected = IRC_WriteStrClient(Origin,
+				connected = IRC_WriteErrClient(Origin,
 					ERR_NEEDMOREPARAMS_MSG,
 					Client_ID(Origin), Req->command);
 #endif
@@ -793,7 +793,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 						Client, Channel,
 						Req->argv[arg_arg]);
 				} else {
-					connected = IRC_WriteStrClient(Origin,
+					connected = IRC_WriteErrClient(Origin,
 						ERR_CHANOPRIVSNEEDED_MSG,
 						Client_ID(Origin),
 						Channel_Name(Channel));
@@ -820,7 +820,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 				    "Unknown mode \"%c%c\" from \"%s\" on %s!?",
 				    set ? '+' : '-', *mode_ptr,
 				    Client_ID(Origin), Channel_Name(Channel));
-				connected = IRC_WriteStrClient(Origin,
+				connected = IRC_WriteErrClient(Origin,
 					ERR_UNKNOWNMODE_MSG,
 					Client_ID(Origin), *mode_ptr,
 					Channel_Name(Channel));
@@ -843,12 +843,11 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 
 		/* Validate target client */
 		if (client && (!Channel_IsMemberOf(Channel, client))) {
-			if (!IRC_WriteStrClient
-			    (Origin, ERR_USERNOTINCHANNEL_MSG,
-			     Client_ID(Origin), Client_ID(client),
-			     Channel_Name(Channel)))
+			if (!IRC_WriteErrClient(Origin, ERR_USERNOTINCHANNEL_MSG,
+						Client_ID(Origin),
+						Client_ID(client),
+						Channel_Name(Channel)))
 				break;
-
 			continue;
 		}
 
@@ -1008,7 +1007,7 @@ Add_To_List(char what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel,
 		return CONNECTED;
 	if (Client_Type(Client) == CLIENT_USER &&
 	    current_count >= MAX_HNDL_CHANNEL_LISTS)
-		return IRC_WriteStrClient(Client, ERR_LISTFULL_MSG,
+		return IRC_WriteErrClient(Client, ERR_LISTFULL_MSG,
 					  Client_ID(Client),
 					  Channel_Name(Channel), mask,
 					  MAX_HNDL_CHANNEL_LISTS);

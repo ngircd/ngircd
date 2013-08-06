@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2010 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2013 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -515,11 +515,11 @@ Handle_Request( CONN_ID Idx, REQUEST *Req )
 		if (!(client_type & cmd->type)) {
 			if (client_type == CLIENT_USER
 			    && cmd->type & CLIENT_SERVER)
-				return IRC_WriteStrClient(client,
+				return IRC_WriteErrClient(client,
 						 ERR_NOTREGISTEREDSERVER_MSG,
 						 Client_ID(client));
 			else
-				return IRC_WriteStrClient(client,
+				return IRC_WriteErrClient(client,
 						ERR_NOTREGISTERED_MSG,
 						Client_ID(client));
 		}
@@ -549,11 +549,10 @@ Handle_Request( CONN_ID Idx, REQUEST *Req )
 			Req->argc == 1 ? "parameter" : "parameters",
 			Req->prefix ? "" : " no" );
 
-	if (Client_Type(client) != CLIENT_SERVER) {
-		result = IRC_WriteStrClient(client, ERR_UNKNOWNCOMMAND_MSG,
+	if (Client_Type(client) != CLIENT_SERVER)
+		result = IRC_WriteErrClient(client, ERR_UNKNOWNCOMMAND_MSG,
 				Client_ID(client), Req->command);
-		Conn_SetPenalty(Idx, 1);
-	}
+
 	return result;
 } /* Handle_Request */
 

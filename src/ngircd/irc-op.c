@@ -43,7 +43,8 @@ try_kick(CLIENT *peer, CLIENT* from, const char *nick, const char *channel,
 	CLIENT *target = Client_Search(nick);
 
 	if (!target)
-		return IRC_WriteStrClient(from, ERR_NOSUCHNICK_MSG, Client_ID(from), nick);
+		return IRC_WriteErrClient(from, ERR_NOSUCHNICK_MSG,
+					  Client_ID(from), nick);
 
 	Channel_Kick(peer, target, from, channel, reason);
 	return true;
@@ -122,7 +123,7 @@ IRC_KICK(CLIENT *Client, REQUEST *Req)
 			nickCount--;
 		}
 	} else {
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+		return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 					Client_ID(Client), Req->command);
 	}
 	return true;
@@ -152,19 +153,22 @@ IRC_INVITE(CLIENT *Client, REQUEST *Req)
 	/* Search user */
 	target = Client_Search(Req->argv[0]);
 	if (!target || (Client_Type(target) != CLIENT_USER))
-		return IRC_WriteStrClient(from, ERR_NOSUCHNICK_MSG,
-				Client_ID(Client), Req->argv[0]);
+		return IRC_WriteErrClient(from, ERR_NOSUCHNICK_MSG,
+					  Client_ID(Client), Req->argv[0]);
 
 	chan = Channel_Search(Req->argv[1]);
 	if (chan) {
 		/* Channel exists. Is the user a valid member of the channel? */
 		if (!Channel_IsMemberOf(chan, from))
-			return IRC_WriteStrClient(from, ERR_NOTONCHANNEL_MSG, Client_ID(Client), Req->argv[1]);
+			return IRC_WriteErrClient(from, ERR_NOTONCHANNEL_MSG,
+						  Client_ID(Client),
+						  Req->argv[1]);
 
 		/* Is the channel "invite-disallow"? */
 		if (Channel_HasMode(chan, 'V'))
-			return IRC_WriteStrClient(from, ERR_NOINVITE_MSG,
-				Client_ID(from), Channel_Name(chan));
+			return IRC_WriteErrClient(from, ERR_NOINVITE_MSG,
+						  Client_ID(from),
+						  Channel_Name(chan));
 
 		/* Is the channel "invite-only"? */
 		if (Channel_HasMode(chan, 'i')) {
@@ -173,15 +177,18 @@ IRC_INVITE(CLIENT *Client, REQUEST *Req)
 			    !Channel_UserHasMode(chan, from, 'a') &&
 			    !Channel_UserHasMode(chan, from, 'o') &&
 			    !Channel_UserHasMode(chan, from, 'h'))
-				return IRC_WriteStrClient(from, ERR_CHANOPRIVSNEEDED_MSG,
-						Client_ID(from), Channel_Name(chan));
+				return IRC_WriteErrClient(from,
+							  ERR_CHANOPRIVSNEEDED_MSG,
+							  Client_ID(from),
+							  Channel_Name(chan));
 			remember = true;
 		}
 
 		/* Is the target user already member of the channel? */
 		if (Channel_IsMemberOf(chan, target))
-			return IRC_WriteStrClient(from, ERR_USERONCHANNEL_MSG,
-					Client_ID(from), Req->argv[0], Req->argv[1]);
+			return IRC_WriteErrClient(from, ERR_USERONCHANNEL_MSG,
+						  Client_ID(from),
+						  Req->argv[0], Req->argv[1]);
 
 		/* If the target user is banned on that channel: remember invite */
 		if (Lists_Check(Channel_GetListBans(chan), target))

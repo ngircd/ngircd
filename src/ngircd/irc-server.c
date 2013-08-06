@@ -62,7 +62,7 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 
 	/* Return an error if this is not a local client */
 	if (Client_Conn(Client) <= NONE)
-		return IRC_WriteStrClient(Client, ERR_UNKNOWNCOMMAND_MSG,
+		return IRC_WriteErrClient(Client, ERR_UNKNOWNCOMMAND_MSG,
 					  Client_ID(Client), Req->command);
 
 	if (Client_Type(Client) == CLIENT_GOTPASS ||
@@ -73,7 +73,7 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 			Client_Conn(Client));
 
 		if (Req->argc != 2 && Req->argc != 3)
-			return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+			return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 						  Client_ID(Client),
 						  Req->command);
 
@@ -183,7 +183,9 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 	{
 		/* New server is being introduced to the network */
 
-		if( Req->argc != 4 ) return IRC_WriteStrClient( Client, ERR_NEEDMOREPARAMS_MSG, Client_ID( Client ), Req->command );
+		if (Req->argc != 4)
+			return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+						  Client_ID(Client), Req->command);
 
 		/* check for existing server with same ID */
 		if( ! Client_CheckID( Client, Req->argv[0] )) return DISCONNECTED;
@@ -213,7 +215,7 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 
 		return CONNECTED;
 	} else
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+		return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 					  Client_ID(Client), Req->command);
 } /* IRC_SERVER */
 
@@ -336,7 +338,7 @@ IRC_SQUIT(CLIENT * Client, REQUEST * Req)
 	} else
 		from = Client;
 	if (!from)
-		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
+		return IRC_WriteErrClient(Client, ERR_NOSUCHNICK_MSG,
 					  Client_ID(Client), Req->prefix);
 
 	if (Client_Type(Client) == CLIENT_USER)

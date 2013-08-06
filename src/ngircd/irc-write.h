@@ -17,6 +17,8 @@
  * Sending IRC commands over the network (header)
  */
 
+GLOBAL bool IRC_WriteErrClient PARAMS((CLIENT *Client, const char *Format, ...));
+
 GLOBAL bool IRC_WriteStrClient PARAMS((CLIENT *Client, const char *Format, ...));
 GLOBAL bool IRC_WriteStrClientPrefix PARAMS((CLIENT *Client, CLIENT *Prefix,
 		const char *Format, ...));

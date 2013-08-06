@@ -274,7 +274,7 @@ IRC_CAP(CLIENT *Client, REQUEST *Req)
 			return Handle_CAP_ACK(Client, Req->argv[1]);
 	}
 
-	return IRC_WriteStrClient(Client, ERR_INVALIDCAP_MSG,
+	return IRC_WriteErrClient(Client, ERR_INVALIDCAP_MSG,
 				  Client_ID(Client), Req->argv[0]);
 }
 

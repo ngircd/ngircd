@@ -135,7 +135,7 @@ IRC_KILL(CLIENT *Client, REQUEST *Req)
 	assert (Req != NULL);
 
 	if (Client_Type(Client) != CLIENT_SERVER && !Client_OperByMe(Client))
-		return IRC_WriteStrClient(Client, ERR_NOPRIVILEGES_MSG,
+		return IRC_WriteErrClient(Client, ERR_NOPRIVILEGES_MSG,
 					  Client_ID(Client));
 
 	_IRC_ARGC_EQ_OR_RETURN_(Client, Req, 2)
@@ -192,7 +192,7 @@ IRC_KILL(CLIENT *Client, REQUEST *Req)
 					msg = ERR_CANTKILLSERVER_MSG;
 				else
 					msg = ERR_NOPRIVILEGES_MSG;
-				return IRC_WriteStrClient(Client, msg,
+				return IRC_WriteErrClient(Client, msg,
 							  Client_ID(Client));
 			}
 
@@ -282,7 +282,7 @@ IRC_TRACE(CLIENT *Client, REQUEST *Req)
 
 	/* Bad number of arguments? */
 	if (Req->argc > 1)
-		return IRC_WriteStrClient(Client, ERR_NORECIPIENT_MSG,
+		return IRC_WriteErrClient(Client, ERR_NORECIPIENT_MSG,
 					  Client_ID(Client), Req->command);
 
 	_IRC_GET_SENDER_OR_RETURN_(from, Req, Client)
@@ -490,19 +490,19 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 	if (Req->argc == 0) {
 		if (!SendErrors)
 			return CONNECTED;
-		return IRC_WriteStrClient(Client, ERR_NORECIPIENT_MSG,
+		return IRC_WriteErrClient(Client, ERR_NORECIPIENT_MSG,
 					  Client_ID(Client), Req->command);
 	}
 	if (Req->argc == 1) {
 		if (!SendErrors)
 			return CONNECTED;
-		return IRC_WriteStrClient(Client, ERR_NOTEXTTOSEND_MSG,
+		return IRC_WriteErrClient(Client, ERR_NOTEXTTOSEND_MSG,
 					  Client_ID(Client));
 	}
 	if (Req->argc > 2) {
 		if (!SendErrors)
 			return CONNECTED;
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+		return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 					  Client_ID(Client), Req->command);
 	}
 
@@ -511,7 +511,7 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 	else
 		from = Client;
 	if (!from)
-		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
+		return IRC_WriteErrClient(Client, ERR_NOSUCHNICK_MSG,
 					  Client_ID(Client), Req->prefix);
 
 #ifdef ICONV
@@ -606,7 +606,7 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 #else
 			if (Client_Type(cl) != ForceType) {
 #endif
-				if (SendErrors && !IRC_WriteStrClient(
+				if (SendErrors && !IRC_WriteErrClient(
 				    from, ERR_NOSUCHNICK_MSG,Client_ID(from),
 				    currentTarget))
 					return DISCONNECTED;
@@ -627,7 +627,7 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 			    !Client_HasMode(from, 'o') &&
 			    !(Client_Type(from) == CLIENT_SERVER) &&
 			    !(Client_Type(from) == CLIENT_SERVICE)) {
-				if (SendErrors && !IRC_WriteStrClient(from,
+				if (SendErrors && !IRC_WriteErrClient(from,
 						ERR_NONONREG_MSG,
 						Client_ID(from), Client_ID(cl)))
 					return DISCONNECTED;
@@ -643,7 +643,7 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 					cl2chan = Channel_NextChannelOf(cl, cl2chan);
 				}
 				if (!cl2chan) {
-					if (SendErrors && !IRC_WriteStrClient(
+					if (SendErrors && !IRC_WriteErrClient(
 					    from, ERR_NOTONSAMECHANNEL_MSG,
 					    Client_ID(from), Client_ID(cl)))
 						return DISCONNECTED;
@@ -683,7 +683,7 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 		} else {
 			if (!SendErrors)
 				return CONNECTED;
-			if (!IRC_WriteStrClient(from, ERR_NOSUCHNICK_MSG,
+			if (!IRC_WriteErrClient(from, ERR_NOSUCHNICK_MSG,
 						Client_ID(from), currentTarget))
 				return DISCONNECTED;
 		}
@@ -711,7 +711,7 @@ Send_Message_Mask(CLIENT * from, char * command, char * targetMask,
 	if (!Client_HasMode(from, 'o')) {
 		if (!SendErrors)
 			return true;
-		return IRC_WriteStrClient(from, ERR_NOPRIVILEGES_MSG,
+		return IRC_WriteErrClient(from, ERR_NOPRIVILEGES_MSG,
 					  Client_ID(from));
 	}
 
@@ -726,7 +726,7 @@ Send_Message_Mask(CLIENT * from, char * command, char * targetMask,
 	{
 		if (!SendErrors)
 			return true;
-		return IRC_WriteStrClient(from, ERR_WILDTOPLEVEL, targetMask);
+		return IRC_WriteErrClient(from, ERR_WILDTOPLEVEL, targetMask);
 	}
 
 	/* #: hostmask, see RFC 2812, sec. 3.3.1 */

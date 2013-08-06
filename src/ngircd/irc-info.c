@@ -903,7 +903,7 @@ IRC_STATS( CLIENT *Client, REQUEST *Req )
 	case 'k':	/* Server-local bans ("K-Lines") */
 	case 'K':
 		if (!Client_HasMode(from, 'o'))
-		    return IRC_WriteStrClient(from, ERR_NOPRIVILEGES_MSG,
+		    return IRC_WriteErrClient(from, ERR_NOPRIVILEGES_MSG,
 					      Client_ID(from));
 		if (query == 'g' || query == 'G')
 			list = Class_GetList(CLASS_GLINE);
@@ -997,9 +997,7 @@ IRC_SUMMON(CLIENT * Client, UNUSED REQUEST * Req)
 {
 	assert(Client != NULL);
 
-	IRC_SetPenalty(Client, 1);
-
-	return IRC_WriteStrClient(Client, ERR_SUMMONDISABLED_MSG,
+	return IRC_WriteErrClient(Client, ERR_SUMMONDISABLED_MSG,
 				  Client_ID(Client));
 } /* IRC_SUMMON */
 
@@ -1101,9 +1099,7 @@ IRC_USERS(CLIENT * Client, UNUSED REQUEST * Req)
 {
 	assert(Client != NULL);
 
-	IRC_SetPenalty(Client, 1);
-
-	return IRC_WriteStrClient(Client, ERR_USERSDISABLED_MSG,
+	return IRC_WriteErrClient(Client, ERR_USERSDISABLED_MSG,
 				  Client_ID(Client));
 } /* IRC_USERS */
 
@@ -1168,7 +1164,7 @@ IRC_WHO(CLIENT *Client, REQUEST *Req)
 			only_ops = true;
 #ifdef STRICT_RFC
 		else
-			return IRC_WriteStrClient(Client,
+			return IRC_WriteErrClient(Client,
 						  ERR_NEEDMOREPARAMS_MSG,
 						  Client_ID(Client),
 						  Req->command);
@@ -1217,7 +1213,7 @@ IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 
 	/* Bad number of parameters? */
 	if (Req->argc < 1 || Req->argc > 2)
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+		return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 					  Client_ID(Client), Req->command);
 
 	_IRC_GET_SENDER_OR_RETURN_(from, Req, Client)
@@ -1259,7 +1255,7 @@ IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 				if (!IRC_WHOIS_SendReply(Client, from, c))
 					return DISCONNECTED;
 			} else {
-				if (!IRC_WriteStrClient(Client,
+				if (!IRC_WriteErrClient(Client,
 							ERR_NOSUCHNICK_MSG,
 							Client_ID(Client),
 							query))
@@ -1269,7 +1265,7 @@ IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 		}
 		if (got_wildcard) {
 			/* we already handled one wildcard query */
-			if (!IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
+			if (!IRC_WriteErrClient(Client, ERR_NOSUCHNICK_MSG,
 			     Client_ID(Client), query))
 				return DISCONNECTED;
 			continue;
@@ -1293,7 +1289,7 @@ IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 		}
 
 		if (match_count == 0)
-			IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
+			IRC_WriteErrClient(Client, ERR_NOSUCHNICK_MSG,
 					   Client_ID(Client),
 					   Req->argv[Req->argc - 1]);
 	}
@@ -1326,7 +1322,7 @@ IRC_WHOWAS( CLIENT *Client, REQUEST *Req )
 
 	/* Wrong number of parameters? */
 	if (Req->argc < 1)
-		return IRC_WriteStrClient(Client, ERR_NONICKNAMEGIVEN_MSG,
+		return IRC_WriteErrClient(Client, ERR_NONICKNAMEGIVEN_MSG,
 					  Client_ID(Client));
 
 	_IRC_ARGC_LE_OR_RETURN_(Client, Req, 3)
@@ -1381,7 +1377,7 @@ IRC_WHOWAS( CLIENT *Client, REQUEST *Req )
 				break;
 		} while (i != last);
 
-		if (nc == 0 && !IRC_WriteStrClient(prefix, ERR_WASNOSUCHNICK_MSG,
+		if (nc == 0 && !IRC_WriteErrClient(prefix, ERR_WASNOSUCHNICK_MSG,
 						Client_ID(prefix), nick))
 			return DISCONNECTED;
 	}
@@ -1471,7 +1467,7 @@ IRC_Show_MOTD( CLIENT *Client )
 
 	len_tot = array_bytes(&Conf_Motd);
 	if (len_tot == 0 && !Conn_UsesSSL(Client_Conn(Client)))
-		return IRC_WriteStrClient(Client, ERR_NOMOTD_MSG, Client_ID(Client));
+		return IRC_WriteErrClient(Client, ERR_NOMOTD_MSG, Client_ID(Client));
 
 	if (!IRC_WriteStrClient(Client, RPL_MOTDSTART_MSG, Client_ID(Client),
 				Client_ID(Client_ThisServer())))

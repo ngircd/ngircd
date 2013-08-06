@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2012 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2013 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -223,7 +223,7 @@ Channel_Join( CLIENT *Client, const char *Name )
 
 	/* Check that the channel name is valid */
 	if (! Channel_IsValidName(Name)) {
-		IRC_WriteStrClient(Client, ERR_NOSUCHCHANNEL_MSG,
+		IRC_WriteErrClient(Client, ERR_NOSUCHCHANNEL_MSG,
 				   Client_ID(Client), Name);
 		return false;
 	}
@@ -268,14 +268,14 @@ Channel_Part(CLIENT * Client, CLIENT * Origin, const char *Name, const char *Rea
 	/* Check that specified channel exists */
 	chan = Channel_Search(Name);
 	if (!chan) {
-		IRC_WriteStrClient(Client, ERR_NOSUCHCHANNEL_MSG,
+		IRC_WriteErrClient(Client, ERR_NOSUCHCHANNEL_MSG,
 				   Client_ID(Client), Name);
 		return false;
 	}
 
 	/* Check that the client is in the channel */
 	if (!Get_Cl2Chan(chan, Client)) {
-		IRC_WriteStrClient(Client, ERR_NOTONCHANNEL_MSG,
+		IRC_WriteErrClient(Client, ERR_NOTONCHANNEL_MSG,
 				   Client_ID(Client), Name);
 		return false;
 	}
@@ -309,9 +309,9 @@ Channel_Kick(CLIENT *Peer, CLIENT *Target, CLIENT *Origin, const char *Name,
 
 	/* Check that channel exists */
 	chan = Channel_Search( Name );
-	if( ! chan )
-	{
-		IRC_WriteStrClient( Origin, ERR_NOSUCHCHANNEL_MSG, Client_ID( Origin ), Name );
+	if (!chan) {
+		IRC_WriteErrClient(Origin, ERR_NOSUCHCHANNEL_MSG,
+				   Client_ID(Origin), Name);
 		return;
 	}
 
@@ -319,15 +319,15 @@ Channel_Kick(CLIENT *Peer, CLIENT *Target, CLIENT *Origin, const char *Name,
 	    Client_Type(Origin) != CLIENT_SERVICE) {
 		/* Check that user is on the specified channel */
 		if (!Channel_IsMemberOf(chan, Origin)) {
-			IRC_WriteStrClient( Origin, ERR_NOTONCHANNEL_MSG,
-					    Client_ID(Origin), Name);
+			IRC_WriteErrClient(Origin, ERR_NOTONCHANNEL_MSG,
+					   Client_ID(Origin), Name);
 			return;
 		}
 	}
 
 	/* Check that the client to be kicked is on the specified channel */
 	if (!Channel_IsMemberOf(chan, Target)) {
-		IRC_WriteStrClient(Origin, ERR_USERNOTINCHANNEL_MSG,
+		IRC_WriteErrClient(Origin, ERR_USERNOTINCHANNEL_MSG,
 				   Client_ID(Origin), Client_ID(Target), Name );
 		return;
 	}
@@ -339,7 +339,7 @@ Channel_Kick(CLIENT *Peer, CLIENT *Target, CLIENT *Origin, const char *Name,
 		     || Client_HasMode(Target, 'q')
 		     || Client_Type(Target) == CLIENT_SERVICE)
 		    && !Client_HasMode(Origin, 'o')) {
-			IRC_WriteStrClient(Origin, ERR_KICKDENY_MSG,
+			IRC_WriteErrClient(Origin, ERR_KICKDENY_MSG,
 					   Client_ID(Origin), Name,
 					   Client_ID(Target));
 			return;
@@ -370,8 +370,8 @@ Channel_Kick(CLIENT *Peer, CLIENT *Target, CLIENT *Origin, const char *Name,
 			can_kick = true;
 
 		if(!can_kick) {
-			IRC_WriteStrClient(Origin, ERR_CHANOPPRIVTOOLOW_MSG,
-				Client_ID(Origin), Name);
+			IRC_WriteErrClient(Origin, ERR_CHANOPPRIVTOOLOW_MSG,
+					   Client_ID(Origin), Name);
 			return;
 		}
 	}
@@ -921,10 +921,10 @@ Channel_Write(CHANNEL *Chan, CLIENT *From, CLIENT *Client, const char *Command,
 		if (! SendErrors)
 			return CONNECTED;	/* no error, see RFC 2812 */
 		if (Channel_HasMode(Chan, 'M'))
-			return IRC_WriteStrClient(From, ERR_NEEDREGGEDNICK_MSG,
+			return IRC_WriteErrClient(From, ERR_NEEDREGGEDNICK_MSG,
 						  Client_ID(From), Channel_Name(Chan));
 		else
-			return IRC_WriteStrClient(From, ERR_CANNOTSENDTOCHAN_MSG,
+			return IRC_WriteErrClient(From, ERR_CANNOTSENDTOCHAN_MSG,
 					  Client_ID(From), Channel_Name(Chan));
 	}
 

@@ -42,6 +42,43 @@ static void cb_writeStrServersPrefixFlag PARAMS((CLIENT *Client,
 static void Send_Marked_Connections PARAMS((CLIENT *Prefix, const char *Buffer));
 
 /**
+ * Send an error message to a client and enforce a penalty time.
+ *
+ * @param Client The target client.
+ * @param Format Format string.
+ * @return CONNECTED or DISCONNECTED.
+ */
+#ifdef PROTOTYPES
+GLOBAL bool
+IRC_WriteErrClient( CLIENT *Client, const char *Format, ... )
+#else
+GLOBAL bool
+IRC_WriteErrClient( Client, Format, va_alist )
+CLIENT *Client;
+const char *Format;
+va_dcl
+#endif
+{
+	char buffer[1000];
+	va_list ap;
+
+	assert(Client != NULL);
+	assert(Format != NULL);
+
+#ifdef PROTOTYPES
+	va_start(ap, Format);
+#else
+	va_start(ap);
+#endif
+	vsnprintf(buffer, 1000, Format, ap);
+	va_end(ap);
+
+	IRC_SetPenalty(Client, 2);
+	return IRC_WriteStrClientPrefix(Client, Client_ThisServer(),
+					"%s", buffer);
+}
+
+/**
  * Send a message to a client.
  *
  * @param Client The target client.

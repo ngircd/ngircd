@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2013 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2013 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -93,14 +93,14 @@ join_allowed(CLIENT *Client, CHANNEL *chan, const char *channame,
 
 	if (is_banned && !is_invited && !is_exception) {
 		/* Client is banned from channel (and not on invite list) */
-		IRC_WriteStrClient(Client, ERR_BANNEDFROMCHAN_MSG,
+		IRC_WriteErrClient(Client, ERR_BANNEDFROMCHAN_MSG,
 				   Client_ID(Client), channame);
 		return false;
 	}
 
 	if (Channel_HasMode(chan, 'i') && !is_invited) {
 		/* Channel is "invite-only" and client is not on invite list */
-		IRC_WriteStrClient(Client, ERR_INVITEONLYCHAN_MSG,
+		IRC_WriteErrClient(Client, ERR_INVITEONLYCHAN_MSG,
 				   Client_ID(Client), channame);
 		return false;
 	}
@@ -108,7 +108,7 @@ join_allowed(CLIENT *Client, CHANNEL *chan, const char *channame,
 	if (!Channel_CheckKey(chan, Client, key ? key : "")) {
 		/* Channel is protected by a channel key and the client
 		 * didn't specify the correct one */
-		IRC_WriteStrClient(Client, ERR_BADCHANNELKEY_MSG,
+		IRC_WriteErrClient(Client, ERR_BADCHANNELKEY_MSG,
 				   Client_ID(Client), channame);
 		return false;
 	}
@@ -116,7 +116,7 @@ join_allowed(CLIENT *Client, CHANNEL *chan, const char *channame,
 	if (Channel_HasMode(chan, 'l') &&
 	    (Channel_MaxUsers(chan) <= Channel_MemberCount(chan))) {
 		/* There are more clints joined to this channel than allowed */
-		IRC_WriteStrClient(Client, ERR_CHANNELISFULL_MSG,
+		IRC_WriteErrClient(Client, ERR_CHANNELISFULL_MSG,
 				   Client_ID(Client), channame);
 		return false;
 	}
@@ -124,21 +124,21 @@ join_allowed(CLIENT *Client, CHANNEL *chan, const char *channame,
 	if (Channel_HasMode(chan, 'z') && !Conn_UsesSSL(Client_Conn(Client))) {
 		/* Only "secure" clients are allowed, but clients doesn't
 		 * use SSL encryption */
-		IRC_WriteStrClient(Client, ERR_SECURECHANNEL_MSG,
+		IRC_WriteErrClient(Client, ERR_SECURECHANNEL_MSG,
 				   Client_ID(Client), channame);
 		return false;
 	}
 
 	if (Channel_HasMode(chan, 'O') && !Client_OperByMe(Client)) {
 		/* Only IRC operators are allowed! */
-		IRC_WriteStrClient(Client, ERR_OPONLYCHANNEL_MSG,
+		IRC_WriteErrClient(Client, ERR_OPONLYCHANNEL_MSG,
 				   Client_ID(Client), channame);
 		return false;
 	}
 
 	if (Channel_HasMode(chan, 'R') && !Client_HasMode(Client, 'R')) {
 		/* Only registered users are allowed! */
-		IRC_WriteStrClient(Client, ERR_REGONLYCHANNEL_MSG,
+		IRC_WriteErrClient(Client, ERR_REGONLYCHANNEL_MSG,
 				   Client_ID(Client), channame);
 		return false;
 	}
@@ -326,7 +326,7 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 
 	/* Make sure that "channame" is not the empty string ("JOIN :") */
 	if (! channame)
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+		return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 					  Client_ID(Client), Req->command);
 
 	while (channame) {
@@ -344,7 +344,7 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 		chan = Channel_Search(channame);
 		if (!chan && !strchr(Conf_AllowedChannelTypes, channame[0])) {
 			 /* channel must be created, but forbidden by config */
-			IRC_WriteStrClient(Client, ERR_NOSUCHCHANNEL_MSG,
+			IRC_WriteErrClient(Client, ERR_NOSUCHCHANNEL_MSG,
 					   Client_ID(Client), channame);
 			goto join_next;
 		}
@@ -360,7 +360,7 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 			/* Test if the user has reached the channel limit */
 			if ((Conf_MaxJoins > 0) &&
 			    (Channel_CountForUser(Client) >= Conf_MaxJoins)) {
-				if (!IRC_WriteStrClient(Client,
+				if (!IRC_WriteErrClient(Client,
 						ERR_TOOMANYCHANNELS_MSG,
 						Client_ID(Client), channame))
 					return DISCONNECTED;
@@ -447,7 +447,7 @@ IRC_PART(CLIENT * Client, REQUEST * Req)
 
 	/* Make sure that "chan" is not the empty string ("PART :") */
 	if (! chan)
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+		return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 					  Client_ID(Client), Req->command);
 
 	while (chan) {
@@ -489,7 +489,7 @@ IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 
 	chan = Channel_Search(Req->argv[0]);
 	if (!chan)
-		return IRC_WriteStrClient(from, ERR_NOSUCHCHANNEL_MSG,
+		return IRC_WriteErrClient(from, ERR_NOSUCHCHANNEL_MSG,
 					  Client_ID(from), Req->argv[0]);
 
 	/* Only remote servers and channel members are allowed to change the
@@ -499,7 +499,7 @@ IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 		topic_power = Client_HasMode(from, 'o');
 		if (!Channel_IsMemberOf(chan, from)
 		    && !(Conf_OperCanMode && topic_power))
-			return IRC_WriteStrClient(from, ERR_NOTONCHANNEL_MSG,
+			return IRC_WriteErrClient(from, ERR_NOTONCHANNEL_MSG,
 						  Client_ID(from), Req->argv[0]);
 	} else
 		topic_power = true;
@@ -535,7 +535,7 @@ IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 		   !Channel_UserHasMode(chan, from, 'o') &&
 		   !Channel_UserHasMode(chan, from, 'a') &&
 		   !Channel_UserHasMode(chan, from, 'q'))
-			return IRC_WriteStrClient(from, ERR_CHANOPRIVSNEEDED_MSG,
+			return IRC_WriteErrClient(from, ERR_CHANOPRIVSNEEDED_MSG,
 						  Client_ID(from),
 						  Channel_Name(chan));
 	}
@@ -595,7 +595,7 @@ IRC_LIST( CLIENT *Client, REQUEST *Req )
 		/* Forward to other server? */
 		target = Client_Search(Req->argv[1]);
 		if (! target || Client_Type(target) != CLIENT_SERVER)
-			return IRC_WriteStrClient(from, ERR_NOSUCHSERVER_MSG,
+			return IRC_WriteErrClient(from, ERR_NOSUCHSERVER_MSG,
 						  Client_ID(Client),
 						  Req->argv[1]);
 
@@ -667,7 +667,7 @@ IRC_CHANINFO( CLIENT *Client, REQUEST *Req )
 
 	/* Bad number of parameters? */
 	if (Req->argc < 2 || Req->argc == 4 || Req->argc > 5)
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+		return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 					  Client_ID(Client), Req->command);
 
 	/* Compatibility kludge */

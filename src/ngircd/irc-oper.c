@@ -48,8 +48,7 @@ Bad_OperPass(CLIENT *Client, char *errtoken, char *errmsg)
 {
 	Log(LOG_WARNING, "Got invalid OPER from \"%s\": \"%s\" -- %s",
 	    Client_Mask(Client), errtoken, errmsg);
-	IRC_SetPenalty(Client, 3);
-	return IRC_WriteStrClient(Client, ERR_PASSWDMISMATCH_MSG,
+	return IRC_WriteErrClient(Client, ERR_PASSWDMISMATCH_MSG,
 				  Client_ID(Client));
 } /* Bad_OperPass */
 
@@ -197,7 +196,7 @@ IRC_RESTART( CLIENT *Client, REQUEST *Req )
 
 	/* Bad number of parameters? */
 	if (Req->argc != 0)
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+		return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 					  Client_ID(Client), Req->command);
 
 	Log(LOG_NOTICE|LOG_snotice, "Got RESTART command from \"%s\" ...",
@@ -229,12 +228,12 @@ IRC_CONNECT(CLIENT * Client, REQUEST * Req)
 	/* Bad number of parameters? */
 	if (Req->argc != 1 && Req->argc != 2 && Req->argc != 3 &&
 	    Req->argc != 5 && Req->argc != 6)
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+		return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 					  Client_ID(Client), Req->command);
 
 	/* Invalid port number? */
 	if ((Req->argc > 1) && atoi(Req->argv[1]) < 1)
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+		return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 					  Client_ID(Client), Req->command);
 
 	from = Client;
@@ -245,14 +244,14 @@ IRC_CONNECT(CLIENT * Client, REQUEST * Req)
 		if (Client_Type(Client) == CLIENT_SERVER && Req->prefix)
 			from = Client_Search(Req->prefix);
 		if (! from)
-			return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
-					Client_ID(Client), Req->prefix);
+			return IRC_WriteErrClient(Client, ERR_NOSUCHNICK_MSG,
+						  Client_ID(Client), Req->prefix);
 
 		target = (Req->argc == 3) ? Client_Search(Req->argv[2])
 					  : Client_Search(Req->argv[5]);
 		if (! target || Client_Type(target) != CLIENT_SERVER)
-			return IRC_WriteStrClient(from, ERR_NOSUCHSERVER_MSG,
-					Client_ID(from), Req->argv[0]);
+			return IRC_WriteErrClient(from, ERR_NOSUCHSERVER_MSG,
+						  Client_ID(from), Req->argv[0]);
 	}
 
 	if (target != Client_ThisServer()) {
@@ -275,7 +274,7 @@ IRC_CONNECT(CLIENT * Client, REQUEST * Req)
 	switch (Req->argc) {
 	case 1:
 		if (!Conf_EnablePassiveServer(Req->argv[0]))
-			return IRC_WriteStrClient(from, ERR_NOSUCHSERVER_MSG,
+			return IRC_WriteErrClient(from, ERR_NOSUCHSERVER_MSG,
 						  Client_ID(from),
 						  Req->argv[0]);
 		break;
@@ -284,7 +283,7 @@ IRC_CONNECT(CLIENT * Client, REQUEST * Req)
 		/* Connect configured server */
 		if (!Conf_EnableServer
 		    (Req->argv[0], (UINT16) atoi(Req->argv[1])))
-			return IRC_WriteStrClient(from, ERR_NOSUCHSERVER_MSG,
+			return IRC_WriteErrClient(from, ERR_NOSUCHSERVER_MSG,
 						  Client_ID(from),
 						  Req->argv[0]);
 		break;
@@ -293,7 +292,7 @@ IRC_CONNECT(CLIENT * Client, REQUEST * Req)
 		if (!Conf_AddServer
 		    (Req->argv[0], (UINT16) atoi(Req->argv[1]), Req->argv[2],
 		     Req->argv[3], Req->argv[4]))
-			return IRC_WriteStrClient(from, ERR_NOSUCHSERVER_MSG,
+			return IRC_WriteErrClient(from, ERR_NOSUCHSERVER_MSG,
 						  Client_ID(from),
 						  Req->argv[0]);
 	}
@@ -331,7 +330,7 @@ IRC_DISCONNECT(CLIENT * Client, REQUEST * Req)
 
 	/* Bad number of parameters? */
 	if (Req->argc != 1)
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+		return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 					  Client_ID(Client), Req->command);
 
 	IRC_SendWallops(Client_ThisServer(), Client_ThisServer(),
@@ -347,7 +346,7 @@ IRC_DISCONNECT(CLIENT * Client, REQUEST * Req)
 
 	/* Disconnect configured server */
 	if (!Conf_DisableServer(Req->argv[0]))
-		return IRC_WriteStrClient(Client, ERR_NOSUCHSERVER_MSG,
+		return IRC_WriteErrClient(Client, ERR_NOSUCHSERVER_MSG,
 					  Client_ID(Client), Req->argv[0]);
 
 	/* Are we still connected or were we killed, too? */
@@ -377,7 +376,7 @@ IRC_WALLOPS( CLIENT *Client, REQUEST *Req )
 	switch (Client_Type(Client)) {
 	case CLIENT_USER:
 		if (!Client_OperByMe(Client))
-			return IRC_WriteStrClient(Client, ERR_NOPRIVILEGES_MSG,
+			return IRC_WriteErrClient(Client, ERR_NOPRIVILEGES_MSG,
 						  Client_ID(Client));
 		from = Client;
 		break;
@@ -389,7 +388,7 @@ IRC_WALLOPS( CLIENT *Client, REQUEST *Req )
 	}
 
 	if (!from)
-		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
+		return IRC_WriteErrClient(Client, ERR_NOSUCHNICK_MSG,
 					  Client_ID(Client), Req->prefix);
 
 	IRC_SendWallops(Client, from, "%s", Req->argv[0]);
@@ -419,7 +418,7 @@ IRC_xLINE(CLIENT *Client, REQUEST *Req)
 
 	/* Bad number of parameters? */
 	if (Req->argc != 1 && Req->argc != 3)
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+		return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 					  Client_ID(Client), Req->command);
 
 	switch(Req->command[0]) {

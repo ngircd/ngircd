@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2012 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2013 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,17 +52,17 @@ IRC_METADATA(CLIENT *Client, REQUEST *Req)
 	assert(Req != NULL);
 
 	if (Req->argc != 3)
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+		return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 					  Client_ID(Client), Req->command);
 
 	prefix = Client_Search(Req->prefix);
 	if (!prefix)
-		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
+		return IRC_WriteErrClient(Client, ERR_NOSUCHNICK_MSG,
 					  Client_ID(Client), Req->prefix);
 
 	target = Client_Search(Req->argv[0]);
 	if (!target)
-		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
+		return IRC_WriteErrClient(Client, ERR_NOSUCHNICK_MSG,
 					  Client_ID(Client), Req->argv[0]);
 
 	LogDebug("Got \"METADATA\" command from \"%s\" for client \"%s\": \"%s=%s\".",

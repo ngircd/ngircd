@@ -61,7 +61,7 @@ IRC_PASS( CLIENT *Client, REQUEST *Req )
 
 	/* Return an error if this is not a local client */
 	if (Client_Conn(Client) <= NONE)
-		return IRC_WriteStrClient(Client, ERR_UNKNOWNCOMMAND_MSG,
+		return IRC_WriteErrClient(Client, ERR_UNKNOWNCOMMAND_MSG,
 					  Client_ID(Client), Req->command);
 
 	if (Client_Type(Client) == CLIENT_UNKNOWN && Req->argc == 1) {
@@ -81,13 +81,11 @@ IRC_PASS( CLIENT *Client, REQUEST *Req )
 	} else if (Client_Type(Client) == CLIENT_UNKNOWN ||
 		   Client_Type(Client) == CLIENT_UNKNOWNSERVER) {
 		/* Unregistered connection, but wrong number of arguments: */
-		IRC_SetPenalty(Client, 2);
-		return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+		return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 					  Client_ID(Client), Req->command);
 	} else {
 		/* Registered connection, PASS command is not allowed! */
-		IRC_SetPenalty(Client, 2);
-		return IRC_WriteStrClient(Client, ERR_ALREADYREGISTRED_MSG,
+		return IRC_WriteErrClient(Client, ERR_ALREADYREGISTRED_MSG,
 					  Client_ID(Client));
 	}
 
@@ -203,18 +201,16 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 		if (Client_Type(Client) == CLIENT_SERVER) {
 			target = Client_Search(Req->prefix);
 			if (!target)
-				return IRC_WriteStrClient( Client,
-							   ERR_NOSUCHNICK_MSG,
-							   Client_ID( Client ),
-							   Req->argv[0] );
+				return IRC_WriteErrClient(Client,
+							  ERR_NOSUCHNICK_MSG,
+							  Client_ID(Client),
+							  Req->argv[0]);
 		} else {
 			/* Is this a restricted client? */
-			if (Client_HasMode(Client, 'r')) {
-				IRC_SetPenalty(Client, 2);
-				return IRC_WriteStrClient( Client,
-							   ERR_RESTRICTED_MSG,
-							   Client_ID( Client ));
-			}
+			if (Client_HasMode(Client, 'r'))
+				return IRC_WriteErrClient(Client,
+							  ERR_RESTRICTED_MSG,
+							  Client_ID(Client));
 			target = Client;
 		}
 
@@ -275,7 +271,7 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 
 		/* Bad number of parameters? */
 		if (Req->argc != 2 && Req->argc != 7)
-			return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG,
+			return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 						  Client_ID(Client), Req->command);
 
 		if (Req->argc >= 7) {
@@ -343,7 +339,7 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 		return CONNECTED;
 	}
 	else
-		return IRC_WriteStrClient(Client, ERR_ALREADYREGISTRED_MSG,
+		return IRC_WriteErrClient(Client, ERR_ALREADYREGISTRED_MSG,
 					  Client_ID(Client));
 } /* IRC_NICK */
 
@@ -372,7 +368,7 @@ IRC_SVSNICK(CLIENT *Client, REQUEST *Req)
 	/* Search the target */
 	target = Client_Search(Req->argv[0]);
 	if (!target || Client_Type(target) != CLIENT_USER) {
-		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
+		return IRC_WriteErrClient(Client, ERR_NOSUCHNICK_MSG,
 					  Client_ID(Client), Req->argv[0]);
 	}
 
@@ -470,7 +466,7 @@ IRC_USER(CLIENT * Client, REQUEST * Req)
 
 		c = Client_Search(Req->prefix);
 		if (!c)
-			return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG,
+			return IRC_WriteErrClient(Client, ERR_NOSUCHNICK_MSG,
 						  Client_ID(Client),
 						  Req->prefix);
 
@@ -490,13 +486,11 @@ IRC_USER(CLIENT * Client, REQUEST * Req)
 		return CONNECTED;
 	} else if (Client_Type(Client) == CLIENT_USER) {
 		/* Already registered connection */
-		IRC_SetPenalty(Client, 2);
-		return IRC_WriteStrClient(Client, ERR_ALREADYREGISTRED_MSG,
+		return IRC_WriteErrClient(Client, ERR_ALREADYREGISTRED_MSG,
 					  Client_ID(Client));
 	} else {
 		/* Unexpected/invalid connection state? */
-		IRC_SetPenalty(Client, 2);
-		return IRC_WriteStrClient(Client, ERR_NOTREGISTERED_MSG,
+		return IRC_WriteErrClient(Client, ERR_NOTREGISTERED_MSG,
 					  Client_ID(Client));
 	}
 } /* IRC_USER */
@@ -523,16 +517,14 @@ IRC_SERVICE(CLIENT *Client, REQUEST *Req)
 	assert(Req != NULL);
 
 	if (Client_Type(Client) != CLIENT_GOTPASS &&
-	    Client_Type(Client) != CLIENT_SERVER) {
-		IRC_SetPenalty(Client, 2);
-		return IRC_WriteStrClient(Client, ERR_ALREADYREGISTRED_MSG,
+	    Client_Type(Client) != CLIENT_SERVER)
+		return IRC_WriteErrClient(Client, ERR_ALREADYREGISTRED_MSG,
 					  Client_ID(Client));
-	}
 
 	_IRC_ARGC_EQ_OR_RETURN_(Client, Req, 6)
 
 	if (Client_Type(Client) != CLIENT_SERVER)
-		return IRC_WriteStrClient(Client, ERR_ERRONEUSNICKNAME_MSG,
+		return IRC_WriteErrClient(Client, ERR_ERRONEUSNICKNAME_MSG,
 				  Client_ID(Client), Req->argv[0]);
 
 	nick = Req->argv[0];
@@ -609,7 +601,7 @@ IRC_WEBIRC(CLIENT *Client, REQUEST *Req)
 	_IRC_ARGC_EQ_OR_RETURN_(Client, Req, 4)
 
 	if (!Conf_WebircPwd[0] || strcmp(Req->argv[0], Conf_WebircPwd) != 0)
-		return IRC_WriteStrClient(Client, ERR_PASSWDMISMATCH_MSG,
+		return IRC_WriteErrClient(Client, ERR_PASSWDMISMATCH_MSG,
 					  Client_ID(Client));
 
 	LogDebug("Connection %d: got valid WEBIRC command: user=%s, host=%s, ip=%s",
@@ -715,7 +707,7 @@ IRC_PING(CLIENT *Client, REQUEST *Req)
 	assert(Req != NULL);
 
 	if (Req->argc < 1)
-		return IRC_WriteStrClient(Client, ERR_NOORIGIN_MSG,
+		return IRC_WriteErrClient(Client, ERR_NOORIGIN_MSG,
 					  Client_ID(Client));
 #ifdef STRICT_RFC
 	/* Don't ignore additional arguments when in "strict" mode */
@@ -727,7 +719,7 @@ IRC_PING(CLIENT *Client, REQUEST *Req)
 		target = Client_Search(Req->argv[1]);
 
 		if (!target || Client_Type(target) != CLIENT_SERVER)
-			return IRC_WriteStrClient(Client, ERR_NOSUCHSERVER_MSG,
+			return IRC_WriteErrClient(Client, ERR_NOSUCHSERVER_MSG,
 					Client_ID(Client), Req->argv[1]);
 
 		if (target != Client_ThisServer()) {
@@ -737,7 +729,7 @@ IRC_PING(CLIENT *Client, REQUEST *Req)
 			else
 				from = Client;
 			if (!from)
-				return IRC_WriteStrClient(Client,
+				return IRC_WriteErrClient(Client,
 						ERR_NOSUCHSERVER_MSG,
 						Client_ID(Client), Req->prefix);
 
@@ -755,7 +747,7 @@ IRC_PING(CLIENT *Client, REQUEST *Req)
 	} else
 		from = Client_ThisServer();
 	if (!from)
-		return IRC_WriteStrClient(Client, ERR_NOSUCHSERVER_MSG,
+		return IRC_WriteErrClient(Client, ERR_NOSUCHSERVER_MSG,
 					Client_ID(Client), Req->prefix);
 
 	Log(LOG_DEBUG, "Connection %d: got PING, sending PONG ...",
@@ -795,7 +787,7 @@ IRC_PONG(CLIENT *Client, REQUEST *Req)
 	/* Wrong number of arguments? */
 	if (Req->argc < 1) {
 		if (Client_Type(Client) == CLIENT_USER)
-			return IRC_WriteStrClient(Client, ERR_NOORIGIN_MSG,
+			return IRC_WriteErrClient(Client, ERR_NOORIGIN_MSG,
 						  Client_ID(Client));
 		else
 			return CONNECTED;
@@ -808,7 +800,7 @@ IRC_PONG(CLIENT *Client, REQUEST *Req)
 	if (Req->argc == 2 && Client_Type(Client) == CLIENT_SERVER) {
 		target = Client_Search(Req->argv[0]);
 		if (!target)
-			return IRC_WriteStrClient(Client, ERR_NOSUCHSERVER_MSG,
+			return IRC_WriteErrClient(Client, ERR_NOSUCHSERVER_MSG,
 					Client_ID(Client), Req->argv[0]);
 
 		from = Client_Search(Req->prefix);
@@ -816,7 +808,7 @@ IRC_PONG(CLIENT *Client, REQUEST *Req)
 		if (target != Client_ThisServer() && target != from) {
 			/* Ok, we have to forward the message. */
 			if (!from)
-				return IRC_WriteStrClient(Client,
+				return IRC_WriteErrClient(Client,
 						ERR_NOSUCHSERVER_MSG,
 						Client_ID(Client), Req->prefix);
 

@@ -11,6 +11,23 @@
 
 ngIRCd 21
 
+  - Implement a new configuration option "AllowedChannelTypes" that lists
+    all allowed channel types (channel prefixes) for newly created channels
+    on the local server. By default, all supported channel types are allowed.
+    If set to the empty string, local clients can't create new channels at
+    all, which equals the old "PredefChannelsOnly = yes" setting.
+    This change deprecates the "PredefChannelsOnly" variable, too, but it is
+    still supported and translated to the apropriate "AllowedChannelTypes"
+    setting. When the old "PredefChannelsOnly" variable is processed, a
+    warning message is logged. (Closes bug #152)
+  - Add support for "client certificate fingerprinting". When a client
+    passes an SSL certificate to the server, the "fingerprint" will be
+    forwarded in the network which enables IRC services to identify the
+    user using this certificate and not using passwords.
+  - IRC Operator names, as defined in ngircd.conf, are logged now when
+    handling successful OPER commands.
+  - Some error conditions while handling IRC commands, like "permission
+    denied" or "need more parameters", result in more penalty times.
   - The numeric replies of some commands became split too early which
     resulted in more numeric reply lines than necessary.
   - Implement a new configuration option "IncludeDir" in the "[Options]"
@@ -67,6 +84,7 @@ ngIRCd 21
     Please note that neither the Operator (+o) not the "bot status" (+B)
     of an IRC service id displayed in the output.
   - Exit message: use singular & plural :-)
+  - autogen.sh: Check for autoconf/automake wrapper scripts
   - Add missing punctuation marks in log messages and adjust some
     severity levels.
   - AUTHORS file: Update list of contributors.

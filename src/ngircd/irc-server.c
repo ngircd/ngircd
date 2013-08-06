@@ -188,30 +188,47 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 						  Client_ID(Client), Req->command);
 
 		/* check for existing server with same ID */
-		if( ! Client_CheckID( Client, Req->argv[0] )) return DISCONNECTED;
+		if (!Client_CheckID(Client, Req->argv[0]))
+			return DISCONNECTED;
 
 		from = Client_Search( Req->prefix );
-		if( ! from )
-		{
+		if (! from) {
 			/* Uh, Server, that introduced the new server is unknown?! */
-			Log( LOG_ALERT, "Unknown ID in prefix of SERVER: \"%s\"! (on connection %d)", Req->prefix, Client_Conn( Client ));
-			Conn_Close( Client_Conn( Client ), NULL, "Unknown ID in prefix of SERVER", true);
+			Log(LOG_ALERT,
+			    "Unknown ID in prefix of SERVER: \"%s\"! (on connection %d)",
+			    Req->prefix, Client_Conn(Client));
+			Conn_Close(Client_Conn(Client), NULL,
+				   "Unknown ID in prefix of SERVER", true);
 			return DISCONNECTED;
 		}
 
-		c = Client_NewRemoteServer(Client, Req->argv[0], from, atoi(Req->argv[1]), atoi(Req->argv[2]), Req->argv[3], true);
+		c = Client_NewRemoteServer(Client, Req->argv[0], from,
+					   atoi(Req->argv[1]), atoi(Req->argv[2]),
+					   Req->argv[3], true);
 		if (!c) {
-			Log( LOG_ALERT, "Can't create client structure for server! (on connection %d)", Client_Conn( Client ));
-			Conn_Close( Client_Conn( Client ), NULL, "Can't allocate client structure for remote server", true);
+			Log(LOG_ALERT,
+			    "Can't create client structure for server! (on connection %d)",
+			    Client_Conn(Client));
+			Conn_Close(Client_Conn(Client), NULL,
+				   "Can't allocate client structure for remote server",
+				   true);
 			return DISCONNECTED;
 		}
 
-		if(( Client_Hops( c ) > 1 ) && ( Req->prefix[0] )) snprintf( str, sizeof( str ), "connected to %s, ", Client_ID( from ));
-		else strcpy( str, "" );
-		Log( LOG_NOTICE|LOG_snotice, "Server \"%s\" registered (via %s, %s%d hop%s).", Client_ID( c ), Client_ID( Client ), str, Client_Hops( c ), Client_Hops( c ) > 1 ? "s": "" );
+		if (Client_Hops(c) > 1 && Req->prefix[0])
+			snprintf(str, sizeof(str), "connected to %s, ",
+				 Client_ID(from));
+		else
+			strcpy(str, "");
+		Log(LOG_NOTICE|LOG_snotice,
+		    "Server \"%s\" registered (via %s, %s%d hop%s).",
+		    Client_ID(c), Client_ID(Client), str, Client_Hops(c),
+		    Client_Hops(c) > 1 ? "s": "" );
 
 		/* notify other servers */
-		IRC_WriteStrServersPrefix( Client, from, "SERVER %s %d %d :%s", Client_ID( c ), Client_Hops( c ) + 1, Client_MyToken( c ), Client_Info( c ));
+		IRC_WriteStrServersPrefix(Client, from, "SERVER %s %d %d :%s",
+					  Client_ID(c), Client_Hops(c) + 1,
+					  Client_MyToken(c), Client_Info(c));
 
 		return CONNECTED;
 	} else

@@ -222,7 +222,7 @@ cb_connserver(int sock, UNUSED short what)
 	if (server < 0) {
 		Log(LOG_ERR, "Connection on socket %d to \"%s\" aborted!",
 		    sock, My_Connections[idx].host);
-		Conn_Close(idx, "Connection aborted!", NULL, false);
+		Conn_Close(idx, "Connection aborted", NULL, false);
 		return;
 	}
 
@@ -1452,7 +1452,7 @@ Handle_Write( CONN_ID Idx )
 
 		Log(LOG_ERR, "Write error on connection %d (socket %d): %s!",
 		    Idx, My_Connections[Idx].sock, strerror(errno));
-		Conn_Close(Idx, "Write error!", NULL, false);
+		Conn_Close(Idx, "Write error", NULL, false);
 		return false;
 	}
 

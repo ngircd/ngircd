@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2008 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2013 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,17 +33,21 @@
 #include "exp.h"
 #include "irc-write.h"
 
-
 #define SEND_TO_USER 1
 #define SEND_TO_SERVER 2
-
 
 static const char *Get_Prefix PARAMS((CLIENT *Target, CLIENT *Client));
 static void cb_writeStrServersPrefixFlag PARAMS((CLIENT *Client,
 					 CLIENT *Prefix, void *Buffer));
 static void Send_Marked_Connections PARAMS((CLIENT *Prefix, const char *Buffer));
 
-
+/**
+ * Send a message to a client.
+ *
+ * @param Client The target client.
+ * @param Format Format string.
+ * @return CONNECTED or DISCONNECTED.
+ */
 #ifdef PROTOTYPES
 GLOBAL bool
 IRC_WriteStrClient( CLIENT *Client, const char *Format, ... )
@@ -56,27 +60,31 @@ va_dcl
 #endif
 {
 	char buffer[1000];
-	bool ok = CONNECTED;
 	va_list ap;
 
-	assert( Client != NULL );
-	assert( Format != NULL );
+	assert(Client != NULL);
+	assert(Format != NULL);
 
 #ifdef PROTOTYPES
-	va_start( ap, Format );
+	va_start(ap, Format);
 #else
-	va_start( ap );
+	va_start(ap);
 #endif
-	vsnprintf( buffer, 1000, Format, ap );
-	va_end( ap );
+	vsnprintf(buffer, 1000, Format, ap);
+	va_end(ap);
 
-	/* to the client itself */
-	ok = IRC_WriteStrClientPrefix( Client, Client_ThisServer( ), "%s", buffer );
+	return IRC_WriteStrClientPrefix(Client, Client_ThisServer(),
+					"%s", buffer);
+}
 
-	return ok;
-} /* IRC_WriteStrClient */
-
-
+/**
+ * Send a message to a client using a specific prefix.
+ *
+ * @param Client The target client.
+ * @param Prefix The prefix to use.
+ * @param Format Format string.
+ * @return CONNECTED or DISCONNECTED.
+ */
 #ifdef PROTOTYPES
 GLOBAL bool
 IRC_WriteStrClientPrefix(CLIENT *Client, CLIENT *Prefix, const char *Format, ...)
@@ -108,9 +116,18 @@ va_dcl
 
 	return Conn_WriteStr(Client_Conn(Client_NextHop(Client)), ":%s %s",
 			Get_Prefix(Client_NextHop(Client), Prefix), buffer);
-} /* IRC_WriteStrClientPrefix */
+}
 
-
+/**
+ * Send a message to all client in a channel.
+ *
+ * The message is only sent once per remote server.
+ *
+ * @param Client The sending client, excluded while forwarding the message.
+ * @param Channel The target channel.
+ * @param Remote If not set, the message is sent to local clients only.
+ * @param Format Format string.
+ */
 #ifdef PROTOTYPES
 GLOBAL void
 IRC_WriteStrChannel(CLIENT *Client, CHANNEL *Chan, bool Remote,
@@ -140,13 +157,19 @@ va_dcl
 	va_end( ap );
 
 	IRC_WriteStrChannelPrefix(Client, Chan, Client_ThisServer(),
-				  Remote, "%s", buffer );
-} /* IRC_WriteStrChannel */
-
+				  Remote, "%s", buffer);
+}
 
 /**
- * send message to all clients in the same channel, but only send message
- * once per remote server.
+ * Send a message to all client in a channel using a specific prefix.
+ *
+ * The message is only sent once per remote server.
+ *
+ * @param Client The sending client, excluded while forwarding the message.
+ * @param Channel The target channel.
+ * @param Prefix The prefix to use.
+ * @param Remote If not set, the message is sent to local clients only.
+ * @param Format Format string.
  */
 #ifdef PROTOTYPES
 GLOBAL void
@@ -185,29 +208,36 @@ va_dcl
 	Conn_ClearFlags( );
 
 	cl2chan = Channel_FirstMember( Chan );
-	while( cl2chan )
-	{
+	while(cl2chan) {
 		c = Channel_GetClient( cl2chan );
-		if( ! Remote )
-		{
-			if( Client_Conn( c ) <= NONE ) c = NULL;
-			else if( Client_Type( c ) == CLIENT_SERVER ) c = NULL;
+		if (!Remote) {
+			if (Client_Conn(c) <= NONE)
+				c = NULL;
+			else if(Client_Type(c) == CLIENT_SERVER)
+				c = NULL;
 		}
-		if( c ) c = Client_NextHop( c );
+		if(c)
+			c = Client_NextHop(c);
 
-		if( c && ( c != Client ))
-		{
+		if(c && c != Client) {
 			/* Ok, another Client */
-			conn = Client_Conn( c );
-			if( Client_Type( c ) == CLIENT_SERVER )	Conn_SetFlag( conn, SEND_TO_SERVER );
-			else Conn_SetFlag( conn, SEND_TO_USER );
+			conn = Client_Conn(c);
+			if (Client_Type(c) == CLIENT_SERVER)
+				Conn_SetFlag(conn, SEND_TO_SERVER);
+			else
+				Conn_SetFlag(conn, SEND_TO_USER);
 		}
-		cl2chan = Channel_NextMember( Chan, cl2chan );
+		cl2chan = Channel_NextMember(Chan, cl2chan);
 	}
 	Send_Marked_Connections(Prefix, buffer);
-} /* IRC_WriteStrChannelPrefix */
+}
 
-
+/**
+ * Send a message to all the servers in the network.
+ *
+ * @param Client The sending client, excluded while forwarding the message.
+ * @param Format Format string.
+ */
 #ifdef PROTOTYPES
 GLOBAL void
 IRC_WriteStrServers(CLIENT *ExceptOf, const char *Format, ...)
@@ -232,10 +262,16 @@ va_dcl
 	vsnprintf( buffer, 1000, Format, ap );
 	va_end( ap );
 
-	IRC_WriteStrServersPrefix( ExceptOf, Client_ThisServer( ), "%s", buffer );
-} /* IRC_WriteStrServers */
+	IRC_WriteStrServersPrefix(ExceptOf, Client_ThisServer(), "%s", buffer);
+}
 
-
+/**
+ * Send a message to all the servers in the network using a specific prefix.
+ *
+ * @param Client The sending client, excluded while forwarding the message.
+ * @param Prefix The prefix to use.
+ * @param Format Format string.
+ */
 #ifdef PROTOTYPES
 GLOBAL void
 IRC_WriteStrServersPrefix(CLIENT *ExceptOf, CLIENT *Prefix,
@@ -264,9 +300,17 @@ va_dcl
 	va_end( ap );
 
 	IRC_WriteStrServersPrefixFlag( ExceptOf, Prefix, '\0', "%s", buffer );
-} /* IRC_WriteStrServersPrefix */
+}
 
-
+/**
+ * Send a message to all the servers in the network using a specific prefix
+ * and matching a "client flag".
+ *
+ * @param Client The sending client, excluded while forwarding the message.
+ * @param Prefix The prefix to use.
+ * @param Flag Client flag that must be set on the target.
+ * @param Format Format string.
+ */
 #ifdef PROTOTYPES
 GLOBAL void
 IRC_WriteStrServersPrefixFlag(CLIENT *ExceptOf, CLIENT *Prefix, char Flag,
@@ -297,9 +341,18 @@ va_dcl
 
 	IRC_WriteStrServersPrefixFlag_CB(ExceptOf, Prefix, Flag,
 					 cb_writeStrServersPrefixFlag, buffer);
-} /* IRC_WriteStrServersPrefixFlag */
+}
 
-
+/**
+ * Send a message to all the servers in the network using a specific prefix
+ * and matching a "client flag" using a callback function.
+ *
+ * @param Client The sending client, excluded while forwarding the message.
+ * @param Prefix The prefix to use.
+ * @param Flag Client flag that must be set on the target.
+ * @param callback Callback function.
+ * @param Format Format string.
+ */
 GLOBAL void
 IRC_WriteStrServersPrefixFlag_CB(CLIENT *ExceptOf, CLIENT *Prefix, char Flag,
 		void (*callback)(CLIENT *, CLIENT *, void *), void *cb_data)
@@ -316,12 +369,20 @@ IRC_WriteStrServersPrefixFlag_CB(CLIENT *ExceptOf, CLIENT *Prefix, char Flag,
 		}
 		c = Client_Next(c);
 	}
-} /* IRC_WriteStrServersPrefixFlag */
-
+}
 
 /**
- * send message to all clients that are in the same channels as the client sending this message.
- * only send message once per remote server.
+ * Send a message to all "related" clients.
+ *
+ * Related clients are the one that share one ore more channels with the client
+ * sending this message.
+ *
+ * The message is only sent once per remote server.
+ *
+ * @param Client The sending client, excluded while forwarding the message.
+ * @param Prefix The prefix to use.
+ * @param Remote If not set, the message is sent to local clients only.
+ * @param Format Format string.
  */
 #ifdef PROTOTYPES
 GLOBAL void
@@ -387,10 +448,13 @@ va_dcl
 	Send_Marked_Connections(Prefix, buffer);
 } /* IRC_WriteStrRelatedPrefix */
 
-
 /**
  * Send WALLOPS message.
- */
+ *
+ * @param Client The sending client, excluded while forwarding the message.
+ * @param From The (remote) sender of the message.
+ * @param Format Format string.
+*/
 #ifdef PROTOTYPES
 GLOBAL void
 IRC_SendWallops(CLIENT *Client, CLIENT *From, const char *Format, ...)
@@ -434,7 +498,14 @@ va_dcl
 	}
 } /* IRC_SendWallops */
 
-
+/**
+ * Set a "penalty time" for an IRC client.
+ *
+ * Note: penalty times are never set for server links!
+ *
+ * @param Client The client.
+ * @param Seconds The additional "penalty time" to enforce.
+ */
 GLOBAL void
 IRC_SetPenalty( CLIENT *Client, time_t Seconds )
 {
@@ -450,7 +521,6 @@ IRC_SetPenalty( CLIENT *Client, time_t Seconds )
 		Conn_SetPenalty(c, Seconds);
 } /* IRC_SetPenalty */
 
-
 static const char *
 Get_Prefix(CLIENT *Target, CLIENT *Client)
 {
@@ -463,14 +533,18 @@ Get_Prefix(CLIENT *Target, CLIENT *Client)
 		return Client_MaskCloaked(Client);
 } /* Get_Prefix */
 
-
 static void
 cb_writeStrServersPrefixFlag(CLIENT *Client, CLIENT *Prefix, void *Buffer)
 {
 	IRC_WriteStrClientPrefix(Client, Prefix, "%s", Buffer);
 } /* cb_writeStrServersPrefixFlag */
 
-
+/**
+ * Send a message to all marked connections using a specific prefix.
+ *
+ * @param Prefix The prefix to use.
+ * @param Buffer The message to send.
+ */
 static void
 Send_Marked_Connections(CLIENT *Prefix, const char *Buffer)
 {
@@ -487,9 +561,8 @@ Send_Marked_Connections(CLIENT *Prefix, const char *Buffer)
 		else if (Conn_Flag(conn) == SEND_TO_USER)
 			Conn_WriteStr(conn, ":%s %s",
 				      Client_MaskCloaked(Prefix), Buffer);
-		conn = Conn_Next( conn );
+		conn = Conn_Next(conn);
 	}
 }
-
 
 /* -eof- */

@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2008 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2013 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,9 +21,9 @@ GLOBAL bool IRC_WriteStrClient PARAMS((CLIENT *Client, const char *Format, ...))
 GLOBAL bool IRC_WriteStrClientPrefix PARAMS((CLIENT *Client, CLIENT *Prefix,
 		const char *Format, ...));
 
-GLOBAL bool IRC_WriteStrChannel PARAMS((CLIENT *Client, CHANNEL *Chan,
+GLOBAL void IRC_WriteStrChannel PARAMS((CLIENT *Client, CHANNEL *Chan,
 		bool Remote, const char *Format, ...));
-GLOBAL bool IRC_WriteStrChannelPrefix PARAMS((CLIENT *Client, CHANNEL *Chan,
+GLOBAL void IRC_WriteStrChannelPrefix PARAMS((CLIENT *Client, CHANNEL *Chan,
 		CLIENT *Prefix, bool Remote, const char *Format, ...));
 
 GLOBAL void IRC_WriteStrServers PARAMS((CLIENT *ExceptOf,
@@ -36,7 +36,7 @@ GLOBAL void IRC_WriteStrServersPrefixFlag_CB PARAMS((CLIENT *ExceptOf,
 		CLIENT *Prefix, char Flag,
 		void (*callback)(CLIENT *, CLIENT *, void *), void *cb_data));
 
-GLOBAL bool IRC_WriteStrRelatedPrefix PARAMS((CLIENT *Client, CLIENT *Prefix,
+GLOBAL void IRC_WriteStrRelatedPrefix PARAMS((CLIENT *Client, CLIENT *Prefix,
 		bool Remote, const char *Format, ...));
 
 GLOBAL void IRC_SendWallops PARAMS((CLIENT *Client, CLIENT *From,

@@ -931,8 +931,9 @@ Channel_Write(CHANNEL *Chan, CLIENT *From, CLIENT *Client, const char *Command,
 	if (Client_Conn(From) > NONE)
 		Conn_UpdateIdle(Client_Conn(From));
 
-	return IRC_WriteStrChannelPrefix(Client, Chan, From, true,
-			"%s %s :%s", Command, Channel_Name(Chan), Text);
+	IRC_WriteStrChannelPrefix(Client, Chan, From, true, "%s %s :%s",
+				  Command, Channel_Name(Chan), Text);
+	return CONNECTED;
 }
 
 

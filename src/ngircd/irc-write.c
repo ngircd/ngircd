@@ -41,7 +41,7 @@
 static const char *Get_Prefix PARAMS((CLIENT *Target, CLIENT *Client));
 static void cb_writeStrServersPrefixFlag PARAMS((CLIENT *Client,
 					 CLIENT *Prefix, void *Buffer));
-static bool Send_Marked_Connections PARAMS((CLIENT *Prefix, const char *Buffer));
+static void Send_Marked_Connections PARAMS((CLIENT *Prefix, const char *Buffer));
 
 
 #ifdef PROTOTYPES
@@ -112,11 +112,11 @@ va_dcl
 
 
 #ifdef PROTOTYPES
-GLOBAL bool
+GLOBAL void
 IRC_WriteStrChannel(CLIENT *Client, CHANNEL *Chan, bool Remote,
 		    const char *Format, ...)
 #else
-GLOBAL bool
+GLOBAL void
 IRC_WriteStrChannel(Client, Chan, Remote, Format, va_alist)
 CLIENT *Client;
 CHANNEL *Chan;
@@ -139,9 +139,9 @@ va_dcl
 	vsnprintf( buffer, 1000, Format, ap );
 	va_end( ap );
 
-	return IRC_WriteStrChannelPrefix( Client, Chan, Client_ThisServer( ), Remote, "%s", buffer );
+	IRC_WriteStrChannelPrefix(Client, Chan, Client_ThisServer(),
+				  Remote, "%s", buffer );
 } /* IRC_WriteStrChannel */
-
 
 
 /**
@@ -149,11 +149,11 @@ va_dcl
  * once per remote server.
  */
 #ifdef PROTOTYPES
-GLOBAL bool
+GLOBAL void
 IRC_WriteStrChannelPrefix(CLIENT *Client, CHANNEL *Chan, CLIENT *Prefix,
 			  bool Remote, const char *Format, ...)
 #else
-GLOBAL bool
+GLOBAL void
 IRC_WriteStrChannelPrefix(Client, Chan, Prefix, Remote, Format, va_alist)
 CLIENT *Client;
 CHANNEL *Chan;
@@ -204,7 +204,7 @@ va_dcl
 		}
 		cl2chan = Channel_NextMember( Chan, cl2chan );
 	}
-	return Send_Marked_Connections(Prefix, buffer);
+	Send_Marked_Connections(Prefix, buffer);
 } /* IRC_WriteStrChannelPrefix */
 
 
@@ -324,11 +324,11 @@ IRC_WriteStrServersPrefixFlag_CB(CLIENT *ExceptOf, CLIENT *Prefix, char Flag,
  * only send message once per remote server.
  */
 #ifdef PROTOTYPES
-GLOBAL bool
+GLOBAL void
 IRC_WriteStrRelatedPrefix(CLIENT *Client, CLIENT *Prefix, bool Remote,
 			  const char *Format, ...)
 #else
-GLOBAL bool
+GLOBAL void
 IRC_WriteStrRelatedPrefix(Client, Prefix, Remote, Format, va_alist)
 CLIENT *Client;
 CLIENT *Prefix;
@@ -384,7 +384,7 @@ va_dcl
 
 		chan_cl2chan = Channel_NextChannelOf( Client, chan_cl2chan );
 	}
-	return Send_Marked_Connections(Prefix, buffer);
+	Send_Marked_Connections(Prefix, buffer);
 } /* IRC_WriteStrRelatedPrefix */
 
 
@@ -471,11 +471,10 @@ cb_writeStrServersPrefixFlag(CLIENT *Client, CLIENT *Prefix, void *Buffer)
 } /* cb_writeStrServersPrefixFlag */
 
 
-static bool
+static void
 Send_Marked_Connections(CLIENT *Prefix, const char *Buffer)
 {
 	CONN_ID conn;
-	bool ok = CONNECTED;
 
 	assert(Prefix != NULL);
 	assert(Buffer != NULL);
@@ -483,16 +482,13 @@ Send_Marked_Connections(CLIENT *Prefix, const char *Buffer)
 	conn = Conn_First();
 	while (conn != NONE) {
 		if (Conn_Flag(conn) == SEND_TO_SERVER)
-			ok = Conn_WriteStr(conn, ":%s %s",
-					   Client_ID(Prefix), Buffer);
+			Conn_WriteStr(conn, ":%s %s",
+				      Client_ID(Prefix), Buffer);
 		else if (Conn_Flag(conn) == SEND_TO_USER)
-			ok = Conn_WriteStr(conn, ":%s %s",
-					   Client_MaskCloaked(Prefix), Buffer);
-		if (!ok)
-			break;
+			Conn_WriteStr(conn, ":%s %s",
+				      Client_MaskCloaked(Prefix), Buffer);
 		conn = Conn_Next( conn );
 	}
-	return ok;
 }
 
 

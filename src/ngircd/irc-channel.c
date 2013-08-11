@@ -688,7 +688,7 @@ IRC_CHANINFO( CLIENT *Client, REQUEST *Req )
 		return CONNECTED;
 
 	if (Req->argv[1][0] == '+') {
-		if (!Channel_Modes(chan)) {
+		if (!*Channel_Modes(chan)) {
 			/* OK, this channel doesn't have modes yet,
 			 * set the received ones: */
 			Channel_SetModes(chan, &Req->argv[1][1]);
@@ -727,7 +727,7 @@ IRC_CHANINFO( CLIENT *Client, REQUEST *Req )
 
 	if (arg_topic > 0) {
 		/* We got a topic */
-		if (!Channel_Topic( chan ) && Req->argv[arg_topic][0]) {
+		if (!*Channel_Topic(chan) && Req->argv[arg_topic][0]) {
 			/* OK, there is no topic jet */
 			Channel_SetTopic(chan, Client, Req->argv[arg_topic]);
 			IRC_WriteStrChannelPrefix(Client, chan, from, false,

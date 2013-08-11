@@ -1228,7 +1228,7 @@ Conn_Close( CONN_ID Idx, const char *LogMsg, const char *FwdMsg, bool InformClie
 	c = Conn_GetClient( Idx );
 #ifdef SSL_SUPPORT
 	if ( Conn_OPTION_ISSET( &My_Connections[Idx], CONN_SSL )) {
-		Log(LOG_INFO, "SSL connection %d shutting down ...", Idx);
+		LogDebug("SSL connection %d shutting down ...", Idx);
 		ConnSSL_Free(&My_Connections[Idx]);
 	}
 #endif

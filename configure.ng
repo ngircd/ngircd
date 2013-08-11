@@ -702,7 +702,7 @@ test "$x_ipv6_on" = "yes" \
 	&& echo $ECHO_N "yes   $ECHO_C" \
 	|| echo $ECHO_N "no    $ECHO_C"
 echo $ECHO_N "        I/O backend: $ECHO_C"
-	echo "\"$x_io_backend\""
+	echo "$x_io_backend"
 
 echo $ECHO_N "        PAM support: $ECHO_C"
 test "$x_pam_on" = "yes" \

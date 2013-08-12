@@ -488,16 +488,23 @@ ConnSSL_PrepareConnect(CONNECTION *c, UNUSED CONF_SERVER *s)
 }
 
 
-/*
-  Check an Handle Error return code after failed calls to ssl/tls functions.
-  OpenSSL:
-  SSL_connect(), SSL_accept(), SSL_do_handshake(), SSL_read(), SSL_peek(), or SSL_write() on ssl.
-  GNUTLS:
-  gnutlsssl_read(), gnutls_write() or gnutls_handshake().
-  Return: -1 on fatal error, 0 if we can try again later.
+/**
+ * Check and handle error return codes after failed calls to SSL/TLS functions.
+ *
+ * OpenSSL:
+ * SSL_connect(), SSL_accept(), SSL_do_handshake(), SSL_read(), SSL_peek(), or
+ * SSL_write() on ssl.
+ *
+ * GNUTLS:
+ * gnutlsssl_read(), gnutls_write() or gnutls_handshake().
+ *
+ * @param c The connection handle.
+ * @prarm code The return code.
+ * @param fname The name of the function in which the error occurred.
+ * @return -1 on fatal errors, 0 if we can try again later.
  */
 static int
-ConnSSL_HandleError( CONNECTION *c, const int code, const char *fname )
+ConnSSL_HandleError(CONNECTION * c, const int code, const char *fname)
 {
 #ifdef HAVE_LIBSSL
 	int ret = SSL_ERROR_SYSCALL;
@@ -518,21 +525,22 @@ ConnSSL_HandleError( CONNECTION *c, const int code, const char *fname )
 	case SSL_ERROR_ZERO_RETURN:
 		LogDebug("TLS/SSL connection shut down normally");
 		break;
-	/*
-	SSL_ERROR_WANT_CONNECT, SSL_ERROR_WANT_ACCEPT, SSL_ERROR_WANT_X509_LOOKUP
-	*/
 	case SSL_ERROR_SYSCALL:
+		/* SSL_ERROR_WANT_CONNECT, SSL_ERROR_WANT_ACCEPT,
+		 * and SSL_ERROR_WANT_X509_LOOKUP */
 		sslerr = ERR_get_error();
 		if (sslerr) {
-			Log( LOG_ERR, "%s: %s", fname, ERR_error_string(sslerr, NULL ));
+			Log(LOG_ERR, "%s: %s", fname,
+			    ERR_error_string(sslerr, NULL));
 		} else {
 
 			switch (code) {	/* EOF that violated protocol */
 			case 0:
-				Log(LOG_ERR, "%s: Client Disconnected", fname );
+				Log(LOG_ERR, "%s: Client Disconnected", fname);
 				break;
-			case -1: /* low level socket I/O error, check errno */
-				Log(LOG_ERR, "%s: %s", fname, strerror(real_errno));
+			case -1:	/* low level socket I/O error, check errno */
+				Log(LOG_ERR, "%s: %s", fname,
+				    strerror(real_errno));
 			}
 		}
 		break;
@@ -540,7 +548,7 @@ ConnSSL_HandleError( CONNECTION *c, const int code, const char *fname )
 		LogOpenSSLError("TLS/SSL Protocol Error", fname);
 		break;
 	default:
-		Log( LOG_ERR, "%s: Unknown error %d!", fname, ret);
+		Log(LOG_ERR, "%s: Unknown error %d!", fname, ret);
 	}
 	ConnSSL_Free(c);
 	return -1;

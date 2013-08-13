@@ -309,8 +309,7 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 	assert (Client != NULL);
 	assert (Req != NULL);
 
-	_IRC_ARGC_GE_OR_RETURN_(Client, Req, 1)
-	_IRC_ARGC_LE_OR_RETURN_(Client, Req, 2)
+	_IRC_ARGC_BETWEEN_OR_RETURN_(Client, Req, 1, 2)
 	_IRC_GET_SENDER_OR_RETURN_(target, Req, Client)
 
 	/* Is argument "0"? */
@@ -438,8 +437,7 @@ IRC_PART(CLIENT * Client, REQUEST * Req)
 	assert(Client != NULL);
 	assert(Req != NULL);
 
-	_IRC_ARGC_GE_OR_RETURN_(Client, Req, 1)
-	_IRC_ARGC_LE_OR_RETURN_(Client, Req, 2)
+	_IRC_ARGC_BETWEEN_OR_RETURN_(Client, Req, 1, 2)
 	_IRC_GET_SENDER_OR_RETURN_(target, Req, Client)
 
 	/* Loop over all the given channel names */
@@ -483,8 +481,7 @@ IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 
 	IRC_SetPenalty(Client, 1);
 
-	_IRC_ARGC_GE_OR_RETURN_(Client, Req, 1)
-	_IRC_ARGC_LE_OR_RETURN_(Client, Req, 2)
+	_IRC_ARGC_BETWEEN_OR_RETURN_(Client, Req, 1, 2)
 	_IRC_GET_SENDER_OR_RETURN_(from, Req, Client)
 
 	chan = Channel_Search(Req->argv[0]);

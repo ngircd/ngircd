@@ -113,17 +113,26 @@ out:
 
 
 #ifdef HAVE_LIBSSL
+/**
+ * Log OpenSSL error message.
+ *
+ * @param msg The error message.
+ * @param info Additional information text or NULL.
+ */
 static void
-LogOpenSSLError( const char *msg, const char *msg2 )
+LogOpenSSLError(const char *error, const char *info)
 {
 	unsigned long err = ERR_get_error();
-	char * errmsg = err ? ERR_error_string(err, NULL) : "Unable to determine error";
+	char * errmsg = err
+		? ERR_error_string(err, NULL)
+		: "Unable to determine error";
 
-	if (!msg) msg = "SSL Error";
-	if (msg2)
-		Log( LOG_ERR, "%s: %s: %s", msg, msg2, errmsg);
+	assert(error != NULL);
+
+	if (info)
+		Log(LOG_ERR, "%s: %s (%s)", error, info, errmsg);
 	else
-		Log( LOG_ERR, "%s: %s", msg, errmsg);
+		Log(LOG_ERR, "%s: %s", error, errmsg);
 }
 
 
@@ -142,7 +151,7 @@ pem_passwd_cb(char *buf, int size, int rwflag, void *password)
 	LogDebug("pem_passwd_cb buf size %d, array size %d", size, passlen);
 	assert(passlen >= 0);
 	if (passlen <= 0) {
-		Log(LOG_ERR, "pem_passwd_cb: password required, but not set");
+		Log(LOG_ERR, "PEM password required but not set [in pem_passwd_cb()]!");
 		return 0;
 	}
 	size = passlen > size ? size : passlen;
@@ -177,7 +186,7 @@ Load_DH_params(void)
 	}
 	dh_params = PEM_read_DHparams(fp, NULL, NULL, NULL);
 	if (!dh_params) {
-		Log(LOG_ERR, "%s: PEM_read_DHparams failed!",
+		Log(LOG_ERR, "%s: Failed to read SSL DH parameters!",
 		    Conf_SSLOptions.DHFile);
 		ret = false;
 	}
@@ -191,7 +200,8 @@ Load_DH_params(void)
 
 	err = gnutls_dh_params_init(&tmp_dh_params);
 	if (err < 0) {
-		Log(LOG_ERR, "gnutls_dh_params_init: %s", gnutls_strerror(err));
+		Log(LOG_ERR, "Failed to initialize SSL DH parameters: %s",
+		    gnutls_strerror(err));
 		return false;
 	}
 	if (Conf_SSLOptions.DHFile) {
@@ -204,7 +214,9 @@ Load_DH_params(void)
 			if (err == 0)
 				need_dhgenerate = false;
 			else
-				Log(LOG_ERR, "gnutls_dh_params_init: %s", gnutls_strerror(err));
+				Log(LOG_ERR,
+				    "Failed to initialize SSL DH parameters: %s",
+				    gnutls_strerror(err));
 
 			memset(dhparms.data, 0, size);
 			free(dhparms.data);
@@ -216,7 +228,8 @@ Load_DH_params(void)
 		    DH_BITS);
 		err = gnutls_dh_params_generate2(tmp_dh_params, DH_BITS);
 		if (err < 0) {
-			Log(LOG_ERR, "gnutls_dh_params_generate2: %s", gnutls_strerror(err));
+			Log(LOG_ERR, "Failed to generate SSL DH parameters: %s",
+			    gnutls_strerror(err));
 			return false;
 		}
         }
@@ -282,7 +295,7 @@ ConnSSL_InitLibrary( void )
 
 	newctx = SSL_CTX_new(SSLv23_method());
 	if (!newctx) {
-		LogOpenSSLError("SSL_CTX_new()", NULL);
+		LogOpenSSLError("Failed to create SSL context", NULL);
 		array_free(&Conf_SSLOptions.ListenPorts);
 		return false;
 	}
@@ -310,7 +323,7 @@ out:
 
 	err = gnutls_global_init();
 	if (err) {
-		Log(LOG_ERR, "gnutls_global_init(): %s", gnutls_strerror(err));
+		Log(LOG_ERR, "Failed to initialize GnuTLS: %s", gnutls_strerror(err));
 		array_free(&Conf_SSLOptions.ListenPorts);
 		return false;
 	}
@@ -318,7 +331,7 @@ out:
 		array_free(&Conf_SSLOptions.ListenPorts);
 		return false;
 	}
-	Log(LOG_INFO, "gnutls %s initialized.", gnutls_check_version(NULL));
+	Log(LOG_INFO, "GnuTLS %s initialized.", gnutls_check_version(NULL));
 	initialized = true;
 	return true;
 #endif
@@ -334,7 +347,8 @@ ConnSSL_LoadServerKey_gnutls(void)
 
 	err = gnutls_certificate_allocate_credentials(&x509_cred);
 	if (err < 0) {
-		Log(LOG_ERR, "gnutls_certificate_allocate_credentials: %s", gnutls_strerror(err));
+		Log(LOG_ERR, "Failed to allocate certificate credentials: %s",
+		    gnutls_strerror(err));
 		return false;
 	}
 
@@ -346,7 +360,7 @@ ConnSSL_LoadServerKey_gnutls(void)
 
 	if (array_bytes(&Conf_SSLOptions.KeyFilePassword))
 		Log(LOG_WARNING,
-		    "Ignoring KeyFilePassword: Not supported by GNUTLS.");
+		    "Ignoring KeyFilePassword: Not supported by GnuTLS.");
 
 	if (!Load_DH_params())
 		return false;
@@ -354,8 +368,11 @@ ConnSSL_LoadServerKey_gnutls(void)
 	gnutls_certificate_set_dh_params(x509_cred, dh_params);
 	err = gnutls_certificate_set_x509_key_file(x509_cred, cert_file, Conf_SSLOptions.KeyFile, GNUTLS_X509_FMT_PEM);
 	if (err < 0) {
-		Log(LOG_ERR, "gnutls_certificate_set_x509_key_file (cert %s, key %s): %s",
-				cert_file, Conf_SSLOptions.KeyFile ? Conf_SSLOptions.KeyFile : "(NULL)", gnutls_strerror(err));
+		Log(LOG_ERR,
+		    "Failed to set certificate key file (cert %s, key %s): %s",
+		    cert_file,
+		    Conf_SSLOptions.KeyFile ? Conf_SSLOptions.KeyFile : "(NULL)",
+		    gnutls_strerror(err));
 		return false;
 	}
 	return true;
@@ -380,26 +397,26 @@ ConnSSL_LoadServerKey_openssl(SSL_CTX *ctx)
 
 	if (SSL_CTX_use_PrivateKey_file(ctx, Conf_SSLOptions.KeyFile, SSL_FILETYPE_PEM) != 1) {
 		array_free_wipe(&Conf_SSLOptions.KeyFilePassword);
-		LogOpenSSLError("SSL_CTX_use_PrivateKey_file",  Conf_SSLOptions.KeyFile);
+		LogOpenSSLError("Failed to add private key", Conf_SSLOptions.KeyFile);
 		return false;
 	}
 
 	cert_key = Conf_SSLOptions.CertFile ? Conf_SSLOptions.CertFile:Conf_SSLOptions.KeyFile;
 	if (SSL_CTX_use_certificate_chain_file(ctx, cert_key) != 1) {
 		array_free_wipe(&Conf_SSLOptions.KeyFilePassword);
-		LogOpenSSLError("SSL_CTX_use_certificate_file", cert_key);
+		LogOpenSSLError("Failed to load certificate chain", cert_key);
 		return false;
 	}
 
 	array_free_wipe(&Conf_SSLOptions.KeyFilePassword);
 
 	if (!SSL_CTX_check_private_key(ctx)) {
-		LogOpenSSLError("Server Private Key does not match certificate", NULL);
+		LogOpenSSLError("Server private key does not match certificate", NULL);
 		return false;
 	}
 	if (Load_DH_params()) {
 		if (SSL_CTX_set_tmp_dh(ctx, dh_params) != 1)
-			LogOpenSSLError("Error setting DH Parameters", Conf_SSLOptions.DHFile);
+			LogOpenSSLError("Error setting DH parameters", Conf_SSLOptions.DHFile);
 		/* don't return false here: the non-DH modes will still work */
 		DH_free(dh_params);
 		dh_params = NULL;
@@ -416,7 +433,8 @@ ConnSSL_Init_SSL(CONNECTION *c)
 	assert(c != NULL);
 #ifdef HAVE_LIBSSL
 	if (!ssl_ctx) {
-		Log(LOG_ERR, "Cannot init ssl_ctx: OpenSSL initialization failed at startup");
+		Log(LOG_ERR,
+		    "Can't initialize SSL context, OpenSSL initialization failed at startup!");
 		return false;
 	}
 	assert(c->ssl_state.ssl == NULL);
@@ -424,13 +442,13 @@ ConnSSL_Init_SSL(CONNECTION *c)
 
 	c->ssl_state.ssl = SSL_new(ssl_ctx);
 	if (!c->ssl_state.ssl) {
-		LogOpenSSLError("SSL_new()", NULL);
+		LogOpenSSLError("Failed to create SSL structure", NULL);
 		return false;
 	}
 
 	ret = SSL_set_fd(c->ssl_state.ssl, c->sock);
 	if (ret != 1) {
-		LogOpenSSLError("SSL_set_fd()", NULL);
+		LogOpenSSLError("Failed to set SSL file descriptor", NULL);
 		ConnSSL_Free(c);
 		return false;
 	}
@@ -438,7 +456,8 @@ ConnSSL_Init_SSL(CONNECTION *c)
 #ifdef HAVE_LIBGNUTLS
 	ret = gnutls_set_default_priority(c->ssl_state.gnutls_session);
 	if (ret < 0) {
-		Log(LOG_ERR, "gnutls_set_default_priority: %s", gnutls_strerror(ret));
+		Log(LOG_ERR, "Failed to set GnuTLS default priority: %s",
+		    gnutls_strerror(ret));
 		ConnSSL_Free(c);
 		return false;
 	}
@@ -452,7 +471,7 @@ ConnSSL_Init_SSL(CONNECTION *c)
 	gnutls_certificate_server_set_request(c->ssl_state.gnutls_session, GNUTLS_CERT_REQUEST);
 	ret = gnutls_credentials_set(c->ssl_state.gnutls_session, GNUTLS_CRD_CERTIFICATE, x509_cred);
 	if (ret < 0) {
-		Log(LOG_ERR, "gnutls_credentials_set: %s", gnutls_strerror(ret));
+		Log(LOG_ERR, "Failed to set SSL credentials: %s", gnutls_strerror(ret));
 		ConnSSL_Free(c);
 		return false;
 	}
@@ -472,7 +491,8 @@ ConnSSL_PrepareConnect(CONNECTION *c, UNUSED CONF_SERVER *s)
 
 	err = gnutls_init(&c->ssl_state.gnutls_session, GNUTLS_CLIENT);
 	if (err) {
-		Log(LOG_ERR, "gnutls_init: %s", gnutls_strerror(err));
+		Log(LOG_ERR, "Failed to initialize new SSL session: %s",
+		    gnutls_strerror(err));
 		return false;
         }
 #endif
@@ -489,13 +509,13 @@ ConnSSL_PrepareConnect(CONNECTION *c, UNUSED CONF_SERVER *s)
 
 
 /**
- * Check and handle error return codes after failed calls to SSL/TLS functions.
+ * Check and handle error return codes after failed calls to SSL functions.
  *
  * OpenSSL:
  * SSL_connect(), SSL_accept(), SSL_do_handshake(), SSL_read(), SSL_peek(), or
  * SSL_write() on ssl.
  *
- * GNUTLS:
+ * GnuTLS:
  * gnutlsssl_read(), gnutls_write() or gnutls_handshake().
  *
  * @param c The connection handle.
@@ -512,6 +532,7 @@ ConnSSL_HandleError(CONNECTION * c, const int code, const char *fname)
 	int real_errno = errno;
 
 	ret = SSL_get_error(c->ssl_state.ssl, code);
+
 	switch (ret) {
 	case SSL_ERROR_WANT_READ:
 		io_event_del(c->sock, IO_WANTWRITE);
@@ -523,32 +544,33 @@ ConnSSL_HandleError(CONNECTION * c, const int code, const char *fname)
 	case SSL_ERROR_NONE:
 		return 0;	/* try again later */
 	case SSL_ERROR_ZERO_RETURN:
-		LogDebug("TLS/SSL connection shut down normally");
+		LogDebug("SSL connection shut down normally.");
 		break;
 	case SSL_ERROR_SYSCALL:
 		/* SSL_ERROR_WANT_CONNECT, SSL_ERROR_WANT_ACCEPT,
 		 * and SSL_ERROR_WANT_X509_LOOKUP */
 		sslerr = ERR_get_error();
 		if (sslerr) {
-			Log(LOG_ERR, "%s: %s", fname,
-			    ERR_error_string(sslerr, NULL));
+			Log(LOG_ERR, "SSL error: %s [in %s()]!",
+			    ERR_error_string(sslerr, NULL), fname);
 		} else {
-
 			switch (code) {	/* EOF that violated protocol */
 			case 0:
-				Log(LOG_ERR, "%s: Client Disconnected", fname);
+				Log(LOG_ERR,
+				    "SSL error, client disconnected [in %s()]!",
+				    fname);
 				break;
 			case -1:	/* low level socket I/O error, check errno */
-				Log(LOG_ERR, "%s: %s", fname,
-				    strerror(real_errno));
+				Log(LOG_ERR, "SSL error: %s [in %s()]!",
+				    strerror(real_errno), fname);
 			}
 		}
 		break;
 	case SSL_ERROR_SSL:
-		LogOpenSSLError("TLS/SSL Protocol Error", fname);
+		LogOpenSSLError("SSL protocol error", fname);
 		break;
 	default:
-		Log(LOG_ERR, "%s: Unknown error %d!", fname, ret);
+		Log(LOG_ERR, "Unknown SSL error %d [in %s()]!", ret, fname);
 	}
 	ConnSSL_Free(c);
 	return -1;
@@ -568,7 +590,8 @@ ConnSSL_HandleError(CONNECTION * c, const int code, const char *fname)
 	default:
 		assert(code < 0);
 		if (gnutls_error_is_fatal(code)) {
-			Log(LOG_ERR, "%s: %s", fname, gnutls_strerror(code));
+			Log(LOG_ERR, "SSL error: %s [%s].",
+			    gnutls_strerror(code), fname);
 			ConnSSL_Free(c);
 			return -1;
 		}
@@ -617,11 +640,12 @@ ConnSSL_Accept( CONNECTION *c )
 #ifdef HAVE_LIBGNUTLS
 		int err = gnutls_init(&c->ssl_state.gnutls_session, GNUTLS_SERVER);
 		if (err) {
-			Log(LOG_ERR, "gnutls_init: %s", gnutls_strerror(err));
+			Log(LOG_ERR, "Failed to initialize new SSL session: %s",
+			    gnutls_strerror(err));
 			return false;
 		}
 #endif
-		LogDebug("ConnSSL_Accept: Initializing SSL data");
+		LogDebug("Initializing SSL data ...");
 		if (!ConnSSL_Init_SSL(c))
 			return -1;
 	}

@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # ngIRCd start and stop script for Debian-based systems
-# Copyright 2008-2010 Alexander Barton <alex@barton.de>
+# Copyright 2008-2013 Alexander Barton <alex@barton.de>
 #
 
 ### BEGIN INIT INFO
@@ -24,12 +24,12 @@ PARAMS=""
 STARTTIME=1
 DIETIME=10
 
-test -x $DAEMON || exit 5
-
 test -h "$0" && me=`readlink $0` || me="$0"
 BASENAME=`basename $me`
 
 test -r /etc/default/$BASENAME && . /etc/default/$BASENAME
+
+test -x $DAEMON || exit 5
 
 # LSB compatibility functions that become used if there is no local
 # include file available.

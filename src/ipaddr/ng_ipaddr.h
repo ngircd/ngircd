@@ -47,6 +47,7 @@ typedef struct NG_IP_ADDR_DONTUSE ng_ipaddr_t;
 static inline int
 ng_ipaddr_af(const ng_ipaddr_t *a)
 {
+	assert(a != NULL);
 #ifdef WANT_IPV6
 	return a->sa.sa_family;
 #else
@@ -59,6 +60,7 @@ ng_ipaddr_af(const ng_ipaddr_t *a)
 static inline socklen_t
 ng_ipaddr_salen(const ng_ipaddr_t *a)
 {
+	assert(a != NULL);
 #ifdef WANT_IPV6
 	assert(a->sa.sa_family == AF_INET || a->sa.sa_family == AF_INET6);
 	if (a->sa.sa_family == AF_INET6)
@@ -75,11 +77,14 @@ ng_ipaddr_getport(const ng_ipaddr_t *a)
 #ifdef WANT_IPV6
 	int af = a->sa.sa_family;
 
+	assert(a != NULL);
 	assert(af == AF_INET || af == AF_INET6);
 
 	if (af == AF_INET6)
 		return ntohs(a->sin6.sin6_port);
 #endif /* WANT_IPV6 */
+
+	assert(a != NULL);
 	assert(a->sin4.sin_family == AF_INET);
 	return ntohs(a->sin4.sin_port);
 }
@@ -109,12 +114,15 @@ GLOBAL bool ng_ipaddr_tostr_r PARAMS((const ng_ipaddr_t *addr, char *dest));
 static inline const char*
 ng_ipaddr_tostr(const ng_ipaddr_t *addr)
 {
+	assert(addr != NULL);
 	return inet_ntoa(addr->sin4.sin_addr);
 }
 
 static inline bool
 ng_ipaddr_tostr_r(const ng_ipaddr_t *addr, char *d)
 {
+	assert(addr != NULL);
+	assert(d != NULL);
 	strlcpy(d, inet_ntoa(addr->sin4.sin_addr), NG_INET_ADDRSTRLEN);
 	return true;
 }

@@ -11,6 +11,9 @@
 
 ngIRCd 21
 
+  - Enforce "penalty times" on error conditions more consistently and in
+    more places. Now most error codes sent back from the IRC server to the
+    client should result in a 2 second "penalty".
   - Implement a new configuration option "AllowedChannelTypes" that lists
     all allowed channel types (channel prefixes) for newly created channels
     on the local server. By default, all supported channel types are allowed.
@@ -85,8 +88,8 @@ ngIRCd 21
     of an IRC service id displayed in the output.
   - Exit message: use singular & plural :-)
   - autogen.sh: Check for autoconf/automake wrapper scripts
-  - Add missing punctuation marks in log messages and adjust some
-    severity levels.
+  - Add missing punctuation marks in log messages, adjust some severity
+    levels, and make SSL-related messages more readable.
   - AUTHORS file: Update list of contributors.
   - Update systemd(8) example configuration files in ./contrib/ directory:
     the "ngircd.service" file now uses the "forking" service type which

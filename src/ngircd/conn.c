@@ -1181,8 +1181,8 @@ Conn_Close( CONN_ID Idx, const char *LogMsg, const char *FwdMsg, bool InformClie
 	/* Is this link already shutting down? */
 	if( Conn_OPTION_ISSET( &My_Connections[Idx], CONN_ISCLOSING )) {
 		/* Conn_Close() has been called recursively for this link;
-		 * probabe reason: Handle_Write() failed  -- see below. */
-		LogDebug("Recursive request to close connection: %d", Idx );
+		 * probable reason: Handle_Write() failed -- see below. */
+		LogDebug("Recursive request to close connection %d!", Idx );
 		return;
 	}
 
@@ -1450,8 +1450,13 @@ Handle_Write( CONN_ID Idx )
 		if (errno == EAGAIN || errno == EINTR)
 			return true;
 
-		Log(LOG_ERR, "Write error on connection %d (socket %d): %s!",
-		    Idx, My_Connections[Idx].sock, strerror(errno));
+		if (!Conn_OPTION_ISSET(&My_Connections[Idx], CONN_ISCLOSING))
+			Log(LOG_ERR,
+			    "Write error on connection %d (socket %d): %s!",
+			    Idx, My_Connections[Idx].sock, strerror(errno));
+		else
+			LogDebug("Recursive write error on connection %d (socket %d): %s!",
+				 Idx, My_Connections[Idx].sock, strerror(errno));
 		Conn_Close(Idx, "Write error", NULL, false);
 		return false;
 	}
@@ -2459,7 +2464,8 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 		Class_HandleServerBans(c);
 	}
 #ifdef DEBUG
-		else Log( LOG_DEBUG, "Resolver: discarding result for already registered connection %d.", i );
+	else
+		LogDebug("Resolver: discarding result for already registered connection %d.", i);
 #endif
 } /* cb_Read_Resolver_Result */
 

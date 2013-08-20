@@ -1668,7 +1668,11 @@ Conn_StartLogin(CONN_ID Idx)
 #endif
 			(void)Conn_WriteStr(Idx,
 				"NOTICE AUTH :*** Looking up your hostname");
-		(void)Handle_Write(Idx);
+		/* Send buffered data to the client, but break on errors
+		 * because Handle_Write() would have closed the connection
+		 * again in this case! */
+		if (!Handle_Write(Idx))
+			return;
 	}
 
 	Resolve_Addr(&My_Connections[Idx].proc_stat, &My_Connections[Idx].addr,
@@ -2458,8 +2462,13 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 		}
 #endif
 
-		if (Conf_NoticeAuth)
-			(void)Handle_Write(i);
+		if (Conf_NoticeAuth) {
+			/* Send buffered data to the client, but break on
+			 * errors because Handle_Write() would have closed
+			 * the connection again in this case! */
+			if (!Handle_Write(i))
+				return;
+		}
 
 		Class_HandleServerBans(c);
 	}

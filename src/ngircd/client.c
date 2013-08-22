@@ -124,6 +124,8 @@ Client_Exit( void )
 	{
 		cnt++;
 		next = (CLIENT *)c->next;
+		if (c->account_name)
+			free(c->account_name);
 		free( c );
 		c = next;
 	}
@@ -318,6 +320,8 @@ Client_Destroy( CLIENT *Client, const char *LogMsg, const char *FwdMsg, bool Sen
 				}
 			}
 
+			if (c->account_name)
+				free(c->account_name);
 			if (c->cloaked)
 				free(c->cloaked);
 			free( c );
@@ -452,6 +456,21 @@ Client_SetFlags( CLIENT *Client, const char *Flags )
 
 	strlcpy(Client->flags, Flags, sizeof(Client->flags));
 } /* Client_SetFlags */
+
+
+GLOBAL void
+Client_SetAccountName(CLIENT *Client, const char *AccountName)
+{
+	assert(Client != NULL);
+
+	if (Client->account_name)
+		free(Client->account_name);
+
+	if (*AccountName)
+		Client->account_name = strdup(AccountName);
+	else
+		Client->account_name = NULL;
+}
 
 
 GLOBAL void
@@ -971,6 +990,14 @@ Client_Away( CLIENT *Client )
 	assert( Client != NULL );
 	return Client->away;
 } /* Client_Away */
+
+
+GLOBAL char *
+Client_AccountName(CLIENT *Client)
+{
+	assert(Client != NULL);
+	return Client->account_name;
+}
 
 
 /**
@@ -1608,6 +1635,14 @@ Client_Announce(CLIENT * Client, CLIENT * Prefix, CLIENT * User)
 					"METADATA %s cloakhost :%s",
 					Client_ID(User),
 					Client_HostnameCloaked(User)))
+				return DISCONNECTED;
+		}
+
+		if (Client_AccountName(User)) {
+			if (!IRC_WriteStrClientPrefix(Client, Prefix,
+					"METADATA %s accountname :%s",
+					Client_ID(User),
+					Client_AccountName(User)))
 				return DISCONNECTED;
 		}
 

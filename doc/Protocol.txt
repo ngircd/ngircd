@@ -224,6 +224,7 @@ new server link", <serverflag> "M"), even if it doesn't support the given
 
 The following <key> names are defined:
 
+ - "accountname": the account name of a client (can't be empty)
  - "host": the hostname of a client (can't be empty)
  - "cloakhost": the cloaked hostname of a client
  - "info": info text ("real name") of a client

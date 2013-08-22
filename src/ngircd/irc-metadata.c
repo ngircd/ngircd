@@ -69,7 +69,7 @@ IRC_METADATA(CLIENT *Client, REQUEST *Req)
 		 Client_ID(prefix), Client_ID(target),
 		 Req->argv[1], Req->argv[2]);
 
-	/* Mark client: it has receiveda a METADATA command */
+	/* Mark client: it has received a METADATA command */
 	if (!Client_HasFlag(target, 'M')) {
 		snprintf(new_flags, sizeof new_flags, "%sM",
 			 Client_Flags(target));

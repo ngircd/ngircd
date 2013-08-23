@@ -9,10 +9,18 @@
                                -- ChangeLog --
 
 
+ngIRCd 20.3 (2013-08-23)
+
+  - Security: Fix a denial of service bug (server crash) which could happen
+    when the configuration option "NoticeAuth" is enabled (which is NOT the
+    default) and ngIRCd failed to send the "notice auth" messages to new
+    clients connecting to the server (CVE-2013-5580).
+
 ngIRCd 20.2 (2013-02-15)
 
   - Security: Fix a denial of service bug in the function handling KICK
-    commands that could be used by arbitrary users to to crash the daemon.
+    commands that could be used by arbitrary users to to crash the daemon
+    (CVE-2013-1747).
   - WHO command: Use the currently "displayed hostname" (which can be cloaked!)
     for hostname matching, not the real one. In other words: don't display all
     the cloaked users on a specific real hostname!

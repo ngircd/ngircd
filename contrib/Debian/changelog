@@ -1,3 +1,9 @@
+ngircd (20.3-0ab1) unstable; urgency=high
+
+  * New "upstream" release, fixing a security related bug: ngIRCd 20.3.
+
+ -- Alexander Barton <alex@barton.de>  Fri, 23 Aug 2013 21:53:21 +0200
+
 ngircd (20.2-0ab1) unstable; urgency=high
 
   * New "upstream" release, fixing a security related bug: ngIRCd 20.2.

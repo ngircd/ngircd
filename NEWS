@@ -65,6 +65,14 @@ ngIRCd 21
     and then is used to output individual help texts to specific topics.
     Please see the file ./doc/Commands.txt for details.
 
+ngIRCd 20.3 (2013-08-23)
+
+  - This release is a bugfix release only, without new features.
+  - Security: Fix a denial of service bug (server crash) which could happen
+    when the configuration option "NoticeAuth" is enabled (which is NOT the
+    default) and ngIRCd failed to send the "notice auth" messages to new
+    clients connecting to the server (CVE-2013-5580).
+
 ngIRCd 20.2 (2013-02-15)
 
   - This release is a bugfix release only, without new features.

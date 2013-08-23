@@ -126,6 +126,8 @@ Client_Exit( void )
 		next = (CLIENT *)c->next;
 		if (c->account_name)
 			free(c->account_name);
+		if (c->cloaked)
+			free(c->cloaked);
 		free( c );
 		c = next;
 	}

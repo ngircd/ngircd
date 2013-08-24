@@ -53,7 +53,7 @@ Log_Message(int Level, const char *msg)
 	if (!Is_Daemon) {
 		/* log to console */
 		fprintf(stdout, "[%ld:%d %4ld] %s\n", (long)getpid(), Level,
-				(long)time(NULL) - NGIRCd_Start, msg);
+				(long)(time(NULL) - NGIRCd_Start), msg);
 		fflush(stdout);
 	}
 #ifdef SYSLOG

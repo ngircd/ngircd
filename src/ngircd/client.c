@@ -62,6 +62,8 @@ static CLIENT *New_Client_Struct PARAMS(( void ));
 static void Generate_MyToken PARAMS(( CLIENT *Client ));
 static void Adjust_Counters PARAMS(( CLIENT *Client ));
 
+static void Free_Client PARAMS(( CLIENT **Client ));
+
 static CLIENT *Init_New_Client PARAMS((CONN_ID Idx, CLIENT *Introducer,
 				       CLIENT *TopServer, int Type, const char *ID,
 				       const char *User, const char *Hostname, const char *Info,
@@ -120,20 +122,15 @@ Client_Exit( void )
 	
 	cnt = 0;
 	c = My_Clients;
-	while( c )
-	{
+	while(c) {
 		cnt++;
 		next = (CLIENT *)c->next;
-		if (c->account_name)
-			free(c->account_name);
-		if (c->cloaked)
-			free(c->cloaked);
-		if (c->ipa_text)
-			free(c->ipa_text);
-		free( c );
+		Free_Client(&c);
 		c = next;
 	}
-	if( cnt ) Log( LOG_INFO, "Freed %d client structure%s.", cnt, cnt == 1 ? "" : "s" );
+	if (cnt)
+		Log(LOG_INFO, "Freed %d client structure%s.",
+		    cnt, cnt == 1 ? "" : "s");
 } /* Client_Exit */
 
 
@@ -324,13 +321,7 @@ Client_Destroy( CLIENT *Client, const char *LogMsg, const char *FwdMsg, bool Sen
 				}
 			}
 
-			if (c->account_name)
-				free(c->account_name);
-			if (c->cloaked)
-				free(c->cloaked);
-			if (c->ipa_text)
-				free(c->ipa_text);
-			free( c );
+			Free_Client(&c);
 			break;
 		}
 		last = c;
@@ -1410,6 +1401,11 @@ MyCount( CLIENT_TYPE Type )
 } /* MyCount */
 
 
+/**
+ * Allocate and initialize new CLIENT strcuture.
+ *
+ * @return Pointer to CLIENT structure or NULL on error.
+ */
 static CLIENT *
 New_Client_Struct( void )
 {
@@ -1432,8 +1428,27 @@ New_Client_Struct( void )
 	c->mytoken = -1;
 
 	return c;
-} /* New_Client */
+}
 
+/**
+ * Free a CLIENT structure and its member variables.
+ */
+static void
+Free_Client(CLIENT **Client)
+{
+	assert(Client != NULL);
+	assert(*Client != NULL);
+
+	if ((*Client)->account_name)
+		free((*Client)->account_name);
+	if ((*Client)->cloaked)
+		free((*Client)->cloaked);
+	if ((*Client)->ipa_text)
+		free((*Client)->ipa_text);
+
+	free(*Client);
+	*Client = NULL;
+}
 
 static void
 Generate_MyToken( CLIENT *Client )

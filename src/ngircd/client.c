@@ -469,7 +469,8 @@ Client_SetAccountName(CLIENT *Client, const char *AccountName)
 		free(Client->account_name);
 
 	if (*AccountName)
-		Client->account_name = strdup(AccountName);
+		Client->account_name = strndup(AccountName,
+					       CLIENT_NICK_LEN - 1);
 	else
 		Client->account_name = NULL;
 }

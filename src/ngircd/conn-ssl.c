@@ -61,7 +61,7 @@ static gnutls_dh_params_t dh_params;
 static bool ConnSSL_LoadServerKey_gnutls PARAMS(( void ));
 #endif
 
-#define CERTFP_LEN	(20 * 2 + 1)
+#define SHA1_STRING_LEN	(20 * 2 + 1)
 
 static bool ConnSSL_Init_SSL PARAMS(( CONNECTION *c ));
 static int ConnectAccept PARAMS(( CONNECTION *c, bool connect ));
@@ -723,7 +723,7 @@ ConnSSL_InitCertFp( CONNECTION *c )
 
 	assert(c->ssl_state.fingerprint == NULL);
 
-	c->ssl_state.fingerprint = malloc(CERTFP_LEN);
+	c->ssl_state.fingerprint = malloc(SHA1_STRING_LEN);
 	if (!c->ssl_state.fingerprint)
 		return 0;
 
@@ -858,7 +858,7 @@ bool
 ConnSSL_SetCertFp(CONNECTION *c, const char *fingerprint)
 {
 	assert (c != NULL);
-	c->ssl_state.fingerprint = strdup(fingerprint);
+	c->ssl_state.fingerprint = strndup(fingerprint, SHA1_STRING_LEN - 1);
 	return c->ssl_state.fingerprint != NULL;
 }
 #else

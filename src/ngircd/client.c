@@ -221,7 +221,7 @@ Init_New_Client(CONN_ID Idx, CLIENT *Introducer, CLIENT *TopServer,
 		Generate_MyToken(client);
 
 	if (Client_HasMode(client, 'a'))
-		strlcpy(client->away, DEFAULT_AWAY_MSG, sizeof(client->away));
+		client->away = strndup(DEFAULT_AWAY_MSG, CLIENT_AWAY_LEN - 1);
 
 	client->next = (POINTER *)My_Clients;
 	My_Clients = client;
@@ -500,7 +500,11 @@ Client_SetAway( CLIENT *Client, const char *Txt )
 	assert( Client != NULL );
 	assert( Txt != NULL );
 
-	strlcpy( Client->away, Txt, sizeof( Client->away ));
+	if (Client->away)
+		free(Client->away);
+
+	Client->away = strndup(Txt, CLIENT_AWAY_LEN - 1);
+
 	LogDebug("%s \"%s\" is away: %s", Client_TypeText(Client),
 		 Client_Mask(Client), Txt);
 } /* Client_SetAway */
@@ -1441,6 +1445,8 @@ Free_Client(CLIENT **Client)
 
 	if ((*Client)->account_name)
 		free((*Client)->account_name);
+	if ((*Client)->away)
+		free((*Client)->away);
 	if ((*Client)->cloaked)
 		free((*Client)->cloaked);
 	if ((*Client)->ipa_text)

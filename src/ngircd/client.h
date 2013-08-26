@@ -58,7 +58,7 @@ typedef struct _CLIENT
 	char modes[CLIENT_MODE_LEN];	/* client modes */
 	int hops, token, mytoken;	/* "hops" and "Token" (see SERVER command) */
 	bool oper_by_me;		/* client is local IRC operator on this server? */
-	char away[CLIENT_AWAY_LEN];	/* AWAY text (valid if mode 'a' is set) */
+	char *away;			/* AWAY text (valid if mode 'a' is set) */
 	char flags[CLIENT_FLAGS_LEN];	/* flags of the client */
 	char *account_name;		/* login account (for services) */
 	int capabilities;		/* enabled IRC capabilities */

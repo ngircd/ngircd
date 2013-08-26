@@ -128,6 +128,8 @@ Client_Exit( void )
 			free(c->account_name);
 		if (c->cloaked)
 			free(c->cloaked);
+		if (c->ipa_text)
+			free(c->ipa_text);
 		free( c );
 		c = next;
 	}
@@ -326,6 +328,8 @@ Client_Destroy( CLIENT *Client, const char *LogMsg, const char *FwdMsg, bool Sen
 				free(c->account_name);
 			if (c->cloaked)
 				free(c->cloaked);
+			if (c->ipa_text)
+				free(c->ipa_text);
 			free( c );
 			break;
 		}
@@ -366,6 +370,27 @@ Client_SetHostname( CLIENT *Client, const char *Hostname )
 		strlcpy(Client->host, Hostname, sizeof(Client->host));
 	}
 } /* Client_SetHostname */
+
+
+/**
+ * Set IP address to display for a client.
+ *
+ * @param Client The client.
+ * @param IPAText Textual representation of the IP address or NULL to unset.
+ */
+GLOBAL void
+Client_SetIPAText(CLIENT *Client, const char *IPAText)
+{
+	assert(Client != NULL);
+
+	if (Client->ipa_text)
+		free(Client->ipa_text);
+
+	if (*IPAText)
+		Client->ipa_text = strndup(IPAText, CLIENT_HOST_LEN - 1);
+	else
+		Client->ipa_text = NULL;
+}
 
 
 GLOBAL void
@@ -787,6 +812,21 @@ Client_HostnameDisplayed(CLIENT *Client)
 
 	Client_UpdateCloakedHostname(Client, NULL, NULL);
 	return Client->cloaked;
+}
+
+GLOBAL const char *
+Client_IPAText(CLIENT *Client)
+{
+	assert(Client != NULL);
+
+	/* Not a local client? */
+	if (Client_Conn(Client) <= NONE)
+		return "0.0.0.0";
+
+	if (!Client->ipa_text)
+		return Conn_GetIPAInfo(Client_Conn(Client));
+	else
+		return Client->ipa_text;
 }
 
 /**

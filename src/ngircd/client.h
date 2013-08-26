@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2012 Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2013 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,6 +49,7 @@ typedef struct _CLIENT
 	struct _CLIENT *topserver;	/* toplevel servers (only valid if client is a server) */
 	char host[CLIENT_HOST_LEN];	/* hostname of the client */
 	char *cloaked;			/* cloaked hostname of the client */
+	char *ipa_text;			/* textual representaton of IP address */
 	char user[CLIENT_USER_LEN];	/* user name ("login") */
 #if defined(PAM) && defined(IDENTAUTH)
 	char orig_user[CLIENT_USER_LEN];/* user name supplied by USER command */
@@ -114,6 +115,7 @@ GLOBAL char *Client_OrigUser PARAMS(( CLIENT *Client ));
 GLOBAL char *Client_Hostname PARAMS(( CLIENT *Client ));
 GLOBAL char *Client_HostnameCloaked PARAMS((CLIENT *Client));
 GLOBAL char *Client_HostnameDisplayed PARAMS(( CLIENT *Client ));
+GLOBAL const char *Client_IPAText PARAMS(( CLIENT *Client ));
 GLOBAL char *Client_Modes PARAMS(( CLIENT *Client ));
 GLOBAL char *Client_Flags PARAMS(( CLIENT *Client ));
 GLOBAL CLIENT *Client_Introducer PARAMS(( CLIENT *Client ));
@@ -131,6 +133,7 @@ GLOBAL bool Client_HasMode PARAMS(( CLIENT *Client, char Mode ));
 GLOBAL bool Client_HasFlag PARAMS(( CLIENT *Client, char Flag ));
 
 GLOBAL void Client_SetHostname PARAMS(( CLIENT *Client, const char *Hostname ));
+GLOBAL void Client_SetIPAText PARAMS(( CLIENT *Client, const char *IPAText ));
 GLOBAL void Client_SetID PARAMS(( CLIENT *Client, const char *Nick ));
 GLOBAL void Client_SetUser PARAMS(( CLIENT *Client, const char *User, bool Idented ));
 GLOBAL void Client_SetOrigUser PARAMS(( CLIENT *Client, const char *User ));

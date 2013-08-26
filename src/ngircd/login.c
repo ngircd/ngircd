@@ -19,6 +19,7 @@
 #include "imp.h"
 #include <assert.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <strings.h>
 #include <unistd.h>
@@ -37,6 +38,7 @@
 #include "ngircd.h"
 #include "pam.h"
 #include "irc-info.h"
+#include "irc-mode.h"
 #include "irc-write.h"
 
 #include "exp.h"
@@ -151,6 +153,9 @@ Login_User(CLIENT * Client)
 GLOBAL bool
 Login_User_PostAuth(CLIENT *Client)
 {
+	REQUEST Req;
+	char modes[CLIENT_MODE_LEN + 1];
+
 	assert(Client != NULL);
 
 	if (Class_HandleServerBans(Client) != CONNECTED)
@@ -185,8 +190,17 @@ Login_User_PostAuth(CLIENT *Client)
 	if (!IRC_Show_MOTD(Client))
 		return DISCONNECTED;
 
-	/* Suspend the client for a second ... */
-	IRC_SetPenalty(Client, 1);
+	/* Set default user modes */
+	if (Conf_DefaultUserModes[0]) {
+		snprintf(modes, sizeof(modes), "+%s", Conf_DefaultUserModes);
+		Req.prefix = Client_ThisServer();
+		Req.command = "MODE";
+		Req.argc = 2;
+		Req.argv[0] = Client_ID(Client);
+		Req.argv[1] = modes;
+		IRC_MODE(Client, &Req);
+	} else
+		IRC_SetPenalty(Client, 1);
 
 	return CONNECTED;
 }

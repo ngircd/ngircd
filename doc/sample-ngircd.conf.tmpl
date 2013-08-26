@@ -165,7 +165,12 @@
 	;ConnectIPv6 = yes
 	;ConnectIPv4 = yes
 
-	# Do any DNS lookups when a client connects to the server.
+	# Default user mode(s) to set on new local clients. Please note that
+	# only modes can be set that the client could set on itself, you can't
+	# set "a" (away) or "o" (IRC Op), for example! Default: none.
+	;DefaultUserModes = i
+
+	# Do DNS lookups when a client connects to the server.
 	;DNS = yes
 
 	# Do IDENT lookups if ngIRCd has been compiled with support for it.

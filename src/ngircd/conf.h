@@ -202,6 +202,9 @@ GLOBAL bool Conf_PAMIsOptional;
 /** Disable all CTCP commands except for /me ? */
 GLOBAL bool Conf_ScrubCTCP;
 
+/** Default user modes for new local clients */
+GLOBAL char Conf_DefaultUserModes[CLIENT_MODE_LEN];
+
 /*
  * try to connect to remote systems using the ipv6 protocol,
  * if they have an ipv6 address? (default yes)

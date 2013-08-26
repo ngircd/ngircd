@@ -402,6 +402,7 @@ Conf_Test( void )
 	printf("  ConnectIPv4 = %s\n", yesno_to_str(Conf_ConnectIPv6));
 	printf("  ConnectIPv6 = %s\n", yesno_to_str(Conf_ConnectIPv4));
 #endif
+	printf("  DefaultUserModes = %s\n", Conf_DefaultUserModes);
 	printf("  DNS = %s\n", yesno_to_str(Conf_DNS));
 #ifdef IDENT
 	printf("  Ident = %s\n", yesno_to_str(Conf_Ident));
@@ -776,6 +777,7 @@ Set_Defaults(bool InitServers)
 #else
 	Conf_ConnectIPv6 = false;
 #endif
+	strcpy(Conf_DefaultUserModes, "");
 	Conf_DNS = true;
 #ifdef IDENTAUTH
 	Conf_Ident = true;
@@ -1704,6 +1706,30 @@ Handle_OPTIONS(const char *File, int Line, char *Var, char *Arg)
 	}
 	if (strcasecmp(Var, "ConnectIPv4") == 0) {
 		Conf_ConnectIPv4 = Check_ArgIsTrue(Arg);
+		return;
+	}
+	if (strcasecmp(Var, "DefaultUserModes") == 0) {
+		p = Arg;
+		Conf_DefaultUserModes[0] = '\0';
+		while (*p) {
+			if (strchr(Conf_DefaultUserModes, *p)) {
+				/* Mode is already included; ignore it */
+				p++;
+				continue;
+			}
+
+			if (strchr(USERMODES, *p)) {
+				len = strlen(Conf_DefaultUserModes) + 1;
+				assert(len < sizeof(Conf_DefaultUserModes));
+				Conf_DefaultUserModes[len - 1] = *p;
+				Conf_DefaultUserModes[len] = '\0';
+			} else {
+				Config_Error(LOG_WARNING,
+					     "%s, line %d: Unknown user mode \"%c\" in \"DefaultUserModes\"!",
+					     File, Line, *p);
+			}
+			p++;
+		}
 		return;
 	}
 	if (strcasecmp(Var, "DNS") == 0) {

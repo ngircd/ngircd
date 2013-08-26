@@ -302,8 +302,12 @@
 				FA2D567A11EA1AB300D37A35 /* libpam.dylib */,
 				FA322DC00CEF77CB001761B3 /* libz.dylib */,
 			);
+			indentWidth = 8;
 			name = ngIRCd;
 			sourceTree = "<group>";
+			tabWidth = 8;
+			usesTabs = 1;
+			wrapsLines = 0;
 		};
 		1AB674ADFE9D54B511CA2CBB /* Products */ = {
 			isa = PBXGroup;

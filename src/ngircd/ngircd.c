@@ -725,9 +725,11 @@ NGIRCd_Init(bool NGIRCd_NoDaemon)
 				goto out;
 		}
 		if (setgroups(0, NULL) != 0) {
-			Log(LOG_ERR, "Can't drop supplementary group ids: %s!",
+			real_errno = errno;
+			Log(LOG_ERR, "Can't drop supplementary group IDs: %s!",
 					strerror(errno));
-			goto out;
+			if (real_errno != EPERM)
+				goto out;
 		}
 	}
 #endif

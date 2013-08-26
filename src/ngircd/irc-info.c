@@ -407,8 +407,8 @@ IRC_WHOIS_SendReply(CLIENT *Client, CLIENT *from, CLIENT *c)
 	    (from == c || (!Conf_MorePrivacy && Client_HasMode(from, 'o')))) {
 		/* Client hostname */
 		if (!IRC_WriteStrClient(from, RPL_WHOISHOST_MSG,
-					Client_ID(from), Client_ID(c), Client_Hostname(c),
-					Conn_GetIPAInfo(Client_Conn(c))))
+					Client_ID(from), Client_ID(c),
+					Client_Hostname(c), Client_IPAText(c)))
 			return DISCONNECTED;
 		/* Client modes */
 		if (!IRC_WriteStrClient(from, RPL_WHOISMODES_MSG,

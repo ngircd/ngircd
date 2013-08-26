@@ -610,6 +610,8 @@ IRC_WEBIRC(CLIENT *Client, REQUEST *Req)
 	Client_SetUser(Client, Req->argv[1], true);
 	Client_SetOrigUser(Client, Req->argv[1]);
 	Client_SetHostname(Client, Req->argv[2]);
+	Client_SetIPAText(Client, Req->argv[3]);
+
 	return CONNECTED;
 } /* IRC_WEBIRC */
 

@@ -62,6 +62,8 @@ static CLIENT *New_Client_Struct PARAMS(( void ));
 static void Generate_MyToken PARAMS(( CLIENT *Client ));
 static void Adjust_Counters PARAMS(( CLIENT *Client ));
 
+static void Free_Client PARAMS(( CLIENT **Client ));
+
 static CLIENT *Init_New_Client PARAMS((CONN_ID Idx, CLIENT *Introducer,
 				       CLIENT *TopServer, int Type, const char *ID,
 				       const char *User, const char *Hostname, const char *Info,
@@ -120,18 +122,15 @@ Client_Exit( void )
 	
 	cnt = 0;
 	c = My_Clients;
-	while( c )
-	{
+	while(c) {
 		cnt++;
 		next = (CLIENT *)c->next;
-		if (c->account_name)
-			free(c->account_name);
-		if (c->cloaked)
-			free(c->cloaked);
-		free( c );
+		Free_Client(&c);
 		c = next;
 	}
-	if( cnt ) Log( LOG_INFO, "Freed %d client structure%s.", cnt, cnt == 1 ? "" : "s" );
+	if (cnt)
+		Log(LOG_INFO, "Freed %d client structure%s.",
+		    cnt, cnt == 1 ? "" : "s");
 } /* Client_Exit */
 
 
@@ -322,11 +321,7 @@ Client_Destroy( CLIENT *Client, const char *LogMsg, const char *FwdMsg, bool Sen
 				}
 			}
 
-			if (c->account_name)
-				free(c->account_name);
-			if (c->cloaked)
-				free(c->cloaked);
-			free( c );
+			Free_Client(&c);
 			break;
 		}
 		last = c;
@@ -366,6 +361,27 @@ Client_SetHostname( CLIENT *Client, const char *Hostname )
 		strlcpy(Client->host, Hostname, sizeof(Client->host));
 	}
 } /* Client_SetHostname */
+
+
+/**
+ * Set IP address to display for a client.
+ *
+ * @param Client The client.
+ * @param IPAText Textual representation of the IP address or NULL to unset.
+ */
+GLOBAL void
+Client_SetIPAText(CLIENT *Client, const char *IPAText)
+{
+	assert(Client != NULL);
+
+	if (Client->ipa_text)
+		free(Client->ipa_text);
+
+	if (*IPAText)
+		Client->ipa_text = strndup(IPAText, CLIENT_HOST_LEN - 1);
+	else
+		Client->ipa_text = NULL;
+}
 
 
 GLOBAL void
@@ -787,6 +803,21 @@ Client_HostnameDisplayed(CLIENT *Client)
 
 	Client_UpdateCloakedHostname(Client, NULL, NULL);
 	return Client->cloaked;
+}
+
+GLOBAL const char *
+Client_IPAText(CLIENT *Client)
+{
+	assert(Client != NULL);
+
+	/* Not a local client? */
+	if (Client_Conn(Client) <= NONE)
+		return "0.0.0.0";
+
+	if (!Client->ipa_text)
+		return Conn_GetIPAInfo(Client_Conn(Client));
+	else
+		return Client->ipa_text;
 }
 
 /**
@@ -1370,6 +1401,11 @@ MyCount( CLIENT_TYPE Type )
 } /* MyCount */
 
 
+/**
+ * Allocate and initialize new CLIENT strcuture.
+ *
+ * @return Pointer to CLIENT structure or NULL on error.
+ */
 static CLIENT *
 New_Client_Struct( void )
 {
@@ -1392,8 +1428,27 @@ New_Client_Struct( void )
 	c->mytoken = -1;
 
 	return c;
-} /* New_Client */
+}
 
+/**
+ * Free a CLIENT structure and its member variables.
+ */
+static void
+Free_Client(CLIENT **Client)
+{
+	assert(Client != NULL);
+	assert(*Client != NULL);
+
+	if ((*Client)->account_name)
+		free((*Client)->account_name);
+	if ((*Client)->cloaked)
+		free((*Client)->cloaked);
+	if ((*Client)->ipa_text)
+		free((*Client)->ipa_text);
+
+	free(*Client);
+	*Client = NULL;
+}
 
 static void
 Generate_MyToken( CLIENT *Client )

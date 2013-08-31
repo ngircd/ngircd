@@ -450,6 +450,12 @@ Help(CLIENT *Client, const char *Topic)
 	return CONNECTED;
 }
 
+/**
+ * Get pointer to a static string representing the connection "options".
+ *
+ * @param Idx Connection index.
+ * @return Pointer to static (global) string buffer.
+ */
 static char *
 #ifdef ZLIB
 Option_String(CONN_ID Idx)
@@ -460,16 +466,22 @@ Option_String(UNUSED CONN_ID Idx)
 	static char option_txt[8];
 #ifdef ZLIB
 	UINT16 options;
+#endif
+
+	assert(Idx != NONE);
 
 	options = Conn_Options(Idx);
-#endif
-
 	strcpy(option_txt, "F");	/* No idea what this means, but the
 					 * original ircd sends it ... */
-#ifdef ZLIB
-	if(options & CONN_ZIP)		/* zlib compression supported. */
-		strcat(option_txt, "z");
+#ifdef SSL_SUPPORT
+	if(options & CONN_SSL)		/* SSL encrypted link */
+		strlcat(option_txt, "s", sizeof(option_txt));
 #endif
+#ifdef ZLIB
+	if(options & CONN_ZIP)		/* zlib compression enabled */
+		strlcat(option_txt, "z", sizeof(option_txt));
+#endif
+	LogDebug(" *** %d: %d = %s", Idx, options, option_txt);
 
 	return option_txt;
 } /* Option_String */

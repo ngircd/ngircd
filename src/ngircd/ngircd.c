@@ -720,7 +720,7 @@ NGIRCd_Init(bool NGIRCd_NoDaemon)
 			grp = getgrgid(Conf_GID);
 			Log(LOG_ERR, "Can't change group ID to %s(%u): %s!",
 			    grp ? grp->gr_name : "?", Conf_GID,
-			    strerror(errno));
+			    strerror(real_errno));
 			if (real_errno != EPERM) 
 				goto out;
 		}
@@ -741,7 +741,7 @@ NGIRCd_Init(bool NGIRCd_NoDaemon)
 			pwd = getpwuid(Conf_UID);
 			Log(LOG_ERR, "Can't change user ID to %s(%u): %s!",
 			    pwd ? pwd->pw_name : "?", Conf_UID,
-			    strerror(errno));
+			    strerror(real_errno));
 			if (real_errno != EPERM)
 				goto out;
 		}

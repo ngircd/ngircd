@@ -2454,9 +2454,9 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 					*ptr ? "" : ": ",
 					*ptr ? "" : identptr);
 			}
-		} else {
+		} else if(Conf_Ident) {
 			Log(LOG_INFO, "IDENT lookup for connection %d: no result.", i);
-			if (Conf_NoticeAuth && Conf_Ident)
+			if (Conf_NoticeAuth)
 				(void)Conn_WriteStr(i,
 					"NOTICE AUTH :*** No ident response");
 		}

@@ -341,12 +341,6 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 		}
 
 		chan = Channel_Search(channame);
-		if (!chan && !strchr(Conf_AllowedChannelTypes, channame[0])) {
-			 /* channel must be created, but forbidden by config */
-			IRC_WriteErrClient(Client, ERR_NOSUCHCHANNEL_MSG,
-					   Client_ID(Client), channame);
-			goto join_next;
-		}
 
 		/* Local client? */
 		if (Client_Type(Client) == CLIENT_USER) {
@@ -354,6 +348,15 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 				/* Already existing channel: already member? */
 				if (Channel_IsMemberOf(chan, Client))
 				    goto join_next;
+			} else {
+				/* Channel must be created */
+				if (!strchr(Conf_AllowedChannelTypes, channame[0])) {
+					/* ... but channel type is not allowed! */
+					IRC_WriteErrClient(Client,
+						ERR_NOSUCHCHANNEL_MSG,
+						Client_ID(Client), channame);
+					goto join_next;
+				}
 			}
 
 			/* Test if the user has reached the channel limit */

@@ -1,9 +1,10 @@
 #!/bin/sh
 # ngIRCd Test Suite
-# $Id: getpid.sh,v 1.5 2006/08/05 00:15:28 alex Exp $
 
 # did we get a name?
 [ $# -ne 1 ] && exit 1
+
+[ -x /bin/pidof ] && exec /bin/pidof -s $@
 
 # detect flags for "ps" and "head"
 UNAME=`uname`

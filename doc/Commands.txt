@@ -668,9 +668,12 @@ Administrative Commands
 	 - RFC 2812, 3.4.7 "Connect message"
 
 - DIE
-	DIE
+	DIE [<message>]
 	.
 	Instructs the server to shut down.
+	.
+	The optional (and non-standard) <message> text is sent to each client
+	connected to this server before all connections are closed.
 	.
 	To use this command, the user must be an IRC Operator.
 

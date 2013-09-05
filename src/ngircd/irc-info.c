@@ -718,10 +718,10 @@ IRC_SERVLIST(CLIENT *Client, REQUEST *Req)
 {
 	CLIENT *c;
 
-	IRC_SetPenalty(Client, 1);
-
 	assert(Client != NULL);
 	assert(Req != NULL);
+
+	IRC_SetPenalty(Client, 1);
 
 	_IRC_ARGC_LE_OR_RETURN_(Client, Req, 2)
 

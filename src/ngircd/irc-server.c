@@ -341,11 +341,11 @@ IRC_SQUIT(CLIENT * Client, REQUEST * Req)
 	assert(Client != NULL);
 	assert(Req != NULL);
 
+	_IRC_ARGC_EQ_OR_RETURN_(Client, Req, 2)
+
 	if (Client_Type(Client) != CLIENT_SERVER
 	    && !Client_HasMode(Client, 'o'))
 		return Op_NoPrivileges(Client, Req);
-
-	_IRC_ARGC_EQ_OR_RETURN_(Client, Req, 2)
 
 	if (Client_Type(Client) == CLIENT_SERVER && Req->prefix) {
 		from = Client_Search(Req->prefix);

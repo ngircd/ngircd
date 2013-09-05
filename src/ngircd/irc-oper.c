@@ -119,14 +119,14 @@ IRC_DIE(CLIENT * Client, REQUEST * Req)
 	assert(Client != NULL);
 	assert(Req != NULL);
 
-	if (!Op_Check(Client, Req))
-		return Op_NoPrivileges(Client, Req);
-
 #ifdef STRICT_RFC
 	_IRC_ARGC_EQ_OR_RETURN_(Client, Req, 0)
 #else
 	_IRC_ARGC_LE_OR_RETURN_(Client, Req, 1)
 #endif
+
+	if (!Op_Check(Client, Req))
+		return Op_NoPrivileges(Client, Req);
 
 	/* Is a message given? */
 	if (Req->argc > 0) {
@@ -162,10 +162,10 @@ IRC_REHASH( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
+	_IRC_ARGC_EQ_OR_RETURN_(Client, Req, 0)
+
 	if (!Op_Check(Client, Req))
 		return Op_NoPrivileges(Client, Req);
-
-	_IRC_ARGC_EQ_OR_RETURN_(Client, Req, 0)
 
 	Log(LOG_NOTICE|LOG_snotice, "Got REHASH command from \"%s\" ...",
 	    Client_Mask(Client));
@@ -191,13 +191,13 @@ IRC_RESTART( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	if (!Op_Check(Client, Req))
-		return Op_NoPrivileges(Client, Req);
-
 	/* Bad number of parameters? */
 	if (Req->argc != 0)
 		return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 					  Client_ID(Client), Req->command);
+
+	if (!Op_Check(Client, Req))
+		return Op_NoPrivileges(Client, Req);
 
 	Log(LOG_NOTICE|LOG_snotice, "Got RESTART command from \"%s\" ...",
 	    Client_Mask(Client));
@@ -221,10 +221,6 @@ IRC_CONNECT(CLIENT * Client, REQUEST * Req)
 	assert(Client != NULL);
 	assert(Req != NULL);
 
-	if (Client_Type(Client) != CLIENT_SERVER
-	    && !Client_HasMode(Client, 'o'))
-		return Op_NoPrivileges(Client, Req);
-
 	/* Bad number of parameters? */
 	if (Req->argc != 1 && Req->argc != 2 && Req->argc != 3 &&
 	    Req->argc != 5 && Req->argc != 6)
@@ -235,6 +231,10 @@ IRC_CONNECT(CLIENT * Client, REQUEST * Req)
 	if ((Req->argc > 1) && atoi(Req->argv[1]) < 1)
 		return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 					  Client_ID(Client), Req->command);
+
+	if (Client_Type(Client) != CLIENT_SERVER
+	    && !Client_HasMode(Client, 'o'))
+		return Op_NoPrivileges(Client, Req);
 
 	from = Client;
 	target = Client_ThisServer();
@@ -325,13 +325,13 @@ IRC_DISCONNECT(CLIENT * Client, REQUEST * Req)
 	assert(Client != NULL);
 	assert(Req != NULL);
 
-	if (!Op_Check(Client, Req))
-		return Op_NoPrivileges(Client, Req);
-
 	/* Bad number of parameters? */
 	if (Req->argc != 1)
 		return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 					  Client_ID(Client), Req->command);
+
+	if (!Op_Check(Client, Req))
+		return Op_NoPrivileges(Client, Req);
 
 	IRC_SendWallops(Client_ThisServer(), Client_ThisServer(),
 			"Received DISCONNECT %s from %s",
@@ -412,14 +412,14 @@ IRC_xLINE(CLIENT *Client, REQUEST *Req)
 	assert(Client != NULL);
 	assert(Req != NULL);
 
-	from = Op_Check(Client, Req);
-	if (!from)
-		return Op_NoPrivileges(Client, Req);
-
 	/* Bad number of parameters? */
 	if (Req->argc != 1 && Req->argc != 3)
 		return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 					  Client_ID(Client), Req->command);
+
+	from = Op_Check(Client, Req);
+	if (!from)
+		return Op_NoPrivileges(Client, Req);
 
 	switch(Req->command[0]) {
 		case 'g':

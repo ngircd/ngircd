@@ -1317,10 +1317,6 @@ IRC_WHOWAS( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	/* Do not reveal any info on disconnected users? */
-	if (Conf_MorePrivacy)
-		return CONNECTED;
-
 	/* Wrong number of parameters? */
 	if (Req->argc < 1)
 		return IRC_WriteErrClient(Client, ERR_NONICKNAMEGIVEN_MSG,
@@ -1329,6 +1325,10 @@ IRC_WHOWAS( CLIENT *Client, REQUEST *Req )
 	_IRC_ARGC_LE_OR_RETURN_(Client, Req, 3)
 	_IRC_GET_SENDER_OR_RETURN_(prefix, Req, Client)
 	_IRC_GET_TARGET_SERVER_OR_RETURN_(target, Req, 2, prefix)
+
+	/* Do not reveal any info on disconnected users? */
+	if (Conf_MorePrivacy)
+		return CONNECTED;
 
 	/* Forward? */
 	if (target != Client_ThisServer()) {

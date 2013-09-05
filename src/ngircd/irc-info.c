@@ -1146,11 +1146,13 @@ IRC_WHO(CLIENT *Client, REQUEST *Req)
 		if (strcmp(Req->argv[1], "o") == 0)
 			only_ops = true;
 #ifdef STRICT_RFC
-		else
+		else {
+			IRC_SetPenalty(Client, 2);
 			return IRC_WriteErrClient(Client,
 						  ERR_NEEDMOREPARAMS_MSG,
 						  Client_ID(Client),
 						  Req->command);
+		}
 #endif
 	}
 

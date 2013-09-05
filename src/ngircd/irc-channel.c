@@ -323,9 +323,11 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 	channame = strtok_r(channame, ",", &lastchan);
 
 	/* Make sure that "channame" is not the empty string ("JOIN :") */
-	if (! channame)
+	if (!channame) {
+		IRC_SetPenalty(Client, 2);
 		return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 					  Client_ID(Client), Req->command);
+	}
 
 	while (channame) {
 		flags = NULL;
@@ -445,9 +447,11 @@ IRC_PART(CLIENT * Client, REQUEST * Req)
 	chan = strtok(Req->argv[0], ",");
 
 	/* Make sure that "chan" is not the empty string ("PART :") */
-	if (! chan)
+	if (!chan) {
+		IRC_SetPenalty(Client, 2);
 		return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 					  Client_ID(Client), Req->command);
+	}
 
 	while (chan) {
 		Channel_Part(target, Client, chan,
@@ -662,9 +666,11 @@ IRC_CHANINFO( CLIENT *Client, REQUEST *Req )
 	assert( Req != NULL );
 
 	/* Bad number of parameters? */
-	if (Req->argc < 2 || Req->argc == 4 || Req->argc > 5)
+	if (Req->argc < 2 || Req->argc == 4 || Req->argc > 5) {
+		IRC_SetPenalty(Client, 2);
 		return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 					  Client_ID(Client), Req->command);
+	}
 
 	/* Compatibility kludge */
 	if (Req->argc == 5)

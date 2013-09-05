@@ -208,14 +208,18 @@ IRC_CONNECT(CLIENT * Client, REQUEST * Req)
 
 	/* Bad number of parameters? */
 	if (Req->argc != 1 && Req->argc != 2 && Req->argc != 3 &&
-	    Req->argc != 5 && Req->argc != 6)
+	    Req->argc != 5 && Req->argc != 6) {
+		IRC_SetPenalty(Client, 2);
 		return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 					  Client_ID(Client), Req->command);
+	}
 
 	/* Invalid port number? */
-	if ((Req->argc > 1) && atoi(Req->argv[1]) < 1)
+	if ((Req->argc > 1) && atoi(Req->argv[1]) < 1) {
+		IRC_SetPenalty(Client, 2);
 		return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 					  Client_ID(Client), Req->command);
+	}
 
 	if (Client_Type(Client) != CLIENT_SERVER
 	    && !Client_HasMode(Client, 'o'))
@@ -391,9 +395,11 @@ IRC_xLINE(CLIENT *Client, REQUEST *Req)
 	assert(Req != NULL);
 
 	/* Bad number of parameters? */
-	if (Req->argc != 1 && Req->argc != 3)
+	if (Req->argc != 1 && Req->argc != 3) {
+		IRC_SetPenalty(Client, 2);
 		return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 					  Client_ID(Client), Req->command);
+	}
 
 	from = Op_Check(Client, Req);
 	if (!from)

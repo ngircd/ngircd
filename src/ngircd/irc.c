@@ -510,6 +510,7 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 	if (Req->argc > 2) {
 		if (!SendErrors)
 			return CONNECTED;
+		IRC_SetPenalty(Client, 2);
 		return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 					  Client_ID(Client), Req->command);
 	}

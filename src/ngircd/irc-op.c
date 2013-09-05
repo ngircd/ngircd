@@ -122,6 +122,7 @@ IRC_KICK(CLIENT *Client, REQUEST *Req)
 			nickCount--;
 		}
 	} else {
+		IRC_SetPenalty(Client, 2);
 		return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 					Client_ID(Client), Req->command);
 	}

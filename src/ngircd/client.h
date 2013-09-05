@@ -17,19 +17,20 @@
  * Client management (header)
  */
 
-#define CLIENT_UNKNOWN 1		/* connection of unknown type */
-#define CLIENT_GOTPASS 2		/* client did send PASS */
-#define CLIENT_GOTNICK 4		/* client did send NICK */
-#define CLIENT_GOTUSER 8		/* client did send USER */
-#define CLIENT_USER 16			/* client is an IRC user */
-#define CLIENT_SERVER 32		/* client is a server */
-#define CLIENT_SERVICE 64		/* client is a service */
-#define CLIENT_UNKNOWNSERVER 128	/* unregistered server connection */
-#define CLIENT_GOTPASS_2813 256		/* client did send PASS, RFC 2813 style */
+#define CLIENT_UNKNOWN		0x0001	/* connection of unknown type */
+#define CLIENT_GOTPASS		0x0002	/* client did send PASS */
+#define CLIENT_GOTNICK		0x0004	/* client did send NICK */
+#define CLIENT_GOTUSER		0x0008	/* client did send USER */
+#define CLIENT_USER		0x0010	/* client is an IRC user */
+#define CLIENT_SERVER		0x0020	/* client is a server */
+#define CLIENT_SERVICE		0x0040	/* client is a service */
+#define CLIENT_UNKNOWNSERVER	0x0080	/* unregistered server connection */
+#define CLIENT_GOTPASS_2813	0x0100	/* client did send PASS, RFC 2813 style */
 #ifndef STRICT_RFC
-# define CLIENT_WAITAUTHPING 512	/* waiting for AUTH PONG from client */
+# define CLIENT_WAITAUTHPING	0x0200	/* waiting for AUTH PONG from client */
 #endif
-#define CLIENT_WAITCAPEND 1024		/* waiting for "CAP END" command */
+#define CLIENT_WAITCAPEND	0x0400	/* waiting for "CAP END" command */
+#define CLIENT_ANY		0xFFFF
 
 #define CLIENT_TYPE int
 

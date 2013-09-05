@@ -250,8 +250,6 @@ IRC_CAP(CLIENT *Client, REQUEST *Req)
 	assert(Client != NULL);
 	assert(Req != NULL);
 
-	_IRC_ARGC_BETWEEN_OR_RETURN_(Client, Req, 1, 2)
-
 	LogDebug("Got \"%s %s\" command from \"%s\" ...",
 		 Req->command, Req->argv[0], Client_ID(Client));
 

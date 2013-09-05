@@ -35,6 +35,8 @@ typedef struct _COMMAND
 	bool (*function) PARAMS(( CLIENT *Client, REQUEST *Request ));
 					/**< Function to handle this command */
 	CLIENT_TYPE type;		/**< Valid client types (bit mask) */
+	int min_argc;			/**< Min parameters */
+	int max_argc;			/**< Max parameters */
 	long lcount, rcount;		/**< Number of local and remote calls */
 	long bytes;			/**< Number of bytes created */
 } COMMAND;

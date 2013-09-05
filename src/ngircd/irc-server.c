@@ -254,8 +254,6 @@ IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	_IRC_ARGC_EQ_OR_RETURN_(Client, Req, 2)
-
 	strlcpy( nick_in, Req->argv[1], sizeof( nick_in ));
 	strcpy( nick_out, "" );
 
@@ -340,8 +338,6 @@ IRC_SQUIT(CLIENT * Client, REQUEST * Req)
 
 	assert(Client != NULL);
 	assert(Req != NULL);
-
-	_IRC_ARGC_EQ_OR_RETURN_(Client, Req, 2)
 
 	if (Client_Type(Client) != CLIENT_SERVER
 	    && !Client_HasMode(Client, 'o'))

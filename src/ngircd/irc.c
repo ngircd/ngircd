@@ -138,8 +138,6 @@ IRC_KILL(CLIENT *Client, REQUEST *Req)
 		return IRC_WriteErrClient(Client, ERR_NOPRIVILEGES_MSG,
 					  Client_ID(Client));
 
-	_IRC_ARGC_EQ_OR_RETURN_(Client, Req, 2)
-
 	/* Get prefix (origin); use the client if no prefix is given. */
 	if (Req->prefix)
 		prefix = Client_Search(Req->prefix);
@@ -361,8 +359,6 @@ IRC_HELP(CLIENT *Client, REQUEST *Req)
 	assert(Req != NULL);
 
 	IRC_SetPenalty(Client, 2);
-
-	_IRC_ARGC_LE_OR_RETURN_(Client, Req, 1)
 
 	if ((Req->argc == 0 && array_bytes(&Conf_Helptext) > 0)
 	    || (Req->argc >= 1 && strcasecmp(Req->argv[0], "Commands") != 0)) {

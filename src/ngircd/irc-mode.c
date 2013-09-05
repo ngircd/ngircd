@@ -69,7 +69,6 @@ IRC_MODE( CLIENT *Client, REQUEST *Req )
 	assert(Client != NULL);
 	assert(Req != NULL);
 
-	_IRC_ARGC_GE_OR_RETURN_(Client, Req, 1)
 	_IRC_GET_SENDER_OR_RETURN_(origin, Req, Client)
 
 	/* Channel or user mode? */
@@ -944,8 +943,6 @@ IRC_AWAY( CLIENT *Client, REQUEST *Req )
 {
 	assert (Client != NULL);
 	assert (Req != NULL);
-
-	_IRC_ARGC_LE_OR_RETURN_(Client, Req, 1)
 
 	if (Req->argc == 1 && Req->argv[0][0]) {
 		Client_SetAway(Client, Req->argv[0]);

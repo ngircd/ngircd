@@ -51,10 +51,6 @@ IRC_METADATA(CLIENT *Client, REQUEST *Req)
 	assert(Client != NULL);
 	assert(Req != NULL);
 
-	if (Req->argc != 3)
-		return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG,
-					  Client_ID(Client), Req->command);
-
 	prefix = Client_Search(Req->prefix);
 	if (!prefix)
 		return IRC_WriteErrClient(Client, ERR_NOSUCHNICK_MSG,

@@ -48,10 +48,6 @@ IRC_CHARCONV(CLIENT *Client, REQUEST *Req)
 	assert (Client != NULL);
 	assert (Req != NULL);
 
-	if (Req->argc != 1)
-		return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG,
-					  Client_ID(Client), Req->command);
-
 	strlcpy(encoding, Req->argv[0], sizeof(encoding));
 	ngt_UpperStr(encoding);
 

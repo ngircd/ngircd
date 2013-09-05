@@ -68,8 +68,6 @@ IRC_OPER( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	_IRC_ARGC_EQ_OR_RETURN_(Client, Req, 2)
-
 	len = array_length(&Conf_Opers, sizeof(*op));
 	op = array_start(&Conf_Opers);
 	for (i = 0; i < len && strcmp(op[i].name, Req->argv[0]); i++)
@@ -119,12 +117,6 @@ IRC_DIE(CLIENT * Client, REQUEST * Req)
 	assert(Client != NULL);
 	assert(Req != NULL);
 
-#ifdef STRICT_RFC
-	_IRC_ARGC_EQ_OR_RETURN_(Client, Req, 0)
-#else
-	_IRC_ARGC_LE_OR_RETURN_(Client, Req, 1)
-#endif
-
 	if (!Op_Check(Client, Req))
 		return Op_NoPrivileges(Client, Req);
 
@@ -162,8 +154,6 @@ IRC_REHASH( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	_IRC_ARGC_EQ_OR_RETURN_(Client, Req, 0)
-
 	if (!Op_Check(Client, Req))
 		return Op_NoPrivileges(Client, Req);
 
@@ -190,11 +180,6 @@ IRC_RESTART( CLIENT *Client, REQUEST *Req )
 
 	assert( Client != NULL );
 	assert( Req != NULL );
-
-	/* Bad number of parameters? */
-	if (Req->argc != 0)
-		return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG,
-					  Client_ID(Client), Req->command);
 
 	if (!Op_Check(Client, Req))
 		return Op_NoPrivileges(Client, Req);
@@ -325,11 +310,6 @@ IRC_DISCONNECT(CLIENT * Client, REQUEST * Req)
 	assert(Client != NULL);
 	assert(Req != NULL);
 
-	/* Bad number of parameters? */
-	if (Req->argc != 1)
-		return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG,
-					  Client_ID(Client), Req->command);
-
 	if (!Op_Check(Client, Req))
 		return Op_NoPrivileges(Client, Req);
 
@@ -370,8 +350,6 @@ IRC_WALLOPS( CLIENT *Client, REQUEST *Req )
 
 	assert( Client != NULL );
 	assert( Req != NULL );
-
-	_IRC_ARGC_EQ_OR_RETURN_(Client, Req, 1)
 
 	switch (Client_Type(Client)) {
 	case CLIENT_USER:

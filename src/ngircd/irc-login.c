@@ -358,8 +358,6 @@ IRC_SVSNICK(CLIENT *Client, REQUEST *Req)
 	assert(Client != NULL);
 	assert(Req != NULL);
 
-	_IRC_ARGC_EQ_OR_RETURN_(Client, Req, 2)
-
 	/* Search the originator */
 	from = Client_Search(Req->prefix);
 	if (!from)
@@ -521,8 +519,6 @@ IRC_SERVICE(CLIENT *Client, REQUEST *Req)
 		return IRC_WriteErrClient(Client, ERR_ALREADYREGISTRED_MSG,
 					  Client_ID(Client));
 
-	_IRC_ARGC_EQ_OR_RETURN_(Client, Req, 6)
-
 	if (Client_Type(Client) != CLIENT_SERVER)
 		return IRC_WriteErrClient(Client, ERR_ERRONEUSNICKNAME_MSG,
 				  Client_ID(Client), Req->argv[0]);
@@ -598,8 +594,6 @@ IRC_SERVICE(CLIENT *Client, REQUEST *Req)
 GLOBAL bool
 IRC_WEBIRC(CLIENT *Client, REQUEST *Req)
 {
-	_IRC_ARGC_EQ_OR_RETURN_(Client, Req, 4)
-
 	if (!Conf_WebircPwd[0] || strcmp(Req->argv[0], Conf_WebircPwd) != 0)
 		return IRC_WriteErrClient(Client, ERR_PASSWDMISMATCH_MSG,
 					  Client_ID(Client));
@@ -630,8 +624,6 @@ IRC_QUIT( CLIENT *Client, REQUEST *Req )
 
 	assert(Client != NULL);
 	assert(Req != NULL);
-
-	_IRC_ARGC_LE_OR_RETURN_(Client, Req, 1)
 
 	if (Req->argc == 1)
 		strlcpy(quitmsg, Req->argv[0], sizeof quitmsg);

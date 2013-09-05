@@ -71,7 +71,6 @@ IRC_KICK(CLIENT *Client, REQUEST *Req)
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	_IRC_ARGC_BETWEEN_OR_RETURN_(Client, Req, 2, 3)
 	_IRC_GET_SENDER_OR_RETURN_(from, Req, Client)
 
 	while (*itemList) {
@@ -147,7 +146,6 @@ IRC_INVITE(CLIENT *Client, REQUEST *Req)
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	_IRC_ARGC_EQ_OR_RETURN_(Client, Req, 2)
 	_IRC_GET_SENDER_OR_RETURN_(from, Req, Client)
 
 	/* Search user */

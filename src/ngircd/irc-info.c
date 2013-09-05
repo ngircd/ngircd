@@ -1211,11 +1211,12 @@ IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 
 	IRC_SetPenalty(Client, 1);
 
-	/* Bad number of parameters? */
-	if (Req->argc < 1 || Req->argc > 2)
-		return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG,
-					  Client_ID(Client), Req->command);
+	/* Wrong number of parameters? */
+	if (Req->argc < 1)
+		return IRC_WriteErrClient(Client, ERR_NONICKNAMEGIVEN_MSG,
+					  Client_ID(Client));
 
+	_IRC_ARGC_LE_OR_RETURN_(Client, Req, 2)
 	_IRC_GET_SENDER_OR_RETURN_(from, Req, Client)
 
 	/* Get target server for this command */

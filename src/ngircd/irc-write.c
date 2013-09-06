@@ -538,24 +538,27 @@ va_dcl
 /**
  * Set a "penalty time" for an IRC client.
  *
- * Note: penalty times are never set for server links!
+ * Note: penalty times are never set for server links or remote clients!
  *
  * @param Client The client.
  * @param Seconds The additional "penalty time" to enforce.
  */
 GLOBAL void
-IRC_SetPenalty( CLIENT *Client, time_t Seconds )
+IRC_SetPenalty(CLIENT *Client, time_t Seconds)
 {
 	CONN_ID c;
 
-	assert( Client != NULL );
-	assert( Seconds > 0 );
+	assert(Client != NULL);
+	assert(Seconds > 0);
 
-	if( Client_Type( Client ) == CLIENT_SERVER ) return;
+	if (Client_Type(Client) == CLIENT_SERVER)
+		return;
 
-	c = Client_Conn( Client );
-	if (c > NONE)
-		Conn_SetPenalty(c, Seconds);
+	c = Client_Conn(Client);
+	if (c <= NONE)
+		return;
+
+	Conn_SetPenalty(c, Seconds);
 } /* IRC_SetPenalty */
 
 static const char *

@@ -278,11 +278,6 @@ IRC_TRACE(CLIENT *Client, REQUEST *Req)
 
 	IRC_SetPenalty(Client, 3);
 
-	/* Bad number of arguments? */
-	if (Req->argc > 1)
-		return IRC_WriteErrClient(Client, ERR_NORECIPIENT_MSG,
-					  Client_ID(Client), Req->command);
-
 	_IRC_GET_SENDER_OR_RETURN_(from, Req, Client)
 	_IRC_GET_TARGET_SERVER_OR_RETURN_(target, Req, 0, from)
 

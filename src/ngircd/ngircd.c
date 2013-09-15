@@ -264,7 +264,7 @@ main(int argc, const char *argv[])
 		/* Initialize the "main program": chroot environment, user and
 		 * group ID, ... */
 		if (!NGIRCd_Init(NGIRCd_NoDaemon)) {
-			Log(LOG_ALERT, "Fatal: Initialization failed");
+			Log(LOG_ALERT, "Fatal: Initialization failed, exiting!");
 			exit(1);
 		}
 
@@ -673,9 +673,10 @@ NGIRCd_Init(bool NGIRCd_NoDaemon)
 	}
 
 	/* SSL initialization */
-	if (!ConnSSL_InitLibrary())
-		Log(LOG_WARNING,
-		    "Error during SSL initialization, continuing without SSL ...");
+	if (!ConnSSL_InitLibrary()) {
+		Log(LOG_ERR, "Error during SSL initialization!");
+		goto out;
+	}
 
 	/* Change root */
 	if (Conf_Chroot[0]) {

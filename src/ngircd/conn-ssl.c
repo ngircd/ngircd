@@ -285,8 +285,10 @@ ConnSSL_InitLibrary( void )
 	if (!RAND_status()) {
 		Log(LOG_ERR, "OpenSSL PRNG not seeded: /dev/urandom missing?");
 		/*
-		 * it is probably best to fail and let the user install EGD or a similar program if no kernel random device is available.
-		 * According to OpenSSL RAND_egd(3): "The automatic query of /var/run/egd-pool et al was added in OpenSSL 0.9.7";
+		 * it is probably best to fail and let the user install EGD or
+		 * a similar program if no kernel random device is available.
+		 * According to OpenSSL RAND_egd(3): "The automatic query of
+		 * /var/run/egd-pool et al was added in OpenSSL 0.9.7";
 		 * so it makes little sense to deal with PRNGD seeding ourselves.
 		 */
 		array_free(&Conf_SSLOptions.ListenPorts);
@@ -305,7 +307,8 @@ ConnSSL_InitLibrary( void )
 
 	SSL_CTX_set_options(newctx, SSL_OP_SINGLE_DH_USE|SSL_OP_NO_SSLv2);
 	SSL_CTX_set_mode(newctx, SSL_MODE_ENABLE_PARTIAL_WRITE);
-	SSL_CTX_set_verify(newctx, SSL_VERIFY_PEER|SSL_VERIFY_CLIENT_ONCE, Verify_openssl);
+	SSL_CTX_set_verify(newctx, SSL_VERIFY_PEER|SSL_VERIFY_CLIENT_ONCE,
+			   Verify_openssl);
 	SSL_CTX_free(ssl_ctx);
 	ssl_ctx = newctx;
 	Log(LOG_INFO, "%s initialized.", SSLeay_version(SSLEAY_VERSION));
@@ -318,12 +321,17 @@ out:
 #ifdef HAVE_LIBGNUTLS
 	int err;
 	static bool initialized;
-	if (initialized) /* TODO: cannot reload gnutls keys: can't simply free x509 context -- it may still be in use */
+
+	if (initialized) {
+		/* TODO: cannot reload gnutls keys: can't simply free x509
+		 * context -- it may still be in use */
 		return false;
+	}
 
 	err = gnutls_global_init();
 	if (err) {
-		Log(LOG_ERR, "Failed to initialize GnuTLS: %s", gnutls_strerror(err));
+		Log(LOG_ERR, "Failed to initialize GnuTLS: %s",
+		    gnutls_strerror(err));
 		array_free(&Conf_SSLOptions.ListenPorts);
 		return false;
 	}

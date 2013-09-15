@@ -248,6 +248,13 @@
 	# SSL Server Key Certificate
 	;CertFile = :ETCDIR:/ssl/server-cert.pem
 
+	# Select cipher suites allowed for SSL/TLS connections (OpenSSL only).
+	# This defaults to the empty string, so all supported ciphers are
+	# allowed. Please see 'man 1ssl ciphers' for details.
+	# The example below only allows "high strength" cipher suites, disables
+	# the ones without authentication, and sorts by strength:
+	;CipherList = HIGH:!aNULL:@STRENGTH
+
 	# Diffie-Hellman parameters
 	;DHFile = :ETCDIR:/ssl/dhparams.pem
 

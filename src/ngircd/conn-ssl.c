@@ -305,6 +305,19 @@ ConnSSL_InitLibrary( void )
 	if (!ConnSSL_LoadServerKey_openssl(newctx))
 		goto out;
 
+	if(Conf_SSLOptions.CipherList && *Conf_SSLOptions.CipherList) {
+		if(SSL_CTX_set_cipher_list(newctx, Conf_SSLOptions.CipherList) == 0 ) {
+			Log(LOG_ERR,
+			    "Failed to apply SSL cipher list \"%s\"!",
+			    Conf_SSLOptions.CipherList);
+			goto out;
+		} else {
+			Log(LOG_INFO,
+			    "Successfully applied SSL cipher list: \"%s\".",
+			    Conf_SSLOptions.CipherList);
+		}
+	}
+
 	SSL_CTX_set_options(newctx, SSL_OP_SINGLE_DH_USE|SSL_OP_NO_SSLv2);
 	SSL_CTX_set_mode(newctx, SSL_MODE_ENABLE_PARTIAL_WRITE);
 	SSL_CTX_set_verify(newctx, SSL_VERIFY_PEER|SSL_VERIFY_CLIENT_ONCE,
@@ -328,6 +341,14 @@ out:
 		return false;
 	}
 
+	if(Conf_SSLOptions.CipherList != NULL) {
+		Log(LOG_ERR,
+		    "Failed to apply SSL cipher list \"%s\": Not implemented for GnuTLS!",
+		    Conf_SSLOptions.CipherList);
+		array_free(&Conf_SSLOptions.ListenPorts);
+		return false;
+	}
+
 	err = gnutls_global_init();
 	if (err) {
 		Log(LOG_ERR, "Failed to initialize GnuTLS: %s",
@@ -339,6 +360,7 @@ out:
 		array_free(&Conf_SSLOptions.ListenPorts);
 		return false;
 	}
+
 	Log(LOG_INFO, "GnuTLS %s initialized.", gnutls_check_version(NULL));
 	initialized = true;
 	return true;
@@ -368,7 +390,7 @@ ConnSSL_LoadServerKey_gnutls(void)
 
 	if (array_bytes(&Conf_SSLOptions.KeyFilePassword))
 		Log(LOG_WARNING,
-		    "Ignoring KeyFilePassword: Not supported by GnuTLS.");
+		    "Ignoring SSL \"KeyFilePassword\": Not supported by GnuTLS.");
 
 	if (!Load_DH_params())
 		return false;

@@ -460,7 +460,10 @@ static bool
 ConnSSL_Init_SSL(CONNECTION *c)
 {
 	int ret;
+
+	LogDebug("Initializing SSL ...");
 	assert(c != NULL);
+
 #ifdef HAVE_LIBSSL
 	if (!ssl_ctx) {
 		Log(LOG_ERR,
@@ -475,6 +478,7 @@ ConnSSL_Init_SSL(CONNECTION *c)
 		LogOpenSSLError("Failed to create SSL structure", NULL);
 		return false;
 	}
+	Conn_OPTION_ADD(c, CONN_SSL);
 
 	ret = SSL_set_fd(c->ssl_state.ssl, c->sock);
 	if (ret != 1) {
@@ -484,8 +488,9 @@ ConnSSL_Init_SSL(CONNECTION *c)
 	}
 #endif
 #ifdef HAVE_LIBGNUTLS
+	Conn_OPTION_ADD(c, CONN_SSL);
 	ret = gnutls_set_default_priority(c->ssl_state.gnutls_session);
-	if (ret < 0) {
+	if (ret != 0) {
 		Log(LOG_ERR, "Failed to set GnuTLS default priority: %s",
 		    gnutls_strerror(ret));
 		ConnSSL_Free(c);
@@ -497,17 +502,20 @@ ConnSSL_Init_SSL(CONNECTION *c)
 	 * There doesn't seem to be an alternate GNUTLS API we could use instead, see e.g.
 	 * http://www.mail-archive.com/help-gnutls@gnu.org/msg00286.html
 	 */
-	gnutls_transport_set_ptr(c->ssl_state.gnutls_session, (gnutls_transport_ptr_t) (long) c->sock);
-	gnutls_certificate_server_set_request(c->ssl_state.gnutls_session, GNUTLS_CERT_REQUEST);
-	ret = gnutls_credentials_set(c->ssl_state.gnutls_session, GNUTLS_CRD_CERTIFICATE, x509_cred);
-	if (ret < 0) {
-		Log(LOG_ERR, "Failed to set SSL credentials: %s", gnutls_strerror(ret));
+	gnutls_transport_set_ptr(c->ssl_state.gnutls_session,
+				 (gnutls_transport_ptr_t) (long) c->sock);
+	gnutls_certificate_server_set_request(c->ssl_state.gnutls_session,
+					      GNUTLS_CERT_REQUEST);
+	ret = gnutls_credentials_set(c->ssl_state.gnutls_session,
+				     GNUTLS_CRD_CERTIFICATE, x509_cred);
+	if (ret != 0) {
+		Log(LOG_ERR, "Failed to set SSL credentials: %s",
+		    gnutls_strerror(ret));
 		ConnSSL_Free(c);
 		return false;
 	}
 	gnutls_dh_set_prime_bits(c->ssl_state.gnutls_session, DH_BITS_MIN);
 #endif
-	Conn_OPTION_ADD(c, CONN_SSL);
 	return true;
 }
 
@@ -675,7 +683,6 @@ ConnSSL_Accept( CONNECTION *c )
 			return false;
 		}
 #endif
-		LogDebug("Initializing SSL data ...");
 		if (!ConnSSL_Init_SSL(c))
 			return -1;
 	}

@@ -58,6 +58,7 @@ static bool ConnSSL_LoadServerKey_openssl PARAMS(( SSL_CTX *c ));
 
 static gnutls_certificate_credentials_t x509_cred;
 static gnutls_dh_params_t dh_params;
+static gnutls_priority_t priorities_cache;
 static bool ConnSSL_LoadServerKey_gnutls PARAMS(( void ));
 #endif
 
@@ -308,12 +309,12 @@ ConnSSL_InitLibrary( void )
 	if(Conf_SSLOptions.CipherList && *Conf_SSLOptions.CipherList) {
 		if(SSL_CTX_set_cipher_list(newctx, Conf_SSLOptions.CipherList) == 0 ) {
 			Log(LOG_ERR,
-			    "Failed to apply SSL cipher list \"%s\"!",
+			    "Failed to apply OpenSSL cipher list \"%s\"!",
 			    Conf_SSLOptions.CipherList);
 			goto out;
 		} else {
 			Log(LOG_INFO,
-			    "Successfully applied SSL cipher list: \"%s\".",
+			    "Successfully applied OpenSSL cipher list \"%s\".",
 			    Conf_SSLOptions.CipherList);
 		}
 	}
@@ -341,29 +342,43 @@ out:
 		return false;
 	}
 
-	if(Conf_SSLOptions.CipherList != NULL) {
-		Log(LOG_ERR,
-		    "Failed to apply SSL cipher list \"%s\": Not implemented for GnuTLS!",
-		    Conf_SSLOptions.CipherList);
-		array_free(&Conf_SSLOptions.ListenPorts);
-		return false;
-	}
-
 	err = gnutls_global_init();
 	if (err) {
 		Log(LOG_ERR, "Failed to initialize GnuTLS: %s",
 		    gnutls_strerror(err));
-		array_free(&Conf_SSLOptions.ListenPorts);
-		return false;
+		goto out;
 	}
-	if (!ConnSSL_LoadServerKey_gnutls()) {
-		array_free(&Conf_SSLOptions.ListenPorts);
-		return false;
+
+	if (!ConnSSL_LoadServerKey_gnutls())
+		goto out;
+
+	if(Conf_SSLOptions.CipherList && *Conf_SSLOptions.CipherList) {
+		err = gnutls_priority_init(&priorities_cache,
+					   Conf_SSLOptions.CipherList, NULL);
+		if (err != GNUTLS_E_SUCCESS) {
+			Log(LOG_ERR,
+			    "Failed to apply GnuTLS cipher list \"%s\"!",
+			    Conf_SSLOptions.CipherList);
+			goto out;
+		}
+		Log(LOG_INFO,
+		    "Successfully applied GnuTLS cipher list \"%s\".",
+		    Conf_SSLOptions.CipherList);
+	} else {
+		err = gnutls_priority_init(&priorities_cache, "NORMAL", NULL);
+		if (err != GNUTLS_E_SUCCESS) {
+			Log(LOG_ERR,
+			    "Failed to apply GnuTLS cipher list \"NORMAL\"!");
+			goto out;
+		}
 	}
 
 	Log(LOG_INFO, "GnuTLS %s initialized.", gnutls_check_version(NULL));
 	initialized = true;
 	return true;
+out:
+	array_free(&Conf_SSLOptions.ListenPorts);
+	return false;
 #endif
 }
 
@@ -489,9 +504,9 @@ ConnSSL_Init_SSL(CONNECTION *c)
 #endif
 #ifdef HAVE_LIBGNUTLS
 	Conn_OPTION_ADD(c, CONN_SSL);
-	ret = gnutls_set_default_priority(c->ssl_state.gnutls_session);
+	ret = gnutls_priority_set(c->ssl_state.gnutls_session, priorities_cache);
 	if (ret != 0) {
-		Log(LOG_ERR, "Failed to set GnuTLS default priority: %s",
+		Log(LOG_ERR, "Failed to set GnuTLS session priorities: %s",
 		    gnutls_strerror(ret));
 		ConnSSL_Free(c);
 		return false;

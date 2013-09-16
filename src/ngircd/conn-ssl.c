@@ -58,6 +58,7 @@ static bool ConnSSL_LoadServerKey_openssl PARAMS(( SSL_CTX *c ));
 
 static gnutls_certificate_credentials_t x509_cred;
 static gnutls_dh_params_t dh_params;
+static gnutls_priority_t priorities_cache;
 static bool ConnSSL_LoadServerKey_gnutls PARAMS(( void ));
 #endif
 
@@ -285,8 +286,10 @@ ConnSSL_InitLibrary( void )
 	if (!RAND_status()) {
 		Log(LOG_ERR, "OpenSSL PRNG not seeded: /dev/urandom missing?");
 		/*
-		 * it is probably best to fail and let the user install EGD or a similar program if no kernel random device is available.
-		 * According to OpenSSL RAND_egd(3): "The automatic query of /var/run/egd-pool et al was added in OpenSSL 0.9.7";
+		 * it is probably best to fail and let the user install EGD or
+		 * a similar program if no kernel random device is available.
+		 * According to OpenSSL RAND_egd(3): "The automatic query of
+		 * /var/run/egd-pool et al was added in OpenSSL 0.9.7";
 		 * so it makes little sense to deal with PRNGD seeding ourselves.
 		 */
 		array_free(&Conf_SSLOptions.ListenPorts);
@@ -303,9 +306,23 @@ ConnSSL_InitLibrary( void )
 	if (!ConnSSL_LoadServerKey_openssl(newctx))
 		goto out;
 
+	if(Conf_SSLOptions.CipherList && *Conf_SSLOptions.CipherList) {
+		if(SSL_CTX_set_cipher_list(newctx, Conf_SSLOptions.CipherList) == 0 ) {
+			Log(LOG_ERR,
+			    "Failed to apply OpenSSL cipher list \"%s\"!",
+			    Conf_SSLOptions.CipherList);
+			goto out;
+		} else {
+			Log(LOG_INFO,
+			    "Successfully applied OpenSSL cipher list \"%s\".",
+			    Conf_SSLOptions.CipherList);
+		}
+	}
+
 	SSL_CTX_set_options(newctx, SSL_OP_SINGLE_DH_USE|SSL_OP_NO_SSLv2);
 	SSL_CTX_set_mode(newctx, SSL_MODE_ENABLE_PARTIAL_WRITE);
-	SSL_CTX_set_verify(newctx, SSL_VERIFY_PEER|SSL_VERIFY_CLIENT_ONCE, Verify_openssl);
+	SSL_CTX_set_verify(newctx, SSL_VERIFY_PEER|SSL_VERIFY_CLIENT_ONCE,
+			   Verify_openssl);
 	SSL_CTX_free(ssl_ctx);
 	ssl_ctx = newctx;
 	Log(LOG_INFO, "%s initialized.", SSLeay_version(SSLEAY_VERSION));
@@ -318,22 +335,50 @@ out:
 #ifdef HAVE_LIBGNUTLS
 	int err;
 	static bool initialized;
-	if (initialized) /* TODO: cannot reload gnutls keys: can't simply free x509 context -- it may still be in use */
+
+	if (initialized) {
+		/* TODO: cannot reload gnutls keys: can't simply free x509
+		 * context -- it may still be in use */
 		return false;
+	}
 
 	err = gnutls_global_init();
 	if (err) {
-		Log(LOG_ERR, "Failed to initialize GnuTLS: %s", gnutls_strerror(err));
-		array_free(&Conf_SSLOptions.ListenPorts);
-		return false;
+		Log(LOG_ERR, "Failed to initialize GnuTLS: %s",
+		    gnutls_strerror(err));
+		goto out;
 	}
-	if (!ConnSSL_LoadServerKey_gnutls()) {
-		array_free(&Conf_SSLOptions.ListenPorts);
-		return false;
+
+	if (!ConnSSL_LoadServerKey_gnutls())
+		goto out;
+
+	if(Conf_SSLOptions.CipherList && *Conf_SSLOptions.CipherList) {
+		err = gnutls_priority_init(&priorities_cache,
+					   Conf_SSLOptions.CipherList, NULL);
+		if (err != GNUTLS_E_SUCCESS) {
+			Log(LOG_ERR,
+			    "Failed to apply GnuTLS cipher list \"%s\"!",
+			    Conf_SSLOptions.CipherList);
+			goto out;
+		}
+		Log(LOG_INFO,
+		    "Successfully applied GnuTLS cipher list \"%s\".",
+		    Conf_SSLOptions.CipherList);
+	} else {
+		err = gnutls_priority_init(&priorities_cache, "NORMAL", NULL);
+		if (err != GNUTLS_E_SUCCESS) {
+			Log(LOG_ERR,
+			    "Failed to apply GnuTLS cipher list \"NORMAL\"!");
+			goto out;
+		}
 	}
+
 	Log(LOG_INFO, "GnuTLS %s initialized.", gnutls_check_version(NULL));
 	initialized = true;
 	return true;
+out:
+	array_free(&Conf_SSLOptions.ListenPorts);
+	return false;
 #endif
 }
 
@@ -360,7 +405,7 @@ ConnSSL_LoadServerKey_gnutls(void)
 
 	if (array_bytes(&Conf_SSLOptions.KeyFilePassword))
 		Log(LOG_WARNING,
-		    "Ignoring KeyFilePassword: Not supported by GnuTLS.");
+		    "Ignoring SSL \"KeyFilePassword\": Not supported by GnuTLS.");
 
 	if (!Load_DH_params())
 		return false;
@@ -430,7 +475,10 @@ static bool
 ConnSSL_Init_SSL(CONNECTION *c)
 {
 	int ret;
+
+	LogDebug("Initializing SSL ...");
 	assert(c != NULL);
+
 #ifdef HAVE_LIBSSL
 	if (!ssl_ctx) {
 		Log(LOG_ERR,
@@ -445,6 +493,7 @@ ConnSSL_Init_SSL(CONNECTION *c)
 		LogOpenSSLError("Failed to create SSL structure", NULL);
 		return false;
 	}
+	Conn_OPTION_ADD(c, CONN_SSL);
 
 	ret = SSL_set_fd(c->ssl_state.ssl, c->sock);
 	if (ret != 1) {
@@ -454,9 +503,10 @@ ConnSSL_Init_SSL(CONNECTION *c)
 	}
 #endif
 #ifdef HAVE_LIBGNUTLS
-	ret = gnutls_set_default_priority(c->ssl_state.gnutls_session);
-	if (ret < 0) {
-		Log(LOG_ERR, "Failed to set GnuTLS default priority: %s",
+	Conn_OPTION_ADD(c, CONN_SSL);
+	ret = gnutls_priority_set(c->ssl_state.gnutls_session, priorities_cache);
+	if (ret != 0) {
+		Log(LOG_ERR, "Failed to set GnuTLS session priorities: %s",
 		    gnutls_strerror(ret));
 		ConnSSL_Free(c);
 		return false;
@@ -467,17 +517,20 @@ ConnSSL_Init_SSL(CONNECTION *c)
 	 * There doesn't seem to be an alternate GNUTLS API we could use instead, see e.g.
 	 * http://www.mail-archive.com/help-gnutls@gnu.org/msg00286.html
 	 */
-	gnutls_transport_set_ptr(c->ssl_state.gnutls_session, (gnutls_transport_ptr_t) (long) c->sock);
-	gnutls_certificate_server_set_request(c->ssl_state.gnutls_session, GNUTLS_CERT_REQUEST);
-	ret = gnutls_credentials_set(c->ssl_state.gnutls_session, GNUTLS_CRD_CERTIFICATE, x509_cred);
-	if (ret < 0) {
-		Log(LOG_ERR, "Failed to set SSL credentials: %s", gnutls_strerror(ret));
+	gnutls_transport_set_ptr(c->ssl_state.gnutls_session,
+				 (gnutls_transport_ptr_t) (long) c->sock);
+	gnutls_certificate_server_set_request(c->ssl_state.gnutls_session,
+					      GNUTLS_CERT_REQUEST);
+	ret = gnutls_credentials_set(c->ssl_state.gnutls_session,
+				     GNUTLS_CRD_CERTIFICATE, x509_cred);
+	if (ret != 0) {
+		Log(LOG_ERR, "Failed to set SSL credentials: %s",
+		    gnutls_strerror(ret));
 		ConnSSL_Free(c);
 		return false;
 	}
 	gnutls_dh_set_prime_bits(c->ssl_state.gnutls_session, DH_BITS_MIN);
 #endif
-	Conn_OPTION_ADD(c, CONN_SSL);
 	return true;
 }
 
@@ -645,7 +698,6 @@ ConnSSL_Accept( CONNECTION *c )
 			return false;
 		}
 #endif
-		LogDebug("Initializing SSL data ...");
 		if (!ConnSSL_Init_SSL(c))
 			return -1;
 	}

@@ -117,6 +117,9 @@ ConfSSL_Init(void)
 	array_free_wipe(&Conf_SSLOptions.KeyFilePassword);
 
 	array_free(&Conf_SSLOptions.ListenPorts);
+
+	free(Conf_SSLOptions.CipherList);
+	Conf_SSLOptions.CipherList = NULL;
 }
 
 /**
@@ -432,6 +435,8 @@ Conf_Test( void )
 	puts("[SSL]");
 	printf("  CertFile = %s\n", Conf_SSLOptions.CertFile
 					? Conf_SSLOptions.CertFile : "");
+	printf("  CipherList = %s\n", Conf_SSLOptions.CipherList
+					? Conf_SSLOptions.CipherList : "");
 	printf("  DHFile = %s\n", Conf_SSLOptions.DHFile
 					? Conf_SSLOptions.DHFile : "");
 	printf("  KeyFile = %s\n", Conf_SSLOptions.KeyFile
@@ -1867,6 +1872,11 @@ Handle_SSL(const char *File, int Line, char *Var, char *Arg)
 	}
 	if (strcasecmp(Var, "Ports") == 0) {
 		ports_parse(&Conf_SSLOptions.ListenPorts, Line, Arg);
+		return;
+	}
+	if (strcasecmp(Var, "CipherList") == 0) {
+		assert(Conf_SSLOptions.CipherList == NULL);
+		Conf_SSLOptions.CipherList = strdup_warn(Arg);
 		return;
 	}
 

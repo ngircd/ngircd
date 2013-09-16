@@ -2131,6 +2131,7 @@ New_Server( int Server , ng_ipaddr_t *dest)
 
 	if (!ng_ipaddr_tostr_r(dest, ip_str)) {
 		Log(LOG_WARNING, "New_Server: Could not convert IP to string");
+		Conf_Server[Server].conn_id = NONE;
 		return;
 	}
 
@@ -2145,11 +2146,14 @@ New_Server( int Server , ng_ipaddr_t *dest)
 	if (new_sock < 0) {
 		Log(LOG_CRIT, "Can't create socket (af %d): %s!",
 		    af_dest, strerror(errno));
+		Conf_Server[Server].conn_id = NONE;
 		return;
 	}
 
-	if (!Init_Socket(new_sock))
+	if (!Init_Socket(new_sock)) {
+		Conf_Server[Server].conn_id = NONE;
 		return;
+	}
 
 	/* is a bind address configured? */
 	res = ng_ipaddr_af(&Conf_Server[Server].bind_addr);
@@ -2165,6 +2169,7 @@ New_Server( int Server , ng_ipaddr_t *dest)
 	if(( res != 0 ) && ( errno != EINPROGRESS )) {
 		Log( LOG_CRIT, "Can't connect socket: %s!", strerror( errno ));
 		close( new_sock );
+		Conf_Server[Server].conn_id = NONE;
 		return;
 	}
 
@@ -2173,12 +2178,14 @@ New_Server( int Server , ng_ipaddr_t *dest)
 		    "Cannot allocate memory for server connection (socket %d)",
 		    new_sock);
 		close( new_sock );
+		Conf_Server[Server].conn_id = NONE;
 		return;
 	}
 
 	if (!io_event_create( new_sock, IO_WANTWRITE, cb_connserver)) {
 		Log(LOG_ALERT, "io_event_create(): could not add fd %d", strerror(errno));
 		close(new_sock);
+		Conf_Server[Server].conn_id = NONE;
 		return;
 	}
 
@@ -2193,6 +2200,7 @@ New_Server( int Server , ng_ipaddr_t *dest)
 	if (!c) {
 		Log( LOG_ALERT, "Can't establish connection: can't create client structure!" );
 		io_close(new_sock);
+		Conf_Server[Server].conn_id = NONE;
 		return;
 	}
 

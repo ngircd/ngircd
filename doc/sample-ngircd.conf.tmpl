@@ -249,11 +249,9 @@
 	;CertFile = :ETCDIR:/ssl/server-cert.pem
 
 	# Select cipher suites allowed for SSL/TLS connections. This defaults
-	# to the empty string, so all supported ciphers are allowed. Please
-	# see 'man 1ssl ciphers' (OpenSSL) and 'man 3 gnutls_priority_init'
+	# to HIGH:!aNULL:@STRENGTH (OpenSSL) or SECURE128 (GnuTLS).
+	# See 'man 1ssl ciphers' (OpenSSL) or 'man 3 gnutls_priority_init'
 	# (GnuTLS) for details.
-	# For example, this setting allows only "high strength" cipher suites,
-	# disables the ones without authentication, and sorts by strength:
 	# For OpenSSL:
 	;CipherList = HIGH:!aNULL:@STRENGTH
 	# For GnuTLS:

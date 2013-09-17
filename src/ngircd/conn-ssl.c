@@ -306,17 +306,10 @@ ConnSSL_InitLibrary( void )
 	if (!ConnSSL_LoadServerKey_openssl(newctx))
 		goto out;
 
-	if(Conf_SSLOptions.CipherList && *Conf_SSLOptions.CipherList) {
-		if(SSL_CTX_set_cipher_list(newctx, Conf_SSLOptions.CipherList) == 0 ) {
-			Log(LOG_ERR,
-			    "Failed to apply OpenSSL cipher list \"%s\"!",
-			    Conf_SSLOptions.CipherList);
-			goto out;
-		} else {
-			Log(LOG_INFO,
-			    "Successfully applied OpenSSL cipher list \"%s\".",
-			    Conf_SSLOptions.CipherList);
-		}
+	if (SSL_CTX_set_cipher_list(newctx, Conf_SSLOptions.CipherList) == 0) {
+		Log(LOG_ERR, "Failed to apply OpenSSL cipher list \"%s\"!",
+		    Conf_SSLOptions.CipherList);
+		goto out;
 	}
 
 	SSL_CTX_set_options(newctx, SSL_OP_SINGLE_DH_USE|SSL_OP_NO_SSLv2);
@@ -352,25 +345,12 @@ out:
 	if (!ConnSSL_LoadServerKey_gnutls())
 		goto out;
 
-	if(Conf_SSLOptions.CipherList && *Conf_SSLOptions.CipherList) {
-		err = gnutls_priority_init(&priorities_cache,
-					   Conf_SSLOptions.CipherList, NULL);
-		if (err != GNUTLS_E_SUCCESS) {
-			Log(LOG_ERR,
-			    "Failed to apply GnuTLS cipher list \"%s\"!",
-			    Conf_SSLOptions.CipherList);
-			goto out;
-		}
-		Log(LOG_INFO,
-		    "Successfully applied GnuTLS cipher list \"%s\".",
+	if (gnutls_priority_init(&priorities_cache, Conf_SSLOptions.CipherList,
+				 NULL) != GNUTLS_E_SUCCESS) {
+		Log(LOG_ERR,
+		    "Failed to apply GnuTLS cipher list \"%s\"!",
 		    Conf_SSLOptions.CipherList);
-	} else {
-		err = gnutls_priority_init(&priorities_cache, "NORMAL", NULL);
-		if (err != GNUTLS_E_SUCCESS) {
-			Log(LOG_ERR,
-			    "Failed to apply GnuTLS cipher list \"NORMAL\"!");
-			goto out;
-		}
+		goto out;
 	}
 
 	Log(LOG_INFO, "GnuTLS %s initialized.", gnutls_check_version(NULL));
@@ -505,7 +485,7 @@ ConnSSL_Init_SSL(CONNECTION *c)
 #ifdef HAVE_LIBGNUTLS
 	Conn_OPTION_ADD(c, CONN_SSL);
 	ret = gnutls_priority_set(c->ssl_state.gnutls_session, priorities_cache);
-	if (ret != 0) {
+	if (ret != GNUTLS_E_SUCCESS) {
 		Log(LOG_ERR, "Failed to set GnuTLS session priorities: %s",
 		    gnutls_strerror(ret));
 		ConnSSL_Free(c);

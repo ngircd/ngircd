@@ -93,6 +93,12 @@ static void Init_Server_Struct PARAMS(( CONF_SERVER *Server ));
 #define DEFAULT_LISTEN_ADDRSTR "0.0.0.0"
 #endif
 
+#ifdef HAVE_LIBSSL
+#define DEFAULT_CIPHERS		"HIGH:!aNULL:@STRENGTH"
+#endif
+#ifdef HAVE_LIBGNUTLS
+#define DEFAULT_CIPHERS		"SECURE128"
+#endif
 
 #ifdef SSL_SUPPORT
 
@@ -435,8 +441,8 @@ Conf_Test( void )
 	puts("[SSL]");
 	printf("  CertFile = %s\n", Conf_SSLOptions.CertFile
 					? Conf_SSLOptions.CertFile : "");
-	printf("  CipherList = %s\n", Conf_SSLOptions.CipherList
-					? Conf_SSLOptions.CipherList : "");
+	printf("  CipherList = %s\n", Conf_SSLOptions.CipherList ?
+	       Conf_SSLOptions.CipherList : DEFAULT_CIPHERS);
 	printf("  DHFile = %s\n", Conf_SSLOptions.DHFile
 					? Conf_SSLOptions.DHFile : "");
 	printf("  KeyFile = %s\n", Conf_SSLOptions.KeyFile
@@ -1032,6 +1038,10 @@ Read_Config(bool TestOnly, bool IsStarting)
 	CheckFileReadable("CertFile", Conf_SSLOptions.CertFile);
 	CheckFileReadable("DHFile", Conf_SSLOptions.DHFile);
 	CheckFileReadable("KeyFile", Conf_SSLOptions.KeyFile);
+
+	/* Set the default ciphers if none were configured */
+	if (!Conf_SSLOptions.CipherList)
+		Conf_SSLOptions.CipherList = strdup_warn(DEFAULT_CIPHERS);
 #endif
 
 	return true;

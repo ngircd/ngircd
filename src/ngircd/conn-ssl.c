@@ -62,7 +62,7 @@ static gnutls_priority_t priorities_cache;
 static bool ConnSSL_LoadServerKey_gnutls PARAMS(( void ));
 #endif
 
-#define SHA1_STRING_LEN	(20 * 2 + 1)
+#define SHA256_STRING_LEN	(32 * 2 + 1)
 
 static bool ConnSSL_Init_SSL PARAMS(( CONNECTION *c ));
 static int ConnectAccept PARAMS(( CONNECTION *c, bool connect ));
@@ -711,7 +711,7 @@ ConnSSL_InitCertFp( CONNECTION *c )
 	if (!cert)
 		return 0;
 
-	if (!X509_digest(cert, EVP_sha1(), digest, &digest_size)) {
+	if (!X509_digest(cert, EVP_sha256(), digest, &digest_size)) {
 		X509_free(cert);
 		return 0;
 	}
@@ -725,7 +725,8 @@ ConnSSL_InitCertFp( CONNECTION *c )
 	unsigned char digest[MAX_HASH_SIZE];
 	size_t digest_size;
 
-	if (gnutls_certificate_type_get(c->ssl_state.gnutls_session) != GNUTLS_CRT_X509)
+	if (gnutls_certificate_type_get(c->ssl_state.gnutls_session) !=
+					GNUTLS_CRT_X509)
 		return 0;
 
 	if (gnutls_x509_crt_init(&cert) != GNUTLS_E_SUCCESS)
@@ -739,13 +740,15 @@ ConnSSL_InitCertFp( CONNECTION *c )
 		return 0;
 	}
 	
-	if (gnutls_x509_crt_import(cert, &cert_list[0], GNUTLS_X509_FMT_DER) != GNUTLS_E_SUCCESS) {
+	if (gnutls_x509_crt_import(cert, &cert_list[0],
+				   GNUTLS_X509_FMT_DER) != GNUTLS_E_SUCCESS) {
 		gnutls_x509_crt_deinit(cert);
 		return 0;
 	}
 
 	digest_size = sizeof(digest);
-	if (gnutls_x509_crt_get_fingerprint(cert, GNUTLS_DIG_SHA1, digest, &digest_size)) {
+	if (gnutls_x509_crt_get_fingerprint(cert, GNUTLS_DIG_SHA256, digest,
+					    &digest_size)) {
 		gnutls_x509_crt_deinit(cert);
 		return 0;
 	}
@@ -755,7 +758,7 @@ ConnSSL_InitCertFp( CONNECTION *c )
 
 	assert(c->ssl_state.fingerprint == NULL);
 
-	c->ssl_state.fingerprint = malloc(SHA1_STRING_LEN);
+	c->ssl_state.fingerprint = malloc(SHA256_STRING_LEN);
 	if (!c->ssl_state.fingerprint)
 		return 0;
 
@@ -890,7 +893,7 @@ bool
 ConnSSL_SetCertFp(CONNECTION *c, const char *fingerprint)
 {
 	assert (c != NULL);
-	c->ssl_state.fingerprint = strndup(fingerprint, SHA1_STRING_LEN - 1);
+	c->ssl_state.fingerprint = strndup(fingerprint, SHA256_STRING_LEN - 1);
 	return c->ssl_state.fingerprint != NULL;
 }
 #else

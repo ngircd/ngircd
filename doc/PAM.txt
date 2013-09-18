@@ -1,9 +1,8 @@
 
                      ngIRCd - Next Generation IRC Server
+                           http://ngircd.barton.de/
 
-                        (c)2001-2010 Alexander Barton,
-                    alex@barton.de, http://www.barton.de/
-
+               (c)2001-2013 Alexander Barton and Contributors.
                ngIRCd is free software and published under the
                    terms of the GNU General Public License.
 
@@ -34,3 +33,13 @@ is running as. Therefore a lot of PAM modules aren't working as expected,
 because they need root privileges ("pam_unix", for example)!
 Only PAM modules not(!) requiring root privileges (such as "pam_pgsql",
 "pam_mysql", "pam_opendirectory" ...) can be used in conjunction with ngIRCd.
+
+More Examples:
+
+ * Use an own "password file" for ngIRCd:
+
+   Note: you can use the htpasswd(1) utility of Apache to manage password
+   files used by pam_pwdfile, see "man htpasswd"!
+
+	/etc/pam.d/ngircd:
+	  auth  required  pam_pwdfile.so pwdfile=/etc/ngircd/ngircd.passwd

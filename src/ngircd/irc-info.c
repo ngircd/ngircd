@@ -41,6 +41,7 @@
 #include "irc-macros.h"
 #include "irc-write.h"
 #include "client-cap.h"
+#include "op.h"
 
 #include "exp.h"
 #include "irc-info.h"
@@ -865,6 +866,7 @@ IRC_STATS( CLIENT *Client, REQUEST *Req )
 	unsigned int days, hrs, mins;
 	struct list_head *list;
 	struct list_elem *list_item;
+	bool more_links = false;
 
 	assert(Client != NULL);
 	assert(Req != NULL);
@@ -909,16 +911,20 @@ IRC_STATS( CLIENT *Client, REQUEST *Req )
 				list_item = Lists_GetNext(list_item);
 			}
 		break;
+	case 'L':	/* Link status (servers and user links) */
+		if (!Op_Check(from, Req))
+			return Op_NoPrivileges(from, Req);
+		more_links = true;
+
 	case 'l':	/* Link status (servers and own link) */
-	case 'L':
 		time_now = time(NULL);
 		for (con = Conn_First(); con != NONE; con = Conn_Next(con)) {
 			cl = Conn_GetClient(con);
 			if (!cl)
 				continue;
-			if ((Client_Type(cl) == CLIENT_SERVER)
-			    || (cl == Client)) {
-				/* Server link or our own connection */
+			if (Client_Type(cl) == CLIENT_SERVER ||
+			    cl == Client ||
+			    (more_links && Client_Type(cl) == CLIENT_USER)) {
 #ifdef ZLIB
 				if (Conn_Options(con) & CONN_ZIP) {
 					if (!IRC_WriteStrClient

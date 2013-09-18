@@ -451,17 +451,21 @@ Status and Informational Commands
 	Show statistics and other information of type <query> of a particular
 	IRC server in the network.
 	.
-	The following <query> types are supported (case-insensitive):
+	The following <query> types are supported (case-insensitive where
+	applicable):
 	.
 	 - g  Network-wide bans ("G-Lines").
 	 - k  Server-local bans ("K-Lines").
-	 - l  Link status (parent server and own link only).
+	 - L  Link status (servers and user links).
+	 - l  Link status (servers and own link).
 	 - m  Command usage count.
 	 - u  Server uptime.
 	.
 	<target> can be a server name, the nickname of a client connected to
 	a specific server, or a mask matching a server name in the network.
 	The server of the current connection is used when <target> is omitted.
+	.
+	To use "STATS L" the user must be an IRC Operator.
 
 	References:
 	 - RFC 2812, 3.4.4 "Stats message"

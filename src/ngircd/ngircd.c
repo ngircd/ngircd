@@ -817,8 +817,8 @@ NGIRCd_Init(bool NGIRCd_NoDaemon)
 			    "Changed working directory to \"%s\" ...",
 			    pwd->pw_dir);
 		else
-			Log(LOG_INFO,
-			    "Notice: Can't change working directory to \"%s\": %s!",
+			Log(LOG_ERR,
+			    "Can't change working directory to \"%s\": %s!",
 			    pwd->pw_dir, strerror(errno));
 	} else
 		Log(LOG_ERR, "Can't get user informaton for UID %d!?", Conf_UID);

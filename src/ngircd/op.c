@@ -86,7 +86,7 @@ Op_Check(CLIENT * Client, REQUEST * Req)
 		return c;
 	if (!Client_HasMode(c, 'o'))
 		return NULL;
-	if (!Client_OperByMe(c) && !Conf_AllowRemoteOper)
+	if (Client_Conn(c) <= NONE && !Conf_AllowRemoteOper)
 		return NULL;
 
 	/* The client is an local IRC operator, or this server is configured

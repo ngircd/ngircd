@@ -545,14 +545,6 @@ Client_SetIntroducer( CLIENT *Client, CLIENT *Introducer )
 } /* Client_SetIntroducer */
 
 
-GLOBAL void
-Client_SetOperByMe( CLIENT *Client, bool OperByMe )
-{
-	assert( Client != NULL );
-	Client->oper_by_me = OperByMe;
-} /* Client_SetOperByMe */
-
-
 GLOBAL bool
 Client_ModeAdd( CLIENT *Client, char Mode )
 {
@@ -887,14 +879,6 @@ Client_Flags( CLIENT *Client )
 	assert( Client != NULL );
 	return Client->flags;
 } /* Client_Flags */
-
-
-GLOBAL bool
-Client_OperByMe( CLIENT *Client )
-{
-	assert( Client != NULL );
-	return Client->oper_by_me;
-} /* Client_OperByMe */
 
 
 GLOBAL int
@@ -1426,7 +1410,6 @@ New_Client_Struct( void )
 
 	c->type = CLIENT_UNKNOWN;
 	c->conn_id = NONE;
-	c->oper_by_me = false;
 	c->hops = -1;
 	c->token = -1;
 	c->mytoken = -1;

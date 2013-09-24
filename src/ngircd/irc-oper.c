@@ -90,12 +90,10 @@ IRC_OPER( CLIENT *Client, REQUEST *Req )
 					  Client_ID(Client));
 	}
 
-	if (!Client_OperByMe(Client))
-		Log(LOG_NOTICE|LOG_snotice,
-		    "Got valid OPER for \"%s\" from \"%s\", user is an IRC operator now.",
-		    Req->argv[0], Client_Mask(Client));
+	Log(LOG_NOTICE|LOG_snotice,
+	    "Got valid OPER for \"%s\" from \"%s\", user is an IRC operator now.",
+	    Req->argv[0], Client_Mask(Client));
 
-	Client_SetOperByMe(Client, true);
 	return IRC_WriteStrClient(Client, RPL_YOUREOPER_MSG, Client_ID(Client));
 } /* IRC_OPER */
 
@@ -357,9 +355,8 @@ IRC_WALLOPS( CLIENT *Client, REQUEST *Req )
 
 	switch (Client_Type(Client)) {
 	case CLIENT_USER:
-		if (!Client_OperByMe(Client))
-			return IRC_WriteErrClient(Client, ERR_NOPRIVILEGES_MSG,
-						  Client_ID(Client));
+		if (!Op_Check(Client, Req))
+			return Op_NoPrivileges(Client, Req);
 		from = Client;
 		break;
 	case CLIENT_SERVER:

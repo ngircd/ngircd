@@ -33,6 +33,7 @@
 #include "match.h"
 #include "messages.h"
 #include "parse.h"
+#include "op.h"
 #include "tool.h"
 
 #include "exp.h"
@@ -134,9 +135,8 @@ IRC_KILL(CLIENT *Client, REQUEST *Req)
 	assert (Client != NULL);
 	assert (Req != NULL);
 
-	if (Client_Type(Client) != CLIENT_SERVER && !Client_OperByMe(Client))
-		return IRC_WriteErrClient(Client, ERR_NOPRIVILEGES_MSG,
-					  Client_ID(Client));
+	if (Client_Type(Client) != CLIENT_SERVER && !Op_Check(Client, Req))
+		return Op_NoPrivileges(Client, Req);
 
 	/* Get prefix (origin); use the client if no prefix is given. */
 	if (Req->prefix)

@@ -58,7 +58,6 @@ typedef struct _CLIENT
 	char info[CLIENT_INFO_LEN];	/* long user name (user) / info text (server) */
 	char modes[CLIENT_MODE_LEN];	/* client modes */
 	int hops, token, mytoken;	/* "hops" and "Token" (see SERVER command) */
-	bool oper_by_me;		/* client is local IRC operator on this server? */
 	char *away;			/* AWAY text (valid if mode 'a' is set) */
 	char flags[CLIENT_FLAGS_LEN];	/* flags of the client */
 	char *account_name;		/* login account (for services) */
@@ -120,7 +119,6 @@ GLOBAL const char *Client_IPAText PARAMS(( CLIENT *Client ));
 GLOBAL char *Client_Modes PARAMS(( CLIENT *Client ));
 GLOBAL char *Client_Flags PARAMS(( CLIENT *Client ));
 GLOBAL CLIENT *Client_Introducer PARAMS(( CLIENT *Client ));
-GLOBAL bool Client_OperByMe PARAMS(( CLIENT *Client ));
 GLOBAL int Client_Hops PARAMS(( CLIENT *Client ));
 GLOBAL int Client_Token PARAMS(( CLIENT *Client ));
 GLOBAL int Client_MyToken PARAMS(( CLIENT *Client ));
@@ -142,7 +140,6 @@ GLOBAL void Client_SetInfo PARAMS(( CLIENT *Client, const char *Info ));
 GLOBAL void Client_SetType PARAMS(( CLIENT *Client, int Type ));
 GLOBAL void Client_SetHops PARAMS(( CLIENT *Client, int Hops ));
 GLOBAL void Client_SetToken PARAMS(( CLIENT *Client, int Token ));
-GLOBAL void Client_SetOperByMe PARAMS(( CLIENT *Client, bool OperByMe ));
 GLOBAL void Client_SetModes PARAMS(( CLIENT *Client, const char *Modes ));
 GLOBAL void Client_SetFlags PARAMS(( CLIENT *Client, const char *Flags ));
 GLOBAL void Client_SetIntroducer PARAMS(( CLIENT *Client, CLIENT *Introducer ));

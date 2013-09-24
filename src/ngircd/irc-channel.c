@@ -129,7 +129,7 @@ join_allowed(CLIENT *Client, CHANNEL *chan, const char *channame,
 		return false;
 	}
 
-	if (Channel_HasMode(chan, 'O') && !Client_OperByMe(Client)) {
+	if (Channel_HasMode(chan, 'O') && !Client_HasMode(Client, 'o')) {
 		/* Only IRC operators are allowed! */
 		IRC_WriteErrClient(Client, ERR_OPONLYCHANNEL_MSG,
 				   Client_ID(Client), channame);
@@ -619,7 +619,10 @@ IRC_LIST( CLIENT *Client, REQUEST *Req )
 				/* Gotcha! */
 				if (!Channel_HasMode(chan, 's')
 				    || Channel_IsMemberOf(chan, from)
-				    || (!Conf_MorePrivacy && Client_OperByMe(Client))) {
+				    || (!Conf_MorePrivacy
+					&& Client_HasMode(Client, 'o')
+					&& Client_Conn(Client) > NONE))
+				{
 					if ((Conf_MaxListSize > 0)
 					    && IRC_CheckListTooBig(from, count,
 								   Conf_MaxListSize,

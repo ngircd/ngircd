@@ -223,11 +223,12 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 			else
 				x[0] = 'B';
 			break;
-		case 'c': /* Receive connect notices
-			   * (only settable by IRC operators!) */
+		case 'c': /* Receive connect notices */
+		case 'q': /* KICK-protected user */
+			  /* (only settable by IRC operators!) */
 			if (!set || Client_Type(Client) == CLIENT_SERVER
-			    || Client_OperByMe(Origin))
-				x[0] = 'c';
+			    || Client_HasMode(Origin, 'o'))
+				x[0] = *mode_ptr;
 			else
 				ok = IRC_WriteErrClient(Origin,
 							ERR_NOPRIVILEGES_MSG,
@@ -235,18 +236,8 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 			break;
 		case 'o': /* IRC operator (only unsettable!) */
 			if (!set || Client_Type(Client) == CLIENT_SERVER) {
-				Client_SetOperByMe(Target, false);
 				x[0] = 'o';
 			} else
-				ok = IRC_WriteErrClient(Origin,
-							ERR_NOPRIVILEGES_MSG,
-							Client_ID(Origin));
-			break;
-		case 'q': /* KICK-protected user */
-			if (!set || Client_Type(Client) == CLIENT_SERVER
-			    || Client_OperByMe(Origin))
-				x[0] = 'q';
-			else
 				ok = IRC_WriteErrClient(Origin,
 							ERR_NOPRIVILEGES_MSG,
 							Client_ID(Origin));
@@ -274,7 +265,7 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 							Client_ID(Origin));
 			else if (!set || Conf_CloakHostModeX[0]
 				 || Client_Type(Client) == CLIENT_SERVER
-				 || Client_OperByMe(Client)) {
+				 || Client_HasMode(Origin, 'o')) {
 				x[0] = 'x';
 				send_RPL_HOSTHIDDEN_MSG = true;
 			} else
@@ -455,7 +446,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 
 	/* Check if origin is oper and opers can use mode */
 	use_servermode = Conf_OperServerMode;
-	if(Client_OperByMe(Client) && Conf_OperCanMode) {
+	if(Client_HasMode(Client, 'o') && Conf_OperCanMode) {
 		is_oper = true;
 	}
 

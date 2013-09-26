@@ -325,15 +325,20 @@ Validate_Prefix( CONN_ID Idx, REQUEST *Req, bool *Closed )
 	}
 
 	/* check if client in prefix is known */
-	c = Client_Search( Req->prefix );
+	c = Client_Search(Req->prefix);
 	if (!c) {
-		Log(LOG_ERR,
-		    "Invalid prefix \"%s\", client not known (connection %d, command \"%s\")!?",
-		    Req->prefix, Idx, Req->command);
-		if (!Conn_WriteStr(Idx,
-				   "ERROR :Invalid prefix \"%s\", client not known",
-				   Req->prefix))
-			*Closed = true;
+		if (Client_Type(client) != CLIENT_SERVER) {
+			Log(LOG_ERR,
+			    "Ignoring command with invalid prefix \"%s\" from \"%s\" (connection %d, command \"%s\")!",
+			    Req->prefix, Client_ID(client), Idx, Req->command);
+			if (!Conn_WriteStr(Idx,
+					   "ERROR :Invalid prefix \"%s\"",
+					   Req->prefix))
+				*Closed = true;
+			IRC_SetPenalty(client, 2);
+		} else
+			LogDebug("Ignoring command with invalid prefix \"%s\" from \"%s\" (connection %d, command \"%s\")!",
+			    Req->prefix, Client_ID(client), Idx, Req->command);
 		return false;
 	}
 
@@ -342,19 +347,16 @@ Validate_Prefix( CONN_ID Idx, REQUEST *Req, bool *Closed )
 	if (Client_NextHop(c) != client) {
 		if (Client_Type(c) != CLIENT_SERVER) {
 			Log(LOG_ERR,
-			    "Spoofed prefix \"%s\" from \"%s\" (connection %d, command \"%s\")!",
-			    Req->prefix, Client_Mask(Conn_GetClient(Idx)), Idx,
-			    Req->command);
+			    "Spoofed prefix \"%s\" from \"%s\" (connection %d, command \"%s\"), closing connection!",
+			    Req->prefix, Client_ID(client), Idx, Req->command);
 			Conn_Close(Idx, NULL, "Spoofed prefix", true);
 			*Closed = true;
 		} else {
-			Log(LOG_INFO,
-			    "Ignoring spoofed prefix \"%s\" from \"%s\" (connection %d, command \"%s\").",
-			    Req->prefix, Client_Mask(Conn_GetClient(Idx)), Idx,
-			    Req->command);
+			Log(LOG_WARNING,
+			    "Ignoring command with spoofed prefix \"%s\" from \"%s\" (connection %d, command \"%s\")!",
+			    Req->prefix, Client_ID(client), Idx, Req->command);
 		}
 		return false;
-
 	}
 
 	return true;

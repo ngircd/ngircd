@@ -346,17 +346,17 @@ IRC_KillClient(CLIENT *Client, CLIENT *From, const char *Nick, const char *Reaso
 	CONN_ID my_conn, conn;
 	CLIENT *c;
 
+	/* Do we know such a client in the network? */
+	c = Client_Search(Nick);
+	if (!c) {
+		LogDebug("Client with nick \"%s\" is unknown, not forwaring.", Nick);
+		return CONNECTED;
+	}
+
 	/* Inform other servers */
 	IRC_WriteStrServersPrefix(From ? Client : NULL,
 				  From ? From : Client_ThisServer(),
 				  "KILL %s :%s", Nick, Reason);
-
-	/* Do we know such a client? */
-	c = Client_Search(Nick);
-	if (!c) {
-		LogDebug("Client with nick \"%s\" is unknown here.", Nick);
-		return CONNECTED;
-	}
 
 	if (Client_Type(c) != CLIENT_USER && Client_Type(c) != CLIENT_GOTNICK) {
 		/* Target of this KILL is not a regular user, this is

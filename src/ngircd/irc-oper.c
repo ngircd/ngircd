@@ -28,12 +28,14 @@
 #include "conf.h"
 #include "channel.h"
 #include "class.h"
+#include "parse.h"
+#include "irc.h"
 #include "irc-macros.h"
 #include "irc-write.h"
+#include "lists.h"
 #include "log.h"
 #include "match.h"
 #include "messages.h"
-#include "parse.h"
 #include "op.h"
 
 #include <exp.h>
@@ -384,9 +386,10 @@ IRC_WALLOPS( CLIENT *Client, REQUEST *Req )
 GLOBAL bool
 IRC_xLINE(CLIENT *Client, REQUEST *Req)
 {
-	CLIENT *from;
+	CLIENT *from, *c, *c_next;
+	char reason[COMMAND_LEN], class_c;
+	struct list_head *list;
 	int class;
-	char class_c;
 
 	assert(Client != NULL);
 	assert(Req != NULL);
@@ -445,6 +448,20 @@ IRC_xLINE(CLIENT *Client, REQUEST *Req)
 						"%s %s %s :%s", Req->command,
 						Req->argv[0], Req->argv[1],
 						Req->argv[2]);
+			}
+
+			/* Check currently connected clients */
+			snprintf(reason, sizeof(reason), "%c-Line by \"%s\": \"%s\"",
+				 class_c, Client_ID(from), Req->argv[2]);
+			list = Class_GetList(class);
+			c = Client_First();
+			while (c) {
+				c_next = Client_Next(c);
+				if ((class == CLASS_GLINE || Client_Conn(c) > NONE)
+				    && Lists_Check(list, c))
+					IRC_KillClient(Client, NULL,
+						       Client_ID(c), reason);
+				c = c_next;
 			}
 		}
 	}

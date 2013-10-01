@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2012 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2013 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,9 @@ GLOBAL bool IRC_PRIVMSG PARAMS((CLIENT *Client, REQUEST *Req));
 GLOBAL bool IRC_SQUERY PARAMS((CLIENT *Client, REQUEST *Req));
 GLOBAL bool IRC_TRACE PARAMS((CLIENT *Client, REQUEST *Req));
 GLOBAL bool IRC_HELP PARAMS((CLIENT *Client, REQUEST *Req));
+
+GLOBAL bool IRC_KillClient PARAMS((CLIENT *Client, CLIENT *From,
+				   const char *Nick, const char *Reason));
 
 #endif
 

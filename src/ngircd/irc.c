@@ -128,9 +128,8 @@ IRC_ERROR(CLIENT *Client, REQUEST *Req)
 GLOBAL bool
 IRC_KILL(CLIENT *Client, REQUEST *Req)
 {
-	CLIENT *prefix, *c;
-	char reason[COMMAND_LEN], *msg;
-	CONN_ID my_conn, conn;
+	CLIENT *prefix;
+	char reason[COMMAND_LEN];
 
 	assert (Client != NULL);
 	assert (Req != NULL);
@@ -166,59 +165,8 @@ IRC_KILL(CLIENT *Client, REQUEST *Req)
 	else
 		strlcpy(reason, Req->argv[1], sizeof(reason));
 
-	/* Inform other servers */
-	IRC_WriteStrServersPrefix(Client, prefix, "KILL %s :%s",
-				  Req->argv[0], reason);
-
-	/* Save ID of this connection */
-	my_conn = Client_Conn( Client );
-
-	/* Do we host such a client? */
-	c = Client_Search( Req->argv[0] );
-	if (c) {
-		if (Client_Type(c) != CLIENT_USER
-		    && Client_Type(c) != CLIENT_GOTNICK) {
-			/* Target of this KILL is not a regular user, this is
-			 * invalid! So we ignore this case if we received a
-			 * regular KILL from the network and try to kill the
-			 * client/connection anyway (but log an error!) if the
-			 * origin is the local server. */
-
-			if (Client != Client_ThisServer()) {
-				/* Invalid KILL received from remote */
-				if (Client_Type(c) == CLIENT_SERVER)
-					msg = ERR_CANTKILLSERVER_MSG;
-				else
-					msg = ERR_NOPRIVILEGES_MSG;
-				return IRC_WriteErrClient(Client, msg,
-							  Client_ID(Client));
-			}
-
-			Log(LOG_ERR,
-			    "Got KILL for invalid client type: %d, \"%s\"!",
-			    Client_Type( c ), Req->argv[0] );
-		}
-
-		/* Kill the client NOW:
-		 *  - Close the local connection (if there is one),
-		 *  - Destroy the CLIENT structure for remote clients.
-		 * Note: Conn_Close() removes the CLIENT structure as well. */
-		conn = Client_Conn( c );
-		if(conn > NONE)
-			Conn_Close(conn, NULL, reason, true);
-		else
-			Client_Destroy(c, NULL, reason, false);
-	}
-	else
-		Log(LOG_NOTICE, "Client with nick \"%s\" is unknown here.",
-		    Req->argv[0]);
-
-	/* Are we still connected or were we killed, too? */
-	if (my_conn > NONE && Conn_GetClient(my_conn))
-		return CONNECTED;
-	else
-		return DISCONNECTED;
-} /* IRC_KILL */
+	return IRC_KillClient(Client, prefix, Req->argv[0], reason);
+}
 
 /**
  * Handler for the IRC "NOTICE" command.
@@ -375,6 +323,81 @@ IRC_HELP(CLIENT *Client, REQUEST *Req)
 	}
 	return CONNECTED;
 } /* IRC_HELP */
+
+/**
+ * Kill an client identified by its nick name.
+ *
+ * Please note that after killig a client, its CLIENT cond CONNECTION
+ * structures are invalid. So the caller must make sure on its own not to
+ * access data of probably killed clients after calling this function!
+ *
+ * @param Client The client from which the command leading to the KILL has
+ *		been received, or NULL. The KILL will no be forwarded in this
+ *		direction. Only relevant when From is set, too.
+ * @param From The client from which the command originated, or NULL for
+		the local server.
+ * @param Nick The nick name to kill.
+ * @param Reason Text to send as reason to the client and other servers.
+ */
+GLOBAL bool
+IRC_KillClient(CLIENT *Client, CLIENT *From, const char *Nick, const char *Reason)
+{
+	const char *msg;
+	CONN_ID my_conn, conn;
+	CLIENT *c;
+
+	/* Inform other servers */
+	IRC_WriteStrServersPrefix(From ? Client : NULL,
+				  From ? From : Client_ThisServer(),
+				  "KILL %s :%s", Nick, Reason);
+
+	/* Do we know such a client? */
+	c = Client_Search(Nick);
+	if (!c) {
+		LogDebug("Client with nick \"%s\" is unknown here.", Nick);
+		return CONNECTED;
+	}
+
+	if (Client_Type(c) != CLIENT_USER && Client_Type(c) != CLIENT_GOTNICK) {
+		/* Target of this KILL is not a regular user, this is
+		 * invalid! So we ignore this case if we received a
+		 * regular KILL from the network and try to kill the
+		 * client/connection anyway (but log an error!) if the
+		 * origin is the local server. */
+
+		if (Client != Client_ThisServer()) {
+			/* Invalid KILL received from remote */
+			if (Client_Type(c) == CLIENT_SERVER)
+				msg = ERR_CANTKILLSERVER_MSG;
+			else
+				msg = ERR_NOPRIVILEGES_MSG;
+			return IRC_WriteErrClient(Client, msg, Client_ID(Client));
+		}
+
+		Log(LOG_ERR,
+		    "Got KILL for invalid client type: %d, \"%s\"!",
+		    Client_Type(c), Nick);
+	}
+
+	/* Save ID of this connection */
+	my_conn = Client_Conn(Client);
+
+	/* Kill the client NOW:
+	 *  - Close the local connection (if there is one),
+	 *  - Destroy the CLIENT structure for remote clients.
+	 * Note: Conn_Close() removes the CLIENT structure as well. */
+	conn = Client_Conn(c);
+	if(conn > NONE)
+		Conn_Close(conn, NULL, Reason, true);
+	else
+		Client_Destroy(c, NULL, Reason, false);
+
+	/* Are we still connected or were we killed, too? */
+	if (my_conn > NONE && Conn_GetClient(my_conn))
+		return CONNECTED;
+	else
+		return DISCONNECTED;
+}
 
 /**
  * Send help for a given topic to the client.

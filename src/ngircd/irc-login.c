@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2012 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2013 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,7 +39,6 @@
 #include "exp.h"
 #include "irc-login.h"
 
-static void Kill_Nick PARAMS((char *Nick, char *Reason));
 static void Change_Nick PARAMS((CLIENT * Origin, CLIENT * Target, char *NewNick,
 				bool InformClient));
 
@@ -303,17 +302,21 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 			 * the new nick is already present on this server:
 			 * the new and the old one have to be disconnected now.
 			 */
-			Log( LOG_ERR, "Server %s introduces already registered nick \"%s\"!", Client_ID( Client ), Req->argv[0] );
-			Kill_Nick( Req->argv[0], "Nick collision" );
-			return CONNECTED;
+			Log(LOG_ERR,
+			    "Server %s introduces already registered nick \"%s\"!",
+			    Client_ID(Client), Req->argv[0]);
+			return IRC_KillClient(Client, NULL, Req->argv[0],
+					      "Nick collision");
 		}
 
 		/* Find the Server this client is connected to */
 		intr_c = Client_GetFromToken(Client, token);
 		if (!intr_c) {
-			Log( LOG_ERR, "Server %s introduces nick \"%s\" on unknown server!?", Client_ID( Client ), Req->argv[0] );
-			Kill_Nick( Req->argv[0], "Unknown server" );
-			return CONNECTED;
+			Log(LOG_ERR,
+			    "Server %s introduces nick \"%s\" on unknown server!?",
+			    Client_ID(Client), Req->argv[0]);
+			return IRC_KillClient(Client, NULL, Req->argv[0],
+					      "Unknown server");
 		}
 
 		c = Client_NewRemoteUser(intr_c, nick, hops, user, hostname,
@@ -324,8 +327,8 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 			Log(LOG_ALERT,
 			    "Can't create client structure! (on connection %d)",
 			    Client_Conn(Client));
-			Kill_Nick(Req->argv[0], "Server error");
-			return CONNECTED;
+			return IRC_KillClient(Client, NULL, Req->argv[0],
+					      "Server error");
 		}
 
 		/* RFC 2813: client is now fully registered, inform all the
@@ -536,19 +539,19 @@ IRC_SERVICE(CLIENT *Client, REQUEST *Req)
 	c = Client_Search(nick);
 	if(c) {
 		/* Nickname collision: disconnect (KILL) both clients! */
-		Log(LOG_ERR, "Server %s introduces already registered service \"%s\"!",
+		Log(LOG_ERR,
+		    "Server %s introduces already registered service \"%s\"!",
 		    Client_ID(Client), nick);
-		Kill_Nick(nick, "Nick collision");
-		return CONNECTED;
+		return IRC_KillClient(Client, NULL, nick, "Nick collision");
 	}
 
 	/* Get the server to which the service is connected */
 	intr_c = Client_GetFromToken(Client, token);
 	if (! intr_c) {
-		Log(LOG_ERR, "Server %s introduces service \"%s\" on unknown server!?",
+		Log(LOG_ERR,
+		    "Server %s introduces service \"%s\" on unknown server!?",
 		    Client_ID(Client), nick);
-		Kill_Nick(nick, "Unknown server");
-		return CONNECTED;
+		return IRC_KillClient(Client, NULL, nick, "Unknown server");
 	}
 
 	/* Get user and host name */
@@ -577,10 +580,10 @@ IRC_SERVICE(CLIENT *Client, REQUEST *Req)
 	if (! c) {
 		/* Couldn't create client structure, so KILL the service to
 		 * keep network status consistent ... */
-		Log(LOG_ALERT, "Can't create client structure! (on connection %d)",
+		Log(LOG_ALERT,
+		    "Can't create client structure! (on connection %d)",
 		    Client_Conn(Client));
-		Kill_Nick(nick, "Server error");
-		return CONNECTED;
+		return IRC_KillClient(Client, NULL, nick, "Server error");
 	}
 
 	Client_Introduce(Client, c, CLIENT_SERVICE);
@@ -854,31 +857,6 @@ IRC_PONG(CLIENT *Client, REQUEST *Req)
 
 	return CONNECTED;
 } /* IRC_PONG */
-
-/**
- * Kill all users with a specific nickname in the network.
- *
- * @param Nick Nickname.
- * @param Reason Reason for the KILL.
- */
-static void
-Kill_Nick(char *Nick, char *Reason)
-{
-	REQUEST r;
-
-	assert (Nick != NULL);
-	assert (Reason != NULL);
-
-	r.prefix = NULL;
-	r.argv[0] = Nick;
-	r.argv[1] = Reason;
-	r.argc = 2;
-
-	Log(LOG_ERR, "User(s) with nick \"%s\" will be disconnected: %s!",
-	    Nick, Reason);
-
-	IRC_KILL(Client_ThisServer(), &r);
-} /* Kill_Nick */
 
 /**
  * Change the nickname of a client.

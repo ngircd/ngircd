@@ -11,6 +11,25 @@
 
 ngIRCd 21
 
+  - Actually KILL clients on GLINE/KLINE. (Closes bug #156)
+  - Add support to show all user links using the "STATS L" (uppercase)
+    command (restricted to IRC Operators).
+  - Implement configurable SSL cipher list selection for GnuTLS and OpenSSL
+    using the new configuration option "CipherList". In addition, this
+    changes the defaults to more secure values: "HIGH:!aNULL:@STRENGTH" for
+    OpenSSL, and "SECURE128" for GnuTLS.
+  - Show connection flag "s" (SSL) in RPL_TRACE{LINK|SERVER} messages: now
+    you can check if a server-to-server link is SSL-encrypted or not using
+    the IRC "TRACE" command.
+  - Implement the new configuration option "DefaultUserModes" which lists
+    user modes that become automatically set on new local clients right
+    after login. Please note that only modes can be set that the client
+    could set on itself, so you can't set "a" (away) or "o" (IRC Op),
+    for example! User modes "i" (invisible) or "x" (cloaked) etc. are
+    "interesting", though. (Closes bug #160)
+  - Add support for the new METADATA "account" property, which allows
+    services to automatically identify users after netsplits and across
+    service restarts.
   - Implement a new configuration option "AllowedChannelTypes" that lists
     all allowed channel types (channel prefixes) for newly created channels
     on the local server. By default, all supported channel types are allowed.

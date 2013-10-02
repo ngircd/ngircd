@@ -11,6 +11,45 @@
 
 ngIRCd 21
 
+  - Actually KILL clients on GLINE/KLINE. (Closes bug #156)
+  - Adjust log messages for invalid and spoofed prefixes, which cleans up
+    logging of commands related to already KILL'ed clients. And don't
+    forward KILL commands for (already) unknown clients any more to prevent
+    unnecessary duplicates.
+  - Add support to show all user links using the "STATS L" (uppercase)
+    command (restricted to IRC Operators).
+  - Fixed blocking of server reconnects in some error confitions.
+  - Don't ignore SSL-related errors during startup any more: abort startup
+    when SSL is requested by the configuration but can't be initialized and
+    don't continue only listening on plain text communicaiton ports.
+    (Closes bug #163)
+  - Implement configurable SSL cipher list selection for GnuTLS and OpenSSL
+    using the new configuration option "CipherList". In addition, this
+    changes the defaults to more secure values: "HIGH:!aNULL:@STRENGTH" for
+    OpenSSL, and "SECURE128" for GnuTLS.
+  - Fix "TRACE": Correctly return ERR_NEEDMOREPARAMS(461) (which basically
+    is "syntax error") when there are too many parameters.
+  - Clean up lots of permission and parameter checks in functions handling
+    IRC commands; and more consistently add penalty times on errors.
+  - Fix error numeric of WHOIS when no nick namename has been provided:
+    as per RFC it shoud be ERR_NONICKNAMEGIVEN(431).
+  - Only log "IDENT ... no result" messages when an IDENT looked took place
+    and didn't return any data, not when IDENT has been disabled.
+  - Show connection flag "s" (SSL) in RPL_TRACE{LINK|SERVER} messages: now
+    you can check if a server-to-server link is SSL-encrypted or not using
+    the IRC "TRACE" command.
+  - Correctly discard supplementary groups on server startup.
+  - Save client IP address text for "WebIRC" users and correctly display
+    it on WHOIS, for example. (Closes bug #159)
+  - Implement the new configuration option "DefaultUserModes" which lists
+    user modes that become automatically set on new local clients right
+    after login. Please note that only modes can be set that the client
+    could set on itself, so you can't set "a" (away) or "o" (IRC Op),
+    for example! User modes "i" (invisible) or "x" (cloaked) etc. are
+    "interesting", though. (Closes bug #160)
+  - Add support for the new METADATA "account" property, which allows
+    services to automatically identify users after netsplits and across
+    service restarts.
   - Enforce "penalty times" on error conditions more consistently and in
     more places. Now most error codes sent back from the IRC server to the
     client should result in a 2 second "penalty".
@@ -43,7 +82,8 @@ ngIRCd 21
     into this directory. (Closes bug #157)
   - Fix use-after-free in the Lists_CheckReason() function, which is used
     to check if a client is a member of a particular ban/invite/... list.
-  - Xcode: fix detection of host OS, vendor, and CPU type.
+  - Xcode: fix detection of host OS, vendor, and CPU type, and update
+    project settings for Xcode 5.
   - OS X PackageMaker: use relative path names in project files and package
     with correct file permissions (requires root privileges on "make").
   - Add Travis-CI configuration file (".travis.yml") to project.

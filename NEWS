@@ -9,7 +9,7 @@
                                   -- NEWS --
 
 
-ngIRCd 21
+ngIRCd 21~rc1 (2013-10-05)
 
   - Actually KILL clients on GLINE/KLINE. (Closes bug #156)
   - Add support to show all user links using the "STATS L" (uppercase)

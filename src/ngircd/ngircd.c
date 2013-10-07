@@ -297,7 +297,7 @@ main(int argc, const char *argv[])
 			 PROTOVER, PROTOIRCPLUS, PACKAGE_NAME, PACKAGE_VERSION,
 			 IRCPLUSFLAGS);
 #ifdef ZLIB
-		strcat(NGIRCd_ProtoID, "Z");
+		strlcat(NGIRCd_ProtoID, "Z", sizeof NGIRCd_ProtoID);
 #endif
 		if (Conf_OperCanMode)
 			strcat(NGIRCd_ProtoID, "o");

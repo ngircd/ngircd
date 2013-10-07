@@ -18,10 +18,10 @@ ngIRCd 21~rc1 (2013-10-05)
     unnecessary duplicates.
   - Add support to show all user links using the "STATS L" (uppercase)
     command (restricted to IRC Operators).
-  - Fixed blocking of server reconnects in some error confitions.
+  - Fixed blocking of server reconnects in some error configurations.
   - Don't ignore SSL-related errors during startup any more: abort startup
     when SSL is requested by the configuration but can't be initialized and
-    don't continue only listening on plain text communicaiton ports.
+    don't continue only listening on plain text communication ports.
     (Closes bug #163)
   - Implement configurable SSL cipher list selection for GnuTLS and OpenSSL
     using the new configuration option "CipherList". In addition, this
@@ -31,8 +31,8 @@ ngIRCd 21~rc1 (2013-10-05)
     is "syntax error") when there are too many parameters.
   - Clean up lots of permission and parameter checks in functions handling
     IRC commands; and more consistently add penalty times on errors.
-  - Fix error numeric of WHOIS when no nick namename has been provided:
-    as per RFC it shoud be ERR_NONICKNAMEGIVEN(431).
+  - Fix error numeric of WHOIS when no nick name has been provided:
+    as per RFC it should be ERR_NONICKNAMEGIVEN(431).
   - Only log "IDENT ... no result" messages when an IDENT looked took place
     and didn't return any data, not when IDENT has been disabled.
   - Show connection flag "s" (SSL) in RPL_TRACE{LINK|SERVER} messages: now
@@ -87,7 +87,7 @@ ngIRCd 21~rc1 (2013-10-05)
   - OS X PackageMaker: use relative path names in project files and package
     with correct file permissions (requires root privileges on "make").
   - Add Travis-CI configuration file (".travis.yml") to project.
-  - Look for possible cloaked Masks in Lists. Users with +x usermode can
+  - Look for possible cloaked Masks in Lists. Users with +x user mode can
     be banned with their cloaked hostname now.
   - Don't read SSL client data before DNS resolver is finished which could
     have resulted in discarding the resolved client hostname and IDENT

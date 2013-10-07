@@ -59,7 +59,7 @@ ngIRCd 21~rc1 (2013-10-05)
     If set to the empty string, local clients can't create new channels at
     all, which equals the old "PredefChannelsOnly = yes" setting.
     This change deprecates the "PredefChannelsOnly" variable, too, but it is
-    still supported and translated to the apropriate "AllowedChannelTypes"
+    still supported and translated to the appropriate "AllowedChannelTypes"
     setting. When the old "PredefChannelsOnly" variable is processed, a
     warning message is logged. (Closes bug #152)
   - Add support for "client certificate fingerprinting". When a client
@@ -125,7 +125,7 @@ ngIRCd 21~rc1 (2013-10-05)
     InspIRCd, for example -- but as usual, other numerics are in use, too,
     like 613 in UltimateIRCd ...
     Please note that neither the Operator (+o) not the "bot status" (+B)
-    of an IRC service id displayed in the output.
+    of an IRC service is displayed in the output.
   - Exit message: use singular & plural :-)
   - autogen.sh: Check for autoconf/automake wrapper scripts
   - Add missing punctuation marks in log messages, adjust some severity

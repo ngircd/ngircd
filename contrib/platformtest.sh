@@ -54,6 +54,16 @@ if [ $? -ne 0 ]; then
 	cd ..
 fi
 
+echo "$NAME: Checking for GIT tree ..."
+if [ -d .git ]; then
+	echo "$NAME: Checking for \"git\" command ..."
+	git version >/dev/null 2>&1
+	if [ $? -eq 0 ]; then
+		echo "$NAME: Running \"git clean\" ..."
+		[ -n "$VERBOSE" ] && git clean -dxf || git clean -dxf >/dev/null
+	fi
+fi
+
 echo "$NAME: Checking for \"./configure\" script ..."
 if [ ! -e ./configure ]; then
 	echo "$NAME: Running \"./autogen.sh\" ..."

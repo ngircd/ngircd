@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001-2011 Alexander Barton (alex@barton.de) and Contributors
+# Copyright (c)2001-2013 Alexander Barton (alex@barton.de) and Contributors
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -108,12 +108,16 @@ if [ -r "Makefile" ]; then
 			COMPILER="gcc $COMPILER"
 		fi
 	else
-		case "$CC" in
-		  gcc*)
+		$CC --version 2>&1 | grep -i "LLVM" >/dev/null
+		if [ $? -eq 0 ]; then
+			COMPILER=$($CC --version 2>/dev/null | head -1 \
+			  | cut -d'(' -f1 | sed -e 's/version //g' \
+			  | sed -e 's/Apple /A-/g')
+		fi
+		if [ "$COMPILER" = "unknown" ]; then
 			v="`$CC --version 2>/dev/null | head -1`"
-			[ -n "$v" ] && COMPILER="gcc $v"
-			;;
-		esac
+			[ -n "$v" ] && COMPILER="$v"
+		fi
 	fi
 fi
 

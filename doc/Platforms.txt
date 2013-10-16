@@ -77,6 +77,8 @@ x86_64/apple/darwin12.3.0   gcc 4.2.1    20.2       13-04-01 alex   Y Y Y Y (3)
 x86_64/unknown/freebsd8.1   gcc 4.2.1    20~rc1     12-11-13 alex   Y Y Y Y (3)
 x86_64/unkn./freebsd8.1-gnu gcc 4.4.5    19         12-02-26 alex   Y Y Y Y (3)
 x86_64/unknown/linux-gnu    gcc 4.4.5    20.2       13-04-01 alex   Y Y Y Y (1)
+x86_64/unknown/linux-gnu    Open64       20.3       13-10-16 goetz  Y Y Y Y (1)
+x86_64/unknown/linux-gnu    tcc 0.9.25   20.3       13-10-16 goetz  Y Y Y Y (1)
 x86_64/unknown/openbsd4.7   gcc 3.3.5    20~rc1     12-02-26 alex   Y Y Y Y (3)
 x86_64/unknown/openbsd4.8   gcc 4.2.1    20~rc1     12-11-13 alex   Y Y Y Y (3)
 

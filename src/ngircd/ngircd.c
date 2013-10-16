@@ -613,6 +613,13 @@ NGIRCd_getNobodyID(uid_t *uid, gid_t *gid )
 #endif
 
 
+#ifdef HAVE_ARC4RANDOM
+static void
+Random_Init(void)
+{
+
+}
+#else
 static bool
 Random_Init_Kern(const char *file)
 {
@@ -642,6 +649,7 @@ Random_Init(void)
 		return;
 	srand(rand() ^ (unsigned)getpid() ^ (unsigned)time(NULL));
 }
+#endif
 
 
 /**

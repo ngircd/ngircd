@@ -144,11 +144,16 @@ ngt_RandomStr(char *String, const size_t len)
 	assert(String != NULL);
 
 	gettimeofday(&t, NULL);
+#ifndef HAVE_ARC4RANDOM
 	srand((unsigned)(t.tv_usec * t.tv_sec));
 
 	for (i = 0; i < len; ++i) {
 		String[i] = chars[rand() % (sizeof(chars) - 1)];
 	}
+#else
+	for (i = 0; i < len; ++i)
+		String[i] = chars[arc4random() % (sizeof(chars) - 1)];
+#endif
 	String[len] = '\0';
 
 	return String;

@@ -533,7 +533,11 @@ Conf_UnsetServer( CONN_ID Idx )
 				/* "Short" connection, enforce "ConnectRetry"
 				 * but randomize it a little bit: 15 seconds. */
 				Conf_Server[i].lasttry =
+#ifdef HAVE_ARC4RANDOM
+					t + (arc4random() % 15);
+#else
 					t + rand() / (RAND_MAX / 15);
+#endif
 			}
 		}
 	}

@@ -187,8 +187,9 @@ AC_CHECK_FUNCS([ \
 
 # Optional functions
 AC_CHECK_FUNCS_ONCE([ \
-	gai_strerror getaddrinfo getnameinfo inet_aton sigaction sigprocmask \
-	snprintf vsnprintf strdup strndup strlcpy strlcat strtok_r waitpid])
+	arc4random gai_strerror getaddrinfo getnameinfo inet_aton sigaction \
+	sigprocmask snprintf vsnprintf strdup strndup strlcpy strlcat strtok_r \
+	waitpid])
 
 # -- Configuration options --
 

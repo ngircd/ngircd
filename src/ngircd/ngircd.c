@@ -300,7 +300,7 @@ main(int argc, const char *argv[])
 		strlcat(NGIRCd_ProtoID, "Z", sizeof NGIRCd_ProtoID);
 #endif
 		if (Conf_OperCanMode)
-			strcat(NGIRCd_ProtoID, "o");
+			strlcat(NGIRCd_ProtoID, "o", sizeof NGIRCd_ProtoID);
 #else /* IRCPLUS */
 		snprintf(NGIRCd_ProtoID, sizeof NGIRCd_ProtoID, "%s%s %s|%s",
 			 PROTOVER, PROTOIRC, PACKAGE_NAME, PACKAGE_VERSION);

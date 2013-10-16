@@ -109,6 +109,7 @@ if [ -r "Makefile" ]; then
 	CC=$(grep "^CC = " Makefile | cut -d' ' -f3)
 	$CC --version 2>&1 | grep -i "GCC" >/dev/null
 	if [ $? -eq 0 ]; then
+		# GCC, or compiler that mimics GCC
 		$CC --version 2>&1 | grep -i "Open64" >/dev/null
 		if [ $? -eq 0 ]; then
 			COMPILER="Open64"
@@ -118,14 +119,21 @@ if [ -r "Makefile" ]; then
 			COMPILER="gcc $COMPILER"
 		fi
 	else
+		# Non-GCC compiler
 		$CC --version 2>&1 | grep -i "LLVM" >/dev/null
 		if [ $? -eq 0 ]; then
 			COMPILER=$($CC --version 2>/dev/null | head -1 \
 			  | cut -d'(' -f1 | sed -e 's/version //g' \
 			  | sed -e 's/Apple /A-/g')
 		fi
+		$CC -version 2>&1 | grep -i "tcc" >/dev/null
+		if [ $? -eq 0 ]; then
+			COMPILER=$($CC -version 2>/dev/null | head -1 \
+			  | cut -d'(' -f1 | sed -e 's/version //g')
+		fi
 		if [ "$COMPILER" = "unknown" ]; then
 			v="`$CC --version 2>/dev/null | head -1`"
+			[ -z "$v" ] && v="`$CC -version 2>/dev/null | head -1`"
 			[ -n "$v" ] && COMPILER="$v"
 		fi
 	fi

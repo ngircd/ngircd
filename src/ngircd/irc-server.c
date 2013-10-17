@@ -53,7 +53,7 @@
 GLOBAL bool
 IRC_SERVER( CLIENT *Client, REQUEST *Req )
 {
-	char str[LINE_LEN];
+	char str[100];
 	CLIENT *from, *c;
 	int i;
 

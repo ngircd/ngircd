@@ -1063,7 +1063,7 @@ static void Read_Config_File(const char *File, FILE *fd)
 	/* Read configuration file */
 	section[0] = '\0';
 	while (true) {
-		if (!fgets(str, LINE_LEN, fd))
+		if (!fgets(str, sizeof(str), fd))
 			break;
 		ngt_TrimStr(str);
 		line++;
@@ -1071,6 +1071,12 @@ static void Read_Config_File(const char *File, FILE *fd)
 		/* Skip comments and empty lines */
 		if (str[0] == ';' || str[0] == '#' || str[0] == '\0')
 			continue;
+
+		if (strlen(str) >= sizeof(str) - 1) {
+			Config_Error(LOG_WARNING, "%s, line %d too long!",
+				     File, line);
+			continue;
+		}
 
 		/* Is this the beginning of a new section? */
 		if ((str[0] == '[') && (str[strlen(str) - 1] == ']')) {
@@ -1474,7 +1480,7 @@ Handle_GLOBAL(const char *File, int Line, char *Var, char *Arg )
 		len = strlen(Arg);
 		if (len == 0)
 			return;
-		if (len >= LINE_LEN) {
+		if (len >= 127) {
 			Config_Error_TooLong(File, Line, Var);
 			return;
 		}

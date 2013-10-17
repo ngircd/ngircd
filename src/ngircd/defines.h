@@ -36,7 +36,7 @@
 /* Generic buffer sizes */
 
 /** Max. length of a line in the configuration file. */
-#define LINE_LEN 256
+#define LINE_LEN 1024
 
 /** Max. length of a log message. */
 #define MAX_LOG_MSG_LEN 256

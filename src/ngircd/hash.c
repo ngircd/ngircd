@@ -37,7 +37,7 @@ static UINT32 jenkins_hash PARAMS((UINT8 *k, UINT32 length, UINT32 initval));
 GLOBAL UINT32
 Hash( const char *String )
 {
-	char buffer[LINE_LEN];
+	char buffer[COMMAND_LEN];
 
 	strlcpy(buffer, String, sizeof(buffer));
 	return jenkins_hash((UINT8 *)ngt_LowerStr(buffer),

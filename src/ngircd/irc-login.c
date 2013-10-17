@@ -630,7 +630,7 @@ GLOBAL bool
 IRC_QUIT( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *target;
-	char quitmsg[LINE_LEN];
+	char quitmsg[COMMAND_LEN];
 
 	assert(Client != NULL);
 	assert(Req != NULL);

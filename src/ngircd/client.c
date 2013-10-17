@@ -238,7 +238,7 @@ Client_Destroy( CLIENT *Client, const char *LogMsg, const char *FwdMsg, bool Sen
 	/* remove a client */
 	
 	CLIENT *last, *c;
-	char msg[LINE_LEN];
+	char msg[COMMAND_LEN];
 	const char *txt;
 
 	assert( Client != NULL );

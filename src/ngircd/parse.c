@@ -423,7 +423,7 @@ Handle_Numeric(CLIENT *client, REQUEST *Req)
 		{ 376, IRC_Num_ENDOFMOTD }
 	};
 	int i, num;
-	char str[LINE_LEN];
+	char str[COMMAND_LEN];
 	CLIENT *prefix, *target = NULL;
 
 	/* Determine target */

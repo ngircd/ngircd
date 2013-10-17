@@ -47,7 +47,7 @@ Announce_Channel(CLIENT *Client, CHANNEL *Chan)
 {
 	CL2CHAN *cl2chan;
 	CLIENT *cl;
-	char str[LINE_LEN], *ptr;
+	char str[COMMAND_LEN], *ptr;
 	bool njoin, xop;
 
 	/* Check features of remote server */
@@ -82,7 +82,7 @@ Announce_Channel(CLIENT *Client, CHANNEL *Chan)
 			strlcat(str, Client_ID(cl), sizeof(str));
 
 			/* Send the data if the buffer is "full" */
-			if (strlen(str) > (LINE_LEN - CLIENT_NICK_LEN - 8)) {
+			if (strlen(str) > (sizeof(str) - CLIENT_NICK_LEN - 8)) {
 				if (!IRC_WriteStrClient(Client, "%s", str))
 					return DISCONNECTED;
 				snprintf(str, sizeof(str), "NJOIN %s :",

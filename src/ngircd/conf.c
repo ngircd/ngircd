@@ -216,7 +216,7 @@ ports_puts(array *a)
  * Parse a comma separated string into an array of port numbers (integers).
  */
 static void
-ports_parse(array *a, int Line, char *Arg)
+ports_parse(array *a, const char *File, int Line, char *Arg)
 {
 	char *ptr;
 	int port;
@@ -232,10 +232,10 @@ ports_parse(array *a, int Line, char *Arg)
 			port16 = (UINT16) port;
 			if (!array_catb(a, (char*)&port16, sizeof port16))
 				Config_Error(LOG_ERR, "%s, line %d Could not add port number %ld: %s",
-							NGIRCd_ConfFile, Line, port, strerror(errno));
+					     File, Line, port, strerror(errno));
 		} else {
 			Config_Error( LOG_ERR, "%s, line %d (section \"Global\"): Illegal port number %ld!",
-									NGIRCd_ConfFile, Line, port );
+				     File, Line, port );
 		}
 
 		ptr = strtok( NULL, "," );
@@ -1141,7 +1141,7 @@ static void Read_Config_File(const char *File, FILE *fd)
 
 			Config_Error(LOG_ERR,
 				     "%s, line %d: Unknown section \"%s\"!",
-				     NGIRCd_ConfFile, line, section);
+				     File, line, section);
 			section[0] = 0x1;
 		}
 		if (section[0] == 0x1)
@@ -1151,7 +1151,7 @@ static void Read_Config_File(const char *File, FILE *fd)
 		ptr = strchr(str, '=');
 		if (!ptr) {
 			Config_Error(LOG_ERR, "%s, line %d: Syntax error!",
-				     NGIRCd_ConfFile, line);
+				     File, line);
 			continue;
 		}
 		*ptr = '\0';
@@ -1179,7 +1179,7 @@ static void Read_Config_File(const char *File, FILE *fd)
 		else
 			Config_Error(LOG_ERR,
 				     "%s, line %d: Variable \"%s\" outside section!",
-				     NGIRCd_ConfFile, line, var);
+				     File, line, var);
 	}
 }
 
@@ -1211,7 +1211,7 @@ Check_ArgIsTrue(const char *Arg)
  * @returns	New configured maximum nickname length.
  */
 static unsigned int
-Handle_MaxNickLength(int Line, const char *Arg)
+Handle_MaxNickLength(const char *File, int Line, const char *Arg)
 {
 	unsigned new;
 
@@ -1219,13 +1219,13 @@ Handle_MaxNickLength(int Line, const char *Arg)
 	if (new > CLIENT_NICK_LEN) {
 		Config_Error(LOG_WARNING,
 			     "%s, line %d: Value of \"MaxNickLength\" exceeds %u!",
-			     NGIRCd_ConfFile, Line, CLIENT_NICK_LEN - 1);
+			     File, Line, CLIENT_NICK_LEN - 1);
 		return CLIENT_NICK_LEN;
 	}
 	if (new < 2) {
 		Config_Error(LOG_WARNING,
 			     "%s, line %d: Value of \"MaxNickLength\" must be at least 1!",
-			     NGIRCd_ConfFile, Line);
+			     File, Line);
 		return 2;
 	}
 	return new;
@@ -1235,14 +1235,14 @@ Handle_MaxNickLength(int Line, const char *Arg)
  * Output a warning messages if IDENT is configured but not compiled in.
  */
 static void
-WarnIdent(int UNUSED Line)
+WarnIdent(const char UNUSED *File, int UNUSED Line)
 {
 #ifndef IDENTAUTH
 	if (Conf_Ident) {
 		/* user has enabled ident lookups explicitly, but ... */
 		Config_Error(LOG_WARNING,
 			"%s: line %d: \"Ident = yes\", but ngircd was built without IDENT support!",
-			NGIRCd_ConfFile, Line);
+			File, Line);
 	}
 #endif
 }
@@ -1251,14 +1251,14 @@ WarnIdent(int UNUSED Line)
  * Output a warning messages if IPv6 is configured but not compiled in.
  */
 static void
-WarnIPv6(int UNUSED Line)
+WarnIPv6(const char UNUSED *File, int UNUSED Line)
 {
 #ifndef WANT_IPV6
 	if (Conf_ConnectIPv6) {
 		/* user has enabled IPv6 explicitly, but ... */
 		Config_Error(LOG_WARNING,
 			"%s: line %d: \"ConnectIPv6 = yes\", but ngircd was built without IPv6 support!",
-			NGIRCd_ConfFile, Line);
+			File, Line);
 	}
 #endif
 }
@@ -1267,13 +1267,13 @@ WarnIPv6(int UNUSED Line)
  * Output a warning messages if PAM is configured but not compiled in.
  */
 static void
-WarnPAM(int UNUSED Line)
+WarnPAM(const char UNUSED *File, int UNUSED Line)
 {
 #ifndef PAM
 	if (Conf_PAM) {
 		Config_Error(LOG_WARNING,
 			"%s: line %d: \"PAM = yes\", but ngircd was built without PAM support!",
-			NGIRCd_ConfFile, Line);
+			File, Line);
 	}
 #endif
 }
@@ -1481,7 +1481,7 @@ Handle_GLOBAL(const char *File, int Line, char *Var, char *Arg )
 		if (!array_copyb(&Conf_Motd, Arg, len + 1))
 			Config_Error(LOG_WARNING,
 				     "%s, line %d: Could not append MotdPhrase: %s",
-				     NGIRCd_ConfFile, Line, strerror(errno));
+				     File, Line, strerror(errno));
 		Using_MotdFile = false;
 		return;
 	}
@@ -1498,7 +1498,7 @@ Handle_GLOBAL(const char *File, int Line, char *Var, char *Arg )
 		return;
 	}
 	if (strcasecmp(Var, "Ports") == 0) {
-		ports_parse(&Conf_ListenPorts, Line, Arg);
+		ports_parse(&Conf_ListenPorts, File, Line, Arg);
 		return;
 	}
 	if (strcasecmp(Var, "ServerGID") == 0) {
@@ -1510,7 +1510,7 @@ Handle_GLOBAL(const char *File, int Line, char *Var, char *Arg )
 			if (!Conf_GID && strcmp(Arg, "0"))
 				Config_Error(LOG_WARNING,
 					     "%s, line %d: Value of \"%s\" is not a valid group name or ID!",
-					     NGIRCd_ConfFile, Line, Var);
+					     File, Line, Var);
 		}
 		return;
 	}
@@ -1523,7 +1523,7 @@ Handle_GLOBAL(const char *File, int Line, char *Var, char *Arg )
 			if (!Conf_UID && strcmp(Arg, "0"))
 				Config_Error(LOG_WARNING,
 					     "%s, line %d: Value of \"%s\" is not a valid user name or ID!",
-					     NGIRCd_ConfFile, Line, Var);
+					     File, Line, Var);
 		}
 		return;
 	}
@@ -1534,11 +1534,11 @@ Handle_GLOBAL(const char *File, int Line, char *Var, char *Arg )
 		 * after marking it "deprecated"). */
 		Config_Error(LOG_WARNING,
 			     "%s, line %d (section \"Global\"): \"No\"-Prefix is deprecated, use \"%s = %s\" in [Options] section!",
-			     NGIRCd_ConfFile, Line, NoNo(Var), InvertArg(Arg));
+			     File, Line, NoNo(Var), InvertArg(Arg));
 		if (strcasecmp(Var, "NoIdent") == 0)
-			WarnIdent(Line);
+			WarnIdent(File, Line);
 		else if (strcasecmp(Var, "NoPam") == 0)
-			WarnPAM(Line);
+			WarnPAM(File, Line);
 		return;
 	}
 	if ((section = CheckLegacyGlobalOption(File, Line, Var, Arg))) {
@@ -1548,12 +1548,12 @@ Handle_GLOBAL(const char *File, int Line, char *Var, char *Arg )
 		if (strncasecmp(Var, "SSL", 3) == 0) {
 			Config_Error(LOG_WARNING,
 				     "%s, line %d (section \"Global\"): \"%s\" is deprecated here, move it to %s and rename to \"%s\"!",
-				     NGIRCd_ConfFile, Line, Var, section,
+				     File, Line, Var, section,
 				     Var + 3);
 		} else {
 			Config_Error(LOG_WARNING,
 				     "%s, line %d (section \"Global\"): \"%s\" is deprecated here, move it to %s!",
-				     NGIRCd_ConfFile, Line, Var, section);
+				     File, Line, Var, section);
 		}
 		return;
 	}
@@ -1581,7 +1581,7 @@ Handle_LIMITS(const char *File, int Line, char *Var, char *Arg)
 		if (Conf_ConnectRetry < 5) {
 			Config_Error(LOG_WARNING,
 				     "%s, line %d: Value of \"ConnectRetry\" too low!",
-				     NGIRCd_ConfFile, Line);
+				     File, Line);
 			Conf_ConnectRetry = 5;
 		}
 		return;
@@ -1611,7 +1611,7 @@ Handle_LIMITS(const char *File, int Line, char *Var, char *Arg)
 		return;
 	}
 	if (strcasecmp(Var, "MaxNickLength") == 0) {
-		Conf_MaxNickLength = Handle_MaxNickLength(Line, Arg);
+		Conf_MaxNickLength = Handle_MaxNickLength(File, Line, Arg);
 		return;
 	}
 	if (strcasecmp(Var, "MaxListSize") == 0) {
@@ -1625,7 +1625,7 @@ Handle_LIMITS(const char *File, int Line, char *Var, char *Arg)
 		if (Conf_PingTimeout < 5) {
 			Config_Error(LOG_WARNING,
 				     "%s, line %d: Value of \"PingTimeout\" too low!",
-				     NGIRCd_ConfFile, Line);
+				     File, Line);
 			Conf_PingTimeout = 5;
 		}
 		return;
@@ -1635,7 +1635,7 @@ Handle_LIMITS(const char *File, int Line, char *Var, char *Arg)
 		if (Conf_PongTimeout < 5) {
 			Config_Error(LOG_WARNING,
 				     "%s, line %d: Value of \"PongTimeout\" too low!",
-				     NGIRCd_ConfFile, Line);
+				     File, Line);
 			Conf_PongTimeout = 5;
 		}
 		return;
@@ -1720,7 +1720,7 @@ Handle_OPTIONS(const char *File, int Line, char *Var, char *Arg)
 	}
 	if (strcasecmp(Var, "ConnectIPv6") == 0) {
 		Conf_ConnectIPv6 = Check_ArgIsTrue(Arg);
-		WarnIPv6(Line);
+		WarnIPv6(File, Line);
 		return;
 	}
 	if (strcasecmp(Var, "ConnectIPv4") == 0) {
@@ -1757,7 +1757,7 @@ Handle_OPTIONS(const char *File, int Line, char *Var, char *Arg)
 	}
 	if (strcasecmp(Var, "Ident") == 0) {
 		Conf_Ident = Check_ArgIsTrue(Arg);
-		WarnIdent(Line);
+		WarnIdent(File, Line);
 		return;
 	}
 	if (strcasecmp(Var, "IncludeDir") == 0) {
@@ -1794,7 +1794,7 @@ Handle_OPTIONS(const char *File, int Line, char *Var, char *Arg)
 	}
 	if (strcasecmp(Var, "PAM") == 0) {
 		Conf_PAM = Check_ArgIsTrue(Arg);
-		WarnPAM(Line);
+		WarnPAM(File, Line);
 		return;
 	}
 	if (strcasecmp(Var, "PAMIsOptional") == 0 ) {
@@ -1885,7 +1885,7 @@ Handle_SSL(const char *File, int Line, char *Var, char *Arg)
 		return;
 	}
 	if (strcasecmp(Var, "Ports") == 0) {
-		ports_parse(&Conf_SSLOptions.ListenPorts, Line, Arg);
+		ports_parse(&Conf_SSLOptions.ListenPorts, File, Line, Arg);
 		return;
 	}
 	if (strcasecmp(Var, "CipherList") == 0) {
@@ -1986,15 +1986,15 @@ Handle_SERVER(const char *File, int Line, char *Var, char *Arg )
 			return;
 
 		Config_Error(LOG_ERR, "%s, line %d (section \"Server\"): Can't parse IP address \"%s\"",
-				NGIRCd_ConfFile, Line, Arg);
+			     File, Line, Arg);
 		return;
 	}
 	if( strcasecmp( Var, "MyPassword" ) == 0 ) {
 		/* Password of this server which is sent to the peer */
 		if (*Arg == ':') {
 			Config_Error(LOG_ERR,
-				"%s, line %d (section \"Server\"): MyPassword must not start with ':'!",
-										NGIRCd_ConfFile, Line);
+				     "%s, line %d (section \"Server\"): MyPassword must not start with ':'!",
+				     File, Line);
 		}
 		len = strlcpy( New_Server.pwd_in, Arg, sizeof( New_Server.pwd_in ));
 		if (len >= sizeof( New_Server.pwd_in ))
@@ -2015,8 +2015,8 @@ Handle_SERVER(const char *File, int Line, char *Var, char *Arg )
 			New_Server.port = (UINT16)port;
 		else
 			Config_Error(LOG_ERR,
-				"%s, line %d (section \"Server\"): Illegal port number %ld!",
-				NGIRCd_ConfFile, Line, port );
+				     "%s, line %d (section \"Server\"): Illegal port number %ld!",
+				     File, Line, port );
 		return;
 	}
 #ifdef SSL_SUPPORT

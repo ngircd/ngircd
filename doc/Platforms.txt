@@ -74,8 +74,10 @@ sparc/sun/solaris2.6        gcc 2.95.3   0.7.x-CVS  03-04-22 alex   Y Y Y Y
 sparc/sun/solaris2.7        gcc 3.3      0.8.0      04-05-30 alex   Y Y Y Y
 sparc/unkn./netbsdelf1.6.1  gcc 2.95.3   0.8.0      04-05-30 alex   Y Y Y Y
 x86_64/apple/darwin12.3.0   gcc 4.2.1    20.2       13-04-01 alex   Y Y Y Y (3)
+x86_64/apple/darwin13.0.0   A-clang 5.0  21~rc1     13-10-16 alex   Y Y Y Y (3)
 x86_64/unknown/freebsd8.1   gcc 4.2.1    20~rc1     12-11-13 alex   Y Y Y Y (3)
 x86_64/unkn./freebsd8.1-gnu gcc 4.4.5    19         12-02-26 alex   Y Y Y Y (3)
+x86_64/unknown/linux-gnu    clang 3.2    21~rc1     13-10-16 alex   Y Y Y Y (1)
 x86_64/unknown/linux-gnu    gcc 4.4.5    20.2       13-04-01 alex   Y Y Y Y (1)
 x86_64/unknown/linux-gnu    Open64       20.3       13-10-16 goetz  Y Y Y Y (1)
 x86_64/unknown/linux-gnu    tcc 0.9.25   20.3       13-10-16 goetz  Y Y Y Y (1)

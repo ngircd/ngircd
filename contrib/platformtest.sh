@@ -120,11 +120,12 @@ if [ -r "Makefile" ]; then
 		fi
 	else
 		# Non-GCC compiler
-		$CC --version 2>&1 | grep -i "LLVM" >/dev/null
+		$CC --version 2>&1 | grep -i "clang" >/dev/null
 		if [ $? -eq 0 ]; then
 			COMPILER=$($CC --version 2>/dev/null | head -1 \
-			  | cut -d'(' -f1 | sed -e 's/version //g' \
-			  | sed -e 's/Apple /A-/g')
+			  | cut -d'(' -f1 | cut -d'-' -f1 \
+			  | sed -e 's/version //g' | sed -e 's/Apple /A-/g' \
+			  | sed -e 's/Debian //g' | sed -e 's/LLVM /clang /g')
 		fi
 		$CC -version 2>&1 | grep -i "tcc" >/dev/null
 		if [ $? -eq 0 ]; then

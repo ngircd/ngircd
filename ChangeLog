@@ -9,8 +9,19 @@
                                -- ChangeLog --
 
 
-ngIRCd 21~rc1 (2013-10-05)
+ngIRCd 21~rc2 (2013-10-20)
 
+  - Report the correct configuration file name on configuration errors,
+    support longer configuration lines, and warn when lines are truncated.
+  - Use arc4random() function to generate "random" numbers, when available.
+  - platformtest.sh: Detect clang compiler, and clean up GIT source tree
+    before building (when possible).
+  - Update (date of) manual pages.
+  - Update "Upgrade Information" in INSTALL file, add more systems to
+    doc/Platforms.txt, and fix spelling in NEWS and ChangeLog files =:)
+  - Fix remaining compiler warnings on OpenBSD.
+
+  ngIRCd 21~rc1 (2013-10-05)
   - Actually KILL clients on GLINE/KLINE. (Closes bug #156)
   - Adjust log messages for invalid and spoofed prefixes, which cleans up
     logging of commands related to already KILL'ed clients. And don't

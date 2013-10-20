@@ -9,8 +9,12 @@
                                   -- NEWS --
 
 
-ngIRCd 21~rc1 (2013-10-05)
+ngIRCd 21~rc2 (2013-10-20)
 
+  - Report the correct configuration file name on configuration errors,
+    support longer configuration lines, and warn when lines are truncated.
+
+  ngIRCd 21~rc1 (2013-10-05)
   - Actually KILL clients on GLINE/KLINE. (Closes bug #156)
   - Add support to show all user links using the "STATS L" (uppercase)
     command (restricted to IRC Operators).

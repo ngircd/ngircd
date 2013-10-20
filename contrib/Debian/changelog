@@ -1,3 +1,10 @@
+ngircd (21~rc2-0ab3) unstable; urgency=low
+
+  * Fix sed(1) rules adjusting "ngircd-full" package, error introduced
+    by last commit :-/
+
+ -- Alexander Barton <alex@barton.de>  Sun, 20 Oct 2013 18:31:16 +0200
+
 ngircd (21~rc2-0ab2) unstable; urgency=low
 
   * Fix default "HelpFile" file name in ngircd.conf for "full" packages.

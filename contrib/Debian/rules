@@ -159,8 +159,8 @@ install-ngircd-full: build-ngircd-full
 	 $(CURDIR)/debian/ngircd-full/usr/share/doc/ngircd-full
 	mkdir -p $(CURDIR)/debian/ngircd-full/var/run/ircd
 	cat $(CURDIR)/debian/ngircd-full/usr/share/doc/ngircd-full/sample-ngircd.conf | \
-	 sed -e "s|;ServerUID = 65534/ServerUID = irc/g" | \
-	 sed -e "s|;ServerGID = 65534/ServerGID = irc/g" | \
+	 sed -e "s|;ServerUID = 65534|ServerUID = irc|g" | \
+	 sed -e "s|;ServerGID = 65534|ServerGID = irc|g" | \
 	 sed -e "s|;MotdFile = /usr/local/etc/ngircd.motd|MotdFile = /etc/ngircd/ngircd.motd|g" | \
 	 sed -e "s|;HelpFile = /usr/share/doc/ngircd/Commands.txt|HelpFile = /usr/share/doc/ngircd-full/Commands.txt|g" | \
 	 sed -e "s|;PidFile = /var/run/ngircd/ngircd.pid|PidFile = /var/run/ircd/ngircd.pid|g" \

@@ -151,14 +151,14 @@ esac
 
 # Get IO interface information
 if [ "$OS" = "linux-gnu" ]; then
-	COMMENT="(1)"
+	COMMENT="1"
 else
 	grep "^#define HAVE_SYS_DEVPOLL_H 1" src/config.h >/dev/null 2>&1
-	[ $? -eq 0 ] && COMMENT="(4)"
+	[ $? -eq 0 ] && COMMENT="4"
 	grep "^#define HAVE_EPOLL_CREATE 1" src/config.h >/dev/null 2>&1
-	[ $? -eq 0 ] && COMMENT="(5)"
+	[ $? -eq 0 ] && COMMENT="5"
 	grep "^#define HAVE_KQUEUE 1" src/config.h >/dev/null 2>&1
-	[ $? -eq 0 ] && COMMENT="(3)"
+	[ $? -eq 0 ] && COMMENT="3"
 fi
 
 [ -n "$R_CONFIGURE" ] && C="Y" || C="N"
@@ -168,16 +168,16 @@ fi
 [ -n "$COMMENT" ] && COMMENT=" $COMMENT"
 
 echo
-echo "                              the executable works (\"runs\") as expected --+"
-echo "                                tests run successfully (\"make check\") --+ |"
-echo "                                           ngIRCd compiles (\"make\") --+ | |"
-echo "                                                ./configure works --+ | | |"
-echo "                                                                    | | | |"
-echo "Platform                    Compiler     ngIRCd     Date     Tester C M T R See"
-echo "--------------------------- ------------ ---------- -------- ------ - - - - ---"
+echo "                                the executable works (\"runs\") as expected --+"
+echo "                                  tests run successfully (\"make check\") --+ |"
+echo "                                             ngIRCd compiles (\"make\") --+ | |"
+echo "                                                  ./configure works --+ | | |"
+echo "                                                                      | | | |"
+echo "Platform                    Compiler     ngIRCd     Date     Tester   C M T R *"
+echo "--------------------------- ------------ ---------- -------- -------- - - - - -"
 type printf >/dev/null 2>&1
 if [ $? -eq 0 ]; then
-	printf "%-27s %-12s %-10s %s %-6s %s %s %s %s%s" \
+	printf "%-27s %-12s %-10s %s %-8s %s %s %s %s%s" \
 	 "$PLATFORM" "$COMPILER" "$VERSION" "$DATE" "$USER" \
 	 "$C" "$M" "$T" "$R" "$COMMENT"
 else

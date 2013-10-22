@@ -18,75 +18,75 @@ listed here, please contact Alexander Barton, <alex@barton.de>, so that this
 list can be updated. Thanks for your help!
 
 
-                              the executable works ("runs") as expected --+
-                                tests run successfully ("make check") --+ |
-                                           ngIRCd compiles ("make") --+ | |
-                                                ./configure works --+ | | |
-                                                                    | | | |
-Platform                    Compiler     ngIRCd     Date     Tester C M T R See
---------------------------- ------------ ---------- -------- ------ - - - - ---
-alpha/unknown/netbsd3.0     gcc 3.3.3    CVSHEAD    06-05-07 fw     Y Y Y Y (3)
-armv6l/unkn./linux-gnueabi  gcc 4.7.2    20.2       13-03-08 goetz  Y Y Y Y (5)
-armv7l/unkn./linux-gnueabi  gcc 4.4.3    19.1       12-04-29 goetz  Y Y Y Y (5)
-hppa/unknown/openbsd3.5     gcc 2.95.3   CVSHEAD    04-05-25 alex   Y Y Y Y
-hppa1.1/unknown/linux-gnu   gcc 3.3.3    0.8.0      04-05-30 alex   Y Y Y Y
-hppa2.0/unknown/linux-gnu   gcc 3.3.5    13~rc1     08-12-02 alex   Y Y Y Y
-hppa2.0w-hp-hpux11.11       gcc 4.2.3    14.1       09-07-22 goetz  Y Y Y Y
-i386/apple/darwin9.7.0      gcc 4.0.1    14.1       09-08-04 alex   Y Y Y Y (3)
-i386/apple/darwin10.8.0     gcc 4.2.1    19         12-02-26 alex   Y Y Y Y (3)
-i386/apple/darwin11.3.0     gcc 4.2.1    19         12-02-26 alex   Y Y Y Y (3)
-i386/pc/solaris2.9          gcc 3.2.2    CVSHEAD    04-02-24 alex   Y Y Y Y
-i386/pc/solaris2.11         gcc 3.4.3    19         12-02-26 alex   Y Y N Y (4)
-i386/pc/solaris2.11         gcc 4.2.3    19.1       12-05-29 goetz  Y Y Y Y (4)
-i386/unknown/freebsd5.2.1   gcc 3.3.3    0.8.0      04-05-30 alex   Y Y Y Y
-i386/unknown/freebsd6.2     gcc 3.4.6    20~rc1     12-11-13 alex   Y Y Y Y (3)
-i386/unknown/freebsd7.3     gcc 4.2.1    20~rc1     12-11-13 alex   Y Y Y Y (3)
-i686/unknown/gnu0.3         gcc 4.4.5    19         12-02-29 alex   Y Y Y Y
-i686/unkn./kfreebsd7.2-gnu  gcc 4.3.4    15         09-12-02 alex   Y Y Y Y (3)
-i386/unknown/netbsdelf1.6.2 gcc 2.95.3   18         11-07-10 goetz  Y Y Y Y
-i386/unknown/netbsdelf3.0.1 gcc 3.3.3    0.10.0-p1  06-08-30 alex   Y Y Y Y (3)
-i386/unknown/netbsdelf4.0   gcc 4.1.2    19         12-02-29 alex   Y Y Y Y (3)
-i386/unknown/netbsdelf5.0.2 gcc 4.1.3    19         12-02-26 alex   Y Y Y Y (3)
-i386/unknown/openbsd3.9     gcc 3.3.5    0.10.0-p1  06-08-30 alex   Y Y Y Y (3)
-i386/unknown/openbsd4.1     gcc 3.3.5    16         10-04-11 alex   Y Y Y Y (3)
-i586/pc/haiku               gcc 2.95.3   19.2~138   12-10-11 user   Y Y N N
-i586/pc/interix3.5          gcc 3.3      19         12-02-29 alex   Y Y N Y
-i686/pc/cygwin              gcc 3.3.1    0.8.0      04-05-30 alex   Y Y N Y
-i686/pc/linux-gnu           gcc 2.7.2    19.1       12-05-30 goetz  Y Y Y Y (1)
-i686/pc/linux-gnu           gcc 2.95.4   0.8.0      04-05-30 alex   Y Y Y Y (1)
-i686/pc/linux-gnu           gcc 3.3.5    14.1       09-08-04 alex   Y Y Y Y (1)
-i386/pc/linux-gnu           gcc 4.1.2    13~rc1     08-12-05 alex   Y Y Y Y (1)
-i686/pc/linux-gnu           gcc 4.3.2    14.1       09-08-04 alex   Y Y Y Y (1)
-m68k/apple/aux3.0.1         gcc 2.7.2    17         10-11-07 alex   Y Y N Y
-m68k/apple/aux3.0.1         Orig. A/UX   17         10-11-07 alex   Y Y N Y (2)
-m68k/apple/aux3.1.1         gcc 2.7.2    19         12-02-26 alex   Y Y N Y
-m68k/apple/aux3.1.1         Orig. A/UX   19         12-02-26 alex   Y Y N Y (2)
-m68k/hp/hp-ux9.10           Orig. HPUX   0.7.x-CVS  03-04-30 goetz  Y Y Y Y
-m88k/dg/dgux5.4R3.10        gcc 2.5.8    CVSHEAD    04-03-15 alex   Y Y ? ?
-mipsel/unknown/linux-gnu    gcc 4.1.2    18         11-07-05 goetz  Y Y N Y (1)
-mipsel/unknown/linux-gnu    gcc 4.4.5    18         11-07-30 goetz  Y Y Y Y (1)
-powerpc/apple/darwin6.5     gcc 3.1      0.7.x-CVS  03-04-23 alex   Y Y Y Y
-powerpc/apple/darwin7.9.0   gcc 3.3      19.1       12-05-22 goetz  Y Y Y Y (3)
-powerpc/apple/darwin8.11.0  gcc 4.0.1    18         11-07-02 goetz  Y Y Y Y (3)
-powerpc/unknown/linux-gnu   gcc 3.3.3    0.8.0      04-05-30 alex   Y Y Y Y
-powerpc/unknown/openbsd3.6  gcc 2.95.3   0.10.0     06-10-08 alex   Y Y N Y
-sparc/sun/solaris2.6        gcc 2.95.3   0.7.x-CVS  03-04-22 alex   Y Y Y Y
-sparc/sun/solaris2.7        gcc 3.3      0.8.0      04-05-30 alex   Y Y Y Y
-sparc/unkn./netbsdelf1.6.1  gcc 2.95.3   0.8.0      04-05-30 alex   Y Y Y Y
-x86_64/apple/darwin12.3.0   gcc 4.2.1    20.2       13-04-01 alex   Y Y Y Y (3)
-x86_64/apple/darwin13.0.0   A-clang 5.0  21~rc1     13-10-16 alex   Y Y Y Y (3)
-x86_64/unknown/freebsd8.1   gcc 4.2.1    20~rc1     12-11-13 alex   Y Y Y Y (3)
-x86_64/unkn./freebsd8.1-gnu gcc 4.4.5    19         12-02-26 alex   Y Y Y Y (3)
-x86_64/unknown/linux-gnu    clang 3.2    21~rc1     13-10-16 alex   Y Y Y Y (1)
-x86_64/unknown/linux-gnu    gcc 4.4.5    20.2       13-04-01 alex   Y Y Y Y (1)
-x86_64/unknown/linux-gnu    Open64       20.3       13-10-16 goetz  Y Y Y Y (1)
-x86_64/unknown/linux-gnu    tcc 0.9.25   20.3       13-10-16 goetz  Y Y Y Y (1)
-x86_64/unknown/openbsd4.7   gcc 3.3.5    20~rc1     12-02-26 alex   Y Y Y Y (3)
-x86_64/unknown/openbsd4.8   gcc 4.2.1    20~rc1     12-11-13 alex   Y Y Y Y (3)
+                                the executable works ("runs") as expected --+
+                                  tests run successfully ("make check") --+ |
+                                             ngIRCd compiles ("make") --+ | |
+                                                  ./configure works --+ | | |
+                                                                      | | | |
+Platform                    Compiler     ngIRCd     Date     Tester   C M T R *
+--------------------------- ------------ ---------- -------- -------- - - - - -
+alpha/unknown/netbsd3.0     gcc 3.3.3    CVSHEAD    06-05-07 fw       Y Y Y Y 3
+armv6l/unkn./linux-gnueabi  gcc 4.7.2    20.2       13-03-08 goetz    Y Y Y Y 5
+armv7l/unkn./linux-gnueabi  gcc 4.4.3    19.1       12-04-29 goetz    Y Y Y Y 5
+hppa/unknown/openbsd3.5     gcc 2.95.3   CVSHEAD    04-05-25 alex     Y Y Y Y
+hppa1.1/unknown/linux-gnu   gcc 3.3.3    0.8.0      04-05-30 alex     Y Y Y Y
+hppa2.0/unknown/linux-gnu   gcc 3.3.5    13~rc1     08-12-02 alex     Y Y Y Y
+hppa2.0w-hp-hpux11.11       gcc 4.2.3    14.1       09-07-22 goetz    Y Y Y Y
+i386/apple/darwin9.7.0      gcc 4.0.1    14.1       09-08-04 alex     Y Y Y Y 3
+i386/apple/darwin10.8.0     gcc 4.2.1    19         12-02-26 alex     Y Y Y Y 3
+i386/apple/darwin11.3.0     gcc 4.2.1    19         12-02-26 alex     Y Y Y Y 3
+i386/pc/solaris2.9          gcc 3.2.2    CVSHEAD    04-02-24 alex     Y Y Y Y
+i386/pc/solaris2.11         gcc 3.4.3    19         12-02-26 alex     Y Y N Y 4
+i386/pc/solaris2.11         gcc 4.2.3    19.1       12-05-29 goetz    Y Y Y Y 4
+i386/unknown/freebsd5.2.1   gcc 3.3.3    0.8.0      04-05-30 alex     Y Y Y Y
+i386/unknown/freebsd6.2     gcc 3.4.6    20~rc1     12-11-13 alex     Y Y Y Y 3
+i386/unknown/freebsd7.3     gcc 4.2.1    20~rc1     12-11-13 alex     Y Y Y Y 3
+i686/unknown/gnu0.3         gcc 4.4.5    19         12-02-29 alex     Y Y Y Y
+i686/unkn./kfreebsd7.2-gnu  gcc 4.3.4    15         09-12-02 alex     Y Y Y Y 3
+i386/unknown/netbsdelf1.6.2 gcc 2.95.3   18         11-07-10 goetz    Y Y Y Y
+i386/unknown/netbsdelf3.0.1 gcc 3.3.3    0.10.0-p1  06-08-30 alex     Y Y Y Y 3
+i386/unknown/netbsdelf4.0   gcc 4.1.2    19         12-02-29 alex     Y Y Y Y 3
+i386/unknown/netbsdelf5.0.2 gcc 4.1.3    19         12-02-26 alex     Y Y Y Y 3
+i386/unknown/openbsd3.9     gcc 3.3.5    0.10.0-p1  06-08-30 alex     Y Y Y Y 3
+i386/unknown/openbsd4.1     gcc 3.3.5    16         10-04-11 alex     Y Y Y Y 3
+i586/pc/haiku               gcc 2.95.3   19.2~138   12-10-11 user     Y Y N N
+i586/pc/interix3.5          gcc 3.3      19         12-02-29 alex     Y Y N Y
+i686/pc/cygwin              gcc 3.3.1    0.8.0      04-05-30 alex     Y Y N Y
+i686/pc/linux-gnu           gcc 2.7.2    19.1       12-05-30 goetz    Y Y Y Y 1
+i686/pc/linux-gnu           gcc 2.95.4   0.8.0      04-05-30 alex     Y Y Y Y 1
+i686/pc/linux-gnu           gcc 3.3.5    14.1       09-08-04 alex     Y Y Y Y 1
+i386/pc/linux-gnu           gcc 4.1.2    13~rc1     08-12-05 alex     Y Y Y Y 1
+i686/pc/linux-gnu           gcc 4.3.2    14.1       09-08-04 alex     Y Y Y Y 1
+m68k/apple/aux3.0.1         gcc 2.7.2    17         10-11-07 alex     Y Y N Y
+m68k/apple/aux3.0.1         Orig. A/UX   17         10-11-07 alex     Y Y N Y 2
+m68k/apple/aux3.1.1         gcc 2.7.2    19         12-02-26 alex     Y Y N Y
+m68k/apple/aux3.1.1         Orig. A/UX   19         12-02-26 alex     Y Y N Y 2
+m68k/hp/hp-ux9.10           Orig. HPUX   0.7.x-CVS  03-04-30 goetz    Y Y Y Y
+m88k/dg/dgux5.4R3.10        gcc 2.5.8    CVSHEAD    04-03-15 alex     Y Y ? ?
+mipsel/unknown/linux-gnu    gcc 4.1.2    18         11-07-05 goetz    Y Y N Y 1
+mipsel/unknown/linux-gnu    gcc 4.4.5    18         11-07-30 goetz    Y Y Y Y 1
+powerpc/apple/darwin6.5     gcc 3.1      0.7.x-CVS  03-04-23 alex     Y Y Y Y
+powerpc/apple/darwin7.9.0   gcc 3.3      19.1       12-05-22 goetz    Y Y Y Y 3
+powerpc/apple/darwin8.11.0  gcc 4.0.1    18         11-07-02 goetz    Y Y Y Y 3
+powerpc/unknown/linux-gnu   gcc 3.3.3    0.8.0      04-05-30 alex     Y Y Y Y
+powerpc/unknown/openbsd3.6  gcc 2.95.3   0.10.0     06-10-08 alex     Y Y N Y
+sparc/sun/solaris2.6        gcc 2.95.3   0.7.x-CVS  03-04-22 alex     Y Y Y Y
+sparc/sun/solaris2.7        gcc 3.3      0.8.0      04-05-30 alex     Y Y Y Y
+sparc/unkn./netbsdelf1.6.1  gcc 2.95.3   0.8.0      04-05-30 alex     Y Y Y Y
+x86_64/apple/darwin12.3.0   gcc 4.2.1    20.2       13-04-01 alex     Y Y Y Y 3
+x86_64/apple/darwin13.0.0   A-clang 5.0  21~rc1     13-10-16 alex     Y Y Y Y 3
+x86_64/unknown/freebsd8.1   gcc 4.2.1    20~rc1     12-11-13 alex     Y Y Y Y 3
+x86_64/unkn./freebsd8.1-gnu gcc 4.4.5    19         12-02-26 alex     Y Y Y Y 3
+x86_64/unknown/linux-gnu    clang 3.2    21~rc1     13-10-16 alex     Y Y Y Y 1
+x86_64/unknown/linux-gnu    gcc 4.4.5    20.2       13-04-01 alex     Y Y Y Y 1
+x86_64/unknown/linux-gnu    Open64       20.3       13-10-16 goetz    Y Y Y Y 1
+x86_64/unknown/linux-gnu    tcc 0.9.25   20.3       13-10-16 goetz    Y Y Y Y 1
+x86_64/unknown/openbsd4.7   gcc 3.3.5    20~rc1     12-02-26 alex     Y Y Y Y 3
+x86_64/unknown/openbsd4.8   gcc 4.2.1    20~rc1     12-11-13 alex     Y Y Y Y 3
 
 
-Notes
-~~~~~
+* Notes
+~~~~~~~
 
 (1) */*/linux-gnu (Linux platforms):
     ngIRCd has been tested with various Linux distributions, such as SuSE,

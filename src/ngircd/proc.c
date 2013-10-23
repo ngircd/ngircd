@@ -77,6 +77,9 @@ Proc_Fork(PROC_STAT *proc, int *pipefds, void (*cbfunc)(int, short), int timeout
 		return -1;
 	case 0:
 		/* New child process: */
+#ifdef HAVE_ARC4RANDOM_STIR
+		arc4random_stir();
+#endif
 #ifndef HAVE_ARC4RANDOM
 		srand(seed ^ (unsigned int)time(NULL) ^ getpid());
 #endif

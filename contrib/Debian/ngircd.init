@@ -84,6 +84,7 @@ Do_Start() {
 		log_warning_msg "$NAME seems to be already running, nothing to do."
 		exit 0
 	fi
+	rm -f "$PIDFILE"
 	start-stop-daemon --start \
 		--quiet --exec $DAEMON -- $PARAMS
 	sleep $STARTTIME

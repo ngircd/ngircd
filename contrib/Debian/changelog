@@ -1,3 +1,9 @@
+ngircd (21-0ab1) unstable; urgency=low
+
+  * New "upstream" release: ngIRCd 21.
+
+ -- Alexander Barton <alex@barton.de>  Wed, 30 Oct 2013 22:13:55 +0100
+
 ngircd (21~rc2-0ab3) unstable; urgency=low
 
   * Fix sed(1) rules adjusting "ngircd-full" package, error introduced

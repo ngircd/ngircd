@@ -374,7 +374,7 @@ ngIRCd 20 (2012-12-17)
     the hash function. When "CloakHostSalt" is not set (the default), a
     random salt will be generated after each server restart. (Closes #133)
 
-ngIRCd Release 19.2 (2012-06-19)
+ngIRCd 19.2 (2012-06-19)
 
   - doc/Capabilities.txt: document "multi-prefix" capability
 
@@ -404,7 +404,7 @@ ngIRCd Release 19.2 (2012-06-19)
   - Fix: Don't ignore "permission denied" errors when enabling chroot.
   - FAQ: enhance description of chroot setup.
 
-ngIRCd Release 19.1 (2012-03-19)
+ngIRCd 19.1 (2012-03-19)
 
   - Fix gcc warning (v4.6.3), initialize "list" variable to NULL.
   - Fix typos: "recieved" -> "received", "Please not" -> "Please note",
@@ -414,7 +414,7 @@ ngIRCd Release 19.1 (2012-03-19)
   - getpid.sh: Fix test case error for Debian using sbuild(1).
   - Don't log "ngIRCd hello message" two times when starting up.
 
-ngIRCd Release 19 (2012-02-29)
+ngIRCd 19 (2012-02-29)
 
   - Update build system: bump config.guess and config.sub files used by
     GNU autoconf/automake to recent versions.
@@ -564,7 +564,7 @@ ngIRCd Release 19 (2012-02-29)
     asynchronous nature of the IRC protocol. So don't break server-
     links, only log a message and ignore the command. (Closes #113)
 
-ngIRCd Release 18 (2011-07-10)
+ngIRCd 18 (2011-07-10)
 
   - Update timestamp of ngircd(8) manual page.
   - Add preliminary ngIRCd protocol module for Anope 1.9 to contrib/Anope/.
@@ -674,7 +674,7 @@ ngIRCd Release 18 (2011-07-10)
     only relevant when a trusted server on a server-server link sends invalid
     commands).
 
-ngIRCd Release 17.1 (2010-12-19)
+ngIRCd 17.1 (2010-12-19)
 
   - --configtest: remember if MOTD is configured by file or phrase
   - Enhance log messages when establishing server links a little bit
@@ -690,7 +690,7 @@ ngIRCd Release 17.1 (2010-12-19)
   - New numeric 329: get channel creation time on "MODE #chan" commands
   - Save channel creation time; new function Channel_CreationTime()
 
-ngIRCd Release 17 (2010-11-07)
+ngIRCd 17 (2010-11-07)
 
   - doc: change path names in sample-ngircd.conf depending on sysconfdir
   - Fix up generation and distribution of sample-ngircd.conf
@@ -771,7 +771,7 @@ ngIRCd Release 17 (2010-11-07)
   - Fix "beeing" typo ...
   - SSL/TLS: fix bogus "socket closed" error message.
 
-ngIRCd Release 16 (2010-05-02)
+ngIRCd 16 (2010-05-02)
 
   - doc/SSL: remove line continuation marker
 
@@ -811,7 +811,7 @@ ngIRCd Release 16 (2010-05-02)
     every channel, and c) remote clients using a server not supporting this
     mode are not checked either and therefore always allowed to join.
 
-ngIRCd Release 15 (2009-11-07)
+ngIRCd 15 (2009-11-07)
 
   - "ngircd --configtest": print SSL configuration options even when unset.
 
@@ -837,7 +837,7 @@ ngIRCd Release 15 (2009-11-07)
   - Fix a few error handling glitches for SSL/TLS connections.
   - Minor fixes to manual pages and documentation.
 
-ngIRCd Release 14.1 (2009-05-05)
+ngIRCd 14.1 (2009-05-05)
 
   - Security: fix remotely triggerable crash in SSL/TLS code.
   - BSD start script contrib/ngircd.sh has been renamed to ngircd-bsd.sh.
@@ -850,7 +850,7 @@ ngIRCd Release 14.1 (2009-05-05)
   - Fix server list announcement.
   - Do not remove host names from info text.
 
-ngIRCd Release 14 (2009-04-20)
+ngIRCd 14 (2009-04-20)
 
   - Display IPv6 addresses as "[<addr>]" when accepting connections.
 
@@ -874,7 +874,7 @@ ngIRCd Release 14 (2009-04-20)
   - Fix handling of channels containing dots.
     (closes ug #93, reported by Gonosz Csiga)
 
-ngIRCd Release 13 (2008-12-25)
+ngIRCd 13 (2008-12-25)
 
   - Updated documentation, especially doc/Services.txt and doc/SSL.txt.
   - Make the test suite work on OpenSolaris.
@@ -1305,7 +1305,7 @@ ngIRCd 0.7.0 (2003-05-01)
   - Documentation is now installed in $(datadir)/doc/ngircd.
   - Enhanced handling of NJOIN in case of nick collisions.
 
-ngIRCd 0.6.1, 2003-01-21
+ngIRCd 0.6.1 (2003-01-21)
 
   - Fixed KILL: you can't crash the server by killing yourself any more,
     ngIRCd no longer sends a QUIT to other servers after the KILL, and you
@@ -1326,15 +1326,15 @@ ngIRCd 0.6.1, 2003-01-21
 
 Older changes (sorry, only available in german language):
 
-ngIRCd 0.6.0, 2002-12-24
+ngIRCd 0.6.0, 24.12.2002
 
-  ngIRCd 0.6.0-pre2, 2002-12-23
+  ngIRCd 0.6.0-pre2, 23.12.2002
   - neuer Numeric 005 ("Features") beim Connect.
   - LUSERS erweitert: nun wird die maximale Anzahl der lokalen und globalen
     Clients, die dem Server bzw. im Netzwerk seit dem letzten (Re-)Start
     dem Server gleichzeitig bekannt waren, angezeigt.
 
-  ngIRCd 0.6.0-pre1, 2002-12-18
+  ngIRCd 0.6.0-pre1, 18.12.2002
   - beim Schliessen einer Verbindung zeigt der Server nun vor dem ERROR
     noch eine Statistik ueber die empfangene und gesendete Datenmenge an.
   - der Server wartet bei einer eingehenden Verbindung nun laenger auf den

@@ -197,7 +197,7 @@ ngIRCd 20 (2012-12-17)
     the hash function. When "CloakHostSalt" is not set (the default), a
     random salt will be generated after each server restart.
 
-ngIRCd Release 19.2 (2012-06-19)
+ngIRCd 19.2 (2012-06-19)
 
   ngIRCd 19.2~rc1 (2012-06-13)
   - New configuration option "CloakHostModeX" to configure the hostname
@@ -209,12 +209,12 @@ ngIRCd Release 19.2 (2012-06-19)
     and capablity "multi-prefix" which allows both the NAME and	WHO command
     handlers to return more than one "class prefix" to the client.
 
-ngIRCd Release 19.1 (2012-03-19)
+ngIRCd 19.1 (2012-03-19)
 
   - Really include _all_ patches to build the Anope module into the
     distribution archive ... ooops!
 
-ngIRCd Release 19 (2012-02-29)
+ngIRCd 19 (2012-02-29)
 
   ngIRCd 19~rc1 (2012-02-12)
   - Update preliminary ngIRCd protocol module for Anope 1.9.6, which now
@@ -282,7 +282,7 @@ ngIRCd Release 19 (2012-02-29)
     argument. Like unknown user and channel modes, these modes are saved
     and forwarded to other servers, but ignored otherwise.
 
-ngIRCd Release 18 (2011-07-10)
+ngIRCd 18 (2011-07-10)
 
   - Add preliminary ngIRCd protocol module for Anope 1.9 to contrib/Anope/.
 
@@ -357,13 +357,13 @@ ngIRCd Release 18 (2011-07-10)
     vice-versa). The defaults are adjusted accordingly and the old variables
     in [Global] are still accepted, so there is no functional change.
 
-ngIRCd Release 17.1 (2010-12-19)
+ngIRCd 17.1 (2010-12-19)
 
   - Don't log critical (or worse) messages to stderr
   - Remove "error file" when compiled with debug code enabled
   - New numeric 329: get channel creation time on "MODE #chan" commands
 
-ngIRCd Release 17 (2010-11-07)
+ngIRCd 17 (2010-11-07)
 
   - doc: change path names in sample-ngircd.conf depending on sysconfdir
 
@@ -401,7 +401,7 @@ ngIRCd Release 17 (2010-11-07)
     this new mode requires the user to be an IRC operator.
   - Show SSL status in WHOIS output, numeric 275.
 
-ngIRCd Release 16 (2010-05-02)
+ngIRCd 16 (2010-05-02)
 
   ngIRCd 16~rc2 (2010-04-25)
   - Enhace connection statistics counters: display total number of served
@@ -421,7 +421,7 @@ ngIRCd Release 16 (2010-05-02)
     every channel, and c) remote clients using a server not supporting this
     mode are not checked either and therefore always allowed to join.
 
-ngIRCd Release 15 (2009-11-07)
+ngIRCd 15 (2009-11-07)
 
   ngIRCd 15~rc1 (2009-10-15)
   - Do not add default listening port (6667) if SSL ports were specified, so
@@ -435,13 +435,13 @@ ngIRCd Release 15 (2009-11-07)
     a throttling scheme: an IRC client can send up to 3 commands or 256 bytes
     per second before a one second pause is enforced.
 
-ngIRCd Release 14.1 (2009-05-05)
+ngIRCd 14.1 (2009-05-05)
 
   - Security: fix remotely triggerable crash in SSL/TLS code.
   - Debian: build ngircd-full-dbg package.
   - Allow ping timeout quit messages to show the timeout value.
 
-ngIRCd Release 14 (2009-04-20)
+ngIRCd 14 (2009-04-20)
 
   ngIRCd 14~rc1 (2009-03-29)
   - Allow creation of persistent modeless channels.
@@ -452,7 +452,7 @@ ngIRCd Release 14 (2009-04-20)
     individual channel keys for different users.
   - Remove limit on maximum number of predefined channels in ngircd.conf.
 
-ngIRCd Release 13 (2008-12-25)
+ngIRCd 13 (2008-12-25)
 
   ngIRCd 13~rc1 (2008-11-21):
   - New version number scheme :-)
@@ -611,7 +611,7 @@ ngIRCd 0.7.0 (2003-05-01)
 
 Older news (sorry, only available in german language):
 
-ngIRCd 0.6.0, 2002-12-24
+ngIRCd 0.6.0, 24.12.2002
 
   - beim Schliessen einer Verbindung zeigt der Server nun vor dem ERROR
     noch eine Statistik ueber die empfangene und gesendete Datenmenge an.

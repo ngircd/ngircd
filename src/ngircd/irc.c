@@ -478,9 +478,7 @@ Option_String(UNUSED CONN_ID Idx)
 #endif
 {
 	static char option_txt[8];
-#ifdef ZLIB
 	UINT16 options;
-#endif
 
 	assert(Idx != NONE);
 

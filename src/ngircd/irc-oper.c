@@ -50,7 +50,8 @@ Bad_OperPass(CLIENT *Client, char *errtoken, char *errmsg)
 {
 	Log(LOG_WARNING, "Got invalid OPER from \"%s\": \"%s\" -- %s",
 	    Client_Mask(Client), errtoken, errmsg);
-	return IRC_WriteErrClient(Client, ERR_PASSWDMISMATCH_MSG,
+	IRC_SetPenalty(Client, 10);
+	return IRC_WriteStrClient(Client, ERR_PASSWDMISMATCH_MSG,
 				  Client_ID(Client));
 } /* Bad_OperPass */
 

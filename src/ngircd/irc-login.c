@@ -80,7 +80,6 @@ IRC_PASS( CLIENT *Client, REQUEST *Req )
 	} else if (Client_Type(Client) == CLIENT_UNKNOWN ||
 		   Client_Type(Client) == CLIENT_UNKNOWNSERVER) {
 		/* Unregistered connection, but wrong number of arguments: */
-		IRC_SetPenalty(Client, 2);
 		return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 					  Client_ID(Client), Req->command);
 	} else {
@@ -274,11 +273,9 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 		/* Server or service introduces new client */
 
 		/* Bad number of parameters? */
-		if (Req->argc != 2 && Req->argc != 7) {
-			IRC_SetPenalty(Client, 2);
+		if (Req->argc != 2 && Req->argc != 7)
 			return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 						  Client_ID(Client), Req->command);
-		}
 
 		if (Req->argc >= 7) {
 			/* RFC 2813 compatible syntax */
@@ -375,10 +372,9 @@ IRC_SVSNICK(CLIENT *Client, REQUEST *Req)
 
 	/* Search the target */
 	target = Client_Search(Req->argv[0]);
-	if (!target || Client_Type(target) != CLIENT_USER) {
+	if (!target || Client_Type(target) != CLIENT_USER)
 		return IRC_WriteErrClient(Client, ERR_NOSUCHNICK_MSG,
 					  Client_ID(Client), Req->argv[0]);
-	}
 
 	if (Client_Conn(target) <= NONE) {
 		/* We have to forward the message to the server handling

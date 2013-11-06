@@ -72,12 +72,10 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 		LogDebug("Connection %d: got SERVER command (new server link) ...",
 			Client_Conn(Client));
 
-		if (Req->argc != 2 && Req->argc != 3) {
-			IRC_SetPenalty(Client, 2);
+		if (Req->argc != 2 && Req->argc != 3)
 			return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 						  Client_ID(Client),
 						  Req->command);
-		}
 
 		/* Get configuration index of new remote server ... */
 		for (i = 0; i < MAX_SERVERS; i++)
@@ -185,11 +183,9 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 	{
 		/* New server is being introduced to the network */
 
-		if (Req->argc != 4) {
-			IRC_SetPenalty(Client, 2);
+		if (Req->argc != 4)
 			return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 						  Client_ID(Client), Req->command);
-		}
 
 		/* check for existing server with same ID */
 		if (!Client_CheckID(Client, Req->argv[0]))
@@ -235,11 +231,9 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 					  Client_MyToken(c), Client_Info(c));
 
 		return CONNECTED;
-	} else {
-		IRC_SetPenalty(Client, 2);
+	} else
 		return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 					  Client_ID(Client), Req->command);
-	}
 } /* IRC_SERVER */
 
 /*

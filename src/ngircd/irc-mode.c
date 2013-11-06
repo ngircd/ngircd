@@ -613,7 +613,6 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 #ifdef STRICT_RFC
 				/* Only send error message in "strict" mode,
 				 * this is how ircd2.11 and others behave ... */
-				IRC_SetPenalty(Origin, 2);
 				connected = IRC_WriteErrClient(Origin,
 					ERR_NEEDMOREPARAMS_MSG,
 					Client_ID(Origin), Req->command);
@@ -658,7 +657,6 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 #ifdef STRICT_RFC
 				/* Only send error message in "strict" mode,
 				 * this is how ircd2.11 and others behave ... */
-				IRC_SetPenalty(Origin, 2);
 				connected = IRC_WriteErrClient(Origin,
 					ERR_NEEDMOREPARAMS_MSG,
 					Client_ID(Origin), Req->command);
@@ -760,7 +758,6 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 				 * mode, because most other servers don't do
 				 * it as well and some clients send "wired"
 				 * MODE commands like "MODE #chan -ooo nick". */
-				IRC_SetPenalty(Origin, 2);
 				connected = IRC_WriteErrClient(Origin,
 					ERR_NEEDMOREPARAMS_MSG,
 					Client_ID(Origin), Req->command);

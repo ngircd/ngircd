@@ -25,8 +25,7 @@
  */
 #define _IRC_ARGC_EQ_OR_RETURN_(Client, Req, Count) \
 if (Req->argc != Count) { \
-	IRC_SetPenalty(Client, 2); \
-	return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG, \
+	return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG, \
 				  Client_ID(Client), Req->command); \
 }
 
@@ -38,8 +37,7 @@ if (Req->argc != Count) { \
  */
 #define _IRC_ARGC_LE_OR_RETURN_(Client, Req, Max) \
 if (Req->argc > Max) { \
-	IRC_SetPenalty(Client, 2); \
-	return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG, \
+	return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG, \
 				  Client_ID(Client), Req->command); \
 }
 
@@ -51,8 +49,7 @@ if (Req->argc > Max) { \
  */
 #define _IRC_ARGC_GE_OR_RETURN_(Client, Req, Min) \
 if (Req->argc < Min) { \
-	IRC_SetPenalty(Client, 2); \
-	return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG, \
+	return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG, \
 				  Client_ID(Client), Req->command); \
 }
 
@@ -64,8 +61,7 @@ if (Req->argc < Min) { \
  */
 #define _IRC_ARGC_BETWEEN_OR_RETURN_(Client, Req, Min, Max) \
 if (Req->argc < Min || Req->argc > Max) { \
-	IRC_SetPenalty(Client, 2); \
-	return IRC_WriteStrClient(Client, ERR_NEEDMOREPARAMS_MSG, \
+	return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG, \
 				  Client_ID(Client), Req->command); \
 }
 

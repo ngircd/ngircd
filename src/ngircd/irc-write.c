@@ -70,7 +70,7 @@ va_dcl
 #else
 	va_start(ap);
 #endif
-	vsnprintf(buffer, 1000, Format, ap);
+	vsnprintf(buffer, sizeof(buffer), Format, ap);
 	va_end(ap);
 
 	IRC_SetPenalty(Client, 2);
@@ -107,7 +107,7 @@ va_dcl
 #else
 	va_start(ap);
 #endif
-	vsnprintf(buffer, 1000, Format, ap);
+	vsnprintf(buffer, sizeof(buffer), Format, ap);
 	va_end(ap);
 
 	return IRC_WriteStrClientPrefix(Client, Client_ThisServer(),
@@ -148,7 +148,7 @@ va_dcl
 #else
 	va_start( ap );
 #endif
-	vsnprintf( buffer, 1000, Format, ap );
+	vsnprintf(buffer, sizeof(buffer), Format, ap);
 	va_end( ap );
 
 	return Conn_WriteStr(Client_Conn(Client_NextHop(Client)), ":%s %s",
@@ -190,7 +190,7 @@ va_dcl
 #else
 	va_start( ap );
 #endif
-	vsnprintf( buffer, 1000, Format, ap );
+	vsnprintf(buffer, sizeof(buffer), Format, ap);
 	va_end( ap );
 
 	IRC_WriteStrChannelPrefix(Client, Chan, Client_ThisServer(),
@@ -239,7 +239,7 @@ va_dcl
 #else
 	va_start( ap  );
 #endif
-	vsnprintf( buffer, 1000, Format, ap );
+	vsnprintf(buffer, sizeof(buffer), Format, ap);
 	va_end( ap );
 
 	Conn_ClearFlags( );
@@ -296,7 +296,7 @@ va_dcl
 #else
 	va_start( ap );
 #endif
-	vsnprintf( buffer, 1000, Format, ap );
+	vsnprintf(buffer, sizeof(buffer), Format, ap);
 	va_end( ap );
 
 	IRC_WriteStrServersPrefix(ExceptOf, Client_ThisServer(), "%s", buffer);
@@ -333,7 +333,7 @@ va_dcl
 #else
 	va_start( ap );
 #endif
-	vsnprintf( buffer, 1000, Format, ap );
+	vsnprintf(buffer, sizeof(buffer), Format, ap);
 	va_end( ap );
 
 	IRC_WriteStrServersPrefixFlag( ExceptOf, Prefix, '\0', "%s", buffer );
@@ -373,7 +373,7 @@ va_dcl
 #else
 	va_start( ap );
 #endif
-	vsnprintf( buffer, 1000, Format, ap );
+	vsnprintf(buffer, sizeof(buffer), Format, ap);
 	va_end( ap );
 
 	IRC_WriteStrServersPrefixFlag_CB(ExceptOf, Prefix, Flag,
@@ -451,7 +451,7 @@ va_dcl
 #else
 	va_start( ap );
 #endif
-	vsnprintf( buffer, 1000, Format, ap );
+	vsnprintf(buffer, sizeof(buffer), Format, ap);
 	va_end( ap );
 
 	Conn_ClearFlags( );
@@ -513,7 +513,7 @@ va_dcl
 #else
 	va_start(ap);
 #endif
-	vsnprintf(msg, 1000, Format, ap);
+	vsnprintf(msg, sizeof(msg), Format, ap);
 	va_end(ap);
 
 	for (to=Client_First(); to != NULL; to=Client_Next(to)) {

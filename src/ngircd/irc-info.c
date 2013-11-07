@@ -189,7 +189,7 @@ IRC_WHO_Channel(CLIENT *Client, CHANNEL *Chan, bool OnlyOps)
 		}
 	}
 
-	/* If there are a lot of clients, augment penalty a bit */
+	/* If there are a lot of clients, increase the penalty a bit */
 	if (count > MAX_RPL_WHO)
 		IRC_SetPenalty(Client, 1);
 
@@ -1233,6 +1233,7 @@ IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 			continue;
 		}
 		got_wildcard = true;
+		/* Increase penalty for wildcard queries */
 		IRC_SetPenalty(Client, 3);
 
 		for (c = Client_First(); c; c = Client_Next(c)) {

@@ -78,7 +78,7 @@ if (Req->argc < Min || Req->argc > Max) { \
 	else \
 		Sender = Client; \
 	if (!Sender) \
-		return IRC_WriteStrClient(Client, ERR_NOSUCHNICK_MSG, \
+		return IRC_WriteErrClient(Client, ERR_NOSUCHNICK_MSG, \
 					  Client_ID(Client), Req->prefix);
 
 /**
@@ -97,7 +97,7 @@ if (Req->argc < Min || Req->argc > Max) { \
 		if (!Target) \
 			Target = Client_SearchServer(Req->argv[Argc]); \
 		if (!Target) \
-			return IRC_WriteStrClient(From, ERR_NOSUCHSERVER_MSG, \
+			return IRC_WriteErrClient(From, ERR_NOSUCHSERVER_MSG, \
 					  Client_ID(From), Req->argv[Argc]); \
 		if (Client_Type(Target) != CLIENT_SERVER) \
 			Target = Client_Introducer(Target); \

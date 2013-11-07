@@ -152,8 +152,6 @@ IRC_WHO_Channel(CLIENT *Client, CHANNEL *Chan, bool OnlyOps)
 	assert( Client != NULL );
 	assert( Chan != NULL );
 
-	IRC_SetPenalty(Client, 1);
-
 	is_member = Channel_IsMemberOf(Chan, Client);
 
 	/* Secret channel? */
@@ -1152,7 +1150,6 @@ IRC_WHO(CLIENT *Client, REQUEST *Req)
 	}
 
 	/* No channel or (valid) mask given */
-	IRC_SetPenalty(Client, 2);
 	return IRC_WHO_Mask(Client, NULL, only_ops);
 } /* IRC_WHO */
 
@@ -1174,8 +1171,6 @@ IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 
 	assert( Client != NULL );
 	assert( Req != NULL );
-
-	IRC_SetPenalty(Client, 1);
 
 	/* Wrong number of parameters? */
 	if (Req->argc < 1)

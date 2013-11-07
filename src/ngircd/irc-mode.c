@@ -357,7 +357,6 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 			 Client_Modes(Target));
 	}
 
-	IRC_SetPenalty(Client, 1);
 	return ok;
 } /* Client_Mode */
 
@@ -918,7 +917,6 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 		}
 	}
 
-	IRC_SetPenalty(Client, 1);
 	return connected;
 } /* Channel_Mode */
 

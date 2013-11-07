@@ -500,8 +500,6 @@ IRC_ADMIN(CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	IRC_SetPenalty(Client, 1);
-
 	_IRC_GET_SENDER_OR_RETURN_(prefix, Req, Client)
 	_IRC_GET_TARGET_SERVER_OR_RETURN_(target, Req, 0, prefix)
 
@@ -543,8 +541,6 @@ IRC_INFO(CLIENT * Client, REQUEST * Req)
 
 	assert(Client != NULL);
 	assert(Req != NULL);
-
-	IRC_SetPenalty(Client, 2);
 
 	_IRC_GET_SENDER_OR_RETURN_(prefix, Req, Client)
 	_IRC_GET_TARGET_SERVER_OR_RETURN_(target, Req, 0, prefix)
@@ -631,8 +627,6 @@ IRC_LINKS(CLIENT *Client, REQUEST *Req)
 	assert(Client != NULL);
 	assert(Req != NULL);
 
-	IRC_SetPenalty(Client, 1);
-
 	_IRC_GET_SENDER_OR_RETURN_(from, Req, Client)
 
 	/* Get pointer to server mask or "*", if none given */
@@ -685,8 +679,6 @@ IRC_LUSERS( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	IRC_SetPenalty(Client, 1);
-
 	_IRC_GET_SENDER_OR_RETURN_(from, Req, Client)
 	_IRC_GET_TARGET_SERVER_OR_RETURN_(target, Req, 1, from)
 
@@ -715,8 +707,6 @@ IRC_SERVLIST(CLIENT *Client, REQUEST *Req)
 
 	assert(Client != NULL);
 	assert(Req != NULL);
-
-	IRC_SetPenalty(Client, 1);
 
 	if (Req->argc < 2 || strcmp(Req->argv[1], "0") == 0) {
 		for (c = Client_First(); c!= NULL; c = Client_Next(c)) {
@@ -753,8 +743,6 @@ IRC_MOTD( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	IRC_SetPenalty(Client, 3);
-
 	_IRC_GET_SENDER_OR_RETURN_(from, Req, Client)
 	_IRC_GET_TARGET_SERVER_OR_RETURN_(target, Req, 0, from)
 
@@ -784,8 +772,6 @@ IRC_NAMES( CLIENT *Client, REQUEST *Req )
 
 	assert( Client != NULL );
 	assert( Req != NULL );
-
-	IRC_SetPenalty(Client, 1);
 
 	_IRC_GET_SENDER_OR_RETURN_(from, Req, Client)
 	_IRC_GET_TARGET_SERVER_OR_RETURN_(target, Req, 1, from)
@@ -870,8 +856,6 @@ IRC_STATS( CLIENT *Client, REQUEST *Req )
 
 	assert(Client != NULL);
 	assert(Req != NULL);
-
-	IRC_SetPenalty(Client, 2);
 
 	_IRC_GET_SENDER_OR_RETURN_(from, Req, Client)
 	_IRC_GET_TARGET_SERVER_OR_RETURN_(target, Req, 1, from)
@@ -1013,8 +997,6 @@ IRC_TIME( CLIENT *Client, REQUEST *Req )
 	assert(Client != NULL);
 	assert(Req != NULL);
 
-	IRC_SetPenalty(Client, 1);
-
 	_IRC_GET_SENDER_OR_RETURN_(from, Req, Client)
 	_IRC_GET_TARGET_SERVER_OR_RETURN_(target, Req, 0, from)
 
@@ -1047,8 +1029,6 @@ IRC_USERHOST(CLIENT *Client, REQUEST *Req)
 
 	assert(Client != NULL);
 	assert(Req != NULL);
-
-	IRC_SetPenalty(Client, 1);
 
 	if (Req->argc > 5)
 		max = 5;
@@ -1110,8 +1090,6 @@ IRC_VERSION( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	IRC_SetPenalty(Client, 1);
-
 	_IRC_GET_SENDER_OR_RETURN_(prefix, Req, Client)
 	_IRC_GET_TARGET_SERVER_OR_RETURN_(target, Req, 0, prefix)
 
@@ -1145,15 +1123,12 @@ IRC_WHO(CLIENT *Client, REQUEST *Req)
 	assert (Client != NULL);
 	assert (Req != NULL);
 
-	IRC_SetPenalty(Client, 1);
-
 	only_ops = false;
 	if (Req->argc == 2) {
 		if (strcmp(Req->argv[1], "o") == 0)
 			only_ops = true;
 #ifdef STRICT_RFC
 		else {
-			IRC_SetPenalty(Client, 2);
 			return IRC_WriteErrClient(Client,
 						  ERR_NEEDMOREPARAMS_MSG,
 						  Client_ID(Client),

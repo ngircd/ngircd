@@ -480,8 +480,6 @@ IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 	assert( Client != NULL );
 	assert( Req != NULL );
 
-	IRC_SetPenalty(Client, 1);
-
 	_IRC_GET_SENDER_OR_RETURN_(from, Req, Client)
 
 	chan = Channel_Search(Req->argv[0]);
@@ -577,8 +575,6 @@ IRC_LIST( CLIENT *Client, REQUEST *Req )
 
 	assert(Client != NULL);
 	assert(Req != NULL);
-
-	IRC_SetPenalty(Client, 2);
 
 	_IRC_GET_SENDER_OR_RETURN_(from, Req, Client)
 

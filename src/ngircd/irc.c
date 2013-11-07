@@ -224,8 +224,6 @@ IRC_TRACE(CLIENT *Client, REQUEST *Req)
 	assert(Client != NULL);
 	assert(Req != NULL);
 
-	IRC_SetPenalty(Client, 3);
-
 	_IRC_GET_SENDER_OR_RETURN_(from, Req, Client)
 	_IRC_GET_TARGET_SERVER_OR_RETURN_(target, Req, 0, from)
 
@@ -300,8 +298,6 @@ IRC_HELP(CLIENT *Client, REQUEST *Req)
 
 	assert(Client != NULL);
 	assert(Req != NULL);
-
-	IRC_SetPenalty(Client, 2);
 
 	if ((Req->argc == 0 && array_bytes(&Conf_Helptext) > 0)
 	    || (Req->argc >= 1 && strcasecmp(Req->argv[0], "Commands") != 0)) {

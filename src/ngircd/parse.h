@@ -37,6 +37,7 @@ typedef struct _COMMAND
 	CLIENT_TYPE type;		/**< Valid client types (bit mask) */
 	int min_argc;			/**< Min parameters */
 	int max_argc;			/**< Max parameters */
+	int penalty;			/**< Penalty for this command */
 	long lcount, rcount;		/**< Number of local and remote calls */
 	long bytes;			/**< Number of bytes created */
 } COMMAND;

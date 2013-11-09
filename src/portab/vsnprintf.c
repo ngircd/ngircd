@@ -107,15 +107,16 @@ void dummy_snprintf PARAMS(( void )) { }
 #define LLONG long
 #endif
 
-static size_t dopr(char *buffer, size_t maxlen, const char *format, 
-		   va_list args);
-static void fmtstr(char *buffer, size_t *currlen, size_t maxlen,
-		    char *value, int flags, int min, int max);
-static void fmtint(char *buffer, size_t *currlen, size_t maxlen,
-		    long value, int base, int min, int max, int flags);
-static void fmtfp(char *buffer, size_t *currlen, size_t maxlen,
-		   LDOUBLE fvalue, int min, int max, int flags);
-static void dopr_outch(char *buffer, size_t *currlen, size_t maxlen, char c);
+static size_t dopr PARAMS((char *buffer, size_t maxlen, const char *format,
+			   va_list args));
+static void fmtstr PARAMS((char *buffer, size_t *currlen, size_t maxlen,
+			   char *value, int flags, int min, int max));
+static void fmtint PARAMS((char *buffer, size_t *currlen, size_t maxlen,
+			   long value, int base, int min, int max, int flags));
+static void fmtfp PARAMS((char *buffer, size_t *currlen, size_t maxlen,
+			  LDOUBLE fvalue, int min, int max, int flags));
+static void dopr_outch PARAMS((char *buffer, size_t *currlen, size_t maxlen,
+			       char c));
 
 /*
  * dopr(): poor man's version of doprintf
@@ -151,7 +152,8 @@ static void dopr_outch(char *buffer, size_t *currlen, size_t maxlen, char c);
 #define MAX(p,q) (((p) >= (q)) ? (p) : (q))
 #endif
 
-static size_t dopr(char *buffer, size_t maxlen, const char *format, va_list args)
+static size_t
+dopr(char *buffer, size_t maxlen, const char *format, va_list args)
 {
 	char ch;
 	LLONG value;
@@ -408,8 +410,9 @@ static size_t dopr(char *buffer, size_t maxlen, const char *format, va_list args
 	return currlen;
 }
 
-static void fmtstr(char *buffer, size_t *currlen, size_t maxlen,
-		    char *value, int flags, int min, int max)
+static void
+fmtstr(char *buffer, size_t *currlen, size_t maxlen, char *value, int flags,
+       int min, int max)
 {
 	int padlen, strln;     /* amount to pad */
 	int cnt = 0;
@@ -446,8 +449,9 @@ static void fmtstr(char *buffer, size_t *currlen, size_t maxlen,
 
 /* Have to handle DP_F_NUM (ie 0x and 0 alternates) */
 
-static void fmtint(char *buffer, size_t *currlen, size_t maxlen,
-		    long value, int base, int min, int max, int flags)
+static void
+fmtint(char *buffer, size_t *currlen, size_t maxlen, long value, int base,
+       int min, int max, int flags)
 {
 	int signvalue = 0;
 	unsigned long uvalue;
@@ -530,7 +534,8 @@ static void fmtint(char *buffer, size_t *currlen, size_t maxlen,
 	}
 }
 
-static LDOUBLE abs_val(LDOUBLE value)
+static LDOUBLE
+abs_val(LDOUBLE value)
 {
 	LDOUBLE result = value;
 
@@ -540,7 +545,8 @@ static LDOUBLE abs_val(LDOUBLE value)
 	return result;
 }
 
-static LDOUBLE POW10(int exp)
+static LDOUBLE
+POW10(int exp)
 {
 	LDOUBLE result = 1;
 	
@@ -552,7 +558,8 @@ static LDOUBLE POW10(int exp)
 	return result;
 }
 
-static LLONG ROUND(LDOUBLE value)
+static LLONG
+ROUND(LDOUBLE value)
 {
 	LLONG intpart;
 
@@ -565,7 +572,8 @@ static LLONG ROUND(LDOUBLE value)
 
 /* a replacement for modf that doesn't need the math library. Should
    be portable, but slow */
-static double my_modf(double x0, double *iptr)
+static double
+my_modf(double x0, double *iptr)
 {
 	int i;
 	long l;
@@ -599,8 +607,9 @@ static double my_modf(double x0, double *iptr)
 }
 
 
-static void fmtfp (char *buffer, size_t *currlen, size_t maxlen,
-		   LDOUBLE fvalue, int min, int max, int flags)
+static void
+fmtfp (char *buffer, size_t *currlen, size_t maxlen, LDOUBLE fvalue,
+       int min, int max, int flags)
 {
 	int signvalue = 0;
 	double ufvalue;
@@ -745,7 +754,8 @@ static void fmtfp (char *buffer, size_t *currlen, size_t maxlen,
 	}
 }
 
-static void dopr_outch(char *buffer, size_t *currlen, size_t maxlen, char c)
+static void
+dopr_outch(char *buffer, size_t *currlen, size_t maxlen, char c)
 {
 	if (*currlen < maxlen) {
 		buffer[(*currlen)] = c;
@@ -754,14 +764,25 @@ static void dopr_outch(char *buffer, size_t *currlen, size_t maxlen, char c)
 }
 
 #if !defined(HAVE_VSNPRINTF)
-int vsnprintf (char *str, size_t count, const char *fmt, va_list args)
+int
+vsnprintf (char *str, size_t count, const char *fmt, va_list args)
 {
 	return dopr(str, count, fmt, args);
 }
 #endif
 
 #if !defined(HAVE_SNPRINTF)
-int snprintf(char *str,size_t count,const char *fmt,...)
+#ifdef PROTOTYPES
+int
+snprintf(char *str, size_t count, const char *fmt, ...)
+#else
+int
+snprintf(str, count, fmt, va_alist)
+char *str;
+size_t count;
+const char *fmt;
+va_dcl
+#endif
 {
 	size_t ret;
 	va_list ap;

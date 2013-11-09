@@ -42,7 +42,7 @@ struct ConnSSL_State {
 
 #endif
 
-bool	ConnSSL_InitLibrary(void);
+GLOBAL bool ConnSSL_InitLibrary PARAMS((void));
 
 #endif /* conf_ssl_h */
 

@@ -152,7 +152,9 @@ my_sd_listen_fds(void)
 	if (!e || !*e)
 		return -1;
 	count = atoi(e);
+#ifdef HAVE_UNSETENV
 	unsetenv("LISTEN_FDS");
+#endif
 
 	return count;
 }

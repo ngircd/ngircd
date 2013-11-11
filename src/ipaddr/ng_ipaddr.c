@@ -23,7 +23,7 @@
 GLOBAL bool
 ng_ipaddr_init(ng_ipaddr_t *addr, const char *ip_str, UINT16 port)
 {
-#ifdef HAVE_GETADDRINFO
+#ifdef HAVE_WORKING_GETADDRINFO
 	int ret;
 	char portstr[64];
 	struct addrinfo *res0;

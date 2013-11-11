@@ -242,7 +242,7 @@ ForwardLookup(const char *hostname, array *IpAddr, int af)
 {
 	ng_ipaddr_t addr;
 
-#ifdef HAVE_GETADDRINFO
+#ifdef HAVE_WORKING_GETADDRINFO
 	int res;
 	struct addrinfo *a, *ai_results;
 	static struct addrinfo hints;

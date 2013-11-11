@@ -75,22 +75,25 @@ AC_C_CONST
 AC_C_INLINE
 __ng_PROTOTYPES__
 
-# -- Hard coded system and compiler dependencies/features/options ... --
+# -- Function Definitions --
 
 AC_DEFUN([GCC_STACK_PROTECT_CC],[
-  ssp_cc=yes
-  # we use -fstack-protector-all for the test to enfoce the use of the guard variable 
-  AC_MSG_CHECKING([whether ${CC} accepts -fstack-protector])
-  ssp_old_cflags="$CFLAGS"
-  CFLAGS="$CFLAGS -fstack-protector-all"
-  AC_TRY_LINK(,,, ssp_cc=no)
-  echo $ssp_cc
-  CFLAGS="$ssp_old_cflags"
-  if test "X$ssp_cc" = "Xyes"; then
-      CFLAGS="$CFLAGS -fstack-protector"
-      AC_DEFINE([ENABLE_SSP_CC], 1, [Define if SSP C support is enabled.])
-  fi
+	ssp_cc=yes
+	# Use -fstack-protector-all for the test to enfoce the use of the
+	# guard variable
+	AC_MSG_CHECKING([whether ${CC} accepts -fstack-protector])
+	ssp_old_cflags="$CFLAGS"
+	CFLAGS="$CFLAGS -fstack-protector-all"
+	AC_TRY_LINK(,,, ssp_cc=no)
+	echo $ssp_cc
+	CFLAGS="$ssp_old_cflags"
+	if test "X$ssp_cc" = "Xyes"; then
+		CFLAGS="$CFLAGS -fstack-protector"
+		AC_DEFINE([ENABLE_SSP_CC], 1, [Define if SSP C support is enabled.])
+	fi
 ])
+
+# -- Hard coded system and compiler dependencies/features/options ... --
 
 if test "$GCC" = "yes"; then
 	# We are using the GNU C compiler. Good!

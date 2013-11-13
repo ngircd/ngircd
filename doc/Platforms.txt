@@ -81,6 +81,7 @@ sparc/unkn./netbsdelf1.6.1  gcc 2.95.3   0.8.0      04-05-30 alex     Y Y Y Y
 x86_64/apple/darwin10.8.0   gcc 4.2.1    21~rc2     13-10-30 alex     Y Y Y Y 3
 x86_64/apple/darwin12.3.0   gcc 4.2.1    20.2       13-04-01 alex     Y Y Y Y 3
 x86_64/apple/darwin13.0.0   A-clang 5.0  21~rc2     13-10-20 alex     Y Y Y Y 3
+x86_64/unknown/dragonfly3.4 gcc 4.7.2    21         13-11-12 goetz    Y Y N Y 3
 x86_64/unknown/freebsd8.4   gcc 4.2.1    21~rc2     13-10-27 alex     Y Y Y Y 3
 x86_64/unknown/freebsd9.1   gcc 4.2.1    21~rc2     13-10-27 alex     Y Y Y Y 3
 x86_64/unkn./freebsd8.1-gnu gcc 4.4.5    19         12-02-26 alex     Y Y Y Y 3

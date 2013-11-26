@@ -1915,7 +1915,7 @@ Handle_Buffer(CONN_ID Idx)
 		ptr2 = strchr(array_start(&My_Connections[Idx].rbuf), '\n');
 		if (ptr) {
 			/* Check if there is a single CR or LF _before_ the
-			 * corerct CR+LF line terminator:  */
+			 * correct CR+LF line terminator:  */
 			first_eol = ptr1 < ptr2 ? ptr1 : ptr2;
 			if (first_eol < ptr) {
 				/* Single CR or LF before CR+LF found */

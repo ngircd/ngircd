@@ -87,7 +87,7 @@ static struct pam_conv conv = {
 };
 
 /**
- * Authenticate a connectiong client using PAM.
+ * Authenticate a connecting client using PAM.
  * @param Client The client to authenticate.
  * @return true when authentication succeeded, false otherwise.
  */

@@ -389,6 +389,7 @@ IRC_xLINE(CLIENT *Client, REQUEST *Req)
 	CLIENT *from, *c, *c_next;
 	char reason[COMMAND_LEN], class_c;
 	struct list_head *list;
+	time_t timeout;
 	int class;
 
 	assert(Client != NULL);
@@ -435,8 +436,11 @@ IRC_xLINE(CLIENT *Client, REQUEST *Req)
 		}
 	} else {
 		/* Add new mask to list */
+		timeout = atol(Req->argv[1]);
+		if (timeout > 0)
+			timeout += time(NULL);
 		if (Class_AddMask(class, Req->argv[0],
-				  time(NULL) + atol(Req->argv[1]),
+				  timeout,
 				  Req->argv[2])) {
 			Log(LOG_NOTICE|LOG_snotice,
 			    "\"%s\" added \"%s\" to %c-Line list: \"%s\" (%ld seconds).",

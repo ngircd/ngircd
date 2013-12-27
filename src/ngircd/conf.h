@@ -109,6 +109,9 @@ GLOBAL char Conf_ServerAdmin1[CLIENT_INFO_LEN];
 GLOBAL char Conf_ServerAdmin2[CLIENT_INFO_LEN];
 GLOBAL char Conf_ServerAdminMail[CLIENT_INFO_LEN];
 
+/** Network name (optional, no spaces allowed) */
+GLOBAL char Conf_Network[CLIENT_INFO_LEN];
+
 /** Message of the day (MOTD) of this server */
 GLOBAL array Conf_Motd;
 

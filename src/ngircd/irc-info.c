@@ -1539,6 +1539,10 @@ IRC_Send_NAMES(CLIENT * Client, CHANNEL * Chan)
 GLOBAL bool
 IRC_Send_ISUPPORT(CLIENT * Client)
 {
+	if (Conf_Network[0] && !IRC_WriteStrClient(Client, RPL_ISUPPORTNET_MSG,
+						   Client_ID(Client),
+						   Conf_Network))
+		return DISCONNECTED;
 	if (!IRC_WriteStrClient(Client, RPL_ISUPPORT1_MSG, Client_ID(Client),
 				CHANTYPES, CHANTYPES, Conf_MaxJoins))
 		return DISCONNECTED;

@@ -369,6 +369,7 @@ Conf_Test( void )
 		printf("  MotdPhrase = %s\n", array_bytes(&Conf_Motd)
 		       ? (const char*) array_start(&Conf_Motd) : "");
 	}
+	printf("  Network = %s\n", Conf_Network);
 #ifndef PAM
 	printf("  Password = %s\n", Conf_ServerPwd);
 #endif
@@ -749,6 +750,7 @@ Set_Defaults(bool InitServers)
 	strcpy(Conf_ServerAdminMail, "");
 	snprintf(Conf_ServerInfo, sizeof Conf_ServerInfo, "%s %s",
 		 PACKAGE_NAME, PACKAGE_VERSION);
+	strcpy(Conf_Network, "");
 	free(Conf_ListenAddress);
 	Conf_ListenAddress = NULL;
 	array_free(&Conf_ListenPorts);
@@ -1409,6 +1411,7 @@ Handle_GLOBAL(const char *File, int Line, char *Var, char *Arg )
 	struct group *grp;
 	size_t len;
 	const char *section;
+	char *ptr;
 
 	assert(File != NULL);
 	assert(Line > 0);
@@ -1489,6 +1492,19 @@ Handle_GLOBAL(const char *File, int Line, char *Var, char *Arg )
 				     "%s, line %d: Could not append MotdPhrase: %s",
 				     File, Line, strerror(errno));
 		Using_MotdFile = false;
+		return;
+	}
+	if (strcasecmp(Var, "Network") == 0) {
+		len = strlcpy(Conf_Network, Arg, sizeof(Conf_Network));
+		if (len >= sizeof(Conf_Network))
+			Config_Error_TooLong(File, Line, Var);
+		ptr = strchr(Conf_Network, ' ');
+		if (ptr) {
+			Config_Error(LOG_WARNING,
+				     "%s, line %d: \"Network\" can't contain spaces!",
+				     File, Line);
+			*ptr = '\0';
+		}
 		return;
 	}
 	if(strcasecmp(Var, "Password") == 0) {

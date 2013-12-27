@@ -105,6 +105,8 @@
 #define HAVE_INET_ATON 1
 /* Define to 1 if you have the `getaddrinfo' function. */
 #define HAVE_GETADDRINFO 1
+/* getaddrinfo(0) */
+#define HAVE_WORKING_GETADDRINFO 1
 /* Define to 1 if you have the `getnameinfo' function. */
 #define HAVE_GETNAMEINFO 1
 /* Define to 1 if you have the `sigaction' function. */

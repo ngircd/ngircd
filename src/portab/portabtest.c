@@ -24,33 +24,33 @@
 
 #include "exp.h"
 
-static void Panic PARAMS (( char *Reason, int Code ));
+static void Panic PARAMS((char *Reason));
 
 GLOBAL int
 main(void)
 {
 	/* validate datatypes */
 	if (false != 0)
-		Panic("false", 1);
+		Panic("false");
 	if (true != 1)
-		Panic("true", 1);
+		Panic("true");
 	if (sizeof(UINT8) != 1)
-		Panic("UINT8", 1);
+		Panic("UINT8");
 	if (sizeof(UINT16) != 2)
-		Panic("UINT16", 1);
+		Panic("UINT16");
 	if (sizeof(UINT32) != 4)
-		Panic("UINT32", 1);
+		Panic("UINT32");
 
 #ifdef PROTOTYPES
 	/* check functions */
 	if (!snprintf)
-		Panic("snprintf", 2);
+		Panic("snprintf");
 	if (!vsnprintf)
-		Panic("vsnprintf", 2);
+		Panic("vsnprintf");
 	if (!strlcpy)
-		Panic("strlcpy", 2);
+		Panic("strlcpy");
 	if (!strlcat)
-		Panic("strlcat", 2);
+		Panic("strlcat");
 #endif
 	
 	/* ok, no error */
@@ -58,11 +58,11 @@ main(void)
 } /* portab_check_types */
 
 static void
-Panic(char *Reason, int Code)
+Panic(char *Reason)
 {
 	/* Oops, something failed!? */
 	fprintf(stderr, "Oops, test for %s failed!?", Reason);
-	exit(Code);
+	exit(1);
 } /* Panic */
 
 /* -eof- */

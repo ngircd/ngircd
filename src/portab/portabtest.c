@@ -45,6 +45,36 @@ Check_snprintf(void)
 }
 
 static void
+Check_strdup(void)
+{
+	char *ptr;
+
+	ptr = strdup("1234567890");
+	if (!ptr)
+		Panic("strdup");
+	if (ptr[10] != '\0')
+		Panic("strdup NULL byte");
+	if (strlen(ptr) != 10)
+		Panic("strdup string length");
+	free(ptr);
+}
+
+static void
+Check_strndup(void)
+{
+	char *ptr;
+
+	ptr = strndup("1234567890", 5);
+	if (!ptr)
+		Panic("strndup");
+	if (ptr[5] != '\0')
+		Panic("strndup NULL byte");
+	if (strlen(ptr) != 5)
+		Panic("strndup string length");
+	free(ptr);
+}
+
+static void
 Check_strlcpy(void)
 {
 	char str[5];
@@ -70,6 +100,30 @@ Check_strlcat(void)
 		Panic("strlcat NULL byte");
 	if (strlen(str) != 4)
 		Panic("strlcat string length");
+}
+
+static void
+Check_strtok_r(void)
+{
+	char *ptr, *last;
+
+	ptr = strdup("12,abc");
+
+	ptr = strtok_r(ptr, ",", &last);
+	if (!ptr)
+		Panic("strtok_r result #1");
+	if (strcmp(ptr, "12") != 0)
+		Panic("strtok_r token #1");
+
+	ptr = strtok_r(NULL, ",", &last);
+	if (!ptr)
+		Panic("strtok_r result #2");
+	if (strcmp(ptr, "abc") != 0)
+		Panic("strtok_r token #2");
+
+	ptr = strtok_r(NULL, ",", &last);
+	if (ptr)
+		Panic("strtok_r result #3");
 }
 
 #ifdef PROTOTYPES
@@ -118,8 +172,11 @@ main(void)
 
 	/* check functions */
 	Check_snprintf();
+	Check_strdup();
+	Check_strndup();
 	Check_strlcpy();
 	Check_strlcat();
+	Check_strtok_r();
 	Check_vsnprintf(2+10, "%s%s", "ab", "1234567890");
 	
 	return 0;

@@ -126,6 +126,12 @@ configuration file.
 \fBMotdPhrase\fR (string)
 A simple Phrase (<256 chars) if you don't want to use a MOTD file.
 .TP
+\fBNetwork\fR (string)
+The name of the IRC network to which this server belongs. This name is
+optional, should only contain ASCII characters, and can't contain spaces.
+It is only used to inform clients. The default is empty, so no network
+name is announced to clients.
+.TP
 \fBPassword\fR (string)
 Global password for all users needed to connect to the server. The default is
 empty, so no password is required. Please note: This feature is not available

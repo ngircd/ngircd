@@ -1,6 +1,6 @@
 #
 # ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001-2013 Alexander Barton (alex@barton.de) and Contributors
+# Copyright (c)2001-2014 Alexander Barton (alex@barton.de) and Contributors
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,9 +22,8 @@ m4_ifdef([AM_SILENT_RULES],
 
 # -- Initialisation --
 
-AC_PREREQ([2.61])
-AC_INIT([ngIRCd], VERSION_ID,
-	[ngircd-ml@ngircd.barton.de], [ngircd], [http://ngircd.barton.de/])
+AC_PREREQ([2.67])
+AC_INIT([ngIRCd],[VERSION_ID],[ngircd-ml@ngircd.barton.de],[ngircd],[http://ngircd.barton.de/])
 
 AC_CONFIG_SRCDIR([src/ngircd/ngircd.c])
 AC_CONFIG_HEADER([src/config.h])
@@ -84,7 +83,7 @@ AC_DEFUN([GCC_STACK_PROTECT_CC],[
 	AC_MSG_CHECKING([whether ${CC} accepts -fstack-protector])
 	ssp_old_cflags="$CFLAGS"
 	CFLAGS="$CFLAGS -fstack-protector-all"
-	AC_TRY_LINK(,,, ssp_cc=no)
+	AC_LINK_IFELSE([AC_LANG_PROGRAM([],[])],[],[ssp_cc=no])
 	echo $ssp_cc
 	CFLAGS="$ssp_old_cflags"
 	if test "X$ssp_cc" = "Xyes"; then
@@ -96,7 +95,7 @@ AC_DEFUN([GCC_STACK_PROTECT_CC],[
 AC_DEFUN([WORKING_GETADDRINFO],[
 	AC_CHECK_FUNCS([getaddrinfo],[
 		AC_MSG_CHECKING([whether getaddrinfo() works])
-		AC_TRY_RUN([
+		AC_RUN_IFELSE([AC_LANG_SOURCE([[
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -113,9 +112,11 @@ main(int argc, char **argv)
 		return 1;
 	return 0;
 }
-		],[
+		]])],[
 		AC_DEFINE([HAVE_WORKING_GETADDRINFO], 1, [getaddrinfo(0)])
 		AC_MSG_RESULT(yes)
+		],[
+		AC_MSG_RESULT(no)
 		],[
 		AC_MSG_RESULT(no)
 		])
@@ -165,20 +166,19 @@ AC_CHECK_HEADERS_ONCE([ \
 # -- Datatypes --
 
 AC_MSG_CHECKING(whether socklen_t exists)
-AC_TRY_COMPILE([
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #include <sys/types.h>
 #include <sys/socket.h>
-	],[
+	]],[[
 	socklen_t a, b;
 	a = 2; b = 4; a += b;
-	],[
+	]])],[
 	AC_DEFINE(HAVE_socklen_t) AC_MSG_RESULT(yes)
 	],[
 	AC_MSG_RESULT(no)
 ])
 
 AC_TYPE_PID_T
-AC_TYPE_SIGNAL
 AC_TYPE_SIZE_T
 AC_TYPE_SSIZE_T
 AC_TYPE_UID_T
@@ -467,13 +467,13 @@ AC_ARG_WITH(tcp-wrappers,
 			fi
 			AC_MSG_CHECKING(for hosts_access)
 			LIBS="-lwrap $LIBS"
-			AC_TRY_LINK([
+			AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 #include <tcpd.h>
 int allow_severity = 0;
 int deny_severity = 0;
-				],[
+				]],[[
 				tcpd_warn("link test");
-				],[
+				]])],[
 				AC_MSG_RESULT(yes)
 				AC_DEFINE(TCPWRAP, 1)
 				x_tcpwrap_on=yes

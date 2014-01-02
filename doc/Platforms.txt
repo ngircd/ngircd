@@ -59,7 +59,7 @@ i386/unknown/openbsd5.3     gcc 4.2.1    21         13-11-28 goetz    Y Y Y Y 3
 i386/unknown/openbsd5.4     gcc 4.2.1    21         13-11-28 goetz    Y Y Y Y 3
 i586/pc/haiku               gcc 2.95.3   19.2~138   12-10-11 user     Y Y N N
 i586/pc/interix3.5          gcc 3.3      19         12-02-29 alex     Y Y N Y
-i686/pc/cygwin              gcc 3.3.1    0.8.0      04-05-30 alex     Y Y N Y
+i686/pc/cygwin              gcc 4.8.2    21         14-01-02 alex     Y Y N Y
 i686/pc/linux-gnu           gcc 2.7.2    19.1       12-05-30 goetz    Y Y Y Y 1
 i686/pc/linux-gnu           gcc 2.95.4   0.8.0      04-05-30 alex     Y Y Y Y 1
 i686/pc/linux-gnu           gcc 3.3.5    14.1       09-08-04 alex     Y Y Y Y 1
@@ -83,20 +83,20 @@ sparc/sun/solaris2.7        gcc 3.3      0.8.0      04-05-30 alex     Y Y Y Y
 sparc/unkn./netbsdelf1.6.1  gcc 2.95.3   0.8.0      04-05-30 alex     Y Y Y Y
 x86_64/apple/darwin10.8.0   gcc 4.2.1    21~rc2     13-10-30 alex     Y Y Y Y 3
 x86_64/apple/darwin12.3.0   gcc 4.2.1    20.2       13-04-01 alex     Y Y Y Y 3
-x86_64/apple/darwin13.0.0   A-clang 5.0  21~rc2     13-10-20 alex     Y Y Y Y 3
+x86_64/apple/darwin13.0.0   A-clang 5.0  21         14-01-02 alex     Y Y Y Y 3
 x86_64/unknown/dragonfly3.4 gcc 4.7.2    21         13-11-12 goetz    Y Y N Y 3
-x86_64/unknown/freebsd8.4   gcc 4.2.1    21~rc2     13-10-27 alex     Y Y Y Y 3
-x86_64/unknown/freebsd9.1   gcc 4.2.1    21~rc2     13-10-27 alex     Y Y Y Y 3
+x86_64/unknown/freebsd8.4   gcc 4.2.1    21         14-01-02 alex     Y Y Y Y 3
+x86_64/unknown/freebsd9.1   gcc 4.2.1    21         14-01-02 alex     Y Y Y Y 3
 x86_64/unkn./freebsd8.1-gnu gcc 4.4.5    19         12-02-26 alex     Y Y Y Y 3
 x86_64/unknown/linux-gnu    clang 3.2    21~rc2     13-10-20 alex     Y Y Y Y 1
-x86_64/unknown/linux-gnu    gcc 4.8.1    21~rc2     13-10-20 alex     Y Y Y Y 1
+x86_64/unknown/linux-gnu    gcc 4.8.2    21         13-12-29 alex     Y Y Y Y 1
 x86_64/unknown/linux-gnu    nwcc 0.8.2   21         13-12-01 goetz    Y Y Y Y 1
-x86_64/unknown/linux-gnu    Open64       20.3       13-10-16 goetz    Y Y Y Y 1
+x86_64/unknown/linux-gnu    Open64       21         13-11-30 goetz    Y Y Y Y 1
 x86_64/unknown/linux-gnu    Sun C 5.12   21         13-11-22 goetz    Y Y Y Y 1
 x86_64/unknown/linux-gnu    tcc 0.9.25   21         13-11-30 goetz    Y Y Y Y 1
 x86_64/unknown/openbsd4.7   gcc 3.3.5    20~rc1     12-02-26 alex     Y Y Y Y 3
-x86_64/unknown/openbsd4.8   gcc 4.2.1    21~rc2     13-10-27 alex     Y Y Y Y 3
-x86_64/unknown/openbsd5.1   gcc 4.2.1    21~rc2     13-10-27 alex     Y Y Y Y 3
+x86_64/unknown/openbsd4.8   gcc 4.2.1    21         13-12-28 alex     Y Y Y Y 3
+x86_64/unknown/openbsd5.1   gcc 4.2.1    21         13-12-28 alex     Y Y Y Y 3
 
 
 * Notes

@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001-2013 Alexander Barton (alex@barton.de) and Contributors
+# Copyright (c)2001-2014 Alexander Barton (alex@barton.de) and Contributors
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -65,7 +65,7 @@ if [ -d .git ]; then
 fi
 
 echo "$NAME: Checking for \"./configure\" script ..."
-if [ ! -e ./configure ]; then
+if [ ! -r ./configure ]; then
 	echo "$NAME: Running \"./autogen.sh\" ..."
 	[ -n "$VERBOSE" ] && ./autogen.sh || ./autogen.sh >/dev/null
 fi

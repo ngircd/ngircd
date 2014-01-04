@@ -139,16 +139,35 @@ va_dcl
 {
 	char str[5];
 	va_list ap;
+	int r;
 
 #ifdef PROTOTYPES
 	va_start(ap, Format);
 #else
 	va_start(ap);
 #endif
-	if (vsnprintf(str, sizeof(str), Format, ap) != Len)
-		Panic("vsnprintf return code");
+	r = vsnprintf(str, sizeof(str), Format, ap);
 	va_end(ap);
-
+	if (r != Len) {
+		/* C99 states that vsnprintf() "returns the number of
+		 * characters that would have been printed if the n were
+		 * unlimited", but according to the Linux manual page "glibc
+		 * until 2.0.6 would return -1 when the output was truncated",
+		 * and other implementations (libUTIL on A/UX) even return the
+		 * number of characters processed ... so we only test our own
+		 * implementation and warn on errors otherwise :-/ */
+#ifdef HAVE_VSNPRINTF
+		fprintf(stderr,
+			"\n ** WARNING: The vsnprintf() function of this system isn't standard\n");
+		fprintf(stderr,
+			" ** conformant and returns a WRONG result: %d (should be %d)! The test\n",
+			r, Len);
+		fprintf(stderr,
+			" ** result has been ignored but may lead to errors during execution!\n\n");
+#else
+		Panic("vsnprintf return code");
+#endif
+	}
 	if (str[4] != '\0')
 		Panic("vsnprintf NULL byte");
 	if (strlen(str) != 4)

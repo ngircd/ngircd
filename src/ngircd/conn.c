@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2013 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2014 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -984,6 +984,7 @@ va_dcl
 	size_t len;
 	bool ok;
 	va_list ap;
+	int r;
 
 	assert( Idx > NONE );
 	assert( Format != NULL );
@@ -993,7 +994,8 @@ va_dcl
 #else
 	va_start( ap );
 #endif
-	if (vsnprintf( buffer, COMMAND_LEN - 2, Format, ap ) >= COMMAND_LEN - 2 ) {
+	r = vsnprintf(buffer, COMMAND_LEN - 2, Format, ap);
+	if (r >= COMMAND_LEN - 2 || r == -1) {
 		/*
 		 * The string that should be written to the socket is longer
 		 * than the allowed size of COMMAND_LEN bytes (including both
@@ -1014,6 +1016,13 @@ va_dcl
 		 * an other server only routing the message!), so the only
 		 * option left is to shorten the string and to hope that the
 		 * result is still somewhat useful ...
+		 *
+		 * Note:
+		 * C99 states that vsnprintf() "returns the number of characters
+		 * that would have been printed if the n were unlimited"; but
+		 * according to the Linux manual page "glibc until 2.0.6 would
+		 * return -1 when the output was truncated" -- so we have to
+		 * handle both cases ...
 		 *                                                   -alex-
 		 */
 

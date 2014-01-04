@@ -69,7 +69,7 @@ osxpkg: have-packagemaker osxpkg-dest
 	make osxpkg-clean
 
 osxpkg-clean:
-	[ ! -e ngircd.dest ] || sudo -n rm -rf ngircd.dest
+	[ ! -r ngircd.dest ] || sudo -n rm -rf ngircd.dest
 	rm -rf ngircd.dest $(distdir).mpkg
 
 osxpkg-dest: have-xcodebuild osxpkg-clean clean

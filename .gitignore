@@ -8,6 +8,7 @@ ar-lib
 autom4te.cache
 build-stamp-ngircd*
 compile
+config.cache
 config.log
 config.status
 configure

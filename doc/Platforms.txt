@@ -89,7 +89,7 @@ x86_64/unknown/dragonfly3.4 gcc 4.7.2    21         13-11-12 goetz    Y Y N Y 3
 x86_64/unknown/freebsd8.4   gcc 4.2.1    21         14-01-02 alex     Y Y Y Y 3
 x86_64/unknown/freebsd9.1   gcc 4.2.1    21         14-01-02 alex     Y Y Y Y 3
 x86_64/unkn./freebsd8.1-gnu gcc 4.4.5    19         12-02-26 alex     Y Y Y Y 3
-x86_64/unknown/linux-gnu    clang 3.2    21~rc2     13-10-20 alex     Y Y Y Y 1
+x86_64/unknown/linux-gnu    clang 3.3    21         14-01-07 alex     Y Y Y Y 1
 x86_64/unknown/linux-gnu    gcc 4.8.2    21         13-12-29 alex     Y Y Y Y 1
 x86_64/unknown/linux-gnu    nwcc 0.8.2   21         13-12-01 goetz    Y Y Y Y 1
 x86_64/unknown/linux-gnu    Open64       21         13-11-30 goetz    Y Y Y Y 1

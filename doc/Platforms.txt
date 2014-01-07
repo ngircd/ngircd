@@ -60,7 +60,7 @@ i386/unknown/openbsd5.4     gcc 4.2.1    21         13-11-28 goetz    Y Y Y Y 3
 i586/pc/haiku               gcc 2.95.3   19.2~138   12-10-11 user     Y Y N N
 i586/pc/interix3.5          gcc 3.3      19         12-02-29 alex     Y Y N Y
 i686/pc/cygwin              gcc 4.8.2    21         14-01-02 alex     Y Y N Y
-i686/pc/linux-gnu           gcc 2.7.2    19.1       12-05-30 goetz    Y Y Y Y 1
+i686/pc/linux-gnu           gcc 2.7.2    21~38      14-01-06 goetz    Y Y Y Y 1
 i686/pc/linux-gnu           gcc 2.95.4   0.8.0      04-05-30 alex     Y Y Y Y 1
 i686/pc/linux-gnu           gcc 3.3.5    14.1       09-08-04 alex     Y Y Y Y 1
 i386/pc/linux-gnu           gcc 4.1.2    13~rc1     08-12-05 alex     Y Y Y Y 1
@@ -73,9 +73,10 @@ m68k/hp/hp-ux9.10           Orig. HPUX   0.7.x-CVS  03-04-30 goetz    Y Y Y Y
 m88k/dg/dgux5.4R3.10        gcc 2.5.8    CVSHEAD    04-03-15 alex     Y Y ? ?
 mipsel/unknown/linux-gnu    gcc 4.1.2    18         11-07-05 goetz    Y Y N Y 1
 mipsel/unknown/linux-gnu    gcc 4.4.5    21         13-11-24 goetz    Y Y Y Y 1
-powerpc/apple/darwin6.5     gcc 3.1      0.7.x-CVS  03-04-23 alex     Y Y Y Y
+powerpc/apple/darwin6.8     gcc 3.1      21         14-01-03 goetz    Y Y Y Y
 powerpc/apple/darwin7.9.0   gcc 3.3      19.1       12-05-22 goetz    Y Y Y Y 3
 powerpc/apple/darwin8.11.0  gcc 4.0.1    18         11-07-02 goetz    Y Y Y Y 3
+powerpc/apple/darwin9.8.0   gcc 4.0.1    21         14-01-04 goetz    Y Y Y Y 3
 powerpc/unknown/linux-gnu   gcc 3.3.3    0.8.0      04-05-30 alex     Y Y Y Y
 powerpc/unknown/openbsd3.6  gcc 2.95.3   0.10.0     06-10-08 alex     Y Y N Y
 sparc/sun/solaris2.6        gcc 2.95.3   0.7.x-CVS  03-04-22 alex     Y Y Y Y

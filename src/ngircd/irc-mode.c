@@ -582,9 +582,13 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 				goto chan_exit;
 			if (!set) {
 				if (is_oper || is_machine || is_owner ||
-				    is_admin || is_op || is_halfop)
+				    is_admin || is_op || is_halfop) {
 					x[0] = *mode_ptr;
-				else
+					if (Channel_HasMode(Channel, 'k'))
+						strlcpy(argadd, "*", sizeof(argadd));
+					if (arg_arg > mode_arg)
+						arg_arg++;
+				} else
 					connected = IRC_WriteErrClient(Origin,
 						ERR_CHANOPRIVSNEEDED_MSG,
 						Client_ID(Origin),

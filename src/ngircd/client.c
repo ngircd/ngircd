@@ -345,7 +345,7 @@ Client_SetHostname( CLIENT *Client, const char *Hostname )
 	assert(Client != NULL);
 	assert(Hostname != NULL);
 
-	if (strlen(Conf_CloakHost)) {
+	if (Conf_CloakHost[0]) {
 		char cloak[GETID_LEN];
 
 		strlcpy(cloak, Hostname, GETID_LEN);

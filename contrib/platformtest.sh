@@ -151,8 +151,8 @@ fi
 # Get ngIRCd version information
 eval $(grep "^VERSION = " Makefile | sed -e 's/ //g')
 case "$VERSION" in
-	*-*-*)
-		VERSION=`echo "$VERSION" | cut -d'-' -f3 | cut -b2-`
+	*~*-*)
+		VERSION=`echo "$VERSION" | cut -b1-10`
 		;;
 esac
 [ -n "$VERSION" ] || VERSION="unknown"

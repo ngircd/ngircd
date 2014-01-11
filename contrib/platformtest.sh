@@ -16,6 +16,7 @@
 
 NAME=`basename "$0"`
 VERBOSE=
+CLEAN=1
 
 PLATFORM=
 COMPILER="unknown"
@@ -36,8 +37,15 @@ while [ $# -gt 0 ]; do
 		"-v")
 			VERBOSE=1
 			;;
+		"-x")
+			CLEAN=
+			;;
 		*)
-			echo "Usage: $NAME [-v]"
+			echo "Usage: $NAME [-v] [-x]"
+			echo
+			echo "  -v   Verbose output"
+			echo "  -x   Don't regenerate build system, even when possible"
+			echo
 			exit 2
 	esac
 	shift
@@ -58,7 +66,7 @@ echo "$NAME: Checking for GIT tree ..."
 if [ -d .git ]; then
 	echo "$NAME: Checking for \"git\" command ..."
 	git version >/dev/null 2>&1
-	if [ $? -eq 0 ]; then
+	if [ $? -eq 0 -a -n "$CLEAN" ]; then
 		echo "$NAME: Running \"git clean\" ..."
 		[ -n "$VERBOSE" ] && git clean -dxf || git clean -dxf >/dev/null
 	fi

@@ -29,6 +29,9 @@ R_MAKE=
 R_CHECK=
 R_RUN=
 
+SRC_D=`dirname "$0"`
+MY_D="$PWD"
+
 [ -n "$MAKE" ] || MAKE="make"
 export MAKE CC
 
@@ -52,35 +55,41 @@ while [ $# -gt 0 ]; do
 done
 
 echo "$NAME: Checking ngIRCd base source directory ..."
-grep "ngIRCd" ./ChangeLog >/dev/null 2>&1
+grep "ngIRCd" "$SRC_D/ChangeLog" >/dev/null 2>&1
 if [ $? -ne 0 ]; then
-	grep "ngIRCd" ../ChangeLog >/dev/null 2>&1
+	grep "ngIRCd" "$SRC_D/../ChangeLog" >/dev/null 2>&1
 	if [ $? -ne 0 ]; then
 		echo "$NAME: ngIRCd base source directory not found!?"
 		exit 1
 	fi
-	cd ..
+	SRC_D="$SRC_D/.."
 fi
+echo "$NAME:  - source directory: $SRC_D"
+echo "$NAME:  - working directory: $MY_D"
 
 echo "$NAME: Checking for GIT tree ..."
-if [ -d .git ]; then
+if [ -d "$SRC_D/.git" ]; then
 	echo "$NAME: Checking for \"git\" command ..."
 	git version >/dev/null 2>&1
 	if [ $? -eq 0 -a -n "$CLEAN" ]; then
 		echo "$NAME: Running \"git clean\" ..."
+		cd "$SRC_D" || exit 1
 		[ -n "$VERBOSE" ] && git clean -dxf || git clean -dxf >/dev/null
+		cd "$MY_D" || exit 1
 	fi
 fi
 
-echo "$NAME: Checking for \"./configure\" script ..."
-if [ ! -r ./configure ]; then
-	echo "$NAME: Running \"./autogen.sh\" ..."
+echo "$NAME: Checking for \"$SRC_D/configure\" script ..."
+if [ ! -r "$SRC_D/configure" ]; then
+	echo "$NAME: Running \"$SRC_D/autogen.sh\" ..."
+	cd "$SRC_D" || exit 1
 	[ -n "$VERBOSE" ] && ./autogen.sh || ./autogen.sh >/dev/null
+	cd "$MY_D" || exit 1
 fi
 
-if [ -r ./configure ]; then
-	echo "$NAME: Running \"./configure\" script ..."
-	[ -n "$VERBOSE" ] && ./configure || ./configure >/dev/null
+if [ -r "$SRC_D/configure" ]; then
+	echo "$NAME: Running \"$SRC_D/configure\" script ..."
+	[ -n "$VERBOSE" ] && "$SRC_D/configure" -C || "$SRC_D/configure" -C >/dev/null
 	if [ $? -eq 0 -a -r ./Makefile ]; then
 		R_CONFIGURE=1
 		echo "$NAME: Running \"$MAKE\" ..."

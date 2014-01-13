@@ -74,7 +74,7 @@ m88k/dg/dgux5.4R3.10        gcc 2.5.8    CVSHEAD    04-03-15 alex     Y Y ? ?
 mipsel/unknown/linux-gnu    gcc 4.1.2    18         11-07-05 goetz    Y Y N Y 1
 mipsel/unknown/linux-gnu    gcc 4.4.5    21         13-11-24 goetz    Y Y Y Y 1
 powerpc/apple/darwin6.8     gcc 3.1      21         14-01-03 goetz    Y Y Y Y
-powerpc/apple/darwin7.9.0   gcc 3.3      19.1       12-05-22 goetz    Y Y Y Y 3
+powerpc/apple/darwin7.9.0   gcc 3.3      21         14-01-11 goetz    Y Y Y Y 3
 powerpc/apple/darwin8.11.0  gcc 4.0.1    18         11-07-02 goetz    Y Y Y Y 3
 powerpc/apple/darwin9.8.0   gcc 4.0.1    21         14-01-04 goetz    Y Y Y Y 3
 powerpc/unknown/linux-gnu   gcc 3.3.3    0.8.0      04-05-30 alex     Y Y Y Y

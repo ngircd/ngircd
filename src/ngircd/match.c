@@ -109,11 +109,6 @@ MatchCaseInsensitiveList(const char *Pattern, const char *String,
 static int
 Matche( const char *p, const char *t )
 {
-	register char range_start, range_end;
-	bool invert;
-	bool member_match;
-	bool loop;
-
 	for( ; *p; p++, t++ )
 	{
 		/* if this is the end of the text then this is the end of the match */
@@ -131,118 +126,7 @@ Matche( const char *p, const char *t )
 			case '*':	/* multiple any character match */
 				return Matche_After_Star( p, t );
 
-			case '[':	/* [..] construct, single member/exclusion character match */
-				/* move to beginning of range */
-				p++;
-
-				/* check if this is a member match or exclusion match */
-				invert = false;
-				if( *p == '!' || *p == '^' )
-				{
-					invert = true;
-					p++;
-				}
-
-				/* if closing bracket here or at range start then we have a malformed pattern */
-				if ( *p == ']' ) return MATCH_PATTERN;
-
-				member_match = false;
-				loop = true;
-
-				while( loop )
-				{
-					/* if end of construct then loop is done */
-					if( *p == ']' )
-					{
-						loop = false;
-						continue;
-					}
-
-					/* matching a '!', '^', '-', '\' or a ']' */
-					if( *p == '\\' ) range_start = range_end = *++p;
-					else  range_start = range_end = *p;
-
-					/* if end of pattern then bad pattern (Missing ']') */
-					if( ! *p ) return MATCH_PATTERN;
-
-					/* check for range bar */
-					if( *++p == '-' )
-					{
-						/* get the range end */
-						range_end = *++p;
-
-						/* if end of pattern or construct then bad pattern */
-						if( range_end == '\0' || range_end == ']' ) return MATCH_PATTERN;
-
-						/* special character range end */
-						if( range_end == '\\' )
-						{
-							range_end = *++p;
-
-							/* if end of text then we have a bad pattern */
-							if ( ! range_end ) return MATCH_PATTERN;
-						}
-
-						/* move just beyond this range */
-						p++;
-					}
-
-					/* if the text character is in range then match found. make sure the range
-					 * letters have the proper relationship to one another before comparison */
-					if( range_start < range_end )
-					{
-						if( *t >= range_start && *t <= range_end )
-						{
-							member_match = true;
-							loop = false;
-						}
-					}
-					else
-					{
-						if( *t >= range_end && *t <= range_start )
-						{
-							member_match = true;
-							loop = false;
-						}
-					}
-				}
-
-				/* if there was a match in an exclusion set then no match */
-				/* if there was no match in a member set then no match */
-				if(( invert && member_match ) || ! ( invert || member_match )) return MATCH_RANGE;
-
-				/* if this is not an exclusion then skip the rest of the [...]
-				 * construct that already matched. */
-				if( member_match )
-				{
-					while( *p != ']' )
-					{
-						/* bad pattern (Missing ']') */
-						if( ! *p ) return MATCH_PATTERN;
-
-						/* skip exact match */
-						if( *p == '\\' )
-						{
-							p++;
-
-							/* if end of text then we have a bad pattern */
-							if( ! *p ) return MATCH_PATTERN;
-						}
-
-						/* move to next pattern char */
-						p++;
-					}
-				}
-				break;
-			case '\\':	/* next character is quoted and must match exactly */
-				/* move pattern pointer to quoted char and fall through */
-				p++;
-
-				/* if end of text then we have a bad pattern */
-				if( ! *p ) return MATCH_PATTERN;
-
-				/* must match this character exactly */
-			default:
+			default:	/* must match this character exactly */
 				if( *p != *t ) return MATCH_LITERAL;
 		}
 	}

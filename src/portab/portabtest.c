@@ -24,6 +24,8 @@
 
 #include "exp.h"
 
+int allow_severity = 0, deny_severity = 0;
+
 
 static void Panic PARAMS (( char *Reason, int Code ));
 

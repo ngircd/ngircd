@@ -470,6 +470,8 @@ AC_ARG_WITH(tcp-wrappers,
 			LIBS="-lwrap $LIBS"
 			LIBS_END="-lwrap $LIBS_END"
 			AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+#include <sys/types.h>
+#include <sys/socket.h>
 #include <tcpd.h>
 int allow_severity = 0;
 int deny_severity = 0;

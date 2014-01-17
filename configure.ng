@@ -463,7 +463,9 @@ AC_ARG_WITH(tcp-wrappers,
 				LDFLAGS="-L$withval/lib $LDFLAGS"
 			fi
 			AC_MSG_CHECKING(for hosts_access)
+			saved_LIBS="$LIBS"
 			LIBS="-lwrap $LIBS"
+			LIBS_END="-lwrap $LIBS_END"
 			AC_TRY_LINK([
 #include <tcpd.h>
 int allow_severity = 0;
@@ -478,6 +480,7 @@ int deny_severity = 0;
 				AC_MSG_RESULT(no)
 				AC_MSG_ERROR([Can't enable TCP wrappers!])
 			])
+			LIBS="$saved_LIBS"
 		fi
 	]
 )
@@ -633,9 +636,12 @@ AC_DEFINE_UNQUOTED(HOST_CPU, "$host_cpu" )
 AC_DEFINE_UNQUOTED(HOST_VENDOR, "$host_vendor" )
 AC_DEFINE_UNQUOTED(HOST_OS, "$host_os" )
 
-# Add additional CFLAGS, eventually specified on the command line, but after
-# running this configure script. Useful for "-Werror" for example.
+# Add additional CFLAGS, LDFLAGS and LIBS which were specified on the command
+# line or by some tests from above, but after running this script. Useful for
+# adding "-Werror", for example:
 test -n "$CFLAGS_END" && CFLAGS="$CFLAGS $CFLAGS_END"
+test -n "$LDFLAGS_END" && LDFLAGS="$LDFLAGS $LDFLAGS_END"
+test -n "$LIBS_END" && LIBS="$LIBS $LIBS_END"
 
 # -- Generate files --
 

@@ -54,11 +54,11 @@ maintainer-clean-local:
 all: $(generated_docs)
 
 install-data-hook: $(static_docs) $(toplevel_docs) $(generated_docs)
-	$(mkinstalldirs) $(DESTDIR)$(sysconfdir)
+	$(MKDIR_P) -m 755 $(DESTDIR)$(sysconfdir)
 	@if [ ! -f $(DESTDIR)$(sysconfdir)/ngircd.conf ]; then \
 	  make install-config; \
 	 fi
-	$(mkinstalldirs) $(DESTDIR)$(docdir)
+	$(MKDIR_P) -m 755 $(DESTDIR)$(docdir)
 	for f in $(static_docs) $(toplevel_docs); do \
 	  $(INSTALL) -m 644 -c $(srcdir)/$$f $(DESTDIR)$(docdir)/; \
 	 done

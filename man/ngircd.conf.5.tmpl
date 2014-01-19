@@ -1,7 +1,7 @@
 .\"
 .\" ngircd.conf(5) manual page template
 .\"
-.TH ngircd.conf 5 "Oct 2013" ngIRCd "ngIRCd Manual"
+.TH ngircd.conf 5 "Jan 2014" ngIRCd "ngIRCd Manual"
 .SH NAME
 ngircd.conf \- configuration file of ngIRCd
 .SH SYNOPSIS
@@ -60,7 +60,7 @@ The main configuration of the server is stored in the
 section, like the server name, administrative information and the ports on
 which the server should be listening. The variables in this section have to be
 adjusted to the local requirements most of the time, whereas all the variables
-in the other sections can be left on there defaults very often.
+in the other sections can be left on their defaults very often.
 .PP
 Options in the
 .I [Limits]
@@ -82,12 +82,13 @@ sections. And
 blocks are used to configure pre-defined ("persistent") IRC channels.
 .PP
 There can be more than one [Operator], [Server] and [Channel] section per
-configuration file (one for each operator, server, and channel), but only
-exactly one [Global], one [Limits], one [Options], and one [SSL] section.
+configuration file, one for each operator, server, and channel. [Global],
+[Limits], [Options], and [SSL] sections can occure multiple times, too, but
+each variable overwrites itself, only the last assignment is relevant.
 .SH [GLOBAL]
 The
 .I [Global]
-section of this file is used to define the main configuration of the server,
+section is used to define the main configuration of the server,
 like the server name and the ports on which the server should be listening.
 These settings depend on your personal preferences, so you should make sure
 that they correspond to your installation and setup!
@@ -139,16 +140,16 @@ if ngIRCd is using PAM!
 .TP
 \fBPidFile\fR (string)
 This tells ngIRCd to write its current process ID to a file. Note that the
-"PID file" is written AFTER chroot and switching the user ID, e.g. the directory
-the file resides in must be writable by the ngIRCd user and exist in the
-chroot directory (if configured, see above).
+"PID file" is written AFTER chroot and switching the user ID, therefore the
+directory the file resides in must be writable by the ngIRCd user and exist
+in the chroot directory (if configured, see above).
 .TP
 \fBPorts\fR (list of numbers)
-Ports on which the server should listen for unencrypted connections. There
-may be more than one port, separated with commas (","). Default: 6667.
+Port number(s) on which the server should listen for unencrypted connections.
+There may be more than one port, separated with commas (","). Default: 6667.
 .TP
 \fBServerGID\fR (string or number)
-Group ID under which the ngIRCd should run; you can use the name of the
+Group ID under which the ngIRCd daemon should run; you can use the name of the
 group or the numerical ID.
 .PP
 .RS
@@ -158,8 +159,8 @@ For this to work the server must have been started with root privileges!
 .RE
 .TP
 \fBServerUID\fR (string or number)
-User ID under which the server should run; you can use the name of the user
-or the numerical ID.
+User ID under which the ngIRCd daemon should run; you can use the name of the
+user or the numerical ID.
 .PP
 .RS
 .B Attention:
@@ -169,8 +170,8 @@ addition, the configuration and MOTD files must be readable by this user,
 otherwise RESTART and REHASH won't work!
 .RE
 .SH [LIMITS]
-Define some limits and timeouts for this ngIRCd instance. Default values
-should be safe, but it is wise to double-check :-)
+This section is used to define some limits and timeouts for this ngIRCd
+instance. Default values should be safe, but it is wise to double-check :-)
 .TP
 \fBConnectRetry\fR (number)
 The server tries every <ConnectRetry> seconds to establish a link to not yet
@@ -212,8 +213,8 @@ If a client fails to answer a PING with a PONG within <PongTimeout>
 seconds, it will be disconnected by the server. Default: 20.
 .SH [OPTIONS]
 Optional features and configuration options to further tweak the behavior of
-ngIRCd. If you want to get started quickly, you most probably don't have to
-make changes here -- they are all optional.
+ngIRCd are configured in this section. If you want to get started quickly, you
+most probably don't have to make changes here -- they are all optional.
 .TP
 \fBAllowedChannelTypes\fR (string)
 List of allowed channel types (channel prefixes) for newly created channels
@@ -222,9 +223,9 @@ Set this variable to the empty string to disallow creation of new channels
 by local clients at all. Default: #&+
 .TP
 \fBAllowRemoteOper\fR (boolean)
-Are IRC operators connected to remote servers allowed to control this server,
-e.g. are they allowed to use administrative commands like CONNECT, DIE,
-SQUIT, ... that affect this server? Default: no.
+If this option is active, IRC operators connected to remote servers are allowed
+to control this local server using administrative commands, for example like
+CONNECT, DIE, SQUIT etc. Default: no.
 .TP
 \fBChrootDir\fR (string)
 A directory to chroot in when everything is initialized. It doesn't need
@@ -283,11 +284,11 @@ Users identified using IDENT are registered without the "~" character
 prepended to their user name.
 Default: yes.
 .TP
-.TP
 \fBIncludeDir\fR (string)
 Directory containing configuration snippets (*.conf), that should be read in
 after parsing the current configuration file.
 Default: none.
+.TP
 \fBMorePrivacy\fR (boolean)
 This will cause ngIRCd to censor user idle time, logon time as well as the
 part/quit messages (that are sometimes used to inform everyone about which

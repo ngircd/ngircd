@@ -71,6 +71,7 @@
 #define RPL_LISTEND_MSG			"323 %s :End of LIST"
 #define RPL_CHANNELMODEIS_MSG		"324 %s %s +%s"
 #define RPL_CREATIONTIME_MSG		"329 %s %s %ld"
+#define RPL_WHOISLOGGEDIN_MSG		"330 %s %s %s :is logged in as"
 #define RPL_NOTOPIC_MSG			"331 %s %s :No topic is set"
 #define RPL_TOPIC_MSG			"332 %s %s :%s"
 #define RPL_TOPICSETBY_MSG		"333 %s %s %s %u"

@@ -401,6 +401,13 @@ IRC_WHOIS_SendReply(CLIENT *Client, CLIENT *from, CLIENT *c)
 				Client_ID(from), Client_ID(c)))
 		return DISCONNECTED;
 
+	/* Account name metadata? */
+	if (Client_AccountName(c) &&
+	    !IRC_WriteStrClient(from, RPL_WHOISLOGGEDIN_MSG,
+				Client_ID(from), Client_ID(c),
+				Client_AccountName(c)))
+		return DISCONNECTED;
+
 	/* Local client and requester is the user itself or an IRC Op? */
 	if (Client_Conn(c) > NONE &&
 	    (from == c || (!Conf_MorePrivacy && Client_HasMode(from, 'o')))) {

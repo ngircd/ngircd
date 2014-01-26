@@ -673,7 +673,9 @@ if test $? -eq 0; then
 	# Generate debian/ link if the dpkg command exists
 	# (read: if we are running on a debian compatible system)
 	echo "creating Debian-specific links ..."
-	test -f debian/rules || ln -s contrib/Debian debian
+	if test ! -f debian/rules -a -f contrib/Debian/rules; then
+		ln -s contrib/Debian debian
+	fi
 fi
 
 # -- Result --

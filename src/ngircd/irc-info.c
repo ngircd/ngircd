@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2013 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2014 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1106,10 +1106,19 @@ IRC_VERSION( CLIENT *Client, REQUEST *Req )
 	}
 
 	/* send version information */
-	return IRC_WriteStrClient(Client, RPL_VERSION_MSG, Client_ID(prefix),
-				  PACKAGE_NAME, PACKAGE_VERSION,
-				  NGIRCd_DebugLevel, Conf_ServerName,
-				  NGIRCd_VersionAddition);
+	if (!IRC_WriteStrClient(Client, RPL_VERSION_MSG, Client_ID(prefix),
+				PACKAGE_NAME, PACKAGE_VERSION,
+				NGIRCd_DebugLevel, Conf_ServerName,
+				NGIRCd_VersionAddition))
+		return DISCONNECTED;
+
+#ifndef STRICT_RFC
+	/* send RPL_ISUPPORT(005) numerics */
+	if (!IRC_Send_ISUPPORT(Client))
+		return DISCONNECTED;
+#endif
+
+	return CONNECTED;
 } /* IRC_VERSION */
 
 /**

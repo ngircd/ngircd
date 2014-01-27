@@ -1114,7 +1114,7 @@ IRC_VERSION( CLIENT *Client, REQUEST *Req )
 
 #ifndef STRICT_RFC
 	/* send RPL_ISUPPORT(005) numerics */
-	if (!IRC_Send_ISUPPORT(Client))
+	if (!IRC_Send_ISUPPORT(prefix))
 		return DISCONNECTED;
 #endif
 

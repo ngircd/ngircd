@@ -194,7 +194,8 @@ IRC_INVITE(CLIENT *Client, REQUEST *Req)
 
 		if (remember) {
 			/* We must remember this invite */
-			if (!Channel_AddInvite(chan, Client_Mask(target), true))
+			if (!Channel_AddInvite(chan, Client_MaskCloaked(target),
+						true))
 				return CONNECTED;
 		}
 	}

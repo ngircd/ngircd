@@ -170,7 +170,8 @@ IRC_INVITE(CLIENT *Client, REQUEST *Req)
 
 		/* Is the channel "invite-only"? */
 		if (Channel_HasMode(chan, 'i')) {
-			/* Yes. The user must be channel owner/admin/operator/halfop! */
+			/* Yes. The user issuing the INVITE command must be
+			 * channel owner/admin/operator/halfop! */
 			if (!Channel_UserHasMode(chan, from, 'q') &&
 			    !Channel_UserHasMode(chan, from, 'a') &&
 			    !Channel_UserHasMode(chan, from, 'o') &&
@@ -204,21 +205,22 @@ IRC_INVITE(CLIENT *Client, REQUEST *Req)
 		 Req->argv[0], Req->argv[1]);
 
 	/*
-	 * RFC 2812 says:
-	 * 'There is no requirement that the channel [..] must exist or be a valid channel'
-	 * The problem with this is that this allows the "channel" to contain spaces,
-	 * in which case we must prefix its name with a colon to make it clear that
-	 * it is only a single argument.
+	 * RFC 2812 states:
+	 * 'There is no requirement that the channel [..] must exist or be a
+	 * valid channel'. The problem with this is that this allows the
+	 * "channel" to contain spaces, in which case we must prefix its name
+	 * with a colon to make it clear that it is only a single argument.
 	 */
 	colon_if_necessary = strchr(Req->argv[1], ' ') ? ":":"";
 	/* Inform target client */
 	IRC_WriteStrClientPrefix(target, from, "INVITE %s %s%s", Req->argv[0],
-					colon_if_necessary, Req->argv[1]);
+				  colon_if_necessary, Req->argv[1]);
 
 	if (Client_Conn(target) > NONE) {
 		/* The target user is local, so we have to send the status code */
 		if (!IRC_WriteStrClientPrefix(from, target, RPL_INVITING_MSG,
-			Client_ID(from), Req->argv[0], colon_if_necessary, Req->argv[1]))
+					       Client_ID(from), Req->argv[0],
+					       colon_if_necessary, Req->argv[1]))
 			return DISCONNECTED;
 
 		if (Client_HasMode(target, 'a') &&

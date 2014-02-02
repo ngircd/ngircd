@@ -41,8 +41,8 @@ Example:
      ServiceMask = *Serv
 
 
-Setting up Anope 1.9.x
-~~~~~~~~~~~~~~~~~~~~~~
+Setting up Anope 1.9.x & 2.x
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Anope 1.9.8 or later (<http://www.anope.org/>) can be used with ngIRCd using
 the "ngircd" protocol module.
@@ -66,20 +66,28 @@ In conf/services.conf:
   }
 
   # Load ngIRCd protocol module
-  module { name = "ngircd" }
+  module
+  {
+	name = "ngircd"
+  }
 
   networkinfo
   {
 	# Must be set to the "MaxNickLength" setting of ngIRCd!
 	nicklen = 9
 
+	# When not using "strict mode", which is the default:
+	userlen = 20
+
 	chanlen = 50
   }
 
 In conf/nickserv.conf:
 
-  nickserv
+  module
   {
+	name = "nickserv"
+
 	# not required if you are running ngIRCd with a higher nickname limit
 	# ("MaxNickLength") than 11 characters, but REQUIRED by default!
 	guestnickprefix = "G-"

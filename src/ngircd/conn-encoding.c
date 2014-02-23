@@ -125,7 +125,7 @@ Convert_Message(iconv_t Handle, char *Message)
 	if (iconv(Handle, &Message, &in_left, &out, &out_left) == (size_t)(-1)) {
 		/* An error occurred! */
 		LogDebug("Error converting message encoding!");
-		strlcpy(Encoding_Buffer, Message, sizeof(Encoding_Buffer));
+		strlcpy(out, Message, sizeof(Encoding_Buffer));
 		iconv(Handle, NULL, NULL, NULL, NULL);
 	} else
 		*out = '\0';

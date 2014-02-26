@@ -91,13 +91,12 @@ Login_User(CLIENT * Client)
 
 #ifdef PAM
 	if (!Conf_PAM) {
-		/* Don't do any PAM authentication at all, instead emulate
-		 * the behavior of the daemon compiled without PAM support:
-		 * because there can't be any "server password", all
-		 * passwords supplied are classified as "wrong". */
-		if(Conn_Password(conn)[0] == '\0')
+		/* Don't do any PAM authentication at all if PAM is not
+		 * enabled, instead emulate the behavior of the daemon
+		 * compiled without PAM support. */
+		if (strcmp(Conn_Password(conn), Conf_ServerPwd) == 0) 
 			return Login_User_PostAuth(Client);
-		Client_Reject(Client, "Non-empty password", false);
+		Client_Reject(Client, "Bad server password", false);
 		return DISCONNECTED;
 	}
 
@@ -111,25 +110,27 @@ Login_User(CLIENT * Client)
 		return Login_User_PostAuth(Client);
 	}
 
-	/* Fork child process for PAM authentication; and make sure that the
-	 * process timeout is set higher than the login timeout! */
-	pid = Proc_Fork(Conn_GetProcStat(conn), pipefd,
-			cb_Read_Auth_Result, Conf_PongTimeout + 1);
-	if (pid > 0) {
-		LogDebug("Authenticator for connection %d created (PID %d).",
-			 conn, pid);
-		return CONNECTED;
-	} else {
-		/* Sub process */
-		Log_Init_Subprocess("Auth");
-		Conn_CloseAllSockets(NONE);
-		result = PAM_Authenticate(Client);
-		if (write(pipefd[1], &result, sizeof(result)) != sizeof(result))
-			Log_Subprocess(LOG_ERR,
-				       "Failed to pipe result to parent!");
-		Log_Exit_Subprocess("Auth");
-		exit(0);
-	}
+	if (Conf_PAM) {
+		/* Fork child process for PAM authentication; and make sure that the
+		 * process timeout is set higher than the login timeout! */
+		pid = Proc_Fork(Conn_GetProcStat(conn), pipefd,
+				cb_Read_Auth_Result, Conf_PongTimeout + 1);
+		if (pid > 0) {
+			LogDebug("Authenticator for connection %d created (PID %d).",
+				 conn, pid);
+			return CONNECTED;
+		} else {
+			/* Sub process */
+			Log_Init_Subprocess("Auth");
+			Conn_CloseAllSockets(NONE);
+			result = PAM_Authenticate(Client);
+			if (write(pipefd[1], &result, sizeof(result)) != sizeof(result))
+				Log_Subprocess(LOG_ERR,
+					       "Failed to pipe result to parent!");
+			Log_Exit_Subprocess("Auth");
+			exit(0);
+		}
+	} else return CONNECTED;
 #else
 	/* Check global server password ... */
 	if (strcmp(Conn_Password(conn), Conf_ServerPwd) != 0) {

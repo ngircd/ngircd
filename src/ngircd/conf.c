@@ -370,9 +370,8 @@ Conf_Test( void )
 		       ? (const char*) array_start(&Conf_Motd) : "");
 	}
 	printf("  Network = %s\n", Conf_Network);
-#ifndef PAM
-	printf("  Password = %s\n", Conf_ServerPwd);
-#endif
+	if (!Conf_PAM) 
+		printf("  Password = %s\n", Conf_ServerPwd);
 	printf("  PidFile = %s\n", Conf_PidFile);
 	printf("  Ports = ");
 	ports_puts(&Conf_ListenPorts);
@@ -2259,7 +2258,7 @@ Validate_Config(bool Configtest, bool Rehash)
 	}
 
 #ifdef PAM
-	if (Conf_ServerPwd[0])
+	if (Conf_PAM && Conf_ServerPwd[0])
 		Config_Error(LOG_ERR,
 			     "This server uses PAM, \"Password\" in [Global] section will be ignored!");
 #endif

@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2013 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2014 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1053,9 +1053,13 @@ Read_Config(bool TestOnly, bool IsStarting)
 }
 
 /**
- * ...
+ * Read in and handle a configuration file.
+ *
+ * @param File Name of the configuration file.
+ * @param fd File descriptor already opened for reading.
  */
-static void Read_Config_File(const char *File, FILE *fd)
+static void
+Read_Config_File(const char *File, FILE *fd)
 {
 	char section[LINE_LEN], str[LINE_LEN], *var, *arg, *ptr;
 	int i, line = 0;

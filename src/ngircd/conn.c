@@ -809,16 +809,6 @@ SSL_WantWrite(const CONNECTION *c)
 	return false;
 }
 
-#else
-
-static inline bool
-SSL_WantRead(UNUSED const CONNECTION *c)
-{ return false; }
-
-static inline bool
-SSL_WantWrite(UNUSED const CONNECTION *c)
-{ return false; }
-
 #endif
 
 
@@ -881,8 +871,10 @@ Conn_Handler(void)
 			if (wdatalen > 0)
 #endif
 			{
+#ifdef SSL_SUPPORT
 				if (SSL_WantRead(&My_Connections[i]))
 					continue;
+#endif
 				io_event_add(My_Connections[i].sock,
 					     IO_WANTWRITE);
 			}

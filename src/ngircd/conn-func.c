@@ -29,7 +29,6 @@
 #include "exp.h"
 #include "conn-func.h"
 
-
 /**
  * Update "idle timestamp", the time of the last visible user action
  * (e. g. like sending messages, joining or leaving channels).
@@ -73,14 +72,12 @@ Conn_GetIdle( CONN_ID Idx )
 	return time( NULL ) - My_Connections[Idx].lastprivmsg;
 } /* Conn_GetIdle */
 
-
 GLOBAL time_t
 Conn_LastPing( CONN_ID Idx )
 {
 	assert( Idx > NONE );
 	return My_Connections[Idx].lastping;
 } /* Conn_LastPing */
-
 
 /**
  * Add "penalty time" for a connection.
@@ -116,7 +113,6 @@ Conn_SetPenalty(CONN_ID Idx, time_t Seconds)
 #endif
 } /* Conn_SetPenalty */
 
-
 GLOBAL void
 Conn_ClearFlags( void )
 {
@@ -125,7 +121,6 @@ Conn_ClearFlags( void )
 	for( i = 0; i < Pool_Size; i++ ) My_Connections[i].flag = 0;
 } /* Conn_ClearFlags */
 
-
 GLOBAL int
 Conn_Flag( CONN_ID Idx )
 {
@@ -133,14 +128,12 @@ Conn_Flag( CONN_ID Idx )
 	return My_Connections[Idx].flag;
 } /* Conn_Flag */
 
-
 GLOBAL void
 Conn_SetFlag( CONN_ID Idx, int Flag )
 {
 	assert( Idx > NONE );
 	My_Connections[Idx].flag = Flag;
 } /* Conn_SetFlag */
-
 
 GLOBAL CONN_ID
 Conn_First( void )
@@ -153,7 +146,6 @@ Conn_First( void )
 	}
 	return NONE;
 } /* Conn_First */
-
 
 GLOBAL CONN_ID
 Conn_Next( CONN_ID Idx )
@@ -169,14 +161,12 @@ Conn_Next( CONN_ID Idx )
 	return NONE;
 } /* Conn_Next */
 
-
 GLOBAL UINT16
 Conn_Options( CONN_ID Idx )
 {
 	assert( Idx > NONE );
 	return My_Connections[Idx].options;
 } /* Conn_Options */
-
 
 /**
  * Set connection option.
@@ -187,7 +177,6 @@ Conn_SetOption(CONN_ID Idx, int Option)
 	assert(Idx > NONE);
 	Conn_OPTION_ADD(&My_Connections[Idx], Option);
 } /* Conn_SetOption */
-
 
 /**
  * Get the start time of the connection.
@@ -224,7 +213,6 @@ Conn_SendQ( CONN_ID Idx )
 	return array_bytes(&My_Connections[Idx].wbuf);
 } /* Conn_SendQ */
 
-
 /**
  * return number of messages sent on this connection so far
  */
@@ -236,7 +224,6 @@ Conn_SendMsg( CONN_ID Idx )
 	return My_Connections[Idx].msg_out;
 } /* Conn_SendMsg */
 
-
 /**
  * return number of (uncompressed) bytes sent
  * on this connection so far
@@ -247,7 +234,6 @@ Conn_SendBytes( CONN_ID Idx )
 	assert( Idx > NONE );
 	return My_Connections[Idx].bytes_out;
 } /* Conn_SendBytes */
-
 
 /**
  * return number of bytes pending in read buffer
@@ -264,7 +250,6 @@ Conn_RecvQ( CONN_ID Idx )
 	return array_bytes(&My_Connections[Idx].rbuf);
 } /* Conn_RecvQ */
 
-
 /**
  * return number of messages received on this connection so far
  */
@@ -274,7 +259,6 @@ Conn_RecvMsg( CONN_ID Idx )
 	assert( Idx > NONE );
 	return My_Connections[Idx].msg_in;
 } /* Conn_RecvMsg */
-
 
 /**
  * return number of (uncompressed) bytes received on this
@@ -297,19 +281,16 @@ Conn_IPA(CONN_ID Idx)
 	return ng_ipaddr_tostr(&My_Connections[Idx].addr);
 }
 
-
 GLOBAL void
 Conn_ResetWCounter( void )
 {
 	WCounter = 0;
 } /* Conn_ResetWCounter */
 
-
 GLOBAL long
 Conn_WCounter( void )
 {
 	return WCounter;
 } /* Conn_WCounter */
-
 
 /* -eof- */

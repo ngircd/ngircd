@@ -4,6 +4,7 @@
 
 #ifndef NG_IPADDR_HDR
 #define NG_IPADDR_HDR
+
 #include "portab.h"
 
 /**

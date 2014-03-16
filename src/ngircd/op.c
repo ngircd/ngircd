@@ -56,7 +56,6 @@ Op_NoPrivileges(CLIENT * Client, REQUEST * Req)
 	}
 } /* Op_NoPrivileges */
 
-
 /**
  * Check that the originator of a request is an IRC operator and allowed
  * to administer this server.
@@ -93,6 +92,5 @@ Op_Check(CLIENT * Client, REQUEST * Req)
 	 * to trust remote operators. */
 	return c;
 } /* Op_Check */
-
 
 /* -eof- */

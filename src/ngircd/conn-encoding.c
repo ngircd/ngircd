@@ -38,7 +38,6 @@ char Encoding_Buffer[COMMAND_LEN];
 
 char *Convert_Message PARAMS((iconv_t Handle, char *Message));
 
-
 /**
  * Set client character encoding on a connection.
  *
@@ -133,7 +132,7 @@ Convert_Message(iconv_t Handle, char *Message)
 	return Encoding_Buffer;
 }
 
-#endif
+#endif /* ICONV */
 
 /**
  * Convert encoding of a message received from a connection.

@@ -30,8 +30,8 @@ strndup(const char *s, size_t maxlen)
 	dup = malloc(len);
 	if (dup)
 		strlcpy(dup, s, len);
+
 	return dup;
 }
 
 #endif
-

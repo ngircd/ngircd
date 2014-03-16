@@ -48,10 +48,8 @@
 #define REMOVE_QUIT 1
 #define REMOVE_KICK 2
 
-
 static CHANNEL *My_Channels;
 static CL2CHAN *My_Cl2Chan;
-
 
 static CL2CHAN *Get_Cl2Chan PARAMS(( CHANNEL *Chan, CLIENT *Client ));
 static CL2CHAN *Add_Client PARAMS(( CHANNEL *Chan, CLIENT *Client ));

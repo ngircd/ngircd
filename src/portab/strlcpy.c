@@ -52,7 +52,6 @@ strlcat( char *dst, const char *src, size_t size )
 
 #endif
 
-
 #ifndef HAVE_STRLCPY
 
 GLOBAL size_t
@@ -73,6 +72,5 @@ strlcpy( char *dst, const char *src, size_t size )
 } /* strlcpy */
 
 #endif
-
 
 /* -eof- */

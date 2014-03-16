@@ -52,7 +52,6 @@
 #include "exp.h"
 #include "ngircd.h"
 
-
 static void Show_Version PARAMS(( void ));
 static void Show_Help PARAMS(( void ));
 

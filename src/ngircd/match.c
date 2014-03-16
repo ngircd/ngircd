@@ -25,17 +25,14 @@
 #include "defines.h"
 #include "tool.h"
 
-
 /*
  * The pattern matching functions [Matche(), Matche_After_Star()] are based
  * on code of J. Kercheval. Version 1.1 has been released on 1991-03-12 as
  * "public domain": <http://c.snippets.org/snip_lister.php?fname=match.c>
  */
 
-
 static int Matche PARAMS(( const char *p, const char *t ));
 static int Matche_After_Star PARAMS(( const char *p, const char *t ));
-
 
 #define MATCH_PATTERN	6	/**< bad pattern */
 #define MATCH_LITERAL	5	/**< match failure on literal match */
@@ -43,7 +40,6 @@ static int Matche_After_Star PARAMS(( const char *p, const char *t ));
 #define MATCH_ABORT	3	/**< premature end of text string */
 #define MATCH_END	2	/**< premature end of pattern string */
 #define MATCH_VALID	1	/**< valid match */
-
 
 /**
  * Match string with pattern.
@@ -58,7 +54,6 @@ Match( const char *Pattern, const char *String )
 	if( Matche( Pattern, String ) == MATCH_VALID ) return true;
 	else return false;
 } /* Match */
-
 
 /**
  * Match string with pattern case-insensitive.
@@ -75,7 +70,6 @@ MatchCaseInsensitive(const char *Pattern, const char *String)
 	strlcpy(haystack, String, sizeof(haystack));
 	return Match(Pattern, ngt_LowerStr(haystack));
 } /* MatchCaseInsensitive */
-
 
 /**
  * Match string with pattern case-insensitive.
@@ -104,7 +98,6 @@ MatchCaseInsensitiveList(const char *Pattern, const char *String,
 	}
 	return false;
 } /* MatchCaseInsensitive */
-
 
 static int
 Matche( const char *p, const char *t )
@@ -135,7 +128,6 @@ Matche( const char *p, const char *t )
 	if( *t ) return MATCH_END;
 	else return MATCH_VALID;
 } /* Matche */
-
 
 static int
 Matche_After_Star( const char *p, const char *t )
@@ -185,6 +177,5 @@ Matche_After_Star( const char *p, const char *t )
 	/* return result */
 	return match;
 } /* Matche_After_Star */
-
 
 /* -eof- */

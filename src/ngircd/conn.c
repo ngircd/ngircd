@@ -84,7 +84,6 @@
 
 #define SD_LISTEN_FDS_START 3
 
-
 static bool Handle_Write PARAMS(( CONN_ID Idx ));
 static bool Conn_Write PARAMS(( CONN_ID Idx, char *Data, size_t Len ));
 static int New_Connection PARAMS(( int Sock, bool IsSSL ));
@@ -99,7 +98,6 @@ static void New_Server PARAMS(( int Server, ng_ipaddr_t *dest ));
 static void Simple_Message PARAMS(( int Sock, const char *Msg ));
 static int NewListener PARAMS(( const char *listen_addr, UINT16 Port ));
 static void Account_Connection PARAMS((void));
-
 
 static array My_Listeners;
 static array My_ConnArray;

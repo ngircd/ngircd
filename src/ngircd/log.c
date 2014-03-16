@@ -43,7 +43,6 @@
 #include "exp.h"
 #include "log.h"
 
-
 static bool Is_Daemon;
 
 

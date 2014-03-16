@@ -117,7 +117,6 @@ Announce_Channel(CLIENT *Client, CHANNEL *Chan)
 	return CONNECTED;
 } /* Announce_Channel */
 
-
 /**
  * Announce new server in the network
  * @param Client New server
@@ -148,7 +147,6 @@ Announce_Server(CLIENT * Client, CLIENT * Server)
 		Client_ID(Server), Client_Hops(Server) + 1,
 		Client_MyToken(Server), Client_Info(Server));
 } /* Announce_Server */
-
 
 #ifdef IRCPLUS
 
@@ -210,7 +208,6 @@ Synchronize_Lists(CLIENT * Client)
 	return CONNECTED;
 }
 
-
 /**
  * Send CHANINFO commands to a new server (inform it about existing channels).
  * @param Client New server
@@ -254,7 +251,6 @@ Send_CHANINFO(CLIENT * Client, CHANNEL * Chan)
 } /* Send_CHANINFO */
 
 #endif /* IRCPLUS */
-
 
 /**
  * Handle ENDOFMOTD (376) numeric and login remote server.
@@ -349,7 +345,6 @@ IRC_Num_ENDOFMOTD(CLIENT * Client, UNUSED REQUEST * Req)
 	return CONNECTED;
 } /* IRC_Num_ENDOFMOTD */
 
-
 /**
  * Handle ISUPPORT (005) numeric.
  */
@@ -384,6 +379,5 @@ IRC_Num_ISUPPORT(CLIENT * Client, REQUEST * Req)
 
 	return CONNECTED;
 } /* IRC_Num_ISUPPORT */
-
 
 /* -eof- */

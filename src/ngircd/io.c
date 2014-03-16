@@ -18,7 +18,6 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -119,6 +118,7 @@ static bool io_event_change_devpoll(int fd, short what);
 #endif
 
 #ifdef IO_USE_SELECT
+#include <sys/time.h>
 #include "defines.h"	/* for conn.h */
 #include "proc.h"	/* for PROC_STAT (needed by conf.h) */
 #include "conn.h"	/* for CONN_ID (needed by conf.h) */

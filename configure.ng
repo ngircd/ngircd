@@ -155,7 +155,7 @@ AC_HEADER_TIME
 # Required header files
 AC_CHECK_HEADERS([ \
 	fcntl.h netdb.h netinet/in.h stdlib.h string.h \
-	strings.h sys/socket.h sys/time.h unistd.h \
+	strings.h sys/socket.h sys/time.h sys/types.h unistd.h \
 	],,AC_MSG_ERROR([required C header missing!]))
 
 # Optional header files

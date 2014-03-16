@@ -16,7 +16,6 @@
  * IRC operator functions
  */
 
-#include "imp.h"
 #include <assert.h>
 #include <string.h>
 
@@ -28,9 +27,7 @@
 #include "messages.h"
 #include "irc-write.h"
 
-#include <exp.h>
 #include "op.h"
-
 
 /**
  * Return and log a "no privileges" message.

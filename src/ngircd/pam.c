@@ -18,7 +18,6 @@
  * PAM User Authentication
  */
 
-#include "imp.h"
 #include <assert.h>
 
 #include "defines.h"
@@ -37,7 +36,6 @@
 #include <pam/pam_appl.h>
 #endif
 
-#include "exp.h"
 #include "pam.h"
 
 static char *password;

@@ -16,7 +16,6 @@
  * Tool functions
  */
 
-#include "imp.h"
 #include <assert.h>
 #include <ctype.h>
 #include <stdio.h>
@@ -31,7 +30,6 @@
 #include <syslog.h>
 #endif
 
-#include "exp.h"
 #include "tool.h"
 
 

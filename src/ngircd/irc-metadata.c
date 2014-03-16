@@ -18,7 +18,6 @@
  * IRC metadata commands
  */
 
-#include "imp.h"
 #include <assert.h>
 #include <string.h>
 #include <stdio.h>
@@ -32,7 +31,6 @@
 #include "parse.h"
 #include "tool.h"
 
-#include "exp.h"
 #include "irc-metadata.h"
 
 /**

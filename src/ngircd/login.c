@@ -16,7 +16,6 @@
  * Functions to deal with client logins
  */
 
-#include "imp.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -41,7 +40,6 @@
 #include "irc-mode.h"
 #include "irc-write.h"
 
-#include "exp.h"
 #include "login.h"
 
 #ifdef PAM

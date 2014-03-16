@@ -11,12 +11,9 @@
 
 #ifndef HAVE_STRDUP
 
-#include "imp.h"
 #include <string.h>
 #include <stdlib.h>
 #include <sys/types.h>
-
-#include "exp.h"
 
 GLOBAL char *
 strdup(const char *s)

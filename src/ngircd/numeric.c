@@ -16,7 +16,6 @@
  * Handlers for IRC numerics sent to the server
  */
 
-#include "imp.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -35,9 +34,7 @@
 #include "messages.h"
 #include "parse.h"
 
-#include "exp.h"
 #include "numeric.h"
-
 
 /**
  * Announce a channel and its users in the network.

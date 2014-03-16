@@ -25,7 +25,6 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-#include "imp.h"
 #include "conn.h"
 #include "conf-ssl.h"
 #include "channel.h"

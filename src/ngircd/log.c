@@ -16,7 +16,6 @@
  * Logging functions
  */
 
-#include "imp.h"
 #include <assert.h>
 #include <errno.h>
 #ifdef PROTOTYPES
@@ -40,7 +39,6 @@
 #include "irc-write.h"
 #include "conf.h"
 
-#include "exp.h"
 #include "log.h"
 
 static bool Is_Daemon;

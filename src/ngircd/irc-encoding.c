@@ -16,7 +16,6 @@
  * IRC encoding commands
  */
 
-#include "imp.h"
 #include <assert.h>
 #include <string.h>
 
@@ -28,7 +27,6 @@
 #include "parse.h"
 #include "tool.h"
 
-#include "exp.h"
 #include "irc-encoding.h"
 
 #ifdef ICONV

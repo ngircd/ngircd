@@ -17,7 +17,6 @@
  * by the loader of the operating system.
  */
 
-#include "imp.h"
 #include <assert.h>
 #include <errno.h>
 #include <stdio.h>
@@ -49,7 +48,6 @@
 #include "io.h"
 #include "irc.h"
 
-#include "exp.h"
 #include "ngircd.h"
 
 static void Show_Version PARAMS(( void ));

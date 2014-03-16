@@ -16,7 +16,6 @@
  * IRC command parser and validator.
  */
 
-#include "imp.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -31,10 +30,8 @@
 #include "messages.h"
 #include "tool.h"
 
-#include "exp.h"
 #include "parse.h"
 
-#include "imp.h"
 #include "irc.h"
 #include "irc-cap.h"
 #include "irc-channel.h"
@@ -49,7 +46,6 @@
 #include "irc-write.h"
 #include "numeric.h"
 
-#include "exp.h"
 #include "conf.h"
 
 struct _NUMERIC {

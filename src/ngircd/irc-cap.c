@@ -16,7 +16,6 @@
  * Handler for IRC capability ("CAP") commands
  */
 
-#include "imp.h"
 #include <assert.h>
 #include <string.h>
 
@@ -31,7 +30,6 @@
 #include "messages.h"
 #include "parse.h"
 
-#include "exp.h"
 #include "irc-cap.h"
 
 /* Local functions */

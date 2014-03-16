@@ -18,7 +18,6 @@
  * Connection management: Global functions
  */
 
-#include "imp.h"
 #include <assert.h>
 #include <string.h>
 #include "log.h"
@@ -26,7 +25,6 @@
 #include "conn.h"
 #include "client.h"
 
-#include "exp.h"
 #include "conn-func.h"
 
 /**

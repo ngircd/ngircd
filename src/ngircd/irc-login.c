@@ -16,7 +16,6 @@
  * Login and logout
  */
 
-#include "imp.h"
 #include <assert.h>
 #include <ctype.h>
 #include <stdlib.h>
@@ -36,7 +35,6 @@
 #include "irc-macros.h"
 #include "irc-write.h"
 
-#include "exp.h"
 #include "irc-login.h"
 
 static void Change_Nick PARAMS((CLIENT * Origin, CLIENT * Target, char *NewNick,

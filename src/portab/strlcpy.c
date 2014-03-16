@@ -22,12 +22,8 @@
  * <http://cvs.samba.org/cgi-bin/cvsweb/rsync/lib/compat.c>
  */
 
-#include "imp.h"
 #include <string.h>
 #include <sys/types.h>
-
-#include "exp.h"
-
 
 #ifndef HAVE_STRLCAT
 

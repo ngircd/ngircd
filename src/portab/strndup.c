@@ -11,12 +11,9 @@
 
 #ifndef HAVE_STRNDUP
 
-#include "imp.h"
 #include <string.h>
 #include <stdlib.h>
 #include <sys/types.h>
-
-#include "exp.h"
 
 GLOBAL char *
 strndup(const char *s, size_t maxlen)

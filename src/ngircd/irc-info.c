@@ -16,7 +16,6 @@
  * IRC info commands
  */
 
-#include "imp.h"
 #include <assert.h>
 #include <errno.h>
 #include <stdio.h>
@@ -43,7 +42,6 @@
 #include "client-cap.h"
 #include "op.h"
 
-#include "exp.h"
 #include "irc-info.h"
 
 /* Local functions */

@@ -16,7 +16,6 @@
  * Process management
  */
 
-#include "imp.h"
 #include <assert.h>
 #include <errno.h>
 #include <signal.h>
@@ -27,8 +26,6 @@
 #include "log.h"
 #include "io.h"
 #include "conn.h"
-
-#include "exp.h"
 #include "sighandlers.h"
 #include "proc.h"
 

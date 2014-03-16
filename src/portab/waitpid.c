@@ -12,12 +12,9 @@
 
 #ifndef HAVE_WAITPID
 
-#include "imp.h"
 #include <string.h>
 #include <stdlib.h>
 #include <sys/types.h>
-
-#include "exp.h"
 
 GLOBAL int
 waitpid(pid, stat_loc, options)

@@ -18,7 +18,6 @@
  * Client management.
  */
 
-#include "imp.h"
 #include <assert.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -29,11 +28,8 @@
 
 #include "defines.h"
 #include "conn.h"
-
-#include "exp.h"
 #include "client.h"
 
-#include <imp.h>
 #include "ngircd.h"
 #include "channel.h"
 #include "conf.h"
@@ -43,8 +39,6 @@
 #include "log.h"
 #include "match.h"
 #include "messages.h"
-
-#include <exp.h>
 
 #define GETID_LEN (CLIENT_NICK_LEN-1) + 1 + (CLIENT_USER_LEN-1) + 1 + (CLIENT_HOST_LEN-1) + 1
 

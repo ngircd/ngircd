@@ -16,7 +16,6 @@
  * User class management.
  */
 
-#include "imp.h"
 #include <assert.h>
 #include <string.h>
 
@@ -28,7 +27,6 @@
 #include "match.h"
 #include "stdio.h"
 
-#include "exp.h"
 #include "class.h"
 
 struct list_head My_Classes[CLASS_COUNT];

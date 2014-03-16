@@ -16,7 +16,6 @@
  * IRC commands
  */
 
-#include "imp.h"
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
@@ -36,7 +35,6 @@
 #include "op.h"
 #include "tool.h"
 
-#include "exp.h"
 #include "irc.h"
 
 static char *Option_String PARAMS((CONN_ID Idx));

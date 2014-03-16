@@ -18,7 +18,6 @@
  * Functions to deal with IRC Capabilities
  */
 
-#include "imp.h"
 #include <assert.h>
 
 #include "defines.h"
@@ -26,7 +25,6 @@
 #include "client.h"
 #include "log.h"
 
-#include "exp.h"
 #include "client-cap.h"
 
 GLOBAL int

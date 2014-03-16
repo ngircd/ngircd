@@ -18,7 +18,6 @@
  * Asynchronous resolver
  */
 
-#include "imp.h"
 #include <assert.h>
 #include <errno.h>
 #include <stdlib.h>
@@ -42,10 +41,8 @@
 #include "log.h"
 #include "ng_ipaddr.h"
 
-#include "exp.h"
 #include "resolve.h"
 #include "io.h"
-
 
 static void Do_ResolveAddr PARAMS(( const ng_ipaddr_t *Addr, int Sock, int w_fd ));
 static void Do_ResolveName PARAMS(( const char *Host, int w_fd ));

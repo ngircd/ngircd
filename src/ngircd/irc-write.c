@@ -16,7 +16,6 @@
  * Sending IRC commands over the network
  */
 
-#include "imp.h"
 #include <assert.h>
 #ifdef PROTOTYPES
 #	include <stdarg.h>
@@ -30,7 +29,6 @@
 #include "conn-func.h"
 #include "channel.h"
 
-#include "exp.h"
 #include "irc-write.h"
 
 #define SEND_TO_USER 1

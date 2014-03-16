@@ -16,7 +16,6 @@
  * Channel operator commands
  */
 
-#include "imp.h"
 #include <assert.h>
 #include <string.h>
 #include <stdio.h>
@@ -31,7 +30,6 @@
 #include "messages.h"
 #include "parse.h"
 
-#include "exp.h"
 #include "irc-op.h"
 
 /* Local functions */

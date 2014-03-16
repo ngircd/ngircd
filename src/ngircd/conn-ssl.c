@@ -10,7 +10,6 @@
  * SSL wrapper functions
  */
 
-#include "imp.h"
 #include "conf-ssl.h"
 
 #ifdef SSL_SUPPORT
@@ -29,7 +28,6 @@
 #include "conn-ssl.h"
 #include "log.h"
 
-#include "exp.h"
 #include "defines.h"
 
 extern struct SSLOptions Conf_SSLOptions;

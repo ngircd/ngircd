@@ -16,14 +16,12 @@
  * Hash calculation
  */
 
-#include "imp.h"
 #include <assert.h>
 #include <string.h>
 
 #include "defines.h"
 #include "tool.h"
 
-#include "exp.h"
 #include "hash.h"
 
 static UINT32 jenkins_hash PARAMS((UINT8 *k, UINT32 length, UINT32 initval));

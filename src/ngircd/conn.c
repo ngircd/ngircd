@@ -22,7 +22,6 @@
  * Connection management
  */
 
-#include "imp.h"
 #include <assert.h>
 #ifdef PROTOTYPES
 # include <stdarg.h>
@@ -54,10 +53,8 @@
 #include "array.h"
 #include "defines.h"
 
-#include "exp.h"
 #include "conn.h"
 
-#include "imp.h"
 #include "ngircd.h"
 #include "array.h"
 #include "client.h"
@@ -72,9 +69,6 @@
 #include "parse.h"
 #include "resolve.h"
 #include "tool.h"
-
-#include "exp.h"
-
 
 #define SERVER_WAIT (NONE - 1)
 

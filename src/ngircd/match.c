@@ -16,11 +16,9 @@
  * Wildcard pattern matching
  */
 
-#include "imp.h"
 #include <assert.h>
 #include <string.h>
 
-#include "exp.h"
 #include "match.h"
 #include "defines.h"
 #include "tool.h"

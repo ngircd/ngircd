@@ -16,7 +16,6 @@
  * IRC commands for server links
  */
 
-#include "imp.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,7 +39,6 @@
 #include "irc-write.h"
 #include "op.h"
 
-#include "exp.h"
 #include "irc-server.h"
 
 /**

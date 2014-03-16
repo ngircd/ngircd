@@ -16,7 +16,6 @@
  * IRC channel commands
  */
 
-#include "imp.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -37,7 +36,6 @@
 #include "irc-write.h"
 #include "conf.h"
 
-#include "exp.h"
 #include "irc-channel.h"
 
 /**

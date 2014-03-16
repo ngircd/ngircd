@@ -16,7 +16,6 @@
  * Configuration management (reading, parsing & validation)
  */
 
-#include "imp.h"
 #include <assert.h>
 #include <ctype.h>
 #include <errno.h>
@@ -45,7 +44,6 @@
 #include "match.h"
 #include "tool.h"
 
-#include "exp.h"
 #include "conf.h"
 
 

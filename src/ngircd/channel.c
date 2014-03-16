@@ -18,7 +18,6 @@
  * Channel management
  */
 
-#include "imp.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
@@ -29,10 +28,8 @@
 #include "defines.h"
 #include "conn-func.h"
 
-#include "exp.h"
 #include "channel.h"
 
-#include "imp.h"
 #include "irc-write.h"
 #include "conf.h"
 #include "hash.h"
@@ -40,9 +37,6 @@
 #include "log.h"
 #include "messages.h"
 #include "match.h"
-
-#include "exp.h"
-
 
 #define REMOVE_PART 0
 #define REMOVE_QUIT 1

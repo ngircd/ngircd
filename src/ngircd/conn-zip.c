@@ -23,7 +23,6 @@
 /* enable more zlib related debug messages: */
 /* #define DEBUG_ZLIB */
 
-#include "imp.h"
 #include <assert.h>
 #include <string.h>
 #include <zlib.h>
@@ -31,9 +30,8 @@
 #include "conn.h"
 #include "conn-func.h"
 #include "log.h"
-
 #include "array.h"
-#include "exp.h"
+
 #include "conn-zip.h"
 
 

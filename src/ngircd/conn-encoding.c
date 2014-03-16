@@ -20,7 +20,6 @@
  * Functions to deal with character encodings and conversions
  */
 
-#include "imp.h"
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
@@ -29,7 +28,6 @@
 #include "conn.h"
 #include "log.h"
 
-#include "exp.h"
 #include "conn-encoding.h"
 
 #ifdef ICONV

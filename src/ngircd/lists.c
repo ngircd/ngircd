@@ -16,7 +16,6 @@
  * Management of IRC lists: ban, invite, etc.
  */
 
-#include "imp.h"
 #include <assert.h>
 
 #include "defines.h"
@@ -31,7 +30,6 @@
 #include <string.h>
 #include <strings.h>
 
-#include "exp.h"
 #include "lists.h"
 
 struct list_elem {

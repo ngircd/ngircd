@@ -16,7 +16,6 @@
  * IRC commands for mode changes (like MODE, AWAY, etc.)
  */
 
-#include "imp.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -33,7 +32,6 @@
 #include "messages.h"
 #include "conf.h"
 
-#include "exp.h"
 #include "irc-mode.h"
 
 static bool Client_Mode PARAMS((CLIENT *Client, REQUEST *Req, CLIENT *Origin,

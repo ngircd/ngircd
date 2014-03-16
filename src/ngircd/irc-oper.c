@@ -16,7 +16,6 @@
  * IRC operator commands
  */
 
-#include "imp.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,7 +37,6 @@
 #include "messages.h"
 #include "op.h"
 
-#include <exp.h>
 #include "irc-oper.h"
 
 /**

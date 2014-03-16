@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2012 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2014 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,10 +50,12 @@ Class_Exit(void)
 GLOBAL bool
 Class_GetMemberReason(const int Class, CLIENT *Client, char *reason, size_t len)
 {
-	char str[COMMAND_LEN] = "listed";
+	char str[COMMAND_LEN];
 
 	assert(Class < CLASS_COUNT);
 	assert(Client != NULL);
+
+	strlcpy(str, "listed", sizeof(str));
 
 	if (!Lists_CheckReason(&My_Classes[Class], Client, str, sizeof(str)))
 		return false;

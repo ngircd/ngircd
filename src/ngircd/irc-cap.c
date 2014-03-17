@@ -29,6 +29,8 @@
 #include "messages.h"
 #include "parse.h"
 
+#include "irc-cap.h"
+
 /* Local functions */
 
 /**

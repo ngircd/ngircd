@@ -31,6 +31,8 @@
 #include "log.h"
 #include "parse.h"
 
+#include "numeric.h"
+
 /**
  * Announce a channel and its users in the network.
  */

@@ -37,6 +37,8 @@
 #include "messages.h"
 #include "op.h"
 
+#include "irc-oper.h"
+
 /**
  * Handle invalid received OPER command.
  * Log OPER attempt and send error message to client.

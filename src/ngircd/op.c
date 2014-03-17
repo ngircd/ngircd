@@ -26,6 +26,8 @@
 #include "messages.h"
 #include "irc-write.h"
 
+#include "op.h"
+
 /**
  * Return and log a "no privileges" message.
  */

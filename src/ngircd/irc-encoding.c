@@ -29,6 +29,8 @@
 #include "parse.h"
 #include "tool.h"
 
+#include "irc-encoding.h"
+
 /**
  * Handler for the IRC+ "CHARCONV" command.
  *

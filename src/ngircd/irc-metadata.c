@@ -29,6 +29,8 @@
 #include "messages.h"
 #include "parse.h"
 
+#include "irc-metadata.h"
+
 /**
  * Handler for the IRC+ "METADATA" command.
  *

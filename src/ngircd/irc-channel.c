@@ -35,6 +35,8 @@
 #include "irc-write.h"
 #include "conf.h"
 
+#include "irc-channel.h"
+
 /**
  * Part from all channels.
  *

@@ -33,6 +33,8 @@
 #include "log.h"
 #include "ngircd.h"
 
+#include "sighandlers.h"
+
 static int signalpipe[2];
 
 static const int signals_catch[] = {

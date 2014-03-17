@@ -22,6 +22,8 @@
 #include "defines.h"
 #include "tool.h"
 
+#include "match.h"
+
 /*
  * The pattern matching functions [Matche(), Matche_After_Star()] are based
  * on code of J. Kercheval. Version 1.1 has been released on 1991-03-12 as

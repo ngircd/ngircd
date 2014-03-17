@@ -35,6 +35,8 @@
 #include "irc-write.h"
 #include "op.h"
 
+#include "irc-server.h"
+
 /**
  * Handler for the IRC "SERVER" command.
  *

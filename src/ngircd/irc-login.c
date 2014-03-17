@@ -34,6 +34,8 @@
 #include "irc-macros.h"
 #include "irc-write.h"
 
+#include "irc-login.h"
+
 static void Change_Nick PARAMS((CLIENT * Origin, CLIENT * Target, char *NewNick,
 				bool InformClient));
 

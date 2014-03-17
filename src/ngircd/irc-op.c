@@ -28,6 +28,8 @@
 #include "messages.h"
 #include "parse.h"
 
+#include "irc-op.h"
+
 /* Local functions */
 
 static bool

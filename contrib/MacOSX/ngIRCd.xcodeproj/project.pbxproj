@@ -138,8 +138,6 @@
 		FA322D0D0CEF74B1001761B3 /* resolve.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = resolve.h; sourceTree = "<group>"; };
 		FA322D100CEF74B1001761B3 /* ansi2knr.1 */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.man; path = ansi2knr.1; sourceTree = "<group>"; };
 		FA322D110CEF74B1001761B3 /* ansi2knr.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = ansi2knr.c; sourceTree = "<group>"; };
-		FA322D120CEF74B1001761B3 /* exp.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = exp.h; sourceTree = "<group>"; };
-		FA322D130CEF74B1001761B3 /* imp.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = imp.h; sourceTree = "<group>"; };
 		FA322D150CEF74B1001761B3 /* portab.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = portab.h; sourceTree = "<group>"; };
 		FA322D160CEF74B1001761B3 /* portabtest.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = portabtest.c; sourceTree = "<group>"; };
 		FA322D170CEF74B1001761B3 /* splint.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = splint.h; sourceTree = "<group>"; };
@@ -423,8 +421,6 @@
 				FA18A64716CEE14900132F66 /* Makefile.ng */,
 				FA322D100CEF74B1001761B3 /* ansi2knr.1 */,
 				FA322D110CEF74B1001761B3 /* ansi2knr.c */,
-				FA322D120CEF74B1001761B3 /* exp.h */,
-				FA322D130CEF74B1001761B3 /* imp.h */,
 				FA322D150CEF74B1001761B3 /* portab.h */,
 				FA322D160CEF74B1001761B3 /* portabtest.c */,
 				FA322D170CEF74B1001761B3 /* splint.h */,

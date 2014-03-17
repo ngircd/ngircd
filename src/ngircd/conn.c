@@ -65,13 +65,13 @@
 #include "parse.h"
 #include "resolve.h"
 
-#define SERVER_WAIT (NONE - 1)
+#define SERVER_WAIT (NONE - 1)		/** "Wait for outgoing connection" flag */
 
-#define MAX_COMMANDS 3
-#define MAX_COMMANDS_SERVER_MIN 10
-#define MAX_COMMANDS_SERVICE 10
+#define MAX_COMMANDS 3			/** Max. commands per loop for users */
+#define MAX_COMMANDS_SERVER_MIN 10	/** Min. commands per loop for servers */
+#define MAX_COMMANDS_SERVICE 10		/** Max. commands per loop for services */
 
-#define SD_LISTEN_FDS_START 3
+#define SD_LISTEN_FDS_START 3		/** systemd(8) socket activation offset */
 
 static bool Handle_Write PARAMS(( CONN_ID Idx ));
 static bool Conn_Write PARAMS(( CONN_ID Idx, char *Data, size_t Len ));
@@ -101,6 +101,9 @@ static void server_login PARAMS((CONN_ID idx));
 
 #ifdef SSL_SUPPORT
 extern struct SSLOptions Conf_SSLOptions;
+static bool SSL_WantRead PARAMS((const CONNECTION *c));
+static bool SSL_WantWrite PARAMS((const CONNECTION *c));
+static void cb_listen_ssl PARAMS((int sock, short irrelevant));
 static void cb_connserver_login_ssl PARAMS((int sock, short what));
 static void cb_clientserver_ssl PARAMS((int sock, short what));
 #endif
@@ -109,7 +112,6 @@ static void cb_Connect_to_Server PARAMS((int sock, UNUSED short what));
 static void cb_clientserver PARAMS((int sock, short what));
 
 time_t idle_t = 0;
-
 
 /**
  * Get number of sockets available from systemd(8).
@@ -146,7 +148,6 @@ my_sd_listen_fds(void)
 	return count;
 }
 
-
 /**
  * IO callback for listening sockets: handle new connections. This callback
  * gets called when a new non-SSL connection should be accepted.
@@ -160,29 +161,6 @@ cb_listen(int sock, short irrelevant)
 	(void) irrelevant;
 	(void) New_Connection(sock, false);
 }
-
-
-#ifdef SSL_SUPPORT
-/**
- * IO callback for listening SSL sockets: handle new connections. This callback
- * gets called when a new SSL-enabled connection should be accepted.
- *
- * @param sock		Socket descriptor.
- * @param irrelevant	(ignored IO specification)
- */
-static void
-cb_listen_ssl(int sock, short irrelevant)
-{
-	int fd;
-
-	(void) irrelevant;
-	fd = New_Connection(sock, true);
-	if (fd < 0)
-		return;
-	io_event_setcb(My_Connections[fd].sock, cb_clientserver_ssl);
-}
-#endif
-
 
 /**
  * IO callback for new outgoing non-SSL server connections.
@@ -262,7 +240,6 @@ cb_connserver(int sock, UNUSED short what)
 	server_login(idx);
 }
 
-
 /**
  * Login to a remote server.
  *
@@ -280,46 +257,11 @@ server_login(CONN_ID idx)
 	io_event_add( My_Connections[idx].sock, IO_WANTREAD|IO_WANTWRITE);
 
 	/* Send PASS and SERVER command to peer */
-	Conn_WriteStr( idx, "PASS %s %s", Conf_Server[Conf_GetServer( idx )].pwd_out, NGIRCd_ProtoID );
-	Conn_WriteStr( idx, "SERVER %s :%s", Conf_ServerName, Conf_ServerInfo );
+	Conn_WriteStr(idx, "PASS %s %s",
+		      Conf_Server[Conf_GetServer( idx )].pwd_out, NGIRCd_ProtoID);
+	Conn_WriteStr(idx, "SERVER %s :%s",
+		      Conf_ServerName, Conf_ServerInfo);
 }
-
-
-#ifdef SSL_SUPPORT
-/**
- * IO callback for new outgoing SSL-enabled server connections.
- *
- * @param sock		Socket descriptor.
- * @param unused	(ignored IO specification)
- */
-static void
-cb_connserver_login_ssl(int sock, short unused)
-{
-	CONN_ID idx = Socket2Index(sock);
-
-	assert(idx >= 0);
-	if (idx < 0) {
-		io_close(sock);
-		return;
-	}
-	(void) unused;
-	switch (ConnSSL_Connect( &My_Connections[idx])) {
-	case 1: break;
-	case 0: LogDebug("ConnSSL_Connect: not ready");
-		return;
-	case -1:
-		Log(LOG_ERR, "SSL connection on socket %d failed!", sock);
-		Conn_Close(idx, "Can't connect", NULL, false);
-		return;
-	}
-
-	Log( LOG_INFO, "SSL connection %d with \"%s:%d\" established.", idx,
-			My_Connections[idx].host, Conf_Server[Conf_GetServer( idx )].port );
-
-	server_login(idx);
-}
-#endif
-
 
 /**
  * IO callback for established non-SSL client and server connections.
@@ -352,43 +294,6 @@ cb_clientserver(int sock, short what)
 	if (what & IO_WANTWRITE)
 		Handle_Write(idx);
 }
-
-
-#ifdef SSL_SUPPORT
-/**
- * IO callback for new SSL-enabled client and server connections.
- *
- * @param sock	Socket descriptor.
- * @param what	IO specification (IO_WANTREAD/IO_WANTWRITE/...).
- */
-static void
-cb_clientserver_ssl(int sock, UNUSED short what)
-{
-	CONN_ID idx = Socket2Index(sock);
-
-	assert(idx >= 0);
-
-	if (idx < 0) {
-		io_close(sock);
-		return;
-	}
-
-	switch (ConnSSL_Accept(&My_Connections[idx])) {
-	case 1:
-		break;	/* OK */
-	case 0:
-		return;	/* EAGAIN: callback will be invoked again by IO layer */
-	default:
-		Conn_Close(idx,
-			   "SSL accept error, closing socket", "SSL accept error",
-			   false);
-		return;
-	}
-
-	io_event_setcb(sock, cb_clientserver);	/* SSL handshake completed */
-}
-#endif
-
 
 /**
  * Initialize connection module.
@@ -424,7 +329,6 @@ Conn_Init( void )
 		Init_Conn_Struct(i);
 } /* Conn_Init */
 
-
 /**
  * Clean up connection module.
  */
@@ -449,7 +353,6 @@ Conn_Exit( void )
 	io_library_shutdown();
 } /* Conn_Exit */
 
-
 /**
  * Close all sockets (file descriptors) of open connections.
  * This is useful in forked child processes, for example, to make sure that
@@ -466,7 +369,6 @@ Conn_CloseAllSockets(int ExceptOf)
 			close(My_Connections[idx].sock);
 	}
 }
-
 
 /**
  * Initialize listening ports.
@@ -506,7 +408,6 @@ Init_Listeners(array *a, const char *listen_addr, void (*func)(int,short))
 	return created;
 }
 
-
 /**
  * Initialize all listening sockets.
  *
@@ -536,15 +437,18 @@ Conn_InitListeners( void )
 		for (i = 0; i < count; i++) {
 			fd = SD_LISTEN_FDS_START + i;
 			addr_len = (int)sizeof(addr);
-			getsockname(fd, (struct sockaddr *)&addr, (socklen_t*)&addr_len);
+			getsockname(fd, (struct sockaddr *)&addr,
+				    (socklen_t*)&addr_len);
 #ifdef WANT_IPV6
-			if (addr.sin4.sin_family != AF_INET && addr.sin4.sin_family != AF_INET6)
+			if (addr.sin4.sin_family != AF_INET
+			    && addr.sin4.sin_family != AF_INET6)
 #else
 			if (addr.sin4.sin_family != AF_INET)
 #endif
 			{
-				/* Socket is of unsupported type! For example, systemd passed in
-				 * an IPv6 socket but ngIRCd isn't compiled with IPv6 support. */
+				/* Socket is of unsupported type! For example,
+				 * systemd passed in an IPv6 socket but ngIRCd
+				 * isn't compiled with IPv6 support. */
 				switch (addr.sin4.sin_family)
 				{
 					case AF_UNSPEC: af_str = "AF_UNSPEC"; break;
@@ -614,7 +518,6 @@ Conn_InitListeners( void )
 	return created;
 } /* Conn_InitListeners */
 
-
 /**
  * Shut down all listening sockets.
  */
@@ -644,7 +547,6 @@ Conn_ExitListeners( void )
 	array_free(&My_Listeners);
 } /* Conn_ExitListeners */
 
-
 /**
  * Bind a socket to a specific (source) address.
  *
@@ -661,12 +563,12 @@ InitSinaddrListenAddr(ng_ipaddr_t *addr, const char *listen_addrstr, UINT16 Port
 	ret = ng_ipaddr_init(addr, listen_addrstr, Port);
 	if (!ret) {
 		assert(listen_addrstr);
-		Log(LOG_CRIT, "Can't bind to [%s]:%u: can't convert ip address \"%s\"!",
-						listen_addrstr, Port, listen_addrstr);
+		Log(LOG_CRIT,
+		    "Can't bind to [%s]:%u: can't convert ip address \"%s\"!",
+		    listen_addrstr, Port, listen_addrstr);
 	}
 	return ret;
 }
-
 
 /**
  * Set a socket to "IPv6 only". If the given socket doesn't belong to the
@@ -692,7 +594,6 @@ set_v6_only(int af, int sock)
 	(void)sock;
 #endif
 }
-
 
 /**
  * Initialize new listening port.
@@ -750,57 +651,6 @@ NewListener(const char *listen_addr, UINT16 Port)
 	return sock;
 } /* NewListener */
 
-
-#ifdef SSL_SUPPORT
-
-/**
- * Check if SSL library needs to read SSL-protocol related data.
- *
- * SSL/TLS connections require extra treatment:
- * When either CONN_SSL_WANT_WRITE or CONN_SSL_WANT_READ is set, we
- * need to take care of that first, before checking read/write buffers.
- * For instance, while we might have data in our write buffer, the
- * TLS/SSL protocol might need to read internal data first for TLS/SSL
- * writes to succeed.
- *
- * If this function returns true, such a condition is met and we have
- * to reverse the condition (check for read even if we've data to write,
- * do not check for read but writeability even if write-buffer is empty).
- *
- * @param c	Connection to check.
- * @returns	true if SSL-library has to read protocol data.
- */
-static bool
-SSL_WantRead(const CONNECTION *c)
-{
-	if (Conn_OPTION_ISSET(c, CONN_SSL_WANT_READ)) {
-		io_event_add(c->sock, IO_WANTREAD);
-		return true;
-	}
-	return false;
-}
-
-/**
- * Check if SSL library needs to write SSL-protocol related data.
- *
- * Please see description of SSL_WantRead() for full description!
- *
- * @param c	Connection to check.
- * @returns	true if SSL-library has to write protocol data.
- */
-static bool
-SSL_WantWrite(const CONNECTION *c)
-{
-	if (Conn_OPTION_ISSET(c, CONN_SSL_WANT_WRITE)) {
-		io_event_add(c->sock, IO_WANTWRITE);
-		return true;
-	}
-	return false;
-}
-
-#endif
-
-
 /**
  * "Main Loop": Loop until shutdown or restart is signalled.
  *
@@ -814,7 +664,7 @@ GLOBAL void
 Conn_Handler(void)
 {
 	int i;
-	unsigned int wdatalen, bytes_processed;
+	size_t wdatalen, bytes_processed;
 	struct timeval tv;
 	time_t t;
 
@@ -852,7 +702,7 @@ Conn_Handler(void)
 			if (My_Connections[i].sock <= NONE)
 				continue;
 
-			wdatalen = (unsigned int)array_bytes(&My_Connections[i].wbuf);
+			wdatalen = array_bytes(&My_Connections[i].wbuf);
 #ifdef ZLIB
 			if (wdatalen > 0 ||
 			    array_bytes(&My_Connections[i].zip.wbuf) > 0)
@@ -875,7 +725,9 @@ Conn_Handler(void)
 				continue;
 #ifdef SSL_SUPPORT
 			if (SSL_WantWrite(&My_Connections[i]))
-				continue; /* TLS/SSL layer needs to write data; deal with this first */
+				/* TLS/SSL layer needs to write data; deal
+				 * with this first! */
+				continue;
 #endif
 			if (Proc_InProgress(&My_Connections[i].proc_stat)) {
 				/* Wait for completion of forked subprocess
@@ -932,7 +784,6 @@ Conn_Handler(void)
 	else if (NGIRCd_SignalRestart)
 		Log(LOG_NOTICE | LOG_snotice, "Server restarting NOW!");
 } /* Conn_Handler */
-
 
 /**
  * Write a text string into the socket of a connection.
@@ -1140,7 +991,6 @@ Conn_Write( CONN_ID Idx, char *Data, size_t Len )
 	return true;
 } /* Conn_Write */
 
-
 /**
  * Shut down a connection.
  *
@@ -1153,7 +1003,7 @@ Conn_Write( CONN_ID Idx, char *Data, size_t Len )
  *			connection statistics before disconnecting it.
  */
 GLOBAL void
-Conn_Close( CONN_ID Idx, const char *LogMsg, const char *FwdMsg, bool InformClient )
+Conn_Close(CONN_ID Idx, const char *LogMsg, const char *FwdMsg, bool InformClient)
 {
 	/* Close connection. Open pipes of asynchronous resolver
 	 * sub-processes are closed down. */
@@ -1299,7 +1149,6 @@ Conn_Close( CONN_ID Idx, const char *LogMsg, const char *FwdMsg, bool InformClie
 	idle_t = NumConnections > 0 ? 0 : time(NULL);
 } /* Conn_Close */
 
-
 /**
  * Get current number of connections.
  *
@@ -1310,7 +1159,6 @@ Conn_Count(void)
 {
 	return NumConnections;
 } /* Conn_Count */
-
 
 /**
  * Get number of maximum simultaneous connections.
@@ -1323,7 +1171,6 @@ Conn_CountMax(void)
 	return NumConnectionsMax;
 } /* Conn_CountMax */
 
-
 /**
  * Get number of connections accepted since the daemon startet.
  *
@@ -1334,7 +1181,6 @@ Conn_CountAccepted(void)
 {
 	return NumConnectionsAccepted;
 } /* Conn_CountAccepted */
-
 
 /**
  * Synchronize established connections and configured server structures
@@ -1367,7 +1213,6 @@ Conn_SyncServerStruct(void)
 	}
 } /* SyncServerStruct */
 
-
 /**
  * Get IP address string of a connection.
  *
@@ -1380,7 +1225,6 @@ Conn_GetIPAInfo(CONN_ID Idx)
 	assert(Idx > NONE);
 	return ng_ipaddr_tostr(&My_Connections[Idx].addr);
 }
-
 
 /**
  * Send out data of write buffer; connect new sockets.
@@ -1429,7 +1273,9 @@ Handle_Write( CONN_ID Idx )
 
 #ifdef SSL_SUPPORT
 	if ( Conn_OPTION_ISSET( &My_Connections[Idx], CONN_SSL )) {
-		len = ConnSSL_Write(&My_Connections[Idx], array_start(&My_Connections[Idx].wbuf), wdatalen);
+		len = ConnSSL_Write(&My_Connections[Idx],
+				    array_start(&My_Connections[Idx].wbuf),
+				    wdatalen);
 	} else
 #endif
 	{
@@ -1457,7 +1303,6 @@ Handle_Write( CONN_ID Idx )
 	return true;
 } /* Handle_Write */
 
-
 /**
  * Count established connections to a specific IP address.
  *
@@ -1477,7 +1322,6 @@ Count_Connections(ng_ipaddr_t *a)
 	}
 	return cnt;
 } /* Count_Connections */
-
 
 /**
  * Initialize new client connection on a listening socket.
@@ -1625,7 +1469,6 @@ New_Connection(int Sock, UNUSED bool IsSSL)
 	return new_sock;
 } /* New_Connection */
 
-
 /**
  * Finish connection initialization, start resolver subprocess.
  *
@@ -1669,7 +1512,6 @@ Conn_StartLogin(CONN_ID Idx)
 		     ident_sock, cb_Read_Resolver_Result);
 }
 
-
 /**
  * Update global connection counters.
  */
@@ -1683,7 +1525,6 @@ Account_Connection(void)
 	LogDebug("Total number of connections now %lu (max %lu).",
 		 NumConnections, NumConnectionsMax);
 } /* Account_Connection */
-
 
 /**
  * Translate socket handle into connection index.
@@ -1704,7 +1545,6 @@ Socket2Index( int Sock )
 	}
 	return Sock;
 } /* Socket2Index */
-
 
 /**
  * Read data from the network to the read buffer. If an error occurs,
@@ -1778,7 +1618,8 @@ Read_Request( CONN_ID Idx )
 			Log(LOG_ERR,
 			    "Could not append received data to input buffer (connection %d): %d bytes!",
 			    Idx, len);
-			Conn_Close(Idx, "Receive buffer space exhausted", NULL, false );
+			Conn_Close(Idx, "Receive buffer space exhausted", NULL,
+				   false );
 		}
 	}
 
@@ -1818,7 +1659,6 @@ Read_Request( CONN_ID Idx )
 		Conn_SetPenalty(Idx, 1);
 	}
 } /* Read_Request */
-
 
 /**
  * Handle all data in the connection read-buffer.
@@ -1987,7 +1827,6 @@ Handle_Buffer(CONN_ID Idx)
 	return len_processed;
 } /* Handle_Buffer */
 
-
 /**
  * Check whether established connections are still alive or not.
  * If not, play PING-PONG first; and if that doesn't help either,
@@ -2046,7 +1885,6 @@ Check_Connections(void)
 	}
 } /* Check_Connections */
 
-
 /**
  * Check if further server links should be established.
  */
@@ -2093,7 +1931,6 @@ Check_Servers(void)
 			     cb_Connect_to_Server);
 	}
 } /* Check_Servers */
-
 
 /**
  * Establish a new outgoing server connection.
@@ -2147,12 +1984,15 @@ New_Server( int Server , ng_ipaddr_t *dest)
 
 	/* is a bind address configured? */
 	res = ng_ipaddr_af(&Conf_Server[Server].bind_addr);
-	/* if yes, bind now. If it fails, warn and let connect() pick a source address */
+
+	/* if yes, bind now. If it fails, warn and let connect() pick a
+	 * source address */
 	if (res && bind(new_sock, (struct sockaddr *) &Conf_Server[Server].bind_addr,
 				ng_ipaddr_salen(&Conf_Server[Server].bind_addr)))
 	{
 		ng_ipaddr_tostr_r(&Conf_Server[Server].bind_addr, ip_str);
-		Log(LOG_WARNING, "Can't bind socket to %s: %s!", ip_str, strerror(errno));
+		Log(LOG_WARNING, "Can't bind socket to %s: %s!", ip_str,
+		    strerror(errno));
 	}
 	ng_ipaddr_setport(dest, Conf_Server[Server].port);
 	res = connect(new_sock, (struct sockaddr *) dest, ng_ipaddr_salen(dest));
@@ -2173,7 +2013,8 @@ New_Server( int Server , ng_ipaddr_t *dest)
 	}
 
 	if (!io_event_create( new_sock, IO_WANTWRITE, cb_connserver)) {
-		Log(LOG_ALERT, "io_event_create(): could not add fd %d", strerror(errno));
+		Log(LOG_ALERT, "io_event_create(): could not add fd %d",
+		    strerror(errno));
 		close(new_sock);
 		Conf_Server[Server].conn_id = NONE;
 		return;
@@ -2209,12 +2050,13 @@ New_Server( int Server , ng_ipaddr_t *dest)
 				sizeof(My_Connections[new_sock].host ));
 
 #ifdef SSL_SUPPORT
-	if (Conf_Server[Server].SSLConnect && !ConnSSL_PrepareConnect( &My_Connections[new_sock],
-								&Conf_Server[Server] ))
+	if (Conf_Server[Server].SSLConnect &&
+	    !ConnSSL_PrepareConnect(&My_Connections[new_sock], &Conf_Server[Server]))
 	{
 		Log(LOG_ALERT, "Could not initialize SSL for outgoing connection");
-		Conn_Close( new_sock, "Could not initialize SSL for outgoing connection", NULL, false );
-		Init_Conn_Struct( new_sock );
+		Conn_Close(new_sock, "Could not initialize SSL for outgoing connection",
+			   NULL, false);
+		Init_Conn_Struct(new_sock);
 		Conf_Server[Server].conn_id = NONE;
 		return;
 	}
@@ -2223,7 +2065,6 @@ New_Server( int Server , ng_ipaddr_t *dest)
 		 new_sock, My_Connections[new_sock].sock, NumConnections);
 	Conn_OPTION_ADD( &My_Connections[new_sock], CONN_ISCONNECTING );
 } /* New_Server */
-
 
 /**
  * Initialize connection structure.
@@ -2248,7 +2089,6 @@ Init_Conn_Struct(CONN_ID Idx)
 #endif
 } /* Init_Conn_Struct */
 
-
 /**
  * Initialize options of a new socket.
  *
@@ -2264,16 +2104,18 @@ Init_Socket( int Sock )
 	int value;
 
 	if (!io_setnonblock(Sock)) {
-		Log( LOG_CRIT, "Can't enable non-blocking mode for socket: %s!", strerror( errno ));
-		close( Sock );
+		Log(LOG_CRIT, "Can't enable non-blocking mode for socket: %s!",
+		    strerror(errno));
+		close(Sock);
 		return false;
 	}
 
 	/* Don't block this port after socket shutdown */
 	value = 1;
-	if( setsockopt( Sock, SOL_SOCKET, SO_REUSEADDR, &value, (socklen_t)sizeof( value )) != 0 )
-	{
-		Log( LOG_ERR, "Can't set socket option SO_REUSEADDR: %s!", strerror( errno ));
+	if (setsockopt(Sock, SOL_SOCKET, SO_REUSEADDR, &value,
+		       (socklen_t)sizeof(value)) != 0) {
+		Log(LOG_ERR, "Can't set socket option SO_REUSEADDR: %s!",
+		    strerror(errno));
 		/* ignore this error */
 	}
 
@@ -2293,7 +2135,6 @@ Init_Socket( int Sock )
 	return true;
 } /* Init_Socket */
 
-
 /**
  * Read results of a resolver sub-process and try to initiate a new server
  * connection.
@@ -2304,15 +2145,16 @@ Init_Socket( int Sock )
 static void
 cb_Connect_to_Server(int fd, UNUSED short events)
 {
-	/* Read result of resolver sub-process from pipe and start connection */
 	int i;
 	size_t len;
-	ng_ipaddr_t dest_addrs[4];	/* we can handle at most 3; but we read up to
-					   four so we can log the 'more than we can handle'
-					   condition. First result is tried immediately, rest
-					   is saved for later if needed. */
 
-	LogDebug("Resolver: Got forward lookup callback on fd %d, events %d", fd, events);
+	/* we can handle at most 3 addresses; but we read up to 4 so we can
+	 * log the 'more than we can handle' condition. First result is tried
+	 * immediately, rest is saved for later if needed. */
+	ng_ipaddr_t dest_addrs[4];
+
+	LogDebug("Resolver: Got forward lookup callback on fd %d, events %d",
+		 fd, events);
 
 	for (i=0; i < MAX_SERVERS; i++) {
 		  if (Proc_GetPipeFd(&Conf_Server[i].res_stat) == fd )
@@ -2337,7 +2179,8 @@ cb_Connect_to_Server(int fd, UNUSED short events)
 
 	assert((len % sizeof(ng_ipaddr_t)) == 0);
 
-	LogDebug("Got result from resolver: %u structs (%u bytes).", len/sizeof(ng_ipaddr_t), len);
+	LogDebug("Got result from resolver: %u structs (%u bytes).",
+		 len/sizeof(ng_ipaddr_t), len);
 
 	memset(&Conf_Server[i].dst_addr, 0, sizeof(Conf_Server[i].dst_addr));
 	if (len > sizeof(ng_ipaddr_t)) {
@@ -2354,7 +2197,6 @@ cb_Connect_to_Server(int fd, UNUSED short events)
 	/* connect() */
 	New_Server(i, dest_addrs);
 } /* cb_Read_Forward_Lookup */
-
 
 /**
  * Read results of a resolver sub-process from the pipe and update the
@@ -2476,7 +2318,6 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 #endif
 } /* cb_Read_Resolver_Result */
 
-
 /**
  * Write a "simple" (error) message to a socket.
  *
@@ -2509,7 +2350,6 @@ Simple_Message(int Sock, const char *Msg)
 		return;
 	}
 } /* Simple_Error */
-
 
 /**
  * Get CLIENT structure that belongs to a local connection identified by its
@@ -2546,7 +2386,6 @@ Conn_GetProcStat(CONN_ID Idx)
 	assert(c != NULL);
 	return &c->proc_stat;
 } /* Conn_GetProcStat */
-
 
 /**
  * Get CONN_ID from file descriptor associated to a subprocess structure.
@@ -2585,10 +2424,140 @@ Conn_SetAuthPing(CONN_ID Idx, long ID)
 	My_Connections[Idx].auth_ping = ID;
 } /* Conn_SetAuthPing */
 
-#endif
-
+#endif /* STRICT_RFC */
 
 #ifdef SSL_SUPPORT
+
+/**
+ * IO callback for new SSL-enabled client and server connections.
+ *
+ * @param sock	Socket descriptor.
+ * @param what	IO specification (IO_WANTREAD/IO_WANTWRITE/...).
+ */
+static void
+cb_clientserver_ssl(int sock, UNUSED short what)
+{
+	CONN_ID idx = Socket2Index(sock);
+
+	assert(idx >= 0);
+
+	if (idx < 0) {
+		io_close(sock);
+		return;
+	}
+
+	switch (ConnSSL_Accept(&My_Connections[idx])) {
+		case 1:
+			break;	/* OK */
+		case 0:
+			return;	/* EAGAIN: callback will be invoked again by IO layer */
+		default:
+			Conn_Close(idx,
+				   "SSL accept error, closing socket", "SSL accept error",
+				   false);
+			return;
+	}
+
+	io_event_setcb(sock, cb_clientserver);	/* SSL handshake completed */
+}
+
+/**
+ * IO callback for listening SSL sockets: handle new connections. This callback
+ * gets called when a new SSL-enabled connection should be accepted.
+ *
+ * @param sock		Socket descriptor.
+ * @param irrelevant	(ignored IO specification)
+ */
+static void
+cb_listen_ssl(int sock, short irrelevant)
+{
+	int fd;
+
+	(void) irrelevant;
+	fd = New_Connection(sock, true);
+	if (fd < 0)
+		return;
+	io_event_setcb(My_Connections[fd].sock, cb_clientserver_ssl);
+}
+
+/**
+ * IO callback for new outgoing SSL-enabled server connections.
+ *
+ * @param sock		Socket descriptor.
+ * @param unused	(ignored IO specification)
+ */
+static void
+cb_connserver_login_ssl(int sock, short unused)
+{
+	CONN_ID idx = Socket2Index(sock);
+
+	assert(idx >= 0);
+	if (idx < 0) {
+		io_close(sock);
+		return;
+	}
+	(void) unused;
+	switch (ConnSSL_Connect( &My_Connections[idx])) {
+		case 1: break;
+		case 0: LogDebug("ConnSSL_Connect: not ready");
+			return;
+		case -1:
+			Log(LOG_ERR, "SSL connection on socket %d failed!", sock);
+			Conn_Close(idx, "Can't connect", NULL, false);
+			return;
+	}
+
+	Log( LOG_INFO, "SSL connection %d with \"%s:%d\" established.", idx,
+	    My_Connections[idx].host, Conf_Server[Conf_GetServer( idx )].port );
+
+	server_login(idx);
+}
+
+
+/**
+ * Check if SSL library needs to read SSL-protocol related data.
+ *
+ * SSL/TLS connections require extra treatment:
+ * When either CONN_SSL_WANT_WRITE or CONN_SSL_WANT_READ is set, we
+ * need to take care of that first, before checking read/write buffers.
+ * For instance, while we might have data in our write buffer, the
+ * TLS/SSL protocol might need to read internal data first for TLS/SSL
+ * writes to succeed.
+ *
+ * If this function returns true, such a condition is met and we have
+ * to reverse the condition (check for read even if we've data to write,
+ * do not check for read but writeability even if write-buffer is empty).
+ *
+ * @param c	Connection to check.
+ * @returns	true if SSL-library has to read protocol data.
+ */
+static bool
+SSL_WantRead(const CONNECTION *c)
+{
+	if (Conn_OPTION_ISSET(c, CONN_SSL_WANT_READ)) {
+		io_event_add(c->sock, IO_WANTREAD);
+		return true;
+	}
+	return false;
+}
+
+/**
+ * Check if SSL library needs to write SSL-protocol related data.
+ *
+ * Please see description of SSL_WantRead() for full description!
+ *
+ * @param c	Connection to check.
+ * @returns	true if SSL-library has to write protocol data.
+ */
+static bool
+SSL_WantWrite(const CONNECTION *c)
+{
+	if (Conn_OPTION_ISSET(c, CONN_SSL_WANT_WRITE)) {
+		io_event_add(c->sock, IO_WANTWRITE);
+		return true;
+	}
+	return false;
+}
 
 /**
  * Get information about used SSL cipher.
@@ -2607,7 +2576,6 @@ Conn_GetCipherInfo(CONN_ID Idx, char *buf, size_t len)
 	return ConnSSL_GetCipherInfo(&My_Connections[Idx], buf, len);
 }
 
-
 /**
  * Check if a connection is SSL-enabled or not.
  *
@@ -2623,7 +2591,6 @@ Conn_UsesSSL(CONN_ID Idx)
 	return Conn_OPTION_ISSET(&My_Connections[Idx], CONN_SSL);
 }
 
-
 GLOBAL char *
 Conn_GetCertFp(CONN_ID Idx)
 {
@@ -2633,7 +2600,6 @@ Conn_GetCertFp(CONN_ID Idx)
 	return ConnSSL_GetCertFp(&My_Connections[Idx]);
 }
 
-
 GLOBAL bool
 Conn_SetCertFp(CONN_ID Idx, const char *fingerprint)
 {
@@ -2642,13 +2608,14 @@ Conn_SetCertFp(CONN_ID Idx, const char *fingerprint)
 	assert(Idx < (int) array_length(&My_ConnArray, sizeof(CONNECTION)));
 	return ConnSSL_SetCertFp(&My_Connections[Idx], fingerprint);
 }
-#else
+
+#else /* SSL_SUPPORT */
+
 GLOBAL bool
 Conn_UsesSSL(UNUSED CONN_ID Idx)
 {
 	return false;
 }
-
 
 GLOBAL char *
 Conn_GetCertFp(UNUSED CONN_ID Idx)
@@ -2656,14 +2623,13 @@ Conn_GetCertFp(UNUSED CONN_ID Idx)
 	return NULL;
 }
 
-
 GLOBAL bool
 Conn_SetCertFp(UNUSED CONN_ID Idx, UNUSED const char *fingerprint)
 {
 	return true;
 }
-#endif
 
+#endif /* SSL_SUPPORT */
 
 #ifdef DEBUG
 
@@ -2689,7 +2655,6 @@ Conn_DebugDump(void)
 	}
 } /* Conn_DumpClients */
 
-#endif
-
+#endif /* DEBUG */
 
 /* -eof- */

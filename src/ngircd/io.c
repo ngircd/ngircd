@@ -17,6 +17,9 @@
  * I/O abstraction interface.
  */
 
+/* Extra debug messages in event add/delete/callback code: 0=off / 1=on */
+#define DEBUG_IO 0
+
 #include <assert.h>
 #include <string.h>
 #include <sys/types.h>
@@ -27,9 +30,6 @@
 #include "array.h"
 #include "io.h"
 #include "log.h"
-
-/* Enables extra debug messages in event add/delete/callback code. */
-/* #define DEBUG_IO */
 
 typedef struct {
 #ifdef PROTOTYPES
@@ -144,7 +144,7 @@ static array io_events;
 
 static void io_docallback PARAMS((int fd, short what));
 
-#ifdef DEBUG_IO
+#if DEBUG_IO
 static void
 io_debug(const char *s, int fd, int what)
 {

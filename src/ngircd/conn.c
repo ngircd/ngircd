@@ -9,8 +9,6 @@
  * Please read the file COPYING, README and AUTHORS for more information.
  */
 
-#undef DEBUG_BUFFER
-
 #define CONN_MODULE
 
 #include "portab.h"
@@ -19,6 +17,9 @@
  * @file
  * Connection management
  */
+
+/* Additionan debug messages related to buffer handling: 0=off / 1=on */
+#define DEBUG_BUFFER 0
 
 #include <assert.h>
 #ifdef PROTOTYPES
@@ -1265,7 +1266,7 @@ Handle_Write( CONN_ID Idx )
 		return true;
 	}
 
-#ifdef DEBUG_BUFFER
+#if DEBUG_BUFFER
 	LogDebug
 	    ("Handle_Write() called for connection %d, %ld bytes pending ...",
 	     Idx, wdatalen);
@@ -1798,10 +1799,6 @@ Handle_Buffer(CONN_ID Idx)
 			return 0; /* error -> connection has been closed */
 
 		array_moveleft(&My_Connections[Idx].rbuf, 1, len);
-#ifdef DEBUG_BUFFER
-		LogDebug("Connection %d: %d bytes left in read buffer.",
-			 Idx, array_bytes(&My_Connections[Idx].rbuf));
-#endif
 #ifdef ZLIB
 		if ((!old_z) && (My_Connections[Idx].options & CONN_ZIP) &&
 		    (array_bytes(&My_Connections[Idx].rbuf) > 0)) {
@@ -1824,6 +1821,12 @@ Handle_Buffer(CONN_ID Idx)
 		}
 #endif
 	}
+#if DEBUG_BUFFER
+	LogDebug("Connection %d: Processed %ld commands (max=%ld), %ld bytes. %ld bytes left in read buffer.",
+		 Idx, i, maxcmd, len_processed,
+		 array_bytes(&My_Connections[Idx].rbuf));
+#endif
+
 	return len_processed;
 } /* Handle_Buffer */
 

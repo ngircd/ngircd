@@ -9,6 +9,8 @@
  * Please read the file COPYING, README and AUTHORS for more information.
  */
 
+#define CONN_MODULE
+
 #include "portab.h"
 
 /**
@@ -16,12 +18,10 @@
  * Connection compression using ZLIB
  */
 
-#define CONN_MODULE
+/* Additionan debug messages related to ZIP compression: 0=off / 1=on */
+#define DEBUG_ZIP 0
 
 #ifdef ZLIB
-
-/* enable more zlib related debug messages: */
-/* #define DEBUG_ZLIB */
 
 #include <assert.h>
 #include <string.h>
@@ -141,7 +141,7 @@ Zip_Flush( CONN_ID Idx )
 	out->next_out = zipbuf;
 	out->avail_out = (uInt)sizeof zipbuf;
 
-#ifdef DEBUG_ZIP
+#if DEBUG_ZIP
 	Log(LOG_DEBUG, "out->avail_in %d, out->avail_out %d",
 		out->avail_in, out->avail_out);
 #endif
@@ -164,7 +164,7 @@ Zip_Flush( CONN_ID Idx )
 	assert(out->avail_out <= WRITEBUFFER_SLINK_LEN);
 
 	zipbuf_used = WRITEBUFFER_SLINK_LEN - out->avail_out;
-#ifdef DEBUG_ZIP
+#if DEBUG_ZIP
 	Log(LOG_DEBUG, "zipbuf_used: %d", zipbuf_used);
 #endif
 	if (!array_catb(&My_Connections[Idx].wbuf,
@@ -216,7 +216,7 @@ Unzip_Buffer( CONN_ID Idx )
 	in->next_out = unzipbuf;
 	in->avail_out = (uInt)sizeof unzipbuf;
 
-#ifdef DEBUG_ZIP
+#if DEBUG_ZIP
 	Log(LOG_DEBUG, "in->avail_in %d, in->avail_out %d",
 		in->avail_in, in->avail_out);
 #endif
@@ -231,7 +231,7 @@ Unzip_Buffer( CONN_ID Idx )
 	assert(z_rdatalen >= in->avail_in);
 	in_len = z_rdatalen - in->avail_in;
 	unzipbuf_used = READBUFFER_LEN - in->avail_out;
-#ifdef DEBUG_ZIP
+#if DEBUG_ZIP
 	Log(LOG_DEBUG, "unzipbuf_used: %d - %d = %d", READBUFFER_LEN,
 		in->avail_out, unzipbuf_used);
 #endif

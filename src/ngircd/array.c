@@ -14,6 +14,9 @@
  * Functions to dynamically allocate arrays.
  */
 
+/* Additionan debug messages related to array handling: 0=off / 1=on */
+#define DEBUG_ARRAY 0
+
 #include "array.h"
 
 #include <assert.h>
@@ -21,12 +24,9 @@
 #include <string.h>
 #include <unistd.h>
 
-#ifdef DEBUG_ARRAY
+#if DEBUG_ARRAY
 # include "log.h"
 #endif
-
-/* Enable more Debug messages in alloc / append / memmove code. */
-/* #define DEBUG_ARRAY */
 
 #define array_UNUSABLE(x)	( !(x)->mem )
 
@@ -67,7 +67,7 @@ array_alloc(array * a, size_t size, size_t pos)
 		return NULL;
 
 	if (a->allocated < alloc) {
-#ifdef DEBUG_ARRAY
+#if DEBUG_ARRAY
 		Log(LOG_DEBUG, "array_alloc(): changing size from %u to %u bytes.",
 		    a->allocated, alloc);
 #endif
@@ -168,7 +168,7 @@ array_catb(array * dest, const char *src, size_t len)
 
 	assert(ptr != NULL);
 
-#ifdef DEBUG_ARRAY
+#if DEBUG_ARRAY
 	Log(LOG_DEBUG,
 	    "array_catb(): appending %u bytes to array (now %u bytes in array).",
 	    len, tmp);
@@ -248,7 +248,7 @@ void
 array_free(array * a)
 {
 	assert(a != NULL);
-#ifdef DEBUG_ARRAY
+#if DEBUG_ARRAY
 	Log(LOG_DEBUG,
 	    "array_free(): %u bytes free'd (%u bytes still used at time of free()).",
 	    a->allocated, a->used);
@@ -314,7 +314,7 @@ array_moveleft(array * a, size_t membersize, size_t pos)
 	if (!bytepos)
 		return;	/* nothing to do */
 
-#ifdef DEBUG_ARRAY
+#if DEBUG_ARRAY
 	Log(LOG_DEBUG,
 	    "array_moveleft(): %u bytes used in array, starting at position %u.",
 	    a->used, bytepos);

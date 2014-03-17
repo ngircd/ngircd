@@ -17,23 +17,21 @@
  */
 
 #include <assert.h>
-#include <errno.h>
 #ifdef PROTOTYPES
-#	include <stdarg.h>
+# include <stdarg.h>
 #else
-#	include <varargs.h>
+# include <varargs.h>
 #endif
 #include <stdio.h>
-#include <string.h>
 #include <sys/types.h>
+#include <time.h>
 #include <unistd.h>
 
 #ifdef SYSLOG
-#include <syslog.h>
+# include <syslog.h>
 #endif
 
 #include "ngircd.h"
-#include "defines.h"
 #include "conn.h"
 #include "channel.h"
 #include "irc-write.h"

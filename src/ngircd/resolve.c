@@ -23,10 +23,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
-#include <signal.h>
 
 #ifdef IDENTAUTH
 #ifdef HAVE_IDENT_H
@@ -34,15 +35,10 @@
 #endif
 #endif
 
-#include "array.h"
 #include "conn.h"
 #include "conf.h"
-#include "defines.h"
 #include "log.h"
 #include "ng_ipaddr.h"
-
-#include "resolve.h"
-#include "io.h"
 
 static void Do_ResolveAddr PARAMS(( const ng_ipaddr_t *Addr, int Sock, int w_fd ));
 static void Do_ResolveName PARAMS(( const char *Host, int w_fd ));

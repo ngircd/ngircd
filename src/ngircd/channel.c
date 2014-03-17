@@ -24,8 +24,8 @@
 #include <errno.h>
 #include <stdio.h>
 #include <strings.h>
+#include <time.h>
 
-#include "defines.h"
 #include "conn-func.h"
 
 #include "channel.h"
@@ -33,7 +33,6 @@
 #include "irc-write.h"
 #include "conf.h"
 #include "hash.h"
-#include "lists.h"
 #include "log.h"
 #include "messages.h"
 #include "match.h"

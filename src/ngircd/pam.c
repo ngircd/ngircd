@@ -19,22 +19,19 @@
  */
 
 #include <assert.h>
+#include <stdlib.h>
+#include <string.h>
+#ifdef HAVE_SECURITY_PAM_APPL_H
+# include <security/pam_appl.h>
+#endif
+#ifdef HAVE_PAM_PAM_APPL_H
+# include <pam/pam_appl.h>
+#endif
 
 #include "defines.h"
 #include "log.h"
 #include "conn.h"
 #include "client.h"
-
-#include <stdlib.h>
-#include <string.h>
-
-#ifdef HAVE_SECURITY_PAM_APPL_H
-#include <security/pam_appl.h>
-#endif
-
-#ifdef HAVE_PAM_PAM_APPL_H
-#include <pam/pam_appl.h>
-#endif
 
 #include "pam.h"
 

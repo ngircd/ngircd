@@ -19,11 +19,12 @@
  */
 
 #include <assert.h>
-#include <string.h>
-#include "log.h"
+#include <time.h>
 
+#ifdef DEBUG
+# include "log.h"
+#endif
 #include "conn.h"
-#include "client.h"
 
 #include "conn-func.h"
 

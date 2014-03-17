@@ -17,7 +17,6 @@
  */
 
 #include <assert.h>
-#include <ctype.h>
 #include <errno.h>
 #ifdef PROTOTYPES
 #	include <stdarg.h>
@@ -28,21 +27,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
+#include <time.h>
 #include <unistd.h>
 #include <pwd.h>
 #include <grp.h>
 #include <sys/types.h>
-#include <unistd.h>
 #include <dirent.h>
 
-#include "array.h"
 #include "ngircd.h"
 #include "conn.h"
 #include "channel.h"
-#include "defines.h"
 #include "log.h"
 #include "match.h"
-#include "tool.h"
 
 #include "conf.h"
 

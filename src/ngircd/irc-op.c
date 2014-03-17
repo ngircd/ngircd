@@ -18,9 +18,7 @@
 
 #include <assert.h>
 #include <string.h>
-#include <stdio.h>
 
-#include "defines.h"
 #include "conn.h"
 #include "channel.h"
 #include "irc-macros.h"
@@ -29,8 +27,6 @@
 #include "log.h"
 #include "messages.h"
 #include "parse.h"
-
-#include "irc-op.h"
 
 /* Local functions */
 

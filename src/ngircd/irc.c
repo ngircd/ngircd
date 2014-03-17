@@ -19,13 +19,16 @@
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
+#include <strings.h>
+#include <time.h>
 
 #include "ngircd.h"
 #include "conn-func.h"
 #include "conf.h"
 #include "channel.h"
-#include "conn-encoding.h"
-#include "defines.h"
+#ifdef ICONV
+# include "conn-encoding.h"
+#endif
 #include "irc-macros.h"
 #include "irc-write.h"
 #include "log.h"
@@ -33,7 +36,6 @@
 #include "messages.h"
 #include "parse.h"
 #include "op.h"
-#include "tool.h"
 
 #include "irc.h"
 

@@ -24,15 +24,14 @@
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <time.h>
 
 #include "conn.h"
-#include "conf-ssl.h"
 #include "channel.h"
 #include "conf.h"
 #include "io.h"
 #include "log.h"
 #include "ngircd.h"
-#include "sighandlers.h"
 
 static int signalpipe[2];
 

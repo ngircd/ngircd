@@ -18,19 +18,16 @@
 
 #include <assert.h>
 #include <string.h>
+#include <strings.h>
 
-#include "defines.h"
 #include "conn.h"
 #include "channel.h"
 #include "client-cap.h"
-#include "irc-macros.h"
 #include "irc-write.h"
 #include "log.h"
 #include "login.h"
 #include "messages.h"
 #include "parse.h"
-
-#include "irc-cap.h"
 
 /* Local functions */
 

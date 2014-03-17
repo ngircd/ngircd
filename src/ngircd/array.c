@@ -19,8 +19,11 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
-#include "log.h"
+#ifdef DEBUG_ARRAY
+# include "log.h"
+#endif
 
 /* Enable more Debug messages in alloc / append / memmove code. */
 /* #define DEBUG_ARRAY */

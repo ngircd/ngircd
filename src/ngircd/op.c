@@ -17,7 +17,6 @@
  */
 
 #include <assert.h>
-#include <string.h>
 
 #include "conn.h"
 #include "channel.h"
@@ -26,8 +25,6 @@
 #include "parse.h"
 #include "messages.h"
 #include "irc-write.h"
-
-#include "op.h"
 
 /**
  * Return and log a "no privileges" message.

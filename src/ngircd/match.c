@@ -19,7 +19,6 @@
 #include <assert.h>
 #include <string.h>
 
-#include "match.h"
 #include "defines.h"
 #include "tool.h"
 

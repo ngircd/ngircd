@@ -20,22 +20,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <strings.h>
 #include <unistd.h>
 
-#include "defines.h"
 #include "conn.h"
 #include "class.h"
-#include "client.h"
 #include "client-cap.h"
 #include "channel.h"
 #include "conf.h"
-#include "io.h"
 #include "parse.h"
 #include "log.h"
 #include "messages.h"
 #include "ngircd.h"
-#include "pam.h"
 #include "irc-info.h"
 #include "irc-mode.h"
 #include "irc-write.h"
@@ -43,7 +38,12 @@
 #include "login.h"
 
 #ifdef PAM
+
+#include "io.h"
+#include "pam.h"
+
 static void cb_Read_Auth_Result PARAMS((int r_fd, UNUSED short events));
+
 #endif
 
 /**

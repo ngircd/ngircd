@@ -18,24 +18,24 @@
 
 #include <assert.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 #include <strings.h>
 
 #include "ngircd.h"
-#include "defines.h"
 #include "conn-func.h"
+#include "conf.h"
 #include "channel.h"
 #include "log.h"
 #include "messages.h"
-#include "tool.h"
 
 #include "parse.h"
 
 #include "irc.h"
 #include "irc-cap.h"
 #include "irc-channel.h"
-#include "irc-encoding.h"
+#ifdef ICONV
+# include "irc-encoding.h"
+#endif
 #include "irc-info.h"
 #include "irc-login.h"
 #include "irc-metadata.h"
@@ -45,8 +45,6 @@
 #include "irc-server.h"
 #include "irc-write.h"
 #include "numeric.h"
-
-#include "conf.h"
 
 struct _NUMERIC {
 	int numeric;

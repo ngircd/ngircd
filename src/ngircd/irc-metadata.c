@@ -19,19 +19,15 @@
  */
 
 #include <assert.h>
-#include <string.h>
+#include <strings.h>
 #include <stdio.h>
 
 #include "conn-func.h"
 #include "channel.h"
-#include "conn-encoding.h"
 #include "irc-write.h"
 #include "log.h"
 #include "messages.h"
 #include "parse.h"
-#include "tool.h"
-
-#include "irc-metadata.h"
 
 /**
  * Handler for the IRC+ "METADATA" command.

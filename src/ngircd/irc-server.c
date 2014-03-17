@@ -22,24 +22,18 @@
 #include <string.h>
 #include <strings.h>
 
-#include "defines.h"
-#include "conn.h"
 #include "conn-func.h"
 #include "conn-zip.h"
 #include "conf.h"
 #include "channel.h"
-#include "lists.h"
 #include "log.h"
 #include "messages.h"
 #include "parse.h"
 #include "numeric.h"
 #include "ngircd.h"
 #include "irc-info.h"
-#include "irc-macros.h"
 #include "irc-write.h"
 #include "op.h"
-
-#include "irc-server.h"
 
 /**
  * Handler for the IRC "SERVER" command.

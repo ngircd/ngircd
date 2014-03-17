@@ -14,8 +14,6 @@
 #define CONN_MODULE
 
 #include "portab.h"
-#include "conf-ssl.h"
-#include "io.h"
 
 /**
  * @file
@@ -33,8 +31,9 @@
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
+#include <strings.h>
 #include <sys/socket.h>
-#include <sys/time.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <time.h>
 #include <netinet/in.h>
@@ -50,25 +49,21 @@
 # include <tcpd.h>			/* for TCP Wrappers */
 #endif
 
-#include "array.h"
-#include "defines.h"
-
 #include "conn.h"
 
 #include "ngircd.h"
-#include "array.h"
-#include "client.h"
 #include "class.h"
-#include "conf.h"
-#include "conn-encoding.h"
+#ifdef ICONV
+# include "conn-encoding.h"
+#endif
 #include "conn-ssl.h"
 #include "conn-zip.h"
 #include "conn-func.h"
+#include "io.h"
 #include "log.h"
 #include "ng_ipaddr.h"
 #include "parse.h"
 #include "resolve.h"
-#include "tool.h"
 
 #define SERVER_WAIT (NONE - 1)
 

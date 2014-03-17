@@ -23,9 +23,7 @@
 #	include <varargs.h>
 #endif
 #include <stdio.h>
-#include <string.h>
 
-#include "defines.h"
 #include "conn-func.h"
 #include "channel.h"
 

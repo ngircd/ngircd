@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
+#include <time.h>
 
 #include "ngircd.h"
 #include "conn-func.h"
@@ -29,15 +30,12 @@
 #include "class.h"
 #include "parse.h"
 #include "irc.h"
-#include "irc-macros.h"
 #include "irc-write.h"
 #include "lists.h"
 #include "log.h"
 #include "match.h"
 #include "messages.h"
 #include "op.h"
-
-#include "irc-oper.h"
 
 /**
  * Handle invalid received OPER command.

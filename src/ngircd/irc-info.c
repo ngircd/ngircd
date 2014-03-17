@@ -17,11 +17,11 @@
  */
 
 #include <assert.h>
-#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
+#include <time.h>
 
 #include "ngircd.h"
 #include "conn-func.h"
@@ -29,12 +29,9 @@
 #include "channel.h"
 #include "class.h"
 #include "conf.h"
-#include "defines.h"
 #include "lists.h"
-#include "log.h"
 #include "messages.h"
 #include "match.h"
-#include "tool.h"
 #include "parse.h"
 #include "irc.h"
 #include "irc-macros.h"

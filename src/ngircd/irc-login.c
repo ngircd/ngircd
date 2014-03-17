@@ -21,9 +21,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
+#include <time.h>
 
 #include "conn-func.h"
-#include "class.h"
 #include "conf.h"
 #include "channel.h"
 #include "log.h"
@@ -31,11 +31,8 @@
 #include "messages.h"
 #include "parse.h"
 #include "irc.h"
-#include "irc-info.h"
 #include "irc-macros.h"
 #include "irc-write.h"
-
-#include "irc-login.h"
 
 static void Change_Nick PARAMS((CLIENT * Origin, CLIENT * Target, char *NewNick,
 				bool InformClient));

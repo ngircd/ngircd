@@ -20,21 +20,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
-#include "defines.h"
-#include "conn.h"
-#include "conf.h"
-#include "conn.h"
 #include "conn-func.h"
+#include "conf.h"
 #include "channel.h"
 #include "class.h"
 #include "irc-write.h"
 #include "lists.h"
 #include "log.h"
-#include "messages.h"
 #include "parse.h"
-
-#include "numeric.h"
 
 /**
  * Announce a channel and its users in the network.

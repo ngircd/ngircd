@@ -20,12 +20,8 @@
 
 #include <assert.h>
 
-#include "defines.h"
 #include "conn.h"
-#include "client.h"
 #include "log.h"
-
-#include "client-cap.h"
 
 GLOBAL int
 Client_Cap(CLIENT *Client)

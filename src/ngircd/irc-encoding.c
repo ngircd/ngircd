@@ -16,6 +16,8 @@
  * IRC encoding commands
  */
 
+#ifdef ICONV
+
 #include <assert.h>
 #include <string.h>
 
@@ -26,10 +28,6 @@
 #include "messages.h"
 #include "parse.h"
 #include "tool.h"
-
-#include "irc-encoding.h"
-
-#ifdef ICONV
 
 /**
  * Handler for the IRC+ "CHARCONV" command.

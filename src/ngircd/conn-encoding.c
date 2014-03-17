@@ -23,17 +23,16 @@
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
+#include <strings.h>
 
-#include "defines.h"
 #include "conn.h"
-#include "log.h"
-
-#include "conn-encoding.h"
 
 #ifdef ICONV
 
-char Encoding_Buffer[COMMAND_LEN];
+#include "log.h"
+#include "conn-encoding.h"
 
+char Encoding_Buffer[COMMAND_LEN];
 char *Convert_Message PARAMS((iconv_t Handle, char *Message));
 
 /**

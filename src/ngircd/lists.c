@@ -17,18 +17,14 @@
  */
 
 #include <assert.h>
-
-#include "defines.h"
-#include "conn.h"
-#include "channel.h"
-#include "log.h"
-#include "match.h"
-#include "messages.h"
-#include "irc-write.h"
-
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
+#include <time.h>
+
+#include "conn.h"
+#include "log.h"
+#include "match.h"
 
 #include "lists.h"
 

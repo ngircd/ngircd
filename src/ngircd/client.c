@@ -24,12 +24,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
+#include <time.h>
 #include <netdb.h>
 
-#include "defines.h"
 #include "conn.h"
-#include "client.h"
-
 #include "ngircd.h"
 #include "channel.h"
 #include "conf.h"

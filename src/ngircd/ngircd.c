@@ -21,7 +21,6 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <signal.h>
 #include <string.h>
 #include <unistd.h>
 #include <time.h>
@@ -35,18 +34,13 @@
 #include <mcheck.h>
 #endif
 
-#include "defines.h"
 #include "conn.h"
 #include "class.h"
-#include "conf-ssl.h"
 #include "channel.h"
 #include "conf.h"
-#include "lists.h"
 #include "log.h"
-#include "parse.h"
 #include "sighandlers.h"
 #include "io.h"
-#include "irc.h"
 
 #include "ngircd.h"
 

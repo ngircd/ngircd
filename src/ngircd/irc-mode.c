@@ -21,7 +21,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "defines.h"
 #include "conn.h"
 #include "channel.h"
 #include "irc-macros.h"
@@ -31,8 +30,6 @@
 #include "parse.h"
 #include "messages.h"
 #include "conf.h"
-
-#include "irc-mode.h"
 
 static bool Client_Mode PARAMS((CLIENT *Client, REQUEST *Req, CLIENT *Origin,
 				CLIENT *Target));

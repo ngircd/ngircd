@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2012 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2014 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,28 +23,6 @@
 # define NDEBUG
 #endif
 
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_INTTYPES_H
-# include <inttypes.h>
-# define NGIRC_GOT_INTTYPES
-#else
-# ifdef HAVE_STDINT_H
-#  include <stdint.h>
-#  define NGIRC_GOT_INTTYPES
-# endif
-#endif
-
-#ifdef HAVE_STDDEF_H
-# include <stddef.h>
-#endif
-
-#ifdef HAVE_STDBOOL_H
-# include <stdbool.h>
-#endif
-
 /* compiler features */
 
 #if (__GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ > 7))
@@ -65,6 +43,22 @@
 
 /* datatypes */
 
+#include <sys/types.h>
+
+#ifdef HAVE_STDDEF_H
+# include <stddef.h>
+#endif
+
+#ifdef HAVE_INTTYPES_H
+# include <inttypes.h>
+# define NGIRC_GOT_INTTYPES
+#else
+# ifdef HAVE_STDINT_H
+#  include <stdint.h>
+#  define NGIRC_GOT_INTTYPES
+# endif
+#endif
+
 #ifndef PROTOTYPES
 # ifndef signed
 #  define signed
@@ -83,26 +77,28 @@ typedef unsigned short UINT16;
 typedef unsigned int UINT32;
 #endif
 
-#ifndef HAVE_STDBOOL_H
+#ifdef HAVE_STDBOOL_H
+# include <stdbool.h>
+#else
 typedef unsigned char bool;
-#define true (bool)1
-#define false (bool)0
+# define true (bool)1
+# define false (bool)0
 #endif
 
 #ifndef NULL
-#ifdef PROTOTYPES
-# define NULL (void *)0
-#else
-# define NULL 0L
-#endif
+# ifdef PROTOTYPES
+#  define NULL (void *)0
+# else
+#  define NULL 0L
+# endif
 #endif
 
 #ifdef NeXT
-#define S_IRUSR 0000400		/* read permission, owner */
-#define S_IWUSR 0000200		/* write permission, owner */
-#define S_IRGRP 0000040		/* read permission, group */
-#define S_IROTH 0000004		/* read permission, other */
-#define ssize_t int
+# define S_IRUSR 0000400		/* read permission, owner */
+# define S_IWUSR 0000200		/* write permission, owner */
+# define S_IRGRP 0000040		/* read permission, group */
+# define S_IROTH 0000004		/* read permission, other */
+# define ssize_t int
 #endif
 
 #undef GLOBAL
@@ -111,25 +107,25 @@ typedef unsigned char bool;
 /* SPLint */
 
 #ifdef S_SPLINT_S
-#include "splint.h"
+# include "splint.h"
 #endif
 
 /* target constants  */
 
 #ifndef HOST_OS
-#define HOST_OS "unknown"
+# define HOST_OS "unknown"
 #endif
 
 #ifndef HOST_CPU
-#define HOST_CPU "unknown"
+# define HOST_CPU "unknown"
 #endif
 
 #ifndef HOST_VENDOR
-#define HOST_VENDOR "unknown"
+# define HOST_VENDOR "unknown"
 #endif
 
 #ifdef __HAIKU__
-#define SINGLE_USER_OS
+# define SINGLE_USER_OS
 #endif
 
 /* configure options */
@@ -168,15 +164,15 @@ extern int vsnprintf PARAMS(( char *str, size_t count, const char *fmt, va_list 
 #endif
 
 #ifndef HAVE_GAI_STRERROR
-#define gai_strerror(r) "unknown error"
+# define gai_strerror(r) "unknown error"
 #endif
 
 #ifndef PACKAGE_NAME
-#define PACKAGE_NAME PACKAGE
+# define PACKAGE_NAME PACKAGE
 #endif
 
 #ifndef PACKAGE_VERSION
-#define PACKAGE_VERSION VERSION
+# define PACKAGE_VERSION VERSION
 #endif
 
 #endif

@@ -68,6 +68,13 @@ IRC_MODE( CLIENT *Client, REQUEST *Req )
 
 	_IRC_GET_SENDER_OR_RETURN_(origin, Req, Client)
 
+	/* Test for "fake" MODE commands injected by this local instance,
+	 * for example when handling the "DefaultUserModes" settings.
+	 * This doesn't harm real commands, because prefixes of regular
+	 * clients are checked in Validate_Prefix() and can't be faked. */
+	if (Req->prefix && Client_Search(Req->prefix) == Client_ThisServer())
+		Client = Client_Search(Req->prefix);
+
 	/* Channel or user mode? */
 	cl = NULL; chan = NULL;
 	if (Client_IsValidNick(Req->argv[0]))

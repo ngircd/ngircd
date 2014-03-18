@@ -192,7 +192,7 @@ Login_User_PostAuth(CLIENT *Client)
 	/* Set default user modes */
 	if (Conf_DefaultUserModes[0]) {
 		snprintf(modes, sizeof(modes), "+%s", Conf_DefaultUserModes);
-		Req.prefix = Client_ThisServer();
+		Req.prefix = Client_ID(Client_ThisServer());
 		Req.command = "MODE";
 		Req.argc = 2;
 		Req.argv[0] = Client_ID(Client);

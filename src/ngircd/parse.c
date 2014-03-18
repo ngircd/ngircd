@@ -345,7 +345,7 @@ Validate_Prefix( CONN_ID Idx, REQUEST *Req, bool *Closed )
 	/* check if the client named in the prefix is expected
 	 * to come from that direction */
 	if (Client_NextHop(c) != client) {
-		if (Client_Type(c) != CLIENT_SERVER) {
+		if (Client_Type(client) != CLIENT_SERVER) {
 			Log(LOG_ERR,
 			    "Spoofed prefix \"%s\" from \"%s\" (connection %d, command \"%s\"), closing connection!",
 			    Req->prefix, Client_ID(client), Idx, Req->command);

@@ -74,6 +74,9 @@
 
 #define SD_LISTEN_FDS_START 3		/** systemd(8) socket activation offset */
 
+#define THROTTLE_CMDS 1			/** Throttling: max commands reached */
+#define THROTTLE_BPS 2			/** Throttling: max bps reached */
+
 static bool Handle_Write PARAMS(( CONN_ID Idx ));
 static bool Conn_Write PARAMS(( CONN_ID Idx, char *Data, size_t Len ));
 static int New_Connection PARAMS(( int Sock, bool IsSSL ));
@@ -88,6 +91,8 @@ static void New_Server PARAMS(( int Server, ng_ipaddr_t *dest ));
 static void Simple_Message PARAMS(( int Sock, const char *Msg ));
 static int NewListener PARAMS(( const char *listen_addr, UINT16 Port ));
 static void Account_Connection PARAMS((void));
+static void Throttle_Connection PARAMS((const CONN_ID Idx, CLIENT *Client,
+					const int Reason, unsigned int Value));
 
 static array My_Listeners;
 static array My_ConnArray;
@@ -665,7 +670,7 @@ GLOBAL void
 Conn_Handler(void)
 {
 	int i;
-	size_t wdatalen, bytes_processed;
+	size_t wdatalen;
 	struct timeval tv;
 	time_t t;
 
@@ -684,17 +689,7 @@ Conn_Handler(void)
 			if ((My_Connections[i].sock > NONE)
 			    && (array_bytes(&My_Connections[i].rbuf) > 0)) {
 				/* ... and try to handle the received data */
-				bytes_processed = Handle_Buffer(i);
-				/* if we processed data, and there might be
-				 * more commands in the input buffer, do not
-				 * try to read any more data now */
-				if (bytes_processed &&
-				    array_bytes(&My_Connections[i].rbuf) > 2) {
-					LogDebug
-					    ("Throttling connection %d: command limit reached!",
-					     i);
-					Conn_SetPenalty(i, 1);
-				}
+				Handle_Buffer(i);
 			}
 		}
 
@@ -1573,8 +1568,8 @@ Read_Request( CONN_ID Idx )
 	{
 		/* Read buffer is full */
 		Log(LOG_ERR,
-		    "Receive buffer space exhausted (connection %d): %d bytes",
-		    Idx, array_bytes(&My_Connections[Idx].rbuf));
+		    "Receive buffer space exhausted (connection %d): %d/%d bytes",
+		    Idx, array_bytes(&My_Connections[Idx].rbuf), READBUFFER_LEN);
 		Conn_Close(Idx, "Receive buffer space exhausted", NULL, false);
 		return;
 	}
@@ -1626,6 +1621,8 @@ Read_Request( CONN_ID Idx )
 
 	/* Update connection statistics */
 	My_Connections[Idx].bytes_in += len;
+
+	/* Handle read buffer */
 	My_Connections[Idx].bps += Handle_Buffer(Idx);
 
 	/* Make sure that there is still a valid client registered */
@@ -1651,14 +1648,8 @@ Read_Request( CONN_ID Idx )
 	}
 
 	/* Look at the data in the (read-) buffer of this connection */
-	if (Client_Type(c) != CLIENT_SERVER
-	    && Client_Type(c) != CLIENT_UNKNOWNSERVER
-	    && Client_Type(c) != CLIENT_SERVICE
-	    && My_Connections[Idx].bps >= maxbps) {
-		LogDebug("Throttling connection %d: BPS exceeded! (%u >= %u)",
-			 Idx, My_Connections[Idx].bps, maxbps);
-		Conn_SetPenalty(Idx, 1);
-	}
+	if (My_Connections[Idx].bps >= maxbps)
+		Throttle_Connection(Idx, c, THROTTLE_BPS, maxbps);
 } /* Read_Request */
 
 /**
@@ -1826,6 +1817,11 @@ Handle_Buffer(CONN_ID Idx)
 		 Idx, i, maxcmd, len_processed,
 		 array_bytes(&My_Connections[Idx].rbuf));
 #endif
+
+	/* If data has been processed but there is still data in the read
+	 * buffer, the command limit triggered. Enforce the penalty time: */
+	if (len_processed && array_bytes(&My_Connections[Idx].rbuf) > 2)
+		Throttle_Connection(Idx, c, THROTTLE_CMDS, maxcmd);
 
 	return len_processed;
 } /* Handle_Buffer */
@@ -2410,6 +2406,31 @@ Conn_GetFromProc(int fd)
 	return NONE;
 } /* Conn_GetFromProc */
 
+/**
+ * Throttle a connection because of excessive usage.
+ *
+ * @param Reason The reason, see THROTTLE_xxx constants.
+ * @param Idx The connection index.
+ * @param Client The client of this connection.
+ * @param Seconds The time to delay this connection.
+ */
+static void
+Throttle_Connection(const CONN_ID Idx, CLIENT *Client, const int Reason,
+		    unsigned int Value)
+{
+	assert(Idx > NONE);
+	assert(Client != NULL);
+
+	/* Never throttle servers or services, only interrupt processing */
+	if (Client_Type(Client) == CLIENT_SERVER
+	    || Client_Type(Client) == CLIENT_UNKNOWNSERVER
+	    || Client_Type(Client) == CLIENT_SERVICE)
+		return;
+
+	LogDebug("Throttling connection %d: code %d, value %d!", Idx,
+		 Reason, Value);
+	Conn_SetPenalty(Idx, 1);
+}
 
 #ifndef STRICT_RFC
 

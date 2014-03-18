@@ -1693,7 +1693,12 @@ Handle_Buffer(CONN_ID Idx)
 			maxcmd *= 5;
 		break;
 	    case CLIENT_SERVICE:
-		maxcmd = MAX_COMMANDS_SERVICE; break;
+		maxcmd = MAX_COMMANDS_SERVICE;
+		break;
+	    case CLIENT_USER:
+		if (Client_HasMode(c, 'F'))
+			maxcmd = MAX_COMMANDS_SERVICE;
+		break;
 	}
 
 	for (i=0; i < maxcmd; i++) {
@@ -2425,6 +2430,10 @@ Throttle_Connection(const CONN_ID Idx, CLIENT *Client, const int Reason,
 	if (Client_Type(Client) == CLIENT_SERVER
 	    || Client_Type(Client) == CLIENT_UNKNOWNSERVER
 	    || Client_Type(Client) == CLIENT_SERVICE)
+		return;
+
+	/* Don't throttle clients with user mode 'F' set */
+	if (Client_HasMode(Client, 'F'))
 		return;
 
 	LogDebug("Throttling connection %d: code %d, value %d!", Idx,

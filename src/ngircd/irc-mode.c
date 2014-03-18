@@ -222,6 +222,7 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 			break;
 		case 'c': /* Receive connect notices */
 		case 'q': /* KICK-protected user */
+		case 'F': /* disable flood protection */
 			  /* (only settable by IRC operators!) */
 			if (!set || Client_Type(Client) == CLIENT_SERVER
 			    || Client_HasMode(Origin, 'o'))

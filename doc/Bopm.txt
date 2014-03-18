@@ -18,7 +18,7 @@ monitor, designed for use with hybrid-based ircds, although it can be used
 with slight modification on any server which has the ability to show connects
 to opers and that supports KLINEs."
 
-And starting with Release 17, ngIRCd supports all required log messages that
+Starting with Release 17, ngIRCd supports all required log messages that
 BOPM requires to be useful.
 
 II. Installation
@@ -37,11 +37,12 @@ a) BOPM "IRC" section:
   3) change "mode" to "+ci" or "+c".
 
   4) Set "connregex" to the following string, everything in one line(!):
-     "\\*\\*\\* Notice -- Client connecting: ([^ ]+) \\(([^@]+)@([^\\)]+)\\) \\[([0-9\\.]+)\\].*";
-     and comment all the other "connregex" examples (prepend a "#" character).
+     "Client connecting: ([^ ]+) \\(([^@]+)@([^\\)]+)\\) \\[([0-9\\.]+)\\].*";
+     and comment out all the other "connregex" examples (that is, prepend a
+     "#" character).
 
-  5) Set "kline" to "KILL %n :Open proxy found on your host!"; for example,
-     and comment all the other "kline" examples.
+  5) Set "kline" to "GLINE *@%h :Open proxy found on your host!";
+     and comment out all the other "kline" examples.
 
 b) BOPM "scanner" section:
 

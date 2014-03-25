@@ -22,7 +22,7 @@ The following software packages are needed:
  - GNU sed
    Source:
    http://www.rezepte-im-web.de/appleux/sed-3.02.tar.gz
-   ftp://arthur.barton.de/pub/unix/aux/tools/sed-3.02.tar.gz
+   http://arthur.barton.de/pub/unix/aux/tools/sed-3.02.tar.gz
 
    A/UX comes with /bin/sed which isn't supporting all functions needed
    by GNU automake/autoconf.
@@ -34,7 +34,7 @@ The following software packages are needed:
  - libUTIL.a
    Source:
    ftp://ftp.mayn.de/pub/really_old_stuff/apple/apple_unix/Sys_stuff/libUTIL-2.1.tar.gz>
-   ftp://arthur.barton.de/pub/unix/aux/libraries/libUTIL-2.1.tar.gz
+   http://arthur.barton.de/pub/unix/aux/libraries/libUTIL-2.1.tar.gz
 
    This library contains functions that are common on other UNIX
    systems but not on A/UX e.g. memmove(), strerror() and strdup().
@@ -50,7 +50,7 @@ A few hints in case of errors:
    (so 'configure' uses its own shell script) or use a fully functionable one.
    There's at least one binary "out there" causing problems. The one
    of the GNU fileutils works fine:
-   ftp://arthur.barton.de/pub/unix/aux/tools/fileutils-4.0.tar.gz
+   http://arthur.barton.de/pub/unix/aux/tools/fileutils-4.0.tar.gz
 
  - The precompiled binary of the old 'bash' shouldn't be installed within
    /bin (better do this in /usr/local/bin) because 'configure' would

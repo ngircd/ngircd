@@ -9,6 +9,17 @@
                                   -- NEWS --
 
 
+ngIRCd 21.1 (2014-03-25)
+
+  - Don't ignore but use the server password when PAM is compiled in but
+    disabled. Thanks to Roy Sindre Norangshol <roy.sindre@norangshol.no>!
+  - doc/Platforms.txt: Update from master branch.
+  - doc/Services.txt: Update information for Anope 2.x.
+  - configure: add support for the LDFLAGS_END and LIBS_END variables to add
+    linker flags and libraries at the end of the configure run (CFLAGS_END has
+    been implemented already).
+  - Update Copyright notices for 2014 :-)
+
 ngIRCd 21 (2013-10-30)
 
   - Call arc4random_stir() in forked subprocesses, when available. This

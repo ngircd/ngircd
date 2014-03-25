@@ -2,19 +2,65 @@
                      ngIRCd - Next Generation IRC Server
                            http://ngircd.barton.de/
 
-               (c)2001-2013 Alexander Barton and Contributors.
+               (c)2001-2014 Alexander Barton and Contributors.
                ngIRCd is free software and published under the
                    terms of the GNU General Public License.
 
                                -- ChangeLog --
 
 
+ngIRCd 21.1 (2014-03-25)
+
+  - Don't ignore but use the server password when PAM is compiled in but
+    disabled. Thanks to Roy Sindre Norangshol <roy.sindre@norangshol.no>!
+  - doc/Platforms.txt: Update from master branch.
+  - Really kill connections that send "spoofed prefixes" on non-server links.
+    This fixes commit 6cbe1308 which only killed the connection when the
+    spoofed prefix itself belonged to a non-server client.
+  - CHARCONV command: Fix handling conversion errors, don't overwrite already
+    converted text!
+  - doc/Services.txt: Update information for Anope 2.x.
+  - Correctly use cloaked IRC masks on "INVITE nickname": The cloaked IRC mask
+    of a user is his visible mask, so the daemon has to use it for generating
+    the "one time" entries for the invite list of the given channel, and not
+    the "real" mask which will never match while the target client is "+x", and
+    even worse, will disclose the real mask on "MODE #channel +I" commands :-/
+    Bug reported by Cahata on #ngircd, thanks!
+  - configure: Only link "contrib/Debian" if it exists. This isn't the case on
+    "VPATH builds", for example.
+  - Use $(MKDIR_P) instead of $(mkinstalldirs) in Makefile's and test for
+    "mkdir -p" using AC_PROG_MKDIR_P in "configure".
+  - Fix configure script and "make check" for TCP Wrappers (problems spotted on
+    OpenBSD): add missing #include's and static variables, and add libwrap at
+    the end of the configure run because if libwrap becomes added earlier,
+    other tests may fail.
+  - configure: add support for the LDFLAGS_END and LIBS_END variables to add
+    linker flags and libraries at the end of the configure run (CFLAGS_END has
+    been implemented already).
+  - platformtest.sh and Makefile.am: Don't use "test -e", it isn't portable.
+  - Update Copyright notices for 2014 :-)
+  - Fix permanent {G|K}LINES (with a timeout of 0 seconds).
+  - WEBIRC: Don't set the hostname received by the WEBIRC command when DNS
+    lookups are disabled, but use the IP address instead.
+    Reported by Toni Spets <toni.spets@iki.fi>, thanks!
+  - Check for working getaddrinfo() function: At least AIX 4.3.3 and 5.1 have a
+    broken implementation of getaddrinfo() which doesn't handle "0" as numeric
+    service correctly. This patch adds a configure check for this case and
+    changes all calling functions to only use getaddrinfo() if it "works".
+    See <http://www.stacken.kth.se/lists/heimdal-discuss/2004-05/msg00059.html>
+  - Only use the unsetenv() function when it is available (AIX 4.3 doesn't
+    support it, for example).
+  - Make sure that the source code is still compatible with the "ansi2knr" tool
+    and builds using non-ANSI K&R C compilers. Tested with Apple C on A/UX.
+  - Fix building ngIRCd without support for ZLIB compression.  Reported by
+    "der_baer" on #ngircd, thanks!
+
 ngIRCd 21 (2013-10-30)
 
   - ./contrib/Debian/ngircd.init: Make sure no stale PID file is left over
     when (re-)starting ngIRCd.
   - Change ./contrib/platformtest.sh and update ./doc/Platforms.txt to
-    allow usernames up to 8 characters.
+    allow user names up to 8 characters.
   - Call arc4random_stir() in forked subprocesses, when available. This
     is required by FreeBSD <10 and current NetBSD at least to correctly
     initialize the "arc4" random number generator on these platforms.

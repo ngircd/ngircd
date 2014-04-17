@@ -1,4 +1,5 @@
-# $Id: channel-test.e,v 1.4 2008/02/05 13:31:51 fw Exp $
+# ngIRCd test suite
+# Channel test
 
 spawn telnet localhost 6789
 expect {
@@ -104,5 +105,3 @@ expect {
 	timeout { exit 1 }
 	"Connection closed"
 }
-
-# -eof-

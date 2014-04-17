@@ -1,4 +1,5 @@
-# $Id: check-idle.e,v 1.2 2004/09/04 14:22:13 alex Exp $
+# ngIRCd test suite
+# Idle test
 
 spawn telnet localhost 6789
 expect {
@@ -28,5 +29,3 @@ expect {
 }
 
 exit $r
-
-# -eof-

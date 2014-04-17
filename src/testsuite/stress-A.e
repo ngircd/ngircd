@@ -1,4 +1,5 @@
-# $Id: stress-A.e,v 1.2 2005/08/12 21:35:12 alex Exp $
+# ngIRCd test suite
+# "Stress" header
 
 set timeout 30
 
@@ -7,5 +8,3 @@ expect {
 	timeout { exit 1 }
 	"Connected"
 }
-
-# -eof-

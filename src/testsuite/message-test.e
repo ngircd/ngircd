@@ -1,3 +1,6 @@
+# ngIRCd test suite
+# PRIVMSG and NOTICE test
+
 spawn telnet localhost 6789
 expect {
 	timeout { exit 1 }
@@ -138,12 +141,8 @@ expect {
 	"401"
 }
 
-#cannot test host mask since localhost has no '.' as RFC requires
-
 send "quit\r"
 expect {
 	timeout { exit 1 }
 	"Connection closed"
 }
-
-# -eof-

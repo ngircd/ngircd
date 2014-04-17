@@ -1,3 +1,6 @@
+# ngIRCd test suite
+# WHO test
+
 spawn telnet localhost 6789
 expect {
 	timeout { exit 1 }
@@ -198,5 +201,3 @@ expect {
 	timeout { exit 1 }
 	"Connection closed"
 }
-
-# -eof-

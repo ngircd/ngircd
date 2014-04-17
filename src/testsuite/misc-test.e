@@ -1,4 +1,5 @@
-# $Id: misc-test.e,v 1.2 2008/02/17 13:51:00 alex Exp $
+# ngIRCd test suite
+# Misc test
 
 spawn telnet localhost 6789
 expect {
@@ -161,5 +162,3 @@ expect {
 	timeout { exit 1 }
 	"ERROR"
 }
-
-# -eof-

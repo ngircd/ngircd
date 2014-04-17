@@ -75,5 +75,3 @@ expect {
 	timeout { exit 1 }
 	"ERROR"
 }
-
-# -eof-

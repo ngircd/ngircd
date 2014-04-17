@@ -1,4 +1,5 @@
-# $Id: connect-test.e,v 1.1 2002/09/09 10:16:24 alex Exp $
+# ngIRCd test suite
+# Server connect test
 
 spawn telnet localhost 6789
 expect {
@@ -17,5 +18,3 @@ expect {
 	timeout { exit 1 }
 	"Connection closed"
 }
-
-# -eof-

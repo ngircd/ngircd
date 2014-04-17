@@ -1,4 +1,5 @@
-# $Id: mode-test.e,v 1.7 2008/02/16 11:27:49 fw Exp $
+# ngIRCd test suite
+# MODE test
 
 spawn telnet localhost 6789
 expect {
@@ -172,5 +173,3 @@ expect {
 	timeout { exit 1 }
 	"Connection closed"
 }
-
-# -eof-

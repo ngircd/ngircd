@@ -1,4 +1,5 @@
-# $Id: stress-B.e,v 1.3 2005/12/30 22:12:28 alex Exp $
+# ngIRCd test suite
+# "Stress" body
 
 send "user user . . :User\r"
 expect {
@@ -73,5 +74,3 @@ expect {
 	timeout { exit 1 }
 	"Connection closed"
 }
-
-# -eof-

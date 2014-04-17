@@ -1,7 +1,7 @@
 # ngIRCd test suite
 # PRIVMSG and NOTICE test
 
-spawn telnet localhost 6789
+spawn telnet 127.0.0.1 6789
 expect {
 	timeout { exit 1 }
 	"Connected"
@@ -72,24 +72,17 @@ expect {
 	"MODE nick :-b"
 }
 
-# The following two tests using "localhost" as host name
-# had to be disabled, because there are operating systems
-# out there, that use "localhost.<domain>" as host name
-# for 127.0.0.1 instead of just "localhost".
-# (for example OpenBSD 4, OpenSolaris, ...)
-#
-#send "privmsg ~user\%localhost :test\r"
-#expect {
-#	timeout { exit 1 }
-#	"@* PRIVMSG nick :test"
-#}
-#
-#send "privmsg Nick!~User@LocalHost :test\r"
-#expect {
-#	timeout { exit 1 }
-#	"@* PRIVMSG nick :test"
-#	"401"
-#}
+send "privmsg ~user\%127.0.0.1 :test\r"
+expect {
+	timeout { exit 1 }
+	"@* PRIVMSG nick :test"
+}
+
+send "privmsg Nick!~User@127.0.0.1 :test\r"
+expect {
+	timeout { exit 1 }
+	"@* PRIVMSG nick :test"
+}
 
 send "away :away\r"
 expect {

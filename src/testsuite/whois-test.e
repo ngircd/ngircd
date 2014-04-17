@@ -1,7 +1,7 @@
 # ngIRCd test suite
 # WHOIS test
 
-spawn telnet localhost 6789
+spawn telnet 127.0.0.1 6789
 expect {
 	timeout { exit 1 }
 	"Connected"
@@ -17,7 +17,7 @@ expect {
 send "whois nick\r"
 expect {
 	timeout { exit 1 }
-	"311 nick nick ~user localhost* \* :Real Name\r"
+	"311 nick nick ~user 127.0.0.1 \* :Real Name\r"
 }
 expect {
 	timeout { exit 1 }
@@ -27,25 +27,25 @@ expect {
 send "whois *\r"
 expect {
 	timeout { exit 1 }
-	"311 nick nick ~user localhost* \* :Real Name\r"
+	"311 nick nick ~user 127.0.0.1* \* :Real Name\r"
 }
 
 send "whois n*\r"
 expect {
 	timeout { exit 1 }
-	"311 nick nick ~user localhost* \* :Real Name\r"
+	"311 nick nick ~user 127.0.0.1* \* :Real Name\r"
 }
 
 send "whois ?ick\r"
 expect {
 	timeout { exit 1 }
-	"311 nick nick ~user localhost* \* :Real Name\r"
+	"311 nick nick ~user 127.0.0.1* \* :Real Name\r"
 }
 
 send "whois ????,n?*k\r"
 expect {
 	timeout { exit 1 }
-	"311 nick nick ~user localhost* \* :Real Name\r"
+	"311 nick nick ~user 127.0.0.1* \* :Real Name\r"
 }
 
 send "whois unknown\r"
@@ -61,7 +61,7 @@ expect {
 send "whois ngircd.test.server2 nick\r"
 expect {
 	timeout { exit 1 }
-	":ngircd.test.server2 311 nick nick ~user localhost* \* :Real Name\r"
+	":ngircd.test.server2 311 nick nick ~user 127.0.0.1* \* :Real Name\r"
 }
 
 send "whois nosuchserver unknown\r"

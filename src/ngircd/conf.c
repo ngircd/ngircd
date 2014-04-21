@@ -116,10 +116,15 @@ ConfSSL_Init(void)
 	Conf_SSLOptions.DHFile = NULL;
 	array_free_wipe(&Conf_SSLOptions.KeyFilePassword);
 
+	free(Conf_SSLOptions.CAFile);
+	Conf_SSLOptions.CAFile = NULL;
+
 	array_free(&Conf_SSLOptions.ListenPorts);
 
 	free(Conf_SSLOptions.CipherList);
 	Conf_SSLOptions.CipherList = NULL;
+
+	Conf_SSLOptions.RequireClientCert = false;
 }
 
 /**
@@ -439,6 +444,8 @@ Conf_Test( void )
 	       Conf_SSLOptions.CipherList : DEFAULT_CIPHERS);
 	printf("  DHFile = %s\n", Conf_SSLOptions.DHFile
 					? Conf_SSLOptions.DHFile : "");
+	printf("  CAFile = %s\n", Conf_SSLOptions.CAFile
+					? Conf_SSLOptions.CAFile : "");
 	printf("  KeyFile = %s\n", Conf_SSLOptions.KeyFile
 					? Conf_SSLOptions.KeyFile : "");
 	if (array_bytes(&Conf_SSLOptions.KeyFilePassword))
@@ -449,6 +456,8 @@ Conf_Test( void )
 	printf("  Ports = ");
 	ports_puts(&Conf_SSLOptions.ListenPorts);
 	puts("");
+	printf("  RequireClientCert = %s\n",
+	       yesno_to_str(Conf_SSLOptions.RequireClientCert));
 #endif
 
 	opers_puts();
@@ -1037,6 +1046,7 @@ Read_Config(bool TestOnly, bool IsStarting)
 	CheckFileReadable("CertFile", Conf_SSLOptions.CertFile);
 	CheckFileReadable("DHFile", Conf_SSLOptions.DHFile);
 	CheckFileReadable("KeyFile", Conf_SSLOptions.KeyFile);
+	CheckFileReadable("CAFile", Conf_SSLOptions.CAFile);
 
 	/* Set the default ciphers if none were configured */
 	if (!Conf_SSLOptions.CipherList)
@@ -1890,6 +1900,11 @@ Handle_SSL(const char *File, int Line, char *Var, char *Arg)
 		Conf_SSLOptions.DHFile = strdup_warn(Arg);
 		return;
 	}
+	if (strcasecmp(Var, "CAFile") == 0) {
+		assert(Conf_SSLOptions.CAFile == NULL);
+		Conf_SSLOptions.CAFile = strdup_warn(Arg);
+		return;
+	}
 	if (strcasecmp(Var, "KeyFile") == 0) {
 		assert(Conf_SSLOptions.KeyFile == NULL);
 		Conf_SSLOptions.KeyFile = strdup_warn(Arg);
@@ -1912,6 +1927,11 @@ Handle_SSL(const char *File, int Line, char *Var, char *Arg)
 		Conf_SSLOptions.CipherList = strdup_warn(Arg);
 		return;
 	}
+	if (strcasecmp(Var, "RequireClientCert") == 0) {
+		Conf_SSLOptions.RequireClientCert = Check_ArgIsTrue(Arg);
+		return;
+	}
+
 
 	Config_Error_Section(File, Line, Var, "SSL");
 }

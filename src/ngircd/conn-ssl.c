@@ -282,6 +282,9 @@ ConnSSL_InitLibrary( void )
 
 #ifdef HAVE_LIBSSL
 	SSL_CTX *newctx;
+	char *ca_file;
+	int mode;
+	int (*verify_callback)(int, X509_STORE_CTX *);
 
 	if (!ssl_ctx) {
 		SSL_library_init();
@@ -319,8 +322,20 @@ ConnSSL_InitLibrary( void )
 
 	SSL_CTX_set_options(newctx, SSL_OP_SINGLE_DH_USE|SSL_OP_NO_SSLv2);
 	SSL_CTX_set_mode(newctx, SSL_MODE_ENABLE_PARTIAL_WRITE);
-	SSL_CTX_set_verify(newctx, SSL_VERIFY_PEER|SSL_VERIFY_CLIENT_ONCE,
-			   Verify_openssl);
+
+	ca_file = Conf_SSLOptions.CAFile;
+	if (ca_file && SSL_CTX_load_verify_locations(newctx, ca_file, NULL) == 0) {
+		Log(LOG_ERR, "Failed to load OpenSSL CA file \"%s\"!", ca_file);
+		goto out;
+	}
+
+	mode = SSL_VERIFY_PEER|SSL_VERIFY_CLIENT_ONCE;
+	verify_callback = Verify_openssl; /* returns true for every certificate */
+	if (Conf_SSLOptions.RequireClientCert) {
+		mode |= SSL_VERIFY_FAIL_IF_NO_PEER_CERT;
+		verify_callback = NULL;
+	}
+	SSL_CTX_set_verify(newctx, mode, verify_callback);
 	SSL_CTX_free(ssl_ctx);
 	ssl_ctx = newctx;
 	Log(LOG_INFO, "%s initialized.", SSLeay_version(SSLEAY_VERSION));

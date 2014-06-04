@@ -27,6 +27,7 @@ COMMENT=
 R_CONFIGURE=
 R_MAKE=
 R_CHECK=
+R_CHECK_Y="?"
 R_RUN=
 
 SRC_D=`dirname "$0"`
@@ -101,6 +102,8 @@ if [ -r "$SRC_D/configure" ]; then
 			if [ $? -eq 0 ]; then
 				R_CHECK=1
 				R_RUN=$R_CHECK
+				[ -r ./src/testsuite/tests-skipped.lst ] \
+					&& R_CHECK_Y="y" || R_CHECK_Y="Y"
 			else
 				./src/ngircd/ngircd --help 2>/dev/null \
 				 | grep "^ngIRCd" >/dev/null
@@ -180,7 +183,7 @@ fi
 
 [ -n "$R_CONFIGURE" ] && C="Y" || C="N"
 [ -n "$R_MAKE" ] && M="Y" || M="N"
-[ -n "$R_CHECK" ] && T="Y" || T="N"
+[ -n "$R_CHECK" ] && T="$R_CHECK_Y" || T="N"
 [ -n "$R_RUN" ] && R="Y" || R="N"
 [ -n "$COMMENT" ] && COMMENT=" $COMMENT"
 
@@ -194,11 +197,15 @@ echo "Platform                    Compiler     ngIRCd     Date     Tester   C M 
 echo "--------------------------- ------------ ---------- -------- -------- - - - - -"
 type printf >/dev/null 2>&1
 if [ $? -eq 0 ]; then
-	printf "%-27s %-12s %-10s %s %-8s %s %s %s %s%s" \
+	printf "%-27s %-12s %-10s %s %-8s %s %s %s %s%s\n" \
 	 "$PLATFORM" "$COMPILER" "$VERSION" "$DATE" "$USER" \
 	 "$C" "$M" "$T" "$R" "$COMMENT"
 else
 	echo "$PLATFORM $COMPILER $VERSION $DATE $USER" \
 	 "$C" "$M" "$T" "$R" "$COMMENT"
 fi
-echo; echo
+echo
+if [ "$R_CHECK_Y" = "y" ]; then
+	echo "$NAME: Warning: Some tests have been skipped!"
+	echo
+fi

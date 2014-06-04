@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # ngIRCd Test Suite
-# Copyright (c)2001-2012 Alexander Barton (alex@barton.de) and Contributors.
+# Copyright (c)2001-2014 Alexander Barton (alex@barton.de) and Contributors.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@ test=`echo ${name} | cut -d '.' -f 1`
 [ -d logs ] || mkdir logs
 
 if [ ! -r "$test" ]; then
+  echo "$test: test not found" >>tests-skipped.lst
   echo "${name}: test \"$test\" not found!";  exit 77
   exit 1
 fi
@@ -27,10 +28,12 @@ fi
 
 type expect > /dev/null 2>&1
 if [ $? -ne 0 ]; then
+  echo "$test: \"expect\" not found" >>tests-skipped.lst
   echo "${name}: \"expect\" not found.";  exit 77
 fi
 type telnet > /dev/null 2>&1
 if [ $? -ne 0 ]; then
+  echo "$test: \"telnet\" not found" >>tests-skipped.lst
   echo "${name}: \"telnet\" not found.";  exit 77
 fi
 

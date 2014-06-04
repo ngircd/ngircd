@@ -21,3 +21,4 @@ ngircd-test1.motd
 ngircd-test2.motd
 logs
 tests
+tests-skipped.lst

@@ -144,7 +144,6 @@ install-ngircd: build-ngircd
 	cat $(CURDIR)/debian/ngircd/usr/share/doc/ngircd/sample-ngircd.conf | \
 	 sed -e "s|;ServerUID = 65534|ServerUID = irc|g" | \
 	 sed -e "s|;ServerGID = 65534|ServerGID = irc|g" | \
-	 sed -e "s|;MotdFile = /usr/local/etc/ngircd.motd|MotdFile = |/etc/ngircd/ngircd.motd|g" | \
 	 sed -e "s|;PidFile = /var/run/ngircd/ngircd.pid|PidFile = /var/run/ircd/ngircd.pid|g" \
 	 >$(CURDIR)/debian/ngircd/etc/ngircd/ngircd.conf
 	touch $(CURDIR)/debian/ngircd/etc/ngircd/ngircd.motd
@@ -162,8 +161,6 @@ install-ngircd-full: build-ngircd-full
 	cat $(CURDIR)/debian/ngircd-full/usr/share/doc/ngircd-full/sample-ngircd.conf | \
 	 sed -e "s|;ServerUID = 65534|ServerUID = irc|g" | \
 	 sed -e "s|;ServerGID = 65534|ServerGID = irc|g" | \
-	 sed -e "s|;MotdFile = /usr/local/etc/ngircd.motd|MotdFile = /etc/ngircd/ngircd.motd|g" | \
-	 sed -e "s|;HelpFile = /usr/share/doc/ngircd/Commands.txt|HelpFile = /usr/share/doc/ngircd-full/Commands.txt|g" | \
 	 sed -e "s|;PidFile = /var/run/ngircd/ngircd.pid|PidFile = /var/run/ircd/ngircd.pid|g" \
 	 >$(CURDIR)/debian/ngircd-full/etc/ngircd/ngircd.conf
 	touch $(CURDIR)/debian/ngircd-full/etc/ngircd/ngircd.motd
@@ -183,8 +180,6 @@ install-ngircd-full-dbg: build-ngircd-full-dbg
 	cat $(CURDIR)/debian/ngircd-full-dbg/usr/share/doc/ngircd-full-dbg/sample-ngircd.conf | \
 	 sed -e "s|;ServerUID = 65534|ServerUID = irc|g" | \
 	 sed -e "s|;ServerGID = 65534|ServerGID = irc|g" | \
-	 sed -e "s|;MotdFile = /usr/local/etc/ngircd.motd|MotdFile = /etc/ngircd/ngircd.motd|g" | \
-	 sed -e "s|;HelpFile = /usr/share/doc/ngircd/Commands.txt|HelpFile = /usr/share/doc/ngircd-full-dbg/Commands.txt|g" | \
 	 sed -e "s|;PidFile = /var/run/ngircd/ngircd.pid|PidFile = /var/run/ircd/ngircd.pid|g" \
 	 >$(CURDIR)/debian/ngircd-full-dbg/etc/ngircd/ngircd.conf
 	touch $(CURDIR)/debian/ngircd-full-dbg/etc/ngircd/ngircd.motd

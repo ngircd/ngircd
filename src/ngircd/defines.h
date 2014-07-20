@@ -53,7 +53,7 @@
 /* Size of structures */
 
 /** Max. count of configurable servers. */
-#define MAX_SERVERS 16
+#define MAX_SERVERS 64
 
 /** Max. number of WHOWAS list items that can be stored. */
 #define MAX_WHOWAS 64

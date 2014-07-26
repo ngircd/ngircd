@@ -30,6 +30,7 @@ alpha/unknown/netbsd3.0     gcc 3.3.3    CVSHEAD    06-05-07 fw       Y Y Y Y 3
 armv6l/unk./linux-gnueabi   gcc 4.7.2    20.2       13-03-08 goetz    Y Y Y Y 5
 armv6l/unk./linux-gnueabihf gcc 4.6.3    21~rc2     13-10-26 pi       Y Y Y Y 5
 armv7l/unk./linux-gnueabi   gcc 4.4.3    19.1       12-04-29 goetz    Y Y Y Y 5
+armv7l/unk./linux-gnueabihf gcc 4.8.2    21.1       14-07-15 goetz    Y Y Y Y 5
 hppa/unknown/openbsd3.5     gcc 2.95.3   CVSHEAD    04-05-25 alex     Y Y Y Y
 hppa/unknown/openbsd5.4     gcc 4.2.1    21         13-11-10 alex     Y Y Y Y 3
 hppa1.1/unknown/linux-gnu   gcc 3.3.3    0.8.0      04-05-30 alex     Y Y Y Y
@@ -86,6 +87,7 @@ sparc/unknown/openbsd5.5    gcc 4.2.1    21.1       14-05-03 goetz    Y Y Y Y 3
 x86_64/apple/darwin10.8.0   gcc 4.2.1    21~rc2     13-10-30 alex     Y Y Y Y 3
 x86_64/apple/darwin12.3.0   gcc 4.2.1    20.2       13-04-01 alex     Y Y Y Y 3
 x86_64/apple/darwin13.0.0   A-clang 5.0  21         14-01-02 alex     Y Y Y Y 3
+x86_64/apple/darwin14.0.0   A-clang 6.0  21.1       14-07-25 goetz    Y Y Y Y 3
 x86_64/unknown/dragonfly3.4 gcc 4.7.2    21         13-11-12 goetz    Y Y N Y 3
 x86_64/unknown/freebsd8.4   gcc 4.2.1    21         14-01-02 alex     Y Y Y Y 3
 x86_64/unknown/freebsd9.1   gcc 4.2.1    21         14-01-02 alex     Y Y Y Y 3

@@ -806,8 +806,8 @@ Set_Defaults(bool InitServers)
 	Conf_PAM = false;
 #endif
 	Conf_PAMIsOptional = false;
-#ifdef SYSLOG
 	Conf_ScrubCTCP = false;
+#ifdef SYSLOG
 #ifdef LOG_LOCAL5
 	Conf_SyslogFacility = LOG_LOCAL5;
 #else

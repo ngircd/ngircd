@@ -285,6 +285,7 @@ Lists_MakeMask(const char *Pattern, char *mask, size_t len)
 		strlcpy(mask, Pattern, len - 5);
 		strlcat(mask, "!*@", len);
 		strlcat(mask, at, len);
+		at--; *at = '@';
 	} else {
 		/* All parts (nick, user and domain name) are given */
 		strlcpy(mask, Pattern, len);

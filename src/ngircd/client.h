@@ -52,8 +52,9 @@ typedef struct _CLIENT
 	char *cloaked;			/* cloaked hostname of the client */
 	char *ipa_text;			/* textual representaton of IP address */
 	char user[CLIENT_USER_LEN];	/* user name ("login") */
-#if defined(PAM) && defined(IDENTAUTH)
-	char orig_user[CLIENT_USER_LEN];/* user name supplied by USER command */
+#if defined(PAM)
+	char orig_user[CLIENT_AUTHUSER_LEN];
+					/* original user name supplied by USER command */
 #endif
 	char info[CLIENT_INFO_LEN];	/* long user name (user) / info text (server) */
 	char modes[CLIENT_MODE_LEN];	/* client modes */

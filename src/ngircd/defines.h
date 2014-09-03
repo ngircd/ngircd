@@ -109,6 +109,10 @@
 #else
 # define CLIENT_USER_LEN 10
 #endif
+/** Max. length of user names saved for authentication (used by PAM) */
+#ifdef PAM
+# define CLIENT_AUTHUSER_LEN 64
+#endif
 
 /** Max. length of "real names" (including NULL). */
 #define CLIENT_NAME_LEN 32

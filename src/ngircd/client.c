@@ -427,7 +427,7 @@ Client_SetOrigUser(CLIENT UNUSED *Client, const char UNUSED *User)
 	assert(Client != NULL);
 	assert(User != NULL);
 
-#if defined(PAM) && defined(IDENTAUTH)
+#if defined(PAM)
 	strlcpy(Client->orig_user, User, sizeof(Client->orig_user));
 #endif
 } /* Client_SetOrigUser */
@@ -731,15 +731,7 @@ Client_User( CLIENT *Client )
  */
 GLOBAL char *
 Client_OrigUser(CLIENT *Client) {
-#ifndef IDENTAUTH
-	char *user = Client->user;
-
-	if (user[0] == '~')
-		user++;
-	return user;
-#else
 	return Client->orig_user;
-#endif
 } /* Client_OrigUser */
 
 #endif

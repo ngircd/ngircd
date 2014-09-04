@@ -170,7 +170,7 @@ autogen.sh produces the Makefile.in's, which are necessary for the configure
 script itself, and some more files for make. To run autogen.sh you'll need
 GNU autoconf and GNU automake: at least autoconf 2.61 and automake 1.10 are
 requird, newer is better. But don't use automake 1.12 or newer for creating
-distribution archives: it will work but lack "de-ANSI-fucation" support in the
+distribution archives: it will work but lack "de-ANSI-fication" support in the
 generated Makefile's! Stick with automake 1.11.x for this purpose ...
 So automake 1.11.x and autoconf 2.67+ is recommended.
 
@@ -226,7 +226,7 @@ which will be used to search for the required libraries and header files in
 the given paths ("<path>/lib/...", "<path>/include/...") in addition to the
 standard locations.
 
-* Syslog Logging (autodetected by default): 
+* Syslog Logging (autodetected by default):
   --with-syslog[=<path>] / --without-syslog
 
   Enable (disable) support for logging to "syslog", which should be
@@ -237,13 +237,13 @@ standard locations.
 
   Enable (disable) support for compressed server-server links.
   The Z compression library ("libz") is required for this option.
-  
+
 * IO Backend (autodetected by default):
   --with-select[=<path>] / --without-select
   --with-poll[=<path>] / --without-poll
   --with-devpoll[=<path>] / --without-devpoll
   --with-epoll[=<path>] / --without-epoll
-  --with-kqueue[=<path>] / --without-kqueue  
+  --with-kqueue[=<path>] / --without-kqueue
 
   ngIRCd can use different IO "backends": the "old school" select() and poll()
   API which should be supported by most UNIX-like operating systems, or the
@@ -261,7 +261,7 @@ standard locations.
   required for this option.
 
 * TCP-Wrappers:
-  --with-tcp-wrappers[=<path>] 
+  --with-tcp-wrappers[=<path>]
 
   Include support for Wietse Venemas "TCP Wrappers" to limit client access
   to the daemon, for example by using "/etc/hosts.{allow|deny}".
@@ -318,7 +318,7 @@ IRC operators of this server are defined in [Operator] blocks, remote
 servers are configured in [Server] sections, and [Channel] blocks are
 used to configure pre-defined ("persistent") IRC channels.
 
-The meaning of the variables in the configuration file is explained in the 
+The meaning of the variables in the configuration file is explained in the
 "doc/sample-ngircd.conf", which is used as sample configuration file in
 /usr/local/etc after running "make install" (if you don't already have one)
 and in the ngircd.conf(5) manual page.

@@ -9,6 +9,52 @@
                                   -- NEWS --
 
 
+  ngIRCd 22~rc1
+  - Increase MAX_SERVERS from 16 to 64: There are installations out there
+    that would like to configure more than 16 links per server, so increase
+    this limit. Best would be to get rid of MAX_SERVERS altogether and make
+    if fully dynamic, but start with this quick and dirty hack ...
+  - Test suite/platformtest.sh: Detect when tests have been skipped.
+  - Allow "DefaultUserModes" to set all possible modes, including modes only
+    settable by IRC Operators.
+  - Implement user mode "F": "relaxed flood protection". Clients with mode "F"
+    set are allowed to send data to the daemon. This mode is only settable by
+    IRC Operators and can cause problems in the network -- so be careful and
+    only set it on "trusted" clients!
+    User mode "F" is used by Bahamut for this purpose, for example.
+  - Use server password when PAM is compiled in but disabled.
+  - Streamline punctuation of log messages.
+  - Return ISUPPORT(005) numerics on "VERSION". This is how ircd-seven,
+    Charybdis, Hybrid, and InspIRCd behave, for example.
+  - configure: Only link "contrib/Debian" if it exists, which isn't the case
+    on "VPATH builds", for example.
+  - Show the account name in WHOIS. This uses the same numeric as Charybdis
+    and ircu families: WHOISLOGGEDIN(330).
+  - Pattern matching: Remove "range matching" in our pattern matching code
+    using the "[...]" syntax, because [ and ] are valid characters in nick
+    names and one has to quote them currently using the "\" character, which
+    is quite unexpected for users.
+  - platformtest.sh: New option "-x", don't regenerate build system and
+    allow using separate source and build trees.
+  - Test suite: explicitly enable glibc memory checking.
+  - Make "MODE -k" handling more robust and compatible, send "fake '*' key"
+    in all replies.
+  - portabtest: Actually test the functions snprintf(), strlcpy(), strlcat(),
+    and vsnprintf() for correctness, not only existence (which was quite
+    useless, because if they weren't available, the program could not have
+    been linked at all ...).
+  - Implement new configuration option "Network": it is used to set the
+    (completely optional) "network name", to which this instance of the
+    daemon belongs. When set, this name is used in the ISUPPORT(005) numeric
+    which is sent to all clients connecting to the server after logging in.
+  - Update doc/Platforms.txt.
+  - Various code cleanups, remove unused code, streamline error handling.
+    Remove all imp.h and exp.h header files, support non-standard vsnprintf()
+    return codes, and fix some K&R C portability issues. Streamline
+    DEBUG_ARRAY, DEBUG_BUFFER, DEBUG_IO, DEBUG_ZIP definitions.
+  - Increase penalty time to 10 seconds when handling OPER commands with an
+    invalid password.
+
 ngIRCd 21.1 (2014-03-25)
 
   - Don't ignore but use the server password when PAM is compiled in but
@@ -595,7 +641,7 @@ ngIRCd 0.7.5 (2003-07-11)
     (DoS), the default is 5 connections per client IP.
   - Added new configuration variable "Listen" to bind all listening
     sockets of the server to a single IP address.
-       
+
 ngIRCd 0.7.1 (2003-07-18)
 
   - Added support for GNU/Hurd.

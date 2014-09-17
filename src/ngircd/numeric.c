@@ -145,7 +145,27 @@ Announce_Server(CLIENT * Client, CLIENT * Server)
 #ifdef IRCPLUS
 
 /**
- * Synchronize invite, ban, G- and K-Line lists between servers.
+ * Send a specific list to a remote server.
+ */
+static bool
+Send_List(CLIENT *Client, CHANNEL *Chan, struct list_head *Head, char Type)
+{
+	struct list_elem *elem;
+
+	elem = Lists_GetFirst(Head);
+	while (elem) {
+		if (!IRC_WriteStrClient(Client, "MODE %s +%c %s",
+					Channel_Name(Chan), Type,
+					Lists_GetMask(elem))) {
+			return DISCONNECTED;
+		}
+		elem = Lists_GetNext(elem);
+	}
+	return CONNECTED;
+}
+
+/**
+ * Synchronize invite, ban, except, and G-Line lists between servers.
  *
  * @param Client New server.
  * @return CONNECTED or DISCONNECTED.
@@ -173,30 +193,12 @@ Synchronize_Lists(CLIENT * Client)
 
 	c = Channel_First();
 	while (c) {
-		/* ban list */
-		head = Channel_GetListBans(c);
-		elem = Lists_GetFirst(head);
-		while (elem) {
-			if (!IRC_WriteStrClient(Client, "MODE %s +b %s",
-						Channel_Name(c),
-						Lists_GetMask(elem))) {
-				return DISCONNECTED;
-			}
-			elem = Lists_GetNext(elem);
-		}
-
-		/* invite list */
-		head = Channel_GetListInvites(c);
-		elem = Lists_GetFirst(head);
-		while (elem) {
-			if (!IRC_WriteStrClient(Client, "MODE %s +I %s",
-						Channel_Name(c),
-						Lists_GetMask(elem))) {
-				return DISCONNECTED;
-			}
-			elem = Lists_GetNext(elem);
-		}
-
+		if (!Send_List(Client, c, Channel_GetListExcepts(c), 'e'))
+			return DISCONNECTED;
+		if (!Send_List(Client, c, Channel_GetListBans(c), 'b'))
+			return DISCONNECTED;
+		if (!Send_List(Client, c, Channel_GetListInvites(c), 'I'))
+			return DISCONNECTED;
 		c = Channel_Next(c);
 	}
 	return CONNECTED;

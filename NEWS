@@ -10,6 +10,11 @@
 
 
   ngIRCd 22~rc1
+  - Sync "except lists" between servers: Up to now, ban, invite, and G-Line
+    lists have been synced between servers while linking -- but obviously
+    nobody noticed that except list have been missing ever since. Until now.
+    Thanks to "j4jackj", who reported this issue in #ngircd.
+  - Allow longer user names (up to 63 characters) for authentication.
   - Increase MAX_SERVERS from 16 to 64: There are installations out there
     that would like to configure more than 16 links per server, so increase
     this limit. Best would be to get rid of MAX_SERVERS altogether and make

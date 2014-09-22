@@ -12,6 +12,13 @@
 ngIRCd 22
 
   ngIRCd 22~rc1
+  - Sync "except lists" between servers: Up to now, ban, invite, and G-Line
+    lists have been synced between servers while linking -- but obviously
+    nobody noticed that except list have been missing ever since. Until now.
+    Thanks to "j4jackj", who reported this issue in #ngircd.
+  - Allow longer user names (up to 63 characters) for authentication.
+  - Correctly check that a server has a valid hostname and port, thanks to
+    David Binderman <dcb314@hotmail.com> who reported this bug.
   - Fix the function which generates complete "IRC masks" from user input,
     don't destroy the source buffer and use all provided parts (nick, user,
     host name). This fixes GLINEs/KLINEs from not working in some situations.

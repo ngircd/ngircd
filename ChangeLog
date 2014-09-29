@@ -11,7 +11,7 @@
 
 ngIRCd 22
 
-  ngIRCd 22~rc1
+  ngIRCd 22~rc1 (2014-09-29)
   - Sync "except lists" between servers: Up to now, ban, invite, and G-Line
     lists have been synced between servers while linking -- but obviously
     nobody noticed that except list have been missing ever since. Until now.

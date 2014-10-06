@@ -326,7 +326,7 @@ Lists_CheckReason(struct list_head *h, CLIENT *Client, char *reason, size_t len)
 
 	while (e) {
 		next = e->next;
-		if (Match(e->mask, Client_MaskCloaked(Client))) {
+		if (MatchCaseInsensitive(e->mask, Client_MaskCloaked(Client))) {
 			if (len && e->reason)
 				strlcpy(reason, e->reason, len);
 			if (e->valid_until == 1) {

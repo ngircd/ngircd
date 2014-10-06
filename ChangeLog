@@ -11,6 +11,10 @@
 
 ngIRCd 22
 
+  - Match all list patterns case-insensitive: this affects the invite-,
+    ban-, and except lists, as well as G-Lines an K-Lines.
+    Problem pointed out by "wowaname" on #ngircd, thanks!
+
   ngIRCd 22~rc1 (2014-09-29)
   - Sync "except lists" between servers: Up to now, ban, invite, and G-Line
     lists have been synced between servers while linking -- but obviously

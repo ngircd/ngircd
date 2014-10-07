@@ -28,10 +28,10 @@ ngIRCd 22
   - Test suite/platformtest.sh: Detect when tests have been skipped.
   - Allow "DefaultUserModes" to set all possible modes, including modes only
     settable by IRC Operators.
-  - Implement user mode "F": "relaxed flood protection". Clients with mode "F"
-    set are allowed to send data to the daemon. This mode is only settable by
-    IRC Operators and can cause problems in the network -- so be careful and
-    only set it on "trusted" clients!
+  - Implement user mode "F": "relaxed flood protection". Clients with mode
+    "F" set are allowed to rapidly send data to the daemon. This mode is only
+    settable by IRC Operators and can cause problems in the network -- so be
+    careful and only set it on "trusted" clients!
     User mode "F" is used by Bahamut for this purpose, for example.
   - Use server password when PAM is compiled in but disabled.
   - Streamline punctuation of log messages.

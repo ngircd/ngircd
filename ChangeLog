@@ -9,7 +9,7 @@
                                -- ChangeLog --
 
 
-ngIRCd 22
+ngIRCd 22 (2014-10-11)
 
   - Match all list patterns case-insensitive: this affects the invite-,
     ban-, and except lists, as well as G-Lines an K-Lines.

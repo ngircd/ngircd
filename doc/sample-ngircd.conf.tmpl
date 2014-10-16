@@ -259,9 +259,9 @@
 	# See 'man 1ssl ciphers' (OpenSSL) or 'man 3 gnutls_priority_init'
 	# (GnuTLS) for details.
 	# For OpenSSL:
-	;CipherList = HIGH:!aNULL:@STRENGTH
+	;CipherList = HIGH:!aNULL:@STRENGTH:!SSLv3
 	# For GnuTLS:
-	;CipherList = SECURE128
+	;CipherList = SECURE128:-VERS-SSL3.0
 
 	# Diffie-Hellman parameters
 	;DHFile = :ETCDIR:/ssl/dhparams.pem

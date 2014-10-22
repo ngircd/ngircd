@@ -74,4 +74,6 @@ l) Upload and distribute the newly generated ngIRCd release archive(s)
 
 m) Write an announcement to the mailing list, freshmeat, Twitter, ...
 
-n) Relax :-)
+n) Update the list of releases in our bug tracker.
+
+o) Relax :-)

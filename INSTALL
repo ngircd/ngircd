@@ -12,12 +12,21 @@
 I. Upgrade Information
 ~~~~~~~~~~~~~~~~~~~~~~
 
+Differences to version 22.x
+
+- The default value of the SSL "CipherList" variable has been changed to
+  "HIGH:!aNULL:@STRENGTH:!SSLv3" (OpenSSL) and "SECURE128:-VERS-SSL3.0"
+  (GnuTLS) to disable the old SSLv3 protocol by default.
+  To enable connections of clients still requiring the weak SSLv3 protocol,
+  the "CipherList" must be set to its old value (not recommended!), which
+  was "HIGH:!aNULL:@STRENGTH" (OpenSSL) and "SECURE128" (GnuTLS), see below.
+
 Differences to version 20.x
 
 - Starting with ngIRCd 21, the ciphers used by SSL are configurable and
-  default to HIGH:!aNULL:@STRENGTH (OpenSSL) or SECURE128 (GnuTLS).
-  Previous version were using the OpenSSL or GnuTLS defaults, DEFAULT
-  and NORMAL respectively.
+  default to "HIGH:!aNULL:@STRENGTH" (OpenSSL) or "SECURE128" (GnuTLS).
+  Previous version were using the OpenSSL or GnuTLS defaults, "DEFAULT"
+  and "NORMAL" respectively.
 
 - When adding GLINE's or KLINE's to ngIRCd 21 (or newer), all clients matching
   the new mask will be KILL'ed. This was not the case with earlier versions

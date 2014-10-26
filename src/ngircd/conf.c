@@ -88,10 +88,10 @@ static void Init_Server_Struct PARAMS(( CONF_SERVER *Server ));
 #endif
 
 #ifdef HAVE_LIBSSL
-#define DEFAULT_CIPHERS		"HIGH:!aNULL:@STRENGTH"
+#define DEFAULT_CIPHERS		"HIGH:!aNULL:@STRENGTH:!SSLv3"
 #endif
 #ifdef HAVE_LIBGNUTLS
-#define DEFAULT_CIPHERS		"SECURE128"
+#define DEFAULT_CIPHERS		"SECURE128:-VERS-SSL3.0"
 #endif
 
 #ifdef SSL_SUPPORT

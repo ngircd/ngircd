@@ -1,7 +1,7 @@
 .\"
 .\" ngircd.conf(5) manual page template
 .\"
-.TH ngircd.conf 5 "Jan 2014" ngIRCd "ngIRCd Manual"
+.TH ngircd.conf 5 "Oct 2014" ngIRCd "ngIRCd Manual"
 .SH NAME
 ngircd.conf \- configuration file of ngIRCd
 .SH SYNOPSIS
@@ -375,7 +375,7 @@ SSL Certificate file of the private server key.
 .TP
 \fBCipherList\fR (string)
 Select cipher suites allowed for SSL/TLS connections.  This defaults to
-"HIGH:!aNULL:@STRENGTH" (OpenSSL) or "SECURE128" (GnuTLS).
+"HIGH:!aNULL:@STRENGTH:!SSLv3" (OpenSSL) or "SECURE128:-VERS-SSL3.0" (GnuTLS).
 Please see 'man 1ssl ciphers' (OpenSSL) and 'man 3 gnutls_priority_init'
 (GnuTLS) for details.
 .TP

@@ -1,7 +1,7 @@
 # ngIRCd test suite
 # server-server link test
 
-spawn telnet localhost 6790
+spawn telnet 127.0.0.1 6790
 expect {
 	timeout { exit 1 }
 	"Connected"

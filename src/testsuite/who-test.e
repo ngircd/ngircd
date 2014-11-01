@@ -1,7 +1,7 @@
 # ngIRCd test suite
 # WHO test
 
-spawn telnet localhost 6789
+spawn telnet 127.0.0.1 6789
 expect {
 	timeout { exit 1 }
 	"Connected"
@@ -62,7 +62,7 @@ expect {
 	":ngircd.test.server 352 nick #channel * * ngircd.test.server nick G@ :0 Real Name"
 }
 
-send "who localhos*\r"
+send "who 127.0.0.*\r"
 expect {
 	timeout { exit 1 }
 	":ngircd.test.server 352 nick \* * * ngircd.test.server nick G :0 Real Name"
@@ -120,7 +120,7 @@ expect {
 	"305 nick"
 }
 
-send "who ??cal*ho*\r"
+send "who ??7.*0*\r"
 expect {
 	timeout { exit 1 }
 	":ngircd.test.server 352 nick \* * * ngircd.test.server nick H* :0 Real Name"

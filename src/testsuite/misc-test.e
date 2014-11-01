@@ -1,7 +1,7 @@
 # ngIRCd test suite
 # Misc test
 
-spawn telnet localhost 6789
+spawn telnet 127.0.0.1 6789
 expect {
 	timeout { exit 1 }
 	"Connected"
@@ -130,7 +130,7 @@ expect {
 send "userhost nick\r"
 expect {
 	timeout { exit 1 }
-	-re ":ngircd.test.server 302 nick :?nick=+.*@(localhos.*|127.0.0.1)"
+	-re ":ngircd.test.server 302 nick :?nick=+.*@127.0.0.1"
 }
 
 send "userhost doesnotexist\r"
@@ -142,7 +142,7 @@ expect {
 send "userhost nick doesnotexist nick doesnotexist\r"
 expect {
 	timeout { exit 1 }
-	-re ":ngircd.test.server 302 nick :nick=+.*@(localhos.*|127.0.0.1) nick=+.*@(localhos.*|127.0.0.1)"
+	-re ":ngircd.test.server 302 nick :nick=+.*@127.0.0.1 nick=+.*@127.0.0.1"
 }
 
 send "away :testing\r"
@@ -154,7 +154,7 @@ expect {
 send "userhost nick nick nick nick nick nick\r"
 expect {
 	timeout { exit 1 }
-	-re ":ngircd.test.server 302 nick :nick=-.*@(localhos.*|127.0.0.1) nick=-.*@(localhos.*|127.0.0.1) nick=-.*@(localhos.*|127.0.0.1) nick=-.*@(localhos.*|127.0.0.1) nick=-.*@(localhos.*|127.0.0.1)\r"
+	-re ":ngircd.test.server 302 nick :nick=-.*@127.0.0.1 nick=-.*@127.0.0.1 nick=-.*@127.0.0.1 nick=-.*@127.0.0.1 nick=-.*@127.0.0.1\r"
 }
 
 send "quit\r"

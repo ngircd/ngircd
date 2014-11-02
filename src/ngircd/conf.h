@@ -61,6 +61,7 @@ typedef struct _Conf_Server
 	ng_ipaddr_t dst_addr[2];	/**< List of addresses to connect to */
 #ifdef SSL_SUPPORT
 	bool SSLConnect;		/**< Establish connection using SSL? */
+	bool SSLVerify;			/**< Verify server certificate using CA? */
 #endif
 	char svs_mask[CLIENT_ID_LEN];	/**< Mask of nicknames that should be
 					     treated and counted as services */
@@ -76,6 +77,8 @@ struct SSLOptions {
 	array ListenPorts;		/**< Array of listening SSL ports */
 	array KeyFilePassword;		/**< Key file password */
 	char *CipherList;		/**< Set SSL cipher list to use */
+	char *CAFile;			/**< Trusted CA certificates file */
+	char *CRLFile;			/**< Certificate revocation file */
 };
 #endif
 

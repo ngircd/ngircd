@@ -113,6 +113,12 @@ ConfSSL_Init(void)
 	free(Conf_SSLOptions.CertFile);
 	Conf_SSLOptions.CertFile = NULL;
 
+	free(Conf_SSLOptions.CAFile);
+	Conf_SSLOptions.CAFile = NULL;
+
+	free(Conf_SSLOptions.CRLFile);
+	Conf_SSLOptions.CRLFile = NULL;
+
 	free(Conf_SSLOptions.DHFile);
 	Conf_SSLOptions.DHFile = NULL;
 	array_free_wipe(&Conf_SSLOptions.KeyFilePassword);
@@ -465,7 +471,10 @@ Conf_Test( void )
 		printf( "  Host = %s\n", Conf_Server[i].host );
 		printf( "  Port = %u\n", (unsigned int)Conf_Server[i].port );
 #ifdef SSL_SUPPORT
-		printf( "  SSLConnect = %s\n", yesno_to_str(Conf_Server[i].SSLConnect));
+		printf("  SSLConnect = %s\n",
+		       yesno_to_str(Conf_Server[i].SSLConnect));
+		printf("  SSLVerify = %s\n",
+		       yesno_to_str(Conf_Server[i].SSLVerify));
 #endif
 		printf( "  MyPassword = %s\n", Conf_Server[i].pwd_in );
 		printf( "  PeerPassword = %s\n", Conf_Server[i].pwd_out );
@@ -1797,6 +1806,16 @@ Handle_SSL(const char *File, int Line, char *Var, char *Arg)
 		Conf_SSLOptions.CipherList = strdup_warn(Arg);
 		return;
 	}
+	if (strcasecmp(Var, "CAFile") == 0) {
+		assert(Conf_SSLOptions.CAFile == NULL);
+		Conf_SSLOptions.CAFile = strdup_warn(Arg);
+		return;
+	}
+	if (strcasecmp(Var, "CRLFile") == 0) {
+		assert(Conf_SSLOptions.CRLFile == NULL);
+		Conf_SSLOptions.CRLFile = strdup_warn(Arg);
+		return;
+	}
 
 	Config_Error_Section(File, Line, Var, "SSL");
 }
@@ -1927,7 +1946,11 @@ Handle_SERVER(const char *File, int Line, char *Var, char *Arg )
 	if( strcasecmp( Var, "SSLConnect" ) == 0 ) {
 		New_Server.SSLConnect = Check_ArgIsTrue(Arg);
 		return;
-        }
+	}
+	if (strcasecmp(Var, "SSLVerify") == 0) {
+		New_Server.SSLVerify = Check_ArgIsTrue(Arg);
+		return;
+	}
 #endif
 	if( strcasecmp( Var, "Group" ) == 0 ) {
 		/* Server group */

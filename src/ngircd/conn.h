@@ -40,7 +40,8 @@
 #define CONN_SSL		32	/* this connection is SSL encrypted */
 #define CONN_SSL_WANT_WRITE	64	/* SSL/TLS library needs to write protocol data */
 #define CONN_SSL_WANT_READ	128	/* SSL/TLS library needs to read protocol data */
-#define CONN_SSL_FLAGS_ALL	(CONN_SSL_CONNECT|CONN_SSL|CONN_SSL_WANT_WRITE|CONN_SSL_WANT_READ)
+#define CONN_SSL_PEERCERT_OK	256	/* peer presented a valid certificate (used to check inbound server auth */
+#define CONN_SSL_FLAGS_ALL	(CONN_SSL_CONNECT|CONN_SSL|CONN_SSL_WANT_WRITE|CONN_SSL_WANT_READ|CONN_SSL_PEERCERT_OK)
 #endif
 typedef int CONN_ID;
 

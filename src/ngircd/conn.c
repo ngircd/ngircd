@@ -2563,6 +2563,7 @@ static void
 cb_connserver_login_ssl(int sock, short unused)
 {
 	CONN_ID idx = Socket2Index(sock);
+	int serveridx;
 
 	(void) unused;
 
@@ -2581,10 +2582,30 @@ cb_connserver_login_ssl(int sock, short unused)
 			return;
 	}
 
+	serveridx = Conf_GetServer(idx);
+	assert(serveridx >= 0);
+	if (serveridx < 0)
+		goto err;
+
 	Log( LOG_INFO, "SSL connection %d with \"%s:%d\" established.", idx,
 	    My_Connections[idx].host, Conf_Server[Conf_GetServer( idx )].port );
 
+	if (!Conn_OPTION_ISSET(&My_Connections[idx], CONN_SSL_PEERCERT_OK)) {
+		if (Conf_Server[serveridx].SSLVerify) {
+			Log(LOG_ERR,
+				"SSLVerify enabled for %d, but peer certificate check failed",
+				idx);
+			goto err;
+		}
+		Log(LOG_WARNING,
+			"Peer certificate check failed for %d, but SSLVerify is disabled, continuing",
+			idx);
+	}
 	server_login(idx);
+	return;
+      err:
+	Log(LOG_ERR, "SSL connection on socket %d failed!", sock);
+	Conn_Close(idx, "Can't connect!", NULL, false);
 }
 
 

@@ -43,12 +43,16 @@ extern struct SSLOptions Conf_SSLOptions;
 #include <openssl/err.h>
 #include <openssl/rand.h>
 #include <openssl/dh.h>
+#include <openssl/x509v3.h>
 
 static SSL_CTX * ssl_ctx;
 static DH *dh_params;
 
 static bool ConnSSL_LoadServerKey_openssl PARAMS(( SSL_CTX *c ));
+static bool ConnSSL_SetVerifyProperties_openssl PARAMS((SSL_CTX * c));
 #endif
+
+#define MAX_CERT_CHAIN_LENGTH	10	/* XXX: do not hardcode */
 
 #ifdef HAVE_LIBGNUTLS
 #include <sys/types.h>
@@ -74,6 +78,7 @@ static size_t x509_cred_idx;
 static gnutls_dh_params_t dh_params;
 static gnutls_priority_t priorities_cache = NULL;
 static bool ConnSSL_LoadServerKey_gnutls PARAMS(( void ));
+static bool ConnSSL_SetVerifyProperties_gnutls PARAMS((void));
 #endif
 
 #define SHA256_STRING_LEN	(32 * 2 + 1)
@@ -131,9 +136,37 @@ out:
 /**
  * Log OpenSSL error message.
  *
+ * @param level The log level
  * @param msg The error message.
  * @param info Additional information text or NULL.
  */
+static void
+LogOpenSSL_CertInfo(int level, X509 * cert, const char *msg)
+{
+	BIO *mem;
+	char *memptr;
+	long len;
+
+	assert(cert);
+	assert(msg);
+
+	if (!cert)
+		return;
+	mem = BIO_new(BIO_s_mem());
+	if (!mem)
+		return;
+	X509_NAME_print_ex(mem, X509_get_subject_name(cert), 4,
+			   XN_FLAG_ONELINE);
+	X509_NAME_print_ex(mem, X509_get_issuer_name(cert), 4, XN_FLAG_ONELINE);
+	if (BIO_write(mem, "", 1) == 1) {
+		len = BIO_get_mem_data(mem, &memptr);
+		if (memptr && len > 0)
+			Log(level, "%s: \"%s\"", msg, memptr);
+	}
+	(void)BIO_set_close(mem, BIO_CLOSE);
+	BIO_free(mem);
+}
+
 static void
 LogOpenSSLError(const char *error, const char *info)
 {
@@ -176,9 +209,16 @@ pem_passwd_cb(char *buf, int size, int rwflag, void *password)
 
 
 static int
-Verify_openssl(UNUSED int preverify_ok, UNUSED X509_STORE_CTX *x509_ctx)
+Verify_openssl(int preverify_ok, X509_STORE_CTX * ctx)
 {
-	return 1;
+	int err;
+
+	if (!preverify_ok) {
+		err = X509_STORE_CTX_get_error(ctx);
+		Log(LOG_ERR, "Certificate validation failed: %s",
+		    X509_verify_cert_error_string(err));
+	}
+	return preverify_ok;
 }
 #endif
 
@@ -354,7 +394,12 @@ ConnSSL_InitLibrary( void )
 	}
 
 	SSL_CTX_set_session_id_context(newctx, (unsigned char *)"ngircd", 6);
-	SSL_CTX_set_options(newctx, SSL_OP_SINGLE_DH_USE|SSL_OP_NO_SSLv2);
+	if (!ConnSSL_SetVerifyProperties_openssl(newctx))
+		goto out;
+	SSL_CTX_set_options(newctx,
+			    SSL_OP_SINGLE_DH_USE | SSL_OP_NO_SSLv2 |
+			    SSL_OP_NO_SSLv3 | SSL_OP_NO_TLSv1 | SSL_OP_NO_TLSv1_1 |
+			    SSL_OP_NO_COMPRESSION);
 	SSL_CTX_set_mode(newctx, SSL_MODE_ENABLE_PARTIAL_WRITE);
 	SSL_CTX_set_verify(newctx, SSL_VERIFY_PEER|SSL_VERIFY_CLIENT_ONCE,
 			   Verify_openssl);
@@ -394,6 +439,9 @@ out:
 		goto out;
 	}
 
+	if (!ConnSSL_SetVerifyProperties_gnutls())
+		goto out;
+
 	Log(LOG_INFO, "GnuTLS %s initialized.", gnutls_check_version(NULL));
 	initialized = true;
 	return true;
@@ -405,6 +453,37 @@ out:
 
 
 #ifdef HAVE_LIBGNUTLS
+static bool
+ConnSSL_SetVerifyProperties_gnutls(void)
+{
+	int err;
+
+	if (!Conf_SSLOptions.CAFile)
+		return true;
+
+	err = gnutls_certificate_set_x509_trust_file(x509_cred,
+						     Conf_SSLOptions.CAFile,
+						     GNUTLS_X509_FMT_PEM);
+	if (err < 0) {
+		Log(LOG_ERR, "Failed to load x509 trust file %s: %s",
+		    Conf_SSLOptions.CAFile, gnutls_strerror(err));
+		return false;
+	}
+	if (Conf_SSLOptions.CRLFile) {
+		err =
+		    gnutls_certificate_set_x509_crl_file(x509_cred,
+							 Conf_SSLOptions.CRLFile,
+							 GNUTLS_X509_FMT_PEM);
+		if (err < 0) {
+			Log(LOG_ERR, "Failed to load x509 crl file %s: %s",
+			    Conf_SSLOptions.CRLFile, gnutls_strerror(err));
+			return false;
+		}
+	}
+	return true;
+}
+
+
 static bool
 ConnSSL_LoadServerKey_gnutls(void)
 {
@@ -531,6 +610,56 @@ ConnSSL_LoadServerKey_openssl(SSL_CTX *ctx)
 }
 
 
+static bool
+ConnSSL_SetVerifyProperties_openssl(SSL_CTX * ctx)
+{
+	X509_STORE *store = NULL;
+	X509_LOOKUP *lookup;
+	int verify_flags = SSL_VERIFY_PEER;
+	bool ret = false;
+
+	if (!Conf_SSLOptions.CAFile)
+		return true;
+
+	if (SSL_CTX_load_verify_locations(ctx, Conf_SSLOptions.CAFile, NULL) !=
+	    1) {
+		LogOpenSSLError("SSL_CTX_load_verify_locations", NULL);
+		goto out;
+	}
+
+	if (Conf_SSLOptions.CRLFile) {
+		X509_VERIFY_PARAM *param = X509_VERIFY_PARAM_new();
+		X509_VERIFY_PARAM_set_flags(param, X509_V_FLAG_CRL_CHECK);
+		SSL_CTX_set1_param(ctx, param);
+
+		store = SSL_CTX_get_cert_store(ctx);
+		assert(store);
+		lookup = X509_STORE_add_lookup(store, X509_LOOKUP_file());
+		if (!lookup) {
+			LogOpenSSLError("X509_STORE_add_lookup",
+					Conf_SSLOptions.CRLFile);
+			goto out;
+		}
+
+		if (X509_load_crl_file
+		    (lookup, Conf_SSLOptions.CRLFile, X509_FILETYPE_PEM) != 1) {
+			LogOpenSSLError("X509_load_crl_file",
+					Conf_SSLOptions.CRLFile);
+			goto out;
+		}
+	}
+
+	SSL_CTX_set_verify(ctx, verify_flags, Verify_openssl);
+	SSL_CTX_set_verify_depth(ctx, MAX_CERT_CHAIN_LENGTH);
+	ret = true;
+out:
+	if (Conf_SSLOptions.CRLFile)
+		free(Conf_SSLOptions.CRLFile);
+	Conf_SSLOptions.CRLFile = NULL;
+	return ret;
+}
+
+
 #endif
 static bool
 ConnSSL_Init_SSL(CONNECTION *c)
@@ -602,7 +731,7 @@ ConnSSL_Init_SSL(CONNECTION *c)
 
 
 bool
-ConnSSL_PrepareConnect(CONNECTION *c, UNUSED CONF_SERVER *s)
+ConnSSL_PrepareConnect(CONNECTION * c, CONF_SERVER * s)
 {
 	bool ret;
 #ifdef HAVE_LIBGNUTLS
@@ -613,7 +742,7 @@ ConnSSL_PrepareConnect(CONNECTION *c, UNUSED CONF_SERVER *s)
 		Log(LOG_ERR, "Failed to initialize new SSL session: %s",
 		    gnutls_strerror(err));
 		return false;
-        }
+	}
 #endif
 	ret = ConnSSL_Init_SSL(c);
 	if (!ret)
@@ -621,7 +750,23 @@ ConnSSL_PrepareConnect(CONNECTION *c, UNUSED CONF_SERVER *s)
 	Conn_OPTION_ADD(c, CONN_SSL_CONNECT);
 #ifdef HAVE_LIBSSL
 	assert(c->ssl_state.ssl);
-	SSL_set_verify(c->ssl_state.ssl, SSL_VERIFY_NONE, NULL);
+	if (s->SSLVerify) {
+		X509_VERIFY_PARAM *param = NULL;
+		param = SSL_get0_param(c->ssl_state.ssl);
+		X509_VERIFY_PARAM_set_hostflags(param,
+						X509_CHECK_FLAG_NO_PARTIAL_WILDCARDS);
+Log(LOG_ERR, "DEBUG: Setting up hostname verification for '%s'", s->host);
+		int err = X509_VERIFY_PARAM_set1_host(param, s->host, 0);
+		if (err != 1) {
+			Log(LOG_ERR,
+			    "Cannot set up hostname verification for '%s': %u",
+			    s->host, err);
+			return false;
+		}
+		SSL_set_verify(c->ssl_state.ssl, SSL_VERIFY_PEER,
+			       Verify_openssl);
+	} else
+		SSL_set_verify(c->ssl_state.ssl, SSL_VERIFY_NONE, NULL);
 #endif
 	return true;
 }
@@ -720,18 +865,102 @@ ConnSSL_HandleError(CONNECTION * c, const int code, const char *fname)
 }
 
 
-static void
-ConnSSL_LogCertInfo( CONNECTION *c )
+#ifdef HAVE_LIBGNUTLS
+static void *
+LogMalloc(size_t s)
 {
+	void *mem = malloc(s);
+	if (!mem)
+		Log(LOG_ERR, "Out of memory: Could not allocate %lu byte",
+		    (unsigned long)s);
+	return mem;
+}
+
+
+static void
+LogGnuTLS_CertInfo(int level, gnutls_x509_crt_t cert, const char *msg)
+{
+	char *dn, *issuer_dn;
+	size_t size = 0;
+	int err = gnutls_x509_crt_get_dn(cert, NULL, &size);
+	if (size == 0) {
+		Log(LOG_ERR, "gnutls_x509_crt_get_dn: size == 0");
+		return;
+	}
+	if (err && err != GNUTLS_E_SHORT_MEMORY_BUFFER)
+		goto err_crt_get;
+	dn = LogMalloc(size);
+	if (!dn)
+		return;
+	err = gnutls_x509_crt_get_dn(cert, dn, &size);
+	if (err)
+		goto err_crt_get;
+	gnutls_x509_crt_get_issuer_dn(cert, NULL, &size);
+	assert(size);
+	issuer_dn = LogMalloc(size);
+	if (!issuer_dn) {
+		Log(level, "%s: Distinguished Name: %s", msg, dn);
+		free(dn);
+		return;
+	}
+	gnutls_x509_crt_get_issuer_dn(cert, issuer_dn, &size);
+	Log(level, "%s: Distinguished Name: \"%s\", Issuer \"%s\"", msg, dn,
+	    issuer_dn);
+	free(dn);
+	free(issuer_dn);
+	return;
+
+      err_crt_get:
+	Log(LOG_ERR, "gnutls_x509_crt_get_dn: %s", gnutls_strerror(err));
+	return;
+}
+#endif
+
+
+static void
+ConnSSL_LogCertInfo( CONNECTION * c, bool connect)
+{
+	bool cert_seen = false, cert_ok = false;
+	char msg[128];
 #ifdef HAVE_LIBSSL
+	const char *comp_alg = "no compression";
+	const void *comp;
+	X509 *peer_cert = NULL;
 	SSL *ssl = c->ssl_state.ssl;
 
 	assert(ssl);
 
-	Log(LOG_INFO, "Connection %d: initialized %s using cipher %s.",
-		c->sock, SSL_get_version(ssl), SSL_get_cipher(ssl));
+	comp = SSL_get_current_compression(ssl);
+	if (comp)
+		comp_alg = SSL_COMP_get_name(comp);
+	Log(LOG_INFO, "Connection %d: initialized %s using cipher %s, %s.",
+	    c->sock, SSL_get_version(ssl), SSL_get_cipher(ssl), comp_alg);
+	peer_cert = SSL_get_peer_certificate(ssl);
+	if (peer_cert && connect) {
+		cert_seen = true;
+		/* Client: Check server certificate */
+		int err = SSL_get_verify_result(ssl);
+		if (err == X509_V_OK) {
+			const char *peername = SSL_get0_peername(ssl);
+			if (peername != NULL)
+				cert_ok = true;
+
+			Log(LOG_ERR, "X509_V_OK, peername = '%s'", peername);
+
+		} else
+			Log(LOG_ERR, "Certificate validation failed: %s",
+			    X509_verify_cert_error_string(err));
+		snprintf(msg, sizeof(msg), "%svalid peer certificate",
+			 cert_ok ? "" : "in");
+		LogOpenSSL_CertInfo(cert_ok ? LOG_DEBUG : LOG_ERR, peer_cert,
+				    msg);
+
+		X509_free(peer_cert);
+	}
 #endif
 #ifdef HAVE_LIBGNUTLS
+	unsigned int status;
+	gnutls_credentials_type_t cred;
 	gnutls_session_t sess = c->ssl_state.gnutls_session;
 	gnutls_cipher_algorithm_t cipher = gnutls_cipher_get(sess);
 
@@ -740,7 +969,81 @@ ConnSSL_LogCertInfo( CONNECTION *c )
 	    gnutls_protocol_get_name(gnutls_protocol_get_version(sess)),
 	    gnutls_cipher_get_name(cipher),
 	    gnutls_mac_get_name(gnutls_mac_get(sess)));
+	cred = gnutls_auth_get_type(c->ssl_state.gnutls_session);
+	if (cred == GNUTLS_CRD_CERTIFICATE && connect) {
+		cert_seen = true;
+		int verify =
+		    gnutls_certificate_verify_peers2(c->
+						     ssl_state.gnutls_session,
+						     &status);
+Log(LOG_ERR, "DEBUG: verify = %d", verify);
+		if (verify < 0) {
+			Log(LOG_ERR,
+			    "gnutls_certificate_verify_peers2 failed: %s",
+			    gnutls_strerror(verify));
+			goto done_cn_validation;
+		} else if (status) {
+			gnutls_datum_t out;
+
+			if (gnutls_certificate_verification_status_print
+			    (status, gnutls_certificate_type_get(sess), &out,
+			     0) == GNUTLS_E_SUCCESS) {
+				Log(LOG_ERR,
+				    "Certificate validation failed: %s",
+				    out.data);
+				gnutls_free(out.data);
+			}
+		}
+Log(LOG_ERR, "DEBUG: status = %d", status);
+
+		gnutls_x509_crt_t cert;
+		unsigned cert_list_size;
+		const gnutls_datum_t *cert_list =
+		    gnutls_certificate_get_peers(sess, &cert_list_size);
+		if (!cert_list || cert_list_size == 0) {
+			Log(LOG_ERR, "No certificates found");
+			goto done_cn_validation;
+		}
+		int err = gnutls_x509_crt_init(&cert);
+		if (err < 0) {
+			Log(LOG_ERR,
+			    "Failed to initialize x509 certificate: %s",
+			    gnutls_strerror(err));
+			goto done_cn_validation;
+		}
+		err = gnutls_x509_crt_import(cert, cert_list,
+					   GNUTLS_X509_FMT_DER);
+		if (err < 0) {
+			Log(LOG_ERR, "Failed to parse the certificate: %s",
+			    gnutls_strerror(err));
+			goto done_cn_validation;
+		}
+		err = gnutls_x509_crt_check_hostname(cert, c->host);
+		if (err == 0)
+			Log(LOG_ERR,
+			    "Failed to verify the hostname, expected \"%s\"",
+			    c->host);
+		else
+			cert_ok = verify == 0 && status == 0;
+
+		snprintf(msg, sizeof(msg), "%svalid peer certificate",
+			cert_ok ? "" : "in");
+		LogGnuTLS_CertInfo(cert_ok ? LOG_DEBUG : LOG_ERR, cert, msg);
+
+		gnutls_x509_crt_deinit(cert);
+done_cn_validation:
+		;
+	}
 #endif
+	/*
+	 * can be used later to check if connection was authenticated, e.g.
+	 * if inbound connection tries to register itself as server.
+	 * Could also restrict /OPER to authenticated connections, etc.
+	 */
+	if (cert_ok)
+		Conn_OPTION_ADD(c, CONN_SSL_PEERCERT_OK);
+	if (!cert_seen)
+		Log(LOG_INFO, "Peer did not present a certificate");
 }
 
 
@@ -879,7 +1182,7 @@ ConnectAccept( CONNECTION *c, bool connect)
 	(void)ConnSSL_InitCertFp(c);
 
 	Conn_OPTION_DEL(c, (CONN_SSL_WANT_WRITE|CONN_SSL_WANT_READ|CONN_SSL_CONNECT));
-	ConnSSL_LogCertInfo(c);
+	ConnSSL_LogCertInfo(c, connect);
 
 	Conn_StartLogin(CONNECTION2ID(c));
 	return 1;

@@ -397,6 +397,13 @@ All SSL-related configuration variables are located in the
 section. Please note that this whole section is only recognized by ngIRCd
 when it is compiled with support for SSL using OpenSSL or GnuTLS!
 .TP
+\fBCAFile (string)\fR
+Filename pointing to the Trusted CA Certificates. This is required for
+verifying peer certificates.
+.TP
+\fBCRLFile (string)\fR
+Filename of Certificate Revocation List.
+.TP
 \fBCertFile\fR (string)
 SSL Certificate file of the private server key.
 .TP
@@ -490,6 +497,9 @@ You can use the IRC Operator command CONNECT later on to create the link.
 .TP
 \fBSSLConnect\fR (boolean)
 Connect to the remote server using TLS/SSL. Default: false.
+.TP
+\fBSSLVerify\fR (boolean)
+Verify the TLS certificate presented by the remote server. Default: yes.
 .TP
 \fBServiceMask\fR (string)
 Define a (case insensitive) list of masks matching nicknames that should be

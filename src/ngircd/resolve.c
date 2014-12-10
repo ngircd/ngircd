@@ -217,8 +217,8 @@ ReverseLookup(const ng_ipaddr_t *IpAddr, char *resbuf, size_t reslen)
 	assert(reslen >= NG_INET_ADDRSTRLEN);
 	ng_ipaddr_tostr_r(IpAddr, tmp_ip_str);
 
-	Log_Subprocess(LOG_WARNING, "%s: Can't resolve address \"%s\": %s",
-				funcname, tmp_ip_str, errmsg);
+	Log_Subprocess(LOG_WARNING, "Can't resolve address \"%s\": %s [%s].",
+		       tmp_ip_str, errmsg, funcname);
 	strlcpy(resbuf, tmp_ip_str, reslen);
 	return false;
 }

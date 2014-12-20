@@ -618,6 +618,7 @@ Conf_EnablePassiveServer(const char *Name)
 		    && (Conf_Server[i].port > 0)) {
 			/* BINGO! Enable server */
 			Conf_Server[i].flags &= ~CONF_SFLAG_DISABLED;
+			Conf_Server[i].lasttry = 0;
 			return true;
 		}
 	}

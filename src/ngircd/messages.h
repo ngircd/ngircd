@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2013 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2014 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -141,7 +141,7 @@
 #define ERR_BADCHANNELKEY_MSG		"475 %s %s :Cannot join channel (+k) -- Wrong channel key"
 #define ERR_NOCHANMODES_MSG		"477 %s %s :Channel doesn't support modes"
 #define ERR_NEEDREGGEDNICK_MSG		"477 %s %s :Cannot send to channel (+M) -- You need to be identified to a registered account to message this channel"
-#define ERR_LISTFULL_MSG		"478 %s %s %s: Channel list is full (%d)"
+#define ERR_LISTFULL_MSG		"478 %s %s %s :Channel list is full (%d)"
 #define ERR_NOPRIVILEGES_MSG		"481 %s :Permission denied"
 #define ERR_CHANOPRIVSNEEDED_MSG	"482 %s %s :You are not channel operator"
 #define ERR_CHANOPPRIVTOOLOW_MSG	"482 %s %s :Your privileges are too low"

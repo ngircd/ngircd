@@ -89,6 +89,11 @@ A: You need to set 'OperCanUseMode = yes' in ngircd.conf, then IRC operators
    can use the MODE command for changing modes even when they are not joined
    to the specific channel.
 
+Q: How can I "auto-op" users in channels?
+A: ngIRCd can't do this: you would have to use some "IRC Services", like
+   Atheme (<http://atheme.net/atheme.html>) or Anope (<http://www.anope.org>).
+   See "doc/Services.txt" for setup instructions.
+
 
 IV. Bugs!?
 ~~~~~~~~~~

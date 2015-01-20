@@ -832,7 +832,7 @@ IRC_PONG(CLIENT *Client, REQUEST *Req)
 	if (auth_ping) {
 		LogDebug("AUTH PONG: waiting for token \"%ld\", got \"%s\" ...",
 			 auth_ping, Req->argv[0]);
-		if (auth_ping == atoi(Req->argv[0])) {
+		if (auth_ping == atol(Req->argv[0])) {
 			Conn_SetAuthPing(conn, 0);
 			if (Client_Type(Client) == CLIENT_WAITAUTHPING)
 				Login_User(Client);

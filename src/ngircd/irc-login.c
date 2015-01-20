@@ -838,8 +838,8 @@ IRC_PONG(CLIENT *Client, REQUEST *Req)
 				Login_User(Client);
 		} else
 			if (!IRC_WriteStrClient(Client,
-					"To connect, type /QUOTE PONG %ld",
-					auth_ping))
+					"NOTICE %s :To connect, type /QUOTE PONG %ld",
+					Client_ID(Client), auth_ping))
 				return DISCONNECTED;
 	}
 #endif

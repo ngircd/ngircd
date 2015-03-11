@@ -50,7 +50,7 @@ start-server.sh [<id>]
 	and that no other instance of the test binary is already running.
 	The exit code is 0 if the test binary could be started.
 
-stop-server.sha [<id>]
+stop-server.sh [<id>]
 
 	This script uses getpid.sh to detect a running test binary
 	"T-ngircd<id>" and then shuts it down using the TERM signal.

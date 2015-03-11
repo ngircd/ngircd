@@ -162,7 +162,7 @@ IRC_WHO_Channel(CLIENT *Client, CHANNEL *Chan, bool OnlyOps)
 		if (OnlyOps && !is_ircop)
 			continue;
 
-		is_visible = Client_HasMode(c, 'i');
+		is_visible = !Client_HasMode(c, 'i');
 		if (is_member || is_visible) {
 			memset(flags, 0, sizeof(flags));
 

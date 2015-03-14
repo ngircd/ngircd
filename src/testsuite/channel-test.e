@@ -64,10 +64,10 @@ expect {
 	"323 nick :End of LIST"
 }
 
-send "part #channel\r"
+send "part #channel :bye bye\r"
 expect {
 	timeout { exit 1 }
-	"@* PART #channel :nick"
+	"@* PART #channel :bye bye"
 }
 
 send "join #channel\r"
@@ -93,11 +93,11 @@ expect {
 send "join 0\r"
 expect {
 	timeout { exit 1 }
-	"@* PART #channel2 :nick"
+	"@* PART #channel2 :"
 }
 expect {
 	timeout { exit 1 }
-	"@* PART #channel :nick"
+	"@* PART #channel :"
 }
 
 send "quit\r"

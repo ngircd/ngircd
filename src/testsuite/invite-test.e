@@ -82,7 +82,7 @@ expect {
 send "part #channel\r"
 expect {
 	timeout { exit 1}
-	-re "PART #channel :?nick"
+	"@* PART #channel :"
 }
 
 send "invite nick :parameter with spaces\r"

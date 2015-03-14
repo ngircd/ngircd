@@ -89,7 +89,7 @@ expect {
 send "part #channel\r"
 expect {
 	timeout { exit 1 }
-	"@* PART #channel :nick"
+	"@* PART #channel :"
 }
 
 send "who Real?Name\r"

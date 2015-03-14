@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2014 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2015 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -448,7 +448,7 @@ IRC_PART(CLIENT * Client, REQUEST * Req)
 
 	while (chan) {
 		Channel_Part(target, Client, chan,
-			     Req->argc > 1 ? Req->argv[1] : Client_ID(target));
+			     Req->argc > 1 ? Req->argv[1] : "");
 		chan = strtok(NULL, ",");
 	}
 

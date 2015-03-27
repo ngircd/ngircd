@@ -694,7 +694,10 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 				goto send_next_target;
 			}
 
-			if (Client_HasMode(cl, 'C')) {
+			if (Client_HasMode(cl, 'C') &&
+			    !Client_HasMode(from, 'o') &&
+			    !(Client_Type(from) == CLIENT_SERVER) &&
+			    !(Client_Type(from) == CLIENT_SERVICE)) {
 				cl2chan = Channel_FirstChannelOf(cl);
 				while (cl2chan) {
 					chan = Channel_GetChannel(cl2chan);

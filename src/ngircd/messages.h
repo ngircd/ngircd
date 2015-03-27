@@ -75,7 +75,7 @@
 #define RPL_NOTOPIC_MSG			"331 %s %s :No topic is set"
 #define RPL_TOPIC_MSG			"332 %s %s :%s"
 #define RPL_TOPICSETBY_MSG		"333 %s %s %s %u"
-#define RPL_WHOISBOT_MSG		"335 %s %s :is a IRC Bot"
+#define RPL_WHOISBOT_MSG		"335 %s %s :is an IRC Bot"
 #define RPL_INVITING_MSG		"341 %s %s %s%s"
 #define RPL_INVITELIST_MSG		"346 %s %s %s"
 #define RPL_ENDOFINVITELIST_MSG		"347 %s %s :End of channel invite list"

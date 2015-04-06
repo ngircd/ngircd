@@ -9,7 +9,7 @@
                                -- ChangeLog --
 
 
-ngIRCd 22.1
+ngIRCd 22.1 (2015-04-06)
 
   - Update doc/Platforms.txt and doc/FAQ.txt.
   - Fix spelling of RPL_WHOISBOT message text.

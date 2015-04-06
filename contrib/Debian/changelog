@@ -1,3 +1,9 @@
+ngircd (22.1-0ab1) unstable; urgency=low
+
+  * New "upstream" release: ngIRCd 22.1.
+
+ -- Alexander Barton <alex@barton.de>  Mon, 06 Apr 2015 14:34:50 +0200
+
 ngircd (22-0ab1) unstable; urgency=low
 
   * New "upstream" release: ngIRCd 22.

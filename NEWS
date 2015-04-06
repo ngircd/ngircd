@@ -9,7 +9,7 @@
                                   -- NEWS --
 
 
-ngIRCd 22.1
+ngIRCd 22.1 (2015-04-06)
 
   - Update "CipherList" to not enable SSLv3 by default. Idea, initial patch,
     and testing by Christoph Biedl <ngircd.anoy@manchmal.in-ulm.de>.

@@ -9,6 +9,17 @@
                                   -- NEWS --
 
 
+ngIRCd 22.1
+
+  - Update "CipherList" to not enable SSLv3 by default. Idea, initial patch,
+    and testing by Christoph Biedl <ngircd.anoy@manchmal.in-ulm.de>.
+  - Change ngIRCd test suite not to use DNS lookups: Different operating
+    systems do behave quite differently when doing DNS lookups, for example
+    "127.0.0.1" sometimes resolves to "localhost" and sometimes to
+    "localhost.localdomain" (for example OpenBSD). And other OS resolve
+    "localhost" to the real host name (for example Cygwin). So not using
+    DNS at all makes the test site much more portable.
+
 ngIRCd 22 (2014-10-11)
 
   - Match all list patterns case-insensitive: this affects the invite-,

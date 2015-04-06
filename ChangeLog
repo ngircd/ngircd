@@ -9,6 +9,42 @@
                                -- ChangeLog --
 
 
+ngIRCd 22.1
+
+  - Update doc/Platforms.txt and doc/FAQ.txt.
+  - Fix spelling of RPL_WHOISBOT message text.
+  - Don't send nick name as default PART reason: No other IRC daemon seems
+    to do this (today?). Closes #185.
+    Reported by Cahata in #ngircd, thanks!
+  - Fix "WHO #<chan>" showing invisible users and hiding all visible, the
+    logic was reversed! This bug has been introduced by commit c74115f2,
+    "Simplify mode checking on channels and users within a channel", ngIRCd
+    releases 21, 21.1, and 22 are affected :-( Problem reported by Cahata
+    in #ngircd, Thanks!
+  - Fix typo in src/testsuite/README
+  - Auth PING: Fix our information text for manual sending of "PONG". Up to
+    now, ngIRCd doesn't send a valid IRC command at all, oops!
+  - Auth PING: Fix internal time stamp conversion and don't send a prefix in
+    our PING command. The prefix confuses WeeChat, at least, which doesn't
+    send an appropriate PONG in the case ...
+    Debugging and patch by "wowaname" on #ngircd, thanks!
+  - Fix syntax of ERR_LISTFULL_MSG(478) numeric. Pointed out by "wowaname"
+    in #ngircd, thanks!
+  - Enhance debug messages while sending CHANINFO commands.
+  - Reset "last try" timer when enabling a passive server. This results in
+    a new connection attempt as soon as possible.
+  - Change log message for "Can't resolve address" and for IP address
+    forgeries.
+  - doc/HowToRelease.txt: Add note about the bug tracker.
+  - Update "CipherList" to not enable SSLv3 by default. Idea, initial patch,
+    and testing by Christoph Biedl <ngircd.anoy@manchmal.in-ulm.de>.
+  - Change ngIRCd test suite not to use DNS lookups: Different operating
+    systems do behave quite differently when doing DNS lookups, for example
+    "127.0.0.1" sometimes resolves to "localhost" and sometimes to
+    "localhost.localdomain" (for example OpenBSD). And other OS resolve
+    "localhost" to the real host name (for example Cygwin). So not using
+    DNS at all makes the test site much more portable.
+
 ngIRCd 22 (2014-10-11)
 
   - Match all list patterns case-insensitive: this affects the invite-,

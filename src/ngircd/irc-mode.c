@@ -378,37 +378,44 @@ Channel_Mode_Answer_Request(CLIENT *Origin, CHANNEL *Channel)
 	char the_modes[COMMAND_LEN], the_args[COMMAND_LEN], argadd[CLIENT_PASS_LEN];
 	const char *mode_ptr;
 
-	/* Member or not? -- That's the question! */
-	if (!Channel_IsMemberOf(Channel, Origin))
-		return IRC_WriteStrClient(Origin, RPL_CHANNELMODEIS_MSG,
-			Client_ID(Origin), Channel_Name(Channel), Channel_Modes(Channel));
+	if (!Channel_IsMemberOf(Channel, Origin)) {
+		/* Not a member: "simple" mode reply */
+		if (!IRC_WriteStrClient(Origin, RPL_CHANNELMODEIS_MSG,
+					Client_ID(Origin), Channel_Name(Channel),
+					Channel_Modes(Channel)))
+			return DISCONNECTED;
+	} else {
+		/* The sender is a member: generate extended reply */
+		strlcpy(the_modes, Channel_Modes(Channel), sizeof(the_modes));
+		mode_ptr = the_modes;
+		the_args[0] = '\0';
 
-	/* The sender is a member: generate extended reply */
-	strlcpy(the_modes, Channel_Modes(Channel), sizeof(the_modes));
-	mode_ptr = the_modes;
-	the_args[0] = '\0';
-
-	while(*mode_ptr) {
-		switch(*mode_ptr) {
-		case 'l':
-			snprintf(argadd, sizeof(argadd), " %lu", Channel_MaxUsers(Channel));
-			strlcat(the_args, argadd, sizeof(the_args));
-			break;
-		case 'k':
-			strlcat(the_args, " ", sizeof(the_args));
-			strlcat(the_args, Channel_Key(Channel), sizeof(the_args));
-			break;
+		while(*mode_ptr) {
+			switch(*mode_ptr) {
+			case 'l':
+				snprintf(argadd, sizeof(argadd), " %lu",
+					 Channel_MaxUsers(Channel));
+				strlcat(the_args, argadd, sizeof(the_args));
+				break;
+			case 'k':
+				strlcat(the_args, " ", sizeof(the_args));
+				strlcat(the_args, Channel_Key(Channel),
+					sizeof(the_args));
+				break;
+			}
+			mode_ptr++;
 		}
-		mode_ptr++;
-	}
-	if (the_args[0])
-		strlcat(the_modes, the_args, sizeof(the_modes));
+		if (the_args[0])
+			strlcat(the_modes, the_args, sizeof(the_modes));
 
-	if (!IRC_WriteStrClient(Origin, RPL_CHANNELMODEIS_MSG,
-				Client_ID(Origin), Channel_Name(Channel),
-				the_modes))
-		return DISCONNECTED;
+		if (!IRC_WriteStrClient(Origin, RPL_CHANNELMODEIS_MSG,
+					Client_ID(Origin), Channel_Name(Channel),
+					the_modes))
+			return DISCONNECTED;
+	}
+
 #ifndef STRICT_RFC
+	/* Channel creation time */
 	if (!IRC_WriteStrClient(Origin, RPL_CREATIONTIME_MSG,
 				  Client_ID(Origin), Channel_Name(Channel),
 				  Channel_CreationTime(Channel)))

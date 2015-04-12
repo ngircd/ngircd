@@ -156,6 +156,7 @@
 #define ERR_UMODEUNKNOWNFLAG_MSG	"501 %s :Unknown mode"
 #define ERR_UMODEUNKNOWNFLAG2_MSG	"501 %s :Unknown mode \"%c%c\""
 #define ERR_USERSDONTMATCH_MSG		"502 %s :Can't set/get mode for other users"
+#define ERR_USERNOTONSERV_MSG		"504 %s %s :User is not on this server"
 #define ERR_NOINVITE_MSG		"518 %s :Cannot invite to %s (+V)"
 
 #ifdef ZLIB

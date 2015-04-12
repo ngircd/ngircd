@@ -150,6 +150,14 @@ IRC_INVITE(CLIENT *Client, REQUEST *Req)
 		return IRC_WriteErrClient(from, ERR_NOSUCHNICK_MSG,
 					  Client_ID(Client), Req->argv[0]);
 
+	if (Req->argv[1][0] == '&') {
+		/* Local channel. Make sure the target user is on this server! */
+		if (Client_Conn(target) == NONE)
+			return IRC_WriteErrClient(from, ERR_USERNOTONSERV_MSG,
+						  Client_ID(Client),
+						  Req->argv[0]);
+	}
+
 	chan = Channel_Search(Req->argv[1]);
 	if (chan) {
 		/* Channel exists. Is the user a valid member of the channel? */

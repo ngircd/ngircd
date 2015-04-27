@@ -177,7 +177,7 @@
 #endif
 
 /** Supported user modes. */
-#define USERMODES "abBcCFioqrRswx"
+#define USERMODES "abBcCFiIoqrRswx"
 
 /** Supported channel modes. */
 #define CHANMODES "abehiIklmMnoOPqQrRstvVz"

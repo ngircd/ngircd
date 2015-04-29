@@ -340,6 +340,7 @@ IRC_WHOIS_SendReply(CLIENT *Client, CLIENT *from, CLIENT *c)
 				strlcat(str, " ", sizeof(str));
 
 			who_flags_qualifier(Client, Channel_UserModes(chan, c),
+			                    str, sizeof(str));
 			strlcat(str, Channel_Name(chan), sizeof(str));
 
 			if (strlen(str) > (COMMAND_LEN - CHANNEL_NAME_LEN - 4)) {

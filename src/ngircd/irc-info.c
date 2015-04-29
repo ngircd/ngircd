@@ -327,12 +327,12 @@ IRC_WHOIS_SendReply(CLIENT *Client, CLIENT *from, CLIENT *c)
 
 			/* Secret channel? */
 			if (Channel_HasMode(chan, 's')
-				&& !Channel_IsMemberOf(chan, Client))
+			    && !Channel_IsMemberOf(chan, Client))
 				continue;
 
 			/* Local channel and request is not from a user? */
 			if (Client_Type(Client) == CLIENT_SERVER
-				&& Channel_IsLocal(chan))
+			    && Channel_IsLocal(chan))
 				continue;
 
 			/* Concatenate channel names */
@@ -340,7 +340,6 @@ IRC_WHOIS_SendReply(CLIENT *Client, CLIENT *from, CLIENT *c)
 				strlcat(str, " ", sizeof(str));
 
 			who_flags_qualifier(Client, Channel_UserModes(chan, c),
-						str, sizeof(str));
 			strlcat(str, Channel_Name(chan), sizeof(str));
 
 			if (strlen(str) > (COMMAND_LEN - CHANNEL_NAME_LEN - 4)) {

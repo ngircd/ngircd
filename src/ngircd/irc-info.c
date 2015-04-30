@@ -313,47 +313,49 @@ IRC_WHOIS_SendReply(CLIENT *Client, CLIENT *from, CLIENT *c)
 				Client_Info(Client_Introducer(c))))
 		return DISCONNECTED;
 
-	/* Channels */
-	snprintf(str, sizeof(str), RPL_WHOISCHANNELS_MSG,
-		 Client_ID(from), Client_ID(c));
-	cl2chan = Channel_FirstChannelOf(c);
-	while (cl2chan) {
-		chan = Channel_GetChannel(cl2chan);
-		assert(chan != NULL);
+	/* Channels, show only if client has no +I or if from is oper */
+	if(!(Client_HasMode(c, 'I')) || Client_HasMode(from, 'o'))  {
+		snprintf(str, sizeof(str), RPL_WHOISCHANNELS_MSG,
+			 Client_ID(from), Client_ID(c));
+		cl2chan = Channel_FirstChannelOf(c);
+		while (cl2chan) {
+			chan = Channel_GetChannel(cl2chan);
+			assert(chan != NULL);
 
-		/* next */
-		cl2chan = Channel_NextChannelOf(c, cl2chan);
+			/* next */
+			cl2chan = Channel_NextChannelOf(c, cl2chan);
 
-		/* Secret channel? */
-		if (Channel_HasMode(chan, 's')
-		    && !Channel_IsMemberOf(chan, Client))
-			continue;
+			/* Secret channel? */
+			if (Channel_HasMode(chan, 's')
+			    && !Channel_IsMemberOf(chan, Client))
+				continue;
 
-		/* Local channel and request is not from a user? */
-		if (Client_Type(Client) == CLIENT_SERVER
-		    && Channel_IsLocal(chan))
-			continue;
+			/* Local channel and request is not from a user? */
+			if (Client_Type(Client) == CLIENT_SERVER
+			    && Channel_IsLocal(chan))
+				continue;
 
-		/* Concatenate channel names */
-		if (str[strlen(str) - 1] != ':')
-			strlcat(str, " ", sizeof(str));
+			/* Concatenate channel names */
+			if (str[strlen(str) - 1] != ':')
+				strlcat(str, " ", sizeof(str));
 
-		who_flags_qualifier(Client, Channel_UserModes(chan, c),
-				    str, sizeof(str));
-		strlcat(str, Channel_Name(chan), sizeof(str));
+			who_flags_qualifier(Client, Channel_UserModes(chan, c),
+			                    str, sizeof(str));
+			strlcat(str, Channel_Name(chan), sizeof(str));
 
-		if (strlen(str) > (COMMAND_LEN - CHANNEL_NAME_LEN - 4)) {
-			/* Line becomes too long: send it! */
+			if (strlen(str) > (COMMAND_LEN - CHANNEL_NAME_LEN - 4)) {
+				/* Line becomes too long: send it! */
+				if (!IRC_WriteStrClient(Client, "%s", str))
+					return DISCONNECTED;
+				snprintf(str, sizeof(str), RPL_WHOISCHANNELS_MSG,
+					 Client_ID(from), Client_ID(c));
+			}
+		}
+		if(str[strlen(str) - 1] != ':') {
+			/* There is data left to send: */
 			if (!IRC_WriteStrClient(Client, "%s", str))
 				return DISCONNECTED;
-			snprintf(str, sizeof(str), RPL_WHOISCHANNELS_MSG,
-				 Client_ID(from), Client_ID(c));
 		}
-	}
-	if(str[strlen(str) - 1] != ':') {
-		/* There is data left to send: */
-		if (!IRC_WriteStrClient(Client, "%s", str))
-			return DISCONNECTED;
 	}
 
 	/* IRC-Services? */

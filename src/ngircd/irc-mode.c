@@ -206,6 +206,7 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 		case 'b': /* Block private msgs */
 		case 'C': /* Only messages from clients sharing a channel */
 		case 'i': /* Invisible */
+		case 'I': /* Hide channel list from WHOIS */
 		case 's': /* Server messages */
 		case 'w': /* Wallops messages */
 			x[0] = *mode_ptr;

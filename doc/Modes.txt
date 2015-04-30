@@ -28,7 +28,7 @@ channels he is using at the moment.
   C	19	Only users that share a channel are allowed to send messages.
   F	22	Relaxed flood protection (only settable by IRC Operators).
   i	0.0.1	User is "invisible".
-  I 23	No channels are shown on WHOIS (IRC Operators can always see those).
+  I	23	No channels are shown on WHOIS (IRC Ops can always see those).
   o	0.0.1	User is IRC operator.
   q	20	User is protected, can not be kicked from a channel.
   r	0.0.1	User is restricted.

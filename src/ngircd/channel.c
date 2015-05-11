@@ -1120,7 +1120,7 @@ Channel_AddInvite(CHANNEL *c, const char *mask, bool onlyonce, const char *who )
 {
 	struct list_head *h = Channel_GetListInvites(c);
 	LogDebug("Adding \"%s\" to \"%s\" invite list", mask, Channel_Name(c));
-	return Lists_Add(h, mask, onlyonce, who);
+	return Lists_Add(h, mask, time(NULL), who, onlyonce);
 }
 
 

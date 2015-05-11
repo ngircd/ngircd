@@ -32,7 +32,8 @@ struct list_elem {
 	struct list_elem *next;	/** pointer to next list element */
 	char mask[MASK_LEN];	/** IRC mask */
 	char *reason;		/** Optional "reason" text */
-	time_t valid_until;	/** 0: unlimited; 1: once; t(>1): until t */
+	time_t valid_until;	/** 0: unlimited; t(>0): until t */
+	bool onlyonce;
 };
 
 /**
@@ -65,13 +66,26 @@ Lists_GetReason(const struct list_elem *e)
  * Get "validity" value stored in list element.
  *
  * @param list_elem List element.
- * @return Validity: 0=unlimited, 1=once, >1 until this time stamp.
+ * @return Validity: 0=unlimited, >0 until this time stamp.
  */
 GLOBAL time_t
 Lists_GetValidity(const struct list_elem *e)
 {
 	assert(e != NULL);
 	return e->valid_until;
+}
+
+/**
+ * Get "onlyonce" value stored in list element.
+ *
+ * @param list_elem List element.
+ * @return True if the element was stored for single use, false otherwise.
+ */
+GLOBAL bool
+Lists_GetOnlyOnce(const struct list_elem *e)
+{
+	assert(e != NULL);
+	return e->onlyonce;
 }
 
 /**
@@ -111,7 +125,7 @@ Lists_GetNext(const struct list_elem *e)
  */
 bool
 Lists_Add(struct list_head *h, const char *Mask, time_t ValidUntil,
-	  const char *Reason)
+	  const char *Reason, bool OnlyOnce = false)
 {
 	struct list_elem *e, *newelem;
 
@@ -148,6 +162,7 @@ Lists_Add(struct list_head *h, const char *Mask, time_t ValidUntil,
 	else
 		newelem->reason = NULL;
 	newelem->valid_until = ValidUntil;
+	newelem->onlyonce = OnlyOnce;
 	newelem->next = e;
 	h->first = newelem;
 
@@ -363,7 +378,7 @@ Lists_Expire(struct list_head *h, const char *ListName)
 
 	while (e) {
 		next = e->next;
-		if (e->valid_until > 1 && e->valid_until < now) {
+		if (e->valid_until > 0 && e->valid_until < now) {
 			/* Entry is expired, delete it */
 			if (e->reason)
 				Log(LOG_INFO,

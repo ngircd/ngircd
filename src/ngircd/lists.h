@@ -36,7 +36,7 @@ GLOBAL struct list_elem *Lists_CheckDupeMask PARAMS((const struct list_head *hea
 					const char *mask));
 
 GLOBAL bool Lists_Add PARAMS((struct list_head *h, const char *Mask,
-			      time_t ValidUntil, const char *Reason));
+			      time_t ValidUntil, const char *Reason, bool OnlyOnce));
 GLOBAL void Lists_Del PARAMS((struct list_head *head, const char *Mask));
 GLOBAL unsigned long Lists_Count PARAMS((struct list_head *h));
 
@@ -46,6 +46,7 @@ GLOBAL void Lists_MakeMask PARAMS((const char *Pattern, char *mask, size_t len))
 GLOBAL const char *Lists_GetMask PARAMS((const struct list_elem *e));
 GLOBAL const char *Lists_GetReason PARAMS((const struct list_elem *e));
 GLOBAL time_t Lists_GetValidity PARAMS((const struct list_elem *e));
+GLOBAL bool Lists_GetOnlyOnce PARAMS((const struct list_elem *e));
 
 GLOBAL void Lists_Expire PARAMS((struct list_head *h, const char *ListName));
 

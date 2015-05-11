@@ -359,6 +359,11 @@ Channel_Kick(CLIENT *Peer, CLIENT *Target, CLIENT *Origin, const char *Name,
 		    !Channel_UserHasMode(chan, Target, 'a') &&
 		    !Channel_UserHasMode(chan, Target, 'o'))
 			can_kick = true;
+		
+		/* IRC operators & IRCd with OperCanMode enabled
+		 * can kick anyways regardless of privilege */	
+		else if(Client_HasMode(Origin, 'o') && Conf_OperCanMode)
+		    can_kick = true;
 
 		if(!can_kick) {
 			IRC_WriteErrClient(Origin, ERR_CHANOPPRIVTOOLOW_MSG,

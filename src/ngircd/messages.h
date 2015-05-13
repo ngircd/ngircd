@@ -67,6 +67,7 @@
 #define RPL_WHOISIDLE_MSG		"317 %s %s %lu %lu :seconds idle, signon time"
 #define RPL_ENDOFWHOIS_MSG		"318 %s %s :End of WHOIS list"
 #define RPL_WHOISCHANNELS_MSG		"319 %s %s :"
+#define RPL_LISTSTART_MSG		"321 %s Channel :Users  Name"
 #define RPL_LIST_MSG			"322 %s %s %ld :%s"
 #define RPL_LISTEND_MSG			"323 %s :End of LIST"
 #define RPL_CHANNELMODEIS_MSG		"324 %s %s +%s"

@@ -597,6 +597,10 @@ IRC_LIST( CLIENT *Client, REQUEST *Req )
 		}
 	}
 
+	/* Send list head */
+	if (!IRC_WriteStrClient(from, RPL_LISTSTART_MSG, Client_ID(from)))
+		return DISCONNECTED;
+
 	while (pattern) {
 		/* Loop through all the channels */
 		if (Req->argc > 0)

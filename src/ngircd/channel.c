@@ -1102,7 +1102,7 @@ Channel_AddBan(CHANNEL *c, const char *mask, const char *who )
 {
 	struct list_head *h = Channel_GetListBans(c);
 	LogDebug("Adding \"%s\" to \"%s\" ban list", mask, Channel_Name(c));
-	return Lists_Add(h, mask, time(NULL), who);
+	return Lists_Add(h, mask, time(NULL), who, false);
 }
 
 
@@ -1111,7 +1111,7 @@ Channel_AddExcept(CHANNEL *c, const char *mask, const char *who )
 {
 	struct list_head *h = Channel_GetListExcepts(c);
 	LogDebug("Adding \"%s\" to \"%s\" exception list", mask, Channel_Name(c));
-	return Lists_Add(h, mask, time(NULL), who);
+	return Lists_Add(h, mask, time(NULL), who, false);
 }
 
 

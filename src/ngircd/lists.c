@@ -125,7 +125,7 @@ Lists_GetNext(const struct list_elem *e)
  */
 bool
 Lists_Add(struct list_head *h, const char *Mask, time_t ValidUntil,
-	  const char *Reason, bool OnlyOnce = false)
+	  const char *Reason, bool OnlyOnce)
 {
 	struct list_elem *e, *newelem;
 

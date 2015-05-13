@@ -407,7 +407,7 @@ IRC_WHOIS_SendReply(CLIENT *Client, CLIENT *from, CLIENT *c)
 
 	/* Local client and requester is the user itself or an IRC Op? */
 	if (Client_Conn(c) > NONE &&
-	    (from == c || (!Conf_MorePrivacy && Client_HasMode(from, 'o')))) {
+	    (from == c || Client_HasMode(from, 'o'))) {
 		/* Client hostname */
 		if (!IRC_WriteStrClient(from, RPL_WHOISHOST_MSG,
 					Client_ID(from), Client_ID(c),

@@ -291,8 +291,9 @@ Default: none.
 .TP
 \fBMorePrivacy\fR (boolean)
 This will cause ngIRCd to censor user idle time, logon time as well as the
-part/quit messages (that are sometimes used to inform everyone about which
-client software is being used). WHOWAS requests are also silently ignored.
+PART/QUIT messages (that are sometimes used to inform everyone about which
+client software is being used). WHOWAS requests are also silently ignored,
+and NAMES output doesn't list any clients for non-members.
 This option is most useful when ngIRCd is being used together with
 anonymizing software such as TOR or I2P and one does not wish to make it
 too easy to collect statistics on the users.

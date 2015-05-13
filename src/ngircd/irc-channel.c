@@ -608,9 +608,7 @@ IRC_LIST( CLIENT *Client, REQUEST *Req )
 				/* Gotcha! */
 				if (!Channel_HasMode(chan, 's')
 				    || Channel_IsMemberOf(chan, from)
-				    || (!Conf_MorePrivacy
-					&& Client_HasMode(Client, 'o')
-					&& Client_Conn(Client) > NONE))
+				    || Client_HasMode(from, 'o'))
 				{
 					if ((Conf_MaxListSize > 0)
 					    && IRC_CheckListTooBig(from, count,

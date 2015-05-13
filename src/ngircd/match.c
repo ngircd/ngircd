@@ -50,8 +50,10 @@ static int Matche_After_Star PARAMS(( const char *p, const char *t ));
 GLOBAL bool
 Match( const char *Pattern, const char *String )
 {
-	if( Matche( Pattern, String ) == MATCH_VALID ) return true;
-	else return false;
+	if (Matche(Pattern, String) == MATCH_VALID)
+		return true;
+	else
+		return false;
 } /* Match */
 
 /**
@@ -64,10 +66,12 @@ Match( const char *Pattern, const char *String )
 GLOBAL bool
 MatchCaseInsensitive(const char *Pattern, const char *String)
 {
-	char haystack[COMMAND_LEN];
+	char needle[COMMAND_LEN], haystack[COMMAND_LEN];
 
+	strlcpy(needle, Pattern, sizeof(needle));
 	strlcpy(haystack, String, sizeof(haystack));
-	return Match(Pattern, ngt_LowerStr(haystack));
+
+	return Match(ngt_LowerStr(needle), ngt_LowerStr(haystack));
 } /* MatchCaseInsensitive */
 
 /**
@@ -82,16 +86,14 @@ GLOBAL bool
 MatchCaseInsensitiveList(const char *Pattern, const char *String,
 		     const char *Separator)
 {
-	char tmp_pattern[COMMAND_LEN], haystack[COMMAND_LEN], *ptr;
+	char tmp_pattern[COMMAND_LEN], *ptr;
 
 	strlcpy(tmp_pattern, Pattern, sizeof(tmp_pattern));
-	strlcpy(haystack, String, sizeof(haystack));
-	ngt_LowerStr(haystack);
 
 	ptr = strtok(tmp_pattern, Separator);
 	while (ptr) {
 		ngt_TrimStr(ptr);
-		if (Match(ptr, haystack))
+		if (MatchCaseInsensitive(ptr, String))
 			return true;
 		ptr = strtok(NULL, Separator);
 	}

@@ -344,7 +344,7 @@ Lists_CheckReason(struct list_head *h, CLIENT *Client, char *reason, size_t len)
 		if (MatchCaseInsensitive(e->mask, Client_MaskCloaked(Client))) {
 			if (len && e->reason)
 				strlcpy(reason, e->reason, len);
-			if (e->valid_until == 1) {
+			if (e->onlyonce) {
 				/* Entry is valid only once, delete it */
 				LogDebug("Deleted \"%s\" from list (used).",
 					 e->mask);

@@ -127,10 +127,10 @@ GLOBAL char *Channel_TopicWho PARAMS(( CHANNEL *Chan ));
 GLOBAL unsigned int Channel_CreationTime PARAMS(( CHANNEL *Chan ));
 #endif
 
-GLOBAL bool Channel_AddBan PARAMS((CHANNEL *c, const char *Mask));
-GLOBAL bool Channel_AddExcept PARAMS((CHANNEL *c, const char *Mask));
+GLOBAL bool Channel_AddBan PARAMS((CHANNEL *c, const char *Mask, const char *who));
+GLOBAL bool Channel_AddExcept PARAMS((CHANNEL *c, const char *Mask, const char *who));
 GLOBAL bool Channel_AddInvite PARAMS((CHANNEL *c, const char *Mask,
-				      bool OnlyOnce));
+				      bool OnlyOnce, const char *who));
 
 GLOBAL bool Channel_ShowBans PARAMS((CLIENT *client, CHANNEL *c));
 GLOBAL bool Channel_ShowExcepts PARAMS((CLIENT *client, CHANNEL *c));

@@ -105,7 +105,7 @@ Class_AddMask(const int Class, const char *Pattern, time_t ValidUntil,
 
 	Lists_MakeMask(Pattern, mask, sizeof(mask));
 	return Lists_Add(&My_Classes[Class], mask,
-			 ValidUntil, Reason);
+			 ValidUntil, Reason, false);
 }
 
 GLOBAL void

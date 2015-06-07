@@ -1017,15 +1017,15 @@ Add_To_List(char what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel,
 
 	switch (what) {
 		case 'I':
-			if (!Channel_AddInvite(Channel, mask, false))
+			if (!Channel_AddInvite(Channel, mask, false, Client_ID(Client)))
 				return CONNECTED;
 			break;
 		case 'b':
-			if (!Channel_AddBan(Channel, mask))
+			if (!Channel_AddBan(Channel, mask, Client_ID(Client)))
 				return CONNECTED;
 			break;
 		case 'e':
-			if (!Channel_AddExcept(Channel, mask))
+			if (!Channel_AddExcept(Channel, mask, Client_ID(Client)))
 				return CONNECTED;
 			break;
 	}

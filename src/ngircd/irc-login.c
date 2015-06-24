@@ -268,7 +268,7 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 				   Channel_HasMode(chan, 'N') &&
 				   !Client_HasMode(Client, 'o'))
 					return IRC_WriteErrClient(Client,
-								  ERR_UNAVAILRESOURCE_MSG,
+								  ERR_NONICKCHANGE_MSG,
 								  Client_ID(Client),
 								  Channel_Name(chan));
 				chan = Channel_Next(chan);

@@ -122,6 +122,7 @@
 #define ERR_NICKNAMETOOLONG_MSG		"432 %s %s :Nickname too long, max. %u characters"
 #define ERR_FORBIDDENNICKNAME_MSG	"432 %s %s :Nickname is forbidden/blocked"
 #define ERR_NICKNAMEINUSE_MSG		"433 %s %s :Nickname already in use"
+#define ERR_UNAVAILRESOURCE_MSG		"437 %s :Cannot change nickname while on %s(+N)"
 #define ERR_USERNOTINCHANNEL_MSG	"441 %s %s %s :They aren't on that channel"
 #define ERR_NOTONCHANNEL_MSG		"442 %s %s :You are not on that channel"
 #define ERR_USERONCHANNEL_MSG		"443 %s %s %s :is already on channel"

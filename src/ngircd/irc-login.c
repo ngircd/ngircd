@@ -262,16 +262,17 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 			/* Nickname change */
 
 			/* Check that the user isn't on any channels set +N */
-			chan = Channel_First();
-			while (chan) {
-				if(Channel_IsMemberOf(chan, Client) &&
-				   Channel_HasMode(chan, 'N') &&
-				   !Client_HasMode(Client, 'o'))
-					return IRC_WriteErrClient(Client,
-								  ERR_NONICKCHANGE_MSG,
-								  Client_ID(Client),
-								  Channel_Name(chan));
-				chan = Channel_Next(chan);
+			if(!Client_HasMode(Client, 'o')) {
+				chan = Channel_First();
+				while (chan) {
+					if(Channel_IsMemberOf(chan, Client) &&
+					   Channel_HasMode(chan, 'N'))
+						return IRC_WriteErrClient(Client,
+									  ERR_NONICKCHANGE_MSG,
+									  Client_ID(Client),
+									  Channel_Name(chan));
+					chan = Channel_Next(chan);
+				}
 			}
 
 			Change_Nick(Client, target, Req->argv[0],

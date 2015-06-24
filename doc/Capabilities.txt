@@ -13,7 +13,7 @@ This document lists and describes the "IRC capabilities" that ngIRCd supports
 and can be requested by a IRC/IRCv3 client that supports the "CAP" command.
 
 ngIRCd implements the "IRC Client Capabilities Extension" as described here:
-<http://www.leeh.co.uk/draft-mitchell-irc-capabilities-02.html>
+<http://ircv3.net/specs/core/capability-negotiation-3.1.html>
 
 
 I. Supported Capabilities
@@ -25,4 +25,4 @@ I. Supported Capabilities
    server to send all possible prefixes which apply to a user in NAMES and
    WHO output.
 
-   See <http://ircv3.atheme.org/extensions/multi-prefix-3.1>.
+   See <http://ircv3.net/specs/extensions/multi-prefix-3.1.html>.

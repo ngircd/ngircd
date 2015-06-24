@@ -78,7 +78,7 @@ Connection Handling Commands
 	like this: "CAP REQ :capability1 capability2 capability3" for example.
 
 	References:
-	 - <http://ircv3.atheme.org/specification/capability-negotiation-3.1>
+	 - <http://ircv3.net/specs/core/capability-negotiation-3.1.html>
 	 - <http://ngircd.barton.de/doc/Capabilities.txt>
 	 - doc/Capabilities.txt
 

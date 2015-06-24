@@ -99,11 +99,11 @@ IV. Bugs!?
 ~~~~~~~~~~
 
 Q: Is there a list of known bugs and desired feature enhancements?
-A: Yes. Have a look at the bug tracking system (Bugzilla) for ngIRCd located
-   at <http://ngircd.barton.de/bugzilla/index.cgi>. There you can file bug
+A: Yes. Have a look at the bug tracking system (Github issues) for ngIRCd located
+   at <https://github.com/ngircd/ngircd/issues>. There you can file bug
    reports and feature requests as well as search the bug database.
 
 Q: What should I do if I found a bug?
-A: Please file a bug report at <http://ngircd.barton.de/bugzilla/index.cgi>!
-   The author of the particular component will be notified automagically :-)
+A: Please file a bug report at <https://github.com/ngircd/ngircd/issues/new>!
+   The author will be notified automagically :-)
 

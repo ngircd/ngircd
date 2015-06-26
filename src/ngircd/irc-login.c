@@ -262,7 +262,8 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 			/* Nickname change */
 
 			/* Check that the user isn't on any channels set +N */
-			if(!Client_HasMode(Client, 'o')) {
+			if(Client_Type(Client) == CLIENT_USER &&
+			   !Client_HasMode(Client, 'o')) {
 				chan = Channel_First();
 				while (chan) {
 					if(Channel_IsMemberOf(chan, Client) &&

@@ -317,6 +317,7 @@ ConnSSL_InitLibrary( void )
 		goto out;
 	}
 
+	SSL_CTX_set_session_id_context(newctx, (unsigned char *)"ngircd", 6);
 	SSL_CTX_set_options(newctx, SSL_OP_SINGLE_DH_USE|SSL_OP_NO_SSLv2);
 	SSL_CTX_set_mode(newctx, SSL_MODE_ENABLE_PARTIAL_WRITE);
 	SSL_CTX_set_verify(newctx, SSL_VERIFY_PEER|SSL_VERIFY_CLIENT_ONCE,

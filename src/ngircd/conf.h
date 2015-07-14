@@ -195,7 +195,7 @@ GLOBAL bool Conf_Ident;
 GLOBAL bool Conf_MorePrivacy;
 
 /** Enable "NOTICE *" messages on connect */
-GLOBAL bool Conf_NoticeAuth;
+GLOBAL bool Conf_NoticeBeforeRegistration;
 
 /** Enable all usage of PAM, even when compiled with support for it */
 GLOBAL bool Conf_PAM;

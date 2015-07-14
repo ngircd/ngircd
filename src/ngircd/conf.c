@@ -412,7 +412,7 @@ Conf_Test( void )
 #endif
 	printf("  IncludeDir = %s\n", Conf_IncludeDir);
 	printf("  MorePrivacy = %s\n", yesno_to_str(Conf_MorePrivacy));
-	printf("  NoticeAuth = %s\n", yesno_to_str(Conf_NoticeAuth));
+	printf("  NoticeBeforeRegistration = %s\n", yesno_to_str(Conf_NoticeBeforeRegistration));
 	printf("  OperCanUseMode = %s\n", yesno_to_str(Conf_OperCanMode));
 	printf("  OperChanPAutoOp = %s\n", yesno_to_str(Conf_OperChanPAutoOp));
 	printf("  OperServerMode = %s\n", yesno_to_str(Conf_OperServerMode));
@@ -797,7 +797,7 @@ Set_Defaults(bool InitServers)
 #endif
 	strcpy(Conf_IncludeDir, "");
 	Conf_MorePrivacy = false;
-	Conf_NoticeAuth = false;
+	Conf_NoticeBeforeRegistration = false;
 	Conf_OperCanMode = false;
 	Conf_OperChanPAutoOp = true;
 	Conf_OperServerMode = false;
@@ -1796,8 +1796,8 @@ Handle_OPTIONS(const char *File, int Line, char *Var, char *Arg)
 		Conf_MorePrivacy = Check_ArgIsTrue(Arg);
 		return;
 	}
-	if (strcasecmp(Var, "NoticeAuth") == 0) {
-		Conf_NoticeAuth = Check_ArgIsTrue(Arg);
+	if (strcasecmp(Var, "NoticeBeforeRegistration") == 0 || strcasecmp(Var, "NoticeAuth") == 0) {
+		Conf_NoticeBeforeRegistration = Check_ArgIsTrue(Arg);
 		return;
 	}
 	if (strcasecmp(Var, "OperCanUseMode") == 0) {

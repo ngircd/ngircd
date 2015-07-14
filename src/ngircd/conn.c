@@ -1487,7 +1487,7 @@ Conn_StartLogin(CONN_ID Idx)
 		ident_sock = My_Connections[Idx].sock;
 #endif
 
-	if (Conf_NoticeAuth) {
+	if (Conf_NoticeBeforeRegistration) {
 		/* Send "NOTICE *" messages to the client */
 #ifdef IDENTAUTH
 		if (Conf_Ident)
@@ -2265,7 +2265,7 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 		strlcpy(My_Connections[i].host, readbuf,
 			sizeof(My_Connections[i].host));
 		Client_SetHostname(c, readbuf);
-		if (Conf_NoticeAuth)
+		if (Conf_NoticeBeforeRegistration)
 			(void)Conn_WriteStr(i,
 					"NOTICE * :*** Found your hostname: %s",
 					My_Connections[i].host);
@@ -2291,7 +2291,7 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 				    i, identptr);
 				Client_SetUser(c, identptr, true);
 			}
-			if (Conf_NoticeAuth) {
+			if (Conf_NoticeBeforeRegistration) {
 				(void)Conn_WriteStr(i,
 					"NOTICE * :*** Got %sident response%s%s",
 					*ptr ? "invalid " : "",
@@ -2300,13 +2300,13 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 			}
 		} else if(Conf_Ident) {
 			Log(LOG_INFO, "IDENT lookup for connection %d: no result.", i);
-			if (Conf_NoticeAuth)
+			if (Conf_NoticeBeforeRegistration)
 				(void)Conn_WriteStr(i,
 					"NOTICE * :*** No ident response");
 		}
 #endif
 
-		if (Conf_NoticeAuth) {
+		if (Conf_NoticeBeforeRegistration) {
 			/* Send buffered data to the client, but break on
 			 * errors because Handle_Write() would have closed
 			 * the connection again in this case! */

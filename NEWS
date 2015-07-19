@@ -9,6 +9,34 @@
                                   -- NEWS --
 
 
+ngIRCd 23
+
+  - Keep track of who placed bans, invites, and excepts.
+    Idee and implementation by LucentW, Thanks! Closes #203.
+  - Implement numeric RPL_LISTSTART(321). lightIRC and other clients
+    expecting RPL_LISTSTART should now behave correctly.
+    Idee and implementation by LucentW, Thanks! Closes #207.
+  - Streamline the effect of "MorePrivacy" option: Update documentation
+    in ngircd.conf(5); don't hide channels for IRC Ops on LIST and don't
+    hide IP addresses/hostnames on WHOIS when "MorePrivacy" is in effect.
+    This closes #198.
+  - IRC operators now can kick anyone when "OperCanMode" is set.
+    Idee and implementation by LucentW, Thanks! Closes #202.
+  - Implement user mode "I": Hide channels on WHOIS: this mode prevents
+    ngIRCd from showing channels on WHOIS (IRC Operators can always see
+    the channel list).
+    Idee and implementation by LucentW, Thanks! Closes #197.
+  - INVITE command: Implement ERR_USERNOTONSERV(504) numeric and make sure
+    that the target user is on the same server when inviting other users
+    to local ("&") channels.
+    Idea by Cahata, thanks! Closes #183.
+  - MODE command: Always report channel creation time. Up to now when
+    receiving a MODE command, ngIRCd only reported the channel creation
+    time to clients that were members of the channel. This patch reports
+    the channel creation time to all clients, regardless if they are joined
+    to that channel or not. At least ircd-seven behaves like this.
+    This closes #188. Reported by Cahata, thanks!
+
 ngIRCd 22.1 (2015-04-06)
 
   - Update "CipherList" to not enable SSLv3 by default. Idea, initial patch,

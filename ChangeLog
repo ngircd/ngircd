@@ -9,6 +9,49 @@
                                -- ChangeLog --
 
 
+ngIRCd 23
+
+  - Specify session context for OpenSSL clients. This enables some OpenSSL
+    clients, including Pidgin and stunnel 5.06, to reuse a session.
+    Patch by Tom Ryder <tom@sanctum.geek.nz>, thanks! Closes #182.
+  - Keep track of who placed bans, invites, and excepts.
+    Idee and implementation by LucentW, Thanks! Closes #203.
+  - Make setgroups(3) function optional: For example, Interix is missing
+    this function, which prevented ngIRCd to build on this platform. When
+    setgroups(3) isn't available, a warning message is issued on startup.
+  - Implement numeric RPL_LISTSTART(321). lightIRC and other clients
+    expecting RPL_LISTSTART should now behave correctly.
+    Idee and implementation by LucentW, Thanks! Closes #207.
+  - Update ngircd.conf.5: "CloadUserToNick" hides user _and_ real name.
+    This closes #208.
+  - Fix case insensitive pattern matching: Up to now, only the the input
+    string became lowercased and was then compared to the pattern -- which
+    failed when the pattern itself wasn't all lowercase!
+  - Streamline the effect of "MorePrivacy" option: Update documentation
+    in ngircd.conf(5); don't hide channels for IRC Ops on LIST and don't
+    hide IP addresses/hostnames on WHOIS when "MorePrivacy" is in effect.
+    This closes #198.
+  - IRC operators now can kick anyone when "OperCanMode" is set.
+    Idee and implementation by LucentW, Thanks! Closes #202.
+  - Implement user mode "I": Hide channels on WHOIS: this mode prevents
+    ngIRCd from showing channels on WHOIS (IRC Operators can always see
+    the channel list).
+    Idee and implementation by LucentW, Thanks! Closes #197.
+  - INVITE command: Implement ERR_USERNOTONSERV(504) numeric and make sure
+    that the target user is on the same server when inviting other users
+    to local ("&") channels.
+    Idea by Cahata, thanks! Closes #183.
+  - INVITE command: Enforce 1 second penalty time, which prevents flooding
+    of the target client.
+    This closes #186. Reported by Cahata, thanks!
+  - MODE command: Always report channel creation time. Up to now when
+    receiving a MODE command, ngIRCd only reported the channel creation
+    time to clients that were members of the channel. This patch reports
+    the channel creation time to all clients, regardless if they are joined
+    to that channel or not. At least ircd-seven behaves like this.
+    This closes #188. Reported by Cahata, thanks!
+  - Update Xcode project for latest Xcode version (6.3).
+
 ngIRCd 22.1 (2015-04-06)
 
   - Update doc/Platforms.txt and doc/FAQ.txt.

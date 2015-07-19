@@ -2,7 +2,7 @@
                      ngIRCd - Next Generation IRC Server
                            http://ngircd.barton.de/
 
-               (c)2001-2011 Alexander Barton and Contributors.
+               (c)2001-2015 Alexander Barton and Contributors.
                ngIRCd is free software and published under the
                    terms of the GNU General Public License.
 
@@ -52,3 +52,9 @@ get an idea of how to do it the best :-)
 
    And this is open source, your work must not be 100% finished and perfect,
    work in progress is interesting, too: "release early, release often"!
+
+- Use GitHub to create "Pull Requests"
+
+  ngIRCd is hosted on GitHub (<https://github.com/ngircd>), so please use the
+  tools available there and open issues (comment!) and create pull requests!
+  See <https://help.github.com/articles/using-pull-requests/> for details.

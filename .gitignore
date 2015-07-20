@@ -8,6 +8,7 @@ ansi2knr.h
 ar-lib
 autom4te.cache
 build-stamp-ngircd*
+build+*
 compile
 config.cache
 config.log

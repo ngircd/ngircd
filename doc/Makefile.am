@@ -1,6 +1,6 @@
 #
 # ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001-2013 Alexander Barton (alex@barton.de) and Contributors
+# Copyright (c)2001-2015 Alexander Barton (alex@barton.de) and Contributors
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,7 +23,6 @@ static_docs = \
 	Commands.txt \
 	Contributing.txt \
 	FAQ.txt \
-	GIT.txt \
 	HowToRelease.txt \
 	Modes.txt \
 	PAM.txt \

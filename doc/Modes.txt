@@ -56,6 +56,7 @@ users to lists (e.g. "invite list", "ban list"), others have parameters
   m	0.3.0	Channel is moderated, only "voiced" users can send messages.
   M	20	Only registered users (and IRC Ops) can send messages.
   n	0.3.0	Channel doesn't allow messages of users not being members.
+  N     ??      Users can't change their nickname while on this channel.
   O	18	Only IRC operators are allowed to join this channel.
   P	0.5.0	Channel is "persistent".
   Q	20	Nobody can be kicked from the channel.

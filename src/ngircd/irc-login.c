@@ -172,6 +172,7 @@ GLOBAL bool
 IRC_NICK( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *intr_c, *target, *c;
+	CHANNEL *chan;
 	char *nick, *user, *hostname, *modes, *info;
 	int token, hops;
 
@@ -259,6 +260,22 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 				Client_SetType( Client, CLIENT_GOTNICK );
 		} else {
 			/* Nickname change */
+
+			/* Check that the user isn't on any channels set +N */
+			if(Client_Type(Client) == CLIENT_USER &&
+			   !Client_HasMode(Client, 'o')) {
+				chan = Channel_First();
+				while (chan) {
+					if(Channel_IsMemberOf(chan, Client) &&
+					   Channel_HasMode(chan, 'N'))
+						return IRC_WriteErrClient(Client,
+									  ERR_NONICKCHANGE_MSG,
+									  Client_ID(Client),
+									  Channel_Name(chan));
+					chan = Channel_Next(chan);
+				}
+			}
+
 			Change_Nick(Client, target, Req->argv[0],
 				    Client_Type(Client) == CLIENT_USER ? true : false);
 			IRC_SetPenalty(target, 2);

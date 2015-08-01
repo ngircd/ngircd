@@ -127,6 +127,7 @@
 #define ERR_USERONCHANNEL_MSG		"443 %s %s %s :is already on channel"
 #define ERR_SUMMONDISABLED_MSG		"445 %s :SUMMON has been disabled"
 #define ERR_USERSDISABLED_MSG		"446 %s :USERS has been disabled"
+#define ERR_NONICKCHANGE_MSG		"447 %s :Cannot change nickname while on %s(+N)"
 #define ERR_NOTREGISTERED_MSG		"451 %s :Connection not registered"
 #define ERR_NOTREGISTEREDSERVER_MSG	"451 %s :Connection not registered as server link"
 #define ERR_NEEDMOREPARAMS_MSG		"461 %s %s :Syntax error"

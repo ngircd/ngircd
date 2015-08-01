@@ -72,7 +72,7 @@ GLOBAL void
 Client_Init( void )
 {
 	struct hostent *h;
-	
+
 	This_Server = New_Client_Struct( );
 	if( ! This_Server )
 	{
@@ -98,7 +98,7 @@ Client_Init( void )
 	Client_SetInfo( This_Server, Conf_ServerInfo );
 
 	My_Clients = This_Server;
-	
+
 	memset( &My_Whowas, 0, sizeof( My_Whowas ));
 } /* Client_Init */
 
@@ -111,7 +111,7 @@ Client_Exit( void )
 
 	if( NGIRCd_SignalRestart ) Client_Destroy( This_Server, "Server going down (restarting).", NULL, false );
 	else Client_Destroy( This_Server, "Server going down.", NULL, false );
-	
+
 	cnt = 0;
 	c = My_Clients;
 	while(c) {
@@ -228,7 +228,7 @@ GLOBAL void
 Client_Destroy( CLIENT *Client, const char *LogMsg, const char *FwdMsg, bool SendQuit )
 {
 	/* remove a client */
-	
+
 	CLIENT *last, *c;
 	char msg[COMMAND_LEN];
 	const char *txt;
@@ -381,7 +381,7 @@ Client_SetID( CLIENT *Client, const char *ID )
 {
 	assert( Client != NULL );
 	assert( ID != NULL );
-	
+
 	strlcpy( Client->id, ID, sizeof( Client->id ));
 
 	if (Conf_CloakUserToNick) {
@@ -698,7 +698,7 @@ Client_ID( CLIENT *Client )
 	if(Client->type == CLIENT_USER)
 		assert(strlen(Client->id) < Conf_MaxNickLength);
 #endif
-						   
+
 	if( Client->id[0] ) return Client->id;
 	else return "*";
 } /* Client_ID */

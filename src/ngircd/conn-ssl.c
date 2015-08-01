@@ -745,7 +745,7 @@ ConnSSL_InitCertFp( CONNECTION *c )
 		gnutls_x509_crt_deinit(cert);
 		return 0;
 	}
-	
+
 	if (gnutls_x509_crt_import(cert, &cert_list[0],
 				   GNUTLS_X509_FMT_DER) != GNUTLS_E_SUCCESS) {
 		gnutls_x509_crt_deinit(cert);
@@ -912,5 +912,3 @@ ConnSSL_InitLibrary(void)
 
 #endif /* SSL_SUPPORT */
 /* -eof- */
-
-

@@ -328,7 +328,7 @@ Conn_Init( void )
 		array_bytes(&My_ConnArray));
 
 	assert(array_length(&My_ConnArray, sizeof(CONNECTION)) >= (size_t)Pool_Size);
-	
+
 	array_free( &My_Listeners );
 
 	for (i = 0; i < Pool_Size; i++)
@@ -796,7 +796,7 @@ Conn_Handler(void)
 GLOBAL bool
 Conn_WriteStr(CONN_ID Idx, const char *Format, ...)
 #else
-GLOBAL bool 
+GLOBAL bool
 Conn_WriteStr(Idx, Format, va_alist)
 CONN_ID Idx;
 const char *Format;
@@ -829,7 +829,7 @@ va_dcl
 		 * IRC_WriteXXX() functions when the prefix of this server had
 		 * to be added to an already "quite long" command line which
 		 * has been received from a regular IRC client, for example.
-		 * 
+		 *
 		 * We are not allowed to send such "oversized" messages to
 		 * other servers and clients, see RFC 2812 2.3 and 2813 3.3
 		 * ("these messages SHALL NOT exceed 512 characters in length,
@@ -2364,7 +2364,7 @@ Simple_Message(int Sock, const char *Msg)
  * @returns	Pointer to CLIENT structure.
  */
 GLOBAL CLIENT *
-Conn_GetClient( CONN_ID Idx ) 
+Conn_GetClient( CONN_ID Idx )
 {
 	CONNECTION *c;
 

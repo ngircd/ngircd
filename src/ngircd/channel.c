@@ -352,16 +352,16 @@ Channel_Kick(CLIENT *Peer, CLIENT *Target, CLIENT *Origin, const char *Name,
 		    !Channel_UserHasMode(chan, Target, 'q') &&
 		    !Channel_UserHasMode(chan, Target, 'a'))
 			can_kick = true;
-			
-		/* Half Op can't kick owner | admin | op */ 
+
+		/* Half Op can't kick owner | admin | op */
 		else if (Channel_UserHasMode(chan, Peer, 'h') &&
 		    !Channel_UserHasMode(chan, Target, 'q') &&
 		    !Channel_UserHasMode(chan, Target, 'a') &&
 		    !Channel_UserHasMode(chan, Target, 'o'))
 			can_kick = true;
-		
+
 		/* IRC operators & IRCd with OperCanMode enabled
-		 * can kick anyways regardless of privilege */	
+		 * can kick anyways regardless of privilege */
 		else if(Client_HasMode(Origin, 'o') && Conf_OperCanMode)
 		    can_kick = true;
 
@@ -1044,7 +1044,7 @@ Remove_Client( int Type, CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, const ch
 	switch( Type )
 	{
 		case REMOVE_QUIT:
-			/* QUIT: other servers have already been notified, 
+			/* QUIT: other servers have already been notified,
 			 * see Client_Destroy(); so only inform other clients
 			 * in same channel. */
 			assert( InformServer == false );

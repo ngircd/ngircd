@@ -175,7 +175,7 @@ Zip_Flush( CONN_ID Idx )
 	}
 
 	My_Connections[Idx].bytes_out += zipbuf_used;
-	My_Connections[Idx].zip.bytes_out += array_bytes(&My_Connections[Idx].zip.wbuf); 
+	My_Connections[Idx].zip.bytes_out += array_bytes(&My_Connections[Idx].zip.wbuf);
 	array_trunc(&My_Connections[Idx].zip.wbuf);
 
 	return true;
@@ -198,7 +198,7 @@ Unzip_Buffer( CONN_ID Idx )
 	int unzipbuf_used = 0;
 	unsigned int z_rdatalen;
 	unsigned int in_len;
-	
+
 	z_stream *in;
 
 	assert( Idx > NONE );

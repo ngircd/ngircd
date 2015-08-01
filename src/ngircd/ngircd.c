@@ -530,7 +530,7 @@ Pidfile_Create(pid_t pid)
 		close(pidfd);
 		return;
 	}
-	
+
 	if (write(pidfd, pidbuf, (size_t)len) != (ssize_t)len)
 		Log(LOG_ERR, "Can't write PID file (%s): %s!", Conf_PidFile,
 		    strerror(errno));
@@ -721,7 +721,7 @@ NGIRCd_Init(bool NGIRCd_NoDaemon)
 			Log(LOG_ERR, "Can't change group ID to %s(%u): %s!",
 			    grp ? grp->gr_name : "?", Conf_GID,
 			    strerror(real_errno));
-			if (real_errno != EPERM) 
+			if (real_errno != EPERM)
 				goto out;
 		}
 #ifdef HAVE_SETGROUPS

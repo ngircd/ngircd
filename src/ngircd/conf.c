@@ -364,7 +364,7 @@ Conf_Test( void )
 		       ? (const char*) array_start(&Conf_Motd) : "");
 	}
 	printf("  Network = %s\n", Conf_Network);
-	if (!Conf_PAM) 
+	if (!Conf_PAM)
 		printf("  Password = %s\n", Conf_ServerPwd);
 	printf("  PidFile = %s\n", Conf_PidFile);
 	printf("  Ports = ");

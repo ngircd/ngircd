@@ -156,7 +156,7 @@ Parse_GetCommandStruct( void )
 
 /**
  * Parse a command ("request") received from a client.
- * 
+ *
  * This function is called after the connection layer received a valid CR+LF
  * terminated line of text: we assume that this is a valid IRC command and
  * try to do something useful with it :-)

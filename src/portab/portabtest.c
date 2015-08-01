@@ -196,7 +196,7 @@ main(void)
 	Check_strlcat();
 	Check_strtok_r();
 	Check_vsnprintf(2+10, "%s%s", "ab", "1234567890");
-	
+
 	return 0;
 }
 

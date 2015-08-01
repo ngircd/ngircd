@@ -1583,7 +1583,7 @@ Read_Request( CONN_ID Idx )
 	if (len == 0) {
 		LogDebug("Client \"%s:%u\" is closing connection %d ...",
 			 My_Connections[Idx].host,
-			 ng_ipaddr_tostr(&My_Connections[Idx].addr), Idx);
+			 ng_ipaddr_getport(&My_Connections[Idx].addr), Idx);
 		Conn_Close(Idx, NULL, "Client closed connection", false);
 		return;
 	}

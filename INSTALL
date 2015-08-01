@@ -14,6 +14,10 @@ I. Upgrade Information
 
 Differences to version 22.x
 
+- The "NoticeAuth" ngircd.conf configuration variable has been renamed to
+  "NoticeBeforeRegistration". The old "NoticeAuth" variable still works but
+  is deprecated now.
+
 - The default value of the SSL "CipherList" variable has been changed to
   "HIGH:!aNULL:@STRENGTH:!SSLv3" (OpenSSL) and "SECURE128:-VERS-SSL3.0"
   (GnuTLS) to disable the old SSLv3 protocol by default.

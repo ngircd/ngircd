@@ -1796,7 +1796,19 @@ Handle_OPTIONS(const char *File, int Line, char *Var, char *Arg)
 		Conf_MorePrivacy = Check_ArgIsTrue(Arg);
 		return;
 	}
-	if (strcasecmp(Var, "NoticeBeforeRegistration") == 0 || strcasecmp(Var, "NoticeAuth") == 0) {
+	if (strcasecmp(Var, "NoticeAuth") == 0) {
+		/*
+		 * TODO: This section and support for "NoticeAuth" variable
+		 * could be removed starting with ngIRCd release 24 (one
+		 * release after marking it "deprecated") ...
+		 */
+		Config_Error(LOG_WARNING,
+			     "%s, line %d (section \"Options\"): \"%s\" is deprecated, please use \"NoticeBeforeRegistration\"!",
+			     File, Line, Var);
+		Conf_NoticeBeforeRegistration = Check_ArgIsTrue(Arg);
+		return;
+	}
+	if (strcasecmp(Var, "NoticeBeforeRegistration") == 0) {
 		Conf_NoticeBeforeRegistration = Check_ArgIsTrue(Arg);
 		return;
 	}

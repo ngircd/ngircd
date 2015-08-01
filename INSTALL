@@ -36,6 +36,10 @@ Differences to version 20.x
   the new mask will be KILL'ed. This was not the case with earlier versions
   that only added the mask but didn't kill already connected users.
 
+- The "PredefChannelsOnly" configuration variable has been superseeded by the
+  new "AllowedChannelTypes" variable. It is still supported and translated to
+  the apropriate "AllowedChannelTypes" setting but is deprecated now.
+
 Differences to version 19.x
 
 - Starting with ngIRCd 20, users can "cloak" their hostname only when the
@@ -44,7 +48,7 @@ Differences to version 19.x
   set mode +x. This prevents regular users from changing their hostmask to
   the name of the IRC server itself, which confused quite a few people ;-)
 
-Differences to version 17
+Differences to version 17.x
 
 - Support for ZeroConf/Bonjour/Rendezvous service registration has been
   removed. The configuration option "NoZeroconf" is no longer available.
@@ -81,7 +85,7 @@ Differences to version 17
   You should adjust your ngircd.conf and run "ngircd --configtest" to make
   sure that your settings are correct and up to date!
 
-Differences to version 16
+Differences to version 16.x
 
 - Changes to the "MotdFile" specified in ngircd.conf now require a ngircd
   configuration reload to take effect (HUP signal, REHASH command).

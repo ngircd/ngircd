@@ -266,8 +266,8 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 			   !Client_HasMode(Client, 'o')) {
 				chan = Channel_First();
 				while (chan) {
-					if(Channel_IsMemberOf(chan, Client) &&
-					   Channel_HasMode(chan, 'N'))
+					if(Channel_HasMode(chan, 'N') &&
+					   Channel_IsMemberOf(chan, Client))
 						return IRC_WriteErrClient(Client,
 									  ERR_NONICKCHANGE_MSG,
 									  Client_ID(Client),

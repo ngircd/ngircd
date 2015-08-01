@@ -1487,16 +1487,16 @@ Conn_StartLogin(CONN_ID Idx)
 		ident_sock = My_Connections[Idx].sock;
 #endif
 
-	if (Conf_NoticeAuth) {
-		/* Send "NOTICE AUTH" messages to the client */
+	if (Conf_NoticeBeforeRegistration) {
+		/* Send "NOTICE *" messages to the client */
 #ifdef IDENTAUTH
 		if (Conf_Ident)
 			(void)Conn_WriteStr(Idx,
-				"NOTICE AUTH :*** Looking up your hostname and checking ident");
+				"NOTICE * :*** Looking up your hostname and checking ident");
 		else
 #endif
 			(void)Conn_WriteStr(Idx,
-				"NOTICE AUTH :*** Looking up your hostname");
+				"NOTICE * :*** Looking up your hostname");
 		/* Send buffered data to the client, but break on errors
 		 * because Handle_Write() would have closed the connection
 		 * again in this case! */
@@ -2265,9 +2265,9 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 		strlcpy(My_Connections[i].host, readbuf,
 			sizeof(My_Connections[i].host));
 		Client_SetHostname(c, readbuf);
-		if (Conf_NoticeAuth)
+		if (Conf_NoticeBeforeRegistration)
 			(void)Conn_WriteStr(i,
-					"NOTICE AUTH :*** Found your hostname: %s",
+					"NOTICE * :*** Found your hostname: %s",
 					My_Connections[i].host);
 #ifdef IDENTAUTH
 		++identptr;
@@ -2291,22 +2291,22 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 				    i, identptr);
 				Client_SetUser(c, identptr, true);
 			}
-			if (Conf_NoticeAuth) {
+			if (Conf_NoticeBeforeRegistration) {
 				(void)Conn_WriteStr(i,
-					"NOTICE AUTH :*** Got %sident response%s%s",
+					"NOTICE * :*** Got %sident response%s%s",
 					*ptr ? "invalid " : "",
 					*ptr ? "" : ": ",
 					*ptr ? "" : identptr);
 			}
 		} else if(Conf_Ident) {
 			Log(LOG_INFO, "IDENT lookup for connection %d: no result.", i);
-			if (Conf_NoticeAuth)
+			if (Conf_NoticeBeforeRegistration)
 				(void)Conn_WriteStr(i,
-					"NOTICE AUTH :*** No ident response");
+					"NOTICE * :*** No ident response");
 		}
 #endif
 
-		if (Conf_NoticeAuth) {
+		if (Conf_NoticeBeforeRegistration) {
 			/* Send buffered data to the client, but break on
 			 * errors because Handle_Write() would have closed
 			 * the connection again in this case! */

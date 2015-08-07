@@ -11,6 +11,22 @@
 
 ngIRCd 23
 
+  ngIRCd 23~rc1
+  - INSTALL: Add deprecation notice for "PredefChannelsOnly" variable.
+  - Use "NOTICE *" before registration instead of "NOTICE AUTH". "AUTH" is
+    a valid nickname so sending notices to it is probably not a good idea.
+    Use "*" as the target instead as done with numerics when the nick is not
+    available. This mimics the behaviour in Charybdis, IRCD-Hybrid, InspIRCd
+    2.2, Plexus 4, etc. Closes #217.
+    The "NoticeAuth" configuration variable (ngircd.conf) has been renamed
+    to "NoticeBeforeRegistration" accordingly, but the old name is still
+    supported for compatibility reasons.
+  - Implement new channel mode "N" (regular users can't change their nick
+    name while on this channel). Closes #214.
+  - README, AUTHORS: Update mailing list and issue tracker URLs.
+  - Remove doc/GIT.txt (it is outdated), update doc/Contributing.txt:
+    ngIRCd uses GitHub, and Git itself is quite common today. So don't
+    include an own Git "mini HowTo" any longer.
   - Specify session context for OpenSSL clients. This enables some OpenSSL
     clients, including Pidgin and stunnel 5.06, to reuse a session.
     Patch by Tom Ryder <tom@sanctum.geek.nz>, thanks! Closes #182.

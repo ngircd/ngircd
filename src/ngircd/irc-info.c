@@ -558,7 +558,15 @@ IRC_INFO(CLIENT * Client, REQUEST * Req)
 				NGIRCd_Version))
 		return DISCONNECTED;
 
-#if defined(__DATE__) && defined(__TIME__)
+#if defined(BIRTHDATE)
+	char t_str[60];
+	time_t t = BIRTHDATE;
+	(void)strftime(t_str, sizeof(t_str), "%a %b %d %Y at %H:%M:%S (%Z)",
+			localtime(&t));
+	snprintf(msg, sizeof(msg), "Birth Date: %s", t_str);
+	if (!IRC_WriteStrClient(Client, RPL_INFO_MSG, Client_ID(prefix), msg))
+		return DISCONNECTED;
+#elif defined(__DATE__) && defined(__TIME__)
 	snprintf(msg, sizeof(msg), "Birth Date: %s at %s", __DATE__, __TIME__);
 	if (!IRC_WriteStrClient(Client, RPL_INFO_MSG, Client_ID(prefix), msg))
 		return DISCONNECTED;

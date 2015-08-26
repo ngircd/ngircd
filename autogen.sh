@@ -109,8 +109,8 @@ Notfound()
 
 Run()
 {
-	[ "$VERBOSE" = "1" ] && echo " - running \"$@\" ..."
-	$@
+	[ "$VERBOSE" = "1" ] && echo " - running \"$*\" ..."
+	"$@"
 }
 
 # Reset locale settings to suppress warning messages of Perl
@@ -157,7 +157,7 @@ AUTOMAKE_VERSION=`echo $AUTOMAKE | cut -d'-' -f2-`
 	&& export AUTOMAKE_VERSION || unset AUTOMAKE_VERSION
 [ "$VERBOSE" = "1" ] && echo " - AUTOMAKE_VERSION=$AUTOMAKE_VERSION"
 
-[ $# -gt 0 ] && CONFIGURE_ARGS=" $@" || CONFIGURE_ARGS=""
+[ $# -gt 0 ] && CONFIGURE_ARGS=" $*" || CONFIGURE_ARGS=""
 [ -z "$GO" -a -n "$CONFIGURE_ARGS" ] && GO=1
 
 # Verify that all tools have been found

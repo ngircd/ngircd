@@ -161,7 +161,7 @@ if [ -r "Makefile" ]; then
 fi
 
 # Get ngIRCd version information
-eval $(grep "^VERSION = " Makefile | sed -e 's/ //g')
+eval "$(grep "^VERSION = " Makefile | sed -e 's/ //g')"
 case "$VERSION" in
 	*~*-*)
 		VERSION=`echo "$VERSION" | cut -b1-10`

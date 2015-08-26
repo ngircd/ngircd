@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # ngIRCd start and stop script for Debian-based systems
-# Copyright 2008-2013 Alexander Barton <alex@barton.de>
+# Copyright 2008-2015 Alexander Barton <alex@barton.de>
 #
 
 ### BEGIN INIT INFO
@@ -37,7 +37,7 @@ log_daemon_msg() {
 	echo -n "$*"
 }
 log_end_msg() {
-	[ "$1" == "0" ] && echo "." || echo " failed!"
+	[ "$1" = "0" ] && echo "." || echo " failed!"
 }
 log_failure_msg() {
 	echo "$*"

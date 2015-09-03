@@ -1,6 +1,6 @@
 #
 # ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001-2013 Alexander Barton (alex@barton.de) and Contributors
+# Copyright (c)2001-2015 Alexander Barton (alex@barton.de) and Contributors
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,7 +13,7 @@ AUTOMAKE_OPTIONS = gnu
 
 SUBDIRS = doc src man contrib
 
-EXTRA_DIST = autogen.sh configure.ng .mailmap
+EXTRA_DIST = autogen.sh configure.ng .clang_complete .mailmap
 
 clean-local: osxpkg-clean
 	rm -f build-stamp*

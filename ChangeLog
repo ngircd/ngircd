@@ -12,6 +12,19 @@
 ngIRCd 23
 
   ngIRCd 23~rc1
+  - Add ".clang_complete" file, which is used by the "linter-clang" package
+    of the Atom editor, for example.
+  - Make server-to-server protocol more robust: ngIRCd now catches more
+    errors on the server-to-server (S2S) protocol that could crash the
+    daemon before. This hasn't been a real problem because the IRC S2S
+    protocol is "trusted" by design, but the behavior is much better now.
+    Thanks to wowaname on #ngircd for pointing this out!
+  - Make platformtest.sh, autogen.sh, and ngircd.init more portable.
+  - Enables "reproducible builds" for ngIRCd: Use the optional BIRTHTIME
+    constant while building ngIRCd, which contains a time stamp for the
+    "Birth Date" information, in seconds since the epoch.
+    See <https://wiki.debian.org/ReproducibleBuilds>.
+  - Update "contrib/ngircd.service" file for systemd.
   - INSTALL: Add deprecation notice for "PredefChannelsOnly" variable.
   - Use "NOTICE *" before registration instead of "NOTICE AUTH". "AUTH" is
     a valid nickname so sending notices to it is probably not a good idea.

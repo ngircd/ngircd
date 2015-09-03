@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2014 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2015 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -461,10 +461,10 @@ Handle_Numeric(CLIENT *client, REQUEST *Req)
 	}
 
 	/* Determine source */
-	if (! Req->prefix[0]) {
-		/* Oops, no prefix!? */
-		Log(LOG_WARNING, "Got status code %s from \"%s\" without prefix!?",
-						Req->command, Client_ID(client));
+	if (!Req->prefix) {
+		Log(LOG_WARNING,
+		    "Got status code %s from \"%s\" without prefix!?",
+		    Req->command, Client_ID(client));
 		return true;
 	}
 

@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2014 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2015 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -196,6 +196,7 @@ IRC_NICK( CLIENT *Client, REQUEST *Req )
 
 		/* Search "target" client */
 		if (Client_Type(Client) == CLIENT_SERVER) {
+			_IRC_REQUIRE_PREFIX_OR_RETURN_(Client, Req)
 			target = Client_Search(Req->prefix);
 			if (!target)
 				return IRC_WriteErrClient(Client,
@@ -379,6 +380,8 @@ IRC_SVSNICK(CLIENT *Client, REQUEST *Req)
 	assert(Client != NULL);
 	assert(Req != NULL);
 
+	_IRC_REQUIRE_PREFIX_OR_RETURN_(Client, Req)
+
 	/* Search the originator */
 	from = Client_Search(Req->prefix);
 	if (!from)
@@ -481,6 +484,7 @@ IRC_USER(CLIENT * Client, REQUEST * Req)
 		   Client_Type(Client) == CLIENT_SERVICE) {
 		/* Server/service updating an user */
 		_IRC_ARGC_EQ_OR_RETURN_(Client, Req, 4)
+		_IRC_REQUIRE_PREFIX_OR_RETURN_(Client, Req)
 
 		c = Client_Search(Req->prefix);
 		if (!c)
@@ -653,6 +657,8 @@ IRC_QUIT( CLIENT *Client, REQUEST *Req )
 
 	if (Client_Type(Client) == CLIENT_SERVER) {
 		/* Server */
+		_IRC_REQUIRE_PREFIX_OR_RETURN_(Client, Req)
+
 		target = Client_Search(Req->prefix);
 		if (!target) {
 			Log(LOG_WARNING,
@@ -741,9 +747,10 @@ IRC_PING(CLIENT *Client, REQUEST *Req)
 
 		if (target != Client_ThisServer()) {
 			/* Ok, we have to forward the PING */
-			if (Client_Type(Client) == CLIENT_SERVER)
+			if (Client_Type(Client) == CLIENT_SERVER) {
+				_IRC_REQUIRE_PREFIX_OR_RETURN_(Client, Req)
 				from = Client_Search(Req->prefix);
-			else
+			} else
 				from = Client;
 			if (!from)
 				return IRC_WriteErrClient(Client,
@@ -815,6 +822,8 @@ IRC_PONG(CLIENT *Client, REQUEST *Req)
 
 	/* Forward? */
 	if (Req->argc == 2 && Client_Type(Client) == CLIENT_SERVER) {
+		_IRC_REQUIRE_PREFIX_OR_RETURN_(Client, Req)
+
 		target = Client_Search(Req->argv[0]);
 		if (!target)
 			return IRC_WriteErrClient(Client, ERR_NOSUCHSERVER_MSG,

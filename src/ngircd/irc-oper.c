@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2014 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2015 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@
 #include "class.h"
 #include "parse.h"
 #include "irc.h"
+#include "irc-macros.h"
 #include "irc-write.h"
 #include "lists.h"
 #include "log.h"
@@ -358,6 +359,7 @@ IRC_WALLOPS( CLIENT *Client, REQUEST *Req )
 		from = Client;
 		break;
 	case CLIENT_SERVER:
+		_IRC_REQUIRE_PREFIX_OR_RETURN_(Client, Req)
 		from = Client_Search(Req->prefix);
 		break;
 	default:

@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2014 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2015 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
 
 #include "conn-func.h"
 #include "channel.h"
+#include "irc-macros.h"
 #include "irc-write.h"
 #include "log.h"
 #include "messages.h"
@@ -46,6 +47,8 @@ IRC_METADATA(CLIENT *Client, REQUEST *Req)
 
 	assert(Client != NULL);
 	assert(Req != NULL);
+
+	_IRC_REQUIRE_PREFIX_OR_RETURN_(Client, Req)
 
 	prefix = Client_Search(Req->prefix);
 	if (!prefix)

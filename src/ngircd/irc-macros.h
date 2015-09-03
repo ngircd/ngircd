@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2013 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2015 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,6 +66,18 @@ if (Req->argc < Min || Req->argc > Max) { \
 }
 
 /**
+ * Make sure that the command has a prefix.
+ *
+ * If there is no prefix, send an error to the client and return from
+ * the function.
+ */
+#define _IRC_REQUIRE_PREFIX_OR_RETURN_(Client, Req) \
+if (!Req->prefix) { \
+	return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG, \
+				  Client_ID(Client), Req->command); \
+}
+
+/**
  * Get sender of an IRC command.
  *
  * The sender is either stored in the prefix if the command has been
@@ -73,13 +85,17 @@ if (Req->argc < Min || Req->argc > Max) { \
  * send an error to the client and return from the function.
  */
 #define _IRC_GET_SENDER_OR_RETURN_(Sender, Req, Client) \
-	if (Client_Type(Client) == CLIENT_SERVER) \
+	if (Client_Type(Client) == CLIENT_SERVER) { \
+		if (!Req->prefix) \
+			return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG, \
+						  Client_ID(Client), Req->command); \
 		Sender = Client_Search(Req->prefix); \
-	else \
+	} else \
 		Sender = Client; \
 	if (!Sender) \
 		return IRC_WriteErrClient(Client, ERR_NOSUCHNICK_MSG, \
-					  Client_ID(Client), Req->prefix);
+					  Client_ID(Client), \
+					  Req->prefix ? Req->prefix : "(none)");
 
 /**
  * Get target of an IRC command and make sure that it is a server.

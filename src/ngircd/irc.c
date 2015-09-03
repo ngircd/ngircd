@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2014 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2015 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -526,7 +526,7 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 					  Client_ID(Client), Req->command);
 	}
 
-	if (Client_Type(Client) == CLIENT_SERVER)
+	if (Client_Type(Client) == CLIENT_SERVER && Req->prefix)
 		from = Client_Search(Req->prefix);
 	else
 		from = Client;

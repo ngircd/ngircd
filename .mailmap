@@ -1,4 +1,14 @@
 # mailmap file for git-[short]log and git-blame
+# use "git shortlog -se" to see the list of all authors.
 
-Alexander Barton <anonymous>
+Alexander Barton <alex@barton.de> <anonymous>
+Alexander Barton <alex@barton.de> <alex@kfreebsd.barton.de>
+
 Ali Shemiran <ashemira@ucsd.edu>
+
+Dana Dahlstrom <dana+ngIRCd@cs.ucsd.edu> <dana@cs.ucsd.edu>
+Dana Dahlstrom <dana+ngIRCd@cs.ucsd.edu> <dana+70@cs.ucsd.edu>
+
+DNS <dns@rbose.org>
+
+LucentW <lucent@zebes.info> <LucentW@users.noreply.github.com>

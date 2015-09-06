@@ -29,7 +29,7 @@ ngIRCd 23
   - Use "NOTICE *" before registration instead of "NOTICE AUTH". "AUTH" is
     a valid nickname so sending notices to it is probably not a good idea.
     Use "*" as the target instead as done with numerics when the nick is not
-    available. This mimics the behaviour in Charybdis, IRCD-Hybrid, InspIRCd
+    available. This mimics the behavior in Charybdis, IRCD-Hybrid, InspIRCd
     2.2, Plexus 4, etc. Closes #217.
     The "NoticeAuth" configuration variable (ngircd.conf) has been renamed
     to "NoticeBeforeRegistration" accordingly, but the old name is still
@@ -44,14 +44,14 @@ ngIRCd 23
     clients, including Pidgin and stunnel 5.06, to reuse a session.
     Patch by Tom Ryder <tom@sanctum.geek.nz>, thanks! Closes #182.
   - Keep track of who placed bans, invites, and excepts.
-    Idee and implementation by LucentW, Thanks! Closes #203.
+    Idea and implementation by LucentW, Thanks! Closes #203.
   - Make setgroups(3) function optional: For example, Interix is missing
     this function, which prevented ngIRCd to build on this platform. When
     setgroups(3) isn't available, a warning message is issued on startup.
   - Implement numeric RPL_LISTSTART(321). lightIRC and other clients
     expecting RPL_LISTSTART should now behave correctly.
-    Idee and implementation by LucentW, Thanks! Closes #207.
-  - Update ngircd.conf.5: "CloadUserToNick" hides user _and_ real name.
+    Idea and implementation by LucentW, Thanks! Closes #207.
+  - Update ngircd.conf.5: "CloakUserToNick" hides user _and_ real name.
     This closes #208.
   - Fix case insensitive pattern matching: Up to now, only the the input
     string became lowercased and was then compared to the pattern -- which
@@ -61,11 +61,11 @@ ngIRCd 23
     hide IP addresses/hostnames on WHOIS when "MorePrivacy" is in effect.
     This closes #198.
   - IRC operators now can kick anyone when "OperCanMode" is set.
-    Idee and implementation by LucentW, Thanks! Closes #202.
+    Idea and implementation by LucentW, Thanks! Closes #202.
   - Implement user mode "I": Hide channels on WHOIS: this mode prevents
     ngIRCd from showing channels on WHOIS (IRC Operators can always see
     the channel list).
-    Idee and implementation by LucentW, Thanks! Closes #197.
+    Idea and implementation by LucentW, Thanks! Closes #197.
   - INVITE command: Implement ERR_USERNOTONSERV(504) numeric and make sure
     that the target user is on the same server when inviting other users
     to local ("&") channels.
@@ -630,7 +630,7 @@ ngIRCd 19.2 (2012-06-19)
     "CC=xxx MAKE=yyy ./platformtest.sh" calling convention.
   - Add instructions for setting up Atheme IRC services.
   - Implement support for IRC capability handling, the new "CAP" command,
-    and capablity "multi-prefix" which allows both the NAME and	WHO command
+    and capability "multi-prefix" which allows both the NAME and WHO command
     handlers to return more than one "class prefix" to the client.
   - Update Xcode project files: reference missing documentation files.
   - Fix: Don't ignore "permission denied" errors when enabling chroot.
@@ -930,7 +930,7 @@ ngIRCd 17 (2010-11-07)
   - contrib/platformtest.sh: make command name quoting consistent
 
   ngIRCd 17~rc3 (2010-10-27)
-  - Xcode builds: detect version number correctly, updateed project file
+  - Xcode builds: detect version number correctly, updated project file
     to use the Mac OS X 10.5.x SDK, disable pam_fail_delay() because it
     is only available starting with Mac OS X 10.6, and generate a default
     PAM configuration for the Mac OS X Installer.app package of ngIRCd.
@@ -942,7 +942,7 @@ ngIRCd 17 (2010-11-07)
   ngIRCd 17~rc2 (2010-10-25)
   - ZeroConf: include header files missing since commit a988bbc86a.
   - Generate ngIRCd version number from GIT tag.
-  - Make sourcecode compatible with ansi2knr again. This allows to compile
+  - Make source code compatible with ansi2knr again. This allows to compile
     ngIRCd using a pre-ANSI K&R C compiler again.
   - ./configure: check if C compiler can compile ISO Standard C.
   - ./configure: check support for C prototypes again.
@@ -958,7 +958,7 @@ ngIRCd 17 (2010-11-07)
     Howl, Avahi or on Mac OS X).
   - New configuration option "SyslogFacility" to define the syslog "facility"
     (the "target"), to which ngIRCd should send its log messages.
-    Possible values are system dependant, but most probably "auth", "daemon",
+    Possible values are system dependent, but most probably "auth", "daemon",
     "user" and "local1" through "local7" are possible values; see syslog(3).
     Default is "local5" for historical reasons.
   - Dump the "internal server state" (configured servers, established
@@ -979,7 +979,7 @@ ngIRCd 17 (2010-11-07)
   - Make configure switch "--docdir" work (closes: #108).
   - Reformat and update FAQ.txt a little bit.
   - INSTALL: mention SSL, IPv6, and changed handling of MotdFile.
-  - Change MOTD file handling: ngIRCd now caches the contens of the MOTD
+  - Change MOTD file handling: ngIRCd now caches the contents of the MOTD
     file, so the daemon now requires a HUP signal or REHASH command to
     re-read the MOTD file when its content changed.
   - Startup: open /dev/null before chroot'ing the daemon.
@@ -1015,14 +1015,14 @@ ngIRCd 16 (2010-05-02)
   - Include netinet/{in.h, in_systm.h} when checking for netinet/ip.h
   - Only include <netinet/in_systm.h> if it exists
   - Updated doc/Platforms.txt
-  - Enhace connection statistics counters: display total number of served
+  - Enhance connection statistics counters: display total number of served
     connections on daemon shutdown and when a new client connects using
     the new numeric RPL_STATSCONN (250).
 
   ngIRCd 16~rc1 (2010-03-25)
   - Various fixes to the build system and code cleanups.
   - contrib/platformtest.sh: Only show latest commit.
-  - Updatet doc/Platforms.txt, added new README-Interix.txt documenting
+  - Updated doc/Platforms.txt, added new README-Interix.txt documenting
     how to tun ngIRCd on Microsoft Services for UNIX (MS SFU, MS SUA).
   - Updated links to the ngIRCd homepage (bug tracker, mailing list).
   - Added missing modes to USERMODES #define
@@ -1050,7 +1050,7 @@ ngIRCd 15 (2009-11-07)
   ngIRCd 15~rc1 (2009-10-15)
   - Do not add default listening port (6667) if SSL ports were specified, so
     ngIRCd can be configured to only accept SSL-encrypted connections now.
-  - Enable IRC operators to use the IRC command SQUIT (insted of the already
+  - Enable IRC operators to use the IRC command SQUIT (instead of the already
     implemented but non-standard DISCONNECT command).
   - New configuration option "AllowRemoteOper" (disabled by default) that
     enables remote IRC operators to use the IRC commands SQUIT and CONNECT
@@ -1104,7 +1104,7 @@ ngIRCd 14 (2009-04-20)
   - Fix memory leak when a encrypted and compressed server link goes down.
     (closes bug #95, reported by Christoph, fiesh@fiesh.homeip.net)
   - Fix handling of channels containing dots.
-    (closes ug #93, reported by Gonosz Csiga)
+    (closes bug #93, reported by Gonosz Csiga)
 
 ngIRCd 13 (2008-12-25)
 
@@ -1334,7 +1334,7 @@ ngIRCd 0.9.0 (2005-07-24)
   - Fixed ./configure test for TCP Wrappers: now it runs on Mac OS X as well.
   - Enhanced configure script: now you can pass an (optional) search path
     to all --with-XXX parameters, e. g. "--with-ident=/opt/ident".
-  - Removed typedefs for the native C datatypes.
+  - Removed typedefs for the native C data types.
     Use stdbool.h / inttypes.h if available.
   - New configuration option "OperServerMode" to enable a workaround needed
     when running an network with ircd2 servers and "OperCanUseMode" enabled
@@ -1515,7 +1515,7 @@ ngIRCd 0.7.0 (2003-05-01)
     to add a new server (ngIRCd tries to connect new servers only once!).
   - Added DISCONNECT command ("DISCONNECT <name>") to disable servers.
   - Restructured the documentation: Now the main language is English. The
-    german documentation has been removed (until there is a maintainer).
+    German documentation has been removed (until there is a maintainer).
   - Enhanced killing of users caused by a nickname collision.
   - Better error detection for status code ("numerics") forwarding.
   - Moved tool functions to own library: "libngtool".
@@ -1556,7 +1556,7 @@ ngIRCd 0.6.1 (2003-01-21)
     member when changing his channel user modes which could crash ngIRCd.
 
 
-Older changes (sorry, only available in german language):
+Older changes (sorry, only available in German language):
 
 ngIRCd 0.6.0, 24.12.2002
 

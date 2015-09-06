@@ -15,7 +15,7 @@ ngIRCd 23
   - Use "NOTICE *" before registration instead of "NOTICE AUTH". "AUTH" is
     a valid nickname so sending notices to it is probably not a good idea.
     Use "*" as the target instead as done with numerics when the nick is not
-    available. This mimics the behaviour in Charybdis, IRCD-Hybrid, InspIRCd
+    available. This mimics the behavior in Charybdis, IRCD-Hybrid, InspIRCd
     2.2, Plexus 4, etc. Closes #217.
     The "NoticeAuth" configuration variable (ngircd.conf) has been renamed
     to "NoticeBeforeRegistration" accordingly, but the old name is still
@@ -23,20 +23,20 @@ ngIRCd 23
   - Implement new channel mode "N" (regular users can't change their nick
     name while on this channel). Closes #214.
   - Keep track of who placed bans, invites, and excepts.
-    Idee and implementation by LucentW, Thanks! Closes #203.
+    Idea and implementation by LucentW, Thanks! Closes #203.
   - Implement numeric RPL_LISTSTART(321). lightIRC and other clients
     expecting RPL_LISTSTART should now behave correctly.
-    Idee and implementation by LucentW, Thanks! Closes #207.
+    Idea and implementation by LucentW, Thanks! Closes #207.
   - Streamline the effect of "MorePrivacy" option: Update documentation
     in ngircd.conf(5); don't hide channels for IRC Ops on LIST and don't
     hide IP addresses/hostnames on WHOIS when "MorePrivacy" is in effect.
     This closes #198.
   - IRC operators now can kick anyone when "OperCanMode" is set.
-    Idee and implementation by LucentW, Thanks! Closes #202.
+    Idea and implementation by LucentW, Thanks! Closes #202.
   - Implement user mode "I": Hide channels on WHOIS: this mode prevents
     ngIRCd from showing channels on WHOIS (IRC Operators can always see
     the channel list).
-    Idee and implementation by LucentW, Thanks! Closes #197.
+    Idea and implementation by LucentW, Thanks! Closes #197.
   - INVITE command: Implement ERR_USERNOTONSERV(504) numeric and make sure
     that the target user is on the same server when inviting other users
     to local ("&") channels.
@@ -324,7 +324,7 @@ ngIRCd 19.2 (2012-06-19)
     which still is the default when "CloakHostModeX" isn't set.
   - Add instructions for setting up Atheme IRC services.
   - Implement support for IRC capability handling, the new "CAP" command,
-    and capablity "multi-prefix" which allows both the NAME and	WHO command
+    and capability "multi-prefix" which allows both the NAME and WHO command
     handlers to return more than one "class prefix" to the client.
 
 ngIRCd 19.1 (2012-03-19)
@@ -487,7 +487,7 @@ ngIRCd 17 (2010-11-07)
 
   ngIRCd 17~rc2 (2010-10-25)
   - Generate ngIRCd version number from GIT tag.
-  - Make sourcecode compatible with ansi2knr again. This allows to compile
+  - Make source code compatible with ansi2knr again. This allows to compile
     ngIRCd using a pre-ANSI K&R C compiler again.
 
   ngIRCd 17~rc1 (2010-10-11)
@@ -496,7 +496,7 @@ ngIRCd 17 (2010-11-07)
     Howl, Avahi or on Mac OS X).
   - New configuration option "SyslogFacility" to define the syslog "facility"
     (the "target"), to which ngIRCd should send its log messages.
-    Possible values are system dependant, but most probably "auth", "daemon",
+    Possible values are system dependent, but most probably "auth", "daemon",
     "user" and "local1" through "local7" are possible values; see syslog(3).
     Default is "local5" for historical reasons.
   - Dump the "internal server state" (configured servers, established
@@ -506,7 +506,7 @@ ngIRCd 17 (2010-11-07)
     signal SIGUSR1, when debug code is compiled in, not only on startup
     using the command line parameters.
   - Implement user mode "x": host name cloaking (closes: #102).
-  - Change MOTD file handling: ngIRCd now caches the contens of the MOTD
+  - Change MOTD file handling: ngIRCd now caches the contents of the MOTD
     file, so the daemon now requires a HUP signal or REHASH command to
     re-read the MOTD file when its content changed.
   - Allow IRC ops to change channel modes even without OperServerMode set.
@@ -522,7 +522,7 @@ ngIRCd 17 (2010-11-07)
 ngIRCd 16 (2010-05-02)
 
   ngIRCd 16~rc2 (2010-04-25)
-  - Enhace connection statistics counters: display total number of served
+  - Enhance connection statistics counters: display total number of served
     connections on daemon shutdown and when a new client connects using
     the new numeric RPL_STATSCONN (250).
 
@@ -544,7 +544,7 @@ ngIRCd 15 (2009-11-07)
   ngIRCd 15~rc1 (2009-10-15)
   - Do not add default listening port (6667) if SSL ports were specified, so
     ngIRCd can be configured to only accept SSL-encrypted connections now.
-  - Enable IRC operators to use the IRC command SQUIT (insted of the already
+  - Enable IRC operators to use the IRC command SQUIT (instead of the already
     implemented but non-standard DISCONNECT command).
   - New configuration option "AllowRemoteOper" (disabled by default) that
     enables remote IRC operators to use the IRC commands SQUIT and CONNECT
@@ -727,7 +727,7 @@ ngIRCd 0.7.0 (2003-05-01)
   - Documentation is now installed in $(datadir)/doc/ngircd.
 
 
-Older news (sorry, only available in german language):
+Older news (sorry, only available in German language):
 
 ngIRCd 0.6.0, 24.12.2002
 

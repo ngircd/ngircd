@@ -380,7 +380,7 @@ Status and Informational Commands
 
 	Please note that "all" IRC daemons even parse separate nicknames in
 	a single parameter (like ":nick1 nick2"), and therefore ngIRCd
-	implements this behaviour, too.
+	implements this behavior, too.
 
 	References:
 	 - RFC 2812, 4.9 "Ison message"

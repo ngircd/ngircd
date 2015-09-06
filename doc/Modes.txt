@@ -88,4 +88,4 @@ Notes
 ~~~~~
 
 (1) This mode is not set by ngIRCd itself but by services. ngIRCd handles
-    the mode transparently and possibly adjusts its behaviour.
+    the mode transparently and possibly adjusts its behavior.

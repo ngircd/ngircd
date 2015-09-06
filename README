@@ -28,7 +28,7 @@ Please see the INSTALL document for installation and upgrade information!
 II. Status
 ~~~~~~~~~~~
 
-It is not the goal of ngIRCd to implement all the nasty behaviours of the
+It is not the goal of ngIRCd to implement all the nasty behaviors of the
 original ircd, but to implement most of the useful commands and semantics
 specified by the RFCs.
 

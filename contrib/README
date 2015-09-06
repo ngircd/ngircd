@@ -12,7 +12,7 @@
 Debian/
  - Various files for building Debian GNU/Linux packages (".deb's").
 	- ngircd.init; ngircd.default: init script for Debian-based systems.
-	- ngircd.pam: example PAM configuraton.
+	- ngircd.pam: example PAM configuration.
 
 MacOSX/
  - Project files for XCode, the "project builder" of Apple Mac OS X.

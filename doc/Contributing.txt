@@ -15,7 +15,7 @@ get an idea of how to do it the best :-)
  - Use GIT
 
    The source code of ngIRCd is maintained using GIT, see doc/GIT.txt. So if
-   remotely possible, use GIT for your work, too. It makes your and our lifes
+   remotely possible, use GIT for your work, too. It makes your and our lives
    much easier ;-)
 
  - Don't forget to include documentation

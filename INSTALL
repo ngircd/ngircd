@@ -36,9 +36,9 @@ Differences to version 20.x
   the new mask will be KILL'ed. This was not the case with earlier versions
   that only added the mask but didn't kill already connected users.
 
-- The "PredefChannelsOnly" configuration variable has been superseeded by the
+- The "PredefChannelsOnly" configuration variable has been superseded by the
   new "AllowedChannelTypes" variable. It is still supported and translated to
-  the apropriate "AllowedChannelTypes" setting but is deprecated now.
+  the appropriate "AllowedChannelTypes" setting but is deprecated now.
 
 Differences to version 19.x
 
@@ -162,7 +162,7 @@ If you are using one of the "big" operating systems or Linux distributions,
 you can use the following commands to install all the required packages to
 build the sources including all optional features and to run the test suite:
 
-* RedHat / Fedora based distributions:
+* Red Hat / Fedora based distributions:
 
   yum install \
     autoconf automake expect gcc glibc-devel gnutls-devel \
@@ -186,7 +186,7 @@ This step is therefore only interesting for developers.
 autogen.sh produces the Makefile.in's, which are necessary for the configure
 script itself, and some more files for make. To run autogen.sh you'll need
 GNU autoconf and GNU automake: at least autoconf 2.61 and automake 1.10 are
-requird, newer is better. But don't use automake 1.12 or newer for creating
+required, newer is better. But don't use automake 1.12 or newer for creating
 distribution archives: it will work but lack "de-ANSI-fication" support in the
 generated Makefile's! Stick with automake 1.11.x for this purpose ...
 So automake 1.11.x and autoconf 2.67+ is recommended.

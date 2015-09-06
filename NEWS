@@ -11,7 +11,7 @@
 
 ngIRCd 23
 
-  ngIRCd 23~rc1
+  ngIRCd 23~rc1 (2015-09-06)
   - Use "NOTICE *" before registration instead of "NOTICE AUTH". "AUTH" is
     a valid nickname so sending notices to it is probably not a good idea.
     Use "*" as the target instead as done with numerics when the nick is not

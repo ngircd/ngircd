@@ -11,7 +11,7 @@
 
 ngIRCd 23
 
-  ngIRCd 23~rc1
+  ngIRCd 23~rc1 (2015-09-06)
   - Add ".clang_complete" file, which is used by the "linter-clang" package
     of the Atom editor, for example.
   - Make server-to-server protocol more robust: ngIRCd now catches more

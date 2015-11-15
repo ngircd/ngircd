@@ -89,7 +89,7 @@ sparc/unknown/openbsd5.5    gcc 4.2.1    21.1       14-05-03 goetz    Y Y Y Y 3
 x86_64/apple/darwin10.8.0   gcc 4.2.1    21~rc2     13-10-30 alex     Y Y Y Y 3
 x86_64/apple/darwin12.3.0   gcc 4.2.1    20.2       13-04-01 alex     Y Y Y Y 3
 x86_64/apple/darwin13.0.0   A-clang 5.0  21         14-01-02 alex     Y Y Y Y 3
-x86_64/apple/darwin14.0.0   A-clang 6.0  22~rc1-3   14-10-10 alex     Y Y Y Y 3
+x86_64/apple/darwin14.5.0   A-clang 6.1  23~rc1     15-09-06 alex     Y Y Y Y 3
 x86_64/unknown/dragonfly3.4 gcc 4.7.2    21         13-11-12 goetz    Y Y N Y 3
 x86_64/unknown/freebsd8.4   gcc 4.2.1    22~rc1-3   14-10-10 alex     Y Y y Y 3
 x86_64/unknown/freebsd9.2   gcc 4.2.1    22~rc1-3   14-10-10 alex     Y Y Y Y 3
@@ -97,10 +97,10 @@ x86_64/unknown/freebsd10.0  F-clang 3.3  22~rc1-3   14-10-10 alex     Y Y Y Y 3
 x86_64/unkn./freebsd8.1-gnu gcc 4.4.5    19         12-02-26 alex     Y Y Y Y 3
 x86_64/unknown/linux-gnu    clang 3.3    21         14-01-07 alex     Y Y Y Y 1
 x86_64/unknown/linux-gnu    clang 3.4    22~rc1-3   14-10-11 alex     Y Y Y Y 1
-x86_64/unknown/linux-gnu    gcc 4.4.5    22~rc1-3   14-10-10 alex     Y Y Y Y 1
-x86_64/unknown/linux-gnu    gcc 4.7.2    22~rc1-3   14-10-10 alex     Y Y Y Y 1
+x86_64/unknown/linux-gnu    gcc 4.4.5    23~rc1-3   15-11-15 alex     Y Y Y Y 1
+x86_64/unknown/linux-gnu    gcc 4.7.2    23~rc1-3   15-11-15 alex     Y Y Y Y 1
 x86_64/unknown/linux-gnu    gcc 4.8.2    21         13-12-29 alex     Y Y Y Y 1
-x86_64/unknown/linux-gnu    gcc 4.9.1    22~rc1-3   14-10-10 alex     Y Y Y Y 1
+x86_64/unknown/linux-gnu    gcc 4.9.2    23~rc1-3   15-11-15 alex     Y Y Y Y 1
 x86_64/unknown/linux-gnu    nwcc 0.8.2   21         13-12-01 goetz    Y Y Y Y 1
 x86_64/unknown/linux-gnu    Open64       21.1       14-03-27 goetz    Y Y Y Y 1
 x86_64/unknown/linux-gnu    Sun C 5.12   21.1       14-03-27 goetz    Y Y Y Y 1

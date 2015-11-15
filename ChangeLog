@@ -11,6 +11,13 @@
 
 ngIRCd 23
 
+  - Explicitly cast time_t to long when printing it out: this prevents
+    wrong sized data types on platforms where time_t doesn't equal a
+    long any more, for example on OpenBSD (which would result in garbled
+    output on those platforms).
+  - contrib/Debian/changelog: Fix email address.
+  - Documentation: Spelling fixes; update doc/Platforms.txt.
+
   ngIRCd 23~rc1 (2015-09-06)
   - Add ".clang_complete" file, which is used by the "linter-clang" package
     of the Atom editor, for example.

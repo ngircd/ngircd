@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2014 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2015 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -185,7 +185,7 @@ Synchronize_Lists(CLIENT * Client)
 	while (elem) {
 		if (!IRC_WriteStrClient(Client, "GLINE %s %ld :%s",
 					Lists_GetMask(elem),
-					Lists_GetValidity(elem) - time(NULL),
+					(long)(Lists_GetValidity(elem) - time(NULL)),
 					Lists_GetReason(elem)))
 			return DISCONNECTED;
 		elem = Lists_GetNext(elem);

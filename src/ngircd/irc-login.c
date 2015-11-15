@@ -873,13 +873,14 @@ IRC_PONG(CLIENT *Client, REQUEST *Req)
 	if (Client_Type(Client) == CLIENT_SERVER && Conn_LastPing(conn) == 0) {
 		Log(LOG_INFO,
 		    "Synchronization with \"%s\" done (connection %d): %ld second%s [%ld users, %ld channels].",
-		    Client_ID(Client), conn, time(NULL) - Conn_GetSignon(conn),
+		    Client_ID(Client), conn,
+		    (long)(time(NULL) - Conn_GetSignon(conn)),
 		    time(NULL) - Conn_GetSignon(conn) == 1 ? "" : "s",
 		    Client_UserCount(), Channel_CountVisible(NULL));
 		Conn_UpdatePing(conn);
 	} else
 		LogDebug("Connection %d: received PONG. Lag: %ld seconds.",
-			 conn, time(NULL) - Conn_LastPing(conn));
+			 conn, (long)(time(NULL) - Conn_LastPing(conn)));
 
 	return CONNECTED;
 } /* IRC_PONG */

@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2014 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2015 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,7 +48,11 @@ Dump_State(void)
 {
 	Log(LOG_DEBUG, "--- Internal server state: %s ---",
 	    Client_ID(Client_ThisServer()));
-	Log(LOG_DEBUG, "time()=%ld", time(NULL));
+#ifdef HAVE_LONG_LONG
+	Log(LOG_DEBUG, "time()=%llu", (unsigned long long)time(NULL));
+#else
+	Log(LOG_DEBUG, "time()=%lu", (unsigned long)time(NULL));
+#endif
 	Conf_DebugDump();
 	Conn_DebugDump();
 	Client_DebugDump();

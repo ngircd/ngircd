@@ -240,7 +240,7 @@ IRC_TRACE(CLIENT *Client, REQUEST *Req)
 					PACKAGE_VERSION, Client_ID(target),
 					Client_ID(Client_NextHop(target)),
 					Option_String(idx2),
-					time(NULL) - Conn_StartTime(idx2),
+					(long)(time(NULL) - Conn_StartTime(idx2)),
 					Conn_SendQ(idx), Conn_SendQ(idx2)))
 			return DISCONNECTED;
 

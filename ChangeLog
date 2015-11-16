@@ -9,7 +9,7 @@
                                -- ChangeLog --
 
 
-ngIRCd 23
+ngIRCd 23 (2015-11-16)
 
   - Explicitly cast time_t to long when printing it out: this prevents
     wrong sized data types on platforms where time_t doesn't equal a

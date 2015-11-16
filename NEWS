@@ -9,7 +9,7 @@
                                   -- NEWS --
 
 
-ngIRCd 23
+ngIRCd 23 (2015-11-16)
 
   ngIRCd 23~rc1 (2015-09-06)
   - Use "NOTICE *" before registration instead of "NOTICE AUTH". "AUTH" is

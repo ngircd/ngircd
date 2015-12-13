@@ -245,66 +245,87 @@ IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 	CHANNEL *chan;
 	CLIENT *c;
 
-	assert( Client != NULL );
-	assert( Req != NULL );
+	assert(Client != NULL);
+	assert(Req != NULL);
 
-	strlcpy( nick_in, Req->argv[1], sizeof( nick_in ));
-	strcpy( nick_out, "" );
+	strlcpy(nick_in, Req->argv[1], sizeof(nick_in));
+	strcpy(nick_out, "");
 
 	channame = Req->argv[0];
-	ptr = strtok( nick_in, "," );
-	while( ptr )
-	{
+
+	ptr = strtok(nick_in, ",");
+	while (ptr) {
 		is_owner = is_chanadmin = is_op = is_halfop = is_voiced = false;
 
 		/* cut off prefixes */
-		while(( *ptr == '~') || ( *ptr == '&' ) || ( *ptr == '@' ) ||
-			( *ptr == '%') || ( *ptr == '+' ))
-		{
-			if( *ptr == '~' ) is_owner = true;
-			if( *ptr == '&' ) is_chanadmin = true;
-			if( *ptr == '@' ) is_op = true;
-			if( *ptr == '%' ) is_halfop = true;
-			if( *ptr == '+' ) is_voiced = true;
+		while ((*ptr == '~') || (*ptr == '&') || (*ptr == '@') ||
+		       (*ptr == '%') || (*ptr == '+')) {
+			if (*ptr == '~')
+				is_owner = true;
+			if (*ptr == '&')
+				is_chanadmin = true;
+			if (*ptr == '@')
+				is_op = true;
+			if (*ptr == '%')
+				is_halfop = true;
+			if (*ptr == '+')
+				is_voiced = true;
 			ptr++;
 		}
 
-		c = Client_Search( ptr );
-		if( c )
-		{
-			Channel_Join( c, channame );
-			chan = Channel_Search( channame );
-			assert( chan != NULL );
-
-			if( is_owner ) Channel_UserModeAdd( chan, c, 'q' );
-			if( is_chanadmin ) Channel_UserModeAdd( chan, c, 'a' );
-			if( is_op ) Channel_UserModeAdd( chan, c, 'o' );
-			if( is_halfop ) Channel_UserModeAdd( chan, c, 'h' );
-			if( is_voiced ) Channel_UserModeAdd( chan, c, 'v' );
-
-			/* announce to channel... */
-			IRC_WriteStrChannelPrefix( Client, chan, c, false, "JOIN :%s", channame );
-
-			/* set Channel-User-Modes */
-			strlcpy( modes, Channel_UserModes( chan, c ), sizeof( modes ));
-			if( modes[0] )
-			{
-				/* send modes to channel */
-				IRC_WriteStrChannelPrefix( Client, chan, Client, false, "MODE %s +%s %s", channame, modes, Client_ID( c ));
-			}
-
-			if( nick_out[0] != '\0' ) strlcat( nick_out, ",", sizeof( nick_out ));
-			if( is_owner ) strlcat( nick_out, "~", sizeof( nick_out ));
-			if( is_chanadmin ) strlcat( nick_out, "&", sizeof( nick_out ));
-			if( is_op ) strlcat( nick_out, "@", sizeof( nick_out ));
-			if( is_halfop ) strlcat( nick_out, "%", sizeof( nick_out ));
-			if( is_voiced ) strlcat( nick_out, "+", sizeof( nick_out ));
-			strlcat( nick_out, ptr, sizeof( nick_out ));
+		c = Client_Search(ptr);
+		if (!c) {
+			/* Client not found? */
+			Log(LOG_ERR,
+			    "Got NJOIN for unknown nick \"%s\" for channel \"%s\"!",
+			    ptr, channame);
+			goto skip_njoin;
 		}
-		else Log( LOG_ERR, "Got NJOIN for unknown nick \"%s\" for channel \"%s\"!", ptr, channame );
 
-		/* search for next Nick */
-		ptr = strtok( NULL, "," );
+		Channel_Join(c, channame);
+		chan = Channel_Search(channame);
+		assert(chan != NULL);
+
+		if (is_owner)
+			Channel_UserModeAdd(chan, c, 'q');
+		if (is_chanadmin)
+			Channel_UserModeAdd(chan, c, 'a');
+		if (is_op)
+			Channel_UserModeAdd(chan, c, 'o');
+		if (is_halfop)
+			Channel_UserModeAdd(chan, c, 'h');
+		if (is_voiced)
+			Channel_UserModeAdd(chan, c, 'v');
+
+		/* Announce client to the channel */
+		IRC_WriteStrChannelPrefix(Client, chan, c, false,
+					  "JOIN :%s", channame);
+
+		/* Announce "channel user modes" to the channel, if any */
+		strlcpy(modes, Channel_UserModes(chan, c), sizeof(modes));
+		if (modes[0])
+			IRC_WriteStrChannelPrefix(Client, chan, Client, false,
+						  "MODE %s +%s %s", channame,
+						  modes, Client_ID(c));
+
+		/* Build nick list for forwarding command */
+		if (nick_out[0] != '\0')
+			strlcat(nick_out, ",", sizeof(nick_out));
+		if (is_owner)
+			strlcat(nick_out, "~", sizeof(nick_out));
+		if (is_chanadmin)
+			strlcat(nick_out, "&", sizeof(nick_out));
+		if (is_op)
+			strlcat(nick_out, "@", sizeof(nick_out));
+		if (is_halfop)
+			strlcat(nick_out, "%", sizeof(nick_out));
+		if (is_voiced)
+			strlcat(nick_out, "+", sizeof(nick_out));
+		strlcat(nick_out, ptr, sizeof(nick_out));
+
+	      skip_njoin:
+		/* Get next nick, if any ... */
+		ptr = strtok(NULL, ",");
 	}
 
 	/* forward to other servers */

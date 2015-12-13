@@ -339,8 +339,11 @@ GLOBAL bool
 IRC_KillClient(CLIENT *Client, CLIENT *From, const char *Nick, const char *Reason)
 {
 	const char *msg;
-	CONN_ID my_conn, conn;
+	CONN_ID my_conn = NONE, conn;
 	CLIENT *c;
+
+	assert(Nick != NULL);
+	assert(Reason != NULL);
 
 	/* Do we know such a client in the network? */
 	c = Client_Search(Nick);
@@ -376,7 +379,8 @@ IRC_KillClient(CLIENT *Client, CLIENT *From, const char *Nick, const char *Reaso
 	}
 
 	/* Save ID of this connection */
-	my_conn = Client_Conn(Client);
+	if (Client)
+		my_conn = Client_Conn(Client);
 
 	/* Kill the client NOW:
 	 *  - Close the local connection (if there is one),

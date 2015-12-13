@@ -31,6 +31,7 @@
 #include "parse.h"
 #include "numeric.h"
 #include "ngircd.h"
+#include "irc.h"
 #include "irc-info.h"
 #include "irc-write.h"
 #include "op.h"
@@ -282,7 +283,16 @@ IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 			goto skip_njoin;
 		}
 
-		Channel_Join(c, channame);
+		if (Channel_Join(c, channame)) {
+			/* Failed to join channel. Ooops!? */
+			Log(LOG_ALERT,
+			    "Failed to join client \"%s\" to channel \"%s\" (NJOIN): killing it!",
+			    ptr, channame);
+			IRC_KillClient(NULL, NULL, ptr, "Internal NJOIN error!");
+			Log(LOG_DEBUG, "... done.");
+			goto skip_njoin;
+		}
+
 		chan = Channel_Search(channame);
 		assert(chan != NULL);
 

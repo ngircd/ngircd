@@ -264,7 +264,7 @@ IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 			if( *ptr == '~' ) is_owner = true;
 			if( *ptr == '&' ) is_chanadmin = true;
 			if( *ptr == '@' ) is_op = true;
-			if( *ptr == 'h' ) is_halfop = true;
+			if( *ptr == '%' ) is_halfop = true;
 			if( *ptr == '+' ) is_voiced = true;
 			ptr++;
 		}

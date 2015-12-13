@@ -75,13 +75,17 @@ channel of which he is a member.
 
   mode	since	description
 
-  q	20	User is channel owner can only be set by a service, other
-		owner and irc op. Can promote other users to q, a, o, h, v.
-  a	20	User is channel admin and can promote other users to v, h, o
+  q	20	User is channel owner. This mode can only be set by an IRC
+		service, other owner or IRC operator. Channel owners can
+		promote other users to all levels: q, a, o, h, v. Prefix: "~".
+  a	20	User is channel admin and can promote other users to v, h, o.
+		Prefix: "&".
   o	0.2.0	User is channel operator and can op/kick/... other members.
+		Prefix: "@".
   h	20	User is half op and can set channel modes imntvIbek and kick
-		voiced and normal users.
+		voiced and normal users. Prefix: "%".
   v	0.2.0	User is "voiced" and can speak even if channel is moderated.
+		Prefix: "+".
 
 
 Notes

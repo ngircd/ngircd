@@ -55,6 +55,11 @@ while [ $# -gt 0 ]; do
 	shift
 done
 
+for cmd in telnet expect; do
+	command -v "$cmd" >/dev/null 2>&1 \
+		|| echo "$NAME: WARNING: $cmd(1) not found, \"make check\" won't run all tests!"
+done
+
 echo "$NAME: Checking ngIRCd base source directory ..."
 grep "ngIRCd" "$SRC_D/ChangeLog" >/dev/null 2>&1
 if [ $? -ne 0 ]; then
@@ -206,6 +211,6 @@ else
 fi
 echo
 if [ "$R_CHECK_Y" = "y" ]; then
-	echo "$NAME: Warning: Some tests have been skipped!"
+	echo "$NAME: WARNING: Some tests have been skipped!"
 	echo
 fi

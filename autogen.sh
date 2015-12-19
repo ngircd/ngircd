@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001-2013 Alexander Barton (alex@barton.de) and Contributors
+# Copyright (c)2001-2015 Alexander Barton (alex@barton.de) and Contributors
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -95,7 +95,7 @@ Search()
 				return 0
 			fi
 		done
-		minor=`expr $minor - 1`
+		minor=$(expr $minor - 1)
 	done
 	return 1
 }
@@ -139,26 +139,26 @@ fi
 # Try to detect the needed tools when no environment variable already
 # specifies one:
 echo "Searching for required tools ..."
-[ -z "$ACLOCAL" ] && ACLOCAL=`Search aclocal 1`
+[ -z "$ACLOCAL" ] && ACLOCAL=$(Search aclocal 1)
 [ "$VERBOSE" = "1" ] && echo " - ACLOCAL=$ACLOCAL"
-[ -z "$AUTOHEADER" ] && AUTOHEADER=`Search autoheader 2`
+[ -z "$AUTOHEADER" ] && AUTOHEADER=$(Search autoheader 2)
 [ "$VERBOSE" = "1" ] && echo " - AUTOHEADER=$AUTOHEADER"
-[ -z "$AUTOMAKE" ] && AUTOMAKE=`Search automake 1`
+[ -z "$AUTOMAKE" ] && AUTOMAKE=$(Search automake 1)
 [ "$VERBOSE" = "1" ] && echo " - AUTOMAKE=$AUTOMAKE"
-[ -z "$AUTOCONF" ] && AUTOCONF=`Search autoconf 2`
+[ -z "$AUTOCONF" ] && AUTOCONF=$(Search autoconf 2)
 [ "$VERBOSE" = "1" ] && echo " - AUTOCONF=$AUTOCONF"
 
-AUTOCONF_VERSION=`echo $AUTOCONF | cut -d'-' -f2-`
-[ -n "$AUTOCONF_VERSION" -a "$AUTOCONF_VERSION" != "autoconf" ] \
+AUTOCONF_VERSION=$(echo "$AUTOCONF" | cut -d'-' -f2-)
+[ -n "$AUTOCONF_VERSION" ] && [ "$AUTOCONF_VERSION" != "autoconf" ] \
 	&& export AUTOCONF_VERSION || unset AUTOCONF_VERSION
 [ "$VERBOSE" = "1" ] && echo " - AUTOCONF_VERSION=$AUTOCONF_VERSION"
-AUTOMAKE_VERSION=`echo $AUTOMAKE | cut -d'-' -f2-`
-[ -n "$AUTOMAKE_VERSION" -a "$AUTOMAKE_VERSION" != "automake" ] \
+AUTOMAKE_VERSION=$(echo $AUTOMAKE | cut -d'-' -f2-)
+[ -n "$AUTOMAKE_VERSION" ] && [ "$AUTOMAKE_VERSION" != "automake" ] \
 	&& export AUTOMAKE_VERSION || unset AUTOMAKE_VERSION
 [ "$VERBOSE" = "1" ] && echo " - AUTOMAKE_VERSION=$AUTOMAKE_VERSION"
 
 [ $# -gt 0 ] && CONFIGURE_ARGS=" $*" || CONFIGURE_ARGS=""
-[ -z "$GO" -a -n "$CONFIGURE_ARGS" ] && GO=1
+[ -z "$GO" ] && [ -n "$CONFIGURE_ARGS" ] && GO=1
 
 # Verify that all tools have been found
 [ -z "$ACLOCAL" ] && Notfound aclocal
@@ -166,7 +166,7 @@ AUTOMAKE_VERSION=`echo $AUTOMAKE | cut -d'-' -f2-`
 [ -z "$AUTOMAKE" ] && Notfound automake
 [ -z "$AUTOCONF" ] && Notfound autoconf
 
-AM_VERSION=`$AUTOMAKE --version | head -n 1 | sed -e 's/.* //g'`
+AM_VERSION=$($AUTOMAKE --version | head -n 1 | sed -e 's/.* //g')
 ifs=$IFS; IFS="."; set $AM_VERSION; IFS=$ifs
 AM_MAJOR="$1"; AM_MINOR="$2"; AM_PATCHLEVEL="$3"
 echo "Detected automake $AM_VERSION ..."
@@ -174,7 +174,7 @@ echo "Detected automake $AM_VERSION ..."
 AM_MAKEFILES="src/ipaddr/Makefile.ng src/ngircd/Makefile.ng src/testsuite/Makefile.ng src/tool/Makefile.ng"
 
 # De-ANSI-fication?
-if [ "$AM_MAJOR" -eq "1" -a "$AM_MINOR" -lt "12" ]; then
+if [ "$AM_MAJOR" -eq "1" ] && [ "$AM_MINOR" -lt "12" ]; then
 	# automake < 1.12 => automatic de-ANSI-fication support available
 	echo " - Enabling de-ANSI-fication support."
 	sed -e "s|^__ng_PROTOTYPES__|AM_C_PROTOTYPES|g" configure.ng >configure.ac
@@ -188,7 +188,7 @@ else
 	DEANSI_END=" (disabled by ./autogen.sh script)"
 fi
 # Serial test harness?
-if [ "$AM_MAJOR" -eq "1" -a "$AM_MINOR" -ge "13" ]; then
+if [ "$AM_MAJOR" -eq "1" ] && [ "$AM_MINOR" -ge "13" ]; then
 	# automake >= 1.13 => enforce "serial test harness"
 	echo " - Enforcing serial test harness."
 	SERIAL_TESTS="serial-tests"
@@ -200,7 +200,7 @@ fi
 sed -e "s|^__ng_Makefile_am_template__|AUTOMAKE_OPTIONS = ${SERIAL_TESTS} ${DEANSI_START}ansi2knr${DEANSI_END}|g" \
 	src/portab/Makefile.ng >src/portab/Makefile.am
 for makefile_ng in $AM_MAKEFILES; do
-	makefile_am=`echo "$makefile_ng" | sed -e "s|\.ng\$|\.am|g"`
+	makefile_am=$(echo "$makefile_ng" | sed -e "s|\.ng\$|\.am|g")
 	sed -e "s|^__ng_Makefile_am_template__|AUTOMAKE_OPTIONS = ${SERIAL_TESTS} ${DEANSI_START}../portab/ansi2knr${DEANSI_END}|g" \
 		$makefile_ng >$makefile_am
 done
@@ -214,10 +214,10 @@ Run $ACLOCAL && \
 	Run $AUTOHEADER && \
 	Run $AUTOMAKE --add-missing --no-force
 
-if [ $? -eq 0 -a -x ./configure ]; then
+if [ $? -eq 0 ] && [ -x ./configure ]; then
 	# Success: if we got some parameters we call ./configure and pass
 	# all of them to it.
-	NAME=`grep PACKAGE_STRING= configure | cut -d"'" -f2`
+	NAME=$(grep PACKAGE_STRING= configure | cut -d"'" -f2)
 	if [ "$GO" = "1" ]; then
 		[ -n "$PREFIX" ] && p=" --prefix=$PREFIX" || p=""
 		c="./configure${p}${CONFIGURE_ARGS}"

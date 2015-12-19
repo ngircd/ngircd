@@ -14,14 +14,14 @@
 # suitable for inclusion in doc/Platforms.txt -- please send reports
 # to the ngIRCd mailing list: <ngircd-ml@ngircd.barton.de>.
 
-NAME=`basename "$0"`
+NAME=$(basename "$0")
 VERBOSE=
 CLEAN=1
 
 PLATFORM=
 COMPILER="unknown"
 VERSION="unknown"
-DATE=`date "+%y-%m-%d"`
+DATE=$(date "+%y-%m-%d")
 COMMENT=
 
 R_CONFIGURE=
@@ -30,7 +30,7 @@ R_CHECK=
 R_CHECK_Y="?"
 R_RUN=
 
-SRC_D=`dirname "$0"`
+SRC_D=$(dirname "$0")
 MY_D="$PWD"
 
 [ -n "$MAKE" ] || MAKE="make"
@@ -80,7 +80,11 @@ if [ -d "$SRC_D/.git" ]; then
 	if [ $? -eq 0 ] && [ -n "$CLEAN" ]; then
 		echo "$NAME: Running \"git clean\" ..."
 		cd "$SRC_D" || exit 1
-		[ -n "$VERBOSE" ] && git clean -dxf || git clean -dxf >/dev/null
+		if [ -n "$VERBOSE" ]; then
+			git clean -dxf
+		else
+			git clean -dxf >/dev/null
+		fi
 		cd "$MY_D" || exit 1
 	fi
 fi
@@ -89,22 +93,38 @@ echo "$NAME: Checking for \"$SRC_D/configure\" script ..."
 if [ ! -r "$SRC_D/configure" ]; then
 	echo "$NAME: Running \"$SRC_D/autogen.sh\" ..."
 	cd "$SRC_D" || exit 1
-	[ -n "$VERBOSE" ] && ./autogen.sh || ./autogen.sh >/dev/null
+	if [ -n "$VERBOSE" ]; then
+		./autogen.sh
+	else
+		./autogen.sh >/dev/null
+	fi
 	cd "$MY_D" || exit 1
 fi
 
 if [ -r "$SRC_D/configure" ]; then
 	echo "$NAME: Running \"$SRC_D/configure\" script ..."
-	[ -n "$VERBOSE" ] && "$SRC_D/configure" -C || "$SRC_D/configure" -C >/dev/null
+	if [ -n "$VERBOSE" ]; then
+		"$SRC_D/configure" -C
+	else
+		"$SRC_D/configure" -C >/dev/null
+	fi
 	if [ $? -eq 0 ] && [ -r ./Makefile ]; then
 		R_CONFIGURE=1
 		rm -f "src/ngircd/ngircd"
 		echo "$NAME: Running \"$MAKE\" ..."
-		[ -n "$VERBOSE" ] && "$MAKE" || "$MAKE" >/dev/null
+		if [ -n "$VERBOSE" ]; then
+			"$MAKE"
+		else
+			"$MAKE" >/dev/null
+		fi
 		if [ $? -eq 0 ] && [ -x src/ngircd/ngircd ]; then
 			R_MAKE=1
 			echo "$NAME: Running \"$MAKE check\" ..."
-			[ -n "$VERBOSE" ] && "$MAKE" check || "$MAKE" check >/dev/null
+			if [ -n "$VERBOSE" ]; then
+				"$MAKE" check
+			else
+				"$MAKE" check >/dev/null
+			fi
 			if [ $? -eq 0 ]; then
 				R_CHECK=1
 				R_RUN=$R_CHECK
@@ -121,13 +141,13 @@ fi
 
 # Get target platform information
 if [ -r "src/config.h" ]; then
-	CPU=`grep "HOST_CPU" "src/config.h" | cut -d'"' -f2`
-	OS=`grep "HOST_OS" "src/config.h" | cut -d'"' -f2`
-	VENDOR=`grep "HOST_VENDOR" "src/config.h" | cut -d'"' -f2`
+	CPU=$(grep "HOST_CPU" "src/config.h" | cut -d'"' -f2)
+	OS=$(grep "HOST_OS" "src/config.h" | cut -d'"' -f2)
+	VENDOR=$(grep "HOST_VENDOR" "src/config.h" | cut -d'"' -f2)
 	PLATFORM="$CPU/$VENDOR/$OS"
 fi
 if [ -z "$PLATFORM" ]; then
-	PLATFORM="`uname 2>/dev/null` `uname -r 2>/dev/null`, `uname -m 2>/dev/null`"
+	PLATFORM="$(uname 2>/dev/null) $(uname -r 2>/dev/null), $(uname -m 2>/dev/null)"
 fi
 
 # Get compiler information
@@ -159,8 +179,8 @@ if [ -r "Makefile" ]; then
 			  | cut -d'(' -f1 | sed -e 's/version //g')
 		fi
 		if [ "$COMPILER" = "unknown" ]; then
-			v="`$CC --version 2>/dev/null | head -1`"
-			[ -z "$v" ] && v="`$CC -version 2>/dev/null | head -1`"
+			v="$($CC --version 2>/dev/null | head -1)"
+			[ -z "$v" ] && v="$($CC -version 2>/dev/null | head -1)"
 			[ -n "$v" ] && COMPILER="$v"
 		fi
 	fi
@@ -170,7 +190,7 @@ fi
 eval "$(grep "^VERSION = " Makefile | sed -e 's/ //g')"
 case "$VERSION" in
 	*~*-*)
-		VERSION=`echo "$VERSION" | cut -b1-10`
+		VERSION=$(echo "$VERSION" | cut -b1-10)
 		;;
 esac
 [ -n "$VERSION" ] || VERSION="unknown"

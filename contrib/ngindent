@@ -3,15 +3,15 @@
 INDENTARGS="-kr -i8 -ts8 -l80 -c3 -cd41 -ss -ncs -psl"
 
 # check if indent(1) is available
-type indent >/dev/null 2>&1 && INDENT="indent"
-type gindent >/dev/null 2>&1 && INDENT="gindent"
-type gnuindent >/dev/null 2>&1 && INDENT="gnuindent"
+command -v indent >/dev/null 2>&1 && INDENT="indent"
+command -v gindent >/dev/null 2>&1 && INDENT="gindent"
+command -v gnuindent >/dev/null 2>&1 && INDENT="gnuindent"
 
 if [ -z "$INDENT" ]; then
 	echo "Error: GNU \"indent\" not found!"
 	exit 1
 fi
 
-$INDENT -v $INDENTARGS $*
+$INDENT -v $INDENTARGS "$@"
 
 # -eof-

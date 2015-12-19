@@ -72,7 +72,7 @@ echo "$NAME: Checking for GIT tree ..."
 if [ -d "$SRC_D/.git" ]; then
 	echo "$NAME: Checking for \"git\" command ..."
 	git version >/dev/null 2>&1
-	if [ $? -eq 0 -a -n "$CLEAN" ]; then
+	if [ $? -eq 0 ] && [ -n "$CLEAN" ]; then
 		echo "$NAME: Running \"git clean\" ..."
 		cd "$SRC_D" || exit 1
 		[ -n "$VERBOSE" ] && git clean -dxf || git clean -dxf >/dev/null
@@ -91,11 +91,11 @@ fi
 if [ -r "$SRC_D/configure" ]; then
 	echo "$NAME: Running \"$SRC_D/configure\" script ..."
 	[ -n "$VERBOSE" ] && "$SRC_D/configure" -C || "$SRC_D/configure" -C >/dev/null
-	if [ $? -eq 0 -a -r ./Makefile ]; then
+	if [ $? -eq 0 ] && [ -r ./Makefile ]; then
 		R_CONFIGURE=1
 		echo "$NAME: Running \"$MAKE\" ..."
 		[ -n "$VERBOSE" ] && "$MAKE" || "$MAKE" >/dev/null
-		if [ $? -eq 0 -a -x src/ngircd/ngircd ]; then
+		if [ $? -eq 0 ] && [ -x src/ngircd/ngircd ]; then
 			R_MAKE=1
 			echo "$NAME: Running \"$MAKE check\" ..."
 			[ -n "$VERBOSE" ] && "$MAKE" check || "$MAKE" check >/dev/null
@@ -195,7 +195,7 @@ echo "                                                  ./configure works --+ | 
 echo "                                                                      | | | |"
 echo "Platform                    Compiler     ngIRCd     Date     Tester   C M T R *"
 echo "--------------------------- ------------ ---------- -------- -------- - - - - -"
-type printf >/dev/null 2>&1
+command -v printf >/dev/null 2>&1
 if [ $? -eq 0 ]; then
 	printf "%-27s %-12s %-10s %s %-8s %s %s %s %s%s\n" \
 	 "$PLATFORM" "$COMPILER" "$VERSION" "$DATE" "$USER" \

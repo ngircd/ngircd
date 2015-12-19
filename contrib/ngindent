@@ -1,4 +1,4 @@
-#/bin/sh
+#!/bin/sh
 
 INDENTARGS="-kr -i8 -ts8 -l80 -c3 -cd41 -ss -ncs -psl"
 

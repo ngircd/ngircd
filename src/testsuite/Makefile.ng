@@ -21,6 +21,7 @@ EXTRA_DIST = \
 	join-test.e kick-test.e message-test.e misc-test.e mode-test.e \
 	opless-channel-test.e server-link-test.e who-test.e whois-test.e \
 	stress-A.e stress-B.e \
+	server-login-test.e \
 	start-server1 stop-server1 ngircd-test1.conf \
 	start-server2 stop-server2 ngircd-test2.conf
 
@@ -81,6 +82,10 @@ server-link-test: tests.sh
 	rm -f server-link-test
 	ln -s $(srcdir)/tests.sh server-link-test
 
+server-login-test: tests.sh
+	rm -f server-login-test
+	ln -s $(srcdir)/tests.sh server-login-test
+
 who-test: tests.sh
 	rm -f who-test
 	ln -s $(srcdir)/tests.sh who-test
@@ -103,6 +108,7 @@ TESTS = start-server1 \
 	who-test \
 	whois-test \
 	server-link-test \
+	server-login-test \
 	stop-server2 \
 	stress-server.sh \
 	stop-server1

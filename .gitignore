@@ -56,6 +56,7 @@ src/testsuite/ngircd-test2.log
 src/testsuite/ngircd-test2.motd
 src/testsuite/opless-channel-test
 src/testsuite/server-link-test
+src/testsuite/server-login-test
 src/testsuite/T-ngircd1
 src/testsuite/T-ngircd1.exe
 src/testsuite/T-ngircd2

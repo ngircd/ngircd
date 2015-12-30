@@ -283,7 +283,7 @@ IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 			goto skip_njoin;
 		}
 
-		if (Channel_Join(c, channame)) {
+		if (!Channel_Join(c, channame)) {
 			/* Failed to join channel. Ooops!? */
 			Log(LOG_ALERT,
 			    "Failed to join client \"%s\" to channel \"%s\" (NJOIN): killing it!",

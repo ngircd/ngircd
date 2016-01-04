@@ -498,6 +498,18 @@ Option_String(UNUSED CONN_ID Idx)
 	return option_txt;
 } /* Option_String */
 
+/**
+ * Send a message to target(s).
+ *
+ * This function is used by IRC_{PRIVMSG|NOTICE|SQUERY} to actualy
+ * send the message(s).
+ *
+ * @param Client The client from which this command has been received.
+ * @param Req Request structure with prefix and all parameters.
+ * @param ForceType Required type of the destination of the message(s).
+ * @param SendErrors Whether to report errors back to the client or not.
+ * @return CONNECTED or DISCONNECTED.
+ */
 static bool
 Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 {
@@ -693,14 +705,14 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 				return DISCONNECTED;
 		} else if (ForceType != CLIENT_SERVICE
 			   && (chan = Channel_Search(currentTarget))) {
+			/* Target is a channel */
 			if (!Channel_Write(chan, from, Client, Req->command,
 					   SendErrors, message))
 					return DISCONNECTED;
 		} else if (ForceType != CLIENT_SERVICE
-			/* $#: server/target mask, RFC 2812, sec. 3.3.1 */
 			   && strchr("$#", currentTarget[0])
 			   && strchr(currentTarget, '.')) {
-			/* targetmask */
+			/* $#: server/host mask, RFC 2812, sec. 3.3.1 */
 			if (!Send_Message_Mask(from, Req->command, currentTarget,
 					       message, SendErrors))
 				return DISCONNECTED;
@@ -721,6 +733,18 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 	return CONNECTED;
 } /* Send_Message */
 
+/**
+ * Send a message to "target mask" target(s).
+ *
+ * See RFC 2812, sec. 3.3.1 for details.
+ *
+ * @param from The client from which this command has been received.
+ * @param command The command to use (PRIVMSG, NOTICE, ...).
+ * @param targetMask The "target mask" (will be verified by this function).
+ * @param message The message to send.
+ * @param SendErrors Whether to report errors back to the client or not.
+ * @return CONNECTED or DISCONNECTED.
+ */
 static bool
 Send_Message_Mask(CLIENT * from, char * command, char * targetMask,
 		  char * message, bool SendErrors)
@@ -750,8 +774,8 @@ Send_Message_Mask(CLIENT * from, char * command, char * targetMask,
 		return IRC_WriteErrClient(from, ERR_WILDTOPLEVEL, targetMask);
 	}
 
-	/* #: hostmask, see RFC 2812, sec. 3.3.1 */
 	if (targetMask[0] == '#') {
+		/* #: hostmask, see RFC 2812, sec. 3.3.1 */
 		for (cl = Client_First(); cl != NULL; cl = Client_Next(cl)) {
 			if (Client_Type(cl) != CLIENT_USER)
 				continue;
@@ -762,7 +786,8 @@ Send_Message_Mask(CLIENT * from, char * command, char * targetMask,
 					return false;
 		}
 	} else {
-		assert(targetMask[0] == '$'); /* $: server mask, see RFC 2812, sec. 3.3.1 */
+		/* $: server mask, see RFC 2812, sec. 3.3.1 */
+		assert(targetMask[0] == '$');
 		for (cl = Client_First(); cl != NULL; cl = Client_Next(cl)) {
 			if (Client_Type(cl) != CLIENT_USER)
 				continue;

@@ -324,7 +324,7 @@ General Commands
 	In addition, IRC Ops can use these two forms to specify the <target>:
 	.
 	 - #<hostmask>
-	 - #<servermask>
+	 - $<servermask>
 	.
 	The <mask> can contain the wildcard characters "*" and "?", but must
 	contain at least one dot (".") and no wildcard after the last one.

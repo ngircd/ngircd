@@ -771,7 +771,8 @@ Send_Message_Mask(CLIENT * from, char * command, char * targetMask,
 	if (!check_wildcards || check_wildcards[strcspn(check_wildcards, "*?")]) {
 		if (!SendErrors)
 			return true;
-		return IRC_WriteErrClient(from, ERR_WILDTOPLEVEL, targetMask);
+		return IRC_WriteErrClient(from, ERR_WILDTOPLEVEL_MSG,
+					  targetMask);
 	}
 
 	if (targetMask[0] == '#') {

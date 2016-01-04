@@ -35,13 +35,13 @@ expect {
 send "privmsg nick,nick :test\r"
 expect {
 	timeout { exit 1 }
-	"@* PRIVMSG nick :test\r*@* PRIVMSG nick :test"
+	"@* PRIVMSG nick :test"
 }
 
 send "privmsg Nick,#testChannel,nick :test\r"
 expect {
 	timeout { exit 1 }
-	"@* PRIVMSG nick :test\r*401*@* PRIVMSG nick :test"
+	"@* PRIVMSG nick :test\r*401"
 }
 
 send "privmsg doesnotexist :test\r"

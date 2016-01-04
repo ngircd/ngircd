@@ -206,6 +206,9 @@
 /** Max. number of channel modes with arguments per MODE command. */
 #define MAX_HNDL_MODES_ARG 5
 
+/** Max. number of targets per PRIVMSG/NOTICE/... command. */
+#define MAX_HNDL_TARGETS 25
+
 /** Max. number of WHO replies. */
 #define MAX_RPL_WHO 25
 

@@ -517,8 +517,10 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 	CL2CHAN *cl2chan;
 	CHANNEL *chan;
 	char *currentTarget = Req->argv[0];
-	char *lastCurrentTarget = NULL;
+	char *strtok_last = NULL;
 	char *message = NULL;
+	char *targets[MAX_HNDL_TARGETS];
+	int i, target_nr = 0;
 
 	assert(Client != NULL);
 	assert(Req != NULL);
@@ -558,10 +560,17 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 		message = Req->argv[1];
 
 	/* handle msgtarget = msgto *("," msgto) */
-	currentTarget = strtok_r(currentTarget, ",", &lastCurrentTarget);
+	currentTarget = strtok_r(currentTarget, ",", &strtok_last);
 	ngt_UpperStr(Req->command);
 
-	while (currentTarget) {
+	while (true) {
+		/* Make sure that there hasn't been such a target already: */
+		targets[target_nr++] = currentTarget;
+		for(i = 0; i < target_nr - 1; i++) {
+			if (strcasecmp(currentTarget, targets[i]) == 0)
+				goto send_next_target;
+		}
+
 		/* Check for and handle valid <msgto> of form:
 		 * RFC 2812 2.3.1:
 		 *   msgto =  channel / ( user [ "%" host ] "@" servername )
@@ -725,9 +734,18 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 		}
 
 	send_next_target:
-		currentTarget = strtok_r(NULL, ",", &lastCurrentTarget);
-		if (currentTarget)
-			Conn_SetPenalty(Client_Conn(Client), 1);
+		currentTarget = strtok_r(NULL, ",", &strtok_last);
+		if (!currentTarget)
+			break;
+
+		Conn_SetPenalty(Client_Conn(Client), 1);
+
+		if (target_nr >= MAX_HNDL_TARGETS) {
+			/* Too many targets given! */
+			return IRC_WriteErrClient(Client,
+						  ERR_TOOMANYTARGETS_MSG,
+						  currentTarget);
+		}
 	}
 
 	return CONNECTED;

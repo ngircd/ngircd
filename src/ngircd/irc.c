@@ -744,10 +744,7 @@ Send_Message_Mask(CLIENT * from, char * command, char * targetMask,
 	 * dot (".") and no wildcards ("*", "?") following the last one.
 	 */
 	check_wildcards = strrchr(targetMask, '.');
-	assert(check_wildcards != NULL);
-	if (check_wildcards &&
-		check_wildcards[strcspn(check_wildcards, "*?")])
-	{
+	if (!check_wildcards || check_wildcards[strcspn(check_wildcards, "*?")]) {
 		if (!SendErrors)
 			return true;
 		return IRC_WriteErrClient(from, ERR_WILDTOPLEVEL, targetMask);

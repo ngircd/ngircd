@@ -2,7 +2,7 @@
                      ngIRCd - Next Generation IRC Server
                            http://ngircd.barton.de/
 
-               (c)2001-2013 Alexander Barton and Contributors.
+               (c)2001-2016 Alexander Barton and Contributors.
                ngIRCd is free software and published under the
                    terms of the GNU General Public License.
 
@@ -58,9 +58,11 @@ i386/unknown/openbsd4.1     gcc 3.3.5    16         10-04-11 alex     Y Y Y Y 3
 i386/unknown/openbsd5.3     gcc 4.2.1    21         13-11-28 goetz    Y Y Y Y 3
 i386/unknown/openbsd5.4     gcc 4.2.1    21         13-11-28 goetz    Y Y Y Y 3
 i586/pc/haiku               gcc 2.95.3   19.2~138   12-10-11 user     Y Y N N
-i586/pc/interix3.5          gcc 3.3      19         12-02-29 alex     Y Y N Y
+i586/pc/interix3.5          gcc 3.3      23         16-01-29 alex     Y Y N Y
 i686/pc/cygwin              gcc 4.8.3    22~rc1-3   14-10-10 alex     Y Y N Y
+i686/pc/linux-gnu           gcc 2.6.3    23         16-01-06 goetz    Y Y y Y 1
 i686/pc/linux-gnu           gcc 2.7.2.1  23         15-11-30 goetz    Y Y N Y 1
+i686/pc/linux-gnu           gcc 2.95.2   23         15-12-23 goetz    Y Y Y Y 1
 i686/pc/linux-gnu           gcc 2.95.4   0.8.0      04-05-30 alex     Y Y Y Y 1
 i686/pc/linux-gnu           gcc 3.3.5    14.1       09-08-04 alex     Y Y Y Y 1
 i686/pc/linux-gnu           gcc 4.3.2    14.1       09-08-04 alex     Y Y Y Y 1

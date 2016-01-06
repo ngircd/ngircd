@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001-2014 Alexander Barton (alex@barton.de) and Contributors
+# Copyright (c)2001-2016 Alexander Barton (alex@barton.de) and Contributors
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -203,10 +203,10 @@ echo "--------------------------- ------------ ---------- -------- -------- - - 
 command -v printf >/dev/null 2>&1
 if [ $? -eq 0 ]; then
 	printf "%-27s %-12s %-10s %s %-8s %s %s %s %s%s\n" \
-	 "$PLATFORM" "$COMPILER" "$VERSION" "$DATE" "$USER" \
+	 "$PLATFORM" "$COMPILER" "$VERSION" "$DATE" "$LOGNAME" \
 	 "$C" "$M" "$T" "$R" "$COMMENT"
 else
-	echo "$PLATFORM $COMPILER $VERSION $DATE $USER" \
+	echo "$PLATFORM $COMPILER $VERSION $DATE $LOGNAME" \
 	 "$C" "$M" "$T" "$R" "$COMMENT"
 fi
 echo

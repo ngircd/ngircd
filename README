@@ -28,31 +28,26 @@ Please see the INSTALL document for installation and upgrade information!
 II. Status
 ~~~~~~~~~~~
 
+ngIRCd should be quite feature complete and stable to be used as daemon in
+real world IRC networks.
+
 It is not the goal of ngIRCd to implement all the nasty behaviors of the
 original ircd, but to implement most of the useful commands and semantics
-specified by the RFCs.
+specified by the RFCs that are used by existing clients.
 
-In the meantime ngIRCd should be quite feature complete and stable to be
-used in real IRC networks.
-
-Implemented IRC-commands are:
-
-ADMIN, AWAY, CHANINFO, CONNECT, DIE, DISCONNECT, ERROR, GLINE, HELP, INFO,
-INVITE, ISON, JOIN, KICK, KILL, KLINE, LINKS, LIST, LUSERS, MODE, MOTD,
-NAMES, NICK, NJOIN, NOTICE, OPER, PART, PASS, PING, PONG, PRIVMSG, QUIT,
-REHASH, RESTART, SERVER, SERVICE, SERVLIST, SQUERY, SQUIT, STATS, SUMMON,
-TIME, TOPIC, TRACE, USER, USERHOST, USERS, VERSION, WALLOPS, WEBIRC, WHO,
-WHOIS, WHOWAS.
 
 III. Features (or: why use ngIRCd?)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- well arranged (lean) configuration file
-- simple to build/install, configure and maintain
-- supports IPv6 and SSL
-- no problems with servers that have dynamic IP addresses
-- freely available, modern, portable and tidy C-source
-- wide field of supported platforms, including AIX, A/UX, FreeBSD, HP-UX,
+- Well arranged (lean) configuration file.
+- Simple to build, install, configure, and maintain.
+- Supports IPv6 and SSL.
+- Can use PAM for user authentication.
+- Lots of popular user and channel modes are implemented.
+- Supports "cloaking" of users.
+- No problems with servers that have dynamic IP addresses.
+- Freely available, modern, portable and tidy C source.
+- Wide field of supported platforms, including AIX, A/UX, FreeBSD, HP-UX,
   IRIX, Linux, Mac OS X, NetBSD, OpenBSD, Solaris, and Windows with Cygwin.
 - ngIRCd is being actively developed since 2001.
 
@@ -61,33 +56,34 @@ IV. Documentation
 ~~~~~~~~~~~~~~~~~
 
 More documentation can be found in the "doc/" directory and the homepage of
-the ngIRCd: <http://ngircd.barton.de/>.
+ngIRCd: <http://ngircd.barton.de/>.
 
 
 V. Download
 ~~~~~~~~~~~
 
-The homepage of the ngIRCd is: <http://ngircd.barton.de/>; you will find
+The homepage of the ngIRCd is <http://ngircd.barton.de/>; you will find
 the newest information about the ngIRCd and the most recent ("stable")
 releases there.
 
-If you are interested in the latest development versions (which are not
-always stable), then please read the section about "GIT" on the homepage and
-the file "doc/GIT.txt" which describes the use of GIT, the version control
-system used by ngIRCd (homepage: <http://git-scm.com/>).
+Visit our source code repository at GitHub if you are interested in the
+latest development version: <https://github.com/ngircd/ngircd>.
 
 
-VI. Bugs
-~~~~~~~~
+VI. Problems, Bugs, Patches
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you find bugs in the ngIRCd (which might be there :-), please report
-them at the following URL:
+Please don't hesitate to contact us if you encounter problems:
 
-<https://github.com/ngircd/ngircd/issues>
+- On IRC: <irc://irc.barton.de/ngircd>
+- Via the mailing list: <ngircd-ml@ngircd.barton.de>
+
+See <http://ngircd.barton.de/support.php> for details.
+
+If you find bugs in ngIRCd (which will be there most probably ...), please
+report them to our issue tracker at GitHub:
+
+- Bug tracker: <https://github.com/ngircd/ngircd/issues>
+- Patches, "pull requests": <https://github.com/ngircd/ngircd/pulls>
 
 There you can read about known bugs and limitations, too.
-
-If you have comments, patches or something else, please feel free to post
-a mail to the ngIRCd mailing list: <ngircd-ml@ngircd.barton.de> (please see
-<http://ngircd.barton.de/support.php> for details) or join the ngIRCd IRC
-channel: <irc://irc.barton.de/ngircd>.

@@ -563,7 +563,9 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 	currentTarget = strtok_r(currentTarget, ",", &strtok_last);
 	ngt_UpperStr(Req->command);
 
-	while (true) {
+	/* Please note that "currentTarget" is NULL when the target contains
+	 * the separator character only, e. g. "," or ",,,," etc.! */
+	while (currentTarget) {
 		/* Make sure that there hasn't been such a target already: */
 		targets[target_nr++] = currentTarget;
 		for(i = 0; i < target_nr - 1; i++) {

@@ -38,6 +38,17 @@ expect {
 	"@* PRIVMSG nick :test"
 }
 
+send "privmsg ,,,, :dummy\r"
+send "privmsg ,,,nick,,&server,,, :test\r"
+expect {
+	timeout { exit 1 }
+	"@* PRIVMSG nick :test"
+}
+expect {
+	timeout { exit 1 }
+	"404"
+}
+
 send "privmsg Nick,#testChannel,nick :test\r"
 expect {
 	timeout { exit 1 }

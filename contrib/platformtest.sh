@@ -98,6 +98,7 @@ if [ -r "$SRC_D/configure" ]; then
 	[ -n "$VERBOSE" ] && "$SRC_D/configure" -C || "$SRC_D/configure" -C >/dev/null
 	if [ $? -eq 0 ] && [ -r ./Makefile ]; then
 		R_CONFIGURE=1
+		rm -f "src/ngircd/ngircd"
 		echo "$NAME: Running \"$MAKE\" ..."
 		[ -n "$VERBOSE" ] && "$MAKE" || "$MAKE" >/dev/null
 		if [ $? -eq 0 ] && [ -x src/ngircd/ngircd ]; then

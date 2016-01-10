@@ -189,7 +189,12 @@ fi
 [ -n "$R_CONFIGURE" ] && C="Y" || C="N"
 [ -n "$R_MAKE" ] && M="Y" || M="N"
 [ -n "$R_CHECK" ] && T="$R_CHECK_Y" || T="N"
-[ -n "$R_RUN" ] && R="Y" || R="N"
+if [ -n "$R_RUN" ]; then
+	# Mark "runs" with "Y" only when the test suite succeeded:
+	[ "$T" = "N" ] && R="?" || R="Y"
+else
+	R="N"
+fi
 [ -n "$COMMENT" ] && COMMENT=" $COMMENT"
 
 echo
@@ -210,7 +215,19 @@ else
 	 "$C" "$M" "$T" "$R" "$COMMENT"
 fi
 echo
+
+double_check() {
+	echo "Please double check that the ngIRCd daemon starts up, runs and handles IRC"
+	echo "connections successfully!"
+}
+
 if [ "$R_CHECK_Y" = "y" ]; then
-	echo "$NAME: WARNING: Some tests have been skipped!"
+	echo "WARNING: Some tests have been skipped!"
+	double_check
+	echo
+fi
+if [ "$R" = "?" ]; then
+	echo "WARNING: The resulting binary passed simple tests, but the test suite failed!"
+	double_check
 	echo
 fi

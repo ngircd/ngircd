@@ -32,6 +32,7 @@ armv6l/unk./linux-gnueabihf gcc 4.6.3    21~rc2     13-10-26 pi       Y Y Y Y 5
 armv7l/unk./linux-gnueabi   gcc 4.4.3    19.1       12-04-29 goetz    Y Y Y Y 5
 armv7l/unk./linux-gnueabihf gcc 4.6.3    22~rc1-3   14-10-10 alex     Y Y Y Y 5
 armv7l/unk./linux-gnueabihf gcc 4.8.2    21.1       14-07-15 goetz    Y Y Y Y 5
+armv7l/unk./linux-gnueabihf gcc 4.9.2    23         16-01-10 alex     Y Y Y Y 5
 hppa/unknown/openbsd3.5     gcc 2.95.3   CVSHEAD    04-05-25 alex     Y Y Y Y
 hppa/unknown/openbsd5.4     gcc 4.2.1    22~rc1-3   14-10-10 alex     Y Y y Y 3
 hppa1.1/unknown/linux-gnu   gcc 3.3.3    0.8.0      04-05-30 alex     Y Y Y Y
@@ -106,6 +107,7 @@ x86_64/unknown/linux-gnu    gcc 4.7.2    23~rc1-3   15-11-15 alex     Y Y Y Y 1
 x86_64/unknown/linux-gnu    gcc 4.8.2    21         13-12-29 alex     Y Y Y Y 1
 x86_64/unknown/linux-gnu    gcc 4.9.2    23~rc1-3   15-11-15 alex     Y Y Y Y 1
 x86_64/unknown/linux-gnu    gcc 5.3.0    23         15-12-14 goetz    Y Y Y Y 1
+x86_64/unknown/linux-gnu    icc 16       23         16-01-13 goetz    Y Y Y Y 1
 x86_64/unknown/linux-gnu    nwcc 0.8.2   21         13-12-01 goetz    Y Y Y Y 1
 x86_64/unknown/linux-gnu    Open64       21.1       14-03-27 goetz    Y Y Y Y 1
 x86_64/unknown/linux-gnu    Sun C 5.12   21.1       14-03-27 goetz    Y Y Y Y 1

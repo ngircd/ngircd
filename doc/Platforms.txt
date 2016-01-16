@@ -111,7 +111,6 @@ x86_64/unknown/linux-gnu    icc 16       23         16-01-13 goetz    Y Y Y Y 1
 x86_64/unknown/linux-gnu    nwcc 0.8.2   21         13-12-01 goetz    Y Y Y Y 1
 x86_64/unknown/linux-gnu    Open64       21.1       14-03-27 goetz    Y Y Y Y 1
 x86_64/unknown/linux-gnu    Sun C 5.12   21.1       14-03-27 goetz    Y Y Y Y 1
-x86_64/unknown/linux-gnu    tcc 0.9.25   21.1       14-03-27 goetz    Y Y Y Y 1
 x86_64/unknown/openbsd4.7   gcc 3.3.5    20~rc1     12-02-26 alex     Y Y Y Y 3
 x86_64/unknown/openbsd4.8   gcc 4.2.1    22~rc1-3   14-10-10 alex     Y Y y Y 3
 x86_64/unknown/openbsd5.1   gcc 4.2.1    21         13-12-28 alex     Y Y Y Y 3

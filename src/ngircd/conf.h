@@ -203,6 +203,9 @@ GLOBAL bool Conf_PAM;
 /** Don't require all clients to send a password an to be PAM authenticated */
 GLOBAL bool Conf_PAMIsOptional;
 
+/** The service name to use for PAM */
+GLOBAL char Conf_PAMServiceName[MAX_PAM_SERVICE_NAME_LEN];
+
 /** Disable all CTCP commands except for /me ? */
 GLOBAL bool Conf_ScrubCTCP;
 

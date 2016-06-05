@@ -61,6 +61,9 @@
 /** Size of default connection pool. */
 #define CONNECTION_POOL 100
 
+/** Size of buffer for PAM service name. */
+#define MAX_PAM_SERVICE_NAME_LEN 64
+
 
 /* Hard-coded (default) options */
 

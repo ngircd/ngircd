@@ -339,6 +339,14 @@ able to distinguish between Ident'ified and PAM-authenticated users: both
 don't have a "~" character prepended to their respective user names!
 Default: no.
 .TP
+\fBPAMServiceName\fR (string)
+When PAM is enabled, this value determines the used PAM configuration.
+This setting allows to run multiple ngIRCd instances with different
+PAM configurations on each instance. If you set it to "ngircd-foo",
+PAM will use /etc/pam.d/ngircd-foo instead of the default
+/etc/pam.d/ngircd.
+Default: ngircd.
+.TP
 \fBRequireAuthPing\fR (boolean)
 Let ngIRCd send an "authentication PING" when a new client connects, and
 register this client only after receiving the corresponding "PONG" reply.

@@ -32,6 +32,7 @@
 #include "log.h"
 #include "conn.h"
 #include "client.h"
+#include "conf.h"
 
 #include "pam.h"
 
@@ -101,7 +102,7 @@ PAM_Authenticate(CLIENT *Client) {
 	conv.appdata_ptr = Conn_Password(Client_Conn(Client));
 
 	/* Initialize PAM */
-	retval = pam_start("ngircd", Client_OrigUser(Client), &conv, &pam);
+	retval = pam_start(Conf_PAMServiceName, Client_OrigUser(Client), &conv, &pam);
 	if (retval != PAM_SUCCESS) {
 		Log(LOG_ERR, "PAM: Failed to create authenticator! (%d)", retval);
 		return false;

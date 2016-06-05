@@ -226,6 +226,15 @@
 	# character prepended to their respective user names!
 	;PAMIsOptional = no
 
+	# When PAM is enabled, this value determines the used PAM
+	# configuration.
+	# This setting allows to run multiple ngIRCd instances with
+	# different PAM configurations on each instance.
+	# If you set it to "ngircd-foo", PAM will use
+	# /etc/pam.d/ngircd-foo instead of the default
+	# /etc/pam.d/ngircd.
+	;PAMServiceName = ngircd
+
 	# Let ngIRCd send an "authentication PING" when a new client connects,
 	# and register this client only after receiving the corresponding
 	# "PONG" reply.

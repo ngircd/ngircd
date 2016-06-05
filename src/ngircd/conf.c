@@ -419,6 +419,7 @@ Conf_Test( void )
 #ifdef PAM
 	printf("  PAM = %s\n", yesno_to_str(Conf_PAM));
 	printf("  PAMIsOptional = %s\n", yesno_to_str(Conf_PAMIsOptional));
+	printf("  PAMServiceName = %s\n", Conf_PAMServiceName);
 #endif
 #ifndef STRICT_RFC
 	printf("  RequireAuthPing = %s\n", yesno_to_str(Conf_AuthPing));
@@ -807,6 +808,7 @@ Set_Defaults(bool InitServers)
 	Conf_PAM = false;
 #endif
 	Conf_PAMIsOptional = false;
+	strcpy(Conf_PAMServiceName, "ngircd");
 	Conf_ScrubCTCP = false;
 #ifdef SYSLOG
 #ifdef LOG_LOCAL5
@@ -1831,6 +1833,12 @@ Handle_OPTIONS(const char *File, int Line, char *Var, char *Arg)
 	}
 	if (strcasecmp(Var, "PAMIsOptional") == 0 ) {
 		Conf_PAMIsOptional = Check_ArgIsTrue(Arg);
+		return;
+	}
+	if (strcasecmp(Var, "PAMServiceName") == 0) {
+		len = strlcpy(Conf_PAMServiceName, Arg, sizeof(Conf_PAMServiceName));
+		if (len >= sizeof(Conf_PAMServiceName))
+			Config_Error_TooLong(File, Line, Var);
 		return;
 	}
 	if (strcasecmp(Var, "PredefChannelsOnly") == 0) {

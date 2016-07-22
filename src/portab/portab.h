@@ -175,6 +175,10 @@ extern int vsnprintf PARAMS(( char *str, size_t count, const char *fmt, va_list 
 # define PACKAGE_VERSION VERSION
 #endif
 
+#ifndef SYSCONFDIR
+# define SYSCONFDIR "/etc"
+#endif
+
 #endif
 
 /* -eof- */

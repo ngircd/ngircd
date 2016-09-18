@@ -1,5 +1,6 @@
 [Unit]
 Description=Next Generation IRC Daemon (Socket)
+Documentation=man:ngircd(8) man:ngircd.conf(5)
 
 [Socket]
 BindIPv6Only=ipv6-only

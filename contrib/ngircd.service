@@ -1,5 +1,6 @@
 [Unit]
 Description=Next Generation IRC Daemon
+Documentation=man:ngircd(8) man:ngircd.conf(5)
 After=network.target
 
 [Service]

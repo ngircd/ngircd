@@ -26,6 +26,10 @@ A very simple -- and quite useless ;-) -- example would be:
 Here the "pam_debug" module will be called each time a client connects to
 the ngIRCd and has sent its PASS, NICK, and USER commands.
 
+The PAM library used by the ngIRCd daemon must be able to access its
+configuration file, so don't forget to check permissions and run something
+like this: "chmod 644 /etc/pam.d/ngircd".
+
 Please note ONE VERY IMPORTANT THING:
 
 All the PAM modules are executed with the privileges of the user ngIRCd

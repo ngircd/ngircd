@@ -521,12 +521,12 @@ va_dcl
 			if (Client_HasMode(to, 'w'))
 				IRC_WriteStrClientPrefix(to, From,
 							 "WALLOPS :%s", msg);
-				break;
+			break;
 		case CLIENT_SERVER:
 			if (to != Client)
 				IRC_WriteStrClientPrefix(to, From,
 							 "WALLOPS :%s", msg);
-				break;
+			break;
 		}
 	}
 } /* IRC_SendWallops */

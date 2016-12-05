@@ -894,16 +894,16 @@ IRC_STATS( CLIENT *Client, REQUEST *Req )
 			list = Class_GetList(CLASS_GLINE);
 		else
 			list = Class_GetList(CLASS_KLINE);
-			list_item = Lists_GetFirst(list);
-			while (list_item) {
-				if (!IRC_WriteStrClient(from, RPL_STATSXLINE_MSG,
+		list_item = Lists_GetFirst(list);
+		while (list_item) {
+			if (!IRC_WriteStrClient(from, RPL_STATSXLINE_MSG,
 						Client_ID(from), query,
 						Lists_GetMask(list_item),
 						Lists_GetValidity(list_item),
 						Lists_GetReason(list_item)))
-					return DISCONNECTED;
-				list_item = Lists_GetNext(list_item);
-			}
+				return DISCONNECTED;
+			list_item = Lists_GetNext(list_item);
+		}
 		break;
 	case 'L':	/* Link status (servers and user links) */
 		if (!Op_Check(from, Req))

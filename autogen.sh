@@ -168,7 +168,7 @@ AUTOMAKE_VERSION=$(echo $AUTOMAKE | cut -d'-' -f2-)
 
 AM_VERSION=$($AUTOMAKE --version | head -n 1 | sed -e 's/.* //g')
 ifs=$IFS; IFS="."; set $AM_VERSION; IFS=$ifs
-AM_MAJOR="$1"; AM_MINOR="$2"; AM_PATCHLEVEL="$3"
+AM_MAJOR="$1"; AM_MINOR="$2"
 echo "Detected automake $AM_VERSION ..."
 
 AM_MAKEFILES="src/ipaddr/Makefile.ng src/ngircd/Makefile.ng src/testsuite/Makefile.ng src/tool/Makefile.ng"
@@ -194,6 +194,7 @@ if [ "$AM_MAJOR" -eq "1" ] && [ "$AM_MINOR" -ge "13" ]; then
 	SERIAL_TESTS="serial-tests"
 else
 	# automake < 1.13 => no new test harness, nothing to do
+	# shellcheck disable=SC2034
 	SERIAL_TEST=""
 fi
 

@@ -283,10 +283,12 @@ ConnSSL_InitLibrary( void )
 #ifdef HAVE_LIBSSL
 	SSL_CTX *newctx;
 
+#if OPENSSL_API_COMPAT < 0x10100000L
 	if (!ssl_ctx) {
 		SSL_library_init();
 		SSL_load_error_strings();
 	}
+#endif
 
 	if (!RAND_status()) {
 		Log(LOG_ERR, "OpenSSL PRNG not seeded: /dev/urandom missing?");

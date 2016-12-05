@@ -418,8 +418,8 @@ AC_ARG_WITH(openssl,
 				LDFLAGS="-L$withval/lib $LDFLAGS"
 			fi
 			AC_CHECK_LIB(crypto, BIO_s_mem)
-			AC_CHECK_LIB(ssl, SSL_library_init)
-			AC_CHECK_FUNCS(SSL_library_init, x_ssl_openssl=yes,
+			AC_CHECK_LIB(ssl, SSL_new)
+			AC_CHECK_FUNCS(SSL_new, x_ssl_openssl=yes,
 				AC_MSG_ERROR([Can't enable openssl])
 			)
 		fi

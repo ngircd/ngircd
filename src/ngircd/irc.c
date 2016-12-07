@@ -493,7 +493,6 @@ Option_String(UNUSED CONN_ID Idx)
 	if(options & CONN_ZIP)		/* zlib compression enabled */
 		strlcat(option_txt, "z", sizeof(option_txt));
 #endif
-	LogDebug(" *** %d: %d = %s", Idx, options, option_txt);
 
 	return option_txt;
 } /* Option_String */

@@ -398,7 +398,16 @@ IRC_xLINE(CLIENT *Client, REQUEST *Req)
 		return IRC_WriteErrClient(Client, ERR_NEEDMOREPARAMS_MSG,
 					  Client_ID(Client), Req->command);
 
-	from = Op_Check(Client, Req);
+	if (!Conf_AllowRemoteOper && Client_Type(Client) == CLIENT_SERVER) {
+		/* Explicitely forbid remote servers to modify "x-lines" when
+		 * the "AllowRemoteOper" configuration option isn't set, even
+		 * when the command seems to originate from the remote server
+		 * itself: this prevents GLINE's to become set during server
+		 * handshake in this case (what wouldn't be possible during
+		 * regular runtime when a remote IRC Op sends the command). */
+		from = NULL;
+	} else
+		from = Op_Check(Client, Req);
 	if (!from)
 		return Op_NoPrivileges(Client, Req);
 

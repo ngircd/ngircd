@@ -381,11 +381,11 @@ Lists_Expire(struct list_head *h, const char *ListName)
 		if (e->valid_until > 0 && e->valid_until < now) {
 			/* Entry is expired, delete it */
 			if (e->reason)
-				Log(LOG_INFO,
+				Log(LOG_NOTICE|LOG_snotice,
 				    "Deleted \"%s\" (\"%s\") from %s list (expired).",
 				    e->mask, e->reason, ListName);
 			else
-				Log(LOG_INFO,
+				Log(LOG_NOTICE|LOG_snotice,
 				    "Deleted \"%s\" from %s list (expired).",
 				    e->mask, ListName);
 			Lists_Unlink(h, last, e);

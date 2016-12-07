@@ -176,6 +176,7 @@ Synchronize_Lists(CLIENT * Client)
 	CHANNEL *c;
 	struct list_head *head;
 	struct list_elem *elem;
+	time_t t;
 
 	assert(Client != NULL);
 
@@ -183,9 +184,10 @@ Synchronize_Lists(CLIENT * Client)
 	head = Class_GetList(CLASS_GLINE);
 	elem = Lists_GetFirst(head);
 	while (elem) {
+		t = Lists_GetValidity(elem) - time(NULL);
 		if (!IRC_WriteStrClient(Client, "GLINE %s %ld :%s",
 					Lists_GetMask(elem),
-					(long)(Lists_GetValidity(elem) - time(NULL)),
+					t > 0 ? (long)t : 0,
 					Lists_GetReason(elem)))
 			return DISCONNECTED;
 		elem = Lists_GetNext(elem);

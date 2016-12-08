@@ -40,12 +40,14 @@ Op_NoPrivileges(CLIENT * Client, REQUEST * Req)
 		from = Client_Search(Req->prefix);
 
 	if (from) {
-		Log(LOG_NOTICE, "No privileges: client \"%s\" (%s), command \"%s\"!",
+		Log(LOG_ERR|LOG_snotice,
+		    "No privileges: client \"%s\" (%s), command \"%s\"!",
 		    Req->prefix, Client_Mask(Client), Req->command);
 		return IRC_WriteErrClient(from, ERR_NOPRIVILEGES_MSG,
 					  Client_ID(from));
 	} else {
-		Log(LOG_NOTICE, "No privileges: client \"%s\", command \"%s\"!",
+		Log(LOG_ERR|LOG_snotice,
+		    "No privileges: client \"%s\", command \"%s\"!",
 		    Client_Mask(Client), Req->command);
 		return IRC_WriteErrClient(Client, ERR_NOPRIVILEGES_MSG,
 					  Client_ID(Client));

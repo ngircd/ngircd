@@ -85,6 +85,8 @@ IRC_CheckListTooBig(CLIENT *From, const int Count, const int Limit,
 GLOBAL bool
 IRC_ERROR(CLIENT *Client, REQUEST *Req)
 {
+	char *msg;
+
 	assert( Client != NULL );
 	assert( Req != NULL );
 
@@ -99,12 +101,20 @@ IRC_ERROR(CLIENT *Client, REQUEST *Req)
 		return CONNECTED;
 	}
 
-	if (Req->argc < 1)
+	if (Req->argc < 1) {
+		msg = "Got ERROR command";
 		Log(LOG_NOTICE, "Got ERROR from \"%s\"!",
 		    Client_Mask(Client));
-	else
+	} else {
+		msg = Req->argv[0];
 		Log(LOG_NOTICE, "Got ERROR from \"%s\": \"%s\"!",
-		    Client_Mask(Client), Req->argv[0]);
+		    Client_Mask(Client), msg);
+	}
+
+	if (Client_Conn(Client) != NONE) {
+		Client_Destroy(Client, NULL, msg, false);
+		return DISCONNECTED;
+	}
 
 	return CONNECTED;
 } /* IRC_ERROR */

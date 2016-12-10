@@ -9,6 +9,44 @@
                                   -- NEWS --
 
 
+ngIRCd 24
+
+  ngIRCd 24~rc1
+  - Log privilege violations and failed OPER request with log level "error"
+    and send it to the "&SERVER" channel, too.
+  - Immediately shut down connection when receiving an "ERROR" command,
+    don't wait for the peer to close the connection. This allows the daemon
+    to forward the received "ERROR" message in the network, instead of the
+    very generic "client closed connection" message.
+  - Explicitly forbid remote servers to modify "x-lines" (G-LINES) when the
+    "AllowRemoteOper" configuration option isn't set, even when the command
+    seems to originate from the remote server itself: this prevents GLINE's
+    to become set during server handshake in this case (what wouldn't be
+    possible during regular runtime when a remote IRC Op sends the command)
+    and what can't be undone by IRC Ops later on (because of the missing
+    "AllowRemoteOper" option) ...
+  - Update Xcode project for latest Xcode version (8.0), and fix "duplicate
+    symbols" error messages when building (linking) the binary.
+  - Add "Documentation" variables to systemd configuration files.
+  - Make sure that SYSCONFDIR is always set, which can be handy when
+    using source code linters when ./configure hasn't been run already.
+  - Add the new "PAMServiceName" configuration option to specify the name
+    used as PAM service name. This setting allows to run multiple ngIRCd
+    instances with different PAM configurations for each instance.
+    Thanks to Christian Aistleitner <christian@quelltextlich.at> for the
+    patch, closes #226.
+  - Add an ".editorconfig" file to the project.
+  - Limit the number of message target, and suppress duplicates: This
+    prevents an user from flooding the server using commands like this:
+    "PRIVMSG nick1,nick1,nick1,...".
+    Duplicate targets are suppressed silently (channels and clients).
+    In addition, the maximum number of targets per PRIVMSG, NOTICE, ...
+    command are limited to MAX_HNDL_TARGETS (25). If there are more, the
+    daemon sends the new 407 (ERR_TOOMANYTARGETS_MSG) numeric, containing
+    the first target that hasn't been handled any more. Closes #187.
+  - Make contrib/platformtest.sh script more portable, and only show
+    "runs=Y" when the test suite really has been passed successfully.
+
 ngIRCd 23 (2015-11-16)
 
   ngIRCd 23~rc1 (2015-09-06)

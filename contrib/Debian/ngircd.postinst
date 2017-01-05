@@ -1,7 +1,6 @@
 #!/bin/sh
 #
 # Debian post-installation script
-# $Id: ngircd.postinst,v 1.2 2006/12/26 14:44:40 alex Exp $
 #
 
 set -e
@@ -12,6 +11,7 @@ case "$1" in
 			# make sure that the configuration file is not
 			# world-readable, it contains passwords!
 			chmod o= /etc/ngircd/ngircd.conf
+			chgrp irc /etc/ngircd/ngircd.conf
 		fi
 		;;
 esac

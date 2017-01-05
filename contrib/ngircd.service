@@ -1,21 +1,25 @@
 [Unit]
 Description=Next Generation IRC Daemon
-Documentation=man:ngircd(8) man:ngircd.conf(5)
+Documentation=man:ngircd(8) man:ngircd.conf(5) https://ngircd.barton.de
 After=network.target
 
 [Service]
 Type=forking
 User=irc
 Group=irc
-CapabilityBoundingSet=CAP_SETUID CAP_SETGID CAP_SYS_CHROOT CAP_NET_BIND_SERVICE
+CapabilityBoundingSet=CAP_SYS_CHROOT CAP_NET_BIND_SERVICE
 PrivateTmp=yes
 PrivateDevices=yes
 ProtectSystem=full
 ProtectHome=true
 NoNewPrivileges=true
+RestrictAddressFamilies=AF_INET AF_INET6
 RuntimeDirectory=ircd
 RuntimeDirectoryMode=750
-ExecStart=/usr/sbin/ngircd
+EnvironmentFile=-/etc/default/ngircd
+EnvironmentFile=-/etc/default/ngircd-full
+EnvironmentFile=-/etc/default/ngircd-full-dbg
+ExecStart=/usr/sbin/ngircd $PARAMS
 ExecReload=/bin/kill -HUP $MAINPID
 Restart=on-failure
 

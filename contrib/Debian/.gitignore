@@ -4,10 +4,13 @@
 files
 ngircd/
 ngircd-full/
+ngircd.service
 ngircd-full.default
 ngircd-full.init
 ngircd-full.postinst
+ngircd-full.service
 ngircd-full-dbg/
 ngircd-full-dbg.default
 ngircd-full-dbg.init
 ngircd-full-dbg.postinst
+ngircd-full-dbg.service

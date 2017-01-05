@@ -4,6 +4,7 @@ Priority: optional
 Maintainer: Alexander Barton <alex@barton.de>
 Build-Depends: debhelper (>> 9.0.0),
     autotools-dev,
+    dh-systemd (>= 1.5),
     expect,
     libz-dev,
     libwrap0-dev,

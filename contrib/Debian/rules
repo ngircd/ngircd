@@ -111,12 +111,15 @@ clean:
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp*
+	rm -f $(CURDIR)/debian/ngircd.service
 	rm -f $(CURDIR)/debian/ngircd-full.default
 	rm -f $(CURDIR)/debian/ngircd-full.init
 	rm -f $(CURDIR)/debian/ngircd-full.postinst
+	rm -f $(CURDIR)/debian/ngircd-full.service
 	rm -f $(CURDIR)/debian/ngircd-full-dbg.default
 	rm -f $(CURDIR)/debian/ngircd-full-dbg.postinst
 	rm -f $(CURDIR)/debian/ngircd-full-dbg.init
+	rm -f $(CURDIR)/debian/ngircd-full-dbg.service
 
 	# Add here commands to clean up after the build process:
 	[ ! -f Makefile ] || $(MAKE) distclean
@@ -189,12 +192,18 @@ binary-indep:
 
 # Build architecture-dependent files here.
 binary-arch: build install
+	ln -s $(CURDIR)/contrib/ngircd.service \
+	 $(CURDIR)/debian/ngircd.service
+
 	ln -s $(CURDIR)/debian/ngircd.default \
 	 $(CURDIR)/debian/ngircd-full.default
 	ln -s $(CURDIR)/debian/ngircd.init \
 	 $(CURDIR)/debian/ngircd-full.init
 	ln -s $(CURDIR)/debian/ngircd.postinst \
 	 $(CURDIR)/debian/ngircd-full.postinst
+	cp $(CURDIR)/contrib/ngircd.service \
+	 $(CURDIR)/debian/ngircd-full.service
+	echo "Alias=ngircd.service" >>$(CURDIR)/debian/ngircd-full.service
 
 	ln -s $(CURDIR)/debian/ngircd.default \
 	 $(CURDIR)/debian/ngircd-full-dbg.default
@@ -202,12 +211,17 @@ binary-arch: build install
 	 $(CURDIR)/debian/ngircd-full-dbg.init
 	ln -s $(CURDIR)/debian/ngircd.postinst \
 	 $(CURDIR)/debian/ngircd-full-dbg.postinst
+	cp $(CURDIR)/contrib/ngircd.service \
+	 $(CURDIR)/debian/ngircd-full-dbg.service
+	echo "Alias=ngircd.service" >>$(CURDIR)/debian/ngircd-full-dbg.service
 
 	dh_testdir
 	dh_testroot
 	dh_installchangelogs -a -A ChangeLog
 	dh_installdocs -a
+	dh_systemd_enable -a
 	dh_installinit -a
+	dh_systemd_start -a
 	dh_strip -a --no-package=ngircd-full-dbg
 	dh_compress -a -XCommands.txt
 	dh_fixperms -a

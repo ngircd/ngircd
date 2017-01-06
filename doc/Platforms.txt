@@ -95,6 +95,7 @@ x86_64/apple/darwin12.3.0   gcc 4.2.1    20.2       13-04-01 alex     Y Y Y Y 3
 x86_64/apple/darwin13.0.0   A-clang 5.0  21         14-01-02 alex     Y Y Y Y 3
 x86_64/apple/darwin14.5.0   A-clang 6.1  23~rc1     15-09-06 alex     Y Y Y Y 3
 x86_64/apple/darwin15.6.0   A-clang 8.0  23~38-g455 16-11-04 alex     Y Y Y Y 3
+x86_64/apple/darwin16.3.0   A-clang 8.0  23~55-g8e0 17-01-06 alex     Y Y Y Y 3
 x86_64/unknown/dragonfly3.4 gcc 4.7.2    21         13-11-12 goetz    Y Y N Y 3
 x86_64/unkn./freebsd8.1-gnu gcc 4.4.5    19         12-02-26 alex     Y Y Y Y 3
 x86_64/unknown/freebsd8.4   gcc 4.2.1    22~rc1-3   14-10-10 alex     Y Y y Y 3
@@ -105,8 +106,9 @@ x86_64/unknown/linux-gnu    clang 3.4    22~rc1-3   14-10-11 alex     Y Y Y Y 1
 x86_64/unknown/linux-gnu    gcc 4.4.5    23~rc1-3   15-11-15 alex     Y Y Y Y 1
 x86_64/unknown/linux-gnu    gcc 4.7.2    23~rc1-3   15-11-15 alex     Y Y Y Y 1
 x86_64/unknown/linux-gnu    gcc 4.8.2    21         13-12-29 alex     Y Y Y Y 1
-x86_64/unknown/linux-gnu    gcc 4.9.2    23~37-g804 16-10-21 alex     Y Y Y Y 1
+x86_64/pc/linux-gnu         gcc 4.9.2    23~55-g8e0 17-01-06 alex     Y Y Y Y 1
 x86_64/unknown/linux-gnu    gcc 5.3.0    23         15-12-14 goetz    Y Y Y Y 1
+x86_64/pc/linux-gnu         gcc 6.2.1    23~44-g995 16-12-06 alex     Y Y Y Y 1
 x86_64/unknown/linux-gnu    icc 16       23         16-01-13 goetz    Y Y Y Y 1
 x86_64/unknown/linux-gnu    nwcc 0.8.2   21         13-12-01 goetz    Y Y Y Y 1
 x86_64/unknown/linux-gnu    Open64       21.1       14-03-27 goetz    Y Y Y Y 1

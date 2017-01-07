@@ -33,10 +33,11 @@ Brandon Beresini <beresini@google.com>
 Brett Smith <brett@w3.org>
 Brian Collins <bricollins@gmail.com>
 Bryan Caldwell <bcaldwel@ucsd.edu>
+Christian Aistleitner <christian@quelltextlich.at>
 Christoph Biedl <ngircd.anoy@manchmal.in-ulm.de>
-DNS <dns@rbose.org>
 Dana Dahlstrom <dana+ngIRCd@cs.ucsd.edu>
 David Kingston <deathking1337@aim.com>
+DNS <dns@rbose.org>
 Eric Grunow <egrunow@ucsd.edu>
 Federico G. Schwindt <fgsch@lodoss.net>
 Gabor Adam Toth <tg@tgbit.net>
@@ -63,6 +64,6 @@ xor <xorboy@gmail.com>
 
 Code snippets
 ~~~~~~~~~~~~~
-J. Kercheval: pattern matching functions
-Patrick Powell <papowell@astart.com>: snprintf()-function
 Andrew Tridgell & Martin Pool: strl{cpy|cat}()-functions
+John Kercheval: pattern matching functions
+Patrick Powell <papowell@astart.com>: snprintf()-function

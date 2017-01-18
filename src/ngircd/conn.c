@@ -182,7 +182,6 @@ cb_connserver(int sock, UNUSED short what)
 	CONN_ID idx = Socket2Index( sock );
 
 	if (idx <= NONE) {
-		LogDebug("cb_connserver wants to write on unknown socket?!");
 		io_close(sock);
 		return;
 	}
@@ -280,12 +279,11 @@ cb_clientserver(int sock, short what)
 {
 	CONN_ID idx = Socket2Index(sock);
 
-	assert(idx >= 0);
-
-	if (idx < 0) {
+	if (idx <= NONE) {
 		io_close(sock);
 		return;
 	}
+
 #ifdef SSL_SUPPORT
 	if (what & IO_WANTREAD
 	    || (Conn_OPTION_ISSET(&My_Connections[idx], CONN_SSL_WANT_WRITE))) {
@@ -307,32 +305,20 @@ cb_clientserver(int sock, short what)
 GLOBAL void
 Conn_Init( void )
 {
-	CONN_ID i;
+	int size;
 
-	Pool_Size = CONNECTION_POOL;
-	if ((Conf_MaxConnections > 0) &&
-		(Pool_Size > Conf_MaxConnections))
-			Pool_Size = Conf_MaxConnections;
-
-	if (!array_alloc(&My_ConnArray, sizeof(CONNECTION), (size_t)Pool_Size)) {
-		Log(LOG_EMERG, "Can't allocate memory! [Conn_Init]");
+	/* Initialize the "connection pool".
+	 * FIXME: My_Connetions/Pool_Size is needed by other parts of the
+	 * code; remove them! */
+	Pool_Size = 0;
+	size = Conf_MaxConnections > 0 ? Conf_MaxConnections : CONNECTION_POOL;
+	if (Socket2Index(size) <= NONE) {
+		Log(LOG_EMERG, "Failed to initialize connection pool!");
 		exit(1);
 	}
 
-	/* FIXME: My_Connetions/Pool_Size is needed by other parts of the
-	 * code; remove them! */
-	My_Connections = (CONNECTION*) array_start(&My_ConnArray);
-
-	LogDebug("Allocated connection pool for %d items (%ld bytes).",
-		array_length(&My_ConnArray, sizeof(CONNECTION)),
-		array_bytes(&My_ConnArray));
-
-	assert(array_length(&My_ConnArray, sizeof(CONNECTION)) >= (size_t)Pool_Size);
-
+	/* Initialize "listener" array. */
 	array_free( &My_Listeners );
-
-	for (i = 0; i < Pool_Size; i++)
-		Init_Conn_Struct(i);
 } /* Conn_Init */
 
 /**
@@ -1378,8 +1364,8 @@ New_Connection(int Sock, UNUSED bool IsSSL)
 	/* Check global connection limit */
 	if ((Conf_MaxConnections > 0) &&
 	    (NumConnections >= (size_t) Conf_MaxConnections)) {
-		Log(LOG_ALERT, "Can't accept connection: limit (%d) reached!",
-		    Conf_MaxConnections);
+		Log(LOG_ALERT, "Can't accept new connection on socket %d: Limit (%d) reached!",
+		    Sock, Conf_MaxConnections);
 		Simple_Message(new_sock, "ERROR :Connection limit reached");
 		close(new_sock);
 		return -1;
@@ -1398,23 +1384,10 @@ New_Connection(int Sock, UNUSED bool IsSSL)
 		return -1;
 	}
 
-	if (new_sock >= Pool_Size) {
-		if (!array_alloc(&My_ConnArray, sizeof(CONNECTION),
-				 (size_t) new_sock)) {
-			Log(LOG_EMERG,
-			    "Can't allocate memory! [New_Connection]");
-			Simple_Message(new_sock, "ERROR: Internal error");
-			close(new_sock);
-			return -1;
-		}
-		LogDebug("Bumped connection pool to %ld items (internal: %ld items, %ld bytes)",
-			 new_sock, array_length(&My_ConnArray,
-			 sizeof(CONNECTION)), array_bytes(&My_ConnArray));
-
-		/* Adjust pointer to new block */
-		My_Connections = array_start(&My_ConnArray);
-		while (Pool_Size <= new_sock)
-			Init_Conn_Struct(Pool_Size++);
+	if (Socket2Index(new_sock) <= NONE) {
+		Simple_Message(new_sock, "ERROR: Internal error");
+		close(new_sock);
+		return -1;
 	}
 
 	/* register callback */
@@ -1523,24 +1496,38 @@ Account_Connection(void)
 } /* Account_Connection */
 
 /**
- * Translate socket handle into connection index.
+ * Translate socket handle into connection index (for historical reasons, it is
+ * a 1:1 mapping today) and enlarge the "connection pool" accordingly.
  *
  * @param Sock	Socket handle.
- * @returns	Connecion index or NONE, if no connection could be found.
+ * @returns	Connecion index or NONE when the pool is too small.
  */
 static CONN_ID
 Socket2Index( int Sock )
 {
-	assert( Sock >= 0 );
+	assert(Sock > 0);
+	assert(Pool_Size >= 0);
 
-	if( Sock >= Pool_Size || My_Connections[Sock].sock != Sock ) {
-		/* the Connection was already closed again, likely due to
-		 * an error. */
-		LogDebug("Socket2Index: can't get connection for socket %d!", Sock);
+	if (Sock < Pool_Size)
+		return Sock;
+
+	/* Try to allocate more memory ... */
+	if (!array_alloc(&My_ConnArray, sizeof(CONNECTION), (size_t)Sock)) {
+		Log(LOG_EMERG,
+		    "Can't allocate memory to enlarge connection pool!");
 		return NONE;
 	}
+	LogDebug("Enlarged connection pool for %ld sockets (%ld items, %ld bytes)",
+		 Sock, array_length(&My_ConnArray, sizeof(CONNECTION)),
+		 array_bytes(&My_ConnArray));
+
+	/* Adjust pointer to new block, update size and initialize new items. */
+	My_Connections = array_start(&My_ConnArray);
+	while (Pool_Size <= Sock)
+		Init_Conn_Struct(Pool_Size++);
+
 	return Sock;
-} /* Socket2Index */
+}
 
 /**
  * Read data from the network to the read buffer. If an error occurs,
@@ -2007,10 +1994,7 @@ New_Server( int Server , ng_ipaddr_t *dest)
 		return;
 	}
 
-	if (!array_alloc(&My_ConnArray, sizeof(CONNECTION), (size_t)new_sock)) {
-		Log(LOG_ALERT,
-		    "Cannot allocate memory for server connection (socket %d)",
-		    new_sock);
+	if (Socket2Index(new_sock) <= NONE) {
 		close( new_sock );
 		Conf_Server[Server].conn_id = NONE;
 		return;
@@ -2023,8 +2007,6 @@ New_Server( int Server , ng_ipaddr_t *dest)
 		Conf_Server[Server].conn_id = NONE;
 		return;
 	}
-
-	My_Connections = array_start(&My_ConnArray);
 
 	assert(My_Connections[new_sock].sock <= 0);
 
@@ -2472,9 +2454,7 @@ cb_clientserver_ssl(int sock, UNUSED short what)
 {
 	CONN_ID idx = Socket2Index(sock);
 
-	assert(idx >= 0);
-
-	if (idx < 0) {
+	if (idx <= NONE) {
 		io_close(sock);
 		return;
 	}
@@ -2524,12 +2504,13 @@ cb_connserver_login_ssl(int sock, short unused)
 {
 	CONN_ID idx = Socket2Index(sock);
 
-	assert(idx >= 0);
-	if (idx < 0) {
+	(void) unused;
+
+	if (idx <= NONE) {
 		io_close(sock);
 		return;
 	}
-	(void) unused;
+
 	switch (ConnSSL_Connect( &My_Connections[idx])) {
 		case 1: break;
 		case 0: LogDebug("ConnSSL_Connect: not ready");

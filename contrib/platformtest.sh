@@ -98,6 +98,10 @@ if [ ! -r "$SRC_D/configure" ]; then
 	else
 		./autogen.sh >/dev/null
 	fi
+	if [ $? -ne 0 ]; then
+		echo "$NAME: \"$SRC_D/autogen.sh\" script failed, aborting!"
+		exit 1
+	fi
 	cd "$MY_D" || exit 1
 fi
 

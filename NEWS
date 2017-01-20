@@ -9,7 +9,7 @@
                                   -- NEWS --
 
 
-ngIRCd 24
+ngIRCd 24 (2017-01-20)
 
   ngIRCd 24~rc1 (2017-01-07)
   - Log privilege violations and failed OPER request with log level "error"

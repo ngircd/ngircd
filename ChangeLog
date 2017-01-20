@@ -9,7 +9,20 @@
                                -- ChangeLog --
 
 
-ngIRCd 24
+ngIRCd 24 (2017-01-20)
+
+  - Make sure that ./contrib/platformtest.sh aborts when ./autogen.sh fails.
+  - Update config.guess (2016-10-02) and config.sub (2016-11-04) files.
+  - Build Debian packages with OpenSSL instead of GnuTLS: OpenSSL allows
+    to reload used certificates on runtime for example (which is very
+    useful when using Let's Encrypt), and therefore is preferred. And
+    explicitly specify the "source format".
+  - Fix handling of connection pool allocation and enlargement: up to now,
+    the daemon only enlarged its connection pool when accepting new incoming
+    client or server connections, not when establishing new outgoing server
+    links, which could lead to problems when hitting the configured limit,
+    see "MaxConnections". Thanks to Lukas Braun (k00mi) for reporting this!
+    Closes #231.
 
   ngIRCd 24~rc1 (2017-01-07)
   - Enhance systemd service file, and install it in Debian package.

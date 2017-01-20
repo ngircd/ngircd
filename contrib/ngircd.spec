@@ -1,5 +1,5 @@
 %define name    ngircd
-%define version 24~rc1
+%define version 24
 %define release 1
 %define prefix  %{_prefix}
 
@@ -27,7 +27,7 @@ Advantages:
  - supports IPv6 and SSL
  - no problems with servers that have dynamic IP addresses
  - freely available, modern, portable and tidy C-source
- - ngIRCd is being actively developed since 11 years.
+ - ngIRCd is being actively developed since 2001
 
 %prep
 %setup -q

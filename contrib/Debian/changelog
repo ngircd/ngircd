@@ -1,4 +1,10 @@
-ngircd (24~rc1-0ab2) unstable; urgency=medium
+ngircd (24-0ab1) unstable; urgency=low
+
+  * New "upstream" release: ngIRCd 24.
+
+ -- Alexander Barton <alex@barton.de>  Fri, 20 Jan 2017 16:43:09 +0100
+
+ngircd (24~rc1-0ab2) unstable; urgency=low
 
   * Use OpenSSL instead of GnuTLS for SSL-enabled packages.
 

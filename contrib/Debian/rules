@@ -55,7 +55,7 @@ configure-ngircd-full: configure
 	  --mandir=\$${prefix}/share/man \
 	  --docdir=\$${prefix}/share/doc/ngircd-full \
 	  --with-syslog --with-zlib \
-	  --with-gnutls --with-iconv --with-ident --with-tcp-wrappers \
+	  --with-openssl --with-iconv --with-ident --with-tcp-wrappers \
 	  --with-pam \
 	  --enable-ipv6
 
@@ -70,7 +70,7 @@ configure-ngircd-full-dbg: configure
 	  --docdir=\$${prefix}/share/doc/ngircd-full-dbg \
 	  --enable-debug --enable-sniffer \
 	  --with-syslog --with-zlib \
-	  --with-gnutls --with-iconv --with-ident --with-tcp-wrappers \
+	  --with-openssl --with-iconv --with-ident --with-tcp-wrappers \
 	  --with-pam \
 	  --enable-ipv6
 

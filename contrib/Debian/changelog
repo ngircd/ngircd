@@ -1,3 +1,9 @@
+ngircd (24~rc1-0ab2) unstable; urgency=medium
+
+  * Use OpenSSL instead of GnuTLS for SSL-enabled packages.
+
+ -- Alexander Barton <alex@barton.de>  Fri, 20 Jan 2017 15:20:07 +0100
+
 ngircd (24~rc1-0ab1) unstable; urgency=low
 
   * New "upstream" release candidate 1 for ngIRCd Release 24.

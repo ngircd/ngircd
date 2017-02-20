@@ -108,6 +108,10 @@ The following settings need to be in atheme.conf:
 
   loadmodule "modules/protocol/ngircd";
 
+  serverinfo {
+	name = "services.irc.net";
+  }
+
   uplink "server.irc.net" {
 	password = "123abc";
 	port = 6667;

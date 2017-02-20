@@ -34,6 +34,10 @@ services instead of regular IRC users.
 
 Example:
 
+  [GLOBAL]
+     Name = server.irc.net
+     Ports = 6667
+
   [SERVER]
      Name = services.irc.net
      MyPassword = 123abc

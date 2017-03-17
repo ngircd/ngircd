@@ -1214,21 +1214,18 @@ GLOBAL bool
 Client_IsValidNick(const char *Nick)
 {
 	const char *ptr;
-	static const char goodchars[] = ";0123456789-";
+	static const char nogoodchars[] = "`~!@#$%^&*()-_=+\\|[{]};:'\"<,>.?/";
 
 	assert (Nick != NULL);
 
-	if (strchr(goodchars, Nick[0]))
+	if (strchr(nogoodchars, Nick[0]))
 		return false;
 	if (strlen(Nick ) >= Conf_MaxNickLength)
 		return false;
 
 	ptr = Nick;
 	while (*ptr) {
-		if (*ptr < 'A' && !strchr(goodchars, *ptr ))
-			return false;
-		if (*ptr > '}')
-			return false;
+		if(strchr(nogoodchars, *ptr)) return false;
 		ptr++;
 	}
 

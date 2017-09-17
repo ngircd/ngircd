@@ -108,9 +108,7 @@ Resolve_Name( PROC_STAT *s, const char *Host, void (*cbfunc)(int, short))
 	return false;
 } /* Resolve_Name */
 
-
-#if !defined(HAVE_GETADDRINFO) || !defined(HAVE_GETNAMEINFO)
-#if !defined(WANT_IPV6) && defined(h_errno)
+#ifdef h_errno
 static char *
 Get_Error( int H_Error )
 {
@@ -127,7 +125,6 @@ Get_Error( int H_Error )
 	}
 	return "unknown error";
 }
-#endif
 #endif
 
 

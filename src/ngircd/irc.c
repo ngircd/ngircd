@@ -362,11 +362,6 @@ IRC_KillClient(CLIENT *Client, CLIENT *From, const char *Nick, const char *Reaso
 		return CONNECTED;
 	}
 
-	/* Inform other servers */
-	IRC_WriteStrServersPrefix(From ? Client : NULL,
-				  From ? From : Client_ThisServer(),
-				  "KILL %s :%s", Nick, Reason);
-
 	if (Client_Type(c) != CLIENT_USER && Client_Type(c) != CLIENT_GOTNICK) {
 		/* Target of this KILL is not a regular user, this is
 		 * invalid! So we ignore this case if we received a
@@ -387,6 +382,12 @@ IRC_KillClient(CLIENT *Client, CLIENT *From, const char *Nick, const char *Reaso
 		    "Got KILL for invalid client type: %d, \"%s\"!",
 		    Client_Type(c), Nick);
 	}
+
+	/* Inform other servers */
+	IRC_WriteStrServersPrefix(From ? Client : NULL,
+				  From ? From : Client_ThisServer(),
+				  "KILL %s :%s", Nick, Reason);
+
 
 	/* Save ID of this connection */
 	if (Client)

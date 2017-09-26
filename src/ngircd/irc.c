@@ -362,7 +362,8 @@ IRC_KillClient(CLIENT *Client, CLIENT *From, const char *Nick, const char *Reaso
 		return CONNECTED;
 	}
 
-	if (Client_Type(c) != CLIENT_USER && Client_Type(c) != CLIENT_GOTNICK) {
+	if (Client_Type(c) != CLIENT_USER && Client_Type(c) != CLIENT_GOTNICK
+	    && Client_Type(c) != CLIENT_SERVICE) {
 		/* Target of this KILL is not a regular user, this is
 		 * invalid! So we ignore this case if we received a
 		 * regular KILL from the network and try to kill the

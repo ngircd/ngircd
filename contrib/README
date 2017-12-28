@@ -27,6 +27,9 @@ ngircd-bsd.sh
 ngircd-redhat.init
  - Start/stop script for RedHat-based distributions (like CentOS).
 
+ngircd.logcheck
+ - Sample rules for logcheck(8) to ignore "normal" log messages of ngIRCd.
+
 ngircd.service
  - systemd(8) service unit configuration file.
 

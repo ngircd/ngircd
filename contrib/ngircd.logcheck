@@ -1,0 +1,61 @@
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Accepted connection [0-9]+ from ".*:[0-9]+" on socket [0-9]+\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Can't resolve address ".*": Name or service not known \[.*\]\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Can't resolve ".*": Name or service not known$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Can't resolve ".*": No address associated with hostname$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Client unregistered \(connection [0-9]+\): Can't connect\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Client unregistered \(connection [0-9]+\): Client closed connection\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Client unregistered \(connection [0-9]+\): Got QUIT command\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Client unregistered \(connection [0-9]+\): Read error\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Client unregistered \(connection [0-9]+\): SSL accept error, closing socket\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Client ".*" unregistered (connection [0-9]+): Timeout\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Client unregistered \(connection [0-9]+\): Timeout\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Client unregistered \(connection [0-9]+\): Write error\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Connection [0-9]+: initialized SSL3\.0 using cipher .*\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Connection [0-9]+: initialized TLS1\.[012] using cipher .*\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Connection [0-9]+: initialized TLSv1\.[012] using cipher .*\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Connection [0-9]+: initialized TLSv1 using cipher .*\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Connection [0-9]+ \(socket [0-9]+\) with ".*:[0-9]+" established\. Now logging in \.\.\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Connection [0-9]+ with ".*:[0-9]+" closed \(in: .*, out: .*\)\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Enabled link compression \(zlib\) on connection [0-9]+\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Establishing connection for ".*" to ".*:[0-9]+" \(.*\), socket [0-9]+ \.\.\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: IDENT lookup for connection [0-9]+: ".*"\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: IDENT lookup for connection [0-9]+: no result\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Now listening on .*:[0-9]+ \(socket [0-9]+\)\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: OpenSSL .* initialized\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Possible forgery: .* resolved to ".*", which has no IP address!$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Preparing to establish a new server link for ".*" \.\.\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Read error on connection [0-9]+ \(socket [0-9]+\): Connection reset by peer!$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Server ".*" registered \(via .*, connected to .*, [0-9]+ hops\)\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Server ".*" unregistered: .* .*\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Server ".*" unregistered: ".*" \(SQUIT from .*\)\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Shutting down all listening sockets \([0-9]+ total\) \.\.\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Shutting down connection [0-9]+ \(Can't connect\) with ".*:[0-9]+" \.\.\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Shutting down connection [0-9]+ \(Client closed connection\) with ".*:[0-9]+" \.\.\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Shutting down connection [0-9]+ \(Got QUIT command\) with ".*:[0-9]+" \.\.\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Shutting down connection [0-9]+ \(Ping timeout: [0-9]+ seconds\) with ".*:[0-9]+" \.\.\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Shutting down connection [0-9]+ \(Read error\) with ".*:[0-9]+" \.\.\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Shutting down connection [0-9]+ \(Server going down\) with ".*:[0-9]+" \.\.\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Shutting down connection [0-9]+ \(SSL accept error, closing socket\) with ".*:[0-9]+" \.\.\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Shutting down connection [0-9]+ \(Timeout\) with ".*:[0-9]+" \.\.\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Shutting down connection [0-9]+ \(Write error\) with ".*:[0-9]+" \.\.\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: SSL connection [0-9]+ shutting down \.\.\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: SSL connection [0-9]+ with ".*:[0-9]+" established\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: SSL connection 18 with ".*:[0-9]+" established\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: SSL connection on socket [0-9]+ failed!$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: SSL error: A TLS packet with unexpected length was received\. \[ConnSSL_Read\]\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: SSL error: A TLS packet with unexpected length was received\. \[gnutls_handshake\]\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: SSL error: Broken pipe \[in ConnSSL_Write\(\)\]!$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: SSL error: Connection reset by peer \[in ConnSSL_Read\(\)\]!$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: SSL error: Connection reset by peer \[in SSL_connect\(\)\]!$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: SSL protocol error: SSL_accept \(.*\)$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: User ".*!.*@.*" changed nick \(connection [0-9]+\): ".*" -> ".*"\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: User ".*!.*@.*" registered \(connection [0-9]+\)\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: User ".*!.*@.*" unregistered \(connection [0-9]+\): Client closed connection\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: User ".*!.*@.*" unregistered \(connection [0-9]+\): Got QUIT command\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: User ".*!.*@.*" unregistered \(connection [0-9]+\): Ping timeout: [0-9]+ seconds\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: User ".*!.*@.*" unregistered \(connection [0-9]+\): Read error\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: User ".*!.*@.*" unregistered \(connection [0-9]+\): Server going down\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: warning: can't get client address: Connection reset by peer$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: warning: /etc/hosts\.allow, line [0-9]+: can't verify hostname: getaddrinfo\(.*, AF_INET\) failed$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Write error on connection [0-9]+ \(socket [0-9]+\): Broken pipe!$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Write error on connection [0-9]+ \(socket [0-9]+\): Connection reset by peer!$

@@ -232,7 +232,11 @@ ReverseLookup(const ng_ipaddr_t *IpAddr, char *resbuf, size_t reslen)
  * @return true if lookup successful, false if domain name not found
  */
 static bool
+#ifdef HAVE_WORKING_GETADDRINFO
 ForwardLookup(const char *hostname, array *IpAddr, int af)
+#else
+ForwardLookup(const char *hostname, array *IpAddr, UNUSED int af)
+#endif
 {
 	ng_ipaddr_t addr;
 

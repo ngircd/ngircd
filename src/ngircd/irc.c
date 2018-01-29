@@ -483,11 +483,8 @@ Help(CLIENT *Client, const char *Topic)
  * @return Pointer to static (global) string buffer.
  */
 static char *
-#ifdef ZLIB
+#if defined(SSL_SUPPORT) || defined(ZLIB)
 Option_String(CONN_ID Idx)
-#else
-Option_String(UNUSED CONN_ID Idx)
-#endif
 {
 	static char option_txt[8];
 	UINT16 options;
@@ -507,6 +504,11 @@ Option_String(UNUSED CONN_ID Idx)
 #endif
 
 	return option_txt;
+#else
+Option_String(UNUSED CONN_ID Idx)
+{
+	return "";
+#endif
 } /* Option_String */
 
 /**

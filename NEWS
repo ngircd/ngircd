@@ -8,6 +8,12 @@
 
                                   -- NEWS --
 
+ngIRCd 25
+
+  - Allow IRC Ops and remote servers to KILL service clients: such clients
+    behave like regular users, therefore IRC operators and servers should be
+    able to KILL them: for example to resolve nick collisions.
+    Closes #242.
 
 ngIRCd 24 (2017-01-20)
 

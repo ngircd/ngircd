@@ -9,6 +9,20 @@
                                -- ChangeLog --
 
 
+ngIRCd 25
+
+  - Fix some compiler warnings.
+  - Allow IRC Ops and remote servers to KILL service clients: such clients
+    behave like regular users, therefore IRC operators and servers should be
+    able to KILL them: for example to resolve nick collisions.
+    Closes #242.
+  - Don't forward KILLs to other servers if they've been blocked locally:
+    This prevents clients from killing IRC services, for example.
+    Closes #238 and #239.
+  - Fix a cross-compiler issue related to the Get_Error() function.
+    Closes #240 and #241.
+  - Update ./doc/Services.txt, enhance configuration examples.
+
 ngIRCd 24 (2017-01-20)
 
   - Make sure that ./contrib/platformtest.sh aborts when ./autogen.sh fails.

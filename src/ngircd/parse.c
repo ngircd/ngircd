@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2015 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2018 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -169,8 +169,8 @@ Parse_GetCommandStruct( void )
  *
  * @param Idx Index of the connection from which the command has been received.
  * @param Request NULL terminated line of text (the "command").
- * @return true on success (valid command or "regular" error), false if a
- * 	fatal error occurred and the connection has been shut down.
+ * @return CONNECTED on success (valid command or "regular" error), DISCONNECTED
+ *	if a fatal error occurred and the connection has been shut down.
  */
 GLOBAL bool
 Parse_Request( CONN_ID Idx, char *Request )
@@ -257,11 +257,14 @@ Parse_Request( CONN_ID Idx, char *Request )
 		}
 	}
 
-	if( ! Validate_Prefix( Idx, &req, &closed )) return ! closed;
-	if( ! Validate_Command( Idx, &req, &closed )) return ! closed;
-	if( ! Validate_Args( Idx, &req, &closed )) return ! closed;
+	if(!Validate_Prefix(Idx, &req, &closed))
+		return !closed;
+	if(!Validate_Command(Idx, &req, &closed))
+		return !closed;
+	if(!Validate_Args(Idx, &req, &closed))
+		return !closed;
 
-	return Handle_Request( Idx, &req );
+	return Handle_Request(Idx, &req);
 } /* Parse_Request */
 
 
@@ -490,7 +493,7 @@ static bool
 Handle_Request( CONN_ID Idx, REQUEST *Req )
 {
 	CLIENT *client;
-	bool result = true;
+	bool result = CONNECTED;
 	int client_type;
 	COMMAND *cmd;
 
@@ -546,6 +549,8 @@ Handle_Request( CONN_ID Idx, REQUEST *Req )
 			cmd->lcount++;
 		else
 			cmd->rcount++;
+
+		/* Return result of command (CONNECTED/DISCONNECTED). */
 		return result;
 	}
 
@@ -554,13 +559,13 @@ Handle_Request( CONN_ID Idx, REQUEST *Req )
 	    client_type != CLIENT_SERVICE )
 		return true;
 
-	/* Unknown command and registered connection: generate error: */
 	LogDebug("Connection %d: Unknown command \"%s\", %d %s,%s prefix.",
 			Client_Conn( client ), Req->command, Req->argc,
 			Req->argc == 1 ? "parameter" : "parameters",
 			Req->prefix ? "" : " no" );
 
-	if (Client_Type(client) != CLIENT_SERVER)
+	/* Unknown command and registered connection: generate error: */
+	if (client_type != CLIENT_SERVER)
 		result = IRC_WriteErrClient(client, ERR_UNKNOWNCOMMAND_MSG,
 				Client_ID(client), Req->command);
 

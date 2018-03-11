@@ -203,11 +203,12 @@
 		FA322DC00CEF77CB001761B3 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = /usr/lib/libz.dylib; sourceTree = "<absolute>"; };
 		FA407F2C0DB159F400271AF1 /* ng_ipaddr.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; name = ng_ipaddr.c; path = ipaddr/ng_ipaddr.c; sourceTree = "<group>"; };
 		FA407F2D0DB159F400271AF1 /* ng_ipaddr.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; name = ng_ipaddr.h; path = ipaddr/ng_ipaddr.h; sourceTree = "<group>"; };
-		FA407F380DB15AC700271AF1 /* GIT.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = GIT.txt; sourceTree = "<group>"; };
 		FA4B08E513E7F8FB00765BA3 /* ngircd-bsd.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "ngircd-bsd.sh"; sourceTree = "<group>"; };
 		FA4B08E613E7F91700765BA3 /* ngIRCd-Logo.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = "ngIRCd-Logo.gif"; sourceTree = "<group>"; };
 		FA4B08E713E7F91700765BA3 /* ngircd-redhat.init */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "ngircd-redhat.init"; sourceTree = "<group>"; };
 		FA4B08E813E7F91C00765BA3 /* platformtest.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = platformtest.sh; sourceTree = "<group>"; };
+		FA4B4F542055B47C00A04296 /* ngircd.logcheck */ = {isa = PBXFileReference; lastKnownFileType = text; path = ngircd.logcheck; sourceTree = "<group>"; };
+		FA4B4F552055B4C800A04296 /* source */ = {isa = PBXFileReference; lastKnownFileType = folder; path = source; sourceTree = "<group>"; };
 		FA4F1659164836B100DBD011 /* irc-metadata.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "irc-metadata.c"; sourceTree = "<group>"; };
 		FA4F165C164836BF00DBD011 /* irc-metadata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "irc-metadata.h"; sourceTree = "<group>"; };
 		FA6BBC5F1605F0AB0004247A /* conn-encoding.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "conn-encoding.c"; sourceTree = "<group>"; };
@@ -488,6 +489,7 @@
 				FA4B08E513E7F8FB00765BA3 /* ngircd-bsd.sh */,
 				FA4B08E613E7F91700765BA3 /* ngIRCd-Logo.gif */,
 				FA4B08E713E7F91700765BA3 /* ngircd-redhat.init */,
+				FA4B4F542055B47C00A04296 /* ngircd.logcheck */,
 				FA18A63F16CEDE2300132F66 /* ngircd.service */,
 				FA18A64016CEDE2300132F66 /* ngircd.socket */,
 				FA322D940CEF7523001761B3 /* ngircd.spec */,
@@ -511,6 +513,7 @@
 				FA18A64116CEDE3500132F66 /* ngircd.pam */,
 				FA322D710CEF7523001761B3 /* ngircd.postinst */,
 				FA322D720CEF7523001761B3 /* rules */,
+				FA4B4F552055B4C800A04296 /* source */,
 			);
 			path = Debian;
 			sourceTree = "<group>";
@@ -546,7 +549,6 @@
 				FA18A64416CEDFCE00132F66 /* Commands.txt */,
 				FAE22BD415270EA300F1A5AB /* Contributing.txt */,
 				FA322D9A0CEF752C001761B3 /* FAQ.txt */,
-				FA407F380DB15AC700271AF1 /* GIT.txt */,
 				FAE22BD515270EB500F1A5AB /* HowToRelease.txt */,
 				FAE22BD615270EB500F1A5AB /* Modes.txt */,
 				FAE22BD715270EB500F1A5AB /* PAM.txt */,
@@ -635,7 +637,7 @@
 		08FB7793FE84155DC02AAC07 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0800;
+				LastUpgradeCheck = 0920;
 			};
 			buildConfigurationList = 1DEB928908733DD80010E9CD /* Build configuration list for PBXProject "ngIRCd" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -743,12 +745,18 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -771,12 +779,18 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;

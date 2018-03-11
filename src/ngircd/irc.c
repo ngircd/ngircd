@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2015 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2018 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -112,7 +112,7 @@ IRC_ERROR(CLIENT *Client, REQUEST *Req)
 	}
 
 	if (Client_Conn(Client) != NONE) {
-		Client_Destroy(Client, NULL, msg, false);
+		Conn_Close(Client_Conn(Client), NULL, msg, false);
 		return DISCONNECTED;
 	}
 

@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2015 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2018 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -497,7 +497,7 @@ IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 		topic_power = true;
 
 	if (Req->argc == 1) {
-		/* Request actual topic */
+		/* Request current topic */
 		topic = Channel_Topic(chan);
 		if (*topic) {
 			r = IRC_WriteStrClient(from, RPL_TOPIC_MSG,
@@ -532,8 +532,6 @@ IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 						  Channel_Name(chan));
 	}
 
-	/* Set new topic */
-	Channel_SetTopic(chan, from, Req->argv[1]);
 	LogDebug("%s \"%s\" set topic on \"%s\": %s",
 		 Client_TypeText(from), Client_Mask(from), Channel_Name(chan),
 		 Req->argv[1][0] ? Req->argv[1] : "<none>");
@@ -545,9 +543,17 @@ IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 	if (!Channel_IsLocal(chan))
 		IRC_WriteStrServersPrefix(Client, from, "TOPIC %s :%s",
 					  Req->argv[0], Req->argv[1]);
-	IRC_WriteStrChannelPrefix(Client, chan, from, false, "TOPIC %s :%s",
-				  Req->argv[0], Req->argv[1]);
 
+	/* Infrom local clients, but only when the topic really changed. */
+	if (strcmp(Req->argv[1], Channel_Topic(chan)) != 0)
+		IRC_WriteStrChannelPrefix(Client, chan, from, false,
+					    "TOPIC %s :%s", Req->argv[0],
+					    Req->argv[1]);
+
+	/* Update topic, setter, and timestamp. */
+	Channel_SetTopic(chan, from, Req->argv[1]);
+
+	/* Send confirmation when the local client is a user. */
 	if (Client_Type(Client) == CLIENT_USER)
 		return IRC_WriteStrClientPrefix(Client, Client, "TOPIC %s :%s",
 						Req->argv[0], Req->argv[1]);

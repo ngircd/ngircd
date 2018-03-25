@@ -10,6 +10,18 @@
 
 ngIRCd 25
 
+  - Only send TOPIC updates to a channel when the topic actually changed:
+    This prevents the channel from becoming flooded by unecessary TOPIC update
+    messages, that can happen when IRC services try to enforce a certain topic
+    but which is already set (at least on the local server), for example.
+    Therefore still forward it to all servers, but don't inform local clients
+    (still update setter and timestamp information, though!).
+  - Update Xcode project for latest Xcode version (9.2). This includes adding
+    missing and deleting obsolete file references.
+  - Handle user mode "C" ("Only users that share a channel are allowed to send
+    messages") like user mode "b" ("block private messages and notices"): allow
+    messages from servers, services, and IRC Operators, too. Change proposed by
+    "wowaname" back in 2015 in #ngircd, thanks!
   - Allow IRC Ops and remote servers to KILL service clients: such clients
     behave like regular users, therefore IRC operators and servers should be
     able to KILL them: for example to resolve nick collisions.

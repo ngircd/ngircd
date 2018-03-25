@@ -11,6 +11,27 @@
 
 ngIRCd 25
 
+  - Correctly retry to establish an outgoing connections when forking of the
+    resolver sub-process failed (for example because of lack of free memory).
+    Until now, such a connection was never retried once this error was hit.
+    Thanks to Robert Obermeier for reporting this bug!
+    Closes #243.
+  - Fix a "use after free" bug which can be triggered on a newly established
+    connection when the daemon handles an ERROR command received from the peer
+    during client login. Thanks a lot to Joseph Bisch <joseph.bisch@gmail.com>
+    for discovering and reporting this issue!
+  - Only send TOPIC updates to a channel when the topic actually changed:
+    This prevents the channel from becoming flooded by unnecessary TOPIC update
+    messages, that can happen when IRC services try to enforce a certain topic
+    but which is already set (at least on the local server), for example.
+    Therefore still forward it to all servers, but don't inform local clients
+    (still update setter and timestamp information, though).
+  - Update Xcode project for latest Xcode version (9.2). This includes adding
+    missing and deleting obsolete file references.
+  - Handle user mode "C" ("Only users that share a channel are allowed to send
+    messages") like user mode "b" ("block private messages and notices"): allow
+    messages from servers, services, and IRC Operators, too. Change proposed by
+    "wowaname" back in 2015 in #ngircd, thanks!
   - Fix some compiler warnings.
   - Allow IRC Ops and remote servers to KILL service clients: such clients
     behave like regular users, therefore IRC operators and servers should be

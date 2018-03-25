@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2014 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2018 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1918,8 +1918,11 @@ Check_Servers(void)
 		Conf_Server[i].lasttry = time_now;
 		Conf_Server[i].conn_id = SERVER_WAIT;
 		assert(Proc_GetPipeFd(&Conf_Server[i].res_stat) < 0);
-		Resolve_Name(&Conf_Server[i].res_stat, Conf_Server[i].host,
-			     cb_Connect_to_Server);
+
+		/* Start resolver subprocess ... */
+		if (!Resolve_Name(&Conf_Server[i].res_stat, Conf_Server[i].host,
+				  cb_Connect_to_Server))
+			Conf_Server[i].conn_id = NONE;
 	}
 } /* Check_Servers */
 

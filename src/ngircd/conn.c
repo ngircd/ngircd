@@ -556,8 +556,8 @@ InitSinaddrListenAddr(ng_ipaddr_t *addr, const char *listen_addrstr, UINT16 Port
 	if (!ret) {
 		assert(listen_addrstr);
 		Log(LOG_CRIT,
-		    "Can't bind to [%s]:%u: can't convert ip address \"%s\"!",
-		    listen_addrstr, Port, listen_addrstr);
+		    "Can't listen on [%s]:%u: Failed to parse IP address!",
+		    listen_addrstr, Port);
 	}
 	return ret;
 }

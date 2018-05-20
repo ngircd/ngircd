@@ -1,5 +1,6 @@
 ^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Accepted connection [0-9]+ from ".*:[0-9]+" on socket [0-9]+\.$
 ^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Can't resolve address ".*": Name or service not known \[.*\]\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Can't resolve ".*": host not found$
 ^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Can't resolve ".*": Name or service not known$
 ^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Can't resolve ".*": No address associated with hostname$
 ^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Client unregistered \(connection [0-9]+\): Can't connect\.$
@@ -40,7 +41,6 @@
 ^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Shutting down connection [0-9]+ \(Write error\) with ".*:[0-9]+" \.\.\.$
 ^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: SSL connection [0-9]+ shutting down \.\.\.$
 ^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: SSL connection [0-9]+ with ".*:[0-9]+" established\.$
-^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: SSL connection 18 with ".*:[0-9]+" established\.$
 ^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: SSL connection on socket [0-9]+ failed!$
 ^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: SSL error: A TLS packet with unexpected length was received\. \[ConnSSL_Read\]\.$
 ^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: SSL error: A TLS packet with unexpected length was received\. \[gnutls_handshake\]\.$

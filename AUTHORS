@@ -13,7 +13,7 @@ Note:
 If you have comments, patches or something else, please feel free to post
 a mail to the ngIRCd mailing list: <ngircd-ml@ngircd.barton.de> (please see
 <http://ngircd.barton.de/support.php> for details) or join the ngIRCd IRC
-channel: <irc://irc.barton.de/ngircd>.
+channel "#ngircd" on irc.barton.de: <irc://irc.barton.de/ngircd>.
 
 Don't mail the people listed here directly, if possible!
 
@@ -45,6 +45,7 @@ Gabor Adam Toth <tg@tgbit.net>
 Götz Hoffart <goetz@hoffart.de>
 Ian Chard <ian@chard.org>
 Ilja Osthoff <i.osthoff@gmx.net>
+James Lu <james@overdrivenetworks.com>
 Jari Aalto <jari.aalto@cante.net>
 LucentW <lucent@zebes.info>
 Mantas Mikulėnas <grawity@gmail.com>

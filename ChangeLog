@@ -11,6 +11,8 @@
 
 ngIRCd 25
 
+  ngIRCd 25~rc1 (2018-08-11)
+  - Update config.guess (2018-03-08) and config.sub (2018-03-08) files.
   - Correctly retry to establish an outgoing connections when forking of the
     resolver sub-process failed (for example because of lack of free memory).
     Until now, such a connection was never retried once this error was hit.
@@ -33,6 +35,7 @@ ngIRCd 25
     messages from servers, services, and IRC Operators, too. Change proposed by
     "wowaname" back in 2015 in #ngircd, thanks!
   - Fix some compiler warnings.
+  - Add contrib/ngircd.logcheck: Some sample logcheck(8) rules.
   - Allow IRC Ops and remote servers to KILL service clients: such clients
     behave like regular users, therefore IRC operators and servers should be
     able to KILL them: for example to resolve nick collisions.

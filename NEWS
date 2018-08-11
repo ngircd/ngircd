@@ -10,6 +10,7 @@
 
 ngIRCd 25
 
+  ngIRCd 25~rc1 (2018-08-11)
   - Only send TOPIC updates to a channel when the topic actually changed:
     This prevents the channel from becoming flooded by unecessary TOPIC update
     messages, that can happen when IRC services try to enforce a certain topic

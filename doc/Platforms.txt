@@ -45,7 +45,7 @@ i386/pc/linux-gnu           gcc 4.1.2    13~rc1     08-12-05 alex     Y Y Y Y 1
 i386/pc/linux-gnu           gcc 4.4.5    22~rc1-3   14-10-10 alex     Y Y Y Y 1
 i386/pc/minix               clang 3.4    23         16-01-06 goetz    Y Y N Y
 i386/pc/solaris2.9          gcc 3.2.2    CVSHEAD    04-02-24 alex     Y Y Y Y
-i386/pc/solaris2.11         gcc 4.8.2    23         16-02-07 goetz    Y Y Y Y 4
+i386/pc/solaris2.11         gcc 4.8.2    24         17-01-21 goetz    Y Y Y Y 4
 i386/unknown/freebsd5.2.1   gcc 3.3.3    0.8.0      04-05-30 alex     Y Y Y Y
 i386/unknown/freebsd6.2     gcc 3.4.6    20~rc1     12-11-13 alex     Y Y Y Y 3
 i386/unknown/freebsd7.3     gcc 4.2.1    24~rc1-7   17-01-20 alex     Y Y Y Y 3
@@ -78,6 +78,7 @@ m68k/apple/aux3.1.1         gcc 2.7.2    19         12-02-26 alex     Y Y N Y
 m68k/apple/aux3.1.1         Orig. A/UX   19         12-02-26 alex     Y Y N Y 2
 m68k/hp/hp-ux9.10           Orig. HPUX   0.7.x-CVS  03-04-30 goetz    Y Y Y Y
 m88k/dg/dgux5.4R3.10        gcc 2.5.8    CVSHEAD    04-03-15 alex     Y Y ? ?
+mipsel/openwrt/linux-uclibc gcc 4.8      24~9-g619a 18-01-28 goetz    - - - Y 6
 mipsel/unknown/linux-gnu    gcc 4.1.2    18         11-07-05 goetz    Y Y N Y 1
 mipsel/unknown/linux-gnu    gcc 4.4.5    21         13-11-24 goetz    Y Y Y Y 1
 powerpc/apple/darwin6.8     gcc 3.1      21         14-01-03 goetz    Y Y Y Y
@@ -100,7 +101,8 @@ x86_64/unknown/dragonfly3.4 gcc 4.7.2    21         13-11-12 goetz    Y Y N Y 3
 x86_64/unkn./freebsd8.1-gnu gcc 4.4.5    19         12-02-26 alex     Y Y Y Y 3
 x86_64/unknown/freebsd8.4   gcc 4.2.1    24~rc1-7   17-01-20 alex     Y Y Y Y 3
 x86_64/unknown/freebsd9.2   gcc 4.2.1    22~rc1-3   14-10-10 alex     Y Y Y Y 3
-x86_64/unknown/freebsd10.0  F-clang 3.3  22~rc1-3   14-10-10 alex     Y Y Y Y 3
+x86_64/unknown/freebsd10.3  F-clang 3.4  24         17-01-20 goetz    Y Y Y Y 3
+x86_64/unknown/freebsd11.0  F-clang 3.8  24         17-01-21 goetz    Y Y Y Y 3
 x86_64/unknown/linux-gnu    clang 3.3    21         14-01-07 alex     Y Y Y Y 1
 x86_64/unknown/linux-gnu    clang 3.4    22~rc1-3   14-10-11 alex     Y Y Y Y 1
 x86_64/pc/linux-gnu         gcc 4.4.5    24~rc1-7   17-01-20 alex     Y Y Y Y 1
@@ -108,6 +110,7 @@ x86_64/unknown/linux-gnu    gcc 4.7.2    23~rc1-3   15-11-15 alex     Y Y Y Y 1
 x86_64/pc/linux-gnu         gcc 4.8.4    24~rc1-7   17-01-20 alex     Y Y Y Y 1
 x86_64/pc/linux-gnu         gcc 4.9.2    24~rc1-7   17-01-20 alex     Y Y Y Y 1
 x86_64/unknown/linux-gnu    gcc 5.3.0    23         15-12-14 goetz    Y Y Y Y 1
+x86_64/pc/linux-gnu [WSL]   gcc 5.4.0    24         18-03-07 goetz    Y Y y Y 7
 x86_64/pc/linux-gnu         gcc 6.2.1    24~rc1-7   17-01-20 alex     Y Y Y Y 1
 x86_64/pc/linux-gnu         gcc 6.3.1    24~rc1-7   17-01-20 alex     Y Y Y Y 1
 x86_64/unknown/linux-gnu    icc 16       23         16-01-13 goetz    Y Y Y Y 1
@@ -124,14 +127,15 @@ x86_64/unknown/openbsd5.5   gcc 4.2.1    22~rc1-3   14-10-10 alex     Y Y Y Y 3
 ~~~~~~~
 
 (1) */*/linux-gnu (Linux platforms):
-    ngIRCd has been tested with various Linux distributions, such as SuSE,
-    RedHat, Debian, and Gentoo using Kernels 2.2.x, 2.4.x and 2.6.x with
-    various versions of the GNU C compiler (starting with 2.95.x and up to
-    version 4.3.x). The eldest glibc used was glibc-2.0.7. ngIRCd compiled
-    and run on all these systems without problems.
-    Actual Linux kernels (2.6.x) and glibc's support the epoll() IO interface.
+    ngIRCd has been tested with various Linux distributions, such as ArchLinux,
+    Debian, Gentoo, Red Hat (Fedora) and SuSE using Linux kernels 2.2.x, 2.4.x,
+    2.6.x, 3.x, and 4.x, with various versions of the GNU C compiler (starting
+    with 2.95.x) and Clang. The eldest glibc used was glibc-2.0.7.
+    ngIRCd compiled and ran on all of these systems successfully.
+    Current Linux kernels (starting with 2.6.x) and glibc's support the more
+    efficient epoll() IO interface, see (5) below.
 
-(2) This compiler is an pre-ANSI C compiler, therefore the source code is
+(2) This compiler is a pre-ANSI C compiler (K&R), therefore the source code is
     automatically converted using the included ansi2knr tool while building.
 
 (3) Using the kqueue() IO interface.
@@ -139,3 +143,9 @@ x86_64/unknown/openbsd5.5   gcc 4.2.1    22~rc1-3   14-10-10 alex     Y Y Y Y 3
 (4) Using the /dev/poll IO interface.
 
 (5) Using the epoll() IO interface.
+
+(6) ngIRCd has been cross-compiled with gcc 4.8 on Ubuntu x86-64 for
+    MIPSEL Linux OpenWRT distribution (uclibc), for the target computer
+    Vocore2, where the created binary ran well.
+
+(7) This actually is Windows 10 running Windows Subsystem for Linux (WSL).

@@ -65,13 +65,16 @@ h) Run "./autogen.sh" to update the ./configure script with the correct
 
 i) Run "./configure" to rebuild all generated Makefiles.
 
-j) Run "make distcheck" to generate the distribution archives.
+j) Run "make distcheck" (and "make dist-tarZ dist-xz") to generate all of the
+   distribution archives.
 
 k) Sign the distribution archive(s) using GnuPG: "gpg -b <archivefile>"
 
 l) Upload and distribute the newly generated ngIRCd release archive(s)
-   and GnuPG signatures.
+   and GnuPG signatures (to the website, its mirrors, and GitHub).
 
-m) Write an announcement to the mailing list, Twitter, ...
+m) Update the ngIRCd website and its mirrors!
 
-n) Relax :-)
+n) Write an announcement to the mailing list, Twitter, ...
+
+o) Relax :-)

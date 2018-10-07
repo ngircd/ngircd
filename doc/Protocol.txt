@@ -176,7 +176,7 @@ channel mode). In this case <limit> should be "0".
 II.4 Update webchat/proxy client information
 
      Command: WEBIRC
-  Parameters: <password> <username> <hostname> <ip-address>
+  Parameters: <password> <username> <hostname> <ip-address> [<ignored>]
      Used by: unregistered clients only
 
 The WEBIRC command is used by some Web-to-IRC gateways to set the correct
@@ -185,6 +185,9 @@ first command sent to the server, even before USER and NICK commands!
 
 The <password> must be set in the server configuration file to prevent
 unauthorized clients to fake their identity; it is an arbitrary string.
+
+Optionally, a 5th parameter is accepted to comply with an IRCv3 extension,
+see <https://github.com/ircv3/ircv3-ideas/issues/12>, but ignored.
 
 
 II.5 Client character encoding conversion

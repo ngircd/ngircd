@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2014 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2018 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -82,7 +82,7 @@ ngt_UpperStr(char *String)
 
 	ptr = String;
 	while(*ptr) {
-		*ptr = toupper((int)*ptr);
+		*ptr = (char)toupper(*ptr);
 		ptr++;
 	}
 	return String;
@@ -101,7 +101,7 @@ ngt_LowerStr(char *String)
 
 	ptr = String;
 	while(*ptr) {
-		*ptr = tolower((int)*ptr);
+		*ptr = (char)tolower(*ptr);
 		ptr++;
 	}
 	return String;

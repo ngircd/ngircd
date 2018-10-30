@@ -1081,9 +1081,9 @@ Conn_Close(CONN_ID Idx, const char *LogMsg, const char *FwdMsg, bool InformClien
 		 * the calculation of in_p and out_p: in_z_k and out_z_k
 		 * are non-zero, that's guaranteed by the protocol until
 		 * compression can be enabled. */
-		if (! in_z_k)
+		if (in_z_k <= 0)
 			in_z_k = in_k;
-		if (! out_z_k)
+		if (out_z_k <= 0)
 			out_z_k = out_k;
 		in_p = (int)(( in_k * 100 ) / in_z_k );
 		out_p = (int)(( out_k * 100 ) / out_z_k );

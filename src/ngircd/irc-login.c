@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2015 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2018 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -89,7 +89,7 @@ IRC_PASS( CLIENT *Client, REQUEST *Req )
 
 	/* Protocol version */
 	if (Req->argc >= 2 && strlen(Req->argv[1]) >= 4) {
-		int c2, c4;
+		char c2, c4;
 
 		c2 = Req->argv[1][2];
 		c4 = Req->argv[1][4];

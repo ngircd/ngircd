@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2014 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2018 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ struct list_elem {
 /**
  * Get IRC mask stored in list element.
  *
- * @param list_elem List element.
+ * @param e List element.
  * @return Pointer to IRC mask
  */
 GLOBAL const char *
@@ -52,7 +52,7 @@ Lists_GetMask(const struct list_elem *e)
 /**
  * Get optional "reason" text stored in list element.
  *
- * @param list_elem List element.
+ * @param e List element.
  * @return Pointer to "reason" text or empty string ("").
  */
 GLOBAL const char *
@@ -65,7 +65,7 @@ Lists_GetReason(const struct list_elem *e)
 /**
  * Get "validity" value stored in list element.
  *
- * @param list_elem List element.
+ * @param e List element.
  * @return Validity: 0=unlimited, >0 until this time stamp.
  */
 GLOBAL time_t
@@ -78,7 +78,7 @@ Lists_GetValidity(const struct list_elem *e)
 /**
  * Get "onlyonce" value stored in list element.
  *
- * @param list_elem List element.
+ * @param e List element.
  * @return True if the element was stored for single use, false otherwise.
  */
 GLOBAL bool

@@ -2402,7 +2402,7 @@ Conn_GetFromProc(int fd)
  * @param Reason The reason, see THROTTLE_xxx constants.
  * @param Idx The connection index.
  * @param Client The client of this connection.
- * @param Seconds The time to delay this connection.
+ * @param Value The time to delay this connection.
  */
 static void
 Throttle_Connection(const CONN_ID Idx, CLIENT *Client, const int Reason,

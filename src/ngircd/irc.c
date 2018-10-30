@@ -415,7 +415,7 @@ IRC_KillClient(CLIENT *Client, CLIENT *From, const char *Nick, const char *Reaso
  * Send help for a given topic to the client.
  *
  * @param Client The client requesting help.
- * @param Topoc The help topic requested.
+ * @param Topic The help topic requested.
  * @return CONNECTED or DISCONNECTED.
  */
 static bool

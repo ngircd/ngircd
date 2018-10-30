@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2014 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2018 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -711,7 +711,6 @@ Conf_NickIsService(int ConfServer, const char *Nick)
 /**
  * Check if the given nickname is blocked for "normal client" use.
  *
- * @param ConfServer The server index or NONE to check all configured servers.
  * @param Nick The nickname to check.
  * @returns true if the given nickname belongs to an "IRC service".
  */
@@ -845,7 +844,7 @@ no_listenports(void)
  *
  * This function is used to read the MOTD and help text file, for example.
  *
- * @param filename	Name of the file to read.
+ * @param Filename	Name of the file to read.
  * @return		true, when the file has been read in.
  */
 static bool
@@ -887,9 +886,9 @@ Read_TextFile(const char *Filename, const char *Name, array *Destination)
  * Please note that this function uses exit(1) on fatal errors and therefore
  * can result in ngIRCd terminating!
  *
- * @param ngircd_starting	Flag indicating if ngIRCd is starting or not.
- * @returns			true when the configuration file has been read
- *				successfully; false otherwise.
+ * @param IsStarting	Flag indicating if ngIRCd is starting or not.
+ * @returns		true when the configuration file has been read
+ *			successfully; false otherwise.
  */
 static bool
 Read_Config(bool TestOnly, bool IsStarting)

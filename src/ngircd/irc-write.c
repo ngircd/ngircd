@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2014 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2018 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -380,11 +380,10 @@ va_dcl
  * Send a message to all the servers in the network using a specific prefix
  * and matching a "client flag" using a callback function.
  *
- * @param Client The sending client, excluded while forwarding the message.
+ * @param ExceptOf The sending client, excluded while forwarding the message.
  * @param Prefix The prefix to use.
  * @param Flag Client flag that must be set on the target.
  * @param callback Callback function.
- * @param Format Format string.
  */
 GLOBAL void
 IRC_WriteStrServersPrefixFlag_CB(CLIENT *ExceptOf, CLIENT *Prefix, char Flag,

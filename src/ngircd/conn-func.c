@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2014 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2018 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -85,7 +85,7 @@ Conn_LastPing( CONN_ID Idx )
  * is read. This function only increases the penalty, it is not possible to
  * decrease the penalty time.
  *
- * @param Idex Connection index.
+ * @param Idx Connection index.
  * @param Seconds Seconds to add.
  * @see Conn_ResetPenalty
  */

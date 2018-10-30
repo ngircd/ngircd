@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2014 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2018 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -77,7 +77,7 @@ MatchCaseInsensitive(const char *Pattern, const char *String)
 /**
  * Match string with pattern case-insensitive.
  *
- * @param pattern Pattern to match with
+ * @param Pattern Pattern to match with
  * @param String Input string, at most COMMAND_LEN-1 characters long
  * @param Separator Character separating the individual patterns in the list
  * @return true if pattern matches

@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2014 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2018 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,7 +58,7 @@ Op_NoPrivileges(CLIENT * Client, REQUEST * Req)
  * Check that the originator of a request is an IRC operator and allowed
  * to administer this server.
  *
- * @param CLient Client from which the command has been received.
+ * @param Client Client from which the command has been received.
  * @param Req Request structure.
  * @return CLIENT structure of the client that initiated the command or
  *	   NULL if client is not allowed to execute operator commands.

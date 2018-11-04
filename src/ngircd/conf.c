@@ -388,6 +388,7 @@ Conf_Test( void )
 	printf("  MaxConnectionsIP = %d\n", Conf_MaxConnectionsIP);
 	printf("  MaxJoins = %d\n", Conf_MaxJoins > 0 ? Conf_MaxJoins : -1);
 	printf("  MaxNickLength = %u\n", Conf_MaxNickLength - 1);
+	printf("  MaxPenaltyTime = %ld\n", Conf_MaxPenaltyTime);
 	printf("  MaxListSize = %d\n", Conf_MaxListSize);
 	printf("  PingTimeout = %d\n", Conf_PingTimeout);
 	printf("  PongTimeout = %d\n", Conf_PongTimeout);
@@ -766,6 +767,7 @@ Set_Defaults(bool InitServers)
 	Conf_MaxConnectionsIP = 5;
 	Conf_MaxJoins = 10;
 	Conf_MaxNickLength = CLIENT_NICK_LEN_DEFAULT;
+	Conf_MaxPenaltyTime = -1;
 	Conf_MaxListSize = 100;
 	Conf_PingTimeout = 120;
 	Conf_PongTimeout = 20;
@@ -1642,6 +1644,12 @@ Handle_LIMITS(const char *File, int Line, char *Var, char *Arg)
 			Config_Error_NaN(File, Line, Var);
 		return;
 	}
+	if (strcasecmp(Var, "MaxPenaltyTime") == 0) {
+		Conf_MaxPenaltyTime = atol(Arg);
+		if (Conf_MaxPenaltyTime < -1)
+			Conf_MaxPenaltyTime = -1;	/* "unlimited" */
+		return;
+	}
 	if (strcasecmp(Var, "PingTimeout") == 0) {
 		Conf_PingTimeout = atoi(Arg);
 		if (Conf_PingTimeout < 5) {
@@ -2281,6 +2289,11 @@ Validate_Config(bool Configtest, bool Rehash)
 		Config_Error(LOG_ERR,
 			     "This server uses PAM, \"Password\" in [Global] section will be ignored!");
 #endif
+
+	if (Conf_MaxPenaltyTime != -1)
+		Config_Error(LOG_WARNING,
+			     "Maximum penalty increase ('MaxPenaltyTime') is set to %ld, this is not recommended!",
+			     Conf_MaxPenaltyTime);
 
 #ifdef DEBUG
 	servers = servers_once = 0;

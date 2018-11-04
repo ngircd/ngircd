@@ -26,6 +26,7 @@
 #endif
 #include "conn.h"
 
+#include "conf.h"
 #include "conn-func.h"
 
 /**
@@ -96,6 +97,14 @@ Conn_SetPenalty(CONN_ID Idx, time_t Seconds)
 
 	assert(Idx > NONE);
 	assert(Seconds >= 0);
+
+	/* Limit new penalty to maximum configured, when less than 10 seconds. *
+	   The latter is used to limit brute force attacks, therefore we don't *
+	   want to limit that! */
+	if (Conf_MaxPenaltyTime >= 0
+	    && Seconds > Conf_MaxPenaltyTime
+	    && Seconds < 10)
+		Seconds = Conf_MaxPenaltyTime;
 
 	t = time(NULL);
 	if (My_Connections[Idx].delaytime < t)

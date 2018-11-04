@@ -117,6 +117,12 @@
 	# maximum nickname length!
 	;MaxNickLength = 9
 
+	# Maximum penalty time increase in seconds, per penalty event. Set to -1
+	# for no limit (the default), 0 to disable penalties altogether. The
+	# daemon doesn't use penalty increases higher than 2 seconds during
+	# normal operation, so values greater than 1 rarely make sense.
+	;MaxPenaltyTime = -1
+
 	# Maximum number of channels returned in response to a /list
 	# command (0: unlimited):
 	;MaxListSize = 100

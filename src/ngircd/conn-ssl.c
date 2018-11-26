@@ -42,6 +42,7 @@ extern struct SSLOptions Conf_SSLOptions;
 #ifdef HAVE_LIBSSL
 #include <openssl/err.h>
 #include <openssl/rand.h>
+#include <openssl/dh.h>
 
 static SSL_CTX * ssl_ctx;
 static DH *dh_params;
@@ -326,7 +327,7 @@ ConnSSL_InitLibrary( void )
 			   Verify_openssl);
 	SSL_CTX_free(ssl_ctx);
 	ssl_ctx = newctx;
-	Log(LOG_INFO, "%s initialized.", SSLeay_version(SSLEAY_VERSION));
+	Log(LOG_INFO, "%s initialized.", OpenSSL_version(OPENSSL_VERSION));
 	return true;
 out:
 	SSL_CTX_free(newctx);

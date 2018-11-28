@@ -13,6 +13,10 @@
 #ifdef HAVE_LIBSSL
 #define SSL_SUPPORT
 #include <openssl/ssl.h>
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#define OpenSSL_version SSLeay_version
+#define OPENSSL_VERSION SSLEAY_VERSION
+#endif
 #endif
 #ifdef HAVE_LIBGNUTLS
 #define SSL_SUPPORT

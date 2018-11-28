@@ -239,6 +239,9 @@ GLOBAL unsigned int Conf_MaxNickLength;
 /** Maximum number of channels returned to /list */
 GLOBAL int Conf_MaxListSize;
 
+/** Maximium seconds to add per "penalty". -1 = unlimited. */
+GLOBAL time_t Conf_MaxPenaltyTime;
+
 #ifndef STRICT_RFC
 
 /** Require "AUTH PING-PONG" on login */

@@ -201,6 +201,12 @@ Maximum length of an user nickname (Default: 9, as in RFC 2812). Please
 note that all servers in an IRC network MUST use the same maximum nickname
 length!
 .TP
+\fBMaxPenaltyTime\fR (number)
+Maximum penalty time increase in seconds, per penalty event. Set to -1 for no
+limit (the default), 0 to disable penalties altogether. ngIRCd doesn't use
+penalty increases higher than 2 seconds during normal operation, so values
+greater than 1 rarely make sense.
+.TP
 \fBMaxListSize\fR (number)
 Maximum number of channels returned in response to a LIST command. Default: 100.
 .TP

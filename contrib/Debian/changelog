@@ -1,3 +1,9 @@
+ngircd (25-0ab1) unstable; urgency=low
+
+  * New "upstream" release: ngIRCd 25.
+
+ -- Alexander Barton <alex@barton.de>  Wed, 23 Jan 2019 23:13:03 +0100
+
 ngircd (25~rc1-0ab1) unstable; urgency=low
 
   * New "upstream" release candidate 1 for ngIRCd Release 25.

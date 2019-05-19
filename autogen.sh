@@ -103,7 +103,8 @@ Search()
 Notfound()
 {
 	echo "Error: $* not found!"
-	echo "Please install recent versions of GNU autoconf and GNU automake."
+	echo 'Please install supported versions of GNU autoconf, GNU automake'
+	echo 'and pkg-config: see the INSTALL file for details.'
 	exit 1
 }
 
@@ -161,6 +162,7 @@ AUTOMAKE_VERSION=$(echo $AUTOMAKE | cut -d'-' -f2-)
 [ -z "$GO" ] && [ -n "$CONFIGURE_ARGS" ] && GO=1
 
 # Verify that all tools have been found
+command -v pkg-config >/dev/null || Notfound pkg-config
 [ -z "$ACLOCAL" ] && Notfound aclocal
 [ -z "$AUTOHEADER" ] && Notfound autoheader
 [ -z "$AUTOMAKE" ] && Notfound automake

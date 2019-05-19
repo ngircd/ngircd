@@ -127,10 +127,10 @@ on modern UNIX-like systems that are supported by GNU autoconf and GNU
 automake ("configure") should be no problem.
 
 The normal installation procedure after getting (and expanding) the source
-files (using a distribution archive or GIT) is as following:
+files (using a distribution archive or Git) is as following:
 
   0) Satisfy prerequisites
-  1) ./autogen.sh  [only necessary when using GIT]
+  1) ./autogen.sh  [only necessary when using Git]
   2) ./configure
   3) make
   4) make install
@@ -154,9 +154,12 @@ doc/ directory: sample-ngircd.conf.
 0): Satisfy prerequisites
 
 When building from source, you'll need some other software to build ngIRCd:
-for example a working C compiler, make tool, GNU automake and autoconf (only
-when not using a distribution archive), and a few libraries depending on the
-features you want to compile in (like IDENT support, SSL, and PAM).
+for example a working C compiler, make tool, and a few libraries depending on
+the feature set you want to enable at compile time (like IDENT, SSL, and PAM).
+
+And if you aren't using a distribution archive ("tar.gz" file), but cloned the
+plain source archive, you need a few additional tools to generate the build
+system itself: GNU automake and autoconf, as well as pkg-config.
 
 If you are using one of the "big" operating systems or Linux distributions,
 you can use the following commands to install all the required packages to
@@ -166,29 +169,29 @@ build the sources including all optional features and to run the test suite:
 
   yum install \
     autoconf automake expect gcc glibc-devel gnutls-devel \
-    libident-devel make pam-devel tcp_wrappers-devel telnet zlib-devel
+    libident-devel make pam-devel pkg-config tcp_wrappers-devel telnet zlib-devel
 
 * Debian / Ubuntu based distributions:
 
   apt-get install \
     autoconf automake build-essential expect libgnutls-dev \
-    libident-dev libpam-dev libwrap0-dev libz-dev telnet
+    libident-dev libpam-dev pkg-config libwrap0-dev libz-dev telnet
 
 
 1): "autogen.sh"
 
-The first step, autogen.sh, is only necessary if the configure-script isn't
-already generated. This never happens in official ("stable") releases in
-tar.gz-archives, but when using GIT.
+The first step, autogen.sh, is ONLY necessary if the "configure" script itself
+isn't already generated. This never happens in official ("stable") releases in
+"tar.gz" archives, but when cloning the source code repository using Git.
 
 This step is therefore only interesting for developers.
 
 autogen.sh produces the Makefile.in's, which are necessary for the configure
 script itself, and some more files for make. To run autogen.sh you'll need
-GNU autoconf and GNU automake: at least autoconf 2.61 and automake 1.10 are
-required, newer is better. But don't use automake 1.12 or newer for creating
-distribution archives: it will work but lack "de-ANSI-fication" support in the
-generated Makefile's! Stick with automake 1.11.x for this purpose ...
+GNU autoconf, GNU automake and pkg-config: at least autoconf 2.61 and automake
+1.10 are required, newer is better. But don't use automake 1.12 or newer for
+creating distribution archives: it will work but lack "de-ANSI-fication" support
+in the generated Makefile's! Stick with automake 1.11.x for this purpose ...
 So automake 1.11.x and autoconf 2.67+ is recommended.
 
 Again: "end users" do not need this step and neither need GNU autoconf nor GNU

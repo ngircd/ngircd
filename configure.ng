@@ -464,8 +464,11 @@ AC_ARG_WITH(openssl,
 				CPPFLAGS="-I$withval/include $CPPFLAGS"
 				LDFLAGS="-L$withval/lib $LDFLAGS"
 			fi
-			AC_CHECK_LIB(crypto, BIO_s_mem)
-			AC_CHECK_LIB(ssl, SSL_new)
+			PKG_CHECK_MODULES([OPENSSL], [libssl libcrypto],
+				[LIBS="$LIBS $OPENSSL_LIBS" CFLAGS="$CFLAGS $OPENSSL_CFLAGS"],
+				[AC_CHECK_LIB(crypto, BIO_s_mem)
+				AC_CHECK_LIB(ssl, SSL_new)]
+			)
 			AC_CHECK_FUNCS(SSL_new, x_ssl_openssl=yes,
 				AC_MSG_ERROR([Can't enable openssl])
 			)

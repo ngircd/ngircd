@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2018 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2019 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -659,6 +659,9 @@ Conn_Handler(void)
 	size_t wdatalen;
 	struct timeval tv;
 	time_t t;
+
+	Log(LOG_NOTICE, "Server \"%s\" (on \"%s\") ready.",
+	    Client_ID(Client_ThisServer()), Client_Hostname(Client_ThisServer()));
 
 	while (!NGIRCd_SignalQuit && !NGIRCd_SignalRestart) {
 		t = time(NULL);

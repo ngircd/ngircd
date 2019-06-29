@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2018 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2019 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -901,6 +901,8 @@ Read_Config(bool TestOnly, bool IsStarting)
 	int i, n;
 	FILE *fd;
 	DIR *dh;
+
+	Log(LOG_INFO, "Using configuration file \"%s\" ...", NGIRCd_ConfFile);
 
 	/* Open configuration file */
 	fd = fopen( NGIRCd_ConfFile, "r" );

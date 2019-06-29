@@ -24,6 +24,7 @@ install-sh
 missing
 ngircd.dest
 .deps
+.vscode
 *.a
 *.o
 doc/sample-ngircd.conf

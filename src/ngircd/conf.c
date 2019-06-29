@@ -2234,27 +2234,14 @@ Validate_Config(bool Configtest, bool Rehash)
 		break;
 	} while (*(++ptr));
 
-	if (!Conf_ServerName[0]) {
+	if (!Conf_ServerName[0] || !strchr(Conf_ServerName, '.'))
+	{
 		/* No server name configured! */
 		config_valid = false;
 		Config_Error(LOG_ALERT,
 			     "No (valid) server name configured in \"%s\" (section 'Global': 'Name')!",
 			     NGIRCd_ConfFile);
 		if (!Configtest && !Rehash) {
-			Config_Error(LOG_ALERT,
-				     "%s exiting due to fatal errors!",
-				     PACKAGE_NAME);
-			exit(1);
-		}
-	}
-
-	if (Conf_ServerName[0] && !strchr(Conf_ServerName, '.')) {
-		/* No dot in server name! */
-		config_valid = false;
-		Config_Error(LOG_ALERT,
-			     "Invalid server name configured in \"%s\" (section 'Global': 'Name'): Dot missing!",
-			     NGIRCd_ConfFile);
-		if (!Configtest) {
 			Config_Error(LOG_ALERT,
 				     "%s exiting due to fatal errors!",
 				     PACKAGE_NAME);

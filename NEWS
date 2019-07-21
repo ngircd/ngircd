@@ -297,7 +297,7 @@ ngIRCd 20.2 (2013-02-15)
 
   - This release is a bugfix release only, without new features.
   - Security: Fix a denial of service bug in the function handling KICK
-    commands that could be used by arbitrary users to to crash the daemon
+    commands that could be used by arbitrary users to crash the daemon
     (CVE-2013-1747).
 
 ngIRCd 20.1 (2013-01-02)

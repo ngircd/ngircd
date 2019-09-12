@@ -119,7 +119,7 @@ Rehash(void)
 	if (strcmp(old_name, Conf_ServerName) != 0 ) {
 		strlcpy(Conf_ServerName, old_name, sizeof Conf_ServerName);
 		Log(LOG_ERR,
-		    "Can't change \"ServerName\" on runtime! Ignored new name.");
+		    "Can't change server name (\"Name\") on runtime! Ignored new name.");
 	}
 	if (old_nicklen != Conf_MaxNickLength) {
 		Conf_MaxNickLength = old_nicklen;

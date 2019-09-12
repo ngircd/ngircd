@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2014 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2019 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -80,6 +80,7 @@ Log_Init(bool Daemon_Mode)
 	openlog(PACKAGE, LOG_CONS|LOG_PID, 0);
 #endif
 #endif
+	Log(LOG_NOTICE, "%s starting ...", NGIRCd_Version);
 } /* Log_Init */
 
 
@@ -96,15 +97,13 @@ Log_ReInit(void)
 	closelog();
 	openlog(PACKAGE, LOG_CONS|LOG_PID, Conf_SyslogFacility);
 #endif
-	Log(LOG_NOTICE, "%s started.", NGIRCd_Version);
-	Log(LOG_INFO, "Using configuration file \"%s\" ...", NGIRCd_ConfFile);
 }
 
 
 GLOBAL void
 Log_Exit( void )
 {
-	Log(LOG_INFO, "%s done%s, served %lu connection%s.", PACKAGE_NAME,
+	Log(LOG_NOTICE, "%s done%s, served %lu connection%s.", PACKAGE_NAME,
 	    NGIRCd_SignalRestart ? " (restarting)" : "", Conn_CountAccepted(),
 	    Conn_CountAccepted() == 1 ? "" : "s");
 #ifdef SYSLOG

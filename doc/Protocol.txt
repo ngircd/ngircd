@@ -2,7 +2,7 @@
                      ngIRCd - Next Generation IRC Server
                            http://ngircd.barton.de/
 
-               (c)2001-2012 Alexander Barton and Contributors.
+               (c)2001-2019 Alexander Barton and Contributors.
                ngIRCd is free software and published under the
                    terms of the GNU General Public License.
 
@@ -25,6 +25,12 @@ If you don't like this behavior please ./configure the ngIRCd using the
 clients are compatible with a server configured that way, some can't even
 connect at all! Therefore this option usually isn't desired for "normal
 server operation".
+
+In addition, ngIRCd implements some "IRCv3" features. This includes:
+ - IRCv3 Client Capability Negotiation
+ - IRCv3.1 multi-prefix Extension
+ - IRCv3.2 userhost-in-names Extension
+Please see the IRCv3 homepage for more information: <https://ircv3.net>.
 
 
 II. The IRC+ Protocol

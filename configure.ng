@@ -465,7 +465,8 @@ AC_ARG_WITH(openssl,
 				LDFLAGS="-L$withval/lib $LDFLAGS"
 			fi
 			PKG_CHECK_MODULES([OPENSSL], [libssl libcrypto],
-				[LIBS="$LIBS $OPENSSL_LIBS" CFLAGS="$CFLAGS $OPENSSL_CFLAGS"],
+				[LIBS="$LIBS $OPENSSL_LIBS" CFLAGS="$CFLAGS $OPENSSL_CFLAGS"
+				AC_DEFINE(HAVE_LIBSSL, 1)],
 				[AC_CHECK_LIB(crypto, BIO_s_mem)
 				AC_CHECK_LIB(ssl, SSL_new)]
 			)

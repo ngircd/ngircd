@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2018 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2019 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -901,6 +901,8 @@ Read_Config(bool TestOnly, bool IsStarting)
 	int i, n;
 	FILE *fd;
 	DIR *dh;
+
+	Log(LOG_INFO, "Using configuration file \"%s\" ...", NGIRCd_ConfFile);
 
 	/* Open configuration file */
 	fd = fopen( NGIRCd_ConfFile, "r" );
@@ -2232,27 +2234,14 @@ Validate_Config(bool Configtest, bool Rehash)
 		break;
 	} while (*(++ptr));
 
-	if (!Conf_ServerName[0]) {
+	if (!Conf_ServerName[0] || !strchr(Conf_ServerName, '.'))
+	{
 		/* No server name configured! */
 		config_valid = false;
 		Config_Error(LOG_ALERT,
 			     "No (valid) server name configured in \"%s\" (section 'Global': 'Name')!",
 			     NGIRCd_ConfFile);
 		if (!Configtest && !Rehash) {
-			Config_Error(LOG_ALERT,
-				     "%s exiting due to fatal errors!",
-				     PACKAGE_NAME);
-			exit(1);
-		}
-	}
-
-	if (Conf_ServerName[0] && !strchr(Conf_ServerName, '.')) {
-		/* No dot in server name! */
-		config_valid = false;
-		Config_Error(LOG_ALERT,
-			     "Invalid server name configured in \"%s\" (section 'Global': 'Name'): Dot missing!",
-			     NGIRCd_ConfFile);
-		if (!Configtest) {
 			Config_Error(LOG_ALERT,
 				     "%s exiting due to fatal errors!",
 				     PACKAGE_NAME);

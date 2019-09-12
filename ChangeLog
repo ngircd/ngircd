@@ -201,7 +201,7 @@ ngIRCd 23 (2015-11-16)
     Idea and implementation by LucentW, Thanks! Closes #207.
   - Update ngircd.conf.5: "CloakUserToNick" hides user _and_ real name.
     This closes #208.
-  - Fix case insensitive pattern matching: Up to now, only the the input
+  - Fix case insensitive pattern matching: Up to now, only the input
     string became lowercased and was then compared to the pattern -- which
     failed when the pattern itself wasn't all lowercase!
   - Streamline the effect of "MorePrivacy" option: Update documentation
@@ -554,7 +554,7 @@ ngIRCd 20.3 (2013-08-23)
 ngIRCd 20.2 (2013-02-15)
 
   - Security: Fix a denial of service bug in the function handling KICK
-    commands that could be used by arbitrary users to to crash the daemon
+    commands that could be used by arbitrary users to crash the daemon
     (CVE-2013-1747).
   - WHO command: Use the currently "displayed hostname" (which can be cloaked!)
     for hostname matching, not the real one. In other words: don't display all

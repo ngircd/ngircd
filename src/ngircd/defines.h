@@ -130,7 +130,7 @@
 #define CLIENT_MODE_LEN 21
 
 /** Max. length of server info texts (including NULL). */
-#define CLIENT_INFO_LEN 64
+#define CLIENT_INFO_LEN 128
 
 /** Max. length of away messages (including NULL). */
 #define CLIENT_AWAY_LEN 128

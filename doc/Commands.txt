@@ -2,7 +2,7 @@
                      ngIRCd - Next Generation IRC Server
                            http://ngircd.barton.de/
 
-               (c)2001-2013 Alexander Barton and Contributors.
+               (c)2001-2019 Alexander Barton and Contributors.
                ngIRCd is free software and published under the
                    terms of the GNU General Public License.
 
@@ -386,7 +386,7 @@ Status and Informational Commands
 	 - RFC 2812, 4.9 "Ison message"
 
 - LINKS
-	LINKS [[<target>] [<mask>]
+	LINKS [[<target>] <mask>]
 	.
 	List all servers currently registered in the network matching <mask>,
 	or all servers if <mask> has been omitted, as seen by the server
@@ -617,9 +617,10 @@ Channel Commands
 	 - RFC 2812, 3.2.8 "Kick command"
 
 - LIST
-	LIST [<channel>[,<channel>[,...]] [<server>]]
+	LIST [<mask>[,<mask>[,...]] [<server>]]
 	.
-	List all visible <channels> (comma-separated list).
+	List all visible channels matching the <mask> (comma-separated list),
+	or all channels when no <mask> was specified.
 	.
 	If <server> is given, the command will be forwarded to <server> for
 	evaluation.
@@ -882,7 +883,7 @@ Server Protocol Commands
 - ERROR
 	ERROR [<message> [<> [...]]]
 	.
-	Inform a client or a server about an error condition. The first 
+	Inform a client or a server about an error condition. The first
 	parameter, if given, is logged by the server receiving the message,
 	all other parameters are silently ignored.
 	.

@@ -337,7 +337,9 @@ Client_SetHostname( CLIENT *Client, const char *Hostname )
 	assert(Client != NULL);
 	assert(Hostname != NULL);
 
-	if (Conf_CloakHost[0]) {
+	/* Only cloak the hostmask if it has not yet been cloaked (the period
+	 * indicates it's still an IP address). */
+	if (Conf_CloakHost[0] && strchr(Client->host, '.')) {
 		char cloak[GETID_LEN];
 
 		strlcpy(cloak, Hostname, GETID_LEN);

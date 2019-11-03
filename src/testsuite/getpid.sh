@@ -14,6 +14,8 @@ elif [ $UNAME = "A/UX" ]; then
   PS_FLAGS="-af"; PS_PIDCOL="2"; HEAD_FLAGS="-1"
 elif [ $UNAME = "GNU" ]; then
   PS_FLAGS="-ax"; PS_PIDCOL="2"; HEAD_FLAGS="-n 1"
+elif [ $UNAME = "Haiku" ]; then
+  PS_FLAGS="-o Id -o Team"; PS_PIDCOL="1"; HEAD_FLAGS="-1"
 elif [ $UNAME = "Linux" ]; then
   PS_FLAGS="ax"; PS_PIDCOL="1"; HEAD_FLAGS="-n 1"
 elif [ $UNAME = "SunOS" ]; then

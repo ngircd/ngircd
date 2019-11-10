@@ -265,6 +265,7 @@ AC_CHECK_FUNCS_ONCE([
 	strlcat \
 	strlcpy \
 	strndup \
+	strsignal \
 	strtok_r \
 	unsetenv \
 	vsnprintf \

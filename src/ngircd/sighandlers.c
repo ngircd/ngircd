@@ -154,6 +154,14 @@ Rehash(void)
 static void
 Signal_Handler(int Signal)
 {
+	if (Signal != SIGCHLD) {
+#ifdef HAVE_STRSIGNAL
+		Log(LOG_INFO, "Got signal \"%s\" ...", strsignal(Signal));
+#else
+		Log(LOG_INFO, "Got signal %d ...", Signal);
+#endif
+	}
+
 	switch (Signal) {
 	case SIGTERM:
 	case SIGINT:

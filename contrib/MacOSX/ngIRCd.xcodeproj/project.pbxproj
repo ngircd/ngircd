@@ -233,6 +233,7 @@
 		FAA3D28B0F139D2E00B2447E /* preinstall.sh */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; path = preinstall.sh; sourceTree = "<group>"; };
 		FAA97C55124A271400D5BBA9 /* sighandlers.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = sighandlers.c; sourceTree = "<group>"; };
 		FAA97C56124A271400D5BBA9 /* sighandlers.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = sighandlers.h; sourceTree = "<group>"; };
+		FAA9C8162377186900A04296 /* nglog.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = nglog.sh; sourceTree = "<group>"; };
 		FAACD5F314A6099C006ED74F /* class.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = class.c; sourceTree = "<group>"; };
 		FAACD5F414A6099C006ED74F /* class.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = class.h; sourceTree = "<group>"; };
 		FAD5852F15271A7800328741 /* Capabilities.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = Capabilities.txt; sourceTree = "<group>"; };
@@ -483,6 +484,7 @@
 				FA322D940CEF7523001761B3 /* ngircd.spec */,
 				FA4B08E813E7F91C00765BA3 /* platformtest.sh */,
 				FA322D960CEF7523001761B3 /* systrace.policy */,
+				FAA9C8162377186900A04296 /* nglog.sh */,
 			);
 			name = contrib;
 			path = ..;

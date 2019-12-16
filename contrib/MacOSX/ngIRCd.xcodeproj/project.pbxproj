@@ -167,7 +167,6 @@
 		FA322D700CEF7523001761B3 /* ngircd.init */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; path = ngircd.init; sourceTree = "<group>"; };
 		FA322D710CEF7523001761B3 /* ngircd.postinst */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; path = ngircd.postinst; sourceTree = "<group>"; };
 		FA322D720CEF7523001761B3 /* rules */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = rules; sourceTree = "<group>"; };
-		FA322D8D0CEF7523001761B3 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = Makefile.am; path = MacOSX/Makefile.am; sourceTree = "<group>"; };
 		FA322D8E0CEF7523001761B3 /* ngIRCd.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = ngIRCd.xcodeproj; sourceTree = "<group>"; };
 		FA322D920CEF7523001761B3 /* ngindent.sh */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; path = ngindent.sh; sourceTree = "<group>"; };
 		FA322D940CEF7523001761B3 /* ngircd.spec */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = ngircd.spec; sourceTree = "<group>"; };
@@ -236,6 +235,7 @@
 		FAA9C8162377186900A04296 /* nglog.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = nglog.sh; sourceTree = "<group>"; };
 		FAACD5F314A6099C006ED74F /* class.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = class.c; sourceTree = "<group>"; };
 		FAACD5F414A6099C006ED74F /* class.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = class.h; sourceTree = "<group>"; };
+		FAC4E5CD23A7DE2400A04296 /* Makefile.am */ = {isa = PBXFileReference; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
 		FAD5852F15271A7800328741 /* Capabilities.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = Capabilities.txt; sourceTree = "<group>"; };
 		FAD5853015271AAB00328741 /* client-cap.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "client-cap.c"; sourceTree = "<group>"; };
 		FAD5853115271AAB00328741 /* client-cap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "client-cap.h"; sourceTree = "<group>"; };
@@ -470,7 +470,7 @@
 		FA322D660CEF7523001761B3 /* contrib */ = {
 			isa = PBXGroup;
 			children = (
-				FA322D8D0CEF7523001761B3 /* Makefile.am */,
+				FAC4E5CD23A7DE2400A04296 /* Makefile.am */,
 				FA322D680CEF7523001761B3 /* Debian */,
 				FA322D730CEF7523001761B3 /* MacOSX */,
 				FA322D950CEF7523001761B3 /* README */,
@@ -482,9 +482,9 @@
 				FA18A63F16CEDE2300132F66 /* ngircd.service */,
 				FA18A64016CEDE2300132F66 /* ngircd.socket */,
 				FA322D940CEF7523001761B3 /* ngircd.spec */,
+				FAA9C8162377186900A04296 /* nglog.sh */,
 				FA4B08E813E7F91C00765BA3 /* platformtest.sh */,
 				FA322D960CEF7523001761B3 /* systrace.policy */,
-				FAA9C8162377186900A04296 /* nglog.sh */,
 			);
 			name = contrib;
 			path = ..;
@@ -627,6 +627,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 1000;
+				ORGANIZATIONNAME = "ngIRCd Development Team";
 			};
 			buildConfigurationList = 1DEB928908733DD80010E9CD /* Build configuration list for PBXProject "ngIRCd" */;
 			compatibilityVersion = "Xcode 3.2";

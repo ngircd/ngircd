@@ -12,7 +12,7 @@
 SUBDIRS = Debian MacOSX
 
 EXTRA_DIST = README \
-	ngindent \
+	ngindent.sh \
 	ngircd-bsd.sh \
 	ngIRCd-Logo.gif \
 	ngircd-redhat.init \

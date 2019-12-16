@@ -101,6 +101,7 @@ x86_64/apple/darwin15.6.0   A-clang 8.0  23~38-g455 16-11-04 alex     Y Y Y Y 3
 x86_64/apple/darwin16.5.0   A-clang 8.1  25~rc1-7-g 18-11-04 alex     Y Y Y Y 3
 x86_64/apple/darwin17.7.0   A-clang 10.0 25~rc1     18-11-04 alex     Y Y Y Y 3
 x86_64/apple/darwin18.2.0   A-clang 10.0 25~rc1-11  19-01-23 alex     Y Y Y Y 3
+x86_64/apple/darwin19.0.0   A-clang 11.0 25~19-g928 19-12-07 alex     Y Y Y Y 3
 x86_64/unknown/dragonfly3.4 gcc 4.7.2    21         13-11-12 goetz    Y Y N Y 3
 x86_64/unkn./freebsd8.1-gnu gcc 4.4.5    19         12-02-26 alex     Y Y Y Y 3
 x86_64/unknown/freebsd8.4   gcc 4.2.1    24~rc1-7   17-01-20 alex     Y Y Y Y 3

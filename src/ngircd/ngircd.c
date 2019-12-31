@@ -125,7 +125,7 @@ main(int argc, const char *argv[])
 			if (strcmp(argv[i], "--help") == 0) {
 				Show_Version();
 				puts(""); Show_Help( ); puts( "" );
-				exit(1);
+				exit(0);
 			}
 			if (strcmp(argv[i], "--nodaemon") == 0) {
 				NGIRCd_NoDaemon = true;
@@ -143,7 +143,7 @@ main(int argc, const char *argv[])
 #endif
 			if (strcmp(argv[i], "--version") == 0) {
 				Show_Version();
-				exit(1);
+				exit(0);
 			}
 		}
 		else if(argv[i][0] == '-' && argv[i][1] != '-') {
@@ -200,21 +200,23 @@ main(int argc, const char *argv[])
 				}
 
 				if (!ok) {
-					printf("%s: invalid option \"-%c\"!\n",
-					       PACKAGE_NAME, argv[i][n]);
-					printf("Try \"%s --help\" for more information.\n",
-					       PACKAGE_NAME);
-					exit(1);
+					fprintf(stderr,
+						"%s: invalid option \"-%c\"!\n",
+						PACKAGE_NAME, argv[i][n]);
+					fprintf(stderr,
+						"Try \"%s --help\" for more information.\n",
+						PACKAGE_NAME);
+					exit(2);
 				}
 			}
 
 		}
 		if (!ok) {
-			printf("%s: invalid option \"%s\"!\n",
-			       PACKAGE_NAME, argv[i]);
-			printf("Try \"%s --help\" for more information.\n",
-			       PACKAGE_NAME);
-			exit(1);
+			fprintf(stderr, "%s: invalid option \"%s\"!\n",
+				PACKAGE_NAME, argv[i]);
+			fprintf(stderr, "Try \"%s --help\" for more information.\n",
+				PACKAGE_NAME);
+			exit(2);
 		}
 	}
 

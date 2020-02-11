@@ -9,11 +9,9 @@
 # Please read the file COPYING, README and AUTHORS for more information.
 #
 
-AUTOMAKE_OPTIONS = gnu
-
 SUBDIRS = doc src man contrib
 
-EXTRA_DIST = autogen.sh configure.ng .clang_complete .mailmap
+EXTRA_DIST = README.md INSTALL.md autogen.sh configure.ng .clang_complete .mailmap
 
 clean-local: osxpkg-clean
 	rm -f build-stamp*

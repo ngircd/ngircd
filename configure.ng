@@ -29,7 +29,7 @@ AC_CONFIG_SRCDIR([src/ngircd/ngircd.c])
 AC_CONFIG_HEADER([src/config.h])
 AC_CANONICAL_HOST
 
-AM_INIT_AUTOMAKE([-Wall 1.10 ]ng_color_tests)
+AM_INIT_AUTOMAKE([-Wall 1.10 foreign ]ng_color_tests)
 
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 

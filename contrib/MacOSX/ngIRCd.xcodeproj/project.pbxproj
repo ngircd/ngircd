@@ -154,10 +154,10 @@
 		FA322D5E0CEF750F001761B3 /* config.guess */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; name = config.guess; path = ../../config.guess; sourceTree = SOURCE_ROOT; };
 		FA322D5F0CEF750F001761B3 /* config.sub */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; name = config.sub; path = ../../config.sub; sourceTree = SOURCE_ROOT; };
 		FA322D610CEF750F001761B3 /* COPYING */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = COPYING; path = ../../COPYING; sourceTree = SOURCE_ROOT; };
-		FA322D620CEF750F001761B3 /* INSTALL */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = INSTALL; path = ../../INSTALL; sourceTree = SOURCE_ROOT; };
+		FA322D620CEF750F001761B3 /* INSTALL.md */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = net.daringfireball.markdown; name = INSTALL.md; path = ../../INSTALL.md; sourceTree = SOURCE_ROOT; };
 		FA322D630CEF750F001761B3 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = Makefile.am; path = ../../Makefile.am; sourceTree = SOURCE_ROOT; };
 		FA322D640CEF750F001761B3 /* NEWS */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = NEWS; path = ../../NEWS; sourceTree = SOURCE_ROOT; };
-		FA322D650CEF750F001761B3 /* README */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; name = README; path = ../../README; sourceTree = SOURCE_ROOT; };
+		FA322D650CEF750F001761B3 /* README.md */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../../README.md; sourceTree = SOURCE_ROOT; };
 		FA322D6A0CEF7523001761B3 /* changelog */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = changelog; sourceTree = "<group>"; };
 		FA322D6B0CEF7523001761B3 /* compat */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = compat; sourceTree = "<group>"; };
 		FA322D6C0CEF7523001761B3 /* control */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = control; sourceTree = "<group>"; };
@@ -279,9 +279,9 @@
 				FA322D5A0CEF750F001761B3 /* AUTHORS */,
 				FA322D5C0CEF750F001761B3 /* ChangeLog */,
 				FA322D610CEF750F001761B3 /* COPYING */,
-				FA322D620CEF750F001761B3 /* INSTALL */,
+				FA322D620CEF750F001761B3 /* INSTALL.md */,
 				FA322D640CEF750F001761B3 /* NEWS */,
-				FA322D650CEF750F001761B3 /* README */,
+				FA322D650CEF750F001761B3 /* README.md */,
 				FA322D5B0CEF750F001761B3 /* autogen.sh */,
 				FA322D5E0CEF750F001761B3 /* config.guess */,
 				FA322D5F0CEF750F001761B3 /* config.sub */,

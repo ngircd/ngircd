@@ -2,7 +2,7 @@
                      ngIRCd - Next Generation IRC Server
                            http://ngircd.barton.de/
 
-               (c)2001-2019 Alexander Barton and Contributors.
+               (c)2001-2020 Alexander Barton and Contributors.
                ngIRCd is free software and published under the
                    terms of the GNU General Public License.
 
@@ -44,6 +44,3 @@ nglog.sh
 
 platformtest.sh
  - Build ngIRCd and output a "result line" suitable for doc/Platforms.txt.
-
-systrace.policy
- - Systrace policy file for OpenBSD (and probably NetBSD).

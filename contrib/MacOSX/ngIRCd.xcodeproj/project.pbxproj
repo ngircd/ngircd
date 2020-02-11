@@ -171,7 +171,6 @@
 		FA322D920CEF7523001761B3 /* ngindent.sh */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; path = ngindent.sh; sourceTree = "<group>"; };
 		FA322D940CEF7523001761B3 /* ngircd.spec */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = ngircd.spec; sourceTree = "<group>"; };
 		FA322D950CEF7523001761B3 /* README */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
-		FA322D960CEF7523001761B3 /* systrace.policy */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = systrace.policy; sourceTree = "<group>"; };
 		FA322D9A0CEF752C001761B3 /* FAQ.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = FAQ.txt; sourceTree = "<group>"; };
 		FA322D9B0CEF752C001761B3 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
 		FA322D9C0CEF752C001761B3 /* Platforms.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Platforms.txt; sourceTree = "<group>"; };
@@ -484,7 +483,6 @@
 				FA322D940CEF7523001761B3 /* ngircd.spec */,
 				FAA9C8162377186900A04296 /* nglog.sh */,
 				FA4B08E813E7F91C00765BA3 /* platformtest.sh */,
-				FA322D960CEF7523001761B3 /* systrace.policy */,
 			);
 			name = contrib;
 			path = ..;

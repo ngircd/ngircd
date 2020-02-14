@@ -132,7 +132,7 @@ Rehash(void)
 
 	if (!ConnSSL_InitLibrary())
 		Log(LOG_WARNING,
-		    "Re-Initializing of SSL failed, using old keys!");
+		    "Re-Initializing of SSL failed!");
 
 	/* Start listening on sockets */
 	Conn_InitListeners( );

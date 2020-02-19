@@ -36,6 +36,8 @@
 #include "log.h"
 #include "messages.h"
 #include "match.h"
+#include "parse.h"
+#include "irc-mode.h"
 
 #define REMOVE_PART 0
 #define REMOVE_QUIT 1
@@ -93,8 +95,10 @@ GLOBAL void
 Channel_InitPredefined( void )
 {
 	CHANNEL *new_chan;
+	REQUEST Req;
 	const struct Conf_Channel *conf_chan;
-	const char *c;
+	char *c;
+	char modes[COMMAND_LEN], name[CHANNEL_NAME_LEN];
 	size_t i, channel_count = array_length(&Conf_Channels, sizeof(*conf_chan));
 
 	conf_chan = array_start(&Conf_Channels);
@@ -134,9 +138,22 @@ Channel_InitPredefined( void )
 		if (conf_chan->topic[0])
 			Channel_SetTopic(new_chan, NULL, conf_chan->topic);
 
-		c = conf_chan->modes;
-		while (*c)
-			Channel_ModeAdd(new_chan, *c++);
+		/* Evaluate modes string with a fake request */
+		if(conf_chan->modes[0]) {
+			strlcpy(modes, conf_chan->modes, sizeof(modes));
+			strlcpy(name, conf_chan->name, sizeof(name));
+			Log(LOG_DEBUG, "Evaluate \"MODE %s %s\".", name, modes);
+			Req.argc = 0;
+			Req.argv[Req.argc++] = name;
+			Req.prefix = Client_ID(Client_ThisServer());
+			Req.command = "MODE";
+			c = strtok(modes, " ");
+			while (c && Req.argc<15) {
+				Req.argv[Req.argc++] = c;
+				c = strtok(0, " ");
+			}
+			IRC_MODE(Client_ThisServer(), &Req);
+		}
 
 		Channel_SetKey(new_chan, conf_chan->key);
 		Channel_SetMaxUsers(new_chan, conf_chan->maxusers);

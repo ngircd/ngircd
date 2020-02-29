@@ -328,7 +328,7 @@ Conf_Test( void )
 {
 	struct passwd *pwd;
 	struct group *grp;
-	unsigned int i;
+	unsigned int i, j;
 	bool config_valid;
 	size_t predef_channel_count;
 	struct Conf_Channel *predef_chan;
@@ -483,7 +483,8 @@ Conf_Test( void )
 		/* Valid "Channel" section */
 		puts( "[CHANNEL]" );
 		printf("  Name = %s\n", predef_chan->name);
-		printf("  Modes = %s\n", predef_chan->modes);
+		for(j = 0; j < predef_chan->modes_num; j++)
+			printf("  Modes = %s\n", predef_chan->modes[j]);
 		printf("  Key = %s\n", predef_chan->key);
 		printf("  MaxUsers = %lu\n", predef_chan->maxusers);
 		printf("  Topic = %s\n", predef_chan->topic);
@@ -2155,8 +2156,12 @@ Handle_CHANNEL(const char *File, int Line, char *Var, char *Arg)
 	}
 	if (strcasecmp(Var, "Modes") == 0) {
 		/* Initial modes */
-		len = strlcpy(chan->modes, Arg, sizeof(chan->modes));
-		if (len >= sizeof(chan->modes))
+		if(chan->modes_num >= sizeof(chan->modes)) {
+			Config_Error(LOG_ERR, "Too many Modes, option ignored.");
+			return;
+		}
+		chan->modes[chan->modes_num++] = strndup(Arg, COMMAND_LEN);
+		if(strlen(Arg) >= COMMAND_LEN)
 			Config_Error_TooLong(File, Line, Var);
 		return;
 	}

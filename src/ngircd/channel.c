@@ -99,7 +99,7 @@ Channel_InitPredefined( void )
 	const struct Conf_Channel *conf_chan;
 	char *c;
 	char modes[COMMAND_LEN], name[CHANNEL_NAME_LEN];
-	size_t i, channel_count = array_length(&Conf_Channels, sizeof(*conf_chan));
+	size_t i, n, channel_count = array_length(&Conf_Channels, sizeof(*conf_chan));
 
 	conf_chan = array_start(&Conf_Channels);
 
@@ -138,21 +138,31 @@ Channel_InitPredefined( void )
 		if (conf_chan->topic[0])
 			Channel_SetTopic(new_chan, NULL, conf_chan->topic);
 
-		/* Evaluate modes string with a fake request */
-		if(conf_chan->modes[0]) {
-			strlcpy(modes, conf_chan->modes, sizeof(modes));
+		/* Evaluate modes strings with fake requests */
+		if(conf_chan->modes_num) {
+			/* Prepare fake request structure */
 			strlcpy(name, conf_chan->name, sizeof(name));
-			Log(LOG_DEBUG, "Evaluate \"MODE %s %s\".", name, modes);
-			Req.argc = 0;
-			Req.argv[Req.argc++] = name;
+			Log(LOG_INFO, "Evaluating predefined channel modes for \"%s\".", name);
+			Req.argv[0] = name;
 			Req.prefix = Client_ID(Client_ThisServer());
 			Req.command = "MODE";
-			c = strtok(modes, " ");
-			while (c && Req.argc<15) {
-				Req.argv[Req.argc++] = c;
-				c = strtok(0, " ");
+
+			/* Iterate over channel modes strings */
+			for (n = 0; n < conf_chan->modes_num; n++) {
+				Req.argc = 1;
+				strlcpy(modes, conf_chan->modes[n], sizeof(modes));
+				Log(LOG_DEBUG, "Evaluate \"MODE %s %s\".", name, modes);
+				c = strtok(modes, " ");
+				while (c && Req.argc < 15) {
+					Req.argv[Req.argc++] = c;
+					c = strtok(0, " ");
+				}
+				if(Req.argc > 1)
+					IRC_MODE(Client_ThisServer(), &Req);
+
+				/* Original channel modes srings are no longer needed */
+				free(conf_chan->modes[n]);
 			}
-			IRC_MODE(Client_ThisServer(), &Req);
 		}
 
 		Channel_SetKey(new_chan, conf_chan->key);

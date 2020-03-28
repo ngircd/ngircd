@@ -45,7 +45,7 @@ expect {
 }
 expect {
 	timeout { exit 1 }
-	":ngircd.test.server CHANINFO #FullKeyed +Plk Secret 0 :"
+	":ngircd.test.server CHANINFO #FullKeyed +Pkl Secret 0 :"
 }
 expect {
 	timeout { exit 1 }

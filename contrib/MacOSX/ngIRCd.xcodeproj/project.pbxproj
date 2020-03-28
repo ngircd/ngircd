@@ -203,6 +203,8 @@
 		FA6BBC621605F0AC0004247A /* irc-encoding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "irc-encoding.h"; sourceTree = "<group>"; };
 		FA6BBC651605F6D60004247A /* libiconv.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libiconv.dylib; path = ../../../../../../../usr/lib/libiconv.dylib; sourceTree = "<group>"; };
 		FA77849A133FB9FF00740057 /* sample-ngircd.conf.tmpl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "sample-ngircd.conf.tmpl"; sourceTree = "<group>"; };
+		FA7E9FEE242FFC4500A04296 /* server-link-test.e */ = {isa = PBXFileReference; lastKnownFileType = text; path = "server-link-test.e"; sourceTree = "<group>"; };
+		FA7E9FF0242FFC6C00A04296 /* server-login-test.e */ = {isa = PBXFileReference; lastKnownFileType = text; path = "server-login-test.e"; sourceTree = "<group>"; };
 		FA85178A0FA061EC006A1F5A /* op.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = op.h; sourceTree = "<group>"; };
 		FA85178B0FA061EC006A1F5A /* op.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = op.c; sourceTree = "<group>"; };
 		FA99428A10E82A27007F27ED /* proc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = proc.h; sourceTree = "<group>"; };
@@ -426,32 +428,34 @@
 			isa = PBXGroup;
 			children = (
 				FA18A64A16CEE18100132F66 /* Makefile.ng */,
-				FA322D250CEF74B1001761B3 /* README */,
 				FA322D1D0CEF74B1001761B3 /* channel-test.e */,
 				FA322D1E0CEF74B1001761B3 /* check-idle.e */,
 				FA322D1F0CEF74B1001761B3 /* connect-test.e */,
+				FA322D200CEF74B1001761B3 /* functions.inc */,
+				FA322D210CEF74B1001761B3 /* getpid.sh */,
 				FAA3D2700F139CB300B2447E /* invite-test.e */,
 				FAA3D2710F139CB300B2447E /* join-test.e */,
 				FAA3D2720F139CB300B2447E /* kick-test.e */,
 				FAA3D2730F139CB300B2447E /* message-test.e */,
 				FA18A64E16CEE24B00132F66 /* misc-test.e */,
 				FA18A64C16CEE1AC00132F66 /* mode-test.e */,
-				FAA3D2760F139CB300B2447E /* opless-channel-test.e */,
-				FAA3D2770F139CB300B2447E /* server-link-test.e */,
-				FA322D280CEF74B1001761B3 /* stress-A.e */,
-				FA322D290CEF74B1001761B3 /* stress-B.e */,
-				FA1A6BBD0D6857D900AA8F71 /* who-test.e */,
-				FA18A64D16CEE1D900132F66 /* whois-test.e */,
-				FA322D200CEF74B1001761B3 /* functions.inc */,
 				FAA3D2740F139CB300B2447E /* ngircd-test1.conf */,
 				FAA3D2750F139CB300B2447E /* ngircd-test2.conf */,
-				FA322D210CEF74B1001761B3 /* getpid.sh */,
+				FAA3D2760F139CB300B2447E /* opless-channel-test.e */,
+				FA322D250CEF74B1001761B3 /* README */,
+				FAA3D2770F139CB300B2447E /* server-link-test.e */,
 				FA322D260CEF74B1001761B3 /* start-server.sh */,
 				FA322D270CEF74B1001761B3 /* stop-server.sh */,
+				FA322D280CEF74B1001761B3 /* stress-A.e */,
+				FA322D290CEF74B1001761B3 /* stress-B.e */,
+				FA7E9FEE242FFC4500A04296 /* server-link-test.e */,
+				FA7E9FF0242FFC6C00A04296 /* server-login-test.e */,
 				FA322D2A0CEF74B1001761B3 /* stress-server.sh */,
 				FA322D2B0CEF74B1001761B3 /* test-loop.sh */,
 				FA322D2C0CEF74B1001761B3 /* tests.sh */,
 				FA322D2D0CEF74B1001761B3 /* wait-tests.sh */,
+				FA1A6BBD0D6857D900AA8F71 /* who-test.e */,
+				FA18A64D16CEE1D900132F66 /* whois-test.e */,
 			);
 			path = testsuite;
 			sourceTree = "<group>";

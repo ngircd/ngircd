@@ -130,9 +130,6 @@ Channel_InitPredefined( void )
 							conf_chan->name);
 			continue;
 		}
-		Log(LOG_INFO, "Created pre-defined channel \"%s\".",
-						conf_chan->name);
-
 		Channel_ModeAdd(new_chan, 'P');
 
 		if (conf_chan->topic[0])
@@ -168,6 +165,11 @@ Channel_InitPredefined( void )
 		Channel_SetKey(new_chan, conf_chan->key);
 		Channel_SetMaxUsers(new_chan, conf_chan->maxusers);
 		Set_KeyFile(new_chan, conf_chan->keyfile);
+
+		Log(LOG_INFO,
+		    "Created pre-defined channel \"%s\", mode \"%s\" (key \"%s\", limit %d).",
+		    new_chan->name, new_chan->modes, new_chan->key,
+		    new_chan->maxusers);
 	}
 	if (channel_count)
 		array_free(&Conf_Channels);

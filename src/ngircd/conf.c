@@ -2177,6 +2177,9 @@ Handle_CHANNEL(const char *File, int Line, char *Var, char *Arg)
 		len = strlcpy(chan->key, Arg, sizeof(chan->key));
 		if (len >= sizeof(chan->key))
 			Config_Error_TooLong(File, Line, Var);
+		Config_Error(LOG_WARNING,
+			     "%s, line %d (section \"Channel\"): \"%s\" is deprecated here, use \"Modes = +k <key>\"!",
+			     File, Line, Var);
 		return;
 	}
 	if( strcasecmp( Var, "MaxUsers" ) == 0 ) {
@@ -2184,6 +2187,9 @@ Handle_CHANNEL(const char *File, int Line, char *Var, char *Arg)
 		chan->maxusers = (unsigned long) atol(Arg);
 		if (!chan->maxusers && strcmp(Arg, "0"))
 			Config_Error_NaN(File, Line, Var);
+		Config_Error(LOG_WARNING,
+			     "%s, line %d (section \"Channel\"): \"%s\" is deprecated here, use \"Modes = +l <limit>\"!",
+			     File, Line, Var);
 		return;
 	}
 	if (strcasecmp(Var, "KeyFile") == 0) {

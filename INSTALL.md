@@ -12,6 +12,16 @@ configure ngIRCd.
 
 ## Upgrade Information
 
+Differences to version 25
+
+- Setting modes for predefined channels in *[Channel]* sections has been
+  enhanced: now you can set *all* modes, like in IRC "MODE" commands, and have
+  this setting multiple times per *[Channel]* block. Modifying lists (ban list,
+  invite list, exception list) is supported, too.
+
+  Both the *Key* and *MaxUsers* settings are now deprecated and should be
+  replaced by `Modes = +l <limit>` and `Modes = +k <key>` respectively.
+
 Differences to version 22.x
 
 - The *NoticeAuth* `ngircd.conf` configuration variable has been renamed to

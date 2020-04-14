@@ -102,7 +102,11 @@ typedef unsigned char bool;
 #endif
 
 #undef GLOBAL
+#ifdef GLOBAL_INIT
 #define GLOBAL
+#else
+#define GLOBAL extern
+#endif
 
 /* SPLint */
 

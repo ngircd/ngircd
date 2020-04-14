@@ -10,6 +10,7 @@
  */
 
 #define CONN_MODULE
+#define CONN_MODULE_GLOBAL_INIT
 
 #include "portab.h"
 

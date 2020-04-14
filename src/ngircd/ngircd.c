@@ -9,6 +9,7 @@
  * Please read the file COPYING, README and AUTHORS for more information.
  */
 
+#define GLOBAL_INIT
 #include "portab.h"
 
 /**

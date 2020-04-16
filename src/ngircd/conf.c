@@ -1290,116 +1290,6 @@ WarnPAM(const char UNUSED *File, int UNUSED Line)
 #endif
 }
 
-/**
- * Handle legacy "NoXXX" options in [GLOBAL] section.
- *
- * TODO: This function and support for "NoXXX" could be removed starting
- * with ngIRCd release 19 (one release after marking it "deprecated").
- *
- * @param Var	Variable name.
- * @param Arg	Argument string.
- * @returns	true if a NoXXX option has been processed; false otherwise.
- */
-static bool
-CheckLegacyNoOption(const char *Var, const char *Arg)
-{
-	if(strcasecmp(Var, "NoDNS") == 0) {
-		Conf_DNS = !Check_ArgIsTrue( Arg );
-		return true;
-	}
-	if (strcasecmp(Var, "NoIdent") == 0) {
-		Conf_Ident = !Check_ArgIsTrue(Arg);
-		return true;
-	}
-	if(strcasecmp(Var, "NoPAM") == 0) {
-		Conf_PAM = !Check_ArgIsTrue(Arg);
-		return true;
-	}
-	return false;
-}
-
-/**
- * Handle deprecated legacy options in [GLOBAL] section.
- *
- * TODO: This function and support for these options in the [Global] section
- * could be removed starting with ngIRCd release 19 (one release after
- * marking it "deprecated").
- *
- * @param Var	Variable name.
- * @param Arg	Argument string.
- * @returns	true if a legacy option has been processed; false otherwise.
- */
-static const char*
-CheckLegacyGlobalOption(const char *File, int Line, char *Var, char *Arg)
-{
-	if (strcasecmp(Var, "AllowRemoteOper") == 0
-	    || strcasecmp(Var, "ChrootDir") == 0
-	    || strcasecmp(Var, "ConnectIPv4") == 0
-	    || strcasecmp(Var, "ConnectIPv6") == 0
-	    || strcasecmp(Var, "OperCanUseMode") == 0
-	    || strcasecmp(Var, "OperChanPAutoOp") == 0
-	    || strcasecmp(Var, "OperServerMode") == 0
-	    || strcasecmp(Var, "PredefChannelsOnly") == 0
-	    || strcasecmp(Var, "SyslogFacility") == 0
-	    || strcasecmp(Var, "WebircPassword") == 0) {
-		Handle_OPTIONS(File, Line, Var, Arg);
-		return "[Options]";
-	}
-	if (strcasecmp(Var, "ConnectRetry") == 0
-	    || strcasecmp(Var, "IdleTimeout") == 0
-	    || strcasecmp(Var, "MaxConnections") == 0
-	    || strcasecmp(Var, "MaxConnectionsIP") == 0
-	    || strcasecmp(Var, "MaxJoins") == 0
-	    || strcasecmp(Var, "MaxNickLength") == 0
-	    || strcasecmp(Var, "PingTimeout") == 0
-	    || strcasecmp(Var, "PongTimeout") == 0) {
-		Handle_LIMITS(File, Line, Var, Arg);
-		return "[Limits]";
-	}
-#ifdef SSL_SUPPORT
-	if (strcasecmp(Var, "SSLCertFile") == 0
-	    || strcasecmp(Var, "SSLDHFile") == 0
-	    || strcasecmp(Var, "SSLKeyFile") == 0
-	    || strcasecmp(Var, "SSLKeyFilePassword") == 0
-	    || strcasecmp(Var, "SSLPorts") == 0) {
-		Handle_SSL(File, Line, Var + 3, Arg);
-		return "[SSL]";
-	}
-#endif
-
-	return NULL;
-}
-
-/**
- * Strip "no" prefix of a string.
- *
- * TODO: This function and support for "NoXXX" should be removed starting
- * with ngIRCd release 19! (One release after marking it "deprecated").
- *
- * @param str	Pointer to input string starting with "no".
- * @returns	New pointer to string without "no" prefix.
- */
-static const char *
-NoNo(const char *str)
-{
-	assert(strncasecmp("no", str, 2) == 0 && str[2]);
-	return str + 2;
-}
-
-/**
- * Invert "boolean" string.
- *
- * TODO: This function and support for "NoXXX" should be removed starting
- * with ngIRCd release 19! (One release after marking it "deprecated").
- *
- * @param arg	"Boolean" input string.
- * @returns	Pointer to inverted "boolean string".
- */
-static const char *
-InvertArg(const char *arg)
-{
-	return yesno_to_str(!Check_ArgIsTrue(arg));
-}
 
 /**
  * Handle variable in [Global] configuration section.
@@ -1414,7 +1304,6 @@ Handle_GLOBAL(const char *File, int Line, char *Var, char *Arg )
 	struct passwd *pwd;
 	struct group *grp;
 	size_t len;
-	const char *section;
 	char *ptr;
 
 	assert(File != NULL);
@@ -1550,36 +1439,6 @@ Handle_GLOBAL(const char *File, int Line, char *Var, char *Arg )
 				Config_Error(LOG_WARNING,
 					     "%s, line %d: Value of \"%s\" is not a valid user name or ID!",
 					     File, Line, Var);
-		}
-		return;
-	}
-
-	if (CheckLegacyNoOption(Var, Arg)) {
-		/* TODO: This function and support for "NoXXX" could be
-		 * be removed starting with ngIRCd release 19 (one release
-		 * after marking it "deprecated"). */
-		Config_Error(LOG_WARNING,
-			     "%s, line %d (section \"Global\"): \"No\"-Prefix is deprecated, use \"%s = %s\" in [Options] section!",
-			     File, Line, NoNo(Var), InvertArg(Arg));
-		if (strcasecmp(Var, "NoIdent") == 0)
-			WarnIdent(File, Line);
-		else if (strcasecmp(Var, "NoPam") == 0)
-			WarnPAM(File, Line);
-		return;
-	}
-	if ((section = CheckLegacyGlobalOption(File, Line, Var, Arg))) {
-		/** TODO: This function and support for these options in the
-		 * [Global] section could be removed starting with ngIRCd
-		 * release 19 (one release after marking it "deprecated"). */
-		if (strncasecmp(Var, "SSL", 3) == 0) {
-			Config_Error(LOG_WARNING,
-				     "%s, line %d (section \"Global\"): \"%s\" is deprecated here, move it to %s and rename to \"%s\"!",
-				     File, Line, Var, section,
-				     Var + 3);
-		} else {
-			Config_Error(LOG_WARNING,
-				     "%s, line %d (section \"Global\"): \"%s\" is deprecated here, move it to %s!",
-				     File, Line, Var, section);
 		}
 		return;
 	}
@@ -1808,18 +1667,6 @@ Handle_OPTIONS(const char *File, int Line, char *Var, char *Arg)
 		Conf_MorePrivacy = Check_ArgIsTrue(Arg);
 		return;
 	}
-	if (strcasecmp(Var, "NoticeAuth") == 0) {
-		/*
-		 * TODO: This section and support for "NoticeAuth" variable
-		 * could be removed starting with ngIRCd release 24 (one
-		 * release after marking it "deprecated") ...
-		 */
-		Config_Error(LOG_WARNING,
-			     "%s, line %d (section \"Options\"): \"%s\" is deprecated, please use \"NoticeBeforeRegistration\"!",
-			     File, Line, Var);
-		Conf_NoticeBeforeRegistration = Check_ArgIsTrue(Arg);
-		return;
-	}
 	if (strcasecmp(Var, "NoticeBeforeRegistration") == 0) {
 		Conf_NoticeBeforeRegistration = Check_ArgIsTrue(Arg);
 		return;
@@ -1849,22 +1696,6 @@ Handle_OPTIONS(const char *File, int Line, char *Var, char *Arg)
 		len = strlcpy(Conf_PAMServiceName, Arg, sizeof(Conf_PAMServiceName));
 		if (len >= sizeof(Conf_PAMServiceName))
 			Config_Error_TooLong(File, Line, Var);
-		return;
-	}
-	if (strcasecmp(Var, "PredefChannelsOnly") == 0) {
-		/*
-		 * TODO: This section and support for "PredefChannelsOnly"
-		 * could be removed starting with ngIRCd release 22 (one
-		 * release after marking it "deprecated") ...
-		 */
-		Config_Error(LOG_WARNING,
-			     "%s, line %d (section \"Options\"): \"%s\" is deprecated, please use \"AllowedChannelTypes\"!",
-			     File, Line, Var);
-		if (Check_ArgIsTrue(Arg))
-			Conf_AllowedChannelTypes[0] = '\0';
-		else
-			strlcpy(Conf_AllowedChannelTypes, CHANTYPES,
-				sizeof(Conf_AllowedChannelTypes));
 		return;
 	}
 #ifndef STRICT_RFC

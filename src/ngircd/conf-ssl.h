@@ -40,6 +40,7 @@ struct ConnSSL_State {
 	gnutls_session_t gnutls_session;
 	void *cookie;		/* pointer to server configuration structure
 				   (for outgoing connections), or NULL. */
+	size_t x509_cred_idx;	/* index of active x509 credential record */
 #endif
 	char *fingerprint;
 };

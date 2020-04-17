@@ -62,7 +62,14 @@ static bool ConnSSL_LoadServerKey_openssl PARAMS(( SSL_CTX *c ));
 
 #define MAX_HASH_SIZE	64	/* from gnutls-int.h */
 
-static gnutls_certificate_credentials_t x509_cred;
+typedef struct {
+	int refcnt;
+	gnutls_certificate_credentials_t x509_cred;
+} x509_cred_slot;
+
+static array x509_creds = INIT_ARRAY;
+static size_t x509_cred_idx;
+
 static gnutls_dh_params_t dh_params;
 static gnutls_priority_t priorities_cache;
 static bool ConnSSL_LoadServerKey_gnutls PARAMS(( void ));
@@ -266,6 +273,20 @@ void ConnSSL_Free(CONNECTION *c)
 		gnutls_bye(sess, GNUTLS_SHUT_RDWR);
 		gnutls_deinit(sess);
 	}
+	x509_cred_slot *slot = array_get(&x509_creds, sizeof(x509_cred_slot), c->ssl_state.x509_cred_idx);
+	assert(slot != NULL);
+	assert(slot->refcnt > 0);
+	assert(slot->x509_cred != NULL);
+	slot->refcnt--;
+	if ((c->ssl_state.x509_cred_idx != x509_cred_idx) && (slot->refcnt <= 0)) {
+		Log(LOG_INFO, "Discarding X509 certificate credentials from slot %zd.",
+		    c->ssl_state.x509_cred_idx);
+		/* TODO/FIXME: DH parameters will still leak memory. */
+		gnutls_certificate_free_keys(slot->x509_cred);
+		gnutls_certificate_free_credentials(slot->x509_cred);
+		slot->x509_cred = NULL;
+		slot->refcnt = 0;
+	}
 #endif
 	assert(Conn_OPTION_ISSET(c, CONN_SSL));
 	/* can't just set bitmask to 0 -- there are other, non-ssl related flags, e.g. CONN_ZIP. */
@@ -348,17 +369,13 @@ out:
 	int err;
 	static bool initialized;
 
-	if (initialized) {
-		/* TODO: cannot reload gnutls keys: can't simply free x509
-		 * context -- it may still be in use */
-		return false;
-	}
-
-	err = gnutls_global_init();
-	if (err) {
-		Log(LOG_ERR, "Failed to initialize GnuTLS: %s",
-		    gnutls_strerror(err));
-		goto out;
+	if (!initialized) {
+		err = gnutls_global_init();
+		if (err) {
+			Log(LOG_ERR, "Failed to initialize GnuTLS: %s",
+			    gnutls_strerror(err));
+			goto out;
+		}
 	}
 
 	if (!ConnSSL_LoadServerKey_gnutls())
@@ -388,6 +405,9 @@ ConnSSL_LoadServerKey_gnutls(void)
 {
 	int err;
 	const char *cert_file;
+
+	x509_cred_slot *slot = NULL;
+	gnutls_certificate_credentials_t x509_cred;
 
 	err = gnutls_certificate_allocate_credentials(&x509_cred);
 	if (err < 0) {
@@ -419,6 +439,42 @@ ConnSSL_LoadServerKey_gnutls(void)
 		    gnutls_strerror(err));
 		return false;
 	}
+
+	/* Free currently active x509 context (if any) unless it is still in use */
+	slot = array_get(&x509_creds, sizeof(x509_cred_slot), x509_cred_idx);
+	if ((slot != NULL) && (slot->refcnt <= 0) && (slot->x509_cred != NULL)) {
+		Log(LOG_INFO, "Discarding X509 certificate credentials from slot %zd.", x509_cred_idx);
+		/* TODO/FIXME: DH parameters will still leak memory. */
+		gnutls_certificate_free_keys(slot->x509_cred);
+		gnutls_certificate_free_credentials(slot->x509_cred);
+		slot->x509_cred = NULL;
+		slot->refcnt = 0;
+	}
+
+	/* Find free slot */
+	x509_cred_idx = (size_t) -1;
+	size_t i;
+	for (slot = array_start(&x509_creds), i = 0;
+	     i < array_length(&x509_creds, sizeof(x509_cred_slot));
+	     slot++, i++) {
+		if (slot->refcnt <= 0) {
+			x509_cred_idx = i;
+			break;
+		}
+	}
+	/* ... allocate new slot otherwise. */
+	if (x509_cred_idx == (size_t) -1) {
+		x509_cred_idx = array_length(&x509_creds, sizeof(x509_cred_slot));
+		slot = array_alloc(&x509_creds, sizeof(x509_cred_slot), x509_cred_idx);
+		if (slot == NULL) {
+			Log(LOG_ERR, "Failed to allocate new slot for certificate credentials");
+			return false;
+		}
+	}
+	Log(LOG_INFO, "Storing new X509 certificate credentials in slot %zd.", x509_cred_idx);
+	slot->x509_cred = x509_cred;
+	slot->refcnt = 0;
+
 	return true;
 }
 #endif
@@ -520,8 +576,13 @@ ConnSSL_Init_SSL(CONNECTION *c)
 				 (gnutls_transport_ptr_t) (long) c->sock);
 	gnutls_certificate_server_set_request(c->ssl_state.gnutls_session,
 					      GNUTLS_CERT_REQUEST);
+
+	Log(LOG_INFO, "Using X509 credentials from slot %zd", x509_cred_idx);
+	c->ssl_state.x509_cred_idx = x509_cred_idx;
+	x509_cred_slot *slot = array_get(&x509_creds, sizeof(x509_cred_slot), x509_cred_idx);
+	slot->refcnt++;
 	ret = gnutls_credentials_set(c->ssl_state.gnutls_session,
-				     GNUTLS_CRD_CERTIFICATE, x509_cred);
+				     GNUTLS_CRD_CERTIFICATE, slot->x509_cred);
 	if (ret != 0) {
 		Log(LOG_ERR, "Failed to set SSL credentials: %s",
 		    gnutls_strerror(ret));

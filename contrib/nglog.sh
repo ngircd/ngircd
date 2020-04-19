@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001-2019 Alexander Barton (alex@barton.de) and Contributors
+# Copyright (c)2001-2020 Alexander Barton (alex@barton.de) and Contributors
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,4 +23,6 @@ awk '
   /^\[[[:digit:]]+:5 / {print "\033[1m" $0 "\033[0m"}
   /^\[[[:digit:]]+:6 / {print $0}
   /^\[[[:digit:]]+:7 / {print "\033[90m" $0 "\033[0m"}
-'
+' </dev/stdin &
+
+wait

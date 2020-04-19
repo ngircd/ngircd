@@ -65,13 +65,14 @@ static bool ConnSSL_LoadServerKey_openssl PARAMS(( SSL_CTX *c ));
 typedef struct {
 	int refcnt;
 	gnutls_certificate_credentials_t x509_cred;
+	gnutls_dh_params_t dh_params;
 } x509_cred_slot;
 
 static array x509_creds = INIT_ARRAY;
 static size_t x509_cred_idx;
 
 static gnutls_dh_params_t dh_params;
-static gnutls_priority_t priorities_cache;
+static gnutls_priority_t priorities_cache = NULL;
 static bool ConnSSL_LoadServerKey_gnutls PARAMS(( void ));
 #endif
 
@@ -281,10 +282,11 @@ void ConnSSL_Free(CONNECTION *c)
 	if ((c->ssl_state.x509_cred_idx != x509_cred_idx) && (slot->refcnt <= 0)) {
 		Log(LOG_INFO, "Discarding X509 certificate credentials from slot %zd.",
 		    c->ssl_state.x509_cred_idx);
-		/* TODO/FIXME: DH parameters will still leak memory. */
 		gnutls_certificate_free_keys(slot->x509_cred);
 		gnutls_certificate_free_credentials(slot->x509_cred);
 		slot->x509_cred = NULL;
+		gnutls_dh_params_deinit(slot->dh_params);
+		slot->dh_params = NULL;
 		slot->refcnt = 0;
 	}
 #endif
@@ -381,6 +383,9 @@ out:
 	if (!ConnSSL_LoadServerKey_gnutls())
 		goto out;
 
+	if (priorities_cache != NULL) {
+		gnutls_priority_deinit(priorities_cache);
+	}
 	if (gnutls_priority_init(&priorities_cache, Conf_SSLOptions.CipherList,
 				 NULL) != GNUTLS_E_SUCCESS) {
 		Log(LOG_ERR,
@@ -444,10 +449,11 @@ ConnSSL_LoadServerKey_gnutls(void)
 	slot = array_get(&x509_creds, sizeof(x509_cred_slot), x509_cred_idx);
 	if ((slot != NULL) && (slot->refcnt <= 0) && (slot->x509_cred != NULL)) {
 		Log(LOG_INFO, "Discarding X509 certificate credentials from slot %zd.", x509_cred_idx);
-		/* TODO/FIXME: DH parameters will still leak memory. */
 		gnutls_certificate_free_keys(slot->x509_cred);
 		gnutls_certificate_free_credentials(slot->x509_cred);
 		slot->x509_cred = NULL;
+		gnutls_dh_params_deinit(slot->dh_params);
+		slot->dh_params = NULL;
 		slot->refcnt = 0;
 	}
 

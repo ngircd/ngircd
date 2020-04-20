@@ -14,6 +14,14 @@ configure ngIRCd.
 
 Differences to version 25
 
+- **Attention**:
+  All already deprecated legacy options (besides the newly deprecated *Key* and
+  *MaxUsers* settings, see below) were removed in ngIRCd 26, so make sure to
+  update your configuration before upgrading, if you haven't done so already
+  (you got a warning on daemon startup when using deprecated options): you can
+  check your configuration using `ngircd --configtest` -- which is a good idea
+  anyway ;-)
+
 - Setting modes for predefined channels in *[Channel]* sections has been
   enhanced: now you can set *all* modes, like in IRC "MODE" commands, and have
   this setting multiple times per *[Channel]* block. Modifying lists (ban list,

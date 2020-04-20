@@ -61,7 +61,8 @@ ngIRCd 26
     server would cloak every user's host mask. The problem is that if a network
     has more than one server, then a user's host mask would get cloaked twice.
     This patch ensures that a server only cloaks the host mask if it has not yet
-    been cloaked (the period indicates it's still an IP address).
+    been cloaked (the period indicates it's still an IP address). Thanks to
+    JRMU <jrmu@lecturify.com> for the patch!
     Closes #228.
   - Enlarge buffers of info texts to 128 bytes. This includes:
     - "Real name" of a client (4th filed of the USER command).

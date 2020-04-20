@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # ngIRCd -- The Next Generation IRC Daemon
 # Copyright (c)2001-2020 Alexander Barton (alex@barton.de) and Contributors

@@ -55,7 +55,7 @@ all: $(generated_docs)
 install-data-hook: $(static_docs) $(toplevel_docs) $(generated_docs)
 	$(MKDIR_P) -m 755 $(DESTDIR)$(sysconfdir)
 	@if [ ! -f $(DESTDIR)$(sysconfdir)/ngircd.conf ]; then \
-	  make install-config; \
+	  ${MAKE} install-config; \
 	 fi
 	$(MKDIR_P) -m 755 $(DESTDIR)$(docdir)
 	for f in $(static_docs) $(toplevel_docs); do \
@@ -75,7 +75,7 @@ install-config:
 uninstall-hook:
 	rm -rf $(DESTDIR)$(docdir)
 	@if cmp --silent sample-ngircd.conf $(DESTDIR)$(sysconfdir)/ngircd.conf; then \
-	  make uninstall-config; \
+	  ${MAKE} uninstall-config; \
 	 else \
 	  echo; \
 	  echo " ** NOTE: Not uninstalling changed configuration file:"; \
@@ -87,7 +87,7 @@ uninstall-config:
 	rm -f $(DESTDIR)$(sysconfdir)/ngircd.conf
 
 srcdoc:
-	make -C src srcdoc
+	${MAKE} -C src srcdoc
 
 .PHONY: install-config uninstall-config srcdoc
 

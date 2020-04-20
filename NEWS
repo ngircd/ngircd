@@ -8,6 +8,47 @@
 
                                   -- NEWS --
 
+ngIRCd 26
+
+  ngIRCd 26~rc1
+  - Allow setting arbitrary channel modes in the configuration file by handling
+    them like in MODE commands, and allow multiple "Modes =" lines per [Channel]
+    section. Thanks to Michi <michi+ngircd@dataswamp.org>!
+    Closes #55.
+  - Add "FNC" (forced nick changes) to ISUPPORT(005) numeric. Most probably
+    this doesn't make any difference to any client, but it seems correct.
+    See <http://www.irc.org/tech_docs/005.html> for details.
+  - Enhance handling of command line errors, and return with exit code 0 ("no
+    error") when "--help" or "--version" is used (which resulted in exit code 1,
+    "error" before). Exit with code 2 ("command line error") for all other
+    invalid command line options, and show the error message itself on stderr
+    (instead of stdout and exit code 1, "generic error", as before).
+    This new behaviour is more in line with the GNU "coding standards",
+    see <https://www.gnu.org/prep/standards/html_node/_002d_002dhelp.html>.
+  - Add ./contrib/nglog.sh: This script parses the log output of ngircd(8),
+    and colorizes the messages according to their log level. Example usage:
+    ngircd -f $PWD/doc/sample-ngircd.conf -np | ./contrib/nglog.sh
+  - Enlarge buffers of info texts to 128 bytes. This includes:
+    - "Real name" of a client (4th filed of the USER command).
+    - Server info text ("Info" configuration option).
+    - Admin info texts and email address ("AdminInfo1", "AdminInfo2" and
+      "AdminEmail" configuration options).
+    - Network name ("Network" configuration option).
+    The limit was 64 bytes before ...
+    Closes #258.
+  - Streamline handling of invalid and unset server name: Don't exit during
+    runtime (REHASH command, HUP signal), because the server name can't be
+    changed in this case anyway and the new invalid name will be ignored.
+  - Slightly reorder startup steps, and enhance logging:
+    - Show name of configuration file at the beginning of start up.
+    - Add a message when ngIRCd is ready, including its host name.
+    - Show name of configuration file on REHASH (SIGHUP), too.
+    - Change level of "done message" to NOTICE, like "starting" & "ready".
+    - Initialize IO functions before channels, connections, clients, ...
+  - configure.ng: OpenSSL can depends on lz or latomic so use pkg-config to
+    find those dependencies and fallback to existing mechanism.
+    Closes #256.
+
 ngIRCd 25 (2019-01-23)
 
   - Implement new configuration option "MaxPenaltyTime", which configures the

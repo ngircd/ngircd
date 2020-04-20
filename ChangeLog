@@ -8,6 +8,88 @@
 
                                -- ChangeLog --
 
+ngIRCd 26
+
+  ngIRCd 26~rc1
+  - Remove deprecated legacy configuration options and related functions that
+    have been marked for removal for quite some time:
+    - PredefChannelsOnly (v22)
+    - NoticeAuth (v24)
+    - NoXXX (v19)
+    - Old '[GLOBAL]' section handling (v19)
+    Thanks to Michi <michi+ngircd@dataswamp.org> for the patch!
+  - Increase read buffer size for server connections: This applies the same
+    logic we have for write buffers to distinguish between server and client
+    connections and sets the maximum buffer size accordingly. As a result
+    peering with servers with many GLINE/KLINEs does not kill the connecting
+    server connection anymore. Thanks to Michi <michi+ngircd@dataswamp.org>!
+  - Fix recursion bug on write errors: Depending on the stack size, too many
+    clients on the same channel quitting at the same time would trigger a crash
+    due to too many recursive calls to Conn_Close(). Thanks to Michi
+    <michi+ngircd@dataswamp.org> for the patch!
+  - Fix builds using GCC option -fno-common, which is the default starting with
+    GCC 10. Thanks to Michi <michi+ngircd@dataswamp.org> for the patch!
+    Closes #266.
+  - Convert INSTALL and README files to Markdown.
+  - Allow setting arbitrary channel modes in the configuration file by handling
+    them like in MODE commands, and allow multiple "Modes =" lines per [Channel]
+    section. Thanks to Michi <michi+ngircd@dataswamp.org>!
+    Closes #55.
+  - Add "FNC" (forced nick changes) to ISUPPORT(005) numeric. Most probably
+    this doesn't make any difference to any client, but it seems correct.
+    See <http://www.irc.org/tech_docs/005.html> for details.
+  - Reuse old SSL key if loading a new one failed.
+  - Remove outdated OpenBSD/NetBSD systrace.policy.
+  - Enhance handling of command line errors, and return with exit code 0 ("no
+    error") when "--help" or "--version" is used (which resulted in exit code 1,
+    "error" before). Exit with code 2 ("command line error") for all other
+    invalid command line options, and show the error message itself on stderr
+    (instead of stdout and exit code 1, "generic error", as before).
+    This new behaviour is more in line with the GNU "coding standards",
+    see <https://www.gnu.org/prep/standards/html_node/_002d_002dhelp.html>.
+  - Fix and update Xcode project: Reference correct contrib/Makefile.am file,
+    correctly sort contrib/nglog.sh and add "ORGANIZATIONNAME" setting.
+  - contrib/ngindent.sh: Add more GNU indent options for better results, and
+    add the ".sh" suffix to bring this script in line with the others in the
+    contrib/ folder.
+  - Add ./contrib/nglog.sh: This script parses the log output of ngircd(8),
+    and colorizes the messages according to their log level. Example usage:
+    ngircd -f $PWD/doc/sample-ngircd.conf -np | ./contrib/nglog.sh
+  - Log received signals with their names using strsignal(3), when available.
+  - Make test suite compatible with Haiku OS.
+  - Fix host mask cloaking bug, don't cloak multiple times: Previously, each
+    server would cloak every user's host mask. The problem is that if a network
+    has more than one server, then a user's host mask would get cloaked twice.
+    This patch ensures that a server only cloaks the host mask if it has not yet
+    been cloaked (the period indicates it's still an IP address).
+    Closes #228.
+  - Enlarge buffers of info texts to 128 bytes. This includes:
+    - "Real name" of a client (4th filed of the USER command).
+    - Server info text ("Info" configuration option).
+    - Admin info texts and email address ("AdminInfo1", "AdminInfo2" and
+      "AdminEmail" configuration options).
+    - Network name ("Network" configuration option).
+    The limit was 64 bytes before ...
+    Closes #258.
+  - Streamline handling of invalid and unset server name: Don't exit during
+    runtime (REHASH command, HUP signal), because the server name can't be
+    changed in this case anyway and the new invalid name will be ignored.
+  - Fix and extend documentation: Fix some typos, fix syntax of LINKS and LIST
+    commands, whitespace and spelling fixes, update dependencies and add some
+    more information about IRCv3 support.
+    Thanks to Thanks Windree, Étienne Mollier <etienne.mollier@mailoo.org> and
+    Christoph Biedl <debian.axhn@manchmal.in-ulm.de>.
+    Closes #264.
+  - Slightly reorder startup steps, and enhance logging:
+    - Show name of configuration file at the beginning of start up.
+    - Add a message when ngIRCd is ready, including its host name.
+    - Show name of configuration file on REHASH (SIGHUP), too.
+    - Change level of "done message" to NOTICE, like "starting" & "ready".
+    - Initialize IO functions before channels, connections, clients, ...
+  - configure.ng: OpenSSL can depends on lz or latomic so use pkg-config to
+    find those dependencies and fallback to existing mechanism.
+    Closes #256.
+  - ngircd.conf.5: Fix wording as suggested by lintian.
 
 ngIRCd 25 (2019-01-23)
 

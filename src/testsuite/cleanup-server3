@@ -1,0 +1,2 @@
+#!/bin/sh
+rm ssl/cert.pem ssl/key.pem ssl/dhparams.pem

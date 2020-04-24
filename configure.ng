@@ -506,6 +506,8 @@ if test "$x_ssl_openssl" = "yes"; then
 	x_ssl_lib=openssl
 fi
 
+AM_CONDITIONAL(HAVE_SSL, [test $x_ssl_lib != "no"])
+
 # use TCP wrappers?
 
 x_tcpwrap_on=no

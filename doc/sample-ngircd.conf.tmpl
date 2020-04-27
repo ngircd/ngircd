@@ -385,18 +385,15 @@
 	# Topic for this channel
 	;Topic = a great topic
 
-	# Initial channel modes
-	;Modes = tnk
-
-	# initial channel password (mode k)
-	;Key = Secret
+	# Initial channel modes, as used in "MODE" commands. Modifying lists
+	# (ban list, invite list, exception list) is supported.
+	# This option can be specified multiple times, evaluated top to bottom.
+	;Modes = +tnk mykey +l 5
+	;Modes = +b nick!~user@bad.host.example.com
 
 	# Key file, syntax for each line: "<user>:<nick>:<key>".
 	# Default: none.
 	;KeyFile = :ETCDIR:/#chan.key
-
-	# maximum users per channel (mode l)
-	;MaxUsers = 23
 
 [Channel]
 	# More [Channel] sections, if you like ...

@@ -104,9 +104,10 @@ Check_strlcat(void)
 static void
 Check_strtok_r(void)
 {
-	char *ptr, *last;
+	char *str, *ptr, *last;
 
 	ptr = strdup("12,abc");
+	str = ptr;
 
 	ptr = strtok_r(ptr, ",", &last);
 	if (!ptr)
@@ -123,6 +124,8 @@ Check_strtok_r(void)
 	ptr = strtok_r(NULL, ",", &last);
 	if (ptr)
 		Panic("strtok_r result #3");
+
+	free(str);
 }
 
 #ifdef PROTOTYPES

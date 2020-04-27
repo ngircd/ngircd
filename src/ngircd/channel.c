@@ -36,6 +36,8 @@
 #include "log.h"
 #include "messages.h"
 #include "match.h"
+#include "parse.h"
+#include "irc-mode.h"
 
 #define REMOVE_PART 0
 #define REMOVE_QUIT 1
@@ -93,9 +95,11 @@ GLOBAL void
 Channel_InitPredefined( void )
 {
 	CHANNEL *new_chan;
+	REQUEST Req;
 	const struct Conf_Channel *conf_chan;
-	const char *c;
-	size_t i, channel_count = array_length(&Conf_Channels, sizeof(*conf_chan));
+	char *c;
+	char modes[COMMAND_LEN], name[CHANNEL_NAME_LEN];
+	size_t i, n, channel_count = array_length(&Conf_Channels, sizeof(*conf_chan));
 
 	conf_chan = array_start(&Conf_Channels);
 
@@ -126,21 +130,61 @@ Channel_InitPredefined( void )
 							conf_chan->name);
 			continue;
 		}
-		Log(LOG_INFO, "Created pre-defined channel \"%s\".",
-						conf_chan->name);
-
 		Channel_ModeAdd(new_chan, 'P');
 
 		if (conf_chan->topic[0])
 			Channel_SetTopic(new_chan, NULL, conf_chan->topic);
 
-		c = conf_chan->modes;
-		while (*c)
-			Channel_ModeAdd(new_chan, *c++);
+		/* Evaluate modes strings with fake requests */
+		if (conf_chan->modes_num) {
+			/* Prepare fake request structure */
+			strlcpy(name, conf_chan->name, sizeof(name));
+			Log(LOG_INFO, "Evaluating predefined channel modes for \"%s\".", name);
+			Req.argv[0] = name;
+			Req.prefix = Client_ID(Client_ThisServer());
+			Req.command = "MODE";
 
-		Channel_SetKey(new_chan, conf_chan->key);
-		Channel_SetMaxUsers(new_chan, conf_chan->maxusers);
+			/* Iterate over channel modes strings */
+			for (n = 0; n < conf_chan->modes_num; n++) {
+				Req.argc = 1;
+				strlcpy(modes, conf_chan->modes[n], sizeof(modes));
+				Log(LOG_DEBUG, "Evaluate \"MODE %s %s\".", name, modes);
+				c = strtok(modes, " ");
+				while (c && Req.argc < 15) {
+					Req.argv[Req.argc++] = c;
+					c = strtok(0, " ");
+				}
+
+				if (Req.argc > 1) {
+					/* Handling of legacy "Key" and "MaxUsers" settings:
+					 * Enforce setting the respective mode(s), to support
+					 * the legacy "Mode = kl" notation, which was valid but
+					 * is an invalid MODE string: key and limit are missing!
+					 * So set them manually when "k" or "l" are detected in
+					 * the first MODE parameter ... */
+					if (Req.argc > 1 && strchr(Req.argv[1], 'k')) {
+						Channel_SetKey(new_chan, conf_chan->key);
+						Channel_ModeAdd(new_chan, 'k');
+					}
+					if (strchr(Req.argv[1], 'l')) {
+						Channel_SetMaxUsers(new_chan, conf_chan->maxusers);
+						Channel_ModeAdd(new_chan, 'l');
+					}
+
+					IRC_MODE(Client_ThisServer(), &Req);
+				}
+
+				/* Original channel modes srings are no longer needed */
+				free(conf_chan->modes[n]);
+			}
+		}
+
 		Set_KeyFile(new_chan, conf_chan->keyfile);
+
+		Log(LOG_INFO,
+		    "Created pre-defined channel \"%s\", mode \"%s\" (key \"%s\", limit %d).",
+		    new_chan->name, new_chan->modes, new_chan->key,
+		    new_chan->maxusers);
 	}
 	if (channel_count)
 		array_free(&Conf_Channels);

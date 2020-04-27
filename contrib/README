@@ -2,7 +2,7 @@
                      ngIRCd - Next Generation IRC Server
                            http://ngircd.barton.de/
 
-               (c)2001-2013 Alexander Barton and Contributors.
+               (c)2001-2020 Alexander Barton and Contributors.
                ngIRCd is free software and published under the
                    terms of the GNU General Public License.
 
@@ -18,7 +18,7 @@ MacOSX/
  - Project files for XCode, the "project builder" of Apple Mac OS X.
 	- de.barton.ngircd.plist[.tmpl]: launchd(8) property list.
 
-ngindent
+ngindent.sh
  - Script to indent the code of ngIRCd in the "standard way".
 
 ngircd-bsd.sh
@@ -39,8 +39,8 @@ ngircd.socket
 ngircd.spec
  - RPM "spec" file.
 
+nglog.sh
+ - Colorizes the log messages of ngircd(8) accoring to their log level.
+
 platformtest.sh
  - Build ngIRCd and output a "result line" suitable for doc/Platforms.txt.
-
-systrace.policy
- - Systrace policy file for OpenBSD (and probably NetBSD).

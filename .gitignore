@@ -23,6 +23,7 @@ depcomp
 install-sh
 missing
 ngircd.dest
+.*.swp
 .deps
 .vscode
 *.a

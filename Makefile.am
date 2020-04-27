@@ -9,11 +9,9 @@
 # Please read the file COPYING, README and AUTHORS for more information.
 #
 
-AUTOMAKE_OPTIONS = gnu
-
 SUBDIRS = doc src man contrib
 
-EXTRA_DIST = autogen.sh configure.ng .clang_complete .mailmap
+EXTRA_DIST = README.md INSTALL.md autogen.sh configure.ng .clang_complete .mailmap
 
 clean-local: osxpkg-clean
 	rm -f build-stamp*
@@ -25,13 +23,13 @@ maintainer-clean-local:
 	rm -f config.log debian
 
 testsuite:
-	cd src/testsuite && make check
+	cd src/testsuite && ${MAKE} check
 
 lint:
-	cd src/ngircd && make lint
+	cd src/ngircd && ${MAKE} lint
 
 srcdoc:
-	cd doc && make srcdoc
+	cd doc && ${MAKE} srcdoc
 
 have-xcodebuild:
 	@xcodebuild -project contrib/MacOSX/ngIRCd.xcodeproj -list \
@@ -66,7 +64,7 @@ osxpkg: have-packagemaker osxpkg-dest
 	 --out ../../$(distdir).mpkg
 	rm -f $(distdir).mpkg.zip
 	zip -ro9 $(distdir).mpkg.zip $(distdir).mpkg
-	make osxpkg-clean
+	${MAKE} osxpkg-clean
 
 osxpkg-clean:
 	[ ! -r ngircd.dest ] || sudo -n rm -rf ngircd.dest
@@ -74,12 +72,12 @@ osxpkg-clean:
 
 osxpkg-dest: have-xcodebuild osxpkg-clean clean
 	./configure --prefix=/opt/ngircd
-	make xcode
-	make -C contrib/MacOSX de.barton.ngircd.plist
+	${MAKE} xcode
+	${MAKE} -C contrib/MacOSX de.barton.ngircd.plist
 	mkdir -p ngircd.dest/opt/ngircd/sbin
-	DESTDIR="$$PWD/ngircd.dest" make -C doc install
-	DESTDIR="$$PWD/ngircd.dest" make -C contrib install
-	DESTDIR="$$PWD/ngircd.dest" make -C man install
+	DESTDIR="$$PWD/ngircd.dest" ${MAKE} -C doc install
+	DESTDIR="$$PWD/ngircd.dest" ${MAKE} -C contrib install
+	DESTDIR="$$PWD/ngircd.dest" ${MAKE} -C man install
 	cp contrib/MacOSX/build/Default/ngIRCd \
 	 ngircd.dest/opt/ngircd/sbin/ngircd
 	rm ngircd.dest/opt/ngircd/etc/ngircd.conf

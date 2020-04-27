@@ -153,6 +153,12 @@
 /** Size of the read buffer of a connection in bytes. */
 #define READBUFFER_LEN 2048
 
+/** Maximum size of the read buffer of a connection in bytes. */
+#define READBUFFER_MAX_LEN 65535
+
+/** Maximum size of the read buffer of a server link connection in bytes. */
+#define READBUFFER_SLINK_LEN 65536
+
 /** Size that triggers write buffer flushing if more space is needed. */
 #define WRITEBUFFER_FLUSH_LEN 4096
 
@@ -160,7 +166,7 @@
 #define WRITEBUFFER_MAX_LEN 32768
 
 /** Maximum size of the write buffer of a server link connection in bytes. */
-#define WRITEBUFFER_SLINK_LEN 65536
+#define WRITEBUFFER_SLINK_LEN READBUFFER_SLINK_LEN
 
 
 /* IRC/IRC+ protocol */

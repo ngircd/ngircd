@@ -2,7 +2,7 @@
                      ngIRCd - Next Generation IRC Server
                            http://ngircd.barton.de/
 
-               (c)2001-2019 Alexander Barton and Contributors.
+               (c)2001-2020 Alexander Barton and Contributors.
                ngIRCd is free software and published under the
                    terms of the GNU General Public License.
 
@@ -40,6 +40,7 @@ Dana Dahlstrom <dana+ngIRCd@cs.ucsd.edu>
 David Kingston <deathking1337@aim.com>
 DNS <dns@rbose.org>
 Eric Grunow <egrunow@ucsd.edu>
+Fabrice Fontaine <fontaine.fabrice@gmail.com>
 Federico G. Schwindt <fgsch@lodoss.net>
 Gabor Adam Toth <tg@tgbit.net>
 Götz Hoffart <goetz@hoffart.de>
@@ -48,8 +49,10 @@ Ilja Osthoff <i.osthoff@gmx.net>
 ItsOnlyBinary <ItsOnlyBinary@users.noreply.github.com>
 James Lu <james@overdrivenetworks.com>
 Jari Aalto <jari.aalto@cante.net>
+JRMU <jrmu@lecturify.com>
 LucentW <lucent@zebes.info>
 Mantas Mikulėnas <grawity@gmail.com>
+Michi <michi+ngircd@dataswamp.org>
 Neale Pickett <neale@woozle.org>
 Peter Powell <petpow@saberuk.com>
 Rolf Eike Beer <eike@sf-mail.de>
@@ -63,6 +66,7 @@ Tassilo Schweyer <dev@welterde.de>
 Tom Ryder <tom@sanctum.geek.nz>
 Unit 193 <unit193@ubuntu.com>
 William Pitcock <nenolod@dereferenced.org>
+Windree <57554809+Windree@users.noreply.github.com>
 xor <xorboy@gmail.com>
 Yecheng Fu <cofyc.jackson@gmail.com>
 

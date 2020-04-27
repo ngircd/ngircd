@@ -61,6 +61,49 @@ expect {
        timeout { exit 1 }
        "405"
 }
+send "JOIN 0\r"
+
+send "JoIn #MultiMode\r"
+expect {
+       timeout { exit 1 }
+       "474 nick #MultiMode"
+}
+
+send "OPer TestOp 123\r"
+expect {
+	timeout { exit 1 }
+	"381"
+}
+
+send "Mode #MultiMode -b nick!~user\r"
+expect {
+       timeout { exit 1 }
+	"MODE #MultiMode -b nick!~user@*"
+}
+
+send "jOiN #MULTIMODE\r"
+expect {
+       timeout { exit 1 }
+       "@* JOIN :#MULTIMODE"
+}
+expect {
+       timeout { exit 1 }
+       "366"
+}
+send "ModE #MULTImode\r"
+expect {
+       timeout { exit 1 }
+       "324 nick #MultiMode +Pnt"
+}
+send "mODe #multimode +b\r"
+expect {
+       timeout { exit 1 }
+       "367 nick #MultiMode banned!~ghost@example.com ngircd.test.server"
+}
+expect {
+       timeout { exit 1 }
+       "368 nick #MultiMode"
+}
 
 send "quit\r"
 expect {

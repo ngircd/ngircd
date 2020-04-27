@@ -311,8 +311,18 @@ ConnSSL_InitLibrary( void )
 		return false;
 	}
 
-	if (!ConnSSL_LoadServerKey_openssl(newctx))
+	if (!ConnSSL_LoadServerKey_openssl(newctx)) {
+		/* Failed to read new key but an old ssl context
+		 * already exists -> reuse old context */
+		if (ssl_ctx) {
+		        SSL_CTX_free(newctx);
+	                Log(LOG_WARNING,
+			"Re-Initializing of SSL failed, using old keys!");
+			return true;
+		}
+		/* No preexisting old context -> error. */
 		goto out;
+	}
 
 	if (SSL_CTX_set_cipher_list(newctx, Conf_SSLOptions.CipherList) == 0) {
 		Log(LOG_ERR, "Failed to apply OpenSSL cipher list \"%s\"!",

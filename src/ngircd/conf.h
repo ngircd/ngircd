@@ -83,11 +83,12 @@ struct SSLOptions {
 /** Pre-defined channels */
 struct Conf_Channel {
 	char name[CHANNEL_NAME_LEN];	/**< Name of the channel */
-	char modes[CHANNEL_MODE_LEN];	/**< Initial channel modes */
+	char *modes[512];		/**< Initial channel modes to evaluate */
 	char key[CLIENT_PASS_LEN];      /**< Channel key ("password", mode "k" ) */
 	char topic[COMMAND_LEN];	/**< Initial topic */
 	char keyfile[512];		/**< Path and name of channel key file */
 	unsigned long maxusers;		/**< User limit for this channel, mode "l" */
+	unsigned int modes_num;		/**< Number of channel modes to evaluate */
 };
 
 

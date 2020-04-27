@@ -105,9 +105,17 @@ typedef struct _Connection
 #endif
 } CONNECTION;
 
-GLOBAL CONNECTION *My_Connections;
-GLOBAL CONN_ID Pool_Size;
-GLOBAL long WCounter;
+
+#ifdef CONN_MODULE_GLOBAL_INIT
+CONNECTION *My_Connections;
+CONN_ID Pool_Size;
+long WCounter;
+#else
+extern CONNECTION *My_Connections;
+extern CONN_ID Pool_Size;
+extern long WCounter;
+#endif
+
 
 #define CONNECTION2ID(x) (long)(x - My_Connections)
 

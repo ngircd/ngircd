@@ -44,6 +44,8 @@ src/portab/portabtest
 src/portab/portabtest.exe
 src/testsuite/*.e_
 src/testsuite/channel-test
+src/testsuite/connect-ssl-cert1-test
+src/testsuite/connect-ssl-cert2-test
 src/testsuite/connect-test
 src/testsuite/connect-tls-cert1-test
 src/testsuite/connect-tls-cert2-test
@@ -63,6 +65,9 @@ src/testsuite/ngircd-test3.motd
 src/testsuite/opless-channel-test
 src/testsuite/server-link-test
 src/testsuite/server-login-test
+src/testsuite/ssl/cert.pem
+src/testsuite/ssl/dhparams.pem
+src/testsuite/ssl/key.pem
 src/testsuite/T-ngircd1
 src/testsuite/T-ngircd1.exe
 src/testsuite/T-ngircd2

@@ -734,6 +734,18 @@ Conn_Handler(void)
 				continue;
 			}
 
+			if (array_bytes(&My_Connections[i].rbuf) >= COMMAND_LEN) {
+				/* There is still more data in the read buffer
+				 * than a single valid command can get long:
+				 * so either there is a complete command, or
+				 * invalid data. Therefore don't try to read in
+				 * even more data from the network but wait for
+				 * this command(s) to be handled first! */
+				io_event_del(My_Connections[i].sock,
+					     IO_WANTREAD);
+				continue;
+			}
+
 			io_event_add(My_Connections[i].sock, IO_WANTREAD);
 		}
 
@@ -1554,6 +1566,10 @@ Read_Request(CONN_ID Idx)
 	assert(Idx > NONE);
 	assert(My_Connections[Idx].sock > NONE);
 
+	/* Check if the read buffer is "full". Basically this shouldn't happen
+	 * here, because as long as there possibly are commands in the read
+	 * buffer (buffer usage > COMMAND_LEN), the socket shouldn't be
+	 * scheduled for reading in Conn_Handler() at all ... */
 #ifdef ZLIB
 	if ((array_bytes(&My_Connections[Idx].rbuf) >= READBUFFER_LEN) ||
 		(array_bytes(&My_Connections[Idx].zip.rbuf) >= READBUFFER_LEN))
@@ -1561,7 +1577,6 @@ Read_Request(CONN_ID Idx)
 	if (array_bytes(&My_Connections[Idx].rbuf) >= READBUFFER_LEN)
 #endif
 	{
-		/* Read buffer is full */
 		Log(LOG_ERR,
 		    "Receive buffer space exhausted (connection %d): %d/%d bytes",
 		    Idx, array_bytes(&My_Connections[Idx].rbuf), READBUFFER_LEN);

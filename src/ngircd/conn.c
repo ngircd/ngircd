@@ -1543,15 +1543,16 @@ Socket2Index( int Sock )
  * @param Idx	Connection index.
  */
 static void
-Read_Request( CONN_ID Idx )
+Read_Request(CONN_ID Idx)
 {
 	ssize_t len;
 	static const unsigned int maxbps = COMMAND_LEN / 2;
 	char readbuf[READBUFFER_LEN];
 	time_t t;
 	CLIENT *c;
-	assert( Idx > NONE );
-	assert( My_Connections[Idx].sock > NONE );
+
+	assert(Idx > NONE);
+	assert(My_Connections[Idx].sock > NONE);
 
 #ifdef ZLIB
 	if ((array_bytes(&My_Connections[Idx].rbuf) >= READBUFFER_LEN) ||
@@ -1568,12 +1569,14 @@ Read_Request( CONN_ID Idx )
 		return;
 	}
 
+	/* Now read new data from the network, up to READBUFFER_LEN bytes ... */
 #ifdef SSL_SUPPORT
 	if (Conn_OPTION_ISSET(&My_Connections[Idx], CONN_SSL))
-		len = ConnSSL_Read( &My_Connections[Idx], readbuf, sizeof(readbuf));
+		len = ConnSSL_Read(&My_Connections[Idx], readbuf, sizeof(readbuf));
 	else
 #endif
-	len = read(My_Connections[Idx].sock, readbuf, sizeof(readbuf));
+		len = read(My_Connections[Idx].sock, readbuf, sizeof(readbuf));
+
 	if (len == 0) {
 		LogDebug("Client \"%s:%u\" is closing connection %d ...",
 			 My_Connections[Idx].host,
@@ -1583,13 +1586,20 @@ Read_Request( CONN_ID Idx )
 	}
 
 	if (len < 0) {
-		if( errno == EAGAIN ) return;
+		if (errno == EAGAIN)
+			return;
+
 		Log(LOG_ERR, "Read error on connection %d (socket %d): %s!",
 		    Idx, My_Connections[Idx].sock, strerror(errno));
 		Conn_Close(Idx, "Read error", "Client closed connection",
 			   false);
 		return;
 	}
+
+	/* Now append the newly received data to the connection buffer.
+	 * NOTE: This can lead to connection read buffers being bigger(!) than
+	 * READBUFFER_LEN bytes, as we add up to READBUFFER_LEN new bytes to a
+	 * buffer possibly being "almost" READBUFFER_LEN bytes already! */
 #ifdef ZLIB
 	if (Conn_OPTION_ISSET(&My_Connections[Idx], CONN_ZIP)) {
 		if (!array_catb(&My_Connections[Idx].zip.rbuf, readbuf,

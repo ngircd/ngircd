@@ -1546,46 +1546,34 @@ static void
 Read_Request( CONN_ID Idx )
 {
 	ssize_t len;
-	size_t readbuf_limit = READBUFFER_LEN;
 	static const unsigned int maxbps = COMMAND_LEN / 2;
-	char readbuf[READBUFFER_MAX_LEN];
+	char readbuf[READBUFFER_LEN];
 	time_t t;
 	CLIENT *c;
 	assert( Idx > NONE );
 	assert( My_Connections[Idx].sock > NONE );
 
-	/* Make sure that there still exists a CLIENT structure associated
-	 * with this connection and check if this is a server or not: */
-	c = Conn_GetClient(Idx);
-	if (c) {
-		/* Servers do get special read buffer limits, so they can
-		 * process all the messages that are required while peering. */
-		if (Client_Type(c) == CLIENT_SERVER)
-			readbuf_limit = READBUFFER_SLINK_LEN;
-	} else
-		LogDebug("Read request without client (connection %d)!?", Idx);
-
 #ifdef ZLIB
-	if ((array_bytes(&My_Connections[Idx].rbuf) >= readbuf_limit) ||
-		(array_bytes(&My_Connections[Idx].zip.rbuf) >= readbuf_limit))
+	if ((array_bytes(&My_Connections[Idx].rbuf) >= READBUFFER_LEN) ||
+		(array_bytes(&My_Connections[Idx].zip.rbuf) >= READBUFFER_LEN))
 #else
-	if (array_bytes(&My_Connections[Idx].rbuf) >= readbuf_limit)
+	if (array_bytes(&My_Connections[Idx].rbuf) >= READBUFFER_LEN)
 #endif
 	{
 		/* Read buffer is full */
 		Log(LOG_ERR,
 		    "Receive buffer space exhausted (connection %d): %d/%d bytes",
-		    Idx, array_bytes(&My_Connections[Idx].rbuf), readbuf_limit);
+		    Idx, array_bytes(&My_Connections[Idx].rbuf), READBUFFER_LEN);
 		Conn_Close(Idx, "Receive buffer space exhausted", NULL, false);
 		return;
 	}
 
 #ifdef SSL_SUPPORT
 	if (Conn_OPTION_ISSET(&My_Connections[Idx], CONN_SSL))
-		len = ConnSSL_Read( &My_Connections[Idx], readbuf, readbuf_limit);
+		len = ConnSSL_Read( &My_Connections[Idx], readbuf, sizeof(readbuf));
 	else
 #endif
-	len = read(My_Connections[Idx].sock, readbuf, readbuf_limit);
+	len = read(My_Connections[Idx].sock, readbuf, sizeof(readbuf));
 	if (len == 0) {
 		LogDebug("Client \"%s:%u\" is closing connection %d ...",
 			 My_Connections[Idx].host,

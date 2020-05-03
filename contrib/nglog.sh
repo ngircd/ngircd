@@ -14,7 +14,7 @@
 # ./src/ngircd/ngircd -f $PWD/doc/sample-ngircd.conf -np | ./contrib/nglog.sh
 #
 
-awk '
+gawk '
   /^\[[[:digit:]]+:0 / {print "\033[1;95m" $0 "\033[0m"}
   /^\[[[:digit:]]+:1 / {print "\033[1;35m" $0 "\033[0m"}
   /^\[[[:digit:]]+:2 / {print "\033[1;91m" $0 "\033[0m"}

@@ -903,7 +903,7 @@ Read_Config(bool TestOnly, bool IsStarting)
 	FILE *fd;
 	DIR *dh;
 
-	Log(LOG_INFO, "Using configuration file \"%s\" ...", NGIRCd_ConfFile);
+	Config_Error(LOG_INFO, "Using configuration file \"%s\" ...", NGIRCd_ConfFile);
 
 	/* Open configuration file */
 	fd = fopen( NGIRCd_ConfFile, "r" );

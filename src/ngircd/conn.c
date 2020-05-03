@@ -660,12 +660,14 @@ Conn_Handler(void)
 	size_t wdatalen;
 	struct timeval tv;
 	time_t t;
+	bool command_available;
 
 	Log(LOG_NOTICE, "Server \"%s\" (on \"%s\") ready.",
 	    Client_ID(Client_ThisServer()), Client_Hostname(Client_ThisServer()));
 
 	while (!NGIRCd_SignalQuit && !NGIRCd_SignalRestart) {
 		t = time(NULL);
+		command_available = false;
 
 		/* Check configured servers and established links */
 		Check_Servers();
@@ -743,19 +745,22 @@ Conn_Handler(void)
 				 * this command(s) to be handled first! */
 				io_event_del(My_Connections[i].sock,
 					     IO_WANTREAD);
+				command_available = true;
 				continue;
 			}
 
 			io_event_add(My_Connections[i].sock, IO_WANTREAD);
 		}
 
-		/* Set the timeout for reading from the network to 1 second,
-		 * which is the granularity with witch we handle "penalty
-		 * times" for example.
+		/* Don't wait for data when there is still at least one command
+		 * available in a read buffer which can be handled immediately;
+		 * set the timeout for reading from the network to 1 second
+		 * otherwise, which is the granularity with witch we handle
+		 * "penalty times" for example.
 		 * Note: tv_sec/usec are undefined(!) after io_dispatch()
 		 * returns, so we have to set it before each call to it! */
 		tv.tv_usec = 0;
-		tv.tv_sec = 1;
+		tv.tv_sec = command_available ? 0 : 1;
 
 		/* Wait for activity ... */
 		i = io_dispatch(&tv);

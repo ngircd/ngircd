@@ -1,0 +1,7 @@
+#!/bin/sh
+# ngIRCd Test Suite
+
+[ -z "$srcdir" ] && srcdir=`dirname $0`
+${srcdir}/reload-server.sh 3
+
+# -eof-

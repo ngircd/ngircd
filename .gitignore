@@ -45,6 +45,8 @@ src/portab/portabtest.exe
 src/testsuite/*.e_
 src/testsuite/channel-test
 src/testsuite/connect-test
+src/testsuite/connect-tls-cert1-test
+src/testsuite/connect-tls-cert2-test
 src/testsuite/invite-test
 src/testsuite/join-test
 src/testsuite/kick-test
@@ -56,6 +58,8 @@ src/testsuite/ngircd-test1.log
 src/testsuite/ngircd-test1.motd
 src/testsuite/ngircd-test2.log
 src/testsuite/ngircd-test2.motd
+src/testsuite/ngircd-test3.log
+src/testsuite/ngircd-test3.motd
 src/testsuite/opless-channel-test
 src/testsuite/server-link-test
 src/testsuite/server-login-test
@@ -63,6 +67,8 @@ src/testsuite/T-ngircd1
 src/testsuite/T-ngircd1.exe
 src/testsuite/T-ngircd2
 src/testsuite/T-ngircd2.exe
+src/testsuite/T-ngircd3
+src/testsuite/T-ngircd3.exe
 src/testsuite/tests
 src/testsuite/tests-skipped.lst
 src/testsuite/who-test

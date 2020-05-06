@@ -1,0 +1,4 @@
+#!/bin/sh
+cp ssl/cert-my-first-domain-tld.pem ssl/cert.pem
+cp ssl/key-my-first-domain-tld.pem ssl/key.pem
+cp ssl/dhparams-my-first-domain-tld.pem ssl/dhparams.pem

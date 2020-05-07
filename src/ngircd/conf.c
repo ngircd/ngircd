@@ -853,7 +853,7 @@ no_listenports(void)
 static bool
 Read_TextFile(const char *Filename, const char *Name, array *Destination)
 {
-	char line[127];
+	char line[COMMAND_LEN];
 	FILE *fp;
 	int line_no = 1;
 

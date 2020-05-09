@@ -11,6 +11,26 @@
 ngIRCd 26
 
   ngIRCd 26~rc1
+  - Allow up to 512 characters per line in MOTD and help text files (but keep
+    in mind that lines can't get that long, because they have to be prefixed
+    before being sent to the client). But this allows for more fancy MOTDs :-)
+    Closes #271.
+  - Show the actually allowed channel types in the ISUPPORT(005) numeric which
+    are configured by the "AllowedChannelTypes" configuration variable.
+    Closes #273.
+  - Handle commands in the read buffer before reading more data and don't wait
+    for the network in this case: If there are more bytes in the read buffer
+    already than a single valid IRC command can get long (513 bytes), wait for
+    this/those command(s) to be handled first and don't try to read even more
+    data from the network (which most probably would overflow the read buffer
+    of this connection soon).
+  - Log G-/K-Line changes only when not initiated by a server: this prevents
+    the log from becomming spammed during "net bursts".
+  - Update test suite to include SSL tests, including checking for reloading
+    certificates during runtime.
+  - Add support for GnuTLS certificate reload, which is quite handy when using
+    Let's Encrypt, for example. Until now this was only supported when linked
+    with OpenSSL. Thanks a lot, Hilko Bengen <bengen@hilluzination.de>!
   - Allow setting arbitrary channel modes in the configuration file by handling
     them like in MODE commands, and allow multiple "Modes =" lines per [Channel]
     section. Thanks to Michi <michi+ngircd@dataswamp.org>!

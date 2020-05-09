@@ -11,6 +11,32 @@
 ngIRCd 26
 
   ngIRCd 26~rc1
+  - Tweak & update doc/HowToRelease.txt, .mailmap and AUTHORS files.
+  - Allow up to 512 characters per line in MOTD and help text files (but keep
+    in mind that lines can't get that long, because they have to be prefixed
+    before being sent to the client). But this allows for more fancy MOTDs :-)
+    Closes #271.
+  - Show the actually allowed channel types in the ISUPPORT(005) numeric which
+    are configured by the "AllowedChannelTypes" configuration variable.
+    Closes #273.
+  - Handle commands in the read buffer before reading more data and don't wait
+    for the network in this case: If there are more bytes in the read buffer
+    already than a single valid IRC command can get long (513 bytes), wait for
+    this/those command(s) to be handled first and don't try to read even more
+    data from the network (which most probably would overflow the read buffer
+    of this connection soon).
+  - Update Travis-CI configuration, "sudo" is depreacted.
+  - Log G-/K-Line changes only when not initiated by a server: this prevents
+    the log from becomming spammed during "net bursts".
+  - Update test suite to include SSL tests, including checking for reloading
+    certificates during runtime.
+  - Makefile.am: Replace "make" with "${MAKE}". This fixes warnings like this:
+    "warning: jobserver unavailable: using -j1. Add `+' to parent make rule."
+    Thanks to Sam James (sam_c) <sam@cmpct.info>!
+    Closes #270.
+  - Add support for GnuTLS certificate reload, which is quite handy when using
+    Let's Encrypt, for example. Until now this was only supported when linked
+    with OpenSSL. Thanks a lot, Hilko Bengen <bengen@hilluzination.de>!
   - Remove deprecated legacy configuration options and related functions that
     have been marked for removal for quite some time:
     - PredefChannelsOnly (v22)
@@ -18,11 +44,6 @@ ngIRCd 26
     - NoXXX (v19)
     - Old '[GLOBAL]' section handling (v19)
     Thanks to Michi <michi+ngircd@dataswamp.org> for the patch!
-  - Increase read buffer size for server connections: This applies the same
-    logic we have for write buffers to distinguish between server and client
-    connections and sets the maximum buffer size accordingly. As a result
-    peering with servers with many GLINE/KLINEs does not kill the connecting
-    server connection anymore. Thanks to Michi <michi+ngircd@dataswamp.org>!
   - Fix recursion bug on write errors: Depending on the stack size, too many
     clients on the same channel quitting at the same time would trigger a crash
     due to too many recursive calls to Conn_Close(). Thanks to Michi

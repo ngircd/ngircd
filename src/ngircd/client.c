@@ -601,7 +601,8 @@ Client_Search( const char *Nick )
 	CLIENT *c = NULL;
 	UINT32 search_hash;
 
-	assert( Nick != NULL );
+	if( Nick == NULL )
+		return NULL;
 
 	/* copy Nick and truncate hostmask if necessary */
 	strlcpy( search_id, Nick, sizeof( search_id ));

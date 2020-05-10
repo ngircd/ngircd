@@ -10,7 +10,7 @@
 
 ngIRCd 26
 
-  ngIRCd 26~rc1
+  ngIRCd 26~rc1 (2020-05-10)
   - Allow up to 512 characters per line in MOTD and help text files (but keep
     in mind that lines can't get that long, because they have to be prefixed
     before being sent to the client). But this allows for more fancy MOTDs :-)

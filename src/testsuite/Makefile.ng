@@ -25,8 +25,11 @@ EXTRA_DIST = \
 	start-server1 stop-server1 ngircd-test1.conf \
 	start-server2 stop-server2 ngircd-test2.conf \
 	start-server3 stop-server3 ngircd-test3.conf \
-	reload-server3 reload-server.sh prep-server3 cleanup-server3\
-	connect-ssl-cert1-test.e connect-ssl-cert2-test.e
+	reload-server3 reload-server.sh prep-server3 cleanup-server3 switch-server3 \
+	connect-ssl-cert1-test.e connect-ssl-cert2-test.e \
+	ssl/cert-my-first-domain-tld.pem ssl/cert-my-second-domain-tld.pem \
+	ssl/dhparams-my-first-domain-tld.pem ssl/dhparams-my-second-domain-tld.pem \
+	ssl/key-my-first-domain-tld.pem ssl/key-my-second-domain-tld.pem
 
 all:
 

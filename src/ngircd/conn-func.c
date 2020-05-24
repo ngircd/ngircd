@@ -51,7 +51,7 @@ GLOBAL void
 Conn_UpdatePing(CONN_ID Idx)
 {
 	assert(Idx > NONE);
-	My_Connections[Idx].lastping = My_Connections[Idx].lastdata = time(NULL);
+	My_Connections[Idx].lastping = time(NULL);
 }
 
 /*

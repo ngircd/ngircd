@@ -367,7 +367,7 @@ IRC_SQUIT(CLIENT * Client, REQUEST * Req)
 {
 	char msg[COMMAND_LEN], logmsg[COMMAND_LEN];
 	CLIENT *from, *target;
-	CONN_ID con;
+	CONN_ID con, client_con;
 	int loglevel;
 
 	assert(Client != NULL);
@@ -407,6 +407,7 @@ IRC_SQUIT(CLIENT * Client, REQUEST * Req)
 		return CONNECTED;
 	}
 
+	client_con = Client_Conn(Client);
 	con = Client_Conn(target);
 
 	if (Req->argv[1][0])
@@ -428,7 +429,7 @@ IRC_SQUIT(CLIENT * Client, REQUEST * Req)
 				Req->argv[0], Client_ID(from),
 				Req->argv[1][0] ? Req->argv[1] : "-");
 		Conn_Close(con, NULL, msg, true);
-		if (con == Client_Conn(Client))
+		if (con == client_con)
 			return DISCONNECTED;
 	} else {
 		/* This server is not directly connected, so the SQUIT must

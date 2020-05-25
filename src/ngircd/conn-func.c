@@ -45,13 +45,17 @@ Conn_UpdateIdle(CONN_ID Idx)
 /**
  * Update "ping timestamp", the time of the last outgoing PING request.
  *
+ * the value 0 signals a newly connected client including servers during the
+ * initial "server burst"; and 1 means that no PONG is pending for a PING.
+ *
  * @param Idx Connection index.
+ * @param TimeStamp 0, 1, or time stamp.
  */
 GLOBAL void
-Conn_UpdatePing(CONN_ID Idx)
+Conn_UpdatePing(CONN_ID Idx, time_t TimeStamp)
 {
 	assert(Idx > NONE);
-	My_Connections[Idx].lastping = time(NULL);
+	My_Connections[Idx].lastping = TimeStamp;
 }
 
 /*

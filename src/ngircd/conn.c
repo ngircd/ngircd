@@ -1866,6 +1866,9 @@ Check_Connections(void)
 	CLIENT *c;
 	CONN_ID i;
 	char msg[64];
+	time_t time_now;
+
+	time_now = time(NULL);
 
 	for (i = 0; i < Pool_Size; i++) {
 		if (My_Connections[i].sock < 0)
@@ -1880,7 +1883,7 @@ Check_Connections(void)
 			    My_Connections[i].lastdata) {
 				/* We already sent a ping */
 				if (My_Connections[i].lastping <
-				    time(NULL) - Conf_PongTimeout) {
+				    time_now - Conf_PongTimeout) {
 					/* Timeout */
 					snprintf(msg, sizeof(msg),
 						 "Ping timeout: %d seconds",
@@ -1889,10 +1892,10 @@ Check_Connections(void)
 					Conn_Close(i, NULL, msg, true);
 				}
 			} else if (My_Connections[i].lastdata <
-				   time(NULL) - Conf_PingTimeout) {
+				   time_now - Conf_PingTimeout) {
 				/* We need to send a PING ... */
 				LogDebug("Connection %d: sending PING ...", i);
-				Conn_UpdatePing(i);
+				Conn_UpdatePing(i, time_now);
 				Conn_WriteStr(i, "PING :%s",
 					      Client_ID(Client_ThisServer()));
 			}
@@ -1903,7 +1906,7 @@ Check_Connections(void)
 			 * still not registered. */
 
 			if (My_Connections[i].lastdata <
-			    time(NULL) - Conf_PongTimeout) {
+			    time_now - Conf_PongTimeout) {
 				LogDebug
 				    ("Unregistered connection %d timed out ...",
 				     i);

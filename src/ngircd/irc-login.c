@@ -877,11 +877,12 @@ IRC_PONG(CLIENT *Client, REQUEST *Req)
 		    (long)(time(NULL) - Conn_GetSignon(conn)),
 		    time(NULL) - Conn_GetSignon(conn) == 1 ? "" : "s",
 		    Client_UserCount(), Channel_CountVisible(NULL));
-		Conn_UpdatePing(conn);
 	} else
 		LogDebug("Connection %d: received PONG. Lag: %ld seconds.",
 			 conn, (long)(time(NULL) - Conn_LastPing(conn)));
 
+	/* We got a PONG, so signal that none is pending on this connection. */
+	Conn_UpdatePing(conn, 1);
 	return CONNECTED;
 } /* IRC_PONG */
 

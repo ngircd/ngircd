@@ -50,7 +50,7 @@ make %{?_smp_mflags}
 
 %files
 %defattr(755,root,root)
-%doc AUTHORS  COPYING  ChangeLog  INSTALL NEWS  README doc/*
+%doc AUTHORS COPYING ChangeLog INSTALL.md NEWS README.md doc/*
 %config(noreplace) /etc
 %{_prefix}/sbin
 %{_mandir}/man5/ngircd.conf*

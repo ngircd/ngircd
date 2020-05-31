@@ -10,6 +10,25 @@
 
 ngIRCd 26
 
+  ngIRCd 26~rc2
+  - ngircd.spec: Fix names of README.md and INSTALL.md, add ".md" extension.
+  - Update description texts in the README.md file, the RPM and Debian package
+    files and the manual page: bring them in line with the updated homepage.
+  - Server-Server protocol: Fix use-after-free when unregistering a directly
+    connected server sending a SQUIT for itself.
+  - Server-Server protocol: Detect bogus SERVER commands lacking a prefix.
+    Thanks Hilko Bengen (hillu) for finding & reporting this as well for the
+    patch & pull request (even if fixed differently).
+    Closes #275.
+  - Fix the PING-PONG logic: In ngIRCd 26~rc1 this was completely broken (while
+    trying to fix timeouts during server handshakes in bigger networks): the
+    daemon never disconnected any stale peers but kept sending out PINGs over
+    and over again ...
+  - Test suite: Add missing files needed to test SSL support to "EXTRA_DIST",
+    so that they are included in distribution archives: in rc1, "make check"
+    fails when using sources from an archive and enabling SSL support.
+    Thanks to Hilko Bengen <bengen@hilluzination.de> for the patch!
+
   ngIRCd 26~rc1 (2020-05-10)
   - Tweak & update doc/HowToRelease.txt, .mailmap and AUTHORS files.
   - Allow up to 512 characters per line in MOTD and help text files (but keep
@@ -25,9 +44,9 @@ ngIRCd 26
     this/those command(s) to be handled first and don't try to read even more
     data from the network (which most probably would overflow the read buffer
     of this connection soon).
-  - Update Travis-CI configuration, "sudo" is depreacted.
+  - Update Travis-CI configuration, "sudo" is deprecated.
   - Log G-/K-Line changes only when not initiated by a server: this prevents
-    the log from becomming spammed during "net bursts".
+    the log from becoming spammed during "net bursts".
   - Update test suite to include SSL tests, including checking for reloading
     certificates during runtime.
   - Makefile.am: Replace "make" with "${MAKE}". This fixes warnings like this:

@@ -10,6 +10,9 @@
 
 ngIRCd 26
 
+  ngIRCd 26~rc2
+  - Various bug fixes, see the ChangeLog. No new or changed functionality.
+
   ngIRCd 26~rc1 (2020-05-10)
   - Allow up to 512 characters per line in MOTD and help text files (but keep
     in mind that lines can't get that long, because they have to be prefixed
@@ -25,7 +28,7 @@ ngIRCd 26
     data from the network (which most probably would overflow the read buffer
     of this connection soon).
   - Log G-/K-Line changes only when not initiated by a server: this prevents
-    the log from becomming spammed during "net bursts".
+    the log from becoming spammed during "net bursts".
   - Update test suite to include SSL tests, including checking for reloading
     certificates during runtime.
   - Add support for GnuTLS certificate reload, which is quite handy when using
@@ -90,7 +93,7 @@ ngIRCd 25 (2019-01-23)
 
   ngIRCd 25~rc1 (2018-08-11)
   - Only send TOPIC updates to a channel when the topic actually changed:
-    This prevents the channel from becoming flooded by unecessary TOPIC update
+    This prevents the channel from becoming flooded by unnecessary TOPIC update
     messages, that can happen when IRC services try to enforce a certain topic
     but which is already set (at least on the local server), for example.
     Therefore still forward it to all servers, but don't inform local clients

@@ -874,6 +874,10 @@ Server Protocol Commands
 	CHANINFO is used by servers to inform each other about a channel:
 	its modes, channel key, user limits and its topic.
 	.
+	Note: even when <modes> don't include "k" (key) or "l" (limit), both
+	parameters must be given when used; use "*" for "no key" and 0 for
+	"no limit" for the unused parameter in this case.
+	.
 	The CHANINFO command is allowed on server-links only.
 
 	References:

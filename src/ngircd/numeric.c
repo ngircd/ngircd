@@ -214,7 +214,7 @@ Synchronize_Lists(CLIENT * Client)
 static bool
 Send_CHANINFO(CLIENT * Client, CHANNEL * Chan)
 {
-	char *modes, *topic;
+	char *modes, *topic, *key;
 	bool has_k, has_l;
 
 #ifdef DEBUG
@@ -243,9 +243,10 @@ Send_CHANINFO(CLIENT * Client, CHANNEL * Chan)
 					  Channel_Name(Chan), modes, topic);
 	}
 	/* "CHANINFO <chan> +<modes> <key> <limit> :<topic>" */
+	key = Channel_Key(Chan);
 	return IRC_WriteStrClient(Client, "CHANINFO %s +%s %s %lu :%s",
 				  Channel_Name(Chan), modes,
-				  has_k ? Channel_Key(Chan) : "*",
+				  has_k ? (key && *key ? key : "*") : "*",
 				  has_l ? Channel_MaxUsers(Chan) : 0, topic);
 } /* Send_CHANINFO */
 

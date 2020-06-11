@@ -11,6 +11,12 @@
 ngIRCd 26
 
   ngIRCd 26~rc2
+  - Add AppStream metadata file (contrib/de.barton.ngircd.metainfo.xml).
+  - Don't send invalid CHANINFO commands when a channel has mode +k set but no
+    key is known to the server. This can happen with a misconfigured predefined
+    channel, for example, and looked like this: "CHANINFO #test +Pk  0 :" --
+    note the unset key represented by the two spaces. Fix this by sending a
+    "*" in this case and update the CHANINFO documentation, too.
   - ngircd.spec: Fix names of README.md and INSTALL.md, add ".md" extension.
   - Update description texts in the README.md file, the RPM and Debian package
     files and the manual page: bring them in line with the updated homepage.

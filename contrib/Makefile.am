@@ -12,6 +12,7 @@
 SUBDIRS = Debian MacOSX
 
 EXTRA_DIST = README \
+	de.barton.ngircd.metainfo.xml \
 	ngindent.sh \
 	ngircd-bsd.sh \
 	ngIRCd-Logo.gif \

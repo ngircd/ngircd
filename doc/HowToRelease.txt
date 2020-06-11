@@ -55,6 +55,7 @@ c) Update the files describing the new release:
     - NEWS
 
 d) Update the version numbers in the following files:
+    - contrib/de.barton.ngircd.metainfo.xml
     - contrib/ngircd.spec
 
 e) Generate a new Debian change log entry in the following file, e.g. using

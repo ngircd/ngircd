@@ -18,6 +18,9 @@ MacOSX/
  - Project files for XCode, the "project builder" of Apple Mac OS X.
 	- de.barton.ngircd.plist[.tmpl]: launchd(8) property list.
 
+de.barton.ngircd.metainfo.xml
+ - AppStream metadata file.
+
 ngindent.sh
  - Script to indent the code of ngIRCd in the "standard way".
 

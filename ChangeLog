@@ -8,7 +8,7 @@
 
                                -- ChangeLog --
 
-ngIRCd 26
+ngIRCd 26 (2020-06-20)
 
   ngIRCd 26~rc2 (2020-06-11)
   - Add AppStream metadata file (contrib/de.barton.ngircd.metainfo.xml).

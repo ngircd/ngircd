@@ -206,6 +206,14 @@ build the sources including all optional features and to run the test suite:
     libident-dev libpam-dev pkg-config libwrap0-dev libz-dev telnet
 ```
 
+#### ArchLinux based distributions
+
+``` shell
+  pacman -S --needed \
+    autoconf automake expect gcc gnutls inetutils libident libwrap \
+    make pam pkg-config zlib
+```
+
 ### `./autogen.sh`
 
 The first step, to run `./autogen.sh`, is *only* necessary if the `configure`

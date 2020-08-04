@@ -15,7 +15,7 @@ using the IRC protocol as defined in RFC 1459 or RFC 2812.
 
 Support for Services has been tested using
  - Anope 1.9.8 or later (<http://www.anope.org/>)
- - Atheme 7.0.2 or later (<http://www.atheme.net>)
+ - Atheme 7.0.2 or later (<https://atheme.org/>)
  - "IRC Services" 5.1.x by Andrew Church (<http://achurch.org/services/>)
 
 This document describes setting up ngIRCd and these services.
@@ -101,7 +101,7 @@ In conf/nickserv.conf:
 Setting up Atheme 7.0.2 or later
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Atheme 7.0.2 or later (<http://www.atheme.net>) may be used with ngIRCd using
+Atheme 7.0.2 or later (<https://atheme.org/>) may be used with ngIRCd using
 the "ngircd" protocol module.
 
 The following settings need to be in atheme.conf:

@@ -17,9 +17,9 @@
  * IRC numerics (Header)
  */
 
-#define RPL_WELCOME_MSG			"001 %s :Welcome to the Internet Relay Network %s"
-#define RPL_YOURHOST_MSG		"002 %s :Your host is %s, running version ngircd-%s (%s/%s/%s)"
-#define RPL_CREATED_MSG			"003 %s :This server has been started %s"
+#define RPL_WELCOME_MSG			"001 %s :Welcome to the Internet Relay Chat Network %s"
+#define RPL_YOURHOST_MSG		"002 %s :Your host is %s, running version ngircd-%s"
+#define RPL_CREATED_MSG			"003 %s :This server was created %s"
 #define RPL_MYINFO_MSG			"004 %s %s ngircd-%s %s %s"
 #define RPL_ISUPPORTNET_MSG		"005 %s NETWORK=%s :is my network name"
 #define RPL_ISUPPORT1_MSG		"005 %s RFC2812 IRCD=ngIRCd CHARSET=UTF-8 CASEMAPPING=ascii PREFIX=(qaohv)~&@%%+ CHANTYPES=%s CHANMODES=beI,k,l,imMnOPQRstVz CHANLIMIT=%s:%d :are supported on this server"

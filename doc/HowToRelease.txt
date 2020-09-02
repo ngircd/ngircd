@@ -35,19 +35,27 @@ up-to-date (e.g. using ./autogen.sh) before generating the archives!
 II. How to prepare a new ngIRCd release?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-a) Make sure the source tree is in a releasable state ;-)
-    - is the AUTHORS file up to date?
-
-b) Make sure you have working versions of GNU autoconf and GNU automake
+a) Make sure you have working versions of GNU autoconf and GNU automake
    installed on the system you use for generating the release:
-   as of October 2010 we are using GNU autoconf 2.67 and GNU automake 1.11.1
+   as of May 2020 we are using GNU autoconf 2.69 and GNU automake 1.11.6
    which seem to work just fine.
+   NOTE: new releases of GNU automake DO NOT work, as they lack support for
+   the "ansi2knr" wrapper and "de-ANSI-fication" support!
+
+b) Make sure the source tree is in a releasable state ;-)
+    - Are all branches & patches merged? Check GitHub issues, pull requests
+      and milestones!
+    - Run as many tests as you can!
+    - Is the AUTHORS file up to date? This command may be helpful:
+      "( grep '>$' AUTHORS; git shortlog -se | cut -c8- ) | grep -Ev \
+       '(alex@barton.de|fw@strlen.de)' | LC_ALL=de_DE.UTF-8 sort -u"
 
 c) Update the files describing the new release:
     - ChangeLog
     - NEWS
 
 d) Update the version numbers in the following files:
+    - contrib/de.barton.ngircd.metainfo.xml
     - contrib/ngircd.spec
 
 e) Generate a new Debian change log entry in the following file, e.g. using

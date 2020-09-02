@@ -8,9 +8,60 @@
 
                                -- ChangeLog --
 
-ngIRCd 26
+ngIRCd 26 (2020-06-20)
 
-  ngIRCd 26~rc1
+  ngIRCd 26~rc2 (2020-06-11)
+  - Add AppStream metadata file (contrib/de.barton.ngircd.metainfo.xml).
+  - Don't send invalid CHANINFO commands when a channel has mode +k set but no
+    key is known to the server. This can happen with a misconfigured predefined
+    channel, for example, and looked like this: "CHANINFO #test +Pk  0 :" --
+    note the unset key represented by the two spaces. Fix this by sending a
+    "*" in this case and update the CHANINFO documentation, too.
+  - ngircd.spec: Fix names of README.md and INSTALL.md, add ".md" extension.
+  - Update description texts in the README.md file, the RPM and Debian package
+    files and the manual page: bring them in line with the updated homepage.
+  - Server-Server protocol: Fix use-after-free when unregistering a directly
+    connected server sending a SQUIT for itself.
+  - Server-Server protocol: Detect bogus SERVER commands lacking a prefix.
+    Thanks Hilko Bengen (hillu) for finding & reporting this as well for the
+    patch & pull request (even if fixed differently).
+    Closes #275.
+  - Fix the PING-PONG logic: In ngIRCd 26~rc1 this was completely broken (while
+    trying to fix timeouts during server handshakes in bigger networks): the
+    daemon never disconnected any stale peers but kept sending out PINGs over
+    and over again ...
+  - Test suite: Add missing files needed to test SSL support to "EXTRA_DIST",
+    so that they are included in distribution archives: in rc1, "make check"
+    fails when using sources from an archive and enabling SSL support.
+    Thanks to Hilko Bengen <bengen@hilluzination.de> for the patch!
+
+  ngIRCd 26~rc1 (2020-05-10)
+  - Tweak & update doc/HowToRelease.txt, .mailmap and AUTHORS files.
+  - Allow up to 512 characters per line in MOTD and help text files (but keep
+    in mind that lines can't get that long, because they have to be prefixed
+    before being sent to the client). But this allows for more fancy MOTDs :-)
+    Closes #271.
+  - Show the actually allowed channel types in the ISUPPORT(005) numeric which
+    are configured by the "AllowedChannelTypes" configuration variable.
+    Closes #273.
+  - Handle commands in the read buffer before reading more data and don't wait
+    for the network in this case: If there are more bytes in the read buffer
+    already than a single valid IRC command can get long (513 bytes), wait for
+    this/those command(s) to be handled first and don't try to read even more
+    data from the network (which most probably would overflow the read buffer
+    of this connection soon).
+  - Update Travis-CI configuration, "sudo" is deprecated.
+  - Log G-/K-Line changes only when not initiated by a server: this prevents
+    the log from becoming spammed during "net bursts".
+  - Update test suite to include SSL tests, including checking for reloading
+    certificates during runtime.
+  - Makefile.am: Replace "make" with "${MAKE}". This fixes warnings like this:
+    "warning: jobserver unavailable: using -j1. Add `+' to parent make rule."
+    Thanks to Sam James (sam_c) <sam@cmpct.info>!
+    Closes #270.
+  - Add support for GnuTLS certificate reload, which is quite handy when using
+    Let's Encrypt, for example. Until now this was only supported when linked
+    with OpenSSL. Thanks a lot, Hilko Bengen <bengen@hilluzination.de>!
   - Remove deprecated legacy configuration options and related functions that
     have been marked for removal for quite some time:
     - PredefChannelsOnly (v22)
@@ -18,11 +69,6 @@ ngIRCd 26
     - NoXXX (v19)
     - Old '[GLOBAL]' section handling (v19)
     Thanks to Michi <michi+ngircd@dataswamp.org> for the patch!
-  - Increase read buffer size for server connections: This applies the same
-    logic we have for write buffers to distinguish between server and client
-    connections and sets the maximum buffer size accordingly. As a result
-    peering with servers with many GLINE/KLINEs does not kill the connecting
-    server connection anymore. Thanks to Michi <michi+ngircd@dataswamp.org>!
   - Fix recursion bug on write errors: Depending on the stack size, too many
     clients on the same channel quitting at the same time would trigger a crash
     due to too many recursive calls to Conn_Close(). Thanks to Michi

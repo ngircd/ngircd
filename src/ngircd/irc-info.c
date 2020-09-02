@@ -1565,7 +1565,8 @@ IRC_Send_ISUPPORT(CLIENT * Client)
 						   Conf_Network))
 		return DISCONNECTED;
 	if (!IRC_WriteStrClient(Client, RPL_ISUPPORT1_MSG, Client_ID(Client),
-				CHANTYPES, CHANTYPES, Conf_MaxJoins))
+				Conf_AllowedChannelTypes, Conf_AllowedChannelTypes,
+				Conf_MaxJoins))
 		return DISCONNECTED;
 	return IRC_WriteStrClient(Client, RPL_ISUPPORT2_MSG, Client_ID(Client),
 				  CHANNEL_NAME_LEN - 1, Conf_MaxNickLength - 1,

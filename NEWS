@@ -8,9 +8,33 @@
 
                                   -- NEWS --
 
-ngIRCd 26
+ngIRCd 26 (2020-06-20)
 
-  ngIRCd 26~rc1
+  ngIRCd 26~rc2 (2020-06-11)
+  - Add AppStream metadata file (contrib/de.barton.ngircd.metainfo.xml).
+  - Various bug fixes, see the ChangeLog. No new or changed functionality.
+
+  ngIRCd 26~rc1 (2020-05-10)
+  - Allow up to 512 characters per line in MOTD and help text files (but keep
+    in mind that lines can't get that long, because they have to be prefixed
+    before being sent to the client). But this allows for more fancy MOTDs :-)
+    Closes #271.
+  - Show the actually allowed channel types in the ISUPPORT(005) numeric which
+    are configured by the "AllowedChannelTypes" configuration variable.
+    Closes #273.
+  - Handle commands in the read buffer before reading more data and don't wait
+    for the network in this case: If there are more bytes in the read buffer
+    already than a single valid IRC command can get long (513 bytes), wait for
+    this/those command(s) to be handled first and don't try to read even more
+    data from the network (which most probably would overflow the read buffer
+    of this connection soon).
+  - Log G-/K-Line changes only when not initiated by a server: this prevents
+    the log from becoming spammed during "net bursts".
+  - Update test suite to include SSL tests, including checking for reloading
+    certificates during runtime.
+  - Add support for GnuTLS certificate reload, which is quite handy when using
+    Let's Encrypt, for example. Until now this was only supported when linked
+    with OpenSSL. Thanks a lot, Hilko Bengen <bengen@hilluzination.de>!
   - Allow setting arbitrary channel modes in the configuration file by handling
     them like in MODE commands, and allow multiple "Modes =" lines per [Channel]
     section. Thanks to Michi <michi+ngircd@dataswamp.org>!
@@ -70,7 +94,7 @@ ngIRCd 25 (2019-01-23)
 
   ngIRCd 25~rc1 (2018-08-11)
   - Only send TOPIC updates to a channel when the topic actually changed:
-    This prevents the channel from becoming flooded by unecessary TOPIC update
+    This prevents the channel from becoming flooded by unnecessary TOPIC update
     messages, that can happen when IRC services try to enforce a certain topic
     but which is already set (at least on the local server), for example.
     Therefore still forward it to all servers, but don't inform local clients

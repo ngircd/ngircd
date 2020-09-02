@@ -1,7 +1,7 @@
 .\"
 .\" ngircd(8) manual page template
 .\"
-.TH ngircd 8 "Jan 2020" ngIRCd "ngIRCd Manual"
+.TH ngircd 8 "May 2020" ngIRCd "ngIRCd Manual"
 .SH NAME
 ngIRCd \- the "next generation" IRC daemon
 .SH SYNOPSIS
@@ -13,12 +13,15 @@ ngIRCd \- the "next generation" IRC daemon
 .BR ngIRCd
 is a free, portable and lightweight Internet Relay Chat server for small
 or private networks, developed under the GNU General Public License (GPL).
-It is easy to configure, can cope with dynamic IP addresses, and supports
-IPv6, SSL-protected connections as well as PAM for authentication.
-It is written from scratch and not based on the original IRCd.
+.PP
+The server is quite easy to configure, can handle dynamic IP addresses, and
+optionally supports IDENT, IPv6 connections, SSL-protected links, and PAM for
+user authentication as well as character set conversion for legacy clients. The
+server has been written from scratch and is not based on the "forefather", the
+daemon of the IRCNet.
 .PP
 The name ngIRCd means
-.IR "next generation IRC daemon",
+.IR "next-generation IRC daemon",
 which is a little bit exaggerated:
 .IR "lightweight Internet Relay Chat server"
 most probably would have been a better name :-)

@@ -660,12 +660,14 @@ Conn_Handler(void)
 	size_t wdatalen;
 	struct timeval tv;
 	time_t t;
+	bool command_available;
 
 	Log(LOG_NOTICE, "Server \"%s\" (on \"%s\") ready.",
 	    Client_ID(Client_ThisServer()), Client_Hostname(Client_ThisServer()));
 
 	while (!NGIRCd_SignalQuit && !NGIRCd_SignalRestart) {
 		t = time(NULL);
+		command_available = false;
 
 		/* Check configured servers and established links */
 		Check_Servers();
@@ -734,16 +736,31 @@ Conn_Handler(void)
 				continue;
 			}
 
+			if (array_bytes(&My_Connections[i].rbuf) >= COMMAND_LEN) {
+				/* There is still more data in the read buffer
+				 * than a single valid command can get long:
+				 * so either there is a complete command, or
+				 * invalid data. Therefore don't try to read in
+				 * even more data from the network but wait for
+				 * this command(s) to be handled first! */
+				io_event_del(My_Connections[i].sock,
+					     IO_WANTREAD);
+				command_available = true;
+				continue;
+			}
+
 			io_event_add(My_Connections[i].sock, IO_WANTREAD);
 		}
 
-		/* Set the timeout for reading from the network to 1 second,
-		 * which is the granularity with witch we handle "penalty
-		 * times" for example.
+		/* Don't wait for data when there is still at least one command
+		 * available in a read buffer which can be handled immediately;
+		 * set the timeout for reading from the network to 1 second
+		 * otherwise, which is the granularity with witch we handle
+		 * "penalty times" for example.
 		 * Note: tv_sec/usec are undefined(!) after io_dispatch()
 		 * returns, so we have to set it before each call to it! */
 		tv.tv_usec = 0;
-		tv.tv_sec = 1;
+		tv.tv_sec = command_available ? 0 : 1;
 
 		/* Wait for activity ... */
 		i = io_dispatch(&tv);
@@ -1543,49 +1560,43 @@ Socket2Index( int Sock )
  * @param Idx	Connection index.
  */
 static void
-Read_Request( CONN_ID Idx )
+Read_Request(CONN_ID Idx)
 {
 	ssize_t len;
-	size_t readbuf_limit = READBUFFER_LEN;
 	static const unsigned int maxbps = COMMAND_LEN / 2;
-	char readbuf[READBUFFER_MAX_LEN];
+	char readbuf[READBUFFER_LEN];
 	time_t t;
 	CLIENT *c;
-	assert( Idx > NONE );
-	assert( My_Connections[Idx].sock > NONE );
 
-	/* Make sure that there still exists a CLIENT structure associated
-	 * with this connection and check if this is a server or not: */
-	c = Conn_GetClient(Idx);
-	if (c) {
-		/* Servers do get special read buffer limits, so they can
-		 * process all the messages that are required while peering. */
-		if (Client_Type(c) == CLIENT_SERVER)
-			readbuf_limit = READBUFFER_SLINK_LEN;
-	} else
-		LogDebug("Read request without client (connection %d)!?", Idx);
+	assert(Idx > NONE);
+	assert(My_Connections[Idx].sock > NONE);
 
+	/* Check if the read buffer is "full". Basically this shouldn't happen
+	 * here, because as long as there possibly are commands in the read
+	 * buffer (buffer usage > COMMAND_LEN), the socket shouldn't be
+	 * scheduled for reading in Conn_Handler() at all ... */
 #ifdef ZLIB
-	if ((array_bytes(&My_Connections[Idx].rbuf) >= readbuf_limit) ||
-		(array_bytes(&My_Connections[Idx].zip.rbuf) >= readbuf_limit))
+	if ((array_bytes(&My_Connections[Idx].rbuf) >= READBUFFER_LEN) ||
+		(array_bytes(&My_Connections[Idx].zip.rbuf) >= READBUFFER_LEN))
 #else
-	if (array_bytes(&My_Connections[Idx].rbuf) >= readbuf_limit)
+	if (array_bytes(&My_Connections[Idx].rbuf) >= READBUFFER_LEN)
 #endif
 	{
-		/* Read buffer is full */
 		Log(LOG_ERR,
 		    "Receive buffer space exhausted (connection %d): %d/%d bytes",
-		    Idx, array_bytes(&My_Connections[Idx].rbuf), readbuf_limit);
+		    Idx, array_bytes(&My_Connections[Idx].rbuf), READBUFFER_LEN);
 		Conn_Close(Idx, "Receive buffer space exhausted", NULL, false);
 		return;
 	}
 
+	/* Now read new data from the network, up to READBUFFER_LEN bytes ... */
 #ifdef SSL_SUPPORT
 	if (Conn_OPTION_ISSET(&My_Connections[Idx], CONN_SSL))
-		len = ConnSSL_Read( &My_Connections[Idx], readbuf, readbuf_limit);
+		len = ConnSSL_Read(&My_Connections[Idx], readbuf, sizeof(readbuf));
 	else
 #endif
-	len = read(My_Connections[Idx].sock, readbuf, readbuf_limit);
+		len = read(My_Connections[Idx].sock, readbuf, sizeof(readbuf));
+
 	if (len == 0) {
 		LogDebug("Client \"%s:%u\" is closing connection %d ...",
 			 My_Connections[Idx].host,
@@ -1595,13 +1606,20 @@ Read_Request( CONN_ID Idx )
 	}
 
 	if (len < 0) {
-		if( errno == EAGAIN ) return;
+		if (errno == EAGAIN)
+			return;
+
 		Log(LOG_ERR, "Read error on connection %d (socket %d): %s!",
 		    Idx, My_Connections[Idx].sock, strerror(errno));
 		Conn_Close(Idx, "Read error", "Client closed connection",
 			   false);
 		return;
 	}
+
+	/* Now append the newly received data to the connection buffer.
+	 * NOTE: This can lead to connection read buffers being bigger(!) than
+	 * READBUFFER_LEN bytes, as we add up to READBUFFER_LEN new bytes to a
+	 * buffer possibly being "almost" READBUFFER_LEN bytes already! */
 #ifdef ZLIB
 	if (Conn_OPTION_ISSET(&My_Connections[Idx], CONN_ZIP)) {
 		if (!array_catb(&My_Connections[Idx].zip.rbuf, readbuf,
@@ -1848,6 +1866,9 @@ Check_Connections(void)
 	CLIENT *c;
 	CONN_ID i;
 	char msg[64];
+	time_t time_now;
+
+	time_now = time(NULL);
 
 	for (i = 0; i < Pool_Size; i++) {
 		if (My_Connections[i].sock < 0)
@@ -1862,7 +1883,7 @@ Check_Connections(void)
 			    My_Connections[i].lastdata) {
 				/* We already sent a ping */
 				if (My_Connections[i].lastping <
-				    time(NULL) - Conf_PongTimeout) {
+				    time_now - Conf_PongTimeout) {
 					/* Timeout */
 					snprintf(msg, sizeof(msg),
 						 "Ping timeout: %d seconds",
@@ -1871,10 +1892,10 @@ Check_Connections(void)
 					Conn_Close(i, NULL, msg, true);
 				}
 			} else if (My_Connections[i].lastdata <
-				   time(NULL) - Conf_PingTimeout) {
+				   time_now - Conf_PingTimeout) {
 				/* We need to send a PING ... */
 				LogDebug("Connection %d: sending PING ...", i);
-				Conn_UpdatePing(i);
+				Conn_UpdatePing(i, time_now);
 				Conn_WriteStr(i, "PING :%s",
 					      Client_ID(Client_ThisServer()));
 			}
@@ -1885,7 +1906,7 @@ Check_Connections(void)
 			 * still not registered. */
 
 			if (My_Connections[i].lastdata <
-			    time(NULL) - Conf_PongTimeout) {
+			    time_now - Conf_PongTimeout) {
 				LogDebug
 				    ("Unregistered connection %d timed out ...",
 				     i);

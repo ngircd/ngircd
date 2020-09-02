@@ -853,7 +853,7 @@ no_listenports(void)
 static bool
 Read_TextFile(const char *Filename, const char *Name, array *Destination)
 {
-	char line[127];
+	char line[COMMAND_LEN];
 	FILE *fp;
 	int line_no = 1;
 
@@ -903,7 +903,7 @@ Read_Config(bool TestOnly, bool IsStarting)
 	FILE *fd;
 	DIR *dh;
 
-	Log(LOG_INFO, "Using configuration file \"%s\" ...", NGIRCd_ConfFile);
+	Config_Error(LOG_INFO, "Using configuration file \"%s\" ...", NGIRCd_ConfFile);
 
 	/* Open configuration file */
 	fd = fopen( NGIRCd_ConfFile, "r" );

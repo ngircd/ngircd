@@ -7,11 +7,13 @@ server for small or private networks, developed under the terms of the GNU
 General Public License ([GPL]); please see the file `COPYING` for licensing
 information.
 
-The server is simple to configure, can cope with dynamic IP addresses, and
-supports IPv6 as well as SSL. It is written from scratch and not based on the
-original IRCd.
+The server is quite easy to configure, can handle dynamic IP addresses, and
+optionally supports IDENT, IPv6 connections, SSL-protected links, and PAM for
+user authentication as well as character set conversion for legacy clients. The
+server has been written from scratch and is not based on the "forefather", the
+daemon of the IRCNet.
 
-The name ngIRCd means *next generation IRC daemon*, which is a little bit
+The name ngIRCd means *next-generation IRC daemon*, which is a little bit
 exaggerated: *lightweight Internet Relay Chat server* most probably would have
 been a better name :-)
 
@@ -20,8 +22,8 @@ online available here: <https://ngircd.barton.de/doc/INSTALL.md>!
 
 ## Status
 
-ngIRCd should be quite feature complete and stable to be used as daemon in
-real world IRC networks.
+ngIRCd should be quite feature-complete and stable to be used as a daemon in
+real-world IRC networks.
 
 It is not the goal of ngIRCd to implement all the nasty behaviors of the
 original ircd, but to implement most of the useful commands and semantics

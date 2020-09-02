@@ -30,7 +30,7 @@
 
 
 GLOBAL void Conn_UpdateIdle PARAMS((CONN_ID Idx));
-GLOBAL void Conn_UpdatePing PARAMS((CONN_ID Idx));
+GLOBAL void Conn_UpdatePing PARAMS((CONN_ID Idx, time_t TimeStamp));
 
 GLOBAL time_t Conn_GetSignon PARAMS((CONN_ID Idx));
 GLOBAL time_t Conn_GetIdle PARAMS(( CONN_ID Idx ));

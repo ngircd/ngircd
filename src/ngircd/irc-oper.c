@@ -447,10 +447,11 @@ IRC_xLINE(CLIENT *Client, REQUEST *Req)
 		if (Class_AddMask(class, Req->argv[0],
 				  timeout,
 				  Req->argv[2])) {
-			Log(LOG_NOTICE|LOG_snotice,
-			    "\"%s\" added \"%s\" to %c-Line list: \"%s\" (%ld seconds).",
-			    Client_Mask(from), Req->argv[0], class_c,
-			    Req->argv[2], atol(Req->argv[1]));
+			if (Client_Type(from) != CLIENT_SERVER)
+				Log(LOG_NOTICE|LOG_snotice,
+				    "\"%s\" added \"%s\" to %c-Line list: \"%s\" (%ld seconds).",
+				    Client_Mask(from), Req->argv[0], class_c,
+				    Req->argv[2], atol(Req->argv[1]));
 			if (class == CLASS_GLINE) {
 				/* Inform other servers */
 				IRC_WriteStrServersPrefix(Client, from,

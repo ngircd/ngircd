@@ -174,8 +174,7 @@ if [ -r "Makefile" ]; then
 		if [ $? -eq 0 ]; then
 			COMPILER=$($CC --version 2>/dev/null | head -1 \
 			  | cut -d'(' -f1 | cut -d'-' -f1 \
-			  | sed -e 's/version //g' | sed -e 's/Apple /A-/g' \
-			  | sed -e 's/Debian //g' | sed -e 's/LLVM /clang /g')
+			  | sed -e 's/version //g; s/^\([A-Z]\)[A-Za-z]* clang/\1-clang/g; s/LLVM /clang /g')
 		fi
 		$CC -version 2>&1 | grep -i "tcc" >/dev/null
 		if [ $? -eq 0 ]; then

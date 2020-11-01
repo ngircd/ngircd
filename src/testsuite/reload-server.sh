@@ -22,10 +22,11 @@ if [ -z "$pid" ]; then
 fi
 kill -HUP $pid > /dev/null 2>&1; r=$?
 if [ $r -eq 0 ]; then
+  sleep 2
   echo " ok".
-  exit 0
+  kill -0 $pid && exit 0
 fi
-echo " failure: server ${id} could not be restarted"
+echo " failure: server ${id} could not be reloaded!"
 exit 1
 
 # -eof-

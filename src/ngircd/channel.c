@@ -98,7 +98,6 @@ Channel_InitPredefined( void )
 	REQUEST Req;
 	const struct Conf_Channel *conf_chan;
 	char *c;
-	char modes[COMMAND_LEN], name[CHANNEL_NAME_LEN];
 	size_t i, n, channel_count = array_length(&Conf_Channels, sizeof(*conf_chan));
 
 	conf_chan = array_start(&Conf_Channels);
@@ -138,6 +137,7 @@ Channel_InitPredefined( void )
 		/* Evaluate modes strings with fake requests */
 		if (conf_chan->modes_num) {
 			/* Prepare fake request structure */
+			char name[CHANNEL_NAME_LEN];
 			strlcpy(name, conf_chan->name, sizeof(name));
 			Log(LOG_INFO, "Evaluating predefined channel modes for \"%s\".", name);
 			Req.argv[0] = name;
@@ -146,6 +146,7 @@ Channel_InitPredefined( void )
 
 			/* Iterate over channel modes strings */
 			for (n = 0; n < conf_chan->modes_num; n++) {
+				char modes[COMMAND_LEN];
 				Req.argc = 1;
 				strlcpy(modes, conf_chan->modes[n], sizeof(modes));
 				Log(LOG_DEBUG, "Evaluate \"MODE %s %s\".", name, modes);

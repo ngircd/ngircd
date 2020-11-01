@@ -29,7 +29,7 @@
 
 /**
  * Configured IRC operator.
- * Please note that the name of the IRC operaor and his nick have nothing to
+ * Please note that the name of the IRC operator and his nick have nothing to
  * do with each other! The IRC operator is only identified by the name and
  * password configured in this structure.
  */

@@ -29,20 +29,20 @@ A: ngIRCd offers several benefits: no problems with dynamic IPs, easy to
 II. Compilation
 ~~~~~~~~~~~~~~~
 
-Q: I did a "CVS checkout" but can't execute ./configure because the script
+Q: I did a "Git checkout" but can't execute ./configure because the script
    is missing in the generated directory!?
-A: When using development versions via CVS, the configure script as well as
+A: When using development versions via Git, the configure script as well as
    the Makefile.in templates must be generated using GNU automake and GNU
    autoconf. To simplify this task run the ./autogen.sh script which will
    execute the required tools for you; then continue with executing the
    ./configure script as usual.
 
 Q: The ./autogen.sh script complains "aclocal: command not found".
-A: GNU automake is missing on your system but required for building CVS
+A: GNU automake is missing on your system but required for building Git
    versions of ngIRCd. Install GNU automake 1.6 or later and try again.
 
 Q: The ./autogen.sh script stops with "autoheader: command not found".
-A: GNU autoconf is missing on your system but required for building CVS
+A: GNU autoconf is missing on your system but required for building Git
    versions of ngIRCd. Install GNU autoconf 2.52 or later and try again.
 
 Q: The ./autogen.sh script fails and the message "automake: configure.in:

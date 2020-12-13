@@ -19,6 +19,7 @@
 
 GLOBAL bool Login_User PARAMS((CLIENT * Client));
 GLOBAL bool Login_User_PostAuth PARAMS((CLIENT *Client));
+GLOBAL void Login_Autojoin PARAMS((CLIENT *Client));
 
 #endif
 

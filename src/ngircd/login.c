@@ -201,7 +201,38 @@ Login_User_PostAuth(CLIENT *Client)
 	} else
 		IRC_SetPenalty(Client, 1);
 
+  /* Autojoin clients to the channels */
+  Login_Autojoin(Client);
+
 	return CONNECTED;
+}
+
+/**
+ * Autojoin clients to the channels set by administrator
+ * If autojoin is not set in Config or the channel is not available for search - do nothing
+ *
+ **/
+GLOBAL void
+Login_Autojoin(CLIENT *Client)
+{
+	/** make an autojoin to each channel that is good for it **/
+	REQUEST Req;
+	const struct Conf_Channel *conf_chan;
+	size_t i, n, channel_count = array_length(&Conf_Channels, sizeof(*conf_chan));
+	conf_chan = array_start(&Conf_Channels);
+	assert(channel_count == 0 || conf_chan != NULL);
+
+	for (i = 0; i < channel_count; i++, conf_chan++) {
+		if(!conf_chan->autojoin)
+			continue;
+		if (!Channel_Search(conf_chan->name))
+			continue;
+		Req.prefix = Client_ID(Client_ThisServer());
+		Req.command = "JOIN";
+		Req.argc = 1;
+		Req.argv[0] = conf_chan->name;
+		IRC_JOIN(Client, &Req);
+	}
 }
 
 #ifdef PAM

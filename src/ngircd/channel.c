@@ -186,8 +186,6 @@ Channel_InitPredefined( void )
 		    new_chan->name, new_chan->modes, new_chan->key,
 		    new_chan->maxusers);
 	}
-	if (channel_count)
-		array_free(&Conf_Channels);
 
 	/* Make sure the local &SERVER channel exists */
 	if (!Channel_Search("&SERVER")) {

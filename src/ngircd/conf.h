@@ -87,6 +87,7 @@ struct Conf_Channel {
 	char key[CLIENT_PASS_LEN];      /**< Channel key ("password", mode "k" ) */
 	char topic[COMMAND_LEN];	/**< Initial topic */
 	char keyfile[512];		/**< Path and name of channel key file */
+	bool autojoin;			/**< 1 to make all users autojoin this channel */
 	unsigned long maxusers;		/**< User limit for this channel, mode "l" */
 	unsigned int modes_num;		/**< Number of channel modes to evaluate */
 };

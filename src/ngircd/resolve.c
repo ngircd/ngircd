@@ -245,9 +245,6 @@ ForwardLookup(const char *hostname, array *IpAddr, UNUSED int af)
 	struct addrinfo *a, *ai_results;
 	static struct addrinfo hints;
 
-#ifdef AI_ADDRCONFIG	/* glibc has this, but not e.g. netbsd 4.0 */
-	hints.ai_flags = AI_ADDRCONFIG;
-#endif
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_protocol = IPPROTO_TCP;
 	hints.ai_family = af;

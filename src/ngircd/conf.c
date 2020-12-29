@@ -388,7 +388,7 @@ Conf_Test( void )
 	printf("  MaxConnectionsIP = %d\n", Conf_MaxConnectionsIP);
 	printf("  MaxJoins = %d\n", Conf_MaxJoins > 0 ? Conf_MaxJoins : -1);
 	printf("  MaxNickLength = %u\n", Conf_MaxNickLength - 1);
-	printf("  MaxPenaltyTime = %ld\n", Conf_MaxPenaltyTime);
+	printf("  MaxPenaltyTime = %ld\n", (long)Conf_MaxPenaltyTime);
 	printf("  MaxListSize = %d\n", Conf_MaxListSize);
 	printf("  PingTimeout = %d\n", Conf_PingTimeout);
 	printf("  PongTimeout = %d\n", Conf_PongTimeout);

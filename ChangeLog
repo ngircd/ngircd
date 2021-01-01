@@ -8,6 +8,37 @@
 
                                -- ChangeLog --
 
+ngIRCd 26.1
+
+  - Fix a "format string" compiler warning (detected on OpenBSD).
+  - No longer set "AI_ADDRCONFIG" when resolving host names, even when it
+    exists: with this option set, on an IPv6-only host, we prevent 127.0.0.1
+    to get translated properly, even when the loopback interface has this
+    address configured! And as the test suite uses 127.0.0.1, it was broken
+    on IPv6-only hosts.
+    The drawback is that the resolver possibly returns more addresses now,
+    even of an unsupported/not connected address family; but this shouldn't
+    do much harm in practice, as ngIRCd iterates over all returned addresses
+    while trying to establish an outgoing connection.
+    Closes #281.
+  - Revert "Show allowed channel types in ISUPPORT(005) numeric only", which
+    was introduced in 26~rc1: This lead to some IRC clients assuming "oh, no
+    channel prefix characters at all, so no channels at all, so no PRIVMSG can
+    go to any channel" when "AllowedChannelTypes" was set to the empty string
+    ("") -- which is not the case when there are pre-defined channel set up or
+    other servers still having channels!
+    So "allowed channel types" != "supported channel types", and we always have
+    to list all supported ones in the ISUPPORT(005) numeric!
+    Closes #285.
+  - Test suite: Wait 2 seconds after reloading the daemon, which is required
+    because on reload, all listening ports are closed, configuration updated,
+    and then opened again. This lead to subsequent tests running while the
+    daemon isn't listening on any ports, and that's why some tests could fail.
+    Closes #280.
+  - platformtest.sh: Try to mangle CLang name more intelligently.
+  - Documentation: Fixed URLs of Atheme IRC services, updated all mentions
+    from CVS to Git, and updated Platforms.txt -- Oh, and it is 2021 now! ;-)
+
 ngIRCd 26 (2020-06-20)
 
   ngIRCd 26~rc2 (2020-06-11)

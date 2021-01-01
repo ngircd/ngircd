@@ -8,6 +8,10 @@
 
                                   -- NEWS --
 
+ngIRCd 26.1
+
+  - This release is a bugfix release only, without new features.
+
 ngIRCd 26 (2020-06-20)
 
   ngIRCd 26~rc2 (2020-06-11)

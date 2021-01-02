@@ -24,6 +24,7 @@
 	</provides>
 	<launchable type="service">ngircd</launchable>
 	<releases>
+		<release version="26.1" date="2021-01-02" />
 		<release version="26" date="2020-06-20" />
 		<release version="26~rc2" date="2020-06-11" type="development" />
 		<release version="26~rc1" date="2020-05-10" type="development" />

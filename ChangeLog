@@ -8,7 +8,7 @@
 
                                -- ChangeLog --
 
-ngIRCd 26.1
+ngIRCd 26.1 (2021-01-02)
 
   - Fix a "format string" compiler warning (detected on OpenBSD).
   - No longer set "AI_ADDRCONFIG" when resolving host names, even when it

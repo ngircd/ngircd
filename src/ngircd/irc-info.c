@@ -138,7 +138,7 @@ who_flags_qualifier(CLIENT *Client, const char *chan_user_modes,
 static bool
 IRC_WHO_Channel(CLIENT *Client, CHANNEL *Chan, bool OnlyOps)
 {
-	bool is_visible, is_member, is_ircop;
+	bool is_visible, is_member, is_ircop, is_oper;
 	CL2CHAN *cl2chan;
 	char flags[10];
 	CLIENT *c;
@@ -148,9 +148,10 @@ IRC_WHO_Channel(CLIENT *Client, CHANNEL *Chan, bool OnlyOps)
 	assert( Chan != NULL );
 
 	is_member = Channel_IsMemberOf(Chan, Client);
+	is_oper = Client_HasMode(Client, 'o');
 
 	/* Secret channel? */
-	if (!is_member && Channel_HasMode(Chan, 's'))
+	if (!is_member && !is_oper && Channel_HasMode(Chan, 's'))
 		return IRC_WriteStrClient(Client, RPL_ENDOFWHO_MSG,
 					  Client_ID(Client), Channel_Name(Chan));
 
@@ -163,7 +164,7 @@ IRC_WHO_Channel(CLIENT *Client, CHANNEL *Chan, bool OnlyOps)
 			continue;
 
 		is_visible = !Client_HasMode(c, 'i');
-		if (is_member || is_visible) {
+		if (is_member || is_visible || is_oper) {
 			memset(flags, 0, sizeof(flags));
 
 			if (Client_HasMode(c, 'a'))

@@ -320,7 +320,7 @@ IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 		IRC_WriteStrChannelPrefix(Client, chan, c, false,
 					  "JOIN :%s", channame);
 
-		/* Send NAMES and to the joined user */
+		/* Send NAMES list to the joined user */
 		if(IRC_Send_NAMES(c, chan))
 			IRC_WriteStrClient(c, RPL_ENDOFNAMES_MSG, Client_ID(Client),
 				Channel_Name(chan));

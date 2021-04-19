@@ -320,22 +320,25 @@ IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 		IRC_WriteStrChannelPrefix(Client, chan, c, false,
 					  "JOIN :%s", channame);
 
-		/* Send NAMES list to the joined user */
-		if(IRC_Send_NAMES(c, chan))
-			IRC_WriteStrClient(c, RPL_ENDOFNAMES_MSG, Client_ID(Client),
-				Channel_Name(chan));
+		/* If the client is connected to me... */
+		if(Client_Conn(c) != NONE) {
+			/* Send NAMES list to the joined user */
+			if(IRC_Send_NAMES(c, chan))
+				IRC_WriteStrClient(c, RPL_ENDOFNAMES_MSG, Client_ID(Client),
+					Channel_Name(chan));
 
-		/* Send topic to the joined user */
-		topic = Channel_Topic(chan);
-		assert(topic != NULL);
-		if (*topic) {
-			IRC_WriteStrClient(c, RPL_TOPIC_MSG, Client_ID(c), channame, topic);
+			/* Send topic to the joined user */
+			topic = Channel_Topic(chan);
+			assert(topic != NULL);
+			if (*topic) {
+				IRC_WriteStrClient(c, RPL_TOPIC_MSG, Client_ID(c), channame, topic);
 #ifndef STRICT_RFC
-			IRC_WriteStrClient(c, RPL_TOPICSETBY_MSG,
-				Client_ID(c), channame,
-				Channel_TopicWho(chan),
-				Channel_TopicTime(chan));
+				IRC_WriteStrClient(c, RPL_TOPICSETBY_MSG,
+					Client_ID(c), channame,
+					Channel_TopicWho(chan),
+					Channel_TopicTime(chan));
 #endif
+			}
 		}
 
 		/* Announce "channel user modes" to the channel, if any */

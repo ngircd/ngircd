@@ -591,7 +591,7 @@ set_v6_only(int af, int sock)
 /**
  * Initialize new listening port.
  *
- * @param listen_addr	Local address to bind the socet to (can be 0.0.0.0).
+ * @param listen_addr	Local address to bind the socket to (can be 0.0.0.0).
  * @param Port		Port number on which the new socket should be listening.
  * @returns		file descriptor of the socket or -1 on failure.
  */

@@ -73,8 +73,8 @@ h) Run "./autogen.sh" to update the ./configure script with the correct
 
 i) Run "./configure" to rebuild all generated Makefiles.
 
-j) Run "make distcheck" (and "make dist-tarZ dist-xz") to generate all of the
-   distribution archives.
+j) Run "make distcheck" (and "make dist-tarZ && make dist-xz") to generate all
+   of the distribution archives.
 
 k) Sign the distribution archive(s) using GnuPG: "gpg -b <archivefile>"
 

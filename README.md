@@ -47,6 +47,10 @@ specified by the RFCs that are used by existing clients.
 
 The **homepage** of the ngIRCd project is <https://ngircd.barton.de>.
 
+Installation on ngIRCd is described in the file `INSTALL.md` in the source
+directory; please see the file `doc/QuickStart.md` in the `doc/` directory for
+some configuration examples.
+
 More documentation can be found in the `doc/` directory and
 [online](https://ngircd.barton.de/documentation).
 

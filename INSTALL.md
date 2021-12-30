@@ -1,7 +1,7 @@
 # [ngIRCd](https://ngircd.barton.de) - Internet Relay Chat Server
 
-This document explains how to install ngIRCd, the lightweight Internet Relay
-Chat (IRC) server.
+This document explains how to install and configure ngIRCd, the lightweight
+Internet Relay Chat (IRC) server.
 
 The first section lists noteworthy changes to earlier releases; you definitely
 should read this when upgrading your setup! But you can skip over this section
@@ -9,6 +9,10 @@ when you do a fresh installation.
 
 All the subsequent sections describe the steps required to install and
 configure ngIRCd.
+
+Please see the file `doc/QuickStart.md` in the `doc/` directory and
+[online](https://ngircd.barton.de/doc/QuickStart.md) on the homepage for some
+configuration examples.
 
 ## Upgrade Information
 
@@ -360,6 +364,10 @@ standard locations.
 Please have a look at the `ngircd(8)` and `ngircd.conf(5)` manual pages for
 details and all possible command line and configuration options -- **and don't
 forget to run `ngircd --configtest` to validate your configuration file!**
+
+The file `doc/QuickStart.md` in the `doc/` directory and
+[online](https://ngircd.barton.de/doc/QuickStart.md) on the homepage has some
+configuration examples, you should take a look :-)
 
 After installing ngIRCd, a sample configuration file will be set up (if it
 does not exist already). By default, when installing from sources, the file is

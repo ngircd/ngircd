@@ -1315,12 +1315,14 @@ Client_Reject(CLIENT *Client, const char *Reason, bool InformClient)
 GLOBAL void
 Client_Introduce(CLIENT *From, CLIENT *Client, int Type)
 {
+	int server;
+
 	/* Set client type (user or service) */
 	Client_SetType(Client, Type);
 
 	if (From) {
-		if (Conf_NickIsService(Conf_GetServer(Client_Conn(From)),
-				   Client_ID(Client)))
+		server = Conf_GetServer(Client_Conn(From));
+		if (server > NONE && Conf_NickIsService(server, Client_ID(Client)))
 			Client_SetType(Client, CLIENT_SERVICE);
 		LogDebug("%s \"%s\" (+%s) registered (via %s, on %s, %d hop%s).",
 			 Client_TypeText(Client), Client_Mask(Client),

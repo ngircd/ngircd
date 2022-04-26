@@ -490,9 +490,7 @@ Pidfile_Delete( void )
 	/* Pidfile configured? */
 	if( ! Conf_PidFile[0] ) return;
 
-#ifdef DEBUG
-	Log( LOG_DEBUG, "Removing PID file (%s) ...", Conf_PidFile );
-#endif
+	LogDebug( "Removing PID file (%s) ...", Conf_PidFile );
 
 	if( unlink( Conf_PidFile ))
 		Log( LOG_ERR, "Error unlinking PID file (%s): %s", Conf_PidFile, strerror( errno ));
@@ -514,9 +512,7 @@ Pidfile_Create(pid_t pid)
 	/* Pidfile configured? */
 	if( ! Conf_PidFile[0] ) return;
 
-#ifdef DEBUG
-	Log( LOG_DEBUG, "Creating PID file (%s) ...", Conf_PidFile );
-#endif
+	LogDebug( "Creating PID file (%s) ...", Conf_PidFile );
 
 	pidfd = open( Conf_PidFile, O_RDWR|O_CREAT|O_EXCL, S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
 	if ( pidfd < 0 ) {
@@ -817,7 +813,7 @@ NGIRCd_Init(bool NGIRCd_NoDaemon)
 
 	if (pwd) {
 		if (chdir(pwd->pw_dir) == 0)
-			Log(LOG_DEBUG,
+			LogDebug(
 			    "Changed working directory to \"%s\" ...",
 			    pwd->pw_dir);
 		else

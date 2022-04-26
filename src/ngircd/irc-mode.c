@@ -281,7 +281,7 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 			break;
 		default:
 			if (Client_Type(Client) != CLIENT_SERVER) {
-				Log(LOG_DEBUG,
+				LogDebug(
 				    "Unknown mode \"%c%c\" from \"%s\"!?",
 				    set ? '+' : '-', *mode_ptr,
 				    Client_ID(Origin));
@@ -292,7 +292,7 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 							*mode_ptr);
 				x[0] = '\0';
 			} else {
-				Log(LOG_DEBUG,
+				LogDebug(
 				    "Handling unknown mode \"%c%c\" from \"%s\" for \"%s\" ...",
 				    set ? '+' : '-', *mode_ptr,
 				    Client_ID(Origin), Client_ID(Target));
@@ -823,7 +823,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 			break;
 		default:
 			if (Client_Type(Client) != CLIENT_SERVER) {
-				Log(LOG_DEBUG,
+				LogDebug(
 				    "Unknown mode \"%c%c\" from \"%s\" on %s!?",
 				    set ? '+' : '-', *mode_ptr,
 				    Client_ID(Origin), Channel_Name(Channel));
@@ -833,7 +833,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 					Channel_Name(Channel));
 				x[0] = '\0';
 			} else {
-				Log(LOG_DEBUG,
+				LogDebug(
 				    "Handling unknown mode \"%c%c\" from \"%s\" on %s ...",
 				    set ? '+' : '-', *mode_ptr,
 				    Client_ID(Origin), Channel_Name(Channel));

@@ -942,16 +942,13 @@ Read_Config(bool TestOnly, bool IsStarting)
 
 					if( Conf_Server[i].conn_id == Conf_Server[n].conn_id ) {
 						Init_Server_Struct( &Conf_Server[n] );
-#ifdef DEBUG
-						Log(LOG_DEBUG,"Deleted unused duplicate server %d (kept %d).",
-												n, i );
-#endif
+						LogDebug("Deleted unused duplicate server %d (kept %d).", n, i);
 					}
 				}
 			} else {
 				/* Mark server as "once" */
 				Conf_Server[i].flags |= CONF_SFLAG_ONCE;
-				Log( LOG_DEBUG, "Marked server %d as \"once\"", i );
+				LogDebug("Marked server %d as \"once\"", i);
 			}
 		}
 	}
@@ -2134,8 +2131,7 @@ Validate_Config(bool Configtest, bool Rehash)
 				servers_once++;
 		}
 	}
-	Log(LOG_DEBUG,
-	    "Configuration: Operators=%ld, Servers=%d[%d], Channels=%ld",
+	LogDebug("Configuration: Operators=%ld, Servers=%d[%d], Channels=%ld",
 	    array_length(&Conf_Opers, sizeof(struct Conf_Oper)),
 	    servers, servers_once,
 	    array_length(&Conf_Channels, sizeof(struct Conf_Channel)));
@@ -2236,11 +2232,11 @@ Conf_DebugDump(void)
 {
 	int i;
 
-	Log(LOG_DEBUG, "Configured servers:");
+	LogDebug("Configured servers:");
 	for (i = 0; i < MAX_SERVERS; i++) {
 		if (! Conf_Server[i].name[0])
 			continue;
-		Log(LOG_DEBUG,
+		LogDebug(
 		    " - %s: %s:%d, last=%ld, group=%d, flags=%d, conn=%d",
 		    Conf_Server[i].name, Conf_Server[i].host,
 		    Conf_Server[i].port, Conf_Server[i].lasttry,

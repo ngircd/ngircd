@@ -298,7 +298,7 @@ IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 			    "Failed to join client \"%s\" to channel \"%s\" (NJOIN): killing it!",
 			    ptr, channame);
 			IRC_KillClient(NULL, NULL, ptr, "Internal NJOIN error!");
-			Log(LOG_DEBUG, "... done.");
+			LogDebug("... done.");
 			goto skip_njoin;
 		}
 

@@ -875,7 +875,7 @@ va_dcl
 
 #ifdef SNIFFER
 	if (NGIRCd_Sniffer)
-		Log(LOG_DEBUG, " -> connection %d: '%s'.", Idx, buffer);
+		LogDebug("-> connection %d: '%s'.", Idx, buffer);
 #endif
 
 	len = strlcat( buffer, "\r\n", sizeof( buffer ));
@@ -2698,11 +2698,11 @@ Conn_DebugDump(void)
 {
 	int i;
 
-	Log(LOG_DEBUG, "Connection status:");
+	LogDebug("Connection status:");
 	for (i = 0; i < Pool_Size; i++) {
 		if (My_Connections[i].sock == NONE)
 			continue;
-		Log(LOG_DEBUG,
+		LogDebug(
 		    " - %d: host=%s, lastdata=%ld, lastping=%ld, delaytime=%ld, flag=%d, options=%d, bps=%d, client=%s",
 		    My_Connections[i].sock, My_Connections[i].host,
 		    My_Connections[i].lastdata, My_Connections[i].lastping,

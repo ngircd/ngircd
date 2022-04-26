@@ -183,7 +183,7 @@ Parse_Request( CONN_ID Idx, char *Request )
 	assert( Request != NULL );
 
 #ifdef SNIFFER
-	if( NGIRCd_Sniffer ) Log( LOG_DEBUG, " <- connection %d: '%s'.", Idx, Request );
+	if( NGIRCd_Sniffer ) LogDebug( " <- connection %d: '%s'.", Idx, Request );
 #endif
 
 	Init_Request( &req );

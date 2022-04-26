@@ -1499,9 +1499,7 @@ Client_RegisterWhowas( CLIENT *Client )
 	slot = Last_Whowas + 1;
 	if( slot >= MAX_WHOWAS || slot < 0 ) slot = 0;
 
-#ifdef DEBUG
-	Log( LOG_DEBUG, "Saving WHOWAS information to slot %d ...", slot );
-#endif
+	LogDebug( "Saving WHOWAS information to slot %d ...", slot );
 
 	My_Whowas[slot].time = now;
 	strlcpy( My_Whowas[slot].id, Client_ID( Client ),
@@ -1703,10 +1701,10 @@ Client_DebugDump(void)
 {
 	CLIENT *c;
 
-	Log(LOG_DEBUG, "Client status:");
+	LogDebug("Client status:");
 	c = My_Clients;
 	while (c) {
-		Log(LOG_DEBUG,
+		LogDebug(
 		    " - %s: type=%d, host=%s, user=%s, conn=%d, start=%ld, flags=%s",
                    Client_ID(c), Client_Type(c), Client_Hostname(c),
                    Client_User(c), Client_Conn(c), Client_StartTime(c),

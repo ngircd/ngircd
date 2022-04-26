@@ -142,7 +142,7 @@ Zip_Flush( CONN_ID Idx )
 	out->avail_out = (uInt)sizeof zipbuf;
 
 #if DEBUG_ZIP
-	Log(LOG_DEBUG, "out->avail_in %d, out->avail_out %d",
+	LogDebug("out->avail_in %d, out->avail_out %d",
 		out->avail_in, out->avail_out);
 #endif
 	result = deflate( out, Z_SYNC_FLUSH );
@@ -165,7 +165,7 @@ Zip_Flush( CONN_ID Idx )
 
 	zipbuf_used = WRITEBUFFER_SLINK_LEN - out->avail_out;
 #if DEBUG_ZIP
-	Log(LOG_DEBUG, "zipbuf_used: %d", zipbuf_used);
+	LogDebug("zipbuf_used: %d", zipbuf_used);
 #endif
 	if (!array_catb(&My_Connections[Idx].wbuf,
 			(char *)zipbuf, (size_t) zipbuf_used)) {
@@ -217,7 +217,7 @@ Unzip_Buffer( CONN_ID Idx )
 	in->avail_out = (uInt)sizeof unzipbuf;
 
 #if DEBUG_ZIP
-	Log(LOG_DEBUG, "in->avail_in %d, in->avail_out %d",
+	LogDebug("in->avail_in %d, in->avail_out %d",
 		in->avail_in, in->avail_out);
 #endif
 	result = inflate( in, Z_SYNC_FLUSH );
@@ -232,7 +232,7 @@ Unzip_Buffer( CONN_ID Idx )
 	in_len = z_rdatalen - in->avail_in;
 	unzipbuf_used = READBUFFER_LEN - in->avail_out;
 #if DEBUG_ZIP
-	Log(LOG_DEBUG, "unzipbuf_used: %d - %d = %d", READBUFFER_LEN,
+	LogDebug("unzipbuf_used: %d - %d = %d", READBUFFER_LEN,
 		in->avail_out, unzipbuf_used);
 #endif
 	assert(unzipbuf_used <= READBUFFER_LEN);

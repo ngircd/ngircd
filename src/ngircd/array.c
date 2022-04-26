@@ -68,7 +68,7 @@ array_alloc(array * a, size_t size, size_t pos)
 
 	if (a->allocated < alloc) {
 #if DEBUG_ARRAY
-		Log(LOG_DEBUG, "array_alloc(): changing size from %u to %u bytes.",
+		LogDebug("array_alloc(): changing size from %u to %u bytes.",
 		    a->allocated, alloc);
 #endif
 		tmp = realloc(a->mem, alloc);
@@ -169,7 +169,7 @@ array_catb(array * dest, const char *src, size_t len)
 	assert(ptr != NULL);
 
 #if DEBUG_ARRAY
-	Log(LOG_DEBUG,
+	LogDebug(
 	    "array_catb(): appending %u bytes to array (now %u bytes in array).",
 	    len, tmp);
 #endif
@@ -249,7 +249,7 @@ array_free(array * a)
 {
 	assert(a != NULL);
 #if DEBUG_ARRAY
-	Log(LOG_DEBUG,
+	LogDebug(
 	    "array_free(): %u bytes free'd (%u bytes still used at time of free()).",
 	    a->allocated, a->used);
 #endif
@@ -315,7 +315,7 @@ array_moveleft(array * a, size_t membersize, size_t pos)
 		return;	/* nothing to do */
 
 #if DEBUG_ARRAY
-	Log(LOG_DEBUG,
+	LogDebug(
 	    "array_moveleft(): %u bytes used in array, starting at position %u.",
 	    a->used, bytepos);
 #endif

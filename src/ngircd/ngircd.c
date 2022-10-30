@@ -74,7 +74,7 @@ GLOBAL int
 main(int argc, const char *argv[])
 {
 	bool ok, configtest = false;
-	bool NGIRCd_NoDaemon = false;
+	bool NGIRCd_NoDaemon = false, NGIRCd_NoSyslog = false;
 	int i;
 	size_t n;
 
@@ -130,6 +130,7 @@ main(int argc, const char *argv[])
 			}
 			if (strcmp(argv[i], "--nodaemon") == 0) {
 				NGIRCd_NoDaemon = true;
+				NGIRCd_NoSyslog = true;
 				ok = true;
 			}
 			if (strcmp(argv[i], "--passive") == 0) {
@@ -178,6 +179,7 @@ main(int argc, const char *argv[])
 
 				if (argv[i][n] == 'n') {
 					NGIRCd_NoDaemon = true;
+					NGIRCd_NoSyslog = true;
 					ok = true;
 				}
 				if (argv[i][n] == 'p') {
@@ -249,7 +251,7 @@ main(int argc, const char *argv[])
 		NGIRCd_SignalRestart = false;
 		NGIRCd_SignalQuit = false;
 
-		Log_Init(!NGIRCd_NoDaemon);
+		Log_Init(!NGIRCd_NoSyslog);
 		Random_Init();
 		Conf_Init();
 		Log_ReInit();

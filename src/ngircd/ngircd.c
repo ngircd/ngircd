@@ -143,6 +143,12 @@ main(int argc, const char *argv[])
 				ok = true;
 			}
 #endif
+#ifdef SYSLOG
+			if (strcmp(argv[i], "--syslog") == 0) {
+				NGIRCd_NoSyslog = false;
+				ok = true;
+			}
+#endif
 			if (strcmp(argv[i], "--version") == 0) {
 				Show_Version();
 				exit(0);
@@ -201,6 +207,12 @@ main(int argc, const char *argv[])
 					Show_Version();
 					exit(1);
 				}
+#ifdef SYSLOG
+				if (argv[i][n] == 'y') {
+					NGIRCd_NoSyslog = false;
+					ok = true;
+				}
+#endif
 
 				if (!ok) {
 					fprintf(stderr,
@@ -479,6 +491,9 @@ Show_Help( void )
 #endif
 	puts( "  -t, --configtest   read, validate and display configuration; then exit" );
 	puts( "  -V, --version      output version information and exit" );
+#ifdef SYSLOG
+	puts( "  -y, --syslog       log to syslog even when using -n" );
+#endif
 	puts( "  -h, --help         display this help and exit" );
 } /* Show_Help */
 

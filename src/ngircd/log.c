@@ -63,7 +63,7 @@ Log_Message(int Level, const char *msg)
  * Initialitze logging.
  * This function is called before the configuration file is read in.
  *
- * @param Syslog_Mode Set to true if ngIRCd is running as daemon.
+ * @param Syslog_Mode Set to true if ngIRCd is configured to log to the syslog.
  */
 GLOBAL void
 Log_Init(bool Syslog_Mode)

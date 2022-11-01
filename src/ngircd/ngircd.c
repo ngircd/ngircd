@@ -492,7 +492,7 @@ Show_Help( void )
 	puts( "  -t, --configtest   read, validate and display configuration; then exit" );
 	puts( "  -V, --version      output version information and exit" );
 #ifdef SYSLOG
-	puts( "  -y, --syslog       log to syslog even when using -n" );
+	puts( "  -y, --syslog       log to syslog even when running in the foreground (-n)" );
 #endif
 	puts( "  -h, --help         display this help and exit" );
 } /* Show_Help */

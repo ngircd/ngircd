@@ -71,12 +71,16 @@ Parse_CAP(int Capabilities, char *Args)
 			ptr++;
 			if (strcmp(ptr, "multi-prefix") == 0)
 				Capabilities &= ~CLIENT_CAP_MULTI_PREFIX;
+			if (strcmp(ptr, "extended-join") == 0)
+				Capabilities &= ~CLIENT_CAP_EXTENDED_JOIN;
 			else
 				return -1;
 		} else {
 			/* request capabilities */
 			if (strcmp(ptr, "multi-prefix") == 0)
 				Capabilities |= CLIENT_CAP_MULTI_PREFIX;
+			else if (strcmp(ptr, "extended-join") == 0)
+				Capabilities |= CLIENT_CAP_EXTENDED_JOIN;
 			else
 				return -1;
 		}
@@ -103,7 +107,7 @@ Get_CAP_String(int Capabilities)
 	txt[0] = '\0';
 
 	if (Capabilities & CLIENT_CAP_MULTI_PREFIX)
-		strlcat(txt, "multi-prefix ", sizeof(txt));
+		strlcat(txt, "multi-prefix extended-join ", sizeof(txt));
 
 	return txt;
 }
@@ -123,7 +127,7 @@ Handle_CAP_LS(CLIENT *Client, UNUSED char *Arg)
 	Set_CAP_Negotiation(Client);
 
 	return IRC_WriteStrClient(Client,
-				  "CAP %s LS :multi-prefix",
+				  "CAP %s LS :multi-prefix extended-join",
 				  Client_ID(Client));
 }
 

@@ -34,6 +34,7 @@
 #include "irc-macros.h"
 #include "irc-write.h"
 #include "conf.h"
+#include "client-cap.h"
 
 #include "irc-channel.h"
 
@@ -236,8 +237,56 @@ join_forward(CLIENT *Client, CLIENT *target, CHANNEL *chan,
 	}
 
 	/* tell users in this channel about the new client */
+		#define IMPLEMENT_EXTENDED_JOIN
+	#ifndef IMPLEMENT_EXTENDED_JOIN
 	IRC_WriteStrChannelPrefix(Client, chan, target, false,
 				  "JOIN :%s",  channame);
+	#endif
+	#ifdef IMPLEMENT_EXTENDED_JOIN
+	CLIENT *c;
+	// Pointless alias
+	CHANNEL *Chan;
+	CONN_ID conn;
+	CL2CHAN *cl2chan;
+	Chan = chan;
+	cl2chan = Channel_FirstMember( Chan );
+	while(cl2chan) {
+		c = Channel_GetClient( cl2chan );
+		//if (!Remote) {
+			if (Client_Conn(c) <= NONE)
+				c = NULL;
+			else if(Client_Type(c) == CLIENT_SERVER)
+				c = NULL;
+		//}
+		if(c)
+			c = Client_NextHop(c);
+
+		if(c && c != Client) {
+			/* Ok, another Client */
+			conn = Client_Conn(c);
+			/*if (Client_Type(c) == CLIENT_SERVER)
+				//Conn_SetFlag(conn, SEND_TO_SERVER);
+				//Conn_WriteStr(conn, ":%s JOIN :%s",
+						//Client_ID(Prefix), channame);
+			else*/
+				if(Client_Cap(c) & CLIENT_CAP_EXTENDED_JOIN) {
+					char * account_name;
+					if(Client_AccountName(Client)) {
+						account_name = Client_AccountName(Client);
+					}
+					else {
+						account_name = "*";
+					}
+					Conn_WriteStr(conn, ":%s JOIN %s %s :%s", Client_MaskCloaked(Client), channame, account_name, Client_Info(Client));
+				}
+				else {
+					Conn_WriteStr(conn, ":%s JOIN %s", Client_MaskCloaked(Client), channame);
+				}
+				//Conn_SetFlag(conn, SEND_TO_USER);
+		}
+		cl2chan = Channel_NextMember(Chan, cl2chan);
+	}
+	#endif
 
 	/* synchronize channel modes */
 	if (modes[1]) {
@@ -264,8 +313,27 @@ join_send_topic(CLIENT *Client, CLIENT *target, CHANNEL *chan,
 	if (Client_Type(Client) != CLIENT_USER)
 		return true;
 	/* acknowledge join */
+	#ifndef IMPLEMENT_EXTENDED_JOIN
 	if (!IRC_WriteStrClientPrefix(Client, target, "JOIN :%s", channame))
 		return false;
+	#endif
+	#ifdef IMPLEMENT_EXTENDED_JOIN
+	CONN_ID conn;
+	conn = Client_Conn(Client);
+	if(Client_Cap(Client) & CLIENT_CAP_EXTENDED_JOIN) {
+		char * account_name;
+		if(Client_AccountName(Client)) {
+			account_name = Client_AccountName(Client);
+		}
+		else {
+			account_name = "*";
+		}
+		Conn_WriteStr(conn, ":%s JOIN %s %s :%s", Client_MaskCloaked(Client), channame, account_name, Client_Info(Client));
+		}
+		else {
+			Conn_WriteStr(conn, ":%s JOIN %s", Client_MaskCloaked(Client), channame);
+		}
+	#endif
 
 	/* Send topic to client, if any */
 	topic = Channel_Topic(chan);

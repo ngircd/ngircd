@@ -71,7 +71,7 @@ Parse_CAP(int Capabilities, char *Args)
 			ptr++;
 			if (strcmp(ptr, "multi-prefix") == 0)
 				Capabilities &= ~CLIENT_CAP_MULTI_PREFIX;
-			if (strcmp(ptr, "extended-join") == 0)
+			else if (strcmp(ptr, "extended-join") == 0)
 				Capabilities &= ~CLIENT_CAP_EXTENDED_JOIN;
 			else
 				return -1;

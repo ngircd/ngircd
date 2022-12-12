@@ -21,7 +21,7 @@
 #define CLIENT_CAP_SUPPORTED 2		/* Client supports IRC capabilities */
 
 #define CLIENT_CAP_MULTI_PREFIX 4	/* multi-prefix */
-#define CLIENT_CAP_EXTENDED_JOIN 7	/* extended-join */
+#define CLIENT_CAP_EXTENDED_JOIN 8	/* extended-join */
 
 GLOBAL int Client_Cap PARAMS((CLIENT *Client));
 

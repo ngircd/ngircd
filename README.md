@@ -22,8 +22,9 @@ online available here: <https://ngircd.barton.de/doc/INSTALL.md>!
 
 ## Status
 
-ngIRCd should be quite feature-complete and stable to be used as a daemon in
-real-world IRC networks.
+The development of ngIRCd started back in 2001 and in the meantime it should be
+quite feature-complete and stable to be used as a daemon in real-world IRC
+networks.
 
 It is not the goal of ngIRCd to implement all the nasty behaviors of the
 original ircd, but to implement most of the useful commands and semantics
@@ -41,7 +42,6 @@ specified by the RFCs that are used by existing clients.
 - Freely available, modern, portable and tidy C source.
 - Wide field of supported platforms, including AIX, A/UX, FreeBSD, HP-UX,
   IRIX, Linux, macOS, NetBSD, OpenBSD, Solaris, and Windows with Cygwin.
-- ngIRCd is being actively developed since 2001.
 
 ## Documentation
 

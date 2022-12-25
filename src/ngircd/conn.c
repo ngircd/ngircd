@@ -1454,7 +1454,7 @@ New_Connection(int Sock, UNUSED bool IsSSL)
 	Account_Connection();
 
 #ifdef SSL_SUPPORT
-	/* Delay connection initalization until SSL handshake is finished */
+	/* Delay connection initialization until SSL handshake is finished */
 	if (!IsSSL)
 #endif
 		Conn_StartLogin(new_sock);

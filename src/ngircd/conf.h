@@ -222,7 +222,7 @@ GLOBAL bool Conf_ConnectIPv6;
 /** Try to connect to remote systems using the IPv4 protocol (true) */
 GLOBAL bool Conf_ConnectIPv4;
 
-/** Idle timout (seconds), after which the daemon should exit */
+/** Idle timeout (seconds), after which the daemon should exit */
 GLOBAL int Conf_IdleTimeout;
 
 /** Maximum number of simultaneous connections to this server */

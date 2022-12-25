@@ -71,7 +71,7 @@ tests.sh
 test-loop.sh [<loops> [<wait>]]
 
 	This script runs all the tests <loops> times (default: 5) and pauses
-	<wait> seconds (default: 5) betweed runs.
+	<wait> seconds (default: 5) between runs.
 	It isn't used by "make check" or "make testsuite".
 
 wait-tests.sh [<max>]

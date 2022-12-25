@@ -25,7 +25,7 @@ typedef struct _REQUEST
 	char *prefix;			/**< Prefix */
 	char *command;			/**< IRC command */
 	char *argv[15];			/**< Parameters, at most 15 (0..14) */
-	int argc;			/**< Number of given paramaters */
+	int argc;			/**< Number of given parameters */
 } REQUEST;
 
 /** IRC command handling structure */

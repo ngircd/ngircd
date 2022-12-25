@@ -176,7 +176,7 @@ join_set_channelmodes(CHANNEL *chan, CLIENT *target, const char *flags)
  * and MODE commands.
  *
  * @param To		Forward JOIN (and MODE) command to this peer server
- * @param Prefix	Client used to prefix the genrated commands
+ * @param Prefix	Client used to prefix the generated commands
  * @param Data		Parameters of JOIN command to forward, probably
  *			containing channel modes separated by ASCII 7.
  */
@@ -209,7 +209,7 @@ cb_join_forward(CLIENT *To, CLIENT *Prefix, void *Data)
  * This function calls cb_join_forward(), which differentiates between
  * protocol implementations (e.g. RFC 2812, RFC 1459).
  *
- * @param Client	Client used to prefix the genrated commands
+ * @param Client	Client used to prefix the generated commands
  * @param target	Forward JOIN (and MODE) command to this peer server
  * @param chan		Channel structure
  * @param channame	Channel name
@@ -250,7 +250,7 @@ join_forward(CLIENT *Client, CLIENT *target, CHANNEL *chan,
 /**
  * Acknowledge user JOIN request and send "channel info" numerics.
  *
- * @param Client	Client used to prefix the genrated commands
+ * @param Client	Client used to prefix the generated commands
  * @param target	Forward commands/numerics to this user
  * @param chan		Channel structure
  * @param channame	Channel name

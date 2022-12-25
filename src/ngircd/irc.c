@@ -514,7 +514,7 @@ Option_String(UNUSED CONN_ID Idx)
 /**
  * Send a message to target(s).
  *
- * This function is used by IRC_{PRIVMSG|NOTICE|SQUERY} to actualy
+ * This function is used by IRC_{PRIVMSG|NOTICE|SQUERY} to actually
  * send the message(s).
  *
  * @param Client The client from which this command has been received.

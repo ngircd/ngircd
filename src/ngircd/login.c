@@ -248,7 +248,7 @@ cb_Read_Auth_Result(int r_fd, UNUSED short events)
 
 	if (result == true) {
 		/* Authentication succeeded, now set the correct user name
-		 * supplied by the client (without prepended '~' for exmaple),
+		 * supplied by the client (without prepended '~' for example),
 		 * but cut it at the first '@' character: */
 		strlcpy(user, Client_OrigUser(client), sizeof(user));
 		ptr = strchr(user, '@');

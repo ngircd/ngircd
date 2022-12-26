@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2014 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2022 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@
 #include "numeric.h"
 #include "ngircd.h"
 #include "irc.h"
+#include "irc-channel.h"
 #include "irc-info.h"
 #include "irc-write.h"
 #include "op.h"
@@ -250,7 +251,7 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 GLOBAL bool
 IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 {
-	char nick_in[COMMAND_LEN], nick_out[COMMAND_LEN], *channame, *ptr, modes[8], *topic;
+	char nick_in[COMMAND_LEN], nick_out[COMMAND_LEN], *channame, *ptr, modes[8];
 	bool is_owner, is_chanadmin, is_op, is_halfop, is_voiced;
 	CHANNEL *chan;
 	CLIENT *c;
@@ -320,26 +321,11 @@ IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 		IRC_WriteStrChannelPrefix(Client, chan, c, false,
 					  "JOIN :%s", channame);
 
-		/* If the client is connected to me... */
-		if(Client_Conn(c) != NONE) {
-			/* Send NAMES list to the joined user */
-			if(IRC_Send_NAMES(c, chan))
-				IRC_WriteStrClient(c, RPL_ENDOFNAMES_MSG, Client_ID(Client),
-					Channel_Name(chan));
-
-			/* Send topic to the joined user */
-			topic = Channel_Topic(chan);
-			assert(topic != NULL);
-			if (*topic) {
-				IRC_WriteStrClient(c, RPL_TOPIC_MSG, Client_ID(c), channame, topic);
-#ifndef STRICT_RFC
-				IRC_WriteStrClient(c, RPL_TOPICSETBY_MSG,
-					Client_ID(c), channame,
-					Channel_TopicWho(chan),
-					Channel_TopicTime(chan));
-#endif
-			}
-		}
+		/* If the client is connected to this server, it was remotely
+		 * joined to the channel by another server/service: So send
+		 * TOPIC and NAMES messages like on a regular JOIN command! */
+		if(Client_Conn(c) != NONE)
+			IRC_Send_Channel_Info(c, chan);
 
 		/* Announce "channel user modes" to the channel, if any */
 		strlcpy(modes, Channel_UserModes(chan, c), sizeof(modes));

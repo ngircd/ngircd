@@ -248,46 +248,38 @@ join_forward(CLIENT *Client, CLIENT *target, CHANNEL *chan,
 } /* join_forward */
 
 /**
- * Acknowledge user JOIN request and send "channel info" numerics.
+ * Send channel TOPIC and NAMES list to a newly (N)JOIN'ed client.
  *
  * @param Client	Client used to prefix the generated commands
- * @param target	Forward commands/numerics to this user
- * @param chan		Channel structure
- * @param channame	Channel name
+ * @param Chan		Channel structure
  */
-static bool
-join_send_topic(CLIENT *Client, CLIENT *target, CHANNEL *chan,
-					const char *channame)
+GLOBAL bool
+IRC_Send_Channel_Info(CLIENT *Client, CHANNEL *Chan)
 {
 	const char *topic;
 
-	if (Client_Type(Client) != CLIENT_USER)
-		return true;
-	/* acknowledge join */
-	if (!IRC_WriteStrClientPrefix(Client, target, "JOIN :%s", channame))
-		return false;
-
-	/* Send topic to client, if any */
-	topic = Channel_Topic(chan);
+	/* Send the topic (if any) to the new client: */
+	topic = Channel_Topic(Chan);
 	assert(topic != NULL);
 	if (*topic) {
 		if (!IRC_WriteStrClient(Client, RPL_TOPIC_MSG,
-			Client_ID(Client), channame, topic))
+			Client_ID(Client), Channel_Name(Chan), topic))
 				return false;
 #ifndef STRICT_RFC
 		if (!IRC_WriteStrClient(Client, RPL_TOPICSETBY_MSG,
-			Client_ID(Client), channame,
-			Channel_TopicWho(chan),
-			Channel_TopicTime(chan)))
+			Client_ID(Client), Channel_Name(Chan),
+			Channel_TopicWho(Chan),
+			Channel_TopicTime(Chan)))
 				return false;
 #endif
 	}
-	/* send list of channel members to client */
-	if (!IRC_Send_NAMES(Client, chan))
+
+	/* Send list of channel members to the new client: */
+	if (!IRC_Send_NAMES(Client, Chan))
 		return false;
-	return IRC_WriteStrClient(Client, RPL_ENDOFNAMES_MSG, Client_ID(Client),
-				  Channel_Name(chan));
-} /* join_send_topic */
+	return IRC_WriteStrClient(Client, RPL_ENDOFNAMES_MSG,
+				  Client_ID(Client), Channel_Name(Chan));
+}
 
 /**
  * Handler for the IRC "JOIN" command.
@@ -408,8 +400,15 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 
 		join_forward(Client, target, chan, channame);
 
-		if (!join_send_topic(Client, target, chan, channame))
-			break; /* write error */
+		if (Client_Type(Client) == CLIENT_USER) {
+			/* Acknowledge join ... */
+			if (!IRC_WriteStrClientPrefix(Client, target,
+						      "JOIN :%s", channame))
+				break; /* write error */
+			/* ... and greet new user: */
+			if (!IRC_Send_Channel_Info(Client, chan))
+				break; /* write error */
+		}
 
 	join_next:
 		/* next channel? */

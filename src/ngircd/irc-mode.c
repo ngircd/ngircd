@@ -904,7 +904,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 		if (Client_Type(Client) == CLIENT_SERVER) {
 			/* MODE requests for local channels from other servers
 			 * are definitely invalid! */
-			if (Channel_IsLocal(Channel)) {
+			if (Channel_IsLocal(Channel) && Client != Client_ThisServer()) {
 				Log(LOG_ALERT, "Got remote MODE command for local channel!? Ignored.");
 				return CONNECTED;
 			}

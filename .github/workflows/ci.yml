@@ -1,0 +1,48 @@
+name: ngIRCd CI
+
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - 'AUTHORS'
+      - 'COPYING'
+      - 'ChangeLog'
+      - 'NEWS'
+      - 'contrib/**'
+      - 'doc/**'
+      - 'man/**'
+      - '**.md'
+      - '**.txt'
+  pull_request:
+    branches:
+      - master
+    paths-ignore:
+      - 'AUTHORS'
+      - 'COPYING'
+      - 'ChangeLog'
+      - 'NEWS'
+      - 'contrib/**'
+      - 'doc/**'
+      - 'man/**'
+      - '**.md'
+      - '**.txt'
+
+jobs:
+  build_and_distcheck:
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install packages
+      run: apt-get install autoconf automake build-essential expect libident-dev libpam-dev libssl-dev libwrap0-dev libz-dev pkg-config telnet
+    - name: Generate build system files
+      run: ./autogen.sh
+    - name: Configure the build system
+      run: ./configure --enable-ipv6 --with-iconv --with-ident --with-openssl --with-pam --with-tcp-wrappers --with-zlib
+    - name: Build everything
+      run: make all
+    - name: Create distribution archive and run tests
+      run: make distcheck

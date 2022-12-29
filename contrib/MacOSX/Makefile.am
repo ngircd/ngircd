@@ -1,6 +1,6 @@
 #
 # ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001-2008 Alexander Barton <alex@barton.de>
+# Copyright (c)2001-2022 Alexander Barton (alex@barton.de) and Contributors
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -9,7 +9,7 @@
 # Please read the file COPYING, README and AUTHORS for more information.
 #
 
-SUBDIRS = ngIRCd.xcodeproj ngIRCd.pmdoc
+SUBDIRS = ngIRCd.xcodeproj
 
 EXTRA_DIST = de.barton.ngircd.plist.tmpl config.h preinstall.sh postinstall.sh
 

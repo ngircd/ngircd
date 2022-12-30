@@ -653,7 +653,7 @@ Client_SearchServer(const char *Mask)
 
 
 /**
- * Get client structure ("introducer") identfied by a server token.
+ * Get client structure ("introducer") identified by a server token.
  * @return CLIENT structure or NULL if none could be found.
  */
 GLOBAL CLIENT *
@@ -1378,7 +1378,7 @@ MyCount( CLIENT_TYPE Type )
 
 
 /**
- * Allocate and initialize new CLIENT strcuture.
+ * Allocate and initialize new CLIENT structure.
  *
  * @return Pointer to CLIENT structure or NULL on error.
  */

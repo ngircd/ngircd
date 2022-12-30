@@ -575,7 +575,7 @@ InitSinaddrListenAddr(ng_ipaddr_t *addr, const char *listen_addrstr, UINT16 Port
 /**
  * Set a socket to "IPv6 only". If the given socket doesn't belong to the
  * AF_INET6 family, or the operating system doesn't support this functionality,
- * this function retruns silently.
+ * this function returns silently.
  *
  * @param af	Address family of the socket.
  * @param sock	Socket handle.
@@ -804,7 +804,7 @@ Conn_Handler(void)
  * the result is a valid IRC message (oversized messages are shortened, for
  * example). Then it calls the Conn_Write() function to do the actual sending.
  *
- * @param Idx		Index fo the connection.
+ * @param Idx		Index of the connection.
  * @param Format	Format string, see printf().
  * @returns		true on success, false otherwise.
  */
@@ -1186,7 +1186,7 @@ Conn_CountMax(void)
 } /* Conn_CountMax */
 
 /**
- * Get number of connections accepted since the daemon startet.
+ * Get number of connections accepted since the daemon started.
  *
  * @returns	Number of connections accepted.
  */
@@ -1540,7 +1540,7 @@ Account_Connection(void)
  * a 1:1 mapping today) and enlarge the "connection pool" accordingly.
  *
  * @param Sock	Socket handle.
- * @returns	Connecion index or NONE when the pool is too small.
+ * @returns	Connection index or NONE when the pool is too small.
  */
 static CONN_ID
 Socket2Index( int Sock )

@@ -1292,7 +1292,7 @@ WarnPAM(const char UNUSED *File, int UNUSED Line)
 /**
  * Handle variable in [Global] configuration section.
  *
- * @param Line	Line numer in configuration file.
+ * @param Line	Line number in configuration file.
  * @param Var	Variable name.
  * @param Arg	Variable argument.
  */
@@ -1447,7 +1447,7 @@ Handle_GLOBAL(const char *File, int Line, char *Var, char *Arg )
 /**
  * Handle variable in [Limits] configuration section.
  *
- * @param Line	Line numer in configuration file.
+ * @param Line	Line number in configuration file.
  * @param Var	Variable name.
  * @param Arg	Variable argument.
  */
@@ -1536,7 +1536,7 @@ Handle_LIMITS(const char *File, int Line, char *Var, char *Arg)
 /**
  * Handle variable in [Options] configuration section.
  *
- * @param Line	Line numer in configuration file.
+ * @param Line	Line number in configuration file.
  * @param Var	Variable name.
  * @param Arg	Variable argument.
  */
@@ -1728,7 +1728,7 @@ Handle_OPTIONS(const char *File, int Line, char *Var, char *Arg)
 /**
  * Handle variable in [SSL] configuration section.
  *
- * @param Line	Line numer in configuration file.
+ * @param Line	Line number in configuration file.
  * @param Var	Variable name.
  * @param Arg	Variable argument.
  */
@@ -1781,7 +1781,7 @@ Handle_SSL(const char *File, int Line, char *Var, char *Arg)
 /**
  * Handle variable in [Operator] configuration section.
  *
- * @param Line	Line numer in configuration file.
+ * @param Line	Line number in configuration file.
  * @param Var	Variable name.
  * @param Arg	Variable argument.
  */
@@ -1828,7 +1828,7 @@ Handle_OPERATOR(const char *File, int Line, char *Var, char *Arg )
 /**
  * Handle variable in [Server] configuration section.
  *
- * @param Line	Line numer in configuration file.
+ * @param Line	Line number in configuration file.
  * @param Var	Variable name.
  * @param Arg	Variable argument.
  */
@@ -1958,7 +1958,7 @@ Handle_Channelname(struct Conf_Channel *new_chan, const char *name)
 /**
  * Handle variable in [Channel] configuration section.
  *
- * @param Line	Line numer in configuration file.
+ * @param Line	Line number in configuration file.
  * @param Var	Variable name.
  * @param Arg	Variable argument.
  */

@@ -406,7 +406,7 @@ IRC_WriteStrServersPrefixFlag_CB(CLIENT *ExceptOf, CLIENT *Prefix, char Flag,
 /**
  * Send a message to all "related" clients.
  *
- * Related clients are the one that share one ore more channels with the client
+ * Related clients are the one that share one or more channels with the client
  * sending this message.
  *
  * The message is only sent once per remote server.

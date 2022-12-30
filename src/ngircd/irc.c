@@ -131,7 +131,7 @@ IRC_ERROR(CLIENT *Client, REQUEST *Req)
  * in this case, and the prefix in Req is NULL.
  *
  * @param Client The client from which this command has been received or
- * Client_ThisServer() when generated interanlly.
+ * Client_ThisServer() when generated internally.
  * @param Req Request structure with prefix and all parameters.
  * @return CONNECTED or DISCONNECTED.
  */
@@ -358,7 +358,7 @@ IRC_KillClient(CLIENT *Client, CLIENT *From, const char *Nick, const char *Reaso
 	/* Do we know such a client in the network? */
 	c = Client_Search(Nick);
 	if (!c) {
-		LogDebug("Client with nick \"%s\" is unknown, not forwaring.", Nick);
+		LogDebug("Client with nick \"%s\" is unknown, not forwarding.", Nick);
 		return CONNECTED;
 	}
 

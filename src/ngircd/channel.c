@@ -174,7 +174,7 @@ Channel_InitPredefined( void )
 					IRC_MODE(Client_ThisServer(), &Req);
 				}
 
-				/* Original channel modes srings are no longer needed */
+				/* Original channel modes strings are no longer needed */
 				free(conf_chan->modes[n]);
 			}
 		}

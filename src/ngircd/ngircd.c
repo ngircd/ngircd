@@ -758,7 +758,7 @@ NGIRCd_Init(bool NGIRCd_NoDaemon)
 	initialized = true;
 
 	/* Normally a child process is forked which isn't any longer
-	 * connected to ther controlling terminal. Use "--nodaemon"
+	 * connected to the controlling terminal. Use "--nodaemon"
 	 * to disable this "daemon mode" (useful for debugging). */
 	if (!NGIRCd_NoDaemon) {
 		pid = fork();
@@ -828,7 +828,7 @@ NGIRCd_Init(bool NGIRCd_NoDaemon)
 			    "Can't change working directory to \"%s\": %s!",
 			    pwd->pw_dir, strerror(errno));
 	} else
-		Log(LOG_ERR, "Can't get user informaton for UID %d!?", Conf_UID);
+		Log(LOG_ERR, "Can't get user information for UID %d!?", Conf_UID);
 
 	return true;
  out:

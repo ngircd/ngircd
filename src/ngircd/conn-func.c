@@ -68,7 +68,7 @@ Conn_GetSignon(CONN_ID Idx)
 GLOBAL time_t
 Conn_GetIdle( CONN_ID Idx )
 {
-	/* Return Idle-Timer of a connetion */
+	/* Return Idle-Timer of a connection */
 	assert( Idx > NONE );
 	return time( NULL ) - My_Connections[Idx].lastprivmsg;
 } /* Conn_GetIdle */

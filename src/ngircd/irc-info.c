@@ -1375,7 +1375,7 @@ IRC_WHOWAS( CLIENT *Client, REQUEST *Req )
 /**
  * Send LUSERS reply to a client.
  *
- * @param Client The receipient of the information.
+ * @param Client The recipient of the information.
  * @return CONNECTED or DISCONNECTED.
  */
 GLOBAL bool

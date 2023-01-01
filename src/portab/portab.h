@@ -19,6 +19,8 @@
 
 #include "config.h"
 
+/* remove assert() macro at compile time if DEBUG is not set. */
+
 #ifndef DEBUG
 # define NDEBUG
 #endif

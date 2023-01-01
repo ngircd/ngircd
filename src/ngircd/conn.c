@@ -2341,10 +2341,8 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 
 		Class_HandleServerBans(c);
 	}
-#ifdef DEBUG
 	else
 		LogDebug("Resolver: discarding result for already registered connection %d.", i);
-#endif
 } /* cb_Read_Resolver_Result */
 
 /**
@@ -2688,7 +2686,6 @@ Conn_SetCertFp(UNUSED CONN_ID Idx, UNUSED const char *fingerprint)
 
 #endif /* SSL_SUPPORT */
 
-#ifdef DEBUG
 
 /**
  * Dump internal state of the "connection module".
@@ -2712,6 +2709,5 @@ Conn_DebugDump(void)
 	}
 } /* Conn_DumpClients */
 
-#endif /* DEBUG */
 
 /* -eof- */

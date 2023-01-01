@@ -121,7 +121,6 @@ Log_Exit( void )
  * @param Format Format string like printf().
  * @param ... Further arguments.
  */
-#ifdef DEBUG
 # ifdef PROTOTYPES
 GLOBAL void
 LogDebug( const char *Format, ... )
@@ -145,7 +144,6 @@ va_dcl
 	va_end( ap );
 	Log(LOG_DEBUG, "%s", msg);
 }
-#endif	/* DEBUG */
 
 
 /**
@@ -184,11 +182,7 @@ va_dcl
 	}
 	else snotice = false;
 
-#ifdef DEBUG
 	if(( Level == LOG_DEBUG ) && ( ! NGIRCd_Debug )) return;
-#else
-	if( Level == LOG_DEBUG ) return;
-#endif
 
 #ifdef PROTOTYPES
 	va_start( ap, Format );
@@ -215,20 +209,16 @@ Log_Init_Subprocess(char UNUSED *Name)
 #ifdef SYSLOG
 	openlog(PACKAGE, LOG_CONS|LOG_PID, Conf_SyslogFacility);
 #endif
-#ifdef DEBUG
 	Log_Subprocess(LOG_DEBUG, "%s sub-process starting, PID %ld.",
 		     Name, (long)getpid());
-#endif
 }
 
 
 GLOBAL void
 Log_Exit_Subprocess(char UNUSED *Name)
 {
-#ifdef DEBUG
 	Log_Subprocess(LOG_DEBUG, "%s sub-process %ld done.",
 		     Name, (long)getpid());
-#endif
 #ifdef SYSLOG
 	closelog( );
 #endif
@@ -251,13 +241,8 @@ va_dcl
 
 	assert(Format != NULL);
 
-#ifdef DEBUG
 	if ((Level == LOG_DEBUG) && (!NGIRCd_Debug))
 		return;
-#else
-	if (Level == LOG_DEBUG)
-		return;
-#endif
 
 #ifdef PROTOTYPES
 	va_start(ap, Format);

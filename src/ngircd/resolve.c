@@ -93,9 +93,7 @@ Resolve_Name( PROC_STAT *s, const char *Host, void (*cbfunc)(int, short))
 	pid = Proc_Fork(s, pipefd, cbfunc, RESOLVER_TIMEOUT);
 	if (pid > 0) {
 		/* Main process */
-#ifdef DEBUG
 		Log( LOG_DEBUG, "Resolver for \"%s\" created (PID %d).", Host, pid );
-#endif
 		return true;
 	} else if( pid == 0 ) {
 		/* Sub process */
@@ -140,15 +138,11 @@ Do_IdentQuery(int identsock, array *resolved_addr)
 	if (identsock < 0)
 		return;
 
-#ifdef DEBUG
 	Log_Subprocess(LOG_DEBUG, "Doing IDENT lookup on socket %d ...",
 		       identsock);
-#endif
 	res = ident_id( identsock, 10 );
-#ifdef DEBUG
 	Log_Subprocess(LOG_DEBUG, "Ok, IDENT lookup on socket %d done: \"%s\"",
 		       identsock, res ? res : "(NULL)");
-#endif
 	if (!res) /* no result */
 		return;
 	if (!array_cats(resolved_addr, res))
@@ -373,9 +367,7 @@ Do_ResolveAddr(const ng_ipaddr_t *Addr, int identsock, int w_fd)
 
 	array_init(&resolved_addr);
 	ng_ipaddr_tostr_r(Addr, tmp_ip_str);
-#ifdef DEBUG
 	Log_Subprocess(LOG_DEBUG, "Now resolving %s ...", tmp_ip_str);
-#endif
 	if (!ReverseLookup(Addr, hostname, sizeof(hostname)))
 		goto dns_done;
 
@@ -388,9 +380,7 @@ Do_ResolveAddr(const ng_ipaddr_t *Addr, int identsock, int w_fd)
 		Log_Forgery_NoIP(tmp_ip_str, hostname);
 		strlcpy(hostname, tmp_ip_str, sizeof(hostname));
 	}
-#ifdef DEBUG
 	Log_Subprocess(LOG_DEBUG, "Ok, translated %s to \"%s\".", tmp_ip_str, hostname);
-#endif
  dns_done:
 	len = strlen(hostname);
 	hostname[len] = '\n';
@@ -417,10 +407,8 @@ Do_ResolveName( const char *Host, int w_fd )
 	 * to parent. */
 	array IpAddrs;
 	int af;
-#ifdef DEBUG
 	ng_ipaddr_t *addr;
 	size_t len;
-#endif
 	Log_Subprocess(LOG_DEBUG, "Now resolving \"%s\" ...", Host);
 
 	array_init(&IpAddrs);
@@ -440,7 +428,6 @@ Do_ResolveName( const char *Host, int w_fd )
 		close(w_fd);
 		return;
 	}
-#ifdef DEBUG
 	len = array_length(&IpAddrs, sizeof(*addr));
 	assert(len > 0);
 	addr = array_start(&IpAddrs);
@@ -449,7 +436,6 @@ Do_ResolveName( const char *Host, int w_fd )
 		Log_Subprocess(LOG_DEBUG, "translated \"%s\" to %s.",
 					Host, ng_ipaddr_tostr(addr));
 	}
-#endif
 	/* Write result into pipe to parent */
 	ArrayWrite(w_fd, &IpAddrs);
 

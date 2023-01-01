@@ -88,9 +88,7 @@ main(int argc, const char *argv[])
 
 	NGIRCd_SignalQuit = NGIRCd_SignalRestart = false;
 	NGIRCd_Passive = false;
-#ifdef DEBUG
 	NGIRCd_Debug = false;
-#endif
 #ifdef SNIFFER
 	NGIRCd_Sniffer = false;
 #endif
@@ -117,12 +115,10 @@ main(int argc, const char *argv[])
 				configtest = true;
 				ok = true;
 			}
-#ifdef DEBUG
 			if (strcmp(argv[i], "--debug") == 0) {
 				NGIRCd_Debug = true;
 				ok = true;
 			}
-#endif
 			if (strcmp(argv[i], "--help") == 0) {
 				Show_Version();
 				puts(""); Show_Help( ); puts( "" );
@@ -151,12 +147,10 @@ main(int argc, const char *argv[])
 			/* short option */
 			for (n = 1; n < strlen(argv[i]); n++) {
 				ok = false;
-#ifdef DEBUG
 				if (argv[i][n] == 'd') {
 					NGIRCd_Debug = true;
 					ok = true;
 				}
-#endif
 				if (argv[i][n] == 'f') {
 					if (!argv[i][n+1] && i+1 < argc) {
 						/* Ok, next character is a blank */
@@ -223,10 +217,8 @@ main(int argc, const char *argv[])
 
 	/* Debug level for "VERSION" command */
 	NGIRCd_DebugLevel[0] = '\0';
-#ifdef DEBUG
 	if (NGIRCd_Debug)
 		strcpy(NGIRCd_DebugLevel, "1");
-#endif
 #ifdef SNIFFER
 	if (NGIRCd_Sniffer) {
 		NGIRCd_Debug = true;
@@ -349,13 +341,11 @@ Fill_Version(void)
 	strlcat(NGIRCd_VersionAddition, "CHARCONV",
 		sizeof NGIRCd_VersionAddition);
 #endif
-#ifdef DEBUG
 	if (NGIRCd_VersionAddition[0])
 		strlcat(NGIRCd_VersionAddition, "+",
 			sizeof NGIRCd_VersionAddition);
 	strlcat(NGIRCd_VersionAddition, "DEBUG",
 		sizeof NGIRCd_VersionAddition);
-#endif
 #ifdef IDENTAUTH
 	if (NGIRCd_VersionAddition[0])
 		strlcat(NGIRCd_VersionAddition, "+",
@@ -466,9 +456,7 @@ Show_Version( void )
 static void
 Show_Help( void )
 {
-#ifdef DEBUG
 	puts( "  -d, --debug        log extra debug messages" );
-#endif
 	puts( "  -f, --config <f>   use file <f> as configuration file" );
 	puts( "  -n, --nodaemon     don't fork and don't detach from controlling terminal" );
 	puts( "  -p, --passive      disable automatic connections to other servers" );

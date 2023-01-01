@@ -698,10 +698,8 @@ Client_ID( CLIENT *Client )
 {
 	assert( Client != NULL );
 
-#ifdef DEBUG
 	if(Client->type == CLIENT_USER)
 		assert(strlen(Client->id) < Conf_MaxNickLength);
-#endif
 
 	if( Client->id[0] ) return Client->id;
 	else return "*";
@@ -1694,7 +1692,6 @@ Client_Announce(CLIENT * Client, CLIENT * Prefix, CLIENT * User)
 } /* Client_Announce */
 
 
-#ifdef DEBUG
 
 GLOBAL void
 Client_DebugDump(void)
@@ -1713,7 +1710,6 @@ Client_DebugDump(void)
 	}
 } /* Client_DumpClients */
 
-#endif
 
 
 /* -eof- */

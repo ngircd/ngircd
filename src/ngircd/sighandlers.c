@@ -41,7 +41,6 @@ static const int signals_catch[] = {
        SIGINT, SIGQUIT, SIGTERM, SIGHUP, SIGCHLD, SIGUSR1, SIGUSR2
 };
 
-#ifdef DEBUG
 
 static void
 Dump_State(void)
@@ -59,7 +58,6 @@ Dump_State(void)
 	LogDebug("--- End of state dump ---");
 } /* Dump_State */
 
-#endif
 
 static void
 Signal_Block(int sig)
@@ -174,7 +172,6 @@ Signal_Handler(int Signal)
 		while (waitpid( -1, NULL, WNOHANG) > 0)
 			;
 		return;
-#ifdef DEBUG
 	case SIGUSR1:
 		if (! NGIRCd_Debug) {
 			Log(LOG_INFO|LOG_snotice,
@@ -197,7 +194,6 @@ Signal_Handler(int Signal)
 #endif /* SNIFFER */
 		}
 		return;
-#endif
 	}
 
 	/*
@@ -226,7 +222,6 @@ Signal_Handler_BH(int Signal)
 		/* re-read configuration */
 		Rehash();
 		break;
-#ifdef DEBUG
 	case SIGUSR2:
 		if (NGIRCd_Debug) {
 			Log(LOG_INFO|LOG_snotice,
@@ -236,7 +231,6 @@ Signal_Handler_BH(int Signal)
 		break;
 	default:
 		LogDebug("Got signal %d! Ignored.", Signal);
-#endif
 	}
 	Signal_Unblock(Signal);
 }

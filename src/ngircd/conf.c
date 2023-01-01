@@ -2046,9 +2046,7 @@ Validate_Config(bool Configtest, bool Rehash)
 {
 	/* Validate configuration settings. */
 
-#ifdef DEBUG
 	int i, servers, servers_once;
-#endif
 	bool config_valid = true;
 	char *ptr;
 
@@ -2122,7 +2120,6 @@ Validate_Config(bool Configtest, bool Rehash)
 			     "Maximum penalty increase ('MaxPenaltyTime') is set to %ld, this is not recommended!",
 			     Conf_MaxPenaltyTime);
 
-#ifdef DEBUG
 	servers = servers_once = 0;
 	for (i = 0; i < MAX_SERVERS; i++) {
 		if (Conf_Server[i].name[0]) {
@@ -2135,7 +2132,6 @@ Validate_Config(bool Configtest, bool Rehash)
 	    array_length(&Conf_Opers, sizeof(struct Conf_Oper)),
 	    servers, servers_once,
 	    array_length(&Conf_Channels, sizeof(struct Conf_Channel)));
-#endif
 
 	return config_valid;
 }
@@ -2222,7 +2218,6 @@ va_dcl
 		Log(Level, "%s", msg);
 }
 
-#ifdef DEBUG
 
 /**
  * Dump internal state of the "configuration module".
@@ -2245,7 +2240,6 @@ Conf_DebugDump(void)
 	}
 }
 
-#endif
 
 /**
  * Initialize server configuration structure to default values.

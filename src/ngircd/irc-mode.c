@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2014 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2023 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -609,24 +609,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 						Channel_Name(Channel));
 				break;
 			}
-			if (arg_arg > mode_arg) {
-				if (is_oper || is_machine || is_owner ||
-				    is_admin || is_op || is_halfop) {
-					Channel_ModeDel(Channel, 'k');
-					Channel_SetKey(Channel,
-						       Req->argv[arg_arg]);
-					strlcpy(argadd, Channel_Key(Channel),
-						sizeof(argadd));
-					x[0] = *mode_ptr;
-				} else {
-					connected = IRC_WriteErrClient(Origin,
-						ERR_CHANOPRIVSNEEDED_MSG,
-						Client_ID(Origin),
-						Channel_Name(Channel));
-				}
-				Req->argv[arg_arg][0] = '\0';
-				arg_arg++;
-			} else {
+			if (arg_arg <= mode_arg) {
 #ifdef STRICT_RFC
 				/* Only send error message in "strict" mode,
 				 * this is how ircd2.11 and others behave ... */
@@ -636,6 +619,20 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 #endif
 				goto chan_exit;
 			}
+			if (is_oper || is_machine || is_owner ||
+			    is_admin || is_op || is_halfop) {
+				Channel_ModeDel(Channel, 'k');
+				Channel_SetKey(Channel, Req->argv[arg_arg]);
+				strlcpy(argadd, Channel_Key(Channel), sizeof(argadd));
+				x[0] = *mode_ptr;
+			} else {
+				connected = IRC_WriteErrClient(Origin,
+					ERR_CHANOPRIVSNEEDED_MSG,
+					Client_ID(Origin),
+					Channel_Name(Channel));
+			}
+			Req->argv[arg_arg][0] = '\0';
+			arg_arg++;
 			break;
 		case 'l': /* Member limit */
 			if (Mode_Limit_Reached(Client, mode_arg_count++))
@@ -651,26 +648,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 						Channel_Name(Channel));
 				break;
 			}
-			if (arg_arg > mode_arg) {
-				if (is_oper || is_machine || is_owner ||
-				    is_admin || is_op || is_halfop) {
-					l = atol(Req->argv[arg_arg]);
-					if (l > 0 && l < 0xFFFF) {
-						Channel_ModeDel(Channel, 'l');
-						Channel_SetMaxUsers(Channel, l);
-						snprintf(argadd, sizeof(argadd),
-							 "%ld", l);
-						x[0] = *mode_ptr;
-					}
-				} else {
-					connected = IRC_WriteErrClient(Origin,
-						ERR_CHANOPRIVSNEEDED_MSG,
-						Client_ID(Origin),
-						Channel_Name(Channel));
-				}
-				Req->argv[arg_arg][0] = '\0';
-				arg_arg++;
-			} else {
+			if (arg_arg <= mode_arg) {
 #ifdef STRICT_RFC
 				/* Only send error message in "strict" mode,
 				 * this is how ircd2.11 and others behave ... */
@@ -680,6 +658,23 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 #endif
 				goto chan_exit;
 			}
+			if (is_oper || is_machine || is_owner ||
+			    is_admin || is_op || is_halfop) {
+				l = atol(Req->argv[arg_arg]);
+				if (l > 0 && l < 0xFFFF) {
+					Channel_ModeDel(Channel, 'l');
+					Channel_SetMaxUsers(Channel, l);
+					snprintf(argadd, sizeof(argadd), "%ld", l);
+					x[0] = *mode_ptr;
+				}
+			} else {
+				connected = IRC_WriteErrClient(Origin,
+					ERR_CHANOPRIVSNEEDED_MSG,
+					Client_ID(Origin),
+					Channel_Name(Channel));
+			}
+			Req->argv[arg_arg][0] = '\0';
+			arg_arg++;
 			break;
 		case 'O': /* IRC operators only */
 			if (set) {

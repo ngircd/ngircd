@@ -610,13 +610,14 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 				break;
 			}
 			if (arg_arg <= mode_arg) {
-#ifdef STRICT_RFC
-				/* Only send error message in "strict" mode,
-				 * this is how ircd2.11 and others behave ... */
-				connected = IRC_WriteErrClient(Origin,
-					ERR_NEEDMOREPARAMS_MSG,
-					Client_ID(Origin), Req->command);
-#endif
+				if (is_machine)
+					Log(LOG_ERR,
+					    "Got MODE +k without key for \"%s\" from \"%s\"! Ignored.",
+					    Channel_Name(Channel), Client_ID(Origin));
+				else
+					connected = IRC_WriteErrClient(Origin,
+						ERR_NEEDMOREPARAMS_MSG,
+						Client_ID(Origin), Req->command);
 				goto chan_exit;
 			}
 			if (is_oper || is_machine || is_owner ||
@@ -649,13 +650,14 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 				break;
 			}
 			if (arg_arg <= mode_arg) {
-#ifdef STRICT_RFC
-				/* Only send error message in "strict" mode,
-				 * this is how ircd2.11 and others behave ... */
-				connected = IRC_WriteErrClient(Origin,
-					ERR_NEEDMOREPARAMS_MSG,
-					Client_ID(Origin), Req->command);
-#endif
+				if (is_machine)
+					Log(LOG_ERR,
+					    "Got MODE +l without limit for \"%s\" from \"%s\"! Ignored.",
+					    Channel_Name(Channel), Client_ID(Origin));
+				else
+					connected = IRC_WriteErrClient(Origin,
+						ERR_NEEDMOREPARAMS_MSG,
+						Client_ID(Origin), Req->command);
 				goto chan_exit;
 			}
 			if (is_oper || is_machine || is_owner ||

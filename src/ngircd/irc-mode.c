@@ -620,6 +620,18 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 						Client_ID(Origin), Req->command);
 				goto chan_exit;
 			}
+			if (!Req->argv[arg_arg][0] || strchr(Req->argv[arg_arg], ' ')) {
+				if (is_machine)
+					Log(LOG_ERR,
+					    "Got invalid key on MODE +k for \"%s\" from \"%s\"! Ignored.",
+					    Channel_Name(Channel), Client_ID(Origin));
+				else
+					connected = IRC_WriteErrClient(Origin,
+					       ERR_INVALIDMODEPARAM_MSG,
+						Client_ID(Origin),
+						Channel_Name(Channel), 'k');
+				goto chan_exit;
+			}
 			if (is_oper || is_machine || is_owner ||
 			    is_admin || is_op || is_halfop) {
 				Channel_ModeDel(Channel, 'k');
@@ -660,15 +672,25 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 						Client_ID(Origin), Req->command);
 				goto chan_exit;
 			}
+			l = atol(Req->argv[arg_arg]);
+			if (l <= 0 || l >= 0xFFFF) {
+				if (is_machine)
+					Log(LOG_ERR,
+					    "Got MODE +l with invalid limit for \"%s\" from \"%s\"! Ignored.",
+					    Channel_Name(Channel), Client_ID(Origin));
+				else
+					connected = IRC_WriteErrClient(Origin,
+						ERR_INVALIDMODEPARAM_MSG,
+						Client_ID(Origin),
+						Channel_Name(Channel), 'l');
+				goto chan_exit;
+			}
 			if (is_oper || is_machine || is_owner ||
 			    is_admin || is_op || is_halfop) {
-				l = atol(Req->argv[arg_arg]);
-				if (l > 0 && l < 0xFFFF) {
-					Channel_ModeDel(Channel, 'l');
-					Channel_SetMaxUsers(Channel, l);
-					snprintf(argadd, sizeof(argadd), "%ld", l);
-					x[0] = *mode_ptr;
-				}
+				Channel_ModeDel(Channel, 'l');
+				Channel_SetMaxUsers(Channel, l);
+				snprintf(argadd, sizeof(argadd), "%ld", l);
+				x[0] = *mode_ptr;
 			} else {
 				connected = IRC_WriteErrClient(Origin,
 					ERR_CHANOPRIVSNEEDED_MSG,

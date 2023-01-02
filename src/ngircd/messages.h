@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2020 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2023 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -161,6 +161,8 @@
 #define ERR_USERSDONTMATCH_MSG		"502 %s :Can't set/get mode for other users"
 #define ERR_USERNOTONSERV_MSG		"504 %s %s :User is not on this server"
 #define ERR_NOINVITE_MSG		"518 %s :Cannot invite to %s (+V)"
+
+#define ERR_INVALIDMODEPARAM_MSG	"696 %s %s %c * :Invalid mode parameter"
 
 #ifdef ZLIB
 # define RPL_STATSLINKINFOZIP_MSG	"211 %s %s %d %ld %ld/%ld %ld %ld/%ld :%ld"

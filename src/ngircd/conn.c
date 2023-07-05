@@ -1356,13 +1356,14 @@ New_Connection(int Sock, UNUSED bool IsSSL)
 	new_sock = accept(Sock, (struct sockaddr *)&new_addr,
 			  (socklen_t *)&new_sock_len);
 	if (new_sock < 0) {
-		Log(LOG_CRIT, "Can't accept connection: %s!", strerror(errno));
+		Log(LOG_CRIT, "Can't accept connection on socket %d: %s!",
+		    Sock, strerror(errno));
 		return -1;
 	}
 	NumConnectionsAccepted++;
 
 	if (!ng_ipaddr_tostr_r(&new_addr, ip_str)) {
-		Log(LOG_CRIT, "fd %d: Can't convert IP address!", new_sock);
+		Log(LOG_CRIT, "Can't convert peer IP address of socket %d!", new_sock);
 		Simple_Message(new_sock, "ERROR :Internal Server Error");
 		close(new_sock);
 		return -1;
@@ -1375,7 +1376,8 @@ New_Connection(int Sock, UNUSED bool IsSSL)
 	fromhost(&req);
 	if (!hosts_access(&req)) {
 		Log(deny_severity,
-		    "Refused connection from %s (by TCP Wrappers)!", ip_str);
+		    "Refused connection from %s on socket %d (by TCP Wrappers)!",
+		    ip_str, Sock);
 		Simple_Message(new_sock, "ERROR :Connection refused");
 		close(new_sock);
 		return -1;
@@ -1400,8 +1402,8 @@ New_Connection(int Sock, UNUSED bool IsSSL)
 	if ((Conf_MaxConnectionsIP > 0) && (cnt >= Conf_MaxConnectionsIP)) {
 		/* Access denied, too many connections from this IP address! */
 		Log(LOG_ERR,
-		    "Refused connection from %s: too may connections (%ld) from this IP address!",
-		    ip_str, cnt);
+		    "Refused connection from %s on socket %d: too may connections (%ld) from this IP address!",
+		    ip_str, Sock, cnt);
 		Simple_Message(new_sock,
 			       "ERROR :Connection refused, too many connections from your IP address");
 		close(new_sock);

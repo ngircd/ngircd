@@ -1055,8 +1055,10 @@ Conn_Close(CONN_ID Idx, const char *LogMsg, const char *FwdMsg, bool InformClien
 		}
 #endif
 		/* Send ERROR to client (see RFC 2812, section 3.1.7) */
-		if (FwdMsg)
-			Conn_WriteStr(Idx, "ERROR :%s", FwdMsg);
+		if (c)
+			Conn_WriteStr(Idx, "ERROR :Closing connection: %s[%s@%s] (%s)",
+				      Client_ID(c), Client_User(c), Client_Hostname(c),
+				      FwdMsg ? FwdMsg : "\"\"");
 		else
 			Conn_WriteStr(Idx, "ERROR :Closing connection");
 	}

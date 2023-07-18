@@ -222,9 +222,9 @@ IRC_INVITE(CLIENT *Client, REQUEST *Req)
 
 	if (Client_Conn(target) > NONE) {
 		/* The target user is local, so we have to send the status code */
-		if (!IRC_WriteStrClientPrefix(from, target, RPL_INVITING_MSG,
-					       Client_ID(from), Req->argv[0],
-					       colon_if_necessary, Req->argv[1]))
+		if (!IRC_WriteStrClient(from, RPL_INVITING_MSG,
+					Client_ID(from), Req->argv[0],
+					colon_if_necessary, Req->argv[1]))
 			return DISCONNECTED;
 
 		if (Client_HasMode(target, 'a') &&

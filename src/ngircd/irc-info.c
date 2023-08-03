@@ -1265,6 +1265,8 @@ IRC_WHOIS( CLIENT *Client, REQUEST *Req )
 
 			if (Client_Type(c) != CLIENT_USER)
 				continue;
+			if (Client_HasMode(c, 'i'))
+				continue;
 			if (!MatchCaseInsensitive(query, Client_ID(c)))
 				continue;
 			if (!IRC_WHOIS_SendReply(Client, from, c))

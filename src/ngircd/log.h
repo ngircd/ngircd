@@ -32,7 +32,7 @@
 
 #define LOG_snotice 1024
 
-GLOBAL void Log_Init PARAMS(( bool Daemon_Mode ));
+GLOBAL void Log_Init PARAMS(( bool Syslog_Mode ));
 GLOBAL void Log_Exit PARAMS(( void ));
 
 GLOBAL void Log PARAMS(( int Level, const char *Format, ... ));

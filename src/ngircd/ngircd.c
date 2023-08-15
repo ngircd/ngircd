@@ -74,7 +74,7 @@ GLOBAL int
 main(int argc, const char *argv[])
 {
 	bool ok, configtest = false;
-	bool NGIRCd_NoDaemon = false;
+	bool NGIRCd_NoDaemon = false, NGIRCd_NoSyslog = false;
 	int i;
 	size_t n;
 
@@ -126,6 +126,7 @@ main(int argc, const char *argv[])
 			}
 			if (strcmp(argv[i], "--nodaemon") == 0) {
 				NGIRCd_NoDaemon = true;
+				NGIRCd_NoSyslog = true;
 				ok = true;
 			}
 			if (strcmp(argv[i], "--passive") == 0) {
@@ -135,6 +136,12 @@ main(int argc, const char *argv[])
 #ifdef SNIFFER
 			if (strcmp(argv[i], "--sniffer") == 0) {
 				NGIRCd_Sniffer = true;
+				ok = true;
+			}
+#endif
+#ifdef SYSLOG
+			if (strcmp(argv[i], "--syslog") == 0) {
+				NGIRCd_NoSyslog = false;
 				ok = true;
 			}
 #endif
@@ -172,6 +179,7 @@ main(int argc, const char *argv[])
 
 				if (argv[i][n] == 'n') {
 					NGIRCd_NoDaemon = true;
+					NGIRCd_NoSyslog = true;
 					ok = true;
 				}
 				if (argv[i][n] == 'p') {
@@ -193,6 +201,12 @@ main(int argc, const char *argv[])
 					Show_Version();
 					exit(1);
 				}
+#ifdef SYSLOG
+				if (argv[i][n] == 'y') {
+					NGIRCd_NoSyslog = false;
+					ok = true;
+				}
+#endif
 
 				if (!ok) {
 					fprintf(stderr,
@@ -241,7 +255,7 @@ main(int argc, const char *argv[])
 		NGIRCd_SignalRestart = false;
 		NGIRCd_SignalQuit = false;
 
-		Log_Init(!NGIRCd_NoDaemon);
+		Log_Init(!NGIRCd_NoSyslog);
 		Random_Init();
 		Conf_Init();
 		Log_ReInit();
@@ -467,6 +481,9 @@ Show_Help( void )
 #endif
 	puts( "  -t, --configtest   read, validate and display configuration; then exit" );
 	puts( "  -V, --version      output version information and exit" );
+#ifdef SYSLOG
+	puts( "  -y, --syslog       log to syslog even when running in the foreground (-n)" );
+#endif
 	puts( "  -h, --help         display this help and exit" );
 } /* Show_Help */
 

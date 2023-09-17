@@ -219,9 +219,8 @@ binary-arch: build install
 	dh_testroot
 	dh_installchangelogs -a -A ChangeLog
 	dh_installdocs -a
-	dh_systemd_enable -a
+	dh_installsystemd -a
 	dh_installinit -a
-	dh_systemd_start -a
 	dh_strip -a --no-package=ngircd-full-dbg
 	dh_compress -a -XCommands.txt
 	dh_fixperms -a

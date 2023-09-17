@@ -2,9 +2,8 @@ Source: ngircd
 Section: net
 Priority: optional
 Maintainer: Alexander Barton <alex@barton.de>
-Build-Depends: debhelper (>> 9.0.0),
+Build-Depends: debhelper (>> 13.0.0),
     autotools-dev,
-    dh-systemd (>= 1.5),
     expect,
     libident-dev,
     libpam0g-dev,

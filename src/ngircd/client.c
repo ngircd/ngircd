@@ -213,7 +213,7 @@ Init_New_Client(CONN_ID Idx, CLIENT *Introducer, CLIENT *TopServer,
 		Generate_MyToken(client);
 
 	if (Client_HasMode(client, 'a'))
-		client->away = strndup(DEFAULT_AWAY_MSG, CLIENT_AWAY_LEN - 1);
+		client->away = strdup(DEFAULT_AWAY_MSG);
 
 	client->next = (POINTER *)My_Clients;
 	My_Clients = client;

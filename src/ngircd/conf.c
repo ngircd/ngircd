@@ -488,6 +488,7 @@ Conf_Test( void )
 		printf("  Key = %s\n", predef_chan->key);
 		printf("  MaxUsers = %lu\n", predef_chan->maxusers);
 		printf("  Topic = %s\n", predef_chan->topic);
+		printf("  Autojoin = %s\n", yesno_to_str(predef_chan->autojoin));
 		printf("  KeyFile = %s\n\n", predef_chan->keyfile);
 	}
 

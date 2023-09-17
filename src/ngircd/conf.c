@@ -2000,9 +2000,11 @@ Handle_CHANNEL(const char *File, int Line, char *Var, char *Arg)
 			Config_Error_TooLong(File, Line, Var);
 		return;
 	}
-	if( strcasecmp( Var, "Autojoin" ) == 0 )
+	if( strcasecmp( Var, "Autojoin" ) == 0 ) {
 		/* Check autojoin */
 		chan->autojoin = Check_ArgIsTrue(Arg);
+		return;
+	}
 	if( strcasecmp( Var, "Key" ) == 0 ) {
 		/* Initial Channel Key (mode k) */
 		len = strlcpy(chan->key, Arg, sizeof(chan->key));

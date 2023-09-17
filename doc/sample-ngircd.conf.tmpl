@@ -391,12 +391,14 @@
 	;Modes = +tnk mykey +l 5
 	;Modes = +b nick!~user@bad.host.example.com
 
+	# Should ngIRCd automatically join ("autojoin") all users to this
+	# channel on connect? Note: The users must have permissions to access
+	# the channel, otherwise joining them will fail!
+	;Autojoin = yes
+
 	# Key file, syntax for each line: "<user>:<nick>:<key>".
 	# Default: none.
 	;KeyFile = :ETCDIR:/#chan.key
-	
-	# Autojoin - set to yes to force all users to join this channel on connect
-	;Autojoin = yes
 
 [Channel]
 	# More [Channel] sections, if you like ...

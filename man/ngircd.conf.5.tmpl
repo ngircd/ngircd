@@ -518,7 +518,9 @@ This option can be specified multiple times, evaluated top to bottom.
 .RE
 .TP
 \fBAutojoin\fR (boolean)
-Forces users to join this channel on connect. Users must have access to the channel to make it work.
+Should ngIRCd automatically join ("autojoin") all users to this channel on
+connect? Note: The users must have permissions to access the channel, otherwise
+joining them will fail!
 .TP
 \fBKeyFile\fR (string)
 Path and file name of a "key file" containing individual channel keys for

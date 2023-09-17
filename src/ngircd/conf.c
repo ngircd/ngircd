@@ -464,13 +464,13 @@ Conf_Test( void )
 		printf( "  Host = %s\n", Conf_Server[i].host );
 		printf( "  Port = %u\n", (unsigned int)Conf_Server[i].port );
 #ifdef SSL_SUPPORT
-		printf( "  SSLConnect = %s\n", Conf_Server[i].SSLConnect?"yes":"no");
+		printf( "  SSLConnect = %s\n", yesno_to_str(Conf_Server[i].SSLConnect));
 #endif
 		printf( "  MyPassword = %s\n", Conf_Server[i].pwd_in );
 		printf( "  PeerPassword = %s\n", Conf_Server[i].pwd_out );
 		printf( "  ServiceMask = %s\n", Conf_Server[i].svs_mask);
 		printf( "  Group = %d\n", Conf_Server[i].group );
-		printf( "  Passive = %s\n\n", Conf_Server[i].flags & CONF_SFLAG_DISABLED ? "yes" : "no");
+		printf( "  Passive = %s\n\n", yesno_to_str(Conf_Server[i].flags & CONF_SFLAG_DISABLED));
 	}
 
 	predef_channel_count = array_length(&Conf_Channels, sizeof(*predef_chan));

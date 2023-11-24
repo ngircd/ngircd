@@ -1291,14 +1291,12 @@ Handle_Write( CONN_ID Idx )
 		if (errno == EAGAIN || errno == EINTR)
 			return true;
 
-		/* Log write errors but do not close the connection yet.
-		 * Calling Conn_Close() now could result in too many recursive calls.
-		 */
-		if (!Conn_OPTION_ISSET(&My_Connections[Idx], CONN_ISCLOSING))
+		if (!Conn_OPTION_ISSET(&My_Connections[Idx], CONN_ISCLOSING)) {
 			Log(LOG_ERR,
 			    "Write error on connection %d (socket %d): %s!",
 			    Idx, My_Connections[Idx].sock, strerror(errno));
-		else
+			Conn_Close(Idx, "Write error", NULL, false);
+		} else
 			LogDebug("Recursive write error on connection %d (socket %d): %s!",
 				 Idx, My_Connections[Idx].sock, strerror(errno));
 

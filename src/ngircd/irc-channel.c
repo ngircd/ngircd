@@ -262,10 +262,10 @@ join_forward(CLIENT *Client, CLIENT *target, CHANNEL *chan,
 				else {
 					account_name = "*";
 				}
-				IRC_WriteStrClientPrefix(Client, Client, "JOIN %s %s :%s", channame, account_name, Client_Info(Client));
+				IRC_WriteStrClientPrefix(c, Client, "JOIN %s %s :%s", channame, account_name, Client_Info(Client));
 			}
 			else {
-				IRC_WriteStrClientPrefix(Client, Client, "JOIN %s", channame);
+				IRC_WriteStrClientPrefix(c, Client, "JOIN %s", channame);
 			}
 		}
 		cl2chan = Channel_NextMember(Chan, cl2chan);
@@ -447,10 +447,6 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 		join_forward(Client, target, chan, channame);
 
 		if (Client_Type(Client) == CLIENT_USER) {
-			/* Acknowledge join ... */
-			if (!IRC_WriteStrClientPrefix(Client, target,
-						      "JOIN :%s", channame))
-				break; /* write error */
 			/* ... and greet new user: */
 			if (!IRC_Send_Channel_Info(Client, chan))
 				break; /* write error */

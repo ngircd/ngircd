@@ -399,7 +399,7 @@ IRC_xLINE(CLIENT *Client, REQUEST *Req)
 					  Client_ID(Client), Req->command);
 
 	if (!Conf_AllowRemoteOper && Client_Type(Client) == CLIENT_SERVER) {
-		/* Explicitely forbid remote servers to modify "x-lines" when
+		/* Explicitly forbid remote servers to modify "x-lines" when
 		 * the "AllowRemoteOper" configuration option isn't set, even
 		 * when the command seems to originate from the remote server
 		 * itself: this prevents GLINE's to become set during server

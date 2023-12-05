@@ -875,7 +875,7 @@ va_dcl
 
 #ifdef SNIFFER
 	if (NGIRCd_Sniffer)
-		Log(LOG_DEBUG, " -> connection %d: '%s'.", Idx, buffer);
+		LogDebug("-> connection %d: '%s'.", Idx, buffer);
 #endif
 
 	len = strlcat( buffer, "\r\n", sizeof( buffer ));
@@ -1055,8 +1055,10 @@ Conn_Close(CONN_ID Idx, const char *LogMsg, const char *FwdMsg, bool InformClien
 		}
 #endif
 		/* Send ERROR to client (see RFC 2812, section 3.1.7) */
-		if (FwdMsg)
-			Conn_WriteStr(Idx, "ERROR :%s", FwdMsg);
+		if (c)
+			Conn_WriteStr(Idx, "ERROR :Closing connection: %s[%s@%s] (%s)",
+				      Client_ID(c), Client_User(c), Client_Hostname(c),
+				      FwdMsg ? FwdMsg : "\"\"");
 		else
 			Conn_WriteStr(Idx, "ERROR :Closing connection");
 	}
@@ -1356,13 +1358,14 @@ New_Connection(int Sock, UNUSED bool IsSSL)
 	new_sock = accept(Sock, (struct sockaddr *)&new_addr,
 			  (socklen_t *)&new_sock_len);
 	if (new_sock < 0) {
-		Log(LOG_CRIT, "Can't accept connection: %s!", strerror(errno));
+		Log(LOG_CRIT, "Can't accept connection on socket %d: %s!",
+		    Sock, strerror(errno));
 		return -1;
 	}
 	NumConnectionsAccepted++;
 
 	if (!ng_ipaddr_tostr_r(&new_addr, ip_str)) {
-		Log(LOG_CRIT, "fd %d: Can't convert IP address!", new_sock);
+		Log(LOG_CRIT, "Can't convert peer IP address of socket %d!", new_sock);
 		Simple_Message(new_sock, "ERROR :Internal Server Error");
 		close(new_sock);
 		return -1;
@@ -1375,7 +1378,8 @@ New_Connection(int Sock, UNUSED bool IsSSL)
 	fromhost(&req);
 	if (!hosts_access(&req)) {
 		Log(deny_severity,
-		    "Refused connection from %s (by TCP Wrappers)!", ip_str);
+		    "Refused connection from %s on socket %d (by TCP Wrappers)!",
+		    ip_str, Sock);
 		Simple_Message(new_sock, "ERROR :Connection refused");
 		close(new_sock);
 		return -1;
@@ -1400,8 +1404,8 @@ New_Connection(int Sock, UNUSED bool IsSSL)
 	if ((Conf_MaxConnectionsIP > 0) && (cnt >= Conf_MaxConnectionsIP)) {
 		/* Access denied, too many connections from this IP address! */
 		Log(LOG_ERR,
-		    "Refused connection from %s: too may connections (%ld) from this IP address!",
-		    ip_str, cnt);
+		    "Refused connection from %s on socket %d: too may connections (%ld) from this IP address!",
+		    ip_str, Sock, cnt);
 		Simple_Message(new_sock,
 			       "ERROR :Connection refused, too many connections from your IP address");
 		close(new_sock);
@@ -1454,7 +1458,7 @@ New_Connection(int Sock, UNUSED bool IsSSL)
 	Account_Connection();
 
 #ifdef SSL_SUPPORT
-	/* Delay connection initalization until SSL handshake is finished */
+	/* Delay connection initialization until SSL handshake is finished */
 	if (!IsSSL)
 #endif
 		Conn_StartLogin(new_sock);
@@ -2341,10 +2345,8 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 
 		Class_HandleServerBans(c);
 	}
-#ifdef DEBUG
 	else
 		LogDebug("Resolver: discarding result for already registered connection %d.", i);
-#endif
 } /* cb_Read_Resolver_Result */
 
 /**
@@ -2688,7 +2690,6 @@ Conn_SetCertFp(UNUSED CONN_ID Idx, UNUSED const char *fingerprint)
 
 #endif /* SSL_SUPPORT */
 
-#ifdef DEBUG
 
 /**
  * Dump internal state of the "connection module".
@@ -2698,11 +2699,11 @@ Conn_DebugDump(void)
 {
 	int i;
 
-	Log(LOG_DEBUG, "Connection status:");
+	LogDebug("Connection status:");
 	for (i = 0; i < Pool_Size; i++) {
 		if (My_Connections[i].sock == NONE)
 			continue;
-		Log(LOG_DEBUG,
+		LogDebug(
 		    " - %d: host=%s, lastdata=%ld, lastping=%ld, delaytime=%ld, flag=%d, options=%d, bps=%d, client=%s",
 		    My_Connections[i].sock, My_Connections[i].host,
 		    My_Connections[i].lastdata, My_Connections[i].lastping,
@@ -2712,6 +2713,5 @@ Conn_DebugDump(void)
 	}
 } /* Conn_DumpClients */
 
-#endif /* DEBUG */
 
 /* -eof- */

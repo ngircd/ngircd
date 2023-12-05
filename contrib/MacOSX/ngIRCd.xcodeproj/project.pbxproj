@@ -223,12 +223,6 @@
 		FAA3D27C0F139CF800B2447E /* strtok_r.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = strtok_r.c; sourceTree = "<group>"; };
 		FAA3D27D0F139CF800B2447E /* waitpid.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = waitpid.c; sourceTree = "<group>"; };
 		FAA3D2800F139D1500B2447E /* Services.txt */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Services.txt; sourceTree = "<group>"; };
-		FAA3D2820F139D2E00B2447E /* 01ngircd-contents.xml */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.xml; path = "01ngircd-contents.xml"; sourceTree = "<group>"; };
-		FAA3D2830F139D2E00B2447E /* 01ngircd.xml */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.xml; path = 01ngircd.xml; sourceTree = "<group>"; };
-		FAA3D2840F139D2E00B2447E /* 02de-contents.xml */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.xml; path = "02de-contents.xml"; sourceTree = "<group>"; };
-		FAA3D2850F139D2E00B2447E /* 02de.xml */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.xml; path = 02de.xml; sourceTree = "<group>"; };
-		FAA3D2860F139D2E00B2447E /* index.xml */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.xml; path = index.xml; sourceTree = "<group>"; };
-		FAA3D2880F139D2E00B2447E /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
 		FAA3D28A0F139D2E00B2447E /* postinstall.sh */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; path = postinstall.sh; sourceTree = "<group>"; };
 		FAA3D28B0F139D2E00B2447E /* preinstall.sh */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = text.script.sh; path = preinstall.sh; sourceTree = "<group>"; };
 		FAA97C55124A271400D5BBA9 /* sighandlers.c */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.c; path = sighandlers.c; sourceTree = "<group>"; };
@@ -514,7 +508,6 @@
 			isa = PBXGroup;
 			children = (
 				FA18A64316CEDE8100132F66 /* Makefile.am */,
-				FAA3D2810F139D2E00B2447E /* ngIRCd.pmdoc */,
 				FA322DB10CEF7565001761B3 /* config.h */,
 				FA18A64216CEDE5700132F66 /* de.barton.ngircd.plist.tmpl */,
 				FA322D8E0CEF7523001761B3 /* ngIRCd.xcodeproj */,
@@ -589,19 +582,6 @@
 			name = ipaddr;
 			sourceTree = "<group>";
 		};
-		FAA3D2810F139D2E00B2447E /* ngIRCd.pmdoc */ = {
-			isa = PBXGroup;
-			children = (
-				FAA3D2880F139D2E00B2447E /* Makefile.am */,
-				FAA3D2860F139D2E00B2447E /* index.xml */,
-				FAA3D2830F139D2E00B2447E /* 01ngircd.xml */,
-				FAA3D2820F139D2E00B2447E /* 01ngircd-contents.xml */,
-				FAA3D2850F139D2E00B2447E /* 02de.xml */,
-				FAA3D2840F139D2E00B2447E /* 02de-contents.xml */,
-			);
-			path = ngIRCd.pmdoc;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -628,7 +608,7 @@
 		08FB7793FE84155DC02AAC07 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1140;
+				LastUpgradeCheck = 1420;
 				ORGANIZATIONNAME = "ngIRCd Development Team";
 			};
 			buildConfigurationList = 1DEB928908733DD80010E9CD /* Build configuration list for PBXProject "ngIRCd" */;
@@ -708,6 +688,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_IDENTITY = "-";
+				DEAD_CODE_STRIPPING = YES;
+				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
 			};
 			name = Default;
 		};
@@ -723,6 +706,7 @@
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_SEMICOLON_BEFORE_METHOD_BODY = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
@@ -730,6 +714,7 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				DEAD_CODE_STRIPPING = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -748,7 +733,7 @@
 				GCC_WARN_UNUSED_LABEL = YES;
 				GCC_WARN_UNUSED_PARAMETER = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
 				PRODUCT_NAME = ngircd;
 			};
 			name = Default;
@@ -765,6 +750,7 @@
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_SEMICOLON_BEFORE_METHOD_BODY = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
@@ -772,6 +758,7 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				DEAD_CODE_STRIPPING = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -791,7 +778,7 @@
 				GCC_WARN_UNUSED_LABEL = YES;
 				GCC_WARN_UNUSED_PARAMETER = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = ngircd;
 				SDKROOT = "";
@@ -803,6 +790,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_IDENTITY = "-";
+				DEAD_CODE_STRIPPING = YES;
+				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
 			};
 			name = Debug;
 		};

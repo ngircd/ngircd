@@ -213,7 +213,7 @@ Init_New_Client(CONN_ID Idx, CLIENT *Introducer, CLIENT *TopServer,
 		Generate_MyToken(client);
 
 	if (Client_HasMode(client, 'a'))
-		client->away = strndup(DEFAULT_AWAY_MSG, CLIENT_AWAY_LEN - 1);
+		client->away = strdup(DEFAULT_AWAY_MSG);
 
 	client->next = (POINTER *)My_Clients;
 	My_Clients = client;
@@ -698,10 +698,8 @@ Client_ID( CLIENT *Client )
 {
 	assert( Client != NULL );
 
-#ifdef DEBUG
 	if(Client->type == CLIENT_USER)
 		assert(strlen(Client->id) < Conf_MaxNickLength);
-#endif
 
 	if( Client->id[0] ) return Client->id;
 	else return "*";
@@ -1499,9 +1497,7 @@ Client_RegisterWhowas( CLIENT *Client )
 	slot = Last_Whowas + 1;
 	if( slot >= MAX_WHOWAS || slot < 0 ) slot = 0;
 
-#ifdef DEBUG
-	Log( LOG_DEBUG, "Saving WHOWAS information to slot %d ...", slot );
-#endif
+	LogDebug( "Saving WHOWAS information to slot %d ...", slot );
 
 	My_Whowas[slot].time = now;
 	strlcpy( My_Whowas[slot].id, Client_ID( Client ),
@@ -1696,17 +1692,16 @@ Client_Announce(CLIENT * Client, CLIENT * Prefix, CLIENT * User)
 } /* Client_Announce */
 
 
-#ifdef DEBUG
 
 GLOBAL void
 Client_DebugDump(void)
 {
 	CLIENT *c;
 
-	Log(LOG_DEBUG, "Client status:");
+	LogDebug("Client status:");
 	c = My_Clients;
 	while (c) {
-		Log(LOG_DEBUG,
+		LogDebug(
 		    " - %s: type=%d, host=%s, user=%s, conn=%d, start=%ld, flags=%s",
                    Client_ID(c), Client_Type(c), Client_Hostname(c),
                    Client_User(c), Client_Conn(c), Client_StartTime(c),
@@ -1715,7 +1710,6 @@ Client_DebugDump(void)
 	}
 } /* Client_DumpClients */
 
-#endif
 
 
 /* -eof- */

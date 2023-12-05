@@ -6,9 +6,9 @@ Description=Next Generation IRC Daemon
 Documentation=man:ngircd(8) man:ngircd.conf(5) https://ngircd.barton.de
 After=network.target
 Wants=anope.service atheme.service irc-services.service
-Wants=bopm.service
+Wants=bopm.service hopm.service
 Before=anope.service atheme.service irc-services.service
-Before=bopm.service
+Before=bopm.service hopm.service
 
 [Service]
 Type=forking

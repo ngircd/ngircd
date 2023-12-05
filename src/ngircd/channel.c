@@ -148,7 +148,7 @@ Channel_InitPredefined( void )
 			for (n = 0; n < conf_chan->modes_num; n++) {
 				Req.argc = 1;
 				strlcpy(modes, conf_chan->modes[n], sizeof(modes));
-				Log(LOG_DEBUG, "Evaluate \"MODE %s %s\".", name, modes);
+				LogDebug("Evaluate \"MODE %s %s\".", name, modes);
 				c = strtok(modes, " ");
 				while (c && Req.argc < 15) {
 					Req.argv[Req.argc++] = c;
@@ -186,8 +186,6 @@ Channel_InitPredefined( void )
 		    new_chan->name, new_chan->modes, new_chan->key,
 		    new_chan->maxusers);
 	}
-	if (channel_count)
-		array_free(&Conf_Channels);
 
 	/* Make sure the local &SERVER channel exists */
 	if (!Channel_Search("&SERVER")) {

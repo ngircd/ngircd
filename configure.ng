@@ -101,6 +101,7 @@ AC_DEFUN([WORKING_GETADDRINFO],[
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
+#include <string.h>
 int
 main(int argc, char **argv)
 {
@@ -709,7 +710,6 @@ AC_CONFIG_FILES([ \
 	Makefile \
 	contrib/Debian/Makefile \
 	contrib/MacOSX/Makefile \
-	contrib/MacOSX/ngIRCd.pmdoc/Makefile \
 	contrib/MacOSX/ngIRCd.xcodeproj/Makefile \
 	contrib/Makefile \
 	doc/Makefile \

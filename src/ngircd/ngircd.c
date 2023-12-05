@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2022 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2023 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -74,7 +74,7 @@ GLOBAL int
 main(int argc, const char *argv[])
 {
 	bool ok, configtest = false;
-	bool NGIRCd_NoDaemon = false;
+	bool NGIRCd_NoDaemon = false, NGIRCd_NoSyslog = false;
 	int i;
 	size_t n;
 
@@ -88,9 +88,7 @@ main(int argc, const char *argv[])
 
 	NGIRCd_SignalQuit = NGIRCd_SignalRestart = false;
 	NGIRCd_Passive = false;
-#ifdef DEBUG
 	NGIRCd_Debug = false;
-#endif
 #ifdef SNIFFER
 	NGIRCd_Sniffer = false;
 #endif
@@ -117,12 +115,10 @@ main(int argc, const char *argv[])
 				configtest = true;
 				ok = true;
 			}
-#ifdef DEBUG
 			if (strcmp(argv[i], "--debug") == 0) {
 				NGIRCd_Debug = true;
 				ok = true;
 			}
-#endif
 			if (strcmp(argv[i], "--help") == 0) {
 				Show_Version();
 				puts(""); Show_Help( ); puts( "" );
@@ -130,6 +126,7 @@ main(int argc, const char *argv[])
 			}
 			if (strcmp(argv[i], "--nodaemon") == 0) {
 				NGIRCd_NoDaemon = true;
+				NGIRCd_NoSyslog = true;
 				ok = true;
 			}
 			if (strcmp(argv[i], "--passive") == 0) {
@@ -142,6 +139,12 @@ main(int argc, const char *argv[])
 				ok = true;
 			}
 #endif
+#ifdef SYSLOG
+			if (strcmp(argv[i], "--syslog") == 0) {
+				NGIRCd_NoSyslog = false;
+				ok = true;
+			}
+#endif
 			if (strcmp(argv[i], "--version") == 0) {
 				Show_Version();
 				exit(0);
@@ -151,12 +154,10 @@ main(int argc, const char *argv[])
 			/* short option */
 			for (n = 1; n < strlen(argv[i]); n++) {
 				ok = false;
-#ifdef DEBUG
 				if (argv[i][n] == 'd') {
 					NGIRCd_Debug = true;
 					ok = true;
 				}
-#endif
 				if (argv[i][n] == 'f') {
 					if (!argv[i][n+1] && i+1 < argc) {
 						/* Ok, next character is a blank */
@@ -178,6 +179,7 @@ main(int argc, const char *argv[])
 
 				if (argv[i][n] == 'n') {
 					NGIRCd_NoDaemon = true;
+					NGIRCd_NoSyslog = true;
 					ok = true;
 				}
 				if (argv[i][n] == 'p') {
@@ -199,6 +201,12 @@ main(int argc, const char *argv[])
 					Show_Version();
 					exit(1);
 				}
+#ifdef SYSLOG
+				if (argv[i][n] == 'y') {
+					NGIRCd_NoSyslog = false;
+					ok = true;
+				}
+#endif
 
 				if (!ok) {
 					fprintf(stderr,
@@ -223,10 +231,8 @@ main(int argc, const char *argv[])
 
 	/* Debug level for "VERSION" command */
 	NGIRCd_DebugLevel[0] = '\0';
-#ifdef DEBUG
 	if (NGIRCd_Debug)
 		strcpy(NGIRCd_DebugLevel, "1");
-#endif
 #ifdef SNIFFER
 	if (NGIRCd_Sniffer) {
 		NGIRCd_Debug = true;
@@ -249,7 +255,7 @@ main(int argc, const char *argv[])
 		NGIRCd_SignalRestart = false;
 		NGIRCd_SignalQuit = false;
 
-		Log_Init(!NGIRCd_NoDaemon);
+		Log_Init(!NGIRCd_NoSyslog);
 		Random_Init();
 		Conf_Init();
 		Log_ReInit();
@@ -451,7 +457,7 @@ static void
 Show_Version( void )
 {
 	puts( NGIRCd_Version );
-	puts( "Copyright (c)2001-2022 Alexander Barton (<alex@barton.de>) and Contributors." );
+	puts( "Copyright (c)2001-2023 Alexander Barton (<alex@barton.de>) and Contributors." );
 	puts( "Homepage: <http://ngircd.barton.de/>\n" );
 	puts( "This is free software; see the source for copying conditions. There is NO" );
 	puts( "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE." );
@@ -466,9 +472,7 @@ Show_Version( void )
 static void
 Show_Help( void )
 {
-#ifdef DEBUG
 	puts( "  -d, --debug        log extra debug messages" );
-#endif
 	puts( "  -f, --config <f>   use file <f> as configuration file" );
 	puts( "  -n, --nodaemon     don't fork and don't detach from controlling terminal" );
 	puts( "  -p, --passive      disable automatic connections to other servers" );
@@ -477,6 +481,9 @@ Show_Help( void )
 #endif
 	puts( "  -t, --configtest   read, validate and display configuration; then exit" );
 	puts( "  -V, --version      output version information and exit" );
+#ifdef SYSLOG
+	puts( "  -y, --syslog       log to syslog even when running in the foreground (-n)" );
+#endif
 	puts( "  -h, --help         display this help and exit" );
 } /* Show_Help */
 
@@ -490,9 +497,7 @@ Pidfile_Delete( void )
 	/* Pidfile configured? */
 	if( ! Conf_PidFile[0] ) return;
 
-#ifdef DEBUG
-	Log( LOG_DEBUG, "Removing PID file (%s) ...", Conf_PidFile );
-#endif
+	LogDebug( "Removing PID file (%s) ...", Conf_PidFile );
 
 	if( unlink( Conf_PidFile ))
 		Log( LOG_ERR, "Error unlinking PID file (%s): %s", Conf_PidFile, strerror( errno ));
@@ -514,9 +519,7 @@ Pidfile_Create(pid_t pid)
 	/* Pidfile configured? */
 	if( ! Conf_PidFile[0] ) return;
 
-#ifdef DEBUG
-	Log( LOG_DEBUG, "Creating PID file (%s) ...", Conf_PidFile );
-#endif
+	LogDebug( "Creating PID file (%s) ...", Conf_PidFile );
 
 	pidfd = open( Conf_PidFile, O_RDWR|O_CREAT|O_EXCL, S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
 	if ( pidfd < 0 ) {
@@ -817,7 +820,7 @@ NGIRCd_Init(bool NGIRCd_NoDaemon)
 
 	if (pwd) {
 		if (chdir(pwd->pw_dir) == 0)
-			Log(LOG_DEBUG,
+			LogDebug(
 			    "Changed working directory to \"%s\" ...",
 			    pwd->pw_dir);
 		else

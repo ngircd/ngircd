@@ -10,7 +10,7 @@
 # Please read the file COPYING, README and AUTHORS for more information.
 #
 # This script parses the log output of ngircd(8), and colorizes the messages
-# accoring to their log level. Example usage:
+# according to their log level. Example usage:
 # ./src/ngircd/ngircd -f $PWD/doc/sample-ngircd.conf -np | ./contrib/nglog.sh
 #
 

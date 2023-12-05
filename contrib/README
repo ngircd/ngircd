@@ -43,7 +43,7 @@ ngircd.spec
  - RPM "spec" file.
 
 nglog.sh
- - Colorizes the log messages of ngircd(8) accoring to their log level.
+ - Colorizes the log messages of ngircd(8) according to their log level.
 
 platformtest.sh
  - Build ngIRCd and output a "result line" suitable for doc/Platforms.txt.

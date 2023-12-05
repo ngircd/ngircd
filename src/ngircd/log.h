@@ -32,7 +32,7 @@
 
 #define LOG_snotice 1024
 
-GLOBAL void Log_Init PARAMS(( bool Daemon_Mode ));
+GLOBAL void Log_Init PARAMS(( bool Syslog_Mode ));
 GLOBAL void Log_Exit PARAMS(( void ));
 
 GLOBAL void Log PARAMS(( int Level, const char *Format, ... ));
@@ -40,20 +40,14 @@ GLOBAL void Log_ReInit PARAMS((void));
 
 GLOBAL void Log_ServerNotice PARAMS((char UserMode, const char *Format, ...));
 
-#ifdef DEBUG
 GLOBAL void LogDebug PARAMS(( const char *Format, ... ));
-#else
-static inline void LogDebug PARAMS(( UNUSED const char *Format, ... )){/* Do nothing. The compiler should optimize this out, please ;-) */}
-#endif
 
 GLOBAL void Log_Init_Subprocess PARAMS((char *Name));
 GLOBAL void Log_Exit_Subprocess PARAMS((char *Name));
 
 GLOBAL void Log_Subprocess PARAMS((const int Level, const char *Format, ...));
 
-#ifdef DEBUG
 GLOBAL void Log_InitErrorfile PARAMS(( void ));
-#endif
 
 #endif
 

@@ -148,7 +148,7 @@ static void io_docallback PARAMS((int fd, short what));
 static void
 io_debug(const char *s, int fd, int what)
 {
-	Log(LOG_DEBUG, "%s: %d, %d\n", s, fd, what);
+	LogDebug("%s: %d, %d\n", s, fd, what);
 }
 #else
 static inline void

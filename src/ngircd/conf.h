@@ -87,6 +87,7 @@ struct Conf_Channel {
 	char key[CLIENT_PASS_LEN];      /**< Channel key ("password", mode "k" ) */
 	char topic[COMMAND_LEN];	/**< Initial topic */
 	char keyfile[512];		/**< Path and name of channel key file */
+	bool autojoin;			/**< 1 to make all users autojoin this channel */
 	unsigned long maxusers;		/**< User limit for this channel, mode "l" */
 	unsigned int modes_num;		/**< Number of channel modes to evaluate */
 };
@@ -222,7 +223,7 @@ GLOBAL bool Conf_ConnectIPv6;
 /** Try to connect to remote systems using the IPv4 protocol (true) */
 GLOBAL bool Conf_ConnectIPv4;
 
-/** Idle timout (seconds), after which the daemon should exit */
+/** Idle timeout (seconds), after which the daemon should exit */
 GLOBAL int Conf_IdleTimeout;
 
 /** Maximum number of simultaneous connections to this server */
@@ -280,9 +281,7 @@ GLOBAL bool Conf_SSLInUse PARAMS((void));
 /* Password required by WEBIRC command */
 GLOBAL char Conf_WebircPwd[CLIENT_PASS_LEN];
 
-#ifdef DEBUG
 GLOBAL void Conf_DebugDump PARAMS((void));
-#endif
 
 
 #endif

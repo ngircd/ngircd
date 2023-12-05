@@ -217,10 +217,8 @@ Send_CHANINFO(CLIENT * Client, CHANNEL * Chan)
 	char *modes, *topic, *key;
 	bool has_k, has_l;
 
-#ifdef DEBUG
 	Log(LOG_DEBUG, "Sending CHANINFO commands for \"%s\" ...",
 	    Channel_Name(Chan));
-#endif
 
 	modes = Channel_Modes(Chan);
 	topic = Channel_Topic(Chan);

@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001,2002 by Alexander Barton (alex@barton.de)
+ * Copyright (c)2001-2022 by Alexander Barton (alex@barton.de)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,8 @@ GLOBAL bool IRC_TOPIC PARAMS((CLIENT *Client, REQUEST *Req ));
 GLOBAL bool IRC_LIST PARAMS((CLIENT *Client, REQUEST *Req ));
 
 GLOBAL bool IRC_CHANINFO PARAMS((CLIENT *Client, REQUEST *Req ));
+
+GLOBAL bool IRC_Send_Channel_Info PARAMS((CLIENT *Client, CHANNEL *Chan));
 
 #endif
 

@@ -182,9 +182,7 @@ GLOBAL void Client_UpdateCloakedHostname PARAMS((CLIENT *Client,
 						 const char *hostname));
 
 
-#ifdef DEBUG
 GLOBAL void Client_DebugDump PARAMS((void));
-#endif
 
 #endif
 

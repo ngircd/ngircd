@@ -41,25 +41,23 @@ static const int signals_catch[] = {
        SIGINT, SIGQUIT, SIGTERM, SIGHUP, SIGCHLD, SIGUSR1, SIGUSR2
 };
 
-#ifdef DEBUG
 
 static void
 Dump_State(void)
 {
-	Log(LOG_DEBUG, "--- Internal server state: %s ---",
+	LogDebug("--- Internal server state: %s ---",
 	    Client_ID(Client_ThisServer()));
 #ifdef HAVE_LONG_LONG
-	Log(LOG_DEBUG, "time()=%llu", (unsigned long long)time(NULL));
+	LogDebug("time()=%llu", (unsigned long long)time(NULL));
 #else
-	Log(LOG_DEBUG, "time()=%lu", (unsigned long)time(NULL));
+	LogDebug("time()=%lu", (unsigned long)time(NULL));
 #endif
 	Conf_DebugDump();
 	Conn_DebugDump();
 	Client_DebugDump();
-	Log(LOG_DEBUG, "--- End of state dump ---");
+	LogDebug("--- End of state dump ---");
 } /* Dump_State */
 
-#endif
 
 static void
 Signal_Block(int sig)
@@ -174,7 +172,6 @@ Signal_Handler(int Signal)
 		while (waitpid( -1, NULL, WNOHANG) > 0)
 			;
 		return;
-#ifdef DEBUG
 	case SIGUSR1:
 		if (! NGIRCd_Debug) {
 			Log(LOG_INFO|LOG_snotice,
@@ -197,7 +194,6 @@ Signal_Handler(int Signal)
 #endif /* SNIFFER */
 		}
 		return;
-#endif
 	}
 
 	/*
@@ -226,7 +222,6 @@ Signal_Handler_BH(int Signal)
 		/* re-read configuration */
 		Rehash();
 		break;
-#ifdef DEBUG
 	case SIGUSR2:
 		if (NGIRCd_Debug) {
 			Log(LOG_INFO|LOG_snotice,
@@ -235,8 +230,7 @@ Signal_Handler_BH(int Signal)
 		}
 		break;
 	default:
-		Log(LOG_DEBUG, "Got signal %d! Ignored.", Signal);
-#endif
+		LogDebug("Got signal %d! Ignored.", Signal);
 	}
 	Signal_Unblock(Signal);
 }

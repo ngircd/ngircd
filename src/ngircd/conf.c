@@ -464,13 +464,13 @@ Conf_Test( void )
 		printf( "  Host = %s\n", Conf_Server[i].host );
 		printf( "  Port = %u\n", (unsigned int)Conf_Server[i].port );
 #ifdef SSL_SUPPORT
-		printf( "  SSLConnect = %s\n", Conf_Server[i].SSLConnect?"yes":"no");
+		printf( "  SSLConnect = %s\n", yesno_to_str(Conf_Server[i].SSLConnect));
 #endif
 		printf( "  MyPassword = %s\n", Conf_Server[i].pwd_in );
 		printf( "  PeerPassword = %s\n", Conf_Server[i].pwd_out );
 		printf( "  ServiceMask = %s\n", Conf_Server[i].svs_mask);
 		printf( "  Group = %d\n", Conf_Server[i].group );
-		printf( "  Passive = %s\n\n", Conf_Server[i].flags & CONF_SFLAG_DISABLED ? "yes" : "no");
+		printf( "  Passive = %s\n\n", yesno_to_str(Conf_Server[i].flags & CONF_SFLAG_DISABLED));
 	}
 
 	predef_channel_count = array_length(&Conf_Channels, sizeof(*predef_chan));
@@ -488,6 +488,7 @@ Conf_Test( void )
 		printf("  Key = %s\n", predef_chan->key);
 		printf("  MaxUsers = %lu\n", predef_chan->maxusers);
 		printf("  Topic = %s\n", predef_chan->topic);
+		printf("  Autojoin = %s\n", yesno_to_str(predef_chan->autojoin));
 		printf("  KeyFile = %s\n\n", predef_chan->keyfile);
 	}
 
@@ -942,16 +943,13 @@ Read_Config(bool TestOnly, bool IsStarting)
 
 					if( Conf_Server[i].conn_id == Conf_Server[n].conn_id ) {
 						Init_Server_Struct( &Conf_Server[n] );
-#ifdef DEBUG
-						Log(LOG_DEBUG,"Deleted unused duplicate server %d (kept %d).",
-												n, i );
-#endif
+						LogDebug("Deleted unused duplicate server %d (kept %d).", n, i);
 					}
 				}
 			} else {
 				/* Mark server as "once" */
 				Conf_Server[i].flags |= CONF_SFLAG_ONCE;
-				Log( LOG_DEBUG, "Marked server %d as \"once\"", i );
+				LogDebug("Marked server %d as \"once\"", i);
 			}
 		}
 	}
@@ -2003,6 +2001,11 @@ Handle_CHANNEL(const char *File, int Line, char *Var, char *Arg)
 			Config_Error_TooLong(File, Line, Var);
 		return;
 	}
+	if( strcasecmp( Var, "Autojoin" ) == 0 ) {
+		/* Check autojoin */
+		chan->autojoin = Check_ArgIsTrue(Arg);
+		return;
+	}
 	if( strcasecmp( Var, "Key" ) == 0 ) {
 		/* Initial Channel Key (mode k) */
 		len = strlcpy(chan->key, Arg, sizeof(chan->key));
@@ -2049,9 +2052,7 @@ Validate_Config(bool Configtest, bool Rehash)
 {
 	/* Validate configuration settings. */
 
-#ifdef DEBUG
 	int i, servers, servers_once;
-#endif
 	bool config_valid = true;
 	char *ptr;
 
@@ -2125,7 +2126,6 @@ Validate_Config(bool Configtest, bool Rehash)
 			     "Maximum penalty increase ('MaxPenaltyTime') is set to %ld, this is not recommended!",
 			     Conf_MaxPenaltyTime);
 
-#ifdef DEBUG
 	servers = servers_once = 0;
 	for (i = 0; i < MAX_SERVERS; i++) {
 		if (Conf_Server[i].name[0]) {
@@ -2134,12 +2134,10 @@ Validate_Config(bool Configtest, bool Rehash)
 				servers_once++;
 		}
 	}
-	Log(LOG_DEBUG,
-	    "Configuration: Operators=%ld, Servers=%d[%d], Channels=%ld",
+	LogDebug("Configuration: Operators=%ld, Servers=%d[%d], Channels=%ld",
 	    array_length(&Conf_Opers, sizeof(struct Conf_Oper)),
 	    servers, servers_once,
 	    array_length(&Conf_Channels, sizeof(struct Conf_Channel)));
-#endif
 
 	return config_valid;
 }
@@ -2226,7 +2224,6 @@ va_dcl
 		Log(Level, "%s", msg);
 }
 
-#ifdef DEBUG
 
 /**
  * Dump internal state of the "configuration module".
@@ -2236,11 +2233,11 @@ Conf_DebugDump(void)
 {
 	int i;
 
-	Log(LOG_DEBUG, "Configured servers:");
+	LogDebug("Configured servers:");
 	for (i = 0; i < MAX_SERVERS; i++) {
 		if (! Conf_Server[i].name[0])
 			continue;
-		Log(LOG_DEBUG,
+		LogDebug(
 		    " - %s: %s:%d, last=%ld, group=%d, flags=%d, conn=%d",
 		    Conf_Server[i].name, Conf_Server[i].host,
 		    Conf_Server[i].port, Conf_Server[i].lasttry,
@@ -2249,7 +2246,6 @@ Conf_DebugDump(void)
 	}
 }
 
-#endif
 
 /**
  * Initialize server configuration structure to default values.

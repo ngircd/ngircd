@@ -123,7 +123,7 @@
 /** Max. host name length (including NULL). */
 #define CLIENT_HOST_LEN 64
 
-/** Max. mask lenght (including NULL). */
+/** Max. mask length (including NULL). */
 #define MASK_LEN (2 * CLIENT_HOST_LEN)
 
 /** Max. length of all client modes (including NULL). */

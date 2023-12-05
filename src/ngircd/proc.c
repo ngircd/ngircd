@@ -114,14 +114,10 @@ Proc_GenericSignalHandler(int Signal)
 {
 	switch(Signal) {
 	case SIGTERM:
-#ifdef DEBUG
 		Log_Subprocess(LOG_DEBUG, "Child got TERM signal, exiting.");
-#endif
 		exit(1);
 	case SIGALRM:
-#ifdef DEBUG
 		Log_Subprocess(LOG_DEBUG, "Child got ALARM signal, exiting.");
-#endif
 		exit(1);
 	}
 }

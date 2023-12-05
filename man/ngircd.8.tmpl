@@ -1,7 +1,7 @@
 .\"
 .\" ngircd(8) manual page template
 .\"
-.TH ngircd 8 "Jan 2022" ngIRCd "ngIRCd Manual"
+.TH ngircd 8 "Sep 2023" ngIRCd "ngIRCd Manual"
 .SH NAME
 ngIRCd \- the "next generation" IRC daemon
 .SH SYNOPSIS
@@ -27,7 +27,7 @@ which is a little bit exaggerated:
 most probably would have been a better name :-)
 .PP
 Currently supported platforms include AIX, A/UX, FreeBSD, HP-UX, Hurd, IRIX,
-Linux, Mac OS X, Minix, NetBSD, OpenBSD, Solaris, and Windows with Cygwin.
+Linux, macOS, Minix, NetBSD, OpenBSD, Solaris, and Windows with Cygwin.
 As ngIRCd relies on UNIX standards and uses GNU automake and GNU autoconf
 there are good chances that it also supports other UNIX-based operating
 systems as well.
@@ -57,14 +57,25 @@ terminate the server.
 Disable automatic connections to other servers. You can use the IRC command
 CONNECT later on as IRC Operator to link this ngIRCd to other servers.
 .TP
+\fB\-y\fR, \fB\-\-syslog\fR
+Write log messages to the syslog even when running in the foreground. This only
+makes sense when
+.I \-n/\-\-nodaemon
+was given on the command line
+.I before
+this option!
+.PP
+The following options prevent ngIRCd from starting regularly, but perform a
+specific action and then exit the daemon again:
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Display a brief help text and exit.
+.TP
 \fB\-t\fR, \fB\-\-configtest\fR
 Read, validate and display the configuration; then exit.
 .TP
 \fB\-V\fR, \fB\-\-version\fR
 Output version information and exit.
-.TP
-\fB\-h\fR, \fB\-\-help\fR
-Display a brief help text and exit.
 .SH FILES
 .I :ETCDIR:/ngircd.conf
 .RS
@@ -84,8 +95,10 @@ Shut down all connections and terminate the daemon.
 Shut down all listening sockets, re-read the configuration file and
 re-initialize the daemon.
 .SH HINTS
-It's wise to use "ngircd \-\-configtest" to validate the configuration file
-after changing it.
+It is
+.I always wise
+to use "ngircd \-\-configtest" to validate the configuration of ngIRCd after
+making changes to the configuration files!
 .SH DEBUGGING
 When ngIRCd is compiled with debug code, that is, its source code has
 been ./configure'd with "\-\-enable\-debug" and/or "\-\-enable\-sniffer" (witch

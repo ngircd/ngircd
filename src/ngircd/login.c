@@ -31,6 +31,7 @@
 #include "log.h"
 #include "messages.h"
 #include "ngircd.h"
+#include "irc-channel.h"
 #include "irc-info.h"
 #include "irc-mode.h"
 #include "irc-write.h"
@@ -201,7 +202,39 @@ Login_User_PostAuth(CLIENT *Client)
 	} else
 		IRC_SetPenalty(Client, 1);
 
+	/* Autojoin clients to the channels */
+	Login_Autojoin(Client);
+
 	return CONNECTED;
+}
+
+/**
+ * Autojoin clients to the channels set by administrator
+ *
+ * Do nothing if autojoin is not set in the configuration or the channel is not
+ * available (any more).
+ **/
+GLOBAL void
+Login_Autojoin(CLIENT *Client)
+{
+	REQUEST Req;
+	const struct Conf_Channel *conf_chan;
+	size_t i, channel_count = array_length(&Conf_Channels, sizeof(*conf_chan));
+
+	conf_chan = array_start(&Conf_Channels);
+	assert(channel_count == 0 || conf_chan != NULL);
+
+	for (i = 0; i < channel_count; i++, conf_chan++) {
+		if(!conf_chan->autojoin)
+			continue;
+		if (!Channel_Search(conf_chan->name))
+			continue;
+		Req.prefix = Client_ID(Client_ThisServer());
+		Req.command = "JOIN";
+		Req.argc = 1;
+		Req.argv[0] = (char *)conf_chan->name;
+		IRC_JOIN(Client, &Req);
+	}
 }
 
 #ifdef PAM
@@ -248,7 +281,7 @@ cb_Read_Auth_Result(int r_fd, UNUSED short events)
 
 	if (result == true) {
 		/* Authentication succeeded, now set the correct user name
-		 * supplied by the client (without prepended '~' for exmaple),
+		 * supplied by the client (without prepended '~' for example),
 		 * but cut it at the first '@' character: */
 		strlcpy(user, Client_OrigUser(client), sizeof(user));
 		ptr = strchr(user, '@');

@@ -514,7 +514,7 @@ Option_String(UNUSED CONN_ID Idx)
 /**
  * Send a message to target(s).
  *
- * This function is used by IRC_{PRIVMSG|NOTICE|SQUERY} to actualy
+ * This function is used by IRC_{PRIVMSG|NOTICE|SQUERY} to actually
  * send the message(s).
  *
  * @param Client The client from which this command has been received.
@@ -571,6 +571,13 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 	else
 #endif
 		message = Req->argv[1];
+
+	if (message[0] == '\0') {
+		if (!SendErrors)
+			return CONNECTED;
+		return IRC_WriteErrClient(Client, ERR_NOTEXTTOSEND_MSG,
+					  Client_ID(Client));
+	}
 
 	/* handle msgtarget = msgto *("," msgto) */
 	currentTarget = strtok_r(currentTarget, ",", &strtok_last);

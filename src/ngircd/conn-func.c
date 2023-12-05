@@ -21,11 +21,8 @@
 #include <assert.h>
 #include <time.h>
 
-#ifdef DEBUG
-# include "log.h"
-#endif
+#include "log.h"
 #include "conn.h"
-
 #include "conf.h"
 #include "conn-func.h"
 
@@ -116,13 +113,10 @@ Conn_SetPenalty(CONN_ID Idx, time_t Seconds)
 
 	My_Connections[Idx].delaytime += Seconds;
 
-#ifdef DEBUG
-	Log(LOG_DEBUG,
-	    "Add penalty time on connection %d: %ld second%s, total %ld second%s.",
+	LogDebug("Add penalty time on connection %d: %ld second%s, total %ld second%s.",
 	    Idx, (long)Seconds, Seconds != 1 ? "s" : "",
 	    My_Connections[Idx].delaytime - t,
 	    My_Connections[Idx].delaytime - t != 1 ? "s" : "");
-#endif
 } /* Conn_SetPenalty */
 
 GLOBAL void

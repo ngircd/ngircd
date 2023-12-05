@@ -166,9 +166,7 @@ GLOBAL long Conn_GetAuthPing PARAMS((CONN_ID Idx));
 GLOBAL void Conn_SetAuthPing PARAMS((CONN_ID Idx, long ID));
 #endif
 
-#ifdef DEBUG
 GLOBAL void Conn_DebugDump PARAMS((void));
-#endif
 
 #endif
 

@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2014 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2022 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@
 #include "numeric.h"
 #include "ngircd.h"
 #include "irc.h"
+#include "irc-channel.h"
 #include "irc-info.h"
 #include "irc-write.h"
 #include "op.h"
@@ -298,7 +299,7 @@ IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 			    "Failed to join client \"%s\" to channel \"%s\" (NJOIN): killing it!",
 			    ptr, channame);
 			IRC_KillClient(NULL, NULL, ptr, "Internal NJOIN error!");
-			Log(LOG_DEBUG, "... done.");
+			LogDebug("... done.");
 			goto skip_njoin;
 		}
 
@@ -319,6 +320,12 @@ IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 		/* Announce client to the channel */
 		IRC_WriteStrChannelPrefix(Client, chan, c, false,
 					  "JOIN :%s", channame);
+
+		/* If the client is connected to this server, it was remotely
+		 * joined to the channel by another server/service: So send
+		 * TOPIC and NAMES messages like on a regular JOIN command! */
+		if(Client_Conn(c) != NONE)
+			IRC_Send_Channel_Info(c, chan);
 
 		/* Announce "channel user modes" to the channel, if any */
 		strlcpy(modes, Channel_UserModes(chan, c), sizeof(modes));

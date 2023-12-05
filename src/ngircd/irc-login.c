@@ -774,7 +774,7 @@ IRC_PING(CLIENT *Client, REQUEST *Req)
 		return IRC_WriteErrClient(Client, ERR_NOSUCHSERVER_MSG,
 					Client_ID(Client), Req->prefix);
 
-	Log(LOG_DEBUG, "Connection %d: got PING, sending PONG ...",
+	LogDebug("Connection %d: got PING, sending PONG ...",
 	    Client_Conn(Client));
 
 #ifdef STRICT_RFC
@@ -877,9 +877,7 @@ IRC_PONG(CLIENT *Client, REQUEST *Req)
 		    (long)(time(NULL) - Conn_GetSignon(conn)),
 		    time(NULL) - Conn_GetSignon(conn) == 1 ? "" : "s",
 		    Client_UserCount(), Channel_CountVisible(NULL));
-	}
-#ifdef DEBUG
-	else {
+	} else {
 		if (Conn_LastPing(conn) > 1)
 			LogDebug("Connection %d: received PONG. Lag: %ld seconds.",
 				 conn, (long)(time(NULL) - Conn_LastPing(conn)));
@@ -887,7 +885,6 @@ IRC_PONG(CLIENT *Client, REQUEST *Req)
 			LogDebug("Got unexpected PONG on connection %d. Ignored.",
 				 conn);
 	}
-#endif
 
 	/* We got a PONG, so signal that none is pending on this connection. */
 	Conn_UpdatePing(conn, 1);

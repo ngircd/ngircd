@@ -35,10 +35,8 @@ GLOBAL char NGIRCd_Version[126];
 /** String specifying the compile-time options and target platform */
 GLOBAL char NGIRCd_VersionAddition[126];
 
-#ifdef DEBUG
 /** Flag indicating if debug mode is active (true) or not (false) */
 GLOBAL bool NGIRCd_Debug;
-#endif
 
 #ifdef SNIFFER
 /** Flag indication if sniffer is active (true) or not (false) */

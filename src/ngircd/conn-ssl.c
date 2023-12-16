@@ -755,7 +755,6 @@ ConnSSL_PrepareConnect(CONNECTION * c, CONF_SERVER * s)
 		param = SSL_get0_param(c->ssl_state.ssl);
 		X509_VERIFY_PARAM_set_hostflags(param,
 						X509_CHECK_FLAG_NO_PARTIAL_WILDCARDS);
-Log(LOG_ERR, "DEBUG: Setting up hostname verification for '%s'", s->host);
 		int err = X509_VERIFY_PARAM_set1_host(param, s->host, 0);
 		if (err != 1) {
 			Log(LOG_ERR,
@@ -944,9 +943,7 @@ ConnSSL_LogCertInfo( CONNECTION * c, bool connect)
 			const char *peername = SSL_get0_peername(ssl);
 			if (peername != NULL)
 				cert_ok = true;
-
-			Log(LOG_ERR, "X509_V_OK, peername = '%s'", peername);
-
+			LogDebug("X509_V_OK, peername = '%s'", peername);
 		} else
 			Log(LOG_ERR, "Certificate validation failed: %s",
 			    X509_verify_cert_error_string(err));
@@ -976,7 +973,6 @@ ConnSSL_LogCertInfo( CONNECTION * c, bool connect)
 		    gnutls_certificate_verify_peers2(c->
 						     ssl_state.gnutls_session,
 						     &status);
-Log(LOG_ERR, "DEBUG: verify = %d", verify);
 		if (verify < 0) {
 			Log(LOG_ERR,
 			    "gnutls_certificate_verify_peers2 failed: %s",
@@ -994,7 +990,6 @@ Log(LOG_ERR, "DEBUG: verify = %d", verify);
 				gnutls_free(out.data);
 			}
 		}
-Log(LOG_ERR, "DEBUG: status = %d", status);
 
 		gnutls_x509_crt_t cert;
 		unsigned cert_list_size;

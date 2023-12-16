@@ -442,10 +442,14 @@ Conf_Test( void )
 
 #ifdef SSL_SUPPORT
 	puts("[SSL]");
+	printf("  CAFile = %s\n", Conf_SSLOptions.CAFile
+					? Conf_SSLOptions.CAFile : "");
 	printf("  CertFile = %s\n", Conf_SSLOptions.CertFile
 					? Conf_SSLOptions.CertFile : "");
 	printf("  CipherList = %s\n", Conf_SSLOptions.CipherList ?
 	       Conf_SSLOptions.CipherList : DEFAULT_CIPHERS);
+	printf("  CRLFile = %s\n", Conf_SSLOptions.CRLFile
+					? Conf_SSLOptions.CRLFile : "");
 	printf("  DHFile = %s\n", Conf_SSLOptions.DHFile
 					? Conf_SSLOptions.DHFile : "");
 	printf("  KeyFile = %s\n", Conf_SSLOptions.KeyFile

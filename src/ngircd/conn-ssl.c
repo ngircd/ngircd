@@ -748,25 +748,27 @@ ConnSSL_PrepareConnect(CONNECTION * c, CONF_SERVER * s)
 	if (!ret)
 		return false;
 	Conn_OPTION_ADD(c, CONN_SSL_CONNECT);
+
 #ifdef HAVE_LIBSSL
 	assert(c->ssl_state.ssl);
-	if (s->SSLVerify) {
-		X509_VERIFY_PARAM *param = NULL;
-		param = SSL_get0_param(c->ssl_state.ssl);
-		X509_VERIFY_PARAM_set_hostflags(param,
-						X509_CHECK_FLAG_NO_PARTIAL_WILDCARDS);
-		int err = X509_VERIFY_PARAM_set1_host(param, s->host, 0);
-		if (err != 1) {
-			Log(LOG_ERR,
-			    "Cannot set up hostname verification for '%s': %u",
-			    s->host, err);
-			return false;
-		}
+
+	X509_VERIFY_PARAM *param = SSL_get0_param(c->ssl_state.ssl);
+	X509_VERIFY_PARAM_set_hostflags(param, X509_CHECK_FLAG_NO_PARTIAL_WILDCARDS);
+	int err = X509_VERIFY_PARAM_set1_host(param, s->host, 0);
+	if (err != 1) {
+		Log(LOG_ERR,
+		    "Cannot set up hostname verification for '%s': %u",
+		    s->host, err);
+		return false;
+	}
+
+	if (s->SSLVerify)
 		SSL_set_verify(c->ssl_state.ssl, SSL_VERIFY_PEER,
 			       Verify_openssl);
-	} else
+	else
 		SSL_set_verify(c->ssl_state.ssl, SSL_VERIFY_NONE, NULL);
 #endif
+
 	return true;
 }
 

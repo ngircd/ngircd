@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2022 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2024 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -87,6 +87,19 @@ IRC_SERVER( CLIENT *Client, REQUEST *Req )
 				   "Server not configured here", true);
 			return DISCONNECTED;
 		}
+
+#ifdef SSL_SUPPORT
+		/* Does this server require an SSL connection? */
+		if (Conf_Server[i].SSLConnect &&
+		    !(Conn_Options(Client_Conn(Client)) & CONN_SSL)) {
+			Log(LOG_ERR,
+			    "Connection %d: Server \"%s\" requires a secure connection!",
+			    Client_Conn(Client), Req->argv[0]);
+			Conn_Close(Client_Conn(Client), NULL,
+				   "Secure connection required", true);
+			return DISCONNECTED;
+		}
+#endif
 
 		/* Check server password */
 		if (strcmp(Conn_Password(Client_Conn(Client)),

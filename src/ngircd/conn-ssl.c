@@ -211,14 +211,23 @@ pem_passwd_cb(char *buf, int size, int rwflag, void *password)
 static int
 Verify_openssl(int preverify_ok, X509_STORE_CTX * ctx)
 {
-	int err;
-
+#ifdef DEBUG
 	if (!preverify_ok) {
-		err = X509_STORE_CTX_get_error(ctx);
-		Log(LOG_ERR, "Certificate validation failed: %s",
-		    X509_verify_cert_error_string(err));
+		int err = X509_STORE_CTX_get_error(ctx);
+		LogDebug("Certificate validation failed: %s",
+			 X509_verify_cert_error_string(err));
 	}
-	return preverify_ok;
+#else
+	(void)preverify_ok;
+	(void)ctx;
+#endif
+
+	/* Always(!) return success as we have to deal with invalid
+	 * (self-signed, expired, ...) client certificates and with invalid
+	 * server certificates when "SSLVerify" is disabled, which we don't
+	 * know at this stage. Therefore we postpone this check, it will be
+	 * (and has to be!) handled in cb_connserver_login_ssl(). */
+	return 1;
 }
 #endif
 

@@ -2556,6 +2556,13 @@ cb_listen_ssl(int sock, short irrelevant)
 /**
  * IO callback for new outgoing SSL-enabled server connections.
  *
+ * IMPORTANT: The SSL session has been validated before, but all errors have
+ * been ignored so far! The reason for this is that the generic SSL code has no
+ * idea if the new session actually belongs to a server, as this only becomes
+ * clear when the remote peer sends its PASS command (and we have to handle
+ * invalid client certificates!). Therefore, it is important to check the
+ * status of the SSL session first before continuing the server handshake here!
+ *
  * @param sock		Socket descriptor.
  * @param unused	(ignored IO specification)
  */

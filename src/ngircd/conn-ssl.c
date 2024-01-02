@@ -401,8 +401,6 @@ ConnSSL_InitLibrary( void )
 			    SSL_OP_NO_SSLv3 | SSL_OP_NO_TLSv1 | SSL_OP_NO_TLSv1_1 |
 			    SSL_OP_NO_COMPRESSION);
 	SSL_CTX_set_mode(newctx, SSL_MODE_ENABLE_PARTIAL_WRITE);
-	SSL_CTX_set_verify(newctx, SSL_VERIFY_PEER|SSL_VERIFY_CLIENT_ONCE,
-			   Verify_openssl);
 	SSL_CTX_free(ssl_ctx);
 	ssl_ctx = newctx;
 	Log(LOG_INFO, "%s initialized.", OpenSSL_version(OPENSSL_VERSION));
@@ -615,7 +613,6 @@ ConnSSL_SetVerifyProperties_openssl(SSL_CTX * ctx)
 {
 	X509_STORE *store = NULL;
 	X509_LOOKUP *lookup;
-	int verify_flags = SSL_VERIFY_PEER;
 	bool ret = false;
 
 	if (!Conf_SSLOptions.CAFile)
@@ -649,7 +646,8 @@ ConnSSL_SetVerifyProperties_openssl(SSL_CTX * ctx)
 		}
 	}
 
-	SSL_CTX_set_verify(ctx, verify_flags, Verify_openssl);
+	SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER|SSL_VERIFY_CLIENT_ONCE,
+			   Verify_openssl);
 	SSL_CTX_set_verify_depth(ctx, MAX_CERT_CHAIN_LENGTH);
 	ret = true;
 out:

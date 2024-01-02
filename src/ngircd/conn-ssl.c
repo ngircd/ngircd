@@ -935,22 +935,36 @@ ConnSSL_LogCertInfo( CONNECTION * c, bool connect)
 	Log(LOG_INFO, "Connection %d: initialized %s using cipher %s, %s.",
 	    c->sock, SSL_get_version(ssl), SSL_get_cipher(ssl), comp_alg);
 	peer_cert = SSL_get_peer_certificate(ssl);
-	if (peer_cert && connect) {
+	if (peer_cert) {
 		cert_seen = true;
-		/* Client: Check server certificate */
-		int err = SSL_get_verify_result(ssl);
-		if (err == X509_V_OK) {
-			const char *peername = SSL_get0_peername(ssl);
-			if (peername != NULL)
-				cert_ok = true;
-			LogDebug("X509_V_OK, peername = '%s'", peername);
-		} else
-			Log(LOG_ERR, "Certificate validation failed: %s",
-			    X509_verify_cert_error_string(err));
-		snprintf(msg, sizeof(msg), "%svalid peer certificate",
-			 cert_ok ? "" : "in");
-		LogOpenSSL_CertInfo(cert_ok ? LOG_DEBUG : LOG_ERR, peer_cert,
-				    msg);
+
+		if (connect) {
+			/* Outgoing connection. Verify the remote server! */
+			int err = SSL_get_verify_result(ssl);
+			if (err == X509_V_OK) {
+				const char *peername = SSL_get0_peername(ssl);
+				if (peername != NULL)
+					cert_ok = true;
+				LogDebug("X509_V_OK, peername = '%s'", peername);
+			} else
+				Log(LOG_WARNING, "Certificate validation failed: %s!",
+				    X509_verify_cert_error_string(err));
+
+			snprintf(msg, sizeof(msg), "Got %svalid server certificate",
+				 cert_ok ? "" : "in");
+			LogOpenSSL_CertInfo(LOG_INFO, peer_cert, msg);
+		} else {
+			/* Incoming connection.
+			 * Accept all certificates, don't depend on their
+			 * validity: for example, we don't know the hostname
+			 * to check, because we not yet even know if this is a
+			 * server connection at all and if so, which one, so we
+			 * don't know a host name to look for. On the other
+			 * hand we want client certificates, for example for
+			 * "CertFP" authentication with services ... */
+			LogOpenSSL_CertInfo(LOG_INFO, peer_cert,
+					    "Got unchecked client certificate");
+		}
 
 		X509_free(peer_cert);
 	}
@@ -1038,7 +1052,7 @@ done_cn_validation:
 	if (cert_ok)
 		Conn_OPTION_ADD(c, CONN_SSL_PEERCERT_OK);
 	if (!cert_seen)
-		Log(LOG_INFO, "Peer did not present a certificate");
+		Log(LOG_INFO, "Peer did not present a certificate.");
 }
 
 

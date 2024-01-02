@@ -2591,28 +2591,25 @@ cb_connserver_login_ssl(int sock, short unused)
 
 	serveridx = Conf_GetServer(idx);
 	assert(serveridx >= 0);
-	if (serveridx < 0)
-		goto err;
 
-	Log( LOG_INFO, "SSL connection %d with \"%s:%d\" established.", idx,
-	    My_Connections[idx].host, Conf_Server[Conf_GetServer( idx )].port );
-
+	/* The SSL handshake is done, but validation results were ignored so
+	 * far, so let's see where we are: */
+	LogDebug("SSL handshake on socket %d done.", idx);
 	if (!Conn_OPTION_ISSET(&My_Connections[idx], CONN_SSL_PEERCERT_OK)) {
 		if (Conf_Server[serveridx].SSLVerify) {
 			Log(LOG_ERR,
-				"SSLVerify enabled for %d, but peer certificate check failed",
-				idx);
-			goto err;
+				"Peer certificate check failed for \"%s\" on connection %d!",
+				My_Connections[idx].host, idx);
+			Conn_Close(idx, "Valid certificate required",
+				   NULL, false);
+			return;
 		}
 		Log(LOG_WARNING,
-			"Peer certificate check failed for %d, but SSLVerify is disabled, continuing",
-			idx);
+			"Peer certificate check failed for \"%s\" on connection %d, but \"SSLVerify\" is disabled. Continuing ...",
+			My_Connections[idx].host, idx);
 	}
+	LogDebug("Server certificate accepted, continuing server login ...");
 	server_login(idx);
-	return;
-      err:
-	Log(LOG_ERR, "SSL connection on socket %d failed!", sock);
-	Conn_Close(idx, "Can't connect!", NULL, false);
 }
 
 

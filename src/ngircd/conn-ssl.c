@@ -155,13 +155,13 @@ LogOpenSSL_CertInfo(int level, X509 * cert, const char *msg)
 	mem = BIO_new(BIO_s_mem());
 	if (!mem)
 		return;
-	X509_NAME_print_ex(mem, X509_get_subject_name(cert), 4,
+	X509_NAME_print_ex(mem, X509_get_subject_name(cert), 0,
 			   XN_FLAG_ONELINE);
-	X509_NAME_print_ex(mem, X509_get_issuer_name(cert), 4, XN_FLAG_ONELINE);
+	X509_NAME_print_ex(mem, X509_get_issuer_name(cert), 2, XN_FLAG_ONELINE);
 	if (BIO_write(mem, "", 1) == 1) {
 		len = BIO_get_mem_data(mem, &memptr);
 		if (memptr && len > 0)
-			Log(level, "%s: \"%s\"", msg, memptr);
+			Log(level, "%s: \"%s\".", msg, memptr);
 	}
 	(void)BIO_set_close(mem, BIO_CLOSE);
 	BIO_free(mem);
@@ -832,9 +832,12 @@ ConnSSL_HandleError(CONNECTION * c, const int code, const char *fname)
 				    "SSL error, client disconnected [in %s()]!",
 				    fname);
 				break;
-			case -1:	/* low level socket I/O error, check errno */
-				Log(LOG_ERR, "SSL error: %s [in %s()]!",
-				    strerror(real_errno), fname);
+			case -1:
+				/* Low level socket I/O error, check errno. But
+				 * we don't need to log this here, the generic
+				 * connection layer will take care of it. */
+				LogDebug("SSL error: %s [in %s()]!",
+					 strerror(real_errno), fname);
 			}
 		}
 		break;

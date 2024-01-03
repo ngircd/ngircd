@@ -397,12 +397,9 @@ All SSL-related configuration variables are located in the
 section. Please note that this whole section is only recognized by ngIRCd
 when it is compiled with support for SSL using OpenSSL or GnuTLS!
 .TP
-\fBCAFile (string)\fR
+\fBCAFile\fR (string)
 Filename pointing to the Trusted CA Certificates. This is required for
 verifying peer certificates.
-.TP
-\fBCRLFile (string)\fR
-Filename of Certificate Revocation List.
 .TP
 \fBCertFile\fR (string)
 SSL Certificate file of the private server key.
@@ -412,6 +409,9 @@ Select cipher suites allowed for SSL/TLS connections.  This defaults to
 "HIGH:!aNULL:@STRENGTH:!SSLv3" (OpenSSL) or "SECURE128:-VERS-SSL3.0" (GnuTLS).
 Please see 'man 1ssl ciphers' (OpenSSL) and 'man 3 gnutls_priority_init'
 (GnuTLS) for details.
+.TP
+\fBCRLFile\fR (string)
+Filename of Certificate Revocation List.
 .TP
 \fBDHFile\fR (string)
 Name of the Diffie-Hellman Parameter file. Can be created with GnuTLS

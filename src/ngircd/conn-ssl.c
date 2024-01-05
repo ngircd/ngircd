@@ -468,6 +468,9 @@ ConnSSL_SetVerifyProperties_gnutls(void)
 	if (!Conf_SSLOptions.CAFile)
 		return true;
 
+	x509_cred_slot *slot = array_get(&x509_creds, sizeof(x509_cred_slot), x509_cred_idx);
+	gnutls_certificate_credentials_t x509_cred = slot->x509_cred;
+
 	err = gnutls_certificate_set_x509_trust_file(x509_cred,
 						     Conf_SSLOptions.CAFile,
 						     GNUTLS_X509_FMT_PEM);

@@ -280,8 +280,8 @@ void ConnSSL_Free(CONNECTION *c)
 	assert(slot->x509_cred != NULL);
 	slot->refcnt--;
 	if ((c->ssl_state.x509_cred_idx != x509_cred_idx) && (slot->refcnt <= 0)) {
-		Log(LOG_INFO, "Discarding X509 certificate credentials from slot %zd.",
-		    c->ssl_state.x509_cred_idx);
+		LogDebug("Discarding X509 certificate credentials from slot %zd.",
+			 c->ssl_state.x509_cred_idx);
 		gnutls_certificate_free_keys(slot->x509_cred);
 		gnutls_certificate_free_credentials(slot->x509_cred);
 		slot->x509_cred = NULL;
@@ -448,7 +448,8 @@ ConnSSL_LoadServerKey_gnutls(void)
 	/* Free currently active x509 context (if any) unless it is still in use */
 	slot = array_get(&x509_creds, sizeof(x509_cred_slot), x509_cred_idx);
 	if ((slot != NULL) && (slot->refcnt <= 0) && (slot->x509_cred != NULL)) {
-		Log(LOG_INFO, "Discarding X509 certificate credentials from slot %zd.", x509_cred_idx);
+		LogDebug("Discarding X509 certificate credentials from slot %zd.",
+			 x509_cred_idx);
 		gnutls_certificate_free_keys(slot->x509_cred);
 		gnutls_certificate_free_credentials(slot->x509_cred);
 		slot->x509_cred = NULL;
@@ -583,7 +584,7 @@ ConnSSL_Init_SSL(CONNECTION *c)
 	gnutls_certificate_server_set_request(c->ssl_state.gnutls_session,
 					      GNUTLS_CERT_REQUEST);
 
-	Log(LOG_INFO, "Using X509 credentials from slot %zd", x509_cred_idx);
+	LogDebug("Using X509 credentials from slot %zd.", x509_cred_idx);
 	c->ssl_state.x509_cred_idx = x509_cred_idx;
 	x509_cred_slot *slot = array_get(&x509_creds, sizeof(x509_cred_slot), x509_cred_idx);
 	slot->refcnt++;

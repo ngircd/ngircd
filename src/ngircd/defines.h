@@ -39,7 +39,7 @@
 #define LINE_LEN 1024
 
 /** Max. length of a log message. */
-#define MAX_LOG_MSG_LEN 256
+#define MAX_LOG_MSG_LEN 1024
 
 /** Max. length of file name. */
 #define FNAME_LEN 256

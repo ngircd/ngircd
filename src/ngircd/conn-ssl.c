@@ -869,8 +869,10 @@ ConnSSL_HandleError(CONNECTION * c, const int code, const char *fname)
 	default:
 		assert(code < 0);
 		if (gnutls_error_is_fatal(code)) {
-			Log(LOG_ERR, "SSL error: %s [%s].",
-			    gnutls_strerror(code), fname);
+			/* We don't need to log this here, the generic
+			 * connection layer will take care of it. */
+			LogDebug("SSL error: %s [%s].",
+				 gnutls_strerror(code), fname);
 			ConnSSL_Free(c);
 			return -1;
 		}
@@ -914,12 +916,12 @@ LogGnuTLS_CertInfo(int level, gnutls_x509_crt_t cert, const char *msg)
 	assert(size);
 	issuer_dn = LogMalloc(size);
 	if (!issuer_dn) {
-		Log(level, "%s: Distinguished Name: %s", msg, dn);
+		Log(level, "%s: Distinguished Name \"%s\".", msg, dn);
 		free(dn);
 		return;
 	}
 	gnutls_x509_crt_get_issuer_dn(cert, issuer_dn, &size);
-	Log(level, "%s: Distinguished Name: \"%s\", Issuer \"%s\"", msg, dn,
+	Log(level, "%s: Distinguished Name \"%s\", Issuer \"%s\".", msg, dn,
 	    issuer_dn);
 	free(dn);
 	free(issuer_dn);
@@ -979,7 +981,7 @@ ConnSSL_LogCertInfo( CONNECTION * c, bool connect)
 			 * hand we want client certificates, for example for
 			 * "CertFP" authentication with services ... */
 			LogOpenSSL_CertInfo(LOG_INFO, peer_cert,
-					    "Got unchecked client certificate");
+					    "Got unchecked peer certificate");
 		}
 
 		X509_free(peer_cert);

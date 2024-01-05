@@ -45,14 +45,14 @@ extern struct SSLOptions Conf_SSLOptions;
 #include <openssl/dh.h>
 #include <openssl/x509v3.h>
 
+#define MAX_CERT_CHAIN_LENGTH	10	/* XXX: do not hardcode */
+
 static SSL_CTX * ssl_ctx;
 static DH *dh_params;
 
 static bool ConnSSL_LoadServerKey_openssl PARAMS(( SSL_CTX *c ));
 static bool ConnSSL_SetVerifyProperties_openssl PARAMS((SSL_CTX * c));
 #endif
-
-#define MAX_CERT_CHAIN_LENGTH	10	/* XXX: do not hardcode */
 
 #ifdef HAVE_LIBGNUTLS
 #include <sys/types.h>

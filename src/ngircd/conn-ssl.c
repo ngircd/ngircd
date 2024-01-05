@@ -747,6 +747,7 @@ ConnSSL_PrepareConnect(CONNECTION * c, CONF_SERVER * s)
 #ifdef HAVE_LIBGNUTLS
 	int err;
 
+	(void)s;
 	err = gnutls_init(&c->ssl_state.gnutls_session, GNUTLS_CLIENT);
 	if (err) {
 		Log(LOG_ERR, "Failed to initialize new SSL session: %s",
@@ -996,29 +997,8 @@ ConnSSL_LogCertInfo( CONNECTION * c, bool connect)
 	    gnutls_cipher_get_name(cipher),
 	    gnutls_mac_get_name(gnutls_mac_get(sess)));
 	cred = gnutls_auth_get_type(c->ssl_state.gnutls_session);
-	if (cred == GNUTLS_CRD_CERTIFICATE && connect) {
+	if (cred == GNUTLS_CRD_CERTIFICATE) {
 		cert_seen = true;
-		int verify =
-		    gnutls_certificate_verify_peers2(c->
-						     ssl_state.gnutls_session,
-						     &status);
-		if (verify < 0) {
-			Log(LOG_ERR,
-			    "gnutls_certificate_verify_peers2 failed: %s",
-			    gnutls_strerror(verify));
-			goto done_cn_validation;
-		} else if (status) {
-			gnutls_datum_t out;
-
-			if (gnutls_certificate_verification_status_print
-			    (status, gnutls_certificate_type_get(sess), &out,
-			     0) == GNUTLS_E_SUCCESS) {
-				Log(LOG_ERR,
-				    "Certificate validation failed: %s",
-				    out.data);
-				gnutls_free(out.data);
-			}
-		}
 
 		gnutls_x509_crt_t cert;
 		unsigned cert_list_size;
@@ -1042,17 +1022,46 @@ ConnSSL_LogCertInfo( CONNECTION * c, bool connect)
 			    gnutls_strerror(err));
 			goto done_cn_validation;
 		}
-		err = gnutls_x509_crt_check_hostname(cert, c->host);
-		if (err == 0)
-			Log(LOG_ERR,
-			    "Failed to verify the hostname, expected \"%s\"",
-			    c->host);
-		else
-			cert_ok = verify == 0 && status == 0;
 
-		snprintf(msg, sizeof(msg), "%svalid peer certificate",
-			cert_ok ? "" : "in");
-		LogGnuTLS_CertInfo(cert_ok ? LOG_DEBUG : LOG_ERR, cert, msg);
+		if (connect) {
+			int verify =
+			    gnutls_certificate_verify_peers2(c->
+							     ssl_state.gnutls_session,
+							     &status);
+			if (verify < 0) {
+				Log(LOG_ERR,
+				    "gnutls_certificate_verify_peers2 failed: %s",
+				    gnutls_strerror(verify));
+				goto done_cn_validation;
+			} else if (status) {
+				gnutls_datum_t out;
+
+				if (gnutls_certificate_verification_status_print
+				    (status, gnutls_certificate_type_get(sess), &out,
+				     0) == GNUTLS_E_SUCCESS) {
+					Log(LOG_ERR,
+					    "Certificate validation failed: %s",
+					    out.data);
+					gnutls_free(out.data);
+				}
+			}
+
+			err = gnutls_x509_crt_check_hostname(cert, c->host);
+			if (err == 0)
+				Log(LOG_ERR,
+				    "Failed to verify the hostname, expected \"%s\"",
+				    c->host);
+			else
+				cert_ok = verify == 0 && status == 0;
+
+			snprintf(msg, sizeof(msg), "Got %svalid server certificate",
+				cert_ok ? "" : "in");
+			LogGnuTLS_CertInfo(LOG_INFO, cert, msg);
+		} else {
+			/* Incoming connection. Please see comments for OpenSSL! */
+			LogGnuTLS_CertInfo(LOG_INFO, cert,
+					    "Got unchecked peer certificate");
+		}
 
 		gnutls_x509_crt_deinit(cert);
 done_cn_validation:

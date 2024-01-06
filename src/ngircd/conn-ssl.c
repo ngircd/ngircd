@@ -1000,16 +1000,15 @@ ConnSSL_LogCertInfo( CONNECTION * c, bool connect)
 	    gnutls_mac_get_name(gnutls_mac_get(sess)));
 	cred = gnutls_auth_get_type(c->ssl_state.gnutls_session);
 	if (cred == GNUTLS_CRD_CERTIFICATE) {
-		cert_seen = true;
-
 		gnutls_x509_crt_t cert;
 		unsigned cert_list_size;
 		const gnutls_datum_t *cert_list =
 		    gnutls_certificate_get_peers(sess, &cert_list_size);
-		if (!cert_list || cert_list_size == 0) {
-			Log(LOG_ERR, "No certificates found");
+
+		if (!cert_list || cert_list_size == 0)
 			goto done_cn_validation;
-		}
+
+		cert_seen = true;
 		int err = gnutls_x509_crt_init(&cert);
 		if (err < 0) {
 			Log(LOG_ERR,

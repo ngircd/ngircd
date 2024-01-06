@@ -421,12 +421,6 @@ ConnSSL_LoadServerKey_gnutls(void)
 		return false;
 	}
 
-	cert_file = Conf_SSLOptions.CertFile ? Conf_SSLOptions.CertFile:Conf_SSLOptions.KeyFile;
-	if (!cert_file) {
-		Log(LOG_ERR, "No SSL server key configured!");
-		return false;
-	}
-
 	if (array_bytes(&Conf_SSLOptions.KeyFilePassword))
 		Log(LOG_WARNING,
 		    "Ignoring SSL \"KeyFilePassword\": Not supported by GnuTLS.");
@@ -435,14 +429,21 @@ ConnSSL_LoadServerKey_gnutls(void)
 		return false;
 
 	gnutls_certificate_set_dh_params(x509_cred, dh_params);
-	err = gnutls_certificate_set_x509_key_file(x509_cred, cert_file, Conf_SSLOptions.KeyFile, GNUTLS_X509_FMT_PEM);
-	if (err < 0) {
-		Log(LOG_ERR,
-		    "Failed to set certificate key file (cert %s, key %s): %s",
-		    cert_file,
-		    Conf_SSLOptions.KeyFile ? Conf_SSLOptions.KeyFile : "(NULL)",
-		    gnutls_strerror(err));
-		return false;
+
+	cert_file = Conf_SSLOptions.CertFile ?
+			Conf_SSLOptions.CertFile : Conf_SSLOptions.KeyFile;
+	if (Conf_SSLOptions.KeyFile) {
+		err = gnutls_certificate_set_x509_key_file(x509_cred, cert_file,
+							   Conf_SSLOptions.KeyFile,
+							   GNUTLS_X509_FMT_PEM);
+		if (err < 0) {
+			Log(LOG_ERR,
+			    "Failed to set certificate key file (cert %s, key %s): %s",
+			    cert_file,
+			    Conf_SSLOptions.KeyFile ? Conf_SSLOptions.KeyFile : "(NULL)",
+			    gnutls_strerror(err));
+			return false;
+		}
 	}
 
 	/* Free currently active x509 context (if any) unless it is still in use */
@@ -494,13 +495,11 @@ ConnSSL_LoadServerKey_openssl(SSL_CTX *ctx)
 	char *cert_key;
 
 	assert(ctx);
-	if (!Conf_SSLOptions.KeyFile) {
-		Log(LOG_ERR, "No SSL server key configured!");
-		return false;
-	}
-
 	SSL_CTX_set_default_passwd_cb(ctx, pem_passwd_cb);
 	SSL_CTX_set_default_passwd_cb_userdata(ctx, &Conf_SSLOptions.KeyFilePassword);
+
+	if (!Conf_SSLOptions.KeyFile)
+		return true;
 
 	if (SSL_CTX_use_PrivateKey_file(ctx, Conf_SSLOptions.KeyFile, SSL_FILETYPE_PEM) != 1) {
 		array_free_wipe(&Conf_SSLOptions.KeyFilePassword);

@@ -479,6 +479,15 @@ Conn_InitListeners( void )
 
 	/* not using systemd socket activation, initialize listening sockets: */
 
+#ifdef SSL_SUPPORT
+	if (!Conf_SSLOptions.KeyFile &&
+	    array_length(&Conf_SSLOptions.ListenPorts, sizeof (UINT16))) {
+		Log(LOG_ERR,
+		    "Ignoring SSL-enabled listening ports: No key file set!");
+		array_free(&Conf_SSLOptions.ListenPorts);
+	}
+#endif
+
 	/* can't use Conf_ListenAddress directly, see below */
 	copy = strdup(Conf_ListenAddress);
 	if (!copy) {

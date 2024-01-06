@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2019 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2024 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -408,7 +408,7 @@ Conf_Test( void )
 #endif
 	printf("  DefaultUserModes = %s\n", Conf_DefaultUserModes);
 	printf("  DNS = %s\n", yesno_to_str(Conf_DNS));
-#ifdef IDENT
+#ifdef IDENTAUTH
 	printf("  Ident = %s\n", yesno_to_str(Conf_Ident));
 #endif
 	printf("  IncludeDir = %s\n", Conf_IncludeDir);

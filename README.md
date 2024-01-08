@@ -7,13 +7,14 @@ server for small or private networks, developed under the terms of the GNU
 General Public License ([GPL]); please see the file `COPYING` for licensing
 information.
 
-The server is quite easy to configure, can handle dynamic IP addresses, and
-optionally supports IDENT, IPv6 connections, SSL-protected links, and PAM for
-user authentication as well as character set conversion for legacy clients. The
-server has been written from scratch and is not based on the "forefather", the
-daemon of the IRCNet.
+The server is quite easy to configure and runs as a single-node server or can
+be part of a network of ngIRCd servers in a LAN or across the internet. It
+optionally supports the IPv6 protocol, SSL/TLS-protected client-server and
+server-server links, the Pluggable Authentication Modules (PAM) system for user
+authentication, IDENT requests, and character set conversion for legacy
+clients.
 
-The name ngIRCd means *next-generation IRC daemon*, which is a little bit
+The name ngIRCd stands for *next-generation IRC daemon*, which is a little bit
 exaggerated: *lightweight Internet Relay Chat server* most probably would have
 been a better name :-)
 
@@ -22,13 +23,16 @@ online available here: <https://ngircd.barton.de/doc/INSTALL.md>!
 
 ## Status
 
-The development of ngIRCd started back in 2001 and in the meantime it should be
-quite feature-complete and stable to be used as a daemon in real-world IRC
-networks.
+Development of *ngIRCd* started back in 2001: The server has been written from
+scratch in C, tries to follow all relevant standards, and is not based on the
+forefather, the daemon of the IRCNet.
 
 It is not the goal of ngIRCd to implement all the nasty behaviors of the
-original ircd, but to implement most of the useful commands and semantics
-specified by the RFCs that are used by existing clients.
+original `ircd` or corner-cases in the RFCs, but to implement most of the useful
+commands and semantics that are used by existing clients.
+
+*ngIRCd* is used as the daemon in real-world in-house and public IRC networks
+and included in the package repositories of various operating systems.
 
 ## Features (or: why use ngIRCd?)
 
@@ -41,13 +45,13 @@ specified by the RFCs that are used by existing clients.
 - No problems with servers that have dynamic IP addresses.
 - Freely available, modern, portable and tidy C source.
 - Wide field of supported platforms, including AIX, A/UX, FreeBSD, HP-UX,
-  IRIX, Linux, macOS, NetBSD, OpenBSD, Solaris, and Windows with Cygwin.
+  IRIX, Linux, macOS, NetBSD, OpenBSD, Solaris and Windows with WSL or Cygwin.
 
 ## Documentation
 
 The **homepage** of the ngIRCd project is <https://ngircd.barton.de>.
 
-Installation on ngIRCd is described in the file `INSTALL.md` in the source
+Installation of ngIRCd is described in the file `INSTALL.md` in the source
 directory; please see the file `doc/QuickStart.md` in the `doc/` directory for
 some configuration examples.
 
@@ -70,7 +74,7 @@ Please don't hesitate to contact us if you encounter problems:
 - On IRC: <irc://irc.barton.de/ngircd>
 - Via the mailing list: <ngircd-ml@ngircd.barton.de>
 
-See <http://ngircd.barton.de/support> for details.
+See <https://ngircd.barton.de/support> for details.
 
 If you find any bugs in ngIRCd (which most probably will be there ...), please
 report them to our issue tracker at GitHub:

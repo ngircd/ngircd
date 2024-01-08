@@ -386,7 +386,7 @@ standard locations.
   - `--with-gnutls[=<path>]`
 
   Enable support for SSL/TLS using OpenSSL or GnuTLS libraries.
-  See `doc/SSL.txt` for details.
+  See `doc/SSL.md` for details.
 
 - IPv6 (autodetected by default):
 

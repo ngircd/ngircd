@@ -34,7 +34,7 @@ static_docs = \
 	README-Interix.txt \
 	RFC.txt \
 	Services.txt \
-	SSL.txt
+	SSL.md
 
 doc_templates = sample-ngircd.conf.tmpl
 

@@ -120,3 +120,7 @@ with the `;` character), but it is a good idea to enable it whenever possible!
 
 And you can have as many *Operator blocks* as you like, configuring multiple
 different IRC Operators.
+
+## Configuring SSL/TLS Encryption
+
+Please see the file `SSL.md` for details.

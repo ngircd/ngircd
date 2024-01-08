@@ -1,4 +1,4 @@
-# [ngIRCd](https://ngircd.barton.de) - Internet Relay Chat Server
+# [ngIRCd](https://ngircd.barton.de) - Quick Start
 
 This *Quick Start* document explains how to configure ngIRCd, the lightweight
 Internet Relay Chat (IRC) server, using some "real world" scenarios.
@@ -11,7 +11,7 @@ simplest configuration file looks like this:
 ``` ini
 [Global]
 Name = irc.example.net
-````
+```
 
 This results in the following *warning* in the logs when starting the daemon:
 `No administrative information configured but required by RFC!` -- which works,
@@ -27,7 +27,7 @@ AdminEMail = admin@irc.example.net
 
 *Please Note*: The server `Name` looks like a DNS host name, but it is not: in
 fact it is not related to your server's fully qualified domain name (FQDN) in
-any way and can be an arbitrary string -- but which *must* contain at least
+any way and can be an arbitrary string -- but it *must* contain at least
 one dot (".") character!
 
 ## Add a Local IRC Operator

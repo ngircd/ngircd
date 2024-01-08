@@ -709,8 +709,6 @@ test -n "$LIBS_END" && LIBS="$LIBS $LIBS_END"
 AC_CONFIG_FILES([ \
 	Makefile \
 	contrib/Debian/Makefile \
-	contrib/MacOSX/Makefile \
-	contrib/MacOSX/ngIRCd.xcodeproj/Makefile \
 	contrib/Makefile \
 	doc/Makefile \
 	doc/src/Makefile \

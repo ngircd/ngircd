@@ -10,7 +10,7 @@
 	<string>de.barton.ngIRCd</string>
 	<key>ProgramArguments</key>
 	<array>
-		<string>:SBINDIR:/ngircd</string>
+		<string>/opt/ngircd/sbin/ngircd</string>
 		<string>--nodaemon</string>
 	</array>
 	<key>RunAtLoad</key>

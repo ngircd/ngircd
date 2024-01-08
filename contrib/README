@@ -2,7 +2,7 @@
                      ngIRCd - Next Generation IRC Server
                            http://ngircd.barton.de/
 
-               (c)2001-2020 Alexander Barton and Contributors.
+               (c)2001-2024 Alexander Barton and Contributors.
                ngIRCd is free software and published under the
                    terms of the GNU General Public License.
 
@@ -14,12 +14,11 @@ Debian/
 	- ngircd.init; ngircd.default: init script for Debian-based systems.
 	- ngircd.pam: example PAM configuration.
 
-MacOSX/
- - Project files for XCode, the "project builder" of Apple Mac OS X.
-	- de.barton.ngircd.plist[.tmpl]: launchd(8) property list.
-
 de.barton.ngircd.metainfo.xml
  - AppStream metadata file.
+
+de.barton.ngircd.plist[.tmpl]
+ - launchd(8) property list file.
 
 ngindent.sh
  - Script to indent the code of ngIRCd in the "standard way".

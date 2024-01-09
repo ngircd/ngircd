@@ -740,6 +740,13 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 			break;
 		/* --- Channel user modes --- */
 		case 'q': /* Owner */
+			if(!is_oper && !is_machine && !is_owner) {
+				connected = IRC_WriteErrClient(Origin,
+					ERR_CHANOPPRIVTOOLOW_MSG,
+					Client_ID(Origin),
+					Channel_Name(Channel));
+				goto chan_exit;
+			}
 		case 'a': /* Channel admin */
 			if(!is_oper && !is_machine && !is_owner && !is_admin) {
 				connected = IRC_WriteErrClient(Origin,

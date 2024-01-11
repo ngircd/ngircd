@@ -18,6 +18,21 @@ configuration examples.
 
 ## Upgrade Information
 
+This section lists important updates and breaking changes that you should be
+aware of *before* starting the upgrade:
+
+Differences to version 26
+
+- **Attention**:
+  Starting with release 27, ngIRCd validates SSL/TLS certificates on outgoing
+  server-server links by default and drops(!) connections when the remote
+  certificate is invalid (for example self-signed, expired, not matching the
+  host name, ...). Therefore you have to make sure that all relevant
+  *certificates are valid* (or to disable certificate validation on this
+  connection using the new `SSLVerify = false` setting in the affected
+  `[Server]` block, where the remote certificate is not valid and you can not
+  fix this issue).
+
 Differences to version 25
 
 - **Attention**:

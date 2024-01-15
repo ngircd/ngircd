@@ -353,11 +353,12 @@ standard locations.
   Enable support for SSL/TLS using OpenSSL or GnuTLS libraries.
   See `doc/SSL.txt` for details.
 
-- IPv6:
+- IPv6 (autodetected by default):
 
-  `--enable-ipv6`
+  `--enable-ipv6` / `--disable-ipv6`
 
-  Adds support for version 6 of the Internet Protocol.
+  Enable (disable) support for version 6 of the Internet Protocol, which should
+  be available on most modern UNIX-like operating systems by default.
 
 ## Configuration
 

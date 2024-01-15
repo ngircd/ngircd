@@ -1,6 +1,6 @@
 #
 # ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001-2014 Alexander Barton (alex@barton.de) and Contributors
+# Copyright (c)2001-2024 Alexander Barton (alex@barton.de) and Contributors
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -639,18 +639,24 @@ if test "$x_ircplus_on" = "yes"; then
 fi
 
 # enable support for IPv6?
-x_ipv6_on=no
+
+x_ipv6_on=yes
 AC_ARG_ENABLE(ipv6,
-	AS_HELP_STRING([--enable-ipv6],
-		       [enable IPv6 protocol support]),
-	if test "$enableval" = "yes"; then x_ipv6_on=yes; fi
+	AS_HELP_STRING([--disable-ipv6],
+		       [disable IPv6 protocol support (autodetected by default)]),
+	[	if test "$enableval" = "no"; then
+			x_ipv6_on=no
+		else
+			AC_CHECK_FUNCS(
+				[getaddrinfo getnameinfo],,
+				AC_MSG_ERROR([required function missing for IPv6 support!])
+			)
+		fi
+	],
+	[	AC_CHECK_FUNCS([getaddrinfo getnameinfo],, x_ipv6_on=no)
+	]
 )
 if test "$x_ipv6_on" = "yes"; then
-	# getaddrinfo() and getnameinfo() are optional when not compiling
-	# with IPv6 support, but are required for IPv6 to work!
-	AC_CHECK_FUNCS([ \
-		getaddrinfo getnameinfo \
-		],,AC_MSG_ERROR([required function missing for IPv6 support!]))
 	AC_DEFINE(WANT_IPV6, 1)
 fi
 

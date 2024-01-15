@@ -10,6 +10,10 @@
 
 ngIRCd 27
 
+  - Autodetect support for IPv6 by default: Until now, IPv6 support was disabled
+    by default, which seems a bit outdated in 2024. Note: You still can pass
+    "--enable-ipv6"/"--disable-ipv6" to the ./configure script to forcefully
+    activate or deactivate IPv6 support.
   - Update config.guess and config.sub to recent versions
   - Remove the unmaintained contrib/MacOSX/ folder: this includes the Xcode
     project as well as the outdated macOS "Package Maker" configuration. The

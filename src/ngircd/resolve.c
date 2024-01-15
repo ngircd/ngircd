@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2014 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2024 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@
 
 #include "resolve.h"
 
-static void Do_ResolveAddr PARAMS(( const ng_ipaddr_t *Addr, int Sock, int w_fd ));
+static void Do_ResolveAddr_Ident PARAMS(( const ng_ipaddr_t *Addr, int Sock, int w_fd ));
 static void Do_ResolveName PARAMS(( const char *Host, int w_fd ));
 
 #ifdef WANT_IPV6
@@ -52,11 +52,11 @@ extern bool Conf_ConnectIPv6;
 
 
 /**
- * Resolve IP (asynchronous!).
+ * Resolve IP address and do IDENT lookup asynchronously.
  */
 GLOBAL bool
-Resolve_Addr(PROC_STAT * s, const ng_ipaddr_t *Addr, int identsock,
-	     void (*cbfunc) (int, short))
+Resolve_Addr_Ident(PROC_STAT * s, const ng_ipaddr_t *Addr, int identsock,
+		   void (*cbfunc) (int, short))
 {
 	int pipefd[2];
 	pid_t pid;
@@ -71,7 +71,7 @@ Resolve_Addr(PROC_STAT * s, const ng_ipaddr_t *Addr, int identsock,
 		/* Sub process */
 		Log_Init_Subprocess("Resolver");
 		Conn_CloseAllSockets(identsock);
-		Do_ResolveAddr(Addr, identsock, pipefd[1]);
+		Do_ResolveAddr_Ident(Addr, identsock, pipefd[1]);
 		Log_Exit_Subprocess("Resolver");
 		exit(0);
 	}
@@ -356,7 +356,7 @@ ArrayWrite(int fd, const array *a)
 
 
 static void
-Do_ResolveAddr(const ng_ipaddr_t *Addr, int identsock, int w_fd)
+Do_ResolveAddr_Ident(const ng_ipaddr_t *Addr, int identsock, int w_fd)
 {
 	/* Resolver sub-process: resolve IP address and write result into
 	 * pipe to parent. */
@@ -365,8 +365,15 @@ Do_ResolveAddr(const ng_ipaddr_t *Addr, int identsock, int w_fd)
 	size_t len;
 	array resolved_addr;
 
+	hostname[0] = '\0';
 	array_init(&resolved_addr);
 	ng_ipaddr_tostr_r(Addr, tmp_ip_str);
+
+	/* Skip DNS lookup when DNS is disabled; just return an empty ("") host
+	 * name but still issue an IDENT query, if supported and enabled. */
+	if (!Conf_DNS)
+		goto dns_done;
+
 	Log_Subprocess(LOG_DEBUG, "Now resolving %s ...", tmp_ip_str);
 	if (!ReverseLookup(Addr, hostname, sizeof(hostname)))
 		goto dns_done;
@@ -397,7 +404,7 @@ Do_ResolveAddr(const ng_ipaddr_t *Addr, int identsock, int w_fd)
 	ArrayWrite(w_fd, &resolved_addr);
 
 	array_free(&resolved_addr);
-} /* Do_ResolveAddr */
+} /* Do_ResolveAddr_Ident */
 
 
 static void

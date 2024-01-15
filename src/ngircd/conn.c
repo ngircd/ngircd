@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2019 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2024 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1485,10 +1485,6 @@ Conn_StartLogin(CONN_ID Idx)
 
 	assert(Idx >= 0);
 
-	/* Nothing to do if DNS (and resolver subprocess) is disabled */
-	if (!Conf_DNS)
-		return;
-
 #ifdef IDENTAUTH
 	/* Should we make an IDENT request? */
 	if (Conf_Ident)
@@ -1498,13 +1494,21 @@ Conn_StartLogin(CONN_ID Idx)
 	if (Conf_NoticeBeforeRegistration) {
 		/* Send "NOTICE *" messages to the client */
 #ifdef IDENTAUTH
-		if (Conf_Ident)
-			(void)Conn_WriteStr(Idx,
-				"NOTICE * :*** Looking up your hostname and checking ident");
-		else
+		if (Conf_Ident) {
+			if (Conf_DNS)
+				(void)Conn_WriteStr(Idx,
+					"NOTICE * :*** Looking up your hostname and checking ident");
+			else
+				(void)Conn_WriteStr(Idx,
+					"NOTICE * :*** Checking ident");
+		} else
 #endif
+		if(Conf_DNS)
 			(void)Conn_WriteStr(Idx,
 				"NOTICE * :*** Looking up your hostname");
+		else
+			(void)Conn_WriteStr(Idx,
+				"NOTICE * :*** Processing your connection");
 		/* Send buffered data to the client, but break on errors
 		 * because Handle_Write() would have closed the connection
 		 * again in this case! */
@@ -1512,8 +1516,9 @@ Conn_StartLogin(CONN_ID Idx)
 			return;
 	}
 
-	Resolve_Addr(&My_Connections[Idx].proc_stat, &My_Connections[Idx].addr,
-		     ident_sock, cb_Read_Resolver_Result);
+	Resolve_Addr_Ident(&My_Connections[Idx].proc_stat,
+			   &My_Connections[Idx].addr,
+			   ident_sock, cb_Read_Resolver_Result);
 }
 
 /**
@@ -2298,13 +2303,16 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 	 * the resolver results, so we don't have to worry to override settings
 	 * from these commands here. */
 	if(Client_Type(c) == CLIENT_UNKNOWN) {
-		strlcpy(My_Connections[i].host, readbuf,
-			sizeof(My_Connections[i].host));
-		Client_SetHostname(c, readbuf);
-		if (Conf_NoticeBeforeRegistration)
-			(void)Conn_WriteStr(i,
+		if (readbuf[0]) {
+			/* We got a hostname */
+			strlcpy(My_Connections[i].host, readbuf,
+				sizeof(My_Connections[i].host));
+			Client_SetHostname(c, readbuf);
+			if (Conf_NoticeBeforeRegistration)
+				(void)Conn_WriteStr(i,
 					"NOTICE * :*** Found your hostname: %s",
 					My_Connections[i].host);
+		}
 #ifdef IDENTAUTH
 		++identptr;
 		if (*identptr) {

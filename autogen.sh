@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001-2015 Alexander Barton (alex@barton.de) and Contributors
+# Copyright (c)2001-2024 Alexander Barton (alex@barton.de) and Contributors
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -60,15 +60,42 @@
 #   and runs it with these arguments: "./configure --prefix=$HOME".
 #
 
+Check_Tool()
+{
+	searchlist="$1"
+	major="$2"
+	minor="$3"
+
+	for name in $searchlist; do
+		$EXIST "${name}${major}${minor}" >/dev/null 2>&1
+		if [ $? -eq 0 ]; then
+			echo "${name}${major}${minor}"
+			return 0
+		fi
+		$EXIST "${name}-${major}.${minor}" >/dev/null 2>&1
+		if [ $? -eq 0 ]; then
+			echo "${name}-${major}.${minor}"
+			return 0
+		fi
+	done
+	return 1
+}
+
 Search()
 {
-	[ $# -eq 2 ] || exit 1
+	[ $# -lt 2 ] && return 1
+	[ $# -gt 3 ] && return 1
 
 	searchlist="$1"
 	major="$2"
+	minor_pref="$3"
 	minor=99
 
 	[ -n "$PREFIX" ] && searchlist="${PREFIX}/$1 ${PREFIX}/bin/$1 $searchlist"
+
+	if [ -n "$minor_pref" ]; then
+		Check_Tool "$searchlist" "$major" "$minor_pref" && return 0
+	fi
 
 	for name in $searchlist; do
 		$EXIST "${name}" >/dev/null 2>&1
@@ -83,18 +110,7 @@ Search()
 	done
 
 	while [ $minor -ge 0 ]; do
-		for name in $searchlist; do
-			$EXIST "${name}${major}${minor}" >/dev/null 2>&1
-			if [ $? -eq 0 ]; then
-				echo "${name}${major}${minor}"
-				return 0
-			fi
-			$EXIST "${name}-${major}.${minor}" >/dev/null 2>&1
-			if [ $? -eq 0 ]; then
-				echo "${name}-${major}.${minor}"
-				return 0
-			fi
-		done
+		Check_Tool "$searchlist" "$major" "$minor" && return 0
 		minor=$(expr $minor - 1)
 	done
 	return 1
@@ -140,11 +156,11 @@ fi
 # Try to detect the needed tools when no environment variable already
 # specifies one:
 echo "Searching for required tools ..."
-[ -z "$ACLOCAL" ] && ACLOCAL=$(Search aclocal 1)
+[ -z "$ACLOCAL" ] && ACLOCAL=$(Search aclocal 1 11)
 [ "$VERBOSE" = "1" ] && echo " - ACLOCAL=$ACLOCAL"
 [ -z "$AUTOHEADER" ] && AUTOHEADER=$(Search autoheader 2)
 [ "$VERBOSE" = "1" ] && echo " - AUTOHEADER=$AUTOHEADER"
-[ -z "$AUTOMAKE" ] && AUTOMAKE=$(Search automake 1)
+[ -z "$AUTOMAKE" ] && AUTOMAKE=$(Search automake 1 11)
 [ "$VERBOSE" = "1" ] && echo " - AUTOMAKE=$AUTOMAKE"
 [ -z "$AUTOCONF" ] && AUTOCONF=$(Search autoconf 2)
 [ "$VERBOSE" = "1" ] && echo " - AUTOCONF=$AUTOCONF"

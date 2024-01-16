@@ -10,6 +10,11 @@
 
 ngIRCd 27
 
+  - autogen.sh: Prefere automake 1.11 over other releases because this is the
+    last release supporting "de-ANSI-fication" using the included ansi2knr tool.
+    And becuase we _want_ to support old K&R platforms, we try hard to use this
+    release of automake when available to generate our build system.
+    Note: This is only relevant for you if you are building from Git sources.
   - Autodetect support for IPv6 by default: Until now, IPv6 support was disabled
     by default, which seems a bit outdated in 2024. Note: You still can pass
     "--enable-ipv6"/"--disable-ipv6" to the ./configure script to forcefully

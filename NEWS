@@ -8,6 +8,108 @@
 
                                   -- NEWS --
 
+ngIRCd 27
+
+  ngIRCd 27~rc1
+  - Validate certificates on server links. Up to now, ngIRCd optionally used
+    SSL/TLS encrypted server-server links but never checked and validated any
+    certificates. Now ngIRCd validates SSL/TLS certificates on outgoing
+    server-server links by default and drops(!) connections when the remote
+    certificate is invalid (for example self-signed, expired, not matching the
+    host name, ...). Therefore you have to make sure that all relevant
+    *certificates are valid* (or to disable certificate validation on this
+    connection using the new `SSLVerify = false` setting in the affected
+    `[Server]` block, where the remote certificate is not valid and you can not
+    fix this issue).
+    The original patch for OpenSSL dates back to 2009 and was written by Florian
+    Westphal and was extended for GnuTLS in 2014 by Christoph Biedl. But it took
+    us another 10 years to bring it to life ... oh my! Many thanks to both
+    Florian and Christoph!
+    Closes #120.
+  - Add support for the "sd_notify" protocol of systemd(8): Periodically
+    "ping" the service manager (every 3 seconds) and set a status message
+    showing current connection statistics which then is included in "systemctl
+    status ngircd.service" output. In addition, this enables using the
+    systemd(8) watchdog functionality ("WatchdogSec") for the "ngircd.service"
+    unit and allows it to use the "notify" service type, which results in
+    better status tracking by the service manager.
+  - Try to set file descriptor limit to its maximum and show info on startup:
+    The number of possible parallel connections is limited by the file
+    descriptor limit of the process (among other things). Therefore try to
+    upgrade the current "soft" limit to its "hard" maximum (but limited to
+    100000 instead of "infinite"), and show an information or even warning when
+    the limit is still less than the configured "MaxConnections" setting. Please
+    note that ngIRCd and its linked libraries (like PAM) need file descriptors
+    not only for incoming and outgoing IRC connections, but for reading files
+    and inter-process communication, too! Therefore the actual connection limit
+    is less(!) than the file descriptor limit!
+  - Add a "Docker file" (contrib/Dockerfile) and corresponding documentation
+    (doc/Container.md) to the project. The resulting container is based on the
+    latest Debian "stable-slim" container and built using a "build container".
+  - No longer use a default built-in value for the "IncludeDir" directive when
+    a configuration file was explicitly specified on the command line using
+    "--config"/"-f": This way no default include directory is scanned when a
+    possibly non-default configuration file is used which (intentionally) did
+    not specify an "IncludeDir" directive. So now you can use "-f /dev/null"
+    for checking all built-in defaults, regardless of any local configuration
+    files in the default drop-in directory (which would have been read in
+    until this change).
+  - The server "Name" in the "[Global]" section of the configuration file no
+    longer needs to be set: When not set (or empty), ngIRCd now tries to
+    deduce a valid IRC server name from the local host name ("node name"),
+    possibly adding a ".host" extension when the host name does not contain a
+    dot (".") which is required in an IRC server name ("ID").
+    This new behavior, with all configuration parameters now being optional,
+    allows running ngIRCd without any configuration file at all.
+  - Autodetect support for IPv6 by default: Until now, IPv6 support was disabled
+    by default, which seems a bit outdated in 2024. Note: You still can pass
+    "--enable-ipv6"/"--disable-ipv6" to the ./configure script to forcefully
+    activate or deactivate IPv6 support.
+  - Do IDENT requests even when DNS lookups are disabled: Up to now disabling
+    DNS in the configuration disabled IDENT lookups as well (for no good
+    reason). Now you can activate/deactivate DNS lookups and IDENT requests
+    completely separately. Thanks for reporting this, Miniontoby!
+    Closes #291.
+  - Allow SSL client-only configurations without keys/certificates: You don't
+    need to configure certificates/keys as long as you don't configure
+    SSL-enabled listening ports. This can make sense when you want to only link
+    your local daemon to an uplink server using SSL and only have clients on
+    your local host or in your fully trusted network, where SSL is not required.
+  - Respect "SSLConnect" option for incoming connections and do not accept
+    incoming plain-text ("non SSL") server connections for servers configured
+    with "SSLConnect" enabled. This change prevents an authenticated
+    client-server being able to force the server-server to send its password
+    on a plain-text connection when SSL/TLS was intended.
+  - Add a new option "Autojoin" to [Channel] blocks: When it is set, ngIRCd
+    automatically joins all local users to this channel on connect. Note: The
+    users must have permissions to access the channel, otherwise joining them
+    will fail!
+    Thanks Ivan Agarkov <i_agarkov@wargaming.net> for the initial patch!
+  - Hide invisible (+i) users on "WHOIS <pattern>": Let's behave like most(?)
+    other IRC daemons (at least ircd2.11) and hide all +i users when WHOIS is
+    used with a pattern. Otherwise privacy of this users is not guaranteed and
+    the +i mode a bit useless ...
+    Reported by Cahata on #ngircd, thanks!
+  - Make the debug log level ("--debug"/-"d" command line option) always
+    available, not only when ./configure'd with "--enable-debug": the latter
+    now only enables additional checks (like the tests done using assert(2))
+    and is signalled by adding "+DEBUG" to the version "feature string". This
+    change enables everyone to get even more detailed logging when required.
+  - Allow IRC Operators to use the WHO command on any channel.
+  - Send the NAMES list and channel topic to users "forcefully" joined to a
+    channel using NJOIN, like they joined on their own using JOIN, and
+    streamline the order of NAMES list and channel topic messages.
+    Closes #288.
+  - Added a new command line option "-y"/"--syslog", with which logging to
+    syslog can be activated/deactivated separately from running on the console
+    (using "--nodaemon") or in the background.
+    Thanks Katherine Peeters for the patch and pull request!
+    Closes #294.
+  - Update, enhance and extend our documentation in README.md, INSTALL.md,
+    doc/HowToRelease.txt and the manual pages ngircd(8) and ngircd.conf(5), add
+    a new doc/QuickStart.md document, and convert some more documentation files
+    to Markdown (AUTHORS.md, contrib/README.md, doc/FAQ.md, doc/SSL.md).
+
 ngIRCd 26.1 (2021-01-02)
 
   - This release is a bugfix release only, without new features.
@@ -51,7 +153,7 @@ ngIRCd 26 (2020-06-20)
     "error" before). Exit with code 2 ("command line error") for all other
     invalid command line options, and show the error message itself on stderr
     (instead of stdout and exit code 1, "generic error", as before).
-    This new behaviour is more in line with the GNU "coding standards",
+    This new behavior is more in line with the GNU "coding standards",
     see <https://www.gnu.org/prep/standards/html_node/_002d_002dhelp.html>.
   - Add ./contrib/nglog.sh: This script parses the log output of ngircd(8),
     and colorizes the messages according to their log level. Example usage:

@@ -10,6 +10,51 @@
 
 ngIRCd 27
 
+  ngIRCd 27~rc1
+  - Validate certificates on server links. Up to now, ngIRCd optionally used
+    SSL/TLS encrypted server-server links but never checked and validated any
+    certificates. Now ngIRCd validates SSL/TLS certificates on outgoing
+    server-server links by default and drops(!) connections when the remote
+    certificate is invalid (for example self-signed, expired, not matching the
+    host name, ...). Therefore you have to make sure that all relevant
+    *certificates are valid* (or to disable certificate validation on this
+    connection using the new `SSLVerify = false` setting in the affected
+    `[Server]` block, where the remote certificate is not valid and you can not
+    fix this issue).
+    The original patch for OpenSSL dates back to 2009 and was written by Florian
+    Westphal and was extended for GnuTLS in 2014 by Christoph Biedl. But it took
+    us another 10 years to bring it to life ... oh my! Many thanks to both
+    Florian and Christoph!
+    Closes #120.
+  - Add support for the "sd_notify" protocol of systemd(8): Periodically
+    "ping" the service manager (every 3 seconds) and set a status message
+    showing current connection statistics which then is included in "systemctl
+    status ngircd.service" output. In addition, this enables using the
+    systemd(8) watchdog functionality ("WatchdogSec") for the "ngircd.service"
+    unit and allows it to use the "notify" service type, which results in
+    better status tracking by the service manager.
+  - Try to set file descriptor limit to its maximum and show info on startup:
+    The number of possible parallel connections is limited by the file
+    descriptor limit of the process (among other things). Therefore try to
+    upgrade the current "soft" limit to its "hard" maximum (but limited to
+    100000 instead of "infinite"), and show an information or even warning when
+    the limit is still less than the configured "MaxConnections" setting. Please
+    note that ngIRCd and its linked libraries (like PAM) need file descriptors
+    not only for incoming and outgoing IRC connections, but for reading files
+    and inter-process communication, too! Therefore the actual connection limit
+    is less(!) than the file descriptor limit!
+  - Update and fix the logcheck(8) rules file.
+  - METADATA: Fix unsetting the "cloakhost" hostname, which did not result in
+    the original hostname being restored, but actually resulted in an empty
+    string being used as the client hostname -- which is a protocol violation.
+  - Update the "rpm" make target to use the rpmbuild(8) command.
+  - Add a "Docker file" (contrib/Dockerfile) and corresponding documentation
+    (doc/Container.md) to the project. The resulting container is based on the
+    latest Debian "stable-slim" container and built using a "build container".
+  - Remove outdated, unsupported and broken support for splint(1).
+  - Don't show the default config file name on config errors: The configuration
+    can be set in drop-in files in the include directory, too, so it is not
+    clear in which file it is actually missing.
   - No longer use a default built-in value for the "IncludeDir" directive when
     a configuration file was explicitly specified on the command line using
     "--config"/"-f": This way no default include directory is scanned when a
@@ -18,13 +63,15 @@ ngIRCd 27
     for checking all built-in defaults, regardless of any local configuration
     files in the default drop-in directory (which would have been read in
     until this change).
+  - No longer log channel keys ("passwords") for predefined channels.
   - The server "Name" in the "[Global]" section of the configuration file no
     longer needs to be set: When not set (or empty), ngIRCd now tries to
     deduce a valid IRC server name from the local host name ("node name"),
     possibly adding a ".host" extension when the host name does not contain a
     dot (".") which is required in an IRC server name ("ID").
-    This new behaviour, with all configuration parameters now being optional,
+    This new behavior, with all configuration parameters now being optional,
     allows running ngIRCd without any configuration file at all.
+  - Silence some compiler warnings.
   - autogen.sh: Prefer automake 1.11 over other releases because this is the
     last release supporting "de-ANSI-fication" using the included ansi2knr tool.
     And because we _want_ to support old K&R platforms, we try hard to use this
@@ -34,14 +81,25 @@ ngIRCd 27
     by default, which seems a bit outdated in 2024. Note: You still can pass
     "--enable-ipv6"/"--disable-ipv6" to the ./configure script to forcefully
     activate or deactivate IPv6 support.
-  - Update config.guess and config.sub to recent versions
+  - Do IDENT requests even when DNS lookups are disabled: Up to now disabling
+    DNS in the configuration disabled IDENT lookups as well (for no good
+    reason). Now you can activate/deactivate DNS lookups and IDENT requests
+    completely separately. Thanks for reporting this, Miniontoby!
+    Closes #291.
+  - Update config.guess (2023-08-22) and config.sub (2023-09-19) files.
+  - Fix Channel Admins being able to to set Channel Owner status! "Sarah"
+    reported this back in April 2021 and proposed a patch, thanks a lot!
+  - Test suite: Update for OpenSSL 3.x, some command outputs changed, clean up
+    shell scripts and make the getpid.sh script more robust.
+  - Allow SSL client-only configurations without keys/certificates: You don't
+    need to configure certificates/keys as long as you don't configure
+    SSL-enabled listening ports. This can make sense when you want to only link
+    your local daemon to an uplink server using SSL and only have clients on
+    your local host or in your fully trusted network, where SSL is not required.
   - Remove the unmaintained contrib/MacOSX/ folder: this includes the Xcode
     project as well as the outdated macOS "Package Maker" configuration. The
     sample launchd(8) configuration properties list file was moved to
     "contrib/de.barton.ngircd.plist" and kept.
-  - Fix Channel Admins being able to to set Channel Owner status! "Sarah"
-    reported this back in April 2021 and proposed a patch, thanks a lot!
-  - Test suite: Update for OpenSSL 3.x, some command outputs changed.
   - Fix showing the "Ident" option in "--configtest" output which was never
     shown because of a coding error. Whoops!
   - Change GnuTLS "slot handling" messages to debug level: Those messages are
@@ -49,25 +107,33 @@ ngIRCd 27
     of ngIRCd.
   - Enlarge buffer for log messages: For example, SSL/TLS certificate
     information can easily get longer than 256 characters. So enlarge the log
-    buffer to 1 KB.
+    buffer to 1 KB to avoid cutting off relevant information.
   - Respect "SSLConnect" option for incoming connections and do not accept
     incoming plain-text ("non SSL") server connections for servers configured
     with "SSLConnect" enabled. This change prevents an authenticated
     client-server being able to force the server-server to send its password
     on a plain-text connection when SSL/TLS was intended.
+  - Always try to close a connection with errors immediately, but try hard
+    to avoid too much recursion. Without this patch, an outgoing server
+    connection could get stuck in an "endless" state trying to write out data
+    over and over again.
   - Add "hopm.service" to "Wants" and "Before" dependencies in the sample
     systemd unit file (Hopm is the successor of Bopm).
+  - Update Debian package configuration using current "dh_make", package
+    dependencies and build rules. And no longer build 3 different versions,
+    only build "ngircd" which now includes support for IDENT, PAM (disabled in
+    the ngircd.conf installed by the package), SSL (OpenSSL), ZLib and IPv6.
   - Return ERR_NOTEXTTOSEND on empty PRIVMSG content, which matches the
-    behaviour of other servers.
+    behavior of other servers.
   - Add a new option "Autojoin" to [Channel] blocks: When it is set, ngIRCd
     automatically joins all local users to this channel on connect. Note: The
     users must have permissions to access the channel, otherwise joining them
     will fail!
     Thanks Ivan Agarkov <i_agarkov@wargaming.net> for the initial patch!
-  - Hide +i users on "WHOIS <pattern>": Let's behave like most(?) other IRC
-    daemons (at least ircd2.11) and hide all +i users when WHOIS is used with a
-    pattern. Otherwise privacy of this users is not guaranteed and the +i mode
-    a bit useless ...
+  - Hide invisible (+i) users on "WHOIS <pattern>": Let's behave like most(?)
+    other IRC daemons (at least ircd2.11) and hide all +i users when WHOIS is
+    used with a pattern. Otherwise privacy of this users is not guaranteed and
+    the +i mode a bit useless ...
     Reported by Cahata on #ngircd, thanks!
   - Update the final "closing connection" message: Add some more information
     like nick name, user name, host name and bring it in line with some other
@@ -77,15 +143,18 @@ ngIRCd 27
     Closes #307.
   - Enhance some log messages, for example for errors when accepting new
     connections.
-  - Add "+DEBUG" to the version "feature string" only when the daemon is
-    ./configure'd and build with "--enable-debug".
+  - Make the debug log level ("--debug"/-"d" command line option) always
+    available, not only when ./configure'd with "--enable-debug": the latter
+    now only enables additional checks (like the tests done using assert(2))
+    and is signalled by adding "+DEBUG" to the version "feature string". This
+    change enables everyone to get even more detailed logging when required.
   - Always report an error when a parameter is missing in a channel "MODE +k"
     or "MODE +l" command, and better validate their parameters: return the new
     numeric ERR_INVALIDMODEPARAM_MSG(696) on errors.
-    Thanks Val Lorentz for reporting it!
+    Thanks Val Lorentz for reporting this!
     Closes #290.
   - Allow IRC Operators to use the WHO command on any channel.
-  - No longer use Travis-CI, add configuration for "ngIRCd CI" GitHub Action.
+  - Add configuration for "ngIRCd CI" GitHub Action, no longer use Travis-CI.
   - Send the NAMES list and channel topic to users "forcefully" joined to a
     channel using NJOIN, like they joined on their own using JOIN, and
     streamline the order of NAMES list and channel topic messages.
@@ -93,14 +162,17 @@ ngIRCd 27
   - Fix (invalid) error messages when setting modes on local channels which
     are defined in the configuration file.
   - Fix handling of G-Lines/K-Lines with cloaked host names.
-  - Add new "-y"/"--syslog" command line option to allow logging to syslog to
-    be enabled/disabled separately from running on the console ("--nodaemon")
-    or in the background.
+  - Streamline logging of debug messages.
+  - Added a new command line option "-y"/"--syslog", with which logging to
+    syslog can be activated/deactivated separately from running on the console
+    (using "--nodaemon") or in the background.
     Thanks Katherine Peeters for the patch and pull request!
     Closes #294.
   - Fix a possible race condition while introducing new clients in the network.
-  - Update and enhance our documentation a bit (README.md, INSTALL.md), add
-    doc/QuickStart.md, convert some more files to Markdown (SSL.md, FAQ.md).
+  - Update, enhance and extend our documentation in README.md, INSTALL.md,
+    doc/HowToRelease.txt and the manual pages ngircd(8) and ngircd.conf(5), add
+    a new doc/QuickStart.md document, and convert some more documentation files
+    to Markdown (AUTHORS.md, contrib/README.md, doc/FAQ.md, doc/SSL.md).
 
 ngIRCd 26.1 (2021-01-02)
 
@@ -216,7 +288,7 @@ ngIRCd 26 (2020-06-20)
     "error" before). Exit with code 2 ("command line error") for all other
     invalid command line options, and show the error message itself on stderr
     (instead of stdout and exit code 1, "generic error", as before).
-    This new behaviour is more in line with the GNU "coding standards",
+    This new behavior is more in line with the GNU "coding standards",
     see <https://www.gnu.org/prep/standards/html_node/_002d_002dhelp.html>.
   - Fix and update Xcode project: Reference correct contrib/Makefile.am file,
     correctly sort contrib/nglog.sh and add "ORGANIZATIONNAME" setting.

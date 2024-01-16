@@ -61,6 +61,7 @@ Or join the "#ngircd" channel in IRC on irc.barton.de:
 - Sam James <sam@cmpct.info>
 - Scott Perry <scperry@ucsd.edu>
 - Sean Reifschneider <jafo-rpms@tummy.com>
+- Sebastian Andrzej Siewior <sebastian@breakpoint.cc>
 - Sebastian Köhler <sebkoehler@whoami.org.uk>
 - shankari <shankari@eecs.berkeley.edu>
 - Tassilo Schweyer <dev@welterde.de>

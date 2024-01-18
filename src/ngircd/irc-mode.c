@@ -575,6 +575,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 					Client_ID(Origin), Channel_Name(Channel));
 				goto chan_exit;
 			}
+			/* fall through */
 		case 'i': /* Invite only */
 		case 'V': /* Invite disallow */
 		case 'M': /* Only identified nicks can write */
@@ -747,6 +748,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 					Channel_Name(Channel));
 				goto chan_exit;
 			}
+			/* fall through */
 		case 'a': /* Channel admin */
 			if(!is_oper && !is_machine && !is_owner && !is_admin) {
 				connected = IRC_WriteErrClient(Origin,
@@ -755,6 +757,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 					Channel_Name(Channel));
 				goto chan_exit;
 			}
+			/* fall through */
 		case 'o': /* Channel operator */
 			if(!is_oper && !is_machine && !is_owner &&
 			   !is_admin && !is_op) {
@@ -764,6 +767,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 					Channel_Name(Channel));
 				goto chan_exit;
 			}
+			/* fall through */
 		case 'h': /* Half Op */
 			if(!is_oper && !is_machine && !is_owner &&
 			   !is_admin && !is_op) {
@@ -773,6 +777,7 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 					Channel_Name(Channel));
 				goto chan_exit;
 			}
+			/* fall through */
 		case 'v': /* Voice */
 			if (arg_arg > mode_arg) {
 				if (is_oper || is_machine || is_owner ||

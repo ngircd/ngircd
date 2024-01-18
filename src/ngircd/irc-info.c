@@ -910,7 +910,7 @@ IRC_STATS( CLIENT *Client, REQUEST *Req )
 		if (!Op_Check(from, Req))
 			return Op_NoPrivileges(from, Req);
 		more_links = true;
-
+		/* fall through */
 	case 'l':	/* Link status (servers and own link) */
 		time_now = time(NULL);
 		for (con = Conn_First(); con != NONE; con = Conn_Next(con)) {

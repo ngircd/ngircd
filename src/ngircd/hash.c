@@ -108,16 +108,27 @@ jenkins_hash(UINT8 *k, UINT32 length, UINT32 initval)
 
 	{
 		case 12: c+=((UINT32)k[11])<<24;
+		/* fall through */
 		case 11: c+=((UINT32)k[10]<<16);
+		/* fall through */
 		case 10: c+=((UINT32)k[9]<<8);
+		/* fall through */
 		case 9 : c+=k[8];
+		/* fall through */
 		case 8 : b+=((UINT32)k[7]<<24);
+		/* fall through */
 		case 7 : b+=((UINT32)k[6]<<16);
+		/* fall through */
 		case 6 : b+=((UINT32)k[5]<<8);
+		/* fall through */
 		case 5 : b+=k[4];
+		/* fall through */
 		case 4 : a+=((UINT32)k[3]<<24);
+		/* fall through */
 		case 3 : a+=((UINT32)k[2]<<16);
+		/* fall through */
 		case 2 : a+=((UINT32)k[1]<<8);
+		/* fall through */
 		case 1 : a+=k[0];
 			 break;
 		case 0 : return c;

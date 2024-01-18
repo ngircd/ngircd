@@ -125,6 +125,18 @@ main(int argc, char **argv)
 	])
 ])
 
+AC_DEFUN([GCC_W_NO_FORMAT_TRUNC],[
+	result=yes
+	AC_MSG_CHECKING([whether ${CC} accepts -Wno-format-truncation])
+	old_cflags="$CFLAGS"
+	CFLAGS="$CFLAGS -Wno-format-truncation"
+	AC_LINK_IFELSE([AC_LANG_PROGRAM([],[])],[],[result=no])
+	echo $result
+	if test "X$result" = "Xno"; then
+		CFLAGS="$old_cflags"
+	fi
+])
+
 # -- Hard coded system and compiler dependencies/features/options ... --
 
 if test "$GCC" = "yes"; then
@@ -132,6 +144,7 @@ if test "$GCC" = "yes"; then
 	CFLAGS="$CFLAGS -pipe -W -Wall -Wpointer-arith -Wstrict-prototypes"
 
 	GCC_STACK_PROTECT_CC
+	GCC_W_NO_FORMAT_TRUNC
 fi
 
 case "$host_os" in

@@ -1,0 +1,10 @@
+# Watch control file for uscan.
+# See uscan(1) for format.
+
+# Compulsory line, this is a version 4 file.
+version=4
+
+# PGP signature mangle, so foo.tar.gz has foo.tar.gz.sig.
+opts="pgpsigurlmangle=s%$%.sig%"
+
+https://arthur.barton.de/pub/@PACKAGE@/@PACKAGE@-([0-9\.]+)@ARCHIVE_EXT@

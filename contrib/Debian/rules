@@ -1,237 +1,65 @@
 #!/usr/bin/make -f
-#
-# ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001-2016 Alexander Barton (alex@barton.de) and Contributors
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-# Please read the file COPYING, README and AUTHORS for more information.
-#
-# debian/rules for ngIRCd
-#
-# Based on the sample debian/rules that uses debhelper,
-# GNU copyright 1997 to 1999 by Joey Hess.
-#
 
-# Uncomment this to turn on verbose mode.
-#export DH_VERBOSE=1
+# See FEATURE AREAS in dpkg-buildflags(1).
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 
-# These are used for cross-compiling and for saving the configure script
-# from having to guess our platform (since we know it already)
-DEB_HOST_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
-DEB_BUILD_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
+%:
+	dh $@
 
-CFLAGS = -Wall -g
+# Disable dh_autoreconf since we are using de-ANSI-fication which was removed
+# from automake a while ago. See <https://github.com/ngircd/ngircd/issues/261>.
+override_dh_autoreconf:
 
-ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
-	CFLAGS += -O0
-else
-	CFLAGS += -O2
-endif
-ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
-	INSTALL_PROGRAM += -s
-endif
+override_dh_auto_configure:
+	dh_auto_configure -- \
+	    --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) \
+	    --prefix=/usr \
+	    --mandir=\$${prefix}/share/man \
+	    --sysconfdir=/etc/ngircd \
+	    --with-iconv \
+	    --with-ident \
+	    --with-openssl \
+	    --with-pam \
+	    --with-syslog \
+	    --with-zlib
 
-configure-ngircd: configure
-	dh_testdir
+execute_before_dh_auto_install:
+	ln -fs $(CURDIR)/contrib/ngircd.service $(CURDIR)/debian/ngircd.service
 
-	# configure "standard" variant:
-	./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) \
-	  --prefix=/usr \
-	  --sysconfdir=/etc/ngircd \
-	  --mandir=\$${prefix}/share/man \
-	  --docdir=\$${prefix}/share/doc/ngircd \
-	  --with-syslog --with-zlib
+execute_after_dh_auto_install:
+#	Generate the default ngircd.conf:
+	install -o root -g irc -m 0640 -D /dev/null \
+	 $(CURDIR)/debian/ngircd/etc/ngircd/ngircd.conf
+	sed \
+	 -e "s|;ServerUID = 65534|ServerUID = irc|g" \
+	 -e "s|;ServerGID = 65534|ServerGID = irc|g" \
+	 -e "s|;PidFile = /var/run/ngircd/ngircd.pid|PidFile = /run/ircd/ngircd.pid|g" \
+	 -e "s|;PAM = yes|PAM = no|g" \
+	 $(CURDIR)/debian/ngircd/usr/share/doc/ngircd/sample-ngircd.conf \
+	 >>$(CURDIR)/debian/ngircd/etc/ngircd/ngircd.conf
 
-configure-ngircd-full: configure
-	dh_testdir
+#	Create drop-in configuration directory:
+	install -o root -g irc -m 0750 -d \
+	 $(CURDIR)/debian/ngircd/etc/ngircd/ngircd.conf.d
 
-	# configure "full" variant:
-	./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) \
-	  --prefix=/usr \
-	  --sysconfdir=/etc/ngircd \
-	  --mandir=\$${prefix}/share/man \
-	  --docdir=\$${prefix}/share/doc/ngircd-full \
-	  --with-syslog --with-zlib \
-	  --with-openssl --with-iconv --with-ident --with-tcp-wrappers \
-	  --with-pam \
-	  --enable-ipv6
+#	Install an empty MOTD file.
+	install -o root -g irc -m 0640 -D /dev/null \
+	 $(CURDIR)/debian/ngircd/etc/ngircd/ngircd.motd
 
-configure-ngircd-full-dbg: configure
-	dh_testdir
+#	Install the logcheck(8) configuration.
+	install -o root -g root -m 0644 -D \
+	 $(CURDIR)/contrib/ngircd.logcheck \
+	 $(CURDIR)/debian/ngircd/etc/logcheck/ignore.d.paranoid/ngircd
 
-	# configure "full debug" variant:
-	./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) \
-	  --prefix=/usr \
-	  --sysconfdir=/etc/ngircd \
-	  --mandir=\$${prefix}/share/man \
-	  --docdir=\$${prefix}/share/doc/ngircd-full-dbg \
-	  --enable-debug --enable-sniffer \
-	  --with-syslog --with-zlib \
-	  --with-openssl --with-iconv --with-ident --with-tcp-wrappers \
-	  --with-pam \
-	  --enable-ipv6
+#	Make lintian happy :-)
+	rm $(CURDIR)/debian/ngircd/usr/share/doc/ngircd/COPYING
+	mv $(CURDIR)/debian/ngircd/usr/share/doc/ngircd/ChangeLog \
+	    $(CURDIR)/debian/ngircd/usr/share/doc/ngircd/changelog
 
-build:
-	dh_prep
+override_dh_fixperms:
+#	Preserve the permissions of files installed in /etc/ngircd!
+	dh_fixperms -X/etc/ngircd
 
-build-ngircd: build-stamp-ngircd
-build-stamp-ngircd: configure-ngircd
-	dh_testdir
-	rm -f build-stamp-*
-
-	# Add here commands to compile the "standard" package:
-	$(MAKE)
-
-	touch build-stamp-ngircd
-
-build-ngircd-full: build-stamp-ngircd-full
-build-stamp-ngircd-full: configure-ngircd-full
-	dh_testdir
-	rm -f build-stamp-*
-
-	# Add here commands to compile the "full" package:
-	$(MAKE)
-
-	touch build-stamp-ngircd-full
-
-build-ngircd-full-dbg: build-stamp-ngircd-full-dbg
-build-stamp-ngircd-full-dbg: configure-ngircd-full-dbg
-	dh_testdir
-	rm -f build-stamp-*
-
-	# Add here commands to compile the "full debug" package:
-	$(MAKE)
-
-	touch build-stamp-ngircd-full
-
-clean:
-	dh_testdir
-	dh_testroot
-	rm -f build-stamp*
-	rm -f $(CURDIR)/debian/ngircd.service
-	rm -f $(CURDIR)/debian/ngircd-full.default
-	rm -f $(CURDIR)/debian/ngircd-full.init
-	rm -f $(CURDIR)/debian/ngircd-full.postinst
-	rm -f $(CURDIR)/debian/ngircd-full.service
-	rm -f $(CURDIR)/debian/ngircd-full-dbg.default
-	rm -f $(CURDIR)/debian/ngircd-full-dbg.postinst
-	rm -f $(CURDIR)/debian/ngircd-full-dbg.init
-	rm -f $(CURDIR)/debian/ngircd-full-dbg.service
-
-	# Add here commands to clean up after the build process:
-	[ ! -f Makefile ] || $(MAKE) distclean
-
-ifneq "$(wildcard /usr/share/misc/config.sub)" ""
-	cp -f /usr/share/misc/config.sub config.sub
-endif
-ifneq "$(wildcard /usr/share/misc/config.guess)" ""
-	cp -f /usr/share/misc/config.guess config.guess
-endif
-	dh_clean
-
-install: install-ngircd install-ngircd-full install-ngircd-full-dbg
-
-install-ngircd: build-ngircd
-	dh_testdir
-	dh_testroot
-	dh_installdirs
-
-	# Add here commands to install the "standard" package into debian/ngircd:
-	$(MAKE) install DESTDIR=$(CURDIR)/debian/ngircd
-	rm $(CURDIR)/debian/ngircd/usr/share/doc/ngircd/INSTALL*
-	rm $(CURDIR)/debian/ngircd/usr/share/doc/ngircd/COPYING*
-	cat $(CURDIR)/debian/ngircd/usr/share/doc/ngircd/sample-ngircd.conf | \
-	 sed -e "s|;ServerUID = 65534|ServerUID = irc|g" | \
-	 sed -e "s|;ServerGID = 65534|ServerGID = irc|g" | \
-	 sed -e "s|;PidFile = /var/run/ngircd/ngircd.pid|PidFile = /var/run/ircd/ngircd.pid|g" \
-	 >$(CURDIR)/debian/ngircd/etc/ngircd/ngircd.conf
-	touch $(CURDIR)/debian/ngircd/etc/ngircd/ngircd.motd
-
-install-ngircd-full: build-ngircd-full
-	dh_testdir
-	dh_testroot
-	dh_installdirs
-
-	# Add here commands to install the "full" package into debian/ngircd-full:
-	$(MAKE) install DESTDIR=$(CURDIR)/debian/ngircd-full
-	rm $(CURDIR)/debian/ngircd-full/usr/share/doc/ngircd-full/INSTALL*
-	rm $(CURDIR)/debian/ngircd-full/usr/share/doc/ngircd-full/COPYING*
-	cat $(CURDIR)/debian/ngircd-full/usr/share/doc/ngircd-full/sample-ngircd.conf | \
-	 sed -e "s|;ServerUID = 65534|ServerUID = irc|g" | \
-	 sed -e "s|;ServerGID = 65534|ServerGID = irc|g" | \
-	 sed -e "s|;PidFile = /var/run/ngircd/ngircd.pid|PidFile = /var/run/ircd/ngircd.pid|g" \
-	 >$(CURDIR)/debian/ngircd-full/etc/ngircd/ngircd.conf
-	touch $(CURDIR)/debian/ngircd-full/etc/ngircd/ngircd.motd
-	mkdir -p $(CURDIR)/debian/ngircd-full/etc/pam.d
-	cp $(CURDIR)/debian/ngircd.pam $(CURDIR)/debian/ngircd-full/etc/pam.d/ngircd
-
-install-ngircd-full-dbg: build-ngircd-full-dbg
-	dh_testdir
-	dh_testroot
-	dh_installdirs
-
-	# Add here commands to install the "full" package into debian/ngircd-full:
-	$(MAKE) install DESTDIR=$(CURDIR)/debian/ngircd-full-dbg
-	rm $(CURDIR)/debian/ngircd-full-dbg/usr/share/doc/ngircd-full-dbg/INSTALL*
-	rm $(CURDIR)/debian/ngircd-full-dbg/usr/share/doc/ngircd-full-dbg/COPYING*
-	cat $(CURDIR)/debian/ngircd-full-dbg/usr/share/doc/ngircd-full-dbg/sample-ngircd.conf | \
-	 sed -e "s|;ServerUID = 65534|ServerUID = irc|g" | \
-	 sed -e "s|;ServerGID = 65534|ServerGID = irc|g" | \
-	 sed -e "s|;PidFile = /var/run/ngircd/ngircd.pid|PidFile = /var/run/ircd/ngircd.pid|g" \
-	 >$(CURDIR)/debian/ngircd-full-dbg/etc/ngircd/ngircd.conf
-	touch $(CURDIR)/debian/ngircd-full-dbg/etc/ngircd/ngircd.motd
-	mkdir -p $(CURDIR)/debian/ngircd-full-dbg/etc/pam.d
-	cp $(CURDIR)/debian/ngircd.pam $(CURDIR)/debian/ngircd-full-dbg/etc/pam.d/ngircd
-
-# Build architecture-independent files here.
-binary-indep:
-	# We have nothing to do by default.
-
-# Build architecture-dependent files here.
-binary-arch: build install
-	ln -s $(CURDIR)/contrib/ngircd.service \
-	 $(CURDIR)/debian/ngircd.service
-
-	ln -s $(CURDIR)/debian/ngircd.default \
-	 $(CURDIR)/debian/ngircd-full.default
-	ln -s $(CURDIR)/debian/ngircd.init \
-	 $(CURDIR)/debian/ngircd-full.init
-	ln -s $(CURDIR)/debian/ngircd.postinst \
-	 $(CURDIR)/debian/ngircd-full.postinst
-	cp $(CURDIR)/contrib/ngircd.service \
-	 $(CURDIR)/debian/ngircd-full.service
-	echo "Alias=ngircd.service" >>$(CURDIR)/debian/ngircd-full.service
-
-	ln -s $(CURDIR)/debian/ngircd.default \
-	 $(CURDIR)/debian/ngircd-full-dbg.default
-	ln -s $(CURDIR)/debian/ngircd.init \
-	 $(CURDIR)/debian/ngircd-full-dbg.init
-	ln -s $(CURDIR)/debian/ngircd.postinst \
-	 $(CURDIR)/debian/ngircd-full-dbg.postinst
-	cp $(CURDIR)/contrib/ngircd.service \
-	 $(CURDIR)/debian/ngircd-full-dbg.service
-	echo "Alias=ngircd.service" >>$(CURDIR)/debian/ngircd-full-dbg.service
-
-	dh_testdir
-	dh_testroot
-	dh_installchangelogs -a -A ChangeLog
-	dh_installdocs -a
-	dh_installsystemd -a
-	dh_installinit -a
-	dh_strip -a --no-package=ngircd-full-dbg
-	dh_compress -a -XCommands.txt
-	dh_fixperms -a
-	dh_installdeb -a
-	dh_shlibdeps -a
-	dh_gencontrol -a
-	dh_md5sums -a
-	dh_builddeb -a
-
-binary: binary-indep binary-arch
-
-.PHONY: build clean binary-indep binary-arch binary install
-
-# -eof-
+override_dh_compress:
+#	The Commands.txt file is read by the daemon, don't compress it!
+	dh_compress -XCommands.txt

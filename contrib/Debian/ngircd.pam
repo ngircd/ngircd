@@ -1,4 +1,10 @@
 # /etc/pam.d/ngircd
 
-# allow all connections to ngIRCd
-auth required pam_permit.so
+# You have to adjust this configuration to your local setup and needs. Keep in
+# mind that all PAM modules are run with the privileges of the user account the
+# ngIRCd daemon runs as ("irc" by default, not root!), so you can't use PAM
+# modules requiring root privileges (like pam_unix, for example)!
+
+# Log and deny all connections to ngIRCd:
+auth required pam_warn.so
+auth required pam_deny.so

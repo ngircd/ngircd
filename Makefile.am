@@ -13,7 +13,7 @@ SUBDIRS = doc src man contrib
 
 EXTRA_DIST = README.md INSTALL.md autogen.sh configure.ng .clang_complete .mailmap
 
-clean-local: osxpkg-clean
+clean-local:
 	rm -f build-stamp*
 
 maintainer-clean-local:
@@ -31,26 +31,6 @@ lint:
 srcdoc:
 	cd doc && ${MAKE} srcdoc
 
-have-xcodebuild:
-	@xcodebuild -project contrib/MacOSX/ngIRCd.xcodeproj -list \
-	 >/dev/null 2>&1 \
-	 || ( echo; echo "Error: \"xcodebuild\" not found!"; echo; exit 1 )
-
-have-packagemaker:
-	@packagemaker >/dev/null 2>&1; [ $$? -le 1 ] \
-	 || ( echo; echo "Error: \"packagemaker\" not found!"; echo; exit 2)
-
-xcode: have-xcodebuild
-	rel=`git describe|sed -e 's/rel-//g'|sed -e 's/-/~/'`; \
-	 def="GCC_PREPROCESSOR_DEFINITIONS=\"VERSION=\\\"$$rel\\\"\""; \
-	 xcodebuild -project contrib/MacOSX/ngIRCd.xcodeproj -alltargets \
-	 -configuration Default $$def build
-
-xcode-clean: have-xcodebuild
-	xcodebuild -project contrib/MacOSX/ngIRCd.xcodeproj -alltargets \
-	 -configuration Default clean
-	rm -fr contrib/MacOSX/build
-
 rpm: distcheck
 	rpm -ta ngircd-*.tar.gz
 
@@ -58,34 +38,6 @@ deb:
 	[ -f debian/rules ] || ln -s contrib/Debian debian
 	dpkg-buildpackage -rfakeroot -i
 
-osxpkg: have-packagemaker osxpkg-dest
-	cd contrib/MacOSX && packagemaker --no-recommend \
-	 --doc ngIRCd.pmdoc \
-	 --out ../../$(distdir).mpkg
-	rm -f $(distdir).mpkg.zip
-	zip -ro9 $(distdir).mpkg.zip $(distdir).mpkg
-	${MAKE} osxpkg-clean
-
-osxpkg-clean:
-	[ ! -r ngircd.dest ] || sudo -n rm -rf ngircd.dest
-	rm -rf ngircd.dest $(distdir).mpkg
-
-osxpkg-dest: have-xcodebuild osxpkg-clean clean
-	./configure --prefix=/opt/ngircd
-	${MAKE} xcode
-	${MAKE} -C contrib/MacOSX de.barton.ngircd.plist
-	mkdir -p ngircd.dest/opt/ngircd/sbin
-	DESTDIR="$$PWD/ngircd.dest" ${MAKE} -C doc install
-	DESTDIR="$$PWD/ngircd.dest" ${MAKE} -C contrib install
-	DESTDIR="$$PWD/ngircd.dest" ${MAKE} -C man install
-	cp contrib/MacOSX/build/Default/ngIRCd \
-	 ngircd.dest/opt/ngircd/sbin/ngircd
-	rm ngircd.dest/opt/ngircd/etc/ngircd.conf
-	echo "Have a nice day IRCing!" >ngircd.dest/opt/ngircd/etc/ngircd.motd
-	chmod -R a-s,og-w,a+rX ngircd.dest
-	sudo chown -R root:wheel ngircd.dest
-
-.PHONY: deb have-packagemaker have-xcodebuild lint osxpkg osxpkg-clean \
-	osxpkg-dest rpm srcdoc testsuite xcode xcode-clean
+.PHONY: deb lint rpm srcdoc testsuite
 
 # -eof-

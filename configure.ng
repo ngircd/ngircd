@@ -129,10 +129,12 @@ AC_DEFUN([GCC_W_NO_FORMAT_TRUNC],[
 	result=yes
 	AC_MSG_CHECKING([whether ${CC} accepts -Wno-format-truncation])
 	old_cflags="$CFLAGS"
-	CFLAGS="$CFLAGS -Wno-format-truncation"
+	CFLAGS="$CFLAGS -Werror -Wno-format-truncation"
 	AC_LINK_IFELSE([AC_LANG_PROGRAM([],[])],[],[result=no])
 	echo $result
-	if test "X$result" = "Xno"; then
+	if test "X$result" = "Xyes"; then
+		CFLAGS="$old_cflags -Wno-format-truncation"
+	else
 		CFLAGS="$old_cflags"
 	fi
 ])

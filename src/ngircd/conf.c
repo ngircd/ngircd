@@ -33,6 +33,7 @@
 #include <grp.h>
 #include <sys/types.h>
 #include <dirent.h>
+#include <netdb.h>
 
 #include "ngircd.h"
 #include "conn.h"
@@ -2053,6 +2054,7 @@ Validate_Config(bool Configtest, bool Rehash)
 	/* Validate configuration settings. */
 
 	int i, servers, servers_once;
+	struct hostent *h;
 	bool config_valid = true;
 	char *ptr;
 
@@ -2061,6 +2063,28 @@ Validate_Config(bool Configtest, bool Rehash)
 		Config_Error(LOG_WARNING,
 			"Not specifying a full path name to \"%s\" can cause problems when rehashing the server!",
 			NGIRCd_ConfFile);
+	}
+
+	if (!Conf_ServerName[0]) {
+		/* No server name configured, try to get a sane name from the
+		 * host name. Note: the IRC server name MUST contain
+		 * at least one dot, so the "node name" is not sufficient! */
+		gethostname(Conf_ServerName, sizeof(Conf_ServerName));
+		if (Conf_DNS) {
+			/* Try to get a proper host name ... */
+			h = gethostbyname(Conf_ServerName);
+			if (h)
+				strlcpy(Conf_ServerName, h->h_name,
+					sizeof(Conf_ServerName));
+		}
+		if (!strchr(Conf_ServerName, '.')) {
+			/* (Still) No dot in the name! */
+			strlcat(Conf_ServerName, ".host",
+				sizeof(Conf_ServerName));
+		}
+		Config_Error(LOG_WARNING,
+			     "No server name configured, using host name \"%s\".",
+			     Conf_ServerName);
 	}
 
 	/* Validate configured server name, see RFC 2812 section 2.3.1 */
@@ -2077,9 +2101,7 @@ Validate_Config(bool Configtest, bool Rehash)
 		break;
 	} while (*(++ptr));
 
-	if (!Conf_ServerName[0] || !strchr(Conf_ServerName, '.'))
-	{
-		/* No server name configured! */
+	if (!Conf_ServerName[0] || !strchr(Conf_ServerName, '.')) {
 		config_valid = false;
 		Config_Error(LOG_ALERT,
 			     "No (valid) server name configured in \"%s\" (section 'Global': 'Name')!",

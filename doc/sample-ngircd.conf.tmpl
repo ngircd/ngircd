@@ -24,8 +24,9 @@
 	# make sure that they correspond to your installation and setup!
 
 	# Server name in the IRC network, must contain at least one dot
-	# (".") and be unique in the IRC network. Required!
-	Name = irc.example.net
+	# (".") and be unique in the IRC network. When not set, ngIRCd tries
+	# to deduce a valid IRC server name from the local host name.
+	;Name = irc.example.net
 
 	# Information about the server and the administrator, used by the
 	# ADMIN command. Not required by server but by RFC!

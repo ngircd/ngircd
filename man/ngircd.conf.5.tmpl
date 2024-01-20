@@ -93,10 +93,11 @@ like the server name and the ports on which the server should be listening.
 These settings depend on your personal preferences, so you should make sure
 that they correspond to your installation and setup!
 .TP
-\fBName\fR (string; required)
+\fBName\fR (string)
 Server name in the IRC network. This is an individual name of the IRC
 server, it is not related to the DNS host name. It must be unique in the
-IRC network and must contain at least one dot (".") character.
+IRC network and must contain at least one dot (".") character. When not set,
+ngIRCd tries to deduce a valid IRC server name from the local host name.
 .TP
 \fBAdminInfo1\fR, \fBAdminInfo2\fR, \fBAdminEMail\fR (string)
 Information about the server and the administrator, used by the ADMIN

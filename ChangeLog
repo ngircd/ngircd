@@ -10,9 +10,16 @@
 
 ngIRCd 27
 
-  - autogen.sh: Prefere automake 1.11 over other releases because this is the
+  - The server "Name" in the "[Global]" section of the configuration file no
+    longer needs to be set: When not set (or empty), ngIRCd now tries to
+    deduce a valid IRC server name from the local host name ("node name"),
+    possibly adding a ".host" extension when the host name does not contain a
+    dot (".") which is required in an IRC server name ("ID").
+    This new behaviour, with all configuration parameters now being optional,
+    allows running ngIRCd without any configuration file at all.
+  - autogen.sh: Prefer automake 1.11 over other releases because this is the
     last release supporting "de-ANSI-fication" using the included ansi2knr tool.
-    And becuase we _want_ to support old K&R platforms, we try hard to use this
+    And because we _want_ to support old K&R platforms, we try hard to use this
     release of automake when available to generate our build system.
     Note: This is only relevant for you if you are building from Git sources.
   - Autodetect support for IPv6 by default: Until now, IPv6 support was disabled

@@ -778,10 +778,28 @@ Channel_UserModes( CHANNEL *Chan, CLIENT *Client )
 } /* Channel_UserModes */
 
 
+/**
+ * Test if a user has a given channel user mode.
+ *
+ * @param Chan The channel to check.
+ * @param Client The client to check.
+ * @param Mode The channel user mode to test for.
+ * @return true if the user has the given channel user mode set.
+ */
 GLOBAL bool
 Channel_UserHasMode( CHANNEL *Chan, CLIENT *Client, char Mode )
 {
-	return strchr(Channel_UserModes(Chan, Client), Mode) != NULL;
+	char *channel_user_modes;
+
+	assert(Chan != NULL);
+	assert(Client != NULL);
+	assert(Mode > 0);
+
+	channel_user_modes = Channel_UserModes(Chan, Client);
+	if (!channel_user_modes || !*channel_user_modes)
+		return false;
+
+	return strchr(channel_user_modes, Mode) != NULL;
 } /* Channel_UserHasMode */
 
 

@@ -2,7 +2,7 @@
 
 Note:
 If you have comments, patches or something else, please feel free to post
-a mail to the ngIRCd mailing list: <ngircd-ml@ngircd.barton.de> (please see
+a mail to the ngIRCd mailing list: <ngircd@lists.barton.de> (please see
 <http://ngircd.barton.de/support.php> for details) or join the ngIRCd IRC
 channel "#ngircd" on irc.barton.de: <irc://irc.barton.de/ngircd>.
 

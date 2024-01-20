@@ -72,7 +72,7 @@ interested in the latest development code: <https://github.com/ngircd/ngircd>.
 Please don't hesitate to contact us if you encounter problems:
 
 - On IRC: <irc://irc.barton.de/ngircd>
-- Via the mailing list: <ngircd-ml@ngircd.barton.de>
+- Via the mailing list: <ngircd@lists.barton.de>
 
 See <https://ngircd.barton.de/support> for details.
 

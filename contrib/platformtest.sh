@@ -12,7 +12,7 @@
 
 # This script analyzes the build process of ngIRCd and generates output
 # suitable for inclusion in doc/Platforms.txt -- please send reports
-# to the ngIRCd mailing list: <ngircd-ml@ngircd.barton.de>.
+# to the ngIRCd mailing list: <ngircd@lists.barton.de>.
 
 NAME=$(basename "$0")
 VERBOSE=

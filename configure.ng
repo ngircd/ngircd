@@ -23,7 +23,7 @@ m4_ifdef([AM_SILENT_RULES],
 # -- Initialisation --
 
 AC_PREREQ([2.61])
-AC_INIT([ngIRCd],[VERSION_ID],[ngircd-ml@ngircd.barton.de],[ngircd],[http://ngircd.barton.de/])
+AC_INIT([ngIRCd],[VERSION_ID],[ngircd@lists.barton.de],[ngircd],[https://ngircd.barton.de/])
 
 AC_CONFIG_SRCDIR([src/ngircd/ngircd.c])
 AC_CONFIG_HEADER([src/config.h])

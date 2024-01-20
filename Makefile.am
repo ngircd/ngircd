@@ -11,7 +11,14 @@
 
 SUBDIRS = doc src man contrib
 
-EXTRA_DIST = README.md INSTALL.md autogen.sh configure.ng .clang_complete .mailmap
+EXTRA_DIST = \
+	AUTHORS.md \
+	INSTALL.md \
+	README.md \
+	autogen.sh \
+	configure.ng \
+	.clang_complete \
+	.mailmap
 
 clean-local:
 	rm -f build-stamp*

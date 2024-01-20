@@ -1,0 +1,70 @@
+# [ngIRCd](https://ngircd.barton.de) - Authors & Contributors
+
+Note:
+If you have comments, patches or something else, please feel free to post
+a mail to the ngIRCd mailing list: <ngircd-ml@ngircd.barton.de> (please see
+<http://ngircd.barton.de/support.php> for details) or join the ngIRCd IRC
+channel "#ngircd" on irc.barton.de: <irc://irc.barton.de/ngircd>.
+
+Don't mail the people listed here directly, if possible!
+
+## Main Authors
+
+- Alexander Barton <alex@barton.de>
+- Florian Westphal <fw@strlen.de>
+
+## Contributors
+
+- Ali Shemiran <ashemira@ucsd.edu>
+- Ask Bjørn Hansen <ask@develooper.com>
+- Benjamin Pineau <ben@zouh.org>
+- Bernd Kuhls <bernd.kuhls@t-online.de>
+- Brandon Beresini <beresini@google.com>
+- Brett Smith <brett@w3.org>
+- Brian Collins <bricollins@gmail.com>
+- Bryan Caldwell <bcaldwel@ucsd.edu>
+- Christian Aistleitner <christian@quelltextlich.at>
+- Christoph Biedl <ngircd.anoy@manchmal.in-ulm.de>
+- Dana Dahlstrom <dana+ngIRCd@cs.ucsd.edu>
+- David Kingston <deathking1337@aim.com>
+- DNS <dns@rbose.org>
+- Eric Grunow <egrunow@ucsd.edu>
+- Fabrice Fontaine <fontaine.fabrice@gmail.com>
+- Federico G. Schwindt <fgsch@lodoss.net>
+- Gabor Adam Toth <tg@tgbit.net>
+- Götz Hoffart <goetz@hoffart.de>
+- Hilko Bengen <bengen@hilluzination.de>
+- Ian Chard <ian@chard.org>
+- Ilja Osthoff <i.osthoff@gmx.net>
+- ItsOnlyBinary <ItsOnlyBinary@users.noreply.github.com>
+- James Lu <james@overdrivenetworks.com>
+- Jari Aalto <jari.aalto@cante.net>
+- Johann Hartwig Hauschild <git@hauschild.it>
+- JRMU <jrmu@lecturify.com>
+- LucentW <lucent@zebes.info>
+- Mantas Mikulėnas <grawity@gmail.com>
+- Michi <michi+ngircd@dataswamp.org>
+- Neale Pickett <neale@woozle.org>
+- Peter Powell <petpow@saberuk.com>
+- Rolf Eike Beer <eike@sf-mail.de>
+- Rosen Penev <rosenp@gmail.com>
+- Roy Sindre Norangshol <roy.sindre@norangshol.no>
+- Sam James <sam@cmpct.info>
+- Scott Perry <scperry@ucsd.edu>
+- Sean Reifschneider <jafo-rpms@tummy.com>
+- Sebastian Köhler <sebkoehler@whoami.org.uk>
+- shankari <shankari@eecs.berkeley.edu>
+- Tassilo Schweyer <dev@welterde.de>
+- Tom Ryder <tom@sanctum.geek.nz>
+- Unit 193 <unit193@ubuntu.com>
+- William Pitcock <nenolod@dereferenced.org>
+- Windree <57554809+Windree@users.noreply.github.com>
+- xnaas <8271327+xnaas@users.noreply.github.com>
+- xor <xorboy@gmail.com>
+- Yecheng Fu <cofyc.jackson@gmail.com>
+
+## Code snippets
+
+- Andrew Tridgell & Martin Pool: strl{cpy|cat}()-functions
+- John Kercheval: pattern matching functions
+- Patrick Powell <papowell@astart.com>: snprintf()-function

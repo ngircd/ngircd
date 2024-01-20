@@ -9,7 +9,8 @@ Copyright:
  2001-2024 Alexander Barton <alex@barton.de> and Contributors.
 License: GPL-2.0+
 Comment:
- See /usr/share/doc/ngircd/AUTHORS for the full list of authors and contributors.
+ See /usr/share/doc/ngircd/AUTHORS.md for the full list of authors and
+ contributors.
 
 Files:
  contrib/de.barton.ngircd.metainfo.xml
@@ -17,7 +18,8 @@ Copyright:
  2001-2024 Alexander Barton <alex@barton.de> and Contributors.
 License: MIT
 Comment:
- See /usr/share/doc/ngircd/AUTHORS for the full list of authors and contributors.
+ See /usr/share/doc/ngircd/AUTHORS.md for the full list of authors and
+ contributors.
 
 License: GPL-2.0+
  This package is free software; you can redistribute it and/or modify

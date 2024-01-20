@@ -46,9 +46,10 @@ b) Make sure the source tree is in a releasable state ;-)
     - Are all branches & patches merged? Check GitHub issues, pull requests
       and milestones!
     - Run as many tests as you can!
-    - Is the AUTHORS file up to date? This command may be helpful:
-      "( grep '>$' AUTHORS; git shortlog -se | cut -c8- ) | grep -Ev \
-       '(alex@barton.de|fw@strlen.de)' | LC_ALL=de_DE.UTF-8 sort -u"
+    - Is the AUTHORS.md file up to date? This command may be helpful:
+      "( grep '>$' AUTHORS.md; git shortlog -se|cut -c8-|sed 's/^/- /' ) \
+        | grep -Ev '(alex@barton.de|fw@strlen.de)' \
+        | LC_ALL=de_DE.UTF-8 sort -u"
 
 c) Update the files describing the new release:
     - ChangeLog

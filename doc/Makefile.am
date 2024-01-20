@@ -39,7 +39,7 @@ doc_templates = sample-ngircd.conf.tmpl
 
 generated_docs = sample-ngircd.conf
 
-toplevel_docs = ../AUTHORS ../COPYING ../ChangeLog ../INSTALL.md ../NEWS ../README.md
+toplevel_docs = ../AUTHORS.md ../COPYING ../ChangeLog ../INSTALL.md ../NEWS ../README.md
 
 SUBDIRS = src
 

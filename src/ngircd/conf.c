@@ -2129,8 +2129,7 @@ Validate_Config(bool Configtest, bool Rehash)
 	if (!Conf_ServerName[0] || !strchr(Conf_ServerName, '.')) {
 		config_valid = false;
 		Config_Error(LOG_ALERT,
-			     "No (valid) server name configured in \"%s\" (section 'Global': 'Name')!",
-			     NGIRCd_ConfFile);
+			     "No (valid) server name configured (section 'Global': 'Name')!");
 		if (!Configtest && !Rehash) {
 			Config_Error(LOG_ALERT,
 				     "%s exiting due to fatal errors!",
@@ -2144,8 +2143,7 @@ Validate_Config(bool Configtest, bool Rehash)
 		/* No administrative contact configured! */
 		config_valid = false;
 		Config_Error(LOG_ALERT,
-			     "No administrator email address configured in \"%s\" ('AdminEMail')!",
-			     NGIRCd_ConfFile);
+			     "No administrator email address configured ('AdminEMail')!");
 		if (!Configtest) {
 			Config_Error(LOG_ALERT,
 				     "%s exiting due to fatal errors!",

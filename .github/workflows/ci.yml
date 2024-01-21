@@ -37,7 +37,18 @@ jobs:
     - uses: actions/checkout@v4
     - uses: awalsh128/cache-apt-pkgs-action@v1
       with:
-        packages: autoconf automake build-essential expect libident-dev libpam-dev libssl-dev libwrap0-dev libz-dev pkg-config telnet
+        packages: >
+	  autoconf
+	  automake
+	  build-essential
+	  expect
+	  libident-dev
+	  libpam0g-dev
+	  libssl-dev
+	  libwrap0-dev
+	  pkg-config
+	  telnet
+	  zlib1g-dev
         version: 1.0
     - name: Generate build system files
       run: ./autogen.sh

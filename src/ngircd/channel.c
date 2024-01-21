@@ -139,7 +139,7 @@ Channel_InitPredefined( void )
 		if (conf_chan->modes_num) {
 			/* Prepare fake request structure */
 			strlcpy(name, conf_chan->name, sizeof(name));
-			Log(LOG_INFO, "Evaluating predefined channel modes for \"%s\".", name);
+			LogDebug("Evaluating predefined channel modes for \"%s\" ...", name);
 			Req.argv[0] = name;
 			Req.prefix = Client_ID(Client_ThisServer());
 			Req.command = "MODE";
@@ -182,8 +182,9 @@ Channel_InitPredefined( void )
 		Set_KeyFile(new_chan, conf_chan->keyfile);
 
 		Log(LOG_INFO,
-		    "Created pre-defined channel \"%s\", mode \"%s\" (key \"%s\", limit %d).",
-		    new_chan->name, new_chan->modes, new_chan->key,
+		    "Created pre-defined channel \"%s\", mode \"%s\" (%s, user limit %d).",
+		    new_chan->name, new_chan->modes,
+		    new_chan->key[0] ? "channel key set" : "no channel key",
 		    new_chan->maxusers);
 	}
 

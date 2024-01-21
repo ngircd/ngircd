@@ -19,8 +19,12 @@ everything was parsed as expected!
 
 ### Configuration File and Drop-in Directory
 
-The `ngircd --configtest` command shows the name of the default configuration
-file, too. For example `/etc/ngircd/ngircd.conf`.
+After installing ngIRCd, a sample configuration file should have been set up if
+none existed already. By default, when installing from sources, the file is
+named `/usr/local/etc/ngircd.conf` (other common names, especially for
+distribution packages, are `/etc/ngircd.conf` or `/etc/ngircd/ngircd.conf`).
+Run the command `ngircd --configtest` to check the name of the configuration
+file which is used by default on your local system.
 
 In addition, ngIRCd supports further configuration file snippets in a "drop-in"
 directory which is configured with the `IncludeDir` variable in the `[Options]`
@@ -31,6 +35,11 @@ It is a good idea to not edit a default `ngircd.conf` file but to create one
 ore more new files in this include directory, overriding the defaults as
 needed. This way you don't get any clashes when updating ngIRCd to newer
 releases.
+
+You can find the template of the sample configuration file in the `doc/`
+directory as `sample-ngircd.conf` and
+[online](https://ngircd.barton.de/doc/sample-ngircd.conf) on the homepage. It
+contains all available options.
 
 ## Configuration File Syntax
 
@@ -44,6 +53,11 @@ Section and parameter names are not case sensitive.
 
 Please see the `ngircd.conf`(5) manual page for an in-depth description of the
 configuration file, its syntax and all supported configuration options.
+
+The sample configuration file uses comments beginning with `#` *or* `;` -- this
+is only for the better understanding of the file, both comment styles are
+equal. The lines commented out with `;` show example or default settings,
+whereas the lines using `#` are descriptions of the options.
 
 ## Simple Single-Instance Server
 

@@ -1,18 +1,20 @@
 # [ngIRCd](https://ngircd.barton.de) - Internet Relay Chat Server
 
-This document explains how to install and configure ngIRCd, the lightweight
-Internet Relay Chat (IRC) server.
+This document explains how to install, the lightweight Internet Relay Chat
+(IRC) server.
 
 The first section lists noteworthy changes to earlier releases; you definitely
 should read this when upgrading your setup! But you can skip over this section
 when you do a fresh installation.
 
-All the subsequent sections describe the steps required to install and
-configure ngIRCd.
+All the subsequent sections describe the steps required to build and install
+ngIRCd from sources. The information given here is not relevant when you are
+using packages provided by your operating system vendor or third-party
+repositories.
 
 Please see the file `doc/QuickStart.md` in the `doc/` directory and
-[online](https://ngircd.barton.de/doc/QuickStart.md) on the homepage for some
-configuration examples.
+[online](https://ngircd.barton.de/doc/QuickStart.md) on the homepage for
+information about configuring ngIRCd, including some configuration examples.
 
 ## Upgrade Information
 
@@ -362,37 +364,13 @@ standard locations.
 
 ## Configuration
 
-Please have a look at the `ngircd(8)` and `ngircd.conf(5)` manual pages for
+Please see the file `doc/QuickStart.md` in the `doc/` directory and
+[online](https://ngircd.barton.de/doc/QuickStart.md) on the homepage for
+information about configuring ngIRCd, including some configuration examples.
+
+And have a look at the `ngircd(8)` and `ngircd.conf(5)` manual pages for
 details and all possible command line and configuration options -- **and don't
 forget to run `ngircd --configtest` to validate your configuration file!**
-
-The file `doc/QuickStart.md` in the `doc/` directory and
-[online](https://ngircd.barton.de/doc/QuickStart.md) on the homepage has some
-configuration examples, you should take a look :-)
-
-After installing ngIRCd, a sample configuration file will be set up (if it
-does not exist already). By default, when installing from sources, the file is
-named `/usr/local/etc/ngircd.conf` (other common names, especially for
-distribution packages, are `/etc/ngircd.conf` or `/etc/ngircd/ngircd.conf`).
-
-You can find the template of the sample configuration file in the `doc/`
-directory as `sample-ngircd.conf` and
-[online](https://ngircd.barton.de/doc/sample-ngircd.conf) on the homepage. It
-contains all available options.
-
-In the sample configuration file, there are comments beginning with `#` *or*
-`;` -- this is only for the better understanding of the file, both comment
-styles are equal.
-
-The file is separated in five blocks: *[Global]*, *[Features]*, *[Operator]*,
-*[Server]*, and *[Channel]*.
-
-In the *[Global]* section, there is the main configuration like the server
-name and the ports, on which the server should be listening. Options in
-the *[Features]* section enable or disable functionality in the daemon.
-IRC operators of this server are defined in *[Operator]* blocks, remote
-servers are configured in *[Server]* sections, and *[Channel]* blocks are
-used to configure pre-defined ("persistent") IRC channels.
 
 ### Manual Pages Online
 

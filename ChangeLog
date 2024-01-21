@@ -10,6 +10,14 @@
 
 ngIRCd 27
 
+  - No longer use a default built-in value for the "IncludeDir" directive when
+    a configuration file was explicitly specified on the command line using
+    "--config"/"-f": This way no default include directory is scanned when a
+    possibly non-default configuration file is used which (intentionally) did
+    not specify an "IncludeDir" directive. So now you can use "-f /dev/null"
+    for checking all built-in defaults, regardless of any local configuration
+    files in the default drop-in directory (which would have been read in
+    until this change).
   - The server "Name" in the "[Global]" section of the configuration file no
     longer needs to be set: When not set (or empty), ngIRCd now tries to
     deduce a valid IRC server name from the local host name ("node name"),

@@ -92,8 +92,6 @@ main(int argc, const char *argv[])
 #ifdef SNIFFER
 	NGIRCd_Sniffer = false;
 #endif
-	strlcpy(NGIRCd_ConfFile, SYSCONFDIR, sizeof(NGIRCd_ConfFile));
-	strlcat(NGIRCd_ConfFile, CONFIG_FILE, sizeof(NGIRCd_ConfFile));
 
 	Fill_Version();
 

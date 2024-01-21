@@ -903,26 +903,44 @@ Read_Config(bool TestOnly, bool IsStarting)
 	struct dirent *entry;
 	int i, n;
 	FILE *fd;
-	DIR *dh;
+	DIR *dh = NULL;
 
-	Config_Error(LOG_INFO, "Using configuration file \"%s\" ...", NGIRCd_ConfFile);
+	if (!NGIRCd_ConfFile[0]) {
+		/* No configuration file name explicitly given on the command
+		 * line, use defaults but ignore errors when this file can't be
+		 * read later on. */
+		strlcpy(file, SYSCONFDIR, sizeof(file));
+		strlcat(file, CONFIG_FILE, sizeof(file));
+		ptr = file;
+	} else
+		ptr = NGIRCd_ConfFile;
+
+	Config_Error(LOG_INFO, "Using %s configuration file \"%s\" ...",
+		     !NGIRCd_ConfFile[0] ? "default" : "specified", ptr);
 
 	/* Open configuration file */
-	fd = fopen( NGIRCd_ConfFile, "r" );
-	if( ! fd ) {
-		/* No configuration file found! */
-		Config_Error( LOG_ALERT, "Can't read configuration \"%s\": %s",
-					NGIRCd_ConfFile, strerror( errno ));
-		if (!IsStarting)
-			return false;
-		Config_Error( LOG_ALERT, "%s exiting due to fatal errors!", PACKAGE_NAME );
-		exit( 1 );
+	fd = fopen(ptr, "r");
+	if (!fd) {
+		if (NGIRCd_ConfFile[0]) {
+			Config_Error(LOG_ALERT,
+				     "Can't read specified configuration file \"%s\": %s",
+				     ptr, strerror(errno));
+			if (IsStarting) {
+				Config_Error(LOG_ALERT,
+					     "%s exiting due to fatal errors!",
+					     PACKAGE_NAME);
+				exit(1);
+			}
+		}
+		Config_Error(LOG_WARNING,
+			     "Can't read default configuration file \"%s\": %s - Ignored.",
+			     ptr, strerror(errno));
 	}
 
 	opers_free();
 	Set_Defaults(IsStarting);
 
-	if (TestOnly)
+	if (TestOnly && fd)
 		Config_Error(LOG_INFO,
 			     "Reading configuration from \"%s\" ...",
 			     NGIRCd_ConfFile );
@@ -962,16 +980,23 @@ Read_Config(bool TestOnly, bool IsStarting)
 	ConfSSL_Init();
 #endif
 
-	Read_Config_File(NGIRCd_ConfFile, fd);
-	fclose(fd);
+	if (fd) {
+		Read_Config_File(NGIRCd_ConfFile, fd);
+		fclose(fd);
+	}
 
 	if (Conf_IncludeDir[0]) {
+		/* Include directory was set in the main configuration file. So
+		 * use it and show errors. */
 		dh = opendir(Conf_IncludeDir);
 		if (!dh)
 			Config_Error(LOG_ALERT,
 				     "Can't open include directory \"%s\": %s",
 				     Conf_IncludeDir, strerror(errno));
-	} else {
+	} else if (!NGIRCd_ConfFile[0]) {
+		/* No include dir set in the configuration file used (if any)
+		 * but no config file explicitly specified either: so use the
+		 * default include path here as well! */
 		strlcpy(Conf_IncludeDir, SYSCONFDIR, sizeof(Conf_IncludeDir));
 		strlcat(Conf_IncludeDir, CONFIG_DIR, sizeof(Conf_IncludeDir));
 		dh = opendir(Conf_IncludeDir);

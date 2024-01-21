@@ -35,7 +35,8 @@
 	;AdminEMail = admin@irc.server
 
 	# Text file which contains the ngIRCd help text. This file is required
-	# to display help texts when using the "HELP <cmd>" command.
+	# to display help texts when using the "HELP <cmd>" command. Default: a
+	# built-in standard path (check "ngircd --configtest").
 	;HelpFile = :DOCDIR:/Commands.txt
 
 	# Info text of the server. This will be shown by WHOIS and
@@ -50,7 +51,8 @@
 	;Listen = 127.0.0.1,192.168.0.1
 
 	# Text file with the "message of the day" (MOTD). This message will
-	# be shown to all users connecting to the server:
+	# be shown to all users connecting to the server: Default: a built-in
+	# standard path (check "ngircd --configtest").
 	;MotdFile = :ETCDIR:/ngircd.motd
 
 	# A simple Phrase (<127 chars) if you don't want to use a motd file.
@@ -194,6 +196,9 @@
 
 	# Directory containing configuration snippets (*.conf), that should
 	# be read in after parsing this configuration file.
+	# Default: a built-in directory name when no configuration file was
+	# explicitly given on the command line (check "ngircd --configtest"),
+	# none (empty) otherwise.
 	;IncludeDir = :ETCDIR:/conf.d
 
 	# Enhance user privacy slightly (useful for IRC server on TOR or I2P)

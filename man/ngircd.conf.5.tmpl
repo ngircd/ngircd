@@ -107,7 +107,8 @@ command. This information is not required by the server but by RFC!
 Text file which contains the ngIRCd help text. This file is required
 to display help texts when using the "HELP <cmd>" command.
 Please note: Changes made to this file take effect when ngircd starts up
-or is instructed to re-read its configuration file.
+or is instructed to re-read its configuration file. Default: a built-in
+standard path.
 .TP
 \fBInfo\fR (string)
 Info text of the server. This will be shown by WHOIS and LINKS requests for
@@ -123,7 +124,7 @@ IP addresses and interfaces by default.
 Text file with the "message of the day" (MOTD). This message will be shown to
 all users connecting to the server. Please note: Changes made to this file
 take effect when ngircd starts up or is instructed to re-read its
-configuration file.
+configuration file. Default: a built-in standard path.
 .TP
 \fBMotdPhrase\fR (string)
 A simple Phrase (<127 chars) if you don't want to use a MOTD file.
@@ -294,7 +295,17 @@ Default: yes.
 \fBIncludeDir\fR (string)
 Directory containing configuration snippets (*.conf), that should be read in
 after parsing the current configuration file.
-Default: none.
+Default: a built-in directory name when no configuration file was explicitly
+given on the command line (check "ngircd --configtest"), none (empty)
+otherwise.
+.PP
+.RS
+This way no default include directory is used when a possibly non-default
+configuration file was explicitly specified using "--config"/"-f" on the
+command line which (intentionally) did not specify an
+.I "IncludeDir"
+directive.
+.RE
 .TP
 \fBMorePrivacy\fR (boolean)
 This will cause ngIRCd to censor user idle time, logon time as well as the

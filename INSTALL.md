@@ -204,6 +204,18 @@ build the sources including all optional features and to run the test suite:
     telnet zlib-devel
 ```
 
+*Note:* More recent versions use the DNF package manager; so substitute "yum"
+with "dnf" in the command above. And neither "libident-devel" (IDENT support)
+nor "tcp_wrappers-devel" (TCP Wrappers) are provided any more!
+
+So the resulting command looks like this:
+
+``` shell
+  dnf install \
+    autoconf automake expect gcc glibc-devel gnutls-devel \
+    make pam-devel pkg-config telnet zlib-devel
+```
+
 #### Debian / Ubuntu based distributions
 
 ``` shell

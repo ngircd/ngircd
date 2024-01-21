@@ -5,7 +5,6 @@ on:
     branches:
       - master
     paths-ignore:
-      - 'AUTHORS'
       - 'COPYING'
       - 'ChangeLog'
       - 'NEWS'
@@ -18,7 +17,6 @@ on:
     branches:
       - master
     paths-ignore:
-      - 'AUTHORS'
       - 'COPYING'
       - 'ChangeLog'
       - 'NEWS'
@@ -31,13 +29,16 @@ on:
 jobs:
   build_and_distcheck:
 
+    name: Configure ngIRCd sources and run make targets "all" and "distcheck"
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Install packages
-      run: sudo apt-get install autoconf automake build-essential expect libident-dev libpam-dev libssl-dev libwrap0-dev libz-dev pkg-config telnet
+    - uses: actions/checkout@v4
+    - uses: awalsh128/cache-apt-pkgs-action@v1
+      with:
+        packages: autoconf automake build-essential expect libident-dev libpam-dev libssl-dev libwrap0-dev libz-dev pkg-config telnet
+        version: 1.0
     - name: Generate build system files
       run: ./autogen.sh
     - name: Configure the build system

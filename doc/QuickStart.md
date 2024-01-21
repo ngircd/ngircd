@@ -3,14 +3,59 @@
 This *Quick Start* document explains how to configure ngIRCd, the lightweight
 Internet Relay Chat (IRC) server, using some "real world" scenarios.
 
+## Introduction
+
+The ngIRCd daemon can be run without any configuration file using built-in
+defaults. These defaults are probably sufficient for very simple single-node
+setups, but most probably need further tweaking for more "advanced" setups.
+
+You can check the current settings by running `ngircd --configtest`. This
+command not only shows the settings, it shows error, warning and hits, if it
+detects any.
+
+Therefore it is definitely best practice to *always run this check* after
+making any changes to the configuration file(s) and double-check that
+everything was parsed as expected!
+
+### Configuration File and Drop-in Directory
+
+The `ngircd --configtest` command shows the name of the default configuration
+file, too. For example `/etc/ngircd/ngircd.conf`.
+
+In addition, ngIRCd supports further configuration file snippets in a "drop-in"
+directory which is configured with the `IncludeDir` variable in the `[Options]`
+section and has a built-in default value (like `/etc/ngircd/ngircd.conf.d/`).
+All configuration files must match `*.conf`.
+
+It is a good idea to not edit a default `ngircd.conf` file but to create one
+ore more new files in this include directory, overriding the defaults as
+needed. This way you don't get any clashes when updating ngIRCd to newer
+releases.
+
+## Configuration File Syntax
+
+The configuration consists of sections and parameters.
+
+A section begins with the name of the section in square brackets (like
+`[Example]`) and continues until the next section begins. Sections contain
+parameters of the form `name = value`.
+
+Section and parameter names are not case sensitive.
+
+Please see the `ngircd.conf`(5) manual page for an in-depth description of the
+configuration file, its syntax and all supported configuration options.
+
 ## Simple Single-Instance Server
 
-ngIRCd needs at least a valid IRC server name configured, therefore the
-simplest configuration file looks like this:
+A good starting point is to configure a valid (and unique!) IRC server name
+(which is *not* related to a host name, it is purely a unique *server ID* that
+must contain at least one dot ".").
+
+This looks like this:
 
 ``` ini
 [Global]
-Name = irc.example.net
+Name = my.irc.server
 ```
 
 This results in the following *warning* in the logs when starting the daemon:

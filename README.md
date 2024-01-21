@@ -52,8 +52,9 @@ and included in the package repositories of various operating systems.
 The **homepage** of the ngIRCd project is <https://ngircd.barton.de>.
 
 Installation of ngIRCd is described in the file `INSTALL.md` in the source
-directory; please see the file `doc/QuickStart.md` in the `doc/` directory for
-some configuration examples.
+directory; please see the file `doc/QuickStart.md` in the `doc/` directory or
+[online](https://ngircd.barton.de/doc/QuickStart.md) for some real-world
+configuration examples.
 
 More documentation can be found in the `doc/` directory and
 [online](https://ngircd.barton.de/documentation).

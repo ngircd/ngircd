@@ -942,8 +942,7 @@ Read_Config(bool TestOnly, bool IsStarting)
 
 	if (TestOnly && fd)
 		Config_Error(LOG_INFO,
-			     "Reading configuration from \"%s\" ...",
-			     NGIRCd_ConfFile );
+			     "Reading configuration from \"%s\" ...", ptr);
 
 	/* Clean up server configuration structure: mark all already
 	 * configured servers as "once" so that they are deleted

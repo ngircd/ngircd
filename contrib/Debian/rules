@@ -35,6 +35,7 @@ execute_after_dh_auto_install:
 	 -e "s|;ServerGID = 65534|ServerGID = irc|g" \
 	 -e "s|;PidFile = /var/run/ngircd/ngircd.pid|PidFile = /run/ircd/ngircd.pid|g" \
 	 -e "s|;PAM = yes|PAM = no|g" \
+	 -e "s|;\[SSL\]|[SSL]|g" \
 	 -e "s|;CAFile = /etc/ssl/CA/cacert.pem|CAFile = /etc/ssl/certs/ca-certificates.crt|g" \
 	 $(CURDIR)/debian/ngircd/usr/share/doc/ngircd/sample-ngircd.conf \
 	 >>$(CURDIR)/debian/ngircd/etc/ngircd/ngircd.conf

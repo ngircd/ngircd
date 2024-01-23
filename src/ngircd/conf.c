@@ -980,7 +980,7 @@ Read_Config(bool TestOnly, bool IsStarting)
 #endif
 
 	if (fd) {
-		Read_Config_File(NGIRCd_ConfFile, fd);
+		Read_Config_File(ptr, fd);
 		fclose(fd);
 	}
 

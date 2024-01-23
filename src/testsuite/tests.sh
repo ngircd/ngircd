@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # ngIRCd Test Suite
-# Copyright (c)2001-2014 Alexander Barton (alex@barton.de) and Contributors.
+# Copyright (c)2001-2024 Alexander Barton (alex@barton.de) and Contributors.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -36,6 +36,16 @@ if [ $? -ne 0 ]; then
   echo "$test: \"telnet\" not found" >>tests-skipped.lst
   echo "${name}: \"telnet\" not found.";  exit 77
 fi
+
+case "$test" in
+  *ssl*)
+    type openssl > /dev/null 2>&1
+    if [ $? -ne 0 ]; then
+      echo "$test: \"openssl\" not found" >>tests-skipped.lst
+      echo "${name}: \"openssl\" not found.";  exit 77
+    fi
+    ;;
+esac
 
 # prepare expect script
 e_in="${srcdir}/${test}.e"

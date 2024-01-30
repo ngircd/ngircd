@@ -1,10 +1,10 @@
 # ngIRCd test suite
 # Server connect test
 
-spawn openssl s_client -quiet -connect 127.0.0.1:6790
+spawn openssl s_client -quiet -nameopt utf8,space_eq -connect 127.0.0.1:6790
 expect {
         timeout { exit 1 }
-        "*CN*=*my.first.domain.tld"
+        "*CN = my.first.domain.tld"
 }
 
 sleep 2

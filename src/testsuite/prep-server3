@@ -1,4 +1,5 @@
-#!/bin/sh
-cp ssl/cert-my-first-domain-tld.pem ssl/cert.pem
-cp ssl/key-my-first-domain-tld.pem ssl/key.pem
-cp ssl/dhparams-my-first-domain-tld.pem ssl/dhparams.pem
+#!/bin/sh -e
+mkdir -p ssl
+cp "${srcdir}"/ssl/cert-my-first-domain-tld.pem ssl/cert.pem
+cp "${srcdir}"/ssl/key-my-first-domain-tld.pem ssl/key.pem
+cp "${srcdir}"/ssl/dhparams-my-first-domain-tld.pem ssl/dhparams.pem

@@ -18,6 +18,7 @@ EXTRA_DIST = \
 	autogen.sh \
 	configure.ng \
 	.clang_complete \
+	.dockerignore \
 	.mailmap
 
 clean-local:

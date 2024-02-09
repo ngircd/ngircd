@@ -9,6 +9,9 @@ This `contrib/` directory contains the following sub-folders and files:
 
 - `de.barton.ngircd.plist[.tmpl]`: launchd(8) property list file.
 
+- `Dockerfile`: Container definition file, for Docker or Podman for example.
+  More information can be found in the `doc/Container.md` file.
+
 - `ngindent.sh`: Script to indent the code of ngIRCd in the "standard way".
 
 - `ngircd-bsd.sh`: Start/stop script for FreeBSD.

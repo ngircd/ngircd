@@ -21,6 +21,7 @@ static_docs = \
 	Bopm.txt \
 	Capabilities.txt \
 	Commands.txt \
+	Container.md \
 	Contributing.txt \
 	FAQ.md \
 	HowToRelease.txt \

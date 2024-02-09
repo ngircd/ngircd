@@ -14,6 +14,7 @@ SUBDIRS = Debian
 EXTRA_DIST = README.md \
 	de.barton.ngircd.metainfo.xml \
 	de.barton.ngircd.plist \
+	Dockerfile \
 	ngindent.sh \
 	ngircd-bsd.sh \
 	ngIRCd-Logo.gif \

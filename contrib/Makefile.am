@@ -11,7 +11,7 @@
 
 SUBDIRS = Debian
 
-EXTRA_DIST = README \
+EXTRA_DIST = README.md \
 	de.barton.ngircd.metainfo.xml \
 	de.barton.ngircd.plist \
 	ngindent.sh \

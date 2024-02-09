@@ -1,6 +1,6 @@
 #
 # ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001-2012 Alexander Barton (alex@barton.de) and Contributors
+# Copyright (c)2001-2024 Alexander Barton (alex@barton.de) and Contributors
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,9 +14,6 @@ __ng_Makefile_am_template__
 EXTRA_DIST = Makefile.ng
 
 AM_CPPFLAGS = -I$(srcdir)/../portab -I$(srcdir)/../tool -I$(srcdir)/../ipaddr
-
-LINTARGS = -weak -warnunixlib +unixlib -booltype BOOLEAN \
- -varuse -retvalother -emptyret -unrecog
 
 sbin_PROGRAMS = ngircd
 
@@ -107,7 +104,7 @@ noinst_HEADERS = \
 	sighandlers.h
 
 clean-local:
-	rm -f check-version check-help lint.out
+	rm -f check-version check-help
 
 maintainer-clean-local:
 	rm -f Makefile Makefile.in Makefile.am
@@ -121,32 +118,6 @@ check-help: Makefile
 	echo "#!/bin/sh" > check-help
 	echo "./ngircd --help | grep help >/dev/null 2>&1" >>check-help
 	chmod 755 check-help
-
-lint:
-	@splint --version >/dev/null 2>&1 \
-	 || ( echo; echo "Error: \"splint\" not found!"; echo; exit 1 )
-	@echo; warnings=0; files=0; \
-	for f in *.c; do \
-	 echo "checking $$f ..."; \
-	 splint $$f $(LINTARGS) -I$(srcdir) -I$(srcdir)/.. \
-	  $(AM_CPPFLAGS) $(AM_CFLAGS) >lint.out 2>&1; \
-	 grep "no warnings" lint.out > /dev/null 2>&1; \
-	 if [ $$? -ne 0 ]; then \
-	  waswarning=1; \
-	  echo; grep -v "^Command Line: " lint.out; echo; \
-	  w=$$( grep "code warning" lint.out | $(AWK) "{ print \$$4 }" ); \
-	  [ "$$w" -gt 0 ] && warnings=`expr $$warnings + $$w`; \
-	  files=`expr $$files + 1`; \
-	 else \
-	  waswarning=0; \
-	 fi; \
-	 rm -f lint.out; \
-	done; \
-	[ $$waswarning -eq 0 ] && echo; \
-	[ $$warnings -gt 0 ] \
-	 && echo "Result: $$warnings warning(s) in $$files file(s)!" \
-	 || echo "Result: no warnings found."; \
-	echo; [ $$warnings -gt 0 ] && exit 1
 
 TESTS = check-version check-help
 

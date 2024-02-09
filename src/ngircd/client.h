@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2013 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2024 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@
 
 #include "defines.h"
 
-#if defined(__client_c__) | defined(__client_cap_c__) | defined(S_SPLINT_S)
+#if defined(__client_c__) | defined(__client_cap_c__)
 
 typedef struct _CLIENT
 {

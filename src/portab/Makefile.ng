@@ -1,6 +1,6 @@
 #
 # ngIRCd -- The Next Generation IRC Daemon
-# Copyright (c)2001-2014 Alexander Barton (alex@barton.de) and Contributors
+# Copyright (c)2001-2024 Alexander Barton (alex@barton.de) and Contributors
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ portabtest_LDFLAGS = -L.
 
 portabtest_LDADD = -lngportab
 
-noinst_HEADERS = portab.h splint.h
+noinst_HEADERS = portab.h
 
 maintainer-clean-local:
 	rm -f Makefile Makefile.in Makefile.am

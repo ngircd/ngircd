@@ -110,12 +110,6 @@ typedef unsigned char bool;
 #define GLOBAL extern
 #endif
 
-/* SPLint */
-
-#ifdef S_SPLINT_S
-# include "splint.h"
-#endif
-
 /* target constants  */
 
 #ifndef HOST_OS

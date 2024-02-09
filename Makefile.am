@@ -32,9 +32,6 @@ maintainer-clean-local:
 testsuite:
 	cd src/testsuite && ${MAKE} check
 
-lint:
-	cd src/ngircd && ${MAKE} lint
-
 srcdoc:
 	cd doc && ${MAKE} srcdoc
 
@@ -45,6 +42,6 @@ deb:
 	[ -f debian/rules ] || ln -s contrib/Debian debian
 	dpkg-buildpackage --build=binary
 
-.PHONY: deb lint rpm srcdoc testsuite
+.PHONY: deb rpm srcdoc testsuite
 
 # -eof-

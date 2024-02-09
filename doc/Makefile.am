@@ -86,9 +86,6 @@ uninstall-hook:
 uninstall-config:
 	rm -f $(DESTDIR)$(sysconfdir)/ngircd.conf
 
-srcdoc:
-	${MAKE} -C src srcdoc
-
-.PHONY: install-config uninstall-config srcdoc
+.PHONY: install-config uninstall-config
 
 # -eof-

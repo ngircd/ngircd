@@ -30,10 +30,10 @@ maintainer-clean-local:
 	rm -f config.log debian
 
 testsuite:
-	cd src/testsuite && ${MAKE} check
+	${MAKE} -C src/testsuite check
 
 srcdoc:
-	cd doc && ${MAKE} srcdoc
+	${MAKE} -C doc/src srcdoc
 
 rpm: distcheck
 	rpm -ta ngircd-*.tar.gz

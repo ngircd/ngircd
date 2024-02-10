@@ -37,7 +37,7 @@ srcdoc:
 	${MAKE} -C doc/src srcdoc
 
 rpm: distcheck
-	rpm -ta ngircd-*.tar.gz
+	rpmbuild -ta ngircd-$(VERSION).tar.gz
 
 deb:
 	[ -f debian/rules ] || ln -s contrib/Debian debian

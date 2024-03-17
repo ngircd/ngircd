@@ -10,7 +10,7 @@ defaults. These defaults are probably sufficient for very simple single-node
 setups, but most probably need further tweaking for more "advanced" setups.
 
 You can check the current settings by running `ngircd --configtest`. This
-command not only shows the settings, it shows error, warning and hits, if it
+command not only shows the settings, it shows error, warning and hints, if it
 detects any.
 
 Therefore it is definitely best practice to *always run this check* after
@@ -26,12 +26,13 @@ distribution packages, are `/etc/ngircd.conf` or `/etc/ngircd/ngircd.conf`).
 Run the command `ngircd --configtest` to check the name of the configuration
 file which is used by default on your local system.
 
-In addition, ngIRCd supports further configuration file snippets in a "drop-in"
+In addition, ngIRCd supports configuration file snippets in a "drop-in"
 directory which is configured with the `IncludeDir` variable in the `[Options]`
 section and has a built-in default value (like `/etc/ngircd/ngircd.conf.d/`).
-All configuration files must match `*.conf`.
+All configuration files matching the `*.conf` pattern are read-in from this
+directory after the main `ngircd.conf` file.
 
-It is a good idea to not edit a default `ngircd.conf` file but to create one
+It is a good idea to not edit the default `ngircd.conf` file but to create one
 ore more new files in this include directory, overriding the defaults as
 needed. This way you don't get any clashes when updating ngIRCd to newer
 releases.

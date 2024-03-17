@@ -232,6 +232,27 @@ So the resulting command looks like this:
     make pam pkg-config zlib
 ```
 
+#### macOS with Homebrew
+
+To build ngIRCd on Apple macOS, you need either Xcode or the command line
+development tools. You can install the latter with the `xcode-select --install`
+command.
+
+Additional tools and libraries that are not part of macOS itself are best
+installed with the [Homebrew](https://brew.sh) package manager:
+
+``` shell
+  brew install autoconf automake gnutls libident pkg-config
+```
+
+Note: To actually use the GnuTLS and IDENT libraries installed by Homebrew, you
+need to pass the installation path to the `./configure` command (see below). For
+example like this:
+
+``` shell
+  ./configure --with-gnutls=$(brew --prefix) --with-ident=$(brew --prefix) [...]
+```
+
 ### `./autogen.sh`
 
 The first step, to run `./autogen.sh`, is *only* necessary if the `configure`

@@ -72,7 +72,9 @@ IRC_METADATA(CLIENT *Client, REQUEST *Req)
 	}
 
 	if (strcasecmp(Req->argv[1], "cloakhost") == 0) {
-		Client_UpdateCloakedHostname(target, prefix, Req->argv[2]);
+		/* Set or remove a "cloaked hostname". */
+		Client_UpdateCloakedHostname(target, prefix,
+					     *Req->argv[2] ? Req->argv[2] : NULL);
 		if (Client_Conn(target) > NONE && Client_HasMode(target, 'x'))
 			IRC_WriteStrClientPrefix(target, prefix,
 					RPL_HOSTHIDDEN_MSG, Client_ID(target),

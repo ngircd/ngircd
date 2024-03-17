@@ -73,9 +73,11 @@ struct SSLOptions {
 	char *KeyFile;			/**< SSL key file */
 	char *CertFile;			/**< SSL certificate file */
 	char *DHFile;			/**< File containing DH parameters */
+	char *CAFile;			/**< CA for verifying client certs */
 	array ListenPorts;		/**< Array of listening SSL ports */
 	array KeyFilePassword;		/**< Key file password */
 	char *CipherList;		/**< Set SSL cipher list to use */
+	bool RequireClientCert;		/**< Require client certificates */
 };
 #endif
 

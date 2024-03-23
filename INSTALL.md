@@ -1,20 +1,20 @@
-# [ngIRCd](https://ngircd.barton.de) - Internet Relay Chat Server
+# [ngIRCd](https://ngircd.barton.de) - Installation
 
-This document explains how to install, the lightweight Internet Relay Chat
-(IRC) server.
+This document describes how to install ngIRCd, the lightweight Internet Relay
+Chat (IRC) server.
 
 The first section lists noteworthy changes to earlier releases; you definitely
 should read this when upgrading your setup! But you can skip over this section
-when you do a fresh installation.
+when you are working on a fresh installation.
 
-All the subsequent sections describe the steps required to build and install
-ngIRCd from sources. The information given here is not relevant when you are
-using packages provided by your operating system vendor or third-party
-repositories.
+The subsequent sections describe the steps required to build and install ngIRCd
+_from sources_. The information given here is not relevant when you are using
+packages provided by your operating system vendor or third-party repositories!
 
-Please see the file `doc/QuickStart.md` in the `doc/` directory and
-[online](https://ngircd.barton.de/doc/QuickStart.md) on the homepage for
-information about configuring ngIRCd, including some configuration examples.
+Please see the file `doc/QuickStart.md` in the `doc/` directory or on
+[GitHub](https://github.com/ngircd/ngircd/blob/master/doc/QuickStart.md) for
+information about _setting up_ and _running_ ngIRCd, including some real-world
+configuration examples.
 
 ## Upgrade Information
 
@@ -394,46 +394,3 @@ standard locations.
 
   Enable (disable) support for version 6 of the Internet Protocol, which should
   be available on most modern UNIX-like operating systems by default.
-
-## Configuration
-
-Please see the file `doc/QuickStart.md` in the `doc/` directory and
-[online](https://ngircd.barton.de/doc/QuickStart.md) on the homepage for
-information about configuring ngIRCd, including some configuration examples.
-
-And have a look at the `ngircd(8)` and `ngircd.conf(5)` manual pages for
-details and all possible command line and configuration options -- **and don't
-forget to run `ngircd --configtest` to validate your configuration file!**
-
-### Manual Pages Online
-
-- Daemon: [ngircd.8](https://manpages.debian.org/ngircd.8)
-- Configutation file: [ngircd.conf.5](https://manpages.debian.org/ngircd.conf.5)
-
-## Command line options
-
-ngIRCd supports the following command line options:
-
-- `-f`, `--config <file>`
-
-  The daemon uses the file `<file>` as configuration file rather than
-  the standard configuration `/usr/local/etc/ngircd.conf`.
-
-- `-n`, `--nodaemon`
-
-  ngIRCd should be running as a foreground process.
-
-- `-p`, `--passive`
-
-  Server-links won't be automatically established.
-
-- `-t`, `--configtest`
-
-  Reads, validates and dumps the configuration file as interpreted
-  by the server. Then exits.
-
-Use `--help` to see a short help text describing all available parameters
-the server understands, with `--version` the ngIRCd shows its version
-number. In both cases the server exits after the output.
-
-Please see the `ngircd(8)` manual page for more details!

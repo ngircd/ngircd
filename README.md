@@ -18,9 +18,6 @@ The name ngIRCd stands for *next-generation IRC daemon*, which is a little bit
 exaggerated: *lightweight Internet Relay Chat server* most probably would have
 been a better name :-)
 
-Please see the `INSTALL.md` document for installation and upgrade information,
-online available here: <https://ngircd.barton.de/doc/INSTALL.md>!
-
 ## Status
 
 Development of *ngIRCd* started back in 2001: The server has been written from
@@ -34,7 +31,7 @@ commands and semantics that are used by existing clients.
 *ngIRCd* is used as the daemon in real-world in-house and public IRC networks
 and included in the package repositories of various operating systems.
 
-## Features (or: why use ngIRCd?)
+## Advantages and strengths
 
 - Well arranged (lean) configuration file.
 - Simple to build, install, configure, and maintain.
@@ -51,13 +48,30 @@ and included in the package repositories of various operating systems.
 
 The **homepage** of the ngIRCd project is <https://ngircd.barton.de>.
 
-Installation of ngIRCd is described in the file `INSTALL.md` in the source
-directory; please see the file `doc/QuickStart.md` in the `doc/` directory or
-[online](https://ngircd.barton.de/doc/QuickStart.md) for some real-world
+The `INSTALL.md` document describes how to _install_ and _upgrade_ ngIRCd. It
+is included in all distribution archives and available online on
+[GitHub](https://github.com/ngircd/ngircd/blob/master/INSTALL.md).
+
+Please see the file `doc/QuickStart.md` in the `doc/` directory or on
+[GitHub](https://github.com/ngircd/ngircd/blob/master/doc/QuickStart.md) for
+information about _setting up_ and _running_ ngIRCd, including some real-world
 configuration examples.
 
-More documentation can be found in the `doc/` directory and
-[online](https://ngircd.barton.de/documentation).
+More information can be found in a couple of files in the `doc/` directory
+(online on [GitHub](https://github.com/ngircd/ngircd/tree/master/doc)) and in
+the [documentation section](https://ngircd.barton.de/documentation) on the
+[homepage of ngIRCd](https://ngircd.barton.de).
+
+In addition, ngIRCd comes with two _manual pages_: `ngircd(8)` (for the daemon)
+and `ngircd.conf(5)` (for its configuration file). They have even more details
+and list all possible command line parameters and configuration options. You
+can read them with the `man` command (when they are installed locally on your
+system, e.g. `man 8 ngircd` and `man 5 ngircd.conf`) or online here:
+
+- Daemon:
+  [ngircd(8)](https://ngircd.barton.de/man/ngircd.8.html)
+- Configuration file:
+  [ngircd.conf(5)](https://ngircd.barton.de/man/ngircd.conf.5.html)
 
 ## Downloads & Source Code
 
@@ -65,8 +79,8 @@ You can find the latest information about the ngIRCd and the most recent
 stable release on the [news](https://ngircd.barton.de/news) and
 [downloads](https://ngircd.barton.de/download) pages of the homepage.
 
-Visit our source code repository at [GitHub](https://github.com) if you are
-interested in the latest development code: <https://github.com/ngircd/ngircd>.
+Visit our source code repository at [GitHub](https://github.com/ngircd/ngircd)
+if you are interested in the latest development code.
 
 ## Problems, Bugs, Patches
 

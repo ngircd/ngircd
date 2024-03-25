@@ -95,11 +95,23 @@ It is
 to use "ngircd \-\-configtest" to validate the configuration of ngIRCd after
 making changes to the configuration files!
 .SH DEBUGGING
-When ngIRCd is compiled with debug code, that is, its source code has
-been ./configure'd with "\-\-enable\-debug" and/or "\-\-enable\-sniffer" (witch
-enables debug mode automatically as well), you can use two more command
-line options and two more signals to debug problems with the daemon itself
-or IRC clients:
+ngIRCd can log additional debug messages, which can be enabled with the command
+line option \-\-debug (\-d) or by sending the USR1 signal to the running daemon.
+Some of those messages may leak personal information, be very technical and can
+be very verbose. Therefore the debug mode is meant for troubleshooting only and
+should definitely be disabled during normal operation!
+.PP
+In addition, a "protocol sniffer" can be enabled on build time by passing the
+"\-\-enable\-sniffer" option to the ./configure script which enables the
+"\-\-sniffer" (\-s) command line option (which is not available by default):
+this "sniffer" logs all incoming and outgoing IRC commands on all connections,
+which can be handy to debug problems with the daemon itself or IRC clients.
+.PP
+Both modes are indicated in the version string shown by the IRC "VERSION"
+command: if the version ends in a dot (like in "26.1."), the daemon operates in
+"normal" mode (the version used in the example is "26.1"). If it ends in ".1"
+(like in "26.1.1") the "debug-mode" is enabled; and if it ends in ".2" (like in
+"26.1.2") the "IRC sniffer" is enabled, too.
 .PP
 \fBOptions:\fR
 .TP
@@ -112,6 +124,9 @@ the console/syslog. This option requires that ngIRCd has been ./configure'd
 with "\-\-enable\-sniffer" and enables debug mode automatically, too.
 .PP
 \fBSignals:\fR
+.PP
+Note: Usage of these signals is broadcasted to all users with the +s ("receive
+server notices") mode set!
 .TP
 \fBUSR1\fR
 Toggle debug mode on and off during runtime.

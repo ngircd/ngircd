@@ -41,3 +41,6 @@ Description: lightweight Internet Relay Chat (IRC) server
  The name ngIRCd stands for next-generation IRC daemon, which is a little bit
  exaggerated: lightweight Internet Relay Chat server most probably would have
  been a better name :-)
+ .
+ This package is built with support for all optional features and uses the
+ OpenSSL library for SSL/TLS support.

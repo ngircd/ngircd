@@ -12,6 +12,7 @@
 ^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Deleted ".*" \(".*"\) from G-Line list \(expired\)\.$
 ^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Enabled link compression \(zlib\) on connection [0-9]+\.$
 ^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Establishing connection for ".*" to ".*:[0-9]+" \(.*\), socket [0-9]+ \.\.\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: File descriptor limit is [0-9]+; "MaxConnections" is (not set|set to [0-9]+)\.$
 ^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Got (valid server|unchecked peer) certificate: .*\.$
 ^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Got signal "(Hangup|Terminated)" \.\.\.$
 ^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Got valid OPER for ".*" from ".*", user is an IRC operator now\.$

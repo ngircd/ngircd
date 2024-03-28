@@ -192,6 +192,7 @@ AC_CHECK_HEADERS_ONCE([ \
 	stdbool.h \
 	stddef.h \
 	stdint.h \
+	sys/resource.h \
 	varargs.h \
 ])
 
@@ -274,6 +275,7 @@ AC_CHECK_FUNCS_ONCE([
 	getnameinfo \
 	inet_aton \
 	setgroups \
+	setrlimit \
 	sigaction \
 	sigprocmask \
 	snprintf \

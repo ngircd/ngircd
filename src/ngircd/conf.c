@@ -35,6 +35,10 @@
 #include <dirent.h>
 #include <netdb.h>
 
+#ifdef HAVE_SYS_RESOURCE_H
+#	include <sys/resource.h>
+#endif
+
 #include "ngircd.h"
 #include "conn.h"
 #include "channel.h"
@@ -2108,6 +2112,10 @@ Validate_Config(bool Configtest, bool Rehash)
 	struct hostent *h;
 	bool config_valid = true;
 	char *ptr;
+#ifdef HAVE_SETRLIMIT
+	struct rlimit rlim;
+	long fd_lim_old;
+#endif
 
 	/* Emit a warning when the config file is not a full path name */
 	if (NGIRCd_ConfFile[0] && NGIRCd_ConfFile[0] != '/') {
@@ -2196,6 +2204,48 @@ Validate_Config(bool Configtest, bool Rehash)
 		Config_Error(LOG_WARNING,
 			     "Maximum penalty increase ('MaxPenaltyTime') is set to %ld, this is not recommended!",
 			     Conf_MaxPenaltyTime);
+
+#ifdef HAVE_SETRLIMIT
+	if(getrlimit(RLIMIT_NOFILE, &rlim) == 0) {
+		LogDebug("Current file descriptor limit is %ld, maximum %ld. \"MaxConnections\" is %ld.",
+			 (long)rlim.rlim_cur, (long)rlim.rlim_max,
+			 Conf_MaxConnections);
+		fd_lim_old = rlim.rlim_cur;
+		/* Don't request "infinite" file descriptors, use a limit! */
+		if (rlim.rlim_max != RLIM_INFINITY && rlim.rlim_max < MAX_FD_LIMIT)
+			rlim.rlim_cur = rlim.rlim_max;
+		else
+			rlim.rlim_cur = MAX_FD_LIMIT;
+		if ((long)rlim.rlim_cur != fd_lim_old) {
+			/* Try to adjust the current file descriptor limit: */
+			LogDebug("Trying to upgrade \"soft\" file descriptor limit: %ld -> %ld ...",
+				 fd_lim_old, (long)rlim.rlim_cur);
+			if(setrlimit(RLIMIT_NOFILE, &rlim) != 0)
+				Config_Error(LOG_ERR, "Failed to adjust file descriptor limit from %ld to %ld: %s",
+					     fd_lim_old, (long)rlim.rlim_cur,
+					     strerror(errno));
+		}
+		/* Check the (updated?) file descriptor limit: */
+		getrlimit(RLIMIT_NOFILE, &rlim);
+		if (rlim.rlim_cur != RLIM_INFINITY
+		    && (long)rlim.rlim_cur <= (long)Conf_MaxConnections) {
+			Config_Error(LOG_WARNING,
+				     "Current file descriptor limit (%ld) is not higher than configured \"MaxConnections\" (%ld)!",
+				     (long)rlim.rlim_cur, Conf_MaxConnections);
+		} else if (!Configtest) {
+			if (Conf_MaxConnections > 0)
+				Log(LOG_INFO,
+				    "File descriptor limit is %ld; \"MaxConnections\" is set to %ld.",
+				    (long)rlim.rlim_cur, Conf_MaxConnections);
+			else
+				Log(LOG_INFO,
+				    "File descriptor limit is %ld; \"MaxConnections\" is not set.",
+				    (long)rlim.rlim_cur);
+		}
+	} else
+		Config_Error(LOG_ERR, "Failed to get file descriptor limit: %s",
+			     strerror(errno));
+#endif
 
 	servers = servers_once = 0;
 	for (i = 0; i < MAX_SERVERS; i++) {

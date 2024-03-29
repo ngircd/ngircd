@@ -21,7 +21,8 @@ If you are using Git, you can tag the built image like this (use the ID of the
 newly built image!):
 
 ```bash
-podman tag <container_id> "ngircd:$(git describe --tags | sed 's/rel-//g')"
+tag=$(git describe --tags | sed 's/rel-//g')
+podman tag <container_id> "ngircd:${tag}"
 ```
 
 ## Running the container
@@ -50,7 +51,7 @@ mkdir -p /host/path/to/ngircd/conf.d
 touch /host/path/to/ngircd/conf.d/my.conf
 podman run --name=ngircd --detach \
   -p 127.0.0.1:6667:6667 \
-  -v /host/path/to/ngircd/conf.d:/opt/ngircd/etc/ngircd.conf.d' \
+  -v "/host/path/to/ngircd/conf.d:/opt/ngircd/etc/ngircd.conf.d" \
   ngircd:<tag>
 ```
 
@@ -63,9 +64,9 @@ With Docker and Podman, you can pass arguments to the `ngircd` binary inside of
 the container by simply appending it to the "run" command line like this:
 
 ```bash
-podman run --name=ngircd --rm -it \
-  -v /host/path/to/ngircd/conf.d:/opt/ngircd/etc/ngircd.conf.d' \
-  ngircd:<tag>
+podman run --rm -it \
+  -v "/host/path/to/ngircd/conf.d:/opt/ngircd/etc/ngircd.conf.d" \
+  ngircd:<tag> \
   --configtest
 ```
 

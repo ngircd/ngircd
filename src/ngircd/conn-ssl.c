@@ -569,7 +569,7 @@ ConnSSL_LoadServerKey_gnutls(void)
 			return false;
 		}
 	}
-	Log(LOG_INFO, "Storing new X509 certificate credentials in slot %zd.", x509_cred_idx);
+	LogDebug("Storing new X509 certificate credentials in slot %zd.", x509_cred_idx);
 	slot->x509_cred = x509_cred;
 	slot->refcnt = 0;
 

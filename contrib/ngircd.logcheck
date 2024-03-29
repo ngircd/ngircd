@@ -42,7 +42,6 @@
 ^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Server going down NOW!$
 ^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Shutting down all listening sockets \([0-9]+ total\) \.\.\.$
 ^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Shutting down connection [0-9]+ \(Can't connect|Client closed connection|Closing connection: .* \(Server going down\)|Got QUIT command|ID ".*" already registered|Ping timeout: [0-9]+ seconds|Read error|SSL accept error, closing socket|Server configuration already in use|Server going down|Timeout|Write error|".*" \((G-Line|SQUIT from .*)\)\) with ".*:[0-9]+" \.\.\.$
-^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Storing new X509 certificate credentials in slot [0-9]\.$
 ^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Synchronization with ".*" done \(connection [0-9]+\): [0-9]+ seconds? \[[0-9]+ users, [0-9]+ channels\]\.$
 ^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: User ".*!.*@.*" changed nick \(connection [0-9]+\): ".*" -> ".*"\.$
 ^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: User ".*!.*@.*" registered \(connection [0-9]+\)\.$

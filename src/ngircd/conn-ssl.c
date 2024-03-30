@@ -518,6 +518,7 @@ ConnSSL_LoadServerKey_gnutls(void)
 		return false;
 
 	gnutls_certificate_set_dh_params(x509_cred, dh_params);
+	gnutls_certificate_set_flags(x509_cred, GNUTLS_CERTIFICATE_VERIFY_CRLS);
 
 	cert_file = Conf_SSLOptions.CertFile ?
 			Conf_SSLOptions.CertFile : Conf_SSLOptions.KeyFile;

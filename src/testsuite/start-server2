@@ -1,7 +1,6 @@
 #!/bin/sh
 # ngIRCd Test Suite
 
-[ -z "$srcdir" ] && srcdir=`dirname $0`
-${srcdir}/start-server.sh 2
-
-# -eof-
+[ -z "$srcdir" ] && srcdir=`dirname "$0"`
+set -u
+"${srcdir}/start-server.sh" 2

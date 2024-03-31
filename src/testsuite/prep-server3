@@ -1,4 +1,6 @@
 #!/bin/sh -e
+[ -z "$srcdir" ] && srcdir=`dirname "$0"`
+set -eu
 mkdir -p ssl
 cp "${srcdir}"/ssl/cert-my-first-domain-tld.pem ssl/cert.pem
 cp "${srcdir}"/ssl/key-my-first-domain-tld.pem ssl/key.pem

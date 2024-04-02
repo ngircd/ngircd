@@ -160,5 +160,5 @@ expect {
 send "quit\r"
 expect {
 	timeout { exit 1 }
-	"ERROR"
+	"ERROR :Closing connection"
 }

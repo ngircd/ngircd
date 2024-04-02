@@ -26,7 +26,8 @@ for inclusion here. Thanks for your help!
                                                                       | | | |
 Platform                    Compiler     ngIRCd     Date     Tester   C M T R *
 --------------------------- ------------ ---------- -------- -------- - - - - -
-aarch64/apple/darwin        A-clang 12.0.0 26       20-12-10 goetz    N Y Y Y 3
+aarch64/apple/darwin        A-clang 12.0 26         20-12-10 goetz    N Y Y Y 3
+aarch64/apple/darwin23.4.0  A-clang 15.0 26.1~131   24-04-01 alex     Y Y Y Y 3
 alpha/unknown/netbsd3.0     gcc 3.3.3    CVSHEAD    06-05-07 fw       Y Y Y Y 3
 armv6l/unk./linux-gnueabi   gcc 4.7.2    20.2       13-03-08 goetz    Y Y Y Y 5
 armv6l/unk./linux-gnueabihf gcc 4.6.3    21~rc2     13-10-26 pi       Y Y Y Y 5
@@ -72,6 +73,7 @@ i686/pc/linux-gnu           gcc 4.3.2    14.1       09-08-04 alex     Y Y Y Y 1
 i686/pc/minix               gcc 4.4.6    21~rc2     13-10-27 alex     Y Y N N
 i686/unknown/gnu0.3         gcc 4.4.5    19         12-02-29 alex     Y Y Y Y
 i686/unknown/gnu0.5         gcc 4.9.1    22~rc1-3   14-10-11 alex     Y Y Y Y
+i686/unknown/gnu0.9         gcc 12.2.0   26.1~131-g 24-04-01 alex     Y Y Y Y
 i686/unkn./kfreebsd7.2-gnu  gcc 4.3.4    15         09-12-02 alex     Y Y Y Y 3
 m68k/apple/aux3.0.1         gcc 2.7.2    17         10-11-07 alex     Y Y N Y
 m68k/apple/aux3.0.1         Orig. A/UX   17         10-11-07 alex     Y Y N Y 2
@@ -103,16 +105,19 @@ x86_64/apple/darwin16.5.0   A-clang 8.1  25~rc1-7-g 18-11-04 alex     Y Y Y Y 3
 x86_64/apple/darwin17.7.0   A-clang 10.0 25~rc1     18-11-04 alex     Y Y Y Y 3
 x86_64/apple/darwin18.2.0   A-clang 10.0 25~rc1-11  19-01-23 alex     Y Y Y Y 3
 x86_64/apple/darwin19.4.0   A-clang 11.0 26~rc1     20-05-10 alex     Y Y Y Y 3
-x86_64/apple/darwin19.6.0   A-clang 12.0.0 26       20-10-20 alex     Y Y Y Y 3
-x86_64/apple/darwin20.1.0   A-clang 12.0.0 26       21-01-01 alex     Y Y Y Y 3
+x86_64/apple/darwin19.6.0   A-clang 12.0 26         20-10-20 alex     Y Y Y Y 3
+x86_64/apple/darwin20.1.0   A-clang 12.0 26         21-01-01 alex     Y Y Y Y 3
+x86_64/apple/darwin23.4.0   A-clang 15.0 26.1~133-g 24-04-03 alex     Y Y Y Y 3
 x86_64/unknown/dragonfly3.4 gcc 4.7.2    21         13-11-12 goetz    Y Y N Y 3
 x86_64/unkn./freebsd8.1-gnu gcc 4.4.5    19         12-02-26 alex     Y Y Y Y 3
 x86_64/unknown/freebsd8.4   gcc 4.2.1    24~rc1-7   17-01-20 alex     Y Y Y Y 3
 x86_64/unknown/freebsd9.2   gcc 4.2.1    22~rc1-3   14-10-10 alex     Y Y Y Y 3
 x86_64/unknown/freebsd10.3  F-clang 3.4  24         17-01-20 goetz    Y Y Y Y 3
 x86_64/unknown/freebsd11.0  F-clang 3.8  24         17-01-21 goetz    Y Y Y Y 3
-x86_64/unknown/freebsd12.1  F-clang 8.0.1 26        20-08-28 alex     Y Y Y Y 3
+x86_64/unknown/freebsd12.1  F-clang 8.0  26         20-08-28 alex     Y Y Y Y 3
+x86_64/unknown/freebsd14.0  F-clang 16.0 26.1~131   24-04-01 alex     Y Y Y Y 3
 x86_64/unknown/haiku        gcc 7.3.0    25~rc1-11  19-01-06 alex     Y Y N Y
+x86_64/unknown/haiku        gcc 13.2.0   26.1~132-g 24-04-02 alex     Y Y Y Y
 x86_64/unknown/linux-gnu    clang 3.3    21         14-01-07 alex     Y Y Y Y 1
 x86_64/unknown/linux-gnu    clang 3.4    22~rc1-3   14-10-11 alex     Y Y Y Y 1
 x86_64/pc/linux-gnu         gcc 4.4.5    24~rc1-7   17-01-20 alex     Y Y Y Y 1
@@ -124,18 +129,22 @@ x86_64/pc/linux-gnu [WSL]   gcc 5.4.0    24         18-03-07 goetz    Y Y y Y 7
 x86_64/pc/linux-gnu         gcc 6.2.1    24~rc1-7   17-01-20 alex     Y Y Y Y 1
 x86_64/pc/linux-gnu         gcc 6.3.0    25~rc1-11  19-01-23 alex     Y Y Y Y 1
 x86_64/pc/linux-gnu         gcc 8.3.0    26         20-08-28 alex     Y Y Y Y 1
+x86_64/pc/linux-gnu         gcc 11.4.0   26.1~133-g 24-04-03 alex     Y Y Y Y 1
+x86_64/pc/linux-gnu         gcc 12.2.0   26.1~132-g 24-04-02 alex     Y Y Y Y 1
 x86_64/unknown/linux-gnu    icc 16       23         16-01-13 goetz    Y Y Y Y 1
 x86_64/unknown/linux-gnu    nwcc 0.8.2   21         13-12-01 goetz    Y Y Y Y 1
 x86_64/unknown/linux-gnu    Open64       21.1       14-03-27 goetz    Y Y Y Y 1
 x86_64/unknown/linux-gnu    Sun C 5.12   21.1       14-03-27 goetz    Y Y Y Y 1
 x86_64/unknown/netbsd9.0    gcc 7.4.0    26         20-08-28 alex     Y Y y Y 3
+x86_64/unknown/netbsd10.0   gcc 10.5.0   26.1~131-g 24-04-01 alex     Y Y Y Y 3
 x86_64/unknown/openbsd4.7   gcc 3.3.5    20~rc1     12-02-26 alex     Y Y Y Y 3
 x86_64/unknown/openbsd4.8   gcc 4.2.1    22~rc1-3   14-10-10 alex     Y Y y Y 3
 x86_64/unknown/openbsd5.1   gcc 4.2.1    21         13-12-28 alex     Y Y Y Y 3
 x86_64/unknown/openbsd5.5   gcc 4.2.1    22~rc1-3   14-10-10 alex     Y Y Y Y 3
 x86_64/unknown/openbsd6.6   gcc 4.2.1    26         20-08-28 alex     Y Y Y Y 3
-x86_64/unknown/openbsd6.6   O-clang 8.0.1 26        20-08-28 alex     Y Y Y Y 3
+x86_64/unknown/openbsd6.6   O-clang 8.0  26         20-08-28 alex     Y Y Y Y 3
 x86_64/unknown/openbsd6.7   gcc 4.2.1    26         20-09-26 goetz    Y Y y Y 3
+x86_64/unknown/openbsd7.4   O-clang 13.0 26.1~131-g 24-04-01 alex     Y Y Y Y 3
 
 
 * Notes

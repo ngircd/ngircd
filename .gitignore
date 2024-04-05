@@ -1,5 +1,6 @@
 .*.swp
 .deps
+.trunk
 .vscode
 *.a
 *.e_

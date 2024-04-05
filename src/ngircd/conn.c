@@ -66,6 +66,7 @@
 #include "ng_ipaddr.h"
 #include "parse.h"
 #include "resolve.h"
+#include "sighandlers.h"
 
 #define SERVER_WAIT (NONE - 1)		/** "Wait for outgoing connection" flag */
 
@@ -673,6 +674,7 @@ Conn_Handler(void)
 
 	Log(LOG_NOTICE, "Server \"%s\" (on \"%s\") ready.",
 	    Client_ID(Client_ThisServer()), Client_Hostname(Client_ThisServer()));
+	Signal_NotifySvcMgr("READY=1\n");
 
 	while (!NGIRCd_SignalQuit && !NGIRCd_SignalRestart) {
 		t = time(NULL);
@@ -791,10 +793,13 @@ Conn_Handler(void)
 		}
 	}
 
-	if (NGIRCd_SignalQuit)
+	if (NGIRCd_SignalQuit) {
 		Log(LOG_NOTICE | LOG_snotice, "Server going down NOW!");
-	else if (NGIRCd_SignalRestart)
+		Signal_NotifySvcMgr("STOPPING=1\n");
+	} else if (NGIRCd_SignalRestart) {
 		Log(LOG_NOTICE | LOG_snotice, "Server restarting NOW!");
+		Signal_NotifySvcMgr("RELOADING=1\n");
+	}
 } /* Conn_Handler */
 
 /**

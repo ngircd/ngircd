@@ -1,5 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
+ * Copyright (c)2001-2024 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +21,8 @@
 
 bool Signals_Init PARAMS((void));
 void Signals_Exit PARAMS((void));
+
+GLOBAL void Signal_NotifySvcMgr PARAMS((const char *message));
 
 #endif
 

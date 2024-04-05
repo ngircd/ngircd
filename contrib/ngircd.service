@@ -11,7 +11,7 @@ Before=anope.service atheme.service irc-services.service
 Before=bopm.service hopm.service
 
 [Service]
-Type=forking
+Type=notify
 User=irc
 Group=irc
 # Settings & limits:
@@ -35,7 +35,7 @@ EnvironmentFile=-/etc/default/ngircd
 EnvironmentFile=-/etc/default/ngircd-full
 EnvironmentFile=-/etc/default/ngircd-full-dbg
 # Start ngIRCd. Note: systemd doesn't allow to use $DAEMON here!
-ExecStart=/usr/sbin/ngircd $PARAMS
+ExecStart=/usr/sbin/ngircd --nodaemon --syslog $PARAMS
 ExecReload=/bin/kill -HUP $MAINPID
 Restart=on-failure
 

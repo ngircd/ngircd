@@ -193,6 +193,7 @@ AC_CHECK_HEADERS_ONCE([ \
 	stddef.h \
 	stdint.h \
 	sys/resource.h \
+	sys/un.h \
 	varargs.h \
 ])
 

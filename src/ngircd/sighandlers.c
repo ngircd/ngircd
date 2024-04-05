@@ -1,6 +1,6 @@
 /*
  * ngIRCd -- The Next Generation IRC Daemon
- * Copyright (c)2001-2015 Alexander Barton (alex@barton.de) and Contributors.
+ * Copyright (c)2001-2024 Alexander Barton (alex@barton.de) and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,11 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <time.h>
+
+#ifdef HAVE_SYS_UN_H
+# include <sys/socket.h>
+# include <sys/un.h>
+#endif
 
 #include "conn.h"
 #include "channel.h"
@@ -100,14 +105,17 @@ Rehash(void)
 	unsigned old_nicklen;
 
 	Log( LOG_NOTICE|LOG_snotice, "Re-reading configuration NOW!" );
+	Signal_NotifySvcMgr("RELOADING=1\n");
 
 	/* Remember old server name and nickname length */
 	strlcpy( old_name, Conf_ServerName, sizeof old_name );
 	old_nicklen = Conf_MaxNickLength;
 
 	/* Re-read configuration ... */
-	if (!Conf_Rehash( ))
+	if (!Conf_Rehash()) {
+		Signal_NotifySvcMgr("READY=1\n");
 		return;
+	}
 
 	/* Close down all listening sockets */
 	Conn_ExitListeners( );
@@ -139,6 +147,7 @@ Rehash(void)
 	Conn_SyncServerStruct( );
 
 	Log( LOG_NOTICE|LOG_snotice, "Re-reading of configuration done." );
+	Signal_NotifySvcMgr("READY=1\n");
 } /* Rehash */
 
 /**
@@ -339,4 +348,89 @@ Signals_Exit(void)
 	signalpipe[0] = signalpipe[1] = 0;
 }
 
-/* -eof- */
+/**
+ * Notify the service manager using the "sd_notify" protocol.
+ *
+ * This function is based on the example notify() function shown in the
+ * sd_notify(3) manual page, with one significant difference: we keep the file
+ * descriptor open to reduce overhead when called multiple times.
+ *
+ * @param message: The message to pass to the service manager including "\n".
+ */
+GLOBAL void
+#if !defined(HAVE_SYS_UN_H) || !defined(SOCK_CLOEXEC)
+Signal_NotifySvcMgr(UNUSED const char *message)
+{
+	return;
+#else
+Signal_NotifySvcMgr(const char *message)
+{
+	struct sockaddr_un socket_addr;
+	const char *socket_path;
+	size_t path_length, message_length;
+	static int fd = NONE;
+
+	assert(message != NULL);
+	assert(message[0] != '\0');
+
+	if (fd == NONE) {
+		/* No socket to the service manager open: Check if a path name
+		 * is given in the environment and try to open it! */
+		socket_path = getenv("NOTIFY_SOCKET");
+		if (!socket_path)
+			return; /* No socket specified, nothing to do. */
+
+		/* Only AF_UNIX is supported, with path or abstract sockets */
+		if (socket_path[0] != '/' && socket_path[0] != '@') {
+			Log(LOG_CRIT,
+			"Failed to notify service manager: Unsupported socket path!");
+			return;
+		}
+
+		path_length = strlen(socket_path);
+
+		/* Ensure there is room for NUL byte */
+		if (path_length >= sizeof(socket_addr.sun_path)) {
+			Log(LOG_CRIT,
+			"Failed to notify service manager: Socket path too long!");
+			return;
+		}
+
+		memset(&socket_addr, 0, sizeof(struct sockaddr_un));
+		socket_addr.sun_family = AF_UNIX;
+		memcpy(socket_addr.sun_path, socket_path, path_length);
+
+		/* Support for abstract socket */
+		if (socket_addr.sun_path[0] == '@')
+			socket_addr.sun_path[0] = 0;
+
+		fd = socket(AF_UNIX, SOCK_DGRAM | SOCK_CLOEXEC, 0);
+		if (fd < 0) {
+			Log(LOG_CRIT,
+			    "Failed to notify service manager: %s [socket()]",
+			    strerror(errno));
+			return;
+		}
+
+		if (connect(fd, (struct sockaddr *)&socket_addr,
+			    sizeof(struct sockaddr_un)) != 0) {
+			Log(LOG_CRIT,
+			    "Failed to notify service manager: %s [connect()]",
+			    strerror(errno));
+			close(fd);
+			fd = NONE;
+			return;
+		}
+	}
+
+	message_length = strlen(message);
+	ssize_t written = write(fd, message, message_length);
+	if (written != (ssize_t)message_length) {
+		Log(LOG_CRIT,
+			"Failed to notify service manager: %s [write()]",
+			strerror(errno));
+		close(fd);
+		fd = NONE;
+	}
+#endif
+}

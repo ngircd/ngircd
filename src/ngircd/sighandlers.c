@@ -349,6 +349,21 @@ Signals_Exit(void)
 }
 
 /**
+ * Check if the service manager of the system can be notified.
+ *
+ * @returns true if notifying the service manager is theoretically possible.
+ */
+GLOBAL bool
+Signal_NotifySvcMgr_Possible(void)
+{
+#if !defined(HAVE_SYS_UN_H) || !defined(SOCK_CLOEXEC)
+	return false;
+#else
+	return getenv("NOTIFY_SOCKET") != NULL;
+#endif
+}
+
+/**
  * Notify the service manager using the "sd_notify" protocol.
  *
  * This function is based on the example notify() function shown in the

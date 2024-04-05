@@ -22,6 +22,7 @@
 bool Signals_Init PARAMS((void));
 void Signals_Exit PARAMS((void));
 
+GLOBAL bool Signal_NotifySvcMgr_Possible PARAMS((void));
 GLOBAL void Signal_NotifySvcMgr PARAMS((const char *message));
 
 #endif

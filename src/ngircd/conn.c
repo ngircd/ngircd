@@ -669,8 +669,9 @@ Conn_Handler(void)
 	int i;
 	size_t wdatalen;
 	struct timeval tv;
-	time_t t;
+	time_t t, notify_t = 0;
 	bool command_available;
+	char status[200];
 
 	Log(LOG_NOTICE, "Server \"%s\" (on \"%s\") ready.",
 	    Client_ID(Client_ThisServer()), Client_Hostname(Client_ThisServer()));
@@ -783,13 +784,24 @@ Conn_Handler(void)
 			exit(1);
 		}
 
-		/* Should ngIRCd timeout when idle? */
+		t = time(NULL);
 		if (Conf_IdleTimeout > 0 && NumConnectionsAccepted > 0
-		    && idle_t > 0 && time(NULL) - idle_t >= Conf_IdleTimeout) {
+		    && idle_t > 0 && t - idle_t >= Conf_IdleTimeout) {
+			/* Should ngIRCd timeout when idle? */
 			LogDebug("Server idle timeout reached: %d second%s. Initiating shutdown ...",
 				 Conf_IdleTimeout,
 				 Conf_IdleTimeout == 1 ? "" : "s");
 			NGIRCd_SignalQuit = true;
+		} else if (Signal_NotifySvcMgr_Possible() && t - notify_t > 3) {
+			/* Send the current status to the service manager. */
+			snprintf(status, sizeof(status),
+				 "WATCHDOG=1\nSTATUS=%ld connection%s established (%ld user%s, %ld server%s), %ld maximum. %ld accepted in total.\n",
+				 NumConnections, NumConnections == 1 ? "" : "s",
+				 Client_MyUserCount(), Client_MyUserCount() == 1 ? "" : "s",
+				 Client_MyServerCount(), Client_MyServerCount() == 1 ? "" : "s",
+				 NumConnectionsMax, NumConnectionsAccepted);
+			Signal_NotifySvcMgr(status);
+			notify_t = t;
 		}
 	}
 

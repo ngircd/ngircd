@@ -29,6 +29,8 @@ RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
 RestrictRealtime=yes
 RuntimeDirectory=ircd
 RuntimeDirectoryMode=750
+StandardError=journal
+StandardOutput=journal
 # Try to load "default files" from any Debian package variant to keep this
 # unit generic.
 EnvironmentFile=-/etc/default/ngircd

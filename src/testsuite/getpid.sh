@@ -23,7 +23,13 @@ if [ -x /usr/bin/pgrep ]; then
 		*)
 			PGREP_FLAGS=""
 	esac
-	exec /usr/bin/pgrep $PGREP_FLAGS -n -u "${LOGNAME:-$USER}" "$1"
+	if [ -n "$LOGNAME" ] || [ -n "$USER" ]; then
+		# Try to narrow the search down to the current user ...
+		exec /usr/bin/pgrep $PGREP_FLAGS -n -u "${LOGNAME:-$USER}" "$1"
+	else
+		# ... but neither LOGNAME nor USER were set!
+		exec /usr/bin/pgrep $PGREP_FLAGS -n "$1"
+	fi
 fi
 
 # pidof(1) could be a good alternative on elder Linux systems

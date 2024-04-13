@@ -23,7 +23,7 @@ if [ -x /usr/bin/pgrep ]; then
 		*)
 			PGREP_FLAGS=""
 	esac
-	if [ -n "$LOGNAME" ] || [ -n "$USER" ]; then
+	if [ -n "${LOGNAME:-}" ] || [ -n "${USER:-}" ]; then
 		# Try to narrow the search down to the current user ...
 		exec /usr/bin/pgrep $PGREP_FLAGS -n -u "${LOGNAME:-$USER}" "$1"
 	else

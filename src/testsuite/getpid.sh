@@ -23,7 +23,7 @@ if [ -x /usr/bin/pgrep ]; then
 		*)
 			PGREP_FLAGS=""
 	esac
-	exec /usr/bin/pgrep $PGREP_FLAGS -n -u "$LOGNAME" "$1"
+	exec /usr/bin/pgrep $PGREP_FLAGS -n -u "${LOGNAME:-$USER}" "$1"
 fi
 
 # pidof(1) could be a good alternative on elder Linux systems

@@ -20,7 +20,7 @@ echo_n "starting server ${id} ..."
 
 # check weather getpid.sh returns valid PIDs. If not, don't start up the
 # test-server, because we won't be able to kill it at the end of the test.
-./getpid.sh sh >/dev/null 2>&1
+./getpid.sh sh >/dev/null
 if [ $? -ne 0 ]; then
 	echo " getpid.sh failed!"
 	exit 1

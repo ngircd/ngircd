@@ -10,7 +10,7 @@
 
 ngIRCd 27
 
-  ngIRCd 27~rc1
+  ngIRCd 27~rc1 (2024-04-13)
   - Validate certificates on server links. Up to now, ngIRCd optionally used
     SSL/TLS encrypted server-server links but never checked and validated any
     certificates. Now ngIRCd validates SSL/TLS certificates on outgoing

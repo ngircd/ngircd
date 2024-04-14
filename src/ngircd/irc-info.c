@@ -817,7 +817,7 @@ IRC_NAMES( CLIENT *Client, REQUEST *Req )
 	}
 
 	/* Now print all clients which are not in any channel */
-	char* chan_symbol = Channel_HasMode(chan, 's') ? "@" : "=";
+	char chan_symbol = Channel_HasMode(chan, 's') ? '@' : '=';
 	c = Client_First();
 	snprintf(rpl, sizeof(rpl), RPL_NAMREPLY_MSG, Client_ID(from), chan_symbol, "*");
 	while (c) {
@@ -1519,7 +1519,7 @@ IRC_Send_NAMES(CLIENT * Client, CHANNEL * Chan)
 	if (!is_member && secret_channel)
 		return CONNECTED;
 
-	char* chan_symbol = secret_channel ? "@" : "=";
+	char chan_symbol = secret_channel ? '@' : '=';
 
 	snprintf(str, sizeof(str), RPL_NAMREPLY_MSG, Client_ID(Client), chan_symbol,
 		 Channel_Name(Chan));

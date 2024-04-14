@@ -817,8 +817,9 @@ IRC_NAMES( CLIENT *Client, REQUEST *Req )
 	}
 
 	/* Now print all clients which are not in any channel */
+	char* chan_symbol = Channel_HasMode(chan, 's') ? "@" : "=";
 	c = Client_First();
-	snprintf(rpl, sizeof(rpl), RPL_NAMREPLY_MSG, Client_ID(from), "*", "*");
+	snprintf(rpl, sizeof(rpl), RPL_NAMREPLY_MSG, Client_ID(from), chan_symbol, "*");
 	while (c) {
 		if (Client_Type(c) == CLIENT_USER
 		    && Channel_FirstChannelOf(c) == NULL
@@ -830,11 +831,11 @@ IRC_NAMES( CLIENT *Client, REQUEST *Req )
 			strlcat(rpl, Client_ID(c), sizeof(rpl));
 
 			if (strlen(rpl) > COMMAND_LEN - CLIENT_NICK_LEN - 4) {
-				/* Line is gwoing too long, send now */
+				/* Line is going too long, send now */
 				if (!IRC_WriteStrClient(from, "%s", rpl))
 					return DISCONNECTED;
 				snprintf(rpl, sizeof(rpl), RPL_NAMREPLY_MSG,
-					 Client_ID(from), "*", "*");
+					 Client_ID(from), chan_symbol, "*");
 			}
 		}
 		c = Client_Next(c);
@@ -1514,10 +1515,13 @@ IRC_Send_NAMES(CLIENT * Client, CHANNEL * Chan)
 		return CONNECTED;
 
 	/* Secret channel? */
-	if (!is_member && Channel_HasMode(Chan, 's'))
+	bool secret_channel = Channel_HasMode(Chan, 's');
+	if (!is_member && secret_channel)
 		return CONNECTED;
 
-	snprintf(str, sizeof(str), RPL_NAMREPLY_MSG, Client_ID(Client), "=",
+	char* chan_symbol = secret_channel ? "@" : "=";
+
+	snprintf(str, sizeof(str), RPL_NAMREPLY_MSG, Client_ID(Client), chan_symbol,
 		 Channel_Name(Chan));
 	cl2chan = Channel_FirstMember(Chan);
 	while (cl2chan) {
@@ -1540,7 +1544,7 @@ IRC_Send_NAMES(CLIENT * Client, CHANNEL * Chan)
 				if (!IRC_WriteStrClient(Client, "%s", str))
 					return DISCONNECTED;
 				snprintf(str, sizeof(str), RPL_NAMREPLY_MSG,
-					 Client_ID(Client), "=",
+					 Client_ID(Client), chan_symbol,
 					 Channel_Name(Chan));
 			}
 		}

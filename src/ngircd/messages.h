@@ -84,7 +84,7 @@
 #define RPL_ENDOFEXCEPTLIST_MSG		"349 %s %s :End of channel exception list"
 #define RPL_VERSION_MSG			"351 %s %s-%s.%s %s :%s"
 #define RPL_WHOREPLY_MSG		"352 %s %s %s %s %s %s %s :%d %s"
-#define RPL_NAMREPLY_MSG		"353 %s %s %s :"
+#define RPL_NAMREPLY_MSG		"353 %s %c %s :"
 #define RPL_LINKS_MSG			"364 %s %s %s :%d %s"
 #define RPL_ENDOFLINKS_MSG		"365 %s %s :End of LINKS list"
 #define RPL_ENDOFNAMES_MSG		"366 %s %s :End of NAMES list"

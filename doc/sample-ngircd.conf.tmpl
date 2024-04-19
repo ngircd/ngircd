@@ -273,7 +273,8 @@
 	# is only available when ngIRCd is compiled with support for SSL!
 	# So don't forget to remove the ";" above if this is the case ...
 
-	# SSL Trusted CA Certificates File (for verifying peer certificates)
+	# SSL Trusted CA Certificates File for verifying peer certificates.
+	# (Default: not set; so no certificates are trusted)
 	;CAFile = /etc/ssl/CA/cacert.pem
 
 	# Certificate Revocation File (for marking otherwise valid

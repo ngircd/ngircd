@@ -817,9 +817,8 @@ IRC_NAMES( CLIENT *Client, REQUEST *Req )
 	}
 
 	/* Now print all clients which are not in any channel */
-	char chan_symbol = Channel_HasMode(chan, 's') ? '@' : '=';
 	c = Client_First();
-	snprintf(rpl, sizeof(rpl), RPL_NAMREPLY_MSG, Client_ID(from), chan_symbol, "*");
+	snprintf(rpl, sizeof(rpl), RPL_NAMREPLY_MSG, Client_ID(from), '*', "*");
 	while (c) {
 		if (Client_Type(c) == CLIENT_USER
 		    && Channel_FirstChannelOf(c) == NULL
@@ -835,7 +834,7 @@ IRC_NAMES( CLIENT *Client, REQUEST *Req )
 				if (!IRC_WriteStrClient(from, "%s", rpl))
 					return DISCONNECTED;
 				snprintf(rpl, sizeof(rpl), RPL_NAMREPLY_MSG,
-					 Client_ID(from), chan_symbol, "*");
+					 Client_ID(from), '*', "*");
 			}
 		}
 		c = Client_Next(c);

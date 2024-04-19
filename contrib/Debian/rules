@@ -53,6 +53,11 @@ execute_after_dh_auto_install:
 	 $(CURDIR)/contrib/ngircd.logcheck \
 	 $(CURDIR)/debian/ngircd/etc/logcheck/ignore.d.paranoid/ngircd
 
+#	Install the fail2ban configuration.
+	install -o root -g root -m 0644 -D \
+	 $(CURDIR)/contrib/ngircd-fail2ban.conf \
+	 $(CURDIR)/debian/ngircd/etc/fail2ban/filter.d/ngircd.conf
+
 #	Make lintian happy :-)
 	rm $(CURDIR)/debian/ngircd/usr/share/doc/ngircd/COPYING
 	mv $(CURDIR)/debian/ngircd/usr/share/doc/ngircd/ChangeLog \

@@ -17,6 +17,7 @@ EXTRA_DIST = README.md \
 	Dockerfile \
 	ngindent.sh \
 	ngircd-bsd.sh \
+	ngircd-fail2ban.conf \
 	ngIRCd-Logo.gif \
 	ngircd-redhat.init \
 	ngircd.logcheck \

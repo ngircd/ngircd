@@ -16,6 +16,8 @@ This `contrib/` directory contains the following sub-folders and files:
 
 - `ngircd-bsd.sh`: Start/stop script for FreeBSD.
 
+- `ngircd-fail2ban.conf`: fail2ban(1) filter configuration for ngIRCd.
+
 - `ngircd-redhat.init`: Start/stop script for old(er) RedHat-based
   distributions (like CentOS and Fedora), which did _not_ use systemd(8).
 

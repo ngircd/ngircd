@@ -1500,6 +1500,8 @@ IRC_Send_NAMES(CLIENT * Client, CHANNEL * Chan)
 	char str[COMMAND_LEN];
 	CL2CHAN *cl2chan;
 	CLIENT *cl;
+	bool secret_channel;
+	char chan_symbol;
 
 	assert(Client != NULL);
 	assert(Chan != NULL);
@@ -1514,11 +1516,11 @@ IRC_Send_NAMES(CLIENT * Client, CHANNEL * Chan)
 		return CONNECTED;
 
 	/* Secret channel? */
-	bool secret_channel = Channel_HasMode(Chan, 's');
+	secret_channel = Channel_HasMode(Chan, 's');
 	if (!is_member && secret_channel)
 		return CONNECTED;
 
-	char chan_symbol = secret_channel ? '@' : '=';
+	chan_symbol = secret_channel ? '@' : '=';
 
 	snprintf(str, sizeof(str), RPL_NAMREPLY_MSG, Client_ID(Client), chan_symbol,
 		 Channel_Name(Chan));

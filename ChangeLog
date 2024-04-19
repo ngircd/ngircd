@@ -10,6 +10,24 @@
 
 ngIRCd 27
 
+  - Update ChangeLog, NEWS, AUTHORS.md & doc/Platforms.txt for ngIRCd 27.
+  - Clarify in the sample configuration file and the ngircd.conf(5) manual
+    page that the "CAFile" option is unset by default.
+  - Fix channel symbol returned in the RPL_NAMREPLY(353) numeric of NAMES
+    commands for secret (mode +s) channels: this should be "@", not "=".
+    Thanks Val Lorentz <progval+git@progval.net> for the patch!
+    Closes #313.
+  - Add an example filter file for "Fail2Ban": contrib/ngircd-fail2ban.conf.
+  - Don't abort startup when setgid/setuid() fails with EINVAL: Both setgid(2)
+    as well as setuid(2) can fail with EINVAL in addition to EPERM, their
+    manual pages state "EINVAL: The user/group ID specified in uid/gid is not
+    valid in this user namespace ". So not only treat EPERM as an "acceptable
+    error" and continue with logging the error, but do the same for EINVAL.
+    This was triggered by the Void Linux xbps-uunshare(1) tool used for
+    building "XBPS source packages" and reported by luca in #ngircd. Thanks!
+  - Test suite: Don't use "pgrep -u" when LOGNAME and USER are not set
+    Thanks for reporting this on IRC, luca!
+
   ngIRCd 27~rc1 (2024-04-13)
   - Validate certificates on server links. Up to now, ngIRCd optionally used
     SSL/TLS encrypted server-server links but never checked and validated any

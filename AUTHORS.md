@@ -68,6 +68,7 @@ Or join the "#ngircd" channel in IRC on irc.barton.de:
 - Tom Ryder <tom@sanctum.geek.nz>
 - Unit 193 <unit193@ubuntu.com>
 - Valentin Lorentz <progval+git@progval.net>
+- Val Lorentz <progval+git@progval.net>
 - William Pitcock <nenolod@dereferenced.org>
 - Windree <57554809+Windree@users.noreply.github.com>
 - xnaas <8271327+xnaas@users.noreply.github.com>

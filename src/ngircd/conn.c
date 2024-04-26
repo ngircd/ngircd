@@ -796,10 +796,10 @@ Conn_Handler(void)
 			/* Send the current status to the service manager. */
 			snprintf(status, sizeof(status),
 				 "WATCHDOG=1\nSTATUS=%ld connection%s established (%ld user%s, %ld server%s), %ld maximum. %ld accepted in total.\n",
-				 NumConnections, NumConnections == 1 ? "" : "s",
+				 (long)NumConnections, NumConnections == 1 ? "" : "s",
 				 Client_MyUserCount(), Client_MyUserCount() == 1 ? "" : "s",
 				 Client_MyServerCount(), Client_MyServerCount() == 1 ? "" : "s",
-				 NumConnectionsMax, NumConnectionsAccepted);
+				 (long)NumConnectionsMax, (long)NumConnectionsAccepted);
 			Signal_NotifySvcMgr(status);
 			notify_t = t;
 		}

@@ -8,7 +8,7 @@
 
                                   -- NEWS --
 
-ngIRCd 27
+ngIRCd 27 (2024-04-26)
 
   - Add an example filter file for "Fail2Ban": contrib/ngircd-fail2ban.conf.
 

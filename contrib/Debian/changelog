@@ -1,3 +1,9 @@
+ngircd (27-0ab1) unstable; urgency=medium
+
+  * New "upstream" release: ngIRCd 27.
+
+ -- Alexander Barton <alex@barton.de>  Fri, 26 Apr 2024 16:52:14 +0200
+
 ngircd (27~rc1-0ab1) unstable; urgency=medium
 
   * New "upstream" release candidate 1 for ngIRCd Release 27.

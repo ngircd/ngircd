@@ -8,7 +8,7 @@
 
                                -- ChangeLog --
 
-ngIRCd 27
+ngIRCd 27 (2024-04-26)
 
   - Update ChangeLog, NEWS, AUTHORS.md & doc/Platforms.txt for ngIRCd 27.
   - Clarify in the sample configuration file and the ngircd.conf(5) manual

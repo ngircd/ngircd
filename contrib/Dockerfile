@@ -4,6 +4,9 @@
 # Build Container
 
 FROM docker.io/library/debian:stable-slim AS build
+LABEL org.opencontainers.image.source=https://github.com/ngircd/ngircd
+LABEL org.opencontainers.image.description="Free, portable and lightweight Internet Relay Chat server (build container)"
+LABEL org.opencontainers.image.licenses=GPL-2.0-or-later
 USER root
 RUN apt-get -y update \
 	&& apt-get -y install --no-install-recommends \
@@ -42,6 +45,9 @@ RUN ./autogen.sh --prefix=/opt/ngircd \
 # Run container
 
 FROM docker.io/library/debian:stable-slim
+LABEL org.opencontainers.image.source=https://github.com/ngircd/ngircd
+LABEL org.opencontainers.image.description="Free, portable and lightweight Internet Relay Chat server"
+LABEL org.opencontainers.image.licenses=GPL-2.0-or-later
 USER root
 RUN apt-get -y update \
 	&& apt-get -y install --no-install-recommends --no-install-suggests \

@@ -143,8 +143,6 @@ AC_DEFUN([GCC_W_NO_FORMAT_TRUNC],[
 
 if test "$GCC" = "yes"; then
 	# We are using the GNU C compiler. Good!
-	CFLAGS="$CFLAGS -pipe -W -Wall -Wpointer-arith -Wstrict-prototypes"
-
 	GCC_STACK_PROTECT_CC
 	GCC_W_NO_FORMAT_TRUNC
 fi
@@ -723,7 +721,8 @@ AC_DEFINE_UNQUOTED(HOST_OS, "$host_os" )
 
 # Add additional CFLAGS, LDFLAGS and LIBS which were specified on the command
 # line or by some tests from above, but after running this script. Useful for
-# adding "-Werror", for example:
+# adding "-march=native", for example:
+CFLAGS="$CFLAGS -pipe -Werror -Wall -Wextra -pedantic"
 test -n "$CFLAGS_END" && CFLAGS="$CFLAGS $CFLAGS_END"
 test -n "$LDFLAGS_END" && LDFLAGS="$LDFLAGS $LDFLAGS_END"
 test -n "$LIBS_END" && LIBS="$LIBS $LIBS_END"

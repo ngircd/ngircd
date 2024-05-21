@@ -28,32 +28,53 @@ on:
 
 jobs:
   build_and_distcheck:
-
-    name: Configure ngIRCd sources and run make targets "all" and "distcheck"
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-
+    name: build+test
+    strategy:
+      matrix:
+        os:
+          - ubuntu
+          - macos
+        toolchain:
+          - gcc
+          - llvm
+        include:
+          - os: ubuntu
+            toolchain: gcc
+            install_cmd: |
+              sudo apt update
+              sudo apt install build-essential expect libident-dev libpam0g-dev libssl-dev libwrap0-dev pkg-config telnet zlib1g-dev gcc
+            configure_cmd: |
+              ./configure CC=gcc --enable-ipv6 --with-iconv --with-ident --with-openssl --with-pam --with-tcp-wrappers --with-zlib
+          - os: ubuntu
+            toolchain: llvm
+            install_cmd: |
+              sudo apt update
+              sudo apt install build-essential expect libident-dev libpam0g-dev libssl-dev libwrap0-dev pkg-config telnet zlib1g-dev clang
+            configure_cmd: |
+              ./configure CC=clang --enable-ipv6 --with-iconv --with-ident --with-openssl --with-pam --with-tcp-wrappers --with-zlib  
+          - os: macos
+            toolchain: gcc
+            install_cmd: |
+              brew update
+              brew install autoconf automake expect openssl@3 pkg-config telnet zlib gcc
+            configure_cmd: |
+              ./configure CC=gcc --enable-ipv6 --with-iconv --with-openssl --with-zlib
+          - os: macos
+            toolchain: llvm
+            install_cmd: |
+              brew update
+              brew install autoconf automake expect openssl@3 pkg-config telnet zlib llvm
+            configure_cmd: |
+              ./configure CC=clang --enable-ipv6 --with-iconv --with-openssl --with-zlib
+    runs-on: ${{ matrix.os }}-latest
     steps:
     - uses: actions/checkout@v4
-    - uses: awalsh128/cache-apt-pkgs-action@v1
-      with:
-        packages: >
-          autoconf
-          automake
-          build-essential
-          expect
-          libident-dev
-          libpam0g-dev
-          libssl-dev
-          libwrap0-dev
-          pkg-config
-          telnet
-          zlib1g-dev
-        version: 1.0
+    - name: Install dependencies
+      run: ${{ matrix.install_cmd }}
     - name: Generate build system files
       run: ./autogen.sh
     - name: Configure the build system
-      run: ./configure --enable-ipv6 --with-iconv --with-ident --with-openssl --with-pam --with-tcp-wrappers --with-zlib
+      run: ${{ matrix.configure_cmd }}
     - name: Build everything
       run: make all
     - name: Create distribution archive and run tests

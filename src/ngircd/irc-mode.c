@@ -62,6 +62,7 @@ IRC_MODE( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *cl, *origin;
 	CHANNEL *chan;
+	bool is_valid_nick, is_valid_chan;
 
 	assert(Client != NULL);
 	assert(Req != NULL);
@@ -76,10 +77,12 @@ IRC_MODE( CLIENT *Client, REQUEST *Req )
 		Client = Client_Search(Req->prefix);
 
 	/* Channel or user mode? */
+	is_valid_nick = Client_IsValidNick(Req->argv[0]);
+	is_valid_chan = Channel_IsValidName(Req->argv[0]);
 	cl = NULL; chan = NULL;
-	if (Client_IsValidNick(Req->argv[0]))
+	if (is_valid_nick)
 		cl = Client_Search(Req->argv[0]);
-	if (Channel_IsValidName(Req->argv[0]))
+	if (is_valid_chan)
 		chan = Channel_Search(Req->argv[0]);
 
 	if (cl)
@@ -88,8 +91,12 @@ IRC_MODE( CLIENT *Client, REQUEST *Req )
 		return Channel_Mode(Client, Req, origin, chan);
 
 	/* No target found! */
-	return IRC_WriteErrClient(Client, ERR_NOSUCHNICK_MSG,
-			Client_ID(Client), Req->argv[0]);
+	if (is_valid_nick)
+		return IRC_WriteErrClient(Client, ERR_NOSUCHNICK_MSG,
+				Client_ID(Client), Req->argv[0]);
+	else
+		return IRC_WriteErrClient(Client, ERR_NOSUCHCHANNEL_MSG,
+				Client_ID(Client), Req->argv[0]);
 } /* IRC_MODE */
 
 /**

@@ -26,7 +26,7 @@ SSL-encrypted connections and plain-text connects can't run on the same network
 port (which is a limitation of the IRC protocol); therefore you have to define
 separate port(s) in your `[SSL]` block in the configuration file.
 
-A minimal configuration for *accepting* SSL-encrypted client & server
+A minimal configuration for *accepting* SSL-encrypted client
 connections looks like this:
 
 ``` ini
@@ -36,11 +36,12 @@ KeyFile = /etc/ssl/certs/my-privkey.pem
 Ports = 6697, 6698
 ```
 
-In this case, the server only deals with *incoming* connections and never has to
-validate SSL certificates itself, and therefore no "Certificate Authorities" are
-needed.
+In this case, the server only deals with unauthenticated incoming
+connections and never has to validate SSL certificates itself, and therefore
+no "Certificate Authorities" are needed.
 
-If you want to use *outgoing* SSL-connections to other servers, you need to add:
+If you want to use *outgoing* SSL-connections to other servers or accept
+incoming *server* connections, you need to add:
 
 ``` ini
 [SSL]

@@ -67,7 +67,7 @@ install-data-hook: $(static_docs) $(toplevel_docs) $(generated_docs)
 	 done
 
 install-config:
-	$(INSTALL) -m 600 -c sample-ngircd.conf $(DESTDIR)$(sysconfdir)/ngircd.conf
+	$(INSTALL) -m 644 -c sample-ngircd.conf $(DESTDIR)$(sysconfdir)/ngircd.conf
 	@echo; \
 	 echo " ** NOTE: Installed sample configuration file:"; \
 	 echo " ** \"$(DESTDIR)$(sysconfdir)/ngircd.conf\""; \

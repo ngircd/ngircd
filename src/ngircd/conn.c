@@ -1595,118 +1595,143 @@ Socket2Index( int Sock )
 static void
 Read_Request(CONN_ID Idx)
 {
-	ssize_t len;
-	static const unsigned int maxbps = COMMAND_LEN / 2;
-	char readbuf[READBUFFER_LEN];
-	time_t t;
-	CLIENT *c;
+  ssize_t len;
+  static const unsigned int maxbps = COMMAND_LEN / 2;
+  //char readbuf[READBUFFER_LEN];
+  char *readbuf;
+  time_t t;
+  CLIENT *c;
 
-	assert(Idx > NONE);
-	assert(My_Connections[Idx].sock > NONE);
+  assert(Conf_ReadBufferLength > 0);
+  assert(Idx > NONE);
+  assert(My_Connections[Idx].sock > NONE);
 
-	/* Check if the read buffer is "full". Basically this shouldn't happen
-	 * here, because as long as there possibly are commands in the read
-	 * buffer (buffer usage > COMMAND_LEN), the socket shouldn't be
-	 * scheduled for reading in Conn_Handler() at all ... */
+  readbuf = (char *) calloc(Conf_ReadBufferLength, sizeof(char));
+  if (readbuf) {
+
+    /* Check if the read buffer is "full". Basically this shouldn't happen
+     * here, because as long as there possibly are commands in the read
+     * buffer (buffer usage > COMMAND_LEN), the socket shouldn't be
+     * scheduled for reading in Conn_Handler() at all ... */
 #ifdef ZLIB
-	if ((array_bytes(&My_Connections[Idx].rbuf) >= READBUFFER_LEN) ||
-		(array_bytes(&My_Connections[Idx].zip.rbuf) >= READBUFFER_LEN))
+    //    if ((array_bytes(&My_Connections[Idx].rbuf) >= READBUFFER_LEN) ||
+    //	(array_bytes(&My_Connections[Idx].zip.rbuf) >= READBUFFER_LEN))
+    if ((array_bytes(&My_Connections[Idx].rbuf) >= Conf_ReadBufferLength) ||
+	(array_bytes(&My_Connections[Idx].zip.rbuf) >= Conf_ReadBufferLength))
 #else
-	if (array_bytes(&My_Connections[Idx].rbuf) >= READBUFFER_LEN)
+      //if (array_bytes(&My_Connections[Idx].rbuf) >= READBUFFER_LEN)
+      if (array_bytes(&My_Connections[Idx].rbuf) >= Conf_ReadBufferLength)
 #endif
 	{
-		Log(LOG_ERR,
-		    "Receive buffer space exhausted (connection %d): %d/%d bytes",
-		    Idx, array_bytes(&My_Connections[Idx].rbuf), READBUFFER_LEN);
-		Conn_Close(Idx, "Receive buffer space exhausted", NULL, false);
-		return;
+	  Log(LOG_ERR,
+	      "Receive buffer space exhausted (connection %d): %d/%d bytes",
+	      //Idx, array_bytes(&My_Connections[Idx].rbuf), READBUFFER_LEN);
+	      Idx, array_bytes(&My_Connections[Idx].rbuf), Conf_ReadBufferLength);
+	  Conn_Close(Idx, "Receive buffer space exhausted", NULL, false);
+	  free(readbuf);
+	  return;
 	}
 
-	/* Now read new data from the network, up to READBUFFER_LEN bytes ... */
+    /* Now read new data from the network, up to READBUFFER_LEN bytes ... */
 #ifdef SSL_SUPPORT
-	if (Conn_OPTION_ISSET(&My_Connections[Idx], CONN_SSL))
-		len = ConnSSL_Read(&My_Connections[Idx], readbuf, sizeof(readbuf));
-	else
+    if (Conn_OPTION_ISSET(&My_Connections[Idx], CONN_SSL))
+      //len = ConnSSL_Read(&My_Connections[Idx], readbuf, sizeof(readbuf));
+      len = ConnSSL_Read(&My_Connections[Idx], readbuf, Conf_ReadBufferLength);
+    else
 #endif
-		len = read(My_Connections[Idx].sock, readbuf, sizeof(readbuf));
+      //len = read(My_Connections[Idx].sock, readbuf, sizeof(readbuf));
+      len = read(My_Connections[Idx].sock, readbuf, Conf_ReadBufferLength);
 
-	if (len == 0) {
-		LogDebug("Client \"%s:%u\" is closing connection %d ...",
-			 My_Connections[Idx].host,
-			 ng_ipaddr_getport(&My_Connections[Idx].addr), Idx);
-		Conn_Close(Idx, NULL, "Client closed connection", false);
-		return;
-	}
+    if (len == 0) {
+      LogDebug("Client \"%s:%u\" is closing connection %d ...",
+	       My_Connections[Idx].host,
+	       ng_ipaddr_getport(&My_Connections[Idx].addr), Idx);
+      Conn_Close(Idx, NULL, "Client closed connection", false);
+      free(readbuf);
+      return;
+    }
 
-	if (len < 0) {
-		if (errno == EAGAIN)
-			return;
+    if (len < 0) {
+      if (errno == EAGAIN) {
+	free(readbuf);
+	return;
+      }
 
-		Log(LOG_ERR, "Read error on connection %d (socket %d): %s!",
-		    Idx, My_Connections[Idx].sock, strerror(errno));
-		Conn_Close(Idx, "Read error", "Client closed connection",
-			   false);
-		return;
-	}
+      Log(LOG_ERR, "Read error on connection %d (socket %d): %s!",
+	  Idx, My_Connections[Idx].sock, strerror(errno));
+      Conn_Close(Idx, "Read error", "Client closed connection",
+		 false);
+      free(readbuf);
+      return;
+    }
 
-	/* Now append the newly received data to the connection buffer.
-	 * NOTE: This can lead to connection read buffers being bigger(!) than
-	 * READBUFFER_LEN bytes, as we add up to READBUFFER_LEN new bytes to a
-	 * buffer possibly being "almost" READBUFFER_LEN bytes already! */
+    /* Now append the newly received data to the connection buffer.
+     * NOTE: This can lead to connection read buffers being bigger(!) than
+     * READBUFFER_LEN bytes, as we add up to READBUFFER_LEN new bytes to a
+     * buffer possibly being "almost" READBUFFER_LEN bytes already! */
 #ifdef ZLIB
-	if (Conn_OPTION_ISSET(&My_Connections[Idx], CONN_ZIP)) {
-		if (!array_catb(&My_Connections[Idx].zip.rbuf, readbuf,
-				(size_t) len)) {
-			Log(LOG_ERR,
-			    "Could not append received data to zip input buffer (connection %d): %d bytes!",
-			    Idx, len);
-			Conn_Close(Idx, "Receive buffer space exhausted", NULL,
-				   false);
-			return;
-		}
-	} else
+    if (Conn_OPTION_ISSET(&My_Connections[Idx], CONN_ZIP)) {
+      if (!array_catb(&My_Connections[Idx].zip.rbuf, readbuf,
+		      (size_t) len)) {
+	Log(LOG_ERR,
+	    "Could not append received data to zip input buffer (connection %d): %d bytes!",
+	    Idx, len);
+	Conn_Close(Idx, "Receive buffer space exhausted", NULL,
+		   false);
+	free(readbuf);
+	return;
+      }
+    } else
 #endif
-	{
-		if (!array_catb( &My_Connections[Idx].rbuf, readbuf, len)) {
-			Log(LOG_ERR,
-			    "Could not append received data to input buffer (connection %d): %d bytes!",
-			    Idx, len);
-			Conn_Close(Idx, "Receive buffer space exhausted", NULL,
-				   false );
-		}
+      {
+	if (!array_catb( &My_Connections[Idx].rbuf, readbuf, len)) {
+	  Log(LOG_ERR,
+	      "Could not append received data to input buffer (connection %d): %d bytes!",
+	      Idx, len);
+	  Conn_Close(Idx, "Receive buffer space exhausted", NULL,
+		     false );
 	}
+      }
 
-	/* Update connection statistics */
-	My_Connections[Idx].bytes_in += len;
+    /* Update connection statistics */
+    My_Connections[Idx].bytes_in += len;
 
-	/* Handle read buffer */
-	My_Connections[Idx].bps += Handle_Buffer(Idx);
+    /* Handle read buffer */
+    My_Connections[Idx].bps += Handle_Buffer(Idx);
 
-	/* Make sure that there is still a valid client registered */
-	c = Conn_GetClient(Idx);
-	if (!c)
-		return;
+    /* Make sure that there is still a valid client registered */
+    c = Conn_GetClient(Idx);
+    if (!c) {
+      free(readbuf);
+      return;
+    }
 
-	/* Update timestamp of last data received if this connection is
-	 * registered as a user, server or service connection. Don't update
-	 * otherwise, so users have at least Conf_PongTimeout seconds time to
-	 * register with the IRC server -- see Check_Connections().
-	 * Update "lastping", too, if time shifted backwards ... */
-	if (Client_Type(c) == CLIENT_USER
-	    || Client_Type(c) == CLIENT_SERVER
-	    || Client_Type(c) == CLIENT_SERVICE) {
-		t = time(NULL);
-		if (My_Connections[Idx].lastdata != t)
-			My_Connections[Idx].bps = 0;
+    /* Update timestamp of last data received if this connection is
+     * registered as a user, server or service connection. Don't update
+     * otherwise, so users have at least Conf_PongTimeout seconds time to
+     * register with the IRC server -- see Check_Connections().
+     * Update "lastping", too, if time shifted backwards ... */
+    if (Client_Type(c) == CLIENT_USER
+	|| Client_Type(c) == CLIENT_SERVER
+	|| Client_Type(c) == CLIENT_SERVICE) {
+      t = time(NULL);
+      if (My_Connections[Idx].lastdata != t)
+	My_Connections[Idx].bps = 0;
 
-		My_Connections[Idx].lastdata = t;
-		if (My_Connections[Idx].lastping > t)
-			My_Connections[Idx].lastping = t;
-	}
+      My_Connections[Idx].lastdata = t;
+      if (My_Connections[Idx].lastping > t)
+	My_Connections[Idx].lastping = t;
+    }
 
-	/* Look at the data in the (read-) buffer of this connection */
-	if (My_Connections[Idx].bps >= maxbps)
-		Throttle_Connection(Idx, c, THROTTLE_BPS, maxbps);
+    /* Look at the data in the (read-) buffer of this connection */
+    if (My_Connections[Idx].bps >= maxbps)
+      Throttle_Connection(Idx, c, THROTTLE_BPS, maxbps);
+    free(readbuf);
+  } else
+    Log(LOG_ERR,
+	"Could not allocate memory for the read buffer (connection %d): %d bytes!",
+	Idx, Conf_ReadBufferLength);
+
 } /* Read_Request */
 
 /**

@@ -247,6 +247,18 @@ GLOBAL int Conf_MaxListSize;
 /** Maximum seconds to add per "penalty". -1 = unlimited. */
 GLOBAL time_t Conf_MaxPenaltyTime;
 
+/** Size of the read buffer of a connection in bytes. */
+GLOBAL size_t Conf_ReadBufferLength;
+
+/** Size that triggers write buffer flushing if more space is needed. */
+GLOBAL size_t Conf_WriteBufferFlushLength;
+
+/** Maximum size of the write buffer of a connection in bytes. */
+GLOBAL size_t Conf_WriteBufferMaximumLength;
+
+/** Maximum size of the write buffer of a server link connection in bytes. */
+GLOBAL size_t Conf_WriteBufferServerLinkLength;
+
 #ifndef STRICT_RFC
 
 /** Require "AUTH PING-PONG" on login */

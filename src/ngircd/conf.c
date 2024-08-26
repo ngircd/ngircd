@@ -791,6 +791,10 @@ Set_Defaults(bool InitServers)
 	Conf_MaxListSize = 100;
 	Conf_PingTimeout = 120;
 	Conf_PongTimeout = 20;
+	Conf_ReadBufferLength = READBUFFER_LEN;
+	Conf_WriteBufferFlushLength = WRITEBUFFER_FLUSH_LEN;
+	Conf_WriteBufferMaximumLength = WRITEBUFFER_MAX_LEN;
+	Conf_WriteBufferServerLinkLength = WRITEBUFFER_SLINK_LEN;
 
 	/* Options */
 	strlcpy(Conf_AllowedChannelTypes, CHANTYPES,

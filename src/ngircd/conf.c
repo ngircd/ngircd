@@ -1576,7 +1576,7 @@ Handle_LIMITS(const char *File, int Line, char *Var, char *Arg)
 	  char *ep;
 	  errno = 0;
 	  Conf_ReadBufferLength = strtoul(Arg, &ep, 10);
-	  if ((Arg[0] == '\0') || (*ep != '\0')) {
+	  if ((Arg[0] == '\0') || (Arg[0] == '-') || (*ep != '\0')) {
 	    Config_Error(LOG_WARNING,
 			 "%s, line %d: Value of \"ReadBufferLength\" must be a positive integer!",
 			 File, Line);
@@ -1588,12 +1588,13 @@ Handle_LIMITS(const char *File, int Line, char *Var, char *Arg)
 			   File, Line);
 	      Conf_ReadBufferLength = READBUFFER_LEN;
 	    }
+	  return;
 	}
 	if (strcasecmp(Var, "WriteBufferFlushLength") == 0) {
 	  char *ep;
 	  errno = 0;
 	  Conf_WriteBufferFlushLength = strtoul(Arg, &ep, 10);
-	  if ((Arg[0] == '\0') || (*ep != '\0')) {
+	  if ((Arg[0] == '\0') || (Arg[0] == '-') || (*ep != '\0')) {
 	    Config_Error(LOG_WARNING,
 			 "%s, line %d: Value of \"WriteBufferFlushLength\" must be a positive integer!",
 			 File, Line);
@@ -1605,12 +1606,13 @@ Handle_LIMITS(const char *File, int Line, char *Var, char *Arg)
 			   File, Line);
 	      Conf_WriteBufferFlushLength = WRITEBUFFER_FLUSH_LEN;
 	    }
+	  return;
 	}
 	if (strcasecmp(Var, "WriteBufferMaximumLength") == 0) {
 	  char *ep;
 	  errno = 0;
 	  Conf_WriteBufferMaximumLength = strtoul(Arg, &ep, 10);
-	  if ((Arg[0] == '\0') || (*ep != '\0')) {
+	  if ((Arg[0] == '\0') || (Arg[0] == '-') || (*ep != '\0')) {
 	    Config_Error(LOG_WARNING,
 			 "%s, line %d: Value of \"WriteBufferMaximumLength\" must be a positive integer!",
 			 File, Line);
@@ -1622,12 +1624,13 @@ Handle_LIMITS(const char *File, int Line, char *Var, char *Arg)
 			   File, Line);
 	      Conf_WriteBufferMaximumLength = WRITEBUFFER_MAX_LEN;
 	    }
+	  return;
 	}
 	if (strcasecmp(Var, "WriteBufferServerLinkLength") == 0) {
 	  char *ep;
 	  errno = 0;
 	  Conf_WriteBufferServerLinkLength = strtoul(Arg, &ep, 10);
-	  if ((Arg[0] == '\0') || (*ep != '\0')) {
+	  if ((Arg[0] == '\0') || (Arg[0] == '-') || (*ep != '\0')) {
 	    Config_Error(LOG_WARNING,
 			 "%s, line %d: Value of \"WriteBufferServerLinkLength\" must be a positive integer!",
 			 File, Line);
@@ -1639,6 +1642,7 @@ Handle_LIMITS(const char *File, int Line, char *Var, char *Arg)
 			   File, Line);
 	      Conf_WriteBufferServerLinkLength = WRITEBUFFER_SLINK_LEN;
 	    }
+	  return;
 	}
 
 	Config_Error_Section(File, Line, Var, "Limits");

@@ -1389,12 +1389,8 @@ Handle_GLOBAL(const char *File, int Line, char *Var, char *Arg )
 		return;
 	}
 	if (strcasecmp(Var, "Listen") == 0) {
-		if (Conf_ListenAddress) {
-			Config_Error(LOG_ERR,
-				     "Multiple Listen= options, ignoring: %s",
-				     Arg);
-			return;
-		}
+		if (Conf_ListenAddress)
+			free(Conf_ListenAddress);
 		Conf_ListenAddress = strdup_warn(Arg);
 		/* If allocation fails, we're in trouble: we cannot ignore the
 		 * error -- otherwise ngircd would listen on all interfaces. */
@@ -1783,17 +1779,20 @@ Handle_SSL(const char *File, int Line, char *Var, char *Arg)
 	assert(Arg != NULL);
 
 	if (strcasecmp(Var, "CertFile") == 0) {
-		assert(Conf_SSLOptions.CertFile == NULL);
+		if (Conf_SSLOptions.CertFile)
+			free(Conf_SSLOptions.CertFile);
 		Conf_SSLOptions.CertFile = strdup_warn(Arg);
 		return;
 	}
 	if (strcasecmp(Var, "DHFile") == 0) {
-		assert(Conf_SSLOptions.DHFile == NULL);
+		if (Conf_SSLOptions.DHFile)
+			free(Conf_SSLOptions.DHFile);
 		Conf_SSLOptions.DHFile = strdup_warn(Arg);
 		return;
 	}
 	if (strcasecmp(Var, "KeyFile") == 0) {
-		assert(Conf_SSLOptions.KeyFile == NULL);
+		if (Conf_SSLOptions.KeyFile)
+			free(Conf_SSLOptions.KeyFile);
 		Conf_SSLOptions.KeyFile = strdup_warn(Arg);
 		return;
 	}
@@ -1810,17 +1809,20 @@ Handle_SSL(const char *File, int Line, char *Var, char *Arg)
 		return;
 	}
 	if (strcasecmp(Var, "CipherList") == 0) {
-		assert(Conf_SSLOptions.CipherList == NULL);
+		if (Conf_SSLOptions.CipherList)
+			free(Conf_SSLOptions.CipherList);
 		Conf_SSLOptions.CipherList = strdup_warn(Arg);
 		return;
 	}
 	if (strcasecmp(Var, "CAFile") == 0) {
-		assert(Conf_SSLOptions.CAFile == NULL);
+		if (Conf_SSLOptions.CAFile)
+			free(Conf_SSLOptions.CAFile);
 		Conf_SSLOptions.CAFile = strdup_warn(Arg);
 		return;
 	}
 	if (strcasecmp(Var, "CRLFile") == 0) {
-		assert(Conf_SSLOptions.CRLFile == NULL);
+		if (Conf_SSLOptions.CRLFile)
+			free(Conf_SSLOptions.CRLFile);
 		Conf_SSLOptions.CRLFile = strdup_warn(Arg);
 		return;
 	}
@@ -1869,7 +1871,7 @@ Handle_OPERATOR(const char *File, int Line, char *Var, char *Arg )
 	}
 	if (strcasecmp(Var, "Mask") == 0) {
 		if (op->mask)
-			return; /* Hostname already configured */
+			free(op->mask);
 		op->mask = strdup_warn( Arg );
 		return;
 	}

@@ -82,7 +82,7 @@ IRC_OPER( CLIENT *Client, REQUEST *Req )
 		return Bad_OperPass(Client, op[i].name, "bad password");
 
 	if (op[i].mask && (!Match(op[i].mask, Client_Mask(Client))))
-		return Bad_OperPass(Client, op[i].mask, "hostmask check failed");
+		return Bad_OperPass(Client, op[i].mask, "host mask check failed");
 
 	if (!Client_HasMode(Client, 'o')) {
 		Client_ModeAdd(Client, 'o');

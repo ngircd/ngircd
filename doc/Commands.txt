@@ -323,8 +323,8 @@ General Commands
 	.
 	In addition, IRC Ops can use these two forms to specify the <target>:
 	.
-	 - #<hostmask>
-	 - $<servermask>
+	 - #<host_mask>
+	 - $<server_mask>
 	.
 	The <mask> can contain the wildcard characters "*" and "?", but must
 	contain at least one dot (".") and no wildcard after the last one.
@@ -500,7 +500,7 @@ Status and Informational Commands
 - USERHOST
 	USERHOST <nickname> [<nickname> [...]]
 	.
-	Show flags and the hostmasks (<user>@<host>) of the <nickname>s,
+	Show flags and the host masks (<user>@<host>) of the <nickname>s,
 	separated by spaces. The following flags are used:
 	.
 	 - "-"  The client is "away" (the mode "+a" is set on this client).
@@ -697,7 +697,7 @@ Administrative Commands
 	   of ngIRCd.
 
 - GLINE
-	GLINE <nick!user@hostmask> [<timeout> :<reason>]
+	GLINE <nick!user@host_mask> [<timeout> :<reason>]
 	.
 	This command provides timed G-Lines (network-wide bans).
 	.
@@ -730,7 +730,7 @@ Administrative Commands
 	 - RFC 2812, 3.7.1 "Kill message"
 
 - KLINE
-	KLINE <nick!user@hostmask> [<timeout> :<reason>]
+	KLINE <nick!user@host_mask> [<timeout> :<reason>]
 	.
 	This command provides timed K-Lines (server-local bans).
 	.

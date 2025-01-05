@@ -1018,7 +1018,7 @@ ngIRCd 20 (2012-12-17)
   - Allow users to "cloak" their hostname only when the configuration
     variable "CloakHostModeX" (introduced in 19.2) is set. Otherwise, only
     IRC operators, other servers, and services are allowed to set the user
-    mode "+x": this prevents regular users from changing their hostmask to
+    mode "+x": this prevents regular users from changing their host mask to
     the name of the IRC server itself, which confused quite a few people ;-)
     (Closes #133)
   - New configuration option "OperChanPAutoOp": If disabled, IRC operators

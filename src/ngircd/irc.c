@@ -819,7 +819,7 @@ Send_Message_Mask(CLIENT * from, char * command, char * targetMask,
 	}
 
 	if (targetMask[0] == '#') {
-		/* #: hostmask, see RFC 2812, sec. 3.3.1 */
+		/* #: host mask, see RFC 2812, sec. 3.3.1 */
 		for (cl = Client_First(); cl != NULL; cl = Client_Next(cl)) {
 			if (Client_Type(cl) != CLIENT_USER)
 				continue;

@@ -337,7 +337,7 @@ Client_SetHostname( CLIENT *Client, const char *Hostname )
 	assert(Client != NULL);
 	assert(Hostname != NULL);
 
-	/* Only cloak the hostmask if it has not yet been cloaked.
+	/* Only cloak the host mask if it has not yet been cloaked.
 	 * The period or colon indicates it's still an IP address.
 	 * An empty string means a rDNS lookup did not happen (yet). */
 	if (Conf_CloakHost[0] && (!Client->host[0] || strchr(Client->host, '.')
@@ -603,7 +603,7 @@ Client_Search( const char *Nick )
 
 	assert( Nick != NULL );
 
-	/* copy Nick and truncate hostmask if necessary */
+	/* copy Nick and truncate host mask if necessary */
 	strlcpy( search_id, Nick, sizeof( search_id ));
 	ptr = strchr( search_id, '!' );
 	if( ptr ) *ptr = '\0';

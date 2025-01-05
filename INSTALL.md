@@ -85,7 +85,7 @@ Differences to version 19.x
 - Starting with ngIRCd 20, users can "cloak" their hostname only when the
   configuration variable *CloakHostModeX* (introduced in 19.2) is set.
   Otherwise, only IRC operators, other servers, and services are allowed to
-  set mode +x. This prevents regular users from changing their hostmask to
+  set mode +x. This prevents regular users from changing their host mask to
   the name of the IRC server itself, which confused quite a few people ;-)
 
 Differences to version 17.x

@@ -2,7 +2,7 @@
                      ngIRCd - Next Generation IRC Server
                            http://ngircd.barton.de/
 
-               (c)2001-2019 Alexander Barton and Contributors.
+               (c)2001-2025 Alexander Barton and Contributors.
                ngIRCd is free software and published under the
                    terms of the GNU General Public License.
 
@@ -465,7 +465,7 @@ Status and Informational Commands
 	a specific server, or a mask matching a server name in the network.
 	The server of the current connection is used when <target> is omitted.
 	.
-	To use "STATS L" the user must be an IRC Operator.
+	The user must be an IRC Operator to use "STATS g", "k" or "L".
 
 	References:
 	 - RFC 2812, 3.4.4 "Stats message"

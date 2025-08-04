@@ -82,6 +82,13 @@ stable release on the [news](https://ngircd.barton.de/news) and
 Visit our source code repository at [GitHub](https://github.com/ngircd/ngircd)
 if you are interested in the latest development code.
 
+### Radicle
+
+The *Radicle* ID of the ngIRCd repository is <rad:z2obJaCJQz3XwzHHEGszvZSmPnjNs>.
+
+You can browse it on
+[seed.radicle.garden](https://app.radicle.xyz/nodes/seed.radicle.garden/rad:z2obJaCJQz3XwzHHEGszvZSmPnjNs).
+
 ## Problems, Bugs, Patches
 
 Please don't hesitate to contact us if you encounter problems:

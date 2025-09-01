@@ -168,6 +168,7 @@
 	# Use this hostname for hostname cloaking on clients that have the
 	# user mode "+x" set, instead of the name of the server.
 	# Use %x to add the hashed value of the original hostname.
+	# If this variable is empty, regular users cannot set mode "+x" themselves.
 	;CloakHostModeX = cloaked.user
 
 	# The Salt for cloaked hostname hashing. When undefined a random

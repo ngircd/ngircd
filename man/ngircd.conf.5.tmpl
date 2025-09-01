@@ -1,7 +1,7 @@
 .\"
 .\" ngircd.conf(5) manual page template
 .\"
-.TH ngircd.conf 5 "May 2024" ngIRCd "ngIRCd Manual"
+.TH ngircd.conf 5 "Sep 2025" ngIRCd "ngIRCd Manual"
 .SH NAME
 ngircd.conf \- configuration file of ngIRCd
 .SH SYNOPSIS
@@ -253,7 +253,8 @@ don't change. Use %x to add the hashed value of the original hostname.
 \fBCloakHostModeX\fR (string)
 Use this hostname for hostname cloaking on clients that have the user mode
 "+x" set, instead of the name of the server. Default: empty, use the name
-of the server. Use %x to add the hashed value of the original hostname
+of the server. Use %x to add the hashed value of the original hostname.
+If this variable is empty, regular users cannot set mode "+x" themselves.
 .TP
 \fBCloakHostSalt\fR (string)
 The Salt for cloaked hostname hashing. When undefined a random hash is

@@ -417,6 +417,7 @@ Conf_Test( void )
 	printf("  ConnectIPv4 = %s\n", yesno_to_str(Conf_ConnectIPv6));
 	printf("  ConnectIPv6 = %s\n", yesno_to_str(Conf_ConnectIPv4));
 #endif
+	printf("  DefaultChannelModes = %s\n", Conf_DefaultChannelModes);
 	printf("  DefaultUserModes = %s\n", Conf_DefaultUserModes);
 	printf("  DNS = %s\n", yesno_to_str(Conf_DNS));
 #ifdef IDENTAUTH
@@ -810,6 +811,7 @@ Set_Defaults(bool InitServers)
 #else
 	Conf_ConnectIPv6 = false;
 #endif
+	strcpy(Conf_DefaultChannelModes, "");
 	strcpy(Conf_DefaultUserModes, "");
 	Conf_DNS = true;
 #ifdef IDENTAUTH
@@ -1652,6 +1654,30 @@ Handle_OPTIONS(const char *File, int Line, char *Var, char *Arg)
 	}
 	if (strcasecmp(Var, "ConnectIPv4") == 0) {
 		Conf_ConnectIPv4 = Check_ArgIsTrue(Arg);
+		return;
+	}
+	if (strcasecmp(Var, "DefaultChannelModes") == 0) {
+		p = Arg;
+		Conf_DefaultChannelModes[0] = '\0';
+		while (*p) {
+			if (strchr(Conf_DefaultChannelModes, *p)) {
+				/* Mode is already included; ignore it */
+				p++;
+				continue;
+			}
+
+			if (strchr(CHANMODES, *p)) {
+				len = strlen(Conf_DefaultChannelModes) + 1;
+				assert(len < sizeof(Conf_DefaultChannelModes));
+				Conf_DefaultChannelModes[len - 1] = *p;
+				Conf_DefaultChannelModes[len] = '\0';
+			} else {
+				Config_Error(LOG_WARNING,
+					     "%s, line %d: Unknown channel mode \"%c\" in \"DefaultChannelModes\"!",
+					     File, Line, *p);
+			}
+			p++;
+		}
 		return;
 	}
 	if (strcasecmp(Var, "DefaultUserModes") == 0) {

@@ -93,7 +93,7 @@ Login_User(CLIENT * Client)
 		/* Don't do any PAM authentication at all if PAM is not
 		 * enabled, instead emulate the behavior of the daemon
 		 * compiled without PAM support. */
-		if (strlen(Conf_ServerPwd) == 0 || 
+		if (Conf_ServerPwd[0] == 0|| 
 			strcmp(Conn_Password(conn), Conf_ServerPwd) == 0)
 			return Login_User_PostAuth(Client);
 		Client_Reject(Client, "Bad server password", false);
@@ -133,7 +133,7 @@ Login_User(CLIENT * Client)
 	} else return CONNECTED;
 #else
 	/* Check global server password ... */
-	if (strlen(Conf_ServerPwd) > 0 && 
+	if (Conf_ServerPwd[0] != 0 && 
 		strcmp(Conn_Password(conn), Conf_ServerPwd) != 0) {
 		/* Bad password! */
 		Client_Reject(Client, "Bad server password", false);

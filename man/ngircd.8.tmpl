@@ -1,7 +1,7 @@
 .\"
 .\" ngircd(8) manual page template
 .\"
-.TH ngircd 8 "May 2024" ngIRCd "ngIRCd Manual"
+.TH ngircd 8 "May 2026" ngIRCd "ngIRCd Manual"
 .SH NAME
 ngIRCd \- the "next generation" IRC daemon
 .SH SYNOPSIS
@@ -33,8 +33,8 @@ mechanism, or writes directly to the console when running in the foreground
 .SH OPTIONS
 The default behavior of
 .BR ngircd
-is to read its standard configuration file (see below), to detach from the
-controlling terminal and to wait for clients.
+is to read its optional standard configuration file (see below), to detach from
+the controlling terminal and to wait for clients.
 .PP
 You can use these options to modify this default:
 .TP
@@ -42,6 +42,15 @@ You can use these options to modify this default:
 Use
 .I file
 as configuration file.
+.PP
+.RS
+You can use
+.I /dev/null
+to force ngIRCd to ignore its standard configuration file, which will disable
+the built-in value of the
+.B IncludeDir
+configuration option, too.
+.RE
 .TP
 \fB\-n\fR, \fB\-\-nodaemon\fR
 Don't fork a child and don't detach from controlling terminal.

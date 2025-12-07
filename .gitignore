@@ -10,6 +10,7 @@
 *~
 Makefile
 Makefile.in
+TAGS
 aclocal.m4
 ansi2knr.1
 ansi2knr.c
@@ -31,6 +32,7 @@ depcomp
 install-sh
 missing
 ngircd.dest
+tags
 doc/sample-ngircd.conf
 doc/src/html
 man/ngircd.8

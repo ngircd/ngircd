@@ -214,6 +214,9 @@ GLOBAL char Conf_PAMServiceName[MAX_PAM_SERVICE_NAME_LEN];
 /** Disable all CTCP commands except for /me ? */
 GLOBAL bool Conf_ScrubCTCP;
 
+/** Default channel modes for new channels */
+GLOBAL char Conf_DefaultChannelModes[CHANNEL_MODE_LEN];
+
 /** Default user modes for new local clients */
 GLOBAL char Conf_DefaultUserModes[CLIENT_MODE_LEN];
 

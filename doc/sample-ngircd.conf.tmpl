@@ -403,10 +403,10 @@
 	# There may be more than one [Channel] block, one for each channel.
 
 	# Name of the channel
-	;Name = #TheName
+	Name = #main
 
 	# Topic for this channel
-	;Topic = a great topic
+	Topic = Main channel
 
 	# Initial channel modes, as used in "MODE" commands. Modifying lists
 	# (ban list, invite list, exception list) is supported.
@@ -417,7 +417,7 @@
 	# Should ngIRCd automatically join ("autojoin") all users to this
 	# channel on connect? Note: The users must have permissions to access
 	# the channel, otherwise joining them will fail!
-	;Autojoin = yes
+	Autojoin = yes
 
 	# Key file, syntax for each line: "<user>:<nick>:<key>".
 	# Default: none.
@@ -425,5 +425,6 @@
 
 [Channel]
 	# More [Channel] sections, if you like ...
+        Name=#support
 
 # -eof-

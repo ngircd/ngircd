@@ -100,8 +100,8 @@
 /** Max. length of an IRC ID (incl. NULL); see RFC 2812 section 1.1 and 1.2.1. */
 #define CLIENT_ID_LEN 64
 
-/** Default nick length (including NULL), see. RFC 2812 section 1.2.1. */
-#define CLIENT_NICK_LEN_DEFAULT 10
+/** Default nick length (including NULL), see. RFC 2812 section 1.2.1. Modern servers support up to 31 */
+#define CLIENT_NICK_LEN_DEFAULT 31
 
 /** Maximum nickname length (including NULL). */
 #define CLIENT_NICK_LEN 32

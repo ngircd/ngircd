@@ -479,6 +479,7 @@ IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 	CHANNEL *chan;
 	CLIENT *from;
 	char *topic;
+	char new_topic[CLIENT_TOPIC_LEN];
 	bool r, topic_power;
 
 	assert( Client != NULL );
@@ -539,9 +540,10 @@ IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 						  Channel_Name(chan));
 	}
 
+	strlcpy(new_topic, Req->argv[1], CLIENT_TOPIC_LEN);
 	LogDebug("%s \"%s\" set topic on \"%s\": %s",
 		 Client_TypeText(from), Client_Mask(from), Channel_Name(chan),
-		 Req->argv[1][0] ? Req->argv[1] : "<none>");
+		 new_topic[0] ? new_topic : "<none>");
 
 	if (Conf_OperServerMode)
 		from = Client_ThisServer();
@@ -549,21 +551,21 @@ IRC_TOPIC( CLIENT *Client, REQUEST *Req )
 	/* Update channel and forward new topic to other servers */
 	if (!Channel_IsLocal(chan))
 		IRC_WriteStrServersPrefix(Client, from, "TOPIC %s :%s",
-					  Req->argv[0], Req->argv[1]);
+					  Req->argv[0], new_topic);
 
-	/* Infrom local clients, but only when the topic really changed. */
-	if (strcmp(Req->argv[1], Channel_Topic(chan)) != 0)
+	/* Inform local clients, but only when the topic really changed. */
+	if (strcmp(new_topic, Channel_Topic(chan)) != 0)
 		IRC_WriteStrChannelPrefix(Client, chan, from, false,
 					    "TOPIC %s :%s", Req->argv[0],
-					    Req->argv[1]);
+					    new_topic);
 
 	/* Update topic, setter, and timestamp. */
-	Channel_SetTopic(chan, from, Req->argv[1]);
+	Channel_SetTopic(chan, from, new_topic);
 
 	/* Send confirmation when the local client is a user. */
 	if (Client_Type(Client) == CLIENT_USER)
 		return IRC_WriteStrClientPrefix(Client, Client, "TOPIC %s :%s",
-						Req->argv[0], Req->argv[1]);
+						Req->argv[0], new_topic);
 	else
 		return CONNECTED;
 } /* IRC_TOPIC */

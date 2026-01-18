@@ -60,9 +60,10 @@ IRC_KICK(CLIENT *Client, REQUEST *Req)
 {
 	CLIENT *from;
 	char *itemList = Req->argv[0];
-	const char* currentNick, *currentChannel, *reason;
+	const char* currentNick, *currentChannel;
 	unsigned int channelCount = 1;
 	unsigned int nickCount = 1;
+	char reason[CLIENT_KICK_LEN];
 
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -86,7 +87,7 @@ IRC_KICK(CLIENT *Client, REQUEST *Req)
 		itemList++;
 	}
 
-	reason = Req->argc == 3 ? Req->argv[2] : Client_ID(from);
+	strlcpy(reason, Req->argc == 3 ? Req->argv[2] : Client_ID(from), CLIENT_KICK_LEN);
 	currentNick = Req->argv[1];
 	currentChannel = Req->argv[0];
 	if (channelCount == 1) {

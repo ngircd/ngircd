@@ -1815,8 +1815,30 @@ Handle_Buffer(CONN_ID Idx)
 		}
 #endif
 
-		if (!ptr)
+		if (!ptr) {
+			/* No complete command (terminated by CR and/or LF) is
+			 * in the read buffer yet. But if the buffer already
+			 * holds at least a whole command's worth of data
+			 * without any line terminator at all, it can never
+			 * become a valid IRC command -- for example binary junk
+			 * or a TLS handshake sent to a plain-text listening
+			 * port. Such a connection would keep both the read
+			 * buffer non-empty and this handler (and therefore the
+			 * CPU) busy forever, because Conn_Handler() uses a zero
+			 * timeout whenever a read buffer contains COMMAND_LEN or
+			 * more bytes. So disconnect the client in this case, the
+			 * same way an over-long terminated command is handled
+			 * below: */
+			if (array_bytes(&My_Connections[Idx].rbuf) >= COMMAND_LEN) {
+				Log(LOG_ERR,
+				    "Request too long (connection %d): %d bytes without a command terminator (max. %d expected)!",
+				    Idx, array_bytes(&My_Connections[Idx].rbuf),
+				    COMMAND_LEN - 1);
+				Conn_Close(Idx, NULL, "Request too long", true);
+				return 0;
+			}
 			break;
+		}
 
 		/* Complete (=line terminated) request found, handle it! */
 		*ptr = '\0';

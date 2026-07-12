@@ -138,6 +138,12 @@
 /** Max. length of away messages (including NULL). */
 #define CLIENT_AWAY_LEN 128
 
+/** Max. length of topics (including NULL). */
+#define CLIENT_TOPIC_LEN COMMAND_LEN - 113
+
+/** Max. length of kick messages (including NULL). */
+#define CLIENT_KICK_LEN COMMAND_LEN - 113
+
 /** Max. length of client flags (including NULL). */
 #define CLIENT_FLAGS_LEN 16
 

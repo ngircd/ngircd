@@ -18,6 +18,7 @@ Or join the "#ngircd" channel in IRC on irc.barton.de:
 
 - 9pfs <hellosmile6@tilde.pink>
 - Ali Shemiran <ashemira@ucsd.edu>
+- anzz1 <anzz1@live.com>
 - Ask Bjørn Hansen <ask@develooper.com>
 - Benjamin Pineau <ben@zouh.org>
 - Bernd Kuhls <bernd.kuhls@t-online.de>
@@ -43,16 +44,19 @@ Or join the "#ngircd" channel in IRC on irc.barton.de:
 - Ilja Osthoff <i.osthoff@gmx.net>
 - ItsOnlyBinary <ItsOnlyBinary@users.noreply.github.com>
 - Ivan Agarkov <i_agarkov@wargaming.net>
+- James <admin@floretos.com>
 - James Lu <james@overdrivenetworks.com>
 - Jari Aalto <jari.aalto@cante.net>
 - Johann Hartwig Hauschild <git@hauschild.it>
 - JRMU <jrmu@lecturify.com>
 - Jules Maselbas <jmaselbas@zdiv.net>
 - Katherine Peeters <katherine.peeters@leagueh.xyz>
+- Loganius <31364192+TheMiningTeamYT@users.noreply.github.com>
 - LucentW <lucent@zebes.info>
 - Mantas Mikulėnas <grawity@gmail.com>
 - Michi <michi+ngircd@dataswamp.org>
 - Neale Pickett <neale@woozle.org>
+- osmarks <me@osmarks.net>
 - Peter Powell <petpow@saberuk.com>
 - Rolf Eike Beer <eike@sf-mail.de>
 - Rosen Penev <rosenp@gmail.com>
@@ -64,6 +68,7 @@ Or join the "#ngircd" channel in IRC on irc.barton.de:
 - Sebastian Andrzej Siewior <sebastian@breakpoint.cc>
 - Sebastian Köhler <sebkoehler@whoami.org.uk>
 - shankari <shankari@eecs.berkeley.edu>
+- Siva Mahadevan <account@svmhdvn.name>
 - Tassilo Schweyer <dev@welterde.de>
 - Tom Ryder <tom@sanctum.geek.nz>
 - Unit 193 <unit193@ubuntu.com>

@@ -8,6 +8,36 @@
 
                                   -- NEWS --
 
+ngIRCd 28 (2026-07-12)
+
+  - Truncate long KICK reasons and topics: KICKLEN is advertised in ISUPPORT
+    but was not enforced. And TOPICLEN is advertised, but was so high it was
+    guaranteed not to be fully sendable to other clients.
+    Thanks to Valentin Lorentz <progval+git@progval.net>!
+    Closes #339.
+  - Properly disconnect clients that send data without a command terminator:
+    A connection that sent 512 or more bytes (the maximum length of an IRC
+    command) containing no CR or LF -- for example binary garbage or a TLS
+    ClientHello accidentally (or deliberately) sent to a plain-text listening
+    port -- was never processed and only closed after a timeout. And until
+    then it kept the main loop busy-spinning pinning one CPU core at 100%!
+    Thanks to James <admin@floretos.com>!
+    Closes #343.
+  - Implement new configuration option "DefaultChannelModes": This new
+    configuration option lists channel modes that become automatically set on
+    new channels on creation. Default: set no modes (like before).
+    Closes #333.
+  - Handle clients which erroneously send passwords for non-password protected
+    servers by ignoring passwords when not configured/needed.
+    Closes #332.
+  - Use the last value set for "Listen" (Global) and "Mask" (Operator).
+    Do not ignore newer configuration value, always use the latest value set.
+  - MODE: Reply with ERR_NOSUCHCHANNEL when the target is a channel (#319):
+    While it is common for IRC servers to use ERR_NOSUCHNICK instead of
+    ERR_NOSUCHCHANNEL when a target can be either a channel or a nick, it
+    seems every other IRCd but UnrealIRCd uses ERR_NOSUCHCHANNEL in this
+    particular case.
+
 ngIRCd 27 (2024-04-26)
 
   - Add an example filter file for "Fail2Ban": contrib/ngircd-fail2ban.conf.

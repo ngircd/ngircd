@@ -16,14 +16,21 @@ User=irc
 Group=irc
 # Settings & limits:
 CapabilityBoundingSet=CAP_SYS_CHROOT CAP_NET_BIND_SERVICE
+IPAccounting=yes
+LockPersonality=yes
 MemoryDenyWriteExecute=yes
+MemoryHigh=64M
+MemoryMax=96M
 NoNewPrivileges=yes
 PrivateDevices=yes
 PrivateTmp=yes
+ProtectClock=yes
 ProtectControlGroups=yes
 ProtectHome=yes
+ProtectKernelLogs=yes
 ProtectKernelModules=yes
 ProtectKernelTunables=yes
+ProtectProc=invisible
 ProtectSystem=full
 RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
 RestrictRealtime=yes
@@ -31,6 +38,11 @@ RuntimeDirectory=ircd
 RuntimeDirectoryMode=750
 StandardError=journal
 StandardOutput=journal
+SystemCallArchitectures=native
+SystemCallErrorNumber=EPERM
+SystemCallFilter=@system-service
+SystemCallLog=~@system-service
+TasksMax=64
 # Try to load "default files" from any Debian package variant to keep this
 # unit generic.
 EnvironmentFile=-/etc/default/ngircd

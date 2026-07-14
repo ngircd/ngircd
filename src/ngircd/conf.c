@@ -31,6 +31,7 @@
 #include <unistd.h>
 #include <pwd.h>
 #include <grp.h>
+#include <limits.h>
 #include <sys/types.h>
 #include <dirent.h>
 #include <netdb.h>
@@ -791,6 +792,10 @@ Set_Defaults(bool InitServers)
 	Conf_MaxListSize = 100;
 	Conf_PingTimeout = 120;
 	Conf_PongTimeout = 20;
+	Conf_ReadBufferLength = READBUFFER_LEN;
+	Conf_WriteBufferFlushLength = WRITEBUFFER_FLUSH_LEN;
+	Conf_WriteBufferMaximumLength = WRITEBUFFER_MAX_LEN;
+	Conf_WriteBufferServerLinkLength = WRITEBUFFER_SLINK_LEN;
 
 	/* Options */
 	strlcpy(Conf_AllowedChannelTypes, CHANTYPES,
@@ -1568,6 +1573,86 @@ Handle_LIMITS(const char *File, int Line, char *Var, char *Arg)
 			Conf_PongTimeout = 5;
 		}
 		return;
+	}
+	if (strcasecmp(Var, "ReadBufferLength") == 0) {
+	  char *ep;
+	  size_t temp;
+	  errno = 0;
+	  temp = strtoul(Arg, &ep, 10);
+	  if ((Arg[0] == '\0') || (Arg[0] == '-') || (*ep != '\0')) {
+	    Config_Error(LOG_WARNING,
+			 "%s, line %d: Value of \"ReadBufferLength\" must be a positive integer!",
+			 File, Line);
+	    return;
+	  }
+	  if (errno == ERANGE && Conf_ReadBufferLength == ULONG_MAX) {
+	    Config_Error(LOG_WARNING,
+			 "%s, line %d: Value of \"ReadBufferLength\" too large!",
+			 File, Line);
+	    return;
+	  }
+	  Conf_ReadBufferLength = temp;
+	  return;
+	}
+	if (strcasecmp(Var, "WriteBufferFlushLength") == 0) {
+	  char *ep;
+	  size_t temp;
+	  errno = 0;
+	  temp = strtoul(Arg, &ep, 10);
+	  if ((Arg[0] == '\0') || (Arg[0] == '-') || (*ep != '\0')) {
+	    Config_Error(LOG_WARNING,
+			 "%s, line %d: Value of \"WriteBufferFlushLength\" must be a positive integer!",
+			 File, Line);
+	    return;
+	  }
+	  if (errno == ERANGE && Conf_WriteBufferFlushLength == ULONG_MAX) {
+	    Config_Error(LOG_WARNING,
+			 "%s, line %d: Value of \"WriteBufferFlushLength\" too large!",
+			 File, Line);
+	    return;
+	  }
+	  Conf_WriteBufferFlushLength = temp;
+	  return;
+	}
+	if (strcasecmp(Var, "WriteBufferMaximumLength") == 0) {
+	  char *ep;
+	  size_t temp;
+	  errno = 0;
+	  temp = strtoul(Arg, &ep, 10);
+	  if ((Arg[0] == '\0') || (Arg[0] == '-') || (*ep != '\0')) {
+	    Config_Error(LOG_WARNING,
+			 "%s, line %d: Value of \"WriteBufferMaximumLength\" must be a positive integer!",
+			 File, Line);
+	    return;
+	  }
+	  if ((errno == ERANGE) && (Conf_WriteBufferMaximumLength == ULONG_MAX)) {
+	    Config_Error(LOG_WARNING,
+			 "%s, line %d: Value of \"WriteBufferMaximumLength\" too large!",
+			 File, Line);
+	    return;
+	  }
+	  Conf_WriteBufferMaximumLength = temp;
+	  return;
+	}
+	if (strcasecmp(Var, "WriteBufferServerLinkLength") == 0) {
+	  char *ep;
+	  size_t temp;
+	  errno = 0;
+	  temp = strtoul(Arg, &ep, 10);
+	  if ((Arg[0] == '\0') || (Arg[0] == '-') || (*ep != '\0')) {
+	    Config_Error(LOG_WARNING,
+			 "%s, line %d: Value of \"WriteBufferServerLinkLength\" must be a positive integer!",
+			 File, Line);
+	    return;
+	  }
+	  if ((errno == ERANGE) && (Conf_WriteBufferServerLinkLength == ULONG_MAX)) {
+	    Config_Error(LOG_WARNING,
+			 "%s, line %d: Value of \"WriteBufferServerLinkLength\" too large!",
+			 File, Line);
+	    return;
+	  }
+	  Conf_WriteBufferServerLinkLength = temp;
+	  return;
 	}
 
 	Config_Error_Section(File, Line, Var, "Limits");

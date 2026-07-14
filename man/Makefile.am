@@ -15,6 +15,7 @@ SUFFIXES = .tmpl .
 
 .tmpl:
 	$(AM_V_GEN)sed \
+	    -e "s@:PACKAGE_STRING:@${PACKAGE_STRING}@" \
 	    -e "s@:SBINDIR:@${sbindir}@" \
 	    -e "s@:BINDIR:@${bindir}@" \
 	    -e "s@:ETCDIR:@${sysconfdir}@" \

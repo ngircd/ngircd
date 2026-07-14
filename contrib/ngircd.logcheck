@@ -4,7 +4,7 @@
 ^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Address mismatch:
 ^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Can't create pre-defined channel ".*": name already in use\.$
 ^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Can't resolve( address)? ".*": (Name or service not known|No address associated with hostname|Temporary failure in name resolution)( \[.*\]\.)?$
-^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Client( ".*")? unregistered \(connection [0-9]+\): (Can't connect|Client closed connection|Got QUIT command|Read error|Server configuration already in use|SSL accept error, closing socket|Timeout|Write error)\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Client( ".*")? unregistered \(connection [0-9]+\): (Can't connect|Client closed connection|Got QUIT command|Read error|Request too long|Server configuration already in use|SSL accept error, closing socket|Timeout|Write error)\.$
 ^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Connection [0-9]+ \(socket [0-9]+\) with ".*:[0-9]+" established\. Now logging in \.\.\.$
 ^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Connection [0-9]+ with ".*:[0-9]+" closed \(in: .*, out: .*\)\.$
 ^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Connection [0-9]+: initialized TLSv?1\.[0123] using cipher .*\.$
@@ -30,7 +30,7 @@
 ^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Running as user .*, group .*, with PID [0-9]+\.$
 ^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: SSL connection on socket [0-9]+ failed!$
 ^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: SSL error, client disconnected \[in .*\(\)\]!$
-^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: SSL error: (Connection reset by peer|Broken pipe) \[in .*\]!$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: SSL error: (Connection reset by peer|Broken pipe|error:[0-9]+:system library::(Broken pipe|Connection reset by peer)) \[in .*\]!$
 ^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: SSL protocol error: (ConnSSL_Read|ConnSSL_Write|SSL_accept) \(.*\)$
 ^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Server ".*" \(on ".*"\) ready\.$
 ^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Server ".*" registered \(connection [0-9]+, 1 hop - direct link\)\.$
@@ -41,7 +41,7 @@
 ^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Server \".*\" \(on ".*"\) ready\.$
 ^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Server going down NOW!$
 ^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Shutting down all listening sockets \([0-9]+ total\) \.\.\.$
-^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Shutting down connection [0-9]+ \(Can't connect|Client closed connection|Closing connection: .* \(Server going down\)|Got QUIT command|ID ".*" already registered|Ping timeout: [0-9]+ seconds|Read error|SSL accept error, closing socket|Server configuration already in use|Server going down|Timeout|Write error|".*" \((G-Line|SQUIT from .*)\)\) with ".*:[0-9]+" \.\.\.$
+^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Shutting down connection [0-9]+ \(Can't connect|Client closed connection|Closing connection: .* \(Server going down\)|Got QUIT command|ID ".*" already registered|Ping timeout: [0-9]+ seconds|Read error|Request too long|SSL accept error, closing socket|Server configuration already in use|Server going down|Timeout|Write error|".*" \((G-Line|SQUIT from .*)\)\) with ".*:[0-9]+" \.\.\.$
 ^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: Synchronization with ".*" done \(connection [0-9]+\): [0-9]+ seconds? \[[0-9]+ users, [0-9]+ channels\]\.$
 ^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: User ".*!.*@.*" changed nick \(connection [0-9]+\): ".*" -> ".*"\.$
 ^\w{3} [ :0-9]{11} [._[:alnum:]-]+ ngircd\[[0-9]+\]: User ".*!.*@.*" registered \(connection [0-9]+\)\.$

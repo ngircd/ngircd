@@ -7,6 +7,8 @@
 *.exe
 *.log
 *.o
+*.tar
+*.tar.*
 *~
 Makefile
 Makefile.in

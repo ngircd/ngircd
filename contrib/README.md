@@ -5,6 +5,10 @@ This `contrib/` directory contains the following sub-folders and files:
 - `Debian/` folder: This subfolder contains the _rules_ file and additional
   assets for building Debian packages.
 
+- `build-dist-archives.sh`: Script to be run inside of a Debian 12 "Bookworm"
+  container, which prepares the build environment and builds the ngIRCd
+  distribution archive files (tar.gz, tar.Z, tar.xz).
+
 - `de.barton.ngircd.metainfo.xml`: AppStream metadata file.
 
 - `de.barton.ngircd.plist[.tmpl]`: launchd(8) property list file.

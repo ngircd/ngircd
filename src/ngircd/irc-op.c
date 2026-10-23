@@ -137,7 +137,7 @@ IRC_INVITE(CLIENT *Client, REQUEST *Req)
 	CHANNEL *chan;
 	CLIENT *target, *from;
 	const char *colon_if_necessary;
-	bool remember = false;
+	bool remember = false, is_privileged;
 
 	assert( Client != NULL );
 	assert( Req != NULL );
@@ -172,14 +172,17 @@ IRC_INVITE(CLIENT *Client, REQUEST *Req)
 						  Client_ID(from),
 						  Channel_Name(chan));
 
+		/* Is the user channel owner/admin/operator/halfop? */
+		is_privileged = Channel_UserHasMode(chan, from, 'q') ||
+				Channel_UserHasMode(chan, from, 'a') ||
+				Channel_UserHasMode(chan, from, 'o') ||
+				Channel_UserHasMode(chan, from, 'h');
+
 		/* Is the channel "invite-only"? */
 		if (Channel_HasMode(chan, 'i')) {
 			/* Yes. The user issuing the INVITE command must be
 			 * channel owner/admin/operator/halfop! */
-			if (!Channel_UserHasMode(chan, from, 'q') &&
-			    !Channel_UserHasMode(chan, from, 'a') &&
-			    !Channel_UserHasMode(chan, from, 'o') &&
-			    !Channel_UserHasMode(chan, from, 'h'))
+			if (!is_privileged)
 				return IRC_WriteErrClient(from,
 							  ERR_CHANOPRIVSNEEDED_MSG,
 							  Client_ID(from),
@@ -193,8 +196,11 @@ IRC_INVITE(CLIENT *Client, REQUEST *Req)
 						  Client_ID(from),
 						  Req->argv[0], Req->argv[1]);
 
-		/* If the target user is banned on that channel: remember invite */
-		if (Lists_Check(Channel_GetListBans(chan), target))
+		/* If the target user is banned on that channel: remember the
+		 * invite, which lets the user bypass the ban. But only allow
+		 * this for privileged channel members, otherwise every regular
+		 * member could undo bans! */
+		if (is_privileged && Lists_Check(Channel_GetListBans(chan), target))
 			remember = true;
 
 		if (remember) {

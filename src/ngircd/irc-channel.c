@@ -596,11 +596,6 @@ IRC_LIST( CLIENT *Client, REQUEST *Req )
 
 	_IRC_GET_SENDER_OR_RETURN_(from, Req, Client)
 
-	if (Req->argc > 0)
-		pattern = strtok(Req->argv[0], ",");
-	else
-		pattern = "*";
-
 	if (Req->argc == 2) {
 		/* Forward to other server? */
 		target = Client_Search(Req->argv[1]);
@@ -617,6 +612,13 @@ IRC_LIST( CLIENT *Client, REQUEST *Req )
 							Req->argv[1]);
 		}
 	}
+
+	/* Split the list of patterns only now, after the command could have
+	 * been forwarded unmodified to another server (see above): */
+	if (Req->argc > 0)
+		pattern = strtok(Req->argv[0], ",");
+	else
+		pattern = "*";
 
 	/* Send list head */
 	if (!IRC_WriteStrClient(from, RPL_LISTSTART_MSG, Client_ID(from)))

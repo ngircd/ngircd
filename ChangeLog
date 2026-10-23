@@ -10,6 +10,7 @@
 
 ngIRCd 29
 
+  - LIST: Forward all patterns to other servers, not only the first one.
   - JOIN: Don't use up invitations when joining fails, for example because of
     a missing channel key.
   - Fix a use-after-free when an IRC operator adds a G-Line or K-Line whose

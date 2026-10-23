@@ -10,6 +10,10 @@
 
 ngIRCd 29
 
+  - Fix memory leaks of client certificate fingerprints: with GnuTLS, they
+    were never freed; and METADATA "certfp" updates leaked, too.
+    Thanks QiuYitai for reporting this!
+    Closes #349.
   - Add channel modes "N" and "r" to the 005 (ISUPPORT) numeric, "N" to the
     004 (RPL_MYINFO) numeric, and accept "N" in "DefaultChannelModes".
   - Update documentation:

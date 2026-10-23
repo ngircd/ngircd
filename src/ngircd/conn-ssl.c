@@ -311,10 +311,6 @@ void ConnSSL_Free(CONNECTION *c)
 		SSL_shutdown(ssl);
 		SSL_free(ssl);
 		c->ssl_state.ssl = NULL;
-		if (c->ssl_state.fingerprint) {
-			free(c->ssl_state.fingerprint);
-			c->ssl_state.fingerprint = NULL;
-		}
 	}
 #endif
 #ifdef HAVE_LIBGNUTLS
@@ -339,6 +335,11 @@ void ConnSSL_Free(CONNECTION *c)
 		slot->refcnt = 0;
 	}
 #endif
+	/* Free client certificate fingerprint (OpenSSL and GnuTLS) */
+	if (c->ssl_state.fingerprint) {
+		free(c->ssl_state.fingerprint);
+		c->ssl_state.fingerprint = NULL;
+	}
 	assert(Conn_OPTION_ISSET(c, CONN_SSL));
 	/* can't just set bitmask to 0 -- there are other, non-ssl related flags, e.g. CONN_ZIP. */
 	Conn_OPTION_DEL(c, CONN_SSL_FLAGS_ALL);
@@ -1317,6 +1318,8 @@ bool
 ConnSSL_SetCertFp(CONNECTION *c, const char *fingerprint)
 {
 	assert (c != NULL);
+	if (c->ssl_state.fingerprint)
+		free(c->ssl_state.fingerprint);
 	c->ssl_state.fingerprint = strndup(fingerprint, SHA256_STRING_LEN - 1);
 	return c->ssl_state.fingerprint != NULL;
 }

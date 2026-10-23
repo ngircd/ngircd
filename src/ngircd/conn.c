@@ -2771,6 +2771,10 @@ Conn_SetCertFp(CONN_ID Idx, const char *fingerprint)
 	if (Idx < 0)
 		return false;
 	assert(Idx < (int) array_length(&My_ConnArray, sizeof(CONNECTION)));
+	/* Only SSL connections can have a certificate fingerprint, and
+	 * only their SSL state (including the fingerprint) is freed! */
+	if (!Conn_OPTION_ISSET(&My_Connections[Idx], CONN_SSL))
+		return false;
 	return ConnSSL_SetCertFp(&My_Connections[Idx], fingerprint);
 }
 

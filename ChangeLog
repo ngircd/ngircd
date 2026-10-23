@@ -10,6 +10,9 @@
 
 ngIRCd 29
 
+  - INVITE: Only channel owners, admins, operators, and half-ops can override
+    bans by inviting banned users. Before, every channel member could do so
+    in channels without mode "i".
   - MODE: Stop parsing on empty mode arguments: for example "MODE nick +b :"
     interpreted the following commands in the read buffer as mode characters.
   - Fix matching a backslash that follows a "*" in masks: a mask like "*\foo"

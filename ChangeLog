@@ -10,6 +10,9 @@
 
 ngIRCd 29
 
+  - WHOWAS: Return up to "count" entries for each given nickname, not only a
+    single one for all but the first nickname, and limit the reply to 25
+    entries in total. Add a penalty of 1 second to the command, like WHOIS.
   - Delete empty channels when mode "P" is removed: such channels stayed
     around forever, and the next user joining didn't become channel operator.
   - MODE: Reject empty ban, invite, and exception masks, and masks containing

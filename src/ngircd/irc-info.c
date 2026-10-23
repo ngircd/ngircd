@@ -1297,7 +1297,7 @@ IRC_WHOWAS( CLIENT *Client, REQUEST *Req )
 	CLIENT *target, *prefix;
 	WHOWAS *whowas;
 	char tok_buf[COMMAND_LEN];
-	int max, last, count, i, nc;
+	int max, last, i, nc, total;
 	const char *nick;
 
 	assert( Client != NULL );
@@ -1343,7 +1343,13 @@ IRC_WHOWAS( CLIENT *Client, REQUEST *Req )
 	strlcpy(tok_buf, Req->argv[0], sizeof(tok_buf));
 	nick = strtok(tok_buf, ",");
 
-	for (i=last, count=0; nick != NULL ; nick = strtok(NULL, ",")) {
+	/* Search each nick starting with the newest entry, and return at
+	 * most "max" entries for each of them, but at most MAX_RPL_WHOWAS
+	 * entries in total: */
+	total = 0;
+	for (; nick != NULL && total < MAX_RPL_WHOWAS;
+	     nick = strtok(NULL, ",")) {
+		i = last;
 		nc = 0;
 		do {
 			/* Used entry? */
@@ -1351,7 +1357,7 @@ IRC_WHOWAS( CLIENT *Client, REQUEST *Req )
 				if (!WHOWAS_EntryWrite(prefix, &whowas[i]))
 					return DISCONNECTED;
 				nc++;
-				count++;
+				total++;
 			}
 			/* previous entry */
 			i--;
@@ -1360,7 +1366,7 @@ IRC_WHOWAS( CLIENT *Client, REQUEST *Req )
 			if (i < 0)
 				i = MAX_WHOWAS - 1;
 
-			if (nc && count >= max)
+			if (nc >= max || total >= MAX_RPL_WHOWAS)
 				break;
 		} while (i != last);
 

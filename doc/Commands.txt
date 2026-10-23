@@ -560,8 +560,9 @@ Status and Informational Commands
 	Query information about nicknames no longer in use in the network,
 	either because of nickname changes or disconnects. The history is
 	searched backwards, returning the most recent entry first. If there
-	are multiple entries, up to <count> entries will be shown (or all of
-	them, if no <count> has been given).
+	are multiple entries, up to <count> entries will be shown for each
+	<nickname> (5 if no <count> has been given, 25 if it is not positive),
+	but at most 25 entries in total.
 	.
 	<target> can be a server name, the nickname of a client connected to a
 	specific server, or a mask matching a server name in the network. The

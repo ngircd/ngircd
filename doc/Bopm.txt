@@ -6,7 +6,7 @@
                ngIRCd is free software and published under the
                    terms of the GNU General Public License.
 
-                                -- BOPM.txt --
+                                -- Bopm.txt --
 
 
 I. Introduction

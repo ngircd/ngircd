@@ -18,6 +18,7 @@ ngIRCd 29
     - Move doc/Contributing.txt to CONTRIBUTING.md.
     - CONTRIBUTING.md: Add guidance on AI-assisted contributions.
     - doc/Contributing.txt: Fix stale file references.
+    - Fix formatting of doc/Modes.txt and header of doc/Bopm.txt.
   - Add AGENTS.md with guidance for AI coding agents.
   - Don't crash when the "Modes" of a pre-defined channel trigger a reply,
     like an error message for a mode change of an unknown user ("+o nick")

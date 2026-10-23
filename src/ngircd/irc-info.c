@@ -225,9 +225,14 @@ IRC_WHO_Mask(CLIENT *Client, char *Mask, bool OnlyOps)
 			continue;
 
 		if (Mask) {
-			/* Match pattern against user host/server/name/nick */
+			/* Match pattern against user host/server/name/nick.
+			 * Use the displayed (potentially cloaked) hostname,
+			 * only IRC operators can match the real one, too: */
 			client_match = MatchCaseInsensitive(Mask,
-							    Client_Hostname(c));
+						Client_HostnameDisplayed(c));
+			if (!client_match && Client_HasMode(Client, 'o'))
+				client_match = MatchCaseInsensitive(Mask,
+							Client_Hostname(c));
 			if (!client_match)
 				client_match = MatchCaseInsensitive(Mask,
 								    Client_ID(Client_Introducer(c)));

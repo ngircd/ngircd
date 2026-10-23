@@ -10,9 +10,8 @@
 
 ngIRCd 29
 
-  - Add channel mode "N" to the list of supported channel modes: it was
-    neither announced in the 004 (RPL_MYINFO) and 005 (ISUPPORT) numerics
-    nor accepted by the "DefaultChannelModes" configuration option.
+  - Add channel modes "N" and "r" to the 005 (ISUPPORT) numeric, "N" to the
+    004 (RPL_MYINFO) numeric, and accept "N" in "DefaultChannelModes".
   - Update documentation:
     - INSTALL.md: Document missing options of the configure script.
     - Move doc/Contributing.txt to CONTRIBUTING.md.

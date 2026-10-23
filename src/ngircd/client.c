@@ -202,7 +202,7 @@ Init_New_Client(CONN_ID Idx, CLIENT *Introducer, CLIENT *TopServer,
 		Client_SetOrigUser(client, User);
 	}
 	if (Hostname)
-		Client_SetHostname(client, Hostname);
+		Client_SetHostname(client, Hostname, false);
 	if (Info)
 		Client_SetInfo(client, Info);
 	client->hops = Hops;
@@ -325,23 +325,25 @@ Client_Destroy( CLIENT *Client, const char *LogMsg, const char *FwdMsg, bool Sen
 /**
  * Set client hostname.
  *
- * If global hostname cloaking is in effect, don't set the real hostname
- * but the configured one.
+ * If global hostname cloaking is in effect and the hostname is to be
+ * cloaked, don't set the real hostname but the configured one.
+ *
+ * Only cloak hostnames of local clients that this server determined itself
+ * (IP address, reverse DNS lookup, WEBIRC), but never hostnames received
+ * from other servers or services: remote clients have already been cloaked
+ * by their own server, and services set hostnames on purpose.
  *
  * @param Client The client of which the hostname should be set.
  * @param Hostname The new hostname.
+ * @param Cloak Cloak the hostname when "CloakHost" is set.
  */
 GLOBAL void
-Client_SetHostname( CLIENT *Client, const char *Hostname )
+Client_SetHostname(CLIENT *Client, const char *Hostname, bool Cloak)
 {
 	assert(Client != NULL);
 	assert(Hostname != NULL);
 
-	/* Only cloak the host mask if it has not yet been cloaked.
-	 * The period or colon indicates it's still an IP address.
-	 * An empty string means a rDNS lookup did not happen (yet). */
-	if (Conf_CloakHost[0] && (!Client->host[0] || strchr(Client->host, '.')
-				  || strchr(Client->host, ':'))) {
+	if (Conf_CloakHost[0] && Cloak) {
 		char cloak[GETID_LEN];
 
 		strlcpy(cloak, Hostname, GETID_LEN);

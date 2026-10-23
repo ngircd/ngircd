@@ -10,6 +10,14 @@
 
 ngIRCd 29
 
+  - CloakHost: Cloak all hostnames of local clients that the server
+    determined itself, but never hostnames received from other servers or
+    set by services. When the cloaked hostname didn't contain a period or
+    colon, for example "CloakHost = %x", the real hostname resulting from
+    the reverse DNS lookup has been shown to everyone! And hostnames of
+    remote clients have been cloaked again (regression of #228 since
+    ngIRCd 26), as have hostnames set by services (METADATA "host"),
+    resulting in different hostnames on different servers.
   - Don't handle the read buffer of an already closed connection when
     appending received data failed.
   - PAM: Don't exit the whole daemon when forking the authenticator sub

@@ -494,7 +494,7 @@ IRC_USER(CLIENT * Client, REQUEST * Req)
 
 		Client_SetUser(c, Req->argv[0], true);
 		Client_SetOrigUser(c, Req->argv[0]);
-		Client_SetHostname(c, Req->argv[1]);
+		Client_SetHostname(c, Req->argv[1], false);
 		Client_SetInfo(c, Req->argv[3]);
 
 		LogDebug("Connection %d: got valid USER command for \"%s\".",
@@ -628,9 +628,9 @@ IRC_WEBIRC(CLIENT *Client, REQUEST *Req)
 	Client_SetUser(Client, Req->argv[1], true);
 	Client_SetOrigUser(Client, Req->argv[1]);
 	if (Conf_DNS)
-		Client_SetHostname(Client, Req->argv[2]);
+		Client_SetHostname(Client, Req->argv[2], true);
 	else
-		Client_SetHostname(Client, Req->argv[3]);
+		Client_SetHostname(Client, Req->argv[3], true);
 	Client_SetIPAText(Client, Req->argv[3]);
 
 	return CONNECTED;

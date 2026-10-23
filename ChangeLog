@@ -10,6 +10,9 @@
 
 ngIRCd 29
 
+  - Add channel mode "N" to the list of supported channel modes: it was
+    neither announced in the 004 (RPL_MYINFO) and 005 (ISUPPORT) numerics
+    nor accepted by the "DefaultChannelModes" configuration option.
   - Update documentation:
     - Move doc/Contributing.txt to CONTRIBUTING.md.
     - CONTRIBUTING.md: Add guidance on AI-assisted contributions.

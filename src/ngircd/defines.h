@@ -192,7 +192,7 @@
 #define USERMODES "abBcCFiIoqrRswx"
 
 /** Supported channel modes. */
-#define CHANMODES "abehiIklmMnoOPqQrRstvVz"
+#define CHANMODES "abehiIklmMnNoOPqQrRstvVz"
 
 /** Supported channel types. */
 #define CHANTYPES "#&+"

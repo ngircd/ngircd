@@ -14,6 +14,7 @@ ngIRCd 29
     - Move doc/Contributing.txt to CONTRIBUTING.md.
     - CONTRIBUTING.md: Add guidance on AI-assisted contributions.
     - doc/Contributing.txt: Fix stale file references.
+  - Add AGENTS.md with guidance for AI coding agents.
   - contrib/ngircd.service: Make the systemd unit more restrictive.
   - Manual pages: Show the package name and version, and no longer override
     the manual section name.

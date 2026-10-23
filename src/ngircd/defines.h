@@ -194,6 +194,11 @@
 /** Supported channel modes. */
 #define CHANMODES "abehiIklmMnNoOPqQrRstvVz"
 
+/** Channel modes allowed in "DefaultChannelModes": only modes without
+ * parameters, and neither list nor channel user modes, nor modes that only
+ * IRC services are allowed to set. */
+#define CHANMODES_DEFAULT "imMnNOPQRstVz"
+
 /** Supported channel types. */
 #define CHANTYPES "#&+"
 

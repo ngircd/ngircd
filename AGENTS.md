@@ -106,9 +106,10 @@ the helper libraries `src/portab` (portability), `src/tool` (strings), and
 - Prototypes use `PARAMS((...))`, exported functions are marked `GLOBAL`
   (`portab.h`), and prefixed with their module (`Conn_*`, `Client_*`,
   `Channel_*`, `Conf_*`, `IRC_*`, ...). Functions carry Doxygen comments.
-- Keep the lists of modes in sync: `CHANMODES`/`USERMODES` (`defines.h`), the
-  ISUPPORT `CHANMODES=` groups (`messages.h`), the modes allowed in
-  "DefaultChannelModes" (`conf.c` and its documentation), and `doc/Modes.txt`.
+- Keep the lists of modes in sync: `CHANMODES`/`USERMODES` and the modes
+  allowed in "DefaultChannelModes" (`CHANMODES_DEFAULT`) in `defines.h` and
+  the documentation of that option, the ISUPPORT `CHANMODES=` groups
+  (`messages.h`), and `doc/Modes.txt`.
 - Document new options in `doc/sample-ngircd.conf.tmpl` and
   `man/ngircd.conf.5.tmpl`, and new commands in `doc/Commands.txt`.
 - Add a `ChangeLog` entry for changes worth mentioning (fixes, features,

@@ -1666,11 +1666,15 @@ Handle_OPTIONS(const char *File, int Line, char *Var, char *Arg)
 				continue;
 			}
 
-			if (strchr(CHANMODES, *p)) {
+			if (strchr(CHANMODES_DEFAULT, *p)) {
 				len = strlen(Conf_DefaultChannelModes) + 1;
 				assert(len < sizeof(Conf_DefaultChannelModes));
 				Conf_DefaultChannelModes[len - 1] = *p;
 				Conf_DefaultChannelModes[len] = '\0';
+			} else if (strchr(CHANMODES, *p)) {
+				Config_Error(LOG_WARNING,
+					     "%s, line %d: Channel mode \"%c\" not allowed in \"DefaultChannelModes\"!",
+					     File, Line, *p);
 			} else {
 				Config_Error(LOG_WARNING,
 					     "%s, line %d: Unknown channel mode \"%c\" in \"DefaultChannelModes\"!",

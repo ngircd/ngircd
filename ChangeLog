@@ -10,6 +10,9 @@
 
 ngIRCd 29
 
+  - "DefaultChannelModes" configuration option: Only allow channel modes
+    without parameters. Modes like "k" or "l" without parameter resulted in
+    broken channels, and listing all channel modes triggered an assertion.
   - PAM: Don't log client passwords in debug mode.
   - CHARCONV: Fix messages to multiple targets: all targets after a client
     using CHARCONV got the message in its character set.

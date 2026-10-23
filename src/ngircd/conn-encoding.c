@@ -119,9 +119,11 @@ Convert_Message(iconv_t Handle, char *Message)
 	out_left = sizeof(Encoding_Buffer) - 1;
 
 	if (iconv(Handle, &Message, &in_left, &out, &out_left) == (size_t)(-1)) {
-		/* An error occurred! */
+		/* Copy the unconverted remainder, but only into the space
+		 * left: iconv(3) already advanced "out". */
 		LogDebug("Error converting message encoding!");
-		strlcpy(out, Message, sizeof(Encoding_Buffer));
+		strlcpy(out, Message,
+			sizeof(Encoding_Buffer) - (size_t)(out - Encoding_Buffer));
 		iconv(Handle, NULL, NULL, NULL, NULL);
 	} else
 		*out = '\0';

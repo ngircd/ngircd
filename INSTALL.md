@@ -409,3 +409,27 @@ standard locations.
 
   Enable (disable) support for version 6 of the Internet Protocol, which should
   be available on most modern UNIX-like operating systems by default.
+
+- IRC+ Protocol (enabled by default):
+
+  `--disable-ircplus`
+
+  Disable support for the "IRC+" protocol extensions, see `doc/Protocol.txt`
+  for details.
+
+- Character Set Conversion:
+
+  `--with-iconv[=<path>]`
+
+  Enable support for character set conversion of client connections (IRC+
+  `CHARCONV` command) for legacy clients not using UTF-8. The "libiconv"
+  (or the iconv functions of the C library) is required for this option,
+  and IRC+ support must be enabled.
+
+- Debugging:
+
+  - `--enable-debug`: Compile in additional debugging code and output (not
+    required for the `-d` command line option of `ngircd`).
+  - `--enable-sniffer`: Enable the IRC traffic sniffer (`-s` command line
+    option of `ngircd`); implies `--enable-debug`.
+  - `--enable-strict-rfc`: Strict RFC conformance, which may break clients!

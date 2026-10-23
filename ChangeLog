@@ -10,6 +10,7 @@
 
 ngIRCd 29
 
+  - ISON, USERHOST: Don't use reply data as format string.
   - "DefaultChannelModes" configuration option: Only allow channel modes
     without parameters. Modes like "k" or "l" without parameter resulted in
     broken channels, and listing all channel modes triggered an assertion.

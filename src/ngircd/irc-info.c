@@ -602,7 +602,7 @@ IRC_ISON( CLIENT *Client, REQUEST *Req )
 	assert(Client != NULL);
 	assert(Req != NULL);
 
-	strlcpy(rpl, RPL_ISON_MSG, sizeof rpl);
+	snprintf(rpl, sizeof(rpl), RPL_ISON_MSG, Client_ID(Client));
 	for (i = 0; i < Req->argc; i++) {
 		/* "All" ircd even parse ":<x> <y> ..." arguments and split
 		 * them up; so we do the same ... */
@@ -619,7 +619,7 @@ IRC_ISON( CLIENT *Client, REQUEST *Req )
 	}
 	ngt_TrimLastChr(rpl, ' ');
 
-	return IRC_WriteStrClient(Client, rpl, Client_ID(Client));
+	return IRC_WriteStrClient(Client, "%s", rpl);
 } /* IRC_ISON */
 
 /**
@@ -1046,7 +1046,7 @@ IRC_USERHOST(CLIENT *Client, REQUEST *Req)
 	else
 		max = Req->argc;
 
-	strlcpy(rpl, RPL_USERHOST_MSG, sizeof rpl);
+	snprintf(rpl, sizeof(rpl), RPL_USERHOST_MSG, Client_ID(Client));
 	for (i = 0; i < max; i++) {
 		c = Client_Search(Req->argv[i]);
 		if (c && (Client_Type(c) == CLIENT_USER)) {
@@ -1067,7 +1067,7 @@ IRC_USERHOST(CLIENT *Client, REQUEST *Req)
 	}
 	ngt_TrimLastChr(rpl, ' ');
 
-	return IRC_WriteStrClient(Client, rpl, Client_ID(Client));
+	return IRC_WriteStrClient(Client, "%s", rpl);
 } /* IRC_USERHOST */
 
 /**

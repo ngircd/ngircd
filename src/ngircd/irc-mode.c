@@ -1028,6 +1028,17 @@ Add_To_List(char what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel,
 	assert(Pattern != NULL);
 	assert(what == 'I' || what == 'b' || what == 'e');
 
+	/* Reject empty masks and masks which can't be forwarded unchanged
+	 * as a (non-trailing) MODE parameter to other servers and clients,
+	 * which would result in inconsistent lists in the network: */
+	if (!*Pattern || *Pattern == ':' || strchr(Pattern, ' ')) {
+		if (Client_Type(Client) != CLIENT_USER)
+			return CONNECTED;
+		return IRC_WriteErrClient(Client, ERR_INVALIDMODEPARAM_MSG,
+					  Client_ID(Client),
+					  Channel_Name(Channel), what);
+	}
+
 	Lists_MakeMask(Pattern, mask, sizeof(mask));
 	current_count = Lists_Count(Channel_GetListInvites(Channel))
 			+ Lists_Count(Channel_GetListExcepts(Channel))

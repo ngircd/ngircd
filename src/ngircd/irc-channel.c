@@ -84,24 +84,6 @@ join_allowed(CLIENT *Client, CHANNEL *chan, const char *channame,
 	if (Client_HasMode(Client, 'o'))
 		return true;
 
-	is_banned = Lists_Check(Channel_GetListBans(chan), Client);
-	is_exception = Lists_Check(Channel_GetListExcepts(chan), Client);
-	is_invited = Lists_Check(Channel_GetListInvites(chan), Client);
-
-	if (is_banned && !is_invited && !is_exception) {
-		/* Client is banned from channel (and not on invite list) */
-		IRC_WriteErrClient(Client, ERR_BANNEDFROMCHAN_MSG,
-				   Client_ID(Client), channame);
-		return false;
-	}
-
-	if (Channel_HasMode(chan, 'i') && !is_invited) {
-		/* Channel is "invite-only" and client is not on invite list */
-		IRC_WriteErrClient(Client, ERR_INVITEONLYCHAN_MSG,
-				   Client_ID(Client), channame);
-		return false;
-	}
-
 	if (!Channel_CheckKey(chan, Client, key ? key : "")) {
 		/* Channel is protected by a channel key and the client
 		 * didn't specify the correct one */
@@ -136,6 +118,28 @@ join_allowed(CLIENT *Client, CHANNEL *chan, const char *channame,
 	if (Channel_HasMode(chan, 'R') && !Client_HasMode(Client, 'R')) {
 		/* Only registered users are allowed! */
 		IRC_WriteErrClient(Client, ERR_REGONLYCHANNEL_MSG,
+				   Client_ID(Client), channame);
+		return false;
+	}
+
+	/* Check the ban and invite lists last: checking the invite list
+	 * deletes matching "one shot" entries (created by INVITE commands),
+	 * so this must only happen when the client is allowed to join
+	 * otherwise! */
+	is_banned = Lists_Check(Channel_GetListBans(chan), Client);
+	is_exception = Lists_Check(Channel_GetListExcepts(chan), Client);
+	is_invited = Lists_Check(Channel_GetListInvites(chan), Client);
+
+	if (is_banned && !is_invited && !is_exception) {
+		/* Client is banned from channel (and not on invite list) */
+		IRC_WriteErrClient(Client, ERR_BANNEDFROMCHAN_MSG,
+				   Client_ID(Client), channame);
+		return false;
+	}
+
+	if (Channel_HasMode(chan, 'i') && !is_invited) {
+		/* Channel is "invite-only" and client is not on invite list */
+		IRC_WriteErrClient(Client, ERR_INVITEONLYCHAN_MSG,
 				   Client_ID(Client), channame);
 		return false;
 	}

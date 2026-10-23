@@ -14,15 +14,16 @@ get an idea of how to do it the best :-)
 
  - Use GIT
 
-   The source code of ngIRCd is maintained using GIT, see doc/GIT.txt. So if
-   remotely possible, use GIT for your work, too. It makes your and our lives
-   much easier ;-)
+   The source code of ngIRCd is maintained using GIT, see
+   <https://github.com/ngircd/ngircd>. So if remotely possible, use GIT for
+   your work, too. It makes your and our lives much easier ;-)
 
  - Don't forget to include documentation
 
    When adding features and new configuration options, don't forget to not
-   only code the features but to describe them in doc/sample-ngircd.conf,
-   man/ngircd.8.tmp and/or man/ngircd.conf.5.tmpl as well!
+   only code the features but to describe them in
+   doc/sample-ngircd.conf.tmpl, man/ngircd.8.tmpl and/or
+   man/ngircd.conf.5.tmpl as well!
 
  - Be present on IRC
 

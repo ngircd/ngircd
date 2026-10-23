@@ -10,6 +10,8 @@
 
 ngIRCd 29
 
+  - Update documentation:
+    - doc/Contributing.txt: Fix stale file references.
   - contrib/ngircd.service: Make the systemd unit more restrictive.
   - Manual pages: Show the package name and version, and no longer override
     the manual section name.

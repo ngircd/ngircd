@@ -46,8 +46,9 @@ static char *password;
 static int
 password_conversation(int num_msg, const struct pam_message **msg,
 		      struct pam_response **resp, void *appdata_ptr) {
-	LogDebug("PAM: conv(%d, %d, '%s', '%s')",
-		 num_msg, msg[0]->msg_style, msg[0]->msg, appdata_ptr);
+	/* Note: Don't log "appdata_ptr", it is the password of the client! */
+	LogDebug("PAM: conv(%d, %d, '%s')",
+		 num_msg, msg[0]->msg_style, msg[0]->msg);
 
 	/* Can we deal with this request? */
 	if (num_msg != 1 || msg[0]->msg_style != PAM_PROMPT_ECHO_OFF) {

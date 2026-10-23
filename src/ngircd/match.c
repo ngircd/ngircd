@@ -33,9 +33,7 @@
 static int Matche PARAMS(( const char *p, const char *t ));
 static int Matche_After_Star PARAMS(( const char *p, const char *t ));
 
-#define MATCH_PATTERN	6	/**< bad pattern */
 #define MATCH_LITERAL	5	/**< match failure on literal match */
-#define MATCH_RANGE	4	/**< match failure on [..] construct */
 #define MATCH_ABORT	3	/**< premature end of text string */
 #define MATCH_END	2	/**< premature end of pattern string */
 #define MATCH_VALID	1	/**< valid match */
@@ -152,28 +150,21 @@ Matche_After_Star( const char *p, const char *t )
 	/* if end of pattern we have matched regardless of text left */
 	if( ! *p ) return MATCH_VALID;
 
-	/* get the next character to match which must be a literal or '[' */
+	/* Matche() compares all characters literally (no "[...]" ranges or
+	 * "\" escapes), so don't special-case them here either: */
 	nextp = *p;
-	if( nextp == '\\' )
-	{
-		nextp = p[1];
-
-		/* if end of text then we have a bad pattern */
-		if( ! nextp ) return MATCH_PATTERN;
-	}
 
 	/* Continue until we run out of text or definite result seen */
 	do
 	{
 		/* a precondition for matching is that the next character
-		 * in the pattern match the next character in the text or that
-		 * the next pattern char is the beginning of a range.  Increment
-		 * text pointer as we go here */
-		if( nextp == *t || nextp == '[' ) match = Matche( p, t );
+		 * in the pattern matches the next character in the text.
+		 * Increment text pointer as we go here */
+		if( nextp == *t ) match = Matche( p, t );
 
 		/* if the end of text is reached then no match */
 		if( ! *t++ ) match = MATCH_ABORT;
-	} while( match != MATCH_VALID && match != MATCH_ABORT && match != MATCH_PATTERN );
+	} while( match != MATCH_VALID && match != MATCH_ABORT );
 
 	/* return result */
 	return match;

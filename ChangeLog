@@ -10,6 +10,9 @@
 
 ngIRCd 29
 
+  - Fix matching a backslash that follows a "*" in masks: a mask like "*\foo"
+    never matched, which allowed evading such bans, for example ("\" is a
+    valid nickname character).
   - CHARCONV (libiconv support only): Fix a buffer overflow introduced in
     ngIRCd 22: when a converted message didn't fit into the conversion
     buffer, up to a few hundred bytes were written past its end. Every

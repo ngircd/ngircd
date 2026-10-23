@@ -396,6 +396,7 @@ IRC_xLINE(CLIENT *Client, REQUEST *Req)
 	struct list_head *list;
 	time_t timeout;
 	int class;
+	bool kill_self = false;
 
 	assert(Client != NULL);
 	assert(Req != NULL);
@@ -475,11 +476,21 @@ IRC_xLINE(CLIENT *Client, REQUEST *Req)
 			while (c) {
 				c_next = Client_Next(c);
 				if ((class == CLASS_GLINE || Client_Conn(c) > NONE)
-				    && Lists_Check(list, c))
-					IRC_KillClient(Client, NULL,
-						       Client_ID(c), reason);
+				    && Lists_Check(list, c)) {
+					/* Don't kill the client from which this
+					 * command has been received right now,
+					 * it is still used in this loop! */
+					if (c == Client)
+						kill_self = true;
+					else
+						IRC_KillClient(Client, NULL,
+							       Client_ID(c), reason);
+				}
 				c = c_next;
 			}
+			if (kill_self)
+				return IRC_KillClient(Client, NULL,
+						      Client_ID(Client), reason);
 		}
 	}
 

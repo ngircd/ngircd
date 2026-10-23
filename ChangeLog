@@ -10,6 +10,8 @@
 
 ngIRCd 29
 
+  - Fix a use-after-free when an IRC operator adds a G-Line or K-Line whose
+    mask matches the operator itself.
   - Fix memory leaks of client certificate fingerprints: with GnuTLS, they
     were never freed; and METADATA "certfp" updates leaked, too.
     Thanks QiuYitai for reporting this!

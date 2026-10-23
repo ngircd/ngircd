@@ -1474,7 +1474,7 @@ New_Connection(int Sock, UNUSED bool IsSSL)
 		strlcpy(My_Connections[new_sock].host, ip_str,
 			sizeof(My_Connections[new_sock].host));
 
-	Client_SetHostname(c, My_Connections[new_sock].host);
+	Client_SetHostname(c, My_Connections[new_sock].host, true);
 
 	Log(LOG_INFO, "Accepted connection %d from \"%s:%d\" on socket %d.",
 	    new_sock, My_Connections[new_sock].host,
@@ -2346,7 +2346,7 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 			/* We got a hostname */
 			strlcpy(My_Connections[i].host, readbuf,
 				sizeof(My_Connections[i].host));
-			Client_SetHostname(c, readbuf);
+			Client_SetHostname(c, readbuf, true);
 			if (Conf_NoticeBeforeRegistration)
 				(void)Conn_WriteStr(i,
 					"NOTICE * :*** Found your hostname: %s",

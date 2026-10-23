@@ -132,7 +132,8 @@ GLOBAL time_t Client_StartTime PARAMS(( CLIENT *Client ));
 GLOBAL bool Client_HasMode PARAMS(( CLIENT *Client, char Mode ));
 GLOBAL bool Client_HasFlag PARAMS(( CLIENT *Client, char Flag ));
 
-GLOBAL void Client_SetHostname PARAMS(( CLIENT *Client, const char *Hostname ));
+GLOBAL void Client_SetHostname PARAMS((CLIENT *Client, const char *Hostname,
+				       bool Cloak));
 GLOBAL void Client_SetIPAText PARAMS(( CLIENT *Client, const char *IPAText ));
 GLOBAL void Client_SetID PARAMS(( CLIENT *Client, const char *Nick ));
 GLOBAL void Client_SetUser PARAMS(( CLIENT *Client, const char *User, bool Idented ));

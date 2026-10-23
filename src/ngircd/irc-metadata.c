@@ -84,7 +84,7 @@ IRC_METADATA(CLIENT *Client, REQUEST *Req)
 		return CONNECTED;
 	}
 	else if (*Req->argv[2] && strcasecmp(Req->argv[1], "host") == 0) {
-		Client_SetHostname(target, Req->argv[2]);
+		Client_SetHostname(target, Req->argv[2], false);
 		if (Client_Conn(target) > NONE && !Client_HasMode(target, 'x'))
 			IRC_WriteStrClientPrefix(target, prefix,
 						 RPL_HOSTHIDDEN_MSG, Client_ID(target),

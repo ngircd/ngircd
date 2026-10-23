@@ -10,6 +10,8 @@
 
 ngIRCd 29
 
+  - MODE: Stop parsing on empty mode arguments: for example "MODE nick +b :"
+    interpreted the following commands in the read buffer as mode characters.
   - Fix matching a backslash that follows a "*" in masks: a mask like "*\foo"
     never matched, which allowed evading such bans, for example ("\" is a
     valid nickname character).

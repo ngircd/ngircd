@@ -171,9 +171,10 @@ Client_Mode( CLIENT *Client, REQUEST *Req, CLIENT *Origin, CLIENT *Target )
 	while (mode_ptr) {
 		mode_ptr++;
 		if (!*mode_ptr) {
-			/* Try next argument if there's any */
+			/* Try next argument if there's any; but stop on
+			 * empty ones, there is nothing left to parse then! */
 			mode_arg++;
-			if (mode_arg < Req->argc)
+			if (mode_arg < Req->argc && *Req->argv[mode_arg])
 				mode_ptr = Req->argv[mode_arg];
 			else
 				break;
@@ -523,6 +524,10 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 			if (mode_arg >= Req->argc)
 				break;
 			mode_ptr = Req->argv[mode_arg];
+			if (!*mode_ptr) {
+				/* Empty argument: nothing left to parse! */
+				break;
+			}
 
 			if (Req->argc > mode_arg + 1)
 				arg_arg = mode_arg + 1;

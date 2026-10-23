@@ -534,6 +534,9 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 	char *message = NULL;
 	char *targets[MAX_HNDL_TARGETS];
 	int i, target_nr = 0;
+#ifdef ICONV
+	char message_buf[COMMAND_LEN];
+#endif
 
 	assert(Client != NULL);
 	assert(Req != NULL);
@@ -566,9 +569,15 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 					  Client_ID(Client), Req->prefix);
 
 #ifdef ICONV
-	if (Client_Conn(Client) > NONE)
-		message = Conn_EncodingFrom(Client_Conn(Client), Req->argv[1]);
-	else
+	if (Client_Conn(Client) > NONE) {
+		/* Conn_EncodingFrom() may return a pointer to a static buffer
+		 * that sending the message to a client using character set
+		 * conversion overwrites, so make a copy: */
+		strlcpy(message_buf,
+			Conn_EncodingFrom(Client_Conn(Client), Req->argv[1]),
+			sizeof(message_buf));
+		message = message_buf;
+	} else
 #endif
 		message = Req->argv[1];
 

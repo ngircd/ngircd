@@ -10,6 +10,8 @@
 
 ngIRCd 29
 
+  - CHARCONV: Fix messages to multiple targets: all targets after a client
+    using CHARCONV got the message in its character set.
   - LIST: Forward all patterns to other servers, not only the first one.
   - JOIN: Don't use up invitations when joining fails, for example because of
     a missing channel key.

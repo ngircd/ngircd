@@ -74,6 +74,8 @@ GLOBAL void Channel_Quit PARAMS(( CLIENT *Client, const char *Reason ));
 GLOBAL void Channel_Kick PARAMS((CLIENT *Peer, CLIENT *Target, CLIENT *Origin,
 				 const char *Name, const char *Reason));
 
+GLOBAL bool Channel_DeleteIfUnused PARAMS((CHANNEL *Chan));
+
 GLOBAL unsigned long Channel_CountVisible PARAMS((CLIENT *Client));
 GLOBAL unsigned long Channel_MemberCount PARAMS(( CHANNEL *Chan ));
 GLOBAL int Channel_CountForUser PARAMS(( CLIENT *Client ));

@@ -155,7 +155,7 @@ Channel_InitPredefined( void )
 					c = strtok(0, " ");
 				}
 
-				if (Req.argc > 1) {
+				if (new_chan && Req.argc > 1) {
 					/* Handling of legacy "Key" and "MaxUsers" settings:
 					 * Enforce setting the respective mode(s), to support
 					 * the legacy "Mode = kl" notation, which was valid but
@@ -172,11 +172,22 @@ Channel_InitPredefined( void )
 					}
 
 					IRC_MODE(Client_ThisServer(), &Req);
+
+					/* Removing mode "P" deletes the (still
+					 * empty) channel, so search it again: */
+					new_chan = Channel_Search(name);
 				}
 
 				/* Original channel modes strings are no longer needed */
 				free(conf_chan->modes[n]);
 			}
+		}
+
+		if (!new_chan) {
+			Log(LOG_WARNING,
+			    "Pre-defined channel \"%s\" deleted: its \"Modes\" setting removes mode \"P\"!",
+			    conf_chan->name);
+			continue;
 		}
 
 		Set_KeyFile(new_chan, conf_chan->keyfile);
@@ -441,6 +452,28 @@ Channel_Quit( CLIENT *Client, const char *Reason )
 		c = next_c;
 	}
 } /* Channel_Quit */
+
+
+/**
+ * Delete a channel if it has no members and isn't persistent (mode "P").
+ *
+ * Please note that the channel structure is freed when this function
+ * returns true, so it must not be used afterwards!
+ *
+ * @param Chan The channel to check.
+ * @return true if the channel has been deleted, false otherwise.
+ */
+GLOBAL bool
+Channel_DeleteIfUnused(CHANNEL *Chan)
+{
+	assert(Chan != NULL);
+
+	if (Channel_HasMode(Chan, 'P') || Get_First_Cl2Chan(NULL, Chan))
+		return false;
+
+	Delete_Channel(Chan);
+	return true;
+} /* Channel_DeleteIfUnused */
 
 
 /**
@@ -1149,10 +1182,7 @@ Remove_Client( int Type, CHANNEL *Chan, CLIENT *Client, CLIENT *Origin, const ch
 	}
 
 	/* When channel is empty and is not pre-defined, delete */
-	if( ! Channel_HasMode( Chan, 'P' ))
-	{
-		if( ! Get_First_Cl2Chan( NULL, Chan )) Delete_Channel( Chan );
-	}
+	Channel_DeleteIfUnused(Chan);
 
 	return true;
 } /* Remove_Client */

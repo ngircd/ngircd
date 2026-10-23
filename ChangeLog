@@ -10,6 +10,8 @@
 
 ngIRCd 29
 
+  - Delete empty channels when mode "P" is removed: such channels stayed
+    around forever, and the next user joining didn't become channel operator.
   - MODE: Reject empty ban, invite, and exception masks, and masks containing
     spaces or starting with a colon, which resulted in different lists on
     different servers.

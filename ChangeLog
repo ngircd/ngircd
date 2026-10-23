@@ -10,6 +10,9 @@
 
 ngIRCd 29
 
+  - PAM: Don't exit the whole daemon when forking the authenticator sub
+    process fails (for example when running out of file descriptors), but
+    reject the client.
   - WHO: Don't match masks against the real hostnames of clients but against
     the displayed (potentially cloaked) ones, only IRC operators can match the
     real hostnames, too. Otherwise everyone could find out the real hostname

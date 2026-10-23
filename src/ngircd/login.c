@@ -119,6 +119,10 @@ Login_User(CLIENT * Client)
 			LogDebug("Authenticator for connection %d created (PID %d).",
 				 conn, pid);
 			return CONNECTED;
+		} else if (pid < 0) {
+			/* Error, no sub process has been created! */
+			Client_Reject(Client, "Internal error", false);
+			return DISCONNECTED;
 		} else {
 			/* Sub process */
 			Log_Init_Subprocess("Auth");

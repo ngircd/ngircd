@@ -10,6 +10,8 @@
 
 ngIRCd 29
 
+  - Don't handle the read buffer of an already closed connection when
+    appending received data failed.
   - PAM: Don't exit the whole daemon when forking the authenticator sub
     process fails (for example when running out of file descriptors), but
     reject the client.

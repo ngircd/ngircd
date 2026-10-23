@@ -1688,6 +1688,7 @@ Read_Request(CONN_ID Idx)
 			    Idx, (long)len);
 			Conn_Close(Idx, "Receive buffer space exhausted", NULL,
 				   false );
+			return;
 		}
 	}
 

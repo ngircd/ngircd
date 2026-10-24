@@ -1103,7 +1103,7 @@ ConnSSL_Accept( CONNECTION *c )
 		if (err) {
 			Log(LOG_ERR, "Failed to initialize new SSL session: %s",
 			    gnutls_strerror(err));
-			return false;
+			return -1;
 		}
 #endif
 		if (!ConnSSL_Init_SSL(c))

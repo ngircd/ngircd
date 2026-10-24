@@ -385,6 +385,7 @@ Signal_NotifySvcMgr(const char *message)
 	struct sockaddr_un socket_addr;
 	const char *socket_path;
 	size_t path_length, message_length;
+	ssize_t written;
 	static int fd = NONE;
 
 	assert(message != NULL);
@@ -441,7 +442,7 @@ Signal_NotifySvcMgr(const char *message)
 	}
 
 	message_length = strlen(message);
-	ssize_t written = write(fd, message, message_length);
+	written = write(fd, message, message_length);
 	if (written != (ssize_t)message_length) {
 		Log(LOG_CRIT,
 			"Failed to notify service manager: %s [write()]",

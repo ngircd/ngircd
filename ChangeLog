@@ -10,6 +10,7 @@
 
 ngIRCd 29
 
+  - Fix compilation of Signal_NotifySvcMgr() with pre-C99 compilers.
   - Only call async-signal-safe functions in the signal handler, and don't
     clobber "errno" there: all signals except SIGCHLD are now logged and
     handled in normal context, including SIGTERM, SIGINT, SIGQUIT, and SIGUSR1.

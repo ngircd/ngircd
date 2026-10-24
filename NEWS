@@ -17,9 +17,33 @@ ngIRCd 29
     mention their use; bug reports must be verified by a human, and fully
     automated or unreviewed issues and pull requests may be closed without
     further notice.
-  - Fix use-after-free crashes, for example when the login of a client
-    failed after the "RequireAuthPing" PONG, or when sending WALLOPS or
-    server notices to clients not reading their data.
+  - Security: This release fixes several issues that clients could exploit,
+    so updating is strongly recommended:
+    - CHARCONV (libiconv support, enabled by some distribution packages):
+      Fix a buffer overflow introduced in ngIRCd 22, which every client
+      using a character set like ISO-8859-1 could trigger, even
+      accidentally, by sending long non-ASCII messages.
+    - Fix use-after-free crashes, for example when the login of a client
+      failed after the "RequireAuthPing" PONG, when a write error closed
+      its connection during JOIN, PART, KICK, or MODE commands, or when
+      sending WALLOPS or server notices to clients not reading their data.
+    - Unregistered connections could send notices, bypassing the server
+      password, PAM, and K-Lines and G-Lines. And with PAM enabled, clients
+      could log in with another user name than the authenticated one.
+    - "WHO <mask>" and some "CloakHost" settings revealed the real hostnames
+      of cloaked clients.
+    - Every channel member could override bans using INVITE, now only
+      channel owners, admins, operators, and half-ops can. Masks with a
+      backslash after a "*" never matched, so bans could be evaded. And
+      changes of the invite list of a local ("&") channel applied to the
+      channels of the same name on other servers, too.
+    - Clients could make the daemon busy-loop and flood the log by opening
+      many connections, when it ran out of file descriptors or memory.
+    - SSL: A connection could stay open after a write error and send pending
+      data unencrypted.
+    - Hostnames from reverse DNS lookups with invalid characters, like
+      spaces, are never used now, even when the resolver library doesn't
+      reject them: the IP address is used instead.
   - Channels with a key file can be restricted to the users listed in it:
     a channel key of "?" can't be used to join them then.
   - MODE: Reject channel keys starting with a colon (":") or containing a
@@ -36,6 +60,9 @@ ngIRCd 29
   - Announce channel modes "N" and "r" in the ISUPPORT (005) numeric.
   - contrib/ngircd.service is more restrictive now, among other things it
     limits memory (96 MB) and tasks (64): big servers may need more!
+  - Container images for amd64 and arm64 are now built for each release
+    and published on the GitHub Container Registry as
+    "ghcr.io/ngircd/ngircd:<version>" and ":latest", and rebuilt weekly.
   - Warn when the MOTD is longer than 32 KiB: it is sent in one go, and
     clients were disconnected when the socket buffer of the operating
     system was full, which happens soon on OpenBSD, for example.

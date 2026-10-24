@@ -821,7 +821,7 @@ ConnSSL_HandleError(CONNECTION * c, const int code, const char *fname)
 {
 #ifdef HAVE_LIBSSL
 	int ret = SSL_ERROR_SYSCALL;
-	unsigned long sslerr;
+	unsigned long sslerr = 0;
 	int real_errno = errno;
 
 	ret = SSL_get_error(c->ssl_state.ssl, code);
@@ -869,9 +869,16 @@ ConnSSL_HandleError(CONNECTION * c, const int code, const char *fname)
 		Log(LOG_ERR, "Unknown SSL error %d [in %s()]!", ret, fname);
 	}
 	ConnSSL_Free(c);
+	/* Set errno for the callers: keep the error of the failed system
+	 * call (if any), all other errors are "only" I/O errors for them.
+	 * Never return a stale errno, which could be EAGAIN, for example: */
+	errno = (ret == SSL_ERROR_SYSCALL && code == -1 && !sslerr
+		 && real_errno) ? real_errno : EIO;
 	return -1;
 #endif
 #ifdef HAVE_LIBGNUTLS
+	int real_errno = errno;
+
 	switch (code) {
 	case GNUTLS_E_AGAIN:
 	case GNUTLS_E_INTERRUPTED:
@@ -891,6 +898,10 @@ ConnSSL_HandleError(CONNECTION * c, const int code, const char *fname)
 			LogDebug("SSL error: %s [%s].",
 				 gnutls_strerror(code), fname);
 			ConnSSL_Free(c);
+			/* Set errno for the callers, see above. */
+			errno = ((code == GNUTLS_E_PUSH_ERROR
+				  || code == GNUTLS_E_PULL_ERROR) && real_errno)
+				? real_errno : EIO;
 			return -1;
 		}
 	}

@@ -10,6 +10,11 @@
 
 ngIRCd 29
 
+  - SSL: Always close connections on fatal write errors: depending on a
+    stale "errno" value, a connection could stay open without encryption,
+    so pending data was sent in cleartext until the peer closed the
+    connection. And log the real cause of the error instead of a random
+    one, like "Write error ...: Success!".
   - CloakHost: Cloak all hostnames of local clients that the server
     determined itself, but never hostnames received from other servers or
     set by services. When the cloaked hostname didn't contain a period or

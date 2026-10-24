@@ -44,6 +44,18 @@ Proc_InitStruct (PROC_STAT *proc)
 
 /**
  * Fork a child process.
+ *
+ * In the parent process, the read end of the pipe is registered in the event
+ * loop with the given callback; the child process gets the write end in
+ * pipefds[1] to send its result, and is terminated after the given timeout.
+ *
+ * @param proc Process status structure of the connection or server.
+ * @param pipefds Array for the file descriptors of the pipe.
+ * @param cbfunc Callback function for reading the result in the parent.
+ * @param timeout Timeout of the child process in seconds.
+ * @return PID of the child process in the parent, 0 in the child, or -1 on
+ * error in the parent: then the caller must not continue with the code of
+ * the child process!
  */
 GLOBAL pid_t
 Proc_Fork(PROC_STAT *proc, int *pipefds, void (*cbfunc)(int, short), int timeout)

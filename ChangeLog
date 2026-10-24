@@ -10,6 +10,10 @@
 
 ngIRCd 29
 
+  - OpenSSL: Allow retrying writes with a reallocated write buffer: when the
+    write buffer of a connection grew while a write was pending, OpenSSL
+    failed with "bad write retry", and the connection was closed. This
+    disconnected clients and servers temporarily not reading fast enough.
   - SSL: Handle data buffered by the SSL library: When a TLS record was
     bigger than the read buffer, the rest of it was only handled when the
     peer sent more data, which delayed commands, for example pasted text of

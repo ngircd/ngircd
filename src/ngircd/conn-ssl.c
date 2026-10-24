@@ -410,7 +410,10 @@ ConnSSL_InitLibrary( void )
 			    SSL_OP_SINGLE_DH_USE | SSL_OP_NO_SSLv2 |
 			    SSL_OP_NO_SSLv3 | SSL_OP_NO_TLSv1 | SSL_OP_NO_TLSv1_1 |
 			    SSL_OP_NO_COMPRESSION);
-	SSL_CTX_set_mode(newctx, SSL_MODE_ENABLE_PARTIAL_WRITE);
+	/* The write buffer can be reallocated while a write is pending, so
+	 * allow retrying SSL_write() with a different buffer address: */
+	SSL_CTX_set_mode(newctx, SSL_MODE_ENABLE_PARTIAL_WRITE |
+			 SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
 	SSL_CTX_free(ssl_ctx);
 	ssl_ctx = newctx;
 	Log(LOG_INFO, "%s initialized.", OpenSSL_version(OPENSSL_VERSION));

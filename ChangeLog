@@ -10,6 +10,8 @@
 
 ngIRCd 29
 
+  - NJOIN: Ignore clients that are already members of the channel instead of
+    killing them.
   - Only allow users and services as channel members: a JOIN or NJOIN
     command of a peer server naming a server made it a channel member, which
     resulted in a use-after-free when this server was disconnected, and a

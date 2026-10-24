@@ -307,6 +307,15 @@ IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 			goto skip_njoin;
 		}
 
+		chan = Channel_Search(channame);
+		if (chan && Channel_IsMemberOf(chan, c)) {
+			/* Client already joined, nothing to do! */
+			Log(LOG_WARNING,
+			    "Got NJOIN for \"%s\" already in channel \"%s\", ignored!",
+			    ptr, channame);
+			goto skip_njoin;
+		}
+
 		if (!Channel_Join(c, channame)) {
 			/* Failed to join channel. Ooops!? */
 			Log(LOG_ALERT,

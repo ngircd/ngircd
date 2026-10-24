@@ -10,6 +10,11 @@
 
 ngIRCd 29
 
+  - Fix handling of pre-defined channels when reloading the configuration:
+    the old channel configuration was never removed, so all pre-defined
+    channels were added again on each reload, and their already freed mode
+    settings were used and freed again when such a channel had to be
+    re-created, which crashed the daemon (use-after-free, double free).
   - Don't generate a new random "CloakHostSalt" when reloading the
     configuration, but only on startup as documented: otherwise cloaked
     hostnames of clients changed after each reload, so bans no longer

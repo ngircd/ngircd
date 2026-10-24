@@ -177,9 +177,6 @@ Channel_InitPredefined( void )
 					 * empty) channel, so search it again: */
 					new_chan = Channel_Search(name);
 				}
-
-				/* Original channel modes strings are no longer needed */
-				free(conf_chan->modes[n]);
 			}
 		}
 

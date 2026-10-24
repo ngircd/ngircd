@@ -304,6 +304,26 @@ opers_free(void)
 }
 
 /**
+ * Free all pre-defined channel configuration structures.
+ */
+static void
+channels_free(void)
+{
+	struct Conf_Channel *chan;
+	size_t len;
+	unsigned int n;
+
+	len = array_length(&Conf_Channels, sizeof(*chan));
+	chan = array_start(&Conf_Channels);
+	while (len--) {
+		for (n = 0; n < chan->modes_num; n++)
+			free(chan->modes[n]);
+		chan++;
+	}
+	array_free(&Conf_Channels);
+}
+
+/**
  * Output all IRC operator configuration structures.
  */
 static void
@@ -960,6 +980,7 @@ Read_Config(bool TestOnly, bool IsStarting)
 	}
 
 	opers_free();
+	channels_free();
 	Set_Defaults(IsStarting);
 
 	if (TestOnly && fd)

@@ -426,9 +426,14 @@ IRC_SQUIT(CLIENT * Client, REQUEST * Req)
 	    Client_ID(from), Req->argv[0], Req->argv[1]);
 
 	target = Client_Search(Req->argv[0]);
-	if (Client_Type(Client) != CLIENT_SERVER &&
-	    target == Client_ThisServer())
-		return Op_NoPrivileges(Client, Req);
+	if (target == Client_ThisServer()) {
+		if (Client_Type(Client) != CLIENT_SERVER)
+			return Op_NoPrivileges(Client, Req);
+		Log(LOG_WARNING,
+		    "Got SQUIT from %s for this server, ignored!",
+		    Client_ID(from));
+		return CONNECTED;
+	}
 	if (!target) {
 		/* The server is (already) unknown */
 		Log(LOG_WARNING,

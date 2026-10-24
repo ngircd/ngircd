@@ -10,6 +10,8 @@
 
 ngIRCd 29
 
+  - SQUIT: Ignore SQUIT commands of peer servers for the local server, which
+    resulted in a use-after-free and crashed the daemon.
   - NJOIN: Ignore clients that are already members of the channel instead of
     killing them.
   - Only allow users and services as channel members: a JOIN or NJOIN

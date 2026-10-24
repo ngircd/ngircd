@@ -253,10 +253,10 @@ Channel_Exit( void )
 /**
  * Join Channel
  * This function lets a client join a channel.  First, the function
- * checks that the specified channel name is valid and that the client
- * isn't already a member.  If the specified channel doesn't exist,
- * a new channel is created.  Client is added to channel by function
- * Add_Client().
+ * checks that the client is a user or service, that the specified channel
+ * name is valid, and that the client isn't already a member.  If the
+ * specified channel doesn't exist, a new channel is created.  Client is
+ * added to channel by function Add_Client().
  */
 GLOBAL bool
 Channel_Join( CLIENT *Client, const char *Name )
@@ -265,6 +265,11 @@ Channel_Join( CLIENT *Client, const char *Name )
 
 	assert(Client != NULL);
 	assert(Name != NULL);
+
+	/* Only users and services can become channel members */
+	if (Client_Type(Client) != CLIENT_USER &&
+	    Client_Type(Client) != CLIENT_SERVICE)
+		return false;
 
 	/* Check that the channel name is valid */
 	if (! Channel_IsValidName(Name)) {

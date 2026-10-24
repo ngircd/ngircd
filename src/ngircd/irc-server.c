@@ -298,10 +298,11 @@ IRC_NJOIN( CLIENT *Client, REQUEST *Req )
 		}
 
 		c = Client_Search(ptr);
-		if (!c) {
-			/* Client not found? */
+		if (!c || (Client_Type(c) != CLIENT_USER &&
+			   Client_Type(c) != CLIENT_SERVICE)) {
+			/* Client not found (or not a user or service)? */
 			Log(LOG_ERR,
-			    "Got NJOIN for unknown nick \"%s\" for channel \"%s\"!",
+			    "Got NJOIN for unknown user \"%s\" for channel \"%s\"!",
 			    ptr, channame);
 			goto skip_njoin;
 		}

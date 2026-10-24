@@ -30,6 +30,17 @@ The PAM library used by the ngIRCd daemon must be able to access its
 configuration file, so don't forget to check permissions and run something
 like this: "chmod 644 /etc/pam.d/ngircd".
 
+Please note that ngIRCd only uses the "auth" stack of its PAM configuration:
+"account", "password", and "session" entries are never used. Therefore modules
+restricting access must be listed as "auth" modules, too, which only works for
+modules providing this type (like "pam_access" and "pam_nologin", for example,
+but not "pam_time"). The PAM "remote host" item is set to the hostname of the
+client, so "pam_access" can be used to restrict access by hostname:
+
+	/etc/pam.d/ngircd:
+	  auth  required  pam_access.so accessfile=/etc/ngircd/access.conf
+	  auth  required  pam_pwdfile.so pwdfile=/etc/ngircd/ngircd.passwd
+
 Please note ONE VERY IMPORTANT THING:
 
 All the PAM modules are executed with the privileges of the user ngIRCd

@@ -10,6 +10,8 @@
 
 ngIRCd 29
 
+  - Fix the limit of "Modes" settings in [Channel] sections, which was eight
+    times too high and allowed writing beyond the end of the list.
   - Fix handling of pre-defined channels when reloading the configuration:
     the old channel configuration was never removed, so all pre-defined
     channels were added again on each reload, and their already freed mode

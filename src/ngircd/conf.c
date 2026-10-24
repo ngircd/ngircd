@@ -2097,7 +2097,7 @@ Handle_CHANNEL(const char *File, int Line, char *Var, char *Arg)
 	}
 	if (strcasecmp(Var, "Modes") == 0) {
 		/* Initial modes */
-		if(chan->modes_num >= sizeof(chan->modes)) {
+		if (chan->modes_num >= C_ARRAY_SIZE(chan->modes)) {
 			Config_Error(LOG_ERR, "Too many Modes, option ignored.");
 			return;
 		}

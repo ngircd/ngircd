@@ -52,9 +52,12 @@ ngIRCd 29
     spaces or starting with a colon, which resulted in different lists on
     different servers.
   - ISON, USERHOST: Don't use reply data as format string.
-  - "DefaultChannelModes" configuration option: Only allow channel modes
-    without parameters. Modes like "k" or "l" without parameter resulted in
-    broken channels, and listing all channel modes triggered an assertion.
+  - "DefaultChannelModes": Only allow channel modes without parameters:
+    modes like "k" or "l" without parameter resulted in broken channels, and
+    listing all channel modes triggered an assertion. And announce the
+    default modes of new channels to the other servers instead of applying
+    the local ones to channels created by remote users, which resulted in
+    different modes on different servers.
   - PAM: Don't log client passwords in debug mode.
   - CHARCONV: Fix messages to multiple targets: all targets after a client
     using CHARCONV got the message in its character set.

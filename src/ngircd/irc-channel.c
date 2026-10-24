@@ -300,6 +300,7 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 	char *channame, *key = NULL, *flags, *lastkey = NULL, *lastchan = NULL, *p;
 	CLIENT *target;
 	CHANNEL *chan;
+	bool new_chan;
 
 	assert (Client != NULL);
 	assert (Req != NULL);
@@ -392,15 +393,21 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 		if (!Channel_Join(target, channame))
 			goto join_next;
 
+		new_chan = false;
 		if (!chan) { /* channel is new; it has been created above */
 			chan = Channel_Search(channame);
 			assert(chan != NULL);
+			new_chan = true;
 
-			/* Set default channel modes */
-			p = Conf_DefaultChannelModes;
-			while (*p) {
-				Channel_ModeAdd(chan, *p);
-				p++;
+			/* Set default channel modes, but only for channels
+			 * created by local users: the server of remote users
+			 * already did this and announces them (see below) */
+			if (Client_Type(Client) == CLIENT_USER) {
+				p = Conf_DefaultChannelModes;
+				while (*p) {
+					Channel_ModeAdd(chan, *p);
+					p++;
+				}
 			}
 
 			if (Channel_IsModeless(chan)) {
@@ -413,6 +420,14 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 		join_set_channelmodes(chan, target, flags);
 
 		join_forward(Client, target, chan, channame);
+
+		/* Announce the initial modes of a channel created by a local
+		 * user to the other servers, after the JOIN created it there */
+		if (new_chan && Client_Type(Client) == CLIENT_USER &&
+		    !Channel_IsLocal(chan) && *Channel_Modes(chan))
+			IRC_WriteStrServersPrefix(NULL, Client_ThisServer(),
+						  "MODE %s +%s", channame,
+						  Channel_Modes(chan));
 
 		if (Client_Type(Client) == CLIENT_USER) {
 			/* Acknowledge join ... */

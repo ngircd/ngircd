@@ -8,6 +8,16 @@
 
                                -- ChangeLog --
 
+ngIRCd 29
+
+  - contrib/ngircd.service: Make the systemd unit more restrictive.
+  - Manual pages: Show the package name and version, and no longer override
+    the manual section name.
+  - Update logcheck(8) rules.
+  - Add contrib/build-dist-archives.sh script to build the distribution
+    archives, and update doc/HowToRelease.txt.
+  - Add more patterns to the "Fail2Ban" filter file.
+
 ngIRCd 28 (2026-07-12)
 
   - Truncate long KICK reasons and topics: KICKLEN is advertised in ISUPPORT

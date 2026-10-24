@@ -294,6 +294,7 @@ Load_DH_params(void)
 		if (err < 0) {
 			Log(LOG_ERR, "Failed to generate SSL DH parameters: %s",
 			    gnutls_strerror(err));
+			gnutls_dh_params_deinit(tmp_dh_params);
 			return false;
 		}
         }
@@ -518,8 +519,10 @@ ConnSSL_LoadServerKey_gnutls(void)
 		Log(LOG_WARNING,
 		    "Ignoring SSL \"KeyFilePassword\": Not supported by GnuTLS.");
 
-	if (!Load_DH_params())
+	if (!Load_DH_params()) {
+		gnutls_certificate_free_credentials(x509_cred);
 		return false;
+	}
 
 	gnutls_certificate_set_dh_params(x509_cred, dh_params);
 	gnutls_certificate_set_flags(x509_cred, GNUTLS_CERTIFICATE_VERIFY_CRLS);
@@ -536,7 +539,7 @@ ConnSSL_LoadServerKey_gnutls(void)
 			    cert_file,
 			    Conf_SSLOptions.KeyFile ? Conf_SSLOptions.KeyFile : "(NULL)",
 			    gnutls_strerror(err));
-			return false;
+			goto out;
 		}
 	}
 
@@ -570,14 +573,20 @@ ConnSSL_LoadServerKey_gnutls(void)
 		slot = array_alloc(&x509_creds, sizeof(x509_cred_slot), x509_cred_idx);
 		if (slot == NULL) {
 			Log(LOG_ERR, "Failed to allocate new slot for certificate credentials");
-			return false;
+			goto out;
 		}
 	}
 	LogDebug("Storing new X509 certificate credentials in slot %zd.", x509_cred_idx);
 	slot->x509_cred = x509_cred;
+	slot->dh_params = dh_params;
 	slot->refcnt = 0;
 
 	return true;
+out:
+	gnutls_certificate_free_credentials(x509_cred);
+	gnutls_dh_params_deinit(dh_params);
+	dh_params = NULL;
+	return false;
 }
 #endif
 
@@ -645,6 +654,7 @@ ConnSSL_SetVerifyProperties_openssl(SSL_CTX * ctx)
 		X509_VERIFY_PARAM *param = X509_VERIFY_PARAM_new();
 		X509_VERIFY_PARAM_set_flags(param, X509_V_FLAG_CRL_CHECK);
 		SSL_CTX_set1_param(ctx, param);
+		X509_VERIFY_PARAM_free(param);
 
 		store = SSL_CTX_get_cert_store(ctx);
 		assert(store);

@@ -761,6 +761,18 @@ Conn_Handler(void)
 				continue;
 			}
 
+#ifdef SSL_SUPPORT
+			if (ConnSSL_DataPending(&My_Connections[i])) {
+				/* Read data buffered by the SSL library now,
+				 * it doesn't make the socket readable; but
+				 * don't read the socket before handling it: */
+				io_event_del(My_Connections[i].sock,
+					     IO_WANTREAD);
+				Read_Request(i);
+				command_available = true;
+				continue;
+			}
+#endif
 			io_event_add(My_Connections[i].sock, IO_WANTREAD);
 		}
 

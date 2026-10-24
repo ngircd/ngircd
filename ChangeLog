@@ -10,6 +10,10 @@
 
 ngIRCd 29
 
+  - SSL: Handle data buffered by the SSL library: When a TLS record was
+    bigger than the read buffer, the rest of it was only handled when the
+    peer sent more data, which delayed commands, for example pasted text of
+    clients or the server burst on SSL server links.
   - WHOWAS: Return up to "count" entries for each given nickname, not only a
     single one for all but the first nickname, and limit the reply to 25
     entries in total. Add a penalty of 1 second to the command, like WHOIS.

@@ -1272,6 +1272,30 @@ ConnSSL_Read(CONNECTION *c, void * buf, size_t count)
 }
 
 
+/**
+ * Check if the SSL library has buffered data which is ready to be read.
+ *
+ * A TLS record can be bigger than the buffer passed to ConnSSL_Read(), and
+ * the SSL library buffers the rest of the record internally. The socket
+ * does not become readable for this data, so it must be read explicitly.
+ *
+ * @param c The connection handle.
+ * @return true if there is data available to read.
+ */
+bool
+ConnSSL_DataPending(CONNECTION *c)
+{
+	if (!Conn_OPTION_ISSET(c, CONN_SSL))
+		return false;
+#ifdef HAVE_LIBSSL
+	return SSL_pending(c->ssl_state.ssl) > 0;
+#endif
+#ifdef HAVE_LIBGNUTLS
+	return gnutls_record_check_pending(c->ssl_state.gnutls_session) > 0;
+#endif
+}
+
+
 bool
 ConnSSL_GetCipherInfo(CONNECTION *c, char *buf, size_t len)
 {

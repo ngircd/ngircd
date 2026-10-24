@@ -24,6 +24,7 @@ GLOBAL int ConnSSL_Connect PARAMS(( CONNECTION *c ));
 
 GLOBAL ssize_t ConnSSL_Write PARAMS(( CONNECTION *c, const void *buf, size_t count));
 GLOBAL ssize_t ConnSSL_Read PARAMS(( CONNECTION *c, void *buf, size_t count));
+GLOBAL bool ConnSSL_DataPending PARAMS(( CONNECTION *c ));
 
 GLOBAL bool ConnSSL_GetCipherInfo PARAMS(( CONNECTION *c, char *buf, size_t len ));
 GLOBAL char *ConnSSL_GetCertFp PARAMS(( CONNECTION *c ));

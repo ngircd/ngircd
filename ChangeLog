@@ -10,6 +10,10 @@
 
 ngIRCd 29
 
+  - Replace stale PID files, e.g. left over after a crash, instead of running
+    without a PID file, and only remove the PID file on exit when it has been
+    created by this process: before, a second instance that failed to start
+    removed the PID file of the running one.
   - Ignore the ENDOFMOTD (376) numeric from already registered servers,
     which resulted in announcing the whole network to the peer again; and
     the peer then dropped the link because of the duplicate IDs.

@@ -20,6 +20,7 @@
 
 #include <assert.h>
 #include <errno.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -50,6 +51,7 @@ static void Show_Help PARAMS(( void ));
 
 static void Pidfile_Create PARAMS(( pid_t pid ));
 static void Pidfile_Delete PARAMS(( void ));
+static bool Pidfile_InUse PARAMS(( void ));
 
 static void Fill_Version PARAMS(( void ));
 
@@ -58,6 +60,9 @@ static void Random_Init PARAMS(( void ));
 static void Setup_FDStreams PARAMS(( int fd ));
 
 static bool NGIRCd_Init PARAMS(( bool ));
+
+/** Flag indicating that the PID file has been created by this process */
+static bool Pidfile_Created = false;
 
 
 /**
@@ -492,14 +497,44 @@ Show_Help( void )
 static void
 Pidfile_Delete( void )
 {
-	/* Pidfile configured? */
-	if( ! Conf_PidFile[0] ) return;
+	/* Pidfile configured and created by us? */
+	if (!Conf_PidFile[0] || !Pidfile_Created)
+		return;
 
 	LogDebug( "Removing PID file (%s) ...", Conf_PidFile );
 
 	if( unlink( Conf_PidFile ))
 		Log( LOG_ERR, "Error unlinking PID file (%s): %s", Conf_PidFile, strerror( errno ));
+	Pidfile_Created = false;
 } /* Pidfile_Delete */
+
+
+/**
+ * Check if an existing PID file belongs to a running process.
+ *
+ * A PID file containing our own process ID is stale, too: this happens
+ * when the PID is reused, e.g. when running as PID 1 in a container.
+ *
+ * @returns true if the PID file can't be read, or the process it names
+ *	    is still running; false if the PID file is stale.
+ */
+static bool
+Pidfile_InUse(void)
+{
+	FILE *fp;
+	long pid;
+	int count;
+
+	fp = fopen(Conf_PidFile, "r");
+	if (!fp)
+		return errno != ENOENT;
+	count = fscanf(fp, "%ld", &pid);
+	fclose(fp);
+
+	if (count != 1 || pid <= 0 || (pid_t)pid == getpid())
+		return false;
+	return kill((pid_t)pid, 0) == 0 || errno == EPERM;
+} /* Pidfile_InUse */
 
 
 /**
@@ -520,10 +555,24 @@ Pidfile_Create(pid_t pid)
 	LogDebug( "Creating PID file (%s) ...", Conf_PidFile );
 
 	pidfd = open( Conf_PidFile, O_RDWR|O_CREAT|O_EXCL, S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
+	if (pidfd < 0 && errno == EEXIST) {
+		if (Pidfile_InUse()) {
+			Log(LOG_ERR,
+			    "PID file (%s) is in use by another process, not overwriting it!",
+			    Conf_PidFile);
+			return;
+		}
+		Log(LOG_WARNING, "Removing stale PID file (%s) ...",
+		    Conf_PidFile);
+		if (unlink(Conf_PidFile) == 0 || errno == ENOENT)
+			pidfd = open(Conf_PidFile, O_RDWR|O_CREAT|O_EXCL,
+				     S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
+	}
 	if ( pidfd < 0 ) {
 		Log( LOG_ERR, "Error writing PID file (%s): %s", Conf_PidFile, strerror( errno ));
 		return;
 	}
+	Pidfile_Created = true;
 
 	len = snprintf(pidbuf, sizeof pidbuf, "%ld\n", (long)pid);
 	if (len < 0 || len >= (int)sizeof pidbuf) {

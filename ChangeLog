@@ -10,6 +10,9 @@
 
 ngIRCd 29
 
+  - Only call async-signal-safe functions in the signal handler, and don't
+    clobber "errno" there: all signals except SIGCHLD are now logged and
+    handled in normal context, including SIGTERM, SIGINT, SIGQUIT, and SIGUSR1.
   - Replace stale PID files, e.g. left over after a crash, instead of running
     without a PID file, and only remove the PID file on exit when it has been
     created by this process: before, a second instance that failed to start

@@ -155,32 +155,52 @@ Rehash(void)
  * This function is called whenever ngIRCd catches a signal sent by the
  * user and/or the system to it. For example SIGTERM and SIGHUP.
  *
- * It blocks the signal and queues it for later execution by Signal_Handler_BH.
+ * It reaps exited child processes, and blocks and queues all other signals
+ * for later execution by Signal_Handler_BH: only async-signal-safe functions
+ * may be called here, so all work (including logging) is done there.
  * @param Signal Number of the signal to handle.
  */
 static void
 Signal_Handler(int Signal)
 {
-	if (Signal != SIGCHLD) {
+	int saved_errno = errno;
+
+	if (Signal == SIGCHLD) {
+		/* child-process exited, avoid zombies */
+		while (waitpid( -1, NULL, WNOHANG) > 0)
+			;
+	} else if (write(signalpipe[1], &Signal, sizeof(Signal)) != -1)
+		Signal_Block(Signal);
+
+	/* Don't clobber errno of the interrupted code */
+	errno = saved_errno;
+} /* Signal_Handler */
+
+/**
+ * Signal processing handler of ngIRCd.
+ * This function is called from the main conn event loop in (io_dispatch)
+ * whenever ngIRCd has queued a signal.
+ *
+ * This function runs in normal context, not from the real signal handler,
+ * thus its not necessary to only use functions that are signal safe.
+ * @param Signal Number of the signal that was queued.
+ */
+static void
+Signal_Handler_BH(int Signal)
+{
 #ifdef HAVE_STRSIGNAL
-		Log(LOG_INFO, "Got signal \"%s\" ...", strsignal(Signal));
+	Log(LOG_INFO, "Got signal \"%s\" ...", strsignal(Signal));
 #else
-		Log(LOG_INFO, "Got signal %d ...", Signal);
+	Log(LOG_INFO, "Got signal %d ...", Signal);
 #endif
-	}
 
 	switch (Signal) {
 	case SIGTERM:
 	case SIGINT:
 	case SIGQUIT:
-		/* shut down sever */
+		/* shut down server */
 		NGIRCd_SignalQuit = true;
-		return;
-	case SIGCHLD:
-		/* child-process exited, avoid zombies */
-		while (waitpid( -1, NULL, WNOHANG) > 0)
-			;
-		return;
+		break;
 	case SIGUSR1:
 		if (! NGIRCd_Debug) {
 			Log(LOG_INFO|LOG_snotice,
@@ -202,31 +222,7 @@ Signal_Handler(int Signal)
 			NGIRCd_Sniffer = false;
 #endif /* SNIFFER */
 		}
-		return;
-	}
-
-	/*
-	 * other signal: queue for later execution.
-	 * This has the advantage that we are not restricted
-	 * to functions that can be called safely from signal handlers.
-	 */
-	if (write(signalpipe[1], &Signal, sizeof(Signal)) != -1)
-		Signal_Block(Signal);
-} /* Signal_Handler */
-
-/**
- * Signal processing handler of ngIRCd.
- * This function is called from the main conn event loop in (io_dispatch)
- * whenever ngIRCd has queued a signal.
- *
- * This function runs in normal context, not from the real signal handler,
- * thus its not necessary to only use functions that are signal safe.
- * @param Signal Number of the signal that was queued.
- */
-static void
-Signal_Handler_BH(int Signal)
-{
-	switch (Signal) {
+		break;
 	case SIGHUP:
 		/* re-read configuration */
 		Rehash();
@@ -315,6 +311,12 @@ Signals_Init(void)
 
 	signal(SIGPIPE, SIG_IGN);
 #endif
+
+	/* Signals queued but not handled before a restart are still
+	 * blocked: unblock them, so that they are queued again now */
+	for (i=0; i < C_ARRAY_SIZE(signals_catch) ; i++)
+		Signal_Unblock(signals_catch[i]);
+
 	return io_event_create(signalpipe[0], IO_WANTREAD, Signal_Callback);
 } /* Signals_Init */
 

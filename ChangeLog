@@ -10,6 +10,10 @@
 
 ngIRCd 29
 
+  - Don't generate a new random "CloakHostSalt" when reloading the
+    configuration, but only on startup as documented: otherwise cloaked
+    hostnames of clients changed after each reload, so bans no longer
+    matched, for example.
   - SQUIT: Ignore SQUIT commands of peer servers for the local server, which
     resulted in a use-after-free and crashed the daemon.
   - NJOIN: Ignore clients that are already members of the channel instead of

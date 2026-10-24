@@ -756,8 +756,8 @@ Conf_NickIsBlocked(const char *Nick)
 static void
 Set_Defaults(bool InitServers)
 {
+	static char random_salt[RANDOM_SALT_LEN + 1];
 	int i;
-	char random[RANDOM_SALT_LEN + 1];
 
 	/* Global */
 	strcpy(Conf_ServerName, "");
@@ -802,8 +802,11 @@ Set_Defaults(bool InitServers)
 	strlcpy(Conf_Chroot, CHROOT_DIR, sizeof(Conf_Chroot));
 	strcpy(Conf_CloakHost, "");
 	strcpy(Conf_CloakHostModeX, "");
-	strlcpy(Conf_CloakHostSalt, ngt_RandomStr(random, RANDOM_SALT_LEN),
-		sizeof(Conf_CloakHostSalt));
+	/* Generate the random salt only once, so that cloaked hostnames
+	 * don't change when the configuration is reloaded */
+	if (!random_salt[0])
+		ngt_RandomStr(random_salt, RANDOM_SALT_LEN);
+	strlcpy(Conf_CloakHostSalt, random_salt, sizeof(Conf_CloakHostSalt));
 	Conf_CloakUserToNick = false;
 	Conf_ConnectIPv4 = true;
 #ifdef WANT_IPV6

@@ -10,6 +10,9 @@
 
 ngIRCd 29
 
+  - Keep the current configuration when the specified configuration file
+    can't be read when reloading it, instead of resetting everything to the
+    default values, which dropped all operators, servers, and listening ports.
   - Fix the limit of "Modes" settings in [Channel] sections, which was eight
     times too high and allowed writing beyond the end of the list.
   - Fix handling of pre-defined channels when reloading the configuration:

@@ -973,6 +973,8 @@ Read_Config(bool TestOnly, bool IsStarting)
 					     PACKAGE_NAME);
 				exit(1);
 			}
+			/* Keep the current configuration when reloading */
+			return false;
 		}
 		Config_Error(LOG_WARNING,
 			     "Can't read default configuration file \"%s\": %s - Ignored.",

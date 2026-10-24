@@ -10,7 +10,9 @@
 
 ngIRCd 29
 
-  - Fix compilation of Signal_NotifySvcMgr() with pre-C99 compilers.
+  - Fix notifying the service manager using an abstract socket ("@" in
+    NOTIFY_SOCKET), which always failed because of a wrong address length,
+    and compiling Signal_NotifySvcMgr() with pre-C99 compilers.
   - Only call async-signal-safe functions in the signal handler, and don't
     clobber "errno" there: all signals except SIGCHLD are now logged and
     handled in normal context, including SIGTERM, SIGINT, SIGQUIT, and SIGUSR1.

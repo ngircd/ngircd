@@ -18,6 +18,7 @@
  */
 
 #include <errno.h>
+#include <stddef.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
@@ -385,6 +386,7 @@ Signal_NotifySvcMgr(const char *message)
 	struct sockaddr_un socket_addr;
 	const char *socket_path;
 	size_t path_length, message_length;
+	socklen_t addr_length;
 	ssize_t written;
 	static int fd = NONE;
 
@@ -418,9 +420,15 @@ Signal_NotifySvcMgr(const char *message)
 		socket_addr.sun_family = AF_UNIX;
 		memcpy(socket_addr.sun_path, socket_path, path_length);
 
-		/* Support for abstract socket */
-		if (socket_addr.sun_path[0] == '@')
+		/* Support for abstract socket: its name is not terminated by
+		 * a NUL byte, so the exact address length must be used. */
+		addr_length = sizeof(struct sockaddr_un);
+		if (socket_addr.sun_path[0] == '@') {
 			socket_addr.sun_path[0] = 0;
+			addr_length = (socklen_t)(offsetof(struct sockaddr_un,
+							   sun_path)
+						  + path_length);
+		}
 
 		fd = socket(AF_UNIX, SOCK_DGRAM | SOCK_CLOEXEC, 0);
 		if (fd < 0) {
@@ -431,7 +439,7 @@ Signal_NotifySvcMgr(const char *message)
 		}
 
 		if (connect(fd, (struct sockaddr *)&socket_addr,
-			    sizeof(struct sockaddr_un)) != 0) {
+			    addr_length) != 0) {
 			Log(LOG_CRIT,
 			    "Failed to notify service manager: %s [connect()]",
 			    strerror(errno));

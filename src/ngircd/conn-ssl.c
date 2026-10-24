@@ -708,6 +708,12 @@ ConnSSL_Init_SSL(CONNECTION *c)
 	}
 #endif
 #ifdef HAVE_LIBGNUTLS
+	/* Reference the credentials first, ConnSSL_Free() releases them: */
+	LogDebug("Using X509 credentials from slot %zd.", x509_cred_idx);
+	c->ssl_state.x509_cred_idx = x509_cred_idx;
+	x509_cred_slot *slot = array_get(&x509_creds, sizeof(x509_cred_slot), x509_cred_idx);
+	slot->refcnt++;
+
 	Conn_OPTION_ADD(c, CONN_SSL);
 	ret = gnutls_priority_set(c->ssl_state.gnutls_session, priorities_cache);
 	if (ret != GNUTLS_E_SUCCESS) {
@@ -727,10 +733,6 @@ ConnSSL_Init_SSL(CONNECTION *c)
 	gnutls_certificate_server_set_request(c->ssl_state.gnutls_session,
 					      GNUTLS_CERT_REQUEST);
 
-	LogDebug("Using X509 credentials from slot %zd.", x509_cred_idx);
-	c->ssl_state.x509_cred_idx = x509_cred_idx;
-	x509_cred_slot *slot = array_get(&x509_creds, sizeof(x509_cred_slot), x509_cred_idx);
-	slot->refcnt++;
 	ret = gnutls_credentials_set(c->ssl_state.gnutls_session,
 				     GNUTLS_CRD_CERTIFICATE, slot->x509_cred);
 	if (ret != 0) {

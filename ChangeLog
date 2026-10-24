@@ -10,6 +10,9 @@
 
 ngIRCd 29
 
+  - Ignore the ENDOFMOTD (376) numeric from already registered servers,
+    which resulted in announcing the whole network to the peer again; and
+    the peer then dropped the link because of the duplicate IDs.
   - Keep the current configuration when the specified configuration file
     can't be read when reloading it, instead of resetting everything to the
     default values, which dropped all operators, servers, and listening ports.

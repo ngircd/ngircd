@@ -262,6 +262,14 @@ IRC_Num_ENDOFMOTD(CLIENT * Client, UNUSED REQUEST * Req)
 	CLIENT *c;
 	CHANNEL *chan;
 
+	/* Only handle the numeric while the peer is registering: otherwise
+	 * the whole network would be announced to it again! */
+	if (Client_Type(Client) != CLIENT_UNKNOWNSERVER) {
+		LogDebug("Ignored ENDOFMOTD from already registered server \"%s\".",
+			 Client_ID(Client));
+		return CONNECTED;
+	}
+
 	Client_SetType(Client, CLIENT_SERVER);
 
 	Log(LOG_NOTICE | LOG_snotice,

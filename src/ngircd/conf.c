@@ -236,10 +236,10 @@ ports_parse(array *a, const char *File, int Line, char *Arg)
 		if (port > 0 && port < 0xFFFF) {
 			port16 = (UINT16) port;
 			if (!array_catb(a, (char*)&port16, sizeof port16))
-				Config_Error(LOG_ERR, "%s, line %d Could not add port number %ld: %s",
+				Config_Error(LOG_ERR, "%s, line %d: Could not add port number %d: %s",
 					     File, Line, port, strerror(errno));
 		} else {
-			Config_Error( LOG_ERR, "%s, line %d (section \"Global\"): Illegal port number %ld!",
+			Config_Error( LOG_ERR, "%s, line %d: Illegal port number %d!",
 				     File, Line, port );
 		}
 
@@ -1200,7 +1200,7 @@ Read_Config_File(const char *File, FILE *fd)
 				    (&Conf_Channels,
 				     sizeof(struct Conf_Channel), count)) {
 					    Config_Error(LOG_ERR,
-							 "Could not allocate memory for new operator (line %d)",
+							 "Could not allocate memory for new channel (line %d)",
 							 line);
 				    }
 				continue;
@@ -1213,7 +1213,7 @@ Read_Config_File(const char *File, FILE *fd)
 						 sizeof(struct Conf_Oper),
 						 count)) {
 					Config_Error(LOG_ERR,
-						     "Could not allocate memory for new channel (line &d)",
+						     "Could not allocate memory for new operator (line %d)",
 						     line);
 				}
 				continue;

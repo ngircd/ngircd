@@ -10,6 +10,12 @@
 
 ngIRCd 29
 
+  - PONG: Fix a use-after-free when the login of a client fails after the
+    "RequireAuthPing" PONG, for example because of a wrong server password
+    or a K-Line or G-Line: the already destroyed client was used afterwards,
+    which could crash the daemon.
+    Thanks peter-pe for reporting this!
+    Closes #344.
   - Fix notifying the service manager using an abstract socket ("@" in
     NOTIFY_SOCKET), which always failed because of a wrong address length,
     and compiling Signal_NotifySvcMgr() with pre-C99 compilers.

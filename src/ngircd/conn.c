@@ -1843,6 +1843,12 @@ Handle_Buffer(CONN_ID Idx)
 		/* Check penalty */
 		if (My_Connections[Idx].delaytime > starttime)
 			return 0;
+		/* Wait for completion of forked subprocess (for example
+		 * the PAM authenticator), which uses the current state
+		 * of the client: don't handle further commands until
+		 * then, which could change it! */
+		if (Proc_InProgress(&My_Connections[Idx].proc_stat))
+			break;
 #ifdef ZLIB
 		/* Unpack compressed data, if compression is in use */
 		if (Conn_OPTION_ISSET(&My_Connections[Idx], CONN_ZIP)) {

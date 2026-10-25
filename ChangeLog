@@ -10,6 +10,9 @@
 
 ngIRCd 29
 
+  - CHARCONV: Fix messages that became too long by the conversion: they
+    were sent without CR+LF, but with one byte from beyond the end of the
+    buffer.
   - NOTICE: Ignore NOTICE commands of not yet registered connections, which
     could send notices to users and channels without being authenticated,
     bypassing the server password, PAM, and K-Lines and G-Lines.

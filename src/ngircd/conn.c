@@ -918,8 +918,10 @@ va_dcl
 	if (ptr) {
 		ptr++;
 		message = Conn_EncodingTo(Idx, ptr);
+		/* Leave room for CR+LF, which are appended below! */
 		if (message != ptr)
-			strlcpy(ptr, message, sizeof(buffer) - (ptr - buffer));
+			strlcpy(ptr, message,
+				sizeof(buffer) - 2 - (ptr - buffer));
 	}
 #endif
 

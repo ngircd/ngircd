@@ -860,8 +860,11 @@ IRC_PONG(CLIENT *Client, REQUEST *Req)
 			 auth_ping, Req->argv[0]);
 		if (auth_ping == atol(Req->argv[0])) {
 			Conn_SetAuthPing(conn, 0);
-			if (Client_Type(Client) == CLIENT_WAITAUTHPING)
-				Login_User(Client);
+			/* Login_User() destroys the client when the login
+			 * fails, so don't touch it any more in this case! */
+			if (Client_Type(Client) == CLIENT_WAITAUTHPING &&
+			    !Login_User(Client))
+				return DISCONNECTED;
 		} else
 			if (!IRC_WriteStrClient(Client,
 					"NOTICE %s :To connect, type /QUOTE PONG %ld",

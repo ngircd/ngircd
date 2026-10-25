@@ -188,6 +188,14 @@ IRC_KILL(CLIENT *Client, REQUEST *Req)
 GLOBAL bool
 IRC_NOTICE(CLIENT *Client, REQUEST *Req)
 {
+	/* Silently ignore NOTICE commands of not yet registered connections,
+	 * for example "NOTICE AUTH" of peer servers while connecting: they
+	 * aren't authenticated and must not be able to send messages! */
+	if (Client_Type(Client) != CLIENT_USER &&
+	    Client_Type(Client) != CLIENT_SERVER &&
+	    Client_Type(Client) != CLIENT_SERVICE)
+		return CONNECTED;
+
 	return Send_Message(Client, Req, CLIENT_USER, false);
 } /* IRC_NOTICE */
 

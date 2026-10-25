@@ -10,6 +10,9 @@
 
 ngIRCd 29
 
+  - NOTICE: Ignore NOTICE commands of not yet registered connections, which
+    could send notices to users and channels without being authenticated,
+    bypassing the server password, PAM, and K-Lines and G-Lines.
   - SSL: Always close connections on fatal write errors: depending on a
     stale "errno" value, a connection could stay open without encryption,
     so pending data was sent in cleartext until the peer closed the

@@ -10,6 +10,11 @@
 
 ngIRCd 29
 
+  - PAM: Don't handle further commands of a client while its password is
+    being checked by PAM: a client could change its user name using a
+    second USER command (and "CAP LS") in the meantime, and was then
+    registered with this other user name, without the "~" prefix,
+    although PAM authenticated the first one.
   - CHARCONV: Fix messages that became too long by the conversion: they
     were sent without CR+LF, but with one byte from beyond the end of the
     buffer.

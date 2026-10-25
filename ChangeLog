@@ -10,6 +10,13 @@
 
 ngIRCd 29
 
+  - MODE: Don't forward changes of the ban, invite, and exception lists of
+    local ("&") channels to other servers, which applied them to their own,
+    unrelated local channels of the same name: a channel operator on one
+    server could ban users from or invite users into local channels on
+    other servers, bypassing invite-only mode ("+i"). And ignore all mode
+    changes for local channels received from other servers, not only
+    their forwarding to the channel members.
   - PAM: Don't handle further commands of a client while its password is
     being checked by PAM: a client could change its user name using a
     second USER command (and "CAP LS") in the meantime, and was then

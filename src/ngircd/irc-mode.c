@@ -464,6 +464,15 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 	if (Req->argc <= 1)
 		return Channel_Mode_Answer_Request(Origin, Channel);
 
+	/* MODE requests for local channels from other servers are
+	 * definitely invalid! */
+	if (Client_Type(Client) == CLIENT_SERVER && Channel_IsLocal(Channel)
+	    && Client != Client_ThisServer()) {
+		Log(LOG_ALERT,
+		    "Got remote MODE command for local channel!? Ignored.");
+		return CONNECTED;
+	}
+
 	/* Check if origin is oper and opers can use mode */
 	use_servermode = Conf_OperServerMode;
 	if(Client_HasMode(Client, 'o') && Conf_OperCanMode) {
@@ -949,13 +958,6 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 			the_modes[len] = '\0';
 
 		if (Client_Type(Client) == CLIENT_SERVER) {
-			/* MODE requests for local channels from other servers
-			 * are definitely invalid! */
-			if (Channel_IsLocal(Channel) && Client != Client_ThisServer()) {
-				Log(LOG_ALERT, "Got remote MODE command for local channel!? Ignored.");
-				return CONNECTED;
-			}
-
 			/* Forward mode changes to channel users and all the
 			 * other remote servers: */
 			IRC_WriteStrServersPrefix(Client, Origin,
@@ -1162,10 +1164,11 @@ Send_ListChange(const bool IsAdd, const char ModeChar, CLIENT *Prefix,
 					      IsAdd ? '+' : '-',
 					      ModeChar, Mask);
 
-	/* to other servers */
-	IRC_WriteStrServersPrefix(Client, Prefix, "MODE %s %c%c %s",
-				  Channel_Name(Channel), IsAdd ? '+' : '-',
-				  ModeChar, Mask);
+	/* to other servers, but not for local channels */
+	if (!Channel_IsLocal(Channel))
+		IRC_WriteStrServersPrefix(Client, Prefix, "MODE %s %c%c %s",
+					  Channel_Name(Channel),
+					  IsAdd ? '+' : '-', ModeChar, Mask);
 
 	/* and local users in channel */
 	IRC_WriteStrChannelPrefix(Client, Channel, Prefix, false,

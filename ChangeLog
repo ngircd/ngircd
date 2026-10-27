@@ -10,6 +10,12 @@
 
 ngIRCd 29
 
+  - Stop accepting new connections for a second when the daemon runs out
+    of file descriptors or memory: the pending connection kept the
+    listening socket readable, so the daemon was busy looping and flooded
+    the log with millions of error messages. Clients could trigger this
+    by opening many connections, because "MaxConnections" isn't set by
+    default and "MaxConnectionsIP" counts each IPv6 address on its own.
   - MODE: Don't forward changes of the ban, invite, and exception lists of
     local ("&") channels to other servers, which applied them to their own,
     unrelated local channels of the same name: a channel operator on one

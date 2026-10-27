@@ -80,9 +80,10 @@ The following <serverflags> are defined at the moment:
 
 - C: The server supports the CHANINFO command.
 
-- L: INVITE- and BAN-lists should be synchronized between servers: if the
-     peer understands this flag, it will send "MODE +I" and "MODE +b"
-     commands after the server link has been established.
+- L: G-lines and channel ban-, exception-, and invite-lists should be
+     synchronized between servers: if the peer understands this flag, it
+     will send "GLINE" and "MODE +b", "MODE +e", and "MODE +I" commands
+     after the server link has been established.
 
 - H: The server supports the "enhanced server handshake", see section II.2
      for a detailed description.
@@ -96,7 +97,7 @@ The following <serverflags> are defined at the moment:
 - S: The server supports the SERVICE command (on this link).
 
 - X: Server supports XOP channel modes (owner, admin, halfop) and supports
-     these user prefixes in CHANINFO commands, for example.
+     these user prefixes in NJOIN commands, for example.
 
 - Z: Compressed server links are supported by the server.
 

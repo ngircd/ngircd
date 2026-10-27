@@ -79,6 +79,8 @@
 #define THROTTLE_CMDS 1			/** Throttling: max commands reached */
 #define THROTTLE_BPS 2			/** Throttling: max bps reached */
 
+#define ACCEPT_PAUSE 1			/** Seconds to pause accepting connections */
+
 static bool Handle_Write PARAMS(( CONN_ID Idx ));
 static bool Conn_Write PARAMS(( CONN_ID Idx, char *Data, size_t Len ));
 static int New_Connection PARAMS(( int Sock, bool IsSSL ));
@@ -96,8 +98,12 @@ static int NewListener PARAMS(( const char *listen_addr, UINT16 Port ));
 static void Account_Connection PARAMS((void));
 static void Throttle_Connection PARAMS((const CONN_ID Idx, CLIENT *Client,
 					const int Reason, unsigned int Value));
+static void Pause_Listener PARAMS((int Sock));
+static void Resume_Listeners PARAMS((void));
 
 static array My_Listeners;
+static array My_PausedListeners;
+static time_t Accept_Resume = 0;
 static array My_ConnArray;
 static size_t NumConnections, NumConnectionsMax, NumConnectionsAccepted;
 
@@ -532,6 +538,10 @@ Conn_ExitListeners( void )
 	int *fd;
 	size_t arraylen;
 
+	/* Re-enable paused listening sockets: the ones of systemd(8) aren't
+	 * closed below and must not stay paused forever. */
+	Resume_Listeners();
+
 	/* Get number of listening sockets to shut down. There can be none
 	 * if ngIRCd has been "socket activated" by systemd. */
 	arraylen = array_length(&My_Listeners, sizeof (int));
@@ -691,6 +701,10 @@ Conn_Handler(void)
 
 		/* Expire outdated class/list items */
 		Class_Expire();
+
+		/* Accept new connections again, see New_Connection() */
+		if (Accept_Resume > 0 && t >= Accept_Resume)
+			Resume_Listeners();
 
 		/* Look for non-empty read buffers ... */
 		for (i = 0; i < Pool_Size; i++) {
@@ -1459,6 +1473,19 @@ New_Connection(int Sock, UNUSED bool IsSSL)
 	new_sock = accept(Sock, (struct sockaddr *)&new_addr,
 			  (socklen_t *)&new_sock_len);
 	if (new_sock < 0) {
+		if (errno == EMFILE || errno == ENFILE || errno == ENOBUFS
+		    || errno == ENOMEM) {
+			/* Out of resources: the pending connection keeps the
+			 * listening socket readable, so stop accepting new
+			 * connections for a while, instead of busy looping
+			 * and flooding the log. */
+			Log(LOG_CRIT,
+			    "Can't accept connection on socket %d: %s! Pausing for %d second%s ...",
+			    Sock, strerror(errno), ACCEPT_PAUSE,
+			    ACCEPT_PAUSE == 1 ? "" : "s");
+			Pause_Listener(Sock);
+			return -1;
+		}
 		Log(LOG_CRIT, "Can't accept connection on socket %d: %s!",
 		    Sock, strerror(errno));
 		return -1;
@@ -2611,6 +2638,46 @@ Throttle_Connection(const CONN_ID Idx, CLIENT *Client, const int Reason,
 	LogDebug("Throttling connection %d: code %d, value %d!", Idx,
 		 Reason, Value);
 	Conn_SetPenalty(Idx, 1);
+}
+
+/**
+ * Stop accepting new connections on a listening socket for a while.
+ *
+ * Resume_Listeners() re-enables it after ACCEPT_PAUSE seconds.
+ *
+ * @param Sock Listening socket descriptor.
+ */
+static void
+Pause_Listener(int Sock)
+{
+	assert(Sock > NONE);
+
+	if (!array_catb(&My_PausedListeners, (char *)&Sock, sizeof(int))) {
+		Log(LOG_ALERT, "Can't pause listening socket %d!", Sock);
+		return;
+	}
+	io_event_del(Sock, IO_WANTREAD);
+	Accept_Resume = time(NULL) + ACCEPT_PAUSE;
+}
+
+/**
+ * Accept new connections again on all paused listening sockets.
+ */
+static void
+Resume_Listeners(void)
+{
+	int *fd;
+	size_t len;
+
+	len = array_length(&My_PausedListeners, sizeof(int));
+	fd = array_start(&My_PausedListeners);
+	while (len--) {
+		LogDebug("Resuming listening socket %d ...", *fd);
+		io_event_add(*fd, IO_WANTREAD);
+		fd++;
+	}
+	array_trunc(&My_PausedListeners);
+	Accept_Resume = 0;
 }
 
 #ifndef STRICT_RFC

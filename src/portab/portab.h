@@ -30,9 +30,11 @@
 #if (__GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ > 7))
 # define PUNUSED(x) __attribute__ ((unused)) x
 # define UNUSED     __attribute__ ((unused))
+# define FORMAT_PRINTF(f, a) __attribute__ ((format (printf, f, a)))
 #else
 # define PUNUSED(x) x
 # define UNUSED
+# define FORMAT_PRINTF(f, a)
 #endif
 
 #ifndef PARAMS

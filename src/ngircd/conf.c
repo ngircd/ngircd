@@ -74,7 +74,8 @@ static void Handle_SERVER PARAMS((const char *File, int Line,
 static void Handle_CHANNEL PARAMS((const char *File, int Line,
 				   char *Var, char *Arg ));
 
-static void Config_Error PARAMS((const int Level, const char *Format, ...));
+static void Config_Error PARAMS((const int Level, const char *Format, ...))
+		FORMAT_PRINTF(2, 3);
 
 static void Config_Error_NaN PARAMS((const char *File, const int LINE,
 				     const char *Value));

@@ -35,17 +35,21 @@
 GLOBAL void Log_Init PARAMS(( bool Syslog_Mode ));
 GLOBAL void Log_Exit PARAMS(( void ));
 
-GLOBAL void Log PARAMS(( int Level, const char *Format, ... ));
+GLOBAL void Log PARAMS(( int Level, const char *Format, ... ))
+		FORMAT_PRINTF(2, 3);
 GLOBAL void Log_ReInit PARAMS((void));
 
-GLOBAL void Log_ServerNotice PARAMS((char UserMode, const char *Format, ...));
+GLOBAL void Log_ServerNotice PARAMS((char UserMode, const char *Format, ...))
+		FORMAT_PRINTF(2, 3);
 
-GLOBAL void LogDebug PARAMS(( const char *Format, ... ));
+GLOBAL void LogDebug PARAMS(( const char *Format, ... ))
+		FORMAT_PRINTF(1, 2);
 
 GLOBAL void Log_Init_Subprocess PARAMS((char *Name));
 GLOBAL void Log_Exit_Subprocess PARAMS((char *Name));
 
-GLOBAL void Log_Subprocess PARAMS((const int Level, const char *Format, ...));
+GLOBAL void Log_Subprocess PARAMS((const int Level, const char *Format, ...))
+		FORMAT_PRINTF(2, 3);
 
 GLOBAL void Log_InitErrorfile PARAMS(( void ));
 

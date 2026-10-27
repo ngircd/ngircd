@@ -17,32 +17,42 @@
  * Sending IRC commands over the network (header)
  */
 
-GLOBAL bool IRC_WriteErrClient PARAMS((CLIENT *Client, const char *Format, ...));
+GLOBAL bool IRC_WriteErrClient PARAMS((CLIENT *Client, const char *Format, ...))
+		FORMAT_PRINTF(2, 3);
 
-GLOBAL bool IRC_WriteStrClient PARAMS((CLIENT *Client, const char *Format, ...));
+GLOBAL bool IRC_WriteStrClient PARAMS((CLIENT *Client, const char *Format, ...))
+		FORMAT_PRINTF(2, 3);
 GLOBAL bool IRC_WriteStrClientPrefix PARAMS((CLIENT *Client, CLIENT *Prefix,
-		const char *Format, ...));
+		const char *Format, ...))
+		FORMAT_PRINTF(3, 4);
 
 GLOBAL void IRC_WriteStrChannel PARAMS((CLIENT *Client, CHANNEL *Chan,
-		bool Remote, const char *Format, ...));
+		bool Remote, const char *Format, ...))
+		FORMAT_PRINTF(4, 5);
 GLOBAL void IRC_WriteStrChannelPrefix PARAMS((CLIENT *Client, CHANNEL *Chan,
-		CLIENT *Prefix, bool Remote, const char *Format, ...));
+		CLIENT *Prefix, bool Remote, const char *Format, ...))
+		FORMAT_PRINTF(5, 6);
 
 GLOBAL void IRC_WriteStrServers PARAMS((CLIENT *ExceptOf,
-		const char *Format, ...));
+		const char *Format, ...))
+		FORMAT_PRINTF(2, 3);
 GLOBAL void IRC_WriteStrServersPrefix PARAMS((CLIENT *ExceptOf, CLIENT *Prefix,
-		const char *Format, ...));
+		const char *Format, ...))
+		FORMAT_PRINTF(3, 4);
 GLOBAL void IRC_WriteStrServersPrefixFlag PARAMS((CLIENT *ExceptOf,
-		CLIENT *Prefix, char Flag, const char *Format, ...));
+		CLIENT *Prefix, char Flag, const char *Format, ...))
+		FORMAT_PRINTF(4, 5);
 GLOBAL void IRC_WriteStrServersPrefixFlag_CB PARAMS((CLIENT *ExceptOf,
 		CLIENT *Prefix, char Flag,
 		void (*callback)(CLIENT *, CLIENT *, void *), void *cb_data));
 
 GLOBAL void IRC_WriteStrRelatedPrefix PARAMS((CLIENT *Client, CLIENT *Prefix,
-		bool Remote, const char *Format, ...));
+		bool Remote, const char *Format, ...))
+		FORMAT_PRINTF(4, 5);
 
 GLOBAL void IRC_SendWallops PARAMS((CLIENT *Client, CLIENT *From,
-		const char *Format, ...));
+		const char *Format, ...))
+		FORMAT_PRINTF(3, 4);
 
 GLOBAL void IRC_SetPenalty PARAMS((CLIENT *Client, time_t Seconds));
 

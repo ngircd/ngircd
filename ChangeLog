@@ -10,6 +10,9 @@
 
 ngIRCd 29
 
+  - PRIVMSG, NOTICE: Add the missing nickname parameter to the
+    ERR_TOOMANYTARGETS (407) and ERR_WILDTOPLEVEL (414) numerics, and don't
+    send ERR_TOOMANYTARGETS in reply to NOTICE commands.
   - MODE: Reject channel keys starting with a colon (":") or containing a
     comma (","): the former were forwarded as a regular parameter, so
     other servers and clients stored a different key (without the colon)

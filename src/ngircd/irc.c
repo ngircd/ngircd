@@ -776,8 +776,11 @@ Send_Message(CLIENT * Client, REQUEST * Req, int ForceType, bool SendErrors)
 
 		if (target_nr >= MAX_HNDL_TARGETS) {
 			/* Too many targets given! */
-			return IRC_WriteErrClient(Client,
+			if (!SendErrors)
+				return CONNECTED;
+			return IRC_WriteErrClient(from,
 						  ERR_TOOMANYTARGETS_MSG,
+						  Client_ID(from),
 						  currentTarget);
 		}
 	}
@@ -824,7 +827,7 @@ Send_Message_Mask(CLIENT * from, char * command, char * targetMask,
 		if (!SendErrors)
 			return true;
 		return IRC_WriteErrClient(from, ERR_WILDTOPLEVEL_MSG,
-					  targetMask);
+					  Client_ID(from), targetMask);
 	}
 
 	if (targetMask[0] == '#') {

@@ -162,10 +162,76 @@ expect {
 	"@* MODE #channel +I nick3!user@*"
 }
 
+send "mode #channel +b :\r"
+expect {
+	timeout { exit 1 }
+	"696 nick #channel b "
+}
+
+send "mode #channel +b :nick4 x\r"
+expect {
+	timeout { exit 1 }
+	"696 nick #channel b "
+}
+
+send "mode #channel +k ::key\r"
+expect {
+	timeout { exit 1 }
+	"696 nick #channel k "
+}
+
+send "mode #channel +k key,key\r"
+expect {
+	timeout { exit 1 }
+	"696 nick #channel k "
+}
+
+send "mode #channel +k key\r"
+expect {
+	timeout { exit 1 }
+	"@* MODE #channel +k key\r"
+}
+
+send "mode #channel -k key\r"
+expect {
+	timeout { exit 1 }
+	"@* MODE #channel -k "
+}
+
 send "mode #channel -vo nick nick\r"
 expect {
 	timeout { exit 1 }
 	"@* MODE #channel -vo nick nick\r"
+}
+
+send "join #persistent\r"
+expect {
+	timeout { exit 1 }
+	"366"
+}
+
+send "mode #persistent +P\r"
+expect {
+	timeout { exit 1 }
+	"@* MODE #persistent +P\r"
+}
+
+send "part #persistent\r"
+expect {
+	timeout { exit 1 }
+	"@* PART #persistent"
+}
+
+send "mode #persistent -P\r"
+expect {
+	timeout { exit 1 }
+	"@* MODE #persistent -P\r"
+}
+
+send "mode #persistent\r"
+expect {
+	timeout { exit 1 }
+	"403 nick #persistent"
 }
 
 send "quit\r"

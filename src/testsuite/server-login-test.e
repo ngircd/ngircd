@@ -59,6 +59,9 @@ expect {
 # Emulate network burst
 send ":ngircd.test.server3 NICK NickName 1 ~User localhost 1 + :Real Name\r"
 send ":ngircd.test.server3 NJOIN #Channel :@NickName\r"
+send ":ngircd.test.server3 NJOIN #Channel :@NickName\r"
+send ":ngircd.test.server3 NJOIN #Channel :ngircd.test.server3\r"
+send ":ngircd.test.server3 NJOIN #Channel :ngircd.test.server3\r"
 
 # End of burst
 send ":ngircd.test.server3 PONG :ngircd.test.server\r"
@@ -84,6 +87,17 @@ expect {
 expect {
 	timeout { exit 1 }
 	":ngircd.test.server 318 ngircd.test.server3 NickName :"
+}
+
+# Ignore SQUIT for this server and ENDOFMOTD after the handshake
+send ":ngircd.test.server3 SQUIT ngircd.test.server :Test\r"
+send ":ngircd.test.server3 376 ngircd.test.server :End of MOTD command\r"
+send ":ngircd.test.server3 VERSION\r"
+expect {
+	timeout { exit 1 }
+	" SERVER " { exit 1 }
+	" CHANINFO " { exit 1 }
+	":ngircd.test.server 351 ngircd.test.server3 "
 }
 
 # Logout

@@ -139,11 +139,40 @@ expect {
 	"@* PRIVMSG nick :test"
 }
 
+send "privmsg \$*.t* :test\r"
+expect {
+	timeout { exit 1 }
+	"414 nick \$*.t* :Wildcard in toplevel domain"
+}
+
 send "privmsg \$noDotServer :test\r"
 expect {
 	timeout { exit 1 }
 	"401"
 }
+
+# Too many targets: use another connection, as each target adds one
+# second of penalty time, which delays all further commands.
+set main $spawn_id
+spawn telnet 127.0.0.1 6789
+expect {
+	timeout { exit 1 }
+	"Connected"
+}
+send "nick targets\r"
+send "user user . . :User\r"
+expect {
+	timeout { exit 1 }
+	"376"
+}
+send "privmsg n0,n1,n2,n3,n4,n5,n6,n7,n8,n9,n10,n11,n12,n13,n14,n15,n16,n17,n18,n19,n20,n21,n22,n23,n24,n25 :test\r"
+expect {
+	timeout { exit 1 }
+	"407 targets n25 :Too many recipients"
+}
+close
+wait
+set spawn_id $main
 
 send "quit\r"
 expect {

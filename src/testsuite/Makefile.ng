@@ -17,7 +17,7 @@ EXTRA_DIST = \
 	Makefile.ng README functions.inc getpid.sh \
 	start-server.sh stop-server.sh tests.sh stress-server.sh \
 	test-loop.sh wait-tests.sh \
-	channel-test.e connect-test.e check-idle.e invite-test.e \
+	access-test.e channel-test.e connect-test.e check-idle.e invite-test.e \
 	join-test.e kick-test.e message-test.e misc-test.e mode-test.e \
 	opless-channel-test.e reload-test.e server-link-test.e who-test.e \
 	whois-test.e \
@@ -62,6 +62,10 @@ connect-ssl-cert1-test: tests.sh
 connect-ssl-cert2-test: tests.sh
 	rm -f connect-ssl-cert2-test
 	ln -s $(srcdir)/tests.sh connect-ssl-cert2-test
+
+access-test: tests.sh
+	rm -f access-test
+	ln -s $(srcdir)/tests.sh access-test
 
 channel-test: tests.sh
 	rm -f channel-test
@@ -118,6 +122,7 @@ whois-test: tests.sh
 TESTS = start-server1 \
 	connect-test \
 	start-server2 \
+	access-test \
 	channel-test \
 	invite-test \
 	join-test \

@@ -132,6 +132,52 @@ expect {
 	"@* JOIN :#keyed"
 }
 
+# Adding the mask of a single-use invite to the invite list makes it permanent
+send -i $guest "part #keyed\r"
+expect {
+	-i $guest
+	timeout { exit 1 }
+	"@* PART #keyed"
+}
+send -i $op "invite guest\\x #keyed\r"
+expect {
+	-i $op
+	timeout { exit 1 }
+	"341 op "
+}
+send -i $op "mode #keyed I\r"
+expect {
+	-i $op
+	timeout { exit 1 }
+	-re "346 op #keyed (\[^ \]+) "
+}
+set mask $expect_out(1,string)
+expect {
+	-i $op
+	timeout { exit 1 }
+	"347 op #keyed"
+}
+send -i $op "mode #keyed +I $mask\r"
+expect {
+	-i $op
+	timeout { exit 1 }
+	"@* MODE #keyed +I "
+}
+foreach i {1 2} {
+	send -i $guest "join #keyed key\r"
+	expect {
+		-i $guest
+		timeout { exit 1 }
+		"@* JOIN :#keyed"
+	}
+	send -i $guest "part #keyed\r"
+	expect {
+		-i $guest
+		timeout { exit 1 }
+		"@* PART #keyed"
+	}
+}
+
 # Unregistered connections can't send NOTICE commands
 spawn telnet 127.0.0.1 6789
 expect {

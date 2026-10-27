@@ -135,6 +135,9 @@ Lists_Add(struct list_head *h, const char *Mask, time_t ValidUntil,
 	e = Lists_CheckDupeMask(h, Mask);
 	if (e) {
 		e->valid_until = ValidUntil;
+		/* Adding a permanent entry makes a single-use one permanent */
+		if (!OnlyOnce)
+			e->onlyonce = false;
 		if (Reason) {
 			if (e->reason)
 				free(e->reason);

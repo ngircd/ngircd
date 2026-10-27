@@ -1036,6 +1036,7 @@ Add_To_List(char what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel,
 {
 	char mask[MASK_LEN];
 	struct list_head *list = NULL;
+	struct list_elem *e;
 	long int current_count;
 
 	assert(Client != NULL);
@@ -1071,10 +1072,15 @@ Add_To_List(char what, CLIENT *Prefix, CLIENT *Client, CHANNEL *Channel,
 			break;
 	}
 
-	if (Lists_CheckDupeMask(list, mask))
-		return CONNECTED;
-	if (Client_Type(Client) == CLIENT_USER &&
-	    current_count >= MAX_HNDL_CHANNEL_LISTS)
+	e = Lists_CheckDupeMask(list, mask);
+	if (e) {
+		/* The mask is already listed: nothing to do, unless it is a
+		 * single-use invite (see IRC_INVITE()), which is added as a
+		 * permanent entry now. */
+		if (!Lists_GetOnlyOnce(e))
+			return CONNECTED;
+	} else if (Client_Type(Client) == CLIENT_USER &&
+		   current_count >= MAX_HNDL_CHANNEL_LISTS)
 		return IRC_WriteErrClient(Client, ERR_LISTFULL_MSG,
 					  Client_ID(Client),
 					  Channel_Name(Channel), mask,

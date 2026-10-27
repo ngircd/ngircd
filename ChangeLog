@@ -10,6 +10,10 @@
 
 ngIRCd 29
 
+  - MODE: Make a single-use invite permanent when its mask is added to the
+    invite list ("+I"), instead of silently ignoring the mode change: the
+    entry vanished when the invited user joined the channel, and the mode
+    change wasn't forwarded to other servers.
   - Stop accepting new connections for a second when the daemon runs out
     of file descriptors or memory: the pending connection kept the
     listening socket readable, so the daemon was busy looping and flooded

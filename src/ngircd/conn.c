@@ -2053,7 +2053,8 @@ New_Server( int Server , ng_ipaddr_t *dest)
 	 * asynchronously on its own */
 	if (Conf_Server[Server].conn_id > NONE) {
 		Log(LOG_INFO,
-			"Connection to \"%s\" meanwhile re-established, aborting preparation.");
+		    "Connection to \"%s\" meanwhile re-established, aborting preparation.",
+		    Conf_Server[Server].name);
 		return;
 	}
 
@@ -2111,8 +2112,8 @@ New_Server( int Server , ng_ipaddr_t *dest)
 	}
 
 	if (!io_event_create( new_sock, IO_WANTWRITE, cb_connserver)) {
-		Log(LOG_ALERT, "io_event_create(): could not add fd %d",
-		    strerror(errno));
+		Log(LOG_ALERT, "io_event_create(): could not add fd %d: %s!",
+		    new_sock, strerror(errno));
 		close(new_sock);
 		Conf_Server[Server].conn_id = NONE;
 		return;

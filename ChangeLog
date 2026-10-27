@@ -10,6 +10,10 @@
 
 ngIRCd 29
 
+  - Fix logging when a configured server linked to this server while the
+    hostname for the outgoing connection to it was still being resolved:
+    the server name was missing in the log message, which is undefined
+    behavior and could crash the daemon.
   - Test suite: Add tests for reloading the configuration.
   - PRIVMSG, NOTICE: Add the missing nickname parameter to the
     ERR_TOOMANYTARGETS (407) and ERR_WILDTOPLEVEL (414) numerics, and don't

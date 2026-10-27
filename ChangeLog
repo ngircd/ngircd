@@ -10,6 +10,11 @@
 
 ngIRCd 29
 
+  - MODE: Reject channel keys starting with a colon (":") or containing a
+    comma (","): the former were forwarded as a regular parameter, so
+    other servers and clients stored a different key (without the colon)
+    and even misparsed the CHANINFO command when servers linked, and the
+    latter could never be used because JOIN splits keys at commas.
   - PONG: Fix a use-after-free when the login of a client fails after the
     "RequireAuthPing" PONG, for example because of a wrong server password
     or a K-Line or G-Line: the already destroyed client was used afterwards,

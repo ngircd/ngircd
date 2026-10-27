@@ -628,7 +628,11 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 						Client_ID(Origin), Req->command);
 				goto chan_exit;
 			}
-			if (!Req->argv[arg_arg][0] || strchr(Req->argv[arg_arg], ' ')) {
+			/* Reject keys which can't be forwarded unchanged as a
+			 * (non-trailing) parameter, or can't be given in a
+			 * comma-separated list of keys on JOIN: */
+			if (!Req->argv[arg_arg][0] || Req->argv[arg_arg][0] == ':'
+			    || strpbrk(Req->argv[arg_arg], " ,")) {
 				if (is_machine)
 					Log(LOG_ERR,
 					    "Got invalid key on MODE +k for \"%s\" from \"%s\"! Ignored.",

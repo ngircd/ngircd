@@ -609,7 +609,7 @@ Get_Prefix(CLIENT *Target, CLIENT *Client)
 static void
 cb_writeStrServersPrefixFlag(CLIENT *Client, CLIENT *Prefix, void *Buffer)
 {
-	IRC_WriteStrClientPrefix(Client, Prefix, "%s", Buffer);
+	IRC_WriteStrClientPrefix(Client, Prefix, "%s", (char *)Buffer);
 } /* cb_writeStrServersPrefixFlag */
 
 /**

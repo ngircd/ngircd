@@ -2267,7 +2267,7 @@ Validate_Config(bool Configtest, bool Rehash)
 	if(getrlimit(RLIMIT_NOFILE, &rlim) == 0) {
 		LogDebug("Current file descriptor limit is %ld, maximum %ld. \"MaxConnections\" is %ld.",
 			 (long)rlim.rlim_cur, (long)rlim.rlim_max,
-			 Conf_MaxConnections);
+			 (long)Conf_MaxConnections);
 		fd_lim_old = rlim.rlim_cur;
 		/* Don't request "infinite" file descriptors, use a limit! */
 		if (rlim.rlim_max != RLIM_INFINITY && rlim.rlim_max < MAX_FD_LIMIT)
@@ -2289,12 +2289,12 @@ Validate_Config(bool Configtest, bool Rehash)
 		    && (long)rlim.rlim_cur <= (long)Conf_MaxConnections) {
 			Config_Error(LOG_WARNING,
 				     "Current file descriptor limit (%ld) is not higher than configured \"MaxConnections\" (%ld)!",
-				     (long)rlim.rlim_cur, Conf_MaxConnections);
+				     (long)rlim.rlim_cur, (long)Conf_MaxConnections);
 		} else if (!Configtest) {
 			if (Conf_MaxConnections > 0)
 				Log(LOG_INFO,
 				    "File descriptor limit is %ld; \"MaxConnections\" is set to %ld.",
-				    (long)rlim.rlim_cur, Conf_MaxConnections);
+				    (long)rlim.rlim_cur, (long)Conf_MaxConnections);
 			else
 				Log(LOG_INFO,
 				    "File descriptor limit is %ld; \"MaxConnections\" is not set.",

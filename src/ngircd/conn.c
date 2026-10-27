@@ -538,7 +538,8 @@ Conn_ExitListeners( void )
 		return;
 
 	Log(LOG_INFO,
-	    "Shutting down all listening sockets (%d total) ...", arraylen);
+	    "Shutting down all listening sockets (%lu total) ...",
+	    (unsigned long)arraylen);
 	fd = array_start(&My_Listeners);
 	while(arraylen--) {
 		assert(fd != NULL);
@@ -1586,9 +1587,10 @@ Socket2Index( int Sock )
 		    "Can't allocate memory to enlarge connection pool!");
 		return NONE;
 	}
-	LogDebug("Enlarged connection pool for %ld sockets (%ld items, %ld bytes)",
-		 Sock, array_length(&My_ConnArray, sizeof(CONNECTION)),
-		 array_bytes(&My_ConnArray));
+	LogDebug("Enlarged connection pool for %d sockets (%lu items, %lu bytes)",
+		 Sock,
+		 (unsigned long)array_length(&My_ConnArray, sizeof(CONNECTION)),
+		 (unsigned long)array_bytes(&My_ConnArray));
 
 	/* Adjust pointer to new block, update size and initialize new items. */
 	My_Connections = array_start(&My_ConnArray);
@@ -1628,8 +1630,9 @@ Read_Request(CONN_ID Idx)
 #endif
 	{
 		Log(LOG_ERR,
-		    "Receive buffer space exhausted (connection %d): %d/%d bytes",
-		    Idx, array_bytes(&My_Connections[Idx].rbuf), READBUFFER_LEN);
+		    "Receive buffer space exhausted (connection %d): %lu/%d bytes",
+		    Idx, (unsigned long)array_bytes(&My_Connections[Idx].rbuf),
+		    READBUFFER_LEN);
 		Conn_Close(Idx, "Receive buffer space exhausted", NULL, false);
 		return;
 	}
@@ -1670,8 +1673,8 @@ Read_Request(CONN_ID Idx)
 		if (!array_catb(&My_Connections[Idx].zip.rbuf, readbuf,
 				(size_t) len)) {
 			Log(LOG_ERR,
-			    "Could not append received data to zip input buffer (connection %d): %d bytes!",
-			    Idx, len);
+			    "Could not append received data to zip input buffer (connection %d): %ld bytes!",
+			    Idx, (long)len);
 			Conn_Close(Idx, "Receive buffer space exhausted", NULL,
 				   false);
 			return;
@@ -1681,8 +1684,8 @@ Read_Request(CONN_ID Idx)
 	{
 		if (!array_catb( &My_Connections[Idx].rbuf, readbuf, len)) {
 			Log(LOG_ERR,
-			    "Could not append received data to input buffer (connection %d): %d bytes!",
-			    Idx, len);
+			    "Could not append received data to input buffer (connection %d): %ld bytes!",
+			    Idx, (long)len);
 			Conn_Close(Idx, "Receive buffer space exhausted", NULL,
 				   false );
 		}
@@ -1843,8 +1846,9 @@ Handle_Buffer(CONN_ID Idx)
 			 * below: */
 			if (array_bytes(&My_Connections[Idx].rbuf) >= COMMAND_LEN) {
 				Log(LOG_ERR,
-				    "Request too long (connection %d): %d bytes without a command terminator (max. %d expected)!",
-				    Idx, array_bytes(&My_Connections[Idx].rbuf),
+				    "Request too long (connection %d): %lu bytes without a command terminator (max. %d expected)!",
+				    Idx,
+				    (unsigned long)array_bytes(&My_Connections[Idx].rbuf),
 				    COMMAND_LEN - 1);
 				Conn_Close(Idx, NULL, "Request too long", true);
 				return 0;
@@ -1861,8 +1865,8 @@ Handle_Buffer(CONN_ID Idx)
 			/* Request must not exceed 512 chars (incl. CR+LF!),
 			 * see RFC 2812. Disconnect Client if this happens. */
 			Log(LOG_ERR,
-			    "Request too long (connection %d): %d bytes (max. %d expected)!",
-			    Idx, array_bytes(&My_Connections[Idx].rbuf),
+			    "Request too long (connection %d): %lu bytes (max. %d expected)!",
+			    Idx, (unsigned long)array_bytes(&My_Connections[Idx].rbuf),
 			    COMMAND_LEN - 1);
 			Conn_Close(Idx, NULL, "Request too long", true);
 			return 0;
@@ -1903,8 +1907,8 @@ Handle_Buffer(CONN_ID Idx)
 
 			array_trunc(&My_Connections[Idx].rbuf);
 			LogDebug
-			    ("Moved already received data (%u bytes) to uncompression buffer.",
-			     array_bytes(&My_Connections[Idx].zip.rbuf));
+			    ("Moved already received data (%lu bytes) to uncompression buffer.",
+			     (unsigned long)array_bytes(&My_Connections[Idx].zip.rbuf));
 		}
 #endif
 	}
@@ -2303,8 +2307,8 @@ cb_Connect_to_Server(int fd, UNUSED short events)
 
 	assert((len % sizeof(ng_ipaddr_t)) == 0);
 
-	LogDebug("Got result from resolver: %u structs (%u bytes).",
-		 len/sizeof(ng_ipaddr_t), len);
+	LogDebug("Got result from resolver: %lu structs (%lu bytes).",
+		 (unsigned long)(len / sizeof(ng_ipaddr_t)), (unsigned long)len);
 
 	memset(&Conf_Server[i].dst_addr, 0, sizeof(Conf_Server[i].dst_addr));
 	if (len > sizeof(ng_ipaddr_t)) {
@@ -2368,7 +2372,8 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 	}
 
 	*identptr = '\0';
-	LogDebug("Got result from resolver: \"%s\" (%u bytes read).", readbuf, len);
+	LogDebug("Got result from resolver: \"%s\" (%lu bytes read).", readbuf,
+		 (unsigned long)len);
 	/* Okay, we got a complete result: this is a host name for outgoing
 	 * connections and a host name and IDENT user name (if enabled) for
 	 * incoming connections.*/

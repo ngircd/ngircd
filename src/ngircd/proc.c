@@ -140,13 +140,13 @@ Proc_Read(PROC_STAT *proc, void *buffer, size_t buflen)
 		if (errno == EAGAIN)
 			return 0;
 		Log(LOG_CRIT, "Can't read from child process %ld: %s",
-		    proc->pid, strerror(errno));
+		    (long)proc->pid, strerror(errno));
 		Proc_Close(proc);
 		bytes_read = 0;
 	} else if (bytes_read == 0) {
 		/* EOF: clean up */
 		LogDebug("Child process %ld: EOF reached, closing pipe.",
-		         proc->pid);
+		         (long)proc->pid);
 		Proc_Close(proc);
 	}
 	return (size_t)bytes_read;

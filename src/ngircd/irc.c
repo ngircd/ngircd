@@ -251,7 +251,8 @@ IRC_TRACE(CLIENT *Client, REQUEST *Req)
 					Client_ID(Client_NextHop(target)),
 					Option_String(idx2),
 					(long)(time(NULL) - Conn_StartTime(idx2)),
-					Conn_SendQ(idx), Conn_SendQ(idx2)))
+					(unsigned long)Conn_SendQ(idx),
+					(unsigned long)Conn_SendQ(idx2)))
 			return DISCONNECTED;
 
 		/* Forward command */

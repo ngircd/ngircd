@@ -925,7 +925,8 @@ IRC_STATS( CLIENT *Client, REQUEST *Req )
 					if (!IRC_WriteStrClient
 					    (from, RPL_STATSLINKINFOZIP_MSG,
 					     Client_ID(from), Client_Mask(cl),
-					     Conn_SendQ(con), Conn_SendMsg(con),
+					     (unsigned long)Conn_SendQ(con),
+					     Conn_SendMsg(con),
 					     Zip_SendBytes(con),
 					     Conn_SendBytes(con),
 					     Conn_RecvMsg(con),
@@ -939,7 +940,8 @@ IRC_STATS( CLIENT *Client, REQUEST *Req )
 				if (!IRC_WriteStrClient
 				    (from, RPL_STATSLINKINFO_MSG,
 				     Client_ID(from), Client_Mask(cl),
-				     Conn_SendQ(con), Conn_SendMsg(con),
+				     (unsigned long)Conn_SendQ(con),
+				     Conn_SendMsg(con),
 				     Conn_SendBytes(con), Conn_RecvMsg(con),
 				     Conn_RecvBytes(con),
 				     (long)(time_now - Conn_StartTime(con))))

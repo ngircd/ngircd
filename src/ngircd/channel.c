@@ -190,7 +190,7 @@ Channel_InitPredefined( void )
 		Set_KeyFile(new_chan, conf_chan->keyfile);
 
 		Log(LOG_INFO,
-		    "Created pre-defined channel \"%s\", mode \"%s\" (%s, user limit %d).",
+		    "Created pre-defined channel \"%s\", mode \"%s\" (%s, user limit %lu).",
 		    new_chan->name, new_chan->modes,
 		    new_chan->key[0] ? "channel key set" : "no channel key",
 		    new_chan->maxusers);
@@ -1232,7 +1232,7 @@ ShowChannelList(struct list_head *head, CLIENT *Client, CHANNEL *Channel,
 					Channel_Name(Channel),
 					Lists_GetMask(e),
 					Lists_GetReason(e),
-					Lists_GetValidity(e)))
+					(long)Lists_GetValidity(e)))
 			return DISCONNECTED;
 		e = Lists_GetNext(e);
 	}

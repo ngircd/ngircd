@@ -51,7 +51,7 @@ IRC_CHARCONV(CLIENT *Client, REQUEST *Req)
 
 	if (!Conn_SetEncoding(Client_Conn(Client), encoding))
 		return IRC_WriteErrClient(Client, ERR_IP_CHARCONV_MSG,
-					  Client_ID(Client), encoding);
+					  Client_ID(Client));
 
 	return IRC_WriteStrClient(Client, RPL_IP_CHARCONV_MSG,
 				  Client_ID(Client), encoding);

@@ -223,7 +223,7 @@ Unzip_Buffer( CONN_ID Idx )
 	result = inflate( in, Z_SYNC_FLUSH );
 	if( result != Z_OK )
 	{
-		Log(LOG_ALERT, "Decompression error: %s (code=%d, ni=%d, ai=%d, no=%d, ao=%d)!?", in->msg, result, in->next_in, in->avail_in, in->next_out, in->avail_out);
+		Log(LOG_ALERT, "Decompression error: %s (code=%d, ni=%p, ai=%u, no=%p, ao=%u)!?", in->msg, result, (void *)in->next_in, in->avail_in, (void *)in->next_out, in->avail_out);
 		Conn_Close(Idx, "Decompression error!", NULL, false);
 		return false;
 	}

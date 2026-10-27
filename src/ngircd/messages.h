@@ -25,10 +25,10 @@
 #define RPL_ISUPPORT1_MSG		"005 %s RFC2812 IRCD=ngIRCd CHARSET=UTF-8 CASEMAPPING=ascii PREFIX=(qaohv)~&@%%+ CHANTYPES=%s CHANMODES=beI,k,l,imMnNOPQrRstVz CHANLIMIT=%s:%d :are supported on this server"
 #define RPL_ISUPPORT2_MSG		"005 %s CHANNELLEN=%d NICKLEN=%d TOPICLEN=%d AWAYLEN=%d KICKLEN=%d MODES=%d MAXLIST=beI:%d EXCEPTS=e INVEX=I PENALTY FNC :are supported on this server"
 
-#define RPL_TRACELINK_MSG		"200 %s Link %s-%s %s %s V%s %ld %d %d"
+#define RPL_TRACELINK_MSG		"200 %s Link %s-%s %s %s V%s %ld %lu %lu"
 #define RPL_TRACEOPERATOR_MSG		"204 %s Oper 2 :%s"
 #define RPL_TRACESERVER_MSG		"206 %s Serv 1 0S 0C %s[%s@%s] *!*@%s :V%s"
-#define RPL_STATSLINKINFO_MSG		"211 %s %s %d %ld %ld %ld %ld :%ld"
+#define RPL_STATSLINKINFO_MSG		"211 %s %s %lu %ld %ld %ld %ld :%ld"
 #define RPL_STATSCOMMANDS_MSG		"212 %s %s %ld %ld %ld"
 #define RPL_STATSXLINE_MSG		"216 %s %c %s %ld :%s"
 #define RPL_ENDOFSTATS_MSG		"219 %s %c :End of STATS report"
@@ -78,9 +78,9 @@
 #define RPL_TOPICSETBY_MSG		"333 %s %s %s %u"
 #define RPL_WHOISBOT_MSG		"335 %s %s :is an IRC Bot"
 #define RPL_INVITING_MSG		"341 %s %s %s%s"
-#define RPL_INVITELIST_MSG		"346 %s %s %s %s %d"
+#define RPL_INVITELIST_MSG		"346 %s %s %s %s %ld"
 #define RPL_ENDOFINVITELIST_MSG		"347 %s %s :End of channel invite list"
-#define RPL_EXCEPTLIST_MSG		"348 %s %s %s %s %d"
+#define RPL_EXCEPTLIST_MSG		"348 %s %s %s %s %ld"
 #define RPL_ENDOFEXCEPTLIST_MSG		"349 %s %s :End of channel exception list"
 #define RPL_VERSION_MSG			"351 %s %s-%s.%s %s :%s"
 #define RPL_WHOREPLY_MSG		"352 %s %s %s %s %s %s %s :%d %s"
@@ -88,7 +88,7 @@
 #define RPL_LINKS_MSG			"364 %s %s %s :%d %s"
 #define RPL_ENDOFLINKS_MSG		"365 %s %s :End of LINKS list"
 #define RPL_ENDOFNAMES_MSG		"366 %s %s :End of NAMES list"
-#define RPL_BANLIST_MSG			"367 %s %s %s %s %d"
+#define RPL_BANLIST_MSG			"367 %s %s %s %s %ld"
 #define RPL_ENDOFBANLIST_MSG		"368 %s %s :End of channel ban list"
 #define RPL_ENDOFWHOWAS_MSG		"369 %s %s :End of WHOWAS list"
 #define RPL_INFO_MSG    		"371 %s :%s"
@@ -165,7 +165,7 @@
 #define ERR_INVALIDMODEPARAM_MSG	"696 %s %s %c * :Invalid mode parameter"
 
 #ifdef ZLIB
-# define RPL_STATSLINKINFOZIP_MSG	"211 %s %s %d %ld %ld/%ld %ld %ld/%ld :%ld"
+# define RPL_STATSLINKINFOZIP_MSG	"211 %s %s %lu %ld %ld/%ld %ld %ld/%ld :%ld"
 #endif
 
 #ifdef IRCPLUS

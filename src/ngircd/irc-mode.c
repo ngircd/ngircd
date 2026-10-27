@@ -426,7 +426,7 @@ Channel_Mode_Answer_Request(CLIENT *Origin, CHANNEL *Channel)
 	/* Channel creation time */
 	if (!IRC_WriteStrClient(Origin, RPL_CREATIONTIME_MSG,
 				  Client_ID(Origin), Channel_Name(Channel),
-				  Channel_CreationTime(Channel)))
+				  (long)Channel_CreationTime(Channel)))
 		return DISCONNECTED;
 #endif
 	return CONNECTED;

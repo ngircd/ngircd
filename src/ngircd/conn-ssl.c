@@ -980,7 +980,8 @@ ConnSSL_LogCertInfo( CONNECTION * c, bool connect)
 				const char *peername = SSL_get0_peername(ssl);
 				if (peername != NULL)
 					cert_ok = true;
-				LogDebug("X509_V_OK, peername = '%s'", peername);
+				LogDebug("X509_V_OK, peername = '%s'",
+					 peername ? peername : "(none)");
 			} else
 				Log(LOG_WARNING, "Certificate validation failed: %s!",
 				    X509_verify_cert_error_string(err));

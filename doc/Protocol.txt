@@ -2,7 +2,7 @@
                      ngIRCd - Next Generation IRC Server
                            http://ngircd.barton.de/
 
-               (c)2001-2019 Alexander Barton and Contributors.
+               (c)2001-2026 Alexander Barton and Contributors.
                ngIRCd is free software and published under the
                    terms of the GNU General Public License.
 
@@ -41,7 +41,7 @@ as defined in RFC 2810-2813. This enhanced protocol is named "IRC+". It is
 backwards compatible to the "plain" IRC protocol and will only be used by
 the ngIRCd if it detects that the peer supports it as well.
 
-The "PASS" command is used to detect the protocol and peer versions see
+The "PASS" command is used to detect the protocol and peer versions, see
 RFC 2813 (section 4.1.1) and below.
 
 
@@ -123,7 +123,7 @@ silently.
 
 In addition, such a server should at least send the numeric 005 (ISUPPORT)
 to its peer, containing the following information. Syntax: <key>=<value>,
-one token per IRC parameter. If the server has to send more than 12 token
+one token per IRC parameter. If the server has to send more than 12 tokens
 it must send separate ISUPPORT numerics (this is a limitation of the IRC
 protocol which allows at max 15 arguments per command).
 
@@ -136,7 +136,7 @@ protocol which allows at max 15 arguments per command).
  - CHANTYPES: Supported channel prefixes. Default: "#".
  - CHANMODES: List of channel modes for 4 types, separated by comma (","):
    Mode that adds or removes a nick or address to a list, mode that changes
-   a setting (both have always has a parameter), mode that changes a setting
+   a setting (both always have a parameter), mode that changes a setting
    and only has a parameter when set, and mode that changes a setting and
    never has a parameter. For example "bI,k,l,imnPst".
  - CHANLIMIT: Maximum number of channels allowed to join by channel prefix,
@@ -166,10 +166,10 @@ there are three possible forms of this command:
 
 If the channel already exists on the server receiving the CHANINFO command,
 it only adopts the <modes> (or the <topic>) if there are no modes (or topic)
-already set. It there are already values set the server ignores the
+already set. If there are already values set the server ignores the
 corresponding parameter.
 
-If the channel doesn't exists at all it will be created.
+If the channel doesn't exist at all it will be created.
 
 The parameter <key> must be ignored if a channel has no key (the parameter
 <modes> doesn't list the "k" channel mode). In this case <key> should
@@ -254,7 +254,7 @@ Numerics 800-849 are used for status and success messages, and numerics
 III.1 IRC+ status and success numerics
 
 801 - RPL_IP_CHARCONV
-	%1 :Client encoding set"
+	%1 :Client encoding set
 
 		%1	client character set
 

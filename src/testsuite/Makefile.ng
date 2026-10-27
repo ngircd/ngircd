@@ -19,7 +19,8 @@ EXTRA_DIST = \
 	test-loop.sh wait-tests.sh \
 	channel-test.e connect-test.e check-idle.e invite-test.e \
 	join-test.e kick-test.e message-test.e misc-test.e mode-test.e \
-	opless-channel-test.e server-link-test.e who-test.e whois-test.e \
+	opless-channel-test.e reload-test.e server-link-test.e who-test.e \
+	whois-test.e \
 	stress-A.e stress-B.e \
 	server-login-test.e \
 	start-server1 stop-server1 ngircd-test1.conf \
@@ -35,7 +36,8 @@ all:
 
 clean-local:
 	rm -rf logs tests *-test ngircd-test*.log procs.tmp tests-skipped.lst \
-	 T-ngircd1 ngircd-test1.motd T-ngircd2 ngircd-test2.motd T-ngircd3 ngircd-test3.motd
+	 T-ngircd1 ngircd-test1.motd T-ngircd2 ngircd-test2.motd T-ngircd3 ngircd-test3.motd \
+	 T-ngircd1.conf T-ngircd2.conf T-ngircd3.conf
 
 maintainer-clean-local:
 	rm -f Makefile Makefile.in Makefile.am
@@ -93,6 +95,10 @@ opless-channel-test: tests.sh
 	rm -f opless-channel-test
 	ln -s $(srcdir)/tests.sh opless-channel-test
 
+reload-test: tests.sh
+	rm -f reload-test
+	ln -s $(srcdir)/tests.sh reload-test
+
 server-link-test: tests.sh
 	rm -f server-link-test
 	ln -s $(srcdir)/tests.sh server-link-test
@@ -124,6 +130,7 @@ TESTS = start-server1 \
 	whois-test \
 	server-link-test \
 	server-login-test \
+	reload-test \
 	stop-server2 \
 	stress-server.sh \
 	stop-server1

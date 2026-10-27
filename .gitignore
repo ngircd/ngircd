@@ -54,5 +54,6 @@ src/testsuite/ssl/cert.pem
 src/testsuite/ssl/dhparams.pem
 src/testsuite/ssl/key.pem
 src/testsuite/T-ngircd?
+src/testsuite/T-ngircd?.conf
 src/testsuite/tests
 src/testsuite/tests-skipped.lst

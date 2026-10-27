@@ -10,6 +10,7 @@
 
 ngIRCd 29
 
+  - Test suite: Add tests for reloading the configuration.
   - PRIVMSG, NOTICE: Add the missing nickname parameter to the
     ERR_TOOMANYTARGETS (407) and ERR_WILDTOPLEVEL (414) numerics, and don't
     send ERR_TOOMANYTARGETS in reply to NOTICE commands.

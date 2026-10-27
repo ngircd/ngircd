@@ -40,8 +40,12 @@ echo "This is an ngIRCd Test Server" >ngircd-test${id}.motd
 MALLOC_CHECK_=3
 export MALLOC_CHECK_
 
+# use a copy of the configuration file, which tests can modify
+rm -f T-ngircd${id}.conf
+cp "${srcdir}/ngircd-test${id}.conf" T-ngircd${id}.conf || exit 1
+
 # starting up test-server ...
-./T-ngircd${id} -n -f "${srcdir}/ngircd-test${id}.conf" "$@" \
+./T-ngircd${id} -n -f T-ngircd${id}.conf "$@" \
  >ngircd-test${id}.log 2>&1 &
 sleep 1
 

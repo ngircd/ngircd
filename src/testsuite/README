@@ -44,8 +44,9 @@ getpid.sh <name>
 start-server.sh [<id>]
 
 	start-server.sh starts up the test binary, "T-ngircd<id>" (the default
-	for <id> is 1) with configuration file "ngircd-test<id>.conf" and the
-	console output redirected to "ngircd-test<id>.log".
+	for <id> is 1) with a copy of the configuration file
+	"ngircd-test<id>.conf" named "T-ngircd<id>.conf" (which tests can
+	modify) and the console output redirected to "ngircd-test<id>.log".
 	The script first makes sure that getpid.sh is available and working,
 	and that no other instance of the test binary is already running.
 	The exit code is 0 if the test binary could be started.

@@ -49,3 +49,20 @@ in progress is interesting, too: "release early, release often"!
 ngIRCd is hosted on GitHub (<https://github.com/ngircd>), so please use the
 tools available there and open issues (comment!) and create pull requests! See
 <https://help.github.com/articles/using-pull-requests/> for details.
+
+## Using AI tools and LLMs
+
+You may use AI tools (LLMs, coding assistants, ...) for your work on ngIRCd,
+but you are responsible for the result: review and understand every change,
+test it (see `make check` above), and be ready to answer questions about it
+yourself. Please mention AI assistance in your issue or pull request, and in
+the commit message, for example with a "Co-authored-by:" or "Assisted-by:"
+trailer naming the model.
+
+Bug reports, and security reports in particular, must be verified by a human:
+reproduce the problem with a real ngIRCd and describe what actually happens.
+Note that only clients are untrusted: peer servers, services, and the local
+configuration are trusted.
+
+Fully automated or unreviewed issues and pull requests may be closed without
+further notice.

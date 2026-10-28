@@ -2185,7 +2185,8 @@ Init_Conn_Struct(CONN_ID Idx)
 static bool
 Init_Socket( int Sock )
 {
-	int value;
+	ng_ipaddr_t addr;
+	int value, addr_len;
 
 	if (!io_setnonblock(Sock)) {
 		Log(LOG_CRIT, "Can't enable non-blocking mode for socket: %s!",
@@ -2204,17 +2205,43 @@ Init_Socket( int Sock )
 	}
 
 	/* Set type of service (TOS) */
-#if defined(IPPROTO_IP) && defined(IPTOS_LOWDELAY)
-	value = IPTOS_LOWDELAY;
-	if (setsockopt(Sock, IPPROTO_IP, IP_TOS, &value,
-		       (socklen_t) sizeof(value))) {
-		LogDebug("Can't set socket option IP_TOS: %s!",
-			 strerror(errno));
-		/* ignore this error */
-	} else
-		LogDebug("IP_TOS on socket %d has been set to IPTOS_LOWDELAY.",
-			 Sock);
+	addr_len = (int)sizeof(addr);
+	if (getsockname(Sock, (struct sockaddr *)&addr, (socklen_t*)&addr_len)) {
+		Log(LOG_ERR, "Failed to get name of socket %d: %s!", Sock, strerror(errno));
+	} else {
+		switch (addr.sin4.sin_family) {
+			case AF_INET:
+#if defined(IPPROTO_IP) && defined(IP_TOS) && defined(IPTOS_LOWDELAY)
+				value = IPTOS_LOWDELAY;
+				if (setsockopt(Sock, IPPROTO_IP, IP_TOS, &value,
+						(socklen_t) sizeof(value))) {
+					Log(LOG_ERR, "Failed to set IP_TOS on socket %d: %s!",
+						Sock, strerror(errno));
+				} else {
+					LogDebug("IP_TOS on socket %d has been set to %d.",
+						Sock, value);
+				}
 #endif
+				break;
+
+			case AF_INET6:
+#if defined(IPPROTO_IPV6) && defined(IPV6_TCLASS) && defined(IPTOS_LOWDELAY)
+				value = IPTOS_LOWDELAY;
+				if (setsockopt(Sock, IPPROTO_IPV6, IPV6_TCLASS, &value,
+						(socklen_t) sizeof(value))) {
+					Log(LOG_ERR, "Failed to set IPV6_TCLASS on socket %d: %s!",
+						Sock, strerror(errno));
+				} else {
+					LogDebug("IPV6_TCLASS on socket %d has been set to %d.",
+						Sock, value);
+				}
+#endif
+				break;
+
+			default:
+				Log(LOG_ERR, "Unexpected socket family %d on socket %d!", value, Sock);
+		}
+	}
 
 	return true;
 } /* Init_Socket */

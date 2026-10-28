@@ -34,6 +34,7 @@
 #include "irc-macros.h"
 #include "irc-write.h"
 #include "conf.h"
+#include "client-cap.h"
 
 #include "irc-channel.h"
 
@@ -236,8 +237,39 @@ join_forward(CLIENT *Client, CLIENT *target, CHANNEL *chan,
 	}
 
 	/* tell users in this channel about the new client */
-	IRC_WriteStrChannelPrefix(Client, chan, target, false,
-				  "JOIN :%s",  channame);
+	CLIENT *c;
+	CHANNEL *Chan;
+	CONN_ID conn;
+	CL2CHAN *cl2chan;
+	Chan = chan;
+	cl2chan = Channel_FirstMember( Chan );
+	while(cl2chan) {
+		c = Channel_GetClient( cl2chan );
+		if (Client_Conn(c) <= NONE)
+			c = NULL;
+		else if(Client_Type(c) == CLIENT_SERVER)
+			c = NULL;
+		if(c)
+			c = Client_NextHop(c);
+		if(c && c != Client) {
+			/* Ok, another Client */
+			conn = Client_Conn(c);
+			if(Client_Cap(c) & CLIENT_CAP_EXTENDED_JOIN) {
+				char * account_name;
+				if(Client_AccountName(Client)) {
+					account_name = Client_AccountName(Client);
+				}
+				else {
+					account_name = "*";
+				}
+				IRC_WriteStrClientPrefix(c, Client, "JOIN %s %s :%s", channame, account_name, Client_Info(Client));
+			}
+			else {
+				IRC_WriteStrClientPrefix(c, Client, "JOIN %s", channame);
+			}
+		}
+		cl2chan = Channel_NextMember(Chan, cl2chan);
+	}
 
 	/* synchronize channel modes */
 	if (modes[1]) {
@@ -257,7 +289,21 @@ GLOBAL bool
 IRC_Send_Channel_Info(CLIENT *Client, CHANNEL *Chan)
 {
 	const char *topic;
-
+	if (Client_Type(Client) != CLIENT_USER)
+		return true;
+	/* acknowledge join */
+	CONN_ID conn;
+	conn = Client_Conn(Client);
+	if(Client_Cap(Client) & CLIENT_CAP_EXTENDED_JOIN) {
+		char * account_name;
+		if(Client_AccountName(Client))
+			account_name = Client_AccountName(Client);
+		else
+			account_name = "*";
+		Conn_WriteStr(conn, ":%s JOIN %s %s :%s", Client_MaskCloaked(Client), Channel_Name(Chan), account_name, Client_Info(Client));
+	}
+	else
+		Conn_WriteStr(conn, ":%s JOIN %s", Client_MaskCloaked(Client), Channel_Name(Chan));
 	/* Send the topic (if any) to the new client: */
 	topic = Channel_Topic(Chan);
 	assert(topic != NULL);
@@ -409,10 +455,6 @@ IRC_JOIN( CLIENT *Client, REQUEST *Req )
 		join_forward(Client, target, chan, channame);
 
 		if (Client_Type(Client) == CLIENT_USER) {
-			/* Acknowledge join ... */
-			if (!IRC_WriteStrClientPrefix(Client, target,
-						      "JOIN :%s", channame))
-				break; /* write error */
 			/* ... and greet new user: */
 			if (!IRC_Send_Channel_Info(Client, chan))
 				break; /* write error */

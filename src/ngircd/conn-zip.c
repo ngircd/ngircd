@@ -23,6 +23,7 @@
 
 #ifdef ZLIB
 
+#include <stdlib.h>
 #include <assert.h>
 #include <string.h>
 #include <zlib.h>
@@ -34,6 +35,8 @@
 
 #include "conn-zip.h"
 
+GLOBAL size_t Conf_ReadBufferLength;
+GLOBAL size_t Conf_WriteBufferServerLinkLength;
 
 GLOBAL bool
 Zip_InitConn( CONN_ID Idx )
@@ -124,61 +127,78 @@ Zip_Buffer( CONN_ID Idx, const char *Data, size_t Len )
 GLOBAL bool
 Zip_Flush( CONN_ID Idx )
 {
-	int result;
-	unsigned char zipbuf[WRITEBUFFER_SLINK_LEN];
-	int zipbuf_used = 0;
-	z_stream *out;
+  int result;
+  //unsigned char zipbuf[WRITEBUFFER_SLINK_LEN];
+  unsigned char *zipbuf;
+  int zipbuf_used = 0;
+  z_stream *out;
 
-	out = &My_Connections[Idx].zip.out;
+  assert(Conf_WriteBufferServerLinkLength > 0);
 
-	out->avail_in = (uInt)array_bytes(&My_Connections[Idx].zip.wbuf);
-	if (!out->avail_in)
-		return true;	/* nothing to do. */
+  zipbuf = (unsigned char *) calloc(Conf_WriteBufferServerLinkLength, sizeof(unsigned char));
+  if (zipbuf) {
+    out = &My_Connections[Idx].zip.out;
 
-	out->next_in = array_start(&My_Connections[Idx].zip.wbuf);
-	assert(out->next_in != NULL);
+    out->avail_in = (uInt)array_bytes(&My_Connections[Idx].zip.wbuf);
+    if (!out->avail_in) {
+      free(zipbuf);
+      return true;	/* nothing to do. */
+    }
 
-	out->next_out = zipbuf;
-	out->avail_out = (uInt)sizeof zipbuf;
+    out->next_in = array_start(&My_Connections[Idx].zip.wbuf);
+    assert(out->next_in != NULL);
+
+    out->next_out = zipbuf;
+    //out->avail_out = (uInt)sizeof zipbuf;
+    out->avail_out = (uInt) Conf_WriteBufferServerLinkLength;
 
 #if DEBUG_ZIP
-	LogDebug("out->avail_in %d, out->avail_out %d",
-		out->avail_in, out->avail_out);
+    LogDebug("out->avail_in %d, out->avail_out %d",
+	     out->avail_in, out->avail_out);
 #endif
-	result = deflate( out, Z_SYNC_FLUSH );
-	if(( result != Z_OK ) || ( out->avail_in > 0 ))
-	{
-		Log( LOG_ALERT, "Compression error: code %d!?", result );
-		Conn_Close( Idx, "Compression error!", NULL, false );
-		return false;
-	}
+    result = deflate( out, Z_SYNC_FLUSH );
+    if(( result != Z_OK ) || ( out->avail_in > 0 ))
+      {
+	Log( LOG_ALERT, "Compression error: code %d!?", result );
+	Conn_Close( Idx, "Compression error!", NULL, false );
+	free(zipbuf);
+	return false;
+      }
 
-	if (out->avail_out <= 0) {
-		/* Not all data was compressed, because data became
-		 * bigger while compressing it. */
-		Log(LOG_ALERT, "Compression error: buffer overflow!?");
-		Conn_Close(Idx, "Compression error!", NULL, false);
-		return false;
-	}
+    if (out->avail_out <= 0) {
+      /* Not all data was compressed, because data became
+       * bigger while compressing it. */
+      Log(LOG_ALERT, "Compression error: buffer overflow!?");
+      Conn_Close(Idx, "Compression error!", NULL, false);
+      free(zipbuf);
+      return false;
+    }
 
-	assert(out->avail_out <= WRITEBUFFER_SLINK_LEN);
+    //assert(out->avail_out <= WRITEBUFFER_SLINK_LEN);
+    assert(out->avail_out <= Conf_WriteBufferServerLinkLength);
 
-	zipbuf_used = WRITEBUFFER_SLINK_LEN - out->avail_out;
+    //zipbuf_used = WRITEBUFFER_SLINK_LEN - out->avail_out;
+    zipbuf_used = Conf_WriteBufferServerLinkLength - out->avail_out;
+
 #if DEBUG_ZIP
-	LogDebug("zipbuf_used: %d", zipbuf_used);
+    LogDebug("zipbuf_used: %d", zipbuf_used);
 #endif
-	if (!array_catb(&My_Connections[Idx].wbuf,
-			(char *)zipbuf, (size_t) zipbuf_used)) {
-		Log (LOG_ALERT, "Compression error: can't copy data!?");
-		Conn_Close(Idx, "Compression error!", NULL, false);
-		return false;
-	}
+    if (!array_catb(&My_Connections[Idx].wbuf,
+		    (char *)zipbuf, (size_t) zipbuf_used)) {
+      Log (LOG_ALERT, "Compression error: can't copy data!?");
+      Conn_Close(Idx, "Compression error!", NULL, false);
+      free(zipbuf);
+      return false;
+    }
 
-	My_Connections[Idx].bytes_out += zipbuf_used;
-	My_Connections[Idx].zip.bytes_out += array_bytes(&My_Connections[Idx].zip.wbuf);
-	array_trunc(&My_Connections[Idx].zip.wbuf);
+    My_Connections[Idx].bytes_out += zipbuf_used;
+    My_Connections[Idx].zip.bytes_out += array_bytes(&My_Connections[Idx].zip.wbuf);
+    array_trunc(&My_Connections[Idx].zip.wbuf);
 
-	return true;
+    free(zipbuf);
+    return true;
+  } else
+    return false;
 } /* Zip_Flush */
 
 
@@ -193,63 +213,81 @@ Zip_Flush( CONN_ID Idx )
 GLOBAL bool
 Unzip_Buffer( CONN_ID Idx )
 {
-	int result;
-	unsigned char unzipbuf[READBUFFER_LEN];
-	int unzipbuf_used = 0;
-	unsigned int z_rdatalen;
-	unsigned int in_len;
+  int result;
+  //unsigned char unzipbuf[READBUFFER_LEN];
+  unsigned char *unzipbuf;
+  int unzipbuf_used = 0;
+  unsigned int z_rdatalen;
+  unsigned int in_len;
 
-	z_stream *in;
+  z_stream *in;
 
-	assert( Idx > NONE );
+  assert( Idx > NONE );
+  assert( Conf_ReadBufferLength > 0 );
 
-	z_rdatalen = (unsigned int)array_bytes(&My_Connections[Idx].zip.rbuf);
-	if (z_rdatalen == 0)
-		return true;
+  unzipbuf = (unsigned char *) calloc(Conf_ReadBufferLength, sizeof(unsigned char));
+  if (unzipbuf) {
 
-	in = &My_Connections[Idx].zip.in;
+    z_rdatalen = (unsigned int)array_bytes(&My_Connections[Idx].zip.rbuf);
+    if (z_rdatalen == 0) {
+      free(unzipbuf);
+      return true;
+    }
 
-	in->next_in = array_start(&My_Connections[Idx].zip.rbuf);
-	assert(in->next_in != NULL);
+    in = &My_Connections[Idx].zip.in;
 
-	in->avail_in = z_rdatalen;
-	in->next_out = unzipbuf;
-	in->avail_out = (uInt)sizeof unzipbuf;
+    in->next_in = array_start(&My_Connections[Idx].zip.rbuf);
+    assert(in->next_in != NULL);
+
+    in->avail_in = z_rdatalen;
+    in->next_out = unzipbuf;
+    //in->avail_out = (uInt)sizeof unzipbuf;
+    in->avail_out = (uInt) Conf_ReadBufferLength;
 
 #if DEBUG_ZIP
-	LogDebug("in->avail_in %d, in->avail_out %d",
-		in->avail_in, in->avail_out);
+    LogDebug("in->avail_in %d, in->avail_out %d",
+	     in->avail_in, in->avail_out);
 #endif
-	result = inflate( in, Z_SYNC_FLUSH );
-	if( result != Z_OK )
-	{
-		Log(LOG_ALERT, "Decompression error: %s (code=%d, ni=%d, ai=%d, no=%d, ao=%d)!?", in->msg, result, in->next_in, in->avail_in, in->next_out, in->avail_out);
-		Conn_Close(Idx, "Decompression error!", NULL, false);
-		return false;
-	}
+    result = inflate( in, Z_SYNC_FLUSH );
+    if( result != Z_OK )
+      {
+	Log(LOG_ALERT, "Decompression error: %s (code=%d, ni=%d, ai=%d, no=%d, ao=%d)!?", in->msg, result, in->next_in, in->avail_in, in->next_out, in->avail_out);
+	Conn_Close(Idx, "Decompression error!", NULL, false);
+	free(unzipbuf);
+	return false;
+      }
 
-	assert(z_rdatalen >= in->avail_in);
-	in_len = z_rdatalen - in->avail_in;
-	unzipbuf_used = READBUFFER_LEN - in->avail_out;
+    assert(z_rdatalen >= in->avail_in);
+    in_len = z_rdatalen - in->avail_in;
+    //unzipbuf_used = READBUFFER_LEN - in->avail_out;
+    unzipbuf_used = Conf_ReadBufferLength - in->avail_out;
 #if DEBUG_ZIP
-	LogDebug("unzipbuf_used: %d - %d = %d", READBUFFER_LEN,
-		in->avail_out, unzipbuf_used);
+    //LogDebug("unzipbuf_used: %d - %d = %d", READBUFFER_LEN,
+    LogDebug("unzipbuf_used: %d - %d = %d", Conf_ReadBufferLength,
+	     in->avail_out, unzipbuf_used);
 #endif
-	assert(unzipbuf_used <= READBUFFER_LEN);
-	if (!array_catb(&My_Connections[Idx].rbuf, (char*) unzipbuf,
-			(size_t)unzipbuf_used)) {
-		Log (LOG_ALERT, "Decompression error: can't copy data!?");
-		Conn_Close(Idx, "Decompression error!", NULL, false);
-		return false;
-	}
-	if( in->avail_in > 0 ) {
-		array_moveleft(&My_Connections[Idx].zip.rbuf, 1, in_len );
-	} else {
-		array_trunc( &My_Connections[Idx].zip.rbuf );
-		My_Connections[Idx].zip.bytes_in += unzipbuf_used;
-	}
-
-	return true;
+    //assert(unzipbuf_used <= READBUFFER_LEN);
+    assert(unzipbuf_used <= Conf_ReadBufferLength);
+    if (!array_catb(&My_Connections[Idx].rbuf, (char*) unzipbuf,
+		    (size_t)unzipbuf_used)) {
+      Log (LOG_ALERT, "Decompression error: can't copy data!?");
+      Conn_Close(Idx, "Decompression error!", NULL, false);
+      free(unzipbuf);
+      return false;
+    }
+    if( in->avail_in > 0 ) {
+      array_moveleft(&My_Connections[Idx].zip.rbuf, 1, in_len );
+    } else {
+      array_trunc( &My_Connections[Idx].zip.rbuf );
+      My_Connections[Idx].zip.bytes_in += unzipbuf_used;
+    }
+    free(unzipbuf);
+    return true;
+  } else {
+    Log(LOG_DEBUG, "Cannot allocate memory for the buffer (connection %d): bytes %d.",
+	Idx, Conf_ReadBufferLength);
+    return false;
+  }
 } /* Unzip_Buffer */
 
 

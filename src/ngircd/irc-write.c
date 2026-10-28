@@ -26,6 +26,7 @@
 
 #include "conn-func.h"
 #include "channel.h"
+#include "log.h"
 
 #include "irc-write.h"
 
@@ -68,6 +69,15 @@ va_dcl
 #endif
 	vsnprintf(buffer, sizeof(buffer), Format, ap);
 	va_end(ap);
+
+	if (Client == Client_ThisServer()) {
+		/* Error in a request faked by this server itself, for example
+		 * when evaluating the "Modes" of pre-defined channels: there
+		 * is no connection to send it to, so log it instead. */
+		Log(LOG_WARNING, "Request of this server failed: \"%s\"",
+		    buffer);
+		return CONNECTED;
+	}
 
 	IRC_SetPenalty(Client, 2);
 	return IRC_WriteStrClientPrefix(Client, Client_ThisServer(),
@@ -138,6 +148,11 @@ va_dcl
 	assert( Client != NULL );
 	assert( Format != NULL );
 	assert( Prefix != NULL );
+
+	/* Replies to requests faked by this server itself (see above) have
+	 * no connection to be sent to and are silently dropped. */
+	if (Client == Client_ThisServer())
+		return CONNECTED;
 
 #ifdef PROTOTYPES
 	va_start( ap, Format );

@@ -15,6 +15,12 @@ ngIRCd 29
     - CONTRIBUTING.md: Add guidance on AI-assisted contributions.
     - doc/Contributing.txt: Fix stale file references.
   - Add AGENTS.md with guidance for AI coding agents.
+  - Don't crash when the "Modes" of a pre-defined channel trigger a reply,
+    like an error message for a mode change of an unknown user ("+o nick")
+    or the ban list ("+b" without mask): the daemon tried to send it to
+    itself. Errors are logged now instead.
+    Thanks a7u8 for reporting this!
+    Closes #347.
   - contrib/ngircd.service: Make the systemd unit more restrictive.
   - Manual pages: Show the package name and version, and no longer override
     the manual section name.

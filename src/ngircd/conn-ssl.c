@@ -42,17 +42,17 @@ extern struct SSLOptions Conf_SSLOptions;
 #ifdef HAVE_LIBSSL
 #include <openssl/err.h>
 #include <openssl/rand.h>
-#include <openssl/dh.h>
+#include <openssl/decoder.h>
 #include <openssl/x509v3.h>
 
 #define MAX_CERT_CHAIN_LENGTH	10	/* XXX: do not hardcode */
 
 static SSL_CTX * ssl_ctx;
-static DH *dh_params;
+static EVP_PKEY *dh_params;
 
 static bool ConnSSL_LoadServerKey_openssl PARAMS(( SSL_CTX *c ));
 static bool ConnSSL_SetVerifyProperties_openssl PARAMS((SSL_CTX * c));
-#endif
+#endif /* HAVE_LIBSSL */
 
 #ifdef HAVE_LIBGNUTLS
 #include <sys/types.h>
@@ -79,7 +79,7 @@ static gnutls_dh_params_t dh_params;
 static gnutls_priority_t priorities_cache = NULL;
 static bool ConnSSL_LoadServerKey_gnutls PARAMS(( void ));
 static bool ConnSSL_SetVerifyProperties_gnutls PARAMS((void));
-#endif
+#endif /* HAVE_LIBGNUTLS */
 
 #define SHA256_STRING_LEN	(32 * 2 + 1)
 
@@ -236,25 +236,40 @@ static bool
 Load_DH_params(void)
 {
 #ifdef HAVE_LIBSSL
+	OSSL_DECODER_CTX *dctx;
 	FILE *fp;
 	bool ret = true;
 
 	if (!Conf_SSLOptions.DHFile) {
 		Log(LOG_NOTICE, "Configuration option \"DHFile\" not set!");
-		return false;
-	}
-	fp = fopen(Conf_SSLOptions.DHFile, "r");
-	if (!fp) {
-		Log(LOG_ERR, "%s: %s", Conf_SSLOptions.DHFile, strerror(errno));
-		return false;
-	}
-	dh_params = PEM_read_DHparams(fp, NULL, NULL, NULL);
-	if (!dh_params) {
-		Log(LOG_ERR, "%s: Failed to read SSL DH parameters!",
-		    Conf_SSLOptions.DHFile);
 		ret = false;
+		goto out;
 	}
+
+	dctx = OSSL_DECODER_CTX_new_for_pkey(&dh_params, "PEM", NULL, "DH", 0, NULL, NULL);
+	if (dctx == NULL) {
+        	LogOpenSSLError("Failed to create a decoder for DH parameters in PEM format", NULL);
+		ret = false;
+		goto out;
+	}
+
+	fp = fopen(Conf_SSLOptions.DHFile, "r");
+	if (fp == NULL) {
+		Log(LOG_ERR, "%s: %s", Conf_SSLOptions.DHFile, strerror(errno));
+		ret = false;
+		goto free_dctx;
+	}
+	if (OSSL_DECODER_from_fp(dctx, fp) != 1) {
+        	LogOpenSSLError("Failed to decode DH params", Conf_SSLOptions.DHFile);
+		ret = false;
+		goto close_fp;
+	}
+
+close_fp:
 	fclose(fp);
+free_dctx:
+	OSSL_DECODER_CTX_free(dctx);
+out:
 	return ret;
 #endif
 #ifdef HAVE_LIBGNUTLS
@@ -355,13 +370,6 @@ ConnSSL_InitLibrary( void )
 
 #ifdef HAVE_LIBSSL
 	SSL_CTX *newctx;
-
-#if OPENSSL_API_COMPAT < 0x10100000L
-	if (!ssl_ctx) {
-		SSL_library_init();
-		SSL_load_error_strings();
-	}
-#endif
 
 	if (!RAND_status()) {
 		Log(LOG_ERR, "OpenSSL PRNG not seeded: /dev/urandom missing?");
@@ -611,10 +619,12 @@ ConnSSL_LoadServerKey_openssl(SSL_CTX *ctx)
 		return false;
 	}
 	if (Load_DH_params()) {
-		if (SSL_CTX_set_tmp_dh(ctx, dh_params) != 1)
+		if (SSL_CTX_set0_tmp_dh_pkey(ctx, dh_params) != 1) {
 			LogOpenSSLError("Error setting DH parameters", Conf_SSLOptions.DHFile);
-		/* don't return false here: the non-DH modes will still work */
-		DH_free(dh_params);
+        		/* don't return false here: the non-DH modes will still work */
+		}
+
+		/* Ownership of the dh_params is passed to the SSL ctx; do not free here. */
 		dh_params = NULL;
 	}
 	return true;
@@ -953,7 +963,7 @@ ConnSSL_LogCertInfo( CONNECTION * c, bool connect)
 		comp_alg = SSL_COMP_get_name(comp);
 	Log(LOG_INFO, "Connection %d: initialized %s using cipher %s, %s.",
 	    c->sock, SSL_get_version(ssl), SSL_get_cipher(ssl), comp_alg);
-	peer_cert = SSL_get_peer_certificate(ssl);
+	peer_cert = SSL_get1_peer_certificate(ssl);
 	if (peer_cert) {
 		cert_seen = true;
 
@@ -1131,7 +1141,7 @@ ConnSSL_InitCertFp( CONNECTION *c )
 	unsigned int digest_size;
 	X509 *cert;
 
-	cert = SSL_get_peer_certificate(c->ssl_state.ssl);
+	cert = SSL_get1_peer_certificate(c->ssl_state.ssl);
 	if (!cert)
 		return 0;
 

@@ -38,7 +38,7 @@
 #include "match.h"
 #include "messages.h"
 
-#define GETID_LEN (CLIENT_NICK_LEN-1) + 1 + (CLIENT_USER_LEN-1) + 1 + (CLIENT_HOST_LEN-1) + 1
+#define GETID_LEN (CLIENT_ID_LEN-1) + 1 + (CLIENT_USER_LEN-1) + 1 + (CLIENT_HOST_LEN-1) + 1
 
 static CLIENT *This_Server, *My_Clients;
 
@@ -925,7 +925,7 @@ Client_Mask( CLIENT *Client )
 	if (Client->type == CLIENT_SERVER)
 		return Client->id;
 
-	snprintf(Mask_Buffer, GETID_LEN, "%s!%s@%s",
+	snprintf(Mask_Buffer, sizeof(Mask_Buffer), "%s!%s@%s",
 		 Client->id, Client->user, Client->host);
 	return Mask_Buffer;
 } /* Client_Mask */

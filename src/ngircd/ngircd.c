@@ -443,7 +443,7 @@ Fill_Version(void)
 	strlcat(NGIRCd_VersionAddition, HOST_OS,
 		sizeof(NGIRCd_VersionAddition));
 
-	snprintf(NGIRCd_Version, sizeof NGIRCd_Version, "%s %s-%s",
+	snprintf(NGIRCd_Version, sizeof(NGIRCd_Version), "%s %s-%s",
 		 PACKAGE_NAME, PACKAGE_VERSION, NGIRCd_VersionAddition);
 } /* Fill_Version */
 

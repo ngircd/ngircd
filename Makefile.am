@@ -13,6 +13,7 @@ SUBDIRS = doc src man contrib
 
 EXTRA_DIST = \
 	AUTHORS.md \
+	CONTRIBUTING.md \
 	INSTALL.md \
 	README.md \
 	autogen.sh \

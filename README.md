@@ -104,5 +104,7 @@ report them to our issue tracker at GitHub:
 - Bug tracker: <https://github.com/ngircd/ngircd/issues>
 - Patches, "pull requests": <https://github.com/ngircd/ngircd/pulls>
 
+Please see the file `CONTRIBUTING.md` for how to contribute to ngIRCd.
+
 [IRC]: https://wikipedia.org/wiki/Internet_Relay_Chat
 [GPL]: https://wikipedia.org/wiki/GNU_General_Public_License

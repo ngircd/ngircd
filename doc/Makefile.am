@@ -22,7 +22,6 @@ static_docs = \
 	Capabilities.txt \
 	Commands.txt \
 	Container.md \
-	Contributing.txt \
 	FAQ.md \
 	HowToRelease.txt \
 	Modes.txt \
@@ -40,7 +39,7 @@ doc_templates = sample-ngircd.conf.tmpl
 
 generated_docs = sample-ngircd.conf
 
-toplevel_docs = ../AUTHORS.md ../COPYING ../ChangeLog ../INSTALL.md ../NEWS ../README.md
+toplevel_docs = ../AUTHORS.md ../CONTRIBUTING.md ../COPYING ../ChangeLog ../INSTALL.md ../NEWS ../README.md
 
 SUBDIRS = src
 

@@ -784,7 +784,12 @@ Client_HostnameDisplayed(CLIENT *Client)
 		return Client->cloaked;
 
 	Client_UpdateCloakedHostname(Client, NULL, NULL);
-	return Client->cloaked;
+	if (Client->cloaked)
+		return Client->cloaked;
+
+	/* Out of memory: never show the real hostname, but the name of the
+	 * server, like the default cloaked hostname */
+	return Client_ID(Client->introducer);
 }
 
 GLOBAL const char *

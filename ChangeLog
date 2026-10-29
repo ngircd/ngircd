@@ -10,6 +10,9 @@
 
 ngIRCd 29
 
+  - Show the server name as hostname of a cloaked client when no memory
+    for its cloaked hostname can be allocated, instead of a NULL string,
+    which crashes the daemon with C libraries that don't print "(null)".
   - Fix arguments of format strings that didn't match their types, which
     could result in wrong numbers in log messages and in the replies of
     the MODE (RPL_CREATIONTIME and the ban, exception, and invite lists),

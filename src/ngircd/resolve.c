@@ -341,6 +341,30 @@ Log_Forgery_WrongIP(const char *ip, const char *host)
 }
 
 
+/**
+ * Check that a hostname only consists of valid characters.
+ *
+ * Valid are letters, digits, "-", ".", and "_", which is used in practice.
+ *
+ * @param host Hostname to check.
+ * @return true if valid, false otherwise.
+ */
+static bool
+Is_Valid_Hostname(const char *host)
+{
+	const char *ptr;
+
+	for (ptr = host; *ptr; ptr++) {
+		if ((*ptr < '0' || *ptr > '9') &&
+		    (*ptr < 'A' || *ptr > 'Z') &&
+		    (*ptr < 'a' || *ptr > 'z') &&
+		    *ptr != '-' && *ptr != '.' && *ptr != '_')
+			return false;
+	}
+	return ptr != host;
+}
+
+
 static void
 ArrayWrite(int fd, const array *a)
 {
@@ -377,6 +401,16 @@ Do_ResolveAddr_Ident(const ng_ipaddr_t *Addr, int identsock, int w_fd)
 	Log_Subprocess(LOG_DEBUG, "Now resolving %s ...", tmp_ip_str);
 	if (!ReverseLookup(Addr, hostname, sizeof(hostname)))
 		goto dns_done;
+
+	/* Don't rely on the resolver library to reject invalid names: spaces
+	 * or control characters, for example, break the IRC protocol! */
+	if (!Is_Valid_Hostname(hostname)) {
+		Log_Subprocess(LOG_WARNING,
+			"Possible forgery: %s resolved to an invalid hostname!",
+			tmp_ip_str);
+		strlcpy(hostname, tmp_ip_str, sizeof(hostname));
+		goto dns_done;
+	}
 
 	if (ForwardLookup(hostname, &resolved_addr, ng_ipaddr_af(Addr))) {
 		if (!Addr_in_list(&resolved_addr, Addr)) {

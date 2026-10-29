@@ -10,6 +10,12 @@
 
 ngIRCd 29
 
+  - Only accept hostnames from reverse DNS lookups that consist of letters,
+    digits, "-", ".", and "_", and use the IP address otherwise: ngIRCd
+    relied on the resolver library to reject other names, which glibc and
+    systemd-resolved do, but other resolvers may not. Names with spaces,
+    for example, end up in prefixes and NICK commands to other servers
+    and break the IRC protocol.
   - Fix character classification and case conversion of bytes above 127
     in user names, nicknames, channel names, and masks: passing them as
     negative values to isalnum(), tolower(), and toupper() is undefined

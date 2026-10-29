@@ -82,7 +82,7 @@ ngt_UpperStr(char *String)
 
 	ptr = String;
 	while(*ptr) {
-		*ptr = (char)toupper(*ptr);
+		*ptr = (char)toupper((unsigned char)*ptr);
 		ptr++;
 	}
 	return String;
@@ -101,7 +101,7 @@ ngt_LowerStr(char *String)
 
 	ptr = String;
 	while(*ptr) {
-		*ptr = (char)tolower(*ptr);
+		*ptr = (char)tolower((unsigned char)*ptr);
 		ptr++;
 	}
 	return String;

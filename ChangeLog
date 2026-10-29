@@ -10,6 +10,10 @@
 
 ngIRCd 29
 
+  - Fix character classification and case conversion of bytes above 127
+    in user names, nicknames, channel names, and masks: passing them as
+    negative values to isalnum(), tolower(), and toupper() is undefined
+    behavior, which C libraries other than glibc may not handle.
   - MODE: Make a single-use invite permanent when its mask is added to the
     invite list ("+I"), instead of silently ignoring the mode change: the
     entry vanished when the invited user joined the channel, and the mode

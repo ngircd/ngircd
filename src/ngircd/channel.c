@@ -1283,7 +1283,9 @@ Channel_CheckKey(CHANNEL *Chan, CLIENT *Client, const char *Key)
 		return true;
 	if (*Key == '\0')
 		return false;
-	if (strcmp(Chan->key, Key) == 0)
+	/* A '?' channel key cannot be used for authentification, but
+	 * we may still proceed with a keyfile if it is present. */
+	if (strcmp(Chan->key, "?") != 0 && strcmp(Chan->key, Key) == 0)
 		return true;
 
 	file_name = array_start(&Chan->keyfile);

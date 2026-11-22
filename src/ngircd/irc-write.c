@@ -405,17 +405,29 @@ GLOBAL void
 IRC_WriteStrServersPrefixFlag_CB(CLIENT *ExceptOf, CLIENT *Prefix, char Flag,
 		void (*callback)(CLIENT *, CLIENT *, void *), void *cb_data)
 {
+	CONN_ID conn, except_conn;
 	CLIENT *c;
 
-	c = Client_First();
-	while(c) {
-		if (Client_Type(c) == CLIENT_SERVER && Client_Conn(c) > NONE &&
-		    c != Client_ThisServer() && c != ExceptOf) {
-			/* Found a target server, do the flags match? */
-			if (Flag == '\0' || Client_HasFlag(c, Flag))
-				callback(c, Prefix, cb_data);
-		}
-		c = Client_Next(c);
+	/* A write error destroys the server, the clients behind it, and maybe
+	 * more: so loop over the connection IDs, look up their clients each
+	 * time, and stop when the prefix has been destroyed, too. */
+	except_conn = ExceptOf ? Client_Conn(ExceptOf) : NONE;
+
+	for (conn = Conn_First(); conn != NONE; conn = Conn_Next(conn)) {
+		c = Conn_GetClient(conn);
+		if (!c || Client_Type(c) != CLIENT_SERVER ||
+		    c == Client_ThisServer() || conn == except_conn)
+			continue;
+
+		/* Found a target server, do the flags match? */
+		if (Flag != '\0' && !Client_HasFlag(c, Flag))
+			continue;
+
+		callback(c, Prefix, cb_data);
+
+		/* Only a write error on this connection can destroy clients */
+		if (!Conn_GetClient(conn) && !Client_Exists(Prefix))
+			break;
 	}
 }
 

@@ -46,6 +46,9 @@ ngIRCd 29
     was still iterated over.
     Thanks peter-pe for reporting this!
     Closes #344.
+  - Fix use-after-free when forwarding messages to other servers: a write
+    error on a server link destroyed the server and all the clients behind
+    it while the list of clients was still iterated over.
 
 ngIRCd 28 (2026-07-12)
 

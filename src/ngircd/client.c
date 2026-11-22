@@ -1107,6 +1107,28 @@ Client_Next( CLIENT *c )
 } /* Client_Next */
 
 
+/**
+ * Check whether a client still exists.
+ *
+ * The client structure isn't accessed, so the pointer may refer to an
+ * already destroyed client.
+ *
+ * @param Client The client to check.
+ * @return true if the client is still registered, false otherwise.
+ */
+GLOBAL bool
+Client_Exists(CLIENT *Client)
+{
+	CLIENT *c;
+
+	for (c = My_Clients; c; c = (CLIENT *)c->next) {
+		if (c == Client)
+			return true;
+	}
+	return false;
+} /* Client_Exists */
+
+
 GLOBAL long
 Client_UserCount( void )
 {

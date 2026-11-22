@@ -201,9 +201,7 @@ cb_join_forward(CLIENT *To, CLIENT *Prefix, void *Data)
 			*ptr++ = '\0';
 	}
 
-	/* A write error destroys the server (and maybe the prefix, too) */
-	if (!IRC_WriteStrClientPrefix(To, Prefix, "JOIN %s", str))
-		return;
+	IRC_WriteStrClientPrefix(To, Prefix, "JOIN %s", str);
 	if (ptr && *ptr)
 		IRC_WriteStrClientPrefix(To, Prefix, "MODE %s +%s %s", str, ptr,
 					 Client_ID(Prefix));

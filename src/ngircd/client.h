@@ -102,7 +102,6 @@ GLOBAL CLIENT *Client_Search PARAMS(( const char *ID ));
 GLOBAL CLIENT *Client_SearchServer PARAMS(( const char *ID ));
 GLOBAL CLIENT *Client_First PARAMS(( void ));
 GLOBAL CLIENT *Client_Next PARAMS(( CLIENT *c ));
-GLOBAL bool Client_Exists PARAMS((CLIENT *Client));
 
 GLOBAL int Client_Type PARAMS(( CLIENT *Client ));
 GLOBAL CONN_ID Client_Conn PARAMS(( CLIENT *Client ));

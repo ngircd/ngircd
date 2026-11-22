@@ -348,14 +348,9 @@ GLOBAL bool
 IRC_WALLOPS( CLIENT *Client, REQUEST *Req )
 {
 	CLIENT *from;
-	CONN_ID conn;
 
 	assert( Client != NULL );
 	assert( Req != NULL );
-
-	/* Save the connection: a write error closes it and destroys the
-	 * client, for example when sending the message to the sender, too */
-	conn = Client_Conn(Client);
 
 	switch (Client_Type(Client)) {
 	case CLIENT_USER:
@@ -376,9 +371,7 @@ IRC_WALLOPS( CLIENT *Client, REQUEST *Req )
 					  Client_ID(Client), Req->prefix);
 
 	IRC_SendWallops(Client, from, "%s", Req->argv[0]);
-
-	/* Check whether a write error closed the connection */
-	return conn <= NONE || Conn_GetClient(conn) != NULL;
+	return CONNECTED;
 } /* IRC_WALLOPS */
 
 /**

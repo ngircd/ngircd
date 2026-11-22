@@ -983,12 +983,8 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 	}
 
 	/* An IRC operator (or server) may have removed mode "P" from an
-	 * empty persistent channel, which then must be deleted, too. Search
-	 * it again, as a write error closing the connection of its last
-	 * member could have deleted it already: */
-	Channel = Channel_Search(Req->argv[0]);
-	if (Channel)
-		Channel_DeleteIfUnused(Channel);
+	 * empty persistent channel, which then must be deleted, too: */
+	Channel_DeleteIfUnused(Channel);
 
 	return connected;
 } /* Channel_Mode */

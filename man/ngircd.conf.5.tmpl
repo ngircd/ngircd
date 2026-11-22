@@ -585,7 +585,9 @@ Valid examples are:
 .PP
 The key file is read on each JOIN command when this channel has a key
 (channel mode +k). Access is granted, if a) the channel key set using the
-MODE +k command or b) one of the lines in the key file match.
+MODE +k command or b) one of the lines in the key file match. If you want to
+only allow authentification with the keyfile and not provide a channel key, use
+"+k ?".
 .PP
 .B Please note:
 .br

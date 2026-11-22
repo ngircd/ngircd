@@ -40,6 +40,12 @@ ngIRCd 29
     in it: a channel key of "?" can't be used to join the channel then.
     Thanks to Vincent Caron <vincent@zerodeux.net>!
     Closes #350.
+  - Fix use-after-free when sending WALLOPS and server notices: a client
+    with user mode "w" or "s" that didn't read its data could crash the
+    daemon, because a write error destroyed it while the list of clients
+    was still iterated over.
+    Thanks peter-pe for reporting this!
+    Closes #344.
 
 ngIRCd 28 (2026-07-12)
 

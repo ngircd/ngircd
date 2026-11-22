@@ -32,7 +32,7 @@
 #endif
 
 #include "ngircd.h"
-#include "conn.h"
+#include "conn-func.h"
 #include "channel.h"
 #include "irc-write.h"
 #include "conf.h"
@@ -273,6 +273,7 @@ va_dcl
 #endif
 {
 	CLIENT *c;
+	CONN_ID conn;
 	char msg[MAX_LOG_MSG_LEN];
 	va_list ap;
 
@@ -286,10 +287,14 @@ va_dcl
 	vsnprintf(msg, MAX_LOG_MSG_LEN, Format, ap);
 	va_end(ap);
 
-	for(c=Client_First(); c != NULL; c=Client_Next(c)) {
-		if (Client_Conn(c) > NONE && Client_HasMode(c, UserMode))
+	/* A write error destroys the client and can close other connections,
+	 * too: so loop over the connection IDs and look up their clients
+	 * each time. Conn_Next() skips closed connections. */
+	for (conn = Conn_First(); conn != NONE; conn = Conn_Next(conn)) {
+		c = Conn_GetClient(conn);
+		if (c && Client_HasMode(c, UserMode))
 			IRC_WriteStrClient(c, "NOTICE %s :%s%s", Client_ID(c),
-							NOTICE_TXTPREFIX, msg);
+					   NOTICE_TXTPREFIX, msg);
 	}
 } /* Log_ServerNotice */
 

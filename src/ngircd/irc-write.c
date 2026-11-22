@@ -23,6 +23,7 @@
 #	include <varargs.h>
 #endif
 #include <stdio.h>
+#include <string.h>
 
 #include "conn-func.h"
 #include "channel.h"
@@ -515,7 +516,8 @@ va_dcl
 #endif
 {
 	va_list ap;
-	char msg[1000];
+	char msg[1000], from_id[CLIENT_ID_LEN], from_mask[MASK_LEN];
+	CONN_ID conn, except_conn;
 	CLIENT *to;
 
 #ifdef PROTOTYPES
@@ -526,20 +528,29 @@ va_dcl
 	vsnprintf(msg, sizeof(msg), Format, ap);
 	va_end(ap);
 
-	for (to=Client_First(); to != NULL; to=Client_Next(to)) {
-		if (Client_Conn(to) == NONE) /* no local connection */
+	/* A write error destroys the client and can close other connections,
+	 * including the one of the sender: so save the prefixes and the
+	 * connection to exclude in advance, loop over the connection IDs, and
+	 * look up their clients each time. */
+	except_conn = Client_Conn(Client);
+	strlcpy(from_id, Client_ID(From), sizeof(from_id));
+	strlcpy(from_mask, Client_MaskCloaked(From), sizeof(from_mask));
+
+	for (conn = Conn_First(); conn != NONE; conn = Conn_Next(conn)) {
+		to = Conn_GetClient(conn);
+		if (!to)
 			continue;
 
 		switch (Client_Type(to)) {
 		case CLIENT_USER:
 			if (Client_HasMode(to, 'w'))
-				IRC_WriteStrClientPrefix(to, From,
-							 "WALLOPS :%s", msg);
+				Conn_WriteStr(conn, ":%s WALLOPS :%s",
+					      from_mask, msg);
 			break;
 		case CLIENT_SERVER:
-			if (to != Client)
-				IRC_WriteStrClientPrefix(to, From,
-							 "WALLOPS :%s", msg);
+			if (conn != except_conn)
+				Conn_WriteStr(conn, ":%s WALLOPS :%s",
+					      from_id, msg);
 			break;
 		}
 	}

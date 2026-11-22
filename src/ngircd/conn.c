@@ -84,6 +84,7 @@ static bool Conn_Write PARAMS(( CONN_ID Idx, char *Data, size_t Len ));
 static int New_Connection PARAMS(( int Sock, bool IsSSL ));
 static CONN_ID Socket2Index PARAMS(( int Sock ));
 static void Read_Request PARAMS(( CONN_ID Idx ));
+static void Close_Pending_Connections PARAMS((void));
 static unsigned int Handle_Buffer PARAMS(( CONN_ID Idx ));
 static void Check_Connections PARAMS(( void ));
 static void Check_Servers PARAMS(( void ));
@@ -681,6 +682,9 @@ Conn_Handler(void)
 		t = time(NULL);
 		command_available = false;
 
+		/* Close connections that had write errors */
+		Close_Pending_Connections();
+
 		/* Check configured servers and established links */
 		Check_Servers();
 		Check_Connections();
@@ -694,6 +698,7 @@ Conn_Handler(void)
 			    && (array_bytes(&My_Connections[i].rbuf) > 0)) {
 				/* ... and try to handle the received data */
 				Handle_Buffer(i);
+				Close_Pending_Connections();
 			}
 		}
 
@@ -722,6 +727,9 @@ Conn_Handler(void)
 		/* Check from which sockets we possibly could read ... */
 		for (i = 0; i < Pool_Size; i++) {
 			if (My_Connections[i].sock <= NONE)
+				continue;
+			if (Conn_OPTION_ISSET(&My_Connections[i],
+					      CONN_CLOSEPENDING))
 				continue;
 #ifdef SSL_SUPPORT
 			if (SSL_WantWrite(&My_Connections[i]))
@@ -783,6 +791,9 @@ Conn_Handler(void)
 			    PACKAGE_NAME);
 			exit(1);
 		}
+
+		/* Close connections that had write errors */
+		Close_Pending_Connections();
 
 		t = time(NULL);
 		if (Conf_IdleTimeout > 0 && NumConnectionsAccepted > 0
@@ -954,13 +965,18 @@ Conn_Write( CONN_ID Idx, char *Data, size_t Len )
 	assert( Data != NULL );
 	assert( Len > 0 );
 
-	/* Is the socket still open? A previous call to Conn_Write()
-	 * may have closed the connection due to a fatal error.
+	/* Is the socket still open? The connection may have been closed
+	 * already, for example by QUIT or KILL, while its ID is still in use.
 	 * In this case it is sufficient to return an error, as well. */
 	if (My_Connections[Idx].sock <= NONE) {
 		LogDebug("Skipped write on closed socket (connection %d).", Idx);
 		return false;
 	}
+
+	/* Has a write error occurred already? Then the connection is going
+	 * to be closed, don't add any more data to its write buffer. */
+	if (Conn_OPTION_ISSET(&My_Connections[Idx], CONN_CLOSEPENDING))
+		return false;
 
 	/* Make sure that there still exists a CLIENT structure associated
 	 * with this connection and check if this is a server or not: */
@@ -1003,7 +1019,7 @@ Conn_Write( CONN_ID Idx, char *Data, size_t Len )
 			    "Write buffer space exhausted (connection %d, limit is %lu bytes, %lu bytes new, %lu bytes pending)",
 			    Idx, writebuf_limit, Len,
 			    (unsigned long)array_bytes(&My_Connections[Idx].wbuf));
-			Conn_Close(Idx, "Write buffer space exhausted", NULL, false);
+			Conn_CloseLater(Idx, "Write buffer space exhausted");
 			return false;
 		}
 
@@ -1049,8 +1065,7 @@ Conn_Close(CONN_ID Idx, const char *LogMsg, const char *FwdMsg, bool InformClien
 
 	/* Is this link already shutting down? */
 	if( Conn_OPTION_ISSET( &My_Connections[Idx], CONN_ISCLOSING )) {
-		/* Conn_Close() has been called recursively for this link;
-		 * probable reason: Handle_Write() failed -- see below. */
+		/* Conn_Close() has been called recursively for this link */
 		LogDebug("Recursive request to close connection %d!", Idx );
 		return;
 	}
@@ -1089,14 +1104,9 @@ Conn_Close(CONN_ID Idx, const char *LogMsg, const char *FwdMsg, bool InformClien
 			Conn_WriteStr(Idx, "ERROR :Closing connection");
 	}
 
-	/* Try to write out the write buffer. Note: Handle_Write() eventually
-	 * removes the CLIENT structure associated with this connection if an
-	 * error occurs! So we have to re-check if there is still an valid
-	 * CLIENT structure after calling Handle_Write() ...*/
+	/* Try to write out the write buffer */
 	(void)Handle_Write( Idx );
 
-	/* Search client, if any (re-check!) */
-	c = Conn_GetClient( Idx );
 #ifdef SSL_SUPPORT
 	if ( Conn_OPTION_ISSET( &My_Connections[Idx], CONN_SSL )) {
 		LogDebug("SSL connection %d shutting down ...", Idx);
@@ -1179,6 +1189,69 @@ Conn_Close(CONN_ID Idx, const char *LogMsg, const char *FwdMsg, bool InformClien
 
 	idle_t = NumConnections > 0 ? 0 : time(NULL);
 } /* Conn_Close */
+
+/**
+ * Mark a connection to be closed after a fatal write error.
+ *
+ * Closing a connection destroys its client, which can destroy further
+ * clients and channels, too. Doing so while writing data would pull the
+ * rug out from under all the callers that still use them, for example
+ * when sending a message to a list of clients. Therefore write errors
+ * only mark the connection, which is closed by Conn_Handler() later,
+ * when no other function is using any client structures.
+ *
+ * Pending data is discarded, no further data is read from or written to
+ * the connection, and its commands aren't handled any more.
+ *
+ * @param Idx		Connection index.
+ * @param Reason	Reason for closing the connection (static string).
+ */
+GLOBAL void
+Conn_CloseLater(CONN_ID Idx, const char *Reason)
+{
+	assert(Idx > NONE);
+	assert(Reason != NULL);
+
+	if (Conn_OPTION_ISSET(&My_Connections[Idx], CONN_ISCLOSING) ||
+	    Conn_OPTION_ISSET(&My_Connections[Idx], CONN_CLOSEPENDING))
+		return;
+
+	LogDebug("Connection %d: Closing it later: %s", Idx, Reason);
+	Conn_OPTION_ADD(&My_Connections[Idx], CONN_CLOSEPENDING);
+	My_Connections[Idx].close_reason = Reason;
+
+	array_trunc(&My_Connections[Idx].wbuf);
+#ifdef ZLIB
+	array_trunc(&My_Connections[Idx].zip.wbuf);
+#endif
+	io_event_del(My_Connections[Idx].sock, IO_WANTREAD|IO_WANTWRITE);
+} /* Conn_CloseLater */
+
+/**
+ * Close all connections that are marked to be closed.
+ *
+ * Closing a connection can mark further connections, so repeat until
+ * no marked connection is left.
+ */
+static void
+Close_Pending_Connections(void)
+{
+	CONN_ID i;
+	bool closed;
+
+	do {
+		closed = false;
+		for (i = 0; i < Pool_Size; i++) {
+			if (My_Connections[i].sock <= NONE ||
+			    !Conn_OPTION_ISSET(&My_Connections[i],
+					       CONN_CLOSEPENDING))
+				continue;
+			Conn_Close(i, My_Connections[i].close_reason, NULL,
+				   false);
+			closed = true;
+		}
+	} while (closed);
+} /* Close_Pending_Connections */
 
 /**
  * Get current number of connections.
@@ -1274,6 +1347,10 @@ Handle_Write( CONN_ID Idx )
 		LogDebug("Handle_Write() on closed socket, connection %d", Idx);
 		return false;
 	}
+
+	/* Don't try to write any more after a write error */
+	if (Conn_OPTION_ISSET(&My_Connections[Idx], CONN_CLOSEPENDING))
+		return false;
 	assert( My_Connections[Idx].sock > NONE );
 
 	wdatalen = array_bytes(&My_Connections[Idx].wbuf );
@@ -1321,7 +1398,7 @@ Handle_Write( CONN_ID Idx )
 			Log(LOG_ERR,
 			    "Write error on connection %d (socket %d): %s!",
 			    Idx, My_Connections[Idx].sock, strerror(errno));
-			Conn_Close(Idx, "Write error", NULL, false);
+			Conn_CloseLater(Idx, "Write error");
 		} else
 			LogDebug("Recursive write error on connection %d (socket %d): %s!",
 				 Idx, My_Connections[Idx].sock, strerror(errno));
@@ -1604,6 +1681,10 @@ Read_Request(CONN_ID Idx)
 	assert(Idx > NONE);
 	assert(My_Connections[Idx].sock > NONE);
 
+	/* Don't read from a connection that is going to be closed */
+	if (Conn_OPTION_ISSET(&My_Connections[Idx], CONN_CLOSEPENDING))
+		return;
+
 	/* Check if the read buffer is "full". Basically this shouldn't happen
 	 * here, because as long as there possibly are commands in the read
 	 * buffer (buffer usage > COMMAND_LEN), the socket shouldn't be
@@ -1772,6 +1853,10 @@ Handle_Buffer(CONN_ID Idx)
 		}
 #endif
 
+		/* Stop handling commands after a write error */
+		if (Conn_OPTION_ISSET(&My_Connections[Idx], CONN_CLOSEPENDING))
+			return 0;
+
 		if (0 == array_bytes(&My_Connections[Idx].rbuf))
 			break;
 
@@ -1871,7 +1956,7 @@ Handle_Buffer(CONN_ID Idx)
 		My_Connections[Idx].msg_in++;
 		if (!Parse_Request
 		    (Idx, (char *)array_start(&My_Connections[Idx].rbuf)))
-			return 0; /* error -> connection has been closed */
+			return 0; /* error -> connection (to be) closed */
 
 		array_moveleft(&My_Connections[Idx].rbuf, 1, len);
 #ifdef ZLIB

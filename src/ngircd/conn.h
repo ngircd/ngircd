@@ -29,6 +29,7 @@
 #define CONN_ISCLOSING		1	/* Conn_Close() already called */
 #define CONN_ISCONNECTING	2	/* connect() in progress */
 #define CONN_RFC1459		4	/* RFC 1459 compatibility mode */
+#define CONN_CLOSEPENDING	512	/* write error, close it later */
 #ifdef ZLIB
 #define CONN_ZIP		8	/* zlib compressed link */
 #endif
@@ -91,6 +92,7 @@ typedef struct _Connection
 	UINT16 options;			/* Link options / connection state */
 	UINT16 bps;			/* bytes processed within last second */
 	CLIENT *client;			/* pointer to client structure */
+	const char *close_reason;	/* reason for CONN_CLOSEPENDING */
 #ifdef ZLIB
 	ZIPDATA zip;			/* Compression information */
 #endif  /* ZLIB */
@@ -141,6 +143,7 @@ GLOBAL char* Conn_Password PARAMS(( CONN_ID Idx ));
 GLOBAL void Conn_SetPassword PARAMS(( CONN_ID Idx, const char *Pwd ));
 
 GLOBAL void Conn_Close PARAMS(( CONN_ID Idx, const char *LogMsg, const char *FwdMsg, bool InformClient ));
+GLOBAL void Conn_CloseLater PARAMS((CONN_ID Idx, const char *Reason));
 
 GLOBAL void Conn_SyncServerStruct PARAMS(( void ));
 

@@ -81,7 +81,8 @@ Zip_InitConn( CONN_ID Idx )
  * compression ratios.
  * If the (pre-)compression buffer is full, we try to flush it ("actually
  * compress some data") and to add the new (uncompressed) data afterwards.
- * This function closes the connection on error.
+ * This function marks the connection to be closed on error,
+ * see Conn_CloseLater().
  * @param Idx Connection handle.
  * @param Data Pointer to the data.
  * @param Len Length of the data to add.
@@ -107,7 +108,7 @@ Zip_Buffer( CONN_ID Idx, const char *Data, size_t Len )
 	buflen = array_bytes(&My_Connections[Idx].zip.wbuf);
 	if (buflen + Len >= WRITEBUFFER_SLINK_LEN) {
 		Log(LOG_ALERT, "Zip Write buffer space exhausted: %lu bytes", buflen + Len);
-		Conn_Close(Idx, "Zip Write buffer space exhausted", NULL, false);
+		Conn_CloseLater(Idx, "Zip Write buffer space exhausted");
 		return false;
 	}
 	return array_catb(&My_Connections[Idx].zip.wbuf, Data, Len);
@@ -117,7 +118,8 @@ Zip_Buffer( CONN_ID Idx, const char *Data, size_t Len )
 /**
  * Compress data in ZIP buffer and move result to the write buffer of
  * the connection.
- * This function closes the connection on error.
+ * This function marks the connection to be closed on error,
+ * see Conn_CloseLater().
  * @param Idx Connection handle.
  * @return true on success, false otherwise.
  */
@@ -149,7 +151,7 @@ Zip_Flush( CONN_ID Idx )
 	if(( result != Z_OK ) || ( out->avail_in > 0 ))
 	{
 		Log( LOG_ALERT, "Compression error: code %d!?", result );
-		Conn_Close( Idx, "Compression error!", NULL, false );
+		Conn_CloseLater(Idx, "Compression error!");
 		return false;
 	}
 
@@ -157,7 +159,7 @@ Zip_Flush( CONN_ID Idx )
 		/* Not all data was compressed, because data became
 		 * bigger while compressing it. */
 		Log(LOG_ALERT, "Compression error: buffer overflow!?");
-		Conn_Close(Idx, "Compression error!", NULL, false);
+		Conn_CloseLater(Idx, "Compression error!");
 		return false;
 	}
 
@@ -170,7 +172,7 @@ Zip_Flush( CONN_ID Idx )
 	if (!array_catb(&My_Connections[Idx].wbuf,
 			(char *)zipbuf, (size_t) zipbuf_used)) {
 		Log (LOG_ALERT, "Compression error: can't copy data!?");
-		Conn_Close(Idx, "Compression error!", NULL, false);
+		Conn_CloseLater(Idx, "Compression error!");
 		return false;
 	}
 

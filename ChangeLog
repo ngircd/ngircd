@@ -17,6 +17,10 @@ ngIRCd 29
   - Add contrib/build-dist-archives.sh script to build the distribution
     archives, and update doc/HowToRelease.txt.
   - Add more patterns to the "Fail2Ban" filter file.
+  - Allow restricting access to channels with a key file to the users listed
+    in it: a channel key of "?" can't be used to join the channel then.
+    Thanks to Vincent Caron <vincent@zerodeux.net>!
+    Closes #350.
 
 ngIRCd 28 (2026-07-12)
 

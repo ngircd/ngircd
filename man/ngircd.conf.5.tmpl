@@ -585,9 +585,15 @@ Valid examples are:
 .PP
 The key file is read on each JOIN command when this channel has a key
 (channel mode +k). Access is granted, if a) the channel key set using the
-MODE +k command or b) one of the lines in the key file match. If you want to
-only allow authentification with the keyfile and not provide a channel key, use
-"+k ?".
+MODE +k command or b) one of the lines in the key file match.
+.PP
+To grant access only to the users listed in the key file, set the channel key
+to "?" (MODE +k ?): this key can't be used to join the channel. But note that
+the key file is only known to the local server: users of other servers of the
+network can't join such a channel (or can join it using the key "?" when their
+server doesn't support this yet). And clients and bouncers which remember the
+channel key that they see (like ZNC) will store "?" instead of the individual
+key of their user and fail to join the channel later on.
 .PP
 .B Please note:
 .br

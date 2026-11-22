@@ -1283,8 +1283,8 @@ Channel_CheckKey(CHANNEL *Chan, CLIENT *Client, const char *Key)
 		return true;
 	if (*Key == '\0')
 		return false;
-	/* A '?' channel key cannot be used for authentification, but
-	 * we may still proceed with a keyfile if it is present. */
+	/* A channel key of "?" never grants access, only the entries of
+	 * the key file (if any) do: */
 	if (strcmp(Chan->key, "?") != 0 && strcmp(Chan->key, Key) == 0)
 		return true;
 

@@ -44,6 +44,7 @@
 #include "channel.h"
 #include "log.h"
 #include "match.h"
+#include "messages.h"
 
 #include "conf.h"
 
@@ -58,6 +59,7 @@ static char Conf_IncludeDir[FNAME_LEN];
 
 static void Set_Defaults PARAMS(( bool InitServers ));
 static bool Read_Config PARAMS(( bool TestOnly, bool IsStarting ));
+static size_t Calc_MotdWireLen PARAMS((void));
 static void Read_Config_File PARAMS(( const char *File, FILE *fd ));
 static bool Validate_Config PARAMS(( bool TestOnly, bool Rehash ));
 
@@ -929,6 +931,37 @@ Read_TextFile(const char *Filename, const char *Name, array *Destination)
 }
 
 /**
+ * Calculate the maximum number of bytes required to send the MOTD.
+ *
+ * Each line of the MOTD is sent as RPL_MOTD numeric, prefixed by the
+ * server name and including the nickname of the client. The MOTD is sent
+ * in one go, so it must fit into the write buffer of the connection.
+ *
+ * @returns Number of bytes.
+ */
+static size_t
+Calc_MotdWireLen(void)
+{
+	const char *line;
+	size_t len_tot, len_str, wire_len = 0;
+
+	len_tot = array_bytes(&Conf_Motd);
+	line = array_start(&Conf_Motd);
+	while (len_tot > 0) {
+		len_str = strlen(line) + 1;
+		assert(len_tot >= len_str);
+		len_tot -= len_str;
+		line += len_str;
+
+		/* ":<server> " + RPL_MOTD_MSG + "\r\n" */
+		wire_len += 1 + strlen(Conf_ServerName) + 1
+			    + strlen(RPL_MOTD_MSG) + Conf_MaxNickLength
+			    + len_str - 1 + 2;
+	}
+	return wire_len;
+}
+
+/**
  * Read ngIRCd configuration file.
  *
  * Please note that this function uses exit(1) on fatal errors and therefore
@@ -945,6 +978,7 @@ Read_Config(bool TestOnly, bool IsStarting)
 	char *ptr, file[FNAME_LEN];
 	struct dirent *entry;
 	int i, n;
+	size_t len;
 	FILE *fd;
 	DIR *dh = NULL;
 
@@ -1101,6 +1135,13 @@ Read_Config(bool TestOnly, bool IsStarting)
 		if (Read_TextFile(Conf_MotdFile, "MOTD", &Conf_Motd))
 			Using_MotdFile = true;
 	}
+	/* Warn when the MOTD doesn't fit into the write buffer of clients */
+	len = Calc_MotdWireLen();
+	if (len >= WRITEBUFFER_MAX_LEN)
+		Config_Error(LOG_WARNING,
+			     "MOTD is too long (up to %lu bytes, limit is %lu), clients may be disconnected when receiving it!",
+			     (unsigned long)len,
+			     (unsigned long)WRITEBUFFER_MAX_LEN);
 
 	/* Try to read ngIRCd help text file. */
 	(void)Read_TextFile(Conf_HelpFile, "help text", &Conf_Helptext);

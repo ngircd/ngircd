@@ -149,6 +149,13 @@ ngIRCd 29
   - Fix use-after-free when forwarding messages to other servers: a write
     error on a server link destroyed the server and all the clients behind
     it while the list of clients was still iterated over.
+  - Warn when the MOTD is too long for the write buffer of clients (32 KiB),
+    and document this limit: the MOTD is sent in one go, and clients were
+    disconnected ("Write buffer space exhausted") when the socket buffer of
+    the operating system was full, which happens soon on OpenBSD, for
+    example.
+    Thanks jj475s for reporting this!
+    See #328.
 
 ngIRCd 28 (2026-07-12)
 

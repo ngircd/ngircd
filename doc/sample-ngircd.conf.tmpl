@@ -52,7 +52,10 @@
 
 	# Text file with the "message of the day" (MOTD). This message will
 	# be shown to all users connecting to the server: Default: a built-in
-	# standard path (check "ngircd --configtest").
+	# standard path (check "ngircd --configtest"). The MOTD is sent in
+	# one go and must fit into the 32 KiB write buffer of clients, so keep
+	# it below about 250 lines of 80 characters: otherwise clients may be
+	# disconnected when the server can't send it fast enough.
 	;MotdFile = :ETCDIR:/ngircd.motd
 
 	# A simple Phrase (<127 chars) if you don't want to use a motd file.

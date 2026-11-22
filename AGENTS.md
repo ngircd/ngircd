@@ -12,7 +12,9 @@ declarations after statements) and use the `src/portab` compatibility layer.
 Threat model: only clients are untrusted. Peer servers, services, and the
 local configuration are trusted, and the server-to-server protocol is
 insecure by design: handle input from server links robustly, but it is no
-attack surface.
+attack surface. Optional features like iconv (`CHARCONV`) and PAM are off by
+default but enabled by distribution packages (see `contrib/Debian/rules`),
+which matters when rating the impact of a bug.
 
 Reference documentation: `doc/Commands.txt` (all commands), `doc/Modes.txt`,
 `doc/Protocol.txt` (IRC+ server protocol extensions), `doc/Capabilities.txt`.

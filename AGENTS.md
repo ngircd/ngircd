@@ -87,7 +87,10 @@ the helper libraries `src/portab` (portability), `src/tool` (strings), and
 - **Lifetime:** after anything that can destroy the current client
   (`Conn_Close()`, `IRC_KillClient()`, ...), return `DISCONNECTED` at once
   and don't touch the `CLIENT` again. A channel may vanish when its last
-  member leaves or mode "P" is removed, so look it up again.
+  member leaves or mode "P" is removed, so look it up again. Write errors
+  don't destroy anything: `Conn_CloseLater()` only marks the connection
+  and `Conn_Handler()` closes it later, so loops over clients and channel
+  members stay valid while sending; writes then fail (return `false`).
 - **Output:** `IRC_Write*` functions (`irc-write.c`); all reply formats are
   in `messages.h`.
 - **Child processes:** DNS/IDENT lookups (`resolve.c`) and PAM (`login.c`,

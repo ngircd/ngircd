@@ -205,6 +205,12 @@ ngIRCd 29
   - contrib/ngircd.service: Harden the systemd service unit some more:
     enable ProtectHostname, RemoveIPC, RestrictNamespaces and
     RestrictSUIDSGID.
+  - Don't close connections at once on write errors, but mark them and
+    close them later in the main loop: closing a connection destroys its
+    client (and maybe other clients and channels, too), which caused
+    use-after-free crashes in all functions still using them, for example
+    when sending WALLOPS, server notices, or channel mode changes, or when
+    handling JOIN, PART, and KICK for multiple channels and nicknames.
 
 ngIRCd 28 (2026-07-12)
 

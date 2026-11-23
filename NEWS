@@ -8,6 +8,41 @@
 
                                   -- NEWS --
 
+ngIRCd 29
+
+  - Most of the bugs and fixes in this release came about because I was
+    playing with Claude Code. The contribution guidelines moved to
+    CONTRIBUTING.md, which now also has a policy on AI tools and LLMs: you
+    may use them, but you must review, understand, and test the result, and
+    mention their use; bug reports must be verified by a human, and fully
+    automated or unreviewed issues and pull requests may be closed without
+    further notice.
+  - Fix use-after-free crashes, for example when the login of a client
+    failed after the "RequireAuthPing" PONG, or when sending WALLOPS or
+    server notices to clients not reading their data.
+  - Channels with a key file can be restricted to the users listed in it:
+    a channel key of "?" can't be used to join them then.
+  - MODE: Reject channel keys starting with a colon (":") or containing a
+    comma (","), which could never be used or were stored differently on
+    other servers, as well as empty ban, invite, and exception masks, and
+    masks containing spaces or starting with a colon.
+  - WHOWAS: Return up to "count" entries for each given nickname, at most
+    25 in total, with a penalty of 1 second like WHOIS.
+  - Delete empty channels when mode "P" is removed, which stayed around
+    forever before.
+  - "DefaultChannelModes": Only modes without parameters are allowed now,
+    mode "N" as well. And the default modes are announced to the other
+    servers, so channels no longer get different modes on different servers.
+  - Announce channel modes "N" and "r" in the ISUPPORT (005) numeric.
+  - contrib/ngircd.service is more restrictive now, among other things it
+    limits memory (96 MB) and tasks (64): big servers may need more!
+  - Warn when the MOTD is longer than 32 KiB: it is sent in one go, and
+    clients were disconnected when the socket buffer of the operating
+    system was full, which happens soon on OpenBSD, for example.
+  - Reloading the configuration is more robust: the current configuration
+    is kept when the file can't be read, pre-defined channels no longer
+    crash the daemon, and "CloakHostSalt" no longer changes.
+
 ngIRCd 28 (2026-07-12)
 
   - Truncate long KICK reasons and topics: KICKLEN is advertised in ISUPPORT

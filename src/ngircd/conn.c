@@ -2374,8 +2374,8 @@ cb_Read_Resolver_Result( int r_fd, UNUSED short events )
 	*identptr = '\0';
 	LogDebug("Got result from resolver: \"%s\" (%lu bytes read).", readbuf,
 		 (unsigned long)len);
-	/* Okay, we got a complete result: this is a host name for outgoing
-	 * connections and a host name and IDENT user name (if enabled) for
+	/* Okay, we got a complete result: this is a hostname for outgoing
+	 * connections and a hostname and IDENT user name (if enabled) for
 	 * incoming connections.*/
 	assert ( My_Connections[i].sock >= 0 );
 	/* Incoming connection. Search client ... */

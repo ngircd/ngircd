@@ -173,7 +173,7 @@ Client_NewRemoteUser(CLIENT *Introducer, const char *Nick, int Hops, const char 
 
 /**
  * Initialize new client and set up the given parameters like client type,
- * user name, host name, introducing server etc. ...
+ * user name, hostname, introducing server etc. ...
  * @return New CLIENT structure.
  */
 static CLIENT *

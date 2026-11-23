@@ -995,7 +995,7 @@ ConnSSL_LogCertInfo( CONNECTION * c, bool connect)
 			 * validity: for example, we don't know the hostname
 			 * to check, because we not yet even know if this is a
 			 * server connection at all and if so, which one, so we
-			 * don't know a host name to look for. On the other
+			 * don't know a hostname to look for. On the other
 			 * hand we want client certificates, for example for
 			 * "CertFP" authentication with services ... */
 			LogOpenSSL_CertInfo(LOG_INFO, peer_cert,

@@ -203,7 +203,7 @@ Connection Handling Commands
 	WEBIRC <password> <username> <hostname> <ip-address>
 	.
 	Allow Web-to-IRC gateway software (for example) to set the correct
-	user name and host name of users instead of their own.
+	user name and hostname of users instead of their own.
 	.
 	It must be the very first command sent to the server, even before
 	USER and NICK commands!

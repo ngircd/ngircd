@@ -63,7 +63,7 @@ whereas the lines using `#` are descriptions of the options.
 ## Simple Single-Instance Server
 
 A good starting point is to configure a valid (and unique!) IRC server name
-(which is *not* related to a host name, it is purely a unique *server ID* that
+(which is *not* related to a hostname, it is purely a unique *server ID* that
 must contain at least one dot ".").
 
 This looks like this:
@@ -85,7 +85,7 @@ AdminInfo2 = Anywhere On Earth
 AdminEMail = admin@irc.example.net
 ```
 
-*Please Note*: The server `Name` looks like a DNS host name, but it is not: in
+*Please Note*: The server `Name` looks like a DNS hostname, but it is not: in
 fact it is not related to your server's fully qualified domain name (FQDN) in
 any way and can be an arbitrary string -- but it *must* contain at least
 one dot (".") character!

@@ -625,7 +625,7 @@ Conf_GetServer( CONN_ID Idx )
  * Enable a server by name and adjust its port number.
  *
  * @returns	true if a server has been enabled and now has a valid port
- *		number and host name for outgoing connections.
+ *		number and hostname for outgoing connections.
  */
 GLOBAL bool
 Conf_EnableServer( const char *Name, UINT16 Port )
@@ -702,7 +702,7 @@ Conf_DisableServer( const char *Name )
  *
  * @param Name		Name of the new server.
  * @param Port		Port number to connect to or 0 for incoming connections.
- * @param Host		Host name to connect to.
+ * @param Host		Hostname to connect to.
  * @param MyPwd		Password that will be sent to the peer.
  * @param PeerPwd	Password that must be received from the peer.
  * @returns		true if the new server has been added; false otherwise.
@@ -2226,11 +2226,11 @@ Validate_Config(bool Configtest, bool Rehash)
 
 	if (!Conf_ServerName[0]) {
 		/* No server name configured, try to get a sane name from the
-		 * host name. Note: the IRC server name MUST contain
+		 * hostname. Note: the IRC server name MUST contain
 		 * at least one dot, so the "node name" is not sufficient! */
 		gethostname(Conf_ServerName, sizeof(Conf_ServerName));
 		if (Conf_DNS) {
-			/* Try to get a proper host name ... */
+			/* Try to get a proper hostname ... */
 			h = gethostbyname(Conf_ServerName);
 			if (h)
 				strlcpy(Conf_ServerName, h->h_name,
@@ -2242,7 +2242,7 @@ Validate_Config(bool Configtest, bool Rehash)
 				sizeof(Conf_ServerName));
 		}
 		Config_Error(LOG_WARNING,
-			     "No server name configured, using host name \"%s\".",
+			     "No server name configured, using hostname \"%s\".",
 			     Conf_ServerName);
 	}
 

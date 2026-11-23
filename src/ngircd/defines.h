@@ -44,7 +44,7 @@
 /** Max. length of file name. */
 #define FNAME_LEN 256
 
-/** Max. length of fully qualified host names (e. g. "abc.domain.tld"). */
+/** Max. length of fully qualified hostnames (e. g. "abc.domain.tld"). */
 #define HOST_LEN 256
 
 /** Max. length of random salt */
@@ -123,7 +123,7 @@
 /** Max. length of "real names" (including NULL). */
 #define CLIENT_NAME_LEN 32
 
-/** Max. host name length (including NULL). */
+/** Max. hostname length (including NULL). */
 #define CLIENT_HOST_LEN 64
 
 /** Max. mask length (including NULL). */

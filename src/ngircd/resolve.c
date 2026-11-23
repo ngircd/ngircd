@@ -218,7 +218,7 @@ ReverseLookup(const ng_ipaddr_t *IpAddr, char *resbuf, size_t reslen)
 
 
 /**
- * perform DNS lookup of given host name and fill IpAddr with a list of
+ * perform DNS lookup of given hostname and fill IpAddr with a list of
  * ip addresses associated with that name.
  * ip addresses found are stored in the "array *IpAddr" argument (type ng_ipaddr_t)
  * @param hostname The domain name to look up.

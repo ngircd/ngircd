@@ -572,7 +572,7 @@ IRC_SERVICE(CLIENT *Client, REQUEST *Req)
 		return IRC_KillClient(Client, NULL, nick, "Unknown server");
 	}
 
-	/* Get user and host name */
+	/* Get user and hostname */
 	ptr = strchr(nick, '@');
 	if (ptr) {
 		*ptr = '\0';

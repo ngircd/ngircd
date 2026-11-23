@@ -27,7 +27,7 @@ Differences to version 26
   Starting with release 27, ngIRCd validates SSL/TLS certificates on outgoing
   server-server links by default and drops(!) connections when the remote
   certificate is invalid (for example self-signed, expired, not matching the
-  host name, ...). Therefore you have to make sure that all relevant
+  hostname, ...). Therefore you have to make sure that all relevant
   *certificates are valid* (or to disable certificate validation on this
   connection using the new `SSLVerify = false` setting in the affected
   `[Server]` block, where the remote certificate is not valid and you can not

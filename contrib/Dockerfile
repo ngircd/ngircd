@@ -53,8 +53,8 @@ RUN apt-get -y update \
 	&& apt-get -y install --no-install-recommends --no-install-suggests \
 		ca-certificates \
 		catatonit \
-		libgnutls30 \
-		libident \
+		libgnutls30t64 \
+		libident0 \
 		libpam0g \
 		libwrap0 \
 		zlib1g \

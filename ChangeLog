@@ -156,6 +156,9 @@ ngIRCd 29
     example.
     Thanks jj475s for reporting this!
     See #328.
+  - Container: Update the package names in the Dockerfile for Debian 13
+    "trixie", the current "stable" release: "libident" is only a virtual
+    package there, and "libgnutls30" was renamed to "libgnutls30t64".
 
 ngIRCd 28 (2026-07-12)
 

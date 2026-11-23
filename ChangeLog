@@ -159,6 +159,9 @@ ngIRCd 29
   - Container: Update the package names in the Dockerfile for Debian 13
     "trixie", the current "stable" release: "libident" is only a virtual
     package there, and "libgnutls30" was renamed to "libgnutls30t64".
+  - Container: Build and publish container images for amd64 and arm64
+    using GitHub Actions on new releases, and rebuild them weekly when
+    updates are available.
 
 ngIRCd 28 (2026-07-12)
 

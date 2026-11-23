@@ -6,6 +6,19 @@ The container definition file, also known as "Docker file", is bundled with this
 distribution as `contrib/Dockerfile` and based on the official "stable-slim"
 container of the Debian project (see https://hub.docker.com/_/debian).
 
+## Prebuilt container images
+
+Prebuilt images for amd64 and arm64 are available in the GitHub Container
+Registry as `ghcr.io/ngircd/ngircd:<version>` and `ghcr.io/ngircd/ngircd:latest`.
+They are built by GitHub Actions for each release and rebuilt weekly when
+updates for the Debian base image or its packages are available:
+
+```bash
+podman pull ghcr.io/ngircd/ngircd:latest
+```
+
+You can use these images instead of `ngircd:<tag>` in the examples below.
+
 ## Building the container
 
 You can use the following command to build the ngIRCd container image:

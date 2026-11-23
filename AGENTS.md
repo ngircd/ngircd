@@ -114,10 +114,10 @@ the helper libraries `src/portab` (portability), `src/tool` (strings), and
   `man/ngircd.conf.5.tmpl`, and new commands in `doc/Commands.txt`.
 - Add a `ChangeLog` entry for changes worth mentioning (fixes, features,
   changed behavior) in the same commit, at the top of the upcoming release;
-  `NEWS` lists only the most notable ones. Credit reporters and reference
-  issues on lines of their own at the end, e.g. "Thanks <name> for
-  reporting this!" and "Closes #<N>.". `AUTHORS.md` is checked at release
-  time (`doc/HowToRelease.txt`).
+  `NEWS` lists only notable user-facing features and changes, not plain
+  bug fixes. Credit reporters and reference issues on lines of their own at
+  the end, e.g. "Thanks <name> for reporting this!" and "Closes #<N>.".
+  `AUTHORS.md` is checked at release time (`doc/HowToRelease.txt`).
 
 ## File Formatting
 
@@ -145,8 +145,9 @@ use `jj` rather than mutating `git` commands then.
 - Blank line between subject and body; wrap the body at 72 columns.
 - Body explains what changed and why, not how.
 - One logical change per commit.
-- Reference fixed GitHub issues as "Closes #<N>." in a paragraph of its
-  own, before the trailers.
+- Reference GitHub issues in a paragraph of its own, before the trailers:
+  "Closes #<N>." only if the change fully resolves the issue, otherwise
+  "See #<N>.".
 
 End the description of commits made with AI assistance with a trailer naming
 the model that was actually used, separated from the body by a blank line:

@@ -164,6 +164,9 @@ ngIRCd 29
   - Container: Build and publish container images for amd64 and arm64
     using GitHub Actions on new releases, and rebuild them weekly when
     updates are available.
+  - contrib/ngircd.service: Harden the systemd service unit some more:
+    enable ProtectHostname, RemoveIPC, RestrictNamespaces and
+    RestrictSUIDSGID.
 
 ngIRCd 28 (2026-07-12)
 

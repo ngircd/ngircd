@@ -29,11 +29,11 @@ GLOBAL time_t NGIRCd_Start;
 /** ngIRCd start time as string, used for RPL_CREATED_MSG (003) */
 GLOBAL char NGIRCd_StartStr[64];
 
-/** ngIRCd version number containing release number and compile-time options */
-GLOBAL char NGIRCd_Version[126];
-
 /** String specifying the compile-time options and target platform */
 GLOBAL char NGIRCd_VersionAddition[126];
+
+/** ngIRCd version number containing release number and compile-time options */
+GLOBAL char NGIRCd_Version[(sizeof(PACKAGE_NAME)-1) + 1 + (sizeof(PACKAGE_VERSION)-1) + 1 + (sizeof(NGIRCd_VersionAddition)-1) + 1];
 
 /** Flag indicating if debug mode is active (true) or not (false) */
 GLOBAL bool NGIRCd_Debug;

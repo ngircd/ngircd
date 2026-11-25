@@ -312,6 +312,9 @@ void ConnSSL_Free(CONNECTION *c)
 		SSL_shutdown(ssl);
 		SSL_free(ssl);
 		c->ssl_state.ssl = NULL;
+		/* SSL_shutdown() on a dead socket queues errors (e.g. EPIPE):
+		 * don't leave them for the next connection's SSL_get_error(). */
+		ERR_clear_error();
 	}
 #endif
 #ifdef HAVE_LIBGNUTLS
@@ -1264,6 +1267,8 @@ ConnSSL_Write(CONNECTION *c, const void *buf, size_t count)
 		return bw;
 	if (ConnSSL_HandleError( c, bw, "ConnSSL_Write") == 0)
 		errno = EAGAIN; /* try again */
+	else if (errno == EAGAIN || errno == EINTR)
+		errno = EIO; /* fatal: the caller must close, not retry */
 	return -1;
 }
 

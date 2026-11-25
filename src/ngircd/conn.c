@@ -1291,6 +1291,20 @@ Handle_Write( CONN_ID Idx )
 
 	wdatalen = array_bytes(&My_Connections[Idx].wbuf );
 
+#ifdef SSL_SUPPORT
+	if (Conn_OPTION_ISSET(&My_Connections[Idx], CONN_SSL_FAILED)) {
+		/* The TLS session failed and its state is gone: anything still
+		 * queued must be dropped, sending it would put cleartext on a
+		 * connection the peer expects to be encrypted. */
+		if (wdatalen > 0)
+			LogDebug("Discarding %lu bytes queued for connection %d after TLS error.",
+				 (unsigned long)wdatalen, Idx);
+		array_trunc(&My_Connections[Idx].wbuf);
+		io_event_del(My_Connections[Idx].sock, IO_WANTWRITE);
+		return true;
+	}
+#endif
+
 #ifdef ZLIB
 	if (wdatalen == 0) {
 		/* Write buffer is empty, so we try to flush the compression

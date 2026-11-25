@@ -869,6 +869,7 @@ ConnSSL_HandleError(CONNECTION * c, const int code, const char *fname)
 		Log(LOG_ERR, "Unknown SSL error %d [in %s()]!", ret, fname);
 	}
 	ConnSSL_Free(c);
+	Conn_OPTION_ADD(c, CONN_SSL_FAILED);
 	return -1;
 #endif
 #ifdef HAVE_LIBGNUTLS
@@ -891,6 +892,7 @@ ConnSSL_HandleError(CONNECTION * c, const int code, const char *fname)
 			LogDebug("SSL error: %s [%s].",
 				 gnutls_strerror(code), fname);
 			ConnSSL_Free(c);
+			Conn_OPTION_ADD(c, CONN_SSL_FAILED);
 			return -1;
 		}
 	}

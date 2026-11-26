@@ -1,0 +1,6 @@
+FROM debian:trixie-slim
+RUN apt-get update && apt-get install -y --no-install-recommends build-essential autoconf automake libssl-dev openssl zlib1g-dev pkg-config python3 ca-certificates && rm -rf /var/lib/apt/lists/*
+COPY src /src
+COPY docker/build.sh /build.sh
+RUN mkdir /build && /build.sh && rm -rf /build
+COPY ngircd.conf /conf/ngircd.conf

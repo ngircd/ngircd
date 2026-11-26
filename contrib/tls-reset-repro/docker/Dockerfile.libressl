@@ -1,0 +1,6 @@
+FROM alpine:3.22
+RUN apk add --no-cache build-base autoconf automake libressl-dev libressl zlib-dev pkgconf python3 openssl
+COPY src /src
+COPY docker/build.sh /build.sh
+RUN mkdir /build && /build.sh && rm -rf /build
+COPY ngircd.conf /conf/ngircd.conf

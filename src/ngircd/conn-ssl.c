@@ -1215,6 +1215,7 @@ ConnectAccept( CONNECTION *c, bool connect)
 	SSL *ssl = c->ssl_state.ssl;
 	assert(ssl != NULL);
 
+	ERR_clear_error();	/* see SSL_get_error(3) */
 	ret = connect ? SSL_connect(ssl) : SSL_accept(ssl);
 	if (1 != ret)
 		return ConnSSL_HandleError(c, ret, connect ? "SSL_connect": "SSL_accept");
@@ -1244,6 +1245,7 @@ ConnSSL_Write(CONNECTION *c, const void *buf, size_t count)
 
 	assert(count > 0);
 #ifdef HAVE_LIBSSL
+	ERR_clear_error();	/* see SSL_get_error(3) */
 	bw = (ssize_t) SSL_write(c->ssl_state.ssl, buf, count);
 #endif
 #ifdef HAVE_LIBGNUTLS
@@ -1264,7 +1266,8 @@ ConnSSL_Read(CONNECTION *c, void * buf, size_t count)
 
 	Conn_OPTION_DEL(c, CONN_SSL_WANT_WRITE|CONN_SSL_WANT_READ);
 #ifdef HAVE_LIBSSL
-        br = (ssize_t) SSL_read(c->ssl_state.ssl, buf, count);
+	ERR_clear_error();	/* see SSL_get_error(3) */
+	br = (ssize_t) SSL_read(c->ssl_state.ssl, buf, count);
 	if (br > 0)	/* on EOF we have to call ConnSSL_HandleError(), see SSL_read(3) */
 		return br;
 #endif

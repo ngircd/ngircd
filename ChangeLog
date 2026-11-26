@@ -10,6 +10,14 @@
 
 ngIRCd 29
 
+  - SSL: Clear the OpenSSL error queue before each SSL_accept(),
+    SSL_connect(), SSL_read(), and SSL_write() call, as SSL_get_error()
+    requires: errors left over from another connection, for example from
+    shutting down the SSL session of a client that reset its connection,
+    were reported for the next connection, whose write then failed, so
+    that this healthy connection was closed instead of being retried.
+    Thanks bludot for reporting this!
+    See #351.
   - Only accept hostnames from reverse DNS lookups that consist of letters,
     digits, "-", ".", and "_", and use the IP address otherwise: ngIRCd
     relied on the resolver library to reject other names, which glibc and

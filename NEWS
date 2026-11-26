@@ -8,7 +8,7 @@
 
                                   -- NEWS --
 
-ngIRCd 29
+ngIRCd 29 (2026-11-27)
 
   - Most of the bugs and fixes in this release came about because I was
     playing with Claude Code. The contribution guidelines moved to

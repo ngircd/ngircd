@@ -8,7 +8,7 @@
 
                                -- ChangeLog --
 
-ngIRCd 29
+ngIRCd 29 (2026-11-27)
 
   - SSL: Clear the OpenSSL error queue before each SSL_accept(),
     SSL_connect(), SSL_read(), and SSL_write() call, as SSL_get_error()

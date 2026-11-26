@@ -18,6 +18,7 @@ Or join the "#ngircd" channel in IRC on irc.barton.de:
 
 - 9pfs <hellosmile6@tilde.pink>
 - Ali Shemiran <ashemira@ucsd.edu>
+- Alvar Penning <post@0x21.biz>
 - anzz1 <anzz1@live.com>
 - Ask Bjørn Hansen <ask@develooper.com>
 - Benjamin Pineau <ben@zouh.org>
@@ -74,6 +75,7 @@ Or join the "#ngircd" channel in IRC on irc.barton.de:
 - Unit 193 <unit193@ubuntu.com>
 - Valentin Lorentz <progval+git@progval.net>
 - Val Lorentz <progval+git@progval.net>
+- Vincent Caron <vincent@zerodeux.net>
 - William Pitcock <nenolod@dereferenced.org>
 - Windree <57554809+Windree@users.noreply.github.com>
 - xnaas <8271327+xnaas@users.noreply.github.com>

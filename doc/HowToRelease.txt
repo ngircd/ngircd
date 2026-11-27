@@ -35,12 +35,9 @@ up-to-date (e.g. using ./autogen.sh) before generating the archives!
 II. How to prepare a new ngIRCd release?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-a) Make sure you have working versions of GNU autoconf and GNU automake
-   installed on the system you use for generating the release:
-   as of May 2020 we are using GNU autoconf 2.69 and GNU automake 1.11.6
-   which seem to work just fine.
-   NOTE: new releases of GNU automake DO NOT work, as they lack support for
-   the "ansi2knr" wrapper and "de-ANSI-fication" support!
+a) The distribution archives are built in a container using an old GNU
+   automake (see h), so no special autoconf/automake versions are required
+   on the system you use for preparing the release.
 
 b) Make sure the source tree is in a releasable state ;-)
     - Are all branches & patches merged? Check GitHub issues, pull requests
@@ -51,13 +48,15 @@ b) Make sure the source tree is in a releasable state ;-)
         | grep -Ev '(alex@barton.de|fw@strlen.de)' \
         | LC_ALL=de_DE.UTF-8 sort -u"
 
-c) Update the files describing the new release:
+c) Update the files describing the new release, including its date:
     - ChangeLog
     - NEWS
 
-d) Update the version numbers in the following files:
+d) Update the version numbers and dates in the following files:
     - contrib/de.barton.ngircd.metainfo.xml
     - contrib/ngircd.spec
+    - man/ngircd.8.tmpl
+    - man/ngircd.conf.5.tmpl
 
 e) Generate a new Debian change log entry in the following file, e.g. using
    the Debian "dch" tool of the "devscripts" package:
@@ -68,6 +67,11 @@ f) Commit the above changes to GIT: "git add", "git commit"
 g) Create a new signed GIT tag for the new release: "git tag -s".
    Please note that we don't use the tilde ("~") here, instead use a simple
    hyphen ("-") as delimiter: e.g. "rel-16" "rel-17-rc1", "rel-18-pre2", ...
+   The tag must be an annotated one (which signed tags are), as "git
+   describe" ignores lightweight tags when generating the version number.
+   Don't change the tagged commit afterwards (e.g. by rebasing or amending
+   it): if something still has to be fixed, delete the tag, fix it, and
+   create a new tag -- before anything is pushed or distributed!
 
 h) The ngIRCd distribution archives should still support "de-ANSI-fication"
    in the build environment. This was supported up to GNU automake 1.11, and
@@ -79,13 +83,30 @@ h) The ngIRCd distribution archives should still support "de-ANSI-fication"
    podman run --rm -v "$PWD":/src debian:bookworm-slim \
      /src/contrib/build-dist-archives.sh
 
+   The build runs in place and overwrites all generated files (./configure,
+   Makefiles, ...) in the source tree. "make distcheck" builds and tests the
+   archives, but doesn't notice files that are missing from them: therefore
+   the script lists all files tracked by GIT that are not distributed at the
+   end; make sure that only files like ".gitignore" show up there.
+
 i) Sign the distribution archives using GnuPG: "gpg -b <archivefile>"
 
-j) Upload and distribute the newly generated ngIRCd release archives
-   and GnuPG signatures (to the website, its mirrors, and GitHub).
+j) Push the release commit and the new tag to all GIT repositories, e.g.
+   "git push <remote> master rel-<NN>". This triggers the GitHub workflows
+   building and publishing the container images, check their results.
 
-k) Update the ngIRCd website and its mirrors!
+k) Upload and distribute the newly generated ngIRCd release archives
+   and GnuPG signatures (to the website, its mirrors, and GitHub):
+   publish a GitHub release for the new tag, with the release notes and
+   all archives and signatures attached, and mark it as "latest" (unless it
+   is a pre-release). Mention contributors using their GitHub "@" handles
+   in the release notes, then GitHub lists them on the release page.
 
-l) Write an announcement to the mailing list, Mastodon, ...
+l) Update the ngIRCd website and its mirrors!
 
-m) Relax :-)
+m) Write an announcement to the mailing list, Mastodon, ...
+
+n) Close the GitHub issues and pull requests fixed by the release, and the
+   milestone of the release, if any.
+
+o) Relax :-)

@@ -12,6 +12,7 @@
 SUBDIRS = doc src man contrib
 
 EXTRA_DIST = \
+	AGENTS.md \
 	AUTHORS.md \
 	CONTRIBUTING.md \
 	INSTALL.md \
@@ -20,6 +21,7 @@ EXTRA_DIST = \
 	configure.ng \
 	.clang_complete \
 	.dockerignore \
+	.editorconfig \
 	.mailmap
 
 clean-local:

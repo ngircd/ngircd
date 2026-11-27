@@ -50,3 +50,12 @@ make -j2 distcheck
 make dist-tarZ
 make dist-xz
 ls -hl ngircd-*.tar.*
+
+# "make distcheck" doesn't notice files that are missing from EXTRA_DIST and
+# friends, so list all files tracked by Git that are not distributed. Some
+# (like ".gitignore" or this script) are left out on purpose, check the rest!
+set +x
+export LC_ALL=C
+tar -tzf ngircd-*.tar.gz | sed -e 's|^[^/]*/||' | sort >/tmp/dist-files
+echo "Files tracked by Git but not included in the distribution archives:"
+git ls-files | sort | comm -23 - /tmp/dist-files

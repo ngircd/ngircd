@@ -206,6 +206,8 @@ ngIRCd 29
       "L" and "X".
     - Spell "hostname" consistently as one word, in the log messages and
       code comments, too.
+    - Include doc/QuickStart.md in the distribution archives, which was
+      missing since ngIRCd 27.
   - Add AGENTS.md with guidance for AI coding agents.
   - Don't crash when the "Modes" of a pre-defined channel trigger a reply,
     like an error message for a mode change of an unknown user ("+o nick")

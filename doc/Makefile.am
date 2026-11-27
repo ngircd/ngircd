@@ -28,6 +28,7 @@ static_docs = \
 	PAM.txt \
 	Platforms.txt \
 	Protocol.txt \
+	QuickStart.md \
 	README-AUX.txt \
 	README-BeOS.txt \
 	README-Interix.txt \
